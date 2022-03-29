@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>[%t, %d, %-5p, %C:%L, %X{Nav-Callid}] - %.-100000m%n</pattern>
+		</encoder>
+	</appender>
+
+	<root level="WARN">
+		<appender-ref ref="CONSOLE"/>
+	</root>
+
+	<logger name="no.nav.syfo" level="DEBUG"/>
+	<logger name="org.springframework" level="INFO"/>
+</configuration>

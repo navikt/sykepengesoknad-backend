@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="false" debug="false">
+
+	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>[%d, %-5p, %C:%L] - %msg %ex{5}%nopex%n</pattern>
+		</encoder>
+	</appender>
+
+	<root level="INFO">
+		<appender-ref ref="CONSOLE"/>
+	</root>
+
+	<logger name="no.nav.syfo" level="INFO"/>
+	<logger name="org.testcontainers" level="INFO"/>
+
+	<logger name="org" level="ERROR"/>
+	<logger name="springfox" level="ERROR"/>
+	<logger name="com" level="ERROR"/>
+	<logger name="io" level="ERROR"/>
+
+</configuration>

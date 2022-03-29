@@ -1,0 +1,127 @@
+AZURE_APP_PRE_AUTHORIZED_APPS: "[{\"name\":\"dev-gcp:flex:flex-fss-proxy\",\"clientId\":\"flex-fss-proxy-client-id\"},{\"name\":\"dev-gcp:teamsykefravr:syfomodiaperson\",\"clientId\":\"syfomodiaperson-client-id\"}]"
+
+syfotilgangskontroll.url: http://syfotilgang
+syfosmregister.url: http://syfosmregister
+flex.bucket.uploader.url: http://flex-bucket-uploader
+flex.syketilfelle.url: http://flex-syketilfelle
+
+
+no.nav.security.jwt:
+  issuer:
+    selvbetjening:
+      discoveryurl: http://localhost:${mock-oauth2-server.port}/selvbetjening/.well-known/openid-configuration
+      accepted_audience: loginservice-client-id
+    azureator:
+      discoveryurl: http://localhost:${mock-oauth2-server.port}/azureator/.well-known/openid-configuration
+      accepted_audience: syfosoknad-client-id
+  client:
+    registration:
+      flex-bucket-uploader-client-credentials:
+        token-endpoint-url: http://localhost:${mock-oauth2-server.port}/azureator/token
+        grant-type: client_credentials
+        scope: flex-bucket-uploader
+        authentication:
+          client-id: client-id
+          client-secret: secretzz
+          client-auth-method: client_secret_basic
+      pdl-api-client-credentials:
+        token-endpoint-url: http://localhost:${mock-oauth2-server.port}/azureator/token
+        grant-type: client_credentials
+        scope: pdl-api
+        authentication:
+          client-id: client-id
+          client-secret: secretzz
+          client-auth-method: client_secret_basic
+      narmesteleder-client-credentials:
+        token-endpoint-url: http://localhost:${mock-oauth2-server.port}/azureator/token
+        grant-type: client_credentials
+        scope: narmesteleder-client
+        authentication:
+          client-id: client-id
+          client-secret: secretzz
+          client-auth-method: client_secret_basic
+      syfosmregister-client-credentials:
+        token-endpoint-url: http://localhost:${mock-oauth2-server.port}/azureator/token
+        grant-type: client_credentials
+        scope: syfosmregister-client
+        authentication:
+          client-id: client-id
+          client-secret: secretzz
+          client-auth-method: client_secret_basic
+      flex-syketilfelle-client-credentials:
+        token-endpoint-url: http://localhost:${mock-oauth2-server.port}/azureator/token
+        grant-type: client_credentials
+        scope: flex-syketilfelle-client
+        authentication:
+          client-id: client-id
+          client-secret: secretzz
+          client-auth-method: client_secret_basic
+      onbehalfof-syfotilgangskontroll:
+        token-endpoint-url: http://localhost:${mock-oauth2-server.port}/azureator/token
+        grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
+        scope: syfotilgangskontroll-client
+        authentication:
+          client-id: client-id
+          client-secret: secretzz
+          client-auth-method: client_secret_basic
+
+nais.app.name: syfosoknad
+kafka-schema-registry.url: http://schema.url
+pdl.api.url: "http://pdl-api.pdl"
+narmesteleder.url: "http://narmesteleder"
+
+server:
+  port: 7070
+  servlet:
+    context-path: /syfosoknad
+
+serviceuser:
+  username: username
+  password: password
+
+syfosyketilfelleApi.url: http://localhost:8080
+
+javax.net.ssl:
+  trustStore: truststore
+  trustStorePassword: truststorepassword
+
+spring:
+  profiles:
+    active: test
+  datasource:
+    url: 'jdbc:h2:mem:testdb;MODE=Oracle'
+    driver-class-name: 'org.h2.Driver'
+    username: 'sa'
+    password:
+  kafka:
+    consumer:
+      group-id: syfosoknad-local
+      max-poll-records: 1
+      auto-offset-reset: latest
+      enable-auto-commit: false
+  cache.type: redis
+
+KAFKA_TRUSTSTORE_PATH: ""
+KAFKA_CREDSTORE_PASSWORD: ""
+KAFKA_SECURITY_PROTOCOL: "PLAINTEXT"
+KAFKA_KEYSTORE_PATH: ""
+
+management:
+  endpoint.prometheus.enabled: true
+  endpoints.web:
+    base-path: /internal
+    exposure.include: prometheus
+    path-mapping.prometheus: /prometheus
+
+
+nais:
+  app:
+    name: "syfosoknad"
+    image: "syfosoknad-test-12432536"
+
+elector.path: dont_look_for_leader
+julesoknad.cron: "0 6 * * * *"
+syfosoknad.cron: "0 6 * * * *"
+
+aiven-kafka:
+  auto-offset-reset: latest

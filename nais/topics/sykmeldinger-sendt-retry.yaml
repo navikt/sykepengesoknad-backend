@@ -1,0 +1,23 @@
+apiVersion: kafka.nais.io/v1
+kind: Topic
+metadata:
+  name: sykmeldinger-sendt-retry
+  namespace: flex
+  labels:
+    team: flex
+  annotations:
+    dcat.data.nav.no/title: "flex.sykmeldinger-sendt-retry"
+    dcat.data.nav.no/description: "Topic for rebehandling av sykmeldinger sendt"
+spec:
+  pool: {{kafkaPool}}
+  config:
+    cleanupPolicy: delete
+    minimumInSyncReplicas: 1
+    partitions: 3
+    replication: 3
+    retentionBytes: -1   # Messages will never get deleted because of disk space
+    retentionHours: 336  # 2 uker
+  acl:
+    - team: flex
+      application: syfosoknad
+      access: readwrite
