@@ -11,6 +11,7 @@ import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.GradertDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import no.nav.syfo.soknadsopprettelse.tilSoknadsperioder
+import no.nav.syfo.util.tilOsloInstant
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -32,7 +33,7 @@ class BehandlingsdagerKtTest {
         arbeidsgiverOrgnummer = "123456789",
         arbeidsgiverNavn = "ARBEIDSGIVER A/S",
         sykmeldingId = "sykmeldingId",
-        sykmeldingSkrevet = LocalDateTime.now().minusMonths(1),
+        sykmeldingSkrevet = LocalDateTime.now().minusMonths(1).tilOsloInstant(),
         sykmeldingsperioder = listOf(
             SykmeldingsperiodeAGDTO(
                 LocalDate.of(2019, 12, 5).minusMonths(1),

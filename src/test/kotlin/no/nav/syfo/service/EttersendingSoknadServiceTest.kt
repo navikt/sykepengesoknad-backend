@@ -17,6 +17,7 @@ import no.nav.syfo.soknadsopprettelse.settOppSoknadArbeidstaker
 import no.nav.syfo.soknadsopprettelse.settOppSykepengesoknadBehandlingsdager
 import no.nav.syfo.soknadsopprettelse.tilSoknadsperioder
 import no.nav.syfo.util.Metrikk
+import no.nav.syfo.util.tilOsloInstant
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
@@ -26,6 +27,7 @@ import org.mockito.ArgumentMatchers.anyString
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -48,10 +50,10 @@ class EttersendingSoknadServiceTest {
     fun ettersendTilNavOppdatererSendtNavOgSender() {
         val soknadBehandlingsdager = behandlingsdagerSoknadMock().copy(
             id = "behandlingsdagerId",
-            sendtArbeidsgiver = LocalDateTime.now().minusHours(4)
+            sendtArbeidsgiver = LocalDateTime.now().minusHours(4).tilOsloInstant()
         )
         val soknadArbeidstaker =
-            arbeidstakereSoknadMock().copy(id = "arbeidstakerId", sendtArbeidsgiver = LocalDateTime.now().minusHours(4))
+            arbeidstakereSoknadMock().copy(id = "arbeidstakerId", sendtArbeidsgiver = LocalDateTime.now().minusHours(4).tilOsloInstant())
 
         whenever(sykepengesoknadDAO.finnSykepengesoknad("behandlingsdagerId")).thenReturn(soknadBehandlingsdager)
         whenever(sykepengesoknadDAO.finnSykepengesoknad("arbeidstakerId")).thenReturn(soknadArbeidstaker)
@@ -89,8 +91,8 @@ class EttersendingSoknadServiceTest {
 
     @Test
     fun ettersendTilNAVGjorIngentingHvisSoknadAlleredeErSendtTilNav() {
-        val soknadBehandlingsdager = behandlingsdagerSoknadMock().copy(sendtNav = LocalDateTime.now().minusHours(4))
-        val soknadArbeidstaker = arbeidstakereSoknadMock().copy(sendtNav = LocalDateTime.now().minusHours(4))
+        val soknadBehandlingsdager = behandlingsdagerSoknadMock().copy(sendtNav = LocalDateTime.now().minusHours(4).tilOsloInstant())
+        val soknadArbeidstaker = arbeidstakereSoknadMock().copy(sendtNav = LocalDateTime.now().minusHours(4).tilOsloInstant())
 
         ettersendingSoknadService.ettersendTilNav(soknadBehandlingsdager)
         ettersendingSoknadService.ettersendTilNav(soknadArbeidstaker)
@@ -125,9 +127,9 @@ class EttersendingSoknadServiceTest {
     @Test
     fun ettersendTilArbeidsgiverOppdatererSendtAGOgSender() {
         val soknadBehandlingsdager =
-            behandlingsdagerSoknadMock().copy(id = "behandlingsdagerId", sendtNav = LocalDateTime.now().minusHours(4))
+            behandlingsdagerSoknadMock().copy(id = "behandlingsdagerId", sendtNav = LocalDateTime.now().minusHours(4).tilOsloInstant())
         val soknadArbeidstaker =
-            arbeidstakereSoknadMock().copy(id = "arbeidstakerId", sendtNav = LocalDateTime.now().minusHours(4))
+            arbeidstakereSoknadMock().copy(id = "arbeidstakerId", sendtNav = LocalDateTime.now().minusHours(4).tilOsloInstant())
 
         whenever(sykepengesoknadDAO.finnSykepengesoknad("behandlingsdagerId")).thenReturn(soknadBehandlingsdager)
         whenever(sykepengesoknadDAO.finnSykepengesoknad("arbeidstakerId")).thenReturn(soknadBehandlingsdager)
@@ -168,10 +170,10 @@ class EttersendingSoknadServiceTest {
     fun ettersendTilArbeidsgiverGjorIngentingHvisSoknadAlleredeErSendtTilArbeidsgiver() {
         val soknadBehandlingsdager = behandlingsdagerSoknadMock().copy(
             id = "arbeidstakerId",
-            sendtArbeidsgiver = LocalDateTime.now().minusHours(4)
+            sendtArbeidsgiver = LocalDateTime.now().minusHours(4).tilOsloInstant()
         )
         val soknadArbeidstaker =
-            arbeidstakereSoknadMock().copy(id = "arbeidstakerId", sendtArbeidsgiver = LocalDateTime.now().minusHours(4))
+            arbeidstakereSoknadMock().copy(id = "arbeidstakerId", sendtArbeidsgiver = LocalDateTime.now().minusHours(4).tilOsloInstant())
 
         ettersendingSoknadService.ettersendTilArbeidsgiver(soknadBehandlingsdager)
         ettersendingSoknadService.ettersendTilArbeidsgiver(soknadArbeidstaker)
@@ -185,7 +187,7 @@ class EttersendingSoknadServiceTest {
             arbeidsgiverOrgnummer = "123456789",
             arbeidsgiverNavn = "Bedrift AS",
             startSykeforlop = LocalDate.now(),
-            sykmeldingSkrevet = LocalDateTime.now(),
+            sykmeldingSkrevet = Instant.now(),
             arbeidssituasjon = ARBEIDSTAKER,
             sykmeldingsperioder = listOf(
                 SykmeldingsperiodeAGDTO(
@@ -214,7 +216,7 @@ class EttersendingSoknadServiceTest {
             arbeidsgiverOrgnummer = "123456789",
             arbeidsgiverNavn = "Bedrift AS",
             startSykeforlop = LocalDate.now(),
-            sykmeldingSkrevet = LocalDateTime.now(),
+            sykmeldingSkrevet = Instant.now(),
             arbeidssituasjon = ARBEIDSTAKER,
             sykmeldingsperioder = listOf(
                 SykmeldingsperiodeAGDTO(

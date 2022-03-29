@@ -10,8 +10,8 @@ import no.nav.syfo.soknadsopprettelse.sporsmal.ansvarserklaringSporsmal
 import no.nav.syfo.soknadsopprettelse.sporsmal.bekreftOpplysningerSporsmal
 import no.nav.syfo.soknadsopprettelse.sporsmal.vaerKlarOverAtReisetilskudd
 import no.nav.syfo.util.DatoUtil.formatterPeriode
+import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
 fun skapReisetilskuddsoknad(
@@ -25,7 +25,7 @@ fun skapReisetilskuddsoknad(
         status = soknadMetadata.status,
         fom = soknadMetadata.fom,
         tom = soknadMetadata.tom,
-        opprettet = LocalDateTime.now(),
+        opprettet = Instant.now(),
         startSykeforlop = soknadMetadata.startSykeforlop,
         sykmeldingSkrevet = soknadMetadata.sykmeldingSkrevet,
         arbeidsgiverOrgnummer = soknadMetadata.arbeidsgiverOrgnummer,

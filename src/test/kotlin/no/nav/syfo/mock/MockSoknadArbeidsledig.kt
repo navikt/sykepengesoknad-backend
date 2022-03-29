@@ -12,6 +12,7 @@ import no.nav.syfo.model.sykmelding.model.GradertDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import no.nav.syfo.soknadsopprettelse.*
 import no.nav.syfo.testutil.besvarsporsmal
+import no.nav.syfo.util.tilOsloInstant
 import java.time.LocalDate.now
 import java.time.LocalDateTime
 
@@ -27,7 +28,7 @@ fun opprettNySoknad(): Sykepengesoknad {
         arbeidsgiverNavn = null,
         arbeidsgiverOrgnummer = null,
         sykmeldingId = "289148ba-4c3c-4b3f-b7a3-385b7e7c927d",
-        sykmeldingSkrevet = LocalDateTime.now().minusDays(19),
+        sykmeldingSkrevet = LocalDateTime.now().minusDays(19).tilOsloInstant(),
         sykmeldingsperioder = listOf(
             SykmeldingsperiodeAGDTO(
                 fom = now().minusDays(19),

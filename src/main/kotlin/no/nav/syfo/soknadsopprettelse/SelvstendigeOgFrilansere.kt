@@ -17,6 +17,7 @@ import no.nav.syfo.soknadsopprettelse.sporsmal.*
 import no.nav.syfo.soknadsopprettelse.undersporsmal.jobbetDuUndersporsmal
 import no.nav.syfo.util.DatoUtil.formatterDato
 import no.nav.syfo.util.DatoUtil.formatterPeriode
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime.now
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
@@ -54,7 +55,7 @@ fun settOppSoknadSelvstendigOgFrilanser(
         status = soknadMetadata.status,
         fom = soknadMetadata.fom,
         tom = soknadMetadata.tom,
-        opprettet = now(),
+        opprettet = Instant.now(),
         startSykeforlop = soknadMetadata.startSykeforlop,
         sykmeldingSkrevet = soknadMetadata.sykmeldingSkrevet,
         sykmeldingId = soknadMetadata.sykmeldingId,

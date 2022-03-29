@@ -35,9 +35,6 @@ class CacheConfig {
         cacheConfigurations["forskuttering-narmesteleder"] = RedisCacheConfiguration
             .defaultCacheConfig()
             .entryTtl(Duration.ofSeconds(narmestelederTtl))
-        cacheConfigurations["aktor-for-fnr"] = RedisCacheConfiguration
-            .defaultCacheConfig()
-            .entryTtl(Duration.ofSeconds(3600L))
         cacheConfigurations["folkeregister-identer-med-historikk"] = RedisCacheConfiguration
             .defaultCacheConfig()
             .entryTtl(Duration.ofSeconds(3600L))

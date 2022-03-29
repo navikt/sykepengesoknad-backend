@@ -25,15 +25,6 @@ class IdentService(private val pdlClient: PdlClient) {
         )
     }
 
-    fun hentFolkeregisterIdenterMedHistorikkForAktorid(aktorid: String): List<String> {
-        return pdlClient.hentIdenterMedHistorikk(aktorid).folkeregisteridenter()
-    }
-
-    @Cacheable("aktor-for-fnr")
-    fun hentAktorIdForFnr(fnr: String): String {
-        return pdlClient.hentPerson(fnr).aktorId()
-    }
-
     private fun ResponseData.aktorId(): String {
         return this.hentIdenter?.identer?.find { it.gruppe == AKTORID }?.ident
             ?: throw RuntimeException("Kunne ikke finne aktørid i pdl response")

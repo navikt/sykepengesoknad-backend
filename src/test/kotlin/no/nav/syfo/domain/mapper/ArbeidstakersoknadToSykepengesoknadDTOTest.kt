@@ -11,6 +11,7 @@ import no.nav.syfo.mock.gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUnders
 import no.nav.syfo.mock.opprettSendtSoknad
 import no.nav.syfo.soknadsopprettelse.*
 import no.nav.syfo.testutil.besvarsporsmal
+import no.nav.syfo.util.tilOsloLocalDateTime
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
@@ -74,9 +75,9 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
         assertThat(soknad.fom).isEqualTo(sykepengesoknad.fom)
         assertThat(soknad.tom).isEqualTo(sykepengesoknad.tom)
         assertThat(soknad.startSyketilfelle).isEqualTo(sykepengesoknad.startSykeforlop)
-        assertThat(soknad.sykmeldingSkrevet).isEqualTo(sykepengesoknad.sykmeldingSkrevet)
-        assertThat(soknad.opprettet).isEqualTo(sykepengesoknad.opprettet)
-        assertThat(soknad.sendtNav).isEqualTo(sykepengesoknad.sendtNav)
+        assertThat(soknad.sykmeldingSkrevet).isEqualTo(sykepengesoknad.sykmeldingSkrevet?.tilOsloLocalDateTime())
+        assertThat(soknad.opprettet).isEqualTo(sykepengesoknad.opprettet?.tilOsloLocalDateTime())
+        assertThat(soknad.sendtNav).isEqualTo(sykepengesoknad.sendtNav?.tilOsloLocalDateTime())
         assertThat(soknad.ettersending).isFalse()
         assertThat(soknad.mottaker).isEqualTo(MottakerDTO.ARBEIDSGIVER_OG_NAV)
     }

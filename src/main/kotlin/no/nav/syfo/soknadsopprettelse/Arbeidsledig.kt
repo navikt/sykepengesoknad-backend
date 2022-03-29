@@ -14,6 +14,7 @@ import no.nav.syfo.soknadsopprettelse.sporsmal.permittertPeriodeSporsmal
 import no.nav.syfo.soknadsopprettelse.sporsmal.utdanningsSporsmal
 import no.nav.syfo.soknadsopprettelse.sporsmal.utenlandsoppholdArbeidsledigAnnetSporsmal
 import no.nav.syfo.soknadsopprettelse.sporsmal.vaerKlarOverAt
+import java.time.Instant
 import java.time.LocalDateTime.now
 
 fun settOppSoknadArbeidsledig(soknadMetadata: SoknadMetadata, erForsteSoknadISykeforlop: Boolean): Sykepengesoknad {
@@ -46,7 +47,7 @@ fun settOppSoknadArbeidsledig(soknadMetadata: SoknadMetadata, erForsteSoknadISyk
         status = soknadMetadata.status,
         fom = soknadMetadata.fom,
         tom = soknadMetadata.tom,
-        opprettet = now(),
+        opprettet = Instant.now(),
         sykmeldingId = soknadMetadata.sykmeldingId,
         sykmeldingSkrevet = soknadMetadata.sykmeldingSkrevet,
         startSykeforlop = soknadMetadata.startSykeforlop,

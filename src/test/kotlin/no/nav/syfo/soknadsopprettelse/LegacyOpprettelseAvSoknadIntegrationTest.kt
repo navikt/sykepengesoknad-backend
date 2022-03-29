@@ -14,6 +14,7 @@ import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import no.nav.syfo.repository.SykepengesoknadDAO
 import no.nav.syfo.testutil.opprettSoknadFraSoknadMetadata
 import no.nav.syfo.tilSoknader
+import no.nav.syfo.util.tilOsloInstant
 import no.nav.syfo.ventPåRecords
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -48,7 +49,7 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
             arbeidsgiverOrgnummer = "123456789",
             arbeidsgiverNavn = "Bedrift AS",
             startSykeforlop = LocalDate.of(2018, 1, 1),
-            sykmeldingSkrevet = LocalDateTime.of(2018, 1, 1, 12, 0),
+            sykmeldingSkrevet = LocalDateTime.of(2018, 1, 1, 12, 0).tilOsloInstant(),
             soknadstype = Soknadstype.ARBEIDSTAKERE,
             arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
             sykmeldingsperioder = listOf(
@@ -101,7 +102,7 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
             arbeidsgiverOrgnummer = "123456789",
             arbeidsgiverNavn = "Bedrift AS",
             startSykeforlop = LocalDate.of(2018, 1, 1),
-            sykmeldingSkrevet = LocalDateTime.of(2018, 1, 1, 12, 0),
+            sykmeldingSkrevet = LocalDateTime.of(2018, 1, 1, 12, 0).tilOsloInstant(),
             arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
             sykmeldingsperioder = listOf(
                 SykmeldingsperiodeAGDTO(
@@ -153,7 +154,7 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
             arbeidsgiverOrgnummer = "123456789",
             arbeidsgiverNavn = "Bedrift AS",
             startSykeforlop = LocalDate.of(2018, 1, 1),
-            sykmeldingSkrevet = LocalDateTime.of(2018, 1, 1, 12, 0),
+            sykmeldingSkrevet = LocalDateTime.of(2018, 1, 1, 12, 0).tilOsloInstant(),
             arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
             sykmeldingsperioder = listOf(
                 SykmeldingsperiodeAGDTO(
@@ -201,7 +202,7 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
             arbeidsgiverOrgnummer = "123456789",
             arbeidsgiverNavn = "Bedrift AS",
             startSykeforlop = LocalDate.of(2018, 1, 1),
-            sykmeldingSkrevet = LocalDateTime.of(2018, 1, 1, 12, 0),
+            sykmeldingSkrevet = LocalDateTime.of(2018, 1, 1, 12, 0).tilOsloInstant(),
             arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
             sykmeldingsperioder = listOf(
                 SykmeldingsperiodeAGDTO(
@@ -250,7 +251,7 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
             arbeidsgiverOrgnummer = "123456789",
             arbeidsgiverNavn = "Bedrift AS",
             startSykeforlop = LocalDate.of(2018, 1, 1),
-            sykmeldingSkrevet = LocalDateTime.of(2018, 1, 1, 12, 0),
+            sykmeldingSkrevet = LocalDateTime.of(2018, 1, 1, 12, 0).tilOsloInstant(),
             arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
             sykmeldingsperioder = listOf(
                 SykmeldingsperiodeAGDTO(
@@ -298,7 +299,7 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
             arbeidsgiverOrgnummer = null,
             arbeidsgiverNavn = null,
             startSykeforlop = LocalDate.of(2018, 1, 1),
-            sykmeldingSkrevet = LocalDateTime.of(2018, 1, 1, 12, 0),
+            sykmeldingSkrevet = LocalDateTime.of(2018, 1, 1, 12, 0).tilOsloInstant(),
             arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
             sykmeldingsperioder = listOf(
                 SykmeldingsperiodeAGDTO(
@@ -349,7 +350,7 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
             arbeidsgiverOrgnummer = "123456789",
             arbeidsgiverNavn = "Bedrift AS",
             startSykeforlop = LocalDate.of(2018, 1, 1),
-            sykmeldingSkrevet = LocalDateTime.of(2018, 1, 1, 12, 0),
+            sykmeldingSkrevet = LocalDateTime.of(2018, 1, 1, 12, 0).tilOsloInstant(),
             arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
             sykmeldingsperioder = listOf(
                 SykmeldingsperiodeAGDTO(
@@ -384,7 +385,7 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
             arbeidsgiverOrgnummer = "123456789",
             arbeidsgiverNavn = "Bedrift AS",
             startSykeforlop = LocalDate.of(2018, 1, 1),
-            sykmeldingSkrevet = LocalDateTime.of(2018, 1, 1, 12, 0),
+            sykmeldingSkrevet = LocalDateTime.of(2018, 1, 1, 12, 0).tilOsloInstant(),
             arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
             sykmeldingsperioder = listOf(
                 SykmeldingsperiodeAGDTO(

@@ -14,6 +14,7 @@ import no.nav.syfo.repository.SykepengesoknadDAO
 import no.nav.syfo.soknadsopprettelse.*
 import no.nav.syfo.soknadsopprettelse.OpprettSoknadService
 import no.nav.syfo.testutil.opprettSoknadFraSoknadMetadata
+import no.nav.syfo.util.tilOsloInstant
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
@@ -39,7 +40,7 @@ class VeilederOboIntegrationTest : BaseTestClass() {
 
     private val soknadMetadata = SoknadMetadata(
         startSykeforlop = LocalDate.of(2018, 1, 1),
-        sykmeldingSkrevet = LocalDateTime.of(2018, 1, 1, 12, 0),
+        sykmeldingSkrevet = LocalDateTime.of(2018, 1, 1, 12, 0).tilOsloInstant(),
         arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
         sykmeldingsperioder = listOf(
             SykmeldingsperiodeAGDTO(

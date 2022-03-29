@@ -16,10 +16,4 @@ class IdentServiceTest : BaseTestClass() {
         responseData.andreIdenter `should be equal to` listOf("11111111111", "21111111111")
         responseData.originalIdent `should be equal to` "31111111111"
     }
-
-    @Test
-    fun `Vi tester hent for aktor`() {
-        val responseData = identService.hentFolkeregisterIdenterMedHistorikkForAktorid("31111111111")
-        responseData `should be equal to` listOf("31111111111", "11111111111", "21111111111")
-    }
 }

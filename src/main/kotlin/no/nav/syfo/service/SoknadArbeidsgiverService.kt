@@ -7,7 +7,6 @@ import no.nav.syfo.domain.Soknadstatus
 import no.nav.syfo.domain.Sykepengesoknad
 import no.nav.syfo.domain.soknadarbeidsgiver.SoknadArbeidsgiverRespons
 import no.nav.syfo.domain.soknadarbeidsgiver.Soknadrelasjon
-import no.nav.syfo.logger
 import no.nav.syfo.repository.SykepengesoknadDAO
 import no.nav.syfo.soknadsopprettelse.ANDRE_INNTEKTSKILDER
 import no.nav.syfo.soknadsopprettelse.ARBEID_UTENFOR_NORGE
@@ -16,12 +15,9 @@ import java.util.Collections.emptyList
 
 @Service
 class SoknadArbeidsgiverService(
-    private val identService: IdentService,
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val narmesteLederClient: NarmesteLederClient,
 ) {
-
-    private val log = logger()
 
     fun hentSoknader(fnr: String, orgnummer: String?): SoknadArbeidsgiverRespons {
         val narmesteLederRelasjoner = narmesteLederClient.hentRelasjonerForNarmesteleder(fnr)

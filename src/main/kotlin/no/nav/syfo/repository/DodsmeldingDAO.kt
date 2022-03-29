@@ -1,6 +1,7 @@
 package no.nav.syfo.repository
 
 import no.nav.syfo.config.EnvironmentToggles
+import no.nav.syfo.service.FolkeregisterIdenter
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 import java.time.LocalDate.now
+import java.time.OffsetDateTime
 
 @Service
 @Transactional
@@ -17,9 +19,9 @@ class DodsmeldingDAO(
     private val toggle: EnvironmentToggles,
 ) {
 
-    data class Dodsfall(val aktorId: String, val dodsdato: LocalDate)
+    data class Dodsfall(val fnr: String, val dodsdato: LocalDate)
 
-    fun aktorIderMedToUkerGammelDodsmelding(): List<Dodsfall> {
+    fun fnrMedToUkerGammelDodsmelding(): List<Dodsfall> {
         val mottattFør = if (toggle.isProduction()) {
             now().minusWeeks(2)
         } else {
@@ -28,62 +30,62 @@ class DodsmeldingDAO(
 
         return namedParameterJdbcTemplate.query(
             """
-                    SELECT AKTOR_ID, DODSDATO FROM DODSMELDING
+                    SELECT FNR, DODSDATO FROM DODSMELDING
                     WHERE MELDING_MOTTATT_DATO < :mottattFor
                     """,
             MapSqlParameterSource()
                 .addValue("mottattFor", mottattFør)
         ) { resultSet, _ ->
             Dodsfall(
-                aktorId = resultSet.getString("AKTOR_ID"),
+                fnr = resultSet.getString("FNR"),
                 dodsdato = resultSet.getDate("DODSDATO").toLocalDate()
             )
         }
     }
 
-    fun harDodsmelding(aktorId: String): Boolean {
+    fun harDodsmelding(identer: FolkeregisterIdenter): Boolean {
         return namedParameterJdbcTemplate.queryForObject(
             """
                 SELECT COUNT(1) FROM DODSMELDING 
-                WHERE AKTOR_ID = :aktorId
+                WHERE FNR IN (:identer)
             """,
 
             MapSqlParameterSource()
-                .addValue("aktorId", aktorId),
+                .addValue("identer", identer.alle()),
 
             Integer::class.java
         )?.toInt() == 1
     }
 
-    fun oppdaterDodsdato(aktorId: String, dodsdato: LocalDate) {
+    fun oppdaterDodsdato(identer: FolkeregisterIdenter, dodsdato: LocalDate) {
         namedParameterJdbcTemplate.update(
             """UPDATE DODSMELDING 
             SET DODSDATO = :dodsdato
-            WHERE AKTOR_ID = :aktorId""",
+            WHERE FNR IN (:identer) """,
             MapSqlParameterSource()
-                .addValue("aktorId", aktorId)
+                .addValue("identer", identer.alle())
                 .addValue("dodsdato", dodsdato)
         )
     }
 
-    fun lagreDodsmelding(aktorId: String, dodsdato: LocalDate, meldingMottattDato: LocalDate = now()) {
+    fun lagreDodsmelding(identer: FolkeregisterIdenter, dodsdato: LocalDate, meldingMottattDato: OffsetDateTime = OffsetDateTime.now()) {
         namedParameterJdbcTemplate.update(
             """INSERT INTO DODSMELDING (
-            DODSMELDING_ID, AKTOR_ID, DODSDATO, MELDING_MOTTATT_DATO)
+            FNR, DODSDATO, MELDING_MOTTATT_DATO)
             VALUES (
-            DODSMELDING_ID_SEQ.NEXTVAL, :aktorId, :dodsdato, :meldingMottattDato)""",
+             :fnr, :dodsdato, :meldingMottattDato)""",
             MapSqlParameterSource()
-                .addValue("aktorId", aktorId)
+                .addValue("fnr", identer.originalIdent)
                 .addValue("dodsdato", dodsdato)
                 .addValue("meldingMottattDato", meldingMottattDato)
         )
     }
 
-    fun slettDodsmelding(aktorId: String) {
+    fun slettDodsmelding(identer: FolkeregisterIdenter) {
         namedParameterJdbcTemplate.update(
-            "DELETE FROM DODSMELDING WHERE AKTOR_ID = :aktorId",
+            "DELETE FROM DODSMELDING WHERE FNR IN (:identer)",
             MapSqlParameterSource()
-                .addValue("aktorId", aktorId)
+                .addValue("identer", identer.alle())
         )
     }
 }

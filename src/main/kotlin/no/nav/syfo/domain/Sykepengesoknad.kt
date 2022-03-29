@@ -1,8 +1,8 @@
 package no.nav.syfo.domain
 
 import java.io.Serializable
+import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.*
 
 data class Sykepengesoknad(
@@ -10,9 +10,9 @@ data class Sykepengesoknad(
     val fnr: String,
     val soknadstype: Soknadstype,
     val status: Soknadstatus,
-    val opprettet: LocalDateTime?,
+    val opprettet: Instant?,
     val avbruttDato: LocalDate? = null,
-    val sendtNav: LocalDateTime? = null,
+    val sendtNav: Instant? = null,
     val korrigerer: String? = null,
     val korrigertAv: String? = null,
     val sporsmal: List<Sporsmal>,
@@ -22,10 +22,9 @@ data class Sykepengesoknad(
     val fom: LocalDate?,
     val tom: LocalDate?,
     val startSykeforlop: LocalDate?,
-    val sykmeldingSkrevet: LocalDateTime?,
+    val sykmeldingSkrevet: Instant?,
     val soknadPerioder: List<Soknadsperiode>?,
-    val sendtArbeidsgiver: LocalDateTime? = null,
-    val arbeidsgiverForskutterer: ArbeidsgiverForskutterer? = null,
+    val sendtArbeidsgiver: Instant? = null,
     val arbeidsgiverOrgnummer: String? = null,
     val arbeidsgiverNavn: String? = null,
     val arbeidssituasjon: Arbeidssituasjon?,

@@ -81,7 +81,7 @@ class AvbruttSoknadIncidentTest : BaseTestClass() {
         val soknader = hentSoknader(fnr)
 
         namedParameterJdbcTemplate.update(
-            """UPDATE SYKEPENGESOKNAD SET AVBRUTT_FEILINFO = 'J' WHERE SYKEPENGESOKNAD_UUID = :sykepengesoknadId""",
+            """UPDATE SYKEPENGESOKNAD SET AVBRUTT_FEILINFO = true WHERE SYKEPENGESOKNAD_UUID = :sykepengesoknadId""",
 
             MapSqlParameterSource()
                 .addValue("sykepengesoknadId", soknader.first().id)

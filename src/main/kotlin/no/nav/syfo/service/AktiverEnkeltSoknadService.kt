@@ -10,8 +10,8 @@ import no.nav.syfo.repository.SykepengesoknadDAO
 import no.nav.syfo.soknadsopprettelse.genererSykepengesoknadFraMetadata
 import org.slf4j.MDC
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.util.*
-import javax.transaction.Transactional
 
 @Service
 @Transactional

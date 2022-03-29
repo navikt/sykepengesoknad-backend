@@ -13,12 +13,12 @@ import no.nav.syfo.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.GradertDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
-import no.nav.syfo.repository.SykepengesoknadDAO
 import no.nav.syfo.soknadsopprettelse.OpprettSoknadService
 import no.nav.syfo.soknadsopprettelse.genererSykepengesoknadFraMetadata
 import no.nav.syfo.soknadsopprettelse.sorterSporsmal
 import no.nav.syfo.soknadsopprettelse.tilSoknadsperioder
 import no.nav.syfo.util.OBJECT_MAPPER
+import no.nav.syfo.util.tilOsloInstant
 import org.amshove.kluent.shouldBeEqualTo
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -33,9 +33,6 @@ import java.time.temporal.ChronoUnit.SECONDS
 import java.util.*
 
 class SoknadKafkaFormatControllerTest : BaseTestClass() {
-
-    @Autowired
-    private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
 
     @Autowired
     private lateinit var opprettSoknadService: OpprettSoknadService
@@ -58,7 +55,7 @@ class SoknadKafkaFormatControllerTest : BaseTestClass() {
                 arbeidsgiverOrgnummer = "987654321",
                 arbeidsgiverNavn = "ARBEIDSGIVER A/S",
                 sykmeldingId = "14e78e84-50a5-45bb-9919-191c54f99691",
-                sykmeldingSkrevet = LocalDateTime.now().minusMonths(1),
+                sykmeldingSkrevet = LocalDateTime.now().minusMonths(1).tilOsloInstant(),
                 sykmeldingsperioder = listOf(
                     SykmeldingsperiodeAGDTO(
                         fom = LocalDate.now().minusMonths(1),
@@ -91,18 +88,18 @@ class SoknadKafkaFormatControllerTest : BaseTestClass() {
             )
             .andExpect(MockMvcResultMatchers.status().isOk).andReturn()
 
-        val actual = OBJECT_MAPPER.readValue<SykepengesoknadDTO>(result.response.contentAsString)
+        val fraRest = OBJECT_MAPPER.readValue<SykepengesoknadDTO>(result.response.contentAsString)
 
-        assertThat(actual.fnr).isEqualTo(soknad.fnr)
+        assertThat(fraRest.fnr).isEqualTo(soknad.fnr)
 
-        val soknaden = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().last()
+        val fraKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().last()
 
         fun SykepengesoknadDTO.fjernMs(): SykepengesoknadDTO = this.copy(
             opprettet = opprettet?.truncatedTo(SECONDS),
             sykmeldingSkrevet = sykmeldingSkrevet?.truncatedTo(SECONDS)
         )
 
-        actual.fjernMs().shouldBeEqualTo(soknaden.fjernMs())
+        fraRest.fjernMs().shouldBeEqualTo(fraKafka.fjernMs())
     }
 
     @Test

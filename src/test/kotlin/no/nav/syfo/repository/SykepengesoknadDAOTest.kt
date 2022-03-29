@@ -14,12 +14,14 @@ import no.nav.syfo.soknadsopprettelse.FRAVAR_FOR_SYKMELDINGEN
 import no.nav.syfo.soknadsopprettelse.FRAVAR_FOR_SYKMELDINGEN_NAR
 import no.nav.syfo.soknadsopprettelse.UTLAND
 import no.nav.syfo.soknadsopprettelse.UTLAND_NAR
+import no.nav.syfo.util.tilOsloLocalDateTime
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.JdbcTemplate
+import java.time.Instant
 import java.time.LocalDateTime
 import java.util.*
 import java.util.Arrays.asList
@@ -187,7 +189,7 @@ class SykepengesoknadDAOTest : BaseTestClass() {
         sykepengesoknadDAO.settSendtNav(id, LocalDateTime.now())
 
         val (_, _, _, _, _, _, sendtNav) = sykepengesoknadDAO.finnSykepengesoknad(uuid)
-        assertThat(sendtNav).isEqualToIgnoringSeconds(LocalDateTime.now())
+        assertThat(sendtNav!!.tilOsloLocalDateTime()).isEqualToIgnoringSeconds(Instant.now().tilOsloLocalDateTime())
     }
 
     @Test
@@ -199,7 +201,7 @@ class SykepengesoknadDAOTest : BaseTestClass() {
         sykepengesoknadDAO.settSendtAg(id, LocalDateTime.now())
 
         val (_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, sendtArbeidsgiver) = sykepengesoknadDAO.finnSykepengesoknad(uuid)
-        assertThat(sendtArbeidsgiver).isEqualToIgnoringSeconds(LocalDateTime.now())
+        assertThat(sendtArbeidsgiver!!.tilOsloLocalDateTime()).isEqualToIgnoringSeconds(Instant.now().tilOsloLocalDateTime())
     }
 
     @Test

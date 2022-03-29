@@ -7,6 +7,7 @@ import no.nav.syfo.kafka.getSafeNavCallIdHeaderAsString
 import no.nav.syfo.logger
 import no.nav.syfo.repository.DodsmeldingDAO
 import no.nav.syfo.repository.SykepengesoknadDAO
+import no.nav.syfo.service.FolkeregisterIdenter
 import no.nav.syfo.service.IdentService
 import no.nav.syfo.util.Metrikk
 import org.apache.avro.generic.GenericData
@@ -44,26 +45,26 @@ class DodsfallConsumer(
         val personhendelse = cr.value()
         metrikk.personHendelseMottatt()
         try {
-            val aktorId = personhendelse.hentAktorId()
+            val fnr = personhendelse.hentFnr()
 
             if (personhendelse.erDodsfall()) {
                 metrikk.dodsfallMottatt()
-                val identer = identService.hentFolkeregisterIdenterMedHistorikkForAktorid(aktorId)
+                val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(fnr)
                 if (harUutfylteSoknader(identer)) {
                     when (personhendelse.hentEndringstype()) {
                         OPPRETTET, KORRIGERT -> {
                             val dodsdato = personhendelse.hentDodsdato()
-                            if (dodsmeldingDAO.harDodsmelding(aktorId)) {
-                                logger().info("Oppdaterer dodsdato for $aktorId")
-                                dodsmeldingDAO.oppdaterDodsdato(aktorId, dodsdato)
+                            if (dodsmeldingDAO.harDodsmelding(identer)) {
+                                logger().info("Oppdaterer dodsdato")
+                                dodsmeldingDAO.oppdaterDodsdato(identer, dodsdato)
                             } else {
-                                logger().info("Lagrer ny dodsmelding for $aktorId")
-                                dodsmeldingDAO.lagreDodsmelding(aktorId, dodsdato)
+                                logger().info("Lagrer ny dodsmelding")
+                                dodsmeldingDAO.lagreDodsmelding(identer, dodsdato)
                             }
                         }
                         ANNULLERT, OPPHOERT -> {
-                            logger().info("Sletter dodsmelding for $aktorId")
-                            dodsmeldingDAO.slettDodsmelding(aktorId)
+                            logger().info("Sletter dodsmelding")
+                            dodsmeldingDAO.slettDodsmelding(identer)
                         }
                     }
                 }
@@ -85,10 +86,10 @@ class DodsfallConsumer(
     private fun GenericRecord.erDodsfall() =
         hentOpplysningstype() == OPPLYSNINGSTYPE_DODSFALL
 
-    private fun GenericRecord.hentAktorId() =
+    private fun GenericRecord.hentFnr() =
         (get("personidenter") as GenericData.Array<*>)
             .map { it.toString() }
-            .first { it.length == 13 }
+            .first { it.length == 11 }
 
     private fun GenericRecord.hentEndringstype() =
         get("endringstype").toString()
@@ -102,7 +103,7 @@ class DodsfallConsumer(
         }
     }
 
-    private fun harUutfylteSoknader(identer: List<String>) =
+    private fun harUutfylteSoknader(identer: FolkeregisterIdenter) =
         sykepengesoknadDAO.finnSykepengesoknader(identer)
             .any { listOf(NY, FREMTIDIG).contains(it.status) }
 }

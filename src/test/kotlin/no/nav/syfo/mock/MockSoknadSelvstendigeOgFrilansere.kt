@@ -15,7 +15,9 @@ import no.nav.syfo.model.sykmelding.model.GradertDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import no.nav.syfo.repository.SykepengesoknadDAO
 import no.nav.syfo.soknadsopprettelse.*
+import no.nav.syfo.util.tilOsloInstant
 import org.springframework.stereotype.Component
+import java.time.Instant
 import java.time.LocalDate.of
 import java.time.LocalDateTime.now
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
@@ -37,7 +39,7 @@ class MockSoknadSelvstendigeOgFrilansere(private val sykepengesoknadDAO: Sykepen
             tom = of(2018, 5, 28),
             arbeidssituasjon = FRILANSER, arbeidsgiverOrgnummer = null, arbeidsgiverNavn = null,
             sykmeldingId = "14e78e84-50a5-45bb-9919-191c54f99691",
-            sykmeldingSkrevet = of(2018, 5, 20).atStartOfDay(),
+            sykmeldingSkrevet = of(2018, 5, 20).atStartOfDay().tilOsloInstant(),
             sykmeldingsperioder = listOf(
                 SykmeldingsperiodeAGDTO(
                     fom = of(2018, 5, 20),
@@ -66,7 +68,7 @@ class MockSoknadSelvstendigeOgFrilansere(private val sykepengesoknadDAO: Sykepen
         )
 
         val sykepengesoknad = leggSvarPaSoknad(settOppSoknadSelvstendigOgFrilanser(soknadMetadata, false))
-        return sykepengesoknad.copy(sendtNav = now())
+        return sykepengesoknad.copy(sendtNav = Instant.now())
     }
 
     fun opprettNySoknad(): Sykepengesoknad {
@@ -78,7 +80,7 @@ class MockSoknadSelvstendigeOgFrilansere(private val sykepengesoknadDAO: Sykepen
             tom = of(2018, 6, 10),
             arbeidssituasjon = NAERINGSDRIVENDE, arbeidsgiverOrgnummer = null, arbeidsgiverNavn = null,
             sykmeldingId = "289148ba-4c3c-4b3f-b7a3-385b7e7c927d",
-            sykmeldingSkrevet = of(2018, 6, 1).atStartOfDay(),
+            sykmeldingSkrevet = of(2018, 6, 1).atStartOfDay().tilOsloInstant(),
             sykmeldingsperioder = listOf(
                 SykmeldingsperiodeAGDTO(
                     fom = of(2018, 6, 1),

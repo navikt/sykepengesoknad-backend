@@ -17,27 +17,29 @@ import java.util.*
 @Repository
 class SporsmalDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate, private val svarDAO: SvarDAO) {
 
-    fun finnSporsmal(sykepengesoknadIds: Set<Long>): HashMap<Long, MutableList<Sporsmal>> {
+    fun finnSporsmal(sykepengesoknadIds: Set<String>): HashMap<String, MutableList<Sporsmal>> {
 
         val unMapped = sykepengesoknadIds.chunked(1000).map {
-            namedParameterJdbcTemplate.query<List<Pair<Long, Sporsmal>>>(
+            namedParameterJdbcTemplate.query<List<Pair<String, Sporsmal>>>(
                 "SELECT * FROM SPORSMAL " +
-                    "WHERE SPORSMAL.SYKEPENGESOKNAD_ID in (:sykepengesoknadIds) " +
-                    "ORDER BY SPORSMAL.SPORSMAL_ID",
+                    "WHERE SPORSMAL.SYKEPENGESOKNAD_ID in (:sykepengesoknadIds) ",
 
                 MapSqlParameterSource()
                     .addValue("sykepengesoknadIds", it)
 
             ) { resultSet ->
                 val svarMap = HashMap<String, MutableList<Svar>>()
-                val sporsmalList = ArrayList<Pair<Long, Sporsmal>>()
-                val sporsmalMap = HashMap<String, Sporsmal>()
+                val sporsmalList = ArrayList<Pair<String, Sporsmal>>()
+
+                data class SporsmalHelper(val sporsmal: Sporsmal, val sykepengesoknadId: String, val underSporsmalId: String?)
+
+                val sporsmalMap = HashMap<String, SporsmalHelper>()
 
                 while (resultSet.next()) {
-                    val sporsmalId = resultSet.getString("SPORSMAL_ID")
+                    val sporsmalId = resultSet.getString("ID")
                     val kriterie = resultSet.getString("KRITERIE_FOR_VISNING")
                     svarMap[sporsmalId] = ArrayList()
-                    val sykepengesoknadId = resultSet.getLong("SYKEPENGESOKNAD_ID")
+                    val sykepengesoknadId = resultSet.getString("SYKEPENGESOKNAD_ID")
                     val sporsmal = Sporsmal(
                         sporsmalId,
                         resultSet.getString("TAG"),
@@ -46,17 +48,19 @@ class SporsmalDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemp
                         Svartype.valueOf(resultSet.getString("SVARTYPE")),
                         resultSet.getString("MIN"),
                         resultSet.getString("MAX"),
-                        resultSet.getBoolean("PAVIRKER_ANDRE_SPORSMAL"),
+                        false,
                         if (kriterie == null) null else Visningskriterie.valueOf(kriterie),
                         svarMap[sporsmalId]!!,
                         ArrayList()
                     )
-                    val underSporsmalId = resultSet.getString("UNDER_SPORSMAL_ID")
-                    sporsmalMap[sporsmalId] = sporsmal
-                    if (underSporsmalId == null) {
-                        sporsmalList.add(Pair(sykepengesoknadId, sporsmal))
+                    val underSporsmalId = resultSet.getNullableString("UNDER_SPORSMAL_ID")
+                    sporsmalMap[sporsmalId] = SporsmalHelper(sporsmal, sykepengesoknadId, underSporsmalId)
+                }
+                sporsmalMap.values.forEach { spm ->
+                    if (spm.underSporsmalId == null) {
+                        sporsmalList.add(Pair(spm.sykepengesoknadId, spm.sporsmal))
                     } else {
-                        (sporsmalMap[underSporsmalId]!!.undersporsmal as ArrayList).add(sporsmal)
+                        (sporsmalMap[spm.underSporsmalId]!!.sporsmal.undersporsmal as ArrayList).add(spm.sporsmal)
                     }
                 }
                 populerMedSvar(svarMap)
@@ -64,8 +68,8 @@ class SporsmalDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemp
             } ?: emptyList()
         }
             .flatten()
-            .sortedBy { it.second.id?.toLong() }
-        val ret = HashMap<Long, MutableList<Sporsmal>>()
+            .sortedBy { it.second.id?.toString() }
+        val ret = HashMap<String, MutableList<Sporsmal>>()
         unMapped.forEach {
             val lista = ret[it.first]
             if (lista != null) {
@@ -82,21 +86,14 @@ class SporsmalDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemp
         svarFraBasen.forEach { (key, value) -> svarMap[key]!!.addAll(value) }
     }
 
-    fun lagreSporsmal(sykepengesoknadId: Long, sporsmal: Sporsmal, underSporsmalId: Long?): Sporsmal {
-        return lagreSporsmal(sykepengesoknadId, null, sporsmal, underSporsmalId)
-    }
-
-    private fun lagreSporsmal(sykepengesoknadId: Long?, sykepengesoknadUuid: String?, sporsmal: Sporsmal, underSporsmalId: Long?): Sporsmal {
+    fun lagreSporsmal(sykepengesoknadId: String, sporsmal: Sporsmal, underSporsmalId: String?): Sporsmal {
         val generatedKeyHolder = GeneratedKeyHolder()
         namedParameterJdbcTemplate.update(
-            "INSERT INTO SPORSMAL(SPORSMAL_ID, SYKEPENGESOKNAD_ID, UNDER_SPORSMAL_ID, TEKST, UNDERTEKST, TAG, " +
-                "SVARTYPE, MIN, MAX, KRITERIE_FOR_VISNING, PAVIRKER_ANDRE_SPORSMAL) " +
+            "INSERT INTO SPORSMAL(SYKEPENGESOKNAD_ID, UNDER_SPORSMAL_ID, TEKST, UNDERTEKST, TAG, " +
+                "SVARTYPE, MIN, MAX, KRITERIE_FOR_VISNING) " +
 
-                "VALUES (SPORSMAL_ID_SEQ.NEXTVAL, " +
-                "(SELECT SYKEPENGESOKNAD_ID " +
-                "FROM SYKEPENGESOKNAD " +
-                "WHERE SYKEPENGESOKNAD_ID = :sykepengesoknadId " +
-                "OR SYKEPENGESOKNAD_UUID = :sykepengesoknadUuid), " +
+                "VALUES (" +
+                ":sykepengesoknadId, " +
                 ":underSporsmalId, " +
                 ":tekst, " +
                 ":undertekst, " +
@@ -104,12 +101,10 @@ class SporsmalDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemp
                 ":svartype, " +
                 ":min, " +
                 ":max, " +
-                ":kriterie, " +
-                ":pavirkerAndreSporsmal)",
+                ":kriterie)",
 
             MapSqlParameterSource()
                 .addValue("sykepengesoknadId", sykepengesoknadId)
-                .addValue("sykepengesoknadUuid", sykepengesoknadUuid)
                 .addValue("underSporsmalId", underSporsmalId)
                 .addValue("tekst", sporsmal.sporsmalstekst)
                 .addValue("undertekst", sporsmal.undertekst)
@@ -123,31 +118,30 @@ class SporsmalDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemp
                         null
                     else
                         sporsmal.kriterieForVisningAvUndersporsmal.name
-                )
-                .addValue("pavirkerAndreSporsmal", sporsmal.pavirkerAndreSporsmal),
+                ),
 
             generatedKeyHolder,
-            arrayOf("SPORSMAL_ID")
+            arrayOf("id")
         )
 
-        val sporsmalId = generatedKeyHolder.key!!.toLong()
+        val sporsmalId = generatedKeyHolder.getKeyAs(String::class.java)!!
         sporsmal.svar.forEach { svar -> svarDAO.lagreSvar(sporsmalId, svar) }
-        val undersporsmal = sporsmal.undersporsmal.map { u -> lagreSporsmal(sykepengesoknadId, sykepengesoknadUuid, u, sporsmalId) }
-        return sporsmal.copy(id = sporsmalId.toString(), undersporsmal = undersporsmal)
+        val undersporsmal = sporsmal.undersporsmal.map { u -> lagreSporsmal(sykepengesoknadId, u, sporsmalId) }
+        return sporsmal.copy(id = sporsmalId, undersporsmal = undersporsmal)
     }
 
-    fun slettSporsmal(soknadsIder: List<Long>) {
+    fun slettSporsmal(soknadsIder: List<String>) {
         if (soknadsIder.isEmpty()) {
             return
         }
 
         val sporsmalsIder = namedParameterJdbcTemplate.query(
-            "SELECT SPORSMAL_ID FROM SPORSMAL WHERE SYKEPENGESOKNAD_ID in (:soknadsIder)",
+            "SELECT ID FROM SPORSMAL WHERE SYKEPENGESOKNAD_ID in (:soknadsIder)",
 
             MapSqlParameterSource()
                 .addValue("soknadsIder", soknadsIder)
 
-        ) { row, _ -> row.getLong("SPORSMAL_ID") }
+        ) { row, _ -> row.getString("ID") }
 
         svarDAO.slettSvar(sporsmalsIder)
 
@@ -161,7 +155,7 @@ class SporsmalDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemp
 
     fun oppdaterSporsmalstekst(nyttSporsmal: Sporsmal) {
         namedParameterJdbcTemplate.update(
-            "UPDATE SPORSMAL SET TEKST = :sporsmalstekst, UNDERTEKST = :undertekst WHERE SPORSMAL_ID = :sporsmalId",
+            "UPDATE SPORSMAL SET TEKST = :sporsmalstekst, UNDERTEKST = :undertekst WHERE ID = :sporsmalId",
 
             MapSqlParameterSource()
                 .addValue("sporsmalstekst", nyttSporsmal.sporsmalstekst)
@@ -172,7 +166,7 @@ class SporsmalDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemp
 
     fun oppdaterSporsmalGrense(sporsmalId: String, min: String) {
         namedParameterJdbcTemplate.update(
-            "UPDATE SPORSMAL SET MIN = :min WHERE SPORSMAL_ID = :sporsmalId",
+            "UPDATE SPORSMAL SET MIN = :min WHERE ID = :sporsmalId",
 
             MapSqlParameterSource()
                 .addValue("min", min)

@@ -22,9 +22,9 @@ class AutomatiskInnsendingService(
 ) {
     val log = logger()
 
-    fun automatiskInnsending(aktorId: String, dodsdato: LocalDate) {
+    fun automatiskInnsending(fnr: String, dodsdato: LocalDate): FolkeregisterIdenter {
         val treMndSiden = LocalDate.now().minusMonths(3)
-        val identer = identService.hentFolkeregisterIdenterMedHistorikkForAktorid(aktorId)
+        val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(fnr)
         sykepengesoknadDAO.finnSykepengesoknader(identer)
             .filter { it.sykmeldingId != null }
             .filter { Soknadstatus.NY == it.status || Soknadstatus.FREMTIDIG == it.status }
@@ -43,14 +43,14 @@ class AutomatiskInnsendingService(
                 }
 
                 if (sykepengesoknad.tom!!.isAfterOrEqual(treMndSiden)) {
-                    val mottaker = mottakerAvSoknadService.finnMottakerAvSoknad(sykepengesoknad, identer.tilFolkergisteridenter())
+                    val mottaker = mottakerAvSoknadService.finnMottakerAvSoknad(sykepengesoknad, identer)
 
                     if (Mottaker.ARBEIDSGIVER == mottaker) {
                         avbrytSoknadService.avbrytSoknad(sykepengesoknad)
                         log.info("Avbryt søknad med id: ${sykepengesoknad.id} pga arbeidsgiver mottaker")
                     } else {
                         log.info("Automatisk innsending av søknad med id: ${sykepengesoknad.id}")
-                        sendSoknadService.sendSoknad(sykepengesoknad, Avsendertype.SYSTEM, dodsdato, identer.tilFolkergisteridenter())
+                        sendSoknadService.sendSoknad(sykepengesoknad, Avsendertype.SYSTEM, dodsdato, identer)
                     }
 
                     return@forEach
@@ -58,10 +58,6 @@ class AutomatiskInnsendingService(
 
                 log.info("Automatisk innsending av søknad ignorerer søknader eldre enn 3 måneder ${sykepengesoknad.id}")
             }
+        return identer
     }
-}
-
-private fun List<String>.tilFolkergisteridenter(): FolkeregisterIdenter {
-    val originalIdent = this.first()
-    return FolkeregisterIdenter(originalIdent = originalIdent, andreIdenter = this.filterNot { it == originalIdent })
 }

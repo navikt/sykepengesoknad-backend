@@ -9,8 +9,8 @@ import no.nav.syfo.domain.Svartype.IKKE_RELEVANT
 import no.nav.syfo.domain.Svartype.JA_NEI
 import no.nav.syfo.domain.Sykepengesoknad
 import no.nav.syfo.domain.Visningskriterie.JA
+import java.time.Instant
 import java.time.LocalDate.now
-import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 import java.util.UUID.randomUUID
 
@@ -37,7 +37,7 @@ fun settOppSoknadOppholdUtland(fnr: String): Sykepengesoknad {
         id = randomUUID().toString(),
         fnr = fnr,
         status = NY,
-        opprettet = LocalDateTime.now(),
+        opprettet = Instant.now(),
         sporsmal = sporsmal,
         soknadstype = Soknadstype.OPPHOLD_UTLAND,
         arbeidssituasjon = null,

@@ -23,8 +23,8 @@ import no.nav.syfo.util.isBeforeOrEqual
 import no.nav.syfo.util.overlap
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
+import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 @Component
 @Transactional
@@ -60,7 +60,7 @@ class Soknadsklipper(
         val sykmeldingPeriode = sykmeldingFom..sykmeldingTom
 
         val soknadKandidater = eksisterendeSoknader.soknadKandidater(
-            behandletTidspunkt = sykmeldingKafkaMessage.sykmelding.behandletTidspunkt.toLocalDateTime(),
+            behandletTidspunkt = sykmeldingKafkaMessage.sykmelding.behandletTidspunkt.toInstant(),
             orgnummer = arbeidsgiverStatusDTO?.orgnummer,
             sykmeldingPeriode = sykmeldingPeriode,
         )
@@ -88,7 +88,7 @@ class Soknadsklipper(
     }
 
     private fun List<Sykepengesoknad>.soknadKandidater(
-        behandletTidspunkt: LocalDateTime,
+        behandletTidspunkt: Instant,
         orgnummer: String?,
         sykmeldingPeriode: ClosedRange<LocalDate>,
     ): List<Sykepengesoknad> {

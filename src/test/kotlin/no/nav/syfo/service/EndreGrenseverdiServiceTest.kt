@@ -27,6 +27,7 @@ import no.nav.syfo.soknadsopprettelse.settOppSoknadSelvstendigOgFrilanser
 import no.nav.syfo.soknadsopprettelse.settOppSykepengesoknadBehandlingsdager
 import no.nav.syfo.soknadsopprettelse.tilSoknadsperioder
 import no.nav.syfo.util.DatoUtil.datoErInnenforMinMax
+import no.nav.syfo.util.tilOsloInstant
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -59,7 +60,7 @@ class EndreGrenseverdiServiceTest : BaseTestClass() {
         arbeidsgiverOrgnummer = "222",
         soknadstype = Soknadstype.ARBEIDSTAKERE,
         sykmeldingId = "289148ba-4c3c-4b3f-b7a3-385b7e7c927d",
-        sykmeldingSkrevet = fom.atStartOfDay(),
+        sykmeldingSkrevet = fom.atStartOfDay().tilOsloInstant(),
         sykmeldingsperioder = listOf(
             SykmeldingsperiodeAGDTO(
                 fom = fom,

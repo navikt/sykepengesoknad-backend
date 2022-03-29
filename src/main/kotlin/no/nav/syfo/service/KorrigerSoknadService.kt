@@ -10,7 +10,7 @@ import no.nav.syfo.svarvalidering.ValideringException
 import no.nav.syfo.util.Metrikk
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.LocalDateTime
+import java.time.Instant
 import java.util.*
 
 @Service
@@ -38,7 +38,7 @@ class KorrigerSoknadService(
         val korrigering = soknadSomKorrigeres.copy(
             id = UUID.randomUUID().toString(),
             status = Soknadstatus.UTKAST_TIL_KORRIGERING,
-            opprettet = LocalDateTime.now(),
+            opprettet = Instant.now(),
             sendtNav = null,
             sendtArbeidsgiver = null,
             korrigerer = soknadSomKorrigeres.id,

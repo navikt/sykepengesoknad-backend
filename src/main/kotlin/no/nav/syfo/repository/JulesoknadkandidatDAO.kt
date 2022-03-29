@@ -4,7 +4,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
-import java.time.LocalDateTime
+import java.time.OffsetDateTime
 
 @Transactional
 @Repository
@@ -18,11 +18,11 @@ class JulesoknadkandidatDAO(
 
         return namedParameterJdbcTemplate.query(
             """
-                    SELECT JULESOKNADKANDIDAT_ID, SYKEPENGESOKNAD_UUID FROM JULESOKNADKANDIDAT
+                    SELECT ID, SYKEPENGESOKNAD_UUID FROM JULESOKNADKANDIDAT
                     """
         ) { resultSet, _ ->
             Julesoknadkandidat(
-                julesoknadkandidatId = resultSet.getString("JULESOKNADKANDIDAT_ID"),
+                julesoknadkandidatId = resultSet.getString("ID"),
                 sykepengesoknadUuid = resultSet.getString("SYKEPENGESOKNAD_UUID")
             )
         }
@@ -31,18 +31,18 @@ class JulesoknadkandidatDAO(
     fun lagreJulesoknadkandidat(sykepengesoknadUuid: String) {
         namedParameterJdbcTemplate.update(
             """
-                    INSERT INTO JULESOKNADKANDIDAT (JULESOKNADKANDIDAT_ID, SYKEPENGESOKNAD_UUID, OPPRETTET)
-                    VALUES (JULESOKNADKANDIDAT_ID_SEQ.NEXTVAL, :sykepengesoknadUuid, :opprettet)
+                    INSERT INTO JULESOKNADKANDIDAT (SYKEPENGESOKNAD_UUID, OPPRETTET)
+                    VALUES (:sykepengesoknadUuid, :opprettet)
                     """,
             MapSqlParameterSource()
                 .addValue("sykepengesoknadUuid", sykepengesoknadUuid)
-                .addValue("opprettet", LocalDateTime.now())
+                .addValue("opprettet", OffsetDateTime.now())
         )
     }
 
     fun slettJulesoknadkandidat(julesoknadkandidatId: String) {
         namedParameterJdbcTemplate.update(
-            "DELETE FROM JULESOKNADKANDIDAT WHERE JULESOKNADKANDIDAT_ID = :julesoknadkandidatId",
+            "DELETE FROM JULESOKNADKANDIDAT WHERE ID = :julesoknadkandidatId",
             MapSqlParameterSource()
                 .addValue("julesoknadkandidatId", julesoknadkandidatId)
         )

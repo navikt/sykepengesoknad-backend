@@ -5,8 +5,8 @@ import no.nav.syfo.domain.Merknad
 import no.nav.syfo.domain.Soknadsperiode
 import no.nav.syfo.domain.Soknadstatus
 import no.nav.syfo.domain.Soknadstype
+import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.UUID
 
 data class SoknadMetadata(
@@ -21,7 +21,7 @@ data class SoknadMetadata(
     val arbeidsgiverOrgnummer: String? = null,
     val arbeidsgiverNavn: String? = null,
     val sykmeldingId: String,
-    val sykmeldingSkrevet: LocalDateTime,
+    val sykmeldingSkrevet: Instant,
     val sykmeldingsperioder: List<Soknadsperiode>,
     val egenmeldtSykmelding: Boolean? = null,
     val merknader: List<Merknad>? = null

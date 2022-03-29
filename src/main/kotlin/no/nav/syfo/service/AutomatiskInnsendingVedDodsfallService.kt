@@ -6,8 +6,8 @@ import no.nav.syfo.logger
 import no.nav.syfo.repository.DodsmeldingDAO
 import org.slf4j.MDC
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.util.*
-import javax.transaction.Transactional
 
 @Service
 @Transactional
@@ -20,22 +20,22 @@ class AutomatiskInnsendingVedDodsfallService(
 
     fun sendSoknaderForDode(): Int {
 
-        val aktorerMed2UkerGammelDodsmelding = dodsmeldingDAO.aktorIderMedToUkerGammelDodsmelding()
+        val aktorerMed2UkerGammelDodsmelding = dodsmeldingDAO.fnrMedToUkerGammelDodsmelding()
 
         val antall = aktorerMed2UkerGammelDodsmelding.size
         log.info("Fant $antall aktører med dødsfall eldre enn 2 uker")
 
-        aktorerMed2UkerGammelDodsmelding.forEach { (aktorId, dodsDato) ->
+        aktorerMed2UkerGammelDodsmelding.forEach { (fnr, dodsDato) ->
             try {
                 MDC.put(NAV_CALLID, UUID.randomUUID().toString())
 
-                automatiskInnsendingService.automatiskInnsending(aktorId, dodsDato)
+                val identer = automatiskInnsendingService.automatiskInnsending(fnr, dodsDato)
 
-                dodsmeldingDAO.slettDodsmelding(aktorId)
+                dodsmeldingDAO.slettDodsmelding(identer)
 
                 registry.counter("dodsmeldinger_prossesert").increment()
             } catch (e: Exception) {
-                log.error("Feil ved prossering av dødsmelding for aktor $aktorId", e)
+                log.error("Feil ved prossering av dødsmelding for aktor $fnr", e)
             } finally {
 
                 MDC.remove(NAV_CALLID)
