@@ -1,8 +1,5 @@
-FROM navikt/java:17-appdynamics
-COPY build/libs/app.jar /app/
-COPY init.sh /init-scripts/init.sh
+FROM gcr.io/distroless/java17@sha256:63548c70f5bb6f33c15d1420475f0a39119fd7b5112097433708bad2771e5ccc
 
-ENV JAVA_OPTS="-Djava.security.egd=file:/dev/./urandom \
-               -Dhttps.proxyHost=webproxy-nais.nav.no \
-               -Dhttps.proxyPort=8088 \
-               -Dhttp.nonProxyHosts=*.adeo.no|*.preprod.local"
+COPY build/libs/app.jar /app/
+WORKDIR /app
+CMD ["app.jar"]
