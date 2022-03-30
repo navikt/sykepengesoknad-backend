@@ -1,13 +1,13 @@
-# Syfosoknad
+# Sykepengesoknad-backend
 
-## Om syfosoknad
-Syfosoknad tilbyr et API mot frontenden for å hente og gjøre operasjoner på sykepengesøknader. Videre legger den søknader på kafka-topics ved spesielle hendelser. (som opprettet, innsendt osv.) Disse kan bli plukket opp av andre apper bakover i løypa som f.eks varsel. 
+## Om Sykepengesoknad-backend
+Syfosoknad tilbyr et API mot frontenden for å hente og gjøre operasjoner på sykepengesøknader. Videre legger den søknader på kafka-topics ved spesielle hendelser. (som opprettet, sendt osv.) Disse kan bli plukket opp av andre apper bakover i løypa som f.eks sykepengesoknad-narmeste-leder-varsel. 
 
 ## Redis
-Syfosoknad bruker redis for cache. Denne deployes ved endringer i redis-config.yaml av en egen GHA workflow.
+Sykepengesoknad-backend bruker redis for cache. Denne deployes ved endringer i redis-config.yaml av en egen GHA workflow.
 
 ## Data
-Syfosoknad har en on-prem Oracle database. Her lagres alle søknadene strukturert.
+Sykepengesoknad-backend har en postgres database. Her lagres alle søknadene strukturert.
 Søknadene inneholder, spørsmål, svar, status og identifikator på personen søknaden hører til.
 Det er ikke noe sletting av søknader fra denne databasen, når søknader utløper etter 4 måneder endres kun statusen, data ligger der fortsatt.
 
