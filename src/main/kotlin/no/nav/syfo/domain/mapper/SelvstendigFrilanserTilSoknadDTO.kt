@@ -6,6 +6,7 @@ import no.nav.syfo.domain.Sykepengesoknad
 import no.nav.syfo.domain.mapper.sporsmalprossesering.hentArbeidUtenforNorge
 import no.nav.syfo.domain.mapper.sporsmalprossesering.hentPermitteringer
 import no.nav.syfo.model.sykmelding.arbeidsgiver.ArbeidsgiverSykmelding
+import no.nav.syfo.util.tilOsloLocalDateTime
 
 fun konverterSelvstendigOgFrilanserTilSoknadDTO(
     sykepengesoknad: Sykepengesoknad,
@@ -21,10 +22,10 @@ fun konverterSelvstendigOgFrilanserTilSoknadDTO(
         status = sykepengesoknad.status.tilSoknadstatusDTO(),
         fom = sykepengesoknad.fom,
         tom = sykepengesoknad.tom,
-        opprettet = sykepengesoknad.opprettet,
-        sendtNav = sykepengesoknad.sendtNav,
+        opprettet = sykepengesoknad.opprettet?.tilOsloLocalDateTime(),
+        sendtNav = sykepengesoknad.sendtNav?.tilOsloLocalDateTime(),
         startSyketilfelle = sykepengesoknad.startSykeforlop,
-        sykmeldingSkrevet = sykepengesoknad.sykmeldingSkrevet,
+        sykmeldingSkrevet = sykepengesoknad.sykmeldingSkrevet?.tilOsloLocalDateTime(),
         arbeidsgiver = null,
         arbeidssituasjon = sykepengesoknad.arbeidssituasjon?.tilArbeidssituasjonDTO(),
         korrigerer = sykepengesoknad.korrigerer,

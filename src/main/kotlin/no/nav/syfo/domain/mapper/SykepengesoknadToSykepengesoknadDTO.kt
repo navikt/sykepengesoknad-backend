@@ -6,6 +6,7 @@ import no.nav.syfo.domain.Mottaker
 import no.nav.syfo.domain.Sykepengesoknad
 import no.nav.syfo.domain.mapper.sporsmalprossesering.*
 import no.nav.syfo.domain.mapper.sporsmalprossesering.arbeidGjenopptattDato
+import no.nav.syfo.util.tilOsloLocalDateTime
 
 fun konverterTilSykepengesoknadDTO(
     sykepengesoknad: Sykepengesoknad,
@@ -27,15 +28,15 @@ fun konverterTilSykepengesoknadDTO(
         korrigerer = sykepengesoknad.korrigerer,
         korrigertAv = sykepengesoknad.korrigertAv,
         soktUtenlandsopphold = harSoktSykepengerUnderUtlandsopphold(sykepengesoknad),
-        arbeidsgiverForskutterer = sykepengesoknad.arbeidsgiverForskutterer?.tilArbeidsgiverForskuttererDTO(),
+        arbeidsgiverForskutterer = null,
         fom = sykepengesoknad.fom,
         tom = sykepengesoknad.tom,
         startSyketilfelle = sykepengesoknad.startSykeforlop,
         arbeidGjenopptatt = arbeidGjenopptattDato(sykepengesoknad),
-        sykmeldingSkrevet = sykepengesoknad.sykmeldingSkrevet,
-        opprettet = sykepengesoknad.opprettet,
-        sendtNav = sykepengesoknad.sendtNav,
-        sendtArbeidsgiver = sykepengesoknad.sendtArbeidsgiver,
+        sykmeldingSkrevet = sykepengesoknad.sykmeldingSkrevet?.tilOsloLocalDateTime(),
+        opprettet = sykepengesoknad.opprettet?.tilOsloLocalDateTime(),
+        sendtNav = sykepengesoknad.sendtNav?.tilOsloLocalDateTime(),
+        sendtArbeidsgiver = sykepengesoknad.sendtArbeidsgiver?.tilOsloLocalDateTime(),
         egenmeldinger = hentEgenmeldinger(sykepengesoknad),
         papirsykmeldinger = hentPapirsykmeldinger(sykepengesoknad),
         fravar = samleFravaerListe(sykepengesoknad),

@@ -7,6 +7,7 @@ import no.nav.syfo.mock.opprettNySoknad
 import no.nav.syfo.repository.SykepengesoknadDAO
 import no.nav.syfo.soknadsopprettelse.settOppSoknadOppholdUtland
 import no.nav.syfo.tilSoknader
+import no.nav.syfo.util.tilOsloInstant
 import no.nav.syfo.ventPåRecords
 import org.amshove.kluent.`should be equal to`
 import org.assertj.core.api.Assertions.assertThat
@@ -50,7 +51,7 @@ class DeaktiverGamleSoknaderServiceTest : BaseTestClass() {
             status = Soknadstatus.NY,
             fnr = "12345784312",
             tom = LocalDate.now().minusMonths(4).minusDays(1),
-            opprettet = LocalDate.now().minusMonths(4).minusDays(1).atStartOfDay()
+            opprettet = LocalDate.now().minusMonths(4).minusDays(1).atStartOfDay().tilOsloInstant()
         )
         sykepengesoknadDAO.lagreSykepengesoknad(nySoknad)
 
@@ -77,7 +78,7 @@ class DeaktiverGamleSoknaderServiceTest : BaseTestClass() {
             status = Soknadstatus.AVBRUTT,
             fnr = "12345784312",
             tom = LocalDate.now().minusMonths(4).minusDays(1),
-            opprettet = LocalDate.now().minusMonths(4).minusDays(1).atStartOfDay()
+            opprettet = LocalDate.now().minusMonths(4).minusDays(1).atStartOfDay().tilOsloInstant()
         )
         sykepengesoknadDAO.lagreSykepengesoknad(avbruttSoknad)
 
@@ -101,7 +102,7 @@ class DeaktiverGamleSoknaderServiceTest : BaseTestClass() {
     @Test
     fun `En gammel utenlandssoknad blir deaktivert`() {
         val nySoknad = settOppSoknadOppholdUtland("fnr")
-            .copy(opprettet = LocalDateTime.now().minusMonths(4).minusDays(1), status = Soknadstatus.NY)
+            .copy(opprettet = LocalDateTime.now().minusMonths(4).minusDays(1).tilOsloInstant(), status = Soknadstatus.NY)
         sykepengesoknadDAO.lagreSykepengesoknad(nySoknad)
 
         val sendtSoknad = nySoknad.copy(status = Soknadstatus.SENDT, id = UUID.randomUUID().toString())
@@ -126,7 +127,7 @@ class DeaktiverGamleSoknaderServiceTest : BaseTestClass() {
         val nySoknad = opprettNySoknad().copy(
             status = Soknadstatus.NY,
             tom = LocalDate.now().minusMonths(4).minusDays(1),
-            opprettet = LocalDate.now().minusMonths(4).minusDays(1).atStartOfDay()
+            opprettet = LocalDate.now().minusMonths(4).minusDays(1).atStartOfDay().tilOsloInstant()
         )
         sykepengesoknadDAO.lagreSykepengesoknad(nySoknad)
 

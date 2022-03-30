@@ -20,7 +20,7 @@ fun Sykepengesoknad.sorterSporsmal(): Sykepengesoknad {
         }
     }
 
-    return this.copy(sporsmal = this.sporsmal.sortedBy { it.plasseringSporsmal() })
+    return this.copy(sporsmal = this.sporsmal.sortedBy { it.plasseringSporsmal() }).sorterUndersporsmal()
 }
 
 fun Sporsmal.fellesPlasseringSporsmal(): Int {

@@ -5,6 +5,7 @@ import no.nav.syfo.domain.Soknadstatus
 import no.nav.syfo.mock.opprettNySoknad
 import no.nav.syfo.mock.opprettNySoknadMock
 import no.nav.syfo.repository.SykepengesoknadDAO
+import no.nav.syfo.util.tilOsloInstant
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -38,7 +39,7 @@ class SlettGamleUtkastServiceTest : BaseTestClass() {
         val soknad = opprettNySoknad().copy(
             status = Soknadstatus.UTKAST_TIL_KORRIGERING,
             tom = LocalDate.now().minusDays(7),
-            opprettet = LocalDate.now().minusDays(7).atStartOfDay()
+            opprettet = LocalDate.now().minusDays(7).atStartOfDay().tilOsloInstant()
         )
         sykepengesoknadDAO.lagreSykepengesoknad(soknad)
 
@@ -69,7 +70,7 @@ class SlettGamleUtkastServiceTest : BaseTestClass() {
         val soknad = opprettNySoknadMock().copy(
             status = Soknadstatus.UTKAST_TIL_KORRIGERING,
             tom = LocalDate.now().minusDays(6),
-            opprettet = LocalDate.now().minusDays(6).atStartOfDay()
+            opprettet = LocalDate.now().minusDays(6).atStartOfDay().tilOsloInstant()
         )
         sykepengesoknadDAO.lagreSykepengesoknad(soknad)
 

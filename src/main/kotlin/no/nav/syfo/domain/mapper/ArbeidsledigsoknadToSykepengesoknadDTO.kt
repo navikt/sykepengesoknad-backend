@@ -27,6 +27,7 @@ import no.nav.syfo.soknadsopprettelse.UTDANNING
 import no.nav.syfo.soknadsopprettelse.UTDANNING_START
 import no.nav.syfo.soknadsopprettelse.UTLANDSOPPHOLD_SOKT_SYKEPENGER
 import no.nav.syfo.soknadsopprettelse.UTLAND_NAR
+import no.nav.syfo.util.tilOsloLocalDateTime
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 import java.util.*
@@ -48,9 +49,9 @@ object ArbeidsledigsoknadToSykepengesoknadDTO {
             fom = sykepengesoknad.fom,
             tom = sykepengesoknad.tom,
             startSyketilfelle = sykepengesoknad.startSykeforlop,
-            sykmeldingSkrevet = sykepengesoknad.sykmeldingSkrevet,
-            opprettet = sykepengesoknad.opprettet,
-            sendtNav = sykepengesoknad.sendtNav,
+            sykmeldingSkrevet = sykepengesoknad.sykmeldingSkrevet?.tilOsloLocalDateTime(),
+            opprettet = sykepengesoknad.opprettet?.tilOsloLocalDateTime(),
+            sendtNav = sykepengesoknad.sendtNav?.tilOsloLocalDateTime(),
             fravar = samleFravaerListe(sykepengesoknad),
             egenmeldtSykmelding = sykepengesoknad.egenmeldtSykmelding,
             andreInntektskilder = hentInntektListe(sykepengesoknad),

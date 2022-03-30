@@ -15,13 +15,13 @@ import java.util.Optional
 @Repository
 class SoknadsperiodeDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate) {
 
-    fun lagreSoknadperioder(sykepengesoknadId: Long, soknadPerioder: List<Soknadsperiode>) {
+    fun lagreSoknadperioder(sykepengesoknadId: String, soknadPerioder: List<Soknadsperiode>) {
         if (soknadPerioder.isEmpty()) {
             return
         }
         soknadPerioder.forEach { (fom, tom, grad, sykmeldingstype) ->
             namedParameterJdbcTemplate.update(
-                "INSERT INTO SOKNADPERIODE (SOKNADPERIODE_ID, SYKEPENGESOKNAD_ID, FOM, TOM, GRAD, SYKMELDINGSTYPE) " + "VALUES (SOKNADPERIODE_ID_SEQ.NEXTVAL, :sykepengesoknadId, :fom, :tom, :grad, :sykmeldingstype)",
+                "INSERT INTO SOKNADPERIODE (SYKEPENGESOKNAD_ID, FOM, TOM, GRAD, SYKMELDINGSTYPE) " + "VALUES (:sykepengesoknadId, :fom, :tom, :grad, :sykmeldingstype)",
 
                 MapSqlParameterSource()
                     .addValue("sykepengesoknadId", sykepengesoknadId)
@@ -33,7 +33,7 @@ class SoknadsperiodeDAO(private val namedParameterJdbcTemplate: NamedParameterJd
         }
     }
 
-    fun finnSoknadPerioder(sykepengesoknadIds: Set<Long>): HashMap<Long, MutableList<Soknadsperiode>> {
+    fun finnSoknadPerioder(sykepengesoknadIds: Set<String>): HashMap<String, MutableList<Soknadsperiode>> {
         val unMapped = sykepengesoknadIds.chunked(1000).map {
             namedParameterJdbcTemplate.query(
                 "SELECT * FROM SOKNADPERIODE " +
@@ -45,7 +45,7 @@ class SoknadsperiodeDAO(private val namedParameterJdbcTemplate: NamedParameterJd
 
             ) { resultSet, _ ->
                 Pair(
-                    resultSet.getLong("SYKEPENGESOKNAD_ID"),
+                    resultSet.getString("SYKEPENGESOKNAD_ID"),
                     Soknadsperiode(
                         resultSet.getObject("FOM", LocalDate::class.java),
                         resultSet.getObject("TOM", LocalDate::class.java),
@@ -58,7 +58,7 @@ class SoknadsperiodeDAO(private val namedParameterJdbcTemplate: NamedParameterJd
         }
             .flatten()
             .sortedBy { it.second.fom }
-        val ret = HashMap<Long, MutableList<Soknadsperiode>>()
+        val ret = HashMap<String, MutableList<Soknadsperiode>>()
         unMapped.forEach {
             val lista = ret[it.first]
             if (lista != null) {
@@ -70,7 +70,7 @@ class SoknadsperiodeDAO(private val namedParameterJdbcTemplate: NamedParameterJd
         return ret
     }
 
-    fun slettSoknadPerioder(sykepengesoknadId: Long) {
+    fun slettSoknadPerioder(sykepengesoknadId: String) {
         namedParameterJdbcTemplate.update(
             "DELETE FROM SOKNADPERIODE " + "WHERE SYKEPENGESOKNAD_ID = :sykepengesoknadId",
 

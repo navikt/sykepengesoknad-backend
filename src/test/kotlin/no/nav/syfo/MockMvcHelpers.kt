@@ -45,7 +45,7 @@ fun BaseTestClass.hentSoknader(fnr: String): List<RSSykepengesoknad> {
             .contentType(MediaType.APPLICATION_JSON)
     ).andExpect(MockMvcResultMatchers.status().isOk).andReturn().response.contentAsString
 
-    return OBJECT_MAPPER.readValue(json)
+    return OBJECT_MAPPER.readValue<List<RSSykepengesoknad>>(json).sortedBy { it.opprettetDato }
 }
 
 fun BaseTestClass.lagreSvarMedResult(fnr: String, soknadId: String, sporsmalId: String, svar: RSSvar): ResultActions {

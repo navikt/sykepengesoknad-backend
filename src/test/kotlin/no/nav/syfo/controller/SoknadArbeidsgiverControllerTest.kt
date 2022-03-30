@@ -23,6 +23,7 @@ import no.nav.syfo.soknadsopprettelse.ANDRE_INNTEKTSKILDER
 import no.nav.syfo.soknadsopprettelse.ARBEID_UTENFOR_NORGE
 import no.nav.syfo.soknadsopprettelse.tilSoknadsperioder
 import no.nav.syfo.util.OBJECT_MAPPER
+import no.nav.syfo.util.tilOsloInstant
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -30,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import java.time.Instant
 import java.time.LocalDate.now
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
@@ -134,7 +136,7 @@ class SoknadArbeidsgiverControllerTest : BaseTestClass() {
         arbeidsgiverNavn = "ARBEIDSGIVER A/S",
         soknadstype = Soknadstype.ARBEIDSTAKERE,
         sykmeldingId = "14e78e84-50a5-45bb-9919-191c54f99691",
-        sykmeldingSkrevet = LocalDateTime.now().minusMonths(1),
+        sykmeldingSkrevet = LocalDateTime.now().minusMonths(1).tilOsloInstant(),
         sykmeldingsperioder = listOf(
             SykmeldingsperiodeAGDTO(
                 fom = now().minusMonths(1),
@@ -213,7 +215,7 @@ class SoknadArbeidsgiverControllerTest : BaseTestClass() {
         )
 
         val soknad = gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal(meta)
-            .copy(sendtArbeidsgiver = null, sendtNav = LocalDateTime.now())
+            .copy(sendtArbeidsgiver = null, sendtNav = Instant.now())
         sykepengesoknadDAO.lagreSykepengesoknad(soknad)
 
         val rsSoknadArbeidsgiverRespons = hentSoknaderForArbeidsgiver(fnr)
@@ -235,7 +237,7 @@ class SoknadArbeidsgiverControllerTest : BaseTestClass() {
             arbeidsgiverOrgnummer = "123456789",
             arbeidsgiverNavn = "ARBEIDSGIVER A/S",
             sykmeldingId = "14e78e84-50a5-45bb-9919-191c54f99691",
-            sykmeldingSkrevet = LocalDateTime.now().minusMonths(1),
+            sykmeldingSkrevet = LocalDateTime.now().minusMonths(1).tilOsloInstant(),
             sykmeldingsperioder = listOf(
                 SykmeldingsperiodeAGDTO(
                     now().minusMonths(1),
@@ -304,7 +306,7 @@ class SoknadArbeidsgiverControllerTest : BaseTestClass() {
             arbeidsgiverOrgnummer = "987654321",
             arbeidsgiverNavn = "ARBEIDSGIVER A/S",
             sykmeldingId = "14e78e84-50a5-45bb-9919-191c54f99691",
-            sykmeldingSkrevet = LocalDateTime.now().minusMonths(1),
+            sykmeldingSkrevet = LocalDateTime.now().minusMonths(1).tilOsloInstant(),
             sykmeldingsperioder = listOf(
                 SykmeldingsperiodeAGDTO(
                     now().minusMonths(1),
@@ -431,7 +433,7 @@ class SoknadArbeidsgiverControllerTest : BaseTestClass() {
             arbeidsgiverOrgnummer = "123456789",
             arbeidsgiverNavn = "ARBEIDSGIVER A/S",
             sykmeldingId = "14e78e84-50a5-45bb-9919-191c54f99691",
-            sykmeldingSkrevet = LocalDateTime.now().minusMonths(1),
+            sykmeldingSkrevet = LocalDateTime.now().minusMonths(1).tilOsloInstant(),
             sykmeldingsperioder = listOf(
                 SykmeldingsperiodeAGDTO(
                     now().minusMonths(1),
@@ -524,7 +526,7 @@ class SoknadArbeidsgiverControllerTest : BaseTestClass() {
             arbeidsgiverOrgnummer = "123456789",
             arbeidsgiverNavn = "ARBEIDSGIVER A/S",
             sykmeldingId = "14e78e84-50a5-45bb-9919-191c54f99691",
-            sykmeldingSkrevet = LocalDateTime.now().minusMonths(1),
+            sykmeldingSkrevet = LocalDateTime.now().minusMonths(1).tilOsloInstant(),
             sykmeldingsperioder = listOf(
                 SykmeldingsperiodeAGDTO(
                     now().minusMonths(1),
@@ -562,7 +564,7 @@ class SoknadArbeidsgiverControllerTest : BaseTestClass() {
             arbeidsgiverOrgnummer = "987654321",
             arbeidsgiverNavn = "ARBEIDSGIVER A/S",
             sykmeldingId = "14e78e84-50a5-45bb-9919-191c54f99691",
-            sykmeldingSkrevet = LocalDateTime.now().minusMonths(1),
+            sykmeldingSkrevet = LocalDateTime.now().minusMonths(1).tilOsloInstant(),
             sykmeldingsperioder = listOf(
                 SykmeldingsperiodeAGDTO(
                     now().minusMonths(1),
@@ -673,7 +675,7 @@ class SoknadArbeidsgiverControllerTest : BaseTestClass() {
             arbeidsgiverOrgnummer = "123456789",
             arbeidsgiverNavn = "ARBEIDSGIVER A/S",
             sykmeldingId = "14e78e84-50a5-45bb-9919-191c54f99691",
-            sykmeldingSkrevet = LocalDateTime.now().minusMonths(1),
+            sykmeldingSkrevet = LocalDateTime.now().minusMonths(1).tilOsloInstant(),
             sykmeldingsperioder = listOf(
                 SykmeldingsperiodeAGDTO(
                     now().minusMonths(1),

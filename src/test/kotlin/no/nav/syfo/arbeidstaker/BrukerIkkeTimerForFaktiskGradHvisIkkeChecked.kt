@@ -18,6 +18,7 @@ import no.nav.syfo.soknadsopprettelse.OpprettSoknadService
 import no.nav.syfo.testutil.SoknadBesvarer
 import no.nav.syfo.testutil.opprettSoknadFraSoknadMetadata
 import no.nav.syfo.tilSoknader
+import no.nav.syfo.util.tilOsloInstant
 import no.nav.syfo.ventPåRecords
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.MethodOrderer
@@ -43,7 +44,7 @@ class BrukerIkkeTimerForFaktiskGradHvisIkkeChecked : BaseTestClass() {
 
     private val soknadMetadata = SoknadMetadata(
         startSykeforlop = start,
-        sykmeldingSkrevet = start.atStartOfDay(),
+        sykmeldingSkrevet = start.atStartOfDay().tilOsloInstant(),
         arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
         sykmeldingsperioder = listOf(
             SykmeldingsperiodeAGDTO(

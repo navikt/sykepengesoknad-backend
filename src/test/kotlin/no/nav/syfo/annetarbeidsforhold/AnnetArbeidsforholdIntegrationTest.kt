@@ -19,6 +19,7 @@ import no.nav.syfo.soknadsopprettelse.OpprettSoknadService
 import no.nav.syfo.testutil.SoknadBesvarer
 import no.nav.syfo.testutil.opprettSoknadFraSoknadMetadata
 import no.nav.syfo.tilSoknader
+import no.nav.syfo.util.tilOsloInstant
 import no.nav.syfo.ventPåRecords
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.MethodOrderer
@@ -43,7 +44,7 @@ class AnnetArbeidsforholdIntegrationTest : BaseTestClass() {
 
     private val soknadMetadata = SoknadMetadata(
         startSykeforlop = LocalDate.of(2018, 1, 1),
-        sykmeldingSkrevet = LocalDateTime.of(2018, 1, 1, 12, 0),
+        sykmeldingSkrevet = LocalDateTime.of(2018, 1, 1, 12, 0).tilOsloInstant(),
         arbeidssituasjon = Arbeidssituasjon.ANNET,
         sykmeldingsperioder = listOf(
             SykmeldingsperiodeAGDTO(

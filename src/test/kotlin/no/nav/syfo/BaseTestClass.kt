@@ -29,10 +29,12 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.web.client.RestTemplate
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.KafkaContainer
+import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
 import javax.annotation.PostConstruct
 
 private class RedisContainer : GenericContainer<RedisContainer>("redis:5.0.3-alpine")
+private class PostgreSQLContainer14 : PostgreSQLContainer<PostgreSQLContainer14>("postgres:14-alpine")
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @EnableMockOAuth2Server
@@ -45,6 +47,13 @@ abstract class BaseTestClass {
         var pdlMockWebserver: MockWebServer
 
         init {
+            PostgreSQLContainer14().also {
+                it.start()
+                System.setProperty("spring.datasource.url", "${it.jdbcUrl}&reWriteBatchedInserts=true")
+                System.setProperty("spring.datasource.username", it.username)
+                System.setProperty("spring.datasource.password", it.password)
+            }
+
             RedisContainer().withExposedPorts(6379).also {
                 it.start()
                 System.setProperty("spring.redis.host", it.host)

@@ -19,6 +19,7 @@ import no.nav.syfo.soknadsopprettelse.sporsmal.behandlingsdagerSporsmal
 import no.nav.syfo.soknadsopprettelse.sporsmal.bekreftOpplysningerSporsmal
 import no.nav.syfo.soknadsopprettelse.sporsmal.fraverForBehandling
 import no.nav.syfo.soknadsopprettelse.sporsmal.vaerKlarOverAtBehandlingsdager
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime.now
 
@@ -81,7 +82,7 @@ fun settOppSykepengesoknadBehandlingsdager(
         status = soknadMetadata.status,
         fom = soknadMetadata.fom,
         tom = soknadMetadata.tom,
-        opprettet = now(),
+        opprettet = Instant.now(),
         startSykeforlop = soknadMetadata.startSykeforlop,
         sykmeldingSkrevet = soknadMetadata.sykmeldingSkrevet,
         arbeidsgiverOrgnummer = soknadMetadata.arbeidsgiverOrgnummer,

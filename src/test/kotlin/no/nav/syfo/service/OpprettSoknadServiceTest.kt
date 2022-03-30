@@ -13,6 +13,7 @@ import no.nav.syfo.repository.SykepengesoknadDAO
 import no.nav.syfo.soknadsopprettelse.OpprettSoknadService
 import no.nav.syfo.soknadsopprettelse.hentTidligsteFomForSykmelding
 import no.nav.syfo.util.Metrikk
+import no.nav.syfo.util.tilOsloInstant
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -108,7 +109,7 @@ class OpprettSoknadServiceTest {
             soknadstype = Soknadstype.ARBEIDSTAKERE,
             arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
             sykmeldingId = "id1",
-            sykmeldingSkrevet = LocalDateTime.now().minusMonths(4),
+            sykmeldingSkrevet = LocalDateTime.now().minusMonths(4).tilOsloInstant(),
             sykmeldingsperioder = emptyList()
         )
 
@@ -133,9 +134,9 @@ class OpprettSoknadServiceTest {
             status = NY,
             fom = fom,
             tom = tom,
-            opprettet = fom.atStartOfDay(),
+            opprettet = fom.atStartOfDay().tilOsloInstant(),
             startSykeforlop = fom,
-            sykmeldingSkrevet = fom.atStartOfDay(),
+            sykmeldingSkrevet = fom.atStartOfDay().tilOsloInstant(),
             arbeidsgiverOrgnummer = "orgnummer",
             arbeidsgiverNavn = "arbNavn",
             arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
@@ -154,9 +155,9 @@ class OpprettSoknadServiceTest {
             status = NY,
             fom = fom,
             tom = tom,
-            opprettet = fom.atStartOfDay(),
+            opprettet = fom.atStartOfDay().tilOsloInstant(),
             startSykeforlop = fom,
-            sykmeldingSkrevet = fom.atStartOfDay(),
+            sykmeldingSkrevet = fom.atStartOfDay().tilOsloInstant(),
             arbeidsgiverOrgnummer = "orgnummer",
             arbeidsgiverNavn = "arbNavn",
             arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,

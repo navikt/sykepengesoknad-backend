@@ -88,11 +88,6 @@ javax.net.ssl:
 spring:
   profiles:
     active: test
-  datasource:
-    url: 'jdbc:h2:mem:testdb;MODE=Oracle'
-    driver-class-name: 'org.h2.Driver'
-    username: 'sa'
-    password:
   kafka:
     consumer:
       group-id: syfosoknad-local

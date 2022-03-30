@@ -21,6 +21,7 @@ import no.nav.syfo.testutil.jsonTilHashMap
 import no.nav.syfo.testutil.opprettSoknadFraSoknadMetadata
 import no.nav.syfo.tilJuridiskVurdering
 import no.nav.syfo.tilSoknader
+import no.nav.syfo.util.tilOsloInstant
 import no.nav.syfo.ventPåRecords
 import org.amshove.kluent.`should be equal to`
 import org.assertj.core.api.Assertions.assertThat
@@ -45,7 +46,7 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : BaseTestClass() {
 
     private val soknadMetadata = SoknadMetadata(
         startSykeforlop = LocalDate.of(2018, 1, 1),
-        sykmeldingSkrevet = LocalDateTime.of(2018, 1, 1, 12, 0),
+        sykmeldingSkrevet = LocalDateTime.of(2018, 1, 1, 12, 0).tilOsloInstant(),
         arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
         sykmeldingsperioder = mutableListOf(
             SykmeldingsperiodeAGDTO(
@@ -167,11 +168,6 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : BaseTestClass() {
           "svar": [],
           "undersporsmal": [
             {
-              "tag": "HVOR_MYE_TIMER_1",
-              "svar": [],
-              "undersporsmal": []
-            },
-            {
               "tag": "HVOR_MYE_PROSENT_1",
               "svar": [
                 "CHECKED"
@@ -185,6 +181,11 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : BaseTestClass() {
                   "undersporsmal": []
                 }
               ]
+            },
+            {
+              "tag": "HVOR_MYE_TIMER_1",
+              "svar": [],
+              "undersporsmal": []
             }
           ]
         }

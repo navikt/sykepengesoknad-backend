@@ -16,6 +16,7 @@ import no.nav.syfo.util.DatoUtil.periodeErInnenforMinMax
 import no.nav.syfo.util.DatoUtil.periodeErUtenforHelg
 import no.nav.syfo.util.DatoUtil.periodeHarDagerUtenforAndrePerioder
 import no.nav.syfo.util.PeriodeMapper
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime.now
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
@@ -67,7 +68,7 @@ fun settOppSoknadArbeidstaker(
         status = soknadMetadata.status,
         fom = soknadMetadata.fom,
         tom = soknadMetadata.tom,
-        opprettet = now(),
+        opprettet = Instant.now(),
         startSykeforlop = soknadMetadata.startSykeforlop,
         sykmeldingSkrevet = soknadMetadata.sykmeldingSkrevet,
         arbeidsgiverOrgnummer = soknadMetadata.arbeidsgiverOrgnummer!!,

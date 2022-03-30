@@ -14,6 +14,8 @@ import no.nav.syfo.model.sykmelding.model.GradertDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import no.nav.syfo.soknadsopprettelse.*
 import no.nav.syfo.util.DatoUtil.periodeTilJson
+import no.nav.syfo.util.tilOsloInstant
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDate.now
 import java.time.LocalDateTime
@@ -49,7 +51,7 @@ fun deprecatedOpprettEnkelSendtSoknad(): Sykepengesoknad {
         arbeidsgiverOrgnummer = "123456789",
         arbeidsgiverNavn = "ARBEIDSGIVER A/S",
         sykmeldingId = "sykmeldingId",
-        sykmeldingSkrevet = LocalDateTime.now().minusMonths(1),
+        sykmeldingSkrevet = LocalDateTime.now().minusMonths(1).tilOsloInstant(),
         sykmeldingsperioder = listOf(
             SykmeldingsperiodeAGDTO(
                 fom = now().minusMonths(1),
@@ -67,7 +69,7 @@ fun deprecatedOpprettEnkelSendtSoknad(): Sykepengesoknad {
     )
 
     val sykepengesoknad = leggNeiSvarPaSoknad(deprecatedGetSoknadMedFeriesporsmalSomUndersporsmal(soknadMetadata))
-    return sykepengesoknad.copy(sendtNav = LocalDateTime.now(), sendtArbeidsgiver = LocalDateTime.now())
+    return sykepengesoknad.copy(sendtNav = Instant.now(), sendtArbeidsgiver = Instant.now())
 }
 
 fun gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal(): Sykepengesoknad {
@@ -81,7 +83,7 @@ fun gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal(): Sykepenge
         arbeidsgiverOrgnummer = "123456789",
         arbeidsgiverNavn = "ARBEIDSGIVER A/S",
         sykmeldingId = "14e78e84-50a5-45bb-9919-191c54f99691",
-        sykmeldingSkrevet = LocalDateTime.now().minusMonths(1),
+        sykmeldingSkrevet = LocalDateTime.now().minusMonths(1).tilOsloInstant(),
         sykmeldingsperioder = listOf(
             SykmeldingsperiodeAGDTO(
                 now().minusMonths(1),
@@ -110,12 +112,12 @@ fun gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal(): Sykepenge
     )
 
     val sykepengesoknad = leggSvarPaSoknad(deprecatedGetSoknadMedFeriesporsmalSomUndersporsmal(soknadMetadata))
-    return sykepengesoknad.copy(sendtNav = LocalDateTime.now(), sendtArbeidsgiver = LocalDateTime.now())
+    return sykepengesoknad.copy(sendtNav = Instant.now(), sendtArbeidsgiver = Instant.now())
 }
 
 fun gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal(meta: SoknadMetadata): Sykepengesoknad {
     val sykepengesoknad = leggSvarPaSoknad(settOppSoknadArbeidstaker(meta, true, now()))
-    return sykepengesoknad.copy(sendtNav = LocalDateTime.now(), sendtArbeidsgiver = LocalDateTime.now())
+    return sykepengesoknad.copy(sendtNav = Instant.now(), sendtArbeidsgiver = Instant.now())
 }
 
 fun opprettSendtSoknad(): Sykepengesoknad {
@@ -129,7 +131,7 @@ fun opprettSendtSoknad(): Sykepengesoknad {
         arbeidsgiverOrgnummer = "123456789",
         arbeidsgiverNavn = "ARBEIDSGIVER A/S",
         sykmeldingId = "14e78e84-50a5-45bb-9919-191c54f99691",
-        sykmeldingSkrevet = LocalDateTime.now().minusMonths(1),
+        sykmeldingSkrevet = LocalDateTime.now().minusMonths(1).tilOsloInstant(),
         sykmeldingsperioder = listOf(
             SykmeldingsperiodeAGDTO(
                 fom = now().minusMonths(1),
@@ -158,7 +160,7 @@ fun opprettSendtSoknad(): Sykepengesoknad {
     )
 
     val sykepengesoknad = leggSvarPaSoknad(settOppSoknadArbeidstaker(soknadMetadata, true, now()))
-    return sykepengesoknad.copy(sendtNav = LocalDateTime.now(), sendtArbeidsgiver = LocalDateTime.now())
+    return sykepengesoknad.copy(sendtNav = Instant.now(), sendtArbeidsgiver = Instant.now())
 }
 
 @Deprecated("")
@@ -173,7 +175,7 @@ fun opprettNySoknadMock(feriesporsmalSomHovedsporsmal: Boolean = true): Sykepeng
         arbeidsgiverOrgnummer = "123456789",
         arbeidsgiverNavn = "ARBEIDSGIVER A/S",
         sykmeldingId = "289148ba-4c3c-4b3f-b7a3-385b7e7c927d",
-        sykmeldingSkrevet = LocalDateTime.now().minusDays(19),
+        sykmeldingSkrevet = LocalDateTime.now().minusDays(19).tilOsloInstant(),
         sykmeldingsperioder = listOf(
             SykmeldingsperiodeAGDTO(
                 now().minusDays(19),
