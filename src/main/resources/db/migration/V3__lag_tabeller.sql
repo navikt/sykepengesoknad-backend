@@ -1,94 +1,85 @@
-CREATE TABLE SYKEPENGESOKNAD
+CREATE TABLE sykepengesoknad
 (
-    ID                       VARCHAR DEFAULT UUID_GENERATE_V4() PRIMARY KEY,
-    SYKEPENGESOKNAD_UUID     VARCHAR                  NOT NULL UNIQUE,
-    SOKNADSTYPE              VARCHAR                  NOT NULL,
-    STATUS                   VARCHAR                  NOT NULL,
-    FOM                      DATE,
-    TOM                      DATE,
-    SYKMELDING_UUID          VARCHAR,
-    AKTIVERT_DATO            DATE,
-    KORRIGERER               VARCHAR,
-    KORRIGERT_AV             VARCHAR,
-    AVBRUTT_DATO             DATE,
-    ARBEIDSSITUASJON         VARCHAR,
-    START_SYKEFORLOP         DATE,
-    ARBEIDSGIVER_ORGNUMMER   VARCHAR,
-    ARBEIDSGIVER_NAVN        VARCHAR,
-    SENDT_ARBEIDSGIVER       TIMESTAMP WITH TIME ZONE,
-    SENDT_NAV                TIMESTAMP WITH TIME ZONE,
-    SYKMELDING_SKREVET       TIMESTAMP WITH TIME ZONE,
-    OPPRETTET                TIMESTAMP WITH TIME ZONE NOT NULL,
-    OPPRINNELSE              VARCHAR,
-    AVSENDERTYPE             VARCHAR,
-    FNR                      VARCHAR(11),
-    EGENMELDT_SYKMELDING     BOOLEAN,
-    MERKNADER_FRA_SYKMELDING VARCHAR,
-    UTLOPT_PUBLISERT         TIMESTAMP WITH TIME ZONE,
-    AVBRUTT_FEILINFO         BOOLEAN
+    id                       VARCHAR DEFAULT uuid_generate_v4() PRIMARY KEY,
+    sykepengesoknad_uuid     VARCHAR                  NOT NULL UNIQUE,
+    soknadstype              VARCHAR                  NOT NULL,
+    status                   VARCHAR                  NOT NULL,
+    fom                      DATE,
+    tom                      DATE,
+    sykmelding_uuid          VARCHAR,
+    aktivert_dato            DATE,
+    korrigerer               VARCHAR,
+    korrigert_av             VARCHAR,
+    avbrutt_dato             DATE,
+    arbeidssituasjon         VARCHAR,
+    start_sykeforlop         DATE,
+    arbeidsgiver_orgnummer   VARCHAR,
+    arbeidsgiver_navn        VARCHAR,
+    sendt_arbeidsgiver       TIMESTAMP WITH TIME ZONE,
+    sendt_nav                TIMESTAMP WITH TIME ZONE,
+    sykmelding_skrevet       TIMESTAMP WITH TIME ZONE,
+    opprettet                TIMESTAMP WITH TIME ZONE NOT NULL,
+    opprinnelse              VARCHAR,
+    avsendertype             VARCHAR,
+    fnr                      VARCHAR(11),
+    egenmeldt_sykmelding     BOOLEAN,
+    merknader_fra_sykmelding VARCHAR,
+    utlopt_publisert         TIMESTAMP WITH TIME ZONE,
+    avbrutt_feilinfo         BOOLEAN
 );
 
-CREATE INDEX SYKEPENGESOKNAD_FNR_INDEX ON SYKEPENGESOKNAD (FNR);
-
+CREATE INDEX sykepengesoknad_fnr_index ON sykepengesoknad (fnr);
 
 CREATE TABLE SPORSMAL
 (
-    ID                   VARCHAR DEFAULT UUID_GENERATE_V4() PRIMARY KEY,
-    SYKEPENGESOKNAD_ID   VARCHAR NOT NULL REFERENCES SYKEPENGESOKNAD (ID),
-    UNDER_SPORSMAL_ID    VARCHAR REFERENCES SPORSMAL (ID),
-    TEKST                VARCHAR,
-    UNDERTEKST           VARCHAR,
-    TAG                  VARCHAR NOT NULL,
-    SVARTYPE             VARCHAR NOT NULL,
-    MIN                  VARCHAR,
-    MAX                  VARCHAR,
-    KRITERIE_FOR_VISNING VARCHAR
+    id                   VARCHAR DEFAULT uuid_generate_v4() PRIMARY KEY,
+    sykepengesoknad_id   VARCHAR NOT NULL REFERENCES sykepengesoknad (id),
+    under_sporsmal_id    VARCHAR REFERENCES SPORSMAL (id),
+    tekst                VARCHAR,
+    undertekst           VARCHAR,
+    tag                  VARCHAR NOT NULL,
+    svartype             VARCHAR NOT NULL,
+    min                  VARCHAR,
+    max                  VARCHAR,
+    kriterie_for_visning VARCHAR
 );
 
 
-CREATE INDEX SPORSMAL_SOKNAD_ID_INDEX
-    ON SPORSMAL (SYKEPENGESOKNAD_ID);
+CREATE INDEX sporsmal_soknad_id_index ON sporsmal (sykepengesoknad_id);
 
+CREATE INDEX under_sporsmal_id_index ON sporsmal (under_sporsmal_id);
 
-CREATE INDEX UNDER_SPORSMAL_ID_INDEX
-    ON SPORSMAL (UNDER_SPORSMAL_ID);
-
-
-CREATE TABLE SVAR
+CREATE TABLE svar
 (
-    ID          VARCHAR DEFAULT UUID_GENERATE_V4() PRIMARY KEY,
-    SPORSMAL_ID VARCHAR NOT NULL REFERENCES SPORSMAL (ID),
-    VERDI       VARCHAR NOT NULL
+    id          VARCHAR DEFAULT uuid_generate_v4() PRIMARY KEY,
+    sporsmal_id VARCHAR NOT NULL REFERENCES sporsmal (id),
+    verdi       VARCHAR NOT NULL
 );
 
-
-
-CREATE TABLE SOKNADPERIODE
+CREATE TABLE soknadperiode
 (
-    ID                 VARCHAR DEFAULT UUID_GENERATE_V4() PRIMARY KEY,
-    SYKEPENGESOKNAD_ID VARCHAR NOT NULL REFERENCES SYKEPENGESOKNAD (ID),
-    FOM                DATE    NOT NULL,
-    TOM                DATE    NOT NULL,
-    GRAD               INTEGER NOT NULL,
-    SYKMELDINGSTYPE    VARCHAR
+    id                 VARCHAR DEFAULT uuid_generate_v4() PRIMARY KEY,
+    sykepengesoknad_id VARCHAR NOT NULL REFERENCES sykepengesoknad (id),
+    fom                DATE    NOT NULL,
+    tom                DATE    NOT NULL,
+    grad               INTEGER NOT NULL,
+    sykmeldingstype    VARCHAR
 );
 
-
-CREATE INDEX SOKNADPERIODE_SOKNAD_ID_INDEX
-    ON SOKNADPERIODE (SYKEPENGESOKNAD_ID);
+CREATE INDEX soknadperiode_soknad_id_index ON soknadperiode (sykepengesoknad_id);
 
 
-CREATE TABLE DODSMELDING
+CREATE TABLE dodsmelding
 (
-    ID                   VARCHAR DEFAULT UUID_GENERATE_V4() PRIMARY KEY,
-    FNR                  VARCHAR(11)              NOT NULL UNIQUE,
-    DODSDATO             DATE                     NOT NULL,
-    MELDING_MOTTATT_DATO TIMESTAMP WITH TIME ZONE NOT NULL
+    id                   VARCHAR DEFAULT uuid_generate_v4() PRIMARY KEY,
+    fnr                  VARCHAR(11)              NOT NULL UNIQUE,
+    dodsdato             DATE                     NOT NULL,
+    melding_mottatt_dato TIMESTAMP WITH TIME ZONE NOT NULL
 );
 
-CREATE TABLE JULESOKNADKANDIDAT
+CREATE TABLE julesoknadkandidat
 (
-    ID                   VARCHAR DEFAULT UUID_GENERATE_V4() PRIMARY KEY,
-    SYKEPENGESOKNAD_UUID VARCHAR                  NOT NULL UNIQUE,
-    OPPRETTET            TIMESTAMP WITH TIME ZONE NOT NULL
+    id                   VARCHAR DEFAULT uuid_generate_v4() PRIMARY KEY,
+    sykepengesoknad_uuid VARCHAR                  NOT NULL UNIQUE,
+    opprettet            TIMESTAMP WITH TIME ZONE NOT NULL
 );
