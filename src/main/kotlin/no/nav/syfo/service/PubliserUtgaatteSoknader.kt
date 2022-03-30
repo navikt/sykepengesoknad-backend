@@ -6,13 +6,11 @@ import no.nav.syfo.cronjob.LeaderElection
 import no.nav.syfo.kafka.producer.SoknadProducer
 import no.nav.syfo.logger
 import no.nav.syfo.repository.SykepengesoknadDAO
-import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import java.time.DayOfWeek
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.util.concurrent.TimeUnit
 
 @Component
 class PubliserUtgaatteSoknader(
@@ -39,7 +37,7 @@ class PubliserUtgaatteSoknader(
         return soknaderTilPublisering.size
     }
 
-    @Scheduled(fixedDelay = 1, initialDelay = 5, timeUnit = TimeUnit.MINUTES)
+    // TODO enables senere  @Scheduled(fixedDelay = 1, initialDelay = 5, timeUnit = TimeUnit.MINUTES)
     fun run() {
         if (toggle.isNotProduction() || erPåNatta()) {
             if (leaderElection.isLeader()) {

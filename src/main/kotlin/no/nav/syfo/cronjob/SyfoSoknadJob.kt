@@ -6,7 +6,6 @@ import no.nav.syfo.service.AktiverService
 import no.nav.syfo.service.AutomatiskInnsendingVedDodsfallService
 import no.nav.syfo.service.DeaktiverGamleSoknaderService
 import no.nav.syfo.service.SlettGamleUtkastService
-import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -23,7 +22,7 @@ class SyfoSoknadJob(
 ) {
     val log = logger()
 
-    @Scheduled(cron = "\${syfosoknad.cron}")
+    // TODO enables senere @Scheduled(cron = "\${syfosoknad.cron}")
     fun run() {
         if (leaderElection.isLeader()) {
 

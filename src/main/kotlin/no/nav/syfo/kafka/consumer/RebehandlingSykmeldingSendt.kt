@@ -6,6 +6,7 @@ import no.nav.syfo.kafka.sykmeldingSendtRetryTopic
 import no.nav.syfo.logger
 import no.nav.syfo.soknadsopprettelse.BehandleSendtBekreftetSykmeldingService
 import org.apache.kafka.clients.consumer.ConsumerRecord
+import org.springframework.context.annotation.Profile
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.support.Acknowledgment
 import org.springframework.stereotype.Component
@@ -15,6 +16,7 @@ import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
 @Component
+@Profile("test")
 class RebehandlingSykmeldingSendt(
     private val rebehandlingSykmeldingSendtProducer: RebehandlingSykmeldingSendtProducer,
     private val behandleSendtBekreftetSykmeldingService: BehandleSendtBekreftetSykmeldingService

@@ -9,6 +9,7 @@ import no.nav.syfo.soknadsopprettelse.BehandleSendtBekreftetSykmeldingService
 import no.nav.syfo.util.OBJECT_MAPPER
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.MDC
+import org.springframework.context.annotation.Profile
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.support.Acknowledgment
 import org.springframework.stereotype.Component
@@ -18,6 +19,7 @@ const val SYKMELDINGSENDT_TOPIC = "teamsykmelding." + "syfo-sendt-sykmelding"
 const val SYKMELDINGBEKREFTET_TOPIC = "teamsykmelding." + "syfo-bekreftet-sykmelding"
 
 @Component
+@Profile("test")
 class SykmeldingSendtBekreftetAivenConsumer(
     private val behandleSendtBekreftetSykmeldingService: BehandleSendtBekreftetSykmeldingService
 ) {

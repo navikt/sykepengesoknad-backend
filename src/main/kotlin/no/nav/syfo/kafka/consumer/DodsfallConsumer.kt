@@ -14,6 +14,7 @@ import org.apache.avro.generic.GenericData
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.MDC
+import org.springframework.context.annotation.Profile
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.support.Acknowledgment
 import org.springframework.stereotype.Component
@@ -26,6 +27,7 @@ private const val OPPHOERT = "OPPHOERT"
 private const val OPPLYSNINGSTYPE_DODSFALL = "DOEDSFALL_V1"
 
 @Component
+@Profile("test")
 class DodsfallConsumer(
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val metrikk: Metrikk,
