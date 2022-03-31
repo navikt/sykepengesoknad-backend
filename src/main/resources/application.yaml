@@ -75,12 +75,12 @@ spring:
     open-in-view: false
   main.banner-mode: 'off'
   datasource:
-    driver-class-name: 'oracle.jdbc.OracleDriver'
-  datasource.hikari:
-    connectionTimeout: 30000
-    idleTimeout: 600000
-    maxLifetime: 1800000
-    maximum-pool-size: 15
+    url: "jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_DATABASE}?reWriteBatchedInserts=true"
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      minimum-idle: 1
+      maximum-pool-size: 3
   kafka:
     client-id: ${nais.app.name}-${fasit.environment.name}
     properties:
