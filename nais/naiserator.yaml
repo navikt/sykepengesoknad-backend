@@ -14,14 +14,16 @@ spec:
   port: 8080
   liveness:
     path: /internal/isAlive
-    initialDelay: 60
+    initialDelay: 45
     timeout: 1
-    periodSeconds: 20
-    failureThreshold: 3
+    periodSeconds: 5
+    failureThreshold: 20
   readiness:
     path: /internal/isReady
-    initialDelay: 60
+    initialDelay: 45
     timeout: 1
+    periodSeconds: 5
+    failureThreshold: 20
   leaderElection: true
   prometheus:
     enabled: true
