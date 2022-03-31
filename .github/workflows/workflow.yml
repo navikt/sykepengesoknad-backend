@@ -70,7 +70,7 @@ jobs:
 
 
   deploy-to-dev-gcp:
-    if: github.ref == 'FIXME'
+    if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/dev-')
     name: Deploy til dev-gcp
     runs-on: ubuntu-latest
     needs: build-and-publish
@@ -90,10 +90,11 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
-          RESOURCE: nais-server-dev.yaml
+          RESOURCE: nais/naiserator.yaml
+          VARS: nais/dev.yaml
 
   deploy-to-prod-gcp:
-    if: github.ref == 'FIXME'
+    if: github.ref == 'refs/heads/master'
     name: Deploy til prod-gcp (Produksjon)
     runs-on: ubuntu-latest
     needs: build-and-publish
@@ -113,4 +114,5 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-gcp
-          RESOURCE: nais-server-prod.yaml
+          RESOURCE: nais/naiserator.yaml
+          VARS: nais/prod.yaml

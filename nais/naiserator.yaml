@@ -1,0 +1,60 @@
+apiVersion: "nais.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: sykepengesoknad-backend
+  namespace: flex
+  labels:
+    team: flex
+spec:
+  image: {{image}}
+  replicas:
+    min: {{replicas_min}}
+    max: {{replicas_max}}
+    cpuThresholdPercentage: 90
+  port: 8080
+  liveness:
+    path: /internal/isAlive
+    initialDelay: 60
+    timeout: 1
+    periodSeconds: 20
+    failureThreshold: 3
+  readiness:
+    path: /internal/isReady
+    initialDelay: 60
+    timeout: 1
+  leaderElection: true
+  prometheus:
+    enabled: true
+    path: /internal/prometheus
+  resources:
+    limits:
+      cpu: 600m
+      memory: 2048Mi
+    requests:
+      cpu: 400m
+      memory: 1024Mi
+  azure:
+    application:
+      enabled: true
+      tenant: {{azureTenant}}
+  kafka:
+    pool: {{kafkaPool}}
+  gcp:
+    sqlInstances:
+      - type: POSTGRES_14
+        tier: {{ db_tier }}
+        diskType: SSD
+        highAvailability: true
+        diskSize: {{ db_size }}
+        pointInTimeRecovery: true
+        diskAutoresize: true
+        databases:
+          - name: sykepengesoknad-db
+            envVarPrefix: DB
+  envFrom:
+    - configmap: loginservice-idporten
+  env:
+  {{#each env}}
+     - name: {{@key}}
+       value: {{this}}
+  {{/each}}

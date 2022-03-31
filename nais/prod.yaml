@@ -1,0 +1,25 @@
+azureTenant: nav.no
+kafkaPool: nav-prod
+environment: prod
+db_tier: db-custom-2-3840
+db_size: 120
+replicas_min: 3
+replicas_max: 6
+env:
+  PDL_BASE_URL: https://pdl-api.prod-fss-pub.nais.io
+  PDL_API_AAD_CLIENT_ID: prod-fss.pdl.pdl-api
+  SPRING_KAFKA_BOOTSTRAP_SERVERS: "a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443,a01apvl00148.adeo.no:8443,a01apvl00149.adeo.no:8443,a01apvl00150.adeo.no:8443"
+  KAFKA_SCHEMA_REGISTRY_URL: "http://kafka-schema-registry.tpa:8081"
+  FASIT_ENVIRONMENT_NAME: "p"
+  SYFOTILGANGSKONTROLL_URL: "https://syfo-tilgangskontroll.nais.adeo.no/syfo-tilgangskontroll"
+  SYFOSMREGISTER_URL: "http://syfosmregister.teamsykmelding"
+  SYFOSMREGISTER_AAD_CLIENT_ID: prod-fss.teamsykmelding.syfosmregister
+  JULESOKNAD_CRON: "0 0 5 * * ?"
+  SYFOSOKNAD_CRON: "0 0 1 * * ?"
+  FLEX_BUCKET_UPLOADER_URL: "https://flex-bucket-uploader.intern.nav.no"
+  FLEX_BUCKET_UPLOADER_AAD_CLIENT_ID: prod-gcp.flex.flex-bucket-uploader
+  NARMESTELEDER_AAD_CLIENT_ID: prod-gcp.teamsykmelding.narmesteleder
+  NARMESTELEDER_URL: "https://narmesteleder.intern.nav.no"
+  SYFOTILGANGSKONTROLL_AAD_CLIENT_ID: prod-fss.teamsykefravr.syfo-tilgangskontroll
+  FLEX_SYKETILFELLE_URL: "https://flex-syketilfelle.intern.nav.no"
+  FLEX_SYKETILFELLE_AAD_CLIENT_ID: prod-gcp.flex.flex-syketilfelle
