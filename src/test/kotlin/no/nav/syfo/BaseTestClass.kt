@@ -65,19 +65,20 @@ abstract class BaseTestClass {
             System.setProperty("KAFKA_BROKERS", bootstrapServers)
         }
 
-        init {
-            PostgreSQLContainer14().also {
-                it.start()
-                System.setProperty("spring.datasource.url", "${it.jdbcUrl}&reWriteBatchedInserts=true")
-                System.setProperty("spring.datasource.username", it.username)
-                System.setProperty("spring.datasource.password", it.password)
-            }
+        private val postgreContainer = PostgreSQLContainer14().apply {
+            start()
+            System.setProperty("spring.datasource.url", "$jdbcUrl&reWriteBatchedInserts=true")
+            System.setProperty("spring.datasource.username", username)
+            System.setProperty("spring.datasource.password", password)
+        }
 
+        init {
             Runtime.getRuntime().addShutdownHook(
                 Thread {
                     println("Avslutter testcontainers")
                     redisContainer.close()
                     kafkaContainer.close()
+                    postgreContainer.close()
                 }
             )
         }
