@@ -11,6 +11,7 @@ import no.nav.syfo.logger
 import no.nav.syfo.model.sykmeldingstatus.STATUS_BEKREFTET
 import no.nav.syfo.model.sykmeldingstatus.STATUS_SENDT
 import no.nav.syfo.model.sykmeldingstatus.ShortNameDTO
+import no.nav.syfo.repository.RedusertVenteperiodeRepository
 import no.nav.syfo.service.GjenapneSykmeldingService
 import no.nav.syfo.service.IdentService
 import no.nav.syfo.util.Metrikk
@@ -27,7 +28,8 @@ class BehandleSendtBekreftetSykmeldingService(
     private val metrikk: Metrikk,
     private val sykmeldingStatusService: GjenapneSykmeldingService,
     private val klippOgOpprett: KlippOgOpprett,
-    private val skalOppretteSoknader: SkalOppretteSoknader
+    private val skalOppretteSoknader: SkalOppretteSoknader,
+    private val redusertVenteperiodeRepository: RedusertVenteperiodeRepository,
 ) {
     val log = logger()
 
@@ -101,6 +103,10 @@ class BehandleSendtBekreftetSykmeldingService(
         )
         if (sykmeldingResultat != SykmeldingBehandletResultat.SYKMELDING_OK) {
             return sykmeldingResultat
+        }
+
+        if (sykmeldingKafkaMessage.sykmelding.harRedusertArbeidsgiverperiode) {
+            redusertVenteperiodeRepository.insert(sykmeldingKafkaMessage.sykmelding.id)
         }
 
         val sykeForloep = flexSyketilfelleClient.hentSykeforloep(identer)
