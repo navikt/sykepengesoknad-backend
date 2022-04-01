@@ -99,7 +99,7 @@ class SykepengesoknadDAOTest : BaseTestClass() {
         val uuid1 = sykepengesoknadDAO.lagreSykepengesoknad(sykepengesoknad).id
         val uuid2 = sykepengesoknadDAO.lagreSykepengesoknad(sykepengesoknad.copy(id = UUID.randomUUID().toString(), fnr = "fnr2")).id
 
-        val sykepengesoknadList = sykepengesoknadDAO.finnSykepengesoknaderByUuid(listOf(uuid1, uuid2))
+        val sykepengesoknadList = sykepengesoknadDAO.finnSykepengesoknaderByUuid(listOf(uuid1, uuid2)).sortedBy { it.fnr }
 
         assertThat(sykepengesoknadList).hasSize(2)
         assertThat(sykepengesoknadList[0].status).isEqualTo(NY)
