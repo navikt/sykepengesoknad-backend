@@ -17,7 +17,6 @@ import no.nav.syfo.model.sykmeldingstatus.STATUS_SENDT
 import no.nav.syfo.repository.SykepengesoknadDAO
 import no.nav.syfo.soknadsopprettelse.ANSVARSERKLARING
 import no.nav.syfo.soknadsopprettelse.BEKREFT_OPPLYSNINGER
-import no.nav.syfo.soknadsopprettelse.BehandleSendtBekreftetSykmeldingService
 import no.nav.syfo.testdata.getSykmeldingDto
 import no.nav.syfo.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.syfo.testutil.SoknadBesvarer
@@ -34,11 +33,7 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
     @Autowired
     private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
 
-    @Autowired
-    private lateinit var behandleSendtBekreftetSykmeldingService: BehandleSendtBekreftetSykmeldingService
-
     final val fnr = "123456789"
-    final val aktorid = fnr + "00"
 
     @BeforeEach
     fun setUp() {
@@ -236,7 +231,7 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
         gjenapneSoknad(soknadId = soknad.id, fnr = fnr)
         val gjenapnetSoknad = hentSoknader(fnr).first { it.id == avbruttSoknad.id }
         assertThat(gjenapnetSoknad.status).isEqualTo(RSSoknadstatus.NY)
-        assertThat(gjenapnetSoknad.sporsmal?.map { it.svar.size }?.sum()).isEqualTo(0)
+        assertThat(gjenapnetSoknad.sporsmal?.sumOf { it.svar.size }).isEqualTo(0)
 
         val soknadPaKafka2 = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().last()
         assertThat(soknadPaKafka2.status).isEqualTo(NY)

@@ -18,7 +18,6 @@ import no.nav.syfo.model.sykmeldingstatus.STATUS_SENDT
 import no.nav.syfo.repository.JulesoknadkandidatDAO
 import no.nav.syfo.service.AktiverService
 import no.nav.syfo.service.JulesoknadService
-import no.nav.syfo.soknadsopprettelse.BehandleSendtBekreftetSykmeldingService
 import no.nav.syfo.testdata.getSykmeldingDto
 import no.nav.syfo.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.syfo.testutil.SoknadBesvarer
@@ -44,13 +43,9 @@ class JulesoknadIntegrationTest : BaseTestClass() {
     @Autowired
     private lateinit var julesoknadkandidatDAO: JulesoknadkandidatDAO
 
-    @Autowired
-    private lateinit var behandleSendtBekreftetSykmeldingService: BehandleSendtBekreftetSykmeldingService
+    private final val fnr = "123456789"
 
-    final val fnr = "123456789"
-    final val aktorid = fnr + "00"
-
-    final val nesteÅr = LocalDate.now().plusYears(1).year
+    private final val nesteÅr = LocalDate.now().plusYears(1).year
 
     @BeforeEach
     fun setUp() {

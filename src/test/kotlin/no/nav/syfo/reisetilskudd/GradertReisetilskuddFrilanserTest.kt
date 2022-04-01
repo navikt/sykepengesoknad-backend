@@ -10,14 +10,12 @@ import no.nav.syfo.model.sykmelding.model.GradertDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import no.nav.syfo.model.sykmeldingstatus.STATUS_BEKREFTET
 import no.nav.syfo.soknadsopprettelse.*
-import no.nav.syfo.soknadsopprettelse.BehandleSendtBekreftetSykmeldingService
 import no.nav.syfo.testdata.getSykmeldingDto
 import no.nav.syfo.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.syfo.testutil.SoknadBesvarer
 import org.amshove.kluent.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
-import org.springframework.beans.factory.annotation.Autowired
 import java.time.Duration
 import java.time.LocalDate
 import java.util.*
@@ -25,11 +23,7 @@ import java.util.*
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class GradertReisetilskuddFrilanserTest : BaseTestClass() {
 
-    @Autowired
-    private lateinit var behandleSendtBekreftetSykmeldingService: BehandleSendtBekreftetSykmeldingService
-
     final val fnr = "123456789"
-    final val aktorid = fnr + "00"
 
     val sykmeldingId = UUID.randomUUID().toString()
     val fom = LocalDate.of(2021, 9, 1)

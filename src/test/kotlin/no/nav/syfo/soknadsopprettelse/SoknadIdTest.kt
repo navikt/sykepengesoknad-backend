@@ -14,7 +14,6 @@ import java.time.OffsetDateTime
 
 class SoknadIdTest {
     val fnr = "124919274"
-    final val aktorid = fnr + "00"
     val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(
         fnr = fnr,
         arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,

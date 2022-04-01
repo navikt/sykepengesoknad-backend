@@ -10,7 +10,6 @@ import no.nav.syfo.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.syfo.juridiskvurdering.Utfall
 import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
 import no.nav.syfo.model.sykmeldingstatus.STATUS_SENDT
-import no.nav.syfo.soknadsopprettelse.BehandleSendtBekreftetSykmeldingService
 import no.nav.syfo.testdata.getSykmeldingDto
 import no.nav.syfo.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.syfo.testutil.SoknadBesvarer
@@ -21,19 +20,14 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
-import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class JuridiskVurderingArbeidsgiverperiodeTest : BaseTestClass() {
 
-    @Autowired
-    private lateinit var behandleSendtBekreftetSykmeldingService: BehandleSendtBekreftetSykmeldingService
-
-    final val fnr = "12345678910"
-    final val aktorid = fnr + "00"
-    final val orgnr = "123454543"
-    final val fredagen = LocalDate.of(2021, 12, 17)
+    private final val fnr = "12345678910"
+    private final val orgnr = "123454543"
+    private final val fredagen = LocalDate.of(2021, 12, 17)
 
     @BeforeEach
     fun setUp() {

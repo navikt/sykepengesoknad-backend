@@ -35,10 +35,16 @@ fun <K, V> Consumer<K, V>.ventPåRecords(
     }
 
     val alle = ArrayList<ConsumerRecord<K, V>>()
-    factory.until {
-        alle.addAll(this.hentProduserteRecords())
-        alle.size == antall
+    runCatching {
+        factory.until {
+            alle.addAll(this.hentProduserteRecords())
+            alle.size == antall
+        }
+    }.onFailure {
+        println("Forventet $antall meldinger på kafka, mottok ${alle.size}")
+        throw it
     }
+
     return alle
 }
 

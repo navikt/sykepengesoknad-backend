@@ -9,7 +9,6 @@ import no.nav.syfo.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import no.nav.syfo.model.sykmeldingstatus.*
-import no.nav.syfo.soknadsopprettelse.BehandleSendtBekreftetSykmeldingService
 import no.nav.syfo.testdata.getSykmeldingDto
 import no.nav.syfo.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.syfo.testutil.SoknadBesvarer
@@ -18,7 +17,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
-import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.*
@@ -26,13 +24,8 @@ import java.util.*
 @TestMethodOrder(MethodOrderer.MethodName::class)
 class GjenapneSykmeldingIntegrationMedTombstoneTest : BaseTestClass() {
 
-    @Autowired
-    private lateinit var behandleSendtBekreftetSykmeldingService: BehandleSendtBekreftetSykmeldingService
-
-    final val fnr = "123456789"
-    final val aktorid = fnr + "00"
-
-    final val timestamp = OffsetDateTime.now()
+    private final val fnr = "123456789"
+    private final val timestamp = OffsetDateTime.now()
 
     @BeforeEach
     fun setUp() {

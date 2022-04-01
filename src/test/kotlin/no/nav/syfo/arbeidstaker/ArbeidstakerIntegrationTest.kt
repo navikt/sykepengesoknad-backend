@@ -15,7 +15,6 @@ import no.nav.syfo.model.sykmeldingstatus.STATUS_BEKREFTET
 import no.nav.syfo.model.sykmeldingstatus.STATUS_SENDT
 import no.nav.syfo.repository.SykepengesoknadDAO
 import no.nav.syfo.soknadsopprettelse.ANSVARSERKLARING
-import no.nav.syfo.soknadsopprettelse.BehandleSendtBekreftetSykmeldingService
 import no.nav.syfo.testdata.getSykmeldingDto
 import no.nav.syfo.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.syfo.testutil.SoknadBesvarer
@@ -37,11 +36,8 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
     @Autowired
     private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
 
-    @Autowired
-    private lateinit var behandleSendtBekreftetSykmeldingService: BehandleSendtBekreftetSykmeldingService
-
-    final val fnr = "12454578474"
-    final val basisdato = LocalDate.of(2021, 9, 1)
+    private final val fnr = "12454578474"
+    private final val basisdato = LocalDate.of(2021, 9, 1)
 
     @BeforeEach
     fun setUp() {

@@ -10,7 +10,6 @@ import no.nav.syfo.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
 import no.nav.syfo.model.sykmeldingstatus.STATUS_SENDT
 import no.nav.syfo.service.AktiverService
-import no.nav.syfo.soknadsopprettelse.BehandleSendtBekreftetSykmeldingService
 import no.nav.syfo.testdata.getSykmeldingDto
 import no.nav.syfo.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.syfo.testutil.SoknadBesvarer
@@ -30,11 +29,8 @@ class ArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
     @Autowired
     private lateinit var aktiverService: AktiverService
 
-    @Autowired
-    private lateinit var behandleSendtBekreftetSykmeldingService: BehandleSendtBekreftetSykmeldingService
-
-    final val fnr = "123456789"
-    final val basisdato = LocalDate.now()
+    private final val fnr = "123456789"
+    private final val basisdato = LocalDate.now()
 
     @BeforeEach
     fun setUp() {

@@ -8,7 +8,6 @@ import no.nav.syfo.domain.Arbeidssituasjon
 import no.nav.syfo.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
 import no.nav.syfo.model.sykmeldingstatus.STATUS_SENDT
-import no.nav.syfo.soknadsopprettelse.BehandleSendtBekreftetSykmeldingService
 import no.nav.syfo.testdata.getSykmeldingDto
 import no.nav.syfo.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.syfo.testutil.SoknadBesvarer
@@ -29,12 +28,8 @@ class AvbruttSoknadIncidentTest : BaseTestClass() {
     @Autowired
     lateinit var namedParameterJdbcTemplate: NamedParameterJdbcTemplate
 
-    @Autowired
-    private lateinit var behandleSendtBekreftetSykmeldingService: BehandleSendtBekreftetSykmeldingService
-
-    final val fnr = "123456789"
-    final val aktorid = fnr + "00"
-    final val basisdato = LocalDate.of(2021, 9, 1)
+    private final val fnr = "123456789"
+    private final val basisdato = LocalDate.of(2021, 9, 1)
 
     @BeforeEach
     fun setUp() {

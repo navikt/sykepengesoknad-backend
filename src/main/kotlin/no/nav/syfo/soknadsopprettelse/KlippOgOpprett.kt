@@ -24,7 +24,7 @@ class KlippOgOpprett(
         identer: FolkeregisterIdenter,
         sykeForloep: List<Sykeforloep>
     ): SykmeldingBehandletResultat {
-
+        var kafkaMessage = sykmeldingKafkaMessage
         val sykmeldingId = sykmeldingKafkaMessage.event.sykmeldingId
 
         val arbeidsgiverStatusDTO = sykmeldingKafkaMessage.event.arbeidsgiver
@@ -32,15 +32,15 @@ class KlippOgOpprett(
             throw ManglerArbeidsgiverException("Arbeidsgiverstatus er null for sykmelding $sykmeldingId med arbeidssituasjon arbeidstaker")
         }
 
-        soknadsklipper.klippEksisterendeSoknader(
-            sykmeldingKafkaMessage = sykmeldingKafkaMessage,
+        kafkaMessage = soknadsklipper.klipp(
+            sykmeldingKafkaMessage = kafkaMessage,
             arbeidssituasjon = arbeidssituasjon,
             arbeidsgiverStatusDTO = arbeidsgiverStatusDTO,
             identer = identer,
         )
 
         return opprettSoknadService.opprettSykepengesoknaderForSykmelding(
-            sykmeldingKafkaMessage = sykmeldingKafkaMessage,
+            sykmeldingKafkaMessage = kafkaMessage,
             arbeidssituasjon = arbeidssituasjon,
             identer = identer,
             arbeidsgiverStatusDTO = arbeidsgiverStatusDTO,

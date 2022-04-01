@@ -36,11 +36,10 @@ class BrukerIkkeTimerForFaktiskGradHvisIkkeChecked : BaseTestClass() {
     @Autowired
     private lateinit var opprettSoknadService: OpprettSoknadService
 
-    final val fnr = "123456789"
-    final val aktorid = "${fnr}00"
+    private final val fnr = "123456789"
 
-    val start = LocalDate.of(2020, 9, 22)
-    val slutt = LocalDate.of(2020, 10, 10)
+    private final val start = LocalDate.of(2020, 9, 22)
+    private final val slutt = LocalDate.of(2020, 10, 10)
 
     private val soknadMetadata = SoknadMetadata(
         startSykeforlop = start,

@@ -9,6 +9,7 @@ import no.nav.syfo.kafka.producer.AivenKafkaProducer
 import no.nav.syfo.kafka.producer.RebehandlingSykmeldingSendtProducer
 import no.nav.syfo.kafka.sykepengesoknadTopic
 import no.nav.syfo.service.AutomatiskInnsendingService
+import no.nav.syfo.soknadsopprettelse.BehandleSendtBekreftetSykmeldingService
 import no.nav.syfo.testdata.DatabaseReset
 import okhttp3.mockwebserver.MockWebServer
 import org.amshove.kluent.shouldBeEmpty
@@ -44,7 +45,22 @@ private class PostgreSQLContainer14 : PostgreSQLContainer<PostgreSQLContainer14>
 abstract class BaseTestClass {
 
     companion object {
-        var pdlMockWebserver: MockWebServer
+        val pdlMockWebserver = MockWebServer().apply {
+            System.setProperty("pdl.api.url", "http://localhost:$port")
+            dispatcher = PdlMockDispatcher
+        }
+
+        private val redisContainer = RedisContainer().apply {
+            withExposedPorts(6379)
+            start()
+            System.setProperty("spring.redis.host", host)
+            System.setProperty("spring.redis.port", firstMappedPort.toString())
+        }
+
+        private val kafkaContainer = KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.0.1")).apply {
+            start()
+            System.setProperty("KAFKA_BROKERS", bootstrapServers)
+        }
 
         init {
             PostgreSQLContainer14().also {
@@ -54,20 +70,13 @@ abstract class BaseTestClass {
                 System.setProperty("spring.datasource.password", it.password)
             }
 
-            RedisContainer().withExposedPorts(6379).also {
-                it.start()
-                System.setProperty("spring.redis.host", it.host)
-                System.setProperty("spring.redis.port", it.firstMappedPort.toString())
-            }
-            KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.0.1")).also {
-                it.start()
-                System.setProperty("KAFKA_BROKERS", it.bootstrapServers)
-            }
-            pdlMockWebserver = MockWebServer()
-                .also {
-                    System.setProperty("pdl.api.url", "http://localhost:${it.port}")
+            Runtime.getRuntime().addShutdownHook(
+                Thread {
+                    println("Avslutter testcontainers")
+                    redisContainer.close()
+                    kafkaContainer.close()
                 }
-                .also { it.dispatcher = PdlMockDispatcher }
+            )
         }
     }
 
@@ -88,6 +97,9 @@ abstract class BaseTestClass {
 
     @Autowired
     lateinit var flexSyketilfelleRestTemplate: RestTemplate
+
+    @Autowired
+    lateinit var behandleSendtBekreftetSykmeldingService: BehandleSendtBekreftetSykmeldingService
 
     var narmestelederMockRestServiceServer: MockRestServiceServer? = null
     var syfotilgangskontrollMockRestServiceServer: MockRestServiceServer? = null

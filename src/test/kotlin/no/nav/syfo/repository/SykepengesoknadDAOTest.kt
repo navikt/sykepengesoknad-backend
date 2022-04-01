@@ -24,7 +24,6 @@ import org.springframework.jdbc.core.JdbcTemplate
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.*
-import java.util.Arrays.asList
 
 class SykepengesoknadDAOTest : BaseTestClass() {
 
@@ -100,7 +99,7 @@ class SykepengesoknadDAOTest : BaseTestClass() {
         val uuid1 = sykepengesoknadDAO.lagreSykepengesoknad(sykepengesoknad).id
         val uuid2 = sykepengesoknadDAO.lagreSykepengesoknad(sykepengesoknad.copy(id = UUID.randomUUID().toString(), fnr = "fnr2")).id
 
-        val sykepengesoknadList = sykepengesoknadDAO.finnSykepengesoknaderByUuid(asList(uuid1, uuid2))
+        val sykepengesoknadList = sykepengesoknadDAO.finnSykepengesoknaderByUuid(listOf(uuid1, uuid2))
 
         assertThat(sykepengesoknadList).hasSize(2)
         assertThat(sykepengesoknadList[0].status).isEqualTo(NY)
@@ -306,10 +305,5 @@ class SykepengesoknadDAOTest : BaseTestClass() {
         )
 
         return this.replaceSporsmal(utlandSpm).replaceSporsmal(utlandNarSpm)
-    }
-
-    companion object {
-
-        private val TEST_AKTOR = "aktorId-745463060"
     }
 }

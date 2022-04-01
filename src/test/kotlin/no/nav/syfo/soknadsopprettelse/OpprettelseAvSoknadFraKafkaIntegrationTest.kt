@@ -48,13 +48,9 @@ import java.time.LocalDate
 class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
 
     private val fnr = "123456789"
-    private val aktor = fnr + "00"
 
     @Autowired
     private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
-
-    @Autowired
-    private lateinit var behandleSendtBekreftetSykmeldingService: BehandleSendtBekreftetSykmeldingService
 
     @BeforeEach
     fun setUp() {

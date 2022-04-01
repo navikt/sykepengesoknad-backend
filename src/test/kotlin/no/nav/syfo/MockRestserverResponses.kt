@@ -63,7 +63,7 @@ fun BaseTestClass.mockSyfoTilgangskontroll(
     fnr: String
 ) {
     syfotilgangskontrollMockRestServiceServer!!
-        .expect(requestTo("http://syfotilgang/api/tilgang/navident/person"))
+        .expect(requestTo("http://syfotilgang/syfo-tilgangskontroll/api/tilgang/navident/person"))
         .andExpect(header(NAV_PERSONIDENT_HEADER, fnr))
         .andRespond(
             if (tilgang) {

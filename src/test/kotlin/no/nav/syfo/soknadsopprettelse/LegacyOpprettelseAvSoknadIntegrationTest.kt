@@ -34,7 +34,6 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
     private lateinit var opprettSoknadService: OpprettSoknadService
 
     val fnr = "fnr"
-    val aktorid = fnr + "00"
 
     @BeforeEach
     @AfterEach

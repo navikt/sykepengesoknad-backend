@@ -18,7 +18,6 @@ import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
 import no.nav.syfo.model.sykmeldingstatus.STATUS_SENDT
 import no.nav.syfo.soknadsopprettelse.*
-import no.nav.syfo.soknadsopprettelse.BehandleSendtBekreftetSykmeldingService
 import no.nav.syfo.soknadsopprettelse.sporsmal.vaerKlarOverAtReisetilskudd
 import no.nav.syfo.testdata.getSykmeldingDto
 import no.nav.syfo.testdata.skapSykmeldingStatusKafkaMessageDTO
@@ -41,13 +40,9 @@ import java.util.*
 class GradertReisetilskuddIntegrationTest : BaseTestClass() {
 
     @Autowired
-    private lateinit var behandleSendtBekreftetSykmeldingService: BehandleSendtBekreftetSykmeldingService
-
-    @Autowired
     private lateinit var namedParameterJdbcTemplate: NamedParameterJdbcTemplate
 
     final val fnr = "123456789"
-    final val aktorid = fnr + "00"
 
     val sykmeldingId = UUID.randomUUID().toString()
     val fom = LocalDate.of(2021, 9, 2)
@@ -213,7 +208,7 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
     @Order(7)
     fun `Vi kan laste opp en kvittering`() {
         val reisetilskuddSoknad = this.hentSoknader(fnr).first()
-        val kvitteringSpm = reisetilskuddSoknad.sporsmal!!.filter { it.tag == KVITTERINGER }.first()
+        val kvitteringSpm = reisetilskuddSoknad.sporsmal!!.first { it.tag == KVITTERINGER }
         val svar = RSSvar(
             verdi = Kvittering(
                 blobId = "9a186e3c-aeeb-4566-a865-15aa9139d364",
@@ -236,7 +231,7 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
     @Order(8)
     fun `Vi kan se den opplastede kvitteringen`() {
         val reisetilskuddSoknad = this.hentSoknader(fnr).first()
-        val kvitteringSpm = reisetilskuddSoknad.sporsmal!!.filter { it.tag == KVITTERINGER }.first()
+        val kvitteringSpm = reisetilskuddSoknad.sporsmal!!.first { it.tag == KVITTERINGER }
         kvitteringSpm.svar.size `should be equal to` 1
 
         val returnertSvar = kvitteringSpm.svar.first()
@@ -251,7 +246,7 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
     fun `Vi kan slette en kvittering`() {
 
         val reisetilskuddSoknad = this.hentSoknader(fnr).first()
-        val kvitteringSpm = reisetilskuddSoknad.sporsmal!!.filter { it.tag == KVITTERINGER }.first()
+        val kvitteringSpm = reisetilskuddSoknad.sporsmal!!.first { it.tag == KVITTERINGER }
         kvitteringSpm.svar.size `should be equal to` 1
 
         val svaret = kvitteringSpm.svar.first()
@@ -259,7 +254,7 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
         slettSvar(fnr, reisetilskuddSoknad.id, kvitteringSpm.id!!, svaret.id!!)
 
         val reisetilskuddSoknadEtter = this.hentSoknader(fnr).first()
-        val kvitteringSpmEtter = reisetilskuddSoknadEtter.sporsmal!!.filter { it.tag == KVITTERINGER }.first()
+        val kvitteringSpmEtter = reisetilskuddSoknadEtter.sporsmal!!.first { it.tag == KVITTERINGER }
         kvitteringSpmEtter.svar.size `should be equal to` 0
     }
 
@@ -267,7 +262,7 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
     @Order(10)
     fun `Vi laster opp en kvittering igjen`() {
         val reisetilskuddSoknad = this.hentSoknader(fnr).first()
-        val kvitteringSpm = reisetilskuddSoknad.sporsmal!!.filter { it.tag == KVITTERINGER }.first()
+        val kvitteringSpm = reisetilskuddSoknad.sporsmal!!.first { it.tag == KVITTERINGER }
         val svar = RSSvar(
             verdi = Kvittering(
                 blobId = "9a186e3c-aeeb-4566-a865-15aa9139d364",

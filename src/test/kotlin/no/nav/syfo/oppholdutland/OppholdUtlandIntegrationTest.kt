@@ -17,7 +17,6 @@ import java.time.format.DateTimeFormatter
 class OppholdUtlandIntegrationTest : BaseTestClass() {
 
     final val fnr = "123456789"
-    final val aktorid = fnr + "00"
 
     @Test
     fun `01 - utlandssøknad opprettes`() {

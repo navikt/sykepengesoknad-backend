@@ -40,7 +40,6 @@ class AnnetArbeidsforholdIntegrationTest : BaseTestClass() {
     private lateinit var opprettSoknadService: OpprettSoknadService
 
     final val fnr = "123456789"
-    final val aktorid = "${fnr}00"
 
     private val soknadMetadata = SoknadMetadata(
         startSykeforlop = LocalDate.of(2018, 1, 1),

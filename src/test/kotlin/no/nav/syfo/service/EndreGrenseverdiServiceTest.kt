@@ -47,7 +47,6 @@ class EndreGrenseverdiServiceTest : BaseTestClass() {
     }
 
     final val fnr = "fnr"
-    final val aktorid = fnr + "00"
     private val fom = LocalDate.of(2020, 8, 1)
     private val soknadMetadata = SoknadMetadata(
         fnr = fnr,

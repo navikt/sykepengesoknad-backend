@@ -51,7 +51,6 @@ class GammeltEgenmeldingSporsmalTest : BaseTestClass() {
     private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
 
     final val fnr = "123456789"
-    final val aktorid = "${fnr}00"
 
     @BeforeEach
     fun setUp() {

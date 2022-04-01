@@ -12,7 +12,6 @@ import no.nav.syfo.model.sykmelding.model.GradertDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
 import no.nav.syfo.model.sykmeldingstatus.STATUS_SENDT
-import no.nav.syfo.soknadsopprettelse.BehandleSendtBekreftetSykmeldingService
 import no.nav.syfo.testdata.getSykmeldingDto
 import no.nav.syfo.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.syfo.testutil.SoknadBesvarer
@@ -23,14 +22,10 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
-import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.MethodName::class)
 class AutomatiskPapirsykmeldingOpprydningTest : BaseTestClass() {
-
-    @Autowired
-    private lateinit var behandleSendtBekreftetSykmeldingService: BehandleSendtBekreftetSykmeldingService
 
     @BeforeEach
     fun setUp() {
@@ -38,8 +33,7 @@ class AutomatiskPapirsykmeldingOpprydningTest : BaseTestClass() {
     }
 
     companion object {
-        val fnr = "123456789"
-        final val aktorid = fnr + "00"
+        const val fnr = "123456789"
         val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(
             fnr = fnr,
             arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
