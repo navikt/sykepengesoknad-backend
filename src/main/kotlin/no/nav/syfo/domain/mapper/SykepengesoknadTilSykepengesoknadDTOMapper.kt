@@ -9,6 +9,7 @@ import no.nav.syfo.domain.Soknadstype
 import no.nav.syfo.domain.Sykepengesoknad
 import no.nav.syfo.domain.mapper.sporsmalprossesering.hentSoknadsPerioderMedFaktiskGrad
 import no.nav.syfo.juridiskvurdering.JuridiskVurderingKafkaProducer
+import no.nav.syfo.repository.RedusertVenteperiodeRepository
 import no.nav.syfo.service.IdentService
 import org.springframework.stereotype.Component
 
@@ -17,6 +18,7 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
     private val syfoSmRegisterClient: SyfoSmRegisterClient,
     private val identService: IdentService,
     private val juridiskVurderingKafkaProducer: JuridiskVurderingKafkaProducer,
+    private val redusertVenteperiodeRepository: RedusertVenteperiodeRepository,
 ) {
     fun mapTilSykepengesoknadDTO(
         sykepengesoknad: Sykepengesoknad,
@@ -24,10 +26,6 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
         erEttersending: Boolean = false,
         endeligVurdering: Boolean = true,
     ): SykepengesoknadDTO {
-        val sykmelding =
-            if (sykepengesoknad.soknadstype == Soknadstype.SELVSTENDIGE_OG_FRILANSERE) syfoSmRegisterClient.hentSykmelding(
-                sykepengesoknad.sykmeldingId!!
-            ) else null
 
         fun SykepengesoknadDTO.merkFeilinfo(): SykepengesoknadDTO {
             return if (sykepengesoknad.avbruttFeilinfo == true) {
@@ -49,8 +47,8 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
         return when (sykepengesoknad.soknadstype) {
             Soknadstype.SELVSTENDIGE_OG_FRILANSERE -> konverterSelvstendigOgFrilanserTilSoknadDTO(
                 sykepengesoknad,
-                sykmelding,
-                sykepengesoknad.hentSoknadsperioder()
+                sykepengesoknad.hentSoknadsperioder(),
+                redusertVenteperiodeRepository.existsBySykmeldingId(sykepengesoknad.sykmeldingId!!),
             )
             Soknadstype.OPPHOLD_UTLAND -> konverterOppholdUtlandTilSoknadDTO(sykepengesoknad)
             Soknadstype.ARBEIDSLEDIG -> ArbeidsledigsoknadToSykepengesoknadDTO.konverterArbeidsledigTilSykepengesoknadDTO(
@@ -84,8 +82,8 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
                     )
                     Arbeidssituasjon.FRILANSER, Arbeidssituasjon.NAERINGSDRIVENDE -> konverterSelvstendigOgFrilanserTilSoknadDTO(
                         sykepengesoknad,
-                        sykmelding,
-                        sykepengesoknad.hentSoknadsperioder()
+                        sykepengesoknad.hentSoknadsperioder(),
+                        redusertVenteperiodeRepository.existsBySykmeldingId(sykepengesoknad.sykmeldingId!!)
                     )
                     Arbeidssituasjon.ARBEIDSLEDIG,
                     Arbeidssituasjon.ANNET -> konverterTilSykepengesoknadDTO(

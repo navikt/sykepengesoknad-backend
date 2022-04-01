@@ -5,13 +5,12 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.syfo.domain.Sykepengesoknad
 import no.nav.syfo.domain.mapper.sporsmalprossesering.hentArbeidUtenforNorge
 import no.nav.syfo.domain.mapper.sporsmalprossesering.hentPermitteringer
-import no.nav.syfo.model.sykmelding.arbeidsgiver.ArbeidsgiverSykmelding
 import no.nav.syfo.util.tilOsloLocalDateTime
 
 fun konverterSelvstendigOgFrilanserTilSoknadDTO(
     sykepengesoknad: Sykepengesoknad,
-    sykmelding: ArbeidsgiverSykmelding?,
     soknadsperioder: List<SoknadsperiodeDTO>,
+    harRedusertVenteperiode: Boolean,
 ): SykepengesoknadDTO {
     return SykepengesoknadDTO(
         id = sykepengesoknad.id,
@@ -33,7 +32,7 @@ fun konverterSelvstendigOgFrilanserTilSoknadDTO(
         soknadsperioder = soknadsperioder,
         sporsmal = sykepengesoknad.sporsmal.map { it.tilSporsmalDTO() },
         avsendertype = sykepengesoknad.avsendertype?.tilAvsendertypeDTO(),
-        harRedusertVenteperiode = sykmelding?.harRedusertArbeidsgiverperiode ?: false,
+        harRedusertVenteperiode = harRedusertVenteperiode,
         permitteringer = sykepengesoknad.hentPermitteringer(),
         merknaderFraSykmelding = sykepengesoknad.merknaderFraSykmelding.tilMerknadDTO(),
         arbeidUtenforNorge = sykepengesoknad.hentArbeidUtenforNorge(),
