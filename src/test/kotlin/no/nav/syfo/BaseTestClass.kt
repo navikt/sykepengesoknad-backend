@@ -34,7 +34,7 @@ import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
 import javax.annotation.PostConstruct
 
-private class RedisContainer : GenericContainer<RedisContainer>("redis:5.0.3-alpine")
+private class RedisContainer : GenericContainer<RedisContainer>("bitnami/redis:6.2")
 private class PostgreSQLContainer14 : PostgreSQLContainer<PostgreSQLContainer14>("postgres:14-alpine")
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -52,9 +52,12 @@ abstract class BaseTestClass {
 
         private val redisContainer = RedisContainer().apply {
             withExposedPorts(6379)
+            val passord = "hemmelig"
+            withEnv("REDIS_PASSWORD", passord)
             start()
             System.setProperty("spring.redis.host", host)
             System.setProperty("spring.redis.port", firstMappedPort.toString())
+            System.setProperty("spring.redis.password", passord)
         }
 
         private val kafkaContainer = KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.0.1")).apply {
