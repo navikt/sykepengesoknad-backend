@@ -3,7 +3,6 @@ package no.nav.syfo
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
 import no.nav.syfo.client.bucketuploader.BucketUploaderClient
-import no.nav.syfo.client.sykmelding.SyfoSmRegisterClient
 import no.nav.syfo.juridiskvurdering.juridiskVurderingTopic
 import no.nav.syfo.kafka.producer.AivenKafkaProducer
 import no.nav.syfo.kafka.producer.RebehandlingSykmeldingSendtProducer
@@ -83,9 +82,6 @@ abstract class BaseTestClass {
             )
         }
     }
-
-    @MockBean
-    lateinit var syfoSmRegisterClient: SyfoSmRegisterClient
 
     @MockBean
     lateinit var bucketUploaderClient: BucketUploaderClient

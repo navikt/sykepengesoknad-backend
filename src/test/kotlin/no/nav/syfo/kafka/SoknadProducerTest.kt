@@ -4,7 +4,6 @@ import com.nhaarman.mockitokotlin2.*
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsperiodeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
-import no.nav.syfo.client.sykmelding.SyfoSmRegisterClient
 import no.nav.syfo.domain.Soknadstype.*
 import no.nav.syfo.domain.Sporsmal
 import no.nav.syfo.domain.Svar
@@ -18,7 +17,7 @@ import no.nav.syfo.kafka.producer.finnDagerSpartVedArbeidGjenopptattTidligere
 import no.nav.syfo.mock.gammeltFormatOpprettNySoknadMedFeriesporsmalSomUndersporsmal
 import no.nav.syfo.mock.opprettSendtSoknad
 import no.nav.syfo.mock.opprettSendtSoknadForArbeidsledige
-import no.nav.syfo.service.IdentService
+import no.nav.syfo.repository.RedusertVenteperiodeRepository
 import no.nav.syfo.soknadsopprettelse.ANDRE_INNTEKTSKILDER
 import no.nav.syfo.soknadsopprettelse.FRISKMELDT
 import no.nav.syfo.soknadsopprettelse.FRISKMELDT_START
@@ -41,12 +40,12 @@ class SoknadProducerTest {
     private val kafkaProducer: AivenKafkaProducer = mock()
 
     private val metrikk = mock(Metrikk::class.java)
-    private val identService = mock(IdentService::class.java)
 
-    private val syfoSmRegisterClient = mock(SyfoSmRegisterClient::class.java)
     private val juridiskVurderingKafkaProducer = mock(JuridiskVurderingKafkaProducer::class.java)
 
-    private val mapper = SykepengesoknadTilSykepengesoknadDTOMapper(syfoSmRegisterClient, identService, juridiskVurderingKafkaProducer)
+    private val redusertVenteperiodeRepository = mock(RedusertVenteperiodeRepository::class.java)
+
+    private val mapper = SykepengesoknadTilSykepengesoknadDTOMapper(juridiskVurderingKafkaProducer, redusertVenteperiodeRepository)
 
     private val soknadProducer = SoknadProducer(kafkaProducer, metrikk, mapper)
 
@@ -302,6 +301,6 @@ class SoknadProducerTest {
     }
 
     private fun dagerSiden(tom: LocalDate): Long {
-        return Duration.between(tom.atStartOfDay(), LocalDate.now().atStartOfDay()).toDays()
+        return Duration.between(tom.atStartOfDay(), now().atStartOfDay()).toDays()
     }
 }

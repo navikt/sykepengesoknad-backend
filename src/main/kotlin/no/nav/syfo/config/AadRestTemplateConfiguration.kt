@@ -60,19 +60,6 @@ class AadRestTemplateConfiguration {
         )
 
     @Bean
-    fun syfosmregisterRestTemplate(
-        restTemplateBuilder: RestTemplateBuilder,
-        clientConfigurationProperties: ClientConfigurationProperties,
-        oAuth2AccessTokenService: OAuth2AccessTokenService
-    ): RestTemplate =
-        downstreamRestTemplate(
-            registrationName = "syfosmregister-client-credentials",
-            restTemplateBuilder = restTemplateBuilder,
-            clientConfigurationProperties = clientConfigurationProperties,
-            oAuth2AccessTokenService = oAuth2AccessTokenService,
-        )
-
-    @Bean
     fun syfotilgangskontrollRestTemplate(
         restTemplateBuilder: RestTemplateBuilder,
         clientConfigurationProperties: ClientConfigurationProperties,

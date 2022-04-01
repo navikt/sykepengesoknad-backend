@@ -2,7 +2,6 @@ package no.nav.syfo.domain.mapper
 
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsperiodeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
-import no.nav.syfo.client.sykmelding.SyfoSmRegisterClient
 import no.nav.syfo.domain.Arbeidssituasjon
 import no.nav.syfo.domain.Mottaker
 import no.nav.syfo.domain.Soknadstype
@@ -10,13 +9,10 @@ import no.nav.syfo.domain.Sykepengesoknad
 import no.nav.syfo.domain.mapper.sporsmalprossesering.hentSoknadsPerioderMedFaktiskGrad
 import no.nav.syfo.juridiskvurdering.JuridiskVurderingKafkaProducer
 import no.nav.syfo.repository.RedusertVenteperiodeRepository
-import no.nav.syfo.service.IdentService
 import org.springframework.stereotype.Component
 
 @Component
 class SykepengesoknadTilSykepengesoknadDTOMapper(
-    private val syfoSmRegisterClient: SyfoSmRegisterClient,
-    private val identService: IdentService,
     private val juridiskVurderingKafkaProducer: JuridiskVurderingKafkaProducer,
     private val redusertVenteperiodeRepository: RedusertVenteperiodeRepository,
 ) {

@@ -12,8 +12,6 @@ env:
   SPRING_KAFKA_BOOTSTRAP_SERVERS: "b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443"
   KAFKA_SCHEMA_REGISTRY_URL: "https://kafka-schema-registry.nais.preprod.local"
   FASIT_ENVIRONMENT_NAME: "q1"
-  SYFOSMREGISTER_URL: "http://syfosmregister.teamsykmelding"
-  SYFOSMREGISTER_AAD_CLIENT_ID: dev-fss.teamsykmelding.syfosmregister
   JULESOKNAD_CRON: "0 0/5 * * * ?"
   SYFOSOKNAD_CRON: "0 0/3 * * * ?"
   FLEX_BUCKET_UPLOADER_URL: "http://flex-bucket-uploader"
