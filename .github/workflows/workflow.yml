@@ -90,8 +90,8 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
-          RESOURCE: nais/naiserator.yaml
-          VARS: nais/dev.yaml
+          RESOURCE: nais/app/naiserator.yaml
+          VARS: nais/app/dev.yaml
 
   deploy-to-prod-gcp:
     if: github.ref == 'refs/heads/master'
@@ -114,5 +114,5 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-gcp
-          RESOURCE: nais/naiserator.yaml
-          VARS: nais/prod.yaml
+          RESOURCE: nais/app/naiserator.yaml
+          VARS: nais/app/prod.yaml
