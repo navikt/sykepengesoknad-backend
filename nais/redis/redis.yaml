@@ -24,7 +24,7 @@ spec:
   service:
     port: 6379
   envFrom:
-    - secret: sykepengesoknad-backend-redis
+    - secret: sykepengesoknad-backend-redis-password
   accessPolicy:
     inbound:
       rules:
