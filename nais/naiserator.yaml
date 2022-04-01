@@ -57,6 +57,9 @@ spec:
     outbound:
       rules:
         - application: sykepengesoknad-backend-redis
+    inbound:
+      rules:
+        - application: flex-gateway
   envFrom:
     - configmap: loginservice-idporten
     - secret: sykepengesoknad-backend-redis-password
