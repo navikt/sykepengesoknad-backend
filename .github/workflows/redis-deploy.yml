@@ -1,0 +1,36 @@
+name: Deploy redis
+on:
+  push:
+    paths:
+      - nais/redis/redis.yaml
+      - .github/workflows/redis-deploy.yml
+
+jobs:
+  deploy-redis-to-dev-gcp:
+    if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/dev-')
+    name: Deploy til dev-gcp
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - uses: nais/deploy/actions/deploy@v1
+        name: Deploy to dev-gcp
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: dev-gcp
+          RESOURCE: nais/redis/redis.yaml
+
+  deploy-redis-to-prod-gcp:
+    if: github.ref == 'refs/heads/master'
+    name: Deploy til prod-gcp
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - uses: nais/deploy/actions/deploy@v1
+        name: Deploy to prod-gcp
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: prod-gcp
+          RESOURCE: nais/redis/redis.yaml
+

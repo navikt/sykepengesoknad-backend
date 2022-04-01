@@ -108,8 +108,9 @@ spring:
       enable-auto-commit: false
   cache.type: redis
   redis:
-   host: redis-syfosoknad
+   host: sykepengesoknad-backend-redis
    port: 6379
+   password: ${REDIS_PASSWORD}
 
 aiven-kafka:
   auto-offset-reset: none

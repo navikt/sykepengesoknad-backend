@@ -53,8 +53,13 @@ spec:
         databases:
           - name: sykepengesoknad-db
             envVarPrefix: DB
+  accessPolicy:
+    outbound:
+      rules:
+        - application: sykepengesoknad-backend-redis
   envFrom:
     - configmap: loginservice-idporten
+    - secret: sykepengesoknad-backend-redis-password
   env:
   {{#each env}}
      - name: {{@key}}
