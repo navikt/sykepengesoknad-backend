@@ -17,7 +17,7 @@ class SyfoTilgangskontrollClient(
     private val syfotilgangskontrollRestTemplate: RestTemplate
 ) {
     companion object {
-        const val ACCESS_TO_USER_WITH_AZURE_V2_PATH = "/api/tilgang/navident/person"
+        const val ACCESS_TO_USER_WITH_AZURE_V2_PATH = "/syfo-tilgangskontroll/api/tilgang/navident/person"
         const val NAV_PERSONIDENT_HEADER = "nav-personident"
     }
 

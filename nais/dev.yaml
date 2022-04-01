@@ -12,7 +12,6 @@ env:
   SPRING_KAFKA_BOOTSTRAP_SERVERS: "b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443"
   KAFKA_SCHEMA_REGISTRY_URL: "https://kafka-schema-registry.nais.preprod.local"
   FASIT_ENVIRONMENT_NAME: "q1"
-  SYFOTILGANGSKONTROLL_URL: "https://syfo-tilgangskontroll.nais.preprod.local/syfo-tilgangskontroll"
   SYFOSMREGISTER_URL: "http://syfosmregister.teamsykmelding"
   SYFOSMREGISTER_AAD_CLIENT_ID: dev-fss.teamsykmelding.syfosmregister
   JULESOKNAD_CRON: "0 0/5 * * * ?"
@@ -20,7 +19,8 @@ env:
   FLEX_BUCKET_UPLOADER_URL: "https://flex-bucket-uploader.dev.intern.nav.no"
   FLEX_BUCKET_UPLOADER_AAD_CLIENT_ID: dev-gcp.flex.flex-bucket-uploader
   NARMESTELEDER_AAD_CLIENT_ID: dev-gcp.teamsykmelding.narmesteleder
-  NARMESTELEDER_URL: "https://narmesteleder.dev.intern.nav.no"
+  NARMESTELEDER_URL: "http://narmesteleder.teamsykmelding"
+  SYFOTILGANGSKONTROLL_URL: "https://syfo-tilgangskontroll.dev-fss-pub.nais.io"
   SYFOTILGANGSKONTROLL_AAD_CLIENT_ID: dev-fss.teamsykefravr.syfo-tilgangskontroll
-  FLEX_SYKETILFELLE_URL: "https://flex-syketilfelle.dev.intern.nav.no"
+  FLEX_SYKETILFELLE_URL: "http://flex-syketilfelle"
   FLEX_SYKETILFELLE_AAD_CLIENT_ID: dev-gcp.flex.flex-syketilfelle
