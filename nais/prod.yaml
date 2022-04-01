@@ -15,7 +15,7 @@ env:
   SYFOSMREGISTER_AAD_CLIENT_ID: prod-fss.teamsykmelding.syfosmregister
   JULESOKNAD_CRON: "0 0 5 * * ?"
   SYFOSOKNAD_CRON: "0 0 1 * * ?"
-  FLEX_BUCKET_UPLOADER_URL: "https://flex-bucket-uploader.intern.nav.no"
+  FLEX_BUCKET_UPLOADER_URL: "http://flex-bucket-uploader"
   FLEX_BUCKET_UPLOADER_AAD_CLIENT_ID: prod-gcp.flex.flex-bucket-uploader
   NARMESTELEDER_AAD_CLIENT_ID: prod-gcp.teamsykmelding.narmesteleder
   NARMESTELEDER_URL: "http://narmesteleder.teamsykmelding"

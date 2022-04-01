@@ -57,6 +57,10 @@ spec:
     outbound:
       rules:
         - application: sykepengesoknad-backend-redis
+        - application: flex-bucket-uploader
+        - application: flex-syketilfelle
+        - application: narmesteleder
+          namespace: teamsykmelding
     inbound:
       rules:
         - application: flex-gateway
