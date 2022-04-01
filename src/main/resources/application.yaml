@@ -59,7 +59,7 @@ no.nav.security.jwt:
 
 logging.config: classpath:logback.xml
 
-pdl.api.url: "http://pdl-api.pdl"
+pdl.api.url: ${PDL_BASE_URL}
 
 management:
   endpoint.prometheus.enabled: true
