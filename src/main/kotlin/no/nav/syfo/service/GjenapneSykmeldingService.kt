@@ -9,8 +9,6 @@ import no.nav.syfo.domain.Soknadstatus.UTKAST_TIL_KORRIGERING
 import no.nav.syfo.domain.Sykepengesoknad
 import no.nav.syfo.kafka.producer.SoknadProducer
 import no.nav.syfo.logger
-import no.nav.syfo.repository.RedusertVenteperiodeDbRecord
-import no.nav.syfo.repository.RedusertVenteperiodeRepository
 import no.nav.syfo.repository.SykepengesoknadDAO
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -20,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional
 class GjenapneSykmeldingService(
     private val soknadProducer: SoknadProducer,
     private val sykepengesoknadDAO: SykepengesoknadDAO,
-    private val redusertVenteperiodeRepository: RedusertVenteperiodeRepository,
 ) {
     val log = logger()
 
@@ -38,12 +35,6 @@ class GjenapneSykmeldingService(
             log.error("Prosesserte åpen melding for $sykmeldingId,  men denne har arbeidstakersøknad. Den kan ikke endres så dette skal ikke skje. Da må være noe tidsforskyvelse")
             return
         }
-
-        redusertVenteperiodeRepository.delete(
-            RedusertVenteperiodeDbRecord(
-                sykmeldingId = sykmeldingId
-            )
-        )
 
         soknaderTilSykmeldingSomKanSlettes.slettSoknader()
     }
