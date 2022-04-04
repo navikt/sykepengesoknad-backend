@@ -20,7 +20,6 @@ class RedusertVenteperiodeConsumer(
     @KafkaListener(
         topics = [SYKMELDINGBEKREFTET_TOPIC],
         containerFactory = "aivenKafkaListenerContainerFactory",
-        properties = ["auto.offset.reset = earliest"],
         id = "redusert-venteperiode-consumer",
         idIsGroup = true,
     )
