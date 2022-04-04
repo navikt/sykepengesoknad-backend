@@ -47,7 +47,7 @@ repositories {
 
 val tokenSupportVersion = "2.0.14"
 val smCommonVersion = "1.88ca328"
-val confluentVersion = "7.0.1"
+val confluentVersion = "7.0.2"
 val syfoKafkaVersion = "2021.07.20-09.39-6be2c52c"
 val sykepengesoknadKafkaVersion = "2022.03.14-10.39-e61acd76"
 val mockitoKotlinVersion = "2.2.0"
