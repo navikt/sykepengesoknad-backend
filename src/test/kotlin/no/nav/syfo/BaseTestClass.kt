@@ -64,7 +64,7 @@ abstract class BaseTestClass {
             System.setProperty("KAFKA_BROKERS", bootstrapServers)
         }
 
-        private val postgreContainer = PostgreSQLContainer14().apply {
+        private val postgresContainer = PostgreSQLContainer14().apply {
             start()
             System.setProperty("spring.datasource.url", "$jdbcUrl&reWriteBatchedInserts=true")
             System.setProperty("spring.datasource.username", username)
@@ -77,7 +77,7 @@ abstract class BaseTestClass {
                     println("Avslutter testcontainers")
                     redisContainer.close()
                     kafkaContainer.close()
-                    postgreContainer.close()
+                    postgresContainer.close()
                 }
             )
         }
