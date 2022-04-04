@@ -20,10 +20,8 @@ class RedusertVenteperiodeConsumer(
     @KafkaListener(
         topics = [SYKMELDINGBEKREFTET_TOPIC],
         containerFactory = "aivenKafkaListenerContainerFactory",
-        properties = ["auto.offset.reset = earliest"],
         id = "redusert-venteperiode-consumer",
         idIsGroup = true,
-        concurrency = "3",
     )
     fun listen(cr: ConsumerRecord<String, String?>, acknowledgment: Acknowledgment) {
         prosesserKafkaMelding(cr.key(), cr.value())
