@@ -3,7 +3,6 @@ package no.nav.syfo
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
 import no.nav.syfo.client.bucketuploader.BucketUploaderClient
-import no.nav.syfo.client.sykmelding.SyfoSmRegisterClient
 import no.nav.syfo.juridiskvurdering.juridiskVurderingTopic
 import no.nav.syfo.kafka.producer.AivenKafkaProducer
 import no.nav.syfo.kafka.producer.RebehandlingSykmeldingSendtProducer
@@ -65,26 +64,24 @@ abstract class BaseTestClass {
             System.setProperty("KAFKA_BROKERS", bootstrapServers)
         }
 
-        init {
-            PostgreSQLContainer14().also {
-                it.start()
-                System.setProperty("spring.datasource.url", "${it.jdbcUrl}&reWriteBatchedInserts=true")
-                System.setProperty("spring.datasource.username", it.username)
-                System.setProperty("spring.datasource.password", it.password)
-            }
+        private val postgresContainer = PostgreSQLContainer14().apply {
+            start()
+            System.setProperty("spring.datasource.url", "$jdbcUrl&reWriteBatchedInserts=true")
+            System.setProperty("spring.datasource.username", username)
+            System.setProperty("spring.datasource.password", password)
+        }
 
+        init {
             Runtime.getRuntime().addShutdownHook(
                 Thread {
                     println("Avslutter testcontainers")
                     redisContainer.close()
                     kafkaContainer.close()
+                    postgresContainer.close()
                 }
             )
         }
     }
-
-    @MockBean
-    lateinit var syfoSmRegisterClient: SyfoSmRegisterClient
 
     @MockBean
     lateinit var bucketUploaderClient: BucketUploaderClient

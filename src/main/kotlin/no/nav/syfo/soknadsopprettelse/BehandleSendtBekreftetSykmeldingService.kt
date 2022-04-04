@@ -27,7 +27,7 @@ class BehandleSendtBekreftetSykmeldingService(
     private val metrikk: Metrikk,
     private val sykmeldingStatusService: GjenapneSykmeldingService,
     private val klippOgOpprett: KlippOgOpprett,
-    private val skalOppretteSoknader: SkalOppretteSoknader
+    private val skalOppretteSoknader: SkalOppretteSoknader,
 ) {
     val log = logger()
 

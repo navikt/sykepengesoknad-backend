@@ -11,7 +11,6 @@ import no.nav.syfo.controller.domain.sykepengesoknad.RSSykmeldingstype
 import no.nav.syfo.domain.Arbeidssituasjon
 import no.nav.syfo.domain.exception.ManglerSykmeldingException
 import no.nav.syfo.domain.exception.ProduserKafkaMeldingException
-import no.nav.syfo.domain.exception.RestFeilerException
 import no.nav.syfo.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.syfo.hentSoknader
 import no.nav.syfo.mockFlexSyketilfelleErUtaforVentetid
@@ -73,7 +72,6 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
         mockFlexSyketilfelleErUtaforVentetid(sykmelding.id, true)
         mockFlexSyketilfelleSykeforloep(sykmeldingId)
 
-        whenever(syfoSmRegisterClient.hentSykmelding(sykmeldingId)).thenReturn(sykmelding)
         val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
             sykmelding = sykmelding,
             event = sykmeldingStatusKafkaMessageDTO.event,
@@ -100,7 +98,6 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
         mockFlexSyketilfelleErUtaforVentetid(sykmelding.id, false)
         mockFlexSyketilfelleSykeforloep(sykmeldingId)
 
-        whenever(syfoSmRegisterClient.hentSykmelding(sykmeldingId)).thenReturn(sykmelding)
         val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
             sykmelding = sykmelding,
             event = sykmeldingStatusKafkaMessageDTO.event,
@@ -135,7 +132,6 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
 
         mockFlexSyketilfelleSykeforloep(sykmeldingId)
 
-        whenever(syfoSmRegisterClient.hentSykmelding(sykmeldingId)).thenReturn(sykmelding)
         val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
             sykmelding = sykmelding,
             event = event,
@@ -173,7 +169,6 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
         mockFlexSyketilfelleErUtaforVentetid(sykmelding.id, false)
         mockFlexSyketilfelleSykeforloep(sykmeldingId)
 
-        whenever(syfoSmRegisterClient.hentSykmelding(sykmeldingId)).thenReturn(sykmelding)
         val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
             sykmelding = sykmelding,
             event = event,
@@ -200,9 +195,6 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
         mockFlexSyketilfelleErUtaforVentetid(sykmelding.id, true)
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
-        whenever(syfoSmRegisterClient.hentSykmelding(sykmeldingStatusKafkaMessageDTO.event.sykmeldingId)).thenReturn(
-            sykmelding
-        )
         val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
             sykmelding = sykmelding,
             event = sykmeldingStatusKafkaMessageDTO.event,
@@ -366,9 +358,6 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
             )
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
-        whenever(syfoSmRegisterClient.hentSykmelding(sykmeldingStatusKafkaMessageDTO.event.sykmeldingId)).thenReturn(
-            sykmelding
-        )
         val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
             sykmelding = sykmelding,
             event = sykmeldingStatusKafkaMessageDTO.event,
@@ -405,9 +394,6 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
                 )
             )
 
-        whenever(syfoSmRegisterClient.hentSykmelding(sykmeldingStatusKafkaMessageDTO.event.sykmeldingId)).thenReturn(
-            sykmelding
-        )
         val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
             sykmelding = sykmelding,
             event = sykmeldingStatusKafkaMessageDTO.event,
@@ -474,9 +460,6 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
             )
         )
 
-        whenever(syfoSmRegisterClient.hentSykmelding(sykmeldingStatusKafkaMessageDTO.event.sykmeldingId)).thenReturn(
-            sykmelding
-        )
         val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
             sykmelding = sykmelding,
             event = sykmeldingStatusKafkaMessageDTO.event,
@@ -532,9 +515,6 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
         val sykmeldingStatusKafkaMessageDTO = skapKafkaMelding(arbeidssituasjon = Arbeidssituasjon.FRILANSER)
         val sykmelding = skapSykmeldingDTO(sykmeldingStatusKafkaMessageDTO)
 
-        whenever(syfoSmRegisterClient.hentSykmelding(sykmeldingStatusKafkaMessageDTO.event.sykmeldingId)).thenReturn(
-            sykmelding
-        )
         val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
             sykmelding = sykmelding,
             event = sykmeldingStatusKafkaMessageDTO.event,
@@ -550,9 +530,6 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
         val sykmeldingStatusKafkaMessageDTO = skapKafkaMelding()
         val sykmelding = skapSykmeldingDTO(sykmeldingStatusKafkaMessageDTO)
 
-        whenever(syfoSmRegisterClient.hentSykmelding(sykmeldingStatusKafkaMessageDTO.event.sykmeldingId)).thenReturn(
-            sykmelding
-        )
         val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
             sykmelding = sykmelding,
             event = sykmeldingStatusKafkaMessageDTO.event,
@@ -570,7 +547,6 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
         val sykmelding = skapSykmeldingDTO(sykmeldingStatusKafkaMessageDTO)
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
-        whenever(syfoSmRegisterClient.hentSykmelding(sykmeldingStatusKafkaMessageDTO.event.sykmeldingId)).thenThrow(RestFeilerException())
         val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
             sykmelding = sykmelding,
             event = sykmeldingStatusKafkaMessageDTO.event,
@@ -590,9 +566,6 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
             sykmeldingsperioder = emptyList()
         )
 
-        whenever(syfoSmRegisterClient.hentSykmelding(sykmeldingStatusKafkaMessageDTO.event.sykmeldingId)).thenReturn(
-            sykmelding
-        )
         val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
             sykmelding = sykmelding,
             event = sykmeldingStatusKafkaMessageDTO.event,

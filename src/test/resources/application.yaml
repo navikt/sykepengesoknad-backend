@@ -1,7 +1,6 @@
 AZURE_APP_PRE_AUTHORIZED_APPS: "[{\"name\":\"dev-gcp:flex:flex-fss-proxy\",\"clientId\":\"flex-fss-proxy-client-id\"},{\"name\":\"dev-gcp:teamsykefravr:syfomodiaperson\",\"clientId\":\"syfomodiaperson-client-id\"}]"
 
 syfotilgangskontroll.url: http://syfotilgang
-syfosmregister.url: http://syfosmregister
 flex.bucket.uploader.url: http://flex-bucket-uploader
 flex.syketilfelle.url: http://flex-syketilfelle
 
@@ -36,14 +35,6 @@ no.nav.security.jwt:
         token-endpoint-url: http://localhost:${mock-oauth2-server.port}/azureator/token
         grant-type: client_credentials
         scope: narmesteleder-client
-        authentication:
-          client-id: client-id
-          client-secret: secretzz
-          client-auth-method: client_secret_basic
-      syfosmregister-client-credentials:
-        token-endpoint-url: http://localhost:${mock-oauth2-server.port}/azureator/token
-        grant-type: client_credentials
-        scope: syfosmregister-client
         authentication:
           client-id: client-id
           client-secret: secretzz
