@@ -62,6 +62,7 @@ abstract class BaseTestClass {
         private val kafkaContainer = KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.0.1")).apply {
             start()
             System.setProperty("KAFKA_BROKERS", bootstrapServers)
+            System.setProperty("on-prem-kafka.bootstrap-servers", bootstrapServers)
         }
 
         private val postgresContainer = PostgreSQLContainer14().apply {

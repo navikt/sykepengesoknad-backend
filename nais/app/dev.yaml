@@ -9,8 +9,7 @@ env:
   SPRING_PROFILES_ACTIVE: default,testdatareset
   PDL_BASE_URL: https://pdl-api.dev-fss-pub.nais.io
   PDL_API_AAD_CLIENT_ID: dev-fss.pdl.pdl-api
-  SPRING_KAFKA_BOOTSTRAP_SERVERS: "b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443"
-  KAFKA_SCHEMA_REGISTRY_URL: "https://kafka-schema-registry.nais.preprod.local"
+  ON_PREM_BOOTSTRAP_SERVERS: "b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443"
   FASIT_ENVIRONMENT_NAME: "q1"
   JULESOKNAD_CRON: "0 0/5 * * * ?"
   SYFOSOKNAD_CRON: "0 0/3 * * * ?"

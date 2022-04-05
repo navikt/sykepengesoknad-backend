@@ -60,10 +60,6 @@ management:
     exposure.include: prometheus
     path-mapping.prometheus: /prometheus
 
-serviceuser:
-  username: ${SERVICEUSER_USERNAME}
-  password: ${SERVICEUSER_PASSWORD}
-
 spring:
   profiles:
     active: default
@@ -79,14 +75,6 @@ spring:
       maximum-pool-size: 3
   kafka:
     client-id: ${nais.app.name}-${fasit.environment.name}
-    properties:
-      security.protocol: SASL_SSL
-      sasl:
-        mechanism: PLAIN
-        jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="${serviceuser.username}" password="${serviceuser.password}";
-      ssl.truststore:
-        location: ${javax.net.ssl.trustStore}
-        password: ${javax.net.ssl.trustStorePassword}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
@@ -111,3 +99,8 @@ spring:
 aiven-kafka:
   auto-offset-reset: none
 
+on-prem-kafka:
+  bootstrap-servers: ${ON_PREM_BOOTSTRAP_SERVERS}
+  security-protocol: SASL_SSL
+  username: ${SERVICEUSER_USERNAME}
+  password: ${SERVICEUSER_PASSWORD}
