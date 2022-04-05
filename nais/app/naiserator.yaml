@@ -67,6 +67,7 @@ spec:
   envFrom:
     - configmap: loginservice-idporten
     - secret: sykepengesoknad-backend-redis-password
+    - secret: sykepengesoknad-serviceuser
   env:
   {{#each env}}
      - name: {{@key}}

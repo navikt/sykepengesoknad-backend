@@ -60,6 +60,10 @@ management:
     exposure.include: prometheus
     path-mapping.prometheus: /prometheus
 
+serviceuser:
+  username: ${SERVICEUSER_USERNAME}
+  password: ${SERVICEUSER_PASSWORD}
+
 spring:
   profiles:
     active: default
