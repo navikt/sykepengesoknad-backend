@@ -8,6 +8,7 @@ import no.nav.syfo.repository.RedusertVenteperiodeRepository
 import no.nav.syfo.testdata.getSykmeldingDto
 import no.nav.syfo.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.syfo.util.serialisertTilString
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -37,7 +38,7 @@ class RedusertVenteperiodeConsumerTest : BaseTestClass() {
             kafkaMessage.serialisertTilString()
         )
 
-        redusertVenteperiodeRepository.existsBySykmeldingId(sykmeldingId)
+        redusertVenteperiodeRepository.existsBySykmeldingId(sykmeldingId) shouldBeEqualTo true
     }
 
     @Test
@@ -48,7 +49,7 @@ class RedusertVenteperiodeConsumerTest : BaseTestClass() {
             kafkaMessage.serialisertTilString()
         )
 
-        redusertVenteperiodeRepository.existsBySykmeldingId(sykmeldingId)
+        redusertVenteperiodeRepository.existsBySykmeldingId(sykmeldingId) shouldBeEqualTo true
     }
 
     @Test
@@ -59,7 +60,7 @@ class RedusertVenteperiodeConsumerTest : BaseTestClass() {
             null
         )
 
-        !redusertVenteperiodeRepository.existsBySykmeldingId(sykmeldingId)
+        redusertVenteperiodeRepository.existsBySykmeldingId(sykmeldingId) shouldBeEqualTo false
     }
 
     private fun redusertVenteperiodeSykmelding(): SykmeldingKafkaMessage {
