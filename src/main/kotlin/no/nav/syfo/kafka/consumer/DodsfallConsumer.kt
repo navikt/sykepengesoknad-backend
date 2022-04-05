@@ -14,7 +14,6 @@ import org.apache.avro.generic.GenericData
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.MDC
-import org.springframework.context.annotation.Profile
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.support.Acknowledgment
 import org.springframework.stereotype.Component
@@ -27,7 +26,6 @@ private const val OPPHOERT = "OPPHOERT"
 private const val OPPLYSNINGSTYPE_DODSFALL = "DOEDSFALL_V1"
 
 @Component
-@Profile("test")
 class DodsfallConsumer(
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val metrikk: Metrikk,
@@ -37,14 +35,18 @@ class DodsfallConsumer(
 
     @KafkaListener(
         topics = ["aapen-person-pdl-leesah-v1"],
-        id = "personhendelse",
-        idIsGroup = false,
-        containerFactory = "kafkaListenerContainerFactory"
+        id = "flex-consumering-test",
+        idIsGroup = true,
+        containerFactory = "kafkaListenerContainerFactory",
+        properties = ["auto.offset.reset = earliest"],
     )
     fun listen(cr: ConsumerRecord<String, GenericRecord>, acknowledgment: Acknowledgment) {
         MDC.put(NAV_CALLID, getSafeNavCallIdHeaderAsString(cr.headers()))
 
         val personhendelse = cr.value()
+
+        logger().info("Personhendelse ${personhendelse.hentOpplysningstype()}")
+
         metrikk.personHendelseMottatt()
         try {
             val fnr = personhendelse.hentFnr()
