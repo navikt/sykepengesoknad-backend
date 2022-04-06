@@ -55,6 +55,8 @@ spec:
             envVarPrefix: DB
   accessPolicy:
     outbound:
+      external:
+        - host: {{ schema_registry }}
       rules:
         - application: sykepengesoknad-backend-redis
         - application: flex-bucket-uploader
@@ -67,6 +69,7 @@ spec:
   envFrom:
     - configmap: loginservice-idporten
     - secret: sykepengesoknad-backend-redis-password
+    - secret: sykepengesoknad-serviceuser
   env:
   {{#each env}}
      - name: {{@key}}
