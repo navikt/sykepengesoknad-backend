@@ -55,6 +55,8 @@ spec:
             envVarPrefix: DB
   accessPolicy:
     outbound:
+      external:
+        - host: {{ schema_registry }}
       rules:
         - application: sykepengesoknad-backend-redis
         - application: flex-bucket-uploader

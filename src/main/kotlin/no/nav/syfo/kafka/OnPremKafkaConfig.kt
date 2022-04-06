@@ -25,7 +25,7 @@ class OnPremKafkaConfig(
     @Value("\${on-prem-kafka.username}") private val serviceuserUsername: String,
     @Value("\${on-prem-kafka.password}") private val serviceuserPassword: String,
     @Value("\${on-prem-kafka.auto-offset-reset:none}") private val kafkaAutoOffsetReset: String,
-    @Value("\${KAFKA_SCHEMA_REGISTRY}") private val kafkaSchemaRegistryUrl: String,
+    @Value("\${on-prem-kafka.schema-registry}") private val kafkaSchemaRegistryUrl: String,
 ) {
 
     fun commonConfig() = mapOf(

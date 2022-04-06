@@ -93,6 +93,7 @@ KAFKA_CREDSTORE_PASSWORD: ""
 KAFKA_SECURITY_PROTOCOL: "PLAINTEXT"
 KAFKA_KEYSTORE_PATH: ""
 KAFKA_SCHEMA_REGISTRY: "url"
+ON_PREM_SCHEMA_REGISTRY_URL: ${KAFKA_SCHEMA_REGISTRY}
 
 management:
   endpoint.prometheus.enabled: true
@@ -120,3 +121,4 @@ on-prem-kafka:
   username: AzureDiamond
   password: hunter2
   auto-offset-reset: earliest
+  schema-registry: nope

@@ -104,3 +104,4 @@ on-prem-kafka:
   security-protocol: SASL_SSL
   username: ${SERVICEUSER_USERNAME}
   password: ${SERVICEUSER_PASSWORD}
+  schema-registry: ${ON_PREM_SCHEMA_REGISTRY_URL}
