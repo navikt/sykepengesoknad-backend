@@ -6,10 +6,17 @@ import no.nav.syfo.client.narmesteleder.Forskuttering
 import no.nav.syfo.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.syfo.controller.domain.sykepengesoknad.RSSoknadstype
 import no.nav.syfo.domain.Arbeidsgiverperiode
+import no.nav.syfo.domain.Arbeidssituasjon
 import no.nav.syfo.domain.Periode
+import no.nav.syfo.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.syfo.hentSoknader
 import no.nav.syfo.mockArbeidsgiverForskutterer
 import no.nav.syfo.mockFlexSyketilfelleArbeidsgiverperiode
+import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
+import no.nav.syfo.model.sykmelding.model.GradertDTO
+import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
+import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
+import no.nav.syfo.model.sykmeldingstatus.STATUS_SENDT
 import no.nav.syfo.service.AktiverService
 import no.nav.syfo.soknadsopprettelse.ANDRE_INNTEKTSKILDER
 import no.nav.syfo.soknadsopprettelse.ANSVARSERKLARING
@@ -24,6 +31,8 @@ import no.nav.syfo.soknadsopprettelse.PERMITTERT_PERIODE
 import no.nav.syfo.soknadsopprettelse.TILBAKE_I_ARBEID
 import no.nav.syfo.soknadsopprettelse.UTDANNING
 import no.nav.syfo.soknadsopprettelse.UTLAND_V2
+import no.nav.syfo.testdata.getSykmeldingDto
+import no.nav.syfo.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.syfo.testutil.SoknadBesvarer
 import no.nav.syfo.tilSoknader
 import no.nav.syfo.ventPåRecords
@@ -46,6 +55,7 @@ class OverlapperEtter : BaseTestClass() {
     private lateinit var aktiverService: AktiverService
 
     private final val basisdato = LocalDate.now()
+    private val fnr = "01555555555"
 
     @BeforeEach
     fun setUp() {
@@ -55,7 +65,6 @@ class OverlapperEtter : BaseTestClass() {
     @Test
     @Order(1)
     fun `Fremtidig arbeidstakersøknad opprettes for en sykmelding`() {
-        val fnr = "11111111111"
         sendArbeidstakerSykmelding(
             fom = basisdato.minusDays(1),
             tom = basisdato.plusDays(15),
@@ -77,7 +86,6 @@ class OverlapperEtter : BaseTestClass() {
     @Test
     @Order(2)
     fun `Fremtidig arbeidstakersøknad opprettes for en overlappende sykmelding i scenario 1`() {
-        val fnr = "11111111111"
         sendArbeidstakerSykmelding(
             fom = basisdato,
             tom = basisdato.plusDays(15),
@@ -122,7 +130,6 @@ class OverlapperEtter : BaseTestClass() {
     @Test
     @Order(3)
     fun `Fremtidig arbeidstakersøknad klippes ikke når den er fullstendig overlappende`() {
-        val fnr = "11111111111"
         sendArbeidstakerSykmelding(
             fom = basisdato,
             tom = basisdato.plusDays(15),
@@ -160,7 +167,6 @@ class OverlapperEtter : BaseTestClass() {
     @Test
     @Order(4)
     fun `Søknadene aktiveres og får spørsmål tilpasset klippingen`() {
-        val fnr = "11111111111"
         aktiverService.aktiverSoknader(basisdato.plusDays(16))
 
         val hentetViaRest = hentSoknader(fnr)
@@ -213,7 +219,6 @@ class OverlapperEtter : BaseTestClass() {
     @Test
     @Order(10)
     fun `Brukeren sender inn en sykmelding`() {
-        val fnr = "55555555555"
         sendArbeidstakerSykmelding(
             fom = basisdato,
             tom = basisdato.plusDays(15),
@@ -258,7 +263,6 @@ class OverlapperEtter : BaseTestClass() {
     @Test
     @Order(11)
     fun `Overlappende sykmelding med samme grad blir klippet`() {
-        val fnr = "55555555555"
         sendArbeidstakerSykmelding(
             fom = basisdato.plusDays(10),
             tom = basisdato.plusDays(20),
@@ -268,10 +272,135 @@ class OverlapperEtter : BaseTestClass() {
         val soknad = sykepengesoknadKafkaConsumer
             .ventPåRecords(antall = 1)
             .tilSoknader()
-            .shouldHaveSize(1)
             .first()
 
-        soknad.fom shouldBeEqualTo basisdato.plusDays(10) // Skal være .plusDays(15) når det klippes
+        // TODO: Slå på når vi klipper i prod
+        // soknad.fom shouldBeEqualTo basisdato.plusDays(16)
+        soknad.fom shouldBeEqualTo basisdato.plusDays(10)
         soknad.tom shouldBeEqualTo basisdato.plusDays(20)
+    }
+
+    @Test
+    @Order(12)
+    fun `Database tømmes`() {
+        databaseReset.resetDatabase()
+    }
+
+    @Test
+    @Order(20)
+    fun `Brukeren har en ny søknad`() {
+        sendArbeidstakerSykmelding(
+            fom = basisdato.minusDays(15),
+            tom = basisdato.minusDays(1),
+            fnr = fnr
+        )
+
+        sykepengesoknadKafkaConsumer
+            .ventPåRecords(antall = 1)
+            .tilSoknader()
+            .first()
+            .status shouldBeEqualTo SoknadsstatusDTO.NY
+    }
+
+    @Test
+    @Order(21)
+    fun `Overlappende sykmelding med forskjellig grad klippes ikke`() {
+        sendArbeidstakerSykmelding(
+            fom = basisdato.minusDays(10),
+            tom = basisdato.plusDays(5),
+            fnr = fnr,
+            gradert = GradertDTO(grad = 50, reisetilskudd = false),
+        )
+
+        val soknad = sykepengesoknadKafkaConsumer
+            .ventPåRecords(antall = 1)
+            .tilSoknader()
+            .first()
+
+        soknad.fom shouldBeEqualTo basisdato.minusDays(10)
+        soknad.tom shouldBeEqualTo basisdato.plusDays(5)
+    }
+
+    @Test
+    @Order(22)
+    fun `DB tømmes`() {
+        databaseReset.resetDatabase()
+    }
+
+    @Test
+    @Order(30)
+    fun `Oppretter en ny søknad`() {
+        sendArbeidstakerSykmelding(
+            fom = basisdato.minusDays(15),
+            tom = basisdato.minusDays(1),
+            fnr = fnr,
+            gradert = GradertDTO(grad = 100, reisetilskudd = false)
+        )
+
+        sykepengesoknadKafkaConsumer
+            .ventPåRecords(antall = 1)
+            .tilSoknader()
+            .first()
+            .status shouldBeEqualTo SoknadsstatusDTO.NY
+    }
+
+    @Test
+    @Order(31)
+    fun `Graden trenger bare være lik for de overlappende periodene`() {
+        val fom = basisdato.minusDays(15)
+        val tom = basisdato.plusDays(10)
+
+        val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(
+            fnr = fnr,
+            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+            statusEvent = STATUS_SENDT,
+            arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "Butikken")
+
+        )
+        val sykmelding = getSykmeldingDto(
+            sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId,
+            fom = fom,
+            tom = tom,
+        ).copy(
+            sykmeldingsperioder = listOf(
+                SykmeldingsperiodeAGDTO(
+                    fom = fom,
+                    tom = basisdato.minusDays(1),
+                    type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+                    gradert = GradertDTO(grad = 100, reisetilskudd = false),
+                    reisetilskudd = false,
+                    aktivitetIkkeMulig = null,
+                    behandlingsdager = null,
+                    innspillTilArbeidsgiver = null,
+                ),
+                SykmeldingsperiodeAGDTO(
+                    fom = basisdato,
+                    tom = tom,
+                    type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+                    gradert = GradertDTO(grad = 60, reisetilskudd = false),
+                    reisetilskudd = false,
+                    aktivitetIkkeMulig = null,
+                    behandlingsdager = null,
+                    innspillTilArbeidsgiver = null,
+                )
+            )
+        )
+        val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
+            sykmelding = sykmelding,
+            event = sykmeldingStatusKafkaMessageDTO.event,
+            kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
+        )
+
+        sendSykmelding(sykmeldingKafkaMessage)
+
+        val soknad = sykepengesoknadKafkaConsumer
+            .ventPåRecords(antall = 1)
+            .tilSoknader()
+            .first()
+
+        // TODO: Slå på når vi klipper i prod
+        // soknad.fom shouldBeEqualTo basisdato
+        soknad.fom shouldBeEqualTo fom
+        soknad.tom shouldBeEqualTo tom
     }
 }
