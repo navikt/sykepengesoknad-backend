@@ -4,6 +4,7 @@ import no.nav.syfo.BaseTestClass
 import no.nav.syfo.domain.Arbeidssituasjon
 import no.nav.syfo.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.syfo.mockFlexSyketilfelleSykeforloep
+import no.nav.syfo.model.sykmelding.model.GradertDTO
 import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
 import no.nav.syfo.model.sykmeldingstatus.STATUS_SENDT
 import no.nav.syfo.testdata.getSykmeldingDto
@@ -15,6 +16,7 @@ internal fun BaseTestClass.sendArbeidstakerSykmelding(
     tom: LocalDate,
     fnr: String,
     oppfolgingsdato: LocalDate = fom,
+    gradert: GradertDTO? = null,
 ) {
     val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(
         fnr = fnr,
@@ -28,12 +30,7 @@ internal fun BaseTestClass.sendArbeidstakerSykmelding(
         sykmeldingId = sykmeldingId,
         fom = fom,
         tom = tom,
-    )
-
-    flexSyketilfelleMockRestServiceServer?.reset()
-    mockFlexSyketilfelleSykeforloep(
-        sykmelding.id,
-        oppfolgingsdato
+        gradert = gradert,
     )
 
     val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
@@ -41,7 +38,24 @@ internal fun BaseTestClass.sendArbeidstakerSykmelding(
         event = sykmeldingStatusKafkaMessageDTO.event,
         kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
     )
-    behandleSendtBekreftetSykmeldingService.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
+
+    sendSykmelding(
+        sykmeldingKafkaMessage,
+        oppfolgingsdato,
+    )
+}
+
+internal fun BaseTestClass.sendSykmelding(
+    sykmeldingKafkaMessage: SykmeldingKafkaMessage,
+    oppfolgingsdato: LocalDate = sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder.minOf { it.fom },
+) {
+    flexSyketilfelleMockRestServiceServer?.reset()
+    mockFlexSyketilfelleSykeforloep(
+        sykmeldingKafkaMessage.sykmelding.id,
+        oppfolgingsdato
+    )
+
+    behandleSendtBekreftetSykmeldingService.prosesserSykmelding(sykmeldingKafkaMessage.sykmelding.id, sykmeldingKafkaMessage)
 
     flexSyketilfelleMockRestServiceServer?.reset()
 }
