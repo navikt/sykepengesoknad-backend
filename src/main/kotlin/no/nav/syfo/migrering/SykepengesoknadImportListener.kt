@@ -46,18 +46,18 @@ class SykepengesoknadImportListener(
     }
 
     fun handterSoknader(records: List<String>) {
-
-        val raderFraKafka = records
-            .map { it.tilSykepengesoknadKafka() }
-            .map { it.tilSykepengesoknad() }
-            .map { it.fjernSvarFraUtgatt() }
-            .map { it.fixGrenseverdier() }
-
-        if (raderFraKafka.isEmpty()) {
+        if (records.isEmpty()) {
             return
         }
+        log.info("Starter behandling av ${records.size} soknader fra kafka")
 
         val elapsed = measureTimeMillis {
+            val raderFraKafka = records
+                .map { it.tilSykepengesoknadKafka() }
+                .map { it.tilSykepengesoknad() }
+                .map { it.fjernSvarFraUtgatt() }
+                .map { it.fixGrenseverdier() }
+
             raderFraKafka.forEach {
                 if (sykepengesoknadDAO.eksistererSoknad(it.id)) {
                     log.info("Søknad ${it.id} eksisterte allerede i databasen")
@@ -67,7 +67,7 @@ class SykepengesoknadImportListener(
             }
             counter.increment(raderFraKafka.size.toDouble())
         }
-        log.info("Behandlet ${raderFraKafka.size} soknader fra kafka i $elapsed millis")
+        log.info("Behandlet ${records.size} soknader fra kafka i $elapsed millis")
     }
 }
 
