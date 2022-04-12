@@ -54,7 +54,7 @@ class OppdaterSporsmalService(
 
     fun List<Sporsmal>.erUlikUtenomSvar(sammenlign: List<Sporsmal>): Boolean {
         fun List<Sporsmal>.flattenOgFjernSvar(): List<Sporsmal> {
-            return this.flatten().map { it.copy(svar = emptyList()) }.sortedBy { it.id }
+            return this.flatten().map { it.copy(svar = emptyList(), undersporsmal = emptyList()) }.sortedBy { it.id }
         }
 
         return this.flattenOgFjernSvar() != sammenlign.flattenOgFjernSvar()

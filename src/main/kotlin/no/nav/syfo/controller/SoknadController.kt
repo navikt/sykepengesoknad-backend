@@ -42,7 +42,6 @@ class SoknadController(
     private val mottakerAvSoknadService: MottakerAvSoknadService,
     private val ettersendingSoknadService: EttersendingSoknadService,
     private val oppdaterSporsmalService: OppdaterSporsmalService,
-    private val endreGrenseverdiService: EndreGrenseverdiService,
     private val avbrytSoknadService: AvbrytSoknadService,
 ) {
 
@@ -53,10 +52,7 @@ class SoknadController(
     @GetMapping(value = ["/soknader"], produces = [APPLICATION_JSON_VALUE])
     fun hentSoknader(): List<RSSykepengesoknad> {
         val identer = hentIdenter()
-        var soknader = hentSoknadService.hentSoknader(identer)
-        soknader = endreGrenseverdiService.oppdaterGrenseverdi(soknader, identer)
-
-        return soknader.map { it.tilRSSykepengesoknad() }
+        return hentSoknadService.hentSoknader(identer).map { it.tilRSSykepengesoknad() }
     }
 
     @ProtectedWithClaims(issuer = SELVBETJENING, claimMap = ["acr=Level4"])

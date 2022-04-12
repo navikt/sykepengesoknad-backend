@@ -95,6 +95,19 @@ class SykepengesoknadDAO(
             .map { it.sorterSporsmal() }
     }
 
+    fun eksistererSoknad(soknadUuid: String): Boolean {
+        val soknader = namedParameterJdbcTemplate.query(
+            "SELECT * FROM SYKEPENGESOKNAD " +
+                "WHERE SYKEPENGESOKNAD_UUID = :soknadUuid ",
+
+            MapSqlParameterSource()
+                .addValue("soknadUuid", soknadUuid),
+
+            sykepengesoknadRowMapper()
+        )
+        return soknader.isNotEmpty()
+    }
+
     fun finnSykepengesoknaderByUuid(soknadUuidListe: List<String>): List<Sykepengesoknad> {
         if (soknadUuidListe.isEmpty()) {
             return Collections.emptyList()
