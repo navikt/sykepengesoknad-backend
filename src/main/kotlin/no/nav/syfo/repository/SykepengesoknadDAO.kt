@@ -330,7 +330,7 @@ class SykepengesoknadDAO(
 
     fun nullstillSoknaderMedFnr(fnr: String): Int {
         val soknadsIder = namedParameterJdbcTemplate.query(
-            "SELECT SYKEPENGESOKNAD_ID FROM SYKEPENGESOKNAD WHERE (FNR = :fnr)",
+            "SELECT ID FROM SYKEPENGESOKNAD WHERE (FNR = :fnr)",
 
             MapSqlParameterSource()
                 .addValue("fnr", fnr)
@@ -344,7 +344,7 @@ class SykepengesoknadDAO(
             0
         else
             namedParameterJdbcTemplate.update(
-                "DELETE FROM SYKEPENGESOKNAD WHERE SYKEPENGESOKNAD_ID in (:soknadsIder)",
+                "DELETE FROM SYKEPENGESOKNAD WHERE ID in (:soknadsIder)",
 
                 MapSqlParameterSource()
                     .addValue("soknadsIder", soknadsIder)
