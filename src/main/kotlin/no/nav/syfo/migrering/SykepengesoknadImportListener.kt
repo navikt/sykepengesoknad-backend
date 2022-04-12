@@ -24,7 +24,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import kotlin.system.measureTimeMillis
 
-const val INNSENDING_MIGRERING_TOPIC = "flex." + "syfosoknad-sykepengesoknad-migrering"
+const val IMPORT_TOPIC = "flex." + "syfosoknad-sykepengesoknad-migrering"
 
 @Component
 class SykepengesoknadImportListener(
@@ -36,12 +36,8 @@ class SykepengesoknadImportListener(
     val counter = registry.counter("importert_soknad_counter")
 
     @KafkaListener(
-        topics = [INNSENDING_MIGRERING_TOPIC],
-        containerFactory = "aivenKafkaListenerContainerFactory",
-        id = "migrering-import-consumer",
-        idIsGroup = true,
-        batch = "true",
-        properties = ["auto.offset.reset = earliest"],
+        topics = [IMPORT_TOPIC],
+        containerFactory = "importListenerContainerFactory",
     )
     fun listen(records: List<ConsumerRecord<String, String>>, acknowledgment: Acknowledgment) {
 
