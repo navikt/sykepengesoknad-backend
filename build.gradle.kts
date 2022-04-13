@@ -54,7 +54,7 @@ val mockitoKotlinVersion = "2.2.0"
 val ojdbc8Version = "19.3.0.0"
 val avroVersion = "1.11.0"
 val logstashLogbackEncoderVersion = "7.1"
-val testContainersVersion = "1.16.3"
+val testContainersVersion = "1.17.0"
 val kluentVersion = "1.68"
 val jsonSchemaValidatorVersion = "1.0.68"
 
