@@ -25,8 +25,8 @@ import no.nav.syfo.util.isBeforeOrEqual
 import no.nav.syfo.util.overlap
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
-import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 @Component
 @Transactional
@@ -78,7 +78,7 @@ class Soknadsklipper(
         val sykmeldingPeriode = sykmeldingKafkaMessage.periode()
 
         val soknadKandidater = soknadKandidater(
-            behandletTidspunkt = sykmeldingKafkaMessage.sykmelding.behandletTidspunkt.toInstant(),
+            behandletTidspunkt = sykmeldingKafkaMessage.sykmelding.behandletTidspunkt.toLocalDateTime(),
             orgnummer = orgnummer,
             sykmeldingPeriode = sykmeldingPeriode,
             identer = identer,
@@ -113,7 +113,7 @@ class Soknadsklipper(
         identer: FolkeregisterIdenter,
     ): SykmeldingKafkaMessage {
         val soknadKandidater = soknadKandidater(
-            behandletTidspunkt = sykmeldingKafkaMessage.sykmelding.behandletTidspunkt.toInstant(),
+            behandletTidspunkt = sykmeldingKafkaMessage.sykmelding.behandletTidspunkt.toLocalDateTime(),
             orgnummer = orgnummer,
             sykmeldingPeriode = sykmeldingKafkaMessage.periode(),
             identer = identer,
@@ -126,7 +126,7 @@ class Soknadsklipper(
     }
 
     private fun soknadKandidater(
-        behandletTidspunkt: Instant,
+        behandletTidspunkt: LocalDateTime,
         orgnummer: String?,
         sykmeldingPeriode: ClosedRange<LocalDate>,
         identer: FolkeregisterIdenter,
@@ -238,12 +238,13 @@ class Soknadsklipper(
         this.sortedBy { it.tom }
             .forEach { sok ->
                 val sykmeldingPeriode = nyeSykmeldingPerioder.periode()
-                if (sok.fom!!.isBeforeOrEqual(sykmeldingPeriode.start) &&
-                    sok.tom!!.isBefore(sykmeldingPeriode.endInclusive) &&
+                val soknadPeriode = sok.fom!!..sok.tom!!
+
+                if (soknadPeriode.overlap(sykmeldingPeriode) &&
+                    sok.fom.isBeforeOrEqual(sykmeldingPeriode.start) &&
+                    sok.tom.isBefore(sykmeldingPeriode.endInclusive) &&
                     (sok.status == Soknadstatus.NY || sok.status == Soknadstatus.SENDT)
                 ) {
-                    val soknadPeriode = sok.fom..sok.tom
-
                     val endringIUforegrad = finnEndringIUforegrad(
                         tidligerePerioder = sok.soknadPerioder!!.filter {
                             sykmeldingPeriode.overlap(it.fom..it.tom)
