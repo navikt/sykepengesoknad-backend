@@ -8,14 +8,12 @@ import no.nav.syfo.service.FolkeregisterIdenter
 import no.nav.syfo.soknadsopprettelse.sorterSporsmal
 import no.nav.syfo.util.OBJECT_MAPPER
 import no.nav.syfo.util.isAfterOrEqual
-import no.nav.syfo.util.serialisertTilString
 import no.nav.syfo.util.tilOsloZone
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.dao.IncorrectResultSizeDataAccessException
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
-import org.springframework.jdbc.support.GeneratedKeyHolder
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
@@ -30,7 +28,8 @@ class SykepengesoknadDAO(
     private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
     private val soknadsperiodeDAO: SoknadsperiodeDAO,
     private val sporsmalDAO: SporsmalDAO,
-    private val svarDAO: SvarDAO
+    private val svarDAO: SvarDAO,
+    private val soknadLagrer: SoknadLagrer,
 ) {
 
     val log = logger()
@@ -95,17 +94,18 @@ class SykepengesoknadDAO(
             .map { it.sorterSporsmal() }
     }
 
-    fun eksistererSoknad(soknadUuid: String): Boolean {
-        val soknader = namedParameterJdbcTemplate.query(
+    fun eksistererSoknader(soknadUuidListe: List<String>): List<String> {
+        if (soknadUuidListe.isEmpty())return emptyList()
+
+        return namedParameterJdbcTemplate.query(
             "SELECT * FROM SYKEPENGESOKNAD " +
-                "WHERE SYKEPENGESOKNAD_UUID = :soknadUuid ",
+                "WHERE SYKEPENGESOKNAD_UUID IN (:soknadUuidListe) ",
 
             MapSqlParameterSource()
-                .addValue("soknadUuid", soknadUuid),
+                .addValue("soknadUuidListe", soknadUuidListe),
 
             sykepengesoknadRowMapper()
-        )
-        return soknader.isNotEmpty()
+        ).map { it.second.id }
     }
 
     fun finnSykepengesoknaderByUuid(soknadUuidListe: List<String>): List<Sykepengesoknad> {
@@ -157,45 +157,8 @@ class SykepengesoknadDAO(
     }
 
     fun lagreSykepengesoknad(sykepengesoknad: Sykepengesoknad): Sykepengesoknad {
-        val generatedKeyHolder = GeneratedKeyHolder()
-        val merknader = sykepengesoknad.merknaderFraSykmelding?.serialisertTilString()
-        namedParameterJdbcTemplate.update(
-            """INSERT INTO SYKEPENGESOKNAD (SYKEPENGESOKNAD_UUID, SOKNADSTYPE, STATUS, FOM, TOM, OPPRETTET, AVBRUTT_DATO, SYKMELDING_UUID, SENDT_NAV, SENDT_ARBEIDSGIVER, KORRIGERER, KORRIGERT_AV, ARBEIDSGIVER_ORGNUMMER, ARBEIDSGIVER_NAVN, ARBEIDSSITUASJON, START_SYKEFORLOP, SYKMELDING_SKREVET, OPPRINNELSE, FNR, EGENMELDT_SYKMELDING, MERKNADER_FRA_SYKMELDING, AVBRUTT_FEILINFO) VALUES (:uuid, :soknadstype, :status, :fom, :tom, :opprettet, :avbrutt, :sykmeldingUuid, :sendtNav, :sendtArbeidsgiver, :korrigerer, :korrigertAv, :arbeidsgiverOrgnummer, :arbeidsgiverNavn, :arbeidssituasjon, :startSykeforlop, :sykmeldingSkrevet, :opprinnelse, :fnr, :egenmeldtSykmelding, :merknaderFraSykmelding, :avbruttFeilinfo)""",
-
-            MapSqlParameterSource()
-                .addValue("uuid", sykepengesoknad.id)
-                .addValue("soknadstype", sykepengesoknad.soknadstype.name)
-                .addValue("status", sykepengesoknad.status.name)
-                .addValue("fom", sykepengesoknad.fom)
-                .addValue("tom", sykepengesoknad.tom)
-                .addValue("opprettet", sykepengesoknad.opprettet?.tilOsloZone())
-                .addValue("avbrutt", sykepengesoknad.avbruttDato)
-                .addValue("sendtNav", sykepengesoknad.sendtNav?.tilOsloZone())
-                .addValue("sendtArbeidsgiver", sykepengesoknad.sendtArbeidsgiver?.tilOsloZone())
-                .addValue("sykmeldingUuid", sykepengesoknad.sykmeldingId)
-                .addValue("korrigerer", sykepengesoknad.korrigerer)
-                .addValue("korrigertAv", sykepengesoknad.korrigertAv)
-                .addValue("arbeidsgiverOrgnummer", sykepengesoknad.arbeidsgiverOrgnummer)
-                .addValue("arbeidsgiverNavn", sykepengesoknad.arbeidsgiverNavn)
-                .addValue("arbeidssituasjon", sykepengesoknad.arbeidssituasjon?.name)
-                .addValue("startSykeforlop", sykepengesoknad.startSykeforlop)
-                .addValue("sykmeldingSkrevet", sykepengesoknad.sykmeldingSkrevet?.tilOsloZone())
-                .addValue("opprinnelse", sykepengesoknad.opprinnelse.name)
-                .addValue("fnr", sykepengesoknad.fnr)
-                .addValue("egenmeldtSykmelding", sykepengesoknad.egenmeldtSykmelding)
-                .addValue("avbruttFeilinfo", sykepengesoknad.avbruttFeilinfo)
-                .addValue("merknaderFraSykmelding", merknader),
-            generatedKeyHolder,
-            arrayOf("id")
-        )
-
-        val sykepengesoknadId = generatedKeyHolder.getKeyAs(String::class.java)!!
-        sykepengesoknad.soknadPerioder?.let {
-            soknadsperiodeDAO.lagreSoknadperioder(sykepengesoknadId, it)
-        }
-        val lagretSporsmal =
-            sykepengesoknad.sporsmal.map { sporsmal -> sporsmalDAO.lagreSporsmal(sykepengesoknadId, sporsmal, null) }
-        return sykepengesoknad.copy(sporsmal = lagretSporsmal)
+        soknadLagrer.lagreSoknad(sykepengesoknad)
+        return finnSykepengesoknad(sykepengesoknad.id)
     }
 
     fun oppdaterKorrigertAv(sykepengesoknad: Sykepengesoknad) {

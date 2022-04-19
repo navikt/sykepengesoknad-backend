@@ -16,7 +16,7 @@ data class Sykepengesoknad(
     val korrigerer: String? = null,
     val korrigertAv: String? = null,
     val sporsmal: List<Sporsmal>,
-    val opprinnelse: Opprinnelse = Opprinnelse.SYFOSOKNAD,
+    val opprinnelse: Opprinnelse = Opprinnelse.SYKEPENGESOKNAD_BACKEND,
     val avsendertype: Avsendertype? = null,
     val sykmeldingId: String?,
     val fom: LocalDate?,

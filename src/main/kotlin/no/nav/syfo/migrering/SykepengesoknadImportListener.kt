@@ -13,6 +13,7 @@ import no.nav.syfo.domain.Soknadstype
 import no.nav.syfo.domain.Sporsmal
 import no.nav.syfo.domain.Sykepengesoknad
 import no.nav.syfo.logger
+import no.nav.syfo.repository.SoknadLagrer
 import no.nav.syfo.repository.SykepengesoknadDAO
 import no.nav.syfo.util.OBJECT_MAPPER
 import no.nav.syfo.util.tilOsloInstant
@@ -28,6 +29,7 @@ const val IMPORT_TOPIC = "flex." + "syfosoknad-sykepengesoknad-migrering"
 
 @Component
 class SykepengesoknadImportListener(
+    val soknadLagrer: SoknadLagrer,
     val sykepengesoknadDAO: SykepengesoknadDAO,
     registry: MeterRegistry,
 ) {
@@ -57,12 +59,14 @@ class SykepengesoknadImportListener(
                 .map { it.tilSykepengesoknad() }
                 .map { it.fjernSvarFraUtgatt() }
                 .map { it.fixGrenseverdier() }
+                .distinctBy { it.id }
 
+            val eksisterendeSoknader = sykepengesoknadDAO.eksistererSoknader(raderFraKafka.map { it.id }).toSet()
             raderFraKafka.forEach {
-                if (sykepengesoknadDAO.eksistererSoknad(it.id)) {
+                if (eksisterendeSoknader.contains(it.id)) {
                     log.info("Søknad ${it.id} eksisterte allerede i databasen")
                 } else {
-                    sykepengesoknadDAO.lagreSykepengesoknad(it)
+                    soknadLagrer.lagreSoknad(it)
                 }
             }
             counter.increment(raderFraKafka.size.toDouble())
