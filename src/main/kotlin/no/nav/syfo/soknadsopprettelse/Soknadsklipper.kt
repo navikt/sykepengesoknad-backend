@@ -238,12 +238,13 @@ class Soknadsklipper(
         this.sortedBy { it.tom }
             .forEach { sok ->
                 val sykmeldingPeriode = nyeSykmeldingPerioder.periode()
-                if (sok.fom!!.isBeforeOrEqual(sykmeldingPeriode.start) &&
-                    sok.tom!!.isBefore(sykmeldingPeriode.endInclusive) &&
+                val soknadPeriode = sok.fom!!..sok.tom!!
+
+                if (soknadPeriode.overlap(sykmeldingPeriode) &&
+                    sok.fom.isBeforeOrEqual(sykmeldingPeriode.start) &&
+                    sok.tom.isBefore(sykmeldingPeriode.endInclusive) &&
                     (sok.status == Soknadstatus.NY || sok.status == Soknadstatus.SENDT)
                 ) {
-                    val soknadPeriode = sok.fom..sok.tom
-
                     val endringIUforegrad = finnEndringIUforegrad(
                         tidligerePerioder = sok.soknadPerioder!!.filter {
                             sykmeldingPeriode.overlap(it.fom..it.tom)

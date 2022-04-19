@@ -17,6 +17,7 @@ import no.nav.syfo.model.sykmelding.model.GradertDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
 import no.nav.syfo.model.sykmeldingstatus.STATUS_SENDT
+import no.nav.syfo.repository.SykepengesoknadDAO
 import no.nav.syfo.service.AktiverService
 import no.nav.syfo.soknadsopprettelse.ANDRE_INNTEKTSKILDER
 import no.nav.syfo.soknadsopprettelse.ANSVARSERKLARING
@@ -47,12 +48,16 @@ import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.Duration
 import java.time.LocalDate
+import java.util.*
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class OverlapperEtter : BaseTestClass() {
 
     @Autowired
     private lateinit var aktiverService: AktiverService
+
+    @Autowired
+    private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
 
     private final val basisdato = LocalDate.now()
     private val fnr = "01555555555"
@@ -402,5 +407,83 @@ class OverlapperEtter : BaseTestClass() {
         // soknad.fom shouldBeEqualTo basisdato
         soknad.fom shouldBeEqualTo fom
         soknad.tom shouldBeEqualTo tom
+    }
+
+    @Test
+    @Order(32)
+    fun `Db tømmes`() {
+        databaseReset.resetDatabase()
+    }
+
+    @Test
+    @Order(40)
+    fun `Bruker har 2 innsendte søknader som overlapper fullstendig`() {
+        sendArbeidstakerSykmelding(
+            fom = basisdato,
+            tom = basisdato.plusDays(15),
+            fnr = fnr
+        )
+
+        aktiverService.aktiverSoknader(basisdato.plusDays(16))
+
+        val rsSoknad = hentSoknader(fnr)
+            .shouldHaveSize(1)
+            .first()
+
+        mockFlexSyketilfelleArbeidsgiverperiode(
+            arbeidsgiverperiode = Arbeidsgiverperiode(
+                antallBrukteDager = 16,
+                oppbruktArbeidsgiverperiode = true,
+                arbeidsgiverPeriode = Periode(fom = rsSoknad.fom!!, tom = rsSoknad.tom!!)
+            )
+        )
+
+        SoknadBesvarer(rsSoknad, this, fnr)
+            .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
+            .besvarSporsmal(FRAVAR_FOR_SYKMELDINGEN, "NEI")
+            .besvarSporsmal(TILBAKE_I_ARBEID, "NEI")
+            .besvarSporsmal(FRAVAR_FOR_SYKMELDINGEN, "NEI")
+            .besvarSporsmal(PERMISJON_V2, "NEI")
+            .besvarSporsmal(FERIE_V2, "NEI")
+            .besvarSporsmal(UTLAND_V2, "NEI")
+            .besvarSporsmal(PERMITTERT_NAA, "NEI")
+            .besvarSporsmal(PERMITTERT_PERIODE, "NEI")
+            .besvarSporsmal(JOBBET_DU_100_PROSENT + '0', "NEI")
+            .besvarSporsmal(ARBEID_UTENFOR_NORGE, "NEI")
+            .besvarSporsmal(ANDRE_INNTEKTSKILDER, "NEI")
+            .besvarSporsmal(UTDANNING, "NEI")
+            .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
+            .sendSoknad()
+
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 3)
+        juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
+
+        val identiskSoknad = sykepengesoknadDAO
+            .finnSykepengesoknad(rsSoknad.id)
+            .copy(
+                id = UUID.randomUUID().toString(),
+                sykmeldingId = UUID.randomUUID().toString(),
+            )
+        sykepengesoknadDAO.lagreSykepengesoknad(identiskSoknad)
+    }
+
+    @Test
+    @Order(41)
+    fun `Sykmelding overlapper med tom på de to identiske søknadene`() {
+        sendArbeidstakerSykmelding(
+            fom = basisdato.plusDays(15),
+            tom = basisdato.plusDays(20),
+            fnr = fnr
+        )
+
+        val soknad = sykepengesoknadKafkaConsumer
+            .ventPåRecords(antall = 1)
+            .tilSoknader()
+            .first()
+
+        // TODO: Slå på når vi klipper i prod
+        // soknad.fom shouldBeEqualTo basisdato.plusDays(16)
+        soknad.fom shouldBeEqualTo basisdato.plusDays(15)
+        soknad.tom shouldBeEqualTo basisdato.plusDays(20)
     }
 }
