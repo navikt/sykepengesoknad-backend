@@ -114,40 +114,6 @@ data class Sporsmal(
             undersporsmal = undersporsmal
         )
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as Sporsmal
-
-        if (id != other.id) return false
-        if (tag != other.tag) return false
-        if (sporsmalstekst != other.sporsmalstekst) return false
-        if (undertekst != other.undertekst) return false
-        if (svartype != other.svartype) return false
-        if (min != other.min) return false
-        if (max != other.max) return false
-        if (pavirkerAndreSporsmal != other.pavirkerAndreSporsmal) return false
-        if (kriterieForVisningAvUndersporsmal != other.kriterieForVisningAvUndersporsmal) return false
-        if (undersporsmal != other.undersporsmal) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = id?.hashCode() ?: 0
-        result = 31 * result + tag.hashCode()
-        result = 31 * result + (sporsmalstekst?.hashCode() ?: 0)
-        result = 31 * result + (undertekst?.hashCode() ?: 0)
-        result = 31 * result + svartype.hashCode()
-        result = 31 * result + (min?.hashCode() ?: 0)
-        result = 31 * result + (max?.hashCode() ?: 0)
-        result = 31 * result + pavirkerAndreSporsmal.hashCode()
-        result = 31 * result + (kriterieForVisningAvUndersporsmal?.hashCode() ?: 0)
-        result = 31 * result + undersporsmal.hashCode()
-        return result
-    }
-
     val forsteSvar: String?
         get() = if (svar.isEmpty())
             null

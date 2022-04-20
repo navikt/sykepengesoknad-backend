@@ -2,5 +2,6 @@ package no.nav.syfo.domain
 
 enum class Opprinnelse {
     SYFOSOKNAD,
-    SYFOSERVICE
+    SYFOSERVICE,
+    SYKEPENGESOKNAD_BACKEND,
 }
