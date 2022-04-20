@@ -25,7 +25,11 @@ class SoknadLagrer(
     fun SykepengesoknadDbRecord.lagre() {
         val sykepengesoknad = this
         jdbcTemplate.update(
-            """INSERT INTO SYKEPENGESOKNAD (ID, SYKEPENGESOKNAD_UUID, SOKNADSTYPE, STATUS, FOM, TOM, OPPRETTET, AVBRUTT_DATO, SYKMELDING_UUID, SENDT_NAV, SENDT_ARBEIDSGIVER, KORRIGERER, KORRIGERT_AV, ARBEIDSGIVER_ORGNUMMER, ARBEIDSGIVER_NAVN, ARBEIDSSITUASJON, START_SYKEFORLOP, SYKMELDING_SKREVET, OPPRINNELSE, FNR, EGENMELDT_SYKMELDING, MERKNADER_FRA_SYKMELDING, AVBRUTT_FEILINFO) VALUES (:id, :uuid, :soknadstype, :status, :fom, :tom, :opprettet, :avbrutt, :sykmeldingUuid, :sendtNav, :sendtArbeidsgiver, :korrigerer, :korrigertAv, :arbeidsgiverOrgnummer, :arbeidsgiverNavn, :arbeidssituasjon, :startSykeforlop, :sykmeldingSkrevet, :opprinnelse, :fnr, :egenmeldtSykmelding, :merknaderFraSykmelding, :avbruttFeilinfo)""",
+            """
+INSERT INTO SYKEPENGESOKNAD (ID, SYKEPENGESOKNAD_UUID, SOKNADSTYPE, STATUS, FOM, TOM, OPPRETTET, AVBRUTT_DATO, SYKMELDING_UUID, SENDT_NAV, SENDT_ARBEIDSGIVER, KORRIGERER, KORRIGERT_AV, ARBEIDSGIVER_ORGNUMMER, ARBEIDSGIVER_NAVN, ARBEIDSSITUASJON, START_SYKEFORLOP, SYKMELDING_SKREVET, OPPRINNELSE, FNR, EGENMELDT_SYKMELDING, MERKNADER_FRA_SYKMELDING, AVBRUTT_FEILINFO) 
+VALUES (:id, :uuid, :soknadstype, :status, :fom, :tom, :opprettet, :avbrutt, :sykmeldingUuid, :sendtNav, :sendtArbeidsgiver, :korrigerer, :korrigertAv, :arbeidsgiverOrgnummer, :arbeidsgiverNavn, :arbeidssituasjon, :startSykeforlop, :sykmeldingSkrevet, :opprinnelse, :fnr, :egenmeldtSykmelding, :merknaderFraSykmelding, :avbruttFeilinfo) 
+ON CONFLICT ON CONSTRAINT sykepengesoknad_pkey DO NOTHING
+""",
 
             MapSqlParameterSource()
                 .addValue("id", sykepengesoknad.id)
@@ -60,7 +64,11 @@ class SoknadLagrer(
         }
         this.forEach {
             jdbcTemplate.update(
-                "INSERT INTO SOKNADPERIODE (ID, SYKEPENGESOKNAD_ID, FOM, TOM, GRAD, SYKMELDINGSTYPE) " + "VALUES (:id, :sykepengesoknadId, :fom, :tom, :grad, :sykmeldingstype)",
+                """
+INSERT INTO SOKNADPERIODE (ID, SYKEPENGESOKNAD_ID, FOM, TOM, GRAD, SYKMELDINGSTYPE) 
+VALUES (:id, :sykepengesoknadId, :fom, :tom, :grad, :sykmeldingstype) 
+ON CONFLICT ON CONSTRAINT soknadperiode_pkey DO NOTHING
+""",
 
                 MapSqlParameterSource()
                     .addValue("id", it.id)
@@ -80,7 +88,8 @@ class SoknadLagrer(
         val sql =
             """
 INSERT INTO SPORSMAL(ID, SYKEPENGESOKNAD_ID, UNDER_SPORSMAL_ID, TEKST, UNDERTEKST, TAG, SVARTYPE, MIN, MAX, KRITERIE_FOR_VISNING) 
-VALUES (:id, :sykepengesoknadId, :underSporsmalId, :tekst, :undertekst, :tag, :svartype, :min, :max, :kriterie)"""
+VALUES (:id, :sykepengesoknadId, :underSporsmalId, :tekst, :undertekst, :tag, :svartype, :min, :max, :kriterie)
+ON CONFLICT ON CONSTRAINT sporsmal_pkey DO NOTHING"""
         jdbcTemplate.batchUpdate(
             sql,
             this
@@ -107,7 +116,9 @@ VALUES (:id, :sykepengesoknadId, :underSporsmalId, :tekst, :undertekst, :tag, :s
         }
         val sql =
             """
-INSERT INTO SVAR (ID, SPORSMAL_ID, VERDI) VALUES (:id, :sporsmalId, :verdi)"""
+INSERT INTO SVAR (ID, SPORSMAL_ID, VERDI) VALUES (:id, :sporsmalId, :verdi)
+ON CONFLICT ON CONSTRAINT svar_pkey DO NOTHING
+"""
         jdbcTemplate.batchUpdate(
             sql,
             this
