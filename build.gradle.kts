@@ -4,8 +4,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("org.springframework.boot") version "2.6.6"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
-    kotlin("jvm") version "1.6.20"
-    kotlin("plugin.spring") version "1.6.20"
+    kotlin("jvm") version "1.6.21"
+    kotlin("plugin.spring") version "1.6.21"
 }
 
 group = "no.nav.helse.flex"
@@ -47,16 +47,16 @@ repositories {
 
 val tokenSupportVersion = "2.0.14"
 val smCommonVersion = "1.88ca328"
-val confluentVersion = "7.1.0"
+val confluentVersion = "7.1.1"
 val syfoKafkaVersion = "2021.07.20-09.39-6be2c52c"
 val sykepengesoknadKafkaVersion = "2022.03.14-10.39-e61acd76"
 val mockitoKotlinVersion = "2.2.0"
 val ojdbc8Version = "19.3.0.0"
 val avroVersion = "1.11.0"
-val logstashLogbackEncoderVersion = "7.1"
-val testContainersVersion = "1.16.3"
+val logstashLogbackEncoderVersion = "7.1.1"
+val testContainersVersion = "1.17.1"
 val kluentVersion = "1.68"
-val jsonSchemaValidatorVersion = "1.0.68"
+val jsonSchemaValidatorVersion = "1.0.69"
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
