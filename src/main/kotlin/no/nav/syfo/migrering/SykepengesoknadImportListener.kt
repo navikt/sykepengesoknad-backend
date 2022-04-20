@@ -62,13 +62,15 @@ class SykepengesoknadImportListener(
                 .distinctBy { it.id }
 
             val eksisterendeSoknader = sykepengesoknadDAO.eksistererSoknader(raderFraKafka.map { it.id }).toSet()
-            raderFraKafka.forEach {
+            val tilInsert = raderFraKafka.filter {
                 if (eksisterendeSoknader.contains(it.id)) {
                     log.info("Søknad ${it.id} eksisterte allerede i databasen")
+                    false
                 } else {
-                    soknadLagrer.lagreSoknad(it)
+                    true
                 }
             }
+            soknadLagrer.lagreSoknader(tilInsert)
             counter.increment(raderFraKafka.size.toDouble())
         }
         log.info("Behandlet ${records.size} soknader fra kafka i $elapsed millis")
