@@ -19,26 +19,22 @@ private fun RSSvarAvgittAv.tilSvarAvgittAv(): SvarAvgittAv {
 }
 
 fun RSSporsmal.mapSporsmal(): Sporsmal {
-    return sporsmalBuilder()
-        .id(this.id)
-        .tag(this.tag)
-        .sporsmalstekst(this.sporsmalstekst)
-        .undertekst(this.undertekst)
-        .svartype(konverter(Svartype::class.java, this.svartype))
-        .min(this.min)
-        .max(this.max)
-        .pavirkerAndreSporsmal(this.pavirkerAndreSporsmal)
-        .kriterieForVisningAvUndersporsmal(
-            konverter(
-                Visningskriterie::class.java,
-                this.kriterieForVisningAvUndersporsmal
-            )
-        )
-        .svar(
-            this.svar
-                .filter { it.verdi.isNotEmpty() }
-                .map { it.mapSvar() }
-        )
-        .undersporsmal(this.undersporsmal.map { it.mapSporsmal() })
-        .build()
+    return Sporsmal(
+        id = id,
+        tag = tag,
+        sporsmalstekst = sporsmalstekst,
+        undertekst = undertekst,
+        svartype = konverter(Svartype::class.java, this.svartype),
+        min = min,
+        max = max,
+        pavirkerAndreSporsmal = pavirkerAndreSporsmal,
+        kriterieForVisningAvUndersporsmal = konverter(
+            Visningskriterie::class.java,
+            this.kriterieForVisningAvUndersporsmal
+        ),
+        svar = svar
+            .filter { it.verdi.isNotEmpty() }
+            .map { it.mapSvar() },
+        undersporsmal = undersporsmal.map { it.mapSporsmal() },
+    )
 }

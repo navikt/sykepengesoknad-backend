@@ -633,7 +633,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
 
         sykepengesoknad = sykepengesoknad.replaceSporsmal(
             sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).toBuilder()
-                .svar(listOf<Svar>(Svar(null, mandag.with(next(THURSDAY)).format(ISO_LOCAL_DATE), null)))
+                .svar(listOf(Svar(null, mandag.with(next(THURSDAY)).format(ISO_LOCAL_DATE), null)))
                 .build()
         )
 
@@ -709,12 +709,12 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
         )
         sykepengesoknad = sykepengesoknad.replaceSporsmal(
             sykepengesoknad.getSporsmalMedTag("JOBBET_DU_100_PROSENT_0").toBuilder()
-                .svar(listOf<Svar>(Svar(null, "NEI", null)))
+                .svar(listOf(Svar(null, "NEI", null)))
                 .build()
         )
         sykepengesoknad = sykepengesoknad.replaceSporsmal(
             sykepengesoknad.getSporsmalMedTag("JOBBET_DU_GRADERT_1").toBuilder()
-                .svar(listOf<Svar>(Svar(null, "NEI", null)))
+                .svar(listOf(Svar(null, "NEI", null)))
                 .build()
         )
 

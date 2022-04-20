@@ -13,7 +13,9 @@ class SykepengesoknadTest {
     fun alleSporsmalOgUndersporsmalReturnererAlleSporsmal() {
         val sporsmalOgUndersporsmal = sykepengesoknad.alleSporsmalOgUndersporsmal()
 
-        assertThat(sporsmalOgUndersporsmal.map { it.sporsmalstekst }.map { i -> i!!.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0] }.joinToString(",")).isEqualTo("Når,Hvilket,Har,Er,Har,Før,Jeg")
+        assertThat(sporsmalOgUndersporsmal.map { it.sporsmalstekst }
+            .map { i -> i!!.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0] }
+            .joinToString(",")).isEqualTo("Når,Hvilket,Har,Er,Har,Før,Jeg")
     }
 
     @Test
@@ -21,13 +23,14 @@ class SykepengesoknadTest {
         var sykepengesoknad = sykepengesoknad
 
         sykepengesoknad = sykepengesoknad.replaceSporsmal(
-            sykepengesoknad.getSporsmalMedTag("ARBEIDSGIVER").toBuilder()
-                .sporsmalstekst("HEISANN")
-                .build()
+            sykepengesoknad.getSporsmalMedTag("ARBEIDSGIVER")
+                .copy(sporsmalstekst = "HEISANN")
         )
 
         val sporsmalOgUndersporsmal = sykepengesoknad.alleSporsmalOgUndersporsmal()
-        assertThat(sporsmalOgUndersporsmal.map { it.sporsmalstekst }.map { i -> i!!.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0] }.joinToString(",")).isEqualTo("Når,Hvilket,HEISANN,Er,Har,Før,Jeg")
+        assertThat(sporsmalOgUndersporsmal.map { it.sporsmalstekst }
+            .map { i -> i!!.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0] }
+            .joinToString(",")).isEqualTo("Når,Hvilket,HEISANN,Er,Har,Før,Jeg")
     }
 
     @Test
@@ -35,9 +38,8 @@ class SykepengesoknadTest {
         var sykepengesoknad = sykepengesoknad
 
         sykepengesoknad = sykepengesoknad.replaceSporsmal(
-            sykepengesoknad.getSporsmalMedTag("ARBEIDSGIVER").toBuilder()
-                .sporsmalstekst("9")
-                .build()
+            sykepengesoknad.getSporsmalMedTag("ARBEIDSGIVER")
+                .copy(sporsmalstekst = "9")
         )
 
         val sporsmal = sykepengesoknad.sporsmal
@@ -75,10 +77,11 @@ class SykepengesoknadTest {
         var sykepengesoknad = sykepengesoknad
 
         sykepengesoknad = sykepengesoknad.addHovedsporsmal(
-            sporsmalBuilder()
-                .tag("tag")
-                .svartype(Svartype.CHECKBOX)
-                .build(),
+            Sporsmal(
+                tag = "tag",
+                svartype = Svartype.CHECKBOX
+            ),
+
             sykepengesoknad.getSporsmalMedTag("ARBEIDSGIVER")
         )
 
@@ -91,10 +94,10 @@ class SykepengesoknadTest {
         var sykepengesoknad = sykepengesoknad
 
         sykepengesoknad = sykepengesoknad.addHovedsporsmal(
-            sporsmalBuilder()
-                .tag("tag")
-                .svartype(Svartype.CHECKBOX)
-                .build(),
+            Sporsmal(
+                tag = "tag",
+                svartype = Svartype.CHECKBOX
+            ),
             null
         )
 
