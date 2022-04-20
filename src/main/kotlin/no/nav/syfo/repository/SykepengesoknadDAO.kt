@@ -95,17 +95,18 @@ class SykepengesoknadDAO(
     }
 
     fun eksistererSoknader(soknadUuidListe: List<String>): List<String> {
-        if (soknadUuidListe.isEmpty())return emptyList()
+        if (soknadUuidListe.isEmpty()) return emptyList()
 
         return namedParameterJdbcTemplate.query(
-            "SELECT * FROM SYKEPENGESOKNAD " +
+            "SELECT SYKEPENGESOKNAD_UUID FROM SYKEPENGESOKNAD " +
                 "WHERE SYKEPENGESOKNAD_UUID IN (:soknadUuidListe) ",
 
             MapSqlParameterSource()
-                .addValue("soknadUuidListe", soknadUuidListe),
+                .addValue("soknadUuidListe", soknadUuidListe)
 
-            sykepengesoknadRowMapper()
-        ).map { it.second.id }
+        ) { resultSet, _ ->
+            resultSet.getString("SYKEPENGESOKNAD_UUID")
+        }
     }
 
     fun finnSykepengesoknaderByUuid(soknadUuidListe: List<String>): List<Sykepengesoknad> {

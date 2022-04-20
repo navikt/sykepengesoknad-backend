@@ -112,12 +112,12 @@ class AivenKafkaConfig(
     ): ConcurrentKafkaListenerContainerFactory<String, String> {
         val config = mapOf(
             ConsumerConfig.GROUP_ID_CONFIG to "migrering-import-consumer-3",
-            ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest",
+            ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to kafkaAutoOffsetReset,
             ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG to false,
             ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
             ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
-            ConsumerConfig.MAX_POLL_RECORDS_CONFIG to "50",
-            ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG to ConsumerConfig.DEFAULT_MAX_PARTITION_FETCH_BYTES * 3,
+            ConsumerConfig.MAX_POLL_RECORDS_CONFIG to "100",
+            ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG to ConsumerConfig.DEFAULT_MAX_PARTITION_FETCH_BYTES * 5,
         ) + commonConfig()
         val consumerFactory = DefaultKafkaConsumerFactory<String, String>(config)
 
