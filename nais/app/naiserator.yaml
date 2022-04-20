@@ -53,6 +53,9 @@ spec:
         databases:
           - name: sykepengesoknad-db
             envVarPrefix: DB
+        maintenance:
+          day: 2
+          hour: 2
   accessPolicy:
     outbound:
       external:
