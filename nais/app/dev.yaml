@@ -3,8 +3,8 @@ kafkaPool: nav-dev
 environment: dev
 db_tier: db-f1-micro
 db_size: 10
-replicas_min: 1
-replicas_max: 2
+replicas_min: 0
+replicas_max: 0
 schema_registry: "kafka-schema-registry.nais-q.adeo.no"
 env:
   SPRING_PROFILES_ACTIVE: default,testdatareset

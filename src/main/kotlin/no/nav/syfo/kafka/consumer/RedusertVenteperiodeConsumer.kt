@@ -6,11 +6,13 @@ import no.nav.syfo.repository.RedusertVenteperiodeDbRecord
 import no.nav.syfo.repository.RedusertVenteperiodeRepository
 import no.nav.syfo.util.OBJECT_MAPPER
 import org.apache.kafka.clients.consumer.ConsumerRecord
+import org.springframework.context.annotation.Profile
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.support.Acknowledgment
 import org.springframework.stereotype.Component
 
 @Component
+@Profile("test")
 class RedusertVenteperiodeConsumer(
     private val db: RedusertVenteperiodeRepository,
 ) {
@@ -20,7 +22,8 @@ class RedusertVenteperiodeConsumer(
     @KafkaListener(
         topics = [SYKMELDINGBEKREFTET_TOPIC],
         containerFactory = "aivenKafkaListenerContainerFactory",
-        id = "redusert-venteperiode-consumer",
+        properties = ["auto.offset.reset = earliest"],
+        id = "redusert-venteperiode-consumer-2",
         idIsGroup = true,
     )
     fun listen(cr: ConsumerRecord<String, String?>, acknowledgment: Acknowledgment) {

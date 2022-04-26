@@ -56,6 +56,9 @@ CREATE TABLE svar
     verdi       VARCHAR NOT NULL
 );
 
+CREATE INDEX svar_sporsmal_id_index ON svar (sporsmal_id);
+
+
 CREATE TABLE soknadperiode
 (
     id                 VARCHAR DEFAULT uuid_generate_v4() PRIMARY KEY,
