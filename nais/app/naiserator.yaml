@@ -52,8 +52,8 @@ spec:
         pointInTimeRecovery: false
         diskAutoresize: true
         databases:
-          - name: sykepengesoknad-db
-            envVarPrefix: DB
+          - name: sykepengesoknad
+            envVarPrefix: DATABASE
         maintenance:
           day: 2
           hour: 2
