@@ -88,8 +88,8 @@ class AutomatiskInnsendingVedDodsfallServiceTest : BaseTestClass() {
             status = Soknadstatus.FREMTIDIG,
             sporsmal = emptyList(),
             fnr = "aktor1",
-            fom = LocalDate.of(2022, 1, 1),
-            tom = LocalDate.of(2022, 1, 30),
+            fom = LocalDate.now().minusWeeks(3),
+            tom = LocalDate.now().minusWeeks(2),
         )
 
         sykepengesoknadDAO.lagreSykepengesoknad(soknad)
