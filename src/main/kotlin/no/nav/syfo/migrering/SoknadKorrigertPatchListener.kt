@@ -60,10 +60,6 @@ class SoknadKorrigertPatchListener(
                         korrigertAv = this.id
                     )
                 )
-                return
-            }
-            if (soknadFraDb.korrigertAv != this.id) {
-                throw RuntimeException("Forventet at ${soknadFraDb.id} var korrigert av $id")
             }
         }
     }
