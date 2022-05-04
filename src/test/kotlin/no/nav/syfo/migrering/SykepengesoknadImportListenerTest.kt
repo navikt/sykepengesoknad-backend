@@ -1,9 +1,14 @@
 package no.nav.syfo.migrering
 
+import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
+import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
+import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.syfo.BaseTestClass
+import no.nav.syfo.domain.Soknadstatus
 import no.nav.syfo.domain.Soknadstype
 import no.nav.syfo.domain.Sykepengesoknad
 import no.nav.syfo.repository.SykepengesoknadDAO
+import no.nav.syfo.repository.SykepengesoknadRepository
 import no.nav.syfo.soknadsopprettelse.settOppSoknadArbeidstaker
 import no.nav.syfo.soknadsopprettelse.settOppSoknadOppholdUtland
 import no.nav.syfo.soknadsopprettelse.sorterSporsmal
@@ -19,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import skapSoknadMetadata
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
+import java.util.*
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SykepengesoknadImportListenerTest : BaseTestClass() {
@@ -28,6 +34,12 @@ class SykepengesoknadImportListenerTest : BaseTestClass() {
 
     @Autowired
     private lateinit var sykepengesoknadImportListener: SykepengesoknadImportListener
+
+    @Autowired
+    private lateinit var sykepengesoknadRepository: SykepengesoknadRepository
+
+    @Autowired
+    private lateinit var soknadKorrigertPatchListener: SoknadKorrigertPatchListener
 
     @AfterEach
     fun `Vi resetter databasen etter hver test`() {
@@ -41,6 +53,7 @@ class SykepengesoknadImportListenerTest : BaseTestClass() {
 
     @Test
     fun `Vi håndterer en søknad`() {
+        sykepengesoknadRepository.count() `should be equal to` 0
         val fnr = "1234534343"
         val soknad = settOppSoknadOppholdUtland(fnr)
         sykepengesoknadDAO.finnSykepengesoknader(listOf(fnr)).`should be empty`()
@@ -55,10 +68,13 @@ class SykepengesoknadImportListenerTest : BaseTestClass() {
 
         sykepengesoknadImportListener.handterSoknader(listOf(soknadSomString))
         sykepengesoknadDAO.finnSykepengesoknader(listOf(fnr)).shouldHaveSize(1)
+        sykepengesoknadRepository.count() `should be equal to` 1
     }
 
     @Test
     fun `Vi håndterer to søknader`() {
+        sykepengesoknadRepository.count() `should be equal to` 0
+
         val fnr = "1234534344"
 
         val soknad = settOppSoknadOppholdUtland(fnr)
@@ -82,6 +98,41 @@ class SykepengesoknadImportListenerTest : BaseTestClass() {
 
         sykepengesoknadImportListener.handterSoknader(listOf(soknadSomString))
         sykepengesoknadDAO.finnSykepengesoknader(listOf(fnr)).shouldHaveSize(2)
+        sykepengesoknadRepository.count() `should be equal to` 2
+    }
+
+    @Test
+    fun `Vi håndterer en søknad som senere blir korrigert`() {
+        sykepengesoknadRepository.count() `should be equal to` 0
+
+        val fnr = "1234534343"
+        val soknad = settOppSoknadOppholdUtland(fnr).copy(status = Soknadstatus.SENDT)
+        sykepengesoknadDAO.finnSykepengesoknader(listOf(fnr)).`should be empty`()
+
+        val soknadSomString = soknad.tilSykepengesoknadKafka().serialisertTilString()
+        sykepengesoknadImportListener.handterSoknader(listOf(soknadSomString, soknadSomString))
+
+        val soknader = sykepengesoknadDAO.finnSykepengesoknader(listOf(fnr))
+        soknader.shouldHaveSize(1)
+
+        sykepengesoknadRepository.count() `should be equal to` 1
+        sykepengesoknadRepository.findBySykepengesoknadUuid(soknad.id)!!.status `should be equal to` Soknadstatus.SENDT
+
+        val korrigering = SykepengesoknadDTO(
+            fnr = fnr,
+            id = UUID.randomUUID().toString(),
+            status = SoknadsstatusDTO.SENDT,
+            type = SoknadstypeDTO.OPPHOLD_UTLAND,
+            korrigerer = soknad.id,
+        )
+        soknadKorrigertPatchListener.handterSoknader(
+            listOf(
+                korrigering.serialisertTilString()
+            )
+        )
+        sykepengesoknadRepository.count() `should be equal to` 1
+        sykepengesoknadRepository.findBySykepengesoknadUuid(soknad.id)!!.status `should be equal to` Soknadstatus.KORRIGERT
+        sykepengesoknadRepository.findBySykepengesoknadUuid(soknad.id)!!.korrigertAv `should be equal to` korrigering.id
     }
 }
 

@@ -128,6 +128,29 @@ class AivenKafkaConfig(
         factory.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL_IMMEDIATE
         return factory
     }
+
+    @Bean
+    fun korrigertPatchListenerContainerFactory(
+        kafkaErrorHandler: AivenKafkaErrorHandler
+    ): ConcurrentKafkaListenerContainerFactory<String, String> {
+        val config = mapOf(
+            ConsumerConfig.GROUP_ID_CONFIG to "korrigert-patch-consumer",
+            ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to kafkaAutoOffsetReset,
+            ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG to false,
+            ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
+            ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
+            ConsumerConfig.MAX_POLL_RECORDS_CONFIG to "50",
+            ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG to ConsumerConfig.DEFAULT_MAX_PARTITION_FETCH_BYTES * 5,
+        ) + commonConfig()
+        val consumerFactory = DefaultKafkaConsumerFactory<String, String>(config)
+
+        val factory = ConcurrentKafkaListenerContainerFactory<String, String>()
+        factory.consumerFactory = consumerFactory
+        factory.setCommonErrorHandler(kafkaErrorHandler)
+        factory.isBatchListener = true
+        factory.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL_IMMEDIATE
+        return factory
+    }
 }
 
 const val sykepengesoknadTopic = "flex." + "sykepengesoknad"
