@@ -21,6 +21,9 @@ spec:
     - team: flex
       application: syfosoknad
       access: write
+    - team: flex
+      application: sykepengesoknad-backend
+      access: write
     - team: tbd
       application: spedisjon
       access: read
