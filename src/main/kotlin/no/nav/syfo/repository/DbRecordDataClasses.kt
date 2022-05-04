@@ -8,11 +8,15 @@ import no.nav.syfo.domain.Soknadstype
 import no.nav.syfo.domain.Svartype
 import no.nav.syfo.domain.Sykmeldingstype
 import no.nav.syfo.domain.Visningskriterie
+import org.springframework.data.annotation.Id
+import org.springframework.data.relational.core.mapping.Table
 import java.time.Instant
 import java.time.LocalDate
 
+@Table("sykepengesoknad")
 data class SykepengesoknadDbRecord(
-    val id: String,
+    @Id
+    val id: String? = null,
     val sykepengesoknadUuid: String,
     val fnr: String,
     val soknadstype: Soknadstype,
@@ -24,7 +28,7 @@ data class SykepengesoknadDbRecord(
     val korrigertAv: String?,
     val opprinnelse: Opprinnelse,
     val avsendertype: Avsendertype?,
-    val sykmeldingId: String?,
+    val sykmeldingUuid: String?,
     val fom: LocalDate?,
     val tom: LocalDate?,
     val startSykeforlop: LocalDate?,

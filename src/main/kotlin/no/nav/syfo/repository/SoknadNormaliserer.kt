@@ -30,7 +30,7 @@ fun Sykepengesoknad.normaliser(): NormalisertSoknad {
         korrigertAv = korrigertAv,
         opprinnelse = opprinnelse,
         avsendertype = avsendertype,
-        sykmeldingId = sykmeldingId,
+        sykmeldingUuid = sykmeldingId,
         fom = fom,
         tom = tom,
         startSykeforlop = startSykeforlop,
