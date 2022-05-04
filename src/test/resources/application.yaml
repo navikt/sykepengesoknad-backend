@@ -1,4 +1,4 @@
-AZURE_APP_PRE_AUTHORIZED_APPS: "[{\"name\":\"dev-gcp:flex:flex-fss-proxy\",\"clientId\":\"flex-fss-proxy-client-id\"},{\"name\":\"dev-gcp:teamsykefravr:syfomodiaperson\",\"clientId\":\"syfomodiaperson-client-id\"}]"
+AZURE_APP_PRE_AUTHORIZED_APPS: "[{\"name\":\"dev-gcp:flex:sykepengesoknad-korrigering-metrikk\",\"clientId\":\"sykepengesoknad-korrigering-metrikk-client-id\"},{\"name\":\"dev-gcp:teamsykefravr:syfomodiaperson\",\"clientId\":\"syfomodiaperson-client-id\"}]"
 
 syfotilgangskontroll.url: http://syfotilgang
 flex.bucket.uploader.url: http://flex-bucket-uploader

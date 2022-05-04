@@ -35,7 +35,7 @@ fun BaseTestClass.buildAzureClaimSet(
     )
 }
 
-fun BaseTestClass.skapAzureJwt(subject: String = "flex-fss-proxy-client-id") =
+fun BaseTestClass.skapAzureJwt(subject: String = "sykepengesoknad-korrigering-metrikk-client-id") =
     buildAzureClaimSet(subject = subject)
 
 fun BaseTestClass.hentSoknader(fnr: String): List<RSSykepengesoknad> {
