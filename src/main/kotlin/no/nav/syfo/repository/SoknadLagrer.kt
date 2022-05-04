@@ -69,7 +69,7 @@ ON CONFLICT ON CONSTRAINT sykepengesoknad_pkey DO NOTHING
                     .addValue("avbrutt", sykepengesoknad.avbruttDato)
                     .addValue("sendtNav", sykepengesoknad.sendtNav?.tilOsloZone())
                     .addValue("sendtArbeidsgiver", sykepengesoknad.sendtArbeidsgiver?.tilOsloZone())
-                    .addValue("sykmeldingUuid", sykepengesoknad.sykmeldingId)
+                    .addValue("sykmeldingUuid", sykepengesoknad.sykmeldingUuid)
                     .addValue("korrigerer", sykepengesoknad.korrigerer)
                     .addValue("korrigertAv", sykepengesoknad.korrigertAv)
                     .addValue("arbeidsgiverOrgnummer", sykepengesoknad.arbeidsgiverOrgnummer)
