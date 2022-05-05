@@ -32,6 +32,7 @@ import org.testcontainers.containers.KafkaContainer
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
 import javax.annotation.PostConstruct
+import kotlin.concurrent.thread
 
 private class RedisContainer : GenericContainer<RedisContainer>("bitnami/redis:6.2")
 private class PostgreSQLContainer14 : PostgreSQLContainer<PostgreSQLContainer14>("postgres:14-alpine")
@@ -44,43 +45,46 @@ private class PostgreSQLContainer14 : PostgreSQLContainer<PostgreSQLContainer14>
 abstract class BaseTestClass {
 
     companion object {
-        val pdlMockWebserver = MockWebServer().apply {
-            System.setProperty("pdl.api.url", "http://localhost:$port")
-            dispatcher = PdlMockDispatcher
-        }
-
-        private val redisContainer = RedisContainer().apply {
-            withExposedPorts(6379)
-            val passord = "hemmelig"
-            withEnv("REDIS_PASSWORD", passord)
-            start()
-            System.setProperty("spring.redis.host", host)
-            System.setProperty("spring.redis.port", firstMappedPort.toString())
-            System.setProperty("spring.redis.password", passord)
-        }
-
-        private val kafkaContainer = KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.0.1")).apply {
-            start()
-            System.setProperty("KAFKA_BROKERS", bootstrapServers)
-            System.setProperty("on-prem-kafka.bootstrap-servers", bootstrapServers)
-        }
-
-        private val postgresContainer = PostgreSQLContainer14().apply {
-            start()
-            System.setProperty("spring.datasource.url", "$jdbcUrl&reWriteBatchedInserts=true")
-            System.setProperty("spring.datasource.username", username)
-            System.setProperty("spring.datasource.password", password)
-        }
+        val pdlMockWebserver: MockWebServer
 
         init {
-            Runtime.getRuntime().addShutdownHook(
-                Thread {
-                    println("Avslutter testcontainers")
-                    redisContainer.close()
-                    kafkaContainer.close()
-                    postgresContainer.close()
+            val threads = mutableListOf<Thread>()
+
+            thread {
+                RedisContainer().apply {
+                    withExposedPorts(6379)
+                    val passord = "hemmelig"
+                    withEnv("REDIS_PASSWORD", passord)
+                    start()
+                    System.setProperty("spring.redis.host", host)
+                    System.setProperty("spring.redis.port", firstMappedPort.toString())
+                    System.setProperty("spring.redis.password", passord)
                 }
-            )
+            }.also { threads.add(it) }
+
+            thread {
+                KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.0.1")).apply {
+                    start()
+                    System.setProperty("KAFKA_BROKERS", bootstrapServers)
+                    System.setProperty("on-prem-kafka.bootstrap-servers", bootstrapServers)
+                }
+            }.also { threads.add(it) }
+
+            thread {
+                PostgreSQLContainer14().apply {
+                    start()
+                    System.setProperty("spring.datasource.url", "$jdbcUrl&reWriteBatchedInserts=true")
+                    System.setProperty("spring.datasource.username", username)
+                    System.setProperty("spring.datasource.password", password)
+                }
+            }.also { threads.add(it) }
+
+            pdlMockWebserver = MockWebServer().apply {
+                System.setProperty("pdl.api.url", "http://localhost:$port")
+                dispatcher = PdlMockDispatcher
+            }
+
+            threads.forEach { it.join() }
         }
     }
 
