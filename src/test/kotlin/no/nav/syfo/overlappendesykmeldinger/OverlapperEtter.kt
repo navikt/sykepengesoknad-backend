@@ -60,7 +60,7 @@ class OverlapperEtter : BaseTestClass() {
     private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
 
     private final val basisdato = LocalDate.now()
-    private val fnr = "01555555555"
+    private val fnr = "11555555555"
 
     @BeforeEach
     fun setUp() {
@@ -279,9 +279,7 @@ class OverlapperEtter : BaseTestClass() {
             .tilSoknader()
             .first()
 
-        // TODO: Slå på når vi klipper i prod
-        // soknad.fom shouldBeEqualTo basisdato.plusDays(16)
-        soknad.fom shouldBeEqualTo basisdato.plusDays(10)
+        soknad.fom shouldBeEqualTo basisdato.plusDays(16)
         soknad.tom shouldBeEqualTo basisdato.plusDays(20)
     }
 
@@ -403,9 +401,7 @@ class OverlapperEtter : BaseTestClass() {
             .tilSoknader()
             .first()
 
-        // TODO: Slå på når vi klipper i prod
-        // soknad.fom shouldBeEqualTo basisdato
-        soknad.fom shouldBeEqualTo fom
+        soknad.fom shouldBeEqualTo basisdato
         soknad.tom shouldBeEqualTo tom
     }
 
@@ -481,9 +477,7 @@ class OverlapperEtter : BaseTestClass() {
             .tilSoknader()
             .first()
 
-        // TODO: Slå på når vi klipper i prod
-        // soknad.fom shouldBeEqualTo basisdato.plusDays(16)
-        soknad.fom shouldBeEqualTo basisdato.plusDays(15)
+        soknad.fom shouldBeEqualTo basisdato.plusDays(16)
         soknad.tom shouldBeEqualTo basisdato.plusDays(20)
     }
 }

@@ -1,6 +1,5 @@
 package no.nav.syfo.soknadsopprettelse
 
-import no.nav.syfo.config.EnvironmentToggles
 import no.nav.syfo.domain.Arbeidssituasjon
 import no.nav.syfo.domain.Soknadsperiode
 import no.nav.syfo.domain.Soknadstatus
@@ -34,7 +33,6 @@ class Soknadsklipper(
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val metrikk: Metrikk,
     private val aktiverEnkeltSoknadService: AktiverEnkeltSoknadService,
-    private val environmentToggles: EnvironmentToggles,
 ) {
 
     val log = logger()
@@ -277,12 +275,16 @@ class Soknadsklipper(
             throw RuntimeException("Kan ikke klippe sykmelding $sykmeldingId med fullstendig overlappende perioder")
         }
 
-        if (environmentToggles.isNotProduction()) {
-            metrikk.klippKandidatScenarioEnMotsatt(soknadstatus = "sykmelding klippet")
-            return sykmeldingKafkaMessage.erstattPerioder(nyeSykmeldingPerioder)
+        if (nyeSykmeldingPerioder == sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder) {
+            return sykmeldingKafkaMessage
         }
 
-        return sykmeldingKafkaMessage
+        val originalSykmeldingFom = sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder.minOf { it.fom }
+        val nySykmeldingFom = nyeSykmeldingPerioder.minOf { it.fom }
+        log.info("Klipper overlappende sykmelding $sykmeldingId, original fom $originalSykmeldingFom ny fom $nySykmeldingFom")
+
+        metrikk.klippKandidatScenarioEnMotsatt(soknadstatus = "sykmelding klippet")
+        return sykmeldingKafkaMessage.erstattPerioder(nyeSykmeldingPerioder)
     }
 
     private fun finnEndringIUforegrad(
