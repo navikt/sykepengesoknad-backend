@@ -21,3 +21,6 @@ spec:
     - team: flex
       application: syfosoknad
       access: readwrite
+    - team: flex
+      application: sykepengesoknad-backend
+      access: readwrite
