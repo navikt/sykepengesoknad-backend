@@ -7,7 +7,7 @@ replicas_min: 1
 replicas_max: 2
 schema_registry: "kafka-schema-registry.nais-q.adeo.no"
 env:
-  SPRING_PROFILES_ACTIVE: default,testdatareset
+  SPRING_PROFILES_ACTIVE: default,testdatareset,sykmeldinger
   PDL_BASE_URL: https://pdl-api.dev-fss-pub.nais.io
   PDL_API_AAD_CLIENT_ID: dev-fss.pdl.pdl-api
   ON_PREM_BOOTSTRAP_SERVERS: "b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443"
@@ -23,4 +23,4 @@ env:
   SYFOTILGANGSKONTROLL_AAD_CLIENT_ID: dev-fss.teamsykefravr.syfo-tilgangskontroll
   FLEX_SYKETILFELLE_URL: "http://flex-syketilfelle"
   FLEX_SYKETILFELLE_AAD_CLIENT_ID: dev-gcp.flex.flex-syketilfelle
-  SKRIVEMODUS: READONLY
+  SKRIVEMODUS: READWRITE
