@@ -122,3 +122,5 @@ on-prem-kafka:
   password: hunter2
   auto-offset-reset: earliest
   schema-registry: nope
+
+SKRIVEMODUS: READWRITE
