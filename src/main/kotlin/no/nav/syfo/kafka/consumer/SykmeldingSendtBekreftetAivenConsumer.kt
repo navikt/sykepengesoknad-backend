@@ -19,7 +19,7 @@ const val SYKMELDINGSENDT_TOPIC = "teamsykmelding." + "syfo-sendt-sykmelding"
 const val SYKMELDINGBEKREFTET_TOPIC = "teamsykmelding." + "syfo-bekreftet-sykmelding"
 
 @Component
-@Profile("test")
+@Profile("sykmeldinger")
 class SykmeldingSendtBekreftetAivenConsumer(
     private val behandleSendtBekreftetSykmeldingService: BehandleSendtBekreftetSykmeldingService
 ) {

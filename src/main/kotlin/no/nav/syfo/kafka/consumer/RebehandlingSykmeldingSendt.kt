@@ -16,7 +16,7 @@ import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
 @Component
-@Profile("test")
+@Profile("sykmeldinger")
 class RebehandlingSykmeldingSendt(
     private val rebehandlingSykmeldingSendtProducer: RebehandlingSykmeldingSendtProducer,
     private val behandleSendtBekreftetSykmeldingService: BehandleSendtBekreftetSykmeldingService
