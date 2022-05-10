@@ -2,6 +2,7 @@ package no.nav.syfo.controller
 
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
+import no.nav.syfo.config.EnvironmentToggles
 import no.nav.syfo.config.OIDCIssuer.SELVBETJENING
 import no.nav.syfo.controller.domain.RSMottakerResponse
 import no.nav.syfo.controller.domain.RSOppdaterSporsmalResponse
@@ -18,6 +19,7 @@ import no.nav.syfo.domain.Sporsmal
 import no.nav.syfo.domain.Sykepengesoknad
 import no.nav.syfo.exception.FeilStatusForOppdaterSporsmalException
 import no.nav.syfo.exception.IkkeTilgangException
+import no.nav.syfo.exception.ReadOnlyException
 import no.nav.syfo.exception.SporsmalFinnesIkkeISoknadException
 import no.nav.syfo.logger
 import no.nav.syfo.service.*
@@ -43,6 +45,7 @@ class SoknadController(
     private val ettersendingSoknadService: EttersendingSoknadService,
     private val oppdaterSporsmalService: OppdaterSporsmalService,
     private val avbrytSoknadService: AvbrytSoknadService,
+    private val environmentToggles: EnvironmentToggles
 ) {
 
     private val log = logger()
@@ -58,6 +61,9 @@ class SoknadController(
     @ProtectedWithClaims(issuer = SELVBETJENING, claimMap = ["acr=Level4"])
     @PostMapping(value = ["/opprettSoknadUtland"], produces = [APPLICATION_JSON_VALUE])
     fun opprettSoknadUtland(): RSSykepengesoknad {
+        if (environmentToggles.isReadOnly()) {
+            throw ReadOnlyException()
+        }
         return opprettSoknadService
             .opprettSoknadUtland(hentIdenter())
             .tilRSSykepengesoknad()
@@ -66,6 +72,9 @@ class SoknadController(
     @ProtectedWithClaims(issuer = SELVBETJENING, claimMap = ["acr=Level4"])
     @PostMapping(value = ["/soknader/{id}/send"])
     fun sendSoknadRestful(@PathVariable("id") id: String) {
+        if (environmentToggles.isReadOnly()) {
+            throw ReadOnlyException()
+        }
         val (soknadFraBase, identer) = hentOgSjekkTilgangTilSoknad(id)
         if (soknadFraBase.status == Soknadstatus.SENDT) {
             log.warn("Soknad ${soknadFraBase.id} er allerede sendt")
@@ -86,6 +95,9 @@ class SoknadController(
     @ProtectedWithClaims(issuer = SELVBETJENING, claimMap = ["acr=Level4"])
     @PostMapping(value = ["/soknader/{id}/ettersendTilNav"])
     fun ettersendTilNav(@PathVariable("id") id: String) {
+        if (environmentToggles.isReadOnly()) {
+            throw ReadOnlyException()
+        }
         val (soknadFraBase, _) = hentOgSjekkTilgangTilSoknad(id)
 
         log.info("Ettersender søknad: $id til NAV")
@@ -95,6 +107,9 @@ class SoknadController(
     @ProtectedWithClaims(issuer = SELVBETJENING, claimMap = ["acr=Level4"])
     @PostMapping(value = ["/soknader/{id}/ettersendTilArbeidsgiver"])
     fun ettersendTilArbeidsgiver(@PathVariable("id") id: String) {
+        if (environmentToggles.isReadOnly()) {
+            throw ReadOnlyException()
+        }
         val (soknadFraBase, _) = hentOgSjekkTilgangTilSoknad(id)
 
         log.info("Ettersender søknad: $id til arbeidsgiver")
@@ -104,6 +119,9 @@ class SoknadController(
     @ProtectedWithClaims(issuer = SELVBETJENING, claimMap = ["acr=Level4"])
     @PostMapping(value = ["/soknader/{id}/avbryt"])
     fun avbryt(@PathVariable("id") id: String) {
+        if (environmentToggles.isReadOnly()) {
+            throw ReadOnlyException()
+        }
         val (soknadFraBase, _) = hentOgSjekkTilgangTilSoknad(id)
 
         log.info("Avbryter søknad: $id")
@@ -117,6 +135,9 @@ class SoknadController(
     @ProtectedWithClaims(issuer = SELVBETJENING, claimMap = ["acr=Level4"])
     @PostMapping(value = ["/soknader/{id}/gjenapne"])
     fun gjenapne(@PathVariable("id") id: String) {
+        if (environmentToggles.isReadOnly()) {
+            throw ReadOnlyException()
+        }
         val (soknadFraBase, _) = hentOgSjekkTilgangTilSoknad(id)
 
         return when (soknadFraBase.soknadstype) {
@@ -141,6 +162,9 @@ class SoknadController(
     @ProtectedWithClaims(issuer = SELVBETJENING, claimMap = ["acr=Level4"])
     @PostMapping(value = ["/soknader/{id}/korriger"])
     fun korriger(@PathVariable("id") id: String): RSSykepengesoknad {
+        if (environmentToggles.isReadOnly()) {
+            throw ReadOnlyException()
+        }
         log.info("Ber om utkast til korrigering av: $id")
         val (soknad, identer) = hentOgSjekkTilgangTilSoknad(id)
         val utkast = korrigerSoknadService.finnEllerOpprettUtkast(soknad, identer)
@@ -158,6 +182,9 @@ class SoknadController(
         @PathVariable("sporsmalId") sporsmalId: String,
         @RequestBody rsSporsmal: RSSporsmal
     ): RSOppdaterSporsmalResponse {
+        if (environmentToggles.isReadOnly()) {
+            throw ReadOnlyException()
+        }
         val sporsmal = rsSporsmal.mapSporsmal()
         val (soknad, _) = hentOgSjekkTilgangTilSoknad(soknadId)
 
@@ -201,6 +228,9 @@ class SoknadController(
         @PathVariable sporsmalId: String,
         @RequestBody svar: RSSvar
     ): RSOppdaterSporsmalResponse {
+        if (environmentToggles.isReadOnly()) {
+            throw ReadOnlyException()
+        }
         val (soknad, _) = hentOgSjekkTilgangTilSoknad(soknadId)
 
         val sporsmal = validerStatusOgHovedsporsmal(soknad = soknad, soknadId = soknadId, sporsmalId = sporsmalId)
@@ -219,6 +249,9 @@ class SoknadController(
         @PathVariable sporsmalId: String,
         @PathVariable svarId: String,
     ) {
+        if (environmentToggles.isReadOnly()) {
+            throw ReadOnlyException()
+        }
         val (soknad, _) = hentOgSjekkTilgangTilSoknad(soknadId)
         validerStatusOgHovedsporsmal(soknad = soknad, soknadId = soknadId, sporsmalId = sporsmalId)
         oppdaterSporsmalService.slettSvar(
