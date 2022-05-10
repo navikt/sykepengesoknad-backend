@@ -2,7 +2,6 @@ package no.nav.syfo
 
 import no.nav.syfo.client.narmesteleder.Forskuttering
 import no.nav.syfo.client.narmesteleder.ForskutteringRespons
-import no.nav.syfo.client.narmesteleder.NarmesteLederRelasjon
 import no.nav.syfo.client.syfotilgangskontroll.SyfoTilgangskontrollClient.Companion.NAV_PERSONIDENT_HEADER
 import no.nav.syfo.domain.Arbeidsgiverperiode
 import no.nav.syfo.domain.SimpleSykmelding
@@ -17,23 +16,6 @@ import org.springframework.test.web.client.response.MockRestResponseCreators.wit
 import org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess
 import org.springframework.test.web.client.response.MockRestResponseCreators.withUnauthorizedRequest
 import java.time.LocalDate
-
-fun BaseTestClass.mockAktiveNarmesteledere(
-    fnr: String,
-    narmestelederRelasjoner: List<NarmesteLederRelasjon>
-) {
-    narmestelederMockRestServiceServer!!
-        .expect(requestTo("http://narmesteleder/leder/narmesteleder/aktive"))
-        .andExpect(header("Narmeste-Leder-Fnr", fnr))
-        .andRespond(
-            withSuccess(
-                OBJECT_MAPPER.writeValueAsBytes(
-                    narmestelederRelasjoner
-                ),
-                MediaType.APPLICATION_JSON
-            )
-        )
-}
 
 fun BaseTestClass.mockArbeidsgiverForskutterer(
     forskuttering: Forskuttering,

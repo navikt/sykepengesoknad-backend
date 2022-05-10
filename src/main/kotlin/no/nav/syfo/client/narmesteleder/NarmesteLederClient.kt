@@ -22,32 +22,6 @@ class NarmesteLederClient(
 
     val log = logger()
 
-    @Cacheable(cacheNames = ["narmesteleder-aktive"])
-    @Retryable
-    fun hentRelasjonerForNarmesteleder(narmestelederFnr: String): List<NarmesteLederRelasjon> {
-        val headers = HttpHeaders()
-        headers.contentType = MediaType.APPLICATION_JSON
-        headers["Narmeste-Leder-Fnr"] = narmestelederFnr
-        val uriString = UriComponentsBuilder.fromHttpUrl("$narmestelederUrl/leder/narmesteleder/aktive")
-            .toUriString()
-        val result = narmestelederRestTemplate
-            .exchange(
-                uriString, HttpMethod.GET,
-                HttpEntity<Any>(headers),
-                Array<NarmesteLederRelasjon>::class.java
-            )
-        if (result.statusCode != HttpStatus.OK) {
-            val message = "Kall mot narmesteleder feiler med HTTP-" + result.statusCode
-            log.error(message)
-            throw RuntimeException(message)
-        }
-
-        result.body?.let { return it.toList() }
-
-        val message = "Kall mot narmesteleder returnerer ikke data"
-        throw RuntimeException(message)
-    }
-
     @Cacheable(cacheNames = ["forskuttering-narmesteleder"])
     @Retryable
     fun arbeidsgiverForskutterer(sykmeldtFnr: String, orgnummer: String): Forskuttering {

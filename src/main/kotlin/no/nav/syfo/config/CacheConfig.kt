@@ -26,9 +26,6 @@ class CacheConfig {
         cacheConfigurations["arbeidsgiver"] = RedisCacheConfiguration
             .defaultCacheConfig()
             .entryTtl(Duration.ofSeconds(narmestelederTtl))
-        cacheConfigurations["narmesteleder-aktive"] = RedisCacheConfiguration
-            .defaultCacheConfig()
-            .entryTtl(Duration.ofSeconds(narmestelederTtl))
         cacheConfigurations["forskuttering"] = RedisCacheConfiguration
             .defaultCacheConfig()
             .entryTtl(Duration.ofSeconds(narmestelederTtl))

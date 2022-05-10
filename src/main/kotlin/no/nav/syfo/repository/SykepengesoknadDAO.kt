@@ -64,36 +64,6 @@ class SykepengesoknadDAO(
             .sortedBy { it.opprettet }
     }
 
-    fun finnSykepengesoknaderForNl(fnr: String, orgnummer: String, tilgangFom: LocalDate): List<Sykepengesoknad> {
-        val soknader = namedParameterJdbcTemplate.query(
-            "SELECT * FROM SYKEPENGESOKNAD " +
-                "WHERE FNR = :fnr " +
-                "AND ARBEIDSGIVER_ORGNUMMER = :orgnummer " +
-                "AND ARBEIDSGIVER_ORGNUMMER IS NOT NULL " +
-                "AND TOM >= :tilgangFom ",
-
-            MapSqlParameterSource()
-                .addValue("fnr", fnr)
-                .addValue("orgnummer", orgnummer)
-                .addValue("tilgangFom", tilgangFom),
-
-            sykepengesoknadRowMapper()
-        )
-        val soknadsIder = soknader.map { it.first }.toSet()
-
-        val soknadsPerioder = soknadsperiodeDAO.finnSoknadPerioder(soknadsIder)
-        val sporsmal = sporsmalDAO.finnSporsmal(soknadsIder)
-
-        return soknader
-            .map {
-                it.second.copy(
-                    soknadPerioder = soknadsPerioder[it.first] ?: emptyList(),
-                    sporsmal = sporsmal[it.first] ?: emptyList()
-                )
-            }
-            .map { it.sorterSporsmal() }
-    }
-
     fun eksistererSoknader(soknadUuidListe: List<String>): List<String> {
         if (soknadUuidListe.isEmpty()) return emptyList()
 
