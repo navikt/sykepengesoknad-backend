@@ -16,15 +16,12 @@ import no.nav.syfo.repository.SykepengesoknadDAO
 import no.nav.syfo.util.Metrikk
 import no.nav.syfo.util.isAfterOrEqual
 import no.nav.syfo.util.isBeforeOrEqual
-import org.springframework.context.annotation.Profile
-import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit.DAYS
 
 @Service
-@Profile("cronjobber")
 class JulesoknadService(
     private val metrikk: Metrikk,
     private val julesoknadkandidatDAO: JulesoknadkandidatDAO,
@@ -84,7 +81,7 @@ class JulesoknadService(
         }
     }
 
-    @Scheduled(cron = "\${julesoknad.cron}")
+    // @Scheduled(cron = "\${julesoknad.cron}")
     fun prosseserJulesoknadKandidater() {
         if (leaderElection.isLeader()) {
             val julesoknadkandidater = julesoknadkandidatDAO.hentJulesoknadkandidater()
