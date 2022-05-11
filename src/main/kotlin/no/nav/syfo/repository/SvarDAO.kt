@@ -78,6 +78,16 @@ class SvarDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate
         }
     }
 
+    fun slettSvar(sporsmalId: String, svarId: String) {
+        namedParameterJdbcTemplate.update(
+            "DELETE FROM SVAR WHERE SPORSMAL_ID = :sporsmalId AND ID = :svarId",
+
+            MapSqlParameterSource()
+                .addValue("sporsmalId", sporsmalId)
+                .addValue("svarId", svarId)
+        )
+    }
+
     fun overskrivSvar(sykepengesoknad: Sykepengesoknad) {
         val alleSporsmalOgUndersporsmal = sykepengesoknad.alleSporsmalOgUndersporsmal()
         slettSvar(alleSporsmalOgUndersporsmal.mapNotNull { it.id })
