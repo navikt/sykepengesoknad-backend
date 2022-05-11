@@ -9,30 +9,7 @@ import no.nav.syfo.logger
 import no.nav.syfo.repository.SporsmalDAO
 import no.nav.syfo.repository.SvarDAO
 import no.nav.syfo.repository.SykepengesoknadDAO
-import no.nav.syfo.soknadsopprettelse.BEKREFT_OPPLYSNINGER_UTLAND
-import no.nav.syfo.soknadsopprettelse.BEKREFT_OPPLYSNINGER_UTLAND_INFO
-import no.nav.syfo.soknadsopprettelse.BRUKTE_REISETILSKUDDET
-import no.nav.syfo.soknadsopprettelse.FERIE
-import no.nav.syfo.soknadsopprettelse.FERIE_NAR
-import no.nav.syfo.soknadsopprettelse.FERIE_NAR_V2
-import no.nav.syfo.soknadsopprettelse.FERIE_PERMISJON_UTLAND
-import no.nav.syfo.soknadsopprettelse.FERIE_V2
-import no.nav.syfo.soknadsopprettelse.FRISKMELDT
-import no.nav.syfo.soknadsopprettelse.FRISKMELDT_START
-import no.nav.syfo.soknadsopprettelse.PERMITTERT_NAA
-import no.nav.syfo.soknadsopprettelse.TILBAKE_I_ARBEID
-import no.nav.syfo.soknadsopprettelse.TILBAKE_NAR
-import no.nav.syfo.soknadsopprettelse.UTLAND
-import no.nav.syfo.soknadsopprettelse.UTLANDSOPPHOLD_SOKT_SYKEPENGER
-import no.nav.syfo.soknadsopprettelse.UTLAND_NAR
-import no.nav.syfo.soknadsopprettelse.UTLAND_NAR_V2
-import no.nav.syfo.soknadsopprettelse.UTLAND_V2
-import no.nav.syfo.soknadsopprettelse.getOppdatertBekreftSporsmal
-import no.nav.syfo.soknadsopprettelse.harFeriePermisjonEllerUtenlandsoppholdSporsmal
-import no.nav.syfo.soknadsopprettelse.oppdaterMedSvarPaArbeidGjenopptattArbeidstaker
-import no.nav.syfo.soknadsopprettelse.oppdaterMedSvarPaArbeidGjenopptattSelvstendig
-import no.nav.syfo.soknadsopprettelse.oppdaterMedSvarPaUtlandsopphold
-import no.nav.syfo.soknadsopprettelse.oppdaterMedSvarPaaBrukteReisetilskuddet
+import no.nav.syfo.soknadsopprettelse.*
 import no.nav.syfo.soknadsopprettelse.sporsmal.oppdaterMedSvarPaFriskmeldingSporsmal
 import no.nav.syfo.soknadsopprettelse.sporsmal.oppdaterMedSvarPaaPermittertNaa
 import no.nav.syfo.svarvalidering.tilKvittering
@@ -344,19 +321,35 @@ class OppdaterSporsmalService(
     }
 
     fun slettSvar(soknadFraBasenFørOppdatering: Sykepengesoknad, sporsmalId: String, svarId: String) {
+        val soknadId = soknadFraBasenFørOppdatering.id
         val sporsmal = soknadFraBasenFørOppdatering.sporsmal
             .flatten()
             .find { it.id == sporsmalId }
-            ?: throw IllegalArgumentException("Spørsmål $sporsmalId finnes ikke i søknad ${soknadFraBasenFørOppdatering.id}")
+            ?: throw IllegalArgumentException("Spørsmål $sporsmalId finnes ikke i søknad $soknadId.")
 
         val svarSomSkalFjernes = sporsmal.svar.find { it.id == svarId }
-            ?: throw IllegalArgumentException("Svar $svarId finnes ikke i spørsmål $sporsmalId og søknad ${soknadFraBasenFørOppdatering.id}")
+            ?: throw IllegalArgumentException("Svar $svarId finnes ikke i spørsmål $sporsmalId og søknad $soknadId.")
 
-        val blobId = svarSomSkalFjernes.verdi.tilKvittering().blobId
-        bucketUploaderClient.slettKvittering(blobId)
+        // Spesialhåndterer sletting av kvitteringer da frontendkoden forventer at man skal kunne slette flere
+        // kvitteringer uten å laste søknaden på nytt. oppdaterSporsmal() sletter alle svar og lagrer de på nytt, noe
+        // som fører til at de får ny Id som ikke blir hentet av frontend.
+        if (sporsmal.tag == KVITTERINGER) {
+            log.info("Sletter kvittering med svarId $svarId fra spørsmål $sporsmalId tilhørende søknad $soknadId.")
+            slettKvittering(sporsmal, svarSomSkalFjernes, soknadId)
+        } else {
+            val oppdatertSporsmal = sporsmal.copy(svar = sporsmal.svar - svarSomSkalFjernes)
+            oppdaterSporsmal(soknadFraBasenFørOppdatering, oppdatertSporsmal)
+        }
+        log.info("Slettet svar $svarId for spørsmål $sporsmalId og søknad $soknadId.")
+    }
 
-        val oppdatertSporsmal = sporsmal.copy(svar = sporsmal.svar - svarSomSkalFjernes)
+    private fun slettKvittering(sporsmal: Sporsmal, svar: Svar, soknadId: String) {
+        svarDAO.slettSvar(sporsmal.id!!, svar.id!!)
 
-        oppdaterSporsmal(soknadFraBasenFørOppdatering, oppdatertSporsmal)
+        val blobId = svar.verdi.tilKvittering().blobId
+        val slettKvittering = bucketUploaderClient.slettKvittering(blobId)
+        if (!slettKvittering) {
+            log.warn("Sletting av blobId $blobId fra bucket for søknad $soknadId feilet. Vedlegget er slettet fra databasen.")
+        }
     }
 }
