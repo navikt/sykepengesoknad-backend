@@ -3,8 +3,8 @@ kafkaPool: nav-prod
 environment: prod
 db_tier: db-custom-2-3840
 db_size: 250
-replicas_min: 1
-replicas_max: 2
+replicas_min: 2
+replicas_max: 3
 schema_registry: "kafka-schema-registry.nais.adeo.no"
 env:
   SPRING_PROFILES_ACTIVE: default
