@@ -105,7 +105,7 @@ class VeilederOboIntegrationTest : BaseTestClass() {
         mockSyfoTilgangskontroll(false, fnr)
 
         mockMvc.perform(
-            MockMvcRequestBuilders.get("/syfosoknad/api/veileder/soknader?fnr=$fnr")
+            MockMvcRequestBuilders.get("/api/veileder/soknader?fnr=$fnr")
                 .header("Authorization", "Bearer $veilederToken")
                 .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(MockMvcResultMatchers.status().is4xxClientError).andReturn().response.contentAsString

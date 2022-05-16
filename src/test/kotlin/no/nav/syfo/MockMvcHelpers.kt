@@ -14,7 +14,6 @@ import org.springframework.test.web.servlet.ResultActions
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.util.*
-import javax.servlet.http.Cookie
 
 fun BaseTestClass.jwt(fnr: String) = server.token(subject = fnr)
 
@@ -82,19 +81,9 @@ fun BaseTestClass.slettSvar(fnr: String, soknadId: String, sporsmalId: String, s
         .andReturn()
 }
 
-fun BaseTestClass.hentSoknaderSomVeileder(fnr: String, veilederToken: String): List<RSSykepengesoknad> {
-    val json = mockMvc.perform(
-        MockMvcRequestBuilders.get("/syfosoknad/api/veileder/internad/soknader?fnr=$fnr")
-            .cookie(Cookie("isso-idtoken", veilederToken))
-            .contentType(MediaType.APPLICATION_JSON)
-    ).andExpect(MockMvcResultMatchers.status().isOk).andReturn().response.contentAsString
-
-    return OBJECT_MAPPER.readValue(json)
-}
-
 fun BaseTestClass.hentSoknaderSomVeilederObo(fnr: String, token: String): List<RSSykepengesoknad> {
     val json = mockMvc.perform(
-        MockMvcRequestBuilders.get("/syfosoknad/api/veileder/soknader?fnr=$fnr")
+        MockMvcRequestBuilders.get("/api/veileder/soknader?fnr=$fnr")
             .header("Authorization", "Bearer $token")
             .contentType(MediaType.APPLICATION_JSON)
     ).andExpect(MockMvcResultMatchers.status().isOk).andReturn().response.contentAsString

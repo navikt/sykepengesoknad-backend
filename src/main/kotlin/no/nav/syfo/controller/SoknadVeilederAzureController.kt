@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @ProtectedWithClaims(issuer = AZUREATOR)
-@RequestMapping(value = ["/syfosoknad/api/veileder/soknader"], produces = [MediaType.APPLICATION_JSON_VALUE])
+@RequestMapping(value = ["/api/veileder/soknader"], produces = [MediaType.APPLICATION_JSON_VALUE])
 class SoknadVeilederAzureController(
     private val clientIdValidation: ClientIdValidation,
     private val syfoTilgangskontrollClient: SyfoTilgangskontrollClient,

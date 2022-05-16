@@ -70,6 +70,7 @@ spec:
     inbound:
       rules:
         - application: flex-gateway
+        - application: flex-intern-gateway
         - application: sykepengesoknad-arkivering-oppgave
         - application: sykepengesoknad-korrigering-metrikk
   envFrom:
