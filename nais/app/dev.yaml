@@ -6,6 +6,7 @@ db_size: 10
 replicas_min: 1
 replicas_max: 2
 schema_registry: "kafka-schema-registry.nais-q.adeo.no"
+syfomodiaperson_cluster: dev-fss
 env:
   SPRING_PROFILES_ACTIVE: default,testdatareset,sykmeldinger
   PDL_BASE_URL: https://pdl-api.dev-fss-pub.nais.io

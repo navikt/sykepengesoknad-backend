@@ -72,6 +72,10 @@ spec:
         - application: flex-gateway
         - application: sykepengesoknad-arkivering-oppgave
         - application: sykepengesoknad-korrigering-metrikk
+        - application: flex-intern-gateway
+        - application: syfomodiaperson
+          namespace: teamsykefravr
+          cluster: {{ syfomodiaperson_cluster }}
   envFrom:
     - configmap: loginservice-idporten
     - secret: sykepengesoknad-backend-redis-password
