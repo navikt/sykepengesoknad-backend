@@ -345,8 +345,8 @@ class OppdaterSporsmalService(
 
     private fun slettKvittering(sporsmal: Sporsmal, svar: Svar, soknadId: String) {
         svarDAO.slettSvar(sporsmal.id!!, svar.id!!)
-
         val blobId = svar.verdi.tilKvittering().blobId
+        log.info("Sletter kvittering med blobId $blobId")
         val slettKvittering = bucketUploaderClient.slettKvittering(blobId)
         if (!slettKvittering) {
             log.warn("Sletting av blobId $blobId fra bucket for søknad $soknadId feilet. Vedlegget er slettet fra databasen.")
