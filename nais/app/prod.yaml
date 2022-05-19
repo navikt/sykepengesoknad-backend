@@ -24,4 +24,4 @@ env:
   SYFOTILGANGSKONTROLL_AAD_CLIENT_ID: prod-fss.teamsykefravr.syfo-tilgangskontroll
   FLEX_SYKETILFELLE_URL: "http://flex-syketilfelle"
   FLEX_SYKETILFELLE_AAD_CLIENT_ID: prod-gcp.flex.flex-syketilfelle
-  SKRIVEMODUS: READONLY
+  SKRIVEMODUS: READWRITE
