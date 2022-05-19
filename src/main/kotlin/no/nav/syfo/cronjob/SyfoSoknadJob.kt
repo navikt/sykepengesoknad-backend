@@ -6,14 +6,13 @@ import no.nav.syfo.service.AktiverService
 import no.nav.syfo.service.AutomatiskInnsendingVedDodsfallService
 import no.nav.syfo.service.DeaktiverGamleSoknaderService
 import no.nav.syfo.service.SlettGamleUtkastService
-import org.springframework.context.annotation.Profile
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.util.concurrent.TimeUnit
 
 @Component
-@Profile("cronjobber")
 class SyfoSoknadJob(
     val aktiverService: AktiverService,
     val deaktiverGamleSoknaderService: DeaktiverGamleSoknaderService,
@@ -25,7 +24,7 @@ class SyfoSoknadJob(
 ) {
     val log = logger()
 
-    @Scheduled(cron = "\${syfosoknad.cron}")
+    @Scheduled(fixedDelay = 3000, initialDelay = 5, timeUnit = TimeUnit.MINUTES)
     fun run() {
         if (leaderElection.isLeader()) {
 
