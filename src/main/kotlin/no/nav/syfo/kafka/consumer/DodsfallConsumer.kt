@@ -10,6 +10,7 @@ import no.nav.syfo.repository.SykepengesoknadDAO
 import no.nav.syfo.service.FolkeregisterIdenter
 import no.nav.syfo.service.IdentService
 import no.nav.syfo.util.Metrikk
+import no.nav.syfo.util.tilOsloZone
 import org.apache.avro.generic.GenericData
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -17,6 +18,7 @@ import org.slf4j.MDC
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.support.Acknowledgment
 import org.springframework.stereotype.Component
+import java.time.Instant
 import java.time.LocalDate
 
 private const val OPPRETTET = "OPPRETTET"
@@ -62,7 +64,7 @@ class DodsfallConsumer(
                                 dodsmeldingDAO.oppdaterDodsdato(identer, dodsdato)
                             } else {
                                 log.info("Lagrer ny dodsmelding")
-                                dodsmeldingDAO.lagreDodsmelding(identer, dodsdato)
+                                dodsmeldingDAO.lagreDodsmelding(identer, dodsdato, Instant.ofEpochMilli(cr.timestamp()).tilOsloZone())
                             }
                         }
                         ANNULLERT, OPPHOERT -> {
