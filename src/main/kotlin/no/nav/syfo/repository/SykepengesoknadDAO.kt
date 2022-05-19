@@ -1,7 +1,14 @@
 package no.nav.syfo.repository
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import no.nav.syfo.domain.*
+import no.nav.syfo.domain.Arbeidssituasjon
+import no.nav.syfo.domain.Avsendertype
+import no.nav.syfo.domain.Merknad
+import no.nav.syfo.domain.Mottaker
+import no.nav.syfo.domain.Opprinnelse
+import no.nav.syfo.domain.Soknadstatus
+import no.nav.syfo.domain.Soknadstype
+import no.nav.syfo.domain.Sykepengesoknad
 import no.nav.syfo.domain.exception.SlettSoknadException
 import no.nav.syfo.logger
 import no.nav.syfo.service.FolkeregisterIdenter
@@ -385,9 +392,19 @@ class SykepengesoknadDAO(
             String::class.java
         )!!
 
+        val slettStart = System.currentTimeMillis()
         sporsmalDAO.slettSporsmal(listOf(sykepengesoknadId))
+        val slettSlutt = System.currentTimeMillis()
 
+        val lagreStart = System.currentTimeMillis()
         oppdatertSoknad.sporsmal.forEach { sporsmal -> sporsmalDAO.lagreSporsmal(sykepengesoknadId, sporsmal, null) }
+        val lagreSlutt = System.currentTimeMillis()
+
+        log.info(
+            "Bytter ut spørsmål for $sykepengesoknadId: " +
+                "Sletting: ${slettSlutt - slettStart}ms - " +
+                "Lagring av ${oppdatertSoknad.sporsmal.size} spørsmål: ${lagreSlutt - lagreStart}ms"
+        )
     }
 
     fun klippSoknad(sykepengesoknadUuid: String, klippFom: LocalDate) {
