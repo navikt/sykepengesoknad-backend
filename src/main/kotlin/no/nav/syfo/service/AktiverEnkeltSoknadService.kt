@@ -53,7 +53,12 @@ class AktiverEnkeltSoknadService(
     private fun lagSporsmalPaSoknad(id: String) {
         val soknad = sykepengesoknadDAO.finnSykepengesoknad(id)
         val soknadMetadata = soknad.tilSoknadMetadata()
+        val start = System.currentTimeMillis()
+
         val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(soknad.fnr)
+        val slutt = System.currentTimeMillis()
+        log.info("Hentet identer for søknad med id $id - ${slutt - start}ms")
+
         val andreSoknader = sykepengesoknadDAO.finnSykepengesoknader(identer).filterNot { it.id == soknad.id }
 
         val generertSoknad = genererSykepengesoknadFraMetadata(soknadMetadata, andreSoknader)
