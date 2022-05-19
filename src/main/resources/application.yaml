@@ -72,7 +72,7 @@ spring:
     password: ${DATABASE_PASSWORD}
     hikari:
       minimum-idle: 1
-      maximum-pool-size: 3
+      maximum-pool-size: 10
   kafka:
     client-id: ${nais.app.name}-${fasit.environment.name}
     producer:
