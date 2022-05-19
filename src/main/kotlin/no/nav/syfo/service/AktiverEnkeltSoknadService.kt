@@ -12,6 +12,7 @@ import org.slf4j.MDC
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.*
+import kotlin.system.measureTimeMillis
 
 @Service
 @Transactional
@@ -25,16 +26,23 @@ class AktiverEnkeltSoknadService(
     fun aktiverSoknad(id: String) {
         try {
             MDC.put(NAV_CALLID, UUID.randomUUID().toString())
-            sykepengesoknadDAO.aktiverSoknad(id)
-            lagSporsmalPaSoknad(id)
-            val soknad = sykepengesoknadDAO.finnSykepengesoknad(id)
-
-            log.info("Aktiverer søknad med id $id")
-
-            return when (soknad.soknadstype) {
-                Soknadstype.OPPHOLD_UTLAND -> throw IllegalArgumentException("Søknad med type ${soknad.soknadstype.name} kan ikke aktiveres")
-                else -> soknadProducer.soknadEvent(soknad)
+            val aktiverTid = measureTimeMillis {
+                sykepengesoknadDAO.aktiverSoknad(id)
             }
+            val lagSpm = measureTimeMillis {
+
+                lagSporsmalPaSoknad(id)
+            }
+            val publiserSoknad = measureTimeMillis {
+
+                val soknad = sykepengesoknadDAO.finnSykepengesoknad(id)
+
+                when (soknad.soknadstype) {
+                    Soknadstype.OPPHOLD_UTLAND -> throw IllegalArgumentException("Søknad med type ${soknad.soknadstype.name} kan ikke aktiveres")
+                    else -> soknadProducer.soknadEvent(soknad)
+                }
+            }
+            log.info("Aktiverte søknad med id $id - Aktiver: $aktiverTid Spm: $lagSpm Kafka: $publiserSoknad")
         } catch (e: Exception) {
             throw e
         } finally {
