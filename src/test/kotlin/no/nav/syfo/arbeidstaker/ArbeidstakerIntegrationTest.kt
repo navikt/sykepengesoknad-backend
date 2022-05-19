@@ -14,12 +14,14 @@ import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
 import no.nav.syfo.model.sykmeldingstatus.STATUS_BEKREFTET
 import no.nav.syfo.model.sykmeldingstatus.STATUS_SENDT
 import no.nav.syfo.repository.SykepengesoknadDAO
+import no.nav.syfo.repository.SykepengesoknadRepository
 import no.nav.syfo.soknadsopprettelse.ANSVARSERKLARING
 import no.nav.syfo.testdata.getSykmeldingDto
 import no.nav.syfo.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.syfo.testutil.SoknadBesvarer
 import org.amshove.kluent.`should be false`
 import org.amshove.kluent.`should be null`
+import org.amshove.kluent.shouldHaveSize
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.MethodOrderer
@@ -35,6 +37,9 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
 
     @Autowired
     private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
+
+    @Autowired
+    private lateinit var sykepengesoknadRepository: SykepengesoknadRepository
 
     private final val fnr = "12454578474"
     private final val basisdato = LocalDate.of(2021, 9, 1)
@@ -94,6 +99,8 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
         assertThat(kafkaSoknader[1].status).isEqualTo(SoknadsstatusDTO.NY)
         assertThat(kafkaSoknader[1].sendTilGosys).isNull()
         assertThat(kafkaSoknader[1].merknader).isNull()
+
+        sykepengesoknadRepository.findBySykepengesoknadUuidIn(kafkaSoknader.map { it.id }) shouldHaveSize 2
     }
 
     @Test
