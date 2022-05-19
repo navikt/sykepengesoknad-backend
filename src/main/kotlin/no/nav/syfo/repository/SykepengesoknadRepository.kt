@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository
 interface SykepengesoknadRepository : CrudRepository<SykepengesoknadDbRecord, String> {
 
     fun findBySykepengesoknadUuid(sykepengesoknadUuid: String): SykepengesoknadDbRecord?
+    fun findBySykepengesoknadUuidIn(sykepengesoknadUuid: List<String>): List<SykepengesoknadDbRecord>
 }
