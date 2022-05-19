@@ -8,7 +8,7 @@ replicas_max: 3
 schema_registry: "kafka-schema-registry.nais.adeo.no"
 syfomodiaperson_cluster: prod-fss
 env:
-  SPRING_PROFILES_ACTIVE: default
+  SPRING_PROFILES_ACTIVE: default,sykmeldinger
   PDL_BASE_URL: https://pdl-api.prod-fss-pub.nais.io
   PDL_API_AAD_CLIENT_ID: prod-fss.pdl.pdl-api
   ON_PREM_BOOTSTRAP_SERVERS: "a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443,a01apvl00148.adeo.no:8443,a01apvl00149.adeo.no:8443,a01apvl00150.adeo.no:8443"
