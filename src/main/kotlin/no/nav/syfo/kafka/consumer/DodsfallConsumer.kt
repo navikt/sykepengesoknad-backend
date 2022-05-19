@@ -39,8 +39,8 @@ class DodsfallConsumer(
 
     @KafkaListener(
         topics = ["aapen-person-pdl-leesah-v1"],
-        id = "personhendelse",
-        idIsGroup = false,
+        id = "sykepengesoknad-personhendelse",
+        idIsGroup = true,
         containerFactory = "kafkaListenerContainerFactory",
         properties = ["auto.offset.reset = earliest"],
     )
