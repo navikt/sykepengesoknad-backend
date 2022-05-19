@@ -10,7 +10,6 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import java.time.DayOfWeek
 import java.time.LocalDate
-import java.util.concurrent.TimeUnit
 
 @Component
 class SyfoSoknadJob(
@@ -24,7 +23,7 @@ class SyfoSoknadJob(
 ) {
     val log = logger()
 
-    @Scheduled(fixedDelay = 3000, initialDelay = 5, timeUnit = TimeUnit.MINUTES)
+    @Scheduled(cron = "\${syfosoknad.cron}")
     fun run() {
         if (leaderElection.isLeader()) {
 
