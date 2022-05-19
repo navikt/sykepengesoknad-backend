@@ -40,7 +40,9 @@ class KorrigertPatch(
         sykepengesoknadDAO.findBySykepengesoknadUuidIn(records)
             .filter { it.status != Soknadstatus.KORRIGERT }
             .forEach {
-                log.warn("Soknad ${it.id} med type ${it.soknadstype} har status ${it.status}")
+
+                log.warn("Soknad ${it.sykepengesoknadUuid} med type ${it.soknadstype} har status ${it.status}, endrer til KORRIGERT")
+                sykepengesoknadDAO.save(it.copy(status = Soknadstatus.KORRIGERT))
             }
     }
 }
