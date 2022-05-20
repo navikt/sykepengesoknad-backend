@@ -56,15 +56,14 @@ no.nav.security.jwt:
           client-secret: secretzz
           client-auth-method: client_secret_basic
 
-nais.app.name: syfosoknad
 kafka-schema-registry.url: http://schema.url
 pdl.api.url: "http://pdl-api.pdl"
 narmesteleder.url: "http://narmesteleder"
 
 server:
   port: 7070
-  servlet:
-    context-path: /syfosoknad
+  servlet.context-path: /sykepengesoknad-backend
+  shutdown: graceful
 
 
 syfosyketilfelleApi.url: http://localhost:8080
@@ -77,12 +76,25 @@ serviceuser:
   username: username
   password: password
 
+management:
+  endpoint:
+    prometheus.enabled: true
+    health.probes.enabled: true
+    health.show-details: always
+  endpoints.web:
+    base-path: "/internal"
+    exposure.include: health, prometheus
+  health:
+    livenessstate.enabled: true
+    readinessState.enabled: true
+  metrics.export.prometheus.enabled: true
+
 spring:
-  profiles:
-    active: test,cronjobber,sykmeldinger
+  profiles.active: test,cronjobber,sykmeldinger
+  main.banner-mode: 'off'
   kafka:
     consumer:
-      group-id: syfosoknad-local
+      group-id: sykepengesoknad-local
       max-poll-records: 1
       auto-offset-reset: latest
       enable-auto-commit: false
@@ -95,18 +107,10 @@ KAFKA_KEYSTORE_PATH: ""
 KAFKA_SCHEMA_REGISTRY: "url"
 ON_PREM_SCHEMA_REGISTRY_URL: ${KAFKA_SCHEMA_REGISTRY}
 
-management:
-  endpoint.prometheus.enabled: true
-  endpoints.web:
-    base-path: /internal
-    exposure.include: prometheus
-    path-mapping.prometheus: /prometheus
-
-
 nais:
   app:
-    name: "syfosoknad"
-    image: "syfosoknad-test-12432536"
+    name: "sykepengesoknad-backend"
+    image: "sykepengesoknad-backend-test-12432536"
 
 elector.path: dont_look_for_leader
 julesoknad.cron: "0 6 * * * *"

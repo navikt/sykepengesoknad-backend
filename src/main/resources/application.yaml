@@ -54,17 +54,24 @@ logging.config: classpath:logback.xml
 pdl.api.url: ${PDL_BASE_URL}
 
 management:
-  endpoint.prometheus.enabled: true
+  endpoint:
+    prometheus.enabled: true
+    health.probes.enabled: true
+    health.show-details: always
   endpoints.web:
-    base-path: /internal
-    exposure.include: prometheus
-    path-mapping.prometheus: /prometheus
+    base-path: "/internal"
+    exposure.include: health, prometheus
+  health:
+    livenessstate.enabled: true
+    readinessState.enabled: true
+  metrics.export.prometheus.enabled: true
+
+server:
+  shutdown: graceful
 
 spring:
-  profiles:
-    active: default
-  jpa:
-    open-in-view: false
+  profiles.active: default
+  jpa.open-in-view: false
   main.banner-mode: 'off'
   datasource:
     url: "jdbc:postgresql://${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_DATABASE}?reWriteBatchedInserts=true"

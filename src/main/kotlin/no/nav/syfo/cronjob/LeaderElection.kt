@@ -7,6 +7,9 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import no.nav.syfo.logger
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.availability.ApplicationAvailability
+import org.springframework.boot.availability.LivenessState
+import org.springframework.boot.availability.ReadinessState
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
@@ -17,16 +20,23 @@ import java.net.InetAddress
 @Component
 class LeaderElection(
     private val plainTextUtf8RestTemplate: RestTemplate,
-    @param:Value("\${elector.path}") private val electorPath: String
+    @param:Value("\${elector.path}") private val electorPath: String,
+    private val applicationAvailability: ApplicationAvailability,
 ) {
 
     val log = logger()
 
     fun isLeader(): Boolean {
+        if (applicationAvailability.readinessState == ReadinessState.REFUSING_TRAFFIC || applicationAvailability.livenessState == LivenessState.BROKEN) {
+            log.info("Ser ikke etter leader med readiness [ ${applicationAvailability.readinessState} ] og liveness [ ${applicationAvailability.livenessState} ]")
+            return false
+        }
+
         if (electorPath == "dont_look_for_leader") {
             log.info("Ser ikke etter leader, returnerer at jeg er leader")
             return true
         }
+
         return kallElector()
     }
 
