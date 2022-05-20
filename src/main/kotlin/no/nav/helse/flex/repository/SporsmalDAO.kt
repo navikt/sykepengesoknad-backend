@@ -6,7 +6,6 @@ import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Visningskriterie
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
-import org.springframework.jdbc.support.GeneratedKeyHolder
 import org.springframework.stereotype.Repository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -84,50 +83,6 @@ class SporsmalDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemp
     private fun populerMedSvar(svarMap: HashMap<String, MutableList<Svar>>) {
         val svarFraBasen = svarDAO.finnSvar(svarMap.keys)
         svarFraBasen.forEach { (key, value) -> svarMap[key]!!.addAll(value) }
-    }
-
-    fun lagreSporsmal(sykepengesoknadId: String, sporsmal: Sporsmal, underSporsmalId: String?): Sporsmal {
-        val generatedKeyHolder = GeneratedKeyHolder()
-        namedParameterJdbcTemplate.update(
-            "INSERT INTO SPORSMAL(SYKEPENGESOKNAD_ID, UNDER_SPORSMAL_ID, TEKST, UNDERTEKST, TAG, " +
-                "SVARTYPE, MIN, MAX, KRITERIE_FOR_VISNING) " +
-
-                "VALUES (" +
-                ":sykepengesoknadId, " +
-                ":underSporsmalId, " +
-                ":tekst, " +
-                ":undertekst, " +
-                ":tag, " +
-                ":svartype, " +
-                ":min, " +
-                ":max, " +
-                ":kriterie)",
-
-            MapSqlParameterSource()
-                .addValue("sykepengesoknadId", sykepengesoknadId)
-                .addValue("underSporsmalId", underSporsmalId)
-                .addValue("tekst", sporsmal.sporsmalstekst)
-                .addValue("undertekst", sporsmal.undertekst)
-                .addValue("tag", sporsmal.tag)
-                .addValue("svartype", sporsmal.svartype.name)
-                .addValue("min", sporsmal.min)
-                .addValue("max", sporsmal.max)
-                .addValue(
-                    "kriterie",
-                    if (sporsmal.kriterieForVisningAvUndersporsmal == null)
-                        null
-                    else
-                        sporsmal.kriterieForVisningAvUndersporsmal.name
-                ),
-
-            generatedKeyHolder,
-            arrayOf("id")
-        )
-
-        val sporsmalId = generatedKeyHolder.getKeyAs(String::class.java)!!
-        sporsmal.svar.forEach { svar -> svarDAO.lagreSvar(sporsmalId, svar) }
-        val undersporsmal = sporsmal.undersporsmal.map { u -> lagreSporsmal(sykepengesoknadId, u, sporsmalId) }
-        return sporsmal.copy(id = sporsmalId, undersporsmal = undersporsmal)
     }
 
     fun slettSporsmal(soknadsIder: List<String>) {

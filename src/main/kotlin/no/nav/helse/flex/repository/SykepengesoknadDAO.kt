@@ -71,21 +71,6 @@ class SykepengesoknadDAO(
             .sortedBy { it.opprettet }
     }
 
-    fun eksistererSoknader(soknadUuidListe: List<String>): List<String> {
-        if (soknadUuidListe.isEmpty()) return emptyList()
-
-        return namedParameterJdbcTemplate.query(
-            "SELECT SYKEPENGESOKNAD_UUID FROM SYKEPENGESOKNAD " +
-                "WHERE SYKEPENGESOKNAD_UUID IN (:soknadUuidListe) ",
-
-            MapSqlParameterSource()
-                .addValue("soknadUuidListe", soknadUuidListe)
-
-        ) { resultSet, _ ->
-            resultSet.getString("SYKEPENGESOKNAD_UUID")
-        }
-    }
-
     fun finnSykepengesoknaderByUuid(soknadUuidListe: List<String>): List<Sykepengesoknad> {
         if (soknadUuidListe.isEmpty()) {
             return Collections.emptyList()
@@ -394,7 +379,7 @@ class SykepengesoknadDAO(
 
         sporsmalDAO.slettSporsmal(listOf(sykepengesoknadId))
 
-        oppdatertSoknad.sporsmal.forEach { sporsmal -> sporsmalDAO.lagreSporsmal(sykepengesoknadId, sporsmal, null) }
+        soknadLagrer.lagreSporsmalOgSvarFraSoknad(oppdatertSoknad)
     }
 
     fun klippSoknad(sykepengesoknadUuid: String, klippFom: LocalDate) {

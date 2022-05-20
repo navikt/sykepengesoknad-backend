@@ -13,33 +13,17 @@ class SoknadLagrer(
     private val jdbcTemplate: NamedParameterJdbcTemplate
 ) {
 
-    fun lagreSoknader(soknader: List<Sykepengesoknad>) {
-
-        val normalisertSoknader = soknader.map { it.normaliser() }
-
-        val soknad = ArrayList<SykepengesoknadDbRecord>()
-        val sporsmal = ArrayList<SporsmalDbRecord>()
-        val perioder = ArrayList<SoknadsperiodeDbRecord>()
-        val svar = ArrayList<SvarDbRecord>()
-
-        normalisertSoknader.forEach {
-            soknad.add(it.soknad)
-            sporsmal.addAll(it.sporsmal)
-            perioder.addAll(it.perioder)
-            svar.addAll(it.svar)
-        }
-
-        soknad.lagre()
-        perioder.lagrePerioder()
-        sporsmal.lagreSporsmal()
-        svar.lagreSvar()
-    }
-
     fun lagreSoknad(soknad: Sykepengesoknad) {
 
         val normalisertSoknad = soknad.normaliser()
         listOf(normalisertSoknad.soknad).lagre()
         normalisertSoknad.perioder.lagrePerioder()
+        normalisertSoknad.sporsmal.lagreSporsmal()
+        normalisertSoknad.svar.lagreSvar()
+    }
+
+    fun lagreSporsmalOgSvarFraSoknad(soknad: Sykepengesoknad) {
+        val normalisertSoknad = soknad.normaliser()
         normalisertSoknad.sporsmal.lagreSporsmal()
         normalisertSoknad.svar.lagreSvar()
     }
