@@ -132,8 +132,8 @@ class JuridiskVurderingArbeidsgiverperiodeTest : BaseTestClass() {
         vurderingInnenfor.bokstav `should be equal to` "a"
         vurderingInnenfor.punktum.`should be null`()
 
-        vurderingInnenfor.kilde `should be equal to` "syfosoknad"
-        vurderingInnenfor.versjonAvKode `should be equal to` "syfosoknad-test-12432536"
+        vurderingInnenfor.kilde `should be equal to` "sykepengesoknad-backend"
+        vurderingInnenfor.versjonAvKode `should be equal to` "sykepengesoknad-backend-test-12432536"
 
         vurderingInnenfor.utfall `should be equal to` Utfall.VILKAR_IKKE_OPPFYLT
         vurderingInnenfor.input `should be equal to` mapOf(
