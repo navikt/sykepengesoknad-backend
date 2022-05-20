@@ -8,7 +8,7 @@
 		<appender-ref ref="stdout_json"/>
 	</root>
 
-	<logger name="no.nav.helse.flex" level="INFO" additivity="false">
+	<logger name="no.nav.syfo" level="INFO" additivity="false">
 		<appender-ref ref="stdout_json"/>
 	</logger>
 
