@@ -1,6 +1,6 @@
 package no.nav.helse.flex.client.narmesteleder
 
-import no.nav.syfo.logger
+import no.nav.helse.flex.logger
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.http.HttpEntity

@@ -4,7 +4,7 @@ import no.nav.helse.flex.kafka.producer.BEHANDLINGSTIDSPUNKT
 import no.nav.helse.flex.kafka.producer.RebehandlingSykmeldingSendtProducer
 import no.nav.helse.flex.kafka.sykmeldingSendtRetryTopic
 import no.nav.helse.flex.soknadsopprettelse.BehandleSendtBekreftetSykmeldingService
-import no.nav.syfo.logger
+import no.nav.helse.flex.logger
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.context.annotation.Profile
 import org.springframework.kafka.annotation.KafkaListener

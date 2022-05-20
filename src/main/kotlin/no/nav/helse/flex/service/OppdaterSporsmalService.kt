@@ -18,7 +18,7 @@ import no.nav.helse.flex.soknadsopprettelse.sporsmal.oppdaterMedSvarPaaPermitter
 import no.nav.helse.flex.svarvalidering.tilKvittering
 import no.nav.helse.flex.svarvalidering.validerSvarPaSporsmal
 import no.nav.helse.flex.util.Metrikk
-import no.nav.syfo.logger
+import no.nav.helse.flex.logger
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 

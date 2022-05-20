@@ -2,7 +2,7 @@ package no.nav.helse.flex.service
 
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.repository.SykepengesoknadDAO
-import no.nav.syfo.logger
+import no.nav.helse.flex.logger
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 

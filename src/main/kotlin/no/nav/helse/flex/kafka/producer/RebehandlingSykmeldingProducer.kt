@@ -4,7 +4,7 @@ import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.kafka.sykmeldingSendtRetryTopic
 import no.nav.helse.flex.util.serialisertTilString
 import no.nav.syfo.kafka.SyfoProducerRecord
-import no.nav.syfo.logger
+import no.nav.helse.flex.logger
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.springframework.stereotype.Component
 import java.time.OffsetDateTime

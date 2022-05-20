@@ -12,7 +12,7 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsperiodeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.helse.flex.util.Metrikk
-import no.nav.syfo.logger
+import no.nav.helse.flex.logger
 import org.springframework.stereotype.Component
 import java.text.NumberFormat
 import java.time.Duration

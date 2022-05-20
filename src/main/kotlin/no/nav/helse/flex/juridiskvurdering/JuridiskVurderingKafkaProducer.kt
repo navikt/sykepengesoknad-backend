@@ -1,6 +1,6 @@
 package no.nav.helse.flex.juridiskvurdering
 
-import no.nav.syfo.logger
+import no.nav.helse.flex.logger
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.springframework.beans.factory.annotation.Value

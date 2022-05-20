@@ -22,7 +22,7 @@ import no.nav.helse.flex.juridiskvurdering.Utfall
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.util.Metrikk
 import no.nav.helse.flex.util.isBeforeOrEqual
-import no.nav.syfo.logger
+import no.nav.helse.flex.logger
 import org.apache.commons.lang3.StringUtils
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional

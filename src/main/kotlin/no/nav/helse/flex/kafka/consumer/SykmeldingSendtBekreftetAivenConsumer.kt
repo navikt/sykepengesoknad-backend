@@ -6,7 +6,7 @@ import no.nav.helse.flex.soknadsopprettelse.BehandleSendtBekreftetSykmeldingServ
 import no.nav.helse.flex.util.OBJECT_MAPPER
 import no.nav.syfo.kafka.NAV_CALLID
 import no.nav.syfo.kafka.getSafeNavCallIdHeaderAsString
-import no.nav.syfo.logger
+import no.nav.helse.flex.logger
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.MDC
 import org.springframework.context.annotation.Profile

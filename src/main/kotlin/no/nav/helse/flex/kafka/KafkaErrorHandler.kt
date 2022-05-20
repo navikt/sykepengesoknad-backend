@@ -3,7 +3,7 @@ package no.nav.helse.flex.kafka
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Tags
 import no.nav.helse.flex.selftest.ApplicationState
-import no.nav.syfo.logger
+import no.nav.helse.flex.logger
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.errors.TopicAuthorizationException

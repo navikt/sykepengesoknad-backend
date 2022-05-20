@@ -27,7 +27,7 @@ import no.nav.helse.flex.service.SlettSoknaderTilKorrigertSykmeldingService
 import no.nav.helse.flex.util.Metrikk
 import no.nav.helse.flex.util.max
 import no.nav.helse.flex.util.min
-import no.nav.syfo.logger
+import no.nav.helse.flex.logger
 import no.nav.syfo.model.sykmelding.arbeidsgiver.ArbeidsgiverSykmelding
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO

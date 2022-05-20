@@ -10,7 +10,7 @@ import no.nav.helse.flex.util.Metrikk
 import no.nav.helse.flex.util.tilOsloZone
 import no.nav.syfo.kafka.NAV_CALLID
 import no.nav.syfo.kafka.getSafeNavCallIdHeaderAsString
-import no.nav.syfo.logger
+import no.nav.helse.flex.logger
 import org.apache.avro.generic.GenericData
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.ConsumerRecord

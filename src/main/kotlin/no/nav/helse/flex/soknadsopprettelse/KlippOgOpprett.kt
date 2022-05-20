@@ -6,7 +6,7 @@ import no.nav.helse.flex.domain.SykmeldingBehandletResultat
 import no.nav.helse.flex.domain.exception.ManglerArbeidsgiverException
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.service.FolkeregisterIdenter
-import no.nav.syfo.logger
+import no.nav.helse.flex.logger
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 

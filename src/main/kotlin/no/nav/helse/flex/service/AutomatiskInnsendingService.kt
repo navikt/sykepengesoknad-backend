@@ -5,7 +5,7 @@ import no.nav.helse.flex.domain.Mottaker
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.util.isAfterOrEqual
-import no.nav.syfo.logger
+import no.nav.helse.flex.logger
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
