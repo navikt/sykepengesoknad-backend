@@ -1,6 +1,5 @@
 package no.nav.helse.flex
 
-import no.nav.syfo.logger
 import org.springframework.boot.availability.AvailabilityChangeEvent
 import org.springframework.boot.availability.LivenessState
 import org.springframework.boot.availability.ReadinessState
