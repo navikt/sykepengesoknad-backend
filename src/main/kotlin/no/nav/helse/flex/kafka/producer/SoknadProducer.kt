@@ -5,6 +5,7 @@ import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype.*
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.mapper.SykepengesoknadTilSykepengesoknadDTOMapper
+import no.nav.helse.flex.logger
 import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER
 import no.nav.helse.flex.soknadsopprettelse.FRISKMELDT
 import no.nav.helse.flex.soknadsopprettelse.FRISKMELDT_START
@@ -12,7 +13,6 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsperiodeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.helse.flex.util.Metrikk
-import no.nav.helse.flex.logger
 import org.springframework.stereotype.Component
 import java.text.NumberFormat
 import java.time.Duration

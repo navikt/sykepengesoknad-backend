@@ -5,9 +5,9 @@ import no.nav.helse.flex.clientidvalidation.ClientIdValidation.NamespaceAndApp
 import no.nav.helse.flex.config.OIDCIssuer.AZUREATOR
 import no.nav.helse.flex.exception.AbstractApiError
 import no.nav.helse.flex.exception.LogLevel
+import no.nav.helse.flex.logger
 import no.nav.helse.flex.util.OBJECT_MAPPER
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
-import no.nav.helse.flex.logger
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component

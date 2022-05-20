@@ -7,10 +7,10 @@ import no.nav.helse.flex.domain.exception.SkalRebehandlesException
 import no.nav.helse.flex.domain.exception.UventetArbeidssituasjonException
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.kafka.producer.RebehandlingSykmeldingSendtProducer
+import no.nav.helse.flex.logger
 import no.nav.helse.flex.service.GjenapneSykmeldingService
 import no.nav.helse.flex.service.IdentService
 import no.nav.helse.flex.util.Metrikk
-import no.nav.helse.flex.logger
 import no.nav.syfo.model.sykmeldingstatus.STATUS_BEKREFTET
 import no.nav.syfo.model.sykmeldingstatus.STATUS_SENDT
 import no.nav.syfo.model.sykmeldingstatus.ShortNameDTO

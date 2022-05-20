@@ -19,6 +19,7 @@ import no.nav.helse.flex.domain.exception.SykeforloepManglerSykemeldingException
 import no.nav.helse.flex.domain.rest.SoknadMetadata
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.kafka.producer.SoknadProducer
+import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.service.IdentService
@@ -27,7 +28,6 @@ import no.nav.helse.flex.service.SlettSoknaderTilKorrigertSykmeldingService
 import no.nav.helse.flex.util.Metrikk
 import no.nav.helse.flex.util.max
 import no.nav.helse.flex.util.min
-import no.nav.helse.flex.logger
 import no.nav.syfo.model.sykmelding.arbeidsgiver.ArbeidsgiverSykmelding
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO

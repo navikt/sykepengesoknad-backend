@@ -8,13 +8,13 @@ import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.Sykmeldingstype
 import no.nav.helse.flex.domain.rest.SoknadMetadata
+import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.JulesoknadkandidatDAO
 import no.nav.helse.flex.repository.JulesoknadkandidatDAO.Julesoknadkandidat
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.util.Metrikk
 import no.nav.helse.flex.util.isAfterOrEqual
 import no.nav.helse.flex.util.isBeforeOrEqual
-import no.nav.helse.flex.logger
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional

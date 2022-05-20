@@ -4,10 +4,10 @@ import no.nav.helse.flex.exception.AbstractApiError
 import no.nav.helse.flex.exception.FinnesInnsendtSoknadException
 import no.nav.helse.flex.exception.IkkeTilgangException
 import no.nav.helse.flex.exception.LogLevel
+import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadDAO.SoknadIkkeFunnetException
 import no.nav.security.token.support.core.exceptions.JwtTokenInvalidClaimException
 import no.nav.security.token.support.spring.validation.interceptor.JwtTokenUnauthorizedException
-import no.nav.helse.flex.logger
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.HttpMediaTypeNotAcceptableException

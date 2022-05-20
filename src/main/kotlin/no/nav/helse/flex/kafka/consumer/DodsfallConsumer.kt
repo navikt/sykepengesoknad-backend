@@ -2,6 +2,7 @@ package no.nav.helse.flex.kafka.consumer
 
 import no.nav.helse.flex.domain.Soknadstatus.FREMTIDIG
 import no.nav.helse.flex.domain.Soknadstatus.NY
+import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.DodsmeldingDAO
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.service.FolkeregisterIdenter
@@ -10,7 +11,6 @@ import no.nav.helse.flex.util.Metrikk
 import no.nav.helse.flex.util.tilOsloZone
 import no.nav.syfo.kafka.NAV_CALLID
 import no.nav.syfo.kafka.getSafeNavCallIdHeaderAsString
-import no.nav.helse.flex.logger
 import org.apache.avro.generic.GenericData
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.ConsumerRecord

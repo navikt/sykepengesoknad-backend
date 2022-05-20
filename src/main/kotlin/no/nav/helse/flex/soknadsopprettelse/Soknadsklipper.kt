@@ -6,6 +6,7 @@ import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
+import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.service.AktiverEnkeltSoknadService
 import no.nav.helse.flex.service.FolkeregisterIdenter
@@ -19,7 +20,6 @@ import no.nav.helse.flex.util.erHelg
 import no.nav.helse.flex.util.isAfterOrEqual
 import no.nav.helse.flex.util.isBeforeOrEqual
 import no.nav.helse.flex.util.overlap
-import no.nav.helse.flex.logger
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
 import org.springframework.stereotype.Component

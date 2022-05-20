@@ -2,11 +2,11 @@ package no.nav.helse.flex.kafka.consumer
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
+import no.nav.helse.flex.logger
 import no.nav.helse.flex.soknadsopprettelse.BehandleSendtBekreftetSykmeldingService
 import no.nav.helse.flex.util.OBJECT_MAPPER
 import no.nav.syfo.kafka.NAV_CALLID
 import no.nav.syfo.kafka.getSafeNavCallIdHeaderAsString
-import no.nav.helse.flex.logger
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.MDC
 import org.springframework.context.annotation.Profile

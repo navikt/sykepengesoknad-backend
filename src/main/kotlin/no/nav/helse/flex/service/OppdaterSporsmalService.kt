@@ -9,6 +9,7 @@ import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svar
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.flatten
+import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SporsmalDAO
 import no.nav.helse.flex.repository.SvarDAO
 import no.nav.helse.flex.repository.SykepengesoknadDAO
@@ -18,7 +19,6 @@ import no.nav.helse.flex.soknadsopprettelse.sporsmal.oppdaterMedSvarPaaPermitter
 import no.nav.helse.flex.svarvalidering.tilKvittering
 import no.nav.helse.flex.svarvalidering.validerSvarPaSporsmal
 import no.nav.helse.flex.util.Metrikk
-import no.nav.helse.flex.logger
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 

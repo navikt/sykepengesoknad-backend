@@ -1,9 +1,9 @@
 package no.nav.helse.flex.service
 
 import io.micrometer.core.instrument.MeterRegistry
+import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.DodsmeldingDAO
 import no.nav.syfo.kafka.NAV_CALLID
-import no.nav.helse.flex.logger
 import org.slf4j.MDC
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional

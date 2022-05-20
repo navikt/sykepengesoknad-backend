@@ -5,9 +5,9 @@ import no.nav.helse.flex.domain.ErUtenforVentetidRequest
 import no.nav.helse.flex.domain.Sykeforloep
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.mapper.SykepengesoknadTilSykepengesoknadDTOMapper
+import no.nav.helse.flex.logger
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.service.IdentService
-import no.nav.helse.flex.logger
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders

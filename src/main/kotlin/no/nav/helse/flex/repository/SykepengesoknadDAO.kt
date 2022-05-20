@@ -10,12 +10,12 @@ import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.exception.SlettSoknadException
+import no.nav.helse.flex.logger
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.soknadsopprettelse.sorterSporsmal
 import no.nav.helse.flex.util.OBJECT_MAPPER
 import no.nav.helse.flex.util.isAfterOrEqual
 import no.nav.helse.flex.util.tilOsloZone
-import no.nav.helse.flex.logger
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.dao.IncorrectResultSizeDataAccessException
 import org.springframework.jdbc.core.RowMapper

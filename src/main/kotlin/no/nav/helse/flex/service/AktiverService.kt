@@ -1,8 +1,8 @@
 package no.nav.helse.flex.service
 
 import io.micrometer.core.instrument.MeterRegistry
-import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.logger
+import no.nav.helse.flex.repository.SykepengesoknadDAO
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 

@@ -22,6 +22,7 @@ import no.nav.helse.flex.exception.FeilStatusForOppdaterSporsmalException
 import no.nav.helse.flex.exception.IkkeTilgangException
 import no.nav.helse.flex.exception.ReadOnlyException
 import no.nav.helse.flex.exception.SporsmalFinnesIkkeISoknadException
+import no.nav.helse.flex.logger
 import no.nav.helse.flex.service.AvbrytSoknadService
 import no.nav.helse.flex.service.EttersendingSoknadService
 import no.nav.helse.flex.service.FolkeregisterIdenter
@@ -37,7 +38,6 @@ import no.nav.helse.flex.svarvalidering.validerSvarPaSoknad
 import no.nav.helse.flex.util.Metrikk
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
-import no.nav.helse.flex.logger
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.web.bind.annotation.*
