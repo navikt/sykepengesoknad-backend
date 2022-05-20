@@ -54,7 +54,7 @@ class OnPremKafkaConfig(
     @Bean
     fun kafkaListenerContainerFactory(
         schemaRegistryClient: SchemaRegistryClient,
-        kafkaErrorHandler: KafkaErrorHandler,
+        kafkaErrorHandler: AivenKafkaErrorHandler,
     ): ConcurrentKafkaListenerContainerFactory<String, GenericRecord> {
         val consumerFactory = DefaultKafkaConsumerFactory(
             genericAvroConsumerConfig(),
@@ -64,8 +64,7 @@ class OnPremKafkaConfig(
 
         val factory = ConcurrentKafkaListenerContainerFactory<String, GenericRecord>()
         factory.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL_IMMEDIATE
-        @Suppress("DEPRECATION")
-        factory.setErrorHandler(kafkaErrorHandler)
+        factory.setCommonErrorHandler(kafkaErrorHandler)
         factory.containerProperties.setAuthExceptionRetryInterval(Duration.ofSeconds(2))
         factory.consumerFactory = consumerFactory
         return factory
