@@ -10,6 +10,6 @@
 		<appender-ref ref="CONSOLE"/>
 	</root>
 
-	<logger name="no.nav.syfo" level="DEBUG"/>
+	<logger name="no.nav.helse.flex" level="DEBUG"/>
 	<logger name="org.springframework" level="INFO"/>
 </configuration>
