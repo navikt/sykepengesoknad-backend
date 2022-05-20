@@ -49,7 +49,7 @@ spec:
         diskType: SSD
         highAvailability: true
         diskSize: {{ db_size }}
-        pointInTimeRecovery: false
+        pointInTimeRecovery: true
         diskAutoresize: true
         databases:
           - name: sykepengesoknad
