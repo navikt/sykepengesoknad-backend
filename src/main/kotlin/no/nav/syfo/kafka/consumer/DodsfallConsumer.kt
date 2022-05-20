@@ -10,14 +10,15 @@ import no.nav.syfo.repository.SykepengesoknadDAO
 import no.nav.syfo.service.FolkeregisterIdenter
 import no.nav.syfo.service.IdentService
 import no.nav.syfo.util.Metrikk
+import no.nav.syfo.util.tilOsloZone
 import org.apache.avro.generic.GenericData
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.MDC
-import org.springframework.context.annotation.Profile
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.support.Acknowledgment
 import org.springframework.stereotype.Component
+import java.time.Instant
 import java.time.LocalDate
 
 private const val OPPRETTET = "OPPRETTET"
@@ -27,7 +28,6 @@ private const val OPPHOERT = "OPPHOERT"
 private const val OPPLYSNINGSTYPE_DODSFALL = "DOEDSFALL_V1"
 
 @Component
-@Profile("test")
 class DodsfallConsumer(
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val metrikk: Metrikk,
@@ -35,11 +35,14 @@ class DodsfallConsumer(
     private val identService: IdentService,
 ) {
 
+    val log = logger()
+
     @KafkaListener(
         topics = ["aapen-person-pdl-leesah-v1"],
-        id = "personhendelse",
-        idIsGroup = false,
-        containerFactory = "kafkaListenerContainerFactory"
+        id = "sykepengesoknad-personhendelse",
+        idIsGroup = true,
+        containerFactory = "kafkaListenerContainerFactory",
+        properties = ["auto.offset.reset = earliest"],
     )
     fun listen(cr: ConsumerRecord<String, GenericRecord>, acknowledgment: Acknowledgment) {
         MDC.put(NAV_CALLID, getSafeNavCallIdHeaderAsString(cr.headers()))
@@ -57,25 +60,24 @@ class DodsfallConsumer(
                         OPPRETTET, KORRIGERT -> {
                             val dodsdato = personhendelse.hentDodsdato()
                             if (dodsmeldingDAO.harDodsmelding(identer)) {
-                                logger().info("Oppdaterer dodsdato")
+                                log.info("Oppdaterer dodsdato")
                                 dodsmeldingDAO.oppdaterDodsdato(identer, dodsdato)
                             } else {
-                                logger().info("Lagrer ny dodsmelding")
-                                dodsmeldingDAO.lagreDodsmelding(identer, dodsdato)
+                                log.info("Lagrer ny dodsmelding")
+                                dodsmeldingDAO.lagreDodsmelding(identer, dodsdato, Instant.ofEpochMilli(cr.timestamp()).tilOsloZone())
                             }
                         }
                         ANNULLERT, OPPHOERT -> {
-                            logger().info("Sletter dodsmelding")
+                            log.info("Sletter dodsmelding")
                             dodsmeldingDAO.slettDodsmelding(identer)
                         }
                     }
                 }
             } else {
-                logger().debug("Ignorerer personhendelse med type ${personhendelse.hentOpplysningstype()}")
+                log.debug("Ignorerer personhendelse med type ${personhendelse.hentOpplysningstype()}")
             }
             acknowledgment.acknowledge()
         } catch (e: Exception) {
-            // Vi behøver muligens å logge mer her, siden KafkaErrorHandler ikke logger meldingsverdi
             throw RuntimeException("Uventet feil ved behandling av personhendelse", e)
         } finally {
             MDC.remove(NAV_CALLID)
