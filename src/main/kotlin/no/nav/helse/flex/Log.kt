@@ -1,4 +1,4 @@
-package no.nav.syfo
+package no.nav.helse.flex
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

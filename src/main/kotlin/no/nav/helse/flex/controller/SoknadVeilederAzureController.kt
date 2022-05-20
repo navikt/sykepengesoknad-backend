@@ -7,10 +7,10 @@ import no.nav.helse.flex.config.OIDCIssuer.AZUREATOR
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknad
 import no.nav.helse.flex.controller.mapper.tilRSSykepengesoknad
 import no.nav.helse.flex.exception.IkkeTilgangException
+import no.nav.helse.flex.logger
 import no.nav.helse.flex.service.HentSoknadService
 import no.nav.helse.flex.service.IdentService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
-import no.nav.syfo.logger
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod

@@ -1,10 +1,10 @@
 package no.nav.helse.flex.kafka.consumer
 
 import com.fasterxml.jackson.module.kotlin.readValue
+import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.RedusertVenteperiodeDbRecord
 import no.nav.helse.flex.repository.RedusertVenteperiodeRepository
 import no.nav.helse.flex.util.OBJECT_MAPPER
-import no.nav.syfo.logger
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.support.Acknowledgment

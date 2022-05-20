@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import no.nav.syfo.logger
+import no.nav.helse.flex.logger
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.availability.ApplicationAvailability
 import org.springframework.boot.availability.LivenessState

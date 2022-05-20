@@ -16,7 +16,7 @@ class IdentService(private val pdlClient: PdlClient) {
         return this.filter { it.gruppe == FOLKEREGISTERIDENT }.map { it.ident }
     }
 
-    @Cacheable("folkeregister-identer-med-historikk")
+    @Cacheable("flex-folkeregister-identer-med-historikk")
     fun hentFolkeregisterIdenterMedHistorikkForFnr(fnr: String): FolkeregisterIdenter {
         val identer = pdlClient.hentIdenterMedHistorikk(fnr)
         return FolkeregisterIdenter(

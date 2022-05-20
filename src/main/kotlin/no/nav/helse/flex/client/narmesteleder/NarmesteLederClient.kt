@@ -1,6 +1,6 @@
 package no.nav.helse.flex.client.narmesteleder
 
-import no.nav.syfo.logger
+import no.nav.helse.flex.logger
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.http.HttpEntity
@@ -22,7 +22,7 @@ class NarmesteLederClient(
 
     val log = logger()
 
-    @Cacheable(cacheNames = ["forskuttering-narmesteleder"])
+    @Cacheable(cacheNames = ["flex-forskuttering-narmesteleder"])
     @Retryable
     fun arbeidsgiverForskutterer(sykmeldtFnr: String, orgnummer: String): Forskuttering {
         val headers = HttpHeaders()

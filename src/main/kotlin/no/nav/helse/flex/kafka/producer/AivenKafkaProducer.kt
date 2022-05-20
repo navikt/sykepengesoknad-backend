@@ -1,8 +1,8 @@
 package no.nav.helse.flex.kafka.producer
 
 import no.nav.helse.flex.kafka.sykepengesoknadTopic
+import no.nav.helse.flex.logger
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
-import no.nav.syfo.logger
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.clients.producer.RecordMetadata

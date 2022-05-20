@@ -12,9 +12,9 @@ import no.nav.helse.flex.domain.SykmeldingBehandletResultat.INNENFOR_VENTETID
 import no.nav.helse.flex.domain.SykmeldingBehandletResultat.SYKMELDING_OK
 import no.nav.helse.flex.domain.SykmeldingBehandletResultat.UNDER_BEHANDLING
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
+import no.nav.helse.flex.logger
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.util.Metrikk
-import no.nav.syfo.logger
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO.AVVENTENDE
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO.REISETILSKUDD
 import org.springframework.stereotype.Service

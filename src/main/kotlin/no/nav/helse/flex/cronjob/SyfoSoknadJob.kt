@@ -1,11 +1,11 @@
 package no.nav.helse.flex.cronjob
 
 import no.nav.helse.flex.config.EnvironmentToggles
+import no.nav.helse.flex.logger
 import no.nav.helse.flex.service.AktiverService
 import no.nav.helse.flex.service.AutomatiskInnsendingVedDodsfallService
 import no.nav.helse.flex.service.DeaktiverGamleSoknaderService
 import no.nav.helse.flex.service.SlettGamleUtkastService
-import no.nav.syfo.logger
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import java.time.DayOfWeek

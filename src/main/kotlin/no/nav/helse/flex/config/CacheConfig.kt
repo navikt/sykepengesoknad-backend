@@ -23,16 +23,10 @@ class CacheConfig {
             10L
         }
 
-        cacheConfigurations["arbeidsgiver"] = RedisCacheConfiguration
+        cacheConfigurations["flex-forskuttering-narmesteleder"] = RedisCacheConfiguration
             .defaultCacheConfig()
             .entryTtl(Duration.ofSeconds(narmestelederTtl))
-        cacheConfigurations["forskuttering"] = RedisCacheConfiguration
-            .defaultCacheConfig()
-            .entryTtl(Duration.ofSeconds(narmestelederTtl))
-        cacheConfigurations["forskuttering-narmesteleder"] = RedisCacheConfiguration
-            .defaultCacheConfig()
-            .entryTtl(Duration.ofSeconds(narmestelederTtl))
-        cacheConfigurations["folkeregister-identer-med-historikk"] = RedisCacheConfiguration
+        cacheConfigurations["flex-folkeregister-identer-med-historikk"] = RedisCacheConfiguration
             .defaultCacheConfig()
             .entryTtl(Duration.ofSeconds(3600L))
 
