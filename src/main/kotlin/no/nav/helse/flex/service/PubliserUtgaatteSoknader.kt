@@ -54,4 +54,18 @@ class PubliserUtgaatteSoknader(
         if (osloTid.dayOfWeek in listOf(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY)) return false
         return osloTid.hour in 1..2 // 1:00 -> 02:59
     }
+
+    @Scheduled(fixedDelay = 10_000, initialDelay = 5, timeUnit = TimeUnit.MINUTES)
+    fun oppdaterUtloptPublisert() {
+        if (leaderElection.isLeader()) {
+            val soknader = sykepengesoknadDAO.finnUpubliserteUtlopteSoknaderSomErBehandletISyfosoknad()
+            val now = LocalDateTime.now()
+
+            soknader.forEach {
+                sykepengesoknadDAO.settUtloptPublisert(sykepengesoknadId = it, publisert = now)
+            }
+
+            log.info("Oppdaterer utlopt_publisert for ${soknader.size} søknader")
+        }
+    }
 }

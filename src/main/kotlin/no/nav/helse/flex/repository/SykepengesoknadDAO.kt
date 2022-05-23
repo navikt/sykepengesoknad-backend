@@ -552,6 +552,25 @@ class SykepengesoknadDAO(
         ) { resultSet, _ -> resultSet.getString("SYKEPENGESOKNAD_UUID") }
     }
 
+    fun finnUpubliserteUtlopteSoknaderSomErBehandletISyfosoknad(): List<String> {
+        val behandletISyfosoknad = LocalDate.of(2022, 5, 18).minusMonths(4)
+
+        return namedParameterJdbcTemplate.query(
+            """
+                SELECT SYKEPENGESOKNAD_UUID 
+                FROM SYKEPENGESOKNAD 
+                WHERE UTLOPT_PUBLISERT IS NULL 
+                AND FNR IS NOT NULL
+                AND STATUS = 'UTGATT'
+                AND OPPRINNELSE != 'SYFOSERVICE'
+                AND OPPRETTET < :dato
+                AND TOM < :dato
+            """.trimIndent(),
+            MapSqlParameterSource()
+                .addValue("dato", behandletISyfosoknad)
+        ) { resultSet, _ -> resultSet.getString("SYKEPENGESOKNAD_UUID") }
+    }
+
     fun settUtloptPublisert(sykepengesoknadId: String, publisert: LocalDateTime) {
         namedParameterJdbcTemplate.update(
             """UPDATE SYKEPENGESOKNAD SET UTLOPT_PUBLISERT = :publisert WHERE SYKEPENGESOKNAD_UUID = :sykepengesoknadId AND UTLOPT_PUBLISERT IS NULL""",
