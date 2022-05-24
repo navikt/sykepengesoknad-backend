@@ -142,4 +142,40 @@ class DeaktiverGamleSoknaderServiceTest : BaseTestClass() {
 
         soknadPaKafka.sporsmal?.size `should be equal to` 0
     }
+
+    @Test
+    fun `Oppdater UTLOPT_PUBLISERT`() {
+        val nySoknadSomPubliseresISykepengesoknadBackend = opprettNySoknad().copy(
+            status = Soknadstatus.NY,
+            fnr = "12345784312",
+            tom = LocalDate.now().minusMonths(4).minusDays(1),
+            opprettet = LocalDate.now().minusMonths(4).minusDays(1).atStartOfDay().tilOsloInstant()
+        )
+        sykepengesoknadDAO.lagreSykepengesoknad(nySoknadSomPubliseresISykepengesoknadBackend)
+
+        val nySoknadSomBlePublisertISyfosoknad = nySoknadSomPubliseresISykepengesoknadBackend.copy(
+            id = UUID.randomUUID().toString(),
+            tom = LocalDate.now().minusMonths(5),
+            opprettet = LocalDate.now().minusMonths(5).atStartOfDay().tilOsloInstant(),
+        )
+        sykepengesoknadDAO.lagreSykepengesoknad(nySoknadSomBlePublisertISyfosoknad)
+
+        val sendtSoknad = nySoknadSomBlePublisertISyfosoknad.copy(status = Soknadstatus.SENDT, id = UUID.randomUUID().toString())
+        sykepengesoknadDAO.lagreSykepengesoknad(sendtSoknad)
+
+        deaktiverGamleSoknaderService.deaktiverSoknader() `should be equal to` 2
+
+        sykepengesoknadDAO.finnSykepengesoknad(nySoknadSomPubliseresISykepengesoknadBackend.id).status `should be equal to` Soknadstatus.UTGATT
+        sykepengesoknadDAO.finnSykepengesoknad(nySoknadSomBlePublisertISyfosoknad.id).status `should be equal to` Soknadstatus.UTGATT
+        sykepengesoknadDAO.finnSykepengesoknad(sendtSoknad.id).status `should be equal to` Soknadstatus.SENDT
+
+        // Oppdaterer slik at nySoknadSomBlePublisertISyfosoknad blir riktig i databasen
+        publiserUtgaatteSoknader.oppdaterUtloptPublisert()
+
+        publiserUtgaatteSoknader.publiserUtgatteSoknader() `should be equal to` 1
+
+        val soknadPaKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()
+        soknadPaKafka.id `should be equal to` nySoknadSomPubliseresISykepengesoknadBackend.id
+        soknadPaKafka.status `should be equal to` SoknadsstatusDTO.UTGAATT
+    }
 }
