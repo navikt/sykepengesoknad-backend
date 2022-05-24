@@ -51,6 +51,6 @@ class PubliserUtgaatteSoknader(
     fun erPåNatta(): Boolean {
         val osloTid = LocalDateTime.ofInstant(Instant.now(), ZoneId.of("Europe/Oslo"))
         if (osloTid.dayOfWeek in listOf(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY)) return false
-        return osloTid.hour in 1..2 // 1:00 -> 01:59
+        return osloTid.hour in 1..2 // 1:00 -> 02:59
     }
 }
