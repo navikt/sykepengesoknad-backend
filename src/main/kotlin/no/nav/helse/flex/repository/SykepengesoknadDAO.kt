@@ -552,13 +552,13 @@ class SykepengesoknadDAO(
         ) { resultSet, _ -> resultSet.getString("SYKEPENGESOKNAD_UUID") }
     }
 
-    fun finnUpubliserteUtlopteSoknaderSomErBehandletISyfosoknad(): List<String> {
+    fun finnUpubliserteUtlopteSoknaderSomErBehandletISyfosoknad(): Int {
         val behandletISyfosoknad = LocalDate.of(2022, 5, 18).minusMonths(4)
+        val publisert = LocalDateTime.of(2022, 5, 24, 10, 0)
 
-        return namedParameterJdbcTemplate.query(
+        return namedParameterJdbcTemplate.update(
             """
-                SELECT SYKEPENGESOKNAD_UUID 
-                FROM SYKEPENGESOKNAD 
+                UPDATE SYKEPENGESOKNAD SET UTLOPT_PUBLISERT = :publisert
                 WHERE UTLOPT_PUBLISERT IS NULL 
                 AND FNR IS NOT NULL
                 AND STATUS = 'UTGATT'
@@ -568,7 +568,8 @@ class SykepengesoknadDAO(
             """.trimIndent(),
             MapSqlParameterSource()
                 .addValue("dato", behandletISyfosoknad)
-        ) { resultSet, _ -> resultSet.getString("SYKEPENGESOKNAD_UUID") }
+                .addValue("publisert", publisert)
+        )
     }
 
     fun settUtloptPublisert(sykepengesoknadId: String, publisert: LocalDateTime) {

@@ -58,14 +58,9 @@ class PubliserUtgaatteSoknader(
     @Scheduled(fixedDelay = 10_000, initialDelay = 5, timeUnit = TimeUnit.MINUTES)
     fun oppdaterUtloptPublisert() {
         if (leaderElection.isLeader()) {
-            val soknader = sykepengesoknadDAO.finnUpubliserteUtlopteSoknaderSomErBehandletISyfosoknad()
-            val now = LocalDateTime.now()
+            val antall = sykepengesoknadDAO.finnUpubliserteUtlopteSoknaderSomErBehandletISyfosoknad()
 
-            soknader.forEach {
-                sykepengesoknadDAO.settUtloptPublisert(sykepengesoknadId = it, publisert = now)
-            }
-
-            log.info("Oppdaterer utlopt_publisert for ${soknader.size} søknader")
+            log.info("Oppdaterer utlopt_publisert for $antall søknader")
         }
     }
 }
