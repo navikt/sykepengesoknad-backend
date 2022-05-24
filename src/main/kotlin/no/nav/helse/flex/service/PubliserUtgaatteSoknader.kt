@@ -13,7 +13,6 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.concurrent.TimeUnit
-import kotlin.system.measureTimeMillis
 
 @Component
 class PubliserUtgaatteSoknader(
@@ -44,8 +43,7 @@ class PubliserUtgaatteSoknader(
     fun run() {
         if (toggle.isNotProduction() || erPåNatta()) {
             if (leaderElection.isLeader()) {
-                // TODO: Slår av publisering av utgåtte søknader til vi er i sync med det som er publisert i fra syfosoknad
-                // publiserUtgatteSoknader()
+                publiserUtgatteSoknader()
             }
         }
     }
@@ -54,18 +52,5 @@ class PubliserUtgaatteSoknader(
         val osloTid = LocalDateTime.ofInstant(Instant.now(), ZoneId.of("Europe/Oslo"))
         if (osloTid.dayOfWeek in listOf(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY)) return false
         return osloTid.hour in 1..2 // 1:00 -> 02:59
-    }
-
-    @Scheduled(fixedDelay = 10_000, initialDelay = 5, timeUnit = TimeUnit.MINUTES)
-    fun oppdaterUtloptPublisert() {
-        if (leaderElection.isLeader()) {
-            var antall: Int
-
-            val ms = measureTimeMillis {
-                antall = sykepengesoknadDAO.finnUpubliserteUtlopteSoknaderSomErBehandletISyfosoknad()
-            }
-
-            log.info("Oppdaterer utlopt_publisert for $antall søknader på $ms ms")
-        }
     }
 }
