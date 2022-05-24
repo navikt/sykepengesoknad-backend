@@ -13,6 +13,7 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.concurrent.TimeUnit
+import kotlin.system.measureTimeMillis
 
 @Component
 class PubliserUtgaatteSoknader(
@@ -58,9 +59,13 @@ class PubliserUtgaatteSoknader(
     @Scheduled(fixedDelay = 10_000, initialDelay = 5, timeUnit = TimeUnit.MINUTES)
     fun oppdaterUtloptPublisert() {
         if (leaderElection.isLeader()) {
-            val antall = sykepengesoknadDAO.finnUpubliserteUtlopteSoknaderSomErBehandletISyfosoknad()
+            var antall: Int
 
-            log.info("Oppdaterer utlopt_publisert for $antall søknader")
+            val ms = measureTimeMillis {
+                antall = sykepengesoknadDAO.finnUpubliserteUtlopteSoknaderSomErBehandletISyfosoknad()
+            }
+
+            log.info("Oppdaterer utlopt_publisert for $antall søknader på $ms ms")
         }
     }
 }
