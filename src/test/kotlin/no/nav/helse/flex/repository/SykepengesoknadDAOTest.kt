@@ -114,14 +114,18 @@ class SykepengesoknadDAOTest : BaseTestClass() {
     @Test
     fun finnEldreSoknader() {
         val sykepengesoknad = mockSoknadSelvstendigeOgFrilansere.opprettNySoknad()
-        val soknadUnderUtfylling = sykepengesoknadDAO.lagreSykepengesoknad(sykepengesoknad.copy(
-            id = UUID.randomUUID().toString(),
-            fom = LocalDate.of(2018, 6, 1)
-        ))
-        val eldreSoknad = sykepengesoknadDAO.lagreSykepengesoknad(sykepengesoknad.copy(
-            id = UUID.randomUUID().toString(),
-            fom = LocalDate.of(2018, 5, 29)
-        ))
+        val soknadUnderUtfylling = sykepengesoknadDAO.lagreSykepengesoknad(
+            sykepengesoknad.copy(
+                id = UUID.randomUUID().toString(),
+                fom = LocalDate.of(2018, 6, 1)
+            )
+        )
+        val eldreSoknad = sykepengesoknadDAO.lagreSykepengesoknad(
+            sykepengesoknad.copy(
+                id = UUID.randomUUID().toString(),
+                fom = LocalDate.of(2018, 5, 29)
+            )
+        )
 
         val eldsteSoknaden = sykepengesoknadRepository.findEldsteSoknaden(
             soknadUnderUtfylling.fnr,
