@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.JdbcTemplate
 import java.time.Instant
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
@@ -29,6 +30,9 @@ class SykepengesoknadDAOTest : BaseTestClass() {
 
     @Autowired
     private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
+
+    @Autowired
+    private lateinit var sykepengesoknadRepository: SykepengesoknadRepository
 
     @Autowired
     private lateinit var jdbcTemplate: JdbcTemplate
@@ -105,6 +109,27 @@ class SykepengesoknadDAOTest : BaseTestClass() {
         assertThat(sykepengesoknadList[0].status).isEqualTo(NY)
         assertThat(sykepengesoknadList[1].fnr).isEqualTo("fnr2")
         assertThat(sykepengesoknadList[1].status).isEqualTo(NY)
+    }
+
+    @Test
+    fun finnEldreSoknader() {
+        val sykepengesoknad = mockSoknadSelvstendigeOgFrilansere.opprettNySoknad()
+        val soknadUnderUtfylling = sykepengesoknadDAO.lagreSykepengesoknad(sykepengesoknad.copy(
+            id = UUID.randomUUID().toString(),
+            fom = LocalDate.of(2018, 6, 1)
+        ))
+        val eldreSoknad = sykepengesoknadDAO.lagreSykepengesoknad(sykepengesoknad.copy(
+            id = UUID.randomUUID().toString(),
+            fom = LocalDate.of(2018, 5, 29)
+        ))
+
+        val eldsteSoknaden = sykepengesoknadRepository.findEldsteSoknaden(
+            soknadUnderUtfylling.fnr,
+            soknadUnderUtfylling.fom!!
+        )
+
+        assertThat(eldsteSoknaden).isEqualTo(eldreSoknad.id)
+        assertThat(soknadUnderUtfylling.fom).isAfter(eldreSoknad.fom)
     }
 
     @Test
