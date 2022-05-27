@@ -129,7 +129,7 @@ class SykepengesoknadDAOTest : BaseTestClass() {
 
         val eldsteSoknaden = sykepengesoknadRepository.findEldsteSoknaden(
             listOf(soknadUnderUtfylling.fnr),
-            soknadUnderUtfylling.fom!!
+            soknadUnderUtfylling.fom
         )
 
         assertThat(eldsteSoknaden).isEqualTo(eldreSoknad.id)
