@@ -21,5 +21,5 @@ interface SykepengesoknadRepository : CrudRepository<SykepengesoknadDbRecord, St
         LIMIT 1
         """
     )
-    fun findEldsteSoknaden(fnr: String, fom: LocalDate): String
+    fun findEldsteSoknaden(fnr: String, fom: LocalDate?): String
 }
