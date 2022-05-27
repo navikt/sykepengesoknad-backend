@@ -24,7 +24,7 @@ class HentSoknadService(
         return sykepengesoknadDAO.finnSykepengesoknad(uuid)
     }
 
-    fun hentEldsteSoknaden(fnr: String, fom: LocalDate?): String {
-        return sykepengesoknadRepository.findEldsteSoknaden(fnr, fom)
+    fun hentEldsteSoknaden(identer: FolkeregisterIdenter, fom: LocalDate?): String {
+        return sykepengesoknadRepository.findEldsteSoknaden(identer.alle(), fom)
     }
 }

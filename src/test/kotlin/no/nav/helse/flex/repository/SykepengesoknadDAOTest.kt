@@ -128,7 +128,7 @@ class SykepengesoknadDAOTest : BaseTestClass() {
         )
 
         val eldsteSoknaden = sykepengesoknadRepository.findEldsteSoknaden(
-            soknadUnderUtfylling.fnr,
+            listOf(soknadUnderUtfylling.fnr),
             soknadUnderUtfylling.fom!!
         )
 

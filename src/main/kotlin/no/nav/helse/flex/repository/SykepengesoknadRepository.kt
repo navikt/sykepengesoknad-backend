@@ -15,11 +15,11 @@ interface SykepengesoknadRepository : CrudRepository<SykepengesoknadDbRecord, St
         """
         SELECT sykepengesoknad_uuid
         FROM sykepengesoknad
-        WHERE fnr = :fnr
+        WHERE fnr IN (:identer)
         AND (status = 'NY' OR status = 'UTKAST_TIL_KORRIGERING')
         ORDER BY fom ASC
         LIMIT 1
         """
     )
-    fun findEldsteSoknaden(fnr: String, fom: LocalDate?): String
+    fun findEldsteSoknaden(identer: List<String>, fom: LocalDate?): String
 }
