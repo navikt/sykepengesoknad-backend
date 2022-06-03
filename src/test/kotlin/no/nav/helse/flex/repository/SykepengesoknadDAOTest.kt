@@ -128,8 +128,7 @@ class SykepengesoknadDAOTest : BaseTestClass() {
         )
 
         val eldsteSoknaden = sykepengesoknadRepository.findEldsteSoknaden(
-            listOf(soknadUnderUtfylling.fnr),
-            soknadUnderUtfylling.fom
+            listOf(soknadUnderUtfylling.fnr)
         )
 
         assertThat(eldsteSoknaden).isEqualTo(eldreSoknad.id)
@@ -255,7 +254,7 @@ class SykepengesoknadDAOTest : BaseTestClass() {
         val soknader = sykepengesoknadDAO.finnSykepengesoknader(listOf(sykepengesoknad.fnr))
 
         assertThat(soknader.size).isEqualTo(2)
-        assertThat(soknader.stream().noneMatch { (id) -> id == uuid }).isTrue()
+        assertThat(soknader.stream().noneMatch { (id) -> id == uuid }).isTrue
     }
 
     @Test
