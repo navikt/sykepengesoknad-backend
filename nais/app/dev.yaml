@@ -15,7 +15,6 @@ env:
   ON_PREM_SCHEMA_REGISTRY_URL: "https://kafka-schema-registry.nais-q.adeo.no"
   FASIT_ENVIRONMENT_NAME: "q1"
   JULESOKNAD_CRON: "0 0/5 * * * ?"
-  SYFOSOKNAD_CRON: "0 0/3 * * * ?"
   FLEX_BUCKET_UPLOADER_URL: "http://flex-bucket-uploader"
   FLEX_BUCKET_UPLOADER_AAD_CLIENT_ID: dev-gcp.flex.flex-bucket-uploader
   NARMESTELEDER_AAD_CLIENT_ID: dev-gcp.teamsykmelding.narmesteleder

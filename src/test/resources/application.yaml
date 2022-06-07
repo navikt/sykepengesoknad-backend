@@ -114,7 +114,6 @@ nais:
 
 elector.path: dont_look_for_leader
 julesoknad.cron: "0 6 * * * *"
-syfosoknad.cron: "0 6 * * * *"
 
 aiven-kafka:
   auto-offset-reset: latest
