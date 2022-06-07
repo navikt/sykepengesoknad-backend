@@ -6,6 +6,7 @@ import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.repository.SykepengesoknadRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDate
 
 @Service
 @Transactional
@@ -23,7 +24,7 @@ class HentSoknadService(
         return sykepengesoknadDAO.finnSykepengesoknad(uuid)
     }
 
-    fun hentEldsteSoknaden(identer: FolkeregisterIdenter): String {
-        return sykepengesoknadRepository.findEldsteSoknaden(identer.alle())
+    fun hentEldsteSoknaden(identer: FolkeregisterIdenter, fom: LocalDate?): String? {
+        return sykepengesoknadRepository.findEldsteSoknaden(identer.alle(), fom)
     }
 }
