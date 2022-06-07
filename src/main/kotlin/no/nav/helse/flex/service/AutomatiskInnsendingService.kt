@@ -6,6 +6,7 @@ import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.util.isAfterOrEqual
+import no.nav.helse.flex.util.osloZone
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
@@ -23,8 +24,9 @@ class AutomatiskInnsendingService(
     val log = logger()
 
     fun automatiskInnsending(fnr: String, dodsdato: LocalDate): FolkeregisterIdenter {
-        val treMndSiden = LocalDate.now().minusMonths(3)
+        val treMndSiden = LocalDate.now(osloZone).minusMonths(3)
         val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(fnr)
+
         sykepengesoknadDAO.finnSykepengesoknader(identer)
             .filter { it.sykmeldingId != null }
             .filter { Soknadstatus.NY == it.status || Soknadstatus.FREMTIDIG == it.status }
