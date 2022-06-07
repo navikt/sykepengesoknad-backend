@@ -15,6 +15,7 @@ import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.soknadsopprettelse.sorterSporsmal
 import no.nav.helse.flex.util.OBJECT_MAPPER
 import no.nav.helse.flex.util.isAfterOrEqual
+import no.nav.helse.flex.util.osloZone
 import no.nav.helse.flex.util.tilOsloZone
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.dao.IncorrectResultSizeDataAccessException
@@ -507,7 +508,7 @@ class SykepengesoknadDAO(
                     SELECT SYKEPENGESOKNAD_UUID FROM SYKEPENGESOKNAD WHERE STATUS = 'UTKAST_TIL_KORRIGERING' AND OPPRETTET <= :enUkeSiden
                     """,
             MapSqlParameterSource()
-                .addValue("enUkeSiden", LocalDate.now().atStartOfDay().minusDays(7))
+                .addValue("enUkeSiden", LocalDate.now(osloZone).atStartOfDay().minusDays(7))
         ) { resultSet, _ ->
             GammeltUtkast(
                 sykepengesoknadUuid = resultSet.getString("SYKEPENGESOKNAD_UUID")
@@ -518,7 +519,7 @@ class SykepengesoknadDAO(
     fun finnSoknaderSomSkalAktiveres(now: LocalDate): List<String> {
 
         return namedParameterJdbcTemplate.query(
-            "SELECT SYKEPENGESOKNAD_UUID FROM SYKEPENGESOKNAD WHERE TOM < :now AND STATUS = 'FREMTIDIG'",
+            "SELECT SYKEPENGESOKNAD_UUID FROM SYKEPENGESOKNAD WHERE TOM < :now AND STATUS = 'FREMTIDIG' LIMIT 1000",
             MapSqlParameterSource()
                 .addValue("now", now)
         ) { resultSet, _ -> resultSet.getString("SYKEPENGESOKNAD_UUID") }
@@ -533,7 +534,7 @@ class SykepengesoknadDAO(
                         AND AVBRUTT_FEILINFO IS NULL
                         AND ((TOM < :dato) OR (SOKNADSTYPE = 'OPPHOLD_UTLAND'))""",
             MapSqlParameterSource()
-                .addValue("dato", LocalDate.now().minusMonths(4))
+                .addValue("dato", LocalDate.now(osloZone).minusMonths(4))
         )
     }
 

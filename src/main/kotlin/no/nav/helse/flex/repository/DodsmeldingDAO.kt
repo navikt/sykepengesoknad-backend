@@ -2,6 +2,7 @@ package no.nav.helse.flex.repository
 
 import no.nav.helse.flex.config.EnvironmentToggles
 import no.nav.helse.flex.service.FolkeregisterIdenter
+import no.nav.helse.flex.util.osloZone
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
@@ -23,9 +24,9 @@ class DodsmeldingDAO(
 
     fun fnrMedToUkerGammelDodsmelding(): List<Dodsfall> {
         val mottattFør = if (toggle.isProduction()) {
-            now().minusWeeks(2)
+            now(osloZone).minusWeeks(2)
         } else {
-            now().plusDays(1)
+            now(osloZone).plusDays(1)
         }
 
         return namedParameterJdbcTemplate.query(

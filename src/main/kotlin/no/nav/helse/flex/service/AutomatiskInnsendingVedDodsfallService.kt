@@ -22,8 +22,7 @@ class AutomatiskInnsendingVedDodsfallService(
 
         val aktorerMed2UkerGammelDodsmelding = dodsmeldingDAO.fnrMedToUkerGammelDodsmelding()
 
-        val antall = aktorerMed2UkerGammelDodsmelding.size
-        log.info("Fant $antall aktører med dødsfall eldre enn 2 uker")
+        var antall = 0
 
         aktorerMed2UkerGammelDodsmelding.forEach { (fnr, dodsDato) ->
             try {
@@ -34,13 +33,15 @@ class AutomatiskInnsendingVedDodsfallService(
                 dodsmeldingDAO.slettDodsmelding(identer)
 
                 registry.counter("dodsmeldinger_prossesert").increment()
+
+                antall++
             } catch (e: Exception) {
                 log.error("Feil ved prossering av dødsmelding for aktor $fnr", e)
             } finally {
-
                 MDC.remove(NAV_CALLID)
             }
         }
+
         return antall
     }
 }
