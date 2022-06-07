@@ -18,13 +18,15 @@ class SlettGamleUtkastService(
         log.info("Leter etter gamle utkast som skal slettes")
 
         val utkastForSletting = sykepengesoknadDAOKt.finnGamleUtkastForSletting()
-        val antall = utkastForSletting.size
-        log.info("Fant $antall utkast som kan slettes")
+        var antall = 0
 
         utkastForSletting.forEach {
             sykepengesoknadDAO.slettSoknad(it.sykepengesoknadUuid)
             registry.counter("utkast_slettet").increment()
+            antall++
+            log.info("Slettet utkast ${it.sykepengesoknadUuid} ")
         }
+
         log.info("Ferdig med sletting av $antall utkast")
 
         return antall

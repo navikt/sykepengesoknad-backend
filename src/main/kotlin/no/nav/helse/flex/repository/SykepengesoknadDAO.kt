@@ -508,7 +508,7 @@ class SykepengesoknadDAO(
                     SELECT SYKEPENGESOKNAD_UUID FROM SYKEPENGESOKNAD WHERE STATUS = 'UTKAST_TIL_KORRIGERING' AND OPPRETTET <= :enUkeSiden
                     """,
             MapSqlParameterSource()
-                .addValue("enUkeSiden", LocalDate.now().atStartOfDay().minusDays(7))
+                .addValue("enUkeSiden", LocalDate.now(osloZone).atStartOfDay().minusDays(7))
         ) { resultSet, _ ->
             GammeltUtkast(
                 sykepengesoknadUuid = resultSet.getString("SYKEPENGESOKNAD_UUID")
