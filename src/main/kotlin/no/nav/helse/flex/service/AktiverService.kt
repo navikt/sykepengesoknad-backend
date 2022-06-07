@@ -3,6 +3,7 @@ package no.nav.helse.flex.service
 import io.micrometer.core.instrument.MeterRegistry
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadDAO
+import no.nav.helse.flex.util.osloZone
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
@@ -14,12 +15,10 @@ class AktiverService(
 ) {
     val log = logger()
 
-    fun aktiverSoknader(now: LocalDate = LocalDate.now()): Int {
+    fun aktiverSoknader(now: LocalDate = LocalDate.now(osloZone)): Int {
         log.info("Leter etter soknader som skal aktiveres")
 
         val soknaderSomSkalAktiveres = sykepengesoknadDAO.finnSoknaderSomSkalAktiveres(now)
-
-        log.info("Fant ${soknaderSomSkalAktiveres.size} soknader som skal aktiveres")
 
         var i = 0
         soknaderSomSkalAktiveres.forEach {

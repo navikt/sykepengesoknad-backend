@@ -2,7 +2,6 @@ package no.nav.helse.flex.cronjob
 
 import no.nav.helse.flex.config.EnvironmentToggles
 import no.nav.helse.flex.logger
-import no.nav.helse.flex.service.AktiverService
 import no.nav.helse.flex.service.AutomatiskInnsendingVedDodsfallService
 import no.nav.helse.flex.service.DeaktiverGamleSoknaderService
 import no.nav.helse.flex.service.SlettGamleUtkastService
@@ -13,13 +12,11 @@ import java.time.LocalDate
 
 @Component
 class SyfoSoknadJob(
-    val aktiverService: AktiverService,
     val deaktiverGamleSoknaderService: DeaktiverGamleSoknaderService,
     val automatiskInnsendingVedDodsfallService: AutomatiskInnsendingVedDodsfallService,
     val slettGamleUtkastService: SlettGamleUtkastService,
     val toggle: EnvironmentToggles,
     val leaderElection: LeaderElection
-
 ) {
     val log = logger()
 
@@ -29,7 +26,6 @@ class SyfoSoknadJob(
 
             log.info("Kjører syfosoknadjob")
 
-            aktiverService.aktiverSoknader()
             deaktiverGamleSoknaderService.deaktiverSoknader()
             slettGamleUtkastService.slettGamleUtkast()
 
