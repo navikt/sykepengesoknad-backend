@@ -3,6 +3,7 @@ package no.nav.helse.flex.repository
 import org.springframework.data.jdbc.repository.query.Query
 import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
+import java.time.LocalDate
 
 @Repository
 interface SykepengesoknadRepository : CrudRepository<SykepengesoknadDbRecord, String> {
@@ -16,9 +17,10 @@ interface SykepengesoknadRepository : CrudRepository<SykepengesoknadDbRecord, St
         FROM sykepengesoknad
         WHERE fnr IN (:identer)
         AND (status = 'NY' OR status = 'UTKAST_TIL_KORRIGERING')
+        AND fom IS NOT NULL AND fom < :fom
         ORDER BY fom ASC
         LIMIT 1
         """
     )
-    fun findEldsteSoknaden(identer: List<String>): String
+    fun findEldsteSoknaden(identer: List<String>, fom: LocalDate?): String?
 }

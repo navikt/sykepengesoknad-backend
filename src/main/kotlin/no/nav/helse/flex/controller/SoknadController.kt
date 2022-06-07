@@ -93,8 +93,8 @@ class SoknadController(
             return
         }
         soknadFraBase.validerSvarPaSoknad()
-        val eldsteSoknaden = hentSoknadService.hentEldsteSoknaden(identer)
-        if (eldsteSoknaden != soknadFraBase.id && soknadFraBase.fom != null) {
+        val eldsteSoknaden = hentSoknadService.hentEldsteSoknaden(identer, soknadFraBase.fom)
+        if (eldsteSoknaden != null && eldsteSoknaden != soknadFraBase.id) {
             log.warn("Vi fant en eldre søknad med id: $eldsteSoknaden")
         }
 
