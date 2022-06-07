@@ -15,6 +15,7 @@ import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.soknadsopprettelse.sorterSporsmal
 import no.nav.helse.flex.util.OBJECT_MAPPER
 import no.nav.helse.flex.util.isAfterOrEqual
+import no.nav.helse.flex.util.osloZone
 import no.nav.helse.flex.util.tilOsloZone
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.dao.IncorrectResultSizeDataAccessException
@@ -533,7 +534,7 @@ class SykepengesoknadDAO(
                         AND AVBRUTT_FEILINFO IS NULL
                         AND ((TOM < :dato) OR (SOKNADSTYPE = 'OPPHOLD_UTLAND'))""",
             MapSqlParameterSource()
-                .addValue("dato", LocalDate.now().minusMonths(4))
+                .addValue("dato", LocalDate.now(osloZone).minusMonths(4))
         )
     }
 

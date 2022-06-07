@@ -3,7 +3,6 @@ package no.nav.helse.flex.cronjob
 import no.nav.helse.flex.config.EnvironmentToggles
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.service.AutomatiskInnsendingVedDodsfallService
-import no.nav.helse.flex.service.DeaktiverGamleSoknaderService
 import no.nav.helse.flex.service.SlettGamleUtkastService
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
@@ -12,7 +11,6 @@ import java.time.LocalDate
 
 @Component
 class SyfoSoknadJob(
-    val deaktiverGamleSoknaderService: DeaktiverGamleSoknaderService,
     val automatiskInnsendingVedDodsfallService: AutomatiskInnsendingVedDodsfallService,
     val slettGamleUtkastService: SlettGamleUtkastService,
     val toggle: EnvironmentToggles,
@@ -26,7 +24,6 @@ class SyfoSoknadJob(
 
             log.info("Kjører syfosoknadjob")
 
-            deaktiverGamleSoknaderService.deaktiverSoknader()
             slettGamleUtkastService.slettGamleUtkast()
 
             if (toggle.isNotProduction() || LocalDate.now().dayOfWeek == DayOfWeek.WEDNESDAY) {
