@@ -95,7 +95,7 @@ class SoknadController(
         soknadFraBase.validerSvarPaSoknad()
         val eldsteSoknaden = hentSoknadService.hentEldsteSoknaden(identer, soknadFraBase.fom)
         if (eldsteSoknaden != null && eldsteSoknaden != soknadFraBase.id) {
-            log.warn("Vi fant en eldre søknad med id: $eldsteSoknaden. Dette skal ikke kunne skje!")
+            throw FeilStatusForOppdaterSporsmalException("Vi fant en eldre søknad med id: $eldsteSoknaden. Dette skal ikke skje!")
         }
 
         try {
