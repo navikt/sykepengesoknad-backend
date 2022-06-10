@@ -328,6 +328,5 @@ class ArbeidsledigIntegrationMedOppdaterSporsmalTest : BaseTestClass() {
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2).tilSoknader()
 
         sendSoknadMedResult(fnr, soknadMetadata.id).andExpect(((MockMvcResultMatchers.status().isBadRequest)))
-
     }
 }
