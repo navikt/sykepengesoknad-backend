@@ -35,7 +35,6 @@ import no.nav.helse.flex.testutil.opprettSoknadFraSoknadMetadata
 import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.util.tilOsloInstant
 import no.nav.helse.flex.ventPåRecords
-import no.nav.syfo.*
 import no.nav.syfo.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.GradertDTO
@@ -50,6 +49,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.*
 
 @TestMethodOrder(MethodOrderer.MethodName::class)
 class ArbeidsledigIntegrationMedOppdaterSporsmalTest : BaseTestClass() {
@@ -317,5 +317,17 @@ class ArbeidsledigIntegrationMedOppdaterSporsmalTest : BaseTestClass() {
         )
         assertThat(soknader[0].sendTilGosys).isNull()
         assertThat(soknader[0].merknader).isNull()
+    }
+
+    @Test
+    fun `14 - vi sender inn en nyere søknad når en eldre finnes - Vi får da 4xx status tilbake `() {
+
+        opprettSoknadService.opprettSoknadFraSoknadMetadata(soknadMetadata, sykepengesoknadDAO)
+        opprettSoknadService.opprettSoknadFraSoknadMetadata(soknadMetadata.copy(id = UUID.randomUUID().toString(), fom = LocalDate.now().minusMonths(2)), sykepengesoknadDAO)
+
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2).tilSoknader()
+
+        sendSoknadMedResult(fnr, soknadMetadata.id).andExpect(((MockMvcResultMatchers.status().isBadRequest)))
+
     }
 }
