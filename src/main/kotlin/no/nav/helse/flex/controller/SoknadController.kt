@@ -18,10 +18,7 @@ import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.exception.FeilStatusForOppdaterSporsmalException
-import no.nav.helse.flex.exception.IkkeTilgangException
-import no.nav.helse.flex.exception.ReadOnlyException
-import no.nav.helse.flex.exception.SporsmalFinnesIkkeISoknadException
+import no.nav.helse.flex.exception.*
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.service.AvbrytSoknadService
 import no.nav.helse.flex.service.EttersendingSoknadService
@@ -95,7 +92,9 @@ class SoknadController(
         soknadFraBase.validerSvarPaSoknad()
         val eldsteSoknaden = hentSoknadService.hentEldsteSoknaden(identer, soknadFraBase.fom)
         if (eldsteSoknaden != null && eldsteSoknaden != soknadFraBase.id) {
-            log.warn("Vi fant en eldre søknad med id: $eldsteSoknaden")
+            throw ForsokPaSendingAvNyereSoknadException(
+                "Forsøk på sending av en nyere søknad med id: ${soknadFraBase.id}."
+            )
         }
 
         try {
