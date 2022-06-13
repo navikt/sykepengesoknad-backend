@@ -153,9 +153,9 @@ class Soknadsklipper(
             .forEach { sok ->
                 if (sok.status == Soknadstatus.FREMTIDIG) {
                     log.info("Sykmelding $sykmeldingId klipper søknad ${sok.id} på ${sykmeldingPeriode.start}")
-                    sykepengesoknadDAO.klippSoknad(
+                    sykepengesoknadDAO.klippSoknadTom(
                         sykepengesoknadUuid = sok.id,
-                        klippFom = sykmeldingPeriode.start
+                        klipp = sykmeldingPeriode.start
                     )
                     if (sykmeldingPeriode.start.minusDays(1) < LocalDate.now()) {
                         aktiverEnkeltSoknadService.aktiverSoknad(sok.id)
@@ -197,7 +197,11 @@ class Soknadsklipper(
             .filter { it.tom!!.isAfter(sykmeldingPeriode.endInclusive) }
             .forEach { sok ->
                 if (sok.status == Soknadstatus.FREMTIDIG) {
-                    log.info("Sykmelding $sykmeldingId overlapper søknad ${sok.id} før ${sykmeldingPeriode.endInclusive}")
+                    log.info("Sykmelding $sykmeldingId klipper søknad ${sok.id} før ${sykmeldingPeriode.endInclusive}")
+                    sykepengesoknadDAO.klippSoknadFom(
+                        sykepengesoknadUuid = sok.id,
+                        klipp = sykmeldingPeriode.endInclusive
+                    )
                 }
                 metrikk.klippSoknaderSomOverlapper(
                     overlapp = "FOR",
