@@ -4,10 +4,10 @@ import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.client.narmesteleder.Forskuttering
 import no.nav.helse.flex.hentSoknader
 import no.nav.helse.flex.mockArbeidsgiverForskutterer
+import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.ventPåRecords
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
-import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
@@ -110,7 +110,6 @@ class OverlapperFor : BaseTestClass() {
         klippetSoknad.soknadPerioder!![0].fom shouldBeEqualTo basisdato
         klippetSoknad.soknadPerioder!![0].tom shouldBeEqualTo basisdato.plusDays(10)
 
-
         val nyesteSoknad = hentetViaRest[1]
         nyesteSoknad.fom shouldBeEqualTo basisdato
         nyesteSoknad.tom shouldBeEqualTo basisdato.plusDays(10)
@@ -119,5 +118,32 @@ class OverlapperFor : BaseTestClass() {
         nyesteSoknad.soknadPerioder!![0].tom shouldBeEqualTo basisdato.plusDays(10)
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
+    }
+
+    @Test
+    fun `Ny arbeidstakersøknad starter samtidig og slutter inni, klipper sykmelding`() {
+        val fnr = "66666666666"
+
+        sendArbeidstakerSykmelding(
+            fom = basisdato.minusDays(5),
+            tom = basisdato.minusDays(1),
+            fnr = fnr
+        )
+
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
+
+        sendArbeidstakerSykmelding(
+            fom = basisdato.minusDays(10),
+            tom = basisdato.minusDays(2),
+            fnr = fnr
+        )
+
+        val soknad = sykepengesoknadKafkaConsumer
+            .ventPåRecords(antall = 1)
+            .tilSoknader()
+            .first()
+
+        soknad.fom shouldBeEqualTo basisdato.minusDays(10)
+        soknad.tom shouldBeEqualTo basisdato.minusDays(6)
     }
 }
