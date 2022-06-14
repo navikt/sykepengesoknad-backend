@@ -51,7 +51,6 @@ import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.util.OBJECT_MAPPER
 import no.nav.helse.flex.util.serialisertTilString
 import no.nav.helse.flex.ventPåRecords
-import no.nav.syfo.*
 import no.nav.syfo.model.sykmelding.model.GradertDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
