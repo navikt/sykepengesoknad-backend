@@ -219,6 +219,16 @@ class Metrikk(private val registry: MeterRegistry) {
         ).increment()
     }
 
+    fun klippKandidatScenarioTreMotsatt(soknadstatus: String) {
+        registry.counter(
+            "klipp_kandidat_scenario_en_motsatt",
+            Tags.of(
+                "type", "info",
+                "soknadstatus", soknadstatus,
+            )
+        ).increment()
+    }
+
     fun klippSoknaderSomOverlapper(overlapp: String, soknadstatus: String) {
         registry.counter(
             "klipp_soknader_som_overlapper",

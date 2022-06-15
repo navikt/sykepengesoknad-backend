@@ -15,6 +15,7 @@ import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.soknadsopprettelse.sorterSporsmal
 import no.nav.helse.flex.util.OBJECT_MAPPER
 import no.nav.helse.flex.util.isAfterOrEqual
+import no.nav.helse.flex.util.isBeforeOrEqual
 import no.nav.helse.flex.util.osloZone
 import no.nav.helse.flex.util.tilOsloZone
 import org.springframework.dao.EmptyResultDataAccessException
@@ -291,13 +292,7 @@ class SykepengesoknadDAO(
     fun slettSoknad(sykepengesoknadUuid: String) {
 
         try {
-            val id = namedParameterJdbcTemplate.queryForObject(
-                "SELECT ID FROM SYKEPENGESOKNAD WHERE SYKEPENGESOKNAD_UUID =:id",
-
-                MapSqlParameterSource()
-                    .addValue("id", sykepengesoknadUuid),
-                String::class.java
-            )!!
+            val id = sykepengesoknadId(sykepengesoknadUuid)
 
             sporsmalDAO.slettSporsmal(listOf(id))
             soknadsperiodeDAO.slettSoknadPerioder(id)
@@ -370,34 +365,32 @@ class SykepengesoknadDAO(
     }
 
     fun byttUtSporsmal(oppdatertSoknad: Sykepengesoknad) {
-        val sykepengesoknadId = namedParameterJdbcTemplate.queryForObject(
-            "SELECT ID FROM SYKEPENGESOKNAD WHERE SYKEPENGESOKNAD_UUID =:id",
-
-            MapSqlParameterSource()
-                .addValue("id", oppdatertSoknad.id),
-            String::class.java
-        )!!
+        val sykepengesoknadId = sykepengesoknadId(oppdatertSoknad.id)
 
         sporsmalDAO.slettSporsmal(listOf(sykepengesoknadId))
 
         soknadLagrer.lagreSporsmalOgSvarFraSoknad(oppdatertSoknad)
     }
 
-    fun klippSoknad(sykepengesoknadUuid: String, klippFom: LocalDate) {
-        val sykepengesoknadId = namedParameterJdbcTemplate.queryForObject(
+    fun sykepengesoknadId(uuid: String): String {
+        return namedParameterJdbcTemplate.queryForObject(
             "SELECT ID FROM SYKEPENGESOKNAD WHERE SYKEPENGESOKNAD_UUID =:uuid",
 
             MapSqlParameterSource()
-                .addValue("uuid", sykepengesoknadUuid),
+                .addValue("uuid", uuid),
             String::class.java
         )!!
+    }
+
+    fun klippSoknadTom(sykepengesoknadUuid: String, klipp: LocalDate) {
+        val sykepengesoknadId = sykepengesoknadId(sykepengesoknadUuid)
 
         val soknadPerioder = soknadsperiodeDAO.finnSoknadPerioder(setOf(sykepengesoknadId))[sykepengesoknadId]!!
         val nyePerioder = soknadPerioder
-            .filter { it.fom.isBefore(klippFom) } // Perioder som overlapper fullstendig tas ikke med
+            .filter { it.fom.isBefore(klipp) } // Perioder som overlapper fullstendig tas ikke med
             .map {
-                if (it.tom.isAfterOrEqual(klippFom)) {
-                    return@map it.copy(tom = klippFom.minusDays(1))
+                if (it.tom.isAfterOrEqual(klipp)) {
+                    return@map it.copy(tom = klipp.minusDays(1))
                 }
                 return@map it
             }
@@ -415,7 +408,37 @@ class SykepengesoknadDAO(
         )
         oppdaterTom(
             sykepengesoknadId = sykepengesoknadId,
-            nyTom = klippFom.minusDays(1)
+            nyTom = klipp.minusDays(1)
+        )
+    }
+
+    fun klippSoknadFom(sykepengesoknadUuid: String, klipp: LocalDate) {
+        val sykepengesoknadId = sykepengesoknadId(sykepengesoknadUuid)
+
+        val soknadPerioder = soknadsperiodeDAO.finnSoknadPerioder(setOf(sykepengesoknadId))[sykepengesoknadId]!!
+        val nyePerioder = soknadPerioder
+            .filter { it.tom.isAfter(klipp) } // Perioder som overlapper fullstendig tas ikke med
+            .map {
+                if (it.fom.isBeforeOrEqual(klipp)) {
+                    return@map it.copy(fom = klipp.plusDays(1))
+                }
+                return@map it
+            }
+
+        if (nyePerioder.isEmpty()) {
+            throw RuntimeException("Kan ikke klippe søknad $sykepengesoknadUuid med fullstendig overlappende perioder")
+        }
+
+        soknadsperiodeDAO.slettSoknadPerioder(
+            sykepengesoknadId = sykepengesoknadId
+        )
+        soknadsperiodeDAO.lagreSoknadperioder(
+            sykepengesoknadId = sykepengesoknadId,
+            soknadPerioder = nyePerioder
+        )
+        oppdaterFom(
+            sykepengesoknadId = sykepengesoknadId,
+            nyFom = klipp.plusDays(1)
         )
     }
 
@@ -429,6 +452,19 @@ class SykepengesoknadDAO(
 
         if (raderOppdatert != 1) {
             throw RuntimeException("Spørringen for å oppdatere tom traff ikke nøyaktig en søknad som forventet!")
+        }
+    }
+
+    private fun oppdaterFom(sykepengesoknadId: String, nyFom: LocalDate) {
+        val raderOppdatert = namedParameterJdbcTemplate.update(
+            "UPDATE SYKEPENGESOKNAD SET FOM = :fom WHERE ID = :sykepengesoknadId",
+            MapSqlParameterSource()
+                .addValue("fom", nyFom)
+                .addValue("sykepengesoknadId", sykepengesoknadId)
+        )
+
+        if (raderOppdatert != 1) {
+            throw RuntimeException("Spørringen for å oppdatere fom traff ikke nøyaktig en søknad som forventet!")
         }
     }
 

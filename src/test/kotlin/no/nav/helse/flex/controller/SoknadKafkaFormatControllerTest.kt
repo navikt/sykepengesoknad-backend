@@ -17,7 +17,6 @@ import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.util.OBJECT_MAPPER
 import no.nav.helse.flex.util.tilOsloInstant
 import no.nav.helse.flex.ventPåRecords
-import no.nav.syfo.*
 import no.nav.syfo.kafka.NAV_CALLID
 import no.nav.syfo.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO

@@ -9,13 +9,13 @@ import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
 import no.nav.helse.flex.testdata.getSykmeldingDto
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.helse.flex.ventPåRecords
-import no.nav.syfo.*
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.GradertDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
 import no.nav.syfo.model.sykmeldingstatus.STATUS_SENDT
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.time.LocalDate
@@ -25,6 +25,11 @@ class KombinasjonSykmeldingerTest : BaseTestClass() {
     final val fnr = "123456789"
 
     val basisDato = LocalDate.of(2020, 3, 13)
+
+    @BeforeEach
+    fun beforeEach() {
+        databaseReset.resetDatabase()
+    }
 
     @Test
     fun `Splitter behandlingsdager og vanlig sykmelding`() {

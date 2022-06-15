@@ -1,5 +1,6 @@
 package no.nav.helse.flex.soknadsopprettelse
 
+import no.nav.helse.flex.config.EnvironmentToggles
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadsperiode
 import no.nav.helse.flex.domain.Soknadstatus
@@ -33,6 +34,7 @@ class Soknadsklipper(
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val metrikk: Metrikk,
     private val aktiverEnkeltSoknadService: AktiverEnkeltSoknadService,
+    private val toggles: EnvironmentToggles,
 ) {
 
     val log = logger()
@@ -110,6 +112,8 @@ class Soknadsklipper(
         orgnummer: String?,
         identer: FolkeregisterIdenter,
     ): SykmeldingKafkaMessage {
+        var kafkaMessage = sykmeldingKafkaMessage
+
         val soknadKandidater = soknadKandidater(
             behandletTidspunkt = sykmeldingKafkaMessage.sykmelding.behandletTidspunkt.toInstant(),
             orgnummer = orgnummer,
@@ -118,9 +122,15 @@ class Soknadsklipper(
             sykmeldingId = sykmeldingKafkaMessage.sykmelding.id,
         )
 
-        return soknadKandidater.klippSykmeldingSomOverlapperEtter(
-            sykmeldingKafkaMessage = sykmeldingKafkaMessage,
+        kafkaMessage = soknadKandidater.klippSykmeldingSomOverlapperEtter(
+            sykmeldingKafkaMessage = kafkaMessage,
         )
+
+        kafkaMessage = soknadKandidater.klippSykmeldingSomOverlapperFor(
+            sykmeldingKafkaMessage = kafkaMessage
+        )
+
+        return kafkaMessage
     }
 
     private fun soknadKandidater(
@@ -152,10 +162,10 @@ class Soknadsklipper(
             .filter { it.tom!!.isBeforeOrEqual(sykmeldingPeriode.endInclusive) }
             .forEach { sok ->
                 if (sok.status == Soknadstatus.FREMTIDIG) {
-                    log.info("Sykmelding $sykmeldingId klipper søknad ${sok.id} på ${sykmeldingPeriode.start}")
-                    sykepengesoknadDAO.klippSoknad(
+                    log.info("Sykmelding $sykmeldingId klipper søknad ${sok.id} tom fra: ${sok.tom} til: ${sykmeldingPeriode.start.minusDays(1)}")
+                    sykepengesoknadDAO.klippSoknadTom(
                         sykepengesoknadUuid = sok.id,
-                        klippFom = sykmeldingPeriode.start
+                        klipp = sykmeldingPeriode.start
                     )
                     if (sykmeldingPeriode.start.minusDays(1) < LocalDate.now()) {
                         aktiverEnkeltSoknadService.aktiverSoknad(sok.id)
@@ -196,8 +206,12 @@ class Soknadsklipper(
         this.filter { it.fom!!.isAfterOrEqual(sykmeldingPeriode.start) }
             .filter { it.tom!!.isAfter(sykmeldingPeriode.endInclusive) }
             .forEach { sok ->
-                if (sok.status == Soknadstatus.FREMTIDIG) {
-                    log.info("Sykmelding $sykmeldingId overlapper søknad ${sok.id} før ${sykmeldingPeriode.endInclusive}")
+                if (sok.status == Soknadstatus.FREMTIDIG && toggles.isNotProduction()) {
+                    log.info("Sykmelding $sykmeldingId klipper søknad ${sok.id} fom fra: ${sok.fom} til: ${sykmeldingPeriode.endInclusive.plusDays(1)}")
+                    sykepengesoknadDAO.klippSoknadFom(
+                        sykepengesoknadUuid = sok.id,
+                        klipp = sykmeldingPeriode.endInclusive
+                    )
                 }
                 metrikk.klippSoknaderSomOverlapper(
                     overlapp = "FOR",
@@ -284,6 +298,66 @@ class Soknadsklipper(
         log.info("Klipper overlappende sykmelding $sykmeldingId, original fom $originalSykmeldingFom ny fom $nySykmeldingFom")
 
         metrikk.klippKandidatScenarioEnMotsatt(soknadstatus = "sykmelding klippet")
+        return sykmeldingKafkaMessage.erstattPerioder(nyeSykmeldingPerioder)
+    }
+
+    private fun List<Sykepengesoknad>.klippSykmeldingSomOverlapperFor(
+        sykmeldingKafkaMessage: SykmeldingKafkaMessage,
+    ): SykmeldingKafkaMessage {
+        val sykmeldingId = sykmeldingKafkaMessage.sykmelding.id
+        var nyeSykmeldingPerioder = sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder
+
+        this.sortedBy { it.fom }
+            .forEach { sok ->
+                val sykmeldingPeriode = nyeSykmeldingPerioder.periode()
+                val soknadPeriode = sok.fom!!..sok.tom!!
+
+                if (soknadPeriode.overlap(sykmeldingPeriode) &&
+                    sok.fom.isAfter(sykmeldingPeriode.start) &&
+                    sok.tom.isAfterOrEqual(sykmeldingPeriode.endInclusive) &&
+                    (sok.status == Soknadstatus.NY || sok.status == Soknadstatus.SENDT)
+                ) {
+                    val endringIUforegrad = finnEndringIUforegrad(
+                        tidligerePerioder = sok.soknadPerioder!!.filter {
+                            sykmeldingPeriode.overlap(it.fom..it.tom)
+                        },
+                        nyePerioder = nyeSykmeldingPerioder.filter {
+                            soknadPeriode.overlap(it.fom..it.tom)
+                        }.tilSoknadsperioder(),
+                    )
+
+                    if (endringIUforegrad == SAMME_UFØREGRAD) {
+                        log.info("Sykmelding $sykmeldingId overlapper ${sok.status} søknad ${sok.id} før ${sykmeldingPeriode.endInclusive}")
+                        metrikk.klippKandidatScenarioTreMotsatt(soknadstatus = sok.status.toString())
+
+                        nyeSykmeldingPerioder = nyeSykmeldingPerioder
+                            .filterNot { it.fom in soknadPeriode && it.tom in soknadPeriode }
+                            .map {
+                                if (it.tom in soknadPeriode) {
+                                    return@map it.copy(
+                                        tom = soknadPeriode.start.minusDays(1)
+                                    )
+                                }
+
+                                return@map it
+                            }
+                    }
+                }
+            }
+
+        if (nyeSykmeldingPerioder.isEmpty()) {
+            throw RuntimeException("Kan ikke klippe sykmelding $sykmeldingId med fullstendig overlappende perioder")
+        }
+
+        if (nyeSykmeldingPerioder == sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder || toggles.isProduction()) {
+            return sykmeldingKafkaMessage
+        }
+
+        val originalSykmeldingTom = sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder.maxOf { it.tom }
+        val nySykmeldingTom = nyeSykmeldingPerioder.maxOf { it.tom }
+        log.info("Klipper overlappende sykmelding $sykmeldingId, original tom $originalSykmeldingTom ny tom $nySykmeldingTom")
+
+        metrikk.klippKandidatScenarioTreMotsatt(soknadstatus = "sykmelding klippet")
         return sykmeldingKafkaMessage.erstattPerioder(nyeSykmeldingPerioder)
     }
 
