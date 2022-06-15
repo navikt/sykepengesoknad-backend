@@ -9,6 +9,7 @@ import no.nav.helse.flex.ventPåRecords
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
@@ -25,6 +26,7 @@ class OverlapperFor : BaseTestClass() {
     }
 
     @Test
+    @Disabled
     fun `Fremtidig arbeidstakersøknad starter før og slutter inni, klippes`() {
         val fnr = "33333333333"
         sendArbeidstakerSykmelding(
@@ -53,6 +55,7 @@ class OverlapperFor : BaseTestClass() {
     }
 
     @Test
+    @Disabled
     fun `Fremtidig arbeidstakersøknad starter samtidig og slutter inni, klippes`() {
         val fnr = "44444444444"
         sendArbeidstakerSykmelding(
@@ -121,6 +124,7 @@ class OverlapperFor : BaseTestClass() {
     }
 
     @Test
+    @Disabled
     fun `Ny arbeidstakersøknad starter samtidig og slutter inni, klipper sykmelding`() {
         val fnr = "66666666666"
 

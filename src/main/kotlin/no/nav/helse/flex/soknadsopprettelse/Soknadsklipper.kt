@@ -1,5 +1,6 @@
 package no.nav.helse.flex.soknadsopprettelse
 
+import no.nav.helse.flex.config.EnvironmentToggles
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadsperiode
 import no.nav.helse.flex.domain.Soknadstatus
@@ -33,6 +34,7 @@ class Soknadsklipper(
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val metrikk: Metrikk,
     private val aktiverEnkeltSoknadService: AktiverEnkeltSoknadService,
+    private val toggles: EnvironmentToggles,
 ) {
 
     val log = logger()
@@ -204,7 +206,7 @@ class Soknadsklipper(
         this.filter { it.fom!!.isAfterOrEqual(sykmeldingPeriode.start) }
             .filter { it.tom!!.isAfter(sykmeldingPeriode.endInclusive) }
             .forEach { sok ->
-                if (sok.status == Soknadstatus.FREMTIDIG) {
+                if (sok.status == Soknadstatus.FREMTIDIG && toggles.isNotProduction()) {
                     log.info("Sykmelding $sykmeldingId klipper søknad ${sok.id} fom fra: ${sok.fom} til: ${sykmeldingPeriode.endInclusive.plusDays(1)}")
                     sykepengesoknadDAO.klippSoknadFom(
                         sykepengesoknadUuid = sok.id,
@@ -347,7 +349,7 @@ class Soknadsklipper(
             throw RuntimeException("Kan ikke klippe sykmelding $sykmeldingId med fullstendig overlappende perioder")
         }
 
-        if (nyeSykmeldingPerioder == sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder) {
+        if (nyeSykmeldingPerioder == sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder || toggles.isProduction()) {
             return sykmeldingKafkaMessage
         }
 
