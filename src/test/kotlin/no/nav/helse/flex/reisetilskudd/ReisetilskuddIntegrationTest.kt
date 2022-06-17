@@ -1,8 +1,6 @@
 package no.nav.helse.flex.reisetilskudd
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.whenever
 import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.avbrytSoknad
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
@@ -42,7 +40,10 @@ import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.*
+import org.junit.jupiter.api.MethodOrderer
+import org.junit.jupiter.api.Order
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.time.Instant
 import java.time.LocalDate
@@ -57,11 +58,6 @@ class ReisetilskuddIntegrationTest : BaseTestClass() {
         val sykmeldingId = UUID.randomUUID().toString()
         val tom = LocalDate.now().minusDays(1)
         val fom = LocalDate.now().minusDays(5)
-    }
-
-    @BeforeEach
-    fun setUp() {
-        whenever(bucketUploaderClient.slettKvittering(any())).thenReturn(true)
     }
 
     @Test

@@ -11,13 +11,7 @@ class BucketUploaderClient(
     private val flexBucketUploaderRestTemplate: RestTemplate,
 ) {
 
-    fun slettKvittering(blobName: String): Boolean {
-        val response = flexBucketUploaderRestTemplate.getForEntity(
-            "$bucketUploderUrl/maskin/slett/$blobName",
-            VedleggRespons::class.java
-        )
-        return response.statusCode.is2xxSuccessful
+    fun slettKvittering(blobName: String) {
+        flexBucketUploaderRestTemplate.delete("$bucketUploderUrl/maskin/slett/$blobName")
     }
 }
-
-data class VedleggRespons(val id: String? = null, val melding: String)

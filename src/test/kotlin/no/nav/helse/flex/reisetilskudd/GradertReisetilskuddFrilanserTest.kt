@@ -1,7 +1,5 @@
 package no.nav.helse.flex.reisetilskudd
 
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.whenever
 import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
@@ -29,9 +27,13 @@ import no.nav.helse.flex.ventPåRecords
 import no.nav.syfo.model.sykmelding.model.GradertDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import no.nav.syfo.model.sykmeldingstatus.STATUS_BEKREFTET
-import org.amshove.kluent.*
+import org.amshove.kluent.shouldBeEmpty
+import org.amshove.kluent.shouldBeEqualTo
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.*
+import org.junit.jupiter.api.MethodOrderer
+import org.junit.jupiter.api.Order
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestMethodOrder
 import java.time.Duration
 import java.time.LocalDate
 import java.util.*
@@ -44,11 +46,6 @@ class GradertReisetilskuddFrilanserTest : BaseTestClass() {
     val sykmeldingId = UUID.randomUUID().toString()
     val fom = LocalDate.of(2021, 9, 1)
     val tom = LocalDate.of(2021, 9, 20)
-
-    @BeforeEach
-    fun setUp() {
-        whenever(bucketUploaderClient.slettKvittering(any())).thenReturn(true)
-    }
 
     @Test
     @Order(0)

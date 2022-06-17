@@ -270,7 +270,7 @@ class SoknadController(
         val (soknad, _) = hentOgSjekkTilgangTilSoknad(soknadId)
         validerStatusOgHovedsporsmal(soknad = soknad, soknadId = soknadId, sporsmalId = sporsmalId)
         oppdaterSporsmalService.slettSvar(
-            soknadFraBasenFørOppdatering = soknad,
+            lagretSoknad = soknad,
             sporsmalId = sporsmalId,
             svarId = svarId
         )

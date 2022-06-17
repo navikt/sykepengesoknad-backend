@@ -1,8 +1,6 @@
 package no.nav.helse.flex.reisetilskudd
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.whenever
 import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.avbrytSoknad
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSMottaker
@@ -55,9 +53,17 @@ import no.nav.syfo.model.sykmelding.model.GradertDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
 import no.nav.syfo.model.sykmeldingstatus.STATUS_SENDT
-import org.amshove.kluent.*
+import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.`should be true`
+import org.amshove.kluent.shouldBeEmpty
+import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeNull
+import org.amshove.kluent.shouldNotBeNull
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.*
+import org.junit.jupiter.api.MethodOrderer
+import org.junit.jupiter.api.Order
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
@@ -76,13 +82,8 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
     final val fnr = "123456789"
 
     val sykmeldingId = UUID.randomUUID().toString()
-    val fom = LocalDate.of(2021, 9, 2)
-    val tom = LocalDate.of(2021, 9, 6)
-
-    @BeforeEach
-    fun setUp() {
-        whenever(bucketUploaderClient.slettKvittering(any())).thenReturn(true)
-    }
+    val fom: LocalDate = LocalDate.of(2021, 9, 2)
+    val tom: LocalDate = LocalDate.of(2021, 9, 6)
 
     @Test
     @Order(0)
