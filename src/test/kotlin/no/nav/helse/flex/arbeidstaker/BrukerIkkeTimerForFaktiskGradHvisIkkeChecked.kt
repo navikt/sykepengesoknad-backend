@@ -17,8 +17,6 @@ import no.nav.helse.flex.soknadsopprettelse.FERIE_V2
 import no.nav.helse.flex.soknadsopprettelse.FRAVAR_FOR_SYKMELDINGEN
 import no.nav.helse.flex.soknadsopprettelse.OpprettSoknadService
 import no.nav.helse.flex.soknadsopprettelse.PERMISJON_V2
-import no.nav.helse.flex.soknadsopprettelse.PERMITTERT_NAA
-import no.nav.helse.flex.soknadsopprettelse.PERMITTERT_PERIODE
 import no.nav.helse.flex.soknadsopprettelse.TILBAKE_I_ARBEID
 import no.nav.helse.flex.soknadsopprettelse.UTDANNING
 import no.nav.helse.flex.soknadsopprettelse.UTLAND_V2
@@ -97,8 +95,6 @@ class BrukerIkkeTimerForFaktiskGradHvisIkkeChecked : BaseTestClass() {
             .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
             .besvarSporsmal(FRAVAR_FOR_SYKMELDINGEN, "NEI")
             .besvarSporsmal(TILBAKE_I_ARBEID, "NEI")
-            .besvarSporsmal(PERMITTERT_NAA, "NEI")
-            .besvarSporsmal(PERMITTERT_PERIODE, "NEI")
             .besvarSporsmal(ARBEID_UTENFOR_NORGE, "NEI")
             .besvarSporsmal(FERIE_V2, "NEI")
             .besvarSporsmal(PERMISJON_V2, "NEI")

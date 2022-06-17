@@ -15,7 +15,6 @@ import no.nav.helse.flex.repository.SvarDAO
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.oppdaterMedSvarPaFriskmeldingSporsmal
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.oppdaterMedSvarPaaPermittertNaa
 import no.nav.helse.flex.svarvalidering.tilKvittering
 import no.nav.helse.flex.svarvalidering.validerSvarPaSporsmal
 import no.nav.helse.flex.util.Metrikk
@@ -135,8 +134,6 @@ class OppdaterSporsmalService(
             ) || harSoktOmSykepengerIUtlandetSomUndersporsmal(soknadMedResattSvar)
         ) {
             sykepengesoknadDAO.byttUtSporsmal(oppdaterMedSvarPaUtlandsopphold(soknadMedResattSvar))
-        } else if (harEndretSvarPaPermittertNaa(soknadMedResattSvar, soknadFraBasen)) {
-            sykepengesoknadDAO.byttUtSporsmal(oppdaterMedSvarPaaPermittertNaa(soknadMedResattSvar))
         } else if (harEndretSvarPaBrukteReisetilskuddet(soknadMedResattSvar, soknadFraBasen)) {
             sykepengesoknadDAO.byttUtSporsmal(oppdaterMedSvarPaaBrukteReisetilskuddet(soknadMedResattSvar))
         } else {
@@ -154,8 +151,6 @@ class OppdaterSporsmalService(
 
         if (harEndretSvarPaArbeidGjenopptatt(soknadMedResattSvar, soknadFraBasen)) {
             sykepengesoknadDAO.byttUtSporsmal(oppdaterMedSvarPaArbeidGjenopptattSelvstendig(soknadMedResattSvar))
-        } else if (harEndretSvarPaPermittertNaa(soknadMedResattSvar, soknadFraBasen)) {
-            sykepengesoknadDAO.byttUtSporsmal(oppdaterMedSvarPaaPermittertNaa(soknadMedResattSvar))
         } else if (harEndretSvarPaBrukteReisetilskuddet(soknadMedResattSvar, soknadFraBasen)) {
             sykepengesoknadDAO.byttUtSporsmal(oppdaterMedSvarPaaBrukteReisetilskuddet(soknadMedResattSvar))
         } else {
@@ -172,8 +167,6 @@ class OppdaterSporsmalService(
         val soknadMedResattSvar = resettAvgittAvPaSvarSomErEndret(soknadMedAvgittAv, soknadFraBasen)
         if (harEndretSvarPaFriskmeldt(soknadMedResattSvar, soknadFraBasen)) {
             sykepengesoknadDAO.byttUtSporsmal(oppdaterMedSvarPaFriskmeldingSporsmal(soknadMedResattSvar))
-        } else if (harEndretSvarPaPermittertNaa(soknadMedResattSvar, soknadFraBasen)) {
-            sykepengesoknadDAO.byttUtSporsmal(oppdaterMedSvarPaaPermittertNaa(soknadMedResattSvar))
         } else if (harEndretSvarPaBrukteReisetilskuddet(soknadMedResattSvar, soknadFraBasen)) {
             sykepengesoknadDAO.byttUtSporsmal(oppdaterMedSvarPaaBrukteReisetilskuddet(soknadMedResattSvar))
         } else {
@@ -287,17 +280,7 @@ class OppdaterSporsmalService(
             harNyttRelevantSvar(sykepengesoknad, soknadFraBasen, TILBAKE_NAR)
     }
 
-    private fun harEndretSvarPaPermittertNaa(
-        sykepengesoknad: Sykepengesoknad,
-        soknadFraBasen: Sykepengesoknad
-    ): Boolean {
-        return harNyttRelevantSvar(sykepengesoknad, soknadFraBasen, PERMITTERT_NAA)
-    }
-
-    private fun harEndretSvarPaBrukteReisetilskuddet(
-        sykepengesoknad: Sykepengesoknad,
-        soknadFraBasen: Sykepengesoknad
-    ): Boolean {
+    private fun harEndretSvarPaBrukteReisetilskuddet(sykepengesoknad: Sykepengesoknad, soknadFraBasen: Sykepengesoknad): Boolean {
         return harNyttRelevantSvar(sykepengesoknad, soknadFraBasen, BRUKTE_REISETILSKUDDET)
     }
 

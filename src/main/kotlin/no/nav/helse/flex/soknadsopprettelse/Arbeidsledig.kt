@@ -9,8 +9,6 @@ import no.nav.helse.flex.soknadsopprettelse.sporsmal.ansvarserklaringSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.arbeidUtenforNorge
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.bekreftOpplysningerSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.friskmeldingSporsmal
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.permittertNaaSporsmal
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.permittertPeriodeSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.utdanningsSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.utenlandsoppholdArbeidsledigAnnetSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.vaerKlarOverAt
@@ -30,8 +28,6 @@ fun settOppSoknadArbeidsledig(soknadMetadata: SoknadMetadata, erForsteSoknadISyk
     ).also {
         if (erForsteSoknadISykeforlop) {
             it.add(arbeidUtenforNorge())
-            it.add(permittertNaaSporsmal(soknadMetadata))
-            it.add(permittertPeriodeSporsmal(soknadMetadata.fom))
         }
         if (gradertReisetilskudd) {
             it.add(brukteReisetilskuddetSpørsmål())

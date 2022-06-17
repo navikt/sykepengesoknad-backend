@@ -77,8 +77,6 @@ class GammeltEgenmeldingSporsmalTest : BaseTestClass() {
 
         val sendtSoknad = SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
             .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
-            .besvarSporsmal(tag = "PERMITTERT_NAA", svar = "NEI")
-            .besvarSporsmal(tag = "PERMITTERT_PERIODE", svar = "NEI")
             .besvarSporsmal(tag = "EGENMELDINGER", svar = "JA", ferdigBesvart = false)
             .besvarSporsmal(
                 tag = "TIDLIGERE_PAPIRSYKMELDING",

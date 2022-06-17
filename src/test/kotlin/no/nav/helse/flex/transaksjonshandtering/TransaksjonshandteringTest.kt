@@ -20,8 +20,6 @@ import no.nav.helse.flex.soknadsopprettelse.ARBEID_UTENFOR_NORGE
 import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
 import no.nav.helse.flex.soknadsopprettelse.FRISKMELDT
 import no.nav.helse.flex.soknadsopprettelse.OpprettSoknadService
-import no.nav.helse.flex.soknadsopprettelse.PERMITTERT_NAA
-import no.nav.helse.flex.soknadsopprettelse.PERMITTERT_PERIODE
 import no.nav.helse.flex.soknadsopprettelse.UTDANNING
 import no.nav.helse.flex.soknadsopprettelse.tilSoknadsperioder
 import no.nav.helse.flex.testutil.SoknadBesvarer
@@ -94,8 +92,6 @@ class TransaksjonshandteringTest : BaseTestClass() {
             .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
             .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
             .besvarSporsmal(ARBEID_UTENFOR_NORGE, "JA")
-            .besvarSporsmal(PERMITTERT_NAA, "NEI")
-            .besvarSporsmal(PERMITTERT_PERIODE, "NEI")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER, "NEI")
             .besvarSporsmal(UTDANNING, "NEI")
             .besvarSporsmal(ARBEIDSLEDIG_UTLAND, "NEI")

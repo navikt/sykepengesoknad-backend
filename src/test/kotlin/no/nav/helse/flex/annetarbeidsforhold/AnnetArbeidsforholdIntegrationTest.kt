@@ -17,8 +17,6 @@ import no.nav.helse.flex.soknadsopprettelse.FRISKMELDT
 import no.nav.helse.flex.soknadsopprettelse.FRISKMELDT_START
 import no.nav.helse.flex.soknadsopprettelse.OpprettSoknadService
 import no.nav.helse.flex.soknadsopprettelse.PERMISJON_V2
-import no.nav.helse.flex.soknadsopprettelse.PERMITTERT_NAA
-import no.nav.helse.flex.soknadsopprettelse.PERMITTERT_PERIODE
 import no.nav.helse.flex.soknadsopprettelse.UTDANNING
 import no.nav.helse.flex.soknadsopprettelse.VAER_KLAR_OVER_AT
 import no.nav.helse.flex.soknadsopprettelse.tilSoknadsperioder
@@ -103,8 +101,6 @@ class AnnetArbeidsforholdIntegrationTest : BaseTestClass() {
                 ANDRE_INNTEKTSKILDER,
                 UTDANNING,
                 ARBEIDSLEDIG_UTLAND,
-                PERMITTERT_NAA,
-                PERMITTERT_PERIODE,
                 VAER_KLAR_OVER_AT,
                 BEKREFT_OPPLYSNINGER
             )
@@ -168,8 +164,6 @@ class AnnetArbeidsforholdIntegrationTest : BaseTestClass() {
                         ANSVARSERKLARING,
                         FRISKMELDT,
                         ARBEID_UTENFOR_NORGE,
-                        PERMITTERT_NAA,
-                        PERMITTERT_PERIODE,
                         VAER_KLAR_OVER_AT,
                         BEKREFT_OPPLYSNINGER
                     )
@@ -186,8 +180,6 @@ class AnnetArbeidsforholdIntegrationTest : BaseTestClass() {
                 ANSVARSERKLARING,
                 FRISKMELDT,
                 ARBEID_UTENFOR_NORGE,
-                PERMITTERT_NAA,
-                PERMITTERT_PERIODE,
                 VAER_KLAR_OVER_AT,
                 BEKREFT_OPPLYSNINGER
             )
@@ -205,8 +197,6 @@ class AnnetArbeidsforholdIntegrationTest : BaseTestClass() {
                         ANDRE_INNTEKTSKILDER,
                         UTDANNING,
                         ARBEIDSLEDIG_UTLAND,
-                        PERMITTERT_NAA,
-                        PERMITTERT_PERIODE,
                         VAER_KLAR_OVER_AT,
                         BEKREFT_OPPLYSNINGER
                     )
@@ -223,8 +213,6 @@ class AnnetArbeidsforholdIntegrationTest : BaseTestClass() {
             .besvarSporsmal(FRISKMELDT, "JA")
             .besvarSporsmal(PERMISJON_V2, "NEI")
             .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
-            .besvarSporsmal(PERMITTERT_NAA, "NEI")
-            .besvarSporsmal(PERMITTERT_PERIODE, "NEI")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER, "NEI")
             .besvarSporsmal(UTDANNING, "NEI")
             .besvarSporsmal(ARBEIDSLEDIG_UTLAND, "NEI")

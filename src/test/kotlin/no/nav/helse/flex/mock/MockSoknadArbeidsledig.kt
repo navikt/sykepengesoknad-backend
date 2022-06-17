@@ -11,8 +11,6 @@ import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
 import no.nav.helse.flex.soknadsopprettelse.ARBEIDSLEDIG_UTLAND
 import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
 import no.nav.helse.flex.soknadsopprettelse.FRISKMELDT
-import no.nav.helse.flex.soknadsopprettelse.PERMITTERT_NAA
-import no.nav.helse.flex.soknadsopprettelse.PERMITTERT_PERIODE
 import no.nav.helse.flex.soknadsopprettelse.UTDANNING
 import no.nav.helse.flex.soknadsopprettelse.settOppSoknadArbeidsledig
 import no.nav.helse.flex.soknadsopprettelse.tilSoknadsperioder
@@ -66,16 +64,10 @@ fun opprettNySoknad(): Sykepengesoknad {
     return settOppSoknadArbeidsledig(soknadMetadata, false)
 }
 
-fun opprettSendtSoknadForArbeidsledige(
-    besvarPermittert: Boolean = true
-): Sykepengesoknad {
+fun opprettSendtSoknadForArbeidsledige(): Sykepengesoknad {
     var soknad = opprettNySoknad().copy(status = SENDT)
 
     soknad = soknad.besvarsporsmal(tag = ANSVARSERKLARING, svar = "CHECKED")
-    if (besvarPermittert) {
-        soknad = soknad.besvarsporsmal(tag = PERMITTERT_NAA, svar = "NEI")
-        soknad = soknad.besvarsporsmal(tag = PERMITTERT_PERIODE, svar = "NEI")
-    }
     soknad = soknad.besvarsporsmal(tag = FRISKMELDT, svar = "NEI")
     soknad = soknad.besvarsporsmal(tag = ANDRE_INNTEKTSKILDER, svar = "NEI")
     soknad = soknad.besvarsporsmal(tag = UTDANNING, svar = "NEI")

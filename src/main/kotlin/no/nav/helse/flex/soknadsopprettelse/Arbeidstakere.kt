@@ -23,8 +23,6 @@ import no.nav.helse.flex.soknadsopprettelse.sporsmal.arbeidUtenforNorge
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.bekreftOpplysningerSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.jobbetDuGradert
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.permisjonSporsmal
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.permittertNaaSporsmal
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.permittertPeriodeSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.tilbakeIFulltArbeidGradertReisetilskuddSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.vaerKlarOverAt
 import no.nav.helse.flex.soknadsopprettelse.undersporsmal.jobbetDuUndersporsmal
@@ -64,8 +62,6 @@ fun settOppSoknadArbeidstaker(
         if (erForsteSoknadISykeforlop) {
             it.add(fravarForSykmeldingen(tidligsteFomForSykmelding))
             it.add(arbeidUtenforNorge())
-            it.add(permittertNaaSporsmal(soknadMetadata))
-            it.add(permittertPeriodeSporsmal(soknadMetadata.fom))
         }
         it.addAll(
             jobbetDuIPeriodenSporsmal(
