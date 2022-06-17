@@ -82,7 +82,6 @@ class OppdaterSporsmalService(
                     soknadMedOppdateringer = soknadMedOppdateringer
                 )
             }
-            // TODO generaliser mer!
             GRADERT_REISETILSKUDD -> {
                 when (soknadMedOppdateringer.arbeidssituasjon) {
                     ARBEIDSTAKER -> {
@@ -103,7 +102,10 @@ class OppdaterSporsmalService(
                             soknadMedOppdateringer = soknadMedOppdateringer
                         )
                     }
-                    else -> throw IllegalStateException("Arbeidssituasjon ${soknadMedOppdateringer.arbeidssituasjon} skal ikke kunne ha gradert reisetilskudd")
+                    else -> throw IllegalStateException(
+                        "Arbeidssituasjon ${soknadMedOppdateringer.arbeidssituasjon} skal ikke kunne ha gradert " +
+                            "reisetilskudd"
+                    )
                 }
             }
             OPPHOLD_UTLAND -> {
@@ -162,7 +164,10 @@ class OppdaterSporsmalService(
         return sykepengesoknadDAO.finnSykepengesoknad(soknadMedOppdateringer.id)
     }
 
-    private fun oppdaterSporsmalArbeidsledigOgAnnetsoknad(soknadFraBasen: Sykepengesoknad, soknadMedOppdateringer: Sykepengesoknad): Sykepengesoknad {
+    private fun oppdaterSporsmalArbeidsledigOgAnnetsoknad(
+        soknadFraBasen: Sykepengesoknad,
+        soknadMedOppdateringer: Sykepengesoknad
+    ): Sykepengesoknad {
         val soknadMedAvgittAv = beholdAvgittAv(soknadMedOppdateringer, soknadFraBasen)
         val soknadMedResattSvar = resettAvgittAvPaSvarSomErEndret(soknadMedAvgittAv, soknadFraBasen)
         if (harEndretSvarPaFriskmeldt(soknadMedResattSvar, soknadFraBasen)) {
@@ -221,7 +226,10 @@ class OppdaterSporsmalService(
         return sykepengesoknad.replaceSporsmal(nyeSporsmal)
     }
 
-    private fun resettAvgittAvPaSvarSomErEndret(sykepengesoknad: Sykepengesoknad, soknadFraBasen: Sykepengesoknad): Sykepengesoknad {
+    private fun resettAvgittAvPaSvarSomErEndret(
+        sykepengesoknad: Sykepengesoknad,
+        soknadFraBasen: Sykepengesoknad
+    ): Sykepengesoknad {
         val nyeSporsmal = sykepengesoknad.alleSporsmalOgUndersporsmal()
             .filterNot { sporsmal ->
                 soknadFraBasen.getSporsmalMedTag(sporsmal.tag).svar == sporsmal.svar
@@ -239,7 +247,12 @@ class OppdaterSporsmalService(
         return sykepengesoknad.replaceSporsmal(nyeSporsmal)
     }
 
-    private fun harNyttRelevantSvar(sykepengesoknad: Sykepengesoknad, soknadFraBasen: Sykepengesoknad, tag: String, relevantSvarVerdi: String = "NEI"): Boolean {
+    private fun harNyttRelevantSvar(
+        sykepengesoknad: Sykepengesoknad,
+        soknadFraBasen: Sykepengesoknad,
+        tag: String,
+        relevantSvarVerdi: String = "NEI"
+    ): Boolean {
         val optionalInnsendtSporsmal = sykepengesoknad.getOptionalSporsmalMedTag(tag)
         val optionalLagretSporsmal = soknadFraBasen.getOptionalSporsmalMedTag(tag)
 
@@ -251,7 +264,9 @@ class OppdaterSporsmalService(
 
         val innsendtSporsmal = optionalInnsendtSporsmal.get()
         val lagretSporsmal = optionalLagretSporsmal.get()
-        if (lagretSporsmal.svar.firstOrNull() == null && relevantSvarVerdi == innsendtSporsmal.svar.firstOrNull()?.verdi) {
+        if (lagretSporsmal.svar.firstOrNull() == null &&
+            relevantSvarVerdi == innsendtSporsmal.svar.firstOrNull()?.verdi
+        ) {
             return false
         }
 
@@ -264,34 +279,46 @@ class OppdaterSporsmalService(
             harNyttRelevantSvar(sykepengesoknad, soknadFraBasen, FRISKMELDT_START)
     }
 
-    private fun harEndretSvarPaArbeidGjenopptatt(sykepengesoknad: Sykepengesoknad, soknadFraBasen: Sykepengesoknad): Boolean {
+    private fun harEndretSvarPaArbeidGjenopptatt(
+        sykepengesoknad: Sykepengesoknad,
+        soknadFraBasen: Sykepengesoknad
+    ): Boolean {
         return harNyttRelevantSvar(sykepengesoknad, soknadFraBasen, TILBAKE_I_ARBEID) ||
             harNyttRelevantSvar(sykepengesoknad, soknadFraBasen, TILBAKE_NAR)
     }
 
-    private fun harEndretSvarPaPermittertNaa(sykepengesoknad: Sykepengesoknad, soknadFraBasen: Sykepengesoknad): Boolean {
+    private fun harEndretSvarPaPermittertNaa(
+        sykepengesoknad: Sykepengesoknad,
+        soknadFraBasen: Sykepengesoknad
+    ): Boolean {
         return harNyttRelevantSvar(sykepengesoknad, soknadFraBasen, PERMITTERT_NAA)
     }
 
-    private fun harEndretSvarPaBrukteReisetilskuddet(sykepengesoknad: Sykepengesoknad, soknadFraBasen: Sykepengesoknad): Boolean {
+    private fun harEndretSvarPaBrukteReisetilskuddet(
+        sykepengesoknad: Sykepengesoknad,
+        soknadFraBasen: Sykepengesoknad
+    ): Boolean {
         return harNyttRelevantSvar(sykepengesoknad, soknadFraBasen, BRUKTE_REISETILSKUDDET)
     }
 
-    private fun harEndretSvarPaFeriePermisjonUtland(sykepengesoknad: Sykepengesoknad, soknadFraBasen: Sykepengesoknad): Boolean {
+    private fun harEndretSvarPaFeriePermisjonUtland(
+        sykepengesoknad: Sykepengesoknad,
+        lagretSoknad: Sykepengesoknad
+    ): Boolean {
         return if (harFeriePermisjonEllerUtenlandsoppholdSporsmal(sykepengesoknad)) {
             (
-                harNyttRelevantSvar(sykepengesoknad, soknadFraBasen, FERIE_PERMISJON_UTLAND) ||
-                    harNyttRelevantSvar(sykepengesoknad, soknadFraBasen, FERIE) ||
-                    harNyttRelevantSvar(sykepengesoknad, soknadFraBasen, FERIE_NAR) ||
-                    harNyttRelevantSvar(sykepengesoknad, soknadFraBasen, UTLAND) ||
-                    harNyttRelevantSvar(sykepengesoknad, soknadFraBasen, UTLAND_NAR)
+                harNyttRelevantSvar(sykepengesoknad, lagretSoknad, FERIE_PERMISJON_UTLAND) ||
+                    harNyttRelevantSvar(sykepengesoknad, lagretSoknad, FERIE) ||
+                    harNyttRelevantSvar(sykepengesoknad, lagretSoknad, FERIE_NAR) ||
+                    harNyttRelevantSvar(sykepengesoknad, lagretSoknad, UTLAND) ||
+                    harNyttRelevantSvar(sykepengesoknad, lagretSoknad, UTLAND_NAR)
                 )
         } else {
             (
-                harNyttRelevantSvar(sykepengesoknad, soknadFraBasen, FERIE_V2) ||
-                    harNyttRelevantSvar(sykepengesoknad, soknadFraBasen, FERIE_NAR_V2) ||
-                    harNyttRelevantSvar(sykepengesoknad, soknadFraBasen, UTLAND_V2) ||
-                    harNyttRelevantSvar(sykepengesoknad, soknadFraBasen, UTLAND_NAR_V2)
+                harNyttRelevantSvar(sykepengesoknad, lagretSoknad, FERIE_V2) ||
+                    harNyttRelevantSvar(sykepengesoknad, lagretSoknad, FERIE_NAR_V2) ||
+                    harNyttRelevantSvar(sykepengesoknad, lagretSoknad, UTLAND_V2) ||
+                    harNyttRelevantSvar(sykepengesoknad, lagretSoknad, UTLAND_NAR_V2)
                 )
         }
     }
@@ -306,27 +333,23 @@ class OppdaterSporsmalService(
             sykepengesoknad.sporsmal.none { spm -> spm.tag == UTLANDSOPPHOLD_SOKT_SYKEPENGER }
     }
 
-    fun lagreNyttSvar(
-        soknadFraBasenFørOppdatering: Sykepengesoknad,
-        sporsmalId: String,
-        svar: Svar
-    ): OppdaterSporsmalResultat {
-        val soknadId = soknadFraBasenFørOppdatering.id
+    fun lagreNyttSvar(lagretSoknad: Sykepengesoknad, sporsmalId: String, svar: Svar): OppdaterSporsmalResultat {
+        val soknadId = lagretSoknad.id
 
         val sporsmal = (
-            soknadFraBasenFørOppdatering.sporsmal.flatten()
+            lagretSoknad.sporsmal.flatten()
                 .find { it.id == sporsmalId }
                 ?: throw IllegalArgumentException("$sporsmalId finnes ikke i søknad $soknadId")
             )
 
         val oppdatertSporsmal = sporsmal.copy(svar = sporsmal.svar.toMutableList().also { it.add(svar) })
 
-        return oppdaterSporsmal(soknadFraBasenFørOppdatering, oppdatertSporsmal)
+        return oppdaterSporsmal(lagretSoknad, oppdatertSporsmal)
     }
 
-    fun slettSvar(soknadFraBasenFørOppdatering: Sykepengesoknad, sporsmalId: String, svarId: String) {
-        val soknadId = soknadFraBasenFørOppdatering.id
-        val sporsmal = soknadFraBasenFørOppdatering.sporsmal
+    fun slettSvar(lagretSoknad: Sykepengesoknad, sporsmalId: String, svarId: String) {
+        val soknadId = lagretSoknad.id
+        val sporsmal = lagretSoknad.sporsmal
             .flatten()
             .find { it.id == sporsmalId }
             ?: throw IllegalArgumentException("Spørsmål $sporsmalId finnes ikke i søknad $soknadId.")
@@ -338,22 +361,17 @@ class OppdaterSporsmalService(
         // kvitteringer uten å laste søknaden på nytt. oppdaterSporsmal() sletter alle svar og lagrer de på nytt, noe
         // som fører til at de får ny Id som ikke blir hentet av frontend.
         if (sporsmal.tag == KVITTERINGER) {
-            log.info("Sletter kvittering med svarId $svarId fra spørsmål $sporsmalId tilhørende søknad $soknadId.")
-            slettKvittering(sporsmal, svarSomSkalFjernes, soknadId)
+            slettKvittering(sporsmal, svarSomSkalFjernes)
+            log.info("Slettet kvittering med svarId $svarId fra spørsmål $sporsmalId tilhørende søknad $soknadId.")
         } else {
             val oppdatertSporsmal = sporsmal.copy(svar = sporsmal.svar - svarSomSkalFjernes)
-            oppdaterSporsmal(soknadFraBasenFørOppdatering, oppdatertSporsmal)
+            oppdaterSporsmal(lagretSoknad, oppdatertSporsmal)
         }
         log.info("Slettet svar $svarId for spørsmål $sporsmalId og søknad $soknadId.")
     }
 
-    private fun slettKvittering(sporsmal: Sporsmal, svar: Svar, soknadId: String) {
+    private fun slettKvittering(sporsmal: Sporsmal, svar: Svar) {
         svarDAO.slettSvar(sporsmal.id!!, svar.id!!)
-
-        val blobId = svar.verdi.tilKvittering().blobId
-        val slettKvittering = bucketUploaderClient.slettKvittering(blobId)
-        if (!slettKvittering) {
-            log.warn("Sletting av blobId $blobId fra bucket for søknad $soknadId feilet. Vedlegget er slettet fra databasen.")
-        }
+        bucketUploaderClient.slettKvittering(svar.verdi.tilKvittering().blobId)
     }
 }

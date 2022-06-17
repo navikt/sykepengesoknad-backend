@@ -1,8 +1,6 @@
 package no.nav.helse.flex.reisetilskudd
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.whenever
 import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSporsmal
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSvar
@@ -49,7 +47,6 @@ import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
 import org.assertj.core.api.Assertions
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -62,11 +59,6 @@ import java.time.LocalDate
 class SlettKvitteringerIntegrasjonsTest : BaseTestClass() {
 
     private final val fnr = "01017012345"
-
-    @BeforeEach
-    fun setUp() {
-        whenever(bucketUploaderClient.slettKvittering(any())).thenReturn(true)
-    }
 
     @Test
     @Order(1)
