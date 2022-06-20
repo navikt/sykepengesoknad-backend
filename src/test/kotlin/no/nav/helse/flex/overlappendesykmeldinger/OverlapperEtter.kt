@@ -21,8 +21,6 @@ import no.nav.helse.flex.soknadsopprettelse.FERIE_V2
 import no.nav.helse.flex.soknadsopprettelse.FRAVAR_FOR_SYKMELDINGEN
 import no.nav.helse.flex.soknadsopprettelse.JOBBET_DU_100_PROSENT
 import no.nav.helse.flex.soknadsopprettelse.PERMISJON_V2
-import no.nav.helse.flex.soknadsopprettelse.PERMITTERT_NAA
-import no.nav.helse.flex.soknadsopprettelse.PERMITTERT_PERIODE
 import no.nav.helse.flex.soknadsopprettelse.TILBAKE_I_ARBEID
 import no.nav.helse.flex.soknadsopprettelse.UTDANNING
 import no.nav.helse.flex.soknadsopprettelse.UTLAND_V2
@@ -252,8 +250,6 @@ class OverlapperEtter : BaseTestClass() {
             .besvarSporsmal(PERMISJON_V2, "NEI")
             .besvarSporsmal(FERIE_V2, "NEI")
             .besvarSporsmal(UTLAND_V2, "NEI")
-            .besvarSporsmal(PERMITTERT_NAA, "NEI")
-            .besvarSporsmal(PERMITTERT_PERIODE, "NEI")
             .besvarSporsmal(JOBBET_DU_100_PROSENT + '0', "NEI")
             .besvarSporsmal(ARBEID_UTENFOR_NORGE, "NEI")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER, "NEI")
@@ -442,8 +438,6 @@ class OverlapperEtter : BaseTestClass() {
             .besvarSporsmal(PERMISJON_V2, "NEI")
             .besvarSporsmal(FERIE_V2, "NEI")
             .besvarSporsmal(UTLAND_V2, "NEI")
-            .besvarSporsmal(PERMITTERT_NAA, "NEI")
-            .besvarSporsmal(PERMITTERT_PERIODE, "NEI")
             .besvarSporsmal(JOBBET_DU_100_PROSENT + '0', "NEI")
             .besvarSporsmal(ARBEID_UTENFOR_NORGE, "NEI")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER, "NEI")

@@ -7,7 +7,6 @@ import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.rest.SoknadMetadata
 import no.nav.helse.flex.hentSoknader
-import no.nav.helse.flex.korrigerSoknad
 import no.nav.helse.flex.oppdaterSporsmalMedResult
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.sendSoknad
@@ -20,14 +19,9 @@ import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
 import no.nav.helse.flex.soknadsopprettelse.FRISKMELDT
 import no.nav.helse.flex.soknadsopprettelse.FRISKMELDT_START
 import no.nav.helse.flex.soknadsopprettelse.OpprettSoknadService
-import no.nav.helse.flex.soknadsopprettelse.PERMITTERT_NAA
-import no.nav.helse.flex.soknadsopprettelse.PERMITTERT_NAA_NAR
-import no.nav.helse.flex.soknadsopprettelse.PERMITTERT_PERIODE
-import no.nav.helse.flex.soknadsopprettelse.PERMITTERT_PERIODE_NAR
 import no.nav.helse.flex.soknadsopprettelse.UTDANNING
 import no.nav.helse.flex.soknadsopprettelse.VAER_KLAR_OVER_AT
 import no.nav.helse.flex.soknadsopprettelse.tilSoknadsperioder
-import no.nav.helse.flex.sykepengesoknad.kafka.PeriodeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.testutil.SoknadBesvarer
@@ -113,8 +107,6 @@ class ArbeidsledigIntegrationMedOppdaterSporsmalTest : BaseTestClass() {
                 ANDRE_INNTEKTSKILDER,
                 UTDANNING,
                 ARBEIDSLEDIG_UTLAND,
-                PERMITTERT_NAA,
-                PERMITTERT_PERIODE,
                 VAER_KLAR_OVER_AT,
                 BEKREFT_OPPLYSNINGER
             )
@@ -182,8 +174,6 @@ class ArbeidsledigIntegrationMedOppdaterSporsmalTest : BaseTestClass() {
                         ANSVARSERKLARING,
                         FRISKMELDT,
                         ARBEID_UTENFOR_NORGE,
-                        PERMITTERT_NAA,
-                        PERMITTERT_PERIODE,
                         VAER_KLAR_OVER_AT,
                         BEKREFT_OPPLYSNINGER
                     )
@@ -206,8 +196,6 @@ class ArbeidsledigIntegrationMedOppdaterSporsmalTest : BaseTestClass() {
                         ANDRE_INNTEKTSKILDER,
                         UTDANNING,
                         ARBEIDSLEDIG_UTLAND,
-                        PERMITTERT_NAA,
-                        PERMITTERT_PERIODE,
                         VAER_KLAR_OVER_AT,
                         BEKREFT_OPPLYSNINGER
                     )
@@ -228,8 +216,6 @@ class ArbeidsledigIntegrationMedOppdaterSporsmalTest : BaseTestClass() {
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
             .besvarSporsmal(FRISKMELDT, "NEI")
             .besvarSporsmal(ARBEID_UTENFOR_NORGE, "JA")
-            .besvarSporsmal(PERMITTERT_NAA, "NEI")
-            .besvarSporsmal(PERMITTERT_PERIODE, "NEI")
             .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
     }
 
@@ -269,64 +255,5 @@ class ArbeidsledigIntegrationMedOppdaterSporsmalTest : BaseTestClass() {
         val json = oppdaterSporsmalMedResult(fnr, soknaden.sporsmal!![0], soknadsId = soknaden.id)
             .andExpect(MockMvcResultMatchers.status().isBadRequest).andReturn().response.contentAsString
         assertThat(json).isEqualTo("""{"reason":"FEIL_STATUS_FOR_OPPDATER_SPORSMAL"}""")
-    }
-
-    @Test
-    fun `12 - vi korrigerer søknaden og svarer at vi er permittert`() {
-
-        val soknadId = hentSoknader(fnr).first().id
-        korrigerSoknad(soknadId, fnr)
-        val soknad = hentSoknader(fnr).find { it.korrigerer == soknadId }!!
-
-        SoknadBesvarer(rSSykepengesoknad = soknad, mockMvc = this, fnr = fnr)
-            .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
-            .besvarSporsmal(PERMITTERT_NAA, "JA", false)
-            .besvarSporsmal(PERMITTERT_NAA_NAR, "2020-02-01")
-            .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
-            .sendSoknad()
-
-        val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
-
-        assertThat(soknader).hasSize(1)
-        assertThat(soknader.last().permitteringer).isEqualTo(listOf(PeriodeDTO(fom = LocalDate.of(2020, 2, 1))))
-    }
-
-    @Test
-    fun `13 - vi korrigerer søknaden og svarer at vi var permittert i en periode`() {
-
-        val soknadId = hentSoknader(fnr).find { it.status == RSSoknadstatus.SENDT }!!.id
-        korrigerSoknad(soknadId, fnr)
-        val soknad = hentSoknader(fnr).find { it.korrigerer == soknadId }!!
-
-        SoknadBesvarer(rSSykepengesoknad = soknad, mockMvc = this, fnr = fnr)
-            .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
-            .besvarSporsmal(PERMITTERT_NAA, "NEI")
-            .besvarSporsmal(PERMITTERT_PERIODE, "JA", false)
-            .besvarSporsmal(
-                PERMITTERT_PERIODE_NAR,
-                "{\"fom\":\"${soknad.fom!!.minusDays(14)}\",\"tom\":\"${soknad.fom!!.minusDays(7)}\"}"
-            )
-            .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
-            .sendSoknad()
-
-        val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
-
-        assertThat(soknader).hasSize(1)
-        assertThat(soknader.last().permitteringer).isEqualTo(
-            listOf(PeriodeDTO(fom = soknad.fom!!.minusDays(14), tom = soknad.fom!!.minusDays(7)))
-        )
-        assertThat(soknader[0].sendTilGosys).isNull()
-        assertThat(soknader[0].merknader).isNull()
-    }
-
-    @Test
-    fun `14 - vi sender inn en nyere søknad når en eldre finnes - Vi får da 4xx status tilbake `() {
-
-        opprettSoknadService.opprettSoknadFraSoknadMetadata(soknadMetadata, sykepengesoknadDAO)
-        opprettSoknadService.opprettSoknadFraSoknadMetadata(soknadMetadata.copy(id = UUID.randomUUID().toString(), fom = LocalDate.now().minusMonths(2)), sykepengesoknadDAO)
-
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2).tilSoknader()
-
-        sendSoknadMedResult(fnr, soknadMetadata.id).andExpect(((MockMvcResultMatchers.status().isBadRequest)))
     }
 }

@@ -250,7 +250,7 @@ class SoknadProducerTest {
 
     @Test
     fun antallFriskmeldteDagerForArbeidsledige() {
-        var sykepengesoknad = opprettSendtSoknadForArbeidsledige(besvarPermittert = false).copy(fnr = "12345")
+        var sykepengesoknad = opprettSendtSoknadForArbeidsledige().copy(fnr = "12345")
 
         sykepengesoknad = sykepengesoknad.besvarsporsmal(tag = FRISKMELDT, svar = "NEI")
         sykepengesoknad = sykepengesoknad.besvarsporsmal(tag = FRISKMELDT_START, svar = sykepengesoknad.tom!!.minusDays(5).format(DateTimeFormatter.ISO_LOCAL_DATE))
@@ -262,7 +262,7 @@ class SoknadProducerTest {
 
     @Test
     fun tellerFriskmeldingPaaTOMDatosomEnDag() {
-        var sykepengesoknad = opprettSendtSoknadForArbeidsledige(besvarPermittert = false).copy(fnr = "12345")
+        var sykepengesoknad = opprettSendtSoknadForArbeidsledige().copy(fnr = "12345")
 
         sykepengesoknad = sykepengesoknad.besvarsporsmal(tag = FRISKMELDT, svar = "NEI")
         sykepengesoknad = sykepengesoknad.besvarsporsmal(tag = FRISKMELDT_START, svar = sykepengesoknad.tom!!.format(DateTimeFormatter.ISO_LOCAL_DATE))
@@ -274,7 +274,7 @@ class SoknadProducerTest {
 
     @Test
     fun tellerIkkeFriskmeldteDagerForArbeidsledigeHvisDetIkkeErBesvart() {
-        var sykepengesoknad = opprettSendtSoknadForArbeidsledige(besvarPermittert = false).copy(fnr = "12345")
+        var sykepengesoknad = opprettSendtSoknadForArbeidsledige().copy(fnr = "12345")
 
         sykepengesoknad = sykepengesoknad.besvarsporsmal(tag = FRISKMELDT, svar = "JA")
 

@@ -30,8 +30,6 @@ import no.nav.helse.flex.soknadsopprettelse.FERIE_V2
 import no.nav.helse.flex.soknadsopprettelse.FRAVAR_FOR_SYKMELDINGEN
 import no.nav.helse.flex.soknadsopprettelse.KVITTERINGER
 import no.nav.helse.flex.soknadsopprettelse.PERMISJON_V2
-import no.nav.helse.flex.soknadsopprettelse.PERMITTERT_NAA
-import no.nav.helse.flex.soknadsopprettelse.PERMITTERT_PERIODE
 import no.nav.helse.flex.soknadsopprettelse.REISE_MED_BIL
 import no.nav.helse.flex.soknadsopprettelse.TILBAKE_I_ARBEID
 import no.nav.helse.flex.soknadsopprettelse.TRANSPORT_TIL_DAGLIG
@@ -149,8 +147,6 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
                 ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER,
                 UTDANNING,
-                PERMITTERT_NAA,
-                PERMITTERT_PERIODE,
                 BRUKTE_REISETILSKUDDET,
                 VAER_KLAR_OVER_AT,
                 BEKREFT_OPPLYSNINGER
@@ -223,8 +219,6 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
                 ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER,
                 UTDANNING,
-                PERMITTERT_NAA,
-                PERMITTERT_PERIODE,
                 BRUKTE_REISETILSKUDDET,
                 TRANSPORT_TIL_DAGLIG,
                 REISE_MED_BIL,
@@ -331,8 +325,6 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
             .besvarSporsmal("JOBBET_DU_GRADERT_0", "NEI")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER, "NEI")
             .besvarSporsmal(UTDANNING, "NEI")
-            .besvarSporsmal(PERMITTERT_NAA, "NEI")
-            .besvarSporsmal(PERMITTERT_PERIODE, "NEI")
             .besvarSporsmal(TRANSPORT_TIL_DAGLIG, "NEI")
             .besvarSporsmal(REISE_MED_BIL, "NEI")
             .besvarSporsmal(UTBETALING, "JA")
@@ -432,8 +424,6 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
                 ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER,
                 UTDANNING,
-                PERMITTERT_NAA,
-                PERMITTERT_PERIODE,
                 BRUKTE_REISETILSKUDDET,
                 VAER_KLAR_OVER_AT,
                 BEKREFT_OPPLYSNINGER
@@ -456,8 +446,6 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
             .besvarSporsmal("JOBBET_DU_GRADERT_0", "NEI")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER, "NEI")
             .besvarSporsmal(UTDANNING, "NEI")
-            .besvarSporsmal(PERMITTERT_NAA, "NEI")
-            .besvarSporsmal(PERMITTERT_PERIODE, "NEI")
             .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
             .sendSoknad()
 

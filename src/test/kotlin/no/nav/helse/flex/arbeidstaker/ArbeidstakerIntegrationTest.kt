@@ -13,6 +13,7 @@ import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
 import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.repository.SykepengesoknadRepository
+import no.nav.helse.flex.sendSoknadMedResult
 import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
 import no.nav.helse.flex.sykepengesoknad.kafka.MerknadDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.PeriodeDTO
@@ -26,6 +27,7 @@ import no.nav.syfo.model.Merknad
 import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
 import no.nav.syfo.model.sykmeldingstatus.STATUS_BEKREFTET
 import no.nav.syfo.model.sykmeldingstatus.STATUS_SENDT
+import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should be false`
 import org.amshove.kluent.`should be null`
 import org.amshove.kluent.shouldHaveSize
@@ -35,7 +37,7 @@ import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.Duration
 import java.time.LocalDate
 
@@ -113,7 +115,7 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
     @Test
     fun `1,5 - Vi kan ikke korrigere en soknad som ikke er sendt`() {
         val soknaden = hentSoknader(fnr)[0]
-        korrigerSoknadMedResult(soknaden.id, fnr).andExpect(MockMvcResultMatchers.status().isBadRequest)
+        korrigerSoknadMedResult(soknaden.id, fnr).andExpect(status().isBadRequest)
             .andReturn()
     }
 
@@ -133,8 +135,6 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
                 "ARBEID_UTENFOR_NORGE",
                 "ANDRE_INNTEKTSKILDER",
                 "UTDANNING",
-                "PERMITTERT_NAA",
-                "PERMITTERT_PERIODE",
                 "VAER_KLAR_OVER_AT",
                 "BEKREFT_OPPLYSNINGER"
             )
@@ -159,15 +159,33 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    fun `3 - vi besvarer og sender inn søknaden`() {
+    fun `3 - den nyeste søknaden kan ikke sendes først`() {
+        val soknaden = hentSoknader(fnr).filter { it.status == RSSoknadstatus.NY }.sortedBy { it.fom }.last()
+
+        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+            .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
+            .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
+            .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
+            .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
+            .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
+            .besvarSporsmal(tag = "JOBBET_DU_100_PROSENT_0", svar = "NEI")
+            .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER", svar = "NEI")
+            .besvarSporsmal(tag = "UTDANNING", svar = "NEI")
+            .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
+
+        val res =
+            sendSoknadMedResult(fnr, soknaden.id).andExpect(status().isBadRequest).andReturn().response.contentAsString
+        res `should be equal to` "{\"reason\":\"FORSOK_PA_SENDING_AV_NYERE_SOKNAD\"}"
+    }
+
+    @Test
+    fun `4 - vi besvarer og sender inn søknaden`() {
         flexSyketilfelleMockRestServiceServer?.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
         val soknaden = hentSoknader(fnr).find { it.status == RSSoknadstatus.NY }!!
 
         val sendtSoknad = SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
             .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
-            .besvarSporsmal(tag = "PERMITTERT_NAA", svar = "NEI")
-            .besvarSporsmal(tag = "PERMITTERT_PERIODE", svar = "NEI")
             .besvarSporsmal(tag = "FRAVAR_FOR_SYKMELDINGEN", svar = "JA", ferdigBesvart = false)
             .besvarSporsmal(
                 tag = "FRAVAR_FOR_SYKMELDINGEN_NAR",

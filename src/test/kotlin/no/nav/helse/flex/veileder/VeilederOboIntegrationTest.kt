@@ -16,8 +16,6 @@ import no.nav.helse.flex.soknadsopprettelse.ARBEID_UTENFOR_NORGE
 import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
 import no.nav.helse.flex.soknadsopprettelse.FRISKMELDT
 import no.nav.helse.flex.soknadsopprettelse.OpprettSoknadService
-import no.nav.helse.flex.soknadsopprettelse.PERMITTERT_NAA
-import no.nav.helse.flex.soknadsopprettelse.PERMITTERT_PERIODE
 import no.nav.helse.flex.soknadsopprettelse.UTDANNING
 import no.nav.helse.flex.soknadsopprettelse.VAER_KLAR_OVER_AT
 import no.nav.helse.flex.soknadsopprettelse.tilSoknadsperioder
@@ -104,8 +102,6 @@ class VeilederOboIntegrationTest : BaseTestClass() {
                 ANDRE_INNTEKTSKILDER,
                 UTDANNING,
                 ARBEIDSLEDIG_UTLAND,
-                PERMITTERT_NAA,
-                PERMITTERT_PERIODE,
                 VAER_KLAR_OVER_AT,
                 BEKREFT_OPPLYSNINGER
             )

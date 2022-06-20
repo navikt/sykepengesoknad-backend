@@ -93,8 +93,6 @@ class GjenapneSykmeldingIntegrationMedTombstoneTest : BaseTestClass() {
         val rsSykepengesoknad = hentSoknader(fnr).first()
         SoknadBesvarer(rSSykepengesoknad = rsSykepengesoknad, mockMvc = this, fnr = fnr)
             .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
-            .besvarSporsmal(tag = "PERMITTERT_NAA", svar = "NEI")
-            .besvarSporsmal(tag = "PERMITTERT_PERIODE", svar = "NEI")
             .besvarSporsmal(tag = "FRISKMELDT", svar = "JA")
             .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER", svar = "NEI")
             .besvarSporsmal(tag = "ARBEIDSLEDIG_UTLAND", svar = "NEI")

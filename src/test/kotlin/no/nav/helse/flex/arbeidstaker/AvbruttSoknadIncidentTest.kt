@@ -98,8 +98,6 @@ class AvbruttSoknadIncidentTest : BaseTestClass() {
 
         val sendtSoknad = SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
             .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
-            .besvarSporsmal(tag = "PERMITTERT_NAA", svar = "NEI")
-            .besvarSporsmal(tag = "PERMITTERT_PERIODE", svar = "NEI")
             .besvarSporsmal(tag = "FRAVAR_FOR_SYKMELDINGEN", svar = "NEI")
             .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
             .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
