@@ -54,6 +54,8 @@ spec:
         databases:
           - name: sykepengesoknad
             envVarPrefix: DATABASE
+            users:
+              - name: bigquery-dataprodukt
         maintenance:
           day: 2
           hour: 2
