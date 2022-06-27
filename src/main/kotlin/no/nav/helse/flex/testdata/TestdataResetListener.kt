@@ -21,7 +21,7 @@ class TestdataResetListener(val sykepengesoknadDAO: SykepengesoknadDAO) {
     )
     fun listen(cr: ConsumerRecord<String, String>, acknowledgment: Acknowledgment) {
         val fnr = cr.value()
-        val antall = sykepengesoknadDAO.nullstillSoknaderMedFnr(fnr)
+        val antall = sykepengesoknadDAO.nullstillSoknader(fnr)
         log.info("Slettet $antall soknader på fnr $fnr - Key ${cr.key()}")
         acknowledgment.acknowledge()
     }
