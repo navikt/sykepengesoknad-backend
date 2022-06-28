@@ -26,17 +26,25 @@ class Orgnavn(
 
     fun hentSisteOrgnavn() {
         val organisasjoner = repository.findLatestOrgnavn()
+        var publisert = 0
 
         log.info(organisasjoner.toString())
 
-        organisasjoner.forEach {
-            kafkaProducer.send(
-                ProducerRecord(
-                    "flex.organisasjoner",
-                    it.first,
-                    it.second
-                )
-            )
-        }
+        organisasjoner
+            .chunked(1000)
+            .forEach { chunck ->
+                chunck.forEach {
+                    kafkaProducer.send(
+                        ProducerRecord(
+                            "flex.organisasjoner",
+                            it.first,
+                            it.second
+                        )
+                    )
+                    publisert++
+                }
+
+                log.info("Publisert $publisert av ${organisasjoner.size} orgnavn på kafka")
+            }
     }
 }
