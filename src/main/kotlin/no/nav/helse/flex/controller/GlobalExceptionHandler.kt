@@ -8,6 +8,7 @@ import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadDAO.SoknadIkkeFunnetException
 import no.nav.security.token.support.core.exceptions.JwtTokenInvalidClaimException
 import no.nav.security.token.support.spring.validation.interceptor.JwtTokenUnauthorizedException
+import org.apache.catalina.connector.ClientAbortException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.HttpMediaTypeNotAcceptableException
@@ -41,6 +42,12 @@ class GlobalExceptionHandler {
             is JwtTokenInvalidClaimException -> skapResponseEntity(HttpStatus.UNAUTHORIZED)
             is JwtTokenUnauthorizedException -> skapResponseEntity(HttpStatus.UNAUTHORIZED)
             is HttpMediaTypeNotAcceptableException -> skapResponseEntity(HttpStatus.NOT_ACCEPTABLE)
+            is ClientAbortException -> {
+                log.warn("ClientAbortException - ${request.method}: ${request.requestURI}", ex)
+                // The 4xx (Client Error) class of status code indicates that the client seems to have erred.
+                // Klient vil aldri få denne siden dette er en ClientAbortException, men noe må vi returnere.
+                skapResponseEntity(HttpStatus.I_AM_A_TEAPOT)
+            }
             else -> {
                 log.error("Internal server error - ${ex.message} - ${request.method}: ${request.requestURI}", ex)
                 skapResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
