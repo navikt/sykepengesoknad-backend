@@ -2,6 +2,7 @@ package no.nav.helse.flex.cronjob
 
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadRepository
+import no.nav.helse.flex.util.serialisertTilString
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.springframework.scheduling.annotation.Scheduled
@@ -38,8 +39,11 @@ class Orgnavn(
                     kafkaProducer.send(
                         ProducerRecord(
                             "flex.organisasjoner",
-                            it.first,
-                            it.second
+                            it.arbeidsgiver_orgnummer,
+                            NavnOgSoknad(
+                                it.arbeidsgiver_navn,
+                                it.sykepengesoknad_uuid,
+                            ).serialisertTilString()
                         )
                     )
                     publisert++
@@ -48,4 +52,9 @@ class Orgnavn(
                 log.info("Publisert $publisert av ${organisasjoner.size} orgnavn på kafka")
             }
     }
+
+    data class NavnOgSoknad(
+        val arbeidsgiver_navn: String,
+        val sykepengesoknad_uuid: String,
+    )
 }

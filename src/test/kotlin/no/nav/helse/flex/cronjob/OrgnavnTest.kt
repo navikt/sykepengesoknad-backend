@@ -61,7 +61,6 @@ internal class OrgnavnTest : BaseTestClass() {
                 tom = LocalDate.now(),
                 arbeidsgiverOrgnummer = orgNr,
                 arbeidsgiverNavn = "Nyeste orgnavn",
-                sykepengesoknadUuid = UUID.randomUUID().toString()
             )
         )
         sykepengesoknadRepository.save(
@@ -89,7 +88,7 @@ internal class OrgnavnTest : BaseTestClass() {
                 tom = LocalDate.now(),
                 arbeidsgiverOrgnummer = "11111111",
                 arbeidsgiverNavn = "Annen bedrift AS",
-                sykepengesoknadUuid = UUID.randomUUID().toString()
+                sykepengesoknadUuid = "annen-uuid",
             )
         )
     }
@@ -100,12 +99,14 @@ internal class OrgnavnTest : BaseTestClass() {
 
         organisasjoner.shouldHaveSize(2)
 
-        val orgMedNyttNavn = organisasjoner.first { it.first == orgNr }
-        orgMedNyttNavn.first.shouldBeEqualTo(orgNr)
-        orgMedNyttNavn.second.shouldBeEqualTo("Nyeste orgnavn")
+        val orgMedNyttNavn = organisasjoner.first { it.arbeidsgiver_orgnummer == orgNr }
+        orgMedNyttNavn.arbeidsgiver_orgnummer.shouldBeEqualTo(orgNr)
+        orgMedNyttNavn.arbeidsgiver_navn.shouldBeEqualTo("Nyeste orgnavn")
+        orgMedNyttNavn.sykepengesoknad_uuid.shouldBeEqualTo(soknad.sykepengesoknadUuid)
 
-        val annenOrg = organisasjoner.first { it.first != orgNr }
-        annenOrg.first.shouldBeEqualTo("11111111")
-        annenOrg.second.shouldBeEqualTo("Annen bedrift AS")
+        val annenOrg = organisasjoner.first { it.arbeidsgiver_orgnummer != orgNr }
+        annenOrg.arbeidsgiver_orgnummer.shouldBeEqualTo("11111111")
+        annenOrg.arbeidsgiver_navn.shouldBeEqualTo("Annen bedrift AS")
+        annenOrg.sykepengesoknad_uuid.shouldBeEqualTo("annen-uuid")
     }
 }
