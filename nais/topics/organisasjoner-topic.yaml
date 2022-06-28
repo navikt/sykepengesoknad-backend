@@ -8,6 +8,7 @@ metadata:
   annotations:
     dcat.data.nav.no/title: "flex.organisasjoner"
     dcat.data.nav.no/description: "Topic for orgnummer og orgnavn for sykepengesøknader"
+    kafka.nais.io/removeDataWhenResourceIsDeleted: "true"
 spec:
   pool: {{kafkaPool}}
   config:
