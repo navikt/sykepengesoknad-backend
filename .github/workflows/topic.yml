@@ -26,6 +26,13 @@ jobs:
           CLUSTER: dev-gcp
           RESOURCE: nais/topics/sykmeldinger-sendt-retry.yaml
           VARS: nais/topics/dev.json
+      - name: Deploy organisasjoner topic to dev-gcp
+        uses: nais/deploy/actions/deploy@master
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: dev-gcp
+          RESOURCE: nais/topics/organisasjoner-topic.yaml
+          VARS: nais/topics/dev.json
 
   deploy-topic-to-prod:
     if: github.ref == 'refs/heads/master'
@@ -47,4 +54,11 @@ jobs:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-gcp
           RESOURCE: nais/topics/sykmeldinger-sendt-retry.yaml
+          VARS: nais/topics/prod.json
+      - name: Deploy organisasjoner topic to prod-gcp
+        uses: nais/deploy/actions/deploy@master
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: prod-gcp
+          RESOURCE: nais/topics/organisasjoner-topic.yaml
           VARS: nais/topics/prod.json
