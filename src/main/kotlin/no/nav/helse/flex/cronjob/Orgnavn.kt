@@ -17,7 +17,7 @@ class Orgnavn(
 
     private val log = logger()
 
-    @Scheduled(initialDelay = 5, fixedDelay = 100_000_000, timeUnit = TimeUnit.MINUTES)
+    @Scheduled(initialDelay = 3, fixedDelay = 100_000_000, timeUnit = TimeUnit.MINUTES)
     fun job() {
         if (leaderElection.isLeader()) {
             hentSisteOrgnavn()
@@ -25,10 +25,11 @@ class Orgnavn(
     }
 
     fun hentSisteOrgnavn() {
+        log.info("Henter organisasjoner")
         val organisasjoner = repository.findLatestOrgnavn()
         var publisert = 0
 
-        log.info(organisasjoner.toString())
+        log.info("Hentet ${organisasjoner.size} organisasjoner")
 
         organisasjoner
             .chunked(1000)

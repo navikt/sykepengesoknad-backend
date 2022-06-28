@@ -62,7 +62,8 @@ class AivenKafkaConfig(
             VALUE_SERIALIZER_CLASS_CONFIG to StringSerializer::class.java,
             ACKS_CONFIG to "all",
             RETRIES_CONFIG to 10,
-            RETRY_BACKOFF_MS_CONFIG to 100
+            RETRY_BACKOFF_MS_CONFIG to 100,
+            MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION to 10,
         ) + commonConfig()
         return KafkaProducer<String, String>(configs)
     }
