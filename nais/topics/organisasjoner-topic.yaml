@@ -1,0 +1,27 @@
+apiVersion: kafka.nais.io/v1
+kind: Topic
+metadata:
+  name: organisasjoner
+  namespace: flex
+  labels:
+    team: flex
+  annotations:
+    dcat.data.nav.no/title: "flex.organisasjoner"
+    dcat.data.nav.no/description: "Topic for orgnummer og orgnavn for sykepengesøknader"
+    kafka.nais.io/removeDataWhenResourceIsDeleted: "true"
+spec:
+  pool: {{kafkaPool}}
+  config:
+    cleanupPolicy: delete
+    minimumInSyncReplicas: 1
+    partitions: 6
+    replication: 2
+    retentionBytes: -1    # Messages will never get deleted because of disk space
+    retentionHours: 168  # Messages are stored for 1 week
+  acl:
+    - team: flex
+      application: sykepengesoknad-backend
+      access: write
+    - team: flex
+      application: flex-inntektsmelding-status
+      access: read
