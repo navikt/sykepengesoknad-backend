@@ -256,33 +256,6 @@ class SykepengesoknadDAO(
         return antallSoknaderSlettet
     }
 
-    fun nullstillSoknaderMedFnr(fnr: String): Int {
-        val soknadsIder = namedParameterJdbcTemplate.query(
-            "SELECT ID FROM SYKEPENGESOKNAD WHERE (FNR = :fnr)",
-
-            MapSqlParameterSource()
-                .addValue("fnr", fnr)
-
-        ) { row, _ -> row.getString("SYKEPENGESOKNAD_ID") }
-
-        sporsmalDAO.slettSporsmal(soknadsIder)
-        soknadsIder.forEach { soknadsperiodeDAO.slettSoknadPerioder(it) }
-
-        val antallSoknaderSlettet = if (soknadsIder.isEmpty())
-            0
-        else
-            namedParameterJdbcTemplate.update(
-                "DELETE FROM SYKEPENGESOKNAD WHERE ID in (:soknadsIder)",
-
-                MapSqlParameterSource()
-                    .addValue("soknadsIder", soknadsIder)
-            )
-
-        log.info("Slettet $antallSoknaderSlettet soknader på fnr: $fnr")
-
-        return antallSoknaderSlettet
-    }
-
     fun slettSoknad(sykepengesoknad: Sykepengesoknad) {
         log.info("Sletter ${sykepengesoknad.status.name} søknad av typen: ${sykepengesoknad.soknadstype} med id: ${sykepengesoknad.id} tilhørende sykmelding: ${sykepengesoknad.sykmeldingId}")
 
