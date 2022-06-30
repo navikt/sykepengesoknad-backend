@@ -11,6 +11,7 @@ import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.support.Acknowledgment
 import org.springframework.stereotype.Component
 import java.nio.charset.StandardCharsets
+import java.time.Duration
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -49,7 +50,7 @@ class RebehandlingSykmeldingSendt(
                     )
                     } sover i $sovetid millisekunder"
                 )
-                acknowledgment.nack(sovetid)
+                acknowledgment.nack(Duration.ofMillis(sovetid))
             } else {
                 if (behandleSendtBekreftetSykmeldingService.prosesserSykmelding(cr.key(), sykmeldingKafkaMessage)) {
                     log.info("Sykmelding SENDT med id: ${sykmeldingKafkaMessage.event.sykmeldingId} fullførte rebehandling")
