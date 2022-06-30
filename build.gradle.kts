@@ -2,7 +2,7 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "2.6.7"
+    id("org.springframework.boot") version "2.7.1"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
     id("org.jlleitschuh.gradle.ktlint") version "10.3.0"
     kotlin("jvm") version "1.6.21"
@@ -43,7 +43,7 @@ repositories {
     }
 }
 
-val tokenSupportVersion = "2.0.16"
+val tokenSupportVersion = "2.1.1"
 val smCommonVersion = "1.88ca328"
 val confluentVersion = "7.1.1"
 val syfoKafkaVersion = "2021.07.20-09.39-6be2c52c"
@@ -51,10 +51,10 @@ val sykepengesoknadKafkaVersion = "2022.03.14-10.39-e61acd76"
 val mockitoKotlinVersion = "2.2.0"
 val ojdbc8Version = "19.3.0.0"
 val avroVersion = "1.11.0"
-val logstashLogbackEncoderVersion = "7.1.1"
-val testContainersVersion = "1.17.1"
+val logstashLogbackEncoderVersion = "7.2"
+val testContainersVersion = "1.17.3"
 val kluentVersion = "1.68"
-val jsonSchemaValidatorVersion = "1.0.69"
+val jsonSchemaValidatorVersion = "1.0.71"
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
