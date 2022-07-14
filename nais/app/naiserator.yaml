@@ -41,6 +41,8 @@ spec:
       tenant: {{azureTenant}}
   kafka:
     pool: {{kafkaPool}}
+  tokenx:
+    enabled: true
   gcp:
     sqlInstances:
       - name: sykepengesoknad
@@ -72,6 +74,8 @@ spec:
     inbound:
       rules:
         - application: flex-gateway
+        - application: ditt-sykefravaer
+        - application: sykepengesoknad
         - application: sykepengesoknad-arkivering-oppgave
         - application: sykepengesoknad-korrigering-metrikk
         - application: flex-intern-gateway
