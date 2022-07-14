@@ -6,11 +6,14 @@ import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
+import no.nav.helse.flex.hentSoknader
+import no.nav.helse.flex.korrigerSoknadMedResult
 import no.nav.helse.flex.mockArbeidsgiverForskutterer
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
 import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.repository.SykepengesoknadRepository
+import no.nav.helse.flex.sendSoknadMedResult
 import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
 import no.nav.helse.flex.sykepengesoknad.kafka.MerknadDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.PeriodeDTO
@@ -19,9 +22,6 @@ import no.nav.helse.flex.testdata.getSykmeldingDto
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
-import no.nav.helse.flex.tokenx.hentSoknader
-import no.nav.helse.flex.tokenx.korrigerSoknadMedResult
-import no.nav.helse.flex.tokenx.sendSoknadMedResult
 import no.nav.helse.flex.ventPåRecords
 import no.nav.syfo.model.Merknad
 import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
@@ -42,7 +42,7 @@ import java.time.Duration
 import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.MethodName::class)
-class ArbeidstakerIntegrationTest : BaseTestClass() {
+class ArbeidstakerLoginserviceIntegrationTest : BaseTestClass() {
 
     @Autowired
     private lateinit var sykepengesoknadDAO: SykepengesoknadDAO

@@ -4,6 +4,9 @@ syfotilgangskontroll.url: http://syfotilgang
 flex.bucket.uploader.url: http://flex-bucket-uploader
 flex.syketilfelle.url: http://flex-syketilfelle
 
+DITT_SYKEFRAVAER_FRONTEND_CLIENT_ID: ditt-sykefravaer-frontend-client-id
+SYKEPENGESOKNAD_FRONTEND_CLIENT_ID: sykepengesoknad-frontend-client-id
+TOKENX_IDPORTEN_IDP: idporten
 
 no.nav.security.jwt:
   issuer:
@@ -13,6 +16,9 @@ no.nav.security.jwt:
     azureator:
       discoveryurl: http://localhost:${mock-oauth2-server.port}/azureator/.well-known/openid-configuration
       accepted_audience: syfosoknad-client-id
+    tokenx:
+      discoveryurl: http://localhost:${mock-oauth2-server.port}/tokenx/.well-known/openid-configuration
+      accepted_audience: sykepengesoknad-backend-client-id
   client:
     registration:
       flex-bucket-uploader-client-credentials:
