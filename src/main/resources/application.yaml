@@ -6,6 +6,9 @@ no.nav.security.jwt:
     azureator:
       discoveryurl: ${AZURE_APP_WELL_KNOWN_URL}
       accepted_audience: ${AZURE_APP_CLIENT_ID}
+    tokenx:
+      discoveryurl: ${TOKEN_X_WELL_KNOWN_URL}
+      accepted_audience: ${TOKEN_X_CLIENT_ID}
   client:
     registration:
       flex-bucket-uploader-client-credentials:

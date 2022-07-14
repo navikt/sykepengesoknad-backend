@@ -24,3 +24,6 @@ env:
   FLEX_SYKETILFELLE_URL: "http://flex-syketilfelle"
   FLEX_SYKETILFELLE_AAD_CLIENT_ID: prod-gcp.flex.flex-syketilfelle
   SKRIVEMODUS: READWRITE
+  DITT_SYKEFRAVAER_FRONTEND_CLIENT_ID: prod-gcp:flex:ditt-sykefravaer
+  SYKEPENGESOKNAD_FRONTEND_CLIENT_ID: prod-gcp:flex:sykepengesoknad
+  TOKENX_IDPORTEN_IDP: https://oidc.difi.no/idporten-oidc-provider/
