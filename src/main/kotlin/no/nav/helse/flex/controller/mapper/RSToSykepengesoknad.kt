@@ -2,10 +2,8 @@ package no.nav.helse.flex.controller.mapper
 
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSporsmal
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSvar
-import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSvarAvgittAv
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svar
-import no.nav.helse.flex.domain.SvarAvgittAv
 import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Visningskriterie
 import no.nav.helse.flex.domain.sporsmalBuilder
@@ -15,14 +13,7 @@ fun RSSvar.mapSvar(): Svar {
     return Svar(
         id = id,
         verdi = verdi,
-        avgittAv = avgittAv?.tilSvarAvgittAv()
     )
-}
-
-private fun RSSvarAvgittAv.tilSvarAvgittAv(): SvarAvgittAv {
-    return when (this) {
-        RSSvarAvgittAv.TIDLIGERE_SOKNAD -> SvarAvgittAv.TIDLIGERE_SOKNAD
-    }
 }
 
 fun RSSporsmal.mapSporsmal(): Sporsmal {

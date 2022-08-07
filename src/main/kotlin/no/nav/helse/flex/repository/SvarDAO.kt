@@ -34,7 +34,6 @@ class SvarDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate
                     Svar(
                         id = resultSet.getString("ID"),
                         verdi = resultSet.getString("VERDI"),
-                        avgittAv = null
                     )
                 )
             }

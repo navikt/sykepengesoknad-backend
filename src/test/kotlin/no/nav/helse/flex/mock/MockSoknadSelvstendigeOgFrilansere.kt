@@ -123,20 +123,20 @@ class MockSoknadSelvstendigeOgFrilansere(private val sykepengesoknadDAO: Sykepen
 
     private fun bekreftOpplysninger(sykepengesoknad: Sykepengesoknad): Sporsmal {
         return sykepengesoknad.getSporsmalMedTag(BEKREFT_OPPLYSNINGER).toBuilder()
-            .svar(listOf(Svar(null, "CHECKED", null)))
+            .svar(listOf(Svar(null, "CHECKED")))
             .build()
     }
 
     private fun harDuStudert(sykepengesoknad: Sykepengesoknad): Sporsmal {
         return sykepengesoknad.getSporsmalMedTag(UTDANNING).toBuilder()
-            .svar(listOf(Svar(null, "JA", null)))
+            .svar(listOf(Svar(null, "JA")))
             .undersporsmal(
                 asList(
                     sykepengesoknad.getSporsmalMedTag(UTDANNING_START).toBuilder()
-                        .svar(listOf(Svar(null, sykepengesoknad.fom!!.plusDays(3).format(ISO_LOCAL_DATE), null)))
+                        .svar(listOf(Svar(null, sykepengesoknad.fom!!.plusDays(3).format(ISO_LOCAL_DATE))))
                         .build(),
                     sykepengesoknad.getSporsmalMedTag(FULLTIDSSTUDIUM).toBuilder()
-                        .svar(listOf(Svar(null, "JA", null)))
+                        .svar(listOf(Svar(null, "JA")))
                         .build()
                 )
             )
@@ -145,7 +145,7 @@ class MockSoknadSelvstendigeOgFrilansere(private val sykepengesoknadDAO: Sykepen
 
     private fun harDuOppholdtDegIUtlandet(sykepengesoknad: Sykepengesoknad): Sporsmal {
         return sykepengesoknad.getSporsmalMedTag(UTLAND).toBuilder()
-            .svar(listOf(Svar(null, "JA", null)))
+            .svar(listOf(Svar(null, "JA")))
             .undersporsmal(
                 asList(
                     sykepengesoknad.getSporsmalMedTag(PERIODER).toBuilder()
@@ -155,14 +155,13 @@ class MockSoknadSelvstendigeOgFrilansere(private val sykepengesoknadDAO: Sykepen
                                     null,
                                     "{\"fom\":\"" + sykepengesoknad.fom!!.plusDays(2).format(ISO_LOCAL_DATE) +
                                         "\",\"tom\":\"" + sykepengesoknad.fom!!.plusDays(4)
-                                        .format(ISO_LOCAL_DATE) + "\"}",
-                                    null
+                                        .format(ISO_LOCAL_DATE) + "\"}"
                                 )
                             )
                         )
                         .build(),
                     sykepengesoknad.getSporsmalMedTag(UTLANDSOPPHOLD_SOKT_SYKEPENGER).toBuilder()
-                        .svar(listOf(Svar(null, "NEI", null)))
+                        .svar(listOf(Svar(null, "NEI")))
                         .build()
                 )
             )
@@ -171,47 +170,47 @@ class MockSoknadSelvstendigeOgFrilansere(private val sykepengesoknadDAO: Sykepen
 
     private fun andreInntektskilder(sykepengesoknad: Sykepengesoknad): Sporsmal {
         return sykepengesoknad.getSporsmalMedTag(ANDRE_INNTEKTSKILDER).toBuilder()
-            .svar(listOf(Svar(null, "JA", null)))
+            .svar(listOf(Svar(null, "JA")))
             .undersporsmal(
                 listOf(
                     sykepengesoknad.getSporsmalMedTag(HVILKE_ANDRE_INNTEKTSKILDER).toBuilder()
                         .undersporsmal(
                             asList(
                                 sykepengesoknad.getSporsmalMedTag(INNTEKTSKILDE_ARBEIDSFORHOLD).toBuilder()
-                                    .svar(listOf(Svar(null, "CHECKED", null)))
+                                    .svar(listOf(Svar(null, "CHECKED")))
                                     .undersporsmal(
                                         listOf(
                                             sykepengesoknad.getSporsmalMedTag(INNTEKTSKILDE_ARBEIDSFORHOLD + ER_DU_SYKMELDT)
                                                 .toBuilder()
-                                                .svar(listOf(Svar(null, "NEI", null)))
+                                                .svar(listOf(Svar(null, "NEI")))
                                                 .build()
                                         )
                                     )
                                     .build(),
                                 sykepengesoknad.getSporsmalMedTag(INNTEKTSKILDE_JORDBRUKER).toBuilder()
-                                    .svar(listOf(Svar(null, "CHECKED", null)))
+                                    .svar(listOf(Svar(null, "CHECKED")))
                                     .undersporsmal(
                                         listOf(
                                             sykepengesoknad.getSporsmalMedTag(INNTEKTSKILDE_JORDBRUKER + ER_DU_SYKMELDT)
                                                 .toBuilder()
-                                                .svar(listOf(Svar(null, "JA", null)))
+                                                .svar(listOf(Svar(null, "JA")))
                                                 .build()
                                         )
                                     )
                                     .build(),
                                 sykepengesoknad.getSporsmalMedTag(INNTEKTSKILDE_FRILANSER_SELVSTENDIG).toBuilder()
-                                    .svar(listOf(Svar(null, "CHECKED", null)))
+                                    .svar(listOf(Svar(null, "CHECKED")))
                                     .undersporsmal(
                                         listOf(
                                             sykepengesoknad.getSporsmalMedTag(INNTEKTSKILDE_FRILANSER_SELVSTENDIG + ER_DU_SYKMELDT)
                                                 .toBuilder()
-                                                .svar(listOf(Svar(null, "JA", null)))
+                                                .svar(listOf(Svar(null, "JA")))
                                                 .build()
                                         )
                                     )
                                     .build(),
                                 sykepengesoknad.getSporsmalMedTag(INNTEKTSKILDE_ANNET).toBuilder()
-                                    .svar(listOf(Svar(null, "CHECKED", null)))
+                                    .svar(listOf(Svar(null, "CHECKED")))
                                     .build()
                             )
                         )
@@ -223,23 +222,23 @@ class MockSoknadSelvstendigeOgFrilansere(private val sykepengesoknadDAO: Sykepen
 
     private fun jobbetDuGradert(sykepengesoknad: Sykepengesoknad): Sporsmal {
         return sykepengesoknad.getSporsmalMedTag(JOBBET_DU_GRADERT + "1").toBuilder()
-            .svar(listOf(Svar(null, "NEI", null)))
+            .svar(listOf(Svar(null, "NEI")))
             .build()
     }
 
     private fun jobbetDu100Prosent(sykepengesoknad: Sykepengesoknad): Sporsmal {
         return sykepengesoknad.getSporsmalMedTag(JOBBET_DU_100_PROSENT + "0").toBuilder()
-            .svar(listOf(Svar(null, "NEI", null)))
+            .svar(listOf(Svar(null, "NEI")))
             .build()
     }
 
     private fun tilbakeIArbeid(sykepengesoknad: Sykepengesoknad): Sporsmal {
         return sykepengesoknad.getSporsmalMedTag(TILBAKE_I_ARBEID).toBuilder()
-            .svar(listOf(Svar(null, "JA", null)))
+            .svar(listOf(Svar(null, "JA")))
             .undersporsmal(
                 listOf(
                     sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).toBuilder()
-                        .svar(listOf(Svar(null, sykepengesoknad.fom!!.plusDays(7).format(ISO_LOCAL_DATE), null)))
+                        .svar(listOf(Svar(null, sykepengesoknad.fom!!.plusDays(7).format(ISO_LOCAL_DATE))))
                         .build()
                 )
             )
@@ -248,7 +247,7 @@ class MockSoknadSelvstendigeOgFrilansere(private val sykepengesoknadDAO: Sykepen
 
     private fun ansvarserklaring(sykepengesoknad: Sykepengesoknad): Sporsmal {
         return sykepengesoknad.getSporsmalMedTag(ANSVARSERKLARING).toBuilder()
-            .svar(listOf(Svar(null, "CHECKED", null)))
+            .svar(listOf(Svar(null, "CHECKED")))
             .build()
     }
 }

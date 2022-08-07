@@ -143,23 +143,20 @@ class OppdaterSporsmalService(
         soknadMedOppdateringer: Sykepengesoknad,
         sporsmal: Sporsmal,
     ): Sykepengesoknad {
-        val soknadMedAvgittAv = beholdAvgittAv(soknadMedOppdateringer, soknadFraBasen)
-        val soknadMedResattSvar = resettAvgittAvPaSvarSomErEndret(soknadMedAvgittAv, soknadFraBasen)
-
-        if (harEndretSvarPaArbeidGjenopptatt(soknadMedResattSvar, soknadFraBasen)) {
-            sykepengesoknadDAO.byttUtSporsmal(oppdaterMedSvarPaArbeidGjenopptattArbeidstaker(soknadMedResattSvar))
+        if (harEndretSvarPaArbeidGjenopptatt(soknadMedOppdateringer, soknadFraBasen)) {
+            sykepengesoknadDAO.byttUtSporsmal(oppdaterMedSvarPaArbeidGjenopptattArbeidstaker(soknadMedOppdateringer))
         } else if (harEndretSvarPaFeriePermisjonUtland(
-                soknadMedResattSvar,
+                soknadMedOppdateringer,
                 soknadFraBasen
-            ) || harSoktOmSykepengerIUtlandetSomUndersporsmal(soknadMedResattSvar)
+            ) || harSoktOmSykepengerIUtlandetSomUndersporsmal(soknadMedOppdateringer)
         ) {
-            sykepengesoknadDAO.byttUtSporsmal(oppdaterMedSvarPaUtlandsopphold(soknadMedResattSvar))
-        } else if (harEndretSvarPaBrukteReisetilskuddet(soknadMedResattSvar, soknadFraBasen)) {
-            sykepengesoknadDAO.byttUtSporsmal(oppdaterMedSvarPaaBrukteReisetilskuddet(soknadMedResattSvar))
+            sykepengesoknadDAO.byttUtSporsmal(oppdaterMedSvarPaUtlandsopphold(soknadMedOppdateringer))
+        } else if (harEndretSvarPaBrukteReisetilskuddet(soknadMedOppdateringer, soknadFraBasen)) {
+            sykepengesoknadDAO.byttUtSporsmal(oppdaterMedSvarPaaBrukteReisetilskuddet(soknadMedOppdateringer))
         } else {
             svarDAO.overskrivSvar(listOf(sporsmal).flatten())
         }
-        return sykepengesoknadDAO.finnSykepengesoknad(soknadMedResattSvar.id)
+        return sykepengesoknadDAO.finnSykepengesoknad(soknadMedOppdateringer.id)
     }
 
     private fun oppdaterSporsmalSelvstendigFrilansersoknad(
@@ -167,13 +164,10 @@ class OppdaterSporsmalService(
         soknadMedOppdateringer: Sykepengesoknad,
         sporsmal: Sporsmal
     ): Sykepengesoknad {
-        val soknadMedAvgittAv = beholdAvgittAv(soknadMedOppdateringer, soknadFraBasen)
-        val soknadMedResattSvar = resettAvgittAvPaSvarSomErEndret(soknadMedAvgittAv, soknadFraBasen)
-
-        if (harEndretSvarPaArbeidGjenopptatt(soknadMedResattSvar, soknadFraBasen)) {
-            sykepengesoknadDAO.byttUtSporsmal(oppdaterMedSvarPaArbeidGjenopptattSelvstendig(soknadMedResattSvar))
-        } else if (harEndretSvarPaBrukteReisetilskuddet(soknadMedResattSvar, soknadFraBasen)) {
-            sykepengesoknadDAO.byttUtSporsmal(oppdaterMedSvarPaaBrukteReisetilskuddet(soknadMedResattSvar))
+        if (harEndretSvarPaArbeidGjenopptatt(soknadMedOppdateringer, soknadFraBasen)) {
+            sykepengesoknadDAO.byttUtSporsmal(oppdaterMedSvarPaArbeidGjenopptattSelvstendig(soknadMedOppdateringer))
+        } else if (harEndretSvarPaBrukteReisetilskuddet(soknadMedOppdateringer, soknadFraBasen)) {
+            sykepengesoknadDAO.byttUtSporsmal(oppdaterMedSvarPaaBrukteReisetilskuddet(soknadMedOppdateringer))
         } else {
             svarDAO.overskrivSvar(listOf(sporsmal).flatten())
         }
@@ -185,12 +179,10 @@ class OppdaterSporsmalService(
         soknadMedOppdateringer: Sykepengesoknad,
         sporsmal: Sporsmal,
     ): Sykepengesoknad {
-        val soknadMedAvgittAv = beholdAvgittAv(soknadMedOppdateringer, soknadFraBasen)
-        val soknadMedResattSvar = resettAvgittAvPaSvarSomErEndret(soknadMedAvgittAv, soknadFraBasen)
-        if (harEndretSvarPaFriskmeldt(soknadMedResattSvar, soknadFraBasen)) {
-            sykepengesoknadDAO.byttUtSporsmal(oppdaterMedSvarPaFriskmeldingSporsmal(soknadMedResattSvar))
-        } else if (harEndretSvarPaBrukteReisetilskuddet(soknadMedResattSvar, soknadFraBasen)) {
-            sykepengesoknadDAO.byttUtSporsmal(oppdaterMedSvarPaaBrukteReisetilskuddet(soknadMedResattSvar))
+        if (harEndretSvarPaFriskmeldt(soknadMedOppdateringer, soknadFraBasen)) {
+            sykepengesoknadDAO.byttUtSporsmal(oppdaterMedSvarPaFriskmeldingSporsmal(soknadMedOppdateringer))
+        } else if (harEndretSvarPaBrukteReisetilskuddet(soknadMedOppdateringer, soknadFraBasen)) {
+            sykepengesoknadDAO.byttUtSporsmal(oppdaterMedSvarPaaBrukteReisetilskuddet(soknadMedOppdateringer))
         } else {
             svarDAO.overskrivSvar(listOf(sporsmal).flatten())
         }
@@ -210,52 +202,6 @@ class OppdaterSporsmalService(
     private fun oppdaterSporsmalUtenLogikk(soknadMedOppdateringer: Sykepengesoknad, sporsmal: Sporsmal): Sykepengesoknad {
         svarDAO.overskrivSvar(listOf(sporsmal).flatten())
         return sykepengesoknadDAO.finnSykepengesoknad(soknadMedOppdateringer.id)
-    }
-
-    private fun beholdAvgittAv(sykepengesoknad: Sykepengesoknad, soknadFraBasen: Sykepengesoknad): Sykepengesoknad {
-        val nyeSporsmal = sykepengesoknad.alleSporsmalOgUndersporsmal()
-            .filter { sporsmal ->
-                soknadFraBasen
-                    .getSporsmalMedTag(sporsmal.tag)
-                    .svar
-                    .any { svar -> svar.avgittAv != null }
-            }
-            .map { sporsmal ->
-                sporsmal.copy(
-                    svar = sporsmal
-                        .svar
-                        .map { svar ->
-                            svar.copy(
-                                avgittAv = soknadFraBasen
-                                    .getSporsmalMedTag(sporsmal.tag)
-                                    .svar.firstNotNullOfOrNull { it.avgittAv }
-                            )
-                        }
-                )
-            }
-        @Suppress("DEPRECATION")
-        return sykepengesoknad.replaceSporsmal(nyeSporsmal)
-    }
-
-    private fun resettAvgittAvPaSvarSomErEndret(
-        sykepengesoknad: Sykepengesoknad,
-        soknadFraBasen: Sykepengesoknad
-    ): Sykepengesoknad {
-        val nyeSporsmal = sykepengesoknad.alleSporsmalOgUndersporsmal()
-            .filterNot { sporsmal ->
-                soknadFraBasen.getSporsmalMedTag(sporsmal.tag).svar == sporsmal.svar
-            }
-            .map { sporsmal ->
-                sporsmal.copy(
-                    svar = sporsmal
-                        .svar
-                        .map { svar ->
-                            svar.copy(avgittAv = null)
-                        }
-                )
-            }
-        @Suppress("DEPRECATION")
-        return sykepengesoknad.replaceSporsmal(nyeSporsmal)
     }
 
     private fun harNyttRelevantSvar(

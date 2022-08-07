@@ -236,7 +236,7 @@ private fun leggNeiSvarPaSoknad(sykepengesoknad: Sykepengesoknad): Sykepengesokn
 
 private fun svarNei(sykepengesoknad: Sykepengesoknad, tag: String): Sporsmal {
     return sykepengesoknad.getSporsmalMedTag(tag).toBuilder()
-        .svar(listOf(Svar(null, "NEI", null)))
+        .svar(listOf(Svar(null, "NEI")))
         .build()
 }
 
@@ -262,14 +262,14 @@ fun leggSvarPaSoknad(sykepengesoknad: Sykepengesoknad): Sykepengesoknad {
 
 private fun ansvarserklaring(sykepengesoknad: Sykepengesoknad): Sporsmal {
     return sykepengesoknad.getSporsmalMedTag(ANSVARSERKLARING).toBuilder()
-        .svar(listOf(Svar(null, "CHECKED", null)))
+        .svar(listOf(Svar(null, "CHECKED")))
         .build()
 }
 
 private fun fravarForSykmeldingen(sykepengesoknad: Sykepengesoknad): Sporsmal {
 
     return sykepengesoknad.getSporsmalMedTag(FRAVAR_FOR_SYKMELDINGEN).toBuilder()
-        .svar(listOf(Svar(null, "JA", null)))
+        .svar(listOf(Svar(null, "JA")))
         .undersporsmal(
             listOf(
                 sykepengesoknad.getSporsmalMedTag(FRAVAR_FOR_SYKMELDINGEN_NAR).toBuilder()
@@ -280,8 +280,7 @@ private fun fravarForSykmeldingen(sykepengesoknad: Sykepengesoknad): Sporsmal {
                                 periodeTilJson(
                                     sykepengesoknad.fom!!.minusDays(4),
                                     sykepengesoknad.fom!!.plusDays(2)
-                                ),
-                                null
+                                )
                             )
                         )
                     )
@@ -293,11 +292,11 @@ private fun fravarForSykmeldingen(sykepengesoknad: Sykepengesoknad): Sporsmal {
 
 private fun tilbakeIFulltArbeid(sykepengesoknad: Sykepengesoknad): Sporsmal {
     return sykepengesoknad.getSporsmalMedTag(TILBAKE_I_ARBEID).toBuilder()
-        .svar(listOf(Svar(null, "JA", null)))
+        .svar(listOf(Svar(null, "JA")))
         .undersporsmal(
             listOf(
                 sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).toBuilder()
-                    .svar(listOf(Svar(null, sykepengesoknad.fom!!.plusDays(7).format(ISO_LOCAL_DATE), null)))
+                    .svar(listOf(Svar(null, sykepengesoknad.fom!!.plusDays(7).format(ISO_LOCAL_DATE))))
                     .build()
             )
         )
@@ -306,11 +305,11 @@ private fun tilbakeIFulltArbeid(sykepengesoknad: Sykepengesoknad): Sporsmal {
 
 private fun jobbetDu100Prosent(sykepengesoknad: Sykepengesoknad): Sporsmal {
     return sykepengesoknad.getSporsmalMedTag(JOBBET_DU_100_PROSENT + "0").toBuilder()
-        .svar(listOf(Svar(null, "JA", null)))
+        .svar(listOf(Svar(null, "JA")))
         .undersporsmal(
             asList(
                 sykepengesoknad.getSporsmalMedTag(HVOR_MANGE_TIMER_PER_UKE + "0").toBuilder()
-                    .svar(listOf(Svar(null, "37,5", null)))
+                    .svar(listOf(Svar(null, "37,5")))
                     .build(),
                 sykepengesoknad.getSporsmalMedTag(HVOR_MYE_HAR_DU_JOBBET + "0").toBuilder()
                     .undersporsmal(
@@ -319,7 +318,7 @@ private fun jobbetDu100Prosent(sykepengesoknad: Sykepengesoknad): Sporsmal {
                                 .undersporsmal(
                                     listOf(
                                         sykepengesoknad.getSporsmalMedTag(HVOR_MYE_PROSENT_VERDI + "0").toBuilder()
-                                            .svar(listOf(Svar(null, "79", null)))
+                                            .svar(listOf(Svar(null, "79")))
                                             .build()
                                     )
                                 )
@@ -335,11 +334,11 @@ private fun jobbetDu100Prosent(sykepengesoknad: Sykepengesoknad): Sporsmal {
 
 private fun jobbetDuGradert(sykepengesoknad: Sykepengesoknad): Sporsmal {
     return sykepengesoknad.getSporsmalMedTag(JOBBET_DU_GRADERT + "1").toBuilder()
-        .svar(listOf(Svar(null, "JA", null)))
+        .svar(listOf(Svar(null, "JA")))
         .undersporsmal(
             asList(
                 sykepengesoknad.getSporsmalMedTag(HVOR_MANGE_TIMER_PER_UKE + "1").toBuilder()
-                    .svar(listOf(Svar(null, "37.5", null)))
+                    .svar(listOf(Svar(null, "37.5")))
                     .build(),
                 sykepengesoknad.getSporsmalMedTag(HVOR_MYE_HAR_DU_JOBBET + "1").toBuilder()
                     .undersporsmal(
@@ -349,11 +348,11 @@ private fun jobbetDuGradert(sykepengesoknad: Sykepengesoknad): Sporsmal {
                                 .undersporsmal(listOf(sykepengesoknad.getSporsmalMedTag(HVOR_MYE_PROSENT_VERDI + "1")))
                                 .build(),
                             sykepengesoknad.getSporsmalMedTag(HVOR_MYE_TIMER + "1").toBuilder()
-                                .svar(listOf(Svar(null, "CHECKED", null)))
+                                .svar(listOf(Svar(null, "CHECKED")))
                                 .undersporsmal(
                                     listOf(
                                         sykepengesoknad.getSporsmalMedTag(HVOR_MYE_TIMER_VERDI + "1").toBuilder()
-                                            .svar(listOf(Svar(null, "66", null)))
+                                            .svar(listOf(Svar(null, "66")))
                                             .build()
                                     )
                                 )
@@ -368,14 +367,14 @@ private fun jobbetDuGradert(sykepengesoknad: Sykepengesoknad): Sporsmal {
 
 private fun feriePermisjonUtland(sykepengesoknad: Sykepengesoknad): Sporsmal {
     return sykepengesoknad.getSporsmalMedTag(FERIE_PERMISJON_UTLAND).toBuilder()
-        .svar(listOf(Svar(null, "JA", null)))
+        .svar(listOf(Svar(null, "JA")))
         .undersporsmal(
             listOf(
                 sykepengesoknad.getSporsmalMedTag(FERIE_PERMISJON_UTLAND_HVA).toBuilder()
                     .undersporsmal(
                         asList(
                             sykepengesoknad.getSporsmalMedTag(FERIE).toBuilder()
-                                .svar(listOf(Svar(null, "CHECKED", null)))
+                                .svar(listOf(Svar(null, "CHECKED")))
                                 .undersporsmal(
                                     listOf(
                                         sykepengesoknad.getSporsmalMedTag(FERIE_NAR).toBuilder()
@@ -386,8 +385,7 @@ private fun feriePermisjonUtland(sykepengesoknad: Sykepengesoknad): Sporsmal {
                                                         periodeTilJson(
                                                             sykepengesoknad.fom!!.plusDays(2),
                                                             sykepengesoknad.fom!!.plusDays(4)
-                                                        ),
-                                                        null
+                                                        )
                                                     )
                                                 )
                                             )
@@ -397,7 +395,7 @@ private fun feriePermisjonUtland(sykepengesoknad: Sykepengesoknad): Sporsmal {
                                 .build(),
                             sykepengesoknad.getSporsmalMedTag(PERMISJON),
                             sykepengesoknad.getSporsmalMedTag(UTLAND).toBuilder()
-                                .svar(listOf(Svar(null, "CHECKED", null)))
+                                .svar(listOf(Svar(null, "CHECKED")))
                                 .undersporsmal(
                                     listOf(
                                         sykepengesoknad.getSporsmalMedTag(UTLAND_NAR).toBuilder()
@@ -408,16 +406,14 @@ private fun feriePermisjonUtland(sykepengesoknad: Sykepengesoknad): Sporsmal {
                                                         periodeTilJson(
                                                             sykepengesoknad.fom!!.plusDays(1),
                                                             sykepengesoknad.fom!!.plusDays(2)
-                                                        ),
-                                                        null
+                                                        )
                                                     ),
                                                     Svar(
                                                         null,
                                                         periodeTilJson(
                                                             sykepengesoknad.fom!!.plusDays(4),
                                                             sykepengesoknad.fom!!.plusDays(6)
-                                                        ),
-                                                        null
+                                                        )
                                                     )
                                                 )
                                             )
@@ -435,7 +431,7 @@ private fun feriePermisjonUtland(sykepengesoknad: Sykepengesoknad): Sporsmal {
 
 private fun ferie(sykepengesoknad: Sykepengesoknad): Sporsmal {
     return sykepengesoknad.getSporsmalMedTag(FERIE_V2).toBuilder()
-        .svar(listOf(Svar(null, "JA", null)))
+        .svar(listOf(Svar(null, "JA")))
         .undersporsmal(
             listOf(
                 sykepengesoknad.getSporsmalMedTag(FERIE_NAR_V2).toBuilder()
@@ -443,8 +439,7 @@ private fun ferie(sykepengesoknad: Sykepengesoknad): Sporsmal {
                         listOf(
                             Svar(
                                 null,
-                                periodeTilJson(sykepengesoknad.fom!!.plusDays(1), sykepengesoknad.fom!!.plusDays(2)),
-                                null
+                                periodeTilJson(sykepengesoknad.fom!!.plusDays(1), sykepengesoknad.fom!!.plusDays(2))
                             )
                         )
                     )
@@ -456,13 +451,13 @@ private fun ferie(sykepengesoknad: Sykepengesoknad): Sporsmal {
 
 private fun permisjon(sykepengesoknad: Sykepengesoknad): Sporsmal {
     return sykepengesoknad.getSporsmalMedTag(PERMISJON_V2).toBuilder()
-        .svar(listOf(Svar(null, "NEI", null)))
+        .svar(listOf(Svar(null, "NEI")))
         .build()
 }
 
 private fun utenlandsopphold(sykepengesoknad: Sykepengesoknad): Sporsmal {
     return sykepengesoknad.getSporsmalMedTag(UTLAND_V2).toBuilder()
-        .svar(listOf(Svar(null, "JA", null)))
+        .svar(listOf(Svar(null, "JA")))
         .undersporsmal(
             listOf(
                 sykepengesoknad.getSporsmalMedTag(UTLAND_NAR_V2).toBuilder()
@@ -470,13 +465,11 @@ private fun utenlandsopphold(sykepengesoknad: Sykepengesoknad): Sporsmal {
                         asList(
                             Svar(
                                 null,
-                                periodeTilJson(sykepengesoknad.fom!!.plusDays(1), sykepengesoknad.fom!!.plusDays(1)),
-                                null
+                                periodeTilJson(sykepengesoknad.fom!!.plusDays(1), sykepengesoknad.fom!!.plusDays(1))
                             ),
                             Svar(
                                 null,
-                                periodeTilJson(sykepengesoknad.fom!!.plusDays(4), sykepengesoknad.fom!!.plusDays(6)),
-                                null
+                                periodeTilJson(sykepengesoknad.fom!!.plusDays(4), sykepengesoknad.fom!!.plusDays(6))
                             )
                         )
                     )
@@ -488,41 +481,41 @@ private fun utenlandsopphold(sykepengesoknad: Sykepengesoknad): Sporsmal {
 
 private fun andreInntektskilder(sykepengesoknad: Sykepengesoknad): Sporsmal {
     return sykepengesoknad.getSporsmalMedTag(ANDRE_INNTEKTSKILDER).toBuilder()
-        .svar(listOf(Svar(null, "JA", null)))
+        .svar(listOf(Svar(null, "JA")))
         .undersporsmal(
             listOf(
                 sykepengesoknad.getSporsmalMedTag(HVILKE_ANDRE_INNTEKTSKILDER).toBuilder()
                     .undersporsmal(
                         asList(
                             sykepengesoknad.getSporsmalMedTag(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD).toBuilder()
-                                .svar(listOf(Svar(null, "CHECKED", null)))
+                                .svar(listOf(Svar(null, "CHECKED")))
                                 .undersporsmal(
                                     listOf(
                                         sykepengesoknad.getSporsmalMedTag(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD + ER_DU_SYKMELDT)
                                             .toBuilder()
-                                            .svar(listOf(Svar(null, "JA", null)))
+                                            .svar(listOf(Svar(null, "JA")))
                                             .build()
                                     )
                                 )
                                 .build(),
                             sykepengesoknad.getSporsmalMedTag(INNTEKTSKILDE_SELVSTENDIG).toBuilder()
-                                .svar(listOf(Svar(null, "CHECKED", null)))
+                                .svar(listOf(Svar(null, "CHECKED")))
                                 .undersporsmal(
                                     listOf(
                                         sykepengesoknad.getSporsmalMedTag(INNTEKTSKILDE_SELVSTENDIG + ER_DU_SYKMELDT)
                                             .toBuilder()
-                                            .svar(listOf(Svar(null, "JA", null)))
+                                            .svar(listOf(Svar(null, "JA")))
                                             .build()
                                     )
                                 )
                                 .build(),
                             sykepengesoknad.getSporsmalMedTag(INNTEKTSKILDE_SELVSTENDIG_DAGMAMMA).toBuilder()
-                                .svar(listOf(Svar(null, "CHECKED", null)))
+                                .svar(listOf(Svar(null, "CHECKED")))
                                 .undersporsmal(
                                     listOf(
                                         sykepengesoknad.getSporsmalMedTag(INNTEKTSKILDE_SELVSTENDIG_DAGMAMMA + ER_DU_SYKMELDT)
                                             .toBuilder()
-                                            .svar(listOf(Svar(null, "NEI", null)))
+                                            .svar(listOf(Svar(null, "NEI")))
                                             .build()
                                     )
                                 )
@@ -540,14 +533,14 @@ private fun andreInntektskilder(sykepengesoknad: Sykepengesoknad): Sporsmal {
 
 private fun utdanning(sykepengesoknad: Sykepengesoknad): Sporsmal {
     return sykepengesoknad.getSporsmalMedTag(UTDANNING).toBuilder()
-        .svar(listOf(Svar(null, "JA", null)))
+        .svar(listOf(Svar(null, "JA")))
         .undersporsmal(
             asList(
                 sykepengesoknad.getSporsmalMedTag(UTDANNING_START).toBuilder()
-                    .svar(listOf(Svar(null, sykepengesoknad.fom!!.plusDays(3).format(ISO_LOCAL_DATE), null)))
+                    .svar(listOf(Svar(null, sykepengesoknad.fom!!.plusDays(3).format(ISO_LOCAL_DATE))))
                     .build(),
                 sykepengesoknad.getSporsmalMedTag(FULLTIDSSTUDIUM).toBuilder()
-                    .svar(listOf(Svar(null, "NEI", null)))
+                    .svar(listOf(Svar(null, "NEI")))
                     .build()
             )
         )
@@ -556,6 +549,6 @@ private fun utdanning(sykepengesoknad: Sykepengesoknad): Sporsmal {
 
 private fun bekreftOpplysninger(sykepengesoknad: Sykepengesoknad): Sporsmal {
     return sykepengesoknad.getSporsmalMedTag(BEKREFT_OPPLYSNINGER).toBuilder()
-        .svar(listOf(Svar(null, "CHECKED", null)))
+        .svar(listOf(Svar(null, "CHECKED")))
         .build()
 }

@@ -523,8 +523,8 @@ class ValideringTest {
 
         val soknadGodkjentFerieSporsmal = settOppSoknadOppholdUtland("fnr").copy(
             sporsmal = listOf(
-                getSporsmalMedTomtUndersporsmal(JA_NEI, listOf(Svar(null, "JA", null))),
-                getSporsmalMedTomtUndersporsmal(JA_NEI, listOf(Svar(null, "JA", null))),
+                getSporsmalMedTomtUndersporsmal(JA_NEI, listOf(Svar(null, "JA"))),
+                getSporsmalMedTomtUndersporsmal(JA_NEI, listOf(Svar(null, "JA"))),
                 getUndersporsmalMedTagOgSvar("FERIE", "NEI")
             )
         )
@@ -536,8 +536,8 @@ class ValideringTest {
 
         val soknadIkkeGodkjentFerieSporsmal = settOppSoknadOppholdUtland("fnr").copy(
             sporsmal = listOf(
-                getSporsmalMedTomtUndersporsmal(JA_NEI, listOf(Svar(null, "JA", null))),
-                getSporsmalMedTomtUndersporsmal(JA_NEI, listOf(Svar(null, "JA", null))),
+                getSporsmalMedTomtUndersporsmal(JA_NEI, listOf(Svar(null, "JA"))),
+                getSporsmalMedTomtUndersporsmal(JA_NEI, listOf(Svar(null, "JA"))),
                 getUndersporsmalMedTagOgSvar("FERIE", "JA")
             )
         )
@@ -556,7 +556,7 @@ class ValideringTest {
                         if (i >= besvarte)
                             emptyList()
                         else
-                            listOf(Svar(null, "CHECKED", null))
+                            listOf(Svar(null, "CHECKED"))
                     )
                     .build()
             )
@@ -607,18 +607,18 @@ class ValideringTest {
 
     private fun getUndersporsmalMedTagOgSvar(tag: String, verdipasvar: String): Sporsmal {
         val svar = ArrayList<Svar>()
-        svar.add(Svar(null, verdipasvar, null))
+        svar.add(Svar(null, verdipasvar))
         return sporsmalBuilder()
             .tag("ANY")
             .svartype(JA_NEI)
-            .svar(listOf(Svar(null, "JA", null)))
+            .svar(listOf(Svar(null, "JA")))
             .undersporsmal(
                 asList(
-                    getSporsmalMedTomtUndersporsmal(JA_NEI, listOf(Svar(null, "JA", null))),
+                    getSporsmalMedTomtUndersporsmal(JA_NEI, listOf(Svar(null, "JA"))),
                     sporsmalBuilder()
                         .tag(tag)
                         .svartype(JA_NEI)
-                        .svar(listOf(Svar(null, verdipasvar, null)))
+                        .svar(listOf(Svar(null, verdipasvar)))
                         .undersporsmal(emptyList())
                         .build()
                 )
@@ -629,7 +629,7 @@ class ValideringTest {
     private fun getSvar(antall: Int): List<Svar> {
         val svar = ArrayList<Svar>()
         for (i in 0 until antall) {
-            svar.add(Svar(null, "SVAR", null))
+            svar.add(Svar(null, "SVAR"))
         }
         return svar
     }

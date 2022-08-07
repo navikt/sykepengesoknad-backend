@@ -8,7 +8,6 @@ import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSporsmal
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSvar
-import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSvarAvgittAv
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSvartype
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknad
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykmeldingstype
@@ -29,7 +28,6 @@ private fun mapSvarTilRSSvar(svar: Svar): RSSvar {
     return RSSvar(
         id = svar.id,
         verdi = svar.verdi,
-        avgittAv = EnumUtil.konverter(RSSvarAvgittAv::class.java, svar.avgittAv)
     )
 }
 
