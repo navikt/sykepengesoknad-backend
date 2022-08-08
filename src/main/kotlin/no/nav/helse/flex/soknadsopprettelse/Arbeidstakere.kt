@@ -1,7 +1,6 @@
 package no.nav.helse.flex.soknadsopprettelse
 
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.domain.Opprinnelse
 import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.Soknadsperiode
 import no.nav.helse.flex.domain.Soknadstype.GRADERT_REISETILSKUDD
@@ -88,7 +87,6 @@ fun settOppSoknadArbeidstaker(
         arbeidsgiverNavn = soknadMetadata.arbeidsgiverNavn!!,
         soknadPerioder = soknadMetadata.sykmeldingsperioder,
         sporsmal = sporsmal,
-        opprinnelse = Opprinnelse.SYFOSOKNAD,
         soknadstype = soknadMetadata.soknadstype,
         arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
         egenmeldtSykmelding = soknadMetadata.egenmeldtSykmelding,

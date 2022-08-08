@@ -2,7 +2,6 @@ package no.nav.helse.flex.soknadsopprettelse
 
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Arbeidssituasjon.*
-import no.nav.helse.flex.domain.Opprinnelse
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svartype.*
@@ -35,7 +34,6 @@ fun skapReisetilskuddsoknad(
         arbeidsgiverOrgnummer = soknadMetadata.arbeidsgiverOrgnummer,
         arbeidsgiverNavn = soknadMetadata.arbeidsgiverNavn,
         soknadPerioder = soknadMetadata.sykmeldingsperioder,
-        opprinnelse = Opprinnelse.SYFOSOKNAD,
         soknadstype = Soknadstype.REISETILSKUDD,
         arbeidssituasjon = soknadMetadata.arbeidssituasjon,
         egenmeldtSykmelding = soknadMetadata.egenmeldtSykmelding,

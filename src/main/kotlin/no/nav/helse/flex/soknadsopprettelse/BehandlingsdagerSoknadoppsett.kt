@@ -5,7 +5,6 @@ import no.nav.helse.flex.domain.Arbeidssituasjon.ARBEIDSLEDIG
 import no.nav.helse.flex.domain.Arbeidssituasjon.ARBEIDSTAKER
 import no.nav.helse.flex.domain.Arbeidssituasjon.FRILANSER
 import no.nav.helse.flex.domain.Arbeidssituasjon.NAERINGSDRIVENDE
-import no.nav.helse.flex.domain.Opprinnelse
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Sykepengesoknad
@@ -88,7 +87,6 @@ fun settOppSykepengesoknadBehandlingsdager(
         arbeidsgiverNavn = soknadMetadata.arbeidsgiverNavn,
         soknadPerioder = soknadMetadata.sykmeldingsperioder,
         sporsmal = sporsmal,
-        opprinnelse = Opprinnelse.SYFOSOKNAD,
         arbeidssituasjon = soknadMetadata.arbeidssituasjon,
         egenmeldtSykmelding = soknadMetadata.egenmeldtSykmelding,
         merknaderFraSykmelding = soknadMetadata.merknader,
