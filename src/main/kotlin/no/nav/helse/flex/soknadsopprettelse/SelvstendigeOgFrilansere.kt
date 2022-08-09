@@ -33,7 +33,7 @@ fun settOppSoknadSelvstendigOgFrilanser(
 ): Sykepengesoknad {
     val gradertReisetilskudd = soknadMetadata.soknadstype == Soknadstype.GRADERT_REISETILSKUDD
     val sporsmal = mutableListOf(
-        ansvarserklaringSporsmal(reisetilskudd = gradertReisetilskudd),
+        ansvarserklaringSporsmal(),
         if (gradertReisetilskudd) {
             tilbakeIFulltArbeidGradertReisetilskuddSporsmal(soknadMetadata)
         } else {
