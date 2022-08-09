@@ -54,74 +54,94 @@ class OppdaterSporsmalService(
 
         val soknadMedOppdatertSporsmal = soknadFraBasenForOppdatering.replaceSporsmal(sporsmal)
 
-        val oppdatertSoknad = oppdaterSoknad(soknadFraBasenForOppdatering, soknadMedOppdatertSporsmal)
+        val oppdatertSoknad = oppdaterSoknad(soknadFraBasenForOppdatering, soknadMedOppdatertSporsmal, sporsmal)
 
         val soknadenErMutert = soknadFraBasenForOppdatering.sporsmal.erUlikUtenomSvar(oppdatertSoknad.sporsmal)
 
         return OppdaterSporsmalResultat(oppdatertSoknad, soknadenErMutert)
     }
 
-    fun oppdaterSoknad(soknadFraBasen: Sykepengesoknad, soknadMedOppdateringer: Sykepengesoknad): Sykepengesoknad {
+    fun oppdaterSoknad(
+        soknadFraBasen: Sykepengesoknad,
+        soknadMedOppdateringer: Sykepengesoknad,
+        sporsmal: Sporsmal
+    ): Sykepengesoknad {
         return when (soknadMedOppdateringer.soknadstype) {
             ARBEIDSTAKERE -> {
                 oppdaterSporsmalArbeidstakersoknad(
                     soknadFraBasen = soknadFraBasen,
-                    soknadMedOppdateringer = soknadMedOppdateringer
+                    soknadMedOppdateringer = soknadMedOppdateringer,
+                    sporsmal = sporsmal,
                 )
             }
+
             SELVSTENDIGE_OG_FRILANSERE -> {
                 oppdaterSporsmalSelvstendigFrilansersoknad(
                     soknadFraBasen = soknadFraBasen,
-                    soknadMedOppdateringer = soknadMedOppdateringer
+                    soknadMedOppdateringer = soknadMedOppdateringer,
+                    sporsmal = sporsmal,
                 )
             }
+
             ARBEIDSLEDIG, ANNET_ARBEIDSFORHOLD -> {
                 oppdaterSporsmalArbeidsledigOgAnnetsoknad(
                     soknadFraBasen = soknadFraBasen,
-                    soknadMedOppdateringer = soknadMedOppdateringer
+                    soknadMedOppdateringer = soknadMedOppdateringer,
+                    sporsmal = sporsmal,
                 )
             }
+
             GRADERT_REISETILSKUDD -> {
                 when (soknadMedOppdateringer.arbeidssituasjon) {
                     ARBEIDSTAKER -> {
                         oppdaterSporsmalArbeidstakersoknad(
                             soknadFraBasen = soknadFraBasen,
-                            soknadMedOppdateringer = soknadMedOppdateringer
+                            soknadMedOppdateringer = soknadMedOppdateringer,
+                            sporsmal = sporsmal,
                         )
                     }
+
                     FRILANSER, NAERINGSDRIVENDE -> {
                         oppdaterSporsmalSelvstendigFrilansersoknad(
                             soknadFraBasen = soknadFraBasen,
-                            soknadMedOppdateringer = soknadMedOppdateringer
+                            soknadMedOppdateringer = soknadMedOppdateringer,
+                            sporsmal = sporsmal
                         )
                     }
+
                     Arbeidssituasjon.ARBEIDSLEDIG, ANNET -> {
                         oppdaterSporsmalArbeidsledigOgAnnetsoknad(
                             soknadFraBasen = soknadFraBasen,
-                            soknadMedOppdateringer = soknadMedOppdateringer
+                            soknadMedOppdateringer = soknadMedOppdateringer,
+                            sporsmal = sporsmal
                         )
                     }
+
                     else -> throw IllegalStateException(
                         "Arbeidssituasjon ${soknadMedOppdateringer.arbeidssituasjon} skal ikke kunne ha gradert " +
                             "reisetilskudd"
                     )
                 }
             }
+
             OPPHOLD_UTLAND -> {
-                oppdaterSporsmalUtlandssoknad(soknadMedOppdateringer = soknadMedOppdateringer)
+                oppdaterSporsmalUtlandssoknad(soknadMedOppdateringer = soknadMedOppdateringer, sporsmal = sporsmal)
             }
+
             BEHANDLINGSDAGER -> {
-                oppdaterSporsmalUtenLogikk(soknadMedOppdateringer = soknadMedOppdateringer)
+                oppdaterSporsmalUtenLogikk(soknadMedOppdateringer = soknadMedOppdateringer, sporsmal = sporsmal)
             }
+
             REISETILSKUDD -> {
-                oppdaterSporsmalUtenLogikk(soknadMedOppdateringer = soknadMedOppdateringer)
+                oppdaterSporsmalUtenLogikk(soknadMedOppdateringer = soknadMedOppdateringer, sporsmal = sporsmal)
             }
         }
     }
 
     private fun oppdaterSporsmalArbeidstakersoknad(
         soknadFraBasen: Sykepengesoknad,
-        soknadMedOppdateringer: Sykepengesoknad
+        soknadMedOppdateringer: Sykepengesoknad,
+        sporsmal: Sporsmal,
     ): Sykepengesoknad {
         val soknadMedAvgittAv = beholdAvgittAv(soknadMedOppdateringer, soknadFraBasen)
         val soknadMedResattSvar = resettAvgittAvPaSvarSomErEndret(soknadMedAvgittAv, soknadFraBasen)
@@ -137,14 +157,15 @@ class OppdaterSporsmalService(
         } else if (harEndretSvarPaBrukteReisetilskuddet(soknadMedResattSvar, soknadFraBasen)) {
             sykepengesoknadDAO.byttUtSporsmal(oppdaterMedSvarPaaBrukteReisetilskuddet(soknadMedResattSvar))
         } else {
-            svarDAO.overskrivSvar(soknadMedResattSvar)
+            svarDAO.overskrivSvar(listOf(sporsmal).flatten())
         }
         return sykepengesoknadDAO.finnSykepengesoknad(soknadMedResattSvar.id)
     }
 
     private fun oppdaterSporsmalSelvstendigFrilansersoknad(
         soknadFraBasen: Sykepengesoknad,
-        soknadMedOppdateringer: Sykepengesoknad
+        soknadMedOppdateringer: Sykepengesoknad,
+        sporsmal: Sporsmal
     ): Sykepengesoknad {
         val soknadMedAvgittAv = beholdAvgittAv(soknadMedOppdateringer, soknadFraBasen)
         val soknadMedResattSvar = resettAvgittAvPaSvarSomErEndret(soknadMedAvgittAv, soknadFraBasen)
@@ -154,14 +175,15 @@ class OppdaterSporsmalService(
         } else if (harEndretSvarPaBrukteReisetilskuddet(soknadMedResattSvar, soknadFraBasen)) {
             sykepengesoknadDAO.byttUtSporsmal(oppdaterMedSvarPaaBrukteReisetilskuddet(soknadMedResattSvar))
         } else {
-            svarDAO.overskrivSvar(soknadMedOppdateringer)
+            svarDAO.overskrivSvar(listOf(sporsmal).flatten())
         }
         return sykepengesoknadDAO.finnSykepengesoknad(soknadMedOppdateringer.id)
     }
 
     private fun oppdaterSporsmalArbeidsledigOgAnnetsoknad(
         soknadFraBasen: Sykepengesoknad,
-        soknadMedOppdateringer: Sykepengesoknad
+        soknadMedOppdateringer: Sykepengesoknad,
+        sporsmal: Sporsmal,
     ): Sykepengesoknad {
         val soknadMedAvgittAv = beholdAvgittAv(soknadMedOppdateringer, soknadFraBasen)
         val soknadMedResattSvar = resettAvgittAvPaSvarSomErEndret(soknadMedAvgittAv, soknadFraBasen)
@@ -170,25 +192,23 @@ class OppdaterSporsmalService(
         } else if (harEndretSvarPaBrukteReisetilskuddet(soknadMedResattSvar, soknadFraBasen)) {
             sykepengesoknadDAO.byttUtSporsmal(oppdaterMedSvarPaaBrukteReisetilskuddet(soknadMedResattSvar))
         } else {
-            svarDAO.overskrivSvar(soknadMedOppdateringer)
+            svarDAO.overskrivSvar(listOf(sporsmal).flatten())
         }
 
         return sykepengesoknadDAO.finnSykepengesoknad(soknadMedOppdateringer.id)
     }
 
-    private fun oppdaterSporsmalUtlandssoknad(soknadMedOppdateringer: Sykepengesoknad): Sykepengesoknad {
+    private fun oppdaterSporsmalUtlandssoknad(soknadMedOppdateringer: Sykepengesoknad, sporsmal: Sporsmal): Sykepengesoknad {
         var soknad = soknadMedOppdateringer
         soknad = soknad.replaceSporsmal(getOppdatertBekreftSporsmal(soknad))
         sporsmalDAO.oppdaterSporsmalstekst(soknad.getSporsmalMedTag(BEKREFT_OPPLYSNINGER_UTLAND_INFO))
         sporsmalDAO.oppdaterSporsmalstekst(soknad.getSporsmalMedTag(BEKREFT_OPPLYSNINGER_UTLAND))
-        svarDAO.overskrivSvar(soknad)
+        svarDAO.overskrivSvar(listOf(sporsmal).flatten())
         return sykepengesoknadDAO.finnSykepengesoknad(soknad.id)
     }
 
-    private fun oppdaterSporsmalUtenLogikk(soknadMedOppdateringer: Sykepengesoknad): Sykepengesoknad {
-
-        svarDAO.overskrivSvar(soknadMedOppdateringer)
-
+    private fun oppdaterSporsmalUtenLogikk(soknadMedOppdateringer: Sykepengesoknad, sporsmal: Sporsmal): Sykepengesoknad {
+        svarDAO.overskrivSvar(listOf(sporsmal).flatten())
         return sykepengesoknadDAO.finnSykepengesoknad(soknadMedOppdateringer.id)
     }
 
@@ -208,9 +228,7 @@ class OppdaterSporsmalService(
                             svar.copy(
                                 avgittAv = soknadFraBasen
                                     .getSporsmalMedTag(sporsmal.tag)
-                                    .svar
-                                    .mapNotNull { it.avgittAv }
-                                    .firstOrNull()
+                                    .svar.firstNotNullOfOrNull { it.avgittAv }
                             )
                         }
                 )
@@ -280,7 +298,10 @@ class OppdaterSporsmalService(
             harNyttRelevantSvar(sykepengesoknad, soknadFraBasen, TILBAKE_NAR)
     }
 
-    private fun harEndretSvarPaBrukteReisetilskuddet(sykepengesoknad: Sykepengesoknad, soknadFraBasen: Sykepengesoknad): Boolean {
+    private fun harEndretSvarPaBrukteReisetilskuddet(
+        sykepengesoknad: Sykepengesoknad,
+        soknadFraBasen: Sykepengesoknad,
+    ): Boolean {
         return harNyttRelevantSvar(sykepengesoknad, soknadFraBasen, BRUKTE_REISETILSKUDDET)
     }
 
@@ -341,8 +362,8 @@ class OppdaterSporsmalService(
             ?: throw IllegalArgumentException("Svar $svarId finnes ikke i spørsmål $sporsmalId og søknad $soknadId.")
 
         // Spesialhåndterer sletting av kvitteringer da frontendkoden forventer at man skal kunne slette flere
-        // kvitteringer uten å laste søknaden på nytt. oppdaterSporsmal() sletter alle svar og lagrer de på nytt, noe
-        // som fører til at de får ny Id som ikke blir hentet av frontend.
+        // kvitteringer uten å laste søknaden på nytt. oppdaterSporsmal() sletter alle svar tilhørende spørsmålet
+        // og lagrer de på nytt, noe som fører til at de får ny id som frontend ikke kjenner til.
         if (sporsmal.tag == KVITTERINGER) {
             slettKvittering(sporsmal, svarSomSkalFjernes)
             log.info("Slettet kvittering med svarId $svarId fra spørsmål $sporsmalId tilhørende søknad $soknadId.")

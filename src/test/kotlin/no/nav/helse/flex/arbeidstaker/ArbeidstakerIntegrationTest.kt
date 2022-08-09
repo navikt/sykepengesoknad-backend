@@ -4,6 +4,7 @@ import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.client.narmesteleder.Forskuttering
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
+import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSporsmal
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.mockArbeidsgiverForskutterer
@@ -34,6 +35,7 @@ import org.amshove.kluent.shouldHaveSize
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.MethodOrderer
+import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
@@ -41,7 +43,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.Duration
 import java.time.LocalDate
 
-@TestMethodOrder(MethodOrderer.MethodName::class)
+@TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class ArbeidstakerIntegrationTest : BaseTestClass() {
 
     @Autowired
@@ -59,7 +61,8 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    fun `1 - arbeidstakersøknader opprettes for en lang sykmelding`() {
+    @Order(1)
+    fun `Arbeidstakersøknader opprettes for en lang sykmelding`() {
         val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(
             fnr = fnr,
             arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
@@ -113,14 +116,16 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    fun `1,5 - Vi kan ikke korrigere en soknad som ikke er sendt`() {
+    @Order(2)
+    fun `Vi kan ikke korrigere en soknad som ikke er sendt`() {
         val soknaden = hentSoknader(fnr)[0]
         korrigerSoknadMedResult(soknaden.id, fnr).andExpect(status().isBadRequest)
             .andReturn()
     }
 
     @Test
-    fun `2 - søknadene har forventa spørsmål`() {
+    @Order(3)
+    fun `Søknadene har spørsmål som forventet`() {
         val soknader = hentSoknader(fnr)
 
         assertThat(soknader[0].sporsmal!!.map { it.tag }).isEqualTo(
@@ -159,7 +164,31 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    fun `3 - den nyeste søknaden kan ikke sendes først`() {
+    @Order(4)
+    fun `Id på et allerede besvart spørsmål endres ikke når vi svarer på et annet spørsmål`() {
+
+        fun hentAnsvarserklering(id: String): RSSporsmal {
+            return hentSoknader(fnr).find { it.id == id }!!.sporsmal!!.first { it.tag == "ANSVARSERKLARING" }
+        }
+
+        val soknaden = hentSoknader(fnr).find { it.status == RSSoknadstatus.NY }!!
+
+        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+            .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
+
+        val besvartSporsmal = hentAnsvarserklering(soknaden.id)
+
+        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+            .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
+
+        val besvartSporsmalEtterAnnetSvar = hentAnsvarserklering(soknaden.id)
+
+        besvartSporsmalEtterAnnetSvar.svar.first().id `should be equal to` besvartSporsmal.svar.first().id
+    }
+
+    @Test
+    @Order(5)
+    fun `Den nyeste søknaden kan ikke sendes først`() {
         val soknaden = hentSoknader(fnr).filter { it.status == RSSoknadstatus.NY }.sortedBy { it.fom }.last()
 
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
@@ -179,7 +208,8 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    fun `4 - vi besvarer og sender inn søknaden`() {
+    @Order(6)
+    fun `Vi besvarer og sender inn den første søknaden`() {
         flexSyketilfelleMockRestServiceServer?.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
         val soknaden = hentSoknader(fnr).find { it.status == RSSoknadstatus.NY }!!
@@ -220,7 +250,8 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    fun `5 - vi besvarer og sender inn søknad nummer 2`() {
+    @Order(7)
+    fun `Vi besvarer og sender inn den andre søknaden`() {
         flexSyketilfelleMockRestServiceServer?.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
 
@@ -255,7 +286,8 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    fun `6 - ingen søknader opprettes for bekreftet arbeidstakersøknad (strengt fortrolig adddresse)`() {
+    @Order(8)
+    fun `Ingen søknader opprettes for bekreftet arbeidstakersøknad (strengt fortrolig adddresse)`() {
         sykepengesoknadDAO.nullstillSoknader(fnr)
 
         val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(

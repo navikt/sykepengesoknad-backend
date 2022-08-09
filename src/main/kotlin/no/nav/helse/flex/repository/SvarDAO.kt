@@ -1,5 +1,6 @@
 package no.nav.helse.flex.repository
 
+import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svar
 import no.nav.helse.flex.domain.Sykepengesoknad
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
@@ -97,5 +98,13 @@ class SvarDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate
                 sporsmal.svar
                     .forEach { svar -> lagreSvar(sporsmal.id!!, svar) }
             }
+    }
+
+    fun overskrivSvar(sporsmal: List<Sporsmal>) {
+        slettSvar(sporsmal.mapNotNull { it.id })
+
+        sporsmal.forEach {
+            it.svar.forEach { svar -> lagreSvar(it.id!!, svar) }
+        }
     }
 }
