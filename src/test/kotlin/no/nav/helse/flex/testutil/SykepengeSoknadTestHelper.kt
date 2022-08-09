@@ -11,7 +11,12 @@ fun Sykepengesoknad.besvarsporsmal(tag: String, svar: String? = null, svarListe:
     val sporsmal = this.alleSporsmalOgUndersporsmal().find { it.tag == tag }
         ?: throw RuntimeException("Spørsmål ikke funnet, $tag")
 
-    val sporsmalSvar = if (svarListe != null) svarListe.map { Svar(null, verdi = it) } else listOf(Svar(null, verdi = svar!!))
+    val sporsmalSvar = if (svarListe != null) svarListe.map { Svar(null, verdi = it) } else listOf(
+        Svar(
+            null,
+            verdi = svar!!
+        )
+    )
 
     return this.byttSvar(sporsmal, sporsmalSvar)
 }

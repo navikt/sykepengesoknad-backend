@@ -33,7 +33,7 @@ private fun bekreft(sykepengesoknad: Sykepengesoknad): Sporsmal {
         .undersporsmal(
             listOf(
                 sykepengesoknad.getSporsmalMedTag(BEKREFT_OPPLYSNINGER_UTLAND).toBuilder()
-                    .svar(listOf(Svar(null, "CHECKED", null)))
+                    .svar(listOf(Svar(null, "CHECKED")))
                     .undersporsmal(emptyList())
                     .build()
             )
@@ -43,15 +43,15 @@ private fun bekreft(sykepengesoknad: Sykepengesoknad): Sporsmal {
 
 private fun arbeidsgiver(sykepengesoknad: Sykepengesoknad, feriesvarverdi: String): Sporsmal {
     return sykepengesoknad.getSporsmalMedTag(ARBEIDSGIVER).toBuilder()
-        .svar(listOf(Svar(null, "JA", null)))
+        .svar(listOf(Svar(null, "JA")))
         .undersporsmal(
             asList(
                 sykepengesoknad.getSporsmalMedTag(SYKMELDINGSGRAD).toBuilder()
-                    .svar(listOf(Svar(null, "JA", null)))
+                    .svar(listOf(Svar(null, "JA")))
                     .undersporsmal(emptyList())
                     .build(),
                 sykepengesoknad.getSporsmalMedTag(FERIE).toBuilder()
-                    .svar(listOf(Svar(null, feriesvarverdi, null)))
+                    .svar(listOf(Svar(null, feriesvarverdi)))
                     .undersporsmal(emptyList())
                     .build()
             )
@@ -61,7 +61,7 @@ private fun arbeidsgiver(sykepengesoknad: Sykepengesoknad, feriesvarverdi: Strin
 
 private fun land(sykepengesoknad: Sykepengesoknad): Sporsmal {
     return sykepengesoknad.getSporsmalMedTag(LAND).toBuilder()
-        .svar(listOf(Svar(null, "England", null)))
+        .svar(listOf(Svar(null, "England")))
         .undersporsmal(emptyList())
         .build()
 }
@@ -73,8 +73,7 @@ private fun perioder(sykepengesoknad: Sykepengesoknad): Sporsmal {
                 Svar(
                     null,
                     "{\"fom\":\"" + now().plusDays(4).format(ISO_LOCAL_DATE) +
-                        "\",\"tom\":\"" + now().plusMonths(1).format(ISO_LOCAL_DATE) + "\"}",
-                    null
+                        "\",\"tom\":\"" + now().plusMonths(1).format(ISO_LOCAL_DATE) + "\"}"
                 )
             )
         )

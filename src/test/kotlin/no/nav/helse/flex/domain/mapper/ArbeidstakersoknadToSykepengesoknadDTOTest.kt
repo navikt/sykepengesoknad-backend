@@ -128,7 +128,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
                         sporsmalBuilder()
                             .tag(UTLANDSOPPHOLD_SOKT_SYKEPENGER)
                             .svartype(Svartype.JA_NEI)
-                            .svar(listOf(Svar(null, "JA", null)))
+                            .svar(listOf(Svar(null, "JA")))
                             .build()
                     )
                 )
@@ -151,7 +151,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
                         sporsmalBuilder()
                             .tag(UTLANDSOPPHOLD_SOKT_SYKEPENGER)
                             .svartype(Svartype.JA_NEI)
-                            .svar(listOf(Svar(null, "NEI", null)))
+                            .svar(listOf(Svar(null, "NEI")))
                             .build()
                     )
                 )
@@ -197,7 +197,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
                         sporsmalBuilder()
                             .tag(UTLANDSOPPHOLD_SOKT_SYKEPENGER)
                             .svartype(Svartype.JA_NEI)
-                            .svar(listOf(Svar(null, "JA", null)))
+                            .svar(listOf(Svar(null, "JA")))
                             .build()
                     )
                 )
@@ -223,7 +223,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
                         sporsmalBuilder()
                             .tag(UTLANDSOPPHOLD_SOKT_SYKEPENGER)
                             .svartype(Svartype.JA_NEI)
-                            .svar(listOf(Svar(null, "JA", null)))
+                            .svar(listOf(Svar(null, "JA")))
                             .build()
                     )
                 )
@@ -244,7 +244,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
         var sykepengesoknad = gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal()
         sykepengesoknad = sykepengesoknad.replaceSporsmal(
             sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).toBuilder()
-                .svar(listOf(Svar(null, toDagerSiden, null)))
+                .svar(listOf(Svar(null, toDagerSiden)))
                 .build()
         )
 
@@ -401,8 +401,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
                         Svar(
                             null,
                             "{\"fom\":\"" + fom.format(ISO_LOCAL_DATE) +
-                                "\",\"tom\":\"" + tom.format(ISO_LOCAL_DATE) + "\"}",
-                            null
+                                "\",\"tom\":\"" + tom.format(ISO_LOCAL_DATE) + "\"}"
                         )
                     )
                 )
@@ -426,7 +425,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
         var sykepengesoknad = gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal()
         sykepengesoknad = sykepengesoknad.replaceSporsmal(
             sykepengesoknad.getSporsmalMedTag(PERMISJON).toBuilder()
-                .svar(listOf(Svar(null, "CHECKED", null)))
+                .svar(listOf(Svar(null, "CHECKED")))
                 .build()
         )
         sykepengesoknad = sykepengesoknad.replaceSporsmal(
@@ -436,8 +435,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
                         Svar(
                             null,
                             "{\"fom\":\"" + fom.format(ISO_LOCAL_DATE) +
-                                "\",\"tom\":\"" + tom.format(ISO_LOCAL_DATE) + "\"}",
-                            null
+                                "\",\"tom\":\"" + tom.format(ISO_LOCAL_DATE) + "\"}"
                         )
                     )
                 )
@@ -461,7 +459,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
         var sykepengesoknad = gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal()
         sykepengesoknad = sykepengesoknad.replaceSporsmal(
             sykepengesoknad.getSporsmalMedTag(UTLAND).toBuilder()
-                .svar(listOf(Svar(null, "CHECKED", null)))
+                .svar(listOf(Svar(null, "CHECKED")))
                 .build()
         )
         sykepengesoknad = sykepengesoknad.replaceSporsmal(
@@ -471,8 +469,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
                         Svar(
                             null,
                             "{\"fom\":\"" + fom.format(ISO_LOCAL_DATE) +
-                                "\",\"tom\":\"" + tom.format(ISO_LOCAL_DATE) + "\"}",
-                            null
+                                "\",\"tom\":\"" + tom.format(ISO_LOCAL_DATE) + "\"}"
                         )
                     )
                 )
@@ -496,7 +493,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
         var sykepengesoknad = opprettSendtSoknad()
         sykepengesoknad = sykepengesoknad.replaceSporsmal(
             sykepengesoknad.getSporsmalMedTag(UTLAND_V2).toBuilder()
-                .svar(listOf(Svar(null, "JA", null)))
+                .svar(listOf(Svar(null, "JA")))
                 .build()
         )
         sykepengesoknad = sykepengesoknad.replaceSporsmal(
@@ -506,8 +503,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
                         Svar(
                             null,
                             "{\"fom\":\"" + fom.format(ISO_LOCAL_DATE) +
-                                "\",\"tom\":\"" + tom.format(ISO_LOCAL_DATE) + "\"}",
-                            null
+                                "\",\"tom\":\"" + tom.format(ISO_LOCAL_DATE) + "\"}"
                         )
                     )
                 )
@@ -540,7 +536,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
         var sykepengesoknad = gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal()
         sykepengesoknad = sykepengesoknad.replaceSporsmal(
             sykepengesoknad.getSporsmalMedTag(FULLTIDSSTUDIUM).toBuilder()
-                .svar(listOf(Svar(null, "JA", null)))
+                .svar(listOf(Svar(null, "JA")))
                 .build()
         )
 
@@ -659,7 +655,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
 
         sykepengesoknad = sykepengesoknad.replaceSporsmal(
             sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).toBuilder()
-                .svar(listOf<Svar>(Svar(null, mandag.with(next(THURSDAY)).format(ISO_LOCAL_DATE), null)))
+                .svar(listOf<Svar>(Svar(null, mandag.with(next(THURSDAY)).format(ISO_LOCAL_DATE))))
                 .build()
         )
 
@@ -735,12 +731,12 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
         )
         sykepengesoknad = sykepengesoknad.replaceSporsmal(
             sykepengesoknad.getSporsmalMedTag("JOBBET_DU_100_PROSENT_0").toBuilder()
-                .svar(listOf<Svar>(Svar(null, "NEI", null)))
+                .svar(listOf<Svar>(Svar(null, "NEI")))
                 .build()
         )
         sykepengesoknad = sykepengesoknad.replaceSporsmal(
             sykepengesoknad.getSporsmalMedTag("JOBBET_DU_GRADERT_1").toBuilder()
-                .svar(listOf<Svar>(Svar(null, "NEI", null)))
+                .svar(listOf<Svar>(Svar(null, "NEI")))
                 .build()
         )
 

@@ -58,7 +58,6 @@ class ArbeidstakereTest {
                     Svar(
                         null,
                         verdi = friskmeldtDato.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                        avgittAv = null
                     )
                 )
             )
@@ -115,7 +114,7 @@ class ArbeidstakereTest {
             sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
                 min = fom.format(DateTimeFormatter.ISO_LOCAL_DATE),
                 max = tom.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                svar = listOf(Svar(null, fom.format(DateTimeFormatter.ISO_LOCAL_DATE), null))
+                svar = listOf(Svar(null, fom.format(DateTimeFormatter.ISO_LOCAL_DATE)))
             )
         )
         val oppdatertSoknad: Sykepengesoknad = oppdaterMedSvarPaArbeidGjenopptattArbeidstaker(sykepengesoknad)
@@ -139,7 +138,7 @@ class ArbeidstakereTest {
             sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
                 min = fom.format(DateTimeFormatter.ISO_LOCAL_DATE),
                 max = tom.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                svar = listOf(Svar(null, fom.format(DateTimeFormatter.ISO_LOCAL_DATE), null))
+                svar = listOf(Svar(null, fom.format(DateTimeFormatter.ISO_LOCAL_DATE)))
             )
         )
         val oppdatertSoknad: Sykepengesoknad = oppdaterMedSvarPaArbeidGjenopptattArbeidstaker(sykepengesoknad)
@@ -161,7 +160,7 @@ class ArbeidstakereTest {
             sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
                 min = fom.format(DateTimeFormatter.ISO_LOCAL_DATE),
                 max = tom.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                svar = listOf(Svar(null, fom.format(DateTimeFormatter.ISO_LOCAL_DATE), null))
+                svar = listOf(Svar(null, fom.format(DateTimeFormatter.ISO_LOCAL_DATE)))
             )
         )
         val oppdatertSoknad: Sykepengesoknad = oppdaterMedSvarPaArbeidGjenopptattArbeidstaker(sykepengesoknad)
@@ -183,7 +182,7 @@ class ArbeidstakereTest {
             sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
                 min = null,
                 max = null,
-                svar = listOf(Svar(null, arbeidGjenopptattDato.format(DateTimeFormatter.ISO_LOCAL_DATE), null))
+                svar = listOf(Svar(null, arbeidGjenopptattDato.format(DateTimeFormatter.ISO_LOCAL_DATE)))
             )
         )
         val oppdatertMin =
@@ -208,7 +207,7 @@ class ArbeidstakereTest {
             sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
                 min = null,
                 max = null,
-                svar = listOf(Svar(null, arbeidGjenopptattDato.format(DateTimeFormatter.ISO_LOCAL_DATE), null))
+                svar = listOf(Svar(null, arbeidGjenopptattDato.format(DateTimeFormatter.ISO_LOCAL_DATE)))
             )
         )
         val oppdatertMin =
@@ -233,7 +232,7 @@ class ArbeidstakereTest {
             sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
                 min = fom.format(DateTimeFormatter.ISO_LOCAL_DATE),
                 max = tom.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                svar = listOf(Svar(null, fom.format(DateTimeFormatter.ISO_LOCAL_DATE), null))
+                svar = listOf(Svar(null, fom.format(DateTimeFormatter.ISO_LOCAL_DATE)))
             )
         )
         val oppdatertSoknad: Sykepengesoknad = oppdaterMedSvarPaArbeidGjenopptattArbeidstaker(sykepengesoknad)
@@ -289,7 +288,7 @@ class ArbeidstakereTest {
             sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
                 min = null,
                 max = null,
-                svar = listOf(Svar(null, arbeidGjenopptattDato.format(DateTimeFormatter.ISO_LOCAL_DATE), null))
+                svar = listOf(Svar(null, arbeidGjenopptattDato.format(DateTimeFormatter.ISO_LOCAL_DATE)))
             )
         )
         val oppdatertMax =
@@ -312,7 +311,7 @@ class ArbeidstakereTest {
             sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
                 min = null,
                 max = null,
-                svar = listOf(Svar(null, arbeidGjenopptattDato.format(DateTimeFormatter.ISO_LOCAL_DATE), null))
+                svar = listOf(Svar(null, arbeidGjenopptattDato.format(DateTimeFormatter.ISO_LOCAL_DATE)))
             )
         )
         val oppdatertMax =
@@ -351,7 +350,7 @@ class ArbeidstakereTest {
             sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
                 min = null,
                 max = null,
-                svar = listOf(Svar(null, arbeidGjenopptattDato.format(DateTimeFormatter.ISO_LOCAL_DATE), null))
+                svar = listOf(Svar(null, arbeidGjenopptattDato.format(DateTimeFormatter.ISO_LOCAL_DATE)))
             )
         )
         val oppdatertMax =
@@ -376,7 +375,7 @@ class ArbeidstakereTest {
             sykepengesoknad.getSporsmalMedTag(UTLAND_NAR_V2).copy(
                 min = null,
                 max = null,
-                svar = listOf(Svar(null, DatoUtil.periodeTilJson(nesteLordag, nesteSondag), null))
+                svar = listOf(Svar(null, DatoUtil.periodeTilJson(nesteLordag, nesteSondag)))
             )
         )
         val oppdatertSoknad: Sykepengesoknad = oppdaterMedSvarPaUtlandsopphold(sykepengesoknad)
@@ -394,14 +393,14 @@ class ArbeidstakereTest {
             sykepengesoknad.getSporsmalMedTag(FERIE_NAR_V2).copy(
                 min = null,
                 max = null,
-                svar = listOf(Svar(null, DatoUtil.periodeTilJson(nesteMandag, nesteFredag), null))
+                svar = listOf(Svar(null, DatoUtil.periodeTilJson(nesteMandag, nesteFredag)))
             )
         )
         sykepengesoknad = sykepengesoknad.replaceSporsmal(
             sykepengesoknad.getSporsmalMedTag(UTLAND_NAR_V2).copy(
                 min = null,
                 max = null,
-                svar = listOf(Svar(null, DatoUtil.periodeTilJson(nesteMandag, nesteFredag), null))
+                svar = listOf(Svar(null, DatoUtil.periodeTilJson(nesteMandag, nesteFredag)))
             )
         )
         val oppdatertSoknad: Sykepengesoknad = oppdaterMedSvarPaUtlandsopphold(sykepengesoknad)
@@ -419,14 +418,14 @@ class ArbeidstakereTest {
             sykepengesoknad.getSporsmalMedTag(FERIE_NAR).copy(
                 min = null,
                 max = null,
-                svar = listOf(Svar(null, DatoUtil.periodeTilJson(nesteMandag, nesteFredag), null))
+                svar = listOf(Svar(null, DatoUtil.periodeTilJson(nesteMandag, nesteFredag)))
             )
         )
         sykepengesoknad = sykepengesoknad.replaceSporsmal(
             sykepengesoknad.getSporsmalMedTag(UTLAND_NAR).copy(
                 min = null,
                 max = null,
-                svar = listOf(Svar(null, DatoUtil.periodeTilJson(nesteMandag, nesteFredag), null))
+                svar = listOf(Svar(null, DatoUtil.periodeTilJson(nesteMandag, nesteFredag)))
             )
         )
         val oppdatertSoknad: Sykepengesoknad = oppdaterMedSvarPaUtlandsopphold(sykepengesoknad)
@@ -451,7 +450,7 @@ class ArbeidstakereTest {
             sykepengesoknad.getSporsmalMedTag(UTLAND_NAR_V2).copy(
                 min = null,
                 max = null,
-                svar = listOf(Svar(null, DatoUtil.periodeTilJson(nesteMandag, nesteFredag), null))
+                svar = listOf(Svar(null, DatoUtil.periodeTilJson(nesteMandag, nesteFredag)))
             )
         )
         val oppdatertSoknad: Sykepengesoknad = oppdaterMedSvarPaUtlandsopphold(sykepengesoknad)
@@ -476,7 +475,7 @@ class ArbeidstakereTest {
             sykepengesoknad.getSporsmalMedTag(UTLAND_NAR).copy(
                 min = null,
                 max = null,
-                svar = listOf(Svar(null, DatoUtil.periodeTilJson(nesteMandag, nesteFredag), null))
+                svar = listOf(Svar(null, DatoUtil.periodeTilJson(nesteMandag, nesteFredag)))
             )
         )
         val oppdatertSoknad: Sykepengesoknad = oppdaterMedSvarPaUtlandsopphold(sykepengesoknad)
@@ -510,7 +509,7 @@ class ArbeidstakereTest {
             sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
                 min = null,
                 max = null,
-                svar = listOf(Svar(null, isoDato, null))
+                svar = listOf(Svar(null, isoDato))
             )
         )
         val gyldigArbeidGjenopptattsvar = getGyldigArbeidGjenopptattsvar(sykepengesoknad)
@@ -527,7 +526,7 @@ class ArbeidstakereTest {
             sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
                 min = null,
                 max = null,
-                svar = listOf(Svar(null, isoDato, null))
+                svar = listOf(Svar(null, isoDato))
             )
         )
         val gyldigArbeidGjenopptattsvar = getGyldigArbeidGjenopptattsvar(sykepengesoknad)
@@ -544,7 +543,7 @@ class ArbeidstakereTest {
             sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
                 min = null,
                 max = null,
-                svar = listOf(Svar(null, isoDato, null))
+                svar = listOf(Svar(null, isoDato))
             )
         )
         val gyldigArbeidGjenopptattsvar = getGyldigArbeidGjenopptattsvar(sykepengesoknad)
