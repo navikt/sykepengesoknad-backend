@@ -20,13 +20,13 @@ class GjenskapSoknadConsumer(
 ) {
 
     private val log = logger()
-    private val sykmeldingId = "5aec579e-2c82-4a69-aaab-cb251b287dfb"
+    private val sykmeldingId = "4590eafb-b0b4-4078-b579-e397635a5cee"
 
     @KafkaListener(
         topics = [SYKMELDINGSENDT_TOPIC],
         containerFactory = "aivenKafkaListenerContainerFactory",
         properties = ["auto.offset.reset = earliest"],
-        id = "gjenskap-soknad",
+        id = "gjenskap-soknad-5",
         idIsGroup = true,
     )
     fun listen(cr: ConsumerRecord<String, String?>, acknowledgment: Acknowledgment) {
