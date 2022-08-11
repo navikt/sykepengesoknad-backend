@@ -11,7 +11,6 @@ import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
 import no.nav.syfo.model.sykmeldingstatus.STATUS_SENDT
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -22,7 +21,6 @@ import java.time.OffsetDateTime
 import java.time.temporal.ChronoUnit
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-@Disabled
 class GjenskapSoknadTest : BaseTestClass() {
 
     private val fnr = "123456789"
