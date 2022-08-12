@@ -221,7 +221,7 @@ class Metrikk(private val registry: MeterRegistry) {
 
     fun klippKandidatScenarioTreMotsatt(soknadstatus: String) {
         registry.counter(
-            "klipp_kandidat_scenario_en_motsatt",
+            "klipp_kandidat_scenario_tre_motsatt",
             Tags.of(
                 "type", "info",
                 "soknadstatus", soknadstatus,
