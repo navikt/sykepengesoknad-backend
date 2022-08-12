@@ -1,21 +1,14 @@
 package no.nav.helse.flex
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import no.nav.helse.flex.controller.domain.RSMottakerResponse
-import no.nav.helse.flex.controller.domain.RSOppdaterSporsmalResponse
-import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSporsmal
-import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSvar
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknad
 import no.nav.helse.flex.util.OBJECT_MAPPER
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback
 import org.springframework.http.MediaType
-import org.springframework.test.web.servlet.ResultActions
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.util.*
-
-fun BaseTestClass.jwt(fnr: String) = server.token(subject = fnr)
 
 fun BaseTestClass.buildAzureClaimSet(
     subject: String,
@@ -37,50 +30,6 @@ fun BaseTestClass.buildAzureClaimSet(
 fun BaseTestClass.skapAzureJwt(subject: String = "sykepengesoknad-korrigering-metrikk-client-id") =
     buildAzureClaimSet(subject = subject)
 
-fun BaseTestClass.hentSoknader(fnr: String): List<RSSykepengesoknad> {
-    val json = mockMvc.perform(
-        MockMvcRequestBuilders.get("/api/soknader")
-            .header("Authorization", "Bearer ${jwt(fnr)}")
-            .contentType(MediaType.APPLICATION_JSON)
-    ).andExpect(MockMvcResultMatchers.status().isOk).andReturn().response.contentAsString
-
-    return OBJECT_MAPPER.readValue<List<RSSykepengesoknad>>(json).sortedBy { it.opprettetDato }
-}
-
-fun BaseTestClass.lagreSvarMedResult(fnr: String, soknadId: String, sporsmalId: String, svar: RSSvar): ResultActions {
-    return this.mockMvc.perform(
-        MockMvcRequestBuilders.post("/api/soknader/$soknadId/sporsmal/$sporsmalId/svar")
-            .header("Authorization", "Bearer ${jwt(fnr)}")
-            .content(OBJECT_MAPPER.writeValueAsString(svar))
-            .contentType(MediaType.APPLICATION_JSON)
-    )
-}
-
-fun BaseTestClass.lagreSvar(fnr: String, soknadId: String, sporsmalId: String, svar: RSSvar): RSOppdaterSporsmalResponse {
-    val json = lagreSvarMedResult(fnr, soknadId, sporsmalId, svar)
-        .andExpect(MockMvcResultMatchers.status().isCreated)
-        .andReturn().response.contentAsString
-
-    return OBJECT_MAPPER.readValue(json)
-}
-
-fun BaseTestClass.slettSvarMedResult(
-    fnr: String,
-    soknadId: String,
-    sporsmalId: String,
-    svarId: String
-): ResultActions {
-    return this.mockMvc.perform(
-        MockMvcRequestBuilders.delete("/api/soknader/$soknadId/sporsmal/$sporsmalId/svar/$svarId")
-            .header("Authorization", "Bearer ${jwt(fnr)}")
-    )
-}
-
-fun BaseTestClass.slettSvar(fnr: String, soknadId: String, sporsmalId: String, svarId: String) {
-    slettSvarMedResult(fnr, soknadId, sporsmalId, svarId).andExpect(MockMvcResultMatchers.status().isNoContent)
-        .andReturn()
-}
-
 fun BaseTestClass.hentSoknaderSomVeilederObo(fnr: String, token: String): List<RSSykepengesoknad> {
     val json = mockMvc.perform(
         MockMvcRequestBuilders.get("/api/veileder/soknader?fnr=$fnr")
@@ -88,98 +37,6 @@ fun BaseTestClass.hentSoknaderSomVeilederObo(fnr: String, token: String): List<R
             .contentType(MediaType.APPLICATION_JSON)
     ).andExpect(MockMvcResultMatchers.status().isOk).andReturn().response.contentAsString
 
-    return OBJECT_MAPPER.readValue(json)
-}
-
-fun BaseTestClass.opprettUtlandssoknad(fnr: String) {
-    mockMvc.perform(
-        MockMvcRequestBuilders.post("/api/opprettSoknadUtland")
-            .header("Authorization", "Bearer ${jwt(fnr)}")
-            .contentType(MediaType.APPLICATION_JSON)
-    ).andExpect(MockMvcResultMatchers.status().isOk).andReturn()
-}
-
-fun BaseTestClass.korrigerSoknadMedResult(soknadId: String, fnr: String): ResultActions {
-    return mockMvc.perform(
-        MockMvcRequestBuilders.post("/api/soknader/$soknadId/korriger")
-            .header("Authorization", "Bearer ${jwt(fnr)}")
-            .contentType(MediaType.APPLICATION_JSON)
-    )
-}
-
-fun BaseTestClass.korrigerSoknad(soknadId: String, fnr: String): RSSykepengesoknad {
-    val json = this.korrigerSoknadMedResult(soknadId, fnr).andExpect(MockMvcResultMatchers.status().isOk)
-        .andReturn().response.contentAsString
-    return OBJECT_MAPPER.readValue(json)
-}
-
-fun BaseTestClass.finnMottakerAvSoknad(soknadId: String, fnr: String): RSMottakerResponse {
-    val json = mockMvc.perform(
-        MockMvcRequestBuilders.post("/api/soknader/$soknadId/finnMottaker")
-            .header("Authorization", "Bearer ${jwt(fnr)}")
-            .contentType(MediaType.APPLICATION_JSON)
-    ).andExpect(MockMvcResultMatchers.status().isOk)
-        .andReturn().response.contentAsString
-    return OBJECT_MAPPER.readValue(json)
-}
-
-fun BaseTestClass.gjenapneSoknad(soknadId: String, fnr: String) {
-    mockMvc.perform(
-        MockMvcRequestBuilders.post("/api/soknader/$soknadId/gjenapne")
-            .header("Authorization", "Bearer ${jwt(fnr)}")
-            .contentType(MediaType.APPLICATION_JSON)
-    ).andExpect(MockMvcResultMatchers.status().isOk).andReturn().response.contentAsString
-}
-
-fun BaseTestClass.avbrytSoknad(soknadId: String, fnr: String) {
-    mockMvc.perform(
-        MockMvcRequestBuilders.post("/api/soknader/$soknadId/avbryt")
-            .header("Authorization", "Bearer ${jwt(fnr)}")
-            .contentType(MediaType.APPLICATION_JSON)
-    ).andExpect(MockMvcResultMatchers.status().isOk).andReturn().response.contentAsString
-}
-
-fun BaseTestClass.ettersendTilNav(soknadId: String, fnr: String) {
-    mockMvc.perform(
-        MockMvcRequestBuilders.post("/api/soknader/$soknadId/ettersendTilNav")
-            .header("Authorization", "Bearer ${jwt(fnr)}")
-            .contentType(MediaType.APPLICATION_JSON)
-    ).andExpect(MockMvcResultMatchers.status().isOk).andReturn().response.contentAsString
-}
-
-fun BaseTestClass.ettersendTilArbeidsgiver(soknadId: String, fnr: String) {
-    mockMvc.perform(
-        MockMvcRequestBuilders.post("/api/soknader/$soknadId/ettersendTilArbeidsgiver")
-            .header("Authorization", "Bearer ${jwt(fnr)}")
-            .contentType(MediaType.APPLICATION_JSON)
-    ).andExpect(MockMvcResultMatchers.status().isOk).andReturn().response.contentAsString
-}
-
-fun BaseTestClass.sendSoknadMedResult(fnr: String, soknadId: String): ResultActions {
-    return mockMvc.perform(
-        MockMvcRequestBuilders.post("/api/soknader/$soknadId/send")
-            .header("Authorization", "Bearer ${jwt(fnr)}")
-            .contentType(MediaType.APPLICATION_JSON)
-    )
-}
-
-fun BaseTestClass.sendSoknad(fnr: String, soknadId: String): ResultActions {
-    return this.sendSoknadMedResult(fnr, soknadId).andExpect(((MockMvcResultMatchers.status().isOk)))
-}
-
-fun BaseTestClass.oppdaterSporsmalMedResult(fnr: String, rsSporsmal: RSSporsmal, soknadsId: String): ResultActions {
-    return mockMvc.perform(
-        MockMvcRequestBuilders.put("/api/soknader/$soknadsId/sporsmal/${rsSporsmal.id}")
-            .header("Authorization", "Bearer ${jwt(fnr)}")
-            .content(OBJECT_MAPPER.writeValueAsString(rsSporsmal))
-            .contentType(MediaType.APPLICATION_JSON)
-    )
-}
-
-fun BaseTestClass.oppdaterSporsmal(fnr: String, rsSporsmal: RSSporsmal, soknadsId: String): RSOppdaterSporsmalResponse {
-    val json =
-        this.oppdaterSporsmalMedResult(fnr, rsSporsmal, soknadsId).andExpect(MockMvcResultMatchers.status().isOk)
-            .andReturn().response.contentAsString
     return OBJECT_MAPPER.readValue(json)
 }
 

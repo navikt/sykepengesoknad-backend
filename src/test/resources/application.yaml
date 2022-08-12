@@ -10,9 +10,6 @@ TOKENX_IDPORTEN_IDP: idporten
 
 no.nav.security.jwt:
   issuer:
-    selvbetjening:
-      discoveryurl: http://localhost:${mock-oauth2-server.port}/selvbetjening/.well-known/openid-configuration
-      accepted_audience: loginservice-client-id
     azureator:
       discoveryurl: http://localhost:${mock-oauth2-server.port}/azureator/.well-known/openid-configuration
       accepted_audience: syfosoknad-client-id

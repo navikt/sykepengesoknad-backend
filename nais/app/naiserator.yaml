@@ -73,7 +73,6 @@ spec:
           namespace: teamsykmelding
     inbound:
       rules:
-        - application: flex-gateway
         - application: ditt-sykefravaer
         - application: sykepengesoknad
         - application: sykepengesoknad-arkivering-oppgave
@@ -83,7 +82,6 @@ spec:
           namespace: teamsykefravr
           cluster: {{ syfomodiaperson_cluster }}
   envFrom:
-    - configmap: loginservice-idporten
     - secret: sykepengesoknad-backend-redis-password
     - secret: sykepengesoknad-serviceuser
   env:

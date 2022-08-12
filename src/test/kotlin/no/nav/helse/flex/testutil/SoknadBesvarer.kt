@@ -4,9 +4,9 @@ import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSporsmal
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSvar
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknad
-import no.nav.helse.flex.tokenx.hentSoknader
-import no.nav.helse.flex.tokenx.oppdaterSporsmal
-import no.nav.helse.flex.tokenx.sendSoknadMedResult
+import no.nav.helse.flex.hentSoknader
+import no.nav.helse.flex.oppdaterSporsmal
+import no.nav.helse.flex.sendSoknadMedResult
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
 fun RSSporsmal.byttSvar(tag: String? = null, svar: String): RSSporsmal =
