@@ -1,7 +1,6 @@
-package no.nav.helse.flex.tokenx
+package no.nav.helse.flex
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.controller.domain.RSMottakerResponse
 import no.nav.helse.flex.controller.domain.RSOppdaterSporsmalResponse
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSporsmal
@@ -60,16 +59,6 @@ fun BaseTestClass.slettSvarMedResult(
 fun BaseTestClass.slettSvar(fnr: String, soknadId: String, sporsmalId: String, svarId: String) {
     slettSvarMedResult(fnr, soknadId, sporsmalId, svarId).andExpect(MockMvcResultMatchers.status().isNoContent)
         .andReturn()
-}
-
-fun BaseTestClass.hentSoknaderSomVeilederObo(fnr: String, token: String): List<RSSykepengesoknad> {
-    val json = mockMvc.perform(
-        MockMvcRequestBuilders.get("/api/v2/veileder/soknader?fnr=$fnr")
-            .header("Authorization", "Bearer $token")
-            .contentType(MediaType.APPLICATION_JSON)
-    ).andExpect(MockMvcResultMatchers.status().isOk).andReturn().response.contentAsString
-
-    return OBJECT_MAPPER.readValue(json)
 }
 
 fun BaseTestClass.opprettUtlandssoknad(fnr: String) {
