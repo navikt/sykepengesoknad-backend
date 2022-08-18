@@ -10,6 +10,7 @@ interface SykepengesoknadRepository : CrudRepository<SykepengesoknadDbRecord, St
 
     fun findBySykepengesoknadUuid(sykepengesoknadUuid: String): SykepengesoknadDbRecord?
     fun findBySykepengesoknadUuidIn(sykepengesoknadUuid: List<String>): List<SykepengesoknadDbRecord>
+    fun findByFnrIn(fnrs: List<String>): List<SykepengesoknadDbRecord>
 
     @Query(
         """

@@ -8,6 +8,7 @@ import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSporsmal
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.hentSoknader
+import no.nav.helse.flex.korrigerSoknad
 import no.nav.helse.flex.korrigerSoknadMedResult
 import no.nav.helse.flex.mockArbeidsgiverForskutterer
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
@@ -23,6 +24,7 @@ import no.nav.helse.flex.testdata.getSykmeldingDto
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
+import no.nav.helse.flex.util.tilOsloLocalDateTime
 import no.nav.helse.flex.ventPåRecords
 import no.nav.syfo.model.Merknad
 import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
@@ -42,6 +44,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.Duration
 import java.time.LocalDate
+import java.time.OffsetDateTime
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class ArbeidstakerIntegrationTest : BaseTestClass() {
@@ -287,6 +290,30 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
 
     @Test
     @Order(8)
+    fun `4 - vi korrigerer og sender inn søknaden, opprinnelig sendt blir satt riktig`() {
+        flexSyketilfelleMockRestServiceServer?.reset()
+        val soknaden = hentSoknader(fnr).sortedBy { it.fom }.first { it.status == RSSoknadstatus.SENDT }
+        val soknadDb = sykepengesoknadRepository.findBySykepengesoknadUuid(soknaden.id)!!
+        val sendtTidspunkt = OffsetDateTime.now().minusDays(3)
+        sykepengesoknadRepository.save(soknadDb.copy(sendtArbeidsgiver = sendtTidspunkt.toInstant(), sendtNav = sendtTidspunkt.plusMinutes(20).toInstant()))
+        val korrigerendeSoknad = korrigerSoknad(soknaden.id, fnr)
+
+        val sendtSoknad = SoknadBesvarer(rSSykepengesoknad = korrigerendeSoknad, mockMvc = this, fnr = fnr)
+            .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
+            .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
+            .sendSoknad()
+        assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
+
+        val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
+
+        assertThat(kafkaSoknader[0].opprinneligSendt).isNotNull()
+        assertThat(kafkaSoknader[0].opprinneligSendt).isEqualToIgnoringNanos(sendtTidspunkt.toInstant().tilOsloLocalDateTime())
+
+        juridiskVurderingKafkaConsumer.ventPåRecords(antall = 1)
+    }
+
+    @Test
+    @Order(9)
     fun `Ingen søknader opprettes for bekreftet arbeidstakersøknad (strengt fortrolig adddresse)`() {
         sykepengesoknadDAO.nullstillSoknader(fnr)
 

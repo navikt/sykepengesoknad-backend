@@ -64,7 +64,7 @@ class EttersendingSoknadServiceTest {
         verify(sykepengesoknadDAO, never()).settSendtAg(anyString(), any())
         verify(sykepengesoknadDAO).settSendtNav(eq("behandlingsdagerId"), any())
         verify(sykepengesoknadDAO).settSendtNav(eq("arbeidstakerId"), any())
-        verify(soknadProducer, times(2)).soknadEvent(any(), eq(Mottaker.ARBEIDSGIVER_OG_NAV), eq(true), eq(null))
+        verify(soknadProducer, times(2)).soknadEvent(any(), eq(Mottaker.ARBEIDSGIVER_OG_NAV), eq(true), eq(null), eq(null))
     }
 
     @Test
@@ -82,7 +82,7 @@ class EttersendingSoknadServiceTest {
                     Assertions.fail("Forventer exception")
                 } catch (e: Exception) {
                     verify(sykepengesoknadDAO, never()).settSendtNav(anyString(), any())
-                    verify(soknadProducer, never()).soknadEvent(any(), any(), anyBoolean(), eq(null))
+                    verify(soknadProducer, never()).soknadEvent(any(), any(), anyBoolean(), eq(null), eq(null))
                     throw e
                 }
             }
@@ -98,7 +98,7 @@ class EttersendingSoknadServiceTest {
         ettersendingSoknadService.ettersendTilNav(soknadArbeidstaker)
 
         verify(sykepengesoknadDAO, never()).settSendtNav(anyString(), any())
-        verify(soknadProducer, never()).soknadEvent(any(), any(), anyBoolean(), eq(null))
+        verify(soknadProducer, never()).soknadEvent(any(), any(), anyBoolean(), eq(null), eq(null))
     }
 
     @Test
@@ -117,7 +117,7 @@ class EttersendingSoknadServiceTest {
                     Assertions.fail("Forventer exception")
                 } catch (e: Exception) {
                     verify(sykepengesoknadDAO, never()).settSendtNav(anyString(), any())
-                    verify(soknadProducer, never()).soknadEvent(any(), any(), anyBoolean(), eq(null))
+                    verify(soknadProducer, never()).soknadEvent(any(), any(), anyBoolean(), eq(null), eq(null))
                     throw e
                 }
             }
@@ -140,7 +140,7 @@ class EttersendingSoknadServiceTest {
         verify(sykepengesoknadDAO).settSendtAg(eq("behandlingsdagerId"), any())
         verify(sykepengesoknadDAO).settSendtAg(eq("arbeidstakerId"), any())
         verify(sykepengesoknadDAO, never()).settSendtNav(anyString(), any())
-        verify(soknadProducer, times(2)).soknadEvent(any(), eq(Mottaker.ARBEIDSGIVER), eq(true), eq(null))
+        verify(soknadProducer, times(2)).soknadEvent(any(), eq(Mottaker.ARBEIDSGIVER), eq(true), eq(null), eq(null))
     }
 
     @Test
@@ -159,7 +159,7 @@ class EttersendingSoknadServiceTest {
                     Assertions.fail("Forventer exception")
                 } catch (e: Exception) {
                     verify(sykepengesoknadDAO, never()).settSendtNav(anyString(), any())
-                    verify(soknadProducer, never()).soknadEvent(any(), any(), anyBoolean(), eq(null))
+                    verify(soknadProducer, never()).soknadEvent(any(), any(), anyBoolean(), eq(null), eq(null))
                     throw e
                 }
             }
@@ -179,7 +179,7 @@ class EttersendingSoknadServiceTest {
         ettersendingSoknadService.ettersendTilArbeidsgiver(soknadArbeidstaker)
 
         verify(sykepengesoknadDAO, never()).settSendtNav(anyString(), any())
-        verify(soknadProducer, never()).soknadEvent(any(), any(), anyBoolean(), eq(null))
+        verify(soknadProducer, never()).soknadEvent(any(), any(), anyBoolean(), eq(null), eq(null))
     }
 
     private fun behandlingsdagerSoknadMock() = settOppSykepengesoknadBehandlingsdager(

@@ -19,6 +19,7 @@ import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.exception.*
 import no.nav.helse.flex.logger
+import no.nav.helse.flex.sending.SoknadSender
 import no.nav.helse.flex.service.AvbrytSoknadService
 import no.nav.helse.flex.service.EttersendingSoknadService
 import no.nav.helse.flex.service.FolkeregisterIdenter
@@ -28,7 +29,6 @@ import no.nav.helse.flex.service.IdentService
 import no.nav.helse.flex.service.KorrigerSoknadService
 import no.nav.helse.flex.service.MottakerAvSoknadService
 import no.nav.helse.flex.service.OppdaterSporsmalService
-import no.nav.helse.flex.service.SendSoknadService
 import no.nav.helse.flex.soknadsopprettelse.OpprettSoknadService
 import no.nav.helse.flex.svarvalidering.validerSvarPaSoknad
 import no.nav.helse.flex.util.Metrikk
@@ -46,7 +46,7 @@ class SoknadTokenXController(
     private val contextHolder: TokenValidationContextHolder,
     private val identService: IdentService,
     private val gjenapneSoknadService: GjenapneSoknadService,
-    private val sendSoknadService: SendSoknadService,
+    private val soknadSender: SoknadSender,
     private val hentSoknadService: HentSoknadService,
     private val metrikk: Metrikk,
     private val opprettSoknadService: OpprettSoknadService,
@@ -109,7 +109,7 @@ class SoknadTokenXController(
         }
 
         try {
-            sendSoknadService.sendSoknad(soknadFraBase, BRUKER, null, identer)
+            soknadSender.sendSoknad(soknadFraBase, BRUKER, null, identer)
             log.info("Soknad sendt id: ${soknadFraBase.id}")
         } catch (e: Exception) {
             log.error("Innsending av søknad ${soknadFraBase.id} feilet")
