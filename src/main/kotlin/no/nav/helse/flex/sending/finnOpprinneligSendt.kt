@@ -11,10 +11,10 @@ fun List<SykepengesoknadDbRecord>.finnOpprinneligSendt(korrigerer: String): Inst
         return finnOpprinneligSendt(opprinnelig.korrigerer)
     }
 
-    return opprinnelig.finnSendt()
+    return opprinnelig.finnSendtTidspunkt()
 }
 
-fun SykepengesoknadDbRecord.finnSendt(): Instant {
+private fun SykepengesoknadDbRecord.finnSendtTidspunkt(): Instant {
     if (sendtArbeidsgiver != null && sendtNav != null) {
         return listOf(sendtArbeidsgiver, sendtNav).minOrNull()!!
     }
