@@ -31,6 +31,7 @@ class AadRestTemplateConfiguration {
             restTemplateBuilder = restTemplateBuilder,
             clientConfigurationProperties = clientConfigurationProperties,
             oAuth2AccessTokenService = oAuth2AccessTokenService,
+            printjwt = true
         )
 
     @Bean
@@ -89,7 +90,8 @@ class AadRestTemplateConfiguration {
         restTemplateBuilder: RestTemplateBuilder,
         clientConfigurationProperties: ClientConfigurationProperties,
         oAuth2AccessTokenService: OAuth2AccessTokenService,
-        registrationName: String
+        registrationName: String,
+        printjwt: Boolean = false
     ): RestTemplate {
         val clientProperties = clientConfigurationProperties.registration[registrationName]
             ?: throw RuntimeException("Fant ikke config for $registrationName")
@@ -97,16 +99,19 @@ class AadRestTemplateConfiguration {
             .setConnectTimeout(Duration.ofSeconds(2))
             .setReadTimeout(Duration.ofSeconds(3))
             .additionalCustomizers(NaisProxyCustomizer())
-            .additionalInterceptors(bearerTokenInterceptor(clientProperties, oAuth2AccessTokenService))
+            .additionalInterceptors(bearerTokenInterceptor(clientProperties, oAuth2AccessTokenService, printjwt))
             .build()
     }
 
     private fun bearerTokenInterceptor(
         clientProperties: ClientProperties,
-        oAuth2AccessTokenService: OAuth2AccessTokenService
+        oAuth2AccessTokenService: OAuth2AccessTokenService,
+        printjwt: Boolean,
     ): ClientHttpRequestInterceptor {
         return ClientHttpRequestInterceptor { request: HttpRequest, body: ByteArray, execution: ClientHttpRequestExecution ->
             val response = oAuth2AccessTokenService.getAccessToken(clientProperties)
+            if (printjwt)
+                log.info("JWT hentet: " + response.accessToken)
             request.headers.setBearerAuth(response.accessToken)
             execution.execute(request, body)
         }
