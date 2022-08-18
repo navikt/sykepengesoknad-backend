@@ -13,9 +13,11 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsperiodeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.helse.flex.util.Metrikk
+import no.nav.helse.flex.util.tilOsloLocalDateTime
 import org.springframework.stereotype.Component
 import java.text.NumberFormat
 import java.time.Duration
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Period
@@ -35,14 +37,18 @@ class SoknadProducer(
         sykepengesoknad: Sykepengesoknad,
         mottaker: Mottaker? = null,
         erEttersending: Boolean = false,
-        dodsdato: LocalDate? = null
+        dodsdato: LocalDate? = null,
+        opprinneligSendt: Instant? = null,
     ) {
 
         val sykepengesoknadDTO = sykepengesoknadTilSykepengesoknadDTOMapper.mapTilSykepengesoknadDTO(
             sykepengesoknad,
             mottaker,
             erEttersending
-        ).copy(dodsdato = dodsdato)
+        ).copy(
+            dodsdato = dodsdato,
+            opprinneligSendt = opprinneligSendt?.tilOsloLocalDateTime()
+        )
 
         kafkaProducer.produserMelding(sykepengesoknadDTO)
 

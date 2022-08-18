@@ -5,6 +5,7 @@ import no.nav.helse.flex.domain.Mottaker
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadDAO
+import no.nav.helse.flex.sending.SoknadSender
 import no.nav.helse.flex.util.isAfterOrEqual
 import no.nav.helse.flex.util.osloZone
 import org.springframework.stereotype.Service
@@ -17,7 +18,7 @@ class AutomatiskInnsendingService(
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val mottakerAvSoknadService: MottakerAvSoknadService,
     private val avbrytSoknadService: AvbrytSoknadService,
-    private val sendSoknadService: SendSoknadService,
+    private val soknadSender: SoknadSender,
     private val aktiverEnkeltSoknadService: AktiverEnkeltSoknadService,
     private val identService: IdentService,
 ) {
@@ -52,7 +53,7 @@ class AutomatiskInnsendingService(
                         log.info("Avbryt søknad med id: ${sykepengesoknad.id} pga arbeidsgiver mottaker")
                     } else {
                         log.info("Automatisk innsending av søknad med id: ${sykepengesoknad.id}")
-                        sendSoknadService.sendSoknad(sykepengesoknad, Avsendertype.SYSTEM, dodsdato, identer)
+                        soknadSender.sendSoknad(sykepengesoknad, Avsendertype.SYSTEM, dodsdato, identer)
                     }
 
                     return@forEach
