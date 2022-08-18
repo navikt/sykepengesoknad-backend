@@ -2,7 +2,7 @@
 <configuration>
     <appender name="stdout_json" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-            <includeMdcKeyName>x-request-id</includeMdcKeyName>
+            <includeMdcKeyName>x_request_id</includeMdcKeyName>
         </encoder>
 
     </appender>
