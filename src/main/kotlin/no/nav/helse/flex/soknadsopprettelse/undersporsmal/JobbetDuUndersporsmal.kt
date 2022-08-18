@@ -62,7 +62,7 @@ fun jobbetDuUndersporsmal(
                     undersporsmal = listOf(
                         Sporsmal(
                             tag = HVOR_MYE_PROSENT_VERDI + index,
-                            undertekst = "prosent",
+                            undertekst = "Oppgi prosent",
                             svartype = Svartype.TALL,
                             min = minProsent.toString(),
                             max = "99"
