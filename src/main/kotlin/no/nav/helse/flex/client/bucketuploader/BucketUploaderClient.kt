@@ -12,6 +12,6 @@ class BucketUploaderClient(
 ) {
 
     fun slettKvittering(blobName: String) {
-        flexBucketUploaderRestTemplate.delete("$bucketUploderUrl/maskin/slett/$blobName")
+        flexBucketUploaderRestTemplate.delete("$bucketUploderUrl/api/v2/kvittering/$blobName")
     }
 }

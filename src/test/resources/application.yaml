@@ -18,7 +18,7 @@ no.nav.security.jwt:
       accepted_audience: sykepengesoknad-backend-client-id
   client:
     registration:
-      flex-bucket-uploader-client-credentials:
+      flex-bucket-uploader-tokenx:
         token-endpoint-url: http://localhost:${mock-oauth2-server.port}/azureator/token
         grant-type: client_credentials
         scope: flex-bucket-uploader
