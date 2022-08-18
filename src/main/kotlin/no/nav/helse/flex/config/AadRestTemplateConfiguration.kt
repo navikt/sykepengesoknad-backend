@@ -27,7 +27,7 @@ class AadRestTemplateConfiguration {
         oAuth2AccessTokenService: OAuth2AccessTokenService
     ): RestTemplate =
         downstreamRestTemplate(
-            registrationName = "flex-bucket-uploader-client-credentials",
+            registrationName = "flex-bucket-uploader-tokenx",
             restTemplateBuilder = restTemplateBuilder,
             clientConfigurationProperties = clientConfigurationProperties,
             oAuth2AccessTokenService = oAuth2AccessTokenService,
