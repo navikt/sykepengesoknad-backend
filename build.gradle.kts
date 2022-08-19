@@ -39,7 +39,7 @@ repositories {
 
 val tokenSupportVersion = "2.1.1"
 val smCommonVersion = "1.88ca328"
-val confluentVersion = "7.1.2"
+val confluentVersion = "7.2.1"
 val syfoKafkaVersion = "2021.07.20-09.39-6be2c52c"
 val sykepengesoknadKafkaVersion = "2022.08.18-10.11-0a3a7247"
 val mockitoKotlinVersion = "2.2.0"
@@ -48,7 +48,7 @@ val avroVersion = "1.11.0"
 val logstashLogbackEncoderVersion = "7.2"
 val testContainersVersion = "1.17.3"
 val kluentVersion = "1.68"
-val jsonSchemaValidatorVersion = "1.0.71"
+val jsonSchemaValidatorVersion = "1.0.72"
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
