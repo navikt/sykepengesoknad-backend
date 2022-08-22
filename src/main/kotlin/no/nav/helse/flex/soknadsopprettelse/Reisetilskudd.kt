@@ -105,7 +105,6 @@ fun reiseMedBilSpørsmål(
                     svartype = BELOP,
                     min = "0",
                     sporsmalstekst = "Hvor mye betalte du i bompenger mellom hjemmet ditt og jobben?",
-                    undertekst = "kr",
                 )
             )
         ),
@@ -113,7 +112,6 @@ fun reiseMedBilSpørsmål(
             tag = KM_HJEM_JOBB,
             min = "0",
             sporsmalstekst = "Hvor mange kilometer er kjøreturen mellom hjemmet ditt og jobben én vei?",
-            undertekst = "km",
             svartype = KILOMETER,
         )
     )
@@ -154,7 +152,6 @@ fun offentligTransportBeløpSpørsmål() = Sporsmal(
     tag = OFFENTLIG_TRANSPORT_BELOP,
     min = "0",
     sporsmalstekst = "Hvor mye betaler du vanligvis i måneden for offentlig transport?",
-    undertekst = "kr",
     svartype = BELOP,
 )
 
