@@ -27,7 +27,6 @@ fun jobbetDuUndersporsmal(
         Sporsmal(
             tag = HVOR_MANGE_TIMER_PER_UKE + index,
             sporsmalstekst = "Hvor mange timer i uken jobber du vanligvis når du er frisk? Varierer det, kan du oppgi gjennomsnittet.",
-            undertekst = "timer per uke",
             svartype = Svartype.TALL,
             min = "1",
             max = "150"
@@ -46,7 +45,6 @@ fun jobbetDuUndersporsmal(
                     undersporsmal = listOf(
                         Sporsmal(
                             tag = HVOR_MYE_TIMER_VERDI + index,
-                            undertekst = "timer totalt",
                             svartype = Svartype.TALL,
                             min = "1",
                             max = (150 * ((ChronoUnit.DAYS.between(periode.fom, periode.tom) + 1) / 7.0)).roundToInt()
@@ -62,7 +60,6 @@ fun jobbetDuUndersporsmal(
                     undersporsmal = listOf(
                         Sporsmal(
                             tag = HVOR_MYE_PROSENT_VERDI + index,
-                            undertekst = "prosent",
                             svartype = Svartype.TALL,
                             min = minProsent.toString(),
                             max = "99"
