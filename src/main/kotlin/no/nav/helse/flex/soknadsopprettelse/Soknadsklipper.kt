@@ -6,6 +6,7 @@ import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
+import no.nav.helse.flex.kafka.producer.SoknadProducer
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.service.AktiverEnkeltSoknadService
@@ -33,6 +34,7 @@ class Soknadsklipper(
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val metrikk: Metrikk,
     private val aktiverEnkeltSoknadService: AktiverEnkeltSoknadService,
+    private val soknadProducer: SoknadProducer,
 ) {
 
     val log = logger()
@@ -188,7 +190,12 @@ class Soknadsklipper(
             .filter { it.tom!!.isBeforeOrEqual(sykmeldingPeriode.endInclusive) }
             .forEach { sok ->
                 if (sok.status == Soknadstatus.FREMTIDIG) {
+                    val fullstendigOverlappetSoknad = sok.copy(status = Soknadstatus.SLETTET)
+
                     log.info("Sykmelding $sykmeldingId overlapper søknad ${sok.id} fullstendig")
+
+                    sykepengesoknadDAO.slettSoknad(fullstendigOverlappetSoknad)
+                    soknadProducer.soknadEvent(fullstendigOverlappetSoknad, null, false)
                 }
                 metrikk.klippSoknaderSomOverlapper(
                     overlapp = "FULLSTENDIG",
