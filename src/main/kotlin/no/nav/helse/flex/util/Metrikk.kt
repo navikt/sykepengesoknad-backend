@@ -218,13 +218,14 @@ class Metrikk(private val registry: MeterRegistry) {
         ).increment()
     }
 
-    fun klippSoknaderSomOverlapper(overlapp: String, soknadstatus: String) {
+    fun klippSoknaderSomOverlapper(overlapp: String, soknadstatus: String, besvart: String) {
         registry.counter(
             "klipp_soknader_som_overlapper",
             Tags.of(
                 "type", "info",
                 "overlapp", overlapp,
                 "soknadstatus", soknadstatus,
+                "besvart", besvart,
             )
         ).increment()
     }

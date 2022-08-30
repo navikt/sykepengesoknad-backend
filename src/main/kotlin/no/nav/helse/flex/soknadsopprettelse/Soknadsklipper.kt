@@ -46,6 +46,12 @@ class Soknadsklipper(
         VET_IKKE,
     }
 
+    private enum class SoknadBesvart {
+        BESVART_INGENTING,
+        BESVART_NOE,
+        BESVART_ALT,
+    }
+
     fun klipp(
         sykmeldingKafkaMessage: SykmeldingKafkaMessage,
         arbeidssituasjon: Arbeidssituasjon,
@@ -172,6 +178,7 @@ class Soknadsklipper(
                 metrikk.klippSoknaderSomOverlapper(
                     overlapp = "ETTER",
                     soknadstatus = sok.status.toString(),
+                    besvart = sok.besvarteSporsmal().toString(),
                 )
             }
     }
@@ -193,6 +200,7 @@ class Soknadsklipper(
                 metrikk.klippSoknaderSomOverlapper(
                     overlapp = "FULLSTENDIG",
                     soknadstatus = sok.status.toString(),
+                    besvart = sok.besvarteSporsmal().toString(),
                 )
             }
     }
@@ -214,6 +222,7 @@ class Soknadsklipper(
                 metrikk.klippSoknaderSomOverlapper(
                     overlapp = "FOR",
                     soknadstatus = sok.status.toString(),
+                    besvart = sok.besvarteSporsmal().toString(),
                 )
             }
     }
@@ -235,6 +244,7 @@ class Soknadsklipper(
                 metrikk.klippSoknaderSomOverlapper(
                     overlapp = "INNI",
                     soknadstatus = sok.status.toString(),
+                    besvart = sok.besvarteSporsmal().toString(),
                 )
             }
     }
@@ -391,4 +401,13 @@ class Soknadsklipper(
             sykmeldingsperioder = nyePerioder
         )
     )
+
+    private fun Sykepengesoknad.besvarteSporsmal(): SoknadBesvart {
+        if (sporsmal.all { it.svar.isNotEmpty() })
+            return SoknadBesvart.BESVART_ALT
+        if (sporsmal.any { it.svar.isNotEmpty() })
+            return SoknadBesvart.BESVART_NOE
+
+        return SoknadBesvart.BESVART_INGENTING
+    }
 }
