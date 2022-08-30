@@ -198,17 +198,6 @@ class Metrikk(private val registry: MeterRegistry) {
             .increment()
     }
 
-    fun klippKandidatScenarioEn(soknadstatus: String, uforegrad: String) {
-        registry.counter(
-            "klipp_kandidat_scenario_en",
-            Tags.of(
-                "type", "info",
-                "soknadstatus", soknadstatus,
-                "uforegrad", uforegrad,
-            )
-        ).increment()
-    }
-
     fun klippKandidatScenarioEnMotsatt(soknadstatus: String) {
         registry.counter(
             "klipp_kandidat_scenario_en_motsatt",
@@ -240,28 +229,30 @@ class Metrikk(private val registry: MeterRegistry) {
         ).increment()
     }
 
-    /**
-     * @param perioder nye perioder etter klipp f.eks 1-7-3
-     */
-    fun overlapperInniPerioder(perioder: String) {
+    fun finnLengdePaPerioder(
+        orginalPeriode: ClosedRange<LocalDate>,
+        overlappendePeriode: ClosedRange<LocalDate>,
+    ) {
+        val periode1 = orginalPeriode.start.datesUntil(overlappendePeriode.start).toList()
+        val periode2 = overlappendePeriode.start.datesUntil(overlappendePeriode.endInclusive.plusDays(1)).toList()
+        val periode3 = overlappendePeriode.endInclusive.plusDays(1).datesUntil(orginalPeriode.endInclusive.plusDays(1)).toList()
+
+        val perioderEtterKlipp = "${periode1.size}-${periode2.size}-${periode3.size}"
         registry.counter(
             "overlapper_inni_perioder",
             Tags.of(
                 "type", "info",
-                "perioder", perioder,
+                "perioder", perioderEtterKlipp,
             )
         ).increment()
-    }
 
-    /**
-     * @param perioder nye perioder etter klipp f.eks 1-5-1
-     */
-    fun overlapperInniPerioderUtenHelg(perioder: String) {
+        fun List<LocalDate>.minusHelg() = filter { !it.erHelg() }
+        val perioderEtterKlippMinusHelg = "${periode1.minusHelg().size}-${periode2.minusHelg().size}-${periode3.minusHelg().size}"
         registry.counter(
             "overlapper_inni_perioder_uten_helg",
             Tags.of(
                 "type", "info",
-                "perioder", perioder,
+                "perioder", perioderEtterKlippMinusHelg,
             )
         ).increment()
     }

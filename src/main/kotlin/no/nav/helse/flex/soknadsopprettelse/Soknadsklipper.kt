@@ -17,7 +17,6 @@ import no.nav.helse.flex.soknadsopprettelse.Soknadsklipper.EndringIUforegrad.SAM
 import no.nav.helse.flex.soknadsopprettelse.Soknadsklipper.EndringIUforegrad.VET_IKKE
 import no.nav.helse.flex.soknadsopprettelse.Soknadsklipper.EndringIUforegrad.ØKT_UFØREGRAD
 import no.nav.helse.flex.util.Metrikk
-import no.nav.helse.flex.util.erHelg
 import no.nav.helse.flex.util.isAfterOrEqual
 import no.nav.helse.flex.util.isBeforeOrEqual
 import no.nav.helse.flex.util.overlap
@@ -88,7 +87,6 @@ class Soknadsklipper(
         soknadKandidater.klippSoknaderSomOverlapperEtter(
             sykmeldingPeriode = sykmeldingPeriode,
             sykmeldingId = sykmeldingKafkaMessage.sykmelding.id,
-            nyeSoknadPerioder = sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder.tilSoknadsperioder()
         )
 
         soknadKandidater.klippSoknaderSomOverlapperFullstendig(
@@ -156,7 +154,6 @@ class Soknadsklipper(
     private fun List<Sykepengesoknad>.klippSoknaderSomOverlapperEtter(
         sykmeldingPeriode: ClosedRange<LocalDate>,
         sykmeldingId: String,
-        nyeSoknadPerioder: List<Soknadsperiode>,
     ) {
         this.filter { it.fom!!.isBefore(sykmeldingPeriode.start) }
             .filter { it.tom!!.isBeforeOrEqual(sykmeldingPeriode.endInclusive) }
@@ -172,12 +169,9 @@ class Soknadsklipper(
                     }
                 }
 
-                metrikk.klippKandidatScenarioEn(
+                metrikk.klippSoknaderSomOverlapper(
+                    overlapp = "ETTER",
                     soknadstatus = sok.status.toString(),
-                    uforegrad = finnEndringIUforegrad(
-                        tidligerePerioder = sok.soknadPerioder,
-                        nyePerioder = nyeSoknadPerioder,
-                    ).toString()
                 )
             }
     }
@@ -190,10 +184,9 @@ class Soknadsklipper(
             .filter { it.tom!!.isBeforeOrEqual(sykmeldingPeriode.endInclusive) }
             .forEach { sok ->
                 if (sok.status == Soknadstatus.FREMTIDIG) {
-                    val fullstendigOverlappetSoknad = sok.copy(status = Soknadstatus.SLETTET)
-
                     log.info("Sykmelding $sykmeldingId overlapper søknad ${sok.id} fullstendig")
 
+                    val fullstendigOverlappetSoknad = sok.copy(status = Soknadstatus.SLETTET)
                     sykepengesoknadDAO.slettSoknad(fullstendigOverlappetSoknad)
                     soknadProducer.soknadEvent(fullstendigOverlappetSoknad, null, false)
                 }
@@ -234,7 +227,7 @@ class Soknadsklipper(
             .forEach { sok ->
                 if (sok.status == Soknadstatus.FREMTIDIG) {
                     log.info("Sykmelding $sykmeldingId overlapper søknad ${sok.id} inni fra ${sykmeldingPeriode.start} til ${sykmeldingPeriode.endInclusive}")
-                    finnLengdePaPerioder(
+                    metrikk.finnLengdePaPerioder(
                         orginalPeriode = sok.fom!!..sok.tom!!,
                         overlappendePeriode = sykmeldingPeriode,
                     )
@@ -383,22 +376,6 @@ class Soknadsklipper(
             return LAVERE_UFØREGRAD
         }
         return VET_IKKE
-    }
-
-    private fun finnLengdePaPerioder(
-        orginalPeriode: ClosedRange<LocalDate>,
-        overlappendePeriode: ClosedRange<LocalDate>,
-    ) {
-        val periode1 = orginalPeriode.start.datesUntil(overlappendePeriode.start).toList()
-        val periode2 = overlappendePeriode.start.datesUntil(overlappendePeriode.endInclusive.plusDays(1)).toList()
-        val periode3 = overlappendePeriode.endInclusive.plusDays(1).datesUntil(orginalPeriode.endInclusive.plusDays(1)).toList()
-
-        val perioderEtterKlipp = "${periode1.size}-${periode2.size}-${periode3.size}"
-        metrikk.overlapperInniPerioder(perioderEtterKlipp)
-
-        fun List<LocalDate>.minusHelg() = filter { !it.erHelg() }
-        val perioderEtterKlippMinusHelg = "${periode1.minusHelg().size}-${periode2.minusHelg().size}-${periode3.minusHelg().size}"
-        metrikk.overlapperInniPerioderUtenHelg(perioderEtterKlippMinusHelg)
     }
 
     private fun SykmeldingKafkaMessage.periode() = sykmelding.sykmeldingsperioder.periode()
