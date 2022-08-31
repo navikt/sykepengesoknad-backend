@@ -231,7 +231,7 @@ fun oppdaterMedSvarPaUtlandsopphold(soknad: Sykepengesoknad): Sykepengesoknad {
     if (harUtlandsoppholdUtenforHelgOgFerie) {
         val oppholdUtland = Sporsmal(
             tag = UTLANDSOPPHOLD_SOKT_SYKEPENGER,
-            sporsmalstekst = "Har du søkt om å beholde sykepengene for de dagene du var utenfor EØS?",
+            sporsmalstekst = "Har du søkt om å beholde sykepengene for de dagene du var utenfor EU/EØS/Storbritannia?",
             svartype = JA_NEI,
             pavirkerAndreSporsmal = false,
             svar = maybeSoktOmSykepengerSporsmal
@@ -318,13 +318,13 @@ private fun ferieSporsmal(fom: LocalDate, tom: LocalDate): Sporsmal {
 private fun utenlandsoppholdSporsmal(fom: LocalDate, tom: LocalDate): Sporsmal {
     return Sporsmal(
         tag = UTLAND_V2,
-        sporsmalstekst = "Var du på reise utenfor EØS mens du var sykmeldt ${formatterPeriode(fom, tom)}?",
+        sporsmalstekst = "Var du på reise utenfor EU/EØS/Storbritannia mens du var sykmeldt ${formatterPeriode(fom, tom)}?",
         svartype = JA_NEI,
         kriterieForVisningAvUndersporsmal = JA,
         undersporsmal = listOf(
             Sporsmal(
                 tag = UTLAND_NAR_V2,
-                sporsmalstekst = "Når var du utenfor EØS?",
+                sporsmalstekst = "Når var du utenfor EU/EØS/Storbritannia?",
                 svartype = Svartype.PERIODER,
                 min = fom.format(ISO_LOCAL_DATE),
                 max = tom.format(ISO_LOCAL_DATE)
