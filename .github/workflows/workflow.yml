@@ -1,9 +1,9 @@
-name: Bygg, publish og deploy
+name: workflow
 on: push
 
 jobs:
-  bygg-test-deploy:
+  felles-workflow:
     uses: navikt/flex-github-actions-workflows/.github/workflows/spring-boot.yml@master
     with:
-      app: sykepengesoknad-backend
+      app: ${{ github.event.repository.name }}
     secrets: inherit
