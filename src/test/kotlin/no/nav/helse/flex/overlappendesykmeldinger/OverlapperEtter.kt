@@ -288,7 +288,7 @@ class OverlapperEtter : BaseTestClass() {
     @Order(30)
     fun `Oppretter en ny søknad`() {
         sendArbeidstakerSykmelding(
-            fom = basisdato.minusDays(15),
+            fom = basisdato.minusDays(20),
             tom = basisdato.minusDays(1),
             fnr = fnr,
             gradert = GradertDTO(grad = 100, reisetilskudd = false)
