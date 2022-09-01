@@ -190,7 +190,7 @@ class Soknadsklipper(
         this.filter { it.fom!!.isAfterOrEqual(sykmeldingPeriode.start) }
             .filter { it.tom!!.isBeforeOrEqual(sykmeldingPeriode.endInclusive) }
             .forEach { sok ->
-                if (sok.status == Soknadstatus.FREMTIDIG) {
+                if (sok.status == Soknadstatus.FREMTIDIG || sok.status == Soknadstatus.NY) {
                     log.info("Sykmelding $sykmeldingId overlapper søknad ${sok.id} fullstendig")
 
                     val fullstendigOverlappetSoknad = sok.copy(status = Soknadstatus.SLETTET)
