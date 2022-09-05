@@ -49,7 +49,6 @@ val logstashLogbackEncoderVersion = "7.2"
 val testContainersVersion = "1.17.3"
 val kluentVersion = "1.68"
 val jsonSchemaValidatorVersion = "1.0.72"
-val postgresVersion = "42.5.0"
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
@@ -58,7 +57,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.kafka:spring-kafka")
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
-    implementation("org.postgresql:postgresql:$postgresVersion")
+    implementation("org.postgresql:postgresql")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-logging")
