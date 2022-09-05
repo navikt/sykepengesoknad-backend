@@ -41,7 +41,7 @@ val tokenSupportVersion = "2.1.3"
 val smCommonVersion = "1.88ca328"
 val confluentVersion = "7.2.1"
 val syfoKafkaVersion = "2021.07.20-09.39-6be2c52c"
-val sykepengesoknadKafkaVersion = "2022.08.18-10.11-0a3a7247"
+val sykepengesoknadKafkaVersion = "2022.08.23-10.31-21b5aa2b"
 val mockitoKotlinVersion = "2.2.0"
 val ojdbc8Version = "19.3.0.0"
 val avroVersion = "1.11.1"
@@ -49,6 +49,7 @@ val logstashLogbackEncoderVersion = "7.2"
 val testContainersVersion = "1.17.3"
 val kluentVersion = "1.68"
 val jsonSchemaValidatorVersion = "1.0.72"
+val postgresVersion = "42.5.0"
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
@@ -57,7 +58,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.kafka:spring-kafka")
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
-    implementation("org.postgresql:postgresql")
+    implementation("org.postgresql:postgresql:$postgresVersion")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-logging")
