@@ -534,4 +534,98 @@ class OverlapperEtter : BaseTestClass() {
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
         databaseReset.resetDatabase()
     }
+
+    @Test
+    @Order(70)
+    fun `Ny reisetilskudd sykmelding klippes ikke`() {
+        sendArbeidstakerSykmelding(
+            fom = basisdato.minusDays(15),
+            tom = basisdato.minusDays(5),
+            fnr = fnr
+        )
+
+        val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(
+            fnr = fnr,
+            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+            statusEvent = STATUS_SENDT,
+            arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "Butikken")
+        )
+
+        val sykmelding = getSykmeldingDto(
+            fom = basisdato.minusDays(10),
+            tom = basisdato.minusDays(1),
+            type = PeriodetypeDTO.REISETILSKUDD,
+            reisetilskudd = true,
+        )
+
+        val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
+            sykmelding = sykmelding,
+            event = sykmeldingStatusKafkaMessageDTO.event,
+            kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
+        )
+
+        sendSykmelding(sykmeldingKafkaMessage)
+
+        val soknader = sykepengesoknadDAO.finnSykepengesoknader(listOf(fnr))
+
+        soknader[0].fom shouldBeEqualTo basisdato.minusDays(15)
+        soknader[0].tom shouldBeEqualTo basisdato.minusDays(5)
+        soknader[0].soknadstype shouldBeEqualTo Soknadstype.ARBEIDSTAKERE
+        soknader[0].status shouldBeEqualTo Soknadstatus.NY
+
+        soknader[1].fom shouldBeEqualTo basisdato.minusDays(10)
+        soknader[1].tom shouldBeEqualTo basisdato.minusDays(1)
+        soknader[1].soknadstype shouldBeEqualTo Soknadstype.REISETILSKUDD
+        soknader[1].status shouldBeEqualTo Soknadstatus.NY
+
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
+        databaseReset.resetDatabase()
+    }
+
+    @Test
+    @Order(80)
+    fun `Fremtidig reisetiskudd sykmelding klipper eksisterende søknader`() {
+        sendArbeidstakerSykmelding(
+            fom = basisdato,
+            tom = basisdato.plusDays(10),
+            fnr = fnr
+        )
+
+        val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(
+            fnr = fnr,
+            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+            statusEvent = STATUS_SENDT,
+            arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "Butikken")
+        )
+
+        val sykmelding = getSykmeldingDto(
+            fom = basisdato.plusDays(5),
+            tom = basisdato.plusDays(15),
+            type = PeriodetypeDTO.REISETILSKUDD,
+            reisetilskudd = true,
+        )
+
+        val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
+            sykmelding = sykmelding,
+            event = sykmeldingStatusKafkaMessageDTO.event,
+            kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
+        )
+
+        sendSykmelding(sykmeldingKafkaMessage)
+
+        val soknader = sykepengesoknadDAO.finnSykepengesoknader(listOf(fnr))
+
+        soknader[0].fom shouldBeEqualTo basisdato
+        soknader[0].tom shouldBeEqualTo basisdato.plusDays(4)
+        soknader[0].soknadstype shouldBeEqualTo Soknadstype.ARBEIDSTAKERE
+        soknader[0].status shouldBeEqualTo Soknadstatus.FREMTIDIG
+
+        soknader[1].fom shouldBeEqualTo basisdato.plusDays(5)
+        soknader[1].tom shouldBeEqualTo basisdato.plusDays(15)
+        soknader[1].soknadstype shouldBeEqualTo Soknadstype.REISETILSKUDD
+        soknader[1].status shouldBeEqualTo Soknadstatus.FREMTIDIG
+
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
+        databaseReset.resetDatabase()
+    }
 }
