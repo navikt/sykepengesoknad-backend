@@ -314,7 +314,7 @@ class SoknadTokenXController(
     }
 
     @ProtectedWithClaims(issuer = TOKENX, claimMap = ["acr=Level4"])
-    @GetMapping(value = ["/soknader/{id}/finnMottaker"], produces = [APPLICATION_JSON_VALUE])
+    @GetMapping(value = ["/soknader/{id}/mottaker"], produces = [APPLICATION_JSON_VALUE])
     fun hentMottakerAvSoknad(@PathVariable("id") id: String): RSMottakerResponse {
         val (sykepengesoknad, identer) = hentOgSjekkTilgangTilSoknad(id)
         val mottaker = mottakerAvSoknadService.finnMottakerAvSoknad(sykepengesoknad, identer)
