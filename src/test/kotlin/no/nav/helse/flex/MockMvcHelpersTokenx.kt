@@ -85,7 +85,7 @@ fun BaseTestClass.korrigerSoknad(soknadId: String, fnr: String): RSSykepengesokn
 
 fun BaseTestClass.finnMottakerAvSoknad(soknadId: String, fnr: String): RSMottakerResponse {
     val json = mockMvc.perform(
-        MockMvcRequestBuilders.post("/api/v2/soknader/$soknadId/finnMottaker")
+        MockMvcRequestBuilders.get("/api/v2/soknader/$soknadId/mottaker")
             .header("Authorization", "Bearer ${jwt(fnr)}")
             .contentType(MediaType.APPLICATION_JSON)
     ).andExpect(MockMvcResultMatchers.status().isOk)

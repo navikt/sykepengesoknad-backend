@@ -73,7 +73,8 @@ class SoknadTokenXController(
     @ResponseBody
     @GetMapping(value = ["/soknader"], produces = [APPLICATION_JSON_VALUE])
     fun hentSoknader(): List<RSSykepengesoknad> {
-        val identer = validerTokenXClaims(dittSykefravaerFrontendClientId, sykepengesoknadFrontendClientId).hentIdenter()
+        val identer =
+            validerTokenXClaims(dittSykefravaerFrontendClientId, sykepengesoknadFrontendClientId).hentIdenter()
         return hentSoknadService.hentSoknader(identer).map { it.tilRSSykepengesoknad() }
     }
 
@@ -181,6 +182,7 @@ class SoknadTokenXController(
                 log.info("Gjenåpner søknad: ${soknadFraBase.id}")
                 gjenapneSoknadService.gjenapneSoknad(soknadFraBase)
             }
+
             Soknadstype.OPPHOLD_UTLAND -> log.error("Kallet gjenapneSoknad er ikke støttet for soknadstypen: ${Soknadstype.OPPHOLD_UTLAND}")
         }
     }
@@ -308,6 +310,12 @@ class SoknadTokenXController(
     @ProtectedWithClaims(issuer = TOKENX, claimMap = ["acr=Level4"])
     @PostMapping(value = ["/soknader/{id}/finnMottaker"], produces = [APPLICATION_JSON_VALUE])
     fun finnMottakerAvSoknad(@PathVariable("id") id: String): RSMottakerResponse {
+        return hentMottakerAvSoknad(id)
+    }
+
+    @ProtectedWithClaims(issuer = TOKENX, claimMap = ["acr=Level4"])
+    @GetMapping(value = ["/soknader/{id}/mottaker"], produces = [APPLICATION_JSON_VALUE])
+    fun hentMottakerAvSoknad(@PathVariable("id") id: String): RSMottakerResponse {
         val (sykepengesoknad, identer) = hentOgSjekkTilgangTilSoknad(id)
         val mottaker = mottakerAvSoknadService.finnMottakerAvSoknad(sykepengesoknad, identer)
         return RSMottakerResponse(RSMottaker.valueOf(mottaker.name))
@@ -339,6 +347,7 @@ class SoknadTokenXController(
         }
         return claims
     }
+
     private fun JwtTokenClaims.hentIdenter(): FolkeregisterIdenter {
         return identService.hentFolkeregisterIdenterMedHistorikkForFnr(this.getStringClaim("pid"))
     }
