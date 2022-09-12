@@ -45,7 +45,7 @@ fun jobbetDuUndersporsmal(
                     undersporsmal = listOf(
                         Sporsmal(
                             tag = HVOR_MYE_TIMER_VERDI + index,
-                            svartype = Svartype.TALL,
+                            svartype = Svartype.TIMER,
                             min = "1",
                             max = (150 * ((ChronoUnit.DAYS.between(periode.fom, periode.tom) + 1) / 7.0)).roundToInt()
                                 .toString()
@@ -60,7 +60,7 @@ fun jobbetDuUndersporsmal(
                     undersporsmal = listOf(
                         Sporsmal(
                             tag = HVOR_MYE_PROSENT_VERDI + index,
-                            svartype = Svartype.TALL,
+                            svartype = Svartype.PROSENT,
                             min = minProsent.toString(),
                             max = "99"
                         )
