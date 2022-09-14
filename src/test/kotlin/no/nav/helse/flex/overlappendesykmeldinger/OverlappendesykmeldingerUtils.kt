@@ -10,22 +10,24 @@ import no.nav.syfo.model.sykmelding.model.GradertDTO
 import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
 import no.nav.syfo.model.sykmeldingstatus.STATUS_SENDT
 import java.time.LocalDate
+import java.util.*
 
-internal fun BaseTestClass.sendArbeidstakerSykmelding(
+fun BaseTestClass.sendArbeidstakerSykmelding(
     fom: LocalDate,
     tom: LocalDate,
     fnr: String,
     oppfolgingsdato: LocalDate = fom,
     gradert: GradertDTO? = null,
+    sykmeldingId: String = UUID.randomUUID().toString(),
 ) {
     val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(
         fnr = fnr,
         arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
         statusEvent = STATUS_SENDT,
-        arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "Butikken")
-
+        arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "Butikken"),
+        sykmeldingId = sykmeldingId,
     )
-    val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
+
     val sykmelding = getSykmeldingDto(
         sykmeldingId = sykmeldingId,
         fom = fom,
@@ -45,11 +47,12 @@ internal fun BaseTestClass.sendArbeidstakerSykmelding(
     )
 }
 
-internal fun BaseTestClass.sendSykmelding(
+fun BaseTestClass.sendSykmelding(
     sykmeldingKafkaMessage: SykmeldingKafkaMessage,
     oppfolgingsdato: LocalDate = sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder.minOf { it.fom },
 ) {
     flexSyketilfelleMockRestServiceServer?.reset()
+
     mockFlexSyketilfelleSykeforloep(
         sykmeldingKafkaMessage.sykmelding.id,
         oppfolgingsdato

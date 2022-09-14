@@ -365,6 +365,6 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
         assertThat(soknader[1].fom).isEqualTo(LocalDate.of(2020, 3, 16))
         assertThat(soknader[1].tom).isEqualTo(LocalDate.of(2020, 3, 31))
 
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 3)
     }
 }

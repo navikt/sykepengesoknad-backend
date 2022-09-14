@@ -9,7 +9,6 @@ import no.nav.helse.flex.ventPåRecords
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
@@ -26,7 +25,6 @@ class OverlapperFor : BaseTestClass() {
     }
 
     @Test
-    @Disabled
     fun `Fremtidig arbeidstakersøknad starter før og slutter inni, klippes`() {
         val fnr = "33333333333"
         sendArbeidstakerSykmelding(
@@ -55,7 +53,6 @@ class OverlapperFor : BaseTestClass() {
     }
 
     @Test
-    @Disabled
     fun `Fremtidig arbeidstakersøknad starter samtidig og slutter inni, klippes`() {
         val fnr = "44444444444"
         sendArbeidstakerSykmelding(
@@ -90,41 +87,6 @@ class OverlapperFor : BaseTestClass() {
     }
 
     @Test
-    fun `Fremtidig arbeidstakersøknad starter samtidig og slutter samtidig, klippes ikke`() {
-        val fnr = "55555555555"
-        sendArbeidstakerSykmelding(
-            fom = basisdato,
-            tom = basisdato.plusDays(10),
-            fnr = fnr
-        )
-        sendArbeidstakerSykmelding(
-            fom = basisdato,
-            tom = basisdato.plusDays(10),
-            fnr = fnr
-        )
-
-        val hentetViaRest = hentSoknader(fnr)
-        hentetViaRest shouldHaveSize 2
-
-        val klippetSoknad = hentetViaRest[0]
-        klippetSoknad.fom shouldBeEqualTo basisdato
-        klippetSoknad.tom shouldBeEqualTo basisdato.plusDays(10)
-        klippetSoknad.soknadPerioder!! shouldHaveSize 1
-        klippetSoknad.soknadPerioder!![0].fom shouldBeEqualTo basisdato
-        klippetSoknad.soknadPerioder!![0].tom shouldBeEqualTo basisdato.plusDays(10)
-
-        val nyesteSoknad = hentetViaRest[1]
-        nyesteSoknad.fom shouldBeEqualTo basisdato
-        nyesteSoknad.tom shouldBeEqualTo basisdato.plusDays(10)
-        nyesteSoknad.soknadPerioder!! shouldHaveSize 1
-        nyesteSoknad.soknadPerioder!![0].fom shouldBeEqualTo basisdato
-        nyesteSoknad.soknadPerioder!![0].tom shouldBeEqualTo basisdato.plusDays(10)
-
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
-    }
-
-    @Test
-    @Disabled
     fun `Ny arbeidstakersøknad starter samtidig og slutter inni, klipper sykmelding`() {
         val fnr = "66666666666"
 

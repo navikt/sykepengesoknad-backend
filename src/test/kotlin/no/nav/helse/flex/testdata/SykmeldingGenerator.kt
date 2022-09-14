@@ -21,7 +21,8 @@ fun getSykmeldingDto(
     type: PeriodetypeDTO = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
     reisetilskudd: Boolean = false,
     gradert: GradertDTO? = null,
-    merknader: List<Merknad>? = null
+    merknader: List<Merknad>? = null,
+    behandlingsdager: Int? = null,
 ): ArbeidsgiverSykmelding {
     return ArbeidsgiverSykmelding(
         id = sykmeldingId,
@@ -32,7 +33,7 @@ fun getSykmeldingDto(
                 type = type,
                 reisetilskudd = reisetilskudd,
                 aktivitetIkkeMulig = null,
-                behandlingsdager = null,
+                behandlingsdager = behandlingsdager,
                 gradert = gradert,
                 innspillTilArbeidsgiver = null
             )
