@@ -1,8 +1,6 @@
 package no.nav.helse.flex.service
 
 import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.never
-import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import no.nav.helse.flex.client.flexsyketilfelle.FlexSyketilfelleClient
 import no.nav.helse.flex.client.narmesteleder.Forskuttering
@@ -14,6 +12,7 @@ import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.Soknadstatus.NY
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
+import no.nav.helse.flex.forskuttering.ForskutteringRepository
 import no.nav.helse.flex.juridiskvurdering.JuridiskVurderingKafkaProducer
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.util.Metrikk
@@ -21,7 +20,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.ArgumentMatchers
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
@@ -46,6 +44,9 @@ class MottakerAvSoknadServiceTest {
 
     @Mock
     private lateinit var identService: IdentService
+
+    @Mock
+    private lateinit var forskutteringRepository: ForskutteringRepository
 
     @Mock
     private lateinit var metrikk: Metrikk
@@ -595,15 +596,5 @@ class MottakerAvSoknadServiceTest {
         assertThatThrownBy { soknadService.finnMottakerAvSoknad(soknad, folkeregisterIdenter) }
             .isInstanceOf(RuntimeException::class.java)
             .hasMessage("Finner ikke mottaker for en korrigert søknad")
-    }
-
-    @Test
-    fun arbeidsgiverForskuttererHenterIkkeForskutteringHvisOrgnummerMangler() {
-        soknadService.arbeidsgiverForskutterer("", "fnr")
-
-        verify(narmesteLederClient, never()).arbeidsgiverForskutterer(
-            ArgumentMatchers.anyString(),
-            ArgumentMatchers.anyString()
-        )
     }
 }

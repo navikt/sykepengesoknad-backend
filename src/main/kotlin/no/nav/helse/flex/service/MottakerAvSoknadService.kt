@@ -13,6 +13,7 @@ import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype.*
 import no.nav.helse.flex.domain.Sykepengesoknad
+import no.nav.helse.flex.forskuttering.ForskutteringRepository
 import no.nav.helse.flex.juridiskvurdering.JuridiskVurdering
 import no.nav.helse.flex.juridiskvurdering.JuridiskVurderingKafkaProducer
 import no.nav.helse.flex.juridiskvurdering.SporingType.organisasjonsnummer
@@ -38,6 +39,7 @@ class MottakerAvSoknadService(
     val narmesteLederClient: NarmesteLederClient,
     val metrikk: Metrikk,
     val juridiskVurderingKafkaProducer: JuridiskVurderingKafkaProducer,
+    val forskutteringRepository: ForskutteringRepository,
 ) {
     val log = logger()
 
@@ -48,16 +50,21 @@ class MottakerAvSoknadService(
             ARBEIDSLEDIG,
             ANNET_ARBEIDSFORHOLD,
             REISETILSKUDD -> NAV
+
             BEHANDLINGSDAGER,
             GRADERT_REISETILSKUDD -> when (sykepengesoknad.arbeidssituasjon) {
                 ARBEIDSTAKER -> mottakerAvSoknadForArbeidstaker(sykepengesoknad, identer)
                 else -> NAV
             }
+
             ARBEIDSTAKERE -> mottakerAvSoknadForArbeidstaker(sykepengesoknad, identer)
         }
     }
 
-    private fun mottakerAvSoknadForArbeidstaker(sykepengesoknad: Sykepengesoknad, identer: FolkeregisterIdenter): Mottaker {
+    private fun mottakerAvSoknadForArbeidstaker(
+        sykepengesoknad: Sykepengesoknad,
+        identer: FolkeregisterIdenter
+    ): Mottaker {
         val mottakerAvKorrigertSoknad = mottakerAvKorrigertSoknad(sykepengesoknad)
 
         if (mottakerAvKorrigertSoknad.isPresent && mottakerAvKorrigertSoknad.get() == ARBEIDSGIVER_OG_NAV) {
@@ -80,15 +87,35 @@ class MottakerAvSoknadService(
         return mottakerResultat.mottaker
     }
 
-    fun arbeidsgiverForskutterer(arbeidsgiverOrgnummer: String, fnr: String): Boolean {
-        if (StringUtils.isEmpty(arbeidsgiverOrgnummer)) {
+    private fun Boolean?.tilForskuttering(): Forskuttering {
+        return when (this) {
+            null -> Forskuttering.UKJENT
+            false -> Forskuttering.NEI
+            true -> Forskuttering.JA
+        }
+    }
+
+    fun arbeidsgiverForskutterer(sykepengesoknad: Sykepengesoknad): Boolean {
+        if (sykepengesoknad.arbeidsgiverOrgnummer == null) {
+            return false
+        }
+        if (StringUtils.isEmpty(sykepengesoknad.arbeidsgiverOrgnummer)) {
             return false
         }
 
         val forskuttering = narmesteLederClient.arbeidsgiverForskutterer(
-            sykmeldtFnr = fnr,
-            orgnummer = arbeidsgiverOrgnummer
+            sykmeldtFnr = sykepengesoknad.fnr,
+            orgnummer = sykepengesoknad.arbeidsgiverOrgnummer
         )
+        val forskutteringFraDb = forskutteringRepository.finnForskuttering(
+            brukerFnr = sykepengesoknad.fnr,
+            orgnummer = sykepengesoknad.arbeidsgiverOrgnummer
+        )?.arbeidsgiverForskutterer.tilForskuttering()
+
+        if (forskuttering != forskutteringFraDb) {
+            log.warn("Ulik forskuttering $forskuttering != $forskutteringFraDb for ${sykepengesoknad.id}")
+        }
+
         return listOf(Forskuttering.JA, Forskuttering.UKJENT).contains(
             forskuttering
         )
@@ -100,7 +127,10 @@ class MottakerAvSoknadService(
         val vurdering: List<JuridiskVurdering>
     )
 
-    private fun beregnMottakerAvSoknadForArbeidstakerOgBehandlingsdager(sykepengesoknad: Sykepengesoknad, identer: FolkeregisterIdenter): MottakerOgVurdering {
+    private fun beregnMottakerAvSoknadForArbeidstakerOgBehandlingsdager(
+        sykepengesoknad: Sykepengesoknad,
+        identer: FolkeregisterIdenter
+    ): MottakerOgVurdering {
 
         val arbeidsgiverperiode = flexSyketilfelleClient.beregnArbeidsgiverperiode(
             sykepengesoknad,
@@ -157,10 +187,7 @@ class MottakerAvSoknadService(
 
         if (
             sykepengesoknad.arbeidssituasjon == ARBEIDSTAKER &&
-            arbeidsgiverForskutterer(
-                arbeidsgiverOrgnummer = sykepengesoknad.arbeidsgiverOrgnummer!!,
-                fnr = sykepengesoknad.fnr
-            )
+            arbeidsgiverForskutterer(sykepengesoknad)
         ) {
             // Utenfor arbeidgiverperiode og arbeidsgiver forskutter
             return MottakerOgVurdering(
