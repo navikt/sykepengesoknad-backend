@@ -1,13 +1,11 @@
 package no.nav.helse.flex.arbeidstaker
 
 import no.nav.helse.flex.BaseTestClass
-import no.nav.helse.flex.client.narmesteleder.Forskuttering
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Visningskriterie
 import no.nav.helse.flex.hentSoknader
-import no.nav.helse.flex.mockArbeidsgiverForskutterer
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.soknadsopprettelse.EGENMELDINGER
@@ -25,7 +23,6 @@ import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.util.DatoUtil
 import no.nav.helse.flex.ventPåRecords
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
@@ -41,11 +38,6 @@ class GammeltEgenmeldingSporsmalTest : BaseTestClass() {
     private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
 
     final val fnr = "123456789"
-
-    @BeforeEach
-    fun setUp() {
-        mockArbeidsgiverForskutterer(Forskuttering.JA)
-    }
 
     @Test
     fun `1 - vi lager en sykmelding med gammelt format`() {

@@ -1,8 +1,6 @@
 package no.nav.helse.flex.service
 
 import no.nav.helse.flex.client.flexsyketilfelle.FlexSyketilfelleClient
-import no.nav.helse.flex.client.narmesteleder.Forskuttering
-import no.nav.helse.flex.client.narmesteleder.NarmesteLederClient
 import no.nav.helse.flex.domain.Arbeidsgiverperiode
 import no.nav.helse.flex.domain.Arbeidssituasjon.ARBEIDSTAKER
 import no.nav.helse.flex.domain.Mottaker
@@ -36,7 +34,6 @@ class MottakerAvSoknadService(
     val sykepengesoknadDAO: SykepengesoknadDAO,
     val flexSyketilfelleClient: FlexSyketilfelleClient,
     val identService: IdentService,
-    val narmesteLederClient: NarmesteLederClient,
     val metrikk: Metrikk,
     val juridiskVurderingKafkaProducer: JuridiskVurderingKafkaProducer,
     val forskutteringRepository: ForskutteringRepository,
@@ -87,14 +84,6 @@ class MottakerAvSoknadService(
         return mottakerResultat.mottaker
     }
 
-    private fun Boolean?.tilForskuttering(): Forskuttering {
-        return when (this) {
-            null -> Forskuttering.UKJENT
-            false -> Forskuttering.NEI
-            true -> Forskuttering.JA
-        }
-    }
-
     fun arbeidsgiverForskutterer(sykepengesoknad: Sykepengesoknad): Boolean {
         if (sykepengesoknad.arbeidsgiverOrgnummer == null) {
             return false
@@ -103,22 +92,16 @@ class MottakerAvSoknadService(
             return false
         }
 
-        val forskuttering = narmesteLederClient.arbeidsgiverForskutterer(
-            sykmeldtFnr = sykepengesoknad.fnr,
-            orgnummer = sykepengesoknad.arbeidsgiverOrgnummer
-        )
-        val forskutteringFraDb = forskutteringRepository.finnForskuttering(
+        val forskuttering = forskutteringRepository.finnForskuttering(
             brukerFnr = sykepengesoknad.fnr,
             orgnummer = sykepengesoknad.arbeidsgiverOrgnummer
-        )?.arbeidsgiverForskutterer.tilForskuttering()
+        )?.arbeidsgiverForskutterer
 
-        if (forskuttering != forskutteringFraDb) {
-            log.warn("Ulik forskuttering $forskuttering != $forskutteringFraDb for ${sykepengesoknad.id}")
+        if (forskuttering == null) {
+            // Ukjent telles som forskuttering
+            return true
         }
-
-        return listOf(Forskuttering.JA, Forskuttering.UKJENT).contains(
-            forskuttering
-        )
+        return forskuttering
     }
 
     class MottakerOgVurdering(

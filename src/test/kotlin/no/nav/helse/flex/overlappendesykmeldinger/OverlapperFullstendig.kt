@@ -1,9 +1,7 @@
 package no.nav.helse.flex.overlappendesykmeldinger
 
 import no.nav.helse.flex.BaseTestClass
-import no.nav.helse.flex.client.narmesteleder.Forskuttering
 import no.nav.helse.flex.hentSoknader
-import no.nav.helse.flex.mockArbeidsgiverForskutterer
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.ventPåRecords
@@ -24,7 +22,6 @@ class OverlapperFullstendig : BaseTestClass() {
     @BeforeEach
     fun setUp() {
         databaseReset.resetDatabase()
-        mockArbeidsgiverForskutterer(Forskuttering.JA)
     }
 
     @Test

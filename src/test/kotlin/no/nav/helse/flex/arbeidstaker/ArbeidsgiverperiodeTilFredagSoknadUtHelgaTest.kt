@@ -1,7 +1,6 @@
 package no.nav.helse.flex.arbeidstaker
 
 import no.nav.helse.flex.BaseTestClass
-import no.nav.helse.flex.client.narmesteleder.Forskuttering
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.domain.Arbeidsgiverperiode
 import no.nav.helse.flex.domain.Arbeidssituasjon
@@ -9,7 +8,6 @@ import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.hentSoknader
 import no.nav.helse.flex.juridiskvurdering.Utfall
-import no.nav.helse.flex.mockArbeidsgiverForskutterer
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
 import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
 import no.nav.helse.flex.sykepengesoknad.kafka.MottakerDTO
@@ -40,7 +38,6 @@ class ArbeidsgiverperiodeTilFredagSoknadUtHelgaTest : BaseTestClass() {
 
     @BeforeEach
     fun setUp() {
-        mockArbeidsgiverForskutterer(Forskuttering.JA)
         databaseReset.resetDatabase()
     }
 

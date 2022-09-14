@@ -95,9 +95,6 @@ abstract class BaseTestClass {
     lateinit var rebehandlingsSykmeldingSendtProducer: RebehandlingSykmeldingSendtProducer
 
     @Autowired
-    lateinit var narmestelederRestTemplate: RestTemplate
-
-    @Autowired
     lateinit var syfotilgangskontrollRestTemplate: RestTemplate
 
     @Autowired
@@ -106,15 +103,11 @@ abstract class BaseTestClass {
     @Autowired
     lateinit var behandleSendtBekreftetSykmeldingService: BehandleSendtBekreftetSykmeldingService
 
-    var narmestelederMockRestServiceServer: MockRestServiceServer? = null
     var syfotilgangskontrollMockRestServiceServer: MockRestServiceServer? = null
     var flexSyketilfelleMockRestServiceServer: MockRestServiceServer? = null
 
     @PostConstruct
     fun setupRestServiceServers() {
-        if (narmestelederMockRestServiceServer == null) {
-            narmestelederMockRestServiceServer = MockRestServiceServer.createServer(narmestelederRestTemplate)
-        }
         if (syfotilgangskontrollMockRestServiceServer == null) {
             syfotilgangskontrollMockRestServiceServer =
                 MockRestServiceServer.createServer(syfotilgangskontrollRestTemplate)

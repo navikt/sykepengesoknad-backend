@@ -34,14 +34,6 @@ no.nav.security.jwt:
           client-id: client-id
           client-secret: secretzz
           client-auth-method: client_secret_basic
-      narmesteleder-client-credentials:
-        token-endpoint-url: http://localhost:${mock-oauth2-server.port}/azureator/token
-        grant-type: client_credentials
-        scope: narmesteleder-client
-        authentication:
-          client-id: client-id
-          client-secret: secretzz
-          client-auth-method: client_secret_basic
       flex-syketilfelle-client-credentials:
         token-endpoint-url: http://localhost:${mock-oauth2-server.port}/azureator/token
         grant-type: client_credentials
