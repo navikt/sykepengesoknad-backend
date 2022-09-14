@@ -403,11 +403,10 @@ class Soknadsklipper(
     )
 
     private fun Sykepengesoknad.besvarteSporsmal(): SoknadBesvart {
-        if (sporsmal.all { it.svar.isNotEmpty() })
-            return SoknadBesvart.BESVART_ALT
+        if (sporsmal.all { it.svar.isEmpty() })
+            return SoknadBesvart.BESVART_INGENTING
         if (sporsmal.any { it.svar.isNotEmpty() })
             return SoknadBesvart.BESVART_NOE
-
-        return SoknadBesvart.BESVART_INGENTING
+        return SoknadBesvart.BESVART_ALT
     }
 }
