@@ -1,13 +1,10 @@
 package no.nav.helse.flex.overlappendesykmeldinger
 
 import no.nav.helse.flex.BaseTestClass
-import no.nav.helse.flex.client.narmesteleder.Forskuttering
 import no.nav.helse.flex.hentSoknader
-import no.nav.helse.flex.mockArbeidsgiverForskutterer
 import no.nav.helse.flex.ventPåRecords
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -23,11 +20,6 @@ class OverlapperInni : BaseTestClass() {
     fun MockMvc.metrikker(): List<String> = this
         .perform(MockMvcRequestBuilders.get("/internal/prometheus"))
         .andExpect(MockMvcResultMatchers.status().isOk).andReturn().response.contentAsString.split("\n")
-
-    @BeforeEach
-    fun setUp() {
-        mockArbeidsgiverForskutterer(Forskuttering.JA)
-    }
 
     @Test
     @Order(1)

@@ -17,8 +17,6 @@ env:
   JULESOKNAD_CRON: "0 0 5 * * ?"
   FLEX_BUCKET_UPLOADER_URL: "http://flex-bucket-uploader"
   FLEX_BUCKET_UPLOADER_TOKENX_CLIENT_ID: prod-gcp:flex:flex-bucket-uploader
-  NARMESTELEDER_AAD_CLIENT_ID: prod-gcp.teamsykmelding.narmesteleder
-  NARMESTELEDER_URL: "http://narmesteleder.teamsykmelding"
   SYFOTILGANGSKONTROLL_URL: "https://syfo-tilgangskontroll.prod-fss-pub.nais.io"
   SYFOTILGANGSKONTROLL_AAD_CLIENT_ID: prod-fss.teamsykefravr.syfo-tilgangskontroll
   FLEX_SYKETILFELLE_URL: "http://flex-syketilfelle"

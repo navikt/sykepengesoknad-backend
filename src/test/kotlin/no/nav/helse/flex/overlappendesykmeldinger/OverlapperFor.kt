@@ -1,14 +1,11 @@
 package no.nav.helse.flex.overlappendesykmeldinger
 
 import no.nav.helse.flex.BaseTestClass
-import no.nav.helse.flex.client.narmesteleder.Forskuttering
 import no.nav.helse.flex.hentSoknader
-import no.nav.helse.flex.mockArbeidsgiverForskutterer
 import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.ventPåRecords
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
@@ -18,11 +15,6 @@ import java.time.LocalDate
 class OverlapperFor : BaseTestClass() {
 
     private final val basisdato = LocalDate.now()
-
-    @BeforeEach
-    fun setUp() {
-        mockArbeidsgiverForskutterer(Forskuttering.JA)
-    }
 
     @Test
     fun `Fremtidig arbeidstakersøknad starter før og slutter inni, klippes`() {

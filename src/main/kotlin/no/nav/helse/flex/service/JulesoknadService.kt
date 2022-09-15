@@ -1,13 +1,12 @@
 package no.nav.helse.flex.service
 
-import no.nav.helse.flex.client.narmesteleder.Forskuttering
-import no.nav.helse.flex.client.narmesteleder.NarmesteLederClient
 import no.nav.helse.flex.cronjob.LeaderElection
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.Sykmeldingstype
 import no.nav.helse.flex.domain.rest.SoknadMetadata
+import no.nav.helse.flex.forskuttering.ForskutteringRepository
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.JulesoknadkandidatDAO
 import no.nav.helse.flex.repository.JulesoknadkandidatDAO.Julesoknadkandidat
@@ -27,7 +26,7 @@ class JulesoknadService(
     private val julesoknadkandidatDAO: JulesoknadkandidatDAO,
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val leaderElection: LeaderElection,
-    private val narmesteLederClient: NarmesteLederClient,
+    private val forskutteringRepository: ForskutteringRepository,
     private val aktiverEnkeltSoknadService: AktiverEnkeltSoknadService,
 ) {
     private val log = logger()
@@ -133,11 +132,12 @@ class JulesoknadService(
     private fun Sykepengesoknad.arbeidsgiverForskuttererIkke(): Boolean {
         if (this.arbeidssituasjon == no.nav.helse.flex.domain.Arbeidssituasjon.ARBEIDSTAKER) {
             val orgnummer = this.arbeidsgiverOrgnummer ?: throw RuntimeException("Forventer orgnummer")
-            val forskuttering = narmesteLederClient.arbeidsgiverForskutterer(
-                sykmeldtFnr = this.fnr,
+
+            val forskuttering = forskutteringRepository.finnForskuttering(
+                brukerFnr = this.fnr,
                 orgnummer = orgnummer
-            )
-            if (forskuttering == Forskuttering.JA) {
+            )?.arbeidsgiverForskutterer
+            if (forskuttering == true) {
                 return false
             }
             return true
@@ -153,12 +153,13 @@ class JulesoknadService(
     private fun SoknadMetadata.arbeidsgiverForskuttererIkke(): Boolean {
         if (this.arbeidssituasjon == no.nav.helse.flex.domain.Arbeidssituasjon.ARBEIDSTAKER) {
             val orgnummer = this.arbeidsgiverOrgnummer ?: throw RuntimeException("Forventer orgnummer")
-            val forskuttering = narmesteLederClient.arbeidsgiverForskutterer(
-                sykmeldtFnr = this.fnr,
-                orgnummer = orgnummer
-            )
 
-            if (forskuttering == Forskuttering.JA) {
+            val forskuttering = forskutteringRepository.finnForskuttering(
+                brukerFnr = this.fnr,
+                orgnummer = orgnummer
+            )?.arbeidsgiverForskutterer
+
+            if (forskuttering == true) {
                 return false
             }
             return true

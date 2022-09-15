@@ -4,12 +4,12 @@ import com.nhaarman.mockitokotlin2.argWhere
 import com.nhaarman.mockitokotlin2.doThrow
 import com.nhaarman.mockitokotlin2.whenever
 import no.nav.helse.flex.BaseTestClass
-import no.nav.helse.flex.client.narmesteleder.Forskuttering
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus.*
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
+import no.nav.helse.flex.forskuttering.ForskutteringRepository
+import no.nav.helse.flex.forskuttering.domain.Forskuttering
 import no.nav.helse.flex.hentSoknader
-import no.nav.helse.flex.mockArbeidsgiverForskutterer
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
 import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
 import no.nav.helse.flex.repository.JulesoknadkandidatDAO
@@ -29,7 +29,9 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.Duration
+import java.time.Instant
 import java.time.LocalDate
+import java.util.*
 
 @TestMethodOrder(MethodOrderer.MethodName::class)
 class JulesoknadIntegrationTest : BaseTestClass() {
@@ -43,13 +45,16 @@ class JulesoknadIntegrationTest : BaseTestClass() {
     @Autowired
     private lateinit var julesoknadkandidatDAO: JulesoknadkandidatDAO
 
+    @Autowired
+    private lateinit var forskutteringRepository: ForskutteringRepository
+
     private final val fnr = "123456789"
 
     private final val nesteÅr = LocalDate.now().plusYears(1).year
 
     @BeforeEach
     fun setUp() {
-        narmestelederMockRestServiceServer?.reset()
+        forskutteringRepository.deleteAll()
         flexSyketilfelleMockRestServiceServer?.reset()
         evictAllCaches()
         databaseReset.resetDatabase()
@@ -122,7 +127,7 @@ class JulesoknadIntegrationTest : BaseTestClass() {
     @Test
     fun `15 dagers arbeidstaker søknad i riktig periode uten forskuttering aktiveres med en gang`() {
         val orgnummer = "999999999"
-        mockArbeidsgiverForskutterer(Forskuttering.NEI, orgnummer)
+        lagreForskuttering(false, orgnummer)
         sendInnSykmelding(
             fom = LocalDate.of(nesteÅr, 12, 1),
             tom = LocalDate.of(nesteÅr, 12, 15),
@@ -139,10 +144,26 @@ class JulesoknadIntegrationTest : BaseTestClass() {
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
     }
 
+    private fun lagreForskuttering(forskutterer: Boolean, orgnummer: String) {
+
+        forskutteringRepository.save(
+            Forskuttering(
+                id = null,
+                narmesteLederId = UUID.randomUUID(),
+                brukerFnr = fnr,
+                orgnummer = orgnummer,
+                aktivFom = LocalDate.now(),
+                aktivTom = null,
+                arbeidsgiverForskutterer = forskutterer,
+                timestamp = Instant.now(),
+                oppdatert = Instant.now()
+            )
+        )
+    }
+
     @Test
     fun `15 dagers arbeidstaker søknad i riktig periode med ukjent forskuttering aktiveres med en gang`() {
         val orgnummer = "999999999"
-        mockArbeidsgiverForskutterer(Forskuttering.UKJENT, orgnummer)
         sendInnSykmelding(
             fom = LocalDate.of(nesteÅr, 12, 1),
             tom = LocalDate.of(nesteÅr, 12, 15),
@@ -163,7 +184,7 @@ class JulesoknadIntegrationTest : BaseTestClass() {
     @Test
     fun `15 dagers arbeidstaker søknad i riktig periode med forskuttering aktiveres ikke med en gang`() {
         val orgnummer = "999999999"
-        mockArbeidsgiverForskutterer(Forskuttering.JA, orgnummer)
+        lagreForskuttering(true, orgnummer)
 
         sendInnSykmelding(
             fom = LocalDate.of(nesteÅr, 12, 1),
@@ -185,9 +206,9 @@ class JulesoknadIntegrationTest : BaseTestClass() {
         assertThat(kandidater.first().sykepengesoknadUuid).isEqualTo(soknaden.id)
 
         // Vi endrer nærmestelederskjema og kjører cronjobben
-        narmestelederMockRestServiceServer?.reset()
+        forskutteringRepository.deleteAll()
         evictAllCaches()
-        mockArbeidsgiverForskutterer(Forskuttering.NEI, orgnummer)
+        lagreForskuttering(false, orgnummer)
 
         julesoknadService.prosseserJulesoknadKandidater()
 
@@ -204,7 +225,7 @@ class JulesoknadIntegrationTest : BaseTestClass() {
     @Test
     fun `Lang sykmelding som treffer over julesøknad perioden får først aktiver julesøknaden når foranliggende er aktivert`() {
         val orgnummer = "999999999"
-        mockArbeidsgiverForskutterer(Forskuttering.NEI, orgnummer)
+        lagreForskuttering(false, orgnummer)
 
         sendInnSykmelding(
             fom = LocalDate.of(nesteÅr, 10, 1),
@@ -249,9 +270,9 @@ class JulesoknadIntegrationTest : BaseTestClass() {
     fun `Exception kastes i prosseserJulesoknadKandidater() - aktiverSoknad() - soknadEvent()`() {
 
         val orgnummer = "111111111"
-        mockArbeidsgiverForskutterer(Forskuttering.NEI, orgnummer)
+        lagreForskuttering(false, orgnummer)
         val orgnummer2 = "999999999"
-        mockArbeidsgiverForskutterer(Forskuttering.JA, orgnummer2)
+        lagreForskuttering(true, orgnummer2)
 
         sendInnSykmelding(
             fom = LocalDate.of(nesteÅr, 11, 1),
@@ -300,10 +321,10 @@ class JulesoknadIntegrationTest : BaseTestClass() {
         )
         juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
         // Vi endrer nærmestelederskjema og kjører cronjobben
-        narmestelederMockRestServiceServer?.reset()
+        forskutteringRepository.deleteAll()
         evictAllCaches()
-        mockArbeidsgiverForskutterer(Forskuttering.NEI, orgnummer)
-        mockArbeidsgiverForskutterer(Forskuttering.NEI, orgnummer2)
+        lagreForskuttering(false, orgnummer)
+        lagreForskuttering(false, orgnummer2)
 
         doThrow(RuntimeException("Noe feiler"))
             .whenever(aivenKafkaProducer)

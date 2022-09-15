@@ -1,7 +1,5 @@
 package no.nav.helse.flex
 
-import no.nav.helse.flex.client.narmesteleder.Forskuttering
-import no.nav.helse.flex.client.narmesteleder.ForskutteringRespons
 import no.nav.helse.flex.client.syfotilgangskontroll.SyfoTilgangskontrollClient.Companion.NAV_PERSONIDENT_HEADER
 import no.nav.helse.flex.domain.Arbeidsgiverperiode
 import no.nav.helse.flex.domain.SimpleSykmelding
@@ -16,29 +14,6 @@ import org.springframework.test.web.client.response.MockRestResponseCreators.wit
 import org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess
 import org.springframework.test.web.client.response.MockRestResponseCreators.withUnauthorizedRequest
 import java.time.LocalDate
-
-fun BaseTestClass.mockArbeidsgiverForskutterer(
-    forskuttering: Forskuttering,
-    orgnummer: String? = null
-) {
-    val url = "http://narmesteleder/arbeidsgiver/forskutterer"
-
-    val ferdigUrl = if (orgnummer != null) {
-        "$url?orgnummer=$orgnummer"
-    } else {
-        url
-    }
-    narmestelederMockRestServiceServer!!
-        .expect(requestTo(ferdigUrl))
-        .andRespond(
-            withSuccess(
-                OBJECT_MAPPER.writeValueAsBytes(
-                    ForskutteringRespons(forskuttering)
-                ),
-                MediaType.APPLICATION_JSON
-            )
-        )
-}
 
 fun BaseTestClass.mockSyfoTilgangskontroll(
     tilgang: Boolean,

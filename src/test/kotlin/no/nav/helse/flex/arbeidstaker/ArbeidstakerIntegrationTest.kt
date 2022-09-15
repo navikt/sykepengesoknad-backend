@@ -1,7 +1,6 @@
 package no.nav.helse.flex.arbeidstaker
 
 import no.nav.helse.flex.BaseTestClass
-import no.nav.helse.flex.client.narmesteleder.Forskuttering
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSporsmal
@@ -10,7 +9,6 @@ import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.hentSoknader
 import no.nav.helse.flex.korrigerSoknad
 import no.nav.helse.flex.korrigerSoknadMedResult
-import no.nav.helse.flex.mockArbeidsgiverForskutterer
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
 import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
 import no.nav.helse.flex.repository.SykepengesoknadDAO
@@ -35,7 +33,6 @@ import org.amshove.kluent.`should be false`
 import org.amshove.kluent.`should be null`
 import org.amshove.kluent.shouldHaveSize
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -57,11 +54,6 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
 
     private final val fnr = "12454578474"
     private final val basisdato = LocalDate.of(2021, 9, 1)
-
-    @BeforeEach
-    fun setUp() {
-        mockArbeidsgiverForskutterer(Forskuttering.JA)
-    }
 
     @Test
     @Order(1)
