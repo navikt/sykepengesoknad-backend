@@ -18,7 +18,7 @@ fun settOppSoknadArbeidsledig(soknadMetadata: SoknadMetadata, erForsteSoknadISyk
     val gradertReisetilskudd = soknadMetadata.soknadstype == Soknadstype.GRADERT_REISETILSKUDD
 
     val sporsmal = mutableListOf(
-        ansvarserklaringSporsmal(),
+        ansvarserklaringSporsmal(reisetilskudd = gradertReisetilskudd),
         andreInntektskilderArbeidsledig(soknadMetadata.fom, soknadMetadata.tom),
         friskmeldingSporsmal(soknadMetadata.fom, soknadMetadata.tom),
         utenlandsoppholdArbeidsledigAnnetSporsmal(soknadMetadata.fom, soknadMetadata.tom),

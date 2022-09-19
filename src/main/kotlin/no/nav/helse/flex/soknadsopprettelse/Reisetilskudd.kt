@@ -40,7 +40,7 @@ fun skapReisetilskuddsoknad(
         merknaderFraSykmelding = soknadMetadata.merknader,
 
         sporsmal = mutableListOf(
-            ansvarserklaringSporsmal(),
+            ansvarserklaringSporsmal(reisetilskudd = true),
             vaerKlarOverAtReisetilskudd(),
             bekreftOpplysningerSporsmal()
         ).also {

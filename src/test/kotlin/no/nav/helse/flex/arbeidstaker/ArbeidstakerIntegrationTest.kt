@@ -155,7 +155,7 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
             )
         )
 
-        assertThat(soknader[0].sporsmal!!.first { it.tag == ANSVARSERKLARING }.sporsmalstekst).isEqualTo("Jeg bekrefter at jeg vil gi så riktige og fullstendige opplysninger som mulig.")
+        assertThat(soknader[0].sporsmal!!.first { it.tag == ANSVARSERKLARING }.sporsmalstekst).isEqualTo("Jeg vet at jeg kan miste retten til sykepenger hvis opplysningene jeg gir ikke er riktige eller fullstendige. Jeg vet også at NAV kan holde igjen eller kreve tilbake penger, og at å gi feil opplysninger kan være straffbart.")
     }
 
     @Test
