@@ -138,7 +138,7 @@ class ArbeidsledigIntegrationMedOppdaterSporsmalTest : BaseTestClass() {
             )
         assertThat(soknaden.sporsmal!!.first { it.tag == ARBEIDSLEDIG_UTLAND }.sporsmalstekst)
             .isEqualTo(
-                "Var du på reise utenfor EU/EØS/Storbritannia mens du var sykmeldt 1. januar 2018 - 10. mai 2020?"
+                "Var du på reise utenfor EØS mens du var sykmeldt 1. januar 2018 - 10. mai 2020?"
             )
 
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
@@ -157,7 +157,7 @@ class ArbeidsledigIntegrationMedOppdaterSporsmalTest : BaseTestClass() {
                     )
                 assertThat(it.rSSykepengesoknad.sporsmal!!.first { it.tag == ARBEIDSLEDIG_UTLAND }.sporsmalstekst)
                     .isEqualTo(
-                        "Var du på reise utenfor EU/EØS/Storbritannia mens du var sykmeldt 1. - 4. januar 2018?"
+                        "Var du på reise utenfor EØS mens du var sykmeldt 1. - 4. januar 2018?"
                     )
             }
     }

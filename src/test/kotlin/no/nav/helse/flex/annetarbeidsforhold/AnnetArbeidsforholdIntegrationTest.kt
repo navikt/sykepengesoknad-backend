@@ -121,7 +121,7 @@ class AnnetArbeidsforholdIntegrationTest : BaseTestClass() {
             )
         assertThat(soknaden.sporsmal!!.first { it.tag == ARBEIDSLEDIG_UTLAND }.sporsmalstekst)
             .isEqualTo(
-                "Var du på reise utenfor EU/EØS/Storbritannia mens du var sykmeldt 1. - 10. januar 2018?"
+                "Var du på reise utenfor EØS mens du var sykmeldt 1. - 10. januar 2018?"
             )
         assertThat(soknaden.sporsmal!!.first { it.tag == PERMISJON_V2 }.sporsmalstekst)
             .isEqualTo(
@@ -143,7 +143,7 @@ class AnnetArbeidsforholdIntegrationTest : BaseTestClass() {
                     )
                 assertThat(oppdatertSoknad.sporsmal!!.first { it.tag == ARBEIDSLEDIG_UTLAND }.sporsmalstekst)
                     .isEqualTo(
-                        "Var du på reise utenfor EU/EØS/Storbritannia mens du var sykmeldt 1. - 4. januar 2018?"
+                        "Var du på reise utenfor EØS mens du var sykmeldt 1. - 4. januar 2018?"
                     )
                 assertThat(oppdatertSoknad.sporsmal!!.first { it.tag == PERMISJON_V2 }.sporsmalstekst)
                     .isEqualTo(

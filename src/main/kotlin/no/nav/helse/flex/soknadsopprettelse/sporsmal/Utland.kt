@@ -13,13 +13,13 @@ import java.time.format.DateTimeFormatter
 fun utenlandsoppholdArbeidsledigAnnetSporsmal(fom: LocalDate, tom: LocalDate): Sporsmal =
     Sporsmal(
         tag = ARBEIDSLEDIG_UTLAND,
-        sporsmalstekst = "Var du på reise utenfor EU/EØS/Storbritannia mens du var sykmeldt ${DatoUtil.formatterPeriode(fom, tom)}?",
+        sporsmalstekst = "Var du på reise utenfor EØS mens du var sykmeldt ${DatoUtil.formatterPeriode(fom, tom)}?",
         svartype = Svartype.JA_NEI,
         kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
         undersporsmal = listOf(
             Sporsmal(
                 tag = UTLAND_NAR,
-                sporsmalstekst = "Når var du utenfor EU/EØS/Storbritannia?",
+                sporsmalstekst = "Når var du utenfor EØS?",
                 svartype = Svartype.PERIODER,
                 min = fom.format(DateTimeFormatter.ISO_LOCAL_DATE),
                 max = tom.format(DateTimeFormatter.ISO_LOCAL_DATE)
