@@ -44,7 +44,7 @@ fun settOppSoknadArbeidstaker(
     val gradertResietilskudd = soknadMetadata.soknadstype == GRADERT_REISETILSKUDD
 
     val sporsmal = mutableListOf(
-        ansvarserklaringSporsmal(),
+        ansvarserklaringSporsmal(reisetilskudd = gradertResietilskudd),
         if (gradertResietilskudd) {
             tilbakeIFulltArbeidGradertReisetilskuddSporsmal(soknadMetadata)
         } else {
