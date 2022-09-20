@@ -48,7 +48,7 @@ val avroVersion = "1.11.1"
 val logstashLogbackEncoderVersion = "7.2"
 val testContainersVersion = "1.17.3"
 val kluentVersion = "1.68"
-val jsonSchemaValidatorVersion = "1.0.72"
+val jsonSchemaValidatorVersion = "1.0.73"
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
