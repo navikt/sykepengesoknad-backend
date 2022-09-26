@@ -1,6 +1,6 @@
-package no.nav.helse.flex.domain.mapper
+package no.nav.helse.flex.domain.mapper.sporsmalprossesering
 
-import no.nav.helse.flex.domain.mapper.ArbeidsledigsoknadToSykepengesoknadDTO.konverterArbeidsledigTilSykepengesoknadDTO
+import no.nav.helse.flex.domain.mapper.ArbeidsledigsoknadToSykepengesoknadDTO
 import no.nav.helse.flex.mock.opprettSendtSoknadForArbeidsledige
 import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER
 import no.nav.helse.flex.soknadsopprettelse.ER_DU_SYKMELDT
@@ -13,10 +13,10 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.Test
 
-class ArbeidsledigsoknadToSykepengesoknadDTOTest {
+class AndreInntektskilderKtTest {
 
     @Test
-    fun `legger til andre inntektskilder på arbeidsledig kafka søknad`() {
+    fun `arbeidsledig henter andre inntektskilder`() {
         val soknad = opprettSendtSoknadForArbeidsledige()
             .besvarsporsmal(tag = ANDRE_INNTEKTSKILDER, svar = "JA")
             .besvarsporsmal(tag = INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD, svar = "CHECKED")
@@ -25,7 +25,9 @@ class ArbeidsledigsoknadToSykepengesoknadDTOTest {
             .besvarsporsmal(tag = INNTEKTSKILDE_FRILANSER + ER_DU_SYKMELDT, svar = "NEI")
             .besvarsporsmal(tag = INNTEKTSKILDE_ANNET, svar = "CHECKED")
 
-        val andreInntektskilder = konverterArbeidsledigTilSykepengesoknadDTO(soknad).andreInntektskilder!!
+        val andreInntektskilder = ArbeidsledigsoknadToSykepengesoknadDTO.konverterArbeidsledigTilSykepengesoknadDTO(
+            soknad
+        ).andreInntektskilder!!
 
         andreInntektskilder.shouldHaveSize(3)
 
