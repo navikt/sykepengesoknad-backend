@@ -6,7 +6,7 @@ import no.nav.helse.flex.domain.mapper.sporsmalprossesering.arbeidGjenopptattDat
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.harSoktSykepengerUnderUtlandsopphold
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentArbeidUtenforNorge
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentEgenmeldinger
-import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentInntektListeArbeidstaker
+import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentInntektListe
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentPapirsykmeldinger
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentPermitteringer
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentSoknadsPerioderMedFaktiskGrad
@@ -47,7 +47,7 @@ fun konverterTilSykepengesoknadDTO(
         egenmeldinger = hentEgenmeldinger(sykepengesoknad),
         papirsykmeldinger = hentPapirsykmeldinger(sykepengesoknad),
         fravar = samleFravaerListe(sykepengesoknad),
-        andreInntektskilder = hentInntektListeArbeidstaker(sykepengesoknad),
+        andreInntektskilder = hentInntektListe(sykepengesoknad),
         soknadsperioder = hentSoknadsPerioderMedFaktiskGrad(sykepengesoknad).first,
         sporsmal = sykepengesoknad.sporsmal.map { it.tilSporsmalDTO() },
         avsendertype = sykepengesoknad.avsendertype?.tilAvsendertypeDTO(),
