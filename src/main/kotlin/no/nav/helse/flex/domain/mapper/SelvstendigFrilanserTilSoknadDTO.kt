@@ -2,6 +2,7 @@ package no.nav.helse.flex.domain.mapper
 
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentArbeidUtenforNorge
+import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentInntektListe
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentPermitteringer
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsperiodeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
@@ -36,5 +37,6 @@ fun konverterSelvstendigOgFrilanserTilSoknadDTO(
         permitteringer = sykepengesoknad.hentPermitteringer(),
         merknaderFraSykmelding = sykepengesoknad.merknaderFraSykmelding.tilMerknadDTO(),
         arbeidUtenforNorge = sykepengesoknad.hentArbeidUtenforNorge(),
+        andreInntektskilder = hentInntektListe(sykepengesoknad),
     )
 }

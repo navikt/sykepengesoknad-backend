@@ -1,6 +1,9 @@
 package no.nav.helse.flex.domain.mapper.sporsmalprossesering
 
-import no.nav.helse.flex.domain.mapper.ArbeidsledigsoknadToSykepengesoknadDTO
+import no.nav.helse.flex.domain.Mottaker
+import no.nav.helse.flex.domain.mapper.ArbeidsledigsoknadToSykepengesoknadDTO.konverterArbeidsledigTilSykepengesoknadDTO
+import no.nav.helse.flex.domain.mapper.konverterArbeidstakersoknadTilSykepengesoknadDTO
+import no.nav.helse.flex.domain.mapper.konverterSelvstendigOgFrilanserTilSoknadDTO
 import no.nav.helse.flex.mock.opprettSendtFrilanserSoknad
 import no.nav.helse.flex.mock.opprettSendtSoknad
 import no.nav.helse.flex.mock.opprettSendtSoknadForArbeidsledige
@@ -22,7 +25,7 @@ class AndreInntektskilderKtTest {
         val soknad = opprettSendtSoknadForArbeidsledige()
             .besvarsporsmal(tag = ANDRE_INNTEKTSKILDER, svar = "NEI")
 
-        val andreInntektskilder = ArbeidsledigsoknadToSykepengesoknadDTO.konverterArbeidsledigTilSykepengesoknadDTO(
+        val andreInntektskilder = konverterArbeidsledigTilSykepengesoknadDTO(
             soknad
         ).andreInntektskilder!!
 
@@ -39,7 +42,7 @@ class AndreInntektskilderKtTest {
             .besvarsporsmal(tag = INNTEKTSKILDE_FRILANSER + ER_DU_SYKMELDT, svar = "NEI")
             .besvarsporsmal(tag = INNTEKTSKILDE_ANNET, svar = "CHECKED")
 
-        val andreInntektskilder = ArbeidsledigsoknadToSykepengesoknadDTO.konverterArbeidsledigTilSykepengesoknadDTO(
+        val andreInntektskilder = konverterArbeidsledigTilSykepengesoknadDTO(
             soknad
         ).andreInntektskilder!!
 
@@ -59,8 +62,11 @@ class AndreInntektskilderKtTest {
     fun `Arbeidstakere henter andre inntektskilder`() {
         val besvartSoknad = opprettSendtSoknad()
 
-        val andreInntektskilder = ArbeidsledigsoknadToSykepengesoknadDTO.konverterArbeidsledigTilSykepengesoknadDTO(
-            besvartSoknad
+        val andreInntektskilder = konverterArbeidstakersoknadTilSykepengesoknadDTO(
+            besvartSoknad,
+            Mottaker.ARBEIDSGIVER_OG_NAV,
+            false,
+            hentSoknadsPerioderMedFaktiskGrad(besvartSoknad).first
         ).andreInntektskilder!!
 
         andreInntektskilder.shouldHaveSize(3)
@@ -79,8 +85,10 @@ class AndreInntektskilderKtTest {
     fun `Frilanser henter andre inntektskilder`() {
         val besvartSoknad = opprettSendtFrilanserSoknad()
 
-        val andreInntektskilder = ArbeidsledigsoknadToSykepengesoknadDTO.konverterArbeidsledigTilSykepengesoknadDTO(
-            besvartSoknad
+        val andreInntektskilder = konverterSelvstendigOgFrilanserTilSoknadDTO(
+            besvartSoknad,
+            hentSoknadsPerioderMedFaktiskGrad(besvartSoknad).first,
+            false
         ).andreInntektskilder!!
 
         andreInntektskilder.shouldHaveSize(4)
