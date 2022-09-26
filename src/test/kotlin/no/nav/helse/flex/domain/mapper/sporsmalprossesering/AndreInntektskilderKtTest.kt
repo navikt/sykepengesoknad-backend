@@ -17,6 +17,18 @@ import org.junit.jupiter.api.Test
 class AndreInntektskilderKtTest {
 
     @Test
+    fun `Arbeidsledig har ikke svart på andre inntektskilder`() {
+        val soknad = opprettSendtSoknadForArbeidsledige()
+            .besvarsporsmal(tag = ANDRE_INNTEKTSKILDER, svar = "NEI")
+
+        val andreInntektskilder = ArbeidsledigsoknadToSykepengesoknadDTO.konverterArbeidsledigTilSykepengesoknadDTO(
+            soknad
+        ).andreInntektskilder!!
+
+        andreInntektskilder.shouldHaveSize(0)
+    }
+
+    @Test
     fun `Arbeidsledig henter andre inntektskilder`() {
         val soknad = opprettSendtSoknadForArbeidsledige()
             .besvarsporsmal(tag = ANDRE_INNTEKTSKILDER, svar = "JA")
