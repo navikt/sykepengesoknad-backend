@@ -9,8 +9,8 @@ import no.nav.helse.flex.soknadsopprettelse.PERIODEUTLAND
 import no.nav.helse.flex.soknadsopprettelse.SYKMELDINGSGRAD
 import no.nav.helse.flex.soknadsopprettelse.settOppSoknadOppholdUtland
 import no.nav.helse.flex.testutil.besvarsporsmal
-import java.time.LocalDateTime.now
-import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
+import no.nav.helse.flex.util.DatoUtil.periodeTilJson
+import java.time.LocalDate.now
 
 fun mockUtlandssoknad(): Sykepengesoknad {
     return leggSvarPaSoknad(settOppSoknadOppholdUtland("fnr-7454630"), "NEI")
@@ -31,5 +31,5 @@ private fun Sykepengesoknad.arbeidsgiver(feriesvarverdi: String): Sykepengesokna
 }
 
 private fun Sykepengesoknad.perioder(): Sykepengesoknad {
-    return besvarsporsmal(PERIODEUTLAND, "{\"fom\":\"" + now().plusDays(4).format(ISO_LOCAL_DATE) + "\",\"tom\":\"" + now().plusMonths(1).format(ISO_LOCAL_DATE) + "\"}")
+    return besvarsporsmal(PERIODEUTLAND, periodeTilJson(now().plusDays(4), now().plusMonths(1)))
 }

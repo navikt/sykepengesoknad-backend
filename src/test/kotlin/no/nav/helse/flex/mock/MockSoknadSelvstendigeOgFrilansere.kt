@@ -10,6 +10,7 @@ import no.nav.helse.flex.domain.rest.SoknadMetadata
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.testutil.besvarsporsmal
+import no.nav.helse.flex.util.DatoUtil.periodeTilJson
 import no.nav.helse.flex.util.tilOsloInstant
 import no.nav.syfo.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
@@ -129,7 +130,7 @@ private fun Sykepengesoknad.harDuStudert(): Sykepengesoknad {
 
 private fun Sykepengesoknad.harDuOppholdtDegIUtlandet(): Sykepengesoknad {
     return besvarsporsmal(UTLAND, "JA")
-        .besvarsporsmal(PERIODER, "{\"fom\":\"" + fom!!.plusDays(2).format(ISO_LOCAL_DATE) + "\",\"tom\":\"" + fom!!.plusDays(4).format(ISO_LOCAL_DATE) + "\"}")
+        .besvarsporsmal(PERIODER, periodeTilJson(fom!!.plusDays(2), fom!!.plusDays(4)))
         .besvarsporsmal(UTLANDSOPPHOLD_SOKT_SYKEPENGER, "NEI")
 }
 
