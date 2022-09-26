@@ -6,7 +6,7 @@ import com.nhaarman.mockitokotlin2.verify
 import no.nav.helse.flex.domain.Soknadstatus.*
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.kafka.producer.SoknadProducer
-import no.nav.helse.flex.mock.MockSoknadSelvstendigeOgFrilansere
+import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknad
 import no.nav.helse.flex.mock.opprettNySoknad
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.soknadsopprettelse.settOppSoknadOppholdUtland
@@ -33,11 +33,9 @@ class AvrytSoknadServiceTest {
     @InjectMocks
     private lateinit var avbrytSoknadService: AvbrytSoknadService
 
-    private val mockSoknadSelvstendigeOgFrilansere = MockSoknadSelvstendigeOgFrilansere(null)
-
     @Test
     fun farAvbruttNySelvstendigSoknad() {
-        val soknad = mockSoknadSelvstendigeOgFrilansere.opprettNySoknad()
+        val soknad = opprettNyNaeringsdrivendeSoknad()
         avbrytSoknadService.avbrytSoknad(soknad)
 
         verify(sykepengesoknadDAO).avbrytSoknad(any(), any())
@@ -61,7 +59,7 @@ class AvrytSoknadServiceTest {
 
     @Test
     fun farAvbruttUtkastTilKorrigeringSoknad() {
-        val soknad = mockSoknadSelvstendigeOgFrilansere.opprettNySoknad().copy(status = UTKAST_TIL_KORRIGERING)
+        val soknad = opprettNyNaeringsdrivendeSoknad().copy(status = UTKAST_TIL_KORRIGERING)
 
         avbrytSoknadService.avbrytSoknad(soknad)
 
@@ -72,7 +70,7 @@ class AvrytSoknadServiceTest {
     fun farIkkeAvbruttSendtSoknad() {
         assertThrows(IllegalArgumentException::class.java) {
             try {
-                val soknad = mockSoknadSelvstendigeOgFrilansere.opprettNySoknad().copy(status = SENDT)
+                val soknad = opprettNyNaeringsdrivendeSoknad().copy(status = SENDT)
 
                 avbrytSoknadService.avbrytSoknad(soknad)
             } finally {
@@ -86,7 +84,7 @@ class AvrytSoknadServiceTest {
 
         assertThrows(IllegalArgumentException::class.java) {
             try {
-                val soknad = mockSoknadSelvstendigeOgFrilansere.opprettNySoknad().copy(status = KORRIGERT)
+                val soknad = opprettNyNaeringsdrivendeSoknad().copy(status = KORRIGERT)
 
                 avbrytSoknadService.avbrytSoknad(soknad)
             } finally {

@@ -37,40 +37,6 @@ fun deprecatedGetSoknadMedFeriesporsmalSomUndersporsmal(soknadMetadata: SoknadMe
     return sykepengesoknad.copy(sporsmal = sykepengesoknad.sporsmal)
 }
 
-fun deprecatedOpprettEnkelSendtSoknad(): Sykepengesoknad {
-    val soknadMetadata = SoknadMetadata(
-        id = UUID.randomUUID().toString(),
-        fnr = "fnr-7454630",
-        status = SENDT,
-        startSykeforlop = now().minusMonths(1),
-        fom = now().minusMonths(1),
-        soknadstype = Soknadstype.ARBEIDSTAKERE,
-        tom = now().minusMonths(1).plusDays(8),
-        arbeidssituasjon = ARBEIDSTAKER,
-        arbeidsgiverOrgnummer = "123456789",
-        arbeidsgiverNavn = "ARBEIDSGIVER A/S",
-        sykmeldingId = "sykmeldingId",
-        sykmeldingSkrevet = LocalDateTime.now().minusMonths(1).tilOsloInstant(),
-        sykmeldingsperioder = listOf(
-            SykmeldingsperiodeAGDTO(
-                fom = now().minusMonths(1),
-                tom = now().minusMonths(1).plusDays(4),
-                gradert = GradertDTO(grad = 100, reisetilskudd = false),
-                type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
-                aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
-                behandlingsdager = null,
-                innspillTilArbeidsgiver = null,
-                reisetilskudd = false,
-            ),
-        ).tilSoknadsperioder(),
-        egenmeldtSykmelding = null
-
-    )
-
-    val sykepengesoknad = leggNeiSvarPaSoknad(deprecatedGetSoknadMedFeriesporsmalSomUndersporsmal(soknadMetadata))
-    return sykepengesoknad.copy(sendtNav = Instant.now(), sendtArbeidsgiver = Instant.now())
-}
-
 fun gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal(): Sykepengesoknad {
     val soknadMetadata = SoknadMetadata(
         fnr = "fnr-7454630",
@@ -111,11 +77,6 @@ fun gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal(): Sykepenge
     )
 
     val sykepengesoknad = leggSvarPaSoknad(deprecatedGetSoknadMedFeriesporsmalSomUndersporsmal(soknadMetadata))
-    return sykepengesoknad.copy(sendtNav = Instant.now(), sendtArbeidsgiver = Instant.now())
-}
-
-fun gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal(meta: SoknadMetadata): Sykepengesoknad {
-    val sykepengesoknad = leggSvarPaSoknad(settOppSoknadArbeidstaker(meta, true, now()))
     return sykepengesoknad.copy(sendtNav = Instant.now(), sendtArbeidsgiver = Instant.now())
 }
 
@@ -215,32 +176,7 @@ fun gammeltFormatOpprettNySoknadMedFeriesporsmalSomUndersporsmal(): Sykepengesok
     return opprettNySoknadMock(false)
 }
 
-private fun leggNeiSvarPaSoknad(sykepengesoknad: Sykepengesoknad): Sykepengesoknad {
-    var s = sykepengesoknad
-    s = s.replaceSporsmal(ansvarserklaring(s))
-        .replaceSporsmal(svarNei(s, FRAVAR_FOR_SYKMELDINGEN))
-        .replaceSporsmal(svarNei(s, TILBAKE_I_ARBEID))
-        .replaceSporsmal(svarNei(s, JOBBET_DU_100_PROSENT + "0"))
-        .replaceSporsmal(svarNei(s, ANDRE_INNTEKTSKILDER))
-        .replaceSporsmal(svarNei(s, UTDANNING))
-        .replaceSporsmal(bekreftOpplysninger(s))
-
-    return if (harFeriePermisjonEllerUtenlandsoppholdSporsmal(s)) {
-        s.replaceSporsmal(svarNei(s, FERIE_PERMISJON_UTLAND))
-    } else {
-        s.replaceSporsmal(svarNei(s, FERIE))
-            .replaceSporsmal(svarNei(s, PERMISJON))
-            .replaceSporsmal(svarNei(s, UTLAND))
-    }
-}
-
-private fun svarNei(sykepengesoknad: Sykepengesoknad, tag: String): Sporsmal {
-    return sykepengesoknad.getSporsmalMedTag(tag).toBuilder()
-        .svar(listOf(Svar(null, "NEI")))
-        .build()
-}
-
-fun leggSvarPaSoknad(sykepengesoknad: Sykepengesoknad): Sykepengesoknad {
+private fun leggSvarPaSoknad(sykepengesoknad: Sykepengesoknad): Sykepengesoknad {
     var s = sykepengesoknad
     s = s.replaceSporsmal(ansvarserklaring(s))
         .replaceSporsmal(fravarForSykmeldingen(s))

@@ -2,10 +2,10 @@ package no.nav.helse.flex.service
 
 import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.domain.Soknadstatus
-import no.nav.helse.flex.mock.MockSoknadSelvstendigeOgFrilansere
 import no.nav.helse.flex.mock.opprettBehandlingsdagsoknadTestadata
 import no.nav.helse.flex.mock.opprettNySoknad
 import no.nav.helse.flex.mock.opprettNySoknadMock
+import no.nav.helse.flex.mock.opprettSendtFrilanserSoknad
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.ventPåRecords
 import org.assertj.core.api.Assertions.assertThat
@@ -21,9 +21,6 @@ class AktiverServiceTest : BaseTestClass() {
 
     @Autowired
     private lateinit var aktiverService: AktiverService
-
-    @Autowired
-    private lateinit var mockSoknadSelvstendigeOgFrilansere: MockSoknadSelvstendigeOgFrilansere
 
     @Test
     fun `tom database inkluderer ingen søknader å aktivere`() {
@@ -56,7 +53,7 @@ class AktiverServiceTest : BaseTestClass() {
 
     @Test
     fun `En fremtidig næringsdrivendesøknad blir aktivert`() {
-        val soknad = mockSoknadSelvstendigeOgFrilansere.opprettNySoknad()
+        val soknad = opprettSendtFrilanserSoknad()
             .copy(status = Soknadstatus.FREMTIDIG, tom = LocalDate.now().minusDays(1))
         sykepengesoknadDAO.lagreSykepengesoknad(soknad)
 

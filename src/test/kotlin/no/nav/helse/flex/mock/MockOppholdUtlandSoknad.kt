@@ -20,7 +20,7 @@ fun mockUtlandssoknad(): Sykepengesoknad {
     return leggSvarPaSoknad(settOppSoknadOppholdUtland("fnr-7454630"), "NEI")
 }
 
-fun leggSvarPaSoknad(sykepengesoknad: Sykepengesoknad, feriesvar: String): Sykepengesoknad {
+private fun leggSvarPaSoknad(sykepengesoknad: Sykepengesoknad, feriesvar: String): Sykepengesoknad {
     return sykepengesoknad.replaceSporsmal(perioder(sykepengesoknad))
         .replaceSporsmal(land(sykepengesoknad))
         .replaceSporsmal(arbeidsgiver(sykepengesoknad, feriesvar))

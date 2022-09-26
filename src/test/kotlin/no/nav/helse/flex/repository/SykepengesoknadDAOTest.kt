@@ -9,6 +9,8 @@ import no.nav.helse.flex.mock.MockSoknadSelvstendigeOgFrilansere
 import no.nav.helse.flex.mock.gammeltFormatOpprettNySoknadMedFeriesporsmalSomUndersporsmal
 import no.nav.helse.flex.mock.gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal
 import no.nav.helse.flex.mock.mockUtlandssoknad
+import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknad
+import no.nav.helse.flex.mock.opprettSendtFrilanserSoknad
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.soknadsopprettelse.FRAVAR_FOR_SYKMELDINGEN
 import no.nav.helse.flex.soknadsopprettelse.FRAVAR_FOR_SYKMELDINGEN_NAR
@@ -67,7 +69,7 @@ class SykepengesoknadDAOTest : BaseTestClass() {
 
     @Test
     fun lagrerKorrigertAv() {
-        val sykepengesoknad = mockSoknadSelvstendigeOgFrilansere.opprettSendtSoknad()
+        val sykepengesoknad = opprettSendtFrilanserSoknad()
         val korrigererId = UUID.randomUUID().toString()
         val korrigertAvId = UUID.randomUUID().toString()
         sykepengesoknadDAO.lagreSykepengesoknad(sykepengesoknad.copy(id = korrigererId, korrigerer = korrigertAvId))
@@ -87,7 +89,7 @@ class SykepengesoknadDAOTest : BaseTestClass() {
 
     @Test
     fun finnSykepengesoknaderByUuidEnSoknad() {
-        val sykepengesoknad = mockSoknadSelvstendigeOgFrilansere.opprettNySoknad()
+        val sykepengesoknad = opprettNyNaeringsdrivendeSoknad()
         val uuid1 = sykepengesoknadDAO.lagreSykepengesoknad(sykepengesoknad).id
         sykepengesoknadDAO.lagreSykepengesoknad(sykepengesoknad.copy(id = UUID.randomUUID().toString(), fnr = ("fnr2")))
 
@@ -99,7 +101,7 @@ class SykepengesoknadDAOTest : BaseTestClass() {
 
     @Test
     fun finnSykepengesoknaderByUuidToSoknader() {
-        val sykepengesoknad = mockSoknadSelvstendigeOgFrilansere.opprettNySoknad()
+        val sykepengesoknad = opprettNyNaeringsdrivendeSoknad()
         val uuid1 = sykepengesoknadDAO.lagreSykepengesoknad(sykepengesoknad).id
         val uuid2 = sykepengesoknadDAO.lagreSykepengesoknad(sykepengesoknad.copy(id = UUID.randomUUID().toString(), fnr = "fnr2")).id
 
@@ -113,7 +115,7 @@ class SykepengesoknadDAOTest : BaseTestClass() {
 
     @Test
     fun finnEldreSoknader() {
-        val sykepengesoknad = mockSoknadSelvstendigeOgFrilansere.opprettNySoknad()
+        val sykepengesoknad = opprettNyNaeringsdrivendeSoknad()
         val soknadUnderUtfylling = sykepengesoknadDAO.lagreSykepengesoknad(
             sykepengesoknad.copy(
                 id = UUID.randomUUID().toString(),
@@ -260,10 +262,10 @@ class SykepengesoknadDAOTest : BaseTestClass() {
 
     @Test
     fun henterSoknaderTilknyttetSykmelding() {
-        sykepengesoknadDAO.lagreSykepengesoknad(mockSoknadSelvstendigeOgFrilansere.opprettSendtSoknad().copy(sykmeldingId = ("sykmeldingId1")))
+        sykepengesoknadDAO.lagreSykepengesoknad(opprettSendtFrilanserSoknad().copy(sykmeldingId = ("sykmeldingId1")))
         sykepengesoknadDAO.lagreSykepengesoknad(mockUtlandssoknad())
-        sykepengesoknadDAO.lagreSykepengesoknad(mockSoknadSelvstendigeOgFrilansere.opprettSendtSoknad().copy(sykmeldingId = ("sykmeldingId1")))
-        sykepengesoknadDAO.lagreSykepengesoknad(mockSoknadSelvstendigeOgFrilansere.opprettSendtSoknad().copy(sykmeldingId = ("sykmeldingId3")))
+        sykepengesoknadDAO.lagreSykepengesoknad(opprettSendtFrilanserSoknad().copy(sykmeldingId = ("sykmeldingId1")))
+        sykepengesoknadDAO.lagreSykepengesoknad(opprettSendtFrilanserSoknad().copy(sykmeldingId = ("sykmeldingId3")))
 
         val soknader = sykepengesoknadDAO.finnSykepengesoknaderForSykmelding("sykmeldingId1")
 

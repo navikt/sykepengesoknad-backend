@@ -1,6 +1,7 @@
 package no.nav.helse.flex.domain.mapper.sporsmalprossesering
 
 import no.nav.helse.flex.domain.mapper.ArbeidsledigsoknadToSykepengesoknadDTO
+import no.nav.helse.flex.mock.opprettSendtFrilanserSoknad
 import no.nav.helse.flex.mock.opprettSendtSoknad
 import no.nav.helse.flex.mock.opprettSendtSoknadForArbeidsledige
 import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER
@@ -72,5 +73,28 @@ class AndreInntektskilderKtTest {
 
         andreInntektskilder[2].type.shouldBeEqualTo(InntektskildetypeDTO.SELVSTENDIG_NARINGSDRIVENDE_DAGMAMMA)
         andreInntektskilder[2].sykmeldt.shouldBeEqualTo(false)
+    }
+
+    @Test
+    fun `Frilanser henter andre inntektskilder`() {
+        val besvartSoknad = opprettSendtFrilanserSoknad()
+
+        val andreInntektskilder = ArbeidsledigsoknadToSykepengesoknadDTO.konverterArbeidsledigTilSykepengesoknadDTO(
+            besvartSoknad
+        ).andreInntektskilder!!
+
+        andreInntektskilder.shouldHaveSize(4)
+
+        andreInntektskilder[0].type.shouldBeEqualTo(InntektskildetypeDTO.ARBEIDSFORHOLD)
+        andreInntektskilder[0].sykmeldt.shouldBeEqualTo(false)
+
+        andreInntektskilder[1].type.shouldBeEqualTo(InntektskildetypeDTO.JORDBRUKER_FISKER_REINDRIFTSUTOVER)
+        andreInntektskilder[1].sykmeldt.shouldBeEqualTo(true)
+
+        andreInntektskilder[2].type.shouldBeEqualTo(InntektskildetypeDTO.FRILANSER_SELVSTENDIG)
+        andreInntektskilder[2].sykmeldt.shouldBeEqualTo(true)
+
+        andreInntektskilder[3].type.shouldBeEqualTo(InntektskildetypeDTO.ANNET)
+        andreInntektskilder[3].sykmeldt.shouldBeEqualTo(null)
     }
 }
