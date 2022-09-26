@@ -5,12 +5,11 @@ import no.nav.helse.flex.domain.Arbeidssituasjon.NAERINGSDRIVENDE
 import no.nav.helse.flex.domain.Soknadstatus.NY
 import no.nav.helse.flex.domain.Soknadstatus.SENDT
 import no.nav.helse.flex.domain.Soknadstype
-import no.nav.helse.flex.domain.Sporsmal
-import no.nav.helse.flex.domain.Svar
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.rest.SoknadMetadata
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.soknadsopprettelse.*
+import no.nav.helse.flex.testutil.besvarsporsmal
 import no.nav.helse.flex.util.tilOsloInstant
 import no.nav.syfo.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
@@ -20,7 +19,6 @@ import org.springframework.stereotype.Component
 import java.time.Instant
 import java.time.LocalDate.of
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
-import java.util.Arrays.asList
 
 @Component
 class MockSoknadSelvstendigeOgFrilansere(private val sykepengesoknadDAO: SykepengesoknadDAO?) {
@@ -112,142 +110,41 @@ fun opprettSendtFrilanserSoknad(): Sykepengesoknad {
 }
 
 private fun leggSvarPaSoknad(sykepengesoknad: Sykepengesoknad): Sykepengesoknad {
-    return sykepengesoknad.replaceSporsmal(ansvarserklaring(sykepengesoknad))
-        .replaceSporsmal(tilbakeIArbeid(sykepengesoknad))
-        .replaceSporsmal(jobbetDu100Prosent(sykepengesoknad))
-        .replaceSporsmal(jobbetDuGradert(sykepengesoknad))
-        .replaceSporsmal(andreInntektskilder(sykepengesoknad))
-        .replaceSporsmal(harDuOppholdtDegIUtlandet(sykepengesoknad))
-        .replaceSporsmal(harDuStudert(sykepengesoknad))
-        .replaceSporsmal(bekreftOpplysninger(sykepengesoknad))
+    return sykepengesoknad
+        .besvarsporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
+        .besvarsporsmal(JOBBET_DU_100_PROSENT + "0", "NEI")
+        .besvarsporsmal(JOBBET_DU_GRADERT + "1", "NEI")
+        .harDuStudert()
+        .harDuOppholdtDegIUtlandet()
+        .andreInntektskilder()
+        .tilbakeIArbeid()
+        .besvarsporsmal(ANSVARSERKLARING, "CHECKED")
 }
 
-private fun bekreftOpplysninger(sykepengesoknad: Sykepengesoknad): Sporsmal {
-    return sykepengesoknad.getSporsmalMedTag(BEKREFT_OPPLYSNINGER).toBuilder()
-        .svar(listOf(Svar(null, "CHECKED")))
-        .build()
+private fun Sykepengesoknad.harDuStudert(): Sykepengesoknad {
+    return besvarsporsmal(UTDANNING, "JA")
+        .besvarsporsmal(UTDANNING_START, fom!!.plusDays(3).format(ISO_LOCAL_DATE))
+        .besvarsporsmal(FULLTIDSSTUDIUM, "JA")
 }
 
-private fun harDuStudert(sykepengesoknad: Sykepengesoknad): Sporsmal {
-    return sykepengesoknad.getSporsmalMedTag(UTDANNING).toBuilder()
-        .svar(listOf(Svar(null, "JA")))
-        .undersporsmal(
-            asList(
-                sykepengesoknad.getSporsmalMedTag(UTDANNING_START).toBuilder()
-                    .svar(listOf(Svar(null, sykepengesoknad.fom!!.plusDays(3).format(ISO_LOCAL_DATE))))
-                    .build(),
-                sykepengesoknad.getSporsmalMedTag(FULLTIDSSTUDIUM).toBuilder()
-                    .svar(listOf(Svar(null, "JA")))
-                    .build()
-            )
-        )
-        .build()
+private fun Sykepengesoknad.harDuOppholdtDegIUtlandet(): Sykepengesoknad {
+    return besvarsporsmal(UTLAND, "JA")
+        .besvarsporsmal(PERIODER, "{\"fom\":\"" + fom!!.plusDays(2).format(ISO_LOCAL_DATE) + "\",\"tom\":\"" + fom!!.plusDays(4).format(ISO_LOCAL_DATE) + "\"}")
+        .besvarsporsmal(UTLANDSOPPHOLD_SOKT_SYKEPENGER, "NEI")
 }
 
-private fun harDuOppholdtDegIUtlandet(sykepengesoknad: Sykepengesoknad): Sporsmal {
-    return sykepengesoknad.getSporsmalMedTag(UTLAND).toBuilder()
-        .svar(listOf(Svar(null, "JA")))
-        .undersporsmal(
-            asList(
-                sykepengesoknad.getSporsmalMedTag(PERIODER).toBuilder()
-                    .svar(
-                        listOf(
-                            Svar(
-                                null,
-                                "{\"fom\":\"" + sykepengesoknad.fom!!.plusDays(2).format(ISO_LOCAL_DATE) +
-                                    "\",\"tom\":\"" + sykepengesoknad.fom!!.plusDays(4)
-                                    .format(ISO_LOCAL_DATE) + "\"}"
-                            )
-                        )
-                    )
-                    .build(),
-                sykepengesoknad.getSporsmalMedTag(UTLANDSOPPHOLD_SOKT_SYKEPENGER).toBuilder()
-                    .svar(listOf(Svar(null, "NEI")))
-                    .build()
-            )
-        )
-        .build()
+private fun Sykepengesoknad.andreInntektskilder(): Sykepengesoknad {
+    return besvarsporsmal(ANDRE_INNTEKTSKILDER, "JA")
+        .besvarsporsmal(INNTEKTSKILDE_ARBEIDSFORHOLD, "CHECKED")
+        .besvarsporsmal(INNTEKTSKILDE_ARBEIDSFORHOLD + ER_DU_SYKMELDT, "NEI")
+        .besvarsporsmal(INNTEKTSKILDE_JORDBRUKER, "CHECKED")
+        .besvarsporsmal(INNTEKTSKILDE_JORDBRUKER + ER_DU_SYKMELDT, "JA")
+        .besvarsporsmal(INNTEKTSKILDE_FRILANSER_SELVSTENDIG, "CHECKED")
+        .besvarsporsmal(INNTEKTSKILDE_FRILANSER_SELVSTENDIG + ER_DU_SYKMELDT, "JA")
+        .besvarsporsmal(INNTEKTSKILDE_ANNET, "CHECKED")
 }
 
-private fun andreInntektskilder(sykepengesoknad: Sykepengesoknad): Sporsmal {
-    return sykepengesoknad.getSporsmalMedTag(ANDRE_INNTEKTSKILDER).toBuilder()
-        .svar(listOf(Svar(null, "JA")))
-        .undersporsmal(
-            listOf(
-                sykepengesoknad.getSporsmalMedTag(HVILKE_ANDRE_INNTEKTSKILDER).toBuilder()
-                    .undersporsmal(
-                        asList(
-                            sykepengesoknad.getSporsmalMedTag(INNTEKTSKILDE_ARBEIDSFORHOLD).toBuilder()
-                                .svar(listOf(Svar(null, "CHECKED")))
-                                .undersporsmal(
-                                    listOf(
-                                        sykepengesoknad.getSporsmalMedTag(INNTEKTSKILDE_ARBEIDSFORHOLD + ER_DU_SYKMELDT)
-                                            .toBuilder()
-                                            .svar(listOf(Svar(null, "NEI")))
-                                            .build()
-                                    )
-                                )
-                                .build(),
-                            sykepengesoknad.getSporsmalMedTag(INNTEKTSKILDE_JORDBRUKER).toBuilder()
-                                .svar(listOf(Svar(null, "CHECKED")))
-                                .undersporsmal(
-                                    listOf(
-                                        sykepengesoknad.getSporsmalMedTag(INNTEKTSKILDE_JORDBRUKER + ER_DU_SYKMELDT)
-                                            .toBuilder()
-                                            .svar(listOf(Svar(null, "JA")))
-                                            .build()
-                                    )
-                                )
-                                .build(),
-                            sykepengesoknad.getSporsmalMedTag(INNTEKTSKILDE_FRILANSER_SELVSTENDIG).toBuilder()
-                                .svar(listOf(Svar(null, "CHECKED")))
-                                .undersporsmal(
-                                    listOf(
-                                        sykepengesoknad.getSporsmalMedTag(INNTEKTSKILDE_FRILANSER_SELVSTENDIG + ER_DU_SYKMELDT)
-                                            .toBuilder()
-                                            .svar(listOf(Svar(null, "JA")))
-                                            .build()
-                                    )
-                                )
-                                .build(),
-                            sykepengesoknad.getSporsmalMedTag(INNTEKTSKILDE_ANNET).toBuilder()
-                                .svar(listOf(Svar(null, "CHECKED")))
-                                .build()
-                        )
-                    )
-                    .build()
-            )
-        )
-        .build()
-}
-
-private fun jobbetDuGradert(sykepengesoknad: Sykepengesoknad): Sporsmal {
-    return sykepengesoknad.getSporsmalMedTag(JOBBET_DU_GRADERT + "1").toBuilder()
-        .svar(listOf(Svar(null, "NEI")))
-        .build()
-}
-
-private fun jobbetDu100Prosent(sykepengesoknad: Sykepengesoknad): Sporsmal {
-    return sykepengesoknad.getSporsmalMedTag(JOBBET_DU_100_PROSENT + "0").toBuilder()
-        .svar(listOf(Svar(null, "NEI")))
-        .build()
-}
-
-private fun tilbakeIArbeid(sykepengesoknad: Sykepengesoknad): Sporsmal {
-    return sykepengesoknad.getSporsmalMedTag(TILBAKE_I_ARBEID).toBuilder()
-        .svar(listOf(Svar(null, "JA")))
-        .undersporsmal(
-            listOf(
-                sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).toBuilder()
-                    .svar(listOf(Svar(null, sykepengesoknad.fom!!.plusDays(7).format(ISO_LOCAL_DATE))))
-                    .build()
-            )
-        )
-        .build()
-}
-
-private fun ansvarserklaring(sykepengesoknad: Sykepengesoknad): Sporsmal {
-    return sykepengesoknad.getSporsmalMedTag(ANSVARSERKLARING).toBuilder()
-        .svar(listOf(Svar(null, "CHECKED")))
-        .build()
+private fun Sykepengesoknad.tilbakeIArbeid(): Sykepengesoknad {
+    return besvarsporsmal(TILBAKE_I_ARBEID, "JA")
+        .besvarsporsmal(TILBAKE_NAR, fom!!.plusDays(7).format(ISO_LOCAL_DATE))
 }
