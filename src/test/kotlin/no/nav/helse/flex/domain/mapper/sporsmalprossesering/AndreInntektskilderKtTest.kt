@@ -4,6 +4,8 @@ import no.nav.helse.flex.domain.Mottaker
 import no.nav.helse.flex.domain.mapper.ArbeidsledigsoknadToSykepengesoknadDTO.konverterArbeidsledigTilSykepengesoknadDTO
 import no.nav.helse.flex.domain.mapper.konverterArbeidstakersoknadTilSykepengesoknadDTO
 import no.nav.helse.flex.domain.mapper.konverterSelvstendigOgFrilanserTilSoknadDTO
+import no.nav.helse.flex.domain.mapper.konverterTilSykepengesoknadBehandlingsdagerDTO
+import no.nav.helse.flex.mock.opprettBehandlingsdagsoknadTestadata
 import no.nav.helse.flex.mock.opprettSendtFrilanserSoknad
 import no.nav.helse.flex.mock.opprettSendtSoknad
 import no.nav.helse.flex.mock.opprettSendtSoknadForArbeidsledige
@@ -104,5 +106,20 @@ class AndreInntektskilderKtTest {
 
         andreInntektskilder[3].type.shouldBeEqualTo(InntektskildetypeDTO.ANNET)
         andreInntektskilder[3].sykmeldt.shouldBeEqualTo(null)
+    }
+
+    @Test
+    fun `Behandlingsdager henter andre inntektskilder`() {
+        val soknad = opprettBehandlingsdagsoknadTestadata()
+            .besvarsporsmal(tag = ANDRE_INNTEKTSKILDER, svar = "JA")
+            .besvarsporsmal(tag = INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD, svar = "CHECKED")
+            .besvarsporsmal(tag = INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD + ER_DU_SYKMELDT, svar = "JA")
+
+        val andreInntektskilder = konverterTilSykepengesoknadBehandlingsdagerDTO(soknad).andreInntektskilder!!
+
+        andreInntektskilder.shouldHaveSize(1)
+
+        andreInntektskilder[0].type.shouldBeEqualTo(InntektskildetypeDTO.ANDRE_ARBEIDSFORHOLD)
+        andreInntektskilder[0].sykmeldt.shouldBeEqualTo(true)
     }
 }
