@@ -33,6 +33,7 @@ class JulesoknadkandidatDAO(
             """
                     INSERT INTO JULESOKNADKANDIDAT (SYKEPENGESOKNAD_UUID, OPPRETTET)
                     VALUES (:sykepengesoknadUuid, :opprettet)
+                    ON CONFLICT DO NOTHING
                     """,
             MapSqlParameterSource()
                 .addValue("sykepengesoknadUuid", sykepengesoknadUuid)
