@@ -5,7 +5,7 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentArbeidUtenforNorge
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentBehandlingsdager
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentEgenmeldinger
-import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentInntektListeBehandlingsdager
+import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentInntektListe
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentPapirsykmeldinger
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentPermitteringer
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidsgiverDTO
@@ -43,7 +43,7 @@ fun konverterTilSykepengesoknadBehandlingsdagerDTO(
         tom = sykepengesoknad.tom!!,
         sykmeldingId = sykepengesoknad.sykmeldingId!!,
         soknadsperioder = hentSoknadsPerioder(sykepengesoknad),
-        andreInntektskilder = hentInntektListeBehandlingsdager(sykepengesoknad),
+        andreInntektskilder = hentInntektListe(sykepengesoknad),
         egenmeldinger = hentEgenmeldinger(sykepengesoknad),
         papirsykmeldinger = hentPapirsykmeldinger(sykepengesoknad),
         behandlingsdager = sykepengesoknad.hentBehandlingsdager(),

@@ -14,7 +14,6 @@ import no.nav.helse.flex.domain.mapper.sporsmalprossesering.getStillingsprosent
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.harSoktSykepengerUnderUtlandsopphold
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentEgenmeldinger
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentFeriePermUtlandListe
-import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentInntektListeArbeidstaker
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentSoknadsPerioderMedFaktiskGrad
 import no.nav.helse.flex.domain.sporsmalBuilder
 import no.nav.helse.flex.mock.gammeltFormatOpprettNySoknadMedFeriesporsmalSomUndersporsmal
@@ -565,41 +564,6 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
         assertThat(egenmeldinger).hasSize(1)
         assertThat(egenmeldinger[0].fom).isEqualTo(fom)
         assertThat(egenmeldinger[0].tom).isEqualTo(tom)
-    }
-
-    @Test
-    fun henterAndreInntektskilderSykmeldt() {
-        val sykepengesoknad = gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal()
-
-        val inntektskildeDTO = hentInntektListeArbeidstaker(sykepengesoknad).stream()
-            .filter { (type) -> InntektskildetypeDTO.ANDRE_ARBEIDSFORHOLD == type }
-            .findFirst()
-
-        assertThat(inntektskildeDTO.isPresent).isTrue()
-        assertThat(inntektskildeDTO.get().sykmeldt).isTrue()
-    }
-
-    @Test
-    fun henterAndreInntektskilderIkkeSykmeldt() {
-        val sykepengesoknad = gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal()
-
-        val inntektskildeDTO = hentInntektListeArbeidstaker(sykepengesoknad).stream()
-            .filter { (type) -> InntektskildetypeDTO.SELVSTENDIG_NARINGSDRIVENDE_DAGMAMMA == type }
-            .findFirst()
-
-        assertThat(inntektskildeDTO.isPresent).isTrue()
-        assertThat(inntektskildeDTO.get().sykmeldt).isFalse()
-    }
-
-    @Test
-    fun henterIkkeAndreInntektskilderSomIkkeErBesvart() {
-        val sykepengesoknad = gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal()
-
-        val inntektskildeDTO = hentInntektListeArbeidstaker(sykepengesoknad).stream()
-            .filter { (type) -> InntektskildetypeDTO.FRILANSER == type }
-            .findFirst()
-
-        assertThat(inntektskildeDTO.isPresent).isFalse()
     }
 
     @Test

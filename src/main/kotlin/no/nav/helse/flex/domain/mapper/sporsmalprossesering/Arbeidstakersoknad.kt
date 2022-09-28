@@ -7,14 +7,11 @@ import no.nav.helse.flex.domain.mapper.getJsonPeriode
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.sykepengesoknad.kafka.FravarDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.FravarstypeDTO
-import no.nav.helse.flex.sykepengesoknad.kafka.InntektskildeDTO
-import no.nav.helse.flex.sykepengesoknad.kafka.InntektskildetypeDTO
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 import java.time.temporal.ChronoUnit
 import java.util.*
-import java.util.Collections.emptyList
 
 fun harSoktSykepengerUnderUtlandsopphold(sykepengesoknad: Sykepengesoknad): Boolean? {
     return if (!harSvartJaPaPermisjonUtland(sykepengesoknad) || !harSvartJaPaUtland(sykepengesoknad)) {
@@ -183,38 +180,4 @@ private fun hentFravar(sporsmal: Sporsmal, fravartype: FravarstypeDTO): List<Fra
         )
     }
     return fravarliste
-}
-
-fun hentInntektListeArbeidstaker(soknad: Sykepengesoknad): List<InntektskildeDTO> {
-    val andreinntektsporsmal = soknad.getSporsmalMedTagOrNull(ANDRE_INNTEKTSKILDER)
-    return if ("JA" == andreinntektsporsmal?.forsteSvar)
-        andreinntektsporsmal.undersporsmal[0].undersporsmal
-            .filter { (_, _, _, _, _, _, _, _, _, svar) -> !svar.isEmpty() }
-            .map { sporsmal ->
-                InntektskildeDTO(
-                    mapSporsmalTilInntektskildetype(sporsmal),
-                    if (sporsmal.undersporsmal.isEmpty())
-                        null
-                    else
-                        "JA" == sporsmal.undersporsmal[0].forsteSvar
-                )
-            }
-    else
-        emptyList()
-}
-
-private fun mapSporsmalTilInntektskildetype(sporsmal: Sporsmal): InntektskildetypeDTO {
-    when (sporsmal.tag) {
-        INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD -> return InntektskildetypeDTO.ANDRE_ARBEIDSFORHOLD
-        INNTEKTSKILDE_SELVSTENDIG -> return InntektskildetypeDTO.SELVSTENDIG_NARINGSDRIVENDE
-        INNTEKTSKILDE_SELVSTENDIG_DAGMAMMA -> return InntektskildetypeDTO.SELVSTENDIG_NARINGSDRIVENDE_DAGMAMMA
-        INNTEKTSKILDE_JORDBRUKER -> return InntektskildetypeDTO.JORDBRUKER_FISKER_REINDRIFTSUTOVER
-        INNTEKTSKILDE_FRILANSER -> return InntektskildetypeDTO.FRILANSER
-        INNTEKTSKILDE_ANNET -> return InntektskildetypeDTO.ANNET
-        INNTEKTSKILDE_FOSTERHJEM -> return InntektskildetypeDTO.FOSTERHJEMGODTGJORELSE
-        INNTEKTSKILDE_OMSORGSLONN -> return InntektskildetypeDTO.OMSORGSLONN
-        INNTEKTSKILDE_ARBEIDSFORHOLD -> return InntektskildetypeDTO.ARBEIDSFORHOLD
-        INNTEKTSKILDE_FRILANSER_SELVSTENDIG -> return InntektskildetypeDTO.FRILANSER_SELVSTENDIG
-        else -> throw RuntimeException("Inntektskildetype " + sporsmal.tag + " finnes ikke i DTO")
-    }
 }
