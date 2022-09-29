@@ -32,7 +32,7 @@ no.nav.security.jwt:
           client-id: ${AZURE_APP_CLIENT_ID}
           client-secret: ${AZURE_APP_CLIENT_SECRET}
           client-auth-method: client_secret_basic
-      flex-bucket-uploader-tokenx:
+      sykepengesoknad-kvitteringer-tokenx:
         token-endpoint-url: ${TOKEN_X_TOKEN_ENDPOINT}
         grant-type: urn:ietf:params:oauth:grant-type:token-exchange
         authentication:
