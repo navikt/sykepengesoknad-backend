@@ -40,7 +40,7 @@ no.nav.security.jwt:
           client-jwk: ${TOKEN_X_PRIVATE_JWK}
           client-auth-method: private_key_jwt
         token-exchange:
-          audience: ${FLEX_BUCKET_UPLOADER_TOKENX_CLIENT_ID}
+          audience: ${SYKEPENGESOKNAD_KVITTERINGER_TOKENX_CLIENT_ID}
 
 logging.config: classpath:logback.xml
 
