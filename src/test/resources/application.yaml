@@ -1,7 +1,7 @@
 AZURE_APP_PRE_AUTHORIZED_APPS: "[{\"name\":\"dev-gcp:flex:sykepengesoknad-korrigering-metrikk\",\"clientId\":\"sykepengesoknad-korrigering-metrikk-client-id\"},{\"name\":\"dev-gcp:teamsykefravr:syfomodiaperson\",\"clientId\":\"syfomodiaperson-client-id\"}]"
 
 syfotilgangskontroll.url: http://syfotilgang
-flex.bucket.uploader.url: http://flex-bucket-uploader
+sykepengesoknad.kvitteringer.url: http://sykepengesoknad-kvitteringer
 flex.syketilfelle.url: http://flex-syketilfelle
 
 DITT_SYKEFRAVAER_FRONTEND_CLIENT_ID: ditt-sykefravaer-frontend-client-id
@@ -18,10 +18,10 @@ no.nav.security.jwt:
       accepted_audience: sykepengesoknad-backend-client-id
   client:
     registration:
-      flex-bucket-uploader-tokenx:
+      sykepengesoknad-kvitteringer-tokenx:
         token-endpoint-url: http://localhost:${mock-oauth2-server.port}/azureator/token
         grant-type: client_credentials
-        scope: flex-bucket-uploader
+        scope: sykepengesoknad-kvitteringer
         authentication:
           client-id: client-id
           client-secret: secretzz

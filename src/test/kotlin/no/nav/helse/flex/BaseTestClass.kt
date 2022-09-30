@@ -1,6 +1,6 @@
 package no.nav.helse.flex
 
-import no.nav.helse.flex.client.bucketuploader.BucketUploaderClient
+import no.nav.helse.flex.client.kvitteringer.SykepengesoknadKvitteringerClient
 import no.nav.helse.flex.juridiskvurdering.juridiskVurderingTopic
 import no.nav.helse.flex.kafka.producer.AivenKafkaProducer
 import no.nav.helse.flex.kafka.producer.RebehandlingSykmeldingSendtProducer
@@ -89,7 +89,7 @@ abstract class BaseTestClass {
     }
 
     @MockBean
-    lateinit var bucketUploaderClient: BucketUploaderClient
+    lateinit var sykepengesoknadKvitteringerClient: SykepengesoknadKvitteringerClient
 
     @MockBean
     lateinit var rebehandlingsSykmeldingSendtProducer: RebehandlingSykmeldingSendtProducer

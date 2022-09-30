@@ -21,13 +21,13 @@ class AadRestTemplateConfiguration {
     val log = logger()
 
     @Bean
-    fun flexBucketUploaderRestTemplate(
+    fun sykepengesoknadKvitteringerRestTemplate(
         restTemplateBuilder: RestTemplateBuilder,
         clientConfigurationProperties: ClientConfigurationProperties,
         oAuth2AccessTokenService: OAuth2AccessTokenService
     ): RestTemplate =
         downstreamRestTemplate(
-            registrationName = "flex-bucket-uploader-tokenx",
+            registrationName = "sykepengesoknad-kvitteringer-tokenx",
             restTemplateBuilder = restTemplateBuilder,
             clientConfigurationProperties = clientConfigurationProperties,
             oAuth2AccessTokenService = oAuth2AccessTokenService

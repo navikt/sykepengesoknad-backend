@@ -67,7 +67,7 @@ spec:
         - host: {{ schema_registry }}
       rules:
         - application: sykepengesoknad-backend-redis
-        - application: flex-bucket-uploader
+        - application: sykepengesoknad-kvitteringer
         - application: flex-syketilfelle
     inbound:
       rules:

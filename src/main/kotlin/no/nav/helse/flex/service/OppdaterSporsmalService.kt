@@ -1,6 +1,6 @@
 package no.nav.helse.flex.service
 
-import no.nav.helse.flex.client.bucketuploader.BucketUploaderClient
+import no.nav.helse.flex.client.kvitteringer.SykepengesoknadKvitteringerClient
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Arbeidssituasjon.*
 import no.nav.helse.flex.domain.Soknadstype.*
@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 @Transactional
 class OppdaterSporsmalService(
-    val bucketUploaderClient: BucketUploaderClient,
+    val sykepengesoknadKvitteringerClient: SykepengesoknadKvitteringerClient,
     val sykepengesoknadDAO: SykepengesoknadDAO,
     val sporsmalDAO: SporsmalDAO,
     val svarDAO: SvarDAO,
@@ -322,6 +322,6 @@ class OppdaterSporsmalService(
 
     private fun slettKvittering(sporsmal: Sporsmal, svar: Svar) {
         svarDAO.slettSvar(sporsmal.id!!, svar.id!!)
-        bucketUploaderClient.slettKvittering(svar.verdi.tilKvittering().blobId)
+        sykepengesoknadKvitteringerClient.slettKvittering(svar.verdi.tilKvittering().blobId)
     }
 }

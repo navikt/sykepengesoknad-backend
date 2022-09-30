@@ -15,8 +15,8 @@ env:
   ON_PREM_SCHEMA_REGISTRY_URL: "https://kafka-schema-registry.nais.adeo.no"
   FASIT_ENVIRONMENT_NAME: "p"
   JULESOKNAD_CRON: "0 0 5 * * ?"
-  FLEX_BUCKET_UPLOADER_URL: "http://flex-bucket-uploader"
-  FLEX_BUCKET_UPLOADER_TOKENX_CLIENT_ID: prod-gcp:flex:flex-bucket-uploader
+  SYKEPENGESOKNAD_KVITTERINGER_URL: "http://sykepengesoknad-kvitteringer"
+  SYKEPENGESOKNAD_KVITTERINGER_TOKENX_CLIENT_ID: prod-gcp:flex:sykepengesoknad-kvitteringer
   SYFOTILGANGSKONTROLL_URL: "https://syfo-tilgangskontroll.prod-fss-pub.nais.io"
   SYFOTILGANGSKONTROLL_AAD_CLIENT_ID: prod-fss.teamsykefravr.syfo-tilgangskontroll
   FLEX_SYKETILFELLE_URL: "http://flex-syketilfelle"
