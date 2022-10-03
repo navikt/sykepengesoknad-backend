@@ -31,13 +31,10 @@ import no.nav.helse.flex.util.DatoUtil.periodeErInnenforMinMax
 import no.nav.helse.flex.util.DatoUtil.periodeErUtenforHelg
 import no.nav.helse.flex.util.DatoUtil.periodeHarDagerUtenforAndrePerioder
 import no.nav.helse.flex.util.PeriodeMapper
-import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 import java.util.Collections.emptyList
-
-val log = LoggerFactory.getLogger("no.nav.helse.flex.soknadsopprettelse")
 
 fun settOppSoknadArbeidstaker(
     soknadMetadata: SoknadMetadata,
@@ -67,9 +64,8 @@ fun settOppSoknadArbeidstaker(
         }
         it.addAll(
             jobbetDuIPeriodenSporsmal(
-                soknadsperioder = soknadMetadata.sykmeldingsperioder,
-                arbeidsgiverNavn = soknadMetadata.arbeidsgiverNavn,
-                soknadsid = soknadMetadata.id
+                soknadMetadata.sykmeldingsperioder,
+                soknadMetadata.arbeidsgiverNavn
             )
         )
         if (gradertResietilskudd) {
@@ -135,11 +131,10 @@ fun oppdaterMedSvarPaArbeidGjenopptattArbeidstaker(sykepengesoknad: Sykepengesok
 
     oppdaterteSporsmal.addAll(
         jobbetDuIPeriodenSporsmal(
-            soknadsperioder = sykepengesoknad.skapOppdaterteSoknadsperioder(
+            sykepengesoknad.skapOppdaterteSoknadsperioder(
                 arbeidGjenopptattDato
             ),
-            arbeidsgiverNavn = sykepengesoknad.arbeidsgiverNavn,
-            soknadsid = sykepengesoknad.id,
+            sykepengesoknad.arbeidsgiverNavn
         )
     )
     if (!soknadsTom!!.isBefore(sykepengesoknad.fom)) {
@@ -411,7 +406,6 @@ fun gammeltFormatFeriePermisjonUtlandsoppholdSporsmal(fom: LocalDate, tom: Local
 private fun jobbetDuIPeriodenSporsmal(
     soknadsperioder: List<Soknadsperiode>,
     arbeidsgiverNavn: String?,
-    soknadsid: String,
 ): List<Sporsmal> {
     return soknadsperioder
         .lastIndex.downTo(0)
@@ -422,11 +416,6 @@ private fun jobbetDuIPeriodenSporsmal(
                 jobbetDu100Prosent(periode, arbeidsgiverNavn, index)
             } else {
                 jobbetDuGradert(periode, index)
-            }
-        }
-        .also {
-            if (it.isEmpty()) {
-                log.error("Ooops, Vi lagde ingen spørsmål for søknad $soknadsid. Det må sjekkes ut")
             }
         }
 }
