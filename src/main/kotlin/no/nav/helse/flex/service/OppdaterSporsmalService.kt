@@ -58,6 +58,11 @@ class OppdaterSporsmalService(
 
         val soknadenErMutert = soknadFraBasenForOppdatering.sporsmal.erUlikUtenomSvar(oppdatertSoknad.sporsmal)
 
+        if (soknadenErMutert) {
+            sykepengesoknadDAO.byttUtSporsmal(oppdatertSoknad)
+        } else {
+            svarDAO.overskrivSvar(listOf(sporsmal).flatten())
+        }
         return OppdaterSporsmalResultat(oppdatertSoknad, soknadenErMutert)
     }
 
@@ -190,7 +195,10 @@ class OppdaterSporsmalService(
         return sykepengesoknadDAO.finnSykepengesoknad(soknadMedOppdateringer.id)
     }
 
-    private fun oppdaterSporsmalUtlandssoknad(soknadMedOppdateringer: Sykepengesoknad, sporsmal: Sporsmal): Sykepengesoknad {
+    private fun oppdaterSporsmalUtlandssoknad(
+        soknadMedOppdateringer: Sykepengesoknad,
+        sporsmal: Sporsmal
+    ): Sykepengesoknad {
         var soknad = soknadMedOppdateringer
         soknad = soknad.replaceSporsmal(getOppdatertBekreftSporsmal(soknad))
         sporsmalDAO.oppdaterSporsmalstekst(soknad.getSporsmalMedTag(BEKREFT_OPPLYSNINGER_UTLAND_INFO))
@@ -199,7 +207,10 @@ class OppdaterSporsmalService(
         return sykepengesoknadDAO.finnSykepengesoknad(soknad.id)
     }
 
-    private fun oppdaterSporsmalUtenLogikk(soknadMedOppdateringer: Sykepengesoknad, sporsmal: Sporsmal): Sykepengesoknad {
+    private fun oppdaterSporsmalUtenLogikk(
+        soknadMedOppdateringer: Sykepengesoknad,
+        sporsmal: Sporsmal
+    ): Sykepengesoknad {
         svarDAO.overskrivSvar(listOf(sporsmal).flatten())
         return sykepengesoknadDAO.finnSykepengesoknad(soknadMedOppdateringer.id)
     }
