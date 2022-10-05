@@ -112,7 +112,7 @@ class OppholdUtlandIntegrationTest : BaseTestClass() {
         SoknadBesvarer(soknader[0], this, fnr)
             .besvarSporsmal(ARBEIDSGIVER, svar = "JA", ferdigBesvart = false)
             .besvarSporsmal(SYKMELDINGSGRAD, "JA", ferdigBesvart = false)
-            .besvarSporsmal(FERIE, "JA")
+            .besvarSporsmal(FERIE, "JA", mutert = true)
 
         assertThat(hentSoknader(fnr)[0].getSporsmalMedTag(BEKREFT_OPPLYSNINGER_UTLAND_INFO).undertekst).isEqualTo(
             """<ul>
@@ -123,7 +123,7 @@ class OppholdUtlandIntegrationTest : BaseTestClass() {
         )
 
         SoknadBesvarer(soknader[0], this, fnr)
-            .besvarSporsmal(ARBEIDSGIVER, svar = "NEI")
+            .besvarSporsmal(ARBEIDSGIVER, svar = "NEI", mutert = true)
     }
 
     @Test

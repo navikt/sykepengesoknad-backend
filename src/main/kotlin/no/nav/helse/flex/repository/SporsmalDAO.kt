@@ -118,14 +118,4 @@ class SporsmalDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemp
                 .addValue("sporsmalId", nyttSporsmal.id)
         )
     }
-
-    fun oppdaterSporsmalGrense(sporsmalId: String, min: String) {
-        namedParameterJdbcTemplate.update(
-            "UPDATE SPORSMAL SET MIN = :min WHERE ID = :sporsmalId",
-
-            MapSqlParameterSource()
-                .addValue("min", min)
-                .addValue("sporsmalId", sporsmalId)
-        )
-    }
 }

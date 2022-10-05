@@ -110,7 +110,7 @@ class SlettKvitteringerIntegrasjonsTest : BaseTestClass() {
     fun `Besvarer spørsmålet om at reisetilskudd ble brukt`() {
         val reisetilskudd = this.hentSoknader(fnr).first()
         SoknadBesvarer(reisetilskudd, this, fnr)
-            .besvarSporsmal(BRUKTE_REISETILSKUDDET, "JA")
+            .besvarSporsmal(BRUKTE_REISETILSKUDDET, "JA", mutert = true)
 
         val reisetilskuddEtterSvar = this.hentSoknader(fnr).first()
         reisetilskuddEtterSvar

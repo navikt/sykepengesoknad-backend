@@ -143,7 +143,7 @@ class ArbeidsledigIntegrationMedOppdaterSporsmalTest : BaseTestClass() {
 
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
             .besvarSporsmal(FRISKMELDT, "NEI", false)
-            .besvarSporsmal(FRISKMELDT_START, LocalDate.of(2018, 1, 5).format(DateTimeFormatter.ISO_LOCAL_DATE))
+            .besvarSporsmal(FRISKMELDT_START, LocalDate.of(2018, 1, 5).format(DateTimeFormatter.ISO_LOCAL_DATE), mutert = true)
             .also {
                 assertThat(it.muterteSoknaden).isTrue()
 
@@ -167,7 +167,7 @@ class ArbeidsledigIntegrationMedOppdaterSporsmalTest : BaseTestClass() {
         val soknaden = hentSoknader(fnr).first()
 
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
-            .besvarSporsmal(FRISKMELDT_START, LocalDate.of(2018, 1, 1).format(DateTimeFormatter.ISO_LOCAL_DATE))
+            .besvarSporsmal(FRISKMELDT_START, LocalDate.of(2018, 1, 1).format(DateTimeFormatter.ISO_LOCAL_DATE), mutert = true)
             .also {
                 assertThat(it.rSSykepengesoknad.sporsmal!!.map { it.tag }).isEqualTo(
                     listOf(
@@ -186,7 +186,7 @@ class ArbeidsledigIntegrationMedOppdaterSporsmalTest : BaseTestClass() {
         val soknaden = hentSoknader(fnr).first()
 
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
-            .besvarSporsmal(FRISKMELDT, "JA")
+            .besvarSporsmal(FRISKMELDT, "JA", mutert = true)
             .also {
                 assertThat(it.rSSykepengesoknad.sporsmal!!.map { it.tag }).isEqualTo(
                     listOf(
@@ -214,7 +214,7 @@ class ArbeidsledigIntegrationMedOppdaterSporsmalTest : BaseTestClass() {
         val soknaden = hentSoknader(fnr).first()
 
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
-            .besvarSporsmal(FRISKMELDT, "NEI")
+            .besvarSporsmal(FRISKMELDT, "NEI", mutert = true)
             .besvarSporsmal(ARBEID_UTENFOR_NORGE, "JA")
             .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
     }

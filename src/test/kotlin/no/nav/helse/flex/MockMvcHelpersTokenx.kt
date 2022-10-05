@@ -9,6 +9,8 @@ import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknad
 import no.nav.helse.flex.util.OBJECT_MAPPER
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback
+import org.amshove.kluent.`should be null`
+import org.amshove.kluent.`should not be null`
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.ResultActions
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
@@ -146,11 +148,17 @@ fun BaseTestClass.oppdaterSporsmalMedResult(fnr: String, rsSporsmal: RSSporsmal,
     )
 }
 
-fun BaseTestClass.oppdaterSporsmal(fnr: String, rsSporsmal: RSSporsmal, soknadsId: String): RSOppdaterSporsmalResponse {
+fun BaseTestClass.oppdaterSporsmal(fnr: String, rsSporsmal: RSSporsmal, soknadsId: String, mutert: Boolean): RSOppdaterSporsmalResponse {
     val json =
         this.oppdaterSporsmalMedResult(fnr, rsSporsmal, soknadsId).andExpect(MockMvcResultMatchers.status().isOk)
             .andReturn().response.contentAsString
-    return OBJECT_MAPPER.readValue(json)
+    val response = OBJECT_MAPPER.readValue<RSOppdaterSporsmalResponse>(json)
+    if (mutert) {
+        response.mutertSoknad.`should not be null`()
+    } else {
+        response.mutertSoknad.`should be null`()
+    }
+    return response
 }
 
 fun MockOAuth2Server.tokenxToken(

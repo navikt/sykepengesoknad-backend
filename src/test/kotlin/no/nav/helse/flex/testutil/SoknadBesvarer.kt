@@ -42,26 +42,26 @@ class SoknadBesvarer(
     val fnr: String,
     val muterteSoknaden: Boolean = false
 ) {
-    fun besvarSporsmal(tag: String, svar: String, ferdigBesvart: Boolean = true): SoknadBesvarer {
-        return besvarSporsmal(tag, listOf(svar), ferdigBesvart)
+    fun besvarSporsmal(tag: String, svar: String, ferdigBesvart: Boolean = true, mutert: Boolean = false): SoknadBesvarer {
+        return besvarSporsmal(tag, listOf(svar), ferdigBesvart, mutert)
     }
 
-    fun besvarSporsmal(tag: String, svarListe: List<String>, ferdigBesvart: Boolean = true): SoknadBesvarer {
+    fun besvarSporsmal(tag: String, svarListe: List<String>, ferdigBesvart: Boolean = true, mutert: Boolean = false): SoknadBesvarer {
         val sporsmal = rSSykepengesoknad.alleSporsmalOgUndersporsmal().find { it.tag == tag }
             ?: throw RuntimeException("Spørsmål ikke funnet $tag")
         val rsSvar = svarListe.map { RSSvar(verdi = it) }
         val oppdatertSoknad = rSSykepengesoknad.byttSvar(sporsmal.tag, rsSvar)
         rSSykepengesoknad = oppdatertSoknad
         return if (ferdigBesvart) {
-            gaVidere(tag)
+            gaVidere(tag, mutert)
         } else {
             this
         }
     }
 
-    fun gaVidere(tag: String): SoknadBesvarer {
+    private fun gaVidere(tag: String, mutert: Boolean): SoknadBesvarer {
         val hovedsporsmal = finnHovedsporsmal(tag)
-        val (mutertSoknad, _) = mockMvc.oppdaterSporsmal(fnr, hovedsporsmal, rSSykepengesoknad.id)
+        val (mutertSoknad, _) = mockMvc.oppdaterSporsmal(fnr, hovedsporsmal, rSSykepengesoknad.id, mutert)
 
         return SoknadBesvarer(
             rSSykepengesoknad = mutertSoknad ?: this.rSSykepengesoknad,

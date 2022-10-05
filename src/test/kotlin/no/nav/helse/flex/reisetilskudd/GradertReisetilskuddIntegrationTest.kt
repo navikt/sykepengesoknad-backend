@@ -199,7 +199,7 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
     fun `Vi kan besvare spørsmålet om at reisetilskudd ble brukt`() {
         val reisetilskudd = this.hentSoknader(fnr).first()
         SoknadBesvarer(reisetilskudd, this, fnr)
-            .besvarSporsmal(BRUKTE_REISETILSKUDDET, "JA")
+            .besvarSporsmal(BRUKTE_REISETILSKUDDET, "JA", mutert = true)
 
         val reisetilskuddEtterSvar = this.hentSoknader(fnr).first()
         reisetilskuddEtterSvar
@@ -405,7 +405,7 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
         val soknad = this.hentSoknader(fnr).first()
         val utkast = korrigerSoknad(soknad.id, fnr)
         val utkastMedSvar = SoknadBesvarer(utkast, this, fnr)
-            .besvarSporsmal(BRUKTE_REISETILSKUDDET, "NEI", true)
+            .besvarSporsmal(BRUKTE_REISETILSKUDDET, "NEI", true, mutert = true)
             .rSSykepengesoknad
 
         utkastMedSvar
