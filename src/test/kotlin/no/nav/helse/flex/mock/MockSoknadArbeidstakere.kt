@@ -184,7 +184,7 @@ private fun leggSvarPaSoknad(sykepengesoknad: Sykepengesoknad): Sykepengesoknad 
         .fravarForSykmeldingen()
         .besvarsporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
 
-    return if (harFeriePermisjonEllerUtenlandsoppholdSporsmal(s)) {
+    return if (s.harFeriePermisjonEllerUtenlandsoppholdSporsmal()) {
         s.feriePermisjonUtland()
     } else {
         s.besvarsporsmal(PERMISJON_V2, "NEI")

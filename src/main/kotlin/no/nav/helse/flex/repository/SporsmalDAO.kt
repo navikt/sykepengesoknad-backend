@@ -107,15 +107,4 @@ class SporsmalDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemp
                 .addValue("soknadsIder", soknadsIder)
         )
     }
-
-    fun oppdaterSporsmalstekst(nyttSporsmal: Sporsmal) {
-        namedParameterJdbcTemplate.update(
-            "UPDATE SPORSMAL SET TEKST = :sporsmalstekst, UNDERTEKST = :undertekst WHERE ID = :sporsmalId",
-
-            MapSqlParameterSource()
-                .addValue("sporsmalstekst", nyttSporsmal.sporsmalstekst)
-                .addValue("undertekst", nyttSporsmal.undertekst)
-                .addValue("sporsmalId", nyttSporsmal.id)
-        )
-    }
 }
