@@ -52,21 +52,6 @@ fun settOppSoknadOppholdUtland(fnr: String): Sykepengesoknad {
     )
 }
 
-fun getOppdatertBekreftSporsmal(sykepengesoknad: Sykepengesoknad): Sporsmal {
-    val arbeidsgiverSvar = sykepengesoknad.getSporsmalMedTag(ARBEIDSGIVER).svar
-    val bekreftSporsmal = bekreftSporsmal(arbeidsgiverSvar.size == 1 && "JA" == arbeidsgiverSvar[0].verdi)
-    return bekreftSporsmal.copy(
-        id = sykepengesoknad.getSporsmalMedTag(BEKREFT_OPPLYSNINGER_UTLAND_INFO).id,
-        undersporsmal = listOf(
-            bekreftSporsmal.undersporsmal[0].copy(
-                id = sykepengesoknad.getSporsmalMedTag(BEKREFT_OPPLYSNINGER_UTLAND).id,
-                svar = sykepengesoknad.getSporsmalMedTag(BEKREFT_OPPLYSNINGER_UTLAND).svar
-            )
-        )
-
-    )
-}
-
 private fun arbeidsgiverSporsmal(): Sporsmal {
     return Sporsmal(
         tag = ARBEIDSGIVER,
@@ -108,7 +93,7 @@ private fun landSporsmal(): Sporsmal {
     )
 }
 
-private fun bekreftSporsmal(harArbeidsgiver: Boolean): Sporsmal {
+fun bekreftSporsmal(harArbeidsgiver: Boolean): Sporsmal {
     return Sporsmal(
         tag = BEKREFT_OPPLYSNINGER_UTLAND_INFO,
         sporsmalstekst = "Før du reiser ber vi deg bekrefte:",

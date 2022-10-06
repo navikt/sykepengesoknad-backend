@@ -122,7 +122,8 @@ class OppholdUtlandIntegrationTest : BaseTestClass() {
             """.trimIndent()
         )
 
-        SoknadBesvarer(soknader[0], this, fnr)
+        SoknadBesvarer(hentSoknader(fnr)[0], this, fnr)
+            .besvarSporsmal(FERIE, svar = "NEI", ferdigBesvart = false)
             .besvarSporsmal(ARBEIDSGIVER, svar = "NEI", mutert = true)
     }
 

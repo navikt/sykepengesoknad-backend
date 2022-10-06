@@ -9,20 +9,19 @@ import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.mock.gammeltFormatOpprettNySoknadMedFeriesporsmalSomUndersporsmal
 import no.nav.helse.flex.mock.opprettNySoknadMock
+import no.nav.helse.flex.oppdatersporsmal.muteringer.arbeidGjenopptattMutering
+import no.nav.helse.flex.oppdatersporsmal.muteringer.oppdaterMedSvarPaUtlandsopphold
 import no.nav.helse.flex.soknadsopprettelse.oppdateringhelpers.finnGyldigDatoSvar
 import no.nav.helse.flex.soknadsopprettelse.oppdateringhelpers.skapOppdaterteSoknadsperioder
 import no.nav.helse.flex.util.DatoUtil
 import no.nav.helse.flex.util.PeriodeMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.junit.jupiter.MockitoExtension
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.TemporalAdjusters
 
-@ExtendWith(MockitoExtension::class)
 class ArbeidstakereTest {
 
     @Test
@@ -117,7 +116,7 @@ class ArbeidstakereTest {
                 svar = listOf(Svar(null, fom.format(DateTimeFormatter.ISO_LOCAL_DATE)))
             )
         )
-        val oppdatertSoknad: Sykepengesoknad = oppdaterMedSvarPaArbeidGjenopptattArbeidstaker(sykepengesoknad)
+        val oppdatertSoknad: Sykepengesoknad = sykepengesoknad.arbeidGjenopptattMutering()
 
         assertThat(oppdatertSoknad.getOptionalSporsmalMedTag(FERIE_V2)).isNotPresent
         assertThat(oppdatertSoknad.getOptionalSporsmalMedTag(PERMISJON_V2)).isNotPresent
@@ -141,7 +140,7 @@ class ArbeidstakereTest {
                 svar = listOf(Svar(null, fom.format(DateTimeFormatter.ISO_LOCAL_DATE)))
             )
         )
-        val oppdatertSoknad: Sykepengesoknad = oppdaterMedSvarPaArbeidGjenopptattArbeidstaker(sykepengesoknad)
+        val oppdatertSoknad: Sykepengesoknad = sykepengesoknad.arbeidGjenopptattMutering()
 
         assertThat(oppdatertSoknad.getOptionalSporsmalMedTag(FERIE_PERMISJON_UTLAND)).isNotPresent
     }
@@ -163,7 +162,7 @@ class ArbeidstakereTest {
                 svar = listOf(Svar(null, fom.format(DateTimeFormatter.ISO_LOCAL_DATE)))
             )
         )
-        val oppdatertSoknad: Sykepengesoknad = oppdaterMedSvarPaArbeidGjenopptattArbeidstaker(sykepengesoknad)
+        val oppdatertSoknad: Sykepengesoknad = sykepengesoknad.arbeidGjenopptattMutering()
 
         assertThat(oppdatertSoknad.getOptionalSporsmalMedTag(FERIE_V2)).isNotPresent
     }
@@ -186,9 +185,9 @@ class ArbeidstakereTest {
             )
         )
         val oppdatertMin =
-            oppdaterMedSvarPaArbeidGjenopptattArbeidstaker(sykepengesoknad).getSporsmalMedTag(FERIE_NAR).min
+            sykepengesoknad.arbeidGjenopptattMutering().getSporsmalMedTag(FERIE_NAR).min
         val oppdatertMax =
-            oppdaterMedSvarPaArbeidGjenopptattArbeidstaker(sykepengesoknad).getSporsmalMedTag(FERIE_NAR).max
+            sykepengesoknad.arbeidGjenopptattMutering().getSporsmalMedTag(FERIE_NAR).max
 
         assertThat(oppdatertMin).isEqualTo(oppdatertMax)
         assertThat(oppdatertMax).isEqualTo(fom.format(DateTimeFormatter.ISO_LOCAL_DATE))
@@ -211,9 +210,9 @@ class ArbeidstakereTest {
             )
         )
         val oppdatertMin =
-            oppdaterMedSvarPaArbeidGjenopptattArbeidstaker(sykepengesoknad).getSporsmalMedTag(FERIE_NAR_V2).min
+            sykepengesoknad.arbeidGjenopptattMutering().getSporsmalMedTag(FERIE_NAR_V2).min
         val oppdatertMax =
-            oppdaterMedSvarPaArbeidGjenopptattArbeidstaker(sykepengesoknad).getSporsmalMedTag(FERIE_NAR_V2).max
+            sykepengesoknad.arbeidGjenopptattMutering().getSporsmalMedTag(FERIE_NAR_V2).max
 
         assertThat(oppdatertMin).isEqualTo(oppdatertMax)
         assertThat(oppdatertMax).isEqualTo(fom.format(DateTimeFormatter.ISO_LOCAL_DATE))
@@ -235,7 +234,7 @@ class ArbeidstakereTest {
                 svar = listOf(Svar(null, fom.format(DateTimeFormatter.ISO_LOCAL_DATE)))
             )
         )
-        val oppdatertSoknad: Sykepengesoknad = oppdaterMedSvarPaArbeidGjenopptattArbeidstaker(sykepengesoknad)
+        val oppdatertSoknad: Sykepengesoknad = sykepengesoknad.arbeidGjenopptattMutering()
 
         assertThat(oppdatertSoknad.getOptionalSporsmalMedTag(UTDANNING)).isNotPresent
     }
@@ -252,7 +251,7 @@ class ArbeidstakereTest {
         )
         val max = sykepengesoknad.getSporsmalMedTag(FERIE_NAR).max
         val oppdatertMax =
-            oppdaterMedSvarPaArbeidGjenopptattArbeidstaker(sykepengesoknad).getSporsmalMedTag(FERIE_NAR).max
+            sykepengesoknad.arbeidGjenopptattMutering().getSporsmalMedTag(FERIE_NAR).max
 
         assertThat(max).isEqualTo(oppdatertMax)
     }
@@ -269,7 +268,7 @@ class ArbeidstakereTest {
         )
         val max = sykepengesoknad.getSporsmalMedTag(FERIE_NAR_V2).max
         val oppdatertMax =
-            oppdaterMedSvarPaArbeidGjenopptattArbeidstaker(sykepengesoknad).getSporsmalMedTag(FERIE_NAR_V2).max
+            sykepengesoknad.arbeidGjenopptattMutering().getSporsmalMedTag(FERIE_NAR_V2).max
 
         assertThat(max).isEqualTo(oppdatertMax)
     }
@@ -292,7 +291,7 @@ class ArbeidstakereTest {
             )
         )
         val oppdatertMax =
-            oppdaterMedSvarPaArbeidGjenopptattArbeidstaker(sykepengesoknad).getSporsmalMedTag(FERIE_NAR).max
+            sykepengesoknad.arbeidGjenopptattMutering().getSporsmalMedTag(FERIE_NAR).max
 
         assertThat(oppdatertMax).isEqualTo(arbeidGjenopptattDato.minusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE))
     }
@@ -315,7 +314,7 @@ class ArbeidstakereTest {
             )
         )
         val oppdatertMax =
-            oppdaterMedSvarPaArbeidGjenopptattArbeidstaker(sykepengesoknad).getSporsmalMedTag(FERIE_NAR_V2).max
+            sykepengesoknad.arbeidGjenopptattMutering().getSporsmalMedTag(FERIE_NAR_V2).max
 
         assertThat(oppdatertMax).isEqualTo(arbeidGjenopptattDato.minusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE))
     }
@@ -332,7 +331,7 @@ class ArbeidstakereTest {
         )
         val max = sykepengesoknad.getSporsmalMedTag(UTDANNING_START).max
         val oppdatertMax =
-            oppdaterMedSvarPaArbeidGjenopptattArbeidstaker(sykepengesoknad).getSporsmalMedTag(UTDANNING_START).max
+            sykepengesoknad.arbeidGjenopptattMutering().getSporsmalMedTag(UTDANNING_START).max
 
         assertThat(max).isEqualTo(oppdatertMax)
     }
@@ -354,7 +353,7 @@ class ArbeidstakereTest {
             )
         )
         val oppdatertMax =
-            oppdaterMedSvarPaArbeidGjenopptattArbeidstaker(sykepengesoknad).getSporsmalMedTag(UTDANNING_START).max
+            sykepengesoknad.arbeidGjenopptattMutering().getSporsmalMedTag(UTDANNING_START).max
 
         assertThat(oppdatertMax).isEqualTo(arbeidGjenopptattDato.minusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE))
     }
@@ -378,7 +377,7 @@ class ArbeidstakereTest {
                 svar = listOf(Svar(null, DatoUtil.periodeTilJson(nesteLordag, nesteSondag)))
             )
         )
-        val oppdatertSoknad: Sykepengesoknad = oppdaterMedSvarPaUtlandsopphold(sykepengesoknad)
+        val oppdatertSoknad: Sykepengesoknad = sykepengesoknad.oppdaterMedSvarPaUtlandsopphold()
 
         assertThat(oppdatertSoknad.getOptionalSporsmalMedTag(UTLANDSOPPHOLD_SOKT_SYKEPENGER)).isNotPresent
     }
@@ -403,7 +402,7 @@ class ArbeidstakereTest {
                 svar = listOf(Svar(null, DatoUtil.periodeTilJson(nesteMandag, nesteFredag)))
             )
         )
-        val oppdatertSoknad: Sykepengesoknad = oppdaterMedSvarPaUtlandsopphold(sykepengesoknad)
+        val oppdatertSoknad: Sykepengesoknad = sykepengesoknad.oppdaterMedSvarPaUtlandsopphold()
 
         assertThat(oppdatertSoknad.getOptionalSporsmalMedTag(UTLANDSOPPHOLD_SOKT_SYKEPENGER)).isNotPresent
     }
@@ -428,7 +427,7 @@ class ArbeidstakereTest {
                 svar = listOf(Svar(null, DatoUtil.periodeTilJson(nesteMandag, nesteFredag)))
             )
         )
-        val oppdatertSoknad: Sykepengesoknad = oppdaterMedSvarPaUtlandsopphold(sykepengesoknad)
+        val oppdatertSoknad: Sykepengesoknad = sykepengesoknad.oppdaterMedSvarPaUtlandsopphold()
 
         assertThat(oppdatertSoknad.getOptionalSporsmalMedTag(UTLANDSOPPHOLD_SOKT_SYKEPENGER)).isNotPresent
     }
@@ -453,7 +452,7 @@ class ArbeidstakereTest {
                 svar = listOf(Svar(null, DatoUtil.periodeTilJson(nesteMandag, nesteFredag)))
             )
         )
-        val oppdatertSoknad: Sykepengesoknad = oppdaterMedSvarPaUtlandsopphold(sykepengesoknad)
+        val oppdatertSoknad: Sykepengesoknad = sykepengesoknad.oppdaterMedSvarPaUtlandsopphold()
 
         assertThat(oppdatertSoknad.getOptionalSporsmalMedTag(UTLANDSOPPHOLD_SOKT_SYKEPENGER)).isPresent
     }
@@ -478,7 +477,7 @@ class ArbeidstakereTest {
                 svar = listOf(Svar(null, DatoUtil.periodeTilJson(nesteMandag, nesteFredag)))
             )
         )
-        val oppdatertSoknad: Sykepengesoknad = oppdaterMedSvarPaUtlandsopphold(sykepengesoknad)
+        val oppdatertSoknad: Sykepengesoknad = sykepengesoknad.oppdaterMedSvarPaUtlandsopphold()
 
         assertThat(oppdatertSoknad.getOptionalSporsmalMedTag(UTLANDSOPPHOLD_SOKT_SYKEPENGER)).isPresent
     }

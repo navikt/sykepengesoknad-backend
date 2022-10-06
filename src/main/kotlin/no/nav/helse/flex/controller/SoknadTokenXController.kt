@@ -19,6 +19,7 @@ import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.exception.*
 import no.nav.helse.flex.logger
+import no.nav.helse.flex.oppdatersporsmal.OppdaterSporsmalService
 import no.nav.helse.flex.sending.SoknadSender
 import no.nav.helse.flex.service.AvbrytSoknadService
 import no.nav.helse.flex.service.EttersendingSoknadService
@@ -28,7 +29,6 @@ import no.nav.helse.flex.service.HentSoknadService
 import no.nav.helse.flex.service.IdentService
 import no.nav.helse.flex.service.KorrigerSoknadService
 import no.nav.helse.flex.service.MottakerAvSoknadService
-import no.nav.helse.flex.service.OppdaterSporsmalService
 import no.nav.helse.flex.soknadsopprettelse.OpprettSoknadService
 import no.nav.helse.flex.svarvalidering.validerSvarPaSoknad
 import no.nav.helse.flex.util.Metrikk
