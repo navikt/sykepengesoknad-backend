@@ -19,6 +19,7 @@ import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_SELVSTENDIG
 import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_SELVSTENDIG_DAGMAMMA
 import no.nav.helse.flex.util.DatoUtil
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 fun andreInntektskilderArbeidstaker(arbeidsgiver: String?): Sporsmal {
     return Sporsmal(
@@ -93,6 +94,8 @@ fun andreInntektskilderArbeidsledig(fom: LocalDate, tom: LocalDate): Sporsmal =
             tom
         )
         }?",
+        min = fom.format(DateTimeFormatter.ISO_LOCAL_DATE), // For at mutering skal funke siden vi ignorerer sporsmalstekst
+        max = tom.format(DateTimeFormatter.ISO_LOCAL_DATE),
         svartype = Svartype.JA_NEI,
         kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
         undersporsmal = listOf(

@@ -48,11 +48,11 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
         }
     }
 
-    val oppdatertTom =
-        if (arbeidGjenopptattDato == null)
-            this.tom
-        else
-            arbeidGjenopptattDato.minusDays(1)
+    val oppdatertTom = if (arbeidGjenopptattDato == null) {
+        this.tom
+    } else {
+        arbeidGjenopptattDato.minusDays(1)
+    }
 
     val oppdaterteSporsmal = jobbetDuIPeriodenSporsmal(
         this.skapOppdaterteSoknadsperioder(

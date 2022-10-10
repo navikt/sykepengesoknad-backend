@@ -20,7 +20,7 @@ fun Sykepengesoknad.leggTilSporsmaal(sporsmal: Sporsmal): Sykepengesoknad {
 
     val eksisterendeSpm = this.sporsmal.find { it.tag == sporsmal.tag }
     if (eksisterendeSpm != null) {
-        return if (eksisterendeSpm.erUlikUtenomSvarOgId(sporsmal)) {
+        return if (eksisterendeSpm.erUlikUtenomSvarTekstOgId(sporsmal)) {
             // Fjerne spørsmpålet
             this.copy(
                 sporsmal = this.sporsmal.filterNot { it.tag == sporsmal.tag }.toMutableList().also { it.add(sporsmal) }
@@ -50,9 +50,9 @@ fun List<Sporsmal>.erUlikUtenomSvar(sammenlign: List<Sporsmal>): Boolean {
     return this.flattenOgFjernSvar() != sammenlign.flattenOgFjernSvar()
 }
 
-fun List<Sporsmal>.erUlikUtenomSvarOgId(sammenlign: List<Sporsmal>): Boolean {
+fun List<Sporsmal>.erUlikUtenomSvarTekstOgId(sammenlign: List<Sporsmal>): Boolean {
     fun List<Sporsmal>.flattenOgFjernSvarOgId(): Set<Sporsmal> {
-        return this.flatten().map { it.copy(svar = emptyList(), undersporsmal = emptyList()) }
+        return this.flatten().map { it.copy(svar = emptyList(), undersporsmal = emptyList(), sporsmalstekst = null) }
             .map { it.copy(id = null) }.toSet()
     }
 
@@ -61,4 +61,4 @@ fun List<Sporsmal>.erUlikUtenomSvarOgId(sammenlign: List<Sporsmal>): Boolean {
     return a != b
 }
 
-fun Sporsmal.erUlikUtenomSvarOgId(sammenlign: Sporsmal): Boolean = listOf(this).erUlikUtenomSvarOgId(listOf(sammenlign))
+fun Sporsmal.erUlikUtenomSvarTekstOgId(sammenlign: Sporsmal): Boolean = listOf(this).erUlikUtenomSvarTekstOgId(listOf(sammenlign))

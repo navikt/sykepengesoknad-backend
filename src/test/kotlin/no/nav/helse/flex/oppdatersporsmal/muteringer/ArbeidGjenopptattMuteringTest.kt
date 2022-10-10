@@ -1,9 +1,11 @@
 package no.nav.helse.flex.oppdatersporsmal.muteringer
 
 import no.nav.helse.flex.soknadsopprettelse.JOBBET_DU_100_PROSENT
+import no.nav.helse.flex.soknadsopprettelse.PERMISJON_V2
 import no.nav.helse.flex.soknadsopprettelse.TILBAKE_I_ARBEID
 import no.nav.helse.flex.soknadsopprettelse.settOppSoknadArbeidstaker
 import no.nav.helse.flex.testutil.besvarsporsmal
+import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should be null`
 import org.amshove.kluent.`should not be null`
 import org.amshove.kluent.shouldHaveSize
@@ -34,5 +36,23 @@ class ArbeidGjenopptattMuteringTest {
 
         mutertSoknad.sporsmal.find { it.tag.startsWith(JOBBET_DU_100_PROSENT) }.`should not be null`()
         mutertSoknad.sporsmal.shouldHaveSize(12)
+    }
+
+    @Test
+    fun `en liten tekstlig endring i et spørsmål gjør ikke at det byttes ut`() {
+        val fom = LocalDate.now().minusDays(19)
+        val soknadMetadata = skapSoknadMetadata(fnr = "12345612")
+        val standardSoknad = settOppSoknadArbeidstaker(
+            soknadMetadata = soknadMetadata,
+            erForsteSoknadISykeforlop = true,
+            tidligsteFomForSykmelding = fom,
+        )
+
+        val spm = standardSoknad.sporsmal.find { it.tag == PERMISJON_V2 }!!.copy(sporsmalstekst = "Var De i permisjon?")
+
+        val soknadMedEgenPermisjonSpmTekst = standardSoknad
+            .replaceSporsmal(spm)
+
+        soknadMedEgenPermisjonSpmTekst `should be equal to` soknadMedEgenPermisjonSpmTekst.arbeidGjenopptattMutering()
     }
 }

@@ -39,11 +39,11 @@ fun Sykepengesoknad.friskmeldtMuteringer(): Sykepengesoknad {
         }
     }
 
-    val oppdatertTom =
-        if (friskmeldtDato == null)
-            this.tom
-        else
-            friskmeldtDato.minusDays(1)
+    val oppdatertTom = if (friskmeldtDato == null) {
+        this.tom
+    } else {
+        friskmeldtDato.minusDays(1)
+    }
 
     return this
         .leggTilSporsmaal(utenlandsoppholdArbeidsledigAnnetSporsmal(this.fom!!, oppdatertTom!!))
