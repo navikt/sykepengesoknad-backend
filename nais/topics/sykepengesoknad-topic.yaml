@@ -31,7 +31,7 @@ spec:
       application: sykepengesoknad-korrigering-metrikk
       access: read
     - team: flex
-      application: sykepengesoknad-lovme-filter
+      application: sykepengesoknad-andre-inntektskilder-logikk-test
       access: read
     - team: flex
       application: sykepengesoknad-narmesteleder-varsler
