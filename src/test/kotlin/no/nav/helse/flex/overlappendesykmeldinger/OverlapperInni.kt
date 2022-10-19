@@ -36,6 +36,8 @@ class OverlapperInni : BaseTestClass() {
             fnr = fnr
         )
 
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
+
         val hentetViaRest = hentSoknader(fnr)
         hentetViaRest shouldHaveSize 2
 
@@ -48,7 +50,5 @@ class OverlapperInni : BaseTestClass() {
             .filter { it.contains("overlapper_inni_perioder_uten_helg_total") }
             .first { !it.startsWith("#") }
             .shouldBeEqualTo("""overlapper_inni_perioder_uten_helg_total{perioder="3-2-5",type="info",} 1.0""")
-
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
     }
 }

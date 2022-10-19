@@ -24,4 +24,14 @@ interface SykepengesoknadRepository : CrudRepository<SykepengesoknadDbRecord, St
         """
     )
     fun findEldsteSoknaden(identer: List<String>, fom: LocalDate?): String?
+
+    @Query(
+        """
+        SELECT *
+        FROM sykepengesoknad
+        WHERE status = 'FREMTIDIG'
+        AND TOM < :now
+        """
+    )
+    fun finnSoknaderSomSkalAktiveres(now: LocalDate): List<SykepengesoknadDbRecord>
 }

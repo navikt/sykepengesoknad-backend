@@ -27,7 +27,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
-import java.time.Duration
 import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
@@ -64,12 +63,12 @@ class ArbeidsgiverperiodeTilFredagSoknadUtHelgaTest : BaseTestClass() {
             event = sykmeldingStatusKafkaMessageDTO.event,
             kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
         )
-        behandleSendtBekreftetSykmeldingService.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
 
         val hentetViaRest = hentSoknader(fnr)
         assertThat(hentetViaRest).hasSize(1)
 
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1, duration = Duration.ofSeconds(1))
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
 
         flexSyketilfelleMockRestServiceServer?.reset()
         mockFlexSyketilfelleArbeidsgiverperiode(
@@ -146,12 +145,12 @@ class ArbeidsgiverperiodeTilFredagSoknadUtHelgaTest : BaseTestClass() {
             event = sykmeldingStatusKafkaMessageDTO.event,
             kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
         )
-        behandleSendtBekreftetSykmeldingService.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
 
         val hentetViaRest = hentSoknader(fnr)
         assertThat(hentetViaRest).hasSize(1)
 
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1, duration = Duration.ofSeconds(1))
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
 
         flexSyketilfelleMockRestServiceServer?.reset()
         mockFlexSyketilfelleArbeidsgiverperiode(

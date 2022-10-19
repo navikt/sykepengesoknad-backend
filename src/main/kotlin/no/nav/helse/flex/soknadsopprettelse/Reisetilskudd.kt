@@ -2,10 +2,8 @@ package no.nav.helse.flex.soknadsopprettelse
 
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Arbeidssituasjon.*
-import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svartype.*
-import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.Visningskriterie.CHECKED
 import no.nav.helse.flex.domain.Visningskriterie.JA
 import no.nav.helse.flex.domain.rest.SoknadMetadata
@@ -13,42 +11,21 @@ import no.nav.helse.flex.soknadsopprettelse.sporsmal.ansvarserklaringSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.bekreftOpplysningerSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.vaerKlarOverAtReisetilskudd
 import no.nav.helse.flex.util.DatoUtil.formatterPeriode
-import java.time.Instant
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
 fun skapReisetilskuddsoknad(
     soknadMetadata: SoknadMetadata
-): Sykepengesoknad {
-
-    return Sykepengesoknad(
-        id = soknadMetadata.id,
-        fnr = soknadMetadata.fnr,
-        sykmeldingId = soknadMetadata.sykmeldingId,
-        status = soknadMetadata.status,
-        fom = soknadMetadata.fom,
-        tom = soknadMetadata.tom,
-        opprettet = Instant.now(),
-        startSykeforlop = soknadMetadata.startSykeforlop,
-        sykmeldingSkrevet = soknadMetadata.sykmeldingSkrevet,
-        arbeidsgiverOrgnummer = soknadMetadata.arbeidsgiverOrgnummer,
-        arbeidsgiverNavn = soknadMetadata.arbeidsgiverNavn,
-        soknadPerioder = soknadMetadata.sykmeldingsperioder,
-        soknadstype = Soknadstype.REISETILSKUDD,
-        arbeidssituasjon = soknadMetadata.arbeidssituasjon,
-        egenmeldtSykmelding = soknadMetadata.egenmeldtSykmelding,
-        merknaderFraSykmelding = soknadMetadata.merknader,
-
-        sporsmal = mutableListOf(
-            ansvarserklaringSporsmal(reisetilskudd = true),
-            vaerKlarOverAtReisetilskudd(),
-            bekreftOpplysningerSporsmal()
-        ).also {
-            it.addAll(
-                reisetilskuddSporsmal(soknadMetadata.fom, soknadMetadata.tom, soknadMetadata.arbeidssituasjon)
-            )
-        }.toList()
-    )
+): List<Sporsmal> {
+    return mutableListOf(
+        ansvarserklaringSporsmal(reisetilskudd = true),
+        vaerKlarOverAtReisetilskudd(),
+        bekreftOpplysningerSporsmal()
+    ).also {
+        it.addAll(
+            reisetilskuddSporsmal(soknadMetadata.fom, soknadMetadata.tom, soknadMetadata.arbeidssituasjon)
+        )
+    }.toList()
 }
 
 fun reisetilskuddSporsmal(

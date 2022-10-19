@@ -1,9 +1,9 @@
 package no.nav.helse.flex.arbeidstaker
 
 import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.aktivering.kafka.AktiveringProducer
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.rest.SoknadMetadata
 import no.nav.helse.flex.hentSoknader
@@ -50,7 +50,8 @@ class BrukerIkkeTimerForFaktiskGradHvisIkkeChecked : BaseTestClass() {
 
     private final val start = LocalDate.of(2020, 9, 22)
     private final val slutt = LocalDate.of(2020, 10, 10)
-
+    @Autowired
+    private lateinit var aktiveringProducer: AktiveringProducer
     private val soknadMetadata = SoknadMetadata(
         startSykeforlop = start,
         sykmeldingSkrevet = start.atStartOfDay().tilOsloInstant(),
@@ -71,7 +72,6 @@ class BrukerIkkeTimerForFaktiskGradHvisIkkeChecked : BaseTestClass() {
         fom = start,
         tom = slutt,
         soknadstype = Soknadstype.ARBEIDSTAKERE,
-        status = Soknadstatus.NY,
         sykmeldingId = "sykmeldingId",
         arbeidsgiverNavn = "Kjells markiser",
         arbeidsgiverOrgnummer = "848274932"
@@ -80,7 +80,7 @@ class BrukerIkkeTimerForFaktiskGradHvisIkkeChecked : BaseTestClass() {
     @Test
     fun `1 - vi oppretter en arbeidstakersoknad`() {
         // Opprett søknad
-        opprettSoknadService.opprettSoknadFraSoknadMetadata(soknadMetadata, sykepengesoknadDAO)
+        opprettSoknadService.opprettSoknadFraSoknadMetadata(soknadMetadata, sykepengesoknadDAO, aktiveringProducer)
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
     }
 

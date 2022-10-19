@@ -1,6 +1,7 @@
 package no.nav.helse.flex.arbeidstaker
 
 import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.aktivering.AktiveringJob
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
 import no.nav.helse.flex.domain.Arbeidssituasjon
@@ -8,7 +9,6 @@ import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.hentSoknader
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
 import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
-import no.nav.helse.flex.service.AktiverService
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testdata.getSykmeldingDto
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
@@ -23,14 +23,13 @@ import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
-import java.time.Duration
 import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class ArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
 
     @Autowired
-    private lateinit var aktiverService: AktiverService
+    private lateinit var aktiveringJob: AktiveringJob
 
     private final val fnr = "123456789"
     private final val basisdato = LocalDate.now()
@@ -59,14 +58,14 @@ class ArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
             event = sykmeldingStatusKafkaMessageDTO.event,
             kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
         )
-        behandleSendtBekreftetSykmeldingService.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
 
         val hentetViaRest = hentSoknader(fnr)
         assertThat(hentetViaRest).hasSize(1)
         assertThat(hentetViaRest[0].soknadstype).isEqualTo(RSSoknadstype.ARBEIDSTAKERE)
         assertThat(hentetViaRest[0].status).isEqualTo(RSSoknadstatus.FREMTIDIG)
 
-        val ventPåRecords = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1, duration = Duration.ofSeconds(1))
+        val ventPåRecords = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
         val kafkaSoknader = ventPåRecords.tilSoknader()
 
         assertThat(kafkaSoknader[0].status).isEqualTo(SoknadsstatusDTO.FREMTIDIG)
@@ -82,7 +81,7 @@ class ArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
     @Test
     @Order(3)
     fun `Vi aktiverer søknaden`() {
-        aktiverService.aktiverSoknader(now = basisdato.plusDays(16))
+        aktiveringJob.bestillAktivering(now = basisdato.plusDays(16))
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
 
         assertThat(kafkaSoknader).hasSize(1)

@@ -1,8 +1,8 @@
 package no.nav.helse.flex.soknadsopprettelse
 
+import no.nav.helse.flex.aktivering.kafka.AktiveringBestilling
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Sykeforloep
-import no.nav.helse.flex.domain.SykmeldingBehandletResultat
 import no.nav.helse.flex.domain.exception.ManglerArbeidsgiverException
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.logger
@@ -23,7 +23,7 @@ class KlippOgOpprett(
         arbeidssituasjon: Arbeidssituasjon,
         identer: FolkeregisterIdenter,
         sykeForloep: List<Sykeforloep>
-    ): SykmeldingBehandletResultat {
+    ): List<AktiveringBestilling> {
         var kafkaMessage = sykmeldingKafkaMessage
         val sykmeldingId = sykmeldingKafkaMessage.event.sykmeldingId
 

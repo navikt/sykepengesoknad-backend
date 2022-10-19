@@ -39,7 +39,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import java.time.Duration
 import java.time.LocalDate
 import java.time.OffsetDateTime
 
@@ -81,7 +80,10 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
             event = sykmeldingStatusKafkaMessageDTO.event,
             kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
         )
-        behandleSendtBekreftetSykmeldingService.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
+
+        val ventPåRecords = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
+        val kafkaSoknader = ventPåRecords.tilSoknader()
 
         val hentetViaRest = hentSoknader(fnr)
         assertThat(hentetViaRest).hasSize(2)
@@ -91,9 +93,6 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
         assertThat(hentetViaRest[1].status).isEqualTo(RSSoknadstatus.NY)
         assertThat(hentetViaRest[0].merknaderFraSykmelding!!.first().type).isEqualTo("UGYLDIG_TILBAKEDATERING")
         assertThat(hentetViaRest[0].merknaderFraSykmelding!!.first().beskrivelse).isEqualTo("Hey")
-
-        val ventPåRecords = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2, duration = Duration.ofSeconds(2))
-        val kafkaSoknader = ventPåRecords.tilSoknader()
 
         assertThat(kafkaSoknader).hasSize(2)
         assertThat(kafkaSoknader[0].status).isEqualTo(SoknadsstatusDTO.NY)
@@ -328,7 +327,7 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
             event = sykmeldingStatusKafkaMessageDTO.event,
             kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
         )
-        behandleSendtBekreftetSykmeldingService.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
 
         val hentetViaRest = hentSoknader(fnr)
         assertThat(hentetViaRest).hasSize(0)

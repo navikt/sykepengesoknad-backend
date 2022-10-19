@@ -30,6 +30,8 @@ class OverlapperFor : BaseTestClass() {
             fnr = fnr
         )
 
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
+
         val hentetViaRest = hentSoknader(fnr)
         hentetViaRest shouldHaveSize 2
 
@@ -40,8 +42,6 @@ class OverlapperFor : BaseTestClass() {
         val nyesteSoknad = hentetViaRest[1]
         nyesteSoknad.fom shouldBeEqualTo basisdato
         nyesteSoknad.tom shouldBeEqualTo basisdato.plusDays(7)
-
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
     }
 
     @Test
@@ -57,6 +57,8 @@ class OverlapperFor : BaseTestClass() {
             tom = basisdato.plusDays(7),
             fnr = fnr
         )
+
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
 
         val hentetViaRest = hentSoknader(fnr)
         hentetViaRest shouldHaveSize 2
@@ -74,8 +76,6 @@ class OverlapperFor : BaseTestClass() {
         nyesteSoknad.soknadPerioder!! shouldHaveSize 1
         nyesteSoknad.soknadPerioder!![0].fom shouldBeEqualTo basisdato
         nyesteSoknad.soknadPerioder!![0].tom shouldBeEqualTo basisdato.plusDays(7)
-
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
     }
 
     @Test

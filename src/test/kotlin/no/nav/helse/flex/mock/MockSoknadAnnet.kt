@@ -1,10 +1,10 @@
 package no.nav.helse.flex.mock
 
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.domain.Soknadstatus.NY
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.rest.SoknadMetadata
+import no.nav.helse.flex.soknadsopprettelse.genererSykepengesoknadFraMetadata
 import no.nav.helse.flex.soknadsopprettelse.settOppSoknadAnnetArbeidsforhold
 import no.nav.helse.flex.soknadsopprettelse.tilSoknadsperioder
 import no.nav.helse.flex.util.tilOsloInstant
@@ -18,7 +18,6 @@ import java.time.LocalDateTime
 fun opprettNySoknadAnnet(): Sykepengesoknad {
     val soknadMetadata = SoknadMetadata(
         fnr = "fnr",
-        status = NY,
         startSykeforlop = now().minusDays(24),
         fom = now().minusDays(19),
         tom = now().minusDays(10),
@@ -43,5 +42,5 @@ fun opprettNySoknadAnnet(): Sykepengesoknad {
 
     )
 
-    return settOppSoknadAnnetArbeidsforhold(soknadMetadata, false)
+    return genererSykepengesoknadFraMetadata(soknadMetadata).copy(sporsmal = settOppSoknadAnnetArbeidsforhold(soknadMetadata, false))
 }

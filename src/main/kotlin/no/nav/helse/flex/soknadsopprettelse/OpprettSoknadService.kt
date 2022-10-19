@@ -1,5 +1,6 @@
 package no.nav.helse.flex.soknadsopprettelse
 
+import no.nav.helse.flex.aktivering.kafka.AktiveringBestilling
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Arbeidssituasjon.ANNET
 import no.nav.helse.flex.domain.Arbeidssituasjon.ARBEIDSLEDIG
@@ -12,22 +13,20 @@ import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykeforloep
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.domain.SykmeldingBehandletResultat
-import no.nav.helse.flex.domain.SykmeldingBehandletResultat.SOKNAD_OPPRETTET
 import no.nav.helse.flex.domain.Sykmeldingstype
 import no.nav.helse.flex.domain.exception.SykeforloepManglerSykemeldingException
 import no.nav.helse.flex.domain.rest.SoknadMetadata
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
+import no.nav.helse.flex.julesoknad.LagreJulesoknadKandidater
 import no.nav.helse.flex.kafka.producer.SoknadProducer
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.service.FolkeregisterIdenter
-import no.nav.helse.flex.service.IdentService
-import no.nav.helse.flex.service.JulesoknadService
 import no.nav.helse.flex.service.SlettSoknaderTilKorrigertSykmeldingService
 import no.nav.helse.flex.util.Metrikk
 import no.nav.helse.flex.util.max
 import no.nav.helse.flex.util.min
+import no.nav.helse.flex.util.osloZone
 import no.nav.syfo.model.sykmelding.arbeidsgiver.ArbeidsgiverSykmelding
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
@@ -52,9 +51,8 @@ import no.nav.syfo.model.Merknad as SmMerknad
 class OpprettSoknadService(
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val metrikk: Metrikk,
-    private val identService: IdentService,
     private val soknadProducer: SoknadProducer,
-    private val julesoknadService: JulesoknadService,
+    private val lagreJulesoknadKandidater: LagreJulesoknadKandidater,
     private val slettSoknaderTilKorrigertSykmeldingService: SlettSoknaderTilKorrigertSykmeldingService,
 ) {
     private val log = logger()
@@ -65,7 +63,7 @@ class OpprettSoknadService(
         identer: FolkeregisterIdenter,
         arbeidsgiverStatusDTO: ArbeidsgiverStatusDTO?,
         flexSyketilfelleSykeforloep: List<Sykeforloep>,
-    ): SykmeldingBehandletResultat {
+    ): List<AktiveringBestilling> {
         val sykmelding = sykmeldingKafkaMessage.sykmelding
 
         val eksisterendeSoknader = sykepengesoknadDAO.finnSykepengesoknader(identer)
@@ -86,7 +84,6 @@ class OpprettSoknadService(
                 SoknadMetadata(
                     id = sykmeldingKafkaMessage.skapSoknadsId(it.fom, it.tom),
                     fnr = identer.originalIdent,
-                    status = if (it.tom.isBefore(LocalDate.now())) Soknadstatus.NY else Soknadstatus.FREMTIDIG,
                     startSykeforlop = startSykeforlop,
                     fom = it.fom,
                     tom = it.tom,
@@ -102,10 +99,10 @@ class OpprettSoknadService(
                 )
             }
                 .filter { it.sykmeldingsperioder.isNotEmpty() }
-                .prosseserJulesoknader()
+                .also { it.lagreJulesoknadKandidater() }
                 .map {
                     val opprettSykepengesoknad =
-                        genererSykepengesoknadFraMetadata(it, eksisterendeSoknaderOgOprettedeSoknader)
+                        genererSykepengesoknadFraMetadata(it)
                     eksisterendeSoknaderOgOprettedeSoknader.add(opprettSykepengesoknad)
                     opprettSykepengesoknad
                 }
@@ -143,14 +140,15 @@ class OpprettSoknadService(
                 .toHashSet()
             if (sammenliknbartSettAvEksisterendeSoknaderForSm == sammenliknbartSettAvNyeSoknader) {
                 log.info("Oppretter ikke søknader for sykmelding ${sykmelding.id} siden eksisterende identiske søknader finnes")
-                return SOKNAD_OPPRETTET
+                return emptyList()
             } else {
                 slettSoknaderTilKorrigertSykmeldingService.slettSoknader(eksisterendeSoknaderForSm)
             }
         }
 
-        soknaderTilOppretting.forEach { lagreOgPubliserSøknad(it, eksisterendeSoknader) }
-        return SOKNAD_OPPRETTET
+        return soknaderTilOppretting
+            .map { it.lagreSøknad(eksisterendeSoknader) }
+            .mapNotNull { it.publiserEllerReturnerAktiveringBestilling() }
     }
 
     private fun finnSoknadstype(
@@ -178,24 +176,30 @@ class OpprettSoknadService(
         }
     }
 
-    private fun List<SoknadMetadata>.prosseserJulesoknader(): List<SoknadMetadata> {
-        return julesoknadService.prosseserSoknadsperioder(this)
+    private fun List<SoknadMetadata>.lagreJulesoknadKandidater() {
+        return lagreJulesoknadKandidater.lagreJulesoknadKandidater(this)
     }
 
-    fun lagreOgPubliserSøknad(soknad: Sykepengesoknad, eksisterendeSoknader: List<Sykepengesoknad>): Sykepengesoknad {
-        log.info("Oppretter ${soknad.soknadstype} søknad ${soknad.id} for sykmelding: ${soknad.sykmeldingId} med status ${soknad.status}")
+    fun Sykepengesoknad.lagreSøknad(eksisterendeSoknader: List<Sykepengesoknad>): Sykepengesoknad {
+        log.info("Oppretter ${this.soknadstype} søknad ${this.id} for sykmelding: ${this.sykmeldingId} med status ${this.status}")
 
-        val lagretSoknad = sykepengesoknadDAO.lagreSykepengesoknad(soknad)
-        soknadProducer.soknadEvent(lagretSoknad)
+        val lagretSoknad = sykepengesoknadDAO.lagreSykepengesoknad(this)
+
         metrikk.tellSoknadOpprettet(lagretSoknad.soknadstype)
 
-        if (lagretSoknad.soknadstype == Soknadstype.SELVSTENDIGE_OG_FRILANSERE) {
-            metrikk.tellSelvstendigSoknadOpprettet(lagretSoknad.arbeidssituasjon.toString())
-        }
-        if (lagretSoknad.soknadstype == Soknadstype.ARBEIDSLEDIG) {
-            metrikkBlittArbeidsledig(lagretSoknad, eksisterendeSoknader)
-        }
         return lagretSoknad
+    }
+
+    fun Sykepengesoknad.publiserEllerReturnerAktiveringBestilling(): AktiveringBestilling? {
+
+        val skalAktiveres = this.tom!!.isBefore(LocalDate.now(osloZone))
+        if (skalAktiveres) {
+            return AktiveringBestilling(this.fnr, this.id)
+        }
+        // publiser fremtidig søknad. denne aktiveres av kronjobb senere
+        soknadProducer.soknadEvent(this)
+
+        return null
     }
 
     fun opprettSoknadUtland(identer: FolkeregisterIdenter): Sykepengesoknad {
@@ -210,28 +214,6 @@ class OpprettSoknadService(
 
         log.info("Oppretter søknad for utenlandsopphold: {}", oppholdUtlandSoknad.id)
         return sykepengesoknadDAO.finnSykepengesoknad(oppholdUtlandSoknad.id)
-    }
-
-    fun metrikkBlittArbeidsledig(
-        sykepengesoknadArbeidsledig: Sykepengesoknad,
-        eksisterendeSoknader: List<Sykepengesoknad>
-    ) {
-        try {
-            eksisterendeSoknader
-                .filter { sykepengesoknadSykmelding -> sykepengesoknadSykmelding.id != sykepengesoknadArbeidsledig.id }
-                .stream()
-                .filter { it.tom != null }
-                .max(Comparator.comparing<Sykepengesoknad, LocalDate> { it.tom })
-                .filter { sykepengesoknadSykmelding -> sykepengesoknadSykmelding.soknadstype == Soknadstype.ARBEIDSTAKERE }
-                .filter { sykepengesoknadSykmelding ->
-                    sykepengesoknadSykmelding.tom!!.isAfter(
-                        sykepengesoknadArbeidsledig.fom!!.minusDays(17)
-                    )
-                }
-                .ifPresent { metrikk.tellBlittArbeidsledig() }
-        } catch (e: RuntimeException) {
-            log.error("Feil ved kalkulering av metrikkBlittArbeidsledig", e)
-        }
     }
 
     private fun Tidsenhet.delOppISoknadsperioder(sykmeldingDokument: ArbeidsgiverSykmelding): List<SykmeldingsperiodeAGDTO> {

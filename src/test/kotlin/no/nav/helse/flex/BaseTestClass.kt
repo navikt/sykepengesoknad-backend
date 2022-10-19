@@ -6,7 +6,7 @@ import no.nav.helse.flex.kafka.producer.AivenKafkaProducer
 import no.nav.helse.flex.kafka.producer.RebehandlingSykmeldingSendtProducer
 import no.nav.helse.flex.kafka.sykepengesoknadTopic
 import no.nav.helse.flex.service.AutomatiskInnsendingService
-import no.nav.helse.flex.soknadsopprettelse.BehandleSendtBekreftetSykmeldingService
+import no.nav.helse.flex.soknadsopprettelse.BehandleSykmeldingOgBestillAktivering
 import no.nav.helse.flex.testdata.DatabaseReset
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
@@ -101,7 +101,7 @@ abstract class BaseTestClass {
     lateinit var flexSyketilfelleRestTemplate: RestTemplate
 
     @Autowired
-    lateinit var behandleSendtBekreftetSykmeldingService: BehandleSendtBekreftetSykmeldingService
+    lateinit var behandleSykmeldingOgBestillAktivering: BehandleSykmeldingOgBestillAktivering
 
     var syfotilgangskontrollMockRestServiceServer: MockRestServiceServer? = null
     var flexSyketilfelleMockRestServiceServer: MockRestServiceServer? = null

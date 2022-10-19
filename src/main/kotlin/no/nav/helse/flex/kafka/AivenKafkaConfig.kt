@@ -1,5 +1,6 @@
 package no.nav.helse.flex.kafka
 
+import no.nav.helse.flex.aktivering.kafka.AktiveringBestilling
 import no.nav.helse.flex.juridiskvurdering.JuridiskVurderingKafkaDto
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import org.apache.kafka.clients.CommonClientConfigs
@@ -67,6 +68,19 @@ class AivenKafkaConfig(
         return KafkaProducer<String, String>(configs)
     }
 
+    @Bean
+    fun aktiveringKafkaProducer(): KafkaProducer<String, AktiveringBestilling> {
+        val configs = mapOf(
+            KEY_SERIALIZER_CLASS_CONFIG to StringSerializer::class.java,
+            VALUE_SERIALIZER_CLASS_CONFIG to JacksonKafkaSerializer::class.java,
+            PARTITIONER_CLASS_CONFIG to AktiveringBestillingPartitioner::class.java,
+            ACKS_CONFIG to "all",
+            RETRIES_CONFIG to 10,
+            RETRY_BACKOFF_MS_CONFIG to 100
+        ) + commonConfig()
+        return KafkaProducer<String, AktiveringBestilling>(configs)
+    }
+
     fun commonConfig() = mapOf(
         BOOTSTRAP_SERVERS_CONFIG to kafkaBrokers
     ) + securityConfig()
@@ -107,3 +121,4 @@ class AivenKafkaConfig(
 
 const val sykepengesoknadTopic = "flex." + "sykepengesoknad"
 const val sykmeldingSendtRetryTopic = "flex." + "sykmeldinger-sendt-retry"
+const val sykepengesoknadAktiveringTopic = "flex." + "sykepengesoknad-aktivering"

@@ -1,9 +1,9 @@
 package no.nav.helse.flex.arbeidsledig
 
 import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.aktivering.kafka.AktiveringProducer
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.rest.SoknadMetadata
 import no.nav.helse.flex.hentSoknader
@@ -53,7 +53,8 @@ class ArbeidsledigIntegrationMedOppdaterSporsmalTest : BaseTestClass() {
 
     @Autowired
     private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
-
+    @Autowired
+    private lateinit var aktiveringProducer: AktiveringProducer
     final val fnr = "123456789"
 
     private val soknadMetadata = SoknadMetadata(
@@ -75,7 +76,6 @@ class ArbeidsledigIntegrationMedOppdaterSporsmalTest : BaseTestClass() {
         fnr = fnr,
         fom = LocalDate.of(2018, 1, 1),
         tom = LocalDate.of(2020, 5, 10),
-        status = Soknadstatus.NY,
         sykmeldingId = "sykmeldingId",
         arbeidsgiverNavn = null,
         soknadstype = Soknadstype.ARBEIDSLEDIG,
@@ -85,7 +85,7 @@ class ArbeidsledigIntegrationMedOppdaterSporsmalTest : BaseTestClass() {
     @Test
     fun `01 - vi oppretter en arbeidsledigsøknad`() {
         // Opprett søknad
-        opprettSoknadService.opprettSoknadFraSoknadMetadata(soknadMetadata, sykepengesoknadDAO)
+        opprettSoknadService.opprettSoknadFraSoknadMetadata(soknadMetadata, sykepengesoknadDAO, aktiveringProducer)
 
         val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
 

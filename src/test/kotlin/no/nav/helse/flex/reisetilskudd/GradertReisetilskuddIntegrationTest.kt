@@ -66,7 +66,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
-import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
 import java.util.*
@@ -119,10 +118,9 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
 
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
-        behandleSendtBekreftetSykmeldingService.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
 
-        val soknader =
-            sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1, duration = Duration.ofSeconds(60)).tilSoknader()
+        val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
         assertThat(soknader).hasSize(1)
         assertThat(soknader.last().type).isEqualTo(SoknadstypeDTO.GRADERT_REISETILSKUDD)
     }

@@ -86,7 +86,9 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
             kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
         )
 
-        behandleSendtBekreftetSykmeldingService.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
+
+        val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
 
         val soknader = hentSoknader(fnr)
         assertThat(soknader).hasSize(1)
@@ -98,8 +100,6 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
         assertThat(sykepengesoknaderFraDb.size).isEqualTo(1)
         assertThat(sykepengesoknaderFraDb[0]).isInstanceOf(Sykepengesoknad::class.java)
         assertThat(sykepengesoknaderFraDb[0].soknadstype).isEqualTo(Soknadstype.BEHANDLINGSDAGER)
-
-        val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
 
         assertThat(kafkaSoknader).hasSize(1)
         assertThat(kafkaSoknader[0].status).isEqualTo(NY)
@@ -225,7 +225,9 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
             kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
         )
 
-        behandleSendtBekreftetSykmeldingService.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
+
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
 
         val soknad = hentSoknader(fnr).first { it.status == RSSoknadstatus.NY }
         SoknadBesvarer(rSSykepengesoknad = soknad, mockMvc = this, fnr = fnr)
@@ -236,7 +238,7 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
         val avbruttSoknad = hentSoknader(fnr).first { it.id == soknad.id }
         assertThat(avbruttSoknad.status).isEqualTo(RSSoknadstatus.AVBRUTT)
 
-        val avbruttPåKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2).tilSoknader().last()
+        val avbruttPåKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().last()
 
         assertThat(avbruttPåKafka.status).isEqualTo(AVBRUTT)
 
@@ -295,7 +297,9 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
             event = sykmeldingStatusKafkaMessageDTO.event,
             kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
         )
-        behandleSendtBekreftetSykmeldingService.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
+
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
 
         val soknader = hentSoknader(fnr).filter { it.sykmeldingId == sykmeldingId }
         assertThat(soknader).hasSize(2)
@@ -307,8 +311,6 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
         assertThat(soknader[1].status).isEqualTo(RSSoknadstatus.NY)
         assertThat(soknader[1].fom).isEqualTo(LocalDate.of(2020, 3, 16))
         assertThat(soknader[1].tom).isEqualTo(LocalDate.of(2020, 3, 31))
-
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
     }
 
     @Test
@@ -352,7 +354,9 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
             event = sykmeldingStatusKafkaMessageDTO.event,
             kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
         )
-        behandleSendtBekreftetSykmeldingService.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
+
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 3)
 
         val soknader = hentSoknader(fnr).filter { it.sykmeldingId == sykmeldingId }
         assertThat(soknader).hasSize(2)
@@ -364,7 +368,5 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
         assertThat(soknader[1].status).isEqualTo(RSSoknadstatus.NY)
         assertThat(soknader[1].fom).isEqualTo(LocalDate.of(2020, 3, 16))
         assertThat(soknader[1].tom).isEqualTo(LocalDate.of(2020, 3, 31))
-
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 3)
     }
 }

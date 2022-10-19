@@ -1,6 +1,7 @@
 package no.nav.helse.flex.overlappendesykmeldinger
 
 import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.aktivering.AktiveringJob
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
 import no.nav.helse.flex.domain.Arbeidsgiverperiode
@@ -12,7 +13,6 @@ import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.hentSoknader
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
 import no.nav.helse.flex.repository.SykepengesoknadDAO
-import no.nav.helse.flex.service.AktiverService
 import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER
 import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
 import no.nav.helse.flex.soknadsopprettelse.ARBEID_UTENFOR_NORGE
@@ -43,7 +43,6 @@ import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
-import java.time.Duration
 import java.time.LocalDate
 import java.util.*
 
@@ -51,7 +50,7 @@ import java.util.*
 class OverlapperEtter : BaseTestClass() {
 
     @Autowired
-    private lateinit var aktiverService: AktiverService
+    private lateinit var aktiveringJob: AktiveringJob
 
     @Autowired
     private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
@@ -68,16 +67,13 @@ class OverlapperEtter : BaseTestClass() {
             fnr = fnr
         )
 
+        val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
+        kafkaSoknader[0].status shouldBeEqualTo SoknadsstatusDTO.FREMTIDIG
+
         val hentetViaRest = hentSoknader(fnr)
         hentetViaRest shouldHaveSize 1
-
         hentetViaRest[0].soknadstype shouldBeEqualTo RSSoknadstype.ARBEIDSTAKERE
         hentetViaRest[0].status shouldBeEqualTo RSSoknadstatus.FREMTIDIG
-
-        val ventPåRecords = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1, duration = Duration.ofSeconds(1))
-        val kafkaSoknader = ventPåRecords.tilSoknader()
-
-        kafkaSoknader[0].status shouldBeEqualTo SoknadsstatusDTO.FREMTIDIG
     }
 
     @Test
@@ -89,6 +85,19 @@ class OverlapperEtter : BaseTestClass() {
             fnr = fnr,
             oppfolgingsdato = basisdato.minusDays(1),
         )
+
+        // TODO: Her kan søknadene komme i feil rekkefølge, tror det bare kan bli feil rekkefølge på FREMTIDIG og NY
+        val kafkaSoknader = sykepengesoknadKafkaConsumer
+            .ventPåRecords(antall = 2)
+            .tilSoknader()
+
+        kafkaSoknader[0].status shouldBeEqualTo SoknadsstatusDTO.FREMTIDIG
+        kafkaSoknader[0].fom shouldBeEqualTo basisdato
+        kafkaSoknader[0].tom shouldBeEqualTo basisdato.plusDays(15)
+
+        kafkaSoknader[1].status shouldBeEqualTo SoknadsstatusDTO.NY
+        kafkaSoknader[1].fom shouldBeEqualTo basisdato.minusDays(1)
+        kafkaSoknader[1].tom shouldBeEqualTo basisdato.minusDays(1)
 
         val hentetViaRest = hentSoknader(fnr)
         hentetViaRest shouldHaveSize 2
@@ -110,24 +119,18 @@ class OverlapperEtter : BaseTestClass() {
         hentetViaRest[1].status shouldBeEqualTo RSSoknadstatus.FREMTIDIG
         hentetViaRest[1].fom shouldBeEqualTo basisdato
         hentetViaRest[1].tom shouldBeEqualTo basisdato.plusDays(15)
-
-        val kafkaSoknader = sykepengesoknadKafkaConsumer
-            .ventPåRecords(antall = 2)
-            .tilSoknader()
-
-        kafkaSoknader[0].status shouldBeEqualTo SoknadsstatusDTO.NY
-        kafkaSoknader[0].fom shouldBeEqualTo basisdato.minusDays(1)
-        kafkaSoknader[0].tom shouldBeEqualTo basisdato.minusDays(1)
-
-        kafkaSoknader[1].status shouldBeEqualTo SoknadsstatusDTO.FREMTIDIG
-        kafkaSoknader[1].fom shouldBeEqualTo basisdato
-        kafkaSoknader[1].tom shouldBeEqualTo basisdato.plusDays(15)
     }
 
     @Test
     @Order(3)
     fun `Søknadene aktiveres og får spørsmål tilpasset klippingen`() {
-        aktiverService.aktiverSoknader(basisdato.plusDays(16))
+        aktiveringJob.bestillAktivering(basisdato.plusDays(16))
+
+        sykepengesoknadKafkaConsumer
+            .ventPåRecords(antall = 1)
+            .tilSoknader()
+            .first()
+            .status shouldBeEqualTo SoknadsstatusDTO.NY
 
         val hentetViaRest = hentSoknader(fnr)
         hentetViaRest shouldHaveSize 2
@@ -157,12 +160,6 @@ class OverlapperEtter : BaseTestClass() {
             ?.first()
         periodeSpmSok2?.min shouldBeEqualTo basisdato.toString()
         periodeSpmSok2?.max shouldBeEqualTo basisdato.plusDays(15).toString()
-
-        sykepengesoknadKafkaConsumer
-            .ventPåRecords(antall = 1)
-            .tilSoknader()
-            .first()
-            .status shouldBeEqualTo SoknadsstatusDTO.NY
     }
 
     @Test
@@ -180,7 +177,9 @@ class OverlapperEtter : BaseTestClass() {
             fnr = fnr
         )
 
-        aktiverService.aktiverSoknader(basisdato.plusDays(16))
+        aktiveringJob.bestillAktivering(basisdato.plusDays(16))
+
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
 
         val rsSoknad = hentSoknader(fnr)
             .shouldHaveSize(1)
@@ -209,7 +208,7 @@ class OverlapperEtter : BaseTestClass() {
             .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
             .sendSoknad()
 
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 3)
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
         juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
     }
 
@@ -368,7 +367,9 @@ class OverlapperEtter : BaseTestClass() {
             fnr = fnr
         )
 
-        aktiverService.aktiverSoknader(basisdato.plusDays(16))
+        aktiveringJob.bestillAktivering(basisdato.plusDays(16))
+
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
 
         val rsSoknad = hentSoknader(fnr)
             .shouldHaveSize(1)
@@ -397,7 +398,7 @@ class OverlapperEtter : BaseTestClass() {
             .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
             .sendSoknad()
 
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 3)
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
         juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
 
         val identiskSoknad = sykepengesoknadDAO
@@ -441,6 +442,7 @@ class OverlapperEtter : BaseTestClass() {
             tom = basisdato.minusDays(5),
             fnr = fnr
         )
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
 
         val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(
             fnr = fnr,
@@ -464,19 +466,20 @@ class OverlapperEtter : BaseTestClass() {
 
         sendSykmelding(sykmeldingKafkaMessage)
 
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
+
         val soknader = sykepengesoknadDAO.finnSykepengesoknader(listOf(fnr))
 
+        soknader[0].soknadstype shouldBeEqualTo Soknadstype.ARBEIDSTAKERE
         soknader[0].fom shouldBeEqualTo basisdato.minusDays(15)
         soknader[0].tom shouldBeEqualTo basisdato.minusDays(5)
-        soknader[0].soknadstype shouldBeEqualTo Soknadstype.ARBEIDSTAKERE
         soknader[0].status shouldBeEqualTo Soknadstatus.NY
 
+        soknader[1].soknadstype shouldBeEqualTo Soknadstype.BEHANDLINGSDAGER
         soknader[1].fom shouldBeEqualTo basisdato.minusDays(10)
         soknader[1].tom shouldBeEqualTo basisdato.minusDays(1)
-        soknader[1].soknadstype shouldBeEqualTo Soknadstype.BEHANDLINGSDAGER
         soknader[1].status shouldBeEqualTo Soknadstatus.NY
 
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
         databaseReset.resetDatabase()
     }
 
@@ -511,6 +514,8 @@ class OverlapperEtter : BaseTestClass() {
 
         sendSykmelding(sykmeldingKafkaMessage)
 
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
+
         val soknader = sykepengesoknadDAO.finnSykepengesoknader(listOf(fnr))
 
         soknader[0].fom shouldBeEqualTo basisdato
@@ -523,7 +528,6 @@ class OverlapperEtter : BaseTestClass() {
         soknader[1].soknadstype shouldBeEqualTo Soknadstype.BEHANDLINGSDAGER
         soknader[1].status shouldBeEqualTo Soknadstatus.FREMTIDIG
 
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
         databaseReset.resetDatabase()
     }
 
@@ -535,7 +539,7 @@ class OverlapperEtter : BaseTestClass() {
             tom = basisdato.minusDays(5),
             fnr = fnr
         )
-
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
         val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(
             fnr = fnr,
             arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
@@ -558,6 +562,8 @@ class OverlapperEtter : BaseTestClass() {
 
         sendSykmelding(sykmeldingKafkaMessage)
 
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
+
         val soknader = sykepengesoknadDAO.finnSykepengesoknader(listOf(fnr))
 
         soknader[0].fom shouldBeEqualTo basisdato.minusDays(15)
@@ -570,7 +576,6 @@ class OverlapperEtter : BaseTestClass() {
         soknader[1].soknadstype shouldBeEqualTo Soknadstype.REISETILSKUDD
         soknader[1].status shouldBeEqualTo Soknadstatus.NY
 
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
         databaseReset.resetDatabase()
     }
 
@@ -582,7 +587,7 @@ class OverlapperEtter : BaseTestClass() {
             tom = basisdato.plusDays(10),
             fnr = fnr
         )
-
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
         val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(
             fnr = fnr,
             arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
@@ -605,6 +610,8 @@ class OverlapperEtter : BaseTestClass() {
 
         sendSykmelding(sykmeldingKafkaMessage)
 
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
+
         val soknader = sykepengesoknadDAO.finnSykepengesoknader(listOf(fnr))
 
         soknader[0].fom shouldBeEqualTo basisdato
@@ -617,7 +624,6 @@ class OverlapperEtter : BaseTestClass() {
         soknader[1].soknadstype shouldBeEqualTo Soknadstype.REISETILSKUDD
         soknader[1].status shouldBeEqualTo Soknadstatus.FREMTIDIG
 
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
         databaseReset.resetDatabase()
     }
 }

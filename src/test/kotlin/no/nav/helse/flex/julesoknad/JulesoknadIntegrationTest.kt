@@ -1,23 +1,17 @@
 package no.nav.helse.flex.julesoknad
 
-import com.nhaarman.mockitokotlin2.argWhere
-import com.nhaarman.mockitokotlin2.doThrow
-import com.nhaarman.mockitokotlin2.whenever
 import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.aktivering.AktiveringJob
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus.*
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.forskuttering.ForskutteringRepository
 import no.nav.helse.flex.forskuttering.domain.Forskuttering
 import no.nav.helse.flex.hentSoknader
-import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
 import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
 import no.nav.helse.flex.repository.JulesoknadkandidatDAO
-import no.nav.helse.flex.service.AktiverService
-import no.nav.helse.flex.service.JulesoknadService
 import no.nav.helse.flex.testdata.getSykmeldingDto
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
-import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.ventPåRecords
 import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
 import no.nav.syfo.model.sykmeldingstatus.STATUS_BEKREFTET
@@ -28,7 +22,6 @@ import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
-import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
 import java.util.*
@@ -37,10 +30,10 @@ import java.util.*
 class JulesoknadIntegrationTest : BaseTestClass() {
 
     @Autowired
-    private lateinit var aktiverService: AktiverService
+    private lateinit var aktiveringJob: AktiveringJob
 
     @Autowired
-    private lateinit var julesoknadService: JulesoknadService
+    private lateinit var prosesserJulesoknadkandidater: ProsesserJulesoknadkandidater
 
     @Autowired
     private lateinit var julesoknadkandidatDAO: JulesoknadkandidatDAO
@@ -56,57 +49,55 @@ class JulesoknadIntegrationTest : BaseTestClass() {
     fun setUp() {
         forskutteringRepository.deleteAll()
         flexSyketilfelleMockRestServiceServer?.reset()
-        evictAllCaches()
         databaseReset.resetDatabase()
     }
 
     @Test
-    fun `15 dagers arbeidsledig søknad i riktig periode aktiveres med en gang`() {
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 0)
-
+    fun `15 dagers arbeidsledig søknad i riktig periode aktiveres når cron job kjøres`() {
         sendInnSykmelding(
             fom = LocalDate.of(nesteÅr, 12, 1),
             tom = LocalDate.of(nesteÅr, 12, 15)
         )
 
+        prosesserJulesoknadkandidater.prosseserJulesoknadKandidater()
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
+
         val soknader = hentSoknader(fnr)
         assertThat(soknader).hasSize(1)
 
         val soknaden = soknader.first()
         assertThat(soknaden.status).isEqualTo(NY)
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
     }
 
     @Test
-    fun `15 dagers arbeidsledig søknad i riktig periode med tom ut i januar aktiveres med en gang`() {
+    fun `15 dagers arbeidsledig søknad i riktig periode med tom ut i januar aktiveres når cron job kjøres`() {
         sendInnSykmelding(
             fom = LocalDate.of(nesteÅr, 12, 5),
             tom = LocalDate.of(nesteÅr + 1, 1, 1)
         )
+        prosesserJulesoknadkandidater.prosseserJulesoknadKandidater()
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
 
         val soknader = hentSoknader(fnr)
         assertThat(soknader).hasSize(1)
 
         val soknaden = soknader.first()
         assertThat(soknaden.status).isEqualTo(NY)
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
     }
 
     @Test
     fun `14 dagers arbeidsledig søknad i riktig periode aktiveres ikke`() {
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 0)
-
         sendInnSykmelding(
             fom = LocalDate.of(nesteÅr, 12, 1),
             tom = LocalDate.of(nesteÅr, 12, 14)
         )
+        prosesserJulesoknadkandidater.prosseserJulesoknadKandidater()
 
         val soknader = hentSoknader(fnr)
         assertThat(soknader).hasSize(1)
 
         val soknaden = soknader.first()
         assertThat(soknaden.status).isEqualTo(FREMTIDIG)
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
     }
 
     @Test
@@ -115,19 +106,60 @@ class JulesoknadIntegrationTest : BaseTestClass() {
             fom = LocalDate.of(nesteÅr, 12, 8),
             tom = LocalDate.of(nesteÅr, 12, 22)
         )
+        prosesserJulesoknadkandidater.prosseserJulesoknadKandidater()
 
         val soknader = hentSoknader(fnr)
         assertThat(soknader).hasSize(1)
 
         val soknaden = soknader.first()
         assertThat(soknaden.status).isEqualTo(FREMTIDIG)
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
     }
 
     @Test
-    fun `15 dagers arbeidstaker søknad i riktig periode uten forskuttering aktiveres med en gang`() {
+    fun `15 dagers arbeidstaker søknad i riktig periode uten forskuttering aktiveres når cron job kjøres`() {
         val orgnummer = "999999999"
         lagreForskuttering(false, orgnummer)
+        sendInnSykmelding(
+            fom = LocalDate.of(nesteÅr, 12, 1),
+            tom = LocalDate.of(nesteÅr, 12, 15),
+            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+            statusEvent = STATUS_SENDT,
+            arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = orgnummer, orgNavn = "Kebab")
+        )
+        prosesserJulesoknadkandidater.prosseserJulesoknadKandidater()
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
+        val soknader = hentSoknader(fnr)
+        assertThat(soknader).hasSize(1)
+
+        val soknaden = soknader.first()
+        assertThat(soknaden.status).isEqualTo(NY)
+    }
+
+    @Test
+    fun `15 dagers arbeidstaker søknad i riktig periode med ukjent forskuttering aktiveres når cron job kjøres`() {
+        val orgnummer = "999999999"
+        sendInnSykmelding(
+            fom = LocalDate.of(nesteÅr, 12, 1),
+            tom = LocalDate.of(nesteÅr, 12, 15),
+            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+            statusEvent = STATUS_SENDT,
+            arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = orgnummer, orgNavn = "Kebab")
+        )
+        prosesserJulesoknadkandidater.prosseserJulesoknadKandidater()
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
+        val soknader = hentSoknader(fnr)
+        assertThat(soknader).hasSize(1)
+
+        val soknaden = soknader.first()
+        assertThat(soknaden.status).isEqualTo(NY)
+        assertThat(julesoknadkandidatDAO.hentJulesoknadkandidater()).isEmpty()
+    }
+
+    @Test
+    fun `15 dagers arbeidstaker søknad i riktig periode med forskuttering aktiveres ikke når cron job kjøres`() {
+        val orgnummer = "999999999"
+        lagreForskuttering(true, orgnummer)
+
         sendInnSykmelding(
             fom = LocalDate.of(nesteÅr, 12, 1),
             tom = LocalDate.of(nesteÅr, 12, 15),
@@ -140,8 +172,66 @@ class JulesoknadIntegrationTest : BaseTestClass() {
         assertThat(soknader).hasSize(1)
 
         val soknaden = soknader.first()
-        assertThat(soknaden.status).isEqualTo(NY)
+        assertThat(soknaden.status).isEqualTo(FREMTIDIG)
+        val kandidater = julesoknadkandidatDAO.hentJulesoknadkandidater()
+        assertThat(kandidater).hasSize(1)
+        assertThat(kandidater.first().sykepengesoknadUuid).isEqualTo(soknaden.id)
+
+        // Vi endrer nærmestelederskjema og kjører cronjobben
+        forskutteringRepository.deleteAll()
+
+        lagreForskuttering(false, orgnummer)
+
+        prosesserJulesoknadkandidater.prosseserJulesoknadKandidater()
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
+
+        val soknaderEtterCronjob = hentSoknader(fnr)
+        assertThat(soknaderEtterCronjob).hasSize(1)
+
+        val soknadenEtterCronjob = soknaderEtterCronjob.first()
+        assertThat(soknadenEtterCronjob.status).isEqualTo(NY)
+
+        assertThat(julesoknadkandidatDAO.hentJulesoknadkandidater()).isEmpty()
+    }
+
+    @Test
+    fun `Lang sykmelding som treffer over julesøknad perioden får først aktiver julesøknaden når foranliggende er aktivert`() {
+        val orgnummer = "999999999"
+        lagreForskuttering(false, orgnummer)
+
+        sendInnSykmelding(
+            fom = LocalDate.of(nesteÅr, 10, 1),
+            tom = LocalDate.of(nesteÅr, 12, 30),
+            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+            statusEvent = STATUS_SENDT,
+            arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = orgnummer, orgNavn = "Kebab"),
+            antallForventetSoknad = 3,
+        )
+        prosesserJulesoknadkandidater.prosseserJulesoknadKandidater()
+
+        assertThat(julesoknadkandidatDAO.hentJulesoknadkandidater()).hasSize(1)
+
+        var soknader = hentSoknader(fnr).sortedBy { it.fom }
+        assertThat(soknader).hasSize(3)
+        assertThat(soknader[0].status).isEqualTo(FREMTIDIG)
+        assertThat(soknader[1].status).isEqualTo(FREMTIDIG)
+        assertThat(soknader[2].status).isEqualTo(FREMTIDIG)
+
+        aktiveringJob.bestillAktivering(soknader[2].fom!!)
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
+
+        soknader = hentSoknader(fnr).sortedBy { it.fom }
+        assertThat(soknader[0].status).isEqualTo(NY)
+        assertThat(soknader[1].status).isEqualTo(NY)
+        assertThat(soknader[2].status).isEqualTo(FREMTIDIG)
+
+        prosesserJulesoknadkandidater.prosseserJulesoknadKandidater()
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
+
+        soknader = hentSoknader(fnr).sortedBy { it.fom }
+        assertThat(soknader[0].status).isEqualTo(NY)
+        assertThat(soknader[1].status).isEqualTo(NY)
+        assertThat(soknader[2].status).isEqualTo(NY)
     }
 
     private fun lagreForskuttering(forskutterer: Boolean, orgnummer: String) {
@@ -161,196 +251,14 @@ class JulesoknadIntegrationTest : BaseTestClass() {
         )
     }
 
-    @Test
-    fun `15 dagers arbeidstaker søknad i riktig periode med ukjent forskuttering aktiveres med en gang`() {
-        val orgnummer = "999999999"
-        sendInnSykmelding(
-            fom = LocalDate.of(nesteÅr, 12, 1),
-            tom = LocalDate.of(nesteÅr, 12, 15),
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-            statusEvent = STATUS_SENDT,
-            arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = orgnummer, orgNavn = "Kebab")
-        )
-
-        val soknader = hentSoknader(fnr)
-        assertThat(soknader).hasSize(1)
-
-        val soknaden = soknader.first()
-        assertThat(soknaden.status).isEqualTo(NY)
-        assertThat(julesoknadkandidatDAO.hentJulesoknadkandidater()).isEmpty()
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
-    }
-
-    @Test
-    fun `15 dagers arbeidstaker søknad i riktig periode med forskuttering aktiveres ikke med en gang`() {
-        val orgnummer = "999999999"
-        lagreForskuttering(true, orgnummer)
-
-        sendInnSykmelding(
-            fom = LocalDate.of(nesteÅr, 12, 1),
-            tom = LocalDate.of(nesteÅr, 12, 15),
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-            statusEvent = STATUS_SENDT,
-            arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = orgnummer, orgNavn = "Kebab")
-        )
-
-        val soknader = hentSoknader(fnr)
-        assertThat(soknader).hasSize(1)
-
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
-
-        val soknaden = soknader.first()
-        assertThat(soknaden.status).isEqualTo(FREMTIDIG)
-        val kandidater = julesoknadkandidatDAO.hentJulesoknadkandidater()
-        assertThat(kandidater).hasSize(1)
-        assertThat(kandidater.first().sykepengesoknadUuid).isEqualTo(soknaden.id)
-
-        // Vi endrer nærmestelederskjema og kjører cronjobben
-        forskutteringRepository.deleteAll()
-        evictAllCaches()
-        lagreForskuttering(false, orgnummer)
-
-        julesoknadService.prosseserJulesoknadKandidater()
-
-        val soknaderEtterCronjob = hentSoknader(fnr)
-        assertThat(soknaderEtterCronjob).hasSize(1)
-
-        val soknadenEtterCronjob = soknaderEtterCronjob.first()
-        assertThat(soknadenEtterCronjob.status).isEqualTo(NY)
-
-        assertThat(julesoknadkandidatDAO.hentJulesoknadkandidater()).isEmpty()
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
-    }
-
-    @Test
-    fun `Lang sykmelding som treffer over julesøknad perioden får først aktiver julesøknaden når foranliggende er aktivert`() {
-        val orgnummer = "999999999"
-        lagreForskuttering(false, orgnummer)
-
-        sendInnSykmelding(
-            fom = LocalDate.of(nesteÅr, 10, 1),
-            tom = LocalDate.of(nesteÅr, 12, 30),
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-            statusEvent = STATUS_SENDT,
-            arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = orgnummer, orgNavn = "Kebab")
-        )
-
-        assertThat(julesoknadkandidatDAO.hentJulesoknadkandidater()).hasSize(1)
-
-        var soknader = hentSoknader(fnr).sortedBy { it.fom }
-        assertThat(soknader).hasSize(3)
-        assertThat(soknader[0].status).isEqualTo(FREMTIDIG)
-        assertThat(soknader[1].status).isEqualTo(FREMTIDIG)
-        assertThat(soknader[2].status).isEqualTo(FREMTIDIG)
-
-        julesoknadService.prosseserJulesoknadKandidater()
-
-        soknader = hentSoknader(fnr).sortedBy { it.fom }
-        assertThat(soknader[0].status).isEqualTo(FREMTIDIG)
-        assertThat(soknader[1].status).isEqualTo(FREMTIDIG)
-        assertThat(soknader[2].status).isEqualTo(FREMTIDIG)
-
-        aktiverService.aktiverSoknader(soknader[2].fom!!)
-
-        soknader = hentSoknader(fnr).sortedBy { it.fom }
-        assertThat(soknader[0].status).isEqualTo(NY)
-        assertThat(soknader[1].status).isEqualTo(NY)
-        assertThat(soknader[2].status).isEqualTo(FREMTIDIG)
-
-        julesoknadService.prosseserJulesoknadKandidater()
-
-        soknader = hentSoknader(fnr).sortedBy { it.fom }
-        assertThat(soknader[0].status).isEqualTo(NY)
-        assertThat(soknader[1].status).isEqualTo(NY)
-        assertThat(soknader[2].status).isEqualTo(NY)
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 6)
-    }
-
-    @Test
-    fun `Exception kastes i prosseserJulesoknadKandidater() - aktiverSoknad() - soknadEvent()`() {
-
-        val orgnummer = "111111111"
-        lagreForskuttering(false, orgnummer)
-        val orgnummer2 = "999999999"
-        lagreForskuttering(true, orgnummer2)
-
-        sendInnSykmelding(
-            fom = LocalDate.of(nesteÅr, 11, 1),
-            tom = LocalDate.of(nesteÅr + 1, 1, 4),
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-            statusEvent = STATUS_SENDT,
-            arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = orgnummer, orgNavn = "Falafel")
-        )
-
-        var soknader = hentSoknader(fnr).sortedBy { it.fom }
-        assertThat(soknader).hasSize(3)
-        assertThat(soknader[0].status).isEqualTo(FREMTIDIG) // Denne er egentlig allerede sendt
-        assertThat(soknader[1].status).isEqualTo(FREMTIDIG) // Dette er kandidaten
-        assertThat(soknader[2].status).isEqualTo(FREMTIDIG)
-
-        aktiverService.aktiverSoknader(soknader[0].tom!!.plusDays(1))
-        flexSyketilfelleMockRestServiceServer?.reset()
-        mockFlexSyketilfelleArbeidsgiverperiode()
-        val aktiverteSoknader = hentSoknader(fnr).sortedBy { it.fom }
-        assertThat(aktiverteSoknader).hasSize(3)
-        assertThat(aktiverteSoknader[0].status).isEqualTo(NY)
-        assertThat(aktiverteSoknader[1].status).isEqualTo(FREMTIDIG)
-        assertThat(aktiverteSoknader[2].status).isEqualTo(FREMTIDIG)
-
-        val sendtSoknad = SoknadBesvarer(rSSykepengesoknad = aktiverteSoknader[0], mockMvc = this, fnr = fnr)
-            .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
-            .besvarSporsmal(tag = "FRAVAR_FOR_SYKMELDINGEN", svar = "NEI")
-            .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
-            .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
-            .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
-            .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
-            .besvarSporsmal(tag = "ARBEID_UTENFOR_NORGE", svar = "NEI")
-            .besvarSporsmal(tag = "JOBBET_DU_100_PROSENT_0", svar = "NEI")
-            .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER", svar = "NEI")
-            .besvarSporsmal(tag = "UTDANNING", svar = "NEI")
-            .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
-            .sendSoknad()
-        assertThat(sendtSoknad.status).isEqualTo(SENDT)
-        flexSyketilfelleMockRestServiceServer?.reset()
-        sendInnSykmelding(
-            fom = LocalDate.of(nesteÅr, 12, 1),
-            tom = LocalDate.of(nesteÅr, 12, 15),
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-            statusEvent = STATUS_SENDT,
-            arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = orgnummer2, orgNavn = "Kebab")
-        )
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
-        // Vi endrer nærmestelederskjema og kjører cronjobben
-        forskutteringRepository.deleteAll()
-        evictAllCaches()
-        lagreForskuttering(false, orgnummer)
-        lagreForskuttering(false, orgnummer2)
-
-        doThrow(RuntimeException("Noe feiler"))
-            .whenever(aivenKafkaProducer)
-            .produserMelding(
-                argWhere { it.id == soknader[1].id },
-            )
-
-        evictAllCaches()
-        julesoknadService.prosseserJulesoknadKandidater() // Den ene skal feile stille og rulles tilbake, den andre skal gå gjennom
-
-        soknader = hentSoknader(fnr).sortedBy { it.fom }
-        assertThat(soknader.size).isEqualTo(4)
-        assertThat(soknader.filter { it.status == NY }.size).isEqualTo(1)
-        assertThat(soknader.filter { it.status == FREMTIDIG }.size).isEqualTo(2)
-        assertThat(soknader.filter { it.status == SENDT }.size).isEqualTo(1)
-
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 7, duration = Duration.ofSeconds(2))
-    }
-
     private fun sendInnSykmelding(
         fom: LocalDate,
         tom: LocalDate,
         statusEvent: String = STATUS_BEKREFTET,
         arbeidssituasjon: Arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
         arbeidsgiver: ArbeidsgiverStatusDTO? = null,
-        fodselsnummer: String = fnr
+        fodselsnummer: String = fnr,
+        antallForventetSoknad: Int = 1
     ) {
         val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(
             fnr = fodselsnummer,
@@ -372,6 +280,8 @@ class JulesoknadIntegrationTest : BaseTestClass() {
             event = sykmeldingStatusKafkaMessageDTO.event,
             kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
         )
-        behandleSendtBekreftetSykmeldingService.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
+
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = antallForventetSoknad)
     }
 }

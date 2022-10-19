@@ -24,7 +24,7 @@ fun <K, V> Consumer<K, V>.hentProduserteRecords(duration: Duration = Duration.of
 
 fun <K, V> Consumer<K, V>.ventPåRecords(
     antall: Int,
-    duration: Duration = Duration.ofMillis(1000),
+    duration: Duration = Duration.ofSeconds(9),
 ): List<ConsumerRecord<K, V>> {
 
     val factory = if (antall == 0) {

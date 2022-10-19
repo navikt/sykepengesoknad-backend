@@ -1,11 +1,10 @@
 package no.nav.helse.flex.mock
 
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.domain.Soknadstatus
-import no.nav.helse.flex.domain.Soknadstatus.NY
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.rest.SoknadMetadata
+import no.nav.helse.flex.soknadsopprettelse.genererSykepengesoknadFraMetadata
 import no.nav.helse.flex.soknadsopprettelse.settOppSykepengesoknadBehandlingsdager
 import no.nav.helse.flex.soknadsopprettelse.tilSoknadsperioder
 import no.nav.helse.flex.util.tilOsloInstant
@@ -19,7 +18,6 @@ import java.time.LocalDate.now
 import java.time.LocalDateTime
 
 fun opprettBehandlingsdagsoknadTestadata(
-    status: Soknadstatus = NY,
     startSykeforlop: LocalDate = now().minusMonths(1),
     fom: LocalDate = now().minusMonths(1),
     tom: LocalDate = now().minusMonths(1).plusDays(8),
@@ -43,20 +41,22 @@ fun opprettBehandlingsdagsoknadTestadata(
 
 ): Sykepengesoknad {
 
-    return settOppSykepengesoknadBehandlingsdager(
-        SoknadMetadata(
-            status = status,
-            fnr = fnr,
-            startSykeforlop = startSykeforlop,
-            fom = fom,
-            tom = tom,
-            soknadstype = Soknadstype.BEHANDLINGSDAGER,
-            arbeidssituasjon = arbeidssituasjon,
-            sykmeldingId = sykmeldingId,
-            sykmeldingSkrevet = sykmeldingSkrevet,
-            sykmeldingsperioder = soknadsperioder.tilSoknadsperioder()
-        ),
-        forsteSoknadIForlop,
-        now()
+    val soknadMetadata = SoknadMetadata(
+        fnr = fnr,
+        startSykeforlop = startSykeforlop,
+        fom = fom,
+        tom = tom,
+        soknadstype = Soknadstype.BEHANDLINGSDAGER,
+        arbeidssituasjon = arbeidssituasjon,
+        sykmeldingId = sykmeldingId,
+        sykmeldingSkrevet = sykmeldingSkrevet,
+        sykmeldingsperioder = soknadsperioder.tilSoknadsperioder()
+    )
+    return genererSykepengesoknadFraMetadata(soknadMetadata).copy(
+        sporsmal = settOppSykepengesoknadBehandlingsdager(
+            soknadMetadata,
+            forsteSoknadIForlop,
+            now()
+        )
     )
 }

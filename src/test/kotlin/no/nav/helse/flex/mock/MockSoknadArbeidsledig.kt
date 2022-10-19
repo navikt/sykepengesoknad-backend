@@ -1,7 +1,6 @@
 package no.nav.helse.flex.mock
 
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.domain.Soknadstatus.NY
 import no.nav.helse.flex.domain.Soknadstatus.SENDT
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
@@ -12,6 +11,7 @@ import no.nav.helse.flex.soknadsopprettelse.ARBEIDSLEDIG_UTLAND
 import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
 import no.nav.helse.flex.soknadsopprettelse.FRISKMELDT
 import no.nav.helse.flex.soknadsopprettelse.UTDANNING
+import no.nav.helse.flex.soknadsopprettelse.genererSykepengesoknadFraMetadata
 import no.nav.helse.flex.soknadsopprettelse.settOppSoknadArbeidsledig
 import no.nav.helse.flex.soknadsopprettelse.tilSoknadsperioder
 import no.nav.helse.flex.testutil.besvarsporsmal
@@ -26,7 +26,6 @@ import java.time.LocalDateTime
 fun opprettNySoknad(): Sykepengesoknad {
     val soknadMetadata = SoknadMetadata(
         fnr = "fnr",
-        status = NY,
         startSykeforlop = now().minusDays(24),
         fom = now().minusDays(19),
         tom = now().minusDays(10),
@@ -61,7 +60,7 @@ fun opprettNySoknad(): Sykepengesoknad {
 
     )
 
-    return settOppSoknadArbeidsledig(soknadMetadata, false)
+    return genererSykepengesoknadFraMetadata(soknadMetadata).copy(sporsmal = settOppSoknadArbeidsledig(soknadMetadata, false))
 }
 
 fun opprettSendtSoknadForArbeidsledige(): Sykepengesoknad {

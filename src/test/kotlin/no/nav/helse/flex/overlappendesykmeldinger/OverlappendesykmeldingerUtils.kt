@@ -58,7 +58,7 @@ fun BaseTestClass.sendSykmelding(
         oppfolgingsdato
     )
 
-    behandleSendtBekreftetSykmeldingService.prosesserSykmelding(sykmeldingKafkaMessage.sykmelding.id, sykmeldingKafkaMessage)
+    behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingKafkaMessage.sykmelding.id, sykmeldingKafkaMessage)
 
     flexSyketilfelleMockRestServiceServer?.reset()
 }

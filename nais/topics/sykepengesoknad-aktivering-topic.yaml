@@ -1,0 +1,20 @@
+apiVersion: kafka.nais.io/v1
+kind: Topic
+metadata:
+  name: sykepengesoknad-aktivering
+  namespace: flex
+  labels:
+    team: flex
+spec:
+  pool: {{kafkaPool}}
+  config:
+    cleanupPolicy: delete
+    minimumInSyncReplicas: 1
+    partitions: 12
+    replication: 3
+    retentionBytes: -1   # Messages will never get deleted because of disk space
+    retentionHours: 336  # 2 uker
+  acl:
+    - team: flex
+      application: sykepengesoknad-backend
+      access: readwrite

@@ -525,15 +525,6 @@ class SykepengesoknadDAO(
         }
     }
 
-    fun finnSoknaderSomSkalAktiveres(now: LocalDate): List<String> {
-
-        return namedParameterJdbcTemplate.query(
-            "SELECT SYKEPENGESOKNAD_UUID FROM SYKEPENGESOKNAD WHERE TOM < :now AND STATUS = 'FREMTIDIG' LIMIT 1000",
-            MapSqlParameterSource()
-                .addValue("now", now)
-        ) { resultSet, _ -> resultSet.getString("SYKEPENGESOKNAD_UUID") }
-    }
-
     fun deaktiverSoknader(): Int {
         return namedParameterJdbcTemplate.update(
             """

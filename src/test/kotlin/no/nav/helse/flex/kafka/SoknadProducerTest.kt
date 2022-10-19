@@ -51,7 +51,6 @@ class SoknadProducerTest {
 
     @Test
     fun soknadOpprettetArbeidstakere() {
-
         val sykepengesoknad = gammeltFormatOpprettNySoknadMedFeriesporsmalSomUndersporsmal()
 
         soknadProducer.soknadEvent(sykepengesoknad, null, false)
@@ -61,7 +60,7 @@ class SoknadProducerTest {
         val (id, _, status) = captor.firstValue
 
         assertThat(id).isEqualTo(sykepengesoknad.id)
-        assertThat(status).isEqualTo(SoknadsstatusDTO.NY)
+        assertThat(status).isEqualTo(SoknadsstatusDTO.FREMTIDIG)
     }
 
     @Test

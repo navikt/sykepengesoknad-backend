@@ -1,8 +1,8 @@
 package no.nav.helse.flex.soknadsopprettelse
 
 import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.aktivering.kafka.AktiveringProducer
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.rest.SoknadMetadata
 import no.nav.helse.flex.hentSoknader
@@ -32,6 +32,9 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
 
     @Autowired
     private lateinit var opprettSoknadService: OpprettSoknadService
+
+    @Autowired
+    private lateinit var aktiveringProducer: AktiveringProducer
 
     val fnr = "fnr"
 
@@ -66,13 +69,13 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
             fnr = fnr,
             fom = LocalDate.of(2018, 1, 1),
             tom = LocalDate.of(2018, 1, 10),
-            status = Soknadstatus.NY,
             sykmeldingId = "sykmeldingId"
         )
 
         opprettSoknadService.opprettSoknadFraSoknadMetadata(
             soknad.copy(id = UUID.randomUUID().toString()),
-            sykepengesoknadDAO
+            sykepengesoknadDAO,
+            aktiveringProducer
         )
         opprettSoknadService.opprettSoknadFraSoknadMetadata(
             soknad.copy(
@@ -80,7 +83,8 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
                 fom = LocalDate.of(2018, 1, 11),
                 tom = LocalDate.of(2018, 1, 12)
             ),
-            sykepengesoknadDAO
+            sykepengesoknadDAO,
+            aktiveringProducer
         )
 
         val hentetViaRest = hentSoknader(fnr).sortedBy { it.fom }
@@ -119,13 +123,13 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
             fnr = fnr,
             fom = LocalDate.of(2018, 1, 1),
             tom = LocalDate.of(2018, 1, 10),
-            status = Soknadstatus.NY,
             sykmeldingId = "sykmeldingId"
         )
 
         opprettSoknadService.opprettSoknadFraSoknadMetadata(
             soknad.copy(id = UUID.randomUUID().toString()),
-            sykepengesoknadDAO
+            sykepengesoknadDAO,
+            aktiveringProducer
         )
         opprettSoknadService.opprettSoknadFraSoknadMetadata(
             soknad.copy(
@@ -134,7 +138,8 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
                 tom = LocalDate.of(2018, 1, 12),
                 startSykeforlop = LocalDate.of(2018, 1, 2)
             ),
-            sykepengesoknadDAO
+            sykepengesoknadDAO,
+            aktiveringProducer
         )
 
         val hentetViaRest = hentSoknader(fnr).sortedBy { it.fom }
@@ -171,13 +176,13 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
             fnr = fnr,
             fom = LocalDate.of(2018, 1, 1),
             tom = LocalDate.of(2018, 1, 10),
-            status = Soknadstatus.NY,
             sykmeldingId = "sykmeldingId"
         )
 
         opprettSoknadService.opprettSoknadFraSoknadMetadata(
             soknad.copy(id = UUID.randomUUID().toString()),
-            sykepengesoknadDAO
+            sykepengesoknadDAO,
+            aktiveringProducer
         )
         opprettSoknadService.opprettSoknadFraSoknadMetadata(
             soknad.copy(
@@ -185,7 +190,8 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
                 fom = LocalDate.of(2018, 1, 11),
                 tom = LocalDate.of(2018, 1, 12)
             ),
-            sykepengesoknadDAO
+            sykepengesoknadDAO,
+            aktiveringProducer
         )
 
         val hentetViaRest = hentSoknader(fnr).sortedBy { it.fom }
@@ -219,13 +225,13 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
             fnr = fnr,
             fom = LocalDate.of(2018, 1, 1),
             tom = LocalDate.of(2018, 1, 10),
-            status = Soknadstatus.NY,
             sykmeldingId = "sykmeldingId"
         )
 
         opprettSoknadService.opprettSoknadFraSoknadMetadata(
             soknad.copy(id = UUID.randomUUID().toString()),
-            sykepengesoknadDAO
+            sykepengesoknadDAO,
+            aktiveringProducer
         )
         opprettSoknadService.opprettSoknadFraSoknadMetadata(
             soknad.copy(
@@ -234,7 +240,8 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
                 tom = LocalDate.of(2018, 1, 12),
                 arbeidsgiverOrgnummer = "123234243"
             ),
-            sykepengesoknadDAO
+            sykepengesoknadDAO,
+            aktiveringProducer
         )
 
         val hentetViaRest = hentSoknader(fnr).sortedBy { it.fom }
@@ -268,13 +275,13 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
             fnr = fnr,
             fom = LocalDate.of(2018, 1, 1),
             tom = LocalDate.of(2018, 1, 10),
-            status = Soknadstatus.NY,
             sykmeldingId = "sykmeldingId"
         )
 
         opprettSoknadService.opprettSoknadFraSoknadMetadata(
             soknad.copy(id = UUID.randomUUID().toString()),
-            sykepengesoknadDAO
+            sykepengesoknadDAO,
+            aktiveringProducer
         )
         opprettSoknadService.opprettSoknadFraSoknadMetadata(
             soknad.copy(
@@ -282,7 +289,8 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
                 sykmeldingId = "annen-melding",
                 arbeidsgiverOrgnummer = "123456788"
             ),
-            sykepengesoknadDAO
+            sykepengesoknadDAO,
+            aktiveringProducer
         )
 
         val hentetViaRest = hentSoknader(fnr).sortedBy { it.fom }
@@ -316,13 +324,13 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
             fnr = fnr,
             fom = LocalDate.of(2018, 1, 1),
             tom = LocalDate.of(2018, 1, 10),
-            status = Soknadstatus.NY,
             sykmeldingId = "sykmeldingId"
         )
 
         opprettSoknadService.opprettSoknadFraSoknadMetadata(
             soknad.copy(id = UUID.randomUUID().toString()),
-            sykepengesoknadDAO
+            sykepengesoknadDAO,
+            aktiveringProducer
         )
         opprettSoknadService.opprettSoknadFraSoknadMetadata(
             soknad.copy(
@@ -330,7 +338,8 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
                 fom = LocalDate.of(2018, 1, 11),
                 tom = LocalDate.of(2018, 1, 12)
             ),
-            sykepengesoknadDAO
+            sykepengesoknadDAO,
+            aktiveringProducer
         )
 
         val hentetViaRest = hentSoknader(fnr).sortedBy { it.fom }
@@ -367,11 +376,10 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
             fnr = fnr,
             fom = LocalDate.of(2018, 1, 1),
             tom = LocalDate.of(2018, 1, 10),
-            status = Soknadstatus.NY,
             sykmeldingId = "sykmeldingId",
             egenmeldtSykmelding = true
         )
-        opprettSoknadService.opprettSoknadFraSoknadMetadata(soknad, sykepengesoknadDAO)
+        opprettSoknadService.opprettSoknadFraSoknadMetadata(soknad, sykepengesoknadDAO, aktiveringProducer)
 
         val hentetViaRest = hentSoknader(fnr)
         assertThat(hentetViaRest[0].egenmeldtSykmelding).isTrue()
@@ -402,11 +410,10 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
             fnr = fnr,
             fom = LocalDate.of(2018, 1, 1),
             tom = LocalDate.of(2018, 1, 10),
-            status = Soknadstatus.NY,
             sykmeldingId = "sykmeldingId",
             egenmeldtSykmelding = false
         )
-        opprettSoknadService.opprettSoknadFraSoknadMetadata(soknad, sykepengesoknadDAO)
+        opprettSoknadService.opprettSoknadFraSoknadMetadata(soknad, sykepengesoknadDAO, aktiveringProducer)
 
         val hentetViaRest = hentSoknader(fnr)
         assertThat(hentetViaRest[0].egenmeldtSykmelding).isFalse()

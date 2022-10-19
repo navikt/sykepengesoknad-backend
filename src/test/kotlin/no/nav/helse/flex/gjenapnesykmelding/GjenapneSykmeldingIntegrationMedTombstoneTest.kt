@@ -66,7 +66,9 @@ class GjenapneSykmeldingIntegrationMedTombstoneTest : BaseTestClass() {
             event = sykmeldingStatusKafkaMessageDTO.event,
             kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
         )
-        behandleSendtBekreftetSykmeldingService.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
+
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
 
         val sykmelding2 = UUID.randomUUID().toString()
         flexSyketilfelleMockRestServiceServer?.reset()
@@ -77,19 +79,18 @@ class GjenapneSykmeldingIntegrationMedTombstoneTest : BaseTestClass() {
             event = sykmeldingStatusKafkaMessageDTO.event,
             kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
         )
-        behandleSendtBekreftetSykmeldingService.prosesserSykmelding(sykmelding2, sykmeldingKafkaMessage2)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmelding2, sykmeldingKafkaMessage2)
+
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
 
         val hentetViaRest = hentSoknader(fnr)
         assertThat(hentetViaRest).hasSize(2)
         assertThat(hentetViaRest[0].soknadstype).isEqualTo(RSSoknadstype.ARBEIDSLEDIG)
         assertThat(hentetViaRest[0].status).isEqualTo(RSSoknadstatus.NY)
-
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
     }
 
     @Test
     fun `2 - vi svarer på den ene søknaden`() {
-
         val rsSykepengesoknad = hentSoknader(fnr).first()
         SoknadBesvarer(rSSykepengesoknad = rsSykepengesoknad, mockMvc = this, fnr = fnr)
             .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
@@ -102,9 +103,8 @@ class GjenapneSykmeldingIntegrationMedTombstoneTest : BaseTestClass() {
             .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
             .sendSoknad()
 
-        val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
+        val soknadPaKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().last()
 
-        val soknadPaKafka = soknader.last()
         assertThat(soknadPaKafka.status).isEqualTo(SoknadsstatusDTO.SENDT)
     }
 
@@ -115,15 +115,17 @@ class GjenapneSykmeldingIntegrationMedTombstoneTest : BaseTestClass() {
         val sykmedlingIdTilNy = soknader.find { it.status == RSSoknadstatus.NY }!!.sykmeldingId!!
         val sykmedlingIdTilSendt = soknader.find { it.status == RSSoknadstatus.SENDT }!!.sykmeldingId!!
 
-        behandleSendtBekreftetSykmeldingService.prosesserSykmelding(
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
             sykmeldingId = sykmedlingIdTilNy,
             sykmeldingKafkaMessage = null
         )
 
-        behandleSendtBekreftetSykmeldingService.prosesserSykmelding(
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
             sykmeldingId = sykmedlingIdTilSendt,
             sykmeldingKafkaMessage = null
         )
+
+        val soknadPaKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().last()
 
         val soknaderEtterEvents = hentSoknader(fnr)
 
@@ -132,7 +134,6 @@ class GjenapneSykmeldingIntegrationMedTombstoneTest : BaseTestClass() {
             sykmedlingIdTilSendt
         )
 
-        val soknadPaKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().last()
         assertThat(soknadPaKafka.status).isEqualTo(SoknadsstatusDTO.SLETTET)
         assertThat(soknadPaKafka.sykmeldingId).isEqualTo(sykmedlingIdTilNy)
     }
@@ -169,18 +170,18 @@ class GjenapneSykmeldingIntegrationMedTombstoneTest : BaseTestClass() {
             kafkaMetadata = skapSykmeldingStatusKafkaMessageDTO.kafkaMetadata
         )
 
-        behandleSendtBekreftetSykmeldingService.prosesserSykmelding(sykmelding4, sykmeldingKafkaMessage4)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmelding4, sykmeldingKafkaMessage4)
+
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
 
         val soknader = hentSoknader(fnr)
         assertThat(soknader).hasSize(2)
-        behandleSendtBekreftetSykmeldingService.prosesserSykmelding(
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
             sykmeldingId = sykmelding4,
             sykmeldingKafkaMessage = null
         )
 
         val soknaderEtterApenMelding = hentSoknader(fnr)
         assertThat(soknaderEtterApenMelding).hasSize(2)
-
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
     }
 }

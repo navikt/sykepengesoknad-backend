@@ -1,15 +1,43 @@
 package no.nav.helse.flex.soknadsopprettelse
 
 import no.nav.helse.flex.domain.Arbeidssituasjon
+import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
+import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.rest.SoknadMetadata
+import java.time.Instant
 import java.time.LocalDate
 
 fun genererSykepengesoknadFraMetadata(
     soknadMetadata: SoknadMetadata,
-    eksisterendeSoknader: List<Sykepengesoknad>
 ): Sykepengesoknad {
+
+    return Sykepengesoknad(
+        soknadstype = soknadMetadata.soknadstype,
+        id = soknadMetadata.id,
+        fnr = soknadMetadata.fnr,
+        sykmeldingId = soknadMetadata.sykmeldingId,
+        status = Soknadstatus.FREMTIDIG,
+        fom = soknadMetadata.fom,
+        tom = soknadMetadata.tom,
+        opprettet = Instant.now(),
+        startSykeforlop = soknadMetadata.startSykeforlop,
+        sykmeldingSkrevet = soknadMetadata.sykmeldingSkrevet,
+        arbeidsgiverOrgnummer = soknadMetadata.arbeidsgiverOrgnummer,
+        arbeidsgiverNavn = soknadMetadata.arbeidsgiverNavn,
+        soknadPerioder = soknadMetadata.sykmeldingsperioder,
+        sporsmal = emptyList(),
+        arbeidssituasjon = soknadMetadata.arbeidssituasjon,
+        egenmeldtSykmelding = soknadMetadata.egenmeldtSykmelding,
+        merknaderFraSykmelding = soknadMetadata.merknader,
+    )
+}
+
+fun genererSykepengesoknadSporsmal(
+    soknadMetadata: SoknadMetadata,
+    eksisterendeSoknader: List<Sykepengesoknad>,
+): List<Sporsmal> {
 
     val tidligsteFomForSykmelding = hentTidligsteFomForSykmelding(soknadMetadata, eksisterendeSoknader)
     val erForsteSoknadISykeforlop = erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknadMetadata)
@@ -21,14 +49,14 @@ fun genererSykepengesoknadFraMetadata(
             soknadMetadata,
             erForsteSoknadISykeforlop,
             tidligsteFomForSykmelding
-        ).fjernSporsmalHvisFremtidig()
+        )
     }
 
     val erReisetilskudd = soknadMetadata.soknadstype == Soknadstype.REISETILSKUDD
     if (erReisetilskudd) {
         return skapReisetilskuddsoknad(
             soknadMetadata
-        ).fjernSporsmalHvisFremtidig()
+        )
     }
 
     return when (soknadMetadata.arbeidssituasjon) {
@@ -40,20 +68,15 @@ fun genererSykepengesoknadFraMetadata(
                 tidligsteFomForSykmelding = tidligsteFomForSykmelding,
             )
         }
+
         Arbeidssituasjon.NAERINGSDRIVENDE, Arbeidssituasjon.FRILANSER -> settOppSoknadSelvstendigOgFrilanser(
             soknadMetadata,
             erForsteSoknadISykeforlop
         )
+
         Arbeidssituasjon.ARBEIDSLEDIG -> settOppSoknadArbeidsledig(soknadMetadata, erForsteSoknadISykeforlop)
         Arbeidssituasjon.ANNET -> settOppSoknadAnnetArbeidsforhold(soknadMetadata, erForsteSoknadISykeforlop)
-    }.fjernSporsmalHvisFremtidig()
-}
-
-fun Sykepengesoknad.fjernSporsmalHvisFremtidig(): Sykepengesoknad {
-    if (status == no.nav.helse.flex.domain.Soknadstatus.FREMTIDIG) {
-        return this.copy(sporsmal = emptyList())
     }
-    return this
 }
 
 private fun erForsteSoknadTilArbeidsgiverIForlop(

@@ -1,5 +1,6 @@
 package no.nav.helse.flex.service
 
+import no.nav.helse.flex.aktivering.AktiverEnkeltSoknad
 import no.nav.helse.flex.domain.Avsendertype
 import no.nav.helse.flex.domain.Mottaker
 import no.nav.helse.flex.domain.Soknadstatus
@@ -19,7 +20,7 @@ class AutomatiskInnsendingService(
     private val mottakerAvSoknadService: MottakerAvSoknadService,
     private val avbrytSoknadService: AvbrytSoknadService,
     private val soknadSender: SoknadSender,
-    private val aktiverEnkeltSoknadService: AktiverEnkeltSoknadService,
+    private val aktiverEnkeltSoknad: AktiverEnkeltSoknad,
     private val identService: IdentService,
 ) {
     val log = logger()
@@ -41,7 +42,7 @@ class AutomatiskInnsendingService(
                 }
 
                 if (sykepengesoknad.status == Soknadstatus.FREMTIDIG) {
-                    aktiverEnkeltSoknadService.aktiverSoknad(sykepengesoknad.id)
+                    aktiverEnkeltSoknad.aktiverSoknad(sykepengesoknad.id)
                     sykepengesoknad = sykepengesoknadDAO.finnSykepengesoknad(sykepengesoknad.id)
                 }
 

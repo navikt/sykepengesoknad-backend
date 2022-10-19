@@ -64,12 +64,13 @@ class RebehandlingSoknadopprettelseTest : BaseTestClass() {
         mockFlexSyketilfelleSykeforloep(sykmeldingId)
 
         rebehandlingSykmeldingSendt.listen(cr, acknowledgment)
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
+
         val sykepengesoknader = sykepengesoknadDAO.finnSykepengesoknaderForSykmelding(sykmeldingId)
         assertThat(sykepengesoknader.size).isEqualTo(1)
         assertThat(sykepengesoknader.first().status).isEqualTo(NY)
         assertThat(sykepengesoknader.first().arbeidssituasjon).isEqualTo(ARBEIDSTAKER)
         verify(aivenKafkaProducer, times(1)).produserMelding(any())
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
     }
 
     @Test
@@ -83,16 +84,14 @@ class RebehandlingSoknadopprettelseTest : BaseTestClass() {
         mockFlexSyketilfelleErUtaforVentetid(sykmeldingId, true)
         mockFlexSyketilfelleSykeforloep(sykmeldingId)
 
-        rebehandlingSykmeldingSendt.listen(
-            cr,
-            acknowledgment
-        )
+        rebehandlingSykmeldingSendt.listen(cr, acknowledgment)
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
+
         val sykepengesoknader = sykepengesoknadDAO.finnSykepengesoknaderForSykmelding(sykmeldingId)
         assertThat(sykepengesoknader.size).isEqualTo(1)
         assertThat(sykepengesoknader.first().status).isEqualTo(NY)
         assertThat(sykepengesoknader.first().arbeidssituasjon).isEqualTo(FRILANSER)
         verify(aivenKafkaProducer, times(1)).produserMelding(any())
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
     }
 
     @Test

@@ -1,8 +1,7 @@
 package no.nav.helse.flex.mock
 
 import no.nav.helse.flex.domain.Arbeidssituasjon.ARBEIDSTAKER
-import no.nav.helse.flex.domain.Soknadstatus.NY
-import no.nav.helse.flex.domain.Soknadstatus.SENDT
+import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.rest.SoknadMetadata
@@ -21,7 +20,7 @@ import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 import java.util.*
 
 fun deprecatedGetSoknadMedFeriesporsmalSomUndersporsmal(soknadMetadata: SoknadMetadata): Sykepengesoknad {
-    val sykepengesoknad = settOppSoknadArbeidstaker(soknadMetadata, true, now())
+    val sykepengesoknad = genererSykepengesoknadFraMetadata(soknadMetadata).copy(sporsmal = settOppSoknadArbeidstaker(soknadMetadata, true, now()))
         .fjernSporsmal(FERIE_V2)
         .fjernSporsmal(PERMISJON_V2)
         .fjernSporsmal(UTLAND_V2)
@@ -37,7 +36,6 @@ fun deprecatedGetSoknadMedFeriesporsmalSomUndersporsmal(soknadMetadata: SoknadMe
 fun gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal(): Sykepengesoknad {
     val soknadMetadata = SoknadMetadata(
         fnr = "fnr-7454630",
-        status = SENDT,
         startSykeforlop = now().minusMonths(1),
         fom = now().minusMonths(1),
         tom = now().minusMonths(1).plusDays(8),
@@ -80,7 +78,6 @@ fun gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal(): Sykepenge
 fun opprettSendtSoknad(): Sykepengesoknad {
     val soknadMetadata = SoknadMetadata(
         fnr = "fnr-7454630",
-        status = SENDT,
         startSykeforlop = now().minusMonths(1),
         fom = now().minusMonths(1),
         tom = now().minusMonths(1).plusDays(8),
@@ -116,15 +113,14 @@ fun opprettSendtSoknad(): Sykepengesoknad {
 
     )
 
-    val sykepengesoknad = leggSvarPaSoknad(settOppSoknadArbeidstaker(soknadMetadata, true, now()))
-    return sykepengesoknad.copy(sendtNav = Instant.now(), sendtArbeidsgiver = Instant.now())
+    val sykepengesoknad = leggSvarPaSoknad(genererSykepengesoknadFraMetadata(soknadMetadata).copy(sporsmal = settOppSoknadArbeidstaker(soknadMetadata, true, now())))
+    return sykepengesoknad.copy(sendtNav = Instant.now(), sendtArbeidsgiver = Instant.now(), status = Soknadstatus.SENDT)
 }
 
 @Deprecated("")
 fun opprettNySoknadMock(feriesporsmalSomHovedsporsmal: Boolean = true): Sykepengesoknad {
     val soknadMetadata = SoknadMetadata(
         fnr = "fnr-7454630",
-        status = NY,
         startSykeforlop = now().minusDays(24),
         fom = now().minusDays(19),
         tom = now().minusDays(10),
@@ -161,7 +157,7 @@ fun opprettNySoknadMock(feriesporsmalSomHovedsporsmal: Boolean = true): Sykepeng
     )
 
     val sykepengesoknad = if (feriesporsmalSomHovedsporsmal)
-        settOppSoknadArbeidstaker(soknadMetadata, true, now())
+        genererSykepengesoknadFraMetadata(soknadMetadata).copy(sporsmal = settOppSoknadArbeidstaker(soknadMetadata, true, now()))
     else
         deprecatedGetSoknadMedFeriesporsmalSomUndersporsmal(soknadMetadata)
 

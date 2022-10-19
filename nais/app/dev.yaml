@@ -14,7 +14,6 @@ env:
   ON_PREM_BOOTSTRAP_SERVERS: "b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443"
   ON_PREM_SCHEMA_REGISTRY_URL: "https://kafka-schema-registry.nais-q.adeo.no"
   FASIT_ENVIRONMENT_NAME: "q1"
-  JULESOKNAD_CRON: "0 0/5 * * * ?"
   SYKEPENGESOKNAD_KVITTERINGER_URL: "http://sykepengesoknad-kvitteringer"
   SYKEPENGESOKNAD_KVITTERINGER_TOKENX_CLIENT_ID: dev-gcp:flex:sykepengesoknad-kvitteringer
   SYFOTILGANGSKONTROLL_URL: "https://syfo-tilgangskontroll.dev-fss-pub.nais.io"

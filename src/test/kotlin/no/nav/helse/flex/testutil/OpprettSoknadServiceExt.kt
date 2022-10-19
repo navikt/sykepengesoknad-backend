@@ -1,19 +1,31 @@
 package no.nav.helse.flex.testutil
 
+import no.nav.helse.flex.aktivering.kafka.AktiveringProducer
+import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.rest.SoknadMetadata
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.soknadsopprettelse.OpprettSoknadService
 import no.nav.helse.flex.soknadsopprettelse.genererSykepengesoknadFraMetadata
+import no.nav.helse.flex.soknadsopprettelse.genererSykepengesoknadSporsmal
 
 fun OpprettSoknadService.opprettSoknadFraSoknadMetadata(
     soknadMetadata: SoknadMetadata,
-    sykepengesoknadDAO: SykepengesoknadDAO
-) {
+    sykepengesoknadDAO: SykepengesoknadDAO,
+    aktiveringProducer: AktiveringProducer,
+
+): Sykepengesoknad {
 
     val eksisterendeSoknader = sykepengesoknadDAO.finnSykepengesoknader(listOf(soknadMetadata.fnr))
 
     val sortertSoknadMetadata =
         soknadMetadata.copy(sykmeldingsperioder = soknadMetadata.sykmeldingsperioder.sortedBy { it.fom })
-    val soknad = genererSykepengesoknadFraMetadata(sortertSoknadMetadata, eksisterendeSoknader)
-    lagreOgPubliserSøknad(soknad, eksisterendeSoknader)
+    val soknad = genererSykepengesoknadFraMetadata(sortertSoknadMetadata).copy(
+        sporsmal = genererSykepengesoknadSporsmal(
+            sortertSoknadMetadata,
+            eksisterendeSoknader
+        )
+    )
+    soknad.lagreSøknad(eksisterendeSoknader).publiserEllerReturnerAktiveringBestilling()
+        ?.let { aktiveringProducer.leggPaAktiveringTopic(it) }
+    return soknad
 }
