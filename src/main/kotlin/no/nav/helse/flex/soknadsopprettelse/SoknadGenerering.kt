@@ -3,7 +3,6 @@ package no.nav.helse.flex.soknadsopprettelse
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
-import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.rest.SoknadMetadata
 import java.time.Instant
@@ -34,52 +33,7 @@ fun genererSykepengesoknadFraMetadata(
     )
 }
 
-fun genererSykepengesoknadSporsmal(
-    soknadMetadata: SoknadMetadata,
-    eksisterendeSoknader: List<Sykepengesoknad>,
-): List<Sporsmal> {
-
-    val tidligsteFomForSykmelding = hentTidligsteFomForSykmelding(soknadMetadata, eksisterendeSoknader)
-    val erForsteSoknadISykeforlop = erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknadMetadata)
-
-    val erEnkeltstaendeBehandlingsdagSoknad = soknadMetadata.soknadstype == Soknadstype.BEHANDLINGSDAGER
-
-    if (erEnkeltstaendeBehandlingsdagSoknad) {
-        return settOppSykepengesoknadBehandlingsdager(
-            soknadMetadata,
-            erForsteSoknadISykeforlop,
-            tidligsteFomForSykmelding
-        )
-    }
-
-    val erReisetilskudd = soknadMetadata.soknadstype == Soknadstype.REISETILSKUDD
-    if (erReisetilskudd) {
-        return skapReisetilskuddsoknad(
-            soknadMetadata
-        )
-    }
-
-    return when (soknadMetadata.arbeidssituasjon) {
-        Arbeidssituasjon.ARBEIDSTAKER -> {
-
-            settOppSoknadArbeidstaker(
-                soknadMetadata = soknadMetadata,
-                erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
-                tidligsteFomForSykmelding = tidligsteFomForSykmelding,
-            )
-        }
-
-        Arbeidssituasjon.NAERINGSDRIVENDE, Arbeidssituasjon.FRILANSER -> settOppSoknadSelvstendigOgFrilanser(
-            soknadMetadata,
-            erForsteSoknadISykeforlop
-        )
-
-        Arbeidssituasjon.ARBEIDSLEDIG -> settOppSoknadArbeidsledig(soknadMetadata, erForsteSoknadISykeforlop)
-        Arbeidssituasjon.ANNET -> settOppSoknadAnnetArbeidsforhold(soknadMetadata, erForsteSoknadISykeforlop)
-    }
-}
-
-private fun erForsteSoknadTilArbeidsgiverIForlop(
+fun erForsteSoknadTilArbeidsgiverIForlop(
     eksisterendeSoknader: List<Sykepengesoknad>,
     soknadMetadata: SoknadMetadata
 ): Boolean {

@@ -24,3 +24,6 @@ env:
   DITT_SYKEFRAVAER_FRONTEND_CLIENT_ID: prod-gcp:flex:ditt-sykefravaer
   SYKEPENGESOKNAD_FRONTEND_CLIENT_ID: prod-gcp:flex:sykepengesoknad
   TOKENX_IDPORTEN_IDP: https://oidc.difi.no/idporten-oidc-provider/
+  FLEX_FSS_PROXY_AAD_CLIENT_ID: prod-fss.flex.flex-fss-proxy
+  FLEX_FSS_PROXY_URL: https://flex-fss-proxy.prod-fss-pub.nais.io
+  EREG_URL: https://ereg-services.prod-fss-pub.nais.io

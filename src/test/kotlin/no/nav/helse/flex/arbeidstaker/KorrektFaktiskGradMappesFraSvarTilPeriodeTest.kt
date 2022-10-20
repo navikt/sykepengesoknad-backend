@@ -1,6 +1,7 @@
 package no.nav.helse.flex.arbeidstaker
 
 import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.aktivering.AktiverEnkeltSoknad
 import no.nav.helse.flex.aktivering.kafka.AktiveringProducer
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.domain.Arbeidssituasjon
@@ -54,6 +55,9 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : BaseTestClass() {
     @Autowired
     private lateinit var aktiveringProducer: AktiveringProducer
 
+    @Autowired
+    private lateinit var aktiverEnkeltSoknad: AktiverEnkeltSoknad
+
     final val fnr = "12345678910"
 
     private val soknadMetadata = SoknadMetadata(
@@ -94,7 +98,7 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : BaseTestClass() {
     @Test
     fun `1 - vi oppretter en arbeidstakersoknad`() {
         // Opprett søknad
-        opprettSoknadService.opprettSoknadFraSoknadMetadata(soknadMetadata, sykepengesoknadDAO, aktiveringProducer)
+        opprettSoknadService.opprettSoknadFraSoknadMetadata(soknadMetadata, sykepengesoknadDAO, aktiveringProducer, aktiverEnkeltSoknad)
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
     }
 

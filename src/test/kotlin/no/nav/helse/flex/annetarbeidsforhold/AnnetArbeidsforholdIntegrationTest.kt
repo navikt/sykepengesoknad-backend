@@ -1,6 +1,7 @@
 package no.nav.helse.flex.annetarbeidsforhold
 
 import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.aktivering.AktiverEnkeltSoknad
 import no.nav.helse.flex.aktivering.kafka.AktiveringProducer
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.domain.Arbeidssituasjon
@@ -53,6 +54,9 @@ class AnnetArbeidsforholdIntegrationTest : BaseTestClass() {
     @Autowired
     private lateinit var aktiveringProducer: AktiveringProducer
 
+    @Autowired
+    private lateinit var aktiverEnkeltSoknad: AktiverEnkeltSoknad
+
     final val fnr = "123456789"
 
     private val soknadMetadata = SoknadMetadata(
@@ -83,7 +87,7 @@ class AnnetArbeidsforholdIntegrationTest : BaseTestClass() {
     @Test
     fun `1 - vi oppretter en arbeidsledigsøknad`() {
         // Opprett søknad
-        opprettSoknadService.opprettSoknadFraSoknadMetadata(soknadMetadata, sykepengesoknadDAO, aktiveringProducer)
+        opprettSoknadService.opprettSoknadFraSoknadMetadata(soknadMetadata, sykepengesoknadDAO, aktiveringProducer, aktiverEnkeltSoknad)
 
         val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1, duration = Duration.ofSeconds(5)).tilSoknader()
         assertThat(soknader).hasSize(1)

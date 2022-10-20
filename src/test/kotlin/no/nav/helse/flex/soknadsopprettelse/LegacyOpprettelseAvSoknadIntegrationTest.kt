@@ -1,6 +1,7 @@
 package no.nav.helse.flex.soknadsopprettelse
 
 import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.aktivering.AktiverEnkeltSoknad
 import no.nav.helse.flex.aktivering.kafka.AktiveringProducer
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstype
@@ -35,6 +36,9 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
 
     @Autowired
     private lateinit var aktiveringProducer: AktiveringProducer
+
+    @Autowired
+    private lateinit var aktiverEnkeltSoknad: AktiverEnkeltSoknad
 
     val fnr = "fnr"
 
@@ -75,7 +79,7 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
         opprettSoknadService.opprettSoknadFraSoknadMetadata(
             soknad.copy(id = UUID.randomUUID().toString()),
             sykepengesoknadDAO,
-            aktiveringProducer
+            aktiveringProducer, aktiverEnkeltSoknad
         )
         opprettSoknadService.opprettSoknadFraSoknadMetadata(
             soknad.copy(
@@ -84,7 +88,7 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
                 tom = LocalDate.of(2018, 1, 12)
             ),
             sykepengesoknadDAO,
-            aktiveringProducer
+            aktiveringProducer, aktiverEnkeltSoknad
         )
 
         val hentetViaRest = hentSoknader(fnr).sortedBy { it.fom }
@@ -129,7 +133,7 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
         opprettSoknadService.opprettSoknadFraSoknadMetadata(
             soknad.copy(id = UUID.randomUUID().toString()),
             sykepengesoknadDAO,
-            aktiveringProducer
+            aktiveringProducer, aktiverEnkeltSoknad
         )
         opprettSoknadService.opprettSoknadFraSoknadMetadata(
             soknad.copy(
@@ -139,7 +143,7 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
                 startSykeforlop = LocalDate.of(2018, 1, 2)
             ),
             sykepengesoknadDAO,
-            aktiveringProducer
+            aktiveringProducer, aktiverEnkeltSoknad
         )
 
         val hentetViaRest = hentSoknader(fnr).sortedBy { it.fom }
@@ -182,7 +186,7 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
         opprettSoknadService.opprettSoknadFraSoknadMetadata(
             soknad.copy(id = UUID.randomUUID().toString()),
             sykepengesoknadDAO,
-            aktiveringProducer
+            aktiveringProducer, aktiverEnkeltSoknad
         )
         opprettSoknadService.opprettSoknadFraSoknadMetadata(
             soknad.copy(
@@ -191,7 +195,7 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
                 tom = LocalDate.of(2018, 1, 12)
             ),
             sykepengesoknadDAO,
-            aktiveringProducer
+            aktiveringProducer, aktiverEnkeltSoknad
         )
 
         val hentetViaRest = hentSoknader(fnr).sortedBy { it.fom }
@@ -231,7 +235,7 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
         opprettSoknadService.opprettSoknadFraSoknadMetadata(
             soknad.copy(id = UUID.randomUUID().toString()),
             sykepengesoknadDAO,
-            aktiveringProducer
+            aktiveringProducer, aktiverEnkeltSoknad
         )
         opprettSoknadService.opprettSoknadFraSoknadMetadata(
             soknad.copy(
@@ -241,7 +245,7 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
                 arbeidsgiverOrgnummer = "123234243"
             ),
             sykepengesoknadDAO,
-            aktiveringProducer
+            aktiveringProducer, aktiverEnkeltSoknad
         )
 
         val hentetViaRest = hentSoknader(fnr).sortedBy { it.fom }
@@ -281,7 +285,7 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
         opprettSoknadService.opprettSoknadFraSoknadMetadata(
             soknad.copy(id = UUID.randomUUID().toString()),
             sykepengesoknadDAO,
-            aktiveringProducer
+            aktiveringProducer, aktiverEnkeltSoknad
         )
         opprettSoknadService.opprettSoknadFraSoknadMetadata(
             soknad.copy(
@@ -290,7 +294,7 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
                 arbeidsgiverOrgnummer = "123456788"
             ),
             sykepengesoknadDAO,
-            aktiveringProducer
+            aktiveringProducer, aktiverEnkeltSoknad
         )
 
         val hentetViaRest = hentSoknader(fnr).sortedBy { it.fom }
@@ -330,7 +334,7 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
         opprettSoknadService.opprettSoknadFraSoknadMetadata(
             soknad.copy(id = UUID.randomUUID().toString()),
             sykepengesoknadDAO,
-            aktiveringProducer
+            aktiveringProducer, aktiverEnkeltSoknad
         )
         opprettSoknadService.opprettSoknadFraSoknadMetadata(
             soknad.copy(
@@ -339,7 +343,7 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
                 tom = LocalDate.of(2018, 1, 12)
             ),
             sykepengesoknadDAO,
-            aktiveringProducer
+            aktiveringProducer, aktiverEnkeltSoknad
         )
 
         val hentetViaRest = hentSoknader(fnr).sortedBy { it.fom }
@@ -379,7 +383,7 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
             sykmeldingId = "sykmeldingId",
             egenmeldtSykmelding = true
         )
-        opprettSoknadService.opprettSoknadFraSoknadMetadata(soknad, sykepengesoknadDAO, aktiveringProducer)
+        opprettSoknadService.opprettSoknadFraSoknadMetadata(soknad, sykepengesoknadDAO, aktiveringProducer, aktiverEnkeltSoknad)
 
         val hentetViaRest = hentSoknader(fnr)
         assertThat(hentetViaRest[0].egenmeldtSykmelding).isTrue()
@@ -413,7 +417,7 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
             sykmeldingId = "sykmeldingId",
             egenmeldtSykmelding = false
         )
-        opprettSoknadService.opprettSoknadFraSoknadMetadata(soknad, sykepengesoknadDAO, aktiveringProducer)
+        opprettSoknadService.opprettSoknadFraSoknadMetadata(soknad, sykepengesoknadDAO, aktiveringProducer, aktiverEnkeltSoknad)
 
         val hentetViaRest = hentSoknader(fnr)
         assertThat(hentetViaRest[0].egenmeldtSykmelding).isFalse()

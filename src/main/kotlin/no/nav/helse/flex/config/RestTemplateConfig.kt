@@ -34,4 +34,12 @@ class RestTemplateConfig {
             .messageConverters(StringHttpMessageConverter(StandardCharsets.UTF_8))
             .build()
     }
+
+    @Bean
+    fun plainRestTemplate(
+        restTemplateBuilder: RestTemplateBuilder,
+    ): RestTemplate =
+        restTemplateBuilder
+            .setConnectTimeout(Duration.ofSeconds(5L))
+            .setReadTimeout(Duration.ofSeconds(10L)).build()
 }
