@@ -38,7 +38,7 @@ class InntektskomponentenClient(
                     HentInntekterRequest(
                         maanedFom = fom,
                         maanedTom = tom,
-                        formaal = "Foreldrepenger",
+                        formaal = "Sykepenger",
                         ainntektsfilter = "8-28",
                         ident = Aktoer(identifikator = fnr, aktoerType = "NATURLIG_IDENT")
                     ).serialisertTilString(),

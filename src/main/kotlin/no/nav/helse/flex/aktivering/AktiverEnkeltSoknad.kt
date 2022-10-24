@@ -124,7 +124,11 @@ class AktiverEnkeltSoknad(
                     erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
                     tidligsteFomForSykmelding = tidligsteFomForSykmelding,
                     andreKjenteArbeidsforhold = if (andreInntektskilderV2) {
-                        andreArbeidsforholdHenting.hentArbeidsforhold(soknadMetadata)
+                        andreArbeidsforholdHenting.hentArbeidsforhold(
+                            fnr = soknadMetadata.fnr,
+                            arbeidsgiverOrgnummer = soknadMetadata.arbeidsgiverOrgnummer!!,
+                            startSykeforlop = soknadMetadata.startSykeforlop
+                        )
                     } else {
                         null
                     }

@@ -12,6 +12,7 @@ object EregMockDispatcher : Dispatcher() {
         val orgnummr = request.path!!.split("/")[3]
         val orgnavn = when (orgnummr) {
             "999333666" -> "BENSINSTASJONEN AS"
+            "999888777" -> "KIOSKEN,AVD OSLO AS"
             else -> "UKJENT"
         }
         return skapResponse(orgnavn)

@@ -3,7 +3,6 @@ package no.nav.helse.flex.soknadsopprettelse
 import no.nav.helse.flex.client.ereg.EregClient
 import no.nav.helse.flex.client.inntektskomponenten.ArbeidsInntektMaaned
 import no.nav.helse.flex.client.inntektskomponenten.InntektskomponentenClient
-import no.nav.helse.flex.domain.rest.SoknadMetadata
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.time.YearMonth
@@ -14,15 +13,15 @@ class AndreArbeidsforholdHenting(
     val eregClient: EregClient,
 ) {
 
-    fun hentArbeidsforhold(soknad: SoknadMetadata): List<String> {
+    fun hentArbeidsforhold(fnr: String, arbeidsgiverOrgnummer: String, startSykeforlop: LocalDate): List<String> {
 
-        val sykmeldingOrgnummer = soknad.arbeidsgiverOrgnummer
+        val sykmeldingOrgnummer = arbeidsgiverOrgnummer
 
         val hentInntekter = inntektskomponentenClient
             .hentInntekter(
-                soknad.fnr,
-                fom = soknad.startSykeforlop.yearMonth().minusMonths(3),
-                tom = soknad.startSykeforlop.yearMonth()
+                fnr,
+                fom = startSykeforlop.yearMonth().minusMonths(3),
+                tom = startSykeforlop.yearMonth()
             )
 
         fun ArbeidsInntektMaaned.orgnumreForManed(): Set<String> {
