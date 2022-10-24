@@ -12,14 +12,17 @@ import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.repository.SykepengesoknadRepository
 import no.nav.helse.flex.service.IdentService
+import no.nav.helse.flex.soknadsopprettelse.AndreArbeidsforholdHenting
 import no.nav.helse.flex.soknadsopprettelse.erForsteSoknadTilArbeidsgiverIForlop
 import no.nav.helse.flex.soknadsopprettelse.hentTidligsteFomForSykmelding
+import no.nav.helse.flex.soknadsopprettelse.prettyOrgnavn
 import no.nav.helse.flex.soknadsopprettelse.settOppSoknadAnnetArbeidsforhold
 import no.nav.helse.flex.soknadsopprettelse.settOppSoknadArbeidsledig
 import no.nav.helse.flex.soknadsopprettelse.settOppSoknadArbeidstaker
 import no.nav.helse.flex.soknadsopprettelse.settOppSoknadSelvstendigOgFrilanser
 import no.nav.helse.flex.soknadsopprettelse.settOppSykepengesoknadBehandlingsdager
 import no.nav.helse.flex.soknadsopprettelse.skapReisetilskuddsoknad
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import kotlin.system.measureTimeMillis
@@ -31,7 +34,9 @@ class AktiverEnkeltSoknad(
     private val soknadProducer: SoknadProducer,
     private val identService: IdentService,
     private val sykepengesoknadRepository: SykepengesoknadRepository,
-    private val registry: MeterRegistry
+    private val registry: MeterRegistry,
+    private val andreArbeidsforholdHenting: AndreArbeidsforholdHenting,
+    @Value("\${ANDRE_INNTEKTSKILDER_V2:false}") private val andreInntektskilderV2: Boolean,
 
 ) {
     val log = logger()
@@ -119,6 +124,11 @@ class AktiverEnkeltSoknad(
                     soknadMetadata = soknadMetadata,
                     erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
                     tidligsteFomForSykmelding = tidligsteFomForSykmelding,
+                    andreKjenteArbeidsforhold = if (andreInntektskilderV2) {
+                        andreArbeidsforholdHenting.hentArbeidsforhold(soknadMetadata)
+                    } else {
+                        null
+                    }
                 )
             }
 
@@ -142,7 +152,7 @@ fun Sykepengesoknad.tilSoknadMetadata(): SoknadMetadata {
         tom = this.tom!!,
         arbeidssituasjon = arbeidssituasjon!!,
         arbeidsgiverOrgnummer = this.arbeidsgiverOrgnummer,
-        arbeidsgiverNavn = this.arbeidsgiverNavn,
+        arbeidsgiverNavn = this.arbeidsgiverNavn?.prettyOrgnavn(),
         sykmeldingId = this.sykmeldingId!!,
         sykmeldingSkrevet = this.sykmeldingSkrevet!!,
         sykmeldingsperioder = this.soknadPerioder!!,

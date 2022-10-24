@@ -13,6 +13,7 @@ import no.nav.helse.flex.domain.Visningskriterie.CHECKED
 import no.nav.helse.flex.domain.Visningskriterie.JA
 import no.nav.helse.flex.domain.rest.SoknadMetadata
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderArbeidstaker
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderArbeidstakerV2
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.ansvarserklaringSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.arbeidUtenforNorge
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.bekreftOpplysningerSporsmal
@@ -30,6 +31,7 @@ fun settOppSoknadArbeidstaker(
     soknadMetadata: SoknadMetadata,
     erForsteSoknadISykeforlop: Boolean,
     tidligsteFomForSykmelding: LocalDate,
+    andreKjenteArbeidsforhold: List<String>? = null, // trigger v2 andre inntektskilder spm
 ): List<Sporsmal> {
     val gradertResietilskudd = soknadMetadata.soknadstype == GRADERT_REISETILSKUDD
 
@@ -43,7 +45,6 @@ fun settOppSoknadArbeidstaker(
         ferieSporsmal(soknadMetadata.fom, soknadMetadata.tom),
         permisjonSporsmal(soknadMetadata.fom, soknadMetadata.tom),
         utenlandsoppholdSporsmal(soknadMetadata.fom, soknadMetadata.tom),
-        andreInntektskilderArbeidstaker(soknadMetadata.arbeidsgiverNavn),
         utdanningsSporsmal(soknadMetadata.fom, soknadMetadata.tom),
         vaerKlarOverAt(gradertReisetilskudd = gradertResietilskudd),
         bekreftOpplysningerSporsmal()
@@ -51,6 +52,11 @@ fun settOppSoknadArbeidstaker(
         if (erForsteSoknadISykeforlop) {
             it.add(fravarForSykmeldingen(tidligsteFomForSykmelding))
             it.add(arbeidUtenforNorge())
+        }
+        if (andreKjenteArbeidsforhold != null) {
+            it.add(andreInntektskilderArbeidstakerV2(soknadMetadata.arbeidsgiverNavn!!, andreKjenteArbeidsforhold))
+        } else {
+            it.add(andreInntektskilderArbeidstaker(soknadMetadata.arbeidsgiverNavn))
         }
         it.addAll(
             jobbetDuIPeriodenSporsmal(
