@@ -4,11 +4,14 @@ import com.nhaarman.mockitokotlin2.*
 import no.nav.helse.flex.domain.Arbeidssituasjon.ARBEIDSTAKER
 import no.nav.helse.flex.domain.Mottaker
 import no.nav.helse.flex.domain.Soknadstatus.KORRIGERT
+import no.nav.helse.flex.domain.Soknadstatus.NY
 import no.nav.helse.flex.domain.Soknadstatus.SENDT
 import no.nav.helse.flex.domain.Soknadstype
+import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.rest.SoknadMetadata
 import no.nav.helse.flex.kafka.producer.SoknadProducer
 import no.nav.helse.flex.repository.SykepengesoknadDAO
+import no.nav.helse.flex.soknadsopprettelse.genererSykepengesoknadFraMetadata
 import no.nav.helse.flex.soknadsopprettelse.settOppSoknadArbeidstaker
 import no.nav.helse.flex.soknadsopprettelse.settOppSykepengesoknadBehandlingsdager
 import no.nav.helse.flex.soknadsopprettelse.tilSoknadsperioder
@@ -50,10 +53,12 @@ class EttersendingSoknadServiceTest {
     fun ettersendTilNavOppdatererSendtNavOgSender() {
         val soknadBehandlingsdager = behandlingsdagerSoknadMock().copy(
             id = "behandlingsdagerId",
-            sendtArbeidsgiver = LocalDateTime.now().minusHours(4).tilOsloInstant()
+            sendtArbeidsgiver = LocalDateTime.now().minusHours(4).tilOsloInstant(),
+            status = SENDT
         )
         val soknadArbeidstaker =
-            arbeidstakereSoknadMock().copy(id = "arbeidstakerId", sendtArbeidsgiver = LocalDateTime.now().minusHours(4).tilOsloInstant())
+            arbeidstakereSoknadMock()
+                .copy(id = "arbeidstakerId", sendtArbeidsgiver = LocalDateTime.now().minusHours(4).tilOsloInstant(), status = SENDT)
 
         whenever(sykepengesoknadDAO.finnSykepengesoknad("behandlingsdagerId")).thenReturn(soknadBehandlingsdager)
         whenever(sykepengesoknadDAO.finnSykepengesoknad("arbeidstakerId")).thenReturn(soknadArbeidstaker)
@@ -91,8 +96,8 @@ class EttersendingSoknadServiceTest {
 
     @Test
     fun ettersendTilNAVGjorIngentingHvisSoknadAlleredeErSendtTilNav() {
-        val soknadBehandlingsdager = behandlingsdagerSoknadMock().copy(sendtNav = LocalDateTime.now().minusHours(4).tilOsloInstant())
-        val soknadArbeidstaker = arbeidstakereSoknadMock().copy(sendtNav = LocalDateTime.now().minusHours(4).tilOsloInstant())
+        val soknadBehandlingsdager = behandlingsdagerSoknadMock().copy(status = SENDT, sendtNav = LocalDateTime.now().minusHours(4).tilOsloInstant())
+        val soknadArbeidstaker = arbeidstakereSoknadMock().copy(status = SENDT, sendtNav = LocalDateTime.now().minusHours(4).tilOsloInstant())
 
         ettersendingSoknadService.ettersendTilNav(soknadBehandlingsdager)
         ettersendingSoknadService.ettersendTilNav(soknadArbeidstaker)
@@ -127,9 +132,9 @@ class EttersendingSoknadServiceTest {
     @Test
     fun ettersendTilArbeidsgiverOppdatererSendtAGOgSender() {
         val soknadBehandlingsdager =
-            behandlingsdagerSoknadMock().copy(id = "behandlingsdagerId", sendtNav = LocalDateTime.now().minusHours(4).tilOsloInstant())
+            behandlingsdagerSoknadMock().copy(id = "behandlingsdagerId", sendtNav = LocalDateTime.now().minusHours(4).tilOsloInstant(), status = SENDT)
         val soknadArbeidstaker =
-            arbeidstakereSoknadMock().copy(id = "arbeidstakerId", sendtNav = LocalDateTime.now().minusHours(4).tilOsloInstant())
+            arbeidstakereSoknadMock().copy(id = "arbeidstakerId", sendtNav = LocalDateTime.now().minusHours(4).tilOsloInstant(), status = SENDT)
 
         whenever(sykepengesoknadDAO.finnSykepengesoknad("behandlingsdagerId")).thenReturn(soknadBehandlingsdager)
         whenever(sykepengesoknadDAO.finnSykepengesoknad("arbeidstakerId")).thenReturn(soknadBehandlingsdager)
@@ -170,10 +175,11 @@ class EttersendingSoknadServiceTest {
     fun ettersendTilArbeidsgiverGjorIngentingHvisSoknadAlleredeErSendtTilArbeidsgiver() {
         val soknadBehandlingsdager = behandlingsdagerSoknadMock().copy(
             id = "arbeidstakerId",
-            sendtArbeidsgiver = LocalDateTime.now().minusHours(4).tilOsloInstant()
+            sendtArbeidsgiver = LocalDateTime.now().minusHours(4).tilOsloInstant(),
+            status = SENDT,
         )
         val soknadArbeidstaker =
-            arbeidstakereSoknadMock().copy(id = "arbeidstakerId", sendtArbeidsgiver = LocalDateTime.now().minusHours(4).tilOsloInstant())
+            arbeidstakereSoknadMock().copy(id = "arbeidstakerId", sendtArbeidsgiver = LocalDateTime.now().minusHours(4).tilOsloInstant(), status = SENDT)
 
         ettersendingSoknadService.ettersendTilArbeidsgiver(soknadBehandlingsdager)
         ettersendingSoknadService.ettersendTilArbeidsgiver(soknadArbeidstaker)
@@ -182,8 +188,8 @@ class EttersendingSoknadServiceTest {
         verify(soknadProducer, never()).soknadEvent(any(), any(), anyBoolean(), eq(null), eq(null))
     }
 
-    private fun behandlingsdagerSoknadMock() = settOppSykepengesoknadBehandlingsdager(
-        SoknadMetadata(
+    private fun behandlingsdagerSoknadMock(): Sykepengesoknad {
+        val soknadMetadata = SoknadMetadata(
             arbeidsgiverOrgnummer = "123456789",
             arbeidsgiverNavn = "Bedrift AS",
             startSykeforlop = LocalDate.now(),
@@ -205,14 +211,19 @@ class EttersendingSoknadServiceTest {
             fom = LocalDate.now().minusDays(20),
             tom = LocalDate.now().minusDays(10),
             soknadstype = Soknadstype.ARBEIDSTAKERE,
-            status = SENDT,
             sykmeldingId = "sykmeldingId"
-        ),
-        true, LocalDate.now()
-    )
+        )
+        return genererSykepengesoknadFraMetadata(soknadMetadata).copy(
+            sporsmal = settOppSykepengesoknadBehandlingsdager(
+                soknadMetadata,
+                true, LocalDate.now()
+            ),
+            status = NY
+        )
+    }
 
-    private fun arbeidstakereSoknadMock() = settOppSoknadArbeidstaker(
-        SoknadMetadata(
+    private fun arbeidstakereSoknadMock(): Sykepengesoknad {
+        val soknadMetadata = SoknadMetadata(
             arbeidsgiverOrgnummer = "123456789",
             arbeidsgiverNavn = "Bedrift AS",
             startSykeforlop = LocalDate.now(),
@@ -234,9 +245,14 @@ class EttersendingSoknadServiceTest {
             fom = LocalDate.now().minusDays(20),
             tom = LocalDate.now().minusDays(10),
             soknadstype = Soknadstype.ARBEIDSTAKERE,
-            status = SENDT,
             sykmeldingId = "sykmeldingId"
-        ),
-        true, LocalDate.now()
-    )
+        )
+        return genererSykepengesoknadFraMetadata(soknadMetadata).copy(
+            sporsmal = settOppSoknadArbeidstaker(
+                soknadMetadata,
+                true, LocalDate.now()
+            ),
+            status = NY
+        )
+    }
 }

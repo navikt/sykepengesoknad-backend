@@ -19,9 +19,6 @@ spec:
     retentionHours: 6576  # Messages are stored for 6 months
   acl:
     - team: flex
-      application: syfosoknad
-      access: write
-    - team: flex
       application: sykepengesoknad-backend
       access: readwrite
     - team: tbd

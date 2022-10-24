@@ -5,9 +5,9 @@ import com.nhaarman.mockitokotlin2.doCallRealMethod
 import com.nhaarman.mockitokotlin2.doThrow
 import com.nhaarman.mockitokotlin2.whenever
 import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.aktivering.kafka.AktiveringProducer
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.rest.SoknadMetadata
 import no.nav.helse.flex.hentSoknader
@@ -48,6 +48,9 @@ class TransaksjonshandteringTest : BaseTestClass() {
     @Autowired
     private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
 
+    @Autowired
+    private lateinit var aktiveringProducer: AktiveringProducer
+
     final val fnr = "123456789"
 
     private val soknadMetadata = SoknadMetadata(
@@ -69,17 +72,15 @@ class TransaksjonshandteringTest : BaseTestClass() {
         fnr = fnr,
         fom = LocalDate.of(2018, 1, 1),
         tom = LocalDate.of(2020, 5, 10),
-        status = Soknadstatus.NY,
         sykmeldingId = "sykmeldingId",
         arbeidsgiverNavn = null,
-        soknadstype = Soknadstype.ARBEIDSTAKERE,
+        soknadstype = Soknadstype.ARBEIDSLEDIG,
         arbeidsgiverOrgnummer = null
     )
 
     @Test
     fun `01 - vi oppretter en arbeidsledigsøknad`() {
-        // Opprett søknad
-        opprettSoknadService.opprettSoknadFraSoknadMetadata(soknadMetadata, sykepengesoknadDAO)
+        opprettSoknadService.opprettSoknadFraSoknadMetadata(soknadMetadata, sykepengesoknadDAO, aktiveringProducer)
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
     }
 

@@ -95,7 +95,7 @@ class ReisetilskuddIntegrationTest : BaseTestClass() {
 
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
-        behandleSendtBekreftetSykmeldingService.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
 
         val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
         assertThat(soknader).hasSize(1)

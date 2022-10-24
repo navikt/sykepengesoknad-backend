@@ -37,12 +37,6 @@ class OverlapperFullstendig : BaseTestClass() {
             fnr = fnr
         )
 
-        val hentetViaRest = hentSoknader(fnr)
-        hentetViaRest shouldHaveSize 1
-
-        hentetViaRest[0].fom shouldBeEqualTo basisdato.plusDays(5)
-        hentetViaRest[0].tom shouldBeEqualTo basisdato.plusDays(10)
-
         val meldingerPaKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 3).tilSoknader()
 
         meldingerPaKafka[0].status shouldBeEqualTo SoknadsstatusDTO.FREMTIDIG
@@ -56,6 +50,12 @@ class OverlapperFullstendig : BaseTestClass() {
         meldingerPaKafka[2].status shouldBeEqualTo SoknadsstatusDTO.FREMTIDIG
         meldingerPaKafka[2].fom shouldBeEqualTo basisdato.plusDays(5)
         meldingerPaKafka[2].tom shouldBeEqualTo basisdato.plusDays(10)
+
+        val hentetViaRest = hentSoknader(fnr)
+        hentetViaRest shouldHaveSize 1
+
+        hentetViaRest[0].fom shouldBeEqualTo basisdato.plusDays(5)
+        hentetViaRest[0].tom shouldBeEqualTo basisdato.plusDays(10)
     }
 
     @Test
@@ -71,12 +71,6 @@ class OverlapperFullstendig : BaseTestClass() {
             fnr = fnr
         )
 
-        val hentetViaRest = hentSoknader(fnr)
-        hentetViaRest shouldHaveSize 1
-
-        hentetViaRest[0].fom shouldBeEqualTo basisdato
-        hentetViaRest[0].tom shouldBeEqualTo basisdato.plusDays(15)
-
         val meldingerPaKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 3).tilSoknader()
 
         meldingerPaKafka[0].status shouldBeEqualTo SoknadsstatusDTO.FREMTIDIG
@@ -90,6 +84,12 @@ class OverlapperFullstendig : BaseTestClass() {
         meldingerPaKafka[2].status shouldBeEqualTo SoknadsstatusDTO.FREMTIDIG
         meldingerPaKafka[2].fom shouldBeEqualTo basisdato
         meldingerPaKafka[2].tom shouldBeEqualTo basisdato.plusDays(15)
+
+        val hentetViaRest = hentSoknader(fnr)
+        hentetViaRest shouldHaveSize 1
+
+        hentetViaRest[0].fom shouldBeEqualTo basisdato
+        hentetViaRest[0].tom shouldBeEqualTo basisdato.plusDays(15)
     }
 
     @Test
@@ -105,12 +105,6 @@ class OverlapperFullstendig : BaseTestClass() {
             fnr = fnr
         )
 
-        val hentetViaRest = hentSoknader(fnr)
-        hentetViaRest shouldHaveSize 1
-
-        hentetViaRest[0].fom shouldBeEqualTo basisdato
-        hentetViaRest[0].tom shouldBeEqualTo basisdato.plusDays(10)
-
         val meldingerPaKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 3).tilSoknader()
 
         meldingerPaKafka[0].status shouldBeEqualTo SoknadsstatusDTO.FREMTIDIG
@@ -124,5 +118,11 @@ class OverlapperFullstendig : BaseTestClass() {
         meldingerPaKafka[2].status shouldBeEqualTo SoknadsstatusDTO.FREMTIDIG
         meldingerPaKafka[2].fom shouldBeEqualTo basisdato
         meldingerPaKafka[2].tom shouldBeEqualTo basisdato.plusDays(10)
+
+        val hentetViaRest = hentSoknader(fnr)
+        hentetViaRest shouldHaveSize 1
+
+        hentetViaRest[0].fom shouldBeEqualTo basisdato
+        hentetViaRest[0].tom shouldBeEqualTo basisdato.plusDays(10)
     }
 }

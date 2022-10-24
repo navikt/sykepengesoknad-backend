@@ -2,6 +2,7 @@ package no.nav.helse.flex.arbeidstaker
 
 import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
+import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Visningskriterie
@@ -15,6 +16,7 @@ import no.nav.helse.flex.soknadsopprettelse.PAPIRSYKMELDING_NAR
 import no.nav.helse.flex.soknadsopprettelse.TIDLIGERE_EGENMELDING
 import no.nav.helse.flex.soknadsopprettelse.TIDLIGERE_PAPIRSYKMELDING
 import no.nav.helse.flex.soknadsopprettelse.TIDLIGERE_SYK
+import no.nav.helse.flex.soknadsopprettelse.genererSykepengesoknadFraMetadata
 import no.nav.helse.flex.soknadsopprettelse.settOppSoknadArbeidstaker
 import no.nav.helse.flex.sykepengesoknad.kafka.PeriodeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
@@ -43,13 +45,13 @@ class GammeltEgenmeldingSporsmalTest : BaseTestClass() {
     fun `1 - vi lager en sykmelding med gammelt format`() {
         val fom = LocalDate.now().minusDays(19)
         val soknadMetadata = skapSoknadMetadata(fnr = fnr)
-        val standardSoknad = settOppSoknadArbeidstaker(
+        val standardSpm = settOppSoknadArbeidstaker(
             soknadMetadata = soknadMetadata,
             erForsteSoknadISykeforlop = true,
             tidligsteFomForSykmelding = fom,
         )
 
-        val nyesporsmal = standardSoknad.sporsmal.map {
+        val nyesporsmal = standardSpm.map {
             if (it.tag == FRAVAR_FOR_SYKMELDINGEN) {
                 gammeltEgenmeldingSpm(fom)
             } else {
@@ -57,7 +59,7 @@ class GammeltEgenmeldingSporsmalTest : BaseTestClass() {
             }
         }
 
-        sykepengesoknadDAO.lagreSykepengesoknad(standardSoknad.copy(sporsmal = nyesporsmal))
+        sykepengesoknadDAO.lagreSykepengesoknad(genererSykepengesoknadFraMetadata(soknadMetadata).copy(sporsmal = nyesporsmal, status = Soknadstatus.NY))
     }
 
     @Test

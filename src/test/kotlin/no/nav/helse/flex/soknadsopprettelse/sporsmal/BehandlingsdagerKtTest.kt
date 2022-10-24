@@ -1,7 +1,6 @@
 package no.nav.helse.flex.soknadsopprettelse.sporsmal
 
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svartype
@@ -24,7 +23,6 @@ class BehandlingsdagerKtTest {
 
     val testSoknad = SoknadMetadata(
         fnr = "fnr-7454630",
-        status = Soknadstatus.SENDT,
         startSykeforlop = LocalDate.of(2019, 12, 5).minusMonths(1),
         fom = LocalDate.of(2019, 12, 5).minusMonths(1),
         tom = LocalDate.of(2019, 12, 5).minusMonths(1).plusDays(8),

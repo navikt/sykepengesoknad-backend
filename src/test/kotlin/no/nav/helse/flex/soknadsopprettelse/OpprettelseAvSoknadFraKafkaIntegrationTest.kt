@@ -40,7 +40,6 @@ import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
 import org.springframework.beans.factory.annotation.Autowired
-import java.time.Duration
 import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.MethodName::class)
@@ -78,14 +77,15 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
             kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
         )
 
-        behandleSendtBekreftetSykmeldingService.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
+
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
 
         val hentetViaRest = hentSoknader(fnr).sortedBy { it.fom }
         assertThat(hentetViaRest).hasSize(1)
         assertThat(hentetViaRest[0].soknadstype).isEqualTo(RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE)
 
         verify(aivenKafkaProducer, times(1)).produserMelding(any())
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
     }
 
     @Test
@@ -104,7 +104,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
             kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
         )
 
-        behandleSendtBekreftetSykmeldingService.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
 
         val hentetViaRest = hentSoknader(fnr).sortedBy { it.fom }
         assertThat(hentetViaRest).hasSize(0)
@@ -138,14 +138,15 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
             kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
         )
 
-        behandleSendtBekreftetSykmeldingService.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
+
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
 
         val hentetViaRest = hentSoknader(fnr).sortedBy { it.fom }
         assertThat(hentetViaRest).hasSize(1)
         assertThat(hentetViaRest[0].soknadstype).isEqualTo(RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE)
 
         verify(aivenKafkaProducer, times(1)).produserMelding(any())
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
     }
 
     @Test
@@ -175,7 +176,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
             kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
         )
 
-        behandleSendtBekreftetSykmeldingService.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
 
         val hentetViaRest = hentSoknader(fnr).sortedBy { it.fom }
         assertThat(hentetViaRest).hasSize(0)
@@ -201,7 +202,9 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
             kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
         )
 
-        behandleSendtBekreftetSykmeldingService.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage)
+
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
 
         val hentetViaRest = hentSoknader(fnr).sortedBy { it.fom }
         assertThat(hentetViaRest).hasSize(2)
@@ -213,7 +216,6 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
 
         assertThat(hentetViaRest[0].sporsmal!!.any { it.tag == ARBEID_UTENFOR_NORGE }).isTrue()
         assertThat(hentetViaRest[1].sporsmal!!.any { it.tag == ARBEID_UTENFOR_NORGE }).isFalse()
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
     }
 
     @Test
@@ -234,7 +236,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
         )
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
-        behandleSendtBekreftetSykmeldingService.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage)
 
         val hentetViaRest = hentSoknader(fnr).sortedBy { it.fom }
         assertThat(hentetViaRest).hasSize(0)
@@ -280,7 +282,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
 
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
-        behandleSendtBekreftetSykmeldingService.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage)
 
         val hentetViaRest = hentSoknader(fnr).sortedBy { it.fom }
         assertThat(hentetViaRest).hasSize(12)
@@ -327,11 +329,12 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
 
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
-        behandleSendtBekreftetSykmeldingService.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage)
+
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
 
         val hentetViaRest = hentSoknader(fnr).sortedBy { it.fom }
         assertThat(hentetViaRest).hasSize(2)
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
     }
 
     @Test
@@ -364,11 +367,12 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
             kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
         )
 
-        behandleSendtBekreftetSykmeldingService.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage)
+
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
 
         val hentetViaRest = hentSoknader(fnr).sortedBy { it.fom }
         assertThat(hentetViaRest).hasSize(2)
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
     }
 
     @Test
@@ -400,7 +404,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
             kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
         )
 
-        behandleSendtBekreftetSykmeldingService.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage)
 
         val hentetViaRest = hentSoknader(fnr).sortedBy { it.fom }
         assertThat(hentetViaRest).hasSize(0)
@@ -423,7 +427,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
             kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
         )
 
-        behandleSendtBekreftetSykmeldingService.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage)
 
         val hentetViaRest = hentSoknader(fnr).sortedBy { it.fom }
         assertThat(hentetViaRest).hasSize(0)
@@ -468,7 +472,9 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
         mockFlexSyketilfelleErUtaforVentetid(sykmelding.id, true)
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
-        behandleSendtBekreftetSykmeldingService.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage)
+
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
 
         val hentetViaRest = hentSoknader(fnr).sortedBy { it.fom }
         assertThat(hentetViaRest).hasSize(2)
@@ -507,7 +513,6 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
 
         assertThat(hentetViaRest[0].sporsmal!!.any { it.tag == ARBEID_UTENFOR_NORGE }).isTrue()
         assertThat(hentetViaRest[1].sporsmal!!.any { it.tag == ARBEID_UTENFOR_NORGE }).isFalse()
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2, duration = Duration.ofSeconds(5))
     }
 
     @Test
@@ -521,7 +526,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
             kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
         )
 
-        behandleSendtBekreftetSykmeldingService.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage)
         verify(rebehandlingsSykmeldingSendtProducer, times(1)).leggPaRebehandlingTopic(any(), any())
     }
 
@@ -537,7 +542,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
         )
         mockFlexSyketilfelleSykeforloep(sykmeldingStatusKafkaMessageDTO.event.sykmeldingId)
 
-        behandleSendtBekreftetSykmeldingService.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage)
         verify(rebehandlingsSykmeldingSendtProducer, times(1)).leggPaRebehandlingTopic(any(), any())
     }
 
@@ -553,7 +558,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
             kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
         )
 
-        behandleSendtBekreftetSykmeldingService.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage)
         verify(rebehandlingsSykmeldingSendtProducer, times(1)).leggPaRebehandlingTopic(any(), any())
     }
 
@@ -573,7 +578,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
         )
         mockFlexSyketilfelleSykeforloep(sykmeldingStatusKafkaMessageDTO.event.sykmeldingId)
 
-        behandleSendtBekreftetSykmeldingService.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage)
         verify(rebehandlingsSykmeldingSendtProducer, times(1)).leggPaRebehandlingTopic(any(), any())
     }
 
@@ -595,7 +600,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
         )
         mockFlexSyketilfelleSykeforloep(sykmeldingStatusKafkaMessageDTO.event.sykmeldingId)
 
-        behandleSendtBekreftetSykmeldingService.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage)
 
         verify(rebehandlingsSykmeldingSendtProducer, times(1)).leggPaRebehandlingTopic(any(), any())
     }
@@ -618,7 +623,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
         )
         mockFlexSyketilfelleSykeforloep(sykmeldingStatusKafkaMessageDTO.event.sykmeldingId)
 
-        behandleSendtBekreftetSykmeldingService.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage)
         verify(rebehandlingsSykmeldingSendtProducer, times(1)).leggPaRebehandlingTopic(any(), any())
     }
 
@@ -640,7 +645,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
                 kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
             )
 
-            behandleSendtBekreftetSykmeldingService.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage)
+            behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage)
         }
     }
 
@@ -676,7 +681,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
         mockFlexSyketilfelleErUtaforVentetid(sykmelding.id, true)
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
-        behandleSendtBekreftetSykmeldingService.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage)
 
         assertThat(sykepengesoknadDAO.finnSykepengesoknader(listOf(fnr)).size).isEqualTo(2)
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
@@ -720,7 +725,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
             argWhere { it.fom == dato.plusDays(21) && it.tom == dato.plusDays(40) }
         )
 
-        behandleSendtBekreftetSykmeldingService.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage)
 
         assertThat(sykepengesoknadDAO.finnSykepengesoknader(listOf(fnr)).size).isEqualTo(0)
         verify(rebehandlingsSykmeldingSendtProducer, times(1)).leggPaRebehandlingTopic(any(), any())

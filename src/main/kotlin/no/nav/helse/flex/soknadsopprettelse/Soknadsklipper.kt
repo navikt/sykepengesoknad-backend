@@ -1,5 +1,8 @@
 package no.nav.helse.flex.soknadsopprettelse
 
+import no.nav.helse.flex.aktivering.AktiverEnkeltSoknad
+import no.nav.helse.flex.aktivering.kafka.AktiveringBestilling
+import no.nav.helse.flex.aktivering.kafka.AktiveringProducer
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadsperiode
 import no.nav.helse.flex.domain.Soknadstatus
@@ -9,7 +12,6 @@ import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.kafka.producer.SoknadProducer
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadDAO
-import no.nav.helse.flex.service.AktiverEnkeltSoknadService
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.soknadsopprettelse.Soknadsklipper.EndringIUforegrad.FLERE_PERIODER
 import no.nav.helse.flex.soknadsopprettelse.Soknadsklipper.EndringIUforegrad.LAVERE_UFØREGRAD
@@ -32,7 +34,8 @@ import java.time.LocalDate
 class Soknadsklipper(
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val metrikk: Metrikk,
-    private val aktiverEnkeltSoknadService: AktiverEnkeltSoknadService,
+    private val aktiverEnkeltSoknad: AktiverEnkeltSoknad,
+    private val aktiveringProducer: AktiveringProducer,
     private val soknadProducer: SoknadProducer,
 ) {
 
@@ -171,7 +174,10 @@ class Soknadsklipper(
                         klipp = sykmeldingPeriode.start
                     )
                     if (sykmeldingPeriode.start.minusDays(1) < LocalDate.now()) {
-                        aktiverEnkeltSoknadService.aktiverSoknad(sok.id)
+                        // aktiverEnkeltSoknad.aktiverSoknad(sok.id)
+
+                        // TODO: Finne ut om FREMTIDIG -> klippet NY, kan legges på kafka i feil rekkefølge
+                        aktiveringProducer.leggPaAktiveringTopic(AktiveringBestilling(sok.fnr, sok.id))
                     }
                 }
 

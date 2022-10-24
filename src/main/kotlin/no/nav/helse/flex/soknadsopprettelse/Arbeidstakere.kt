@@ -1,6 +1,5 @@
 package no.nav.helse.flex.soknadsopprettelse
 
-import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadsperiode
 import no.nav.helse.flex.domain.Soknadstype.GRADERT_REISETILSKUDD
 import no.nav.helse.flex.domain.Sporsmal
@@ -24,7 +23,6 @@ import no.nav.helse.flex.soknadsopprettelse.sporsmal.vaerKlarOverAt
 import no.nav.helse.flex.soknadsopprettelse.undersporsmal.jobbetDuUndersporsmal
 import no.nav.helse.flex.util.DatoUtil.formatterDato
 import no.nav.helse.flex.util.DatoUtil.formatterPeriode
-import java.time.Instant
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
@@ -32,10 +30,10 @@ fun settOppSoknadArbeidstaker(
     soknadMetadata: SoknadMetadata,
     erForsteSoknadISykeforlop: Boolean,
     tidligsteFomForSykmelding: LocalDate,
-): Sykepengesoknad {
+): List<Sporsmal> {
     val gradertResietilskudd = soknadMetadata.soknadstype == GRADERT_REISETILSKUDD
 
-    val sporsmal = mutableListOf(
+    return mutableListOf(
         ansvarserklaringSporsmal(reisetilskudd = gradertResietilskudd),
         if (gradertResietilskudd) {
             tilbakeIFulltArbeidGradertReisetilskuddSporsmal(soknadMetadata)
@@ -63,27 +61,7 @@ fun settOppSoknadArbeidstaker(
         if (gradertResietilskudd) {
             it.add(brukteReisetilskuddetSpørsmål())
         }
-    }
-
-    return Sykepengesoknad(
-        id = soknadMetadata.id,
-        fnr = soknadMetadata.fnr,
-        sykmeldingId = soknadMetadata.sykmeldingId,
-        status = soknadMetadata.status,
-        fom = soknadMetadata.fom,
-        tom = soknadMetadata.tom,
-        opprettet = Instant.now(),
-        startSykeforlop = soknadMetadata.startSykeforlop,
-        sykmeldingSkrevet = soknadMetadata.sykmeldingSkrevet,
-        arbeidsgiverOrgnummer = soknadMetadata.arbeidsgiverOrgnummer!!,
-        arbeidsgiverNavn = soknadMetadata.arbeidsgiverNavn!!,
-        soknadPerioder = soknadMetadata.sykmeldingsperioder,
-        sporsmal = sporsmal,
-        soknadstype = soknadMetadata.soknadstype,
-        arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-        egenmeldtSykmelding = soknadMetadata.egenmeldtSykmelding,
-        merknaderFraSykmelding = soknadMetadata.merknader,
-    )
+    }.toList()
 }
 
 fun Sykepengesoknad.harFeriePermisjonEllerUtenlandsoppholdSporsmal(): Boolean {

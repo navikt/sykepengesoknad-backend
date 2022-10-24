@@ -23,16 +23,15 @@ import no.nav.helse.flex.soknadsopprettelse.sporsmal.vaerKlarOverAt
 import no.nav.helse.flex.soknadsopprettelse.undersporsmal.jobbetDuUndersporsmal
 import no.nav.helse.flex.util.DatoUtil.formatterDato
 import no.nav.helse.flex.util.DatoUtil.formatterPeriode
-import java.time.Instant
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
 fun settOppSoknadSelvstendigOgFrilanser(
     soknadMetadata: SoknadMetadata,
     erForsteSoknadISykeforlop: Boolean
-): Sykepengesoknad {
+): List<Sporsmal> {
     val gradertReisetilskudd = soknadMetadata.soknadstype == Soknadstype.GRADERT_REISETILSKUDD
-    val sporsmal = mutableListOf(
+    return mutableListOf(
         ansvarserklaringSporsmal(reisetilskudd = gradertReisetilskudd),
         if (gradertReisetilskudd) {
             tilbakeIFulltArbeidGradertReisetilskuddSporsmal(soknadMetadata)
@@ -52,25 +51,7 @@ fun settOppSoknadSelvstendigOgFrilanser(
         if (gradertReisetilskudd) {
             it.add(brukteReisetilskuddetSpørsmål())
         }
-    }
-
-    return Sykepengesoknad(
-        id = soknadMetadata.id,
-        soknadstype = soknadMetadata.soknadstype,
-        status = soknadMetadata.status,
-        fom = soknadMetadata.fom,
-        tom = soknadMetadata.tom,
-        opprettet = Instant.now(),
-        startSykeforlop = soknadMetadata.startSykeforlop,
-        sykmeldingSkrevet = soknadMetadata.sykmeldingSkrevet,
-        sykmeldingId = soknadMetadata.sykmeldingId,
-        arbeidssituasjon = soknadMetadata.arbeidssituasjon,
-        soknadPerioder = soknadMetadata.sykmeldingsperioder,
-        sporsmal = sporsmal,
-        fnr = soknadMetadata.fnr,
-        egenmeldtSykmelding = soknadMetadata.egenmeldtSykmelding,
-        merknaderFraSykmelding = soknadMetadata.merknader,
-    )
+    }.toList()
 }
 
 private fun jobbetDuIPeriodenSporsmal(

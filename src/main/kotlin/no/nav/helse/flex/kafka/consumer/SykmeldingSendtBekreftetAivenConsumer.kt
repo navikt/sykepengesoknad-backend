@@ -3,7 +3,7 @@ package no.nav.helse.flex.kafka.consumer
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.logger
-import no.nav.helse.flex.soknadsopprettelse.BehandleSendtBekreftetSykmeldingService
+import no.nav.helse.flex.soknadsopprettelse.BehandleSykmeldingOgBestillAktivering
 import no.nav.helse.flex.util.OBJECT_MAPPER
 import no.nav.syfo.kafka.NAV_CALLID
 import no.nav.syfo.kafka.getSafeNavCallIdHeaderAsString
@@ -21,7 +21,7 @@ const val SYKMELDINGBEKREFTET_TOPIC = "teamsykmelding." + "syfo-bekreftet-sykmel
 @Component
 @Profile("sykmeldinger")
 class SykmeldingSendtBekreftetAivenConsumer(
-    private val behandleSendtBekreftetSykmeldingService: BehandleSendtBekreftetSykmeldingService
+    private val behandleSykmeldingOgBestillAktivering: BehandleSykmeldingOgBestillAktivering
 ) {
 
     val log = logger()
@@ -37,7 +37,7 @@ class SykmeldingSendtBekreftetAivenConsumer(
         val melding = cr.value()?.tilSykmeldingKafkaMessage()
 
         try {
-            behandleSendtBekreftetSykmeldingService.prosesserSykmelding(cr.key(), melding)
+            behandleSykmeldingOgBestillAktivering.prosesserSykmelding(cr.key(), melding)
             val msBehandling = Instant.now().toEpochMilli() - cr.timestamp()
             if (msBehandling > 10000) {
                 log.warn("Brukte $msBehandling millisekunder på å behandle søknadsopprettelse for sykmelding ${cr.key()}")

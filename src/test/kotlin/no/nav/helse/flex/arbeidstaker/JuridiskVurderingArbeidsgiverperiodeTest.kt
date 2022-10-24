@@ -205,7 +205,7 @@ class JuridiskVurderingArbeidsgiverperiodeTest : BaseTestClass() {
             event = sykmeldingStatusKafkaMessageDTO.event,
             kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
         )
-        behandleSendtBekreftetSykmeldingService.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
 
         flexSyketilfelleMockRestServiceServer?.reset()
         mockFlexSyketilfelleArbeidsgiverperiode(
@@ -215,6 +215,9 @@ class JuridiskVurderingArbeidsgiverperiodeTest : BaseTestClass() {
                 arbeidsgiverPeriode = Periode(fom = arbeidsgiverperiodeFom, tom = arbeidsgiverperiodeTom)
             )
         )
+
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
+
         val soknaden = hentSoknader(fnr).find { it.status == RSSoknadstatus.NY }!!
 
         val sendtSoknad = SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
@@ -232,6 +235,6 @@ class JuridiskVurderingArbeidsgiverperiodeTest : BaseTestClass() {
             .sendSoknad()
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
 
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
     }
 }

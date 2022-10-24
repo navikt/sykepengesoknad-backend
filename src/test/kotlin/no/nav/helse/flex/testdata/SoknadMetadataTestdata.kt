@@ -1,5 +1,4 @@
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.rest.SoknadMetadata
 import no.nav.helse.flex.soknadsopprettelse.tilSoknadsperioder
@@ -18,7 +17,6 @@ fun skapSoknadMetadata(
 ): SoknadMetadata {
     return SoknadMetadata(
         fnr = fnr,
-        status = Soknadstatus.NY,
         startSykeforlop = LocalDate.now().minusDays(24),
         fom = fom,
         tom = tom,

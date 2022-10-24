@@ -23,7 +23,6 @@ import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
-import java.time.Duration
 import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.MethodName::class)
@@ -57,12 +56,12 @@ class AvbruttSoknadIncidentTest : BaseTestClass() {
             event = sykmeldingStatusKafkaMessageDTO.event,
             kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
         )
-        behandleSendtBekreftetSykmeldingService.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
 
         val hentetViaRest = hentSoknader(fnr)
         assertThat(hentetViaRest).hasSize(1)
 
-        val ventPåRecords = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1, duration = Duration.ofSeconds(2))
+        val ventPåRecords = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
         val kafkaSoknader = ventPåRecords.tilSoknader()
 
         assertThat(kafkaSoknader[0].status).isEqualTo(SoknadsstatusDTO.NY)

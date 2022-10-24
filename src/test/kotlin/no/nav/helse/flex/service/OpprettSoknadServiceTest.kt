@@ -1,12 +1,12 @@
 package no.nav.helse.flex.service
 
+import no.nav.helse.flex.aktivering.kafka.AktiveringProducer
 import no.nav.helse.flex.client.flexsyketilfelle.FlexSyketilfelleClient
 import no.nav.helse.flex.config.EnvironmentToggles
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.domain.Soknadstatus.NY
 import no.nav.helse.flex.domain.Soknadstype
-import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.rest.SoknadMetadata
+import no.nav.helse.flex.julesoknad.LagreJulesoknadKandidater
 import no.nav.helse.flex.kafka.producer.SoknadProducer
 import no.nav.helse.flex.mock.opprettNySoknad
 import no.nav.helse.flex.repository.SykepengesoknadDAO
@@ -41,7 +41,7 @@ class OpprettSoknadServiceTest {
     private lateinit var flexSyketilfelleClient: FlexSyketilfelleClient
 
     @Mock
-    private lateinit var julesoknadService: JulesoknadService
+    private lateinit var lagreJulesoknadKandidater: LagreJulesoknadKandidater
 
     @Mock
     private lateinit var toggle: EnvironmentToggles
@@ -52,56 +52,15 @@ class OpprettSoknadServiceTest {
     @Mock
     private lateinit var slettSoknaderTilKorrigertSykmeldingService: SlettSoknaderTilKorrigertSykmeldingService
 
+    @Mock
+    private lateinit var aktiveringProducer: AktiveringProducer
+
     @InjectMocks
     private lateinit var opprettSoknadService: OpprettSoknadService
 
     @Test
-    fun sykmeldtRegistrertSomBlittArbeidsledig() {
-        val arbeidstakerSoknad = arbeidstakersoknad(LocalDate.of(2019, 9, 10), LocalDate.of(2019, 9, 17))
-        val arbeidsledigSoknad = arbeidsledigsoknad("arbeidsledig", LocalDate.of(2019, 9, 27), LocalDate.of(2019, 9, 30))
-
-        opprettSoknadService.metrikkBlittArbeidsledig(arbeidsledigSoknad, listOf(arbeidstakerSoknad, arbeidsledigSoknad))
-
-        verify(metrikk, times(1)).tellBlittArbeidsledig()
-    }
-
-    @Test
-    fun sykmeldtIkkeRegistrertSomArbeidsledigSidenForrigeSykeforlopErLengeSiden() {
-        val arbeidstakerSoknad = arbeidstakersoknad(LocalDate.of(2019, 8, 10), LocalDate.of(2019, 8, 17))
-        val arbeidsledigSoknad = arbeidsledigsoknad("arbeidsledig", LocalDate.of(2019, 9, 27), LocalDate.of(2019, 9, 30))
-
-        opprettSoknadService.metrikkBlittArbeidsledig(arbeidsledigSoknad, listOf(arbeidstakerSoknad, arbeidsledigSoknad))
-
-        verify(metrikk, never()).tellBlittArbeidsledig()
-    }
-
-    @Test
-    fun sykmeldtIkkeRegistrertSomBlittArbeidsledigSidenAlleredeArbeidsledig() {
-        val arbeidsledigSoknadTidligere = arbeidsledigsoknad("arbeidsledigTidligere", LocalDate.of(2019, 8, 10), LocalDate.of(2019, 8, 17))
-        val arbeidsledigSoknad = arbeidsledigsoknad("arbeidsledig", LocalDate.of(2019, 9, 27), LocalDate.of(2019, 9, 30))
-
-        opprettSoknadService.metrikkBlittArbeidsledig(arbeidsledigSoknad, listOf(arbeidsledigSoknadTidligere, arbeidsledigSoknad))
-
-        verify(metrikk, never()).tellBlittArbeidsledig()
-    }
-
-    @Test
-    fun sykmeldtRegistrertSomBlittArbeidsledig16DagerSidenForrigeSykmelding() {
-        val arbeidsledigFom = LocalDate.of(2019, 9, 27)
-        val arbeidstakerTom = arbeidsledigFom.minusDays(16)
-
-        val arbeidstakerSoknad = arbeidstakersoknad(LocalDate.of(2019, 9, 10), arbeidstakerTom)
-        val arbeidsledigSoknad = arbeidsledigsoknad("arbeidsledig", arbeidsledigFom, LocalDate.of(2019, 9, 30))
-
-        opprettSoknadService.metrikkBlittArbeidsledig(arbeidsledigSoknad, listOf(arbeidsledigSoknad, arbeidstakerSoknad))
-
-        verify(metrikk, times(1)).tellBlittArbeidsledig()
-    }
-
-    @Test
     fun `test at vi finner den eldste fom i en sykmelding`() {
         val metadata = SoknadMetadata(
-            status = NY,
             fnr = "fnr",
             startSykeforlop = LocalDate.now(),
             fom = LocalDate.now().minusDays(34),
@@ -123,47 +82,5 @@ class OpprettSoknadServiceTest {
 
         val medEksisterendeSoknader = hentTidligsteFomForSykmelding(metadata, listOf(eksisterende1, eksisterende2, eksisterende3).shuffled())
         assertThat(medEksisterendeSoknader).isEqualTo(eksisterende2.fom)
-    }
-
-    private fun arbeidstakersoknad(fom: LocalDate, tom: LocalDate): Sykepengesoknad {
-
-        return Sykepengesoknad(
-            id = "arbeidstaker",
-            fnr = "fnr",
-            sykmeldingId = "sykmeldingId",
-            status = NY,
-            fom = fom,
-            tom = tom,
-            opprettet = fom.atStartOfDay().tilOsloInstant(),
-            startSykeforlop = fom,
-            sykmeldingSkrevet = fom.atStartOfDay().tilOsloInstant(),
-            arbeidsgiverOrgnummer = "orgnummer",
-            arbeidsgiverNavn = "arbNavn",
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-            soknadPerioder = kotlin.collections.emptyList(),
-            sporsmal = kotlin.collections.emptyList(),
-            soknadstype = Soknadstype.ARBEIDSTAKERE
-        )
-    }
-
-    private fun arbeidsledigsoknad(id: String, fom: LocalDate, tom: LocalDate): Sykepengesoknad {
-
-        return Sykepengesoknad(
-            id = id,
-            fnr = "fnr",
-            sykmeldingId = "sykmeldingId",
-            status = NY,
-            fom = fom,
-            tom = tom,
-            opprettet = fom.atStartOfDay().tilOsloInstant(),
-            startSykeforlop = fom,
-            sykmeldingSkrevet = fom.atStartOfDay().tilOsloInstant(),
-            arbeidsgiverOrgnummer = "orgnummer",
-            arbeidsgiverNavn = "arbNavn",
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
-            soknadPerioder = kotlin.collections.emptyList(),
-            sporsmal = kotlin.collections.emptyList(),
-            soknadstype = Soknadstype.ARBEIDSLEDIG
-        )
     }
 }

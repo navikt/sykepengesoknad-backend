@@ -3,6 +3,7 @@ package no.nav.helse.flex.oppdatersporsmal.muteringer
 import no.nav.helse.flex.soknadsopprettelse.JOBBET_DU_100_PROSENT
 import no.nav.helse.flex.soknadsopprettelse.PERMISJON_V2
 import no.nav.helse.flex.soknadsopprettelse.TILBAKE_I_ARBEID
+import no.nav.helse.flex.soknadsopprettelse.genererSykepengesoknadFraMetadata
 import no.nav.helse.flex.soknadsopprettelse.settOppSoknadArbeidstaker
 import no.nav.helse.flex.testutil.besvarsporsmal
 import org.amshove.kluent.`should be equal to`
@@ -19,10 +20,12 @@ class ArbeidGjenopptattMuteringTest {
     fun `spørsmål i søknaden gjenoppstår hvis de av en eller annen grunn mangla`() {
         val fom = LocalDate.now().minusDays(19)
         val soknadMetadata = skapSoknadMetadata(fnr = "12345612")
-        val standardSoknad = settOppSoknadArbeidstaker(
-            soknadMetadata = soknadMetadata,
-            erForsteSoknadISykeforlop = true,
-            tidligsteFomForSykmelding = fom,
+        val standardSoknad = genererSykepengesoknadFraMetadata(soknadMetadata).copy(
+            sporsmal = settOppSoknadArbeidstaker(
+                soknadMetadata = soknadMetadata,
+                erForsteSoknadISykeforlop = true,
+                tidligsteFomForSykmelding = fom,
+            )
         )
 
         val soknadUtenJobbetDU = standardSoknad
@@ -42,10 +45,12 @@ class ArbeidGjenopptattMuteringTest {
     fun `en liten tekstlig endring i et spørsmål gjør ikke at det byttes ut`() {
         val fom = LocalDate.now().minusDays(19)
         val soknadMetadata = skapSoknadMetadata(fnr = "12345612")
-        val standardSoknad = settOppSoknadArbeidstaker(
-            soknadMetadata = soknadMetadata,
-            erForsteSoknadISykeforlop = true,
-            tidligsteFomForSykmelding = fom,
+        val standardSoknad = genererSykepengesoknadFraMetadata(soknadMetadata).copy(
+            sporsmal = settOppSoknadArbeidstaker(
+                soknadMetadata = soknadMetadata,
+                erForsteSoknadISykeforlop = true,
+                tidligsteFomForSykmelding = fom,
+            )
         )
 
         val spm = standardSoknad.sporsmal.find { it.tag == PERMISJON_V2 }!!.copy(sporsmalstekst = "Var De i permisjon?")

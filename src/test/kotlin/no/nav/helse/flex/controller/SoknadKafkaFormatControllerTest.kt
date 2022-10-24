@@ -2,17 +2,17 @@ package no.nav.helse.flex.controller
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.aktivering.kafka.AktiveringProducer
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.rest.SoknadMetadata
+import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.skapAzureJwt
 import no.nav.helse.flex.soknadsopprettelse.OpprettSoknadService
-import no.nav.helse.flex.soknadsopprettelse.genererSykepengesoknadFraMetadata
-import no.nav.helse.flex.soknadsopprettelse.sorterSporsmal
 import no.nav.helse.flex.soknadsopprettelse.tilSoknadsperioder
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
+import no.nav.helse.flex.testutil.opprettSoknadFraSoknadMetadata
 import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.util.OBJECT_MAPPER
 import no.nav.helse.flex.util.tilOsloInstant
@@ -38,7 +38,13 @@ import java.util.*
 class SoknadKafkaFormatControllerTest : BaseTestClass() {
 
     @Autowired
+    private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
+
+    @Autowired
     private lateinit var opprettSoknadService: OpprettSoknadService
+
+    @Autowired
+    private lateinit var aktiveringProducer: AktiveringProducer
 
     @BeforeEach
     fun setUp() {
@@ -46,10 +52,9 @@ class SoknadKafkaFormatControllerTest : BaseTestClass() {
     }
 
     fun skapSoknad(): Sykepengesoknad {
-        val opprettSykepengesoknadFraSortertMetadata = genererSykepengesoknadFraMetadata(
+        val meta =
             SoknadMetadata(
                 fnr = "f-745463060",
-                status = Soknadstatus.NY,
                 startSykeforlop = LocalDate.now().minusMonths(1),
                 fom = LocalDate.now().minusMonths(1),
                 tom = LocalDate.now().minusMonths(1).plusDays(8),
@@ -71,16 +76,17 @@ class SoknadKafkaFormatControllerTest : BaseTestClass() {
                         reisetilskudd = false,
                     ),
                 ).tilSoknadsperioder(),
-            ),
-            emptyList()
-        ).sorterSporsmal()
-        opprettSoknadService.lagreOgPubliserSøknad(opprettSykepengesoknadFraSortertMetadata, emptyList())
-        return opprettSykepengesoknadFraSortertMetadata
+            )
+
+        return opprettSoknadService.opprettSoknadFraSoknadMetadata(meta, sykepengesoknadDAO, aktiveringProducer)
     }
 
     @Test
     fun `Vi kan hente en søknad på samme format som kafka topicet med version 2 token`() {
         val soknad = skapSoknad()
+
+        val fraKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().last()
+
         val result = mockMvc
             .perform(
                 MockMvcRequestBuilders
@@ -94,8 +100,6 @@ class SoknadKafkaFormatControllerTest : BaseTestClass() {
         val fraRest = OBJECT_MAPPER.readValue<SykepengesoknadDTO>(result.response.contentAsString)
 
         assertThat(fraRest.fnr).isEqualTo(soknad.fnr)
-
-        val fraKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().last()
 
         fun SykepengesoknadDTO.fjernMs(): SykepengesoknadDTO = this.copy(
             opprettet = opprettet?.truncatedTo(SECONDS),

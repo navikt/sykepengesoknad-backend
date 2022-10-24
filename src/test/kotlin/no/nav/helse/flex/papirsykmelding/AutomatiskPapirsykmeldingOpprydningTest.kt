@@ -58,10 +58,8 @@ class AutomatiskPapirsykmeldingOpprydningTest : BaseTestClass() {
             event = sykmeldingStatusKafkaMessageDTO.event,
             kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
         )
-        behandleSendtBekreftetSykmeldingService.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
 
-        val hentetViaRest = hentSoknader(fnr)
-        assertThat(hentetViaRest).hasSize(3)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
 
         val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 3).tilSoknader()
 
@@ -69,6 +67,9 @@ class AutomatiskPapirsykmeldingOpprydningTest : BaseTestClass() {
         assertThat(soknader[0].status).isEqualTo(NY)
         assertThat(soknader[1].status).isEqualTo(NY)
         assertThat(soknader[2].status).isEqualTo(NY)
+
+        val hentetViaRest = hentSoknader(fnr)
+        assertThat(hentetViaRest).hasSize(3)
     }
 
     @Test
@@ -108,14 +109,16 @@ class AutomatiskPapirsykmeldingOpprydningTest : BaseTestClass() {
             event = sykmeldingStatusKafkaMessageDTO.event,
             kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
         )
-        behandleSendtBekreftetSykmeldingService.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
+
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
+
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 0)
 
         val hentetViaRest = hentSoknader(fnr)
         assertThat(hentetViaRest).hasSize(3)
         assertThat(hentetViaRest[0].status).isEqualTo(RSSoknadstatus.SENDT)
         assertThat(hentetViaRest[1].status).isEqualTo(RSSoknadstatus.NY)
         assertThat(hentetViaRest[2].status).isEqualTo(RSSoknadstatus.NY)
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 0)
     }
 
     @Test
@@ -133,15 +136,8 @@ class AutomatiskPapirsykmeldingOpprydningTest : BaseTestClass() {
             event = sykmeldingStatusKafkaMessageDTO.event,
             kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
         )
-        behandleSendtBekreftetSykmeldingService.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
 
-        val hentetViaRest = hentSoknader(fnr)
-        assertThat(hentetViaRest).hasSize(5)
-        assertThat(hentetViaRest[0].status).isEqualTo(RSSoknadstatus.KORRIGERT)
-        assertThat(hentetViaRest[1].status).isEqualTo(RSSoknadstatus.NY)
-        assertThat(hentetViaRest[2].status).isEqualTo(RSSoknadstatus.NY)
-        assertThat(hentetViaRest[3].status).isEqualTo(RSSoknadstatus.NY)
-        assertThat(hentetViaRest[4].status).isEqualTo(RSSoknadstatus.NY)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
 
         val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 6).tilSoknader()
 
@@ -151,6 +147,14 @@ class AutomatiskPapirsykmeldingOpprydningTest : BaseTestClass() {
         assertThat(soknader[3].status).isEqualTo(NY)
         assertThat(soknader[4].status).isEqualTo(NY)
         assertThat(soknader[5].status).isEqualTo(NY)
+
+        val hentetViaRest = hentSoknader(fnr)
+        assertThat(hentetViaRest).hasSize(5)
+        assertThat(hentetViaRest[0].status).isEqualTo(RSSoknadstatus.KORRIGERT)
+        assertThat(hentetViaRest[1].status).isEqualTo(RSSoknadstatus.NY)
+        assertThat(hentetViaRest[2].status).isEqualTo(RSSoknadstatus.NY)
+        assertThat(hentetViaRest[3].status).isEqualTo(RSSoknadstatus.NY)
+        assertThat(hentetViaRest[4].status).isEqualTo(RSSoknadstatus.NY)
     }
 
     @Test
@@ -168,7 +172,10 @@ class AutomatiskPapirsykmeldingOpprydningTest : BaseTestClass() {
             event = sykmeldingStatusKafkaMessageDTO.event,
             kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
         )
-        behandleSendtBekreftetSykmeldingService.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
+
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
+
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 0)
 
         val hentetViaRest = hentSoknader(fnr)
         assertThat(hentetViaRest).hasSize(5)
@@ -177,7 +184,6 @@ class AutomatiskPapirsykmeldingOpprydningTest : BaseTestClass() {
         assertThat(hentetViaRest[2].status).isEqualTo(RSSoknadstatus.NY)
         assertThat(hentetViaRest[3].status).isEqualTo(RSSoknadstatus.NY)
         assertThat(hentetViaRest[4].status).isEqualTo(RSSoknadstatus.NY)
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 0)
     }
 
     @Test
@@ -197,15 +203,8 @@ class AutomatiskPapirsykmeldingOpprydningTest : BaseTestClass() {
             event = sykmeldingStatusKafkaMessageDTO.event,
             kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
         )
-        behandleSendtBekreftetSykmeldingService.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
 
-        val hentetViaRest = hentSoknader(fnr)
-        assertThat(hentetViaRest).hasSize(5)
-        assertThat(hentetViaRest[0].status).isEqualTo(RSSoknadstatus.KORRIGERT)
-        assertThat(hentetViaRest[1].status).isEqualTo(RSSoknadstatus.NY)
-        assertThat(hentetViaRest[2].status).isEqualTo(RSSoknadstatus.NY)
-        assertThat(hentetViaRest[3].status).isEqualTo(RSSoknadstatus.NY)
-        assertThat(hentetViaRest[4].status).isEqualTo(RSSoknadstatus.NY)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
 
         val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 8).tilSoknader()
 
@@ -217,5 +216,13 @@ class AutomatiskPapirsykmeldingOpprydningTest : BaseTestClass() {
         assertThat(soknader[5].status).isEqualTo(NY)
         assertThat(soknader[6].status).isEqualTo(NY)
         assertThat(soknader[7].status).isEqualTo(NY)
+
+        val hentetViaRest = hentSoknader(fnr)
+        assertThat(hentetViaRest).hasSize(5)
+        assertThat(hentetViaRest[0].status).isEqualTo(RSSoknadstatus.KORRIGERT)
+        assertThat(hentetViaRest[1].status).isEqualTo(RSSoknadstatus.NY)
+        assertThat(hentetViaRest[2].status).isEqualTo(RSSoknadstatus.NY)
+        assertThat(hentetViaRest[3].status).isEqualTo(RSSoknadstatus.NY)
+        assertThat(hentetViaRest[4].status).isEqualTo(RSSoknadstatus.NY)
     }
 }

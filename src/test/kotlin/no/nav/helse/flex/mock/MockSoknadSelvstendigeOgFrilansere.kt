@@ -2,8 +2,7 @@ package no.nav.helse.flex.mock
 
 import no.nav.helse.flex.domain.Arbeidssituasjon.FRILANSER
 import no.nav.helse.flex.domain.Arbeidssituasjon.NAERINGSDRIVENDE
-import no.nav.helse.flex.domain.Soknadstatus.NY
-import no.nav.helse.flex.domain.Soknadstatus.SENDT
+import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.rest.SoknadMetadata
@@ -32,7 +31,6 @@ class MockSoknadSelvstendigeOgFrilansere(private val sykepengesoknadDAO: Sykepen
 fun opprettNyNaeringsdrivendeSoknad(): Sykepengesoknad {
     val soknadMetadata = SoknadMetadata(
         fnr = "fnr-7454630",
-        status = NY,
         startSykeforlop = of(2018, 6, 1),
         fom = of(2018, 6, 1),
         tom = of(2018, 6, 10),
@@ -66,13 +64,15 @@ fun opprettNyNaeringsdrivendeSoknad(): Sykepengesoknad {
 
     )
 
-    return leggSvarPaSoknad(settOppSoknadSelvstendigOgFrilanser(soknadMetadata, false))
+    return genererSykepengesoknadFraMetadata(soknadMetadata).copy(
+        sporsmal = settOppSoknadSelvstendigOgFrilanser(soknadMetadata, false),
+        status = Soknadstatus.NY,
+    ).leggSvarPaSoknad()
 }
 
 fun opprettSendtFrilanserSoknad(): Sykepengesoknad {
     val soknadMetadata = SoknadMetadata(
         fnr = "fnr-7454630",
-        status = SENDT,
         startSykeforlop = of(2018, 5, 20),
         fom = of(2018, 5, 20),
         tom = of(2018, 5, 28),
@@ -105,13 +105,15 @@ fun opprettSendtFrilanserSoknad(): Sykepengesoknad {
         egenmeldtSykmelding = null
 
     )
-
-    val sykepengesoknad = leggSvarPaSoknad(settOppSoknadSelvstendigOgFrilanser(soknadMetadata, false))
-    return sykepengesoknad.copy(sendtNav = Instant.now())
+    return genererSykepengesoknadFraMetadata(soknadMetadata).copy(
+        sporsmal = settOppSoknadSelvstendigOgFrilanser(soknadMetadata, false),
+        status = Soknadstatus.SENDT,
+        sendtNav = Instant.now(),
+    ).leggSvarPaSoknad()
 }
 
-private fun leggSvarPaSoknad(sykepengesoknad: Sykepengesoknad): Sykepengesoknad {
-    return sykepengesoknad
+private fun Sykepengesoknad.leggSvarPaSoknad(): Sykepengesoknad {
+    return this
         .besvarsporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
         .besvarsporsmal(JOBBET_DU_100_PROSENT + "0", "NEI")
         .besvarsporsmal(JOBBET_DU_GRADERT + "1", "NEI")

@@ -11,12 +11,12 @@ import no.nav.helse.flex.hentProduserteRecords
 import no.nav.helse.flex.overlappendesykmeldinger.OverlapperMedFlere.OverlappTester.*
 import no.nav.helse.flex.repository.SoknadLagrer
 import no.nav.helse.flex.repository.SykepengesoknadDAO
-import no.nav.helse.flex.service.AktiverService
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
 import java.util.*
@@ -27,9 +27,6 @@ class OverlapperMedFlere : BaseTestClass() {
     private lateinit var soknadLagrer: SoknadLagrer
 
     @Autowired
-    private lateinit var aktiverService: AktiverService
-
-    @Autowired
     private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
 
     private lateinit var overlappTester: OverlappTester
@@ -38,7 +35,6 @@ class OverlapperMedFlere : BaseTestClass() {
     fun init() {
         overlappTester = OverlappTester(
             soknadLagrer = soknadLagrer,
-            aktiverService = aktiverService,
             sykepengesoknadDAO = sykepengesoknadDAO,
             baseTestClass = this,
             skalPrintePerioder = true,
@@ -339,7 +335,6 @@ class OverlapperMedFlere : BaseTestClass() {
 
     private class OverlappTester(
         private val soknadLagrer: SoknadLagrer,
-        private val aktiverService: AktiverService,
         private val sykepengesoknadDAO: SykepengesoknadDAO,
         private val baseTestClass: BaseTestClass,
         private val skalPrintePerioder: Boolean = false,
@@ -358,7 +353,7 @@ class OverlapperMedFlere : BaseTestClass() {
         ) {
             eksisterendeSoknader.forEach { lagreEksisterendeSoknad(it) }
 
-            aktiverService.aktiverSoknader(now = dagensDato)
+            riktigStatusUtIfraDagensDato(dagensDato)
 
             baseTestClass.sendArbeidstakerSykmelding(
                 fom = overlappendeSoknad.soknadPerioder.minOf { it.fom },
@@ -366,6 +361,10 @@ class OverlapperMedFlere : BaseTestClass() {
                 fnr = "fnr",
                 sykmeldingId = overlappendeSoknad.traceId,
             )
+
+            do {
+                val cr = baseTestClass.sykepengesoknadKafkaConsumer.hentProduserteRecords(Duration.ofSeconds(1))
+            } while (cr.isNotEmpty())
 
             riktigStatusUtIfraDagensDato(dagensDato)
 

@@ -15,16 +15,6 @@ import java.time.temporal.ChronoUnit
 
 @Component
 class Metrikk(private val registry: MeterRegistry) {
-    fun tellSelvstendigSoknadOpprettet(arbeidssituasjon: String?) {
-        registry.counter(
-            "syfosoknad_selvstendig_soknad_opprettet",
-            Tags.of(
-                "type", "info",
-                "arbeidssituasjon", arbeidssituasjon
-            )
-        )
-            .increment()
-    }
 
     fun utelattSykmeldingFraSoknadOpprettelse(grunn: String) {
         registry.counter("sykmelding_utelatt_opprettelse", Tags.of("grunn", grunn)).increment()
@@ -112,10 +102,6 @@ class Metrikk(private val registry: MeterRegistry) {
 
     fun tellSoknaderKunSendtTilArbeidsgiver() {
         registry.counter("syfosoknad_kun_arbeidsgiver", Tags.of("type", "info")).increment()
-    }
-
-    fun tellBlittArbeidsledig() {
-        registry.counter("syfosoknad_blitt_arbeidsledig", Tags.of("type", "info")).increment()
     }
 
     fun tellForsteSoknadISyketilfelle(soknadstype: String?) {

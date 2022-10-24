@@ -4,7 +4,7 @@ import no.nav.helse.flex.kafka.producer.BEHANDLINGSTIDSPUNKT
 import no.nav.helse.flex.kafka.producer.RebehandlingSykmeldingSendtProducer
 import no.nav.helse.flex.kafka.sykmeldingSendtRetryTopic
 import no.nav.helse.flex.logger
-import no.nav.helse.flex.soknadsopprettelse.BehandleSendtBekreftetSykmeldingService
+import no.nav.helse.flex.soknadsopprettelse.BehandleSykmeldingOgBestillAktivering
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.context.annotation.Profile
 import org.springframework.kafka.annotation.KafkaListener
@@ -20,7 +20,8 @@ import java.time.ZoneOffset
 @Profile("sykmeldinger")
 class RebehandlingSykmeldingSendt(
     private val rebehandlingSykmeldingSendtProducer: RebehandlingSykmeldingSendtProducer,
-    private val behandleSendtBekreftetSykmeldingService: BehandleSendtBekreftetSykmeldingService
+    private val behandleSykmeldingOgBestillAktivering: BehandleSykmeldingOgBestillAktivering
+
 ) {
 
     val log = logger()
@@ -52,9 +53,7 @@ class RebehandlingSykmeldingSendt(
                 )
                 acknowledgment.nack(Duration.ofMillis(sovetid))
             } else {
-                if (behandleSendtBekreftetSykmeldingService.prosesserSykmelding(cr.key(), sykmeldingKafkaMessage)) {
-                    log.info("Sykmelding SENDT med id: ${sykmeldingKafkaMessage.event.sykmeldingId} fullførte rebehandling")
-                }
+                behandleSykmeldingOgBestillAktivering.prosesserSykmelding(cr.key(), sykmeldingKafkaMessage)
                 acknowledgment.acknowledge()
             }
         } catch (e: Exception) {

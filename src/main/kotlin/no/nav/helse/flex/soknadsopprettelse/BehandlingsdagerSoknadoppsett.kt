@@ -5,9 +5,7 @@ import no.nav.helse.flex.domain.Arbeidssituasjon.ARBEIDSLEDIG
 import no.nav.helse.flex.domain.Arbeidssituasjon.ARBEIDSTAKER
 import no.nav.helse.flex.domain.Arbeidssituasjon.FRILANSER
 import no.nav.helse.flex.domain.Arbeidssituasjon.NAERINGSDRIVENDE
-import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sporsmal
-import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.rest.SoknadMetadata
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderArbeidsledig
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderArbeidstaker
@@ -18,7 +16,6 @@ import no.nav.helse.flex.soknadsopprettelse.sporsmal.behandlingsdagerSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.bekreftOpplysningerSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.fraverForBehandling
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.vaerKlarOverAtBehandlingsdager
-import java.time.Instant
 import java.time.LocalDate
 
 fun Sporsmal.plasseringSporsmalBehandlingsdager(): Int {
@@ -53,8 +50,8 @@ fun settOppSykepengesoknadBehandlingsdager(
     soknadMetadata: SoknadMetadata,
     erForsteSoknadISykeforlop: Boolean,
     tidligsteFomForSykmelding: LocalDate
-): Sykepengesoknad {
-    val sporsmal = mutableListOf(
+): List<Sporsmal> {
+    return mutableListOf(
         ansvarserklaringSporsmal(),
         vaerKlarOverAtBehandlingsdager(),
         andreInntekstkilder(soknadMetadata),
@@ -70,25 +67,5 @@ fun settOppSykepengesoknadBehandlingsdager(
                 it.add(arbeidUtenforNorge())
             }
             it.addAll(behandlingsdagerSporsmal(soknadMetadata))
-        }
-
-    return Sykepengesoknad(
-        soknadstype = Soknadstype.BEHANDLINGSDAGER,
-        id = soknadMetadata.id,
-        fnr = soknadMetadata.fnr,
-        sykmeldingId = soknadMetadata.sykmeldingId,
-        status = soknadMetadata.status,
-        fom = soknadMetadata.fom,
-        tom = soknadMetadata.tom,
-        opprettet = Instant.now(),
-        startSykeforlop = soknadMetadata.startSykeforlop,
-        sykmeldingSkrevet = soknadMetadata.sykmeldingSkrevet,
-        arbeidsgiverOrgnummer = soknadMetadata.arbeidsgiverOrgnummer,
-        arbeidsgiverNavn = soknadMetadata.arbeidsgiverNavn,
-        soknadPerioder = soknadMetadata.sykmeldingsperioder,
-        sporsmal = sporsmal,
-        arbeidssituasjon = soknadMetadata.arbeidssituasjon,
-        egenmeldtSykmelding = soknadMetadata.egenmeldtSykmelding,
-        merknaderFraSykmelding = soknadMetadata.merknader,
-    )
+        }.toList()
 }
