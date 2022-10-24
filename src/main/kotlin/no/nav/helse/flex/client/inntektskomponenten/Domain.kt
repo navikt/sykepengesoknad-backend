@@ -32,7 +32,6 @@ data class ArbeidsforholdFrilanser(
 )
 
 data class ArbeidsInntektMaaned(
-    val aarMaaned: String,
     val arbeidsInntektInformasjon: ArbeidsInntektInformasjon
 )
 

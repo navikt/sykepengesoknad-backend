@@ -40,6 +40,7 @@ fun Sporsmal.fellesPlasseringSporsmal(): Int {
 
         FERIE_PERMISJON_UTLAND -> 100
         ANDRE_INNTEKTSKILDER -> 104
+        ANDRE_INNTEKTSKILDER_V2 -> 104
         UTLAND -> 105
         UTDANNING -> 106
 

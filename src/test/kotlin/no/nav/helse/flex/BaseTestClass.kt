@@ -46,6 +46,8 @@ abstract class BaseTestClass {
 
     companion object {
         val pdlMockWebserver: MockWebServer
+        val inntektskomponentenMockWebserver: MockWebServer
+        val eregMockWebserver: MockWebServer
 
         init {
             val threads = mutableListOf<Thread>()
@@ -82,6 +84,14 @@ abstract class BaseTestClass {
             pdlMockWebserver = MockWebServer().apply {
                 System.setProperty("pdl.api.url", "http://localhost:$port")
                 dispatcher = PdlMockDispatcher
+            }
+            inntektskomponentenMockWebserver = MockWebServer().apply {
+                System.setProperty("FLEX_FSS_PROXY_URL", "http://localhost:$port")
+                dispatcher = InntektskomponentenMockDispatcher
+            }
+            eregMockWebserver = MockWebServer().apply {
+                System.setProperty("EREG_URL", "http://localhost:$port")
+                dispatcher = EregMockDispatcher
             }
 
             threads.forEach { it.join() }

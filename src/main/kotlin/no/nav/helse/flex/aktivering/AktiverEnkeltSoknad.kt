@@ -36,8 +36,7 @@ class AktiverEnkeltSoknad(
     private val sykepengesoknadRepository: SykepengesoknadRepository,
     private val registry: MeterRegistry,
     private val andreArbeidsforholdHenting: AndreArbeidsforholdHenting,
-    @Value("\${ANDRE_INNTEKTSKILDER_V2:false}") private val andreInntektskilderV2: Boolean,
-
+    @Value("\${ANDRE_INNTEKTSKILDER_V2:false}") var andreInntektskilderV2: Boolean,
 ) {
     val log = logger()
 
