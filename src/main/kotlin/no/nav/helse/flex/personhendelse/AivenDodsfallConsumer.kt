@@ -37,14 +37,14 @@ class AivenDodsfallConsumer(
         log.info("Mottok personhendelse på aiven")
 
         prosesserPersonhendelse(
-            cr.value() as Personhendelse,
+            cr.value(),
             cr.timestamp(),
         )
 
         acknowledgment.acknowledge()
     }
 
-    fun prosesserPersonhendelse(personhendelse: Personhendelse, timestamp: Long) {
+    fun prosesserPersonhendelse(personhendelse: GenericRecord, timestamp: Long) {
         metrikk.personHendelseMottatt()
 
         if (personhendelse.erDodsfall) {

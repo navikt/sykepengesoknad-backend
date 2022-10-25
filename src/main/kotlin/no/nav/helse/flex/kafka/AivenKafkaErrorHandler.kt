@@ -20,7 +20,7 @@ class AivenKafkaErrorHandler : DefaultErrorHandler(
     private val log = logger()
 
     override fun handleRemaining(
-        thrownException: java.lang.Exception,
+        thrownException: Exception,
         records: MutableList<ConsumerRecord<*, *>>,
         consumer: Consumer<*, *>,
         container: MessageListenerContainer
