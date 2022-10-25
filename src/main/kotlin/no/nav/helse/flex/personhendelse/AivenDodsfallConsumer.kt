@@ -11,9 +11,7 @@ import no.nav.helse.flex.util.Metrikk
 import no.nav.helse.flex.util.tilOsloZone
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.ConsumerRecord
-import org.apache.kafka.common.TopicPartition
 import org.springframework.kafka.annotation.KafkaListener
-import org.springframework.kafka.listener.ConsumerSeekAware
 import org.springframework.kafka.support.Acknowledgment
 import org.springframework.stereotype.Component
 import java.time.Instant
@@ -24,13 +22,13 @@ class AivenDodsfallConsumer(
     private val metrikk: Metrikk,
     private val dodsmeldingDAO: DodsmeldingDAO,
     private val identService: IdentService,
-) : ConsumerSeekAware {
+) {
 
     val log = logger()
 
     @KafkaListener(
         topics = [personhendelseTopic],
-        id = "sykepengesoknad-personhendelse-aiven",
+        id = "sykepengesoknad-personhendelse",
         idIsGroup = true,
         containerFactory = "kafkaAvroListenerContainerFactory",
         properties = ["auto.offset.reset = earliest"],
@@ -40,18 +38,12 @@ class AivenDodsfallConsumer(
 
         metrikk.personHendelseAiven()
 
-        // TODO: prosesserPersonhendelse
+        prosesserPersonhendelse(
+            cr.value() as Personhendelse,
+            cr.timestamp(),
+        )
 
         acknowledgment.acknowledge()
-    }
-
-    override fun onPartitionsAssigned(
-        assignments: MutableMap<TopicPartition, Long>,
-        callback: ConsumerSeekAware.ConsumerSeekCallback
-    ) {
-        assignments.forEach {
-            callback.seekRelative(it.key.topic(), it.key.partition(), -1, false)
-        }
     }
 
     fun prosesserPersonhendelse(personhendelse: Personhendelse, timestamp: Long) {
