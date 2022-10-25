@@ -36,8 +36,6 @@ class AivenDodsfallConsumer(
     fun listenAiven(cr: ConsumerRecord<String, GenericRecord>, acknowledgment: Acknowledgment) {
         log.info("Mottok personhendelse på aiven")
 
-        metrikk.personHendelseAiven()
-
         prosesserPersonhendelse(
             cr.value() as Personhendelse,
             cr.timestamp(),
