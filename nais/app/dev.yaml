@@ -25,3 +25,7 @@ env:
   SYKEPENGESOKNAD_FRONTEND_CLIENT_ID: dev-gcp:flex:sykepengesoknad
   TOKENX_IDPORTEN_IDP: https://oidc-ver2.difi.no/idporten-oidc-provider/
   AIVEN_KAFKA_AUTO_OFFSET_RESET: latest
+  FLEX_FSS_PROXY_AAD_CLIENT_ID: dev-fss.flex.flex-fss-proxy
+  FLEX_FSS_PROXY_URL: https://flex-fss-proxy.dev-fss-pub.nais.io
+  EREG_URL: https://ereg-services.dev-fss-pub.nais.io
+  ANDRE_INNTEKTSKILDER_V2: true

@@ -5,6 +5,7 @@ import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Visningskriterie
 import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER
+import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER_V2
 import no.nav.helse.flex.soknadsopprettelse.ER_DU_SYKMELDT
 import no.nav.helse.flex.soknadsopprettelse.HVILKE_ANDRE_INNTEKTSKILDER
 import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD
@@ -17,6 +18,7 @@ import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_JORDBRUKER
 import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_OMSORGSLONN
 import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_SELVSTENDIG
 import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_SELVSTENDIG_DAGMAMMA
+import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_STYREVERV
 import no.nav.helse.flex.util.DatoUtil
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -43,6 +45,76 @@ fun andreInntektskilderArbeidstaker(arbeidsgiver: String?): Sporsmal {
                         sporsmalstekst = "annet",
                         svartype = Svartype.CHECKBOX
                     )
+                )
+            )
+        )
+    )
+}
+
+fun andreInntektskilderArbeidstakerV2(sykmeldingOrgnavn: String, andreKjenteArbeidsforhold: List<String>): Sporsmal {
+
+    fun skapSporsmal(): String {
+
+        val listen = mutableListOf(sykmeldingOrgnavn).also { it.addAll(andreKjenteArbeidsforhold) }
+
+        fun virksomheterTekst(): String {
+            if (listen.size < 3) {
+                return listen.joinToString(" og ")
+            }
+            return "${listen.subList(0, listen.size - 1).joinToString(", ")} og ${listen.last()}"
+        }
+
+        return "Har du andre inntektskilder enn ${virksomheterTekst()}?"
+    }
+
+    return Sporsmal(
+        tag = ANDRE_INNTEKTSKILDER_V2,
+        sporsmalstekst = skapSporsmal(),
+        svartype = Svartype.JA_NEI,
+        kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
+        undersporsmal = listOf(
+            Sporsmal(
+                tag = HVILKE_ANDRE_INNTEKTSKILDER,
+                sporsmalstekst = "Velg inntektskildene som passer for deg. Finner du ikke noe som passer for deg, svarer du nei",
+                svartype = Svartype.CHECKBOX_GRUPPE,
+                undersporsmal = listOf(
+                    Sporsmal(
+                        tag = INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD,
+                        sporsmalstekst = "ansatt et annet sted enn nevnt over",
+                        svartype = Svartype.CHECKBOX
+                    ),
+                    Sporsmal(
+                        tag = INNTEKTSKILDE_SELVSTENDIG,
+                        sporsmalstekst = "selvstendig næringsdrivende",
+                        svartype = Svartype.CHECKBOX
+                    ),
+                    Sporsmal(
+                        tag = INNTEKTSKILDE_SELVSTENDIG_DAGMAMMA,
+                        sporsmalstekst = "dagmammma",
+                        svartype = Svartype.CHECKBOX
+                    ),
+                    Sporsmal(
+                        tag = INNTEKTSKILDE_JORDBRUKER,
+                        sporsmalstekst = "jordbruk / fiske / reindrift",
+                        svartype = Svartype.CHECKBOX
+                    ),
+                    Sporsmal(
+                        tag = INNTEKTSKILDE_FRILANSER,
+                        sporsmalstekst = "frilanser",
+                        svartype = Svartype.CHECKBOX
+                    ),
+
+                    Sporsmal(
+                        tag = INNTEKTSKILDE_STYREVERV,
+                        sporsmalstekst = "styreverv",
+                        svartype = Svartype.CHECKBOX
+                    ),
+
+                    Sporsmal(
+                        tag = INNTEKTSKILDE_FOSTERHJEM,
+                        sporsmalstekst = "fosterhjemsgodtgjørelse",
+                        svartype = Svartype.CHECKBOX
+                    ),
                 )
             )
         )

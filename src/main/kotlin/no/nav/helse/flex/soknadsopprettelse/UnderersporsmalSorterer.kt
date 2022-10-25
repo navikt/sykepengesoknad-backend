@@ -37,6 +37,7 @@ private fun Sporsmal.sorteringAndreInntektskilder(): String {
         INNTEKTSKILDE_OMSORGSLONN -> "6"
         INNTEKTSKILDE_FOSTERHJEM -> "7"
         INNTEKTSKILDE_FRILANSER_SELVSTENDIG -> "8"
+        INNTEKTSKILDE_STYREVERV -> "9"
         INNTEKTSKILDE_ANNET -> "9"
         else -> throw RuntimeException("Ukjent underspørsmål for andre inntektskilder: $tag")
     }

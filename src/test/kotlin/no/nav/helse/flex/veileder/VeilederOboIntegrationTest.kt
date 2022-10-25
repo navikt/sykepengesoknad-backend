@@ -1,6 +1,7 @@
 package no.nav.helse.flex.veileder
 
 import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.aktivering.AktiverEnkeltSoknad
 import no.nav.helse.flex.aktivering.kafka.AktiveringProducer
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstype
@@ -50,6 +51,8 @@ class VeilederOboIntegrationTest : BaseTestClass() {
 
     @Autowired
     private lateinit var aktiveringProducer: AktiveringProducer
+    @Autowired
+    private lateinit var aktiverEnkeltSoknad: AktiverEnkeltSoknad
 
     final val fnr = "123456789"
 
@@ -80,7 +83,7 @@ class VeilederOboIntegrationTest : BaseTestClass() {
 
     @Test
     fun `01 - vi oppretter en arbeidsledigsøknad`() {
-        opprettSoknadService.opprettSoknadFraSoknadMetadata(soknadMetadata, sykepengesoknadDAO, aktiveringProducer)
+        opprettSoknadService.opprettSoknadFraSoknadMetadata(soknadMetadata, sykepengesoknadDAO, aktiveringProducer, aktiverEnkeltSoknad)
 
         val soknadPaKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()
 

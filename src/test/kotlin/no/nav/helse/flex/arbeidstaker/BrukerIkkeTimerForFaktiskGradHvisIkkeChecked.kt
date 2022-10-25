@@ -1,6 +1,7 @@
 package no.nav.helse.flex.arbeidstaker
 
 import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.aktivering.AktiverEnkeltSoknad
 import no.nav.helse.flex.aktivering.kafka.AktiveringProducer
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.domain.Arbeidssituasjon
@@ -46,6 +47,9 @@ class BrukerIkkeTimerForFaktiskGradHvisIkkeChecked : BaseTestClass() {
     @Autowired
     private lateinit var opprettSoknadService: OpprettSoknadService
 
+    @Autowired
+    private lateinit var aktiverEnkeltSoknad: AktiverEnkeltSoknad
+
     private final val fnr = "123456789"
 
     private final val start = LocalDate.of(2020, 9, 22)
@@ -80,7 +84,7 @@ class BrukerIkkeTimerForFaktiskGradHvisIkkeChecked : BaseTestClass() {
     @Test
     fun `1 - vi oppretter en arbeidstakersoknad`() {
         // Opprett søknad
-        opprettSoknadService.opprettSoknadFraSoknadMetadata(soknadMetadata, sykepengesoknadDAO, aktiveringProducer)
+        opprettSoknadService.opprettSoknadFraSoknadMetadata(soknadMetadata, sykepengesoknadDAO, aktiveringProducer, aktiverEnkeltSoknad)
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
     }
 

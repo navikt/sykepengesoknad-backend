@@ -2,6 +2,7 @@ package no.nav.helse.flex.controller
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.aktivering.AktiverEnkeltSoknad
 import no.nav.helse.flex.aktivering.kafka.AktiveringProducer
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstype
@@ -46,6 +47,9 @@ class SoknadKafkaFormatControllerTest : BaseTestClass() {
     @Autowired
     private lateinit var aktiveringProducer: AktiveringProducer
 
+    @Autowired
+    private lateinit var aktiverEnkeltSoknad: AktiverEnkeltSoknad
+
     @BeforeEach
     fun setUp() {
         databaseReset.resetDatabase()
@@ -78,7 +82,7 @@ class SoknadKafkaFormatControllerTest : BaseTestClass() {
                 ).tilSoknadsperioder(),
             )
 
-        return opprettSoknadService.opprettSoknadFraSoknadMetadata(meta, sykepengesoknadDAO, aktiveringProducer)
+        return opprettSoknadService.opprettSoknadFraSoknadMetadata(meta, sykepengesoknadDAO, aktiveringProducer, aktiverEnkeltSoknad)
     }
 
     @Test

@@ -5,6 +5,7 @@ import com.nhaarman.mockitokotlin2.doCallRealMethod
 import com.nhaarman.mockitokotlin2.doThrow
 import com.nhaarman.mockitokotlin2.whenever
 import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.aktivering.AktiverEnkeltSoknad
 import no.nav.helse.flex.aktivering.kafka.AktiveringProducer
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.domain.Arbeidssituasjon
@@ -50,6 +51,8 @@ class TransaksjonshandteringTest : BaseTestClass() {
 
     @Autowired
     private lateinit var aktiveringProducer: AktiveringProducer
+    @Autowired
+    private lateinit var aktiverEnkeltSoknad: AktiverEnkeltSoknad
 
     final val fnr = "123456789"
 
@@ -80,7 +83,7 @@ class TransaksjonshandteringTest : BaseTestClass() {
 
     @Test
     fun `01 - vi oppretter en arbeidsledigsøknad`() {
-        opprettSoknadService.opprettSoknadFraSoknadMetadata(soknadMetadata, sykepengesoknadDAO, aktiveringProducer)
+        opprettSoknadService.opprettSoknadFraSoknadMetadata(soknadMetadata, sykepengesoknadDAO, aktiveringProducer, aktiverEnkeltSoknad)
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
     }
 
