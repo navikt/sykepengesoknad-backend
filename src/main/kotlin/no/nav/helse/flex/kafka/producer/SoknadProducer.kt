@@ -6,7 +6,6 @@ import no.nav.helse.flex.domain.Soknadstype.*
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.mapper.SykepengesoknadTilSykepengesoknadDTOMapper
 import no.nav.helse.flex.logger
-import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER
 import no.nav.helse.flex.soknadsopprettelse.FRISKMELDT
 import no.nav.helse.flex.soknadsopprettelse.FRISKMELDT_START
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsperiodeDTO
@@ -177,19 +176,8 @@ class SoknadProducer(
             } else {
                 metrikk.tellForsteSoknadISyketilfelle(ARBEIDSTAKERE.name)
             }
-            if (soknad.harFlereInntektsKilder()) {
-                metrikk.tellSoknadMedFlereInntektsKilder()
-            }
         }
     }
-}
-
-fun SykepengesoknadDTO.harFlereInntektsKilder(): Boolean {
-    return sporsmal?.firstOrNull { spm ->
-        spm.tag == ANDRE_INNTEKTSKILDER && spm.svar?.firstOrNull()?.verdi == "JA"
-    }?.undersporsmal?.firstOrNull()?.undersporsmal?.any { inntektSpm ->
-        inntektSpm.svar?.firstOrNull()?.verdi == "CHECKED"
-    } ?: false
 }
 
 fun finnDagerSpartVedArbeidGjenopptattTidligere(

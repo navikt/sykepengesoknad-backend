@@ -169,10 +169,6 @@ class Metrikk(private val registry: MeterRegistry) {
         }
     }
 
-    fun tellSoknadMedFlereInntektsKilder() {
-        registry.counter("syfosoknad_soknad_med_flere_inntektskilder", Tags.of("type", "info")).increment()
-    }
-
     fun tellAntallFriskmeldteDagerForArbeidsledige(antallFriskmeldteDager: Long) {
         registry.counter(
             "syfosoknad_friskmeldte_dager_for_arbeidsledige",

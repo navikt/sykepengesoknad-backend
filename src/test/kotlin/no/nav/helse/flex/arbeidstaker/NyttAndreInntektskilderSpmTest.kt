@@ -16,6 +16,8 @@ import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.repository.SykepengesoknadRepository
 import no.nav.helse.flex.sendSoknadMedResult
 import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
+import no.nav.helse.flex.sykepengesoknad.kafka.InntektskildeDTO
+import no.nav.helse.flex.sykepengesoknad.kafka.InntektskildetypeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.MerknadDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.PeriodeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
@@ -228,7 +230,8 @@ class NyttAndreInntektskilderSpmTest : BaseTestClass() {
             .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
             .besvarSporsmal(tag = "ARBEID_UTENFOR_NORGE", svar = "NEI")
             .besvarSporsmal(tag = "JOBBET_DU_100_PROSENT_0", svar = "NEI")
-            .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
+            .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "JA", ferdigBesvart = false)
+            .besvarSporsmal(tag = "INNTEKTSKILDE_STYREVERV", svar = "CHECKED")
             .besvarSporsmal(tag = "UTDANNING", svar = "NEI")
             .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
             .sendSoknad()
@@ -238,6 +241,7 @@ class NyttAndreInntektskilderSpmTest : BaseTestClass() {
 
         assertThat(kafkaSoknader).hasSize(1)
         assertThat(kafkaSoknader[0].status).isEqualTo(SoknadsstatusDTO.SENDT)
+        kafkaSoknader[0].andreInntektskilder `should be equal to` listOf(InntektskildeDTO(type = InntektskildetypeDTO.FRILANSER, sykmeldt = null))
         kafkaSoknader[0].arbeidUtenforNorge!!.`should be false`()
         assertThat(kafkaSoknader[0].fravarForSykmeldingen).isEqualTo(
             listOf(
