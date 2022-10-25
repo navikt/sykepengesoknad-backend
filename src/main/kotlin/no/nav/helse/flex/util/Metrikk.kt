@@ -48,6 +48,10 @@ class Metrikk(private val registry: MeterRegistry) {
         registry.counter("syfosoknad_personhendelse_mottatt", Tags.of("type", "info")).increment()
     }
 
+    fun personHendelseAiven() {
+        registry.counter("syfosoknad_personhendelse_aiven", Tags.of("type", "info")).increment()
+    }
+
     fun tellSoknadOpprettet(soknadstype: Soknadstype) {
         registry.counter(
             "syfosoknad_soknad_opprettet",
