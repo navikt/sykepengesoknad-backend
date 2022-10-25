@@ -1,12 +1,18 @@
-package no.nav.helse.flex.service
+package no.nav.helse.flex.personhendelse
 
+import io.micrometer.core.instrument.MeterRegistry
 import no.nav.helse.flex.aktivering.AktiverEnkeltSoknad
 import no.nav.helse.flex.domain.Avsendertype
 import no.nav.helse.flex.domain.Mottaker
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.logger
+import no.nav.helse.flex.repository.DodsmeldingDAO
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.sending.SoknadSender
+import no.nav.helse.flex.service.AvbrytSoknadService
+import no.nav.helse.flex.service.FolkeregisterIdenter
+import no.nav.helse.flex.service.IdentService
+import no.nav.helse.flex.service.MottakerAvSoknadService
 import no.nav.helse.flex.util.isAfterOrEqual
 import no.nav.helse.flex.util.osloZone
 import org.springframework.stereotype.Service
@@ -15,7 +21,9 @@ import java.time.LocalDate
 
 @Service
 @Transactional
-class AutomatiskInnsendingService(
+class AutomatiskInnsendingVedDodsfall(
+    private val dodsmeldingDAO: DodsmeldingDAO,
+    private val registry: MeterRegistry,
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val mottakerAvSoknadService: MottakerAvSoknadService,
     private val avbrytSoknadService: AvbrytSoknadService,
@@ -23,7 +31,30 @@ class AutomatiskInnsendingService(
     private val aktiverEnkeltSoknad: AktiverEnkeltSoknad,
     private val identService: IdentService,
 ) {
-    val log = logger()
+    private val log = logger()
+
+    fun sendSoknaderForDode(): Int {
+
+        val aktorerMed2UkerGammelDodsmelding = dodsmeldingDAO.fnrMedToUkerGammelDodsmelding()
+
+        var antall = 0
+
+        aktorerMed2UkerGammelDodsmelding.forEach { (fnr, dodsDato) ->
+            try {
+                val identer = automatiskInnsending(fnr, dodsDato)
+
+                dodsmeldingDAO.slettDodsmelding(identer)
+
+                registry.counter("dodsmeldinger_prossesert").increment()
+
+                antall++
+            } catch (e: Exception) {
+                log.error("Feil ved prossering av dødsmelding for aktor $fnr", e)
+            }
+        }
+
+        return antall
+    }
 
     fun automatiskInnsending(fnr: String, dodsdato: LocalDate): FolkeregisterIdenter {
         val treMndSiden = LocalDate.now(osloZone).minusMonths(3)

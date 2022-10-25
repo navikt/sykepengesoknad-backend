@@ -1,10 +1,11 @@
-package no.nav.helse.flex.service
+package no.nav.helse.flex.personhendelse
 
 import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.mock.opprettNySoknad
 import no.nav.helse.flex.repository.DodsmeldingDAO
 import no.nav.helse.flex.repository.SykepengesoknadDAO
+import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.util.tilOsloInstant
@@ -22,10 +23,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import java.time.LocalDate
 import java.time.OffsetDateTime
 
-class AutomatiskInnsendingVedDodsfallServiceTest : BaseTestClass() {
-
-    @Autowired
-    private lateinit var automatiskInnsendingVedDodsfallService: AutomatiskInnsendingVedDodsfallService
+class AutomatiskInnsendingVedDodsfallTest : BaseTestClass() {
 
     @Autowired
     private lateinit var namedParameterJdbcTemplate: NamedParameterJdbcTemplate
@@ -46,8 +44,10 @@ class AutomatiskInnsendingVedDodsfallServiceTest : BaseTestClass() {
     fun `Tom database inkluderer ingen dødsfall å prosessere`() {
         antallDodsmeldingerIDb().shouldBeEqualTo(0)
 
-        automatiskInnsendingVedDodsfallService.sendSoknaderForDode().shouldBeEqualTo(0)
-        verifyNoInteractions(automatiskInnsendingService)
+        automatiskInnsendingVedDodsfall.sendSoknaderForDode().shouldBeEqualTo(0)
+
+        verify(automatiskInnsendingVedDodsfall).sendSoknaderForDode()
+        verifyNoMoreInteractions(automatiskInnsendingVedDodsfall)
 
         antallDodsmeldingerIDb().shouldBeEqualTo(0)
     }
@@ -59,8 +59,10 @@ class AutomatiskInnsendingVedDodsfallServiceTest : BaseTestClass() {
 
         antallDodsmeldingerIDb().shouldBeEqualTo(2)
 
-        automatiskInnsendingVedDodsfallService.sendSoknaderForDode().shouldBeEqualTo(0)
-        verifyNoInteractions(automatiskInnsendingService)
+        automatiskInnsendingVedDodsfall.sendSoknaderForDode().shouldBeEqualTo(0)
+
+        verify(automatiskInnsendingVedDodsfall).sendSoknaderForDode()
+        verifyNoMoreInteractions(automatiskInnsendingVedDodsfall)
 
         antallDodsmeldingerIDb().shouldBeEqualTo(2)
     }
@@ -73,11 +75,12 @@ class AutomatiskInnsendingVedDodsfallServiceTest : BaseTestClass() {
         dodsmeldingDAO.lagreDodsmelding(FolkeregisterIdenter("aktor4", emptyList()), LocalDate.now().minusDays(17), OffsetDateTime.now().minusDays(16))
 
         antallDodsmeldingerIDb().shouldBeEqualTo(4)
-        automatiskInnsendingVedDodsfallService.sendSoknaderForDode().shouldBeEqualTo(2)
+        automatiskInnsendingVedDodsfall.sendSoknaderForDode().shouldBeEqualTo(2)
 
-        verify(automatiskInnsendingService).automatiskInnsending("aktor3", LocalDate.now().minusDays(16))
-        verify(automatiskInnsendingService).automatiskInnsending("aktor4", LocalDate.now().minusDays(17))
-        verifyNoMoreInteractions(automatiskInnsendingService)
+        verify(automatiskInnsendingVedDodsfall).sendSoknaderForDode()
+        verify(automatiskInnsendingVedDodsfall).automatiskInnsending("aktor3", LocalDate.now().minusDays(16))
+        verify(automatiskInnsendingVedDodsfall).automatiskInnsending("aktor4", LocalDate.now().minusDays(17))
+        verifyNoMoreInteractions(automatiskInnsendingVedDodsfall)
 
         antallDodsmeldingerIDb().shouldBeEqualTo(2)
     }
@@ -102,9 +105,9 @@ class AutomatiskInnsendingVedDodsfallServiceTest : BaseTestClass() {
 
         antallDodsmeldingerIDb().shouldBeEqualTo(1)
 
-        automatiskInnsendingVedDodsfallService.sendSoknaderForDode().shouldBeEqualTo(1)
+        automatiskInnsendingVedDodsfall.sendSoknaderForDode().shouldBeEqualTo(1)
 
-        verify(automatiskInnsendingService).automatiskInnsending("aktor1", soknad.tom!!.minusDays(1))
+        verify(automatiskInnsendingVedDodsfall).automatiskInnsending("aktor1", soknad.tom!!.minusDays(1))
         val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2).tilSoknader()
         soknader.shouldHaveSize(2)
         soknader.first().status.shouldBeEqualTo(SoknadsstatusDTO.NY)
