@@ -2,9 +2,6 @@ package no.nav.helse.flex.kafka
 
 import com.nhaarman.mockitokotlin2.*
 import no.nav.helse.flex.domain.Soknadstype.*
-import no.nav.helse.flex.domain.Sporsmal
-import no.nav.helse.flex.domain.Svar
-import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.mapper.SykepengesoknadTilSykepengesoknadDTOMapper
 import no.nav.helse.flex.juridiskvurdering.JuridiskVurderingKafkaProducer
 import no.nav.helse.flex.kafka.producer.AivenKafkaProducer
@@ -15,7 +12,6 @@ import no.nav.helse.flex.mock.gammeltFormatOpprettNySoknadMedFeriesporsmalSomUnd
 import no.nav.helse.flex.mock.opprettSendtSoknad
 import no.nav.helse.flex.mock.opprettSendtSoknadForArbeidsledige
 import no.nav.helse.flex.repository.RedusertVenteperiodeRepository
-import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER
 import no.nav.helse.flex.soknadsopprettelse.FRISKMELDT
 import no.nav.helse.flex.soknadsopprettelse.FRISKMELDT_START
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsperiodeDTO
@@ -225,26 +221,6 @@ class SoknadProducerTest {
         verify(metrikk, times(0)).tellDagerFraAktiveringTilInnsending(ARBEIDSLEDIG.name, dagerSiden(tom))
         verify(metrikk, times(0)).tellDagerFraAktiveringTilInnsending(SELVSTENDIGE_OG_FRILANSERE.name, dagerSiden(tom))
         verify(metrikk, times(0)).tellDagerFraAktiveringTilInnsending(OPPHOLD_UTLAND.name, dagerSiden(tom))
-    }
-
-    @Test
-    fun metrikkTellerArbeidstakerMedFlereInntektskilder() {
-        val sykepengesoknad = opprettSendtSoknad()
-
-        soknadProducer.soknadEvent(sykepengesoknad, null, false)
-
-        verify(metrikk, times(1)).tellSoknadMedFlereInntektsKilder()
-    }
-
-    @Test
-    fun arbeidtakereUtenAndreInntektskilderTellesIkkeOpp() {
-        val sykepengesoknad = opprettSendtSoknad().replaceSporsmal(
-            Sporsmal(tag = ANDRE_INNTEKTSKILDER, svartype = Svartype.JA_NEI, svar = listOf(Svar(null, "NEI")))
-        )
-
-        soknadProducer.soknadEvent(sykepengesoknad, null, false)
-
-        verify(metrikk, never()).tellSoknadMedFlereInntektsKilder()
     }
 
     @Test
