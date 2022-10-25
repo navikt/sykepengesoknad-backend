@@ -5,7 +5,7 @@ import no.nav.helse.flex.juridiskvurdering.juridiskVurderingTopic
 import no.nav.helse.flex.kafka.producer.AivenKafkaProducer
 import no.nav.helse.flex.kafka.producer.RebehandlingSykmeldingSendtProducer
 import no.nav.helse.flex.kafka.sykepengesoknadTopic
-import no.nav.helse.flex.service.AutomatiskInnsendingService
+import no.nav.helse.flex.personhendelse.AutomatiskInnsendingVedDodsfall
 import no.nav.helse.flex.soknadsopprettelse.BehandleSykmeldingOgBestillAktivering
 import no.nav.helse.flex.testdata.DatabaseReset
 import no.nav.security.mock.oauth2.MockOAuth2Server
@@ -131,7 +131,7 @@ abstract class BaseTestClass {
     private lateinit var cacheManager: CacheManager
 
     @SpyBean
-    lateinit var automatiskInnsendingService: AutomatiskInnsendingService
+    lateinit var automatiskInnsendingVedDodsfall: AutomatiskInnsendingVedDodsfall
 
     @SpyBean
     lateinit var aivenKafkaProducer: AivenKafkaProducer
@@ -144,10 +144,6 @@ abstract class BaseTestClass {
 
     @Autowired
     lateinit var server: MockOAuth2Server
-
-    fun evictAllCaches() {
-        cacheManager.cacheNames.forEach { cacheManager.getCache(it)?.clear() }
-    }
 
     @Autowired
     lateinit var sykepengesoknadKafkaConsumer: Consumer<String, String>

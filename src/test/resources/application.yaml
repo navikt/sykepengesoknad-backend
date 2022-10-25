@@ -77,10 +77,6 @@ javax.net.ssl:
   trustStore: truststore
   trustStorePassword: truststorepassword
 
-serviceuser:
-  username: username
-  password: password
-
 management:
   endpoint:
     prometheus.enabled: true
@@ -110,7 +106,8 @@ KAFKA_CREDSTORE_PASSWORD: ""
 KAFKA_SECURITY_PROTOCOL: "PLAINTEXT"
 KAFKA_KEYSTORE_PATH: ""
 KAFKA_SCHEMA_REGISTRY: "url"
-ON_PREM_SCHEMA_REGISTRY_URL: ${KAFKA_SCHEMA_REGISTRY}
+KAFKA_SCHEMA_REGISTRY_USER: "user"
+KAFKA_SCHEMA_REGISTRY_PASSWORD: "pass"
 
 nais:
   app:
@@ -122,13 +119,5 @@ julesoknad.cron: "0 6 * * * *"
 
 aiven-kafka:
   auto-offset-reset: latest
-
-on-prem-kafka:
-  bootstrap-servers: overskrives i BaseTestClass
-  security-protocol: PLAINTEXT
-  username: AzureDiamond
-  password: hunter2
-  auto-offset-reset: earliest
-  schema-registry: nope
 
 SKRIVEMODUS: READWRITE

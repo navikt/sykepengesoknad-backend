@@ -106,10 +106,3 @@ spring:
 
 aiven-kafka:
   auto-offset-reset: none
-
-on-prem-kafka:
-  bootstrap-servers: ${ON_PREM_BOOTSTRAP_SERVERS}
-  security-protocol: SASL_SSL
-  username: ${SERVICEUSER_USERNAME}
-  password: ${SERVICEUSER_PASSWORD}
-  schema-registry: ${ON_PREM_SCHEMA_REGISTRY_URL}

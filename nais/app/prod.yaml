@@ -5,14 +5,11 @@ db_tier: db-custom-4-15360
 db_size: 250
 replicas_min: 3
 replicas_max: 5
-schema_registry: "kafka-schema-registry.nais.adeo.no"
 syfomodiaperson_cluster: prod-fss
 env:
   SPRING_PROFILES_ACTIVE: default,sykmeldinger
   PDL_BASE_URL: https://pdl-api.prod-fss-pub.nais.io
   PDL_API_AAD_CLIENT_ID: prod-fss.pdl.pdl-api
-  ON_PREM_BOOTSTRAP_SERVERS: "a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443,a01apvl00148.adeo.no:8443,a01apvl00149.adeo.no:8443,a01apvl00150.adeo.no:8443"
-  ON_PREM_SCHEMA_REGISTRY_URL: "https://kafka-schema-registry.nais.adeo.no"
   FASIT_ENVIRONMENT_NAME: "p"
   SYKEPENGESOKNAD_KVITTERINGER_URL: "http://sykepengesoknad-kvitteringer"
   SYKEPENGESOKNAD_KVITTERINGER_TOKENX_CLIENT_ID: prod-gcp:flex:sykepengesoknad-kvitteringer
