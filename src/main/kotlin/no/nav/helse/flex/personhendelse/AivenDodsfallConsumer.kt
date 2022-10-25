@@ -33,9 +33,7 @@ class AivenDodsfallConsumer(
         containerFactory = "kafkaAvroListenerContainerFactory",
         properties = ["auto.offset.reset = earliest"],
     )
-    fun listenAiven(cr: ConsumerRecord<String, GenericRecord>, acknowledgment: Acknowledgment) {
-        log.info("Mottok personhendelse på aiven")
-
+    fun listen(cr: ConsumerRecord<String, GenericRecord>, acknowledgment: Acknowledgment) {
         prosesserPersonhendelse(
             cr.value(),
             cr.timestamp(),
