@@ -6,9 +6,7 @@ import io.confluent.kafka.serializers.KafkaAvroDeserializer
 import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
 import no.nav.helse.flex.aktivering.kafka.AktiveringBestilling
 import no.nav.helse.flex.juridiskvurdering.JuridiskVurderingKafkaDto
-import no.nav.helse.flex.logger
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
-import no.nav.helse.flex.util.serialisertTilString
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG
@@ -40,7 +38,6 @@ class AivenKafkaConfig(
 ) {
     private val JAVA_KEYSTORE = "JKS"
     private val PKCS12 = "PKCS12"
-    private val log = logger()
 
     @Bean
     fun sykepengesoknadProducer(): KafkaProducer<String, SykepengesoknadDTO> {
@@ -155,8 +152,6 @@ class AivenKafkaConfig(
             ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to KafkaAvroDeserializer::class.java,
             ConsumerConfig.MAX_POLL_RECORDS_CONFIG to "1",
         )
-
-        log.info(genericAvroConsumerConfig.serialisertTilString())
 
         val consumerFactory = DefaultKafkaConsumerFactory(
             genericAvroConsumerConfig,
