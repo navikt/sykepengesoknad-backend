@@ -37,9 +37,6 @@ spec:
       application: syfosoknadbrukernotifikasjon
       access: read
     - team: flex
-      application: syfoaltinn
-      access: read
-    - team: flex
       application: sykepengesoknad-altinn
       access: read
     - team: flex
