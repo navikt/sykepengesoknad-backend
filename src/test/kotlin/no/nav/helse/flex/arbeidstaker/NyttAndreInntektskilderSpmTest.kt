@@ -241,7 +241,7 @@ class NyttAndreInntektskilderSpmTest : BaseTestClass() {
 
         assertThat(kafkaSoknader).hasSize(1)
         assertThat(kafkaSoknader[0].status).isEqualTo(SoknadsstatusDTO.SENDT)
-        kafkaSoknader[0].andreInntektskilder `should be equal to` listOf(InntektskildeDTO(type = InntektskildetypeDTO.FRILANSER, sykmeldt = null))
+        kafkaSoknader[0].andreInntektskilder `should be equal to` listOf(InntektskildeDTO(type = InntektskildetypeDTO.STYREVERV, sykmeldt = null))
         kafkaSoknader[0].arbeidUtenforNorge!!.`should be false`()
         assertThat(kafkaSoknader[0].fravarForSykmeldingen).isEqualTo(
             listOf(
