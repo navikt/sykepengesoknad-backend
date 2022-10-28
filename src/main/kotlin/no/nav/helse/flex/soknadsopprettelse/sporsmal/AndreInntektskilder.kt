@@ -103,13 +103,16 @@ fun andreInntektskilderArbeidstakerV2(sykmeldingOrgnavn: String, andreKjenteArbe
                         sporsmalstekst = "frilanser",
                         svartype = Svartype.CHECKBOX
                     ),
-
                     Sporsmal(
                         tag = INNTEKTSKILDE_STYREVERV,
                         sporsmalstekst = "styreverv",
                         svartype = Svartype.CHECKBOX
                     ),
-
+                    Sporsmal(
+                        tag = INNTEKTSKILDE_OMSORGSLONN,
+                        sporsmalstekst = "omsorgslønn fra kommunen",
+                        svartype = Svartype.CHECKBOX
+                    ),
                     Sporsmal(
                         tag = INNTEKTSKILDE_FOSTERHJEM,
                         sporsmalstekst = "fosterhjemsgodtgjørelse",
