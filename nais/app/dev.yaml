@@ -25,4 +25,3 @@ env:
   FLEX_FSS_PROXY_AAD_CLIENT_ID: dev-fss.flex.flex-fss-proxy
   FLEX_FSS_PROXY_URL: https://flex-fss-proxy.dev-fss-pub.nais.io
   EREG_URL: https://ereg-services.dev-fss-pub.nais.io
-  ANDRE_INNTEKTSKILDER_V2: true

@@ -19,6 +19,7 @@ import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_FRILANSER
 import no.nav.helse.flex.sykepengesoknad.kafka.InntektskildetypeDTO
 import no.nav.helse.flex.testutil.besvarsporsmal
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.Test
 
@@ -76,13 +77,13 @@ class AndreInntektskilderKtTest {
         andreInntektskilder.shouldHaveSize(3)
 
         andreInntektskilder[0].type.shouldBeEqualTo(InntektskildetypeDTO.ANDRE_ARBEIDSFORHOLD)
-        andreInntektskilder[0].sykmeldt.shouldBeEqualTo(true)
+        andreInntektskilder[0].sykmeldt.shouldBeNull()
 
         andreInntektskilder[1].type.shouldBeEqualTo(InntektskildetypeDTO.SELVSTENDIG_NARINGSDRIVENDE)
-        andreInntektskilder[1].sykmeldt.shouldBeEqualTo(true)
+        andreInntektskilder[1].sykmeldt.shouldBeNull()
 
         andreInntektskilder[2].type.shouldBeEqualTo(InntektskildetypeDTO.SELVSTENDIG_NARINGSDRIVENDE_DAGMAMMA)
-        andreInntektskilder[2].sykmeldt.shouldBeEqualTo(false)
+        andreInntektskilder[2].sykmeldt.shouldBeNull()
     }
 
     @Test

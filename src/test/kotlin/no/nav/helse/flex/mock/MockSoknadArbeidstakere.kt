@@ -20,7 +20,7 @@ import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 import java.util.*
 
 fun deprecatedGetSoknadMedFeriesporsmalSomUndersporsmal(soknadMetadata: SoknadMetadata): Sykepengesoknad {
-    val sykepengesoknad = genererSykepengesoknadFraMetadata(soknadMetadata).copy(sporsmal = settOppSoknadArbeidstaker(soknadMetadata, true, now()))
+    val sykepengesoknad = genererSykepengesoknadFraMetadata(soknadMetadata).copy(sporsmal = settOppSoknadArbeidstaker(soknadMetadata, true, now(), emptyList()))
         .fjernSporsmal(FERIE_V2)
         .fjernSporsmal(PERMISJON_V2)
         .fjernSporsmal(UTLAND_V2)
@@ -113,7 +113,7 @@ fun opprettSendtSoknad(): Sykepengesoknad {
 
     )
 
-    val sykepengesoknad = leggSvarPaSoknad(genererSykepengesoknadFraMetadata(soknadMetadata).copy(sporsmal = settOppSoknadArbeidstaker(soknadMetadata, true, now())))
+    val sykepengesoknad = leggSvarPaSoknad(genererSykepengesoknadFraMetadata(soknadMetadata).copy(sporsmal = settOppSoknadArbeidstaker(soknadMetadata, true, now(), emptyList())))
     return sykepengesoknad.copy(sendtNav = Instant.now(), sendtArbeidsgiver = Instant.now(), status = Soknadstatus.SENDT)
 }
 
@@ -157,7 +157,7 @@ fun opprettNySoknadMock(feriesporsmalSomHovedsporsmal: Boolean = true): Sykepeng
     )
 
     val sykepengesoknad = if (feriesporsmalSomHovedsporsmal)
-        genererSykepengesoknadFraMetadata(soknadMetadata).copy(sporsmal = settOppSoknadArbeidstaker(soknadMetadata, true, now()))
+        genererSykepengesoknadFraMetadata(soknadMetadata).copy(sporsmal = settOppSoknadArbeidstaker(soknadMetadata, true, now(), emptyList()))
     else
         deprecatedGetSoknadMedFeriesporsmalSomUndersporsmal(soknadMetadata)
 
@@ -250,13 +250,10 @@ private fun Sykepengesoknad.utenlandsopphold(): Sykepengesoknad {
 }
 
 private fun Sykepengesoknad.andreInntektskilder(): Sykepengesoknad {
-    return besvarsporsmal(ANDRE_INNTEKTSKILDER, "JA")
+    return besvarsporsmal(ANDRE_INNTEKTSKILDER_V2, "JA")
         .besvarsporsmal(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD, "CHECKED")
-        .besvarsporsmal(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD + ER_DU_SYKMELDT, "JA")
         .besvarsporsmal(INNTEKTSKILDE_SELVSTENDIG, "CHECKED")
-        .besvarsporsmal(INNTEKTSKILDE_SELVSTENDIG + ER_DU_SYKMELDT, "JA")
         .besvarsporsmal(INNTEKTSKILDE_SELVSTENDIG_DAGMAMMA, "CHECKED")
-        .besvarsporsmal(INNTEKTSKILDE_SELVSTENDIG_DAGMAMMA + ER_DU_SYKMELDT, "NEI")
 }
 
 private fun Sykepengesoknad.utdanning(): Sykepengesoknad {
