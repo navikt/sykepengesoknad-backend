@@ -132,7 +132,7 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
                 "UTLAND_V2",
                 "JOBBET_DU_100_PROSENT_0",
                 "ARBEID_UTENFOR_NORGE",
-                "ANDRE_INNTEKTSKILDER",
+                "ANDRE_INNTEKTSKILDER_V2",
                 "UTDANNING",
                 "VAER_KLAR_OVER_AT",
                 "BEKREFT_OPPLYSNINGER"
@@ -147,7 +147,7 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
                 "PERMISJON_V2",
                 "UTLAND_V2",
                 "JOBBET_DU_100_PROSENT_0",
-                "ANDRE_INNTEKTSKILDER",
+                "ANDRE_INNTEKTSKILDER_V2",
                 "UTDANNING",
                 "VAER_KLAR_OVER_AT",
                 "BEKREFT_OPPLYSNINGER"
@@ -192,7 +192,7 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
             .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
             .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
             .besvarSporsmal(tag = "JOBBET_DU_100_PROSENT_0", svar = "NEI")
-            .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER", svar = "NEI")
+            .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
             .besvarSporsmal(tag = "UTDANNING", svar = "NEI")
             .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
 
@@ -221,7 +221,7 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
             .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
             .besvarSporsmal(tag = "ARBEID_UTENFOR_NORGE", svar = "NEI")
             .besvarSporsmal(tag = "JOBBET_DU_100_PROSENT_0", svar = "NEI")
-            .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER", svar = "NEI")
+            .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
             .besvarSporsmal(tag = "UTDANNING", svar = "NEI")
             .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
             .sendSoknad()
@@ -257,7 +257,7 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
             .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
             .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
             .besvarSporsmal(tag = "JOBBET_DU_100_PROSENT_0", svar = "NEI")
-            .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER", svar = "NEI")
+            .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
             .besvarSporsmal(tag = "UTDANNING", svar = "NEI")
             .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
             .sendSoknad()

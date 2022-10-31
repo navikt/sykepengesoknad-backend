@@ -25,6 +25,7 @@ class ArbeidGjenopptattMuteringTest {
                 soknadMetadata = soknadMetadata,
                 erForsteSoknadISykeforlop = true,
                 tidligsteFomForSykmelding = fom,
+                andreKjenteArbeidsforhold = emptyList()
             )
         )
 
@@ -50,6 +51,7 @@ class ArbeidGjenopptattMuteringTest {
                 soknadMetadata = soknadMetadata,
                 erForsteSoknadISykeforlop = true,
                 tidligsteFomForSykmelding = fom,
+                andreKjenteArbeidsforhold = emptyList()
             )
         )
 

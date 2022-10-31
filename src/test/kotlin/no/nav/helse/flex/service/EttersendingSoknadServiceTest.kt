@@ -250,7 +250,7 @@ class EttersendingSoknadServiceTest {
         return genererSykepengesoknadFraMetadata(soknadMetadata).copy(
             sporsmal = settOppSoknadArbeidstaker(
                 soknadMetadata,
-                true, LocalDate.now()
+                true, LocalDate.now(), emptyList()
             ),
             status = NY
         )

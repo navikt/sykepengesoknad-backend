@@ -12,7 +12,6 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.Visningskriterie.CHECKED
 import no.nav.helse.flex.domain.Visningskriterie.JA
 import no.nav.helse.flex.domain.rest.SoknadMetadata
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderArbeidstaker
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderArbeidstakerV2
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.ansvarserklaringSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.arbeidUtenforNorge
@@ -31,7 +30,7 @@ fun settOppSoknadArbeidstaker(
     soknadMetadata: SoknadMetadata,
     erForsteSoknadISykeforlop: Boolean,
     tidligsteFomForSykmelding: LocalDate,
-    andreKjenteArbeidsforhold: List<String>? = null, // trigger v2 andre inntektskilder spm
+    andreKjenteArbeidsforhold: List<String>,
 ): List<Sporsmal> {
     val gradertResietilskudd = soknadMetadata.soknadstype == GRADERT_REISETILSKUDD
 
@@ -53,11 +52,9 @@ fun settOppSoknadArbeidstaker(
             it.add(fravarForSykmeldingen(tidligsteFomForSykmelding))
             it.add(arbeidUtenforNorge())
         }
-        if (andreKjenteArbeidsforhold != null) {
-            it.add(andreInntektskilderArbeidstakerV2(soknadMetadata.arbeidsgiverNavn!!, andreKjenteArbeidsforhold))
-        } else {
-            it.add(andreInntektskilderArbeidstaker(soknadMetadata.arbeidsgiverNavn))
-        }
+
+        it.add(andreInntektskilderArbeidstakerV2(soknadMetadata.arbeidsgiverNavn!!, andreKjenteArbeidsforhold))
+
         it.addAll(
             jobbetDuIPeriodenSporsmal(
                 soknadMetadata.sykmeldingsperioder,

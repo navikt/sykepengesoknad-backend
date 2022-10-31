@@ -63,7 +63,6 @@ class NyttAndreInntektskilderSpmTest : BaseTestClass() {
     @Test
     @Order(1)
     fun `Arbeidstakersøknader opprettes for en lang sykmelding`() {
-        aktiverEnkeltSoknad.andreInntektskilderV2 = true
         val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(
             fnr = fnr,
             arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
@@ -349,7 +348,5 @@ class NyttAndreInntektskilderSpmTest : BaseTestClass() {
 
         val hentetViaRest = hentSoknader(fnr)
         assertThat(hentetViaRest).hasSize(0)
-
-        aktiverEnkeltSoknad.andreInntektskilderV2 = false
     }
 }

@@ -22,7 +22,6 @@ import no.nav.helse.flex.soknadsopprettelse.settOppSoknadArbeidstaker
 import no.nav.helse.flex.soknadsopprettelse.settOppSoknadSelvstendigOgFrilanser
 import no.nav.helse.flex.soknadsopprettelse.settOppSykepengesoknadBehandlingsdager
 import no.nav.helse.flex.soknadsopprettelse.skapReisetilskuddsoknad
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import kotlin.system.measureTimeMillis
@@ -36,7 +35,6 @@ class AktiverEnkeltSoknad(
     private val sykepengesoknadRepository: SykepengesoknadRepository,
     private val registry: MeterRegistry,
     private val andreArbeidsforholdHenting: AndreArbeidsforholdHenting,
-    @Value("\${ANDRE_INNTEKTSKILDER_V2:false}") var andreInntektskilderV2: Boolean,
 ) {
     val log = logger()
 
@@ -118,20 +116,15 @@ class AktiverEnkeltSoknad(
 
         return when (soknadMetadata.arbeidssituasjon) {
             Arbeidssituasjon.ARBEIDSTAKER -> {
-
                 settOppSoknadArbeidstaker(
                     soknadMetadata = soknadMetadata,
                     erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
                     tidligsteFomForSykmelding = tidligsteFomForSykmelding,
-                    andreKjenteArbeidsforhold = if (andreInntektskilderV2) {
-                        andreArbeidsforholdHenting.hentArbeidsforhold(
-                            fnr = soknadMetadata.fnr,
-                            arbeidsgiverOrgnummer = soknadMetadata.arbeidsgiverOrgnummer!!,
-                            startSykeforlop = soknadMetadata.startSykeforlop
-                        )
-                    } else {
-                        null
-                    }
+                    andreKjenteArbeidsforhold = andreArbeidsforholdHenting.hentArbeidsforhold(
+                        fnr = soknadMetadata.fnr,
+                        arbeidsgiverOrgnummer = soknadMetadata.arbeidsgiverOrgnummer!!,
+                        startSykeforlop = soknadMetadata.startSykeforlop
+                    )
                 )
             }
 
