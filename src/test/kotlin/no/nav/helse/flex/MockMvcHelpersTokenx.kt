@@ -6,6 +6,7 @@ import no.nav.helse.flex.controller.domain.RSOppdaterSporsmalResponse
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSporsmal
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSvar
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknad
+import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknadMetadata
 import no.nav.helse.flex.util.OBJECT_MAPPER
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback
@@ -27,6 +28,26 @@ fun BaseTestClass.hentSoknader(fnr: String): List<RSSykepengesoknad> {
     ).andExpect(MockMvcResultMatchers.status().isOk).andReturn().response.contentAsString
 
     return OBJECT_MAPPER.readValue<List<RSSykepengesoknad>>(json).sortedBy { it.opprettetDato }
+}
+
+fun BaseTestClass.hentSoknaderMetadata(fnr: String): List<RSSykepengesoknadMetadata> {
+    val json = mockMvc.perform(
+        MockMvcRequestBuilders.get("/api/v2/soknader/metadata")
+            .header("Authorization", "Bearer ${jwt(fnr)}")
+            .contentType(MediaType.APPLICATION_JSON)
+    ).andExpect(MockMvcResultMatchers.status().isOk).andReturn().response.contentAsString
+
+    return OBJECT_MAPPER.readValue(json)
+}
+
+fun BaseTestClass.hentSoknad(soknadId: String, fnr: String): RSSykepengesoknad {
+    val json = mockMvc.perform(
+        MockMvcRequestBuilders.get("/api/v2/soknad/$soknadId")
+            .header("Authorization", "Bearer ${jwt(fnr)}")
+            .contentType(MediaType.APPLICATION_JSON)
+    ).andExpect(MockMvcResultMatchers.status().isOk).andReturn().response.contentAsString
+
+    return OBJECT_MAPPER.readValue(json)
 }
 
 fun BaseTestClass.lagreSvarMedResult(fnr: String, soknadId: String, sporsmalId: String, svar: RSSvar): ResultActions {
