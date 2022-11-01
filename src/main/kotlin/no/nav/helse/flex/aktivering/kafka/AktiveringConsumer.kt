@@ -18,6 +18,7 @@ class AktiveringConsumer(
         properties = ["auto.offset.reset = earliest"],
         id = "sykepengesoknad-aktivering",
         idIsGroup = false,
+        concurrency = "4"
     )
     fun listen(cr: ConsumerRecord<String, String>, acknowledgment: Acknowledgment) {
 
