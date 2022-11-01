@@ -8,10 +8,12 @@ import no.nav.helse.flex.controller.domain.sykepengesoknad.RSMottaker
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSporsmal
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSvar
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknad
+import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknadMetadata
 import no.nav.helse.flex.controller.mapper.mapSporsmal
 import no.nav.helse.flex.controller.mapper.mapSporsmalTilRs
 import no.nav.helse.flex.controller.mapper.mapSvar
 import no.nav.helse.flex.controller.mapper.tilRSSykepengesoknad
+import no.nav.helse.flex.controller.mapper.tilRSSykepengesoknadMetadata
 import no.nav.helse.flex.domain.Avsendertype.BRUKER
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
@@ -76,6 +78,22 @@ class SoknadTokenXController(
         val identer =
             validerTokenXClaims(dittSykefravaerFrontendClientId, sykepengesoknadFrontendClientId).hentIdenter()
         return hentSoknadService.hentSoknader(identer).map { it.tilRSSykepengesoknad() }
+    }
+
+    @ProtectedWithClaims(issuer = TOKENX, claimMap = ["acr=Level4"])
+    @ResponseBody
+    @GetMapping(value = ["/soknader/metadata"], produces = [APPLICATION_JSON_VALUE])
+    fun hentSoknaderMetadata(): List<RSSykepengesoknadMetadata> {
+        val identer = validerTokenXClaims(sykepengesoknadFrontendClientId).hentIdenter()
+        return hentSoknadService.hentSoknaderUtenSporsmal(identer).map { it.tilRSSykepengesoknadMetadata() }
+    }
+
+    @ProtectedWithClaims(issuer = TOKENX, claimMap = ["acr=Level4"])
+    @ResponseBody
+    @GetMapping(value = ["/soknad/{id}"], produces = [APPLICATION_JSON_VALUE])
+    fun hentSoknad(@PathVariable("id") id: String): RSSykepengesoknad {
+        val (soknad, _) = hentOgSjekkTilgangTilSoknad(id)
+        return soknad.tilRSSykepengesoknad()
     }
 
     @ProtectedWithClaims(issuer = TOKENX, claimMap = ["acr=Level4"])

@@ -73,6 +73,28 @@ class SykepengesoknadDAO(
             .sortedBy { it.opprettet }
     }
 
+    fun finnSykepengesoknaderUtenSporsmal(identer: List<String>): List<Sykepengesoknad> {
+        val soknader = namedParameterJdbcTemplate.query(
+            "SELECT * FROM SYKEPENGESOKNAD " +
+                "WHERE FNR IN (:identer) ",
+
+            MapSqlParameterSource()
+                .addValue("identer", identer),
+            sykepengesoknadRowMapper()
+        )
+        val soknadsIder = soknader.map { it.first }.toSet()
+
+        val soknadsPerioder = soknadsperiodeDAO.finnSoknadPerioder(soknadsIder)
+
+        return soknader
+            .map {
+                it.second.copy(
+                    soknadPerioder = soknadsPerioder[it.first] ?: emptyList(),
+                )
+            }
+            .sortedBy { it.opprettet }
+    }
+
     fun finnSykepengesoknaderByUuid(soknadUuidListe: List<String>): List<Sykepengesoknad> {
         if (soknadUuidListe.isEmpty()) {
             return Collections.emptyList()
