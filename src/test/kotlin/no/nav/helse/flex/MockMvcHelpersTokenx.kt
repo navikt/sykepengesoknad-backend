@@ -20,6 +20,7 @@ import java.util.*
 
 fun BaseTestClass.jwt(fnr: String) = server.tokenxToken(fnr = fnr)
 
+@Deprecated("Erstattes av hentSoknaderMetadata og hentSoknad")
 fun BaseTestClass.hentSoknader(fnr: String): List<RSSykepengesoknad> {
     val json = mockMvc.perform(
         MockMvcRequestBuilders.get("/api/v2/soknader")
