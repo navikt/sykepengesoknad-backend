@@ -1,7 +1,7 @@
 package no.nav.helse.flex.overlappendesykmeldinger
 
 import no.nav.helse.flex.BaseTestClass
-import no.nav.helse.flex.hentSoknader
+import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.ventPåRecords
 import org.amshove.kluent.shouldBeEqualTo
@@ -32,7 +32,7 @@ class OverlapperFor : BaseTestClass() {
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
 
-        val hentetViaRest = hentSoknader(fnr)
+        val hentetViaRest = hentSoknaderMetadata(fnr)
         hentetViaRest shouldHaveSize 2
 
         val klippetSoknad = hentetViaRest[0]
@@ -60,7 +60,7 @@ class OverlapperFor : BaseTestClass() {
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
 
-        val hentetViaRest = hentSoknader(fnr)
+        val hentetViaRest = hentSoknaderMetadata(fnr)
         hentetViaRest shouldHaveSize 2
 
         val klippetSoknad = hentetViaRest[0]

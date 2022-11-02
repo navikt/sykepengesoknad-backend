@@ -8,7 +8,8 @@ import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Kvittering
 import no.nav.helse.flex.domain.Utgiftstype
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
-import no.nav.helse.flex.hentSoknader
+import no.nav.helse.flex.hentSoknad
+import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.lagreSvar
 import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
 import no.nav.helse.flex.slettSvar
@@ -60,7 +61,7 @@ class SlettKvitteringerIntegrasjonsTest : BaseTestClass() {
     @Test
     @Order(1)
     fun `Det finnes ingen søknader`() {
-        val soknader = this.hentSoknader(fnr)
+        val soknader = hentSoknaderMetadata(fnr)
         soknader.shouldBeEmpty()
     }
 
@@ -106,11 +107,17 @@ class SlettKvitteringerIntegrasjonsTest : BaseTestClass() {
     @Test
     @Order(3)
     fun `Besvarer spørsmålet om at reisetilskudd ble brukt`() {
-        val reisetilskudd = this.hentSoknader(fnr).first()
+        val reisetilskudd = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first().id,
+            fnr = fnr
+        )
         SoknadBesvarer(reisetilskudd, this, fnr)
             .besvarSporsmal(BRUKTE_REISETILSKUDDET, "JA", mutert = true)
 
-        val reisetilskuddEtterSvar = this.hentSoknader(fnr).first()
+        val reisetilskuddEtterSvar = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first().id,
+            fnr = fnr
+        )
         reisetilskuddEtterSvar
             .sporsmal!!
             .find { it.tag == BRUKTE_REISETILSKUDDET }!!
@@ -194,7 +201,10 @@ class SlettKvitteringerIntegrasjonsTest : BaseTestClass() {
     }
 
     private fun hentKvitteringSpm(): Pair<String, RSSporsmal> {
-        val soknad = this.hentSoknader(fnr).first()
+        val soknad = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first().id,
+            fnr = fnr
+        )
         val kvitteringSpm = soknad.sporsmal!!.first { it.tag == KVITTERINGER }
         return Pair(soknad.id, kvitteringSpm)
     }

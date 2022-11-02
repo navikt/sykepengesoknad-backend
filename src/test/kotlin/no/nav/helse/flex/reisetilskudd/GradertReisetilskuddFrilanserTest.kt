@@ -3,7 +3,8 @@ package no.nav.helse.flex.reisetilskudd
 import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
-import no.nav.helse.flex.hentSoknader
+import no.nav.helse.flex.hentSoknad
+import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.mockFlexSyketilfelleErUtaforVentetid
 import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
 import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER
@@ -49,7 +50,7 @@ class GradertReisetilskuddFrilanserTest : BaseTestClass() {
     @Test
     @Order(0)
     fun `Det er ingen søknader til å begynne med`() {
-        val soknader = this.hentSoknader(fnr)
+        val soknader = hentSoknaderMetadata(fnr)
         soknader.shouldBeEmpty()
     }
 
@@ -92,9 +93,13 @@ class GradertReisetilskuddFrilanserTest : BaseTestClass() {
     @Test
     @Order(2)
     fun `02 - søknaden har alle spørsmål før vi har svart på om reisetilskuddet ble brukt`() {
-        val soknader = hentSoknader(fnr)
+        val soknader = hentSoknaderMetadata(fnr)
         assertThat(soknader).hasSize(1)
-        val soknaden = soknader.first()
+
+        val soknaden = hentSoknad(
+            soknadId = soknader.first().id,
+            fnr = fnr
+        )
 
         assertThat(soknaden.sporsmal!!.first { it.tag == VAER_KLAR_OVER_AT }.undertekst).contains("sykepenger og reisetilskudd")
         assertThat(soknaden.sporsmal!!.map { it.tag }).isEqualTo(
@@ -116,11 +121,17 @@ class GradertReisetilskuddFrilanserTest : BaseTestClass() {
     @Test
     @Order(3)
     fun `Vi kan besvare spørsmålet om at reisetilskudd ble brukt og får ikke utbetalings spm`() {
-        val reisetilskudd = this.hentSoknader(fnr).first()
+        val reisetilskudd = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first().id,
+            fnr = fnr
+        )
         SoknadBesvarer(reisetilskudd, this, fnr)
             .besvarSporsmal(BRUKTE_REISETILSKUDDET, "JA", mutert = true)
 
-        val reisetilskuddEtterSvar = this.hentSoknader(fnr).first()
+        val reisetilskuddEtterSvar = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first().id,
+            fnr = fnr
+        )
         reisetilskuddEtterSvar
             .sporsmal!!
             .find { it.tag == BRUKTE_REISETILSKUDDET }!!

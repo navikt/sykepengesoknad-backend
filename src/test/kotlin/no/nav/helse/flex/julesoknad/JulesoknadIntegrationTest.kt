@@ -7,7 +7,7 @@ import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.forskuttering.ForskutteringRepository
 import no.nav.helse.flex.forskuttering.domain.Forskuttering
-import no.nav.helse.flex.hentSoknader
+import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
 import no.nav.helse.flex.repository.JulesoknadkandidatDAO
 import no.nav.helse.flex.testdata.getSykmeldingDto
@@ -62,7 +62,7 @@ class JulesoknadIntegrationTest : BaseTestClass() {
         prosesserJulesoknadkandidater.prosseserJulesoknadKandidater()
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
 
-        val soknader = hentSoknader(fnr)
+        val soknader = hentSoknaderMetadata(fnr)
         assertThat(soknader).hasSize(1)
 
         val soknaden = soknader.first()
@@ -78,7 +78,7 @@ class JulesoknadIntegrationTest : BaseTestClass() {
         prosesserJulesoknadkandidater.prosseserJulesoknadKandidater()
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
 
-        val soknader = hentSoknader(fnr)
+        val soknader = hentSoknaderMetadata(fnr)
         assertThat(soknader).hasSize(1)
 
         val soknaden = soknader.first()
@@ -93,7 +93,7 @@ class JulesoknadIntegrationTest : BaseTestClass() {
         )
         prosesserJulesoknadkandidater.prosseserJulesoknadKandidater()
 
-        val soknader = hentSoknader(fnr)
+        val soknader = hentSoknaderMetadata(fnr)
         assertThat(soknader).hasSize(1)
 
         val soknaden = soknader.first()
@@ -108,7 +108,7 @@ class JulesoknadIntegrationTest : BaseTestClass() {
         )
         prosesserJulesoknadkandidater.prosseserJulesoknadKandidater()
 
-        val soknader = hentSoknader(fnr)
+        val soknader = hentSoknaderMetadata(fnr)
         assertThat(soknader).hasSize(1)
 
         val soknaden = soknader.first()
@@ -128,7 +128,7 @@ class JulesoknadIntegrationTest : BaseTestClass() {
         )
         prosesserJulesoknadkandidater.prosseserJulesoknadKandidater()
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
-        val soknader = hentSoknader(fnr)
+        val soknader = hentSoknaderMetadata(fnr)
         assertThat(soknader).hasSize(1)
 
         val soknaden = soknader.first()
@@ -147,7 +147,7 @@ class JulesoknadIntegrationTest : BaseTestClass() {
         )
         prosesserJulesoknadkandidater.prosseserJulesoknadKandidater()
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
-        val soknader = hentSoknader(fnr)
+        val soknader = hentSoknaderMetadata(fnr)
         assertThat(soknader).hasSize(1)
 
         val soknaden = soknader.first()
@@ -168,7 +168,7 @@ class JulesoknadIntegrationTest : BaseTestClass() {
             arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = orgnummer, orgNavn = "Kebab")
         )
 
-        val soknader = hentSoknader(fnr)
+        val soknader = hentSoknaderMetadata(fnr)
         assertThat(soknader).hasSize(1)
 
         val soknaden = soknader.first()
@@ -185,7 +185,7 @@ class JulesoknadIntegrationTest : BaseTestClass() {
         prosesserJulesoknadkandidater.prosseserJulesoknadKandidater()
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
 
-        val soknaderEtterCronjob = hentSoknader(fnr)
+        val soknaderEtterCronjob = hentSoknaderMetadata(fnr)
         assertThat(soknaderEtterCronjob).hasSize(1)
 
         val soknadenEtterCronjob = soknaderEtterCronjob.first()
@@ -211,7 +211,7 @@ class JulesoknadIntegrationTest : BaseTestClass() {
 
         assertThat(julesoknadkandidatDAO.hentJulesoknadkandidater()).hasSize(1)
 
-        var soknader = hentSoknader(fnr).sortedBy { it.fom }
+        var soknader = hentSoknaderMetadata(fnr).sortedBy { it.fom }
         assertThat(soknader).hasSize(3)
         assertThat(soknader[0].status).isEqualTo(FREMTIDIG)
         assertThat(soknader[1].status).isEqualTo(FREMTIDIG)
@@ -220,7 +220,7 @@ class JulesoknadIntegrationTest : BaseTestClass() {
         aktiveringJob.bestillAktivering(soknader[2].fom!!)
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
 
-        soknader = hentSoknader(fnr).sortedBy { it.fom }
+        soknader = hentSoknaderMetadata(fnr).sortedBy { it.fom }
         assertThat(soknader[0].status).isEqualTo(NY)
         assertThat(soknader[1].status).isEqualTo(NY)
         assertThat(soknader[2].status).isEqualTo(FREMTIDIG)
@@ -228,7 +228,7 @@ class JulesoknadIntegrationTest : BaseTestClass() {
         prosesserJulesoknadkandidater.prosseserJulesoknadKandidater()
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
 
-        soknader = hentSoknader(fnr).sortedBy { it.fom }
+        soknader = hentSoknaderMetadata(fnr).sortedBy { it.fom }
         assertThat(soknader[0].status).isEqualTo(NY)
         assertThat(soknader[1].status).isEqualTo(NY)
         assertThat(soknader[2].status).isEqualTo(NY)

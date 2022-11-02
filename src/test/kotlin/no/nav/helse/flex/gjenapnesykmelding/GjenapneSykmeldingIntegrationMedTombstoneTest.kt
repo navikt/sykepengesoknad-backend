@@ -5,7 +5,8 @@ import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
-import no.nav.helse.flex.hentSoknader
+import no.nav.helse.flex.hentSoknad
+import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testdata.getSykmeldingDto
@@ -83,7 +84,7 @@ class GjenapneSykmeldingIntegrationMedTombstoneTest : BaseTestClass() {
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
 
-        val hentetViaRest = hentSoknader(fnr)
+        val hentetViaRest = hentSoknaderMetadata(fnr)
         assertThat(hentetViaRest).hasSize(2)
         assertThat(hentetViaRest[0].soknadstype).isEqualTo(RSSoknadstype.ARBEIDSLEDIG)
         assertThat(hentetViaRest[0].status).isEqualTo(RSSoknadstatus.NY)
@@ -91,7 +92,10 @@ class GjenapneSykmeldingIntegrationMedTombstoneTest : BaseTestClass() {
 
     @Test
     fun `2 - vi svarer på den ene søknaden`() {
-        val rsSykepengesoknad = hentSoknader(fnr).first()
+        val rsSykepengesoknad = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first().id,
+            fnr = fnr
+        )
         SoknadBesvarer(rSSykepengesoknad = rsSykepengesoknad, mockMvc = this, fnr = fnr)
             .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
             .besvarSporsmal(tag = "FRISKMELDT", svar = "JA")
@@ -110,7 +114,7 @@ class GjenapneSykmeldingIntegrationMedTombstoneTest : BaseTestClass() {
 
     @Test
     fun `3 - vi sender inn tombstone status på den sendte og den ene nye sykmeldingene - Kun den ene blir slettet`() {
-        val soknader = hentSoknader(fnr)
+        val soknader = hentSoknaderMetadata(fnr)
         assertThat(soknader).hasSize(2)
         val sykmedlingIdTilNy = soknader.find { it.status == RSSoknadstatus.NY }!!.sykmeldingId!!
         val sykmedlingIdTilSendt = soknader.find { it.status == RSSoknadstatus.SENDT }!!.sykmeldingId!!
@@ -127,7 +131,7 @@ class GjenapneSykmeldingIntegrationMedTombstoneTest : BaseTestClass() {
 
         val soknadPaKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().last()
 
-        val soknaderEtterEvents = hentSoknader(fnr)
+        val soknaderEtterEvents = hentSoknaderMetadata(fnr)
 
         assertThat(soknaderEtterEvents).hasSize(1)
         assertThat(soknaderEtterEvents.find { it.status == RSSoknadstatus.SENDT }!!.sykmeldingId).isEqualTo(
@@ -174,14 +178,14 @@ class GjenapneSykmeldingIntegrationMedTombstoneTest : BaseTestClass() {
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
 
-        val soknader = hentSoknader(fnr)
+        val soknader = hentSoknaderMetadata(fnr)
         assertThat(soknader).hasSize(2)
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
             sykmeldingId = sykmelding4,
             sykmeldingKafkaMessage = null
         )
 
-        val soknaderEtterApenMelding = hentSoknader(fnr)
+        val soknaderEtterApenMelding = hentSoknaderMetadata(fnr)
         assertThat(soknaderEtterApenMelding).hasSize(2)
     }
 }

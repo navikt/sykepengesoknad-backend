@@ -1,7 +1,7 @@
 package no.nav.helse.flex.overlappendesykmeldinger
 
 import no.nav.helse.flex.BaseTestClass
-import no.nav.helse.flex.hentSoknader
+import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.ventPåRecords
@@ -51,7 +51,7 @@ class OverlapperFullstendig : BaseTestClass() {
         meldingerPaKafka[2].fom shouldBeEqualTo basisdato.plusDays(5)
         meldingerPaKafka[2].tom shouldBeEqualTo basisdato.plusDays(10)
 
-        val hentetViaRest = hentSoknader(fnr)
+        val hentetViaRest = hentSoknaderMetadata(fnr)
         hentetViaRest shouldHaveSize 1
 
         hentetViaRest[0].fom shouldBeEqualTo basisdato.plusDays(5)
@@ -85,7 +85,7 @@ class OverlapperFullstendig : BaseTestClass() {
         meldingerPaKafka[2].fom shouldBeEqualTo basisdato
         meldingerPaKafka[2].tom shouldBeEqualTo basisdato.plusDays(15)
 
-        val hentetViaRest = hentSoknader(fnr)
+        val hentetViaRest = hentSoknaderMetadata(fnr)
         hentetViaRest shouldHaveSize 1
 
         hentetViaRest[0].fom shouldBeEqualTo basisdato
@@ -119,7 +119,7 @@ class OverlapperFullstendig : BaseTestClass() {
         meldingerPaKafka[2].fom shouldBeEqualTo basisdato
         meldingerPaKafka[2].tom shouldBeEqualTo basisdato.plusDays(10)
 
-        val hentetViaRest = hentSoknader(fnr)
+        val hentetViaRest = hentSoknaderMetadata(fnr)
         hentetViaRest shouldHaveSize 1
 
         hentetViaRest[0].fom shouldBeEqualTo basisdato

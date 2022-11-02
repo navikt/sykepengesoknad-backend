@@ -11,7 +11,8 @@ import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.rest.SoknadMetadata
-import no.nav.helse.flex.hentSoknader
+import no.nav.helse.flex.hentSoknad
+import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.sendSoknadMedResult
 import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER
@@ -89,7 +90,10 @@ class TransaksjonshandteringTest : BaseTestClass() {
 
     @Test
     fun `02 - vi besvarer alle sporsmal`() {
-        val soknaden = hentSoknader(fnr).first()
+        val soknaden = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first().id,
+            fnr = fnr
+        )
 
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
             .besvarSporsmal(FRISKMELDT, "JA")
@@ -104,10 +108,10 @@ class TransaksjonshandteringTest : BaseTestClass() {
     @Test
     fun `04 - vi sender inn søknaden, den feiler på kafka`() {
         doThrow(RuntimeException("sdfsdf")).whenever(aivenKafkaProducer).produserMelding(any())
-        sendSoknadMedResult(fnr, hentSoknader(fnr).first().id)
+        sendSoknadMedResult(fnr, hentSoknaderMetadata(fnr).first().id)
             .andExpect(((MockMvcResultMatchers.status().isInternalServerError)))
 
-        val soknaden = hentSoknader(fnr).first()
+        val soknaden = hentSoknaderMetadata(fnr).first()
         assertThat(soknaden.status).isEqualTo(RSSoknadstatus.NY)
     }
 

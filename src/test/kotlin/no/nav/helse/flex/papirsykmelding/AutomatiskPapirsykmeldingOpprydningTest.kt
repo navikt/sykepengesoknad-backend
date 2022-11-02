@@ -4,7 +4,8 @@ import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
-import no.nav.helse.flex.hentSoknader
+import no.nav.helse.flex.hentSoknad
+import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
 import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO.*
@@ -68,7 +69,7 @@ class AutomatiskPapirsykmeldingOpprydningTest : BaseTestClass() {
         assertThat(soknader[1].status).isEqualTo(NY)
         assertThat(soknader[2].status).isEqualTo(NY)
 
-        val hentetViaRest = hentSoknader(fnr)
+        val hentetViaRest = hentSoknaderMetadata(fnr)
         assertThat(hentetViaRest).hasSize(3)
     }
 
@@ -76,8 +77,10 @@ class AutomatiskPapirsykmeldingOpprydningTest : BaseTestClass() {
     fun `2 - vi sender inn den ene søknaden`() {
         flexSyketilfelleMockRestServiceServer?.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
-        val førsteSøknad = hentSoknader(fnr)
-            .find { it.fom == LocalDate.of(2020, 1, 1) }!!
+        val førsteSøknad = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first { it.fom == LocalDate.of(2020, 1, 1) }.id,
+            fnr = fnr
+        )
 
         val sendtSoknad = SoknadBesvarer(rSSykepengesoknad = førsteSøknad, mockMvc = this, fnr = fnr)
             .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
@@ -114,7 +117,7 @@ class AutomatiskPapirsykmeldingOpprydningTest : BaseTestClass() {
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 0)
 
-        val hentetViaRest = hentSoknader(fnr)
+        val hentetViaRest = hentSoknaderMetadata(fnr)
         assertThat(hentetViaRest).hasSize(3)
         assertThat(hentetViaRest[0].status).isEqualTo(RSSoknadstatus.SENDT)
         assertThat(hentetViaRest[1].status).isEqualTo(RSSoknadstatus.NY)
@@ -148,7 +151,7 @@ class AutomatiskPapirsykmeldingOpprydningTest : BaseTestClass() {
         assertThat(soknader[4].status).isEqualTo(NY)
         assertThat(soknader[5].status).isEqualTo(NY)
 
-        val hentetViaRest = hentSoknader(fnr)
+        val hentetViaRest = hentSoknaderMetadata(fnr)
         assertThat(hentetViaRest).hasSize(5)
         assertThat(hentetViaRest[0].status).isEqualTo(RSSoknadstatus.KORRIGERT)
         assertThat(hentetViaRest[1].status).isEqualTo(RSSoknadstatus.NY)
@@ -177,7 +180,7 @@ class AutomatiskPapirsykmeldingOpprydningTest : BaseTestClass() {
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 0)
 
-        val hentetViaRest = hentSoknader(fnr)
+        val hentetViaRest = hentSoknaderMetadata(fnr)
         assertThat(hentetViaRest).hasSize(5)
         assertThat(hentetViaRest[0].status).isEqualTo(RSSoknadstatus.KORRIGERT)
         assertThat(hentetViaRest[1].status).isEqualTo(RSSoknadstatus.NY)
@@ -217,7 +220,7 @@ class AutomatiskPapirsykmeldingOpprydningTest : BaseTestClass() {
         assertThat(soknader[6].status).isEqualTo(NY)
         assertThat(soknader[7].status).isEqualTo(NY)
 
-        val hentetViaRest = hentSoknader(fnr)
+        val hentetViaRest = hentSoknaderMetadata(fnr)
         assertThat(hentetViaRest).hasSize(5)
         assertThat(hentetViaRest[0].status).isEqualTo(RSSoknadstatus.KORRIGERT)
         assertThat(hentetViaRest[1].status).isEqualTo(RSSoknadstatus.NY)

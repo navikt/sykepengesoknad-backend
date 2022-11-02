@@ -14,7 +14,8 @@ import no.nav.helse.flex.ettersendTilArbeidsgiver
 import no.nav.helse.flex.ettersendTilNav
 import no.nav.helse.flex.finnMottakerAvSoknad
 import no.nav.helse.flex.gjenapneSoknad
-import no.nav.helse.flex.hentSoknader
+import no.nav.helse.flex.hentSoknad
+import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.korrigerSoknad
 import no.nav.helse.flex.lagreSvar
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
@@ -85,7 +86,7 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
     @Test
     @Order(0)
     fun `Det er ingen søknader til å begynne med`() {
-        val soknader = this.hentSoknader(fnr)
+        val soknader = hentSoknaderMetadata(fnr)
         soknader.shouldBeEmpty()
     }
 
@@ -128,9 +129,13 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
     @Test
     @Order(2)
     fun `02 - søknaden har alle spørsmål før vi har svart på om reisetilskuddet ble brukt`() {
-        val soknader = hentSoknader(fnr)
+        val soknader = hentSoknaderMetadata(fnr)
         assertThat(soknader).hasSize(1)
-        val soknaden = soknader.first()
+
+        val soknaden = hentSoknad(
+            soknadId = soknader.first().id,
+            fnr = fnr
+        )
 
         assertThat(soknaden.sporsmal!!.first { it.tag == VAER_KLAR_OVER_AT }.undertekst).contains("sykepenger og reisetilskudd")
         assertThat(soknaden.sporsmal!!.map { it.tag }).isEqualTo(
@@ -162,44 +167,62 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
     @Test
     @Order(3)
     fun `Vi kan avbryte søknaden`() {
-        val reisetilskudd = this.hentSoknader(fnr)
+        val soknadId = hentSoknaderMetadata(fnr).first().id
+        avbrytSoknad(fnr = fnr, soknadId = soknadId)
 
-        this.avbrytSoknad(fnr = fnr, soknadId = reisetilskudd.first().id)
-        val avbruttSøknad = this.hentSoknader(fnr).first()
-
+        val avbruttSøknad = hentSoknad(
+            soknadId = soknadId,
+            fnr = fnr
+        )
         avbruttSøknad.status shouldBeEqualTo RSSoknadstatus.AVBRUTT
     }
 
     @Test
     @Order(4)
     fun `Vi kan gjenåpne søknaden`() {
-        val reisetilskudd = this.hentSoknader(fnr)
+        val soknadId = hentSoknaderMetadata(fnr).first().id
+        gjenapneSoknad(fnr = fnr, soknadId = soknadId)
 
-        this.gjenapneSoknad(fnr = fnr, soknadId = reisetilskudd.first().id)
-        val gjenåpnet = this.hentSoknader(fnr).first()
-
+        val gjenåpnet = hentSoknad(
+            soknadId = soknadId,
+            fnr = fnr
+        )
         gjenåpnet.status shouldBeEqualTo RSSoknadstatus.NY
     }
 
     @Test
     @Order(5)
     fun `Vi kan besvare et av spørsmålene`() {
-        val reisetilskudd = this.hentSoknader(fnr).first()
+        val soknadId = hentSoknaderMetadata(fnr).first().id
+
+        val reisetilskudd = hentSoknad(
+            soknadId = soknadId,
+            fnr = fnr
+        )
         SoknadBesvarer(reisetilskudd, this, fnr)
             .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
 
-        val svaret = this.hentSoknader(fnr).first().sporsmal!!.find { it.tag == ANSVARSERKLARING }!!.svar.first()
+        val svaret = hentSoknad(
+            soknadId = soknadId,
+            fnr = fnr
+        ).sporsmal!!.find { it.tag == ANSVARSERKLARING }!!.svar.first()
         svaret.verdi shouldBeEqualTo "CHECKED"
     }
 
     @Test
     @Order(6)
     fun `Vi kan besvare spørsmålet om at reisetilskudd ble brukt`() {
-        val reisetilskudd = this.hentSoknader(fnr).first()
+        val reisetilskudd = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first().id,
+            fnr = fnr
+        )
         SoknadBesvarer(reisetilskudd, this, fnr)
             .besvarSporsmal(BRUKTE_REISETILSKUDDET, "JA", mutert = true)
 
-        val reisetilskuddEtterSvar = this.hentSoknader(fnr).first()
+        val reisetilskuddEtterSvar = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first().id,
+            fnr = fnr
+        )
         reisetilskuddEtterSvar
             .sporsmal!!
             .find { it.tag == BRUKTE_REISETILSKUDDET }!!
@@ -231,7 +254,10 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
     @Test
     @Order(7)
     fun `Vi kan laste opp en kvittering`() {
-        val reisetilskuddSoknad = this.hentSoknader(fnr).first()
+        val reisetilskuddSoknad = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first().id,
+            fnr = fnr
+        )
         val kvitteringSpm = reisetilskuddSoknad.sporsmal!!.first { it.tag == KVITTERINGER }
         val svar = RSSvar(
             verdi = Kvittering(
@@ -254,7 +280,10 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
     @Test
     @Order(8)
     fun `Vi kan se den opplastede kvitteringen`() {
-        val reisetilskuddSoknad = this.hentSoknader(fnr).first()
+        val reisetilskuddSoknad = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first().id,
+            fnr = fnr
+        )
         val kvitteringSpm = reisetilskuddSoknad.sporsmal!!.first { it.tag == KVITTERINGER }
         kvitteringSpm.svar.size `should be equal to` 1
 
@@ -269,7 +298,10 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
     @Order(9)
     fun `Vi kan slette en kvittering`() {
 
-        val reisetilskuddSoknad = this.hentSoknader(fnr).first()
+        val reisetilskuddSoknad = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first().id,
+            fnr = fnr
+        )
         val kvitteringSpm = reisetilskuddSoknad.sporsmal!!.first { it.tag == KVITTERINGER }
         kvitteringSpm.svar.size `should be equal to` 1
 
@@ -277,7 +309,10 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
 
         slettSvar(fnr, reisetilskuddSoknad.id, kvitteringSpm.id!!, svaret.id!!)
 
-        val reisetilskuddSoknadEtter = this.hentSoknader(fnr).first()
+        val reisetilskuddSoknadEtter = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first().id,
+            fnr = fnr
+        )
         val kvitteringSpmEtter = reisetilskuddSoknadEtter.sporsmal!!.first { it.tag == KVITTERINGER }
         kvitteringSpmEtter.svar.size `should be equal to` 0
     }
@@ -285,7 +320,10 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
     @Test
     @Order(10)
     fun `Vi laster opp en kvittering igjen`() {
-        val reisetilskuddSoknad = this.hentSoknader(fnr).first()
+        val reisetilskuddSoknad = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first().id,
+            fnr = fnr
+        )
         val kvitteringSpm = reisetilskuddSoknad.sporsmal!!.first { it.tag == KVITTERINGER }
         val svar = RSSvar(
             verdi = Kvittering(
@@ -303,15 +341,18 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
     @Test
     @Order(11)
     fun `Vi tester å sende inn søknaden før alle svar er besvart og får bad request`() {
-        val reisetilskudd = this.hentSoknader(fnr).first()
-        this.sendSoknadMedResult(fnr, reisetilskudd.id)
+        val reisetilskudd = hentSoknaderMetadata(fnr).first()
+        sendSoknadMedResult(fnr, reisetilskudd.id)
             .andExpect(MockMvcResultMatchers.status().isBadRequest)
     }
 
     @Test
     @Order(12)
     fun `Vi besvarer resten av spørsmålene`() {
-        val reisetilskudd = this.hentSoknader(fnr).first()
+        val reisetilskudd = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first().id,
+            fnr = fnr
+        )
         SoknadBesvarer(reisetilskudd, this, fnr)
             .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
             .besvarSporsmal(FRAVAR_FOR_SYKMELDINGEN, "NEI")
@@ -334,7 +375,7 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
     fun `Vi kan finne mottaker av søknaden`() {
         flexSyketilfelleMockRestServiceServer?.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
-        val reisetilskudd = this.hentSoknader(fnr).first()
+        val reisetilskudd = hentSoknaderMetadata(fnr).first()
         val mottaker = finnMottakerAvSoknad(reisetilskudd.id, fnr)
         mottaker.mottaker shouldBeEqualTo RSMottaker.ARBEIDSGIVER
     }
@@ -344,7 +385,10 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
     fun `Vi kan sende inn søknaden`() {
         flexSyketilfelleMockRestServiceServer?.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
-        val reisetilskudd = this.hentSoknader(fnr).first()
+        val reisetilskudd = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first().id,
+            fnr = fnr
+        )
         val sendtSøknad = SoknadBesvarer(reisetilskudd, this, fnr)
             .sendSoknad()
         sendtSøknad.status shouldBeEqualTo RSSoknadstatus.SENDT
@@ -361,8 +405,8 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
     @Test
     @Order(16)
     fun `Vi ettersender til NAV`() {
-        val reisetilskudd = this.hentSoknader(fnr).first()
-        this.ettersendTilNav(reisetilskudd.id, fnr)
+        val reisetilskudd = hentSoknaderMetadata(fnr).first()
+        ettersendTilNav(reisetilskudd.id, fnr)
         val ettersendt = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()
         ettersendt.sendtNav.shouldNotBeNull()
         ettersendt.ettersending.`should be true`()
@@ -371,15 +415,15 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
     @Test
     @Order(17)
     fun `Vi prøver å ettersende til arbeidsgiver, men den er allerede sendt dit`() {
-        val reisetilskudd = this.hentSoknader(fnr).first()
-        this.ettersendTilArbeidsgiver(reisetilskudd.id, fnr)
+        val reisetilskudd = hentSoknaderMetadata(fnr).first()
+        ettersendTilArbeidsgiver(reisetilskudd.id, fnr)
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 0)
     }
 
     @Test
     @Order(18)
     fun `Vi endrer i databasen og ettersender til arbeidsgiver`() {
-        val reisetilskudd = this.hentSoknader(fnr).first()
+        val reisetilskudd = hentSoknaderMetadata(fnr).first()
 
         namedParameterJdbcTemplate.update(
             "UPDATE SYKEPENGESOKNAD SET SENDT_ARBEIDSGIVER = null " +
@@ -389,7 +433,7 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
                 .addValue("sykepengesoknadId", reisetilskudd.id)
         )
 
-        this.ettersendTilArbeidsgiver(reisetilskudd.id, fnr)
+        ettersendTilArbeidsgiver(reisetilskudd.id, fnr)
 
         val ettersendt = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()
         ettersendt.sendtNav.shouldNotBeNull()
@@ -400,7 +444,7 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
     @Test
     @Order(19)
     fun `Vi ombestemmer oss å svarer nei på reisetilskudd brukt`() {
-        val soknad = this.hentSoknader(fnr).first()
+        val soknad = hentSoknaderMetadata(fnr).first()
         val utkast = korrigerSoknad(soknad.id, fnr)
         val utkastMedSvar = SoknadBesvarer(utkast, this, fnr)
             .besvarSporsmal(BRUKTE_REISETILSKUDDET, "NEI", true, mutert = true)
@@ -432,7 +476,10 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
     @Test
     @Order(20)
     fun `Vi sender inn den korrigerte søknaden`() {
-        val reisetilskudd = this.hentSoknader(fnr).find { it.status == RSSoknadstatus.UTKAST_TIL_KORRIGERING }!!
+        val reisetilskudd = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.UTKAST_TIL_KORRIGERING }.id,
+            fnr = fnr
+        )
         SoknadBesvarer(reisetilskudd, this, fnr)
             .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
             .besvarSporsmal(FRAVAR_FOR_SYKMELDINGEN, "NEI")

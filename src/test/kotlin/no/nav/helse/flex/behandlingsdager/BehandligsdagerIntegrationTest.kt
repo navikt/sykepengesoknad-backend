@@ -9,7 +9,8 @@ import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.gjenapneSoknad
-import no.nav.helse.flex.hentSoknader
+import no.nav.helse.flex.hentSoknad
+import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.korrigerSoknad
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
 import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
@@ -90,7 +91,7 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
 
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
 
-        val soknader = hentSoknader(fnr)
+        val soknader = hentSoknaderMetadata(fnr)
         assertThat(soknader).hasSize(1)
         assertThat(soknader[0].soknadstype).isEqualTo(RSSoknadstype.BEHANDLINGSDAGER)
         assertThat(soknader[0].status).isEqualTo(RSSoknadstatus.NY)
@@ -109,7 +110,10 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
     @Order(2)
     fun `behandlingsdager har riktig formattert spørsmålstekst`() {
 
-        val soknaden = hentSoknader(fnr).first()
+        val soknaden = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first().id,
+            fnr = fnr
+        )
         val uke0 = soknaden.sporsmal!!.first { it.tag == "ENKELTSTAENDE_BEHANDLINGSDAGER_0" }.undersporsmal[0]
         val uke1 = soknaden.sporsmal!!.first { it.tag == "ENKELTSTAENDE_BEHANDLINGSDAGER_0" }.undersporsmal[1]
 
@@ -124,7 +128,10 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
         mockFlexSyketilfelleArbeidsgiverperiode()
 
         // Svar på søknad
-        val rsSykepengesoknad = hentSoknader(fnr).first()
+        val rsSykepengesoknad = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first().id,
+            fnr = fnr
+        )
 
         SoknadBesvarer(rSSykepengesoknad = rsSykepengesoknad, mockMvc = this, fnr = fnr)
             .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
@@ -155,7 +162,10 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
         assertThat(soknadPaKafka.fnr).isEqualTo("123456789")
         assertThat(soknadPaKafka.behandlingsdager).isEqualTo(listOf(rsSykepengesoknad.fom, rsSykepengesoknad.tom))
 
-        val refreshedSoknad = hentSoknader(fnr).first()
+        val refreshedSoknad = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first().id,
+            fnr = fnr
+        )
         assertThat(refreshedSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
         assertThat(refreshedSoknad.sporsmal!!.find { it.tag == ANSVARSERKLARING }!!.svar[0].verdi).isEqualTo("CHECKED")
         assertThat(refreshedSoknad.sporsmal!!.find { it.tag == BEKREFT_OPPLYSNINGER }!!.svar[0].verdi).isEqualTo("CHECKED")
@@ -166,7 +176,7 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
     @Test
     @Order(4)
     fun `vi korrigerer søknaden`() {
-        val soknaden = hentSoknader(fnr).first()
+        val soknaden = hentSoknaderMetadata(fnr).first()
 
         flexSyketilfelleMockRestServiceServer?.reset()
         mockFlexSyketilfelleArbeidsgiverperiode(andreKorrigerteRessurser = soknaden.id)
@@ -229,13 +239,19 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
 
-        val soknad = hentSoknader(fnr).first { it.status == RSSoknadstatus.NY }
+        val soknad = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
+            fnr = fnr
+        )
         SoknadBesvarer(rSSykepengesoknad = soknad, mockMvc = this, fnr = fnr)
             .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
 
         // Avbryt søknad
         avbrytSoknad(soknadId = soknad.id, fnr = fnr)
-        val avbruttSoknad = hentSoknader(fnr).first { it.id == soknad.id }
+        val avbruttSoknad = hentSoknad(
+            soknadId = soknad.id,
+            fnr = fnr
+        )
         assertThat(avbruttSoknad.status).isEqualTo(RSSoknadstatus.AVBRUTT)
 
         val avbruttPåKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().last()
@@ -244,7 +260,10 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
 
         // Gjenåpne søknad
         gjenapneSoknad(soknadId = soknad.id, fnr = fnr)
-        val gjenapnetSoknad = hentSoknader(fnr).first { it.id == avbruttSoknad.id }
+        val gjenapnetSoknad = hentSoknad(
+            soknadId = avbruttSoknad.id,
+            fnr = fnr
+        )
         assertThat(gjenapnetSoknad.status).isEqualTo(RSSoknadstatus.NY)
         assertThat(gjenapnetSoknad.sporsmal?.sumOf { it.svar.size }).isEqualTo(0)
 
@@ -301,7 +320,7 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
 
-        val soknader = hentSoknader(fnr).filter { it.sykmeldingId == sykmeldingId }
+        val soknader = hentSoknaderMetadata(fnr).filter { it.sykmeldingId == sykmeldingId }
         assertThat(soknader).hasSize(2)
         assertThat(soknader[0].soknadstype).isEqualTo(RSSoknadstype.BEHANDLINGSDAGER)
         assertThat(soknader[0].status).isEqualTo(RSSoknadstatus.NY)
@@ -358,7 +377,7 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 3)
 
-        val soknader = hentSoknader(fnr).filter { it.sykmeldingId == sykmeldingId }
+        val soknader = hentSoknaderMetadata(fnr).filter { it.sykmeldingId == sykmeldingId }
         assertThat(soknader).hasSize(2)
         assertThat(soknader[0].soknadstype).isEqualTo(RSSoknadstype.BEHANDLINGSDAGER)
         assertThat(soknader[0].status).isEqualTo(RSSoknadstatus.NY)
