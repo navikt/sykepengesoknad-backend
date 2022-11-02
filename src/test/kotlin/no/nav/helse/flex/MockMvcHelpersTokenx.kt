@@ -20,17 +20,6 @@ import java.util.*
 
 fun BaseTestClass.jwt(fnr: String) = server.tokenxToken(fnr = fnr)
 
-@Deprecated("Erstattes av hentSoknaderMetadata og hentSoknad")
-fun BaseTestClass.hentSoknader(fnr: String): List<RSSykepengesoknad> {
-    val json = mockMvc.perform(
-        MockMvcRequestBuilders.get("/api/v2/soknader")
-            .header("Authorization", "Bearer ${jwt(fnr)}")
-            .contentType(MediaType.APPLICATION_JSON)
-    ).andExpect(MockMvcResultMatchers.status().isOk).andReturn().response.contentAsString
-
-    return OBJECT_MAPPER.readValue<List<RSSykepengesoknad>>(json).sortedBy { it.opprettetDato }
-}
-
 fun BaseTestClass.hentSoknaderMetadata(fnr: String): List<RSSykepengesoknadMetadata> {
     val json = mockMvc.perform(
         MockMvcRequestBuilders.get("/api/v2/soknader/metadata")
