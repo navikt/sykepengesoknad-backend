@@ -6,7 +6,8 @@ import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Visningskriterie
-import no.nav.helse.flex.hentSoknader
+import no.nav.helse.flex.hentSoknad
+import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.soknadsopprettelse.EGENMELDINGER
@@ -68,7 +69,10 @@ class GammeltEgenmeldingSporsmalTest : BaseTestClass() {
         flexSyketilfelleMockRestServiceServer?.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
 
-        val soknaden = hentSoknader(fnr).find { it.status == RSSoknadstatus.NY }!!
+        val soknaden = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
+            fnr = fnr
+        )
 
         val sendtSoknad = SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
             .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")

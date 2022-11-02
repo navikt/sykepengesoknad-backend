@@ -168,7 +168,7 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
         }
 
         val soknaden = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).find { it.status == RSSoknadstatus.NY }!!.id,
+            soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
             fnr = fnr
         )
 
@@ -214,7 +214,7 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
         flexSyketilfelleMockRestServiceServer?.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
         val soknaden = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).find { it.status == RSSoknadstatus.NY }!!.id,
+            soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
             fnr = fnr
         )
 
@@ -260,7 +260,7 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
         mockFlexSyketilfelleArbeidsgiverperiode()
 
         val soknaden = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).find { it.status == RSSoknadstatus.NY }!!.id,
+            soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
             fnr = fnr
         )
         val sendtSoknad = SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)

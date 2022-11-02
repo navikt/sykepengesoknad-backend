@@ -7,7 +7,8 @@ import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.rest.SoknadMetadata
-import no.nav.helse.flex.hentSoknader
+import no.nav.helse.flex.hentSoknad
+import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.juridiskvurdering.Utfall
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
 import no.nav.helse.flex.repository.SykepengesoknadDAO
@@ -106,7 +107,10 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : BaseTestClass() {
     fun `3 - vi svarer på sporsmalene og sender den inn`() {
         flexSyketilfelleMockRestServiceServer?.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
-        val soknaden = hentSoknader(fnr).first()
+        val soknaden = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first().id,
+            fnr = fnr
+        )
 
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
             .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
@@ -130,7 +134,7 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : BaseTestClass() {
 
     @Test
     fun `4 - vi sjekker at faktisk grad er hentet ut korrekt`() {
-        val soknaden = hentSoknader(fnr).first()
+        val soknaden = hentSoknaderMetadata(fnr).first()
 
         assertThat(soknaden.status).isEqualTo(RSSoknadstatus.SENDT)
 

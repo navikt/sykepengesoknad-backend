@@ -7,7 +7,8 @@ import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.rest.SoknadMetadata
-import no.nav.helse.flex.hentSoknader
+import no.nav.helse.flex.hentSoknad
+import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER
 import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
@@ -96,10 +97,10 @@ class AnnetArbeidsforholdIntegrationTest : BaseTestClass() {
 
     @Test
     fun `2 - søknaden har alle spørsmål`() {
-        val soknader = hentSoknader(fnr)
+        val soknader = hentSoknaderMetadata(fnr)
         assertThat(soknader).hasSize(1)
-        val soknaden = soknader.first()
 
+        val soknaden = hentSoknad(soknader.first().id, fnr)
         assertThat(soknaden.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
                 ANSVARSERKLARING,
@@ -117,7 +118,10 @@ class AnnetArbeidsforholdIntegrationTest : BaseTestClass() {
 
     @Test
     fun `3 - spørsmålstekstene endrer seg når vi blir friskmeldt midt i søknadsperioden`() {
-        val soknaden = hentSoknader(fnr).first()
+        val soknaden = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first().id,
+            fnr = fnr
+        )
 
         assertThat(soknaden.sporsmal!!.first { it.tag == ANDRE_INNTEKTSKILDER }.sporsmalstekst)
             .isEqualTo(
@@ -162,7 +166,10 @@ class AnnetArbeidsforholdIntegrationTest : BaseTestClass() {
 
     @Test
     fun `4 - unødvendige spørsmål forsvinner når man blir friskmeldt første dag i søknadsperioden`() {
-        val soknaden = hentSoknader(fnr).first()
+        val soknaden = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first().id,
+            fnr = fnr
+        )
 
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
             .besvarSporsmal(FRISKMELDT_START, LocalDate.of(2018, 1, 1).format(DateTimeFormatter.ISO_LOCAL_DATE), mutert = true)
@@ -181,7 +188,10 @@ class AnnetArbeidsforholdIntegrationTest : BaseTestClass() {
 
     @Test
     fun `5 - unødvendige spørsmål kommer tilbake når man svarer at man ikke ble friskmeldt likevel`() {
-        val soknaden = hentSoknader(fnr).first()
+        val soknaden = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first().id,
+            fnr = fnr
+        )
 
         assertThat(soknaden.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
@@ -214,7 +224,10 @@ class AnnetArbeidsforholdIntegrationTest : BaseTestClass() {
 
     @Test
     fun `6 - Vi svarer på alle spørsmål og sender inn søknaden`() {
-        val soknaden = hentSoknader(fnr).first()
+        val soknaden = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first().id,
+            fnr = fnr
+        )
 
         val sendtSoknad = SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
             .besvarSporsmal(ANSVARSERKLARING, "CHECKED")

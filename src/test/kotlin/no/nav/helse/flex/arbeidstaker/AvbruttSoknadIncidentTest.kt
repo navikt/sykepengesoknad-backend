@@ -4,7 +4,8 @@ import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
-import no.nav.helse.flex.hentSoknader
+import no.nav.helse.flex.hentSoknad
+import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.korrigerSoknad
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
 import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
@@ -58,7 +59,7 @@ class AvbruttSoknadIncidentTest : BaseTestClass() {
         )
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
 
-        val hentetViaRest = hentSoknader(fnr)
+        val hentetViaRest = hentSoknaderMetadata(fnr)
         assertThat(hentetViaRest).hasSize(1)
 
         val ventPåRecords = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
@@ -71,7 +72,7 @@ class AvbruttSoknadIncidentTest : BaseTestClass() {
 
     @Test
     fun `2 - vi merker søknaden med avbrutt feilinfo`() {
-        val soknader = hentSoknader(fnr)
+        val soknader = hentSoknaderMetadata(fnr)
 
         namedParameterJdbcTemplate.update(
             """UPDATE SYKEPENGESOKNAD SET AVBRUTT_FEILINFO = true WHERE SYKEPENGESOKNAD_UUID = :sykepengesoknadId""",
@@ -85,7 +86,10 @@ class AvbruttSoknadIncidentTest : BaseTestClass() {
     fun `3 - vi besvarer og sender inn søknaden`() {
         flexSyketilfelleMockRestServiceServer?.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
-        val soknaden = hentSoknader(fnr).find { it.status == RSSoknadstatus.NY }!!
+        val soknaden = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
+            fnr = fnr
+        )
 
         val sendtSoknad = SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
             .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
@@ -115,10 +119,13 @@ class AvbruttSoknadIncidentTest : BaseTestClass() {
     @Test
     fun `4 - vi korrigerer og sender inn søknaden`() {
         flexSyketilfelleMockRestServiceServer?.reset()
-        val soknadId = hentSoknader(fnr).find { it.status == RSSoknadstatus.SENDT }!!.id
+        val soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.SENDT }.id
         korrigerSoknad(soknadId, fnr)
         mockFlexSyketilfelleArbeidsgiverperiode(andreKorrigerteRessurser = soknadId)
-        val soknad = hentSoknader(fnr).find { it.korrigerer == soknadId }!!
+        val soknad = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first { it.korrigerer == soknadId }.id,
+            fnr = fnr
+        )
 
         val sendtSoknad = SoknadBesvarer(rSSykepengesoknad = soknad, mockMvc = this, fnr = fnr)
             .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")

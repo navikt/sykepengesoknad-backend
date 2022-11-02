@@ -6,7 +6,8 @@ import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
-import no.nav.helse.flex.hentSoknader
+import no.nav.helse.flex.hentSoknad
+import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
 import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
@@ -60,7 +61,7 @@ class ArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
         )
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
 
-        val hentetViaRest = hentSoknader(fnr)
+        val hentetViaRest = hentSoknaderMetadata(fnr)
         assertThat(hentetViaRest).hasSize(1)
         assertThat(hentetViaRest[0].soknadstype).isEqualTo(RSSoknadstype.ARBEIDSTAKERE)
         assertThat(hentetViaRest[0].status).isEqualTo(RSSoknadstatus.FREMTIDIG)
@@ -74,8 +75,11 @@ class ArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
     @Test
     @Order(2)
     fun `søknaden har ingen spørsmål som fremtidig`() {
-        val soknader = hentSoknader(fnr)
-        assertThat(soknader[0].sporsmal!!).hasSize(0)
+        val soknad = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first().id,
+            fnr = fnr
+        )
+        assertThat(soknad.sporsmal!!).hasSize(0)
     }
 
     @Test
@@ -91,9 +95,12 @@ class ArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
     @Test
     @Order(4)
     fun `søknaden har forventa spørsmål som NY`() {
-        val soknader = hentSoknader(fnr)
+        val soknad = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first().id,
+            fnr = fnr
+        )
 
-        assertThat(soknader[0].sporsmal!!.map { it.tag }).isEqualTo(
+        assertThat(soknad.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
                 "ANSVARSERKLARING",
                 "FRAVAR_FOR_SYKMELDINGEN",
@@ -116,7 +123,10 @@ class ArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
     fun `vi besvarer og sender inn søknaden`() {
         flexSyketilfelleMockRestServiceServer?.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
-        val soknaden = hentSoknader(fnr).find { it.status == RSSoknadstatus.NY }!!
+        val soknaden = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
+            fnr = fnr
+        )
 
         val sendtSoknad = SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
             .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
