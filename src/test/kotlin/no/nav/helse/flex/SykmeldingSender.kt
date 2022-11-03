@@ -27,11 +27,27 @@ fun BaseTestClass.sendSykmelding(
         SYKMELDINGBEKREFTET_TOPIC
     }
 
-    kafkaProducer.send(ProducerRecord(topic, sykmeldingKafkaMessage.sykmelding.id, sykmeldingKafkaMessage.serialisertTilString()))
+    kafkaProducer.send(
+        ProducerRecord(
+            topic,
+            sykmeldingKafkaMessage.sykmelding.id,
+            sykmeldingKafkaMessage.serialisertTilString()
+        )
+    )
 
-    behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingKafkaMessage.sykmelding.id, sykmeldingKafkaMessage)
+    behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
+        sykmeldingKafkaMessage.sykmelding.id,
+        sykmeldingKafkaMessage
+    )
 
     flexSyketilfelleMockRestServiceServer?.reset()
 
     return sykepengesoknadKafkaConsumer.ventPåRecords(antall = forventaSoknader).tilSoknader()
+}
+
+fun BaseTestClass.tombstoneSykmelding(
+    sykmeldingId: String,
+    topic: String = SYKMELDINGBEKREFTET_TOPIC,
+) {
+    kafkaProducer.send(ProducerRecord(topic, sykmeldingId, null)).get()
 }
