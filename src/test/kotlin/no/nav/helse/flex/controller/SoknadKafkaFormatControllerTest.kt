@@ -2,12 +2,8 @@ package no.nav.helse.flex.controller
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.BaseTestClass
-import no.nav.helse.flex.aktivering.AktiverEnkeltSoknad
-import no.nav.helse.flex.aktivering.kafka.AktiveringProducer
-import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.skapAzureJwt
-import no.nav.helse.flex.soknadsopprettelse.OpprettSoknadService
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.skapSykmeldingKafkaMessage
@@ -15,9 +11,7 @@ import no.nav.helse.flex.util.OBJECT_MAPPER
 import no.nav.syfo.kafka.NAV_CALLID
 import org.amshove.kluent.shouldBeEqualTo
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
@@ -26,18 +20,14 @@ import java.util.*
 
 class SoknadKafkaFormatControllerTest : BaseTestClass() {
 
-
     @Test
     fun `Vi kan hente en søknad på samme format som kafka topicet med version 2 token`() {
         val kafkaSoknad = sendSykmelding(
             skapSykmeldingKafkaMessage(
                 fnr = "1234",
-                sykmeldingsperioder = heltSykmeldt(
-
-                ),
+                sykmeldingsperioder = heltSykmeldt(),
             ),
         ).first()
-
 
         val result = mockMvc
             .perform(

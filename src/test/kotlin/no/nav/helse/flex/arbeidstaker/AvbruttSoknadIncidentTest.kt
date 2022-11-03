@@ -42,20 +42,13 @@ class AvbruttSoknadIncidentTest : BaseTestClass() {
                 ),
             )
         )
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
 
         val hentetViaRest = hentSoknaderMetadata(fnr)
         assertThat(hentetViaRest).hasSize(1)
 
-        val ventPåRecords = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
-        val kafkaSoknader = ventPåRecords.tilSoknader()
-
         assertThat(kafkaSoknader[0].status).isEqualTo(SoknadsstatusDTO.NY)
         assertThat(kafkaSoknader[0].sendTilGosys).isNull()
         assertThat(kafkaSoknader[0].merknader).isNull()
-
-        val hentetViaRest = hentSoknader(fnr)
-        assertThat(hentetViaRest).hasSize(1)
     }
 
     @Test

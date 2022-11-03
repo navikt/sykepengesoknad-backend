@@ -2,9 +2,9 @@ package no.nav.helse.flex.arbeidstaker
 
 import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
+import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingKafkaMessage
-import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.GradertDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO

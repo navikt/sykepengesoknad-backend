@@ -49,12 +49,9 @@ class ArbeidsgiverperiodeTilFredagSoknadUtHelgaTest : BaseTestClass() {
                 ),
             )
         )
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
 
         val hentetViaRest = hentSoknaderMetadata(fnr)
         assertThat(hentetViaRest).hasSize(1)
-
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
 
         flexSyketilfelleMockRestServiceServer?.reset()
 
@@ -123,12 +120,9 @@ class ArbeidsgiverperiodeTilFredagSoknadUtHelgaTest : BaseTestClass() {
                 ),
             )
         )
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
 
         val hentetViaRest = hentSoknaderMetadata(fnr)
         assertThat(hentetViaRest).hasSize(1)
-
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
 
         flexSyketilfelleMockRestServiceServer?.reset()
         mockFlexSyketilfelleArbeidsgiverperiode(

@@ -4,7 +4,6 @@ import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.domain.Arbeidsgiverperiode
 import no.nav.helse.flex.domain.Periode
-import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.juridiskvurdering.Utfall
@@ -203,7 +202,10 @@ class JuridiskVurderingArbeidsgiverperiodeTest : BaseTestClass() {
             )
         )
 
-        val soknaden = hentSoknader(fnr).find { it.status == RSSoknadstatus.NY }!!
+        val soknaden = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
+            fnr = fnr
+        )
 
         val sendtSoknad = SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
             .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")

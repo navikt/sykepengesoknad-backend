@@ -3,9 +3,9 @@ package no.nav.helse.flex.annetarbeidsforhold
 import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknaderMetadata
+import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER
 import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
 import no.nav.helse.flex.soknadsopprettelse.ARBEIDSLEDIG_UTLAND

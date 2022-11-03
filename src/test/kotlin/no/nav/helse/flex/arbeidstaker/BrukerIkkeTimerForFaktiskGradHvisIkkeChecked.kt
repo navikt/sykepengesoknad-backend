@@ -2,10 +2,6 @@ package no.nav.helse.flex.arbeidstaker
 
 import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
-import no.nav.helse.flex.hentSoknader
-import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.domain.Soknadstype
-import no.nav.helse.flex.domain.rest.SoknadMetadata
 import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode

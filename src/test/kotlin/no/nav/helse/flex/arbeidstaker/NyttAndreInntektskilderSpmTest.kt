@@ -2,15 +2,8 @@ package no.nav.helse.flex.arbeidstaker
 
 import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
-import no.nav.helse.flex.hentSoknader
-import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
-import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSporsmal
-import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknaderMetadata
-import no.nav.helse.flex.korrigerSoknad
-import no.nav.helse.flex.korrigerSoknadMedResult
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
 import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.sykepengesoknad.kafka.InntektskildeDTO
@@ -55,9 +48,12 @@ class NyttAndreInntektskilderSpmTest : BaseTestClass() {
     @Test
     @Order(2)
     fun `Har forventa andre inntektskilder spm`() {
-        val soknader = hentSoknader(fnr)
+        val soknaden = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
+            fnr = fnr
+        )
 
-        soknader[0].sporsmal!!.find { it.tag == "ANDRE_INNTEKTSKILDER_V2" }!!.sporsmalstekst `should be equal to` "Har du andre inntektskilder enn Matbutikken AS og Bensinstasjonen AS?"
+        soknaden.sporsmal!!.find { it.tag == "ANDRE_INNTEKTSKILDER_V2" }!!.sporsmalstekst `should be equal to` "Har du andre inntektskilder enn Matbutikken AS og Bensinstasjonen AS?"
     }
 
     @Test
