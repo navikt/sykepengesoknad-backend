@@ -15,7 +15,6 @@ import no.nav.helse.flex.domain.Sykeforloep
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.Sykmeldingstype
 import no.nav.helse.flex.domain.exception.SykeforloepManglerSykemeldingException
-import no.nav.helse.flex.domain.rest.SoknadMetadata
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.julesoknad.LagreJulesoknadKandidater
 import no.nav.helse.flex.kafka.producer.SoknadProducer
@@ -39,6 +38,7 @@ import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.DayOfWeek
+import java.time.Instant
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 import java.util.*
@@ -81,7 +81,7 @@ class OpprettSoknadService(
             val soknadsPerioder = sm.splittLangeSykmeldingperioder()
             soknadsPerioder.map {
                 val perioderFraSykmeldingen = it.delOppISoknadsperioder(sm)
-                SoknadMetadata(
+                Sykepengesoknad(
                     id = sykmeldingKafkaMessage.skapSoknadsId(it.fom, it.tom),
                     fnr = identer.originalIdent,
                     startSykeforlop = startSykeforlop,
@@ -89,24 +89,24 @@ class OpprettSoknadService(
                     tom = it.tom,
                     arbeidssituasjon = arbeidssituasjon,
                     arbeidsgiverOrgnummer = arbeidsgiverStatusDTO?.orgnummer,
-                    arbeidsgiverNavn = arbeidsgiverStatusDTO?.orgNavn,
+                    arbeidsgiverNavn = arbeidsgiverStatusDTO?.orgNavn?.prettyOrgnavn(),
                     sykmeldingId = sm.id,
                     sykmeldingSkrevet = sm.behandletTidspunkt.toInstant(),
-                    sykmeldingsperioder = perioderFraSykmeldingen.tilSoknadsperioder(),
+                    soknadPerioder = perioderFraSykmeldingen.tilSoknadsperioder(),
                     egenmeldtSykmelding = sm.egenmeldt,
-                    merknader = sm.merknader.tilMerknader(),
-                    soknadstype = finnSoknadstype(arbeidssituasjon, perioderFraSykmeldingen)
+                    merknaderFraSykmelding = sm.merknader.tilMerknader(),
+                    soknadstype = finnSoknadstype(arbeidssituasjon, perioderFraSykmeldingen),
+                    status = Soknadstatus.FREMTIDIG,
+                    opprettet = Instant.now(),
+                    sporsmal = emptyList(),
                 )
             }
-                .filter { it.sykmeldingsperioder.isNotEmpty() }
+                .filter { it.soknadPerioder?.isNotEmpty() ?: true }
                 .also { it.lagreJulesoknadKandidater() }
-                .map {
-                    val opprettSykepengesoknad =
-                        genererSykepengesoknadFraMetadata(it)
-                    eksisterendeSoknaderOgOprettedeSoknader.add(opprettSykepengesoknad)
-                    opprettSykepengesoknad
+                .forEach {
+                    eksisterendeSoknaderOgOprettedeSoknader.add(it)
+                    soknaderTilOppretting.add(it)
                 }
-                .forEach { soknaderTilOppretting.add(it) }
         }
 
         val eksisterendeSoknaderForSm = eksisterendeSoknader.filter { it.sykmeldingId == sykmelding.id }
@@ -176,7 +176,7 @@ class OpprettSoknadService(
         }
     }
 
-    private fun List<SoknadMetadata>.lagreJulesoknadKandidater() {
+    private fun List<Sykepengesoknad>.lagreJulesoknadKandidater() {
         return lagreJulesoknadKandidater.lagreJulesoknadKandidater(this)
     }
 

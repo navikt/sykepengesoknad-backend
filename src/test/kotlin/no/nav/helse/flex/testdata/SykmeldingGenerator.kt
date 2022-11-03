@@ -1,6 +1,7 @@
 package no.nav.helse.flex.testdata
 
 import no.nav.helse.flex.domain.Arbeidssituasjon
+import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.syfo.model.Merknad
 import no.nav.syfo.model.sykmelding.arbeidsgiver.ArbeidsgiverAGDTO
 import no.nav.syfo.model.sykmelding.arbeidsgiver.ArbeidsgiverSykmelding
@@ -14,7 +15,8 @@ import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.util.*
 
-fun getSykmeldingDto(
+@Deprecated("bruk ny")
+fun skapArbeidsgiverSykmelding(
     sykmeldingId: String = UUID.randomUUID().toString(),
     fom: LocalDate = LocalDate.of(2020, 2, 1),
     tom: LocalDate = LocalDate.of(2020, 2, 15),
@@ -97,5 +99,152 @@ fun skapSykmeldingStatusKafkaMessageDTO(
             source = "Test",
             fnr = fnr
         )
+    )
+}
+
+fun skapArbeidsgiverSykmelding(
+    sykmeldingId: String = UUID.randomUUID().toString(),
+    sykmeldingsperioder: List<SykmeldingsperiodeAGDTO> = listOf(
+        SykmeldingsperiodeAGDTO(
+            fom = LocalDate.of(2020, 2, 1),
+            tom = LocalDate.of(2020, 2, 15),
+            type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+            reisetilskudd = false,
+            aktivitetIkkeMulig = null,
+            behandlingsdager = null,
+            gradert = null,
+            innspillTilArbeidsgiver = null
+        )
+    ),
+    merknader: List<Merknad>? = null,
+): ArbeidsgiverSykmelding {
+    return ArbeidsgiverSykmelding(
+        id = sykmeldingId,
+        sykmeldingsperioder = sykmeldingsperioder,
+        behandletTidspunkt = OffsetDateTime.now(ZoneOffset.UTC),
+        mottattTidspunkt = OffsetDateTime.now(ZoneOffset.UTC),
+        arbeidsgiver = ArbeidsgiverAGDTO(null, null),
+        syketilfelleStartDato = null,
+        egenmeldt = false,
+        harRedusertArbeidsgiverperiode = false,
+        behandler = BehandlerAGDTO(
+            fornavn = "Lege",
+            mellomnavn = null,
+            etternavn = "Legesen",
+            hpr = null,
+            adresse = AdresseDTO(
+                gate = null,
+                postnummer = null,
+                kommune = null,
+                postboks = null,
+                land = null
+            ),
+            tlf = null
+        ),
+        kontaktMedPasient = KontaktMedPasientAGDTO(null),
+        meldingTilArbeidsgiver = null,
+        tiltakArbeidsplassen = null,
+        prognose = null,
+        papirsykmelding = false,
+        merknader = merknader
+    )
+}
+
+fun delvisSykmeldt(
+    fom: LocalDate = LocalDate.of(2020, 2, 1),
+    tom: LocalDate = LocalDate.of(2020, 2, 15),
+    grad: Int = 50,
+): List<SykmeldingsperiodeAGDTO> {
+    return listOf(
+        SykmeldingsperiodeAGDTO(
+            fom = fom,
+            tom = tom,
+            type = PeriodetypeDTO.GRADERT,
+            reisetilskudd = false,
+            aktivitetIkkeMulig = null,
+            behandlingsdager = null,
+            gradert = GradertDTO(grad = grad, reisetilskudd = false),
+            innspillTilArbeidsgiver = null
+        )
+    )
+}
+
+fun heltSykmeldt(
+    fom: LocalDate = LocalDate.of(2020, 2, 1),
+    tom: LocalDate = LocalDate.of(2020, 2, 15),
+): List<SykmeldingsperiodeAGDTO> {
+    return listOf(
+        SykmeldingsperiodeAGDTO(
+            fom = fom,
+            tom = tom,
+            type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+            reisetilskudd = false,
+            aktivitetIkkeMulig = null,
+            behandlingsdager = null,
+            gradert = null,
+            innspillTilArbeidsgiver = null
+        )
+    )
+}
+
+fun behandingsdager(
+    fom: LocalDate = LocalDate.of(2018, 1, 1),
+    tom: LocalDate = LocalDate.of(2018, 1, 10),
+    behandlingsdager: Int = 1
+): List<SykmeldingsperiodeAGDTO> {
+    return listOf(
+        SykmeldingsperiodeAGDTO(
+            fom = fom,
+            tom = tom,
+            type = PeriodetypeDTO.BEHANDLINGSDAGER,
+            reisetilskudd = false,
+            aktivitetIkkeMulig = null,
+            behandlingsdager = behandlingsdager,
+            gradert = null,
+            innspillTilArbeidsgiver = null
+        )
+    )
+}
+
+fun skapSykmeldingKafkaMessage(
+    arbeidssituasjon: Arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+    fnr: String,
+    timestamp: OffsetDateTime = OffsetDateTime.now(),
+    arbeidsgiver: ArbeidsgiverStatusDTO? = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "Butikken"),
+    sykmeldingId: String = UUID.randomUUID().toString(),
+    sykmeldingsperioder: List<SykmeldingsperiodeAGDTO> = heltSykmeldt(
+        fom = LocalDate.of(2020, 2, 1),
+        tom = LocalDate.of(2020, 2, 15),
+    ),
+    merknader: List<Merknad>? = null,
+): SykmeldingKafkaMessage {
+    val faktiskArbeidsgiver = if (arbeidssituasjon == Arbeidssituasjon.ARBEIDSTAKER) {
+        arbeidsgiver!!
+    } else {
+        null
+    }
+    val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(
+        fnr = fnr,
+        arbeidssituasjon = arbeidssituasjon,
+        statusEvent = if (arbeidssituasjon == Arbeidssituasjon.ARBEIDSTAKER) {
+            STATUS_SENDT
+        } else {
+            STATUS_BEKREFTET
+        },
+        arbeidsgiver = faktiskArbeidsgiver,
+        sykmeldingId = sykmeldingId,
+        timestamp = timestamp
+    )
+
+    val sykmelding = skapArbeidsgiverSykmelding(
+        sykmeldingId = sykmeldingId,
+        sykmeldingsperioder = sykmeldingsperioder,
+        merknader = merknader,
+    )
+
+    return SykmeldingKafkaMessage(
+        sykmelding = sykmelding,
+        event = sykmeldingStatusKafkaMessageDTO.event,
+        kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
     )
 }

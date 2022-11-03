@@ -5,6 +5,7 @@ import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.rest.SoknadMetadata
+import no.nav.helse.flex.domain.rest.tilSykepengesoknad
 import no.nav.helse.flex.soknadsopprettelse.tilSoknadsperioder
 import no.nav.helse.flex.util.tilOsloInstant
 import no.nav.syfo.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO
@@ -45,7 +46,7 @@ class BehandlingsdagerKtTest {
             ),
         ).tilSoknadsperioder(),
         egenmeldtSykmelding = null
-    )
+    ).tilSykepengesoknad()
 
     @Test
     fun `oppretter spørsmål`() {
@@ -116,7 +117,7 @@ class BehandlingsdagerKtTest {
 
         val soknadMedFlerePerioder = testSoknad
             .copy(
-                sykmeldingsperioder = listOf(
+                soknadPerioder = listOf(
                     SykmeldingsperiodeAGDTO(
                         LocalDate.of(2019, 12, 5).minusMonths(1),
                         LocalDate.of(2019, 12, 5).minusMonths(1).plusDays(4),
@@ -155,7 +156,7 @@ class BehandlingsdagerKtTest {
     fun `oppretter spørsmål når det starter på en søndag`() {
         val soknad = testSoknad
             .copy(
-                sykmeldingsperioder = listOf(
+                soknadPerioder = listOf(
                     SykmeldingsperiodeAGDTO(
                         LocalDate.of(2019, 12, 1),
                         LocalDate.of(2020, 1, 1),

@@ -11,24 +11,24 @@ import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.korrigerSoknad
 import no.nav.helse.flex.korrigerSoknadMedResult
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
-import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.repository.SykepengesoknadRepository
 import no.nav.helse.flex.sendSoknadMedResult
+import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
 import no.nav.helse.flex.sykepengesoknad.kafka.MerknadDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.PeriodeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
-import no.nav.helse.flex.testdata.getSykmeldingDto
+import no.nav.helse.flex.testdata.heltSykmeldt
+import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
+import no.nav.helse.flex.testdata.skapSykmeldingKafkaMessage
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.util.tilOsloLocalDateTime
 import no.nav.helse.flex.ventPåRecords
 import no.nav.syfo.model.Merknad
-import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
 import no.nav.syfo.model.sykmeldingstatus.STATUS_BEKREFTET
-import no.nav.syfo.model.sykmeldingstatus.STATUS_SENDT
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should be false`
 import org.amshove.kluent.`should be null`
@@ -58,33 +58,18 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
     @Test
     @Order(1)
     fun `Arbeidstakersøknader opprettes for en lang sykmelding`() {
-        val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(
-            fnr = fnr,
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-            statusEvent = STATUS_SENDT,
-            arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "Kebabbiten")
+        val kafkaSoknader = sendSykmelding(
+            skapSykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = basisdato.minusDays(20),
+                    tom = basisdato.plusDays(15),
 
+                ),
+                merknader = listOf(Merknad(type = "UGYLDIG_TILBAKEDATERING", beskrivelse = "Hey"))
+            ),
+            forventaSoknader = 2,
         )
-        val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
-        val sykmelding = getSykmeldingDto(
-            sykmeldingId = sykmeldingId,
-            fom = basisdato.minusDays(20),
-            tom = basisdato.plusDays(15),
-            merknader = listOf(Merknad(type = "UGYLDIG_TILBAKEDATERING", beskrivelse = "Hey"))
-        )
-            .copy(harRedusertArbeidsgiverperiode = true)
-
-        mockFlexSyketilfelleSykeforloep(sykmelding.id)
-
-        val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
-            sykmelding = sykmelding,
-            event = sykmeldingStatusKafkaMessageDTO.event,
-            kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
-        )
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
-
-        val ventPåRecords = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
-        val kafkaSoknader = ventPåRecords.tilSoknader()
 
         val hentetViaRest = hentSoknaderMetadata(fnr)
         assertThat(hentetViaRest).hasSize(2)
@@ -331,7 +316,7 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
             arbeidsgiver = null
         )
         val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
-        val sykmelding = getSykmeldingDto(
+        val sykmelding = skapArbeidsgiverSykmelding(
             sykmeldingId = sykmeldingId,
             fom = basisdato.minusDays(20),
             tom = basisdato.plusDays(15),

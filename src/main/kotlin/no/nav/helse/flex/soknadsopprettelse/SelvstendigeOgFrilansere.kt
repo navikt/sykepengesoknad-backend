@@ -10,7 +10,6 @@ import no.nav.helse.flex.domain.Svartype.JA_NEI
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.Sykmeldingstype
 import no.nav.helse.flex.domain.Visningskriterie.JA
-import no.nav.helse.flex.domain.rest.SoknadMetadata
 import no.nav.helse.flex.soknadsopprettelse.oppdateringhelpers.finnGyldigDatoSvar
 import no.nav.helse.flex.soknadsopprettelse.oppdateringhelpers.skapOppdaterteSoknadsperioder
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderSelvstendigOgFrilanser
@@ -27,7 +26,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
 fun settOppSoknadSelvstendigOgFrilanser(
-    soknadMetadata: SoknadMetadata,
+    soknadMetadata: Sykepengesoknad,
     erForsteSoknadISykeforlop: Boolean
 ): List<Sporsmal> {
     val gradertReisetilskudd = soknadMetadata.soknadstype == Soknadstype.GRADERT_REISETILSKUDD
@@ -38,13 +37,13 @@ fun settOppSoknadSelvstendigOgFrilanser(
         } else {
             tilbakeIFulltArbeidSporsmal(soknadMetadata)
         },
-        andreInntektskilderSelvstendigOgFrilanser(soknadMetadata.arbeidssituasjon),
-        utlandsSporsmal(soknadMetadata.fom, soknadMetadata.tom),
+        andreInntektskilderSelvstendigOgFrilanser(soknadMetadata.arbeidssituasjon!!),
+        utlandsSporsmal(soknadMetadata.fom!!, soknadMetadata.tom!!),
         utdanningsSporsmal(soknadMetadata.fom, soknadMetadata.tom),
         bekreftOpplysningerSporsmal(),
         vaerKlarOverAt(gradertReisetilskudd = gradertReisetilskudd)
     ).also {
-        it.addAll(jobbetDuIPeriodenSporsmal(soknadMetadata.sykmeldingsperioder, soknadMetadata.arbeidssituasjon))
+        it.addAll(jobbetDuIPeriodenSporsmal(soknadMetadata.soknadPerioder!!, soknadMetadata.arbeidssituasjon))
         if (erForsteSoknadISykeforlop) {
             it.add(arbeidUtenforNorge())
         }
@@ -87,12 +86,12 @@ private fun jobbetDu100Prosent(periode: Soknadsperiode, arbeidssituasjon: Arbeid
     )
 }
 
-private fun tilbakeIFulltArbeidSporsmal(soknadMetadata: SoknadMetadata): Sporsmal {
+private fun tilbakeIFulltArbeidSporsmal(soknadMetadata: Sykepengesoknad): Sporsmal {
     return Sporsmal(
         tag = TILBAKE_I_ARBEID,
         sporsmalstekst = "Var du tilbake i fullt arbeid som ${soknadMetadata.arbeidssituasjon} før sykmeldingsperioden utløp ${
         formatterDato(
-            soknadMetadata.tom
+            soknadMetadata.tom!!
         )
         }?",
         svartype = JA_NEI,
@@ -103,7 +102,7 @@ private fun tilbakeIFulltArbeidSporsmal(soknadMetadata: SoknadMetadata): Sporsma
                 tag = TILBAKE_NAR,
                 sporsmalstekst = "Når begynte du å jobbe igjen?",
                 svartype = DATO,
-                min = soknadMetadata.fom.format(ISO_LOCAL_DATE),
+                min = soknadMetadata.fom!!.format(ISO_LOCAL_DATE),
                 max = soknadMetadata.tom.format(ISO_LOCAL_DATE),
                 pavirkerAndreSporsmal = true
             )

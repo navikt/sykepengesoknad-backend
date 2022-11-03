@@ -1,6 +1,8 @@
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstype
+import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.rest.SoknadMetadata
+import no.nav.helse.flex.domain.rest.tilSykepengesoknad
 import no.nav.helse.flex.soknadsopprettelse.tilSoknadsperioder
 import no.nav.helse.flex.util.tilOsloInstant
 import no.nav.syfo.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO
@@ -10,11 +12,12 @@ import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import java.time.LocalDate
 import java.time.LocalDateTime
 
+@Deprecated("skal fjernes")
 fun skapSoknadMetadata(
     fnr: String = "12345343432",
     fom: LocalDate = LocalDate.now().minusDays(20),
     tom: LocalDate = LocalDate.now().minusDays(10),
-): SoknadMetadata {
+): Sykepengesoknad {
     return SoknadMetadata(
         fnr = fnr,
         startSykeforlop = LocalDate.now().minusDays(24),
@@ -39,5 +42,5 @@ fun skapSoknadMetadata(
             ),
         ).tilSoknadsperioder(),
         egenmeldtSykmelding = null
-    )
+    ).tilSykepengesoknad()
 }

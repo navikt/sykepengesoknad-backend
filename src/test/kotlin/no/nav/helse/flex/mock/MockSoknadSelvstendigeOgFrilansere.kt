@@ -6,6 +6,7 @@ import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.rest.SoknadMetadata
+import no.nav.helse.flex.domain.rest.tilSykepengesoknad
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.testutil.besvarsporsmal
@@ -64,8 +65,8 @@ fun opprettNyNaeringsdrivendeSoknad(): Sykepengesoknad {
 
     )
 
-    return genererSykepengesoknadFraMetadata(soknadMetadata).copy(
-        sporsmal = settOppSoknadSelvstendigOgFrilanser(soknadMetadata, false),
+    return (soknadMetadata.tilSykepengesoknad()).copy(
+        sporsmal = settOppSoknadSelvstendigOgFrilanser(soknadMetadata.tilSykepengesoknad(), false),
         status = Soknadstatus.NY,
     ).leggSvarPaSoknad()
 }
@@ -105,8 +106,8 @@ fun opprettSendtFrilanserSoknad(): Sykepengesoknad {
         egenmeldtSykmelding = null
 
     )
-    return genererSykepengesoknadFraMetadata(soknadMetadata).copy(
-        sporsmal = settOppSoknadSelvstendigOgFrilanser(soknadMetadata, false),
+    return (soknadMetadata.tilSykepengesoknad()).copy(
+        sporsmal = settOppSoknadSelvstendigOgFrilanser(soknadMetadata.tilSykepengesoknad(), false),
         status = Soknadstatus.SENDT,
         sendtNav = Instant.now(),
     ).leggSvarPaSoknad()

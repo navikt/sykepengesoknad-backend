@@ -4,10 +4,11 @@ import no.nav.helse.flex.aktivering.AktiverEnkeltSoknad
 import no.nav.helse.flex.aktivering.kafka.AktiveringProducer
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.rest.SoknadMetadata
+import no.nav.helse.flex.domain.rest.tilSykepengesoknad
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.soknadsopprettelse.OpprettSoknadService
-import no.nav.helse.flex.soknadsopprettelse.genererSykepengesoknadFraMetadata
 
+@Deprecated("ikke bruk")
 fun OpprettSoknadService.opprettSoknadFraSoknadMetadata(
     soknadMetadata: SoknadMetadata,
     sykepengesoknadDAO: SykepengesoknadDAO,
@@ -19,9 +20,9 @@ fun OpprettSoknadService.opprettSoknadFraSoknadMetadata(
 
     val sortertSoknadMetadata =
         soknadMetadata.copy(sykmeldingsperioder = soknadMetadata.sykmeldingsperioder.sortedBy { it.fom })
-    val soknad = genererSykepengesoknadFraMetadata(sortertSoknadMetadata).copy(
+    val soknad = (sortertSoknadMetadata.tilSykepengesoknad()).copy(
         sporsmal = aktiverEnkeltSoknad.genererSykepengesoknadSporsmal(
-            sortertSoknadMetadata,
+            sortertSoknadMetadata.tilSykepengesoknad(),
             eksisterendeSoknader
         )
     )

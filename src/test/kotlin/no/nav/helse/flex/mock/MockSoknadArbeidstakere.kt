@@ -5,6 +5,7 @@ import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.rest.SoknadMetadata
+import no.nav.helse.flex.domain.rest.tilSykepengesoknad
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.testutil.besvarsporsmal
 import no.nav.helse.flex.util.DatoUtil.periodeTilJson
@@ -20,7 +21,8 @@ import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 import java.util.*
 
 fun deprecatedGetSoknadMedFeriesporsmalSomUndersporsmal(soknadMetadata: SoknadMetadata): Sykepengesoknad {
-    val sykepengesoknad = genererSykepengesoknadFraMetadata(soknadMetadata).copy(sporsmal = settOppSoknadArbeidstaker(soknadMetadata, true, now(), emptyList()))
+    val sykepengesoknad = soknadMetadata.tilSykepengesoknad()
+        .copy(sporsmal = settOppSoknadArbeidstaker(soknadMetadata.tilSykepengesoknad(), true, now(), emptyList()))
         .fjernSporsmal(FERIE_V2)
         .fjernSporsmal(PERMISJON_V2)
         .fjernSporsmal(UTLAND_V2)
@@ -113,8 +115,21 @@ fun opprettSendtSoknad(): Sykepengesoknad {
 
     )
 
-    val sykepengesoknad = leggSvarPaSoknad(genererSykepengesoknadFraMetadata(soknadMetadata).copy(sporsmal = settOppSoknadArbeidstaker(soknadMetadata, true, now(), emptyList())))
-    return sykepengesoknad.copy(sendtNav = Instant.now(), sendtArbeidsgiver = Instant.now(), status = Soknadstatus.SENDT)
+    val sykepengesoknad = leggSvarPaSoknad(
+        soknadMetadata.tilSykepengesoknad().copy(
+            sporsmal = settOppSoknadArbeidstaker(
+                soknadMetadata.tilSykepengesoknad(),
+                true,
+                now(),
+                emptyList()
+            )
+        )
+    )
+    return sykepengesoknad.copy(
+        sendtNav = Instant.now(),
+        sendtArbeidsgiver = Instant.now(),
+        status = Soknadstatus.SENDT
+    )
 }
 
 @Deprecated("")
@@ -157,7 +172,14 @@ fun opprettNySoknadMock(feriesporsmalSomHovedsporsmal: Boolean = true): Sykepeng
     )
 
     val sykepengesoknad = if (feriesporsmalSomHovedsporsmal)
-        genererSykepengesoknadFraMetadata(soknadMetadata).copy(sporsmal = settOppSoknadArbeidstaker(soknadMetadata, true, now(), emptyList()))
+        (soknadMetadata.tilSykepengesoknad()).copy(
+            sporsmal = settOppSoknadArbeidstaker(
+                soknadMetadata.tilSykepengesoknad(),
+                true,
+                now(),
+                emptyList()
+            )
+        )
     else
         deprecatedGetSoknadMedFeriesporsmalSomUndersporsmal(soknadMetadata)
 

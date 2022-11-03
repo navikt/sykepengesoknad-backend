@@ -2,7 +2,6 @@ package no.nav.helse.flex.arbeidstaker
 
 import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
-import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Visningskriterie
@@ -10,6 +9,7 @@ import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
 import no.nav.helse.flex.repository.SykepengesoknadDAO
+import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.soknadsopprettelse.EGENMELDINGER
 import no.nav.helse.flex.soknadsopprettelse.EGENMELDINGER_NAR
 import no.nav.helse.flex.soknadsopprettelse.FRAVAR_FOR_SYKMELDINGEN
@@ -17,10 +17,10 @@ import no.nav.helse.flex.soknadsopprettelse.PAPIRSYKMELDING_NAR
 import no.nav.helse.flex.soknadsopprettelse.TIDLIGERE_EGENMELDING
 import no.nav.helse.flex.soknadsopprettelse.TIDLIGERE_PAPIRSYKMELDING
 import no.nav.helse.flex.soknadsopprettelse.TIDLIGERE_SYK
-import no.nav.helse.flex.soknadsopprettelse.genererSykepengesoknadFraMetadata
-import no.nav.helse.flex.soknadsopprettelse.settOppSoknadArbeidstaker
 import no.nav.helse.flex.sykepengesoknad.kafka.PeriodeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
+import no.nav.helse.flex.testdata.heltSykmeldt
+import no.nav.helse.flex.testdata.skapSykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.util.DatoUtil
@@ -30,7 +30,6 @@ import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
-import skapSoknadMetadata
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -44,24 +43,26 @@ class GammeltEgenmeldingSporsmalTest : BaseTestClass() {
 
     @Test
     fun `1 - vi lager en sykmelding med gammelt format`() {
-        val fom = LocalDate.now().minusDays(19)
-        val soknadMetadata = skapSoknadMetadata(fnr = fnr)
-        val standardSpm = settOppSoknadArbeidstaker(
-            soknadMetadata = soknadMetadata,
-            erForsteSoknadISykeforlop = true,
-            tidligsteFomForSykmelding = fom,
-            andreKjenteArbeidsforhold = emptyList()
-        )
+        val soknad = sendSykmelding(
+            skapSykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = LocalDate.now().minusDays(20),
+                    tom = LocalDate.now().minusDays(10),
+                ),
+            )
+        ).first()
+        val hentet = sykepengesoknadDAO.finnSykepengesoknad(soknad.id)
 
-        val nyesporsmal = standardSpm.map {
+        val nyesporsmal = hentet.sporsmal.map {
             if (it.tag == FRAVAR_FOR_SYKMELDINGEN) {
-                gammeltEgenmeldingSpm(fom)
+                gammeltEgenmeldingSpm(LocalDate.now().minusDays(19))
             } else {
                 it
             }
         }
 
-        sykepengesoknadDAO.lagreSykepengesoknad(genererSykepengesoknadFraMetadata(soknadMetadata).copy(sporsmal = nyesporsmal, status = Soknadstatus.NY))
+        sykepengesoknadDAO.byttUtSporsmal(hentet.copy(sporsmal = nyesporsmal))
     }
 
     @Test

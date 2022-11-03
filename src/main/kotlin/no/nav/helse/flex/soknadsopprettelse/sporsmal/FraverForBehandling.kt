@@ -2,8 +2,8 @@ package no.nav.helse.flex.soknadsopprettelse.sporsmal
 
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svartype
+import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.Visningskriterie
-import no.nav.helse.flex.domain.rest.SoknadMetadata
 import no.nav.helse.flex.soknadsopprettelse.EGENMELDINGER_NAR
 import no.nav.helse.flex.soknadsopprettelse.FRAVER_FOR_BEHANDLING
 import no.nav.helse.flex.soknadsopprettelse.PAPIRSYKMELDING_NAR
@@ -14,10 +14,10 @@ import no.nav.helse.flex.util.DatoUtil
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-fun fraverForBehandling(soknadMetadata: SoknadMetadata, tidligsteFomForSykmelding: LocalDate): Sporsmal {
+fun fraverForBehandling(soknadMetadata: Sykepengesoknad, tidligsteFomForSykmelding: LocalDate): Sporsmal {
     return Sporsmal(
         tag = FRAVER_FOR_BEHANDLING,
-        sporsmalstekst = "Vi ser at sykmeldingen inneholder behandlingsdager mellom ${DatoUtil.formatterPeriode(tidligsteFomForSykmelding, soknadMetadata.tom)}. Var du syk og borte fra jobb før dette, nærmere bestemt ${DatoUtil.formatterPeriode(tidligsteFomForSykmelding.minusDays(16), tidligsteFomForSykmelding.minusDays(1))}?",
+        sporsmalstekst = "Vi ser at sykmeldingen inneholder behandlingsdager mellom ${DatoUtil.formatterPeriode(tidligsteFomForSykmelding, soknadMetadata.tom!!)}. Var du syk og borte fra jobb før dette, nærmere bestemt ${DatoUtil.formatterPeriode(tidligsteFomForSykmelding.minusDays(16), tidligsteFomForSykmelding.minusDays(1))}?",
         svartype = Svartype.JA_NEI,
         kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
         undersporsmal = listOf(

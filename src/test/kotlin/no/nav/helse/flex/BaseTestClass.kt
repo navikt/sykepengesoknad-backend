@@ -13,6 +13,7 @@ import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
 import okhttp3.mockwebserver.MockWebServer
 import org.amshove.kluent.shouldBeEmpty
 import org.apache.kafka.clients.consumer.Consumer
+import org.apache.kafka.clients.producer.KafkaProducer
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.TestInstance
@@ -150,6 +151,9 @@ abstract class BaseTestClass {
 
     @Autowired
     lateinit var juridiskVurderingKafkaConsumer: Consumer<String, String>
+
+    @Autowired
+    lateinit var kafkaProducer: KafkaProducer<String, String>
 
     @AfterAll
     fun `Vi leser sykepengesoknad topicet og feiler hvis noe finnes og slik at subklassetestene leser alt`() {

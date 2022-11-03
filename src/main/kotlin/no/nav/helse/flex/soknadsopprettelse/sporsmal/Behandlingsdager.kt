@@ -4,8 +4,8 @@ import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadsperiode
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svartype
+import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.Sykmeldingstype
-import no.nav.helse.flex.domain.rest.SoknadMetadata
 import no.nav.helse.flex.soknadsopprettelse.ENKELTSTAENDE_BEHANDLINGSDAGER
 import no.nav.helse.flex.soknadsopprettelse.ENKELTSTAENDE_BEHANDLINGSDAGER_UKE
 import no.nav.helse.flex.util.DatoUtil.formatterPeriode
@@ -16,14 +16,14 @@ import no.nav.helse.flex.util.isAfterOrEqual
 import no.nav.helse.flex.util.min
 import java.time.LocalDate
 
-fun behandlingsdagerSporsmal(soknadMetadata: SoknadMetadata): List<Sporsmal> {
-    return soknadMetadata.sykmeldingsperioder
+fun behandlingsdagerSporsmal(soknadMetadata: Sykepengesoknad): List<Sporsmal> {
+    return soknadMetadata.soknadPerioder!!
         .filter { it.sykmeldingstype == Sykmeldingstype.BEHANDLINGSDAGER }
         .sortedBy { it.fom }
         .lastIndex.downTo(0)
         .reversed()
         .map { index ->
-            val periode = soknadMetadata.sykmeldingsperioder[index]
+            val periode = soknadMetadata.soknadPerioder[index]
             val uker = splittPeriodeIUker(periode)
 
             val sporsmalstekst = if (soknadMetadata.arbeidssituasjon == Arbeidssituasjon.ARBEIDSLEDIG) {

@@ -8,8 +8,11 @@ import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
+import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
-import no.nav.helse.flex.testdata.getSykmeldingDto
+import no.nav.helse.flex.testdata.heltSykmeldt
+import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
+import no.nav.helse.flex.testdata.skapSykmeldingKafkaMessage
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
@@ -38,7 +41,17 @@ class GjenapneSykmeldingIntegrationMedTombstoneTest : BaseTestClass() {
     }
 
     @Test
-    fun `1 - 3 arbeidsledigsøknader opprettes for fire sykmeldinger`() {
+    fun `1 - arbeidsledigsøknader opprettes`() {
+
+        sendSykmelding(
+            skapSykmeldingKafkaMessage(
+                fnr = "1234",
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = LocalDate.of(2018, 1, 1),
+                    tom = LocalDate.of(2018, 1, 10),
+                ),
+            ),
+        )
         val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(
             fnr = fnr,
             arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
@@ -47,7 +60,7 @@ class GjenapneSykmeldingIntegrationMedTombstoneTest : BaseTestClass() {
             timestamp = timestamp
         )
         val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
-        val sykmelding = getSykmeldingDto(sykmeldingId = sykmeldingId).copy(
+        val sykmelding = skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId).copy(
             sykmeldingsperioder = listOf(
                 SykmeldingsperiodeAGDTO(
                     fom = LocalDate.of(2018, 1, 1),
@@ -145,7 +158,7 @@ class GjenapneSykmeldingIntegrationMedTombstoneTest : BaseTestClass() {
     @Test
     fun `4 - en arbeidstakersøknad kan ikke slettes fra kafka`() {
         val sykmelding4 = UUID.randomUUID().toString()
-        val sykmelding = getSykmeldingDto(sykmeldingId = sykmelding4).copy(
+        val sykmelding = skapArbeidsgiverSykmelding(sykmeldingId = sykmelding4).copy(
             sykmeldingsperioder = listOf(
                 SykmeldingsperiodeAGDTO(
                     fom = LocalDate.of(2018, 1, 1),

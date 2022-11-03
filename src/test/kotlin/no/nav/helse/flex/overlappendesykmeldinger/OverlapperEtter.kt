@@ -26,7 +26,7 @@ import no.nav.helse.flex.soknadsopprettelse.TILBAKE_I_ARBEID
 import no.nav.helse.flex.soknadsopprettelse.UTDANNING
 import no.nav.helse.flex.soknadsopprettelse.UTLAND_V2
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
-import no.nav.helse.flex.testdata.getSykmeldingDto
+import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
@@ -330,7 +330,7 @@ class OverlapperEtter : BaseTestClass() {
             arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "Butikken")
 
         )
-        val sykmelding = getSykmeldingDto(
+        val sykmelding = skapArbeidsgiverSykmelding(
             sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId,
             fom = fom,
             tom = tom,
@@ -476,7 +476,7 @@ class OverlapperEtter : BaseTestClass() {
             arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "Butikken")
         )
 
-        val sykmelding = getSykmeldingDto(
+        val sykmelding = skapArbeidsgiverSykmelding(
             fom = basisdato.minusDays(10),
             tom = basisdato.minusDays(1),
             type = PeriodetypeDTO.BEHANDLINGSDAGER,
@@ -524,7 +524,7 @@ class OverlapperEtter : BaseTestClass() {
             arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "Butikken")
         )
 
-        val sykmelding = getSykmeldingDto(
+        val sykmelding = skapArbeidsgiverSykmelding(
             fom = basisdato.plusDays(5),
             tom = basisdato.plusDays(15),
             type = PeriodetypeDTO.BEHANDLINGSDAGER,
@@ -572,7 +572,7 @@ class OverlapperEtter : BaseTestClass() {
             arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "Butikken")
         )
 
-        val sykmelding = getSykmeldingDto(
+        val sykmelding = skapArbeidsgiverSykmelding(
             fom = basisdato.minusDays(10),
             tom = basisdato.minusDays(1),
             type = PeriodetypeDTO.REISETILSKUDD,
@@ -620,7 +620,7 @@ class OverlapperEtter : BaseTestClass() {
             arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "Butikken")
         )
 
-        val sykmelding = getSykmeldingDto(
+        val sykmelding = skapArbeidsgiverSykmelding(
             fom = basisdato.plusDays(5),
             tom = basisdato.plusDays(15),
             type = PeriodetypeDTO.REISETILSKUDD,

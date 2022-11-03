@@ -10,7 +10,7 @@ import no.nav.helse.flex.forskuttering.domain.Forskuttering
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
 import no.nav.helse.flex.repository.JulesoknadkandidatDAO
-import no.nav.helse.flex.testdata.getSykmeldingDto
+import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.helse.flex.ventPåRecords
 import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
@@ -267,7 +267,7 @@ class JulesoknadIntegrationTest : BaseTestClass() {
             arbeidsgiver = arbeidsgiver
         )
         val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
-        val sykmelding = getSykmeldingDto(
+        val sykmelding = skapArbeidsgiverSykmelding(
             sykmeldingId = sykmeldingId,
             fom = fom,
             tom = tom,

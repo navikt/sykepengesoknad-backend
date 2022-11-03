@@ -3,24 +3,20 @@ package no.nav.helse.flex.arbeidstaker
 import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.domain.Arbeidsgiverperiode
-import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Periode
-import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.juridiskvurdering.Utfall
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
-import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
+import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.sykepengesoknad.kafka.MottakerDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
-import no.nav.helse.flex.testdata.getSykmeldingDto
-import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
+import no.nav.helse.flex.testdata.heltSykmeldt
+import no.nav.helse.flex.testdata.skapSykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilJuridiskVurdering
 import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.ventPåRecords
-import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
-import no.nav.syfo.model.sykmeldingstatus.STATUS_SENDT
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should be null`
 import org.assertj.core.api.Assertions.assertThat
@@ -43,26 +39,15 @@ class ArbeidsgiverperiodeTilFredagSoknadUtHelgaTest : BaseTestClass() {
 
     @Test
     fun `vi besvarer og sender inn en søknad som bare går til arbeidsgiver siden perioden slutta på en fredag, men søknaden gikk til søndag`() {
-        flexSyketilfelleMockRestServiceServer?.reset()
-        val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(
-            fnr = fnr,
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-            statusEvent = STATUS_SENDT,
-            arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "Kebabbiten")
-        )
-        val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
-        val sykmelding = getSykmeldingDto(
-            sykmeldingId = sykmeldingId,
-            fom = fredagen.minusDays(14),
-            tom = fredagen.plusDays(2)
-        )
 
-        mockFlexSyketilfelleSykeforloep(sykmelding.id)
-
-        val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
-            sykmelding = sykmelding,
-            event = sykmeldingStatusKafkaMessageDTO.event,
-            kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
+        sendSykmelding(
+            skapSykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = fredagen.minusDays(14),
+                    tom = fredagen.plusDays(2)
+                ),
+            )
         )
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
 
@@ -72,6 +57,7 @@ class ArbeidsgiverperiodeTilFredagSoknadUtHelgaTest : BaseTestClass() {
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
 
         flexSyketilfelleMockRestServiceServer?.reset()
+
         mockFlexSyketilfelleArbeidsgiverperiode(
             arbeidsgiverperiode = Arbeidsgiverperiode(
                 antallBrukteDager = 16,
@@ -128,26 +114,14 @@ class ArbeidsgiverperiodeTilFredagSoknadUtHelgaTest : BaseTestClass() {
 
     @Test
     fun `vi besvarer og sender inn en søknad som går til arbeidsgiver og NAV siden perioden slutta på en fredag, men søknaden gikk til mandag`() {
-        flexSyketilfelleMockRestServiceServer?.reset()
-        val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(
-            fnr = fnr,
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-            statusEvent = STATUS_SENDT,
-            arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "Kebabbiten")
-        )
-        val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
-        val sykmelding = getSykmeldingDto(
-            sykmeldingId = sykmeldingId,
-            fom = fredagen.minusDays(14),
-            tom = fredagen.plusDays(3)
-        )
-
-        mockFlexSyketilfelleSykeforloep(sykmelding.id)
-
-        val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
-            sykmelding = sykmelding,
-            event = sykmeldingStatusKafkaMessageDTO.event,
-            kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
+        sendSykmelding(
+            skapSykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = fredagen.minusDays(14),
+                    tom = fredagen.plusDays(3)
+                ),
+            )
         )
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
 

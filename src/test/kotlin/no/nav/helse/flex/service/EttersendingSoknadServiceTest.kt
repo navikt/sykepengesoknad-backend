@@ -9,9 +9,9 @@ import no.nav.helse.flex.domain.Soknadstatus.SENDT
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.rest.SoknadMetadata
+import no.nav.helse.flex.domain.rest.tilSykepengesoknad
 import no.nav.helse.flex.kafka.producer.SoknadProducer
 import no.nav.helse.flex.repository.SykepengesoknadDAO
-import no.nav.helse.flex.soknadsopprettelse.genererSykepengesoknadFraMetadata
 import no.nav.helse.flex.soknadsopprettelse.settOppSoknadArbeidstaker
 import no.nav.helse.flex.soknadsopprettelse.settOppSykepengesoknadBehandlingsdager
 import no.nav.helse.flex.soknadsopprettelse.tilSoknadsperioder
@@ -213,9 +213,9 @@ class EttersendingSoknadServiceTest {
             soknadstype = Soknadstype.ARBEIDSTAKERE,
             sykmeldingId = "sykmeldingId"
         )
-        return genererSykepengesoknadFraMetadata(soknadMetadata).copy(
+        return (soknadMetadata.tilSykepengesoknad()).copy(
             sporsmal = settOppSykepengesoknadBehandlingsdager(
-                soknadMetadata,
+                soknadMetadata.tilSykepengesoknad(),
                 true, LocalDate.now()
             ),
             status = NY
@@ -247,9 +247,9 @@ class EttersendingSoknadServiceTest {
             soknadstype = Soknadstype.ARBEIDSTAKERE,
             sykmeldingId = "sykmeldingId"
         )
-        return genererSykepengesoknadFraMetadata(soknadMetadata).copy(
+        return (soknadMetadata.tilSykepengesoknad()).copy(
             sporsmal = settOppSoknadArbeidstaker(
-                soknadMetadata,
+                soknadMetadata.tilSykepengesoknad(),
                 true, LocalDate.now(), emptyList()
             ),
             status = NY

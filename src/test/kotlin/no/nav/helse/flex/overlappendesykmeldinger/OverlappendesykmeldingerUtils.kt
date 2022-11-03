@@ -4,7 +4,7 @@ import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
-import no.nav.helse.flex.testdata.getSykmeldingDto
+import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.syfo.model.sykmelding.model.GradertDTO
 import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
@@ -28,7 +28,7 @@ fun BaseTestClass.sendArbeidstakerSykmelding(
         sykmeldingId = sykmeldingId,
     )
 
-    val sykmelding = getSykmeldingDto(
+    val sykmelding = skapArbeidsgiverSykmelding(
         sykmeldingId = sykmeldingId,
         fom = fom,
         tom = tom,

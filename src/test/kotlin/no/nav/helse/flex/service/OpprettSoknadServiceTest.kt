@@ -6,6 +6,7 @@ import no.nav.helse.flex.config.EnvironmentToggles
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.rest.SoknadMetadata
+import no.nav.helse.flex.domain.rest.tilSykepengesoknad
 import no.nav.helse.flex.julesoknad.LagreJulesoknadKandidater
 import no.nav.helse.flex.kafka.producer.SoknadProducer
 import no.nav.helse.flex.mock.opprettNySoknad
@@ -72,7 +73,7 @@ class OpprettSoknadServiceTest {
             sykmeldingsperioder = emptyList()
         )
 
-        val ingenEksisterendeSoknader = hentTidligsteFomForSykmelding(metadata, emptyList())
+        val ingenEksisterendeSoknader = hentTidligsteFomForSykmelding(metadata.tilSykepengesoknad(), emptyList())
 
         assertThat(ingenEksisterendeSoknader).isEqualTo(metadata.fom)
 
@@ -80,7 +81,7 @@ class OpprettSoknadServiceTest {
         val eksisterende2 = opprettNySoknad().copy(sykmeldingId = metadata.sykmeldingId, fom = LocalDate.now().minusDays(5000))
         val eksisterende3 = opprettNySoknad().copy(sykmeldingId = "id annen", fom = LocalDate.now().minusDays(6004))
 
-        val medEksisterendeSoknader = hentTidligsteFomForSykmelding(metadata, listOf(eksisterende1, eksisterende2, eksisterende3).shuffled())
+        val medEksisterendeSoknader = hentTidligsteFomForSykmelding(metadata.tilSykepengesoknad(), listOf(eksisterende1, eksisterende2, eksisterende3).shuffled())
         assertThat(medEksisterendeSoknader).isEqualTo(eksisterende2.fom)
     }
 }

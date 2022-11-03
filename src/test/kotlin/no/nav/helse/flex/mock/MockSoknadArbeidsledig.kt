@@ -5,13 +5,13 @@ import no.nav.helse.flex.domain.Soknadstatus.SENDT
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.rest.SoknadMetadata
+import no.nav.helse.flex.domain.rest.tilSykepengesoknad
 import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER
 import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
 import no.nav.helse.flex.soknadsopprettelse.ARBEIDSLEDIG_UTLAND
 import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
 import no.nav.helse.flex.soknadsopprettelse.FRISKMELDT
 import no.nav.helse.flex.soknadsopprettelse.UTDANNING
-import no.nav.helse.flex.soknadsopprettelse.genererSykepengesoknadFraMetadata
 import no.nav.helse.flex.soknadsopprettelse.settOppSoknadArbeidsledig
 import no.nav.helse.flex.soknadsopprettelse.tilSoknadsperioder
 import no.nav.helse.flex.testutil.besvarsporsmal
@@ -58,9 +58,9 @@ fun opprettNySoknad(): Sykepengesoknad {
             ),
         ).tilSoknadsperioder(),
 
-    )
+    ).tilSykepengesoknad()
 
-    return genererSykepengesoknadFraMetadata(soknadMetadata).copy(sporsmal = settOppSoknadArbeidsledig(soknadMetadata, false))
+    return soknadMetadata.copy(sporsmal = settOppSoknadArbeidsledig(soknadMetadata, false))
 }
 
 fun opprettSendtSoknadForArbeidsledige(): Sykepengesoknad {

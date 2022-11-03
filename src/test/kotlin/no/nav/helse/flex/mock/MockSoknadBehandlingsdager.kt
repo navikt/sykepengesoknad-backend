@@ -4,7 +4,7 @@ import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.rest.SoknadMetadata
-import no.nav.helse.flex.soknadsopprettelse.genererSykepengesoknadFraMetadata
+import no.nav.helse.flex.domain.rest.tilSykepengesoknad
 import no.nav.helse.flex.soknadsopprettelse.settOppSykepengesoknadBehandlingsdager
 import no.nav.helse.flex.soknadsopprettelse.tilSoknadsperioder
 import no.nav.helse.flex.util.tilOsloInstant
@@ -52,9 +52,9 @@ fun opprettBehandlingsdagsoknadTestadata(
         sykmeldingSkrevet = sykmeldingSkrevet,
         sykmeldingsperioder = soknadsperioder.tilSoknadsperioder()
     )
-    return genererSykepengesoknadFraMetadata(soknadMetadata).copy(
+    return soknadMetadata.tilSykepengesoknad().copy(
         sporsmal = settOppSykepengesoknadBehandlingsdager(
-            soknadMetadata,
+            soknadMetadata.tilSykepengesoknad(),
             forsteSoknadIForlop,
             now()
         )

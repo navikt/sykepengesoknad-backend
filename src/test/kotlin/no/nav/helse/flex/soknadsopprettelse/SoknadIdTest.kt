@@ -2,7 +2,7 @@ package no.nav.helse.flex.soknadsopprettelse
 
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
-import no.nav.helse.flex.testdata.getSykmeldingDto
+import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
 import no.nav.syfo.model.sykmeldingstatus.STATUS_SENDT
@@ -21,7 +21,7 @@ class SoknadIdTest {
         arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "Kebabbiten")
     )
     val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
-    val sykmelding = getSykmeldingDto(
+    val sykmelding = skapArbeidsgiverSykmelding(
         sykmeldingId = sykmeldingId,
         fom = LocalDate.of(2020, 1, 1),
         tom = LocalDate.of(2020, 3, 15),

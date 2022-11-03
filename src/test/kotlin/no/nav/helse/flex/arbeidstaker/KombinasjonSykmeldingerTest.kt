@@ -2,22 +2,17 @@ package no.nav.helse.flex.arbeidstaker
 
 import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
-import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
+import no.nav.helse.flex.sendSykmelding
+import no.nav.helse.flex.testdata.skapSykmeldingKafkaMessage
 import no.nav.helse.flex.hentSoknaderMetadata
-import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
-import no.nav.helse.flex.testdata.getSykmeldingDto
-import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
-import no.nav.helse.flex.ventPåRecords
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.GradertDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
-import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
-import no.nav.syfo.model.sykmeldingstatus.STATUS_SENDT
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
+import java.util.UUID
 
 class KombinasjonSykmeldingerTest : BaseTestClass() {
 
@@ -32,15 +27,11 @@ class KombinasjonSykmeldingerTest : BaseTestClass() {
 
     @Test
     fun `Splitter behandlingsdager og vanlig sykmelding`() {
-        val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(
-            fnr = fnr,
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-            statusEvent = STATUS_SENDT,
-            arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "NAV")
-        )
-        val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
-        val sykmelding = getSykmeldingDto(sykmeldingId = sykmeldingId)
-            .copy(
+        val sykmeldingId = UUID.randomUUID().toString()
+        sendSykmelding(
+            skapSykmeldingKafkaMessage(
+                sykmeldingId = sykmeldingId,
+                fnr = fnr,
                 sykmeldingsperioder = listOf(
                     SykmeldingsperiodeAGDTO(
                         fom = basisDato,
@@ -63,19 +54,9 @@ class KombinasjonSykmeldingerTest : BaseTestClass() {
                         innspillTilArbeidsgiver = null
                     )
                 ).shuffled()
-            )
-
-        flexSyketilfelleMockRestServiceServer?.reset()
-        mockFlexSyketilfelleSykeforloep(sykmelding.id)
-
-        val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
-            sykmelding = sykmelding,
-            event = sykmeldingStatusKafkaMessageDTO.event,
-            kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
+            ),
+            forventaSoknader = 2
         )
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
-
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
 
         val hentetViaRest = hentSoknaderMetadata(fnr).filter { it.sykmeldingId == sykmeldingId }
         assertThat(hentetViaRest).hasSize(2)
@@ -89,15 +70,11 @@ class KombinasjonSykmeldingerTest : BaseTestClass() {
 
     @Test
     fun `Splitter behandlingsdager og reisetilskudd`() {
-        val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(
-            fnr = fnr,
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-            statusEvent = STATUS_SENDT,
-            arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "NAV")
-        )
-        val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
-        val sykmelding = getSykmeldingDto(sykmeldingId = sykmeldingId)
-            .copy(
+        val sykmeldingId = UUID.randomUUID().toString()
+        sendSykmelding(
+            skapSykmeldingKafkaMessage(
+                sykmeldingId = sykmeldingId,
+                fnr = fnr,
                 sykmeldingsperioder = listOf(
                     SykmeldingsperiodeAGDTO(
                         fom = basisDato,
@@ -120,18 +97,9 @@ class KombinasjonSykmeldingerTest : BaseTestClass() {
                         innspillTilArbeidsgiver = null
                     )
                 ).shuffled()
-            )
-
-        mockFlexSyketilfelleSykeforloep(sykmelding.id)
-
-        val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
-            sykmelding = sykmelding,
-            event = sykmeldingStatusKafkaMessageDTO.event,
-            kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
+            ),
+            forventaSoknader = 2
         )
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
-
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
 
         val hentetViaRest = hentSoknaderMetadata(fnr).filter { it.sykmeldingId == sykmeldingId }
         assertThat(hentetViaRest).hasSize(2)
@@ -145,15 +113,12 @@ class KombinasjonSykmeldingerTest : BaseTestClass() {
 
     @Test
     fun `Splitter ikke gradert og 100 prosent`() {
-        val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(
-            fnr = fnr,
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-            statusEvent = STATUS_SENDT,
-            arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "NAV")
-        )
-        val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
-        val sykmelding = getSykmeldingDto(sykmeldingId = sykmeldingId)
-            .copy(
+
+        val sykmeldingId = UUID.randomUUID().toString()
+        sendSykmelding(
+            skapSykmeldingKafkaMessage(
+                sykmeldingId = sykmeldingId,
+                fnr = fnr,
                 sykmeldingsperioder = listOf(
                     SykmeldingsperiodeAGDTO(
                         fom = basisDato,
@@ -177,17 +142,7 @@ class KombinasjonSykmeldingerTest : BaseTestClass() {
                     )
                 ).shuffled()
             )
-        flexSyketilfelleMockRestServiceServer?.reset()
-        mockFlexSyketilfelleSykeforloep(sykmelding.id)
-
-        val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
-            sykmelding = sykmelding,
-            event = sykmeldingStatusKafkaMessageDTO.event,
-            kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
         )
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
-
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
 
         val hentetViaRest = hentSoknaderMetadata(fnr).filter { it.sykmeldingId == sykmeldingId }
         assertThat(hentetViaRest).hasSize(1)
@@ -198,15 +153,12 @@ class KombinasjonSykmeldingerTest : BaseTestClass() {
 
     @Test
     fun `Splitter gradert reisetilskudd og 100 prosent`() {
-        val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(
-            fnr = fnr,
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-            statusEvent = STATUS_SENDT,
-            arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "NAV")
-        )
-        val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
-        val sykmelding = getSykmeldingDto(sykmeldingId = sykmeldingId)
-            .copy(
+
+        val sykmeldingId = UUID.randomUUID().toString()
+        sendSykmelding(
+            skapSykmeldingKafkaMessage(
+                sykmeldingId = sykmeldingId,
+                fnr = fnr,
                 sykmeldingsperioder = listOf(
                     SykmeldingsperiodeAGDTO(
                         fom = basisDato,
@@ -229,19 +181,9 @@ class KombinasjonSykmeldingerTest : BaseTestClass() {
                         innspillTilArbeidsgiver = null
                     )
                 ).shuffled()
-            )
-
-        flexSyketilfelleMockRestServiceServer?.reset()
-        mockFlexSyketilfelleSykeforloep(sykmelding.id)
-
-        val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
-            sykmelding = sykmelding,
-            event = sykmeldingStatusKafkaMessageDTO.event,
-            kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
+            ),
+            forventaSoknader = 2
         )
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
-
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
 
         val hentetViaRest = hentSoknaderMetadata(fnr).filter { it.sykmeldingId == sykmeldingId }
         assertThat(hentetViaRest).hasSize(2)
@@ -255,15 +197,11 @@ class KombinasjonSykmeldingerTest : BaseTestClass() {
 
     @Test
     fun `Splitter gradert reisetilskudd før 100 prosent og gradert`() {
-        val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(
-            fnr = fnr,
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-            statusEvent = STATUS_SENDT,
-            arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "NAV")
-        )
-        val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
-        val sykmelding = getSykmeldingDto(sykmeldingId = sykmeldingId)
-            .copy(
+        val sykmeldingId = UUID.randomUUID().toString()
+        sendSykmelding(
+            skapSykmeldingKafkaMessage(
+                sykmeldingId = sykmeldingId,
+                fnr = fnr,
                 sykmeldingsperioder = listOf(
                     SykmeldingsperiodeAGDTO(
                         fom = basisDato,
@@ -296,19 +234,9 @@ class KombinasjonSykmeldingerTest : BaseTestClass() {
                         innspillTilArbeidsgiver = null
                     )
                 ).shuffled()
-            )
-
-        flexSyketilfelleMockRestServiceServer?.reset()
-        mockFlexSyketilfelleSykeforloep(sykmelding.id)
-
-        val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
-            sykmelding = sykmelding,
-            event = sykmeldingStatusKafkaMessageDTO.event,
-            kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
+            ),
+            forventaSoknader = 2
         )
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
-
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
 
         val hentetViaRest = hentSoknaderMetadata(fnr).filter { it.sykmeldingId == sykmeldingId }
         assertThat(hentetViaRest).hasSize(2)

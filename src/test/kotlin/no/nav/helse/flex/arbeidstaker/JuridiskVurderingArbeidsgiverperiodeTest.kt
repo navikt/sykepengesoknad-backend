@@ -3,21 +3,18 @@ package no.nav.helse.flex.arbeidstaker
 import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.domain.Arbeidsgiverperiode
-import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.juridiskvurdering.Utfall
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
-import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
-import no.nav.helse.flex.testdata.getSykmeldingDto
-import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
+import no.nav.helse.flex.sendSykmelding
+import no.nav.helse.flex.testdata.heltSykmeldt
+import no.nav.helse.flex.testdata.skapSykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilJuridiskVurdering
 import no.nav.helse.flex.ventPåRecords
-import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
-import no.nav.syfo.model.sykmeldingstatus.STATUS_SENDT
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should be null`
 import org.assertj.core.api.Assertions.assertThat
@@ -186,27 +183,16 @@ class JuridiskVurderingArbeidsgiverperiodeTest : BaseTestClass() {
         arbeidsgiverperiodeTom: LocalDate
     ) {
         flexSyketilfelleMockRestServiceServer?.reset()
-        val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(
-            fnr = fnr,
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-            statusEvent = STATUS_SENDT,
-            arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = orgnr, orgNavn = "Jobben")
-        )
-        val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
-        val sykmelding = getSykmeldingDto(
-            sykmeldingId = sykmeldingId,
-            fom = sykmeldingFom,
-            tom = sykmeldingTom
-        )
 
-        mockFlexSyketilfelleSykeforloep(sykmelding.id)
-
-        val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
-            sykmelding = sykmelding,
-            event = sykmeldingStatusKafkaMessageDTO.event,
-            kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
+        sendSykmelding(
+            skapSykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = sykmeldingFom,
+                    tom = sykmeldingTom,
+                ),
+            )
         )
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
 
         flexSyketilfelleMockRestServiceServer?.reset()
         mockFlexSyketilfelleArbeidsgiverperiode(
@@ -217,12 +203,7 @@ class JuridiskVurderingArbeidsgiverperiodeTest : BaseTestClass() {
             )
         )
 
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
-
-        val soknaden = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
-            fnr = fnr
-        )
+        val soknaden = hentSoknader(fnr).find { it.status == RSSoknadstatus.NY }!!
 
         val sendtSoknad = SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
             .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")

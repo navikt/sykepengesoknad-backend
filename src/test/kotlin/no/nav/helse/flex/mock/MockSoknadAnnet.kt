@@ -4,7 +4,7 @@ import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.rest.SoknadMetadata
-import no.nav.helse.flex.soknadsopprettelse.genererSykepengesoknadFraMetadata
+import no.nav.helse.flex.domain.rest.tilSykepengesoknad
 import no.nav.helse.flex.soknadsopprettelse.settOppSoknadAnnetArbeidsforhold
 import no.nav.helse.flex.soknadsopprettelse.tilSoknadsperioder
 import no.nav.helse.flex.util.tilOsloInstant
@@ -40,7 +40,7 @@ fun opprettNySoknadAnnet(): Sykepengesoknad {
             )
         ).tilSoknadsperioder(),
 
-    )
+    ).tilSykepengesoknad()
 
-    return genererSykepengesoknadFraMetadata(soknadMetadata).copy(sporsmal = settOppSoknadAnnetArbeidsforhold(soknadMetadata, false))
+    return soknadMetadata.copy(sporsmal = settOppSoknadAnnetArbeidsforhold(soknadMetadata, false))
 }

@@ -2,7 +2,7 @@ package no.nav.helse.flex.soknadsopprettelse
 
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sporsmal
-import no.nav.helse.flex.domain.rest.SoknadMetadata
+import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderArbeidsledig
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.ansvarserklaringSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.arbeidUtenforNorge
@@ -14,14 +14,14 @@ import no.nav.helse.flex.soknadsopprettelse.sporsmal.utenlandsoppholdArbeidsledi
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.vaerKlarOverAt
 
 fun settOppSoknadAnnetArbeidsforhold(
-    soknadMetadata: SoknadMetadata,
+    soknadMetadata: Sykepengesoknad,
     erForsteSoknadISykeforlop: Boolean
 ): List<Sporsmal> {
     val gradertReisetilskudd = soknadMetadata.soknadstype == Soknadstype.GRADERT_REISETILSKUDD
 
     return mutableListOf(
         ansvarserklaringSporsmal(reisetilskudd = gradertReisetilskudd),
-        andreInntektskilderArbeidsledig(soknadMetadata.fom, soknadMetadata.tom),
+        andreInntektskilderArbeidsledig(soknadMetadata.fom!!, soknadMetadata.tom!!),
         friskmeldingSporsmal(soknadMetadata.fom, soknadMetadata.tom),
         permisjonSporsmal(soknadMetadata.fom, soknadMetadata.tom),
         utenlandsoppholdArbeidsledigAnnetSporsmal(soknadMetadata.fom, soknadMetadata.tom),
