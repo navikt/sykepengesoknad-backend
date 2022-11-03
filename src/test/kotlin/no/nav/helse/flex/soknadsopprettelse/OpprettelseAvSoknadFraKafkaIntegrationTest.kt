@@ -12,7 +12,8 @@ import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.exception.ManglerSykmeldingException
 import no.nav.helse.flex.domain.exception.ProduserKafkaMeldingException
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
-import no.nav.helse.flex.hentSoknader
+import no.nav.helse.flex.hentSoknad
+import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.mockFlexSyketilfelleErUtaforVentetid
 import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
 import no.nav.helse.flex.repository.SykepengesoknadDAO
@@ -81,7 +82,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
 
-        val hentetViaRest = hentSoknader(fnr).sortedBy { it.fom }
+        val hentetViaRest = hentSoknaderMetadata(fnr).sortedBy { it.fom }
         assertThat(hentetViaRest).hasSize(1)
         assertThat(hentetViaRest[0].soknadstype).isEqualTo(RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE)
 
@@ -106,7 +107,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
 
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
 
-        val hentetViaRest = hentSoknader(fnr).sortedBy { it.fom }
+        val hentetViaRest = hentSoknaderMetadata(fnr)
         assertThat(hentetViaRest).hasSize(0)
 
         verifyNoMoreInteractions(aivenKafkaProducer)
@@ -142,7 +143,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
 
-        val hentetViaRest = hentSoknader(fnr).sortedBy { it.fom }
+        val hentetViaRest = hentSoknaderMetadata(fnr)
         assertThat(hentetViaRest).hasSize(1)
         assertThat(hentetViaRest[0].soknadstype).isEqualTo(RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE)
 
@@ -178,7 +179,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
 
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
 
-        val hentetViaRest = hentSoknader(fnr).sortedBy { it.fom }
+        val hentetViaRest = hentSoknaderMetadata(fnr)
         assertThat(hentetViaRest).hasSize(0)
         verifyNoMoreInteractions(aivenKafkaProducer)
     }
@@ -206,16 +207,25 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
 
-        val hentetViaRest = hentSoknader(fnr).sortedBy { it.fom }
-        assertThat(hentetViaRest).hasSize(2)
-        assertThat(hentetViaRest[0].soknadstype).isEqualTo(RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE)
-        assertThat(hentetViaRest[0].fom).isEqualTo(LocalDate.of(2020, 2, 1))
-        assertThat(hentetViaRest[0].tom).isEqualTo(LocalDate.of(2020, 2, 22))
-        assertThat(hentetViaRest[1].fom).isEqualTo(LocalDate.of(2020, 2, 23))
-        assertThat(hentetViaRest[1].tom).isEqualTo(LocalDate.of(2020, 3, 15))
+        val soknaderMetadata = hentSoknaderMetadata(fnr).sortedBy { it.fom }
+        assertThat(soknaderMetadata).hasSize(2)
 
-        assertThat(hentetViaRest[0].sporsmal!!.any { it.tag == ARBEID_UTENFOR_NORGE }).isTrue()
-        assertThat(hentetViaRest[1].sporsmal!!.any { it.tag == ARBEID_UTENFOR_NORGE }).isFalse()
+        val forsteSoknad = hentSoknad(
+            soknadId = soknaderMetadata.first().id,
+            fnr = fnr
+        )
+        assertThat(forsteSoknad.soknadstype).isEqualTo(RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE)
+        assertThat(forsteSoknad.fom).isEqualTo(LocalDate.of(2020, 2, 1))
+        assertThat(forsteSoknad.tom).isEqualTo(LocalDate.of(2020, 2, 22))
+        assertThat(forsteSoknad.sporsmal!!.any { it.tag == ARBEID_UTENFOR_NORGE }).isTrue()
+
+        val andreSoknad = hentSoknad(
+            soknadId = soknaderMetadata.last().id,
+            fnr = fnr
+        )
+        assertThat(andreSoknad.fom).isEqualTo(LocalDate.of(2020, 2, 23))
+        assertThat(andreSoknad.tom).isEqualTo(LocalDate.of(2020, 3, 15))
+        assertThat(andreSoknad.sporsmal!!.any { it.tag == ARBEID_UTENFOR_NORGE }).isFalse()
     }
 
     @Test
@@ -238,7 +248,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
 
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage)
 
-        val hentetViaRest = hentSoknader(fnr).sortedBy { it.fom }
+        val hentetViaRest = hentSoknaderMetadata(fnr)
         assertThat(hentetViaRest).hasSize(0)
     }
 
@@ -284,7 +294,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
 
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage)
 
-        val hentetViaRest = hentSoknader(fnr).sortedBy { it.fom }
+        val hentetViaRest = hentSoknaderMetadata(fnr)
         assertThat(hentetViaRest).hasSize(12)
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 12)
     }
@@ -333,7 +343,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
 
-        val hentetViaRest = hentSoknader(fnr).sortedBy { it.fom }
+        val hentetViaRest = hentSoknaderMetadata(fnr)
         assertThat(hentetViaRest).hasSize(2)
     }
 
@@ -371,7 +381,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
 
-        val hentetViaRest = hentSoknader(fnr).sortedBy { it.fom }
+        val hentetViaRest = hentSoknaderMetadata(fnr)
         assertThat(hentetViaRest).hasSize(2)
     }
 
@@ -406,7 +416,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
 
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage)
 
-        val hentetViaRest = hentSoknader(fnr).sortedBy { it.fom }
+        val hentetViaRest = hentSoknaderMetadata(fnr)
         assertThat(hentetViaRest).hasSize(0)
     }
 
@@ -429,7 +439,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
 
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage)
 
-        val hentetViaRest = hentSoknader(fnr).sortedBy { it.fom }
+        val hentetViaRest = hentSoknaderMetadata(fnr)
         assertThat(hentetViaRest).hasSize(0)
     }
 
@@ -476,12 +486,18 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
 
-        val hentetViaRest = hentSoknader(fnr).sortedBy { it.fom }
-        assertThat(hentetViaRest).hasSize(2)
-        assertThat(hentetViaRest[0].soknadstype).isEqualTo(RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE)
-        assertThat(hentetViaRest[0].fom).isEqualTo(LocalDate.of(2020, 2, 1))
-        assertThat(hentetViaRest[0].tom).isEqualTo(LocalDate.of(2020, 2, 22))
-        assertThat(hentetViaRest[0].soknadPerioder).isEqualTo(
+        val soknaderMetadata = hentSoknaderMetadata(fnr).sortedBy { it.fom }
+        assertThat(soknaderMetadata).hasSize(2)
+
+        val forsteSoknad = hentSoknad(
+            soknadId = soknaderMetadata.first().id,
+            fnr = fnr
+        )
+        assertThat(forsteSoknad.soknadstype).isEqualTo(RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE)
+        assertThat(forsteSoknad.fom).isEqualTo(LocalDate.of(2020, 2, 1))
+        assertThat(forsteSoknad.tom).isEqualTo(LocalDate.of(2020, 2, 22))
+        assertThat(forsteSoknad.sporsmal!!.any { it.tag == ARBEID_UTENFOR_NORGE }).isTrue()
+        assertThat(forsteSoknad.soknadPerioder).isEqualTo(
             listOf(
                 RSSoknadsperiode(
                     fom = LocalDate.of(2020, 2, 1),
@@ -498,9 +514,14 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
             )
         )
 
-        assertThat(hentetViaRest[1].fom).isEqualTo(LocalDate.of(2020, 2, 23))
-        assertThat(hentetViaRest[1].tom).isEqualTo(LocalDate.of(2020, 3, 15))
-        assertThat(hentetViaRest[1].soknadPerioder).isEqualTo(
+        val andreSoknad = hentSoknad(
+            soknadId = soknaderMetadata.last().id,
+            fnr = fnr
+        )
+        assertThat(andreSoknad.fom).isEqualTo(LocalDate.of(2020, 2, 23))
+        assertThat(andreSoknad.tom).isEqualTo(LocalDate.of(2020, 3, 15))
+        assertThat(andreSoknad.sporsmal!!.any { it.tag == ARBEID_UTENFOR_NORGE }).isFalse()
+        assertThat(andreSoknad.soknadPerioder).isEqualTo(
             listOf(
                 RSSoknadsperiode(
                     fom = LocalDate.of(2020, 2, 23),
@@ -510,9 +531,6 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
                 )
             )
         )
-
-        assertThat(hentetViaRest[0].sporsmal!!.any { it.tag == ARBEID_UTENFOR_NORGE }).isTrue()
-        assertThat(hentetViaRest[1].sporsmal!!.any { it.tag == ARBEID_UTENFOR_NORGE }).isFalse()
     }
 
     @Test

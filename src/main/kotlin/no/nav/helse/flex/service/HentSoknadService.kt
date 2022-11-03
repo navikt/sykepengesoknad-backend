@@ -12,12 +12,16 @@ import java.time.LocalDate
 @Transactional
 class HentSoknadService(
     private val sykepengesoknadDAO: SykepengesoknadDAO,
-    private val sykepengesoknadRepository: SykepengesoknadRepository
+    private val sykepengesoknadRepository: SykepengesoknadRepository,
 ) {
     val log = logger()
 
     fun hentSoknader(identer: FolkeregisterIdenter): List<Sykepengesoknad> {
         return sykepengesoknadDAO.finnSykepengesoknader(identer)
+    }
+
+    fun hentSoknaderUtenSporsmal(identer: FolkeregisterIdenter): List<Sykepengesoknad> {
+        return sykepengesoknadDAO.finnSykepengesoknaderUtenSporsmal(identer.alle())
     }
 
     fun finnSykepengesoknad(uuid: String): Sykepengesoknad {

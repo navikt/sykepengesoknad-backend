@@ -4,7 +4,7 @@ import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
-import no.nav.helse.flex.hentSoknader
+import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
 import no.nav.helse.flex.testdata.getSykmeldingDto
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
@@ -77,7 +77,7 @@ class KombinasjonSykmeldingerTest : BaseTestClass() {
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
 
-        val hentetViaRest = hentSoknader(fnr).filter { it.sykmeldingId == sykmeldingId }
+        val hentetViaRest = hentSoknaderMetadata(fnr).filter { it.sykmeldingId == sykmeldingId }
         assertThat(hentetViaRest).hasSize(2)
         assertThat(hentetViaRest[0].soknadstype).isEqualTo(RSSoknadstype.BEHANDLINGSDAGER)
         assertThat(hentetViaRest[0].fom).isEqualTo(basisDato)
@@ -133,7 +133,7 @@ class KombinasjonSykmeldingerTest : BaseTestClass() {
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
 
-        val hentetViaRest = hentSoknader(fnr).filter { it.sykmeldingId == sykmeldingId }
+        val hentetViaRest = hentSoknaderMetadata(fnr).filter { it.sykmeldingId == sykmeldingId }
         assertThat(hentetViaRest).hasSize(2)
         assertThat(hentetViaRest[0].soknadstype).isEqualTo(RSSoknadstype.BEHANDLINGSDAGER)
         assertThat(hentetViaRest[0].fom).isEqualTo(basisDato)
@@ -189,7 +189,7 @@ class KombinasjonSykmeldingerTest : BaseTestClass() {
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
 
-        val hentetViaRest = hentSoknader(fnr).filter { it.sykmeldingId == sykmeldingId }
+        val hentetViaRest = hentSoknaderMetadata(fnr).filter { it.sykmeldingId == sykmeldingId }
         assertThat(hentetViaRest).hasSize(1)
         assertThat(hentetViaRest[0].soknadstype).isEqualTo(RSSoknadstype.ARBEIDSTAKERE)
         assertThat(hentetViaRest[0].fom).isEqualTo(basisDato)
@@ -243,7 +243,7 @@ class KombinasjonSykmeldingerTest : BaseTestClass() {
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
 
-        val hentetViaRest = hentSoknader(fnr).filter { it.sykmeldingId == sykmeldingId }
+        val hentetViaRest = hentSoknaderMetadata(fnr).filter { it.sykmeldingId == sykmeldingId }
         assertThat(hentetViaRest).hasSize(2)
         assertThat(hentetViaRest[0].soknadstype).isEqualTo(RSSoknadstype.GRADERT_REISETILSKUDD)
         assertThat(hentetViaRest[0].fom).isEqualTo(basisDato)
@@ -310,7 +310,7 @@ class KombinasjonSykmeldingerTest : BaseTestClass() {
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
 
-        val hentetViaRest = hentSoknader(fnr).filter { it.sykmeldingId == sykmeldingId }
+        val hentetViaRest = hentSoknaderMetadata(fnr).filter { it.sykmeldingId == sykmeldingId }
         assertThat(hentetViaRest).hasSize(2)
         assertThat(hentetViaRest[0].soknadstype).isEqualTo(RSSoknadstype.GRADERT_REISETILSKUDD)
         assertThat(hentetViaRest[0].fom).isEqualTo(basisDato)

@@ -4,7 +4,7 @@ import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSporsmal
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSvar
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknad
-import no.nav.helse.flex.hentSoknader
+import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.oppdaterSporsmal
 import no.nav.helse.flex.sendSoknadMedResult
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
@@ -79,6 +79,9 @@ class SoknadBesvarer(
 
     fun sendSoknad(): RSSykepengesoknad {
         mockMvc.sendSoknadMedResult(fnr, rSSykepengesoknad.id).andExpect(((MockMvcResultMatchers.status().isOk)))
-        return mockMvc.hentSoknader(fnr).first { it.id == rSSykepengesoknad.id }
+        return mockMvc.hentSoknad(
+            soknadId = rSSykepengesoknad.id,
+            fnr = fnr
+        )
     }
 }

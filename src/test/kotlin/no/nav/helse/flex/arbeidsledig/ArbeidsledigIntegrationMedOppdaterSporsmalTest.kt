@@ -7,7 +7,8 @@ import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.rest.SoknadMetadata
-import no.nav.helse.flex.hentSoknader
+import no.nav.helse.flex.hentSoknad
+import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.oppdaterSporsmalMedResult
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.sendSoknad
@@ -101,10 +102,13 @@ class ArbeidsledigIntegrationMedOppdaterSporsmalTest : BaseTestClass() {
 
     @Test
     fun `02 - søknaden har alle spørsmål`() {
-        val soknader = hentSoknader(fnr)
+        val soknader = hentSoknaderMetadata(fnr)
         assertThat(soknader).hasSize(1)
-        val soknaden = soknader.first()
 
+        val soknaden = hentSoknad(
+            soknadId = soknader.first().id,
+            fnr = fnr
+        )
         assertThat(soknaden.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
                 ANSVARSERKLARING,
@@ -121,7 +125,10 @@ class ArbeidsledigIntegrationMedOppdaterSporsmalTest : BaseTestClass() {
 
     @Test
     fun `03 - vi svarer på ansvarserklæringa som ikke muterer søknaden`() {
-        val soknaden = hentSoknader(fnr).first()
+        val soknaden = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first().id,
+            fnr = fnr
+        )
 
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
             .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
@@ -132,7 +139,10 @@ class ArbeidsledigIntegrationMedOppdaterSporsmalTest : BaseTestClass() {
 
     @Test
     fun `04 - vi svarer at vi ble friskmeldt midt i søknadsperioden - Det muterer søknaden`() {
-        val soknaden = hentSoknader(fnr).first()
+        val soknaden = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first().id,
+            fnr = fnr
+        )
 
         assertThat(soknaden.sporsmal!!.first { it.tag == ANDRE_INNTEKTSKILDER }.sporsmalstekst)
             .isEqualTo(
@@ -170,7 +180,10 @@ class ArbeidsledigIntegrationMedOppdaterSporsmalTest : BaseTestClass() {
 
     @Test
     fun `05 - unødvendige spørsmål forsvinner når man blir friskmeldt første dag i søknadsperioden`() {
-        val soknaden = hentSoknader(fnr).first()
+        val soknaden = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first().id,
+            fnr = fnr
+        )
 
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
             .besvarSporsmal(FRISKMELDT_START, LocalDate.of(2018, 1, 1).format(DateTimeFormatter.ISO_LOCAL_DATE), mutert = true)
@@ -189,7 +202,10 @@ class ArbeidsledigIntegrationMedOppdaterSporsmalTest : BaseTestClass() {
 
     @Test
     fun `06 - unødvendige spørsmål kommer tilbake når man svarer at man ikke ble friskmeldt likevel`() {
-        val soknaden = hentSoknader(fnr).first()
+        val soknaden = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first().id,
+            fnr = fnr
+        )
 
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
             .besvarSporsmal(FRISKMELDT, "JA", mutert = true)
@@ -211,13 +227,19 @@ class ArbeidsledigIntegrationMedOppdaterSporsmalTest : BaseTestClass() {
 
     @Test
     fun `07 - vi kan ikke sende inn søknaden før alle spørsmål er besvart`() {
-        val soknaden = hentSoknader(fnr).first()
+        val soknaden = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first().id,
+            fnr = fnr
+        )
         sendSoknadMedResult(fnr, soknaden.id).andExpect(((MockMvcResultMatchers.status().isBadRequest)))
     }
 
     @Test
     fun `08 - vi besvarer alle sporsmal`() {
-        val soknaden = hentSoknader(fnr).first()
+        val soknaden = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first().id,
+            fnr = fnr
+        )
 
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
             .besvarSporsmal(FRISKMELDT, "NEI", mutert = true)
@@ -227,7 +249,10 @@ class ArbeidsledigIntegrationMedOppdaterSporsmalTest : BaseTestClass() {
 
     @Test
     fun `09 - vi får en feil dersom spørsmål id ikke finnes i søknaden`() {
-        val soknaden = hentSoknader(fnr).first()
+        val soknaden = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first().id,
+            fnr = fnr
+        )
 
         val json =
             oppdaterSporsmalMedResult(fnr, soknaden.sporsmal!![0].copy(id = "FEILID"), soknadsId = soknaden.id)
@@ -237,13 +262,12 @@ class ArbeidsledigIntegrationMedOppdaterSporsmalTest : BaseTestClass() {
 
     @Test
     fun `10 - vi sender inn søknaden - Den får da status sendt og blir publisert på kafka`() {
+        sendSoknad(fnr, hentSoknaderMetadata(fnr).first().id)
 
-        sendSoknad(fnr, hentSoknader(fnr).first().id)
-        val soknaden = hentSoknader(fnr).first()
-
+        val soknaden = hentSoknaderMetadata(fnr).first()
         assertThat(soknaden.status).isEqualTo(RSSoknadstatus.SENDT)
-        val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
 
+        val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
         assertThat(soknader).hasSize(1)
         assertThat(soknader.last().type).isEqualTo(SoknadstypeDTO.ARBEIDSLEDIG)
         assertThat(soknader.last().status).isEqualTo(SoknadsstatusDTO.SENDT)
@@ -253,8 +277,10 @@ class ArbeidsledigIntegrationMedOppdaterSporsmalTest : BaseTestClass() {
 
     @Test
     fun `11 - vi kan ikke besvare spørsmål på en søknad som er sendt`() {
-
-        val soknaden = hentSoknader(fnr).first()
+        val soknaden = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first().id,
+            fnr = fnr
+        )
 
         assertThat(soknaden.status).isEqualTo(RSSoknadstatus.SENDT)
 

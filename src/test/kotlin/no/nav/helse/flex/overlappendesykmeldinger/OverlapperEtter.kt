@@ -10,7 +10,8 @@ import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
-import no.nav.helse.flex.hentSoknader
+import no.nav.helse.flex.hentSoknad
+import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER_V2
@@ -70,7 +71,7 @@ class OverlapperEtter : BaseTestClass() {
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
         kafkaSoknader[0].status shouldBeEqualTo SoknadsstatusDTO.FREMTIDIG
 
-        val hentetViaRest = hentSoknader(fnr)
+        val hentetViaRest = hentSoknaderMetadata(fnr)
         hentetViaRest shouldHaveSize 1
         hentetViaRest[0].soknadstype shouldBeEqualTo RSSoknadstype.ARBEIDSTAKERE
         hentetViaRest[0].status shouldBeEqualTo RSSoknadstatus.FREMTIDIG
@@ -99,26 +100,35 @@ class OverlapperEtter : BaseTestClass() {
         kafkaSoknader[1].fom shouldBeEqualTo basisdato.minusDays(1)
         kafkaSoknader[1].tom shouldBeEqualTo basisdato.minusDays(1)
 
-        val hentetViaRest = hentSoknader(fnr)
-        hentetViaRest shouldHaveSize 2
+        val soknaderMetadata = hentSoknaderMetadata(fnr)
+        soknaderMetadata shouldHaveSize 2
 
-        hentetViaRest[0].soknadstype shouldBeEqualTo RSSoknadstype.ARBEIDSTAKERE
-        hentetViaRest[0].status shouldBeEqualTo RSSoknadstatus.NY
-        hentetViaRest[0].fom shouldBeEqualTo basisdato.minusDays(1)
-        hentetViaRest[0].tom shouldBeEqualTo basisdato.minusDays(1)
-        val forsteSoknadSpmFinnes = hentetViaRest[0].sporsmal?.find { it.tag == FRAVAR_FOR_SYKMELDINGEN }
+        val forsteSoknad = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first().id,
+            fnr = fnr
+        )
+
+        forsteSoknad.soknadstype shouldBeEqualTo RSSoknadstype.ARBEIDSTAKERE
+        forsteSoknad.status shouldBeEqualTo RSSoknadstatus.NY
+        forsteSoknad.fom shouldBeEqualTo basisdato.minusDays(1)
+        forsteSoknad.tom shouldBeEqualTo basisdato.minusDays(1)
+        val forsteSoknadSpmFinnes = forsteSoknad.sporsmal?.find { it.tag == FRAVAR_FOR_SYKMELDINGEN }
         forsteSoknadSpmFinnes shouldNotBeEqualTo null
-        val periodeSpmSok1 = hentetViaRest[0].sporsmal
+        val periodeSpmSok1 = forsteSoknad.sporsmal
             ?.find { it.tag == FERIE_V2 }
             ?.undersporsmal
             ?.first()
         periodeSpmSok1?.min shouldBeEqualTo basisdato.minusDays(1).toString()
         periodeSpmSok1?.max shouldBeEqualTo basisdato.minusDays(1).toString()
 
-        hentetViaRest[1].soknadstype shouldBeEqualTo RSSoknadstype.ARBEIDSTAKERE
-        hentetViaRest[1].status shouldBeEqualTo RSSoknadstatus.FREMTIDIG
-        hentetViaRest[1].fom shouldBeEqualTo basisdato
-        hentetViaRest[1].tom shouldBeEqualTo basisdato.plusDays(15)
+        val fremtidigSoknad = hentSoknad(
+            soknadId = soknaderMetadata.last().id,
+            fnr = fnr
+        )
+        fremtidigSoknad.soknadstype shouldBeEqualTo RSSoknadstype.ARBEIDSTAKERE
+        fremtidigSoknad.status shouldBeEqualTo RSSoknadstatus.FREMTIDIG
+        fremtidigSoknad.fom shouldBeEqualTo basisdato
+        fremtidigSoknad.tom shouldBeEqualTo basisdato.plusDays(15)
     }
 
     @Test
@@ -132,29 +142,38 @@ class OverlapperEtter : BaseTestClass() {
             .first()
             .status shouldBeEqualTo SoknadsstatusDTO.NY
 
-        val hentetViaRest = hentSoknader(fnr)
-        hentetViaRest shouldHaveSize 2
+        val soknaderMetadata = hentSoknaderMetadata(fnr)
+        soknaderMetadata shouldHaveSize 2
 
-        hentetViaRest[0].soknadstype shouldBeEqualTo RSSoknadstype.ARBEIDSTAKERE
-        hentetViaRest[0].status shouldBeEqualTo RSSoknadstatus.NY
-        hentetViaRest[0].fom shouldBeEqualTo basisdato.minusDays(1)
-        hentetViaRest[0].tom shouldBeEqualTo basisdato.minusDays(1)
-        val forsteSoknadSpmFinnes = hentetViaRest[0].sporsmal?.find { it.tag == FRAVAR_FOR_SYKMELDINGEN }
+        val forsteSoknad = hentSoknad(
+            soknadId = soknaderMetadata.first().id,
+            fnr = fnr
+        )
+
+        forsteSoknad.soknadstype shouldBeEqualTo RSSoknadstype.ARBEIDSTAKERE
+        forsteSoknad.status shouldBeEqualTo RSSoknadstatus.NY
+        forsteSoknad.fom shouldBeEqualTo basisdato.minusDays(1)
+        forsteSoknad.tom shouldBeEqualTo basisdato.minusDays(1)
+        val forsteSoknadSpmFinnes = forsteSoknad.sporsmal?.find { it.tag == FRAVAR_FOR_SYKMELDINGEN }
         forsteSoknadSpmFinnes shouldNotBeEqualTo null
-        val periodeSpmSok1 = hentetViaRest[0].sporsmal
+        val periodeSpmSok1 = forsteSoknad.sporsmal
             ?.find { it.tag == FERIE_V2 }
             ?.undersporsmal
             ?.first()
         periodeSpmSok1?.min shouldBeEqualTo basisdato.minusDays(1).toString()
         periodeSpmSok1?.max shouldBeEqualTo basisdato.minusDays(1).toString()
 
-        hentetViaRest[1].soknadstype shouldBeEqualTo RSSoknadstype.ARBEIDSTAKERE
-        hentetViaRest[1].status shouldBeEqualTo RSSoknadstatus.NY
-        hentetViaRest[1].fom shouldBeEqualTo basisdato
-        hentetViaRest[1].tom shouldBeEqualTo basisdato.plusDays(15)
-        val finnesIkke = hentetViaRest[1].sporsmal?.find { it.tag == FRAVAR_FOR_SYKMELDINGEN }
+        val andreSoknad = hentSoknad(
+            soknadId = soknaderMetadata.last().id,
+            fnr = fnr
+        )
+        andreSoknad.soknadstype shouldBeEqualTo RSSoknadstype.ARBEIDSTAKERE
+        andreSoknad.status shouldBeEqualTo RSSoknadstatus.NY
+        andreSoknad.fom shouldBeEqualTo basisdato
+        andreSoknad.tom shouldBeEqualTo basisdato.plusDays(15)
+        val finnesIkke = andreSoknad.sporsmal?.find { it.tag == FRAVAR_FOR_SYKMELDINGEN }
         finnesIkke shouldBeEqualTo null
-        val periodeSpmSok2 = hentetViaRest[1].sporsmal
+        val periodeSpmSok2 = andreSoknad.sporsmal
             ?.find { it.tag == FERIE_V2 }
             ?.undersporsmal
             ?.first()
@@ -181,9 +200,13 @@ class OverlapperEtter : BaseTestClass() {
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
 
-        val rsSoknad = hentSoknader(fnr)
-            .shouldHaveSize(1)
-            .first()
+        val soknaderMetadata = hentSoknaderMetadata(fnr)
+        soknaderMetadata shouldHaveSize 1
+
+        val rsSoknad = hentSoknad(
+            soknadId = soknaderMetadata.first().id,
+            fnr = fnr
+        )
 
         mockFlexSyketilfelleArbeidsgiverperiode(
             arbeidsgiverperiode = Arbeidsgiverperiode(
@@ -371,9 +394,11 @@ class OverlapperEtter : BaseTestClass() {
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
 
-        val rsSoknad = hentSoknader(fnr)
-            .shouldHaveSize(1)
-            .first()
+        val rsSoknader = hentSoknaderMetadata(fnr).shouldHaveSize(1)
+        val rsSoknad = hentSoknad(
+            soknadId = rsSoknader.first().id,
+            fnr = fnr
+        )
 
         mockFlexSyketilfelleArbeidsgiverperiode(
             arbeidsgiverperiode = Arbeidsgiverperiode(

@@ -6,7 +6,8 @@ import no.nav.helse.flex.aktivering.kafka.AktiveringProducer
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.rest.SoknadMetadata
-import no.nav.helse.flex.hentSoknader
+import no.nav.helse.flex.hentSoknad
+import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testutil.opprettSoknadFraSoknadMetadata
@@ -91,13 +92,23 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
             aktiveringProducer, aktiverEnkeltSoknad
         )
 
-        val hentetViaRest = hentSoknader(fnr).sortedBy { it.fom }
-        assertThat(hentetViaRest[0].sporsmal!!.any { it.tag == FRAVAR_FOR_SYKMELDINGEN }).isTrue()
-        assertThat(hentetViaRest[0].sporsmal!!.any { it.tag == ARBEID_UTENFOR_NORGE }).isTrue()
-        assertThat(hentetViaRest[1].sporsmal!!.any { it.tag == FRAVAR_FOR_SYKMELDINGEN }).isFalse()
-        assertThat(hentetViaRest[1].sporsmal!!.any { it.tag == ARBEID_UTENFOR_NORGE }).isFalse()
-        val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2).tilSoknader()
+        val soknaderMetadata = hentSoknaderMetadata(fnr).sortedBy { it.fom }
 
+        val forsteSoknad = hentSoknad(
+            soknadId = soknaderMetadata.first().id,
+            fnr = fnr
+        )
+        assertThat(forsteSoknad.sporsmal!!.any { it.tag == FRAVAR_FOR_SYKMELDINGEN }).isTrue()
+        assertThat(forsteSoknad.sporsmal!!.any { it.tag == ARBEID_UTENFOR_NORGE }).isTrue()
+
+        val andreSoknad = hentSoknad(
+            soknadId = soknaderMetadata.last().id,
+            fnr = fnr
+        )
+        assertThat(andreSoknad.sporsmal!!.any { it.tag == FRAVAR_FOR_SYKMELDINGEN }).isFalse()
+        assertThat(andreSoknad.sporsmal!!.any { it.tag == ARBEID_UTENFOR_NORGE }).isFalse()
+
+        val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2).tilSoknader()
         assertThat(soknader.first().status).isEqualTo(SoknadsstatusDTO.NY)
         assertThat(soknader.last().status).isEqualTo(SoknadsstatusDTO.NY)
     }
@@ -146,11 +157,21 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
             aktiveringProducer, aktiverEnkeltSoknad
         )
 
-        val hentetViaRest = hentSoknader(fnr).sortedBy { it.fom }
-        assertThat(hentetViaRest[0].sporsmal!!.any { it.tag == FRAVER_FOR_BEHANDLING }).isTrue()
-        assertThat(hentetViaRest[0].sporsmal!!.any { it.tag == ARBEID_UTENFOR_NORGE }).isTrue()
-        assertThat(hentetViaRest[1].sporsmal!!.any { it.tag == FRAVER_FOR_BEHANDLING }).isTrue()
-        assertThat(hentetViaRest[1].sporsmal!!.any { it.tag == ARBEID_UTENFOR_NORGE }).isTrue()
+        val soknaderMetadata = hentSoknaderMetadata(fnr).sortedBy { it.fom }
+
+        val forsteSoknad = hentSoknad(
+            soknadId = soknaderMetadata.first().id,
+            fnr = fnr
+        )
+        assertThat(forsteSoknad.sporsmal!!.any { it.tag == FRAVER_FOR_BEHANDLING }).isTrue()
+        assertThat(forsteSoknad.sporsmal!!.any { it.tag == ARBEID_UTENFOR_NORGE }).isTrue()
+
+        val andreSoknad = hentSoknad(
+            soknadId = soknaderMetadata.last().id,
+            fnr = fnr
+        )
+        assertThat(andreSoknad.sporsmal!!.any { it.tag == FRAVER_FOR_BEHANDLING }).isTrue()
+        assertThat(andreSoknad.sporsmal!!.any { it.tag == ARBEID_UTENFOR_NORGE }).isTrue()
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
     }
@@ -198,9 +219,20 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
             aktiveringProducer, aktiverEnkeltSoknad
         )
 
-        val hentetViaRest = hentSoknader(fnr).sortedBy { it.fom }
-        assertThat(hentetViaRest[0].sporsmal!!.any { it.tag == FRAVER_FOR_BEHANDLING }).isTrue()
-        assertThat(hentetViaRest[1].sporsmal!!.any { it.tag == FRAVER_FOR_BEHANDLING }).isFalse()
+        val soknaderMetadata = hentSoknaderMetadata(fnr).sortedBy { it.fom }
+
+        val forsteSoknad = hentSoknad(
+            soknadId = soknaderMetadata.first().id,
+            fnr = fnr
+        )
+        assertThat(forsteSoknad.sporsmal!!.any { it.tag == FRAVER_FOR_BEHANDLING }).isTrue()
+
+        val andreSoknad = hentSoknad(
+            soknadId = soknaderMetadata.last().id,
+            fnr = fnr
+        )
+        assertThat(andreSoknad.sporsmal!!.any { it.tag == FRAVER_FOR_BEHANDLING }).isFalse()
+
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
     }
 
@@ -248,9 +280,19 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
             aktiveringProducer, aktiverEnkeltSoknad
         )
 
-        val hentetViaRest = hentSoknader(fnr).sortedBy { it.fom }
-        assertThat(hentetViaRest[0].sporsmal!!.any { it.tag == FRAVER_FOR_BEHANDLING }).isTrue()
-        assertThat(hentetViaRest[1].sporsmal!!.any { it.tag == FRAVER_FOR_BEHANDLING }).isTrue()
+        val soknaderMetadata = hentSoknaderMetadata(fnr).sortedBy { it.fom }
+
+        val forsteSoknad = hentSoknad(
+            soknadId = soknaderMetadata.first().id,
+            fnr = fnr
+        )
+        assertThat(forsteSoknad.sporsmal!!.any { it.tag == FRAVER_FOR_BEHANDLING }).isTrue()
+
+        val andreSoknad = hentSoknad(
+            soknadId = soknaderMetadata.last().id,
+            fnr = fnr
+        )
+        assertThat(andreSoknad.sporsmal!!.any { it.tag == FRAVER_FOR_BEHANDLING }).isTrue()
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
     }
 
@@ -297,9 +339,20 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
             aktiveringProducer, aktiverEnkeltSoknad
         )
 
-        val hentetViaRest = hentSoknader(fnr).sortedBy { it.fom }
-        assertThat(hentetViaRest[0].sporsmal!!.any { it.tag == FRAVAR_FOR_SYKMELDINGEN }).isTrue()
-        assertThat(hentetViaRest[1].sporsmal!!.any { it.tag == FRAVAR_FOR_SYKMELDINGEN }).isTrue()
+        val soknaderMetadata = hentSoknaderMetadata(fnr).sortedBy { it.fom }
+
+        val forsteSoknad = hentSoknad(
+            soknadId = soknaderMetadata.first().id,
+            fnr = fnr
+        )
+        assertThat(forsteSoknad.sporsmal!!.any { it.tag == FRAVAR_FOR_SYKMELDINGEN }).isTrue()
+
+        val andreSoknad = hentSoknad(
+            soknadId = soknaderMetadata.last().id,
+            fnr = fnr
+        )
+        assertThat(andreSoknad.sporsmal!!.any { it.tag == FRAVAR_FOR_SYKMELDINGEN }).isTrue()
+
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
     }
 
@@ -346,12 +399,21 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
             aktiveringProducer, aktiverEnkeltSoknad
         )
 
-        val hentetViaRest = hentSoknader(fnr).sortedBy { it.fom }
-        assertThat(hentetViaRest[0].sporsmal!!.any { it.tag == ARBEID_UTENFOR_NORGE }).isTrue()
-        assertThat(hentetViaRest[1].sporsmal!!.any { it.tag == ARBEID_UTENFOR_NORGE }).isFalse()
+        val soknaderMetadata = hentSoknaderMetadata(fnr).sortedBy { it.fom }
+
+        val forsteSoknad = hentSoknad(
+            soknadId = soknaderMetadata.first().id,
+            fnr = fnr
+        )
+        assertThat(forsteSoknad.sporsmal!!.any { it.tag == ARBEID_UTENFOR_NORGE }).isTrue()
+
+        val andreSoknad = hentSoknad(
+            soknadId = soknaderMetadata.last().id,
+            fnr = fnr
+        )
+        assertThat(andreSoknad.sporsmal!!.any { it.tag == ARBEID_UTENFOR_NORGE }).isFalse()
 
         val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2).tilSoknader()
-
         assertThat(soknader.first().status).isEqualTo(SoknadsstatusDTO.NY)
         assertThat(soknader.last().status).isEqualTo(SoknadsstatusDTO.NY)
     }
@@ -385,8 +447,11 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
         )
         opprettSoknadService.opprettSoknadFraSoknadMetadata(soknad, sykepengesoknadDAO, aktiveringProducer, aktiverEnkeltSoknad)
 
-        val hentetViaRest = hentSoknader(fnr)
-        assertThat(hentetViaRest[0].egenmeldtSykmelding).isTrue()
+        val rsSoknad = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first().id,
+            fnr = fnr
+        )
+        assertThat(rsSoknad.egenmeldtSykmelding).isTrue()
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
     }
 
@@ -419,7 +484,7 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
         )
         opprettSoknadService.opprettSoknadFraSoknadMetadata(soknad, sykepengesoknadDAO, aktiveringProducer, aktiverEnkeltSoknad)
 
-        val hentetViaRest = hentSoknader(fnr)
+        val hentetViaRest = hentSoknaderMetadata(fnr)
         assertThat(hentetViaRest[0].egenmeldtSykmelding).isFalse()
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
     }

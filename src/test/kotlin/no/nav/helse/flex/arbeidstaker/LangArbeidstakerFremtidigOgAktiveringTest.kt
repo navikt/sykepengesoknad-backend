@@ -6,7 +6,8 @@ import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
-import no.nav.helse.flex.hentSoknader
+import no.nav.helse.flex.hentSoknad
+import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
 import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
@@ -60,7 +61,7 @@ class LangArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
         )
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
 
-        val hentetViaRest = hentSoknader(fnr)
+        val hentetViaRest = hentSoknaderMetadata(fnr)
         assertThat(hentetViaRest).hasSize(2)
         assertThat(hentetViaRest[0].soknadstype).isEqualTo(RSSoknadstype.ARBEIDSTAKERE)
         assertThat(hentetViaRest[0].status).isEqualTo(RSSoknadstatus.FREMTIDIG)
@@ -76,15 +77,22 @@ class LangArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
     @Test
     @Order(2)
     fun `søknadene har ingen som spørsmål som fremtidig`() {
-        val soknader = hentSoknader(fnr)
-        assertThat(soknader[0].sporsmal!!).hasSize(0)
-        assertThat(soknader[1].sporsmal!!).hasSize(0)
+        val soknad1 = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first().id,
+            fnr = fnr
+        )
+        val soknad2 = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).last().id,
+            fnr = fnr
+        )
+        assertThat(soknad1.sporsmal!!).hasSize(0)
+        assertThat(soknad2.sporsmal!!).hasSize(0)
     }
 
     @Test
     @Order(3)
     fun `Vi aktiverer den første søknaden`() {
-        val soknader = hentSoknader(fnr).sortedBy { it.fom }
+        val soknader = hentSoknaderMetadata(fnr).sortedBy { it.fom }
 
         aktiveringJob.bestillAktivering(now = soknader[0].tom!!.plusDays(1))
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
@@ -96,9 +104,17 @@ class LangArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
     @Test
     @Order(4)
     fun `søknaden har forventa spørsmål som NY`() {
-        val soknader = hentSoknader(fnr).sortedBy { it.fom }
+        val soknader = hentSoknaderMetadata(fnr).sortedBy { it.fom }
+        val soknad1 = hentSoknad(
+            soknadId = soknader.first().id,
+            fnr = fnr
+        )
+        val soknad2 = hentSoknad(
+            soknadId = soknader.last().id,
+            fnr = fnr
+        )
 
-        assertThat(soknader[0].sporsmal!!.map { it.tag }).isEqualTo(
+        assertThat(soknad1.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
                 "ANSVARSERKLARING",
                 "FRAVAR_FOR_SYKMELDINGEN",
@@ -114,8 +130,8 @@ class LangArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
                 "BEKREFT_OPPLYSNINGER"
             )
         )
-        assertThat(soknader[0].status).isEqualTo(RSSoknadstatus.NY)
-        assertThat(soknader[1].status).isEqualTo(RSSoknadstatus.FREMTIDIG)
+        assertThat(soknad1.status).isEqualTo(RSSoknadstatus.NY)
+        assertThat(soknad2.status).isEqualTo(RSSoknadstatus.FREMTIDIG)
     }
 
     @Test
@@ -123,7 +139,10 @@ class LangArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
     fun `vi besvarer og sender inn søknaden`() {
         flexSyketilfelleMockRestServiceServer?.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
-        val soknaden = hentSoknader(fnr).find { it.status == RSSoknadstatus.NY }!!
+        val soknaden = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
+            fnr = fnr
+        )
 
         val sendtSoknad = SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
             .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
@@ -151,7 +170,7 @@ class LangArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
     @Test
     @Order(6)
     fun `Vi aktiverer den andre søknaden`() {
-        val soknader = hentSoknader(fnr).sortedBy { it.fom }
+        val soknader = hentSoknaderMetadata(fnr).sortedBy { it.fom }
 
         aktiveringJob.bestillAktivering(now = soknader[1].tom!!.plusDays(1))
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
@@ -165,7 +184,10 @@ class LangArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
     fun `vi besvarer og sender inn den andre søknaden som har færre spørsmål`() {
         flexSyketilfelleMockRestServiceServer?.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
-        val soknaden = hentSoknader(fnr).find { it.status == RSSoknadstatus.NY }!!
+        val soknaden = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
+            fnr = fnr
+        )
 
         val sendtSoknad = SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
             .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
