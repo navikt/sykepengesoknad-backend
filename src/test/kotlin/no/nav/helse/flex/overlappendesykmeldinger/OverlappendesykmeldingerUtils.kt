@@ -3,7 +3,8 @@ package no.nav.helse.flex.overlappendesykmeldinger
 import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
-import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
+import no.nav.helse.flex.sendSykmelding
+import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.syfo.model.sykmelding.model.GradertDTO
@@ -12,6 +13,7 @@ import no.nav.syfo.model.sykmeldingstatus.STATUS_SENDT
 import java.time.LocalDate
 import java.util.*
 
+@Deprecated("ikke bruk")
 fun BaseTestClass.sendArbeidstakerSykmelding(
     fom: LocalDate,
     tom: LocalDate,
@@ -19,7 +21,8 @@ fun BaseTestClass.sendArbeidstakerSykmelding(
     oppfolgingsdato: LocalDate = fom,
     gradert: GradertDTO? = null,
     sykmeldingId: String = UUID.randomUUID().toString(),
-) {
+    forventaSoknader: Int = 1
+): List<SykepengesoknadDTO> {
     val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(
         fnr = fnr,
         arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
@@ -41,24 +44,9 @@ fun BaseTestClass.sendArbeidstakerSykmelding(
         kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
     )
 
-    sendSykmelding(
+    return sendSykmelding(
         sykmeldingKafkaMessage,
         oppfolgingsdato,
+        forventaSoknader
     )
-}
-
-fun BaseTestClass.sendSykmelding(
-    sykmeldingKafkaMessage: SykmeldingKafkaMessage,
-    oppfolgingsdato: LocalDate = sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder.minOf { it.fom },
-) {
-    flexSyketilfelleMockRestServiceServer?.reset()
-
-    mockFlexSyketilfelleSykeforloep(
-        sykmeldingKafkaMessage.sykmelding.id,
-        oppfolgingsdato
-    )
-
-    behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingKafkaMessage.sykmelding.id, sykmeldingKafkaMessage)
-
-    flexSyketilfelleMockRestServiceServer?.reset()
 }

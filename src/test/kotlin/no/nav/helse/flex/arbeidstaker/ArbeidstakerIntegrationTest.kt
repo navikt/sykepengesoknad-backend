@@ -21,8 +21,8 @@ import no.nav.helse.flex.sykepengesoknad.kafka.PeriodeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
-import no.nav.helse.flex.testdata.skapSykmeldingKafkaMessage
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
+import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.util.tilOsloLocalDateTime
@@ -59,7 +59,7 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
     @Order(1)
     fun `Arbeidstakersøknader opprettes for en lang sykmelding`() {
         val kafkaSoknader = sendSykmelding(
-            skapSykmeldingKafkaMessage(
+            sykmeldingKafkaMessage(
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = basisdato.minusDays(20),

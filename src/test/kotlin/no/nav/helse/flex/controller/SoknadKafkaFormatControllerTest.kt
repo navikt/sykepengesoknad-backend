@@ -6,7 +6,7 @@ import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.skapAzureJwt
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
-import no.nav.helse.flex.testdata.skapSykmeldingKafkaMessage
+import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.util.OBJECT_MAPPER
 import no.nav.syfo.kafka.NAV_CALLID
 import org.amshove.kluent.shouldBeEqualTo
@@ -23,7 +23,7 @@ class SoknadKafkaFormatControllerTest : BaseTestClass() {
     @Test
     fun `Vi kan hente en søknad på samme format som kafka topicet med version 2 token`() {
         val kafkaSoknad = sendSykmelding(
-            skapSykmeldingKafkaMessage(
+            sykmeldingKafkaMessage(
                 fnr = "1234",
                 sykmeldingsperioder = heltSykmeldt(),
             ),

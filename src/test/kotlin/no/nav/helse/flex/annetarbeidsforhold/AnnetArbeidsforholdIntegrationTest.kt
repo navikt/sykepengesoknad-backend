@@ -19,7 +19,7 @@ import no.nav.helse.flex.soknadsopprettelse.VAER_KLAR_OVER_AT
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
-import no.nav.helse.flex.testdata.skapSykmeldingKafkaMessage
+import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.ventPåRecords
@@ -39,7 +39,7 @@ class AnnetArbeidsforholdIntegrationTest : BaseTestClass() {
     fun `1 - vi oppretter en annet arbeidsforhold søknad`() {
 
         val soknader = sendSykmelding(
-            skapSykmeldingKafkaMessage(
+            sykmeldingKafkaMessage(
                 arbeidssituasjon = Arbeidssituasjon.ANNET,
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(

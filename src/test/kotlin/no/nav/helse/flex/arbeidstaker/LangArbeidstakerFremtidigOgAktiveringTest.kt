@@ -10,7 +10,7 @@ import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
 import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
-import no.nav.helse.flex.testdata.skapSykmeldingKafkaMessage
+import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.ventPåRecords
@@ -36,7 +36,7 @@ class LangArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
     fun `Fremtidige arbeidstakersøknad opprettes for en sykmelding`() {
 
         val kafkaSoknader = sendSykmelding(
-            skapSykmeldingKafkaMessage(
+            sykmeldingKafkaMessage(
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = basisdato.minusDays(1),

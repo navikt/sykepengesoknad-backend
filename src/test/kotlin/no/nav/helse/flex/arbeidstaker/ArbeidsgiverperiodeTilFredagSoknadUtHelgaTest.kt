@@ -12,7 +12,7 @@ import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.sykepengesoknad.kafka.MottakerDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
-import no.nav.helse.flex.testdata.skapSykmeldingKafkaMessage
+import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilJuridiskVurdering
 import no.nav.helse.flex.tilSoknader
@@ -41,7 +41,7 @@ class ArbeidsgiverperiodeTilFredagSoknadUtHelgaTest : BaseTestClass() {
     fun `vi besvarer og sender inn en søknad som bare går til arbeidsgiver siden perioden slutta på en fredag, men søknaden gikk til søndag`() {
 
         sendSykmelding(
-            skapSykmeldingKafkaMessage(
+            sykmeldingKafkaMessage(
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = fredagen.minusDays(14),
@@ -112,7 +112,7 @@ class ArbeidsgiverperiodeTilFredagSoknadUtHelgaTest : BaseTestClass() {
     @Test
     fun `vi besvarer og sender inn en søknad som går til arbeidsgiver og NAV siden perioden slutta på en fredag, men søknaden gikk til mandag`() {
         sendSykmelding(
-            skapSykmeldingKafkaMessage(
+            sykmeldingKafkaMessage(
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = fredagen.minusDays(14),

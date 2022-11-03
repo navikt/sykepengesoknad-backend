@@ -17,7 +17,7 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO.AVBRUTT
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO.NY
 import no.nav.helse.flex.testdata.behandingsdager
-import no.nav.helse.flex.testdata.skapSykmeldingKafkaMessage
+import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.ventPåRecords
@@ -41,7 +41,7 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
     @Order(1)
     fun `behandingsdagsøknad opprettes for en lang sykmelding`() {
         val kafkaSoknader = sendSykmelding(
-            skapSykmeldingKafkaMessage(
+            sykmeldingKafkaMessage(
                 fnr = fnr,
                 sykmeldingsperioder = behandingsdager(),
             )
@@ -155,7 +155,7 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
     fun `vi kan opprette, avbryte og gjenåpne søknad`() {
         val fnr = "12343"
         sendSykmelding(
-            skapSykmeldingKafkaMessage(
+            sykmeldingKafkaMessage(
                 fnr = fnr,
                 sykmeldingsperioder = behandingsdager(),
             )
@@ -204,7 +204,7 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
 
         val sykmeldingId = UUID.randomUUID().toString()
         sendSykmelding(
-            skapSykmeldingKafkaMessage(
+            sykmeldingKafkaMessage(
                 fnr = fnr,
                 sykmeldingId = sykmeldingId,
                 sykmeldingsperioder = listOf(
@@ -249,7 +249,7 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
         val fnr = "1234323222"
         val sykmeldingId = UUID.randomUUID().toString()
         sendSykmelding(
-            skapSykmeldingKafkaMessage(
+            sykmeldingKafkaMessage(
                 fnr = fnr,
                 sykmeldingId = sykmeldingId,
                 sykmeldingsperioder = listOf(

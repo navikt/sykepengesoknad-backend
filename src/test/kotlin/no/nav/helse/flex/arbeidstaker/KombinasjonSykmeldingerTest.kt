@@ -4,7 +4,7 @@ import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.sendSykmelding
-import no.nav.helse.flex.testdata.skapSykmeldingKafkaMessage
+import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.GradertDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
@@ -29,7 +29,7 @@ class KombinasjonSykmeldingerTest : BaseTestClass() {
     fun `Splitter behandlingsdager og vanlig sykmelding`() {
         val sykmeldingId = UUID.randomUUID().toString()
         sendSykmelding(
-            skapSykmeldingKafkaMessage(
+            sykmeldingKafkaMessage(
                 sykmeldingId = sykmeldingId,
                 fnr = fnr,
                 sykmeldingsperioder = listOf(
@@ -72,7 +72,7 @@ class KombinasjonSykmeldingerTest : BaseTestClass() {
     fun `Splitter behandlingsdager og reisetilskudd`() {
         val sykmeldingId = UUID.randomUUID().toString()
         sendSykmelding(
-            skapSykmeldingKafkaMessage(
+            sykmeldingKafkaMessage(
                 sykmeldingId = sykmeldingId,
                 fnr = fnr,
                 sykmeldingsperioder = listOf(
@@ -116,7 +116,7 @@ class KombinasjonSykmeldingerTest : BaseTestClass() {
 
         val sykmeldingId = UUID.randomUUID().toString()
         sendSykmelding(
-            skapSykmeldingKafkaMessage(
+            sykmeldingKafkaMessage(
                 sykmeldingId = sykmeldingId,
                 fnr = fnr,
                 sykmeldingsperioder = listOf(
@@ -156,7 +156,7 @@ class KombinasjonSykmeldingerTest : BaseTestClass() {
 
         val sykmeldingId = UUID.randomUUID().toString()
         sendSykmelding(
-            skapSykmeldingKafkaMessage(
+            sykmeldingKafkaMessage(
                 sykmeldingId = sykmeldingId,
                 fnr = fnr,
                 sykmeldingsperioder = listOf(
@@ -199,7 +199,7 @@ class KombinasjonSykmeldingerTest : BaseTestClass() {
     fun `Splitter gradert reisetilskudd før 100 prosent og gradert`() {
         val sykmeldingId = UUID.randomUUID().toString()
         sendSykmelding(
-            skapSykmeldingKafkaMessage(
+            sykmeldingKafkaMessage(
                 sykmeldingId = sykmeldingId,
                 fnr = fnr,
                 sykmeldingsperioder = listOf(

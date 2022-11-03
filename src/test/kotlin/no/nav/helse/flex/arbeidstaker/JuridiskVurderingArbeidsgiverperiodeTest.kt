@@ -10,7 +10,7 @@ import no.nav.helse.flex.juridiskvurdering.Utfall
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
 import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.testdata.heltSykmeldt
-import no.nav.helse.flex.testdata.skapSykmeldingKafkaMessage
+import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilJuridiskVurdering
 import no.nav.helse.flex.ventPåRecords
@@ -184,7 +184,7 @@ class JuridiskVurderingArbeidsgiverperiodeTest : BaseTestClass() {
         flexSyketilfelleMockRestServiceServer?.reset()
 
         sendSykmelding(
-            skapSykmeldingKafkaMessage(
+            sykmeldingKafkaMessage(
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = sykmeldingFom,

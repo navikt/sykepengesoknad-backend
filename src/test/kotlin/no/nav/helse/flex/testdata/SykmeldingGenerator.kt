@@ -150,7 +150,7 @@ fun skapArbeidsgiverSykmelding(
     )
 }
 
-fun delvisSykmeldt(
+fun gradertSykmeldt(
     fom: LocalDate = LocalDate.of(2020, 2, 1),
     tom: LocalDate = LocalDate.of(2020, 2, 15),
     grad: Int = 50,
@@ -187,6 +187,24 @@ fun heltSykmeldt(
     )
 }
 
+fun reisetilskudd(
+    fom: LocalDate = LocalDate.of(2020, 2, 1),
+    tom: LocalDate = LocalDate.of(2020, 2, 15),
+): List<SykmeldingsperiodeAGDTO> {
+    return listOf(
+        SykmeldingsperiodeAGDTO(
+            fom = fom,
+            tom = tom,
+            type = PeriodetypeDTO.REISETILSKUDD,
+            reisetilskudd = true,
+            aktivitetIkkeMulig = null,
+            behandlingsdager = null,
+            gradert = null,
+            innspillTilArbeidsgiver = null
+        )
+    )
+}
+
 fun behandingsdager(
     fom: LocalDate = LocalDate.of(2018, 1, 1),
     tom: LocalDate = LocalDate.of(2018, 1, 10),
@@ -206,7 +224,7 @@ fun behandingsdager(
     )
 }
 
-fun skapSykmeldingKafkaMessage(
+fun sykmeldingKafkaMessage(
     arbeidssituasjon: Arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
     fnr: String,
     timestamp: OffsetDateTime = OffsetDateTime.now(),

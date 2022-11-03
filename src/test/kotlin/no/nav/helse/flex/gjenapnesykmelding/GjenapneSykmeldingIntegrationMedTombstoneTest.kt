@@ -9,7 +9,7 @@ import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
-import no.nav.helse.flex.testdata.skapSykmeldingKafkaMessage
+import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.ventPåRecords
@@ -36,7 +36,7 @@ class GjenapneSykmeldingIntegrationMedTombstoneTest : BaseTestClass() {
     fun `1 - arbeidsledigsøknader opprettes`() {
 
         sendSykmelding(
-            skapSykmeldingKafkaMessage(
+            sykmeldingKafkaMessage(
                 fnr = fnr,
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
                 sykmeldingsperioder = heltSykmeldt(
@@ -47,7 +47,7 @@ class GjenapneSykmeldingIntegrationMedTombstoneTest : BaseTestClass() {
         )
 
         sendSykmelding(
-            skapSykmeldingKafkaMessage(
+            sykmeldingKafkaMessage(
                 fnr = fnr,
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
                 sykmeldingsperioder = heltSykmeldt(
@@ -119,7 +119,7 @@ class GjenapneSykmeldingIntegrationMedTombstoneTest : BaseTestClass() {
     @Test
     fun `4 - en arbeidstakersøknad kan ikke slettes fra kafka`() {
         val kafkaSoknad = sendSykmelding(
-            skapSykmeldingKafkaMessage(
+            sykmeldingKafkaMessage(
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = LocalDate.of(2018, 1, 1),

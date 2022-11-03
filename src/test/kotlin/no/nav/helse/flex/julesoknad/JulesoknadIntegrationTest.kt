@@ -10,7 +10,7 @@ import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.repository.JulesoknadkandidatDAO
 import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.testdata.heltSykmeldt
-import no.nav.helse.flex.testdata.skapSykmeldingKafkaMessage
+import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.ventPåRecords
 import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
 import org.assertj.core.api.Assertions.assertThat
@@ -52,7 +52,7 @@ class JulesoknadIntegrationTest : BaseTestClass() {
     @Test
     fun `15 dagers arbeidsledig søknad i riktig periode aktiveres når cron job kjøres`() {
         sendSykmelding(
-            skapSykmeldingKafkaMessage(
+            sykmeldingKafkaMessage(
                 fnr = fnr,
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
                 sykmeldingsperioder = heltSykmeldt(
@@ -74,7 +74,7 @@ class JulesoknadIntegrationTest : BaseTestClass() {
     @Test
     fun `15 dagers arbeidsledig søknad i riktig periode med tom ut i januar aktiveres når cron job kjøres`() {
         sendSykmelding(
-            skapSykmeldingKafkaMessage(
+            sykmeldingKafkaMessage(
                 fnr = fnr,
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
                 sykmeldingsperioder = heltSykmeldt(
@@ -96,7 +96,7 @@ class JulesoknadIntegrationTest : BaseTestClass() {
     @Test
     fun `14 dagers arbeidsledig søknad i riktig periode aktiveres ikke`() {
         sendSykmelding(
-            skapSykmeldingKafkaMessage(
+            sykmeldingKafkaMessage(
                 fnr = fnr,
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
                 sykmeldingsperioder = heltSykmeldt(
@@ -117,7 +117,7 @@ class JulesoknadIntegrationTest : BaseTestClass() {
     @Test
     fun `15 dagers arbeidsledig søknad i med for sen fom aktiveres ikke`() {
         sendSykmelding(
-            skapSykmeldingKafkaMessage(
+            sykmeldingKafkaMessage(
                 fnr = fnr,
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
                 sykmeldingsperioder = heltSykmeldt(
@@ -141,7 +141,7 @@ class JulesoknadIntegrationTest : BaseTestClass() {
         lagreForskuttering(false, orgnummer)
 
         sendSykmelding(
-            skapSykmeldingKafkaMessage(
+            sykmeldingKafkaMessage(
                 fnr = fnr,
                 arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = orgnummer, orgNavn = "Kebab"),
                 sykmeldingsperioder = heltSykmeldt(
@@ -164,7 +164,7 @@ class JulesoknadIntegrationTest : BaseTestClass() {
         val orgnummer = "999999999"
 
         sendSykmelding(
-            skapSykmeldingKafkaMessage(
+            sykmeldingKafkaMessage(
                 fnr = fnr,
                 arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = orgnummer, orgNavn = "Kebab"),
                 sykmeldingsperioder = heltSykmeldt(
@@ -189,7 +189,7 @@ class JulesoknadIntegrationTest : BaseTestClass() {
         lagreForskuttering(true, orgnummer)
 
         sendSykmelding(
-            skapSykmeldingKafkaMessage(
+            sykmeldingKafkaMessage(
                 fnr = fnr,
                 arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = orgnummer, orgNavn = "Kebab"),
                 sykmeldingsperioder = heltSykmeldt(
@@ -230,7 +230,7 @@ class JulesoknadIntegrationTest : BaseTestClass() {
         lagreForskuttering(false, orgnummer)
 
         sendSykmelding(
-            skapSykmeldingKafkaMessage(
+            sykmeldingKafkaMessage(
                 fnr = fnr,
                 arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = orgnummer, orgNavn = "Kebab"),
                 sykmeldingsperioder = heltSykmeldt(

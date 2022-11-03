@@ -5,15 +5,14 @@ import no.nav.helse.flex.aktivering.AktiveringJob
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
 import no.nav.helse.flex.domain.Arbeidsgiverperiode
-import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
-import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
 import no.nav.helse.flex.repository.SykepengesoknadDAO
+import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER_V2
 import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
 import no.nav.helse.flex.soknadsopprettelse.ARBEID_UTENFOR_NORGE
@@ -26,16 +25,17 @@ import no.nav.helse.flex.soknadsopprettelse.TILBAKE_I_ARBEID
 import no.nav.helse.flex.soknadsopprettelse.UTDANNING
 import no.nav.helse.flex.soknadsopprettelse.UTLAND_V2
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
-import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
-import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
+import no.nav.helse.flex.testdata.behandingsdager
+import no.nav.helse.flex.testdata.gradertSykmeldt
+import no.nav.helse.flex.testdata.heltSykmeldt
+import no.nav.helse.flex.testdata.reisetilskudd
+import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.ventPåRecords
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.GradertDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
-import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
-import no.nav.syfo.model.sykmeldingstatus.STATUS_SENDT
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBeEqualTo
@@ -62,13 +62,16 @@ class OverlapperEtter : BaseTestClass() {
     @Test
     @Order(1)
     fun `Fremtidig arbeidstakersøknad opprettes for en sykmelding`() {
-        sendArbeidstakerSykmelding(
-            fom = basisdato.minusDays(1),
-            tom = basisdato.plusDays(15),
-            fnr = fnr
-        )
 
-        val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
+        val kafkaSoknader = sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = basisdato.minusDays(1),
+                    tom = basisdato.plusDays(15),
+                ),
+            ),
+        )
         kafkaSoknader[0].status shouldBeEqualTo SoknadsstatusDTO.FREMTIDIG
 
         val hentetViaRest = hentSoknaderMetadata(fnr)
@@ -80,17 +83,18 @@ class OverlapperEtter : BaseTestClass() {
     @Test
     @Order(2)
     fun `Fremtidig arbeidstakersøknad opprettes for en overlappende sykmelding i scenario 1`() {
-        sendArbeidstakerSykmelding(
-            fom = basisdato,
-            tom = basisdato.plusDays(15),
-            fnr = fnr,
-            oppfolgingsdato = basisdato.minusDays(1),
-        )
 
-        // TODO: Her kan søknadene komme i feil rekkefølge, tror det bare kan bli feil rekkefølge på FREMTIDIG og NY
-        val kafkaSoknader = sykepengesoknadKafkaConsumer
-            .ventPåRecords(antall = 2)
-            .tilSoknader()
+        val kafkaSoknader = sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = basisdato,
+                    tom = basisdato.plusDays(15),
+                ),
+            ),
+            oppfolgingsdato = basisdato.minusDays(1),
+            forventaSoknader = 2
+        )
 
         kafkaSoknader[0].status shouldBeEqualTo SoknadsstatusDTO.FREMTIDIG
         kafkaSoknader[0].fom shouldBeEqualTo basisdato
@@ -190,15 +194,19 @@ class OverlapperEtter : BaseTestClass() {
     @Test
     @Order(10)
     fun `Brukeren sender inn en sykmelding`() {
-        sendArbeidstakerSykmelding(
-            fom = basisdato,
-            tom = basisdato.plusDays(15),
-            fnr = fnr
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = basisdato,
+                    tom = basisdato.plusDays(15),
+                ),
+            ),
         )
 
         aktiveringJob.bestillAktivering(basisdato.plusDays(16))
 
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
 
         val soknaderMetadata = hentSoknaderMetadata(fnr)
         soknaderMetadata shouldHaveSize 1
@@ -238,16 +246,15 @@ class OverlapperEtter : BaseTestClass() {
     @Test
     @Order(11)
     fun `Overlappende sykmelding med samme grad blir klippet`() {
-        sendArbeidstakerSykmelding(
-            fom = basisdato.plusDays(10),
-            tom = basisdato.plusDays(20),
-            fnr = fnr
-        )
-
-        val soknad = sykepengesoknadKafkaConsumer
-            .ventPåRecords(antall = 1)
-            .tilSoknader()
-            .first()
+        val soknad = sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = basisdato.plusDays(10),
+                    tom = basisdato.plusDays(20),
+                ),
+            ),
+        ).first()
 
         soknad.fom shouldBeEqualTo basisdato.plusDays(16)
         soknad.tom shouldBeEqualTo basisdato.plusDays(20)
@@ -262,33 +269,32 @@ class OverlapperEtter : BaseTestClass() {
     @Test
     @Order(20)
     fun `Brukeren har en ny søknad`() {
-        sendArbeidstakerSykmelding(
-            fom = basisdato.minusDays(15),
-            tom = basisdato.minusDays(1),
-            fnr = fnr
-        )
+        val soknad = sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = basisdato.minusDays(15),
+                    tom = basisdato.minusDays(1),
+                ),
+            ),
+        ).first()
 
-        sykepengesoknadKafkaConsumer
-            .ventPåRecords(antall = 1)
-            .tilSoknader()
-            .first()
-            .status shouldBeEqualTo SoknadsstatusDTO.NY
+        soknad.status shouldBeEqualTo SoknadsstatusDTO.NY
     }
 
     @Test
     @Order(21)
     fun `Overlappende sykmelding med forskjellig grad klippes ikke`() {
-        sendArbeidstakerSykmelding(
-            fom = basisdato.minusDays(10),
-            tom = basisdato.plusDays(5),
-            fnr = fnr,
-            gradert = GradertDTO(grad = 50, reisetilskudd = false),
-        )
-
-        val soknad = sykepengesoknadKafkaConsumer
-            .ventPåRecords(antall = 1)
-            .tilSoknader()
-            .first()
+        val soknad = sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = gradertSykmeldt(
+                    fom = basisdato.minusDays(10),
+                    tom = basisdato.plusDays(5),
+                    grad = 50
+                ),
+            ),
+        ).first()
 
         soknad.fom shouldBeEqualTo basisdato.minusDays(10)
         soknad.tom shouldBeEqualTo basisdato.plusDays(5)
@@ -303,73 +309,54 @@ class OverlapperEtter : BaseTestClass() {
     @Test
     @Order(30)
     fun `Oppretter en ny søknad`() {
-        sendArbeidstakerSykmelding(
-            fom = basisdato.minusDays(20),
-            tom = basisdato.minusDays(1),
-            fnr = fnr,
-            gradert = GradertDTO(grad = 100, reisetilskudd = false)
-        )
+        val soknad = sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = gradertSykmeldt(
+                    fom = basisdato.minusDays(20),
+                    tom = basisdato.minusDays(1),
+                    grad = 100
+                ),
+            ),
+        ).first()
 
-        sykepengesoknadKafkaConsumer
-            .ventPåRecords(antall = 1)
-            .tilSoknader()
-            .first()
-            .status shouldBeEqualTo SoknadsstatusDTO.NY
+        soknad.status shouldBeEqualTo SoknadsstatusDTO.NY
     }
 
     @Test
     @Order(31)
     fun `Graden trenger bare være lik for de overlappende periodene`() {
+
         val fom = basisdato.minusDays(15)
         val tom = basisdato.plusDays(10)
 
-        val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(
-            fnr = fnr,
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-            statusEvent = STATUS_SENDT,
-            arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "Butikken")
-
-        )
-        val sykmelding = skapArbeidsgiverSykmelding(
-            sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId,
-            fom = fom,
-            tom = tom,
-        ).copy(
-            sykmeldingsperioder = listOf(
-                SykmeldingsperiodeAGDTO(
-                    fom = fom,
-                    tom = basisdato.minusDays(1),
-                    type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
-                    gradert = GradertDTO(grad = 100, reisetilskudd = false),
-                    reisetilskudd = false,
-                    aktivitetIkkeMulig = null,
-                    behandlingsdager = null,
-                    innspillTilArbeidsgiver = null,
+        val soknad = sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = listOf(
+                    SykmeldingsperiodeAGDTO(
+                        fom = fom,
+                        tom = basisdato.minusDays(1),
+                        type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+                        gradert = GradertDTO(grad = 100, reisetilskudd = false),
+                        reisetilskudd = false,
+                        aktivitetIkkeMulig = null,
+                        behandlingsdager = null,
+                        innspillTilArbeidsgiver = null,
+                    ),
+                    SykmeldingsperiodeAGDTO(
+                        fom = basisdato,
+                        tom = tom,
+                        type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+                        gradert = GradertDTO(grad = 60, reisetilskudd = false),
+                        reisetilskudd = false,
+                        aktivitetIkkeMulig = null,
+                        behandlingsdager = null,
+                        innspillTilArbeidsgiver = null,
+                    )
                 ),
-                SykmeldingsperiodeAGDTO(
-                    fom = basisdato,
-                    tom = tom,
-                    type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
-                    gradert = GradertDTO(grad = 60, reisetilskudd = false),
-                    reisetilskudd = false,
-                    aktivitetIkkeMulig = null,
-                    behandlingsdager = null,
-                    innspillTilArbeidsgiver = null,
-                )
-            )
-        )
-        val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
-            sykmelding = sykmelding,
-            event = sykmeldingStatusKafkaMessageDTO.event,
-            kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
-        )
-
-        sendSykmelding(sykmeldingKafkaMessage)
-
-        val soknad = sykepengesoknadKafkaConsumer
-            .ventPåRecords(antall = 1)
-            .tilSoknader()
-            .first()
+            ),
+        ).first()
 
         soknad.fom shouldBeEqualTo basisdato
         soknad.tom shouldBeEqualTo tom
@@ -384,15 +371,19 @@ class OverlapperEtter : BaseTestClass() {
     @Test
     @Order(40)
     fun `Bruker har 2 innsendte søknader som overlapper fullstendig`() {
-        sendArbeidstakerSykmelding(
-            fom = basisdato,
-            tom = basisdato.plusDays(15),
-            fnr = fnr
-        )
 
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = basisdato,
+                    tom = basisdato.plusDays(15)
+                ),
+            ),
+        )
         aktiveringJob.bestillAktivering(basisdato.plusDays(16))
 
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
 
         val rsSoknader = hentSoknaderMetadata(fnr).shouldHaveSize(1)
         val rsSoknad = hentSoknad(
@@ -438,16 +429,16 @@ class OverlapperEtter : BaseTestClass() {
     @Test
     @Order(41)
     fun `Sykmelding overlapper med tom på de to identiske søknadene`() {
-        sendArbeidstakerSykmelding(
-            fom = basisdato.plusDays(15),
-            tom = basisdato.plusDays(20),
-            fnr = fnr
-        )
 
-        val soknad = sykepengesoknadKafkaConsumer
-            .ventPåRecords(antall = 1)
-            .tilSoknader()
-            .first()
+        val soknad = sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = basisdato.plusDays(15),
+                    tom = basisdato.plusDays(20),
+                ),
+            ),
+        ).first()
 
         soknad.fom shouldBeEqualTo basisdato.plusDays(16)
         soknad.tom shouldBeEqualTo basisdato.plusDays(20)
@@ -462,36 +453,26 @@ class OverlapperEtter : BaseTestClass() {
     @Test
     @Order(50)
     fun `Ny behandlingsdager sykmelding klippes ikke`() {
-        sendArbeidstakerSykmelding(
-            fom = basisdato.minusDays(15),
-            tom = basisdato.minusDays(5),
-            fnr = fnr
-        )
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
-
-        val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(
-            fnr = fnr,
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-            statusEvent = STATUS_SENDT,
-            arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "Butikken")
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = basisdato.minusDays(15),
+                    tom = basisdato.minusDays(5),
+                ),
+            ),
         )
 
-        val sykmelding = skapArbeidsgiverSykmelding(
-            fom = basisdato.minusDays(10),
-            tom = basisdato.minusDays(1),
-            type = PeriodetypeDTO.BEHANDLINGSDAGER,
-            behandlingsdager = 2,
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = behandingsdager(
+                    fom = basisdato.minusDays(10),
+                    tom = basisdato.minusDays(1),
+                    behandlingsdager = 2,
+                ),
+            ),
         )
-
-        val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
-            sykmelding = sykmelding,
-            event = sykmeldingStatusKafkaMessageDTO.event,
-            kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
-        )
-
-        sendSykmelding(sykmeldingKafkaMessage)
-
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
 
         val soknader = sykepengesoknadDAO.finnSykepengesoknader(listOf(fnr))
 
@@ -511,35 +492,27 @@ class OverlapperEtter : BaseTestClass() {
     @Test
     @Order(60)
     fun `Fremtidig behandlingsdager sykmelding klipper eksisterende søknader`() {
-        sendArbeidstakerSykmelding(
-            fom = basisdato,
-            tom = basisdato.plusDays(10),
-            fnr = fnr
+
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = basisdato,
+                    tom = basisdato.plusDays(10),
+                ),
+            ),
         )
 
-        val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(
-            fnr = fnr,
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-            statusEvent = STATUS_SENDT,
-            arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "Butikken")
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = behandingsdager(
+                    fom = basisdato.plusDays(5),
+                    tom = basisdato.plusDays(15),
+                    behandlingsdager = 2,
+                ),
+            ),
         )
-
-        val sykmelding = skapArbeidsgiverSykmelding(
-            fom = basisdato.plusDays(5),
-            tom = basisdato.plusDays(15),
-            type = PeriodetypeDTO.BEHANDLINGSDAGER,
-            behandlingsdager = 2,
-        )
-
-        val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
-            sykmelding = sykmelding,
-            event = sykmeldingStatusKafkaMessageDTO.event,
-            kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
-        )
-
-        sendSykmelding(sykmeldingKafkaMessage)
-
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
 
         val soknader = sykepengesoknadDAO.finnSykepengesoknader(listOf(fnr))
 
@@ -559,35 +532,24 @@ class OverlapperEtter : BaseTestClass() {
     @Test
     @Order(70)
     fun `Ny reisetilskudd sykmelding klippes ikke`() {
-        sendArbeidstakerSykmelding(
-            fom = basisdato.minusDays(15),
-            tom = basisdato.minusDays(5),
-            fnr = fnr
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = basisdato.minusDays(15),
+                    tom = basisdato.minusDays(5),
+                ),
+            ),
         )
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
-        val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(
-            fnr = fnr,
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-            statusEvent = STATUS_SENDT,
-            arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "Butikken")
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = reisetilskudd(
+                    fom = basisdato.minusDays(10),
+                    tom = basisdato.minusDays(1),
+                ),
+            ),
         )
-
-        val sykmelding = skapArbeidsgiverSykmelding(
-            fom = basisdato.minusDays(10),
-            tom = basisdato.minusDays(1),
-            type = PeriodetypeDTO.REISETILSKUDD,
-            reisetilskudd = true,
-        )
-
-        val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
-            sykmelding = sykmelding,
-            event = sykmeldingStatusKafkaMessageDTO.event,
-            kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
-        )
-
-        sendSykmelding(sykmeldingKafkaMessage)
-
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
 
         val soknader = sykepengesoknadDAO.finnSykepengesoknader(listOf(fnr))
 
@@ -607,35 +569,24 @@ class OverlapperEtter : BaseTestClass() {
     @Test
     @Order(80)
     fun `Fremtidig reisetiskudd sykmelding klipper eksisterende søknader`() {
-        sendArbeidstakerSykmelding(
-            fom = basisdato,
-            tom = basisdato.plusDays(10),
-            fnr = fnr
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = basisdato,
+                    tom = basisdato.plusDays(10),
+                ),
+            ),
         )
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
-        val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(
-            fnr = fnr,
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-            statusEvent = STATUS_SENDT,
-            arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "Butikken")
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = reisetilskudd(
+                    fom = basisdato.plusDays(5),
+                    tom = basisdato.plusDays(15),
+                ),
+            ),
         )
-
-        val sykmelding = skapArbeidsgiverSykmelding(
-            fom = basisdato.plusDays(5),
-            tom = basisdato.plusDays(15),
-            type = PeriodetypeDTO.REISETILSKUDD,
-            reisetilskudd = true,
-        )
-
-        val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
-            sykmelding = sykmelding,
-            event = sykmeldingStatusKafkaMessageDTO.event,
-            kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
-        )
-
-        sendSykmelding(sykmeldingKafkaMessage)
-
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
 
         val soknader = sykepengesoknadDAO.finnSykepengesoknader(listOf(fnr))
 
