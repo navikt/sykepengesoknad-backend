@@ -10,14 +10,12 @@ import no.nav.helse.flex.util.tilOsloInstant
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.time.Instant
-
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 import java.util.Collections.emptyList
 
 class TidligsteFomForSykmeldingTest {
-
 
     @Test
     fun `test at vi finner den eldste fom i en sykmelding`() {

@@ -15,7 +15,6 @@ import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.util.*
 
-@Deprecated("bruk ny")
 fun skapArbeidsgiverSykmelding(
     sykmeldingId: String = UUID.randomUUID().toString(),
     fom: LocalDate = LocalDate.of(2020, 2, 1),
