@@ -40,9 +40,10 @@ fun BaseTestClass.sendSykmelding(
         sykmeldingKafkaMessage
     )
 
-    flexSyketilfelleMockRestServiceServer?.reset()
+    val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = forventaSoknader).tilSoknader()
 
-    return sykepengesoknadKafkaConsumer.ventPåRecords(antall = forventaSoknader).tilSoknader()
+    flexSyketilfelleMockRestServiceServer?.reset()
+    return soknader
 }
 
 fun BaseTestClass.tombstoneSykmelding(
