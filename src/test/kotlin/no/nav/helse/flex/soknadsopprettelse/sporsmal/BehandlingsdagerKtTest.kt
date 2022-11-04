@@ -1,11 +1,11 @@
 package no.nav.helse.flex.soknadsopprettelse.sporsmal
 
 import no.nav.helse.flex.domain.Arbeidssituasjon
+import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svartype
-import no.nav.helse.flex.domain.rest.SoknadMetadata
-import no.nav.helse.flex.domain.rest.tilSykepengesoknad
+import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.soknadsopprettelse.tilSoknadsperioder
 import no.nav.helse.flex.util.tilOsloInstant
 import no.nav.syfo.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO
@@ -17,12 +17,14 @@ import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.util.*
 
 class BehandlingsdagerKtTest {
 
-    val testSoknad = SoknadMetadata(
+    val testSoknad = Sykepengesoknad(
         fnr = "fnr-7454630",
         startSykeforlop = LocalDate.of(2019, 12, 5).minusMonths(1),
         fom = LocalDate.of(2019, 12, 5).minusMonths(1),
@@ -33,7 +35,7 @@ class BehandlingsdagerKtTest {
         arbeidsgiverNavn = "ARBEIDSGIVER A/S",
         sykmeldingId = "sykmeldingId",
         sykmeldingSkrevet = LocalDateTime.now().minusMonths(1).tilOsloInstant(),
-        sykmeldingsperioder = listOf(
+        soknadPerioder = listOf(
             SykmeldingsperiodeAGDTO(
                 LocalDate.of(2019, 12, 5).minusMonths(1),
                 LocalDate.of(2019, 12, 5).minusMonths(1).plusDays(4),
@@ -45,8 +47,12 @@ class BehandlingsdagerKtTest {
                 reisetilskudd = false,
             ),
         ).tilSoknadsperioder(),
-        egenmeldtSykmelding = null
-    ).tilSykepengesoknad()
+        egenmeldtSykmelding = null,
+        id = UUID.randomUUID().toString(),
+        status = Soknadstatus.NY,
+        opprettet = Instant.now(),
+        sporsmal = emptyList()
+    )
 
     @Test
     fun `oppretter spørsmål`() {

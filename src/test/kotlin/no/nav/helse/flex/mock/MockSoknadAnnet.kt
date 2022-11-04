@@ -1,10 +1,9 @@
 package no.nav.helse.flex.mock
 
 import no.nav.helse.flex.domain.Arbeidssituasjon
+import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.domain.rest.SoknadMetadata
-import no.nav.helse.flex.domain.rest.tilSykepengesoknad
 import no.nav.helse.flex.soknadsopprettelse.settOppSoknadAnnetArbeidsforhold
 import no.nav.helse.flex.soknadsopprettelse.tilSoknadsperioder
 import no.nav.helse.flex.util.tilOsloInstant
@@ -12,11 +11,13 @@ import no.nav.syfo.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.GradertDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
+import java.time.Instant
 import java.time.LocalDate.now
 import java.time.LocalDateTime
+import java.util.*
 
 fun opprettNySoknadAnnet(): Sykepengesoknad {
-    val soknadMetadata = SoknadMetadata(
+    val soknadMetadata = Sykepengesoknad(
         fnr = "fnr",
         startSykeforlop = now().minusDays(24),
         fom = now().minusDays(19),
@@ -27,7 +28,7 @@ fun opprettNySoknadAnnet(): Sykepengesoknad {
         arbeidsgiverOrgnummer = null,
         sykmeldingId = "289148ba-4c3c-4b3f-b7a3-209jf32f",
         sykmeldingSkrevet = LocalDateTime.now().minusDays(19).tilOsloInstant(),
-        sykmeldingsperioder = listOf(
+        soknadPerioder = listOf(
             SykmeldingsperiodeAGDTO(
                 fom = now().minusDays(19),
                 tom = now().minusDays(10),
@@ -39,8 +40,11 @@ fun opprettNySoknadAnnet(): Sykepengesoknad {
                 reisetilskudd = false,
             )
         ).tilSoknadsperioder(),
-
-    ).tilSykepengesoknad()
+        id = UUID.randomUUID().toString(),
+        status = Soknadstatus.NY,
+        opprettet = Instant.now(),
+        sporsmal = emptyList()
+    )
 
     return soknadMetadata.copy(sporsmal = settOppSoknadAnnetArbeidsforhold(soknadMetadata, false))
 }

@@ -11,12 +11,14 @@ import no.nav.helse.flex.hentProduserteRecords
 import no.nav.helse.flex.overlappendesykmeldinger.OverlapperMedFlere.OverlappTester.*
 import no.nav.helse.flex.repository.SoknadLagrer
 import no.nav.helse.flex.repository.SykepengesoknadDAO
+import no.nav.helse.flex.sendSykmelding
+import no.nav.helse.flex.testdata.heltSykmeldt
+import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
 import java.util.*
@@ -52,6 +54,7 @@ class OverlapperMedFlere : BaseTestClass() {
     @Test
     fun `Overlapper i midten av en lang rekke med fremtidige søknader`() {
         overlappTester.testKlipp(
+            forventaSoknadPaKafka = 4,
             eksisterendeSoknader = listOf(
                 Soknad(
                     soknadPerioder = listOf(
@@ -147,6 +150,7 @@ class OverlapperMedFlere : BaseTestClass() {
     @Test
     fun `Overlapper i midten av en lang rekke med nye søknader`() {
         overlappTester.testKlipp(
+            forventaSoknadPaKafka = 2,
             eksisterendeSoknader = listOf(
                 Soknad(
                     soknadPerioder = listOf(
@@ -231,6 +235,7 @@ class OverlapperMedFlere : BaseTestClass() {
     @Test
     fun `Overlapper i midten av en lang rekke fremtidige soknader med gap i midten`() {
         overlappTester.testKlipp(
+            forventaSoknadPaKafka = 5,
             eksisterendeSoknader = listOf(
                 Soknad(
                     soknadPerioder = listOf(
@@ -350,21 +355,23 @@ class OverlapperMedFlere : BaseTestClass() {
             overlappendeSoknad: Soknad,
             dagensDato: LocalDate,
             forventetResultat: List<Soknad>,
+            forventaSoknadPaKafka: Int,
         ) {
             eksisterendeSoknader.forEach { lagreEksisterendeSoknad(it) }
 
             riktigStatusUtIfraDagensDato(dagensDato)
 
-            baseTestClass.sendArbeidstakerSykmelding(
-                fom = overlappendeSoknad.soknadPerioder.minOf { it.fom },
-                tom = overlappendeSoknad.soknadPerioder.maxOf { it.tom },
-                fnr = "fnr",
-                sykmeldingId = overlappendeSoknad.traceId,
+            baseTestClass.sendSykmelding(
+                sykmeldingKafkaMessage(
+                    fnr = "fnr",
+                    sykmeldingId = overlappendeSoknad.traceId,
+                    sykmeldingsperioder = heltSykmeldt(
+                        fom = overlappendeSoknad.soknadPerioder.minOf { it.fom },
+                        tom = overlappendeSoknad.soknadPerioder.maxOf { it.tom },
+                    ),
+                ),
+                forventaSoknader = forventaSoknadPaKafka,
             )
-
-            do {
-                val cr = baseTestClass.sykepengesoknadKafkaConsumer.hentProduserteRecords(Duration.ofSeconds(1))
-            } while (cr.isNotEmpty())
 
             riktigStatusUtIfraDagensDato(dagensDato)
 

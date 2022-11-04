@@ -2,8 +2,9 @@ package no.nav.helse.flex.overlappendesykmeldinger
 
 import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.hentSoknaderMetadata
-import no.nav.helse.flex.tilSoknader
-import no.nav.helse.flex.ventPåRecords
+import no.nav.helse.flex.sendSykmelding
+import no.nav.helse.flex.testdata.heltSykmeldt
+import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.MethodOrderer
@@ -19,18 +20,25 @@ class OverlapperFor : BaseTestClass() {
     @Test
     fun `Fremtidig arbeidstakersøknad starter før og slutter inni, klippes`() {
         val fnr = "33333333333"
-        sendArbeidstakerSykmelding(
-            fom = basisdato.plusDays(5),
-            tom = basisdato.plusDays(10),
-            fnr = fnr
-        )
-        sendArbeidstakerSykmelding(
-            fom = basisdato,
-            tom = basisdato.plusDays(7),
-            fnr = fnr
-        )
 
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = basisdato.plusDays(5),
+                    tom = basisdato.plusDays(10),
+                ),
+            ),
+        )
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = basisdato,
+                    tom = basisdato.plusDays(7),
+                ),
+            ),
+        )
 
         val hentetViaRest = hentSoknaderMetadata(fnr)
         hentetViaRest shouldHaveSize 2
@@ -47,18 +55,24 @@ class OverlapperFor : BaseTestClass() {
     @Test
     fun `Fremtidig arbeidstakersøknad starter samtidig og slutter inni, klippes`() {
         val fnr = "44444444444"
-        sendArbeidstakerSykmelding(
-            fom = basisdato,
-            tom = basisdato.plusDays(10),
-            fnr = fnr
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = basisdato,
+                    tom = basisdato.plusDays(10),
+                ),
+            ),
         )
-        sendArbeidstakerSykmelding(
-            fom = basisdato,
-            tom = basisdato.plusDays(7),
-            fnr = fnr
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = basisdato,
+                    tom = basisdato.plusDays(7),
+                ),
+            ),
         )
-
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
 
         val hentetViaRest = hentSoknaderMetadata(fnr)
         hentetViaRest shouldHaveSize 2
@@ -81,25 +95,24 @@ class OverlapperFor : BaseTestClass() {
     @Test
     fun `Ny arbeidstakersøknad starter samtidig og slutter inni, klipper sykmelding`() {
         val fnr = "66666666666"
-
-        sendArbeidstakerSykmelding(
-            fom = basisdato.minusDays(5),
-            tom = basisdato.minusDays(1),
-            fnr = fnr
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = basisdato.minusDays(5),
+                    tom = basisdato.minusDays(1),
+                ),
+            ),
         )
-
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
-
-        sendArbeidstakerSykmelding(
-            fom = basisdato.minusDays(10),
-            tom = basisdato.minusDays(2),
-            fnr = fnr
-        )
-
-        val soknad = sykepengesoknadKafkaConsumer
-            .ventPåRecords(antall = 1)
-            .tilSoknader()
-            .first()
+        val soknad = sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = basisdato.minusDays(10),
+                    tom = basisdato.minusDays(2),
+                ),
+            ),
+        ).first()
 
         soknad.fom shouldBeEqualTo basisdato.minusDays(10)
         soknad.tom shouldBeEqualTo basisdato.minusDays(6)

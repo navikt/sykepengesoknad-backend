@@ -5,8 +5,6 @@ import no.nav.helse.flex.domain.Arbeidssituasjon.NAERINGSDRIVENDE
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.domain.rest.SoknadMetadata
-import no.nav.helse.flex.domain.rest.tilSykepengesoknad
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.testutil.besvarsporsmal
@@ -20,6 +18,7 @@ import org.springframework.stereotype.Component
 import java.time.Instant
 import java.time.LocalDate.of
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
+import java.util.*
 
 @Component
 class MockSoknadSelvstendigeOgFrilansere(private val sykepengesoknadDAO: SykepengesoknadDAO?) {
@@ -30,7 +29,11 @@ class MockSoknadSelvstendigeOgFrilansere(private val sykepengesoknadDAO: Sykepen
 }
 
 fun opprettNyNaeringsdrivendeSoknad(): Sykepengesoknad {
-    val soknadMetadata = SoknadMetadata(
+    val soknadMetadata = Sykepengesoknad(
+        id = UUID.randomUUID().toString(),
+        status = Soknadstatus.NY,
+        opprettet = Instant.now(),
+        sporsmal = emptyList(),
         fnr = "fnr-7454630",
         startSykeforlop = of(2018, 6, 1),
         fom = of(2018, 6, 1),
@@ -38,7 +41,7 @@ fun opprettNyNaeringsdrivendeSoknad(): Sykepengesoknad {
         arbeidssituasjon = NAERINGSDRIVENDE, arbeidsgiverOrgnummer = null, arbeidsgiverNavn = null,
         sykmeldingId = "289148ba-4c3c-4b3f-b7a3-385b7e7c927d",
         sykmeldingSkrevet = of(2018, 6, 1).atStartOfDay().tilOsloInstant(),
-        sykmeldingsperioder = listOf(
+        soknadPerioder = listOf(
             SykmeldingsperiodeAGDTO(
                 fom = of(2018, 6, 1),
                 tom = of(2018, 6, 5),
@@ -65,14 +68,18 @@ fun opprettNyNaeringsdrivendeSoknad(): Sykepengesoknad {
 
     )
 
-    return (soknadMetadata.tilSykepengesoknad()).copy(
-        sporsmal = settOppSoknadSelvstendigOgFrilanser(soknadMetadata.tilSykepengesoknad(), false),
+    return (soknadMetadata).copy(
+        sporsmal = settOppSoknadSelvstendigOgFrilanser(soknadMetadata, false),
         status = Soknadstatus.NY,
     ).leggSvarPaSoknad()
 }
 
 fun opprettSendtFrilanserSoknad(): Sykepengesoknad {
-    val soknadMetadata = SoknadMetadata(
+    val soknadMetadata = Sykepengesoknad(
+        id = UUID.randomUUID().toString(),
+        status = Soknadstatus.NY,
+        opprettet = Instant.now(),
+        sporsmal = emptyList(),
         fnr = "fnr-7454630",
         startSykeforlop = of(2018, 5, 20),
         fom = of(2018, 5, 20),
@@ -80,7 +87,7 @@ fun opprettSendtFrilanserSoknad(): Sykepengesoknad {
         arbeidssituasjon = FRILANSER, arbeidsgiverOrgnummer = null, arbeidsgiverNavn = null,
         sykmeldingId = "14e78e84-50a5-45bb-9919-191c54f99691",
         sykmeldingSkrevet = of(2018, 5, 20).atStartOfDay().tilOsloInstant(),
-        sykmeldingsperioder = listOf(
+        soknadPerioder = listOf(
             SykmeldingsperiodeAGDTO(
                 fom = of(2018, 5, 20),
                 tom = of(2018, 5, 24),
@@ -106,8 +113,8 @@ fun opprettSendtFrilanserSoknad(): Sykepengesoknad {
         egenmeldtSykmelding = null
 
     )
-    return (soknadMetadata.tilSykepengesoknad()).copy(
-        sporsmal = settOppSoknadSelvstendigOgFrilanser(soknadMetadata.tilSykepengesoknad(), false),
+    return (soknadMetadata).copy(
+        sporsmal = settOppSoknadSelvstendigOgFrilanser(soknadMetadata, false),
         status = Soknadstatus.SENDT,
         sendtNav = Instant.now(),
     ).leggSvarPaSoknad()
