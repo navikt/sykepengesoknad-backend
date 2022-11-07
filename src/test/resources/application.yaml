@@ -115,9 +115,8 @@ nais:
     image: "sykepengesoknad-backend-test-12432536"
 
 elector.path: dont_look_for_leader
-julesoknad.cron: "0 6 * * * *"
 
 aiven-kafka:
-  auto-offset-reset: latest
+  auto-offset-reset: earliest
 
 SKRIVEMODUS: READWRITE
