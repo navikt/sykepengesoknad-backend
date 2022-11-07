@@ -35,11 +35,6 @@ fun BaseTestClass.sendSykmelding(
         )
     )
 
-    behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
-        sykmeldingKafkaMessage.sykmelding.id,
-        sykmeldingKafkaMessage
-    )
-
     val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = forventaSoknader).tilSoknader()
 
     flexSyketilfelleMockRestServiceServer?.reset()

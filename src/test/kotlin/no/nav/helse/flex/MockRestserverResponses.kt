@@ -50,7 +50,7 @@ fun BaseTestClass.mockFlexSyketilfelleSykeforloep(sykmeldingId: String, oppfolgi
 
 fun BaseTestClass.mockFlexSyketilfelleSykeforloep(sykeforloep: List<Sykeforloep>) {
     flexSyketilfelleMockRestServiceServer!!
-        .expect(manyTimes(),requestTo("http://flex-syketilfelle/api/v1/sykeforloep?hentAndreIdenter=false"))
+        .expect(manyTimes(), requestTo("http://flex-syketilfelle/api/v1/sykeforloep?hentAndreIdenter=false"))
         .andExpect(method(HttpMethod.GET))
         .andRespond(
             withSuccess(
