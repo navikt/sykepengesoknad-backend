@@ -1,41 +1,13 @@
 package no.nav.helse.flex.soknadsopprettelse
 
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.domain.rest.SoknadMetadata
-import java.time.Instant
 import java.time.LocalDate
-
-fun genererSykepengesoknadFraMetadata(
-    soknadMetadata: SoknadMetadata,
-): Sykepengesoknad {
-
-    return Sykepengesoknad(
-        soknadstype = soknadMetadata.soknadstype,
-        id = soknadMetadata.id,
-        fnr = soknadMetadata.fnr,
-        sykmeldingId = soknadMetadata.sykmeldingId,
-        status = Soknadstatus.FREMTIDIG,
-        fom = soknadMetadata.fom,
-        tom = soknadMetadata.tom,
-        opprettet = Instant.now(),
-        startSykeforlop = soknadMetadata.startSykeforlop,
-        sykmeldingSkrevet = soknadMetadata.sykmeldingSkrevet,
-        arbeidsgiverOrgnummer = soknadMetadata.arbeidsgiverOrgnummer,
-        arbeidsgiverNavn = soknadMetadata.arbeidsgiverNavn,
-        soknadPerioder = soknadMetadata.sykmeldingsperioder,
-        sporsmal = emptyList(),
-        arbeidssituasjon = soknadMetadata.arbeidssituasjon,
-        egenmeldtSykmelding = soknadMetadata.egenmeldtSykmelding,
-        merknaderFraSykmelding = soknadMetadata.merknader,
-    )
-}
 
 fun erForsteSoknadTilArbeidsgiverIForlop(
     eksisterendeSoknader: List<Sykepengesoknad>,
-    soknadMetadata: SoknadMetadata
+    soknadMetadata: Sykepengesoknad
 ): Boolean {
     return eksisterendeSoknader
         .asSequence()
@@ -60,7 +32,7 @@ fun erForsteSoknadTilArbeidsgiverIForlop(
 }
 
 fun hentTidligsteFomForSykmelding(
-    soknadMetadata: SoknadMetadata,
+    soknadMetadata: Sykepengesoknad,
     eksisterendeSoknader: List<Sykepengesoknad>
 ): LocalDate {
 
@@ -68,6 +40,6 @@ fun hentTidligsteFomForSykmelding(
         .filter { it.sykmeldingId == soknadMetadata.sykmeldingId }
         .map { it.fom!! }
         .toMutableList()
-        .also { it.add(soknadMetadata.fom) }
+        .also { it.add(soknadMetadata.fom!!) }
         .minOrNull()!!
 }

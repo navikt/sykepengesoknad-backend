@@ -13,7 +13,7 @@ import no.nav.helse.flex.kafka.consumer.RebehandlingSykmeldingSendt
 import no.nav.helse.flex.mockFlexSyketilfelleErUtaforVentetid
 import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
 import no.nav.helse.flex.repository.SykepengesoknadDAO
-import no.nav.helse.flex.testdata.getSykmeldingDto
+import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.helse.flex.util.serialisertTilString
 import no.nav.helse.flex.ventPåRecords
@@ -118,7 +118,7 @@ class RebehandlingSoknadopprettelseTest : BaseTestClass() {
             arbeidssituasjon = arbeidssituasjon,
             arbeidsgiver = ArbeidsgiverStatusDTO("123", "456", "Jobb")
         )
-        val sykmelding = getSykmeldingDto(
+        val sykmelding = skapArbeidsgiverSykmelding(
             sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId,
         )
             .copy(

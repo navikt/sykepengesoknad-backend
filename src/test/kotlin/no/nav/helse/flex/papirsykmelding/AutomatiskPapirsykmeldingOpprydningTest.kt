@@ -9,7 +9,7 @@ import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
 import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO.*
-import no.nav.helse.flex.testdata.getSykmeldingDto
+import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
@@ -42,7 +42,7 @@ class AutomatiskPapirsykmeldingOpprydningTest : BaseTestClass() {
             arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "Kebabbiten")
         )
         val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
-        val sykmelding = getSykmeldingDto(
+        val sykmelding = skapArbeidsgiverSykmelding(
             sykmeldingId = sykmeldingId,
             fom = LocalDate.of(2020, 1, 1),
             tom = LocalDate.of(2020, 3, 15),
@@ -128,7 +128,7 @@ class AutomatiskPapirsykmeldingOpprydningTest : BaseTestClass() {
     fun `4 - vi mottar en korrigert sykmelding med litt lengre periode, sendt blir korreigert og søknadene opprettes på nytt`() {
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
-        val sykmelding = getSykmeldingDto(
+        val sykmelding = skapArbeidsgiverSykmelding(
             sykmeldingId = sykmeldingId,
             fom = LocalDate.of(2020, 1, 1),
             tom = LocalDate.of(2020, 4, 15),
@@ -164,7 +164,7 @@ class AutomatiskPapirsykmeldingOpprydningTest : BaseTestClass() {
     fun `5 - vi mottar den korrigerte sykmeldingen igjen, ingenting endres`() {
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
-        val sykmelding = getSykmeldingDto(
+        val sykmelding = skapArbeidsgiverSykmelding(
             sykmeldingId = sykmeldingId,
             fom = LocalDate.of(2020, 1, 1),
             tom = LocalDate.of(2020, 4, 15),
@@ -193,7 +193,7 @@ class AutomatiskPapirsykmeldingOpprydningTest : BaseTestClass() {
     fun `6 - sykmeldingen korrigeres igjen, men må med annen sykmeldingsgrad`() {
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
-        val sykmelding = getSykmeldingDto(
+        val sykmelding = skapArbeidsgiverSykmelding(
             sykmeldingId = sykmeldingId,
             fom = LocalDate.of(2020, 1, 1),
             tom = LocalDate.of(2020, 4, 15),

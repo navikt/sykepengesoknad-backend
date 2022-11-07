@@ -2,7 +2,9 @@ package no.nav.helse.flex.overlappendesykmeldinger
 
 import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.hentSoknaderMetadata
-import no.nav.helse.flex.ventPåRecords
+import no.nav.helse.flex.sendSykmelding
+import no.nav.helse.flex.testdata.heltSykmeldt
+import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.MethodOrderer
@@ -25,18 +27,24 @@ class OverlapperInni : BaseTestClass() {
     @Order(1)
     fun `Overlapper inni`() {
         val fnr = "44444444444"
-        sendArbeidstakerSykmelding(
-            fom = LocalDate.of(2025, 1, 6),
-            tom = LocalDate.of(2025, 1, 19),
-            fnr = fnr
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = LocalDate.of(2025, 1, 6),
+                    tom = LocalDate.of(2025, 1, 19),
+                ),
+            ),
         )
-        sendArbeidstakerSykmelding(
-            fom = LocalDate.of(2025, 1, 9),
-            tom = LocalDate.of(2025, 1, 12),
-            fnr = fnr
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = LocalDate.of(2025, 1, 9),
+                    tom = LocalDate.of(2025, 1, 12),
+                ),
+            ),
         )
-
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
 
         val hentetViaRest = hentSoknaderMetadata(fnr)
         hentetViaRest shouldHaveSize 2

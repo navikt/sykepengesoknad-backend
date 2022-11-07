@@ -6,7 +6,6 @@ import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.domain.rest.SoknadMetadata
 import no.nav.helse.flex.kafka.producer.SoknadProducer
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadDAO
@@ -15,7 +14,6 @@ import no.nav.helse.flex.service.IdentService
 import no.nav.helse.flex.soknadsopprettelse.AndreArbeidsforholdHenting
 import no.nav.helse.flex.soknadsopprettelse.erForsteSoknadTilArbeidsgiverIForlop
 import no.nav.helse.flex.soknadsopprettelse.hentTidligsteFomForSykmelding
-import no.nav.helse.flex.soknadsopprettelse.prettyOrgnavn
 import no.nav.helse.flex.soknadsopprettelse.settOppSoknadAnnetArbeidsforhold
 import no.nav.helse.flex.soknadsopprettelse.settOppSoknadArbeidsledig
 import no.nav.helse.flex.soknadsopprettelse.settOppSoknadArbeidstaker
@@ -75,7 +73,6 @@ class AktiverEnkeltSoknad(
 
     private fun lagSporsmalPaSoknad(id: String) {
         val soknad = sykepengesoknadDAO.finnSykepengesoknad(id)
-        val soknadMetadata = soknad.tilSoknadMetadata()
         val start = System.currentTimeMillis()
 
         val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(soknad.fnr)
@@ -84,76 +81,60 @@ class AktiverEnkeltSoknad(
 
         val andreSoknader = sykepengesoknadDAO.finnSykepengesoknader(identer).filterNot { it.id == soknad.id }
 
-        val sporsmal = genererSykepengesoknadSporsmal(soknadMetadata, andreSoknader)
+        val sporsmal = genererSykepengesoknadSporsmal(soknad, andreSoknader)
 
         sykepengesoknadDAO.byttUtSporsmal(soknad.copy(sporsmal = sporsmal))
     }
 
     fun genererSykepengesoknadSporsmal(
-        soknadMetadata: SoknadMetadata,
+        soknad: Sykepengesoknad,
         eksisterendeSoknader: List<Sykepengesoknad>,
     ): List<Sporsmal> {
 
-        val tidligsteFomForSykmelding = hentTidligsteFomForSykmelding(soknadMetadata, eksisterendeSoknader)
-        val erForsteSoknadISykeforlop = erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknadMetadata)
+        val tidligsteFomForSykmelding = hentTidligsteFomForSykmelding(soknad, eksisterendeSoknader)
+        val erForsteSoknadISykeforlop = erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad)
 
-        val erEnkeltstaendeBehandlingsdagSoknad = soknadMetadata.soknadstype == Soknadstype.BEHANDLINGSDAGER
+        val erEnkeltstaendeBehandlingsdagSoknad = soknad.soknadstype == Soknadstype.BEHANDLINGSDAGER
 
         if (erEnkeltstaendeBehandlingsdagSoknad) {
             return settOppSykepengesoknadBehandlingsdager(
-                soknadMetadata,
+                soknad,
                 erForsteSoknadISykeforlop,
                 tidligsteFomForSykmelding
             )
         }
 
-        val erReisetilskudd = soknadMetadata.soknadstype == Soknadstype.REISETILSKUDD
+        val erReisetilskudd = soknad.soknadstype == Soknadstype.REISETILSKUDD
         if (erReisetilskudd) {
             return skapReisetilskuddsoknad(
-                soknadMetadata
+                soknad
             )
         }
 
-        return when (soknadMetadata.arbeidssituasjon) {
+        return when (soknad.arbeidssituasjon) {
             Arbeidssituasjon.ARBEIDSTAKER -> {
                 settOppSoknadArbeidstaker(
-                    soknadMetadata = soknadMetadata,
+                    sykepengesoknad = soknad,
                     erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
                     tidligsteFomForSykmelding = tidligsteFomForSykmelding,
                     andreKjenteArbeidsforhold = andreArbeidsforholdHenting.hentArbeidsforhold(
-                        fnr = soknadMetadata.fnr,
-                        arbeidsgiverOrgnummer = soknadMetadata.arbeidsgiverOrgnummer!!,
-                        startSykeforlop = soknadMetadata.startSykeforlop
+                        fnr = soknad.fnr,
+                        arbeidsgiverOrgnummer = soknad.arbeidsgiverOrgnummer!!,
+                        startSykeforlop = soknad.startSykeforlop!!
                     )
                 )
             }
 
             Arbeidssituasjon.NAERINGSDRIVENDE, Arbeidssituasjon.FRILANSER -> settOppSoknadSelvstendigOgFrilanser(
-                soknadMetadata,
+                soknad,
                 erForsteSoknadISykeforlop
             )
 
-            Arbeidssituasjon.ARBEIDSLEDIG -> settOppSoknadArbeidsledig(soknadMetadata, erForsteSoknadISykeforlop)
-            Arbeidssituasjon.ANNET -> settOppSoknadAnnetArbeidsforhold(soknadMetadata, erForsteSoknadISykeforlop)
+            Arbeidssituasjon.ARBEIDSLEDIG -> settOppSoknadArbeidsledig(soknad, erForsteSoknadISykeforlop)
+            Arbeidssituasjon.ANNET -> settOppSoknadAnnetArbeidsforhold(soknad, erForsteSoknadISykeforlop)
+            else -> {
+                throw RuntimeException("Skal ikke ende her")
+            }
         }
     }
-}
-
-fun Sykepengesoknad.tilSoknadMetadata(): SoknadMetadata {
-    return SoknadMetadata(
-        id = this.id,
-        fnr = this.fnr,
-        startSykeforlop = this.startSykeforlop!!,
-        fom = this.fom!!,
-        tom = this.tom!!,
-        arbeidssituasjon = arbeidssituasjon!!,
-        arbeidsgiverOrgnummer = this.arbeidsgiverOrgnummer,
-        arbeidsgiverNavn = this.arbeidsgiverNavn?.prettyOrgnavn(),
-        sykmeldingId = this.sykmeldingId!!,
-        sykmeldingSkrevet = this.sykmeldingSkrevet!!,
-        sykmeldingsperioder = this.soknadPerioder!!,
-        egenmeldtSykmelding = this.egenmeldtSykmelding,
-        merknader = this.merknaderFraSykmelding,
-        soknadstype = this.soknadstype
-    )
 }

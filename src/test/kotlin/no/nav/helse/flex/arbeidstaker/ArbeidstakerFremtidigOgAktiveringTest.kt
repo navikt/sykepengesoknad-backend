@@ -4,20 +4,16 @@ import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.aktivering.AktiveringJob
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
-import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
-import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
+import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
-import no.nav.helse.flex.testdata.getSykmeldingDto
-import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
+import no.nav.helse.flex.testdata.heltSykmeldt
+import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.ventPåRecords
-import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
-import no.nav.syfo.model.sykmeldingstatus.STATUS_SENDT
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
@@ -38,38 +34,22 @@ class ArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
     @Test
     @Order(1)
     fun `Fremtidig arbeidstakersøknad opprettes for en sykmelding`() {
-        val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(
-            fnr = fnr,
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-            statusEvent = STATUS_SENDT,
-            arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "Kebabbiten")
 
+        val kafkaSoknader = sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = basisdato.minusDays(1),
+                    tom = basisdato.plusDays(15),
+                ),
+            )
         )
-        val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
-        val sykmelding = getSykmeldingDto(
-            sykmeldingId = sykmeldingId,
-            fom = basisdato.minusDays(1),
-            tom = basisdato.plusDays(15),
-        )
-
-        mockFlexSyketilfelleSykeforloep(sykmelding.id)
-
-        val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
-            sykmelding = sykmelding,
-            event = sykmeldingStatusKafkaMessageDTO.event,
-            kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
-        )
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
+        assertThat(kafkaSoknader[0].status).isEqualTo(SoknadsstatusDTO.FREMTIDIG)
 
         val hentetViaRest = hentSoknaderMetadata(fnr)
         assertThat(hentetViaRest).hasSize(1)
         assertThat(hentetViaRest[0].soknadstype).isEqualTo(RSSoknadstype.ARBEIDSTAKERE)
         assertThat(hentetViaRest[0].status).isEqualTo(RSSoknadstatus.FREMTIDIG)
-
-        val ventPåRecords = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
-        val kafkaSoknader = ventPåRecords.tilSoknader()
-
-        assertThat(kafkaSoknader[0].status).isEqualTo(SoknadsstatusDTO.FREMTIDIG)
     }
 
     @Test

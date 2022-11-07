@@ -4,7 +4,7 @@ import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.repository.RedusertVenteperiodeRepository
-import no.nav.helse.flex.testdata.getSykmeldingDto
+import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.helse.flex.util.serialisertTilString
 import no.nav.syfo.model.sykmeldingstatus.STATUS_BEKREFTET
@@ -70,7 +70,7 @@ class RedusertVenteperiodeConsumerTest : BaseTestClass() {
             statusEvent = STATUS_BEKREFTET,
         )
 
-        val sykmelding = getSykmeldingDto(
+        val sykmelding = skapArbeidsgiverSykmelding(
             sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId,
             fom = LocalDate.now(),
             tom = LocalDate.now(),

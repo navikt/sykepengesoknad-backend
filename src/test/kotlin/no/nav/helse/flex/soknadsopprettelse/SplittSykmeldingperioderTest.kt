@@ -1,6 +1,6 @@
 package no.nav.helse.flex.soknadsopprettelse
 
-import no.nav.helse.flex.testdata.getSykmeldingDto
+import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import org.assertj.core.api.Assertions.assertThat
@@ -12,7 +12,7 @@ class SplittSykmeldingperioderTest {
 
     @Test
     fun splitter33dagersSMtil16Og17() {
-        val sykmeldingDokument = getSykmeldingDto(
+        val sykmeldingDokument = skapArbeidsgiverSykmelding(
             fom = LocalDate.of(2017, 1, 1),
             tom = LocalDate.of(2017, 2, 2),
         )
@@ -28,7 +28,7 @@ class SplittSykmeldingperioderTest {
 
     @Test
     fun splitterIkkeSMunder32dager() {
-        val sykmeldingDokument = getSykmeldingDto(
+        val sykmeldingDokument = skapArbeidsgiverSykmelding(
             fom = LocalDate.of(2017, 1, 1),
             tom = LocalDate.of(2017, 1, 16),
         )
@@ -42,7 +42,7 @@ class SplittSykmeldingperioderTest {
 
     @Test
     fun splitter92dagersiTreSykmeldinger() {
-        val sykmeldingDokument = getSykmeldingDto().copy(
+        val sykmeldingDokument = skapArbeidsgiverSykmelding().copy(
             sykmeldingsperioder = listOf(
                 SykmeldingsperiodeAGDTO(
                     fom = LocalDate.of(2017, 1, 1),
@@ -82,7 +82,7 @@ class SplittSykmeldingperioderTest {
 
     @Test
     fun splitter100dagersSMiFireSykmeldinger() {
-        val sykmeldingDokument = getSykmeldingDto().copy(
+        val sykmeldingDokument = skapArbeidsgiverSykmelding().copy(
             sykmeldingsperioder = listOf(
                 SykmeldingsperiodeAGDTO(
                     fom = LocalDate.of(2017, 1, 1),
@@ -125,7 +125,7 @@ class SplittSykmeldingperioderTest {
 
     @Test
     fun splitter32dagersSMiTo16dagers() {
-        val sykmeldingDokument = getSykmeldingDto(
+        val sykmeldingDokument = skapArbeidsgiverSykmelding(
             fom = LocalDate.of(2017, 1, 1),
             tom = LocalDate.of(2017, 2, 1),
         )
@@ -143,7 +143,7 @@ class SplittSykmeldingperioderTest {
     @Test
     fun splitter33dagersSMtil16Og17EnkeltstaendeBehandling() {
 
-        val sykmeldingDokument = getSykmeldingDto().copy(
+        val sykmeldingDokument = skapArbeidsgiverSykmelding().copy(
             sykmeldingsperioder = listOf(
                 SykmeldingsperiodeAGDTO(
                     fom = LocalDate.of(2017, 1, 1),
@@ -170,7 +170,7 @@ class SplittSykmeldingperioderTest {
 
     @Test
     fun splitterIkkeSMunder32dagerEnkeltstaendeBehandling() {
-        val sykmeldingDokument = getSykmeldingDto().copy(
+        val sykmeldingDokument = skapArbeidsgiverSykmelding().copy(
             sykmeldingsperioder = listOf(
                 SykmeldingsperiodeAGDTO(
                     fom = LocalDate.of(2017, 1, 1),
@@ -194,7 +194,7 @@ class SplittSykmeldingperioderTest {
 
     @Test
     fun splitter61dagersiTreSykmeldingerEnkeltstaendeBehandling() {
-        val sykmeldingDokument = getSykmeldingDto().copy(
+        val sykmeldingDokument = skapArbeidsgiverSykmelding().copy(
             sykmeldingsperioder = listOf(
                 SykmeldingsperiodeAGDTO(
                     fom = LocalDate.of(2017, 1, 1),
@@ -239,7 +239,7 @@ class SplittSykmeldingperioderTest {
 
     @Test
     fun splitter100dagersSMiFireSykmeldingerEnkeltstaendeBehandling() {
-        val sykmeldingDokument = getSykmeldingDto().copy(
+        val sykmeldingDokument = skapArbeidsgiverSykmelding().copy(
             sykmeldingsperioder = listOf(
                 SykmeldingsperiodeAGDTO(
                     fom = LocalDate.of(2017, 1, 1),
@@ -291,7 +291,7 @@ class SplittSykmeldingperioderTest {
 
     @Test
     fun splitter32dagersSMiTo16dagersEnkeltstaendeBehandling() {
-        val sykmeldingDokument = getSykmeldingDto().copy(
+        val sykmeldingDokument = skapArbeidsgiverSykmelding().copy(
             sykmeldingsperioder = listOf(
                 SykmeldingsperiodeAGDTO(
                     fom = LocalDate.of(2017, 1, 1),
@@ -322,7 +322,7 @@ class SplittSykmeldingperioderTest {
 
     @Test
     fun splitterIkkeSlikAtSisteSoknadBlirKortereEnnEnUkeEnkeltstaendeBehandling() {
-        val sykmeldingDokument = getSykmeldingDto().copy(
+        val sykmeldingDokument = skapArbeidsgiverSykmelding().copy(
             sykmeldingsperioder = listOf(
                 SykmeldingsperiodeAGDTO(
                     fom = LocalDate.of(2019, 11, 1),

@@ -1,10 +1,9 @@
 package no.nav.helse.flex.mock
 
 import no.nav.helse.flex.domain.Arbeidssituasjon
+import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.domain.rest.SoknadMetadata
-import no.nav.helse.flex.soknadsopprettelse.genererSykepengesoknadFraMetadata
 import no.nav.helse.flex.soknadsopprettelse.settOppSykepengesoknadBehandlingsdager
 import no.nav.helse.flex.soknadsopprettelse.tilSoknadsperioder
 import no.nav.helse.flex.util.tilOsloInstant
@@ -16,6 +15,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDate.now
 import java.time.LocalDateTime
+import java.util.*
 
 fun opprettBehandlingsdagsoknadTestadata(
     startSykeforlop: LocalDate = now().minusMonths(1),
@@ -41,7 +41,7 @@ fun opprettBehandlingsdagsoknadTestadata(
 
 ): Sykepengesoknad {
 
-    val soknadMetadata = SoknadMetadata(
+    val soknadMetadata = Sykepengesoknad(
         fnr = fnr,
         startSykeforlop = startSykeforlop,
         fom = fom,
@@ -50,9 +50,13 @@ fun opprettBehandlingsdagsoknadTestadata(
         arbeidssituasjon = arbeidssituasjon,
         sykmeldingId = sykmeldingId,
         sykmeldingSkrevet = sykmeldingSkrevet,
-        sykmeldingsperioder = soknadsperioder.tilSoknadsperioder()
+        soknadPerioder = soknadsperioder.tilSoknadsperioder(),
+        id = UUID.randomUUID().toString(),
+        status = Soknadstatus.NY,
+        opprettet = Instant.now(),
+        sporsmal = emptyList(),
     )
-    return genererSykepengesoknadFraMetadata(soknadMetadata).copy(
+    return soknadMetadata.copy(
         sporsmal = settOppSykepengesoknadBehandlingsdager(
             soknadMetadata,
             forsteSoknadIForlop,

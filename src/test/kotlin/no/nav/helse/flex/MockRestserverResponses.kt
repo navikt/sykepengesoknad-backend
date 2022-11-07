@@ -7,6 +7,7 @@ import no.nav.helse.flex.domain.Sykeforloep
 import no.nav.helse.flex.util.OBJECT_MAPPER
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
+import org.springframework.test.web.client.ExpectedCount.manyTimes
 import org.springframework.test.web.client.match.MockRestRequestMatchers.header
 import org.springframework.test.web.client.match.MockRestRequestMatchers.method
 import org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo
@@ -49,7 +50,7 @@ fun BaseTestClass.mockFlexSyketilfelleSykeforloep(sykmeldingId: String, oppfolgi
 
 fun BaseTestClass.mockFlexSyketilfelleSykeforloep(sykeforloep: List<Sykeforloep>) {
     flexSyketilfelleMockRestServiceServer!!
-        .expect(requestTo("http://flex-syketilfelle/api/v1/sykeforloep?hentAndreIdenter=false"))
+        .expect(manyTimes(), requestTo("http://flex-syketilfelle/api/v1/sykeforloep?hentAndreIdenter=false"))
         .andExpect(method(HttpMethod.GET))
         .andRespond(
             withSuccess(

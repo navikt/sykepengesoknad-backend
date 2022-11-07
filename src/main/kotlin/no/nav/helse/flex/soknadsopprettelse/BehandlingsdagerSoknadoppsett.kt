@@ -6,7 +6,7 @@ import no.nav.helse.flex.domain.Arbeidssituasjon.ARBEIDSTAKER
 import no.nav.helse.flex.domain.Arbeidssituasjon.FRILANSER
 import no.nav.helse.flex.domain.Arbeidssituasjon.NAERINGSDRIVENDE
 import no.nav.helse.flex.domain.Sporsmal
-import no.nav.helse.flex.domain.rest.SoknadMetadata
+import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderArbeidsledig
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderArbeidstaker
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderSelvstendigOgFrilanser
@@ -30,13 +30,14 @@ fun Sporsmal.plasseringSporsmalBehandlingsdager(): Int {
     }
 }
 
-fun andreInntekstkilder(soknadMetadata: SoknadMetadata): Sporsmal {
+fun andreInntekstkilder(soknadMetadata: Sykepengesoknad): Sporsmal {
     return when (soknadMetadata.arbeidssituasjon) {
         NAERINGSDRIVENDE -> andreInntektskilderSelvstendigOgFrilanser(soknadMetadata.arbeidssituasjon)
         FRILANSER -> andreInntektskilderSelvstendigOgFrilanser(soknadMetadata.arbeidssituasjon)
         ARBEIDSTAKER -> andreInntektskilderArbeidstaker(soknadMetadata.arbeidsgiverNavn)
-        ARBEIDSLEDIG -> andreInntektskilderArbeidsledig(soknadMetadata.fom, soknadMetadata.tom)
-        ANNET -> andreInntektskilderArbeidsledig(soknadMetadata.fom, soknadMetadata.tom)
+        ARBEIDSLEDIG -> andreInntektskilderArbeidsledig(soknadMetadata.fom!!, soknadMetadata.tom!!)
+        ANNET -> andreInntektskilderArbeidsledig(soknadMetadata.fom!!, soknadMetadata.tom!!)
+        null -> throw RuntimeException("Skal ikke skje")
     }
 }
 
@@ -47,7 +48,7 @@ private fun Sporsmal.plasseringAvSporsmalSomKanRepeteresFlereGanger(): Int {
 }
 
 fun settOppSykepengesoknadBehandlingsdager(
-    soknadMetadata: SoknadMetadata,
+    soknadMetadata: Sykepengesoknad,
     erForsteSoknadISykeforlop: Boolean,
     tidligsteFomForSykmelding: LocalDate
 ): List<Sporsmal> {

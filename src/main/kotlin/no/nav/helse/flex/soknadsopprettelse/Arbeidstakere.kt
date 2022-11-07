@@ -11,7 +11,6 @@ import no.nav.helse.flex.domain.Svartype.JA_NEI
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.Visningskriterie.CHECKED
 import no.nav.helse.flex.domain.Visningskriterie.JA
-import no.nav.helse.flex.domain.rest.SoknadMetadata
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderArbeidstakerV2
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.ansvarserklaringSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.arbeidUtenforNorge
@@ -27,24 +26,24 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
 fun settOppSoknadArbeidstaker(
-    soknadMetadata: SoknadMetadata,
+    sykepengesoknad: Sykepengesoknad,
     erForsteSoknadISykeforlop: Boolean,
     tidligsteFomForSykmelding: LocalDate,
     andreKjenteArbeidsforhold: List<String>,
 ): List<Sporsmal> {
-    val gradertResietilskudd = soknadMetadata.soknadstype == GRADERT_REISETILSKUDD
+    val gradertResietilskudd = sykepengesoknad.soknadstype == GRADERT_REISETILSKUDD
 
     return mutableListOf(
         ansvarserklaringSporsmal(reisetilskudd = gradertResietilskudd),
         if (gradertResietilskudd) {
-            tilbakeIFulltArbeidGradertReisetilskuddSporsmal(soknadMetadata)
+            tilbakeIFulltArbeidGradertReisetilskuddSporsmal(sykepengesoknad)
         } else {
-            tilbakeIFulltArbeidSporsmal(soknadMetadata)
+            tilbakeIFulltArbeidSporsmal(sykepengesoknad)
         },
-        ferieSporsmal(soknadMetadata.fom, soknadMetadata.tom),
-        permisjonSporsmal(soknadMetadata.fom, soknadMetadata.tom),
-        utenlandsoppholdSporsmal(soknadMetadata.fom, soknadMetadata.tom),
-        utdanningsSporsmal(soknadMetadata.fom, soknadMetadata.tom),
+        ferieSporsmal(sykepengesoknad.fom!!, sykepengesoknad.tom!!),
+        permisjonSporsmal(sykepengesoknad.fom, sykepengesoknad.tom),
+        utenlandsoppholdSporsmal(sykepengesoknad.fom, sykepengesoknad.tom),
+        utdanningsSporsmal(sykepengesoknad.fom, sykepengesoknad.tom),
         vaerKlarOverAt(gradertReisetilskudd = gradertResietilskudd),
         bekreftOpplysningerSporsmal()
     ).also {
@@ -53,12 +52,12 @@ fun settOppSoknadArbeidstaker(
             it.add(arbeidUtenforNorge())
         }
 
-        it.add(andreInntektskilderArbeidstakerV2(soknadMetadata.arbeidsgiverNavn!!, andreKjenteArbeidsforhold))
+        it.add(andreInntektskilderArbeidstakerV2(sykepengesoknad.arbeidsgiverNavn!!, andreKjenteArbeidsforhold))
 
         it.addAll(
             jobbetDuIPeriodenSporsmal(
-                soknadMetadata.sykmeldingsperioder,
-                soknadMetadata.arbeidsgiverNavn
+                sykepengesoknad.soknadPerioder!!,
+                sykepengesoknad.arbeidsgiverNavn
             )
         )
         if (gradertResietilskudd) {
@@ -130,13 +129,13 @@ private fun fravarForSykmeldingen(tidligsteFomForSykmelding: LocalDate): Sporsma
     )
 }
 
-private fun tilbakeIFulltArbeidSporsmal(soknadMetadata: SoknadMetadata): Sporsmal {
+private fun tilbakeIFulltArbeidSporsmal(soknadMetadata: Sykepengesoknad): Sporsmal {
     return Sporsmal(
         tag = TILBAKE_I_ARBEID,
         sporsmalstekst = "Var du tilbake i fullt arbeid hos ${soknadMetadata.arbeidsgiverNavn} i løpet av perioden ${
         formatterPeriode(
-            soknadMetadata.fom,
-            soknadMetadata.tom
+            soknadMetadata.fom!!,
+            soknadMetadata.tom!!
         )
         }?",
         svartype = JA_NEI,

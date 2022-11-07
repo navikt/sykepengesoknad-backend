@@ -2,9 +2,11 @@ package no.nav.helse.flex.overlappendesykmeldinger
 
 import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.hentSoknaderMetadata
+import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
-import no.nav.helse.flex.tilSoknader
-import no.nav.helse.flex.ventPåRecords
+import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
+import no.nav.helse.flex.testdata.heltSykmeldt
+import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.BeforeEach
@@ -26,18 +28,29 @@ class OverlapperFullstendig : BaseTestClass() {
 
     @Test
     fun `Overlapper eksakt, sletter den overlappede søknaden`() {
-        sendArbeidstakerSykmelding(
-            fom = basisdato.plusDays(5),
-            tom = basisdato.plusDays(10),
-            fnr = fnr
-        )
-        sendArbeidstakerSykmelding(
-            fom = basisdato.plusDays(5),
-            tom = basisdato.plusDays(10),
-            fnr = fnr
-        )
+        val meldingerPaKafka = mutableListOf<SykepengesoknadDTO>()
 
-        val meldingerPaKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 3).tilSoknader()
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = basisdato.plusDays(5),
+                    tom = basisdato.plusDays(10),
+                ),
+            ),
+        ).also { meldingerPaKafka.addAll(it) }
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = basisdato.plusDays(5),
+                    tom = basisdato.plusDays(10),
+                ),
+            ),
+            forventaSoknader = 2,
+        ).also { meldingerPaKafka.addAll(it) }
+
+        meldingerPaKafka.shouldHaveSize(3)
 
         meldingerPaKafka[0].status shouldBeEqualTo SoknadsstatusDTO.FREMTIDIG
         meldingerPaKafka[0].fom shouldBeEqualTo basisdato.plusDays(5)
@@ -60,18 +73,28 @@ class OverlapperFullstendig : BaseTestClass() {
 
     @Test
     fun `Overlapper fullstendig`() {
-        sendArbeidstakerSykmelding(
-            fom = basisdato.plusDays(5),
-            tom = basisdato.plusDays(10),
-            fnr = fnr
-        )
-        sendArbeidstakerSykmelding(
-            fom = basisdato,
-            tom = basisdato.plusDays(15),
-            fnr = fnr
-        )
+        val meldingerPaKafka = mutableListOf<SykepengesoknadDTO>()
 
-        val meldingerPaKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 3).tilSoknader()
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = basisdato.plusDays(5),
+                    tom = basisdato.plusDays(10),
+                ),
+            ),
+        ).also { meldingerPaKafka.addAll(it) }
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = basisdato,
+                    tom = basisdato.plusDays(15),
+                ),
+            ),
+            forventaSoknader = 2,
+
+        ).also { meldingerPaKafka.addAll(it) }
 
         meldingerPaKafka[0].status shouldBeEqualTo SoknadsstatusDTO.FREMTIDIG
         meldingerPaKafka[0].fom shouldBeEqualTo basisdato.plusDays(5)
@@ -94,18 +117,28 @@ class OverlapperFullstendig : BaseTestClass() {
 
     @Test
     fun `Overlapper med samme fom og etter tom`() {
-        sendArbeidstakerSykmelding(
-            fom = basisdato,
-            tom = basisdato.plusDays(5),
-            fnr = fnr
-        )
-        sendArbeidstakerSykmelding(
-            fom = basisdato,
-            tom = basisdato.plusDays(10),
-            fnr = fnr
-        )
+        val meldingerPaKafka = mutableListOf<SykepengesoknadDTO>()
 
-        val meldingerPaKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 3).tilSoknader()
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = basisdato,
+                    tom = basisdato.plusDays(5),
+                ),
+            ),
+        ).also { meldingerPaKafka.addAll(it) }
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = basisdato,
+                    tom = basisdato.plusDays(10),
+                ),
+            ),
+            forventaSoknader = 2,
+
+        ).also { meldingerPaKafka.addAll(it) }
 
         meldingerPaKafka[0].status shouldBeEqualTo SoknadsstatusDTO.FREMTIDIG
         meldingerPaKafka[0].fom shouldBeEqualTo basisdato

@@ -1,35 +1,27 @@
 package no.nav.helse.flex.arbeidstaker
 
 import no.nav.helse.flex.BaseTestClass
-import no.nav.helse.flex.aktivering.AktiverEnkeltSoknad
-import no.nav.helse.flex.aktivering.kafka.AktiveringProducer
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
-import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.domain.Soknadstype
-import no.nav.helse.flex.domain.rest.SoknadMetadata
 import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.juridiskvurdering.Utfall
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
-import no.nav.helse.flex.repository.SykepengesoknadDAO
+import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER_V2
 import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
 import no.nav.helse.flex.soknadsopprettelse.ARBEID_UTENFOR_NORGE
 import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
 import no.nav.helse.flex.soknadsopprettelse.FERIE_V2
 import no.nav.helse.flex.soknadsopprettelse.FRAVAR_FOR_SYKMELDINGEN
-import no.nav.helse.flex.soknadsopprettelse.OpprettSoknadService
 import no.nav.helse.flex.soknadsopprettelse.PERMISJON_V2
 import no.nav.helse.flex.soknadsopprettelse.TILBAKE_I_ARBEID
 import no.nav.helse.flex.soknadsopprettelse.UTDANNING
 import no.nav.helse.flex.soknadsopprettelse.UTLAND_V2
-import no.nav.helse.flex.soknadsopprettelse.tilSoknadsperioder
+import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.testutil.jsonTilHashMap
-import no.nav.helse.flex.testutil.opprettSoknadFraSoknadMetadata
 import no.nav.helse.flex.tilJuridiskVurdering
 import no.nav.helse.flex.tilSoknader
-import no.nav.helse.flex.util.tilOsloInstant
 import no.nav.helse.flex.ventPåRecords
 import no.nav.syfo.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
@@ -40,67 +32,43 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
-import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 @TestMethodOrder(MethodOrderer.MethodName::class)
 class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : BaseTestClass() {
 
-    @Autowired
-    private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
-
-    @Autowired
-    private lateinit var opprettSoknadService: OpprettSoknadService
-
-    @Autowired
-    private lateinit var aktiveringProducer: AktiveringProducer
-
-    @Autowired
-    private lateinit var aktiverEnkeltSoknad: AktiverEnkeltSoknad
-
     final val fnr = "12345678910"
-
-    private val soknadMetadata = SoknadMetadata(
-        startSykeforlop = LocalDate.of(2018, 1, 1),
-        sykmeldingSkrevet = LocalDateTime.of(2018, 1, 1, 12, 0).tilOsloInstant(),
-        arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-        sykmeldingsperioder = mutableListOf(
-            SykmeldingsperiodeAGDTO(
-                fom = (LocalDate.of(2018, 1, 13)),
-                tom = (LocalDate.of(2018, 1, 14)),
-                gradert = GradertDTO(grad = 100, reisetilskudd = false),
-                type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
-                aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
-                behandlingsdager = null,
-                innspillTilArbeidsgiver = null,
-                reisetilskudd = false,
-            ),
-            SykmeldingsperiodeAGDTO(
-                fom = (LocalDate.of(2018, 1, 15)),
-                tom = (LocalDate.of(2018, 1, 29)),
-                gradert = GradertDTO(grad = 70, reisetilskudd = false),
-                type = PeriodetypeDTO.GRADERT,
-                aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
-                behandlingsdager = null,
-                innspillTilArbeidsgiver = null,
-                reisetilskudd = false,
-            ),
-        ).also { it.shuffle() }.tilSoknadsperioder(), // Viktig med shuffle da sorteringen ved opprettelse er fiksen,
-        fnr = fnr,
-        fom = LocalDate.of(2018, 1, 1),
-        tom = LocalDate.of(2018, 1, 10),
-        soknadstype = Soknadstype.ARBEIDSTAKERE,
-        sykmeldingId = "sykmeldingId",
-        arbeidsgiverNavn = "Kjells markiser",
-        arbeidsgiverOrgnummer = "848274932"
-    )
 
     @Test
     fun `1 - vi oppretter en arbeidstakersoknad`() {
         // Opprett søknad
-        opprettSoknadService.opprettSoknadFraSoknadMetadata(soknadMetadata, sykepengesoknadDAO, aktiveringProducer, aktiverEnkeltSoknad)
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = mutableListOf(
+                    SykmeldingsperiodeAGDTO(
+                        fom = (LocalDate.of(2018, 1, 13)),
+                        tom = (LocalDate.of(2018, 1, 14)),
+                        gradert = GradertDTO(grad = 100, reisetilskudd = false),
+                        type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+                        aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                        behandlingsdager = null,
+                        innspillTilArbeidsgiver = null,
+                        reisetilskudd = false,
+                    ),
+                    SykmeldingsperiodeAGDTO(
+                        fom = (LocalDate.of(2018, 1, 15)),
+                        tom = (LocalDate.of(2018, 1, 29)),
+                        gradert = GradertDTO(grad = 70, reisetilskudd = false),
+                        type = PeriodetypeDTO.GRADERT,
+                        aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                        behandlingsdager = null,
+                        innspillTilArbeidsgiver = null,
+                        reisetilskudd = false,
+                    ),
+                ).also { it.shuffle() }, // Viktig med shuffle da sorteringen ved opprettelse er fiksen,
+            ),
+        )
     }
 
     @Test

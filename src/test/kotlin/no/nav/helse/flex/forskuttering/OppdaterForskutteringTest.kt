@@ -8,7 +8,6 @@ import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
-import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.Test
@@ -23,9 +22,6 @@ class OppdaterForskutteringTest : BaseTestClass() {
 
     @Autowired
     lateinit var forskutteringRepository: ForskutteringRepository
-
-    @Autowired
-    lateinit var kafkaProducer: KafkaProducer<String, String>
 
     @Test
     fun `Oppretter ny forskuttering hvis den ikke finnes fra før`() {
