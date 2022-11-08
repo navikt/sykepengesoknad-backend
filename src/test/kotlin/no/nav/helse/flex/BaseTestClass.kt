@@ -6,6 +6,7 @@ import no.nav.helse.flex.kafka.producer.AivenKafkaProducer
 import no.nav.helse.flex.kafka.producer.RebehandlingSykmeldingSendtProducer
 import no.nav.helse.flex.kafka.sykepengesoknadTopic
 import no.nav.helse.flex.personhendelse.AutomatiskInnsendingVedDodsfall
+import no.nav.helse.flex.repository.SykepengesoknadRepository
 import no.nav.helse.flex.soknadsopprettelse.BehandleSykmeldingOgBestillAktivering
 import no.nav.helse.flex.testdata.DatabaseReset
 import no.nav.security.mock.oauth2.MockOAuth2Server
@@ -153,6 +154,9 @@ abstract class BaseTestClass {
 
     @Autowired
     lateinit var kafkaProducer: KafkaProducer<String, String>
+
+    @Autowired
+    lateinit var sykepengesoknadRepository: SykepengesoknadRepository
 
     @AfterAll
     fun `Vi leser sykepengesoknad topicet og feiler hvis noe finnes og slik at subklassetestene leser alt`() {
