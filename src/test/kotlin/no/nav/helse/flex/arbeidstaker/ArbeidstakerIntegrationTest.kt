@@ -12,7 +12,6 @@ import no.nav.helse.flex.korrigerSoknad
 import no.nav.helse.flex.korrigerSoknadMedResult
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
 import no.nav.helse.flex.repository.SykepengesoknadDAO
-import no.nav.helse.flex.repository.SykepengesoknadRepository
 import no.nav.helse.flex.sendSoknadMedResult
 import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
@@ -48,9 +47,6 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
 
     @Autowired
     private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
-
-    @Autowired
-    private lateinit var sykepengesoknadRepository: SykepengesoknadRepository
 
     private final val fnr = "12454578474"
     private final val basisdato = LocalDate.of(2021, 9, 1)

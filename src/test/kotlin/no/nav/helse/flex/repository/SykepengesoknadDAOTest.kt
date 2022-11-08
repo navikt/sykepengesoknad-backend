@@ -34,9 +34,6 @@ class SykepengesoknadDAOTest : BaseTestClass() {
     private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
 
     @Autowired
-    private lateinit var sykepengesoknadRepository: SykepengesoknadRepository
-
-    @Autowired
     private lateinit var jdbcTemplate: JdbcTemplate
 
     @Autowired
