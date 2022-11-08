@@ -43,8 +43,8 @@ class AktiverEnkeltSoknad(
         val sok = sykepengesoknadRepository.findBySykepengesoknadUuid(id)
 
         if (sok == null) {
-            log.warn("Søknad $id mangler fra databasen")
-            throw RuntimeException("Søknad $id mangler fra databasen")
+            log.warn("Søknad $id mangler fra databasen. Kan ha blitt klippet")
+            return
         }
 
         if (sok.status != Soknadstatus.FREMTIDIG) {
