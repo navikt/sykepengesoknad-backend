@@ -43,6 +43,7 @@ import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
 import no.nav.syfo.model.sykmeldingstatus.STATUS_SENDT
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.`should not be`
 import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
 import org.assertj.core.api.Assertions
@@ -52,6 +53,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import java.time.Instant
 import java.time.LocalDate
+import java.util.*
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class SlettKvitteringerIntegrasjonsTest : BaseTestClass() {
@@ -148,7 +150,7 @@ class SlettKvitteringerIntegrasjonsTest : BaseTestClass() {
 
     @Test
     @Order(4)
-    fun `Laster opp to kvitteringer`() {
+    fun `Lagrer to kvitteringer og får returnert id på lagret svar`() {
         val (soknadId, kvitteringSpm) = hentKvitteringSpm()
 
         val forsteSvar = RSSvar(
@@ -171,11 +173,13 @@ class SlettKvitteringerIntegrasjonsTest : BaseTestClass() {
             id = null,
         )
 
-        lagreSvar(fnr, soknadId, kvitteringSpm.id!!, forsteSvar)
-        lagreSvar(fnr, soknadId, kvitteringSpm.id!!, andreSvar)
+        val lagretForsteSvar = lagreSvar(fnr, soknadId, kvitteringSpm.id!!, forsteSvar)
+        lagretForsteSvar.oppdatertSporsmal.svar.first().id `should not be` null
+
+        val lagretAndreSvar = lagreSvar(fnr, soknadId, kvitteringSpm.id!!, andreSvar)
+        lagretAndreSvar.oppdatertSporsmal.svar.first().id `should not be` null
 
         val (_, lagretSpm) = hentKvitteringSpm()
-
         lagretSpm.svar.size `should be` 2
 
         val forsteLagretSvar = lagretSpm.svar.first()
