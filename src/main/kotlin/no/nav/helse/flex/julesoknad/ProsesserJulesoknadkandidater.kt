@@ -43,7 +43,7 @@ class ProsesserJulesoknadkandidater(
             julesoknadkandidater.forEach { julesoknadkandidat ->
                 if (!applicationHealth.ok()) {
                     log.info("Stanser prosseserJulesoknadKandidat siden application state ikke er ok")
-                    return@forEach
+                    return
                 }
                 prosseserJulesoknadKandidat(julesoknadkandidat)
             }
