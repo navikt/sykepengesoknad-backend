@@ -1,5 +1,6 @@
 package no.nav.helse.flex
 
+import org.springframework.boot.availability.ApplicationAvailability
 import org.springframework.boot.availability.AvailabilityChangeEvent
 import org.springframework.boot.availability.LivenessState
 import org.springframework.boot.availability.ReadinessState
@@ -7,7 +8,9 @@ import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 
 @Component
-class ApplicationHealth {
+class ApplicationHealth(
+    private val applicationAvailability: ApplicationAvailability
+) {
 
     val log = logger()
 
@@ -20,4 +23,6 @@ class ApplicationHealth {
     fun onReadinessEvent(event: AvailabilityChangeEvent<ReadinessState>) {
         log.info("ReadinessState ${event.state} source ${event.source.javaClass.name}")
     }
+
+    fun ok() = applicationAvailability.readinessState == ReadinessState.ACCEPTING_TRAFFIC && applicationAvailability.livenessState == LivenessState.CORRECT
 }
