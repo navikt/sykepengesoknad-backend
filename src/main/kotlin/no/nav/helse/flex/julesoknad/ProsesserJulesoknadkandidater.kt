@@ -1,5 +1,6 @@
 package no.nav.helse.flex.julesoknad
 
+import no.nav.helse.flex.ApplicationHealth
 import no.nav.helse.flex.aktivering.kafka.AktiveringBestilling
 import no.nav.helse.flex.aktivering.kafka.AktiveringProducer
 import no.nav.helse.flex.cronjob.LeaderElection
@@ -25,6 +26,7 @@ class ProsesserJulesoknadkandidater(
     private val leaderElection: LeaderElection,
     private val forskutteringRepository: ForskutteringRepository,
     private val aktiveringProducer: AktiveringProducer,
+    private val applicationHealth: ApplicationHealth,
 ) {
     private val log = logger()
 
@@ -35,8 +37,14 @@ class ProsesserJulesoknadkandidater(
             if (julesoknadkandidater.isEmpty()) {
                 return
             }
+
             log.info("Prosseserer ${julesoknadkandidater.size} julesoknadkandidater")
+
             julesoknadkandidater.forEach { julesoknadkandidat ->
+                if (!applicationHealth.ok()) {
+                    log.info("Stanser prosseserJulesoknadKandidat siden application state ikke er ok")
+                    return
+                }
                 prosseserJulesoknadKandidat(julesoknadkandidat)
             }
         }
