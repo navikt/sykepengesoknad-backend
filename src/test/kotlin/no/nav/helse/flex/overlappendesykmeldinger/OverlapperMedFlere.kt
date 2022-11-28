@@ -337,6 +337,148 @@ class OverlapperMedFlere : BaseTestClass() {
             )
         )
     }
+    @Test
+    fun `test overlapp`() {
+        overlappTester.testKlipp(
+            forventaSoknadPaKafka = 1,
+            eksisterendeSoknader = listOf(
+                Soknad(
+                    status = Soknadstatus.SENDT,
+                    soknadPerioder = listOf(
+                        Soknadsperiode(
+                            fom = LocalDate.of(2022, 10, 13),
+                            tom = LocalDate.of(2022, 10, 31),
+                            grad = 100,
+                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
+                        )
+                    ),
+                ),
+                Soknad(
+                    status = Soknadstatus.AVBRUTT,
+                    soknadPerioder = listOf(
+                        Soknadsperiode(
+                            fom = LocalDate.of(2022, 9, 22),
+                            tom = LocalDate.of(2022, 10, 12),
+                            grad = 20,
+                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
+                        )
+                    ),
+                ),
+                Soknad(
+                    status = Soknadstatus.AVBRUTT,
+                    soknadPerioder = listOf(
+                        Soknadsperiode(
+                            fom = LocalDate.of(2022, 9, 1),
+                            tom = LocalDate.of(2022, 9, 21),
+                            grad = 20,
+                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
+                        )
+                    ),
+                ),
+                Soknad(
+                    status = Soknadstatus.AVBRUTT,
+                    soknadPerioder = listOf(
+                        Soknadsperiode(
+                            fom = LocalDate.of(2022, 9, 1),
+                            tom = LocalDate.of(2022, 9, 18),
+                            grad = 60,
+                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
+                        )
+                    ),
+                ),
+                Soknad(
+                    status = Soknadstatus.SENDT,
+                    soknadPerioder = listOf(
+                        Soknadsperiode(
+                            fom = LocalDate.of(2022, 9, 1),
+                            tom = LocalDate.of(2022, 9, 18),
+                            grad = 60,
+                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
+                        )
+                    ),
+                ),
+            ),
+            overlappendeSoknad = Soknad(
+                soknadPerioder = listOf(
+                    Soknadsperiode(
+                        fom = LocalDate.of(2022, 9, 13),
+                        tom = LocalDate.of(2022, 10, 12),
+                        grad = 100,
+                        sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
+                    )
+                )
+            ),
+            dagensDato = LocalDate.of(2022, 11, 26),
+            forventetResultat = listOf(
+                Soknad(
+                    status = Soknadstatus.SENDT,
+                    soknadPerioder = listOf(
+                        Soknadsperiode(
+                            fom = LocalDate.of(2022, 10, 13),
+                            tom = LocalDate.of(2022, 10, 31),
+                            grad = 100,
+                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
+                        )
+                    ),
+                ),
+                Soknad(
+                    status = Soknadstatus.AVBRUTT,
+                    soknadPerioder = listOf(
+                        Soknadsperiode(
+                            fom = LocalDate.of(2022, 9, 22),
+                            tom = LocalDate.of(2022, 10, 12),
+                            grad = 20,
+                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
+                        )
+                    ),
+                ),
+                Soknad(
+                    status = Soknadstatus.AVBRUTT,
+                    soknadPerioder = listOf(
+                        Soknadsperiode(
+                            fom = LocalDate.of(2022, 9, 1),
+                            tom = LocalDate.of(2022, 9, 21),
+                            grad = 20,
+                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
+                        )
+                    ),
+                ),
+                Soknad(
+                    status = Soknadstatus.AVBRUTT,
+                    soknadPerioder = listOf(
+                        Soknadsperiode(
+                            fom = LocalDate.of(2022, 9, 1),
+                            tom = LocalDate.of(2022, 9, 18),
+                            grad = 60,
+                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
+                        )
+                    ),
+                ),
+                Soknad(
+                    status = Soknadstatus.SENDT,
+                    soknadPerioder = listOf(
+                        Soknadsperiode(
+                            fom = LocalDate.of(2022, 9, 1),
+                            tom = LocalDate.of(2022, 9, 18),
+                            grad = 60,
+                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
+                        )
+                    ),
+                ),
+                Soknad(
+                    status = Soknadstatus.NY,
+                    soknadPerioder = listOf(
+                        Soknadsperiode(
+                            fom = LocalDate.of(2022, 9, 13),
+                            tom = LocalDate.of(2022, 10, 12),
+                            grad = 100,
+                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
+                        )
+                    )
+                )
+            )
+        )
+    }
 
     private class OverlappTester(
         private val soknadLagrer: SoknadLagrer,
