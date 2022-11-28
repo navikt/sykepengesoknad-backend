@@ -391,7 +391,7 @@ class OverlapperMedFlere : BaseTestClass() {
                     sykmeldingId = soknad.traceId,
                     fnr = "fnr",
                     soknadstype = Soknadstype.ARBEIDSTAKERE,
-                    status = Soknadstatus.FREMTIDIG,
+                    status = soknad.status,
                     opprettet = now,
                     sporsmal = emptyList(),
                     fom = soknad.soknadPerioder.minOf { it.fom },
@@ -409,6 +409,8 @@ class OverlapperMedFlere : BaseTestClass() {
         private fun riktigStatusUtIfraDagensDato(dagensDato: LocalDate) {
             sykepengesoknadDAO.finnSykepengesoknader(listOf("fnr"))
                 .forEach {
+                    if (it.status !in listOf(Soknadstatus.FREMTIDIG, Soknadstatus.NY)) return@forEach
+
                     val riktigStatus = if (it.tom!!.isBefore(dagensDato)) Soknadstatus.NY else Soknadstatus.FREMTIDIG
                     sykepengesoknadDAO.oppdaterStatus(it.copy(status = riktigStatus))
                 }
@@ -456,7 +458,7 @@ class OverlapperMedFlere : BaseTestClass() {
                         }
 
                         tall++
-                        println(periodeLinje)
+                        println(periodeLinje + "  ${sok.status}")
                     }
                 }
             }
