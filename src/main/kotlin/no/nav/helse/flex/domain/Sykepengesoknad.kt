@@ -31,6 +31,7 @@ data class Sykepengesoknad(
     val egenmeldtSykmelding: Boolean? = null,
     val merknaderFraSykmelding: List<Merknad>? = null,
     val avbruttFeilinfo: Boolean? = null,
+    val opprettetAvInntektsmelding: Boolean = false,
 
 ) : Serializable {
 

@@ -524,7 +524,8 @@ class SykepengesoknadDAO(
                         .map { Avsendertype.valueOf(it) }.orElse(null),
                     egenmeldtSykmelding = resultSet.getNullableBoolean("EGENMELDT_SYKMELDING"),
                     avbruttFeilinfo = resultSet.getNullableBoolean("AVBRUTT_FEILINFO"),
-                    merknaderFraSykmelding = resultSet.getNullableString("MERKNADER_FRA_SYKMELDING").tilMerknader()
+                    merknaderFraSykmelding = resultSet.getNullableString("MERKNADER_FRA_SYKMELDING").tilMerknader(),
+                    opprettetAvInntektsmelding = resultSet.getBoolean("OPPRETTET_AV_INNTEKTSMELDING")
                 )
             )
         }
