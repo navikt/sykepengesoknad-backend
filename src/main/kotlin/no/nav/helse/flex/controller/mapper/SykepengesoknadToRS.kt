@@ -110,7 +110,8 @@ fun Sykepengesoknad.tilRSSykepengesoknad() = RSSykepengesoknad(
     arbeidssituasjon = EnumUtil.konverter(RSArbeidssituasjon::class.java, this.arbeidssituasjon),
     soknadPerioder = this.soknadPerioder?.map { mapSoknadsperiode(it) },
     egenmeldtSykmelding = this.egenmeldtSykmelding,
-    merknaderFraSykmelding = this.merknaderFraSykmelding?.map { it.mapMerknad() }
+    merknaderFraSykmelding = this.merknaderFraSykmelding?.map { it.mapMerknad() },
+    opprettetAvInntektsmelding = this.opprettetAvInntektsmelding,
 )
 
 fun Sykepengesoknad.tilRSSykepengesoknadMetadata() = RSSykepengesoknadMetadata(
@@ -132,5 +133,6 @@ fun Sykepengesoknad.tilRSSykepengesoknadMetadata() = RSSykepengesoknadMetadata(
     arbeidssituasjon = EnumUtil.konverter(RSArbeidssituasjon::class.java, this.arbeidssituasjon),
     soknadPerioder = this.soknadPerioder?.map { mapSoknadsperiode(it) },
     egenmeldtSykmelding = this.egenmeldtSykmelding,
-    merknaderFraSykmelding = this.merknaderFraSykmelding?.map { it.mapMerknad() }
+    merknaderFraSykmelding = this.merknaderFraSykmelding?.map { it.mapMerknad() },
+    opprettetAvInntektsmelding = this.opprettetAvInntektsmelding,
 )

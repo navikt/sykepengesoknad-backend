@@ -23,4 +23,5 @@ data class RSSykepengesoknadMetadata(
     val soknadPerioder: List<RSSoknadsperiode>? = null,
     val egenmeldtSykmelding: Boolean?,
     val merknaderFraSykmelding: List<RSMerknad>?,
+    val opprettetAvInntektsmelding: Boolean,
 )
