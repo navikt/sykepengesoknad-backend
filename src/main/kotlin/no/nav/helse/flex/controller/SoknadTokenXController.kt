@@ -84,7 +84,7 @@ class SoknadTokenXController(
     @ResponseBody
     @GetMapping(value = ["/soknader/metadata"], produces = [APPLICATION_JSON_VALUE])
     fun hentSoknaderMetadata(): List<RSSykepengesoknadMetadata> {
-        val identer = validerTokenXClaims(sykepengesoknadFrontendClientId).hentIdenter()
+        val identer = validerTokenXClaims(dittSykefravaerFrontendClientId, sykepengesoknadFrontendClientId).hentIdenter()
         return hentSoknadService.hentSoknaderUtenSporsmal(identer).map { it.tilRSSykepengesoknadMetadata() }
     }
 
