@@ -32,11 +32,11 @@ class SoknadSender(
         identer: FolkeregisterIdenter
     ) {
         if (sykepengesoknad.status !in listOf(NY, UTKAST_TIL_KORRIGERING)) {
-            throw RuntimeException("Søknad ${sykepengesoknad.id} kan ikke gå i fra status ${sykepengesoknad.status} til SENDT")
+            throw RuntimeException("Søknad ${sykepengesoknad.id} kan ikke gå i fra status ${sykepengesoknad.status} til SENDT.")
         }
 
         if (sykepengesoknad.sporsmal.isEmpty()) {
-            throw RuntimeException("Kan ikke sende soknad ${sykepengesoknad.id} med tom sporsmal liste")
+            throw RuntimeException("Kan ikke sende soknad ${sykepengesoknad.id} med som ikke har spørsmål.")
         }
 
         svarDAO.overskrivSvar(sykepengesoknad)
