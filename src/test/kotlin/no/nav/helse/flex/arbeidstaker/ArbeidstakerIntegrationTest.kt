@@ -28,9 +28,11 @@ import no.nav.helse.flex.util.tilOsloLocalDateTime
 import no.nav.helse.flex.ventPåRecords
 import no.nav.syfo.model.Merknad
 import no.nav.syfo.model.sykmeldingstatus.STATUS_BEKREFTET
+import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should be false`
 import org.amshove.kluent.`should be null`
+import org.amshove.kluent.`should not be`
 import org.amshove.kluent.shouldHaveSize
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.MethodOrderer
@@ -232,6 +234,11 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
             )
         )
         juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
+
+        val soknadFraDatabase = sykepengesoknadDAO.finnSykepengesoknad(sendtSoknad.id)
+        soknadFraDatabase.sendtArbeidsgiver `should not be` null
+        soknadFraDatabase.sendtNav `should be` null
+        soknadFraDatabase.sendt `should be equal to` soknadFraDatabase.sendtArbeidsgiver
     }
 
     @Test
@@ -271,6 +278,11 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
             )
         )
         juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
+
+        val soknadFraDatabase = sykepengesoknadDAO.finnSykepengesoknad(sendtSoknad.id)
+        soknadFraDatabase.sendtArbeidsgiver `should not be` null
+        soknadFraDatabase.sendtNav `should be` null
+        soknadFraDatabase.sendt `should be equal to` soknadFraDatabase.sendtArbeidsgiver
     }
 
     @Test

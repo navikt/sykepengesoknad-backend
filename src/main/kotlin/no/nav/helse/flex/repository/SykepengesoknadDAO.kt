@@ -469,11 +469,12 @@ class SykepengesoknadDAO(
         val sendtArbeidsgiver =
             if (Mottaker.ARBEIDSGIVER == mottaker || Mottaker.ARBEIDSGIVER_OG_NAV == mottaker) sendt else null
         namedParameterJdbcTemplate.update(
-            "UPDATE SYKEPENGESOKNAD " +
-                "SET STATUS = :statusSendt, " +
-                "AVSENDERTYPE = :avsendertype, " +
-                "SENDT_NAV = :sendtNav, " +
-                "SENDT_ARBEIDSGIVER = :sendtArbeidsgiver " +
+            "UPDATE sykepengesoknad " +
+                "SET status = :statusSendt, " +
+                "avsendertype = :avsendertype, " +
+                "sendt_nav = :sendtNav, " +
+                "sendt_arbeidsgiver = :sendtArbeidsgiver, " +
+                "sendt = :sendt " +
                 "WHERE SYKEPENGESOKNAD_UUID = :sykepengesoknadId",
 
             MapSqlParameterSource()
@@ -481,6 +482,7 @@ class SykepengesoknadDAO(
                 .addValue("avsendertype", avsendertype.name)
                 .addValue("sendtNav", sendtNav?.tilOsloZone())
                 .addValue("sendtArbeidsgiver", sendtArbeidsgiver?.tilOsloZone())
+                .addValue("sendt", sendt.tilOsloZone())
                 .addValue("sykepengesoknadId", sykepengesoknad.id)
         )
         return sykepengesoknad.copy(
@@ -513,6 +515,7 @@ class SykepengesoknadDAO(
                         .map { Arbeidssituasjon.valueOf(it) }.orElse(null),
                     sendtArbeidsgiver = resultSet.getObject("SENDT_ARBEIDSGIVER", OffsetDateTime::class.java)
                         ?.toInstant(),
+                    sendt = resultSet.getObject("SENDT", OffsetDateTime::class.java)?.toInstant(),
                     arbeidsgiverOrgnummer = resultSet.getString("ARBEIDSGIVER_ORGNUMMER"),
                     arbeidsgiverNavn = resultSet.getString("ARBEIDSGIVER_NAVN"),
                     korrigerer = resultSet.getString("KORRIGERER"),
