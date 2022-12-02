@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
+private const val antall = 2000
+
 @Component
 class OppdaterSendtJob(
     val sykepengesoknadDAO: SykepengesoknadDAO,
@@ -20,31 +22,27 @@ class OppdaterSendtJob(
     private val log = logger()
 
     var antallOppdatert = AtomicInteger(0)
-    var antallFeilet = AtomicInteger(0)
 
     @Profile("batchupdate")
-    @Scheduled(initialDelay = 60 * 3, fixedDelay = 5, timeUnit = TimeUnit.SECONDS)
+    @Scheduled(initialDelay = 60 * 3, fixedDelay = 1, timeUnit = TimeUnit.SECONDS)
     fun oppdaterSendtJob() {
 
         if (leaderElection.isLeader()) {
-            val soknader = sykepengesoknadRepository.finnSendteSoknaderUtenSendt(1000)
+            val soknader = sykepengesoknadRepository.finnSendteSoknaderUtenSendt(antall)
 
             if (soknader.isEmpty()) {
                 return
             }
 
-            soknader.forEach {
-                try {
-                    val sendtTidspunkt = it.finnSendtTidspunkt()
-                    sykepengesoknadDAO.oppdaterMedSendt(it.id!!, sendtTidspunkt)
-                    antallOppdatert.incrementAndGet()
-                } catch (e: RuntimeException) {
-                    log.warn("Kunne ikke oppdatere med sendt-tidspunkt for søknad med id ${it.id}", e)
-                    antallFeilet.incrementAndGet()
-                }
+            try {
+                sykepengesoknadDAO.oppdaterMedSendt(soknader.map { Pair(it.id!!, it.finnSendtTidspunkt()) })
+                antallOppdatert.addAndGet(antall)
+            } catch (e: Exception) {
+                log.warn("Feilet med batch-oppdatering av sendt-verdi.", e)
             }
-            if (antallOppdatert.toInt() % 100 == 0) {
-                log.info("Oppdatert $antallOppdatert søknadder med sendt-tidspunkt. $antallFeilet feilet.")
+
+            if (antallOppdatert.toInt() % antall * 10 == 0) {
+                log.info("Oppdatert $antallOppdatert søknadder med sendt-tidspunkt.")
             }
         }
     }
