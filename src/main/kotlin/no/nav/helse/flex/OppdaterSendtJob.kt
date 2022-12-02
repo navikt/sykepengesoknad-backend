@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Profile
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 
 @Component
 class OppdaterSendtJob(
@@ -18,11 +19,13 @@ class OppdaterSendtJob(
 
     private val log = logger()
 
+    var antallOppdatert = AtomicInteger(0)
+    var antallFeilet = AtomicInteger(0)
+
     @Profile("batchupdate")
     @Scheduled(initialDelay = 60 * 3, fixedDelay = 5, timeUnit = TimeUnit.SECONDS)
     fun oppdaterSendtJob() {
-        var antallOppdatert = 0
-        var antallFeilet = 0
+
         if (leaderElection.isLeader()) {
             val soknader = sykepengesoknadRepository.finnSendteSoknaderUtenSendt(1000)
 
@@ -34,13 +37,15 @@ class OppdaterSendtJob(
                 try {
                     val sendtTidspunkt = it.finnSendtTidspunkt()
                     sykepengesoknadDAO.oppdaterMedSendt(it.id!!, sendtTidspunkt)
-                    antallOppdatert++
+                    antallOppdatert.incrementAndGet()
                 } catch (e: RuntimeException) {
                     log.warn("Kunne ikke oppdatere med sendt-tidspunkt for søknad med id ${it.id}", e)
-                    antallFeilet++
+                    antallFeilet.incrementAndGet()
                 }
             }
-            log.info("Oppdatert $antallOppdatert med sendt-tidspunkt. $antallFeilet feilet.")
+            if (antallOppdatert.toInt() % 100 == 0) {
+                log.info("Oppdatert $antallOppdatert søknadder med sendt-tidspunkt. $antallFeilet feilet.")
+            }
         }
     }
 }
