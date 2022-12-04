@@ -590,20 +590,16 @@ class SykepengesoknadDAO(
         )
     }
 
-    fun oppdaterMedSendt(values: List<Pair<String, Instant>>) {
-
+    fun oppdaterMedSendt(sykepengesoknadId: String, sendt: Instant) {
         val sql = """
             UPDATE sykepengesoknad
             SET sendt = :sendt
             WHERE id = :sykepengesoknadId
             """
-        val batchParams = values.map {
-            MapSqlParameterSource()
-                .addValue("sykepengesoknadId", it.first)
-                .addValue("sendt", Timestamp.from(it.second))
-        }.toTypedArray()
-
-        namedParameterJdbcTemplate.batchUpdate(sql, batchParams)
+        val params = MapSqlParameterSource()
+            .addValue("sykepengesoknadId", sykepengesoknadId)
+            .addValue("sendt", Timestamp.from(sendt))
+        namedParameterJdbcTemplate.update(sql, params)
     }
 }
 
