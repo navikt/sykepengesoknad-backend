@@ -25,7 +25,6 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
-import java.sql.Timestamp
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -588,18 +587,6 @@ class SykepengesoknadDAO(
                 .addValue("publisert", publisert)
                 .addValue("sykepengesoknadId", sykepengesoknadId)
         )
-    }
-
-    fun oppdaterMedSendt(sykepengesoknadId: String, sendt: Instant) {
-        val sql = """
-            UPDATE sykepengesoknad
-            SET sendt = :sendt
-            WHERE id = :sykepengesoknadId
-            """
-        val params = MapSqlParameterSource()
-            .addValue("sykepengesoknadId", sykepengesoknadId)
-            .addValue("sendt", Timestamp.from(sendt))
-        namedParameterJdbcTemplate.update(sql, params)
     }
 }
 

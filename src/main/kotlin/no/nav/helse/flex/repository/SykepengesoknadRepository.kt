@@ -34,15 +34,4 @@ interface SykepengesoknadRepository : CrudRepository<SykepengesoknadDbRecord, St
         """
     )
     fun finnSoknaderSomSkalAktiveres(now: LocalDate): List<SykepengesoknadDbRecord>
-
-    @Query(
-        """
-        SELECT *
-        FROM sykepengesoknad
-        WHERE (sendt_nav IS NOT NULL OR sendt_arbeidsgiver IS NOT NULL)
-        AND sendt IS  NULL
-        LIMIT :batchSize
-        """
-    )
-    fun finnSendteSoknaderUtenSendt(batchSize: Int): List<SykepengesoknadDbRecord>
 }
