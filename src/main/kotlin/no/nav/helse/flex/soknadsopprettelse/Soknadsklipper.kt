@@ -211,8 +211,20 @@ class Soknadsklipper(
                 if (sok.status == Soknadstatus.FREMTIDIG || sok.status == Soknadstatus.NY) {
                     log.info("Sykmelding $sykmeldingId overlapper søknad ${sok.id} fullstendig")
 
+                    klippetSykepengesoknadRepository.save(
+                        KlippetSykepengesoknadDbRecord(
+                            sykepengesoknadUuid = sok.id,
+                            sykmeldingUuid = sykmeldingId,
+                            klippVariant = KlippVariant.SOKNAD_STARTER_FOR_SLUTTER_ETTER,
+                            periodeFor = sok.soknadPerioder!!.serialisertTilString(),
+                            periodeEtter = null,
+                            timestamp = Instant.now(),
+                        )
+                    )
+
                     val fullstendigOverlappetSoknad = sok.copy(status = Soknadstatus.SLETTET)
                     sykepengesoknadDAO.slettSoknad(fullstendigOverlappetSoknad)
+
                     soknadProducer.soknadEvent(fullstendigOverlappetSoknad, null, false)
                 }
                 metrikk.klippSoknaderSomOverlapper(
