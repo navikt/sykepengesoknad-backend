@@ -3,6 +3,7 @@ package no.nav.helse.flex.cronjob
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadDAO
+import no.nav.helse.flex.service.SlettSoknaderTilKorrigertSykmeldingService
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import java.time.LocalDate
@@ -12,6 +13,7 @@ import java.util.concurrent.TimeUnit
 class LangSykemelding(
     val sykepengesoknadDAO: SykepengesoknadDAO,
     val leaderElection: LeaderElection,
+    val slettSoknaderTilKorrigertSykmeldingService: SlettSoknaderTilKorrigertSykmeldingService,
 ) {
     val log = logger()
     val sykmeldingId = "8ab87dff-723f-42d2-a042-d7ea6bff02c0"
@@ -102,6 +104,8 @@ class LangSykemelding(
             require(soknaderSomSkalSlettes.size == 8)
 
             log.info("Soknader som skal slettes [ ${soknaderSomSkalSlettes.map { it.id }} ], soknader som ikke slettes [ ${(soknader - soknaderSomSkalSlettes).map { it.id }} ]")
+
+            slettSoknaderTilKorrigertSykmeldingService.slettSoknader(soknaderSomSkalSlettes)
         }
     }
 }
