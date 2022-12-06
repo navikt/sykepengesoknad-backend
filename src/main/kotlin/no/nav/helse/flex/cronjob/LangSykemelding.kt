@@ -88,11 +88,14 @@ class LangSykemelding(
 
     @Scheduled(initialDelay = 5, fixedDelay = 500_000, timeUnit = TimeUnit.MINUTES)
     fun fjernUbrukteSoknader() {
-        if (leaderElection.isLeader()) {
+        val leader = leaderElection.isLeader()
+        log.info("Starter cronjob fjernUbrukteSoknader leader=$leader")
+
+        if (leader) {
             val soknader = sykepengesoknadDAO.finnSykepengesoknaderForSykmelding(sykmeldingId)
 
             val samenlignbareSoknader = soknader.map { Soknad(it.id, it.fom!!, it.tom!!, it.status) }
-            samenlignbareSoknader.all { forventedeSoknader.contains(it) }
+            require(samenlignbareSoknader.all { forventedeSoknader.contains(it) })
             require(samenlignbareSoknader.size == 10)
 
             val soknaderSomSkalSlettes = soknader.filter { it.fom!! > LocalDate.of(2022, 10, 26) }
