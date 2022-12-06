@@ -86,7 +86,7 @@ class LangSykemelding(
         )
     )
 
-    @Scheduled(initialDelay = 5, fixedDelay = 500_000, timeUnit = TimeUnit.MINUTES)
+    @Scheduled(initialDelay = 5, fixedDelay = 5, timeUnit = TimeUnit.MINUTES)
     fun fjernUbrukteSoknader() {
         val leader = leaderElection.isLeader()
         log.info("Starter cronjob fjernUbrukteSoknader leader=$leader")
