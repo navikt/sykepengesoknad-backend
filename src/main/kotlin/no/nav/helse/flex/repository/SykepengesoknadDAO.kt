@@ -6,6 +6,7 @@ import no.nav.helse.flex.domain.Avsendertype
 import no.nav.helse.flex.domain.Merknad
 import no.nav.helse.flex.domain.Mottaker
 import no.nav.helse.flex.domain.Opprinnelse
+import no.nav.helse.flex.domain.Soknadsperiode
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
@@ -378,7 +379,7 @@ class SykepengesoknadDAO(
         )!!
     }
 
-    fun klippSoknadTom(sykepengesoknadUuid: String, klipp: LocalDate) {
+    fun klippSoknadTom(sykepengesoknadUuid: String, klipp: LocalDate): List<Soknadsperiode> {
         val sykepengesoknadId = sykepengesoknadId(sykepengesoknadUuid)
 
         val soknadPerioder = soknadsperiodeDAO.finnSoknadPerioder(setOf(sykepengesoknadId))[sykepengesoknadId]!!
@@ -406,6 +407,8 @@ class SykepengesoknadDAO(
             sykepengesoknadId = sykepengesoknadId,
             nyTom = klipp.minusDays(1)
         )
+
+        return nyePerioder
     }
 
     fun klippSoknadFom(sykepengesoknadUuid: String, klipp: LocalDate) {

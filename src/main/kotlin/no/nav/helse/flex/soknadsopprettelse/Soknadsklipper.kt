@@ -10,6 +10,9 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.kafka.producer.SoknadProducer
 import no.nav.helse.flex.logger
+import no.nav.helse.flex.repository.KlippVariant
+import no.nav.helse.flex.repository.KlippetSykepengesoknadDbRecord
+import no.nav.helse.flex.repository.KlippetSykepengesoknadRepository
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.soknadsopprettelse.Soknadsklipper.EndringIUforegrad.FLERE_PERIODER
@@ -21,6 +24,7 @@ import no.nav.helse.flex.util.Metrikk
 import no.nav.helse.flex.util.isAfterOrEqual
 import no.nav.helse.flex.util.isBeforeOrEqual
 import no.nav.helse.flex.util.overlap
+import no.nav.helse.flex.util.serialisertTilString
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
 import org.springframework.stereotype.Component
@@ -35,6 +39,7 @@ class Soknadsklipper(
     private val metrikk: Metrikk,
     private val aktiveringProducer: AktiveringProducer,
     private val soknadProducer: SoknadProducer,
+    private val klippetSykepengesoknadRepository: KlippetSykepengesoknadRepository,
 ) {
 
     val log = logger()
@@ -167,11 +172,23 @@ class Soknadsklipper(
             .forEach { sok ->
                 if (sok.status == Soknadstatus.FREMTIDIG) {
                     log.info("Sykmelding $sykmeldingId klipper søknad ${sok.id} tom fra: ${sok.tom} til: ${sykmeldingPeriode.start.minusDays(1)}")
-                    sykepengesoknadDAO.klippSoknadTom(
+
+                    val nyePerioder = sykepengesoknadDAO.klippSoknadTom(
                         sykepengesoknadUuid = sok.id,
                         klipp = sykmeldingPeriode.start
                     )
-                    if (sykmeldingPeriode.start.minusDays(1) < LocalDate.now()) {
+                    klippetSykepengesoknadRepository.save(
+                        KlippetSykepengesoknadDbRecord(
+                            sykepengesoknadUuid = sok.id,
+                            sykmeldingUuid = sykmeldingId,
+                            klippVariant = KlippVariant.SOKNAD_STARTER_INNI_SLUTTER_ETTER,
+                            periodeFor = sok.soknadPerioder!!.serialisertTilString(),
+                            periodeEtter = nyePerioder.serialisertTilString(),
+                            timestamp = Instant.now(),
+                        )
+                    )
+
+                    if (nyePerioder.maxOf { it.tom } < LocalDate.now()) {
                         aktiveringProducer.leggPaAktiveringTopic(AktiveringBestilling(sok.fnr, sok.id))
                     }
                 }
