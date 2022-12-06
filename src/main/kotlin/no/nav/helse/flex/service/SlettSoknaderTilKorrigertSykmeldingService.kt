@@ -30,7 +30,7 @@ class SlettSoknaderTilKorrigertSykmeldingService(
     }
 
     private fun Sykepengesoknad.slettSoknad(publiser: Boolean) {
-        val slettet = this.copy(status = no.nav.helse.flex.domain.Soknadstatus.SLETTET)
+        val slettet = this.copy(status = Soknadstatus.SLETTET)
 
         if (publiser) {
             soknadProducer.soknadEvent(slettet, null, false)
@@ -41,6 +41,6 @@ class SlettSoknaderTilKorrigertSykmeldingService(
 
     private fun Sykepengesoknad.settKorrigert() {
         log.info("Setter tidligere ${this.status} søknad ${this.id} til korrigert grunnet mottatt sykmelding ${this.sykmeldingId} som tolkes til å være korrigert")
-        sykepengesoknadDAO.oppdaterStatus(this.copy(status = no.nav.helse.flex.domain.Soknadstatus.KORRIGERT))
+        sykepengesoknadDAO.oppdaterStatus(this.copy(status = Soknadstatus.KORRIGERT))
     }
 }
