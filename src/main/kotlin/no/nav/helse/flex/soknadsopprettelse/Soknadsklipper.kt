@@ -232,9 +232,20 @@ class Soknadsklipper(
             .forEach { sok ->
                 if (sok.status == Soknadstatus.FREMTIDIG) {
                     log.info("Sykmelding $sykmeldingId klipper søknad ${sok.id} fom fra: ${sok.fom} til: ${sykmeldingPeriode.endInclusive.plusDays(1)}")
-                    sykepengesoknadDAO.klippSoknadFom(
+
+                    val nyePerioder = sykepengesoknadDAO.klippSoknadFom(
                         sykepengesoknadUuid = sok.id,
                         klipp = sykmeldingPeriode.endInclusive
+                    )
+                    klippetSykepengesoknadRepository.save(
+                        KlippetSykepengesoknadDbRecord(
+                            sykepengesoknadUuid = sok.id,
+                            sykmeldingUuid = sykmeldingId,
+                            klippVariant = KlippVariant.SOKNAD_STARTER_FOR_SLUTTER_INNI,
+                            periodeFor = sok.soknadPerioder!!.serialisertTilString(),
+                            periodeEtter = nyePerioder.serialisertTilString(),
+                            timestamp = Instant.now(),
+                        )
                     )
                 }
                 metrikk.klippSoknaderSomOverlapper(

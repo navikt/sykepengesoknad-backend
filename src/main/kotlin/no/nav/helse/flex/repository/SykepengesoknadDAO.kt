@@ -411,7 +411,7 @@ class SykepengesoknadDAO(
         return nyePerioder
     }
 
-    fun klippSoknadFom(sykepengesoknadUuid: String, klipp: LocalDate) {
+    fun klippSoknadFom(sykepengesoknadUuid: String, klipp: LocalDate): List<Soknadsperiode> {
         val sykepengesoknadId = sykepengesoknadId(sykepengesoknadUuid)
 
         val soknadPerioder = soknadsperiodeDAO.finnSoknadPerioder(setOf(sykepengesoknadId))[sykepengesoknadId]!!
@@ -439,6 +439,8 @@ class SykepengesoknadDAO(
             sykepengesoknadId = sykepengesoknadId,
             nyFom = klipp.plusDays(1)
         )
+
+        return nyePerioder
     }
 
     private fun oppdaterTom(sykepengesoknadId: String, nyTom: LocalDate) {
