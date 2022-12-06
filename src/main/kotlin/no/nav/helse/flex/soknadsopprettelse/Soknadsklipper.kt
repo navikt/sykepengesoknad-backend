@@ -1,6 +1,5 @@
 package no.nav.helse.flex.soknadsopprettelse
 
-import no.nav.helse.flex.aktivering.AktiverEnkeltSoknad
 import no.nav.helse.flex.aktivering.kafka.AktiveringBestilling
 import no.nav.helse.flex.aktivering.kafka.AktiveringProducer
 import no.nav.helse.flex.domain.Arbeidssituasjon
@@ -34,7 +33,6 @@ import java.time.LocalDate
 class Soknadsklipper(
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val metrikk: Metrikk,
-    private val aktiverEnkeltSoknad: AktiverEnkeltSoknad,
     private val aktiveringProducer: AktiveringProducer,
     private val soknadProducer: SoknadProducer,
 ) {
@@ -174,9 +172,6 @@ class Soknadsklipper(
                         klipp = sykmeldingPeriode.start
                     )
                     if (sykmeldingPeriode.start.minusDays(1) < LocalDate.now()) {
-                        // aktiverEnkeltSoknad.aktiverSoknad(sok.id)
-
-                        // TODO: Finne ut om FREMTIDIG -> klippet NY, kan legges på kafka i feil rekkefølge
                         aktiveringProducer.leggPaAktiveringTopic(AktiveringBestilling(sok.fnr, sok.id))
                     }
                 }
