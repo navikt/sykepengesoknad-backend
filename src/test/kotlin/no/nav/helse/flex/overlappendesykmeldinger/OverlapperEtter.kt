@@ -1,16 +1,21 @@
 package no.nav.helse.flex.overlappendesykmeldinger
 
+import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.aktivering.AktiveringJob
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
 import no.nav.helse.flex.domain.Arbeidsgiverperiode
 import no.nav.helse.flex.domain.Periode
+import no.nav.helse.flex.domain.Soknadsperiode
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
+import no.nav.helse.flex.domain.Sykmeldingstype
 import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
+import no.nav.helse.flex.repository.KlippVariant
+import no.nav.helse.flex.repository.KlippetSykepengesoknadRepository
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER_V2
@@ -32,6 +37,7 @@ import no.nav.helse.flex.testdata.reisetilskudd
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
+import no.nav.helse.flex.util.OBJECT_MAPPER
 import no.nav.helse.flex.ventPåRecords
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.GradertDTO
@@ -39,6 +45,7 @@ import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBeEqualTo
+import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -55,6 +62,14 @@ class OverlapperEtter : BaseTestClass() {
 
     @Autowired
     private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
+
+    @Autowired
+    private lateinit var klippetSykepengesoknadRepository: KlippetSykepengesoknadRepository
+
+    fun String?.tilSoknadsperioder(): List<Soknadsperiode>? {
+        return if (this == null) null
+        else OBJECT_MAPPER.readValue(this)
+    }
 
     private final val basisdato = LocalDate.now()
     private val fnr = "11555555555"
@@ -258,6 +273,29 @@ class OverlapperEtter : BaseTestClass() {
 
         soknad.fom shouldBeEqualTo basisdato.plusDays(16)
         soknad.tom shouldBeEqualTo basisdato.plusDays(20)
+
+        await().until { klippetSykepengesoknadRepository.findBySykmeldingUuid(soknad.sykmeldingId!!) != null }
+
+        val klipp = klippetSykepengesoknadRepository.findBySykmeldingUuid(soknad.sykmeldingId!!)!!
+        klipp.sykepengesoknadUuid shouldNotBeEqualTo soknad.id
+        klipp.sykmeldingUuid shouldBeEqualTo soknad.sykmeldingId
+        klipp.klippVariant shouldBeEqualTo KlippVariant.SYKMELDING_STARTER_FOR_SLUTTER_INNI
+        klipp.periodeFor.tilSoknadsperioder() shouldBeEqualTo listOf(
+            Soknadsperiode(
+                fom = basisdato.plusDays(10),
+                tom = basisdato.plusDays(20),
+                grad = 100,
+                sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+            )
+        )
+        klipp.periodeEtter.tilSoknadsperioder() shouldBeEqualTo listOf(
+            Soknadsperiode(
+                fom = basisdato.plusDays(16),
+                tom = basisdato.plusDays(20),
+                grad = 100,
+                sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+            )
+        )
     }
 
     @Test
