@@ -7,7 +7,9 @@ import org.springframework.stereotype.Repository
 import java.time.Instant
 
 @Repository
-interface KlippetSykepengesoknadRepository : CrudRepository<KlippetSykepengesoknadDbRecord, String>
+interface KlippetSykepengesoknadRepository : CrudRepository<KlippetSykepengesoknadDbRecord, String> {
+    fun findBySykmeldingUuid(sykmeldingUuid: String): KlippetSykepengesoknadDbRecord?
+}
 
 @Table("klippet_sykepengesoknad")
 data class KlippetSykepengesoknadDbRecord(
