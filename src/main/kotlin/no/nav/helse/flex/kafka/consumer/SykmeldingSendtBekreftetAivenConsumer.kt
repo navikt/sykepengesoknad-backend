@@ -37,7 +37,7 @@ class SykmeldingSendtBekreftetAivenConsumer(
         val melding = cr.value()?.tilSykmeldingKafkaMessage()
 
         try {
-            behandleSykmeldingOgBestillAktivering.prosesserSykmelding(cr.key(), melding)
+            behandleSykmeldingOgBestillAktivering.prosesserSykmelding(cr.key(), melding, cr.topic())
             val msBehandling = Instant.now().toEpochMilli() - cr.timestamp()
             if (msBehandling > 10000) {
                 log.warn("Brukte $msBehandling millisekunder på å behandle søknadsopprettelse for sykmelding ${cr.key()}")

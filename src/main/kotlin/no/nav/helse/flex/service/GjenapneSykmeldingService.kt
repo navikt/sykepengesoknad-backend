@@ -7,6 +7,7 @@ import no.nav.helse.flex.domain.Soknadstatus.FREMTIDIG
 import no.nav.helse.flex.domain.Soknadstatus.NY
 import no.nav.helse.flex.domain.Soknadstatus.UTKAST_TIL_KORRIGERING
 import no.nav.helse.flex.domain.Sykepengesoknad
+import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
 import no.nav.helse.flex.kafka.producer.SoknadProducer
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadDAO
@@ -21,18 +22,19 @@ class GjenapneSykmeldingService(
 ) {
     val log = logger()
 
-    fun prosesserTombstoneSykmelding(sykmeldingId: String) {
+    fun prosesserTombstoneSykmelding(sykmeldingId: String, topic: String) {
         val soknaderTilSykmeldingSomKanSlettes = sykepengesoknadDAO
             .finnSykepengesoknaderForSykmelding(sykmeldingId)
             .filter { listOf(NY, FREMTIDIG, AVBRUTT, UTKAST_TIL_KORRIGERING).contains(it.status) }
+            .filter { it.arbeidssituasjon != Arbeidssituasjon.ARBEIDSTAKER }
 
         if (soknaderTilSykmeldingSomKanSlettes.isEmpty()) {
             log.info("Mottok status åpen for sykmelding $sykmeldingId på kafka. Ingen tilhørende søknader.")
             return
         }
 
-        if (soknaderTilSykmeldingSomKanSlettes.any { it.arbeidssituasjon == Arbeidssituasjon.ARBEIDSTAKER }) {
-            log.error("Prosesserte åpen melding for $sykmeldingId,  men denne har arbeidstakersøknad. Den kan ikke endres så dette skal ikke skje. Da må være noe tidsforskyvelse")
+        if (topic == SYKMELDINGSENDT_TOPIC) {
+            log.error("Prosesserte åpen melding for $sykmeldingId fra sendt topicet. Den kan ikke endres så dette skal ikke skje.")
             return
         }
 

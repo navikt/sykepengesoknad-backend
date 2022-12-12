@@ -6,6 +6,7 @@ import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknaderMetadata
+import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
 import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO.*
@@ -60,7 +61,7 @@ class AutomatiskPapirsykmeldingOpprydningTest : BaseTestClass() {
             kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
         )
 
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
 
         val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 3).tilSoknader()
 
@@ -113,7 +114,7 @@ class AutomatiskPapirsykmeldingOpprydningTest : BaseTestClass() {
             kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
         )
 
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 0)
 
@@ -140,7 +141,7 @@ class AutomatiskPapirsykmeldingOpprydningTest : BaseTestClass() {
             kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
         )
 
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
 
         val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 6).tilSoknader()
 
@@ -176,7 +177,7 @@ class AutomatiskPapirsykmeldingOpprydningTest : BaseTestClass() {
             kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
         )
 
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 0)
 
@@ -207,7 +208,7 @@ class AutomatiskPapirsykmeldingOpprydningTest : BaseTestClass() {
             kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
         )
 
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
 
         val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 8).tilSoknader()
 

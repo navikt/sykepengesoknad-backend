@@ -16,6 +16,7 @@ import no.nav.helse.flex.finnMottakerAvSoknad
 import no.nav.helse.flex.gjenapneSoknad
 import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknaderMetadata
+import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
 import no.nav.helse.flex.korrigerSoknad
 import no.nav.helse.flex.lagreSvar
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
@@ -119,7 +120,7 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
 
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
 
         val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
         assertThat(soknader).hasSize(1)

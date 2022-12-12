@@ -53,7 +53,7 @@ class RebehandlingSykmeldingSendt(
                 )
                 acknowledgment.nack(Duration.ofMillis(sovetid))
             } else {
-                behandleSykmeldingOgBestillAktivering.prosesserSykmelding(cr.key(), sykmeldingKafkaMessage)
+                behandleSykmeldingOgBestillAktivering.prosesserSykmelding(cr.key(), sykmeldingKafkaMessage, cr.topic())
                 acknowledgment.acknowledge()
             }
         } catch (e: Exception) {

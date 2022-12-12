@@ -31,10 +31,10 @@ class BehandleSendtBekreftetSykmelding(
 ) {
     val log = logger()
 
-    fun prosesserSykmelding(sykmeldingId: String, sykmeldingKafkaMessage: SykmeldingKafkaMessage?): List<AktiveringBestilling> {
+    fun prosesserSykmelding(sykmeldingId: String, sykmeldingKafkaMessage: SykmeldingKafkaMessage?, topic: String): List<AktiveringBestilling> {
         if (sykmeldingKafkaMessage == null) {
             log.info("Mottok tombstone event for sykmelding $sykmeldingId")
-            sykmeldingStatusService.prosesserTombstoneSykmelding(sykmeldingId)
+            sykmeldingStatusService.prosesserTombstoneSykmelding(sykmeldingId, topic)
             return emptyList()
         }
         try {
