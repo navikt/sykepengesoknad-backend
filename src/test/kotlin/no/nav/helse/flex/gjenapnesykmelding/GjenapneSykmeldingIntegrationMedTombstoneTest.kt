@@ -6,6 +6,8 @@ import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknaderMetadata
+import no.nav.helse.flex.kafka.consumer.SYKMELDINGBEKREFTET_TOPIC
+import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
 import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
@@ -95,12 +97,14 @@ class GjenapneSykmeldingIntegrationMedTombstoneTest : BaseTestClass() {
         // TODO tombstone bedre
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
             sykmeldingId = sykmedlingIdTilNy,
-            sykmeldingKafkaMessage = null
+            sykmeldingKafkaMessage = null,
+            topic = SYKMELDINGBEKREFTET_TOPIC
         )
 
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
             sykmeldingId = sykmedlingIdTilSendt,
-            sykmeldingKafkaMessage = null
+            sykmeldingKafkaMessage = null,
+            topic = SYKMELDINGSENDT_TOPIC
         )
 
         val soknadPaKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().last()
@@ -133,7 +137,8 @@ class GjenapneSykmeldingIntegrationMedTombstoneTest : BaseTestClass() {
 
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
             sykmeldingId = kafkaSoknad.first().sykmeldingId!!,
-            sykmeldingKafkaMessage = null
+            sykmeldingKafkaMessage = null,
+            topic = SYKMELDINGSENDT_TOPIC
         )
 
         val soknaderEtterApenMelding = hentSoknaderMetadata(fnr)

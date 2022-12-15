@@ -5,6 +5,7 @@ import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknaderMetadata
+import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
 import no.nav.helse.flex.mockFlexSyketilfelleErUtaforVentetid
 import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
 import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER
@@ -82,7 +83,10 @@ class GradertReisetilskuddFrilanserTest : BaseTestClass() {
         mockFlexSyketilfelleErUtaforVentetid(sykmeldingId, true)
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
+            sykmeldingId, sykmeldingKafkaMessage,
+            SYKMELDINGSENDT_TOPIC
+        )
 
         val soknader =
             sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()

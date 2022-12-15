@@ -13,9 +13,9 @@ class BehandleSykmeldingOgBestillAktivering(
 ) {
     val log = logger()
 
-    fun prosesserSykmelding(sykmeldingId: String, sykmeldingKafkaMessage: SykmeldingKafkaMessage?) {
+    fun prosesserSykmelding(sykmeldingId: String, sykmeldingKafkaMessage: SykmeldingKafkaMessage?, topic: String) {
         val prosesserSykmelding =
-            behandleSendtBekreftetSykmelding.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage)
+            behandleSendtBekreftetSykmelding.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage, topic)
         return prosesserSykmelding
             .forEach { aktiveringProducer.leggPaAktiveringTopic(it) }
     }
