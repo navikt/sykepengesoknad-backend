@@ -123,7 +123,7 @@ fun opprettSendtFrilanserSoknad(): Sykepengesoknad {
 private fun Sykepengesoknad.leggSvarPaSoknad(): Sykepengesoknad {
     return this
         .besvarsporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
-        .besvarsporsmal(JOBBET_DU_100_PROSENT + "0", "NEI")
+        .besvarsporsmal(ARBEID_UNDERVEIS_100_PROSENT + "0", "NEI")
         .besvarsporsmal(JOBBET_DU_GRADERT + "1", "NEI")
         .harDuStudert()
         .harDuOppholdtDegIUtlandet()

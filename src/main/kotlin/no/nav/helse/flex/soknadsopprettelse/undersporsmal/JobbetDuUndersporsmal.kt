@@ -10,6 +10,7 @@ import no.nav.helse.flex.soknadsopprettelse.HVOR_MYE_PROSENT
 import no.nav.helse.flex.soknadsopprettelse.HVOR_MYE_PROSENT_VERDI
 import no.nav.helse.flex.soknadsopprettelse.HVOR_MYE_TIMER
 import no.nav.helse.flex.soknadsopprettelse.HVOR_MYE_TIMER_VERDI
+import no.nav.helse.flex.soknadsopprettelse.JOBBER_DU_NORMAL_ARBEIDSUKE
 import no.nav.helse.flex.util.DatoUtil
 import java.time.temporal.ChronoUnit
 import kotlin.math.roundToInt
@@ -17,25 +18,20 @@ import kotlin.math.roundToInt
 fun jobbetDuUndersporsmal(
     periode: Soknadsperiode,
     minProsent: Int,
-    index: Int
+    index: Int,
+    arbeidsgiverNavn: String? = null,
 ): List<Sporsmal> {
     val periodeTekst = DatoUtil.formatterPeriode(
         periode.fom,
         periode.tom
     )
+    val arbeidsgiver = if (arbeidsgiverNavn != null) " hos $arbeidsgiverNavn" else ""
     return listOf(
-        Sporsmal(
-            tag = HVOR_MANGE_TIMER_PER_UKE + index,
-            sporsmalstekst = "Hvor mange timer i uken jobber du vanligvis når du er frisk? Varierer det, kan du oppgi gjennomsnittet.",
-            svartype = Svartype.TALL,
-            min = "1",
-            max = "150"
-        ),
+
         Sporsmal(
             tag = HVOR_MYE_HAR_DU_JOBBET + index,
-            sporsmalstekst = "Hvor mye jobbet du tilsammen $periodeTekst?",
+            sporsmalstekst = "Oppgi arbeidsmengde i timer eller prosent:",
             svartype = Svartype.RADIO_GRUPPE_TIMER_PROSENT,
-            undertekst = "Velg timer eller prosent",
             undersporsmal = listOf(
                 Sporsmal(
                     tag = HVOR_MYE_TIMER + index,
@@ -44,6 +40,8 @@ fun jobbetDuUndersporsmal(
                     kriterieForVisningAvUndersporsmal = Visningskriterie.CHECKED,
                     undersporsmal = listOf(
                         Sporsmal(
+                            sporsmalstekst = "Oppgi totalt antall timer du jobbet i perioden $periodeTekst$arbeidsgiver",
+                            undertekst = "12", // TODO bruk en fornuftig tid
                             tag = HVOR_MYE_TIMER_VERDI + index,
                             svartype = Svartype.TIMER,
                             min = "1",
@@ -59,6 +57,8 @@ fun jobbetDuUndersporsmal(
                     kriterieForVisningAvUndersporsmal = Visningskriterie.CHECKED,
                     undersporsmal = listOf(
                         Sporsmal(
+                            sporsmalstekst = "Oppgi totalt antall timer du jobbet i perioden $periodeTekst$arbeidsgiver?",
+                            undertekst = "Eksempel 40%", // TODO bruk en fornuftig prosent
                             tag = HVOR_MYE_PROSENT_VERDI + index,
                             svartype = Svartype.PROSENT,
                             min = minProsent.toString(),
@@ -67,6 +67,20 @@ fun jobbetDuUndersporsmal(
                     )
                 ),
             )
-        )
+        ),
+        Sporsmal(
+            tag = JOBBER_DU_NORMAL_ARBEIDSUKE + index,
+            sporsmalstekst = "Jobber du vanligvis 37,5 timer i uka$arbeidsgiver?",
+            svartype = Svartype.JA_NEI,
+            kriterieForVisningAvUndersporsmal = Visningskriterie.NEI,
+            undersporsmal = listOf(
+                Sporsmal(
+                    tag = HVOR_MANGE_TIMER_PER_UKE + index,
+                    svartype = Svartype.TIMER,
+                    min = "1",
+                    max = "150"
+                )
+            )
+        ),
     )
 }

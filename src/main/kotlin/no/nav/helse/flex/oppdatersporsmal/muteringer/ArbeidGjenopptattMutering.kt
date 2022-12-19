@@ -58,7 +58,7 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
         this.skapOppdaterteSoknadsperioder(
             arbeidGjenopptattDato
         ),
-        this.arbeidsgiverNavn
+        this.arbeidsgiverNavn!!,
     ).toMutableList()
 
     if (!oppdatertTom!!.isBefore(this.fom)) {

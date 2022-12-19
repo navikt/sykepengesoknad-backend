@@ -73,7 +73,7 @@ private fun jobbetDuIPeriodenSporsmal(
 
 private fun jobbetDu100Prosent(periode: Soknadsperiode, arbeidssituasjon: Arbeidssituasjon, index: Int): Sporsmal {
     return Sporsmal(
-        tag = JOBBET_DU_100_PROSENT + index,
+        tag = ARBEID_UNDERVEIS_100_PROSENT + index,
         sporsmalstekst = "I perioden ${
         formatterPeriode(
             periode.fom,

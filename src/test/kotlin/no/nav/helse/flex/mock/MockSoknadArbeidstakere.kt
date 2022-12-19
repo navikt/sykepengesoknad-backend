@@ -241,7 +241,8 @@ private fun Sykepengesoknad.tilbakeIFulltArbeid(): Sykepengesoknad {
 }
 
 private fun Sykepengesoknad.jobbetDu100Prosent(): Sykepengesoknad {
-    return besvarsporsmal(JOBBET_DU_100_PROSENT + "0", "JA")
+    return besvarsporsmal(ARBEID_UNDERVEIS_100_PROSENT + "0", "JA")
+        .besvarsporsmal(JOBBER_DU_NORMAL_ARBEIDSUKE + "0", "NEI")
         .besvarsporsmal(HVOR_MANGE_TIMER_PER_UKE + "0", "37,5")
         .besvarsporsmal(HVOR_MYE_PROSENT + "0", "CHECKED")
         .besvarsporsmal(HVOR_MYE_PROSENT_VERDI + "0", "79")

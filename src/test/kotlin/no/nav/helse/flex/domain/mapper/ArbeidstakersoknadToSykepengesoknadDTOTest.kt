@@ -694,7 +694,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
             soknadPerioder = (listOf(Soknadsperiode(now().minusDays(19), now().minusDays(15), 100, null)))
         )
         sykepengesoknad = sykepengesoknad.replaceSporsmal(
-            sykepengesoknad.getSporsmalMedTag("JOBBET_DU_100_PROSENT_0").toBuilder()
+            sykepengesoknad.getSporsmalMedTag("ARBEID_UNDERVEIS_100_PROSENT_0").toBuilder()
                 .svar(listOf<Svar>(Svar(null, "NEI")))
                 .build()
         )

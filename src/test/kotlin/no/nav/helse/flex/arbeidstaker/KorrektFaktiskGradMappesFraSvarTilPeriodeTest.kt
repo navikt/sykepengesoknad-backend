@@ -92,7 +92,7 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : BaseTestClass() {
             .besvarSporsmal("HVOR_MANGE_TIMER_PER_UKE_1", "50", false)
             .besvarSporsmal("HVOR_MYE_PROSENT_1", "CHECKED", false)
             .besvarSporsmal("HVOR_MYE_PROSENT_VERDI_1", "50")
-            .besvarSporsmal("JOBBET_DU_100_PROSENT_0", "NEI")
+            .besvarSporsmal("ARBEID_UNDERVEIS_100_PROSENT_0", "NEI")
             .besvarSporsmal("HVOR_MYE_PROSENT_0", "CHECKED")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
             .besvarSporsmal(UTDANNING, "NEI")
@@ -124,61 +124,54 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : BaseTestClass() {
         vurdering.eventName `should be equal to` "subsumsjon"
         vurdering.utfall `should be equal to` Utfall.VILKAR_BEREGNET
         vurdering.input `should be equal to` """
-{
-  "fravar": [],
-  "versjon": "2022-02-01",
-  "arbeidUnderveis": [
-    {
-      "tag": "JOBBET_DU_100_PROSENT_0",
-      "svar": [
-        "NEI"
-      ],
-      "undersporsmal": []
-    },
-    {
-      "tag": "JOBBET_DU_GRADERT_1",
-      "svar": [
-        "JA"
-      ],
-      "undersporsmal": [
-        {
-          "tag": "HVOR_MANGE_TIMER_PER_UKE_1",
-          "svar": [
-            "50"
-          ],
-          "undersporsmal": []
-        },
-        {
-          "tag": "HVOR_MYE_HAR_DU_JOBBET_1",
-          "svar": [],
-          "undersporsmal": [
             {
-              "tag": "HVOR_MYE_PROSENT_1",
-              "svar": [
-                "CHECKED"
-              ],
-              "undersporsmal": [
+              "fravar": [],
+              "versjon": "2022-02-01",
+              "arbeidUnderveis": [
                 {
-                  "tag": "HVOR_MYE_PROSENT_VERDI_1",
+                  "tag": "JOBBET_DU_GRADERT_1",
                   "svar": [
-                    "50"
+                    "JA"
                   ],
-                  "undersporsmal": []
+                  "undersporsmal": [
+                    {
+                      "tag": "HVOR_MANGE_TIMER_PER_UKE_1",
+                      "svar": [
+                        "50"
+                      ],
+                      "undersporsmal": []
+                    },
+                    {
+                      "tag": "HVOR_MYE_HAR_DU_JOBBET_1",
+                      "svar": [],
+                      "undersporsmal": [
+                        {
+                          "tag": "HVOR_MYE_PROSENT_1",
+                          "svar": [
+                            "CHECKED"
+                          ],
+                          "undersporsmal": [
+                            {
+                              "tag": "HVOR_MYE_PROSENT_VERDI_1",
+                              "svar": [
+                                "50"
+                              ],
+                              "undersporsmal": []
+                            }
+                          ]
+                        },
+                        {
+                          "tag": "HVOR_MYE_TIMER_1",
+                          "svar": [],
+                          "undersporsmal": []
+                        }
+                      ]
+                    }
+                  ]
                 }
               ]
-            },
-            {
-              "tag": "HVOR_MYE_TIMER_1",
-              "svar": [],
-              "undersporsmal": []
             }
-          ]
-        }
-      ]
-    }
-  ]
-}            
-        """.jsonTilHashMap()
+        """.trimIndent().jsonTilHashMap()
         vurdering.output `should be equal to` """
 {
   "perioder": [
