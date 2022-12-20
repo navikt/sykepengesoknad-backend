@@ -124,53 +124,60 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : BaseTestClass() {
         vurdering.eventName `should be equal to` "subsumsjon"
         vurdering.utfall `should be equal to` Utfall.VILKAR_BEREGNET
         vurdering.input `should be equal to` """
+{
+  "fravar": [],
+  "versjon": "2022-02-01",
+  "arbeidUnderveis": [
+    {
+      "tag": "ARBEID_UNDERVEIS_100_PROSENT_0",
+      "svar": [
+        "NEI"
+      ],
+      "undersporsmal": []
+    },
+    {
+      "tag": "JOBBET_DU_GRADERT_1",
+      "svar": [
+        "JA"
+      ],
+      "undersporsmal": [
+        {
+          "tag": "HVOR_MANGE_TIMER_PER_UKE_1",
+          "svar": [
+            "50"
+          ],
+          "undersporsmal": []
+        },
+        {
+          "tag": "HVOR_MYE_HAR_DU_JOBBET_1",
+          "svar": [],
+          "undersporsmal": [
             {
-              "fravar": [],
-              "versjon": "2022-02-01",
-              "arbeidUnderveis": [
+              "tag": "HVOR_MYE_PROSENT_1",
+              "svar": [
+                "CHECKED"
+              ],
+              "undersporsmal": [
                 {
-                  "tag": "JOBBET_DU_GRADERT_1",
+                  "tag": "HVOR_MYE_PROSENT_VERDI_1",
                   "svar": [
-                    "JA"
+                    "50"
                   ],
-                  "undersporsmal": [
-                    {
-                      "tag": "HVOR_MANGE_TIMER_PER_UKE_1",
-                      "svar": [
-                        "50"
-                      ],
-                      "undersporsmal": []
-                    },
-                    {
-                      "tag": "HVOR_MYE_HAR_DU_JOBBET_1",
-                      "svar": [],
-                      "undersporsmal": [
-                        {
-                          "tag": "HVOR_MYE_PROSENT_1",
-                          "svar": [
-                            "CHECKED"
-                          ],
-                          "undersporsmal": [
-                            {
-                              "tag": "HVOR_MYE_PROSENT_VERDI_1",
-                              "svar": [
-                                "50"
-                              ],
-                              "undersporsmal": []
-                            }
-                          ]
-                        },
-                        {
-                          "tag": "HVOR_MYE_TIMER_1",
-                          "svar": [],
-                          "undersporsmal": []
-                        }
-                      ]
-                    }
-                  ]
+                  "undersporsmal": []
                 }
               ]
+            },
+            {
+              "tag": "HVOR_MYE_TIMER_1",
+              "svar": [],
+              "undersporsmal": []
             }
+          ]
+        }
+      ]
+    }
+  ]
+}
         """.trimIndent().jsonTilHashMap()
         vurdering.output `should be equal to` """
 {

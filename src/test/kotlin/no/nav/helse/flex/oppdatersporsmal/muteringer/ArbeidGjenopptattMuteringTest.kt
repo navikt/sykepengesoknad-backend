@@ -5,7 +5,6 @@ import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.soknadsopprettelse.ARBEID_UNDERVEIS_100_PROSENT
-import no.nav.helse.flex.soknadsopprettelse.JOBBET_DU_100_PROSENT
 import no.nav.helse.flex.soknadsopprettelse.PERMISJON_V2
 import no.nav.helse.flex.soknadsopprettelse.TILBAKE_I_ARBEID
 import no.nav.helse.flex.soknadsopprettelse.settOppSoknadArbeidstaker
