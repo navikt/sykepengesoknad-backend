@@ -41,7 +41,7 @@ fun jobbetDuUndersporsmal(
                     undersporsmal = listOf(
                         Sporsmal(
                             sporsmalstekst = "Oppgi totalt antall timer du jobbet i perioden $periodeTekst$arbeidsgiver",
-                            undertekst = "12", // TODO bruk en fornuftig tid
+                            undertekst = "Oppgi i timer. Eksempel: 12",
                             tag = HVOR_MYE_TIMER_VERDI + index,
                             svartype = Svartype.TIMER,
                             min = "1",
@@ -57,8 +57,8 @@ fun jobbetDuUndersporsmal(
                     kriterieForVisningAvUndersporsmal = Visningskriterie.CHECKED,
                     undersporsmal = listOf(
                         Sporsmal(
-                            sporsmalstekst = "Oppgi totalt antall timer du jobbet i perioden $periodeTekst$arbeidsgiver?",
-                            undertekst = "Eksempel 40%", // TODO bruk en fornuftig prosent
+                            sporsmalstekst = "Oppgi hvor mange prosent av din normale arbeidstid du jobbet$arbeidsgiver i perioden $periodeTekst?",
+                            undertekst = "Oppgi i prosent. Eksempel: 40",
                             tag = HVOR_MYE_PROSENT_VERDI + index,
                             svartype = Svartype.PROSENT,
                             min = minProsent.toString(),
@@ -75,6 +75,7 @@ fun jobbetDuUndersporsmal(
             kriterieForVisningAvUndersporsmal = Visningskriterie.NEI,
             undersporsmal = listOf(
                 Sporsmal(
+                    sporsmalstekst = "Oppgi timer per uke",
                     tag = HVOR_MANGE_TIMER_PER_UKE + index,
                     svartype = Svartype.TIMER,
                     min = "1",
