@@ -14,6 +14,7 @@ import no.nav.helse.flex.soknadsopprettelse.HVOR_MANGE_TIMER_PER_UKE
 import no.nav.helse.flex.soknadsopprettelse.HVOR_MYE_PROSENT_VERDI
 import no.nav.helse.flex.soknadsopprettelse.HVOR_MYE_TIMER
 import no.nav.helse.flex.soknadsopprettelse.HVOR_MYE_TIMER_VERDI
+import no.nav.helse.flex.soknadsopprettelse.JOBBER_DU_NORMAL_ARBEIDSUKE
 import no.nav.helse.flex.soknadsopprettelse.JOBBET_DU_100_PROSENT
 import no.nav.helse.flex.soknadsopprettelse.JOBBET_DU_GRADERT
 import no.nav.helse.flex.sykepengesoknad.kafka.FravarstypeDTO
@@ -57,6 +58,14 @@ fun hentSoknadsPerioderMedFaktiskGrad(sykepengesoknad: Sykepengesoknad): Pair<Li
                 ?.forsteSvar
                 ?.replace(',', '.')
                 ?.let { java.lang.Double.parseDouble(it) }
+
+            sykepengesoknad.getSporsmalMedTagOrNull(JOBBER_DU_NORMAL_ARBEIDSUKE + i)
+                ?.forsteSvar
+                ?.let {
+                    if (it == "JA") {
+                        avtaltTimer = 37.5
+                    }
+                }
 
             val gradSporsmal = sykepengesoknad.getSporsmalMedTagOrNull(HVOR_MYE_PROSENT_VERDI + i)
 
