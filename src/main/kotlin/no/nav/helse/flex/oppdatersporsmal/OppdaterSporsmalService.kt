@@ -39,7 +39,6 @@ class OppdaterSporsmalService(
             ?: throw IllegalArgumentException("Soknad fra basen skal ha spørsmålet")
 
         if (listOf(sporsmal).erUlikUtenomSvar(listOf(sporsmaletFraBasen))) {
-            log.warn(sporsmal.toString() + " er ulik " + sporsmaletFraBasen) // TODO skal bort når vi er sikre på at det ikke er noen feil
             throw IllegalArgumentException("Spørsmål i databasen er ulikt spørsmål som er besvart")
         }
 
