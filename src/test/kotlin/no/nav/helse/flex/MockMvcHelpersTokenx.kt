@@ -40,6 +40,10 @@ fun BaseTestClass.hentSoknad(soknadId: String, fnr: String): RSSykepengesoknad {
     return OBJECT_MAPPER.readValue(json)
 }
 
+fun BaseTestClass.hentSoknader(fnr: String): List<RSSykepengesoknad> = hentSoknaderMetadata(fnr).map {
+    hentSoknad(it.id, fnr)
+}
+
 fun BaseTestClass.lagreSvarMedResult(fnr: String, soknadId: String, sporsmalId: String, svar: RSSvar): ResultActions {
     return this.mockMvc.perform(
         MockMvcRequestBuilders.post("/api/v2/soknader/$soknadId/sporsmal/$sporsmalId/svar")
@@ -49,7 +53,12 @@ fun BaseTestClass.lagreSvarMedResult(fnr: String, soknadId: String, sporsmalId: 
     )
 }
 
-fun BaseTestClass.lagreSvar(fnr: String, soknadId: String, sporsmalId: String, svar: RSSvar): RSOppdaterSporsmalResponse {
+fun BaseTestClass.lagreSvar(
+    fnr: String,
+    soknadId: String,
+    sporsmalId: String,
+    svar: RSSvar
+): RSOppdaterSporsmalResponse {
     val json = lagreSvarMedResult(fnr, soknadId, sporsmalId, svar)
         .andExpect(MockMvcResultMatchers.status().isCreated)
         .andReturn().response.contentAsString
@@ -159,7 +168,12 @@ fun BaseTestClass.oppdaterSporsmalMedResult(fnr: String, rsSporsmal: RSSporsmal,
     )
 }
 
-fun BaseTestClass.oppdaterSporsmal(fnr: String, rsSporsmal: RSSporsmal, soknadsId: String, mutert: Boolean): RSOppdaterSporsmalResponse {
+fun BaseTestClass.oppdaterSporsmal(
+    fnr: String,
+    rsSporsmal: RSSporsmal,
+    soknadsId: String,
+    mutert: Boolean
+): RSOppdaterSporsmalResponse {
     val json =
         this.oppdaterSporsmalMedResult(fnr, rsSporsmal, soknadsId).andExpect(MockMvcResultMatchers.status().isOk)
             .andReturn().response.contentAsString
