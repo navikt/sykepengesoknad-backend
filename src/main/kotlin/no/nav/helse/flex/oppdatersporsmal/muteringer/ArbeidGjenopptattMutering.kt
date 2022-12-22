@@ -1,10 +1,12 @@
 package no.nav.helse.flex.oppdatersporsmal.muteringer
 
+import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstype.ARBEIDSTAKERE
 import no.nav.helse.flex.domain.Soknadstype.SELVSTENDIGE_OG_FRILANSERE
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.oppdatersporsmal.erIkkeAvType
 import no.nav.helse.flex.oppdatersporsmal.leggTilSporsmaal
+import no.nav.helse.flex.soknadsopprettelse.ARBEID_UNDERVEIS_100_PROSENT
 import no.nav.helse.flex.soknadsopprettelse.FERIE_PERMISJON_UTLAND
 import no.nav.helse.flex.soknadsopprettelse.FERIE_V2
 import no.nav.helse.flex.soknadsopprettelse.JOBBET_DU_100_PROSENT
@@ -18,6 +20,7 @@ import no.nav.helse.flex.soknadsopprettelse.ferieSporsmal
 import no.nav.helse.flex.soknadsopprettelse.gammeltFormatFeriePermisjonUtlandsoppholdSporsmal
 import no.nav.helse.flex.soknadsopprettelse.harFeriePermisjonEllerUtenlandsoppholdSporsmal
 import no.nav.helse.flex.soknadsopprettelse.jobbetDuIPeriodenSporsmal
+import no.nav.helse.flex.soknadsopprettelse.jobbetDuIPeriodenSporsmalSelvstendigFrilanser
 import no.nav.helse.flex.soknadsopprettelse.oppdateringhelpers.finnGyldigDatoSvar
 import no.nav.helse.flex.soknadsopprettelse.oppdateringhelpers.skapOppdaterteSoknadsperioder
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.permisjonSporsmal
@@ -38,6 +41,7 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
                     .asSequence()
                     .filterNot { (_, tag) -> tag.startsWith(JOBBET_DU_GRADERT) }
                     .filterNot { (_, tag) -> tag.startsWith(JOBBET_DU_100_PROSENT) }
+                    .filterNot { (_, tag) -> tag.startsWith(ARBEID_UNDERVEIS_100_PROSENT) }
                     .filterNot { (_, tag) -> tag == FERIE_PERMISJON_UTLAND }
                     .filterNot { (_, tag) -> tag == FERIE_V2 }
                     .filterNot { (_, tag) -> tag == PERMISJON_V2 }
@@ -54,12 +58,21 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
         arbeidGjenopptattDato.minusDays(1)
     }
 
-    val oppdaterteSporsmal = jobbetDuIPeriodenSporsmal(
-        this.skapOppdaterteSoknadsperioder(
-            arbeidGjenopptattDato
-        ),
-        this.arbeidsgiverNavn!!,
-    ).toMutableList()
+    val oppdaterteSporsmal = if (arbeidssituasjon == Arbeidssituasjon.ARBEIDSTAKER) {
+        jobbetDuIPeriodenSporsmal(
+            this.skapOppdaterteSoknadsperioder(
+                arbeidGjenopptattDato
+            ),
+            this.arbeidsgiverNavn!!,
+        ).toMutableList()
+    } else {
+        jobbetDuIPeriodenSporsmalSelvstendigFrilanser(
+            this.skapOppdaterteSoknadsperioder(
+                arbeidGjenopptattDato
+            ),
+            this.arbeidssituasjon!!,
+        ).toMutableList()
+    }
 
     if (!oppdatertTom!!.isBefore(this.fom)) {
         if (harFeriePermisjonEllerUtenlandsoppholdSporsmal()) {
