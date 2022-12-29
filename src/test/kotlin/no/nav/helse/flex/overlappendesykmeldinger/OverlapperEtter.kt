@@ -20,11 +20,11 @@ import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER_V2
 import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
+import no.nav.helse.flex.soknadsopprettelse.ARBEID_UNDERVEIS_100_PROSENT
 import no.nav.helse.flex.soknadsopprettelse.ARBEID_UTENFOR_NORGE
 import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
 import no.nav.helse.flex.soknadsopprettelse.FERIE_V2
 import no.nav.helse.flex.soknadsopprettelse.FRAVAR_FOR_SYKMELDINGEN
-import no.nav.helse.flex.soknadsopprettelse.JOBBET_DU_100_PROSENT
 import no.nav.helse.flex.soknadsopprettelse.PERMISJON_V2
 import no.nav.helse.flex.soknadsopprettelse.TILBAKE_I_ARBEID
 import no.nav.helse.flex.soknadsopprettelse.UTDANNING
@@ -247,7 +247,7 @@ class OverlapperEtter : BaseTestClass() {
             .besvarSporsmal(PERMISJON_V2, "NEI")
             .besvarSporsmal(FERIE_V2, "NEI")
             .besvarSporsmal(UTLAND_V2, "NEI")
-            .besvarSporsmal(JOBBET_DU_100_PROSENT + '0', "NEI")
+            .besvarSporsmal(ARBEID_UNDERVEIS_100_PROSENT + '0', "NEI")
             .besvarSporsmal(ARBEID_UTENFOR_NORGE, "NEI")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
             .besvarSporsmal(UTDANNING, "NEI")
@@ -445,7 +445,7 @@ class OverlapperEtter : BaseTestClass() {
             .besvarSporsmal(PERMISJON_V2, "NEI")
             .besvarSporsmal(FERIE_V2, "NEI")
             .besvarSporsmal(UTLAND_V2, "NEI")
-            .besvarSporsmal(JOBBET_DU_100_PROSENT + '0', "NEI")
+            .besvarSporsmal(ARBEID_UNDERVEIS_100_PROSENT + '0', "NEI")
             .besvarSporsmal(ARBEID_UTENFOR_NORGE, "NEI")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
             .besvarSporsmal(UTDANNING, "NEI")

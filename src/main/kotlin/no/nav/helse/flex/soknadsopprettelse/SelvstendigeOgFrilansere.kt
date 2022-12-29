@@ -43,7 +43,7 @@ fun settOppSoknadSelvstendigOgFrilanser(
         bekreftOpplysningerSporsmal(),
         vaerKlarOverAt(gradertReisetilskudd = gradertReisetilskudd)
     ).also {
-        it.addAll(jobbetDuIPeriodenSporsmal(soknadMetadata.soknadPerioder!!, soknadMetadata.arbeidssituasjon))
+        it.addAll(jobbetDuIPeriodenSporsmalSelvstendigFrilanser(soknadMetadata.soknadPerioder!!, soknadMetadata.arbeidssituasjon))
         if (erForsteSoknadISykeforlop) {
             it.add(arbeidUtenforNorge())
         }
@@ -53,7 +53,7 @@ fun settOppSoknadSelvstendigOgFrilanser(
     }.toList()
 }
 
-private fun jobbetDuIPeriodenSporsmal(
+fun jobbetDuIPeriodenSporsmalSelvstendigFrilanser(
     soknadsperioder: List<Soknadsperiode>,
     arbeidssituasjon: Arbeidssituasjon
 ): List<Sporsmal> {
@@ -73,7 +73,7 @@ private fun jobbetDuIPeriodenSporsmal(
 
 private fun jobbetDu100Prosent(periode: Soknadsperiode, arbeidssituasjon: Arbeidssituasjon, index: Int): Sporsmal {
     return Sporsmal(
-        tag = JOBBET_DU_100_PROSENT + index,
+        tag = ARBEID_UNDERVEIS_100_PROSENT + index,
         sporsmalstekst = "I perioden ${
         formatterPeriode(
             periode.fom,
@@ -173,7 +173,7 @@ fun oppdaterMedSvarPaArbeidGjenopptattSelvstendig(sykepengesoknad: Sykepengesokn
         .toMutableList()
 
     oppdaterteSporsmal.addAll(
-        jobbetDuIPeriodenSporsmal(
+        jobbetDuIPeriodenSporsmalSelvstendigFrilanser(
             sykepengesoknad.skapOppdaterteSoknadsperioder(
                 arbeidGjenopptattDato
             ),

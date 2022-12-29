@@ -4,7 +4,7 @@ import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.soknadsopprettelse.JOBBET_DU_100_PROSENT
+import no.nav.helse.flex.soknadsopprettelse.ARBEID_UNDERVEIS_100_PROSENT
 import no.nav.helse.flex.soknadsopprettelse.PERMISJON_V2
 import no.nav.helse.flex.soknadsopprettelse.TILBAKE_I_ARBEID
 import no.nav.helse.flex.soknadsopprettelse.settOppSoknadArbeidstaker
@@ -70,14 +70,14 @@ class ArbeidGjenopptattMuteringTest {
 
         val soknadUtenJobbetDU = standardSoknad
             .besvarsporsmal(TILBAKE_I_ARBEID, svar = "NEI")
-            .fjernSporsmal("JOBBET_DU_100_PROSENT_0")
+            .fjernSporsmal("ARBEID_UNDERVEIS_100_PROSENT_0")
 
-        soknadUtenJobbetDU.sporsmal.find { it.tag.startsWith(JOBBET_DU_100_PROSENT) }.`should be null`()
+        soknadUtenJobbetDU.sporsmal.find { it.tag.startsWith(ARBEID_UNDERVEIS_100_PROSENT) }.`should be null`()
         soknadUtenJobbetDU.sporsmal.shouldHaveSize(11)
 
         val mutertSoknad = soknadUtenJobbetDU.arbeidGjenopptattMutering()
 
-        mutertSoknad.sporsmal.find { it.tag.startsWith(JOBBET_DU_100_PROSENT) }.`should not be null`()
+        mutertSoknad.sporsmal.find { it.tag.startsWith(ARBEID_UNDERVEIS_100_PROSENT) }.`should not be null`()
         mutertSoknad.sporsmal.shouldHaveSize(12)
     }
 

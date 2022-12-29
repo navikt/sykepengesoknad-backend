@@ -92,7 +92,7 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : BaseTestClass() {
             .besvarSporsmal("HVOR_MANGE_TIMER_PER_UKE_1", "50", false)
             .besvarSporsmal("HVOR_MYE_PROSENT_1", "CHECKED", false)
             .besvarSporsmal("HVOR_MYE_PROSENT_VERDI_1", "50")
-            .besvarSporsmal("JOBBET_DU_100_PROSENT_0", "NEI")
+            .besvarSporsmal("ARBEID_UNDERVEIS_100_PROSENT_0", "NEI")
             .besvarSporsmal("HVOR_MYE_PROSENT_0", "CHECKED")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
             .besvarSporsmal(UTDANNING, "NEI")
@@ -129,7 +129,7 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : BaseTestClass() {
   "versjon": "2022-02-01",
   "arbeidUnderveis": [
     {
-      "tag": "JOBBET_DU_100_PROSENT_0",
+      "tag": "ARBEID_UNDERVEIS_100_PROSENT_0",
       "svar": [
         "NEI"
       ],
@@ -177,8 +177,8 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : BaseTestClass() {
       ]
     }
   ]
-}            
-        """.jsonTilHashMap()
+}
+        """.trimIndent().jsonTilHashMap()
         vurdering.output `should be equal to` """
 {
   "perioder": [

@@ -104,7 +104,7 @@ class LangArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
                 "FERIE_V2",
                 "PERMISJON_V2",
                 "UTLAND_V2",
-                "JOBBET_DU_100_PROSENT_0",
+                "ARBEID_UNDERVEIS_100_PROSENT_0",
                 "ARBEID_UTENFOR_NORGE",
                 "ANDRE_INNTEKTSKILDER_V2",
                 "UTDANNING",
@@ -134,7 +134,7 @@ class LangArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
             .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
             .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
             .besvarSporsmal(tag = "ARBEID_UTENFOR_NORGE", svar = "NEI")
-            .besvarSporsmal(tag = "JOBBET_DU_100_PROSENT_0", svar = "NEI")
+            .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
             .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
             .besvarSporsmal(tag = "UTDANNING", svar = "NEI")
             .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
@@ -177,7 +177,7 @@ class LangArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
             .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
             .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
             .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
-            .besvarSporsmal(tag = "JOBBET_DU_100_PROSENT_0", svar = "NEI")
+            .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
             .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
             .besvarSporsmal(tag = "UTDANNING", svar = "NEI")
             .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")

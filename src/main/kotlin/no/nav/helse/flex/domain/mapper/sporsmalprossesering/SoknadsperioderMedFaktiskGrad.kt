@@ -9,10 +9,12 @@ import no.nav.helse.flex.juridiskvurdering.SporingType.organisasjonsnummer
 import no.nav.helse.flex.juridiskvurdering.SporingType.soknad
 import no.nav.helse.flex.juridiskvurdering.SporingType.sykmelding
 import no.nav.helse.flex.juridiskvurdering.Utfall
+import no.nav.helse.flex.soknadsopprettelse.ARBEID_UNDERVEIS_100_PROSENT
 import no.nav.helse.flex.soknadsopprettelse.HVOR_MANGE_TIMER_PER_UKE
 import no.nav.helse.flex.soknadsopprettelse.HVOR_MYE_PROSENT_VERDI
 import no.nav.helse.flex.soknadsopprettelse.HVOR_MYE_TIMER
 import no.nav.helse.flex.soknadsopprettelse.HVOR_MYE_TIMER_VERDI
+import no.nav.helse.flex.soknadsopprettelse.JOBBER_DU_NORMAL_ARBEIDSUKE
 import no.nav.helse.flex.soknadsopprettelse.JOBBET_DU_100_PROSENT
 import no.nav.helse.flex.soknadsopprettelse.JOBBET_DU_GRADERT
 import no.nav.helse.flex.sykepengesoknad.kafka.FravarstypeDTO
@@ -30,19 +32,40 @@ fun hentSoknadsPerioderMedFaktiskGrad(sykepengesoknad: Sykepengesoknad): Pair<Li
     for (i in soknadperioder!!.indices) {
         val soknadPeriode = soknadperioder[i]
 
-        val tag = (if (soknadPeriode.grad == 100) JOBBET_DU_100_PROSENT else JOBBET_DU_GRADERT) + i
+        val tag = (
+            if (soknadPeriode.grad == 100) listOf(
+                JOBBET_DU_100_PROSENT + i,
+                ARBEID_UNDERVEIS_100_PROSENT + i
+            ) else listOf(JOBBET_DU_GRADERT + i)
+            )
 
         var avtaltTimer: Double? = null
         var faktiskTimer: Double? = null
         var faktiskGrad: Int? = null
 
-        val sporsmal = sykepengesoknad.getSporsmalMedTagOrNull(tag)
+        fun hentSporsmal(): Sporsmal? {
+            tag.forEach { tag ->
+                val spm = sykepengesoknad.getSporsmalMedTagOrNull(tag)
+                spm?.let { return it }
+            }
+            return null
+        }
+
+        val sporsmal = hentSporsmal()
         sporsmal?.let { inputSpm.add(it) }
         if (sporsmal?.forsteSvar == "JA") {
             avtaltTimer = sykepengesoknad.getSporsmalMedTagOrNull(HVOR_MANGE_TIMER_PER_UKE + i)
                 ?.forsteSvar
                 ?.replace(',', '.')
                 ?.let { java.lang.Double.parseDouble(it) }
+
+            sykepengesoknad.getSporsmalMedTagOrNull(JOBBER_DU_NORMAL_ARBEIDSUKE + i)
+                ?.forsteSvar
+                ?.let {
+                    if (it == "JA") {
+                        avtaltTimer = 37.5
+                    }
+                }
 
             val gradSporsmal = sykepengesoknad.getSporsmalMedTagOrNull(HVOR_MYE_PROSENT_VERDI + i)
 

@@ -262,7 +262,7 @@ fun gammeltFormatFeriePermisjonUtlandsoppholdSporsmal(fom: LocalDate, tom: Local
 
 fun jobbetDuIPeriodenSporsmal(
     soknadsperioder: List<Soknadsperiode>,
-    arbeidsgiverNavn: String?,
+    arbeidsgiverNavn: String,
 ): List<Sporsmal> {
     return soknadsperioder
         .lastIndex.downTo(0)
@@ -277,18 +277,18 @@ fun jobbetDuIPeriodenSporsmal(
         }
 }
 
-private fun jobbetDu100Prosent(periode: Soknadsperiode, arbeidsgiver: String?, index: Int): Sporsmal {
+private fun jobbetDu100Prosent(periode: Soknadsperiode, arbeidsgiver: String, index: Int): Sporsmal {
     return Sporsmal(
-        tag = JOBBET_DU_100_PROSENT + index,
+        tag = ARBEID_UNDERVEIS_100_PROSENT + index,
         sporsmalstekst = "I perioden ${
         formatterPeriode(
             periode.fom,
             periode.tom
         )
-        } var du 100 % sykmeldt fra $arbeidsgiver. Jobbet du noe i denne perioden?",
+        } var du 100 % sykmeldt fra $arbeidsgiver. Jobbet du noe hos $arbeidsgiver i denne perioden?",
         svartype = JA_NEI,
         kriterieForVisningAvUndersporsmal = JA,
-        undersporsmal = jobbetDuUndersporsmal(periode = periode, minProsent = 1, index = index)
+        undersporsmal = jobbetDuUndersporsmal(periode = periode, minProsent = 1, index = index, arbeidsgiverNavn = arbeidsgiver)
     )
 }
 
