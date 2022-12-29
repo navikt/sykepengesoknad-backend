@@ -8,6 +8,7 @@ import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Sykmeldingstype
 import no.nav.helse.flex.domain.Visningskriterie
+import no.nav.syfo.model.UtenlandskSykmelding
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Table
 import java.time.Instant
@@ -41,6 +42,7 @@ data class SykepengesoknadDbRecord(
     val merknaderFraSykmelding: String?,
     val avbruttFeilinfo: Boolean?,
     val opprettetAvInntektsmelding: Boolean = false,
+    val utenlandskSykmelding: Boolean,
 )
 
 data class SporsmalDbRecord(

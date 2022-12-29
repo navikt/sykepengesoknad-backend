@@ -61,9 +61,10 @@ fun opprettNySoknad(): Sykepengesoknad {
                 innspillTilArbeidsgiver = null,
                 reisetilskudd = false,
             ),
-        ).tilSoknadsperioder()
+        ).tilSoknadsperioder(),
+        utenlandskSykmelding = false,
 
-    )
+        )
 
     return sykepengesoknad.copy(sporsmal = settOppSoknadArbeidsledig(sykepengesoknad, false))
 }

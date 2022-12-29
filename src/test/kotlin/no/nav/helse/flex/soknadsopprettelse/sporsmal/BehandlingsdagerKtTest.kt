@@ -51,7 +51,8 @@ class BehandlingsdagerKtTest {
         id = UUID.randomUUID().toString(),
         status = Soknadstatus.NY,
         opprettet = Instant.now(),
-        sporsmal = emptyList()
+        sporsmal = emptyList(),
+        utenlandskSykmelding = false,
     )
 
     @Test

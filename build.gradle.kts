@@ -41,7 +41,7 @@ val tokenSupportVersion = "2.1.9"
 val smCommonVersion = "1.1e5e122"
 val confluentVersion = "7.3.1"
 val syfoKafkaVersion = "2021.07.20-09.39-6be2c52c"
-val sykepengesoknadKafkaVersion = "2022.10.28-10.24-aa0eced7"
+val sykepengesoknadKafkaVersion = "2022.12.21-07.53-20bd43a2"
 val mockitoKotlinVersion = "2.2.0"
 val ojdbc8Version = "19.3.0.0"
 val avroVersion = "1.11.1"
@@ -114,5 +114,5 @@ tasks.withType<Test> {
         events("STARTED", "PASSED", "FAILED", "SKIPPED")
         exceptionFormat = FULL
     }
-    failFast = false
+    failFast = true
 }

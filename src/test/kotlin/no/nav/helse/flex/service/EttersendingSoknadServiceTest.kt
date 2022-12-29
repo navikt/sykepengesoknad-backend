@@ -243,6 +243,7 @@ class EttersendingSoknadServiceTest {
             status = NY,
             opprettet = Instant.now(),
             sporsmal = emptyList(),
+            utenlandskSykmelding = false,
         )
         return soknadMetadata.copy(
             sporsmal = settOppSykepengesoknadBehandlingsdager(
@@ -280,6 +281,7 @@ class EttersendingSoknadServiceTest {
             status = NY,
             opprettet = Instant.now(),
             sporsmal = emptyList(),
+            utenlandskSykmelding = false,
         )
         return soknadMetadata.copy(
             sporsmal = settOppSoknadArbeidstaker(

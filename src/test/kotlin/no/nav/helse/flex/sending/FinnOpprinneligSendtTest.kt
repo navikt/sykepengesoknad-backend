@@ -103,6 +103,7 @@ class FinnOpprinneligSendtTest {
             egenmeldtSykmelding = null,
             merknaderFraSykmelding = null,
             avbruttFeilinfo = null,
+            utenlandskSykmelding = false,
         )
     }
 }

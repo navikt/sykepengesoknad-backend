@@ -55,6 +55,7 @@ fun opprettBehandlingsdagsoknadTestadata(
         status = Soknadstatus.NY,
         opprettet = Instant.now(),
         sporsmal = emptyList(),
+        utenlandskSykmelding = false,
     )
     return soknadMetadata.copy(
         sporsmal = settOppSykepengesoknadBehandlingsdager(

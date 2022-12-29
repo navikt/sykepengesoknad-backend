@@ -74,9 +74,10 @@ fun gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal(): Sykepenge
             ),
         ).tilSoknadsperioder(),
         soknadstype = Soknadstype.ARBEIDSTAKERE,
-        egenmeldtSykmelding = null
+        egenmeldtSykmelding = null,
+        utenlandskSykmelding = false,
 
-    )
+        )
 
     val sykepengesoknad = leggSvarPaSoknad(deprecatedGetSoknadMedFeriesporsmalSomUndersporsmal(soknadMetadata))
     return sykepengesoknad.copy(sendtNav = Instant.now(), sendtArbeidsgiver = Instant.now())
@@ -121,8 +122,9 @@ fun opprettSendtSoknad(): Sykepengesoknad {
         ).tilSoknadsperioder(),
         soknadstype = Soknadstype.ARBEIDSTAKERE,
         egenmeldtSykmelding = null,
+        utenlandskSykmelding = false
+        )
 
-    )
 
     val sykepengesoknad = leggSvarPaSoknad(
         soknadMetadata.copy(
@@ -180,8 +182,8 @@ fun opprettNySoknadMock(feriesporsmalSomHovedsporsmal: Boolean = true): Sykepeng
             ),
         ).tilSoknadsperioder(),
         soknadstype = Soknadstype.ARBEIDSTAKERE,
-        egenmeldtSykmelding = null
-
+        egenmeldtSykmelding = null,
+        utenlandskSykmelding = false,
     )
 
     val sykepengesoknad = if (feriesporsmalSomHovedsporsmal)

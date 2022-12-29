@@ -43,7 +43,8 @@ fun opprettNySoknadAnnet(): Sykepengesoknad {
         id = UUID.randomUUID().toString(),
         status = Soknadstatus.NY,
         opprettet = Instant.now(),
-        sporsmal = emptyList()
+        sporsmal = emptyList(),
+        utenlandskSykmelding = false,
     )
 
     return soknadMetadata.copy(sporsmal = settOppSoknadAnnetArbeidsforhold(soknadMetadata, false))

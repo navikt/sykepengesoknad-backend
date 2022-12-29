@@ -34,11 +34,13 @@ fun BaseTestClass.sendSykmelding(
         ProducerRecord(
             topic,
             sykmeldingKafkaMessage.sykmelding.id,
-            sykmeldingKafkaMessage.serialisertTilString()
+            // her sender vi strengen med hellas som landkode
+                sykmeldingKafkaMessage.serialisertTilString()
         )
     )
-
-    val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = forventaSoknader).tilSoknader()
+    // her mottar vi strengen med null
+    val soknaderFraKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = forventaSoknader)
+    val soknader = soknaderFraKafka.tilSoknader()
 
     soknader.forEach {
         await().until {
