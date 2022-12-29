@@ -1,0 +1,15 @@
+name: merge-dependabot-pr
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0,10,20,30 7 * * 1,2,3,4,5'
+
+jobs:
+  merge-dependabot-pr:
+    uses: navikt/flex-github-actions-workflows/.github/workflows/merge-dependabot-pr.yml@master
+    permissions:
+      actions: write
+      checks: read
+      contents: write
+      pull-requests: write
+      statuses: read
