@@ -71,7 +71,7 @@ server:
   shutdown: graceful
 
 spring:
-  profiles.active: default, batchupdate
+  profiles.active: default
   jpa.open-in-view: false
   main.banner-mode: 'off'
   datasource:
