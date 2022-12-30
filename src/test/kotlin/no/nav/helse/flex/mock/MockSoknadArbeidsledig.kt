@@ -64,7 +64,7 @@ fun opprettNySoknad(): Sykepengesoknad {
         ).tilSoknadsperioder(),
         utenlandskSykmelding = false,
 
-        )
+    )
 
     return sykepengesoknad.copy(sporsmal = settOppSoknadArbeidsledig(sykepengesoknad, false))
 }

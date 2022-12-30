@@ -67,7 +67,6 @@ ON CONFLICT ON CONSTRAINT sykepengesoknad_pkey DO NOTHING
                     .addValue("avbruttFeilinfo", sykepengesoknad.avbruttFeilinfo)
                     .addValue("merknaderFraSykmelding", sykepengesoknad.merknaderFraSykmelding)
                     .addValue("opprettetAvInntektsmelding", sykepengesoknad.opprettetAvInntektsmelding)
-
                     .addValue("utenlandskSykmelding", sykepengesoknad.utenlandskSykmelding)
             }
                 .toTypedArray()

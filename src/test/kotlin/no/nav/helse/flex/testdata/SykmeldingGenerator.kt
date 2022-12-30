@@ -148,7 +148,6 @@ fun skapArbeidsgiverSykmelding(
     )
 }
 
-
 fun gradertSykmeldt(
     fom: LocalDate = LocalDate.of(2020, 2, 1),
     tom: LocalDate = LocalDate.of(2020, 2, 15),

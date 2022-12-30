@@ -51,7 +51,6 @@ fun <K, V> Consumer<K, V>.ventPåRecords(
 fun List<ConsumerRecord<String, String>>.tilSoknader(): List<SykepengesoknadDTO> {
     // nedenfor er både this og it fuunksjoner som bare har null ...
     return this.map {
-        var value = it.value()
         it.value().tilTilSykepengesoknad()
     }
 }

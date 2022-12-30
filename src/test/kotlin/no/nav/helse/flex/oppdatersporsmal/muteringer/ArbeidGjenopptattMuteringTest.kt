@@ -58,7 +58,7 @@ class ArbeidGjenopptattMuteringTest {
             status = Soknadstatus.NY,
             opprettet = Instant.now(),
             sporsmal = emptyList(),
-                utenlandskSykmelding = false,
+            utenlandskSykmelding = false,
         )
         val standardSoknad = soknad.copy(
             sporsmal = settOppSoknadArbeidstaker(

@@ -77,7 +77,7 @@ fun gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal(): Sykepenge
         egenmeldtSykmelding = null,
         utenlandskSykmelding = false,
 
-        )
+    )
 
     val sykepengesoknad = leggSvarPaSoknad(deprecatedGetSoknadMedFeriesporsmalSomUndersporsmal(soknadMetadata))
     return sykepengesoknad.copy(sendtNav = Instant.now(), sendtArbeidsgiver = Instant.now())
@@ -123,8 +123,7 @@ fun opprettSendtSoknad(): Sykepengesoknad {
         soknadstype = Soknadstype.ARBEIDSTAKERE,
         egenmeldtSykmelding = null,
         utenlandskSykmelding = false
-        )
-
+    )
 
     val sykepengesoknad = leggSvarPaSoknad(
         soknadMetadata.copy(
