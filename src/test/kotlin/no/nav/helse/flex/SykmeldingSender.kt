@@ -38,9 +38,8 @@ fun BaseTestClass.sendSykmelding(
             sykmeldingKafkaMessage.serialisertTilString()
         )
     )
-    // her mottar vi strengen med null
-    val soknaderFraKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = forventaSoknader)
-    val soknader = soknaderFraKafka.tilSoknader()
+
+    val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = forventaSoknader).tilSoknader()
 
     soknader.forEach {
         await().until {

@@ -85,6 +85,7 @@ class UtenlandskArbeidstakerIntegrationTest : BaseTestClass() {
 
         assertThat(kafkaSoknader).hasSize(1)
         assertThat(kafkaSoknader[0].status).isEqualTo(SoknadsstatusDTO.SENDT)
+        kafkaSoknader[0].utenlandskSykmelding!!.shouldBeTrue()
         kafkaSoknader[0].arbeidUtenforNorge!!.`should be false`()
         assertThat(kafkaSoknader[0].fravarForSykmeldingen).isEqualTo(
             listOf(
