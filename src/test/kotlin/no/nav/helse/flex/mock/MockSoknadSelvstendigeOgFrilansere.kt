@@ -111,7 +111,7 @@ fun opprettSendtFrilanserSoknad(): Sykepengesoknad {
         ).tilSoknadsperioder(),
         soknadstype = Soknadstype.SELVSTENDIGE_OG_FRILANSERE,
         egenmeldtSykmelding = null,
-            utenlandskSykmelding = false,
+        utenlandskSykmelding = false,
 
     )
     return (soknadMetadata).copy(

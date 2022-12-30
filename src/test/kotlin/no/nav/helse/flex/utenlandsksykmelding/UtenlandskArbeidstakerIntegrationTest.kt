@@ -2,34 +2,19 @@ package no.nav.helse.flex.utenlandsksykmelding
 
 import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
-import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
-import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSporsmal
-import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknaderMetadata
-import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
-import no.nav.helse.flex.korrigerSoknad
-import no.nav.helse.flex.korrigerSoknadMedResult
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
 import no.nav.helse.flex.repository.SykepengesoknadDAO
-import no.nav.helse.flex.sendSoknadMedResult
 import no.nav.helse.flex.sendSykmelding
-import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
-import no.nav.helse.flex.sykepengesoknad.kafka.MerknadDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.PeriodeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
-import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
-import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
-import no.nav.helse.flex.util.tilOsloLocalDateTime
 import no.nav.helse.flex.ventPåRecords
-import no.nav.syfo.model.Merknad
 import no.nav.syfo.model.sykmelding.arbeidsgiver.UtenlandskSykmeldingAGDTO
-import no.nav.syfo.model.sykmeldingstatus.STATUS_BEKREFTET
 import org.amshove.kluent.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.MethodOrderer
@@ -39,7 +24,6 @@ import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.LocalDate
-import java.time.OffsetDateTime
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class UtenlandskArbeidstakerIntegrationTest : BaseTestClass() {
@@ -60,17 +44,13 @@ class UtenlandskArbeidstakerIntegrationTest : BaseTestClass() {
                     fom = basisdato,
                     tom = basisdato.plusDays(15),
 
-                    ),
+                ),
                 utenlandskSykemelding = UtenlandskSykmeldingAGDTO("hellas"),
             ),
         )
 
-
         kafkaSoknader[0].utenlandskSykmelding!!.shouldBeTrue()
-
-
     }
-
 
     @Test
     @Order(6)
@@ -121,5 +101,4 @@ class UtenlandskArbeidstakerIntegrationTest : BaseTestClass() {
         soknadFraDatabase.sendtNav `should be` null
         soknadFraDatabase.sendt `should be equal to` soknadFraDatabase.sendtArbeidsgiver
     }
-
 }

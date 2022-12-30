@@ -235,7 +235,7 @@ class MottakerAvSoknadServiceTest {
             soknadPerioder = emptyList(),
             sporsmal = emptyList(),
             soknadstype = Soknadstype.ARBEIDSTAKERE,
-                utenlandskSykmelding = false,
+            utenlandskSykmelding = false,
         )
 
         val mottaker = soknadService.finnMottakerAvSoknad(soknad, folkeregisterIdenter)
@@ -297,7 +297,7 @@ class MottakerAvSoknadServiceTest {
             soknadPerioder = emptyList(),
             sporsmal = emptyList(),
             soknadstype = Soknadstype.ARBEIDSTAKERE,
-                utenlandskSykmelding = false,
+            utenlandskSykmelding = false,
         )
         val mottaker = soknadService.finnMottakerAvSoknad(soknad, folkeregisterIdenter)
 
@@ -326,8 +326,8 @@ class MottakerAvSoknadServiceTest {
             arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
             soknadPerioder = emptyList(),
             sporsmal = emptyList(),
-        soknadstype = Soknadstype.ARBEIDSTAKERE,
-                utenlandskSykmelding = false,
+            soknadstype = Soknadstype.ARBEIDSTAKERE,
+            utenlandskSykmelding = false,
         )
 
         val mottaker = soknadService.finnMottakerAvSoknad(soknad, folkeregisterIdenter)
@@ -485,7 +485,7 @@ class MottakerAvSoknadServiceTest {
             sporsmal = emptyList(),
             soknadstype = Soknadstype.ARBEIDSTAKERE,
             korrigerer = "korrigertSoknad",
-                utenlandskSykmelding = false,
+            utenlandskSykmelding = false,
         )
 
         whenever(sykepengesoknadDAO.finnMottakerAvSoknad("korrigertSoknad"))
@@ -551,7 +551,7 @@ class MottakerAvSoknadServiceTest {
             sporsmal = emptyList(),
             soknadstype = Soknadstype.ARBEIDSTAKERE,
             korrigerer = "korrigertSoknad",
-                utenlandskSykmelding = false,
+            utenlandskSykmelding = false,
         )
 
         whenever(sykepengesoknadDAO.finnMottakerAvSoknad("korrigertSoknad"))
@@ -584,7 +584,7 @@ class MottakerAvSoknadServiceTest {
             sporsmal = emptyList(),
             soknadstype = Soknadstype.ARBEIDSTAKERE,
             korrigerer = "korrigertSoknad",
-                utenlandskSykmelding = false,
+            utenlandskSykmelding = false,
         )
 
         whenever(forskutteringRepository.finnForskuttering(any(), any())).thenReturn(forskutteringNei)
