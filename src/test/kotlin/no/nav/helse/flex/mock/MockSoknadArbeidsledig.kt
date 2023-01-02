@@ -61,7 +61,8 @@ fun opprettNySoknad(): Sykepengesoknad {
                 innspillTilArbeidsgiver = null,
                 reisetilskudd = false,
             ),
-        ).tilSoknadsperioder()
+        ).tilSoknadsperioder(),
+        utenlandskSykmelding = false,
 
     )
 

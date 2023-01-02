@@ -99,6 +99,7 @@ class OpprettSoknadService(
                     status = Soknadstatus.FREMTIDIG,
                     opprettet = Instant.now(),
                     sporsmal = emptyList(),
+                    utenlandskSykmelding = sykmeldingKafkaMessage.sykmelding.utenlandskSykmelding != null
                 )
             }
                 .filter { it.soknadPerioder?.isNotEmpty() ?: true }

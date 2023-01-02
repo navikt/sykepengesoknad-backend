@@ -3,11 +3,7 @@ package no.nav.helse.flex.testdata
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.syfo.model.Merknad
-import no.nav.syfo.model.sykmelding.arbeidsgiver.ArbeidsgiverAGDTO
-import no.nav.syfo.model.sykmelding.arbeidsgiver.ArbeidsgiverSykmelding
-import no.nav.syfo.model.sykmelding.arbeidsgiver.BehandlerAGDTO
-import no.nav.syfo.model.sykmelding.arbeidsgiver.KontaktMedPasientAGDTO
-import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
+import no.nav.syfo.model.sykmelding.arbeidsgiver.*
 import no.nav.syfo.model.sykmelding.model.*
 import no.nav.syfo.model.sykmeldingstatus.*
 import java.time.LocalDate
@@ -65,7 +61,7 @@ fun skapArbeidsgiverSykmelding(
         prognose = null,
         papirsykmelding = false,
         merknader = merknader,
-        utenlandskSykmelding = null
+        utenlandskSykmelding = null,
     )
 }
 
@@ -117,6 +113,7 @@ fun skapArbeidsgiverSykmelding(
         )
     ),
     merknader: List<Merknad>? = null,
+    utenlandskSykemelding: UtenlandskSykmeldingAGDTO? = null
 ): ArbeidsgiverSykmelding {
     return ArbeidsgiverSykmelding(
         id = sykmeldingId,
@@ -147,7 +144,7 @@ fun skapArbeidsgiverSykmelding(
         prognose = null,
         papirsykmelding = false,
         merknader = merknader,
-        utenlandskSykmelding = null
+        utenlandskSykmelding = utenlandskSykemelding
     )
 }
 
@@ -236,6 +233,7 @@ fun sykmeldingKafkaMessage(
         tom = LocalDate.of(2020, 2, 15),
     ),
     merknader: List<Merknad>? = null,
+    utenlandskSykemelding: UtenlandskSykmeldingAGDTO? = null,
 ): SykmeldingKafkaMessage {
     val faktiskArbeidsgiver = if (arbeidssituasjon == Arbeidssituasjon.ARBEIDSTAKER) {
         arbeidsgiver!!
@@ -259,6 +257,7 @@ fun sykmeldingKafkaMessage(
         sykmeldingId = sykmeldingId,
         sykmeldingsperioder = sykmeldingsperioder,
         merknader = merknader,
+        utenlandskSykemelding = utenlandskSykemelding,
     )
 
     return SykmeldingKafkaMessage(

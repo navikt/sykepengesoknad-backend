@@ -401,7 +401,8 @@ class OverlapperMedFlere : BaseTestClass() {
                     soknadPerioder = soknad.soknadPerioder,
                     arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
                     arbeidsgiverOrgnummer = "123454543",
-                    arbeidsgiverNavn = "Butikken"
+                    arbeidsgiverNavn = "Butikken",
+                    utenlandskSykmelding = false,
                 )
             )
         }

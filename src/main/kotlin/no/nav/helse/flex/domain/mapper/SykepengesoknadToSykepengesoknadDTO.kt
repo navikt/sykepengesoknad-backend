@@ -55,5 +55,7 @@ fun konverterTilSykepengesoknadDTO(
         mottaker = mottaker?.tilMottakerDTO(),
         permitteringer = sykepengesoknad.hentPermitteringer(),
         arbeidUtenforNorge = sykepengesoknad.hentArbeidUtenforNorge(),
+        utenlandskSykmelding = sykepengesoknad.utenlandskSykmelding
+
     )
 }

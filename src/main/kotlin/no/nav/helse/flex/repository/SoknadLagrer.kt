@@ -34,8 +34,8 @@ class SoknadLagrer(
         }
 
         val sql = """
-INSERT INTO SYKEPENGESOKNAD (ID, SYKEPENGESOKNAD_UUID, SOKNADSTYPE, STATUS, FOM, TOM, OPPRETTET, AVBRUTT_DATO, SYKMELDING_UUID, SENDT_NAV, SENDT_ARBEIDSGIVER, KORRIGERER, KORRIGERT_AV, ARBEIDSGIVER_ORGNUMMER, ARBEIDSGIVER_NAVN, ARBEIDSSITUASJON, START_SYKEFORLOP, SYKMELDING_SKREVET, OPPRINNELSE, FNR, EGENMELDT_SYKMELDING, MERKNADER_FRA_SYKMELDING, AVBRUTT_FEILINFO, OPPRETTET_AV_INNTEKTSMELDING) 
-VALUES (:id, :uuid, :soknadstype, :status, :fom, :tom, :opprettet, :avbrutt, :sykmeldingUuid, :sendtNav, :sendtArbeidsgiver, :korrigerer, :korrigertAv, :arbeidsgiverOrgnummer, :arbeidsgiverNavn, :arbeidssituasjon, :startSykeforlop, :sykmeldingSkrevet, :opprinnelse, :fnr, :egenmeldtSykmelding, :merknaderFraSykmelding, :avbruttFeilinfo, :opprettetAvInntektsmelding) 
+INSERT INTO SYKEPENGESOKNAD (ID, SYKEPENGESOKNAD_UUID, SOKNADSTYPE, STATUS, FOM, TOM, OPPRETTET, AVBRUTT_DATO, SYKMELDING_UUID, SENDT_NAV, SENDT_ARBEIDSGIVER, KORRIGERER, KORRIGERT_AV, ARBEIDSGIVER_ORGNUMMER, ARBEIDSGIVER_NAVN, ARBEIDSSITUASJON, START_SYKEFORLOP, SYKMELDING_SKREVET, OPPRINNELSE, FNR, EGENMELDT_SYKMELDING, MERKNADER_FRA_SYKMELDING, AVBRUTT_FEILINFO, OPPRETTET_AV_INNTEKTSMELDING, UTENLANDSK_SYKMELDING) 
+VALUES (:id, :uuid, :soknadstype, :status, :fom, :tom, :opprettet, :avbrutt, :sykmeldingUuid, :sendtNav, :sendtArbeidsgiver, :korrigerer, :korrigertAv, :arbeidsgiverOrgnummer, :arbeidsgiverNavn, :arbeidssituasjon, :startSykeforlop, :sykmeldingSkrevet, :opprinnelse, :fnr, :egenmeldtSykmelding, :merknaderFraSykmelding, :avbruttFeilinfo, :opprettetAvInntektsmelding, :utenlandskSykmelding) 
 ON CONFLICT ON CONSTRAINT sykepengesoknad_pkey DO NOTHING
 """
         jdbcTemplate.batchUpdate(
@@ -67,6 +67,7 @@ ON CONFLICT ON CONSTRAINT sykepengesoknad_pkey DO NOTHING
                     .addValue("avbruttFeilinfo", sykepengesoknad.avbruttFeilinfo)
                     .addValue("merknaderFraSykmelding", sykepengesoknad.merknaderFraSykmelding)
                     .addValue("opprettetAvInntektsmelding", sykepengesoknad.opprettetAvInntektsmelding)
+                    .addValue("utenlandskSykmelding", sykepengesoknad.utenlandskSykmelding)
             }
                 .toTypedArray()
         )

@@ -33,6 +33,7 @@ class TidligsteFomForSykmeldingTest {
             status = Soknadstatus.NY,
             opprettet = Instant.now(),
             sporsmal = kotlin.collections.emptyList(),
+            utenlandskSykmelding = false,
         )
 
         val ingenEksisterendeSoknader = hentTidligsteFomForSykmelding(soknad, emptyList())

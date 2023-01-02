@@ -49,7 +49,9 @@ fun <K, V> Consumer<K, V>.ventPåRecords(
 }
 
 fun List<ConsumerRecord<String, String>>.tilSoknader(): List<SykepengesoknadDTO> {
-    return this.map { it.value().tilTilSykepengesoknad() }
+    return this.map {
+        it.value().tilTilSykepengesoknad()
+    }
 }
 
 fun List<ConsumerRecord<String, String>>.tilJuridiskVurdering(): List<JuridiskVurderingKafkaDto> {

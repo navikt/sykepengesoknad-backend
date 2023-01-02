@@ -50,6 +50,7 @@ fun konverterTilSykepengesoknadBehandlingsdagerDTO(
         permitteringer = sykepengesoknad.hentPermitteringer(),
         merknaderFraSykmelding = sykepengesoknad.merknaderFraSykmelding.tilMerknadDTO(),
         arbeidUtenforNorge = sykepengesoknad.hentArbeidUtenforNorge(),
+        utenlandskSykmelding = sykepengesoknad.utenlandskSykmelding,
     )
 }
 

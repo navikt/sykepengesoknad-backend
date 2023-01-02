@@ -57,7 +57,8 @@ class ArbeidGjenopptattMuteringTest {
             id = UUID.randomUUID().toString(),
             status = Soknadstatus.NY,
             opprettet = Instant.now(),
-            sporsmal = emptyList()
+            sporsmal = emptyList(),
+            utenlandskSykmelding = false,
         )
         val standardSoknad = soknad.copy(
             sporsmal = settOppSoknadArbeidstaker(
@@ -111,7 +112,8 @@ class ArbeidGjenopptattMuteringTest {
             id = UUID.randomUUID().toString(),
             status = Soknadstatus.NY,
             opprettet = Instant.now(),
-            sporsmal = emptyList()
+            sporsmal = emptyList(),
+            utenlandskSykmelding = false,
         )
         val standardSoknad = soknad.copy(
             sporsmal = settOppSoknadArbeidstaker(

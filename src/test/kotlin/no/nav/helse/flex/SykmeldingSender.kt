@@ -34,6 +34,7 @@ fun BaseTestClass.sendSykmelding(
         ProducerRecord(
             topic,
             sykmeldingKafkaMessage.sykmelding.id,
+            // her sender vi strengen med hellas som landkode
             sykmeldingKafkaMessage.serialisertTilString()
         )
     )
