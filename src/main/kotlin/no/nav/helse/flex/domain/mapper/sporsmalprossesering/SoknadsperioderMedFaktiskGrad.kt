@@ -79,7 +79,7 @@ fun hentSoknadsPerioderMedFaktiskGrad(sykepengesoknad: Sykepengesoknad): Pair<Li
 
                 val ferieOgPermisjonPerioder = fravar
                     .filter { (_, _, type) -> listOf(FravarstypeDTO.FERIE, FravarstypeDTO.PERMISJON).contains(type) }
-                faktiskGrad = getStillingsprosent(
+                faktiskGrad = getFaktiskGrad(
                     faktiskTimer,
                     avtaltTimer,
                     soknadPeriode,
@@ -95,6 +95,8 @@ fun hentSoknadsPerioderMedFaktiskGrad(sykepengesoknad: Sykepengesoknad): Pair<Li
 
         val kappetFaktiskGrad = if (faktiskGrad != null && faktiskGrad > 100) {
             100
+        } else if (faktiskGrad != null && faktiskGrad < (100 - soknadPeriode.grad)) {
+            100 - soknadPeriode.grad
         } else {
             faktiskGrad
         }

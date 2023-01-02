@@ -33,7 +33,7 @@ private fun harSvartJaPaUtland(sykepengesoknad: Sykepengesoknad): Boolean {
     return utland.isPresent && "CHECKED" == utland.get().forsteSvar || utlandV2.isPresent && "CHECKED" == utlandV2.get().forsteSvar
 }
 
-internal fun getStillingsprosent(
+internal fun getFaktiskGrad(
     faktiskTimer: Double?,
     avtaltTimer: Double?,
     periode: Soknadsperiode,

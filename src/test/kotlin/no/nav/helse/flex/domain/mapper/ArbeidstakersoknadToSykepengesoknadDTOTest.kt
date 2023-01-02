@@ -10,7 +10,7 @@ import no.nav.helse.flex.domain.Sykmeldingstype.AKTIVITET_IKKE_MULIG
 import no.nav.helse.flex.domain.Sykmeldingstype.GRADERT
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.arbeidGjenopptattDato
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.finnUtdanning
-import no.nav.helse.flex.domain.mapper.sporsmalprossesering.getStillingsprosent
+import no.nav.helse.flex.domain.mapper.sporsmalprossesering.getFaktiskGrad
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.harSoktSykepengerUnderUtlandsopphold
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentEgenmeldinger
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentFeriePermUtlandListe
@@ -816,9 +816,9 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
             )
         )
 
-        val faktiskArbeidsgrad = getStillingsprosent(faktiskTimer, avtaltTimer, periode, emptyList(), null)!!
+        val faktiskArbeidsgrad = getFaktiskGrad(faktiskTimer, avtaltTimer, periode, emptyList(), null)!!
         val faktiskArbeidsgradMedFerieEtterPerioden =
-            getStillingsprosent(faktiskTimer, avtaltTimer, periode, ferieOgPermisjonPerioder, null)!!
+            getFaktiskGrad(faktiskTimer, avtaltTimer, periode, ferieOgPermisjonPerioder, null)!!
 
         assertThat(faktiskArbeidsgrad).isEqualTo(60)
         assertThat(faktiskArbeidsgradMedFerieEtterPerioden).isEqualTo(60)
