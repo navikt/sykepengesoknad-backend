@@ -25,6 +25,7 @@ private fun List<RSSporsmal>.byttSvar(tag: String, svar: List<RSSvar>): List<RSS
                     svar
                 )
             )
+
             else -> spm
         }
     }
@@ -42,11 +43,26 @@ class SoknadBesvarer(
     val fnr: String,
     val muterteSoknaden: Boolean = false
 ) {
-    fun besvarSporsmal(tag: String, svar: String, ferdigBesvart: Boolean = true, mutert: Boolean = false): SoknadBesvarer {
-        return besvarSporsmal(tag, listOf(svar), ferdigBesvart, mutert)
+    fun besvarSporsmal(
+        tag: String,
+        svar: String?,
+        ferdigBesvart: Boolean = true,
+        mutert: Boolean = false
+    ): SoknadBesvarer {
+        val svarListe = if (svar == null) {
+            emptyList()
+        } else {
+            listOf(svar)
+        }
+        return besvarSporsmal(tag, svarListe, ferdigBesvart, mutert)
     }
 
-    fun besvarSporsmal(tag: String, svarListe: List<String>, ferdigBesvart: Boolean = true, mutert: Boolean = false): SoknadBesvarer {
+    fun besvarSporsmal(
+        tag: String,
+        svarListe: List<String>,
+        ferdigBesvart: Boolean = true,
+        mutert: Boolean = false
+    ): SoknadBesvarer {
         val sporsmal = rSSykepengesoknad.alleSporsmalOgUndersporsmal().find { it.tag == tag }
             ?: throw RuntimeException("Spørsmål ikke funnet $tag")
         val rsSvar = svarListe.map { RSSvar(verdi = it) }

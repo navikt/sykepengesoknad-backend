@@ -3,9 +3,12 @@ package no.nav.helse.flex.arbeidstaker
 import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.hentSoknad
+import no.nav.helse.flex.hentSoknader
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.juridiskvurdering.Utfall
+import no.nav.helse.flex.korrigerSoknad
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
+import no.nav.helse.flex.oppdaterSporsmalMedResult
 import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER_V2
 import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
@@ -32,6 +35,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.MethodName::class)
@@ -89,9 +93,9 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : BaseTestClass() {
             .besvarSporsmal(PERMISJON_V2, "NEI")
             .besvarSporsmal(UTLAND_V2, "NEI")
             .besvarSporsmal("JOBBET_DU_GRADERT_1", "JA", false)
-            .besvarSporsmal("HVOR_MANGE_TIMER_PER_UKE_1", "50", false)
+            .besvarSporsmal("HVOR_MANGE_TIMER_PER_UKE_1", "37,5", false)
             .besvarSporsmal("HVOR_MYE_PROSENT_1", "CHECKED", false)
-            .besvarSporsmal("HVOR_MYE_PROSENT_VERDI_1", "50")
+            .besvarSporsmal("HVOR_MYE_PROSENT_VERDI_1", "49")
             .besvarSporsmal("ARBEID_UNDERVEIS_100_PROSENT_0", "NEI")
             .besvarSporsmal("HVOR_MYE_PROSENT_0", "CHECKED")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
@@ -110,7 +114,7 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : BaseTestClass() {
         assertThat(soknadPaKafka.soknadsperioder!!.map { Pair(it.faktiskGrad, it.sykmeldingsgrad) }).isEqualTo(
             listOf(
                 Pair(null, 100),
-                Pair(50, 70)
+                Pair(49, 70)
             )
         )
     }
@@ -144,7 +148,7 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : BaseTestClass() {
         {
           "tag": "HVOR_MANGE_TIMER_PER_UKE_1",
           "svar": [
-            "50"
+            "37,5"
           ],
           "undersporsmal": []
         },
@@ -161,7 +165,7 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : BaseTestClass() {
                 {
                   "tag": "HVOR_MYE_PROSENT_VERDI_1",
                   "svar": [
-                    "50"
+                    "49"
                   ],
                   "undersporsmal": []
                 }
@@ -190,11 +194,123 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : BaseTestClass() {
     {
       "fom": "2018-01-15",
       "tom": "2018-01-29",
-      "faktiskGrad": 50
+      "faktiskGrad": 49
     }
   ],
   "versjon": "2022-02-01"
 }            
         """.jsonTilHashMap()
+    }
+
+    @Test
+    fun `6 - vi svarer at vi ar sykmeldt mer enn 70 prosent med timer i frontend, men det beregnes til max 70`() {
+        flexSyketilfelleMockRestServiceServer?.reset()
+        val soknaden = hentSoknader(fnr = fnr).first { it.status == RSSoknadstatus.SENDT }
+        mockFlexSyketilfelleArbeidsgiverperiode(andreKorrigerteRessurser = soknaden.id)
+
+        val korrigerendeSoknad = korrigerSoknad(soknaden.id, fnr)
+
+        SoknadBesvarer(rSSykepengesoknad = korrigerendeSoknad, mockMvc = this, fnr = fnr)
+            .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
+            .besvarSporsmal("JOBBET_DU_GRADERT_1", "JA", false)
+            .besvarSporsmal("HVOR_MANGE_TIMER_PER_UKE_1", "37", false)
+            .besvarSporsmal("HVOR_MYE_PROSENT_1", null, false)
+            .besvarSporsmal("HVOR_MYE_TIMER_1", "CHECKED", false)
+            .besvarSporsmal("HVOR_MYE_TIMER_VERDI_1", "5")
+            .besvarSporsmal("ARBEID_UNDERVEIS_100_PROSENT_0", "NEI")
+            .besvarSporsmal("HVOR_MYE_PROSENT_0", "CHECKED")
+            .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
+            .sendSoknad()
+
+        juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
+        val soknadPaKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()
+        assertThat(soknadPaKafka.soknadsperioder!!.map { Pair(it.faktiskGrad, it.sykmeldingsgrad) }).isEqualTo(
+            listOf(
+                Pair(null, 100),
+                Pair(30, 70)
+            )
+        )
+    }
+
+    @Test
+    fun `7 - vi svarer at vi var sykmeldt mindre enn 70 prosent med timer i frontend`() {
+        flexSyketilfelleMockRestServiceServer?.reset()
+        val soknaden = hentSoknader(fnr = fnr).first { it.status == RSSoknadstatus.SENDT }
+        mockFlexSyketilfelleArbeidsgiverperiode(andreKorrigerteRessurser = soknaden.id)
+
+        val korrigerendeSoknad = korrigerSoknad(soknaden.id, fnr)
+
+        SoknadBesvarer(rSSykepengesoknad = korrigerendeSoknad, mockMvc = this, fnr = fnr)
+            .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
+            .besvarSporsmal("JOBBET_DU_GRADERT_1", "JA", false)
+            .besvarSporsmal("HVOR_MANGE_TIMER_PER_UKE_1", "37", false)
+            .besvarSporsmal("HVOR_MYE_PROSENT_1", null, false)
+            .besvarSporsmal("HVOR_MYE_TIMER_1", "CHECKED", false)
+            .besvarSporsmal("HVOR_MYE_TIMER_VERDI_1", "70")
+            .besvarSporsmal("ARBEID_UNDERVEIS_100_PROSENT_0", "NEI")
+            .besvarSporsmal("HVOR_MYE_PROSENT_0", "CHECKED")
+            .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
+            .sendSoknad()
+
+        juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
+        val soknadPaKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()
+        assertThat(soknadPaKafka.soknadsperioder!!.map { Pair(it.faktiskGrad, it.sykmeldingsgrad) }).isEqualTo(
+            listOf(
+                Pair(null, 100),
+                Pair(86, 70)
+            )
+        )
+    }
+
+    @Test
+    fun `8 - vi svarer at vi var sykmeldt mindre enn 70 prosent med prosent i frontend`() {
+        flexSyketilfelleMockRestServiceServer?.reset()
+        val soknaden = hentSoknader(fnr = fnr).first { it.status == RSSoknadstatus.SENDT }
+        mockFlexSyketilfelleArbeidsgiverperiode(andreKorrigerteRessurser = soknaden.id)
+
+        val korrigerendeSoknad = korrigerSoknad(soknaden.id, fnr)
+
+        SoknadBesvarer(rSSykepengesoknad = korrigerendeSoknad, mockMvc = this, fnr = fnr)
+            .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
+            .besvarSporsmal("JOBBET_DU_GRADERT_1", "JA", false)
+            .besvarSporsmal("HVOR_MANGE_TIMER_PER_UKE_1", "37", false)
+            .besvarSporsmal("HVOR_MYE_PROSENT_1", "CHECKED", false)
+            .besvarSporsmal("HVOR_MYE_TIMER_1", null, false)
+            .besvarSporsmal("HVOR_MYE_PROSENT_VERDI_1", "89")
+            .besvarSporsmal("ARBEID_UNDERVEIS_100_PROSENT_0", "NEI")
+            .besvarSporsmal("HVOR_MYE_PROSENT_0", "CHECKED")
+            .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
+            .sendSoknad()
+
+        juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
+        val soknadPaKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()
+        assertThat(soknadPaKafka.soknadsperioder!!.map { Pair(it.faktiskGrad, it.sykmeldingsgrad) }).isEqualTo(
+            listOf(
+                Pair(null, 100),
+                Pair(89, 70)
+            )
+        )
+    }
+
+    @Test
+    fun `9 - vi kan ikke svare at vi var sykmeldt mer enn 70 prosent med prosent i frontend`() {
+        flexSyketilfelleMockRestServiceServer?.reset()
+        val soknaden = hentSoknader(fnr = fnr).first { it.status == RSSoknadstatus.SENDT }
+        mockFlexSyketilfelleArbeidsgiverperiode(andreKorrigerteRessurser = soknaden.id)
+
+        val korrigerendeSoknad = korrigerSoknad(soknaden.id, fnr)
+
+        val besvarer = SoknadBesvarer(rSSykepengesoknad = korrigerendeSoknad, mockMvc = this, fnr = fnr)
+            .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
+            .besvarSporsmal("JOBBET_DU_GRADERT_1", "JA", false)
+            .besvarSporsmal("HVOR_MANGE_TIMER_PER_UKE_1", "37", false)
+            .besvarSporsmal("HVOR_MYE_PROSENT_1", "CHECKED", false)
+            .besvarSporsmal("HVOR_MYE_TIMER_1", null, false)
+            .besvarSporsmal("HVOR_MYE_PROSENT_VERDI_1", "11", false)
+
+        val json =
+            oppdaterSporsmalMedResult(fnr, besvarer.finnHovedsporsmal("JOBBET_DU_GRADERT_1"), soknadsId = korrigerendeSoknad.id)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest).andReturn().response.contentAsString
+        assertThat(json).isEqualTo("""{"reason":"SPORSMALETS_SVAR_VALIDERER_IKKE"}""")
     }
 }
