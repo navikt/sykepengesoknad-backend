@@ -2,31 +2,33 @@ package no.nav.helse.flex.overlappendesykmeldinger
 
 import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.hentSoknaderMetadata
+import no.nav.helse.flex.repository.KlippMetrikkRepository
 import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
+import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
-import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
+import java.util.UUID
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class OverlapperInni : BaseTestClass() {
 
-    fun MockMvc.metrikker(): List<String> = this
-        .perform(MockMvcRequestBuilders.get("/internal/prometheus"))
-        .andExpect(MockMvcResultMatchers.status().isOk).andReturn().response.contentAsString.split("\n")
+    @Autowired
+    lateinit var klippMetrikkRepository: KlippMetrikkRepository
 
     @Test
     @Order(1)
     fun `Overlapper inni`() {
+        klippMetrikkRepository.count() shouldBeEqualTo 0
         val fnr = "44444444444"
+        val sykmeldingid2 = UUID.randomUUID().toString()
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
@@ -39,6 +41,7 @@ class OverlapperInni : BaseTestClass() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
+                sykmeldingId = sykmeldingid2,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = LocalDate.of(2025, 1, 9),
                     tom = LocalDate.of(2025, 1, 12),
@@ -49,14 +52,11 @@ class OverlapperInni : BaseTestClass() {
         val hentetViaRest = hentSoknaderMetadata(fnr)
         hentetViaRest shouldHaveSize 2
 
-        mockMvc.metrikker()
-            .filter { it.contains("overlapper_inni_perioder_total") }
-            .first { !it.startsWith("#") }
-            .shouldBeEqualTo("""overlapper_inni_perioder_total{perioder="3-4-7",type="info",} 1.0""")
+        klippMetrikkRepository.count() shouldBeEqualTo 1
+        val klippMetrikk = klippMetrikkRepository.findAll().iterator().next()
 
-        mockMvc.metrikker()
-            .filter { it.contains("overlapper_inni_perioder_uten_helg_total") }
-            .first { !it.startsWith("#") }
-            .shouldBeEqualTo("""overlapper_inni_perioder_uten_helg_total{perioder="3-2-5",type="info",} 1.0""")
+        klippMetrikk.soknadstatus `should be equal to` "FREMTIDIG"
+        klippMetrikk.variant `should be equal to` "INNI"
+        klippMetrikk.sykmeldingUuid `should be equal to` sykmeldingid2
     }
 }

@@ -1,5 +1,6 @@
 package no.nav.helse.flex.testdata
 
+import no.nav.helse.flex.repository.KlippMetrikkRepository
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
@@ -10,7 +11,8 @@ import org.springframework.transaction.annotation.Transactional
 @Repository
 class DatabaseReset(
     private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
-    private val sykepengesoknadDAO: SykepengesoknadDAO
+    private val sykepengesoknadDAO: SykepengesoknadDAO,
+    private val klippMetrikkRepository: KlippMetrikkRepository,
 ) {
 
     fun resetDatabase() {
@@ -29,5 +31,6 @@ class DatabaseReset(
             sykepengesoknadDAO.nullstillSoknader(it)
         }
         namedParameterJdbcTemplate.update("DELETE FROM JULESOKNADKANDIDAT", MapSqlParameterSource())
+        klippMetrikkRepository.deleteAll()
     }
 }
