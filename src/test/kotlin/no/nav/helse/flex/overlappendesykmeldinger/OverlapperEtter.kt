@@ -14,6 +14,7 @@ import no.nav.helse.flex.domain.Sykmeldingstype
 import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
+import no.nav.helse.flex.repository.KlippMetrikkRepository
 import no.nav.helse.flex.repository.KlippVariant
 import no.nav.helse.flex.repository.KlippetSykepengesoknadRepository
 import no.nav.helse.flex.repository.SykepengesoknadDAO
@@ -42,6 +43,7 @@ import no.nav.helse.flex.ventPåRecords
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.GradertDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
+import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBeEqualTo
@@ -62,6 +64,9 @@ class OverlapperEtter : BaseTestClass() {
 
     @Autowired
     private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
+
+    @Autowired
+    lateinit var klippMetrikkRepository: KlippMetrikkRepository
 
     @Autowired
     private lateinit var klippetSykepengesoknadRepository: KlippetSykepengesoknadRepository
@@ -148,6 +153,14 @@ class OverlapperEtter : BaseTestClass() {
         fremtidigSoknad.status shouldBeEqualTo RSSoknadstatus.FREMTIDIG
         fremtidigSoknad.fom shouldBeEqualTo basisdato
         fremtidigSoknad.tom shouldBeEqualTo basisdato.plusDays(15)
+
+        val klippmetrikker = klippMetrikkRepository.findAll().toList()
+        klippmetrikker shouldHaveSize 1
+
+        klippmetrikker[0].soknadstatus `should be equal to` "FREMTIDIG"
+        klippmetrikker[0].variant `should be equal to` "SOKNAD_STARTER_INNI_SLUTTER_ETTER"
+        klippmetrikker[0].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
+        klippmetrikker[0].klippet `should be equal to` true
     }
 
     @Test
@@ -261,6 +274,7 @@ class OverlapperEtter : BaseTestClass() {
     @Test
     @Order(11)
     fun `Overlappende sykmelding med samme grad blir klippet`() {
+        klippMetrikkRepository.deleteAll()
         val soknad = sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
@@ -296,6 +310,19 @@ class OverlapperEtter : BaseTestClass() {
                 sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
             )
         )
+
+        val klippmetrikker = klippMetrikkRepository.findAll().toList()
+        klippmetrikker shouldHaveSize 2
+
+        klippmetrikker[0].soknadstatus `should be equal to` "SENDT"
+        klippmetrikker[0].variant `should be equal to` "SOKNAD_STARTER_INNI_SLUTTER_ETTER"
+        klippmetrikker[0].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
+        klippmetrikker[0].klippet `should be equal to` false
+
+        klippmetrikker[1].soknadstatus `should be equal to` "SENDT"
+        klippmetrikker[1].variant `should be equal to` "SYKMELDING_STARTER_FOR_SLUTTER_INNI"
+        klippmetrikker[1].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
+        klippmetrikker[1].klippet `should be equal to` true
     }
 
     @Test
@@ -336,6 +363,19 @@ class OverlapperEtter : BaseTestClass() {
 
         soknad.fom shouldBeEqualTo basisdato.minusDays(10)
         soknad.tom shouldBeEqualTo basisdato.plusDays(5)
+
+        val klippmetrikker = klippMetrikkRepository.findAll().toList().sortedBy { it.variant }
+        klippmetrikker shouldHaveSize 2
+
+        klippmetrikker[0].soknadstatus `should be equal to` "NY"
+        klippmetrikker[0].variant `should be equal to` "SOKNAD_STARTER_INNI_SLUTTER_ETTER"
+        klippmetrikker[0].endringIUforegrad `should be equal to` "LAVERE_UFØREGRAD"
+        klippmetrikker[0].klippet `should be equal to` false
+
+        klippmetrikker[1].soknadstatus `should be equal to` "NY"
+        klippmetrikker[1].variant `should be equal to` "SYKMELDING_STARTER_FOR_SLUTTER_INNI"
+        klippmetrikker[1].endringIUforegrad `should be equal to` "LAVERE_UFØREGRAD"
+        klippmetrikker[1].klippet `should be equal to` false
     }
 
     @Test
@@ -398,6 +438,19 @@ class OverlapperEtter : BaseTestClass() {
 
         soknad.fom shouldBeEqualTo basisdato
         soknad.tom shouldBeEqualTo tom
+
+        val klippmetrikker = klippMetrikkRepository.findAll().toList().sortedBy { it.variant }
+        klippmetrikker shouldHaveSize 2
+
+        klippmetrikker[0].soknadstatus `should be equal to` "NY"
+        klippmetrikker[0].variant `should be equal to` "SOKNAD_STARTER_INNI_SLUTTER_ETTER"
+        klippmetrikker[0].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
+        klippmetrikker[0].klippet `should be equal to` false
+
+        klippmetrikker[1].soknadstatus `should be equal to` "NY"
+        klippmetrikker[1].variant `should be equal to` "SYKMELDING_STARTER_FOR_SLUTTER_INNI"
+        klippmetrikker[1].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
+        klippmetrikker[1].klippet `should be equal to` true
     }
 
     @Test
@@ -462,6 +515,9 @@ class OverlapperEtter : BaseTestClass() {
                 sykmeldingId = UUID.randomUUID().toString(),
             )
         sykepengesoknadDAO.lagreSykepengesoknad(identiskSoknad)
+
+        val klippmetrikker = klippMetrikkRepository.findAll().toList().sortedBy { it.variant }
+        klippmetrikker shouldHaveSize 0
     }
 
     @Test
@@ -480,6 +536,24 @@ class OverlapperEtter : BaseTestClass() {
 
         soknad.fom shouldBeEqualTo basisdato.plusDays(16)
         soknad.tom shouldBeEqualTo basisdato.plusDays(20)
+
+        val klippmetrikker = klippMetrikkRepository.findAll().toList().sortedBy { it.variant }
+        klippmetrikker shouldHaveSize 3
+
+        klippmetrikker[0].soknadstatus `should be equal to` "SENDT"
+        klippmetrikker[0].variant `should be equal to` "SOKNAD_STARTER_INNI_SLUTTER_ETTER"
+        klippmetrikker[0].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
+        klippmetrikker[0].klippet `should be equal to` false
+
+        klippmetrikker[1].soknadstatus `should be equal to` "SENDT"
+        klippmetrikker[1].variant `should be equal to` "SOKNAD_STARTER_INNI_SLUTTER_ETTER"
+        klippmetrikker[1].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
+        klippmetrikker[1].klippet `should be equal to` false
+
+        klippmetrikker[2].soknadstatus `should be equal to` "SENDT"
+        klippmetrikker[2].variant `should be equal to` "SYKMELDING_STARTER_FOR_SLUTTER_INNI"
+        klippmetrikker[2].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
+        klippmetrikker[2].klippet `should be equal to` true
     }
 
     @Test
@@ -525,6 +599,7 @@ class OverlapperEtter : BaseTestClass() {
         soknader[1].status shouldBeEqualTo Soknadstatus.NY
 
         databaseReset.resetDatabase()
+        klippMetrikkRepository.count() shouldBeEqualTo 0
     }
 
     @Test
@@ -565,6 +640,7 @@ class OverlapperEtter : BaseTestClass() {
         soknader[1].status shouldBeEqualTo Soknadstatus.FREMTIDIG
 
         databaseReset.resetDatabase()
+        klippMetrikkRepository.count() shouldBeEqualTo 0
     }
 
     @Test
@@ -602,6 +678,7 @@ class OverlapperEtter : BaseTestClass() {
         soknader[1].status shouldBeEqualTo Soknadstatus.NY
 
         databaseReset.resetDatabase()
+        klippMetrikkRepository.count() shouldBeEqualTo 0
     }
 
     @Test
@@ -639,5 +716,6 @@ class OverlapperEtter : BaseTestClass() {
         soknader[1].status shouldBeEqualTo Soknadstatus.FREMTIDIG
 
         databaseReset.resetDatabase()
+        klippMetrikkRepository.count() shouldBeEqualTo 0
     }
 }

@@ -31,5 +31,3 @@ class KlippMetrikk(private val klippMetrikkRepository: KlippMetrikkRepository) {
         )
     }
 }
-
-
