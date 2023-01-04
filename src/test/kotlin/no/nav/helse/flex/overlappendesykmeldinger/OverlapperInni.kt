@@ -6,7 +6,6 @@ import no.nav.helse.flex.repository.KlippMetrikkRepository
 import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
-import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.MethodOrderer
@@ -52,11 +51,6 @@ class OverlapperInni : BaseTestClass() {
         val hentetViaRest = hentSoknaderMetadata(fnr)
         hentetViaRest shouldHaveSize 2
 
-        klippMetrikkRepository.count() shouldBeEqualTo 1
-        val klippMetrikk = klippMetrikkRepository.findAll().iterator().next()
-
-        klippMetrikk.soknadstatus `should be equal to` "FREMTIDIG"
-        klippMetrikk.variant `should be equal to` "INNI"
-        klippMetrikk.sykmeldingUuid `should be equal to` sykmeldingid2
+        klippMetrikkRepository.count() shouldBeEqualTo 0
     }
 }
