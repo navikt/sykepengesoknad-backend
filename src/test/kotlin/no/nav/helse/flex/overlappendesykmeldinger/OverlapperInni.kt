@@ -56,9 +56,9 @@ class OverlapperInni : BaseTestClass() {
         klippmetrikker shouldHaveSize 1
 
         klippmetrikker[0].soknadstatus `should be equal to` "FREMTIDIG"
-        klippmetrikker[0].variant `should be equal to` "SOKNAD_STARTER_INNI_SLUTTER_ETTER"
+        klippmetrikker[0].variant `should be equal to` "SOKNAD_STARTER_INNI_SLUTTER_INNI"
         klippmetrikker[0].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
-        klippmetrikker[0].klippet `should be equal to` true
+        klippmetrikker[0].klippet `should be equal to` false
         klippmetrikker[0].sykmeldingUuid `should be equal to` sykmeldingid2
     }
 }

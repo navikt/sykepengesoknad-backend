@@ -79,38 +79,27 @@ class Soknadsklipper(
         orgnummer: String?,
         identer: FolkeregisterIdenter,
     ) {
-        val sykmeldingPeriode = sykmeldingKafkaMessage.periode()
 
         val soknadKandidater = soknadKandidater(
-            behandletTidspunkt = sykmeldingKafkaMessage.sykmelding.behandletTidspunkt.toInstant(),
             orgnummer = orgnummer,
-            sykmeldingPeriode = sykmeldingPeriode,
             identer = identer,
-            sykmeldingId = sykmeldingKafkaMessage.sykmelding.id,
+            sykmeldingKafkaMessage = sykmeldingKafkaMessage,
         )
 
         soknadKandidater.klippSoknaderSomOverlapperEtter(
-            sykmeldingPeriode = sykmeldingPeriode,
-            sykmeldingId = sykmeldingKafkaMessage.sykmelding.id,
             sykmeldingKafkaMessage = sykmeldingKafkaMessage,
         )
 
         soknadKandidater.klippSoknaderSomOverlapperFullstendig(
-            sykmeldingPeriode = sykmeldingPeriode,
-            sykmeldingId = sykmeldingKafkaMessage.sykmelding.id,
             sykmeldingKafkaMessage = sykmeldingKafkaMessage,
 
         )
 
         soknadKandidater.klippSoknaderSomOverlapperFor(
-            sykmeldingPeriode = sykmeldingPeriode,
-            sykmeldingId = sykmeldingKafkaMessage.sykmelding.id,
             sykmeldingKafkaMessage = sykmeldingKafkaMessage,
-
         )
 
         soknadKandidater.klippSoknaderSomOverlapperInni(
-            sykmeldingPeriode = sykmeldingPeriode,
             sykmeldingKafkaMessage = sykmeldingKafkaMessage,
         )
     }
@@ -123,11 +112,9 @@ class Soknadsklipper(
         var kafkaMessage = sykmeldingKafkaMessage
 
         val soknadKandidater = soknadKandidater(
-            behandletTidspunkt = sykmeldingKafkaMessage.sykmelding.behandletTidspunkt.toInstant(),
             orgnummer = orgnummer,
-            sykmeldingPeriode = sykmeldingKafkaMessage.periode(),
             identer = identer,
-            sykmeldingId = sykmeldingKafkaMessage.sykmelding.id,
+            sykmeldingKafkaMessage = sykmeldingKafkaMessage,
         )
 
         kafkaMessage = soknadKandidater.klippSykmeldingSomOverlapperEtter(
@@ -142,12 +129,13 @@ class Soknadsklipper(
     }
 
     private fun soknadKandidater(
-        behandletTidspunkt: Instant,
         orgnummer: String?,
-        sykmeldingPeriode: ClosedRange<LocalDate>,
+        sykmeldingKafkaMessage: SykmeldingKafkaMessage,
         identer: FolkeregisterIdenter,
-        sykmeldingId: String,
     ): List<Sykepengesoknad> {
+        val sykmeldingId = sykmeldingKafkaMessage.sykmelding.id
+        val behandletTidspunkt = sykmeldingKafkaMessage.sykmelding.behandletTidspunkt.toInstant()
+        val sykmeldingPeriode = sykmeldingKafkaMessage.periode()
         return sykepengesoknadDAO.finnSykepengesoknader(identer)
             .asSequence()
             .filterNot { it.sykmeldingId == sykmeldingId } // Korrigerte sykmeldinger håndteres her SlettSoknaderTilKorrigertSykmeldingService
@@ -162,11 +150,11 @@ class Soknadsklipper(
     }
 
     private fun List<Sykepengesoknad>.klippSoknaderSomOverlapperEtter(
-        sykmeldingPeriode: ClosedRange<LocalDate>,
-        sykmeldingId: String,
         sykmeldingKafkaMessage: SykmeldingKafkaMessage,
 
     ) {
+        val sykmeldingId = sykmeldingKafkaMessage.sykmelding.id
+        val sykmeldingPeriode = sykmeldingKafkaMessage.periode()
         this.filter { it.fom!!.isBefore(sykmeldingPeriode.start) }
             .filter { it.tom!!.isBeforeOrEqual(sykmeldingPeriode.endInclusive) }
             .forEach { sok ->
@@ -220,11 +208,11 @@ class Soknadsklipper(
     }
 
     private fun List<Sykepengesoknad>.klippSoknaderSomOverlapperFullstendig(
-        sykmeldingPeriode: ClosedRange<LocalDate>,
-        sykmeldingId: String,
         sykmeldingKafkaMessage: SykmeldingKafkaMessage,
 
     ) {
+        val sykmeldingId = sykmeldingKafkaMessage.sykmelding.id
+        val sykmeldingPeriode = sykmeldingKafkaMessage.periode()
         this.filter { it.fom!!.isAfterOrEqual(sykmeldingPeriode.start) }
             .filter { it.tom!!.isBeforeOrEqual(sykmeldingPeriode.endInclusive) }
             .forEach { sok ->
@@ -268,11 +256,11 @@ class Soknadsklipper(
     }
 
     private fun List<Sykepengesoknad>.klippSoknaderSomOverlapperFor(
-        sykmeldingPeriode: ClosedRange<LocalDate>,
-        sykmeldingId: String,
         sykmeldingKafkaMessage: SykmeldingKafkaMessage,
 
     ) {
+        val sykmeldingId = sykmeldingKafkaMessage.sykmelding.id
+        val sykmeldingPeriode = sykmeldingKafkaMessage.periode()
         this.filter { it.fom!!.isAfterOrEqual(sykmeldingPeriode.start) }
             .filter { it.tom!!.isAfter(sykmeldingPeriode.endInclusive) }
             .forEach { sok ->
@@ -321,9 +309,9 @@ class Soknadsklipper(
     }
 
     private fun List<Sykepengesoknad>.klippSoknaderSomOverlapperInni(
-        sykmeldingPeriode: ClosedRange<LocalDate>,
         sykmeldingKafkaMessage: SykmeldingKafkaMessage,
     ) {
+        val sykmeldingPeriode = sykmeldingKafkaMessage.periode()
         this.filter { it.fom!!.isBefore(sykmeldingPeriode.start) }
             .filter { it.tom!!.isAfter(sykmeldingPeriode.endInclusive) }
             .forEach { sok ->
