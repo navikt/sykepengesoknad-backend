@@ -17,4 +17,7 @@ data class KlippMetrikkDbRecord(
     val variant: String,
     val soknadstatus: String,
     val timestamp: Instant,
+    val eksisterendeSykepengesoknadId: String,
+    val endringIUforegrad: String,
+    val klippet: Boolean,
 )

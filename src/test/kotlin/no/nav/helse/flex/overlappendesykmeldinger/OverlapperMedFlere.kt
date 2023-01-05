@@ -9,12 +9,15 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.Sykmeldingstype
 import no.nav.helse.flex.hentProduserteRecords
 import no.nav.helse.flex.overlappendesykmeldinger.OverlapperMedFlere.OverlappTester.*
+import no.nav.helse.flex.repository.KlippMetrikkRepository
 import no.nav.helse.flex.repository.SoknadLagrer
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
+import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -32,6 +35,9 @@ class OverlapperMedFlere : BaseTestClass() {
     private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
 
     private lateinit var overlappTester: OverlappTester
+
+    @Autowired
+    private lateinit var klippMetrikkRepository: KlippMetrikkRepository
 
     @BeforeAll
     fun init() {
@@ -145,6 +151,21 @@ class OverlapperMedFlere : BaseTestClass() {
                 )
             )
         )
+        val klippmetrikker = klippMetrikkRepository.findAll().toList().sortedBy { it.variant }
+        klippmetrikker shouldHaveSize 3
+
+        klippmetrikker[0].soknadstatus `should be equal to` "FREMTIDIG"
+        klippmetrikker[0].variant `should be equal to` "SOKNAD_STARTER_FOR_SLUTTER_ETTER"
+        klippmetrikker[0].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
+        klippmetrikker[0].klippet `should be equal to` true
+        klippmetrikker[1].soknadstatus `should be equal to` "FREMTIDIG"
+        klippmetrikker[1].variant `should be equal to` "SOKNAD_STARTER_FOR_SLUTTER_INNI"
+        klippmetrikker[1].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
+        klippmetrikker[1].klippet `should be equal to` true
+        klippmetrikker[2].soknadstatus `should be equal to` "FREMTIDIG"
+        klippmetrikker[2].variant `should be equal to` "SOKNAD_STARTER_INNI_SLUTTER_ETTER"
+        klippmetrikker[2].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
+        klippmetrikker[2].klippet `should be equal to` true
     }
 
     @Test
