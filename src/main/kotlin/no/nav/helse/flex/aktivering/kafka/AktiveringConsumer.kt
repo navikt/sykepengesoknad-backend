@@ -30,7 +30,7 @@ class AktiveringConsumer(
             aktiverEnkeltSoknad.aktiverSoknad(cr.key())
         } catch (e: Exception) {
             // Forsøker å aktivere denne senere
-            log.warn("Feilet ved aktivering av søknad ${cr.key()}, legger den tilbake og forsøker igjen senere")
+            log.warn("Feilet ved aktivering av søknad ${cr.key()}, legger den tilbake og forsøker igjen senere", e)
             val aktiveringBestilling: AktiveringBestilling = OBJECT_MAPPER.readValue(cr.value())
             aktiveringProducer.leggPaAktiveringTopic(aktiveringBestilling)
         }
