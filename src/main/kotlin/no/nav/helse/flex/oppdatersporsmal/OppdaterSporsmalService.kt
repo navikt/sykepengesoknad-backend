@@ -1,8 +1,6 @@
 package no.nav.helse.flex.oppdatersporsmal
 
 import no.nav.helse.flex.client.kvitteringer.SykepengesoknadKvitteringerClient
-import no.nav.helse.flex.domain.Arbeidssituasjon.*
-import no.nav.helse.flex.domain.Soknadstype.*
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svar
 import no.nav.helse.flex.domain.Sykepengesoknad
@@ -11,6 +9,7 @@ import no.nav.helse.flex.logger
 import no.nav.helse.flex.oppdatersporsmal.muteringer.arbeidGjenopptattMutering
 import no.nav.helse.flex.oppdatersporsmal.muteringer.brukteDuReisetilskuddetMutering
 import no.nav.helse.flex.oppdatersporsmal.muteringer.friskmeldtMuteringer
+import no.nav.helse.flex.oppdatersporsmal.muteringer.jobbaDuHundreGate
 import no.nav.helse.flex.oppdatersporsmal.muteringer.oppdaterMedSvarPaUtlandsopphold
 import no.nav.helse.flex.oppdatersporsmal.muteringer.utlandssoknadMuteringer
 import no.nav.helse.flex.repository.SvarDAO
@@ -46,6 +45,7 @@ class OppdaterSporsmalService(
 
         val oppdatertSoknad = soknadFraBasenForOppdatering
             .replaceSporsmal(sporsmal)
+            .jobbaDuHundreGate()
             .friskmeldtMuteringer()
             .brukteDuReisetilskuddetMutering()
             .utlandssoknadMuteringer()
