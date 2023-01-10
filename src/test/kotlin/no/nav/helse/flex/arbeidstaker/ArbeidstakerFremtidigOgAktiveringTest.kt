@@ -13,6 +13,7 @@ import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
+import no.nav.helse.flex.util.DatoUtil
 import no.nav.helse.flex.ventPåRecords
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.MethodOrderer
@@ -40,6 +41,9 @@ class ArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = basisdato.minusDays(1),
+                    tom = basisdato.plusDays(7),
+                ) + heltSykmeldt(
+                    fom = basisdato.plusDays(8),
                     tom = basisdato.plusDays(15),
                 ),
             )
@@ -89,12 +93,31 @@ class ArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
                 "PERMISJON_V2",
                 "UTLAND_V2",
                 "ARBEID_UNDERVEIS_100_PROSENT_0",
+                "ARBEID_UNDERVEIS_100_PROSENT_1",
                 "ARBEID_UTENFOR_NORGE",
                 "ANDRE_INNTEKTSKILDER_V2",
                 "UTDANNING",
                 "VAER_KLAR_OVER_AT",
                 "BEKREFT_OPPLYSNINGER"
             )
+        )
+
+        assertThat(soknad.sporsmal!!.first { it.tag == "ARBEID_UNDERVEIS_100_PROSENT_0" }.sporsmalstekst).isEqualTo(
+            "I perioden ${
+            DatoUtil.formatterPeriode(
+                basisdato.minusDays(1),
+                basisdato.plusDays(7)
+            )
+            } var du 100 % sykmeldt fra Butikken. Jobbet du noe hos Butikken i denne perioden?"
+        )
+
+        assertThat(soknad.sporsmal!!.first { it.tag == "ARBEID_UNDERVEIS_100_PROSENT_1" }.sporsmalstekst).isEqualTo(
+            "I perioden ${
+            DatoUtil.formatterPeriode(
+                basisdato.plusDays(8),
+                basisdato.plusDays(15)
+            )
+            } var du 100 % sykmeldt fra Butikken. Jobbet du noe hos Butikken i denne perioden?"
         )
     }
 
@@ -117,6 +140,7 @@ class ArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
             .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
             .besvarSporsmal(tag = "ARBEID_UTENFOR_NORGE", svar = "NEI")
             .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
+            .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_1", svar = "NEI")
             .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
             .besvarSporsmal(tag = "UTDANNING", svar = "NEI")
             .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
