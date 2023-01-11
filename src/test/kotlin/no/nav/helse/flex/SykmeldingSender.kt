@@ -1,9 +1,11 @@
 package no.nav.helse.flex
 
+import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.mapper.tilSoknadstatusDTO
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.kafka.consumer.SYKMELDINGBEKREFTET_TOPIC
 import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
+import no.nav.helse.flex.soknadsopprettelse.hentArbeidssituasjon
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.helse.flex.util.serialisertTilString
@@ -18,6 +20,14 @@ fun BaseTestClass.sendSykmelding(
     forventaSoknader: Int = 1,
 ): List<SykepengesoknadDTO> {
     flexSyketilfelleMockRestServiceServer?.reset()
+
+    if (sykmeldingKafkaMessage.hentArbeidssituasjon() in listOf(
+            Arbeidssituasjon.FRILANSER,
+            Arbeidssituasjon.NAERINGSDRIVENDE
+        )
+    ) {
+        mockFlexSyketilfelleErUtaforVentetid(sykmeldingKafkaMessage.sykmelding.id, true)
+    }
 
     mockFlexSyketilfelleSykeforloep(
         sykmeldingKafkaMessage.sykmelding.id,
