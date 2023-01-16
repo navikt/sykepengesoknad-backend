@@ -10,8 +10,6 @@ import no.nav.helse.flex.domain.Svartype.JA_NEI
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.Sykmeldingstype
 import no.nav.helse.flex.domain.Visningskriterie.JA
-import no.nav.helse.flex.soknadsopprettelse.oppdateringhelpers.finnGyldigDatoSvar
-import no.nav.helse.flex.soknadsopprettelse.oppdateringhelpers.skapOppdaterteSoknadsperioder
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderSelvstendigOgFrilanser
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.ansvarserklaringSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.arbeidUtenforNorge
@@ -38,7 +36,7 @@ fun settOppSoknadSelvstendigOgFrilanser(
             tilbakeIFulltArbeidSporsmal(soknadMetadata)
         },
         andreInntektskilderSelvstendigOgFrilanser(soknadMetadata.arbeidssituasjon!!),
-        utlandsSporsmal(soknadMetadata.fom!!, soknadMetadata.tom!!),
+        utlandsSporsmalSelvstendig(soknadMetadata.fom!!, soknadMetadata.tom!!),
         utdanningsSporsmal(soknadMetadata.fom, soknadMetadata.tom),
         bekreftOpplysningerSporsmal(),
         vaerKlarOverAt(gradertReisetilskudd = gradertReisetilskudd)
@@ -132,7 +130,7 @@ private fun utdanningsSporsmal(fom: LocalDate, tom: LocalDate): Sporsmal {
     )
 }
 
-private fun utlandsSporsmal(fom: LocalDate, tom: LocalDate): Sporsmal {
+fun utlandsSporsmalSelvstendig(fom: LocalDate, tom: LocalDate): Sporsmal {
     return Sporsmal(
         tag = UTLAND,
         sporsmalstekst = "Har du vært utenfor EØS mens du var sykmeldt " + formatterPeriode(fom, tom) + "?",
@@ -154,36 +152,4 @@ private fun utlandsSporsmal(fom: LocalDate, tom: LocalDate): Sporsmal {
             )
         )
     )
-}
-
-fun oppdaterMedSvarPaArbeidGjenopptattSelvstendig(sykepengesoknad: Sykepengesoknad): Sykepengesoknad {
-    val arbeidGjenopptattDato = sykepengesoknad.finnGyldigDatoSvar(TILBAKE_I_ARBEID, TILBAKE_NAR)
-    val soknadsTom =
-        if (arbeidGjenopptattDato == null)
-            sykepengesoknad.tom
-        else
-            arbeidGjenopptattDato.minusDays(1)
-
-    val oppdaterteSporsmal = sykepengesoknad
-        .sporsmal.asSequence()
-        .filterNot { (_, tag) -> tag.startsWith(JOBBET_DU_GRADERT) }
-        .filterNot { (_, tag) -> tag.startsWith(JOBBET_DU_100_PROSENT) }
-        .filterNot { (_, tag) -> tag == UTLAND }
-        .filterNot { (_, tag) -> tag == UTDANNING }
-        .toMutableList()
-
-    oppdaterteSporsmal.addAll(
-        jobbetDuIPeriodenSporsmalSelvstendigFrilanser(
-            sykepengesoknad.skapOppdaterteSoknadsperioder(
-                arbeidGjenopptattDato
-            ),
-            sykepengesoknad.arbeidssituasjon!!
-        )
-    )
-    if (!soknadsTom!!.isBefore(sykepengesoknad.fom)) {
-        oppdaterteSporsmal.add(utlandsSporsmal(sykepengesoknad.fom!!, soknadsTom))
-        oppdaterteSporsmal.add(utdanningsSporsmal(sykepengesoknad.fom, soknadsTom))
-    }
-
-    return sykepengesoknad.copy(sporsmal = oppdaterteSporsmal)
 }
