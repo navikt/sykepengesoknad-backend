@@ -15,6 +15,7 @@ import no.nav.helse.flex.soknadsopprettelse.PERMISJON_V2
 import no.nav.helse.flex.soknadsopprettelse.TILBAKE_I_ARBEID
 import no.nav.helse.flex.soknadsopprettelse.TILBAKE_NAR
 import no.nav.helse.flex.soknadsopprettelse.UTDANNING
+import no.nav.helse.flex.soknadsopprettelse.UTLAND
 import no.nav.helse.flex.soknadsopprettelse.UTLAND_V2
 import no.nav.helse.flex.soknadsopprettelse.ferieSporsmal
 import no.nav.helse.flex.soknadsopprettelse.gammeltFormatFeriePermisjonUtlandsoppholdSporsmal
@@ -26,6 +27,7 @@ import no.nav.helse.flex.soknadsopprettelse.oppdateringhelpers.skapOppdaterteSok
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.permisjonSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.utdanningsSporsmal
 import no.nav.helse.flex.soknadsopprettelse.utenlandsoppholdSporsmal
+import no.nav.helse.flex.soknadsopprettelse.utlandsSporsmalSelvstendig
 
 fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
     if (erIkkeAvType(SELVSTENDIGE_OG_FRILANSERE, ARBEIDSTAKERE)) {
@@ -46,6 +48,7 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
                     .filterNot { (_, tag) -> tag == FERIE_V2 }
                     .filterNot { (_, tag) -> tag == PERMISJON_V2 }
                     .filterNot { (_, tag) -> tag == UTLAND_V2 }
+                    .filterNot { (_, tag) -> tag == UTLAND }
                     .filterNot { (_, tag) -> tag == UTDANNING }
                     .toMutableList()
             )
@@ -83,13 +86,18 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
                 )
             )
         } else {
-            oppdaterteSporsmal.add(ferieSporsmal(this.fom!!, oppdatertTom))
-            oppdaterteSporsmal.add(permisjonSporsmal(this.fom, oppdatertTom))
-            oppdaterteSporsmal.add(utenlandsoppholdSporsmal(this.fom, oppdatertTom))
+            if (this.soknadstype == ARBEIDSTAKERE) {
+                oppdaterteSporsmal.add(ferieSporsmal(this.fom!!, oppdatertTom))
+                oppdaterteSporsmal.add(permisjonSporsmal(this.fom, oppdatertTom))
+                oppdaterteSporsmal.add(utenlandsoppholdSporsmal(this.fom, oppdatertTom))
+            }
+            if (this.soknadstype == SELVSTENDIGE_OG_FRILANSERE) {
+                oppdaterteSporsmal.add(utlandsSporsmalSelvstendig(this.fom!!, oppdatertTom))
+            }
         }
         oppdaterteSporsmal.add(
             utdanningsSporsmal(
-                this.fom,
+                this.fom!!,
                 oppdatertTom
             )
         )

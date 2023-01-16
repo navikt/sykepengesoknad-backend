@@ -4,6 +4,7 @@ import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.hentSoknad
+import no.nav.helse.flex.hentSoknader
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.oppdaterSporsmalMedResult
 import no.nav.helse.flex.sendSoknad
@@ -35,7 +36,7 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 
 @TestMethodOrder(MethodOrderer.MethodName::class)
-class ArbeidsledigIntegrationMedOppdaterSporsmalTest : BaseTestClass() {
+class ArbeidsledigIntegrationTest : BaseTestClass() {
 
     final val fnr = "123456789"
 
@@ -55,13 +56,10 @@ class ArbeidsledigIntegrationMedOppdaterSporsmalTest : BaseTestClass() {
 
     @Test
     fun `02 - søknaden har alle spørsmål`() {
-        val soknader = hentSoknaderMetadata(fnr)
+        val soknader = hentSoknader(fnr)
         assertThat(soknader).hasSize(1)
 
-        val soknaden = hentSoknad(
-            soknadId = soknader.first().id,
-            fnr = fnr
-        )
+        val soknaden = soknader.first()
         assertThat(soknaden.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
                 ANSVARSERKLARING,
