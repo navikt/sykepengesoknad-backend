@@ -23,14 +23,14 @@ fun Sykepengesoknad.leggTilSporsmaal(sporsmal: Sporsmal): Sykepengesoknad {
         return if (eksisterendeSpm.erUlikUtenomSvarTekstOgId(sporsmal)) {
             // Fjerne spørsmpålet
             this.copy(
-                sporsmal = this.sporsmal.filterNot { it.tag == sporsmal.tag }.toMutableList().also { it.add(sporsmal) }
+                sporsmal = this.sporsmal.filterNot { it.tag == sporsmal.tag } + sporsmal
             )
         } else {
             this
         }
     }
 
-    return this.copy(sporsmal = this.sporsmal.toMutableList().also { it.add(sporsmal) })
+    return this.copy(sporsmal = this.sporsmal + sporsmal)
 }
 
 fun Sykepengesoknad.leggTilSporsmaal(sporsmal: List<Sporsmal>): Sykepengesoknad {

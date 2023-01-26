@@ -56,7 +56,7 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
     }
 
     val oppdatertTom = if (arbeidGjenopptattDato == null) {
-        this.tom
+        this.tom!!
     } else {
         arbeidGjenopptattDato.minusDays(1)
     }
@@ -77,31 +77,37 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
         ).toMutableList()
     }
 
-    if (!oppdatertTom!!.isBefore(this.fom)) {
-        if (harFeriePermisjonEllerUtenlandsoppholdSporsmal()) {
-            oppdaterteSporsmal.add(
-                gammeltFormatFeriePermisjonUtlandsoppholdSporsmal(
-                    this.fom!!,
-                    oppdatertTom
-                )
-            )
-        } else {
-            if (this.soknadstype == ARBEIDSTAKERE) {
-                oppdaterteSporsmal.add(ferieSporsmal(this.fom!!, oppdatertTom))
-                oppdaterteSporsmal.add(permisjonSporsmal(this.fom, oppdatertTom))
-                oppdaterteSporsmal.add(utenlandsoppholdSporsmal(this.fom, oppdatertTom))
-            }
-            if (this.soknadstype == SELVSTENDIGE_OG_FRILANSERE) {
-                oppdaterteSporsmal.add(utlandsSporsmalSelvstendig(this.fom!!, oppdatertTom))
-            }
-        }
+    if (harFeriePermisjonEllerUtenlandsoppholdSporsmal()) {
         oppdaterteSporsmal.add(
-            utdanningsSporsmal(
+            gammeltFormatFeriePermisjonUtlandsoppholdSporsmal(
                 this.fom!!,
                 oppdatertTom
             )
         )
+    } else {
+        if (this.soknadstype == ARBEIDSTAKERE) {
+            oppdaterteSporsmal.add(ferieSporsmal(this.fom!!, oppdatertTom))
+            oppdaterteSporsmal.add(permisjonSporsmal(this.fom, oppdatertTom))
+            oppdaterteSporsmal.add(utenlandsoppholdSporsmal(this.fom, oppdatertTom))
+        }
+        if (this.soknadstype == SELVSTENDIGE_OG_FRILANSERE) {
+            oppdaterteSporsmal.add(utlandsSporsmalSelvstendig(this.fom!!, oppdatertTom))
+        }
     }
+    oppdaterteSporsmal.add(
+        utdanningsSporsmal(
+            this.fom!!,
+            oppdatertTom
+        )
+    )
 
     return this.leggTilSporsmaal(oppdaterteSporsmal)
+        .let { oppdatertSoknad ->
+            // periode spørsmål som ikke er med i oppdaterteSporsmal fjernes
+            oppdatertSoknad.copy(
+                sporsmal = oppdatertSoknad.sporsmal
+                    .filterNot { spm -> spm.tag.startsWith(ARBEID_UNDERVEIS_100_PROSENT) && oppdaterteSporsmal.none { it.tag == spm.tag } }
+                    .filterNot { spm -> spm.tag.startsWith(JOBBET_DU_GRADERT) && oppdaterteSporsmal.none { it.tag == spm.tag } }
+            )
+        }
 }
