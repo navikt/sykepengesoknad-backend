@@ -4,9 +4,10 @@ import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.soknadsopprettelse.ARBEID_UNDERVEIS_100_PROSENT
 import no.nav.helse.flex.soknadsopprettelse.PERMISJON_V2
 import no.nav.helse.flex.soknadsopprettelse.TILBAKE_I_ARBEID
+import no.nav.helse.flex.soknadsopprettelse.TILBAKE_NAR
+import no.nav.helse.flex.soknadsopprettelse.UTDANNING
 import no.nav.helse.flex.soknadsopprettelse.settOppSoknadArbeidstaker
 import no.nav.helse.flex.soknadsopprettelse.tilSoknadsperioder
 import no.nav.helse.flex.testutil.besvarsporsmal
@@ -23,6 +24,7 @@ import org.junit.jupiter.api.Test
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 import java.util.*
 
 class ArbeidGjenopptattMuteringTest {
@@ -69,17 +71,88 @@ class ArbeidGjenopptattMuteringTest {
             )
         )
 
-        val soknadUtenJobbetDU = standardSoknad
+        val soknadUtenUtdanning = standardSoknad
             .besvarsporsmal(TILBAKE_I_ARBEID, svar = "NEI")
-            .fjernSporsmal("ARBEID_UNDERVEIS_100_PROSENT_0")
+            .fjernSporsmal("UTDANNING")
 
-        soknadUtenJobbetDU.sporsmal.find { it.tag.startsWith(ARBEID_UNDERVEIS_100_PROSENT) }.`should be null`()
-        soknadUtenJobbetDU.sporsmal.shouldHaveSize(11)
+        soknadUtenUtdanning.sporsmal.find { it.tag == UTDANNING }.`should be null`()
+        soknadUtenUtdanning.sporsmal.shouldHaveSize(11)
 
-        val mutertSoknad = soknadUtenJobbetDU.arbeidGjenopptattMutering()
+        val mutertSoknad = soknadUtenUtdanning.arbeidGjenopptattMutering()
 
-        mutertSoknad.sporsmal.find { it.tag.startsWith(ARBEID_UNDERVEIS_100_PROSENT) }.`should not be null`()
+        mutertSoknad.sporsmal.find { it.tag == UTDANNING }.`should not be null`()
         mutertSoknad.sporsmal.shouldHaveSize(12)
+    }
+
+    @Test
+    fun `mutering av spørsmål om perioder som kommer etter svar på tilbake i arbeid`() {
+        val basisdato = LocalDate.now()
+        val soknad = Sykepengesoknad(
+            fnr = "1234",
+            startSykeforlop = basisdato,
+            fom = basisdato,
+            tom = basisdato.plusDays(10),
+            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+            arbeidsgiverOrgnummer = "123456789",
+            arbeidsgiverNavn = "ARBEIDSGIVER A/S",
+            sykmeldingId = "289148ba-4c3c-4b3f-b7a3-385b7e7c927d",
+            soknadstype = Soknadstype.ARBEIDSTAKERE,
+            sykmeldingSkrevet = basisdato.atStartOfDay().tilOsloInstant(),
+            soknadPerioder = listOf(
+                SykmeldingsperiodeAGDTO(
+                    fom = basisdato,
+                    tom = basisdato.plusDays(4),
+                    gradert = GradertDTO(grad = 100, reisetilskudd = false),
+                    type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+                    aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                    behandlingsdager = null,
+                    innspillTilArbeidsgiver = null,
+                    reisetilskudd = false,
+                ),
+                SykmeldingsperiodeAGDTO(
+                    fom = basisdato.plusDays(5),
+                    tom = basisdato.plusDays(10),
+                    gradert = GradertDTO(grad = 100, reisetilskudd = false),
+                    type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+                    aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                    behandlingsdager = null,
+                    innspillTilArbeidsgiver = null,
+                    reisetilskudd = false,
+                ),
+            ).tilSoknadsperioder(),
+            egenmeldtSykmelding = null,
+            id = UUID.randomUUID().toString(),
+            status = Soknadstatus.NY,
+            opprettet = Instant.now(),
+            sporsmal = emptyList(),
+            utenlandskSykmelding = false,
+        )
+        val standardSoknad = soknad.copy(
+            sporsmal = settOppSoknadArbeidstaker(
+                sykepengesoknad = soknad,
+                erForsteSoknadISykeforlop = true,
+                tidligsteFomForSykmelding = basisdato,
+                andreKjenteArbeidsforhold = emptyList()
+            )
+        )
+
+        standardSoknad.sporsmal.shouldHaveSize(13)
+        standardSoknad.sporsmal.find { it.tag == "ARBEID_UNDERVEIS_100_PROSENT_1" }.`should not be null`()
+
+        val mutertSoknadUtenSpm = standardSoknad
+            .besvarsporsmal(TILBAKE_I_ARBEID, svar = "JA")
+            .besvarsporsmal(TILBAKE_NAR, svar = basisdato.plusDays(4).format(ISO_LOCAL_DATE))
+            .arbeidGjenopptattMutering()
+
+        mutertSoknadUtenSpm.sporsmal.shouldHaveSize(12)
+        mutertSoknadUtenSpm.sporsmal.find { it.tag == "ARBEID_UNDERVEIS_100_PROSENT_1" }.`should be null`()
+
+        val mutertSoknadMedSpm = mutertSoknadUtenSpm
+            .besvarsporsmal(TILBAKE_I_ARBEID, svar = "NEI")
+            .arbeidGjenopptattMutering()
+
+        mutertSoknadMedSpm.sporsmal.shouldHaveSize(13)
+        mutertSoknadMedSpm.sporsmal.find { it.tag == "ARBEID_UNDERVEIS_100_PROSENT_1" }.`should not be null`()
     }
 
     @Test
