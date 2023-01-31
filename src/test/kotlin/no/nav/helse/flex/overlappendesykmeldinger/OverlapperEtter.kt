@@ -604,7 +604,7 @@ class OverlapperEtter : BaseTestClass() {
 
     @Test
     @Order(60)
-    fun `Fremtidig behandlingsdager sykmelding klipper eksisterende søknader`() {
+    fun `Fremtidig behandlingsdager sykmelding klippes ikke`() {
 
         sendSykmelding(
             sykmeldingKafkaMessage(
@@ -630,7 +630,7 @@ class OverlapperEtter : BaseTestClass() {
         val soknader = sykepengesoknadDAO.finnSykepengesoknader(listOf(fnr))
 
         soknader[0].fom shouldBeEqualTo basisdato
-        soknader[0].tom shouldBeEqualTo basisdato.plusDays(4)
+        soknader[0].tom shouldBeEqualTo basisdato.plusDays(10)
         soknader[0].soknadstype shouldBeEqualTo Soknadstype.ARBEIDSTAKERE
         soknader[0].status shouldBeEqualTo Soknadstatus.FREMTIDIG
 
@@ -683,7 +683,7 @@ class OverlapperEtter : BaseTestClass() {
 
     @Test
     @Order(80)
-    fun `Fremtidig reisetiskudd sykmelding klipper eksisterende søknader`() {
+    fun `Fremtidig reisetiskudd sykmelding klipper klippes ikke`() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
@@ -706,7 +706,7 @@ class OverlapperEtter : BaseTestClass() {
         val soknader = sykepengesoknadDAO.finnSykepengesoknader(listOf(fnr))
 
         soknader[0].fom shouldBeEqualTo basisdato
-        soknader[0].tom shouldBeEqualTo basisdato.plusDays(4)
+        soknader[0].tom shouldBeEqualTo basisdato.plusDays(10)
         soknader[0].soknadstype shouldBeEqualTo Soknadstype.ARBEIDSTAKERE
         soknader[0].status shouldBeEqualTo Soknadstatus.FREMTIDIG
 
