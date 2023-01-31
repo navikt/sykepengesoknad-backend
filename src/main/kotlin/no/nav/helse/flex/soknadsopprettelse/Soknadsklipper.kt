@@ -19,6 +19,7 @@ import no.nav.helse.flex.soknadsopprettelse.Soknadsklipper.EndringIUforegrad.LAV
 import no.nav.helse.flex.soknadsopprettelse.Soknadsklipper.EndringIUforegrad.SAMME_UFØREGRAD
 import no.nav.helse.flex.soknadsopprettelse.Soknadsklipper.EndringIUforegrad.VET_IKKE
 import no.nav.helse.flex.soknadsopprettelse.Soknadsklipper.EndringIUforegrad.ØKT_UFØREGRAD
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.SporsmalGenerator
 import no.nav.helse.flex.util.isAfterOrEqual
 import no.nav.helse.flex.util.isBeforeOrEqual
 import no.nav.helse.flex.util.overlap
@@ -38,6 +39,7 @@ class Soknadsklipper(
     private val aktiveringProducer: AktiveringProducer,
     private val soknadProducer: SoknadProducer,
     private val klippetSykepengesoknadRepository: KlippetSykepengesoknadRepository,
+    private val sporsmalGenerator: SporsmalGenerator,
 ) {
 
     val log = logger()
@@ -152,7 +154,9 @@ class Soknadsklipper(
         this.filter { it.fom!!.isBefore(sykmeldingPeriode.start) }
             .filter { it.tom!!.isBeforeOrEqual(sykmeldingPeriode.endInclusive) }
             .forEach { sok ->
-                val klipper = sok.status == Soknadstatus.FREMTIDIG
+                val klipper = sok.status in listOf(
+                    Soknadstatus.FREMTIDIG, Soknadstatus.NY
+                )
                 if (klipper) {
                     log.info(
                         "Sykmelding $sykmeldingId klipper søknad ${sok.id} tom fra: ${sok.tom} til: ${
@@ -166,6 +170,7 @@ class Soknadsklipper(
                         sykepengesoknadUuid = sok.id,
                         klipp = sykmeldingPeriode.start
                     )
+
                     klippetSykepengesoknadRepository.save(
                         KlippetSykepengesoknadDbRecord(
                             sykepengesoknadUuid = sok.id,
@@ -176,6 +181,10 @@ class Soknadsklipper(
                             timestamp = Instant.now(),
                         )
                     )
+
+                    if (sok.status == Soknadstatus.NY) {
+                        sporsmalGenerator.lagSporsmalPaSoknad(sok.id)
+                    }
 
                     if (nyePerioder.maxOf { it.tom } < LocalDate.now()) {
                         aktiveringProducer.leggPaAktiveringTopic(AktiveringBestilling(sok.fnr, sok.id))
@@ -342,7 +351,7 @@ class Soknadsklipper(
                 if (sokPeriode.overlap(sykPeriode) &&
                     sok.fom.isBeforeOrEqual(sykPeriode.start) &&
                     sok.tom.isBefore(sykPeriode.endInclusive) &&
-                    (sok.status == Soknadstatus.NY || sok.status == Soknadstatus.SENDT)
+                    sok.status == Soknadstatus.SENDT
                 ) {
                     val endringIUforegrad = finnEndringIUforegrad(
                         tidligerePerioder = sok.soknadPerioder!!.filter {
