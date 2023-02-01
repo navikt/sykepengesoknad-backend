@@ -186,7 +186,7 @@ class Soknadsklipper(
                         sporsmalGenerator.lagSporsmalPaSoknad(sok.id)
                     }
 
-                    if (nyePerioder.maxOf { it.tom } < LocalDate.now()) {
+                    if (sok.status == Soknadstatus.FREMTIDIG && nyePerioder.maxOf { it.tom } < LocalDate.now()) {
                         aktiveringProducer.leggPaAktiveringTopic(AktiveringBestilling(sok.fnr, sok.id))
                     }
                 }
