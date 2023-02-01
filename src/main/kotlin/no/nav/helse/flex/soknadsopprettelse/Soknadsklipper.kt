@@ -267,7 +267,9 @@ class Soknadsklipper(
         this.filter { it.fom!!.isAfterOrEqual(sykmeldingPeriode.start) }
             .filter { it.tom!!.isAfter(sykmeldingPeriode.endInclusive) }
             .forEach { sok ->
-                val klipper = sok.status == Soknadstatus.FREMTIDIG
+                val klipper = sok.status in listOf(
+                    Soknadstatus.FREMTIDIG, Soknadstatus.NY
+                )
                 if (klipper) {
                     log.info(
                         "Sykmelding $sykmeldingId klipper søknad ${sok.id} fom fra: ${sok.fom} til: ${
@@ -281,6 +283,7 @@ class Soknadsklipper(
                         sykepengesoknadUuid = sok.id,
                         klipp = sykmeldingPeriode.endInclusive
                     )
+
                     klippetSykepengesoknadRepository.save(
                         KlippetSykepengesoknadDbRecord(
                             sykepengesoknadUuid = sok.id,
@@ -291,6 +294,10 @@ class Soknadsklipper(
                             timestamp = Instant.now(),
                         )
                     )
+
+                    if (sok.status == Soknadstatus.NY) {
+                        sporsmalGenerator.lagSporsmalPaSoknad(sok.id)
+                    }
                 }
                 val endringIUforegrad = finnEndringIUforegrad(
                     tidligerePerioder = sok.soknadPerioder!!.filter {
@@ -443,7 +450,7 @@ class Soknadsklipper(
                         }.tilSoknadsperioder(),
                     )
 
-                    if (endringIUforegrad == SAMME_UFØREGRAD && (sok.status == Soknadstatus.NY || sok.status == Soknadstatus.SENDT)) {
+                    if (endringIUforegrad == SAMME_UFØREGRAD && sok.status == Soknadstatus.SENDT) {
                         log.info("Sykmelding $sykmeldingId overlapper ${sok.status} søknad ${sok.id} før ${sykPeriode.endInclusive}")
 
                         val nyeSykmeldingPerioder = sykmeldingPerioder

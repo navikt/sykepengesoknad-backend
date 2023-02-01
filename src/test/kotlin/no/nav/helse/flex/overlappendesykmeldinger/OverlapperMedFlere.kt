@@ -232,7 +232,7 @@ class OverlapperMedFlere : BaseTestClass() {
                     soknadPerioder = listOf(
                         Soknadsperiode(
                             fom = LocalDate.of(2022, 1, 15),
-                            tom = LocalDate.of(2022, 2, 6),
+                            tom = LocalDate.of(2022, 2, 13),
                             grad = 100,
                             sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
                         )
@@ -242,8 +242,8 @@ class OverlapperMedFlere : BaseTestClass() {
                     status = Soknadstatus.NY,
                     soknadPerioder = listOf(
                         Soknadsperiode(
-                            fom = LocalDate.of(2022, 2, 7),
-                            tom = LocalDate.of(2022, 2, 28),
+                            fom = LocalDate.of(2022, 2, 14),
+                            tom = LocalDate.of(2022, 3, 15),
                             grad = 100,
                             sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
                         )
@@ -253,7 +253,7 @@ class OverlapperMedFlere : BaseTestClass() {
                     status = Soknadstatus.NY,
                     soknadPerioder = listOf(
                         Soknadsperiode(
-                            fom = LocalDate.of(2022, 3, 1),
+                            fom = LocalDate.of(2022, 3, 16),
                             tom = LocalDate.of(2022, 3, 31),
                             grad = 100,
                             sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
