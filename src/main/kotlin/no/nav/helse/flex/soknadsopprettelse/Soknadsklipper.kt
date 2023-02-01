@@ -155,7 +155,7 @@ class Soknadsklipper(
             .filter { it.tom!!.isBeforeOrEqual(sykmeldingPeriode.endInclusive) }
             .forEach { sok ->
                 val klipper = sok.status in listOf(
-                    Soknadstatus.FREMTIDIG, Soknadstatus.NY
+                    Soknadstatus.FREMTIDIG, Soknadstatus.NY, Soknadstatus.AVBRUTT
                 )
                 if (klipper) {
                     log.info(
@@ -182,7 +182,7 @@ class Soknadsklipper(
                         )
                     )
 
-                    if (sok.status == Soknadstatus.NY) {
+                    if (sok.status != Soknadstatus.FREMTIDIG) {
                         sporsmalGenerator.lagSporsmalPaSoknad(sok.id)
                     }
 
@@ -219,7 +219,9 @@ class Soknadsklipper(
         this.filter { it.fom!!.isAfterOrEqual(sykmeldingPeriode.start) }
             .filter { it.tom!!.isBeforeOrEqual(sykmeldingPeriode.endInclusive) }
             .forEach { sok ->
-                val klipper = sok.status == Soknadstatus.FREMTIDIG || sok.status == Soknadstatus.NY
+                val klipper = sok.status in listOf(
+                    Soknadstatus.FREMTIDIG, Soknadstatus.NY, Soknadstatus.AVBRUTT
+                )
                 if (klipper) {
                     log.info("Sykmelding $sykmeldingId overlapper søknad ${sok.id} fullstendig")
 
@@ -268,7 +270,7 @@ class Soknadsklipper(
             .filter { it.tom!!.isAfter(sykmeldingPeriode.endInclusive) }
             .forEach { sok ->
                 val klipper = sok.status in listOf(
-                    Soknadstatus.FREMTIDIG, Soknadstatus.NY
+                    Soknadstatus.FREMTIDIG, Soknadstatus.NY, Soknadstatus.AVBRUTT
                 )
                 if (klipper) {
                     log.info(
@@ -295,7 +297,7 @@ class Soknadsklipper(
                         )
                     )
 
-                    if (sok.status == Soknadstatus.NY) {
+                    if (sok.status != Soknadstatus.FREMTIDIG) {
                         sporsmalGenerator.lagSporsmalPaSoknad(sok.id)
                     }
                 }

@@ -272,7 +272,6 @@ class OverlapperEtter : BaseTestClass() {
     @Test
     @Order(11)
     fun `Overlappende sykmelding med samme grad blir klippet`() {
-        klippMetrikkRepository.deleteAll()
         val soknad = sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
