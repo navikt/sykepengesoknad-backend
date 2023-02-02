@@ -177,14 +177,15 @@ class OverlapperFor : BaseTestClass() {
             ),
         )
         val overlappendeSoknad = sendSykmelding(
-            sykmeldingKafkaMessage(
+            forventaSoknader = 2,
+            sykmeldingKafkaMessage = sykmeldingKafkaMessage(
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = basisdato.minusDays(10),
                     tom = basisdato.minusDays(2),
                 ),
             ),
-        ).first()
+        ).last()
 
         overlappendeSoknad.fom shouldBeEqualTo basisdato.minusDays(10)
         overlappendeSoknad.tom shouldBeEqualTo basisdato.minusDays(2)
@@ -236,14 +237,15 @@ class OverlapperFor : BaseTestClass() {
         sykepengesoknadKafkaConsumer.ventPåRecords(1)
 
         val overlappendeSoknad = sendSykmelding(
-            sykmeldingKafkaMessage(
+            forventaSoknader = 2,
+            sykmeldingKafkaMessage = sykmeldingKafkaMessage(
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = basisdato.minusDays(15),
                     tom = basisdato.minusDays(5),
                 ),
             ),
-        ).first()
+        ).last()
 
         overlappendeSoknad.fom shouldBeEqualTo basisdato.minusDays(15)
         overlappendeSoknad.tom shouldBeEqualTo basisdato.minusDays(5)

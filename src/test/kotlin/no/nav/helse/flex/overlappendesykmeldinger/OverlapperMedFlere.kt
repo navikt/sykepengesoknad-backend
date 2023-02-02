@@ -15,6 +15,7 @@ import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
+import no.nav.helse.flex.util.serialisertTilString
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
@@ -54,6 +55,9 @@ class OverlapperMedFlere : BaseTestClass() {
         databaseReset.resetDatabase()
         do {
             val cr = sykepengesoknadKafkaConsumer.hentProduserteRecords()
+            if (cr.isNotEmpty()) {
+                println("GJENSTÅENDE SØKNADER PÅ TOPIC ${cr.first().value().serialisertTilString()}")
+            }
         } while (cr.isNotEmpty())
     }
 
@@ -171,7 +175,7 @@ class OverlapperMedFlere : BaseTestClass() {
     @Test
     fun `Overlapper i midten av en lang rekke med nye søknader`() {
         overlappTester.testKlipp(
-            forventaSoknadPaKafka = 2,
+            forventaSoknadPaKafka = 5,
             eksisterendeSoknader = listOf(
                 Soknad(
                     soknadPerioder = listOf(

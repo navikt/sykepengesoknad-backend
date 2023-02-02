@@ -184,6 +184,8 @@ class Soknadsklipper(
 
                     if (sok.status != Soknadstatus.FREMTIDIG) {
                         sporsmalGenerator.lagSporsmalPaSoknad(sok.id)
+                        val oppdatertSoknad = sykepengesoknadDAO.finnSykepengesoknad(sok.id)
+                        soknadProducer.soknadEvent(oppdatertSoknad, null, false)
                     }
 
                     if (sok.status == Soknadstatus.FREMTIDIG && nyePerioder.maxOf { it.tom } < LocalDate.now()) {
@@ -299,6 +301,8 @@ class Soknadsklipper(
 
                     if (sok.status != Soknadstatus.FREMTIDIG) {
                         sporsmalGenerator.lagSporsmalPaSoknad(sok.id)
+                        val oppdatertSoknad = sykepengesoknadDAO.finnSykepengesoknad(sok.id)
+                        soknadProducer.soknadEvent(oppdatertSoknad, null, false)
                     }
                 }
                 val endringIUforegrad = finnEndringIUforegrad(

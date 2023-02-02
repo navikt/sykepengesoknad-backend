@@ -348,7 +348,8 @@ class OverlapperEtter : BaseTestClass() {
     @Order(21)
     fun `Overlappende sykmelding med forskjellig grad blir klippet`() {
         val soknad = sendSykmelding(
-            sykmeldingKafkaMessage(
+            forventaSoknader = 2,
+            sykmeldingKafkaMessage = sykmeldingKafkaMessage(
                 fnr = fnr,
                 sykmeldingsperioder = gradertSykmeldt(
                     fom = basisdato.minusDays(10),
@@ -356,7 +357,7 @@ class OverlapperEtter : BaseTestClass() {
                     grad = 50
                 ),
             ),
-        ).first()
+        ).last()
 
         soknad.fom shouldBeEqualTo basisdato.minusDays(10)
         soknad.tom shouldBeEqualTo basisdato.plusDays(5)
@@ -406,14 +407,15 @@ class OverlapperEtter : BaseTestClass() {
     @Order(31)
     fun `Overlappende sykmelding klipper NY søknad og oppdaterer spørsmål`() {
         val overlappendeSykmeldingId = sendSykmelding(
-            sykmeldingKafkaMessage(
+            forventaSoknader = 2,
+            sykmeldingKafkaMessage = sykmeldingKafkaMessage(
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = basisdato.minusDays(10),
                     tom = basisdato.minusDays(1),
                 ),
             ),
-        ).first().sykmeldingId
+        ).last().sykmeldingId
 
         val soknaderMetadata = hentSoknaderMetadata(fnr)
         soknaderMetadata shouldHaveSize 2
