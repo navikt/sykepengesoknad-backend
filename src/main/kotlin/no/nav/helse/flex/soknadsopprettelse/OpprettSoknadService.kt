@@ -2,11 +2,6 @@ package no.nav.helse.flex.soknadsopprettelse
 
 import no.nav.helse.flex.aktivering.kafka.AktiveringBestilling
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.domain.Arbeidssituasjon.ANNET
-import no.nav.helse.flex.domain.Arbeidssituasjon.ARBEIDSLEDIG
-import no.nav.helse.flex.domain.Arbeidssituasjon.ARBEIDSTAKER
-import no.nav.helse.flex.domain.Arbeidssituasjon.FRILANSER
-import no.nav.helse.flex.domain.Arbeidssituasjon.NAERINGSDRIVENDE
 import no.nav.helse.flex.domain.Merknad
 import no.nav.helse.flex.domain.Soknadsperiode
 import no.nav.helse.flex.domain.Soknadstatus
@@ -16,6 +11,7 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.Sykmeldingstype
 import no.nav.helse.flex.domain.exception.SykeforloepManglerSykemeldingException
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
+import no.nav.helse.flex.domain.sykmelding.finnSoknadstype
 import no.nav.helse.flex.julesoknad.LagreJulesoknadKandidater
 import no.nav.helse.flex.kafka.producer.SoknadProducer
 import no.nav.helse.flex.logger
@@ -150,31 +146,6 @@ class OpprettSoknadService(
         return soknaderTilOppretting
             .map { it.lagreSøknad(eksisterendeSoknader) }
             .mapNotNull { it.publiserEllerReturnerAktiveringBestilling() }
-    }
-
-    private fun finnSoknadstype(
-        arbeidssituasjon: Arbeidssituasjon,
-        perioderFraSykmeldingen: List<SykmeldingsperiodeAGDTO>
-    ): Soknadstype {
-
-        if (perioderFraSykmeldingen.any { it.type === BEHANDLINGSDAGER }) {
-            return Soknadstype.BEHANDLINGSDAGER
-        }
-
-        if (perioderFraSykmeldingen.all { it.type === REISETILSKUDD }) {
-            return Soknadstype.REISETILSKUDD
-        }
-
-        if (perioderFraSykmeldingen.any { it.gradert?.reisetilskudd == true }) {
-            return Soknadstype.GRADERT_REISETILSKUDD
-        }
-
-        return when (arbeidssituasjon) {
-            ARBEIDSTAKER -> Soknadstype.ARBEIDSTAKERE
-            NAERINGSDRIVENDE, FRILANSER -> Soknadstype.SELVSTENDIGE_OG_FRILANSERE
-            ARBEIDSLEDIG -> Soknadstype.ARBEIDSLEDIG
-            ANNET -> Soknadstype.ANNET_ARBEIDSFORHOLD
-        }
     }
 
     private fun List<Sykepengesoknad>.lagreJulesoknadKandidater() {

@@ -2,20 +2,28 @@ package no.nav.helse.flex.overlappendesykmeldinger
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.avbrytSoknad
+import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.domain.Soknadsperiode
 import no.nav.helse.flex.domain.Sykmeldingstype
+import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.repository.KlippMetrikkRepository
 import no.nav.helse.flex.repository.KlippVariant
 import no.nav.helse.flex.repository.KlippetSykepengesoknadRepository
 import no.nav.helse.flex.sendSykmelding
+import no.nav.helse.flex.soknadsopprettelse.FERIE_V2
+import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
+import no.nav.helse.flex.util.DatoUtil
 import no.nav.helse.flex.util.OBJECT_MAPPER
+import no.nav.helse.flex.ventPåRecords
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.awaitility.Awaitility
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
@@ -37,6 +45,11 @@ class OverlapperFor : BaseTestClass() {
     }
 
     private final val basisdato = LocalDate.now()
+
+    @BeforeEach
+    fun opprydding() {
+        databaseReset.resetDatabase()
+    }
 
     @Test
     fun `Fremtidig arbeidstakersøknad starter før og slutter inni, klippes`() {
@@ -101,7 +114,6 @@ class OverlapperFor : BaseTestClass() {
         klippmetrikker[0].variant `should be equal to` "SOKNAD_STARTER_FOR_SLUTTER_INNI"
         klippmetrikker[0].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
         klippmetrikker[0].klippet `should be equal to` true
-        klippMetrikkRepository.deleteAll()
     }
 
     @Test
@@ -150,11 +162,10 @@ class OverlapperFor : BaseTestClass() {
         klippmetrikker[0].variant `should be equal to` "SOKNAD_STARTER_FOR_SLUTTER_INNI"
         klippmetrikker[0].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
         klippmetrikker[0].klippet `should be equal to` true
-        klippMetrikkRepository.deleteAll()
     }
 
     @Test
-    fun `Ny arbeidstakersøknad starter samtidig og slutter inni, klipper sykmelding`() {
+    fun `Ny arbeidstakersøknad starter før og slutter inni, klippes`() {
         val fnr = "66666666666"
         sendSykmelding(
             sykmeldingKafkaMessage(
@@ -165,31 +176,90 @@ class OverlapperFor : BaseTestClass() {
                 ),
             ),
         )
-        val soknad = sendSykmelding(
-            sykmeldingKafkaMessage(
+        val overlappendeSoknad = sendSykmelding(
+            forventaSoknader = 2,
+            sykmeldingKafkaMessage = sykmeldingKafkaMessage(
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = basisdato.minusDays(10),
                     tom = basisdato.minusDays(2),
                 ),
             ),
-        ).first()
+        ).last()
 
-        soknad.fom shouldBeEqualTo basisdato.minusDays(10)
-        soknad.tom shouldBeEqualTo basisdato.minusDays(6)
+        overlappendeSoknad.fom shouldBeEqualTo basisdato.minusDays(10)
+        overlappendeSoknad.tom shouldBeEqualTo basisdato.minusDays(2)
+        overlappendeSoknad.status shouldBeEqualTo SoknadsstatusDTO.NY
+
+        val klippetSoknad = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first { it.id != overlappendeSoknad.id }.id,
+            fnr = fnr
+        )
+
+        klippetSoknad.fom shouldBeEqualTo basisdato.minusDays(1)
+        klippetSoknad.tom shouldBeEqualTo basisdato.minusDays(1)
+        klippetSoknad.status shouldBeEqualTo RSSoknadstatus.NY
+        klippetSoknad.sporsmal!!.first { it.tag == FERIE_V2 }.sporsmalstekst shouldBeEqualTo "Tok du ut feriedager i tidsrommet ${
+        DatoUtil.formatterPeriode(
+            klippetSoknad.fom!!,
+            klippetSoknad.tom!!
+        )
+        }?"
 
         val klippmetrikker = klippMetrikkRepository.findAll().toList().sortedBy { it.variant }
-        klippmetrikker shouldHaveSize 2
+        klippmetrikker shouldHaveSize 1
 
         klippmetrikker[0].soknadstatus `should be equal to` "NY"
         klippmetrikker[0].variant `should be equal to` "SOKNAD_STARTER_FOR_SLUTTER_INNI"
         klippmetrikker[0].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
-        klippmetrikker[0].klippet `should be equal to` false
+        klippmetrikker[0].klippet `should be equal to` true
+    }
 
-        klippmetrikker[1].soknadstatus `should be equal to` "NY"
-        klippmetrikker[1].variant `should be equal to` "SYKMELDING_STARTER_INNI_SLUTTER_ETTER"
-        klippmetrikker[1].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
-        klippmetrikker[1].klippet `should be equal to` true
-        klippMetrikkRepository.deleteAll()
+    @Test
+    fun `Avbrutt arbeidstakersøknad starter før og slutter inni, klippes`() {
+        val fnr = "77777777777"
+        val soknad = sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = basisdato.minusDays(10),
+                    tom = basisdato.minusDays(1),
+                ),
+            ),
+        ).first()
+
+        soknad.status shouldBeEqualTo SoknadsstatusDTO.NY
+        soknad.fom shouldBeEqualTo basisdato.minusDays(10)
+        soknad.tom shouldBeEqualTo basisdato.minusDays(1)
+
+        avbrytSoknad(soknad.id, fnr)
+        hentSoknad(soknad.id, fnr).status shouldBeEqualTo RSSoknadstatus.AVBRUTT
+        sykepengesoknadKafkaConsumer.ventPåRecords(1)
+
+        val overlappendeSoknad = sendSykmelding(
+            forventaSoknader = 2,
+            sykmeldingKafkaMessage = sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = basisdato.minusDays(15),
+                    tom = basisdato.minusDays(5),
+                ),
+            ),
+        ).last()
+
+        overlappendeSoknad.fom shouldBeEqualTo basisdato.minusDays(15)
+        overlappendeSoknad.tom shouldBeEqualTo basisdato.minusDays(5)
+        overlappendeSoknad.status shouldBeEqualTo SoknadsstatusDTO.NY
+
+        val klippetSoknad = hentSoknad(soknad.id, fnr)
+        klippetSoknad.fom shouldBeEqualTo basisdato.minusDays(4)
+        klippetSoknad.tom shouldBeEqualTo basisdato.minusDays(1)
+        klippetSoknad.status shouldBeEqualTo RSSoknadstatus.AVBRUTT
+        klippetSoknad.sporsmal!!.first { it.tag == FERIE_V2 }.sporsmalstekst shouldBeEqualTo "Tok du ut feriedager i tidsrommet ${
+        DatoUtil.formatterPeriode(
+            klippetSoknad.fom!!,
+            klippetSoknad.tom!!
+        )
+        }?"
     }
 }

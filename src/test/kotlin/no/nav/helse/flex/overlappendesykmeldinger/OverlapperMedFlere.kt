@@ -15,6 +15,7 @@ import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
+import no.nav.helse.flex.util.serialisertTilString
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
@@ -54,6 +55,9 @@ class OverlapperMedFlere : BaseTestClass() {
         databaseReset.resetDatabase()
         do {
             val cr = sykepengesoknadKafkaConsumer.hentProduserteRecords()
+            if (cr.isNotEmpty()) {
+                println("GJENSTÅENDE SØKNADER PÅ TOPIC ${cr.first().value().serialisertTilString()}")
+            }
         } while (cr.isNotEmpty())
     }
 
@@ -171,7 +175,7 @@ class OverlapperMedFlere : BaseTestClass() {
     @Test
     fun `Overlapper i midten av en lang rekke med nye søknader`() {
         overlappTester.testKlipp(
-            forventaSoknadPaKafka = 2,
+            forventaSoknadPaKafka = 5,
             eksisterendeSoknader = listOf(
                 Soknad(
                     soknadPerioder = listOf(
@@ -221,7 +225,7 @@ class OverlapperMedFlere : BaseTestClass() {
                     soknadPerioder = listOf(
                         Soknadsperiode(
                             fom = LocalDate.of(2022, 1, 1),
-                            tom = LocalDate.of(2022, 1, 31),
+                            tom = LocalDate.of(2022, 1, 14),
                             grad = 100,
                             sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
                         )
@@ -231,8 +235,8 @@ class OverlapperMedFlere : BaseTestClass() {
                     status = Soknadstatus.NY,
                     soknadPerioder = listOf(
                         Soknadsperiode(
-                            fom = LocalDate.of(2022, 2, 1),
-                            tom = LocalDate.of(2022, 2, 28),
+                            fom = LocalDate.of(2022, 1, 15),
+                            tom = LocalDate.of(2022, 2, 13),
                             grad = 100,
                             sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
                         )
@@ -242,7 +246,18 @@ class OverlapperMedFlere : BaseTestClass() {
                     status = Soknadstatus.NY,
                     soknadPerioder = listOf(
                         Soknadsperiode(
-                            fom = LocalDate.of(2022, 3, 1),
+                            fom = LocalDate.of(2022, 2, 14),
+                            tom = LocalDate.of(2022, 3, 15),
+                            grad = 100,
+                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
+                        )
+                    )
+                ),
+                Soknad(
+                    status = Soknadstatus.NY,
+                    soknadPerioder = listOf(
+                        Soknadsperiode(
+                            fom = LocalDate.of(2022, 3, 16),
                             tom = LocalDate.of(2022, 3, 31),
                             grad = 100,
                             sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG

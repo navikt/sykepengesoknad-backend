@@ -38,11 +38,9 @@ import no.nav.helse.flex.testdata.reisetilskudd
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
+import no.nav.helse.flex.util.DatoUtil
 import no.nav.helse.flex.util.OBJECT_MAPPER
 import no.nav.helse.flex.ventPåRecords
-import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
-import no.nav.syfo.model.sykmelding.model.GradertDTO
-import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
@@ -274,7 +272,6 @@ class OverlapperEtter : BaseTestClass() {
     @Test
     @Order(11)
     fun `Overlappende sykmelding med samme grad blir klippet`() {
-        klippMetrikkRepository.deleteAll()
         val soknad = sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
@@ -349,9 +346,10 @@ class OverlapperEtter : BaseTestClass() {
 
     @Test
     @Order(21)
-    fun `Overlappende sykmelding med forskjellig grad klippes ikke`() {
+    fun `Overlappende sykmelding med forskjellig grad blir klippet`() {
         val soknad = sendSykmelding(
-            sykmeldingKafkaMessage(
+            forventaSoknader = 2,
+            sykmeldingKafkaMessage = sykmeldingKafkaMessage(
                 fnr = fnr,
                 sykmeldingsperioder = gradertSykmeldt(
                     fom = basisdato.minusDays(10),
@@ -359,23 +357,18 @@ class OverlapperEtter : BaseTestClass() {
                     grad = 50
                 ),
             ),
-        ).first()
+        ).last()
 
         soknad.fom shouldBeEqualTo basisdato.minusDays(10)
         soknad.tom shouldBeEqualTo basisdato.plusDays(5)
 
         val klippmetrikker = klippMetrikkRepository.findAll().toList().sortedBy { it.variant }
-        klippmetrikker shouldHaveSize 2
+        klippmetrikker shouldHaveSize 1
 
         klippmetrikker[0].soknadstatus `should be equal to` "NY"
         klippmetrikker[0].variant `should be equal to` "SOKNAD_STARTER_INNI_SLUTTER_ETTER"
         klippmetrikker[0].endringIUforegrad `should be equal to` "LAVERE_UFØREGRAD"
-        klippmetrikker[0].klippet `should be equal to` false
-
-        klippmetrikker[1].soknadstatus `should be equal to` "NY"
-        klippmetrikker[1].variant `should be equal to` "SYKMELDING_STARTER_FOR_SLUTTER_INNI"
-        klippmetrikker[1].endringIUforegrad `should be equal to` "LAVERE_UFØREGRAD"
-        klippmetrikker[1].klippet `should be equal to` false
+        klippmetrikker[0].klippet `should be equal to` true
     }
 
     @Test
@@ -386,71 +379,71 @@ class OverlapperEtter : BaseTestClass() {
 
     @Test
     @Order(30)
-    fun `Oppretter en ny søknad`() {
-        val soknad = sendSykmelding(
+    fun `Bruker har en ny søknad og svarer på noen spørsmål`() {
+        sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                sykmeldingsperioder = gradertSykmeldt(
-                    fom = basisdato.minusDays(20),
-                    tom = basisdato.minusDays(1),
-                    grad = 100
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = basisdato.minusDays(15),
+                    tom = basisdato.minusDays(5),
                 ),
             ),
-        ).first()
+        )
 
-        soknad.status shouldBeEqualTo SoknadsstatusDTO.NY
+        val soknaden = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
+            fnr = fnr
+        )
+
+        SoknadBesvarer(soknaden, this, fnr)
+            .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
+            .besvarSporsmal(tag = "FRAVAR_FOR_SYKMELDINGEN", svar = "NEI")
+            .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
+            .besvarSporsmal(tag = "FERIE_V2", svar = "JA", ferdigBesvart = false)
+            .besvarSporsmal(tag = "FERIE_NAR_V2", svar = """{"fom":"${basisdato.minusDays(12)}","tom":"${basisdato.minusDays(5)}"}""")
     }
 
     @Test
     @Order(31)
-    fun `Graden trenger bare være lik for de overlappende periodene`() {
-
-        val fom = basisdato.minusDays(15)
-        val tom = basisdato.plusDays(10)
-
-        val soknad = sendSykmelding(
-            sykmeldingKafkaMessage(
+    fun `Overlappende sykmelding klipper NY søknad og oppdaterer spørsmål`() {
+        val overlappendeSykmeldingId = sendSykmelding(
+            forventaSoknader = 2,
+            sykmeldingKafkaMessage = sykmeldingKafkaMessage(
                 fnr = fnr,
-                sykmeldingsperioder = listOf(
-                    SykmeldingsperiodeAGDTO(
-                        fom = fom,
-                        tom = basisdato.minusDays(1),
-                        type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
-                        gradert = GradertDTO(grad = 100, reisetilskudd = false),
-                        reisetilskudd = false,
-                        aktivitetIkkeMulig = null,
-                        behandlingsdager = null,
-                        innspillTilArbeidsgiver = null,
-                    ),
-                    SykmeldingsperiodeAGDTO(
-                        fom = basisdato,
-                        tom = tom,
-                        type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
-                        gradert = GradertDTO(grad = 60, reisetilskudd = false),
-                        reisetilskudd = false,
-                        aktivitetIkkeMulig = null,
-                        behandlingsdager = null,
-                        innspillTilArbeidsgiver = null,
-                    )
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = basisdato.minusDays(10),
+                    tom = basisdato.minusDays(1),
                 ),
             ),
-        ).first()
+        ).last().sykmeldingId
 
-        soknad.fom shouldBeEqualTo basisdato
-        soknad.tom shouldBeEqualTo tom
+        val soknaderMetadata = hentSoknaderMetadata(fnr)
+        soknaderMetadata shouldHaveSize 2
 
-        val klippmetrikker = klippMetrikkRepository.findAll().toList().sortedBy { it.variant }
-        klippmetrikker shouldHaveSize 2
+        val overlappendeSoknad = soknaderMetadata.first { it.sykmeldingId == overlappendeSykmeldingId }
+        overlappendeSoknad.fom shouldBeEqualTo basisdato.minusDays(10)
+        overlappendeSoknad.tom shouldBeEqualTo basisdato.minusDays(1)
 
-        klippmetrikker[0].soknadstatus `should be equal to` "NY"
-        klippmetrikker[0].variant `should be equal to` "SOKNAD_STARTER_INNI_SLUTTER_ETTER"
-        klippmetrikker[0].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
-        klippmetrikker[0].klippet `should be equal to` false
+        val klippetSoknad = hentSoknad(
+            soknadId = soknaderMetadata.first { it.sykmeldingId != overlappendeSykmeldingId }.id,
+            fnr = fnr
+        )
 
-        klippmetrikker[1].soknadstatus `should be equal to` "NY"
-        klippmetrikker[1].variant `should be equal to` "SYKMELDING_STARTER_FOR_SLUTTER_INNI"
-        klippmetrikker[1].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
-        klippmetrikker[1].klippet `should be equal to` true
+        klippetSoknad.soknadstype shouldBeEqualTo RSSoknadstype.ARBEIDSTAKERE
+        klippetSoknad.status shouldBeEqualTo RSSoknadstatus.NY
+        klippetSoknad.fom shouldBeEqualTo basisdato.minusDays(15)
+        klippetSoknad.tom shouldBeEqualTo basisdato.minusDays(11)
+
+        klippetSoknad.sporsmal!!.all { it.svar.isEmpty() } shouldBeEqualTo true
+
+        val periodeSpm = klippetSoknad.sporsmal!!.first { it.tag == FERIE_V2 }
+        periodeSpm.sporsmalstekst shouldBeEqualTo "Tok du ut feriedager i tidsrommet ${
+        DatoUtil.formatterPeriode(
+            klippetSoknad.fom!!,
+            klippetSoknad.tom!!
+        )
+        }?"
+        periodeSpm.svar.size shouldBeEqualTo 0
     }
 
     @Test
@@ -604,7 +597,7 @@ class OverlapperEtter : BaseTestClass() {
 
     @Test
     @Order(60)
-    fun `Fremtidig behandlingsdager sykmelding klipper eksisterende søknader`() {
+    fun `Fremtidig behandlingsdager sykmelding klippes ikke`() {
 
         sendSykmelding(
             sykmeldingKafkaMessage(
@@ -630,7 +623,7 @@ class OverlapperEtter : BaseTestClass() {
         val soknader = sykepengesoknadDAO.finnSykepengesoknader(listOf(fnr))
 
         soknader[0].fom shouldBeEqualTo basisdato
-        soknader[0].tom shouldBeEqualTo basisdato.plusDays(4)
+        soknader[0].tom shouldBeEqualTo basisdato.plusDays(10)
         soknader[0].soknadstype shouldBeEqualTo Soknadstype.ARBEIDSTAKERE
         soknader[0].status shouldBeEqualTo Soknadstatus.FREMTIDIG
 
@@ -683,7 +676,7 @@ class OverlapperEtter : BaseTestClass() {
 
     @Test
     @Order(80)
-    fun `Fremtidig reisetiskudd sykmelding klipper eksisterende søknader`() {
+    fun `Fremtidig reisetiskudd sykmelding klipper klippes ikke`() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
@@ -706,7 +699,7 @@ class OverlapperEtter : BaseTestClass() {
         val soknader = sykepengesoknadDAO.finnSykepengesoknader(listOf(fnr))
 
         soknader[0].fom shouldBeEqualTo basisdato
-        soknader[0].tom shouldBeEqualTo basisdato.plusDays(4)
+        soknader[0].tom shouldBeEqualTo basisdato.plusDays(10)
         soknader[0].soknadstype shouldBeEqualTo Soknadstype.ARBEIDSTAKERE
         soknader[0].status shouldBeEqualTo Soknadstatus.FREMTIDIG
 

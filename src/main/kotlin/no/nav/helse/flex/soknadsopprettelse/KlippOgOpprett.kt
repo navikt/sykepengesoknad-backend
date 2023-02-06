@@ -2,9 +2,11 @@ package no.nav.helse.flex.soknadsopprettelse
 
 import no.nav.helse.flex.aktivering.kafka.AktiveringBestilling
 import no.nav.helse.flex.domain.Arbeidssituasjon
+import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykeforloep
 import no.nav.helse.flex.domain.exception.ManglerArbeidsgiverException
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
+import no.nav.helse.flex.domain.sykmelding.finnSoknadstype
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import org.springframework.stereotype.Service
@@ -32,12 +34,17 @@ class KlippOgOpprett(
             throw ManglerArbeidsgiverException("Arbeidsgiverstatus er null for sykmelding $sykmeldingId med arbeidssituasjon arbeidstaker")
         }
 
-        kafkaMessage = soknadsklipper.klipp(
-            sykmeldingKafkaMessage = kafkaMessage,
-            arbeidssituasjon = arbeidssituasjon,
-            arbeidsgiverStatusDTO = arbeidsgiverStatusDTO,
-            identer = identer,
-        )
+        if (finnSoknadstype(
+                arbeidssituasjon = arbeidssituasjon,
+                perioderFraSykmeldingen = sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder
+            ) == Soknadstype.ARBEIDSTAKERE
+        ) {
+            kafkaMessage = soknadsklipper.klipp(
+                sykmeldingKafkaMessage = kafkaMessage,
+                arbeidsgiverStatusDTO = arbeidsgiverStatusDTO,
+                identer = identer,
+            )
+        }
 
         return opprettSoknadService.opprettSykepengesoknaderForSykmelding(
             sykmeldingKafkaMessage = kafkaMessage,
