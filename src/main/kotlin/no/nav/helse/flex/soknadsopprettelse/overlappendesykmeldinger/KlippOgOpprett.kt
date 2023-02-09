@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 class KlippOgOpprett(
     private val opprettSoknadService: OpprettSoknadService,
-    private val soknadsklipper: Soknadsklipper,
+    private val overlapp: Overlapp,
 ) {
     val log = logger()
 
@@ -40,7 +40,7 @@ class KlippOgOpprett(
                 perioderFraSykmeldingen = sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder
             ) == Soknadstype.ARBEIDSTAKERE
         ) {
-            kafkaMessage = soknadsklipper.klipp(
+            kafkaMessage = overlapp.klipp(
                 sykmeldingKafkaMessage = kafkaMessage,
                 arbeidsgiverStatusDTO = arbeidsgiverStatusDTO,
                 identer = identer,

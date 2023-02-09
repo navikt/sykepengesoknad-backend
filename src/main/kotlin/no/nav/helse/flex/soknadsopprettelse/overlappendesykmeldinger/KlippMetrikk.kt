@@ -13,7 +13,7 @@ class KlippMetrikk(private val klippMetrikkRepository: KlippMetrikkRepository) {
         klippMetrikkVariant: KlippVariant,
         soknadstatus: String,
         eksisterendeSykepengesoknadId: String,
-        endringIUforegrad: Soknadsklipper.EndringIUforegrad,
+        endringIUforegrad: EndringIUforegrad,
         sykmeldingId: String,
         klippet: Boolean,
     ) {
