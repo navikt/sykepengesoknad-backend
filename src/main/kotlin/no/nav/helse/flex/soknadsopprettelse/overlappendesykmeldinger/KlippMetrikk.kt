@@ -1,4 +1,4 @@
-package no.nav.helse.flex.soknadsopprettelse
+package no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger
 
 import no.nav.helse.flex.repository.KlippMetrikkDbRecord
 import no.nav.helse.flex.repository.KlippMetrikkRepository

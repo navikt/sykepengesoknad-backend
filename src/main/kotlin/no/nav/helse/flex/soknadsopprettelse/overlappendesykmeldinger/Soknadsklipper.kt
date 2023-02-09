@@ -1,4 +1,4 @@
-package no.nav.helse.flex.soknadsopprettelse
+package no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger
 
 import no.nav.helse.flex.aktivering.kafka.AktiveringBestilling
 import no.nav.helse.flex.aktivering.kafka.AktiveringProducer
@@ -14,12 +14,13 @@ import no.nav.helse.flex.repository.KlippetSykepengesoknadDbRecord
 import no.nav.helse.flex.repository.KlippetSykepengesoknadRepository
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.service.FolkeregisterIdenter
-import no.nav.helse.flex.soknadsopprettelse.Soknadsklipper.EndringIUforegrad.FLERE_PERIODER
-import no.nav.helse.flex.soknadsopprettelse.Soknadsklipper.EndringIUforegrad.LAVERE_UFØREGRAD
-import no.nav.helse.flex.soknadsopprettelse.Soknadsklipper.EndringIUforegrad.SAMME_UFØREGRAD
-import no.nav.helse.flex.soknadsopprettelse.Soknadsklipper.EndringIUforegrad.VET_IKKE
-import no.nav.helse.flex.soknadsopprettelse.Soknadsklipper.EndringIUforegrad.ØKT_UFØREGRAD
+import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.Soknadsklipper.EndringIUforegrad.FLERE_PERIODER
+import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.Soknadsklipper.EndringIUforegrad.LAVERE_UFØREGRAD
+import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.Soknadsklipper.EndringIUforegrad.SAMME_UFØREGRAD
+import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.Soknadsklipper.EndringIUforegrad.VET_IKKE
+import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.Soknadsklipper.EndringIUforegrad.ØKT_UFØREGRAD
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.SporsmalGenerator
+import no.nav.helse.flex.soknadsopprettelse.tilSoknadsperioder
 import no.nav.helse.flex.util.isAfterOrEqual
 import no.nav.helse.flex.util.isBeforeOrEqual
 import no.nav.helse.flex.util.overlap
