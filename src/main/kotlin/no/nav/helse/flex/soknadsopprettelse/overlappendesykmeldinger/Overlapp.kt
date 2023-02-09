@@ -198,10 +198,20 @@ class Overlapp(
     private fun List<Sykepengesoknad>.finnSoknaderSomOverlapperInni(
         sykmeldingKafkaMessage: SykmeldingKafkaMessage
     ) {
+        val sykmeldingId = sykmeldingKafkaMessage.sykmelding.id
         val sykmeldingPeriode = sykmeldingKafkaMessage.periode()
         this.filter { it.fom!!.isBefore(sykmeldingPeriode.start) }
             .filter { it.tom!!.isAfter(sykmeldingPeriode.endInclusive) }
             .forEach { sok ->
+                val klipper = sok.status == Soknadstatus.FREMTIDIG
+                if (klipper) {
+                    soknadsklipper.klippSoknaderSomOverlapperInni(
+                        sykmeldingId,
+                        sok,
+                        sykmeldingPeriode,
+                    )
+                }
+
                 val endringIUforegrad = finnEndringIUforegrad(
                     tidligerePerioder = sok.soknadPerioder!!.filter {
                         sykmeldingPeriode.overlap(it.fom..it.tom)
@@ -214,7 +224,7 @@ class Overlapp(
                     klippMetrikkVariant = KlippVariant.SOKNAD_STARTER_INNI_SLUTTER_INNI,
                     soknadstatus = sok.status.toString(),
                     sykmeldingId = sykmeldingKafkaMessage.sykmelding.id,
-                    klippet = false,
+                    klippet = klipper,
                     eksisterendeSykepengesoknadId = sok.id,
                     endringIUforegrad = endringIUforegrad,
                 )
