@@ -10,6 +10,7 @@ import no.nav.helse.flex.kafka.producer.RebehandlingSykmeldingSendtProducer
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.service.GjenapneSykmeldingService
 import no.nav.helse.flex.service.IdentService
+import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.KlippOgOpprett
 import no.nav.helse.flex.util.Metrikk
 import no.nav.syfo.model.sykmeldingstatus.STATUS_BEKREFTET
 import no.nav.syfo.model.sykmeldingstatus.STATUS_SENDT

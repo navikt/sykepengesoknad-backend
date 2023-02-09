@@ -1,4 +1,4 @@
-package no.nav.helse.flex.soknadsopprettelse
+package no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger
 
 import no.nav.helse.flex.aktivering.kafka.AktiveringBestilling
 import no.nav.helse.flex.domain.Arbeidssituasjon
@@ -9,6 +9,7 @@ import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.domain.sykmelding.finnSoknadstype
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.service.FolkeregisterIdenter
+import no.nav.helse.flex.soknadsopprettelse.OpprettSoknadService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -16,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 class KlippOgOpprett(
     private val opprettSoknadService: OpprettSoknadService,
-    private val soknadsklipper: Soknadsklipper,
+    private val overlapp: Overlapp,
 ) {
     val log = logger()
 
@@ -39,7 +40,7 @@ class KlippOgOpprett(
                 perioderFraSykmeldingen = sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder
             ) == Soknadstype.ARBEIDSTAKERE
         ) {
-            kafkaMessage = soknadsklipper.klipp(
+            kafkaMessage = overlapp.klipp(
                 sykmeldingKafkaMessage = kafkaMessage,
                 arbeidsgiverStatusDTO = arbeidsgiverStatusDTO,
                 identer = identer,

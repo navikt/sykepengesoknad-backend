@@ -1,4 +1,4 @@
-package no.nav.helse.flex.soknadsopprettelse
+package no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger
 
 import no.nav.helse.flex.repository.KlippMetrikkDbRecord
 import no.nav.helse.flex.repository.KlippMetrikkRepository
@@ -13,7 +13,7 @@ class KlippMetrikk(private val klippMetrikkRepository: KlippMetrikkRepository) {
         klippMetrikkVariant: KlippVariant,
         soknadstatus: String,
         eksisterendeSykepengesoknadId: String,
-        endringIUforegrad: Soknadsklipper.EndringIUforegrad,
+        endringIUforegrad: EndringIUforegrad,
         sykmeldingId: String,
         klippet: Boolean,
     ) {
