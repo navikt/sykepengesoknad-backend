@@ -6,7 +6,6 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.service.FolkeregisterIdenter
-import no.nav.helse.flex.util.overlap
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import java.time.LocalDate
 
@@ -71,3 +70,10 @@ internal fun SykmeldingKafkaMessage.erstattPerioder(nyePerioder: List<Sykmelding
         sykmeldingsperioder = nyePerioder
     )
 )
+
+/**
+ * Så lenge de har minst en dato til felles
+ */
+fun ClosedRange<LocalDate>.overlap(other: ClosedRange<LocalDate>): Boolean {
+    return this.start in other || this.endInclusive in other || other.start in this || other.endInclusive in this
+}
