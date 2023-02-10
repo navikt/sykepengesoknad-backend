@@ -374,6 +374,71 @@ class OverlapperMedFlere : BaseTestClass() {
         )
     }
 
+    @Test
+    fun `Overlapper i midten og første av 3 deler aktiveres nå`() {
+        overlappTester.testKlipp(
+            dagensDato = LocalDate.of(2022, 1, 10),
+            eksisterendeSoknader = listOf(
+                Soknad(
+                    soknadPerioder = listOf(
+                        Soknadsperiode(
+                            fom = LocalDate.of(2022, 1, 1),
+                            tom = LocalDate.of(2022, 1, 30),
+                            grad = 50,
+                            sykmeldingstype = Sykmeldingstype.GRADERT,
+                        )
+                    )
+                )
+            ),
+            overlappendeSoknad = Soknad(
+                soknadPerioder = listOf(
+                    Soknadsperiode(
+                        fom = LocalDate.of(2022, 1, 10),
+                        tom = LocalDate.of(2022, 1, 20),
+                        grad = 100,
+                        sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+                    )
+                )
+            ),
+            forventetResultat = listOf(
+                Soknad(
+                    status = Soknadstatus.NY,
+                    soknadPerioder = listOf(
+                        Soknadsperiode(
+                            fom = LocalDate.of(2022, 1, 1),
+                            tom = LocalDate.of(2022, 1, 9),
+                            grad = 50,
+                            sykmeldingstype = Sykmeldingstype.GRADERT,
+                        ),
+                    )
+                ),
+                Soknad(
+                    status = Soknadstatus.FREMTIDIG,
+                    soknadPerioder = listOf(
+                        Soknadsperiode(
+                            fom = LocalDate.of(2022, 1, 10),
+                            tom = LocalDate.of(2022, 1, 20),
+                            grad = 100,
+                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+                        ),
+                    )
+                ),
+                Soknad(
+                    status = Soknadstatus.FREMTIDIG,
+                    soknadPerioder = listOf(
+                        Soknadsperiode(
+                            fom = LocalDate.of(2022, 1, 21),
+                            tom = LocalDate.of(2022, 1, 30),
+                            grad = 50,
+                            sykmeldingstype = Sykmeldingstype.GRADERT,
+                        ),
+                    )
+                ),
+            ),
+            forventaSoknadPaKafka = 2,
+        )
+    }
+
     private class OverlappTester(
         private val soknadLagrer: SoknadLagrer,
         private val sykepengesoknadDAO: SykepengesoknadDAO,
