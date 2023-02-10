@@ -1,5 +1,6 @@
 package no.nav.helse.flex.controller
 
+import jakarta.servlet.http.HttpServletRequest
 import no.nav.helse.flex.exception.AbstractApiError
 import no.nav.helse.flex.exception.FinnesInnsendtSoknadException
 import no.nav.helse.flex.exception.IkkeTilgangException
@@ -14,7 +15,6 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.HttpMediaTypeNotAcceptableException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
-import javax.servlet.http.HttpServletRequest
 
 @ControllerAdvice
 class GlobalExceptionHandler {

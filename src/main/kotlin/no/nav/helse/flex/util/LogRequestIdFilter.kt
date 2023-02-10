@@ -1,11 +1,11 @@
 package no.nav.helse.flex.util
 
+import jakarta.servlet.FilterChain
+import jakarta.servlet.http.HttpFilter
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
 import org.slf4j.MDC
 import org.springframework.stereotype.Component
-import javax.servlet.FilterChain
-import javax.servlet.http.HttpFilter
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
 
 private const val X_REQUEST_ID_HEADER = "x-request-id"
 private const val X_REQUEST_ID_MDC_MARKER = "x_request_id"

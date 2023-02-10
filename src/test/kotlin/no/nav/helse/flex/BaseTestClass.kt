@@ -1,5 +1,6 @@
 package no.nav.helse.flex
 
+import jakarta.annotation.PostConstruct
 import no.nav.helse.flex.client.kvitteringer.SykepengesoknadKvitteringerClient
 import no.nav.helse.flex.juridiskvurdering.juridiskVurderingTopic
 import no.nav.helse.flex.kafka.producer.AivenKafkaProducer
@@ -19,7 +20,7 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.actuate.metrics.AutoConfigureMetrics
+import org.springframework.boot.test.autoconfigure.actuate.observability.AutoConfigureObservability
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.MockMvcPrint
 import org.springframework.boot.test.context.SpringBootTest
@@ -33,7 +34,6 @@ import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.KafkaContainer
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
-import javax.annotation.PostConstruct
 import kotlin.concurrent.thread
 
 private class RedisContainer : GenericContainer<RedisContainer>("bitnami/redis:6.2")
@@ -43,10 +43,11 @@ private class PostgreSQLContainer14 : PostgreSQLContainer<PostgreSQLContainer14>
 @EnableMockOAuth2Server
 @SpringBootTest(classes = [Application::class])
 @AutoConfigureMockMvc(print = MockMvcPrint.NONE, printOnlyOnFailure = false)
-@AutoConfigureMetrics
+@AutoConfigureObservability
 abstract class BaseTestClass {
 
     companion object {
+        val log = logger()
         val pdlMockWebserver: MockWebServer
         val inntektskomponentenMockWebserver: MockWebServer
         val eregMockWebserver: MockWebServer
@@ -60,9 +61,9 @@ abstract class BaseTestClass {
                     val passord = "hemmelig"
                     withEnv("REDIS_PASSWORD", passord)
                     start()
-                    System.setProperty("spring.redis.host", host)
-                    System.setProperty("spring.redis.port", firstMappedPort.toString())
-                    System.setProperty("spring.redis.password", passord)
+                    System.setProperty("spring.data.redis.host", host)
+                    System.setProperty("spring.data.redis.port", firstMappedPort.toString())
+                    System.setProperty("spring.data.redis.password", passord)
                 }
             }.also { threads.add(it) }
 

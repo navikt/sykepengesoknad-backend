@@ -96,7 +96,6 @@ class AadRestTemplateConfiguration {
         return restTemplateBuilder
             .setConnectTimeout(Duration.ofSeconds(2))
             .setReadTimeout(Duration.ofSeconds(3))
-            .additionalCustomizers(NaisProxyCustomizer())
             .additionalInterceptors(bearerTokenInterceptor(clientProperties, oAuth2AccessTokenService))
             .build()
     }
