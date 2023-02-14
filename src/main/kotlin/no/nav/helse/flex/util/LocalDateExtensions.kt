@@ -41,10 +41,3 @@ fun LocalDate.fredagISammeUke(): LocalDate {
     }
     return day
 }
-
-/**
- * Så lenge de har minst en dato til felles
- */
-fun ClosedRange<LocalDate>.overlap(other: ClosedRange<LocalDate>): Boolean {
-    return this.start in other || this.endInclusive in other || other.start in this || other.endInclusive in this
-}

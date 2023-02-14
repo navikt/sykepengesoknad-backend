@@ -2,6 +2,7 @@ package no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger
 
 import no.nav.helse.flex.aktivering.kafka.AktiveringBestilling
 import no.nav.helse.flex.aktivering.kafka.AktiveringProducer
+import no.nav.helse.flex.domain.Opprinnelse
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.kafka.producer.SoknadProducer
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 import java.time.LocalDate
+import java.util.*
 
 @Component
 @Transactional
@@ -126,5 +128,32 @@ class Soknadsklipper(
         }
     }
 
-    fun klippSoknaderSomOverlapperInni() {}
+    fun klippSoknaderSomOverlapperInni(
+        sykmeldingId: String,
+        sok: Sykepengesoknad,
+        sykmeldingPeriode: ClosedRange<LocalDate>,
+    ) {
+        log.info("Sykmelding $sykmeldingId overlapper søknad ${sok.id} inni")
+
+        val soknadStart = sok
+        val soknadSlutt = sykepengesoknadDAO.lagreSykepengesoknad(
+            sok.copy(
+                id = UUID.randomUUID().toString(),
+                opprettet = Instant.now(),
+                opprinnelse = Opprinnelse.SYKEPENGESOKNAD_BACKEND,
+            )
+        )
+
+        klippSoknaderSomOverlapperEtter(
+            sykmeldingId,
+            soknadStart,
+            sykmeldingPeriode,
+        )
+
+        klippSoknaderSomOverlapperFor(
+            sykmeldingId,
+            soknadSlutt,
+            sykmeldingPeriode,
+        )
+    }
 }

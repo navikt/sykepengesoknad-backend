@@ -1,64 +1,118 @@
 package no.nav.helse.flex.overlappendesykmeldinger
 
 import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.repository.KlippMetrikkRepository
 import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
-import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.MethodOrderer
-import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
-import java.util.UUID
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class OverlapperInni : BaseTestClass() {
 
     @Autowired
-    lateinit var klippMetrikkRepository: KlippMetrikkRepository
+    private lateinit var klippMetrikkRepository: KlippMetrikkRepository
+
+    val fnr = "44444444444"
+    val basisDato = LocalDate.now()
+
+    @AfterEach
+    fun cleanUp() {
+        databaseReset.resetDatabase()
+    }
 
     @Test
-    @Order(1)
-    fun `Overlapper inni`() {
-        klippMetrikkRepository.count() shouldBeEqualTo 0
-        val fnr = "44444444444"
-        val sykmeldingid2 = UUID.randomUUID().toString()
+    fun `Overlapper inni fremtidig søknad, klippes`() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
-                    fom = LocalDate.of(2025, 1, 6),
-                    tom = LocalDate.of(2025, 1, 19),
+                    fom = basisDato.plusDays(1),
+                    tom = basisDato.plusDays(30),
                 ),
             ),
         )
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                sykmeldingId = sykmeldingid2,
                 sykmeldingsperioder = heltSykmeldt(
-                    fom = LocalDate.of(2025, 1, 9),
-                    tom = LocalDate.of(2025, 1, 12),
+                    fom = basisDato.plusDays(10),
+                    tom = basisDato.plusDays(20),
                 ),
             ),
         )
-
-        val hentetViaRest = hentSoknaderMetadata(fnr)
-        hentetViaRest shouldHaveSize 2
 
         val klippmetrikker = klippMetrikkRepository.findAll().toList()
         klippmetrikker shouldHaveSize 1
+        klippmetrikker[0].soknadstatus shouldBeEqualTo "FREMTIDIG"
+        klippmetrikker[0].variant shouldBeEqualTo "SOKNAD_STARTER_INNI_SLUTTER_INNI"
+        klippmetrikker[0].endringIUforegrad shouldBeEqualTo "SAMME_UFØREGRAD"
+        klippmetrikker[0].klippet shouldBeEqualTo true
 
-        klippmetrikker[0].soknadstatus `should be equal to` "FREMTIDIG"
-        klippmetrikker[0].variant `should be equal to` "SOKNAD_STARTER_INNI_SLUTTER_INNI"
-        klippmetrikker[0].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
-        klippmetrikker[0].klippet `should be equal to` false
-        klippmetrikker[0].sykmeldingUuid `should be equal to` sykmeldingid2
+        val hentetViaRest = hentSoknaderMetadata(fnr).sortedBy { it.fom }
+        hentetViaRest shouldHaveSize 3
+
+        val soknadKlippStart = hentetViaRest[0]
+        soknadKlippStart.fom shouldBeEqualTo basisDato.plusDays(1)
+        soknadKlippStart.tom shouldBeEqualTo basisDato.plusDays(9)
+
+        val soknadSomOverlappet = hentetViaRest[1]
+        soknadSomOverlappet.fom shouldBeEqualTo basisDato.plusDays(10)
+        soknadSomOverlappet.tom shouldBeEqualTo basisDato.plusDays(20)
+
+        val soknadKlippSlutt = hentetViaRest[2]
+        soknadKlippSlutt.fom shouldBeEqualTo basisDato.plusDays(21)
+        soknadKlippSlutt.tom shouldBeEqualTo basisDato.plusDays(30)
+    }
+
+    @Test
+    fun `Overlapper inni ny søknad, klippes ikke`() {
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = basisDato.minusDays(30),
+                    tom = basisDato.minusDays(1),
+                ),
+            ),
+        )
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = basisDato.minusDays(20),
+                    tom = basisDato.minusDays(10),
+                ),
+            ),
+        )
+
+        val klippmetrikker = klippMetrikkRepository.findAll().toList()
+        klippmetrikker shouldHaveSize 1
+        klippmetrikker[0].soknadstatus shouldBeEqualTo "NY"
+        klippmetrikker[0].variant shouldBeEqualTo "SOKNAD_STARTER_INNI_SLUTTER_INNI"
+        klippmetrikker[0].endringIUforegrad shouldBeEqualTo "SAMME_UFØREGRAD"
+        klippmetrikker[0].klippet shouldBeEqualTo false
+
+        val hentetViaRest = hentSoknaderMetadata(fnr).sortedBy { it.fom }
+        hentetViaRest shouldHaveSize 2
+
+        val forsteSoknad = hentetViaRest[0]
+        forsteSoknad.status shouldBeEqualTo RSSoknadstatus.NY
+        forsteSoknad.fom shouldBeEqualTo basisDato.minusDays(30)
+        forsteSoknad.tom shouldBeEqualTo basisDato.minusDays(1)
+
+        val soknadSomOverlappet = hentetViaRest[1]
+        soknadSomOverlappet.status shouldBeEqualTo RSSoknadstatus.NY
+        soknadSomOverlappet.fom shouldBeEqualTo basisDato.minusDays(20)
+        soknadSomOverlappet.tom shouldBeEqualTo basisDato.minusDays(10)
     }
 }
