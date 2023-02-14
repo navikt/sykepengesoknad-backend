@@ -1,13 +1,17 @@
 package no.nav.helse.flex.controller.filter
 
+import jakarta.servlet.Filter
+import jakarta.servlet.FilterChain
+import jakarta.servlet.FilterConfig
+import jakarta.servlet.ServletRequest
+import jakarta.servlet.ServletResponse
+import jakarta.servlet.http.HttpServletRequest
 import no.nav.syfo.kafka.NAV_CALLID
 import org.slf4j.MDC
 import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
 import java.util.*
-import javax.servlet.*
-import javax.servlet.http.HttpServletRequest
 
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)

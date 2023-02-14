@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod.GET
+import org.springframework.http.HttpStatusCode
 import org.springframework.http.MediaType
 import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
@@ -30,23 +31,19 @@ class SyfoTilgangskontrollClient(
         headers.contentType = MediaType.APPLICATION_FORM_URLENCODED
         headers[NAV_PERSONIDENT_HEADER] = fnr
 
-        try {
+        return try {
             val response = syfotilgangskontrollRestTemplate.exchange(
                 accessToUserV2Url(),
                 GET,
                 HttpEntity<Any>(headers),
                 String::class.java
             )
-
-            return response.statusCode.is2xxSuccessful
+            response.statusCode.is2xxSuccessful
         } catch (e: HttpClientErrorException) {
-
-            return if (e.rawStatusCode == 403) {
-                false
-            } else {
-                log.error("HttpClientErrorException mot tilgangskontroll", e)
-                false
+            if (e.statusCode != HttpStatusCode.valueOf(403)) {
+                log.error("Kall til SyfoTilgangskontroll feilet med HttpStatusCode ${e.statusCode.value()}", e)
             }
+            false
         }
     }
 
