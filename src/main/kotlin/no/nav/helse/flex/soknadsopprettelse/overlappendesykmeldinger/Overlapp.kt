@@ -202,7 +202,11 @@ class Overlapp(
         this.filter { it.fom!!.isBefore(sykmeldingPeriode.start) }
             .filter { it.tom!!.isAfter(sykmeldingPeriode.endInclusive) }
             .forEach { sok ->
-                val klipper = sok.status == Soknadstatus.FREMTIDIG
+                val klipper = sok.status in listOf(
+                    Soknadstatus.FREMTIDIG,
+                    Soknadstatus.NY,
+                    Soknadstatus.AVBRUTT
+                )
                 if (klipper) {
                     soknadsklipper.klippSoknaderSomOverlapperInni(
                         sykmeldingId,

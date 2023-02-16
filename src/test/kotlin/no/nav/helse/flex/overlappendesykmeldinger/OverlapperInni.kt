@@ -2,9 +2,11 @@ package no.nav.helse.flex.overlappendesykmeldinger
 
 import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
+import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.repository.KlippMetrikkRepository
 import no.nav.helse.flex.sendSykmelding
+import no.nav.helse.flex.soknadsopprettelse.FERIE_V2
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import org.amshove.kluent.shouldBeEqualTo
@@ -75,7 +77,7 @@ class OverlapperInni : BaseTestClass() {
     }
 
     @Test
-    fun `Overlapper inni ny søknad, klippes ikke`() {
+    fun `Overlapper inni ny søknad, klippes`() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
@@ -86,7 +88,8 @@ class OverlapperInni : BaseTestClass() {
             ),
         )
         sendSykmelding(
-            sykmeldingKafkaMessage(
+            forventaSoknader = 3,
+            sykmeldingKafkaMessage = sykmeldingKafkaMessage(
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = basisDato.minusDays(20),
@@ -100,19 +103,44 @@ class OverlapperInni : BaseTestClass() {
         klippmetrikker[0].soknadstatus shouldBeEqualTo "NY"
         klippmetrikker[0].variant shouldBeEqualTo "SOKNAD_STARTER_INNI_SLUTTER_INNI"
         klippmetrikker[0].endringIUforegrad shouldBeEqualTo "SAMME_UFØREGRAD"
-        klippmetrikker[0].klippet shouldBeEqualTo false
+        klippmetrikker[0].klippet shouldBeEqualTo true
 
         val hentetViaRest = hentSoknaderMetadata(fnr).sortedBy { it.fom }
-        hentetViaRest shouldHaveSize 2
+        hentetViaRest shouldHaveSize 3
 
-        val forsteSoknad = hentetViaRest[0]
+        val forsteSoknad = hentSoknad(
+            soknadId = hentetViaRest[0].id,
+            fnr = fnr
+        )
         forsteSoknad.status shouldBeEqualTo RSSoknadstatus.NY
         forsteSoknad.fom shouldBeEqualTo basisDato.minusDays(30)
-        forsteSoknad.tom shouldBeEqualTo basisDato.minusDays(1)
+        forsteSoknad.tom shouldBeEqualTo basisDato.minusDays(21)
+
+        val periodeSpmSok1 = forsteSoknad.sporsmal
+            ?.find { it.tag == FERIE_V2 }
+            ?.undersporsmal
+            ?.first()
+        periodeSpmSok1?.min shouldBeEqualTo basisDato.minusDays(30).toString()
+        periodeSpmSok1?.max shouldBeEqualTo basisDato.minusDays(21).toString()
 
         val soknadSomOverlappet = hentetViaRest[1]
         soknadSomOverlappet.status shouldBeEqualTo RSSoknadstatus.NY
         soknadSomOverlappet.fom shouldBeEqualTo basisDato.minusDays(20)
         soknadSomOverlappet.tom shouldBeEqualTo basisDato.minusDays(10)
+
+        val sisteSoknad = hentSoknad(
+            soknadId = hentetViaRest[2].id,
+            fnr = fnr
+        )
+        sisteSoknad.status shouldBeEqualTo RSSoknadstatus.NY
+        sisteSoknad.fom shouldBeEqualTo basisDato.minusDays(9)
+        sisteSoknad.tom shouldBeEqualTo basisDato.minusDays(1)
+
+        val periodeSpmSok3 = sisteSoknad.sporsmal
+            ?.find { it.tag == FERIE_V2 }
+            ?.undersporsmal
+            ?.first()
+        periodeSpmSok3?.min shouldBeEqualTo basisDato.minusDays(9).toString()
+        periodeSpmSok3?.max shouldBeEqualTo basisDato.minusDays(1).toString()
     }
 }
