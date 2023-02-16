@@ -76,6 +76,9 @@ abstract class BaseTestClass {
 
             thread {
                 PostgreSQLContainer14().apply {
+                    // Cloud SQL har wal_level = 'logical' på grunn av flagget cloudsql.logical_decoding i
+                    // naiserator.yaml. Vi må sette det samme lokalt for at flyway migrering skal fungere.
+                    withCommand("postgres", "-c", "wal_level=logical")
                     start()
                     System.setProperty("spring.datasource.url", "$jdbcUrl&reWriteBatchedInserts=true")
                     System.setProperty("spring.datasource.username", username)
