@@ -60,6 +60,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldNotBeNull
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -84,16 +85,14 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
     val fom: LocalDate = LocalDate.of(2021, 9, 2)
     val tom: LocalDate = LocalDate.of(2021, 9, 6)
 
-    @Test
-    @Order(0)
+    @BeforeAll
     fun `Det er ingen søknader til å begynne med`() {
-        val soknader = hentSoknaderMetadata(fnr)
-        soknader.shouldBeEmpty()
+        hentSoknaderMetadata(fnr).shouldBeEmpty()
     }
 
     @Test
     @Order(1)
-    fun `01 - vi oppretter en reisetilskuddsøknad`() {
+    fun `Vi oppretter en reisetilskuddsøknad`() {
 
         val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(
             fnr = fnr,
@@ -120,7 +119,11 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
 
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
+            sykmeldingId,
+            sykmeldingKafkaMessage,
+            SYKMELDINGSENDT_TOPIC
+        )
 
         val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
         assertThat(soknader).hasSize(1)
@@ -129,7 +132,7 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
 
     @Test
     @Order(2)
-    fun `02 - søknaden har alle spørsmål før vi har svart på om reisetilskuddet ble brukt`() {
+    fun `Søknaden har alle spørsmål før vi har svart på om reisetilskuddet ble brukt`() {
         val soknader = hentSoknaderMetadata(fnr)
         assertThat(soknader).hasSize(1)
 

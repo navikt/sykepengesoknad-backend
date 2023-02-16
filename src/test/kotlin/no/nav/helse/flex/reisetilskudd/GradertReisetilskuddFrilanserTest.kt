@@ -32,6 +32,7 @@ import no.nav.syfo.model.sykmeldingstatus.STATUS_BEKREFTET
 import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -48,17 +49,14 @@ class GradertReisetilskuddFrilanserTest : BaseTestClass() {
     val fom = LocalDate.of(2021, 9, 1)
     val tom = LocalDate.of(2021, 9, 20)
 
-    @Test
-    @Order(0)
+    @BeforeAll
     fun `Det er ingen søknader til å begynne med`() {
-        val soknader = hentSoknaderMetadata(fnr)
-        soknader.shouldBeEmpty()
+        hentSoknaderMetadata(fnr).shouldBeEmpty()
     }
 
     @Test
     @Order(1)
-    fun `01 - vi oppretter en reisetilskuddsøknad`() {
-
+    fun `Vi oppretter en reisetilskuddsøknad`() {
         val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(
             fnr = fnr,
             arbeidssituasjon = Arbeidssituasjon.FRILANSER,
@@ -96,7 +94,7 @@ class GradertReisetilskuddFrilanserTest : BaseTestClass() {
 
     @Test
     @Order(2)
-    fun `02 - søknaden har alle spørsmål før vi har svart på om reisetilskuddet ble brukt`() {
+    fun `Søknaden har alle spørsmål før vi har svart på om reisetilskuddet ble brukt`() {
         val soknader = hentSoknaderMetadata(fnr)
         assertThat(soknader).hasSize(1)
 
