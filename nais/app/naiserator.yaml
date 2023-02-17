@@ -58,9 +58,13 @@ spec:
             envVarPrefix: DATABASE
             users:
               - name: bigquery-dataprodukt
+              - name: bigquery-datastream
         maintenance:
           day: 2
           hour: 2
+        flags:
+          - name: cloudsql.logical_decoding
+            value: "on"
   accessPolicy:
     outbound:
       rules:
