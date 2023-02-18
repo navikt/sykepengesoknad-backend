@@ -1,0 +1,1 @@
+CREATE PUBLICATION sykepengesoknad_publication for ALL TABLES;
