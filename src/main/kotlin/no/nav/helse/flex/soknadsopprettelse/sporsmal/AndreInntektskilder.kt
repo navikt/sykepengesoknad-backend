@@ -110,7 +110,7 @@ fun andreInntektskilderArbeidstakerV2(sykmeldingOrgnavn: String, andreKjenteArbe
                     ),
                     Sporsmal(
                         tag = INNTEKTSKILDE_OMSORGSLONN,
-                        sporsmalstekst = "omsorgslønn fra kommunen",
+                        sporsmalstekst = "kommunal omsorgstønad",
                         svartype = Svartype.CHECKBOX
                     ),
                     Sporsmal(
@@ -201,7 +201,7 @@ fun andreInntektskilderArbeidsledig(fom: LocalDate, tom: LocalDate): Sporsmal =
                     ),
                     andreInntektskilderCheckboxSporsmal(
                         INNTEKTSKILDE_OMSORGSLONN,
-                        "omsorgslønn fra kommunen"
+                        "kommunal omsorgstønad"
                     ),
                     andreInntektskilderCheckboxSporsmal(
                         INNTEKTSKILDE_FOSTERHJEM,
