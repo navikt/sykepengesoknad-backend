@@ -10,6 +10,12 @@ import org.apache.kafka.common.utils.Utils
 
 abstract class FnrPartitioner : Partitioner {
 
+    companion object {
+
+        fun kalkulerPartisjon(keyBytes: ByteArray, numPartitions: Int): Int =
+            Utils.toPositive(Utils.murmur2(keyBytes)) % (numPartitions)
+    }
+
     override fun configure(configs: MutableMap<String, *>?) {}
 
     override fun close() {}
@@ -29,7 +35,7 @@ abstract class FnrPartitioner : Partitioner {
             throw InvalidRecordException("All messages should have a valid key.")
         }
 
-        return Utils.toPositive(Utils.murmur2(keyBytes)) % (numPartitions)
+        return kalkulerPartisjon(keyBytes, numPartitions)
     }
 }
 
