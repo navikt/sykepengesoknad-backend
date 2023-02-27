@@ -1,6 +1,7 @@
 package no.nav.helse.flex
 
 import no.nav.helse.flex.kafka.AivenKafkaConfig
+import no.nav.helse.flex.kafka.AivenKafkaErrorHandler
 import no.nav.helse.flex.kafka.FnrPartitioner
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldHaveSize
@@ -12,20 +13,40 @@ import org.apache.kafka.common.serialization.StringSerializer
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.kafka.config.TopicBuilder
 import org.springframework.kafka.core.KafkaAdmin
+import org.testcontainers.containers.KafkaContainer
+import org.testcontainers.utility.DockerImageName
 
 private const val TEST_TOPIC = "TEST_TOPIC"
 private const val ANTALL_PARTISJONER = 10
 private const val REPETER_TEST_ANTALL_GANGER = 3
 
-class FnrPartitionerTest : BaseTestClass() {
+@SpringBootTest(
+    classes = [
+        AivenKafkaConfig::class,
+        TestKafkaConfig::class,
+        AivenKafkaErrorHandler::class
+    ]
+)
+class FnrPartitionerTest {
+
+    companion object {
+
+        init {
+            KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.3.0")).apply {
+                start()
+                System.setProperty("KAFKA_BROKERS", bootstrapServers)
+            }
+        }
+    }
 
     @Autowired
     @Qualifier("partisjonert")
-    override lateinit var kafkaProducer: KafkaProducer<String, String>
+    private lateinit var kafkaProducer: KafkaProducer<String, String>
 
     @Test
     fun `Alle meldinger med samme fnr skal sendes på samme partisjon`() {

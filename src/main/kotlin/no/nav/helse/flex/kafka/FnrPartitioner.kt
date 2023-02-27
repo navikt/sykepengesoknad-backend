@@ -1,7 +1,6 @@
 package no.nav.helse.flex.kafka
 
 import no.nav.helse.flex.aktivering.kafka.AktiveringBestilling
-import no.nav.helse.flex.logger
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import org.apache.kafka.clients.producer.Partitioner
 import org.apache.kafka.common.Cluster
@@ -10,8 +9,6 @@ import org.apache.kafka.common.PartitionInfo
 import org.apache.kafka.common.utils.Utils
 
 abstract class FnrPartitioner : Partitioner {
-
-    private val log = logger()
 
     override fun configure(configs: MutableMap<String, *>?) {}
 
@@ -32,10 +29,7 @@ abstract class FnrPartitioner : Partitioner {
             throw InvalidRecordException("All messages should have a valid key.")
         }
 
-        val partition = Utils.toPositive(Utils.murmur2(keyBytes)) % (numPartitions)
-
-        log.debug("NJM: numPartitions: $numPartitions, partition: $partition, key: $key")
-        return partition
+        return Utils.toPositive(Utils.murmur2(keyBytes)) % (numPartitions)
     }
 }
 

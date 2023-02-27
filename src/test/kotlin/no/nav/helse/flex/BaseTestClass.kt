@@ -48,7 +48,6 @@ private class PostgreSQLContainer14 : PostgreSQLContainer<PostgreSQLContainer14>
 abstract class BaseTestClass {
 
     companion object {
-        val log = logger()
         val pdlMockWebserver: MockWebServer
         private val inntektskomponentenMockWebserver: MockWebServer
         private val eregMockWebserver: MockWebServer
