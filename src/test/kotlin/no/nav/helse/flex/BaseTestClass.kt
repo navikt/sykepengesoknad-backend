@@ -20,6 +20,7 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.autoconfigure.actuate.observability.AutoConfigureObservability
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.MockMvcPrint
@@ -47,10 +48,9 @@ private class PostgreSQLContainer14 : PostgreSQLContainer<PostgreSQLContainer14>
 abstract class BaseTestClass {
 
     companion object {
-        val log = logger()
         val pdlMockWebserver: MockWebServer
-        val inntektskomponentenMockWebserver: MockWebServer
-        val eregMockWebserver: MockWebServer
+        private val inntektskomponentenMockWebserver: MockWebServer
+        private val eregMockWebserver: MockWebServer
 
         init {
             val threads = mutableListOf<Thread>()
@@ -104,9 +104,6 @@ abstract class BaseTestClass {
     }
 
     @MockBean
-    lateinit var sykepengesoknadKvitteringerClient: SykepengesoknadKvitteringerClient
-
-    @MockBean
     lateinit var rebehandlingsSykmeldingSendtProducer: RebehandlingSykmeldingSendtProducer
 
     @Autowired
@@ -131,6 +128,9 @@ abstract class BaseTestClass {
             flexSyketilfelleMockRestServiceServer = MockRestServiceServer.createServer(flexSyketilfelleRestTemplate)
         }
     }
+
+    @MockBean
+    lateinit var sykepengesoknadKvitteringerClient: SykepengesoknadKvitteringerClient
 
     @Autowired
     private lateinit var cacheManager: CacheManager
@@ -157,11 +157,13 @@ abstract class BaseTestClass {
     lateinit var juridiskVurderingKafkaConsumer: Consumer<String, String>
 
     @Autowired
+    @Qualifier("sykmeldingRetryProducer")
     lateinit var kafkaProducer: KafkaProducer<String, String>
 
     @Autowired
     lateinit var sykepengesoknadRepository: SykepengesoknadRepository
 
+    @BeforeAll
     @AfterAll
     fun `Vi leser sykepengesoknad topicet og feiler hvis noe finnes og slik at subklassetestene leser alt`() {
         sykepengesoknadKafkaConsumer.hentProduserteRecords().shouldBeEmpty()

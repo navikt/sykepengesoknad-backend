@@ -58,7 +58,7 @@ class ArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
 
     @Test
     @Order(2)
-    fun `søknaden har ingen spørsmål som fremtidig`() {
+    fun `Søknaden har ingen spørsmål som fremtidig`() {
         val soknad = hentSoknad(
             soknadId = hentSoknaderMetadata(fnr).first().id,
             fnr = fnr
@@ -78,7 +78,7 @@ class ArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
 
     @Test
     @Order(4)
-    fun `søknaden har forventa spørsmål som NY`() {
+    fun `Søknaden har forventa spørsmål som NY`() {
         val soknad = hentSoknad(
             soknadId = hentSoknaderMetadata(fnr).first().id,
             fnr = fnr

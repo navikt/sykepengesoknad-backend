@@ -44,7 +44,7 @@ class AivenKafkaConfig(
         val configs = mapOf(
             KEY_SERIALIZER_CLASS_CONFIG to StringSerializer::class.java,
             VALUE_SERIALIZER_CLASS_CONFIG to JacksonKafkaSerializer::class.java,
-            PARTITIONER_CLASS_CONFIG to FnrPartitioner::class.java,
+            PARTITIONER_CLASS_CONFIG to SykepengesoknadPartitioner::class.java,
             ACKS_CONFIG to "all",
             RETRIES_CONFIG to 10,
             RETRY_BACKOFF_MS_CONFIG to 100
