@@ -6,6 +6,7 @@ import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus.*
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.forskuttering.ForskutteringRepository
 import no.nav.helse.flex.forskuttering.domain.Forskuttering
+import no.nav.helse.flex.hentProduserteRecords
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.repository.JulesoknadkandidatDAO
 import no.nav.helse.flex.sendSykmelding
@@ -13,6 +14,7 @@ import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.ventPåRecords
 import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
+import org.amshove.kluent.shouldBeEmpty
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.MethodOrderer
@@ -47,6 +49,11 @@ class JulesoknadIntegrationTest : BaseTestClass() {
         forskutteringRepository.deleteAll()
         flexSyketilfelleMockRestServiceServer?.reset()
         databaseReset.resetDatabase()
+    }
+
+    @BeforeEach
+    fun `Sjekk at topic er tomt`() {
+        sykepengesoknadKafkaConsumer.hentProduserteRecords().shouldBeEmpty()
     }
 
     @Test
