@@ -5,9 +5,9 @@ import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.mapper.tilSykmeldingstypeDTO
 import no.nav.helse.flex.juridiskvurdering.JuridiskVurdering
-import no.nav.helse.flex.juridiskvurdering.SporingType.organisasjonsnummer
-import no.nav.helse.flex.juridiskvurdering.SporingType.soknad
-import no.nav.helse.flex.juridiskvurdering.SporingType.sykmelding
+import no.nav.helse.flex.juridiskvurdering.SporingType.ORGANISASJONSNUMMER
+import no.nav.helse.flex.juridiskvurdering.SporingType.SOKNAD
+import no.nav.helse.flex.juridiskvurdering.SporingType.SYKMELDING
 import no.nav.helse.flex.juridiskvurdering.Utfall
 import no.nav.helse.flex.soknadsopprettelse.ARBEID_UNDERVEIS_100_PROSENT
 import no.nav.helse.flex.soknadsopprettelse.HVOR_MANGE_TIMER_PER_UKE
@@ -33,10 +33,14 @@ fun hentSoknadsPerioderMedFaktiskGrad(sykepengesoknad: Sykepengesoknad): Pair<Li
         val soknadPeriode = soknadperioder[i]
 
         val tag = (
-            if (soknadPeriode.grad == 100) listOf(
-                JOBBET_DU_100_PROSENT + i,
-                ARBEID_UNDERVEIS_100_PROSENT + i
-            ) else listOf(JOBBET_DU_GRADERT + i)
+            if (soknadPeriode.grad == 100) {
+                listOf(
+                    JOBBET_DU_100_PROSENT + i,
+                    ARBEID_UNDERVEIS_100_PROSENT + i
+                )
+            } else {
+                listOf(JOBBET_DU_GRADERT + i)
+            }
             )
 
         var avtaltTimer: Double? = null
@@ -86,11 +90,13 @@ fun hentSoknadsPerioderMedFaktiskGrad(sykepengesoknad: Sykepengesoknad): Pair<Li
                     ferieOgPermisjonPerioder,
                     arbeidGjenopptattDato(sykepengesoknad)
                 )
-            } else
-                faktiskGrad = if (gradSporsmal?.forsteSvar == null)
+            } else {
+                faktiskGrad = if (gradSporsmal?.forsteSvar == null) {
                     null
-                else
+                } else {
                     gradSporsmal.forsteSvar!!.replace(',', '.').toDouble().roundToInt()
+                }
+            }
         }
 
         val kappetFaktiskGrad = if (faktiskGrad != null && faktiskGrad > 100) {
@@ -118,23 +124,23 @@ fun hentSoknadsPerioderMedFaktiskGrad(sykepengesoknad: Sykepengesoknad): Pair<Li
         if (sykepengesoknad.status == Soknadstatus.SENDT) {
             JuridiskVurdering(
                 sporing = hashMapOf(
-                    soknad to listOf(sykepengesoknad.id),
+                    SOKNAD to listOf(sykepengesoknad.id)
                 ).also { map ->
                     sykepengesoknad.sykmeldingId?.let {
-                        map[sykmelding] = listOf(it)
+                        map[SYKMELDING] = listOf(it)
                     }
                     sykepengesoknad.arbeidsgiverOrgnummer?.let {
-                        map[organisasjonsnummer] = listOf(it)
+                        map[ORGANISASJONSNUMMER] = listOf(it)
                     }
                 },
                 input = mapOf(
                     "fravar" to fravar,
                     "versjon" to LocalDate.of(2022, 2, 1),
-                    "arbeidUnderveis" to inputSpm.map { it.tilSimpeltSporsmal() },
+                    "arbeidUnderveis" to inputSpm.map { it.tilSimpeltSporsmal() }
                 ),
                 output = mapOf(
                     "perioder" to perioder.map { it.tilSimpelPeriode() },
-                    "versjon" to LocalDate.of(2022, 2, 1),
+                    "versjon" to LocalDate.of(2022, 2, 1)
                 ),
                 fodselsnummer = sykepengesoknad.fnr,
                 lovverk = "folketrygdloven",
@@ -143,28 +149,30 @@ fun hentSoknadsPerioderMedFaktiskGrad(sykepengesoknad: Sykepengesoknad): Pair<Li
                 punktum = null,
                 bokstav = null,
                 lovverksversjon = LocalDate.of(1997, 5, 1),
-                utfall = Utfall.VILKAR_BEREGNET,
+                utfall = Utfall.VILKAR_BEREGNET
             )
-        } else null
+        } else {
+            null
+        }
     return Pair(perioder, juridiskVurdering)
 }
 
 data class SimpeltSporsmal(
     val tag: String,
     val svar: List<String>,
-    val undersporsmal: List<SimpeltSporsmal>,
+    val undersporsmal: List<SimpeltSporsmal>
 )
 
 data class SimpelPeriode(
     val fom: LocalDate? = null,
     val tom: LocalDate? = null,
-    val faktiskGrad: Int? = null,
+    val faktiskGrad: Int? = null
 )
 
 private fun SoknadsperiodeDTO.tilSimpelPeriode(): SimpelPeriode = SimpelPeriode(
     fom = fom,
     tom = tom,
-    faktiskGrad = faktiskGrad,
+    faktiskGrad = faktiskGrad
 )
 
 private fun Sporsmal.tilSimpeltSporsmal(): SimpeltSporsmal = SimpeltSporsmal(

@@ -5,7 +5,6 @@ import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.soknadsopprettelse.VAER_KLAR_OVER_AT
 
 fun vaerKlarOverAt(gradertReisetilskudd: Boolean): Sporsmal {
-
     val sporsmalstekst = if (gradertReisetilskudd) {
         "<ul>" +
             "<li>Du kan bare få sykepenger og reisetilskudd hvis det er din egen sykdom eller skade som hindrer deg i å jobbe. Sosiale eller økonomiske problemer gir ikke rett til sykepenger eller reisetilskudd.</li>" +

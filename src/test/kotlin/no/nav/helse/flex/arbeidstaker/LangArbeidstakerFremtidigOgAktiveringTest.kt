@@ -34,13 +34,12 @@ class LangArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
     @Test
     @Order(1)
     fun `Fremtidige arbeidstakersøknad opprettes for en sykmelding`() {
-
         val kafkaSoknader = sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = basisdato.minusDays(1),
-                    tom = basisdato.plusDays(35),
+                    tom = basisdato.plusDays(35)
                 )
             ),
             forventaSoknader = 2

@@ -46,13 +46,12 @@ class AutomatiskPapirsykmeldingOpprydningTest : BaseTestClass() {
         val sykmelding = skapArbeidsgiverSykmelding(
             sykmeldingId = sykmeldingId,
             fom = LocalDate.of(2020, 1, 1),
-            tom = LocalDate.of(2020, 3, 15),
+            tom = LocalDate.of(2020, 3, 15)
         )
     }
 
     @Test
     fun `1 - arbeidstakersøknader opprettes for en lang sykmelding`() {
-
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
         val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
@@ -132,7 +131,7 @@ class AutomatiskPapirsykmeldingOpprydningTest : BaseTestClass() {
         val sykmelding = skapArbeidsgiverSykmelding(
             sykmeldingId = sykmeldingId,
             fom = LocalDate.of(2020, 1, 1),
-            tom = LocalDate.of(2020, 4, 15),
+            tom = LocalDate.of(2020, 4, 15)
         )
 
         val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
@@ -168,7 +167,7 @@ class AutomatiskPapirsykmeldingOpprydningTest : BaseTestClass() {
         val sykmelding = skapArbeidsgiverSykmelding(
             sykmeldingId = sykmeldingId,
             fom = LocalDate.of(2020, 1, 1),
-            tom = LocalDate.of(2020, 4, 15),
+            tom = LocalDate.of(2020, 4, 15)
         )
 
         val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
@@ -199,7 +198,7 @@ class AutomatiskPapirsykmeldingOpprydningTest : BaseTestClass() {
             fom = LocalDate.of(2020, 1, 1),
             tom = LocalDate.of(2020, 4, 15),
             type = PeriodetypeDTO.GRADERT,
-            gradert = GradertDTO(grad = 33, reisetilskudd = false),
+            gradert = GradertDTO(grad = 33, reisetilskudd = false)
         )
 
         val sykmeldingKafkaMessage = SykmeldingKafkaMessage(

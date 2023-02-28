@@ -17,7 +17,7 @@ class TestdataResetListener(val sykepengesoknadDAO: SykepengesoknadDAO) {
     @KafkaListener(
         topics = [TESTDATA_RESET_TOPIC],
         containerFactory = "aivenKafkaListenerContainerFactory",
-        properties = ["auto.offset.reset = latest"],
+        properties = ["auto.offset.reset = latest"]
     )
     fun listen(cr: ConsumerRecord<String, String>, acknowledgment: Acknowledgment) {
         val fnr = cr.value()

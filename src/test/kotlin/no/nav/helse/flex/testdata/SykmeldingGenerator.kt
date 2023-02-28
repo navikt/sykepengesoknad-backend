@@ -19,7 +19,7 @@ fun skapArbeidsgiverSykmelding(
     reisetilskudd: Boolean = false,
     gradert: GradertDTO? = null,
     merknader: List<Merknad>? = null,
-    behandlingsdager: Int? = null,
+    behandlingsdager: Int? = null
 ): ArbeidsgiverSykmelding {
     return ArbeidsgiverSykmelding(
         id = sykmeldingId,
@@ -61,7 +61,7 @@ fun skapArbeidsgiverSykmelding(
         prognose = null,
         papirsykmelding = false,
         merknader = merknader,
-        utenlandskSykmelding = null,
+        utenlandskSykmelding = null
     )
 }
 
@@ -151,7 +151,7 @@ fun skapArbeidsgiverSykmelding(
 fun gradertSykmeldt(
     fom: LocalDate = LocalDate.of(2020, 2, 1),
     tom: LocalDate = LocalDate.of(2020, 2, 15),
-    grad: Int = 50,
+    grad: Int = 50
 ): List<SykmeldingsperiodeAGDTO> {
     return listOf(
         SykmeldingsperiodeAGDTO(
@@ -169,7 +169,7 @@ fun gradertSykmeldt(
 
 fun heltSykmeldt(
     fom: LocalDate = LocalDate.of(2020, 2, 1),
-    tom: LocalDate = LocalDate.of(2020, 2, 15),
+    tom: LocalDate = LocalDate.of(2020, 2, 15)
 ): List<SykmeldingsperiodeAGDTO> {
     return listOf(
         SykmeldingsperiodeAGDTO(
@@ -187,7 +187,7 @@ fun heltSykmeldt(
 
 fun reisetilskudd(
     fom: LocalDate = LocalDate.of(2020, 2, 1),
-    tom: LocalDate = LocalDate.of(2020, 2, 15),
+    tom: LocalDate = LocalDate.of(2020, 2, 15)
 ): List<SykmeldingsperiodeAGDTO> {
     return listOf(
         SykmeldingsperiodeAGDTO(
@@ -230,10 +230,10 @@ fun sykmeldingKafkaMessage(
     sykmeldingId: String = UUID.randomUUID().toString(),
     sykmeldingsperioder: List<SykmeldingsperiodeAGDTO> = heltSykmeldt(
         fom = LocalDate.of(2020, 2, 1),
-        tom = LocalDate.of(2020, 2, 15),
+        tom = LocalDate.of(2020, 2, 15)
     ),
     merknader: List<Merknad>? = null,
-    utenlandskSykemelding: UtenlandskSykmeldingAGDTO? = null,
+    utenlandskSykemelding: UtenlandskSykmeldingAGDTO? = null
 ): SykmeldingKafkaMessage {
     val faktiskArbeidsgiver = if (arbeidssituasjon == Arbeidssituasjon.ARBEIDSTAKER) {
         arbeidsgiver!!
@@ -257,7 +257,7 @@ fun sykmeldingKafkaMessage(
         sykmeldingId = sykmeldingId,
         sykmeldingsperioder = sykmeldingsperioder,
         merknader = merknader,
-        utenlandskSykemelding = utenlandskSykemelding,
+        utenlandskSykemelding = utenlandskSykemelding
     )
 
     return SykmeldingKafkaMessage(

@@ -38,8 +38,8 @@ class FaktiskGradUtregningNyttArbeidUnderveisSporsmalTest : BaseTestClass() {
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = LocalDate.of(2022, 12, 12), // Mandag
-                    tom = LocalDate.of(2022, 12, 16), // Fredag
-                ),
+                    tom = LocalDate.of(2022, 12, 16) // Fredag
+                )
             )
         )
 
@@ -48,7 +48,7 @@ class FaktiskGradUtregningNyttArbeidUnderveisSporsmalTest : BaseTestClass() {
                 "JOBBER_DU_NORMAL_ARBEIDSUKE_0" to "JA",
                 "HVOR_MYE_TIMER_0" to "CHECKED",
                 "HVOR_MYE_TIMER_VERDI_0" to "18,75",
-                "ARBEID_UNDERVEIS_100_PROSENT_0" to "JA",
+                "ARBEID_UNDERVEIS_100_PROSENT_0" to "JA"
             )
         )
 
@@ -64,8 +64,8 @@ class FaktiskGradUtregningNyttArbeidUnderveisSporsmalTest : BaseTestClass() {
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = LocalDate.of(2022, 12, 12), // Mandag
-                    tom = LocalDate.of(2022, 12, 16), // Fredag
-                ),
+                    tom = LocalDate.of(2022, 12, 16) // Fredag
+                )
             )
         )
 
@@ -75,7 +75,7 @@ class FaktiskGradUtregningNyttArbeidUnderveisSporsmalTest : BaseTestClass() {
                 "HVOR_MANGE_TIMER_PER_UKE_0" to "40",
                 "HVOR_MYE_TIMER_0" to "CHECKED",
                 "HVOR_MYE_TIMER_VERDI_0" to "10",
-                "ARBEID_UNDERVEIS_100_PROSENT_0" to "JA",
+                "ARBEID_UNDERVEIS_100_PROSENT_0" to "JA"
             )
         )
 
@@ -91,8 +91,8 @@ class FaktiskGradUtregningNyttArbeidUnderveisSporsmalTest : BaseTestClass() {
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = LocalDate.of(2022, 12, 5), // Mandag
-                    tom = LocalDate.of(2022, 12, 16), // Fredag
-                ),
+                    tom = LocalDate.of(2022, 12, 16) // Fredag
+                )
             )
         )
 
@@ -102,7 +102,7 @@ class FaktiskGradUtregningNyttArbeidUnderveisSporsmalTest : BaseTestClass() {
                 "HVOR_MANGE_TIMER_PER_UKE_0" to "40",
                 "HVOR_MYE_TIMER_0" to "CHECKED",
                 "HVOR_MYE_TIMER_VERDI_0" to "10",
-                "ARBEID_UNDERVEIS_100_PROSENT_0" to "JA",
+                "ARBEID_UNDERVEIS_100_PROSENT_0" to "JA"
             )
         )
 
@@ -118,8 +118,8 @@ class FaktiskGradUtregningNyttArbeidUnderveisSporsmalTest : BaseTestClass() {
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = LocalDate.of(2022, 12, 5), // Mandag
-                    tom = LocalDate.of(2022, 12, 16), // Fredag
-                ),
+                    tom = LocalDate.of(2022, 12, 16) // Fredag
+                )
             )
         )
 
@@ -129,7 +129,7 @@ class FaktiskGradUtregningNyttArbeidUnderveisSporsmalTest : BaseTestClass() {
                 "HVOR_MANGE_TIMER_PER_UKE_0" to "40",
                 "HVOR_MYE_TIMER_0" to "CHECKED",
                 "HVOR_MYE_TIMER_VERDI_0" to "9",
-                "ARBEID_UNDERVEIS_100_PROSENT_0" to "JA",
+                "ARBEID_UNDERVEIS_100_PROSENT_0" to "JA"
             )
         )
 
@@ -145,8 +145,8 @@ class FaktiskGradUtregningNyttArbeidUnderveisSporsmalTest : BaseTestClass() {
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = LocalDate.of(2022, 12, 5), // Mandag
-                    tom = LocalDate.of(2022, 12, 16), // Fredag
-                ),
+                    tom = LocalDate.of(2022, 12, 16) // Fredag
+                )
             )
         )
 
@@ -156,7 +156,7 @@ class FaktiskGradUtregningNyttArbeidUnderveisSporsmalTest : BaseTestClass() {
                 "HVOR_MANGE_TIMER_PER_UKE_0" to "40",
                 "HVOR_MYE_PROSENT_0" to "CHECKED",
                 "HVOR_MYE_PROSENT_VERDI_0" to "15",
-                "ARBEID_UNDERVEIS_100_PROSENT_0" to "JA",
+                "ARBEID_UNDERVEIS_100_PROSENT_0" to "JA"
             )
         )
 
@@ -172,8 +172,8 @@ class FaktiskGradUtregningNyttArbeidUnderveisSporsmalTest : BaseTestClass() {
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = LocalDate.of(2022, 12, 5), // Mandag
-                    tom = LocalDate.of(2022, 12, 16), // Fredag
-                ),
+                    tom = LocalDate.of(2022, 12, 16) // Fredag
+                )
             )
         )
 
@@ -182,7 +182,7 @@ class FaktiskGradUtregningNyttArbeidUnderveisSporsmalTest : BaseTestClass() {
                 "JOBBER_DU_NORMAL_ARBEIDSUKE_0" to "JA",
                 "HVOR_MYE_PROSENT_0" to "CHECKED",
                 "HVOR_MYE_PROSENT_VERDI_0" to "15",
-                "ARBEID_UNDERVEIS_100_PROSENT_0" to "JA",
+                "ARBEID_UNDERVEIS_100_PROSENT_0" to "JA"
             )
         )
 

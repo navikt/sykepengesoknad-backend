@@ -42,9 +42,11 @@ fun andreInntekstkilder(soknadMetadata: Sykepengesoknad): Sporsmal {
 }
 
 private fun Sporsmal.plasseringAvSporsmalSomKanRepeteresFlereGanger(): Int {
-    return if (tag.startsWith(ENKELTSTAENDE_BEHANDLINGSDAGER))
+    return if (tag.startsWith(ENKELTSTAENDE_BEHANDLINGSDAGER)) {
         Integer.parseInt(tag.replace(ENKELTSTAENDE_BEHANDLINGSDAGER, ""))
-    else 0
+    } else {
+        0
+    }
 }
 
 fun settOppSykepengesoknadBehandlingsdager(

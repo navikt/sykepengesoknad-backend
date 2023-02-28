@@ -40,9 +40,7 @@ class FrilanserIntegrationTest : BaseTestClass() {
 
     @Test
     @Order(1)
-
     fun `vi oppretter en frilanser søknad`() {
-
         val soknader = sendSykmelding(
             sykmeldingKafkaMessage(
                 arbeidssituasjon = Arbeidssituasjon.FRILANSER,
@@ -79,7 +77,6 @@ class FrilanserIntegrationTest : BaseTestClass() {
     @Test
     @Order(3)
     fun `03 - vi svarer på ansvarserklæringa som ikke muterer søknaden`() {
-
         val soknaden = hentSoknader(fnr).first()
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
             .besvarSporsmal(ANSVARSERKLARING, "CHECKED", mutert = false)
@@ -174,7 +171,6 @@ class FrilanserIntegrationTest : BaseTestClass() {
     @Test
     @Order(7)
     fun `vi svarer på resten som ikke muterer søknaden`() {
-
         val soknaden = hentSoknader(fnr).first()
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
             .besvarSporsmal("ARBEID_UNDERVEIS_100_PROSENT_0", "NEI", mutert = false)
@@ -191,7 +187,6 @@ class FrilanserIntegrationTest : BaseTestClass() {
     @Test
     @Order(8)
     fun `utland muterer ikke søknaden på frilansersøknad`() {
-
         val soknaden = hentSoknader(fnr).first()
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
             .besvarSporsmal(UTLAND, "JA", mutert = false, ferdigBesvart = false)
@@ -199,7 +194,7 @@ class FrilanserIntegrationTest : BaseTestClass() {
                 PERIODER,
                 svar = """{"fom":"${soknaden.fom!!}","tom":"${soknaden.fom!!.plusDays(1)}"}""",
                 mutert = false,
-                ferdigBesvart = false,
+                ferdigBesvart = false
 
             )
             .besvarSporsmal(UTLANDSOPPHOLD_SOKT_SYKEPENGER, "NEI", mutert = false)

@@ -16,10 +16,12 @@ import java.util.*
 fun harSoktSykepengerUnderUtlandsopphold(sykepengesoknad: Sykepengesoknad): Boolean? {
     return if (!harSvartJaPaPermisjonUtland(sykepengesoknad) || !harSvartJaPaUtland(sykepengesoknad)) {
         null
-    } else sykepengesoknad.getOptionalSporsmalMedTag(UTLANDSOPPHOLD_SOKT_SYKEPENGER)
-        .map { it.forsteSvar }
-        .map { "JA" == it }
-        .orElse(null)
+    } else {
+        sykepengesoknad.getOptionalSporsmalMedTag(UTLANDSOPPHOLD_SOKT_SYKEPENGER)
+            .map { it.forsteSvar }
+            .map { "JA" == it }
+            .orElse(null)
+    }
 }
 
 private fun harSvartJaPaPermisjonUtland(sykepengesoknad: Sykepengesoknad): Boolean {
@@ -46,16 +48,19 @@ internal fun getFaktiskGrad(
 
     return if (faktiskTimer == null || avtaltTimer == null || virkedager == 0) {
         null
-    } else Math.toIntExact(Math.round(faktiskTimer / (avtaltTimer / antallVirkedagerPerUke * virkedager) * 100))
+    } else {
+        Math.toIntExact(Math.round(faktiskTimer / (avtaltTimer / antallVirkedagerPerUke * virkedager) * 100))
+    }
 }
 
 private fun antallVirkedagerIPeriode(periode: Soknadsperiode, arbeidgjenopptattDato: LocalDate?): Int {
     var virkedager = 0
 
-    val slutt = if (arbeidgjenopptattDato == null)
+    val slutt = if (arbeidgjenopptattDato == null) {
         Math.toIntExact(ChronoUnit.DAYS.between(periode.fom, periode.tom) + 1)
-    else
+    } else {
         Math.toIntExact(ChronoUnit.DAYS.between(periode.fom, arbeidgjenopptattDato))
+    }
 
     for (i in 0 until slutt) {
         if (erIkkeHelgedag(periode.fom.plusDays(i.toLong()))) {
@@ -92,8 +97,9 @@ private fun antallVirkedagerIPerioder(ferieOgPermisjonPerioder: List<FravarDTO>,
 
 internal fun arbeidGjenopptattDato(sykepengesoknad: Sykepengesoknad): LocalDate? {
     sykepengesoknad.getSporsmalMedTagOrNull(TILBAKE_NAR)?.forsteSvar?.let {
-        if ("JA" == sykepengesoknad.getSporsmalMedTag(TILBAKE_I_ARBEID).forsteSvar)
+        if ("JA" == sykepengesoknad.getSporsmalMedTag(TILBAKE_I_ARBEID).forsteSvar) {
             return LocalDate.parse(it, ISO_LOCAL_DATE)
+        }
     }
     return null
 }
@@ -116,7 +122,8 @@ internal fun finnUtdanning(soknad: Sykepengesoknad): Optional<FravarDTO> {
     val fravar = if ("JA" == soknad.getSporsmalMedTag(FULLTIDSSTUDIUM).forsteSvar) FravarstypeDTO.UTDANNING_FULLTID else FravarstypeDTO.UTDANNING_DELTID
     return Optional.of(
         FravarDTO(
-            LocalDate.parse(startsvar, ISO_LOCAL_DATE), null,
+            LocalDate.parse(startsvar, ISO_LOCAL_DATE),
+            null,
             fravar
         )
     )

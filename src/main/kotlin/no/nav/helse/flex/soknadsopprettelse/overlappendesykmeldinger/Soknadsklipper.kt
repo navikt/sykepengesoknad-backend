@@ -26,7 +26,7 @@ class Soknadsklipper(
     private val aktiveringProducer: AktiveringProducer,
     private val soknadProducer: SoknadProducer,
     private val klippetSykepengesoknadRepository: KlippetSykepengesoknadRepository,
-    private val sporsmalGenerator: SporsmalGenerator,
+    private val sporsmalGenerator: SporsmalGenerator
 ) {
 
     val log = logger()
@@ -34,7 +34,7 @@ class Soknadsklipper(
     fun klippSoknaderSomOverlapperEtter(
         sykmeldingId: String,
         sok: Sykepengesoknad,
-        sykmeldingPeriode: ClosedRange<LocalDate>,
+        sykmeldingPeriode: ClosedRange<LocalDate>
     ) {
         log.info(
             "Sykmelding $sykmeldingId klipper søknad ${sok.id} tom fra: ${sok.tom} til: ${
@@ -54,7 +54,7 @@ class Soknadsklipper(
                 klippVariant = KlippVariant.SOKNAD_STARTER_INNI_SLUTTER_ETTER,
                 periodeFor = sok.soknadPerioder!!.serialisertTilString(),
                 periodeEtter = nyePerioder.serialisertTilString(),
-                timestamp = Instant.now(),
+                timestamp = Instant.now()
             )
         )
 
@@ -71,7 +71,7 @@ class Soknadsklipper(
 
     fun klippSoknaderSomOverlapperFullstendig(
         sykmeldingId: String,
-        sok: Sykepengesoknad,
+        sok: Sykepengesoknad
     ) {
         log.info("Sykmelding $sykmeldingId overlapper søknad ${sok.id} fullstendig")
 
@@ -82,7 +82,7 @@ class Soknadsklipper(
                 klippVariant = KlippVariant.SOKNAD_STARTER_FOR_SLUTTER_ETTER,
                 periodeFor = sok.soknadPerioder!!.serialisertTilString(),
                 periodeEtter = null,
-                timestamp = Instant.now(),
+                timestamp = Instant.now()
             )
         )
 
@@ -95,7 +95,7 @@ class Soknadsklipper(
     fun klippSoknaderSomOverlapperFor(
         sykmeldingId: String,
         sok: Sykepengesoknad,
-        sykmeldingPeriode: ClosedRange<LocalDate>,
+        sykmeldingPeriode: ClosedRange<LocalDate>
     ) {
         log.info(
             "Sykmelding $sykmeldingId klipper søknad ${sok.id} fom fra: ${sok.fom} til: ${
@@ -117,7 +117,7 @@ class Soknadsklipper(
                 klippVariant = KlippVariant.SOKNAD_STARTER_FOR_SLUTTER_INNI,
                 periodeFor = sok.soknadPerioder!!.serialisertTilString(),
                 periodeEtter = nyePerioder.serialisertTilString(),
-                timestamp = Instant.now(),
+                timestamp = Instant.now()
             )
         )
 
@@ -131,7 +131,7 @@ class Soknadsklipper(
     fun klippSoknaderSomOverlapperInni(
         sykmeldingId: String,
         sok: Sykepengesoknad,
-        sykmeldingPeriode: ClosedRange<LocalDate>,
+        sykmeldingPeriode: ClosedRange<LocalDate>
     ) {
         log.info("Sykmelding $sykmeldingId overlapper søknad ${sok.id} inni")
 
@@ -140,20 +140,20 @@ class Soknadsklipper(
             sok.copy(
                 id = UUID.randomUUID().toString(),
                 opprettet = Instant.now(),
-                opprinnelse = Opprinnelse.SYKEPENGESOKNAD_BACKEND,
+                opprinnelse = Opprinnelse.SYKEPENGESOKNAD_BACKEND
             )
         )
 
         klippSoknaderSomOverlapperEtter(
             sykmeldingId,
             soknadStart,
-            sykmeldingPeriode,
+            sykmeldingPeriode
         )
 
         klippSoknaderSomOverlapperFor(
             sykmeldingId,
             soknadSlutt,
-            sykmeldingPeriode,
+            sykmeldingPeriode
         )
     }
 }

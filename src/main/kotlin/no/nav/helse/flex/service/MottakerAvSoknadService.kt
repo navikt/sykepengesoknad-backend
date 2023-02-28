@@ -14,9 +14,9 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.forskuttering.ForskutteringRepository
 import no.nav.helse.flex.juridiskvurdering.JuridiskVurdering
 import no.nav.helse.flex.juridiskvurdering.JuridiskVurderingKafkaProducer
-import no.nav.helse.flex.juridiskvurdering.SporingType.organisasjonsnummer
-import no.nav.helse.flex.juridiskvurdering.SporingType.soknad
-import no.nav.helse.flex.juridiskvurdering.SporingType.sykmelding
+import no.nav.helse.flex.juridiskvurdering.SporingType.ORGANISASJONSNUMMER
+import no.nav.helse.flex.juridiskvurdering.SporingType.SOKNAD
+import no.nav.helse.flex.juridiskvurdering.SporingType.SYKMELDING
 import no.nav.helse.flex.juridiskvurdering.Utfall
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadDAO
@@ -36,7 +36,7 @@ class MottakerAvSoknadService(
     val identService: IdentService,
     val metrikk: Metrikk,
     val juridiskVurderingKafkaProducer: JuridiskVurderingKafkaProducer,
-    val forskutteringRepository: ForskutteringRepository,
+    val forskutteringRepository: ForskutteringRepository
 ) {
     val log = logger()
 
@@ -114,7 +114,6 @@ class MottakerAvSoknadService(
         sykepengesoknad: Sykepengesoknad,
         identer: FolkeregisterIdenter
     ): MottakerOgVurdering {
-
         val arbeidsgiverperiode = flexSyketilfelleClient.beregnArbeidsgiverperiode(
             sykepengesoknad,
             identer = identer,
@@ -163,7 +162,7 @@ class MottakerAvSoknadService(
                         sykepengesoknad,
                         arbeidsgiverperiode,
                         Periode(fom = arbeidsgiverperiodeTom.plusDays(1), tom = sykepengesoknadTom)
-                    ),
+                    )
                 )
             )
         }
@@ -192,7 +191,7 @@ class MottakerAvSoknadService(
         utfall: Utfall,
         sykepengesoknad: Sykepengesoknad,
         arbeidsgiverperiode: Arbeidsgiverperiode = Arbeidsgiverperiode(),
-        periode: Periode? = null,
+        periode: Periode? = null
     ): JuridiskVurdering? {
         if (sykepengesoknad.status != Soknadstatus.SENDT) {
             return null
@@ -200,18 +199,18 @@ class MottakerAvSoknadService(
 
         return JuridiskVurdering(
             fodselsnummer = sykepengesoknad.fnr,
-            sporing = hashMapOf(soknad to listOf(sykepengesoknad.id))
+            sporing = hashMapOf(SOKNAD to listOf(sykepengesoknad.id))
                 .also { map ->
                     sykepengesoknad.sykmeldingId?.let {
-                        map[sykmelding] = listOf(it)
+                        map[SYKMELDING] = listOf(it)
                     }
                     sykepengesoknad.arbeidsgiverOrgnummer?.let {
-                        map[organisasjonsnummer] = listOf(it)
+                        map[ORGANISASJONSNUMMER] = listOf(it)
                     }
                 },
             input = hashMapOf<String, Any>(
                 "oppbruktArbeidsgiverperiode" to arbeidsgiverperiode.oppbruktArbeidsgiverperiode,
-                "versjon" to LocalDate.of(2022, 2, 1),
+                "versjon" to LocalDate.of(2022, 2, 1)
             ).also { map ->
                 sykepengesoknad.tom?.let {
                     map["sykepengesoknadTom"] = it
@@ -225,7 +224,7 @@ class MottakerAvSoknadService(
             },
             output = mapOf(
                 "periode" to (periode ?: Periode(fom = sykepengesoknad.fom!!, tom = sykepengesoknad.tom!!)),
-                "versjon" to LocalDate.of(2022, 2, 1),
+                "versjon" to LocalDate.of(2022, 2, 1)
             ),
             lovverk = "folketrygdloven",
             paragraf = "8-17",

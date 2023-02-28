@@ -123,7 +123,6 @@ class EttersendingSoknadServiceTest {
 
     @Test
     fun ettersendTilNAVKasterFeilHvisSoknadIkkeErSendtTilArbeidsgiver() {
-
         assertThrows(IllegalArgumentException::class.java) {
             val soknadBehandlingsdager = behandlingsdagerSoknadMock()
             val soknadArbeidstaker = arbeidstakereSoknadMock()
@@ -173,7 +172,6 @@ class EttersendingSoknadServiceTest {
 
     @Test
     fun ettersendTilArbeidsgiverKasterFeilHvisSoknadIkkeErSendt() {
-
         assertThrows(IllegalArgumentException::class.java) {
             val soknadBehandlingsdager = behandlingsdagerSoknadMock().copy(status = KORRIGERT)
             val soknadArbeidstaker = arbeidstakereSoknadMock().copy(status = KORRIGERT)
@@ -199,7 +197,7 @@ class EttersendingSoknadServiceTest {
         val soknadBehandlingsdager = behandlingsdagerSoknadMock().copy(
             id = "arbeidstakerId",
             sendtArbeidsgiver = LocalDateTime.now().minusHours(4).tilOsloInstant(),
-            status = SENDT,
+            status = SENDT
         )
         val soknadArbeidstaker =
             arbeidstakereSoknadMock().copy(
@@ -231,8 +229,8 @@ class EttersendingSoknadServiceTest {
                     aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
                     behandlingsdager = null,
                     innspillTilArbeidsgiver = null,
-                    reisetilskudd = false,
-                ),
+                    reisetilskudd = false
+                )
             ).tilSoknadsperioder(),
             fnr = "fnr",
             fom = LocalDate.now().minusDays(20),
@@ -243,12 +241,13 @@ class EttersendingSoknadServiceTest {
             status = NY,
             opprettet = Instant.now(),
             sporsmal = emptyList(),
-            utenlandskSykmelding = false,
+            utenlandskSykmelding = false
         )
         return soknadMetadata.copy(
             sporsmal = settOppSykepengesoknadBehandlingsdager(
                 soknadMetadata,
-                true, LocalDate.now()
+                true,
+                LocalDate.now()
             )
         )
     }
@@ -269,8 +268,8 @@ class EttersendingSoknadServiceTest {
                     aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
                     behandlingsdager = null,
                     innspillTilArbeidsgiver = null,
-                    reisetilskudd = false,
-                ),
+                    reisetilskudd = false
+                )
             ).tilSoknadsperioder(),
             fnr = "fnr",
             fom = LocalDate.now().minusDays(20),
@@ -281,12 +280,14 @@ class EttersendingSoknadServiceTest {
             status = NY,
             opprettet = Instant.now(),
             sporsmal = emptyList(),
-            utenlandskSykmelding = false,
+            utenlandskSykmelding = false
         )
         return soknadMetadata.copy(
             sporsmal = settOppSoknadArbeidstaker(
                 soknadMetadata,
-                true, LocalDate.now(), emptyList()
+                true,
+                LocalDate.now(),
+                emptyList()
             )
         )
     }

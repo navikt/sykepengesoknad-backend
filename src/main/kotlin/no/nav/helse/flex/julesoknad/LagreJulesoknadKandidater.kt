@@ -14,19 +14,17 @@ import java.time.temporal.ChronoUnit.DAYS
 
 @Service
 class LagreJulesoknadKandidater(
-    private val julesoknadkandidatDAO: JulesoknadkandidatDAO,
+    private val julesoknadkandidatDAO: JulesoknadkandidatDAO
 ) {
     private val log = logger()
 
     @Transactional
     fun lagreJulesoknadKandidater(list: List<Sykepengesoknad>) {
-
         if (list.any { p -> p.soknadPerioder!!.any { it.sykmeldingstype == Sykmeldingstype.REISETILSKUDD } }) {
             return
         }
 
         list.forEach {
-
             if (it.harSoknadstypeSomKanGiJulesoknad() &&
                 it.erLengreEnn14Dager() &&
                 it.fomDatoMellom11novemberOg7desember() &&

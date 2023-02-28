@@ -42,8 +42,8 @@ class BrukerIkkeTimerForFaktiskGradHvisIkkeChecked : BaseTestClass() {
                 fnr = fnr,
                 sykmeldingsperioder = gradertSykmeldt(
                     fom = start,
-                    tom = slutt,
-                ),
+                    tom = slutt
+                )
             )
         )
     }

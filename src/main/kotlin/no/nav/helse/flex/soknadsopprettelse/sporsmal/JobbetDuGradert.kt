@@ -17,9 +17,8 @@ import kotlin.math.roundToInt
 
 fun jobbetDuGradert(
     periode: Soknadsperiode,
-    index: Int,
+    index: Int
 ): Sporsmal {
-
     return Sporsmal(
         tag = JOBBET_DU_GRADERT + index,
         sporsmalstekst = "Sykmeldingen sier du kunne jobbe ${100 - periode.grad} %. Jobbet du mer enn det?",
@@ -80,7 +79,7 @@ fun jobbetDuGradertUndersporsmal(
                             max = "99"
                         )
                     )
-                ),
+                )
             )
         )
     )

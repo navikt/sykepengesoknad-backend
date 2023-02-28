@@ -75,7 +75,6 @@ class RebehandlingSoknadopprettelseTest : BaseTestClass() {
 
     @Test
     fun `Rebehandler sykmelding for Frilanser`() {
-
         val cr = skapConsumerRecord(
             statusEvent = STATUS_BEKREFTET,
             arbeidssituasjon = FRILANSER
@@ -119,7 +118,7 @@ class RebehandlingSoknadopprettelseTest : BaseTestClass() {
             arbeidsgiver = ArbeidsgiverStatusDTO("123", "456", "Jobb")
         )
         val sykmelding = skapArbeidsgiverSykmelding(
-            sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId,
+            sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
         )
             .copy(
                 sykmeldingsperioder = listOf(

@@ -48,8 +48,8 @@ class GammeltEgenmeldingSporsmalTest : BaseTestClass() {
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = LocalDate.now().minusDays(20),
-                    tom = LocalDate.now().minusDays(10),
-                ),
+                    tom = LocalDate.now().minusDays(10)
+                )
             )
         ).first()
         val hentet = sykepengesoknadDAO.finnSykepengesoknad(soknad.id)

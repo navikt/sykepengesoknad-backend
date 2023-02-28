@@ -25,7 +25,6 @@ fun Sporsmal.plasseringSporsmalUtland(): Int {
 }
 
 fun settOppSoknadOppholdUtland(fnr: String): Sykepengesoknad {
-
     val sporsmal = listOf(
         periodeSporsmal(),
         landSporsmal(),
@@ -49,7 +48,7 @@ fun settOppSoknadOppholdUtland(fnr: String): Sykepengesoknad {
         sykmeldingId = null,
         egenmeldtSykmelding = null,
         merknaderFraSykmelding = null,
-        utenlandskSykmelding = false,
+        utenlandskSykmelding = false
     )
 }
 
@@ -103,10 +102,11 @@ fun bekreftSporsmal(harArbeidsgiver: Boolean): Sporsmal {
             Sporsmal(
                 tag = BEKREFT_OPPLYSNINGER_UTLAND,
                 sporsmalstekst =
-                if (harArbeidsgiver)
+                if (harArbeidsgiver) {
                     "Jeg bekrefter de tre punktene ovenfor"
-                else
-                    "Jeg bekrefter de to punktene ovenfor",
+                } else {
+                    "Jeg bekrefter de to punktene ovenfor"
+                },
                 svartype = CHECKBOX_PANEL
             )
         ),

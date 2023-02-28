@@ -19,7 +19,7 @@ fun jobbetDuUndersporsmal(
     periode: Soknadsperiode,
     minProsent: Int,
     index: Int,
-    arbeidsgiverNavn: String? = null,
+    arbeidsgiverNavn: String? = null
 ): List<Sporsmal> {
     val periodeTekst = DatoUtil.formatterPeriode(
         periode.fom,
@@ -65,7 +65,7 @@ fun jobbetDuUndersporsmal(
                             max = "99"
                         )
                     )
-                ),
+                )
             )
         ),
         Sporsmal(
@@ -82,6 +82,6 @@ fun jobbetDuUndersporsmal(
                     max = "150"
                 )
             )
-        ),
+        )
     )
 }

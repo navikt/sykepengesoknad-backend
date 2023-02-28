@@ -100,7 +100,6 @@ fun BaseTestClass.mockFlexSyketilfelleArbeidsgiverperiode(
                 )
             )
     } else {
-
         flexSyketilfelleMockRestServiceServer!!
             .expect(requestTo(url()))
             .andExpect(method(HttpMethod.POST))

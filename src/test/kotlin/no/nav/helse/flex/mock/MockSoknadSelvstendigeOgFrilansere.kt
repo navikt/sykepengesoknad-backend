@@ -50,7 +50,7 @@ fun opprettNyNaeringsdrivendeSoknad(): Sykepengesoknad {
                 aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
                 behandlingsdager = null,
                 innspillTilArbeidsgiver = null,
-                reisetilskudd = false,
+                reisetilskudd = false
             ),
             SykmeldingsperiodeAGDTO(
                 fom = of(2018, 6, 6),
@@ -60,17 +60,17 @@ fun opprettNyNaeringsdrivendeSoknad(): Sykepengesoknad {
                 aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
                 behandlingsdager = null,
                 innspillTilArbeidsgiver = null,
-                reisetilskudd = false,
-            ),
+                reisetilskudd = false
+            )
         ).tilSoknadsperioder(),
         soknadstype = Soknadstype.SELVSTENDIGE_OG_FRILANSERE,
         egenmeldtSykmelding = null,
-        utenlandskSykmelding = false,
+        utenlandskSykmelding = false
     )
 
     return (soknadMetadata).copy(
         sporsmal = settOppSoknadSelvstendigOgFrilanser(soknadMetadata, false),
-        status = Soknadstatus.NY,
+        status = Soknadstatus.NY
     ).leggSvarPaSoknad()
 }
 
@@ -96,7 +96,7 @@ fun opprettSendtFrilanserSoknad(): Sykepengesoknad {
                 aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
                 behandlingsdager = null,
                 innspillTilArbeidsgiver = null,
-                reisetilskudd = false,
+                reisetilskudd = false
             ),
             SykmeldingsperiodeAGDTO(
                 fom = of(2018, 5, 25),
@@ -106,18 +106,18 @@ fun opprettSendtFrilanserSoknad(): Sykepengesoknad {
                 aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
                 behandlingsdager = null,
                 innspillTilArbeidsgiver = null,
-                reisetilskudd = false,
-            ),
+                reisetilskudd = false
+            )
         ).tilSoknadsperioder(),
         soknadstype = Soknadstype.SELVSTENDIGE_OG_FRILANSERE,
         egenmeldtSykmelding = null,
-        utenlandskSykmelding = false,
+        utenlandskSykmelding = false
 
     )
     return (soknadMetadata).copy(
         sporsmal = settOppSoknadSelvstendigOgFrilanser(soknadMetadata, false),
         status = Soknadstatus.SENDT,
-        sendtNav = Instant.now(),
+        sendtNav = Instant.now()
     ).leggSvarPaSoknad()
 }
 

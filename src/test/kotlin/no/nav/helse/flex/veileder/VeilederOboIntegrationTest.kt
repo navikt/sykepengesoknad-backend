@@ -33,8 +33,8 @@ class VeilederOboIntegrationTest : BaseTestClass() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
-            ),
+                arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG
+            )
         )
     }
 

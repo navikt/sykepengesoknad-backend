@@ -43,7 +43,7 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
         val kafkaSoknader = sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                sykmeldingsperioder = behandingsdager(),
+                sykmeldingsperioder = behandingsdager()
             )
         )
 
@@ -59,7 +59,6 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
     @Test
     @Order(2)
     fun `behandlingsdager har riktig formattert spørsmålstekst`() {
-
         val soknaden = hentSoknad(
             soknadId = hentSoknaderMetadata(fnr).first().id,
             fnr = fnr
@@ -157,7 +156,7 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                sykmeldingsperioder = behandingsdager(),
+                sykmeldingsperioder = behandingsdager()
             )
         )
 
@@ -211,7 +210,8 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
                     SykmeldingsperiodeAGDTO(
                         fom = LocalDate.of(2020, 3, 1),
                         tom = LocalDate.of(2020, 3, 15),
-                        type = PeriodetypeDTO.BEHANDLINGSDAGER, reisetilskudd = false,
+                        type = PeriodetypeDTO.BEHANDLINGSDAGER,
+                        reisetilskudd = false,
                         aktivitetIkkeMulig = null,
                         behandlingsdager = 1,
                         gradert = null,
@@ -220,7 +220,8 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
                     SykmeldingsperiodeAGDTO(
                         fom = LocalDate.of(2020, 3, 16),
                         tom = LocalDate.of(2020, 3, 31),
-                        type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG, reisetilskudd = false,
+                        type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+                        reisetilskudd = false,
                         aktivitetIkkeMulig = null,
                         behandlingsdager = null,
                         gradert = null,
@@ -256,7 +257,8 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
                     SykmeldingsperiodeAGDTO(
                         fom = LocalDate.of(2020, 3, 1),
                         tom = LocalDate.of(2020, 3, 15),
-                        type = PeriodetypeDTO.BEHANDLINGSDAGER, reisetilskudd = false,
+                        type = PeriodetypeDTO.BEHANDLINGSDAGER,
+                        reisetilskudd = false,
                         aktivitetIkkeMulig = null,
                         behandlingsdager = 1,
                         gradert = null,
@@ -265,7 +267,8 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
                     SykmeldingsperiodeAGDTO(
                         fom = LocalDate.of(2020, 3, 16),
                         tom = LocalDate.of(2020, 3, 31),
-                        type = PeriodetypeDTO.BEHANDLINGSDAGER, reisetilskudd = false,
+                        type = PeriodetypeDTO.BEHANDLINGSDAGER,
+                        reisetilskudd = false,
                         aktivitetIkkeMulig = null,
                         behandlingsdager = 1,
                         gradert = null,

@@ -18,7 +18,7 @@ import java.util.*
 class KorrigerSoknadService(
     val sykepengesoknadDAO: SykepengesoknadDAO,
     val metrikk: Metrikk,
-    val identService: IdentService,
+    val identService: IdentService
 ) {
 
     fun finnEllerOpprettUtkast(soknadSomKorrigeres: Sykepengesoknad, identer: FolkeregisterIdenter): Sykepengesoknad {

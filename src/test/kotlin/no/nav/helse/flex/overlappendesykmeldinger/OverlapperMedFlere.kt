@@ -46,7 +46,7 @@ class OverlapperMedFlere : BaseTestClass() {
             soknadLagrer = soknadLagrer,
             sykepengesoknadDAO = sykepengesoknadDAO,
             baseTestClass = this,
-            skalPrintePerioder = true,
+            skalPrintePerioder = true
         )
     }
 
@@ -385,7 +385,7 @@ class OverlapperMedFlere : BaseTestClass() {
                             fom = LocalDate.of(2022, 1, 1),
                             tom = LocalDate.of(2022, 1, 30),
                             grad = 50,
-                            sykmeldingstype = Sykmeldingstype.GRADERT,
+                            sykmeldingstype = Sykmeldingstype.GRADERT
                         )
                     )
                 )
@@ -396,7 +396,7 @@ class OverlapperMedFlere : BaseTestClass() {
                         fom = LocalDate.of(2022, 1, 10),
                         tom = LocalDate.of(2022, 1, 20),
                         grad = 100,
-                        sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+                        sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
                     )
                 )
             ),
@@ -408,8 +408,8 @@ class OverlapperMedFlere : BaseTestClass() {
                             fom = LocalDate.of(2022, 1, 1),
                             tom = LocalDate.of(2022, 1, 9),
                             grad = 50,
-                            sykmeldingstype = Sykmeldingstype.GRADERT,
-                        ),
+                            sykmeldingstype = Sykmeldingstype.GRADERT
+                        )
                     )
                 ),
                 Soknad(
@@ -419,8 +419,8 @@ class OverlapperMedFlere : BaseTestClass() {
                             fom = LocalDate.of(2022, 1, 10),
                             tom = LocalDate.of(2022, 1, 20),
                             grad = 100,
-                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
-                        ),
+                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
+                        )
                     )
                 ),
                 Soknad(
@@ -430,12 +430,12 @@ class OverlapperMedFlere : BaseTestClass() {
                             fom = LocalDate.of(2022, 1, 21),
                             tom = LocalDate.of(2022, 1, 30),
                             grad = 50,
-                            sykmeldingstype = Sykmeldingstype.GRADERT,
-                        ),
+                            sykmeldingstype = Sykmeldingstype.GRADERT
+                        )
                     )
-                ),
+                )
             ),
-            forventaSoknadPaKafka = 2,
+            forventaSoknadPaKafka = 2
         )
     }
 
@@ -443,7 +443,7 @@ class OverlapperMedFlere : BaseTestClass() {
         private val soknadLagrer: SoknadLagrer,
         private val sykepengesoknadDAO: SykepengesoknadDAO,
         private val baseTestClass: BaseTestClass,
-        private val skalPrintePerioder: Boolean = false,
+        private val skalPrintePerioder: Boolean = false
     ) {
         data class Soknad(
             val soknadPerioder: List<Soknadsperiode>,
@@ -456,7 +456,7 @@ class OverlapperMedFlere : BaseTestClass() {
             overlappendeSoknad: Soknad,
             dagensDato: LocalDate,
             forventetResultat: List<Soknad>,
-            forventaSoknadPaKafka: Int,
+            forventaSoknadPaKafka: Int
         ) {
             eksisterendeSoknader.forEach { lagreEksisterendeSoknad(it) }
 
@@ -468,10 +468,10 @@ class OverlapperMedFlere : BaseTestClass() {
                     sykmeldingId = overlappendeSoknad.traceId,
                     sykmeldingsperioder = heltSykmeldt(
                         fom = overlappendeSoknad.soknadPerioder.minOf { it.fom },
-                        tom = overlappendeSoknad.soknadPerioder.maxOf { it.tom },
-                    ),
+                        tom = overlappendeSoknad.soknadPerioder.maxOf { it.tom }
+                    )
                 ),
-                forventaSoknader = forventaSoknadPaKafka,
+                forventaSoknader = forventaSoknadPaKafka
             )
 
             riktigStatusUtIfraDagensDato(dagensDato)
@@ -479,7 +479,7 @@ class OverlapperMedFlere : BaseTestClass() {
             resultatetErSomForventet(
                 eksisterendeSoknader,
                 overlappendeSoknad,
-                forventetResultat,
+                forventetResultat
             )
         }
 
@@ -503,7 +503,7 @@ class OverlapperMedFlere : BaseTestClass() {
                     arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
                     arbeidsgiverOrgnummer = "123454543",
                     arbeidsgiverNavn = "Butikken",
-                    utenlandskSykmelding = false,
+                    utenlandskSykmelding = false
                 )
             )
         }
@@ -540,7 +540,7 @@ class OverlapperMedFlere : BaseTestClass() {
             eksisterende: List<Soknad>,
             overlappendeSoknad: Soknad,
             forventet: List<Soknad>,
-            faktisk: List<Soknad>,
+            faktisk: List<Soknad>
         ) {
             val perioder = forventet.flatMap { it.soknadPerioder } + faktisk.flatMap { it.soknadPerioder }
             val minFom = perioder.minOf { it.fom }

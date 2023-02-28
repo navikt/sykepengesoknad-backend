@@ -14,13 +14,12 @@ class JuridiskVurderingKafkaProducer(
     @Value("\${nais.app.name}")
     private val naisAppName: String,
     @Value("\${nais.app.image}")
-    private val naisAppImage: String,
+    private val naisAppImage: String
 
 ) {
     val log = logger()
 
     fun produserMelding(juridiskVurdering: JuridiskVurdering) {
-
         val dto = juridiskVurdering.tilDto()
         try {
             producer.send(
@@ -56,7 +55,7 @@ class JuridiskVurderingKafkaProducer(
         versjon = "1.0.0",
         kilde = naisAppName,
         versjonAvKode = naisAppImage,
-        tidsstempel = Instant.now(),
+        tidsstempel = Instant.now()
     )
 }
 

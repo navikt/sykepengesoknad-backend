@@ -29,7 +29,7 @@ fun settOppSoknadArbeidstaker(
     sykepengesoknad: Sykepengesoknad,
     erForsteSoknadISykeforlop: Boolean,
     tidligsteFomForSykmelding: LocalDate,
-    andreKjenteArbeidsforhold: List<String>,
+    andreKjenteArbeidsforhold: List<String>
 ): List<Sporsmal> {
     val gradertResietilskudd = sykepengesoknad.soknadstype == GRADERT_REISETILSKUDD
 
@@ -262,7 +262,7 @@ fun gammeltFormatFeriePermisjonUtlandsoppholdSporsmal(fom: LocalDate, tom: Local
 
 fun jobbetDuIPeriodenSporsmal(
     soknadsperioder: List<Soknadsperiode>,
-    arbeidsgiverNavn: String,
+    arbeidsgiverNavn: String
 ): List<Sporsmal> {
     return soknadsperioder
         .lastIndex.downTo(0)

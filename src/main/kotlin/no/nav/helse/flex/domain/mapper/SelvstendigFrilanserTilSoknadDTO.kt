@@ -11,7 +11,7 @@ import no.nav.helse.flex.util.tilOsloLocalDateTime
 fun konverterSelvstendigOgFrilanserTilSoknadDTO(
     sykepengesoknad: Sykepengesoknad,
     soknadsperioder: List<SoknadsperiodeDTO>,
-    harRedusertVenteperiode: Boolean,
+    harRedusertVenteperiode: Boolean
 ): SykepengesoknadDTO {
     return SykepengesoknadDTO(
         id = sykepengesoknad.id,

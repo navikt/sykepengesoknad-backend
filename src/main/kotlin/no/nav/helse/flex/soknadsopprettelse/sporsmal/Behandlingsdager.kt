@@ -65,7 +65,6 @@ private fun skapUndersporsmalUke(uker: List<Uke>): List<Sporsmal> {
 }
 
 internal fun splittPeriodeIUker(periode: Soknadsperiode): List<Uke> {
-
     if (periode.fom.isAfter(periode.tom)) {
         throw IllegalArgumentException("Fom kan ikke være etter tom i periode $periode")
     }

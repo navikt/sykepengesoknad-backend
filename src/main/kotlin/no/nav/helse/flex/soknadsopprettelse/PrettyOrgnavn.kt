@@ -20,11 +20,10 @@ val lowercaseNavn = setOf(
     "entreprenør",
     "legevakt",
     "sykehjem",
-    "videregående",
+    "videregående"
 )
 
 fun String.prettyOrgnavn(): String {
-
     fun String.mapEnkeltNavn(): String {
         if (lowercaseNavn.contains(lowercase())) {
             return lowercase()

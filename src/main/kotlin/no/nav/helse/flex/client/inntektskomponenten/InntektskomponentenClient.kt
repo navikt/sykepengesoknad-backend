@@ -16,14 +16,13 @@ import java.time.YearMonth
 @Component
 class InntektskomponentenClient(
     private val flexFssProxyRestTemplate: RestTemplate,
-    @Value("\${FLEX_FSS_PROXY_URL}") private val flexFssProxyUrl: String,
+    @Value("\${FLEX_FSS_PROXY_URL}") private val flexFssProxyUrl: String
 
 ) {
 
     val log = logger()
 
     fun hentInntekter(fnr: String, fom: YearMonth, tom: YearMonth): HentInntekterResponse {
-
         val uriBuilder =
             UriComponentsBuilder.fromHttpUrl("$flexFssProxyUrl/api/inntektskomponenten/api/v1/hentinntektliste")
 

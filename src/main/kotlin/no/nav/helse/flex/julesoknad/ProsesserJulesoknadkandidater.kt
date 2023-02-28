@@ -26,7 +26,7 @@ class ProsesserJulesoknadkandidater(
     private val leaderElection: LeaderElection,
     private val forskutteringRepository: ForskutteringRepository,
     private val aktiveringProducer: AktiveringProducer,
-    private val applicationHealth: ApplicationHealth,
+    private val applicationHealth: ApplicationHealth
 ) {
     private val log = logger()
 
@@ -68,7 +68,7 @@ class ProsesserJulesoknadkandidater(
                 return
             }
             val tidligereFremtidigeSoknader = sykepengesoknadDAO.finnSykepengesoknaderForSykmelding(
-                sykmeldingId = soknad.sykmeldingId!!,
+                sykmeldingId = soknad.sykmeldingId!!
             )
                 .filter { it.fom!!.isBefore(soknad.fom) }
                 .filter { it.status == Soknadstatus.FREMTIDIG }

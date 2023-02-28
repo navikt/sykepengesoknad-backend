@@ -51,8 +51,8 @@ class JulesoknadHealthTest : BaseTestClass() {
                 sykmeldingsperioder = heltSykmeldt(
                     fom = LocalDate.of(nesteÅr, 12, 1),
                     tom = LocalDate.of(nesteÅr, 12, 15)
-                ),
-            ),
+                )
+            )
         )
     }
 

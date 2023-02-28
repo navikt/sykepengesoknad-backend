@@ -44,20 +44,19 @@ class BehandlingsdagerKtTest {
                 aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
                 behandlingsdager = null,
                 innspillTilArbeidsgiver = null,
-                reisetilskudd = false,
-            ),
+                reisetilskudd = false
+            )
         ).tilSoknadsperioder(),
         egenmeldtSykmelding = null,
         id = UUID.randomUUID().toString(),
         status = Soknadstatus.NY,
         opprettet = Instant.now(),
         sporsmal = emptyList(),
-        utenlandskSykmelding = false,
+        utenlandskSykmelding = false
     )
 
     @Test
     fun `oppretter spørsmål`() {
-
         val sporsmalList = behandlingsdagerSporsmal(testSoknad)
         sporsmalList.shouldHaveSize(1)
 
@@ -89,7 +88,6 @@ class BehandlingsdagerKtTest {
 
     @Test
     fun `oppretter spørsmål for arbeidsledige`() {
-
         val sporsmalList = behandlingsdagerSporsmal(testSoknad.copy(arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG))
         sporsmalList.shouldHaveSize(1)
         sporsmalList[0] `should be equal to` Sporsmal(
@@ -121,7 +119,6 @@ class BehandlingsdagerKtTest {
 
     @Test
     fun `oppretter spørsmål når det er flere perioder i soknaden`() {
-
         val soknadMedFlerePerioder = testSoknad
             .copy(
                 soknadPerioder = listOf(
@@ -133,7 +130,7 @@ class BehandlingsdagerKtTest {
                         aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
                         behandlingsdager = null,
                         innspillTilArbeidsgiver = null,
-                        reisetilskudd = false,
+                        reisetilskudd = false
                     ),
                     SykmeldingsperiodeAGDTO(
                         LocalDate.of(2019, 12, 5).minusMonths(1).plusDays(5),
@@ -143,8 +140,8 @@ class BehandlingsdagerKtTest {
                         aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
                         behandlingsdager = null,
                         innspillTilArbeidsgiver = null,
-                        reisetilskudd = false,
-                    ),
+                        reisetilskudd = false
+                    )
                 ).tilSoknadsperioder()
             )
         val sporsmalList = behandlingsdagerSporsmal(soknadMedFlerePerioder)
@@ -172,9 +169,9 @@ class BehandlingsdagerKtTest {
                         aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
                         behandlingsdager = null,
                         innspillTilArbeidsgiver = null,
-                        reisetilskudd = false,
-                    ),
-                ).tilSoknadsperioder(),
+                        reisetilskudd = false
+                    )
+                ).tilSoknadsperioder()
             )
         val sporsmalList = behandlingsdagerSporsmal(soknad)
         assertEquals(sporsmalList.size, 1)
@@ -204,7 +201,7 @@ class BehandlingsdagerKtTest {
             aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
             behandlingsdager = null,
             innspillTilArbeidsgiver = null,
-            reisetilskudd = false,
+            reisetilskudd = false
         ).tilSoknadsperioder()
         val res = splittPeriodeIUker(periode)
 
@@ -226,7 +223,7 @@ class BehandlingsdagerKtTest {
             aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
             behandlingsdager = null,
             innspillTilArbeidsgiver = null,
-            reisetilskudd = false,
+            reisetilskudd = false
         ).tilSoknadsperioder()
         val res = splittPeriodeIUker(periode)
 
@@ -244,7 +241,7 @@ class BehandlingsdagerKtTest {
             aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
             behandlingsdager = null,
             innspillTilArbeidsgiver = null,
-            reisetilskudd = false,
+            reisetilskudd = false
         ).tilSoknadsperioder()
         val res = splittPeriodeIUker(periode)
 
@@ -264,7 +261,7 @@ class BehandlingsdagerKtTest {
             aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
             behandlingsdager = null,
             innspillTilArbeidsgiver = null,
-            reisetilskudd = false,
+            reisetilskudd = false
         ).tilSoknadsperioder()
         val res = splittPeriodeIUker(periode)
 
@@ -282,7 +279,7 @@ class BehandlingsdagerKtTest {
             aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
             behandlingsdager = null,
             innspillTilArbeidsgiver = null,
-            reisetilskudd = false,
+            reisetilskudd = false
         ).tilSoknadsperioder()
         val res = splittPeriodeIUker(periode)
 
@@ -292,7 +289,6 @@ class BehandlingsdagerKtTest {
 
     @Test
     fun `når fom er etter tom forventer vi en exception`() {
-
         assertThrows(IllegalArgumentException::class.java) {
             val periode = SykmeldingsperiodeAGDTO(
                 fom = LocalDate.of(2019, 12, 3),
@@ -302,7 +298,7 @@ class BehandlingsdagerKtTest {
                 aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
                 behandlingsdager = null,
                 innspillTilArbeidsgiver = null,
-                reisetilskudd = false,
+                reisetilskudd = false
             ).tilSoknadsperioder()
             splittPeriodeIUker(periode)
         }

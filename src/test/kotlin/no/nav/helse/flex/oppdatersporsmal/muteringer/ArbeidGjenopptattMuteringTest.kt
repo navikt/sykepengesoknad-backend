@@ -52,15 +52,15 @@ class ArbeidGjenopptattMuteringTest {
                     aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
                     behandlingsdager = null,
                     innspillTilArbeidsgiver = null,
-                    reisetilskudd = false,
-                ),
+                    reisetilskudd = false
+                )
             ).tilSoknadsperioder(),
             egenmeldtSykmelding = null,
             id = UUID.randomUUID().toString(),
             status = Soknadstatus.NY,
             opprettet = Instant.now(),
             sporsmal = emptyList(),
-            utenlandskSykmelding = false,
+            utenlandskSykmelding = false
         )
         val standardSoknad = soknad.copy(
             sporsmal = settOppSoknadArbeidstaker(
@@ -107,7 +107,7 @@ class ArbeidGjenopptattMuteringTest {
                     aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
                     behandlingsdager = null,
                     innspillTilArbeidsgiver = null,
-                    reisetilskudd = false,
+                    reisetilskudd = false
                 ),
                 SykmeldingsperiodeAGDTO(
                     fom = basisdato.plusDays(5),
@@ -117,15 +117,15 @@ class ArbeidGjenopptattMuteringTest {
                     aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
                     behandlingsdager = null,
                     innspillTilArbeidsgiver = null,
-                    reisetilskudd = false,
-                ),
+                    reisetilskudd = false
+                )
             ).tilSoknadsperioder(),
             egenmeldtSykmelding = null,
             id = UUID.randomUUID().toString(),
             status = Soknadstatus.NY,
             opprettet = Instant.now(),
             sporsmal = emptyList(),
-            utenlandskSykmelding = false,
+            utenlandskSykmelding = false
         )
         val standardSoknad = soknad.copy(
             sporsmal = settOppSoknadArbeidstaker(
@@ -178,15 +178,15 @@ class ArbeidGjenopptattMuteringTest {
                     aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
                     behandlingsdager = null,
                     innspillTilArbeidsgiver = null,
-                    reisetilskudd = false,
-                ),
+                    reisetilskudd = false
+                )
             ).tilSoknadsperioder(),
             egenmeldtSykmelding = null,
             id = UUID.randomUUID().toString(),
             status = Soknadstatus.NY,
             opprettet = Instant.now(),
             sporsmal = emptyList(),
-            utenlandskSykmelding = false,
+            utenlandskSykmelding = false
         )
         val standardSoknad = soknad.copy(
             sporsmal = settOppSoknadArbeidstaker(

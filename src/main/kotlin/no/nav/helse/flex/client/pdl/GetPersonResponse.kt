@@ -16,7 +16,7 @@ data class ResponseError(
 )
 
 data class ResponseData(
-    val hentIdenter: HentIdenter? = null,
+    val hentIdenter: HentIdenter? = null
 )
 
 data class HentIdenter(

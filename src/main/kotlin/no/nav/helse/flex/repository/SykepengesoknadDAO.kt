@@ -39,7 +39,7 @@ class SykepengesoknadDAO(
     private val soknadsperiodeDAO: SoknadsperiodeDAO,
     private val sporsmalDAO: SporsmalDAO,
     private val svarDAO: SvarDAO,
-    private val soknadLagrer: SoknadLagrer,
+    private val soknadLagrer: SoknadLagrer
 ) {
 
     val log = logger()
@@ -90,7 +90,7 @@ class SykepengesoknadDAO(
         return soknader
             .map {
                 it.second.copy(
-                    soknadPerioder = soknadsPerioder[it.first] ?: emptyList(),
+                    soknadPerioder = soknadsPerioder[it.first] ?: emptyList()
                 )
             }
             .sortedBy { it.opprettet }
@@ -264,15 +264,16 @@ class SykepengesoknadDAO(
         sporsmalDAO.slettSporsmal(soknadsIder)
         soknadsIder.forEach { soknadsperiodeDAO.slettSoknadPerioder(it) }
 
-        val antallSoknaderSlettet = if (soknadsIder.isEmpty())
+        val antallSoknaderSlettet = if (soknadsIder.isEmpty()) {
             0
-        else
+        } else {
             namedParameterJdbcTemplate.update(
                 "DELETE FROM SYKEPENGESOKNAD WHERE ID in (:soknadsIder)",
 
                 MapSqlParameterSource()
                     .addValue("soknadsIder", soknadsIder)
             )
+        }
 
         log.info("Slettet $antallSoknaderSlettet soknader på fnr: $fnr")
 
@@ -286,7 +287,6 @@ class SykepengesoknadDAO(
     }
 
     fun slettSoknad(sykepengesoknadUuid: String) {
-
         try {
             val id = sykepengesoknadId(sykepengesoknadUuid)
 
@@ -543,7 +543,6 @@ class SykepengesoknadDAO(
     data class GammeltUtkast(val sykepengesoknadUuid: String)
 
     fun finnGamleUtkastForSletting(): List<GammeltUtkast> {
-
         return namedParameterJdbcTemplate.query(
             """
                     SELECT SYKEPENGESOKNAD_UUID FROM SYKEPENGESOKNAD WHERE STATUS = 'UTKAST_TIL_KORRIGERING' AND OPPRETTET <= :enUkeSiden

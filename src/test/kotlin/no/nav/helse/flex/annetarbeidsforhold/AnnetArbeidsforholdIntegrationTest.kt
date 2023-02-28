@@ -37,7 +37,6 @@ class AnnetArbeidsforholdIntegrationTest : BaseTestClass() {
 
     @Test
     fun `1 - vi oppretter en annet arbeidsforhold søknad`() {
-
         val soknader = sendSykmelding(
             sykmeldingKafkaMessage(
                 arbeidssituasjon = Arbeidssituasjon.ANNET,
@@ -45,7 +44,7 @@ class AnnetArbeidsforholdIntegrationTest : BaseTestClass() {
                 sykmeldingsperioder = heltSykmeldt(
                     fom = LocalDate.of(2018, 1, 1),
                     tom = LocalDate.of(2018, 1, 10)
-                ),
+                )
             )
         )
 

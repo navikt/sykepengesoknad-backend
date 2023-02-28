@@ -25,8 +25,8 @@ class SoknadKafkaFormatControllerTest : BaseTestClass() {
         val kafkaSoknad = sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = "1234",
-                sykmeldingsperioder = heltSykmeldt(),
-            ),
+                sykmeldingsperioder = heltSykmeldt()
+            )
         ).first()
 
         val result = mockMvc

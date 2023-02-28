@@ -18,8 +18,9 @@ fun Sykepengesoknad.finnGyldigDatoSvar(hovedtag: String, undertag: String, relev
         throw RuntimeException("Undersporsmal skal være av svartype dato $undersporsmal")
     }
     val gyldigDato = parseGyldigDato(undersporsmal.forsteSvar)
-    return if (gyldigDato != null && DatoUtil.datoErInnenforMinMax(gyldigDato, undersporsmal.min, undersporsmal.max))
+    return if (gyldigDato != null && DatoUtil.datoErInnenforMinMax(gyldigDato, undersporsmal.min, undersporsmal.max)) {
         gyldigDato
-    else
+    } else {
         null
+    }
 }

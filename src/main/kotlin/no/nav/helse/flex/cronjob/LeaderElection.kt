@@ -21,7 +21,7 @@ import java.net.InetAddress
 class LeaderElection(
     private val plainTextUtf8RestTemplate: RestTemplate,
     @param:Value("\${elector.path}") private val electorPath: String,
-    private val applicationAvailability: ApplicationAvailability,
+    private val applicationAvailability: ApplicationAvailability
 ) {
 
     val log = logger()
@@ -47,7 +47,8 @@ class LeaderElection(
             .toUriString()
         val result = plainTextUtf8RestTemplate
             .exchange(
-                uriString, HttpMethod.GET,
+                uriString,
+                HttpMethod.GET,
                 null,
                 String::class.java
             )

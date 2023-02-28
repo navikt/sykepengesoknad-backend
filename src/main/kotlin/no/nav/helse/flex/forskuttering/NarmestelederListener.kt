@@ -15,7 +15,7 @@ class NarmestelederListener(
         containerFactory = "aivenKafkaListenerContainerFactory",
         properties = ["auto.offset.reset = earliest"],
         id = "narmesteleder-listener",
-        idIsGroup = false,
+        idIsGroup = false
     )
     fun listen(cr: ConsumerRecord<String, String>, acknowledgment: Acknowledgment) {
         oppdateringAvForskuttering.behandleMeldingFraKafka(cr.value())

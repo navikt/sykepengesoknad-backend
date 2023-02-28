@@ -102,7 +102,7 @@ class AivenKafkaConfig(
         SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG to kafkaCredstorePassword,
         SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG to kafkaKeystorePath,
         SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG to kafkaCredstorePassword,
-        SslConfigs.SSL_KEY_PASSWORD_CONFIG to kafkaCredstorePassword,
+        SslConfigs.SSL_KEY_PASSWORD_CONFIG to kafkaCredstorePassword
     )
 
     @Bean
@@ -115,7 +115,7 @@ class AivenKafkaConfig(
             ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG to false,
             ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
             ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
-            ConsumerConfig.MAX_POLL_RECORDS_CONFIG to "1",
+            ConsumerConfig.MAX_POLL_RECORDS_CONFIG to "1"
         )
         val consumerFactory = DefaultKafkaConsumerFactory<String, String>(config)
 
@@ -133,7 +133,7 @@ class AivenKafkaConfig(
             20,
             mapOf(
                 KafkaAvroDeserializerConfig.BASIC_AUTH_CREDENTIALS_SOURCE to "USER_INFO",
-                KafkaAvroDeserializerConfig.USER_INFO_CONFIG to "$schemaRegistryUsername:$schemaRegistryPassword",
+                KafkaAvroDeserializerConfig.USER_INFO_CONFIG to "$schemaRegistryUsername:$schemaRegistryPassword"
             )
         )
     }
@@ -141,7 +141,7 @@ class AivenKafkaConfig(
     @Bean
     fun kafkaAvroListenerContainerFactory(
         aivenSchemaRegistryClient: SchemaRegistryClient,
-        aivenKafkaErrorHandler: AivenKafkaErrorHandler,
+        aivenKafkaErrorHandler: AivenKafkaErrorHandler
     ): ConcurrentKafkaListenerContainerFactory<String, GenericRecord> {
         val genericAvroConsumerConfig = commonConfig() + mapOf(
             KafkaAvroDeserializerConfig.SCHEMA_REGISTRY_URL_CONFIG to kafkaSchemaRegistryUrl,
@@ -150,13 +150,13 @@ class AivenKafkaConfig(
             ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to kafkaAutoOffsetReset,
             ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
             ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to KafkaAvroDeserializer::class.java,
-            ConsumerConfig.MAX_POLL_RECORDS_CONFIG to "1",
+            ConsumerConfig.MAX_POLL_RECORDS_CONFIG to "1"
         )
 
         val consumerFactory = DefaultKafkaConsumerFactory(
             genericAvroConsumerConfig,
             StringDeserializer(),
-            KafkaAvroDeserializer(aivenSchemaRegistryClient),
+            KafkaAvroDeserializer(aivenSchemaRegistryClient)
         )
 
         val factory = ConcurrentKafkaListenerContainerFactory<String, GenericRecord>()

@@ -56,7 +56,7 @@ class ArbeidstakereTest {
                 svar = listOf(
                     Svar(
                         null,
-                        verdi = friskmeldtDato.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                        verdi = friskmeldtDato.format(DateTimeFormatter.ISO_LOCAL_DATE)
                     )
                 )
             )

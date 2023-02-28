@@ -15,7 +15,7 @@ class KlippMetrikk(private val klippMetrikkRepository: KlippMetrikkRepository) {
         eksisterendeSykepengesoknadId: String,
         endringIUforegrad: EndringIUforegrad,
         sykmeldingId: String,
-        klippet: Boolean,
+        klippet: Boolean
     ) {
         klippMetrikkRepository.save(
             KlippMetrikkDbRecord(

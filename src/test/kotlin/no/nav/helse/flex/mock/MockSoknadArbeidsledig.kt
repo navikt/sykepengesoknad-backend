@@ -49,7 +49,7 @@ fun opprettNySoknad(): Sykepengesoknad {
                 aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
                 behandlingsdager = null,
                 innspillTilArbeidsgiver = null,
-                reisetilskudd = false,
+                reisetilskudd = false
             ),
             SykmeldingsperiodeAGDTO(
                 fom = now().minusDays(14),
@@ -59,10 +59,10 @@ fun opprettNySoknad(): Sykepengesoknad {
                 aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
                 behandlingsdager = null,
                 innspillTilArbeidsgiver = null,
-                reisetilskudd = false,
-            ),
+                reisetilskudd = false
+            )
         ).tilSoknadsperioder(),
-        utenlandskSykmelding = false,
+        utenlandskSykmelding = false
 
     )
 

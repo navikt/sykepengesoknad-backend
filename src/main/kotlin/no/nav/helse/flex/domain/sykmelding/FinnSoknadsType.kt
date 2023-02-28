@@ -5,11 +5,10 @@ import no.nav.helse.flex.domain.Soknadstype
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 
-fun finnSoknadstype(
+fun finnSoknadsType(
     arbeidssituasjon: Arbeidssituasjon,
     perioderFraSykmeldingen: List<SykmeldingsperiodeAGDTO>
 ): Soknadstype {
-
     if (perioderFraSykmeldingen.any { it.type === PeriodetypeDTO.BEHANDLINGSDAGER }) {
         return Soknadstype.BEHANDLINGSDAGER
     }

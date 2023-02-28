@@ -70,7 +70,7 @@ class UnderersporsmalSortererTest {
             INNTEKTSKILDE_SELVSTENDIG_DAGMAMMA,
             INNTEKTSKILDE_JORDBRUKER,
             INNTEKTSKILDE_FRILANSER,
-            INNTEKTSKILDE_ANNET,
+            INNTEKTSKILDE_ANNET
         )
         soknadSortert.getSporsmalMedTag(HVILKE_ANDRE_INNTEKTSKILDER).undersporsmal.map { it.tag } `should be equal to` forventetSortering
     }
@@ -85,7 +85,7 @@ class UnderersporsmalSortererTest {
 
         val forventetSortering = listOf(
             SYKMELDINGSGRAD,
-            FERIE,
+            FERIE
         )
         soknadSortert.getSporsmalMedTag(ARBEIDSGIVER).undersporsmal.map { it.tag } `should be equal to` forventetSortering
     }
@@ -102,7 +102,7 @@ class UnderersporsmalSortererTest {
         val forventetSortering = listOf(
             BIL_DATOER,
             BIL_BOMPENGER,
-            KM_HJEM_JOBB,
+            KM_HJEM_JOBB
         )
         soknadSortert.getSporsmalMedTag(REISE_MED_BIL).undersporsmal.map { it.tag } `should be equal to` forventetSortering
     }
@@ -125,6 +125,6 @@ fun Sporsmal.tilSoknad(): Sykepengesoknad {
         sykmeldingId = null,
         egenmeldtSykmelding = null,
         merknaderFraSykmelding = null,
-        utenlandskSykmelding = false,
+        utenlandskSykmelding = false
     )
 }

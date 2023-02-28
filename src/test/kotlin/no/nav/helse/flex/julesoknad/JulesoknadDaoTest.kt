@@ -16,7 +16,6 @@ class JulesoknadDaoTest : BaseTestClass() {
 
     @Test
     fun `Takler duplikater`() {
-
         val uuid = UUID.randomUUID().toString()
         julesoknadkandidatDAO.lagreJulesoknadkandidat(uuid)
         julesoknadkandidatDAO.lagreJulesoknadkandidat(uuid)

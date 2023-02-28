@@ -81,7 +81,6 @@ class AvrytSoknadServiceTest {
 
     @Test
     fun farIkkeAvbruttKorrigertSoknad() {
-
         assertThrows(IllegalArgumentException::class.java) {
             try {
                 val soknad = opprettNyNaeringsdrivendeSoknad().copy(status = KORRIGERT)

@@ -17,7 +17,7 @@ import java.time.LocalDate
 fun BaseTestClass.sendSykmelding(
     sykmeldingKafkaMessage: SykmeldingKafkaMessage,
     oppfolgingsdato: LocalDate = sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder.minOf { it.fom },
-    forventaSoknader: Int = 1,
+    forventaSoknader: Int = 1
 ): List<SykepengesoknadDTO> {
     flexSyketilfelleMockRestServiceServer?.reset()
 
@@ -66,7 +66,7 @@ fun BaseTestClass.sendSykmelding(
 
 fun BaseTestClass.tombstoneSykmelding(
     sykmeldingId: String,
-    topic: String = SYKMELDINGBEKREFTET_TOPIC,
+    topic: String = SYKMELDINGBEKREFTET_TOPIC
 ) {
     kafkaProducer.send(ProducerRecord(topic, sykmeldingId, null)).get()
 }

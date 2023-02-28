@@ -36,7 +36,6 @@ query(${"$"}ident: ID!){
 
     @Retryable(exclude = [FunctionalPdlError::class])
     fun hentPerson(ident: String): ResponseData {
-
         val graphQLRequest = GraphQLRequest(
             query = HENT_PERSON_QUERY,
             variables = Collections.singletonMap(IDENT, ident)
@@ -75,7 +74,6 @@ query(${"$"}ident: ID!){
 
     @Retryable(exclude = [FunctionalPdlError::class])
     fun hentIdenterMedHistorikk(ident: String): List<PdlIdent> {
-
         val graphQLRequest = GraphQLRequest(
             query = HENT_IDENTER_MED_HISTORIKK,
             variables = Collections.singletonMap(IDENT, ident)

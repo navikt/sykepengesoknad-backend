@@ -60,7 +60,7 @@ fun gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal(): Sykepenge
                 aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
                 behandlingsdager = null,
                 innspillTilArbeidsgiver = null,
-                reisetilskudd = false,
+                reisetilskudd = false
             ),
             SykmeldingsperiodeAGDTO(
                 now().minusMonths(1).plusDays(5),
@@ -70,12 +70,12 @@ fun gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal(): Sykepenge
                 aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
                 behandlingsdager = null,
                 innspillTilArbeidsgiver = null,
-                reisetilskudd = false,
-            ),
+                reisetilskudd = false
+            )
         ).tilSoknadsperioder(),
         soknadstype = Soknadstype.ARBEIDSTAKERE,
         egenmeldtSykmelding = null,
-        utenlandskSykmelding = false,
+        utenlandskSykmelding = false
 
     )
 
@@ -107,7 +107,7 @@ fun opprettSendtSoknad(): Sykepengesoknad {
                 aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
                 behandlingsdager = null,
                 innspillTilArbeidsgiver = null,
-                reisetilskudd = false,
+                reisetilskudd = false
             ),
             SykmeldingsperiodeAGDTO(
                 fom = now().minusMonths(1).plusDays(5),
@@ -117,8 +117,8 @@ fun opprettSendtSoknad(): Sykepengesoknad {
                 aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
                 behandlingsdager = null,
                 innspillTilArbeidsgiver = null,
-                reisetilskudd = false,
-            ),
+                reisetilskudd = false
+            )
         ).tilSoknadsperioder(),
         soknadstype = Soknadstype.ARBEIDSTAKERE,
         egenmeldtSykmelding = null,
@@ -167,7 +167,7 @@ fun opprettNySoknadMock(feriesporsmalSomHovedsporsmal: Boolean = true): Sykepeng
                 aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
                 behandlingsdager = null,
                 innspillTilArbeidsgiver = null,
-                reisetilskudd = false,
+                reisetilskudd = false
             ),
             SykmeldingsperiodeAGDTO(
                 now().minusDays(14),
@@ -177,15 +177,15 @@ fun opprettNySoknadMock(feriesporsmalSomHovedsporsmal: Boolean = true): Sykepeng
                 aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
                 behandlingsdager = null,
                 innspillTilArbeidsgiver = null,
-                reisetilskudd = false,
-            ),
+                reisetilskudd = false
+            )
         ).tilSoknadsperioder(),
         soknadstype = Soknadstype.ARBEIDSTAKERE,
         egenmeldtSykmelding = null,
-        utenlandskSykmelding = false,
+        utenlandskSykmelding = false
     )
 
-    val sykepengesoknad = if (feriesporsmalSomHovedsporsmal)
+    val sykepengesoknad = if (feriesporsmalSomHovedsporsmal) {
         (soknad).copy(
             sporsmal = settOppSoknadArbeidstaker(
                 soknad,
@@ -194,8 +194,9 @@ fun opprettNySoknadMock(feriesporsmalSomHovedsporsmal: Boolean = true): Sykepeng
                 emptyList()
             )
         )
-    else
+    } else {
         deprecatedGetSoknadMedFeriesporsmalSomUndersporsmal(soknad)
+    }
 
     return leggSvarPaSoknad(sykepengesoknad)
 }

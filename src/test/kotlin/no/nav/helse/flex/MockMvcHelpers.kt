@@ -15,7 +15,6 @@ fun BaseTestClass.buildAzureClaimSet(
     issuer: String = "azureator",
     audience: String = "syfosoknad-client-id"
 ): String {
-
     val claims = HashMap<String, String>()
 
     return server.token(
@@ -45,7 +44,7 @@ fun MockOAuth2Server.token(
     issuerId: String = "selvbetjening",
     clientId: String = UUID.randomUUID().toString(),
     audience: String = "loginservice-client-id",
-    claims: Map<String, Any> = mapOf("acr" to "Level4"),
+    claims: Map<String, Any> = mapOf("acr" to "Level4")
 
 ): String {
     return this.issueToken(

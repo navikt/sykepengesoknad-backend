@@ -520,7 +520,6 @@ class ValideringTest {
 
     @Test
     fun ferieSporsmalMedSvarverdiJaOppholdUtland() {
-
         val soknadGodkjentFerieSporsmal = settOppSoknadOppholdUtland("fnr").copy(
             sporsmal = listOf(
                 getSporsmalMedTomtUndersporsmal(JA_NEI, listOf(Svar(null, "JA"))),
@@ -533,7 +532,6 @@ class ValideringTest {
 
     @Test
     fun ferieSporsmalMedSvarverdiNeiOppholdUtland() {
-
         val soknadIkkeGodkjentFerieSporsmal = settOppSoknadOppholdUtland("fnr").copy(
             sporsmal = listOf(
                 getSporsmalMedTomtUndersporsmal(JA_NEI, listOf(Svar(null, "JA"))),
@@ -553,10 +551,11 @@ class ValideringTest {
                     .svartype(svartype)
                     .undersporsmal(emptyList())
                     .svar(
-                        if (i >= besvarte)
+                        if (i >= besvarte) {
                             emptyList()
-                        else
+                        } else {
                             listOf(Svar(null, "CHECKED"))
+                        }
                     )
                     .build()
             )

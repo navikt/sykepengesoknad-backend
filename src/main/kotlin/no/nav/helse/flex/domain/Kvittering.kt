@@ -10,5 +10,5 @@ data class Kvittering(
     val blobId: String,
     val belop: Int, // Beløp i øre . 100kr = 10000
     val typeUtgift: Utgiftstype,
-    val opprettet: Instant,
+    val opprettet: Instant
 )

@@ -20,7 +20,6 @@ fun konverterTilSykepengesoknadDTO(
     mottaker: Mottaker?,
     erEttersending: Boolean
 ): SykepengesoknadDTO {
-
     return SykepengesoknadDTO(
         id = sykepengesoknad.id,
         type = sykepengesoknad.soknadstype.tilSoknadstypeDTO(),

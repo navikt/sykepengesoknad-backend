@@ -35,17 +35,16 @@ class ArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
     @Test
     @Order(1)
     fun `Fremtidig arbeidstakersøknad opprettes for en sykmelding`() {
-
         val kafkaSoknader = sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = basisdato.minusDays(1),
-                    tom = basisdato.plusDays(7),
+                    tom = basisdato.plusDays(7)
                 ) + heltSykmeldt(
                     fom = basisdato.plusDays(8),
-                    tom = basisdato.plusDays(15),
-                ),
+                    tom = basisdato.plusDays(15)
+                )
             )
         )
         assertThat(kafkaSoknader[0].status).isEqualTo(SoknadsstatusDTO.FREMTIDIG)

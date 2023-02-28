@@ -35,7 +35,6 @@ fun hentTidligsteFomForSykmelding(
     soknadMetadata: Sykepengesoknad,
     eksisterendeSoknader: List<Sykepengesoknad>
 ): LocalDate {
-
     return eksisterendeSoknader
         .filter { it.sykmeldingId == soknadMetadata.sykmeldingId }
         .map { it.fom!! }

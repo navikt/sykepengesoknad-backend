@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController
 class SoknadKafkaFormatController(
     private val clientIdValidation: ClientIdValidation,
     private val hentSoknadService: HentSoknadService,
-    private val sykepengesoknadTilSykepengesoknadDTOMapper: SykepengesoknadTilSykepengesoknadDTOMapper,
+    private val sykepengesoknadTilSykepengesoknadDTOMapper: SykepengesoknadTilSykepengesoknadDTOMapper
 ) {
 
     @ProtectedWithClaims(issuer = AZUREATOR)
@@ -27,7 +27,7 @@ class SoknadKafkaFormatController(
         clientIdValidation.validateClientId(
             listOf(
                 NamespaceAndApp(namespace = "flex", app = "sykepengesoknad-korrigering-metrikk"),
-                NamespaceAndApp(namespace = "flex", app = "sykepengesoknad-arkivering-oppgave"),
+                NamespaceAndApp(namespace = "flex", app = "sykepengesoknad-arkivering-oppgave")
             )
         )
         val sykepengesoknad = hentSoknadService.finnSykepengesoknad(id)

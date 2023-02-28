@@ -24,7 +24,7 @@ class SoknadIdTest {
     val sykmelding = skapArbeidsgiverSykmelding(
         sykmeldingId = sykmeldingId,
         fom = LocalDate.of(2020, 1, 1),
-        tom = LocalDate.of(2020, 3, 15),
+        tom = LocalDate.of(2020, 3, 15)
     )
 
     val sykmeldingKafkaMessage = SykmeldingKafkaMessage(

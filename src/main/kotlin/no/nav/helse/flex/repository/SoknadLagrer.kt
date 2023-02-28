@@ -14,7 +14,6 @@ class SoknadLagrer(
 ) {
 
     fun lagreSoknad(soknad: Sykepengesoknad) {
-
         val normalisertSoknad = soknad.normaliser()
         listOf(normalisertSoknad.soknad).lagre()
         normalisertSoknad.perioder.lagrePerioder()
@@ -85,7 +84,6 @@ ON CONFLICT ON CONSTRAINT soknadperiode_pkey DO NOTHING
         jdbcTemplate.batchUpdate(
             sql,
             this.map {
-
                 MapSqlParameterSource()
                     .addValue("id", it.id)
                     .addValue("sykepengesoknadId", it.sykepengesoknadId)

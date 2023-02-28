@@ -8,7 +8,6 @@ class SykepengesoknadToRSTest {
 
     @Test
     fun mappingTaklerAtSykmeldingSkrevetErNull() {
-
         val sykepengesoknadSelvstendigFrilanser = opprettNyNaeringsdrivendeSoknad().copy(sykmeldingSkrevet = null)
 
         val (id) = sykepengesoknadSelvstendigFrilanser.tilRSSykepengesoknad()

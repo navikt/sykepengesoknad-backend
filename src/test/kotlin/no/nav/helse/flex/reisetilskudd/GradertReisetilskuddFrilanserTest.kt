@@ -69,7 +69,7 @@ class GradertReisetilskuddFrilanserTest : BaseTestClass() {
             tom = tom,
             type = PeriodetypeDTO.GRADERT,
             gradert = GradertDTO(50, true),
-            reisetilskudd = false,
+            reisetilskudd = false
         )
 
         val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
@@ -82,7 +82,8 @@ class GradertReisetilskuddFrilanserTest : BaseTestClass() {
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
-            sykmeldingId, sykmeldingKafkaMessage,
+            sykmeldingId,
+            sykmeldingKafkaMessage,
             SYKMELDINGSENDT_TOPIC
         )
 

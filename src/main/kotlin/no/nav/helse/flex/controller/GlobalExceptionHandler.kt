@@ -23,7 +23,6 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(java.lang.Exception::class)
     fun handleException(ex: Exception, request: HttpServletRequest): ResponseEntity<Any> {
-
         return when (ex) {
             is AbstractApiError -> {
                 when (ex.loglevel) {

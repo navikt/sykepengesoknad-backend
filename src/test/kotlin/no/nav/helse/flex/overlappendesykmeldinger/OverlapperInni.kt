@@ -39,18 +39,18 @@ class OverlapperInni : BaseTestClass() {
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = basisDato.plusDays(1),
-                    tom = basisDato.plusDays(30),
-                ),
-            ),
+                    tom = basisDato.plusDays(30)
+                )
+            )
         )
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = basisDato.plusDays(10),
-                    tom = basisDato.plusDays(20),
-                ),
-            ),
+                    tom = basisDato.plusDays(20)
+                )
+            )
         )
 
         val klippmetrikker = klippMetrikkRepository.findAll().toList()
@@ -83,9 +83,9 @@ class OverlapperInni : BaseTestClass() {
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = basisDato.minusDays(30),
-                    tom = basisDato.minusDays(1),
-                ),
-            ),
+                    tom = basisDato.minusDays(1)
+                )
+            )
         )
         sendSykmelding(
             forventaSoknader = 3,
@@ -93,9 +93,9 @@ class OverlapperInni : BaseTestClass() {
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = basisDato.minusDays(20),
-                    tom = basisDato.minusDays(10),
-                ),
-            ),
+                    tom = basisDato.minusDays(10)
+                )
+            )
         )
 
         val klippmetrikker = klippMetrikkRepository.findAll().toList()

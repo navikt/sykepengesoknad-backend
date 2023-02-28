@@ -12,7 +12,7 @@ import no.nav.helse.flex.util.EnumUtil.konverter
 fun RSSvar.mapSvar(): Svar {
     return Svar(
         id = id,
-        verdi = verdi,
+        verdi = verdi
     )
 }
 

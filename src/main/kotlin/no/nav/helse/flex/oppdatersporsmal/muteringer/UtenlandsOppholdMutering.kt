@@ -62,16 +62,18 @@ private fun Sykepengesoknad.hentGyldigePerioder(hva: String, nar: String): List<
     return if (this.harFeriePermisjonEllerUtenlandsoppholdSporsmal()) {
         val harFeriePermisjonUtlandsopphold =
             this.getSporsmalMedTagOrNull(FERIE_PERMISJON_UTLAND)?.forsteSvar == "JA"
-        if (harFeriePermisjonUtlandsopphold && this.getSporsmalMedTagOrNull(hva)?.forsteSvar == "CHECKED")
+        if (harFeriePermisjonUtlandsopphold && this.getSporsmalMedTagOrNull(hva)?.forsteSvar == "CHECKED") {
             getGyldigePeriodesvar(this.getSporsmalMedTag(nar))
-        else
+        } else {
             Collections.emptyList()
+        }
     } else {
         val harSvartJa = this.getSporsmalMedTagOrNull(hva)?.forsteSvar == "JA"
-        if (harSvartJa)
+        if (harSvartJa) {
             getGyldigePeriodesvar(this.getSporsmalMedTag(nar))
-        else
+        } else {
             Collections.emptyList()
+        }
     }
 }
 

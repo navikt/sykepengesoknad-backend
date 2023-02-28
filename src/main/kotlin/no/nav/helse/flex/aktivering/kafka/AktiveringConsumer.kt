@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class AktiveringConsumer(
-    private val aktiverEnkeltSoknad: AktiverEnkeltSoknad,
+    private val aktiverEnkeltSoknad: AktiverEnkeltSoknad
 ) {
     private val log = logger()
 

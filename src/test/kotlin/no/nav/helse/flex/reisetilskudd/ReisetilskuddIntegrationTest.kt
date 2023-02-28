@@ -72,7 +72,6 @@ class ReisetilskuddIntegrationTest : BaseTestClass() {
     @Test
     @Order(1)
     fun `01 - vi oppretter en reisetilskuddsøknad`() {
-
         val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(
             fnr = fnr,
             arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
@@ -183,9 +182,9 @@ class ReisetilskuddIntegrationTest : BaseTestClass() {
                 blobId = "9a186e3c-aeeb-4566-a865-15aa9139d364",
                 belop = 133700,
                 typeUtgift = Utgiftstype.PARKERING,
-                opprettet = Instant.now(),
+                opprettet = Instant.now()
             ).serialisertTilString(),
-            id = null,
+            id = null
         )
 
         val spmSomBleSvart = lagreSvar(fnr, reisetilskuddSoknad.id, kvitteringSpm.id!!, svar).oppdatertSporsmal
@@ -216,7 +215,6 @@ class ReisetilskuddIntegrationTest : BaseTestClass() {
     @Test
     @Order(8)
     fun `Vi kan slette en kvittering`() {
-
         val reisetilskuddSoknad = hentSoknad(
             soknadId = hentSoknaderMetadata(fnr).first().id,
             fnr = fnr
@@ -249,9 +247,9 @@ class ReisetilskuddIntegrationTest : BaseTestClass() {
                 blobId = "9a186e3c-aeeb-4566-a865-15aa9139d364",
                 belop = 133700,
                 typeUtgift = Utgiftstype.PARKERING,
-                opprettet = Instant.now(),
+                opprettet = Instant.now()
             ).serialisertTilString(),
-            id = null,
+            id = null
         )
 
         lagreSvar(fnr, reisetilskuddSoknad.id, kvitteringSpm.id!!, svar)

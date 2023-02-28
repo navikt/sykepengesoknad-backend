@@ -5,20 +5,22 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 import java.time.LocalDate
 
 fun Sykepengesoknad.skapOppdaterteSoknadsperioder(oppdatertFomDato: LocalDate?): List<Soknadsperiode> {
-    return if (oppdatertFomDato == null)
+    return if (oppdatertFomDato == null) {
         this.soknadPerioder!!
-    else
+    } else {
         this.soknadPerioder!!
             .filter { (fom) -> fom.isBefore(oppdatertFomDato) }
             .map { soknadsperiode ->
-                if (soknadsperiode.tom.isBefore(oppdatertFomDato))
+                if (soknadsperiode.tom.isBefore(oppdatertFomDato)) {
                     soknadsperiode
-                else
+                } else {
                     Soknadsperiode(
                         fom = soknadsperiode.fom,
                         tom = oppdatertFomDato.minusDays(1),
                         grad = soknadsperiode.grad,
                         sykmeldingstype = soknadsperiode.sykmeldingstype
                     )
+                }
             }
+    }
 }

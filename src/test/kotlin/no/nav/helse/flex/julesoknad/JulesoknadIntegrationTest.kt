@@ -65,8 +65,8 @@ class JulesoknadIntegrationTest : BaseTestClass() {
                 sykmeldingsperioder = heltSykmeldt(
                     fom = LocalDate.of(nesteÅr, 12, 1),
                     tom = LocalDate.of(nesteÅr, 12, 15)
-                ),
-            ),
+                )
+            )
         )
         prosesserJulesoknadkandidater.prosseserJulesoknadKandidater()
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
@@ -87,8 +87,8 @@ class JulesoknadIntegrationTest : BaseTestClass() {
                 sykmeldingsperioder = heltSykmeldt(
                     fom = LocalDate.of(nesteÅr, 12, 5),
                     tom = LocalDate.of(nesteÅr + 1, 1, 1)
-                ),
-            ),
+                )
+            )
         )
         prosesserJulesoknadkandidater.prosseserJulesoknadKandidater()
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
@@ -109,8 +109,8 @@ class JulesoknadIntegrationTest : BaseTestClass() {
                 sykmeldingsperioder = heltSykmeldt(
                     fom = LocalDate.of(nesteÅr, 12, 1),
                     tom = LocalDate.of(nesteÅr, 12, 14)
-                ),
-            ),
+                )
+            )
         )
         prosesserJulesoknadkandidater.prosseserJulesoknadKandidater()
 
@@ -130,8 +130,8 @@ class JulesoknadIntegrationTest : BaseTestClass() {
                 sykmeldingsperioder = heltSykmeldt(
                     fom = LocalDate.of(nesteÅr, 12, 8),
                     tom = LocalDate.of(nesteÅr, 12, 22)
-                ),
-            ),
+                )
+            )
         )
         prosesserJulesoknadkandidater.prosseserJulesoknadKandidater()
 
@@ -153,9 +153,9 @@ class JulesoknadIntegrationTest : BaseTestClass() {
                 arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = orgnummer, orgNavn = "Kebab"),
                 sykmeldingsperioder = heltSykmeldt(
                     fom = LocalDate.of(nesteÅr, 12, 1),
-                    tom = LocalDate.of(nesteÅr, 12, 15),
-                ),
-            ),
+                    tom = LocalDate.of(nesteÅr, 12, 15)
+                )
+            )
         )
         prosesserJulesoknadkandidater.prosseserJulesoknadKandidater()
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
@@ -176,9 +176,9 @@ class JulesoknadIntegrationTest : BaseTestClass() {
                 arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = orgnummer, orgNavn = "Kebab"),
                 sykmeldingsperioder = heltSykmeldt(
                     fom = LocalDate.of(nesteÅr, 12, 1),
-                    tom = LocalDate.of(nesteÅr, 12, 15),
-                ),
-            ),
+                    tom = LocalDate.of(nesteÅr, 12, 15)
+                )
+            )
         )
         prosesserJulesoknadkandidater.prosseserJulesoknadKandidater()
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
@@ -201,9 +201,9 @@ class JulesoknadIntegrationTest : BaseTestClass() {
                 arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = orgnummer, orgNavn = "Kebab"),
                 sykmeldingsperioder = heltSykmeldt(
                     fom = LocalDate.of(nesteÅr, 12, 1),
-                    tom = LocalDate.of(nesteÅr, 12, 15),
-                ),
-            ),
+                    tom = LocalDate.of(nesteÅr, 12, 15)
+                )
+            )
         )
         val soknader = hentSoknaderMetadata(fnr)
         assertThat(soknader).hasSize(1)
@@ -242,8 +242,8 @@ class JulesoknadIntegrationTest : BaseTestClass() {
                 arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = orgnummer, orgNavn = "Kebab"),
                 sykmeldingsperioder = heltSykmeldt(
                     fom = LocalDate.of(nesteÅr, 10, 1),
-                    tom = LocalDate.of(nesteÅr, 12, 30),
-                ),
+                    tom = LocalDate.of(nesteÅr, 12, 30)
+                )
             ),
             forventaSoknader = 3
         )
@@ -275,7 +275,6 @@ class JulesoknadIntegrationTest : BaseTestClass() {
     }
 
     private fun lagreForskuttering(forskutterer: Boolean, orgnummer: String) {
-
         forskutteringRepository.save(
             Forskuttering(
                 id = null,

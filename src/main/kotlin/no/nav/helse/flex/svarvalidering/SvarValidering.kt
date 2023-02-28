@@ -45,7 +45,6 @@ fun Sykepengesoknad.validerSpesialsvarPaSoknad() {
 }
 
 fun Sporsmal.validerUndersporsmal() {
-
     val besvarteUndersporsmal = undersporsmal.filter { it.svar.isNotEmpty() }
 
     fun validerUnderspørsmål() {
@@ -158,7 +157,6 @@ private fun validerGrenserPaKvittering(svar: Svar): () -> Boolean {
 }
 
 private fun Sporsmal.validerGrenserPaSvar(svar: Svar) {
-
     val predikat: () -> Boolean = when (svartype) {
         JA_NEI,
         CHECKBOX,

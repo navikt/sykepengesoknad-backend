@@ -13,7 +13,6 @@ class PdlClientTest : BaseTestClass() {
 
     @Test
     fun `Vi tester happycase`() {
-
         val responseData = pdlClient.hentIdenterMedHistorikk("31111111111")
 
         responseData.map { it.ident } `should be equal to` listOf("31111111111", "11111111111", "21111111111", "3111111111100")

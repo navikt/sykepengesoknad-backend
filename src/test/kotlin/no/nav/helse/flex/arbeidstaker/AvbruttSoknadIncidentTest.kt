@@ -38,8 +38,8 @@ class AvbruttSoknadIncidentTest : BaseTestClass() {
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = basisdato.minusDays(20),
-                    tom = basisdato.minusDays(2),
-                ),
+                    tom = basisdato.minusDays(2)
+                )
             )
         )
 

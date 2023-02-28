@@ -28,7 +28,7 @@ import java.util.Optional.ofNullable
 private fun mapSvarTilRSSvar(svar: Svar): RSSvar {
     return RSSvar(
         id = svar.id,
-        verdi = svar.verdi,
+        verdi = svar.verdi
     )
 }
 
@@ -44,7 +44,9 @@ private fun mapSoknadsperiode(soknadsperiode: Soknadsperiode): RSSoknadsperiode 
 private fun mapSykmeldingstype(sykmeldingstype: Sykmeldingstype?): RSSykmeldingstype? {
     return if (sykmeldingstype == null) {
         null
-    } else RSSykmeldingstype.valueOf(sykmeldingstype.name)
+    } else {
+        RSSykmeldingstype.valueOf(sykmeldingstype.name)
+    }
 }
 
 fun Sporsmal.mapSporsmalTilRs(): RSSporsmal {
@@ -67,19 +69,22 @@ fun Sporsmal.mapSporsmalTilRs(): RSSporsmal {
 }
 
 private fun map(arbeidsgiverNavn: String?, arbeidsgiverOrgnummer: String?): RSArbeidsgiver? {
-    return if (arbeidsgiverNavn == null || arbeidsgiverOrgnummer == null)
+    return if (arbeidsgiverNavn == null || arbeidsgiverOrgnummer == null) {
         null
-    else
+    } else {
         RSArbeidsgiver(
             navn = arbeidsgiverNavn,
             orgnummer = arbeidsgiverOrgnummer
         )
+    }
 }
 
 fun konverterSoknadstatus(soknadstatus: Soknadstatus): RSSoknadstatus {
     return if (soknadstatus === Soknadstatus.UTGATT) {
         RSSoknadstatus.UTGAATT
-    } else EnumUtil.konverter(RSSoknadstatus::class.java, soknadstatus)
+    } else {
+        EnumUtil.konverter(RSSoknadstatus::class.java, soknadstatus)
+    }
 }
 
 private fun Merknad.mapMerknad(): RSMerknad {
@@ -111,7 +116,7 @@ fun Sykepengesoknad.tilRSSykepengesoknad() = RSSykepengesoknad(
     soknadPerioder = this.soknadPerioder?.map { mapSoknadsperiode(it) },
     egenmeldtSykmelding = this.egenmeldtSykmelding,
     merknaderFraSykmelding = this.merknaderFraSykmelding?.map { it.mapMerknad() },
-    opprettetAvInntektsmelding = this.opprettetAvInntektsmelding,
+    opprettetAvInntektsmelding = this.opprettetAvInntektsmelding
 )
 
 fun Sykepengesoknad.tilRSSykepengesoknadMetadata() = RSSykepengesoknadMetadata(
@@ -134,5 +139,5 @@ fun Sykepengesoknad.tilRSSykepengesoknadMetadata() = RSSykepengesoknadMetadata(
     soknadPerioder = this.soknadPerioder?.map { mapSoknadsperiode(it) },
     egenmeldtSykmelding = this.egenmeldtSykmelding,
     merknaderFraSykmelding = this.merknaderFraSykmelding?.map { it.mapMerknad() },
-    opprettetAvInntektsmelding = this.opprettetAvInntektsmelding,
+    opprettetAvInntektsmelding = this.opprettetAvInntektsmelding
 )

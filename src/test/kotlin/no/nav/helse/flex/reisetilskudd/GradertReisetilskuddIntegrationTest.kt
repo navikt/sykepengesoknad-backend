@@ -93,7 +93,6 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
     @Test
     @Order(1)
     fun `Vi oppretter en reisetilskuddsøknad`() {
-
         val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(
             fnr = fnr,
             arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
@@ -108,7 +107,7 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
             tom = tom,
             type = PeriodetypeDTO.GRADERT,
             gradert = GradertDTO(50, true),
-            reisetilskudd = false,
+            reisetilskudd = false
         )
 
         val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
@@ -268,9 +267,9 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
                 blobId = "9a186e3c-aeeb-4566-a865-15aa9139d364",
                 belop = 133700,
                 typeUtgift = Utgiftstype.PARKERING,
-                opprettet = Instant.now(),
+                opprettet = Instant.now()
             ).serialisertTilString(),
-            id = null,
+            id = null
         )
 
         val spmSomBleSvart = lagreSvar(fnr, reisetilskuddSoknad.id, kvitteringSpm.id!!, svar).oppdatertSporsmal
@@ -301,7 +300,6 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
     @Test
     @Order(9)
     fun `Vi kan slette en kvittering`() {
-
         val reisetilskuddSoknad = hentSoknad(
             soknadId = hentSoknaderMetadata(fnr).first().id,
             fnr = fnr
@@ -334,9 +332,9 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
                 blobId = "9a186e3c-aeeb-4566-a865-15aa9139d364",
                 belop = 133700,
                 typeUtgift = Utgiftstype.PARKERING,
-                opprettet = Instant.now(),
+                opprettet = Instant.now()
             ).serialisertTilString(),
-            id = null,
+            id = null
         )
 
         lagreSvar(fnr, reisetilskuddSoknad.id, kvitteringSpm.id!!, svar)
