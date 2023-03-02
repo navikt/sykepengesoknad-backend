@@ -19,7 +19,7 @@ class AutomatiskInnsendingJob(
     @Scheduled(initialDelay = 5, fixedDelay = 30, timeUnit = TimeUnit.MINUTES)
     fun automatiskUtsending() {
         if (leaderElection.isLeader()) {
-            if (env.isNotProduction() || LocalDate.now(osloZone).dayOfWeek == DayOfWeek.THURSDAY) {
+            if (env.isNotProduction() || LocalDate.now(osloZone).dayOfWeek == DayOfWeek.WEDNESDAY) {
                 automatiskInnsendingVedDodsfall.sendSoknaderForDode()
             }
         }
