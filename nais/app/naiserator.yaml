@@ -38,6 +38,7 @@ spec:
   azure:
     application:
       enabled: true
+      allowAllUsers: true
       tenant: {{azureTenant}}
   kafka:
     pool: {{kafkaPool}}
