@@ -57,3 +57,6 @@ spec:
     - team: flex
       application: flex-inntektsmelding-status
       access: read
+    - team: flex
+      application: sykepengesoknad-yrkesskade-analyse
+      access: read
