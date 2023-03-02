@@ -10,11 +10,10 @@ import java.time.YearMonth
 @Component
 class AndreArbeidsforholdHenting(
     val inntektskomponentenClient: InntektskomponentenClient,
-    val eregClient: EregClient,
+    val eregClient: EregClient
 ) {
 
     fun hentArbeidsforhold(fnr: String, arbeidsgiverOrgnummer: String, startSykeforlop: LocalDate): List<String> {
-
         val sykmeldingOrgnummer = arbeidsgiverOrgnummer
 
         val hentInntekter = inntektskomponentenClient

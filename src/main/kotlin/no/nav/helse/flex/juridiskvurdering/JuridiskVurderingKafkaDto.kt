@@ -1,5 +1,6 @@
 package no.nav.helse.flex.juridiskvurdering
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import java.time.Instant
 import java.time.LocalDate
 
@@ -20,7 +21,7 @@ data class JuridiskVurderingKafkaDto(
     val bokstav: String?,
     val input: Map<String, Any>,
     val output: Map<String, Any>?,
-    val utfall: Utfall,
+    val utfall: Utfall
 )
 
 enum class Utfall {
@@ -31,10 +32,21 @@ enum class Utfall {
 }
 
 enum class SporingType {
-    organisasjonsnummer,
-    soknad,
-    sykmelding,
-    vedtaksperiode,
-    inntektsmelding,
-    utbetaling,
+    @JsonProperty("organisasjonsnummer")
+    ORGANISASJONSNUMMER,
+
+    @JsonProperty("soknad")
+    SOKNAD,
+
+    @JsonProperty("sykmelding")
+    SYKMELDING,
+
+    @JsonProperty("vedtaksperiode")
+    VEDTAKSPERIODE,
+
+    @JsonProperty("inntektsmelding")
+    INNTEKTSMELDING,
+
+    @JsonProperty("utbetaling")
+    UTBETALING
 }

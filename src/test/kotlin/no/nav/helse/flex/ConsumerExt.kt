@@ -24,9 +24,8 @@ fun <K, V> Consumer<K, V>.hentProduserteRecords(duration: Duration = Duration.of
 
 fun <K, V> Consumer<K, V>.ventPåRecords(
     antall: Int,
-    duration: Duration = Duration.ofSeconds(9),
+    duration: Duration = Duration.ofSeconds(9)
 ): List<ConsumerRecord<K, V>> {
-
     val factory = if (antall == 0) {
         // Må vente fullt ut, ikke opp til en tid siden vi vil se at ingen blir produsert
         await().during(duration)

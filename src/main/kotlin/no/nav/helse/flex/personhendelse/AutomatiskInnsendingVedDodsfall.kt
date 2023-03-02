@@ -29,12 +29,11 @@ class AutomatiskInnsendingVedDodsfall(
     private val avbrytSoknadService: AvbrytSoknadService,
     private val soknadSender: SoknadSender,
     private val aktiverEnkeltSoknad: AktiverEnkeltSoknad,
-    private val identService: IdentService,
+    private val identService: IdentService
 ) {
     private val log = logger()
 
     fun sendSoknaderForDode(): Int {
-
         val aktorerMed2UkerGammelDodsmelding = dodsmeldingDAO.fnrMedToUkerGammelDodsmelding()
 
         var antall = 0

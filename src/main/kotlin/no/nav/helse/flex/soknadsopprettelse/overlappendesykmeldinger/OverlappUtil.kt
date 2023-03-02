@@ -14,13 +14,13 @@ enum class EndringIUforegrad {
     ØKT_UFØREGRAD,
     SAMME_UFØREGRAD,
     LAVERE_UFØREGRAD,
-    VET_IKKE,
+    VET_IKKE
 }
 
 internal fun SykepengesoknadDAO.soknadKandidater(
     orgnummer: String?,
     sykmeldingKafkaMessage: SykmeldingKafkaMessage,
-    identer: FolkeregisterIdenter,
+    identer: FolkeregisterIdenter
 ): List<Sykepengesoknad> {
     val sykmeldingId = sykmeldingKafkaMessage.sykmelding.id
     val behandletTidspunkt = sykmeldingKafkaMessage.sykmelding.behandletTidspunkt.toInstant()
@@ -40,7 +40,7 @@ internal fun SykepengesoknadDAO.soknadKandidater(
 
 internal fun finnEndringIUforegrad(
     tidligerePerioder: List<Soknadsperiode>?,
-    nyePerioder: List<Soknadsperiode>,
+    nyePerioder: List<Soknadsperiode>
 ): EndringIUforegrad {
     if (tidligerePerioder == null || tidligerePerioder.size > 1 || nyePerioder.size > 1) {
         return EndringIUforegrad.FLERE_PERIODER

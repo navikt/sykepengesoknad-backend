@@ -67,13 +67,13 @@ class RedusertVenteperiodeConsumerTest : BaseTestClass() {
         val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(
             fnr = "12345678901",
             arbeidssituasjon = Arbeidssituasjon.FRILANSER,
-            statusEvent = STATUS_BEKREFTET,
+            statusEvent = STATUS_BEKREFTET
         )
 
         val sykmelding = skapArbeidsgiverSykmelding(
             sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId,
             fom = LocalDate.now(),
-            tom = LocalDate.now(),
+            tom = LocalDate.now()
         ).copy(
             harRedusertArbeidsgiverperiode = true
         )

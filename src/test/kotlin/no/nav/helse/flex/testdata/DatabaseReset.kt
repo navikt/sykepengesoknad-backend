@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional
 class DatabaseReset(
     private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
     private val sykepengesoknadDAO: SykepengesoknadDAO,
-    private val klippMetrikkRepository: KlippMetrikkRepository,
+    private val klippMetrikkRepository: KlippMetrikkRepository
 ) {
 
     fun resetDatabase() {

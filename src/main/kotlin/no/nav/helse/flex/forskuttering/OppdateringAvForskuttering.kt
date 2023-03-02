@@ -10,7 +10,7 @@ import java.time.Instant
 
 @Component
 class OppdateringAvForskuttering(
-    val forskutteringRepository: ForskutteringRepository,
+    val forskutteringRepository: ForskutteringRepository
 ) {
 
     val log = logger()

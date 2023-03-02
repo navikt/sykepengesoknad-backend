@@ -6,7 +6,7 @@ import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykeforloep
 import no.nav.helse.flex.domain.exception.ManglerArbeidsgiverException
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
-import no.nav.helse.flex.domain.sykmelding.finnSoknadstype
+import no.nav.helse.flex.domain.sykmelding.finnSoknadsType
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.soknadsopprettelse.OpprettSoknadService
@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 class KlippOgOpprett(
     private val opprettSoknadService: OpprettSoknadService,
-    private val overlapp: Overlapp,
+    private val overlapp: Overlapp
 ) {
     val log = logger()
 
@@ -35,7 +35,7 @@ class KlippOgOpprett(
             throw ManglerArbeidsgiverException("Arbeidsgiverstatus er null for sykmelding $sykmeldingId med arbeidssituasjon arbeidstaker")
         }
 
-        if (finnSoknadstype(
+        if (finnSoknadsType(
                 arbeidssituasjon = arbeidssituasjon,
                 perioderFraSykmeldingen = sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder
             ) == Soknadstype.ARBEIDSTAKERE
@@ -43,7 +43,7 @@ class KlippOgOpprett(
             kafkaMessage = overlapp.klipp(
                 sykmeldingKafkaMessage = kafkaMessage,
                 arbeidsgiverStatusDTO = arbeidsgiverStatusDTO,
-                identer = identer,
+                identer = identer
             )
         }
 
@@ -52,7 +52,7 @@ class KlippOgOpprett(
             arbeidssituasjon = arbeidssituasjon,
             identer = identer,
             arbeidsgiverStatusDTO = arbeidsgiverStatusDTO,
-            flexSyketilfelleSykeforloep = sykeForloep,
+            flexSyketilfelleSykeforloep = sykeForloep
         )
     }
 }

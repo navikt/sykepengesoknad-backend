@@ -31,7 +31,7 @@ fun skapReisetilskuddsoknad(
 fun reisetilskuddSporsmal(
     fom: LocalDate,
     tom: LocalDate,
-    arbeidssituasjon: Arbeidssituasjon,
+    arbeidssituasjon: Arbeidssituasjon
 ): List<Sporsmal> {
     val formattertPeriode = formatterPeriode(
         fom,
@@ -40,7 +40,7 @@ fun reisetilskuddSporsmal(
     return mutableListOf(
         transportTilDagligSpørsmål(),
         reiseMedBilSpørsmål(formattertPeriode, fom, tom),
-        kvitteringSporsmal(formattertPeriode),
+        kvitteringSporsmal(formattertPeriode)
     ).also { list ->
         if (arrayOf(ARBEIDSLEDIG, ARBEIDSTAKER, ANNET).any { it == arbeidssituasjon }) {
             list.add(arbeidsgiverLeggerUtSpørsmål())
@@ -51,7 +51,7 @@ fun reisetilskuddSporsmal(
 fun kvitteringSporsmal(formattertPeriode: String) = Sporsmal(
     tag = KVITTERINGER,
     svartype = KVITTERING,
-    sporsmalstekst = "Last opp kvitteringer for reiser til og fra jobben mellom $formattertPeriode.",
+    sporsmalstekst = "Last opp kvitteringer for reiser til og fra jobben mellom $formattertPeriode."
 )
 
 fun reiseMedBilSpørsmål(
@@ -69,7 +69,7 @@ fun reiseMedBilSpørsmål(
             svartype = DATOER,
             min = fom.format(ISO_LOCAL_DATE),
             max = tom.format(ISO_LOCAL_DATE),
-            sporsmalstekst = "Hvilke dager reiste du med bil i perioden $formattertPeriode?",
+            sporsmalstekst = "Hvilke dager reiste du med bil i perioden $formattertPeriode?"
         ),
         Sporsmal(
             tag = BIL_BOMPENGER,
@@ -81,7 +81,7 @@ fun reiseMedBilSpørsmål(
                     tag = BIL_BOMPENGER_BELOP,
                     svartype = BELOP,
                     min = "0",
-                    sporsmalstekst = "Hvor mye betalte du i bompenger mellom hjemmet ditt og jobben?",
+                    sporsmalstekst = "Hvor mye betalte du i bompenger mellom hjemmet ditt og jobben?"
                 )
             )
         ),
@@ -89,7 +89,7 @@ fun reiseMedBilSpørsmål(
             tag = KM_HJEM_JOBB,
             min = "0",
             sporsmalstekst = "Hvor mange kilometer er kjøreturen mellom hjemmet ditt og jobben én vei?",
-            svartype = KILOMETER,
+            svartype = KILOMETER
         )
     )
 )
@@ -117,7 +117,7 @@ fun transportTilDagligSpørsmål() = Sporsmal(
                 Sporsmal(
                     tag = BIL_TIL_DAGLIG,
                     sporsmalstekst = "Bil",
-                    svartype = CHECKBOX,
+                    svartype = CHECKBOX
                 )
             )
 
@@ -129,18 +129,18 @@ fun offentligTransportBeløpSpørsmål() = Sporsmal(
     tag = OFFENTLIG_TRANSPORT_BELOP,
     min = "0",
     sporsmalstekst = "Hvor mye betaler du vanligvis i måneden for offentlig transport?",
-    svartype = BELOP,
+    svartype = BELOP
 )
 
 fun arbeidsgiverLeggerUtSpørsmål() = Sporsmal(
     tag = UTBETALING,
     svartype = JA_NEI,
-    sporsmalstekst = "Legger arbeidsgiveren din ut for reisene?",
+    sporsmalstekst = "Legger arbeidsgiveren din ut for reisene?"
 )
 
 fun brukteReisetilskuddetSpørsmål() = Sporsmal(
     tag = BRUKTE_REISETILSKUDDET,
     sporsmalstekst = "Hadde du ekstra reiseutgifter mens du var sykmeldt?",
     svartype = JA_NEI,
-    pavirkerAndreSporsmal = true,
+    pavirkerAndreSporsmal = true
 )

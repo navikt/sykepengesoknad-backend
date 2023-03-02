@@ -14,23 +14,23 @@ import org.springframework.stereotype.Component
 @Component
 class SykepengesoknadTilSykepengesoknadDTOMapper(
     private val juridiskVurderingKafkaProducer: JuridiskVurderingKafkaProducer,
-    private val redusertVenteperiodeRepository: RedusertVenteperiodeRepository,
+    private val redusertVenteperiodeRepository: RedusertVenteperiodeRepository
 ) {
     fun mapTilSykepengesoknadDTO(
         sykepengesoknad: Sykepengesoknad,
         mottaker: Mottaker? = null,
         erEttersending: Boolean = false,
-        endeligVurdering: Boolean = true,
+        endeligVurdering: Boolean = true
     ): SykepengesoknadDTO {
-
         fun SykepengesoknadDTO.merkFeilinfo(): SykepengesoknadDTO {
             return if (sykepengesoknad.avbruttFeilinfo == true) {
                 this.copy(sendTilGosys = true, merknader = listOf("AVBRUTT_FEILINFO"))
-            } else this
+            } else {
+                this
+            }
         }
 
         fun Sykepengesoknad.hentSoknadsperioder(): List<SoknadsperiodeDTO> {
-
             val hentSoknadsPerioderMedFaktiskGrad = hentSoknadsPerioderMedFaktiskGrad(this)
             hentSoknadsPerioderMedFaktiskGrad.second?.let {
                 if (endeligVurdering) {
@@ -44,7 +44,7 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
             Soknadstype.SELVSTENDIGE_OG_FRILANSERE -> konverterSelvstendigOgFrilanserTilSoknadDTO(
                 sykepengesoknad,
                 sykepengesoknad.hentSoknadsperioder(),
-                redusertVenteperiodeRepository.existsBySykmeldingId(sykepengesoknad.sykmeldingId!!),
+                redusertVenteperiodeRepository.existsBySykmeldingId(sykepengesoknad.sykmeldingId!!)
             )
             Soknadstype.OPPHOLD_UTLAND -> konverterOppholdUtlandTilSoknadDTO(sykepengesoknad)
             Soknadstype.ARBEIDSLEDIG -> ArbeidsledigsoknadToSykepengesoknadDTO.konverterArbeidsledigTilSykepengesoknadDTO(

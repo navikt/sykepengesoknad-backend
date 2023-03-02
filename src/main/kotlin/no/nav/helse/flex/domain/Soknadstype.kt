@@ -8,5 +8,5 @@ enum class Soknadstype(val visesPåDineSykmeldte: Boolean) {
     BEHANDLINGSDAGER(visesPåDineSykmeldte = true),
     ANNET_ARBEIDSFORHOLD(visesPåDineSykmeldte = false),
     REISETILSKUDD(visesPåDineSykmeldte = false),
-    GRADERT_REISETILSKUDD(visesPåDineSykmeldte = true),
+    GRADERT_REISETILSKUDD(visesPåDineSykmeldte = true)
 }

@@ -36,16 +36,15 @@ class GjenapneSykmeldingIntegrationMedTombstoneTest : BaseTestClass() {
 
     @Test
     fun `1 - arbeidsledigsøknader opprettes`() {
-
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = LocalDate.of(2018, 1, 1),
-                    tom = LocalDate.of(2018, 1, 10),
-                ),
-            ),
+                    tom = LocalDate.of(2018, 1, 10)
+                )
+            )
         )
 
         sendSykmelding(
@@ -54,9 +53,9 @@ class GjenapneSykmeldingIntegrationMedTombstoneTest : BaseTestClass() {
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = LocalDate.of(2018, 1, 1),
-                    tom = LocalDate.of(2018, 1, 10),
-                ),
-            ),
+                    tom = LocalDate.of(2018, 1, 10)
+                )
+            )
         )
 
         val hentetViaRest = hentSoknaderMetadata(fnr)
@@ -127,9 +126,9 @@ class GjenapneSykmeldingIntegrationMedTombstoneTest : BaseTestClass() {
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = LocalDate.of(2018, 1, 1),
-                    tom = LocalDate.of(2018, 1, 10),
-                ),
-            ),
+                    tom = LocalDate.of(2018, 1, 10)
+                )
+            )
         )
 
         val soknader = hentSoknaderMetadata(fnr)

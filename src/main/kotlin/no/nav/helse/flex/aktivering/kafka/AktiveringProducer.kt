@@ -16,7 +16,7 @@ class AktiveringProducer(private val aktiveringKafkaProducer: KafkaProducer<Stri
                 ProducerRecord(
                     sykepengesoknadAktiveringTopic,
                     aktiveringBestilling.soknadId,
-                    aktiveringBestilling,
+                    aktiveringBestilling
                 )
             ).get()
         } catch (exception: Exception) {

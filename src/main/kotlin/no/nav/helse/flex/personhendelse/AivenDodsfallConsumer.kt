@@ -21,7 +21,7 @@ class AivenDodsfallConsumer(
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val metrikk: Metrikk,
     private val dodsmeldingDAO: DodsmeldingDAO,
-    private val identService: IdentService,
+    private val identService: IdentService
 ) {
 
     val log = logger()
@@ -31,12 +31,12 @@ class AivenDodsfallConsumer(
         id = "sykepengesoknad-personhendelse",
         idIsGroup = true,
         containerFactory = "kafkaAvroListenerContainerFactory",
-        properties = ["auto.offset.reset = earliest"],
+        properties = ["auto.offset.reset = earliest"]
     )
     fun listen(cr: ConsumerRecord<String, GenericRecord>, acknowledgment: Acknowledgment) {
         prosesserPersonhendelse(
             cr.value(),
-            cr.timestamp(),
+            cr.timestamp()
         )
 
         acknowledgment.acknowledge()

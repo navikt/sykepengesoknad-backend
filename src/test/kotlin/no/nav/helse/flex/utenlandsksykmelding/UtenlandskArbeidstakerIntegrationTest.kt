@@ -42,11 +42,11 @@ class UtenlandskArbeidstakerIntegrationTest : BaseTestClass() {
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = basisdato,
-                    tom = basisdato.plusDays(15),
+                    tom = basisdato.plusDays(15)
 
                 ),
-                utenlandskSykemelding = UtenlandskSykmeldingAGDTO("hellas"),
-            ),
+                utenlandskSykemelding = UtenlandskSykmeldingAGDTO("hellas")
+            )
         )
 
         kafkaSoknader[0].utenlandskSykmelding!!.shouldBeTrue()

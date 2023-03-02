@@ -41,19 +41,19 @@ class OverlapperFullstendig : BaseTestClass() {
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = basisdato.plusDays(5),
-                    tom = basisdato.plusDays(10),
-                ),
-            ),
+                    tom = basisdato.plusDays(10)
+                )
+            )
         ).also { meldingerPaKafka.addAll(it) }
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = basisdato.plusDays(5),
-                    tom = basisdato.plusDays(10),
-                ),
+                    tom = basisdato.plusDays(10)
+                )
             ),
-            forventaSoknader = 2,
+            forventaSoknader = 2
         ).also { meldingerPaKafka.addAll(it) }
 
         meldingerPaKafka.shouldHaveSize(3)
@@ -94,19 +94,19 @@ class OverlapperFullstendig : BaseTestClass() {
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = basisdato.plusDays(5),
-                    tom = basisdato.plusDays(10),
-                ),
-            ),
+                    tom = basisdato.plusDays(10)
+                )
+            )
         ).also { meldingerPaKafka.addAll(it) }
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = basisdato,
-                    tom = basisdato.plusDays(15),
-                ),
+                    tom = basisdato.plusDays(15)
+                )
             ),
-            forventaSoknader = 2,
+            forventaSoknader = 2
 
         ).also { meldingerPaKafka.addAll(it) }
 
@@ -146,19 +146,19 @@ class OverlapperFullstendig : BaseTestClass() {
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = basisdato,
-                    tom = basisdato.plusDays(5),
-                ),
-            ),
+                    tom = basisdato.plusDays(5)
+                )
+            )
         ).also { meldingerPaKafka.addAll(it) }
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = basisdato,
-                    tom = basisdato.plusDays(10),
-                ),
+                    tom = basisdato.plusDays(10)
+                )
             ),
-            forventaSoknader = 2,
+            forventaSoknader = 2
 
         ).also { meldingerPaKafka.addAll(it) }
 

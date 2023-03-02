@@ -33,7 +33,7 @@ class SvarDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate
                 svarMap[sporsmalId]!!.add(
                     Svar(
                         id = resultSet.getString("ID"),
-                        verdi = resultSet.getString("VERDI"),
+                        verdi = resultSet.getString("VERDI")
                     )
                 )
             }

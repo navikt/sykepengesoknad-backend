@@ -92,7 +92,7 @@ class AutomatiskInnsendingVedDodsfallTest : BaseTestClass() {
             sporsmal = emptyList(),
             fnr = "aktor1",
             fom = LocalDate.now().minusWeeks(3),
-            tom = LocalDate.now().minusWeeks(2),
+            tom = LocalDate.now().minusWeeks(2)
         )
 
         sykepengesoknadDAO.lagreSykepengesoknad(soknad)
@@ -100,7 +100,7 @@ class AutomatiskInnsendingVedDodsfallTest : BaseTestClass() {
         dodsmeldingDAO.lagreDodsmelding(
             identer = FolkeregisterIdenter("aktor1", emptyList()),
             dodsdato = soknad.tom!!.minusDays(1),
-            meldingMottattDato = soknad.tom!!.minusDays(1).atStartOfDay().tilOsloInstant().tilOsloZone(),
+            meldingMottattDato = soknad.tom!!.minusDays(1).atStartOfDay().tilOsloInstant().tilOsloZone()
         )
 
         antallDodsmeldingerIDb().shouldBeEqualTo(1)

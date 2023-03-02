@@ -17,7 +17,6 @@ fun Sykepengesoknad.erAvType(vararg typer: Soknadstype): Boolean {
 fun Sykepengesoknad.erIkkeAvType(vararg typer: Soknadstype): Boolean = !erAvType(*typer)
 
 fun Sykepengesoknad.leggTilSporsmaal(sporsmal: Sporsmal): Sykepengesoknad {
-
     val eksisterendeSpm = this.sporsmal.find { it.tag == sporsmal.tag }
     if (eksisterendeSpm != null) {
         return if (eksisterendeSpm.erUlikUtenomSvarTekstOgId(sporsmal)) {
@@ -34,7 +33,6 @@ fun Sykepengesoknad.leggTilSporsmaal(sporsmal: Sporsmal): Sykepengesoknad {
 }
 
 fun Sykepengesoknad.leggTilSporsmaal(sporsmal: List<Sporsmal>): Sykepengesoknad {
-
     var soknad = this
     sporsmal.forEach {
         soknad = soknad.leggTilSporsmaal(it)

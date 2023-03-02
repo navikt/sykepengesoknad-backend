@@ -66,14 +66,14 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
             this.skapOppdaterteSoknadsperioder(
                 arbeidGjenopptattDato
             ),
-            this.arbeidsgiverNavn!!,
+            this.arbeidsgiverNavn!!
         ).toMutableList()
     } else {
         jobbetDuIPeriodenSporsmalSelvstendigFrilanser(
             this.skapOppdaterteSoknadsperioder(
                 arbeidGjenopptattDato
             ),
-            this.arbeidssituasjon!!,
+            this.arbeidssituasjon!!
         ).toMutableList()
     }
 

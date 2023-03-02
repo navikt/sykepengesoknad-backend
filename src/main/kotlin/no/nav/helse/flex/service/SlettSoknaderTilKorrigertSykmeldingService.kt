@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service
 @Service
 class SlettSoknaderTilKorrigertSykmeldingService(
     private val sykepengesoknadDAO: SykepengesoknadDAO,
-    private val soknadProducer: SoknadProducer,
+    private val soknadProducer: SoknadProducer
 ) {
     val log = logger()
 

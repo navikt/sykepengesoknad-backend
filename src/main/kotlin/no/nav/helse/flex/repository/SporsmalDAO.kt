@@ -17,7 +17,6 @@ import java.util.*
 class SporsmalDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate, private val svarDAO: SvarDAO) {
 
     fun finnSporsmal(sykepengesoknadIds: Set<String>): HashMap<String, MutableList<Sporsmal>> {
-
         val unMapped = sykepengesoknadIds.chunked(1000).map {
             namedParameterJdbcTemplate.query<List<Pair<String, Sporsmal>>>(
                 "SELECT * FROM SPORSMAL " +

@@ -31,7 +31,7 @@ class RebehandlingSykmeldingSendt(
         containerFactory = "aivenKafkaListenerContainerFactory",
         properties = ["auto.offset.reset = latest"],
         id = "sykmelding-retry",
-        idIsGroup = false,
+        idIsGroup = false
     )
     fun listen(cr: ConsumerRecord<String, String>, acknowledgment: Acknowledgment) {
         val sykmeldingKafkaMessage = cr.value().tilSykmeldingKafkaMessage()

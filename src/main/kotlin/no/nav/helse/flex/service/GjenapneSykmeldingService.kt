@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 class GjenapneSykmeldingService(
     private val soknadProducer: SoknadProducer,
-    private val sykepengesoknadDAO: SykepengesoknadDAO,
+    private val sykepengesoknadDAO: SykepengesoknadDAO
 ) {
     val log = logger()
 

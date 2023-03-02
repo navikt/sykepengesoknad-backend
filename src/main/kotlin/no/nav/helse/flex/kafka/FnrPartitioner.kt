@@ -63,7 +63,7 @@ class AktiveringBestillingPartitioner : FnrPartitioner() {
         keyBytes: ByteArray?,
         value: Any?,
         valueBytes: ByteArray?,
-        cluster: Cluster?,
+        cluster: Cluster?
     ): Int {
         val aktiveringBestilling = value as AktiveringBestilling
         val actualKey: String = aktiveringBestilling.fnr

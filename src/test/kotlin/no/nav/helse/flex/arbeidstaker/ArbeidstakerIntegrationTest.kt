@@ -62,12 +62,12 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = basisdato.minusDays(20),
-                    tom = basisdato.plusDays(15),
+                    tom = basisdato.plusDays(15)
 
                 ),
                 merknader = listOf(Merknad(type = "UGYLDIG_TILBAKEDATERING", beskrivelse = "Hey"))
             ),
-            forventaSoknader = 2,
+            forventaSoknader = 2
         )
 
         val hentetViaRest = hentSoknaderMetadata(fnr)
@@ -146,7 +146,6 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
     @Test
     @Order(4)
     fun `Id på et allerede besvart spørsmål endres ikke når vi svarer på et annet spørsmål`() {
-
         fun hentAnsvarserklering(id: String): RSSporsmal {
             return hentSoknad(id, fnr).sporsmal!!.first { it.tag == "ANSVARSERKLARING" }
         }
@@ -328,7 +327,7 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
         val sykmelding = skapArbeidsgiverSykmelding(
             sykmeldingId = sykmeldingId,
             fom = basisdato.minusDays(20),
-            tom = basisdato.plusDays(15),
+            tom = basisdato.plusDays(15)
         )
             .copy(harRedusertArbeidsgiverperiode = true)
 

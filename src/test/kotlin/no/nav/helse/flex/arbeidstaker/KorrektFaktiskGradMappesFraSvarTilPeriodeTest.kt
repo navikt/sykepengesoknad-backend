@@ -58,7 +58,7 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : BaseTestClass() {
                         aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
                         behandlingsdager = null,
                         innspillTilArbeidsgiver = null,
-                        reisetilskudd = false,
+                        reisetilskudd = false
                     ),
                     SykmeldingsperiodeAGDTO(
                         fom = (LocalDate.of(2018, 1, 15)),
@@ -68,10 +68,10 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : BaseTestClass() {
                         aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
                         behandlingsdager = null,
                         innspillTilArbeidsgiver = null,
-                        reisetilskudd = false,
-                    ),
-                ).also { it.shuffle() }, // Viktig med shuffle da sorteringen ved opprettelse er fiksen,
-            ),
+                        reisetilskudd = false
+                    )
+                ).also { it.shuffle() } // Viktig med shuffle da sorteringen ved opprettelse er fiksen,
+            )
         )
     }
 

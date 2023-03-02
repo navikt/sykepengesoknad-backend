@@ -62,11 +62,13 @@ fun Sporsmal.fellesPlasseringSporsmal(): Int {
 }
 
 private fun Sporsmal.plasseringAvSporsmalSomKanRepeteresFlereGanger(): Int {
-    return if (tag.startsWith(JOBBET_DU_GRADERT))
+    return if (tag.startsWith(JOBBET_DU_GRADERT)) {
         Integer.parseInt(tag.replace(JOBBET_DU_GRADERT, ""))
-    else if (tag.startsWith(JOBBET_DU_100_PROSENT))
+    } else if (tag.startsWith(JOBBET_DU_100_PROSENT)) {
         Integer.parseInt(tag.replace(JOBBET_DU_100_PROSENT, ""))
-    else if (tag.startsWith(ARBEID_UNDERVEIS_100_PROSENT))
+    } else if (tag.startsWith(ARBEID_UNDERVEIS_100_PROSENT)) {
         Integer.parseInt(tag.replace(ARBEID_UNDERVEIS_100_PROSENT, ""))
-    else 0
+    } else {
+        0
+    }
 }

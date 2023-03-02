@@ -33,14 +33,13 @@ fun opprettBehandlingsdagsoknadTestadata(
             aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
             behandlingsdager = 4,
             innspillTilArbeidsgiver = null,
-            reisetilskudd = false,
+            reisetilskudd = false
         )
     ),
     forsteSoknadIForlop: Boolean = true,
     fnr: String = "123445"
 
 ): Sykepengesoknad {
-
     val soknadMetadata = Sykepengesoknad(
         fnr = fnr,
         startSykeforlop = startSykeforlop,
@@ -55,7 +54,7 @@ fun opprettBehandlingsdagsoknadTestadata(
         status = Soknadstatus.NY,
         opprettet = Instant.now(),
         sporsmal = emptyList(),
-        utenlandskSykmelding = false,
+        utenlandskSykmelding = false
     )
     return soknadMetadata.copy(
         sporsmal = settOppSykepengesoknadBehandlingsdager(

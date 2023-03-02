@@ -26,7 +26,6 @@ class SyfoTilgangskontrollClient(
 
     @Retryable
     fun sjekkTilgangVeileder(fnr: String): Boolean {
-
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_FORM_URLENCODED
         headers[NAV_PERSONIDENT_HEADER] = fnr

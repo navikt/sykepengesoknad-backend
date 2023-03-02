@@ -19,12 +19,11 @@ class AktiverEnkeltSoknad(
     private val soknadProducer: SoknadProducer,
     private val sykepengesoknadRepository: SykepengesoknadRepository,
     private val sporsmalGenerator: SporsmalGenerator,
-    private val registry: MeterRegistry,
+    private val registry: MeterRegistry
 ) {
     val log = logger()
 
     fun aktiverSoknad(id: String) {
-
         log.info("Forsøker å aktivere soknad $id")
 
         val sok = sykepengesoknadRepository.findBySykepengesoknadUuid(id)
@@ -46,7 +45,6 @@ class AktiverEnkeltSoknad(
             sporsmalGenerator.lagSporsmalPaSoknad(id)
         }
         val publiserSoknad = measureTimeMillis {
-
             val soknad = sykepengesoknadDAO.finnSykepengesoknad(id)
 
             when (soknad.soknadstype) {

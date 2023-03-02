@@ -30,7 +30,6 @@ class SoknadVeilederAzureController(
 
     @RequestMapping(method = [RequestMethod.GET])
     fun hentVeilederSoknader(@RequestParam(value = "fnr") fnr: String): List<RSSykepengesoknad> {
-
         clientIdValidation.validateClientId(NamespaceAndApp(namespace = "teamsykefravr", app = "syfomodiaperson"))
 
         if (!syfoTilgangskontrollClient.sjekkTilgangVeileder(fnr)) {

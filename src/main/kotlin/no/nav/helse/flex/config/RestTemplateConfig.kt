@@ -37,7 +37,7 @@ class RestTemplateConfig {
 
     @Bean
     fun plainRestTemplate(
-        restTemplateBuilder: RestTemplateBuilder,
+        restTemplateBuilder: RestTemplateBuilder
     ): RestTemplate =
         restTemplateBuilder
             .setConnectTimeout(Duration.ofSeconds(5L))

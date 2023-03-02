@@ -20,7 +20,7 @@ data class KlippetSykepengesoknadDbRecord(
     val klippVariant: KlippVariant,
     val periodeFor: String,
     val periodeEtter: String?,
-    val timestamp: Instant,
+    val timestamp: Instant
 )
 
 enum class KlippVariant {
@@ -29,5 +29,5 @@ enum class KlippVariant {
     SOKNAD_STARTER_FOR_SLUTTER_ETTER,
     SOKNAD_STARTER_INNI_SLUTTER_INNI,
     SYKMELDING_STARTER_FOR_SLUTTER_INNI,
-    SYKMELDING_STARTER_INNI_SLUTTER_ETTER,
+    SYKMELDING_STARTER_INNI_SLUTTER_ETTER
 }

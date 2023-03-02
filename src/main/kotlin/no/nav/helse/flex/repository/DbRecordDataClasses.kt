@@ -41,7 +41,7 @@ data class SykepengesoknadDbRecord(
     val merknaderFraSykmelding: String?,
     val avbruttFeilinfo: Boolean?,
     val opprettetAvInntektsmelding: Boolean = false,
-    val utenlandskSykmelding: Boolean,
+    val utenlandskSykmelding: Boolean
 )
 
 data class SporsmalDbRecord(
@@ -54,7 +54,7 @@ data class SporsmalDbRecord(
     val svartype: Svartype,
     val min: String?,
     val max: String?,
-    val kriterieForVisningAvUndersporsmal: Visningskriterie?,
+    val kriterieForVisningAvUndersporsmal: Visningskriterie?
 )
 
 data class SoknadsperiodeDbRecord(
@@ -69,5 +69,5 @@ data class SoknadsperiodeDbRecord(
 data class SvarDbRecord(
     val id: String,
     val sporsmalId: String,
-    val verdi: String,
+    val verdi: String
 )

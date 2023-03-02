@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service
 @Service
 class BehandleSykmeldingOgBestillAktivering(
     private val behandleSendtBekreftetSykmelding: BehandleSendtBekreftetSykmelding,
-    private val aktiveringProducer: AktiveringProducer,
+    private val aktiveringProducer: AktiveringProducer
 
 ) {
     val log = logger()

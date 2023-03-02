@@ -136,7 +136,7 @@ class AndreInntektskilderKtTest {
         val andreInntektskilder = konverterTilSykepengesoknadDTO(
             soknad,
             Mottaker.ARBEIDSGIVER_OG_NAV,
-            false,
+            false
         ).andreInntektskilder!!
 
         andreInntektskilder.shouldHaveSize(1)

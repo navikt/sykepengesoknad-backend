@@ -89,7 +89,7 @@ class SlettKvitteringerIntegrasjonsTest : BaseTestClass() {
             tom = tom,
             type = PeriodetypeDTO.GRADERT,
             gradert = GradertDTO(50, true),
-            reisetilskudd = false,
+            reisetilskudd = false
         )
 
         val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
@@ -159,9 +159,9 @@ class SlettKvitteringerIntegrasjonsTest : BaseTestClass() {
                 blobId = "9a186e3c-aeeb-4566-a865-15aa9139d364",
                 belop = 100,
                 typeUtgift = Utgiftstype.PARKERING,
-                opprettet = Instant.now(),
+                opprettet = Instant.now()
             ).serialisertTilString(),
-            id = null,
+            id = null
         )
 
         val andreSvar = RSSvar(
@@ -169,9 +169,9 @@ class SlettKvitteringerIntegrasjonsTest : BaseTestClass() {
                 blobId = "1b186e3c-aeeb-4566-a865-15aa9139d365",
                 belop = 200,
                 typeUtgift = Utgiftstype.TAXI,
-                opprettet = Instant.now(),
+                opprettet = Instant.now()
             ).serialisertTilString(),
-            id = null,
+            id = null
         )
 
         val lagretForsteSvar = lagreSvar(fnr, soknadId, kvitteringSpm.id!!, forsteSvar)

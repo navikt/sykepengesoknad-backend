@@ -20,9 +20,8 @@ fun konverterArbeidstakersoknadTilSykepengesoknadDTO(
     sykepengesoknad: Sykepengesoknad,
     mottaker: Mottaker?,
     erEttersending: Boolean,
-    soknadsperioder: List<SoknadsperiodeDTO>,
+    soknadsperioder: List<SoknadsperiodeDTO>
 ): SykepengesoknadDTO {
-
     return SykepengesoknadDTO(
         id = sykepengesoknad.id,
         type = sykepengesoknad.soknadstype.tilSoknadstypeDTO(),

@@ -7,7 +7,7 @@ abstract class AbstractApiError(
     val httpStatus: HttpStatus,
     val reason: String,
     val loglevel: LogLevel,
-    grunn: Throwable? = null,
+    grunn: Throwable? = null
 ) : RuntimeException(message, grunn)
 
 enum class LogLevel {

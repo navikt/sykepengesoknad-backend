@@ -23,7 +23,7 @@ data class Aktoer(
 
 data class InntektListe(
     val inntektType: String,
-    val virksomhet: Aktoer,
+    val virksomhet: Aktoer
 )
 
 data class ArbeidsforholdFrilanser(

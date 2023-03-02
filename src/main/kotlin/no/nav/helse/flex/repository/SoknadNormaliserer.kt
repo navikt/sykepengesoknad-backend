@@ -53,7 +53,7 @@ fun Sykepengesoknad.normaliser(): NormalisertSoknad {
                 fom = it.fom,
                 tom = it.tom,
                 grad = it.grad,
-                sykmeldingstype = it.sykmeldingstype,
+                sykmeldingstype = it.sykmeldingstype
             )
         }
 
@@ -71,7 +71,7 @@ fun Sykepengesoknad.normaliser(): NormalisertSoknad {
             svartype = s.svartype,
             max = s.max,
             min = s.min,
-            kriterieForVisningAvUndersporsmal = s.kriterieForVisningAvUndersporsmal,
+            kriterieForVisningAvUndersporsmal = s.kriterieForVisningAvUndersporsmal
         )
         sporsmal.add(spmDbRecord)
         s.svar.forEach { sv ->
@@ -96,5 +96,5 @@ data class NormalisertSoknad(
     val soknad: SykepengesoknadDbRecord,
     val sporsmal: List<SporsmalDbRecord>,
     val perioder: List<SoknadsperiodeDbRecord>,
-    val svar: List<SvarDbRecord>,
+    val svar: List<SvarDbRecord>
 )

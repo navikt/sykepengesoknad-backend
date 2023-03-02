@@ -113,7 +113,6 @@ class KombinasjonSykmeldingerTest : BaseTestClass() {
 
     @Test
     fun `Splitter ikke gradert og 100 prosent`() {
-
         val sykmeldingId = UUID.randomUUID().toString()
         sendSykmelding(
             sykmeldingKafkaMessage(
@@ -153,7 +152,6 @@ class KombinasjonSykmeldingerTest : BaseTestClass() {
 
     @Test
     fun `Splitter gradert reisetilskudd og 100 prosent`() {
-
         val sykmeldingId = UUID.randomUUID().toString()
         sendSykmelding(
             sykmeldingKafkaMessage(

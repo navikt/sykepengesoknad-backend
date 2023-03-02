@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional
 class SporsmalGenerator(
     private val identService: IdentService,
     private val andreArbeidsforholdHenting: AndreArbeidsforholdHenting,
-    private val sykepengesoknadDAO: SykepengesoknadDAO,
+    private val sykepengesoknadDAO: SykepengesoknadDAO
 ) {
     fun lagSporsmalPaSoknad(id: String) {
         val soknad = sykepengesoknadDAO.finnSykepengesoknad(id)
@@ -39,9 +39,8 @@ class SporsmalGenerator(
 
     private fun genererSykepengesoknadSporsmal(
         soknad: Sykepengesoknad,
-        eksisterendeSoknader: List<Sykepengesoknad>,
+        eksisterendeSoknader: List<Sykepengesoknad>
     ): List<Sporsmal> {
-
         val tidligsteFomForSykmelding = hentTidligsteFomForSykmelding(soknad, eksisterendeSoknader)
         val erForsteSoknadISykeforlop = erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad)
 

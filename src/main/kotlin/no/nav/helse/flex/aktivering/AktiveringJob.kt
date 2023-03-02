@@ -28,7 +28,6 @@ class AktiveringJob(
 
     fun bestillAktivering(now: LocalDate = LocalDate.now(osloZone)) {
         if (leaderElection.isLeader()) {
-
             val soknaderSomSkalAktiveres = sykepengesoknadRepository.finnSoknaderSomSkalAktiveres(now)
 
             if (soknaderSomSkalAktiveres.isEmpty()) {

@@ -11,7 +11,7 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.Sykmeldingstype
 import no.nav.helse.flex.domain.exception.SykeforloepManglerSykemeldingException
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
-import no.nav.helse.flex.domain.sykmelding.finnSoknadstype
+import no.nav.helse.flex.domain.sykmelding.finnSoknadsType
 import no.nav.helse.flex.julesoknad.LagreJulesoknadKandidater
 import no.nav.helse.flex.kafka.producer.SoknadProducer
 import no.nav.helse.flex.logger
@@ -49,7 +49,7 @@ class OpprettSoknadService(
     private val metrikk: Metrikk,
     private val soknadProducer: SoknadProducer,
     private val lagreJulesoknadKandidater: LagreJulesoknadKandidater,
-    private val slettSoknaderTilKorrigertSykmeldingService: SlettSoknaderTilKorrigertSykmeldingService,
+    private val slettSoknaderTilKorrigertSykmeldingService: SlettSoknaderTilKorrigertSykmeldingService
 ) {
     private val log = logger()
 
@@ -58,7 +58,7 @@ class OpprettSoknadService(
         arbeidssituasjon: Arbeidssituasjon,
         identer: FolkeregisterIdenter,
         arbeidsgiverStatusDTO: ArbeidsgiverStatusDTO?,
-        flexSyketilfelleSykeforloep: List<Sykeforloep>,
+        flexSyketilfelleSykeforloep: List<Sykeforloep>
     ): List<AktiveringBestilling> {
         val sykmelding = sykmeldingKafkaMessage.sykmelding
 
@@ -91,7 +91,7 @@ class OpprettSoknadService(
                     soknadPerioder = perioderFraSykmeldingen.tilSoknadsperioder(),
                     egenmeldtSykmelding = sm.egenmeldt,
                     merknaderFraSykmelding = sm.merknader.tilMerknader(),
-                    soknadstype = finnSoknadstype(arbeidssituasjon, perioderFraSykmeldingen),
+                    soknadstype = finnSoknadsType(arbeidssituasjon, perioderFraSykmeldingen),
                     status = Soknadstatus.FREMTIDIG,
                     opprettet = Instant.now(),
                     sporsmal = emptyList(),
@@ -116,7 +116,7 @@ class OpprettSoknadService(
                 val arbeidssituasjon: Arbeidssituasjon?,
                 val soknadstype: Soknadstype,
                 val soknadPerioder: List<Soknadsperiode>?,
-                val arbeidsgiverOrgnummer: String?,
+                val arbeidsgiverOrgnummer: String?
             )
 
             fun Sykepengesoknad.tilSoknadSammenlikner() =
@@ -127,7 +127,7 @@ class OpprettSoknadService(
                     arbeidssituasjon = this.arbeidssituasjon,
                     arbeidsgiverOrgnummer = this.arbeidsgiverOrgnummer,
                     soknadstype = this.soknadstype,
-                    soknadPerioder = this.soknadPerioder,
+                    soknadPerioder = this.soknadPerioder
                 )
 
             val sammenliknbartSettAvNyeSoknader = soknaderTilOppretting.map { it.tilSoknadSammenlikner() }.toHashSet()
@@ -163,7 +163,6 @@ class OpprettSoknadService(
     }
 
     fun Sykepengesoknad.publiserEllerReturnerAktiveringBestilling(): AktiveringBestilling? {
-
         val skalAktiveres = this.tom!!.isBefore(LocalDate.now(osloZone))
         if (skalAktiveres) {
             return AktiveringBestilling(this.fnr, this.id)

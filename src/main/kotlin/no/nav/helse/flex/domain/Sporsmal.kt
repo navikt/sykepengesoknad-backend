@@ -115,10 +115,11 @@ data class Sporsmal(
         )
 
     val forsteSvar: String?
-        get() = if (svar.isEmpty())
+        get() = if (svar.isEmpty()) {
             null
-        else
+        } else {
             svar[0].verdi
+        }
 }
 
 fun sporsmalBuilder(): Sporsmal.SporsmalBuilder =

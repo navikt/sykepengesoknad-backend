@@ -5,9 +5,9 @@ import no.nav.helse.flex.domain.Mottaker
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.juridiskvurdering.JuridiskVurdering
-import no.nav.helse.flex.juridiskvurdering.SporingType.organisasjonsnummer
-import no.nav.helse.flex.juridiskvurdering.SporingType.soknad
-import no.nav.helse.flex.juridiskvurdering.SporingType.sykmelding
+import no.nav.helse.flex.juridiskvurdering.SporingType.ORGANISASJONSNUMMER
+import no.nav.helse.flex.juridiskvurdering.SporingType.SOKNAD
+import no.nav.helse.flex.juridiskvurdering.SporingType.SYKMELDING
 import no.nav.helse.flex.juridiskvurdering.Utfall.VILKAR_IKKE_OPPFYLT
 import no.nav.helse.flex.service.MottakerAvSoknadService.MottakerOgVurdering
 import java.time.DayOfWeek
@@ -22,7 +22,6 @@ fun MottakerAvSoknadService.kunHelgEtterArbeidsgiverperiodeVurdering(
         mottakerResultat.arbeidsgiverperiode != null &&
         mottakerResultat.arbeidsgiverperiode.arbeidsgiverPeriode != null
     ) {
-
         val sykepengesoknadTom = sykepengesoknad.tom
         val arbeidsgiverperiode: Arbeidsgiverperiode = mottakerResultat.arbeidsgiverperiode
         val arbeidsgiverperiodeTom = mottakerResultat.arbeidsgiverperiode.arbeidsgiverPeriode.tom
@@ -33,17 +32,17 @@ fun MottakerAvSoknadService.kunHelgEtterArbeidsgiverperiodeVurdering(
         if (sykepengesoknad.status == Soknadstatus.SENDT && kunHelgEtterArbeidsgiverperiode) {
             val vurdering = JuridiskVurdering(
                 fodselsnummer = sykepengesoknad.fnr,
-                sporing = hashMapOf(soknad to listOf(sykepengesoknad.id))
+                sporing = hashMapOf(SOKNAD to listOf(sykepengesoknad.id))
                     .also { map ->
                         sykepengesoknad.sykmeldingId?.let {
-                            map[sykmelding] = listOf(it)
+                            map[SYKMELDING] = listOf(it)
                         }
                         sykepengesoknad.arbeidsgiverOrgnummer?.let {
-                            map[organisasjonsnummer] = listOf(it)
+                            map[ORGANISASJONSNUMMER] = listOf(it)
                         }
                     },
                 input = hashMapOf<String, Any>(
-                    "versjon" to LocalDate.of(2022, 2, 1),
+                    "versjon" to LocalDate.of(2022, 2, 1)
 
                 ).also { map ->
                     sykepengesoknadTom?.let {
@@ -55,7 +54,7 @@ fun MottakerAvSoknadService.kunHelgEtterArbeidsgiverperiodeVurdering(
                 },
                 output = mapOf(
                     "kunHelgEtterArbeidsgiverperiode" to kunHelgEtterArbeidsgiverperiode,
-                    "versjon" to LocalDate.of(2022, 2, 1),
+                    "versjon" to LocalDate.of(2022, 2, 1)
                 ),
                 lovverk = "folketrygdloven",
                 paragraf = "8-11",

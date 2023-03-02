@@ -23,20 +23,22 @@ fun hentInntektListe(soknad: Sykepengesoknad): List<InntektskildeDTO> {
     val andreinntektsporsmal =
         soknad.getSporsmalMedTagOrNull(ANDRE_INNTEKTSKILDER) ?: soknad.getSporsmalMedTagOrNull(ANDRE_INNTEKTSKILDER_V2)
 
-    return if ("JA" == andreinntektsporsmal?.forsteSvar)
+    return if ("JA" == andreinntektsporsmal?.forsteSvar) {
         andreinntektsporsmal.undersporsmal[0].undersporsmal
             .filter { it.svar.isNotEmpty() }
             .map { sporsmal ->
                 InntektskildeDTO(
                     mapSporsmalTilInntektskildetype(sporsmal),
-                    if (sporsmal.undersporsmal.isEmpty())
+                    if (sporsmal.undersporsmal.isEmpty()) {
                         null
-                    else
+                    } else {
                         "JA" == sporsmal.undersporsmal[0].forsteSvar
+                    }
                 )
             }
-    else
+    } else {
         Collections.emptyList()
+    }
 }
 
 private fun mapSporsmalTilInntektskildetype(sporsmal: Sporsmal): InntektskildetypeDTO {

@@ -171,7 +171,7 @@ fun String.getJsonPeriodeFraGammeltFormat(): PeriodeDTO {
         val fomTom = objectmapper.readValue(this, FomTom::class.java)
         return PeriodeDTO(
             fom = fomTom.fom.gammeltFormatTilLocalDate(),
-            tom = fomTom.tom.gammeltFormatTilLocalDate(),
+            tom = fomTom.tom.gammeltFormatTilLocalDate()
         )
     } catch (e: IOException) {
         throw RuntimeException("Feil ved parsing av periode: $this", e)

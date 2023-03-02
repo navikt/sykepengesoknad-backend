@@ -52,9 +52,7 @@ fun andreInntektskilderArbeidstaker(arbeidsgiver: String?): Sporsmal {
 }
 
 fun andreInntektskilderArbeidstakerV2(sykmeldingOrgnavn: String, andreKjenteArbeidsforhold: List<String>): Sporsmal {
-
     fun skapSporsmal(): String {
-
         val listen = mutableListOf(sykmeldingOrgnavn).also { it.addAll(andreKjenteArbeidsforhold) }
 
         fun virksomheterTekst(): String {
@@ -117,7 +115,7 @@ fun andreInntektskilderArbeidstakerV2(sykmeldingOrgnavn: String, andreKjenteArbe
                         tag = INNTEKTSKILDE_FOSTERHJEM,
                         sporsmalstekst = "fosterhjemsgodtgjørelse",
                         svartype = Svartype.CHECKBOX
-                    ),
+                    )
                 )
             )
         )
@@ -127,9 +125,11 @@ fun andreInntektskilderArbeidstakerV2(sykmeldingOrgnavn: String, andreKjenteArbe
 fun andreInntektskilderSelvstendigOgFrilanser(arbeidssituasjon: Arbeidssituasjon): Sporsmal {
     return Sporsmal(
         tag = ANDRE_INNTEKTSKILDER,
-        sporsmalstekst = if (Arbeidssituasjon.FRILANSER == arbeidssituasjon)
+        sporsmalstekst = if (Arbeidssituasjon.FRILANSER == arbeidssituasjon) {
             "Har du annen inntekt? Du trenger ikke oppgi penger fra NAV."
-        else "Har du annen inntekt?",
+        } else {
+            "Har du annen inntekt?"
+        },
         svartype = Svartype.JA_NEI,
         kriterieForVisningAvUndersporsmal = (Visningskriterie.JA),
         undersporsmal = (
@@ -143,10 +143,11 @@ fun andreInntektskilderSelvstendigOgFrilanser(arbeidssituasjon: Arbeidssituasjon
                         andreInntektskilderCheckboxSporsmal(INNTEKTSKILDE_JORDBRUKER, "jordbruk / fiske / reindrift"),
                         andreInntektskilderCheckboxSporsmal(
                             INNTEKTSKILDE_FRILANSER_SELVSTENDIG,
-                            if (Arbeidssituasjon.FRILANSER == arbeidssituasjon)
+                            if (Arbeidssituasjon.FRILANSER == arbeidssituasjon) {
                                 Arbeidssituasjon.NAERINGSDRIVENDE.toString()
-                            else
+                            } else {
                                 Arbeidssituasjon.FRILANSER.toString()
+                            }
                         ),
                         Sporsmal(
                             tag = INNTEKTSKILDE_ANNET,

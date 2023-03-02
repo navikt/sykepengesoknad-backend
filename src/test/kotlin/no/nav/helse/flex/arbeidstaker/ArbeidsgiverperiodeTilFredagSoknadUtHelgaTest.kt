@@ -39,14 +39,13 @@ class ArbeidsgiverperiodeTilFredagSoknadUtHelgaTest : BaseTestClass() {
 
     @Test
     fun `vi besvarer og sender inn en søknad som bare går til arbeidsgiver siden perioden slutta på en fredag, men søknaden gikk til søndag`() {
-
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = fredagen.minusDays(14),
                     tom = fredagen.plusDays(2)
-                ),
+                )
             )
         )
 
@@ -100,12 +99,12 @@ class ArbeidsgiverperiodeTilFredagSoknadUtHelgaTest : BaseTestClass() {
             "sykepengesoknadTom" to "2021-12-19",
             "arbeidsgiverperiode" to mapOf(
                 "fom" to "2021-12-03",
-                "tom" to "2021-12-17",
-            ),
+                "tom" to "2021-12-17"
+            )
         )
         vurdering.output `should be equal to` mapOf(
             "versjon" to "2022-02-01",
-            "kunHelgEtterArbeidsgiverperiode" to true,
+            "kunHelgEtterArbeidsgiverperiode" to true
         )
     }
 
@@ -117,7 +116,7 @@ class ArbeidsgiverperiodeTilFredagSoknadUtHelgaTest : BaseTestClass() {
                 sykmeldingsperioder = heltSykmeldt(
                     fom = fredagen.minusDays(14),
                     tom = fredagen.plusDays(3)
-                ),
+                )
             )
         )
 

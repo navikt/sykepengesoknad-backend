@@ -37,7 +37,7 @@ class NyttAndreInntektskilderSpmTest : BaseTestClass() {
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = basisdato.minusDays(20),
-                    tom = basisdato,
+                    tom = basisdato
                 ),
                 arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "MATBUTIKKEN AS")
             )

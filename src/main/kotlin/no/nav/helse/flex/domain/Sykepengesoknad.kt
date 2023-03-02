@@ -33,7 +33,7 @@ data class Sykepengesoknad(
     val avbruttFeilinfo: Boolean? = null,
     val opprettetAvInntektsmelding: Boolean = false,
     val sendt: Instant? = null,
-    val utenlandskSykmelding: Boolean,
+    val utenlandskSykmelding: Boolean
 
 ) : Serializable {
 

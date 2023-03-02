@@ -16,16 +16,15 @@ import org.springframework.stereotype.Service
 @Service
 class SkalOppretteSoknader(
     private val flexSyketilfelleClient: FlexSyketilfelleClient,
-    private val metrikk: Metrikk,
+    private val metrikk: Metrikk
 ) {
     private val log = logger()
 
     fun skalOppretteSoknader(
         sykmeldingKafkaMessage: SykmeldingKafkaMessage,
         arbeidssituasjon: Arbeidssituasjon,
-        identer: FolkeregisterIdenter,
+        identer: FolkeregisterIdenter
     ): Boolean {
-
         val sykmelding = sykmeldingKafkaMessage.sykmelding
         val sykmeldingId = sykmelding.id
 

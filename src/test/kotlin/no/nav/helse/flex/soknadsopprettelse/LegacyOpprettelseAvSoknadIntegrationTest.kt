@@ -32,9 +32,9 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = (LocalDate.of(2018, 1, 1)),
-                    tom = (LocalDate.of(2018, 1, 10)),
-                ),
-            ),
+                    tom = (LocalDate.of(2018, 1, 10))
+                )
+            )
         )
         sendSykmelding(
             sykmeldingKafkaMessage(
@@ -42,7 +42,7 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
                 sykmeldingsperioder = heltSykmeldt(
                     fom = LocalDate.of(2018, 1, 11),
                     tom = LocalDate.of(2018, 1, 12)
-                ),
+                )
             ),
             oppfolgingsdato = LocalDate.of(2018, 1, 1)
         )
@@ -71,20 +71,20 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
                 fnr = fnr,
                 sykmeldingsperioder = behandingsdager(
                     fom = LocalDate.of(2018, 1, 1),
-                    tom = LocalDate.of(2018, 1, 10),
-                ),
+                    tom = LocalDate.of(2018, 1, 10)
+                )
             ),
-            oppfolgingsdato = LocalDate.of(2018, 1, 1),
+            oppfolgingsdato = LocalDate.of(2018, 1, 1)
         )
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
                 sykmeldingsperioder = behandingsdager(
                     fom = LocalDate.of(2018, 1, 11),
-                    tom = LocalDate.of(2018, 1, 12),
-                ),
+                    tom = LocalDate.of(2018, 1, 12)
+                )
             ),
-            oppfolgingsdato = LocalDate.of(2018, 1, 2),
+            oppfolgingsdato = LocalDate.of(2018, 1, 2)
         )
 
         val soknaderMetadata = hentSoknaderMetadata(fnr).sortedBy { it.fom }
@@ -111,20 +111,20 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
                 fnr = fnr,
                 sykmeldingsperioder = behandingsdager(
                     fom = LocalDate.of(2018, 1, 1),
-                    tom = LocalDate.of(2018, 1, 10),
-                ),
+                    tom = LocalDate.of(2018, 1, 10)
+                )
             ),
-            oppfolgingsdato = LocalDate.of(2018, 1, 1),
+            oppfolgingsdato = LocalDate.of(2018, 1, 1)
         )
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
                 sykmeldingsperioder = behandingsdager(
                     fom = LocalDate.of(2018, 1, 11),
-                    tom = LocalDate.of(2018, 1, 12),
-                ),
+                    tom = LocalDate.of(2018, 1, 12)
+                )
             ),
-            oppfolgingsdato = LocalDate.of(2018, 1, 1),
+            oppfolgingsdato = LocalDate.of(2018, 1, 1)
         )
 
         val soknaderMetadata = hentSoknaderMetadata(fnr).sortedBy { it.fom }
@@ -150,10 +150,10 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
                 arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123456789", orgNavn = "123456789"),
                 sykmeldingsperioder = behandingsdager(
                     fom = LocalDate.of(2018, 1, 1),
-                    tom = LocalDate.of(2018, 1, 10),
-                ),
+                    tom = LocalDate.of(2018, 1, 10)
+                )
             ),
-            oppfolgingsdato = LocalDate.of(2018, 1, 1),
+            oppfolgingsdato = LocalDate.of(2018, 1, 1)
         )
         sendSykmelding(
             sykmeldingKafkaMessage(
@@ -162,10 +162,10 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
 
                 sykmeldingsperioder = behandingsdager(
                     fom = LocalDate.of(2018, 1, 11),
-                    tom = LocalDate.of(2018, 1, 12),
-                ),
+                    tom = LocalDate.of(2018, 1, 12)
+                )
             ),
-            oppfolgingsdato = LocalDate.of(2018, 1, 1),
+            oppfolgingsdato = LocalDate.of(2018, 1, 1)
         )
 
         val soknaderMetadata = hentSoknaderMetadata(fnr).sortedBy { it.fom }
@@ -185,17 +185,16 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
 
     @Test
     fun `Når man oppretter en to søknader i samme forløp med forskjellig orgnummer vil fravær før sykmeldingen spørsmålet være i begge`() {
-
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
                 arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123456789", orgNavn = "123456789"),
                 sykmeldingsperioder = heltSykmeldt(
                     fom = LocalDate.of(2018, 1, 1),
-                    tom = LocalDate.of(2018, 1, 10),
-                ),
+                    tom = LocalDate.of(2018, 1, 10)
+                )
             ),
-            oppfolgingsdato = LocalDate.of(2018, 1, 1),
+            oppfolgingsdato = LocalDate.of(2018, 1, 1)
         )
         sendSykmelding(
             sykmeldingKafkaMessage(
@@ -204,10 +203,10 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
 
                 sykmeldingsperioder = heltSykmeldt(
                     fom = LocalDate.of(2018, 1, 11),
-                    tom = LocalDate.of(2018, 1, 12),
-                ),
+                    tom = LocalDate.of(2018, 1, 12)
+                )
             ),
-            oppfolgingsdato = LocalDate.of(2018, 1, 1),
+            oppfolgingsdato = LocalDate.of(2018, 1, 1)
         )
 
         val soknaderMetadata = hentSoknaderMetadata(fnr).sortedBy { it.fom }
@@ -233,10 +232,10 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = LocalDate.of(2018, 1, 1),
-                    tom = LocalDate.of(2018, 1, 10),
-                ),
+                    tom = LocalDate.of(2018, 1, 10)
+                )
             ),
-            oppfolgingsdato = LocalDate.of(2018, 1, 1),
+            oppfolgingsdato = LocalDate.of(2018, 1, 1)
         )
         sendSykmelding(
             sykmeldingKafkaMessage(
@@ -244,10 +243,10 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = LocalDate.of(2018, 1, 11),
-                    tom = LocalDate.of(2018, 1, 12),
-                ),
+                    tom = LocalDate.of(2018, 1, 12)
+                )
             ),
-            oppfolgingsdato = LocalDate.of(2018, 1, 1),
+            oppfolgingsdato = LocalDate.of(2018, 1, 1)
         )
 
         val soknaderMetadata = hentSoknaderMetadata(fnr).sortedBy { it.fom }

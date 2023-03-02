@@ -17,7 +17,7 @@ import java.time.OffsetDateTime
 @Repository
 class DodsmeldingDAO(
     private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
-    private val toggle: EnvironmentToggles,
+    private val toggle: EnvironmentToggles
 ) {
 
     data class Dodsfall(val fnr: String, val dodsdato: LocalDate)

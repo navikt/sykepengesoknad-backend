@@ -16,7 +16,7 @@ import java.time.LocalDate
 @Component
 @Transactional
 class Sykmeldingsklipper(
-    private val klippetSykepengesoknadRepository: KlippetSykepengesoknadRepository,
+    private val klippetSykepengesoknadRepository: KlippetSykepengesoknadRepository
 ) {
 
     private val log = logger()
@@ -26,7 +26,7 @@ class Sykmeldingsklipper(
         sok: Sykepengesoknad,
         sykPeriode: ClosedRange<LocalDate>,
         sokPeriode: ClosedRange<LocalDate>,
-        sykmeldingPerioder: List<SykmeldingsperiodeAGDTO>,
+        sykmeldingPerioder: List<SykmeldingsperiodeAGDTO>
     ): List<SykmeldingsperiodeAGDTO> {
         log.info("Sykmelding $sykmeldingId overlapper ${sok.status} søknad ${sok.id} etter ${sykPeriode.start}")
 
@@ -49,7 +49,7 @@ class Sykmeldingsklipper(
                 klippVariant = KlippVariant.SYKMELDING_STARTER_FOR_SLUTTER_INNI,
                 periodeFor = sykmeldingPerioder.tilSoknadsperioder().serialisertTilString(),
                 periodeEtter = nyeSykmeldingPerioder.tilSoknadsperioder().serialisertTilString(),
-                timestamp = Instant.now(),
+                timestamp = Instant.now()
             )
         )
 
@@ -61,7 +61,7 @@ class Sykmeldingsklipper(
         sok: Sykepengesoknad,
         sykPeriode: ClosedRange<LocalDate>,
         sokPeriode: ClosedRange<LocalDate>,
-        sykmeldingPerioder: List<SykmeldingsperiodeAGDTO>,
+        sykmeldingPerioder: List<SykmeldingsperiodeAGDTO>
     ): List<SykmeldingsperiodeAGDTO> {
         log.info("Sykmelding $sykmeldingId overlapper ${sok.status} søknad ${sok.id} før ${sykPeriode.endInclusive}")
 
@@ -84,7 +84,7 @@ class Sykmeldingsklipper(
                 klippVariant = KlippVariant.SYKMELDING_STARTER_INNI_SLUTTER_ETTER,
                 periodeFor = sykmeldingPerioder.tilSoknadsperioder().serialisertTilString(),
                 periodeEtter = nyeSykmeldingPerioder.tilSoknadsperioder().serialisertTilString(),
-                timestamp = Instant.now(),
+                timestamp = Instant.now()
             )
         )
 

@@ -42,7 +42,6 @@ class ArbeidsledigIntegrationTest : BaseTestClass() {
 
     @Test
     fun `01 - vi oppretter en arbeidsledigsøknad`() {
-
         val soknader = sendSykmelding(
             sykmeldingKafkaMessage(
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,

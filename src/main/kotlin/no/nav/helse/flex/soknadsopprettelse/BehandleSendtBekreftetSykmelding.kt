@@ -89,7 +89,6 @@ class BehandleSendtBekreftetSykmelding(
         sykmeldingKafkaMessage: SykmeldingKafkaMessage,
         arbeidssituasjon: Arbeidssituasjon
     ): List<AktiveringBestilling> {
-
         val fnr = sykmeldingKafkaMessage.kafkaMetadata.fnr
 
         val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(fnr)
@@ -97,7 +96,7 @@ class BehandleSendtBekreftetSykmelding(
         val skalOppretteSoknad = skalOppretteSoknader.skalOppretteSoknader(
             sykmeldingKafkaMessage = sykmeldingKafkaMessage,
             arbeidssituasjon = arbeidssituasjon,
-            identer = identer,
+            identer = identer
         )
         if (!skalOppretteSoknad) {
             return emptyList()

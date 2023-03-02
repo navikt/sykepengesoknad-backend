@@ -42,7 +42,7 @@ class JuridiskVurderingArbeidsgiverperiodeTest : BaseTestClass() {
             sykmeldingTom = fredagen,
             oppbruktAgPeriode = false,
             arbeidsgiverperiodeFom = fredagen.minusDays(2),
-            arbeidsgiverperiodeTom = fredagen,
+            arbeidsgiverperiodeTom = fredagen
         )
 
         val vurdering = juridiskVurderingKafkaConsumer
@@ -57,19 +57,19 @@ class JuridiskVurderingArbeidsgiverperiodeTest : BaseTestClass() {
         vurdering.input `should be equal to` mapOf(
             "arbeidsgiverperiode" to mapOf(
                 "fom" to "2021-12-15",
-                "tom" to "2021-12-17",
+                "tom" to "2021-12-17"
             ),
             "sykepengesoknadTom" to "2021-12-17",
             "sykepengesoknadFom" to "2021-12-15",
             "oppbruktArbeidsgiverperiode" to false,
-            "versjon" to "2022-02-01",
+            "versjon" to "2022-02-01"
         )
         vurdering.output `should be equal to` mapOf(
             "periode" to mapOf(
                 "fom" to "2021-12-15",
-                "tom" to "2021-12-17",
+                "tom" to "2021-12-17"
             ),
-            "versjon" to "2022-02-01",
+            "versjon" to "2022-02-01"
         )
     }
 
@@ -80,7 +80,7 @@ class JuridiskVurderingArbeidsgiverperiodeTest : BaseTestClass() {
             sykmeldingTom = fredagen,
             oppbruktAgPeriode = true,
             arbeidsgiverperiodeFom = fredagen.minusDays(5),
-            arbeidsgiverperiodeTom = fredagen.minusDays(4),
+            arbeidsgiverperiodeTom = fredagen.minusDays(4)
         )
 
         val vurdering = juridiskVurderingKafkaConsumer
@@ -95,19 +95,19 @@ class JuridiskVurderingArbeidsgiverperiodeTest : BaseTestClass() {
         vurdering.input `should be equal to` mapOf(
             "arbeidsgiverperiode" to mapOf(
                 "fom" to "2021-12-12",
-                "tom" to "2021-12-13",
+                "tom" to "2021-12-13"
             ),
             "sykepengesoknadTom" to "2021-12-17",
             "sykepengesoknadFom" to "2021-12-15",
             "oppbruktArbeidsgiverperiode" to true,
-            "versjon" to "2022-02-01",
+            "versjon" to "2022-02-01"
         )
         vurdering.output `should be equal to` mapOf(
             "periode" to mapOf(
                 "fom" to "2021-12-15",
-                "tom" to "2021-12-17",
+                "tom" to "2021-12-17"
             ),
-            "versjon" to "2022-02-01",
+            "versjon" to "2022-02-01"
         )
     }
 
@@ -118,7 +118,7 @@ class JuridiskVurderingArbeidsgiverperiodeTest : BaseTestClass() {
             sykmeldingTom = fredagen,
             oppbruktAgPeriode = true,
             arbeidsgiverperiodeFom = fredagen.minusDays(5),
-            arbeidsgiverperiodeTom = fredagen.minusDays(1),
+            arbeidsgiverperiodeTom = fredagen.minusDays(1)
         )
 
         val vurderinger = juridiskVurderingKafkaConsumer
@@ -139,19 +139,19 @@ class JuridiskVurderingArbeidsgiverperiodeTest : BaseTestClass() {
         vurderingInnenfor.input `should be equal to` mapOf(
             "arbeidsgiverperiode" to mapOf(
                 "fom" to "2021-12-12",
-                "tom" to "2021-12-16",
+                "tom" to "2021-12-16"
             ),
             "sykepengesoknadTom" to "2021-12-17",
             "sykepengesoknadFom" to "2021-12-15",
             "oppbruktArbeidsgiverperiode" to true,
-            "versjon" to "2022-02-01",
+            "versjon" to "2022-02-01"
         )
         vurderingInnenfor.output `should be equal to` mapOf(
             "periode" to mapOf(
                 "fom" to "2021-12-15",
-                "tom" to "2021-12-16",
+                "tom" to "2021-12-16"
             ),
-            "versjon" to "2022-02-01",
+            "versjon" to "2022-02-01"
         )
 
         val vurderingUtafor = vurderinger
@@ -162,15 +162,15 @@ class JuridiskVurderingArbeidsgiverperiodeTest : BaseTestClass() {
             utfall = vurderingUtafor.utfall,
             output = vurderingUtafor.output,
             tidsstempel = vurderingUtafor.tidsstempel,
-            id = vurderingUtafor.id,
+            id = vurderingUtafor.id
         )
 
         vurderingUtafor.output `should be equal to` mapOf(
             "periode" to mapOf(
                 "fom" to "2021-12-17",
-                "tom" to "2021-12-17",
+                "tom" to "2021-12-17"
             ),
-            "versjon" to "2022-02-01",
+            "versjon" to "2022-02-01"
         )
     }
 
@@ -188,8 +188,8 @@ class JuridiskVurderingArbeidsgiverperiodeTest : BaseTestClass() {
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = sykmeldingFom,
-                    tom = sykmeldingTom,
-                ),
+                    tom = sykmeldingTom
+                )
             )
         )
 

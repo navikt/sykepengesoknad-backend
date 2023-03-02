@@ -48,7 +48,7 @@ class SlettGamleUtkastServiceTest : BaseTestClass() {
 
         assertThat(
             sykepengesoknadDAO.finnSykepengesoknaderForSykmelding(
-                soknad.sykmeldingId!!,
+                soknad.sykmeldingId!!
             )
         ).hasSize(2)
 
@@ -57,7 +57,7 @@ class SlettGamleUtkastServiceTest : BaseTestClass() {
 
         assertThat(
             sykepengesoknadDAO.finnSykepengesoknaderForSykmelding(
-                soknad.sykmeldingId!!,
+                soknad.sykmeldingId!!
             )
         ).hasSize(1)
 
@@ -76,7 +76,7 @@ class SlettGamleUtkastServiceTest : BaseTestClass() {
 
         assertThat(
             sykepengesoknadDAO.finnSykepengesoknaderForSykmelding(
-                soknad.sykmeldingId!!,
+                soknad.sykmeldingId!!
             )
         ).hasSize(1)
 
@@ -85,7 +85,7 @@ class SlettGamleUtkastServiceTest : BaseTestClass() {
 
         assertThat(
             sykepengesoknadDAO.finnSykepengesoknaderForSykmelding(
-                soknad.sykmeldingId!!,
+                soknad.sykmeldingId!!
             )
         ).hasSize(1)
 

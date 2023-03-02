@@ -35,7 +35,6 @@ class FlexSyketilfelleClient(
 
     @Retryable
     fun hentSykeforloep(identer: FolkeregisterIdenter): List<Sykeforloep> {
-
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
         headers.set("fnr", identer.tilFnrHeader())
@@ -69,7 +68,6 @@ class FlexSyketilfelleClient(
         sykmeldingId: String,
         erUtenforVentetidRequest: ErUtenforVentetidRequest
     ): Boolean {
-
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
         headers.set("fnr", identer.tilFnrHeader())
@@ -101,7 +99,7 @@ class FlexSyketilfelleClient(
     fun beregnArbeidsgiverperiode(
         soknad: Sykepengesoknad,
         forelopig: Boolean,
-        identer: FolkeregisterIdenter,
+        identer: FolkeregisterIdenter
     ): Arbeidsgiverperiode? {
         val soknadDto = sykepengesoknadTilSykepengesoknadDTOMapper.mapTilSykepengesoknadDTO(soknad, null, false, false)
 

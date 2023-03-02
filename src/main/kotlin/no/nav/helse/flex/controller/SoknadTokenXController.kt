@@ -66,7 +66,7 @@ class SoknadTokenXController(
     val sykepengesoknadFrontendClientId: String,
 
     @Value("\${TOKENX_IDPORTEN_IDP}")
-    val tokenxIdportenIdp: String,
+    val tokenxIdportenIdp: String
 ) {
 
     private val log = logger()
@@ -293,7 +293,7 @@ class SoknadTokenXController(
     fun slettSvar(
         @PathVariable soknadId: String,
         @PathVariable sporsmalId: String,
-        @PathVariable svarId: String,
+        @PathVariable svarId: String
     ) {
         if (environmentToggles.isReadOnly()) {
             throw ReadOnlyException()

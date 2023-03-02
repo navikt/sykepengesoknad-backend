@@ -14,7 +14,7 @@ class SplittSykmeldingperioderTest {
     fun splitter33dagersSMtil16Og17() {
         val sykmeldingDokument = skapArbeidsgiverSykmelding(
             fom = LocalDate.of(2017, 1, 1),
-            tom = LocalDate.of(2017, 2, 2),
+            tom = LocalDate.of(2017, 2, 2)
         )
 
         val tidsenheter = sykmeldingDokument.splittLangeSykmeldingperioder()
@@ -30,7 +30,7 @@ class SplittSykmeldingperioderTest {
     fun splitterIkkeSMunder32dager() {
         val sykmeldingDokument = skapArbeidsgiverSykmelding(
             fom = LocalDate.of(2017, 1, 1),
-            tom = LocalDate.of(2017, 1, 16),
+            tom = LocalDate.of(2017, 1, 16)
         )
 
         val tidsenheter = sykmeldingDokument.splittLangeSykmeldingperioder()
@@ -127,7 +127,7 @@ class SplittSykmeldingperioderTest {
     fun splitter32dagersSMiTo16dagers() {
         val sykmeldingDokument = skapArbeidsgiverSykmelding(
             fom = LocalDate.of(2017, 1, 1),
-            tom = LocalDate.of(2017, 2, 1),
+            tom = LocalDate.of(2017, 2, 1)
         )
 
         val tidsenheter = sykmeldingDokument.splittLangeSykmeldingperioder()
@@ -142,7 +142,6 @@ class SplittSykmeldingperioderTest {
 
     @Test
     fun splitter33dagersSMtil16Og17EnkeltstaendeBehandling() {
-
         val sykmeldingDokument = skapArbeidsgiverSykmelding().copy(
             sykmeldingsperioder = listOf(
                 SykmeldingsperiodeAGDTO(

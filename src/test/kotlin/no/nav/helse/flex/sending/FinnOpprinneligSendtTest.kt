@@ -46,7 +46,6 @@ class FinnOpprinneligSendtTest {
 
     @Test
     fun `kaster feil når sendt tidspunkt mangler`() {
-
         val exception = assertThrows<RuntimeException> {
             listOf(
                 skapDbRecord(sykepengesoknadUuid = "1", korrigerer = "2", sendtNav = Instant.now()),
@@ -60,7 +59,6 @@ class FinnOpprinneligSendtTest {
 
     @Test
     fun `kaster feil når sendt korrigerer mangler`() {
-
         val exception = assertThrows<RuntimeException> {
             listOf(
                 skapDbRecord(sykepengesoknadUuid = "1", korrigerer = "2", sendtNav = Instant.now()),
@@ -103,7 +101,7 @@ class FinnOpprinneligSendtTest {
             egenmeldtSykmelding = null,
             merknaderFraSykmelding = null,
             avbruttFeilinfo = null,
-            utenlandskSykmelding = false,
+            utenlandskSykmelding = false
         )
     }
 }

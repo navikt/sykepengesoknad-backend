@@ -30,7 +30,7 @@ class SykmeldingSendtBekreftetAivenConsumer(
         topics = [SYKMELDINGSENDT_TOPIC, SYKMELDINGBEKREFTET_TOPIC],
         id = "sykmelding-sendt-bekreftet",
         idIsGroup = false,
-        containerFactory = "aivenKafkaListenerContainerFactory",
+        containerFactory = "aivenKafkaListenerContainerFactory"
     )
     fun listen(cr: ConsumerRecord<String, String?>, acknowledgment: Acknowledgment) {
         MDC.put(NAV_CALLID, getSafeNavCallIdHeaderAsString(cr.headers()))

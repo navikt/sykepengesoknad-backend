@@ -37,9 +37,8 @@ class SoknadProducer(
         mottaker: Mottaker? = null,
         erEttersending: Boolean = false,
         dodsdato: LocalDate? = null,
-        opprinneligSendt: Instant? = null,
+        opprinneligSendt: Instant? = null
     ) {
-
         val sykepengesoknadDTO = sykepengesoknadTilSykepengesoknadDTOMapper.mapTilSykepengesoknadDTO(
             sykepengesoknad,
             mottaker,

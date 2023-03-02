@@ -11,7 +11,6 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 fun Sykepengesoknad.hentPermitteringer(): List<PeriodeDTO> {
-
     val periodeListe = mutableListOf<PeriodeDTO>()
 
     this.getSporsmalMedTagOrNull(PERMITTERT_NAA)?.let { erDuPermittertNaa ->

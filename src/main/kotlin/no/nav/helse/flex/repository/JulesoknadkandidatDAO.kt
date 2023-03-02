@@ -15,7 +15,6 @@ class JulesoknadkandidatDAO(
     data class Julesoknadkandidat(val julesoknadkandidatId: String, val sykepengesoknadUuid: String)
 
     fun hentJulesoknadkandidater(): List<Julesoknadkandidat> {
-
         return namedParameterJdbcTemplate.query(
             """
                     SELECT ID, SYKEPENGESOKNAD_UUID FROM JULESOKNADKANDIDAT

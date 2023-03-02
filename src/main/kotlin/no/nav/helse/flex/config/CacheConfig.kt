@@ -12,7 +12,7 @@ import java.time.Duration
 class CacheConfig {
     @Bean
     fun cacheManager(
-        redisConnectionFactory: RedisConnectionFactory,
+        redisConnectionFactory: RedisConnectionFactory
     ): CacheManager {
         val cacheConfigurations: MutableMap<String, RedisCacheConfiguration> = HashMap()
 

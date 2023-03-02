@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class RedusertVenteperiodeConsumer(
-    private val db: RedusertVenteperiodeRepository,
+    private val db: RedusertVenteperiodeRepository
 ) {
 
     val log = logger()
@@ -22,7 +22,7 @@ class RedusertVenteperiodeConsumer(
         containerFactory = "aivenKafkaListenerContainerFactory",
         properties = ["auto.offset.reset = earliest"],
         id = "redusert-venteperiode-consumer-2",
-        idIsGroup = true,
+        idIsGroup = true
     )
     fun listen(cr: ConsumerRecord<String, String?>, acknowledgment: Acknowledgment) {
         prosesserKafkaMelding(cr.key(), cr.value())
@@ -32,7 +32,7 @@ class RedusertVenteperiodeConsumer(
 
     fun prosesserKafkaMelding(
         sykmeldingId: String,
-        sykmeldingKafkaMessage: String?,
+        sykmeldingKafkaMessage: String?
     ) {
         val kafkaMessage = sykmeldingKafkaMessage?.readValue()
 

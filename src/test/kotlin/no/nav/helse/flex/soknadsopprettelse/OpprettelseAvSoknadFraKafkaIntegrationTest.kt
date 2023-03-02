@@ -191,7 +191,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
         val sykmelding = skapArbeidsgiverSykmelding(
             sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId,
             fom = LocalDate.of(2020, 2, 1),
-            tom = LocalDate.of(2020, 3, 15),
+            tom = LocalDate.of(2020, 3, 15)
         )
             .copy(harRedusertArbeidsgiverperiode = true)
 
@@ -236,7 +236,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
         val sykmelding = skapArbeidsgiverSykmelding(
             sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId,
             fom = LocalDate.of(2020, 2, 1),
-            tom = LocalDate.of(2020, 3, 15),
+            tom = LocalDate.of(2020, 3, 15)
         )
             .copy(sykmeldingsperioder = emptyList())
 
@@ -258,7 +258,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
         val sykmeldingStatusKafkaMessageDTO =
             skapSykmeldingStatusKafkaMessageDTO(fnr = fnr, arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG)
         val sykmelding = skapArbeidsgiverSykmelding(
-            sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId,
+            sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
         )
             .copy(
                 sykmeldingsperioder = listOf(
@@ -305,7 +305,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
         val sykmeldingStatusKafkaMessageDTO =
             skapSykmeldingStatusKafkaMessageDTO(fnr = fnr, arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG)
         val sykmelding = skapArbeidsgiverSykmelding(
-            sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId,
+            sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
         )
             .copy(
                 sykmeldingsperioder = listOf(
@@ -353,7 +353,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
         val sykmeldingStatusKafkaMessageDTO =
             skapSykmeldingStatusKafkaMessageDTO(fnr = fnr, arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG)
         val sykmelding = skapArbeidsgiverSykmelding(
-            sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId,
+            sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
         )
             .copy(
                 harRedusertArbeidsgiverperiode = true,
@@ -391,7 +391,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
         val sykmeldingStatusKafkaMessageDTO =
             skapSykmeldingStatusKafkaMessageDTO(fnr = fnr, arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG)
         val sykmelding = skapArbeidsgiverSykmelding(
-            sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId,
+            sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
         )
             .copy(
                 harRedusertArbeidsgiverperiode = true,
@@ -426,7 +426,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
         val sykmeldingStatusKafkaMessageDTO =
             skapSykmeldingStatusKafkaMessageDTO(fnr = fnr, arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG)
         val sykmelding = skapArbeidsgiverSykmelding(
-            sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId,
+            sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
         )
             .copy(
                 merknader = listOf(Merknad(type = "UNDER_BEHANDLING", beskrivelse = "Manuell behandling :("))
@@ -448,7 +448,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
     fun `oppretter 2 søknader for næringsdrivende hvor gradering endres midt i når sykmeldigna er lengre enn 31 dager`() {
         val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
         val sykmelding = skapArbeidsgiverSykmelding(
-            sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId,
+            sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
         ).copy(
             harRedusertArbeidsgiverperiode = true,
             sykmeldingsperioder = listOf(
@@ -609,7 +609,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
         doThrow(ManglerSykmeldingException())
             .whenever(aivenKafkaProducer)
             .produserMelding(
-                any(),
+                any()
             )
 
         val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
@@ -649,7 +649,6 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
     @Test
     fun `Uventet exception kastes videre`() {
         assertThrows(RuntimeException::class.java) {
-
             val sykmeldingStatusKafkaMessageDTO = skapKafkaMelding(
                 statusEvent = STATUS_BEKREFTET,
                 arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE
@@ -777,7 +776,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
             )
         )
     ) = skapArbeidsgiverSykmelding(
-        sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId,
+        sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
     )
         .copy(
             sykmeldingsperioder = sykmeldingsperioder,

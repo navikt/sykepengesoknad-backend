@@ -193,7 +193,9 @@ class SykepengesoknadDAOTest : BaseTestClass() {
             "UPDATE SYKEPENGESOKNAD " +
                 "SET SENDT_NAV = ?, SENDT_ARBEIDSGIVER = ? " +
                 "WHERE SYKEPENGESOKNAD_UUID = ?",
-            sendtNav, sendtArbeidsgiver, soknadId
+            sendtNav,
+            sendtArbeidsgiver,
+            soknadId
         )
     }
 
@@ -319,7 +321,8 @@ class SykepengesoknadDAOTest : BaseTestClass() {
         val egenmldNarSpm = this.getSporsmalMedTag(FRAVAR_FOR_SYKMELDINGEN_NAR).copy(
             svar = listOf(
                 Svar(
-                    null, "{\"fom\":\"2019-02-28\",\"tom\":\"2019-03-14\"}"
+                    null,
+                    "{\"fom\":\"2019-02-28\",\"tom\":\"2019-03-14\"}"
                 )
             )
         )
@@ -328,12 +331,12 @@ class SykepengesoknadDAOTest : BaseTestClass() {
     }
 
     private fun Sykepengesoknad.svarJaPaUtlandsporsmal(): Sykepengesoknad {
-
         val utlandSpm = this.getSporsmalMedTag(UTLAND).copy(svar = listOf(Svar(null, "CHECKED")))
         val utlandNarSpm = this.getSporsmalMedTag(UTLAND_NAR).copy(
             svar = listOf(
                 Svar(
-                    null, "{\"fom\":\"2019-02-28\",\"tom\":\"2019-03-14\"}"
+                    null,
+                    "{\"fom\":\"2019-02-28\",\"tom\":\"2019-03-14\"}"
                 )
             )
         )

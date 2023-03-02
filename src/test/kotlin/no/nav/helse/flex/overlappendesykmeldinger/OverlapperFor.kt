@@ -40,8 +40,11 @@ class OverlapperFor : BaseTestClass() {
     private lateinit var klippMetrikkRepository: KlippMetrikkRepository
 
     fun String?.tilSoknadsperioder(): List<Soknadsperiode>? {
-        return if (this == null) null
-        else OBJECT_MAPPER.readValue(this)
+        return if (this == null) {
+            null
+        } else {
+            OBJECT_MAPPER.readValue(this)
+        }
     }
 
     private final val basisdato = LocalDate.now()
@@ -60,18 +63,18 @@ class OverlapperFor : BaseTestClass() {
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = basisdato.plusDays(5),
-                    tom = basisdato.plusDays(10),
-                ),
-            ),
+                    tom = basisdato.plusDays(10)
+                )
+            )
         )
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = basisdato,
-                    tom = basisdato.plusDays(7),
-                ),
-            ),
+                    tom = basisdato.plusDays(7)
+                )
+            )
         )
 
         val hentetViaRest = hentSoknaderMetadata(fnr)
@@ -96,7 +99,7 @@ class OverlapperFor : BaseTestClass() {
                 fom = basisdato.plusDays(5),
                 tom = basisdato.plusDays(10),
                 grad = 100,
-                sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+                sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
             )
         )
         klipp.periodeEtter.tilSoknadsperioder() shouldBeEqualTo listOf(
@@ -104,7 +107,7 @@ class OverlapperFor : BaseTestClass() {
                 fom = basisdato.plusDays(8),
                 tom = basisdato.plusDays(10),
                 grad = 100,
-                sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+                sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
             )
         )
         val klippmetrikker = klippMetrikkRepository.findAll().toList().sortedBy { it.variant }
@@ -124,18 +127,18 @@ class OverlapperFor : BaseTestClass() {
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = basisdato,
-                    tom = basisdato.plusDays(10),
-                ),
-            ),
+                    tom = basisdato.plusDays(10)
+                )
+            )
         )
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = basisdato,
-                    tom = basisdato.plusDays(7),
-                ),
-            ),
+                    tom = basisdato.plusDays(7)
+                )
+            )
         )
 
         val hentetViaRest = hentSoknaderMetadata(fnr)
@@ -172,9 +175,9 @@ class OverlapperFor : BaseTestClass() {
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = basisdato.minusDays(5),
-                    tom = basisdato.minusDays(1),
-                ),
-            ),
+                    tom = basisdato.minusDays(1)
+                )
+            )
         )
         val overlappendeSoknad = sendSykmelding(
             forventaSoknader = 2,
@@ -182,9 +185,9 @@ class OverlapperFor : BaseTestClass() {
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = basisdato.minusDays(10),
-                    tom = basisdato.minusDays(2),
-                ),
-            ),
+                    tom = basisdato.minusDays(2)
+                )
+            )
         ).last()
 
         overlappendeSoknad.fom shouldBeEqualTo basisdato.minusDays(10)
@@ -223,9 +226,9 @@ class OverlapperFor : BaseTestClass() {
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = basisdato.minusDays(10),
-                    tom = basisdato.minusDays(1),
-                ),
-            ),
+                    tom = basisdato.minusDays(1)
+                )
+            )
         ).first()
 
         soknad.status shouldBeEqualTo SoknadsstatusDTO.NY
@@ -242,9 +245,9 @@ class OverlapperFor : BaseTestClass() {
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = basisdato.minusDays(15),
-                    tom = basisdato.minusDays(5),
-                ),
-            ),
+                    tom = basisdato.minusDays(5)
+                )
+            )
         ).last()
 
         overlappendeSoknad.fom shouldBeEqualTo basisdato.minusDays(15)

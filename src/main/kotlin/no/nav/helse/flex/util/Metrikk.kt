@@ -38,8 +38,10 @@ class Metrikk(private val registry: MeterRegistry) {
         registry.counter(
             "syfosoknad_soknad_med_helg_etterkant_av_arbeidsgiverperiode",
             Tags.of(
-                "type", "info",
-                "oppbruktArbeidsgiverperiode", oppbruktArbeidsgiverperiode.toString()
+                "type",
+                "info",
+                "oppbruktArbeidsgiverperiode",
+                oppbruktArbeidsgiverperiode.toString()
             )
         ).increment()
     }
@@ -52,8 +54,10 @@ class Metrikk(private val registry: MeterRegistry) {
         registry.counter(
             "syfosoknad_soknad_opprettet",
             Tags.of(
-                "type", "info",
-                "soknadstype", soknadstype.name
+                "type",
+                "info",
+                "soknadstype",
+                soknadstype.name
             )
         )
             .increment()
@@ -108,8 +112,10 @@ class Metrikk(private val registry: MeterRegistry) {
         registry.counter(
             "syfosoknad_syketilfelle_forstegangssoknad",
             Tags.of(
-                "type", "info",
-                "soknadstype", soknadstype
+                "type",
+                "info",
+                "soknadstype",
+                soknadstype
             )
         )
             .increment()
@@ -119,8 +125,10 @@ class Metrikk(private val registry: MeterRegistry) {
         registry.counter(
             "syfosoknad_syketilfelle_forlengelsesoknad",
             Tags.of(
-                "type", "info",
-                "soknadstype", soknadstype
+                "type",
+                "info",
+                "soknadstype",
+                soknadstype
             )
         )
             .increment()
@@ -130,9 +138,12 @@ class Metrikk(private val registry: MeterRegistry) {
         registry.counter(
             "syfosoknad_dager_fra_aktivering_til_innsending",
             Tags.of(
-                "type", "info",
-                "soknadstype", soknadstype,
-                "dager", dager.toString()
+                "type",
+                "info",
+                "soknadstype",
+                soknadstype,
+                "dager",
+                dager.toString()
             )
         )
             .increment()
@@ -173,8 +184,10 @@ class Metrikk(private val registry: MeterRegistry) {
         registry.counter(
             "syfosoknad_friskmeldte_dager_for_arbeidsledige",
             Tags.of(
-                "type", "info",
-                "dager", antallFriskmeldteDager.toString()
+                "type",
+                "info",
+                "dager",
+                antallFriskmeldteDager.toString()
             )
         )
             .increment()

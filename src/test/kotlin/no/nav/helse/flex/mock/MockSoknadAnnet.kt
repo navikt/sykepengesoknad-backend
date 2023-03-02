@@ -37,14 +37,14 @@ fun opprettNySoknadAnnet(): Sykepengesoknad {
                 aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
                 behandlingsdager = null,
                 innspillTilArbeidsgiver = null,
-                reisetilskudd = false,
+                reisetilskudd = false
             )
         ).tilSoknadsperioder(),
         id = UUID.randomUUID().toString(),
         status = Soknadstatus.NY,
         opprettet = Instant.now(),
         sporsmal = emptyList(),
-        utenlandskSykmelding = false,
+        utenlandskSykmelding = false
     )
 
     return soknadMetadata.copy(sporsmal = settOppSoknadAnnetArbeidsforhold(soknadMetadata, false))
