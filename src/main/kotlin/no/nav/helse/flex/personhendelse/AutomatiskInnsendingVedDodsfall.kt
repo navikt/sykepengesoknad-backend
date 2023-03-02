@@ -57,7 +57,7 @@ class AutomatiskInnsendingVedDodsfall(
     }
 
     fun automatiskInnsending(fnr: String, dodsdato: LocalDate): FolkeregisterIdenter {
-        val aatteMndSiden = LocalDate.now(osloZone).minusMonths(8)
+        val treMndSiden = LocalDate.now(osloZone).minusMonths(3)
         val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(fnr)
 
         sykepengesoknadDAO.finnSykepengesoknader(identer)
@@ -77,7 +77,7 @@ class AutomatiskInnsendingVedDodsfall(
                     sykepengesoknad = sykepengesoknadDAO.finnSykepengesoknad(sykepengesoknad.id)
                 }
 
-                if (sykepengesoknad.tom!!.isAfterOrEqual(aatteMndSiden)) {
+                if (sykepengesoknad.tom!!.isAfterOrEqual(treMndSiden)) {
                     val mottaker = mottakerAvSoknadService.finnMottakerAvSoknad(sykepengesoknad, identer)
 
                     if (Mottaker.ARBEIDSGIVER == mottaker) {
