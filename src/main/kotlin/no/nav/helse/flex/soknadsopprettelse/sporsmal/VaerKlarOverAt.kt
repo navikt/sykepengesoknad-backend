@@ -14,9 +14,9 @@ fun vaerKlarOverAt(gradertReisetilskudd: Boolean): Sporsmal {
             "<li>Fristen for å søke sykepenger er som hovedregel 3 måneder</li>" +
             "<li>Du må melde fra til NAV hvis du satt i varetekt, sonet straff eller var under forvaring i sykmeldingsperioden.</li>" +
             "<li>Du må melde fra om studier som er påbegynt etter at du ble sykmeldt, og som ikke er avklart med NAV. Det samme gjelder hvis du begynner å studere mer enn du gjorde før du ble sykmeldt.</li>" +
-            "</ul>" +
-            "<p>Meld fra om endringer i din situasjon her: <a href=\"https://www.nav.no/skriv-til-oss\" target=\"_blank\">nav.no/skriv-til-oss</a>.</p>" +
-            "<p>Du kan lese mer om rettigheter og plikter på <a href=\"https://www.nav.no/sykepenger\" target=\"_blank\">nav.no/sykepenger</a> og <a href=\"https://www.nav.no/reisetilskudd\" target=\"_blank\">nav.no/reisetilskudd</a>.</p>"
+            "<li>Meld fra om endringer i din situasjon her: <a href=\"https://www.nav.no/skriv-til-oss\" target=\"_blank\">nav.no/skriv-til-oss</a>.</li>" +
+            "<li>Du kan lese mer om rettigheter og plikter på <a href=\"https://www.nav.no/sykepenger\" target=\"_blank\">nav.no/sykepenger</a> og <a href=\"https://www.nav.no/reisetilskudd\" target=\"_blank\">nav.no/reisetilskudd</a>.</li>" +
+            "</ul>"
     } else {
         "<ul>" +
             "<li>Du kan bare få sykepenger hvis det er din egen sykdom eller skade som hindrer deg i å jobbe. Sosiale eller økonomiske problemer gir ikke rett til sykepenger.</li>" +
@@ -26,9 +26,9 @@ fun vaerKlarOverAt(gradertReisetilskudd: Boolean): Sporsmal {
             "<li>Fristen for å søke sykepenger er som hovedregel 3 måneder</li>" +
             "<li>Du må melde fra til NAV hvis du satt i varetekt, sonet straff eller var under forvaring i sykmeldingsperioden.</li>" +
             "<li>Du må melde fra om studier som er påbegynt etter at du ble sykmeldt, og som ikke er avklart med NAV. Det samme gjelder hvis du begynner å studere mer enn du gjorde før du ble sykmeldt.</li>" +
-            "</ul>" +
-            "<p>Meld fra om endringer i din situasjon her: <a href=\"https://www.nav.no/skriv-til-oss\" target=\"_blank\">nav.no/skriv-til-oss</a>.</p>" +
-            "<p>Les mer om dine rettigheter og plikter her: <a href=\"https://www.nav.no/sykepenger\" target=\"_blank\">nav.no/sykepenger</a>.</p>"
+            "<li>Meld fra om endringer i din situasjon her: <a href=\"https://www.nav.no/skriv-til-oss\" target=\"_blank\">nav.no/skriv-til-oss</a>.</li>" +
+            "<li>Les mer om dine rettigheter og plikter her: <a href=\"https://www.nav.no/sykepenger\" target=\"_blank\">nav.no/sykepenger</a>.</li>" +
+            "</ul>"
     }
 
     return Sporsmal(
