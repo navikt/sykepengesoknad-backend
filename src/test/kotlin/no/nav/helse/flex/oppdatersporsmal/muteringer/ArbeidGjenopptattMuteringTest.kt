@@ -4,12 +4,7 @@ import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.soknadsopprettelse.PERMISJON_V2
-import no.nav.helse.flex.soknadsopprettelse.TILBAKE_I_ARBEID
-import no.nav.helse.flex.soknadsopprettelse.TILBAKE_NAR
-import no.nav.helse.flex.soknadsopprettelse.UTDANNING
-import no.nav.helse.flex.soknadsopprettelse.settOppSoknadArbeidstaker
-import no.nav.helse.flex.soknadsopprettelse.tilSoknadsperioder
+import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.testutil.besvarsporsmal
 import no.nav.helse.flex.util.tilOsloInstant
 import no.nav.syfo.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO
@@ -73,15 +68,15 @@ class ArbeidGjenopptattMuteringTest {
 
         val soknadUtenUtdanning = standardSoknad
             .besvarsporsmal(TILBAKE_I_ARBEID, svar = "NEI")
-            .fjernSporsmal("UTDANNING")
+            .fjernSporsmal("UTLAND_V2")
 
-        soknadUtenUtdanning.sporsmal.find { it.tag == UTDANNING }.`should be null`()
-        soknadUtenUtdanning.sporsmal.shouldHaveSize(11)
+        soknadUtenUtdanning.sporsmal.find { it.tag == UTLAND_V2 }.`should be null`()
+        soknadUtenUtdanning.sporsmal.shouldHaveSize(10)
 
         val mutertSoknad = soknadUtenUtdanning.arbeidGjenopptattMutering()
 
-        mutertSoknad.sporsmal.find { it.tag == UTDANNING }.`should not be null`()
-        mutertSoknad.sporsmal.shouldHaveSize(12)
+        mutertSoknad.sporsmal.find { it.tag == UTLAND_V2 }.`should not be null`()
+        mutertSoknad.sporsmal.shouldHaveSize(11)
     }
 
     @Test
@@ -136,7 +131,7 @@ class ArbeidGjenopptattMuteringTest {
             )
         )
 
-        standardSoknad.sporsmal.shouldHaveSize(13)
+        standardSoknad.sporsmal.shouldHaveSize(12)
         standardSoknad.sporsmal.find { it.tag == "ARBEID_UNDERVEIS_100_PROSENT_1" }.`should not be null`()
 
         val mutertSoknadUtenSpm = standardSoknad
@@ -144,14 +139,14 @@ class ArbeidGjenopptattMuteringTest {
             .besvarsporsmal(TILBAKE_NAR, svar = basisdato.plusDays(4).format(ISO_LOCAL_DATE))
             .arbeidGjenopptattMutering()
 
-        mutertSoknadUtenSpm.sporsmal.shouldHaveSize(12)
+        mutertSoknadUtenSpm.sporsmal.shouldHaveSize(11)
         mutertSoknadUtenSpm.sporsmal.find { it.tag == "ARBEID_UNDERVEIS_100_PROSENT_1" }.`should be null`()
 
         val mutertSoknadMedSpm = mutertSoknadUtenSpm
             .besvarsporsmal(TILBAKE_I_ARBEID, svar = "NEI")
             .arbeidGjenopptattMutering()
 
-        mutertSoknadMedSpm.sporsmal.shouldHaveSize(13)
+        mutertSoknadMedSpm.sporsmal.shouldHaveSize(12)
         mutertSoknadMedSpm.sporsmal.find { it.tag == "ARBEID_UNDERVEIS_100_PROSENT_1" }.`should not be null`()
     }
 

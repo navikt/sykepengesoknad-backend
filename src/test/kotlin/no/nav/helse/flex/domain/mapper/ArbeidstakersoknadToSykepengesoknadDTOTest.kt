@@ -9,7 +9,6 @@ import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Sykmeldingstype.AKTIVITET_IKKE_MULIG
 import no.nav.helse.flex.domain.Sykmeldingstype.GRADERT
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.arbeidGjenopptattDato
-import no.nav.helse.flex.domain.mapper.sporsmalprossesering.finnUtdanning
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.getFaktiskGrad
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.harSoktSykepengerUnderUtlandsopphold
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentEgenmeldinger
@@ -24,7 +23,6 @@ import no.nav.helse.flex.soknadsopprettelse.FERIE_NAR
 import no.nav.helse.flex.soknadsopprettelse.FERIE_NAR_V2
 import no.nav.helse.flex.soknadsopprettelse.FERIE_PERMISJON_UTLAND
 import no.nav.helse.flex.soknadsopprettelse.FERIE_V2
-import no.nav.helse.flex.soknadsopprettelse.FULLTIDSSTUDIUM
 import no.nav.helse.flex.soknadsopprettelse.PERMISJON
 import no.nav.helse.flex.soknadsopprettelse.PERMISJON_NAR
 import no.nav.helse.flex.soknadsopprettelse.PERMISJON_V2
@@ -517,33 +515,6 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
         assertThat(fom1).isEqualTo(fom)
         assertThat(tom1).isEqualTo(tom)
         assertThat(type).isEqualTo(FravarstypeDTO.UTLANDSOPPHOLD)
-    }
-
-    @Test
-    fun utdanningDeltid() {
-        val sykepengesoknad = gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal()
-
-        val (fom, tom, type) = finnUtdanning(sykepengesoknad).get()
-
-        assertThat(type).isEqualTo(FravarstypeDTO.UTDANNING_DELTID)
-        assertThat(fom).isEqualTo(sykepengesoknad.fom!!.plusDays(3))
-        assertThat(tom).isNull()
-    }
-
-    @Test
-    fun utdanningFulltid() {
-        var sykepengesoknad = gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal()
-        sykepengesoknad = sykepengesoknad.replaceSporsmal(
-            sykepengesoknad.getSporsmalMedTag(FULLTIDSSTUDIUM).toBuilder()
-                .svar(listOf(Svar(null, "JA")))
-                .build()
-        )
-
-        val (fom, tom, type) = finnUtdanning(sykepengesoknad).get()
-
-        assertThat(type).isEqualTo(FravarstypeDTO.UTDANNING_FULLTID)
-        assertThat(fom).isEqualTo(sykepengesoknad.fom!!.plusDays(3))
-        assertThat(tom).isNull()
     }
 
     @Test

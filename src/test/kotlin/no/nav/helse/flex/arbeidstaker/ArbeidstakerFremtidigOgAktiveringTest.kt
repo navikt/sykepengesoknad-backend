@@ -95,7 +95,6 @@ class ArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
                 "ARBEID_UNDERVEIS_100_PROSENT_1",
                 "ARBEID_UTENFOR_NORGE",
                 "ANDRE_INNTEKTSKILDER_V2",
-                "UTDANNING",
                 "VAER_KLAR_OVER_AT",
                 "BEKREFT_OPPLYSNINGER"
             )
@@ -141,7 +140,6 @@ class ArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
             .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
             .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_1", svar = "NEI")
             .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
-            .besvarSporsmal(tag = "UTDANNING", svar = "NEI")
             .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
             .sendSoknad()
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)

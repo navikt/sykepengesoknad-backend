@@ -9,7 +9,6 @@ import no.nav.helse.flex.soknadsopprettelse.sporsmal.arbeidUtenforNorge
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.bekreftOpplysningerSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.friskmeldingSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.permisjonSporsmal
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.utdanningsSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.utenlandsoppholdArbeidsledigAnnetSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.vaerKlarOverAt
 
@@ -25,7 +24,6 @@ fun settOppSoknadAnnetArbeidsforhold(
         friskmeldingSporsmal(soknadMetadata.fom, soknadMetadata.tom),
         permisjonSporsmal(soknadMetadata.fom, soknadMetadata.tom),
         utenlandsoppholdArbeidsledigAnnetSporsmal(soknadMetadata.fom, soknadMetadata.tom),
-        utdanningsSporsmal(soknadMetadata.fom, soknadMetadata.tom),
         vaerKlarOverAt(gradertReisetilskudd = gradertReisetilskudd),
         bekreftOpplysningerSporsmal()
     ).also {

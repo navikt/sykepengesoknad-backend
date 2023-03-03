@@ -15,7 +15,6 @@ import no.nav.helse.flex.soknadsopprettelse.UTDANNING
 import no.nav.helse.flex.soknadsopprettelse.oppdateringhelpers.finnGyldigDatoSvar
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderArbeidsledig
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.permisjonSporsmal
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.utdanningsSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.utenlandsoppholdArbeidsledigAnnetSporsmal
 
 fun Sykepengesoknad.friskmeldtMuteringer(): Sykepengesoknad {
@@ -47,7 +46,6 @@ fun Sykepengesoknad.friskmeldtMuteringer(): Sykepengesoknad {
 
     return this
         .leggTilSporsmaal(utenlandsoppholdArbeidsledigAnnetSporsmal(this.fom!!, oppdatertTom!!))
-        .leggTilSporsmaal(utdanningsSporsmal(this.fom, oppdatertTom))
         .leggTilSporsmaal(andreInntektskilderArbeidsledig(this.fom, oppdatertTom))
         .run {
             if (this.arbeidssituasjon == Arbeidssituasjon.ANNET) {

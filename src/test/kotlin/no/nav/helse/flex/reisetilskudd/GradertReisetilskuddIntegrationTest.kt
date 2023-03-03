@@ -36,7 +36,6 @@ import no.nav.helse.flex.soknadsopprettelse.REISE_MED_BIL
 import no.nav.helse.flex.soknadsopprettelse.TILBAKE_I_ARBEID
 import no.nav.helse.flex.soknadsopprettelse.TRANSPORT_TIL_DAGLIG
 import no.nav.helse.flex.soknadsopprettelse.UTBETALING
-import no.nav.helse.flex.soknadsopprettelse.UTDANNING
 import no.nav.helse.flex.soknadsopprettelse.UTLAND_V2
 import no.nav.helse.flex.soknadsopprettelse.VAER_KLAR_OVER_AT
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.vaerKlarOverAtReisetilskudd
@@ -152,7 +151,6 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
                 "JOBBET_DU_GRADERT_0",
                 ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER_V2,
-                UTDANNING,
                 BRUKTE_REISETILSKUDDET,
                 VAER_KLAR_OVER_AT,
                 BEKREFT_OPPLYSNINGER
@@ -242,7 +240,6 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
                 "JOBBET_DU_GRADERT_0",
                 ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER_V2,
-                UTDANNING,
                 BRUKTE_REISETILSKUDDET,
                 TRANSPORT_TIL_DAGLIG,
                 REISE_MED_BIL,
@@ -365,7 +362,6 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
             .besvarSporsmal(ARBEID_UTENFOR_NORGE, "NEI")
             .besvarSporsmal("JOBBET_DU_GRADERT_0", "NEI")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
-            .besvarSporsmal(UTDANNING, "NEI")
             .besvarSporsmal(TRANSPORT_TIL_DAGLIG, "NEI")
             .besvarSporsmal(REISE_MED_BIL, "NEI")
             .besvarSporsmal(UTBETALING, "JA")
@@ -467,7 +463,6 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
                 "JOBBET_DU_GRADERT_0",
                 ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER_V2,
-                UTDANNING,
                 BRUKTE_REISETILSKUDDET,
                 VAER_KLAR_OVER_AT,
                 BEKREFT_OPPLYSNINGER
@@ -492,7 +487,6 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
             .besvarSporsmal(ARBEID_UTENFOR_NORGE, "NEI")
             .besvarSporsmal("JOBBET_DU_GRADERT_0", "NEI")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
-            .besvarSporsmal(UTDANNING, "NEI")
             .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
             .sendSoknad()
 

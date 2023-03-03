@@ -13,6 +13,7 @@ fun vaerKlarOverAt(gradertReisetilskudd: Boolean): Sporsmal {
             "<li>NAV kan innhente opplysninger som er nødvendige for å behandle søknaden.</li>" +
             "<li>Du må melde fra til NAV hvis du satt i varetekt, sonet straff eller var under forvaring i sykmeldingsperioden.</li>" +
             "<li>Fristen for å søke sykepenger er som hovedregel 3 måneder</li>" +
+            "<li>Du må melde fra om studier som er påbegynt etter at du ble sykmeldt, og som ikke er avklart med NAV. Det samme gjelder hvis du begynner å studere mer enn du gjorde før du ble sykmeldt. Du kan melde fra til NAV <a href=\"https://www.nav.no/skriv-til-oss\" target=\"_blank\">her</a>.</li>" +
             "</ul>" +
             "<p>Du kan lese mer om rettigheter og plikter på <a href=\"https://www.nav.no/sykepenger\" target=\"_blank\">nav.no/sykepenger</a> og <a href=\"https://www.nav.no/reisetilskudd\" target=\"_blank\">nav.no/reisetilskudd</a>.</p>"
     } else {
@@ -23,6 +24,7 @@ fun vaerKlarOverAt(gradertReisetilskudd: Boolean): Sporsmal {
             "<li>NAV kan innhente opplysninger som er nødvendige for å behandle søknaden.</li>" +
             "<li>Du må melde fra til NAV hvis du satt i varetekt, sonet straff eller var under forvaring i sykmeldingsperioden.</li>" +
             "<li>Fristen for å søke sykepenger er som hovedregel 3 måneder</li>" +
+            "<li>Du må melde fra om studier som er påbegynt etter at du ble sykmeldt, og som ikke er avklart med NAV. Det samme gjelder hvis du begynner å studere mer enn du gjorde før du ble sykmeldt. Du kan melde fra til NAV <a href=\"https://www.nav.no/skriv-til-oss\" target=\"_blank\">her</a>.</li>" +
             "</ul>" +
             "<p>Du kan lese mer om rettigheter og plikter på <a href=\"https://www.nav.no/sykepenger\" target=\"_blank\">nav.no/sykepenger</a>.</p>"
     }

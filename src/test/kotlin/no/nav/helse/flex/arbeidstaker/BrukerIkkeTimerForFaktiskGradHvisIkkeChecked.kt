@@ -14,7 +14,6 @@ import no.nav.helse.flex.soknadsopprettelse.FERIE_V2
 import no.nav.helse.flex.soknadsopprettelse.FRAVAR_FOR_SYKMELDINGEN
 import no.nav.helse.flex.soknadsopprettelse.PERMISJON_V2
 import no.nav.helse.flex.soknadsopprettelse.TILBAKE_I_ARBEID
-import no.nav.helse.flex.soknadsopprettelse.UTDANNING
 import no.nav.helse.flex.soknadsopprettelse.UTLAND_V2
 import no.nav.helse.flex.testdata.gradertSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
@@ -72,7 +71,6 @@ class BrukerIkkeTimerForFaktiskGradHvisIkkeChecked : BaseTestClass() {
             .besvarSporsmal("HVOR_MYE_PROSENT_VERDI_0", "51", false)
             .besvarSporsmal("HVOR_MYE_TIMER_VERDI_0", "12", true)
             .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
-            .besvarSporsmal(UTDANNING, "NEI")
             .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
             .sendSoknad()
         juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)

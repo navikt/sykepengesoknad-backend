@@ -43,7 +43,6 @@ fun settOppSoknadArbeidstaker(
         ferieSporsmal(sykepengesoknad.fom!!, sykepengesoknad.tom!!),
         permisjonSporsmal(sykepengesoknad.fom, sykepengesoknad.tom),
         utenlandsoppholdSporsmal(sykepengesoknad.fom, sykepengesoknad.tom),
-        utdanningsSporsmal(sykepengesoknad.fom, sykepengesoknad.tom),
         vaerKlarOverAt(gradertReisetilskudd = gradertResietilskudd),
         bekreftOpplysningerSporsmal()
     ).also {
@@ -289,27 +288,5 @@ private fun jobbetDu100Prosent(periode: Soknadsperiode, arbeidsgiver: String, in
         svartype = JA_NEI,
         kriterieForVisningAvUndersporsmal = JA,
         undersporsmal = jobbetDuUndersporsmal(periode = periode, minProsent = 1, index = index, arbeidsgiverNavn = arbeidsgiver)
-    )
-}
-
-private fun utdanningsSporsmal(fom: LocalDate, tom: LocalDate): Sporsmal {
-    return Sporsmal(
-        tag = UTDANNING,
-        sporsmalstekst = "Har du vært under utdanning i løpet av perioden ${formatterPeriode(fom, tom)}?",
-        svartype = JA_NEI,
-        kriterieForVisningAvUndersporsmal = JA,
-        undersporsmal = listOf(
-            Sporsmal(
-                tag = UTDANNING_START,
-                sporsmalstekst = "Når startet du på utdanningen?",
-                svartype = DATO,
-                max = tom.format(ISO_LOCAL_DATE)
-            ),
-            Sporsmal(
-                tag = FULLTIDSSTUDIUM,
-                sporsmalstekst = "Er utdanningen et fulltidsstudium?",
-                svartype = JA_NEI
-            )
-        )
     )
 }

@@ -17,7 +17,6 @@ import no.nav.helse.flex.soknadsopprettelse.ARBEIDSLEDIG_UTLAND
 import no.nav.helse.flex.soknadsopprettelse.ARBEID_UTENFOR_NORGE
 import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
 import no.nav.helse.flex.soknadsopprettelse.FRISKMELDT
-import no.nav.helse.flex.soknadsopprettelse.UTDANNING
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import org.assertj.core.api.Assertions.assertThat
@@ -54,7 +53,6 @@ class TransaksjonshandteringTest : BaseTestClass() {
             .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
             .besvarSporsmal(ARBEID_UTENFOR_NORGE, "JA")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER, "NEI")
-            .besvarSporsmal(UTDANNING, "NEI")
             .besvarSporsmal(ARBEIDSLEDIG_UTLAND, "NEI")
     }
 

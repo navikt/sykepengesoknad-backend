@@ -17,7 +17,6 @@ import no.nav.helse.flex.soknadsopprettelse.KVITTERINGER
 import no.nav.helse.flex.soknadsopprettelse.REISE_MED_BIL
 import no.nav.helse.flex.soknadsopprettelse.TILBAKE_I_ARBEID
 import no.nav.helse.flex.soknadsopprettelse.TRANSPORT_TIL_DAGLIG
-import no.nav.helse.flex.soknadsopprettelse.UTDANNING
 import no.nav.helse.flex.soknadsopprettelse.UTLAND
 import no.nav.helse.flex.soknadsopprettelse.VAER_KLAR_OVER_AT
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
@@ -113,7 +112,6 @@ class GradertReisetilskuddFrilanserTest : BaseTestClass() {
                 ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER,
                 UTLAND,
-                UTDANNING,
                 BRUKTE_REISETILSKUDDET,
                 VAER_KLAR_OVER_AT,
                 BEKREFT_OPPLYSNINGER
@@ -148,7 +146,6 @@ class GradertReisetilskuddFrilanserTest : BaseTestClass() {
                 ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER,
                 UTLAND,
-                UTDANNING,
                 BRUKTE_REISETILSKUDDET,
                 TRANSPORT_TIL_DAGLIG,
                 REISE_MED_BIL,

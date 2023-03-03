@@ -37,7 +37,6 @@ fun settOppSoknadSelvstendigOgFrilanser(
         },
         andreInntektskilderSelvstendigOgFrilanser(soknadMetadata.arbeidssituasjon!!),
         utlandsSporsmalSelvstendig(soknadMetadata.fom!!, soknadMetadata.tom!!),
-        utdanningsSporsmal(soknadMetadata.fom, soknadMetadata.tom),
         bekreftOpplysningerSporsmal(),
         vaerKlarOverAt(gradertReisetilskudd = gradertReisetilskudd)
     ).also {
@@ -103,28 +102,6 @@ private fun tilbakeIFulltArbeidSporsmal(soknadMetadata: Sykepengesoknad): Sporsm
                 min = soknadMetadata.fom!!.format(ISO_LOCAL_DATE),
                 max = soknadMetadata.tom.format(ISO_LOCAL_DATE),
                 pavirkerAndreSporsmal = true
-            )
-        )
-    )
-}
-
-private fun utdanningsSporsmal(fom: LocalDate, tom: LocalDate): Sporsmal {
-    return Sporsmal(
-        tag = UTDANNING,
-        sporsmalstekst = "Har du vært under utdanning i løpet av perioden ${formatterPeriode(fom, tom)}?",
-        svartype = JA_NEI,
-        kriterieForVisningAvUndersporsmal = JA,
-        undersporsmal = listOf(
-            Sporsmal(
-                tag = UTDANNING_START,
-                sporsmalstekst = "Når startet du på utdanningen?",
-                svartype = DATO,
-                max = tom.format(ISO_LOCAL_DATE)
-            ),
-            Sporsmal(
-                tag = FULLTIDSSTUDIUM,
-                sporsmalstekst = "Er utdanningen et fulltidsstudium?",
-                svartype = JA_NEI
             )
         )
     )
