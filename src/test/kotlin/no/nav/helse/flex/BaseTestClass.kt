@@ -68,7 +68,7 @@ abstract class BaseTestClass {
             }.also { threads.add(it) }
 
             thread {
-                KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.3.0")).apply {
+                KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.3.2")).apply {
                     start()
                     System.setProperty("KAFKA_BROKERS", bootstrapServers)
                 }
