@@ -23,11 +23,18 @@ data class KlippetSykepengesoknadDbRecord(
     val timestamp: Instant
 )
 
+/**
+ ### Varianten av klipp som sier om det er en søknad eller sykmelding som ble klippet og hvilke del som var overlappende.
+ ### [SOKNAD_STARTER_INNI_SLUTTER_ETTER] soknaden er klippet og sykmeldingen starter inni og slutter etter
+ ### [SYKMELDING_STARTER_FOR_SLUTTER_INNI] sykmeldingen er klippet og søknaden starter før og slutter inni
+ */
 enum class KlippVariant {
     SOKNAD_STARTER_FOR_SLUTTER_INNI,
     SOKNAD_STARTER_INNI_SLUTTER_ETTER,
     SOKNAD_STARTER_FOR_SLUTTER_ETTER,
     SOKNAD_STARTER_INNI_SLUTTER_INNI,
     SYKMELDING_STARTER_FOR_SLUTTER_INNI,
-    SYKMELDING_STARTER_INNI_SLUTTER_ETTER
+    SYKMELDING_STARTER_INNI_SLUTTER_ETTER,
+    SYKMELDING_STARTER_INNI_SLUTTER_INNI,
+    SYKMELDING_STARTER_FOR_SLUTTER_ETTER
 }

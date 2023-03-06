@@ -310,17 +310,12 @@ class OverlapperEtter : BaseTestClass() {
         )
 
         val klippmetrikker = klippMetrikkRepository.findAll().toList()
-        klippmetrikker shouldHaveSize 2
+        klippmetrikker shouldHaveSize 1
 
         klippmetrikker[0].soknadstatus `should be equal to` "SENDT"
-        klippmetrikker[0].variant `should be equal to` "SOKNAD_STARTER_INNI_SLUTTER_ETTER"
+        klippmetrikker[0].variant `should be equal to` "SYKMELDING_STARTER_FOR_SLUTTER_INNI"
         klippmetrikker[0].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
-        klippmetrikker[0].klippet `should be equal to` false
-
-        klippmetrikker[1].soknadstatus `should be equal to` "SENDT"
-        klippmetrikker[1].variant `should be equal to` "SYKMELDING_STARTER_FOR_SLUTTER_INNI"
-        klippmetrikker[1].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
-        klippmetrikker[1].klippet `should be equal to` true
+        klippmetrikker[0].klippet `should be equal to` true
     }
 
     @Test
@@ -530,22 +525,12 @@ class OverlapperEtter : BaseTestClass() {
         soknad.tom shouldBeEqualTo basisdato.plusDays(20)
 
         val klippmetrikker = klippMetrikkRepository.findAll().toList().sortedBy { it.variant }
-        klippmetrikker shouldHaveSize 3
+        klippmetrikker shouldHaveSize 1
 
         klippmetrikker[0].soknadstatus `should be equal to` "SENDT"
-        klippmetrikker[0].variant `should be equal to` "SOKNAD_STARTER_INNI_SLUTTER_ETTER"
+        klippmetrikker[0].variant `should be equal to` "SYKMELDING_STARTER_FOR_SLUTTER_INNI"
         klippmetrikker[0].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
-        klippmetrikker[0].klippet `should be equal to` false
-
-        klippmetrikker[1].soknadstatus `should be equal to` "SENDT"
-        klippmetrikker[1].variant `should be equal to` "SOKNAD_STARTER_INNI_SLUTTER_ETTER"
-        klippmetrikker[1].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
-        klippmetrikker[1].klippet `should be equal to` false
-
-        klippmetrikker[2].soknadstatus `should be equal to` "SENDT"
-        klippmetrikker[2].variant `should be equal to` "SYKMELDING_STARTER_FOR_SLUTTER_INNI"
-        klippmetrikker[2].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
-        klippmetrikker[2].klippet `should be equal to` true
+        klippmetrikker[0].klippet `should be equal to` true
     }
 
     @Test
