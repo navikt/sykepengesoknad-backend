@@ -1,7 +1,6 @@
 package no.nav.helse.flex.repository
 
 import org.springframework.data.annotation.Id
-import org.springframework.data.jdbc.repository.query.Modifying
 import org.springframework.data.jdbc.repository.query.Query
 import org.springframework.data.relational.core.mapping.Table
 import org.springframework.data.repository.CrudRepository
@@ -25,21 +24,6 @@ interface KlippMetrikkRepository : CrudRepository<KlippMetrikkDbRecord, String> 
         """
     )
     fun findDuplikateMetrikker(): List<DuplikateMetrikker>
-
-    @Modifying
-    @Query(
-        """
-        delete from klipp_metrikk
-        where sykmelding_uuid = :sykmeldingUuid
-         and eksisterende_sykepengesoknad_id = :eksisterendeSykepengesoknadId
-         and variant = :variant
-        """
-    )
-    fun fjernDuplikat(
-        sykmeldingUuid: String,
-        eksisterendeSykepengesoknadId: String,
-        variant: String
-    )
 }
 
 data class DuplikateMetrikker(
