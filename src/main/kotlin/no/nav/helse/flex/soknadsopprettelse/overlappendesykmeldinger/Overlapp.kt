@@ -119,9 +119,9 @@ class Overlapp(
                             },
                             nyePerioder = sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder.filter {
                                 (sok.fom!!..sok.tom!!).overlap(it.fom..it.tom)
-                            }.tilSoknadsperioder(),
+                            }.tilSoknadsperioder()
                         ),
-                        eksisterendeSykepengesoknadId = sok.id,
+                        eksisterendeSykepengesoknadId = sok.id
                     )
                 }
             }
@@ -159,9 +159,9 @@ class Overlapp(
                             },
                             nyePerioder = sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder.filter {
                                 (sok.fom!!..sok.tom!!).overlap(it.fom..it.tom)
-                            }.tilSoknadsperioder(),
+                            }.tilSoknadsperioder()
                         ),
-                        eksisterendeSykepengesoknadId = sok.id,
+                        eksisterendeSykepengesoknadId = sok.id
                     )
                 }
             }
@@ -201,8 +201,8 @@ class Overlapp(
                             },
                             nyePerioder = sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder.filter {
                                 (sok.fom!!..sok.tom!!).overlap(it.fom..it.tom)
-                            }.tilSoknadsperioder(),
-                        ),
+                            }.tilSoknadsperioder()
+                        )
                     )
                 }
             }
@@ -242,8 +242,8 @@ class Overlapp(
                             },
                             nyePerioder = sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder.filter {
                                 (sok.fom!!..sok.tom!!).overlap(it.fom..it.tom)
-                            }.tilSoknadsperioder(),
-                        ),
+                            }.tilSoknadsperioder()
+                        )
                     )
                 }
             }
@@ -373,7 +373,7 @@ class Overlapp(
     }
 
     private fun List<Sykepengesoknad>.finnSykmeldingSomOverlapperFullstendig(
-        sykmeldingKafkaMessage: SykmeldingKafkaMessage,
+        sykmeldingKafkaMessage: SykmeldingKafkaMessage
     ): SykmeldingKafkaMessage {
         val sykmeldingId = sykmeldingKafkaMessage.sykmelding.id
         val sykmeldingPerioder = sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder
@@ -400,8 +400,8 @@ class Overlapp(
                             },
                             nyePerioder = sykmeldingPerioder.filter {
                                 sokPeriode.overlap(it.fom..it.tom)
-                            }.tilSoknadsperioder(),
-                        ),
+                            }.tilSoknadsperioder()
+                        )
                     )
                 }
             }
@@ -410,7 +410,7 @@ class Overlapp(
     }
 
     private fun List<Sykepengesoknad>.finnSykmeldingSomOverlapperInni(
-        sykmeldingKafkaMessage: SykmeldingKafkaMessage,
+        sykmeldingKafkaMessage: SykmeldingKafkaMessage
     ): SykmeldingKafkaMessage {
         val sykmeldingId = sykmeldingKafkaMessage.sykmelding.id
         val sykmeldingPerioder = sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder
@@ -437,8 +437,8 @@ class Overlapp(
                             },
                             nyePerioder = sykmeldingPerioder.filter {
                                 sokPeriode.overlap(it.fom..it.tom)
-                            }.tilSoknadsperioder(),
-                        ),
+                            }.tilSoknadsperioder()
+                        )
                     )
                 }
             }
