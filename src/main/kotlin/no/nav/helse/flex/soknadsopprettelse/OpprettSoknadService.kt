@@ -347,19 +347,8 @@ internal fun ArbeidsgiverSykmelding.splittLangeSykmeldingperioder(): List<Tidsen
         return perioder.sortedBy { it.fom }.firstOrNull()?.fom ?: throw SykeforloepManglerSykemeldingException()
     }
 
-    fun nyestePeriodeFoerst(perioder: List<SykmeldingsperiodeAGDTO>): List<SykmeldingsperiodeAGDTO> {
-        return perioder.sortedByDescending { it.fom }
-    }
-
-    fun hentNyestePeriode(perioder: List<SykmeldingsperiodeAGDTO>): SykmeldingsperiodeAGDTO {
-        return nyestePeriodeFoerst(perioder)
-            .stream()
-            .findFirst().get()
-    }
-
     fun hentSenesteTOMFraPerioder(perioder: List<SykmeldingsperiodeAGDTO>): LocalDate {
-        val nyestePeriodeFoerst = nyestePeriodeFoerst(perioder)
-        return hentNyestePeriode(nyestePeriodeFoerst).tom
+        return perioder.sortedByDescending { it.fom }.first().tom
     }
 
     val liste = ArrayList<Tidsenhet>()
