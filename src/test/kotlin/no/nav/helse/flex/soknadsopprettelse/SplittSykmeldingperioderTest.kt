@@ -1,6 +1,8 @@
 package no.nav.helse.flex.soknadsopprettelse
 
+import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.domain.Arbeidssituasjon
+import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.KlippMetrikk
 import no.nav.helse.flex.soknadsopprettelse.splitt.Tidsenhet
 import no.nav.helse.flex.soknadsopprettelse.splitt.splittMellomTyper
 import no.nav.helse.flex.soknadsopprettelse.splitt.splittSykmeldingiSoknadsPerioder
@@ -9,10 +11,14 @@ import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
 import java.time.DayOfWeek
 import java.time.LocalDate
 
-class SplittSykmeldingperioderTest {
+class SplittSykmeldingperioderTest : BaseTestClass() {
+
+    @Autowired
+    lateinit var klippMetrikk: KlippMetrikk
 
     @Test
     fun splitter33dagersSMtil16Og17() {
@@ -26,7 +32,8 @@ class SplittSykmeldingperioderTest {
             emptyList(),
             sykmeldingDokument.id,
             sykmeldingDokument.behandletTidspunkt.toInstant(),
-            "12345678"
+            "12345678",
+            klippMetrikk
         )
         assertThat(tidsenheter.size).isEqualTo(2)
         assertThat(tidsenheter[0].fom).isEqualTo(LocalDate.of(2017, 1, 1))
@@ -48,7 +55,8 @@ class SplittSykmeldingperioderTest {
             emptyList(),
             sykmeldingDokument.id,
             sykmeldingDokument.behandletTidspunkt.toInstant(),
-            "12345678"
+            "12345678",
+            klippMetrikk
         )
 
         assertThat(tidsenheter.size).isEqualTo(1)
@@ -88,7 +96,8 @@ class SplittSykmeldingperioderTest {
             emptyList(),
             sykmeldingDokument.id,
             sykmeldingDokument.behandletTidspunkt.toInstant(),
-            "12345678"
+            "12345678",
+            klippMetrikk
         )
 
         assertThat(tidsenheter.size).isEqualTo(3)
@@ -134,7 +143,8 @@ class SplittSykmeldingperioderTest {
             emptyList(),
             sykmeldingDokument.id,
             sykmeldingDokument.behandletTidspunkt.toInstant(),
-            "12345678"
+            "12345678",
+            klippMetrikk
         )
 
         assertThat(tidsenheter.size).isEqualTo(4)
@@ -163,7 +173,8 @@ class SplittSykmeldingperioderTest {
             emptyList(),
             sykmeldingDokument.id,
             sykmeldingDokument.behandletTidspunkt.toInstant(),
-            "12345678"
+            "12345678",
+            klippMetrikk
         )
 
         assertThat(tidsenheter.size).isEqualTo(2)
@@ -196,7 +207,8 @@ class SplittSykmeldingperioderTest {
             emptyList(),
             sykmeldingDokument.id,
             sykmeldingDokument.behandletTidspunkt.toInstant(),
-            "12345678"
+            "12345678",
+            klippMetrikk
         )
 
         assertThat(tidsenheter.size).isEqualTo(2)
@@ -229,7 +241,8 @@ class SplittSykmeldingperioderTest {
             emptyList(),
             sykmeldingDokument.id,
             sykmeldingDokument.behandletTidspunkt.toInstant(),
-            "12345678"
+            "12345678",
+            klippMetrikk
         )
 
         assertThat(tidsenheter.size).isEqualTo(1)
@@ -272,14 +285,16 @@ class SplittSykmeldingperioderTest {
             emptyList(),
             sykmeldingDokument.id,
             sykmeldingDokument.behandletTidspunkt.toInstant(),
-            "12345678"
+            "12345678",
+            klippMetrikk
         )
         val andrePeriode = splittetPaType.last().splittSykmeldingiSoknadsPerioder(
             Arbeidssituasjon.ARBEIDSTAKER,
             emptyList(),
             sykmeldingDokument.id,
             sykmeldingDokument.behandletTidspunkt.toInstant(),
-            "12345678"
+            "12345678",
+            klippMetrikk
         )
 
         assertThat(foerstePeriode.size).isEqualTo(2)
@@ -334,14 +349,16 @@ class SplittSykmeldingperioderTest {
             emptyList(),
             sykmeldingDokument.id,
             sykmeldingDokument.behandletTidspunkt.toInstant(),
-            "12345678"
+            "12345678",
+            klippMetrikk
         )
         val andrePeriode = splittetPaType.last().splittSykmeldingiSoknadsPerioder(
             Arbeidssituasjon.ARBEIDSTAKER,
             emptyList(),
             sykmeldingDokument.id,
             sykmeldingDokument.behandletTidspunkt.toInstant(),
-            "12345678"
+            "12345678",
+            klippMetrikk
         )
 
         assertThat(foerstePeriode.size).isEqualTo(2)
@@ -389,7 +406,8 @@ class SplittSykmeldingperioderTest {
             emptyList(),
             sykmeldingDokument.id,
             sykmeldingDokument.behandletTidspunkt.toInstant(),
-            "12345678"
+            "12345678",
+            klippMetrikk
         )
 
         assertThat(tidsenheter.size).isEqualTo(2)
@@ -426,7 +444,8 @@ class SplittSykmeldingperioderTest {
             emptyList(),
             sykmeldingDokument.id,
             sykmeldingDokument.behandletTidspunkt.toInstant(),
-            "12345678"
+            "12345678",
+            klippMetrikk
         )
 
         assertThat(tidsenheter.size).isEqualTo(2)

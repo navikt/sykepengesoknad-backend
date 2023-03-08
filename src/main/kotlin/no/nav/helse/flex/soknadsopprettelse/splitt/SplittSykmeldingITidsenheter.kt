@@ -5,9 +5,12 @@ import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.sykmelding.finnSoknadsType
+import no.nav.helse.flex.repository.KlippVariant
 import no.nav.helse.flex.soknadsopprettelse.antallDager
 import no.nav.helse.flex.soknadsopprettelse.eldstePeriodeFOM
 import no.nav.helse.flex.soknadsopprettelse.hentSenesteTOMFraPerioder
+import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.EndringIUforegrad
+import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.KlippMetrikk
 import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.overlap
 import no.nav.helse.flex.util.isBeforeOrEqual
 import no.nav.helse.flex.util.min
@@ -26,7 +29,8 @@ fun ArbeidsgiverSykmelding.splittSykmeldingiSoknadsPerioder(
     eksisterendeSoknader: List<Sykepengesoknad>,
     sykmeldingId: String,
     behandletTidspunkt: Instant,
-    orgnummer: String?
+    orgnummer: String?,
+    klippMetrikk: KlippMetrikk
 ): List<Tidsenhet> {
     val sykmeldingTidsenheter = SykmeldingTidsenheter(
         mutableListOf(),
@@ -43,7 +47,13 @@ fun ArbeidsgiverSykmelding.splittSykmeldingiSoknadsPerioder(
     }
 
     if (erArbeidstakerSoknad(arbeidssituasjon)) {
-        sykmeldingTidsenheter.splittPeriodenSomOverlapperSendtSoknad(eksisterendeSoknader, sykmeldingId, behandletTidspunkt, orgnummer)
+        sykmeldingTidsenheter.splittPeriodenSomOverlapperSendtSoknad(
+            eksisterendeSoknader,
+            sykmeldingId,
+            behandletTidspunkt,
+            orgnummer,
+            klippMetrikk
+        )
     }
 
     sykmeldingTidsenheter.splittLangeSykmeldingperioder()
@@ -74,7 +84,8 @@ private fun SykmeldingTidsenheter.splittPeriodenSomOverlapperSendtSoknad(
     eksisterendeSoknader: List<Sykepengesoknad>,
     sykmeldingId: String,
     behandletTidspunkt: Instant,
-    orgnummer: String?
+    orgnummer: String?,
+    klippMetrikk: KlippMetrikk
 ): SykmeldingTidsenheter {
     val splittbareTidsenheter = splittbar.toMutableList()
     splittbar.clear()
@@ -113,6 +124,15 @@ private fun SykmeldingTidsenheter.splittPeriodenSomOverlapperSendtSoknad(
 
                 val splittbarTidsenhet = Tidsenhet(sok.tom.plusDays(1), tidsenhet.tom)
                 tidsenhet = splittbarTidsenhet
+
+                klippMetrikk.klippMetrikk(
+                    klippMetrikkVariant = KlippVariant.SYKMELDING_STARTER_FOR_SLUTTER_INNI,
+                    soknadstatus = sok.status.toString(),
+                    sykmeldingId = sykmeldingId,
+                    eksisterendeSykepengesoknadId = sok.id,
+                    klippet = true,
+                    endringIUforegrad = EndringIUforegrad.VET_IKKE
+                )
 
                 return@forEach
             }

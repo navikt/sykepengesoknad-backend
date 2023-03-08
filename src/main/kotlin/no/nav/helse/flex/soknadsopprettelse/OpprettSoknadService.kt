@@ -18,6 +18,7 @@ import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.service.SlettSoknaderTilKorrigertSykmeldingService
+import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.KlippMetrikk
 import no.nav.helse.flex.soknadsopprettelse.splitt.delOppISoknadsperioder
 import no.nav.helse.flex.soknadsopprettelse.splitt.splittMellomTyper
 import no.nav.helse.flex.soknadsopprettelse.splitt.splittSykmeldingiSoknadsPerioder
@@ -43,6 +44,7 @@ import no.nav.syfo.model.Merknad as SmMerknad
 class OpprettSoknadService(
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val metrikk: Metrikk,
+    private val klippMetrikk: KlippMetrikk,
     private val soknadProducer: SoknadProducer,
     private val lagreJulesoknadKandidater: LagreJulesoknadKandidater,
     private val slettSoknaderTilKorrigertSykmeldingService: SlettSoknaderTilKorrigertSykmeldingService
@@ -75,7 +77,8 @@ class OpprettSoknadService(
                 eksisterendeSoknader,
                 sm.id,
                 sm.behandletTidspunkt.toInstant(),
-                arbeidsgiverStatusDTO?.orgnummer
+                arbeidsgiverStatusDTO?.orgnummer,
+                klippMetrikk
             ).map {
                 val perioderFraSykmeldingen = it.delOppISoknadsperioder(sm)
                 Sykepengesoknad(
