@@ -320,45 +320,6 @@ class ArbeidstakereTest {
     }
 
     @Test
-    fun utenFriskmeldingErUtdanningssporsmalUendret() {
-        var sykepengesoknad = opprettNySoknadMock()
-        sykepengesoknad = sykepengesoknad.replaceSporsmal(
-            sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
-                min = null,
-                max = null,
-                svar = emptyList()
-            )
-        )
-        val max = sykepengesoknad.getSporsmalMedTag(UTDANNING_START).max
-        val oppdatertMax =
-            sykepengesoknad.arbeidGjenopptattMutering().getSporsmalMedTag(UTDANNING_START).max
-
-        assertThat(max).isEqualTo(oppdatertMax)
-    }
-
-    @Test
-    fun utdanningsperiodeKuttesVedFriskmelding() {
-        val periodeFom = LocalDate.now().minusDays(25)
-        val periodeTom = LocalDate.now().minusDays(17)
-        var sykepengesoknad = opprettNySoknadMock().copy(
-            fom = periodeFom,
-            tom = periodeTom
-        )
-        val arbeidGjenopptattDato = LocalDate.now().minusDays(23)
-        sykepengesoknad = sykepengesoknad.replaceSporsmal(
-            sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
-                min = null,
-                max = null,
-                svar = listOf(Svar(null, arbeidGjenopptattDato.format(DateTimeFormatter.ISO_LOCAL_DATE)))
-            )
-        )
-        val oppdatertMax =
-            sykepengesoknad.arbeidGjenopptattMutering().getSporsmalMedTag(UTDANNING_START).max
-
-        assertThat(oppdatertMax).isEqualTo(arbeidGjenopptattDato.minusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE))
-    }
-
-    @Test
     fun leggerIkkeTilSporsmalOmABeholdeSykepenger() {
         val sykepengesoknad = opprettNySoknadMock()
         assertThat(sykepengesoknad.getOptionalSporsmalMedTag(UTLANDSOPPHOLD_SOKT_SYKEPENGER)).isNotPresent

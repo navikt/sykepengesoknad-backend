@@ -106,27 +106,7 @@ internal fun arbeidGjenopptattDato(sykepengesoknad: Sykepengesoknad): LocalDate?
 
 fun samleFravaerListe(soknad: Sykepengesoknad): List<FravarDTO> {
     val fravaerliste = hentFeriePermUtlandListe(soknad).toMutableList()
-    finnUtdanning(soknad).ifPresent { fravaerliste.add(it) }
     return fravaerliste
-}
-
-internal fun finnUtdanning(soknad: Sykepengesoknad): Optional<FravarDTO> {
-    if (!soknad.getOptionalSporsmalMedTag(UTDANNING).isPresent) {
-        return Optional.empty()
-    }
-
-    val startsvar = soknad.getSporsmalMedTag(UTDANNING_START).forsteSvar
-    if ("JA" != soknad.getSporsmalMedTag(UTDANNING).forsteSvar || startsvar == null) {
-        return Optional.empty()
-    }
-    val fravar = if ("JA" == soknad.getSporsmalMedTag(FULLTIDSSTUDIUM).forsteSvar) FravarstypeDTO.UTDANNING_FULLTID else FravarstypeDTO.UTDANNING_DELTID
-    return Optional.of(
-        FravarDTO(
-            LocalDate.parse(startsvar, ISO_LOCAL_DATE),
-            null,
-            fravar
-        )
-    )
 }
 
 fun hentFeriePermUtlandListe(sykepengesoknad: Sykepengesoknad): List<FravarDTO> {

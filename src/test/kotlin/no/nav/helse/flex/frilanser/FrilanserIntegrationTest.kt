@@ -14,7 +14,6 @@ import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
 import no.nav.helse.flex.soknadsopprettelse.PERIODER
 import no.nav.helse.flex.soknadsopprettelse.TILBAKE_I_ARBEID
 import no.nav.helse.flex.soknadsopprettelse.TILBAKE_NAR
-import no.nav.helse.flex.soknadsopprettelse.UTDANNING
 import no.nav.helse.flex.soknadsopprettelse.UTLAND
 import no.nav.helse.flex.soknadsopprettelse.UTLANDSOPPHOLD_SOKT_SYKEPENGER
 import no.nav.helse.flex.soknadsopprettelse.VAER_KLAR_OVER_AT
@@ -67,7 +66,6 @@ class FrilanserIntegrationTest : BaseTestClass() {
                 ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER,
                 UTLAND,
-                UTDANNING,
                 VAER_KLAR_OVER_AT,
                 BEKREFT_OPPLYSNINGER
             )
@@ -97,7 +95,6 @@ class FrilanserIntegrationTest : BaseTestClass() {
                 ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER,
                 UTLAND,
-                UTDANNING,
                 VAER_KLAR_OVER_AT,
                 BEKREFT_OPPLYSNINGER
             )
@@ -161,10 +158,6 @@ class FrilanserIntegrationTest : BaseTestClass() {
                     .isEqualTo(
                         "Har du vært utenfor EØS mens du var sykmeldt 1. - 3. februar 2020?"
                     )
-                assertThat(it.rSSykepengesoknad.sporsmal!!.first { it.tag == UTDANNING }.sporsmalstekst)
-                    .isEqualTo(
-                        "Har du vært under utdanning i løpet av perioden 1. - 3. februar 2020?"
-                    )
             }
     }
 
@@ -177,7 +170,6 @@ class FrilanserIntegrationTest : BaseTestClass() {
             .besvarSporsmal(ARBEID_UTENFOR_NORGE, "NEI", mutert = false)
             .besvarSporsmal(ANDRE_INNTEKTSKILDER, "NEI", mutert = false)
             .besvarSporsmal(UTLAND, "NEI", mutert = false)
-            .besvarSporsmal(UTDANNING, "NEI", mutert = false)
             .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED", mutert = false)
             .also {
                 assertThat(it.muterteSoknaden).isFalse()

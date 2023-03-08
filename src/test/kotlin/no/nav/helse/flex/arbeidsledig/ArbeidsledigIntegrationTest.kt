@@ -17,7 +17,6 @@ import no.nav.helse.flex.soknadsopprettelse.ARBEID_UTENFOR_NORGE
 import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
 import no.nav.helse.flex.soknadsopprettelse.FRISKMELDT
 import no.nav.helse.flex.soknadsopprettelse.FRISKMELDT_START
-import no.nav.helse.flex.soknadsopprettelse.UTDANNING
 import no.nav.helse.flex.soknadsopprettelse.VAER_KLAR_OVER_AT
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
@@ -65,7 +64,6 @@ class ArbeidsledigIntegrationTest : BaseTestClass() {
                 FRISKMELDT,
                 ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER,
-                UTDANNING,
                 ARBEIDSLEDIG_UTLAND,
                 VAER_KLAR_OVER_AT,
                 BEKREFT_OPPLYSNINGER
@@ -98,10 +96,6 @@ class ArbeidsledigIntegrationTest : BaseTestClass() {
             .isEqualTo(
                 "Har du hatt inntekt mens du har vært sykmeldt i perioden 1. - 15. februar 2020?"
             )
-        assertThat(soknaden.sporsmal!!.first { it.tag == UTDANNING }.sporsmalstekst)
-            .isEqualTo(
-                "Har du vært under utdanning i løpet av perioden 1. - 15. februar 2020?"
-            )
         assertThat(soknaden.sporsmal!!.first { it.tag == ARBEIDSLEDIG_UTLAND }.sporsmalstekst)
             .isEqualTo(
                 "Var du på reise utenfor EØS mens du var sykmeldt 1. - 15. februar 2020?"
@@ -121,10 +115,7 @@ class ArbeidsledigIntegrationTest : BaseTestClass() {
                     .isEqualTo(
                         "Har du hatt inntekt mens du har vært sykmeldt i perioden 1. - 4. februar 2020?"
                     )
-                assertThat(it.rSSykepengesoknad.sporsmal!!.first { it.tag == UTDANNING }.sporsmalstekst)
-                    .isEqualTo(
-                        "Har du vært under utdanning i løpet av perioden 1. - 4. februar 2020?"
-                    )
+
                 assertThat(it.rSSykepengesoknad.sporsmal!!.first { it.tag == ARBEIDSLEDIG_UTLAND }.sporsmalstekst)
                     .isEqualTo(
                         "Var du på reise utenfor EØS mens du var sykmeldt 1. - 4. februar 2020?"
@@ -174,7 +165,6 @@ class ArbeidsledigIntegrationTest : BaseTestClass() {
                         FRISKMELDT,
                         ARBEID_UTENFOR_NORGE,
                         ANDRE_INNTEKTSKILDER,
-                        UTDANNING,
                         ARBEIDSLEDIG_UTLAND,
                         VAER_KLAR_OVER_AT,
                         BEKREFT_OPPLYSNINGER

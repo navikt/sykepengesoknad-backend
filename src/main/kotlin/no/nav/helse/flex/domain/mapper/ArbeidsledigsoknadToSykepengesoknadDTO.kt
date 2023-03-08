@@ -6,9 +6,6 @@ import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentArbeidUtenforNor
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentInntektListe
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentPermitteringer
 import no.nav.helse.flex.soknadsopprettelse.ARBEIDSLEDIG_UTLAND
-import no.nav.helse.flex.soknadsopprettelse.FULLTIDSSTUDIUM
-import no.nav.helse.flex.soknadsopprettelse.UTDANNING
-import no.nav.helse.flex.soknadsopprettelse.UTDANNING_START
 import no.nav.helse.flex.soknadsopprettelse.UTLANDSOPPHOLD_SOKT_SYKEPENGER
 import no.nav.helse.flex.soknadsopprettelse.UTLAND_NAR
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
@@ -18,8 +15,6 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsperiodeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.helse.flex.util.tilOsloLocalDateTime
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 import java.util.*
 
 object ArbeidsledigsoknadToSykepengesoknadDTO {
@@ -83,24 +78,7 @@ object ArbeidsledigsoknadToSykepengesoknadDTO {
     }
 
     private fun samleFravaerListe(soknad: Sykepengesoknad): List<FravarDTO> {
-        return hentFeriePermUtlandListe(soknad) + listOfNotNull(finnUtdanning(soknad))
-    }
-
-    private fun finnUtdanning(soknad: Sykepengesoknad): FravarDTO? {
-        if (!soknad.getOptionalSporsmalMedTag(UTDANNING).isPresent) {
-            return null
-        }
-
-        val startsvar = soknad.getSporsmalMedTag(UTDANNING_START).forsteSvar
-        if ("JA" != soknad.getSporsmalMedTag(UTDANNING).forsteSvar || startsvar == null) {
-            return null
-        }
-        val fravar =
-            if ("JA" == soknad.getSporsmalMedTag(FULLTIDSSTUDIUM).forsteSvar) FravarstypeDTO.UTDANNING_FULLTID else FravarstypeDTO.UTDANNING_DELTID
-        return FravarDTO(
-            fom = LocalDate.parse(startsvar, ISO_LOCAL_DATE),
-            type = fravar
-        )
+        return hentFeriePermUtlandListe(soknad)
     }
 
     private fun hentFeriePermUtlandListe(sykepengesoknad: Sykepengesoknad): List<FravarDTO> {

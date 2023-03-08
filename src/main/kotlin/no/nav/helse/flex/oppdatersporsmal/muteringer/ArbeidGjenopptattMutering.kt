@@ -25,7 +25,6 @@ import no.nav.helse.flex.soknadsopprettelse.jobbetDuIPeriodenSporsmalSelvstendig
 import no.nav.helse.flex.soknadsopprettelse.oppdateringhelpers.finnGyldigDatoSvar
 import no.nav.helse.flex.soknadsopprettelse.oppdateringhelpers.skapOppdaterteSoknadsperioder
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.permisjonSporsmal
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.utdanningsSporsmal
 import no.nav.helse.flex.soknadsopprettelse.utenlandsoppholdSporsmal
 import no.nav.helse.flex.soknadsopprettelse.utlandsSporsmalSelvstendig
 
@@ -94,12 +93,6 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
             oppdaterteSporsmal.add(utlandsSporsmalSelvstendig(this.fom!!, oppdatertTom))
         }
     }
-    oppdaterteSporsmal.add(
-        utdanningsSporsmal(
-            this.fom!!,
-            oppdatertTom
-        )
-    )
 
     return this.leggTilSporsmaal(oppdaterteSporsmal)
         .let { oppdatertSoknad ->

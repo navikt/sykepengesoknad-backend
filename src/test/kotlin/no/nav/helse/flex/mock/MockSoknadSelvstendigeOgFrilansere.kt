@@ -126,17 +126,10 @@ private fun Sykepengesoknad.leggSvarPaSoknad(): Sykepengesoknad {
         .besvarsporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
         .besvarsporsmal(ARBEID_UNDERVEIS_100_PROSENT + "0", "NEI")
         .besvarsporsmal(JOBBET_DU_GRADERT + "1", "NEI")
-        .harDuStudert()
         .harDuOppholdtDegIUtlandet()
         .andreInntektskilder()
         .tilbakeIArbeid()
         .besvarsporsmal(ANSVARSERKLARING, "CHECKED")
-}
-
-private fun Sykepengesoknad.harDuStudert(): Sykepengesoknad {
-    return besvarsporsmal(UTDANNING, "JA")
-        .besvarsporsmal(UTDANNING_START, fom!!.plusDays(3).format(ISO_LOCAL_DATE))
-        .besvarsporsmal(FULLTIDSSTUDIUM, "JA")
 }
 
 private fun Sykepengesoknad.harDuOppholdtDegIUtlandet(): Sykepengesoknad {

@@ -13,7 +13,7 @@ fun vaerKlarOverAtBehandlingsdager(): Sporsmal {
             "<li>Denne søknaden gjelder hvis selve behandlingen har en slik virkning på deg at du ikke kan jobbe resten av dagen. Grunnen er altså behandlingens effekt, og ikke at du for eksempel måtte bruke arbeidstid.</li>" +
             "<li>NAV kan innhente opplysninger som er nødvendige for å behandle søknaden.</li>" +
             "<li>Fristen for å søke sykepenger er som hovedregel 3 måneder</li>" +
-            "</ul>" +
-            "<p>Du kan lese mer om rettigheter og plikter på <a href=\"https://www.nav.no/sykepenger\" target=\"_blank\">nav.no/sykepenger</a>.</p>"
+            "<li>Du kan lese mer om rettigheter og plikter på <a href=\"https://www.nav.no/sykepenger\" target=\"_blank\">nav.no/sykepenger</a>.</li>" +
+            "</ul>"
     )
 }

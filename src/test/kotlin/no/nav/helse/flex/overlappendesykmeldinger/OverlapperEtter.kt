@@ -28,7 +28,6 @@ import no.nav.helse.flex.soknadsopprettelse.FERIE_V2
 import no.nav.helse.flex.soknadsopprettelse.FRAVAR_FOR_SYKMELDINGEN
 import no.nav.helse.flex.soknadsopprettelse.PERMISJON_V2
 import no.nav.helse.flex.soknadsopprettelse.TILBAKE_I_ARBEID
-import no.nav.helse.flex.soknadsopprettelse.UTDANNING
 import no.nav.helse.flex.soknadsopprettelse.UTLAND_V2
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testdata.behandingsdager
@@ -262,7 +261,6 @@ class OverlapperEtter : BaseTestClass() {
             .besvarSporsmal(ARBEID_UNDERVEIS_100_PROSENT + '0', "NEI")
             .besvarSporsmal(ARBEID_UTENFOR_NORGE, "NEI")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
-            .besvarSporsmal(UTDANNING, "NEI")
             .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
             .sendSoknad()
 
@@ -489,7 +487,6 @@ class OverlapperEtter : BaseTestClass() {
             .besvarSporsmal(ARBEID_UNDERVEIS_100_PROSENT + '0', "NEI")
             .besvarSporsmal(ARBEID_UTENFOR_NORGE, "NEI")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
-            .besvarSporsmal(UTDANNING, "NEI")
             .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
             .sendSoknad()
 

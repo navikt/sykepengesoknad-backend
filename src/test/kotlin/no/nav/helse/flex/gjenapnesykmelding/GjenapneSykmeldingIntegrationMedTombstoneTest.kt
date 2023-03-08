@@ -76,7 +76,6 @@ class GjenapneSykmeldingIntegrationMedTombstoneTest : BaseTestClass() {
             .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER", svar = "NEI")
             .besvarSporsmal(tag = "ARBEIDSLEDIG_UTLAND", svar = "NEI")
             .besvarSporsmal(tag = "ARBEID_UTENFOR_NORGE", svar = "NEI")
-            .besvarSporsmal(tag = "UTDANNING", svar = "NEI")
             .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER", svar = "NEI")
             .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
             .sendSoknad()

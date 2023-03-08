@@ -12,7 +12,6 @@ import no.nav.helse.flex.soknadsopprettelse.ARBEIDSLEDIG_UTLAND
 import no.nav.helse.flex.soknadsopprettelse.ARBEID_UTENFOR_NORGE
 import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
 import no.nav.helse.flex.soknadsopprettelse.FRISKMELDT
-import no.nav.helse.flex.soknadsopprettelse.UTDANNING
 import no.nav.helse.flex.soknadsopprettelse.VAER_KLAR_OVER_AT
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import org.assertj.core.api.Assertions.assertThat
@@ -52,7 +51,6 @@ class VeilederOboIntegrationTest : BaseTestClass() {
                 FRISKMELDT,
                 ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER,
-                UTDANNING,
                 ARBEIDSLEDIG_UTLAND,
                 VAER_KLAR_OVER_AT,
                 BEKREFT_OPPLYSNINGER

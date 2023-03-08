@@ -14,7 +14,6 @@ import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
 import no.nav.helse.flex.soknadsopprettelse.FRISKMELDT
 import no.nav.helse.flex.soknadsopprettelse.FRISKMELDT_START
 import no.nav.helse.flex.soknadsopprettelse.PERMISJON_V2
-import no.nav.helse.flex.soknadsopprettelse.UTDANNING
 import no.nav.helse.flex.soknadsopprettelse.VAER_KLAR_OVER_AT
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
@@ -65,7 +64,6 @@ class AnnetArbeidsforholdIntegrationTest : BaseTestClass() {
                 PERMISJON_V2,
                 ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER,
-                UTDANNING,
                 ARBEIDSLEDIG_UTLAND,
                 VAER_KLAR_OVER_AT,
                 BEKREFT_OPPLYSNINGER
@@ -84,10 +82,7 @@ class AnnetArbeidsforholdIntegrationTest : BaseTestClass() {
             .isEqualTo(
                 "Har du hatt inntekt mens du har vært sykmeldt i perioden 1. - 10. januar 2018?"
             )
-        assertThat(soknaden.sporsmal!!.first { it.tag == UTDANNING }.sporsmalstekst)
-            .isEqualTo(
-                "Har du vært under utdanning i løpet av perioden 1. - 10. januar 2018?"
-            )
+
         assertThat(soknaden.sporsmal!!.first { it.tag == ARBEIDSLEDIG_UTLAND }.sporsmalstekst)
             .isEqualTo(
                 "Var du på reise utenfor EØS mens du var sykmeldt 1. - 10. januar 2018?"
@@ -110,10 +105,7 @@ class AnnetArbeidsforholdIntegrationTest : BaseTestClass() {
                     .isEqualTo(
                         "Har du hatt inntekt mens du har vært sykmeldt i perioden 1. - 4. januar 2018?"
                     )
-                assertThat(oppdatertSoknad.sporsmal!!.first { it.tag == UTDANNING }.sporsmalstekst)
-                    .isEqualTo(
-                        "Har du vært under utdanning i løpet av perioden 1. - 4. januar 2018?"
-                    )
+
                 assertThat(oppdatertSoknad.sporsmal!!.first { it.tag == ARBEIDSLEDIG_UTLAND }.sporsmalstekst)
                     .isEqualTo(
                         "Var du på reise utenfor EØS mens du var sykmeldt 1. - 4. januar 2018?"
@@ -178,7 +170,6 @@ class AnnetArbeidsforholdIntegrationTest : BaseTestClass() {
                         PERMISJON_V2,
                         ARBEID_UTENFOR_NORGE,
                         ANDRE_INNTEKTSKILDER,
-                        UTDANNING,
                         ARBEIDSLEDIG_UTLAND,
                         VAER_KLAR_OVER_AT,
                         BEKREFT_OPPLYSNINGER
@@ -200,7 +191,6 @@ class AnnetArbeidsforholdIntegrationTest : BaseTestClass() {
             .besvarSporsmal(PERMISJON_V2, "NEI")
             .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER, "NEI")
-            .besvarSporsmal(UTDANNING, "NEI")
             .besvarSporsmal(ARBEIDSLEDIG_UTLAND, "NEI")
             .besvarSporsmal(ARBEID_UTENFOR_NORGE, "NEI")
             .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")

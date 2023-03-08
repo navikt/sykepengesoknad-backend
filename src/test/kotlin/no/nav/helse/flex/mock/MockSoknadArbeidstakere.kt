@@ -213,7 +213,6 @@ private fun leggSvarPaSoknad(sykepengesoknad: Sykepengesoknad): Sykepengesoknad 
         .jobbetDu100Prosent()
         .jobbetDuGradert()
         .andreInntektskilder()
-        .utdanning()
         .fravarForSykmeldingen()
         .besvarsporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
 
@@ -292,10 +291,4 @@ private fun Sykepengesoknad.andreInntektskilder(): Sykepengesoknad {
         .besvarsporsmal(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD, "CHECKED")
         .besvarsporsmal(INNTEKTSKILDE_SELVSTENDIG, "CHECKED")
         .besvarsporsmal(INNTEKTSKILDE_SELVSTENDIG_DAGMAMMA, "CHECKED")
-}
-
-private fun Sykepengesoknad.utdanning(): Sykepengesoknad {
-    return besvarsporsmal(UTDANNING, "JA")
-        .besvarsporsmal(UTDANNING_START, fom!!.plusDays(3).format(ISO_LOCAL_DATE))
-        .besvarsporsmal(FULLTIDSSTUDIUM, "NEI")
 }

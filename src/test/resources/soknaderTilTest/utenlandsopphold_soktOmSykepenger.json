@@ -531,46 +531,6 @@
           ]
         }
       ]
-    },
-    {
-      "id": "188645",
-      "tag": "UTDANNING",
-      "sporsmalstekst": "Har du vært under utdanning i løpet av perioden 24. mars - 1. april 2019?",
-      "undertekst": null,
-      "svartype": "JA_NEI",
-      "min": null,
-      "max": null,
-      "pavirkerAndreSporsmal": false,
-      "kriterieForVisningAvUndersporsmal": "JA",
-      "svar": [],
-      "undersporsmal": [
-        {
-          "id": "188646",
-          "tag": "UTDANNING_START",
-          "sporsmalstekst": "Når startet du på utdanningen?",
-          "undertekst": null,
-          "svartype": "DATO",
-          "min": null,
-          "max": "2019-03-26",
-          "pavirkerAndreSporsmal": false,
-          "kriterieForVisningAvUndersporsmal": null,
-          "svar": [],
-          "undersporsmal": []
-        },
-        {
-          "id": "188647",
-          "tag": "FULLTIDSSTUDIUM",
-          "sporsmalstekst": "Er utdanningen et fulltidsstudium?",
-          "undertekst": null,
-          "svartype": "JA_NEI",
-          "min": null,
-          "max": null,
-          "pavirkerAndreSporsmal": false,
-          "kriterieForVisningAvUndersporsmal": null,
-          "svar": [],
-          "undersporsmal": []
-        }
-      ]
     }
   ]
 }

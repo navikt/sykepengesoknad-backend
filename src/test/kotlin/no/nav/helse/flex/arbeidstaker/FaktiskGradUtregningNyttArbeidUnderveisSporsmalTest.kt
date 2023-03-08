@@ -13,7 +13,6 @@ import no.nav.helse.flex.soknadsopprettelse.FERIE_V2
 import no.nav.helse.flex.soknadsopprettelse.FRAVAR_FOR_SYKMELDINGEN
 import no.nav.helse.flex.soknadsopprettelse.PERMISJON_V2
 import no.nav.helse.flex.soknadsopprettelse.TILBAKE_I_ARBEID
-import no.nav.helse.flex.soknadsopprettelse.UTDANNING
 import no.nav.helse.flex.soknadsopprettelse.UTLAND_V2
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
@@ -206,7 +205,6 @@ class FaktiskGradUtregningNyttArbeidUnderveisSporsmalTest : BaseTestClass() {
             .besvarSporsmal(PERMISJON_V2, "NEI")
             .besvarSporsmal(UTLAND_V2, "NEI")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
-            .besvarSporsmal(UTDANNING, "NEI")
             .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED").also {
                 svar.forEachIndexed { index, pair ->
                     it.besvarSporsmal(pair.first, pair.second, index == svar.size - 1)
