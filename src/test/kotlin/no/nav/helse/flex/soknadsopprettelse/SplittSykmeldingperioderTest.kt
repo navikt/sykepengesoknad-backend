@@ -1,5 +1,6 @@
 package no.nav.helse.flex.soknadsopprettelse
 
+import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
@@ -17,7 +18,7 @@ class SplittSykmeldingperioderTest {
             tom = LocalDate.of(2017, 2, 2)
         )
 
-        val tidsenheter = sykmeldingDokument.splittLangeSykmeldingperioder()
+        val tidsenheter = sykmeldingDokument.splittSykmeldingiSoknadsPerioder(Arbeidssituasjon.ARBEIDSTAKER)
         assertThat(tidsenheter.size).isEqualTo(2)
         assertThat(tidsenheter[0].fom).isEqualTo(LocalDate.of(2017, 1, 1))
         assertThat(tidsenheter[0].tom).isEqualTo(LocalDate.of(2017, 1, 17))
@@ -33,7 +34,7 @@ class SplittSykmeldingperioderTest {
             tom = LocalDate.of(2017, 1, 16)
         )
 
-        val tidsenheter = sykmeldingDokument.splittLangeSykmeldingperioder()
+        val tidsenheter = sykmeldingDokument.splittSykmeldingiSoknadsPerioder(Arbeidssituasjon.ARBEIDSTAKER)
 
         assertThat(tidsenheter.size).isEqualTo(1)
         assertThat(tidsenheter.get(0).fom).isEqualTo(LocalDate.of(2017, 1, 1))
@@ -67,7 +68,7 @@ class SplittSykmeldingperioderTest {
             )
         )
 
-        val tidsenheter = sykmeldingDokument.splittLangeSykmeldingperioder()
+        val tidsenheter = sykmeldingDokument.splittSykmeldingiSoknadsPerioder(Arbeidssituasjon.ARBEIDSTAKER)
 
         assertThat(tidsenheter.size).isEqualTo(3)
         assertThat(tidsenheter.get(0).fom).isEqualTo(LocalDate.of(2017, 1, 1))
@@ -107,7 +108,7 @@ class SplittSykmeldingperioderTest {
             )
         )
 
-        val tidsenheter = sykmeldingDokument.splittLangeSykmeldingperioder()
+        val tidsenheter = sykmeldingDokument.splittSykmeldingiSoknadsPerioder(Arbeidssituasjon.ARBEIDSTAKER)
 
         assertThat(tidsenheter.size).isEqualTo(4)
         assertThat(tidsenheter.get(0).fom).isEqualTo(LocalDate.of(2017, 1, 1))
@@ -130,7 +131,7 @@ class SplittSykmeldingperioderTest {
             tom = LocalDate.of(2017, 2, 1)
         )
 
-        val tidsenheter = sykmeldingDokument.splittLangeSykmeldingperioder()
+        val tidsenheter = sykmeldingDokument.splittSykmeldingiSoknadsPerioder(Arbeidssituasjon.ARBEIDSTAKER)
 
         assertThat(tidsenheter.size).isEqualTo(2)
         assertThat(tidsenheter.get(0).fom).isEqualTo(LocalDate.of(2017, 1, 1))
@@ -157,7 +158,7 @@ class SplittSykmeldingperioderTest {
             )
         )
 
-        val tidsenheter = sykmeldingDokument.splittLangeSykmeldingperioder()
+        val tidsenheter = sykmeldingDokument.splittSykmeldingiSoknadsPerioder(Arbeidssituasjon.ARBEIDSTAKER)
 
         assertThat(tidsenheter.size).isEqualTo(2)
         assertThat(tidsenheter.get(0).fom).isEqualTo(LocalDate.of(2017, 1, 1))
@@ -184,7 +185,7 @@ class SplittSykmeldingperioderTest {
             )
         )
 
-        val tidsenheter = sykmeldingDokument.splittLangeSykmeldingperioder()
+        val tidsenheter = sykmeldingDokument.splittSykmeldingiSoknadsPerioder(Arbeidssituasjon.ARBEIDSTAKER)
 
         assertThat(tidsenheter.size).isEqualTo(1)
         assertThat(tidsenheter.get(0).fom).isEqualTo(LocalDate.of(2017, 1, 1))
@@ -217,23 +218,28 @@ class SplittSykmeldingperioderTest {
                 )
             )
         )
-        val tidsenheter = sykmeldingDokument.splittLangeSykmeldingperioder()
+        val splittetPaType = sykmeldingDokument.splittMellomTyper()
 
-        assertThat(tidsenheter.size).isEqualTo(3)
-        assertThat(tidsenheter.get(0).fom).isEqualTo(LocalDate.of(2017, 1, 1))
-        assertThat(tidsenheter.get(0).tom).isEqualTo(LocalDate.of(2017, 1, 29))
-        assertThat(tidsenheter.get(0).tom.getDayOfWeek()).isEqualTo(DayOfWeek.SUNDAY)
+        assertThat(splittetPaType.size).isEqualTo(2)
 
-        assertThat(tidsenheter.get(1).fom).isEqualTo(LocalDate.of(2017, 1, 30))
-        assertThat(tidsenheter.get(1).tom).isEqualTo(LocalDate.of(2017, 2, 15))
-        assertThat(tidsenheter.get(1).tom.getDayOfWeek()).isEqualTo(DayOfWeek.WEDNESDAY)
+        val foerstePeriode = splittetPaType.first().splittSykmeldingiSoknadsPerioder(Arbeidssituasjon.ARBEIDSTAKER)
+        val andrePeriode = splittetPaType.last().splittSykmeldingiSoknadsPerioder(Arbeidssituasjon.ARBEIDSTAKER)
 
-        assertThatAlleUtenomForsteFomErMandag(tidsenheter.take(2))
-        assertThatAlleUtenomSisteTomErSondag(tidsenheter.take(2))
+        assertThat(foerstePeriode.size).isEqualTo(2)
+        assertThat(foerstePeriode.get(0).fom).isEqualTo(LocalDate.of(2017, 1, 1))
+        assertThat(foerstePeriode.get(0).tom).isEqualTo(LocalDate.of(2017, 1, 29))
+        assertThat(foerstePeriode.get(0).tom.getDayOfWeek()).isEqualTo(DayOfWeek.SUNDAY)
 
-        assertThat(tidsenheter.get(2).fom).isEqualTo(LocalDate.of(2017, 2, 16))
-        assertThat(tidsenheter.get(2).tom).isEqualTo(LocalDate.of(2017, 3, 2))
-        assertThat(tidsenheter.get(2).tom.getDayOfWeek()).isEqualTo(DayOfWeek.THURSDAY)
+        assertThat(foerstePeriode.get(1).fom).isEqualTo(LocalDate.of(2017, 1, 30))
+        assertThat(foerstePeriode.get(1).tom).isEqualTo(LocalDate.of(2017, 2, 15))
+        assertThat(foerstePeriode.get(1).tom.getDayOfWeek()).isEqualTo(DayOfWeek.WEDNESDAY)
+
+        assertThatAlleUtenomForsteFomErMandag(foerstePeriode.take(2))
+        assertThatAlleUtenomSisteTomErSondag(foerstePeriode.take(2))
+
+        assertThat(andrePeriode.get(0).fom).isEqualTo(LocalDate.of(2017, 2, 16))
+        assertThat(andrePeriode.get(0).tom).isEqualTo(LocalDate.of(2017, 3, 2))
+        assertThat(andrePeriode.get(0).tom.getDayOfWeek()).isEqualTo(DayOfWeek.THURSDAY)
     }
 
     @Test
@@ -262,30 +268,35 @@ class SplittSykmeldingperioderTest {
                 )
             )
         )
-        val tidsenheter = sykmeldingDokument.splittLangeSykmeldingperioder()
+        val splittetPaType = sykmeldingDokument.splittMellomTyper()
 
-        assertThat(tidsenheter.size).isEqualTo(4)
-        assertThat(tidsenheter.get(0).fom).isEqualTo(LocalDate.of(2017, 1, 1))
-        assertThat(tidsenheter.get(0).tom).isEqualTo(LocalDate.of(2017, 1, 29))
-        assertThat(tidsenheter.get(0).tom.getDayOfWeek()).isEqualTo(DayOfWeek.SUNDAY)
+        assertThat(splittetPaType.size).isEqualTo(2)
 
-        assertThat(tidsenheter.get(1).fom).isEqualTo(LocalDate.of(2017, 1, 30))
-        assertThat(tidsenheter.get(1).tom).isEqualTo(LocalDate.of(2017, 2, 15))
-        assertThat(tidsenheter.get(1).tom.getDayOfWeek()).isEqualTo(DayOfWeek.WEDNESDAY)
+        val foerstePeriode = splittetPaType.first().splittSykmeldingiSoknadsPerioder(Arbeidssituasjon.ARBEIDSTAKER)
+        val andrePeriode = splittetPaType.last().splittSykmeldingiSoknadsPerioder(Arbeidssituasjon.ARBEIDSTAKER)
 
-        assertThatAlleUtenomForsteFomErMandag(tidsenheter.take(2))
-        assertThatAlleUtenomSisteTomErSondag(tidsenheter.take(2))
+        assertThat(foerstePeriode.size).isEqualTo(2)
+        assertThat(foerstePeriode.get(0).fom).isEqualTo(LocalDate.of(2017, 1, 1))
+        assertThat(foerstePeriode.get(0).tom).isEqualTo(LocalDate.of(2017, 1, 29))
+        assertThat(foerstePeriode.get(0).tom.getDayOfWeek()).isEqualTo(DayOfWeek.SUNDAY)
 
-        assertThat(tidsenheter.get(2).fom).isEqualTo(LocalDate.of(2017, 2, 16))
-        assertThat(tidsenheter.get(2).tom).isEqualTo(LocalDate.of(2017, 3, 12))
-        assertThat(tidsenheter.get(2).tom.getDayOfWeek()).isEqualTo(DayOfWeek.SUNDAY)
+        assertThat(foerstePeriode.get(1).fom).isEqualTo(LocalDate.of(2017, 1, 30))
+        assertThat(foerstePeriode.get(1).tom).isEqualTo(LocalDate.of(2017, 2, 15))
+        assertThat(foerstePeriode.get(1).tom.getDayOfWeek()).isEqualTo(DayOfWeek.WEDNESDAY)
 
-        assertThat(tidsenheter.get(3).fom).isEqualTo(LocalDate.of(2017, 3, 13))
-        assertThat(tidsenheter.get(3).tom).isEqualTo(LocalDate.of(2017, 4, 10))
-        assertThat(tidsenheter.get(3).tom.getDayOfWeek()).isEqualTo(DayOfWeek.MONDAY)
+        assertThatAlleUtenomForsteFomErMandag(foerstePeriode.take(2))
+        assertThatAlleUtenomSisteTomErSondag(foerstePeriode.take(2))
 
-        assertThatAlleUtenomForsteFomErMandag(tidsenheter.reversed().take(2).reversed())
-        assertThatAlleUtenomSisteTomErSondag(tidsenheter.reversed().take(2).reversed())
+        assertThat(andrePeriode.get(0).fom).isEqualTo(LocalDate.of(2017, 2, 16))
+        assertThat(andrePeriode.get(0).tom).isEqualTo(LocalDate.of(2017, 3, 12))
+        assertThat(andrePeriode.get(0).tom.getDayOfWeek()).isEqualTo(DayOfWeek.SUNDAY)
+
+        assertThat(andrePeriode.get(1).fom).isEqualTo(LocalDate.of(2017, 3, 13))
+        assertThat(andrePeriode.get(1).tom).isEqualTo(LocalDate.of(2017, 4, 10))
+        assertThat(andrePeriode.get(1).tom.getDayOfWeek()).isEqualTo(DayOfWeek.MONDAY)
+
+        assertThatAlleUtenomForsteFomErMandag(andrePeriode.reversed().take(2).reversed())
+        assertThatAlleUtenomSisteTomErSondag(andrePeriode.reversed().take(2).reversed())
     }
 
     @Test
@@ -304,7 +315,7 @@ class SplittSykmeldingperioderTest {
                 )
             )
         )
-        val tidsenheter = sykmeldingDokument.splittLangeSykmeldingperioder()
+        val tidsenheter = sykmeldingDokument.splittSykmeldingiSoknadsPerioder(Arbeidssituasjon.ARBEIDSTAKER)
 
         assertThat(tidsenheter.size).isEqualTo(2)
         assertThat(tidsenheter.get(0).fom).isEqualTo(LocalDate.of(2017, 1, 1))
@@ -335,7 +346,7 @@ class SplittSykmeldingperioderTest {
                 )
             )
         )
-        val tidsenheter = sykmeldingDokument.splittLangeSykmeldingperioder()
+        val tidsenheter = sykmeldingDokument.splittSykmeldingiSoknadsPerioder(Arbeidssituasjon.ARBEIDSTAKER)
 
         assertThat(tidsenheter.size).isEqualTo(2)
         assertThat(tidsenheter.get(0).fom).isEqualTo(LocalDate.of(2019, 11, 1))
