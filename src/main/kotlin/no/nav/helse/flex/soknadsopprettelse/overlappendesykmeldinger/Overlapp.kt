@@ -283,16 +283,15 @@ class Overlapp(
                             sokPeriode,
                             sykmeldingPerioder
                         )
+                        klippMetrikk.klippMetrikk(
+                            klippMetrikkVariant = KlippVariant.SYKMELDING_STARTER_FOR_SLUTTER_INNI,
+                            soknadstatus = sok.status.toString(),
+                            sykmeldingId = sykmeldingId,
+                            eksisterendeSykepengesoknadId = sok.id,
+                            klippet = klipper,
+                            endringIUforegrad = endringIUforegrad
+                        )
                     }
-
-                    klippMetrikk.klippMetrikk(
-                        klippMetrikkVariant = KlippVariant.SYKMELDING_STARTER_FOR_SLUTTER_INNI,
-                        soknadstatus = sok.status.toString(),
-                        sykmeldingId = sykmeldingId,
-                        eksisterendeSykepengesoknadId = sok.id,
-                        klippet = klipper,
-                        endringIUforegrad = endringIUforegrad
-                    )
                 }
             }
 

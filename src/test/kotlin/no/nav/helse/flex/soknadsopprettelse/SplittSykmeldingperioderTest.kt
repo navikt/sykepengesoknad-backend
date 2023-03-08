@@ -1,6 +1,9 @@
 package no.nav.helse.flex.soknadsopprettelse
 
 import no.nav.helse.flex.domain.Arbeidssituasjon
+import no.nav.helse.flex.soknadsopprettelse.splitt.Tidsenhet
+import no.nav.helse.flex.soknadsopprettelse.splitt.splittMellomTyper
+import no.nav.helse.flex.soknadsopprettelse.splitt.splittSykmeldingiSoknadsPerioder
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
