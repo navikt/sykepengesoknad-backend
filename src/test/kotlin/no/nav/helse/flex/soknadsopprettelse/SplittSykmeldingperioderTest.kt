@@ -18,7 +18,13 @@ class SplittSykmeldingperioderTest {
             tom = LocalDate.of(2017, 2, 2)
         )
 
-        val tidsenheter = sykmeldingDokument.splittSykmeldingiSoknadsPerioder(Arbeidssituasjon.ARBEIDSTAKER)
+        val tidsenheter = sykmeldingDokument.splittSykmeldingiSoknadsPerioder(
+            Arbeidssituasjon.ARBEIDSTAKER,
+            emptyList(),
+            sykmeldingDokument.id,
+            sykmeldingDokument.behandletTidspunkt.toInstant(),
+            "12345678"
+        )
         assertThat(tidsenheter.size).isEqualTo(2)
         assertThat(tidsenheter[0].fom).isEqualTo(LocalDate.of(2017, 1, 1))
         assertThat(tidsenheter[0].tom).isEqualTo(LocalDate.of(2017, 1, 17))
@@ -34,7 +40,13 @@ class SplittSykmeldingperioderTest {
             tom = LocalDate.of(2017, 1, 16)
         )
 
-        val tidsenheter = sykmeldingDokument.splittSykmeldingiSoknadsPerioder(Arbeidssituasjon.ARBEIDSTAKER)
+        val tidsenheter = sykmeldingDokument.splittSykmeldingiSoknadsPerioder(
+            Arbeidssituasjon.ARBEIDSTAKER,
+            emptyList(),
+            sykmeldingDokument.id,
+            sykmeldingDokument.behandletTidspunkt.toInstant(),
+            "12345678"
+        )
 
         assertThat(tidsenheter.size).isEqualTo(1)
         assertThat(tidsenheter.get(0).fom).isEqualTo(LocalDate.of(2017, 1, 1))
@@ -68,7 +80,13 @@ class SplittSykmeldingperioderTest {
             )
         )
 
-        val tidsenheter = sykmeldingDokument.splittSykmeldingiSoknadsPerioder(Arbeidssituasjon.ARBEIDSTAKER)
+        val tidsenheter = sykmeldingDokument.splittSykmeldingiSoknadsPerioder(
+            Arbeidssituasjon.ARBEIDSTAKER,
+            emptyList(),
+            sykmeldingDokument.id,
+            sykmeldingDokument.behandletTidspunkt.toInstant(),
+            "12345678"
+        )
 
         assertThat(tidsenheter.size).isEqualTo(3)
         assertThat(tidsenheter.get(0).fom).isEqualTo(LocalDate.of(2017, 1, 1))
@@ -108,7 +126,13 @@ class SplittSykmeldingperioderTest {
             )
         )
 
-        val tidsenheter = sykmeldingDokument.splittSykmeldingiSoknadsPerioder(Arbeidssituasjon.ARBEIDSTAKER)
+        val tidsenheter = sykmeldingDokument.splittSykmeldingiSoknadsPerioder(
+            Arbeidssituasjon.ARBEIDSTAKER,
+            emptyList(),
+            sykmeldingDokument.id,
+            sykmeldingDokument.behandletTidspunkt.toInstant(),
+            "12345678"
+        )
 
         assertThat(tidsenheter.size).isEqualTo(4)
         assertThat(tidsenheter.get(0).fom).isEqualTo(LocalDate.of(2017, 1, 1))
@@ -131,7 +155,13 @@ class SplittSykmeldingperioderTest {
             tom = LocalDate.of(2017, 2, 1)
         )
 
-        val tidsenheter = sykmeldingDokument.splittSykmeldingiSoknadsPerioder(Arbeidssituasjon.ARBEIDSTAKER)
+        val tidsenheter = sykmeldingDokument.splittSykmeldingiSoknadsPerioder(
+            Arbeidssituasjon.ARBEIDSTAKER,
+            emptyList(),
+            sykmeldingDokument.id,
+            sykmeldingDokument.behandletTidspunkt.toInstant(),
+            "12345678"
+        )
 
         assertThat(tidsenheter.size).isEqualTo(2)
         assertThat(tidsenheter.get(0).fom).isEqualTo(LocalDate.of(2017, 1, 1))
@@ -158,7 +188,13 @@ class SplittSykmeldingperioderTest {
             )
         )
 
-        val tidsenheter = sykmeldingDokument.splittSykmeldingiSoknadsPerioder(Arbeidssituasjon.ARBEIDSTAKER)
+        val tidsenheter = sykmeldingDokument.splittSykmeldingiSoknadsPerioder(
+            Arbeidssituasjon.ARBEIDSTAKER,
+            emptyList(),
+            sykmeldingDokument.id,
+            sykmeldingDokument.behandletTidspunkt.toInstant(),
+            "12345678"
+        )
 
         assertThat(tidsenheter.size).isEqualTo(2)
         assertThat(tidsenheter.get(0).fom).isEqualTo(LocalDate.of(2017, 1, 1))
@@ -169,7 +205,7 @@ class SplittSykmeldingperioderTest {
     }
 
     @Test
-    fun splitterIkkeSMunder32dagerEnkeltstaendeBehandling() {
+    fun splitterIkkesykmeldingDokumentunder32dagerEnkeltstaendeBehandling() {
         val sykmeldingDokument = skapArbeidsgiverSykmelding().copy(
             sykmeldingsperioder = listOf(
                 SykmeldingsperiodeAGDTO(
@@ -185,7 +221,13 @@ class SplittSykmeldingperioderTest {
             )
         )
 
-        val tidsenheter = sykmeldingDokument.splittSykmeldingiSoknadsPerioder(Arbeidssituasjon.ARBEIDSTAKER)
+        val tidsenheter = sykmeldingDokument.splittSykmeldingiSoknadsPerioder(
+            Arbeidssituasjon.ARBEIDSTAKER,
+            emptyList(),
+            sykmeldingDokument.id,
+            sykmeldingDokument.behandletTidspunkt.toInstant(),
+            "12345678"
+        )
 
         assertThat(tidsenheter.size).isEqualTo(1)
         assertThat(tidsenheter.get(0).fom).isEqualTo(LocalDate.of(2017, 1, 1))
@@ -222,8 +264,20 @@ class SplittSykmeldingperioderTest {
 
         assertThat(splittetPaType.size).isEqualTo(2)
 
-        val foerstePeriode = splittetPaType.first().splittSykmeldingiSoknadsPerioder(Arbeidssituasjon.ARBEIDSTAKER)
-        val andrePeriode = splittetPaType.last().splittSykmeldingiSoknadsPerioder(Arbeidssituasjon.ARBEIDSTAKER)
+        val foerstePeriode = splittetPaType.first().splittSykmeldingiSoknadsPerioder(
+            Arbeidssituasjon.ARBEIDSTAKER,
+            emptyList(),
+            sykmeldingDokument.id,
+            sykmeldingDokument.behandletTidspunkt.toInstant(),
+            "12345678"
+        )
+        val andrePeriode = splittetPaType.last().splittSykmeldingiSoknadsPerioder(
+            Arbeidssituasjon.ARBEIDSTAKER,
+            emptyList(),
+            sykmeldingDokument.id,
+            sykmeldingDokument.behandletTidspunkt.toInstant(),
+            "12345678"
+        )
 
         assertThat(foerstePeriode.size).isEqualTo(2)
         assertThat(foerstePeriode.get(0).fom).isEqualTo(LocalDate.of(2017, 1, 1))
@@ -243,7 +297,7 @@ class SplittSykmeldingperioderTest {
     }
 
     @Test
-    fun splitter100dagersSMiFireSykmeldingerEnkeltstaendeBehandling() {
+    fun splitter100dagerssykmeldingDokumentiFireSykmeldingerEnkeltstaendeBehandling() {
         val sykmeldingDokument = skapArbeidsgiverSykmelding().copy(
             sykmeldingsperioder = listOf(
                 SykmeldingsperiodeAGDTO(
@@ -272,8 +326,20 @@ class SplittSykmeldingperioderTest {
 
         assertThat(splittetPaType.size).isEqualTo(2)
 
-        val foerstePeriode = splittetPaType.first().splittSykmeldingiSoknadsPerioder(Arbeidssituasjon.ARBEIDSTAKER)
-        val andrePeriode = splittetPaType.last().splittSykmeldingiSoknadsPerioder(Arbeidssituasjon.ARBEIDSTAKER)
+        val foerstePeriode = splittetPaType.first().splittSykmeldingiSoknadsPerioder(
+            Arbeidssituasjon.ARBEIDSTAKER,
+            emptyList(),
+            sykmeldingDokument.id,
+            sykmeldingDokument.behandletTidspunkt.toInstant(),
+            "12345678"
+        )
+        val andrePeriode = splittetPaType.last().splittSykmeldingiSoknadsPerioder(
+            Arbeidssituasjon.ARBEIDSTAKER,
+            emptyList(),
+            sykmeldingDokument.id,
+            sykmeldingDokument.behandletTidspunkt.toInstant(),
+            "12345678"
+        )
 
         assertThat(foerstePeriode.size).isEqualTo(2)
         assertThat(foerstePeriode.get(0).fom).isEqualTo(LocalDate.of(2017, 1, 1))
@@ -300,7 +366,7 @@ class SplittSykmeldingperioderTest {
     }
 
     @Test
-    fun splitter32dagersSMiTo16dagersEnkeltstaendeBehandling() {
+    fun splitter32dagerssykmeldingDokumentiTo16dagersEnkeltstaendeBehandling() {
         val sykmeldingDokument = skapArbeidsgiverSykmelding().copy(
             sykmeldingsperioder = listOf(
                 SykmeldingsperiodeAGDTO(
@@ -315,7 +381,13 @@ class SplittSykmeldingperioderTest {
                 )
             )
         )
-        val tidsenheter = sykmeldingDokument.splittSykmeldingiSoknadsPerioder(Arbeidssituasjon.ARBEIDSTAKER)
+        val tidsenheter = sykmeldingDokument.splittSykmeldingiSoknadsPerioder(
+            Arbeidssituasjon.ARBEIDSTAKER,
+            emptyList(),
+            sykmeldingDokument.id,
+            sykmeldingDokument.behandletTidspunkt.toInstant(),
+            "12345678"
+        )
 
         assertThat(tidsenheter.size).isEqualTo(2)
         assertThat(tidsenheter.get(0).fom).isEqualTo(LocalDate.of(2017, 1, 1))
@@ -346,7 +418,13 @@ class SplittSykmeldingperioderTest {
                 )
             )
         )
-        val tidsenheter = sykmeldingDokument.splittSykmeldingiSoknadsPerioder(Arbeidssituasjon.ARBEIDSTAKER)
+        val tidsenheter = sykmeldingDokument.splittSykmeldingiSoknadsPerioder(
+            Arbeidssituasjon.ARBEIDSTAKER,
+            emptyList(),
+            sykmeldingDokument.id,
+            sykmeldingDokument.behandletTidspunkt.toInstant(),
+            "12345678"
+        )
 
         assertThat(tidsenheter.size).isEqualTo(2)
         assertThat(tidsenheter.get(0).fom).isEqualTo(LocalDate.of(2019, 11, 1))

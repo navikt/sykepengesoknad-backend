@@ -18,10 +18,9 @@ import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.service.SlettSoknaderTilKorrigertSykmeldingService
-import no.nav.helse.flex.util.Metrikk
-import no.nav.helse.flex.util.max
-import no.nav.helse.flex.util.min
-import no.nav.helse.flex.util.osloZone
+import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.overlap
+import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.periode
+import no.nav.helse.flex.util.*
 import no.nav.syfo.model.sykmelding.arbeidsgiver.ArbeidsgiverSykmelding
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
@@ -74,7 +73,7 @@ class OpprettSoknadService(
         val soknaderTilOppretting = ArrayList<Sykepengesoknad>()
 
         sykmeldingSplittetMellomTyper.forEach { sm ->
-            val soknadsPerioder = sm.splittSykmeldingiSoknadsPerioder(arbeidssituasjon)
+            val soknadsPerioder = sm.splittSykmeldingiSoknadsPerioder(arbeidssituasjon, eksisterendeSoknader, sm.id, sm.behandletTidspunkt.toInstant(), arbeidsgiverStatusDTO?.orgnummer)
             soknadsPerioder.map {
                 val perioderFraSykmeldingen = it.delOppISoknadsperioder(sm)
                 Sykepengesoknad(
@@ -293,7 +292,13 @@ internal fun ArbeidsgiverSykmelding.splittMellomTyper(): List<ArbeidsgiverSykmel
     return ret
 }
 
-internal fun ArbeidsgiverSykmelding.splittSykmeldingiSoknadsPerioder(arbeidssituasjon: Arbeidssituasjon): List<Tidsenhet> {
+internal fun ArbeidsgiverSykmelding.splittSykmeldingiSoknadsPerioder(
+    arbeidssituasjon: Arbeidssituasjon,
+    eksisterendeSoknader: List<Sykepengesoknad>,
+    sykmeldingId: String,
+    behandletTidspunkt: Instant,
+    orgnummer: String?
+): List<Tidsenhet> {
     val sykmeldingTidsenheter = SykmeldingTidsenheter(
         mutableListOf(),
         mutableListOf(
@@ -307,7 +312,7 @@ internal fun ArbeidsgiverSykmelding.splittSykmeldingiSoknadsPerioder(arbeidssitu
         sykmeldingTidsenheter.splittLangeSykmeldingperioderMedBehandlingsdager()
     }
     if (erArbeidstakerSoknad(arbeidssituasjon)) {
-        sykmeldingTidsenheter.splittPeriodenSomOverlapperSendtSoknad()
+        sykmeldingTidsenheter.splittPeriodenSomOverlapperSendtSoknad(eksisterendeSoknader, sykmeldingId, behandletTidspunkt, orgnummer)
     }
     sykmeldingTidsenheter.splittLangeSykmeldingperioder()
     return sykmeldingTidsenheter.ferdigsplittet
@@ -368,7 +373,49 @@ private fun sammeEllerSistSondag(localDate: LocalDate): LocalDate {
     }
 }
 
-internal fun SykmeldingTidsenheter.splittPeriodenSomOverlapperSendtSoknad(): SykmeldingTidsenheter {
+internal fun SykmeldingTidsenheter.splittPeriodenSomOverlapperSendtSoknad(
+    eksisterendeSoknader: List<Sykepengesoknad>,
+    sykmeldingId: String,
+    behandletTidspunkt: Instant,
+    orgnummer: String?
+): SykmeldingTidsenheter {
+    val splittbareTidsenheter = splittbar.toMutableList()
+    splittbar.clear()
+    val soknadskandidater = eksisterendeSoknader.asSequence()
+        .filterNot { it.sykmeldingId == sykmeldingId } // Korrigerte sykmeldinger håndteres her SlettSoknaderTilKorrigertSykmeldingService
+        .filter { it.soknadstype == Soknadstype.ARBEIDSTAKERE }
+        .filter { it.status == Soknadstatus.SENDT }
+        .filter { it.sykmeldingSkrevet!!.isBefore(behandletTidspunkt) }
+        .filter { it.arbeidsgiverOrgnummer == orgnummer }
+        .filter { sok ->
+            splittbareTidsenheter.forEach {
+                val soknadPeriode = sok.fom!!..sok.tom!!
+                val sykmeldingPeriode = it.fom..it.tom
+                if (sykmeldingPeriode.overlap(soknadPeriode)) {
+                    return@filter true
+                }
+            }
+            return@filter false
+        }
+        .toList()
+    while (splittbareTidsenheter.isNotEmpty()) {
+        var tidsenhet = splittbareTidsenheter.removeFirst()
+        soknadskandidater.forEach { sok ->
+            val sykPeriode = tidsenhet.fom..tidsenhet.tom
+            val sokPeriode = sok.fom!!..sok.tom!!
+            if (sokPeriode.overlap(sykPeriode) &&
+                sok.fom.isBeforeOrEqual(sykPeriode.start) &&
+                sok.tom.isBefore(sykPeriode.endInclusive)
+            ) {
+                val overlappendeTidsenhet = Tidsenhet(tidsenhet.fom, sok.tom)
+                val splittbarTidsenhet = Tidsenhet(sok.tom.plusDays(1), tidsenhet.tom)
+                ferdigsplittet.add(overlappendeTidsenhet)
+                tidsenhet = splittbarTidsenhet
+                return@forEach
+            }
+        }
+        splittbar.add(tidsenhet)
+    }
     return this
 }
 
