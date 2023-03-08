@@ -9,17 +9,17 @@ fun ArbeidsgiverSykmelding.splittMellomTyper(): List<ArbeidsgiverSykmelding> {
     val ret = ArrayList<ArbeidsgiverSykmelding>()
     var behandles: ArbeidsgiverSykmelding? = null
 
-    this.sykmeldingsperioder.sortedBy { it.fom }.forEach {
+    sykmeldingsperioder.sortedBy { it.fom }.forEach { nestePeriode ->
         if (behandles == null) {
-            behandles = this.copy(sykmeldingsperioder = listOf(it))
+            behandles = this.copy(sykmeldingsperioder = listOf(nestePeriode))
             return@forEach
         }
 
-        behandles = if (behandles!!.erKompatibel(it)) {
-            behandles!!.copy(sykmeldingsperioder = listOf(*behandles!!.sykmeldingsperioder.toTypedArray(), it))
+        behandles = if (behandles!!.erKompatibel(nestePeriode)) {
+            behandles!!.copy(sykmeldingsperioder = listOf(*behandles!!.sykmeldingsperioder.toTypedArray(), nestePeriode))
         } else {
             ret.add(behandles!!)
-            this.copy(sykmeldingsperioder = listOf(it))
+            this.copy(sykmeldingsperioder = listOf(nestePeriode))
         }
     }
     if (behandles != null) {
@@ -29,12 +29,8 @@ fun ArbeidsgiverSykmelding.splittMellomTyper(): List<ArbeidsgiverSykmelding> {
     return ret
 }
 
-private fun ArbeidsgiverSykmelding.erKompatibel(sykmeldingsperiodeDTO: SykmeldingsperiodeAGDTO): Boolean {
-    return Pair(sykmeldingsperiodeDTO, sykmeldingsperioder.last()).erKompatible()
-}
-
-private fun Pair<SykmeldingsperiodeAGDTO, SykmeldingsperiodeAGDTO>.erKompatible(): Boolean {
-    return first.erGradertEller100Prosent() && second.erGradertEller100Prosent()
+private fun ArbeidsgiverSykmelding.erKompatibel(nestePeriode: SykmeldingsperiodeAGDTO): Boolean {
+    return sykmeldingsperioder.last().erGradertEller100Prosent() && nestePeriode.erGradertEller100Prosent()
 }
 
 private fun SykmeldingsperiodeAGDTO.erAktivitetIkkeMulig(): Boolean {
