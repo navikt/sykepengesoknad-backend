@@ -16,7 +16,6 @@ import no.nav.helse.flex.util.isAfterOrEqual
 import no.nav.helse.flex.util.isBeforeOrEqual
 import no.nav.helse.flex.util.min
 import no.nav.syfo.model.sykmelding.arbeidsgiver.ArbeidsgiverSykmelding
-import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import java.time.DayOfWeek
 import java.time.Instant
 import java.time.LocalDate
@@ -43,7 +42,7 @@ fun ArbeidsgiverSykmelding.splittSykmeldingiSoknadsPerioder(
         )
     )
 
-    if (harBehandlingsdager()) {
+    if (harBehandlingsdager(arbeidssituasjon)) {
         sykmeldingTidsenheter.splittLangeSykmeldingperioderMedBehandlingsdager()
     }
 
@@ -66,15 +65,12 @@ fun ArbeidsgiverSykmelding.splittSykmeldingiSoknadsPerioder(
     return sykmeldingTidsenheter.ferdigsplittet
 }
 
-private fun ArbeidsgiverSykmelding.harBehandlingsdager(): Boolean {
-    return sykmeldingsperioder.any { it.type == PeriodetypeDTO.BEHANDLINGSDAGER }
+private fun ArbeidsgiverSykmelding.harBehandlingsdager(arbeidssituasjon: Arbeidssituasjon): Boolean {
+    return finnSoknadsType(arbeidssituasjon, sykmeldingsperioder) == Soknadstype.BEHANDLINGSDAGER
 }
 
 private fun ArbeidsgiverSykmelding.erArbeidstakerSoknad(arbeidssituasjon: Arbeidssituasjon): Boolean {
-    return finnSoknadsType(
-        arbeidssituasjon = arbeidssituasjon,
-        perioderFraSykmeldingen = sykmeldingsperioder
-    ) == Soknadstype.ARBEIDSTAKERE
+    return finnSoknadsType(arbeidssituasjon, sykmeldingsperioder) == Soknadstype.ARBEIDSTAKERE
 }
 
 private fun SykmeldingTidsenheter.splittLangeSykmeldingperioderMedBehandlingsdager(): SykmeldingTidsenheter {
