@@ -79,10 +79,6 @@ class Overlapp(
 
         kafkaMessage = soknadKandidater.finnSykmeldingSomOverlapperFor(kafkaMessage)
 
-        kafkaMessage = soknadKandidater.finnSykmeldingSomOverlapperFullstendig(kafkaMessage)
-
-        kafkaMessage = soknadKandidater.finnSykmeldingSomOverlapperInni(kafkaMessage)
-
         return kafkaMessage
     }
 
@@ -344,15 +340,15 @@ class Overlapp(
                             sokPeriode,
                             sykmeldingPerioder
                         )
+                        klippMetrikk.klippMetrikk(
+                            klippMetrikkVariant = KlippVariant.SYKMELDING_STARTER_INNI_SLUTTER_ETTER,
+                            soknadstatus = sok.status.toString(),
+                            sykmeldingId = sykmeldingId,
+                            eksisterendeSykepengesoknadId = sok.id,
+                            klippet = klipper,
+                            endringIUforegrad = endringIUforegrad
+                        )
                     }
-                    klippMetrikk.klippMetrikk(
-                        klippMetrikkVariant = KlippVariant.SYKMELDING_STARTER_INNI_SLUTTER_ETTER,
-                        soknadstatus = sok.status.toString(),
-                        sykmeldingId = sykmeldingId,
-                        eksisterendeSykepengesoknadId = sok.id,
-                        klippet = klipper,
-                        endringIUforegrad = endringIUforegrad
-                    )
                 }
             }
 
@@ -369,79 +365,5 @@ class Overlapp(
         log.info("Klipper overlappende sykmelding $sykmeldingId, original tom $originalSykmeldingTom ny tom $nySykmeldingTom")
 
         return sykmeldingKafkaMessage.erstattPerioder(sykmeldingPerioder)
-    }
-
-    private fun List<Sykepengesoknad>.finnSykmeldingSomOverlapperFullstendig(
-        sykmeldingKafkaMessage: SykmeldingKafkaMessage
-    ): SykmeldingKafkaMessage {
-        val sykmeldingId = sykmeldingKafkaMessage.sykmelding.id
-        val sykmeldingPerioder = sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder
-
-        this.sortedBy { it.fom }
-            .forEach { sok ->
-                val sykPeriode = sykmeldingPerioder.periode()
-                val sokPeriode = sok.fom!!..sok.tom!!
-
-                if (sokPeriode.overlap(sykPeriode) &&
-                    sok.fom.isAfter(sykPeriode.start) &&
-                    sok.tom.isBefore(sykPeriode.endInclusive) &&
-                    sok.status == Soknadstatus.SENDT
-                ) {
-                    klippMetrikk.klippMetrikk(
-                        klippMetrikkVariant = KlippVariant.SYKMELDING_STARTER_INNI_SLUTTER_INNI,
-                        soknadstatus = sok.status.toString(),
-                        sykmeldingId = sykmeldingId,
-                        eksisterendeSykepengesoknadId = sok.id,
-                        klippet = false,
-                        endringIUforegrad = finnEndringIUforegrad(
-                            tidligerePerioder = sok.soknadPerioder!!.filter {
-                                sykPeriode.overlap(it.fom..it.tom)
-                            },
-                            nyePerioder = sykmeldingPerioder.filter {
-                                sokPeriode.overlap(it.fom..it.tom)
-                            }.tilSoknadsperioder()
-                        )
-                    )
-                }
-            }
-
-        return sykmeldingKafkaMessage
-    }
-
-    private fun List<Sykepengesoknad>.finnSykmeldingSomOverlapperInni(
-        sykmeldingKafkaMessage: SykmeldingKafkaMessage
-    ): SykmeldingKafkaMessage {
-        val sykmeldingId = sykmeldingKafkaMessage.sykmelding.id
-        val sykmeldingPerioder = sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder
-
-        this.sortedBy { it.fom }
-            .forEach { sok ->
-                val sykPeriode = sykmeldingPerioder.periode()
-                val sokPeriode = sok.fom!!..sok.tom!!
-
-                if (sokPeriode.overlap(sykPeriode) &&
-                    sok.fom.isBeforeOrEqual(sykPeriode.start) &&
-                    sok.tom.isAfterOrEqual(sykPeriode.endInclusive) &&
-                    sok.status == Soknadstatus.SENDT
-                ) {
-                    klippMetrikk.klippMetrikk(
-                        klippMetrikkVariant = KlippVariant.SYKMELDING_STARTER_FOR_SLUTTER_ETTER,
-                        soknadstatus = sok.status.toString(),
-                        sykmeldingId = sykmeldingId,
-                        eksisterendeSykepengesoknadId = sok.id,
-                        klippet = false,
-                        endringIUforegrad = finnEndringIUforegrad(
-                            tidligerePerioder = sok.soknadPerioder!!.filter {
-                                sykPeriode.overlap(it.fom..it.tom)
-                            },
-                            nyePerioder = sykmeldingPerioder.filter {
-                                sokPeriode.overlap(it.fom..it.tom)
-                            }.tilSoknadsperioder()
-                        )
-                    )
-                }
-            }
-
-        return sykmeldingKafkaMessage
     }
 }

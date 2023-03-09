@@ -12,6 +12,7 @@ import no.nav.helse.flex.soknadsopprettelse.hentSenesteTOMFraPerioder
 import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.EndringIUforegrad
 import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.KlippMetrikk
 import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.overlap
+import no.nav.helse.flex.util.isAfterOrEqual
 import no.nav.helse.flex.util.isBeforeOrEqual
 import no.nav.helse.flex.util.min
 import no.nav.syfo.model.sykmelding.arbeidsgiver.ArbeidsgiverSykmelding
@@ -115,14 +116,15 @@ private fun SykmeldingTidsenheter.splittPeriodenSomOverlapperSendtSoknad(
             val sykPeriode = tidsenhet.fom..tidsenhet.tom
             val sokPeriode = sok.fom!!..sok.tom!!
 
+            // Sykmelding etter
             if (sokPeriode.overlap(sykPeriode) &&
-                sok.fom.isBeforeOrEqual(sykPeriode.start) &&
-                sok.tom.isBefore(sykPeriode.endInclusive)
+                sokPeriode.start.isBeforeOrEqual(sykPeriode.start) &&
+                sokPeriode.endInclusive.isBefore(sykPeriode.endInclusive)
             ) {
-                val overlappendeTidsenhet = Tidsenhet(tidsenhet.fom, sok.tom)
+                val overlappendeTidsenhet = Tidsenhet(tidsenhet.fom, sokPeriode.endInclusive)
                 ferdigsplittet.add(overlappendeTidsenhet)
 
-                val splittbarTidsenhet = Tidsenhet(sok.tom.plusDays(1), tidsenhet.tom)
+                val splittbarTidsenhet = Tidsenhet(sokPeriode.endInclusive.plusDays(1), tidsenhet.tom)
                 tidsenhet = splittbarTidsenhet
 
                 klippMetrikk.klippMetrikk(
@@ -133,8 +135,51 @@ private fun SykmeldingTidsenheter.splittPeriodenSomOverlapperSendtSoknad(
                     klippet = true,
                     endringIUforegrad = EndringIUforegrad.VET_IKKE
                 )
+            }
 
-                return@forEach
+            // Sykmelding før
+            if (sokPeriode.overlap(sykPeriode) &&
+                sokPeriode.start.isAfter(sykPeriode.start) &&
+                sokPeriode.endInclusive.isAfterOrEqual(sykPeriode.endInclusive)
+            ) {
+                klippMetrikk.klippMetrikk(
+                    klippMetrikkVariant = KlippVariant.SYKMELDING_STARTER_INNI_SLUTTER_ETTER,
+                    soknadstatus = sok.status.toString(),
+                    sykmeldingId = sykmeldingId,
+                    eksisterendeSykepengesoknadId = sok.id,
+                    klippet = false,
+                    endringIUforegrad = EndringIUforegrad.VET_IKKE
+                )
+            }
+
+            // Sykmelding større
+            if (sokPeriode.overlap(sykPeriode) &&
+                sokPeriode.start.isAfter(sykPeriode.start) &&
+                sokPeriode.endInclusive.isBefore(sykPeriode.endInclusive)
+            ) {
+                klippMetrikk.klippMetrikk(
+                    klippMetrikkVariant = KlippVariant.SYKMELDING_STARTER_INNI_SLUTTER_INNI,
+                    soknadstatus = sok.status.toString(),
+                    sykmeldingId = sykmeldingId,
+                    eksisterendeSykepengesoknadId = sok.id,
+                    klippet = false,
+                    endringIUforegrad = EndringIUforegrad.VET_IKKE
+                )
+            }
+
+            // Sykmelding lik eller inni
+            if (sokPeriode.overlap(sykPeriode) &&
+                sokPeriode.start.isBeforeOrEqual(sykPeriode.start) &&
+                sokPeriode.endInclusive.isAfterOrEqual(sykPeriode.endInclusive)
+            ) {
+                klippMetrikk.klippMetrikk(
+                    klippMetrikkVariant = KlippVariant.SYKMELDING_STARTER_FOR_SLUTTER_ETTER,
+                    soknadstatus = sok.status.toString(),
+                    sykmeldingId = sykmeldingId,
+                    eksisterendeSykepengesoknadId = sok.id,
+                    klippet = false,
+                    endringIUforegrad = EndringIUforegrad.VET_IKKE
+                )
             }
         }
 
