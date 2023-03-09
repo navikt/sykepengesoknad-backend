@@ -26,6 +26,7 @@ import no.nav.helse.flex.soknadsopprettelse.ARBEID_UTENFOR_NORGE
 import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
 import no.nav.helse.flex.soknadsopprettelse.FERIE_V2
 import no.nav.helse.flex.soknadsopprettelse.FRAVAR_FOR_SYKMELDINGEN
+import no.nav.helse.flex.soknadsopprettelse.JOBBET_DU_GRADERT
 import no.nav.helse.flex.soknadsopprettelse.PERMISJON_V2
 import no.nav.helse.flex.soknadsopprettelse.TILBAKE_I_ARBEID
 import no.nav.helse.flex.soknadsopprettelse.UTLAND_V2
@@ -688,6 +689,101 @@ class OverlapperEtter : BaseTestClass() {
         soknader[1].soknadstype shouldBeEqualTo Soknadstype.REISETILSKUDD
         soknader[1].status shouldBeEqualTo Soknadstatus.FREMTIDIG
 
+        databaseReset.resetDatabase()
+        klippMetrikkRepository.count() shouldBeEqualTo 0
+    }
+
+    @Test
+    @Order(90)
+    fun `Sender inn en arbeidstaker søknad med grad 50`() {
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = gradertSykmeldt(
+                    fom = basisdato.minusDays(20),
+                    tom = basisdato.minusDays(1),
+                    grad = 50
+                )
+            )
+        )
+
+        val soknaderMetadata = hentSoknaderMetadata(fnr)
+        soknaderMetadata shouldHaveSize 1
+        soknaderMetadata.first().status shouldBeEqualTo RSSoknadstatus.NY
+
+        val rsSoknad = hentSoknad(
+            soknadId = soknaderMetadata.first().id,
+            fnr = fnr
+        )
+
+        mockFlexSyketilfelleArbeidsgiverperiode(
+            arbeidsgiverperiode = Arbeidsgiverperiode(
+                antallBrukteDager = 19,
+                oppbruktArbeidsgiverperiode = true,
+                arbeidsgiverPeriode = Periode(fom = rsSoknad.fom!!, tom = rsSoknad.tom!!)
+            )
+        )
+
+        SoknadBesvarer(rsSoknad, this, fnr)
+            .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
+            .besvarSporsmal(FRAVAR_FOR_SYKMELDINGEN, "NEI")
+            .besvarSporsmal(TILBAKE_I_ARBEID, "NEI")
+            .besvarSporsmal(FRAVAR_FOR_SYKMELDINGEN, "NEI")
+            .besvarSporsmal(PERMISJON_V2, "NEI")
+            .besvarSporsmal(FERIE_V2, "NEI")
+            .besvarSporsmal(UTLAND_V2, "NEI")
+            .besvarSporsmal(JOBBET_DU_GRADERT + '0', "NEI")
+            .besvarSporsmal(ARBEID_UTENFOR_NORGE, "NEI")
+            .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
+            .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
+            .sendSoknad()
+
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
+        juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
+    }
+
+    @Test
+    @Order(91)
+    fun `Overlappende sykmelding med forskjellig grad blir splittet`() {
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = gradertSykmeldt(
+                    fom = basisdato.minusDays(5),
+                    tom = basisdato,
+                    grad = 80
+                )
+            ),
+            forventaSoknader = 2
+        )
+
+        val soknaderMetadata = hentSoknaderMetadata(fnr)
+        soknaderMetadata shouldHaveSize 3
+
+        soknaderMetadata[0].fom shouldBeEqualTo basisdato.minusDays(20)
+        soknaderMetadata[0].tom shouldBeEqualTo basisdato.minusDays(1)
+        soknaderMetadata[0].status shouldBeEqualTo RSSoknadstatus.SENDT
+
+        soknaderMetadata[1].fom shouldBeEqualTo basisdato.minusDays(5)
+        soknaderMetadata[1].tom shouldBeEqualTo basisdato.minusDays(1)
+        soknaderMetadata[1].status shouldBeEqualTo RSSoknadstatus.NY
+
+        soknaderMetadata[2].fom shouldBeEqualTo basisdato
+        soknaderMetadata[2].tom shouldBeEqualTo basisdato
+        soknaderMetadata[2].status shouldBeEqualTo RSSoknadstatus.FREMTIDIG
+
+        val klippmetrikker = klippMetrikkRepository.findAll().toList()
+        klippmetrikker shouldHaveSize 1
+
+        klippmetrikker[0].soknadstatus `should be equal to` "SENDT"
+        klippmetrikker[0].variant `should be equal to` "SYKMELDING_STARTER_FOR_SLUTTER_INNI"
+        klippmetrikker[0].endringIUforegrad `should be equal to` "VET_IKKE"
+        klippmetrikker[0].klippet `should be equal to` true
+    }
+
+    @Test
+    @Order(99)
+    fun `Reset data`() {
         databaseReset.resetDatabase()
         klippMetrikkRepository.count() shouldBeEqualTo 0
     }
