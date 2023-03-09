@@ -59,6 +59,10 @@ fun ArbeidsgiverSykmelding.splittSykmeldingiSoknadsPerioder(
 
     sykmeldingTidsenheter.splittLangeSykmeldingperioder()
 
+    if (sykmeldingTidsenheter.splittbar.isNotEmpty()) {
+        throw RuntimeException("Kan ikke opprette søknader for sykmelding $sykmeldingId da den fremdeles har splittbare perioder")
+    }
+
     return sykmeldingTidsenheter.ferdigsplittet
 }
 
