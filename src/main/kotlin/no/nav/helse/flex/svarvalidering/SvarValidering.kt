@@ -66,6 +66,7 @@ fun Sporsmal.validerUndersporsmal() {
                 besvarteUndersporsmal.forEach { it.validerSvarPaSporsmal() }
             }
         }
+
         RADIO_GRUPPE,
         RADIO_GRUPPE_TIMER_PROSENT -> {
             if (besvarteUndersporsmal.size == 1) {
@@ -74,6 +75,7 @@ fun Sporsmal.validerUndersporsmal() {
                 throw ValideringException("Spørsmål ${this.id} av typen $svartype må ha eksakt ett besvart underspørsmål")
             }
         }
+
         JA_NEI,
         CHECKBOX,
         CHECKBOX_PANEL,
@@ -169,19 +171,24 @@ private fun Sporsmal.validerGrenserPaSvar(svar: Svar) {
         INFO_BEHANDLINGSDAGER -> {
             { true }
         }
+
         DATO,
         DATOER -> validerGrenserPaDato(svar)
+
         KVITTERING -> validerGrenserPaKvittering(svar)
         RADIO_GRUPPE_UKEKALENDER -> {
             { svar.verdi == INGEN_BEHANDLING || validerGrenserPaDato(svar)() }
         }
+
         PROSENT,
         TIMER,
         TALL,
         BELOP,
         KILOMETER -> validerGrenserPaaTall(svar)
+
         FRITEKST,
         LAND -> validerGrenserPaaTekst(svar)
+
         PERIODE,
         PERIODER -> validerGrenserPaPeriode(svar)
     }
@@ -267,33 +274,47 @@ fun String.erDoubleMedMaxEnDesimal(): Boolean {
 private fun Sporsmal.validerSvarverdi(svar: Svar) {
     val verdi = svar.verdi
     val predikat: () -> Boolean = when (svartype) {
-        FRITEKST,
+        FRITEKST -> {
+            if (min == null) {
+                { true }
+            } else {
+                { verdi.trim().length >= min.toInt() }
+            }
+        }
+
         LAND -> {
             { verdi.isNotBlank() && verdi.isNotEmpty() }
         }
+
         JA_NEI -> {
             { "JA" == verdi || "NEI" == verdi }
         }
+
         CHECKBOX_PANEL,
         RADIO,
         CHECKBOX -> {
             { "CHECKED" == verdi }
         }
+
         DATO,
         DATOER -> {
             { verdi.erDato() }
         }
+
         PROSENT,
         BELOP -> {
             { verdi.erHeltall() }
         }
+
         TIMER,
         TALL -> {
             { verdi.erFlyttall() }
         }
+
         KILOMETER -> {
             { verdi.erDoubleMedMaxEnDesimal() }
         }
+
         KVITTERING -> validerKvittering(svar.verdi)
         PERIODE,
         PERIODER -> {
@@ -301,11 +322,13 @@ private fun Sporsmal.validerSvarverdi(svar: Svar) {
                 verdi.erPeriode()
             }
         }
+
         RADIO_GRUPPE_UKEKALENDER -> {
             {
                 verdi == INGEN_BEHANDLING || verdi.erDato()
             }
         }
+
         RADIO_GRUPPE,
         RADIO_GRUPPE_TIMER_PROSENT,
         IKKE_RELEVANT,
@@ -339,11 +362,22 @@ fun Sporsmal.validerAntallSvar() {
         PROSENT,
         PERIODE,
         TIMER,
-        FRITEKST,
+
         TALL,
         CHECKBOX -> {
             { it == 1 }
         }
+
+        FRITEKST -> {
+            {
+                if (min == null) {
+                    true
+                } else {
+                    it == 1
+                }
+            }
+        }
+
         RADIO_GRUPPE,
         RADIO_GRUPPE_TIMER_PROSENT,
         IKKE_RELEVANT,
@@ -351,11 +385,13 @@ fun Sporsmal.validerAntallSvar() {
         CHECKBOX_GRUPPE -> {
             { it == 0 }
         }
+
         LAND,
         PERIODER,
         DATOER -> {
             { it > 0 }
         }
+
         KVITTERING -> {
             { it >= 0 }
         }

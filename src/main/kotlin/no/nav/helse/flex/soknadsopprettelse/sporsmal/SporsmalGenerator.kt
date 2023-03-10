@@ -15,6 +15,7 @@ import no.nav.helse.flex.soknadsopprettelse.settOppSoknadArbeidstaker
 import no.nav.helse.flex.soknadsopprettelse.settOppSoknadSelvstendigOgFrilanser
 import no.nav.helse.flex.soknadsopprettelse.settOppSykepengesoknadBehandlingsdager
 import no.nav.helse.flex.soknadsopprettelse.skapReisetilskuddsoknad
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -23,7 +24,10 @@ import org.springframework.transaction.annotation.Transactional
 class SporsmalGenerator(
     private val identService: IdentService,
     private val andreArbeidsforholdHenting: AndreArbeidsforholdHenting,
-    private val sykepengesoknadDAO: SykepengesoknadDAO
+    private val sykepengesoknadDAO: SykepengesoknadDAO,
+    @Value("\${UTENLANDSK_SPORSMAL_ENABLET:false}")
+    private val utenlandskSporsmalEnablet: Boolean
+
 ) {
     fun lagSporsmalPaSoknad(id: String) {
         val soknad = sykepengesoknadDAO.finnSykepengesoknad(id)
@@ -71,7 +75,8 @@ class SporsmalGenerator(
                         fnr = soknad.fnr,
                         arbeidsgiverOrgnummer = soknad.arbeidsgiverOrgnummer!!,
                         startSykeforlop = soknad.startSykeforlop!!
-                    )
+                    ),
+                    utenlandskSporsmalEnablet = utenlandskSporsmalEnablet
                 )
             }
 

@@ -18,6 +18,7 @@ import no.nav.helse.flex.soknadsopprettelse.sporsmal.bekreftOpplysningerSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.jobbetDuGradert
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.permisjonSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.tilbakeIFulltArbeidGradertReisetilskuddSporsmal
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.utenlandsksykmelding.utenlandskSykmeldingSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.vaerKlarOverAt
 import no.nav.helse.flex.soknadsopprettelse.undersporsmal.jobbetDuUndersporsmal
 import no.nav.helse.flex.util.DatoUtil.formatterDato
@@ -29,7 +30,10 @@ fun settOppSoknadArbeidstaker(
     sykepengesoknad: Sykepengesoknad,
     erForsteSoknadISykeforlop: Boolean,
     tidligsteFomForSykmelding: LocalDate,
-    andreKjenteArbeidsforhold: List<String>
+    andreKjenteArbeidsforhold: List<String>,
+    harTidligereUtenlandskSpm: Boolean = false, // TODO fjern default verdien
+    utenlandskSporsmalEnablet: Boolean = false // TODO fjern default verdien
+
 ): List<Sporsmal> {
     val gradertResietilskudd = sykepengesoknad.soknadstype == GRADERT_REISETILSKUDD
 
@@ -49,6 +53,13 @@ fun settOppSoknadArbeidstaker(
         if (erForsteSoknadISykeforlop) {
             it.add(fravarForSykmeldingen(tidligsteFomForSykmelding))
             it.add(arbeidUtenforNorge())
+        }
+        if (sykepengesoknad.utenlandskSykmelding) {
+            if (erForsteSoknadISykeforlop || !harTidligereUtenlandskSpm) {
+                if (utenlandskSporsmalEnablet) {
+                    it.addAll(utenlandskSykmeldingSporsmal(sykepengesoknad))
+                }
+            }
         }
 
         it.add(andreInntektskilderArbeidstakerV2(sykepengesoknad.arbeidsgiverNavn!!, andreKjenteArbeidsforhold))
@@ -287,6 +298,11 @@ private fun jobbetDu100Prosent(periode: Soknadsperiode, arbeidsgiver: String, in
         } var du 100 % sykmeldt fra $arbeidsgiver. Jobbet du noe hos $arbeidsgiver i denne perioden?",
         svartype = JA_NEI,
         kriterieForVisningAvUndersporsmal = JA,
-        undersporsmal = jobbetDuUndersporsmal(periode = periode, minProsent = 1, index = index, arbeidsgiverNavn = arbeidsgiver)
+        undersporsmal = jobbetDuUndersporsmal(
+            periode = periode,
+            minProsent = 1,
+            index = index,
+            arbeidsgiverNavn = arbeidsgiver
+        )
     )
 }
