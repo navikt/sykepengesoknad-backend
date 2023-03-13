@@ -116,7 +116,8 @@ fun Sykepengesoknad.tilRSSykepengesoknad() = RSSykepengesoknad(
     soknadPerioder = this.soknadPerioder?.map { mapSoknadsperiode(it) },
     egenmeldtSykmelding = this.egenmeldtSykmelding,
     merknaderFraSykmelding = this.merknaderFraSykmelding?.map { it.mapMerknad() },
-    opprettetAvInntektsmelding = this.opprettetAvInntektsmelding
+    opprettetAvInntektsmelding = this.opprettetAvInntektsmelding,
+    utenlandskSykmelding = this.utenlandskSykmelding
 )
 
 fun Sykepengesoknad.tilRSSykepengesoknadMetadata() = RSSykepengesoknadMetadata(
