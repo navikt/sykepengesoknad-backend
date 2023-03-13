@@ -71,6 +71,18 @@ class UtenlandskArbeidstakerIntegrationTest : BaseTestClass() {
     }
 
     @Test
+    @Order(3)
+    fun `Fritekst validerer maxlengde`() {
+        val soknaden = hentSoknader(fnr).first()
+        val spm = soknaden.sporsmal!!.first { it.tag == "UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE" }
+            .byttSvar("UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE", "JA")
+            .byttSvar("UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE_FRITEKST", "Veldig lang tekst Veldig lang tekstVeldig lang tekstVeldig lang tekstVeldig lang tekstVeldig lang tekstVeldig lang tekstVeldig lang tekstVeldig lang tekstVeldig lang tekst tekst tekstsdf sd ds sd der 200 ja ")
+        val response = oppdaterSporsmalMedResult(fnr, spm, soknaden.id).andExpect(status().isBadRequest)
+            .andReturn().response.contentAsString
+        response `should be equal to` "{\"reason\":\"SPORSMALETS_SVAR_VALIDERER_IKKE\"}"
+    }
+
+    @Test
     @Order(4)
     fun `Fritekst godtar min lengde `() {
         val soknaden = hentSoknader(fnr).first()
