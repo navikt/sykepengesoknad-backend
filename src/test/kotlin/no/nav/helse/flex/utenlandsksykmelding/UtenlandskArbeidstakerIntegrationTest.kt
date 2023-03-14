@@ -120,7 +120,7 @@ class UtenlandskArbeidstakerIntegrationTest : BaseTestClass() {
             .besvarSporsmal(tag = "UTENLANDSK_SYKMELDING_TELEFONNUMMER", svar = "123456sdfgsdg", ferdigBesvart = false)
             .besvarSporsmal(
                 tag = "UTENLANDSK_SYKMELDING_GYLDIGHET_ADRESSE",
-                svar = """{"fom":"${soknaden.fom!!.minusDays(14)}","tom":"${soknaden.fom!!.minusDays(7)}"}"""
+                svar = soknaden.tom!!.plusDays(10).toString()
             )
             .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
             .sendSoknad()
