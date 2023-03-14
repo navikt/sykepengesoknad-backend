@@ -35,7 +35,7 @@ repositories {
     }
 }
 
-val tokenSupportVersion = "3.0.4"
+val tokenSupportVersion = "3.0.7"
 val smCommonVersion = "1.4d2de6e"
 val confluentVersion = "7.3.2"
 val syfoKafkaVersion = "2021.07.20-09.39-6be2c52c"
