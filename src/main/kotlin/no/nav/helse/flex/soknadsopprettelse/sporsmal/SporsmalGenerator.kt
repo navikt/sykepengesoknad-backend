@@ -6,15 +6,7 @@ import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.service.IdentService
-import no.nav.helse.flex.soknadsopprettelse.AndreArbeidsforholdHenting
-import no.nav.helse.flex.soknadsopprettelse.erForsteSoknadTilArbeidsgiverIForlop
-import no.nav.helse.flex.soknadsopprettelse.hentTidligsteFomForSykmelding
-import no.nav.helse.flex.soknadsopprettelse.settOppSoknadAnnetArbeidsforhold
-import no.nav.helse.flex.soknadsopprettelse.settOppSoknadArbeidsledig
-import no.nav.helse.flex.soknadsopprettelse.settOppSoknadArbeidstaker
-import no.nav.helse.flex.soknadsopprettelse.settOppSoknadSelvstendigOgFrilanser
-import no.nav.helse.flex.soknadsopprettelse.settOppSykepengesoknadBehandlingsdager
-import no.nav.helse.flex.soknadsopprettelse.skapReisetilskuddsoknad
+import no.nav.helse.flex.soknadsopprettelse.*
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -65,7 +57,7 @@ class SporsmalGenerator(
             )
         }
 
-        val harTidligereUtenlandskSpm = false // TODO fiks meg
+        val harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad)
 
         return when (soknad.arbeidssituasjon) {
             Arbeidssituasjon.ARBEIDSTAKER -> {
