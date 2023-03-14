@@ -32,7 +32,8 @@ fun settOppSoknadArbeidstaker(
     tidligsteFomForSykmelding: LocalDate,
     andreKjenteArbeidsforhold: List<String>,
     harTidligereUtenlandskSpm: Boolean,
-    utenlandskSporsmalEnablet: Boolean
+    utenlandskSporsmalEnablet: Boolean,
+    egenmeldingISykmeldingen: Boolean = false,
 
 ): List<Sporsmal> {
     val gradertResietilskudd = sykepengesoknad.soknadstype == GRADERT_REISETILSKUDD
@@ -51,7 +52,9 @@ fun settOppSoknadArbeidstaker(
         bekreftOpplysningerSporsmal()
     ).also {
         if (erForsteSoknadISykeforlop) {
-            it.add(fravarForSykmeldingen(tidligsteFomForSykmelding))
+            if (!egenmeldingISykmeldingen) {
+                it.add(fravarForSykmeldingen(tidligsteFomForSykmelding))
+            }
             it.add(arbeidUtenforNorge())
         }
         if (sykepengesoknad.utenlandskSykmelding) {
