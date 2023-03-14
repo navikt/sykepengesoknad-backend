@@ -19,7 +19,7 @@ import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 import java.util.*
 
 fun deprecatedGetSoknadMedFeriesporsmalSomUndersporsmal(soknadMetadata: Sykepengesoknad): Sykepengesoknad {
-    val sykepengesoknad = soknadMetadata.copy(sporsmal = settOppSoknadArbeidstaker(soknadMetadata, true, now(), emptyList()))
+    val sykepengesoknad = soknadMetadata.copy(sporsmal = settOppSoknadArbeidstaker(soknadMetadata, true, now(), emptyList(), false, false))
         .fjernSporsmal(FERIE_V2)
         .fjernSporsmal(PERMISJON_V2)
         .fjernSporsmal(UTLAND_V2)
@@ -131,7 +131,9 @@ fun opprettSendtSoknad(): Sykepengesoknad {
                 soknadMetadata,
                 true,
                 now(),
-                emptyList()
+                emptyList(),
+                false,
+                false
             )
         )
     )
@@ -191,7 +193,9 @@ fun opprettNySoknadMock(feriesporsmalSomHovedsporsmal: Boolean = true): Sykepeng
                 soknad,
                 true,
                 now(),
-                emptyList()
+                emptyList(),
+                false,
+                false
             )
         )
     } else {

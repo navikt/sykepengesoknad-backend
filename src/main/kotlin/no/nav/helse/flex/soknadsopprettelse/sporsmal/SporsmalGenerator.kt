@@ -65,6 +65,8 @@ class SporsmalGenerator(
             )
         }
 
+        val harTidligereUtenlandskSpm = false // TODO fiks meg
+
         return when (soknad.arbeidssituasjon) {
             Arbeidssituasjon.ARBEIDSTAKER -> {
                 settOppSoknadArbeidstaker(
@@ -76,17 +78,30 @@ class SporsmalGenerator(
                         arbeidsgiverOrgnummer = soknad.arbeidsgiverOrgnummer!!,
                         startSykeforlop = soknad.startSykeforlop!!
                     ),
-                    utenlandskSporsmalEnablet = utenlandskSporsmalEnablet
+                    utenlandskSporsmalEnablet = utenlandskSporsmalEnablet,
+                    harTidligereUtenlandskSpm = harTidligereUtenlandskSpm
                 )
             }
 
             Arbeidssituasjon.NAERINGSDRIVENDE, Arbeidssituasjon.FRILANSER -> settOppSoknadSelvstendigOgFrilanser(
-                soknad,
-                erForsteSoknadISykeforlop
+                sykepengesoknad = soknad,
+                erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
+                utenlandskSporsmalEnablet = utenlandskSporsmalEnablet,
+                harTidligereUtenlandskSpm = harTidligereUtenlandskSpm
             )
 
-            Arbeidssituasjon.ARBEIDSLEDIG -> settOppSoknadArbeidsledig(soknad, erForsteSoknadISykeforlop)
-            Arbeidssituasjon.ANNET -> settOppSoknadAnnetArbeidsforhold(soknad, erForsteSoknadISykeforlop)
+            Arbeidssituasjon.ARBEIDSLEDIG -> settOppSoknadArbeidsledig(
+                sykepengesoknad = soknad,
+                erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
+                utenlandskSporsmalEnablet = utenlandskSporsmalEnablet,
+                harTidligereUtenlandskSpm = harTidligereUtenlandskSpm
+            )
+            Arbeidssituasjon.ANNET -> settOppSoknadAnnetArbeidsforhold(
+                sykepengesoknad = soknad,
+                erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
+                utenlandskSporsmalEnablet = utenlandskSporsmalEnablet,
+                harTidligereUtenlandskSpm = harTidligereUtenlandskSpm
+            )
             else -> {
                 throw RuntimeException("Skal ikke ende her")
             }

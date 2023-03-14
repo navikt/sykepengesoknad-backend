@@ -16,6 +16,7 @@ import no.nav.helse.flex.soknadsopprettelse.sporsmal.arbeidUtenforNorge
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.bekreftOpplysningerSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.jobbetDuGradert
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.tilbakeIFulltArbeidGradertReisetilskuddSporsmal
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.utenlandsksykmelding.utenlandskSykmeldingSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.vaerKlarOverAt
 import no.nav.helse.flex.soknadsopprettelse.undersporsmal.jobbetDuUndersporsmal
 import no.nav.helse.flex.util.DatoUtil.formatterDato
@@ -24,25 +25,34 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
 fun settOppSoknadSelvstendigOgFrilanser(
-    soknadMetadata: Sykepengesoknad,
-    erForsteSoknadISykeforlop: Boolean
+    sykepengesoknad: Sykepengesoknad,
+    erForsteSoknadISykeforlop: Boolean,
+    harTidligereUtenlandskSpm: Boolean,
+    utenlandskSporsmalEnablet: Boolean
 ): List<Sporsmal> {
-    val gradertReisetilskudd = soknadMetadata.soknadstype == Soknadstype.GRADERT_REISETILSKUDD
+    val gradertReisetilskudd = sykepengesoknad.soknadstype == Soknadstype.GRADERT_REISETILSKUDD
     return mutableListOf(
         ansvarserklaringSporsmal(reisetilskudd = gradertReisetilskudd),
         if (gradertReisetilskudd) {
-            tilbakeIFulltArbeidGradertReisetilskuddSporsmal(soknadMetadata)
+            tilbakeIFulltArbeidGradertReisetilskuddSporsmal(sykepengesoknad)
         } else {
-            tilbakeIFulltArbeidSporsmal(soknadMetadata)
+            tilbakeIFulltArbeidSporsmal(sykepengesoknad)
         },
-        andreInntektskilderSelvstendigOgFrilanser(soknadMetadata.arbeidssituasjon!!),
-        utlandsSporsmalSelvstendig(soknadMetadata.fom!!, soknadMetadata.tom!!),
+        andreInntektskilderSelvstendigOgFrilanser(sykepengesoknad.arbeidssituasjon!!),
+        utlandsSporsmalSelvstendig(sykepengesoknad.fom!!, sykepengesoknad.tom!!),
         bekreftOpplysningerSporsmal(),
         vaerKlarOverAt(gradertReisetilskudd = gradertReisetilskudd)
     ).also {
-        it.addAll(jobbetDuIPeriodenSporsmalSelvstendigFrilanser(soknadMetadata.soknadPerioder!!, soknadMetadata.arbeidssituasjon))
+        it.addAll(jobbetDuIPeriodenSporsmalSelvstendigFrilanser(sykepengesoknad.soknadPerioder!!, sykepengesoknad.arbeidssituasjon))
         if (erForsteSoknadISykeforlop) {
             it.add(arbeidUtenforNorge())
+        }
+        if (sykepengesoknad.utenlandskSykmelding) {
+            if (erForsteSoknadISykeforlop || !harTidligereUtenlandskSpm) {
+                if (utenlandskSporsmalEnablet) {
+                    it.addAll(utenlandskSykmeldingSporsmal(sykepengesoknad))
+                }
+            }
         }
         if (gradertReisetilskudd) {
             it.add(brukteReisetilskuddetSpørsmål())

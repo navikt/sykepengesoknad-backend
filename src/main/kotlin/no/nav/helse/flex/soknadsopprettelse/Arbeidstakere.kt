@@ -31,8 +31,8 @@ fun settOppSoknadArbeidstaker(
     erForsteSoknadISykeforlop: Boolean,
     tidligsteFomForSykmelding: LocalDate,
     andreKjenteArbeidsforhold: List<String>,
-    harTidligereUtenlandskSpm: Boolean = false, // TODO fjern default verdien
-    utenlandskSporsmalEnablet: Boolean = false // TODO fjern default verdien
+    harTidligereUtenlandskSpm: Boolean,
+    utenlandskSporsmalEnablet: Boolean
 
 ): List<Sporsmal> {
     val gradertResietilskudd = sykepengesoknad.soknadstype == GRADERT_REISETILSKUDD

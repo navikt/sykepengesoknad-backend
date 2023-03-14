@@ -69,7 +69,7 @@ fun opprettNyNaeringsdrivendeSoknad(): Sykepengesoknad {
     )
 
     return (soknadMetadata).copy(
-        sporsmal = settOppSoknadSelvstendigOgFrilanser(soknadMetadata, false),
+        sporsmal = settOppSoknadSelvstendigOgFrilanser(soknadMetadata, false, false, false),
         status = Soknadstatus.NY
     ).leggSvarPaSoknad()
 }
@@ -115,7 +115,7 @@ fun opprettSendtFrilanserSoknad(): Sykepengesoknad {
 
     )
     return (soknadMetadata).copy(
-        sporsmal = settOppSoknadSelvstendigOgFrilanser(soknadMetadata, false),
+        sporsmal = settOppSoknadSelvstendigOgFrilanser(soknadMetadata, false, false, false),
         status = Soknadstatus.SENDT,
         sendtNav = Instant.now()
     ).leggSvarPaSoknad()

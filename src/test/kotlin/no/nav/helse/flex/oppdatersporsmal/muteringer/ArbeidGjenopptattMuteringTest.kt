@@ -62,7 +62,9 @@ class ArbeidGjenopptattMuteringTest {
                 sykepengesoknad = soknad,
                 erForsteSoknadISykeforlop = true,
                 tidligsteFomForSykmelding = fom,
-                andreKjenteArbeidsforhold = emptyList()
+                andreKjenteArbeidsforhold = emptyList(),
+                false,
+                false
             )
         )
 
@@ -127,7 +129,9 @@ class ArbeidGjenopptattMuteringTest {
                 sykepengesoknad = soknad,
                 erForsteSoknadISykeforlop = true,
                 tidligsteFomForSykmelding = basisdato,
-                andreKjenteArbeidsforhold = emptyList()
+                andreKjenteArbeidsforhold = emptyList(),
+                false,
+                false
             )
         )
 
@@ -188,7 +192,9 @@ class ArbeidGjenopptattMuteringTest {
                 sykepengesoknad = soknad,
                 erForsteSoknadISykeforlop = true,
                 tidligsteFomForSykmelding = fom,
-                andreKjenteArbeidsforhold = emptyList()
+                andreKjenteArbeidsforhold = emptyList(),
+                false,
+                false
             )
         )
 
