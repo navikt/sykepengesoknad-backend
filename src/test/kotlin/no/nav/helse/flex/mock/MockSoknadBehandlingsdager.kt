@@ -60,7 +60,8 @@ fun opprettBehandlingsdagsoknadTestadata(
         sporsmal = settOppSykepengesoknadBehandlingsdager(
             soknadMetadata,
             forsteSoknadIForlop,
-            now()
+            now(),
+            false
         )
     )
 }

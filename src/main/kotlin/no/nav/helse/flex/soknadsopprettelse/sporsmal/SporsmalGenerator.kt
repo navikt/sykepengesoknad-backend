@@ -6,6 +6,7 @@ import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.service.IdentService
+import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.soknadsopprettelse.AndreArbeidsforholdHenting
 import no.nav.helse.flex.soknadsopprettelse.erForsteSoknadTilArbeidsgiverIForlop
 import no.nav.helse.flex.soknadsopprettelse.hentTidligsteFomForSykmelding
@@ -16,7 +17,6 @@ import no.nav.helse.flex.soknadsopprettelse.settOppSoknadSelvstendigOgFrilanser
 import no.nav.helse.flex.soknadsopprettelse.settOppSykepengesoknadBehandlingsdager
 import no.nav.helse.flex.soknadsopprettelse.skapReisetilskuddsoknad
 import org.springframework.beans.factory.annotation.Value
-import no.nav.helse.flex.soknadsopprettelse.*
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.OffsetDateTime
@@ -36,7 +36,7 @@ class SporsmalGenerator(
 
 ) {
 
-    val egenmeldingSykmeldingFomDate = OffsetDateTime.parse(egenmeldingSykmeldingFom)
+    var egenmeldingSykmeldingFomDate = OffsetDateTime.parse(egenmeldingSykmeldingFom)
     fun lagSporsmalPaSoknad(id: String) {
         val soknad = sykepengesoknadDAO.finnSykepengesoknad(id)
 
@@ -58,11 +58,17 @@ class SporsmalGenerator(
 
         val erEnkeltstaendeBehandlingsdagSoknad = soknad.soknadstype == Soknadstype.BEHANDLINGSDAGER
 
+        val egenmeldingISykmeldingen = egenmeldingSykmeldingFomDate.isBefore(
+            soknad.opprettet!!.atOffset(
+                ZoneOffset.UTC
+            )
+        )
         if (erEnkeltstaendeBehandlingsdagSoknad) {
             return settOppSykepengesoknadBehandlingsdager(
-                soknad,
-                erForsteSoknadISykeforlop,
-                tidligsteFomForSykmelding
+                soknadMetadata = soknad,
+                erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
+                tidligsteFomForSykmelding = tidligsteFomForSykmelding,
+                egenmeldingISykmeldingen = egenmeldingISykmeldingen
             )
         }
 
@@ -80,11 +86,7 @@ class SporsmalGenerator(
                 settOppSoknadArbeidstaker(
                     sykepengesoknad = soknad,
                     erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
-                    egenmeldingISykmeldingen = egenmeldingSykmeldingFomDate.isBefore(
-                        soknad.opprettet!!.atOffset(
-                            ZoneOffset.UTC
-                        )
-                    ),
+                    egenmeldingISykmeldingen = egenmeldingISykmeldingen,
                     tidligsteFomForSykmelding = tidligsteFomForSykmelding,
                     andreKjenteArbeidsforhold = andreArbeidsforholdHenting.hentArbeidsforhold(
                         fnr = soknad.fnr,

@@ -19,7 +19,17 @@ import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 import java.util.*
 
 fun deprecatedGetSoknadMedFeriesporsmalSomUndersporsmal(soknadMetadata: Sykepengesoknad): Sykepengesoknad {
-    val sykepengesoknad = soknadMetadata.copy(sporsmal = settOppSoknadArbeidstaker(soknadMetadata, true, now(), emptyList(), false, false))
+    val sykepengesoknad = soknadMetadata.copy(
+        sporsmal = settOppSoknadArbeidstaker(
+            sykepengesoknad = soknadMetadata,
+            erForsteSoknadISykeforlop = true,
+            tidligsteFomForSykmelding = now(),
+            andreKjenteArbeidsforhold = emptyList(),
+            harTidligereUtenlandskSpm = false,
+            utenlandskSporsmalEnablet = false,
+            egenmeldingISykmeldingen = false
+        )
+    )
         .fjernSporsmal(FERIE_V2)
         .fjernSporsmal(PERMISJON_V2)
         .fjernSporsmal(UTLAND_V2)
@@ -128,12 +138,13 @@ fun opprettSendtSoknad(): Sykepengesoknad {
     val sykepengesoknad = leggSvarPaSoknad(
         soknadMetadata.copy(
             sporsmal = settOppSoknadArbeidstaker(
-                soknadMetadata,
-                true,
-                now(),
-                emptyList(),
-                false,
-                false
+                sykepengesoknad = soknadMetadata,
+                erForsteSoknadISykeforlop = true,
+                tidligsteFomForSykmelding = now(),
+                andreKjenteArbeidsforhold = emptyList(),
+                harTidligereUtenlandskSpm = false,
+                utenlandskSporsmalEnablet = false,
+                egenmeldingISykmeldingen = false
             )
         )
     )
@@ -190,12 +201,13 @@ fun opprettNySoknadMock(feriesporsmalSomHovedsporsmal: Boolean = true): Sykepeng
     val sykepengesoknad = if (feriesporsmalSomHovedsporsmal) {
         (soknad).copy(
             sporsmal = settOppSoknadArbeidstaker(
-                soknad,
-                true,
-                now(),
-                emptyList(),
-                false,
-                false
+                sykepengesoknad = soknad,
+                erForsteSoknadISykeforlop = true,
+                tidligsteFomForSykmelding = now(),
+                andreKjenteArbeidsforhold = emptyList(),
+                harTidligereUtenlandskSpm = false,
+                utenlandskSporsmalEnablet = false,
+                egenmeldingISykmeldingen = false
             )
         )
     } else {
