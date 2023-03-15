@@ -47,5 +47,5 @@ fun opprettNySoknadAnnet(): Sykepengesoknad {
         utenlandskSykmelding = false
     )
 
-    return soknadMetadata.copy(sporsmal = settOppSoknadAnnetArbeidsforhold(soknadMetadata, false))
+    return soknadMetadata.copy(sporsmal = settOppSoknadAnnetArbeidsforhold(soknadMetadata, false, false, false))
 }

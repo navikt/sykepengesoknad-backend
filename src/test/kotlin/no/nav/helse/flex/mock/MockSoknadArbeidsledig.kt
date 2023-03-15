@@ -65,7 +65,7 @@ fun opprettNySoknad(): Sykepengesoknad {
 
     )
 
-    return sykepengesoknad.copy(sporsmal = settOppSoknadArbeidsledig(sykepengesoknad, false))
+    return sykepengesoknad.copy(sporsmal = settOppSoknadArbeidsledig(sykepengesoknad, false, false, false))
 }
 
 fun opprettSendtSoknadForArbeidsledige(): Sykepengesoknad {

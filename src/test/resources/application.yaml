@@ -120,3 +120,4 @@ aiven-kafka:
   auto-offset-reset: earliest
 
 SKRIVEMODUS: READWRITE
+UTENLANDSK_SPORSMAL_ENABLET: true

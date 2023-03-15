@@ -26,6 +26,9 @@ fun Sykepengesoknad.sorterSporsmal(): Sykepengesoknad {
 fun Sporsmal.fellesPlasseringSporsmal(): Int {
     return when (tag) {
         ANSVARSERKLARING -> -1000
+        UTENLANDSK_SYKMELDING_BOSTED -> -900
+        UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE -> -899
+        UTENLANDSK_SYKMELDING_TRYGD_UTENFOR_NORGE -> -898
         FRISKMELDT -> -10
 
         EGENMELDINGER -> -9

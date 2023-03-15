@@ -287,7 +287,9 @@ class EttersendingSoknadServiceTest {
                 soknadMetadata,
                 true,
                 LocalDate.now(),
-                emptyList()
+                emptyList(),
+                false,
+                false
             )
         )
     }

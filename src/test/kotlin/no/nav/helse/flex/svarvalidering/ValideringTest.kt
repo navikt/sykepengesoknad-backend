@@ -72,9 +72,9 @@ class ValideringTest {
 
     @Test
     fun FritekstSporsmalHarRiktigAntallSvar() {
-        getSporsmal(FRITEKST).`valider antall svar og forvent ValideringException`()
+        getSporsmalMedGrenser(FRITEKST, "1", null).`valider antall svar og forvent ValideringException`()
         getSporsmal(FRITEKST, getSvar(1)).validerAntallSvar()
-        getSporsmal(FRITEKST, getSvar(2)).`valider antall svar og forvent ValideringException`()
+        getSporsmalMedGrenser(FRITEKST, "1", null).`valider antall svar og forvent ValideringException`()
     }
 
     @Test
@@ -176,7 +176,10 @@ class ValideringTest {
     @Test
     fun fritekstSporsmalHarRiktigVerdi() {
         assertThat(validerSvarverdi(getSporsmal(FRITEKST), "BOGUS")).isTrue()
-        assertThat(validerSvarverdi(getSporsmal(FRITEKST), "")).isFalse()
+        assertThat(validerSvarverdi(getSporsmalMedGrenser(FRITEKST, null, null), "")).isTrue()
+        assertThat(validerSvarverdi(getSporsmalMedGrenser(FRITEKST, "1", null), "")).isFalse()
+        assertThat(validerSvarverdi(getSporsmalMedGrenser(FRITEKST, "1", null), "h")).isTrue()
+        assertThat(validerSvarverdi(getSporsmalMedGrenser(FRITEKST, "1", null), " ")).isFalse()
     }
 
     @Test

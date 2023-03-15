@@ -6,15 +6,8 @@ import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.service.IdentService
-import no.nav.helse.flex.soknadsopprettelse.AndreArbeidsforholdHenting
-import no.nav.helse.flex.soknadsopprettelse.erForsteSoknadTilArbeidsgiverIForlop
-import no.nav.helse.flex.soknadsopprettelse.hentTidligsteFomForSykmelding
-import no.nav.helse.flex.soknadsopprettelse.settOppSoknadAnnetArbeidsforhold
-import no.nav.helse.flex.soknadsopprettelse.settOppSoknadArbeidsledig
-import no.nav.helse.flex.soknadsopprettelse.settOppSoknadArbeidstaker
-import no.nav.helse.flex.soknadsopprettelse.settOppSoknadSelvstendigOgFrilanser
-import no.nav.helse.flex.soknadsopprettelse.settOppSykepengesoknadBehandlingsdager
-import no.nav.helse.flex.soknadsopprettelse.skapReisetilskuddsoknad
+import no.nav.helse.flex.soknadsopprettelse.*
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -23,7 +16,10 @@ import org.springframework.transaction.annotation.Transactional
 class SporsmalGenerator(
     private val identService: IdentService,
     private val andreArbeidsforholdHenting: AndreArbeidsforholdHenting,
-    private val sykepengesoknadDAO: SykepengesoknadDAO
+    private val sykepengesoknadDAO: SykepengesoknadDAO,
+    @Value("\${UTENLANDSK_SPORSMAL_ENABLET:false}")
+    private val utenlandskSporsmalEnablet: Boolean
+
 ) {
     fun lagSporsmalPaSoknad(id: String) {
         val soknad = sykepengesoknadDAO.finnSykepengesoknad(id)
@@ -61,6 +57,8 @@ class SporsmalGenerator(
             )
         }
 
+        val harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad)
+
         return when (soknad.arbeidssituasjon) {
             Arbeidssituasjon.ARBEIDSTAKER -> {
                 settOppSoknadArbeidstaker(
@@ -71,17 +69,31 @@ class SporsmalGenerator(
                         fnr = soknad.fnr,
                         arbeidsgiverOrgnummer = soknad.arbeidsgiverOrgnummer!!,
                         startSykeforlop = soknad.startSykeforlop!!
-                    )
+                    ),
+                    utenlandskSporsmalEnablet = utenlandskSporsmalEnablet,
+                    harTidligereUtenlandskSpm = harTidligereUtenlandskSpm
                 )
             }
 
             Arbeidssituasjon.NAERINGSDRIVENDE, Arbeidssituasjon.FRILANSER -> settOppSoknadSelvstendigOgFrilanser(
-                soknad,
-                erForsteSoknadISykeforlop
+                sykepengesoknad = soknad,
+                erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
+                utenlandskSporsmalEnablet = utenlandskSporsmalEnablet,
+                harTidligereUtenlandskSpm = harTidligereUtenlandskSpm
             )
 
-            Arbeidssituasjon.ARBEIDSLEDIG -> settOppSoknadArbeidsledig(soknad, erForsteSoknadISykeforlop)
-            Arbeidssituasjon.ANNET -> settOppSoknadAnnetArbeidsforhold(soknad, erForsteSoknadISykeforlop)
+            Arbeidssituasjon.ARBEIDSLEDIG -> settOppSoknadArbeidsledig(
+                sykepengesoknad = soknad,
+                erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
+                utenlandskSporsmalEnablet = utenlandskSporsmalEnablet,
+                harTidligereUtenlandskSpm = harTidligereUtenlandskSpm
+            )
+            Arbeidssituasjon.ANNET -> settOppSoknadAnnetArbeidsforhold(
+                sykepengesoknad = soknad,
+                erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
+                utenlandskSporsmalEnablet = utenlandskSporsmalEnablet,
+                harTidligereUtenlandskSpm = harTidligereUtenlandskSpm
+            )
             else -> {
                 throw RuntimeException("Skal ikke ende her")
             }
