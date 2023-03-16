@@ -3,20 +3,15 @@ package no.nav.helse.flex.soknadsopprettelse
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderArbeidsledig
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.ansvarserklaringSporsmal
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.arbeidUtenforNorge
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.bekreftOpplysningerSporsmal
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.friskmeldingSporsmal
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.utenlandsksykmelding.utenlandskSykmeldingSporsmal
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.utenlandsoppholdArbeidsledigAnnetSporsmal
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.vaerKlarOverAt
 
 fun settOppSoknadArbeidsledig(
     sykepengesoknad: Sykepengesoknad,
     erForsteSoknadISykeforlop: Boolean,
     harTidligereUtenlandskSpm: Boolean,
-    utenlandskSporsmalEnablet: Boolean
+    utenlandskSporsmalEnablet: Boolean,
+    yrkesskade: Boolean
 ): List<Sporsmal> {
     val gradertReisetilskudd = sykepengesoknad.soknadstype == Soknadstype.GRADERT_REISETILSKUDD
 
@@ -30,6 +25,9 @@ fun settOppSoknadArbeidsledig(
     ).also {
         if (erForsteSoknadISykeforlop) {
             it.add(arbeidUtenforNorge())
+        }
+        if (yrkesskade) {
+            it.add(yrkesskadeSporsmal())
         }
         if (sykepengesoknad.utenlandskSykmelding) {
             if (erForsteSoknadISykeforlop || !harTidligereUtenlandskSpm) {

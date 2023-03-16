@@ -27,3 +27,5 @@ env:
   EGENMELDING_SYKMELDING_FOM: "2023-03-01T04:00:00.000000+01:00"
   EREG_URL: https://ereg-services.dev-fss-pub.nais.io
   UTENLANDSK_SPORSMAL_ENABLET: true
+  YRKESSKADE_URL: http://yrkesskade-saker.yrkesskade
+  YRKESSKADE_AAD_CLIENT_ID: dev-gcp.yrkesskade.yrkesskade-saker

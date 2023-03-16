@@ -6,6 +6,7 @@ import no.nav.helse.flex.juridiskvurdering.juridiskVurderingTopic
 import no.nav.helse.flex.kafka.producer.AivenKafkaProducer
 import no.nav.helse.flex.kafka.producer.RebehandlingSykmeldingSendtProducer
 import no.nav.helse.flex.kafka.sykepengesoknadTopic
+import no.nav.helse.flex.mockdispatcher.YrkesskadeMockDispatcher
 import no.nav.helse.flex.personhendelse.AutomatiskInnsendingVedDodsfall
 import no.nav.helse.flex.repository.SykepengesoknadRepository
 import no.nav.helse.flex.soknadsopprettelse.BehandleSykmeldingOgBestillAktivering
@@ -51,6 +52,7 @@ abstract class BaseTestClass {
         val pdlMockWebserver: MockWebServer
         private val inntektskomponentenMockWebserver: MockWebServer
         private val eregMockWebserver: MockWebServer
+        private val yrkesskadeMockWebserver: MockWebServer
 
         init {
             val threads = mutableListOf<Thread>()
@@ -97,6 +99,10 @@ abstract class BaseTestClass {
             eregMockWebserver = MockWebServer().apply {
                 System.setProperty("EREG_URL", "http://localhost:$port")
                 dispatcher = EregMockDispatcher
+            }
+            yrkesskadeMockWebserver = MockWebServer().apply {
+                System.setProperty("YRKESSKADE_URL", "http://localhost:$port")
+                dispatcher = YrkesskadeMockDispatcher
             }
 
             threads.forEach { it.join() }

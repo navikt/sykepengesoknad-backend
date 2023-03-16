@@ -5,8 +5,10 @@ import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.repository.SykepengesoknadDAO
+import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.service.IdentService
 import no.nav.helse.flex.soknadsopprettelse.*
+import no.nav.helse.flex.yrkesskade.YrkesskadeIndikatorer
 import no.nav.helse.flex.soknadsopprettelse.AndreArbeidsforholdHenting
 import no.nav.helse.flex.soknadsopprettelse.erForsteSoknadTilArbeidsgiverIForlop
 import no.nav.helse.flex.soknadsopprettelse.hentTidligsteFomForSykmelding
@@ -28,6 +30,7 @@ class SporsmalGenerator(
     private val identService: IdentService,
     private val andreArbeidsforholdHenting: AndreArbeidsforholdHenting,
     private val sykepengesoknadDAO: SykepengesoknadDAO,
+    private val yrkesskadeIndikatorer: YrkesskadeIndikatorer,
 
     @Value("\${UTENLANDSK_SPORSMAL_ENABLET:false}")
     private val utenlandskSporsmalEnablet: Boolean,
@@ -44,14 +47,15 @@ class SporsmalGenerator(
 
         val andreSoknader = sykepengesoknadDAO.finnSykepengesoknader(identer).filterNot { it.id == soknad.id }
 
-        val sporsmal = genererSykepengesoknadSporsmal(soknad, andreSoknader)
+        val sporsmal = genererSykepengesoknadSporsmal(soknad, andreSoknader, identer)
 
         sykepengesoknadDAO.byttUtSporsmal(soknad.copy(sporsmal = sporsmal))
     }
 
     private fun genererSykepengesoknadSporsmal(
         soknad: Sykepengesoknad,
-        eksisterendeSoknader: List<Sykepengesoknad>
+        eksisterendeSoknader: List<Sykepengesoknad>,
+        identer: FolkeregisterIdenter
     ): List<Sporsmal> {
         val tidligsteFomForSykmelding = hentTidligsteFomForSykmelding(soknad, eksisterendeSoknader)
         val erForsteSoknadISykeforlop = erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad)
@@ -94,7 +98,8 @@ class SporsmalGenerator(
                         startSykeforlop = soknad.startSykeforlop!!
                     ),
                     utenlandskSporsmalEnablet = utenlandskSporsmalEnablet,
-                    harTidligereUtenlandskSpm = harTidligereUtenlandskSpm
+                    harTidligereUtenlandskSpm = harTidligereUtenlandskSpm,
+                    yrkesskade = erForsteSoknadISykeforlop && yrkesskadeIndikatorer.harYrkesskadeIndikatorer(identer)
                 )
             }
 
@@ -102,21 +107,28 @@ class SporsmalGenerator(
                 sykepengesoknad = soknad,
                 erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
                 utenlandskSporsmalEnablet = utenlandskSporsmalEnablet,
-                harTidligereUtenlandskSpm = harTidligereUtenlandskSpm
+                harTidligereUtenlandskSpm = harTidligereUtenlandskSpm,
+                yrkesskade = erForsteSoknadISykeforlop && yrkesskadeIndikatorer.harYrkesskadeIndikatorer(identer)
+
             )
 
             Arbeidssituasjon.ARBEIDSLEDIG -> settOppSoknadArbeidsledig(
                 sykepengesoknad = soknad,
                 erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
                 utenlandskSporsmalEnablet = utenlandskSporsmalEnablet,
-                harTidligereUtenlandskSpm = harTidligereUtenlandskSpm
+                harTidligereUtenlandskSpm = harTidligereUtenlandskSpm,
+                yrkesskade = erForsteSoknadISykeforlop && yrkesskadeIndikatorer.harYrkesskadeIndikatorer(identer)
+
             )
+
             Arbeidssituasjon.ANNET -> settOppSoknadAnnetArbeidsforhold(
                 sykepengesoknad = soknad,
                 erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
                 utenlandskSporsmalEnablet = utenlandskSporsmalEnablet,
-                harTidligereUtenlandskSpm = harTidligereUtenlandskSpm
+                harTidligereUtenlandskSpm = harTidligereUtenlandskSpm,
+                yrkesskade = erForsteSoknadISykeforlop && yrkesskadeIndikatorer.harYrkesskadeIndikatorer(identer)
             )
+
             else -> {
                 throw RuntimeException("Skal ikke ende her")
             }

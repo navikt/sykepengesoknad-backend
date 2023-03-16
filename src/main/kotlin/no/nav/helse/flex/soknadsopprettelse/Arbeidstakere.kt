@@ -11,15 +11,8 @@ import no.nav.helse.flex.domain.Svartype.JA_NEI
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.Visningskriterie.CHECKED
 import no.nav.helse.flex.domain.Visningskriterie.JA
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderArbeidstakerV2
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.ansvarserklaringSporsmal
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.arbeidUtenforNorge
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.bekreftOpplysningerSporsmal
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.jobbetDuGradert
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.permisjonSporsmal
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.tilbakeIFulltArbeidGradertReisetilskuddSporsmal
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.utenlandsksykmelding.utenlandskSykmeldingSporsmal
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.vaerKlarOverAt
 import no.nav.helse.flex.soknadsopprettelse.undersporsmal.jobbetDuUndersporsmal
 import no.nav.helse.flex.util.DatoUtil.formatterDato
 import no.nav.helse.flex.util.DatoUtil.formatterPeriode
@@ -33,6 +26,7 @@ fun settOppSoknadArbeidstaker(
     andreKjenteArbeidsforhold: List<String>,
     harTidligereUtenlandskSpm: Boolean,
     utenlandskSporsmalEnablet: Boolean,
+    yrkesskade: Boolean,
     egenmeldingISykmeldingen: Boolean
 ): List<Sporsmal> {
     val gradertResietilskudd = sykepengesoknad.soknadstype == GRADERT_REISETILSKUDD
@@ -55,6 +49,9 @@ fun settOppSoknadArbeidstaker(
                 it.add(fravarForSykmeldingen(tidligsteFomForSykmelding))
             }
             it.add(arbeidUtenforNorge())
+        }
+        if (yrkesskade) {
+            it.add(yrkesskadeSporsmal())
         }
         if (sykepengesoknad.utenlandskSykmelding) {
             if (erForsteSoknadISykeforlop || !harTidligereUtenlandskSpm) {
