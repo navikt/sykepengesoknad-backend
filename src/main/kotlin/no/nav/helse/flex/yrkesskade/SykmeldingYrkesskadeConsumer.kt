@@ -16,7 +16,7 @@ class SykmeldingYrkesskadeConsumer(
     val log = logger()
 
     @KafkaListener(
-        topics = [SYKMELDING_OK_TOPIC, SYKMELDING_AVVIST_TOPIC],
+        topics = [SYKMELDING_OK_TOPIC, SYKMELDING_MANUELL_TOPIC],
         containerFactory = "aivenKafkaListenerContainerFactory",
         properties = ["auto.offset.reset = latest"], // TODO fjern når vi er i prod
         id = "sykmelding-yrkesskade-consumer",
@@ -61,4 +61,4 @@ class SykmeldingYrkesskadeConsumer(
 }
 
 const val SYKMELDING_OK_TOPIC = "teamsykmelding.ok-sykmelding"
-const val SYKMELDING_AVVIST_TOPIC = "teamsykmelding.avvist-sykmelding"
+const val SYKMELDING_MANUELL_TOPIC = "teamsykmelding.manuell-behandling-sykmelding"

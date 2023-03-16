@@ -2,12 +2,7 @@ package no.nav.helse.flex.domain.mapper
 
 import no.nav.helse.flex.domain.Mottaker
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentArbeidUtenforNorge
-import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentBehandlingsdager
-import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentEgenmeldinger
-import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentInntektListe
-import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentPapirsykmeldinger
-import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentPermitteringer
+import no.nav.helse.flex.domain.mapper.sporsmalprossesering.*
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidsgiverDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsperiodeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
@@ -50,7 +45,8 @@ fun konverterTilSykepengesoknadBehandlingsdagerDTO(
         permitteringer = sykepengesoknad.hentPermitteringer(),
         merknaderFraSykmelding = sykepengesoknad.merknaderFraSykmelding.tilMerknadDTO(),
         arbeidUtenforNorge = sykepengesoknad.hentArbeidUtenforNorge(),
-        utenlandskSykmelding = sykepengesoknad.utenlandskSykmelding
+        utenlandskSykmelding = sykepengesoknad.utenlandskSykmelding,
+        yrkesskade = sykepengesoknad.hentYrkesskade()
     )
 }
 

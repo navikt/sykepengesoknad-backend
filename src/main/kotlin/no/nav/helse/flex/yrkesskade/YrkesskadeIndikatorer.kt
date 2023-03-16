@@ -12,16 +12,22 @@ class YrkesskadeIndikatorer(
 
     @Value("\${YRKESSKADE_ENABLET:false}")
     private val yrkesskadeEnablet: Boolean,
-    private val yrkesskadeClient: YrkesskadeClient
-
+    private val yrkesskadeClient: YrkesskadeClient,
+    private val yrkesskadeSykmeldingRepository: YrkesskadeSykmeldingRepository
 ) {
 
-    fun harYrkesskadeIndikatorer(identer: FolkeregisterIdenter): Boolean {
+    fun harYrkesskadeIndikatorer(identer: FolkeregisterIdenter, sykmeldingId: String?): Boolean {
         if (!yrkesskadeEnablet) {
             return false
         }
 
-        val ysSakerResponse = yrkesskadeClient.hentYrkesskade(HarYsSakerRequest(identer.andreIdenter))
+        sykmeldingId?.let {
+            if (yrkesskadeSykmeldingRepository.existsBySykmeldingId(sykmeldingId)) {
+                return true
+            }
+        }
+
+        val ysSakerResponse = yrkesskadeClient.hentYrkesskade(HarYsSakerRequest(identer.alle()))
         return ysSakerResponse.harYrkesskadeEllerYrkessykdom == HarYsSak.MAA_SJEKKES_MANUELT || ysSakerResponse.harYrkesskadeEllerYrkessykdom == HarYsSak.JA
     }
 }
