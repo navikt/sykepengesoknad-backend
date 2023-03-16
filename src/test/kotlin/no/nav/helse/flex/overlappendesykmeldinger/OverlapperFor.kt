@@ -281,7 +281,7 @@ class OverlapperFor : BaseTestClass() {
     }
 
     @Test
-    fun `Sendt arbeidstakersøknad starter før og slutter inni, klippes ikke`() {
+    fun `Sendt arbeidstakersøknad starter før og slutter inni, klippes`() {
         val fnr = "88888888888"
         sendSykmelding(
             sykmeldingKafkaMessage(
@@ -335,19 +335,24 @@ class OverlapperFor : BaseTestClass() {
                     tom = basisdato.minusDays(5),
                     grad = 50
                 )
-            )
+            ),
+            forventaSoknader = 2
         )
 
         val soknader = hentSoknaderMetadata(fnr)
-        soknader shouldHaveSize 2
+        soknader shouldHaveSize 3
 
         soknader[0].status shouldBeEqualTo RSSoknadstatus.SENDT
         soknader[0].fom shouldBeEqualTo basisdato.minusDays(10)
         soknader[0].tom shouldBeEqualTo basisdato.minusDays(1)
 
         soknader[1].status shouldBeEqualTo RSSoknadstatus.NY
-        soknader[1].fom shouldBeEqualTo basisdato.minusDays(15)
+        soknader[1].fom shouldBeEqualTo basisdato.minusDays(10)
         soknader[1].tom shouldBeEqualTo basisdato.minusDays(5)
+
+        soknader[2].status shouldBeEqualTo RSSoknadstatus.NY
+        soknader[2].fom shouldBeEqualTo basisdato.minusDays(15)
+        soknader[2].tom shouldBeEqualTo basisdato.minusDays(11)
 
         val klippmetrikker = klippMetrikkRepository.findAll().toList()
         klippmetrikker shouldHaveSize 1
@@ -355,6 +360,6 @@ class OverlapperFor : BaseTestClass() {
         klippmetrikker[0].soknadstatus `should be equal to` "SENDT"
         klippmetrikker[0].variant `should be equal to` "SYKMELDING_STARTER_INNI_SLUTTER_ETTER"
         klippmetrikker[0].endringIUforegrad `should be equal to` "VET_IKKE"
-        klippmetrikker[0].klippet `should be equal to` false
+        klippmetrikker[0].klippet `should be equal to` true
     }
 }
