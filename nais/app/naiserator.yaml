@@ -72,6 +72,8 @@ spec:
         - application: sykepengesoknad-backend-redis
         - application: sykepengesoknad-kvitteringer
         - application: flex-syketilfelle
+        - application: yrkesskade-saker
+          namespace: yrkesskade
     inbound:
       rules:
         - application: ditt-sykefravaer
