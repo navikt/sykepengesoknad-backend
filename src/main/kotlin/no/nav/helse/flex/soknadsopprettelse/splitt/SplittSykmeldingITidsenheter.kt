@@ -142,12 +142,18 @@ private fun SykmeldingTidsenheter.splittPeriodenSomOverlapperSendtSoknad(
                 sokPeriode.start.isAfter(sykPeriode.start) &&
                 sokPeriode.endInclusive.isAfterOrEqual(sykPeriode.endInclusive)
             ) {
+                val overlappendeTidsenhet = Tidsenhet(sokPeriode.start, tidsenhet.tom)
+                ferdigsplittet.add(overlappendeTidsenhet)
+
+                val splittbarTidsenhet = Tidsenhet(tidsenhet.fom, sokPeriode.start.minusDays(1))
+                tidsenhet = splittbarTidsenhet
+
                 klippMetrikk.klippMetrikk(
                     klippMetrikkVariant = KlippVariant.SYKMELDING_STARTER_INNI_SLUTTER_ETTER,
                     soknadstatus = sok.status.toString(),
                     sykmeldingId = sykmeldingId,
                     eksisterendeSykepengesoknadId = sok.id,
-                    klippet = false,
+                    klippet = true,
                     endringIUforegrad = EndringIUforegrad.VET_IKKE
                 )
             }
