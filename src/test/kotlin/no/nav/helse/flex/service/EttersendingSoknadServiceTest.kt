@@ -291,7 +291,8 @@ class EttersendingSoknadServiceTest {
                 andreKjenteArbeidsforhold = emptyList(),
                 harTidligereUtenlandskSpm = false,
                 utenlandskSporsmalEnablet = false,
-                egenmeldingISykmeldingen = false
+                egenmeldingISykmeldingen = false,
+                yrkesskade = false
             )
         )
     }
