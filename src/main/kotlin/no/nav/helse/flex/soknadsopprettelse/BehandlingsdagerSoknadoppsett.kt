@@ -7,15 +7,7 @@ import no.nav.helse.flex.domain.Arbeidssituasjon.FRILANSER
 import no.nav.helse.flex.domain.Arbeidssituasjon.NAERINGSDRIVENDE
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderArbeidsledig
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderArbeidstaker
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderSelvstendigOgFrilanser
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.ansvarserklaringSporsmal
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.arbeidUtenforNorge
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.behandlingsdagerSporsmal
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.bekreftOpplysningerSporsmal
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.fraverForBehandling
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.vaerKlarOverAtBehandlingsdager
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.*
 import java.time.LocalDate
 
 fun Sporsmal.plasseringSporsmalBehandlingsdager(): Int {
@@ -53,7 +45,8 @@ fun settOppSykepengesoknadBehandlingsdager(
     soknadMetadata: Sykepengesoknad,
     erForsteSoknadISykeforlop: Boolean,
     tidligsteFomForSykmelding: LocalDate,
-    egenmeldingISykmeldingen: Boolean
+    egenmeldingISykmeldingen: Boolean,
+    yrkesskade: Boolean
 
 ): List<Sporsmal> {
     return mutableListOf(
@@ -72,6 +65,9 @@ fun settOppSykepengesoknadBehandlingsdager(
             }
             if (erForsteSoknadISykeforlop) {
                 it.add(arbeidUtenforNorge())
+            }
+            if (yrkesskade) {
+                it.add(yrkesskadeSporsmal())
             }
             it.addAll(behandlingsdagerSporsmal(soknadMetadata))
         }.toList()

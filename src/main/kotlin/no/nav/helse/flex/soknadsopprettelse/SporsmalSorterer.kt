@@ -51,6 +51,7 @@ fun Sporsmal.fellesPlasseringSporsmal(): Int {
 
         PERMITTERT_NAA -> 797
         PERMITTERT_PERIODE -> 798
+        YRKESSKADE -> 799
 
         BRUKTE_REISETILSKUDDET -> 800
         TRANSPORT_TIL_DAGLIG -> 801

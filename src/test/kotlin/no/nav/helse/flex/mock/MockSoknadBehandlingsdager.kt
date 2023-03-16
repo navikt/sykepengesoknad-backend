@@ -61,6 +61,7 @@ fun opprettBehandlingsdagsoknadTestadata(
             soknadMetadata,
             forsteSoknadIForlop,
             now(),
+            false,
             false
         )
     )

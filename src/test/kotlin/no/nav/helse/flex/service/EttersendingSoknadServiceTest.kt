@@ -248,6 +248,7 @@ class EttersendingSoknadServiceTest {
                 soknadMetadata,
                 true,
                 LocalDate.now(),
+                false,
                 false
             )
         )

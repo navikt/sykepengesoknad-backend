@@ -67,19 +67,23 @@ class SporsmalGenerator(
                 ZoneOffset.UTC
             )
         )
+        val yrkesskade = erForsteSoknadISykeforlop && yrkesskadeIndikatorer.harYrkesskadeIndikatorer(identer)
+
         if (erEnkeltstaendeBehandlingsdagSoknad) {
             return settOppSykepengesoknadBehandlingsdager(
                 soknadMetadata = soknad,
                 erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
                 tidligsteFomForSykmelding = tidligsteFomForSykmelding,
-                egenmeldingISykmeldingen = egenmeldingISykmeldingen
+                egenmeldingISykmeldingen = egenmeldingISykmeldingen,
+                yrkesskade = yrkesskade
             )
         }
 
         val erReisetilskudd = soknad.soknadstype == Soknadstype.REISETILSKUDD
         if (erReisetilskudd) {
             return skapReisetilskuddsoknad(
-                soknad
+                soknadMetadata = soknad,
+                yrkesskade = yrkesskade
             )
         }
 
@@ -99,7 +103,7 @@ class SporsmalGenerator(
                     ),
                     utenlandskSporsmalEnablet = utenlandskSporsmalEnablet,
                     harTidligereUtenlandskSpm = harTidligereUtenlandskSpm,
-                    yrkesskade = erForsteSoknadISykeforlop && yrkesskadeIndikatorer.harYrkesskadeIndikatorer(identer)
+                    yrkesskade = yrkesskade
                 )
             }
 
@@ -108,7 +112,7 @@ class SporsmalGenerator(
                 erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
                 utenlandskSporsmalEnablet = utenlandskSporsmalEnablet,
                 harTidligereUtenlandskSpm = harTidligereUtenlandskSpm,
-                yrkesskade = erForsteSoknadISykeforlop && yrkesskadeIndikatorer.harYrkesskadeIndikatorer(identer)
+                yrkesskade = yrkesskade
 
             )
 
@@ -117,7 +121,7 @@ class SporsmalGenerator(
                 erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
                 utenlandskSporsmalEnablet = utenlandskSporsmalEnablet,
                 harTidligereUtenlandskSpm = harTidligereUtenlandskSpm,
-                yrkesskade = erForsteSoknadISykeforlop && yrkesskadeIndikatorer.harYrkesskadeIndikatorer(identer)
+                yrkesskade = yrkesskade
 
             )
 
@@ -126,7 +130,7 @@ class SporsmalGenerator(
                 erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
                 utenlandskSporsmalEnablet = utenlandskSporsmalEnablet,
                 harTidligereUtenlandskSpm = harTidligereUtenlandskSpm,
-                yrkesskade = erForsteSoknadISykeforlop && yrkesskadeIndikatorer.harYrkesskadeIndikatorer(identer)
+                yrkesskade = yrkesskade
             )
 
             else -> {
