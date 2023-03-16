@@ -7,6 +7,6 @@ import no.nav.helse.flex.soknadsopprettelse.YRKESSKADE
 fun yrkesskadeSporsmal(): Sporsmal =
     Sporsmal(
         tag = YRKESSKADE,
-        sporsmalstekst = "Er du sykmeldt på grunn av en yrkesskade?",
+        sporsmalstekst = "Er du sykmeldt på grunn av en yrkesskade eller yrkessykdom?",
         svartype = Svartype.JA_NEI
     )
