@@ -24,5 +24,6 @@ env:
   AIVEN_KAFKA_AUTO_OFFSET_RESET: latest
   FLEX_FSS_PROXY_AAD_CLIENT_ID: dev-fss.flex.flex-fss-proxy
   FLEX_FSS_PROXY_URL: https://flex-fss-proxy.dev-fss-pub.nais.io
+  EGENMELDING_SYKMELDING_FOM: "2023-03-01T04:00:00.000000+01:00"
   EREG_URL: https://ereg-services.dev-fss-pub.nais.io
   UTENLANDSK_SPORSMAL_ENABLET: true

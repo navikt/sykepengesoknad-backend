@@ -247,7 +247,8 @@ class EttersendingSoknadServiceTest {
             sporsmal = settOppSykepengesoknadBehandlingsdager(
                 soknadMetadata,
                 true,
-                LocalDate.now()
+                LocalDate.now(),
+                false
             )
         )
     }
@@ -284,12 +285,13 @@ class EttersendingSoknadServiceTest {
         )
         return soknadMetadata.copy(
             sporsmal = settOppSoknadArbeidstaker(
-                soknadMetadata,
-                true,
-                LocalDate.now(),
-                emptyList(),
-                false,
-                false
+                sykepengesoknad = soknadMetadata,
+                erForsteSoknadISykeforlop = true,
+                tidligsteFomForSykmelding = LocalDate.now(),
+                andreKjenteArbeidsforhold = emptyList(),
+                harTidligereUtenlandskSpm = false,
+                utenlandskSporsmalEnablet = false,
+                egenmeldingISykmeldingen = false
             )
         )
     }

@@ -52,7 +52,9 @@ private fun Sporsmal.plasseringAvSporsmalSomKanRepeteresFlereGanger(): Int {
 fun settOppSykepengesoknadBehandlingsdager(
     soknadMetadata: Sykepengesoknad,
     erForsteSoknadISykeforlop: Boolean,
-    tidligsteFomForSykmelding: LocalDate
+    tidligsteFomForSykmelding: LocalDate,
+    egenmeldingISykmeldingen: Boolean
+
 ): List<Sporsmal> {
     return mutableListOf(
         ansvarserklaringSporsmal(),
@@ -63,7 +65,9 @@ fun settOppSykepengesoknadBehandlingsdager(
         .also {
             if (soknadMetadata.arbeidssituasjon == ARBEIDSTAKER) {
                 if (erForsteSoknadISykeforlop) {
-                    it.add(fraverForBehandling(soknadMetadata, tidligsteFomForSykmelding))
+                    if (!egenmeldingISykmeldingen) {
+                        it.add(fraverForBehandling(soknadMetadata, tidligsteFomForSykmelding))
+                    }
                 }
             }
             if (erForsteSoknadISykeforlop) {
