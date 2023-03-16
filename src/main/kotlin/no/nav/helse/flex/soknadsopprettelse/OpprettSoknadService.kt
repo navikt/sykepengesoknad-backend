@@ -18,11 +18,11 @@ import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.service.SlettSoknaderTilKorrigertSykmeldingService
-import no.nav.helse.flex.util.Metrikk
-import no.nav.helse.flex.util.max
-import no.nav.helse.flex.util.min
-import no.nav.helse.flex.util.osloZone
-import no.nav.syfo.model.sykmelding.arbeidsgiver.ArbeidsgiverSykmelding
+import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.KlippMetrikk
+import no.nav.helse.flex.soknadsopprettelse.splitt.delOppISoknadsperioder
+import no.nav.helse.flex.soknadsopprettelse.splitt.splittMellomTyper
+import no.nav.helse.flex.soknadsopprettelse.splitt.splittSykmeldingiSoknadsPerioder
+import no.nav.helse.flex.util.*
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO.AKTIVITET_IKKE_MULIG
@@ -33,13 +33,10 @@ import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO.REISETILSKUDD
 import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.DayOfWeek
 import java.time.Instant
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 import java.util.*
-import kotlin.math.ceil
-import kotlin.math.floor
 import no.nav.syfo.model.Merknad as SmMerknad
 
 @Service
@@ -47,6 +44,7 @@ import no.nav.syfo.model.Merknad as SmMerknad
 class OpprettSoknadService(
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val metrikk: Metrikk,
+    private val klippMetrikk: KlippMetrikk,
     private val soknadProducer: SoknadProducer,
     private val lagreJulesoknadKandidater: LagreJulesoknadKandidater,
     private val slettSoknaderTilKorrigertSykmeldingService: SlettSoknaderTilKorrigertSykmeldingService
@@ -65,17 +63,23 @@ class OpprettSoknadService(
         val eksisterendeSoknader = sykepengesoknadDAO.finnSykepengesoknader(identer)
         val eksisterendeSoknaderOgOprettedeSoknader = eksisterendeSoknader.toMutableList()
 
-        val sykeforloep = flexSyketilfelleSykeforloep
-            .firstOrNull { it.sykmeldinger.any { sm -> sm.id == sykmelding.id } }
-            ?: throw SykeforloepManglerSykemeldingException("Sykeforloep mangler sykmelding ${sykmelding.id}")
+        val sykeforloep = flexSyketilfelleSykeforloep.firstOrNull {
+            it.sykmeldinger.any { sm -> sm.id == sykmelding.id }
+        } ?: throw SykeforloepManglerSykemeldingException("Sykeforloep mangler sykmelding ${sykmelding.id}")
         val startSykeforlop = sykeforloep.oppfolgingsdato
 
         val sykmeldingSplittetMellomTyper = sykmelding.splittMellomTyper()
         val soknaderTilOppretting = ArrayList<Sykepengesoknad>()
 
         sykmeldingSplittetMellomTyper.forEach { sm ->
-            val soknadsPerioder = sm.splittLangeSykmeldingperioder()
-            soknadsPerioder.map {
+            sm.splittSykmeldingiSoknadsPerioder(
+                arbeidssituasjon,
+                eksisterendeSoknader,
+                sm.id,
+                sm.behandletTidspunkt.toInstant(),
+                arbeidsgiverStatusDTO?.orgnummer,
+                klippMetrikk
+            ).map {
                 val perioderFraSykmeldingen = it.delOppISoknadsperioder(sm)
                 Sykepengesoknad(
                     id = sykmeldingKafkaMessage.skapSoknadsId(it.fom, it.tom),
@@ -186,23 +190,6 @@ class OpprettSoknadService(
         log.info("Oppretter søknad for utenlandsopphold: {}", oppholdUtlandSoknad.id)
         return sykepengesoknadDAO.finnSykepengesoknad(oppholdUtlandSoknad.id)
     }
-
-    private fun Tidsenhet.delOppISoknadsperioder(sykmeldingDokument: ArbeidsgiverSykmelding): List<SykmeldingsperiodeAGDTO> {
-        return sykmeldingDokument
-            .sykmeldingsperioder
-            .filter { periode -> periodeTrefferInnenforTidsenhet(periode, this) }
-            .map {
-                it.copy(
-                    fom = max(it.fom, this.fom),
-                    tom = min(it.tom, this.tom)
-                )
-            }
-            .sortedBy { it.fom }
-    }
-
-    private fun periodeTrefferInnenforTidsenhet(periode: SykmeldingsperiodeAGDTO, tidsenhet: Tidsenhet): Boolean {
-        return !periode.fom.isAfter(tidsenhet.tom) && !periode.tom.isBefore(tidsenhet.fom)
-    }
 }
 
 fun SykmeldingKafkaMessage.skapSoknadsId(fom: LocalDate, tom: LocalDate): String {
@@ -228,160 +215,16 @@ fun SykmeldingsperiodeAGDTO.tilSoknadsperioder(): Soknadsperiode {
 private fun List<SmMerknad>?.tilMerknader(): List<Merknad>? =
     this?.map { Merknad(type = it.type, beskrivelse = it.beskrivelse) }
 
-internal class Tidsenhet(
-    val fom: LocalDate,
-    val tom: LocalDate
-)
-
-private fun ArbeidsgiverSykmelding.harBehandlingsdager(): Boolean {
-    return this.sykmeldingsperioder.any { it.type == BEHANDLINGSDAGER }
-}
-
-private fun Pair<SykmeldingsperiodeAGDTO, SykmeldingsperiodeAGDTO>.erKompatible(): Boolean {
-    fun SykmeldingsperiodeAGDTO.erAktivitetIkkeMulig(): Boolean {
-        return this.type == AKTIVITET_IKKE_MULIG
-    }
-
-    fun SykmeldingsperiodeAGDTO.erGradertUtenReisetilskudd(): Boolean {
-        val gradertRt = this.gradert?.reisetilskudd ?: false
-        return this.type == GRADERT && !this.reisetilskudd && !gradertRt
-    }
-
-    fun SykmeldingsperiodeAGDTO.erGradertEller100Prosent(): Boolean =
-        this.erAktivitetIkkeMulig() || erGradertUtenReisetilskudd()
-
-    return first.erGradertEller100Prosent() && second.erGradertEller100Prosent()
-}
-
-private fun ArbeidsgiverSykmelding.splittMellomTyper(): List<ArbeidsgiverSykmelding> {
-    val ret = ArrayList<ArbeidsgiverSykmelding>()
-    var behandles: ArbeidsgiverSykmelding? = null
-
-    this.sykmeldingsperioder.sortedBy { it.fom }.forEach {
-        if (behandles == null) {
-            behandles = this.copy(sykmeldingsperioder = listOf(it))
-            return@forEach
-        }
-        fun ArbeidsgiverSykmelding.erKompatibel(sykmeldingsperiodeDTO: SykmeldingsperiodeAGDTO): Boolean {
-            return Pair(sykmeldingsperiodeDTO, this.sykmeldingsperioder.last()).erKompatible()
-        }
-        behandles = if (behandles!!.erKompatibel(it)) {
-            behandles!!.copy(sykmeldingsperioder = listOf(*behandles!!.sykmeldingsperioder.toTypedArray(), it))
-        } else {
-            ret.add(behandles!!)
-            this.copy(sykmeldingsperioder = listOf(it))
-        }
-    }
-    if (behandles != null) {
-        ret.add(behandles!!)
-    }
-
-    return ret
-}
-
-private fun ArbeidsgiverSykmelding.splittLangeSykmeldingperioderMedBehandlingsdager(): List<Tidsenhet> {
-    val liste = ArrayList<Tidsenhet>()
-
-    for (periode in this.sykmeldingsperioder.sortedBy { it.fom }) {
-        liste.addAll(splittPeriodeBasertPaaUke(periode))
-    }
-
-    return liste
-}
-
 fun antallDager(fom: LocalDate, tom: LocalDate): Long {
     return ChronoUnit.DAYS.between(fom, tom) + 1
 }
 
-private fun splittPeriodeBasertPaaUke(periode: SykmeldingsperiodeAGDTO): List<Tidsenhet> {
-    val liste = ArrayList<Tidsenhet>()
-
-    val senesteTom = periode.tom
-    var fom = periode.fom
-    val lengdePaaSykmelding = antallDager(fom, senesteTom)
-    val antallDeler = ceil(lengdePaaSykmelding / 28.0)
-
-    if (antallDeler == 1.0) {
-        liste.add(Tidsenhet(fom = fom, tom = senesteTom))
-        return liste
-    }
-
-    val grunnlengde = floor(lengdePaaSykmelding / antallDeler)
-
-    var lengde = 28
-    if (grunnlengde <= 21) {
-        lengde = 21
-    }
-
-    var tom: LocalDate
-    do {
-        tom = min(sammeEllerSistSondag(fom.plusDays(lengde.toLong())), senesteTom)
-        if (ChronoUnit.DAYS.between(tom, senesteTom) <= 4L) {
-            tom = senesteTom
-        }
-        liste.add(Tidsenhet(fom = fom, tom = tom))
-        fom = tom.plusDays(1)
-    } while (tom.isBefore(senesteTom))
-
-    return liste
+fun eldstePeriodeFOM(perioder: List<SykmeldingsperiodeAGDTO>): LocalDate {
+    return perioder.sortedBy { it.fom }.firstOrNull()?.fom ?: throw SykeforloepManglerSykemeldingException()
 }
 
-private fun sammeEllerSistSondag(localDate: LocalDate): LocalDate {
-    var day = localDate
-    while (true) {
-        if (day.dayOfWeek == DayOfWeek.SUNDAY) {
-            return day
-        }
-        day = day.minusDays(1)
-    }
-}
-
-internal fun ArbeidsgiverSykmelding.splittLangeSykmeldingperioder(): List<Tidsenhet> {
-    if (this.harBehandlingsdager()) {
-        return this.splittLangeSykmeldingperioderMedBehandlingsdager()
-    }
-
-    val perioder = this.sykmeldingsperioder
-
-    fun eldstePeriodeFOM(perioder: List<SykmeldingsperiodeAGDTO>): LocalDate {
-        return perioder.sortedBy { it.fom }.firstOrNull()?.fom ?: throw SykeforloepManglerSykemeldingException()
-    }
-
-    fun nyestePeriodeFoerst(perioder: List<SykmeldingsperiodeAGDTO>): List<SykmeldingsperiodeAGDTO> {
-        return perioder.sortedByDescending { it.fom }
-    }
-
-    fun hentNyestePeriode(perioder: List<SykmeldingsperiodeAGDTO>): SykmeldingsperiodeAGDTO {
-        return nyestePeriodeFoerst(perioder)
-            .stream()
-            .findFirst().get()
-    }
-
-    fun hentSenesteTOMFraPerioder(perioder: List<SykmeldingsperiodeAGDTO>): LocalDate {
-        val nyestePeriodeFoerst = nyestePeriodeFoerst(perioder)
-        return hentNyestePeriode(nyestePeriodeFoerst).tom
-    }
-
-    val liste = ArrayList<Tidsenhet>()
-
-    val lengdePaaSykmelding =
-        ChronoUnit.DAYS.between(eldstePeriodeFOM(perioder), hentSenesteTOMFraPerioder(perioder)) + 1
-
-    val antallDeler = ceil(lengdePaaSykmelding / 31.0)
-    val grunnlengde = floor(lengdePaaSykmelding / antallDeler)
-    var rest = lengdePaaSykmelding % grunnlengde
-
-    var soknadFOM = eldstePeriodeFOM(perioder)
-
-    var i = 0
-    while (i < antallDeler) {
-        val lengde = grunnlengde.toInt() + if (rest-- > 0) 1 else 0
-        val tidsenhet = Tidsenhet(fom = soknadFOM, tom = soknadFOM.plusDays((lengde - 1).toLong()))
-        liste.add(tidsenhet)
-        soknadFOM = tidsenhet.tom.plusDays(1)
-        i++
-    }
-    return liste
+fun hentSenesteTOMFraPerioder(perioder: List<SykmeldingsperiodeAGDTO>): LocalDate {
+    return perioder.sortedByDescending { it.fom }.first().tom
 }
 
 private fun PeriodetypeDTO.tilSykmeldingstype(): Sykmeldingstype {
