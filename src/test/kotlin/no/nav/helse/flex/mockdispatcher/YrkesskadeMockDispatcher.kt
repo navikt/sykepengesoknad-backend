@@ -15,7 +15,7 @@ object YrkesskadeMockDispatcher : Dispatcher() {
     fun skapResponse(): MockResponse {
         return MockResponse().setBody(
             HarYsSakerResponse(
-                harYrkesskadeEllerYrkessykdom = HarYsSak.MAA_SJEKKES_MANUELT,
+                harYrkesskadeEllerYrkessykdom = HarYsSak.NEI,
                 beskrivelser = listOf("Yrkesskade"),
                 kilde = "Infotrygd",
                 kildeperiode = null

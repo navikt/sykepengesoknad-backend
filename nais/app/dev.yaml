@@ -29,3 +29,4 @@ env:
   UTENLANDSK_SPORSMAL_ENABLET: true
   YRKESSKADE_URL: http://yrkesskade-saker.yrkesskade
   YRKESSKADE_AAD_CLIENT_ID: dev-gcp.yrkesskade.yrkesskade-saker
+  YRKESSKADE_ENABLET: true
