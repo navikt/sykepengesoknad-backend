@@ -272,13 +272,13 @@ class OverlapperFullstendig : BaseTestClass() {
         soknader[0].fom shouldBeEqualTo basisdato.minusDays(10)
         soknader[0].tom shouldBeEqualTo basisdato.minusDays(1)
 
-        soknader[2].status shouldBeEqualTo RSSoknadstatus.NY
-        soknader[2].fom shouldBeEqualTo basisdato.minusDays(15)
-        soknader[2].tom shouldBeEqualTo basisdato.minusDays(11)
-
         soknader[1].status shouldBeEqualTo RSSoknadstatus.NY
-        soknader[1].fom shouldBeEqualTo basisdato.minusDays(10)
-        soknader[1].tom shouldBeEqualTo basisdato.minusDays(1)
+        soknader[1].fom shouldBeEqualTo basisdato.minusDays(15)
+        soknader[1].tom shouldBeEqualTo basisdato.minusDays(11)
+
+        soknader[2].status shouldBeEqualTo RSSoknadstatus.NY
+        soknader[2].fom shouldBeEqualTo basisdato.minusDays(10)
+        soknader[2].tom shouldBeEqualTo basisdato.minusDays(1)
 
         soknader[3].status shouldBeEqualTo RSSoknadstatus.FREMTIDIG
         soknader[3].fom shouldBeEqualTo basisdato

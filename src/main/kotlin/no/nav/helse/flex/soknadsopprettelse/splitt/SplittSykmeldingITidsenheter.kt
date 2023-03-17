@@ -62,7 +62,7 @@ fun ArbeidsgiverSykmelding.splittSykmeldingiSoknadsPerioder(
         throw RuntimeException("Kan ikke opprette søknader for sykmelding $sykmeldingId da den fremdeles har splittbare perioder")
     }
 
-    return sykmeldingTidsenheter.ferdigsplittet
+    return sykmeldingTidsenheter.ferdigsplittet.sortedBy { it.fom }
 }
 
 private fun ArbeidsgiverSykmelding.harBehandlingsdager(arbeidssituasjon: Arbeidssituasjon): Boolean {
