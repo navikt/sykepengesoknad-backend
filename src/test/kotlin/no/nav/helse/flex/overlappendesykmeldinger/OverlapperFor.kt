@@ -347,12 +347,12 @@ class OverlapperFor : BaseTestClass() {
         soknader[0].tom shouldBeEqualTo basisdato.minusDays(1)
 
         soknader[1].status shouldBeEqualTo RSSoknadstatus.NY
-        soknader[1].fom shouldBeEqualTo basisdato.minusDays(10)
-        soknader[1].tom shouldBeEqualTo basisdato.minusDays(5)
+        soknader[1].fom shouldBeEqualTo basisdato.minusDays(15)
+        soknader[1].tom shouldBeEqualTo basisdato.minusDays(11)
 
         soknader[2].status shouldBeEqualTo RSSoknadstatus.NY
-        soknader[2].fom shouldBeEqualTo basisdato.minusDays(15)
-        soknader[2].tom shouldBeEqualTo basisdato.minusDays(11)
+        soknader[2].fom shouldBeEqualTo basisdato.minusDays(10)
+        soknader[2].tom shouldBeEqualTo basisdato.minusDays(5)
 
         val klippmetrikker = klippMetrikkRepository.findAll().toList()
         klippmetrikker shouldHaveSize 1

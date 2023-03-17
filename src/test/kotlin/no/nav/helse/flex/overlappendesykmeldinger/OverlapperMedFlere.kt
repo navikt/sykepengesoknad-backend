@@ -13,6 +13,7 @@ import no.nav.helse.flex.repository.KlippMetrikkRepository
 import no.nav.helse.flex.repository.SoknadLagrer
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.sendSykmelding
+import no.nav.helse.flex.testdata.gradertSykmeldt
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.util.serialisertTilString
@@ -439,6 +440,127 @@ class OverlapperMedFlere : BaseTestClass() {
         )
     }
 
+    @Test
+    fun `Overlapper i midten av en lang rekke med sendte soknader`() {
+        overlappTester.testKlipp(
+            forventaSoknadPaKafka = 3,
+            eksisterendeSoknader = listOf(
+                Soknad(
+                    status = Soknadstatus.SENDT,
+                    soknadPerioder = listOf(
+                        Soknadsperiode(
+                            fom = LocalDate.of(2022, 1, 1),
+                            tom = LocalDate.of(2022, 1, 31),
+                            grad = 100,
+                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
+                        )
+                    )
+                ),
+                Soknad(
+                    status = Soknadstatus.SENDT,
+                    soknadPerioder = listOf(
+                        Soknadsperiode(
+                            fom = LocalDate.of(2022, 2, 1),
+                            tom = LocalDate.of(2022, 2, 28),
+                            grad = 100,
+                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
+                        )
+                    )
+                ),
+                Soknad(
+                    status = Soknadstatus.SENDT,
+                    soknadPerioder = listOf(
+                        Soknadsperiode(
+                            fom = LocalDate.of(2022, 3, 1),
+                            tom = LocalDate.of(2022, 3, 31),
+                            grad = 100,
+                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
+                        )
+                    )
+                )
+            ),
+            overlappendeSoknad = Soknad(
+                soknadPerioder = listOf(
+                    Soknadsperiode(
+                        fom = LocalDate.of(2022, 1, 15),
+                        tom = LocalDate.of(2022, 3, 15),
+                        grad = 50,
+                        sykmeldingstype = Sykmeldingstype.GRADERT
+                    )
+                )
+            ),
+            dagensDato = LocalDate.of(2022, 4, 1),
+            forventetResultat = listOf(
+                Soknad(
+                    status = Soknadstatus.SENDT,
+                    soknadPerioder = listOf(
+                        Soknadsperiode(
+                            fom = LocalDate.of(2022, 1, 1),
+                            tom = LocalDate.of(2022, 1, 31),
+                            grad = 100,
+                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
+                        )
+                    )
+                ),
+                Soknad(
+                    status = Soknadstatus.SENDT,
+                    soknadPerioder = listOf(
+                        Soknadsperiode(
+                            fom = LocalDate.of(2022, 2, 1),
+                            tom = LocalDate.of(2022, 2, 28),
+                            grad = 100,
+                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
+                        )
+                    )
+                ),
+                Soknad(
+                    status = Soknadstatus.SENDT,
+                    soknadPerioder = listOf(
+                        Soknadsperiode(
+                            fom = LocalDate.of(2022, 3, 1),
+                            tom = LocalDate.of(2022, 3, 31),
+                            grad = 100,
+                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
+                        )
+                    )
+                ),
+                Soknad(
+                    status = Soknadstatus.NY,
+                    soknadPerioder = listOf(
+                        Soknadsperiode(
+                            fom = LocalDate.of(2022, 1, 15),
+                            tom = LocalDate.of(2022, 1, 31),
+                            grad = 50,
+                            sykmeldingstype = Sykmeldingstype.GRADERT
+                        )
+                    )
+                ),
+                Soknad(
+                    status = Soknadstatus.NY,
+                    soknadPerioder = listOf(
+                        Soknadsperiode(
+                            fom = LocalDate.of(2022, 2, 1),
+                            tom = LocalDate.of(2022, 2, 28),
+                            grad = 50,
+                            sykmeldingstype = Sykmeldingstype.GRADERT
+                        )
+                    )
+                ),
+                Soknad(
+                    status = Soknadstatus.NY,
+                    soknadPerioder = listOf(
+                        Soknadsperiode(
+                            fom = LocalDate.of(2022, 3, 1),
+                            tom = LocalDate.of(2022, 3, 15),
+                            grad = 50,
+                            sykmeldingstype = Sykmeldingstype.GRADERT
+                        )
+                    )
+                )
+            )
+        )
+    }
+
     private class OverlappTester(
         private val soknadLagrer: SoknadLagrer,
         private val sykepengesoknadDAO: SykepengesoknadDAO,
@@ -466,10 +588,17 @@ class OverlapperMedFlere : BaseTestClass() {
                 sykmeldingKafkaMessage(
                     fnr = "fnr",
                     sykmeldingId = overlappendeSoknad.traceId,
-                    sykmeldingsperioder = heltSykmeldt(
-                        fom = overlappendeSoknad.soknadPerioder.minOf { it.fom },
-                        tom = overlappendeSoknad.soknadPerioder.maxOf { it.tom }
-                    )
+                    sykmeldingsperioder = if (overlappendeSoknad.soknadPerioder.any { it.grad != 100 }) {
+                        gradertSykmeldt(
+                            fom = overlappendeSoknad.soknadPerioder.minOf { it.fom },
+                            tom = overlappendeSoknad.soknadPerioder.maxOf { it.tom }
+                        )
+                    } else {
+                        heltSykmeldt(
+                            fom = overlappendeSoknad.soknadPerioder.minOf { it.fom },
+                            tom = overlappendeSoknad.soknadPerioder.maxOf { it.tom }
+                        )
+                    }
                 ),
                 forventaSoknader = forventaSoknadPaKafka
             )
