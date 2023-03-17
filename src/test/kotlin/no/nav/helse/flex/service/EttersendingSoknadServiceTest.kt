@@ -248,6 +248,7 @@ class EttersendingSoknadServiceTest {
                 soknadMetadata,
                 true,
                 LocalDate.now(),
+                false,
                 false
             )
         )
@@ -291,7 +292,8 @@ class EttersendingSoknadServiceTest {
                 andreKjenteArbeidsforhold = emptyList(),
                 harTidligereUtenlandskSpm = false,
                 utenlandskSporsmalEnablet = false,
-                egenmeldingISykmeldingen = false
+                egenmeldingISykmeldingen = false,
+                yrkesskade = false
             )
         )
     }

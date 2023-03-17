@@ -4,6 +4,7 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentArbeidUtenforNorge
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentInntektListe
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentPermitteringer
+import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentYrkesskade
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsperiodeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.helse.flex.util.tilOsloLocalDateTime
@@ -38,6 +39,8 @@ fun konverterSelvstendigOgFrilanserTilSoknadDTO(
         merknaderFraSykmelding = sykepengesoknad.merknaderFraSykmelding.tilMerknadDTO(),
         arbeidUtenforNorge = sykepengesoknad.hentArbeidUtenforNorge(),
         andreInntektskilder = hentInntektListe(sykepengesoknad),
-        utenlandskSykmelding = sykepengesoknad.utenlandskSykmelding
+        utenlandskSykmelding = sykepengesoknad.utenlandskSykmelding,
+        yrkesskade = sykepengesoknad.hentYrkesskade()
+
     )
 }

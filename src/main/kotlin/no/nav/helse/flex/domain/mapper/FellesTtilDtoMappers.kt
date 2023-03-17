@@ -3,7 +3,6 @@ package no.nav.helse.flex.domain.mapper
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import no.nav.helse.flex.domain.ArbeidsgiverForskutterer
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Avsendertype
 import no.nav.helse.flex.domain.Merknad
@@ -34,14 +33,6 @@ fun Arbeidssituasjon.tilArbeidssituasjonDTO(): ArbeidssituasjonDTO {
         Arbeidssituasjon.NAERINGSDRIVENDE -> ArbeidssituasjonDTO.SELVSTENDIG_NARINGSDRIVENDE
         Arbeidssituasjon.ARBEIDSLEDIG -> ArbeidssituasjonDTO.ARBEIDSLEDIG
         Arbeidssituasjon.ANNET -> ArbeidssituasjonDTO.ANNET
-    }
-}
-
-fun ArbeidsgiverForskutterer.tilArbeidsgiverForskuttererDTO(): ArbeidsgiverForskuttererDTO {
-    return when (this) {
-        ArbeidsgiverForskutterer.JA -> ArbeidsgiverForskuttererDTO.JA
-        ArbeidsgiverForskutterer.NEI -> ArbeidsgiverForskuttererDTO.NEI
-        ArbeidsgiverForskutterer.VET_IKKE -> ArbeidsgiverForskuttererDTO.VET_IKKE
     }
 }
 

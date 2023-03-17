@@ -10,12 +10,14 @@ import no.nav.helse.flex.domain.Visningskriterie.JA
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.ansvarserklaringSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.bekreftOpplysningerSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.vaerKlarOverAtReisetilskudd
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.yrkesskadeSporsmal
 import no.nav.helse.flex.util.DatoUtil.formatterPeriode
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
 fun skapReisetilskuddsoknad(
-    soknadMetadata: Sykepengesoknad
+    soknadMetadata: Sykepengesoknad,
+    yrkesskade: Boolean
 ): List<Sporsmal> {
     return mutableListOf(
         ansvarserklaringSporsmal(reisetilskudd = true),
@@ -25,6 +27,9 @@ fun skapReisetilskuddsoknad(
         it.addAll(
             reisetilskuddSporsmal(soknadMetadata.fom!!, soknadMetadata.tom!!, soknadMetadata.arbeidssituasjon!!)
         )
+        if (yrkesskade) {
+            it.add(yrkesskadeSporsmal())
+        }
     }.toList()
 }
 

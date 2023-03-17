@@ -58,6 +58,15 @@ no.nav.security.jwt:
           client-id: client-id
           client-secret: secretzz
           client-auth-method: client_secret_basic
+      yrkesskade-client-credentials:
+        token-endpoint-url: http://localhost:${mock-oauth2-server.port}/azureator/token
+        grant-type: client_credentials
+        scope: yrkesskade
+        authentication:
+          client-id: client-id
+          client-secret: secretzz
+          client-auth-method: client_secret_basic
+
 
 EREG_URL: "http://ereg"
 
@@ -122,3 +131,4 @@ aiven-kafka:
 SKRIVEMODUS: READWRITE
 EGENMELDING_SYKMELDING_FOM: "2025-03-01T04:00:00.000000+01:00"
 UTENLANDSK_SPORSMAL_ENABLET: true
+YRKESSKADE_ENABLET: true

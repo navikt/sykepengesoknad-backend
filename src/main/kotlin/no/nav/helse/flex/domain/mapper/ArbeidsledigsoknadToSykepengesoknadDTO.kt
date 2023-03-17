@@ -5,6 +5,7 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentArbeidUtenforNorge
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentInntektListe
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentPermitteringer
+import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentYrkesskade
 import no.nav.helse.flex.soknadsopprettelse.ARBEIDSLEDIG_UTLAND
 import no.nav.helse.flex.soknadsopprettelse.UTLANDSOPPHOLD_SOKT_SYKEPENGER
 import no.nav.helse.flex.soknadsopprettelse.UTLAND_NAR
@@ -45,7 +46,8 @@ object ArbeidsledigsoknadToSykepengesoknadDTO {
             permitteringer = sykepengesoknad.hentPermitteringer(),
             merknaderFraSykmelding = sykepengesoknad.merknaderFraSykmelding.tilMerknadDTO(),
             arbeidUtenforNorge = sykepengesoknad.hentArbeidUtenforNorge(),
-            utenlandskSykmelding = sykepengesoknad.utenlandskSykmelding
+            utenlandskSykmelding = sykepengesoknad.utenlandskSykmelding,
+            yrkesskade = sykepengesoknad.hentYrkesskade()
 
         )
     }

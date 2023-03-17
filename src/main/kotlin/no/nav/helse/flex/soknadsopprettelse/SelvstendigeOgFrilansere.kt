@@ -10,14 +10,8 @@ import no.nav.helse.flex.domain.Svartype.JA_NEI
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.Sykmeldingstype
 import no.nav.helse.flex.domain.Visningskriterie.JA
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderSelvstendigOgFrilanser
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.ansvarserklaringSporsmal
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.arbeidUtenforNorge
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.bekreftOpplysningerSporsmal
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.jobbetDuGradert
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.tilbakeIFulltArbeidGradertReisetilskuddSporsmal
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.utenlandsksykmelding.utenlandskSykmeldingSporsmal
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.vaerKlarOverAt
 import no.nav.helse.flex.soknadsopprettelse.undersporsmal.jobbetDuUndersporsmal
 import no.nav.helse.flex.util.DatoUtil.formatterDato
 import no.nav.helse.flex.util.DatoUtil.formatterPeriode
@@ -28,7 +22,8 @@ fun settOppSoknadSelvstendigOgFrilanser(
     sykepengesoknad: Sykepengesoknad,
     erForsteSoknadISykeforlop: Boolean,
     harTidligereUtenlandskSpm: Boolean,
-    utenlandskSporsmalEnablet: Boolean
+    utenlandskSporsmalEnablet: Boolean,
+    yrkesskade: Boolean
 ): List<Sporsmal> {
     val gradertReisetilskudd = sykepengesoknad.soknadstype == Soknadstype.GRADERT_REISETILSKUDD
     return mutableListOf(
@@ -46,6 +41,9 @@ fun settOppSoknadSelvstendigOgFrilanser(
         it.addAll(jobbetDuIPeriodenSporsmalSelvstendigFrilanser(sykepengesoknad.soknadPerioder!!, sykepengesoknad.arbeidssituasjon))
         if (erForsteSoknadISykeforlop) {
             it.add(arbeidUtenforNorge())
+        }
+        if (yrkesskade) {
+            it.add(yrkesskadeSporsmal())
         }
         if (sykepengesoknad.utenlandskSykmelding) {
             if (erForsteSoknadISykeforlop || !harTidligereUtenlandskSpm) {
