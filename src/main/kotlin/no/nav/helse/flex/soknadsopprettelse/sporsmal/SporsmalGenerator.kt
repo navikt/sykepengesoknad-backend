@@ -32,9 +32,6 @@ class SporsmalGenerator(
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val yrkesskadeIndikatorer: YrkesskadeIndikatorer,
 
-    @Value("\${UTENLANDSK_SPORSMAL_ENABLET:false}")
-    private val utenlandskSporsmalEnablet: Boolean,
-
     @Value("\${EGENMELDING_SYKMELDING_FOM}") private val egenmeldingSykmeldingFom: String
 
 ) {
@@ -101,7 +98,6 @@ class SporsmalGenerator(
                         arbeidsgiverOrgnummer = soknad.arbeidsgiverOrgnummer!!,
                         startSykeforlop = soknad.startSykeforlop!!
                     ),
-                    utenlandskSporsmalEnablet = utenlandskSporsmalEnablet,
                     harTidligereUtenlandskSpm = harTidligereUtenlandskSpm,
                     yrkesskade = yrkesskade
                 )
@@ -110,7 +106,6 @@ class SporsmalGenerator(
             Arbeidssituasjon.NAERINGSDRIVENDE, Arbeidssituasjon.FRILANSER -> settOppSoknadSelvstendigOgFrilanser(
                 sykepengesoknad = soknad,
                 erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
-                utenlandskSporsmalEnablet = utenlandskSporsmalEnablet,
                 harTidligereUtenlandskSpm = harTidligereUtenlandskSpm,
                 yrkesskade = yrkesskade
 
@@ -119,7 +114,6 @@ class SporsmalGenerator(
             Arbeidssituasjon.ARBEIDSLEDIG -> settOppSoknadArbeidsledig(
                 sykepengesoknad = soknad,
                 erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
-                utenlandskSporsmalEnablet = utenlandskSporsmalEnablet,
                 harTidligereUtenlandskSpm = harTidligereUtenlandskSpm,
                 yrkesskade = yrkesskade
 
@@ -128,7 +122,6 @@ class SporsmalGenerator(
             Arbeidssituasjon.ANNET -> settOppSoknadAnnetArbeidsforhold(
                 sykepengesoknad = soknad,
                 erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
-                utenlandskSporsmalEnablet = utenlandskSporsmalEnablet,
                 harTidligereUtenlandskSpm = harTidligereUtenlandskSpm,
                 yrkesskade = yrkesskade
             )

@@ -25,7 +25,6 @@ fun settOppSoknadArbeidstaker(
     tidligsteFomForSykmelding: LocalDate,
     andreKjenteArbeidsforhold: List<String>,
     harTidligereUtenlandskSpm: Boolean,
-    utenlandskSporsmalEnablet: Boolean,
     yrkesskade: Boolean,
     egenmeldingISykmeldingen: Boolean
 ): List<Sporsmal> {
@@ -55,9 +54,7 @@ fun settOppSoknadArbeidstaker(
         }
         if (sykepengesoknad.utenlandskSykmelding) {
             if (erForsteSoknadISykeforlop || !harTidligereUtenlandskSpm) {
-                if (utenlandskSporsmalEnablet) {
-                    it.addAll(utenlandskSykmeldingSporsmal(sykepengesoknad))
-                }
+                it.addAll(utenlandskSykmeldingSporsmal(sykepengesoknad))
             }
         }
 

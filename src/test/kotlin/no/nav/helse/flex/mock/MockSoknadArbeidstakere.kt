@@ -26,7 +26,6 @@ fun deprecatedGetSoknadMedFeriesporsmalSomUndersporsmal(soknadMetadata: Sykepeng
             tidligsteFomForSykmelding = now(),
             andreKjenteArbeidsforhold = emptyList(),
             harTidligereUtenlandskSpm = false,
-            utenlandskSporsmalEnablet = false,
             egenmeldingISykmeldingen = false,
             yrkesskade = false
         )
@@ -144,7 +143,6 @@ fun opprettSendtSoknad(): Sykepengesoknad {
                 tidligsteFomForSykmelding = now(),
                 andreKjenteArbeidsforhold = emptyList(),
                 harTidligereUtenlandskSpm = false,
-                utenlandskSporsmalEnablet = false,
                 egenmeldingISykmeldingen = false,
                 yrkesskade = false
             )
@@ -208,7 +206,6 @@ fun opprettNySoknadMock(feriesporsmalSomHovedsporsmal: Boolean = true): Sykepeng
                 tidligsteFomForSykmelding = now(),
                 andreKjenteArbeidsforhold = emptyList(),
                 harTidligereUtenlandskSpm = false,
-                utenlandskSporsmalEnablet = false,
                 egenmeldingISykmeldingen = false,
                 yrkesskade = false
 

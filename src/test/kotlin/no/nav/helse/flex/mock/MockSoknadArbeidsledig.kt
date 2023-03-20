@@ -70,7 +70,6 @@ fun opprettNySoknad(): Sykepengesoknad {
             sykepengesoknad,
             false,
             false,
-            false,
             false
         )
     )

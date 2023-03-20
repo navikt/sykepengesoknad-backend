@@ -10,7 +10,6 @@ fun settOppSoknadAnnetArbeidsforhold(
     sykepengesoknad: Sykepengesoknad,
     erForsteSoknadISykeforlop: Boolean,
     harTidligereUtenlandskSpm: Boolean,
-    utenlandskSporsmalEnablet: Boolean,
     yrkesskade: Boolean
 ): List<Sporsmal> {
     val gradertReisetilskudd = sykepengesoknad.soknadstype == Soknadstype.GRADERT_REISETILSKUDD
@@ -32,9 +31,7 @@ fun settOppSoknadAnnetArbeidsforhold(
         }
         if (sykepengesoknad.utenlandskSykmelding) {
             if (erForsteSoknadISykeforlop || !harTidligereUtenlandskSpm) {
-                if (utenlandskSporsmalEnablet) {
-                    it.addAll(utenlandskSykmeldingSporsmal(sykepengesoknad))
-                }
+                it.addAll(utenlandskSykmeldingSporsmal(sykepengesoknad))
             }
         }
         if (gradertReisetilskudd) {
