@@ -28,4 +28,3 @@ env:
   EREG_URL: https://ereg-services.dev-fss-pub.nais.io
   YRKESSKADE_URL: http://yrkesskade-saker.yrkesskade
   YRKESSKADE_AAD_CLIENT_ID: dev-gcp.yrkesskade.yrkesskade-saker
-  YRKESSKADE_ENABLET: true
