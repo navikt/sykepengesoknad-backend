@@ -52,7 +52,6 @@ fun opprettNySoknadAnnet(): Sykepengesoknad {
             soknadMetadata,
             false,
             false,
-            false,
             false
         )
     )

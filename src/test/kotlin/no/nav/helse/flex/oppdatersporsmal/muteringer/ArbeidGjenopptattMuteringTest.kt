@@ -64,7 +64,6 @@ class ArbeidGjenopptattMuteringTest {
                 tidligsteFomForSykmelding = fom,
                 andreKjenteArbeidsforhold = emptyList(),
                 harTidligereUtenlandskSpm = false,
-                utenlandskSporsmalEnablet = false,
                 egenmeldingISykmeldingen = false,
                 yrkesskade = false
 
@@ -134,7 +133,6 @@ class ArbeidGjenopptattMuteringTest {
                 tidligsteFomForSykmelding = basisdato,
                 andreKjenteArbeidsforhold = emptyList(),
                 harTidligereUtenlandskSpm = false,
-                utenlandskSporsmalEnablet = false,
                 egenmeldingISykmeldingen = false,
                 yrkesskade = false
 
@@ -200,7 +198,6 @@ class ArbeidGjenopptattMuteringTest {
                 tidligsteFomForSykmelding = fom,
                 andreKjenteArbeidsforhold = emptyList(),
                 harTidligereUtenlandskSpm = false,
-                utenlandskSporsmalEnablet = false,
                 egenmeldingISykmeldingen = false,
                 yrkesskade = false
 

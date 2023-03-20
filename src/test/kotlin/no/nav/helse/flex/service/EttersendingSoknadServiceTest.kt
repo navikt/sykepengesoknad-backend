@@ -291,7 +291,6 @@ class EttersendingSoknadServiceTest {
                 tidligsteFomForSykmelding = LocalDate.now(),
                 andreKjenteArbeidsforhold = emptyList(),
                 harTidligereUtenlandskSpm = false,
-                utenlandskSporsmalEnablet = false,
                 egenmeldingISykmeldingen = false,
                 yrkesskade = false
             )

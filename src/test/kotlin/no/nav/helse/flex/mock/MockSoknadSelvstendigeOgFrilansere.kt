@@ -73,7 +73,6 @@ fun opprettNyNaeringsdrivendeSoknad(): Sykepengesoknad {
             soknadMetadata,
             false,
             false,
-            false,
             false
         ),
         status = Soknadstatus.NY
@@ -123,7 +122,6 @@ fun opprettSendtFrilanserSoknad(): Sykepengesoknad {
     return (soknadMetadata).copy(
         sporsmal = settOppSoknadSelvstendigOgFrilanser(
             soknadMetadata,
-            false,
             false,
             false,
             false
