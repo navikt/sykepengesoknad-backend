@@ -14,7 +14,6 @@ import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.service.MottakerAvSoknadService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.Instant
 import java.time.LocalDate
 
 @Service
@@ -52,20 +51,16 @@ class SoknadSender(
 
         val mottaker = mottakerAvSoknadService.finnMottakerAvSoknad(soknadSomSendes, identer)
         val sendtSoknad = sykepengesoknadDAO.sendSoknad(sykepengesoknad, mottaker, avsendertype)
-        fun opprinneligSendt(): Instant? {
-            val alleSoknader = sykepengesoknadRepository.findByFnrIn(identer.alle())
-            if (sendtSoknad.korrigerer == null) {
-                return alleSoknader.finnOpprinneligSendt(sendtSoknad.normaliser().soknad)
-            }
-            return alleSoknader.finnOpprinneligSendt(sendtSoknad.korrigerer)
-        }
+        val opprinneligSendt = sykepengesoknadRepository
+            .findByFnrIn(identer.alle())
+            .finnOpprinneligSendt(sendtSoknad.normaliser().soknad)
 
         soknadProducer.soknadEvent(
             sykepengesoknad = sendtSoknad,
             mottaker = mottaker,
             erEttersending = false,
             dodsdato = dodsdato,
-            opprinneligSendt = opprinneligSendt()
+            opprinneligSendt = opprinneligSendt
         )
     }
 }
