@@ -16,53 +16,22 @@ import java.util.*
 class FinnOpprinneligSendtTest {
 
     val lengesiden = Instant.now().minusSeconds(5000)
-    val ikkeSålengesiden = Instant.now().minusSeconds(2000)
 
     @Test
     fun `velger eldste sendt dato`() {
         listOf(
-            skapDbRecord(sykepengesoknadUuid = "1", korrigerer = "2", sendtNav = Instant.now()),
-            skapDbRecord(sykepengesoknadUuid = "2", korrigerer = "3", sendtNav = Instant.now()),
-            skapDbRecord(sykepengesoknadUuid = "3", sendtNav = lengesiden, sendtArbeidsgiver = ikkeSålengesiden)
+            skapDbRecord(sykepengesoknadUuid = "1", korrigerer = "2", sendt = Instant.now()),
+            skapDbRecord(sykepengesoknadUuid = "2", korrigerer = "3", sendt = Instant.now()),
+            skapDbRecord(sykepengesoknadUuid = "3", sendt = lengesiden)
         ).finnOpprinneligSendt("1") `should be equal to` lengesiden
-    }
-
-    @Test
-    fun `velger sendt nav når kun den finnes`() {
-        listOf(
-            skapDbRecord(sykepengesoknadUuid = "1", korrigerer = "3", sendtNav = Instant.now()),
-            skapDbRecord(sykepengesoknadUuid = "3", sendtNav = ikkeSålengesiden)
-        ).finnOpprinneligSendt("1") `should be equal to` ikkeSålengesiden
-    }
-
-    @Test
-    fun `velger sendt arbeidsgiver når kun den finnes`() {
-        listOf(
-            skapDbRecord(sykepengesoknadUuid = "1", korrigerer = "2", sendtNav = Instant.now()),
-            skapDbRecord(sykepengesoknadUuid = "2", korrigerer = "3", sendtNav = Instant.now()),
-            skapDbRecord(sykepengesoknadUuid = "3", sendtArbeidsgiver = ikkeSålengesiden)
-        ).finnOpprinneligSendt("1") `should be equal to` ikkeSålengesiden
-    }
-
-    @Test
-    fun `kaster feil når sendt tidspunkt mangler`() {
-        val exception = assertThrows<RuntimeException> {
-            listOf(
-                skapDbRecord(sykepengesoknadUuid = "1", korrigerer = "2", sendtNav = Instant.now()),
-                skapDbRecord(sykepengesoknadUuid = "2", korrigerer = "3", sendtNav = Instant.now()),
-                skapDbRecord(sykepengesoknadUuid = "3")
-            ).finnOpprinneligSendt("1")
-        }
-
-        exception.message `should be equal to` "3 er korrigert med status SENDT, men ingen sendt datoer"
     }
 
     @Test
     fun `kaster feil når sendt korrigerer mangler`() {
         val exception = assertThrows<RuntimeException> {
             listOf(
-                skapDbRecord(sykepengesoknadUuid = "1", korrigerer = "2", sendtNav = Instant.now()),
-                skapDbRecord(sykepengesoknadUuid = "2", korrigerer = "3", sendtNav = Instant.now()),
+                skapDbRecord(sykepengesoknadUuid = "1", korrigerer = "2", sendt = Instant.now()),
+                skapDbRecord(sykepengesoknadUuid = "2", korrigerer = "3", sendt = Instant.now()),
                 skapDbRecord(sykepengesoknadUuid = "3")
             ).finnOpprinneligSendt("666")
         }
@@ -71,8 +40,7 @@ class FinnOpprinneligSendtTest {
     }
 
     fun skapDbRecord(
-        sendtNav: Instant? = null,
-        sendtArbeidsgiver: Instant? = null,
+        sendt: Instant? = null,
         korrigerer: String? = null,
         sykepengesoknadUuid: String = UUID.randomUUID().toString()
     ): SykepengesoknadDbRecord {
@@ -84,7 +52,7 @@ class FinnOpprinneligSendtTest {
             status = Soknadstatus.SENDT,
             opprettet = Instant.now(),
             avbruttDato = LocalDate.now(),
-            sendtNav = sendtNav,
+            sendtNav = null,
             korrigerer = korrigerer,
             korrigertAv = "sdfsdf",
             opprinnelse = Opprinnelse.SYKEPENGESOKNAD_BACKEND,
@@ -94,14 +62,15 @@ class FinnOpprinneligSendtTest {
             tom = LocalDate.EPOCH,
             startSykeforlop = LocalDate.EPOCH,
             sykmeldingSkrevet = Instant.now(),
-            sendtArbeidsgiver = sendtArbeidsgiver,
+            sendtArbeidsgiver = null,
             arbeidsgiverOrgnummer = "12345",
             arbeidsgiverNavn = "1243123",
             arbeidssituasjon = Arbeidssituasjon.ANNET,
             egenmeldtSykmelding = null,
             merknaderFraSykmelding = null,
             avbruttFeilinfo = null,
-            utenlandskSykmelding = false
+            utenlandskSykmelding = false,
+            sendt = sendt
         )
     }
 }

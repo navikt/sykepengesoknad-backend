@@ -9,6 +9,7 @@ import no.nav.helse.flex.kafka.producer.SoknadProducer
 import no.nav.helse.flex.repository.SvarDAO
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.repository.SykepengesoknadRepository
+import no.nav.helse.flex.repository.normaliser
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.service.MottakerAvSoknadService
 import org.springframework.stereotype.Service
@@ -52,10 +53,10 @@ class SoknadSender(
         val mottaker = mottakerAvSoknadService.finnMottakerAvSoknad(soknadSomSendes, identer)
         val sendtSoknad = sykepengesoknadDAO.sendSoknad(sykepengesoknad, mottaker, avsendertype)
         fun opprinneligSendt(): Instant? {
-            if (sendtSoknad.korrigerer == null) {
-                return null
-            }
             val alleSoknader = sykepengesoknadRepository.findByFnrIn(identer.alle())
+            if (sendtSoknad.korrigerer == null) {
+                return alleSoknader.finnOpprinneligSendt(sendtSoknad.normaliser().soknad)
+            }
             return alleSoknader.finnOpprinneligSendt(sendtSoknad.korrigerer)
         }
 
