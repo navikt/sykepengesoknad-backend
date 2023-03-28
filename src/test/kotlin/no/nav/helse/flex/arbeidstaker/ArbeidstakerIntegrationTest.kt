@@ -1,20 +1,13 @@
 package no.nav.helse.flex.arbeidstaker
 
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSporsmal
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
-import no.nav.helse.flex.hentSoknad
-import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
-import no.nav.helse.flex.korrigerSoknad
-import no.nav.helse.flex.korrigerSoknadMedResult
-import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
 import no.nav.helse.flex.repository.SykepengesoknadDAO
-import no.nav.helse.flex.sendSoknadMedResult
-import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
 import no.nav.helse.flex.sykepengesoknad.kafka.MerknadDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.PeriodeDTO
@@ -24,9 +17,7 @@ import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
-import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.util.tilOsloLocalDateTime
-import no.nav.helse.flex.ventPåRecords
 import no.nav.syfo.model.Merknad
 import no.nav.syfo.model.sykmeldingstatus.STATUS_BEKREFTET
 import org.amshove.kluent.`should be`
@@ -284,13 +275,16 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
     @Order(8)
     fun `4 - vi korrigerer og sender inn søknaden, opprinnelig sendt blir satt riktig`() {
         flexSyketilfelleMockRestServiceServer?.reset()
+
         val soknaden = hentSoknad(
             soknadId = hentSoknaderMetadata(fnr).sortedBy { it.fom }.first { it.status == RSSoknadstatus.SENDT }.id,
             fnr = fnr
         )
+        mockFlexSyketilfelleArbeidsgiverperiode(andreKorrigerteRessurser = soknaden.id)
+
         val soknadDb = sykepengesoknadRepository.findBySykepengesoknadUuid(soknaden.id)!!
         val sendtTidspunkt = OffsetDateTime.now().minusDays(3)
-        sykepengesoknadRepository.save(soknadDb.copy(sendtArbeidsgiver = sendtTidspunkt.toInstant(), sendtNav = sendtTidspunkt.plusMinutes(20).toInstant()))
+        sykepengesoknadRepository.save(soknadDb.copy(sendt = sendtTidspunkt.toInstant()))
         val korrigerendeSoknad = korrigerSoknad(soknaden.id, fnr)
 
         val sendtSoknad = SoknadBesvarer(rSSykepengesoknad = korrigerendeSoknad, mockMvc = this, fnr = fnr)
@@ -304,7 +298,7 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
         assertThat(kafkaSoknader[0].opprinneligSendt).isNotNull()
         assertThat(kafkaSoknader[0].opprinneligSendt).isEqualToIgnoringNanos(sendtTidspunkt.toInstant().tilOsloLocalDateTime())
 
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = 1)
+        juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
     }
 
     @Test

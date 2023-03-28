@@ -7,8 +7,8 @@ import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.repository.SykepengesoknadDbRecord
 import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.shouldBeNull
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import java.time.Instant
 import java.time.LocalDate
 import java.util.*
@@ -16,65 +16,41 @@ import java.util.*
 class FinnOpprinneligSendtTest {
 
     val lengesiden = Instant.now().minusSeconds(5000)
-    val ikkeSålengesiden = Instant.now().minusSeconds(2000)
+    val endaLengreSiden = Instant.now().minusSeconds(10000)
 
     @Test
-    fun `velger eldste sendt dato`() {
+    fun `finner opprinnelig sendt basert tidligere overlappende`() {
+        val denViSender = skapDbRecord(sendt = Instant.now())
         listOf(
-            skapDbRecord(sykepengesoknadUuid = "1", korrigerer = "2", sendtNav = Instant.now()),
-            skapDbRecord(sykepengesoknadUuid = "2", korrigerer = "3", sendtNav = Instant.now()),
-            skapDbRecord(sykepengesoknadUuid = "3", sendtNav = lengesiden, sendtArbeidsgiver = ikkeSålengesiden)
-        ).finnOpprinneligSendt("1") `should be equal to` lengesiden
+            denViSender,
+            skapDbRecord(sendt = lengesiden)
+        ).finnOpprinneligSendt(denViSender) `should be equal to` lengesiden
     }
 
     @Test
-    fun `velger sendt nav når kun den finnes`() {
+    fun `finner opprinnelig sendt basert på flere tidligere overlappende`() {
+        val denViSender = skapDbRecord(sendt = Instant.now())
         listOf(
-            skapDbRecord(sykepengesoknadUuid = "1", korrigerer = "3", sendtNav = Instant.now()),
-            skapDbRecord(sykepengesoknadUuid = "3", sendtNav = ikkeSålengesiden)
-        ).finnOpprinneligSendt("1") `should be equal to` ikkeSålengesiden
+            denViSender,
+            skapDbRecord(sendt = lengesiden),
+            skapDbRecord(sendt = endaLengreSiden)
+        ).finnOpprinneligSendt(denViSender) `should be equal to` endaLengreSiden
     }
 
     @Test
-    fun `velger sendt arbeidsgiver når kun den finnes`() {
+    fun `finner ingen opprinnelig sendt når det ikke er noen tidligere overlappende`() {
+        val denViSender = skapDbRecord(sendt = Instant.now())
         listOf(
-            skapDbRecord(sykepengesoknadUuid = "1", korrigerer = "2", sendtNav = Instant.now()),
-            skapDbRecord(sykepengesoknadUuid = "2", korrigerer = "3", sendtNav = Instant.now()),
-            skapDbRecord(sykepengesoknadUuid = "3", sendtArbeidsgiver = ikkeSålengesiden)
-        ).finnOpprinneligSendt("1") `should be equal to` ikkeSålengesiden
-    }
-
-    @Test
-    fun `kaster feil når sendt tidspunkt mangler`() {
-        val exception = assertThrows<RuntimeException> {
-            listOf(
-                skapDbRecord(sykepengesoknadUuid = "1", korrigerer = "2", sendtNav = Instant.now()),
-                skapDbRecord(sykepengesoknadUuid = "2", korrigerer = "3", sendtNav = Instant.now()),
-                skapDbRecord(sykepengesoknadUuid = "3")
-            ).finnOpprinneligSendt("1")
-        }
-
-        exception.message `should be equal to` "3 er korrigert med status SENDT, men ingen sendt datoer"
-    }
-
-    @Test
-    fun `kaster feil når sendt korrigerer mangler`() {
-        val exception = assertThrows<RuntimeException> {
-            listOf(
-                skapDbRecord(sykepengesoknadUuid = "1", korrigerer = "2", sendtNav = Instant.now()),
-                skapDbRecord(sykepengesoknadUuid = "2", korrigerer = "3", sendtNav = Instant.now()),
-                skapDbRecord(sykepengesoknadUuid = "3")
-            ).finnOpprinneligSendt("666")
-        }
-
-        exception.message `should be equal to` "Forventa å finne søknad med id 666"
+            denViSender
+        ).finnOpprinneligSendt(denViSender).shouldBeNull()
     }
 
     fun skapDbRecord(
-        sendtNav: Instant? = null,
-        sendtArbeidsgiver: Instant? = null,
+        sendt: Instant? = null,
         korrigerer: String? = null,
-        sykepengesoknadUuid: String = UUID.randomUUID().toString()
+        sykepengesoknadUuid: String = UUID.randomUUID().toString(),
+        fom: LocalDate = LocalDate.now().minusDays(4),
+        tom: LocalDate = LocalDate.now()
     ): SykepengesoknadDbRecord {
         return SykepengesoknadDbRecord(
             id = UUID.randomUUID().toString(),
@@ -84,24 +60,25 @@ class FinnOpprinneligSendtTest {
             status = Soknadstatus.SENDT,
             opprettet = Instant.now(),
             avbruttDato = LocalDate.now(),
-            sendtNav = sendtNav,
+            sendtNav = null,
             korrigerer = korrigerer,
             korrigertAv = "sdfsdf",
             opprinnelse = Opprinnelse.SYKEPENGESOKNAD_BACKEND,
             avsendertype = Avsendertype.BRUKER,
             sykmeldingUuid = UUID.randomUUID().toString(),
-            fom = LocalDate.EPOCH,
-            tom = LocalDate.EPOCH,
-            startSykeforlop = LocalDate.EPOCH,
+            fom = fom,
+            tom = tom,
+            startSykeforlop = LocalDate.MIN,
             sykmeldingSkrevet = Instant.now(),
-            sendtArbeidsgiver = sendtArbeidsgiver,
+            sendtArbeidsgiver = null,
             arbeidsgiverOrgnummer = "12345",
             arbeidsgiverNavn = "1243123",
             arbeidssituasjon = Arbeidssituasjon.ANNET,
             egenmeldtSykmelding = null,
             merknaderFraSykmelding = null,
             avbruttFeilinfo = null,
-            utenlandskSykmelding = false
+            utenlandskSykmelding = false,
+            sendt = sendt
         )
     }
 }
