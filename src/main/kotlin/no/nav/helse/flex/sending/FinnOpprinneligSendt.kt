@@ -9,7 +9,7 @@ fun List<SykepengesoknadDbRecord>.finnOpprinneligSendt(soknad: SykepengesoknadDb
         return null
     }
     return this.asSequence()
-        .filter { it.sykepengesoknadUuid != soknad.id }
+        .filter { it.sykepengesoknadUuid != soknad.sykepengesoknadUuid }
         .filter { it.fom != null && it.tom != null }
         .filter { it.sendt != null }
         .filter { it.soknadstype == soknad.soknadstype }
