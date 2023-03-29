@@ -26,7 +26,6 @@ import org.apache.commons.lang3.StringUtils
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
-import java.util.*
 
 @Service
 @Transactional
@@ -64,7 +63,7 @@ class MottakerAvSoknadService(
     ): Mottaker {
         val mottakerAvKorrigertSoknad = mottakerAvKorrigertSoknad(sykepengesoknad)
 
-        if (mottakerAvKorrigertSoknad.isPresent && mottakerAvKorrigertSoknad.get() == ARBEIDSGIVER_OG_NAV) {
+        if (mottakerAvKorrigertSoknad == ARBEIDSGIVER_OG_NAV) {
             return ARBEIDSGIVER_OG_NAV
         }
 
@@ -75,7 +74,7 @@ class MottakerAvSoknadService(
                 }
             }
 
-        if (mottakerAvKorrigertSoknad.isPresent && mottakerAvKorrigertSoknad.get() != mottakerResultat.mottaker) {
+        if (mottakerAvKorrigertSoknad != null && mottakerAvKorrigertSoknad != mottakerResultat.mottaker) {
             return ARBEIDSGIVER_OG_NAV
         }
 
@@ -236,14 +235,12 @@ class MottakerAvSoknadService(
         )
     }
 
-    private fun mottakerAvKorrigertSoknad(sykepengesoknad: Sykepengesoknad): Optional<Mottaker> {
-        return Optional.ofNullable(sykepengesoknad.korrigerer)
-            .map { korrigertSoknadUuid ->
-                sykepengesoknadDAO.finnMottakerAvSoknad(korrigertSoknadUuid)
-                    .orElseThrow {
-                        log.error("Finner ikke mottaker for en korrigert søknad")
-                        RuntimeException("Finner ikke mottaker for en korrigert søknad")
-                    }
+    private fun mottakerAvKorrigertSoknad(sykepengesoknad: Sykepengesoknad): Mottaker? {
+        return sykepengesoknad.korrigerer?.let { korrigertSoknadUuid ->
+            sykepengesoknadDAO.finnMottakerAvSoknad(korrigertSoknadUuid) ?: run {
+                log.error("Finner ikke mottaker for en korrigert søknad")
+                throw RuntimeException("Finner ikke mottaker for en korrigert søknad")
             }
+        }
     }
 }

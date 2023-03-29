@@ -125,23 +125,20 @@ class SykepengesoknadDAO(
         }
     }
 
-    fun finnMottakerAvSoknad(soknadUuid: String): Optional<Mottaker> {
+    fun finnMottakerAvSoknad(soknadUuid: String): Mottaker? {
         val mottaker = namedParameterJdbcTemplate.queryForObject(
             "SELECT CASE " +
                 "WHEN SENDT_ARBEIDSGIVER IS NOT NULL AND SENDT_NAV IS NOT NULL THEN 'ARBEIDSGIVER_OG_NAV' " +
                 "WHEN SENDT_ARBEIDSGIVER IS NOT NULL THEN 'ARBEIDSGIVER' " +
                 "WHEN SENDT_NAV IS NOT NULL THEN 'NAV' " +
-                "ELSE NULL " +
                 "END " +
                 "FROM SYKEPENGESOKNAD " +
                 "WHERE SYKEPENGESOKNAD_UUID = :soknadUuid",
             MapSqlParameterSource("soknadUuid", soknadUuid),
-            String::class.java
+            Mottaker::class.java
         )
-        if (mottaker != null) {
-            return Optional.of(Mottaker.valueOf(mottaker))
-        }
-        return Optional.empty()
+
+        return mottaker
     }
 
     fun lagreSykepengesoknad(sykepengesoknad: Sykepengesoknad): Sykepengesoknad {

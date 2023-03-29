@@ -388,7 +388,7 @@ class MottakerAvSoknadServiceTest {
             utenlandskSykmelding = false
         )
         whenever(sykepengesoknadDAO.finnMottakerAvSoknad("korrigertSoknad"))
-            .thenReturn(Optional.of(Mottaker.ARBEIDSGIVER_OG_NAV))
+            .thenReturn(Mottaker.ARBEIDSGIVER_OG_NAV)
 
         val mottaker = soknadService.finnMottakerAvSoknad(soknad, folkeregisterIdenter)
 
@@ -421,7 +421,7 @@ class MottakerAvSoknadServiceTest {
         )
 
         whenever(sykepengesoknadDAO.finnMottakerAvSoknad("korrigertSoknad"))
-            .thenReturn(Optional.of(Mottaker.NAV))
+            .thenReturn(Mottaker.NAV)
 
         val mottaker = soknadService.finnMottakerAvSoknad(soknad, folkeregisterIdenter)
 
@@ -456,7 +456,7 @@ class MottakerAvSoknadServiceTest {
         )
 
         whenever(sykepengesoknadDAO.finnMottakerAvSoknad("korrigertSoknad"))
-            .thenReturn(Optional.of(Mottaker.NAV))
+            .thenReturn(Mottaker.NAV)
 
         val mottaker = soknadService.finnMottakerAvSoknad(soknad, folkeregisterIdenter)
 
@@ -489,7 +489,7 @@ class MottakerAvSoknadServiceTest {
         )
 
         whenever(sykepengesoknadDAO.finnMottakerAvSoknad("korrigertSoknad"))
-            .thenReturn(Optional.of(Mottaker.NAV))
+            .thenReturn(Mottaker.NAV)
 
         val mottaker = soknadService.finnMottakerAvSoknad(soknad, folkeregisterIdenter)
 
@@ -522,7 +522,7 @@ class MottakerAvSoknadServiceTest {
         )
 
         whenever(sykepengesoknadDAO.finnMottakerAvSoknad("korrigertSoknad"))
-            .thenReturn(Optional.of(Mottaker.ARBEIDSGIVER))
+            .thenReturn(Mottaker.ARBEIDSGIVER)
 
         val mottaker = soknadService.finnMottakerAvSoknad(soknad, folkeregisterIdenter)
 
@@ -555,7 +555,7 @@ class MottakerAvSoknadServiceTest {
         )
 
         whenever(sykepengesoknadDAO.finnMottakerAvSoknad("korrigertSoknad"))
-            .thenReturn(Optional.of(Mottaker.ARBEIDSGIVER))
+            .thenReturn(Mottaker.ARBEIDSGIVER)
 
         val mottaker = soknadService.finnMottakerAvSoknad(soknad, folkeregisterIdenter)
 
@@ -590,7 +590,7 @@ class MottakerAvSoknadServiceTest {
         whenever(forskutteringRepository.finnForskuttering(any(), any())).thenReturn(forskutteringNei)
 
         whenever(sykepengesoknadDAO.finnMottakerAvSoknad("korrigertSoknad"))
-            .thenReturn(Optional.of(Mottaker.ARBEIDSGIVER))
+            .thenReturn(Mottaker.ARBEIDSGIVER)
 
         val mottaker = soknadService.finnMottakerAvSoknad(soknad, folkeregisterIdenter)
 
@@ -620,7 +620,7 @@ class MottakerAvSoknadServiceTest {
         )
 
         whenever(sykepengesoknadDAO.finnMottakerAvSoknad("korrigertSoknad"))
-            .thenReturn(Optional.empty())
+            .thenReturn(null)
 
         assertThatThrownBy { soknadService.finnMottakerAvSoknad(soknad, folkeregisterIdenter) }
             .isInstanceOf(RuntimeException::class.java)
