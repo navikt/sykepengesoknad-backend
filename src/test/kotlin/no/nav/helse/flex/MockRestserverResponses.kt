@@ -81,7 +81,7 @@ fun BaseTestClass.mockFlexSyketilfelleArbeidsgiverperiode(
     arbeidsgiverperiode: Arbeidsgiverperiode? = null
 ) {
     fun url(): String {
-        val baseUrl = "http://flex-syketilfelle/api/v1/arbeidsgiverperiode?hentAndreIdenter=false"
+        val baseUrl = "http://flex-syketilfelle/api/v2/arbeidsgiverperiode?hentAndreIdenter=false"
         andreKorrigerteRessurser?.let {
             return baseUrl + "&andreKorrigerteRessurser=$andreKorrigerteRessurser"
         }

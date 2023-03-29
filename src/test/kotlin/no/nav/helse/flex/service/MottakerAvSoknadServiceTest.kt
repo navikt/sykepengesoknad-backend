@@ -1,6 +1,7 @@
 package no.nav.helse.flex.service
 
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.isNull
 import com.nhaarman.mockitokotlin2.whenever
 import no.nav.helse.flex.client.flexsyketilfelle.FlexSyketilfelleClient
 import no.nav.helse.flex.domain.Arbeidsgiverperiode
@@ -68,7 +69,7 @@ class MottakerAvSoknadServiceTest {
 
     @Test
     fun soknadForArbeidstakerErInnenforArbeidsgiverperioden_soknadSendesTilArbeidsgiver() {
-        whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), any(), any()))
+        whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), isNull(), any(), any()))
             .thenReturn((Arbeidsgiverperiode(0, true, Periode(now(), now().plusDays(16)))))
 
         val soknad = Sykepengesoknad(
@@ -97,7 +98,7 @@ class MottakerAvSoknadServiceTest {
 
     @Test
     fun soknadForArbeidstakerErInnenforArbeidsgiverperioden_soknadSendesTilArbeidsgiverNullTilfelle() {
-        whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), any(), any())).thenReturn(null)
+        whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), isNull(), any(), any())).thenReturn(null)
 
         val soknad = Sykepengesoknad(
             id = "sykepengesoknadId",
@@ -125,7 +126,7 @@ class MottakerAvSoknadServiceTest {
 
     @Test
     fun soknadForArbeidstakerErInnenforOgUtenforArbeidsgiverperiodenOgIkkeOppbrukt_soknadSendesTilArbeidsgiver() {
-        whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), any(), any()))
+        whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), isNull(), any(), any()))
             .thenReturn((Arbeidsgiverperiode(0, false, Periode(now(), now().plusDays(16)))))
 
         val soknad = Sykepengesoknad(
@@ -154,7 +155,7 @@ class MottakerAvSoknadServiceTest {
 
     @Test
     fun soknadForArbeidstakerErInnenforOgUtenforArbeidsgiverperioden_soknadSendesTilArbeidsgiverOgNAV() {
-        whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), any(), any()))
+        whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), isNull(), any(), any()))
             .thenReturn((Arbeidsgiverperiode(0, true, Periode(now(), now().plusDays(16)))))
 
         val soknad = Sykepengesoknad(
@@ -183,7 +184,7 @@ class MottakerAvSoknadServiceTest {
 
     @Test
     fun soknadForArbeidstakerErUtenforArbeidsgiverperiodenOgNLAgForskutterer_soknadSendesTilArbeidsgiverOgNAV() {
-        whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), any(), any()))
+        whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), isNull(), any(), any()))
             .thenReturn((Arbeidsgiverperiode(0, true, Periode(now(), now().plusDays(16)))))
 
         whenever(forskutteringRepository.finnForskuttering(any(), any())).thenReturn(forskutteringJa)
@@ -214,7 +215,7 @@ class MottakerAvSoknadServiceTest {
 
     @Test
     fun soknadForArbeidstakerErUtenforArbeidsgiverperiodenOgNLAgForskuttererIkke_soknadSendesTilNAV() {
-        whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), any(), any()))
+        whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), isNull(), any(), any()))
             .thenReturn((Arbeidsgiverperiode(0, true, Periode(now(), now().plusDays(16)))))
 
         whenever(forskutteringRepository.finnForskuttering(any(), any())).thenReturn(forskutteringNei)
@@ -245,7 +246,7 @@ class MottakerAvSoknadServiceTest {
 
     @Test
     fun soknadForArbeidstakerErUtenforArbeidsgiverperiodenOgSpsAgForskutterer_soknadSendesTilArbeidsgiverOgNAV() {
-        whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), any(), any()))
+        whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), isNull(), any(), any()))
             .thenReturn((Arbeidsgiverperiode(0, true, Periode(now(), now().plusDays(16)))))
 
         whenever(forskutteringRepository.finnForskuttering(any(), any())).thenReturn(null)
@@ -276,7 +277,7 @@ class MottakerAvSoknadServiceTest {
 
     @Test
     fun soknadForArbeidstakerErUtenforArbeidsgiverperiodenOgSpsAgUkjentForskuttering_soknadSendesTilArbeidsgiverOgNAV() {
-        whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), any(), any()))
+        whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), isNull(), any(), any()))
             .thenReturn(Arbeidsgiverperiode(0, true, Periode(now(), now().plusDays(16))))
 
         whenever(forskutteringRepository.finnForskuttering(any(), any())).thenReturn(null)
@@ -306,7 +307,7 @@ class MottakerAvSoknadServiceTest {
 
     @Test
     fun soknadForArbeidstakerErUtenforArbeidsgiverperiodenOgSpsAgIngenSvarForskuttering_soknadSendesTilArbeidsgiverOgNAV() {
-        whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), any(), any()))
+        whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), isNull(), any(), any()))
             .thenReturn((Arbeidsgiverperiode(0, true, Periode(now(), now().plusDays(16)))))
 
         whenever(forskutteringRepository.finnForskuttering(any(), any())).thenReturn(null)
@@ -337,7 +338,7 @@ class MottakerAvSoknadServiceTest {
 
     @Test
     fun soknadForArbeidstakerErUtenforArbeidsgiverperiodenOgSpsAgIkkeSpurtForskuttering_soknadSendesTilArbeidsgiverOgNAV() {
-        whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), any(), any()))
+        whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), isNull(), any(), any()))
             .thenReturn((Arbeidsgiverperiode(0, true, Periode(now(), now().plusDays(16)))))
 
         whenever(forskutteringRepository.finnForskuttering(any(), any())).thenReturn(null)
@@ -397,7 +398,7 @@ class MottakerAvSoknadServiceTest {
 
     @Test
     fun soknadForArbeidstakerErSendtTilNav_korrigeringOverlapperPeriodeSendesTilAgOgNAV() {
-        whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), any(), any()))
+        whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), isNull(), any(), any()))
             .thenReturn((Arbeidsgiverperiode(0, true, Periode(now(), now().plusDays(16)))))
 
         val soknad = Sykepengesoknad(
@@ -430,7 +431,7 @@ class MottakerAvSoknadServiceTest {
 
     @Test
     fun soknadForArbeidstakerErSendtTilNav_korrigeringUtenforPeriodeSendesTilNav() {
-        whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), any(), any()))
+        whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), isNull(), any(), any()))
             .thenReturn((Arbeidsgiverperiode(0, true, Periode(now(), now().plusDays(16)))))
 
         whenever(forskutteringRepository.finnForskuttering(any(), any())).thenReturn(forskutteringNei)
@@ -465,7 +466,7 @@ class MottakerAvSoknadServiceTest {
 
     @Test
     fun soknadForArbeidstakerErSendtTilNav_korrigeringInnenforPeriodeSendesTilAgOgNav() {
-        whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), any(), any()))
+        whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), isNull(), any(), any()))
             .thenReturn((Arbeidsgiverperiode(0, false, Periode(now(), now().plusDays(16)))))
 
         val soknad = Sykepengesoknad(
@@ -498,7 +499,7 @@ class MottakerAvSoknadServiceTest {
 
     @Test
     fun soknadForArbeidstakerErSendtTilAg_korrigeringOverlapperPeriodeSendesTilAgOgNAV() {
-        whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), any(), any()))
+        whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), isNull(), any(), any()))
             .thenReturn((Arbeidsgiverperiode(0, true, Periode(now(), now().plusDays(16)))))
 
         val soknad = Sykepengesoknad(
@@ -531,7 +532,7 @@ class MottakerAvSoknadServiceTest {
 
     @Test
     fun soknadForArbeidstakerErSendtTilAg_korrigeringInnenforPeriodeSendesTilAg() {
-        whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), any(), any()))
+        whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), isNull(), any(), any()))
             .thenReturn((Arbeidsgiverperiode(0, false, Periode(now(), now().plusDays(16)))))
 
         val soknad = Sykepengesoknad(
@@ -564,7 +565,7 @@ class MottakerAvSoknadServiceTest {
 
     @Test
     fun soknadForArbeidstakerErSendtTilAg_korrigeringUtenforforPeriodeSendesTilAgOgNav() {
-        whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), any(), any()))
+        whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), isNull(), any(), any()))
             .thenReturn((Arbeidsgiverperiode(0, true, Periode(now(), now().plusDays(16)))))
 
         val soknad = Sykepengesoknad(
