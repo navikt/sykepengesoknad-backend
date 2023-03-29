@@ -6,6 +6,11 @@ db_size: 10
 replicas_min: 1
 replicas_max: 2
 syfomodiaperson_cluster: dev-fss
+external-host:
+  - pdl-api.dev-fss-pub.nais.io
+  - flex-fss-proxy.dev-fss-pub.nais.io
+  - ereg-services.dev-fss-pub.nais.io
+  - syfo-tilgangskontroll.dev-fss-pub.nais.io
 env:
   SPRING_PROFILES_ACTIVE: default,testdatareset,sykmeldinger
   PDL_BASE_URL: https://pdl-api.dev-fss-pub.nais.io
