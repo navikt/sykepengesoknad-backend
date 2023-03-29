@@ -84,6 +84,8 @@ spec:
         - application: syfomodiaperson
           namespace: teamsykefravr
           cluster: {{ syfomodiaperson_cluster }}
+        - application: syfomodiaperson
+          namespace: teamsykefravr
   envFrom:
     - secret: sykepengesoknad-backend-redis-password
   env:
