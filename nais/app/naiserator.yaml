@@ -74,6 +74,10 @@ spec:
         - application: flex-syketilfelle
         - application: yrkesskade-saker
           namespace: yrkesskade
+      external:
+  {{#each external-host}}
+        - host: {{this}}
+  {{/each}}
     inbound:
       rules:
         - application: ditt-sykefravaer
