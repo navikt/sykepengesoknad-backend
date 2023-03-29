@@ -1,11 +1,11 @@
-package no.nav.helse.flex.oppdatersporsmal.muteringer
+package no.nav.helse.flex.oppdatersporsmal.soknad.muteringer
 
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstype.ARBEIDSTAKERE
 import no.nav.helse.flex.domain.Soknadstype.SELVSTENDIGE_OG_FRILANSERE
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.oppdatersporsmal.erIkkeAvType
-import no.nav.helse.flex.oppdatersporsmal.leggTilSporsmaal
+import no.nav.helse.flex.oppdatersporsmal.soknad.erIkkeAvType
+import no.nav.helse.flex.oppdatersporsmal.soknad.leggTilSporsmaal
 import no.nav.helse.flex.soknadsopprettelse.ARBEID_UNDERVEIS_100_PROSENT
 import no.nav.helse.flex.soknadsopprettelse.FERIE_PERMISJON_UTLAND
 import no.nav.helse.flex.soknadsopprettelse.FERIE_V2

@@ -1,4 +1,4 @@
-package no.nav.helse.flex.oppdatersporsmal.muteringer
+package no.nav.helse.flex.oppdatersporsmal.soknad.muteringer
 
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.soknadsopprettelse.JOBBET_DU_100_PROSENT
