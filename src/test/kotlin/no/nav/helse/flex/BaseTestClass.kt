@@ -125,8 +125,8 @@ abstract class BaseTestClass {
 
     @PostConstruct
     fun setupRestServiceServers() {
-        syfotilgangskontrollMockRestServiceServer = MockRestServiceServer.createServer(syfotilgangskontrollRestTemplate)
-        flexSyketilfelleMockRestServiceServer = MockRestServiceServer.createServer(flexSyketilfelleRestTemplate)
+        syfotilgangskontrollMockRestServiceServer = MockRestServiceServer.bindTo(syfotilgangskontrollRestTemplate).ignoreExpectOrder(true).build()
+        flexSyketilfelleMockRestServiceServer = MockRestServiceServer.bindTo(flexSyketilfelleRestTemplate).ignoreExpectOrder(true).build()
     }
 
     @MockBean
