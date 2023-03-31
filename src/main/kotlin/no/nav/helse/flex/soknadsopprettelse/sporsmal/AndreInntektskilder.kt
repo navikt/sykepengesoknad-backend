@@ -88,7 +88,7 @@ fun andreInntektskilderArbeidstakerV2(sykmeldingOrgnavn: String, andreKjenteArbe
                     ),
                     Sporsmal(
                         tag = INNTEKTSKILDE_SELVSTENDIG_DAGMAMMA,
-                        sporsmalstekst = "dagmammma",
+                        sporsmalstekst = "dagmamma",
                         svartype = Svartype.CHECKBOX
                     ),
                     Sporsmal(
