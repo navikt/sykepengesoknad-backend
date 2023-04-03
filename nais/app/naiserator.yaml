@@ -14,23 +14,17 @@ spec:
   port: 8080
   liveness:
     path: /internal/health/liveness
-    initialDelay: 60
-    timeout: 1
-    periodSeconds: 5
-    failureThreshold: 20
   readiness:
     path: /internal/health/readiness
-    initialDelay: 60
-    timeout: 1
-    periodSeconds: 5
-    failureThreshold: 20
+  startup:
+    path: /internal/health/liveness
+    initialDelay: 40
   leaderElection: true
   prometheus:
     enabled: true
     path: /internal/prometheus
   resources:
     limits:
-      cpu: 1000m
       memory: 2048Mi
     requests:
       cpu: 400m
