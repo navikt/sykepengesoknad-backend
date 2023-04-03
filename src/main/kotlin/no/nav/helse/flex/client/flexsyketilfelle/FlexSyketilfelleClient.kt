@@ -5,9 +5,10 @@ import no.nav.helse.flex.domain.ErUtenforVentetidRequest
 import no.nav.helse.flex.domain.Sykeforloep
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.mapper.SykepengesoknadTilSykepengesoknadDTOMapper
+import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.service.FolkeregisterIdenter
-import no.nav.helse.flex.service.IdentService
+import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -23,7 +24,6 @@ import java.util.*
 @Component
 class FlexSyketilfelleClient(
     private val flexSyketilfelleRestTemplate: RestTemplate,
-    private val identService: IdentService,
     private val sykepengesoknadTilSykepengesoknadDTOMapper: SykepengesoknadTilSykepengesoknadDTOMapper,
     @Value("\${flex.syketilfelle.url}")
     private val url: String
@@ -98,10 +98,12 @@ class FlexSyketilfelleClient(
     @Retryable
     fun beregnArbeidsgiverperiode(
         soknad: Sykepengesoknad,
+        sykmelding: SykmeldingKafkaMessage?,
         forelopig: Boolean,
         identer: FolkeregisterIdenter
     ): Arbeidsgiverperiode? {
         val soknadDto = sykepengesoknadTilSykepengesoknadDTOMapper.mapTilSykepengesoknadDTO(soknad, null, false, false)
+        val requestBody = SoknadOgSykmelding(soknadDto, sykmelding)
 
         val headers = HttpHeaders()
         headers.set("fnr", identer.tilFnrHeader())
@@ -109,7 +111,7 @@ class FlexSyketilfelleClient(
 
         val queryBuilder = UriComponentsBuilder
             .fromHttpUrl(url)
-            .pathSegment("api", "v1", "arbeidsgiverperiode")
+            .pathSegment("api", "v2", "arbeidsgiverperiode")
             .queryParam("hentAndreIdenter", "false")
 
         if (soknadDto.korrigerer != null) {
@@ -120,7 +122,7 @@ class FlexSyketilfelleClient(
             .exchange(
                 queryBuilder.toUriString(),
                 HttpMethod.POST,
-                HttpEntity(soknadDto, headers),
+                HttpEntity(requestBody, headers),
                 Arbeidsgiverperiode::class.java
             )
 
@@ -138,4 +140,9 @@ class FlexSyketilfelleClient(
             throw RuntimeException(message, exception)
         }
     }
+
+    private data class SoknadOgSykmelding(
+        val soknad: SykepengesoknadDTO,
+        val sykmelding: SykmeldingKafkaMessage?
+    )
 }

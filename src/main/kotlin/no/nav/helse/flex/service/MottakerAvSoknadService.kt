@@ -11,6 +11,7 @@ import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype.*
 import no.nav.helse.flex.domain.Sykepengesoknad
+import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.forskuttering.ForskutteringRepository
 import no.nav.helse.flex.juridiskvurdering.JuridiskVurdering
 import no.nav.helse.flex.juridiskvurdering.JuridiskVurderingKafkaProducer
@@ -26,7 +27,6 @@ import org.apache.commons.lang3.StringUtils
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
-import java.util.*
 
 @Service
 @Transactional
@@ -40,7 +40,11 @@ class MottakerAvSoknadService(
 ) {
     val log = logger()
 
-    fun finnMottakerAvSoknad(sykepengesoknad: Sykepengesoknad, identer: FolkeregisterIdenter): Mottaker {
+    fun finnMottakerAvSoknad(
+        sykepengesoknad: Sykepengesoknad,
+        identer: FolkeregisterIdenter,
+        sykmelding: SykmeldingKafkaMessage? = null
+    ): Mottaker {
         return when (sykepengesoknad.soknadstype) {
             SELVSTENDIGE_OG_FRILANSERE,
             OPPHOLD_UTLAND,
@@ -50,32 +54,33 @@ class MottakerAvSoknadService(
 
             BEHANDLINGSDAGER,
             GRADERT_REISETILSKUDD -> when (sykepengesoknad.arbeidssituasjon) {
-                ARBEIDSTAKER -> mottakerAvSoknadForArbeidstaker(sykepengesoknad, identer)
+                ARBEIDSTAKER -> mottakerAvSoknadForArbeidstaker(sykepengesoknad, identer, null)
                 else -> NAV
             }
 
-            ARBEIDSTAKERE -> mottakerAvSoknadForArbeidstaker(sykepengesoknad, identer)
+            ARBEIDSTAKERE -> mottakerAvSoknadForArbeidstaker(sykepengesoknad, identer, sykmelding)
         }
     }
 
     private fun mottakerAvSoknadForArbeidstaker(
         sykepengesoknad: Sykepengesoknad,
-        identer: FolkeregisterIdenter
+        identer: FolkeregisterIdenter,
+        sykmelding: SykmeldingKafkaMessage?
     ): Mottaker {
         val mottakerAvKorrigertSoknad = mottakerAvKorrigertSoknad(sykepengesoknad)
 
-        if (mottakerAvKorrigertSoknad.isPresent && mottakerAvKorrigertSoknad.get() == ARBEIDSGIVER_OG_NAV) {
+        if (mottakerAvKorrigertSoknad == ARBEIDSGIVER_OG_NAV) {
             return ARBEIDSGIVER_OG_NAV
         }
 
-        val mottakerResultat = beregnMottakerAvSoknadForArbeidstakerOgBehandlingsdager(sykepengesoknad, identer)
+        val mottakerResultat = beregnMottakerAvSoknadForArbeidstakerOgBehandlingsdager(sykepengesoknad, identer, sykmelding)
             .also {
                 it.vurdering.forEach { jv ->
                     juridiskVurderingKafkaProducer.produserMelding(jv)
                 }
             }
 
-        if (mottakerAvKorrigertSoknad.isPresent && mottakerAvKorrigertSoknad.get() != mottakerResultat.mottaker) {
+        if (mottakerAvKorrigertSoknad != null && mottakerAvKorrigertSoknad != mottakerResultat.mottaker) {
             return ARBEIDSGIVER_OG_NAV
         }
 
@@ -112,10 +117,12 @@ class MottakerAvSoknadService(
 
     private fun beregnMottakerAvSoknadForArbeidstakerOgBehandlingsdager(
         sykepengesoknad: Sykepengesoknad,
-        identer: FolkeregisterIdenter
+        identer: FolkeregisterIdenter,
+        sykmelding: SykmeldingKafkaMessage?
     ): MottakerOgVurdering {
         val arbeidsgiverperiode = flexSyketilfelleClient.beregnArbeidsgiverperiode(
-            sykepengesoknad,
+            soknad = sykepengesoknad,
+            sykmelding = sykmelding,
             identer = identer,
             forelopig = sykepengesoknad.status != Soknadstatus.SENDT
         )
@@ -236,14 +243,12 @@ class MottakerAvSoknadService(
         )
     }
 
-    private fun mottakerAvKorrigertSoknad(sykepengesoknad: Sykepengesoknad): Optional<Mottaker> {
-        return Optional.ofNullable(sykepengesoknad.korrigerer)
-            .map { korrigertSoknadUuid ->
-                sykepengesoknadDAO.finnMottakerAvSoknad(korrigertSoknadUuid)
-                    .orElseThrow {
-                        log.error("Finner ikke mottaker for en korrigert søknad")
-                        RuntimeException("Finner ikke mottaker for en korrigert søknad")
-                    }
+    private fun mottakerAvKorrigertSoknad(sykepengesoknad: Sykepengesoknad): Mottaker? {
+        return sykepengesoknad.korrigerer?.let { korrigertSoknadUuid ->
+            sykepengesoknadDAO.finnMottakerAvSoknad(korrigertSoknadUuid) ?: run {
+                log.error("Finner ikke mottaker for en korrigert søknad")
+                throw RuntimeException("Finner ikke mottaker for en korrigert søknad")
             }
+        }
     }
 }

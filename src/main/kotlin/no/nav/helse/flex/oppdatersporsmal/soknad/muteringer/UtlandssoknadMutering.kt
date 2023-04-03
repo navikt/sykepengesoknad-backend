@@ -1,9 +1,9 @@
-package no.nav.helse.flex.oppdatersporsmal.muteringer
+package no.nav.helse.flex.oppdatersporsmal.soknad.muteringer
 
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.oppdatersporsmal.erIkkeAvType
-import no.nav.helse.flex.oppdatersporsmal.leggTilSporsmaal
+import no.nav.helse.flex.oppdatersporsmal.soknad.erIkkeAvType
+import no.nav.helse.flex.oppdatersporsmal.soknad.leggTilSporsmaal
 import no.nav.helse.flex.soknadsopprettelse.ARBEIDSGIVER
 import no.nav.helse.flex.soknadsopprettelse.bekreftSporsmal
 

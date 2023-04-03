@@ -117,7 +117,7 @@ class LangArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
     @Test
     @Order(5)
     fun `vi besvarer og sender inn søknaden`() {
-        flexSyketilfelleMockRestServiceServer?.reset()
+        flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
         val soknaden = hentSoknad(
             soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
@@ -161,7 +161,7 @@ class LangArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
     @Test
     @Order(7)
     fun `vi besvarer og sender inn den andre søknaden som har færre spørsmål`() {
-        flexSyketilfelleMockRestServiceServer?.reset()
+        flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
         val soknaden = hentSoknad(
             soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,

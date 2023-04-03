@@ -76,7 +76,7 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : BaseTestClass() {
 
     @Test
     fun `3 - vi svarer på sporsmalene og sender den inn`() {
-        flexSyketilfelleMockRestServiceServer?.reset()
+        flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
         val soknaden = hentSoknad(
             soknadId = hentSoknaderMetadata(fnr).first().id,
@@ -202,7 +202,7 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : BaseTestClass() {
 
     @Test
     fun `6 - vi svarer at vi ar sykmeldt mer enn 70 prosent med timer i frontend, men det beregnes til max 70`() {
-        flexSyketilfelleMockRestServiceServer?.reset()
+        flexSyketilfelleMockRestServiceServer.reset()
         val soknaden = hentSoknader(fnr = fnr).first { it.status == RSSoknadstatus.SENDT }
         mockFlexSyketilfelleArbeidsgiverperiode(andreKorrigerteRessurser = soknaden.id)
 
@@ -232,7 +232,7 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : BaseTestClass() {
 
     @Test
     fun `7 - vi svarer at vi var sykmeldt mindre enn 70 prosent med timer i frontend`() {
-        flexSyketilfelleMockRestServiceServer?.reset()
+        flexSyketilfelleMockRestServiceServer.reset()
         val soknaden = hentSoknader(fnr = fnr).first { it.status == RSSoknadstatus.SENDT }
         mockFlexSyketilfelleArbeidsgiverperiode(andreKorrigerteRessurser = soknaden.id)
 
@@ -262,7 +262,7 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : BaseTestClass() {
 
     @Test
     fun `8 - vi svarer at vi var sykmeldt mindre enn 70 prosent med prosent i frontend`() {
-        flexSyketilfelleMockRestServiceServer?.reset()
+        flexSyketilfelleMockRestServiceServer.reset()
         val soknaden = hentSoknader(fnr = fnr).first { it.status == RSSoknadstatus.SENDT }
         mockFlexSyketilfelleArbeidsgiverperiode(andreKorrigerteRessurser = soknaden.id)
 
@@ -292,7 +292,7 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : BaseTestClass() {
 
     @Test
     fun `9 - vi kan ikke svare at vi var sykmeldt mer enn 70 prosent med prosent i frontend`() {
-        flexSyketilfelleMockRestServiceServer?.reset()
+        flexSyketilfelleMockRestServiceServer.reset()
         val soknaden = hentSoknader(fnr = fnr).first { it.status == RSSoknadstatus.SENDT }
         mockFlexSyketilfelleArbeidsgiverperiode(andreKorrigerteRessurser = soknaden.id)
 

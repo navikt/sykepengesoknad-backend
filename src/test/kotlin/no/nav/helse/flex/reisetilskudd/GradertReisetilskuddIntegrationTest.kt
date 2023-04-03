@@ -371,7 +371,7 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
     @Test
     @Order(13)
     fun `Vi kan finne mottaker av søknaden`() {
-        flexSyketilfelleMockRestServiceServer?.reset()
+        flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
         val reisetilskudd = hentSoknaderMetadata(fnr).first()
         val mottaker = finnMottakerAvSoknad(reisetilskudd.id, fnr)
@@ -381,7 +381,7 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
     @Test
     @Order(14)
     fun `Vi kan sende inn søknaden`() {
-        flexSyketilfelleMockRestServiceServer?.reset()
+        flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
         val reisetilskudd = hentSoknad(
             soknadId = hentSoknaderMetadata(fnr).first().id,

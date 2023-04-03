@@ -20,7 +20,7 @@ fun BaseTestClass.mockSyfoTilgangskontroll(
     tilgang: Boolean,
     fnr: String
 ) {
-    syfotilgangskontrollMockRestServiceServer!!
+    syfotilgangskontrollMockRestServiceServer
         .expect(requestTo("http://syfotilgang/syfo-tilgangskontroll/api/tilgang/navident/person"))
         .andExpect(header(NAV_PERSONIDENT_HEADER, fnr))
         .andRespond(
@@ -49,7 +49,7 @@ fun BaseTestClass.mockFlexSyketilfelleSykeforloep(sykmeldingId: String, oppfolgi
 }
 
 fun BaseTestClass.mockFlexSyketilfelleSykeforloep(sykeforloep: List<Sykeforloep>) {
-    flexSyketilfelleMockRestServiceServer!!
+    flexSyketilfelleMockRestServiceServer
         .expect(manyTimes(), requestTo("http://flex-syketilfelle/api/v1/sykeforloep?hentAndreIdenter=false"))
         .andExpect(method(HttpMethod.GET))
         .andRespond(
@@ -63,7 +63,7 @@ fun BaseTestClass.mockFlexSyketilfelleSykeforloep(sykeforloep: List<Sykeforloep>
 }
 
 fun BaseTestClass.mockFlexSyketilfelleErUtaforVentetid(sykmeldingId: String, utafor: Boolean) {
-    flexSyketilfelleMockRestServiceServer!!
+    flexSyketilfelleMockRestServiceServer
         .expect(requestTo("http://flex-syketilfelle/api/v1/ventetid/$sykmeldingId/erUtenforVentetid?hentAndreIdenter=false"))
         .andExpect(method(HttpMethod.POST))
         .andRespond(
@@ -81,14 +81,14 @@ fun BaseTestClass.mockFlexSyketilfelleArbeidsgiverperiode(
     arbeidsgiverperiode: Arbeidsgiverperiode? = null
 ) {
     fun url(): String {
-        val baseUrl = "http://flex-syketilfelle/api/v1/arbeidsgiverperiode?hentAndreIdenter=false"
+        val baseUrl = "http://flex-syketilfelle/api/v2/arbeidsgiverperiode?hentAndreIdenter=false"
         andreKorrigerteRessurser?.let {
             return baseUrl + "&andreKorrigerteRessurser=$andreKorrigerteRessurser"
         }
         return baseUrl
     }
     if (arbeidsgiverperiode != null) {
-        flexSyketilfelleMockRestServiceServer!!
+        flexSyketilfelleMockRestServiceServer
             .expect(requestTo(url()))
             .andExpect(method(HttpMethod.POST))
             .andRespond(
@@ -100,7 +100,7 @@ fun BaseTestClass.mockFlexSyketilfelleArbeidsgiverperiode(
                 )
             )
     } else {
-        flexSyketilfelleMockRestServiceServer!!
+        flexSyketilfelleMockRestServiceServer
             .expect(requestTo(url()))
             .andExpect(method(HttpMethod.POST))
             .andRespond(withNoContent())

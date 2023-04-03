@@ -1,4 +1,4 @@
-package no.nav.helse.flex.oppdatersporsmal
+package no.nav.helse.flex.oppdatersporsmal.soknad
 
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sporsmal

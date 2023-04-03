@@ -146,7 +146,7 @@ class SykepengesoknadDAOTest : BaseTestClass() {
 
         val mottaker = sykepengesoknadDAO.finnMottakerAvSoknad(soknadId)
 
-        assertThat(mottaker).contains(Mottaker.ARBEIDSGIVER_OG_NAV)
+        assertThat(mottaker).isEqualTo(Mottaker.ARBEIDSGIVER_OG_NAV)
     }
 
     @Test
@@ -159,7 +159,7 @@ class SykepengesoknadDAOTest : BaseTestClass() {
 
         val mottaker = sykepengesoknadDAO.finnMottakerAvSoknad(soknadId)
 
-        assertThat(mottaker).contains(Mottaker.ARBEIDSGIVER)
+        assertThat(mottaker).isEqualTo(Mottaker.ARBEIDSGIVER)
     }
 
     @Test
@@ -172,7 +172,7 @@ class SykepengesoknadDAOTest : BaseTestClass() {
 
         val mottaker = sykepengesoknadDAO.finnMottakerAvSoknad(soknadId)
 
-        assertThat(mottaker).contains(Mottaker.NAV)
+        assertThat(mottaker).isEqualTo(Mottaker.NAV)
     }
 
     @Test
@@ -185,7 +185,7 @@ class SykepengesoknadDAOTest : BaseTestClass() {
 
         val mottaker = sykepengesoknadDAO.finnMottakerAvSoknad(soknadId)
 
-        assertThat(mottaker).isEmpty
+        assertThat(mottaker).isNull()
     }
 
     private fun settSendt(soknadId: String, sendtNav: LocalDateTime?, sendtArbeidsgiver: LocalDateTime?) {

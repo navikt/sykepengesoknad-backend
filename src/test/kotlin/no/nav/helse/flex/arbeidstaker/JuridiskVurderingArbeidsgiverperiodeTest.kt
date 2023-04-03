@@ -27,7 +27,6 @@ import java.time.LocalDate
 class JuridiskVurderingArbeidsgiverperiodeTest : BaseTestClass() {
 
     private final val fnr = "12345678910"
-    private final val orgnr = "123454543"
     private final val fredagen = LocalDate.of(2021, 12, 17)
 
     @BeforeEach
@@ -181,7 +180,7 @@ class JuridiskVurderingArbeidsgiverperiodeTest : BaseTestClass() {
         arbeidsgiverperiodeFom: LocalDate,
         arbeidsgiverperiodeTom: LocalDate
     ) {
-        flexSyketilfelleMockRestServiceServer?.reset()
+        flexSyketilfelleMockRestServiceServer.reset()
 
         sendSykmelding(
             sykmeldingKafkaMessage(
@@ -193,7 +192,7 @@ class JuridiskVurderingArbeidsgiverperiodeTest : BaseTestClass() {
             )
         )
 
-        flexSyketilfelleMockRestServiceServer?.reset()
+        flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode(
             arbeidsgiverperiode = Arbeidsgiverperiode(
                 antallBrukteDager = 16,

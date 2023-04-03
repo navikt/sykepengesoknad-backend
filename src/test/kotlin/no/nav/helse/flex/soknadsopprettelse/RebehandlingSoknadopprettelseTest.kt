@@ -51,7 +51,7 @@ class RebehandlingSoknadopprettelseTest : BaseTestClass() {
     @AfterEach
     fun tearDown() {
         databaseReset.resetDatabase()
-        flexSyketilfelleMockRestServiceServer?.reset()
+        flexSyketilfelleMockRestServiceServer.reset()
     }
 
     private val fnr = "123456789"

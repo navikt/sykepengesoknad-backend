@@ -9,8 +9,8 @@ import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.mock.gammeltFormatOpprettNySoknadMedFeriesporsmalSomUndersporsmal
 import no.nav.helse.flex.mock.opprettNySoknadMock
-import no.nav.helse.flex.oppdatersporsmal.muteringer.arbeidGjenopptattMutering
-import no.nav.helse.flex.oppdatersporsmal.muteringer.oppdaterMedSvarPaUtlandsopphold
+import no.nav.helse.flex.oppdatersporsmal.soknad.muteringer.arbeidGjenopptattMutering
+import no.nav.helse.flex.oppdatersporsmal.soknad.muteringer.oppdaterMedSvarPaUtlandsopphold
 import no.nav.helse.flex.soknadsopprettelse.oppdateringhelpers.finnGyldigDatoSvar
 import no.nav.helse.flex.soknadsopprettelse.oppdateringhelpers.skapOppdaterteSoknadsperioder
 import no.nav.helse.flex.util.DatoUtil

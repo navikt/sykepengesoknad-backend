@@ -182,7 +182,7 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
     @Test
     @Order(6)
     fun `Vi besvarer og sender inn den første søknaden`() {
-        flexSyketilfelleMockRestServiceServer?.reset()
+        flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
         val soknaden = hentSoknad(
             soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
@@ -231,7 +231,7 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
     @Test
     @Order(7)
     fun `Vi besvarer og sender inn den andre søknaden`() {
-        flexSyketilfelleMockRestServiceServer?.reset()
+        flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
 
         val soknaden = hentSoknad(
@@ -274,7 +274,7 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
     @Test
     @Order(8)
     fun `4 - vi korrigerer og sender inn søknaden, opprinnelig sendt blir satt riktig`() {
-        flexSyketilfelleMockRestServiceServer?.reset()
+        flexSyketilfelleMockRestServiceServer.reset()
 
         val soknaden = hentSoknad(
             soknadId = hentSoknaderMetadata(fnr).sortedBy { it.fom }.first { it.status == RSSoknadstatus.SENDT }.id,

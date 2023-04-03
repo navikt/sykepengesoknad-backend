@@ -49,7 +49,7 @@ class BrukerIkkeTimerForFaktiskGradHvisIkkeChecked : BaseTestClass() {
 
     @Test
     fun `3 - vi svarer på sporsmalene og sender den inn`() {
-        flexSyketilfelleMockRestServiceServer?.reset()
+        flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
 
         val soknaden = hentSoknad(

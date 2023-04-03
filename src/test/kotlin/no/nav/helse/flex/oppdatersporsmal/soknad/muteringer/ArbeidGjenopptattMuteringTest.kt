@@ -1,4 +1,4 @@
-package no.nav.helse.flex.oppdatersporsmal.muteringer
+package no.nav.helse.flex.oppdatersporsmal.soknad.muteringer
 
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstatus

@@ -73,7 +73,7 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
     @Test
     @Order(3)
     fun `vi svarer på søknaden`() {
-        flexSyketilfelleMockRestServiceServer?.reset()
+        flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
 
         // Svar på søknad
@@ -127,7 +127,7 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
     fun `vi korrigerer søknaden`() {
         val soknaden = hentSoknaderMetadata(fnr).first()
 
-        flexSyketilfelleMockRestServiceServer?.reset()
+        flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode(andreKorrigerteRessurser = soknaden.id)
 
         // Korriger søknad
