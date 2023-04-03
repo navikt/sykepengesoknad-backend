@@ -67,7 +67,7 @@ class GammeltEgenmeldingSporsmalTest : BaseTestClass() {
 
     @Test
     fun `2 - vi besvarer og sender inn søknaden`() {
-        flexSyketilfelleMockRestServiceServer?.reset()
+        flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
 
         val soknaden = hentSoknad(

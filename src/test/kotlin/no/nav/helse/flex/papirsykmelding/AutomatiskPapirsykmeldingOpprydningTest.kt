@@ -31,7 +31,7 @@ class AutomatiskPapirsykmeldingOpprydningTest : BaseTestClass() {
 
     @BeforeEach
     fun setUp() {
-        flexSyketilfelleMockRestServiceServer?.reset()
+        flexSyketilfelleMockRestServiceServer.reset()
     }
 
     companion object {
@@ -75,7 +75,7 @@ class AutomatiskPapirsykmeldingOpprydningTest : BaseTestClass() {
 
     @Test
     fun `2 - vi sender inn den ene søknaden`() {
-        flexSyketilfelleMockRestServiceServer?.reset()
+        flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
         val førsteSøknad = hentSoknad(
             soknadId = hentSoknaderMetadata(fnr).first { it.fom == LocalDate.of(2020, 1, 1) }.id,

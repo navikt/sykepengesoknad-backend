@@ -55,7 +55,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
     @BeforeEach
     fun setUp() {
         databaseReset.resetDatabase()
-        flexSyketilfelleMockRestServiceServer?.reset()
+        flexSyketilfelleMockRestServiceServer.reset()
     }
 
     @AfterEach

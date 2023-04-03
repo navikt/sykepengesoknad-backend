@@ -41,7 +41,7 @@ class JulesoknadHealthTest : BaseTestClass() {
     @BeforeEach
     fun setUp() {
         forskutteringRepository.deleteAll()
-        flexSyketilfelleMockRestServiceServer?.reset()
+        flexSyketilfelleMockRestServiceServer.reset()
         databaseReset.resetDatabase()
 
         sendSykmelding(

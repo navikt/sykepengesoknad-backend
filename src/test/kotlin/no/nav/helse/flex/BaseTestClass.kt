@@ -28,7 +28,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.MockMvcPrint
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.boot.test.mock.mockito.SpyBean
-import org.springframework.cache.CacheManager
 import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.web.client.RestTemplate
@@ -121,25 +120,17 @@ abstract class BaseTestClass {
     @Autowired
     lateinit var behandleSykmeldingOgBestillAktivering: BehandleSykmeldingOgBestillAktivering
 
-    var syfotilgangskontrollMockRestServiceServer: MockRestServiceServer? = null
-    var flexSyketilfelleMockRestServiceServer: MockRestServiceServer? = null
+    lateinit var syfotilgangskontrollMockRestServiceServer: MockRestServiceServer
+    lateinit var flexSyketilfelleMockRestServiceServer: MockRestServiceServer
 
     @PostConstruct
     fun setupRestServiceServers() {
-        if (syfotilgangskontrollMockRestServiceServer == null) {
-            syfotilgangskontrollMockRestServiceServer =
-                MockRestServiceServer.createServer(syfotilgangskontrollRestTemplate)
-        }
-        if (flexSyketilfelleMockRestServiceServer == null) {
-            flexSyketilfelleMockRestServiceServer = MockRestServiceServer.createServer(flexSyketilfelleRestTemplate)
-        }
+        syfotilgangskontrollMockRestServiceServer = MockRestServiceServer.createServer(syfotilgangskontrollRestTemplate)
+        flexSyketilfelleMockRestServiceServer = MockRestServiceServer.createServer(flexSyketilfelleRestTemplate)
     }
 
     @MockBean
     lateinit var sykepengesoknadKvitteringerClient: SykepengesoknadKvitteringerClient
-
-    @Autowired
-    private lateinit var cacheManager: CacheManager
 
     @SpyBean
     lateinit var automatiskInnsendingVedDodsfall: AutomatiskInnsendingVedDodsfall

@@ -56,8 +56,8 @@ class VeilederOboIntegrationTest : BaseTestClass() {
                 BEKREFT_OPPLYSNINGER
             )
         )
-        syfotilgangskontrollMockRestServiceServer?.verify()
-        syfotilgangskontrollMockRestServiceServer?.reset()
+        syfotilgangskontrollMockRestServiceServer.verify()
+        syfotilgangskontrollMockRestServiceServer.reset()
     }
 
     @Test
@@ -70,7 +70,7 @@ class VeilederOboIntegrationTest : BaseTestClass() {
                 .header("Authorization", "Bearer $veilederToken")
                 .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(MockMvcResultMatchers.status().is4xxClientError).andReturn().response.contentAsString
-        syfotilgangskontrollMockRestServiceServer?.verify()
-        syfotilgangskontrollMockRestServiceServer?.reset()
+        syfotilgangskontrollMockRestServiceServer.verify()
+        syfotilgangskontrollMockRestServiceServer.reset()
     }
 }

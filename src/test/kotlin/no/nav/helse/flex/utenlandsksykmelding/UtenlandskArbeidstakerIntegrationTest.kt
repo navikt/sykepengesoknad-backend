@@ -95,7 +95,7 @@ class UtenlandskArbeidstakerIntegrationTest : BaseTestClass() {
     @Test
     @Order(6)
     fun `Vi besvarer og sender inn den første søknaden`() {
-        flexSyketilfelleMockRestServiceServer?.reset()
+        flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
         val soknaden = hentSoknad(
             soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,

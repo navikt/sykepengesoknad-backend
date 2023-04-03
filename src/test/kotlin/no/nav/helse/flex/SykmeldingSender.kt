@@ -19,7 +19,7 @@ fun BaseTestClass.sendSykmelding(
     oppfolgingsdato: LocalDate = sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder.minOf { it.fom },
     forventaSoknader: Int = 1
 ): List<SykepengesoknadDTO> {
-    flexSyketilfelleMockRestServiceServer?.reset()
+    flexSyketilfelleMockRestServiceServer.reset()
 
     if (sykmeldingKafkaMessage.hentArbeidssituasjon() in listOf(
             Arbeidssituasjon.FRILANSER,
@@ -60,13 +60,6 @@ fun BaseTestClass.sendSykmelding(
         }
     }
 
-    flexSyketilfelleMockRestServiceServer?.reset()
+    flexSyketilfelleMockRestServiceServer.reset()
     return soknader
-}
-
-fun BaseTestClass.tombstoneSykmelding(
-    sykmeldingId: String,
-    topic: String = SYKMELDINGBEKREFTET_TOPIC
-) {
-    kafkaProducer.send(ProducerRecord(topic, sykmeldingId, null)).get()
 }

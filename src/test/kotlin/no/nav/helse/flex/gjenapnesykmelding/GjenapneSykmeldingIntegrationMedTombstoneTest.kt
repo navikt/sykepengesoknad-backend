@@ -31,7 +31,7 @@ class GjenapneSykmeldingIntegrationMedTombstoneTest : BaseTestClass() {
 
     @BeforeEach
     fun setUp() {
-        flexSyketilfelleMockRestServiceServer?.reset()
+        flexSyketilfelleMockRestServiceServer.reset()
     }
 
     @Test
