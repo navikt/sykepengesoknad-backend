@@ -5,7 +5,6 @@ db_tier: db-f1-micro
 db_size: 10
 replicas_min: 1
 replicas_max: 2
-syfomodiaperson_cluster: dev-fss
 external-host:
   - pdl-api.dev-fss-pub.nais.io
   - flex-fss-proxy.dev-fss-pub.nais.io

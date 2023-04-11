@@ -84,10 +84,6 @@ spec:
         - application: sykepengesoknad
         - application: sykepengesoknad-arkivering-oppgave
         - application: sykepengesoknad-korrigering-metrikk
-        - application: flex-intern-gateway
-        - application: syfomodiaperson
-          namespace: teamsykefravr
-          cluster: {{ syfomodiaperson_cluster }}
         - application: syfomodiaperson
           namespace: teamsykefravr
   envFrom:
