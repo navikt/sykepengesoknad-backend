@@ -72,7 +72,7 @@ class SykepengesoknadDAOTest : BaseTestClass() {
         sykepengesoknadDAO.lagreSykepengesoknad(sykepengesoknad.copy(id = korrigererId, korrigerer = korrigertAvId))
         sykepengesoknadDAO.lagreSykepengesoknad(sykepengesoknad.copy(id = korrigertAvId, korrigertAv = korrigererId, status = KORRIGERT))
 
-        val sykepengesoknadList = sykepengesoknadDAO.finnSykepengesoknaderByUuid(listOf(korrigererId, korrigertAvId))
+        val sykepengesoknadList = sykepengesoknadDAO.finnSykepengesoknader(listOf(sykepengesoknad.fnr))
 
         assertThat(sykepengesoknadList).hasSize(2)
         val assertKorrigerende = assertThat(sykepengesoknadList).filteredOn { (id) -> id == korrigererId }.first()
@@ -82,32 +82,6 @@ class SykepengesoknadDAOTest : BaseTestClass() {
         val assertKorrigert = assertThat(sykepengesoknadList).filteredOn { (id) -> id == korrigertAvId }.first()
         assertKorrigert.hasFieldOrPropertyWithValue("status", KORRIGERT)
         assertKorrigert.hasFieldOrPropertyWithValue("korrigertAv", korrigererId)
-    }
-
-    @Test
-    fun finnSykepengesoknaderByUuidEnSoknad() {
-        val sykepengesoknad = opprettNyNaeringsdrivendeSoknad()
-        val uuid1 = sykepengesoknadDAO.lagreSykepengesoknad(sykepengesoknad).id
-        sykepengesoknadDAO.lagreSykepengesoknad(sykepengesoknad.copy(id = UUID.randomUUID().toString(), fnr = ("fnr2")))
-
-        val sykepengesoknadList = sykepengesoknadDAO.finnSykepengesoknaderByUuid(listOf(uuid1))
-
-        assertThat(sykepengesoknadList).hasSize(1)
-        assertThat(sykepengesoknadList[0].status).isEqualTo(NY)
-    }
-
-    @Test
-    fun finnSykepengesoknaderByUuidToSoknader() {
-        val sykepengesoknad = opprettNyNaeringsdrivendeSoknad()
-        val uuid1 = sykepengesoknadDAO.lagreSykepengesoknad(sykepengesoknad).id
-        val uuid2 = sykepengesoknadDAO.lagreSykepengesoknad(sykepengesoknad.copy(id = UUID.randomUUID().toString(), fnr = "fnr2")).id
-
-        val sykepengesoknadList = sykepengesoknadDAO.finnSykepengesoknaderByUuid(listOf(uuid1, uuid2)).sortedBy { it.fnr }
-
-        assertThat(sykepengesoknadList).hasSize(2)
-        assertThat(sykepengesoknadList[0].status).isEqualTo(NY)
-        assertThat(sykepengesoknadList[1].fnr).isEqualTo("fnr2")
-        assertThat(sykepengesoknadList[1].status).isEqualTo(NY)
     }
 
     @Test

@@ -27,8 +27,8 @@ data class RSSykepengesoknad(
     val egenmeldtSykmelding: Boolean?,
     val merknaderFraSykmelding: List<RSMerknad>?,
     val opprettetAvInntektsmelding: Boolean,
-    val utenlandskSykmelding: Boolean
-
+    val utenlandskSykmelding: Boolean,
+    val klippet: Boolean
 ) {
     fun alleSporsmalOgUndersporsmal(): List<RSSporsmal> {
         return sporsmal?.flatten()?.toList() ?: emptyList()
