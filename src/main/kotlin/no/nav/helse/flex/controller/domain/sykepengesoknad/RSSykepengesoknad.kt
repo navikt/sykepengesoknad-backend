@@ -11,8 +11,6 @@ data class RSSykepengesoknad(
     val fom: LocalDate? = null,
     val tom: LocalDate? = null,
     val opprettetDato: LocalDate?,
-    // TODO fjerne innsendtdato når frontend er oppdatert til å bruke sendtTilNAVDato (dette er samme verdi)
-    val innsendtDato: LocalDate? = null,
     val sendtTilNAVDato: LocalDateTime? = null,
     val sendtTilArbeidsgiverDato: LocalDateTime? = null,
     val avbruttDato: LocalDate? = null,
