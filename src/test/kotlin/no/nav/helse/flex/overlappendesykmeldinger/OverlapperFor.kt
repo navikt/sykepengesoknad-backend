@@ -207,6 +207,7 @@ class OverlapperFor : BaseTestClass() {
         overlappendeSoknad.fom shouldBeEqualTo basisdato.minusDays(10)
         overlappendeSoknad.tom shouldBeEqualTo basisdato.minusDays(2)
         overlappendeSoknad.status shouldBeEqualTo SoknadsstatusDTO.NY
+        hentSoknad(overlappendeSoknad.id, fnr).klippet shouldBeEqualTo false
 
         val klippetSoknad = hentSoknad(
             soknadId = hentSoknaderMetadata(fnr).first { it.id != overlappendeSoknad.id }.id,
@@ -215,6 +216,7 @@ class OverlapperFor : BaseTestClass() {
 
         klippetSoknad.fom shouldBeEqualTo basisdato.minusDays(1)
         klippetSoknad.tom shouldBeEqualTo basisdato.minusDays(1)
+        klippetSoknad.klippet shouldBeEqualTo true
         klippetSoknad.status shouldBeEqualTo RSSoknadstatus.NY
         klippetSoknad.sporsmal!!.first { it.tag == FERIE_V2 }.sporsmalstekst shouldBeEqualTo "Tok du ut feriedager i tidsrommet ${
         DatoUtil.formatterPeriode(
@@ -267,10 +269,12 @@ class OverlapperFor : BaseTestClass() {
         overlappendeSoknad.fom shouldBeEqualTo basisdato.minusDays(15)
         overlappendeSoknad.tom shouldBeEqualTo basisdato.minusDays(5)
         overlappendeSoknad.status shouldBeEqualTo SoknadsstatusDTO.NY
+        hentSoknad(overlappendeSoknad.id, fnr).klippet shouldBeEqualTo false
 
         val klippetSoknad = hentSoknad(soknad.id, fnr)
         klippetSoknad.fom shouldBeEqualTo basisdato.minusDays(4)
         klippetSoknad.tom shouldBeEqualTo basisdato.minusDays(1)
+        klippetSoknad.klippet shouldBeEqualTo true
         klippetSoknad.status shouldBeEqualTo RSSoknadstatus.AVBRUTT
         klippetSoknad.sporsmal!!.first { it.tag == FERIE_V2 }.sporsmalstekst shouldBeEqualTo "Tok du ut feriedager i tidsrommet ${
         DatoUtil.formatterPeriode(
@@ -281,7 +285,7 @@ class OverlapperFor : BaseTestClass() {
     }
 
     @Test
-    fun `Sendt arbeidstakersøknad starter før og slutter inni, klippes`() {
+    fun `Sendt arbeidstakersøknad starter før og slutter inni, splittes`() {
         val fnr = "88888888888"
         sendSykmelding(
             sykmeldingKafkaMessage(
@@ -345,14 +349,17 @@ class OverlapperFor : BaseTestClass() {
         soknader[0].status shouldBeEqualTo RSSoknadstatus.SENDT
         soknader[0].fom shouldBeEqualTo basisdato.minusDays(10)
         soknader[0].tom shouldBeEqualTo basisdato.minusDays(1)
+        hentSoknad(soknader[0].id, fnr).klippet shouldBeEqualTo false
 
         soknader[1].status shouldBeEqualTo RSSoknadstatus.NY
         soknader[1].fom shouldBeEqualTo basisdato.minusDays(15)
         soknader[1].tom shouldBeEqualTo basisdato.minusDays(11)
+        hentSoknad(soknader[1].id, fnr).klippet shouldBeEqualTo false
 
         soknader[2].status shouldBeEqualTo RSSoknadstatus.NY
         soknader[2].fom shouldBeEqualTo basisdato.minusDays(10)
         soknader[2].tom shouldBeEqualTo basisdato.minusDays(5)
+        hentSoknad(soknader[2].id, fnr).klippet shouldBeEqualTo false
 
         val klippmetrikker = klippMetrikkRepository.findAll().toList()
         klippmetrikker shouldHaveSize 1
