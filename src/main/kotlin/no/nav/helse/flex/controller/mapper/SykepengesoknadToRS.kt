@@ -100,12 +100,11 @@ fun Sykepengesoknad.tilRSSykepengesoknad() = RSSykepengesoknad(
     status = konverterSoknadstatus(this.status),
     opprettetDato = this.opprettet?.tilLocalDate(),
     avbruttDato = this.avbruttDato,
-    innsendtDato = ofNullable(this.sendtNav).map { it.tilLocalDate() }.orElse(null),
-    sendtTilNAVDato = ofNullable(this.sendtNav?.tilOsloLocalDateTime()).orElse(null),
+    sendtTilNAVDato = this.sendtNav?.tilOsloLocalDateTime(),
+    sendtTilArbeidsgiverDato = this.sendtArbeidsgiver?.tilOsloLocalDateTime(),
     korrigerer = this.korrigerer,
     korrigertAv = this.korrigertAv,
     sporsmal = this.sporsmal.map { it.mapSporsmalTilRs() },
-    sendtTilArbeidsgiverDato = this.sendtArbeidsgiver?.tilOsloLocalDateTime(),
     arbeidsgiver = map(this.arbeidsgiverNavn, this.arbeidsgiverOrgnummer),
     sykmeldingId = this.sykmeldingId,
     fom = this.fom,
@@ -117,7 +116,8 @@ fun Sykepengesoknad.tilRSSykepengesoknad() = RSSykepengesoknad(
     egenmeldtSykmelding = this.egenmeldtSykmelding,
     merknaderFraSykmelding = this.merknaderFraSykmelding?.map { it.mapMerknad() },
     opprettetAvInntektsmelding = this.opprettetAvInntektsmelding,
-    utenlandskSykmelding = this.utenlandskSykmelding
+    utenlandskSykmelding = this.utenlandskSykmelding,
+    klippet = this.klippet
 )
 
 fun Sykepengesoknad.tilRSSykepengesoknadMetadata() = RSSykepengesoknadMetadata(

@@ -39,7 +39,8 @@ class SykepengesoknadDAO(
     private val soknadsperiodeDAO: SoknadsperiodeDAO,
     private val sporsmalDAO: SporsmalDAO,
     private val svarDAO: SvarDAO,
-    private val soknadLagrer: SoknadLagrer
+    private val soknadLagrer: SoknadLagrer,
+    private val klippetSykepengesoknadRepository: KlippetSykepengesoknadRepository
 ) {
 
     val log = logger()
@@ -51,23 +52,51 @@ class SykepengesoknadDAO(
 
     fun finnSykepengesoknader(identer: List<String>): List<Sykepengesoknad> {
         val soknader = namedParameterJdbcTemplate.query(
-            "SELECT * FROM SYKEPENGESOKNAD " +
-                "WHERE FNR IN (:identer) ",
-
-            MapSqlParameterSource()
-                .addValue("identer", identer),
+            "SELECT * FROM SYKEPENGESOKNAD WHERE FNR IN (:identer)",
+            MapSqlParameterSource("identer", identer),
             sykepengesoknadRowMapper()
         )
+
+        return populerSoknadMedDataFraAndreTabeller(soknader)
+    }
+
+    fun finnSykepengesoknad(sykepengesoknadId: String): Sykepengesoknad {
+        val soknader = namedParameterJdbcTemplate.query(
+            "SELECT * FROM SYKEPENGESOKNAD WHERE SYKEPENGESOKNAD_UUID = :id",
+            MapSqlParameterSource("id", sykepengesoknadId),
+            sykepengesoknadRowMapper()
+        )
+
+        return populerSoknadMedDataFraAndreTabeller(soknader).firstOrNull() ?: throw SoknadIkkeFunnetException()
+    }
+
+    fun finnSykepengesoknaderForSykmelding(sykmeldingId: String): List<Sykepengesoknad> {
+        val soknader = namedParameterJdbcTemplate.query(
+            "SELECT * FROM SYKEPENGESOKNAD WHERE SYKMELDING_UUID = :sykmeldingId",
+            MapSqlParameterSource("sykmeldingId", sykmeldingId),
+            sykepengesoknadRowMapper()
+        )
+
+        return populerSoknadMedDataFraAndreTabeller(soknader)
+    }
+
+    private fun populerSoknadMedDataFraAndreTabeller(soknader: MutableList<Pair<String, Sykepengesoknad>>): List<Sykepengesoknad> {
         val soknadsIder = soknader.map { it.first }.toSet()
+        val soknadsUUIDer = soknader.map { it.second.id }
 
         val soknadsPerioder = soknadsperiodeDAO.finnSoknadPerioder(soknadsIder)
         val sporsmal = sporsmalDAO.finnSporsmal(soknadsIder)
+        val klipp = klippetSykepengesoknadRepository
+            .findAllBySykepengesoknadUuidIn(soknadsUUIDer)
+            .filter { it.klippVariant.toString().startsWith("SOKNAD") }
+            .groupBy { it.sykepengesoknadUuid }
 
         return soknader
             .map {
                 it.second.copy(
                     soknadPerioder = soknadsPerioder[it.first] ?: emptyList(),
-                    sporsmal = sporsmal[it.first] ?: emptyList()
+                    sporsmal = sporsmal[it.first] ?: emptyList(),
+                    klippet = klipp.containsKey(it.second.id)
                 )
             }
             .map { it.sorterSporsmal() }
@@ -94,35 +123,6 @@ class SykepengesoknadDAO(
                 )
             }
             .sortedBy { it.opprettet }
-    }
-
-    fun finnSykepengesoknaderByUuid(soknadUuidListe: List<String>): List<Sykepengesoknad> {
-        if (soknadUuidListe.isEmpty()) {
-            return Collections.emptyList()
-        } else {
-            val soknader = namedParameterJdbcTemplate.query(
-                "SELECT * FROM SYKEPENGESOKNAD " +
-                    "WHERE SYKEPENGESOKNAD_UUID IN (:soknadUuidListe) ",
-
-                MapSqlParameterSource()
-                    .addValue("soknadUuidListe", soknadUuidListe),
-
-                sykepengesoknadRowMapper()
-            )
-            val soknadsIder = soknader.map { it.first }.toSet()
-
-            val soknadsPerioder = soknadsperiodeDAO.finnSoknadPerioder(soknadsIder)
-            val sporsmal = sporsmalDAO.finnSporsmal(soknadsIder)
-
-            return soknader
-                .map {
-                    it.second.copy(
-                        soknadPerioder = soknadsPerioder[it.first] ?: emptyList(),
-                        sporsmal = sporsmal[it.first] ?: emptyList()
-                    )
-                }
-                .map { it.sorterSporsmal() }
-        }
     }
 
     fun finnMottakerAvSoknad(soknadUuid: String): Mottaker? {
@@ -309,52 +309,6 @@ class SykepengesoknadDAO(
     fun finnAlleredeOpprettetSoknad(identer: FolkeregisterIdenter): Sykepengesoknad? {
         return finnSykepengesoknader(identer)
             .firstOrNull { s -> Soknadstatus.NY == s.status && Soknadstype.OPPHOLD_UTLAND == s.soknadstype }
-    }
-
-    fun finnSykepengesoknad(sykepengesoknadId: String): Sykepengesoknad {
-        val soknader = namedParameterJdbcTemplate.query(
-            "SELECT * FROM SYKEPENGESOKNAD WHERE SYKEPENGESOKNAD_UUID = :id",
-            MapSqlParameterSource("id", sykepengesoknadId),
-            sykepengesoknadRowMapper()
-        )
-        val soknadsIder = soknader.map { it.first }.toSet()
-
-        val soknadsPerioder = soknadsperiodeDAO.finnSoknadPerioder(soknadsIder)
-        val sporsmal = sporsmalDAO.finnSporsmal(soknadsIder)
-
-        return soknader
-            .map {
-                it.second.copy(
-                    soknadPerioder = soknadsPerioder[it.first] ?: emptyList(),
-                    sporsmal = sporsmal[it.first] ?: emptyList()
-                )
-            }
-            .map { it.sorterSporsmal() }
-            .firstOrNull() ?: throw SoknadIkkeFunnetException()
-    }
-
-    fun finnSykepengesoknaderForSykmelding(sykmeldingId: String): List<Sykepengesoknad> {
-        val soknader = namedParameterJdbcTemplate.query(
-            "SELECT * FROM SYKEPENGESOKNAD WHERE SYKMELDING_UUID = :sykmeldingId",
-
-            MapSqlParameterSource()
-                .addValue("sykmeldingId", sykmeldingId),
-
-            sykepengesoknadRowMapper()
-        )
-        val soknadsIder = soknader.map { it.first }.toSet()
-
-        val soknadsPerioder = soknadsperiodeDAO.finnSoknadPerioder(soknadsIder)
-        val sporsmal = sporsmalDAO.finnSporsmal(soknadsIder)
-
-        return soknader
-            .map {
-                it.second.copy(
-                    soknadPerioder = soknadsPerioder[it.first] ?: emptyList(),
-                    sporsmal = sporsmal[it.first] ?: emptyList()
-                )
-            }
-            .map { it.sorterSporsmal() }
     }
 
     fun byttUtSporsmal(oppdatertSoknad: Sykepengesoknad) {

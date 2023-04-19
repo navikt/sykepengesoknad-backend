@@ -9,6 +9,7 @@ import java.time.Instant
 @Repository
 interface KlippetSykepengesoknadRepository : CrudRepository<KlippetSykepengesoknadDbRecord, String> {
     fun findBySykmeldingUuid(sykmeldingUuid: String): KlippetSykepengesoknadDbRecord?
+    fun findAllBySykepengesoknadUuidIn(sykepengesoknadUuid: List<String>): List<KlippetSykepengesoknadDbRecord>
 }
 
 @Table("klippet_sykepengesoknad")

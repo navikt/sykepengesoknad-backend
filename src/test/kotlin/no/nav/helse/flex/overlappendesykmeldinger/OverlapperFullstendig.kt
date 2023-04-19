@@ -93,6 +93,7 @@ class OverlapperFullstendig : BaseTestClass() {
 
         hentetViaRest[0].fom shouldBeEqualTo basisdato.plusDays(5)
         hentetViaRest[0].tom shouldBeEqualTo basisdato.plusDays(10)
+        hentSoknad(hentetViaRest[0].id, fnr).klippet shouldBeEqualTo false
 
         val klippmetrikker = klippMetrikkRepository.findAll().toList().sortedBy { it.variant }
         klippmetrikker shouldHaveSize 1
@@ -145,6 +146,7 @@ class OverlapperFullstendig : BaseTestClass() {
 
         hentetViaRest[0].fom shouldBeEqualTo basisdato
         hentetViaRest[0].tom shouldBeEqualTo basisdato.plusDays(15)
+        hentSoknad(hentetViaRest[0].id, fnr).klippet shouldBeEqualTo false
 
         val klippmetrikker = klippMetrikkRepository.findAll().toList().sortedBy { it.variant }
         klippmetrikker shouldHaveSize 1
@@ -197,6 +199,7 @@ class OverlapperFullstendig : BaseTestClass() {
 
         hentetViaRest[0].fom shouldBeEqualTo basisdato
         hentetViaRest[0].tom shouldBeEqualTo basisdato.plusDays(10)
+        hentSoknad(hentetViaRest[0].id, fnr).klippet shouldBeEqualTo false
 
         val klippmetrikker = klippMetrikkRepository.findAll().toList().sortedBy { it.variant }
         klippmetrikker shouldHaveSize 1
@@ -271,18 +274,22 @@ class OverlapperFullstendig : BaseTestClass() {
         soknader[0].status shouldBeEqualTo RSSoknadstatus.SENDT
         soknader[0].fom shouldBeEqualTo basisdato.minusDays(10)
         soknader[0].tom shouldBeEqualTo basisdato.minusDays(1)
+        hentSoknad(soknader[0].id, fnr).klippet shouldBeEqualTo false
 
         soknader[1].status shouldBeEqualTo RSSoknadstatus.NY
         soknader[1].fom shouldBeEqualTo basisdato.minusDays(15)
         soknader[1].tom shouldBeEqualTo basisdato.minusDays(11)
+        hentSoknad(soknader[0].id, fnr).klippet shouldBeEqualTo false
 
         soknader[2].status shouldBeEqualTo RSSoknadstatus.NY
         soknader[2].fom shouldBeEqualTo basisdato.minusDays(10)
         soknader[2].tom shouldBeEqualTo basisdato.minusDays(1)
+        hentSoknad(soknader[0].id, fnr).klippet shouldBeEqualTo false
 
         soknader[3].status shouldBeEqualTo RSSoknadstatus.FREMTIDIG
         soknader[3].fom shouldBeEqualTo basisdato
         soknader[3].tom shouldBeEqualTo basisdato.plusDays(10)
+        hentSoknad(soknader[0].id, fnr).klippet shouldBeEqualTo false
 
         val klippmetrikker = klippMetrikkRepository.findAll().toList()
         klippmetrikker shouldHaveSize 1
