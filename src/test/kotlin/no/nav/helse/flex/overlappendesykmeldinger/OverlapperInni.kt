@@ -66,14 +66,17 @@ class OverlapperInni : BaseTestClass() {
         val soknadKlippStart = hentetViaRest[0]
         soknadKlippStart.fom shouldBeEqualTo basisDato.plusDays(1)
         soknadKlippStart.tom shouldBeEqualTo basisDato.plusDays(9)
+        hentSoknad(soknadKlippStart.id, fnr).klippet shouldBeEqualTo true
 
         val soknadSomOverlappet = hentetViaRest[1]
         soknadSomOverlappet.fom shouldBeEqualTo basisDato.plusDays(10)
         soknadSomOverlappet.tom shouldBeEqualTo basisDato.plusDays(20)
+        hentSoknad(soknadSomOverlappet.id, fnr).klippet shouldBeEqualTo false
 
         val soknadKlippSlutt = hentetViaRest[2]
         soknadKlippSlutt.fom shouldBeEqualTo basisDato.plusDays(21)
         soknadKlippSlutt.tom shouldBeEqualTo basisDato.plusDays(30)
+        hentSoknad(soknadKlippSlutt.id, fnr).klippet shouldBeEqualTo true
     }
 
     @Test
@@ -115,6 +118,7 @@ class OverlapperInni : BaseTestClass() {
         forsteSoknad.status shouldBeEqualTo RSSoknadstatus.NY
         forsteSoknad.fom shouldBeEqualTo basisDato.minusDays(30)
         forsteSoknad.tom shouldBeEqualTo basisDato.minusDays(21)
+        hentSoknad(forsteSoknad.id, fnr).klippet shouldBeEqualTo true
 
         val periodeSpmSok1 = forsteSoknad.sporsmal
             ?.find { it.tag == FERIE_V2 }
@@ -127,6 +131,7 @@ class OverlapperInni : BaseTestClass() {
         soknadSomOverlappet.status shouldBeEqualTo RSSoknadstatus.NY
         soknadSomOverlappet.fom shouldBeEqualTo basisDato.minusDays(20)
         soknadSomOverlappet.tom shouldBeEqualTo basisDato.minusDays(10)
+        hentSoknad(soknadSomOverlappet.id, fnr).klippet shouldBeEqualTo false
 
         val sisteSoknad = hentSoknad(
             soknadId = hentetViaRest[2].id,
@@ -135,6 +140,7 @@ class OverlapperInni : BaseTestClass() {
         sisteSoknad.status shouldBeEqualTo RSSoknadstatus.NY
         sisteSoknad.fom shouldBeEqualTo basisDato.minusDays(9)
         sisteSoknad.tom shouldBeEqualTo basisDato.minusDays(1)
+        hentSoknad(sisteSoknad.id, fnr).klippet shouldBeEqualTo true
 
         val periodeSpmSok3 = sisteSoknad.sporsmal
             ?.find { it.tag == FERIE_V2 }
