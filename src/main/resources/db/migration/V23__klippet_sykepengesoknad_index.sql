@@ -1,0 +1,1 @@
+CREATE INDEX klippet_sykepengesoknad_uuid_index ON klippet_sykepengesoknad (sykepengesoknad_uuid);
