@@ -78,6 +78,7 @@ class FinnOpprinneligSendtTest {
             merknaderFraSykmelding = null,
             avbruttFeilinfo = null,
             utenlandskSykmelding = false,
+            egenmeldingsdagerFraSykmelding = null,
             sendt = sendt
         )
     }

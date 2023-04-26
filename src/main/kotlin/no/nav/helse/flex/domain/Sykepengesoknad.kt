@@ -34,7 +34,8 @@ data class Sykepengesoknad(
     val opprettetAvInntektsmelding: Boolean = false,
     val sendt: Instant? = null,
     val utenlandskSykmelding: Boolean,
-    val klippet: Boolean = false
+    val klippet: Boolean = false,
+    val egenmeldingsdagerFraSykmelding: String?
 ) : Serializable {
 
     fun alleSporsmalOgUndersporsmal(): List<Sporsmal> {

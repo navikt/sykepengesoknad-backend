@@ -40,7 +40,8 @@ fun konverterSelvstendigOgFrilanserTilSoknadDTO(
         arbeidUtenforNorge = sykepengesoknad.hentArbeidUtenforNorge(),
         andreInntektskilder = hentInntektListe(sykepengesoknad),
         utenlandskSykmelding = sykepengesoknad.utenlandskSykmelding,
-        yrkesskade = sykepengesoknad.hentYrkesskade()
+        yrkesskade = sykepengesoknad.hentYrkesskade(),
+        egenmeldingsdagerFraSykmelding = sykepengesoknad.egenmeldingsdagerFraSykmelding.parseEgenmeldingsdagerFraSykmelding()
 
     )
 }

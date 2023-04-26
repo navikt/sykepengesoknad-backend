@@ -61,7 +61,8 @@ fun opprettNySoknad(): Sykepengesoknad {
                 reisetilskudd = false
             )
         ).tilSoknadsperioder(),
-        utenlandskSykmelding = false
+        utenlandskSykmelding = false,
+        egenmeldingsdagerFraSykmelding = null
 
     )
 

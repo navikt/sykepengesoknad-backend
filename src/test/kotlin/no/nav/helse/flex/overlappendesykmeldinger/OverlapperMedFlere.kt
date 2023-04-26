@@ -632,7 +632,8 @@ class OverlapperMedFlere : BaseTestClass() {
                     arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
                     arbeidsgiverOrgnummer = "123454543",
                     arbeidsgiverNavn = "Butikken",
-                    utenlandskSykmelding = false
+                    utenlandskSykmelding = false,
+                    egenmeldingsdagerFraSykmelding = null
                 )
             )
         }
