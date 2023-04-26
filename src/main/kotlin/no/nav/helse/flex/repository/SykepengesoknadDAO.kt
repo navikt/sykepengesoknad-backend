@@ -485,7 +485,8 @@ class SykepengesoknadDAO(
                     avbruttFeilinfo = resultSet.getNullableBoolean("AVBRUTT_FEILINFO"),
                     merknaderFraSykmelding = resultSet.getNullableString("MERKNADER_FRA_SYKMELDING").tilMerknader(),
                     opprettetAvInntektsmelding = resultSet.getBoolean("OPPRETTET_AV_INNTEKTSMELDING"),
-                    utenlandskSykmelding = resultSet.getBoolean("UTENLANDSK_SYKMELDING")
+                    utenlandskSykmelding = resultSet.getBoolean("UTENLANDSK_SYKMELDING"),
+                    egenmeldingsdagerFraSykmelding = resultSet.getString("EGENMELDINGSDAGER_FRA_SYKMELDING")
                 )
             )
         }

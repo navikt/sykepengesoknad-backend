@@ -52,7 +52,8 @@ class BehandlingsdagerKtTest {
         status = Soknadstatus.NY,
         opprettet = Instant.now(),
         sporsmal = emptyList(),
-        utenlandskSykmelding = false
+        utenlandskSykmelding = false,
+        egenmeldingsdagerFraSykmelding = null
     )
 
     @Test

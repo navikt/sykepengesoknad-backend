@@ -48,7 +48,8 @@ fun konverterTilSykepengesoknadDTO(
         permitteringer = sykepengesoknad.hentPermitteringer(),
         arbeidUtenforNorge = sykepengesoknad.hentArbeidUtenforNorge(),
         utenlandskSykmelding = sykepengesoknad.utenlandskSykmelding,
-        yrkesskade = sykepengesoknad.hentYrkesskade()
+        yrkesskade = sykepengesoknad.hentYrkesskade(),
+        egenmeldingsdagerFraSykmelding = sykepengesoknad.egenmeldingsdagerFraSykmelding.parseEgenmeldingsdagerFraSykmelding()
 
     )
 }

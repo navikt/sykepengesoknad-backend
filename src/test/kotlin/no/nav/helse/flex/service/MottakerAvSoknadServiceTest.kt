@@ -88,7 +88,8 @@ class MottakerAvSoknadServiceTest {
             soknadPerioder = emptyList(),
             sporsmal = emptyList(),
             soknadstype = Soknadstype.ARBEIDSTAKERE,
-            utenlandskSykmelding = false
+            utenlandskSykmelding = false,
+            egenmeldingsdagerFraSykmelding = null
         )
 
         val mottaker = soknadService.finnMottakerAvSoknad(soknad, folkeregisterIdenter)
@@ -116,7 +117,8 @@ class MottakerAvSoknadServiceTest {
             soknadPerioder = emptyList(),
             sporsmal = emptyList(),
             soknadstype = Soknadstype.ARBEIDSTAKERE,
-            utenlandskSykmelding = false
+            utenlandskSykmelding = false,
+            egenmeldingsdagerFraSykmelding = null
         )
 
         val mottaker = soknadService.finnMottakerAvSoknad(soknad, folkeregisterIdenter)
@@ -145,7 +147,8 @@ class MottakerAvSoknadServiceTest {
             soknadPerioder = emptyList(),
             sporsmal = emptyList(),
             soknadstype = Soknadstype.ARBEIDSTAKERE,
-            utenlandskSykmelding = false
+            utenlandskSykmelding = false,
+            egenmeldingsdagerFraSykmelding = null
         )
 
         val mottaker = soknadService.finnMottakerAvSoknad(soknad, folkeregisterIdenter)
@@ -174,7 +177,8 @@ class MottakerAvSoknadServiceTest {
             soknadPerioder = emptyList(),
             sporsmal = emptyList(),
             soknadstype = Soknadstype.ARBEIDSTAKERE,
-            utenlandskSykmelding = false
+            utenlandskSykmelding = false,
+            egenmeldingsdagerFraSykmelding = null
         )
 
         val mottaker = soknadService.finnMottakerAvSoknad(soknad, folkeregisterIdenter)
@@ -205,7 +209,8 @@ class MottakerAvSoknadServiceTest {
             soknadPerioder = emptyList(),
             sporsmal = emptyList(),
             soknadstype = Soknadstype.ARBEIDSTAKERE,
-            utenlandskSykmelding = false
+            utenlandskSykmelding = false,
+            egenmeldingsdagerFraSykmelding = null
 
         )
         val mottaker = soknadService.finnMottakerAvSoknad(soknad, folkeregisterIdenter)
@@ -236,7 +241,8 @@ class MottakerAvSoknadServiceTest {
             soknadPerioder = emptyList(),
             sporsmal = emptyList(),
             soknadstype = Soknadstype.ARBEIDSTAKERE,
-            utenlandskSykmelding = false
+            utenlandskSykmelding = false,
+            egenmeldingsdagerFraSykmelding = null
         )
 
         val mottaker = soknadService.finnMottakerAvSoknad(soknad, folkeregisterIdenter)
@@ -267,7 +273,8 @@ class MottakerAvSoknadServiceTest {
             soknadPerioder = emptyList(),
             sporsmal = emptyList(),
             soknadstype = Soknadstype.ARBEIDSTAKERE,
-            utenlandskSykmelding = false
+            utenlandskSykmelding = false,
+            egenmeldingsdagerFraSykmelding = null
         )
 
         val mottaker = soknadService.finnMottakerAvSoknad(soknad, folkeregisterIdenter)
@@ -298,7 +305,8 @@ class MottakerAvSoknadServiceTest {
             soknadPerioder = emptyList(),
             sporsmal = emptyList(),
             soknadstype = Soknadstype.ARBEIDSTAKERE,
-            utenlandskSykmelding = false
+            utenlandskSykmelding = false,
+            egenmeldingsdagerFraSykmelding = null
         )
         val mottaker = soknadService.finnMottakerAvSoknad(soknad, folkeregisterIdenter)
 
@@ -328,7 +336,8 @@ class MottakerAvSoknadServiceTest {
             soknadPerioder = emptyList(),
             sporsmal = emptyList(),
             soknadstype = Soknadstype.ARBEIDSTAKERE,
-            utenlandskSykmelding = false
+            utenlandskSykmelding = false,
+            egenmeldingsdagerFraSykmelding = null
         )
 
         val mottaker = soknadService.finnMottakerAvSoknad(soknad, folkeregisterIdenter)
@@ -359,7 +368,8 @@ class MottakerAvSoknadServiceTest {
             soknadPerioder = emptyList(),
             sporsmal = emptyList(),
             soknadstype = Soknadstype.ARBEIDSTAKERE,
-            utenlandskSykmelding = false
+            utenlandskSykmelding = false,
+            egenmeldingsdagerFraSykmelding = null
         )
 
         val mottaker = soknadService.finnMottakerAvSoknad(soknad, folkeregisterIdenter)
@@ -386,7 +396,8 @@ class MottakerAvSoknadServiceTest {
             sporsmal = emptyList(),
             soknadstype = Soknadstype.ARBEIDSTAKERE,
             korrigerer = "korrigertSoknad",
-            utenlandskSykmelding = false
+            utenlandskSykmelding = false,
+            egenmeldingsdagerFraSykmelding = null
         )
         whenever(sykepengesoknadDAO.finnMottakerAvSoknad("korrigertSoknad"))
             .thenReturn(Mottaker.ARBEIDSGIVER_OG_NAV)
@@ -418,7 +429,8 @@ class MottakerAvSoknadServiceTest {
             sporsmal = emptyList(),
             soknadstype = Soknadstype.ARBEIDSTAKERE,
             korrigerer = "korrigertSoknad",
-            utenlandskSykmelding = false
+            utenlandskSykmelding = false,
+            egenmeldingsdagerFraSykmelding = null
         )
 
         whenever(sykepengesoknadDAO.finnMottakerAvSoknad("korrigertSoknad"))
@@ -453,7 +465,8 @@ class MottakerAvSoknadServiceTest {
             sporsmal = emptyList(),
             soknadstype = Soknadstype.ARBEIDSTAKERE,
             korrigerer = "korrigertSoknad",
-            utenlandskSykmelding = false
+            utenlandskSykmelding = false,
+            egenmeldingsdagerFraSykmelding = null
         )
 
         whenever(sykepengesoknadDAO.finnMottakerAvSoknad("korrigertSoknad"))
@@ -486,7 +499,8 @@ class MottakerAvSoknadServiceTest {
             sporsmal = emptyList(),
             soknadstype = Soknadstype.ARBEIDSTAKERE,
             korrigerer = "korrigertSoknad",
-            utenlandskSykmelding = false
+            utenlandskSykmelding = false,
+            egenmeldingsdagerFraSykmelding = null
         )
 
         whenever(sykepengesoknadDAO.finnMottakerAvSoknad("korrigertSoknad"))
@@ -519,7 +533,8 @@ class MottakerAvSoknadServiceTest {
             sporsmal = emptyList(),
             soknadstype = Soknadstype.ARBEIDSTAKERE,
             korrigerer = "korrigertSoknad",
-            utenlandskSykmelding = false
+            utenlandskSykmelding = false,
+            egenmeldingsdagerFraSykmelding = null
         )
 
         whenever(sykepengesoknadDAO.finnMottakerAvSoknad("korrigertSoknad"))
@@ -552,7 +567,8 @@ class MottakerAvSoknadServiceTest {
             sporsmal = emptyList(),
             soknadstype = Soknadstype.ARBEIDSTAKERE,
             korrigerer = "korrigertSoknad",
-            utenlandskSykmelding = false
+            utenlandskSykmelding = false,
+            egenmeldingsdagerFraSykmelding = null
         )
 
         whenever(sykepengesoknadDAO.finnMottakerAvSoknad("korrigertSoknad"))
@@ -585,7 +601,8 @@ class MottakerAvSoknadServiceTest {
             sporsmal = emptyList(),
             soknadstype = Soknadstype.ARBEIDSTAKERE,
             korrigerer = "korrigertSoknad",
-            utenlandskSykmelding = false
+            utenlandskSykmelding = false,
+            egenmeldingsdagerFraSykmelding = null
         )
 
         whenever(forskutteringRepository.finnForskuttering(any(), any())).thenReturn(forskutteringNei)
@@ -617,7 +634,8 @@ class MottakerAvSoknadServiceTest {
             sporsmal = emptyList(),
             soknadstype = Soknadstype.ARBEIDSTAKERE,
             korrigerer = "korrigertSoknad",
-            utenlandskSykmelding = false
+            utenlandskSykmelding = false,
+            egenmeldingsdagerFraSykmelding = null
         )
 
         whenever(sykepengesoknadDAO.finnMottakerAvSoknad("korrigertSoknad"))

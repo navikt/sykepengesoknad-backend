@@ -31,6 +31,7 @@ import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO.BEHANDLINGSDAGER
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO.GRADERT
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO.REISETILSKUDD
 import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
+import no.nav.syfo.model.sykmeldingstatus.ShortNameDTO
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
@@ -99,7 +100,8 @@ class OpprettSoknadService(
                     status = Soknadstatus.FREMTIDIG,
                     opprettet = Instant.now(),
                     sporsmal = emptyList(),
-                    utenlandskSykmelding = sykmeldingKafkaMessage.sykmelding.utenlandskSykmelding != null
+                    utenlandskSykmelding = sykmeldingKafkaMessage.sykmelding.utenlandskSykmelding != null,
+                    egenmeldingsdagerFraSykmelding = sykmeldingKafkaMessage.event.sporsmals?.firstOrNull { spm -> spm.shortName == ShortNameDTO.EGENMELDINGSDAGER }?.svar
                 )
             }
                 .filter { it.soknadPerioder?.isNotEmpty() ?: true }

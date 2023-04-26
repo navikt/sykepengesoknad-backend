@@ -55,7 +55,8 @@ class ArbeidGjenopptattMuteringTest {
             status = Soknadstatus.NY,
             opprettet = Instant.now(),
             sporsmal = emptyList(),
-            utenlandskSykmelding = false
+            utenlandskSykmelding = false,
+            egenmeldingsdagerFraSykmelding = null
         )
         val standardSoknad = soknad.copy(
             sporsmal = settOppSoknadArbeidstaker(
@@ -124,7 +125,8 @@ class ArbeidGjenopptattMuteringTest {
             status = Soknadstatus.NY,
             opprettet = Instant.now(),
             sporsmal = emptyList(),
-            utenlandskSykmelding = false
+            utenlandskSykmelding = false,
+            egenmeldingsdagerFraSykmelding = null
         )
         val standardSoknad = soknad.copy(
             sporsmal = settOppSoknadArbeidstaker(
@@ -189,7 +191,8 @@ class ArbeidGjenopptattMuteringTest {
             status = Soknadstatus.NY,
             opprettet = Instant.now(),
             sporsmal = emptyList(),
-            utenlandskSykmelding = false
+            utenlandskSykmelding = false,
+            egenmeldingsdagerFraSykmelding = null
         )
         val standardSoknad = soknad.copy(
             sporsmal = settOppSoknadArbeidstaker(
