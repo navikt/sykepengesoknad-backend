@@ -17,19 +17,33 @@ enum class EndringIUforegrad {
     VET_IKKE
 }
 
-internal fun SykepengesoknadDAO.soknadKandidater(
+internal fun SykepengesoknadDAO.soknadKandidaterSomKanKlippes(
+    orgnummer: String?,
+    sykmeldingKafkaMessage: SykmeldingKafkaMessage,
+    identer: FolkeregisterIdenter
+) = alleSomOverlapper(orgnummer, sykmeldingKafkaMessage, identer).filter {
+    it.sykmeldingSkrevet!!.isBefore(sykmeldingKafkaMessage.sykmelding.behandletTidspunkt.toInstant())
+}
+
+internal fun SykepengesoknadDAO.soknadKandidaterSomKanKlippeSykmeldingen(
+    orgnummer: String?,
+    sykmeldingKafkaMessage: SykmeldingKafkaMessage,
+    identer: FolkeregisterIdenter
+) = alleSomOverlapper(orgnummer, sykmeldingKafkaMessage, identer).filter {
+    it.sykmeldingSkrevet!!.isAfter(sykmeldingKafkaMessage.sykmelding.behandletTidspunkt.toInstant())
+}
+
+private fun SykepengesoknadDAO.alleSomOverlapper(
     orgnummer: String?,
     sykmeldingKafkaMessage: SykmeldingKafkaMessage,
     identer: FolkeregisterIdenter
 ): List<Sykepengesoknad> {
     val sykmeldingId = sykmeldingKafkaMessage.sykmelding.id
-    val behandletTidspunkt = sykmeldingKafkaMessage.sykmelding.behandletTidspunkt.toInstant()
     val sykmeldingPeriode = sykmeldingKafkaMessage.periode()
     return this.finnSykepengesoknader(identer)
         .asSequence()
         .filterNot { it.sykmeldingId == sykmeldingId } // Korrigerte sykmeldinger håndteres her SlettSoknaderTilKorrigertSykmeldingService
         .filter { it.soknadstype == Soknadstype.ARBEIDSTAKERE }
-        .filter { it.sykmeldingSkrevet!!.isBefore(behandletTidspunkt) }
         .filter { it.arbeidsgiverOrgnummer == orgnummer }
         .filter { sok ->
             val soknadPeriode = sok.fom!!..sok.tom!!
