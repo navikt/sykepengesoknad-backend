@@ -25,6 +25,14 @@ internal fun SykepengesoknadDAO.soknadKandidaterSomKanKlippes(
     it.sykmeldingSkrevet!!.isBefore(sykmeldingKafkaMessage.sykmelding.behandletTidspunkt.toInstant())
 }
 
+internal fun SykepengesoknadDAO.soknadKandidaterSomKanKlippeSykmeldingen(
+    orgnummer: String?,
+    sykmeldingKafkaMessage: SykmeldingKafkaMessage,
+    identer: FolkeregisterIdenter
+) = alleSomOverlapper(orgnummer, sykmeldingKafkaMessage, identer).filter {
+    it.sykmeldingSkrevet!!.isAfter(sykmeldingKafkaMessage.sykmelding.behandletTidspunkt.toInstant())
+}
+
 private fun SykepengesoknadDAO.alleSomOverlapper(
     orgnummer: String?,
     sykmeldingKafkaMessage: SykmeldingKafkaMessage,

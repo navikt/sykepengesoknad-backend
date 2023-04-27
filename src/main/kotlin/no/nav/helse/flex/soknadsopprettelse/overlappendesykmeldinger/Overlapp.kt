@@ -79,6 +79,14 @@ class Overlapp(
 
         kafkaMessage = soknadKandidaterSomKanKlippes.sykmeldingSomOverlapperSendteSoknaderFor(kafkaMessage)
 
+        val soknadKandidaterSomKanKlippeSykmeldingen = sykepengesoknadDAO.soknadKandidaterSomKanKlippeSykmeldingen(
+            orgnummer = orgnummer,
+            identer = identer,
+            sykmeldingKafkaMessage = sykmeldingKafkaMessage
+        )
+
+        soknadKandidaterSomKanKlippeSykmeldingen.sykmeldingSomOverlapperMedNyereSoknader(kafkaMessage)
+
         return kafkaMessage
     }
 
@@ -365,5 +373,50 @@ class Overlapp(
         log.info("Klipper overlappende sykmelding $sykmeldingId, original tom $originalSykmeldingTom ny tom $nySykmeldingTom")
 
         return sykmeldingKafkaMessage.erstattPerioder(sykmeldingPerioder)
+    }
+
+    private fun List<Sykepengesoknad>.sykmeldingSomOverlapperMedNyereSoknader(
+        sykmeldingKafkaMessage: SykmeldingKafkaMessage
+    ) {
+        val sykmeldingId = sykmeldingKafkaMessage.sykmelding.id
+        val sykmeldingPerioder = sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder
+
+        this.sortedBy { it.fom }
+            .filter {
+                it.status in listOf(
+                    Soknadstatus.FREMTIDIG,
+                    Soknadstatus.NY,
+                    Soknadstatus.AVBRUTT,
+                    Soknadstatus.SENDT
+                )
+            }
+            .forEach { sok ->
+                val sykPeriode = sykmeldingPerioder.periode()
+                val sokPeriode = sok.fom!!..sok.tom!!
+
+                if (sok.fom.isAfter(sykPeriode.start) &&
+                    sok.tom.isAfterOrEqual(sykPeriode.endInclusive)
+                ) {
+                    log.info("Det er innsendt en eldre sykmelding $sykmeldingId som overlapper med ${sok.status} soknad ${sok.id}, den overlappende delen starter inni og slutter samtidig eller etter")
+                }
+
+                if (sok.fom.isBeforeOrEqual(sykPeriode.start) &&
+                    sok.tom.isBefore(sykPeriode.endInclusive)
+                ) {
+                    log.info("Det er innsendt en eldre sykmelding $sykmeldingId som overlapper med ${sok.status} soknad ${sok.id}, den overlappende delen starter før eller samtidig og slutter etter")
+                }
+
+                if (sok.fom.isBeforeOrEqual(sykPeriode.start) &&
+                    sok.tom.isAfterOrEqual(sykPeriode.endInclusive)
+                ) {
+                    log.info("Det er innsendt en eldre sykmelding $sykmeldingId som overlapper med ${sok.status} soknad ${sok.id}, den overlappende delen starter før eller samtidig og slutter samtidig eller etter")
+                }
+
+                if (sok.fom.isAfter(sykPeriode.start) &&
+                    sok.tom.isBefore(sykPeriode.endInclusive)
+                ) {
+                    log.info("Det er innsendt en eldre sykmelding $sykmeldingId som overlapper med ${sok.status} soknad ${sok.id}, den overlappende delen starter og slutter inni")
+                }
+            }
     }
 }
