@@ -394,25 +394,29 @@ class Overlapp(
                 val sykPeriode = sykmeldingPerioder.periode()
                 val sokPeriode = sok.fom!!..sok.tom!!
 
-                if (sok.fom.isAfter(sykPeriode.start) &&
+                if (sokPeriode.overlap(sykPeriode) &&
+                    sok.fom.isAfter(sykPeriode.start) &&
                     sok.tom.isAfterOrEqual(sykPeriode.endInclusive)
                 ) {
                     log.info("Det er innsendt en eldre sykmelding $sykmeldingId som overlapper med ${sok.status} soknad ${sok.id}, den overlappende delen starter inni og slutter samtidig eller etter")
                 }
 
-                if (sok.fom.isBeforeOrEqual(sykPeriode.start) &&
+                if (sokPeriode.overlap(sykPeriode) &&
+                    sok.fom.isBeforeOrEqual(sykPeriode.start) &&
                     sok.tom.isBefore(sykPeriode.endInclusive)
                 ) {
                     log.info("Det er innsendt en eldre sykmelding $sykmeldingId som overlapper med ${sok.status} soknad ${sok.id}, den overlappende delen starter før eller samtidig og slutter etter")
                 }
 
-                if (sok.fom.isBeforeOrEqual(sykPeriode.start) &&
+                if (sokPeriode.overlap(sykPeriode) &&
+                    sok.fom.isBeforeOrEqual(sykPeriode.start) &&
                     sok.tom.isAfterOrEqual(sykPeriode.endInclusive)
                 ) {
                     log.info("Det er innsendt en eldre sykmelding $sykmeldingId som overlapper med ${sok.status} soknad ${sok.id}, den overlappende delen starter før eller samtidig og slutter samtidig eller etter")
                 }
 
-                if (sok.fom.isAfter(sykPeriode.start) &&
+                if (sokPeriode.overlap(sykPeriode) &&
+                    sok.fom.isAfter(sykPeriode.start) &&
                     sok.tom.isBefore(sykPeriode.endInclusive)
                 ) {
                     log.info("Det er innsendt en eldre sykmelding $sykmeldingId som overlapper med ${sok.status} soknad ${sok.id}, den overlappende delen starter og slutter inni")
