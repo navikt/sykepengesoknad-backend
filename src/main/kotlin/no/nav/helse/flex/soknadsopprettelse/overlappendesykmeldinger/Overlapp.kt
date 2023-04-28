@@ -82,7 +82,7 @@ class Overlapp(
         val soknadKandidaterSomKanKlippeSykmeldingen = sykepengesoknadDAO.soknadKandidaterSomKanKlippeSykmeldingen(
             orgnummer = orgnummer,
             identer = identer,
-            sykmeldingKafkaMessage = sykmeldingKafkaMessage
+            sykmeldingKafkaMessage = kafkaMessage
         )
 
         soknadKandidaterSomKanKlippeSykmeldingen.sykmeldingSomOverlapperMedNyereSoknader(kafkaMessage)
@@ -405,7 +405,7 @@ class Overlapp(
                     sok.fom.isBeforeOrEqual(sykPeriode.start) &&
                     sok.tom.isBefore(sykPeriode.endInclusive)
                 ) {
-                    log.info("Det er innsendt en eldre sykmelding $sykmeldingId som overlapper med ${sok.status} soknad ${sok.id}, den overlappende delen starter før eller samtidig og slutter etter")
+                    log.info("Det er innsendt en eldre sykmelding $sykmeldingId som overlapper med ${sok.status} soknad ${sok.id}, den overlappende delen starter før eller samtidig og slutter inni")
                 }
 
                 if (sokPeriode.overlap(sykPeriode) &&
