@@ -43,6 +43,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
+import java.time.OffsetDateTime
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class OverlapperFor : BaseTestClass() {
@@ -232,6 +233,47 @@ class OverlapperFor : BaseTestClass() {
         klippmetrikker[0].variant `should be equal to` "SOKNAD_STARTER_FOR_SLUTTER_INNI"
         klippmetrikker[0].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
         klippmetrikker[0].klippet `should be equal to` true
+    }
+
+    @Test
+    fun `Ny arbeidstakersøknad starter før og slutter inni og eldre sykmelding sendes sist, har klipp metrikk`() {
+        val fnr = "66666677777"
+        val sykmeldingSkrevet = OffsetDateTime.now()
+
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = basisdato.minusDays(5),
+                    tom = basisdato.minusDays(1)
+                ),
+                sykmeldingSkrevet = sykmeldingSkrevet
+            )
+        )
+        val overlappendeSoknad = sendSykmelding(
+            sykmeldingKafkaMessage = sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = basisdato.minusDays(10),
+                    tom = basisdato.minusDays(2)
+                ),
+                sykmeldingSkrevet = sykmeldingSkrevet.minusHours(1)
+            )
+        ).last()
+
+        // Denne kan klippes
+        overlappendeSoknad.fom shouldBeEqualTo basisdato.minusDays(10)
+        overlappendeSoknad.tom shouldBeEqualTo basisdato.minusDays(2)
+        overlappendeSoknad.status shouldBeEqualTo SoknadsstatusDTO.NY
+        hentSoknad(overlappendeSoknad.id, fnr).klippet shouldBeEqualTo false
+
+        val klippmetrikker = klippMetrikkRepository.findAll().toList().sortedBy { it.variant }
+        klippmetrikker shouldHaveSize 1
+
+        klippmetrikker[0].soknadstatus `should be equal to` "NY"
+        klippmetrikker[0].variant `should be equal to` "SYKMELDING_STARTER_INNI_SLUTTER_ETTER"
+        klippmetrikker[0].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
+        klippmetrikker[0].klippet `should be equal to` false
     }
 
     @Test
