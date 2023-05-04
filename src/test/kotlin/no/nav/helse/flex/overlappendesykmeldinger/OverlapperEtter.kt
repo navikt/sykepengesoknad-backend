@@ -52,6 +52,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
+import java.time.OffsetDateTime
 import java.util.*
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
@@ -882,6 +883,52 @@ class OverlapperEtter : BaseTestClass() {
     @Test
     @Order(102)
     fun `Reset testdata`() {
+        databaseReset.resetDatabase()
+        klippMetrikkRepository.count() shouldBeEqualTo 0
+    }
+
+    @Test
+    @Order(110)
+    fun `Arbeidstakersøknad der eldre sykmelding sendes sist, klippes`() {
+        val sykmeldingSkrevet = OffsetDateTime.now()
+
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = basisdato.minusDays(5),
+                    tom = basisdato
+                ),
+                sykmeldingSkrevet = sykmeldingSkrevet
+            )
+        )
+        val overlappendeSoknad = sendSykmelding(
+            sykmeldingKafkaMessage = sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = basisdato.minusDays(1),
+                    tom = basisdato.plusDays(10)
+                ),
+                sykmeldingSkrevet = sykmeldingSkrevet.minusHours(1)
+            )
+        ).last()
+
+        overlappendeSoknad.fom shouldBeEqualTo basisdato.plusDays(1)
+        overlappendeSoknad.tom shouldBeEqualTo basisdato.plusDays(10)
+        overlappendeSoknad.status shouldBeEqualTo SoknadsstatusDTO.FREMTIDIG
+
+        val klippmetrikker = klippMetrikkRepository.findAll().toList()
+        klippmetrikker shouldHaveSize 1
+
+        klippmetrikker[0].soknadstatus `should be equal to` "FREMTIDIG"
+        klippmetrikker[0].variant `should be equal to` "SYKMELDING_STARTER_FOR_SLUTTER_INNI"
+        klippmetrikker[0].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
+        klippmetrikker[0].klippet `should be equal to` true
+    }
+
+    @Test
+    @Order(111)
+    fun `Reset database data`() {
         databaseReset.resetDatabase()
         klippMetrikkRepository.count() shouldBeEqualTo 0
     }
