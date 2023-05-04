@@ -82,7 +82,7 @@ class Overlapp(
         val soknadKandidaterSomKanKlippeSykmeldingen = sykepengesoknadDAO.soknadKandidaterSomKanKlippeSykmeldingen(
             orgnummer = orgnummer,
             identer = identer,
-            sykmeldingKafkaMessage = sykmeldingKafkaMessage
+            sykmeldingKafkaMessage = kafkaMessage
         )
 
         soknadKandidaterSomKanKlippeSykmeldingen.sykmeldingSomOverlapperMedNyereSoknader(kafkaMessage)
@@ -399,13 +399,45 @@ class Overlapp(
                     sok.tom.isAfterOrEqual(sykPeriode.endInclusive)
                 ) {
                     log.info("Det er innsendt en eldre sykmelding $sykmeldingId som overlapper med ${sok.status} soknad ${sok.id}, den overlappende delen starter inni og slutter samtidig eller etter")
+
+                    klippMetrikk.klippMetrikk(
+                        klippMetrikkVariant = KlippVariant.SYKMELDING_STARTER_INNI_SLUTTER_ETTER,
+                        soknadstatus = sok.status.toString(),
+                        sykmeldingId = sykmeldingId,
+                        eksisterendeSykepengesoknadId = sok.id,
+                        klippet = false,
+                        endringIUforegrad = finnEndringIUforegrad(
+                            tidligerePerioder = sok.soknadPerioder!!.filter {
+                                sykPeriode.overlap(it.fom..it.tom)
+                            },
+                            nyePerioder = sykmeldingPerioder.filter {
+                                sokPeriode.overlap(it.fom..it.tom)
+                            }.tilSoknadsperioder()
+                        )
+                    )
                 }
 
                 if (sokPeriode.overlap(sykPeriode) &&
                     sok.fom.isBeforeOrEqual(sykPeriode.start) &&
                     sok.tom.isBefore(sykPeriode.endInclusive)
                 ) {
-                    log.info("Det er innsendt en eldre sykmelding $sykmeldingId som overlapper med ${sok.status} soknad ${sok.id}, den overlappende delen starter før eller samtidig og slutter etter")
+                    log.info("Det er innsendt en eldre sykmelding $sykmeldingId som overlapper med ${sok.status} soknad ${sok.id}, den overlappende delen starter før eller samtidig og slutter inni")
+
+                    klippMetrikk.klippMetrikk(
+                        klippMetrikkVariant = KlippVariant.SYKMELDING_STARTER_FOR_SLUTTER_INNI,
+                        soknadstatus = sok.status.toString(),
+                        sykmeldingId = sykmeldingId,
+                        eksisterendeSykepengesoknadId = sok.id,
+                        klippet = false,
+                        endringIUforegrad = finnEndringIUforegrad(
+                            tidligerePerioder = sok.soknadPerioder!!.filter {
+                                sykPeriode.overlap(it.fom..it.tom)
+                            },
+                            nyePerioder = sykmeldingPerioder.filter {
+                                sokPeriode.overlap(it.fom..it.tom)
+                            }.tilSoknadsperioder()
+                        )
+                    )
                 }
 
                 if (sokPeriode.overlap(sykPeriode) &&
@@ -413,6 +445,22 @@ class Overlapp(
                     sok.tom.isAfterOrEqual(sykPeriode.endInclusive)
                 ) {
                     log.info("Det er innsendt en eldre sykmelding $sykmeldingId som overlapper med ${sok.status} soknad ${sok.id}, den overlappende delen starter før eller samtidig og slutter samtidig eller etter")
+
+                    klippMetrikk.klippMetrikk(
+                        klippMetrikkVariant = KlippVariant.SYKMELDING_STARTER_FOR_SLUTTER_ETTER,
+                        soknadstatus = sok.status.toString(),
+                        sykmeldingId = sykmeldingId,
+                        eksisterendeSykepengesoknadId = sok.id,
+                        klippet = false,
+                        endringIUforegrad = finnEndringIUforegrad(
+                            tidligerePerioder = sok.soknadPerioder!!.filter {
+                                sykPeriode.overlap(it.fom..it.tom)
+                            },
+                            nyePerioder = sykmeldingPerioder.filter {
+                                sokPeriode.overlap(it.fom..it.tom)
+                            }.tilSoknadsperioder()
+                        )
+                    )
                 }
 
                 if (sokPeriode.overlap(sykPeriode) &&
@@ -420,6 +468,22 @@ class Overlapp(
                     sok.tom.isBefore(sykPeriode.endInclusive)
                 ) {
                     log.info("Det er innsendt en eldre sykmelding $sykmeldingId som overlapper med ${sok.status} soknad ${sok.id}, den overlappende delen starter og slutter inni")
+
+                    klippMetrikk.klippMetrikk(
+                        klippMetrikkVariant = KlippVariant.SYKMELDING_STARTER_INNI_SLUTTER_INNI,
+                        soknadstatus = sok.status.toString(),
+                        sykmeldingId = sykmeldingId,
+                        eksisterendeSykepengesoknadId = sok.id,
+                        klippet = false,
+                        endringIUforegrad = finnEndringIUforegrad(
+                            tidligerePerioder = sok.soknadPerioder!!.filter {
+                                sykPeriode.overlap(it.fom..it.tom)
+                            },
+                            nyePerioder = sykmeldingPerioder.filter {
+                                sokPeriode.overlap(it.fom..it.tom)
+                            }.tilSoknadsperioder()
+                        )
+                    )
                 }
             }
     }

@@ -113,12 +113,13 @@ fun skapArbeidsgiverSykmelding(
         )
     ),
     merknader: List<Merknad>? = null,
-    utenlandskSykemelding: UtenlandskSykmeldingAGDTO? = null
+    utenlandskSykemelding: UtenlandskSykmeldingAGDTO? = null,
+    sykmeldingSkrevet: OffsetDateTime = OffsetDateTime.now(ZoneOffset.UTC)
 ): ArbeidsgiverSykmelding {
     return ArbeidsgiverSykmelding(
         id = sykmeldingId,
         sykmeldingsperioder = sykmeldingsperioder,
-        behandletTidspunkt = OffsetDateTime.now(ZoneOffset.UTC),
+        behandletTidspunkt = sykmeldingSkrevet,
         mottattTidspunkt = OffsetDateTime.now(ZoneOffset.UTC),
         arbeidsgiver = ArbeidsgiverAGDTO(null, null),
         syketilfelleStartDato = null,
@@ -233,7 +234,8 @@ fun sykmeldingKafkaMessage(
         tom = LocalDate.of(2020, 2, 15)
     ),
     merknader: List<Merknad>? = null,
-    utenlandskSykemelding: UtenlandskSykmeldingAGDTO? = null
+    utenlandskSykemelding: UtenlandskSykmeldingAGDTO? = null,
+    sykmeldingSkrevet: OffsetDateTime = timestamp
 ): SykmeldingKafkaMessage {
     val faktiskArbeidsgiver = if (arbeidssituasjon == Arbeidssituasjon.ARBEIDSTAKER) {
         arbeidsgiver!!
@@ -257,7 +259,8 @@ fun sykmeldingKafkaMessage(
         sykmeldingId = sykmeldingId,
         sykmeldingsperioder = sykmeldingsperioder,
         merknader = merknader,
-        utenlandskSykemelding = utenlandskSykemelding
+        utenlandskSykemelding = utenlandskSykemelding,
+        sykmeldingSkrevet = sykmeldingSkrevet
     )
 
     return SykmeldingKafkaMessage(
