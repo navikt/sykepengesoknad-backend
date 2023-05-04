@@ -236,7 +236,7 @@ class OverlapperFor : BaseTestClass() {
     }
 
     @Test
-    fun `Ny arbeidstakersøknad starter før og slutter inni og eldre sykmelding sendes sist, har klipp metrikk`() {
+    fun `Ny arbeidstakersøknad starter før og slutter inni og eldre sykmelding sendes sist, klippes`() {
         val fnr = "66666677777"
         val sykmeldingSkrevet = OffsetDateTime.now()
 
@@ -261,19 +261,17 @@ class OverlapperFor : BaseTestClass() {
             )
         ).last()
 
-        // Denne kan klippes
         overlappendeSoknad.fom shouldBeEqualTo basisdato.minusDays(10)
-        overlappendeSoknad.tom shouldBeEqualTo basisdato.minusDays(2)
+        overlappendeSoknad.tom shouldBeEqualTo basisdato.minusDays(6)
         overlappendeSoknad.status shouldBeEqualTo SoknadsstatusDTO.NY
-        hentSoknad(overlappendeSoknad.id, fnr).klippet shouldBeEqualTo false
 
-        val klippmetrikker = klippMetrikkRepository.findAll().toList().sortedBy { it.variant }
+        val klippmetrikker = klippMetrikkRepository.findAll().toList()
         klippmetrikker shouldHaveSize 1
 
         klippmetrikker[0].soknadstatus `should be equal to` "NY"
         klippmetrikker[0].variant `should be equal to` "SYKMELDING_STARTER_INNI_SLUTTER_ETTER"
         klippmetrikker[0].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
-        klippmetrikker[0].klippet `should be equal to` false
+        klippmetrikker[0].klippet `should be equal to` true
     }
 
     @Test
