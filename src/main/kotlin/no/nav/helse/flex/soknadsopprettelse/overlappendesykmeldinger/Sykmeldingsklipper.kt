@@ -42,6 +42,10 @@ class Sykmeldingsklipper(
                 return@map it
             }
 
+        if (nyeSykmeldingPerioder.isEmpty()) {
+            throw RuntimeException("Kan ikke klippe sykmelding $sykmeldingId med fullstendig overlappende perioder")
+        }
+
         klippetSykepengesoknadRepository.save(
             KlippetSykepengesoknadDbRecord(
                 sykepengesoknadUuid = sok.id,
@@ -76,6 +80,10 @@ class Sykmeldingsklipper(
 
                 return@map it
             }
+
+        if (nyeSykmeldingPerioder.isEmpty()) {
+            throw RuntimeException("Kan ikke klippe sykmelding $sykmeldingId med fullstendig overlappende perioder")
+        }
 
         klippetSykepengesoknadRepository.save(
             KlippetSykepengesoknadDbRecord(

@@ -299,10 +299,6 @@ class Overlapp(
                 }
             }
 
-        if (sykmeldingPerioder.isEmpty()) {
-            throw RuntimeException("Kan ikke klippe sykmelding $sykmeldingId med fullstendig overlappende perioder")
-        }
-
         if (sykmeldingPerioder == sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder) {
             return sykmeldingKafkaMessage
         }
@@ -359,10 +355,6 @@ class Overlapp(
                     }
                 }
             }
-
-        if (sykmeldingPerioder.isEmpty()) {
-            throw RuntimeException("Kan ikke klippe sykmelding $sykmeldingId med fullstendig overlappende perioder")
-        }
 
         if (sykmeldingPerioder == sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder) {
             return sykmeldingKafkaMessage
