@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
+import java.time.OffsetDateTime
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class OverlapperInni : BaseTestClass() {
@@ -148,5 +149,38 @@ class OverlapperInni : BaseTestClass() {
             ?.first()
         periodeSpmSok3?.min shouldBeEqualTo basisDato.minusDays(9).toString()
         periodeSpmSok3?.max shouldBeEqualTo basisDato.minusDays(1).toString()
+    }
+
+    @Test
+    fun `Eldre sykmelding overlapper inni fremtidig søknad, lagrer klipp metrikk`() {
+        val sykmeldingSkrevet = OffsetDateTime.now()
+
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = basisDato.minusDays(10),
+                    tom = basisDato.plusDays(10)
+                ),
+                sykmeldingSkrevet = sykmeldingSkrevet
+            )
+        )
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = basisDato.minusDays(5),
+                    tom = basisDato.plusDays(5)
+                ),
+                sykmeldingSkrevet = sykmeldingSkrevet.minusHours(1)
+            )
+        )
+
+        val klippmetrikker = klippMetrikkRepository.findAll().toList()
+        klippmetrikker shouldHaveSize 1
+        klippmetrikker[0].soknadstatus shouldBeEqualTo "FREMTIDIG"
+        klippmetrikker[0].variant shouldBeEqualTo "SYKMELDING_STARTER_FOR_SLUTTER_ETTER"
+        klippmetrikker[0].endringIUforegrad shouldBeEqualTo "SAMME_UFØREGRAD"
+        klippmetrikker[0].klippet shouldBeEqualTo false
     }
 }
