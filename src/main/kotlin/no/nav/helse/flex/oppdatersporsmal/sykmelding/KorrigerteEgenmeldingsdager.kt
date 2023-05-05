@@ -33,6 +33,7 @@ class KorrigerteEgenmeldingsdager(
             val sendteSoknader = sykepengesoknadDAO
                 .finnSykepengesoknader(identer)
                 .filter { it.status == Soknadstatus.SENDT }
+                .filter { it.fom != null }
                 .sortedBy { it.fom }
 
             val forsteSoknadForSykmeldingenBleBeregnetTilInnenforArbeidsgiverperioden = sendteSoknader.firstOrNull {
