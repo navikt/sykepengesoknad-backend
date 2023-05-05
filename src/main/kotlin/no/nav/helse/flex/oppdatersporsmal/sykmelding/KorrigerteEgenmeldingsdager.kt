@@ -23,33 +23,44 @@ class KorrigerteEgenmeldingsdager(
     val log = logger()
 
     fun ettersendSoknaderTilNav(sykmeldingKafkaMessage: SykmeldingKafkaMessage) {
-        val sykmeldingId = sykmeldingKafkaMessage.sykmelding.id
-        val fnr = sykmeldingKafkaMessage.kafkaMetadata.fnr
-        val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(fnr)
+        try {
+            val sykmeldingId = sykmeldingKafkaMessage.sykmelding.id
+            val fnr = sykmeldingKafkaMessage.kafkaMetadata.fnr
+            val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(fnr)
 
-        log.info("Sykmelding $sykmeldingId har fått oppdaterte svar, sjekker om søknader skal ettersendes til NAV")
+            log.info("Sykmelding $sykmeldingId har fått oppdaterte svar, sjekker om søknader skal ettersendes til NAV")
 
-        val sendteSoknader = sykepengesoknadDAO
-            .finnSykepengesoknader(identer)
-            .filter { it.status == Soknadstatus.SENDT }
-            .sortedBy { it.fom }
+            val sendteSoknader = sykepengesoknadDAO
+                .finnSykepengesoknader(identer)
+                .filter { it.status == Soknadstatus.SENDT }
+                .sortedBy { it.fom }
 
-        val forsteSoknadForSykmeldingenBleBeregnetTilInnenforArbeidsgiverperioden = sendteSoknader.firstOrNull {
-            it.sykmeldingId == sykmeldingId && it.beregnetTilKunInnenforArbeidsgiverperioden()
-        }
-        if (forsteSoknadForSykmeldingenBleBeregnetTilInnenforArbeidsgiverperioden == null) {
-            log.info("Søknader for sykmelding $sykmeldingId skal ikke ettersendes til NAV")
-            return
-        }
-
-        sendteSoknader
-            .filter { it.arbeidsgiverOrgnummer == forsteSoknadForSykmeldingenBleBeregnetTilInnenforArbeidsgiverperioden.arbeidsgiverOrgnummer }
-            .filter { it.beregnetTilKunInnenforArbeidsgiverperioden() }
-            .filter { mottakerAvSoknadService.finnMottakerAvSoknad(it, identer, sykmeldingKafkaMessage) != Mottaker.ARBEIDSGIVER }
-            .forEach {
-                log.info("Ettersender søknad ${it.id} til NAV")
-                ettersendingSoknadService.ettersendTilNav(it)
+            val forsteSoknadForSykmeldingenBleBeregnetTilInnenforArbeidsgiverperioden = sendteSoknader.firstOrNull {
+                it.sykmeldingId == sykmeldingId && it.beregnetTilKunInnenforArbeidsgiverperioden()
             }
+            if (forsteSoknadForSykmeldingenBleBeregnetTilInnenforArbeidsgiverperioden == null) {
+                log.info("Søknader for sykmelding $sykmeldingId skal ikke ettersendes til NAV")
+                return
+            }
+
+            sendteSoknader
+                .filter { it.arbeidsgiverOrgnummer == forsteSoknadForSykmeldingenBleBeregnetTilInnenforArbeidsgiverperioden.arbeidsgiverOrgnummer }
+                .filter { it.beregnetTilKunInnenforArbeidsgiverperioden() }
+                .filter {
+                    mottakerAvSoknadService.finnMottakerAvSoknad(
+                        it,
+                        identer,
+                        sykmeldingKafkaMessage
+                    ) != Mottaker.ARBEIDSGIVER
+                }
+                .forEach {
+                    log.info("Ettersender søknad ${it.id} til NAV")
+                    ettersendingSoknadService.ettersendTilNav(it)
+                }
+        } catch (e: Exception) {
+            log.error("Feil ved ettersending av søknader til NAV", e)
+            throw e
+        }
     }
 
     private fun Sykepengesoknad.beregnetTilKunInnenforArbeidsgiverperioden(): Boolean {
