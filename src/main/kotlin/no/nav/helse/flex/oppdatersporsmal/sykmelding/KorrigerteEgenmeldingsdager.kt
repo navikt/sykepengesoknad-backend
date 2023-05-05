@@ -65,6 +65,6 @@ class KorrigerteEgenmeldingsdager(
     }
 
     private fun Sykepengesoknad.beregnetTilKunInnenforArbeidsgiverperioden(): Boolean {
-        return sendtNav == null || sendtNav.isAfter(sendtArbeidsgiver)
+        return sendtNav == null || (sendtArbeidsgiver != null && sendtNav.isAfter(sendtArbeidsgiver))
     }
 }
