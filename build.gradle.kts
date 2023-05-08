@@ -45,7 +45,7 @@ val ojdbc8Version = "19.3.0.0"
 val avroVersion = "1.11.1"
 val logstashLogbackEncoderVersion = "7.3"
 val testContainersVersion = "1.18.0"
-val kluentVersion = "1.72"
+val kluentVersion = "1.73"
 val jsonSchemaValidatorVersion = "1.0.81"
 
 dependencies {
