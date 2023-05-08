@@ -46,7 +46,7 @@ val avroVersion = "1.11.1"
 val logstashLogbackEncoderVersion = "7.3"
 val testContainersVersion = "1.18.0"
 val kluentVersion = "1.72"
-val jsonSchemaValidatorVersion = "1.0.80"
+val jsonSchemaValidatorVersion = "1.0.81"
 
 dependencies {
     implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
