@@ -11,7 +11,6 @@ external-host:
   - pdl-api.prod-fss-pub.nais.io
   - flex-fss-proxy.prod-fss-pub.nais.io
   - ereg-services.prod-fss-pub.nais.io
-  - syfo-tilgangskontroll.prod-fss-pub.nais.io
 env:
   SPRING_PROFILES_ACTIVE: default,sykmeldinger
   PDL_BASE_URL: https://pdl-api.prod-fss-pub.nais.io
@@ -19,8 +18,8 @@ env:
   FASIT_ENVIRONMENT_NAME: "p"
   SYKEPENGESOKNAD_KVITTERINGER_URL: "http://sykepengesoknad-kvitteringer"
   SYKEPENGESOKNAD_KVITTERINGER_TOKENX_CLIENT_ID: prod-gcp:flex:sykepengesoknad-kvitteringer
-  SYFOTILGANGSKONTROLL_URL: "https://syfo-tilgangskontroll.prod-fss-pub.nais.io"
-  SYFOTILGANGSKONTROLL_AAD_CLIENT_ID: prod-fss.teamsykefravr.syfo-tilgangskontroll
+  SYFOTILGANGSKONTROLL_URL: "http://syfo-tilgangskontroll.teamsykefravr"
+  SYFOTILGANGSKONTROLL_AAD_CLIENT_ID: prod-gcp.teamsykefravr.syfo-tilgangskontroll
   FLEX_SYKETILFELLE_URL: "http://flex-syketilfelle"
   FLEX_SYKETILFELLE_AAD_CLIENT_ID: prod-gcp.flex.flex-syketilfelle
   SKRIVEMODUS: READWRITE
