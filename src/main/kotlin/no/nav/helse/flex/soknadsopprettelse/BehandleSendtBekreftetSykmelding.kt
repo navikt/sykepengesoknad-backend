@@ -41,7 +41,7 @@ class BehandleSendtBekreftetSykmelding(
         try {
             return prosseserKafkaMessage(sykmeldingKafkaMessage)
         } catch (e: SkalRebehandlesException) {
-            logger().error(
+            log.error(
                 "Feil under opprettelse av søknad for sykmelding ${sykmeldingKafkaMessage.event.sykmeldingId}, legger til rebehandling ${e.rebehandlingsTid}",
                 e
             )
