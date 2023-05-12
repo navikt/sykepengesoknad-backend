@@ -118,4 +118,62 @@ class Sykmeldingsklipper(
         )
         return emptyList()
     }
+
+    fun klippSykmeldingSomOverlapperFullstendig(
+        sykmeldingId: String,
+        sok: Sykepengesoknad,
+        sykPeriode: ClosedRange<LocalDate>,
+        sokPeriode: ClosedRange<LocalDate>,
+        sykmeldingPerioder: List<SykmeldingsperiodeAGDTO>
+    ): List<SykmeldingsperiodeAGDTO> {
+        log.info("Sykmelding $sykmeldingId overlapper ${sok.status} søknad ${sok.id} fullstendig")
+
+        val nyeSykmeldingPerioder = sykmeldingPerioder
+            .filterNot { it.fom in sokPeriode && it.tom in sokPeriode }
+            .flatMap {
+                if (it.tom in sokPeriode) {
+                    return@flatMap listOf(
+                        it.copy(
+                            tom = sokPeriode.start.minusDays(1)
+                        )
+                    )
+                }
+                if (it.fom in sokPeriode) {
+                    return@flatMap listOf(
+                        it.copy(
+                            fom = sokPeriode.endInclusive.plusDays(1)
+                        )
+                    )
+                }
+                if ((it.fom..it.tom).overlap(sokPeriode)) {
+                    return@flatMap listOf(
+                        it.copy(
+                            tom = sokPeriode.start.minusDays(1)
+                        ),
+                        it.copy(
+                            fom = sokPeriode.endInclusive.plusDays(1)
+                        )
+                    )
+                }
+
+                return@flatMap listOf(it)
+            }
+
+        if (nyeSykmeldingPerioder.isEmpty()) {
+            throw RuntimeException("Kan ikke klippe sykmelding $sykmeldingId med fullstendig overlappende perioder")
+        }
+
+        klippetSykepengesoknadRepository.save(
+            KlippetSykepengesoknadDbRecord(
+                sykepengesoknadUuid = sok.id,
+                sykmeldingUuid = sykmeldingId,
+                klippVariant = KlippVariant.SYKMELDING_STARTER_INNI_SLUTTER_INNI,
+                periodeFor = sykmeldingPerioder.tilSoknadsperioder().serialisertTilString(),
+                periodeEtter = nyeSykmeldingPerioder.tilSoknadsperioder().serialisertTilString(),
+                timestamp = Instant.now()
+            )
+        )
+
+        return nyeSykmeldingPerioder
+    }
 }

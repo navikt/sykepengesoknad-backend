@@ -324,7 +324,8 @@ class OverlapperFullstendig : BaseTestClass() {
                     tom = basisdato.plusDays(10)
                 ),
                 sykmeldingSkrevet = sykmeldingSkrevet.minusHours(1)
-            )
+            ),
+            forventaSoknader = 2
         ).also { meldingerPaKafka.addAll(it) }
 
         meldingerPaKafka[0].status shouldBeEqualTo SoknadsstatusDTO.FREMTIDIG
@@ -332,8 +333,12 @@ class OverlapperFullstendig : BaseTestClass() {
         meldingerPaKafka[0].tom shouldBeEqualTo basisdato.plusDays(5)
 
         // Denne kan klippes i 2 søknader
+        meldingerPaKafka[2].status shouldBeEqualTo SoknadsstatusDTO.NY
+        meldingerPaKafka[2].fom shouldBeEqualTo basisdato.minusDays(10)
+        meldingerPaKafka[2].tom shouldBeEqualTo basisdato.minusDays(6)
+
         meldingerPaKafka[1].status shouldBeEqualTo SoknadsstatusDTO.FREMTIDIG
-        meldingerPaKafka[1].fom shouldBeEqualTo basisdato.minusDays(10)
+        meldingerPaKafka[1].fom shouldBeEqualTo basisdato.plusDays(6)
         meldingerPaKafka[1].tom shouldBeEqualTo basisdato.plusDays(10)
 
         val klippmetrikker = klippMetrikkRepository.findAll().toList().sortedBy { it.variant }
@@ -342,6 +347,6 @@ class OverlapperFullstendig : BaseTestClass() {
         klippmetrikker[0].soknadstatus `should be equal to` "FREMTIDIG"
         klippmetrikker[0].variant `should be equal to` "SYKMELDING_STARTER_INNI_SLUTTER_INNI"
         klippmetrikker[0].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
-        klippmetrikker[0].klippet `should be equal to` false
+        klippmetrikker[0].klippet `should be equal to` true
     }
 }

@@ -487,7 +487,7 @@ class Overlapp(
                         soknadstatus = sok.status.toString(),
                         sykmeldingId = sykmeldingId,
                         eksisterendeSykepengesoknadId = sok.id,
-                        klippet = false,
+                        klippet = true,
                         endringIUforegrad = finnEndringIUforegrad(
                             tidligerePerioder = sok.soknadPerioder!!.filter {
                                 sykPeriode.overlap(it.fom..it.tom)
@@ -496,6 +496,13 @@ class Overlapp(
                                 sokPeriode.overlap(it.fom..it.tom)
                             }.tilSoknadsperioder()
                         )
+                    )
+                    sykmeldingPerioder = sykmeldingsklipper.klippSykmeldingSomOverlapperFullstendig(
+                        sykmeldingId,
+                        sok,
+                        sykPeriode,
+                        sokPeriode,
+                        sykmeldingPerioder
                     )
                 }
             }
