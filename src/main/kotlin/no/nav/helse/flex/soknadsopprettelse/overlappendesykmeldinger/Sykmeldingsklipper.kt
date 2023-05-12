@@ -98,4 +98,24 @@ class Sykmeldingsklipper(
 
         return nyeSykmeldingPerioder
     }
+
+    fun klippSykmeldingSomOverlapperInni(
+        sykmeldingId: String,
+        sok: Sykepengesoknad,
+        sykmeldingPerioder: List<SykmeldingsperiodeAGDTO>
+    ): List<SykmeldingsperiodeAGDTO> {
+        log.info("Sykmelding $sykmeldingId overlapper ${sok.status} søknad ${sok.id} inni og skal ikke ha søknad")
+
+        klippetSykepengesoknadRepository.save(
+            KlippetSykepengesoknadDbRecord(
+                sykepengesoknadUuid = sok.id,
+                sykmeldingUuid = sykmeldingId,
+                klippVariant = KlippVariant.SYKMELDING_STARTER_FOR_SLUTTER_ETTER,
+                periodeFor = sykmeldingPerioder.tilSoknadsperioder().serialisertTilString(),
+                periodeEtter = null,
+                timestamp = Instant.now()
+            )
+        )
+        return emptyList()
+    }
 }
