@@ -68,6 +68,8 @@ spec:
         - application: flex-syketilfelle
         - application: yrkesskade-saker
           namespace: yrkesskade
+        - application: syfo-tilgangskontroll
+          namespace: teamsykefravr
       external:
   {{#each external-host}}
         - host: {{this}}
