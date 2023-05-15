@@ -332,7 +332,6 @@ class OverlapperFullstendig : BaseTestClass() {
         meldingerPaKafka[0].fom shouldBeEqualTo basisdato.minusDays(5)
         meldingerPaKafka[0].tom shouldBeEqualTo basisdato.plusDays(5)
 
-        // Denne kan klippes i 2 søknader
         meldingerPaKafka[2].status shouldBeEqualTo SoknadsstatusDTO.NY
         meldingerPaKafka[2].fom shouldBeEqualTo basisdato.minusDays(10)
         meldingerPaKafka[2].tom shouldBeEqualTo basisdato.minusDays(6)
@@ -387,7 +386,6 @@ class OverlapperFullstendig : BaseTestClass() {
         meldingerPaKafka[0].fom shouldBeEqualTo basisdato.minusDays(5)
         meldingerPaKafka[0].tom shouldBeEqualTo basisdato.plusDays(5)
 
-        // Denne kan klippes i 2 søknader
         meldingerPaKafka[2].status shouldBeEqualTo SoknadsstatusDTO.NY
         meldingerPaKafka[2].fom shouldBeEqualTo basisdato.minusDays(10)
         meldingerPaKafka[2].tom shouldBeEqualTo basisdato.minusDays(6)

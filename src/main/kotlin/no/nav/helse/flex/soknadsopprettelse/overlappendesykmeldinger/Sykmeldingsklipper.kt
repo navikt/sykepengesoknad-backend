@@ -160,7 +160,7 @@ class Sykmeldingsklipper(
             }
 
         if (nyeSykmeldingPerioder.isEmpty()) {
-            throw RuntimeException("Kan ikke klippe sykmelding $sykmeldingId med fullstendig overlappende perioder")
+            throw RuntimeException("Kan ikke klippe sykmelding $sykmeldingId med eksakt overlappende perioder")
         }
 
         klippetSykepengesoknadRepository.save(
