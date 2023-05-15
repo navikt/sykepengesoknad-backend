@@ -149,7 +149,7 @@ class OverlapperInni : BaseTestClass() {
     }
 
     @Test
-    fun `Eldre sykmelding overlapper inni fremtidig søknad, lagrer klipp metrikk`() {
+    fun `Eldre sykmelding overlapper inni fremtidig søknad, klippes`() {
         val sykmeldingSkrevet = OffsetDateTime.now()
 
         sendSykmelding(
