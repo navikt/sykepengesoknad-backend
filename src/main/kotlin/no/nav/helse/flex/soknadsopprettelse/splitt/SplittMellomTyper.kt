@@ -30,7 +30,9 @@ fun ArbeidsgiverSykmelding.splittMellomTyper(): List<ArbeidsgiverSykmelding> {
 }
 
 private fun ArbeidsgiverSykmelding.erKompatibel(nestePeriode: SykmeldingsperiodeAGDTO): Boolean {
-    return sykmeldingsperioder.last().erGradertEller100Prosent() && nestePeriode.erGradertEller100Prosent()
+    return sykmeldingsperioder.last().erGradertEller100Prosent() &&
+        nestePeriode.erGradertEller100Prosent() &&
+        sykmeldingsperioder.last().tom.plusDays(1) == nestePeriode.fom
 }
 
 private fun SykmeldingsperiodeAGDTO.erAktivitetIkkeMulig(): Boolean {
