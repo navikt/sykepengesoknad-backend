@@ -1,8 +1,11 @@
 package no.nav.helse.flex.overlappendesykmeldinger
 
-import no.nav.helse.flex.*
+import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
+import no.nav.helse.flex.hentSoknad
+import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.repository.KlippMetrikkRepository
+import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.soknadsopprettelse.FERIE_V2
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
@@ -149,7 +152,7 @@ class OverlapperInni : BaseTestClass() {
     }
 
     @Test
-    fun `Eldre sykmelding overlapper inni fremtidig søknad, klippes`() {
+    fun `Eldre sykmelding overlapper inni fremtidig søknad, lagrer klipp metrikk`() {
         val sykmeldingSkrevet = OffsetDateTime.now()
 
         sendSykmelding(
@@ -170,8 +173,7 @@ class OverlapperInni : BaseTestClass() {
                     tom = basisDato.plusDays(5)
                 ),
                 sykmeldingSkrevet = sykmeldingSkrevet.minusHours(1)
-            ),
-            forventaSoknader = 0
+            )
         )
 
         val klippmetrikker = klippMetrikkRepository.findAll().toList()
@@ -179,11 +181,6 @@ class OverlapperInni : BaseTestClass() {
         klippmetrikker[0].soknadstatus shouldBeEqualTo "FREMTIDIG"
         klippmetrikker[0].variant shouldBeEqualTo "SYKMELDING_STARTER_FOR_SLUTTER_ETTER"
         klippmetrikker[0].endringIUforegrad shouldBeEqualTo "SAMME_UFØREGRAD"
-        klippmetrikker[0].klippet shouldBeEqualTo true
-
-        val soknader = hentSoknader(fnr)
-        soknader shouldHaveSize 1
-        soknader[0].fom shouldBeEqualTo basisDato.minusDays(10)
-        soknader[0].tom shouldBeEqualTo basisDato.plusDays(10)
+        klippmetrikker[0].klippet shouldBeEqualTo false
     }
 }
