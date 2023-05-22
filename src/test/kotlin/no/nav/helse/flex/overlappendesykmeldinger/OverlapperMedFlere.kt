@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.Instant
 import java.time.LocalDate
+import java.time.OffsetDateTime
 import java.util.*
 
 class OverlapperMedFlere : BaseTestClass() {
@@ -561,6 +562,88 @@ class OverlapperMedFlere : BaseTestClass() {
         )
     }
 
+    @Test
+    fun `Eldre sykmelding overlapper både fullstendig og delvis`() {
+        val sykmeldingSkrevet = OffsetDateTime.now()
+        val overlappendeSoknad = Soknad(
+            sykmeldingSkrevet = sykmeldingSkrevet.minusDays(1),
+            soknadPerioder = listOf(
+                Soknadsperiode(
+                    fom = LocalDate.of(2022, 1, 1),
+                    tom = LocalDate.of(2022, 1, 10),
+                    grad = 100,
+                    sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
+                )
+            )
+        )
+
+        overlappTester.testKlipp(
+            dagensDato = LocalDate.of(2022, 1, 1),
+            eksisterendeSoknader = listOf(
+                Soknad(
+                    sykmeldingSkrevet = sykmeldingSkrevet,
+                    soknadPerioder = listOf(
+                        Soknadsperiode(
+                            fom = LocalDate.of(2022, 1, 1),
+                            tom = LocalDate.of(2022, 1, 10),
+                            grad = 50,
+                            sykmeldingstype = Sykmeldingstype.GRADERT
+                        )
+                    )
+                ),
+                Soknad(
+                    sykmeldingSkrevet = sykmeldingSkrevet,
+                    soknadPerioder = listOf(
+                        Soknadsperiode(
+                            fom = LocalDate.of(2022, 1, 5),
+                            tom = LocalDate.of(2022, 1, 20),
+                            grad = 100,
+                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
+                        )
+                    )
+                )
+            ),
+            overlappendeSoknad = overlappendeSoknad,
+            forventetResultat = listOf(
+                Soknad(
+                    status = Soknadstatus.FREMTIDIG,
+                    soknadPerioder = listOf(
+                        Soknadsperiode(
+                            fom = LocalDate.of(2022, 1, 1),
+                            tom = LocalDate.of(2022, 1, 10),
+                            grad = 50,
+                            sykmeldingstype = Sykmeldingstype.GRADERT
+                        )
+                    )
+                ),
+                Soknad(
+                    status = Soknadstatus.FREMTIDIG,
+                    soknadPerioder = listOf(
+                        Soknadsperiode(
+                            fom = LocalDate.of(2022, 1, 5),
+                            tom = LocalDate.of(2022, 1, 20),
+                            grad = 100,
+                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
+                        )
+                    )
+                )
+            ),
+            forventaSoknadPaKafka = 0
+        )
+
+        // Siden den forventer 0 søknader på kafka så må vi dobbeltsjekke at den ikke har feilet på noe
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = "fnr",
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = overlappendeSoknad.soknadPerioder.minOf { it.fom }.plusYears(1),
+                    tom = overlappendeSoknad.soknadPerioder.maxOf { it.tom }.plusYears(1)
+                )
+            ),
+            forventaSoknader = 1
+        )
+    }
+
     private class OverlappTester(
         private val soknadLagrer: SoknadLagrer,
         private val sykepengesoknadDAO: SykepengesoknadDAO,
@@ -570,7 +653,8 @@ class OverlapperMedFlere : BaseTestClass() {
         data class Soknad(
             val soknadPerioder: List<Soknadsperiode>,
             val status: Soknadstatus = Soknadstatus.FREMTIDIG,
-            val traceId: String = UUID.randomUUID().toString()
+            val traceId: String = UUID.randomUUID().toString(),
+            val sykmeldingSkrevet: OffsetDateTime? = null
         )
 
         fun testKlipp(
@@ -588,6 +672,7 @@ class OverlapperMedFlere : BaseTestClass() {
                 sykmeldingKafkaMessage(
                     fnr = "fnr",
                     sykmeldingId = overlappendeSoknad.traceId,
+                    sykmeldingSkrevet = overlappendeSoknad.sykmeldingSkrevet ?: OffsetDateTime.now(),
                     sykmeldingsperioder = if (overlappendeSoknad.soknadPerioder.any { it.grad != 100 }) {
                         gradertSykmeldt(
                             fom = overlappendeSoknad.soknadPerioder.minOf { it.fom },
@@ -627,7 +712,7 @@ class OverlapperMedFlere : BaseTestClass() {
                     fom = soknad.soknadPerioder.minOf { it.fom },
                     tom = soknad.soknadPerioder.maxOf { it.tom },
                     startSykeforlop = soknad.soknadPerioder.minOf { it.fom },
-                    sykmeldingSkrevet = now,
+                    sykmeldingSkrevet = soknad.sykmeldingSkrevet?.toInstant() ?: now,
                     soknadPerioder = soknad.soknadPerioder,
                     arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
                     arbeidsgiverOrgnummer = "123454543",
@@ -657,13 +742,30 @@ class OverlapperMedFlere : BaseTestClass() {
 
             val faktiskResultat = sykepengesoknadDAO.finnSykepengesoknader(listOf("fnr"))
                 .sortedBy { it.fom }
-                .map { Soknad(soknadPerioder = it.soknadPerioder!!, status = it.status, traceId = it.sykmeldingId!!) }
+                .map {
+                    Soknad(
+                        soknadPerioder = it.soknadPerioder!!,
+                        status = it.status,
+                        traceId = it.sykmeldingId!!,
+                        sykmeldingSkrevet = null
+                    )
+                }
 
             if (skalPrintePerioder) {
                 printPerioder(eksisterende, overlappendeSoknad, forventetResultat, faktiskResultat)
             }
 
-            forventetResultat.map { it.copy(traceId = "") } shouldBeEqualTo faktiskResultat.map { it.copy(traceId = "") }
+            forventetResultat.map {
+                it.copy(
+                    traceId = "",
+                    sykmeldingSkrevet = null
+                )
+            } shouldBeEqualTo faktiskResultat.map {
+                it.copy(
+                    traceId = "",
+                    sykmeldingSkrevet = null
+                )
+            }
         }
 
         private fun printPerioder(
