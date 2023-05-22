@@ -302,7 +302,7 @@ class OverlapperFullstendig : BaseTestClass() {
     }
 
     @Test
-    fun `Eldre sykmelding overlapper fullstendig med fremtidig søknad og lagrer klipp metrikk`() {
+    fun `Eldre sykmelding overlapper fullstendig med fremtidig søknad, klippes`() {
         val sykmeldingSkrevet = OffsetDateTime.now()
         val meldingerPaKafka = mutableListOf<SykepengesoknadDTO>()
 
@@ -324,16 +324,20 @@ class OverlapperFullstendig : BaseTestClass() {
                     tom = basisdato.plusDays(10)
                 ),
                 sykmeldingSkrevet = sykmeldingSkrevet.minusHours(1)
-            )
+            ),
+            forventaSoknader = 2
         ).also { meldingerPaKafka.addAll(it) }
 
         meldingerPaKafka[0].status shouldBeEqualTo SoknadsstatusDTO.FREMTIDIG
         meldingerPaKafka[0].fom shouldBeEqualTo basisdato.minusDays(5)
         meldingerPaKafka[0].tom shouldBeEqualTo basisdato.plusDays(5)
 
-        // Denne kan klippes i 2 søknader
+        meldingerPaKafka[2].status shouldBeEqualTo SoknadsstatusDTO.NY
+        meldingerPaKafka[2].fom shouldBeEqualTo basisdato.minusDays(10)
+        meldingerPaKafka[2].tom shouldBeEqualTo basisdato.minusDays(6)
+
         meldingerPaKafka[1].status shouldBeEqualTo SoknadsstatusDTO.FREMTIDIG
-        meldingerPaKafka[1].fom shouldBeEqualTo basisdato.minusDays(10)
+        meldingerPaKafka[1].fom shouldBeEqualTo basisdato.plusDays(6)
         meldingerPaKafka[1].tom shouldBeEqualTo basisdato.plusDays(10)
 
         val klippmetrikker = klippMetrikkRepository.findAll().toList().sortedBy { it.variant }
@@ -342,6 +346,60 @@ class OverlapperFullstendig : BaseTestClass() {
         klippmetrikker[0].soknadstatus `should be equal to` "FREMTIDIG"
         klippmetrikker[0].variant `should be equal to` "SYKMELDING_STARTER_INNI_SLUTTER_INNI"
         klippmetrikker[0].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
-        klippmetrikker[0].klippet `should be equal to` false
+        klippmetrikker[0].klippet `should be equal to` true
+    }
+
+    @Test
+    fun `Eldre sykmelding med flere perioder overlapper fullstendig, klippes`() {
+        val sykmeldingSkrevet = OffsetDateTime.now()
+        val meldingerPaKafka = mutableListOf<SykepengesoknadDTO>()
+
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = basisdato.minusDays(5),
+                    tom = basisdato.plusDays(5)
+                ),
+                sykmeldingSkrevet = sykmeldingSkrevet
+            )
+        ).also { meldingerPaKafka.addAll(it) }
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = basisdato.minusDays(10),
+                    tom = basisdato.minusDays(2)
+                ) + gradertSykmeldt(
+                    fom = basisdato.minusDays(1),
+                    tom = basisdato.plusDays(1)
+                ) + heltSykmeldt(
+                    fom = basisdato.plusDays(2),
+                    tom = basisdato.plusDays(10)
+                ),
+                sykmeldingSkrevet = sykmeldingSkrevet.minusHours(1)
+            ),
+            forventaSoknader = 2
+        ).also { meldingerPaKafka.addAll(it) }
+
+        meldingerPaKafka[0].status shouldBeEqualTo SoknadsstatusDTO.FREMTIDIG
+        meldingerPaKafka[0].fom shouldBeEqualTo basisdato.minusDays(5)
+        meldingerPaKafka[0].tom shouldBeEqualTo basisdato.plusDays(5)
+
+        meldingerPaKafka[2].status shouldBeEqualTo SoknadsstatusDTO.NY
+        meldingerPaKafka[2].fom shouldBeEqualTo basisdato.minusDays(10)
+        meldingerPaKafka[2].tom shouldBeEqualTo basisdato.minusDays(6)
+
+        meldingerPaKafka[1].status shouldBeEqualTo SoknadsstatusDTO.FREMTIDIG
+        meldingerPaKafka[1].fom shouldBeEqualTo basisdato.plusDays(6)
+        meldingerPaKafka[1].tom shouldBeEqualTo basisdato.plusDays(10)
+
+        val klippmetrikker = klippMetrikkRepository.findAll().toList().sortedBy { it.variant }
+        klippmetrikker shouldHaveSize 1
+
+        klippmetrikker[0].soknadstatus `should be equal to` "FREMTIDIG"
+        klippmetrikker[0].variant `should be equal to` "SYKMELDING_STARTER_INNI_SLUTTER_INNI"
+        klippmetrikker[0].endringIUforegrad `should be equal to` "FLERE_PERIODER"
+        klippmetrikker[0].klippet `should be equal to` true
     }
 }
