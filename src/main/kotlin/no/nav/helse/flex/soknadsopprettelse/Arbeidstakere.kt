@@ -278,7 +278,7 @@ fun jobbetDuIPeriodenSporsmal(
             if (periode.grad == 100) {
                 jobbetDu100Prosent(periode, arbeidsgiverNavn, index)
             } else {
-                jobbetDuGradert(periode, index)
+                jobbetDuGradert(periode, arbeidsgiverNavn, index)
             }
         }
 }

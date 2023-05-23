@@ -159,7 +159,7 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
 
         assertThat(soknaden.sporsmal!!.first { it.tag == ANSVARSERKLARING }.sporsmalstekst).isEqualTo("Jeg vet at jeg kan miste retten til reisetilskudd og sykepenger hvis opplysningene jeg gir ikke er riktige eller fullstendige. Jeg vet også at NAV kan holde igjen eller kreve tilbake penger, og at å gi feil opplysninger kan være straffbart.")
         assertThat(soknaden.sporsmal!!.first { it.tag == TILBAKE_I_ARBEID }.sporsmalstekst).isEqualTo("Var du tilbake i ditt vanlige arbeid uten ekstra reiseutgifter før 7. september?")
-        assertThat(soknaden.sporsmal!!.first { it.tag == "JOBBET_DU_GRADERT_0" }.sporsmalstekst).isEqualTo("Sykmeldingen sier du kunne jobbe 50 %. Jobbet du mer enn det?")
+        assertThat(soknaden.sporsmal!!.first { it.tag == "JOBBET_DU_GRADERT_0" }.sporsmalstekst).isEqualTo("Sykmeldingen sier du kunne jobbe 50 % i jobben din hos Kebabbiten. Jobbet du mer enn det?")
         assertThat(soknaden.sporsmal!!.first { it.tag == VAER_KLAR_OVER_AT }.sporsmalstekst).isEqualTo(
             vaerKlarOverAtReisetilskudd().sporsmalstekst
         )

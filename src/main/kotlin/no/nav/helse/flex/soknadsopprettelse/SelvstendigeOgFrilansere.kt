@@ -68,7 +68,7 @@ fun jobbetDuIPeriodenSporsmalSelvstendigFrilanser(
             if (periode.grad == 100) {
                 jobbetDu100Prosent(periode, arbeidssituasjon, index)
             } else {
-                jobbetDuGradert(periode, index)
+                jobbetDuGradert(periode, "frilanser", index)
             }
         }
 }
