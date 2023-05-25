@@ -89,7 +89,7 @@ fun jobbetDuGradert(
 ): Sporsmal {
     return Sporsmal(
         tag = JOBBET_DU_GRADERT + index,
-        sporsmalstekst = "Sykmeldingen sier du kunne jobbe ${100 - periode.grad} % i jobben din som $arbeidssituasjon. Jobbet du mer enn det?",
+        sporsmalstekst = "Sykmeldingen sier du kunne jobbe ${100 - periode.grad} % som $arbeidssituasjon. Jobbet du mer enn det?",
         svartype = Svartype.JA_NEI,
         kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
         undersporsmal = jobbetDuGradertUndersporsmal(periode, 100 + 1 - periode.grad, index)
