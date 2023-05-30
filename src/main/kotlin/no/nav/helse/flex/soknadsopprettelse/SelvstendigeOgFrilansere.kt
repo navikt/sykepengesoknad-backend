@@ -1,14 +1,8 @@
 package no.nav.helse.flex.soknadsopprettelse
 
-import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.domain.Soknadsperiode
-import no.nav.helse.flex.domain.Soknadstype
-import no.nav.helse.flex.domain.Sporsmal
-import no.nav.helse.flex.domain.Svartype
+import no.nav.helse.flex.domain.*
 import no.nav.helse.flex.domain.Svartype.DATO
 import no.nav.helse.flex.domain.Svartype.JA_NEI
-import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.domain.Sykmeldingstype
 import no.nav.helse.flex.domain.Visningskriterie.JA
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.utenlandsksykmelding.utenlandskSykmeldingSporsmal
@@ -68,7 +62,7 @@ fun jobbetDuIPeriodenSporsmalSelvstendigFrilanser(
             if (periode.grad == 100) {
                 jobbetDu100Prosent(periode, arbeidssituasjon, index)
             } else {
-                jobbetDuGradert(periode, index)
+                jobbetDuGradert(periode, arbeidssituasjon, index)
             }
         }
 }
@@ -85,6 +79,20 @@ private fun jobbetDu100Prosent(periode: Soknadsperiode, arbeidssituasjon: Arbeid
         svartype = JA_NEI,
         kriterieForVisningAvUndersporsmal = JA,
         undersporsmal = jobbetDuUndersporsmal(periode, 1, index)
+    )
+}
+
+fun jobbetDuGradert(
+    periode: Soknadsperiode,
+    arbeidssituasjon: Arbeidssituasjon,
+    index: Int
+): Sporsmal {
+    return Sporsmal(
+        tag = JOBBET_DU_GRADERT + index,
+        sporsmalstekst = "Sykmeldingen sier du kunne jobbe ${100 - periode.grad} % som $arbeidssituasjon. Jobbet du mer enn det?",
+        svartype = Svartype.JA_NEI,
+        kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
+        undersporsmal = jobbetDuGradertUndersporsmal(periode, 100 + 1 - periode.grad, index)
     )
 }
 
