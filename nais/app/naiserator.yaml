@@ -70,6 +70,8 @@ spec:
           namespace: yrkesskade
         - application: syfo-tilgangskontroll
           namespace: teamsykefravr
+        - application: medlemskap-sykepenger-listener
+          namespace: medlemskap
       external:
   {{#each external-host}}
         - host: {{this}}

@@ -47,6 +47,24 @@ class AadRestTemplateConfiguration {
         )
 
     @Bean
+    fun medlemskapVurderingRestTemplate(
+        restTemplateBuilder: RestTemplateBuilder,
+        clientConfigurationProperties: ClientConfigurationProperties,
+        oAuth2AccessTokenService: OAuth2AccessTokenService
+    ): RestTemplate {
+        val registrationName = "medlemskap-vurdering-sykepenger-client-credentials"
+        val clientProperties =
+            clientConfigurationProperties.registration[registrationName]
+                ?: throw RuntimeException("Fant ikke config for $registrationName.")
+        return restTemplateBuilder
+            .setConnectTimeout(Duration.ofSeconds(2L))
+            // LovMe har intern timeout på 20 sekunder på sine kall, og trenger å gjøre en beregning før den returnerer.
+            .setReadTimeout(Duration.ofSeconds(25L))
+            .additionalInterceptors(bearerTokenInterceptor(clientProperties, oAuth2AccessTokenService))
+            .build()
+    }
+
+    @Bean
     fun syfotilgangskontrollRestTemplate(
         restTemplateBuilder: RestTemplateBuilder,
         clientConfigurationProperties: ClientConfigurationProperties,
@@ -105,7 +123,7 @@ class AadRestTemplateConfiguration {
         registrationName: String
     ): RestTemplate {
         val clientProperties = clientConfigurationProperties.registration[registrationName]
-            ?: throw RuntimeException("Fant ikke config for $registrationName")
+            ?: throw RuntimeException("Fant ikke config for $registrationName.")
         return restTemplateBuilder
             .setConnectTimeout(Duration.ofSeconds(2))
             .setReadTimeout(Duration.ofSeconds(3))
