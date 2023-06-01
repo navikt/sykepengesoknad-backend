@@ -13,7 +13,7 @@ class AndreArbeidsforholdHenting(
     val eregClient: EregClient
 ) {
 
-    fun hentArbeidsforhold(fnr: String, arbeidsgiverOrgnummer: String, startSykeforlop: LocalDate): List<String> {
+    fun hentArbeidsforhold(fnr: String, arbeidsgiverOrgnummer: String, startSykeforlop: LocalDate): List<ArbeidsforholdFraInntektskomponenten> {
         val sykmeldingOrgnummer = arbeidsgiverOrgnummer
 
         val hentInntekter = inntektskomponentenClient
@@ -43,10 +43,25 @@ class AndreArbeidsforholdHenting(
 
         return alleMånedersOrgnr
             .filter { it != sykmeldingOrgnummer }
-            .map { eregClient.hentBedrift(it) }
-            .map { it.navn.navnelinje1 }
-            .map { it.prettyOrgnavn() }
+            .map(fun(orgnr: String): ArbeidsforholdFraInntektskomponenten {
+                val hentBedrift = eregClient.hentBedrift(orgnr)
+                return ArbeidsforholdFraInntektskomponenten(
+                    orgnummer = orgnr,
+                    navn = hentBedrift.navn.navnelinje1.prettyOrgnavn(),
+                    arbeidsforholdstype = Arbeidsforholdstype.ARBEIDSTAKER
+                )
+            })
     }
 }
 
 fun LocalDate.yearMonth() = YearMonth.from(this)
+
+enum class Arbeidsforholdstype {
+    FRILANSER, ARBEIDSTAKER
+}
+
+data class ArbeidsforholdFraInntektskomponenten(
+    val orgnummer: String,
+    val navn: String,
+    val arbeidsforholdstype: Arbeidsforholdstype
+)

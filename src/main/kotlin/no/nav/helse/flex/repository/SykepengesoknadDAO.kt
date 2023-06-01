@@ -13,12 +13,9 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.exception.SlettSoknadException
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.service.FolkeregisterIdenter
+import no.nav.helse.flex.soknadsopprettelse.ArbeidsforholdFraInntektskomponenten
 import no.nav.helse.flex.soknadsopprettelse.sorterSporsmal
-import no.nav.helse.flex.util.OBJECT_MAPPER
-import no.nav.helse.flex.util.isAfterOrEqual
-import no.nav.helse.flex.util.isBeforeOrEqual
-import no.nav.helse.flex.util.osloZone
-import no.nav.helse.flex.util.tilOsloZone
+import no.nav.helse.flex.util.*
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.dao.IncorrectResultSizeDataAccessException
 import org.springframework.jdbc.core.RowMapper
@@ -486,7 +483,8 @@ class SykepengesoknadDAO(
                     merknaderFraSykmelding = resultSet.getNullableString("MERKNADER_FRA_SYKMELDING").tilMerknader(),
                     opprettetAvInntektsmelding = resultSet.getBoolean("OPPRETTET_AV_INNTEKTSMELDING"),
                     utenlandskSykmelding = resultSet.getBoolean("UTENLANDSK_SYKMELDING"),
-                    egenmeldingsdagerFraSykmelding = resultSet.getString("EGENMELDINGSDAGER_FRA_SYKMELDING")
+                    egenmeldingsdagerFraSykmelding = resultSet.getString("EGENMELDINGSDAGER_FRA_SYKMELDING"),
+                    inntektskilderDataFraInntektskomponenten = resultSet.getNullableString("INNTEKTSKILDER_DATA_FRA_INNTEKTSKOMPONENTEN")?.tilArbeidsforholdFraInntektskomponenten()
                 )
             )
         }
@@ -545,9 +543,26 @@ class SykepengesoknadDAO(
                 .addValue("sykepengesoknadId", sykepengesoknadId)
         )
     }
+
+    fun lagreInntektskilderDataFraInntektskomponenten(sykepengesoknadUuid: String, inntektskilder: List<ArbeidsforholdFraInntektskomponenten>) {
+        namedParameterJdbcTemplate.update(
+            """UPDATE SYKEPENGESOKNAD SET INNTEKTSKILDER_DATA_FRA_INNTEKTSKOMPONENTEN = :inntektskilder WHERE SYKEPENGESOKNAD_UUID = :sykepengesoknadUuid""",
+
+            MapSqlParameterSource()
+                .addValue("inntektskilder", inntektskilder.serialisertTilString())
+                .addValue("sykepengesoknadUuid", sykepengesoknadUuid)
+        )
+    }
 }
 
 private fun String?.tilMerknader(): List<Merknad>? {
+    this?.let {
+        return OBJECT_MAPPER.readValue(this)
+    }
+    return null
+}
+
+private fun String?.tilArbeidsforholdFraInntektskomponenten(): List<ArbeidsforholdFraInntektskomponenten>? {
     this?.let {
         return OBJECT_MAPPER.readValue(this)
     }

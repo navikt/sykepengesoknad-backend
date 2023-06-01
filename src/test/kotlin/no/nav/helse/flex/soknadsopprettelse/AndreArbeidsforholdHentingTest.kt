@@ -27,7 +27,7 @@ class AndreArbeidsforholdHentingTest : BaseTestClass() {
             fnr = "11111234565",
             arbeidsgiverOrgnummer = "999333667",
             startSykeforlop = LocalDate.now()
-        ) `should be equal to` listOf("Bensinstasjonen AS")
+        ).map { it.navn } `should be equal to` listOf("Bensinstasjonen AS")
     }
 
     @Test
@@ -36,7 +36,7 @@ class AndreArbeidsforholdHentingTest : BaseTestClass() {
             fnr = "22222222222",
             arbeidsgiverOrgnummer = "999333667",
             startSykeforlop = LocalDate.now()
-        ) `should be equal to` listOf("Bensinstasjonen AS", "Kiosken, avd Oslo AS")
+        ).map { it.navn } `should be equal to` listOf("Bensinstasjonen AS", "Kiosken, avd Oslo AS")
     }
 
     @Test
