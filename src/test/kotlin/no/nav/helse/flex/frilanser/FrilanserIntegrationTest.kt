@@ -23,6 +23,7 @@ import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.ventPåRecords
+import org.amshove.kluent.shouldBeNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
@@ -58,6 +59,7 @@ class FrilanserIntegrationTest : BaseTestClass() {
         assertThat(soknader).hasSize(1)
 
         val soknaden = soknader.first()
+        soknaden.inntektskilderDataFraInntektskomponenten.shouldBeNull()
         assertThat(soknaden.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
                 ANSVARSERKLARING,

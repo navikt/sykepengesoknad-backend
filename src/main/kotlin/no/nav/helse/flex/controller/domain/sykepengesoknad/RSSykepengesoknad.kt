@@ -1,5 +1,6 @@
 package no.nav.helse.flex.controller.domain.sykepengesoknad
 
+import no.nav.helse.flex.soknadsopprettelse.ArbeidsforholdFraInntektskomponenten
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -26,7 +27,8 @@ data class RSSykepengesoknad(
     val merknaderFraSykmelding: List<RSMerknad>?,
     val opprettetAvInntektsmelding: Boolean,
     val utenlandskSykmelding: Boolean,
-    val klippet: Boolean
+    val klippet: Boolean,
+    val inntektskilderDataFraInntektskomponenten: List<ArbeidsforholdFraInntektskomponenten>?
 ) {
     fun alleSporsmalOgUndersporsmal(): List<RSSporsmal> {
         return sporsmal?.flatten()?.toList() ?: emptyList()

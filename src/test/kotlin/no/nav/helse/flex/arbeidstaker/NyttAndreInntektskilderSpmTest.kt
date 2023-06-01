@@ -6,6 +6,7 @@ import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
 import no.nav.helse.flex.sendSykmelding
+import no.nav.helse.flex.soknadsopprettelse.Arbeidsforholdstype
 import no.nav.helse.flex.sykepengesoknad.kafka.InntektskildeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.InntektskildetypeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
@@ -16,6 +17,7 @@ import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.ventPåRecords
 import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
 import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.shouldHaveSize
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
@@ -51,6 +53,10 @@ class NyttAndreInntektskilderSpmTest : BaseTestClass() {
             soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
             fnr = fnr
         )
+        soknaden.inntektskilderDataFraInntektskomponenten!!.shouldHaveSize(1)
+        soknaden.inntektskilderDataFraInntektskomponenten!!.first().navn `should be equal to` "Bensinstasjonen AS"
+        soknaden.inntektskilderDataFraInntektskomponenten!!.first().orgnummer `should be equal to` "999333666"
+        soknaden.inntektskilderDataFraInntektskomponenten!!.first().arbeidsforholdstype `should be equal to` Arbeidsforholdstype.ARBEIDSTAKER
 
         soknaden.sporsmal!!.find { it.tag == "ANDRE_INNTEKTSKILDER_V2" }!!.sporsmalstekst `should be equal to` "Har du andre inntektskilder enn Matbutikken AS og Bensinstasjonen AS?"
     }

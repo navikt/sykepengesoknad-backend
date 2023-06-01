@@ -1,5 +1,6 @@
 package no.nav.helse.flex.domain
 
+import no.nav.helse.flex.soknadsopprettelse.ArbeidsforholdFraInntektskomponenten
 import java.io.Serializable
 import java.time.Instant
 import java.time.LocalDate
@@ -35,7 +36,8 @@ data class Sykepengesoknad(
     val sendt: Instant? = null,
     val utenlandskSykmelding: Boolean,
     val klippet: Boolean = false,
-    val egenmeldingsdagerFraSykmelding: String?
+    val egenmeldingsdagerFraSykmelding: String?,
+    val inntektskilderDataFraInntektskomponenten: List<ArbeidsforholdFraInntektskomponenten>? = null
 ) : Serializable {
 
     fun alleSporsmalOgUndersporsmal(): List<Sporsmal> {
