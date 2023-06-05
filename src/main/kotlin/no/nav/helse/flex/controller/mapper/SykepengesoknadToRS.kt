@@ -118,7 +118,8 @@ fun Sykepengesoknad.tilRSSykepengesoknad() = RSSykepengesoknad(
     opprettetAvInntektsmelding = this.opprettetAvInntektsmelding,
     utenlandskSykmelding = this.utenlandskSykmelding,
     klippet = this.klippet,
-    inntektskilderDataFraInntektskomponenten = this.inntektskilderDataFraInntektskomponenten
+    inntektskilderDataFraInntektskomponenten = this.inntektskilderDataFraInntektskomponenten,
+    korrigeringsfristUtlopt = this.korrigeringsfristUtlopt
 )
 
 fun Sykepengesoknad.tilRSSykepengesoknadMetadata() = RSSykepengesoknadMetadata(

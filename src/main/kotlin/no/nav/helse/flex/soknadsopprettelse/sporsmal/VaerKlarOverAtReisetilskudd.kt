@@ -16,6 +16,7 @@ fun vaerKlarOverAtReisetilskudd(): Sporsmal {
             "<li>NAV kan holde igjen eller kreve tilbake penger hvis du gir uriktige eller ufullstendige opplysninger.</li>" +
             "<li>Det å gi feil opplysninger kan være straffbart.</li>" +
             "<li>Fristen for å søke reisetilskudd er som hovedregel 3 måneder.</li>" +
+            "<li>Du kan endre svarene i denne søknaden opp til 12 måneder etter du sendte den inn første gangen.</li>" +
             "<li>Du kan lese mer om rettigheter og plikter på <a href=\"https://www.nav.no/reisetilskudd\" target=\"_blank\">nav.no/reisetilskudd</a>.</li>" +
             "</ul>"
     )

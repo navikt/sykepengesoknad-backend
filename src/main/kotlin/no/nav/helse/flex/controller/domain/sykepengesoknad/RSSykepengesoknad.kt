@@ -28,7 +28,9 @@ data class RSSykepengesoknad(
     val opprettetAvInntektsmelding: Boolean,
     val utenlandskSykmelding: Boolean,
     val klippet: Boolean,
-    val inntektskilderDataFraInntektskomponenten: List<ArbeidsforholdFraInntektskomponenten>?
+    val inntektskilderDataFraInntektskomponenten: List<ArbeidsforholdFraInntektskomponenten>?,
+    val korrigeringsfristUtlopt: Boolean?
+
 ) {
     fun alleSporsmalOgUndersporsmal(): List<RSSporsmal> {
         return sporsmal?.flatten()?.toList() ?: emptyList()

@@ -73,18 +73,10 @@ class SoknadTokenXController(
 
     @ProtectedWithClaims(issuer = TOKENX, claimMap = ["acr=Level4"])
     @ResponseBody
-    @GetMapping(value = ["/soknader"], produces = [APPLICATION_JSON_VALUE])
-    fun hentSoknader(): List<RSSykepengesoknad> {
-        val identer =
-            validerTokenXClaims(dittSykefravaerFrontendClientId, sykepengesoknadFrontendClientId).hentIdenter()
-        return hentSoknadService.hentSoknader(identer).map { it.tilRSSykepengesoknad() }
-    }
-
-    @ProtectedWithClaims(issuer = TOKENX, claimMap = ["acr=Level4"])
-    @ResponseBody
     @GetMapping(value = ["/soknader/metadata"], produces = [APPLICATION_JSON_VALUE])
     fun hentSoknaderMetadata(): List<RSSykepengesoknadMetadata> {
-        val identer = validerTokenXClaims(dittSykefravaerFrontendClientId, sykepengesoknadFrontendClientId).hentIdenter()
+        val identer =
+            validerTokenXClaims(dittSykefravaerFrontendClientId, sykepengesoknadFrontendClientId).hentIdenter()
         return hentSoknadService.hentSoknaderUtenSporsmal(identer).map { it.tilRSSykepengesoknadMetadata() }
     }
 
@@ -92,8 +84,8 @@ class SoknadTokenXController(
     @ResponseBody
     @GetMapping(value = ["/soknad/{id}"], produces = [APPLICATION_JSON_VALUE])
     fun hentSoknad(@PathVariable("id") id: String): RSSykepengesoknad {
-        val (soknad, _) = hentOgSjekkTilgangTilSoknad(id)
-        return soknad.tilRSSykepengesoknad()
+        val (soknad, identer) = hentOgSjekkTilgangTilSoknad(id)
+        return soknad.utvidSoknadMedKorrigeringsfristUtlopt(identer).tilRSSykepengesoknad()
     }
 
     @ProtectedWithClaims(issuer = TOKENX, claimMap = ["acr=Level4"])
@@ -336,12 +328,16 @@ class SoknadTokenXController(
     data class SoknadOgIdenter(val sykepengesoknad: Sykepengesoknad, val identer: FolkeregisterIdenter)
 
     private fun hentOgSjekkTilgangTilSoknad(soknadId: String): SoknadOgIdenter {
-        val sykepengesoknad = hentSoknadService.finnSykepengesoknad(soknadId)
         val identer = validerTokenXClaims(sykepengesoknadFrontendClientId).hentIdenter()
+        val sykepengesoknad = hentSoknadService.finnSykepengesoknad(soknadId)
         if (!identer.alle().contains(sykepengesoknad.fnr)) {
             throw IkkeTilgangException("Er ikke eier")
         }
         return SoknadOgIdenter(sykepengesoknad, identer)
+    }
+
+    private fun Sykepengesoknad.utvidSoknadMedKorrigeringsfristUtlopt(identer: FolkeregisterIdenter): Sykepengesoknad {
+        return korrigerSoknadService.utvidSoknadMedKorrigeringsfristUtlopt(this, identer)
     }
 
     private fun validerTokenXClaims(vararg tillattClient: String): JwtTokenClaims {
