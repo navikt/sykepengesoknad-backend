@@ -23,9 +23,7 @@ class AndreArbeidsforholdHenting(
                 tom = startSykeforlop.yearMonth()
             )
 
-
         fun ArbeidsInntektMaaned.orgnumreForManed(): Set<String> {
-
             val inntekterOrgnummer = this.arbeidsInntektInformasjon.inntektListe
                 .filter { it.inntektType == "LOENNSINNTEKT" }
                 .filter { it.virksomhet.aktoerType == "ORGANISASJON" }
