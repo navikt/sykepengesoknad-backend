@@ -131,4 +131,17 @@ class KorrigeringTest : BaseTestClass() {
         val soknaden = hentSoknader.first { it.status == RSSoknadstatus.SENDT }
         soknaden.korrigeringsfristUtlopt `should be` true
     }
+
+    @Test
+    @Order(8)
+    fun `Backend returnerer 400 hvis vi prøver å korrigere en søknad som har utløpt frist`() {
+        val hentSoknader = hentSoknader(fnr)
+        val soknaden = hentSoknader.first { it.status == RSSoknadstatus.SENDT }
+        soknaden.korrigeringsfristUtlopt `should be` true
+
+        val contentAsString = korrigerSoknadMedResult(soknaden.id, fnr).andExpect(status().isBadRequest)
+            .andReturn().response.contentAsString
+
+        contentAsString `should be equal to` "{\"reason\":\"KORRIGERINGSFRIST_UTLOPT\"}"
+    }
 }

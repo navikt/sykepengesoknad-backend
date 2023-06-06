@@ -3,6 +3,8 @@ package no.nav.helse.flex.service
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
+import no.nav.helse.flex.exception.AbstractApiError
+import no.nav.helse.flex.exception.LogLevel
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.repository.SykepengesoknadDbRecord
 import no.nav.helse.flex.repository.SykepengesoknadRepository
@@ -11,6 +13,7 @@ import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
 import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
 import no.nav.helse.flex.svarvalidering.ValideringException
 import no.nav.helse.flex.util.Metrikk
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
@@ -33,6 +36,10 @@ class KorrigerSoknadService(
         }
         if (soknadSomKorrigeres.soknadstype == Soknadstype.OPPHOLD_UTLAND) {
             throw ValideringException("Kan ikke korrigere søknad av typen Opphold utland")
+        }
+        val utvidetSoknad = utvidSoknadMedKorrigeringsfristUtlopt(soknadSomKorrigeres, identer)
+        if (utvidetSoknad.korrigeringsfristUtlopt == true) {
+            throw KorrigeringsfristUtloptException(soknadSomKorrigeres)
         }
 
         return sykepengesoknadDAO.finnSykepengesoknader(identer)
@@ -99,3 +106,10 @@ fun List<SykepengesoknadDbRecord>.finnOpprinneligSendt(korrigerer: String): Inst
 
     return opprinnelig.sendt
 }
+
+class KorrigeringsfristUtloptException(soknad: Sykepengesoknad) : AbstractApiError(
+    message = "Kan ikke korrigere søknad: ${soknad.id} som har korrigeringsfrist utløpt",
+    httpStatus = HttpStatus.BAD_REQUEST,
+    reason = "KORRIGERINGSFRIST_UTLOPT",
+    loglevel = LogLevel.ERROR
+)
