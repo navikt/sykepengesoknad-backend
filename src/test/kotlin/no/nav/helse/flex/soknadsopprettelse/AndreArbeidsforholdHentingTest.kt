@@ -40,11 +40,11 @@ class AndreArbeidsforholdHentingTest : BaseTestClass() {
     }
 
     @Test
-    fun `utelater frilansinntekt`() {
+    fun `utelater ikke frilansinntekt`() {
         andreArbeidsforholdHenting.hentArbeidsforhold(
             fnr = "3333333333",
             arbeidsgiverOrgnummer = "99944736",
             startSykeforlop = LocalDate.now()
-        ).`should be empty`()
+        ).map { it.navn } `should be equal to` listOf("Bensinstasjonen AS")
     }
 }
