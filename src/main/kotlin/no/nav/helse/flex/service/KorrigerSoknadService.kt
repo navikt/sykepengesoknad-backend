@@ -4,6 +4,9 @@ import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.repository.SykepengesoknadDAO
+import no.nav.helse.flex.repository.SykepengesoknadDbRecord
+import no.nav.helse.flex.repository.SykepengesoknadRepository
+import no.nav.helse.flex.repository.normaliser
 import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
 import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
 import no.nav.helse.flex.svarvalidering.ValideringException
@@ -11,6 +14,8 @@ import no.nav.helse.flex.util.Metrikk
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
 import java.util.*
 
 @Service
@@ -18,7 +23,8 @@ import java.util.*
 class KorrigerSoknadService(
     val sykepengesoknadDAO: SykepengesoknadDAO,
     val metrikk: Metrikk,
-    val identService: IdentService
+    val identService: IdentService,
+    val sykepengesoknadRepository: SykepengesoknadRepository
 ) {
 
     fun finnEllerOpprettUtkast(soknadSomKorrigeres: Sykepengesoknad, identer: FolkeregisterIdenter): Sykepengesoknad {
@@ -55,4 +61,41 @@ class KorrigerSoknadService(
         metrikk.tellUtkastTilKorrigeringOpprettet(korrigering.soknadstype)
         return sykepengesoknadDAO.finnSykepengesoknad(korrigering.id)
     }
+
+    fun utvidSoknadMedKorrigeringsfristUtlopt(
+        sykepengesoknad: Sykepengesoknad,
+        identer: FolkeregisterIdenter
+    ): Sykepengesoknad {
+        val soknader = sykepengesoknadRepository.findByFnrIn(identer.alle())
+        val sykepengesoknadDbRecord = sykepengesoknad.normaliser().soknad
+        soknader.finnTidligsteSendt(sykepengesoknadDbRecord)?.let {
+            return sykepengesoknad.copy(
+                korrigeringsfristUtlopt = OffsetDateTime.now().minusMonths(12).isAfter(
+                    it.atOffset(
+                        ZoneOffset.UTC
+                    )
+                )
+            )
+        }
+
+        return sykepengesoknad
+    }
+}
+
+fun List<SykepengesoknadDbRecord>.finnTidligsteSendt(soknad: SykepengesoknadDbRecord): Instant? {
+    if (soknad.korrigerer != null) {
+        return this.finnOpprinneligSendt(soknad.korrigerer)
+    }
+    return soknad.sendt
+}
+
+fun List<SykepengesoknadDbRecord>.finnOpprinneligSendt(korrigerer: String): Instant? {
+    val opprinnelig = this.firstOrNull { it.sykepengesoknadUuid == korrigerer }
+        ?: throw RuntimeException("Forventa å finne søknad med id $korrigerer")
+
+    if (opprinnelig.korrigerer != null) {
+        return finnOpprinneligSendt(opprinnelig.korrigerer)
+    }
+
+    return opprinnelig.sendt
 }

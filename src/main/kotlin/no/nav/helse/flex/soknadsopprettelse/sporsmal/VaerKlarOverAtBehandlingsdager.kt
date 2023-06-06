@@ -12,7 +12,8 @@ fun vaerKlarOverAtBehandlingsdager(): Sporsmal {
         undertekst = "<ul>" +
             "<li>Denne søknaden gjelder hvis selve behandlingen har en slik virkning på deg at du ikke kan jobbe resten av dagen. Grunnen er altså behandlingens effekt, og ikke at du for eksempel måtte bruke arbeidstid.</li>" +
             "<li>NAV kan innhente opplysninger som er nødvendige for å behandle søknaden.</li>" +
-            "<li>Fristen for å søke sykepenger er som hovedregel 3 måneder</li>" +
+            "<li>Fristen for å søke sykepenger er som hovedregel 3 måneder.</li>" +
+            "<li>Du kan endre svarene i denne søknaden opp til 12 måneder etter du sendte den inn første gangen.</li>" +
             "<li>Du kan lese mer om rettigheter og plikter på <a href=\"https://www.nav.no/sykepenger\" target=\"_blank\">nav.no/sykepenger</a>.</li>" +
             "</ul>"
     )
