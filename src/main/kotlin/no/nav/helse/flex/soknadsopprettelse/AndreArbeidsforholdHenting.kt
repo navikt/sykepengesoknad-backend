@@ -24,19 +24,13 @@ class AndreArbeidsforholdHenting(
             )
 
         fun ArbeidsInntektMaaned.orgnumreForManed(): Set<String> {
-            val frilansArbeidsforholdOrgnumre = this.arbeidsInntektInformasjon.arbeidsforholdListe
-                .filter { it.arbeidsforholdstype == "frilanserOppdragstakerHonorarPersonerMm" }
-                .map { it.arbeidsgiver.identifikator }
-                .toSet()
-
             val inntekterOrgnummer = this.arbeidsInntektInformasjon.inntektListe
                 .filter { it.inntektType == "LOENNSINNTEKT" }
                 .filter { it.virksomhet.aktoerType == "ORGANISASJON" }
                 .map { it.virksomhet.identifikator }
                 .toSet()
-                .subtract(frilansArbeidsforholdOrgnumre)
 
-            return inntekterOrgnummer.subtract(frilansArbeidsforholdOrgnumre)
+            return inntekterOrgnummer
         }
 
         val alleMånedersOrgnr = hentInntekter.arbeidsInntektMaaned.flatMap { it.orgnumreForManed() }.toSet()
