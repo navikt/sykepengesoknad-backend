@@ -1,4 +1,4 @@
-FROM gcr.io/distroless/java17@sha256:78d2c280d0914978844d2a2dd2b5315acd437e33c6905b6c562dca97ae34d9b3
+FROM gcr.io/distroless/java17@sha256:c737fc29fc2556d3377d6a719a9842a500777fce35a7f1299acd569c73f65247
 
 ENV JDK_JAVA_OPTIONS="-XX:MaxRAMPercentage=75.0 -XX:+UseParallelGC -XX:ActiveProcessorCount=2"
 
