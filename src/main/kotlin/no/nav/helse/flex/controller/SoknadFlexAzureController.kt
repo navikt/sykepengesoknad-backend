@@ -1,14 +1,10 @@
 package no.nav.helse.flex.controller
 
-import no.nav.helse.flex.client.syfotilgangskontroll.SyfoTilgangskontrollClient
 import no.nav.helse.flex.clientidvalidation.ClientIdValidation
 import no.nav.helse.flex.clientidvalidation.ClientIdValidation.NamespaceAndApp
 import no.nav.helse.flex.config.OIDCIssuer.AZUREATOR
-import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknad
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknadMetadata
-import no.nav.helse.flex.controller.mapper.tilRSSykepengesoknad
 import no.nav.helse.flex.controller.mapper.tilRSSykepengesoknadMetadata
-import no.nav.helse.flex.exception.IkkeTilgangException
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.service.HentSoknadService
 import no.nav.helse.flex.service.IdentService
@@ -29,7 +25,6 @@ class SoknadFlexAzureController(
     @RequestMapping(method = [RequestMethod.GET])
     fun hentSykepengeSoknader(@RequestHeader(value = "fnr") fnr: String): List<RSSykepengesoknadMetadata> {
         clientIdValidation.validateClientId(NamespaceAndApp(namespace = "flex", app = "flex-internal-frontend"))
-
 
         return hentSoknadService
             .hentSoknader(identService.hentFolkeregisterIdenterMedHistorikkForFnr(fnr))
