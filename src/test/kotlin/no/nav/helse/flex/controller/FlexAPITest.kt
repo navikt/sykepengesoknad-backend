@@ -18,7 +18,7 @@ import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
-class FlexAPITest : BaseTestClass() {
+    class FlexAPITest : BaseTestClass() {
     val fnr = "12345678901"
     lateinit var kafkaMelding: SykepengesoknadDTO
 
