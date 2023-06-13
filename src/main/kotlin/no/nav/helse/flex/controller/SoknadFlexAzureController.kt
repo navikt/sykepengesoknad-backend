@@ -3,8 +3,11 @@ package no.nav.helse.flex.controller
 import no.nav.helse.flex.clientidvalidation.ClientIdValidation
 import no.nav.helse.flex.clientidvalidation.ClientIdValidation.NamespaceAndApp
 import no.nav.helse.flex.config.OIDCIssuer.AZUREATOR
+import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknadFlexInternal
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknadMetadata
+import no.nav.helse.flex.controller.mapper.tilRSSykepengesoknadFlexInternal
 import no.nav.helse.flex.controller.mapper.tilRSSykepengesoknadMetadata
+import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.service.HentSoknadService
 import no.nav.helse.flex.service.IdentService
@@ -23,11 +26,11 @@ class SoknadFlexAzureController(
     val log = logger()
 
     @RequestMapping(method = [RequestMethod.GET])
-    fun hentSykepengeSoknader(@RequestHeader(value = "fnr") fnr: String): List<RSSykepengesoknadMetadata> {
+    fun hentSykepengeSoknader(@RequestHeader(value = "fnr") fnr: String): List<RSSykepengesoknadFlexInternal> {
         clientIdValidation.validateClientId(NamespaceAndApp(namespace = "flex", app = "flex-internal-frontend"))
 
         return hentSoknadService
             .hentSoknader(identService.hentFolkeregisterIdenterMedHistorikkForFnr(fnr))
-            .map { it.tilRSSykepengesoknadMetadata() }
+            .map { it.tilRSSykepengesoknadFlexInternal() }
     }
 }

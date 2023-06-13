@@ -1,18 +1,6 @@
 package no.nav.helse.flex.controller.mapper
 
-import no.nav.helse.flex.controller.domain.sykepengesoknad.RSArbeidsgiver
-import no.nav.helse.flex.controller.domain.sykepengesoknad.RSArbeidssituasjon
-import no.nav.helse.flex.controller.domain.sykepengesoknad.RSMerknad
-import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadsperiode
-import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
-import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
-import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSporsmal
-import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSvar
-import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSvartype
-import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknad
-import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknadMetadata
-import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykmeldingstype
-import no.nav.helse.flex.controller.domain.sykepengesoknad.RSVisningskriterie
+import no.nav.helse.flex.controller.domain.sykepengesoknad.*
 import no.nav.helse.flex.domain.Merknad
 import no.nav.helse.flex.domain.Soknadsperiode
 import no.nav.helse.flex.domain.Soknadstatus
@@ -131,6 +119,29 @@ fun Sykepengesoknad.tilRSSykepengesoknadMetadata() = RSSykepengesoknadMetadata(
     tom = this.tom,
     opprettetDato = this.opprettet?.tilLocalDate(),
     sendtTilNAVDato = ofNullable(this.sendtNav?.tilOsloLocalDateTime()).orElse(null),
+    sendtTilArbeidsgiverDato = this.sendtArbeidsgiver?.tilOsloLocalDateTime(),
+    avbruttDato = this.avbruttDato,
+    startSykeforlop = this.startSykeforlop,
+    sykmeldingUtskrevet = this.sykmeldingSkrevet?.tilLocalDate(),
+    arbeidsgiver = map(this.arbeidsgiverNavn, this.arbeidsgiverOrgnummer),
+    korrigerer = this.korrigerer,
+    korrigertAv = this.korrigertAv,
+    arbeidssituasjon = EnumUtil.konverter(RSArbeidssituasjon::class.java, this.arbeidssituasjon),
+    soknadPerioder = this.soknadPerioder?.map { mapSoknadsperiode(it) },
+    egenmeldtSykmelding = this.egenmeldtSykmelding,
+    merknaderFraSykmelding = this.merknaderFraSykmelding?.map { it.mapMerknad() },
+    opprettetAvInntektsmelding = this.opprettetAvInntektsmelding
+)
+
+fun Sykepengesoknad.tilRSSykepengesoknadFlexInternal() = RSSykepengesoknadFlexInternal(
+    id = this.id,
+    sykmeldingId = this.sykmeldingId,
+    soknadstype = EnumUtil.konverter(RSSoknadstype::class.java, this.soknadstype),
+    status = konverterSoknadstatus(this.status),
+    fom = this.fom,
+    tom = this.tom,
+    opprettetDato = this.opprettet?.tilOsloLocalDateTime(),
+    sendtTilNAVDato = this.sendtNav?.tilOsloLocalDateTime(),
     sendtTilArbeidsgiverDato = this.sendtArbeidsgiver?.tilOsloLocalDateTime(),
     avbruttDato = this.avbruttDato,
     startSykeforlop = this.startSykeforlop,
