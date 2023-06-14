@@ -6,11 +6,13 @@ import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
 import java.time.LocalDate
 import java.util.*
+import kotlin.system.measureTimeMillis
 
 const val MEDLEMSKAP_VURDERING_PATH = "brukersporsmal"
 
@@ -33,19 +35,24 @@ class MedlemskapVurderingClient(
             .queryParam("fom", medlemskapVurderingRequest.fom)
             .queryParam("tom", medlemskapVurderingRequest.tom)
 
-        val response = try {
-            medlemskapVurderingRestTemplate
-                .exchange(
-                    queryBuilder.toUriString(),
-                    HttpMethod.GET,
-                    HttpEntity(null, headers),
-                    MedlemskapVurderingResponse::class.java
-                )
+        val response: ResponseEntity<MedlemskapVurderingResponse>
+        val responseTid = try {
+            measureTimeMillis {
+                response = medlemskapVurderingRestTemplate
+                    .exchange(
+                        queryBuilder.toUriString(),
+                        HttpMethod.GET,
+                        HttpEntity(null, headers),
+                        MedlemskapVurderingResponse::class.java
+                    )
+            }
         } catch (e: Exception) {
             throw MedlemskapVurderingClientException("Feil ved kall til MedlemskapVurdering.", e)
         }
 
         val medlemskapVurdering = response.body!!
+
+        // TODO: Lagre response til database
 
         // Mottar vi svar.UAVKLART skal vi også motta spørsmål å stille brukeren.
         if (medlemskapVurdering.svar == MedlemskapVurderingSvarType.UAVKLART && medlemskapVurdering.sporsmal.isEmpty()) {
@@ -64,8 +71,7 @@ class MedlemskapVurderingClient(
             )
         }
 
-        // TODO: Midlertidig lagring til database.
-        // TODO: Logging av tid brukt til kall til LovMe.
+        log.info("MedlemskapVurdering response tid: $responseTid ms.")
 
         return response.body!!
     }
