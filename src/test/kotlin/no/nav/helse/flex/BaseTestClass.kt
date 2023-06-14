@@ -94,7 +94,7 @@ abstract class BaseTestClass {
             }
             medlemskapMockWebServer = MockWebServer().apply {
                 System.setProperty("MEDLEMSKAP_VURDERING_URL", "http://localhost:$port")
-                dispatcher = MedlemskapMockDispatcher
+//                dispatcher = MedlemskapMockDispatcher
             }
             inntektskomponentenMockWebServer = MockWebServer().apply {
                 System.setProperty("FLEX_FSS_PROXY_URL", "http://localhost:$port")
