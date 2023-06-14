@@ -33,7 +33,6 @@ class MedlemskapVurderingClient(
             .queryParam("fom", medlemskapVurderingRequest.fom)
             .queryParam("tom", medlemskapVurderingRequest.tom)
 
-        // TODO: Implementer feilhåndtering og lagring til database.
         val response = try {
             medlemskapVurderingRestTemplate
                 .exchange(
@@ -43,11 +42,46 @@ class MedlemskapVurderingClient(
                     MedlemskapVurderingResponse::class.java
                 )
         } catch (e: Exception) {
-            TODO("Not yet implemented")
+            throw MedlemskapVurderingClientException("Feil ved kall til MedlemskapVurdering.", e)
         }
+
+        val medlemskapVurdering = response.body!!
+
+        // Mottar vi svar.UAVKLART skal vi også motta spørsmål å stille brukeren.
+        if (medlemskapVurdering.svar == MedlemskapVurderingSvarType.UAVKLART && medlemskapVurdering.sporsmal.isEmpty()) {
+            throw MedlemskapVurderingResponseException("MedlemskapVurdering returnerte svar.UAVKLART uten spørsmål.")
+        }
+
+        // Mottar vi en avklart situasjon (svar.JA eller svar.NEI) trenger vi ikke spørsmnål å stille brukeren.
+        if (listOf(
+                MedlemskapVurderingSvarType.JA,
+                MedlemskapVurderingSvarType.NEI
+            ).contains(medlemskapVurdering.svar) && medlemskapVurdering.sporsmal.isNotEmpty()
+        ) {
+            throw MedlemskapVurderingResponseException(
+                "MedlemskapVurdering returnerte spørsmål selv om svar var " +
+                    "svar.${medlemskapVurdering.svar}."
+            )
+        }
+
+        // TODO: Midlertidig lagring til database.
+        // TODO: Logging av tid brukt til kall til LovMe.
 
         return response.body!!
     }
+}
+
+/**
+ * Kastes når det oppstår en teknisk feil ved kall til LovMe.
+ */
+class MedlemskapVurderingClientException(message: String?, cause: Throwable?) : RuntimeException(message, cause)
+
+/**
+ * Kastes når LovMe returnerer en feilmelding / statuskode som ikke er 2xx som følge av en logisk feil.
+ */
+class MedlemskapVurderingResponseException : RuntimeException {
+    constructor(message: String?) : super(message)
+    constructor(message: String?, cause: Throwable?) : super(message, cause)
 }
 
 data class MedlemskapVurderingRequest(
