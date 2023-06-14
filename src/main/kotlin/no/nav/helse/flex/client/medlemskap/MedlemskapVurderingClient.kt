@@ -2,14 +2,11 @@ package no.nav.helse.flex.client.medlemskap
 
 import no.nav.helse.flex.logger
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpMethod
-import org.springframework.http.MediaType
-import org.springframework.http.ResponseEntity
+import org.springframework.http.*
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
+import java.time.Instant
 import java.time.LocalDate
 import java.util.*
 import kotlin.system.measureTimeMillis
@@ -18,6 +15,7 @@ const val MEDLEMSKAP_VURDERING_PATH = "brukersporsmal"
 
 @Component
 class MedlemskapVurderingClient(
+    private val medlemskapVurderingRepository: MedlemskapVurderingRepository,
     private val medlemskapVurderingRestTemplate: RestTemplate,
     @Value("\${MEDLEMSKAP_VURDERING_URL}")
     private val url: String
@@ -36,7 +34,7 @@ class MedlemskapVurderingClient(
             .queryParam("tom", medlemskapVurderingRequest.tom)
 
         val response: ResponseEntity<MedlemskapVurderingResponse>
-        val responseTid = try {
+        val svarTid = try {
             measureTimeMillis {
                 response = medlemskapVurderingRestTemplate
                     .exchange(
@@ -50,12 +48,16 @@ class MedlemskapVurderingClient(
             throw MedlemskapVurderingClientException("Feil ved kall til MedlemskapVurdering.", e)
         }
 
-        val medlemskapVurdering = response.body!!
+        val medlemskapVurderingResponse = response.body!!
 
-        // TODO: Lagre response til database
+        lagreVurdering(
+            medlemskapVurderingRequest,
+            medlemskapVurderingResponse,
+            svarTid
+        )
 
         // Mottar vi svar.UAVKLART skal vi også motta spørsmål å stille brukeren.
-        if (medlemskapVurdering.svar == MedlemskapVurderingSvarType.UAVKLART && medlemskapVurdering.sporsmal.isEmpty()) {
+        if (medlemskapVurderingResponse.svar == MedlemskapVurderingSvarType.UAVKLART && medlemskapVurderingResponse.sporsmal.isEmpty()) {
             throw MedlemskapVurderingResponseException("MedlemskapVurdering returnerte svar.UAVKLART uten spørsmål.")
         }
 
@@ -63,17 +65,32 @@ class MedlemskapVurderingClient(
         if (listOf(
                 MedlemskapVurderingSvarType.JA,
                 MedlemskapVurderingSvarType.NEI
-            ).contains(medlemskapVurdering.svar) && medlemskapVurdering.sporsmal.isNotEmpty()
+            ).contains(medlemskapVurderingResponse.svar) && medlemskapVurderingResponse.sporsmal.isNotEmpty()
         ) {
             throw MedlemskapVurderingResponseException(
                 "MedlemskapVurdering returnerte spørsmål selv om svar var " +
-                    "svar.${medlemskapVurdering.svar}."
+                    "svar.${medlemskapVurderingResponse.svar}."
             )
         }
-
-        log.info("MedlemskapVurdering response tid: $responseTid ms.")
-
         return response.body!!
+    }
+
+    private fun lagreVurdering(
+        medlemskapVurderingRequest: MedlemskapVurderingRequest,
+        medlemskapVurderingResponse: MedlemskapVurderingResponse,
+        svarTid: Long
+    ) {
+        medlemskapVurderingRepository.save(
+            MedlemskapVurderingDbRecord(
+                timestamp = Instant.now(),
+                svartid = svarTid,
+                fnr = medlemskapVurderingRequest.fnr,
+                fom = medlemskapVurderingRequest.fom,
+                tom = medlemskapVurderingRequest.tom,
+                svartype = medlemskapVurderingResponse.svar.toString(),
+                sporsmal = medlemskapVurderingResponse.sporsmal.tilPostgresJson()
+            )
+        )
     }
 }
 

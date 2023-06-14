@@ -1,19 +1,20 @@
 package no.nav.helse.flex.client.medlemskap
 
 import no.nav.helse.flex.BaseTestClass
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should contain same`
-import org.amshove.kluent.shouldHaveSize
-import org.amshove.kluent.shouldStartWith
+import org.amshove.kluent.*
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 
-class MedlemskapVurderingClientIntegrationTest : BaseTestClass() {
+class MedlemskapVurderingIntegrationTest : BaseTestClass() {
 
     @Autowired
     private lateinit var medlemskapVurderingClient: MedlemskapVurderingClient
+
+    @Autowired
+    private lateinit var medlemskapVurderingRepository: MedlemskapVurderingRepository
 
     private val fom = LocalDate.of(2023, 1, 1)
     private val tom = LocalDate.of(2023, 1, 31)
@@ -22,6 +23,11 @@ class MedlemskapVurderingClientIntegrationTest : BaseTestClass() {
         fom = fom,
         tom = tom
     )
+
+    @AfterEach
+    fun slettFraDatabase() {
+        medlemskapVurderingRepository.deleteAll()
+    }
 
     @Test
     fun `hentMedlemskapVurdering svarer med UAVKLART og liste med spørsmål`() {
@@ -40,6 +46,8 @@ class MedlemskapVurderingClientIntegrationTest : BaseTestClass() {
         takeRequest.headers["fnr"] `should be equal to` fnr
         takeRequest.headers["Authorization"]!!.shouldStartWith("Bearer ey")
         takeRequest.path `should be equal to` "/$MEDLEMSKAP_VURDERING_PATH?fom=$fom&tom=$tom"
+
+        val dbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
     }
 
     @Test
@@ -52,6 +60,8 @@ class MedlemskapVurderingClientIntegrationTest : BaseTestClass() {
 
         val takeRequest = medlemskapMockWebServer.takeRequest()
         takeRequest.headers["fnr"] `should be equal to` fnr
+
+        val dbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
     }
 
     @Test
@@ -64,6 +74,8 @@ class MedlemskapVurderingClientIntegrationTest : BaseTestClass() {
 
         val takeRequest = medlemskapMockWebServer.takeRequest()
         takeRequest.headers["fnr"] `should be equal to` fnr
+
+        val dbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
     }
 
     @Test
@@ -81,6 +93,8 @@ class MedlemskapVurderingClientIntegrationTest : BaseTestClass() {
 
         val takeRequest = medlemskapMockWebServer.takeRequest()
         takeRequest.headers["fnr"] `should be equal to` fnr
+
+        val dbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 0
     }
 
     @Test
@@ -98,6 +112,8 @@ class MedlemskapVurderingClientIntegrationTest : BaseTestClass() {
 
         val takeRequest = medlemskapMockWebServer.takeRequest()
         takeRequest.headers["fnr"] `should be equal to` fnr
+
+        val dbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 0
     }
 
     @Test
@@ -114,6 +130,9 @@ class MedlemskapVurderingClientIntegrationTest : BaseTestClass() {
 
         val takeRequest = medlemskapMockWebServer.takeRequest()
         takeRequest.headers["fnr"] `should be equal to` fnr
+
+        // Verdier blir lagret før vi validerer responsen.
+        val dbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
     }
 
     @Test
@@ -130,6 +149,9 @@ class MedlemskapVurderingClientIntegrationTest : BaseTestClass() {
 
         val takeRequest = medlemskapMockWebServer.takeRequest()
         takeRequest.headers["fnr"] `should be equal to` fnr
+
+        // Verdier blir lagret før vi validerer responsen.
+        val dbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
     }
 
     @Test
@@ -146,5 +168,8 @@ class MedlemskapVurderingClientIntegrationTest : BaseTestClass() {
 
         val takeRequest = medlemskapMockWebServer.takeRequest()
         takeRequest.headers["fnr"] `should be equal to` fnr
+
+        // Verdier blir lagret før vi validerer responsen.
+        val dbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
     }
 }
