@@ -1,26 +1,26 @@
 package no.nav.helse.flex.arbeidstaker
 
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.*
 import no.nav.helse.flex.aktivering.AktiveringJob
+import no.nav.helse.flex.client.medlemskap.MedlemskapVurderingRepository
+import no.nav.helse.flex.client.medlemskap.MedlemskapVurderingResponse
+import no.nav.helse.flex.client.medlemskap.MedlemskapVurderingSporsmal
+import no.nav.helse.flex.client.medlemskap.MedlemskapVurderingSvarType
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
-import no.nav.helse.flex.hentSoknad
-import no.nav.helse.flex.hentSoknaderMetadata
-import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
-import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
-import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.util.DatoUtil
-import no.nav.helse.flex.ventPåRecords
+import no.nav.helse.flex.util.serialisertTilString
+import okhttp3.mockwebserver.MockResponse
+import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.shouldHaveSize
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.MethodOrderer
-import org.junit.jupiter.api.Order
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestMethodOrder
+import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.MediaType
 import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
@@ -29,8 +29,28 @@ class ArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
     @Autowired
     private lateinit var aktiveringJob: AktiveringJob
 
+    @Autowired
+    private lateinit var medlemskapVurderingRepository: MedlemskapVurderingRepository
+
     private final val fnr = "123456789"
     private final val basisdato = LocalDate.now()
+
+    @BeforeAll
+    fun setup() {
+        medlemskapMockWebServer.enqueue(
+            MockResponse().setResponseCode(200).setBody(
+                MedlemskapVurderingResponse(
+                    svar = MedlemskapVurderingSvarType.UAVKLART,
+                    sporsmal = listOf(
+                        MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
+                        MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
+                        MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
+                        MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE
+                    )
+                ).serialisertTilString()
+            ).addHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        )
+    }
 
     @Test
     @Order(1)
@@ -77,6 +97,22 @@ class ArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
 
     @Test
     @Order(4)
+    fun `Spørsmål om medlemskap fra LovMe er lagret i databasen`() {
+        val medlemskapVurderingDbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
+        val medlemskapVurdering = medlemskapVurderingDbRecords.first()
+
+        medlemskapVurdering.fnr `should be equal to` fnr
+        medlemskapVurdering.svartype `should be equal to` MedlemskapVurderingSvarType.UAVKLART.toString()
+        medlemskapVurdering.sporsmal.value!! `should be equal to` listOf(
+            MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
+            MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
+            MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
+            MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE
+        ).serialisertTilString()
+    }
+
+    @Test
+    @Order(4)
     fun `Søknaden har forventa spørsmål som NY`() {
         val soknad = hentSoknad(
             soknadId = hentSoknaderMetadata(fnr).first().id,
@@ -102,26 +138,26 @@ class ArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
 
         assertThat(soknad.sporsmal!!.first { it.tag == "ARBEID_UNDERVEIS_100_PROSENT_0" }.sporsmalstekst).isEqualTo(
             "I perioden ${
-            DatoUtil.formatterPeriode(
-                basisdato.minusDays(1),
-                basisdato.plusDays(7)
-            )
+                DatoUtil.formatterPeriode(
+                    basisdato.minusDays(1),
+                    basisdato.plusDays(7)
+                )
             } var du 100 % sykmeldt fra Butikken. Jobbet du noe hos Butikken i denne perioden?"
         )
 
         assertThat(soknad.sporsmal!!.first { it.tag == "ARBEID_UNDERVEIS_100_PROSENT_1" }.sporsmalstekst).isEqualTo(
             "I perioden ${
-            DatoUtil.formatterPeriode(
-                basisdato.plusDays(8),
-                basisdato.plusDays(15)
-            )
+                DatoUtil.formatterPeriode(
+                    basisdato.plusDays(8),
+                    basisdato.plusDays(15)
+                )
             } var du 100 % sykmeldt fra Butikken. Jobbet du noe hos Butikken i denne perioden?"
         )
     }
 
     @Test
     @Order(5)
-    fun `vi besvarer og sender inn søknaden`() {
+    fun `Vi besvarer og sender inn søknaden`() {
         flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
         val soknaden = hentSoknad(
