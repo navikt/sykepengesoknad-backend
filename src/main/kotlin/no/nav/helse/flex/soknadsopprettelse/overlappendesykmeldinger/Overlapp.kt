@@ -485,6 +485,11 @@ class Overlapp(
                         sok.fom.isAfter(sykPeriode.start) &&
                         sok.tom.isBefore(sykPeriode.endInclusive)
                     ) {
+                        if (sykmeldingPerioder.none { sokPeriode.overlap(it.fom..it.tom) }) {
+                            // Hvis sykmeldingen overlapper med 2 like søknader så kan vi allerede ha fjernet perioden i midten
+                            return@forEach
+                        }
+
                         log.info("Det er innsendt en eldre sykmelding $sykmeldingId som overlapper med ${sok.status} soknad ${sok.id}, den overlappende delen starter og slutter inni")
 
                         klippMetrikk.klippMetrikk(

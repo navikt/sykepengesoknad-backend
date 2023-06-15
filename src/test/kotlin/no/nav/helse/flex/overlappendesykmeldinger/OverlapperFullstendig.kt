@@ -8,6 +8,7 @@ import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
 import no.nav.helse.flex.repository.KlippMetrikkRepository
+import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER_V2
 import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
@@ -36,6 +37,7 @@ import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 import java.time.OffsetDateTime
+import java.util.*
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class OverlapperFullstendig : BaseTestClass() {
@@ -45,6 +47,9 @@ class OverlapperFullstendig : BaseTestClass() {
 
     @Autowired
     private lateinit var klippMetrikkRepository: KlippMetrikkRepository
+
+    @Autowired
+    private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
 
     @BeforeEach
     fun setUp() {
@@ -400,6 +405,69 @@ class OverlapperFullstendig : BaseTestClass() {
         klippmetrikker[0].soknadstatus `should be equal to` "FREMTIDIG"
         klippmetrikker[0].variant `should be equal to` "SYKMELDING_STARTER_INNI_SLUTTER_INNI"
         klippmetrikker[0].endringIUforegrad `should be equal to` "FLERE_PERIODER"
+        klippmetrikker[0].klippet `should be equal to` true
+    }
+
+    @Test
+    fun `Eldre sykmelding overlapper fullstendig med 2 fremtidig søknad som har like perioder, klippes`() {
+        val sykmeldingSkrevet = OffsetDateTime.now()
+
+        val soknad = sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = basisdato.minusDays(5),
+                    tom = basisdato.plusDays(5)
+                ),
+                sykmeldingSkrevet = sykmeldingSkrevet
+            )
+        ).first()
+
+        val identiskSoknad = sykepengesoknadDAO
+            .finnSykepengesoknad(soknad.id)
+            .copy(
+                id = UUID.randomUUID().toString(),
+                sykmeldingId = UUID.randomUUID().toString()
+            )
+        sykepengesoknadDAO.lagreSykepengesoknad(identiskSoknad)
+
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = basisdato.minusDays(10),
+                    tom = basisdato.plusDays(10)
+                ),
+                sykmeldingSkrevet = sykmeldingSkrevet.minusHours(1)
+            ),
+            forventaSoknader = 2
+        )
+
+        val soknader = hentSoknaderMetadata(fnr)
+        soknader shouldHaveSize 4
+
+        soknader[0].status shouldBeEqualTo RSSoknadstatus.FREMTIDIG
+        soknader[0].fom shouldBeEqualTo basisdato.minusDays(5)
+        soknader[0].tom shouldBeEqualTo basisdato.plusDays(5)
+
+        soknader[1].status shouldBeEqualTo RSSoknadstatus.FREMTIDIG
+        soknader[1].fom shouldBeEqualTo basisdato.minusDays(5)
+        soknader[1].tom shouldBeEqualTo basisdato.plusDays(5)
+
+        soknader[2].status shouldBeEqualTo RSSoknadstatus.NY
+        soknader[2].fom shouldBeEqualTo basisdato.minusDays(10)
+        soknader[2].tom shouldBeEqualTo basisdato.minusDays(6)
+
+        soknader[3].status shouldBeEqualTo RSSoknadstatus.FREMTIDIG
+        soknader[3].fom shouldBeEqualTo basisdato.plusDays(6)
+        soknader[3].tom shouldBeEqualTo basisdato.plusDays(10)
+
+        val klippmetrikker = klippMetrikkRepository.findAll().toList().sortedBy { it.variant }
+        klippmetrikker shouldHaveSize 1
+
+        klippmetrikker[0].soknadstatus `should be equal to` "FREMTIDIG"
+        klippmetrikker[0].variant `should be equal to` "SYKMELDING_STARTER_INNI_SLUTTER_INNI"
+        klippmetrikker[0].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
         klippmetrikker[0].klippet `should be equal to` true
     }
 }
