@@ -138,19 +138,19 @@ class ArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
 
         assertThat(soknad.sporsmal!!.first { it.tag == "ARBEID_UNDERVEIS_100_PROSENT_0" }.sporsmalstekst).isEqualTo(
             "I perioden ${
-                DatoUtil.formatterPeriode(
-                    basisdato.minusDays(1),
-                    basisdato.plusDays(7)
-                )
+            DatoUtil.formatterPeriode(
+                basisdato.minusDays(1),
+                basisdato.plusDays(7)
+            )
             } var du 100 % sykmeldt fra Butikken. Jobbet du noe hos Butikken i denne perioden?"
         )
 
         assertThat(soknad.sporsmal!!.first { it.tag == "ARBEID_UNDERVEIS_100_PROSENT_1" }.sporsmalstekst).isEqualTo(
             "I perioden ${
-                DatoUtil.formatterPeriode(
-                    basisdato.plusDays(8),
-                    basisdato.plusDays(15)
-                )
+            DatoUtil.formatterPeriode(
+                basisdato.plusDays(8),
+                basisdato.plusDays(15)
+            )
             } var du 100 % sykmeldt fra Butikken. Jobbet du noe hos Butikken i denne perioden?"
         )
     }
