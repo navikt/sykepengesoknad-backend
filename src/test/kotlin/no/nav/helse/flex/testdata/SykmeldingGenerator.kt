@@ -36,6 +36,7 @@ fun skapArbeidsgiverSykmelding(
             )
         ),
         behandletTidspunkt = OffsetDateTime.now(ZoneOffset.UTC),
+        signaturDato = OffsetDateTime.now(ZoneOffset.UTC),
         mottattTidspunkt = OffsetDateTime.now(ZoneOffset.UTC),
         arbeidsgiver = ArbeidsgiverAGDTO(null, null),
         syketilfelleStartDato = null,
@@ -120,6 +121,7 @@ fun skapArbeidsgiverSykmelding(
         id = sykmeldingId,
         sykmeldingsperioder = sykmeldingsperioder,
         behandletTidspunkt = sykmeldingSkrevet,
+        signaturDato = sykmeldingSkrevet,
         mottattTidspunkt = OffsetDateTime.now(ZoneOffset.UTC),
         arbeidsgiver = ArbeidsgiverAGDTO(null, null),
         syketilfelleStartDato = null,
