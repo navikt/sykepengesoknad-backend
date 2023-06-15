@@ -1,5 +1,6 @@
 package no.nav.helse.flex.testdata
 
+import no.nav.helse.flex.client.medlemskap.MedlemskapVurderingRepository
 import no.nav.helse.flex.repository.KlippMetrikkRepository
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
@@ -12,12 +13,13 @@ import org.springframework.transaction.annotation.Transactional
 class DatabaseReset(
     private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
     private val sykepengesoknadDAO: SykepengesoknadDAO,
-    private val klippMetrikkRepository: KlippMetrikkRepository
+    private val klippMetrikkRepository: KlippMetrikkRepository,
+    private val medlemskapVurderingRepository: MedlemskapVurderingRepository
 ) {
 
     fun resetDatabase() {
         val aktorIder = namedParameterJdbcTemplate.query(
-            "SELECT distinct(FNR) FROM SYKEPENGESOKNAD",
+            "SELECT distinct(FNR) FROM sykepengesoknad",
             MapSqlParameterSource()
         ) { resultSet, _ ->
             resultSet.getString("FNR")
@@ -30,7 +32,8 @@ class DatabaseReset(
         aktorIder.forEach {
             sykepengesoknadDAO.nullstillSoknader(it)
         }
-        namedParameterJdbcTemplate.update("DELETE FROM JULESOKNADKANDIDAT", MapSqlParameterSource())
+        namedParameterJdbcTemplate.update("DELETE FROM julesoknadkandidat", MapSqlParameterSource())
         klippMetrikkRepository.deleteAll()
+        medlemskapVurderingRepository.deleteAll()
     }
 }

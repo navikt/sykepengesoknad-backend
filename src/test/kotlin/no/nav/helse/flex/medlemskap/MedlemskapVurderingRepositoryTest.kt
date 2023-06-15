@@ -21,7 +21,7 @@ class MedlemskapVurderingRepositoryTest : BaseTestClass() {
     private lateinit var medlemskapVurderingRepository: MedlemskapVurderingRepository
 
     @AfterEach
-    fun slettFraDatabase() {
+    fun resetDatabase() {
         medlemskapVurderingRepository.deleteAll()
     }
 
@@ -53,7 +53,7 @@ class MedlemskapVurderingRepositoryTest : BaseTestClass() {
         dbRecord.timestamp shouldNotBe null
         dbRecord.svartid `should be equal to` svartid
         dbRecord.svartype `should be equal to` "UAVKLART"
-        dbRecord.sporsmal.value!! `should be equal to`(listOf("En", "To").serialisertTilString())
+        dbRecord.sporsmal.value!! `should be equal to` (listOf("En", "To").serialisertTilString())
     }
 
     @Test

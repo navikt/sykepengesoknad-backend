@@ -1,41 +1,30 @@
 package no.nav.helse.flex.annetarbeidsforhold
 
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.hentSoknad
-import no.nav.helse.flex.hentSoknaderMetadata
-import no.nav.helse.flex.sendSykmelding
-import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER
-import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
-import no.nav.helse.flex.soknadsopprettelse.ARBEIDSLEDIG_UTLAND
-import no.nav.helse.flex.soknadsopprettelse.ARBEID_UTENFOR_NORGE
-import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
-import no.nav.helse.flex.soknadsopprettelse.FRISKMELDT
-import no.nav.helse.flex.soknadsopprettelse.FRISKMELDT_START
-import no.nav.helse.flex.soknadsopprettelse.PERMISJON_V2
-import no.nav.helse.flex.soknadsopprettelse.VAER_KLAR_OVER_AT
+import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
-import no.nav.helse.flex.tilSoknader
-import no.nav.helse.flex.ventPåRecords
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.MethodOrderer
+import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-@TestMethodOrder(MethodOrderer.MethodName::class)
+@TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class AnnetArbeidsforholdIntegrationTest : BaseTestClass() {
 
     final val fnr = "123456789"
 
     @Test
-    fun `1 - vi oppretter en annet arbeidsforhold søknad`() {
+    @Order(1)
+    fun `Vi oppretter en annet arbeidsforhold søknad`() {
         val soknader = sendSykmelding(
             sykmeldingKafkaMessage(
                 arbeidssituasjon = Arbeidssituasjon.ANNET,
@@ -52,7 +41,8 @@ class AnnetArbeidsforholdIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    fun `2 - søknaden har alle spørsmål`() {
+    @Order(2)
+    fun `Søknaden har alle spørsmål`() {
         val soknader = hentSoknaderMetadata(fnr)
         assertThat(soknader).hasSize(1)
 
@@ -72,7 +62,8 @@ class AnnetArbeidsforholdIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    fun `3 - spørsmålstekstene endrer seg når vi blir friskmeldt midt i søknadsperioden`() {
+    @Order(3)
+    fun `Spørsmålstekstene endrer seg når vi blir friskmeldt midt i søknadsperioden`() {
         val soknaden = hentSoknad(
             soknadId = hentSoknaderMetadata(fnr).first().id,
             fnr = fnr
@@ -118,7 +109,8 @@ class AnnetArbeidsforholdIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    fun `4 - unødvendige spørsmål forsvinner når man blir friskmeldt første dag i søknadsperioden`() {
+    @Order(4)
+    fun `Unødvendige spørsmål forsvinner når man blir friskmeldt første dag i søknadsperioden`() {
         val soknaden = hentSoknad(
             soknadId = hentSoknaderMetadata(fnr).first().id,
             fnr = fnr
@@ -144,7 +136,8 @@ class AnnetArbeidsforholdIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    fun `5 - unødvendige spørsmål kommer tilbake når man svarer at man ikke ble friskmeldt likevel`() {
+    @Order(5)
+    fun `Unødvendige spørsmål kommer tilbake når man svarer at man ikke ble friskmeldt likevel`() {
         val soknaden = hentSoknad(
             soknadId = hentSoknaderMetadata(fnr).first().id,
             fnr = fnr
@@ -179,7 +172,8 @@ class AnnetArbeidsforholdIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    fun `6 - Vi svarer på alle spørsmål og sender inn søknaden`() {
+    @Order(6)
+    fun `Vi svarer på alle spørsmål og sender inn søknaden`() {
         val soknaden = hentSoknad(
             soknadId = hentSoknaderMetadata(fnr).first().id,
             fnr = fnr

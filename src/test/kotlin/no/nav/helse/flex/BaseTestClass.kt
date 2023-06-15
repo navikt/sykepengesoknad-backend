@@ -6,6 +6,7 @@ import no.nav.helse.flex.juridiskvurdering.juridiskVurderingTopic
 import no.nav.helse.flex.kafka.producer.AivenKafkaProducer
 import no.nav.helse.flex.kafka.producer.RebehandlingSykmeldingSendtProducer
 import no.nav.helse.flex.kafka.sykepengesoknadTopic
+import no.nav.helse.flex.medlemskap.MedlemskapMockDispatcher
 import no.nav.helse.flex.mockdispatcher.YrkesskadeMockDispatcher
 import no.nav.helse.flex.personhendelse.AutomatiskInnsendingVedDodsfall
 import no.nav.helse.flex.repository.SykepengesoknadRepository
@@ -94,7 +95,7 @@ abstract class BaseTestClass {
             }
             medlemskapMockWebServer = MockWebServer().apply {
                 System.setProperty("MEDLEMSKAP_VURDERING_URL", "http://localhost:$port")
-//                dispatcher = MedlemskapMockDispatcher
+                dispatcher = MedlemskapMockDispatcher
             }
             inntektskomponentenMockWebServer = MockWebServer().apply {
                 System.setProperty("FLEX_FSS_PROXY_URL", "http://localhost:$port")
@@ -130,8 +131,10 @@ abstract class BaseTestClass {
 
     @PostConstruct
     fun setupRestServiceServers() {
-        syfotilgangskontrollMockRestServiceServer = MockRestServiceServer.bindTo(syfotilgangskontrollRestTemplate).ignoreExpectOrder(true).build()
-        flexSyketilfelleMockRestServiceServer = MockRestServiceServer.bindTo(flexSyketilfelleRestTemplate).ignoreExpectOrder(true).build()
+        syfotilgangskontrollMockRestServiceServer =
+            MockRestServiceServer.bindTo(syfotilgangskontrollRestTemplate).ignoreExpectOrder(true).build()
+        flexSyketilfelleMockRestServiceServer =
+            MockRestServiceServer.bindTo(flexSyketilfelleRestTemplate).ignoreExpectOrder(true).build()
     }
 
     @MockBean

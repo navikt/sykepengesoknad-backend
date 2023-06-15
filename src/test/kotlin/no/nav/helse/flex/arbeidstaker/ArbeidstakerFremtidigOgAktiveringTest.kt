@@ -3,7 +3,6 @@ package no.nav.helse.flex.arbeidstaker
 import no.nav.helse.flex.*
 import no.nav.helse.flex.aktivering.AktiveringJob
 import no.nav.helse.flex.client.medlemskap.MedlemskapVurderingRepository
-import no.nav.helse.flex.client.medlemskap.MedlemskapVurderingResponse
 import no.nav.helse.flex.client.medlemskap.MedlemskapVurderingSporsmal
 import no.nav.helse.flex.client.medlemskap.MedlemskapVurderingSvarType
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
@@ -14,13 +13,11 @@ import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.util.DatoUtil
 import no.nav.helse.flex.util.serialisertTilString
-import okhttp3.mockwebserver.MockResponse
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldHaveSize
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.MediaType
 import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
@@ -34,23 +31,6 @@ class ArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
 
     private final val fnr = "123456789"
     private final val basisdato = LocalDate.now()
-
-    @BeforeAll
-    fun setup() {
-        medlemskapMockWebServer.enqueue(
-            MockResponse().setResponseCode(200).setBody(
-                MedlemskapVurderingResponse(
-                    svar = MedlemskapVurderingSvarType.UAVKLART,
-                    sporsmal = listOf(
-                        MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
-                        MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
-                        MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
-                        MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE
-                    )
-                ).serialisertTilString()
-            ).addHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        )
-    }
 
     @Test
     @Order(1)
