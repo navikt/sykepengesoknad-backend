@@ -5,9 +5,7 @@ import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should contain same`
 import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldStartWith
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 
@@ -18,6 +16,13 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
 
     @Autowired
     private lateinit var medlemskapVurderingRepository: MedlemskapVurderingRepository
+
+    @BeforeAll
+    fun `Tøm requests til medlemskapVurdering`() {
+        repeat(medlemskapMockWebServer.requestCount) {
+            medlemskapMockWebServer.takeRequest()
+        }
+    }
 
     private val fom = LocalDate.of(2023, 1, 1)
     private val tom = LocalDate.of(2023, 1, 31)
