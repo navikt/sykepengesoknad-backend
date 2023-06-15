@@ -1,6 +1,6 @@
 package no.nav.helse.flex.testdata
 
-import no.nav.helse.flex.client.medlemskap.MedlemskapVurderingRepository
+import no.nav.helse.flex.medlemskap.MedlemskapVurderingRepository
 import no.nav.helse.flex.repository.KlippMetrikkRepository
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource

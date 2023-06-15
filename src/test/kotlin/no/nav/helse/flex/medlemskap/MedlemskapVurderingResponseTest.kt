@@ -1,4 +1,4 @@
-package no.nav.helse.flex.client.medlemskap
+package no.nav.helse.flex.medlemskap
 
 import com.fasterxml.jackson.databind.DatabindException
 import no.nav.security.mock.oauth2.http.objectMapper

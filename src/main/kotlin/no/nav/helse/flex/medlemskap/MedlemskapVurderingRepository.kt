@@ -1,4 +1,4 @@
-package no.nav.helse.flex.client.medlemskap
+package no.nav.helse.flex.medlemskap
 
 import no.nav.helse.flex.util.serialisertTilString
 import org.postgresql.util.PGobject

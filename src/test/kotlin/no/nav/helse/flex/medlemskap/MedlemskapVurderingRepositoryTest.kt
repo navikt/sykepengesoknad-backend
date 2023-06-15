@@ -1,7 +1,6 @@
+package no.nav.helse.flex.medlemskap
+
 import no.nav.helse.flex.BaseTestClass
-import no.nav.helse.flex.client.medlemskap.MedlemskapVurderingDbRecord
-import no.nav.helse.flex.client.medlemskap.MedlemskapVurderingRepository
-import no.nav.helse.flex.client.medlemskap.tilPostgresJson
 import no.nav.helse.flex.util.serialisertTilString
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldHaveSize

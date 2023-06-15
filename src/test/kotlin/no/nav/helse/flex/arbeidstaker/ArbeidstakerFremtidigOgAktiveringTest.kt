@@ -2,11 +2,11 @@ package no.nav.helse.flex.arbeidstaker
 
 import no.nav.helse.flex.*
 import no.nav.helse.flex.aktivering.AktiveringJob
-import no.nav.helse.flex.client.medlemskap.MedlemskapVurderingRepository
-import no.nav.helse.flex.client.medlemskap.MedlemskapVurderingSporsmal
-import no.nav.helse.flex.client.medlemskap.MedlemskapVurderingSvarType
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
+import no.nav.helse.flex.medlemskap.MedlemskapVurderingRepository
+import no.nav.helse.flex.medlemskap.MedlemskapVurderingSporsmal
+import no.nav.helse.flex.medlemskap.MedlemskapVurderingSvarType
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage

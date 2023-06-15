@@ -1,4 +1,4 @@
-package no.nav.helse.flex.client.medlemskap
+package no.nav.helse.flex.medlemskap
 
 import no.nav.helse.flex.BaseTestClass
 import org.amshove.kluent.`should be equal to`

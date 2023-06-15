@@ -1,8 +1,5 @@
 package no.nav.helse.flex.medlemskap
 
-import no.nav.helse.flex.client.medlemskap.MedlemskapVurderingResponse
-import no.nav.helse.flex.client.medlemskap.MedlemskapVurderingSporsmal
-import no.nav.helse.flex.client.medlemskap.MedlemskapVurderingSvarType
 import no.nav.helse.flex.util.serialisertTilString
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse

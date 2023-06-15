@@ -1,4 +1,4 @@
-package no.nav.helse.flex.client.medlemskap
+package no.nav.helse.flex.medlemskap
 
 import no.nav.helse.flex.config.AadRestTemplateConfiguration
 import no.nav.helse.flex.config.MEDLEMSKAP_VURDERING_REST_TEMPLATE_CONNECT_TIMEOUT
