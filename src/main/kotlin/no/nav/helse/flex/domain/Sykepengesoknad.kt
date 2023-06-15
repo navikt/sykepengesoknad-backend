@@ -24,6 +24,7 @@ data class Sykepengesoknad(
     val tom: LocalDate?,
     val startSykeforlop: LocalDate?,
     val sykmeldingSkrevet: Instant?,
+    val sykmeldingSignaturDato: Instant? = null,
     val soknadPerioder: List<Soknadsperiode>?,
     val sendtArbeidsgiver: Instant? = null,
     val arbeidsgiverOrgnummer: String? = null,

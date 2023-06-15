@@ -70,6 +70,7 @@ class FinnOpprinneligSendtTest {
             tom = tom,
             startSykeforlop = LocalDate.MIN,
             sykmeldingSkrevet = Instant.now(),
+            sykmeldingSignaturDato = Instant.now(),
             sendtArbeidsgiver = null,
             arbeidsgiverOrgnummer = "12345",
             arbeidsgiverNavn = "1243123",
