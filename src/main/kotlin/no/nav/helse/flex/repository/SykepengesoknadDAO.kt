@@ -463,6 +463,8 @@ class SykepengesoknadDAO(
                     startSykeforlop = resultSet.getObject("START_SYKEFORLOP", LocalDate::class.java),
                     sykmeldingSkrevet = resultSet.getObject("SYKMELDING_SKREVET", OffsetDateTime::class.java)
                         ?.toInstant(),
+                    sykmeldingSignaturDato = resultSet.getObject("SYKMELDING_SIGNATUR_DATO", OffsetDateTime::class.java)
+                        ?.toInstant(),
                     sendtNav = resultSet.getObject("SENDT_NAV", OffsetDateTime::class.java)?.toInstant(),
                     arbeidssituasjon = Optional.ofNullable(resultSet.getString("ARBEIDSSITUASJON"))
                         .map { Arbeidssituasjon.valueOf(it) }.orElse(null),

@@ -6,6 +6,7 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.service.FolkeregisterIdenter
+import no.nav.syfo.model.sykmelding.arbeidsgiver.ArbeidsgiverSykmelding
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import java.time.LocalDate
 
@@ -22,7 +23,8 @@ internal fun SykepengesoknadDAO.soknadKandidaterSomKanKlippes(
     sykmeldingKafkaMessage: SykmeldingKafkaMessage,
     identer: FolkeregisterIdenter
 ) = alleSomOverlapper(orgnummer, sykmeldingKafkaMessage, identer).filter {
-    it.sykmeldingSkrevet!!.isBefore(sykmeldingKafkaMessage.sykmelding.behandletTidspunkt.toInstant())
+    it.sykmeldingSkrevet!!.isBefore(sykmeldingKafkaMessage.sykmelding.behandletTidspunkt.toInstant()) ||
+        it.signaturDatoIsBefore(sykmeldingKafkaMessage.sykmelding)
 }
 
 internal fun SykepengesoknadDAO.soknadKandidaterSomKanKlippeSykmeldingen(
@@ -30,7 +32,8 @@ internal fun SykepengesoknadDAO.soknadKandidaterSomKanKlippeSykmeldingen(
     sykmeldingKafkaMessage: SykmeldingKafkaMessage,
     identer: FolkeregisterIdenter
 ) = alleSomOverlapper(orgnummer, sykmeldingKafkaMessage, identer).filter {
-    it.sykmeldingSkrevet!!.isAfter(sykmeldingKafkaMessage.sykmelding.behandletTidspunkt.toInstant())
+    it.sykmeldingSkrevet!!.isAfter(sykmeldingKafkaMessage.sykmelding.behandletTidspunkt.toInstant()) ||
+        it.signaturDatoIsAfter(sykmeldingKafkaMessage.sykmelding)
 }
 
 private fun SykepengesoknadDAO.alleSomOverlapper(
@@ -50,6 +53,24 @@ private fun SykepengesoknadDAO.alleSomOverlapper(
             sykmeldingPeriode.overlap(soknadPeriode)
         }
         .toList()
+}
+
+private fun Sykepengesoknad.signaturDatoIsBefore(sykmelding: ArbeidsgiverSykmelding): Boolean {
+    return when {
+        this.sykmeldingSkrevet != sykmelding.behandletTidspunkt.toInstant() -> false
+        this.sykmeldingSignaturDato == null || sykmelding.signaturDato == null -> false
+        this.sykmeldingSignaturDato.isBefore(sykmelding.signaturDato!!.toInstant()) -> true
+        else -> false
+    }
+}
+
+private fun Sykepengesoknad.signaturDatoIsAfter(sykmelding: ArbeidsgiverSykmelding): Boolean {
+    return when {
+        this.sykmeldingSkrevet != sykmelding.behandletTidspunkt.toInstant() -> false
+        this.sykmeldingSignaturDato == null || sykmelding.signaturDato == null -> false
+        this.sykmeldingSignaturDato.isAfter(sykmelding.signaturDato!!.toInstant()) -> true
+        else -> false
+    }
 }
 
 internal fun finnEndringIUforegrad(

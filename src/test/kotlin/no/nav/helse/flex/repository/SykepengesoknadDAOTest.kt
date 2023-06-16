@@ -199,8 +199,8 @@ class SykepengesoknadDAOTest : BaseTestClass() {
 
         sykepengesoknadDAO.settSendtNav(id, LocalDateTime.now())
 
-        val (_, _, _, _, _, _, sendtNav) = sykepengesoknadDAO.finnSykepengesoknad(uuid)
-        assertThat(sendtNav!!.tilOsloLocalDateTime()).isEqualToIgnoringSeconds(Instant.now().tilOsloLocalDateTime())
+        val soknad = sykepengesoknadDAO.finnSykepengesoknad(uuid)
+        assertThat(soknad.sendtNav!!.tilOsloLocalDateTime()).isEqualToIgnoringSeconds(Instant.now().tilOsloLocalDateTime())
     }
 
     @Test
@@ -211,8 +211,8 @@ class SykepengesoknadDAOTest : BaseTestClass() {
 
         sykepengesoknadDAO.settSendtAg(id, LocalDateTime.now())
 
-        val (_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, sendtArbeidsgiver) = sykepengesoknadDAO.finnSykepengesoknad(uuid)
-        assertThat(sendtArbeidsgiver!!.tilOsloLocalDateTime()).isEqualToIgnoringSeconds(Instant.now().tilOsloLocalDateTime())
+        val soknad = sykepengesoknadDAO.finnSykepengesoknad(uuid)
+        assertThat(soknad.sendtArbeidsgiver!!.tilOsloLocalDateTime()).isEqualToIgnoringSeconds(Instant.now().tilOsloLocalDateTime())
     }
 
     @Test
@@ -266,7 +266,7 @@ class SykepengesoknadDAOTest : BaseTestClass() {
         val soknadFraBasenEtterSlettingAvSvar = sykepengesoknadDAO.finnSykepengesoknad(uuid)
 
         soknadFraBasenEtterSlettingAvSvar.alleSporsmalOgUndersporsmal()
-            .forEach { (_, _, _, _, _, _, _, _, _, svar) -> svar.forEach { (_, verdi) -> assertThat(verdi).isNull() } }
+            .forEach { sporsmal -> sporsmal.svar.forEach { svar -> assertThat(svar.verdi).isNull() } }
     }
 
     @Test
@@ -283,7 +283,7 @@ class SykepengesoknadDAOTest : BaseTestClass() {
 
         val soknadFraBasenEtterSlettingAvSvar = sykepengesoknadDAO.finnSykepengesoknad(uuid1)
         soknadFraBasenEtterSlettingAvSvar.alleSporsmalOgUndersporsmal()
-            .forEach { (_, _, _, _, _, _, _, _, _, svar) -> svar.forEach { (_, verdi) -> assertThat(verdi).isNull() } }
+            .forEach { sporsmal -> sporsmal.svar.forEach { svar -> assertThat(svar.verdi).isNull() } }
 
         val soknadFraBasenEtterSlettingAvSvarPaAnnenSoknad = sykepengesoknadDAO.finnSykepengesoknad(uuid2)
         assertThat(soknadFraBasenEtterSlettingAvSvarPaAnnenSoknad.getSporsmalMedTag(FRAVAR_FOR_SYKMELDINGEN).svar[0].verdi).isEqualTo("JA")

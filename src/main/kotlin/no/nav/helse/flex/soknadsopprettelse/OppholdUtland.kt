@@ -45,6 +45,7 @@ fun settOppSoknadOppholdUtland(fnr: String): Sykepengesoknad {
         soknadPerioder = emptyList(),
         startSykeforlop = null,
         sykmeldingSkrevet = null,
+        sykmeldingSignaturDato = null,
         sykmeldingId = null,
         egenmeldtSykmelding = null,
         merknaderFraSykmelding = null,

@@ -93,6 +93,7 @@ class OpprettSoknadService(
                     arbeidsgiverNavn = arbeidsgiverStatusDTO?.orgNavn?.prettyOrgnavn(),
                     sykmeldingId = sm.id,
                     sykmeldingSkrevet = sm.behandletTidspunkt.toInstant(),
+                    sykmeldingSignaturDato = sm.signaturDato?.toInstant(),
                     soknadPerioder = perioderFraSykmeldingen.tilSoknadsperioder(),
                     egenmeldtSykmelding = sm.egenmeldt,
                     merknaderFraSykmelding = sm.merknader.tilMerknader(),

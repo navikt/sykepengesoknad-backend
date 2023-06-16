@@ -44,6 +44,7 @@ import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 import java.time.OffsetDateTime
+import java.time.temporal.ChronoUnit.DAYS
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class OverlapperFor : BaseTestClass() {
@@ -408,5 +409,52 @@ class OverlapperFor : BaseTestClass() {
         klippmetrikker[0].variant `should be equal to` "SYKMELDING_STARTER_INNI_SLUTTER_ETTER"
         klippmetrikker[0].endringIUforegrad `should be equal to` "VET_IKKE"
         klippmetrikker[0].klippet `should be equal to` true
+    }
+
+    @Test
+    fun `Fremtidig arbeidstakersøknad med samme tidspunkt for sykmelding skrevet, klippes`() {
+        val fnr = "99999999999"
+        val sykmeldingSkrevet = OffsetDateTime.now().truncatedTo(DAYS)
+        val signaturDato = OffsetDateTime.now()
+
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = basisdato,
+                    tom = basisdato.plusDays(10)
+                ),
+                sykmeldingSkrevet = sykmeldingSkrevet,
+                signaturDato = signaturDato
+            )
+        )
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = basisdato,
+                    tom = basisdato.plusDays(7)
+                ),
+                sykmeldingSkrevet = sykmeldingSkrevet,
+                signaturDato = signaturDato.plusHours(1)
+            )
+        )
+
+        val hentetViaRest = hentSoknaderMetadata(fnr)
+        hentetViaRest shouldHaveSize 2
+
+        val klippetSoknad = hentetViaRest[0]
+        klippetSoknad.fom shouldBeEqualTo basisdato.plusDays(8)
+        klippetSoknad.tom shouldBeEqualTo basisdato.plusDays(10)
+        klippetSoknad.soknadPerioder!! shouldHaveSize 1
+        klippetSoknad.soknadPerioder!![0].fom shouldBeEqualTo basisdato.plusDays(8)
+        klippetSoknad.soknadPerioder!![0].tom shouldBeEqualTo basisdato.plusDays(10)
+
+        val nyesteSoknad = hentetViaRest[1]
+        nyesteSoknad.fom shouldBeEqualTo basisdato
+        nyesteSoknad.tom shouldBeEqualTo basisdato.plusDays(7)
+        nyesteSoknad.soknadPerioder!! shouldHaveSize 1
+        nyesteSoknad.soknadPerioder!![0].fom shouldBeEqualTo basisdato
+        nyesteSoknad.soknadPerioder!![0].tom shouldBeEqualTo basisdato.plusDays(7)
     }
 }

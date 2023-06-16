@@ -35,6 +35,7 @@ fun Sykepengesoknad.normaliser(): NormalisertSoknad {
         tom = tom,
         startSykeforlop = startSykeforlop,
         sykmeldingSkrevet = sykmeldingSkrevet,
+        sykmeldingSignaturDato = sykmeldingSignaturDato,
         sendtArbeidsgiver = sendtArbeidsgiver,
         arbeidsgiverOrgnummer = arbeidsgiverOrgnummer,
         arbeidsgiverNavn = arbeidsgiverNavn,

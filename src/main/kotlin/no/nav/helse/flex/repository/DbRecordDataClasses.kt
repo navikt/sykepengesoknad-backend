@@ -35,6 +35,7 @@ data class SykepengesoknadDbRecord(
     val tom: LocalDate?,
     val startSykeforlop: LocalDate?,
     val sykmeldingSkrevet: Instant?,
+    val sykmeldingSignaturDato: Instant?,
     val arbeidsgiverOrgnummer: String?,
     val arbeidsgiverNavn: String?,
     val arbeidssituasjon: Arbeidssituasjon?,
