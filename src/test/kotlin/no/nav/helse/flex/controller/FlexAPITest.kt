@@ -2,7 +2,6 @@ package no.nav.helse.flex.controller
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.BaseTestClass
-import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknadMetadata
 import no.nav.helse.flex.jwt
 import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.skapAzureJwt
@@ -44,10 +43,11 @@ class FlexAPITest : BaseTestClass() {
             )
             .andExpect(MockMvcResultMatchers.status().isOk).andReturn()
 
-        val fraRest: List<RSSykepengesoknadMetadata> = OBJECT_MAPPER.readValue(result.response.contentAsString)
-        fraRest.shouldHaveSize(1)
-        fraRest[0].id.shouldBeEqualTo(kafkaMelding.id)
-        fraRest[0].sykmeldingId.shouldBeEqualTo(kafkaMelding.sykmeldingId)
+        val fraRest: FlexInternalResponse = OBJECT_MAPPER.readValue(result.response.contentAsString)
+        fraRest.sykepengesoknadListe.shouldHaveSize(1)
+        fraRest.klippetSykepengesoknadRecord.shouldHaveSize(0)
+        fraRest.sykepengesoknadListe[0].id.shouldBeEqualTo(kafkaMelding.id)
+        fraRest.sykepengesoknadListe[0].sykmeldingId.shouldBeEqualTo(kafkaMelding.sykmeldingId)
     }
 
     @Test
