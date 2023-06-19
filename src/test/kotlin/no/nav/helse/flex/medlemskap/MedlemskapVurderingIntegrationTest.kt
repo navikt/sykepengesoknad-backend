@@ -8,6 +8,7 @@ import org.amshove.kluent.shouldStartWith
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
+import java.util.*
 
 class MedlemskapVurderingIntegrationTest : BaseTestClass() {
 
@@ -16,6 +17,8 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
 
     @Autowired
     private lateinit var medlemskapVurderingRepository: MedlemskapVurderingRepository
+
+    private val sykepengesoknadId = UUID.randomUUID().toString()
 
     @BeforeAll
     fun `Tøm requests til medlemskapVurdering`() {
@@ -29,7 +32,8 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
     private val request = MedlemskapVurderingRequest(
         fnr = "",
         fom = fom,
-        tom = tom
+        tom = tom,
+        sykepengesoknadId = sykepengesoknadId
     )
 
     @AfterEach

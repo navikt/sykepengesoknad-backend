@@ -12,9 +12,12 @@ import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneOffset
+import java.util.*
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class MedlemskapVurderingRepositoryTest : BaseTestClass() {
+
+    private val sykepengesoknadId = UUID.randomUUID().toString()
 
     @Autowired
     private lateinit var medlemskapVurderingRepository: MedlemskapVurderingRepository
@@ -39,7 +42,8 @@ class MedlemskapVurderingRepositoryTest : BaseTestClass() {
                 fom = fom,
                 tom = tom,
                 svartype = "UAVKLART",
-                sporsmal = listOf("En", "To").tilPostgresJson()
+                sporsmal = listOf("En", "To").tilPostgresJson(),
+                sykepengesoknadId = sykepengesoknadId
             )
         )
 
@@ -53,6 +57,7 @@ class MedlemskapVurderingRepositoryTest : BaseTestClass() {
         dbRecord.svartid `should be equal to` svartid
         dbRecord.svartype `should be equal to` "UAVKLART"
         dbRecord.sporsmal.value!! `should be equal to` (listOf("En", "To").serialisertTilString())
+        dbRecord.sykepengesoknadId `should be equal to` sykepengesoknadId
     }
 
     @Test
@@ -70,7 +75,9 @@ class MedlemskapVurderingRepositoryTest : BaseTestClass() {
                 fom = fom,
                 tom = tom,
                 svartype = "JA",
-                sporsmal = emptyList<String>().tilPostgresJson()
+                sporsmal = emptyList<String>().tilPostgresJson(),
+                sykepengesoknadId = sykepengesoknadId
+
             )
         )
 
@@ -84,5 +91,6 @@ class MedlemskapVurderingRepositoryTest : BaseTestClass() {
         dbRecord.svartid `should be equal to` svartid
         dbRecord.svartype `should be equal to` "JA"
         dbRecord.sporsmal.value!!.`should be equal to`(emptyList<String>().serialisertTilString())
+        dbRecord.sykepengesoknadId `should be equal to` sykepengesoknadId
     }
 }

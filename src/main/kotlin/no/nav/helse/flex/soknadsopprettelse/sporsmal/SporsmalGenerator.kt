@@ -106,9 +106,10 @@ class SporsmalGenerator(
                     MedlemskapVurderingRequest(
                         // Bruker fnr fra sykepengesøknaden, ikke identer siden LovMe ikke støtter det enda, og har
                         // planer om å implementere kall mot PDL på sin side.
-                        soknad.fnr,
-                        soknad.fom!!,
-                        soknad.tom!!
+                        fnr = soknad.fnr,
+                        fom = soknad.fom!!,
+                        tom = soknad.tom!!,
+                        sykepengesoknadId = soknad.id
                     )
                 )
                 log.info("Hentet medlemskapvurdering for søknad ${soknad.id} med svar ${hentMedlemskapVurdering.svar}")

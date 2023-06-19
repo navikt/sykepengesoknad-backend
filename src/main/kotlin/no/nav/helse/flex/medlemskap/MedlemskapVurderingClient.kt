@@ -88,7 +88,8 @@ class MedlemskapVurderingClient(
                 fom = medlemskapVurderingRequest.fom,
                 tom = medlemskapVurderingRequest.tom,
                 svartype = medlemskapVurderingResponse.svar.toString(),
-                sporsmal = medlemskapVurderingResponse.sporsmal.tilPostgresJson()
+                sporsmal = medlemskapVurderingResponse.sporsmal.tilPostgresJson(),
+                sykepengesoknadId = medlemskapVurderingRequest.sykepengesoknadId
             )
         )
     }
@@ -110,7 +111,8 @@ class MedlemskapVurderingResponseException : RuntimeException {
 data class MedlemskapVurderingRequest(
     var fnr: String,
     var fom: LocalDate,
-    var tom: LocalDate
+    var tom: LocalDate,
+    var sykepengesoknadId: String
 )
 
 data class MedlemskapVurderingResponse(

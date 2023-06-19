@@ -23,7 +23,8 @@ data class MedlemskapVurderingDbRecord(
     val fom: LocalDate,
     val tom: LocalDate,
     val svartype: String,
-    val sporsmal: PGobject
+    val sporsmal: PGobject,
+    val sykepengesoknadId: String
 )
 
 fun Any.tilPostgresJson(): PGobject =
