@@ -32,3 +32,5 @@ env:
   EREG_URL: https://ereg-services.prod-fss-pub.nais.io
   YRKESSKADE_URL: http://yrkesskade-saker.yrkesskade
   YRKESSKADE_AAD_CLIENT_ID: prod-gcp.yrkesskade.yrkesskade-saker
+  MEDLEMSKAP_VURDERING_URL: "http://medlemskap-sykepenger-listener.medlemskap"
+  MEDLEMSKAP_VURDERING_AAD_CLIENT_ID: prod-gcp.medlemskap.medlemskap-sykepenger-listener

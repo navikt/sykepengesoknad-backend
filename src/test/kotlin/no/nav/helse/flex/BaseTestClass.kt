@@ -6,6 +6,7 @@ import no.nav.helse.flex.juridiskvurdering.juridiskVurderingTopic
 import no.nav.helse.flex.kafka.producer.AivenKafkaProducer
 import no.nav.helse.flex.kafka.producer.RebehandlingSykmeldingSendtProducer
 import no.nav.helse.flex.kafka.sykepengesoknadTopic
+import no.nav.helse.flex.medlemskap.MedlemskapMockDispatcher
 import no.nav.helse.flex.mockdispatcher.YrkesskadeMockDispatcher
 import no.nav.helse.flex.personhendelse.AutomatiskInnsendingVedDodsfall
 import no.nav.helse.flex.repository.SykepengesoknadRepository
@@ -49,9 +50,10 @@ abstract class BaseTestClass {
 
     companion object {
         val pdlMockWebserver: MockWebServer
-        private val inntektskomponentenMockWebserver: MockWebServer
-        private val eregMockWebserver: MockWebServer
-        private val yrkesskadeMockWebserver: MockWebServer
+        val medlemskapMockWebServer: MockWebServer
+        private val inntektskomponentenMockWebServer: MockWebServer
+        private val eregMockWebServer: MockWebServer
+        private val yrkesskadeMockWebServer: MockWebServer
 
         init {
             val threads = mutableListOf<Thread>()
@@ -91,15 +93,19 @@ abstract class BaseTestClass {
                 System.setProperty("pdl.api.url", "http://localhost:$port")
                 dispatcher = PdlMockDispatcher
             }
-            inntektskomponentenMockWebserver = MockWebServer().apply {
+            medlemskapMockWebServer = MockWebServer().apply {
+                System.setProperty("MEDLEMSKAP_VURDERING_URL", "http://localhost:$port")
+                dispatcher = MedlemskapMockDispatcher
+            }
+            inntektskomponentenMockWebServer = MockWebServer().apply {
                 System.setProperty("FLEX_FSS_PROXY_URL", "http://localhost:$port")
                 dispatcher = InntektskomponentenMockDispatcher
             }
-            eregMockWebserver = MockWebServer().apply {
+            eregMockWebServer = MockWebServer().apply {
                 System.setProperty("EREG_URL", "http://localhost:$port")
                 dispatcher = EregMockDispatcher
             }
-            yrkesskadeMockWebserver = MockWebServer().apply {
+            yrkesskadeMockWebServer = MockWebServer().apply {
                 System.setProperty("YRKESSKADE_URL", "http://localhost:$port")
                 dispatcher = YrkesskadeMockDispatcher
             }
@@ -125,8 +131,10 @@ abstract class BaseTestClass {
 
     @PostConstruct
     fun setupRestServiceServers() {
-        syfotilgangskontrollMockRestServiceServer = MockRestServiceServer.bindTo(syfotilgangskontrollRestTemplate).ignoreExpectOrder(true).build()
-        flexSyketilfelleMockRestServiceServer = MockRestServiceServer.bindTo(flexSyketilfelleRestTemplate).ignoreExpectOrder(true).build()
+        syfotilgangskontrollMockRestServiceServer =
+            MockRestServiceServer.bindTo(syfotilgangskontrollRestTemplate).ignoreExpectOrder(true).build()
+        flexSyketilfelleMockRestServiceServer =
+            MockRestServiceServer.bindTo(flexSyketilfelleRestTemplate).ignoreExpectOrder(true).build()
     }
 
     @MockBean
