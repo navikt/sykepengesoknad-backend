@@ -14,13 +14,14 @@ data class RSSykepengesoknadFlexInternal(
     val sendtTilArbeidsgiverDato: LocalDateTime? = null,
     val avbruttDato: LocalDate? = null,
     val startSykeforlop: LocalDate? = null,
-    val sykmeldingUtskrevet: LocalDate? = null,
+    val sykmeldingUtskrevet: LocalDateTime? = null,
+    val sykmeldingSignaturDato: LocalDateTime? = null,
     val arbeidsgiver: RSArbeidsgiver? = null,
+    val arbeidsgiverNavn: String? = null,
+    val arbeidsgiverOrgnummer: String? = null,
     val korrigerer: String? = null,
     val korrigertAv: String? = null,
     val arbeidssituasjon: RSArbeidssituasjon? = null,
     val soknadPerioder: List<RSSoknadsperiode>? = null,
-    val egenmeldtSykmelding: Boolean?,
-    val merknaderFraSykmelding: List<RSMerknad>?,
-    val opprettetAvInntektsmelding: Boolean
+    val merknaderFraSykmelding: List<RSMerknad>?
 )
