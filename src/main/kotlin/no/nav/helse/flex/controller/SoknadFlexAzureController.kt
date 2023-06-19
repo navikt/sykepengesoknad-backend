@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*
 
 data class FlexInternalResponse(
     val sykepengesoknadListe: List<RSSykepengesoknadFlexInternal>,
-    val klippetSykepengesoknadRecord: List<KlippetSykepengesoknadDbRecord>
+    val klippetSykepengesoknadRecord: Set<KlippetSykepengesoknadDbRecord>
 )
 
 @RestController
@@ -37,14 +37,15 @@ class SoknadFlexAzureController(
             .hentSoknader(identService.hentFolkeregisterIdenterMedHistorikkForFnr(fnr))
             .map { it.tilRSSykepengesoknadFlexInternal() }
 
-        // map to get ids from soknader to a list of uuid
-        val soknadUuids = soknader.map { it.id }
+        val sokUuider = soknader.map { it.id }
+        val klippetSoknad = klippetSykepengesoknadRepository.findAllBySykepengesoknadUuidIn(sokUuider)
 
-        val klippetSykepengesoknadDbRecord = klippetSykepengesoknadRepository.findAllBySykepengesoknadUuidIn(soknadUuids)
+        val sykUuider = soknader.filter { it.sykmeldingId != null }.map { it.sykmeldingId!! }
+        val klippetSykmelding = klippetSykepengesoknadRepository.findAllBySykmeldingUuidIn(sykUuider)
 
         return FlexInternalResponse(
             sykepengesoknadListe = soknader,
-            klippetSykepengesoknadRecord = klippetSykepengesoknadDbRecord
+            klippetSykepengesoknadRecord = (klippetSoknad + klippetSykmelding).toSet()
         )
     }
 }
