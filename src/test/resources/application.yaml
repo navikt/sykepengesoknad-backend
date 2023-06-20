@@ -74,6 +74,14 @@ no.nav.security.jwt:
           client-id: client-id
           client-secret: secretzz
           client-auth-method: client_secret_basic
+      inntektskomponenten-client-credentials:
+        token-endpoint-url: http://localhost:${mock-oauth2-server.port}/azureator/token
+        grant-type: client_credentials
+        scope: inntektskomponenten-client
+        authentication:
+          client-id: client-id
+          client-secret: secretzz
+          client-auth-method: client_secret_basic
 
 
 EREG_URL: "http://ereg"

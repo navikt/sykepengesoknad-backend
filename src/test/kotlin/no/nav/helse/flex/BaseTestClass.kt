@@ -52,6 +52,7 @@ abstract class BaseTestClass {
         val pdlMockWebserver: MockWebServer
         val medlemskapMockWebServer: MockWebServer
         private val inntektskomponentenMockWebServer: MockWebServer
+        private val inntektskomponentenV2MockWebServer: MockWebServer
         private val eregMockWebServer: MockWebServer
         private val yrkesskadeMockWebServer: MockWebServer
 
@@ -99,6 +100,10 @@ abstract class BaseTestClass {
             }
             inntektskomponentenMockWebServer = MockWebServer().apply {
                 System.setProperty("FLEX_FSS_PROXY_URL", "http://localhost:$port")
+                dispatcher = InntektskomponentenMockDispatcher
+            }
+            inntektskomponentenV2MockWebServer = MockWebServer().apply {
+                System.setProperty("INNTEKTSKOMPONENTEN_URL", "http://localhost:$port")
                 dispatcher = InntektskomponentenMockDispatcher
             }
             eregMockWebServer = MockWebServer().apply {
