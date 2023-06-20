@@ -1,5 +1,7 @@
 package no.nav.helse.flex.controller
 
+import no.nav.helse.flex.client.pdl.PdlClient
+import no.nav.helse.flex.client.pdl.PdlIdent
 import no.nav.helse.flex.clientidvalidation.ClientIdValidation
 import no.nav.helse.flex.clientidvalidation.ClientIdValidation.NamespaceAndApp
 import no.nav.helse.flex.config.OIDCIssuer.AZUREATOR
@@ -21,16 +23,17 @@ data class FlexInternalResponse(
 
 @RestController
 @ProtectedWithClaims(issuer = AZUREATOR)
-@RequestMapping(value = ["/api/v1/flex/sykepengesoknader"], produces = [MediaType.APPLICATION_JSON_VALUE])
+@RequestMapping(value = ["/api/v1/flex"], produces = [MediaType.APPLICATION_JSON_VALUE])
 class SoknadFlexAzureController(
     private val clientIdValidation: ClientIdValidation,
     private val identService: IdentService,
+    private val pdlClient: PdlClient,
     private val hentSoknadService: HentSoknadService,
     private val klippetSykepengesoknadRepository: KlippetSykepengesoknadRepository
 ) {
     val log = logger()
 
-    @RequestMapping(method = [RequestMethod.GET])
+    @RequestMapping(method = [RequestMethod.GET], path = ["/sykepengesoknader"])
     fun hentSykepengeSoknader(@RequestHeader(value = "fnr") fnr: String): FlexInternalResponse {
         clientIdValidation.validateClientId(NamespaceAndApp(namespace = "flex", app = "flex-internal-frontend"))
         val soknader = hentSoknadService
@@ -47,5 +50,11 @@ class SoknadFlexAzureController(
             sykepengesoknadListe = soknader,
             klippetSykepengesoknadRecord = (klippetSoknad + klippetSykmelding).toSet()
         )
+    }
+
+    @RequestMapping(method = [RequestMethod.GET], path = ["/identer"])
+    fun hentIdenter(@RequestHeader(value = "ident") ident: String): List<PdlIdent> {
+        clientIdValidation.validateClientId(NamespaceAndApp(namespace = "flex", app = "flex-internal-frontend"))
+        return pdlClient.hentIdenterMedHistorikk(ident)
     }
 }
