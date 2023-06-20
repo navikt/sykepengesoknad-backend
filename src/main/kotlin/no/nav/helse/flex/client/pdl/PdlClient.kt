@@ -22,44 +22,6 @@ class PdlClient(
     private val TEMA_SYK = "SYK"
     private val IDENT = "ident"
 
-    private val HENT_PERSON_QUERY =
-        """
-query(${"$"}ident: ID!){
-  hentIdenter(ident: ${"$"}ident, historikk: false) {
-    identer {
-      ident,
-      gruppe
-    }
-  }
-}
-"""
-
-    @Retryable(exclude = [FunctionalPdlError::class])
-    fun hentPerson(ident: String): ResponseData {
-        val graphQLRequest = GraphQLRequest(
-            query = HENT_PERSON_QUERY,
-            variables = Collections.singletonMap(IDENT, ident)
-        )
-
-        val responseEntity = pdlRestTemplate.exchange(
-            "$pdlApiUrl/graphql",
-            HttpMethod.POST,
-            HttpEntity(requestToJson(graphQLRequest), createHeaderWithTema()),
-            String::class.java
-        )
-
-        if (responseEntity.statusCode != HttpStatus.OK) {
-            throw RuntimeException("PDL svarer med status ${responseEntity.statusCode} - ${responseEntity.body}")
-        }
-
-        val parsedResponse: GetPersonResponse? = responseEntity.body?.let { OBJECT_MAPPER.readValue(it) }
-
-        parsedResponse?.data?.let {
-            return it
-        }
-        throw FunctionalPdlError("Fant ikke person, ingen body eller data. ${parsedResponse.hentErrors()}")
-    }
-
     private val HENT_IDENTER_MED_HISTORIKK =
         """
 query(${"$"}ident: ID!){
