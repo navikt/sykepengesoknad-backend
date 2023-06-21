@@ -88,7 +88,7 @@ class MedlemskapVurderingClient(
                 fom = medlemskapVurderingRequest.fom,
                 tom = medlemskapVurderingRequest.tom,
                 svartype = medlemskapVurderingResponse.svar.toString(),
-                sporsmal = medlemskapVurderingResponse.sporsmal.tilPostgresJson(),
+                sporsmal = medlemskapVurderingResponse.sporsmal.takeIf { it.isNotEmpty() }?.tilPostgresJson(),
                 sykepengesoknadId = medlemskapVurderingRequest.sykepengesoknadId
             )
         )

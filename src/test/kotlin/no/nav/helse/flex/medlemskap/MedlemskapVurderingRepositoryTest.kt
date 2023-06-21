@@ -56,7 +56,7 @@ class MedlemskapVurderingRepositoryTest : BaseTestClass() {
         dbRecord.timestamp shouldNotBe null
         dbRecord.svartid `should be equal to` svartid
         dbRecord.svartype `should be equal to` "UAVKLART"
-        dbRecord.sporsmal.value!! `should be equal to` (listOf("En", "To").serialisertTilString())
+        dbRecord.sporsmal!!.value `should be equal to` (listOf("En", "To").serialisertTilString())
         dbRecord.sykepengesoknadId `should be equal to` sykepengesoknadId
     }
 
@@ -90,7 +90,40 @@ class MedlemskapVurderingRepositoryTest : BaseTestClass() {
         dbRecord.timestamp shouldNotBe null
         dbRecord.svartid `should be equal to` svartid
         dbRecord.svartype `should be equal to` "JA"
-        dbRecord.sporsmal.value!!.`should be equal to`(emptyList<String>().serialisertTilString())
+        dbRecord.sporsmal!!.value.`should be equal to`(emptyList<String>().serialisertTilString())
+        dbRecord.sykepengesoknadId `should be equal to` sykepengesoknadId
+    }
+
+    @Test
+    fun `Lagrer null når liste med spørsmål er tom`() {
+        val fom = LocalDate.of(2023, 1, 1)
+        val tom = LocalDate.of(2023, 1, 1)
+        val timestamp = LocalDateTime.of(2023, 1, 1, 1, 1, 1).toInstant(ZoneOffset.UTC)
+
+        val svartid = 1000L
+        medlemskapVurderingRepository.save(
+            MedlemskapVurderingDbRecord(
+                timestamp = timestamp,
+                svartid = svartid,
+                fnr = "fnr",
+                fom = fom,
+                tom = tom,
+                svartype = "JA",
+                sykepengesoknadId = sykepengesoknadId
+
+            )
+        )
+
+        val dbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
+        val dbRecord = dbRecords.first()
+
+        dbRecord.fnr `should be equal to` "fnr"
+        dbRecord.fom `should be equal to` fom
+        dbRecord.tom `should be equal to` tom
+        dbRecord.timestamp shouldNotBe null
+        dbRecord.svartid `should be equal to` svartid
+        dbRecord.svartype `should be equal to` "JA"
+        dbRecord.sporsmal `should be equal to` null
         dbRecord.sykepengesoknadId `should be equal to` sykepengesoknadId
     }
 }

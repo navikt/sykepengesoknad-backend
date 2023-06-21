@@ -83,7 +83,7 @@ class ArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
 
         medlemskapVurdering.fnr `should be equal to` fnr
         medlemskapVurdering.svartype `should be equal to` MedlemskapVurderingSvarType.UAVKLART.toString()
-        medlemskapVurdering.sporsmal.value!! `should be equal to` listOf(
+        medlemskapVurdering.sporsmal!!.value `should be equal to` listOf(
             MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
             MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
             MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,

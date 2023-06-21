@@ -1,10 +1,7 @@
 package no.nav.helse.flex.medlemskap
 
 import no.nav.helse.flex.BaseTestClass
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should contain same`
-import org.amshove.kluent.shouldHaveSize
-import org.amshove.kluent.shouldStartWith
+import org.amshove.kluent.*
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
@@ -59,7 +56,8 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
         takeRequest.headers["Authorization"]!!.shouldStartWith("Bearer ey")
         takeRequest.path `should be equal to` "/$MEDLEMSKAP_VURDERING_PATH?fom=$fom&tom=$tom"
 
-        medlemskapVurderingRepository.findAll() shouldHaveSize 1
+        val dbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
+        dbRecords.first().sporsmal `should not be` null
     }
 
     @Test
@@ -73,7 +71,9 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
         val takeRequest = medlemskapMockWebServer.takeRequest()
         takeRequest.headers["fnr"] `should be equal to` fnr
 
-        medlemskapVurderingRepository.findAll() shouldHaveSize 1
+        // Vi lagrer ikke tom liste med spørsmål.
+        val dbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
+        dbRecords.first().sporsmal `should be equal to` null
     }
 
     @Test
@@ -88,6 +88,10 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
         takeRequest.headers["fnr"] `should be equal to` fnr
 
         medlemskapVurderingRepository.findAll() shouldHaveSize 1
+
+        // Vi lagrer ikke tom liste med spørsmål.
+        val dbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
+        dbRecords.first().sporsmal `should be equal to` null
     }
 
     @Test
@@ -145,6 +149,10 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
 
         // Verdier blir lagret før vi validerer responsen.
         medlemskapVurderingRepository.findAll() shouldHaveSize 1
+
+        // Vi lagrer ikke tom liste med spørsmål.
+        val dbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
+        dbRecords.first().sporsmal `should be equal to` null
     }
 
     @Test
@@ -162,8 +170,11 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
         val takeRequest = medlemskapMockWebServer.takeRequest()
         takeRequest.headers["fnr"] `should be equal to` fnr
 
-        // Verdier blir lagret før vi validerer responsen.
         medlemskapVurderingRepository.findAll() shouldHaveSize 1
+
+        // Verdier blir lagret før vi validerer responsen sånn at vi kan feilsøke.
+        val dbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
+        dbRecords.first().sporsmal `should not be` null
     }
 
     @Test
@@ -181,7 +192,8 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
         val takeRequest = medlemskapMockWebServer.takeRequest()
         takeRequest.headers["fnr"] `should be equal to` fnr
 
-        // Verdier blir lagret før vi validerer responsen.
-        medlemskapVurderingRepository.findAll() shouldHaveSize 1
+        // Verdier blir lagret før vi validerer responsen sånn at vi kan feilsøke.
+        val dbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
+        dbRecords.first().sporsmal `should not be` null
     }
 }
