@@ -71,7 +71,7 @@ class SoknadTokenXController(
 
     private val log = logger()
 
-    @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4",  "acr=idporten-loa-high"])
+    @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
     @ResponseBody
     @GetMapping(value = ["/soknader/metadata"], produces = [APPLICATION_JSON_VALUE])
     fun hentSoknaderMetadata(): List<RSSykepengesoknadMetadata> {
@@ -80,7 +80,7 @@ class SoknadTokenXController(
         return hentSoknadService.hentSoknaderUtenSporsmal(identer).map { it.tilRSSykepengesoknadMetadata() }
     }
 
-    @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4",   "acr=idporten-loa-high"])
+    @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
 
     @ResponseBody
     @GetMapping(value = ["/soknad/{id}"], produces = [APPLICATION_JSON_VALUE])
@@ -89,7 +89,7 @@ class SoknadTokenXController(
         return soknad.utvidSoknadMedKorrigeringsfristUtlopt(identer).tilRSSykepengesoknad()
     }
 
-    @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4",  "acr=idporten-loa-high"])
+    @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
     @PostMapping(value = ["/opprettSoknadUtland"], produces = [APPLICATION_JSON_VALUE])
     fun opprettSoknadUtland(): RSSykepengesoknad {
         if (environmentToggles.isReadOnly()) {
@@ -101,7 +101,7 @@ class SoknadTokenXController(
             .tilRSSykepengesoknad()
     }
 
-    @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4",  "acr=idporten-loa-high"])
+    @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
     @PostMapping(value = ["/soknader/{id}/send"])
     fun sendSoknadRestful(@PathVariable("id") id: String) {
         if (environmentToggles.isReadOnly()) {
@@ -130,7 +130,7 @@ class SoknadTokenXController(
         }
     }
 
-    @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4",  "acr=idporten-loa-high"])
+    @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
     @PostMapping(value = ["/soknader/{id}/ettersendTilNav"])
     fun ettersendTilNav(@PathVariable("id") id: String) {
         if (environmentToggles.isReadOnly()) {
@@ -142,7 +142,7 @@ class SoknadTokenXController(
         ettersendingSoknadService.ettersendTilNav(soknadFraBase)
     }
 
-    @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4",  "acr=idporten-loa-high"])
+    @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
     @PostMapping(value = ["/soknader/{id}/ettersendTilArbeidsgiver"])
     fun ettersendTilArbeidsgiver(@PathVariable("id") id: String) {
         if (environmentToggles.isReadOnly()) {
@@ -154,7 +154,7 @@ class SoknadTokenXController(
         ettersendingSoknadService.ettersendTilArbeidsgiver(soknadFraBase)
     }
 
-    @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4",  "acr=idporten-loa-high"])
+    @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
     @PostMapping(value = ["/soknader/{id}/avbryt"])
     fun avbryt(@PathVariable("id") id: String) {
         if (environmentToggles.isReadOnly()) {
@@ -170,7 +170,7 @@ class SoknadTokenXController(
         }
     }
 
-    @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4",  "acr=idporten-loa-high"])
+    @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
     @PostMapping(value = ["/soknader/{id}/gjenapne"])
     fun gjenapne(@PathVariable("id") id: String) {
         if (environmentToggles.isReadOnly()) {
@@ -198,7 +198,7 @@ class SoknadTokenXController(
         }
     }
 
-    @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4",  "acr=idporten-loa-high"])
+    @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
     @PostMapping(value = ["/soknader/{id}/korriger"])
     fun korriger(@PathVariable("id") id: String): RSSykepengesoknad {
         if (environmentToggles.isReadOnly()) {
@@ -210,7 +210,7 @@ class SoknadTokenXController(
         return utkast.tilRSSykepengesoknad()
     }
 
-    @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4",  "acr=idporten-loa-high"])
+    @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
     @PutMapping(
         value = ["/soknader/{soknadId}/sporsmal/{sporsmalId}"],
         consumes = [APPLICATION_JSON_VALUE],
@@ -255,7 +255,7 @@ class SoknadTokenXController(
         )
     }
 
-    @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4",  "acr=idporten-loa-high"])
+    @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(
         value = ["/soknader/{soknadId}/sporsmal/{sporsmalId}/svar"],
@@ -278,7 +278,7 @@ class SoknadTokenXController(
         return skapOppdaterSpmResponse(oppdaterSporsmalResultat, sporsmal.tag)
     }
 
-    @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4",  "acr=idporten-loa-high"])
+    @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping(
         value = ["/soknader/{soknadId}/sporsmal/{sporsmalId}/svar/{svarId}"]
@@ -318,7 +318,7 @@ class SoknadTokenXController(
         return sporsmal
     }
 
-    @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4",  "acr=idporten-loa-high"])
+    @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
     @GetMapping(value = ["/soknader/{id}/mottaker"], produces = [APPLICATION_JSON_VALUE])
     fun hentMottakerAvSoknad(@PathVariable("id") id: String): RSMottakerResponse {
         val (sykepengesoknad, identer) = hentOgSjekkTilgangTilSoknad(id)
