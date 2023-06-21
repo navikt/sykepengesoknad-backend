@@ -8,7 +8,6 @@ import no.nav.helse.flex.domain.Arbeidssituasjon.NAERINGSDRIVENDE
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.*
-import java.time.LocalDate
 
 fun Sporsmal.plasseringSporsmalBehandlingsdager(): Int {
     return when (this.tag) {
@@ -42,33 +41,24 @@ private fun Sporsmal.plasseringAvSporsmalSomKanRepeteresFlereGanger(): Int {
 }
 
 fun settOppSykepengesoknadBehandlingsdager(
-    soknadMetadata: Sykepengesoknad,
-    erForsteSoknadISykeforlop: Boolean,
-    tidligsteFomForSykmelding: LocalDate,
-    egenmeldingISykmeldingen: Boolean,
-    yrkesskade: Boolean
+    opts: SettOppSoknadOpts
 
 ): List<Sporsmal> {
+    val (sykepengesoknad, erForsteSoknadISykeforlop, _, yrkesskade) = opts
+
     return mutableListOf(
         ansvarserklaringSporsmal(),
         vaerKlarOverAtBehandlingsdager(),
-        andreInntekstkilder(soknadMetadata),
+        andreInntekstkilder(sykepengesoknad),
         bekreftOpplysningerSporsmal()
     )
         .also {
-            if (soknadMetadata.arbeidssituasjon == ARBEIDSTAKER) {
-                if (erForsteSoknadISykeforlop) {
-                    if (!egenmeldingISykmeldingen) {
-                        it.add(fraverForBehandling(soknadMetadata, tidligsteFomForSykmelding))
-                    }
-                }
-            }
             if (erForsteSoknadISykeforlop) {
                 it.add(arbeidUtenforNorge())
             }
             if (yrkesskade) {
                 it.add(yrkesskadeSporsmal())
             }
-            it.addAll(behandlingsdagerSporsmal(soknadMetadata))
+            it.addAll(behandlingsdagerSporsmal(sykepengesoknad))
         }.toList()
 }

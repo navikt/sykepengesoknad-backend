@@ -11,7 +11,6 @@ import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
 import no.nav.helse.flex.soknadsopprettelse.ARBEID_UTENFOR_NORGE
 import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
 import no.nav.helse.flex.soknadsopprettelse.FERIE_V2
-import no.nav.helse.flex.soknadsopprettelse.FRAVAR_FOR_SYKMELDINGEN
 import no.nav.helse.flex.soknadsopprettelse.PERMISJON_V2
 import no.nav.helse.flex.soknadsopprettelse.TILBAKE_I_ARBEID
 import no.nav.helse.flex.soknadsopprettelse.UTLAND_V2
@@ -59,7 +58,6 @@ class BrukerIkkeTimerForFaktiskGradHvisIkkeChecked : BaseTestClass() {
 
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
             .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
-            .besvarSporsmal(FRAVAR_FOR_SYKMELDINGEN, "NEI")
             .besvarSporsmal(TILBAKE_I_ARBEID, "NEI")
             .besvarSporsmal(ARBEID_UTENFOR_NORGE, "NEI")
             .besvarSporsmal(FERIE_V2, "NEI")

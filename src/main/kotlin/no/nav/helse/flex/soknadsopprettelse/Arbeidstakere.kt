@@ -14,20 +14,16 @@ import no.nav.helse.flex.domain.Visningskriterie.JA
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.utenlandsksykmelding.utenlandskSykmeldingSporsmal
 import no.nav.helse.flex.soknadsopprettelse.undersporsmal.jobbetDuUndersporsmal
-import no.nav.helse.flex.util.DatoUtil.formatterDato
 import no.nav.helse.flex.util.DatoUtil.formatterPeriode
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
 fun settOppSoknadArbeidstaker(
-    sykepengesoknad: Sykepengesoknad,
-    erForsteSoknadISykeforlop: Boolean,
-    tidligsteFomForSykmelding: LocalDate,
-    andreKjenteArbeidsforhold: List<String>,
-    harTidligereUtenlandskSpm: Boolean,
-    yrkesskade: Boolean,
-    egenmeldingISykmeldingen: Boolean
+    opts: SettOppSoknadOpts,
+    andreKjenteArbeidsforhold: List<String>
 ): List<Sporsmal> {
+    val (sykepengesoknad, erForsteSoknadISykeforlop, harTidligereUtenlandskSpm, yrkesskade) = opts
+
     val gradertResietilskudd = sykepengesoknad.soknadstype == GRADERT_REISETILSKUDD
 
     return mutableListOf(
@@ -44,9 +40,6 @@ fun settOppSoknadArbeidstaker(
         bekreftOpplysningerSporsmal()
     ).also {
         if (erForsteSoknadISykeforlop) {
-            if (!egenmeldingISykmeldingen) {
-                it.add(fravarForSykmeldingen(tidligsteFomForSykmelding))
-            }
             it.add(arbeidUtenforNorge())
         }
         if (yrkesskade) {
@@ -106,33 +99,6 @@ fun oppdaterMedSvarPaaBrukteReisetilskuddet(sykepengesoknad: Sykepengesoknad): S
     }
 
     return sykepengesoknad.copy(sporsmal = oppdaterteSporsmal)
-}
-
-private fun fravarForSykmeldingen(tidligsteFomForSykmelding: LocalDate): Sporsmal {
-    return Sporsmal(
-        tag = FRAVAR_FOR_SYKMELDINGEN,
-        sporsmalstekst = "Var du syk og borte fra jobb før du ble sykmeldt, i perioden ${
-        formatterPeriode(
-            tidligsteFomForSykmelding.minusDays(16),
-            tidligsteFomForSykmelding.minusDays(1)
-        )
-        }?",
-        svartype = JA_NEI,
-        kriterieForVisningAvUndersporsmal = JA,
-        undersporsmal = listOf(
-            Sporsmal(
-                tag = FRAVAR_FOR_SYKMELDINGEN_NAR,
-                sporsmalstekst = "Hvilke dager var du syk og borte fra jobb, før du ble sykmeldt? Du trenger bare oppgi dager før ${
-                formatterDato(
-                    tidligsteFomForSykmelding
-                )
-                }.",
-                svartype = Svartype.PERIODER,
-                min = tidligsteFomForSykmelding.minusMonths(6).format(ISO_LOCAL_DATE),
-                max = tidligsteFomForSykmelding.minusDays(1).format(ISO_LOCAL_DATE)
-            )
-        )
-    )
 }
 
 private fun tilbakeIFulltArbeidSporsmal(soknadMetadata: Sykepengesoknad): Sporsmal {

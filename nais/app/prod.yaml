@@ -26,7 +26,6 @@ env:
   DITT_SYKEFRAVAER_FRONTEND_CLIENT_ID: prod-gcp:flex:ditt-sykefravaer
   SYKEPENGESOKNAD_FRONTEND_CLIENT_ID: prod-gcp:flex:sykepengesoknad
   TOKENX_IDPORTEN_IDP: https://oidc.difi.no/idporten-oidc-provider/
-  EGENMELDING_SYKMELDING_FOM: "2023-05-04T12:00:00.000000+02:00"
   EREG_URL: https://ereg-services.prod-fss-pub.nais.io
   YRKESSKADE_URL: http://yrkesskade-saker.yrkesskade
   YRKESSKADE_AAD_CLIENT_ID: prod-gcp.yrkesskade.yrkesskade-saker

@@ -13,11 +13,10 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
 fun settOppSoknadSelvstendigOgFrilanser(
-    sykepengesoknad: Sykepengesoknad,
-    erForsteSoknadISykeforlop: Boolean,
-    harTidligereUtenlandskSpm: Boolean,
-    yrkesskade: Boolean
+    opts: SettOppSoknadOpts
 ): List<Sporsmal> {
+    val (sykepengesoknad, erForsteSoknadISykeforlop, harTidligereUtenlandskSpm, yrkesskade) = opts
+
     val gradertReisetilskudd = sykepengesoknad.soknadstype == Soknadstype.GRADERT_REISETILSKUDD
     return mutableListOf(
         ansvarserklaringSporsmal(reisetilskudd = gradertReisetilskudd),

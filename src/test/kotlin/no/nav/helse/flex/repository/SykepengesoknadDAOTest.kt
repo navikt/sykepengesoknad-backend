@@ -12,8 +12,6 @@ import no.nav.helse.flex.mock.mockUtlandssoknad
 import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknad
 import no.nav.helse.flex.mock.opprettSendtFrilanserSoknad
 import no.nav.helse.flex.service.FolkeregisterIdenter
-import no.nav.helse.flex.soknadsopprettelse.FRAVAR_FOR_SYKMELDINGEN
-import no.nav.helse.flex.soknadsopprettelse.FRAVAR_FOR_SYKMELDINGEN_NAR
 import no.nav.helse.flex.soknadsopprettelse.UTLAND
 import no.nav.helse.flex.soknadsopprettelse.UTLAND_NAR
 import no.nav.helse.flex.util.tilOsloLocalDateTime
@@ -267,41 +265,6 @@ class SykepengesoknadDAOTest : BaseTestClass() {
 
         soknadFraBasenEtterSlettingAvSvar.alleSporsmalOgUndersporsmal()
             .forEach { sporsmal -> sporsmal.svar.forEach { svar -> assertThat(svar.verdi).isNull() } }
-    }
-
-    @Test
-    fun sletterBareSvarPaSoknadenSomSendesInn() {
-        val uuid1 = sykepengesoknadDAO.lagreSykepengesoknad(gammeltFormatOpprettNySoknadMedFeriesporsmalSomUndersporsmal()).id
-        val soknad1 = sykepengesoknadDAO.finnSykepengesoknad(uuid1).svarJaPaUtlandsporsmal()
-        sykepengesoknadDAO.byttUtSporsmal(soknad1)
-
-        val uuid2 = sykepengesoknadDAO.lagreSykepengesoknad(gammeltFormatOpprettNySoknadMedFeriesporsmalSomUndersporsmal()).id
-        val soknad2 = sykepengesoknadDAO.finnSykepengesoknad(uuid2).svarJaPaEgenmelding()
-        sykepengesoknadDAO.byttUtSporsmal(soknad2)
-
-        sykepengesoknadDAO.slettAlleSvar(soknad1)
-
-        val soknadFraBasenEtterSlettingAvSvar = sykepengesoknadDAO.finnSykepengesoknad(uuid1)
-        soknadFraBasenEtterSlettingAvSvar.alleSporsmalOgUndersporsmal()
-            .forEach { sporsmal -> sporsmal.svar.forEach { svar -> assertThat(svar.verdi).isNull() } }
-
-        val soknadFraBasenEtterSlettingAvSvarPaAnnenSoknad = sykepengesoknadDAO.finnSykepengesoknad(uuid2)
-        assertThat(soknadFraBasenEtterSlettingAvSvarPaAnnenSoknad.getSporsmalMedTag(FRAVAR_FOR_SYKMELDINGEN).svar[0].verdi).isEqualTo("JA")
-        assertThat(soknadFraBasenEtterSlettingAvSvarPaAnnenSoknad.getSporsmalMedTag(FRAVAR_FOR_SYKMELDINGEN_NAR).svar[0].verdi).isEqualTo("{\"fom\":\"2019-02-28\",\"tom\":\"2019-03-14\"}")
-    }
-
-    private fun Sykepengesoknad.svarJaPaEgenmelding(): Sykepengesoknad {
-        val egenmldSpm = this.getSporsmalMedTag(FRAVAR_FOR_SYKMELDINGEN).copy(svar = listOf(Svar(null, "JA")))
-        val egenmldNarSpm = this.getSporsmalMedTag(FRAVAR_FOR_SYKMELDINGEN_NAR).copy(
-            svar = listOf(
-                Svar(
-                    null,
-                    "{\"fom\":\"2019-02-28\",\"tom\":\"2019-03-14\"}"
-                )
-            )
-        )
-
-        return this.replaceSporsmal(egenmldSpm).replaceSporsmal(egenmldNarSpm)
     }
 
     private fun Sykepengesoknad.svarJaPaUtlandsporsmal(): Sykepengesoknad {

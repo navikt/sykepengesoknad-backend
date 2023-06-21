@@ -25,7 +25,6 @@ import no.nav.helse.flex.soknadsopprettelse.ARBEID_UNDERVEIS_100_PROSENT
 import no.nav.helse.flex.soknadsopprettelse.ARBEID_UTENFOR_NORGE
 import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
 import no.nav.helse.flex.soknadsopprettelse.FERIE_V2
-import no.nav.helse.flex.soknadsopprettelse.FRAVAR_FOR_SYKMELDINGEN
 import no.nav.helse.flex.soknadsopprettelse.JOBBET_DU_GRADERT
 import no.nav.helse.flex.soknadsopprettelse.PERMISJON_V2
 import no.nav.helse.flex.soknadsopprettelse.TILBAKE_I_ARBEID
@@ -136,7 +135,7 @@ class OverlapperEtter : BaseTestClass() {
         forsteSoknad.status shouldBeEqualTo RSSoknadstatus.NY
         forsteSoknad.fom shouldBeEqualTo basisdato.minusDays(1)
         forsteSoknad.tom shouldBeEqualTo basisdato.minusDays(1)
-        val forsteSoknadSpmFinnes = forsteSoknad.sporsmal?.find { it.tag == FRAVAR_FOR_SYKMELDINGEN }
+        val forsteSoknadSpmFinnes = forsteSoknad.sporsmal?.find { it.tag == ARBEID_UTENFOR_NORGE }
         forsteSoknadSpmFinnes shouldNotBeEqualTo null
         val periodeSpmSok1 = forsteSoknad.sporsmal
             ?.find { it.tag == FERIE_V2 }
@@ -186,7 +185,7 @@ class OverlapperEtter : BaseTestClass() {
         forsteSoknad.status shouldBeEqualTo RSSoknadstatus.NY
         forsteSoknad.fom shouldBeEqualTo basisdato.minusDays(1)
         forsteSoknad.tom shouldBeEqualTo basisdato.minusDays(1)
-        val forsteSoknadSpmFinnes = forsteSoknad.sporsmal?.find { it.tag == FRAVAR_FOR_SYKMELDINGEN }
+        val forsteSoknadSpmFinnes = forsteSoknad.sporsmal?.find { it.tag == ARBEID_UTENFOR_NORGE }
         forsteSoknadSpmFinnes shouldNotBeEqualTo null
         val periodeSpmSok1 = forsteSoknad.sporsmal
             ?.find { it.tag == FERIE_V2 }
@@ -203,7 +202,7 @@ class OverlapperEtter : BaseTestClass() {
         andreSoknad.status shouldBeEqualTo RSSoknadstatus.NY
         andreSoknad.fom shouldBeEqualTo basisdato
         andreSoknad.tom shouldBeEqualTo basisdato.plusDays(15)
-        val finnesIkke = andreSoknad.sporsmal?.find { it.tag == FRAVAR_FOR_SYKMELDINGEN }
+        val finnesIkke = andreSoknad.sporsmal?.find { it.tag == ARBEID_UTENFOR_NORGE }
         finnesIkke shouldBeEqualTo null
         val periodeSpmSok2 = andreSoknad.sporsmal
             ?.find { it.tag == FERIE_V2 }
@@ -254,9 +253,9 @@ class OverlapperEtter : BaseTestClass() {
 
         SoknadBesvarer(rsSoknad, this, fnr)
             .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
-            .besvarSporsmal(FRAVAR_FOR_SYKMELDINGEN, "NEI")
+            .besvarSporsmal(ARBEID_UTENFOR_NORGE, "NEI")
             .besvarSporsmal(TILBAKE_I_ARBEID, "NEI")
-            .besvarSporsmal(FRAVAR_FOR_SYKMELDINGEN, "NEI")
+            .besvarSporsmal(ARBEID_UTENFOR_NORGE, "NEI")
             .besvarSporsmal(PERMISJON_V2, "NEI")
             .besvarSporsmal(FERIE_V2, "NEI")
             .besvarSporsmal(UTLAND_V2, "NEI")
@@ -393,7 +392,7 @@ class OverlapperEtter : BaseTestClass() {
 
         SoknadBesvarer(soknaden, this, fnr)
             .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
-            .besvarSporsmal(tag = "FRAVAR_FOR_SYKMELDINGEN", svar = "NEI")
+            .besvarSporsmal(tag = "ARBEID_UTENFOR_NORGE", svar = "NEI")
             .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
             .besvarSporsmal(tag = "FERIE_V2", svar = "JA", ferdigBesvart = false)
             .besvarSporsmal(tag = "FERIE_NAR_V2", svar = """{"fom":"${basisdato.minusDays(12)}","tom":"${basisdato.minusDays(5)}"}""")
@@ -480,9 +479,9 @@ class OverlapperEtter : BaseTestClass() {
 
         SoknadBesvarer(rsSoknad, this, fnr)
             .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
-            .besvarSporsmal(FRAVAR_FOR_SYKMELDINGEN, "NEI")
+            .besvarSporsmal(ARBEID_UTENFOR_NORGE, "NEI")
             .besvarSporsmal(TILBAKE_I_ARBEID, "NEI")
-            .besvarSporsmal(FRAVAR_FOR_SYKMELDINGEN, "NEI")
+            .besvarSporsmal(ARBEID_UTENFOR_NORGE, "NEI")
             .besvarSporsmal(PERMISJON_V2, "NEI")
             .besvarSporsmal(FERIE_V2, "NEI")
             .besvarSporsmal(UTLAND_V2, "NEI")
@@ -727,9 +726,9 @@ class OverlapperEtter : BaseTestClass() {
 
         SoknadBesvarer(rsSoknad, this, fnr)
             .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
-            .besvarSporsmal(FRAVAR_FOR_SYKMELDINGEN, "NEI")
+            .besvarSporsmal(ARBEID_UTENFOR_NORGE, "NEI")
             .besvarSporsmal(TILBAKE_I_ARBEID, "NEI")
-            .besvarSporsmal(FRAVAR_FOR_SYKMELDINGEN, "NEI")
+            .besvarSporsmal(ARBEID_UTENFOR_NORGE, "NEI")
             .besvarSporsmal(PERMISJON_V2, "NEI")
             .besvarSporsmal(FERIE_V2, "NEI")
             .besvarSporsmal(UTLAND_V2, "NEI")
@@ -821,9 +820,9 @@ class OverlapperEtter : BaseTestClass() {
 
         SoknadBesvarer(rsSoknad, this, fnr)
             .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
-            .besvarSporsmal(FRAVAR_FOR_SYKMELDINGEN, "NEI")
+            .besvarSporsmal(ARBEID_UTENFOR_NORGE, "NEI")
             .besvarSporsmal(TILBAKE_I_ARBEID, "NEI")
-            .besvarSporsmal(FRAVAR_FOR_SYKMELDINGEN, "NEI")
+            .besvarSporsmal(ARBEID_UTENFOR_NORGE, "NEI")
             .besvarSporsmal(PERMISJON_V2, "NEI")
             .besvarSporsmal(FERIE_V2, "NEI")
             .besvarSporsmal(UTLAND_V2, "NEI")

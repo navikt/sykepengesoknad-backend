@@ -88,7 +88,6 @@ class YrkesskadeIntegrationTest : BaseTestClass() {
 
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr1)
             .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
-            .besvarSporsmal(tag = "FRAVAR_FOR_SYKMELDINGEN", svar = "NEI")
             .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
             .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
             .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
@@ -134,7 +133,6 @@ class YrkesskadeIntegrationTest : BaseTestClass() {
 
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = FNR_MED_YRKESSKADE)
             .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
-            .besvarSporsmal(tag = "FRAVAR_FOR_SYKMELDINGEN", svar = "NEI")
             .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
             .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
             .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")

@@ -5,6 +5,7 @@ import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.soknadsopprettelse.settOppSoknadAnnetArbeidsforhold
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.SettOppSoknadOpts
 import no.nav.helse.flex.soknadsopprettelse.tilSoknadsperioder
 import no.nav.helse.flex.util.tilOsloInstant
 import no.nav.syfo.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO
@@ -50,10 +51,12 @@ fun opprettNySoknadAnnet(): Sykepengesoknad {
 
     return soknadMetadata.copy(
         sporsmal = settOppSoknadAnnetArbeidsforhold(
-            soknadMetadata,
-            false,
-            false,
-            false
+            SettOppSoknadOpts(
+                soknadMetadata,
+                false,
+                false,
+                false
+            )
         )
     )
 }
