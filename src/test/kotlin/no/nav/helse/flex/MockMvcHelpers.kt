@@ -45,8 +45,8 @@ fun MockOAuth2Server.token(
     clientId: String = UUID.randomUUID().toString(),
     audience: String = "loginservice-client-id",
     claims: Map<String, Any> = mapOf(
-        // "acr" to "Level4", dette fungerer sikkert ikke
-        "acr" to "idporten-loa-high"
+        "acr" to "Level4" //, dette fungerer sikkert ikke
+         //"acr" to "idporten-loa-high"
     )
 //arrayOf("acr=Level4", "acr=idporten-loa-high")
 
