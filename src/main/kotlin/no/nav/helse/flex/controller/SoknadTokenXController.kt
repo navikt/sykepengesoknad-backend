@@ -81,7 +81,6 @@ class SoknadTokenXController(
     }
 
     @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
-
     @ResponseBody
     @GetMapping(value = ["/soknad/{id}"], produces = [APPLICATION_JSON_VALUE])
     fun hentSoknad(@PathVariable("id") id: String): RSSykepengesoknad {
