@@ -51,7 +51,7 @@ abstract class BaseTestClass {
     companion object {
         val pdlMockWebserver: MockWebServer
         val medlemskapMockWebServer: MockWebServer
-        private val inntektskomponentenV2MockWebServer: MockWebServer
+        private val inntektskomponentenMockWebServer: MockWebServer
         private val eregMockWebServer: MockWebServer
         private val yrkesskadeMockWebServer: MockWebServer
 
@@ -97,7 +97,7 @@ abstract class BaseTestClass {
                 System.setProperty("MEDLEMSKAP_VURDERING_URL", "http://localhost:$port")
                 dispatcher = MedlemskapMockDispatcher
             }
-            inntektskomponentenV2MockWebServer = MockWebServer().apply {
+            inntektskomponentenMockWebServer = MockWebServer().apply {
                 System.setProperty("INNTEKTSKOMPONENTEN_URL", "http://localhost:$port")
                 dispatcher = InntektskomponentenMockDispatcher
             }

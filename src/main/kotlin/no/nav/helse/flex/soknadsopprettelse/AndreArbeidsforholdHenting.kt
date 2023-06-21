@@ -2,20 +2,20 @@ package no.nav.helse.flex.soknadsopprettelse
 
 import no.nav.helse.flex.client.ereg.EregClient
 import no.nav.helse.flex.client.inntektskomponenten.ArbeidsInntektMaaned
-import no.nav.helse.flex.client.inntektskomponenten.InntektskomponentenV2Client
+import no.nav.helse.flex.client.inntektskomponenten.InntektskomponentenClient
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.time.YearMonth
 
 @Component
 class AndreArbeidsforholdHenting(
-    val inntektskomponentenV2Client: InntektskomponentenV2Client,
+    val inntektskomponentenClient: InntektskomponentenClient,
     val eregClient: EregClient
 ) {
     fun hentArbeidsforhold(fnr: String, arbeidsgiverOrgnummer: String, startSykeforlop: LocalDate): List<ArbeidsforholdFraInntektskomponenten> {
         val sykmeldingOrgnummer = arbeidsgiverOrgnummer
 
-        val hentInntekter = inntektskomponentenV2Client.hentInntekter(
+        val hentInntekter = inntektskomponentenClient.hentInntekter(
             fnr,
             fom = startSykeforlop.yearMonth().minusMonths(3),
             tom = startSykeforlop.yearMonth()

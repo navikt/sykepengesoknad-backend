@@ -11,7 +11,7 @@ import java.time.YearMonth
 import java.util.*
 
 @Component
-class InntektskomponentenV2Client(
+class InntektskomponentenClient(
     private val inntektskomponentenRestTemplate: RestTemplate,
     @Value("\${INNTEKTSKOMPONENTEN_URL}")
     private val url: String
