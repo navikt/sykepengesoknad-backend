@@ -12,16 +12,14 @@ class AndreArbeidsforholdHenting(
     val inntektskomponentenClient: InntektskomponentenClient,
     val eregClient: EregClient
 ) {
-
     fun hentArbeidsforhold(fnr: String, arbeidsgiverOrgnummer: String, startSykeforlop: LocalDate): List<ArbeidsforholdFraInntektskomponenten> {
         val sykmeldingOrgnummer = arbeidsgiverOrgnummer
 
-        val hentInntekter = inntektskomponentenClient
-            .hentInntekter(
-                fnr,
-                fom = startSykeforlop.yearMonth().minusMonths(3),
-                tom = startSykeforlop.yearMonth()
-            )
+        val hentInntekter = inntektskomponentenClient.hentInntekter(
+            fnr,
+            fom = startSykeforlop.yearMonth().minusMonths(3),
+            tom = startSykeforlop.yearMonth()
+        )
 
         fun ArbeidsInntektMaaned.orgnumreForManed(): Set<String> {
             val inntekterOrgnummer = this.arbeidsInntektInformasjon.inntektListe

@@ -3,33 +3,32 @@ package no.nav.helse.flex.client.inntektskomponenten
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.util.serialisertTilString
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpMethod
-import org.springframework.http.HttpStatus.OK
-import org.springframework.http.MediaType
+import org.springframework.http.*
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
 import java.time.YearMonth
+import java.util.*
 
 @Component
 class InntektskomponentenClient(
-    private val flexFssProxyRestTemplate: RestTemplate,
-    @Value("\${FLEX_FSS_PROXY_URL}") private val flexFssProxyUrl: String
-
+    private val inntektskomponentenRestTemplate: RestTemplate,
+    @Value("\${INNTEKTSKOMPONENTEN_URL}")
+    private val url: String
 ) {
-
     val log = logger()
 
     fun hentInntekter(fnr: String, fom: YearMonth, tom: YearMonth): HentInntekterResponse {
         val uriBuilder =
-            UriComponentsBuilder.fromHttpUrl("$flexFssProxyUrl/api/inntektskomponenten/api/v1/hentinntektliste")
+            UriComponentsBuilder.fromHttpUrl("$url/api/v1/hentinntektliste")
 
         val headers = HttpHeaders()
+        headers["Nav-Consumer-Id"] = "sykepengesoknad-backend"
+        headers["Nav-Call-Id"] = UUID.randomUUID().toString()
         headers.contentType = MediaType.APPLICATION_JSON
+        headers.accept = listOf(MediaType.APPLICATION_JSON)
 
-        val result = flexFssProxyRestTemplate
+        val result = inntektskomponentenRestTemplate
             .exchange(
                 uriBuilder.toUriString(),
                 HttpMethod.POST,
@@ -46,7 +45,7 @@ class InntektskomponentenClient(
                 HentInntekterResponse::class.java
             )
 
-        if (result.statusCode != OK) {
+        if (result.statusCode != HttpStatus.OK) {
             val message = "Kall mot inntektskomponenten feiler med HTTP-" + result.statusCode
             log.error(message)
             throw RuntimeException(message)

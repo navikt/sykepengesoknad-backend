@@ -122,19 +122,6 @@ class AadRestTemplateConfiguration {
         )
 
     @Bean
-    fun flexFssProxyRestTemplate(
-        restTemplateBuilder: RestTemplateBuilder,
-        clientConfigurationProperties: ClientConfigurationProperties,
-        oAuth2AccessTokenService: OAuth2AccessTokenService
-    ): RestTemplate =
-        downstreamRestTemplate(
-            registrationName = "flex-fss-proxy-client-credentials",
-            restTemplateBuilder = restTemplateBuilder,
-            clientConfigurationProperties = clientConfigurationProperties,
-            oAuth2AccessTokenService = oAuth2AccessTokenService
-        )
-
-    @Bean
     fun yrkesskadeRestTemplate(
         restTemplateBuilder: RestTemplateBuilder,
         clientConfigurationProperties: ClientConfigurationProperties,
@@ -142,6 +129,19 @@ class AadRestTemplateConfiguration {
     ): RestTemplate =
         downstreamRestTemplate(
             registrationName = "yrkesskade-client-credentials",
+            restTemplateBuilder = restTemplateBuilder,
+            clientConfigurationProperties = clientConfigurationProperties,
+            oAuth2AccessTokenService = oAuth2AccessTokenService
+        )
+
+    @Bean
+    fun inntektskomponentenRestTemplate(
+        restTemplateBuilder: RestTemplateBuilder,
+        clientConfigurationProperties: ClientConfigurationProperties,
+        oAuth2AccessTokenService: OAuth2AccessTokenService
+    ): RestTemplate =
+        downstreamRestTemplate(
+            registrationName = "inntektskomponenten-client-credentials",
             restTemplateBuilder = restTemplateBuilder,
             clientConfigurationProperties = clientConfigurationProperties,
             oAuth2AccessTokenService = oAuth2AccessTokenService

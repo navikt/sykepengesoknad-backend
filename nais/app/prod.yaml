@@ -9,8 +9,8 @@ replicas_min: 3
 replicas_max: 5
 external-host:
   - pdl-api.prod-fss-pub.nais.io
-  - flex-fss-proxy.prod-fss-pub.nais.io
   - ereg-services.prod-fss-pub.nais.io
+  - team-inntekt-proxy.prod-fss-pub.nais.io
 env:
   SPRING_PROFILES_ACTIVE: default,sykmeldinger
   PDL_BASE_URL: https://pdl-api.prod-fss-pub.nais.io
@@ -26,11 +26,11 @@ env:
   DITT_SYKEFRAVAER_FRONTEND_CLIENT_ID: prod-gcp:flex:ditt-sykefravaer
   SYKEPENGESOKNAD_FRONTEND_CLIENT_ID: prod-gcp:flex:sykepengesoknad
   TOKENX_IDPORTEN_IDP: https://oidc.difi.no/idporten-oidc-provider/
-  FLEX_FSS_PROXY_AAD_CLIENT_ID: prod-fss.flex.flex-fss-proxy
-  FLEX_FSS_PROXY_URL: https://flex-fss-proxy.prod-fss-pub.nais.io
   EGENMELDING_SYKMELDING_FOM: "2023-05-04T12:00:00.000000+02:00"
   EREG_URL: https://ereg-services.prod-fss-pub.nais.io
   YRKESSKADE_URL: http://yrkesskade-saker.yrkesskade
   YRKESSKADE_AAD_CLIENT_ID: prod-gcp.yrkesskade.yrkesskade-saker
   MEDLEMSKAP_VURDERING_URL: "http://medlemskap-sykepenger-listener.medlemskap"
   MEDLEMSKAP_VURDERING_AAD_CLIENT_ID: prod-gcp.medlemskap.medlemskap-sykepenger-listener
+  INNTEKTSKOMPONENTEN_URL: "https://team-inntekt-proxy.prod-fss-pub.nais.io/proxy/inntektskomponenten/rs"
+  INNTEKTSKOMPONENTEN_AAD_CLIENT_ID: prod-fss.team-inntekt.inntektskomponenten
