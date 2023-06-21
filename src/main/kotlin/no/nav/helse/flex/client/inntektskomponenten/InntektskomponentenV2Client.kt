@@ -20,7 +20,7 @@ class InntektskomponentenV2Client(
 
     fun hentInntekter(fnr: String, fom: YearMonth, tom: YearMonth): HentInntekterResponse {
         val uriBuilder =
-            UriComponentsBuilder.fromHttpUrl("$url/rs/api/v1/hentinntektliste")
+            UriComponentsBuilder.fromHttpUrl("$url/api/v1/hentinntektliste")
 
         val headers = HttpHeaders()
         headers["Nav-Consumer-Id"] = "sykepengesoknad-backend"

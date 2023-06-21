@@ -36,5 +36,5 @@ env:
   YRKESSKADE_AAD_CLIENT_ID: dev-gcp.yrkesskade.yrkesskade-saker
   MEDLEMSKAP_VURDERING_URL: "http://medlemskap-sykepenger-listener.medlemskap"
   MEDLEMSKAP_VURDERING_AAD_CLIENT_ID: dev-gcp.medlemskap.medlemskap-sykepenger-listener
-  INNTEKTSKOMPONENTEN_URL: "https://team-inntekt-proxy.dev-fss-pub.nais.io/proxy/inntektskomponenten-q1"
+  INNTEKTSKOMPONENTEN_URL: "https://team-inntekt-proxy.dev-fss-pub.nais.io/proxy/inntektskomponenten-q1/rs"
   INNTEKTSKOMPONENTEN_AAD_CLIENT_ID: dev-fss.team-inntekt.inntektskomponenten
