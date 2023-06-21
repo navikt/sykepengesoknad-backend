@@ -9,7 +9,6 @@ replicas_min: 1
 replicas_max: 2
 external-host:
   - pdl-api.dev-fss-pub.nais.io
-  - flex-fss-proxy.dev-fss-pub.nais.io
   - ereg-services.dev-fss-pub.nais.io
   - team-inntekt-proxy.dev-fss-pub.nais.io
 env:
@@ -28,8 +27,6 @@ env:
   SYKEPENGESOKNAD_FRONTEND_CLIENT_ID: dev-gcp:flex:sykepengesoknad
   TOKENX_IDPORTEN_IDP: https://oidc-ver2.difi.no/idporten-oidc-provider/
   AIVEN_KAFKA_AUTO_OFFSET_RESET: latest
-  FLEX_FSS_PROXY_AAD_CLIENT_ID: dev-fss.flex.flex-fss-proxy
-  FLEX_FSS_PROXY_URL: https://flex-fss-proxy.dev-fss-pub.nais.io
   EGENMELDING_SYKMELDING_FOM: "2023-03-01T04:00:00.000000+01:00"
   EREG_URL: https://ereg-services.dev-fss-pub.nais.io
   YRKESSKADE_URL: http://yrkesskade-saker.yrkesskade
