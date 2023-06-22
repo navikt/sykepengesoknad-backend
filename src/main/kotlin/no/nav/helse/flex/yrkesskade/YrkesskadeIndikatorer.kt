@@ -17,6 +17,8 @@ class YrkesskadeIndikatorer(
 
 ) {
 
+    val godkjenteSaker = setOf("DELVIS_INNVILGET", "INNVILGET", "DELVIS_GODKJENT", "GODKJENT")
+
     fun hentYrkesskadeSporsmalGrunnlag(
         identer: FolkeregisterIdenter,
         sykmeldingId: String?,
@@ -37,11 +39,11 @@ class YrkesskadeIndikatorer(
                 v2Enabled = true,
                 v1Indikator = false,
                 v2GodkjenteSaker = ysSakerResponse.saker
-                    // TODO  .filter { it.resultat == "INNVILGET" }
-                    .filter { it.skadedato != null && it.vedtaksdato != null }
+                    .filter { godkjenteSaker.contains(it.resultat) }
+                    .filter { it.vedtaksdato != null }
                     .map {
                         YrkesskadeSak(
-                            skadedato = it.skadedato!!,
+                            skadedato = it.skadedato,
                             vedtaksdato = it.vedtaksdato!!
                         )
                     }
@@ -67,6 +69,6 @@ data class YrkesskadeSporsmalGrunnlag(
 )
 
 data class YrkesskadeSak(
-    val skadedato: LocalDate,
+    val skadedato: LocalDate?,
     val vedtaksdato: LocalDate
 )

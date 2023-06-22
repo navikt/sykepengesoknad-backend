@@ -37,6 +37,10 @@ private fun yrkesskadeSporsmalV1(): Sporsmal =
     )
 
 fun skapSkadedatoTekst(y: YrkesskadeSak): String {
+    if (y.skadedato == null) {
+        return "Vedtaksdato ${formatterDato(y.vedtaksdato)}"
+    }
+
     return "Skadedato ${formatterDato(y.skadedato)} (Vedtaksdato ${formatterDato(y.vedtaksdato)})"
 }
 

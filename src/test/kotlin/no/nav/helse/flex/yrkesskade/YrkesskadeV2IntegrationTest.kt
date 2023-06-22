@@ -7,6 +7,7 @@ import no.nav.helse.flex.mockdispatcher.YrkesskadeMockDispatcher
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
+import no.nav.helse.flex.util.flatten
 import org.amshove.kluent.*
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
@@ -45,7 +46,37 @@ class YrkesskadeV2IntegrationTest : BaseTestClass() {
                         saksnr = 123,
                         sakstype = "Type1",
                         mottattdato = LocalDate.of(2023, 1, 1),
-                        resultat = "Resultat1",
+                        resultat = "GODKJENT",
+                        resultattekst = "Dette er resultatet",
+                        vedtaksdato = LocalDate.of(2023, 1, 2),
+                        skadeart = "SkadeType1",
+                        diagnose = "Diagnose1",
+                        skadedato = LocalDate.of(2023, 1, 2),
+                        kildetabell = "Tabell1",
+                        saksreferanse = "Ref123"
+                    ),
+                    SakDto(
+                        kommunenr = "0101",
+                        saksblokk = "ABCD",
+                        saksnr = 123,
+                        sakstype = "Type1",
+                        mottattdato = LocalDate.of(1987, 1, 1),
+                        resultat = "DELVIS_GODKJENT",
+                        resultattekst = "Dette er resultatet",
+                        vedtaksdato = LocalDate.of(1987, 5, 9),
+                        skadeart = "SkadeType1",
+                        diagnose = "Diagnose1",
+                        skadedato = null,
+                        kildetabell = "Tabell1",
+                        saksreferanse = "Ref123"
+                    ),
+                    SakDto(
+                        kommunenr = "0101",
+                        saksblokk = "ABCD",
+                        saksnr = 123,
+                        sakstype = "Type1",
+                        mottattdato = LocalDate.of(1987, 1, 1),
+                        resultat = "AVSLÅTT",
                         resultattekst = "Dette er resultatet",
                         vedtaksdato = LocalDate.of(2023, 1, 2),
                         skadeart = "SkadeType1",
@@ -78,6 +109,11 @@ class YrkesskadeV2IntegrationTest : BaseTestClass() {
         kafkaSoknader.first().sporsmal!!.any { it.tag == "YRKESSKADE_V2" }.`should be true`()
         kafkaSoknader.first().sporsmal!!.any { it.tag == "YRKESSKADE" }.`should be false`()
         kafkaSoknader.last().sporsmal!!.any { it.tag == "YRKESSKADE_V2" }.`should be false`()
+
+        val spmTekster = kafkaSoknader.first().sporsmal.flatten().filter { it.tag == "YRKESSKADE_V2_DATO" }.map { it.sporsmalstekst }.toSet()
+
+        spmTekster `should contain` "Skadedato 2. januar 2023 (Vedtaksdato 2. januar 2023)"
+        spmTekster `should contain` "Vedtaksdato 9. mai 1987"
     }
 
     @Test
