@@ -16,6 +16,7 @@ import no.nav.helse.flex.soknadsopprettelse.sporsmal.SettOppSoknadOpts
 import no.nav.helse.flex.soknadsopprettelse.tilSoknadsperioder
 import no.nav.helse.flex.util.Metrikk
 import no.nav.helse.flex.util.tilOsloInstant
+import no.nav.helse.flex.yrkesskade.YrkesskadeSporsmalGrunnlag
 import no.nav.syfo.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.GradertDTO
@@ -252,7 +253,7 @@ class EttersendingSoknadServiceTest {
                     sykepengesoknad = soknadMetadata,
                     erForsteSoknadISykeforlop = true,
                     harTidligereUtenlandskSpm = false,
-                    yrkesskade = false
+                    yrkesskade = YrkesskadeSporsmalGrunnlag()
                 )
 
             )
@@ -296,7 +297,7 @@ class EttersendingSoknadServiceTest {
                     sykepengesoknad = soknadMetadata,
                     erForsteSoknadISykeforlop = true,
                     harTidligereUtenlandskSpm = false,
-                    yrkesskade = false
+                    yrkesskade = YrkesskadeSporsmalGrunnlag()
                 ),
                 emptyList()
             )

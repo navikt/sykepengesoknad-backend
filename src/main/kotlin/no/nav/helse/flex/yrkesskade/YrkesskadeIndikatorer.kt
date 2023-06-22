@@ -4,23 +4,69 @@ import no.nav.helse.flex.client.yrkesskade.HarYsSak
 import no.nav.helse.flex.client.yrkesskade.HarYsSakerRequest
 import no.nav.helse.flex.client.yrkesskade.YrkesskadeClient
 import no.nav.helse.flex.service.FolkeregisterIdenter
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
+import java.time.LocalDate
 
 @Component
 class YrkesskadeIndikatorer(
 
     private val yrkesskadeClient: YrkesskadeClient,
-    private val yrkesskadeSykmeldingRepository: YrkesskadeSykmeldingRepository
+    private val yrkesskadeSykmeldingRepository: YrkesskadeSykmeldingRepository,
+    @Value("\${YRKESSKADE_V2}") private var yrkesskadeV2: Boolean
+
 ) {
 
-    fun harYrkesskadeIndikatorer(identer: FolkeregisterIdenter, sykmeldingId: String?): Boolean {
+    fun hentYrkesskadeSporsmalGrunnlag(
+        identer: FolkeregisterIdenter,
+        sykmeldingId: String?,
+        erForsteSoknadISykeforlop: Boolean
+    ): YrkesskadeSporsmalGrunnlag {
+        if (!erForsteSoknadISykeforlop) {
+            return YrkesskadeSporsmalGrunnlag(
+                v2Enabled = false,
+                v1Indikator = false,
+                v2GodkjenteSaker = emptyList()
+            )
+        }
+
+        if (yrkesskadeV2) {
+            val ysSakerResponse = yrkesskadeClient.hentSaker(HarYsSakerRequest(identer.alle()))
+
+            return YrkesskadeSporsmalGrunnlag(
+                v2Enabled = true,
+                v1Indikator = false,
+                v2GodkjenteSaker = ysSakerResponse.saker
+                    // TODO  .filter { it.resultat == "INNVILGET" }
+                    .filter { it.skadedato != null && it.vedtaksdato != null }
+                    .map {
+                        YrkesskadeSak(
+                            skadedato = it.skadedato!!,
+                            vedtaksdato = it.vedtaksdato!!
+                        )
+                    }
+            )
+        }
         sykmeldingId?.let {
             if (yrkesskadeSykmeldingRepository.existsBySykmeldingId(sykmeldingId)) {
-                return true
+                return YrkesskadeSporsmalGrunnlag(v2Enabled = false, v1Indikator = true, v2GodkjenteSaker = emptyList())
             }
         }
 
         val ysSakerResponse = yrkesskadeClient.hentYrkesskade(HarYsSakerRequest(identer.alle()))
-        return ysSakerResponse.harYrkesskadeEllerYrkessykdom == HarYsSak.MAA_SJEKKES_MANUELT || ysSakerResponse.harYrkesskadeEllerYrkessykdom == HarYsSak.JA
+        val v1Svar =
+            ysSakerResponse.harYrkesskadeEllerYrkessykdom == HarYsSak.MAA_SJEKKES_MANUELT || ysSakerResponse.harYrkesskadeEllerYrkessykdom == HarYsSak.JA
+        return YrkesskadeSporsmalGrunnlag(v2Enabled = false, v1Indikator = v1Svar, v2GodkjenteSaker = emptyList())
     }
 }
+
+data class YrkesskadeSporsmalGrunnlag(
+    val v2Enabled: Boolean = false,
+    val v1Indikator: Boolean = false,
+    val v2GodkjenteSaker: List<YrkesskadeSak> = emptyList()
+)
+
+data class YrkesskadeSak(
+    val skadedato: LocalDate,
+    val vedtaksdato: LocalDate
+)

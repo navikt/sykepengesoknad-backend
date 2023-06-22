@@ -12,6 +12,7 @@ import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.service.IdentService
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.yrkesskade.YrkesskadeIndikatorer
+import no.nav.helse.flex.yrkesskade.YrkesskadeSporsmalGrunnlag
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -64,8 +65,11 @@ class SporsmalGenerator(
 
         val erEnkeltstaendeBehandlingsdagSoknad = soknad.soknadstype == Soknadstype.BEHANDLINGSDAGER
 
-        val yrkesskade =
-            erForsteSoknadISykeforlop && yrkesskadeIndikatorer.harYrkesskadeIndikatorer(identer, soknad.sykmeldingId)
+        val yrkesskade = yrkesskadeIndikatorer.hentYrkesskadeSporsmalGrunnlag(
+            identer,
+            soknad.sykmeldingId,
+            erForsteSoknadISykeforlop
+        )
 
         val harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad)
 
@@ -77,9 +81,7 @@ class SporsmalGenerator(
         )
 
         if (erEnkeltstaendeBehandlingsdagSoknad) {
-            return settOppSykepengesoknadBehandlingsdager(
-                opts
-            ).tilSporsmalOgAndreKjenteArbeidsforhold()
+            return settOppSykepengesoknadBehandlingsdager(opts).tilSporsmalOgAndreKjenteArbeidsforhold()
         }
 
         val erReisetilskudd = soknad.soknadstype == Soknadstype.REISETILSKUDD
@@ -148,5 +150,5 @@ data class SettOppSoknadOpts(
     val sykepengesoknad: Sykepengesoknad,
     val erForsteSoknadISykeforlop: Boolean,
     val harTidligereUtenlandskSpm: Boolean,
-    val yrkesskade: Boolean
+    val yrkesskade: YrkesskadeSporsmalGrunnlag
 )

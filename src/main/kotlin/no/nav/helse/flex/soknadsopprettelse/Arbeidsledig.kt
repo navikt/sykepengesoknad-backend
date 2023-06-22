@@ -23,9 +23,8 @@ fun settOppSoknadArbeidsledig(
         if (erForsteSoknadISykeforlop) {
             it.add(arbeidUtenforNorge())
         }
-        if (yrkesskade) {
-            it.add(yrkesskadeSporsmal())
-        }
+        it.addAll(yrkesskade.yrkeskadeSporsmal())
+
         if (sykepengesoknad.utenlandskSykmelding) {
             if (erForsteSoknadISykeforlop || !harTidligereUtenlandskSpm) {
                 it.addAll(utenlandskSykmeldingSporsmal(sykepengesoknad))
