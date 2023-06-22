@@ -4,21 +4,7 @@ import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Visningskriterie
-import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER
-import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER_V2
-import no.nav.helse.flex.soknadsopprettelse.ER_DU_SYKMELDT
-import no.nav.helse.flex.soknadsopprettelse.HVILKE_ANDRE_INNTEKTSKILDER
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_ANNET
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_ARBEIDSFORHOLD
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_FOSTERHJEM
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_FRILANSER
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_FRILANSER_SELVSTENDIG
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_JORDBRUKER
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_OMSORGSLONN
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_SELVSTENDIG
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_SELVSTENDIG_DAGMAMMA
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_STYREVERV
+import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.util.DatoUtil
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -84,7 +70,23 @@ fun andreInntektskilderArbeidstakerV2(sykmeldingOrgnavn: String, andreKjenteArbe
                     Sporsmal(
                         tag = INNTEKTSKILDE_SELVSTENDIG,
                         sporsmalstekst = "selvstendig næringsdrivende",
-                        svartype = Svartype.CHECKBOX
+                        svartype = Svartype.CHECKBOX,
+                        kriterieForVisningAvUndersporsmal = Visningskriterie.CHECKED,
+                        undersporsmal = listOf(
+                            Sporsmal(
+                                tag = INNTEKTSKILDE_SELVSTENDIG_4_AR,
+                                sporsmalstekst = "Er det mer enn 4 år siden du begynte?",
+                                kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
+                                svartype = Svartype.JA_NEI,
+                                undersporsmal = listOf(
+                                    Sporsmal(
+                                        tag = INNTEKTSKILDE_SELVSTENDIG_VARIG_ENDRING,
+                                        sporsmalstekst = "Har det skjedd en varig endring?",
+                                        svartype = Svartype.JA_NEI
+                                    )
+                                )
+                            )
+                        )
                     ),
                     Sporsmal(
                         tag = INNTEKTSKILDE_SELVSTENDIG_DAGMAMMA,
