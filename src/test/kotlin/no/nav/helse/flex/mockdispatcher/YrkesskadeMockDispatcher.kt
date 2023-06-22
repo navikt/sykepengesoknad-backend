@@ -21,7 +21,7 @@ object YrkesskadeMockDispatcher : Dispatcher() {
                 harSakerMock(request)
             }
 
-            "POST /api/v1/saker HTTP/1.1" -> {
+            "POST /api/v1/saker/ HTTP/1.1" -> {
                 sakerMock()
             }
 
