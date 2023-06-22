@@ -13,7 +13,7 @@ class YrkesskadeIndikatorer(
 
     private val yrkesskadeClient: YrkesskadeClient,
     private val yrkesskadeSykmeldingRepository: YrkesskadeSykmeldingRepository,
-    @Value("\${YRKESSKADE_V2}") private var yrkesskadeV2: Boolean
+    @Value("\${YRKESSKADE_V2}") var yrkesskadeV2: Boolean
 
 ) {
 
