@@ -12,6 +12,7 @@ import no.nav.helse.flex.kafka.producer.SoknadProducer
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.soknadsopprettelse.settOppSoknadArbeidstaker
 import no.nav.helse.flex.soknadsopprettelse.settOppSykepengesoknadBehandlingsdager
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.SettOppSoknadOpts
 import no.nav.helse.flex.soknadsopprettelse.tilSoknadsperioder
 import no.nav.helse.flex.util.Metrikk
 import no.nav.helse.flex.util.tilOsloInstant
@@ -246,11 +247,14 @@ class EttersendingSoknadServiceTest {
         )
         return soknadMetadata.copy(
             sporsmal = settOppSykepengesoknadBehandlingsdager(
-                soknadMetadata,
-                true,
-                LocalDate.now(),
-                false,
-                false
+
+                SettOppSoknadOpts(
+                    sykepengesoknad = soknadMetadata,
+                    erForsteSoknadISykeforlop = true,
+                    harTidligereUtenlandskSpm = false,
+                    yrkesskade = false
+                )
+
             )
         )
     }
@@ -288,13 +292,13 @@ class EttersendingSoknadServiceTest {
         )
         return soknadMetadata.copy(
             sporsmal = settOppSoknadArbeidstaker(
-                sykepengesoknad = soknadMetadata,
-                erForsteSoknadISykeforlop = true,
-                tidligsteFomForSykmelding = LocalDate.now(),
-                andreKjenteArbeidsforhold = emptyList(),
-                harTidligereUtenlandskSpm = false,
-                egenmeldingISykmeldingen = false,
-                yrkesskade = false
+                SettOppSoknadOpts(
+                    sykepengesoknad = soknadMetadata,
+                    erForsteSoknadISykeforlop = true,
+                    harTidligereUtenlandskSpm = false,
+                    yrkesskade = false
+                ),
+                emptyList()
             )
         )
     }

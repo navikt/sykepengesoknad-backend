@@ -12,7 +12,6 @@ import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.soknadsopprettelse.EGENMELDINGER
 import no.nav.helse.flex.soknadsopprettelse.EGENMELDINGER_NAR
-import no.nav.helse.flex.soknadsopprettelse.FRAVAR_FOR_SYKMELDINGEN
 import no.nav.helse.flex.soknadsopprettelse.PAPIRSYKMELDING_NAR
 import no.nav.helse.flex.soknadsopprettelse.TIDLIGERE_EGENMELDING
 import no.nav.helse.flex.soknadsopprettelse.TIDLIGERE_PAPIRSYKMELDING
@@ -54,12 +53,8 @@ class GammeltEgenmeldingSporsmalTest : BaseTestClass() {
         ).first()
         val hentet = sykepengesoknadDAO.finnSykepengesoknad(soknad.id)
 
-        val nyesporsmal = hentet.sporsmal.map {
-            if (it.tag == FRAVAR_FOR_SYKMELDINGEN) {
-                gammeltEgenmeldingSpm(LocalDate.now().minusDays(19))
-            } else {
-                it
-            }
+        val nyesporsmal = hentet.sporsmal.toMutableList().also {
+            it.add(1, gammeltEgenmeldingSpm(LocalDate.now().minusDays(19)))
         }
 
         sykepengesoknadDAO.byttUtSporsmal(hentet.copy(sporsmal = nyesporsmal))

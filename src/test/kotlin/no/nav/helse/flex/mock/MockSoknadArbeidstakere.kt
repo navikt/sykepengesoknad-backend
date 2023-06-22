@@ -5,6 +5,7 @@ import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.soknadsopprettelse.*
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.SettOppSoknadOpts
 import no.nav.helse.flex.testutil.besvarsporsmal
 import no.nav.helse.flex.util.DatoUtil.periodeTilJson
 import no.nav.helse.flex.util.tilOsloInstant
@@ -21,14 +22,15 @@ import java.util.*
 fun deprecatedGetSoknadMedFeriesporsmalSomUndersporsmal(soknadMetadata: Sykepengesoknad): Sykepengesoknad {
     val sykepengesoknad = soknadMetadata.copy(
         sporsmal = settOppSoknadArbeidstaker(
-            sykepengesoknad = soknadMetadata,
-            erForsteSoknadISykeforlop = true,
-            tidligsteFomForSykmelding = now(),
-            andreKjenteArbeidsforhold = emptyList(),
-            harTidligereUtenlandskSpm = false,
-            egenmeldingISykmeldingen = false,
-            yrkesskade = false
+            SettOppSoknadOpts(
+                sykepengesoknad = soknadMetadata,
+                erForsteSoknadISykeforlop = true,
+                harTidligereUtenlandskSpm = false,
+                yrkesskade = false
+            ),
+            andreKjenteArbeidsforhold = emptyList()
         )
+
     )
         .fjernSporsmal(FERIE_V2)
         .fjernSporsmal(PERMISJON_V2)
@@ -140,13 +142,13 @@ fun opprettSendtSoknad(): Sykepengesoknad {
     val sykepengesoknad = leggSvarPaSoknad(
         soknadMetadata.copy(
             sporsmal = settOppSoknadArbeidstaker(
-                sykepengesoknad = soknadMetadata,
-                erForsteSoknadISykeforlop = true,
-                tidligsteFomForSykmelding = now(),
-                andreKjenteArbeidsforhold = emptyList(),
-                harTidligereUtenlandskSpm = false,
-                egenmeldingISykmeldingen = false,
-                yrkesskade = false
+                SettOppSoknadOpts(
+                    sykepengesoknad = soknadMetadata,
+                    erForsteSoknadISykeforlop = true,
+                    harTidligereUtenlandskSpm = false,
+                    yrkesskade = false
+                ),
+                andreKjenteArbeidsforhold = emptyList()
             )
         )
     )
@@ -202,16 +204,15 @@ fun opprettNySoknadMock(feriesporsmalSomHovedsporsmal: Boolean = true): Sykepeng
     )
 
     val sykepengesoknad = if (feriesporsmalSomHovedsporsmal) {
-        (soknad).copy(
+        soknad.copy(
             sporsmal = settOppSoknadArbeidstaker(
-                sykepengesoknad = soknad,
-                erForsteSoknadISykeforlop = true,
-                tidligsteFomForSykmelding = now(),
-                andreKjenteArbeidsforhold = emptyList(),
-                harTidligereUtenlandskSpm = false,
-                egenmeldingISykmeldingen = false,
-                yrkesskade = false
-
+                SettOppSoknadOpts(
+                    sykepengesoknad = soknad,
+                    erForsteSoknadISykeforlop = true,
+                    harTidligereUtenlandskSpm = false,
+                    yrkesskade = false
+                ),
+                andreKjenteArbeidsforhold = emptyList()
             )
         )
     } else {
@@ -233,7 +234,6 @@ private fun leggSvarPaSoknad(sykepengesoknad: Sykepengesoknad): Sykepengesoknad 
         .jobbetDu100Prosent()
         .jobbetDuGradert()
         .andreInntektskilder()
-        .fravarForSykmeldingen()
         .besvarsporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
 
     return if (s.harFeriePermisjonEllerUtenlandsoppholdSporsmal()) {
@@ -243,17 +243,6 @@ private fun leggSvarPaSoknad(sykepengesoknad: Sykepengesoknad): Sykepengesoknad 
             .utenlandsopphold()
             .ferie()
     }
-}
-
-private fun Sykepengesoknad.fravarForSykmeldingen(): Sykepengesoknad {
-    return besvarsporsmal(FRAVAR_FOR_SYKMELDINGEN, "JA")
-        .besvarsporsmal(
-            FRAVAR_FOR_SYKMELDINGEN_NAR,
-            periodeTilJson(
-                fom!!.minusDays(4),
-                fom!!.plusDays(2)
-            )
-        )
 }
 
 private fun Sykepengesoknad.tilbakeIFulltArbeid(): Sykepengesoknad {

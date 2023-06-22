@@ -5,6 +5,7 @@ import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.soknadsopprettelse.settOppSykepengesoknadBehandlingsdager
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.SettOppSoknadOpts
 import no.nav.helse.flex.soknadsopprettelse.tilSoknadsperioder
 import no.nav.helse.flex.util.tilOsloInstant
 import no.nav.syfo.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO
@@ -59,11 +60,13 @@ fun opprettBehandlingsdagsoknadTestadata(
     )
     return soknadMetadata.copy(
         sporsmal = settOppSykepengesoknadBehandlingsdager(
-            soknadMetadata,
-            forsteSoknadIForlop,
-            now(),
-            false,
-            false
+            SettOppSoknadOpts(
+
+                soknadMetadata,
+                forsteSoknadIForlop,
+                false,
+                false
+            )
         )
     )
 }

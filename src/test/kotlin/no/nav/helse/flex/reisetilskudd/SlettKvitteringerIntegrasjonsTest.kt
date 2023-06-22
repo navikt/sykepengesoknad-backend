@@ -20,7 +20,6 @@ import no.nav.helse.flex.soknadsopprettelse.ARBEID_UTENFOR_NORGE
 import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
 import no.nav.helse.flex.soknadsopprettelse.BRUKTE_REISETILSKUDDET
 import no.nav.helse.flex.soknadsopprettelse.FERIE_V2
-import no.nav.helse.flex.soknadsopprettelse.FRAVAR_FOR_SYKMELDINGEN
 import no.nav.helse.flex.soknadsopprettelse.KVITTERINGER
 import no.nav.helse.flex.soknadsopprettelse.PERMISJON_V2
 import no.nav.helse.flex.soknadsopprettelse.REISE_MED_BIL
@@ -128,7 +127,6 @@ class SlettKvitteringerIntegrasjonsTest : BaseTestClass() {
         Assertions.assertThat(reisetilskuddEtterSvar.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
                 ANSVARSERKLARING,
-                FRAVAR_FOR_SYKMELDINGEN,
                 TILBAKE_I_ARBEID,
                 FERIE_V2,
                 PERMISJON_V2,

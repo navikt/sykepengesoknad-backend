@@ -12,11 +12,8 @@ import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.service.IdentService
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.yrkesskade.YrkesskadeIndikatorer
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
 
 @Service
 @Transactional
@@ -25,15 +22,12 @@ class SporsmalGenerator(
     private val andreArbeidsforholdHenting: AndreArbeidsforholdHenting,
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val yrkesskadeIndikatorer: YrkesskadeIndikatorer,
-    private val medlemskapVurderingClient: MedlemskapVurderingClient,
-
-    @Value("\${EGENMELDING_SYKMELDING_FOM}") private val egenmeldingSykmeldingFom: String
+    private val medlemskapVurderingClient: MedlemskapVurderingClient
 
 ) {
 
     private val log = logger()
 
-    var egenmeldingSykmeldingFomDate = OffsetDateTime.parse(egenmeldingSykmeldingFom)
     fun lagSporsmalPaSoknad(id: String) {
         val soknad = sykepengesoknadDAO.finnSykepengesoknad(id)
 
@@ -66,38 +60,34 @@ class SporsmalGenerator(
         eksisterendeSoknader: List<Sykepengesoknad>,
         identer: FolkeregisterIdenter
     ): SporsmalOgAndreKjenteArbeidsforhold {
-        val tidligsteFomForSykmelding = hentTidligsteFomForSykmelding(soknad, eksisterendeSoknader)
         val erForsteSoknadISykeforlop = erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad)
 
         val erEnkeltstaendeBehandlingsdagSoknad = soknad.soknadstype == Soknadstype.BEHANDLINGSDAGER
 
-        val egenmeldingISykmeldingen = egenmeldingSykmeldingFomDate.isBefore(
-            soknad.opprettet!!.atOffset(
-                ZoneOffset.UTC
-            )
-        )
         val yrkesskade =
             erForsteSoknadISykeforlop && yrkesskadeIndikatorer.harYrkesskadeIndikatorer(identer, soknad.sykmeldingId)
 
+        val harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad)
+
+        val opts = SettOppSoknadOpts(
+            sykepengesoknad = soknad,
+            erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
+            harTidligereUtenlandskSpm = harTidligereUtenlandskSpm,
+            yrkesskade = yrkesskade
+        )
+
         if (erEnkeltstaendeBehandlingsdagSoknad) {
             return settOppSykepengesoknadBehandlingsdager(
-                soknadMetadata = soknad,
-                erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
-                tidligsteFomForSykmelding = tidligsteFomForSykmelding,
-                egenmeldingISykmeldingen = egenmeldingISykmeldingen,
-                yrkesskade = yrkesskade
+                opts
             ).tilSporsmalOgAndreKjenteArbeidsforhold()
         }
 
         val erReisetilskudd = soknad.soknadstype == Soknadstype.REISETILSKUDD
         if (erReisetilskudd) {
             return skapReisetilskuddsoknad(
-                soknadMetadata = soknad,
-                yrkesskade = yrkesskade
+                opts
             ).tilSporsmalOgAndreKjenteArbeidsforhold()
         }
-
-        val harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad)
 
         // Det skal bare gjøres medlemskapvurdering for første søknad i sykeforløpet.
         if (erForsteSoknadISykeforlop) {
@@ -128,13 +118,9 @@ class SporsmalGenerator(
                     startSykeforlop = soknad.startSykeforlop!!
                 )
                 val sporsmal = settOppSoknadArbeidstaker(
-                    sykepengesoknad = soknad,
-                    erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
-                    egenmeldingISykmeldingen = egenmeldingISykmeldingen,
-                    tidligsteFomForSykmelding = tidligsteFomForSykmelding,
-                    andreKjenteArbeidsforhold = andreKjenteArbeidsforhold.map { it.navn },
-                    harTidligereUtenlandskSpm = harTidligereUtenlandskSpm,
-                    yrkesskade = yrkesskade
+                    opts = opts,
+                    andreKjenteArbeidsforhold = andreKjenteArbeidsforhold.map { it.navn }
+
                 )
                 SporsmalOgAndreKjenteArbeidsforhold(
                     sporsmal = sporsmal,
@@ -142,35 +128,25 @@ class SporsmalGenerator(
                 )
             }
 
-            Arbeidssituasjon.NAERINGSDRIVENDE, Arbeidssituasjon.FRILANSER -> settOppSoknadSelvstendigOgFrilanser(
-                sykepengesoknad = soknad,
-                erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
-                harTidligereUtenlandskSpm = harTidligereUtenlandskSpm,
-                yrkesskade = yrkesskade
-
-            ).tilSporsmalOgAndreKjenteArbeidsforhold()
-
-            Arbeidssituasjon.ARBEIDSLEDIG -> settOppSoknadArbeidsledig(
-                sykepengesoknad = soknad,
-                erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
-                harTidligereUtenlandskSpm = harTidligereUtenlandskSpm,
-                yrkesskade = yrkesskade
-
-            ).tilSporsmalOgAndreKjenteArbeidsforhold()
-
-            Arbeidssituasjon.ANNET -> settOppSoknadAnnetArbeidsforhold(
-                sykepengesoknad = soknad,
-                erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
-                harTidligereUtenlandskSpm = harTidligereUtenlandskSpm,
-                yrkesskade = yrkesskade
-            ).tilSporsmalOgAndreKjenteArbeidsforhold()
-
             else -> {
-                throw RuntimeException(
-                    "Arbeidssituasjon ${soknad.arbeidssituasjon} for sykepengesøknad ${soknad.id}" +
-                        " er ukjent. Kan ikke generere spørsmål."
-                )
+                when (soknad.arbeidssituasjon) {
+                    Arbeidssituasjon.NAERINGSDRIVENDE -> settOppSoknadSelvstendigOgFrilanser(opts)
+                    Arbeidssituasjon.FRILANSER -> settOppSoknadSelvstendigOgFrilanser(opts)
+                    Arbeidssituasjon.ARBEIDSLEDIG -> settOppSoknadArbeidsledig(opts)
+                    Arbeidssituasjon.ANNET -> settOppSoknadAnnetArbeidsforhold(opts)
+
+                    else -> {
+                        throw RuntimeException("Arbeidssituasjon ${soknad.arbeidssituasjon} for sykepengesøknad ${soknad.id} er ukjent. Kan ikke generere spørsmål.")
+                    }
+                }.tilSporsmalOgAndreKjenteArbeidsforhold()
             }
         }
     }
 }
+
+data class SettOppSoknadOpts(
+    val sykepengesoknad: Sykepengesoknad,
+    val erForsteSoknadISykeforlop: Boolean,
+    val harTidligereUtenlandskSpm: Boolean,
+    val yrkesskade: Boolean
+)

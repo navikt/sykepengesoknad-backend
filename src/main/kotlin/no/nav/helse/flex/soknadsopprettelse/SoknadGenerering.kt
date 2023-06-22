@@ -3,7 +3,6 @@ package no.nav.helse.flex.soknadsopprettelse
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
-import java.time.LocalDate
 
 fun erForsteSoknadTilArbeidsgiverIForlop(
     eksisterendeSoknader: List<Sykepengesoknad>,
@@ -56,16 +55,4 @@ fun harBlittStiltUtlandsSporsmal(
         }
         .filter { it.startSykeforlop == sykepengesoknad.startSykeforlop }
         .any { sok -> sok.sporsmal.any { it.tag == UTENLANDSK_SYKMELDING_BOSTED } }
-}
-
-fun hentTidligsteFomForSykmelding(
-    soknadMetadata: Sykepengesoknad,
-    eksisterendeSoknader: List<Sykepengesoknad>
-): LocalDate {
-    return eksisterendeSoknader
-        .filter { it.sykmeldingId == soknadMetadata.sykmeldingId }
-        .map { it.fom!! }
-        .toMutableList()
-        .also { it.add(soknadMetadata.fom!!) }
-        .minOrNull()!!
 }

@@ -10,7 +10,6 @@ import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
 import no.nav.helse.flex.sykepengesoknad.kafka.MerknadDTO
-import no.nav.helse.flex.sykepengesoknad.kafka.PeriodeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
@@ -102,7 +101,6 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
         assertThat(soknad1.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
                 "ANSVARSERKLARING",
-                "FRAVAR_FOR_SYKMELDINGEN",
                 "TILBAKE_I_ARBEID",
                 "FERIE_V2",
                 "PERMISJON_V2",
@@ -191,11 +189,6 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
 
         val sendtSoknad = SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
             .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
-            .besvarSporsmal(tag = "FRAVAR_FOR_SYKMELDINGEN", svar = "JA", ferdigBesvart = false)
-            .besvarSporsmal(
-                tag = "FRAVAR_FOR_SYKMELDINGEN_NAR",
-                svar = """{"fom":"${soknaden.fom!!.minusDays(14)}","tom":"${soknaden.fom!!.minusDays(7)}"}"""
-            )
             .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
             .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
             .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
@@ -212,14 +205,7 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
         assertThat(kafkaSoknader).hasSize(1)
         assertThat(kafkaSoknader[0].status).isEqualTo(SoknadsstatusDTO.SENDT)
         kafkaSoknader[0].arbeidUtenforNorge!!.`should be false`()
-        assertThat(kafkaSoknader[0].fravarForSykmeldingen).isEqualTo(
-            listOf(
-                PeriodeDTO(
-                    fom = soknaden.fom!!.minusDays(14),
-                    tom = soknaden.fom!!.minusDays(7)
-                )
-            )
-        )
+
         juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
 
         val soknadFraDatabase = sykepengesoknadDAO.finnSykepengesoknad(sendtSoknad.id)

@@ -208,7 +208,6 @@ class JuridiskVurderingArbeidsgiverperiodeTest : BaseTestClass() {
 
         val sendtSoknad = SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
             .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
-            .besvarSporsmal(tag = "FRAVAR_FOR_SYKMELDINGEN", svar = "NEI")
             .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
             .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
             .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")

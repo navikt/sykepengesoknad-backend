@@ -11,6 +11,7 @@ import no.nav.helse.flex.soknadsopprettelse.ARBEIDSLEDIG_UTLAND
 import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
 import no.nav.helse.flex.soknadsopprettelse.FRISKMELDT
 import no.nav.helse.flex.soknadsopprettelse.settOppSoknadArbeidsledig
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.SettOppSoknadOpts
 import no.nav.helse.flex.soknadsopprettelse.tilSoknadsperioder
 import no.nav.helse.flex.testutil.besvarsporsmal
 import no.nav.helse.flex.util.tilOsloInstant
@@ -68,10 +69,12 @@ fun opprettNySoknad(): Sykepengesoknad {
 
     return sykepengesoknad.copy(
         sporsmal = settOppSoknadArbeidsledig(
-            sykepengesoknad,
-            false,
-            false,
-            false
+            SettOppSoknadOpts(
+                sykepengesoknad,
+                false,
+                false,
+                false
+            )
         )
     )
 }

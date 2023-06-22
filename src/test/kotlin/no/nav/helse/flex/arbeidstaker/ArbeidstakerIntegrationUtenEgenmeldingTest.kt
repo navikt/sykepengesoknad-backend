@@ -3,7 +3,6 @@ package no.nav.helse.flex.arbeidstaker
 import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.SporsmalGenerator
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
@@ -13,9 +12,7 @@ import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
-import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
-import java.time.OffsetDateTime
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class ArbeidstakerIntegrationUtenEgenmeldingTest : BaseTestClass() {
@@ -23,13 +20,9 @@ class ArbeidstakerIntegrationUtenEgenmeldingTest : BaseTestClass() {
     private final val fnr = "12454578474"
     private final val basisdato = LocalDate.of(2021, 9, 1)
 
-    @Autowired
-    lateinit var sporsmalGenerator: SporsmalGenerator
-
     @Test
     @Order(1)
     fun `Arbeidstakersøknad opprettes for en sykmelding`() {
-        sporsmalGenerator.egenmeldingSykmeldingFomDate = OffsetDateTime.now().minusDays(1)
         val kafkaSoknader = sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
@@ -70,6 +63,5 @@ class ArbeidstakerIntegrationUtenEgenmeldingTest : BaseTestClass() {
                 "BEKREFT_OPPLYSNINGER"
             )
         )
-        sporsmalGenerator.egenmeldingSykmeldingFomDate = OffsetDateTime.now().plusDays(1)
     }
 }
