@@ -2,19 +2,7 @@ package no.nav.helse.flex.domain.mapper.sporsmalprossesering
 
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER
-import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER_V2
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_ANNET
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_ARBEIDSFORHOLD
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_FOSTERHJEM
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_FRILANSER
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_FRILANSER_SELVSTENDIG
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_JORDBRUKER
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_OMSORGSLONN
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_SELVSTENDIG
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_SELVSTENDIG_DAGMAMMA
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_STYREVERV
+import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.sykepengesoknad.kafka.InntektskildeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.InntektskildetypeDTO
 import java.util.*
@@ -27,15 +15,25 @@ fun hentInntektListe(soknad: Sykepengesoknad): List<InntektskildeDTO> {
         andreinntektsporsmal.undersporsmal[0].undersporsmal
             .filter { it.svar.isNotEmpty() }
             .map { sporsmal ->
-                InntektskildeDTO(
-                    mapSporsmalTilInntektskildetype(sporsmal),
-                    if (sporsmal.undersporsmal.isEmpty()) {
-                        null
+
+                    if (sporsmal.undersporsmal.firstOrNull()?.tag?.endsWith(ER_DU_SYKMELDT) == true) {
+
+                         InntektskildeDTO(
+                            type = mapSporsmalTilInntektskildetype(sporsmal),
+                            sykmeldt = if (sporsmal.undersporsmal.isEmpty()) {
+                                null
+                            } else {
+                                "JA" == sporsmal.undersporsmal[0].forsteSvar
+                            }
+                        )
                     } else {
-                        "JA" == sporsmal.undersporsmal[0].forsteSvar
+                         InntektskildeDTO(
+                            type = mapSporsmalTilInntektskildetype(sporsmal),
+                            sykmeldt = null
+                        )
                     }
-                )
-            }
+                }
+
     } else {
         Collections.emptyList()
     }
