@@ -96,6 +96,9 @@ class YrkesskadeClient(
             if (e.message?.contains("Det må angis et gyldig fødselsnummer") == true && environmentToggles.isNotProduction()) {
                 return SakerResponse(emptyList())
             }
+            if (e.message?.contains("Bad Request from POST https://yrkesskade-infotrygd.dev-fss-pub.nais.io/api/v1/saker/") == true && environmentToggles.isNotProduction()) {
+                return SakerResponse(emptyList())
+            }
             throw e
         }
     }

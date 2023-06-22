@@ -59,7 +59,8 @@ private fun yrkesskadeSporsmalV2(v2GodkjenteSaker: List<YrkesskadeSak>): Sporsma
                     Sporsmal(
                         sporsmalstekst = skapSkadedatoTekst(it),
                         svartype = Svartype.CHECKBOX,
-                        tag = YRKESSKADE_V2_DATO
+                        tag = YRKESSKADE_V2_DATO,
+                        undertekst = (it.skadedato ?: it.vedtaksdato).toString() // For sortering
                     )
                 }
             )

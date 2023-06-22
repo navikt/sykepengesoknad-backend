@@ -45,7 +45,7 @@ class YrkesskadeV2IntegrationTest : BaseTestClass() {
                         saksblokk = "ABCD",
                         saksnr = 123,
                         sakstype = "Type1",
-                        mottattdato = LocalDate.of(2023, 1, 1),
+                        mottattdato = LocalDate.now(),
                         resultat = "GODKJENT",
                         resultattekst = "Dette er resultatet",
                         vedtaksdato = LocalDate.of(2023, 1, 2),
@@ -60,7 +60,7 @@ class YrkesskadeV2IntegrationTest : BaseTestClass() {
                         saksblokk = "ABCD",
                         saksnr = 123,
                         sakstype = "Type1",
-                        mottattdato = LocalDate.of(1987, 1, 1),
+                        mottattdato = LocalDate.now(),
                         resultat = "DELVIS_GODKJENT",
                         resultattekst = "Dette er resultatet",
                         vedtaksdato = LocalDate.of(1987, 5, 9),
@@ -75,13 +75,28 @@ class YrkesskadeV2IntegrationTest : BaseTestClass() {
                         saksblokk = "ABCD",
                         saksnr = 123,
                         sakstype = "Type1",
-                        mottattdato = LocalDate.of(1987, 1, 1),
+                        mottattdato = LocalDate.now(),
                         resultat = "AVSLÅTT",
                         resultattekst = "Dette er resultatet",
                         vedtaksdato = LocalDate.of(2023, 1, 2),
                         skadeart = "SkadeType1",
                         diagnose = "Diagnose1",
                         skadedato = LocalDate.of(2023, 1, 2),
+                        kildetabell = "Tabell1",
+                        saksreferanse = "Ref123"
+                    ),
+                    SakDto(
+                        kommunenr = "0101",
+                        saksblokk = "ABCD",
+                        saksnr = 123,
+                        sakstype = "Type1",
+                        mottattdato = LocalDate.now(),
+                        resultat = "INNVILGET",
+                        resultattekst = "Dette er resultatet",
+                        vedtaksdato = LocalDate.of(1989, 1, 2),
+                        skadeart = "SkadeType1",
+                        diagnose = "Diagnose1",
+                        skadedato = LocalDate.of(1982, 1, 2),
                         kildetabell = "Tabell1",
                         saksreferanse = "Ref123"
                     )
@@ -110,10 +125,11 @@ class YrkesskadeV2IntegrationTest : BaseTestClass() {
         kafkaSoknader.first().sporsmal!!.any { it.tag == "YRKESSKADE" }.`should be false`()
         kafkaSoknader.last().sporsmal!!.any { it.tag == "YRKESSKADE_V2" }.`should be false`()
 
-        val spmTekster = kafkaSoknader.first().sporsmal.flatten().filter { it.tag == "YRKESSKADE_V2_DATO" }.map { it.sporsmalstekst }.toSet()
+        val spmTekster = kafkaSoknader.first().sporsmal.flatten().filter { it.tag == "YRKESSKADE_V2_DATO" }.map { it.sporsmalstekst }.toList()
 
-        spmTekster `should contain` "Skadedato 2. januar 2023 (Vedtaksdato 2. januar 2023)"
-        spmTekster `should contain` "Vedtaksdato 9. mai 1987"
+        spmTekster[0] `should be equal to` "Skadedato 2. januar 1982 (Vedtaksdato 2. januar 1989)"
+        spmTekster[1] `should be equal to` "Vedtaksdato 9. mai 1987"
+        spmTekster[2] `should be equal to` "Skadedato 2. januar 2023 (Vedtaksdato 2. januar 2023)"
     }
 
     @Test

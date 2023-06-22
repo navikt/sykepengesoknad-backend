@@ -21,6 +21,7 @@ private fun Sporsmal.sorterUndersporsmal(): Sporsmal {
                 ARBEIDSGIVER -> it.sorteringArbeidsgiver()
                 REISE_MED_BIL -> it.sorteringReiseMedBil()
                 UTENLANDSK_SYKMELDING_BOSTED -> it.sorteringBosted()
+                YRKESSKADE_V2_VELG_DATO -> it.sorteringYrkesskader()
                 else -> it.tag
             }
         }
@@ -51,6 +52,7 @@ private fun Sporsmal.sorteringArbeidsgiver(): String {
         else -> throw RuntimeException("Ukjent underspørsmål for arbeidsgiver: $tag")
     }
 }
+
 private fun Sporsmal.sorteringReiseMedBil(): String {
     return when (tag) {
         BIL_DATOER -> "0"
@@ -72,4 +74,8 @@ private fun Sporsmal.sorteringBosted(): String {
         UTENLANDSK_SYKMELDING_GYLDIGHET_ADRESSE -> "7"
         else -> throw RuntimeException("Ukjent underspørsmål for reise med bil: $tag")
     }
+}
+
+private fun Sporsmal.sorteringYrkesskader(): String {
+    return undertekst ?: "0"
 }
