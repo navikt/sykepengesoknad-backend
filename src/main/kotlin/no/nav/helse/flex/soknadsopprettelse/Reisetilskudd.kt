@@ -26,9 +26,7 @@ fun skapReisetilskuddsoknad(
                 opts.sykepengesoknad.arbeidssituasjon!!
             )
         )
-        if (opts.yrkesskade) {
-            it.add(yrkesskadeSporsmal())
-        }
+        it.addAll(opts.yrkesskade.yrkeskadeSporsmal())
     }.toList()
 }
 

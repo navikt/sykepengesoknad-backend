@@ -9,6 +9,7 @@ import no.nav.helse.flex.soknadsopprettelse.sporsmal.SettOppSoknadOpts
 import no.nav.helse.flex.testutil.besvarsporsmal
 import no.nav.helse.flex.util.DatoUtil.periodeTilJson
 import no.nav.helse.flex.util.tilOsloInstant
+import no.nav.helse.flex.yrkesskade.YrkesskadeSporsmalGrunnlag
 import no.nav.syfo.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.GradertDTO
@@ -26,7 +27,7 @@ fun deprecatedGetSoknadMedFeriesporsmalSomUndersporsmal(soknadMetadata: Sykepeng
                 sykepengesoknad = soknadMetadata,
                 erForsteSoknadISykeforlop = true,
                 harTidligereUtenlandskSpm = false,
-                yrkesskade = false
+                yrkesskade = YrkesskadeSporsmalGrunnlag()
             ),
             andreKjenteArbeidsforhold = emptyList()
         )
@@ -146,7 +147,7 @@ fun opprettSendtSoknad(): Sykepengesoknad {
                     sykepengesoknad = soknadMetadata,
                     erForsteSoknadISykeforlop = true,
                     harTidligereUtenlandskSpm = false,
-                    yrkesskade = false
+                    yrkesskade = YrkesskadeSporsmalGrunnlag()
                 ),
                 andreKjenteArbeidsforhold = emptyList()
             )
@@ -210,7 +211,7 @@ fun opprettNySoknadMock(feriesporsmalSomHovedsporsmal: Boolean = true): Sykepeng
                     sykepengesoknad = soknad,
                     erForsteSoknadISykeforlop = true,
                     harTidligereUtenlandskSpm = false,
-                    yrkesskade = false
+                    yrkesskade = YrkesskadeSporsmalGrunnlag()
                 ),
                 andreKjenteArbeidsforhold = emptyList()
             )

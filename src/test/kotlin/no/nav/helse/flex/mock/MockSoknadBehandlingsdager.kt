@@ -8,6 +8,7 @@ import no.nav.helse.flex.soknadsopprettelse.settOppSykepengesoknadBehandlingsdag
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.SettOppSoknadOpts
 import no.nav.helse.flex.soknadsopprettelse.tilSoknadsperioder
 import no.nav.helse.flex.util.tilOsloInstant
+import no.nav.helse.flex.yrkesskade.YrkesskadeSporsmalGrunnlag
 import no.nav.syfo.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.GradertDTO
@@ -65,7 +66,7 @@ fun opprettBehandlingsdagsoknadTestadata(
                 soknadMetadata,
                 forsteSoknadIForlop,
                 false,
-                false
+                YrkesskadeSporsmalGrunnlag()
             )
         )
     )

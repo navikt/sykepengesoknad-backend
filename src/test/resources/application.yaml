@@ -137,3 +137,4 @@ aiven-kafka:
   auto-offset-reset: earliest
 
 SKRIVEMODUS: READWRITE
+YRKESSKADE_V2: false

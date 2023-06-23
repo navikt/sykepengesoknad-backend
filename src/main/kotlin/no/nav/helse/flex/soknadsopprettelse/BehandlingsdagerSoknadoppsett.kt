@@ -56,9 +56,7 @@ fun settOppSykepengesoknadBehandlingsdager(
             if (erForsteSoknadISykeforlop) {
                 it.add(arbeidUtenforNorge())
             }
-            if (yrkesskade) {
-                it.add(yrkesskadeSporsmal())
-            }
+            it.addAll(yrkesskade.yrkeskadeSporsmal())
             it.addAll(behandlingsdagerSporsmal(sykepengesoknad))
         }.toList()
 }
