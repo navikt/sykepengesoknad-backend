@@ -80,7 +80,7 @@ class AndreInntektskilderKtTest {
         andreInntektskilder[0].sykmeldt.shouldBeNull()
 
         andreInntektskilder[1].type.shouldBeEqualTo(InntektskildetypeDTO.SELVSTENDIG_NARINGSDRIVENDE)
-        andreInntektskilder[1].sykmeldt.shouldBeNull() // det er her testen går skeis
+        andreInntektskilder[1].sykmeldt.shouldBeNull()
 
         andreInntektskilder[2].type.shouldBeEqualTo(InntektskildetypeDTO.SELVSTENDIG_NARINGSDRIVENDE_DAGMAMMA)
         andreInntektskilder[2].sykmeldt.shouldBeNull()

@@ -75,14 +75,31 @@ fun andreInntektskilderArbeidstakerV2(sykmeldingOrgnavn: String, andreKjenteArbe
                         undersporsmal = listOf(
                             Sporsmal(
                                 tag = INNTEKTSKILDE_SELVSTENDIG_4_AR,
-                                sporsmalstekst = "Er det mer enn 4 år siden du begynte?",
+                                sporsmalstekst = "Har du vært næringsdrivende i mer enn 4 år?",
                                 kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
                                 svartype = Svartype.JA_NEI,
                                 undersporsmal = listOf(
                                     Sporsmal(
-                                        tag = INNTEKTSKILDE_SELVSTENDIG_VARIG_ENDRING,
-                                        sporsmalstekst = "Har det skjedd en varig endring?",
-                                        svartype = Svartype.JA_NEI
+                                        tag = INNTEKTSKILDE_SELVSTENDIG_VARIG_ENDRING_GRUPPE,
+                                        sporsmalstekst = "Har det vært endring i din arbeidssituasjon eller virksomhet?",
+                                        svartype = Svartype.RADIO_GRUPPE,
+                                        undersporsmal = listOf(
+                                            Sporsmal(
+                                                tag = INNTEKTSKILDE_SELVSTENDIG_VARIG_ENDRING,
+                                                sporsmalstekst = "Ja",
+                                                svartype = Svartype.RADIO
+                                            ),
+                                            Sporsmal(
+                                                tag = INNTEKTSKILDE_SELVSTENDIG_VARIG_ENDRING,
+                                                sporsmalstekst = "Nei",
+                                                svartype = Svartype.RADIO
+                                            ),
+                                            Sporsmal(
+                                                tag = INNTEKTSKILDE_SELVSTENDIG_VARIG_ENDRING,
+                                                sporsmalstekst = "Vet ikke",
+                                                svartype = Svartype.RADIO
+                                            )
+                                        )
                                     )
                                 )
                             )
