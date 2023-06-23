@@ -26,6 +26,7 @@ fun hentInntektListe(soknad: Sykepengesoknad): List<InntektskildeDTO> {
                         }
                     )
                 } else {
+                    // TODO: Send svar på andre inntektskilder selvstendig videre på kafka
                     InntektskildeDTO(
                         type = mapSporsmalTilInntektskildetype(sporsmal),
                         sykmeldt = null
