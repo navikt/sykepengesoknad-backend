@@ -153,7 +153,7 @@ fun opprettSendtSoknad(): Sykepengesoknad {
                 andreKjenteArbeidsforhold = emptyList()
             )
         )
-    )
+    ).sorterSporsmal()
 
     sykepengesoknad.validerSvarPaSoknad()
 
