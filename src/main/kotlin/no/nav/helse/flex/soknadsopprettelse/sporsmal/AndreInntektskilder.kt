@@ -85,17 +85,17 @@ fun andreInntektskilderArbeidstakerV2(sykmeldingOrgnavn: String, andreKjenteArbe
                                         svartype = Svartype.RADIO_GRUPPE,
                                         undersporsmal = listOf(
                                             Sporsmal(
-                                                tag = INNTEKTSKILDE_SELVSTENDIG_VARIG_ENDRING,
+                                                tag = INNTEKTSKILDE_SELVSTENDIG_VARIG_ENDRING_JA,
                                                 sporsmalstekst = "Ja",
                                                 svartype = Svartype.RADIO
                                             ),
                                             Sporsmal(
-                                                tag = INNTEKTSKILDE_SELVSTENDIG_VARIG_ENDRING,
+                                                tag = INNTEKTSKILDE_SELVSTENDIG_VARIG_ENDRING_NEI,
                                                 sporsmalstekst = "Nei",
                                                 svartype = Svartype.RADIO
                                             ),
                                             Sporsmal(
-                                                tag = INNTEKTSKILDE_SELVSTENDIG_VARIG_ENDRING,
+                                                tag = INNTEKTSKILDE_SELVSTENDIG_VARIG_ENDRING_VET_IKKE,
                                                 sporsmalstekst = "Vet ikke",
                                                 svartype = Svartype.RADIO
                                             )

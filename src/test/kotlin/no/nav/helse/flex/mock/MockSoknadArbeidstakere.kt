@@ -6,6 +6,7 @@ import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.SettOppSoknadOpts
+import no.nav.helse.flex.svarvalidering.validerSvarPaSoknad
 import no.nav.helse.flex.testutil.besvarsporsmal
 import no.nav.helse.flex.util.DatoUtil.periodeTilJson
 import no.nav.helse.flex.util.tilOsloInstant
@@ -153,6 +154,9 @@ fun opprettSendtSoknad(): Sykepengesoknad {
             )
         )
     )
+
+    sykepengesoknad.validerSvarPaSoknad()
+
     return sykepengesoknad.copy(
         sendtNav = Instant.now(),
         sendtArbeidsgiver = Instant.now(),
@@ -231,6 +235,7 @@ fun gammeltFormatOpprettNySoknadMedFeriesporsmalSomUndersporsmal(): Sykepengesok
 private fun leggSvarPaSoknad(sykepengesoknad: Sykepengesoknad): Sykepengesoknad {
     val s = sykepengesoknad
         .besvarsporsmal(ANSVARSERKLARING, "CHECKED")
+        .arbeidUtenforNorge()
         .tilbakeIFulltArbeid()
         .jobbetDu100Prosent()
         .jobbetDuGradert()
@@ -244,6 +249,10 @@ private fun leggSvarPaSoknad(sykepengesoknad: Sykepengesoknad): Sykepengesoknad 
             .utenlandsopphold()
             .ferie()
     }
+}
+
+private fun Sykepengesoknad.arbeidUtenforNorge(): Sykepengesoknad {
+    return besvarsporsmal(ARBEID_UTENFOR_NORGE, "NEI")
 }
 
 private fun Sykepengesoknad.tilbakeIFulltArbeid(): Sykepengesoknad {
@@ -300,5 +309,7 @@ private fun Sykepengesoknad.andreInntektskilder(): Sykepengesoknad {
     return besvarsporsmal(ANDRE_INNTEKTSKILDER_V2, "JA")
         .besvarsporsmal(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD, "CHECKED")
         .besvarsporsmal(INNTEKTSKILDE_SELVSTENDIG, "CHECKED")
+        .besvarsporsmal(INNTEKTSKILDE_SELVSTENDIG_4_AR, "JA")
+        .besvarsporsmal(INNTEKTSKILDE_SELVSTENDIG_VARIG_ENDRING_NEI, "CHECKED")
         .besvarsporsmal(INNTEKTSKILDE_SELVSTENDIG_DAGMAMMA, "CHECKED")
 }
