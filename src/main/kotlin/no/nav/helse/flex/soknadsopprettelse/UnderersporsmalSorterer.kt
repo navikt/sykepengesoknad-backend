@@ -18,6 +18,7 @@ private fun Sporsmal.sorterUndersporsmal(): Sporsmal {
         .sortedBy {
             when (this.tag) {
                 HVILKE_ANDRE_INNTEKTSKILDER -> it.sorteringAndreInntektskilder()
+                INNTEKTSKILDE_SELVSTENDIG_VARIG_ENDRING_GRUPPE -> it.sorteringVarigEndring()
                 ARBEIDSGIVER -> it.sorteringArbeidsgiver()
                 REISE_MED_BIL -> it.sorteringReiseMedBil()
                 UTENLANDSK_SYKMELDING_BOSTED -> it.sorteringBosted()
@@ -42,6 +43,15 @@ private fun Sporsmal.sorteringAndreInntektskilder(): String {
         INNTEKTSKILDE_STYREVERV -> "9"
         INNTEKTSKILDE_ANNET -> "9"
         else -> throw RuntimeException("Ukjent underspørsmål for andre inntektskilder: $tag")
+    }
+}
+
+private fun Sporsmal.sorteringVarigEndring(): String {
+    return when (tag) {
+        INNTEKTSKILDE_SELVSTENDIG_VARIG_ENDRING_JA -> "0"
+        INNTEKTSKILDE_SELVSTENDIG_VARIG_ENDRING_NEI -> "1"
+        INNTEKTSKILDE_SELVSTENDIG_VARIG_ENDRING_VET_IKKE -> "2"
+        else -> throw RuntimeException("Ukjent underspørsmål for INNTEKTSKILDE_SELVSTENDIG_VARIG_ENDRING_GRUPPE: $tag")
     }
 }
 
