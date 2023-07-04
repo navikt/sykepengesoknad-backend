@@ -53,7 +53,7 @@ private fun yrkesskadeSporsmalV2(v2GodkjenteSaker: List<YrkesskadeSak>): Sporsma
         undersporsmal = listOf(
             Sporsmal(
                 tag = YRKESSKADE_V2_VELG_DATO,
-                sporsmalstekst = "Velg hvilken skadedato dette sykefraværet har sammenheng med",
+                sporsmalstekst = "Hvilken skadedato skyldes dette sykefraværet? Du kan velge flere",
                 svartype = Svartype.CHECKBOX_GRUPPE,
                 undersporsmal = v2GodkjenteSaker.map {
                     Sporsmal(
