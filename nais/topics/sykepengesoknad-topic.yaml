@@ -57,6 +57,3 @@ spec:
     - team: flex
       application: flex-inntektsmelding-status
       access: read
-    - team: flex
-      application: flex-andre-inntektskilder-metrikker
-      access: read
