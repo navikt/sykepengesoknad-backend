@@ -361,9 +361,34 @@ class SoknadGenereringTest {
         erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) `should be` false
     }
 
-    // TODO: Endre når GRADERT_REISETILSKUDD blir behandlet likt ARBEIDSTAKERE og BEHANDLINGSDAGER.
     @Test
-    fun `Søknad er ikke første siden arbeidstakere ikke blir sammenligner på grunn av søknadstype GRADERT_REISETILSKUDD`() {
+    fun `Søknad er første siden søknadstype GRADERT_REISETILSKUDD likestilles`() {
+        val startSykeforloep = LocalDate.of(2023, 1, 1)
+        val eksisterendeSoknader = listOf(
+            lagSoknad(
+                arbeidsgiver = 1,
+                fom = LocalDate.of(2023, 1, 1),
+                tom = LocalDate.of(2023, 1, 1),
+                startSykeforlop = startSykeforloep,
+                Arbeidssituasjon.ARBEIDSTAKER,
+                Soknadstype.GRADERT_REISETILSKUDD
+            )
+        )
+
+        val soknad = lagSoknad(
+            arbeidsgiver = 1,
+            fom = LocalDate.of(2023, 2, 1),
+            tom = LocalDate.of(2023, 2, 1),
+            startSykeforlop = startSykeforloep,
+            Arbeidssituasjon.ARBEIDSTAKER,
+            Soknadstype.ARBEIDSTAKERE
+        )
+
+        erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) `should be` false
+    }
+
+    @Test
+    fun `Søknad er første siden søknadstype GRADERT_REISETILSKUDD likestilles med ARBEIDSTAKERE mens arbeidsgiver er forskjellig`() {
         val startSykeforloep = LocalDate.of(2023, 1, 1)
         val eksisterendeSoknader = listOf(
             lagSoknad(
@@ -385,7 +410,7 @@ class SoknadGenereringTest {
             Soknadstype.ARBEIDSTAKERE
         )
 
-        erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) `should be` false
+        erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) `should be` true
     }
 
     // .any { sok -> sok.sporsmal.any { it.tag == UTENLANDSK_SYKMELDING_BOSTED } }

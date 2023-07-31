@@ -17,10 +17,11 @@ fun erForsteSoknadTilArbeidsgiverIForlop(
         .filter {
             if (sykepengesoknad.arbeidssituasjon == Arbeidssituasjon.ARBEIDSTAKER) {
                 sykepengesoknad.arbeidsgiverOrgnummer?.let { orgnr ->
-                    // TODO: Ta med GRADERT_REISETILSKUDD.
                     if (it.soknadstype == Soknadstype.ARBEIDSTAKERE) {
                         return@filter it.arbeidsgiverOrgnummer == orgnr
                     } else if (it.soknadstype == Soknadstype.BEHANDLINGSDAGER) {
+                        return@filter it.arbeidsgiverOrgnummer == orgnr
+                    }else if (it.soknadstype == Soknadstype.GRADERT_REISETILSKUDD) {
                         return@filter it.arbeidsgiverOrgnummer == orgnr
                     }
                     // TODO: Spiller ingen rolle om denne er true eller false siden den bare returnerer ut av 'let'.
@@ -45,10 +46,11 @@ fun harBlittStiltUtlandsSporsmal(
         .filter {
             if (sykepengesoknad.arbeidssituasjon == Arbeidssituasjon.ARBEIDSTAKER) {
                 sykepengesoknad.arbeidsgiverOrgnummer?.let { orgnr ->
-                    // TODO: Ta med GRADERT_REISETILSKUDD.
                     if (it.soknadstype == Soknadstype.ARBEIDSTAKERE) {
                         return@filter it.arbeidsgiverOrgnummer == orgnr
                     } else if (it.soknadstype == Soknadstype.BEHANDLINGSDAGER) {
+                        return@filter it.arbeidsgiverOrgnummer == orgnr
+                    }else if (it.soknadstype == Soknadstype.GRADERT_REISETILSKUDD) {
                         return@filter it.arbeidsgiverOrgnummer == orgnr
                     }
                     // TODO: Spiller ingen rolle om denne er true eller false siden den bare returnerer ut av 'let'.
