@@ -11,17 +11,17 @@ fun erForsteSoknadTilArbeidsgiverIForlop(
     return eksisterendeSoknader
         .asSequence()
         .filter { it.fom != null && it.fom.isBefore(sykepengesoknad.fom) }
-        .filter { it.sykmeldingId != null }
-        .filter { it.startSykeforlop != null }
+        .filter { it.sykmeldingId != null && it.startSykeforlop != null }
         .filter { it.arbeidssituasjon == sykepengesoknad.arbeidssituasjon }
         .filter {
             if (sykepengesoknad.arbeidssituasjon == Arbeidssituasjon.ARBEIDSTAKER) {
                 sykepengesoknad.arbeidsgiverOrgnummer?.let { orgnr ->
-                    if (it.soknadstype == Soknadstype.ARBEIDSTAKERE) {
-                        return@filter it.arbeidsgiverOrgnummer == orgnr
-                    } else if (it.soknadstype == Soknadstype.BEHANDLINGSDAGER) {
-                        return@filter it.arbeidsgiverOrgnummer == orgnr
-                    }else if (it.soknadstype == Soknadstype.GRADERT_REISETILSKUDD) {
+                    if (listOf(
+                            Soknadstype.ARBEIDSTAKERE,
+                            Soknadstype.BEHANDLINGSDAGER,
+                            Soknadstype.GRADERT_REISETILSKUDD
+                        ).contains(it.soknadstype)
+                    ) {
                         return@filter it.arbeidsgiverOrgnummer == orgnr
                     }
                     // TODO: Spiller ingen rolle om denne er true eller false siden den bare returnerer ut av 'let'.
@@ -40,17 +40,17 @@ fun harBlittStiltUtlandsSporsmal(
     return eksisterendeSoknader
         .asSequence()
         .filter { it.fom != null && it.fom.isBefore(sykepengesoknad.fom) }
-        .filter { it.sykmeldingId != null }
-        .filter { it.startSykeforlop != null }
+        .filter { it.sykmeldingId != null && it.startSykeforlop != null }
         .filter { it.arbeidssituasjon == sykepengesoknad.arbeidssituasjon }
         .filter {
             if (sykepengesoknad.arbeidssituasjon == Arbeidssituasjon.ARBEIDSTAKER) {
                 sykepengesoknad.arbeidsgiverOrgnummer?.let { orgnr ->
-                    if (it.soknadstype == Soknadstype.ARBEIDSTAKERE) {
-                        return@filter it.arbeidsgiverOrgnummer == orgnr
-                    } else if (it.soknadstype == Soknadstype.BEHANDLINGSDAGER) {
-                        return@filter it.arbeidsgiverOrgnummer == orgnr
-                    }else if (it.soknadstype == Soknadstype.GRADERT_REISETILSKUDD) {
+                    if (listOf(
+                            Soknadstype.ARBEIDSTAKERE,
+                            Soknadstype.BEHANDLINGSDAGER,
+                            Soknadstype.GRADERT_REISETILSKUDD
+                        ).contains(it.soknadstype)
+                    ) {
                         return@filter it.arbeidsgiverOrgnummer == orgnr
                     }
                     // TODO: Spiller ingen rolle om denne er true eller false siden den bare returnerer ut av 'let'.
