@@ -1,6 +1,7 @@
 package no.nav.helse.flex.soknadsopprettelse
 
 import no.nav.helse.flex.domain.Arbeidssituasjon
+import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 
@@ -18,9 +19,31 @@ fun harBlittStiltUtlandsSporsmal(
     sykepengesoknad: Sykepengesoknad
 ): Boolean {
     return finnTidligereSoknaderMedSammeArbeidssituasjon(eksisterendeSoknader, sykepengesoknad)
-        // Finn søkander med samme startdato for sykeforløp og sjekk om de har stilt spørsmål om utenlandsopphold.
+        // Finn søknader med samme startdato for sykeforløp og sjekk om de har stilt spørsmål om utenlandsopphold.
         .filter { it.startSykeforlop == sykepengesoknad.startSykeforlop }
         .any { it -> it.sporsmal.any { it.tag == UTENLANDSK_SYKMELDING_BOSTED } }
+}
+
+fun harBlittStiltMedlemskapSporsmal(
+    eksisterendeSoknader: List<Sykepengesoknad>,
+    sykepengesoknad: Sykepengesoknad
+): Boolean {
+    return eksisterendeSoknader
+        .asSequence()
+        .filter { it.sykmeldingId != null && it.startSykeforlop != null }
+        .filter { it.arbeidssituasjon == sykepengesoknad.arbeidssituasjon }
+        .filter { it.status !in listOf(Soknadstatus.UTGATT, Soknadstatus.SLETTET, Soknadstatus.AVBRUTT) }
+        .filter { it.startSykeforlop == sykepengesoknad.startSykeforlop }
+        .any { it ->
+            it.sporsmal.any {
+                it.tag in listOf(
+                    MEDLEMSKAP_OPPHOLDSTILLATELSE,
+                    MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
+                    MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
+                    MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE
+                )
+            }
+        }
 }
 
 // Returnerer en liste med søknader med tidligere 'fom' og samme arbeidssituasjon som søknaden det sammenlignes med.
@@ -36,7 +59,7 @@ private fun finnTidligereSoknaderMedSammeArbeidssituasjon(
         .filter { it.sykmeldingId != null && it.startSykeforlop != null }
         .filter { it.arbeidssituasjon == sykepengesoknad.arbeidssituasjon }
         .filter {
-            if (sykepengesoknad.arbeidssituasjon == Arbeidssituasjon.ARBEIDSTAKER && sykepengesoknad.arbeidsgiverOrgnummer != null) {
+            if (soknadHarArbeidsgiver(sykepengesoknad)) {
                 if (listOf(
                         Soknadstype.ARBEIDSTAKERE,
                         Soknadstype.BEHANDLINGSDAGER,
@@ -49,3 +72,6 @@ private fun finnTidligereSoknaderMedSammeArbeidssituasjon(
             true
         }
 }
+
+private fun soknadHarArbeidsgiver(sykepengesoknad: Sykepengesoknad) =
+    sykepengesoknad.arbeidssituasjon == Arbeidssituasjon.ARBEIDSTAKER && sykepengesoknad.arbeidsgiverOrgnummer != null
