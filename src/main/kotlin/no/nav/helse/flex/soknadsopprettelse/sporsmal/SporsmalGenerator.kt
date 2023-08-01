@@ -24,9 +24,7 @@ class SporsmalGenerator(
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val yrkesskadeIndikatorer: YrkesskadeIndikatorer,
     private val medlemskapVurderingClient: MedlemskapVurderingClient
-
 ) {
-
     private val log = logger()
 
     fun lagSporsmalPaSoknad(id: String) {
@@ -91,29 +89,32 @@ class SporsmalGenerator(
             ).tilSporsmalOgAndreKjenteArbeidsforhold()
         }
 
-        // Det skal bare gjøres medlemskapvurdering for første søknad i sykeforløpet.
-        if (erForsteSoknadISykeforlop) {
-            try {
-                val hentMedlemskapVurdering = medlemskapVurderingClient.hentMedlemskapVurdering(
-                    MedlemskapVurderingRequest(
-                        // Bruker fnr fra sykepengesøknaden, ikke identer siden LovMe ikke støtter det enda, og har
-                        // planer om å implementere kall mot PDL på sin side.
-                        fnr = soknad.fnr,
-                        fom = soknad.fom!!,
-                        tom = soknad.tom!!,
-                        sykepengesoknadId = soknad.id
-                    )
-                )
-                log.info("Hentet medlemskapvurdering for søknad ${soknad.id} med svar ${hentMedlemskapVurdering.svar}")
-            } catch (e: Exception) {
-                // Catch-all sånn at vi kan samle data uten at det påvirker spørsmålsgenereringen. Data og tid brukt
-                // blir lagret i databasen av MedlemskapvurderingClient.
-                log.warn("Feilet ved henting av medlemskapvurdering for søknad ${soknad.id}. Gjør ingenting.", e)
-            }
-        }
-
         return when (soknad.arbeidssituasjon) {
             Arbeidssituasjon.ARBEIDSTAKER -> {
+                // Det skal bare gjøres medlemskapvurdering en gang per sykeforløp for arbeidstakersøknader.
+                if (!harBlittStiltMedlemskapSporsmal(eksisterendeSoknader, soknad)) {
+                    try {
+                        val hentMedlemskapVurdering = medlemskapVurderingClient.hentMedlemskapVurdering(
+                            MedlemskapVurderingRequest(
+                                // Bruker fnr fra sykepengesøknaden, ikke identer siden LovMe ikke støtter det enda, og har
+                                // planer om å implementere kall mot PDL på sin side.
+                                fnr = soknad.fnr,
+                                fom = soknad.fom!!,
+                                tom = soknad.tom!!,
+                                sykepengesoknadId = soknad.id
+                            )
+                        )
+                        log.info("Hentet medlemskapvurdering for søknad ${soknad.id} med svar ${hentMedlemskapVurdering.svar}")
+                    } catch (e: Exception) {
+                        // Catch-all sånn at vi kan samle data uten at det påvirker genrering av spørsmål.
+                        // Data og tid brukt blir lagret i databasen av MedlemskapvurderingClient.
+                        log.warn(
+                            "Feilet ved henting av medlemskapvurdering for søknad ${soknad.id}. Gjør ingenting.",
+                            e
+                        )
+                    }
+                }
+
                 val andreKjenteArbeidsforhold = andreArbeidsforholdHenting.hentArbeidsforhold(
                     fnr = soknad.fnr,
                     arbeidsgiverOrgnummer = soknad.arbeidsgiverOrgnummer!!,
