@@ -3,6 +3,8 @@ package no.nav.helse.flex.soknadsopprettelse
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
+import no.nav.helse.flex.domain.Sporsmal.SporsmalBuilder
+import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import org.amshove.kluent.`should be`
 import org.junit.jupiter.api.Test
@@ -384,6 +386,94 @@ class SoknadGenereringTest {
         )
 
         erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) `should be` false
+    }
+
+    // .any { sok -> sok.sporsmal.any { it.tag == UTENLANDSK_SYKMELDING_BOSTED } }
+
+    @Test
+    fun `Har blitt stilt spørsmål om UTENLANDSK_SYKMELDING_BOSTED i en tidligere søknad i sykeforløpet`() {
+        val startSykeforloep = LocalDate.of(2023, 1, 1)
+        val eksisterendeSoknader = listOf(
+            lagSoknad(
+                arbeidsgiver = 1,
+                fom = LocalDate.of(2023, 1, 1),
+                tom = LocalDate.of(2023, 1, 1),
+                startSykeforlop = startSykeforloep,
+                Arbeidssituasjon.ARBEIDSTAKER,
+                Soknadstype.ARBEIDSTAKERE
+            ).copy(
+                sporsmal = listOf(
+                    SporsmalBuilder().id("1").tag(UTENLANDSK_SYKMELDING_BOSTED).svartype(Svartype.JA_NEI).build()
+                )
+            )
+        )
+
+        val soknad = lagSoknad(
+            arbeidsgiver = 1,
+            fom = LocalDate.of(2023, 2, 1),
+            tom = LocalDate.of(2023, 2, 1),
+            startSykeforlop = startSykeforloep,
+            Arbeidssituasjon.ARBEIDSTAKER,
+            Soknadstype.ARBEIDSTAKERE
+        )
+
+        harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad) `should be` true
+    }
+
+    @Test
+    fun `Har ikke blitt stilt spørsmål om UTENLANDSK_SYKMELDING_BOSTED i en tidligere søknad i sykeforløpet`() {
+        val startSykeforloep = LocalDate.of(2023, 1, 1)
+        val eksisterendeSoknader = listOf(
+            lagSoknad(
+                arbeidsgiver = 1,
+                fom = LocalDate.of(2023, 1, 1),
+                tom = LocalDate.of(2023, 1, 1),
+                startSykeforlop = startSykeforloep,
+                Arbeidssituasjon.ARBEIDSTAKER,
+                Soknadstype.ARBEIDSTAKERE
+            )
+        )
+
+        val soknad = lagSoknad(
+            arbeidsgiver = 1,
+            fom = LocalDate.of(2023, 2, 1),
+            tom = LocalDate.of(2023, 2, 1),
+            startSykeforlop = startSykeforloep,
+            Arbeidssituasjon.ARBEIDSTAKER,
+            Soknadstype.ARBEIDSTAKERE
+        )
+
+        harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad) `should be` false
+    }
+
+    @Test
+    fun `Har blitt stilt spørsmål om UTENLANDSK_SYKMELDING_BOSTED i sykeforløpet men i en senere søknad`() {
+        val startSykeforloep = LocalDate.of(2023, 1, 1)
+        val eksisterendeSoknader = listOf(
+            lagSoknad(
+                arbeidsgiver = 1,
+                fom = LocalDate.of(2023, 2, 1),
+                tom = LocalDate.of(2023, 2, 1),
+                startSykeforlop = startSykeforloep,
+                Arbeidssituasjon.ARBEIDSTAKER,
+                Soknadstype.ARBEIDSTAKERE
+            ).copy(
+                sporsmal = listOf(
+                    SporsmalBuilder().id("1").tag(UTENLANDSK_SYKMELDING_BOSTED).svartype(Svartype.JA_NEI).build()
+                )
+            )
+        )
+
+        val soknad = lagSoknad(
+            arbeidsgiver = 1,
+            fom = LocalDate.of(2023, 1, 1),
+            tom = LocalDate.of(2023, 1, 1),
+            startSykeforlop = startSykeforloep,
+            Arbeidssituasjon.ARBEIDSTAKER,
+            Soknadstype.ARBEIDSTAKERE
+        )
+
+        harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad) `should be` false
     }
 
     private fun lagSoknad(
