@@ -24,8 +24,8 @@ class SoknadGenereringTest {
                 fom = LocalDate.of(2023, 2, 1),
                 tom = LocalDate.of(2023, 2, 1),
                 startSykeforlop = startSykeforloep,
-                Arbeidssituasjon.ARBEIDSTAKER,
-                Soknadstype.ARBEIDSTAKERE
+                arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadsType = Soknadstype.ARBEIDSTAKERE
             )
         )
 
@@ -34,8 +34,8 @@ class SoknadGenereringTest {
             fom = LocalDate.of(2023, 1, 1),
             tom = LocalDate.of(2023, 1, 1),
             startSykeforlop = startSykeforloep,
-            Arbeidssituasjon.ARBEIDSTAKER,
-            Soknadstype.ARBEIDSTAKERE
+            arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+            soknadsType = Soknadstype.ARBEIDSTAKERE
         )
 
         erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) `should be` true
@@ -50,8 +50,8 @@ class SoknadGenereringTest {
                 fom = LocalDate.of(2023, 1, 1),
                 tom = LocalDate.of(2023, 1, 1),
                 startSykeforlop = startSykeforloep,
-                Arbeidssituasjon.ARBEIDSTAKER,
-                Soknadstype.ARBEIDSTAKERE
+                arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadsType = Soknadstype.ARBEIDSTAKERE
             )
         )
 
@@ -60,8 +60,8 @@ class SoknadGenereringTest {
             fom = LocalDate.of(2023, 2, 1),
             tom = LocalDate.of(2023, 2, 1),
             startSykeforlop = startSykeforloep,
-            Arbeidssituasjon.ARBEIDSTAKER,
-            Soknadstype.ARBEIDSTAKERE
+            arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+            soknadsType = Soknadstype.ARBEIDSTAKERE
         )
 
         erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) `should be` false
@@ -76,8 +76,8 @@ class SoknadGenereringTest {
                 fom = LocalDate.of(2023, 1, 1),
                 tom = LocalDate.of(2023, 1, 1),
                 startSykeforlop = startSykeforloep,
-                Arbeidssituasjon.ARBEIDSTAKER,
-                Soknadstype.ARBEIDSTAKERE
+                arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadsType = Soknadstype.ARBEIDSTAKERE
             )
         )
 
@@ -86,8 +86,8 @@ class SoknadGenereringTest {
             fom = LocalDate.of(2023, 2, 1),
             tom = LocalDate.of(2023, 2, 1),
             startSykeforlop = startSykeforloep,
-            Arbeidssituasjon.ARBEIDSTAKER,
-            Soknadstype.ARBEIDSTAKERE
+            arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+            soknadsType = Soknadstype.ARBEIDSTAKERE
         )
 
         erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) `should be` true
@@ -102,8 +102,8 @@ class SoknadGenereringTest {
                 fom = LocalDate.of(2023, 2, 1),
                 tom = LocalDate.of(2023, 2, 1),
                 startSykeforlop = startSykeforloep,
-                Arbeidssituasjon.NAERINGSDRIVENDE,
-                Soknadstype.SELVSTENDIGE_OG_FRILANSERE
+                arbeidsSituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
+                soknadsType = Soknadstype.SELVSTENDIGE_OG_FRILANSERE
             )
         )
 
@@ -112,8 +112,8 @@ class SoknadGenereringTest {
             fom = LocalDate.of(2023, 1, 1),
             tom = LocalDate.of(2023, 1, 1),
             startSykeforlop = startSykeforloep,
-            Arbeidssituasjon.NAERINGSDRIVENDE,
-            Soknadstype.SELVSTENDIGE_OG_FRILANSERE
+            arbeidsSituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
+            soknadsType = Soknadstype.SELVSTENDIGE_OG_FRILANSERE
         )
 
         erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) `should be` true
@@ -128,8 +128,8 @@ class SoknadGenereringTest {
                 fom = LocalDate.of(2023, 1, 1),
                 tom = LocalDate.of(2023, 1, 1),
                 startSykeforlop = startSykeforloep,
-                Arbeidssituasjon.NAERINGSDRIVENDE,
-                Soknadstype.SELVSTENDIGE_OG_FRILANSERE
+                arbeidsSituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
+                soknadsType = Soknadstype.SELVSTENDIGE_OG_FRILANSERE
             )
         )
 
@@ -138,8 +138,8 @@ class SoknadGenereringTest {
             fom = LocalDate.of(2023, 2, 1),
             tom = LocalDate.of(2023, 2, 1),
             startSykeforlop = startSykeforloep,
-            Arbeidssituasjon.NAERINGSDRIVENDE,
-            Soknadstype.SELVSTENDIGE_OG_FRILANSERE
+            arbeidsSituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
+            soknadsType = Soknadstype.SELVSTENDIGE_OG_FRILANSERE
         )
 
         erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) `should be` false
@@ -154,8 +154,8 @@ class SoknadGenereringTest {
                 fom = LocalDate.of(2023, 2, 1),
                 tom = LocalDate.of(2023, 2, 1),
                 startSykeforlop = startSykeforloep,
-                Arbeidssituasjon.ARBEIDSTAKER,
-                Soknadstype.ARBEIDSTAKERE
+                arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadsType = Soknadstype.ARBEIDSTAKERE
             ).copy(fom = null)
         )
 
@@ -164,8 +164,8 @@ class SoknadGenereringTest {
             fom = LocalDate.of(2023, 1, 1),
             tom = LocalDate.of(2023, 1, 1),
             startSykeforlop = startSykeforloep,
-            Arbeidssituasjon.ARBEIDSTAKER,
-            Soknadstype.ARBEIDSTAKERE
+            arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+            soknadsType = Soknadstype.ARBEIDSTAKERE
         )
 
         erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) `should be` true
@@ -180,8 +180,8 @@ class SoknadGenereringTest {
                 fom = LocalDate.of(2023, 1, 1),
                 tom = LocalDate.of(2023, 1, 1),
                 startSykeforlop = startSykeforloep,
-                Arbeidssituasjon.ARBEIDSTAKER,
-                Soknadstype.ARBEIDSTAKERE
+                arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadsType = Soknadstype.ARBEIDSTAKERE
             ).copy(sykmeldingId = null)
         )
 
@@ -190,8 +190,8 @@ class SoknadGenereringTest {
             fom = LocalDate.of(2023, 2, 1),
             tom = LocalDate.of(2023, 2, 1),
             startSykeforlop = startSykeforloep,
-            Arbeidssituasjon.ARBEIDSTAKER,
-            Soknadstype.ARBEIDSTAKERE
+            arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+            soknadsType = Soknadstype.ARBEIDSTAKERE
         )
 
         erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) `should be` true
@@ -206,8 +206,8 @@ class SoknadGenereringTest {
                 fom = LocalDate.of(2023, 1, 1),
                 tom = LocalDate.of(2023, 1, 1),
                 startSykeforlop = startSykeforloep,
-                Arbeidssituasjon.ARBEIDSTAKER,
-                Soknadstype.ARBEIDSTAKERE
+                arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadsType = Soknadstype.ARBEIDSTAKERE
             ).copy(startSykeforlop = null)
         )
 
@@ -216,8 +216,8 @@ class SoknadGenereringTest {
             fom = LocalDate.of(2023, 2, 1),
             tom = LocalDate.of(2023, 2, 1),
             startSykeforlop = startSykeforloep,
-            Arbeidssituasjon.ARBEIDSTAKER,
-            Soknadstype.ARBEIDSTAKERE
+            arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+            soknadsType = Soknadstype.ARBEIDSTAKERE
         )
 
         erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) `should be` true
@@ -232,8 +232,8 @@ class SoknadGenereringTest {
                 fom = LocalDate.of(2023, 1, 1),
                 tom = LocalDate.of(2023, 1, 1),
                 startSykeforlop = startSykeforloep.minusDays(1),
-                Arbeidssituasjon.ARBEIDSTAKER,
-                Soknadstype.ARBEIDSTAKERE
+                arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadsType = Soknadstype.ARBEIDSTAKERE
             )
         )
 
@@ -242,8 +242,8 @@ class SoknadGenereringTest {
             fom = LocalDate.of(2023, 2, 1),
             tom = LocalDate.of(2023, 2, 1),
             startSykeforlop = startSykeforloep,
-            Arbeidssituasjon.ARBEIDSTAKER,
-            Soknadstype.ARBEIDSTAKERE
+            arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+            soknadsType = Soknadstype.ARBEIDSTAKERE
         )
 
         erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) `should be` true
@@ -258,8 +258,8 @@ class SoknadGenereringTest {
                 fom = LocalDate.of(2023, 1, 1),
                 tom = LocalDate.of(2023, 1, 1),
                 startSykeforlop = startSykeforloep,
-                Arbeidssituasjon.FRILANSER,
-                Soknadstype.SELVSTENDIGE_OG_FRILANSERE
+                arbeidsSituasjon = Arbeidssituasjon.FRILANSER,
+                soknadsType = Soknadstype.SELVSTENDIGE_OG_FRILANSERE
             )
         )
 
@@ -268,8 +268,8 @@ class SoknadGenereringTest {
             fom = LocalDate.of(2023, 2, 1),
             tom = LocalDate.of(2023, 2, 1),
             startSykeforlop = startSykeforloep,
-            Arbeidssituasjon.NAERINGSDRIVENDE,
-            Soknadstype.SELVSTENDIGE_OG_FRILANSERE
+            arbeidsSituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
+            soknadsType = Soknadstype.SELVSTENDIGE_OG_FRILANSERE
         )
 
         erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) `should be` true
@@ -285,16 +285,16 @@ class SoknadGenereringTest {
                 fom = LocalDate.of(2023, 1, 1),
                 tom = LocalDate.of(2023, 1, 1),
                 startSykeforlop = startSykeforloep,
-                Arbeidssituasjon.ARBEIDSTAKER,
-                Soknadstype.ARBEIDSTAKERE
+                arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadsType = Soknadstype.ARBEIDSTAKERE
             ),
             lagSoknad(
                 arbeidsgiver = 2,
                 fom = LocalDate.of(2023, 3, 1),
                 tom = LocalDate.of(2023, 3, 1),
                 startSykeforlop = startSykeforloep,
-                Arbeidssituasjon.ARBEIDSTAKER,
-                Soknadstype.ARBEIDSTAKERE
+                arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadsType = Soknadstype.ARBEIDSTAKERE
             )
         )
 
@@ -303,8 +303,8 @@ class SoknadGenereringTest {
             fom = LocalDate.of(2023, 2, 1),
             tom = LocalDate.of(2023, 2, 1),
             startSykeforlop = startSykeforloep,
-            Arbeidssituasjon.ARBEIDSTAKER,
-            Soknadstype.ARBEIDSTAKERE
+            arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+            soknadsType = Soknadstype.ARBEIDSTAKERE
         ).copy(arbeidsgiverOrgnummer = null)
         erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) `should be` false
     }
@@ -318,7 +318,7 @@ class SoknadGenereringTest {
                 fom = LocalDate.of(2023, 2, 1),
                 tom = LocalDate.of(2023, 2, 1),
                 startSykeforlop = startSykeforloep,
-                Arbeidssituasjon.ARBEIDSTAKER,
+                arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
                 Soknadstype.BEHANDLINGSDAGER
             )
         )
@@ -328,8 +328,8 @@ class SoknadGenereringTest {
             fom = LocalDate.of(2023, 1, 1),
             tom = LocalDate.of(2023, 1, 1),
             startSykeforlop = startSykeforloep,
-            Arbeidssituasjon.ARBEIDSTAKER,
-            Soknadstype.ARBEIDSTAKERE
+            arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+            soknadsType = Soknadstype.ARBEIDSTAKERE
         )
 
         erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) `should be` true
@@ -344,8 +344,8 @@ class SoknadGenereringTest {
                 fom = LocalDate.of(2023, 1, 1),
                 tom = LocalDate.of(2023, 1, 1),
                 startSykeforlop = startSykeforloep,
-                Arbeidssituasjon.ARBEIDSTAKER,
-                Soknadstype.BEHANDLINGSDAGER
+                arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadsType = Soknadstype.BEHANDLINGSDAGER
             )
         )
 
@@ -354,8 +354,8 @@ class SoknadGenereringTest {
             fom = LocalDate.of(2023, 2, 1),
             tom = LocalDate.of(2023, 2, 1),
             startSykeforlop = startSykeforloep,
-            Arbeidssituasjon.ARBEIDSTAKER,
-            Soknadstype.ARBEIDSTAKERE
+            arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+            soknadsType = Soknadstype.ARBEIDSTAKERE
         )
 
         erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) `should be` false
@@ -370,8 +370,8 @@ class SoknadGenereringTest {
                 fom = LocalDate.of(2023, 1, 1),
                 tom = LocalDate.of(2023, 1, 1),
                 startSykeforlop = startSykeforloep,
-                Arbeidssituasjon.ARBEIDSTAKER,
-                Soknadstype.GRADERT_REISETILSKUDD
+                arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadsType = Soknadstype.GRADERT_REISETILSKUDD
             )
         )
 
@@ -380,8 +380,8 @@ class SoknadGenereringTest {
             fom = LocalDate.of(2023, 2, 1),
             tom = LocalDate.of(2023, 2, 1),
             startSykeforlop = startSykeforloep,
-            Arbeidssituasjon.ARBEIDSTAKER,
-            Soknadstype.ARBEIDSTAKERE
+            arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+            soknadsType = Soknadstype.ARBEIDSTAKERE
         )
 
         erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) `should be` false
@@ -396,8 +396,8 @@ class SoknadGenereringTest {
                 fom = LocalDate.of(2023, 1, 1),
                 tom = LocalDate.of(2023, 1, 1),
                 startSykeforlop = startSykeforloep,
-                Arbeidssituasjon.ARBEIDSTAKER,
-                Soknadstype.GRADERT_REISETILSKUDD
+                arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadsType = Soknadstype.GRADERT_REISETILSKUDD
             )
         )
 
@@ -406,8 +406,8 @@ class SoknadGenereringTest {
             fom = LocalDate.of(2023, 2, 1),
             tom = LocalDate.of(2023, 2, 1),
             startSykeforlop = startSykeforloep,
-            Arbeidssituasjon.ARBEIDSTAKER,
-            Soknadstype.ARBEIDSTAKERE
+            arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+            soknadsType = Soknadstype.ARBEIDSTAKERE
         )
 
         erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) `should be` true
@@ -424,8 +424,8 @@ class SoknadGenereringTest {
                 fom = LocalDate.of(2023, 1, 1),
                 tom = LocalDate.of(2023, 1, 1),
                 startSykeforlop = startSykeforloep,
-                Arbeidssituasjon.ARBEIDSTAKER,
-                Soknadstype.ARBEIDSTAKERE
+                arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadsType = Soknadstype.ARBEIDSTAKERE
             ).copy(
                 sporsmal = listOf(
                     SporsmalBuilder().id("1").tag(UTENLANDSK_SYKMELDING_BOSTED).svartype(Svartype.JA_NEI).build()
@@ -438,8 +438,8 @@ class SoknadGenereringTest {
             fom = LocalDate.of(2023, 2, 1),
             tom = LocalDate.of(2023, 2, 1),
             startSykeforlop = startSykeforloep,
-            Arbeidssituasjon.ARBEIDSTAKER,
-            Soknadstype.ARBEIDSTAKERE
+            arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+            soknadsType = Soknadstype.ARBEIDSTAKERE
         )
 
         harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad) `should be` true
@@ -454,8 +454,8 @@ class SoknadGenereringTest {
                 fom = LocalDate.of(2023, 1, 1),
                 tom = LocalDate.of(2023, 1, 1),
                 startSykeforlop = startSykeforloep,
-                Arbeidssituasjon.ARBEIDSTAKER,
-                Soknadstype.ARBEIDSTAKERE
+                arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadsType = Soknadstype.ARBEIDSTAKERE
             )
         )
 
@@ -464,8 +464,8 @@ class SoknadGenereringTest {
             fom = LocalDate.of(2023, 2, 1),
             tom = LocalDate.of(2023, 2, 1),
             startSykeforlop = startSykeforloep,
-            Arbeidssituasjon.ARBEIDSTAKER,
-            Soknadstype.ARBEIDSTAKERE
+            arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+            soknadsType = Soknadstype.ARBEIDSTAKERE
         )
 
         harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad) `should be` false
@@ -480,8 +480,8 @@ class SoknadGenereringTest {
                 fom = LocalDate.of(2023, 2, 1),
                 tom = LocalDate.of(2023, 2, 1),
                 startSykeforlop = startSykeforloep,
-                Arbeidssituasjon.ARBEIDSTAKER,
-                Soknadstype.ARBEIDSTAKERE
+                arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadsType = Soknadstype.ARBEIDSTAKERE
             ).copy(
                 sporsmal = listOf(
                     SporsmalBuilder().id("1").tag(UTENLANDSK_SYKMELDING_BOSTED).svartype(Svartype.JA_NEI).build()
@@ -494,8 +494,8 @@ class SoknadGenereringTest {
             fom = LocalDate.of(2023, 1, 1),
             tom = LocalDate.of(2023, 1, 1),
             startSykeforlop = startSykeforloep,
-            Arbeidssituasjon.ARBEIDSTAKER,
-            Soknadstype.ARBEIDSTAKERE
+            arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+            soknadsType = Soknadstype.ARBEIDSTAKERE
         )
 
         harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad) `should be` false
