@@ -6,53 +6,46 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 
 fun erForsteSoknadTilArbeidsgiverIForlop(
     eksisterendeSoknader: List<Sykepengesoknad>,
-    soknadMetadata: Sykepengesoknad
+    sykepengesoknad: Sykepengesoknad
 ): Boolean {
-    return eksisterendeSoknader
-        .asSequence()
-        .filter { it.fom != null && it.fom.isBefore(soknadMetadata.fom) }
-        .filter { it.sykmeldingId != null }
-        .filter { it.startSykeforlop != null }
-        .filter { it.arbeidssituasjon == soknadMetadata.arbeidssituasjon }
-        .filter {
-            if (soknadMetadata.arbeidssituasjon == Arbeidssituasjon.ARBEIDSTAKER) {
-                soknadMetadata.arbeidsgiverOrgnummer?.let { orgnr ->
-                    if (it.soknadstype == Soknadstype.ARBEIDSTAKERE) {
-                        return@filter it.arbeidsgiverOrgnummer == orgnr
-                    } else if (it.soknadstype == Soknadstype.BEHANDLINGSDAGER) {
-                        return@filter it.arbeidsgiverOrgnummer == orgnr
-                    }
-                    false
-                }
-            }
-            true
-        }
-        .none { it.startSykeforlop == soknadMetadata.startSykeforlop }
+    return finnTidligereSoknaderMedSammeArbeidssituasjon(eksisterendeSoknader, sykepengesoknad)
+        // Sjekker om det finnes en tidligere søknad med samme startdato for sykeforløp.
+        .none { it.startSykeforlop == sykepengesoknad.startSykeforlop }
 }
 
 fun harBlittStiltUtlandsSporsmal(
     eksisterendeSoknader: List<Sykepengesoknad>,
     sykepengesoknad: Sykepengesoknad
 ): Boolean {
+    return finnTidligereSoknaderMedSammeArbeidssituasjon(eksisterendeSoknader, sykepengesoknad)
+        // Finn søkander med samme startdato for sykeforløp og sjekk om de har stilt spørsmål om utenlandsopphold.
+        .filter { it.startSykeforlop == sykepengesoknad.startSykeforlop }
+        .any { it -> it.sporsmal.any { it.tag == UTENLANDSK_SYKMELDING_BOSTED } }
+}
+
+// Returnerer en liste med søknader med tidligere 'fom' og samme arbeidssituasjon som søknaden det sammenlignes med.
+// Om det er arbeidssituasjon ARBEIDSTAKER med søknadstype BEHANDLINGSDAGER, GRADERT_REISETILSKUD eller ARBEIDSTAKER
+// sjekkes det at arbeidsgiver er den samme.
+private fun finnTidligereSoknaderMedSammeArbeidssituasjon(
+    eksisterendeSoknader: List<Sykepengesoknad>,
+    sykepengesoknad: Sykepengesoknad
+): Sequence<Sykepengesoknad> {
     return eksisterendeSoknader
         .asSequence()
         .filter { it.fom != null && it.fom.isBefore(sykepengesoknad.fom) }
-        .filter { it.sykmeldingId != null }
-        .filter { it.startSykeforlop != null }
+        .filter { it.sykmeldingId != null && it.startSykeforlop != null }
         .filter { it.arbeidssituasjon == sykepengesoknad.arbeidssituasjon }
         .filter {
-            if (sykepengesoknad.arbeidssituasjon == Arbeidssituasjon.ARBEIDSTAKER) {
-                sykepengesoknad.arbeidsgiverOrgnummer?.let { orgnr ->
-                    if (it.soknadstype == Soknadstype.ARBEIDSTAKERE) {
-                        return@filter it.arbeidsgiverOrgnummer == orgnr
-                    } else if (it.soknadstype == Soknadstype.BEHANDLINGSDAGER) {
-                        return@filter it.arbeidsgiverOrgnummer == orgnr
-                    }
-                    false
+            if (sykepengesoknad.arbeidssituasjon == Arbeidssituasjon.ARBEIDSTAKER && sykepengesoknad.arbeidsgiverOrgnummer != null) {
+                if (listOf(
+                        Soknadstype.ARBEIDSTAKERE,
+                        Soknadstype.BEHANDLINGSDAGER,
+                        Soknadstype.GRADERT_REISETILSKUDD
+                    ).contains(it.soknadstype)
+                ) {
+                    return@filter it.arbeidsgiverOrgnummer == sykepengesoknad.arbeidsgiverOrgnummer
                 }
             }
             true
         }
-        .filter { it.startSykeforlop == sykepengesoknad.startSykeforlop }
-        .any { sok -> sok.sporsmal.any { it.tag == UTENLANDSK_SYKMELDING_BOSTED } }
 }
