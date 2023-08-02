@@ -5,6 +5,7 @@ import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.kafka.producer.SoknadProducer
 import no.nav.helse.flex.logger
+import no.nav.helse.flex.repository.SoknadsperiodeDAO
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.repository.SykepengesoknadRepository
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.SporsmalGenerator
@@ -18,6 +19,7 @@ class AktiverEnkeltSoknad(
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val soknadProducer: SoknadProducer,
     private val sykepengesoknadRepository: SykepengesoknadRepository,
+    private val soknadsperiodeDAO: SoknadsperiodeDAO,
     private val sporsmalGenerator: SporsmalGenerator,
     private val registry: MeterRegistry
 ) {
@@ -36,6 +38,17 @@ class AktiverEnkeltSoknad(
         if (sok.status != Soknadstatus.FREMTIDIG) {
             log.warn("Søknad $id er allerede aktivert")
             return
+        }
+
+        if (sok.soknadstype == Soknadstype.ARBEIDSTAKERE) {
+            val perioder = soknadsperiodeDAO.finnSoknadPerioder(setOf(sok.id!!))[sok.id]!!
+            val forventetFom = perioder.minOf { it.fom }
+            val forventetTom = perioder.maxOf { it.tom }
+
+            if (sok.fom != forventetFom || sok.tom != forventetTom) {
+                log.warn("Søknad $id har perioder som starter på $forventetFom og slutter på $forventetTom, dette stemmer ikke med søknaden sin fom ${sok.fom} og tom ${sok.tom}")
+                return
+            }
         }
 
         val aktiverTid = measureTimeMillis {
