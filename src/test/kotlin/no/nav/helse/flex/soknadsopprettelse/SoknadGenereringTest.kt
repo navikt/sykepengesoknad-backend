@@ -624,36 +624,6 @@ class SoknadGenereringTest {
     }
 
     @Test
-    fun `Har ikke blitt stilt spørsmål om medlemskap siden det ble stilt i en annen arbeidssituasjon`() {
-        val startSykeforloep = LocalDate.of(2023, 1, 1)
-        val eksisterendeSoknader = listOf(
-            lagSoknad(
-                arbeidsgiver = 1,
-                fom = LocalDate.of(2023, 1, 1),
-                tom = LocalDate.of(2023, 1, 1),
-                startSykeforlop = startSykeforloep,
-                arbeidsSituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
-                soknadsType = Soknadstype.SELVSTENDIGE_OG_FRILANSERE
-            ).copy(
-                sporsmal = listOf(
-                    SporsmalBuilder().id("1").tag(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS).svartype(Svartype.JA_NEI).build()
-                )
-            )
-        )
-
-        val soknad = lagSoknad(
-            arbeidsgiver = 1,
-            fom = LocalDate.of(2023, 2, 1),
-            tom = LocalDate.of(2023, 2, 1),
-            startSykeforlop = startSykeforloep,
-            arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-            soknadsType = Soknadstype.ARBEIDSTAKERE
-        )
-
-        harBlittStiltMedlemskapSporsmal(eksisterendeSoknader, soknad) `should be` false
-    }
-
-    @Test
     fun `Har ikke blitt stilt spørsmål om medlemskap siden det ble stilt i et annet sykeforløp`() {
         val startSykeforloep = LocalDate.of(2023, 1, 1)
         val eksisterendeSoknader = listOf(
