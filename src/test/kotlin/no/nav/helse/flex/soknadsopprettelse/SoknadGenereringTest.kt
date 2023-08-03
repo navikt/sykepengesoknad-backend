@@ -413,8 +413,6 @@ class SoknadGenereringTest {
         erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) `should be` true
     }
 
-    // .any { sok -> sok.sporsmal.any { it.tag == UTENLANDSK_SYKMELDING_BOSTED } }
-
     @Test
     fun `Har blitt stilt spørsmål om UTENLANDSK_SYKMELDING_BOSTED i en tidligere søknad i sykeforløpet`() {
         val startSykeforloep = LocalDate.of(2023, 1, 1)
@@ -501,13 +499,293 @@ class SoknadGenereringTest {
         harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad) `should be` false
     }
 
+    @Test
+    fun `Har blitt stilt spørsmål om medlemskap i en tidligere søknad i samme sykeforløp`() {
+        val startSykeforloep = LocalDate.of(2023, 1, 1)
+        val eksisterendeSoknader = listOf(
+            lagSoknad(
+                arbeidsgiver = 1,
+                fom = LocalDate.of(2023, 1, 1),
+                tom = LocalDate.of(2023, 1, 1),
+                startSykeforlop = startSykeforloep,
+                arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadsType = Soknadstype.ARBEIDSTAKERE
+            ).copy(
+                sporsmal = listOf(
+                    SporsmalBuilder().id("1").tag(MEDLEMSKAP_OPPHOLDSTILLATELSE).svartype(Svartype.JA_NEI).build()
+                )
+            )
+        )
+
+        val soknad = lagSoknad(
+            arbeidsgiver = 1,
+            fom = LocalDate.of(2023, 2, 1),
+            tom = LocalDate.of(2023, 2, 1),
+            startSykeforlop = startSykeforloep,
+            arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+            soknadsType = Soknadstype.ARBEIDSTAKERE
+        )
+
+        harBlittStiltMedlemskapSporsmal(eksisterendeSoknader, soknad) `should be` true
+    }
+
+    @Test
+    fun `Har blitt stilt spørsmål om medlemskap i en senere søknad i samme sykeforløp`() {
+        val startSykeforloep = LocalDate.of(2023, 1, 1)
+        val eksisterendeSoknader = listOf(
+            lagSoknad(
+                arbeidsgiver = 1,
+                fom = LocalDate.of(2023, 2, 1),
+                tom = LocalDate.of(2023, 2, 1),
+                startSykeforlop = startSykeforloep,
+                arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadsType = Soknadstype.ARBEIDSTAKERE
+            ).copy(
+                sporsmal = listOf(
+                    SporsmalBuilder().id("1").tag(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS).svartype(Svartype.JA_NEI).build()
+                )
+            )
+        )
+
+        val soknad = lagSoknad(
+            arbeidsgiver = 1,
+            fom = LocalDate.of(2023, 1, 1),
+            tom = LocalDate.of(2023, 1, 1),
+            startSykeforlop = startSykeforloep,
+            arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+            soknadsType = Soknadstype.ARBEIDSTAKERE
+        )
+
+        harBlittStiltMedlemskapSporsmal(eksisterendeSoknader, soknad) `should be` true
+    }
+
+    @Test
+    fun `Har ikke blitt stilt spørsmål om medlemskap i en annen søknad i samme sykeforløp`() {
+        val startSykeforloep = LocalDate.of(2023, 1, 1)
+        val eksisterendeSoknader = listOf(
+            lagSoknad(
+                arbeidsgiver = 1,
+                fom = LocalDate.of(2023, 1, 1),
+                tom = LocalDate.of(2023, 1, 1),
+                startSykeforlop = startSykeforloep,
+                arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadsType = Soknadstype.ARBEIDSTAKERE
+            ),
+            lagSoknad(
+                arbeidsgiver = 1,
+                fom = LocalDate.of(2023, 3, 1),
+                tom = LocalDate.of(2023, 3, 1),
+                startSykeforlop = startSykeforloep,
+                arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadsType = Soknadstype.ARBEIDSTAKERE
+            )
+        )
+
+        val soknad = lagSoknad(
+            arbeidsgiver = 1,
+            fom = LocalDate.of(2023, 2, 1),
+            tom = LocalDate.of(2023, 2, 1),
+            startSykeforlop = startSykeforloep,
+            arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+            soknadsType = Soknadstype.ARBEIDSTAKERE
+        )
+
+        harBlittStiltMedlemskapSporsmal(eksisterendeSoknader, soknad) `should be` false
+    }
+
+    @Test
+    fun `Har blitt stilt spørsmål om medlemskap i sykeforløpet selv om det er en annen arbeidsgiver`() {
+        val startSykeforloep = LocalDate.of(2023, 1, 1)
+        val eksisterendeSoknader = listOf(
+            lagSoknad(
+                arbeidsgiver = 2,
+                fom = LocalDate.of(2023, 1, 1),
+                tom = LocalDate.of(2023, 1, 1),
+                startSykeforlop = startSykeforloep,
+                arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadsType = Soknadstype.ARBEIDSTAKERE
+            ).copy(
+                sporsmal = listOf(
+                    SporsmalBuilder().id("1").tag(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE).svartype(Svartype.JA_NEI).build()
+                )
+            )
+        )
+
+        val soknad = lagSoknad(
+            arbeidsgiver = 1,
+            fom = LocalDate.of(2023, 2, 1),
+            tom = LocalDate.of(2023, 2, 1),
+            startSykeforlop = startSykeforloep,
+            arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+            soknadsType = Soknadstype.ARBEIDSTAKERE
+        )
+
+        harBlittStiltMedlemskapSporsmal(eksisterendeSoknader, soknad) `should be` true
+    }
+
+    @Test
+    fun `Har ikke blitt stilt spørsmål om medlemskap siden det ble stilt i et annet sykeforløp`() {
+        val startSykeforloep = LocalDate.of(2023, 1, 1)
+        val eksisterendeSoknader = listOf(
+            lagSoknad(
+                arbeidsgiver = 1,
+                fom = LocalDate.of(2023, 1, 1),
+                tom = LocalDate.of(2023, 1, 1),
+                startSykeforlop = startSykeforloep,
+                arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadsType = Soknadstype.ARBEIDSTAKERE
+            ).copy(
+                sporsmal = listOf(
+                    SporsmalBuilder().id("1").tag(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS).svartype(Svartype.JA_NEI).build()
+                ),
+                startSykeforlop = startSykeforloep.minusDays(1)
+            )
+        )
+
+        val soknad = lagSoknad(
+            arbeidsgiver = 1,
+            fom = LocalDate.of(2023, 2, 1),
+            tom = LocalDate.of(2023, 2, 1),
+            startSykeforlop = startSykeforloep,
+            arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+            soknadsType = Soknadstype.ARBEIDSTAKERE
+        )
+
+        harBlittStiltMedlemskapSporsmal(eksisterendeSoknader, soknad) `should be` false
+    }
+
+    @Test
+    fun `Har blitt stilt spørsmål om medlemskap men status er UTGÅTT`() {
+        val startSykeforloep = LocalDate.of(2023, 1, 1)
+        val eksisterendeSoknader = listOf(
+            lagSoknad(
+                arbeidsgiver = 1,
+                fom = LocalDate.of(2023, 1, 1),
+                tom = LocalDate.of(2023, 1, 1),
+                startSykeforlop = startSykeforloep,
+                arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadsType = Soknadstype.ARBEIDSTAKERE,
+                status = Soknadstatus.UTGATT
+            ).copy(
+                sporsmal = listOf(
+                    SporsmalBuilder().id("1").tag(MEDLEMSKAP_OPPHOLDSTILLATELSE).svartype(Svartype.JA_NEI).build()
+                )
+            )
+        )
+
+        val soknad = lagSoknad(
+            arbeidsgiver = 1,
+            fom = LocalDate.of(2023, 2, 1),
+            tom = LocalDate.of(2023, 2, 1),
+            startSykeforlop = startSykeforloep,
+            arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+            soknadsType = Soknadstype.ARBEIDSTAKERE
+        )
+
+        harBlittStiltMedlemskapSporsmal(eksisterendeSoknader, soknad) `should be` false
+    }
+
+    @Test
+    fun `Har blitt stilt spørsmål om medlemskap men status er AVBRUTT`() {
+        val startSykeforloep = LocalDate.of(2023, 1, 1)
+        val eksisterendeSoknader = listOf(
+            lagSoknad(
+                arbeidsgiver = 1,
+                fom = LocalDate.of(2023, 1, 1),
+                tom = LocalDate.of(2023, 1, 1),
+                startSykeforlop = startSykeforloep,
+                arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadsType = Soknadstype.ARBEIDSTAKERE,
+                status = Soknadstatus.AVBRUTT
+            ).copy(
+                sporsmal = listOf(
+                    SporsmalBuilder().id("1").tag(MEDLEMSKAP_OPPHOLDSTILLATELSE).svartype(Svartype.JA_NEI).build()
+                )
+            )
+        )
+
+        val soknad = lagSoknad(
+            arbeidsgiver = 1,
+            fom = LocalDate.of(2023, 2, 1),
+            tom = LocalDate.of(2023, 2, 1),
+            startSykeforlop = startSykeforloep,
+            arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+            soknadsType = Soknadstype.ARBEIDSTAKERE
+        )
+
+        harBlittStiltMedlemskapSporsmal(eksisterendeSoknader, soknad) `should be` false
+    }
+
+    @Test
+    fun `Har blitt stilt spørsmål om medlemskap men status er SLETTET`() {
+        val startSykeforloep = LocalDate.of(2023, 1, 1)
+        val eksisterendeSoknader = listOf(
+            lagSoknad(
+                arbeidsgiver = 1,
+                fom = LocalDate.of(2023, 1, 1),
+                tom = LocalDate.of(2023, 1, 1),
+                startSykeforlop = startSykeforloep,
+                arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadsType = Soknadstype.ARBEIDSTAKERE,
+                status = Soknadstatus.SLETTET
+            ).copy(
+                sporsmal = listOf(
+                    SporsmalBuilder().id("1").tag(MEDLEMSKAP_OPPHOLDSTILLATELSE).svartype(Svartype.JA_NEI).build()
+                )
+            )
+        )
+
+        val soknad = lagSoknad(
+            arbeidsgiver = 1,
+            fom = LocalDate.of(2023, 2, 1),
+            tom = LocalDate.of(2023, 2, 1),
+            startSykeforlop = startSykeforloep,
+            arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+            soknadsType = Soknadstype.ARBEIDSTAKERE
+        )
+
+        harBlittStiltMedlemskapSporsmal(eksisterendeSoknader, soknad) `should be` false
+    }
+
+    @Test
+    fun `Har blitt stilt spørsmål om medlemskap i annen søknad med status FREMTIDIG i samme sykeforløp`() {
+        val startSykeforloep = LocalDate.of(2023, 1, 1)
+        val eksisterendeSoknader = listOf(
+            lagSoknad(
+                arbeidsgiver = 1,
+                fom = LocalDate.of(2023, 1, 1),
+                tom = LocalDate.of(2023, 1, 1),
+                startSykeforlop = startSykeforloep,
+                arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadsType = Soknadstype.ARBEIDSTAKERE,
+                status = Soknadstatus.FREMTIDIG
+            ).copy(
+                sporsmal = listOf(
+                    SporsmalBuilder().id("1").tag(MEDLEMSKAP_OPPHOLDSTILLATELSE).svartype(Svartype.JA_NEI).build()
+                )
+            )
+        )
+
+        val soknad = lagSoknad(
+            arbeidsgiver = 1,
+            fom = LocalDate.of(2023, 2, 1),
+            tom = LocalDate.of(2023, 2, 1),
+            startSykeforlop = startSykeforloep,
+            arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+            soknadsType = Soknadstype.ARBEIDSTAKERE
+        )
+
+        harBlittStiltMedlemskapSporsmal(eksisterendeSoknader, soknad) `should be` true
+    }
+
     private fun lagSoknad(
         arbeidsgiver: Int,
         fom: LocalDate,
         tom: LocalDate,
         startSykeforlop: LocalDate,
         arbeidsSituasjon: Arbeidssituasjon,
-        soknadsType: Soknadstype
+        soknadsType: Soknadstype,
+        status: Soknadstatus? = Soknadstatus.SENDT
     ): Sykepengesoknad {
         return Sykepengesoknad(
             fnr = "fnr",
@@ -519,7 +797,7 @@ class SoknadGenereringTest {
             fom = fom,
             tom = tom,
             soknadstype = soknadsType,
-            status = Soknadstatus.SENDT,
+            status = status!!,
             egenmeldingsdagerFraSykmelding = null,
             utenlandskSykmelding = false,
             opprettet = fom.atStartOfDay().toInstant(ZoneOffset.UTC),
