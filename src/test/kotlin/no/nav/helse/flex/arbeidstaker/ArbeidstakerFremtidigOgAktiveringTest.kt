@@ -1,22 +1,26 @@
 package no.nav.helse.flex.arbeidstaker
 
-import no.nav.helse.flex.*
+import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.aktivering.AktiveringJob
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
+import no.nav.helse.flex.hentSoknad
+import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingRepository
-import no.nav.helse.flex.medlemskap.MedlemskapVurderingSporsmal
-import no.nav.helse.flex.medlemskap.MedlemskapVurderingSvarType
+import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
+import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
+import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.util.DatoUtil
-import no.nav.helse.flex.util.serialisertTilString
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.shouldHaveSize
+import no.nav.helse.flex.ventPåRecords
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.*
+import org.junit.jupiter.api.MethodOrderer
+import org.junit.jupiter.api.Order
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 
@@ -29,12 +33,13 @@ class ArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
     @Autowired
     private lateinit var medlemskapVurderingRepository: MedlemskapVurderingRepository
 
-    private final val fnr = "123456789"
+    // Vil ikke returnere noen spørsmål fra LovMe.
+    private final val fnr = "31111111112"
     private final val basisdato = LocalDate.now()
 
     @Test
     @Order(1)
-    fun `Fremtidig arbeidstakersøknad opprettes for en sykmelding`() {
+    fun `Arbeidstakersøknad med status FREMTIDIG opprettes når vi mottar en sykmelding`() {
         val kafkaSoknader = sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
@@ -57,7 +62,7 @@ class ArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
 
     @Test
     @Order(2)
-    fun `Søknaden har ingen spørsmål som fremtidig`() {
+    fun `Søknaden har ingen spørsmål`() {
         val soknad = hentSoknad(
             soknadId = hentSoknaderMetadata(fnr).first().id,
             fnr = fnr
@@ -73,22 +78,6 @@ class ArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
 
         assertThat(kafkaSoknader).hasSize(1)
         assertThat(kafkaSoknader[0].status).isEqualTo(SoknadsstatusDTO.NY)
-    }
-
-    @Test
-    @Order(4)
-    fun `Spørsmål om medlemskap fra LovMe er lagret i databasen`() {
-        val medlemskapVurderingDbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
-        val medlemskapVurdering = medlemskapVurderingDbRecords.first()
-
-        medlemskapVurdering.fnr `should be equal to` fnr
-        medlemskapVurdering.svartype `should be equal to` MedlemskapVurderingSvarType.UAVKLART.toString()
-        medlemskapVurdering.sporsmal!!.value `should be equal to` listOf(
-            MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
-            MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
-            MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
-            MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE
-        ).serialisertTilString()
     }
 
     @Test
