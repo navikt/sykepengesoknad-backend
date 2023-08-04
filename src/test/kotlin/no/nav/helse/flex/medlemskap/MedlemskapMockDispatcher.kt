@@ -9,6 +9,18 @@ import org.springframework.http.MediaType
 object MedlemskapMockDispatcher : Dispatcher() {
     override fun dispatch(request: RecordedRequest): MockResponse {
         when (request.headers["fnr"]) {
+            "31111111111" -> return MockResponse().setResponseCode(200).setBody(
+                MedlemskapVurderingResponse(
+                    svar = MedlemskapVurderingSvarType.UAVKLART,
+                    sporsmal = listOf(
+                        MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
+                        MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
+                        MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
+                        MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE
+                    )
+                ).serialisertTilString()
+            ).addHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+
             "31111111112" -> return MockResponse().setResponseCode(200).setBody(
                 MedlemskapVurderingResponse(
                     svar = MedlemskapVurderingSvarType.JA,
@@ -52,13 +64,8 @@ object MedlemskapMockDispatcher : Dispatcher() {
 
             else -> return MockResponse().setResponseCode(200).setBody(
                 MedlemskapVurderingResponse(
-                    svar = MedlemskapVurderingSvarType.UAVKLART,
-                    sporsmal = listOf(
-                        MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
-                        MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
-                        MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
-                        MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE
-                    )
+                    svar = MedlemskapVurderingSvarType.JA,
+                    sporsmal = emptyList()
                 ).serialisertTilString()
             ).addHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         }

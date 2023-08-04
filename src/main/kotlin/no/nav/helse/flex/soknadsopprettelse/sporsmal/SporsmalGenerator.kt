@@ -7,10 +7,13 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingClient
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingRequest
+import no.nav.helse.flex.medlemskap.MedlemskapVurderingSporsmal
+import no.nav.helse.flex.medlemskap.MedlemskapVurderingSvarType
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.service.IdentService
 import no.nav.helse.flex.soknadsopprettelse.*
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagMedlemskapOppholdstillatelseSporsmal
 import no.nav.helse.flex.yrkesskade.YrkesskadeIndikatorer
 import no.nav.helse.flex.yrkesskade.YrkesskadeSporsmalGrunnlag
 import org.springframework.stereotype.Service
@@ -60,90 +63,103 @@ class SporsmalGenerator(
         identer: FolkeregisterIdenter
     ): SporsmalOgAndreKjenteArbeidsforhold {
         val erForsteSoknadISykeforlop = erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad)
-
         val erEnkeltstaendeBehandlingsdagSoknad = soknad.soknadstype == Soknadstype.BEHANDLINGSDAGER
-
-        val yrkesskade = yrkesskadeIndikatorer.hentYrkesskadeSporsmalGrunnlag(
+        val harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad)
+        val yrkesskadeSporsmalGrunnlag = yrkesskadeIndikatorer.hentYrkesskadeSporsmalGrunnlag(
             identer,
             soknad.sykmeldingId,
             erForsteSoknadISykeforlop
         )
 
-        val harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad)
-
-        val opts = SettOppSoknadOpts(
+        val soknadOpts = SettOppSoknadOpts(
             sykepengesoknad = soknad,
             erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
             harTidligereUtenlandskSpm = harTidligereUtenlandskSpm,
-            yrkesskade = yrkesskade
+            yrkesskade = yrkesskadeSporsmalGrunnlag
         )
 
         if (erEnkeltstaendeBehandlingsdagSoknad) {
-            return settOppSykepengesoknadBehandlingsdager(opts).tilSporsmalOgAndreKjenteArbeidsforhold()
+            return settOppSykepengesoknadBehandlingsdager(soknadOpts).tilSporsmalOgAndreKjenteArbeidsforhold()
         }
 
-        val erReisetilskudd = soknad.soknadstype == Soknadstype.REISETILSKUDD
-        if (erReisetilskudd) {
-            return skapReisetilskuddsoknad(
-                opts
-            ).tilSporsmalOgAndreKjenteArbeidsforhold()
+        if (soknad.soknadstype == Soknadstype.REISETILSKUDD) {
+            return skapReisetilskuddsoknad(soknadOpts).tilSporsmalOgAndreKjenteArbeidsforhold()
         }
 
         return when (soknad.arbeidssituasjon) {
             Arbeidssituasjon.ARBEIDSTAKER -> {
-                // Det skal bare gjøres medlemskapvurdering en gang per sykeforløp for arbeidstakersøknader.
-                if (!harBlittStiltMedlemskapSporsmal(eksisterendeSoknader, soknad)) {
-                    try {
-                        val hentMedlemskapVurdering = medlemskapVurderingClient.hentMedlemskapVurdering(
-                            MedlemskapVurderingRequest(
-                                // Bruker fnr fra sykepengesøknaden, ikke identer siden LovMe ikke støtter det enda, og har
-                                // planer om å implementere kall mot PDL på sin side.
-                                fnr = soknad.fnr,
-                                fom = soknad.fom!!,
-                                tom = soknad.tom!!,
-                                sykepengesoknadId = soknad.id
-                            )
-                        )
-                        log.info("Hentet medlemskapvurdering for søknad ${soknad.id} med svar ${hentMedlemskapVurdering.svar}")
-                    } catch (e: Exception) {
-                        // Catch-all sånn at vi kan samle data uten at det påvirker genrering av spørsmål.
-                        // Data og tid brukt blir lagret i databasen av MedlemskapvurderingClient.
-                        log.warn(
-                            "Feilet ved henting av medlemskapvurdering for søknad ${soknad.id}. Gjør ingenting.",
-                            e
-                        )
-                    }
-                }
-
                 val andreKjenteArbeidsforhold = andreArbeidsforholdHenting.hentArbeidsforhold(
                     fnr = soknad.fnr,
                     arbeidsgiverOrgnummer = soknad.arbeidsgiverOrgnummer!!,
                     startSykeforlop = soknad.startSykeforlop!!
                 )
-                val sporsmal = settOppSoknadArbeidstaker(
-                    opts = opts,
-                    andreKjenteArbeidsforhold = andreKjenteArbeidsforhold.map { it.navn }
 
+                val arbeidstakerSporsmal = settOppSoknadArbeidstaker(
+                    opts = soknadOpts,
+                    andreKjenteArbeidsforhold = andreKjenteArbeidsforhold.map { it.navn }
                 )
+                val medlemskapSporsmal = lagMedlemskapSporsmal(eksisterendeSoknader, soknad, soknadOpts)
+
                 SporsmalOgAndreKjenteArbeidsforhold(
-                    sporsmal = sporsmal,
+                    sporsmal = arbeidstakerSporsmal + medlemskapSporsmal,
                     andreKjenteArbeidsforhold = andreKjenteArbeidsforhold
                 )
             }
 
             else -> {
                 when (soknad.arbeidssituasjon) {
-                    Arbeidssituasjon.NAERINGSDRIVENDE -> settOppSoknadSelvstendigOgFrilanser(opts)
-                    Arbeidssituasjon.FRILANSER -> settOppSoknadSelvstendigOgFrilanser(opts)
-                    Arbeidssituasjon.ARBEIDSLEDIG -> settOppSoknadArbeidsledig(opts)
-                    Arbeidssituasjon.ANNET -> settOppSoknadAnnetArbeidsforhold(opts)
+                    Arbeidssituasjon.NAERINGSDRIVENDE -> settOppSoknadSelvstendigOgFrilanser(soknadOpts)
+                    Arbeidssituasjon.FRILANSER -> settOppSoknadSelvstendigOgFrilanser(soknadOpts)
+                    Arbeidssituasjon.ARBEIDSLEDIG -> settOppSoknadArbeidsledig(soknadOpts)
+                    Arbeidssituasjon.ANNET -> settOppSoknadAnnetArbeidsforhold(soknadOpts)
 
                     else -> {
-                        throw RuntimeException("Arbeidssituasjon ${soknad.arbeidssituasjon} for sykepengesøknad ${soknad.id} er ukjent. Kan ikke generere spørsmål.")
+                        throw RuntimeException(
+                            "Arbeidssituasjon ${soknad.arbeidssituasjon} for " +
+                                "sykepengesøknad ${soknad.id} er ukjent. Kan ikke generere spørsmål."
+                        )
                     }
                 }.tilSporsmalOgAndreKjenteArbeidsforhold()
             }
         }
+    }
+
+    private fun lagMedlemskapSporsmal(
+        eksisterendeSoknader: List<Sykepengesoknad>,
+        soknad: Sykepengesoknad,
+        opts: SettOppSoknadOpts
+    ): MutableList<Sporsmal> {
+        val medlemskapSporsmal = mutableListOf<Sporsmal>()
+
+        if (!harBlittStiltMedlemskapSporsmal(eksisterendeSoknader, soknad)) {
+            val medlemskapVurdering = medlemskapVurderingClient.hentMedlemskapVurdering(
+                MedlemskapVurderingRequest(
+                    // Bruker 'fnr' fra sykepengesøknaden, ikke liste over identer siden det ikke støttes av LovMe enda.
+                    fnr = soknad.fnr,
+                    fom = soknad.fom!!,
+                    tom = soknad.tom!!,
+                    sykepengesoknadId = soknad.id
+                )
+            )
+
+            log.info("Hentet medlemskapvurdering for søknad ${soknad.id} med svar ${medlemskapVurdering.svar}")
+            if (medlemskapVurdering.svar == MedlemskapVurderingSvarType.UAVKLART) {
+                medlemskapVurdering.sporsmal.forEach {
+                    when (it) {
+                        MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE -> medlemskapSporsmal.add(
+                            lagMedlemskapOppholdstillatelseSporsmal(opts)
+                        )
+                        // TODO: Implemener resterende spørsmål.
+
+                        else -> {
+                            log.warn("Ikke implementert medlemskapsspørsmål ${it.name}. Lager ikke spørsmål til bruker.")
+                        }
+                    }
+                }
+            }
+        }
+        // Det skal bare gjøres medlemskapvurdering en gang per sykeforløp for arbeidstakersøknader.
+        return medlemskapSporsmal
     }
 }
 
