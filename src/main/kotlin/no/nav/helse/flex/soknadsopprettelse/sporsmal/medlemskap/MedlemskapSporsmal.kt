@@ -13,6 +13,7 @@ import java.time.format.DateTimeFormatter
 
 fun lagMedlemskapOppholdstillatelseSporsmal(options: SettOppSoknadOpts): Sporsmal {
     val (sykepengesoknad) = options
+    // TODO: Sjek opp datoer med LovMe.
     val tilDato = sykepengesoknad.tom ?: LocalDate.now()
     val fraDato = tilDato.minusMonths(12)
 
@@ -25,7 +26,9 @@ fun lagMedlemskapOppholdstillatelseSporsmal(options: SettOppSoknadOpts): Sporsma
             Sporsmal(
                 tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_VEDTAKSDATO,
                 sporsmalstekst = "Oppgi vedtaksdato om oppholdstillatelse:",
-                svartype = Svartype.DATO
+                svartype = Svartype.DATO,
+                min = fraDato.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                max = tilDato.format(DateTimeFormatter.ISO_LOCAL_DATE)
             ),
             Sporsmal(
                 tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_PERMANENT,
