@@ -326,15 +326,16 @@ class SykepengesoknadDAO(
         )!!
     }
 
-    fun klippSoknadTom(sykepengesoknadUuid: String, klipp: LocalDate): List<Soknadsperiode> {
+    // TODO: rename nyTom, eller send med det som faktisk er nyTom
+    fun klippSoknadTom(sykepengesoknadUuid: String, nyTom: LocalDate, fom: LocalDate): List<Soknadsperiode> {
         val sykepengesoknadId = sykepengesoknadId(sykepengesoknadUuid)
 
         val soknadPerioder = soknadsperiodeDAO.finnSoknadPerioder(setOf(sykepengesoknadId))[sykepengesoknadId]!!
         val nyePerioder = soknadPerioder
-            .filter { it.fom.isBefore(klipp) } // Perioder som overlapper fullstendig tas ikke med
+            .filter { it.fom.isBefore(nyTom) } // Perioder som overlapper fullstendig tas ikke med
             .map {
-                if (it.tom.isAfterOrEqual(klipp)) {
-                    return@map it.copy(tom = klipp.minusDays(1))
+                if (it.tom.isAfterOrEqual(nyTom)) {
+                    return@map it.copy(tom = nyTom.minusDays(1))
                 }
                 return@map it
             }
@@ -352,21 +353,23 @@ class SykepengesoknadDAO(
         )
         oppdaterTom(
             sykepengesoknadId = sykepengesoknadId,
-            nyTom = klipp.minusDays(1)
+            nyTom = nyTom.minusDays(1),
+            fom = fom
         )
 
         return nyePerioder
     }
 
-    fun klippSoknadFom(sykepengesoknadUuid: String, klipp: LocalDate): List<Soknadsperiode> {
+    // TODO: rename nyFom, eller send med det som faktisk er nyFom
+    fun klippSoknadFom(sykepengesoknadUuid: String, nyFom: LocalDate, tom: LocalDate): List<Soknadsperiode> {
         val sykepengesoknadId = sykepengesoknadId(sykepengesoknadUuid)
 
         val soknadPerioder = soknadsperiodeDAO.finnSoknadPerioder(setOf(sykepengesoknadId))[sykepengesoknadId]!!
         val nyePerioder = soknadPerioder
-            .filter { it.tom.isAfter(klipp) } // Perioder som overlapper fullstendig tas ikke med
+            .filter { it.tom.isAfter(nyFom) } // Perioder som overlapper fullstendig tas ikke med
             .map {
-                if (it.fom.isBeforeOrEqual(klipp)) {
-                    return@map it.copy(fom = klipp.plusDays(1))
+                if (it.fom.isBeforeOrEqual(nyFom)) {
+                    return@map it.copy(fom = nyFom.plusDays(1))
                 }
                 return@map it
             }
@@ -384,18 +387,20 @@ class SykepengesoknadDAO(
         )
         oppdaterFom(
             sykepengesoknadId = sykepengesoknadId,
-            nyFom = klipp.plusDays(1)
+            nyFom = nyFom.plusDays(1),
+            tom = tom
         )
 
         return nyePerioder
     }
 
-    private fun oppdaterTom(sykepengesoknadId: String, nyTom: LocalDate) {
+    private fun oppdaterTom(sykepengesoknadId: String, nyTom: LocalDate, fom: LocalDate) {
         val raderOppdatert = namedParameterJdbcTemplate.update(
-            "UPDATE SYKEPENGESOKNAD SET TOM = :tom WHERE ID = :sykepengesoknadId",
+            "UPDATE SYKEPENGESOKNAD SET TOM = :tom WHERE ID = :sykepengesoknadId AND FOM = :fom",
             MapSqlParameterSource()
                 .addValue("tom", nyTom)
                 .addValue("sykepengesoknadId", sykepengesoknadId)
+                .addValue("fom", fom)
         )
 
         if (raderOppdatert != 1) {
@@ -403,12 +408,13 @@ class SykepengesoknadDAO(
         }
     }
 
-    private fun oppdaterFom(sykepengesoknadId: String, nyFom: LocalDate) {
+    private fun oppdaterFom(sykepengesoknadId: String, nyFom: LocalDate, tom: LocalDate) {
         val raderOppdatert = namedParameterJdbcTemplate.update(
-            "UPDATE SYKEPENGESOKNAD SET FOM = :fom WHERE ID = :sykepengesoknadId",
+            "UPDATE SYKEPENGESOKNAD SET FOM = :fom WHERE ID = :sykepengesoknadId AND TOM = :tom",
             MapSqlParameterSource()
                 .addValue("fom", nyFom)
                 .addValue("sykepengesoknadId", sykepengesoknadId)
+                .addValue("tom", tom)
         )
 
         if (raderOppdatert != 1) {
