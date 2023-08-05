@@ -1,5 +1,6 @@
 package no.nav.helse.flex.soknadsopprettelse.sporsmal
 
+import no.nav.helse.flex.config.EnvironmentToggles
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sporsmal
@@ -16,6 +17,7 @@ import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagMedlemskapOppholdstillatelseSporsmal
 import no.nav.helse.flex.yrkesskade.YrkesskadeIndikatorer
 import no.nav.helse.flex.yrkesskade.YrkesskadeSporsmalGrunnlag
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -26,7 +28,9 @@ class SporsmalGenerator(
     private val andreArbeidsforholdHenting: AndreArbeidsforholdHenting,
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val yrkesskadeIndikatorer: YrkesskadeIndikatorer,
-    private val medlemskapVurderingClient: MedlemskapVurderingClient
+    private val medlemskapVurderingClient: MedlemskapVurderingClient,
+
+    @Value("\${ENABLE_MEDLEMSKAP}") var stillMedlemskapSporsmal: Boolean
 ) {
     private val log = logger()
 
@@ -115,8 +119,8 @@ class SporsmalGenerator(
 
                     else -> {
                         throw RuntimeException(
-                            "Arbeidssituasjon ${soknad.arbeidssituasjon} for " +
-                                "sykepengesøknad ${soknad.id} er ukjent. Kan ikke generere spørsmål."
+                            "Arbeidssituasjon ${soknad.arbeidssituasjon} for sykepengesøknad ${soknad.id} er ukjent. " +
+                                "Kan ikke generere spørsmål."
                         )
                     }
                 }.tilSporsmalOgAndreKjenteArbeidsforhold()
@@ -142,19 +146,26 @@ class SporsmalGenerator(
                 )
             )
 
-            log.info("Hentet medlemskapvurdering for søknad ${soknad.id} med svar ${medlemskapVurdering.svar}")
+            log.info("Hentet medlemskapvurdering for søknad ${soknad.id} med svar ${medlemskapVurdering.svar}.")
             if (medlemskapVurdering.svar == MedlemskapVurderingSvarType.UAVKLART) {
-                medlemskapVurdering.sporsmal.forEach {
-                    when (it) {
-                        MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE -> medlemskapSporsmal.add(
-                            lagMedlemskapOppholdstillatelseSporsmal(opts)
-                        )
-                        // TODO: Implemener resterende spørsmål.
 
-                        else -> {
-                            log.warn("Ikke implementert medlemskapsspørsmål ${it.name}. Lager ikke spørsmål til bruker.")
+                // TODO: Fjern feature-toggle når all funksjonallitet er implementert.
+                if (stillMedlemskapSporsmal) {
+                    medlemskapVurdering.sporsmal.forEach {
+                        when (it) {
+                            MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE -> medlemskapSporsmal.add(
+                                lagMedlemskapOppholdstillatelseSporsmal(opts)
+                            )
+                            // TODO: Implementer resterende spørsmål.
+                            else -> {
+                                log.warn("Ikke implementert medlemskapsspørsmål ${it.name}. Lager ikke brukerspørsmål.")
+                            }
                         }
                     }
+                } else {
+                    log.info(
+                        "Medlemskapvurdering er UAVKLART for søknad ${soknad.id}, men stiller ikke spørsmål i PROD."
+                    )
                 }
             }
         }
