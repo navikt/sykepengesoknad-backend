@@ -8,6 +8,7 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderArbeidsledig
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderArbeidstaker
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderSelvstendigOgFrilanser
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagMedlemskapOppholdstillatelseSporsmal
 import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.Test
 import java.time.Instant
@@ -19,8 +20,8 @@ class UnderersporsmalSortererTest {
     fun `test sortering av andre inntektskilder arbeidsledig`() {
         val sporsmalet = andreInntektskilderArbeidsledig(fom = LocalDate.now(), tom = LocalDate.now())
         val soknad = sporsmalet.tilSoknad()
-        val shuffles = soknad.getSporsmalMedTag(HVILKE_ANDRE_INNTEKTSKILDER)
-        val soknadShufflet = soknad.replaceSporsmal(shuffles.copy(undersporsmal = shuffles.undersporsmal.shuffled()))
+        val sporsmal = soknad.getSporsmalMedTag(HVILKE_ANDRE_INNTEKTSKILDER)
+        val soknadShufflet = soknad.replaceSporsmal(sporsmal.copy(undersporsmal = sporsmal.undersporsmal.shuffled()))
 
         val soknadSortert = soknadShufflet.sorterUndersporsmal()
 
@@ -41,8 +42,8 @@ class UnderersporsmalSortererTest {
     fun `test sortering av andre inntektskilder frilanser`() {
         val sporsmalet = andreInntektskilderSelvstendigOgFrilanser(Arbeidssituasjon.FRILANSER)
         val soknad = sporsmalet.tilSoknad()
-        val shuffles = soknad.getSporsmalMedTag(HVILKE_ANDRE_INNTEKTSKILDER)
-        val soknadShufflet = soknad.replaceSporsmal(shuffles.copy(undersporsmal = shuffles.undersporsmal.shuffled()))
+        val sporsmal = soknad.getSporsmalMedTag(HVILKE_ANDRE_INNTEKTSKILDER)
+        val soknadShufflet = soknad.replaceSporsmal(sporsmal.copy(undersporsmal = sporsmal.undersporsmal.shuffled()))
 
         val soknadSortert = soknadShufflet.sorterUndersporsmal()
 
@@ -59,8 +60,8 @@ class UnderersporsmalSortererTest {
     fun `test sortering av andre inntektskilder arbeidstaker`() {
         val sporsmalet = andreInntektskilderArbeidstaker("Staten")
         val soknad = sporsmalet.tilSoknad()
-        val shuffles = soknad.getSporsmalMedTag(HVILKE_ANDRE_INNTEKTSKILDER)
-        val soknadShufflet = soknad.replaceSporsmal(shuffles.copy(undersporsmal = shuffles.undersporsmal.shuffled()))
+        val sporsmal = soknad.getSporsmalMedTag(HVILKE_ANDRE_INNTEKTSKILDER)
+        val soknadShufflet = soknad.replaceSporsmal(sporsmal.copy(undersporsmal = sporsmal.undersporsmal.shuffled()))
 
         val soknadSortert = soknadShufflet.sorterUndersporsmal()
 
@@ -78,8 +79,8 @@ class UnderersporsmalSortererTest {
     @Test
     fun `test sortering av andre arbeidsgiver sporsmal`() {
         val soknad = settOppSoknadOppholdUtland("12345")
-        val shuffles = soknad.getSporsmalMedTag(ARBEIDSGIVER)
-        val soknadShufflet = soknad.replaceSporsmal(shuffles.copy(undersporsmal = shuffles.undersporsmal.shuffled()))
+        val sporsmal = soknad.getSporsmalMedTag(ARBEIDSGIVER)
+        val soknadShufflet = soknad.replaceSporsmal(sporsmal.copy(undersporsmal = sporsmal.undersporsmal.shuffled()))
 
         val soknadSortert = soknadShufflet.sorterUndersporsmal()
 
@@ -94,8 +95,8 @@ class UnderersporsmalSortererTest {
     fun `test sortering av reise med bil spm`() {
         val sporsmalet = reiseMedBilSpørsmål("1 til 2. juli", LocalDate.now(), LocalDate.now())
         val soknad = sporsmalet.tilSoknad()
-        val shuffles = soknad.getSporsmalMedTag(REISE_MED_BIL)
-        val soknadShufflet = soknad.replaceSporsmal(shuffles.copy(undersporsmal = shuffles.undersporsmal.shuffled()))
+        val sporsmal = soknad.getSporsmalMedTag(REISE_MED_BIL)
+        val soknadShufflet = soknad.replaceSporsmal(sporsmal.copy(undersporsmal = sporsmal.undersporsmal.shuffled()))
 
         val soknadSortert = soknadShufflet.sorterUndersporsmal()
 
@@ -105,6 +106,22 @@ class UnderersporsmalSortererTest {
             KM_HJEM_JOBB
         )
         soknadSortert.getSporsmalMedTag(REISE_MED_BIL).undersporsmal.map { it.tag } `should be equal to` forventetSortering
+    }
+
+    @Test
+    fun `test sortering av medlemskapspørsmål om oppholdstillatelse`() {
+        val sporsmalet = lagMedlemskapOppholdstillatelseSporsmal(LocalDate.now())
+        val soknad = sporsmalet.tilSoknad()
+
+        val sporsmal = soknad.getSporsmalMedTag(MEDLEMSKAP_OPPHOLDSTILLATELSE)
+        val soknadShufflet = soknad.replaceSporsmal(sporsmal.copy(undersporsmal = sporsmal.undersporsmal.shuffled()))
+        val soknadSortert = soknadShufflet.sorterUndersporsmal()
+
+        val forventetSortering = listOf(
+            MEDLEMSKAP_OPPHOLDSTILLATELSE_VEDTAKSDATO,
+            MEDLEMSKAP_OPPHOLDSTILLATELSE_PERMANENT
+        )
+        soknadSortert.getSporsmalMedTag(MEDLEMSKAP_OPPHOLDSTILLATELSE).undersporsmal.map { it.tag } `should be equal to` forventetSortering
     }
 }
 

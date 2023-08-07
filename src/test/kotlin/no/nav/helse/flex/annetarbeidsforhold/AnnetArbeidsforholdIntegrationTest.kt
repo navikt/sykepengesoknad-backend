@@ -21,7 +21,7 @@ class AnnetArbeidsforholdIntegrationTest : BaseTestClass() {
 
     @Test
     @Order(1)
-    fun `Vi oppretter en annet arbeidsforhold søknad`() {
+    fun `Vi oppretter en søknad med arbeidssituasjon ANNET`() {
         val soknader = sendSykmelding(
             sykmeldingKafkaMessage(
                 arbeidssituasjon = Arbeidssituasjon.ANNET,
@@ -35,6 +35,7 @@ class AnnetArbeidsforholdIntegrationTest : BaseTestClass() {
 
         assertThat(soknader).hasSize(1)
         assertThat(soknader.last().type).isEqualTo(SoknadstypeDTO.ANNET_ARBEIDSFORHOLD)
+        assertThat(soknader.last().status).isEqualTo(SoknadsstatusDTO.NY)
     }
 
     @Test

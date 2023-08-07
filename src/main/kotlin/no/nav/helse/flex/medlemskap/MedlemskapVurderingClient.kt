@@ -50,18 +50,19 @@ class MedlemskapVurderingClient(
 
         val medlemskapVurderingResponse = response.body!!
 
+        // TODO: Vurder om vi trenger å lagre response fra LovMe etter at vi har begynt å generere sporsmal.
         lagreVurdering(
             medlemskapVurderingRequest,
             medlemskapVurderingResponse,
             svarTid
         )
 
-        // Mottar vi svar.UAVKLART skal vi også motta spørsmål å stille brukeren.
+        // Mottar vi UAVKLART må vi få spørsmål å stille brukeren.
         if (medlemskapVurderingResponse.svar == MedlemskapVurderingSvarType.UAVKLART && medlemskapVurderingResponse.sporsmal.isEmpty()) {
             throw MedlemskapVurderingResponseException("MedlemskapVurdering returnerte svar.UAVKLART uten spørsmål.")
         }
 
-        // Mottar vi en avklart situasjon (svar.JA eller svar.NEI) trenger vi ikke spørsmnål å stille brukeren.
+        // Mottar vi en avklart situasjon (svar.JA eller svar.NEI) skal vi ikke få spørsmål å stille brukeren.
         if (listOf(
                 MedlemskapVurderingSvarType.JA,
                 MedlemskapVurderingSvarType.NEI

@@ -22,10 +22,20 @@ private fun Sporsmal.sorterUndersporsmal(): Sporsmal {
                 REISE_MED_BIL -> it.sorteringReiseMedBil()
                 UTENLANDSK_SYKMELDING_BOSTED -> it.sorteringBosted()
                 YRKESSKADE_V2_VELG_DATO -> it.sorteringYrkesskader()
+                MEDLEMSKAP_OPPHOLDSTILLATELSE -> it.sorteringMedlemskapOppholdstillatelse()
                 else -> it.tag
             }
         }
     return this.copy(undersporsmal = sorterteUndersporsmal)
+}
+
+private fun Sporsmal.sorteringMedlemskapOppholdstillatelse(): String? {
+    return when (tag) {
+        MEDLEMSKAP_OPPHOLDSTILLATELSE_VEDTAKSDATO -> "0"
+        MEDLEMSKAP_OPPHOLDSTILLATELSE_PERMANENT -> "1"
+        MEDLEMSKAP_OPPHOLDSTILLATELSE_PERIODE -> "2"
+        else -> throw RuntimeException("Ukjent underspørsmål for medlemskap oppholdstillatelse: $tag")
+    }
 }
 
 private fun Sporsmal.sorteringAndreInntektskilder(): String {

@@ -24,11 +24,11 @@ fun settOppSoknadArbeidstaker(
 ): List<Sporsmal> {
     val (sykepengesoknad, erForsteSoknadISykeforlop, harTidligereUtenlandskSpm, yrkesskade) = opts
 
-    val gradertResietilskudd = sykepengesoknad.soknadstype == GRADERT_REISETILSKUDD
+    val gradertReisetilskudd = sykepengesoknad.soknadstype == GRADERT_REISETILSKUDD
 
     return mutableListOf(
-        ansvarserklaringSporsmal(reisetilskudd = gradertResietilskudd),
-        if (gradertResietilskudd) {
+        ansvarserklaringSporsmal(reisetilskudd = gradertReisetilskudd),
+        if (gradertReisetilskudd) {
             tilbakeIFulltArbeidGradertReisetilskuddSporsmal(sykepengesoknad)
         } else {
             tilbakeIFulltArbeidSporsmal(sykepengesoknad)
@@ -36,7 +36,7 @@ fun settOppSoknadArbeidstaker(
         ferieSporsmal(sykepengesoknad.fom!!, sykepengesoknad.tom!!),
         permisjonSporsmal(sykepengesoknad.fom, sykepengesoknad.tom),
         utenlandsoppholdSporsmal(sykepengesoknad.fom, sykepengesoknad.tom),
-        vaerKlarOverAt(gradertReisetilskudd = gradertResietilskudd),
+        vaerKlarOverAt(gradertReisetilskudd = gradertReisetilskudd),
         bekreftOpplysningerSporsmal()
     ).also {
         if (erForsteSoknadISykeforlop) {
@@ -58,7 +58,7 @@ fun settOppSoknadArbeidstaker(
                 sykepengesoknad.arbeidsgiverNavn
             )
         )
-        if (gradertResietilskudd) {
+        if (gradertReisetilskudd) {
             it.add(brukteReisetilskuddetSpørsmål())
         }
     }.toList()

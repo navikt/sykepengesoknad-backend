@@ -59,6 +59,12 @@ fun Sporsmal.fellesPlasseringSporsmal(): Int {
         KVITTERINGER -> 803
         UTBETALING -> 804
 
+        MEDLEMSKAP_OPPHOLDSTILLATELSE -> 850
+        MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE -> 851
+        // Det vil ikke bli spurt om disse to i samme søknad.
+        MEDLEMSKAP_OPPHOLD_UTENFOR_EOS -> 852
+        MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE -> 852
+
         VAER_KLAR_OVER_AT -> 999
         BEKREFT_OPPLYSNINGER -> 1000
         else -> plasseringAvSporsmalSomKanRepeteresFlereGanger()
