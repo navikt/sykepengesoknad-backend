@@ -13,6 +13,7 @@ import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.service.IdentService
 import no.nav.helse.flex.soknadsopprettelse.*
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagMedlemskapArbeidUtenforNorgeSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagMedlemskapOppholdstillatelseSporsmal
 import no.nav.helse.flex.yrkesskade.YrkesskadeIndikatorer
 import no.nav.helse.flex.yrkesskade.YrkesskadeSporsmalGrunnlag
@@ -152,6 +153,10 @@ class SporsmalGenerator(
                         when (it) {
                             MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE -> medlemskapSporsmal.add(
                                 lagMedlemskapOppholdstillatelseSporsmal(soknad.tom)
+                            )
+
+                            MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE -> medlemskapSporsmal.add(
+                                lagMedlemskapArbeidUtenforNorgeSporsmal(soknad.tom)
                             )
                             // TODO: Implementer resterende spørsmål.
                             else -> {

@@ -82,6 +82,7 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
                 "ARBEID_UTENFOR_NORGE",
                 "ANDRE_INNTEKTSKILDER_V2",
                 "MEDLEMSKAP_OPPHOLDSTILLATELSE",
+                "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE",
                 "VAER_KLAR_OVER_AT",
                 "BEKREFT_OPPLYSNINGER"
             )
@@ -115,7 +116,8 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
         val indexOfMedlemskapOppholdstillatelse =
             soknad.sporsmal!!.indexOf(soknad.sporsmal!!.first { it.tag == "MEDLEMSKAP_OPPHOLDSTILLATELSE" }) shouldBeEqualTo 8
         soknad.sporsmal!![indexOfMedlemskapOppholdstillatelse - 1].tag shouldBeEqualTo "ANDRE_INNTEKTSKILDER_V2"
-        soknad.sporsmal!![indexOfMedlemskapOppholdstillatelse + 1].tag shouldBeEqualTo "VAER_KLAR_OVER_AT"
+        soknad.sporsmal!![indexOfMedlemskapOppholdstillatelse + 1].tag shouldBeEqualTo "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE"
+        soknad.sporsmal!![indexOfMedlemskapOppholdstillatelse + 2].tag shouldBeEqualTo "VAER_KLAR_OVER_AT"
     }
 
     @Test
@@ -129,8 +131,42 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
             fnr = fnr
         )
 
-        val sendtSoknad = besvarArbeidstakersporsmal(soknad)
-            .besvarSporsmal(tag = "MEDLEMSKAP_OPPHOLDSTILLATELSE", svar = "JA", ferdigBesvart = false)
+        val soknadBesvarer = SoknadBesvarer(rSSykepengesoknad = soknad, mockMvc = this, fnr = fnr)
+        besvarArbeidstakerSporsmal(soknadBesvarer)
+        besvarMedlemskapOppholdstillatelse(soknadBesvarer, soknad)
+        besvarMedlemskapArbeidUtenforNorge(soknadBesvarer, soknad)
+
+        val sendtSoknad = soknadBesvarer
+            .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
+            .sendSoknad()
+
+        sendtSoknad.status shouldBeEqualTo RSSoknadstatus.SENDT
+
+        val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
+        kafkaSoknader shouldHaveSize 1
+        val kafkaSoknad = kafkaSoknader.first()
+
+        kafkaSoknad.status shouldBeEqualTo SoknadsstatusDTO.SENDT
+
+        // Spørsmålene som omhandler medlemskapå blir ikke mappet om til eget felt i SykepengesoknadDTO så vi trenger
+        // bare å sjekke at spørsmålene er med.
+        kafkaSoknad.sporsmal!!.any { it.tag == "MEDLEMSKAP_OPPHOLDSTILLATELSE" } shouldBeEqualTo true
+        kafkaSoknad.sporsmal!!.any { it.tag == "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE" } shouldBeEqualTo true
+    }
+
+    private fun besvarArbeidstakerSporsmal(soknadBesvarer: SoknadBesvarer) =
+        soknadBesvarer
+            .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
+            .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
+            .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
+            .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
+            .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
+            .besvarSporsmal(tag = "ARBEID_UTENFOR_NORGE", svar = "NEI")
+            .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
+            .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
+
+    private fun besvarMedlemskapOppholdstillatelse(soknadBesvarer: SoknadBesvarer, soknad: RSSykepengesoknad) {
+        soknadBesvarer.besvarSporsmal(tag = "MEDLEMSKAP_OPPHOLDSTILLATELSE", svar = "JA", ferdigBesvart = false)
             .besvarSporsmal(
                 tag = "MEDLEMSKAP_OPPHOLDSTILLATELSE_VEDTAKSDATO",
                 svar = soknad.fom.toString(),
@@ -144,30 +180,31 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
                     tom = soknad.tom!!.minusDays(5)
                 )
             )
-            .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
-            .sendSoknad()
-
-        sendtSoknad.status shouldBeEqualTo RSSoknadstatus.SENDT
-
-        val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
-        kafkaSoknader shouldHaveSize 1
-        val kafkaSoknad = kafkaSoknader.first()
-
-        kafkaSoknad.status shouldBeEqualTo SoknadsstatusDTO.SENDT
-
-        // Medlemsskapspørsmål blir ikke mappet om til eget felt i SykepengesoknadDTO så vi trenger bare å sjekke at
-        // spørsmålet er med.
-        kafkaSoknad.sporsmal!!.any { it.tag == "MEDLEMSKAP_OPPHOLDSTILLATELSE" } shouldBeEqualTo true
     }
 
-    private fun besvarArbeidstakersporsmal(soknaden: RSSykepengesoknad) =
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
-            .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
-            .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
-            .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
-            .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
-            .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
-            .besvarSporsmal(tag = "ARBEID_UTENFOR_NORGE", svar = "NEI")
-            .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
-            .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
+    private fun besvarMedlemskapArbeidUtenforNorge(soknadBesvarer: SoknadBesvarer, soknad: RSSykepengesoknad) {
+        soknadBesvarer
+            .besvarSporsmal(
+                tag = "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE",
+                svar = "JA",
+                ferdigBesvart = false
+            )
+            .besvarSporsmal(
+                tag = "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_ARBEIDSGIVER",
+                svar = "Arbeidsgiver",
+                ferdigBesvart = false
+            )
+            .besvarSporsmal(
+                tag = "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_HVOR",
+                svar = "Land",
+                ferdigBesvart = false
+            )
+            .besvarSporsmal(
+                tag = "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR",
+                svar = DatoUtil.periodeTilJson(
+                    fom = soknad.tom!!.minusDays(25),
+                    tom = soknad.tom!!.minusDays(5)
+                )
+            )
+    }
 }

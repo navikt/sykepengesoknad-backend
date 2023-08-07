@@ -64,7 +64,7 @@ class SoknadBesvarer(
         mutert: Boolean = false
     ): SoknadBesvarer {
         val sporsmal = rSSykepengesoknad.alleSporsmalOgUndersporsmal().find { it.tag == tag }
-            ?: throw RuntimeException("Spørsmål ikke funnet $tag")
+            ?: throw RuntimeException("Spørsmål ikke funnet $tag - sporsmal: ${rSSykepengesoknad.sporsmal}")
         val rsSvar = svarListe.map { RSSvar(verdi = it) }
         val oppdatertSoknad = rSSykepengesoknad.byttSvar(sporsmal.tag, rsSvar)
         rSSykepengesoknad = oppdatertSoknad

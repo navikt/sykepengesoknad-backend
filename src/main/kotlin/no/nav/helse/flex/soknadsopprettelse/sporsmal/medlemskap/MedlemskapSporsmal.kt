@@ -7,6 +7,11 @@ import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLDSTILLATELSE
 import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLDSTILLATELSE_PERIODE
 import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLDSTILLATELSE_PERMANENT
 import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLDSTILLATELSE_VEDTAKSDATO
+import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE
+import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_ARBEIDSGIVER
+import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_HVOR
+import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR
+import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_PERIODE
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -36,6 +41,43 @@ fun lagMedlemskapOppholdstillatelseSporsmal(tilDato: LocalDate): Sporsmal {
                     Sporsmal(
                         tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_PERIODE,
                         sporsmalstekst = "Hvilken periode har du fått oppholdstillatelse?",
+                        svartype = Svartype.PERIODER,
+                        min = fraDato.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                        max = tilDato.format(DateTimeFormatter.ISO_LOCAL_DATE)
+                    )
+                )
+            )
+        )
+    )
+}
+
+fun lagMedlemskapArbeidUtenforNorgeSporsmal(tilDato: LocalDate): Sporsmal {
+    val fraDato = tilDato.minusMonths(12)
+
+    return Sporsmal(
+        tag = MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
+        sporsmalstekst = "Har du utført arbeid utenfor Norge i det siste 12 månedene?",
+        svartype = Svartype.JA_NEI,
+        kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
+        undersporsmal = listOf(
+            Sporsmal(
+                // TODO: Se om det er mulig å sortere på periodedatoer og hvilken effekt det har for bruker.
+                // TODO: Skal vi validere overlapp mellom perioder?
+                tag = MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_PERIODE,
+                svartype = Svartype.IKKE_RELEVANT,
+                undersporsmal = listOf(
+                    Sporsmal(
+                        tag = MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_ARBEIDSGIVER,
+                        sporsmalstekst = "Arbeidsgiver",
+                        svartype = Svartype.FRITEKST
+                    ),
+                    Sporsmal(
+                        tag = MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_HVOR,
+                        sporsmalstekst = "Velg land",
+                        svartype = Svartype.LAND
+                    ),
+                    Sporsmal(
+                        tag = MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR,
                         svartype = Svartype.PERIODER,
                         min = fraDato.format(DateTimeFormatter.ISO_LOCAL_DATE),
                         max = tilDato.format(DateTimeFormatter.ISO_LOCAL_DATE)

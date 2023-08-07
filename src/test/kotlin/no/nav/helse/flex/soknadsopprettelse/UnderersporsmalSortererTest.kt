@@ -8,6 +8,7 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderArbeidsledig
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderArbeidstaker
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderSelvstendigOgFrilanser
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagMedlemskapArbeidUtenforNorgeSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagMedlemskapOppholdstillatelseSporsmal
 import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.Test
@@ -17,7 +18,7 @@ import java.util.*
 
 class UnderersporsmalSortererTest {
     @Test
-    fun `test sortering av andre inntektskilder arbeidsledig`() {
+    fun `Test sortering av andre inntektskilder arbeidsledig`() {
         val sporsmalet = andreInntektskilderArbeidsledig(fom = LocalDate.now(), tom = LocalDate.now())
         val soknad = sporsmalet.tilSoknad()
         val sporsmal = soknad.getSporsmalMedTag(HVILKE_ANDRE_INNTEKTSKILDER)
@@ -39,7 +40,7 @@ class UnderersporsmalSortererTest {
     }
 
     @Test
-    fun `test sortering av andre inntektskilder frilanser`() {
+    fun `Test sortering av andre inntektskilder frilanser`() {
         val sporsmalet = andreInntektskilderSelvstendigOgFrilanser(Arbeidssituasjon.FRILANSER)
         val soknad = sporsmalet.tilSoknad()
         val sporsmal = soknad.getSporsmalMedTag(HVILKE_ANDRE_INNTEKTSKILDER)
@@ -57,7 +58,7 @@ class UnderersporsmalSortererTest {
     }
 
     @Test
-    fun `test sortering av andre inntektskilder arbeidstaker`() {
+    fun `Test sortering av andre inntektskilder arbeidstaker`() {
         val sporsmalet = andreInntektskilderArbeidstaker("Staten")
         val soknad = sporsmalet.tilSoknad()
         val sporsmal = soknad.getSporsmalMedTag(HVILKE_ANDRE_INNTEKTSKILDER)
@@ -77,7 +78,7 @@ class UnderersporsmalSortererTest {
     }
 
     @Test
-    fun `test sortering av andre arbeidsgiver sporsmal`() {
+    fun `Test sortering av andre arbeidsgiver sporsmal`() {
         val soknad = settOppSoknadOppholdUtland("12345")
         val sporsmal = soknad.getSporsmalMedTag(ARBEIDSGIVER)
         val soknadShufflet = soknad.replaceSporsmal(sporsmal.copy(undersporsmal = sporsmal.undersporsmal.shuffled()))
@@ -92,7 +93,7 @@ class UnderersporsmalSortererTest {
     }
 
     @Test
-    fun `test sortering av reise med bil spm`() {
+    fun `Test sortering av reise med bil spm`() {
         val sporsmalet = reiseMedBilSpørsmål("1 til 2. juli", LocalDate.now(), LocalDate.now())
         val soknad = sporsmalet.tilSoknad()
         val sporsmal = soknad.getSporsmalMedTag(REISE_MED_BIL)
@@ -109,7 +110,7 @@ class UnderersporsmalSortererTest {
     }
 
     @Test
-    fun `test sortering av medlemskapspørsmål om oppholdstillatelse`() {
+    fun `Test sortering av medlemskapspørsmål om oppholdstillatelse`() {
         val sporsmalet = lagMedlemskapOppholdstillatelseSporsmal(LocalDate.now())
         val soknad = sporsmalet.tilSoknad()
 
@@ -122,6 +123,27 @@ class UnderersporsmalSortererTest {
             MEDLEMSKAP_OPPHOLDSTILLATELSE_PERMANENT
         )
         soknadSortert.getSporsmalMedTag(MEDLEMSKAP_OPPHOLDSTILLATELSE).undersporsmal.map { it.tag } `should be equal to` forventetSortering
+    }
+
+    @Test
+    fun `Test sortering av medlemskapspørsmål om arbeid utenfor Norge`() {
+        val sporsmalet = lagMedlemskapArbeidUtenforNorgeSporsmal(LocalDate.now())
+        val soknad = sporsmalet.tilSoknad()
+
+        val sporsmal = soknad.getSporsmalMedTag(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE).undersporsmal.first {
+            it.tag == MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_PERIODE
+        }
+        val soknadShufflet = soknad.replaceSporsmal(sporsmal.copy(undersporsmal = sporsmal.undersporsmal.shuffled()))
+        val soknadSortert = soknadShufflet.sorterUndersporsmal()
+
+        val forventetSortering = listOf(
+            MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_ARBEIDSGIVER,
+            MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_HVOR,
+            MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR
+        )
+        soknadSortert.getSporsmalMedTag(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE).undersporsmal.first {
+            it.tag == MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_PERIODE
+        }.undersporsmal.map { it.tag } `should be equal to` forventetSortering
     }
 }
 
