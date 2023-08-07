@@ -327,7 +327,7 @@ class SykepengesoknadDAO(
     }
 
     // TODO: rename nyTom, eller send med det som faktisk er nyTom
-    fun klippSoknadTom(sykepengesoknadUuid: String, nyTom: LocalDate, fom: LocalDate): List<Soknadsperiode> {
+    fun klippSoknadTom(sykepengesoknadUuid: String, nyTom: LocalDate, tom: LocalDate, fom: LocalDate): List<Soknadsperiode> {
         val sykepengesoknadId = sykepengesoknadId(sykepengesoknadUuid)
 
         val soknadPerioder = soknadsperiodeDAO.finnSoknadPerioder(setOf(sykepengesoknadId))[sykepengesoknadId]!!
@@ -354,6 +354,7 @@ class SykepengesoknadDAO(
         oppdaterTom(
             sykepengesoknadId = sykepengesoknadId,
             nyTom = nyTom.minusDays(1),
+            tom = tom,
             fom = fom
         )
 
@@ -361,7 +362,7 @@ class SykepengesoknadDAO(
     }
 
     // TODO: rename nyFom, eller send med det som faktisk er nyFom
-    fun klippSoknadFom(sykepengesoknadUuid: String, nyFom: LocalDate, tom: LocalDate): List<Soknadsperiode> {
+    fun klippSoknadFom(sykepengesoknadUuid: String, nyFom: LocalDate, fom: LocalDate, tom: LocalDate): List<Soknadsperiode> {
         val sykepengesoknadId = sykepengesoknadId(sykepengesoknadUuid)
 
         val soknadPerioder = soknadsperiodeDAO.finnSoknadPerioder(setOf(sykepengesoknadId))[sykepengesoknadId]!!
@@ -388,18 +389,20 @@ class SykepengesoknadDAO(
         oppdaterFom(
             sykepengesoknadId = sykepengesoknadId,
             nyFom = nyFom.plusDays(1),
+            fom = fom,
             tom = tom
         )
 
         return nyePerioder
     }
 
-    private fun oppdaterTom(sykepengesoknadId: String, nyTom: LocalDate, fom: LocalDate) {
+    private fun oppdaterTom(sykepengesoknadId: String, nyTom: LocalDate, tom: LocalDate, fom: LocalDate) {
         val raderOppdatert = namedParameterJdbcTemplate.update(
-            "UPDATE SYKEPENGESOKNAD SET TOM = :tom WHERE ID = :sykepengesoknadId AND FOM = :fom",
+            "UPDATE SYKEPENGESOKNAD SET TOM = :nyTom WHERE ID = :sykepengesoknadId AND TOM = :tom AND FOM = :fom",
             MapSqlParameterSource()
-                .addValue("tom", nyTom)
+                .addValue("nyTom", nyTom)
                 .addValue("sykepengesoknadId", sykepengesoknadId)
+                .addValue("tom", tom)
                 .addValue("fom", fom)
         )
 
@@ -408,12 +411,13 @@ class SykepengesoknadDAO(
         }
     }
 
-    private fun oppdaterFom(sykepengesoknadId: String, nyFom: LocalDate, tom: LocalDate) {
+    private fun oppdaterFom(sykepengesoknadId: String, nyFom: LocalDate, fom: LocalDate, tom: LocalDate) {
         val raderOppdatert = namedParameterJdbcTemplate.update(
-            "UPDATE SYKEPENGESOKNAD SET FOM = :fom WHERE ID = :sykepengesoknadId AND TOM = :tom",
+            "UPDATE SYKEPENGESOKNAD SET FOM = :nyFom WHERE ID = :sykepengesoknadId AND FOM = :fom AND TOM = :tom",
             MapSqlParameterSource()
-                .addValue("fom", nyFom)
+                .addValue("nyFom", nyFom)
                 .addValue("sykepengesoknadId", sykepengesoknadId)
+                .addValue("fom", fom)
                 .addValue("tom", tom)
         )
 

@@ -16,7 +16,6 @@ import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
 import java.lang.Exception
 import java.time.LocalDate
-import java.util.*
 import kotlin.concurrent.thread
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
@@ -57,6 +56,7 @@ class Test : BaseTestClass() {
                     sykepengesoknadDAO.klippSoknadTom(
                         sykepengesoknadUuid = soknad.id,
                         nyTom = soknad.tom!!.minusDays(1),
+                        tom = soknad.tom!!,
                         fom = soknad.fom!!
                     )
                     println("${farge}klippSoknadTom $i slutt")
@@ -73,6 +73,7 @@ class Test : BaseTestClass() {
                     sykepengesoknadDAO.klippSoknadFom(
                         sykepengesoknadUuid = soknad.id,
                         nyFom = soknad.fom!!.plusDays(1),
+                        fom = soknad.fom!!,
                         tom = soknad.tom!!
                     )
                     println("${farge}klippSoknadFom $i slutt")
