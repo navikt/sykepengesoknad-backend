@@ -106,6 +106,20 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
 
     @Test
     @Order(4)
+    fun `Spørsmål er riktig sortert`() {
+        val soknad = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
+            fnr = fnr
+        )
+
+        val indexOfMedlemskapOppholdstillatelse =
+            soknad.sporsmal!!.indexOf(soknad.sporsmal!!.first { it.tag == "MEDLEMSKAP_OPPHOLDSTILLATELSE" }) shouldBeEqualTo 8
+        soknad.sporsmal!![indexOfMedlemskapOppholdstillatelse - 1].tag shouldBeEqualTo "ANDRE_INNTEKTSKILDER_V2"
+        soknad.sporsmal!![indexOfMedlemskapOppholdstillatelse + 1].tag shouldBeEqualTo "VAER_KLAR_OVER_AT"
+    }
+
+    @Test
+    @Order(4)
     fun `Besvar medlemskapspørsmål og send inn søknaden`() {
         flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()

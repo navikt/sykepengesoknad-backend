@@ -101,7 +101,7 @@ class SporsmalGenerator(
                     opts = soknadOpts,
                     andreKjenteArbeidsforhold = andreKjenteArbeidsforhold.map { it.navn }
                 )
-                val medlemskapSporsmal = lagMedlemskapSporsmal(eksisterendeSoknader, soknad, soknadOpts)
+                val medlemskapSporsmal = lagMedlemskapSporsmal(eksisterendeSoknader, soknad)
 
                 SporsmalOgAndreKjenteArbeidsforhold(
                     sporsmal = arbeidstakerSporsmal + medlemskapSporsmal,
@@ -129,8 +129,7 @@ class SporsmalGenerator(
 
     private fun lagMedlemskapSporsmal(
         eksisterendeSoknader: List<Sykepengesoknad>,
-        soknad: Sykepengesoknad,
-        opts: SettOppSoknadOpts
+        soknad: Sykepengesoknad
     ): MutableList<Sporsmal> {
         val medlemskapSporsmal = mutableListOf<Sporsmal>()
 
@@ -152,7 +151,7 @@ class SporsmalGenerator(
                     medlemskapVurdering.sporsmal.forEach {
                         when (it) {
                             MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE -> medlemskapSporsmal.add(
-                                lagMedlemskapOppholdstillatelseSporsmal(opts)
+                                lagMedlemskapOppholdstillatelseSporsmal(soknad.tom)
                             )
                             // TODO: Implementer resterende spørsmål.
                             else -> {

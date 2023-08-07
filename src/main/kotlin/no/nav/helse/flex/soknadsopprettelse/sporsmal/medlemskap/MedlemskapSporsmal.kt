@@ -7,14 +7,11 @@ import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLDSTILLATELSE
 import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLDSTILLATELSE_PERIODE
 import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLDSTILLATELSE_PERMANENT
 import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLDSTILLATELSE_VEDTAKSDATO
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.SettOppSoknadOpts
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-fun lagMedlemskapOppholdstillatelseSporsmal(options: SettOppSoknadOpts): Sporsmal {
-    val (sykepengesoknad) = options
-    // TODO: Sjek opp datoer med LovMe.
-    val tilDato = sykepengesoknad.tom ?: LocalDate.now()
+fun lagMedlemskapOppholdstillatelseSporsmal(tilDato: LocalDate): Sporsmal {
+    // TODO: Sjekk opp datoer og perioder med LovMe.
     val fraDato = tilDato.minusMonths(12)
 
     return Sporsmal(
