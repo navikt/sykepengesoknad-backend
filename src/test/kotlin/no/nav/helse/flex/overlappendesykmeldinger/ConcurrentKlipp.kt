@@ -127,4 +127,70 @@ class ConcurrentKlipp : BaseTestClass() {
         forsteTransactionException!!.message shouldBeEqualTo "Spørringen for å oppdatere tom traff ikke nøyaktig en søknad som forventet!"
         andreTransactionException shouldBeEqualTo null
     }
+
+    @Test
+    @Order(3)
+    fun `Klipper tom samtidig`() {
+        val forsteThread: Thread
+        val andreThread: Thread
+        val ventTilForsteHarStartet = CompletableFuture<Any>()
+        val ventTilSisteErFerdig = CompletableFuture<Any>()
+
+        lateinit var forsteTransactionStart: Instant
+        lateinit var andreTransactionStart: Instant
+        var forsteTransactionException: Throwable? = null
+        var andreTransactionException: Throwable? = null
+
+        thread {
+            runCatching {
+                doInTransaction {
+                    forsteTransactionStart = Instant.now()
+                    val soknad = hentSoknaderMetadata(fnr).first()
+
+                    ventTilForsteHarStartet.complete(Any()) // Neste tråd kan starte
+                    ventTilSisteErFerdig.get() // Vi venter til den andre transactionen er ferdig
+
+                    sykepengesoknadDAO.klippSoknadTom(
+                        sykepengesoknadUuid = soknad.id,
+                        nyTom = soknad.tom!!.minusDays(1),
+                        tom = soknad.tom!!,
+                        fom = soknad.fom!!
+                    )
+                }
+            }.onFailure {
+                println("Første tråd kastet exception som forventet")
+                forsteTransactionException = it
+            }
+        }.also { forsteThread = it }
+
+        thread {
+            runCatching {
+                ventTilForsteHarStartet.get() // Første tråden må ha startet en transactionen før vi går videre
+
+                doInTransaction {
+                    andreTransactionStart = Instant.now()
+                    val soknad = hentSoknaderMetadata(fnr).first()
+
+                    sykepengesoknadDAO.klippSoknadTom(
+                        sykepengesoknadUuid = soknad.id,
+                        nyTom = soknad.tom!!.minusDays(1),
+                        tom = soknad.tom!!,
+                        fom = soknad.fom!!
+                    )
+                }
+
+                ventTilSisteErFerdig.complete(Any())
+            }.onFailure {
+                println("Andre tråd skal ikke kaste exception")
+                andreTransactionException = it
+            }
+        }.also { andreThread = it }
+
+        forsteThread.join()
+        andreThread.join()
+
+        forsteTransactionStart shouldBeBefore andreTransactionStart
+        forsteTransactionException!!.message shouldBeEqualTo "Spørringen for å oppdatere tom traff ikke nøyaktig en søknad som forventet!"
+        andreTransactionException shouldBeEqualTo null
+    }
 }
