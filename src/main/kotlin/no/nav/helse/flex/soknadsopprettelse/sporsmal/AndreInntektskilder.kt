@@ -65,12 +65,12 @@ fun andreInntektskilderArbeidstakerV2(sykmeldingOrgnavn: String, andreKjenteArbe
                 undersporsmal = listOf(
                     Sporsmal(
                         tag = INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD,
-                        sporsmalstekst = "ansatt et annet sted enn nevnt over",
+                        sporsmalstekst = "Ansatt et annet sted enn nevnt over",
                         svartype = Svartype.CHECKBOX
                     ),
                     Sporsmal(
                         tag = INNTEKTSKILDE_SELVSTENDIG,
-                        sporsmalstekst = "selvstendig næringsdrivende",
+                        sporsmalstekst = "Selvstendig næringsdrivende",
                         svartype = Svartype.CHECKBOX,
                         kriterieForVisningAvUndersporsmal = Visningskriterie.CHECKED,
                         undersporsmal = listOf(
@@ -108,32 +108,32 @@ fun andreInntektskilderArbeidstakerV2(sykmeldingOrgnavn: String, andreKjenteArbe
                     ),
                     Sporsmal(
                         tag = INNTEKTSKILDE_SELVSTENDIG_DAGMAMMA,
-                        sporsmalstekst = "dagmamma",
+                        sporsmalstekst = "Dagmamma",
                         svartype = Svartype.CHECKBOX
                     ),
                     Sporsmal(
                         tag = INNTEKTSKILDE_JORDBRUKER,
-                        sporsmalstekst = "jordbruk / fiske / reindrift",
+                        sporsmalstekst = "Jordbruk / Fiske / Reindrift",
                         svartype = Svartype.CHECKBOX
                     ),
                     Sporsmal(
                         tag = INNTEKTSKILDE_FRILANSER,
-                        sporsmalstekst = "frilanser",
+                        sporsmalstekst = "Frilanser",
                         svartype = Svartype.CHECKBOX
                     ),
                     Sporsmal(
                         tag = INNTEKTSKILDE_STYREVERV,
-                        sporsmalstekst = "styreverv",
+                        sporsmalstekst = "Styreverv",
                         svartype = Svartype.CHECKBOX
                     ),
                     Sporsmal(
                         tag = INNTEKTSKILDE_OMSORGSLONN,
-                        sporsmalstekst = "kommunal omsorgstønad",
+                        sporsmalstekst = "Kommunal omsorgstønad",
                         svartype = Svartype.CHECKBOX
                     ),
                     Sporsmal(
                         tag = INNTEKTSKILDE_FOSTERHJEM,
-                        sporsmalstekst = "fosterhjemsgodtgjørelse",
+                        sporsmalstekst = "Fosterhjemsgodtgjørelse",
                         svartype = Svartype.CHECKBOX
                     )
                 )
