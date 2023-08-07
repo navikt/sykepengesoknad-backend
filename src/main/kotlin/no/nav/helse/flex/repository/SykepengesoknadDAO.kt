@@ -326,16 +326,15 @@ class SykepengesoknadDAO(
         )!!
     }
 
-    // TODO: rename nyTom, eller send med det som faktisk er nyTom
     fun klippSoknadTom(sykepengesoknadUuid: String, nyTom: LocalDate, tom: LocalDate, fom: LocalDate): List<Soknadsperiode> {
         val sykepengesoknadId = sykepengesoknadId(sykepengesoknadUuid)
 
         val soknadPerioder = soknadsperiodeDAO.finnSoknadPerioder(setOf(sykepengesoknadId))[sykepengesoknadId]!!
         val nyePerioder = soknadPerioder
-            .filter { it.fom.isBefore(nyTom) } // Perioder som overlapper fullstendig tas ikke med
+            .filter { it.fom.isBeforeOrEqual(nyTom) } // Perioder som overlapper fullstendig tas ikke med
             .map {
-                if (it.tom.isAfterOrEqual(nyTom)) {
-                    return@map it.copy(tom = nyTom.minusDays(1))
+                if (it.tom.isAfter(nyTom)) {
+                    return@map it.copy(tom = nyTom)
                 }
                 return@map it
             }
@@ -353,7 +352,7 @@ class SykepengesoknadDAO(
         )
         oppdaterTom(
             sykepengesoknadId = sykepengesoknadId,
-            nyTom = nyTom.minusDays(1),
+            nyTom = nyTom,
             tom = tom,
             fom = fom
         )
@@ -361,16 +360,15 @@ class SykepengesoknadDAO(
         return nyePerioder
     }
 
-    // TODO: rename nyFom, eller send med det som faktisk er nyFom
     fun klippSoknadFom(sykepengesoknadUuid: String, nyFom: LocalDate, fom: LocalDate, tom: LocalDate): List<Soknadsperiode> {
         val sykepengesoknadId = sykepengesoknadId(sykepengesoknadUuid)
 
         val soknadPerioder = soknadsperiodeDAO.finnSoknadPerioder(setOf(sykepengesoknadId))[sykepengesoknadId]!!
         val nyePerioder = soknadPerioder
-            .filter { it.tom.isAfter(nyFom) } // Perioder som overlapper fullstendig tas ikke med
+            .filter { it.tom.isAfterOrEqual(nyFom) } // Perioder som overlapper fullstendig tas ikke med
             .map {
-                if (it.fom.isBeforeOrEqual(nyFom)) {
-                    return@map it.copy(fom = nyFom.plusDays(1))
+                if (it.fom.isBefore(nyFom)) {
+                    return@map it.copy(fom = nyFom)
                 }
                 return@map it
             }
@@ -388,7 +386,7 @@ class SykepengesoknadDAO(
         )
         oppdaterFom(
             sykepengesoknadId = sykepengesoknadId,
-            nyFom = nyFom.plusDays(1),
+            nyFom = nyFom,
             fom = fom,
             tom = tom
         )
