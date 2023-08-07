@@ -6,13 +6,16 @@ import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
-import org.junit.jupiter.api.MethodOrderer
-import org.junit.jupiter.api.Order
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestMethodOrder
+import org.amshove.kluent.shouldBeBefore
+import org.amshove.kluent.shouldBeEqualTo
+import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
-import java.lang.Exception
+import org.springframework.transaction.PlatformTransactionManager
+import org.springframework.transaction.support.TransactionSynchronizationManager
+import org.springframework.transaction.support.TransactionTemplate
+import java.time.Instant
 import java.time.LocalDate
+import java.util.concurrent.CompletableFuture
 import kotlin.concurrent.thread
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
@@ -20,8 +23,30 @@ class ConcurrentKlipp : BaseTestClass() {
     @Autowired
     private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
 
+    @Autowired
+    private lateinit var transactionManager: PlatformTransactionManager
+
+    private lateinit var transactionTemplate: TransactionTemplate
+
+    @BeforeEach
+    fun setUp() {
+        transactionTemplate = TransactionTemplate(transactionManager)
+    }
+
+    private fun doInTransaction(function: () -> Unit) {
+        transactionTemplate.execute {
+            function()
+        }
+    }
+
     private final val basisdato = LocalDate.now()
     private val fnr = "11555555555"
+
+    @Test
+    @Order(0)
+    fun `Sjekk at kallet foregår i en transaksjon`() {
+        doInTransaction { require(TransactionSynchronizationManager.isActualTransactionActive()) }
+    }
 
     @Test
     @Order(1)
@@ -40,45 +65,66 @@ class ConcurrentKlipp : BaseTestClass() {
     @Test
     @Order(2)
     fun `Klipper fom og tom samtidig`() {
-        // TODO: Sett opp dette på samme måte som vi gjorde i flex-inntektsmelding-status
-        val threads = mutableListOf<Thread>()
+        val forsteThread: Thread
+        val andreThread: Thread
+        val ventTilForsteHarStartet = CompletableFuture<Any>()
+        val ventTilSisteErFerdig = CompletableFuture<Any>()
+
+        lateinit var forsteTransactionStart: Instant
+        lateinit var andreTransactionStart: Instant
+        var forsteTransactionException: Throwable? = null
+        var andreTransactionException: Throwable? = null
+
         thread {
-            val farge = "\u001B[32m"
-            for (i in 1..20) {
-                try {
-                    val soknad = hentSoknaderMetadata(fnr)[0]
-                    println("${farge}klippSoknadTom $i start")
+            runCatching {
+                doInTransaction {
+                    forsteTransactionStart = Instant.now()
+                    val soknad = hentSoknaderMetadata(fnr).first()
+
+                    ventTilForsteHarStartet.complete(Any()) // Neste tråd kan starte
+                    ventTilSisteErFerdig.get() // Vi venter til den andre transactionen er ferdig
+
                     sykepengesoknadDAO.klippSoknadTom(
                         sykepengesoknadUuid = soknad.id,
                         nyTom = soknad.tom!!.minusDays(1),
                         tom = soknad.tom!!,
                         fom = soknad.fom!!
                     )
-                    println("${farge}klippSoknadTom $i slutt")
-                } catch (e: Exception) {
-                    println("${farge}klippSoknadTom $i feilet, ${e.message}")
                 }
+            }.onFailure {
+                println("Første tråd kastet exception som forventet")
+                forsteTransactionException = it
             }
-        }.also { threads.add(it) }
+        }.also { forsteThread = it }
+
         thread {
-            val farge = "\u001B[33m"
-            for (i in 1..20) {
-                try {
-                    val soknad = hentSoknaderMetadata(fnr)[0]
-                    println("${farge}klippSoknadFom $i start")
+            runCatching {
+                ventTilForsteHarStartet.get() // Første tråden må ha startet en transactionen før vi går videre
+
+                doInTransaction {
+                    andreTransactionStart = Instant.now()
+                    val soknad = hentSoknaderMetadata(fnr).first()
+
                     sykepengesoknadDAO.klippSoknadFom(
                         sykepengesoknadUuid = soknad.id,
                         nyFom = soknad.fom!!.plusDays(1),
                         fom = soknad.fom!!,
                         tom = soknad.tom!!
                     )
-                    println("${farge}klippSoknadFom $i slutt")
-                } catch (e: Exception) {
-                    println("${farge}klippSoknadFom $i feilet, ${e.message}")
                 }
-            }
-        }.also { threads.add(it) }
 
-        threads.forEach { it.join() }
+                ventTilSisteErFerdig.complete(Any())
+            }.onFailure {
+                println("Andre tråd skal ikke kaste exception")
+                andreTransactionException = it
+            }
+        }.also { andreThread = it }
+
+        forsteThread.join()
+        andreThread.join()
+
+        forsteTransactionStart shouldBeBefore andreTransactionStart
+        forsteTransactionException!!.message shouldBeEqualTo "Spørringen for å oppdatere tom traff ikke nøyaktig en søknad som forventet!"
+        andreTransactionException shouldBeEqualTo null
     }
 }
