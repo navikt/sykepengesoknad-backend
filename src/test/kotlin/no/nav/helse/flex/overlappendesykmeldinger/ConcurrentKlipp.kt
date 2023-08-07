@@ -1,6 +1,7 @@
 package no.nav.helse.flex.overlappendesykmeldinger
 
 import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.sendSykmelding
@@ -8,6 +9,7 @@ import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import org.amshove.kluent.shouldBeBefore
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.transaction.PlatformTransactionManager
@@ -126,6 +128,18 @@ class ConcurrentKlipp : BaseTestClass() {
         forsteTransactionStart shouldBeBefore andreTransactionStart
         forsteTransactionException!!.message shouldBeEqualTo "Spørringen for å oppdatere tom traff ikke nøyaktig en søknad som forventet!"
         andreTransactionException shouldBeEqualTo null
+
+        val soknad = hentSoknad(
+            hentSoknaderMetadata(fnr).first().id,
+            fnr
+        )
+        soknad.fom shouldBeEqualTo basisdato // Denne ble faktisk klippet plusDays(1)
+        soknad.tom shouldBeEqualTo basisdato.plusDays(15) // Skal være uendret
+
+        soknad.soknadPerioder!! shouldHaveSize 1
+        val periode = soknad.soknadPerioder!!.first()
+        periode.fom shouldBeEqualTo basisdato // Denne ble faktisk klippet plusDays(1)
+        periode.tom shouldBeEqualTo basisdato.plusDays(15) // Skal være uendret
     }
 
     @Test
@@ -152,7 +166,7 @@ class ConcurrentKlipp : BaseTestClass() {
 
                     sykepengesoknadDAO.klippSoknadTom(
                         sykepengesoknadUuid = soknad.id,
-                        nyTom = soknad.tom!!.minusDays(1),
+                        nyTom = soknad.tom!!.minusDays(2),
                         tom = soknad.tom!!,
                         fom = soknad.fom!!
                     )
@@ -192,5 +206,17 @@ class ConcurrentKlipp : BaseTestClass() {
         forsteTransactionStart shouldBeBefore andreTransactionStart
         forsteTransactionException!!.message shouldBeEqualTo "Spørringen for å oppdatere tom traff ikke nøyaktig en søknad som forventet!"
         andreTransactionException shouldBeEqualTo null
+
+        val soknad = hentSoknad(
+            hentSoknaderMetadata(fnr).first().id,
+            fnr
+        )
+        soknad.fom shouldBeEqualTo basisdato // Skal være uendret fra forrige test
+        soknad.tom shouldBeEqualTo basisdato.plusDays(14) // Denne ble faktisk klippet minusDays(1)
+
+        soknad.soknadPerioder!! shouldHaveSize 1
+        val periode = soknad.soknadPerioder!!.first()
+        periode.fom shouldBeEqualTo basisdato // Skal være uendret fra forrige test
+        periode.tom shouldBeEqualTo basisdato.plusDays(14) // Denne ble faktisk klippet minusDays(1)
     }
 }
