@@ -59,7 +59,8 @@ fun andreInntektskilderArbeidstakerV2(sykmeldingOrgnavn: String, andreKjenteArbe
         undersporsmal = listOf(
             Sporsmal(
                 tag = HVILKE_ANDRE_INNTEKTSKILDER,
-                sporsmalstekst = "Velg inntektskildene som passer for deg. Finner du ikke noe som passer for deg, svarer du nei",
+                sporsmalstekst = "Velg inntektskildene som passer for deg:",
+                undertekst = "Finner du ikke noe som passer for deg, velger du nei øverst",
                 svartype = Svartype.CHECKBOX_GRUPPE,
                 undersporsmal = listOf(
                     Sporsmal(
