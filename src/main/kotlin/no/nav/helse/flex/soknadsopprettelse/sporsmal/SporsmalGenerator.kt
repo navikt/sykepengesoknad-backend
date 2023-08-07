@@ -74,7 +74,7 @@ class SporsmalGenerator(
             erForsteSoknadISykeforlop
         )
 
-        val soknadOpts = SettOppSoknadOpts(
+        val opts = SettOppSoknadOpts(
             sykepengesoknad = soknad,
             erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
             harTidligereUtenlandskSpm = harTidligereUtenlandskSpm,
@@ -82,11 +82,11 @@ class SporsmalGenerator(
         )
 
         if (erEnkeltstaendeBehandlingsdagSoknad) {
-            return settOppSykepengesoknadBehandlingsdager(soknadOpts).tilSporsmalOgAndreKjenteArbeidsforhold()
+            return settOppSykepengesoknadBehandlingsdager(opts).tilSporsmalOgAndreKjenteArbeidsforhold()
         }
 
         if (soknad.soknadstype == Soknadstype.REISETILSKUDD) {
-            return skapReisetilskuddsoknad(soknadOpts).tilSporsmalOgAndreKjenteArbeidsforhold()
+            return skapReisetilskuddsoknad(opts).tilSporsmalOgAndreKjenteArbeidsforhold()
         }
 
         return when (soknad.arbeidssituasjon) {
@@ -98,7 +98,7 @@ class SporsmalGenerator(
                 )
 
                 val arbeidstakerSporsmal = settOppSoknadArbeidstaker(
-                    opts = soknadOpts,
+                    opts = opts,
                     andreKjenteArbeidsforhold = andreKjenteArbeidsforhold.map { it.navn }
                 )
                 val medlemskapSporsmal = lagMedlemskapSporsmal(eksisterendeSoknader, soknad)
@@ -111,10 +111,10 @@ class SporsmalGenerator(
 
             else -> {
                 when (soknad.arbeidssituasjon) {
-                    Arbeidssituasjon.NAERINGSDRIVENDE -> settOppSoknadSelvstendigOgFrilanser(soknadOpts)
-                    Arbeidssituasjon.FRILANSER -> settOppSoknadSelvstendigOgFrilanser(soknadOpts)
-                    Arbeidssituasjon.ARBEIDSLEDIG -> settOppSoknadArbeidsledig(soknadOpts)
-                    Arbeidssituasjon.ANNET -> settOppSoknadAnnetArbeidsforhold(soknadOpts)
+                    Arbeidssituasjon.NAERINGSDRIVENDE -> settOppSoknadSelvstendigOgFrilanser(opts)
+                    Arbeidssituasjon.FRILANSER -> settOppSoknadSelvstendigOgFrilanser(opts)
+                    Arbeidssituasjon.ARBEIDSLEDIG -> settOppSoknadArbeidsledig(opts)
+                    Arbeidssituasjon.ANNET -> settOppSoknadAnnetArbeidsforhold(opts)
 
                     else -> {
                         throw RuntimeException(

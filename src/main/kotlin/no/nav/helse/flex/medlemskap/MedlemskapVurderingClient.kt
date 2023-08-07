@@ -50,7 +50,7 @@ class MedlemskapVurderingClient(
 
         val medlemskapVurderingResponse = response.body!!
 
-        // TODO: Vurder om vi trenger å lagre response fra LovMe etter at vi har begynt å geneerer sporsmal.
+        // TODO: Vurder om vi trenger å lagre response fra LovMe etter at vi har begynt å generere sporsmal.
         lagreVurdering(
             medlemskapVurderingRequest,
             medlemskapVurderingResponse,
