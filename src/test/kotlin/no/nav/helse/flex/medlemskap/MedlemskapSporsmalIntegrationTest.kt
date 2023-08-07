@@ -4,6 +4,7 @@ import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknad
 import no.nav.helse.flex.domain.Arbeidssituasjon
+import no.nav.helse.flex.hentProduserteRecords
 import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
@@ -21,6 +22,7 @@ import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.assertj.core.api.Assertions
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -36,6 +38,11 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
 
     // Trigger response fra LovMe med alle spørsmål.
     private final val fnr = "31111111111"
+
+    @AfterAll
+    fun cleanUp() {
+        juridiskVurderingKafkaConsumer.hentProduserteRecords()
+    }
 
     @Test
     @Order(1)
@@ -130,9 +137,13 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
 
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
         kafkaSoknader shouldHaveSize 1
-        kafkaSoknader[0].status shouldBeEqualTo SoknadsstatusDTO.SENDT
+        val kafkaSoknad = kafkaSoknader.first()
 
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
+        kafkaSoknad.status shouldBeEqualTo SoknadsstatusDTO.SENDT
+
+        // Medlemsskapspørsmål blir ikke mappet om til eget felt i SykepengesoknadDTO så vi trenger bare å sjekke at
+        // spørsmålet er med.
+        kafkaSoknad.sporsmal!!.any { it.tag == "MEDLEMSKAP_OPPHOLDSTILLATELSE" } shouldBeEqualTo true
     }
 
     private fun besvarArbeidstakersporsmal(soknaden: RSSykepengesoknad) =

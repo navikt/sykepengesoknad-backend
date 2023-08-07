@@ -1,6 +1,5 @@
 package no.nav.helse.flex.soknadsopprettelse.sporsmal
 
-import no.nav.helse.flex.config.EnvironmentToggles
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sporsmal
@@ -148,7 +147,6 @@ class SporsmalGenerator(
 
             log.info("Hentet medlemskapvurdering for søknad ${soknad.id} med svar ${medlemskapVurdering.svar}.")
             if (medlemskapVurdering.svar == MedlemskapVurderingSvarType.UAVKLART) {
-
                 // TODO: Fjern feature-toggle når all funksjonallitet er implementert.
                 if (stillMedlemskapSporsmal) {
                     medlemskapVurdering.sporsmal.forEach {
