@@ -59,10 +59,13 @@ fun lagMedlemskapArbeidUtenforNorgeSporsmal(tilDato: LocalDate): Sporsmal {
         sporsmalstekst = "Har du utført arbeid utenfor Norge i det siste 12 månedene?",
         svartype = Svartype.JA_NEI,
         kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
+        // Holder en liste med IKKE_RELEVANT som fungerer som en container for underspørsmålene sånn at vi kan legge
+        // til flere perioder med opphold utland.
+        // TODO: Lag funksjonatilet for å legge til flere perioder.
         undersporsmal = listOf(
             Sporsmal(
-                // TODO: Se om det er mulig å sortere på periodedatoer og hvilken effekt det har for bruker.
-                // TODO: Skal vi validere overlapp mellom perioder?
+                // TODO: Se om det er mulig å sortere på periodedatoer i stedet for index og hvordan det påvirker UX.
+                // TODO: Avklar om vi skal validere overlapp mellom perioder?
                 tag = MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_PERIODE,
                 svartype = Svartype.IKKE_RELEVANT,
                 undersporsmal = listOf(
@@ -74,7 +77,7 @@ fun lagMedlemskapArbeidUtenforNorgeSporsmal(tilDato: LocalDate): Sporsmal {
                     Sporsmal(
                         tag = MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_HVOR,
                         sporsmalstekst = "Velg land",
-                        svartype = Svartype.LAND
+                        svartype = Svartype.COMBOBOX_SINGLE
                     ),
                     Sporsmal(
                         tag = MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR,

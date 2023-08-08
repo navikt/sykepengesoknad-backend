@@ -88,6 +88,8 @@ fun Sporsmal.validerUndersporsmal() {
         TIMER,
         FRITEKST,
         LAND,
+        COMBOBOX_SINGLE,
+        COMBOBOX_MULTI,
         IKKE_RELEVANT,
         PROSENT,
         RADIO,
@@ -187,6 +189,8 @@ private fun Sporsmal.validerGrenserPaSvar(svar: Svar) {
         KILOMETER -> validerGrenserPaaTall(svar)
 
         FRITEKST,
+        COMBOBOX_SINGLE,
+        COMBOBOX_MULTI,
         LAND -> validerGrenserPaaTekst(svar)
 
         PERIODE,
@@ -282,6 +286,8 @@ private fun Sporsmal.validerSvarverdi(svar: Svar) {
             }
         }
 
+        COMBOBOX_SINGLE,
+        COMBOBOX_MULTI,
         LAND -> {
             { verdi.isNotBlank() && verdi.isNotEmpty() }
         }
@@ -386,6 +392,8 @@ fun Sporsmal.validerAntallSvar() {
         }
 
         LAND,
+        COMBOBOX_SINGLE,
+        COMBOBOX_MULTI,
         PERIODER,
         DATOER -> {
             { it > 0 }
