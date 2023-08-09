@@ -76,8 +76,6 @@ class ArbeidsledigIntegrationTest : BaseTestClass() {
             }
     }
 
-
-
     @Test
     fun `04 - vi svarer at vi ble friskmeldt midt i søknadsperioden - Det muterer søknaden`() {
         val soknaden = hentSoknad(
@@ -229,7 +227,6 @@ class ArbeidsledigIntegrationTest : BaseTestClass() {
             .andExpect(MockMvcResultMatchers.status().isBadRequest).andReturn().response.contentAsString
         assertThat(json).isEqualTo("""{"reason":"FEIL_STATUS_FOR_OPPDATER_SPORSMAL"}""")
     }
-
 
     @Test
     fun `12 - Det virker å hente metadata med snart obsolete acr claimet`() {
