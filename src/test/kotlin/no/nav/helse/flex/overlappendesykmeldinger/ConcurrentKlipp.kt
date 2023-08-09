@@ -161,7 +161,7 @@ class ConcurrentKlipp : BaseTestClass() {
         val advisoryThread = thread {
             runCatching {
                 doInTransaction {
-                    lockRepository.settAdvisoryLock(fnr)
+                    lockRepository.settAdvisoryLock(fnr, "${fnr}2", "${fnr}3")
                     ventTilLockErSatt.complete(Any())
                     holdAdvisoryLock.get()
                 }
