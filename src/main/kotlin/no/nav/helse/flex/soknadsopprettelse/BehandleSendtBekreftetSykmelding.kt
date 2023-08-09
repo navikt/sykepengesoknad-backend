@@ -8,6 +8,7 @@ import no.nav.helse.flex.domain.exception.UventetArbeidssituasjonException
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.kafka.producer.RebehandlingSykmeldingSendtProducer
 import no.nav.helse.flex.logger
+import no.nav.helse.flex.repository.LockRepository
 import no.nav.helse.flex.service.GjenapneSykmeldingService
 import no.nav.helse.flex.service.IdentService
 import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.KlippOgOpprett
@@ -28,7 +29,8 @@ class BehandleSendtBekreftetSykmelding(
     private val metrikk: Metrikk,
     private val sykmeldingStatusService: GjenapneSykmeldingService,
     private val klippOgOpprett: KlippOgOpprett,
-    private val skalOppretteSoknader: SkalOppretteSoknader
+    private val skalOppretteSoknader: SkalOppretteSoknader,
+    private val lockRepository: LockRepository
 ) {
     val log = logger()
 
@@ -97,6 +99,12 @@ class BehandleSendtBekreftetSykmelding(
         if (!skalOppretteSoknad) {
             return emptyList()
         }
+
+        val låstIdenter = lockRepository.settAdvisoryLock(keys = identer.alle().toTypedArray())
+        if (!låstIdenter) {
+            throw RuntimeException("Det finnes allerede en advisory lock for sykmelding ${sykmeldingKafkaMessage.sykmelding.id}")
+        }
+
         val sykeForloep = flexSyketilfelleClient.hentSykeforloep(identer)
 
         return klippOgOpprett.klippOgOpprett(sykmeldingKafkaMessage, arbeidssituasjon, identer, sykeForloep)
