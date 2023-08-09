@@ -92,7 +92,7 @@ class ConcurrentKlipp : BaseTestClass() {
                 doInTransaction {
                     forsteTransactionStart = Instant.now()
 
-                    forsteAdvisoryLockResponse = lockRepository.settAdvisoryLock(fnr)
+                    forsteAdvisoryLockResponse = lockRepository.settAdvisoryLock(fnr.toLong())
 
                     ventTilForsteHarStartet.complete(Any()) // Den andre transactionen kan startes
                     ventTilAndreErFerdig.get() // Vi holder på transactionen til neste er ferdig
@@ -109,7 +109,7 @@ class ConcurrentKlipp : BaseTestClass() {
                 doInTransaction {
                     andreTransactionStart = Instant.now()
 
-                    andreAdvisoryLockResponse = lockRepository.settAdvisoryLock(fnr)
+                    andreAdvisoryLockResponse = lockRepository.settAdvisoryLock(fnr.toLong())
                 }
             }.onFailure {
                 andreTransactionException = it
@@ -131,7 +131,7 @@ class ConcurrentKlipp : BaseTestClass() {
 
         // Sjekker at låsen nå er ledig
         doInTransaction {
-            lockRepository.settAdvisoryLock(fnr) shouldBeEqualTo true
+            lockRepository.settAdvisoryLock(fnr.toLong()) shouldBeEqualTo true
         }
     }
 
@@ -161,7 +161,7 @@ class ConcurrentKlipp : BaseTestClass() {
         val advisoryThread = thread {
             runCatching {
                 doInTransaction {
-                    lockRepository.settAdvisoryLock(fnr, "${fnr}2", "${fnr}3")
+                    lockRepository.settAdvisoryLock(fnr.toLong(), fnr.toLong() + 2, fnr.toLong() + 3)
                     ventTilLockErSatt.complete(Any())
                     holdAdvisoryLock.get()
                 }

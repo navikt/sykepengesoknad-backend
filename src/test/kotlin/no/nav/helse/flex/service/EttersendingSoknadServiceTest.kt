@@ -50,6 +50,8 @@ class EttersendingSoknadServiceTest {
     @InjectMocks
     private lateinit var ettersendingSoknadService: EttersendingSoknadService
 
+    private val fnr = "11111111111"
+
     @Test
     fun ettersendTilNavOppdatererSendtNavOgSender() {
         val soknadBehandlingsdager = behandlingsdagerSoknadMock().copy(
@@ -234,7 +236,7 @@ class EttersendingSoknadServiceTest {
                     reisetilskudd = false
                 )
             ).tilSoknadsperioder(),
-            fnr = "fnr",
+            fnr = fnr,
             fom = LocalDate.now().minusDays(20),
             tom = LocalDate.now().minusDays(10),
             soknadstype = Soknadstype.ARBEIDSTAKERE,
@@ -279,7 +281,7 @@ class EttersendingSoknadServiceTest {
                     reisetilskudd = false
                 )
             ).tilSoknadsperioder(),
-            fnr = "fnr",
+            fnr = fnr,
             fom = LocalDate.now().minusDays(20),
             tom = LocalDate.now().minusDays(10),
             soknadstype = Soknadstype.ARBEIDSTAKERE,

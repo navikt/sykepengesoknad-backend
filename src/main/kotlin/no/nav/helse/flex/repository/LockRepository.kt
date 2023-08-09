@@ -15,12 +15,12 @@ class LockRepository(
     // pg_try_advisory_xact_lock(key bigint)
     // pg_try_advisory_xact_lock(key1 int, key2 int)
     @Transactional(propagation = Propagation.REQUIRED)
-    fun settAdvisoryLock(vararg keys: String): Boolean {
+    fun settAdvisoryLock(vararg keys: Long): Boolean {
         var locked = true
         keys.forEach {
             val lock = namedParameterJdbcTemplate.queryForObject(
                 "SELECT pg_try_advisory_xact_lock(:key)",
-                MapSqlParameterSource().addValue("key", it.toLong()),
+                MapSqlParameterSource().addValue("key", it),
                 Boolean::class.java
             ) ?: false
             if (!lock) {

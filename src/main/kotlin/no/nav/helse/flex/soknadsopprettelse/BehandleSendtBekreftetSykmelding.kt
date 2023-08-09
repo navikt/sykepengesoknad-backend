@@ -100,7 +100,7 @@ class BehandleSendtBekreftetSykmelding(
             return emptyList()
         }
 
-        val låstIdenter = lockRepository.settAdvisoryLock(keys = identer.alle().toTypedArray())
+        val låstIdenter = lockRepository.settAdvisoryLock(keys = identer.alle().map { it.toLong() }.toLongArray())
         if (!låstIdenter) {
             throw RuntimeException("Det finnes allerede en advisory lock for sykmelding ${sykmeldingKafkaMessage.sykmelding.id}")
         }
