@@ -54,11 +54,11 @@ class BehandleSendtBekreftetSykmelding(
 
     fun prosseserKafkaMessage(sykmeldingKafkaMessage: SykmeldingKafkaMessage): List<AktiveringBestilling> {
         metrikk.mottattSykmelding.increment()
-        return when (val sykmeldingStatus = sykmeldingKafkaMessage.event.statusEvent) {
+        return when (sykmeldingKafkaMessage.event.statusEvent) {
             STATUS_BEKREFTET -> handterBekreftetSykmelding(sykmeldingKafkaMessage)
             STATUS_SENDT -> handterSendtSykmelding(sykmeldingKafkaMessage)
             else -> {
-                log.info("Ignorerer statusmelding for sykmelding ${sykmeldingKafkaMessage.sykmelding.id} med status $sykmeldingStatus")
+                log.info("Ignorerer statusmelding for sykmelding ${sykmeldingKafkaMessage.sykmelding.id} med status ${sykmeldingKafkaMessage.event.statusEvent}")
                 emptyList()
             }
         }
