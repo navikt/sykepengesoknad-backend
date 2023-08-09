@@ -362,7 +362,6 @@ fun Sporsmal.validerAntallSvar() {
         PROSENT,
         PERIODE,
         TIMER,
-
         TALL,
         CHECKBOX -> {
             { it == 1 }

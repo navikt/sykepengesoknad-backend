@@ -11,11 +11,7 @@ import no.nav.helse.flex.mock.opprettNySoknadAnnet
 import no.nav.helse.flex.mock.opprettSendtFrilanserSoknad
 import no.nav.helse.flex.mock.opprettSendtSoknad
 import no.nav.helse.flex.mock.opprettSendtSoknadForArbeidsledige
-import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER
-import no.nav.helse.flex.soknadsopprettelse.ER_DU_SYKMELDT
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_ANNET
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_FRILANSER
+import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.sykepengesoknad.kafka.InntektskildetypeDTO
 import no.nav.helse.flex.testutil.besvarsporsmal
 import org.amshove.kluent.shouldBeEqualTo
@@ -66,6 +62,18 @@ class AndreInntektskilderKtTest {
     @Test
     fun `Arbeidstakere henter andre inntektskilder`() {
         val besvartSoknad = opprettSendtSoknad()
+
+        besvartSoknad
+            .getSporsmalMedTag(INNTEKTSKILDE_SELVSTENDIG_VARIG_ENDRING_GRUPPE)
+            .undersporsmal
+            .map { it.tag }
+            .shouldBeEqualTo(
+                listOf(
+                    INNTEKTSKILDE_SELVSTENDIG_VARIG_ENDRING_JA,
+                    INNTEKTSKILDE_SELVSTENDIG_VARIG_ENDRING_NEI,
+                    INNTEKTSKILDE_SELVSTENDIG_VARIG_ENDRING_VET_IKKE
+                )
+            )
 
         val andreInntektskilder = konverterArbeidstakersoknadTilSykepengesoknadDTO(
             besvartSoknad,

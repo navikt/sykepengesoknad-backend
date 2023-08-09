@@ -4,21 +4,7 @@ import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Visningskriterie
-import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER
-import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER_V2
-import no.nav.helse.flex.soknadsopprettelse.ER_DU_SYKMELDT
-import no.nav.helse.flex.soknadsopprettelse.HVILKE_ANDRE_INNTEKTSKILDER
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_ANNET
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_ARBEIDSFORHOLD
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_FOSTERHJEM
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_FRILANSER
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_FRILANSER_SELVSTENDIG
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_JORDBRUKER
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_OMSORGSLONN
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_SELVSTENDIG
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_SELVSTENDIG_DAGMAMMA
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_STYREVERV
+import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.util.DatoUtil
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -73,47 +59,81 @@ fun andreInntektskilderArbeidstakerV2(sykmeldingOrgnavn: String, andreKjenteArbe
         undersporsmal = listOf(
             Sporsmal(
                 tag = HVILKE_ANDRE_INNTEKTSKILDER,
-                sporsmalstekst = "Velg inntektskildene som passer for deg. Finner du ikke noe som passer for deg, svarer du nei",
+                sporsmalstekst = "Velg inntektskildene som passer for deg:",
+                undertekst = "Finner du ikke noe som passer for deg, velger du nei øverst",
                 svartype = Svartype.CHECKBOX_GRUPPE,
                 undersporsmal = listOf(
                     Sporsmal(
                         tag = INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD,
-                        sporsmalstekst = "ansatt et annet sted enn nevnt over",
+                        sporsmalstekst = "Ansatt et annet sted enn nevnt over",
                         svartype = Svartype.CHECKBOX
                     ),
                     Sporsmal(
                         tag = INNTEKTSKILDE_SELVSTENDIG,
-                        sporsmalstekst = "selvstendig næringsdrivende",
-                        svartype = Svartype.CHECKBOX
+                        sporsmalstekst = "Selvstendig næringsdrivende",
+                        svartype = Svartype.CHECKBOX,
+                        kriterieForVisningAvUndersporsmal = Visningskriterie.CHECKED,
+                        undersporsmal = listOf(
+                            Sporsmal(
+                                tag = INNTEKTSKILDE_SELVSTENDIG_4_AR,
+                                sporsmalstekst = "Har du vært næringsdrivende i mer enn 4 år?",
+                                kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
+                                svartype = Svartype.JA_NEI,
+                                undersporsmal = listOf(
+                                    Sporsmal(
+                                        tag = INNTEKTSKILDE_SELVSTENDIG_VARIG_ENDRING_GRUPPE,
+                                        sporsmalstekst = "Har det vært endring i din arbeidssituasjon eller virksomhet?",
+                                        svartype = Svartype.RADIO_GRUPPE,
+                                        undersporsmal = listOf(
+                                            Sporsmal(
+                                                tag = INNTEKTSKILDE_SELVSTENDIG_VARIG_ENDRING_JA,
+                                                sporsmalstekst = "Ja",
+                                                svartype = Svartype.RADIO
+                                            ),
+                                            Sporsmal(
+                                                tag = INNTEKTSKILDE_SELVSTENDIG_VARIG_ENDRING_NEI,
+                                                sporsmalstekst = "Nei",
+                                                svartype = Svartype.RADIO
+                                            ),
+                                            Sporsmal(
+                                                tag = INNTEKTSKILDE_SELVSTENDIG_VARIG_ENDRING_VET_IKKE,
+                                                sporsmalstekst = "Vet ikke",
+                                                svartype = Svartype.RADIO
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                        )
                     ),
                     Sporsmal(
                         tag = INNTEKTSKILDE_SELVSTENDIG_DAGMAMMA,
-                        sporsmalstekst = "dagmamma",
+                        sporsmalstekst = "Dagmamma",
                         svartype = Svartype.CHECKBOX
                     ),
                     Sporsmal(
                         tag = INNTEKTSKILDE_JORDBRUKER,
-                        sporsmalstekst = "jordbruk / fiske / reindrift",
+                        sporsmalstekst = "Jordbruk / Fiske / Reindrift",
                         svartype = Svartype.CHECKBOX
                     ),
                     Sporsmal(
                         tag = INNTEKTSKILDE_FRILANSER,
-                        sporsmalstekst = "frilanser",
+                        sporsmalstekst = "Frilanser",
                         svartype = Svartype.CHECKBOX
                     ),
                     Sporsmal(
                         tag = INNTEKTSKILDE_STYREVERV,
-                        sporsmalstekst = "styreverv",
+                        sporsmalstekst = "Styreverv",
                         svartype = Svartype.CHECKBOX
                     ),
                     Sporsmal(
                         tag = INNTEKTSKILDE_OMSORGSLONN,
-                        sporsmalstekst = "kommunal omsorgstønad",
+                        sporsmalstekst = "Kommunal omsorgstønad",
                         svartype = Svartype.CHECKBOX
                     ),
                     Sporsmal(
                         tag = INNTEKTSKILDE_FOSTERHJEM,
-                        sporsmalstekst = "fosterhjemsgodtgjørelse",
+                        sporsmalstekst = "Fosterhjemsgodtgjørelse",
                         svartype = Svartype.CHECKBOX
                     )
                 )
