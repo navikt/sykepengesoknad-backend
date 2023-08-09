@@ -66,16 +66,12 @@ class BehandleSendtBekreftetSykmelding(
 
     private fun handterBekreftetSykmelding(sykmeldingStatusKafkaMessageDTO: SykmeldingKafkaMessage): List<AktiveringBestilling> {
         return when (val arbeidssituasjon = sykmeldingStatusKafkaMessageDTO.hentArbeidssituasjon()) {
-            Arbeidssituasjon.NAERINGSDRIVENDE -> eksterneKallKlippOgOpprett(
-                sykmeldingStatusKafkaMessageDTO,
-                arbeidssituasjon
-            )
-            Arbeidssituasjon.FRILANSER -> eksterneKallKlippOgOpprett(sykmeldingStatusKafkaMessageDTO, arbeidssituasjon)
-            Arbeidssituasjon.ARBEIDSLEDIG -> eksterneKallKlippOgOpprett(
-                sykmeldingStatusKafkaMessageDTO,
-                arbeidssituasjon
-            )
-            Arbeidssituasjon.ANNET -> eksterneKallKlippOgOpprett(sykmeldingStatusKafkaMessageDTO, arbeidssituasjon)
+            Arbeidssituasjon.NAERINGSDRIVENDE,
+            Arbeidssituasjon.FRILANSER,
+            Arbeidssituasjon.ARBEIDSLEDIG,
+            Arbeidssituasjon.ANNET -> {
+                eksterneKallKlippOgOpprett(sykmeldingStatusKafkaMessageDTO, arbeidssituasjon)
+            }
             Arbeidssituasjon.ARBEIDSTAKER -> {
                 // Bekreftet sykmelding for arbeidstaker tilsvarer strengt fortrolig addresse.
                 // At denne bekreftes og ikke sendes styres av sykefravaer frontend
