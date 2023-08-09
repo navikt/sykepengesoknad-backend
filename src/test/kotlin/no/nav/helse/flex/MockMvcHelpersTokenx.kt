@@ -214,7 +214,6 @@ fun BaseTestClass.oppdaterSporsmal(
     return response
 }
 
-// this is where you actually want to test it
 fun MockOAuth2Server.tokenxToken(
     fnr: String,
     acrClaim: String = "idporten-loa-high",

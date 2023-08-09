@@ -229,7 +229,7 @@ class ArbeidsledigIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    fun `12 - Det virker å hente metadata med snart obsolete acr claimet`() {
+    fun `12 - Det virker å hente metadata med det snart (høsten 2023) utdaterte acr claimet`() {
         val soknadMetadataResponse = hentSoknaderMetadataCustomAcr(fnr, "Level4")
 
         assertThat(soknadMetadataResponse).isEqualTo("200")
