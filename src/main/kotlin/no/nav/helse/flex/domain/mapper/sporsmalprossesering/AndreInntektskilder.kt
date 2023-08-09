@@ -15,7 +15,6 @@ fun hentInntektListe(soknad: Sykepengesoknad): List<InntektskildeDTO> {
         andreinntektsporsmal.undersporsmal[0].undersporsmal
             .filter { it.svar.isNotEmpty() }
             .map { sporsmal ->
-
                 if (sporsmal.undersporsmal.firstOrNull()?.tag?.endsWith(ER_DU_SYKMELDT) == true) {
                     InntektskildeDTO(
                         type = mapSporsmalTilInntektskildetype(sporsmal),
@@ -26,7 +25,6 @@ fun hentInntektListe(soknad: Sykepengesoknad): List<InntektskildeDTO> {
                         }
                     )
                 } else {
-                    // TODO: Send svar på andre inntektskilder selvstendig videre på kafka
                     InntektskildeDTO(
                         type = mapSporsmalTilInntektskildetype(sporsmal),
                         sykmeldt = null
