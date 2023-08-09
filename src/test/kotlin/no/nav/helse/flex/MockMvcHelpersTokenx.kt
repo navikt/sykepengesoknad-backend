@@ -18,7 +18,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.util.*
 
-fun BaseTestClass.jwt(fnr: String, acrClaim: String = "Level4") = server.tokenxToken(fnr = fnr, acrClaim = acrClaim)
+fun BaseTestClass.jwt(fnr: String, acrClaim: String = "idporten-loa-high") = server.tokenxToken(fnr = fnr, acrClaim = acrClaim)
 
 fun BaseTestClass.hentSoknaderMetadataCustomAcr(
     fnr: String,
@@ -217,7 +217,7 @@ fun BaseTestClass.oppdaterSporsmal(
 // this is where you actually want to test it
 fun MockOAuth2Server.tokenxToken(
     fnr: String,
-    acrClaim: String = "Level4",
+    acrClaim: String = "idporten-loa-high",
     audience: String = "sykepengesoknad-backend-client-id",
     issuerId: String = "tokenx",
     clientId: String = "sykepengesoknad-frontend-client-id",
