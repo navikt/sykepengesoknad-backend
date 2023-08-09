@@ -1,13 +1,14 @@
 package no.nav.helse.flex.repository
 
-import org.springframework.jdbc.core.JdbcTemplate
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 
 @Repository
 class LockRepository(
-    private val jdbcTemplate: JdbcTemplate
+    private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate
 ) {
 
     // Må loope gjennom alle keys fordi fnr er større enn en int
@@ -17,7 +18,11 @@ class LockRepository(
     fun settAdvisoryLock(vararg keys: String): Boolean {
         var locked = true
         keys.forEach {
-            val lock = jdbcTemplate.queryForObject("SELECT pg_try_advisory_xact_lock($it);", Boolean::class.java) ?: false
+            val lock = namedParameterJdbcTemplate.queryForObject(
+                "SELECT pg_try_advisory_xact_lock(:key)",
+                MapSqlParameterSource().addValue("key", it.toLong()),
+                Boolean::class.java
+            ) ?: false
             if (!lock) {
                 locked = false
             }
