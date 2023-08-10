@@ -310,9 +310,7 @@ class SykepengesoknadDAO(
 
     fun byttUtSporsmal(oppdatertSoknad: Sykepengesoknad) {
         val sykepengesoknadId = sykepengesoknadId(oppdatertSoknad.id)
-
         sporsmalDAO.slettSporsmal(listOf(sykepengesoknadId))
-
         soknadLagrer.lagreSporsmalOgSvarFraSoknad(oppdatertSoknad)
     }
 

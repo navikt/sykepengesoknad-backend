@@ -75,7 +75,7 @@ class SoknadBesvarer(
         }
     }
 
-    private fun gaVidere(tag: String, mutert: Boolean): SoknadBesvarer {
+    fun gaVidere(tag: String, mutert: Boolean): SoknadBesvarer {
         val hovedsporsmal = finnHovedsporsmal(tag)
         val (mutertSoknad, _) = mockMvc.oppdaterSporsmal(fnr, hovedsporsmal, rSSykepengesoknad.id, mutert)
 

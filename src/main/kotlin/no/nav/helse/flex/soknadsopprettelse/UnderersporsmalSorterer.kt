@@ -24,7 +24,7 @@ private fun Sporsmal.sorterUndersporsmal(): Sporsmal {
                 UTENLANDSK_SYKMELDING_BOSTED -> it.sorteringBosted()
                 YRKESSKADE_V2_VELG_DATO -> it.sorteringYrkesskader()
                 MEDLEMSKAP_OPPHOLDSTILLATELSE -> it.sorteringMedlemskapOppholdstillatelse()
-                MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE -> it.sorteringMedlemskapArbeidUtenforNorge()
+                // MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE -> it.sorteringMedlemskapArbeidUtenforNorge()
                 else -> it.tag
             }
         }

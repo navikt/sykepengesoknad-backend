@@ -61,31 +61,40 @@ fun lagMedlemskapArbeidUtenforNorgeSporsmal(tilDato: LocalDate): Sporsmal {
         kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
         // Holder en liste med IKKE_RELEVANT som fungerer som en container for underspørsmålene sånn at vi kan legge
         // til flere perioder med opphold utland.
-        // TODO: Lag funksjonatilet for å legge til flere perioder.
+        undersporsmal = listOf(
+            lagUndersporsmalTilArbeidUtenforNorgeSporsmal(0, fraDato, tilDato)
+        )
+    )
+}
+
+fun lagUndersporsmalTilArbeidUtenforNorgeSporsmal(
+    index: Int,
+    // TODO: Rydd i datoer og perioder med LovMe.
+    fraDato: LocalDate = LocalDate.now().minusMonths(12),
+    tilDato: LocalDate = LocalDate.now()
+): Sporsmal {
+    fun medIndex(tekst: String): String {
+        return "$tekst-$index"
+    }
+    return Sporsmal(
+        tag = medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_PERIODE),
+        svartype = Svartype.IKKE_RELEVANT,
         undersporsmal = listOf(
             Sporsmal(
-                // TODO: Se om det er mulig å sortere på periodedatoer i stedet for index og hvordan det påvirker UX.
-                // TODO: Avklar om vi skal validere overlapp mellom perioder?
-                tag = MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_PERIODE,
-                svartype = Svartype.IKKE_RELEVANT,
-                undersporsmal = listOf(
-                    Sporsmal(
-                        tag = MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_ARBEIDSGIVER,
-                        sporsmalstekst = "Arbeidsgiver",
-                        svartype = Svartype.FRITEKST
-                    ),
-                    Sporsmal(
-                        tag = MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_HVOR,
-                        sporsmalstekst = "Velg land",
-                        svartype = Svartype.COMBOBOX_SINGLE
-                    ),
-                    Sporsmal(
-                        tag = MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR,
-                        svartype = Svartype.PERIODER,
-                        min = fraDato.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                        max = tilDato.format(DateTimeFormatter.ISO_LOCAL_DATE)
-                    )
-                )
+                tag = medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_ARBEIDSGIVER),
+                sporsmalstekst = "Arbeidsgiver",
+                svartype = Svartype.FRITEKST
+            ),
+            Sporsmal(
+                tag = medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_HVOR),
+                sporsmalstekst = "Velg land",
+                svartype = Svartype.COMBOBOX_SINGLE
+            ),
+            Sporsmal(
+                tag = medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR),
+                svartype = Svartype.PERIODER,
+                min = fraDato.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                max = tilDato.format(DateTimeFormatter.ISO_LOCAL_DATE)
             )
         )
     )
