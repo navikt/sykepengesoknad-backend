@@ -44,7 +44,9 @@ class Soknadsklipper(
 
         val nyePerioder = sykepengesoknadDAO.klippSoknadTom(
             sykepengesoknadUuid = sok.id,
-            klipp = sykmeldingPeriode.start
+            nyTom = sykmeldingPeriode.start.minusDays(1),
+            tom = sok.tom!!,
+            fom = sok.fom!!
         )
 
         klippetSykepengesoknadRepository.save(
@@ -107,7 +109,9 @@ class Soknadsklipper(
 
         val nyePerioder = sykepengesoknadDAO.klippSoknadFom(
             sykepengesoknadUuid = sok.id,
-            klipp = sykmeldingPeriode.endInclusive
+            nyFom = sykmeldingPeriode.endInclusive.plusDays(1),
+            fom = sok.fom!!,
+            tom = sok.tom!!
         )
 
         klippetSykepengesoknadRepository.save(

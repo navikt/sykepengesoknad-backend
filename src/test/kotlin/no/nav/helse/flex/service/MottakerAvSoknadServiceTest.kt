@@ -48,7 +48,8 @@ class MottakerAvSoknadServiceTest {
     @Mock
     private lateinit var metrikk: Metrikk
 
-    private val folkeregisterIdenter = FolkeregisterIdenter("fnr", emptyList())
+    private val fnr = "11111111111"
+    private val folkeregisterIdenter = FolkeregisterIdenter(fnr, emptyList())
 
     @Mock
     private lateinit var juridiskVurderingKafkaProducer: JuridiskVurderingKafkaProducer
@@ -59,7 +60,7 @@ class MottakerAvSoknadServiceTest {
         timestamp = Instant.now(),
         narmesteLederId = UUID.randomUUID(),
         orgnummer = "org",
-        brukerFnr = "fnr",
+        brukerFnr = fnr,
         aktivFom = now(),
         aktivTom = null,
         arbeidsgiverForskutterer = true
@@ -74,7 +75,7 @@ class MottakerAvSoknadServiceTest {
 
         val soknad = Sykepengesoknad(
             id = "sykepengesoknadId",
-            fnr = "fnr",
+            fnr = fnr,
             sykmeldingId = "sykmeldingId",
             status = NY,
             fom = now(),
@@ -103,7 +104,7 @@ class MottakerAvSoknadServiceTest {
 
         val soknad = Sykepengesoknad(
             id = "sykepengesoknadId",
-            fnr = "fnr",
+            fnr = fnr,
             sykmeldingId = "sykmeldingId",
             status = NY,
             fom = now(),
@@ -133,7 +134,7 @@ class MottakerAvSoknadServiceTest {
 
         val soknad = Sykepengesoknad(
             id = "sykepengesoknadId",
-            fnr = "fnr",
+            fnr = fnr,
             sykmeldingId = "sykmeldingId",
             status = NY,
             fom = now(),
@@ -163,7 +164,7 @@ class MottakerAvSoknadServiceTest {
 
         val soknad = Sykepengesoknad(
             id = "sykepengesoknadId",
-            fnr = "fnr",
+            fnr = fnr,
             sykmeldingId = "sykmeldingId",
             status = NY,
             fom = now(),
@@ -195,7 +196,7 @@ class MottakerAvSoknadServiceTest {
 
         val soknad = Sykepengesoknad(
             id = "sykepengesoknadId",
-            fnr = "fnr",
+            fnr = fnr,
             sykmeldingId = "sykmeldingId",
             status = NY,
             fom = now().plusDays(17),
@@ -227,7 +228,7 @@ class MottakerAvSoknadServiceTest {
 
         val soknad = Sykepengesoknad(
             id = "sykepengesoknadId",
-            fnr = "fnr",
+            fnr = fnr,
             sykmeldingId = "sykmeldingId",
             status = NY,
             fom = now().plusDays(17),
@@ -259,7 +260,7 @@ class MottakerAvSoknadServiceTest {
 
         val soknad = Sykepengesoknad(
             id = "sykepengesoknadId",
-            fnr = "fnr",
+            fnr = fnr,
             sykmeldingId = "sykmeldingId",
             status = NY,
             fom = now().plusDays(17),
@@ -291,7 +292,7 @@ class MottakerAvSoknadServiceTest {
 
         val soknad = Sykepengesoknad(
             id = "sykepengesoknadId",
-            fnr = "fnr",
+            fnr = fnr,
             sykmeldingId = "sykmeldingId",
             status = NY,
             fom = now().plusDays(17),
@@ -322,7 +323,7 @@ class MottakerAvSoknadServiceTest {
 
         val soknad = Sykepengesoknad(
             id = "sykepengesoknadId",
-            fnr = "fnr",
+            fnr = fnr,
             sykmeldingId = "sykmeldingId",
             status = NY,
             fom = now().plusDays(17),
@@ -354,7 +355,7 @@ class MottakerAvSoknadServiceTest {
 
         val soknad = Sykepengesoknad(
             id = "sykepengesoknadId",
-            fnr = "fnr",
+            fnr = fnr,
             sykmeldingId = "sykmeldingId",
             status = NY,
             fom = now().plusDays(17),
@@ -381,7 +382,7 @@ class MottakerAvSoknadServiceTest {
     fun soknadForArbeidstakerErSendtTilAgOgNav_korrigeringSendesTilAgOgNAV() {
         val soknad = Sykepengesoknad(
             id = "sykepengesoknadId",
-            fnr = "fnr",
+            fnr = fnr,
             sykmeldingId = "sykmeldingId",
             status = NY,
             fom = now().plusDays(0),
@@ -414,7 +415,7 @@ class MottakerAvSoknadServiceTest {
 
         val soknad = Sykepengesoknad(
             id = "sykepengesoknadId",
-            fnr = "fnr",
+            fnr = fnr,
             sykmeldingId = "sykmeldingId",
             status = NY,
             fom = now().plusDays(0),
@@ -450,7 +451,7 @@ class MottakerAvSoknadServiceTest {
 
         val soknad = Sykepengesoknad(
             id = "sykepengesoknadId",
-            fnr = "fnr",
+            fnr = fnr,
             sykmeldingId = "sykmeldingId",
             status = NY,
             fom = now().plusDays(17),
@@ -484,7 +485,7 @@ class MottakerAvSoknadServiceTest {
 
         val soknad = Sykepengesoknad(
             id = "sykepengesoknadId",
-            fnr = "fnr",
+            fnr = fnr,
             sykmeldingId = "sykmeldingId",
             status = NY,
             fom = now().plusDays(0),
@@ -518,7 +519,7 @@ class MottakerAvSoknadServiceTest {
 
         val soknad = Sykepengesoknad(
             id = "sykepengesoknadId",
-            fnr = "fnr",
+            fnr = fnr,
             sykmeldingId = "sykmeldingId",
             status = NY,
             fom = now().plusDays(0),
@@ -552,7 +553,7 @@ class MottakerAvSoknadServiceTest {
 
         val soknad = Sykepengesoknad(
             id = "sykepengesoknadId",
-            fnr = "fnr",
+            fnr = fnr,
             sykmeldingId = "sykmeldingId",
             status = NY,
             fom = now().plusDays(0),
@@ -586,7 +587,7 @@ class MottakerAvSoknadServiceTest {
 
         val soknad = Sykepengesoknad(
             id = "sykepengesoknadId",
-            fnr = "fnr",
+            fnr = fnr,
             sykmeldingId = "sykmeldingId",
             status = NY,
             fom = now().plusDays(17),
@@ -619,7 +620,7 @@ class MottakerAvSoknadServiceTest {
     fun soknadForArbeidstakerErIkkeSendt_korrigeringSkalFeile() {
         val soknad = Sykepengesoknad(
             id = "sykepengesoknadId",
-            fnr = "fnr",
+            fnr = fnr,
             sykmeldingId = "sykmeldingId",
             status = NY,
             fom = now().plusDays(0),

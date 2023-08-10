@@ -27,7 +27,7 @@ import java.util.*
 
 fun opprettNySoknad(): Sykepengesoknad {
     val sykepengesoknad = Sykepengesoknad(
-        fnr = "fnr",
+        fnr = "11111111111",
         startSykeforlop = now().minusDays(24),
         fom = now().minusDays(19),
         tom = now().minusDays(10),

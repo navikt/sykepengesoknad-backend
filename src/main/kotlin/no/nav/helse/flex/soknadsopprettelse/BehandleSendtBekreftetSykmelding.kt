@@ -8,6 +8,7 @@ import no.nav.helse.flex.domain.exception.UventetArbeidssituasjonException
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.kafka.producer.RebehandlingSykmeldingSendtProducer
 import no.nav.helse.flex.logger
+import no.nav.helse.flex.repository.LockRepository
 import no.nav.helse.flex.service.GjenapneSykmeldingService
 import no.nav.helse.flex.service.IdentService
 import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.KlippOgOpprett
@@ -28,7 +29,8 @@ class BehandleSendtBekreftetSykmelding(
     private val metrikk: Metrikk,
     private val sykmeldingStatusService: GjenapneSykmeldingService,
     private val klippOgOpprett: KlippOgOpprett,
-    private val skalOppretteSoknader: SkalOppretteSoknader
+    private val skalOppretteSoknader: SkalOppretteSoknader,
+    private val lockRepository: LockRepository
 ) {
     val log = logger()
 
@@ -54,11 +56,11 @@ class BehandleSendtBekreftetSykmelding(
 
     fun prosseserKafkaMessage(sykmeldingKafkaMessage: SykmeldingKafkaMessage): List<AktiveringBestilling> {
         metrikk.mottattSykmelding.increment()
-        return when (val sykmeldingStatus = sykmeldingKafkaMessage.event.statusEvent) {
+        return when (sykmeldingKafkaMessage.event.statusEvent) {
             STATUS_BEKREFTET -> handterBekreftetSykmelding(sykmeldingKafkaMessage)
             STATUS_SENDT -> handterSendtSykmelding(sykmeldingKafkaMessage)
             else -> {
-                log.info("Ignorerer statusmelding for sykmelding ${sykmeldingKafkaMessage.sykmelding.id} med status $sykmeldingStatus")
+                log.info("Ignorerer statusmelding for sykmelding ${sykmeldingKafkaMessage.sykmelding.id} med status ${sykmeldingKafkaMessage.event.statusEvent}")
                 emptyList()
             }
         }
@@ -66,16 +68,12 @@ class BehandleSendtBekreftetSykmelding(
 
     private fun handterBekreftetSykmelding(sykmeldingStatusKafkaMessageDTO: SykmeldingKafkaMessage): List<AktiveringBestilling> {
         return when (val arbeidssituasjon = sykmeldingStatusKafkaMessageDTO.hentArbeidssituasjon()) {
-            Arbeidssituasjon.NAERINGSDRIVENDE -> eksterneKallKlippOgOpprett(
-                sykmeldingStatusKafkaMessageDTO,
-                arbeidssituasjon
-            )
-            Arbeidssituasjon.FRILANSER -> eksterneKallKlippOgOpprett(sykmeldingStatusKafkaMessageDTO, arbeidssituasjon)
-            Arbeidssituasjon.ARBEIDSLEDIG -> eksterneKallKlippOgOpprett(
-                sykmeldingStatusKafkaMessageDTO,
-                arbeidssituasjon
-            )
-            Arbeidssituasjon.ANNET -> eksterneKallKlippOgOpprett(sykmeldingStatusKafkaMessageDTO, arbeidssituasjon)
+            Arbeidssituasjon.NAERINGSDRIVENDE,
+            Arbeidssituasjon.FRILANSER,
+            Arbeidssituasjon.ARBEIDSLEDIG,
+            Arbeidssituasjon.ANNET -> {
+                eksterneKallKlippOgOpprett(sykmeldingStatusKafkaMessageDTO, arbeidssituasjon)
+            }
             Arbeidssituasjon.ARBEIDSTAKER -> {
                 // Bekreftet sykmelding for arbeidstaker tilsvarer strengt fortrolig addresse.
                 // At denne bekreftes og ikke sendes styres av sykefravaer frontend
@@ -101,6 +99,12 @@ class BehandleSendtBekreftetSykmelding(
         if (!skalOppretteSoknad) {
             return emptyList()
         }
+
+        val låstIdenter = lockRepository.settAdvisoryLock(keys = identer.alle().map { it.toLong() }.toLongArray())
+        if (!låstIdenter) {
+            throw RuntimeException("Det finnes allerede en advisory lock for sykmelding ${sykmeldingKafkaMessage.sykmelding.id}")
+        }
+
         val sykeForloep = flexSyketilfelleClient.hentSykeforloep(identer)
 
         return klippOgOpprett.klippOgOpprett(sykmeldingKafkaMessage, arbeidssituasjon, identer, sykeForloep)

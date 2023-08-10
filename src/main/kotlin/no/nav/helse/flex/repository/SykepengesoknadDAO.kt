@@ -326,15 +326,15 @@ class SykepengesoknadDAO(
         )!!
     }
 
-    fun klippSoknadTom(sykepengesoknadUuid: String, klipp: LocalDate): List<Soknadsperiode> {
+    fun klippSoknadTom(sykepengesoknadUuid: String, nyTom: LocalDate, tom: LocalDate, fom: LocalDate): List<Soknadsperiode> {
         val sykepengesoknadId = sykepengesoknadId(sykepengesoknadUuid)
 
         val soknadPerioder = soknadsperiodeDAO.finnSoknadPerioder(setOf(sykepengesoknadId))[sykepengesoknadId]!!
         val nyePerioder = soknadPerioder
-            .filter { it.fom.isBefore(klipp) } // Perioder som overlapper fullstendig tas ikke med
+            .filter { it.fom.isBeforeOrEqual(nyTom) } // Perioder som overlapper fullstendig tas ikke med
             .map {
-                if (it.tom.isAfterOrEqual(klipp)) {
-                    return@map it.copy(tom = klipp.minusDays(1))
+                if (it.tom.isAfter(nyTom)) {
+                    return@map it.copy(tom = nyTom)
                 }
                 return@map it
             }
@@ -352,21 +352,23 @@ class SykepengesoknadDAO(
         )
         oppdaterTom(
             sykepengesoknadId = sykepengesoknadId,
-            nyTom = klipp.minusDays(1)
+            nyTom = nyTom,
+            tom = tom,
+            fom = fom
         )
 
         return nyePerioder
     }
 
-    fun klippSoknadFom(sykepengesoknadUuid: String, klipp: LocalDate): List<Soknadsperiode> {
+    fun klippSoknadFom(sykepengesoknadUuid: String, nyFom: LocalDate, fom: LocalDate, tom: LocalDate): List<Soknadsperiode> {
         val sykepengesoknadId = sykepengesoknadId(sykepengesoknadUuid)
 
         val soknadPerioder = soknadsperiodeDAO.finnSoknadPerioder(setOf(sykepengesoknadId))[sykepengesoknadId]!!
         val nyePerioder = soknadPerioder
-            .filter { it.tom.isAfter(klipp) } // Perioder som overlapper fullstendig tas ikke med
+            .filter { it.tom.isAfterOrEqual(nyFom) } // Perioder som overlapper fullstendig tas ikke med
             .map {
-                if (it.fom.isBeforeOrEqual(klipp)) {
-                    return@map it.copy(fom = klipp.plusDays(1))
+                if (it.fom.isBefore(nyFom)) {
+                    return@map it.copy(fom = nyFom)
                 }
                 return@map it
             }
@@ -384,18 +386,22 @@ class SykepengesoknadDAO(
         )
         oppdaterFom(
             sykepengesoknadId = sykepengesoknadId,
-            nyFom = klipp.plusDays(1)
+            nyFom = nyFom,
+            fom = fom,
+            tom = tom
         )
 
         return nyePerioder
     }
 
-    private fun oppdaterTom(sykepengesoknadId: String, nyTom: LocalDate) {
+    private fun oppdaterTom(sykepengesoknadId: String, nyTom: LocalDate, tom: LocalDate, fom: LocalDate) {
         val raderOppdatert = namedParameterJdbcTemplate.update(
-            "UPDATE SYKEPENGESOKNAD SET TOM = :tom WHERE ID = :sykepengesoknadId",
+            "UPDATE SYKEPENGESOKNAD SET TOM = :nyTom WHERE ID = :sykepengesoknadId AND TOM = :tom AND FOM = :fom",
             MapSqlParameterSource()
-                .addValue("tom", nyTom)
+                .addValue("nyTom", nyTom)
                 .addValue("sykepengesoknadId", sykepengesoknadId)
+                .addValue("tom", tom)
+                .addValue("fom", fom)
         )
 
         if (raderOppdatert != 1) {
@@ -403,12 +409,14 @@ class SykepengesoknadDAO(
         }
     }
 
-    private fun oppdaterFom(sykepengesoknadId: String, nyFom: LocalDate) {
+    private fun oppdaterFom(sykepengesoknadId: String, nyFom: LocalDate, fom: LocalDate, tom: LocalDate) {
         val raderOppdatert = namedParameterJdbcTemplate.update(
-            "UPDATE SYKEPENGESOKNAD SET FOM = :fom WHERE ID = :sykepengesoknadId",
+            "UPDATE SYKEPENGESOKNAD SET FOM = :nyFom WHERE ID = :sykepengesoknadId AND FOM = :fom AND TOM = :tom",
             MapSqlParameterSource()
-                .addValue("fom", nyFom)
+                .addValue("nyFom", nyFom)
                 .addValue("sykepengesoknadId", sykepengesoknadId)
+                .addValue("fom", fom)
+                .addValue("tom", tom)
         )
 
         if (raderOppdatert != 1) {

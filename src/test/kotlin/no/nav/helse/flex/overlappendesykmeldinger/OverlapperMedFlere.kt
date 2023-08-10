@@ -29,6 +29,8 @@ import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.*
 
+private const val fnr = "11111111111"
+
 class OverlapperMedFlere : BaseTestClass() {
 
     @Autowired
@@ -634,7 +636,7 @@ class OverlapperMedFlere : BaseTestClass() {
         // Siden den forventer 0 søknader på kafka så må vi dobbeltsjekke at den ikke har feilet på noe
         sendSykmelding(
             sykmeldingKafkaMessage(
-                fnr = "fnr",
+                fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = overlappendeSoknad.soknadPerioder.minOf { it.fom }.plusYears(1),
                     tom = overlappendeSoknad.soknadPerioder.maxOf { it.tom }.plusYears(1)
@@ -670,7 +672,7 @@ class OverlapperMedFlere : BaseTestClass() {
 
             baseTestClass.sendSykmelding(
                 sykmeldingKafkaMessage(
-                    fnr = "fnr",
+                    fnr = fnr,
                     sykmeldingId = overlappendeSoknad.traceId,
                     sykmeldingSkrevet = overlappendeSoknad.sykmeldingSkrevet ?: OffsetDateTime.now(),
                     sykmeldingsperioder = if (overlappendeSoknad.soknadPerioder.any { it.grad != 100 }) {
@@ -704,7 +706,7 @@ class OverlapperMedFlere : BaseTestClass() {
                 Sykepengesoknad(
                     id = UUID.randomUUID().toString(),
                     sykmeldingId = soknad.traceId,
-                    fnr = "fnr",
+                    fnr = fnr,
                     soknadstype = Soknadstype.ARBEIDSTAKERE,
                     status = soknad.status,
                     opprettet = now,
@@ -724,7 +726,7 @@ class OverlapperMedFlere : BaseTestClass() {
         }
 
         private fun riktigStatusUtIfraDagensDato(dagensDato: LocalDate) {
-            sykepengesoknadDAO.finnSykepengesoknader(listOf("fnr"))
+            sykepengesoknadDAO.finnSykepengesoknader(listOf(fnr))
                 .forEach {
                     if (it.status !in listOf(Soknadstatus.FREMTIDIG, Soknadstatus.NY)) return@forEach
 
@@ -740,7 +742,7 @@ class OverlapperMedFlere : BaseTestClass() {
         ) {
             val forventetResultat = forventet.sortedBy { it.soknadPerioder.minOf { p -> p.fom } }
 
-            val faktiskResultat = sykepengesoknadDAO.finnSykepengesoknader(listOf("fnr"))
+            val faktiskResultat = sykepengesoknadDAO.finnSykepengesoknader(listOf(fnr))
                 .sortedBy { it.fom }
                 .map {
                     Soknad(

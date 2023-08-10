@@ -18,6 +18,7 @@ import java.util.*
 class MedlemskapVurderingRepositoryTest : BaseTestClass() {
 
     private val sykepengesoknadId = UUID.randomUUID().toString()
+    private val fnr = "11111111111"
 
     @Autowired
     private lateinit var medlemskapVurderingRepository: MedlemskapVurderingRepository
@@ -38,7 +39,7 @@ class MedlemskapVurderingRepositoryTest : BaseTestClass() {
             MedlemskapVurderingDbRecord(
                 timestamp = timestamp,
                 svartid = svartid,
-                fnr = "fnr",
+                fnr = fnr,
                 fom = fom,
                 tom = tom,
                 svartype = "UAVKLART",
@@ -50,7 +51,7 @@ class MedlemskapVurderingRepositoryTest : BaseTestClass() {
         val dbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
         val dbRecord = dbRecords.first()
 
-        dbRecord.fnr `should be equal to` "fnr"
+        dbRecord.fnr `should be equal to` "11111111111"
         dbRecord.fom `should be equal to` fom
         dbRecord.tom `should be equal to` tom
         dbRecord.timestamp shouldNotBe null
@@ -71,7 +72,7 @@ class MedlemskapVurderingRepositoryTest : BaseTestClass() {
             MedlemskapVurderingDbRecord(
                 timestamp = timestamp,
                 svartid = svartid,
-                fnr = "fnr",
+                fnr = fnr,
                 fom = fom,
                 tom = tom,
                 svartype = "JA",
@@ -84,7 +85,7 @@ class MedlemskapVurderingRepositoryTest : BaseTestClass() {
         val dbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
         val dbRecord = dbRecords.first()
 
-        dbRecord.fnr `should be equal to` "fnr"
+        dbRecord.fnr `should be equal to` "11111111111"
         dbRecord.fom `should be equal to` fom
         dbRecord.tom `should be equal to` tom
         dbRecord.timestamp shouldNotBe null
@@ -105,7 +106,7 @@ class MedlemskapVurderingRepositoryTest : BaseTestClass() {
             MedlemskapVurderingDbRecord(
                 timestamp = timestamp,
                 svartid = svartid,
-                fnr = "fnr",
+                fnr = fnr,
                 fom = fom,
                 tom = tom,
                 svartype = "JA",
@@ -117,7 +118,7 @@ class MedlemskapVurderingRepositoryTest : BaseTestClass() {
         val dbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
         val dbRecord = dbRecords.first()
 
-        dbRecord.fnr `should be equal to` "fnr"
+        dbRecord.fnr `should be equal to` "11111111111"
         dbRecord.fom `should be equal to` fom
         dbRecord.tom `should be equal to` tom
         dbRecord.timestamp shouldNotBe null

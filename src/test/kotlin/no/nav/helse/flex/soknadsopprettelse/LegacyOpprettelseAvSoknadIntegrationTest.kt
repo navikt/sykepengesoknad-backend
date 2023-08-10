@@ -16,7 +16,7 @@ import java.time.LocalDate
 
 class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
 
-    val fnr = "fnr"
+    val fnr = "11111111111"
 
     @BeforeEach
     @AfterEach
