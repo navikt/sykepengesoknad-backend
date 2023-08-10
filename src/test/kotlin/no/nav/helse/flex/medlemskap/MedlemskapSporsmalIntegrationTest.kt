@@ -7,9 +7,11 @@ import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.hentProduserteRecords
 import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknaderMetadata
+import no.nav.helse.flex.leggTilUndersporsmal
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
 import no.nav.helse.flex.oppdatersporsmal.soknad.OppdaterSporsmalService
 import no.nav.helse.flex.sendSykmelding
+import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
@@ -24,6 +26,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -125,15 +128,17 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
     }
 
     @Test
+    @Disabled
     @Order(5)
     fun `Legg til ekstra underspørsmål på spørsmål om medlemskap`() {
+        // TODO: Fjern denne siden vi legger til underspørsmål i via API.
         val soknad = hentSoknad(
             soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
             fnr = fnr
         )
         soknad.sporsmal!!.first { it.tag == "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE" }.undersporsmal shouldHaveSize 1
 
-        oppdaterSporsmalService.leggTilUndersporsmal(soknad.id, "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE")
+        oppdaterSporsmalService.leggTilNyttUndersporsmal(soknad.id, "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE")
 
         val oppdatertSoknad = hentSoknad(
             soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
@@ -166,17 +171,34 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
             soknadBesvarer = soknadBesvarer,
             soknad = soknad,
             index = 0,
-            ferdigBesvart = false
+            ferdigBesvart = true
         )
-        besvarMedlemskapArbeidUtenforNorge(
-            soknadBesvarer = soknadBesvarer,
-            soknad = soknad,
-            index = 1,
-            ferdigBesvart = false
-        )
-        soknadBesvarer.gaVidere(tag = "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE", mutert = false)
 
-        val sendtSoknad = soknadBesvarer
+        // TODO: Refactor og rydd opp i denne testen. Lag metode for for på legge til underspørsmål og returnere ny besvarer.
+        val forelopigSoknadFor = hentSoknad(
+            soknadId = soknad.id,
+            fnr = fnr
+        )
+
+        val hovedsporsmal = forelopigSoknadFor.sporsmal!!.first { it.tag == MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE }
+        leggTilUndersporsmal(fnr, soknad.id, hovedsporsmal.id!!)
+
+        val soknad2 = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
+            fnr = fnr
+        )
+
+        val soknadBesvarer2 = SoknadBesvarer(rSSykepengesoknad = soknad2, mockMvc = this, fnr = fnr)
+
+        besvarMedlemskapArbeidUtenforNorge(
+            soknadBesvarer = soknadBesvarer2,
+            soknad = soknad2,
+            index = 1,
+            ferdigBesvart = true
+        )
+//        soknadBesvarer.gaVidere(tag = "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE", mutert = false)
+
+        val sendtSoknad = soknadBesvarer2
             .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
             .sendSoknad()
 
@@ -188,7 +210,7 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
 
         kafkaSoknad.status shouldBeEqualTo SoknadsstatusDTO.SENDT
 
-        // Spørsmålene som omhandler medlemskapå blir ikke mappet om til eget felt i SykepengesoknadDTO så vi trenger
+        // Spørsmålene som omhandler medlemskap blir ikke mappet om til eget felt i SykepengesoknadDTO så vi trenger
         // bare å sjekke at spørsmålene er med.
         kafkaSoknad.sporsmal!!.any { it.tag == "MEDLEMSKAP_OPPHOLDSTILLATELSE" } shouldBeEqualTo true
         kafkaSoknad.sporsmal!!.any { it.tag == "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE" } shouldBeEqualTo true

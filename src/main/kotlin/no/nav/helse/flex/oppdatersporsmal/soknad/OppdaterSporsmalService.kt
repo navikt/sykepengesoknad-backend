@@ -107,7 +107,7 @@ class OppdaterSporsmalService(
         log.info("Slettet svar $svarId for spørsmål $sporsmalId og søknad $soknadId.")
     }
 
-    fun leggTilUndersporsmal(soknadId: String, tag: String) {
+    fun leggTilNyttUndersporsmal(soknadId: String, tag: String) {
         // TODO: Forbedre denne nå vi vet den funker som den skal.
         val soknad = sykepengesoknadDAO.finnSykepengesoknad(soknadId)
         soknad.sporsmal.first { it.tag == MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE }.let { sporsmal ->
