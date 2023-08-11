@@ -132,7 +132,7 @@ class UnderersporsmalSortererTest {
         val soknad = sporsmalet.tilSoknad()
 
         val sporsmal = soknad.getSporsmalMedTag(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE).undersporsmal.first {
-            it.tag == "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_PERIODE_0"
+            it.tag == "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_GRUPPERING_0"
         }
 
         val soknadShufflet = soknad.replaceSporsmal(sporsmal.copy(undersporsmal = sporsmal.undersporsmal.shuffled()))
@@ -144,7 +144,7 @@ class UnderersporsmalSortererTest {
             "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR_0"
         )
         soknadSortert.getSporsmalMedTag(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE).undersporsmal.first {
-            it.tag == "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_PERIODE_0"
+            it.tag == "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_GRUPPERING_0"
         }.undersporsmal.map { it.tag } `should be equal to` forventetSortering
     }
 
@@ -171,8 +171,8 @@ class UnderersporsmalSortererTest {
         val soknadSortert = soknadShufflet.sorterUndersporsmal()
 
         val forventetSortering = listOf(
-            "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_PERIODE_0",
-            "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_PERIODE_1"
+            "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_GRUPPERING_0",
+            "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_GRUPPERING_1"
         )
 
         val forventetSorteringForstePeriode = listOf(
@@ -189,11 +189,11 @@ class UnderersporsmalSortererTest {
         soknadSortert.getSporsmalMedTag(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE).undersporsmal.map { it.tag } `should be equal to` forventetSortering
 
         soknadSortert.getSporsmalMedTag(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE).undersporsmal.first {
-            it.tag == "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_PERIODE_0"
+            it.tag == "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_GRUPPERING_0"
         }.undersporsmal.map { it.tag } `should be equal to` forventetSorteringForstePeriode
 
         soknadSortert.getSporsmalMedTag(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE).undersporsmal.first {
-            it.tag == "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_PERIODE_1"
+            it.tag == "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_GRUPPERING_1"
         }.undersporsmal.map { it.tag } `should be equal to` forventetSorteringAndrePeriode
     }
 

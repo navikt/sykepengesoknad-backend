@@ -25,7 +25,7 @@ private fun Sporsmal.sorterUndersporsmal(): Sporsmal {
                 UTENLANDSK_SYKMELDING_BOSTED -> it.sorteringBosted()
                 YRKESSKADE_V2_VELG_DATO -> it.sorteringYrkesskader()
                 MEDLEMSKAP_OPPHOLDSTILLATELSE -> it.sorteringMedlemskapOppholdstillatelse()
-                MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_PERIODE -> it.sorteringMedlemskapArbeidUtenforNorgePerioder()
+                MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_GRUPPERING -> it.sorteringMedlemskapArbeidUtenforNorgeGruppering()
                 else -> it.tag
             }
         }
@@ -41,7 +41,7 @@ private fun Sporsmal.sorteringMedlemskapOppholdstillatelse(): String? {
     }
 }
 
-private fun Sporsmal.sorteringMedlemskapArbeidUtenforNorgePerioder(): String {
+private fun Sporsmal.sorteringMedlemskapArbeidUtenforNorgeGruppering(): String {
     val tagUtenIndex = fjernIndexFraTag(this.tag)
     return when (tagUtenIndex) {
         MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_ARBEIDSGIVER -> "0"

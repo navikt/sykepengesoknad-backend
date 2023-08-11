@@ -9,9 +9,9 @@ import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLDSTILLATELSE_PERMAN
 import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLDSTILLATELSE_VEDTAKSDATO
 import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE
 import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_ARBEIDSGIVER
+import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_GRUPPERING
 import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_HVOR
 import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR
-import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_PERIODE
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -78,7 +78,7 @@ fun lagUndersporsmalTilArbeidUtenforNorgeSporsmal(
     tilDato: LocalDate = LocalDate.now()
 ): Sporsmal {
     return Sporsmal(
-        tag = medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_PERIODE, index),
+        tag = medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_GRUPPERING, index),
         svartype = Svartype.IKKE_RELEVANT,
         undersporsmal = listOf(
             Sporsmal(
