@@ -46,6 +46,7 @@ import no.nav.security.token.support.core.jwt.JwtTokenClaims
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -334,24 +335,20 @@ class SoknadTokenXController(
     data class RSNyttUndersporsmalResponse(val id: String)
 
     @ProtectedWithClaims(issuer = TOKENX, claimMap = ["acr=Level4"])
-    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(
         value = ["/soknader/{soknadId}/sporsmal/{sporsmalId}/undersporsmal"],
-        consumes = [APPLICATION_JSON_VALUE],
-        produces = [APPLICATION_JSON_VALUE]
+        consumes = [APPLICATION_JSON_VALUE]
     )
     fun leggTilUndersporsmal(
         @PathVariable soknadId: String,
         @PathVariable sporsmalId: String
-    ): RSNyttUndersporsmalResponse {
+    ): ResponseEntity<Any> {
         val (soknad, _) = hentOgSjekkTilgangTilSoknad(soknadId)
         val sporsmal = validerStatusOgHovedsporsmal(soknad = soknad, soknadId = soknadId, sporsmalId = sporsmalId)
 
         when (sporsmal.tag) {
             MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE -> {
                 oppdaterSporsmalService.leggTilNyttUndersporsmal(soknad.id, sporsmal.tag)
-                // TODO: Trenger vi å returnerer noe her?
-                return RSNyttUndersporsmalResponse("")
             }
 
             else -> {
@@ -360,6 +357,7 @@ class SoknadTokenXController(
                 throw IllegalArgumentException("Kan ikke legge til underspørsmål på spørsmål med tag ${sporsmal.tag}.")
             }
         }
+        return ResponseEntity<Any>(HttpStatus.CREATED)
     }
 
     data class SoknadOgIdenter(val sykepengesoknad: Sykepengesoknad, val identer: FolkeregisterIdenter)
