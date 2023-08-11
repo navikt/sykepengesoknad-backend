@@ -16,7 +16,8 @@ private fun Sporsmal.sorterUndersporsmal(): Sporsmal {
     val sorterteUndersporsmal = this.undersporsmal
         .map { it.sorterUndersporsmal() }
         .sortedBy {
-            when (this.tag) {
+            val tagUtenIndex = fjernIndexFraTag(this.tag)
+            when (tagUtenIndex) {
                 HVILKE_ANDRE_INNTEKTSKILDER -> it.sorteringAndreInntektskilder()
                 INNTEKTSKILDE_SELVSTENDIG_VARIG_ENDRING_GRUPPE -> it.sorteringVarigEndring()
                 ARBEIDSGIVER -> it.sorteringArbeidsgiver()
@@ -24,7 +25,7 @@ private fun Sporsmal.sorterUndersporsmal(): Sporsmal {
                 UTENLANDSK_SYKMELDING_BOSTED -> it.sorteringBosted()
                 YRKESSKADE_V2_VELG_DATO -> it.sorteringYrkesskader()
                 MEDLEMSKAP_OPPHOLDSTILLATELSE -> it.sorteringMedlemskapOppholdstillatelse()
-                // MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE -> it.sorteringMedlemskapArbeidUtenforNorge()
+                MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_PERIODE -> it.sorteringMedlemskapArbeidUtenforNorgePerioder()
                 else -> it.tag
             }
         }
@@ -40,12 +41,13 @@ private fun Sporsmal.sorteringMedlemskapOppholdstillatelse(): String? {
     }
 }
 
-private fun Sporsmal.sorteringMedlemskapArbeidUtenforNorge(): String {
-    return when (tag) {
+private fun Sporsmal.sorteringMedlemskapArbeidUtenforNorgePerioder(): String {
+    val tagUtenIndex = fjernIndexFraTag(this.tag)
+    return when (tagUtenIndex) {
         MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_ARBEIDSGIVER -> "0"
         MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_HVOR -> "1"
         MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR -> "2"
-        else -> throw RuntimeException("Ukjent underspørsmål for medlemskap arbeid utenfor Norgen: $tag")
+        else -> throw RuntimeException("Ukjent underspørsmål for medlemskap arbeid utenfor Norge: $tag")
     }
 }
 
@@ -108,4 +110,9 @@ private fun Sporsmal.sorteringBosted(): String {
 
 private fun Sporsmal.sorteringYrkesskader(): String {
     return undertekst ?: "0"
+}
+
+private fun fjernIndexFraTag(input: String): String {
+    // TODO: Endre til å hente ut siste verdi etter underscore.
+    return input.split("-").first()
 }

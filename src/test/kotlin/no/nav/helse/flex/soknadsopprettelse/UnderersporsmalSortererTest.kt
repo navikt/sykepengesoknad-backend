@@ -10,6 +10,7 @@ import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderArbeidst
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderSelvstendigOgFrilanser
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagMedlemskapArbeidUtenforNorgeSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagMedlemskapOppholdstillatelseSporsmal
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagUndersporsmalTilArbeidUtenforNorgeSporsmal
 import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.Test
 import java.time.Instant
@@ -133,6 +134,7 @@ class UnderersporsmalSortererTest {
         val sporsmal = soknad.getSporsmalMedTag(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE).undersporsmal.first {
             it.tag == "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_PERIODE-0"
         }
+
         val soknadShufflet = soknad.replaceSporsmal(sporsmal.copy(undersporsmal = sporsmal.undersporsmal.shuffled()))
         val soknadSortert = soknadShufflet.sorterUndersporsmal()
 
@@ -144,6 +146,65 @@ class UnderersporsmalSortererTest {
         soknadSortert.getSporsmalMedTag(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE).undersporsmal.first {
             it.tag == "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_PERIODE-0"
         }.undersporsmal.map { it.tag } `should be equal to` forventetSortering
+    }
+
+    @Test
+    fun `Test sortering av medlemskapspørsmål om arbeid utenfor Norge med to underspørsmål`() {
+        val sporsmalet = lagMedlemskapArbeidUtenforNorgeSporsmal(LocalDate.now())
+        val soknad = sporsmalet.tilSoknad()
+
+        val sporsmalMedToUndersporsmal = sporsmalet.copy(
+            undersporsmal = sporsmalet.undersporsmal + listOf(
+                lagUndersporsmalTilArbeidUtenforNorgeSporsmal(
+                    1,
+                    LocalDate.now(),
+                    LocalDate.now()
+                )
+            )
+        )
+
+        val soknadShufflet = soknad.replaceSporsmal(
+            sporsmalMedToUndersporsmal.copy(
+                undersporsmal = shuffleRekursivt(sporsmalMedToUndersporsmal.undersporsmal)
+            )
+        )
+        val soknadSortert = soknadShufflet.sorterUndersporsmal()
+
+        val forventetSortering = listOf(
+            "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_PERIODE-0",
+            "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_PERIODE-1"
+        )
+
+        val forventetSorteringForstePeriode = listOf(
+            "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_ARBEIDSGIVER-0",
+            "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_HVOR-0",
+            "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR-0"
+        )
+        val forventetSorteringAndrePeriode = listOf(
+            "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_ARBEIDSGIVER-1",
+            "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_HVOR-1",
+            "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR-1"
+        )
+
+        soknadSortert.getSporsmalMedTag(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE).undersporsmal.map { it.tag } `should be equal to` forventetSortering
+
+        soknadSortert.getSporsmalMedTag(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE).undersporsmal.first {
+            it.tag == "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_PERIODE-0"
+        }.undersporsmal.map { it.tag } `should be equal to` forventetSorteringForstePeriode
+
+        soknadSortert.getSporsmalMedTag(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE).undersporsmal.first {
+            it.tag == "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_PERIODE-1"
+        }.undersporsmal.map { it.tag } `should be equal to` forventetSorteringAndrePeriode
+    }
+
+    private fun shuffleRekursivt(undersporsmal: List<Sporsmal>): List<Sporsmal> {
+        return undersporsmal.shuffled().map {
+            if (it.undersporsmal.isNotEmpty()) {
+                it.copy(undersporsmal = shuffleRekursivt(it.undersporsmal))
+            } else {
+                it
+            }
+        }
     }
 }
 

@@ -149,7 +149,7 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
 
     @Test
     @Order(5)
-    fun `Besvar medlemskapspørsmål om arbeid utenfor Norge`() {
+    fun `Besvar medlemskapspørsmål om arbeid utenfor Norge med to perioder`() {
         val soknadId = hentSoknadMedStatusNy(fnr).id
 
         hentSoknadSomKanBesvares(fnr).let {
@@ -179,12 +179,6 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
         lagretSoknad.sporsmal!!.first {
             it.tag == "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE"
         }.undersporsmal shouldHaveSize 2
-    }
-
-    @Test
-    @Order(7)
-    fun `Underspørsmål som grupperer perioder i spørsmål om medlemskap er riktig sortert`() {
-        // TODO: Implementer sortering av underspørsmål basert på index.
     }
 
     @Test
