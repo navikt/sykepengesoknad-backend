@@ -132,19 +132,19 @@ class UnderersporsmalSortererTest {
         val soknad = sporsmalet.tilSoknad()
 
         val sporsmal = soknad.getSporsmalMedTag(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE).undersporsmal.first {
-            it.tag == "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_PERIODE-0"
+            it.tag == "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_PERIODE_0"
         }
 
         val soknadShufflet = soknad.replaceSporsmal(sporsmal.copy(undersporsmal = sporsmal.undersporsmal.shuffled()))
         val soknadSortert = soknadShufflet.sorterUndersporsmal()
 
         val forventetSortering = listOf(
-            "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_ARBEIDSGIVER-0",
-            "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_HVOR-0",
-            "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR-0"
+            "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_ARBEIDSGIVER_0",
+            "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_HVOR_0",
+            "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR_0"
         )
         soknadSortert.getSporsmalMedTag(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE).undersporsmal.first {
-            it.tag == "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_PERIODE-0"
+            it.tag == "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_PERIODE_0"
         }.undersporsmal.map { it.tag } `should be equal to` forventetSortering
     }
 
@@ -171,29 +171,29 @@ class UnderersporsmalSortererTest {
         val soknadSortert = soknadShufflet.sorterUndersporsmal()
 
         val forventetSortering = listOf(
-            "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_PERIODE-0",
-            "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_PERIODE-1"
+            "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_PERIODE_0",
+            "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_PERIODE_1"
         )
 
         val forventetSorteringForstePeriode = listOf(
-            "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_ARBEIDSGIVER-0",
-            "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_HVOR-0",
-            "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR-0"
+            "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_ARBEIDSGIVER_0",
+            "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_HVOR_0",
+            "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR_0"
         )
         val forventetSorteringAndrePeriode = listOf(
-            "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_ARBEIDSGIVER-1",
-            "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_HVOR-1",
-            "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR-1"
+            "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_ARBEIDSGIVER_1",
+            "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_HVOR_1",
+            "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR_1"
         )
 
         soknadSortert.getSporsmalMedTag(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE).undersporsmal.map { it.tag } `should be equal to` forventetSortering
 
         soknadSortert.getSporsmalMedTag(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE).undersporsmal.first {
-            it.tag == "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_PERIODE-0"
+            it.tag == "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_PERIODE_0"
         }.undersporsmal.map { it.tag } `should be equal to` forventetSorteringForstePeriode
 
         soknadSortert.getSporsmalMedTag(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE).undersporsmal.first {
-            it.tag == "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_PERIODE-1"
+            it.tag == "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_PERIODE_1"
         }.undersporsmal.map { it.tag } `should be equal to` forventetSorteringAndrePeriode
     }
 

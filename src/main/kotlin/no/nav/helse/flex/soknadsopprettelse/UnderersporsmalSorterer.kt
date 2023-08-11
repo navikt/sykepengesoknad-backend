@@ -113,6 +113,12 @@ private fun Sporsmal.sorteringYrkesskader(): String {
 }
 
 private fun fjernIndexFraTag(input: String): String {
-    // TODO: Endre til å hente ut siste verdi etter underscore.
-    return input.split("-").first()
+    val sisteUnderscoreIndex = input.lastIndexOf("_")
+    val sisteVerdiEtterUnderscore = input.substring(sisteUnderscoreIndex + 1)
+
+    // Sjekker om siste del av tag er et tall og returnerer da tag uten index hvis det er tilfelle.
+    if (sisteVerdiEtterUnderscore.toIntOrNull() != null) {
+        return input.substring(0, sisteUnderscoreIndex)
+    }
+    return input
 }

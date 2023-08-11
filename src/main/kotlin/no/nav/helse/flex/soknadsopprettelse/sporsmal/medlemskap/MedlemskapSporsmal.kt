@@ -67,31 +67,32 @@ fun lagMedlemskapArbeidUtenforNorgeSporsmal(tilDato: LocalDate): Sporsmal {
     )
 }
 
+fun medIndex(tekst: String, index: Int): String {
+    return tekst.plus("_").plus(index)
+}
+
 fun lagUndersporsmalTilArbeidUtenforNorgeSporsmal(
     index: Int,
     // TODO: Rydd i datoer og perioder med LovMe.
     fraDato: LocalDate = LocalDate.now().minusMonths(12),
     tilDato: LocalDate = LocalDate.now()
 ): Sporsmal {
-    fun medIndex(tekst: String): String {
-        return "$tekst-$index"
-    }
     return Sporsmal(
-        tag = medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_PERIODE),
+        tag = medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_PERIODE, index),
         svartype = Svartype.IKKE_RELEVANT,
         undersporsmal = listOf(
             Sporsmal(
-                tag = medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_ARBEIDSGIVER),
+                tag = medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_ARBEIDSGIVER, index),
                 sporsmalstekst = "Arbeidsgiver",
                 svartype = Svartype.FRITEKST
             ),
             Sporsmal(
-                tag = medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_HVOR),
+                tag = medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_HVOR, index),
                 sporsmalstekst = "Velg land",
                 svartype = Svartype.COMBOBOX_SINGLE
             ),
             Sporsmal(
-                tag = medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR),
+                tag = medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR, index),
                 svartype = Svartype.PERIODER,
                 min = fraDato.format(DateTimeFormatter.ISO_LOCAL_DATE),
                 max = tilDato.format(DateTimeFormatter.ISO_LOCAL_DATE)

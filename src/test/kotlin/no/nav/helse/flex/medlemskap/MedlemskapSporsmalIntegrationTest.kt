@@ -11,6 +11,7 @@ import no.nav.helse.flex.leggTilUndersporsmal
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
 import no.nav.helse.flex.oppdatersporsmal.soknad.OppdaterSporsmalService
 import no.nav.helse.flex.sendSykmelding
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.medIndex
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
@@ -247,9 +248,6 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
         soknad: RSSykepengesoknad,
         index: Int
     ) {
-        fun medIndex(tekst: String): String {
-            return "$tekst-$index"
-        }
         soknadBesvarer
             .besvarSporsmal(
                 tag = "MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE",
@@ -257,17 +255,17 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
                 ferdigBesvart = false
             )
             .besvarSporsmal(
-                tag = medIndex("MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_ARBEIDSGIVER"),
-                svar = medIndex("Arbeidsgiver"),
+                tag = medIndex("MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_ARBEIDSGIVER", index),
+                svar = medIndex("Arbeidsgiver", index),
                 ferdigBesvart = false
             )
             .besvarSporsmal(
-                tag = medIndex("MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_HVOR"),
-                svar = medIndex("Land"),
+                tag = medIndex("MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_HVOR", index),
+                svar = medIndex("Land", index),
                 ferdigBesvart = false
             )
             .besvarSporsmal(
-                tag = medIndex("MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR"),
+                tag = medIndex("MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR", index),
                 svar = DatoUtil.periodeTilJson(
                     fom = soknad.tom!!.minusDays(25),
                     tom = soknad.tom!!.minusDays(5)
