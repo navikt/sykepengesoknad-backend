@@ -68,7 +68,7 @@ fun lagMedlemskapArbeidUtenforNorgeSporsmal(tilDato: LocalDate): Sporsmal {
 }
 
 fun medIndex(tekst: String, index: Int): String {
-    return tekst.plus("_").plus(index)
+    return "$tekst$index"
 }
 
 fun lagUndersporsmalTilArbeidUtenforNorgeSporsmal(
