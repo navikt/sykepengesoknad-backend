@@ -112,7 +112,10 @@ private fun Sporsmal.sorteringYrkesskader(): String {
     return undertekst ?: "0"
 }
 
-private fun fjernIndexFraTag(input: String): String {
+/**
+ * Fjerner siste del av en tekst(index) fra tag hvis siste del av tag er et tall. Deler er separert med underscore.
+ */
+fun fjernIndexFraTag(input: String): String {
     val sisteUnderscoreIndex = input.lastIndexOf("_")
     val sisteVerdiEtterUnderscore = input.substring(sisteUnderscoreIndex + 1)
 

@@ -20,7 +20,7 @@ import java.util.*
 
 class UnderersporsmalSortererTest {
     @Test
-    fun `Test sortering av andre inntektskilder arbeidsledig`() {
+    fun `Test sortering av spørsmål om andre inntektskilder i arbeidsledigsøknad`() {
         val sporsmalet = andreInntektskilderArbeidsledig(fom = LocalDate.now(), tom = LocalDate.now())
         val soknad = sporsmalet.tilSoknad()
         val sporsmal = soknad.getSporsmalMedTag(HVILKE_ANDRE_INNTEKTSKILDER)
@@ -42,7 +42,7 @@ class UnderersporsmalSortererTest {
     }
 
     @Test
-    fun `Test sortering av andre inntektskilder frilanser`() {
+    fun `Test sortering av spørsmål om andre inntektskilder frilansersøknad`() {
         val sporsmalet = andreInntektskilderSelvstendigOgFrilanser(Arbeidssituasjon.FRILANSER)
         val soknad = sporsmalet.tilSoknad()
         val sporsmal = soknad.getSporsmalMedTag(HVILKE_ANDRE_INNTEKTSKILDER)
@@ -60,7 +60,7 @@ class UnderersporsmalSortererTest {
     }
 
     @Test
-    fun `Test sortering av andre inntektskilder arbeidstaker`() {
+    fun `Test sortering av spørsmål om andre inntektskilder arbeidstakersøknad`() {
         val sporsmalet = andreInntektskilderArbeidstaker("Staten")
         val soknad = sporsmalet.tilSoknad()
         val sporsmal = soknad.getSporsmalMedTag(HVILKE_ANDRE_INNTEKTSKILDER)
@@ -80,7 +80,7 @@ class UnderersporsmalSortererTest {
     }
 
     @Test
-    fun `Test sortering av andre arbeidsgiver sporsmal`() {
+    fun `Test sortering av spørsmål om andre arbeidsgivere`() {
         val soknad = settOppSoknadOppholdUtland("12345")
         val sporsmal = soknad.getSporsmalMedTag(ARBEIDSGIVER)
         val soknadShufflet = soknad.replaceSporsmal(sporsmal.copy(undersporsmal = sporsmal.undersporsmal.shuffled()))
@@ -95,7 +95,7 @@ class UnderersporsmalSortererTest {
     }
 
     @Test
-    fun `Test sortering av reise med bil spm`() {
+    fun `Test sortering av spørsmål om reise med bil`() {
         val sporsmalet = reiseMedBilSpørsmål("1 til 2. juli", LocalDate.now(), LocalDate.now())
         val soknad = sporsmalet.tilSoknad()
         val sporsmal = soknad.getSporsmalMedTag(REISE_MED_BIL)
@@ -128,7 +128,7 @@ class UnderersporsmalSortererTest {
     }
 
     @Test
-    fun `Test sortering av medlemskapspørsmål om arbeid utenfor Norge`() {
+    fun `Test sortering av medlemskapsørsmål om arbeid utenfor Norge`() {
         val sporsmalet = lagMedlemskapArbeidUtenforNorgeSporsmal(LocalDate.now())
         val soknad = sporsmalet.tilSoknad()
 
@@ -196,6 +196,14 @@ class UnderersporsmalSortererTest {
         soknadSortert.getSporsmalMedTag(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE).undersporsmal.first {
             it.tag == medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_GRUPPERING, 1)
         }.undersporsmal.map { it.tag } `should be equal to` forventetSorteringAndrePeriode
+    }
+
+    @Test
+    fun `Tag blir returnert uten index og delimiter uansett hvor stort tall index er`() {
+        fjernIndexFraTag("SPORSMAL_TAG_1") `should be equal to` "SPORSMAL_TAG"
+        fjernIndexFraTag("SPORSMAL_TAG_11") `should be equal to` "SPORSMAL_TAG"
+        fjernIndexFraTag("SPORSMAL_TAG_111") `should be equal to` "SPORSMAL_TAG"
+        fjernIndexFraTag("SPORSMAL_TAG_1111") `should be equal to` "SPORSMAL_TAG"
     }
 
     private fun shuffleRekursivt(undersporsmal: List<Sporsmal>): List<Sporsmal> {
