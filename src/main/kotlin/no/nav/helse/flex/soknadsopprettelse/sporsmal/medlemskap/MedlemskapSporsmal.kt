@@ -15,9 +15,7 @@ import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NOR
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-fun lagSporsmalOmOppholdstillatelse(tilDato: LocalDate): Sporsmal {
-    val fraDato = tilDato.minusMonths(12)
-
+fun lagSporsmalOmOppholdstillatelse(): Sporsmal {
     return Sporsmal(
         tag = MEDLEMSKAP_OPPHOLDSTILLATELSE,
         sporsmalstekst = "Har du oppholdstillatelse fra utlendingsdirektoratet?",
@@ -28,8 +26,11 @@ fun lagSporsmalOmOppholdstillatelse(tilDato: LocalDate): Sporsmal {
                 tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_VEDTAKSDATO,
                 sporsmalstekst = "Oppgi vedtaksdato om oppholdstillatelse:",
                 svartype = Svartype.DATO,
-                min = fraDato.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                max = tilDato.format(DateTimeFormatter.ISO_LOCAL_DATE)
+                // Vi vet ikke hvor lang tid tilbake en oppholdstillatelse kan ha bli gitt så vi setter 10 år i
+                // samarbeid med LovMe.
+                min = LocalDate.now().minusYears(10).format(DateTimeFormatter.ISO_LOCAL_DATE),
+                // Vi vet at en vedtaksdato ikke kan være i fremtiden så vi setter dagens dato som maks.
+                max = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
             ),
             Sporsmal(
                 tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_PERMANENT,
@@ -41,8 +42,8 @@ fun lagSporsmalOmOppholdstillatelse(tilDato: LocalDate): Sporsmal {
                         tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_PERIODE,
                         sporsmalstekst = "Hvilken periode har du fått oppholdstillatelse?",
                         svartype = Svartype.PERIODER,
-                        min = fraDato.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                        max = tilDato.format(DateTimeFormatter.ISO_LOCAL_DATE)
+                        min = LocalDate.now().minusYears(10).format(DateTimeFormatter.ISO_LOCAL_DATE),
+                        max = LocalDate.now().plusYears(10).format(DateTimeFormatter.ISO_LOCAL_DATE)
                     )
                 )
             )
@@ -50,9 +51,7 @@ fun lagSporsmalOmOppholdstillatelse(tilDato: LocalDate): Sporsmal {
     )
 }
 
-fun lagSporsmalOmArbeidUtenforNorge(tilDato: LocalDate): Sporsmal {
-    val fraDato = tilDato.minusMonths(12)
-
+fun lagSporsmalOmArbeidUtenforNorge(): Sporsmal {
     return Sporsmal(
         tag = MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
         sporsmalstekst = "Har du utført arbeid utenfor Norge i det siste 12 månedene?",
@@ -61,7 +60,7 @@ fun lagSporsmalOmArbeidUtenforNorge(tilDato: LocalDate): Sporsmal {
         // Holder en liste med IKKE_RELEVANT som fungerer som en container for underspørsmålene sånn at vi kan legge
         // til flere perioder med opphold utland.
         undersporsmal = listOf(
-            lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(0, fraDato, tilDato)
+            lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(0)
         )
     )
 }
@@ -71,10 +70,7 @@ fun medIndex(tekst: String, index: Int): String {
 }
 
 fun lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(
-    index: Int,
-    // TODO: Rydd i datoer og perioder med LovMe.
-    fraDato: LocalDate = LocalDate.now().minusMonths(12),
-    tilDato: LocalDate = LocalDate.now()
+    index: Int
 ): Sporsmal {
     return Sporsmal(
         tag = medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_GRUPPERING, index),
@@ -83,7 +79,10 @@ fun lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(
             Sporsmal(
                 tag = medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_ARBEIDSGIVER, index),
                 sporsmalstekst = "Arbeidsgiver",
-                svartype = Svartype.FRITEKST
+                svartype = Svartype.FRITEKST,
+                min = "1",
+                // Noen arbeidsgivere kan ha ganske lange navn.
+                max = "200"
             ),
             Sporsmal(
                 tag = medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_HVOR, index),
@@ -93,8 +92,10 @@ fun lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(
             Sporsmal(
                 tag = medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR, index),
                 svartype = Svartype.PERIODER,
-                min = fraDato.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                max = tilDato.format(DateTimeFormatter.ISO_LOCAL_DATE)
+                // Til- og fra-dato er satt statisk i samarbeid med LovMe siden vi ikke har noe mer konkret å
+                // forholde oss til.
+                min = LocalDate.now().minusYears(10).format(DateTimeFormatter.ISO_LOCAL_DATE),
+                max = LocalDate.now().plusYears(1).format(DateTimeFormatter.ISO_LOCAL_DATE)
             )
         )
     )

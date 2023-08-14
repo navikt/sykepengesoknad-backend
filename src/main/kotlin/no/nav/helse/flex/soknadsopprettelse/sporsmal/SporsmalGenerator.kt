@@ -152,11 +152,11 @@ class SporsmalGenerator(
                     medlemskapVurdering.sporsmal.forEach {
                         when (it) {
                             MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE -> medlemskapSporsmal.add(
-                                lagSporsmalOmOppholdstillatelse(soknad.tom)
+                                lagSporsmalOmOppholdstillatelse()
                             )
 
                             MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE -> medlemskapSporsmal.add(
-                                lagSporsmalOmArbeidUtenforNorge(soknad.tom)
+                                lagSporsmalOmArbeidUtenforNorge()
                             )
                             // TODO: Implementer resterende spørsmål.
                             else -> {
