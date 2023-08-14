@@ -206,6 +206,23 @@ class UnderersporsmalSortererTest {
         fjernIndexFraTag("SPORSMAL_TAG_1111") `should be equal to` "SPORSMAL_TAG"
     }
 
+    @Test
+    fun `Finn høyeste index til underspørsmål`() {
+        finnHoyesteIndex(
+            listOf(
+                lagUndersporsmalTilArbeidUtenforNorgeSporsmal(0, LocalDate.now(), LocalDate.now())
+            )
+        ) `should be equal to` 0
+
+        finnHoyesteIndex(
+            listOf(
+                lagUndersporsmalTilArbeidUtenforNorgeSporsmal(1, LocalDate.now(), LocalDate.now()),
+                lagUndersporsmalTilArbeidUtenforNorgeSporsmal(111, LocalDate.now(), LocalDate.now()),
+                lagUndersporsmalTilArbeidUtenforNorgeSporsmal(9, LocalDate.now(), LocalDate.now())
+            )
+        ) `should be equal to` 111
+    }
+
     private fun shuffleRekursivt(undersporsmal: List<Sporsmal>): List<Sporsmal> {
         return undersporsmal.shuffled().map {
             if (it.undersporsmal.isNotEmpty()) {

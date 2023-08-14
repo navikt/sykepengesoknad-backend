@@ -113,7 +113,8 @@ private fun Sporsmal.sorteringYrkesskader(): String {
 }
 
 /**
- * Fjerner siste del av en tekst(index) fra tag hvis siste del av tag er et tall. Deler er separert med underscore.
+ * Fjerner siste del av en tekst(index) fra tag hvis siste del av tag er et tall. Antar at underscore er brukt som
+ * separator.
  */
 fun fjernIndexFraTag(input: String): String {
     val sisteUnderscoreIndex = input.lastIndexOf("_")
@@ -124,4 +125,13 @@ fun fjernIndexFraTag(input: String): String {
         return input.substring(0, sisteUnderscoreIndex)
     }
     return input
+}
+
+/**
+ * Returnerer høyeste index til et spørsmål. Antar at underscore er brukt som separator.
+ */
+fun finnHoyesteIndex(sporsmal: List<Sporsmal>): Int {
+    return sporsmal.map { it.tag }
+        .map { it.substring(it.lastIndexOf("_") + 1) }
+        .maxOfOrNull { it.toIntOrNull() ?: 0 } ?: 0
 }

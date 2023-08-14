@@ -112,7 +112,7 @@ class OppdaterSporsmalService(
         val soknad = sykepengesoknadDAO.finnSykepengesoknad(soknadId)
         soknad.sporsmal.first { it.tag == MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE }.let { sporsmal ->
             val undersporsmal = sporsmal.undersporsmal
-            val nyttUndersporsmal = lagUndersporsmalTilArbeidUtenforNorgeSporsmal(undersporsmal.size)
+            val nyttUndersporsmal = lagUndersporsmalTilArbeidUtenforNorgeSporsmal(finnHoyesteIndex(undersporsmal) + 1)
             val oppdatertSporsmal = sporsmal.copy(undersporsmal = undersporsmal + nyttUndersporsmal)
             val oppdatertSoknad = soknad.replaceSporsmal(oppdatertSporsmal)
             sykepengesoknadDAO.byttUtSporsmal(oppdatertSoknad)
