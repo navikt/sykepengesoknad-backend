@@ -87,6 +87,7 @@ abstract class BaseTestClass {
                     System.setProperty("spring.datasource.username", username)
                     System.setProperty("spring.datasource.password", password)
                 }
+
             }.also { threads.add(it) }
 
             pdlMockWebserver = MockWebServer().apply {
