@@ -15,8 +15,7 @@ import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NOR
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-fun lagMedlemskapOppholdstillatelseSporsmal(tilDato: LocalDate): Sporsmal {
-    // TODO: Sjekk opp datoer og perioder med LovMe.
+fun lagSporsmalOmOppholdstillatelse(tilDato: LocalDate): Sporsmal {
     val fraDato = tilDato.minusMonths(12)
 
     return Sporsmal(
@@ -51,7 +50,7 @@ fun lagMedlemskapOppholdstillatelseSporsmal(tilDato: LocalDate): Sporsmal {
     )
 }
 
-fun lagMedlemskapArbeidUtenforNorgeSporsmal(tilDato: LocalDate): Sporsmal {
+fun lagSporsmalOmArbeidUtenforNorge(tilDato: LocalDate): Sporsmal {
     val fraDato = tilDato.minusMonths(12)
 
     return Sporsmal(
@@ -62,7 +61,7 @@ fun lagMedlemskapArbeidUtenforNorgeSporsmal(tilDato: LocalDate): Sporsmal {
         // Holder en liste med IKKE_RELEVANT som fungerer som en container for underspørsmålene sånn at vi kan legge
         // til flere perioder med opphold utland.
         undersporsmal = listOf(
-            lagUndersporsmalTilArbeidUtenforNorgeSporsmal(0, fraDato, tilDato)
+            lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(0, fraDato, tilDato)
         )
     )
 }
@@ -71,7 +70,7 @@ fun medIndex(tekst: String, index: Int): String {
     return "$tekst$index"
 }
 
-fun lagUndersporsmalTilArbeidUtenforNorgeSporsmal(
+fun lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(
     index: Int,
     // TODO: Rydd i datoer og perioder med LovMe.
     fraDato: LocalDate = LocalDate.now().minusMonths(12),

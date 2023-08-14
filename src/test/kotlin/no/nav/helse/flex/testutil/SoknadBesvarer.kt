@@ -39,7 +39,7 @@ private fun RSSporsmal.erSporsmalMedIdEllerHarUndersporsmalMedId(id: String): Bo
 
 class SoknadBesvarer(
     var rSSykepengesoknad: RSSykepengesoknad,
-    val mockMvc: BaseTestClass, // TODO RENAME
+    val mockMvc: BaseTestClass,
     val fnr: String,
     val muterteSoknaden: Boolean = false
 ) {

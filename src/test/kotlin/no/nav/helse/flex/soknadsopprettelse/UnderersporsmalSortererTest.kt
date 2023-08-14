@@ -8,9 +8,9 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderArbeidsledig
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderArbeidstaker
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderSelvstendigOgFrilanser
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagMedlemskapArbeidUtenforNorgeSporsmal
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagMedlemskapOppholdstillatelseSporsmal
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagUndersporsmalTilArbeidUtenforNorgeSporsmal
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmArbeidUtenforNorge
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmOppholdstillatelse
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.medIndex
 import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.Test
@@ -113,7 +113,7 @@ class UnderersporsmalSortererTest {
 
     @Test
     fun `Test sortering av medlemskapspørsmål om oppholdstillatelse`() {
-        val sporsmalet = lagMedlemskapOppholdstillatelseSporsmal(LocalDate.now())
+        val sporsmalet = lagSporsmalOmOppholdstillatelse(LocalDate.now())
         val soknad = sporsmalet.tilSoknad()
 
         val sporsmal = soknad.getSporsmalMedTag(MEDLEMSKAP_OPPHOLDSTILLATELSE)
@@ -129,7 +129,7 @@ class UnderersporsmalSortererTest {
 
     @Test
     fun `Test sortering av medlemskapsørsmål om arbeid utenfor Norge`() {
-        val sporsmalet = lagMedlemskapArbeidUtenforNorgeSporsmal(LocalDate.now())
+        val sporsmalet = lagSporsmalOmArbeidUtenforNorge(LocalDate.now())
         val soknad = sporsmalet.tilSoknad()
 
         val sporsmal = soknad.getSporsmalMedTag(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE).undersporsmal.first {
@@ -151,12 +151,12 @@ class UnderersporsmalSortererTest {
 
     @Test
     fun `Test sortering av medlemskapspørsmål om arbeid utenfor Norge med to underspørsmål`() {
-        val sporsmalet = lagMedlemskapArbeidUtenforNorgeSporsmal(LocalDate.now())
+        val sporsmalet = lagSporsmalOmArbeidUtenforNorge(LocalDate.now())
         val soknad = sporsmalet.tilSoknad()
 
         val sporsmalMedToUndersporsmal = sporsmalet.copy(
             undersporsmal = sporsmalet.undersporsmal + listOf(
-                lagUndersporsmalTilArbeidUtenforNorgeSporsmal(
+                lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(
                     1,
                     LocalDate.now(),
                     LocalDate.now()
@@ -210,15 +210,15 @@ class UnderersporsmalSortererTest {
     fun `Finn høyeste index til underspørsmål`() {
         finnHoyesteIndex(
             listOf(
-                lagUndersporsmalTilArbeidUtenforNorgeSporsmal(0, LocalDate.now(), LocalDate.now())
+                lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(0, LocalDate.now(), LocalDate.now())
             )
         ) `should be equal to` 0
 
         finnHoyesteIndex(
             listOf(
-                lagUndersporsmalTilArbeidUtenforNorgeSporsmal(1, LocalDate.now(), LocalDate.now()),
-                lagUndersporsmalTilArbeidUtenforNorgeSporsmal(111, LocalDate.now(), LocalDate.now()),
-                lagUndersporsmalTilArbeidUtenforNorgeSporsmal(9, LocalDate.now(), LocalDate.now())
+                lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(1, LocalDate.now(), LocalDate.now()),
+                lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(111, LocalDate.now(), LocalDate.now()),
+                lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(9, LocalDate.now(), LocalDate.now())
             )
         ) `should be equal to` 111
     }
