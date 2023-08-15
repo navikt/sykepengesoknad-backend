@@ -75,6 +75,16 @@ class AndreInntektskilderKtTest {
                 )
             )
 
+        besvartSoknad
+            .getSporsmalMedTag(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD)
+            .undersporsmal
+            .map { it.tag }
+            .shouldBeEqualTo(
+                listOf(
+                    INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD_JOBBET_SISTE_14_DAGER
+                )
+            )
+
         val andreInntektskilder = konverterArbeidstakersoknadTilSykepengesoknadDTO(
             besvartSoknad,
             Mottaker.ARBEIDSGIVER_OG_NAV,

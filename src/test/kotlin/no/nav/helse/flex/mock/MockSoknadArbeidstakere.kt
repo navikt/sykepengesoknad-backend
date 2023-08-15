@@ -308,6 +308,7 @@ private fun Sykepengesoknad.utenlandsopphold(): Sykepengesoknad {
 private fun Sykepengesoknad.andreInntektskilder(): Sykepengesoknad {
     return besvarsporsmal(ANDRE_INNTEKTSKILDER_V2, "JA")
         .besvarsporsmal(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD, "CHECKED")
+        .besvarsporsmal(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD_JOBBET_SISTE_14_DAGER, "CHECKED")
         .besvarsporsmal(INNTEKTSKILDE_SELVSTENDIG, "CHECKED")
         .besvarsporsmal(INNTEKTSKILDE_SELVSTENDIG_N_AR, "JA")
         .besvarsporsmal(INNTEKTSKILDE_SELVSTENDIG_VARIG_ENDRING_NEI, "CHECKED")
