@@ -71,7 +71,7 @@ fun andreInntektskilderArbeidstakerV2(sykmeldingOrgnavn: String, andreKjenteArbe
                         undersporsmal = listOf(
                             Sporsmal(
                                 tag = INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD_JOBBET_SISTE_14_DAGER,
-                                sporsmalstekst = "Har du jobbet eller mottatt inntekt der (derifra?) de siste 14 dagene før du ble sykmeldt?",
+                                sporsmalstekst = "Har du jobbet eller mottatt inntekt der de siste 14 dagene før du ble sykmeldt?",
                                 svartype = Svartype.JA_NEI
                             )
                         )
