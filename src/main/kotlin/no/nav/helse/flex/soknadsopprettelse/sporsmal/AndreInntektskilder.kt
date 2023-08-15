@@ -66,7 +66,15 @@ fun andreInntektskilderArbeidstakerV2(sykmeldingOrgnavn: String, andreKjenteArbe
                     Sporsmal(
                         tag = INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD,
                         sporsmalstekst = "Ansatt et annet sted enn nevnt over",
-                        svartype = Svartype.CHECKBOX
+                        svartype = Svartype.CHECKBOX,
+                        kriterieForVisningAvUndersporsmal = Visningskriterie.CHECKED,
+                        undersporsmal = listOf(
+                            Sporsmal(
+                                tag = INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD_JOBBET_SISTE_14_DAGER,
+                                sporsmalstekst = "Har du jobbet eller mottatt inntekt der (derifra?) de siste 14 dagene før du ble sykmeldt?",
+                                svartype = Svartype.JA_NEI
+                            )
+                        )
                     ),
                     Sporsmal(
                         tag = INNTEKTSKILDE_SELVSTENDIG,
