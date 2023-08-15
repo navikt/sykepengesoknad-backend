@@ -11,6 +11,8 @@ enum class Svartype {
     TIMER,
     FRITEKST,
     LAND,
+    COMBOBOX_SINGLE,
+    COMBOBOX_MULTI,
     IKKE_RELEVANT,
     PROSENT,
     RADIO_GRUPPE,

@@ -83,6 +83,14 @@ fun BaseTestClass.slettSvar(fnr: String, soknadId: String, sporsmalId: String, s
         .andReturn()
 }
 
+fun BaseTestClass.leggTilUndersporsmal(fnr: String, soknadId: String, sporsmalId: String): ResultActions {
+    return this.mockMvc.perform(
+        MockMvcRequestBuilders.post("/api/v2/soknader/$soknadId/sporsmal/$sporsmalId/undersporsmal")
+            .header("Authorization", "Bearer ${jwt(fnr)}")
+            .contentType(MediaType.APPLICATION_JSON)
+    )
+}
+
 fun BaseTestClass.opprettUtlandssoknad(fnr: String) {
     mockMvc.perform(
         MockMvcRequestBuilders.post("/api/v2/opprettSoknadUtland")

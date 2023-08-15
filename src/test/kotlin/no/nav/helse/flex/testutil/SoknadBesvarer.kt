@@ -39,7 +39,7 @@ private fun RSSporsmal.erSporsmalMedIdEllerHarUndersporsmalMedId(id: String): Bo
 
 class SoknadBesvarer(
     var rSSykepengesoknad: RSSykepengesoknad,
-    val mockMvc: BaseTestClass, // TODO RENAME
+    val mockMvc: BaseTestClass,
     val fnr: String,
     val muterteSoknaden: Boolean = false
 ) {
@@ -64,7 +64,7 @@ class SoknadBesvarer(
         mutert: Boolean = false
     ): SoknadBesvarer {
         val sporsmal = rSSykepengesoknad.alleSporsmalOgUndersporsmal().find { it.tag == tag }
-            ?: throw RuntimeException("Spørsmål ikke funnet $tag")
+            ?: throw RuntimeException("Spørsmål ikke funnet $tag - sporsmal: ${rSSykepengesoknad.sporsmal}")
         val rsSvar = svarListe.map { RSSvar(verdi = it) }
         val oppdatertSoknad = rSSykepengesoknad.byttSvar(sporsmal.tag, rsSvar)
         rSSykepengesoknad = oppdatertSoknad
@@ -75,7 +75,7 @@ class SoknadBesvarer(
         }
     }
 
-    private fun gaVidere(tag: String, mutert: Boolean): SoknadBesvarer {
+    fun gaVidere(tag: String, mutert: Boolean): SoknadBesvarer {
         val hovedsporsmal = finnHovedsporsmal(tag)
         val (mutertSoknad, _) = mockMvc.oppdaterSporsmal(fnr, hovedsporsmal, rSSykepengesoknad.id, mutert)
 

@@ -15,6 +15,7 @@ import no.nav.helse.flex.oppdatersporsmal.soknad.muteringer.utlandssoknadMuterin
 import no.nav.helse.flex.repository.SvarDAO
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.soknadsopprettelse.*
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge
 import no.nav.helse.flex.svarvalidering.tilKvittering
 import no.nav.helse.flex.svarvalidering.validerSvarPaSporsmal
 import no.nav.helse.flex.util.Metrikk
@@ -104,6 +105,18 @@ class OppdaterSporsmalService(
             oppdaterSporsmal(lagretSoknad, oppdatertSporsmal)
         }
         log.info("Slettet svar $svarId for spørsmål $sporsmalId og søknad $soknadId.")
+    }
+
+    fun leggTilNyttUndersporsmal(soknadId: String, tag: String) {
+        val soknad = sykepengesoknadDAO.finnSykepengesoknad(soknadId)
+        soknad.sporsmal.first { it.tag == MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE }.let { sporsmal ->
+            val oppdatertSporsmal = sporsmal.copy(
+                undersporsmal = sporsmal.undersporsmal + lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(
+                    finnHoyesteIndex(sporsmal.undersporsmal) + 1
+                )
+            )
+            sykepengesoknadDAO.byttUtSporsmal(soknad.replaceSporsmal(oppdatertSporsmal))
+        }
     }
 
     private fun slettKvittering(sporsmal: Sporsmal, svar: Svar) {

@@ -19,9 +19,14 @@ import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.exception.*
+import no.nav.helse.flex.exception.FeilStatusForOppdaterSporsmalException
+import no.nav.helse.flex.exception.ForsokPaSendingAvNyereSoknadException
+import no.nav.helse.flex.exception.IkkeTilgangException
+import no.nav.helse.flex.exception.ReadOnlyException
+import no.nav.helse.flex.exception.SporsmalFinnesIkkeISoknadException
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.oppdatersporsmal.soknad.OppdaterSporsmalService
+import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.sending.SoknadSender
 import no.nav.helse.flex.service.AvbrytSoknadService
 import no.nav.helse.flex.service.EttersendingSoknadService
@@ -31,6 +36,7 @@ import no.nav.helse.flex.service.HentSoknadService
 import no.nav.helse.flex.service.IdentService
 import no.nav.helse.flex.service.KorrigerSoknadService
 import no.nav.helse.flex.service.MottakerAvSoknadService
+import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE
 import no.nav.helse.flex.soknadsopprettelse.OpprettSoknadService
 import no.nav.helse.flex.svarvalidering.validerSvarPaSoknad
 import no.nav.helse.flex.util.Metrikk
@@ -40,6 +46,7 @@ import no.nav.security.token.support.core.jwt.JwtTokenClaims
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -58,6 +65,7 @@ class SoknadTokenXController(
     private val oppdaterSporsmalService: OppdaterSporsmalService,
     private val avbrytSoknadService: AvbrytSoknadService,
     private val environmentToggles: EnvironmentToggles,
+    private val sykepengesoknadDAO: SykepengesoknadDAO,
 
     @Value("\${DITT_SYKEFRAVAER_FRONTEND_CLIENT_ID}")
     val dittSykefravaerFrontendClientId: String,
@@ -305,16 +313,15 @@ class SoknadTokenXController(
         sporsmalId: String
     ): Sporsmal {
         if (!listOf(Soknadstatus.NY, Soknadstatus.UTKAST_TIL_KORRIGERING).contains(soknad.status)) {
-            throw FeilStatusForOppdaterSporsmalException("Søknad $soknadId har status ${soknad.status}. Da kan man ikke besvare spørsmål")
+            throw FeilStatusForOppdaterSporsmalException("Søknad $soknadId har status ${soknad.status}. Da kan man ikke besvare spørsmål.")
         }
 
         if (!soknad.alleSporsmalOgUndersporsmal().mapNotNull { it.id }.contains(sporsmalId)) {
-            throw SporsmalFinnesIkkeISoknadException("$sporsmalId finnes ikke i søknad $soknadId")
+            throw SporsmalFinnesIkkeISoknadException("$sporsmalId finnes ikke i søknad $soknadId.")
         }
 
-        val sporsmal = soknad.sporsmal.find { it.id == sporsmalId }
-            ?: throw IllegalArgumentException("$sporsmalId er ikke et hovedspørsmål i søknad $soknadId")
-        return sporsmal
+        return soknad.sporsmal.find { it.id == sporsmalId }
+            ?: throw IllegalArgumentException("$sporsmalId er ikke et hovedspørsmål i søknad $soknadId.")
     }
 
     @ProtectedWithClaims(issuer = TOKENX, claimMap = ["acr=Level4"])
@@ -323,6 +330,34 @@ class SoknadTokenXController(
         val (sykepengesoknad, identer) = hentOgSjekkTilgangTilSoknad(id)
         val mottaker = mottakerAvSoknadService.finnMottakerAvSoknad(sykepengesoknad, identer)
         return RSMottakerResponse(RSMottaker.valueOf(mottaker.name))
+    }
+
+    data class RSNyttUndersporsmalResponse(val id: String)
+
+    @ProtectedWithClaims(issuer = TOKENX, claimMap = ["acr=Level4"])
+    @PostMapping(
+        value = ["/soknader/{soknadId}/sporsmal/{sporsmalId}/undersporsmal"],
+        consumes = [APPLICATION_JSON_VALUE]
+    )
+    fun leggTilUndersporsmal(
+        @PathVariable soknadId: String,
+        @PathVariable sporsmalId: String
+    ): ResponseEntity<Any> {
+        val (soknad, _) = hentOgSjekkTilgangTilSoknad(soknadId)
+        val sporsmal = validerStatusOgHovedsporsmal(soknad = soknad, soknadId = soknadId, sporsmalId = sporsmalId)
+
+        when (sporsmal.tag) {
+            MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE -> {
+                oppdaterSporsmalService.leggTilNyttUndersporsmal(soknad.id, sporsmal.tag)
+            }
+
+            else -> {
+                // Kan bare legge til underspørsmål på spørsmål om medlemskap, siden hvert underspørsmål representerer
+                // en "periode" (opphold, arbeid) som i seg selv har underspørsmål.
+                throw IllegalArgumentException("Kan ikke legge til underspørsmål på spørsmål med tag ${sporsmal.tag}.")
+            }
+        }
+        return ResponseEntity<Any>(HttpStatus.CREATED)
     }
 
     data class SoknadOgIdenter(val sykepengesoknad: Sykepengesoknad, val identer: FolkeregisterIdenter)

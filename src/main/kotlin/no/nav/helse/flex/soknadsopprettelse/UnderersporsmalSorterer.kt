@@ -16,7 +16,8 @@ private fun Sporsmal.sorterUndersporsmal(): Sporsmal {
     val sorterteUndersporsmal = this.undersporsmal
         .map { it.sorterUndersporsmal() }
         .sortedBy {
-            when (this.tag) {
+            val tagUtenIndex = fjernIndexFraTag(this.tag)
+            when (tagUtenIndex) {
                 HVILKE_ANDRE_INNTEKTSKILDER -> it.sorteringAndreInntektskilder()
                 INNTEKTSKILDE_SELVSTENDIG_VARIG_ENDRING_GRUPPE -> it.sorteringVarigEndring()
                 ARBEIDSGIVER -> it.sorteringArbeidsgiver()
@@ -24,6 +25,7 @@ private fun Sporsmal.sorterUndersporsmal(): Sporsmal {
                 UTENLANDSK_SYKMELDING_BOSTED -> it.sorteringBosted()
                 YRKESSKADE_V2_VELG_DATO -> it.sorteringYrkesskader()
                 MEDLEMSKAP_OPPHOLDSTILLATELSE -> it.sorteringMedlemskapOppholdstillatelse()
+                MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_GRUPPERING -> it.sorteringMedlemskapArbeidUtenforNorgeGruppering()
                 else -> it.tag
             }
         }
@@ -36,6 +38,16 @@ private fun Sporsmal.sorteringMedlemskapOppholdstillatelse(): String? {
         MEDLEMSKAP_OPPHOLDSTILLATELSE_PERMANENT -> "1"
         MEDLEMSKAP_OPPHOLDSTILLATELSE_PERIODE -> "2"
         else -> throw RuntimeException("Ukjent underspørsmål for medlemskap oppholdstillatelse: $tag")
+    }
+}
+
+private fun Sporsmal.sorteringMedlemskapArbeidUtenforNorgeGruppering(): String {
+    val tagUtenIndex = fjernIndexFraTag(this.tag)
+    return when (tagUtenIndex) {
+        MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_ARBEIDSGIVER -> "0"
+        MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_HVOR -> "1"
+        MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR -> "2"
+        else -> throw RuntimeException("Ukjent underspørsmål for medlemskap arbeid utenfor Norge: $tag")
     }
 }
 
@@ -98,4 +110,28 @@ private fun Sporsmal.sorteringBosted(): String {
 
 private fun Sporsmal.sorteringYrkesskader(): String {
     return undertekst ?: "0"
+}
+
+/**
+ * Fjerner siste del av en tekst(index) fra tag hvis siste del av tag er et tall. Antar at underscore er brukt som
+ * separator.
+ */
+fun fjernIndexFraTag(input: String): String {
+    val sisteUnderscoreIndex = input.lastIndexOf("_")
+    val sisteVerdiEtterUnderscore = input.substring(sisteUnderscoreIndex + 1)
+
+    // Sjekker om siste del av tag er et tall og returnerer da tag uten index hvis det er tilfelle.
+    if (sisteVerdiEtterUnderscore.toIntOrNull() != null) {
+        return input.substring(0, sisteUnderscoreIndex)
+    }
+    return input
+}
+
+/**
+ * Returnerer høyeste index til et spørsmål. Antar at underscore er brukt som separator.
+ */
+fun finnHoyesteIndex(sporsmal: List<Sporsmal>): Int {
+    return sporsmal.map { it.tag }
+        .map { it.substring(it.lastIndexOf("_") + 1) }
+        .maxOfOrNull { it.toIntOrNull() ?: 0 } ?: 0
 }

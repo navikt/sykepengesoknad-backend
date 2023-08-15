@@ -7,8 +7,12 @@ import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.hentProduserteRecords
 import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknaderMetadata
+import no.nav.helse.flex.leggTilUndersporsmal
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
+import no.nav.helse.flex.oppdatersporsmal.soknad.OppdaterSporsmalService
 import no.nav.helse.flex.sendSykmelding
+import no.nav.helse.flex.soknadsopprettelse.*
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.medIndex
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
@@ -35,6 +39,9 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
 
     @Autowired
     private lateinit var medlemskapVurderingRepository: MedlemskapVurderingRepository
+
+    @Autowired
+    private lateinit var oppdaterSporsmalService: OppdaterSporsmalService
 
     // Trigger response fra LovMe med alle spørsmål.
     private final val fnr = "31111111111"
@@ -73,17 +80,18 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
 
         Assertions.assertThat(soknad.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
-                "ANSVARSERKLARING",
-                "TILBAKE_I_ARBEID",
-                "FERIE_V2",
-                "PERMISJON_V2",
-                "UTLAND_V2",
-                "ARBEID_UNDERVEIS_100_PROSENT_0",
-                "ARBEID_UTENFOR_NORGE",
-                "ANDRE_INNTEKTSKILDER_V2",
-                "MEDLEMSKAP_OPPHOLDSTILLATELSE",
-                "VAER_KLAR_OVER_AT",
-                "BEKREFT_OPPLYSNINGER"
+                ANSVARSERKLARING,
+                TILBAKE_I_ARBEID,
+                FERIE_V2,
+                PERMISJON_V2,
+                UTLAND_V2,
+                medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0),
+                ARBEID_UTENFOR_NORGE,
+                ANDRE_INNTEKTSKILDER_V2,
+                MEDLEMSKAP_OPPHOLDSTILLATELSE,
+                MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
+                VAER_KLAR_OVER_AT,
+                BEKREFT_OPPLYSNINGER
             )
         )
     }
@@ -107,47 +115,88 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
     @Test
     @Order(4)
     fun `Spørsmål er riktig sortert`() {
-        val soknad = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
-            fnr = fnr
-        )
+        val soknad = hentSoknadMedStatusNy(fnr)
 
-        val indexOfMedlemskapOppholdstillatelse =
-            soknad.sporsmal!!.indexOf(soknad.sporsmal!!.first { it.tag == "MEDLEMSKAP_OPPHOLDSTILLATELSE" }) shouldBeEqualTo 8
-        soknad.sporsmal!![indexOfMedlemskapOppholdstillatelse - 1].tag shouldBeEqualTo "ANDRE_INNTEKTSKILDER_V2"
-        soknad.sporsmal!![indexOfMedlemskapOppholdstillatelse + 1].tag shouldBeEqualTo "VAER_KLAR_OVER_AT"
+        val index = soknad.sporsmal!!.indexOf(
+            soknad.sporsmal!!.first {
+                it.tag == MEDLEMSKAP_OPPHOLDSTILLATELSE
+            }
+        ) shouldBeEqualTo 8
+        soknad.sporsmal!![index - 1].tag shouldBeEqualTo ANDRE_INNTEKTSKILDER_V2
+        soknad.sporsmal!![index + 1].tag shouldBeEqualTo MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE
+        soknad.sporsmal!![index + 2].tag shouldBeEqualTo VAER_KLAR_OVER_AT
     }
 
     @Test
     @Order(4)
-    fun `Besvar medlemskapspørsmål og send inn søknaden`() {
-        flexSyketilfelleMockRestServiceServer.reset()
-        mockFlexSyketilfelleArbeidsgiverperiode()
+    fun `Besvar medlemskapspørsmål om oppholdstillatelse`() {
+        val soknad = hentSoknadMedStatusNy(fnr)
 
-        val soknad = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
-            fnr = fnr
-        )
-
-        val sendtSoknad = besvarArbeidstakersporsmal(soknad)
-            .besvarSporsmal(tag = "MEDLEMSKAP_OPPHOLDSTILLATELSE", svar = "JA", ferdigBesvart = false)
+        SoknadBesvarer(rSSykepengesoknad = soknad, mockMvc = this, fnr = fnr)
+            .besvarSporsmal(tag = MEDLEMSKAP_OPPHOLDSTILLATELSE, svar = "JA", ferdigBesvart = false)
             .besvarSporsmal(
-                tag = "MEDLEMSKAP_OPPHOLDSTILLATELSE_VEDTAKSDATO",
+                tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_VEDTAKSDATO,
                 svar = soknad.fom.toString(),
                 ferdigBesvart = false
             )
-            .besvarSporsmal(tag = "MEDLEMSKAP_OPPHOLDSTILLATELSE_PERMANENT", svar = "NEI", ferdigBesvart = false)
+            .besvarSporsmal(tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_PERMANENT, svar = "NEI", ferdigBesvart = false)
             .besvarSporsmal(
-                tag = "MEDLEMSKAP_OPPHOLDSTILLATELSE_PERIODE",
+                tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_PERIODE,
                 svar = DatoUtil.periodeTilJson(
                     fom = soknad.tom!!.minusDays(25),
                     tom = soknad.tom!!.minusDays(5)
                 )
             )
-            .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
-            .sendSoknad()
+    }
 
-        sendtSoknad.status shouldBeEqualTo RSSoknadstatus.SENDT
+    @Test
+    @Order(5)
+    fun `Besvar medlemskapspørsmål om arbeid utenfor Norge med to perioder`() {
+        val soknadId = hentSoknadMedStatusNy(fnr).id
+
+        hentSoknadSomKanBesvares(fnr).let {
+            val (soknad, soknadBesvarer) = it
+            besvarMedlemskapArbeidUtenforNorge(
+                soknadBesvarer = soknadBesvarer,
+                soknad = soknad,
+                index = 0
+            )
+        }
+
+        leggTilUndersporsmal(soknadId, MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE)
+
+        hentSoknadSomKanBesvares(fnr).let {
+            val (soknad, soknadBesvarer) = it
+            besvarMedlemskapArbeidUtenforNorge(
+                soknadBesvarer = soknadBesvarer,
+                soknad = soknad,
+                index = 1
+            )
+        }
+
+        val lagretSoknad = hentSoknad(
+            soknadId = soknadId,
+            fnr = fnr
+        )
+        lagretSoknad.sporsmal!!.first {
+            it.tag == MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE
+        }.undersporsmal shouldHaveSize 2
+    }
+
+    @Test
+    @Order(7)
+    fun `Besvar arbeidtakerspørsmål og send søknaden`() {
+        flexSyketilfelleMockRestServiceServer.reset()
+        mockFlexSyketilfelleArbeidsgiverperiode()
+
+        hentSoknadSomKanBesvares(fnr).let {
+            val (_, soknadBesvarer) = it
+            besvarArbeidstakerSporsmal(soknadBesvarer)
+            val sendtSoknad = soknadBesvarer
+                .besvarSporsmal(tag = BEKREFT_OPPLYSNINGER, svar = "CHECKED")
+                .sendSoknad()
+            sendtSoknad.status shouldBeEqualTo RSSoknadstatus.SENDT
+        }
 
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
         kafkaSoknader shouldHaveSize 1
@@ -155,19 +204,73 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
 
         kafkaSoknad.status shouldBeEqualTo SoknadsstatusDTO.SENDT
 
-        // Medlemsskapspørsmål blir ikke mappet om til eget felt i SykepengesoknadDTO så vi trenger bare å sjekke at
-        // spørsmålet er med.
-        kafkaSoknad.sporsmal!!.any { it.tag == "MEDLEMSKAP_OPPHOLDSTILLATELSE" } shouldBeEqualTo true
+        // Spørsmålene som omhandler medlemskap blir ikke mappet om til eget felt i SykepengesoknadDTO så vi trenger
+        // bare å sjekke at spørsmålene er med.
+        kafkaSoknad.sporsmal!!.any { it.tag == MEDLEMSKAP_OPPHOLDSTILLATELSE } shouldBeEqualTo true
+        kafkaSoknad.sporsmal!!.any { it.tag == MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE } shouldBeEqualTo true
     }
 
-    private fun besvarArbeidstakersporsmal(soknaden: RSSykepengesoknad) =
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
-            .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
-            .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
-            .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
-            .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
-            .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
-            .besvarSporsmal(tag = "ARBEID_UTENFOR_NORGE", svar = "NEI")
-            .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
-            .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
+    private fun hentSoknadMedStatusNy(fnr: String): RSSykepengesoknad {
+        return hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
+            fnr = fnr
+        )
+    }
+
+    private fun leggTilUndersporsmal(soknadId: String, tag: String) {
+        val lagretSoknad = hentSoknad(
+            soknadId = soknadId,
+            fnr = fnr
+        )
+
+        val hovedsporsmal = lagretSoknad.sporsmal!!.first { it.tag == tag }
+        leggTilUndersporsmal(fnr, soknadId, hovedsporsmal.id!!)
+    }
+
+    private fun hentSoknadSomKanBesvares(fnr: String): Pair<RSSykepengesoknad, SoknadBesvarer> {
+        val soknad = hentSoknadMedStatusNy(fnr)
+        val soknadBesvarer = SoknadBesvarer(rSSykepengesoknad = soknad, mockMvc = this, fnr = fnr)
+        return Pair(soknad, soknadBesvarer)
+    }
+
+    private fun besvarArbeidstakerSporsmal(soknadBesvarer: SoknadBesvarer) =
+        soknadBesvarer
+            .besvarSporsmal(tag = ANSVARSERKLARING, svar = "CHECKED")
+            .besvarSporsmal(tag = TILBAKE_I_ARBEID, svar = "NEI")
+            .besvarSporsmal(tag = FERIE_V2, svar = "NEI")
+            .besvarSporsmal(tag = PERMISJON_V2, svar = "NEI")
+            .besvarSporsmal(tag = UTLAND_V2, svar = "NEI")
+            .besvarSporsmal(tag = ARBEID_UTENFOR_NORGE, svar = "NEI")
+            .besvarSporsmal(tag = medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0), svar = "NEI")
+            .besvarSporsmal(tag = ANDRE_INNTEKTSKILDER_V2, svar = "NEI")
+
+    private fun besvarMedlemskapArbeidUtenforNorge(
+        soknadBesvarer: SoknadBesvarer,
+        soknad: RSSykepengesoknad,
+        index: Int
+    ) {
+        soknadBesvarer
+            .besvarSporsmal(
+                tag = MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
+                svar = "JA",
+                ferdigBesvart = false
+            )
+            .besvarSporsmal(
+                tag = medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_ARBEIDSGIVER, index),
+                svar = medIndex("Arbeidsgiver", index),
+                ferdigBesvart = false
+            )
+            .besvarSporsmal(
+                tag = medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_HVOR, index),
+                svar = medIndex("Land", index),
+                ferdigBesvart = false
+            )
+            .besvarSporsmal(
+                tag = medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR, index),
+                svar = DatoUtil.periodeTilJson(
+                    fom = soknad.tom!!.minusDays(25),
+                    tom = soknad.tom!!.minusDays(5)
+                )
+            )
+    }
 }
