@@ -358,6 +358,29 @@ class SoknadTokenXController(
         return ResponseEntity<Any>(HttpStatus.CREATED)
     }
 
+    @ProtectedWithClaims(issuer = TOKENX, claimMap = ["acr=Level4"])
+    @DeleteMapping(
+        value = ["/soknader/{soknadId}/sporsmal/{sporsmalId}/undersporsmal/{undersporsmalId}"]
+    )
+    fun slettUndersporsmal(
+        @PathVariable soknadId: String,
+        @PathVariable sporsmalId: String,
+        @PathVariable undersporsmalId: String
+    ): ResponseEntity<Any> {
+        val (soknad, _) = hentOgSjekkTilgangTilSoknad(soknadId)
+        val hovedSporsmal = validerStatusOgHovedsporsmal(soknad = soknad, soknadId = soknadId, sporsmalId = sporsmalId)
+
+        when (hovedSporsmal.tag) {
+            MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE -> {
+                oppdaterSporsmalService.slettUndersporsmal(soknad, hovedSporsmal, undersporsmalId)
+            }
+            else -> {
+                throw IllegalArgumentException("Kan ikke slette underspørsmål på spørsmål med tag ${hovedSporsmal.tag}.")
+            }
+        }
+        return ResponseEntity<Any>(HttpStatus.OK)
+    }
+
     data class SoknadOgIdenter(val sykepengesoknad: Sykepengesoknad, val identer: FolkeregisterIdenter)
 
     private fun hentOgSjekkTilgangTilSoknad(soknadId: String): SoknadOgIdenter {
