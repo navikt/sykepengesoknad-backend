@@ -306,6 +306,9 @@ class SoknadTokenXController(
         @PathVariable soknadId: String,
         @PathVariable sporsmalId: String
     ): ResponseEntity<Any> {
+        if (environmentToggles.isReadOnly()) {
+            throw ReadOnlyException()
+        }
         val (soknad, _) = hentOgSjekkTilgangTilSoknad(soknadId)
         val sporsmal = validerStatusOgHovedsporsmal(soknad = soknad, soknadId = soknadId, sporsmalId = sporsmalId)
 
@@ -332,8 +335,11 @@ class SoknadTokenXController(
         @PathVariable sporsmalId: String,
         @PathVariable undersporsmalId: String
     ): ResponseEntity<Any> {
+        if (environmentToggles.isReadOnly()) {
+            throw ReadOnlyException()
+        }
         val (soknad, _) = hentOgSjekkTilgangTilSoknad(soknadId)
-        val hovedSporsmal = validerStatusOgHovedsporsmal(soknad = soknad, soknadId = soknadId, sporsmalId = sporsmalId)
+        val hovedSporsmal = validerStatusOgHovedsporsmal(soknad, soknadId, sporsmalId)
 
         when (hovedSporsmal.tag) {
             MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE -> {
