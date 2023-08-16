@@ -46,7 +46,6 @@ import no.nav.security.token.support.core.jwt.JwtTokenClaims
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
-import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -206,7 +205,7 @@ class SoknadTokenXController(
     }
 
     @ProtectedWithClaims(issuer = TOKENX, claimMap = ["acr=Level4"])
-    @PostMapping(value = ["/soknader/{id}/korriger"])
+    @PostMapping(value = ["/soknader/{id}/korriger"], produces = [APPLICATION_JSON_VALUE])
     fun korriger(@PathVariable("id") id: String): RSSykepengesoknad {
         if (environmentToggles.isReadOnly()) {
             throw ReadOnlyException()
@@ -269,9 +268,7 @@ class SoknadTokenXController(
 
     @ProtectedWithClaims(issuer = TOKENX, claimMap = ["acr=Level4"])
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @DeleteMapping(
-        value = ["/soknader/{soknadId}/sporsmal/{sporsmalId}/svar/{svarId}"]
-    )
+    @DeleteMapping(value = ["/soknader/{soknadId}/sporsmal/{sporsmalId}/svar/{svarId}"])
     fun slettSvar(
         @PathVariable soknadId: String,
         @PathVariable sporsmalId: String,
@@ -298,14 +295,12 @@ class SoknadTokenXController(
     }
 
     @ProtectedWithClaims(issuer = TOKENX, claimMap = ["acr=Level4"])
-    @PostMapping(
-        value = ["/soknader/{soknadId}/sporsmal/{sporsmalId}/undersporsmal"],
-        consumes = [APPLICATION_JSON_VALUE]
-    )
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping(value = ["/soknader/{soknadId}/sporsmal/{sporsmalId}/undersporsmal"])
     fun leggTilUndersporsmal(
         @PathVariable soknadId: String,
         @PathVariable sporsmalId: String
-    ): ResponseEntity<Any> {
+    ) {
         if (environmentToggles.isReadOnly()) {
             throw ReadOnlyException()
         }
@@ -323,18 +318,16 @@ class SoknadTokenXController(
                 throw IllegalArgumentException("Kan ikke legge til underspørsmål på spørsmål med tag ${sporsmal.tag}.")
             }
         }
-        return ResponseEntity<Any>(HttpStatus.CREATED)
     }
 
     @ProtectedWithClaims(issuer = TOKENX, claimMap = ["acr=Level4"])
-    @DeleteMapping(
-        value = ["/soknader/{soknadId}/sporsmal/{sporsmalId}/undersporsmal/{undersporsmalId}"]
-    )
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @DeleteMapping(value = ["/soknader/{soknadId}/sporsmal/{sporsmalId}/undersporsmal/{undersporsmalId}"])
     fun slettUndersporsmal(
         @PathVariable soknadId: String,
         @PathVariable sporsmalId: String,
         @PathVariable undersporsmalId: String
-    ): ResponseEntity<Any> {
+    ) {
         if (environmentToggles.isReadOnly()) {
             throw ReadOnlyException()
         }
@@ -349,7 +342,6 @@ class SoknadTokenXController(
                 throw IllegalArgumentException("Kan ikke slette underspørsmål på spørsmål med tag ${hovedSporsmal.tag}.")
             }
         }
-        return ResponseEntity<Any>(HttpStatus.OK)
     }
 
     data class SoknadOgIdenter(val sykepengesoknad: Sykepengesoknad, val identer: FolkeregisterIdenter)
