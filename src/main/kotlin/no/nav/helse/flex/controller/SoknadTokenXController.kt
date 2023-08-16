@@ -332,8 +332,6 @@ class SoknadTokenXController(
         return RSMottakerResponse(RSMottaker.valueOf(mottaker.name))
     }
 
-    data class RSNyttUndersporsmalResponse(val id: String)
-
     @ProtectedWithClaims(issuer = TOKENX, claimMap = ["acr=Level4"])
     @PostMapping(
         value = ["/soknader/{soknadId}/sporsmal/{sporsmalId}/undersporsmal"],
