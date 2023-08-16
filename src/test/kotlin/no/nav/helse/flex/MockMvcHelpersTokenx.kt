@@ -91,6 +91,13 @@ fun BaseTestClass.leggTilUndersporsmal(fnr: String, soknadId: String, sporsmalId
     )
 }
 
+fun BaseTestClass.slettUndersporsmal(fnr: String, soknadId: String, sporsmalId: String, undersporsmalId: String): ResultActions {
+    return this.mockMvc.perform(
+        MockMvcRequestBuilders.delete("/api/v2/soknader/$soknadId/sporsmal/$sporsmalId/undersporsmal/$undersporsmalId")
+            .header("Authorization", "Bearer ${jwt(fnr)}")
+    )
+}
+
 fun BaseTestClass.opprettUtlandssoknad(fnr: String) {
     mockMvc.perform(
         MockMvcRequestBuilders.post("/api/v2/opprettSoknadUtland")

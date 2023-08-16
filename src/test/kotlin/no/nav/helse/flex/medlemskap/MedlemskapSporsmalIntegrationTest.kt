@@ -11,6 +11,7 @@ import no.nav.helse.flex.leggTilUndersporsmal
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
 import no.nav.helse.flex.oppdatersporsmal.soknad.OppdaterSporsmalService
 import no.nav.helse.flex.sendSykmelding
+import no.nav.helse.flex.slettUndersporsmal
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.medIndex
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
@@ -181,6 +182,24 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
         lagretSoknad.sporsmal!!.first {
             it.tag == MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE
         }.undersporsmal shouldHaveSize 2
+    }
+
+    @Test
+    @Order(6)
+    fun `Sletter det ene underspørsmålet`() {
+        val soknadId = hentSoknadMedStatusNy(fnr).id
+        val hovedsporsmalFor = hentSoknad(soknadId, fnr).sporsmal!!.first { it.tag == MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE }
+
+        slettUndersporsmal(
+            fnr = fnr,
+            soknadId = soknadId,
+            sporsmalId = hovedsporsmalFor.id!!,
+            undersporsmalId = hovedsporsmalFor.undersporsmal[1].id!!
+        )
+
+        val hovedsporsmalEtter = hentSoknad(soknadId, fnr).sporsmal!!.first { it.tag == MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE }
+        hovedsporsmalEtter.undersporsmal shouldHaveSize 1
+        hovedsporsmalEtter.undersporsmal[0].tag shouldBeEqualTo hovedsporsmalFor.undersporsmal[0].tag
     }
 
     @Test
