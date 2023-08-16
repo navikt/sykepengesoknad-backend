@@ -244,24 +244,6 @@ class SoknadTokenXController(
         return skapOppdaterSpmResponse(oppdaterSporsmalResultat, sporsmal.tag)
     }
 
-    private fun skapOppdaterSpmResponse(
-        oppdaterSporsmalResultat: OppdaterSporsmalService.OppdaterSporsmalResultat,
-        sporsmalTag: String
-    ): RSOppdaterSporsmalResponse {
-        val sporsmalSomBleOppdatert = oppdaterSporsmalResultat.oppdatertSoknad.sporsmal.find { it.tag == sporsmalTag }!!
-
-        if (oppdaterSporsmalResultat.mutert) {
-            return RSOppdaterSporsmalResponse(
-                mutertSoknad = oppdaterSporsmalResultat.oppdatertSoknad.tilRSSykepengesoknad(),
-                oppdatertSporsmal = sporsmalSomBleOppdatert.mapSporsmalTilRs()
-            )
-        }
-        return RSOppdaterSporsmalResponse(
-            mutertSoknad = null,
-            oppdatertSporsmal = sporsmalSomBleOppdatert.mapSporsmalTilRs()
-        )
-    }
-
     @ProtectedWithClaims(issuer = TOKENX, claimMap = ["acr=Level4"])
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(
@@ -305,23 +287,6 @@ class SoknadTokenXController(
             sporsmalId = sporsmalId,
             svarId = svarId
         )
-    }
-
-    private fun validerStatusOgHovedsporsmal(
-        soknad: Sykepengesoknad,
-        soknadId: String,
-        sporsmalId: String
-    ): Sporsmal {
-        if (!listOf(Soknadstatus.NY, Soknadstatus.UTKAST_TIL_KORRIGERING).contains(soknad.status)) {
-            throw FeilStatusForOppdaterSporsmalException("Søknad $soknadId har status ${soknad.status}. Da kan man ikke besvare spørsmål.")
-        }
-
-        if (!soknad.alleSporsmalOgUndersporsmal().mapNotNull { it.id }.contains(sporsmalId)) {
-            throw SporsmalFinnesIkkeISoknadException("$sporsmalId finnes ikke i søknad $soknadId.")
-        }
-
-        return soknad.sporsmal.find { it.id == sporsmalId }
-            ?: throw IllegalArgumentException("$sporsmalId er ikke et hovedspørsmål i søknad $soknadId.")
     }
 
     @ProtectedWithClaims(issuer = TOKENX, claimMap = ["acr=Level4"])
@@ -392,6 +357,23 @@ class SoknadTokenXController(
         return SoknadOgIdenter(sykepengesoknad, identer)
     }
 
+    private fun validerStatusOgHovedsporsmal(
+        soknad: Sykepengesoknad,
+        soknadId: String,
+        sporsmalId: String
+    ): Sporsmal {
+        if (!listOf(Soknadstatus.NY, Soknadstatus.UTKAST_TIL_KORRIGERING).contains(soknad.status)) {
+            throw FeilStatusForOppdaterSporsmalException("Søknad $soknadId har status ${soknad.status}. Da kan man ikke besvare spørsmål.")
+        }
+
+        if (!soknad.alleSporsmalOgUndersporsmal().mapNotNull { it.id }.contains(sporsmalId)) {
+            throw SporsmalFinnesIkkeISoknadException("$sporsmalId finnes ikke i søknad $soknadId.")
+        }
+
+        return soknad.sporsmal.find { it.id == sporsmalId }
+            ?: throw IllegalArgumentException("$sporsmalId er ikke et hovedspørsmål i søknad $soknadId.")
+    }
+
     private fun Sykepengesoknad.utvidSoknadMedKorrigeringsfristUtlopt(identer: FolkeregisterIdenter): Sykepengesoknad {
         return korrigerSoknadService.utvidSoknadMedKorrigeringsfristUtlopt(this, identer)
     }
@@ -414,5 +396,23 @@ class SoknadTokenXController(
 
     private fun JwtTokenClaims.hentIdenter(): FolkeregisterIdenter {
         return identService.hentFolkeregisterIdenterMedHistorikkForFnr(this.getStringClaim("pid"))
+    }
+
+    private fun skapOppdaterSpmResponse(
+        oppdaterSporsmalResultat: OppdaterSporsmalService.OppdaterSporsmalResultat,
+        sporsmalTag: String
+    ): RSOppdaterSporsmalResponse {
+        val sporsmalSomBleOppdatert = oppdaterSporsmalResultat.oppdatertSoknad.sporsmal.find { it.tag == sporsmalTag }!!
+
+        if (oppdaterSporsmalResultat.mutert) {
+            return RSOppdaterSporsmalResponse(
+                mutertSoknad = oppdaterSporsmalResultat.oppdatertSoknad.tilRSSykepengesoknad(),
+                oppdatertSporsmal = sporsmalSomBleOppdatert.mapSporsmalTilRs()
+            )
+        }
+        return RSOppdaterSporsmalResponse(
+            mutertSoknad = null,
+            oppdatertSporsmal = sporsmalSomBleOppdatert.mapSporsmalTilRs()
+        )
     }
 }
