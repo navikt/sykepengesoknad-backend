@@ -119,6 +119,13 @@ class OppdaterSporsmalService(
         }
     }
 
+    fun slettUndersporsmal(soknad: Sykepengesoknad, hovedSporsmal: Sporsmal, undersporsmalId: String) {
+        val oppdatertSporsmal = hovedSporsmal.copy(
+            undersporsmal = hovedSporsmal.undersporsmal.filterNot { it.id == undersporsmalId }
+        )
+        sykepengesoknadDAO.byttUtSporsmal(soknad.replaceSporsmal(oppdatertSporsmal))
+    }
+
     private fun slettKvittering(sporsmal: Sporsmal, svar: Svar) {
         svarDAO.slettSvar(sporsmal.id!!, svar.id!!)
         sykepengesoknadKvitteringerClient.slettKvittering(svar.verdi.tilKvittering().blobId)

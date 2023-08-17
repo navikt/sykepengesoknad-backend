@@ -2,15 +2,17 @@ package no.nav.helse.flex.medlemskap
 
 import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
+import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSporsmal
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknad
+import no.nav.helse.flex.controller.domain.sykepengesoknad.flatten
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.hentProduserteRecords
 import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.leggTilUndersporsmal
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
-import no.nav.helse.flex.oppdatersporsmal.soknad.OppdaterSporsmalService
 import no.nav.helse.flex.sendSykmelding
+import no.nav.helse.flex.slettUndersporsmal
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.medIndex
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
@@ -39,9 +41,6 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
 
     @Autowired
     private lateinit var medlemskapVurderingRepository: MedlemskapVurderingRepository
-
-    @Autowired
-    private lateinit var oppdaterSporsmalService: OppdaterSporsmalService
 
     // Trigger response fra LovMe med alle spørsmål.
     private final val fnr = "31111111111"
@@ -184,6 +183,30 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
     }
 
     @Test
+    @Order(6)
+    fun `Sletter det ene underspørsmålet`() {
+        val soknadId = hentSoknadMedStatusNy(fnr).id
+        val hovedsporsmalFor = hentSoknad(soknadId, fnr).sporsmal!!.first { it.tag == MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE }
+
+        slettUndersporsmal(
+            fnr = fnr,
+            soknadId = soknadId,
+            sporsmalId = hovedsporsmalFor.id!!,
+            undersporsmalId = hovedsporsmalFor.undersporsmal[1].id!!
+        )
+
+        val hovedsporsmalEtter = hentSoknad(soknadId, fnr).sporsmal!!.first { it.tag == MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE }
+        hovedsporsmalEtter.undersporsmal shouldHaveSize 1
+        hovedsporsmalEtter.undersporsmal[0].tag shouldBeEqualTo hovedsporsmalFor.undersporsmal[0].tag
+
+        val flattenEtter = listOf(hovedsporsmalEtter).flatten()
+        val utenIdEtter = flattenEtter.utenId()
+        val flattenFor = listOf(hovedsporsmalFor.copy(undersporsmal = listOf(hovedsporsmalEtter.undersporsmal[0]))).flatten()
+        val utenIdFor = flattenFor.utenId()
+        utenIdEtter shouldBeEqualTo utenIdFor
+    }
+
+    @Test
     @Order(7)
     fun `Besvar arbeidtakerspørsmål og send søknaden`() {
         flexSyketilfelleMockRestServiceServer.reset()
@@ -272,5 +295,13 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
                     tom = soknad.tom!!.minusDays(5)
                 )
             )
+    }
+
+    private fun List<RSSporsmal>.utenId(): List<RSSporsmal> {
+        return this.map { spm ->
+            spm.copy(id = "").let { spmSvar ->
+                spmSvar.copy(svar = spmSvar.svar.map { it.copy(id = "") })
+            }
+        }
     }
 }

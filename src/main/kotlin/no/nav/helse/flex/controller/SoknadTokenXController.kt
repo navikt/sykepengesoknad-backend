@@ -46,7 +46,6 @@ import no.nav.security.token.support.core.jwt.JwtTokenClaims
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
-import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -206,7 +205,7 @@ class SoknadTokenXController(
     }
 
     @ProtectedWithClaims(issuer = TOKENX, claimMap = ["acr=Level4"])
-    @PostMapping(value = ["/soknader/{id}/korriger"])
+    @PostMapping(value = ["/soknader/{id}/korriger"], produces = [APPLICATION_JSON_VALUE])
     fun korriger(@PathVariable("id") id: String): RSSykepengesoknad {
         if (environmentToggles.isReadOnly()) {
             throw ReadOnlyException()
@@ -244,24 +243,6 @@ class SoknadTokenXController(
         return skapOppdaterSpmResponse(oppdaterSporsmalResultat, sporsmal.tag)
     }
 
-    private fun skapOppdaterSpmResponse(
-        oppdaterSporsmalResultat: OppdaterSporsmalService.OppdaterSporsmalResultat,
-        sporsmalTag: String
-    ): RSOppdaterSporsmalResponse {
-        val sporsmalSomBleOppdatert = oppdaterSporsmalResultat.oppdatertSoknad.sporsmal.find { it.tag == sporsmalTag }!!
-
-        if (oppdaterSporsmalResultat.mutert) {
-            return RSOppdaterSporsmalResponse(
-                mutertSoknad = oppdaterSporsmalResultat.oppdatertSoknad.tilRSSykepengesoknad(),
-                oppdatertSporsmal = sporsmalSomBleOppdatert.mapSporsmalTilRs()
-            )
-        }
-        return RSOppdaterSporsmalResponse(
-            mutertSoknad = null,
-            oppdatertSporsmal = sporsmalSomBleOppdatert.mapSporsmalTilRs()
-        )
-    }
-
     @ProtectedWithClaims(issuer = TOKENX, claimMap = ["acr=Level4"])
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(
@@ -287,9 +268,7 @@ class SoknadTokenXController(
 
     @ProtectedWithClaims(issuer = TOKENX, claimMap = ["acr=Level4"])
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @DeleteMapping(
-        value = ["/soknader/{soknadId}/sporsmal/{sporsmalId}/svar/{svarId}"]
-    )
+    @DeleteMapping(value = ["/soknader/{soknadId}/sporsmal/{sporsmalId}/svar/{svarId}"])
     fun slettSvar(
         @PathVariable soknadId: String,
         @PathVariable sporsmalId: String,
@@ -307,6 +286,75 @@ class SoknadTokenXController(
         )
     }
 
+    @ProtectedWithClaims(issuer = TOKENX, claimMap = ["acr=Level4"])
+    @GetMapping(value = ["/soknader/{id}/mottaker"], produces = [APPLICATION_JSON_VALUE])
+    fun hentMottakerAvSoknad(@PathVariable("id") id: String): RSMottakerResponse {
+        val (sykepengesoknad, identer) = hentOgSjekkTilgangTilSoknad(id)
+        val mottaker = mottakerAvSoknadService.finnMottakerAvSoknad(sykepengesoknad, identer)
+        return RSMottakerResponse(RSMottaker.valueOf(mottaker.name))
+    }
+
+    @ProtectedWithClaims(issuer = TOKENX, claimMap = ["acr=Level4"])
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping(value = ["/soknader/{soknadId}/sporsmal/{sporsmalId}/undersporsmal"])
+    fun leggTilUndersporsmal(
+        @PathVariable soknadId: String,
+        @PathVariable sporsmalId: String
+    ) {
+        if (environmentToggles.isReadOnly()) {
+            throw ReadOnlyException()
+        }
+        val (soknad, _) = hentOgSjekkTilgangTilSoknad(soknadId)
+        val sporsmal = validerStatusOgHovedsporsmal(soknad = soknad, soknadId = soknadId, sporsmalId = sporsmalId)
+
+        when (sporsmal.tag) {
+            MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE -> {
+                oppdaterSporsmalService.leggTilNyttUndersporsmal(soknad.id, sporsmal.tag)
+            }
+
+            else -> {
+                // Kan bare legge til underspørsmål på spørsmål om medlemskap, siden hvert underspørsmål representerer
+                // en "periode" (opphold, arbeid) som i seg selv har underspørsmål.
+                throw IllegalArgumentException("Kan ikke legge til underspørsmål på spørsmål med tag ${sporsmal.tag}.")
+            }
+        }
+    }
+
+    @ProtectedWithClaims(issuer = TOKENX, claimMap = ["acr=Level4"])
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @DeleteMapping(value = ["/soknader/{soknadId}/sporsmal/{sporsmalId}/undersporsmal/{undersporsmalId}"])
+    fun slettUndersporsmal(
+        @PathVariable soknadId: String,
+        @PathVariable sporsmalId: String,
+        @PathVariable undersporsmalId: String
+    ) {
+        if (environmentToggles.isReadOnly()) {
+            throw ReadOnlyException()
+        }
+        val (soknad, _) = hentOgSjekkTilgangTilSoknad(soknadId)
+        val hovedSporsmal = validerStatusOgHovedsporsmal(soknad, soknadId, sporsmalId)
+
+        when (hovedSporsmal.tag) {
+            MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE -> {
+                oppdaterSporsmalService.slettUndersporsmal(soknad, hovedSporsmal, undersporsmalId)
+            }
+            else -> {
+                throw IllegalArgumentException("Kan ikke slette underspørsmål på spørsmål med tag ${hovedSporsmal.tag}.")
+            }
+        }
+    }
+
+    data class SoknadOgIdenter(val sykepengesoknad: Sykepengesoknad, val identer: FolkeregisterIdenter)
+
+    private fun hentOgSjekkTilgangTilSoknad(soknadId: String): SoknadOgIdenter {
+        val identer = validerTokenXClaims(sykepengesoknadFrontendClientId).hentIdenter()
+        val sykepengesoknad = hentSoknadService.finnSykepengesoknad(soknadId)
+        if (!identer.alle().contains(sykepengesoknad.fnr)) {
+            throw IkkeTilgangException("Er ikke eier")
+        }
+        return SoknadOgIdenter(sykepengesoknad, identer)
+    }
+
     private fun validerStatusOgHovedsporsmal(
         soknad: Sykepengesoknad,
         soknadId: String,
@@ -322,53 +370,6 @@ class SoknadTokenXController(
 
         return soknad.sporsmal.find { it.id == sporsmalId }
             ?: throw IllegalArgumentException("$sporsmalId er ikke et hovedspørsmål i søknad $soknadId.")
-    }
-
-    @ProtectedWithClaims(issuer = TOKENX, claimMap = ["acr=Level4"])
-    @GetMapping(value = ["/soknader/{id}/mottaker"], produces = [APPLICATION_JSON_VALUE])
-    fun hentMottakerAvSoknad(@PathVariable("id") id: String): RSMottakerResponse {
-        val (sykepengesoknad, identer) = hentOgSjekkTilgangTilSoknad(id)
-        val mottaker = mottakerAvSoknadService.finnMottakerAvSoknad(sykepengesoknad, identer)
-        return RSMottakerResponse(RSMottaker.valueOf(mottaker.name))
-    }
-
-    data class RSNyttUndersporsmalResponse(val id: String)
-
-    @ProtectedWithClaims(issuer = TOKENX, claimMap = ["acr=Level4"])
-    @PostMapping(
-        value = ["/soknader/{soknadId}/sporsmal/{sporsmalId}/undersporsmal"],
-        consumes = [APPLICATION_JSON_VALUE]
-    )
-    fun leggTilUndersporsmal(
-        @PathVariable soknadId: String,
-        @PathVariable sporsmalId: String
-    ): ResponseEntity<Any> {
-        val (soknad, _) = hentOgSjekkTilgangTilSoknad(soknadId)
-        val sporsmal = validerStatusOgHovedsporsmal(soknad = soknad, soknadId = soknadId, sporsmalId = sporsmalId)
-
-        when (sporsmal.tag) {
-            MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE -> {
-                oppdaterSporsmalService.leggTilNyttUndersporsmal(soknad.id, sporsmal.tag)
-            }
-
-            else -> {
-                // Kan bare legge til underspørsmål på spørsmål om medlemskap, siden hvert underspørsmål representerer
-                // en "periode" (opphold, arbeid) som i seg selv har underspørsmål.
-                throw IllegalArgumentException("Kan ikke legge til underspørsmål på spørsmål med tag ${sporsmal.tag}.")
-            }
-        }
-        return ResponseEntity<Any>(HttpStatus.CREATED)
-    }
-
-    data class SoknadOgIdenter(val sykepengesoknad: Sykepengesoknad, val identer: FolkeregisterIdenter)
-
-    private fun hentOgSjekkTilgangTilSoknad(soknadId: String): SoknadOgIdenter {
-        val identer = validerTokenXClaims(sykepengesoknadFrontendClientId).hentIdenter()
-        val sykepengesoknad = hentSoknadService.finnSykepengesoknad(soknadId)
-        if (!identer.alle().contains(sykepengesoknad.fnr)) {
-            throw IkkeTilgangException("Er ikke eier")
-        }
-        return SoknadOgIdenter(sykepengesoknad, identer)
     }
 
     private fun Sykepengesoknad.utvidSoknadMedKorrigeringsfristUtlopt(identer: FolkeregisterIdenter): Sykepengesoknad {
@@ -393,5 +394,23 @@ class SoknadTokenXController(
 
     private fun JwtTokenClaims.hentIdenter(): FolkeregisterIdenter {
         return identService.hentFolkeregisterIdenterMedHistorikkForFnr(this.getStringClaim("pid"))
+    }
+
+    private fun skapOppdaterSpmResponse(
+        oppdaterSporsmalResultat: OppdaterSporsmalService.OppdaterSporsmalResultat,
+        sporsmalTag: String
+    ): RSOppdaterSporsmalResponse {
+        val sporsmalSomBleOppdatert = oppdaterSporsmalResultat.oppdatertSoknad.sporsmal.find { it.tag == sporsmalTag }!!
+
+        if (oppdaterSporsmalResultat.mutert) {
+            return RSOppdaterSporsmalResponse(
+                mutertSoknad = oppdaterSporsmalResultat.oppdatertSoknad.tilRSSykepengesoknad(),
+                oppdatertSporsmal = sporsmalSomBleOppdatert.mapSporsmalTilRs()
+            )
+        }
+        return RSOppdaterSporsmalResponse(
+            mutertSoknad = null,
+            oppdatertSporsmal = sporsmalSomBleOppdatert.mapSporsmalTilRs()
+        )
     }
 }
