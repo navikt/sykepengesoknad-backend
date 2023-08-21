@@ -15,10 +15,12 @@ import no.nav.helse.flex.oppdatersporsmal.soknad.muteringer.utlandssoknadMuterin
 import no.nav.helse.flex.repository.SvarDAO
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.soknadsopprettelse.KVITTERINGER
+import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLD_UTENFOR_EOS
 import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE
 import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE
 import no.nav.helse.flex.soknadsopprettelse.finnHoyesteIndex
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforEos
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforNorge
 import no.nav.helse.flex.svarvalidering.tilKvittering
 import no.nav.helse.flex.svarvalidering.validerSvarPaSporsmal
@@ -118,6 +120,7 @@ class OppdaterSporsmalService(
         val undersporsmal = when (tag) {
             MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE -> lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(index)
             MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE -> lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforNorge(index)
+            MEDLEMSKAP_OPPHOLD_UTENFOR_EOS -> lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforEos(index)
             else -> throw IllegalArgumentException("Kan ikke legge til underspørsmål for tag $tag.")
         }
         val oppdatertSporsmal = sporsmal.copy(undersporsmal = sporsmal.undersporsmal + undersporsmal)

@@ -36,6 +36,7 @@ import no.nav.helse.flex.service.HentSoknadService
 import no.nav.helse.flex.service.IdentService
 import no.nav.helse.flex.service.KorrigerSoknadService
 import no.nav.helse.flex.service.MottakerAvSoknadService
+import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLD_UTENFOR_EOS
 import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE
 import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE
 import no.nav.helse.flex.soknadsopprettelse.OpprettSoknadService
@@ -310,8 +311,9 @@ class SoknadTokenXController(
         // Kan bare legge til underspørsmål på spørsmål om medlemskap, siden hvert underspørsmål representerer
         // en "periode" (opphold, arbeid) som i seg selv har underspørsmål.
         if (listOf(
+                MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
                 MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
-                MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE
+                MEDLEMSKAP_OPPHOLD_UTENFOR_EOS
             ).contains(sporsmal.tag)
         ) {
             oppdaterSporsmalService.leggTilNyttUndersporsmal(soknad.id, sporsmal.tag)

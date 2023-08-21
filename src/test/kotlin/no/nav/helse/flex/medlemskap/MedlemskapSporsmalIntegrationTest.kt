@@ -213,28 +213,36 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
 
     @Test
     @Order(3)
-    fun `Besvar medlemskapspørsmål om opphold utenfor EØS`() {
-        val soknad = hentSoknadMedStatusNy()
+    fun `Besvar medlemskapspørsmål om opphold utenfor EOS med to perioder`() {
+        val soknadId = hentSoknadMedStatusNy().id
 
-        SoknadBesvarer(rSSykepengesoknad = soknad, mockMvc = this, fnr = fnr)
-            .besvarSporsmal(tag = MEDLEMSKAP_OPPHOLD_UTENFOR_EOS, svar = "JA", ferdigBesvart = false)
-            .besvarSporsmal(
-                tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_HVOR, 0),
-                svar = "Land",
-                ferdigBesvart = false
+        hentSoknadSomKanBesvares().let {
+            val (soknad, soknadBesvarer) = it
+            besvarMedlemskapOppholdUtenforEos(
+                soknadBesvarer = soknadBesvarer,
+                soknad = soknad,
+                index = 0
             )
-            .besvarSporsmal(
-                tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_FERIE, 0),
-                svar = "CHECKED",
-                ferdigBesvart = false
+        }
+
+        leggTilUndersporsmal(soknadId, MEDLEMSKAP_OPPHOLD_UTENFOR_EOS)
+
+        hentSoknadSomKanBesvares().let {
+            val (soknad, soknadBesvarer) = it
+            besvarMedlemskapOppholdUtenforEos(
+                soknadBesvarer = soknadBesvarer,
+                soknad = soknad,
+                index = 1
             )
-            .besvarSporsmal(
-                tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_NAAR, 0),
-                svar = DatoUtil.periodeTilJson(
-                    fom = soknad.tom!!.minusDays(25),
-                    tom = soknad.tom!!.minusDays(5)
-                )
-            )
+        }
+
+        val lagretSoknad = hentSoknad(
+            soknadId = soknadId,
+            fnr = fnr
+        )
+        lagretSoknad.sporsmal!!.first {
+            it.tag == MEDLEMSKAP_OPPHOLD_UTENFOR_EOS
+        }.undersporsmal shouldHaveSize 2
     }
 
     @Test
@@ -375,6 +383,32 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
             )
             .besvarSporsmal(
                 tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_NAAR, index),
+                svar = DatoUtil.periodeTilJson(
+                    fom = soknad.tom!!.minusDays(25),
+                    tom = soknad.tom!!.minusDays(5)
+                )
+            )
+    }
+
+    private fun besvarMedlemskapOppholdUtenforEos(
+        soknadBesvarer: SoknadBesvarer,
+        soknad: RSSykepengesoknad,
+        index: Int
+    ) {
+        soknadBesvarer
+            .besvarSporsmal(tag = MEDLEMSKAP_OPPHOLD_UTENFOR_EOS, svar = "JA", ferdigBesvart = false)
+            .besvarSporsmal(
+                tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_HVOR, index),
+                svar = "Land",
+                ferdigBesvart = false
+            )
+            .besvarSporsmal(
+                tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_FERIE, index),
+                svar = "CHECKED",
+                ferdigBesvart = false
+            )
+            .besvarSporsmal(
+                tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_NAAR, index),
                 svar = DatoUtil.periodeTilJson(
                     fom = soknad.tom!!.minusDays(25),
                     tom = soknad.tom!!.minusDays(5)
