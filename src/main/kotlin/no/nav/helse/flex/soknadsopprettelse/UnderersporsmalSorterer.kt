@@ -26,6 +26,8 @@ private fun Sporsmal.sorterUndersporsmal(): Sporsmal {
                 YRKESSKADE_V2_VELG_DATO -> it.sorteringYrkesskader()
                 MEDLEMSKAP_OPPHOLDSTILLATELSE -> it.sorteringMedlemskapOppholdstillatelse()
                 MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_GRUPPERING -> it.sorteringMedlemskapArbeidUtenforNorgeGruppering()
+                MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_GRUPPERING -> it.sorteringMedlemskapOppholdUtenforNorgeGruppering()
+                MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE -> it.sorteringMedlemskapOppholdUtenforNorgeBegrunnelse()
                 else -> it.tag
             }
         }
@@ -48,6 +50,26 @@ private fun Sporsmal.sorteringMedlemskapArbeidUtenforNorgeGruppering(): String {
         MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_HVOR -> "1"
         MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR -> "2"
         else -> throw RuntimeException("Ukjent underspørsmål for medlemskap arbeid utenfor Norge: $tag")
+    }
+}
+
+private fun Sporsmal.sorteringMedlemskapOppholdUtenforNorgeGruppering(): String {
+    val tagUtenIndex = fjernIndexFraTag(this.tag)
+    return when (tagUtenIndex) {
+        MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_HVOR -> "0"
+        MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE -> "1"
+        MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_NAAR -> "2"
+        else -> throw RuntimeException("Ukjent underspørsmål for medlemskap opphold utenfor Norge: $tag")
+    }
+}
+
+private fun Sporsmal.sorteringMedlemskapOppholdUtenforNorgeBegrunnelse(): String {
+    val tagUtenIndex = fjernIndexFraTag(this.tag)
+    return when (tagUtenIndex) {
+        MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE_STUDIE -> "0"
+        MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE_FERIE -> "1"
+        MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE_FORSORG -> "2"
+        else -> throw RuntimeException("Ukjent underspørsmål for begrunnelse for opphold utenfor Norge: $tag")
     }
 }
 

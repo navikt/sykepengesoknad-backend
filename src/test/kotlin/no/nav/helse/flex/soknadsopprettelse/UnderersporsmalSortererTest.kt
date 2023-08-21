@@ -10,6 +10,7 @@ import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderArbeidst
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderSelvstendigOgFrilanser
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmArbeidUtenforNorge
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmOppholdUtenforNorge
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmOppholdstillatelse
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.medIndex
 import org.amshove.kluent.`should be equal to`
@@ -192,6 +193,40 @@ class UnderersporsmalSortererTest {
         soknadSortert.getSporsmalMedTag(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE).undersporsmal.first {
             it.tag == medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_GRUPPERING, 1)
         }.undersporsmal.map { it.tag } `should be equal to` forventetSorteringAndrePeriode
+    }
+
+    @Test
+    fun `Test sortering av medlemskapspørsmål om opphold utenfor Norge`() {
+        val sporsmalet = lagSporsmalOmOppholdUtenforNorge()
+        val soknad = sporsmalet.tilSoknad()
+
+        val sporsmal = soknad.getSporsmalMedTag(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE).undersporsmal.first {
+            it.tag == medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_GRUPPERING, 0)
+        }
+
+        val soknadShufflet =
+            soknad.replaceSporsmal(sporsmal.copy(undersporsmal = shuffleRekursivt(sporsmal.undersporsmal)))
+        val soknadSortert = soknadShufflet.sorterUndersporsmal()
+
+        val forventetSortering = listOf(
+            medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_HVOR, 0),
+            medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE, 0),
+            medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_NAAR, 0)
+        )
+
+        soknadSortert.getSporsmalMedTag(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE).undersporsmal.first {
+            it.tag == medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_GRUPPERING, 0)
+        }.undersporsmal.map { it.tag } `should be equal to` forventetSortering
+
+        val forventetSorteringBegrunnelse = listOf(
+            medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE_STUDIE, 0),
+            medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE_FERIE, 0),
+            medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE_FORSORG, 0)
+        )
+
+        soknadSortert.getSporsmalMedTag(
+            medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE, 0)
+        ).undersporsmal.map { it.tag } `should be equal to` forventetSorteringBegrunnelse
     }
 
     @Test
