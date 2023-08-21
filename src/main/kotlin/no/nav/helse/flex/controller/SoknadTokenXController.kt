@@ -308,8 +308,7 @@ class SoknadTokenXController(
         }
         val (soknad, _) = hentOgSjekkTilgangTilSoknad(soknadId)
         val sporsmal = validerStatusOgHovedsporsmal(soknad = soknad, soknadId = soknadId, sporsmalId = sporsmalId)
-        // Kan bare legge til underspørsmål på spørsmål om medlemskap, siden hvert underspørsmål representerer
-        // en "periode" (opphold, arbeid) som i seg selv har underspørsmål.
+        // Det er bare spørsmål om medlemskap i folketrygden som trenger grupperte underspørsmål.
         if (listOf(
                 MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
                 MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
@@ -334,16 +333,16 @@ class SoknadTokenXController(
             throw ReadOnlyException()
         }
         val (soknad, _) = hentOgSjekkTilgangTilSoknad(soknadId)
-        val hovedSporsmal = validerStatusOgHovedsporsmal(soknad, soknadId, sporsmalId)
-
-        when (hovedSporsmal.tag) {
-            MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE -> {
-                oppdaterSporsmalService.slettUndersporsmal(soknad, hovedSporsmal, undersporsmalId)
-            }
-
-            else -> {
-                throw IllegalArgumentException("Kan ikke slette underspørsmål på spørsmål med tag ${hovedSporsmal.tag}.")
-            }
+        val sporsmal = validerStatusOgHovedsporsmal(soknad, soknadId, sporsmalId)
+        // Det er bare spørsmål om medlemskap i folketrygden som trenger grupperte underspørsmål.
+        if (listOf(
+                MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
+                MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE
+            ).contains(sporsmal.tag)
+        ) {
+            oppdaterSporsmalService.slettUndersporsmal(soknad, sporsmal, undersporsmalId)
+        } else {
+            throw IllegalArgumentException("Kan ikke slette underspørsmål på spørsmål med tag ${sporsmal.tag}.")
         }
     }
 

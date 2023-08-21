@@ -247,6 +247,29 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
 
     @Test
     @Order(4)
+    fun `Slett underspørsmål på medlemskapspørsmål om opphold utenfor Norge`() {
+        val soknadId = hentSoknadMedStatusNy().id
+        val hovedsporsmalFor =
+            hentSoknad(soknadId, fnr).sporsmal!!.first { it.tag == MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE }
+
+        slettUndersporsmal(
+            fnr = fnr,
+            soknadId = soknadId,
+            sporsmalId = hovedsporsmalFor.id!!,
+            undersporsmalId = hovedsporsmalFor.undersporsmal[1].id!!
+        )
+
+        val hovedsporsmalEtter =
+            hentSoknad(soknadId, fnr).sporsmal!!.first { it.tag == MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE }
+        hovedsporsmalEtter.undersporsmal shouldHaveSize 1
+        hovedsporsmalEtter.undersporsmal[0].tag shouldBeEqualTo hovedsporsmalFor.undersporsmal[0].tag
+
+        val (utenIdFor, utenIdEtter) = fjernIdFraHovedsporsmal(hovedsporsmalEtter, hovedsporsmalFor)
+        utenIdEtter shouldBeEqualTo utenIdFor
+    }
+
+    @Test
+    @Order(4)
     fun `Slett underspørsmål på medlemskapspørsmål om arbeid utenfor Norge`() {
         val soknadId = hentSoknadMedStatusNy().id
         val hovedsporsmalFor =
@@ -264,11 +287,7 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
         hovedsporsmalEtter.undersporsmal shouldHaveSize 1
         hovedsporsmalEtter.undersporsmal[0].tag shouldBeEqualTo hovedsporsmalFor.undersporsmal[0].tag
 
-        val flattenEtter = listOf(hovedsporsmalEtter).flatten()
-        val utenIdEtter = flattenEtter.utenId()
-        val flattenFor =
-            listOf(hovedsporsmalFor.copy(undersporsmal = listOf(hovedsporsmalEtter.undersporsmal[0]))).flatten()
-        val utenIdFor = flattenFor.utenId()
+        val (utenIdFor, utenIdEtter) = fjernIdFraHovedsporsmal(hovedsporsmalEtter, hovedsporsmalFor)
         utenIdEtter shouldBeEqualTo utenIdFor
     }
 
@@ -321,6 +340,19 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
         val soknad = hentSoknadMedStatusNy()
         val soknadBesvarer = SoknadBesvarer(rSSykepengesoknad = soknad, mockMvc = this, fnr = fnr)
         return Pair(soknad, soknadBesvarer)
+    }
+
+    private fun fjernIdFraHovedsporsmal(
+        hovedsporsmalEtter: RSSporsmal,
+        hovedsporsmalFor: RSSporsmal
+    ): Pair<List<RSSporsmal>, List<RSSporsmal>> {
+        val flattenEtter = listOf(hovedsporsmalEtter).flatten()
+        val utenIdEtter = flattenEtter.utenId()
+        val flattenFor =
+            listOf(hovedsporsmalFor.copy(undersporsmal = listOf(hovedsporsmalEtter.undersporsmal[0]))).flatten()
+        val utenIdFor = flattenFor.utenId()
+
+        return utenIdFor to utenIdEtter
     }
 
     private fun besvarArbeidstakerSporsmal(soknadBesvarer: SoknadBesvarer) =
