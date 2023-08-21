@@ -89,7 +89,7 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    @Order(3)
+    @Order(2)
     fun `Response fra LovMed medlemskapvurdering er lagret i databasen`() {
         val medlemskapVurderingDbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
         val medlemskapVurdering = medlemskapVurderingDbRecords.first()
@@ -105,9 +105,9 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    @Order(4)
+    @Order(2)
     fun `Spørsmål er riktig sortert`() {
-        val soknad = hentSoknadMedStatusNy(fnr)
+        val soknad = hentSoknadMedStatusNy()
 
         val index = soknad.sporsmal!!.indexOf(
             soknad.sporsmal!!.first {
@@ -122,9 +122,9 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    @Order(4)
+    @Order(3)
     fun `Besvar medlemskapspørsmål om oppholdstillatelse`() {
-        val soknad = hentSoknadMedStatusNy(fnr)
+        val soknad = hentSoknadMedStatusNy()
 
         SoknadBesvarer(rSSykepengesoknad = soknad, mockMvc = this, fnr = fnr)
             .besvarSporsmal(tag = MEDLEMSKAP_OPPHOLDSTILLATELSE, svar = "JA", ferdigBesvart = false)
@@ -144,11 +144,11 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    @Order(5)
+    @Order(3)
     fun `Besvar medlemskapspørsmål om arbeid utenfor Norge med to perioder`() {
-        val soknadId = hentSoknadMedStatusNy(fnr).id
+        val soknadId = hentSoknadMedStatusNy().id
 
-        hentSoknadSomKanBesvares(fnr).let {
+        hentSoknadSomKanBesvares().let {
             val (soknad, soknadBesvarer) = it
             besvarMedlemskapArbeidUtenforNorge(
                 soknadBesvarer = soknadBesvarer,
@@ -159,7 +159,7 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
 
         leggTilUndersporsmal(soknadId, MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE)
 
-        hentSoknadSomKanBesvares(fnr).let {
+        hentSoknadSomKanBesvares().let {
             val (soknad, soknadBesvarer) = it
             besvarMedlemskapArbeidUtenforNorge(
                 soknadBesvarer = soknadBesvarer,
@@ -178,9 +178,69 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    @Order(6)
-    fun `Slett ett underspørsmål på spørsmål om arbeid utenfor Norge`() {
-        val soknadId = hentSoknadMedStatusNy(fnr).id
+    @Order(3)
+    fun `Besvar medlemskapspørsmål om opphold utenfor Norge med to perioder`() {
+        val soknadId = hentSoknadMedStatusNy().id
+
+        hentSoknadSomKanBesvares().let {
+            val (soknad, soknadBesvarer) = it
+            besvarMedlemskapOppholdUtenforNorge(
+                soknadBesvarer = soknadBesvarer,
+                soknad = soknad,
+                index = 0
+            )
+        }
+
+        leggTilUndersporsmal(soknadId, MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE)
+
+        hentSoknadSomKanBesvares().let {
+            val (soknad, soknadBesvarer) = it
+            besvarMedlemskapOppholdUtenforNorge(
+                soknadBesvarer = soknadBesvarer,
+                soknad = soknad,
+                index = 1
+            )
+        }
+
+        val lagretSoknad = hentSoknad(
+            soknadId = soknadId,
+            fnr = fnr
+        )
+        lagretSoknad.sporsmal!!.first {
+            it.tag == MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE
+        }.undersporsmal shouldHaveSize 2
+    }
+
+    @Test
+    @Order(3)
+    fun `Besvar medlemskapspørsmål om opphold utenfor EØS`() {
+        val soknad = hentSoknadMedStatusNy()
+
+        SoknadBesvarer(rSSykepengesoknad = soknad, mockMvc = this, fnr = fnr)
+            .besvarSporsmal(tag = MEDLEMSKAP_OPPHOLD_UTENFOR_EOS, svar = "JA", ferdigBesvart = false)
+            .besvarSporsmal(
+                tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_HVOR, 0),
+                svar = "Land",
+                ferdigBesvart = false
+            )
+            .besvarSporsmal(
+                tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_FERIE, 0),
+                svar = "CHECKED",
+                ferdigBesvart = false
+            )
+            .besvarSporsmal(
+                tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_NAAR, 0),
+                svar = DatoUtil.periodeTilJson(
+                    fom = soknad.tom!!.minusDays(25),
+                    tom = soknad.tom!!.minusDays(5)
+                )
+            )
+    }
+
+    @Test
+    @Order(4)
+    fun `Slett underspørsmål på medlemskapspørsmål om arbeid utenfor Norge`() {
+        val soknadId = hentSoknadMedStatusNy().id
         val hovedsporsmalFor =
             hentSoknad(soknadId, fnr).sporsmal!!.first { it.tag == MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE }
 
@@ -205,64 +265,12 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    @Order(7)
-    fun `Besvar medlemskapspørsmål om opphold utenfor Norge`() {
-        val soknad = hentSoknadMedStatusNy(fnr)
-
-        SoknadBesvarer(rSSykepengesoknad = soknad, mockMvc = this, fnr = fnr)
-            .besvarSporsmal(tag = MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE, svar = "JA", ferdigBesvart = false)
-            .besvarSporsmal(
-                tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_HVOR, 0),
-                svar = "Land",
-                ferdigBesvart = false
-            )
-            .besvarSporsmal(
-                tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE_FERIE, 0),
-                svar = "CHECKED",
-                ferdigBesvart = false
-            )
-            .besvarSporsmal(
-                tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_NAAR, 0),
-                svar = DatoUtil.periodeTilJson(
-                    fom = soknad.tom!!.minusDays(25),
-                    tom = soknad.tom!!.minusDays(5)
-                )
-            )
-    }
-
-    @Test
-    @Order(8)
-    fun `Besvar medlemskapspørsmål om opphold utenfor EØS`() {
-        val soknad = hentSoknadMedStatusNy(fnr)
-
-        SoknadBesvarer(rSSykepengesoknad = soknad, mockMvc = this, fnr = fnr)
-            .besvarSporsmal(tag = MEDLEMSKAP_OPPHOLD_UTENFOR_EOS, svar = "JA", ferdigBesvart = false)
-            .besvarSporsmal(
-                tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_HVOR, 0),
-                svar = "Land",
-                ferdigBesvart = false
-            )
-            .besvarSporsmal(
-                tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_FERIE, 0),
-                svar = "CHECKED",
-                ferdigBesvart = false
-            )
-            .besvarSporsmal(
-                tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_NAAR, 0),
-                svar = DatoUtil.periodeTilJson(
-                    fom = soknad.tom!!.minusDays(25),
-                    tom = soknad.tom!!.minusDays(5)
-                )
-            )
-    }
-
-    @Test
-    @Order(9)
+    @Order(5)
     fun `Besvar arbeidstakerspørsmål og send søknaden`() {
         flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
 
-        hentSoknadSomKanBesvares(fnr).let {
+        hentSoknadSomKanBesvares().let {
             val (_, soknadBesvarer) = it
             besvarArbeidstakerSporsmal(soknadBesvarer)
             val sendtSoknad = soknadBesvarer
@@ -284,7 +292,7 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
         kafkaSoknad.sporsmal!!.any { it.tag == MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE } shouldBeEqualTo true
     }
 
-    private fun hentSoknadMedStatusNy(fnr: String): RSSykepengesoknad {
+    private fun hentSoknadMedStatusNy(): RSSykepengesoknad {
         return hentSoknad(
             soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
             fnr = fnr
@@ -301,8 +309,8 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
         leggTilUndersporsmal(fnr, soknadId, hovedsporsmal.id!!)
     }
 
-    private fun hentSoknadSomKanBesvares(fnr: String): Pair<RSSykepengesoknad, SoknadBesvarer> {
-        val soknad = hentSoknadMedStatusNy(fnr)
+    private fun hentSoknadSomKanBesvares(): Pair<RSSykepengesoknad, SoknadBesvarer> {
+        val soknad = hentSoknadMedStatusNy()
         val soknadBesvarer = SoknadBesvarer(rSSykepengesoknad = soknad, mockMvc = this, fnr = fnr)
         return Pair(soknad, soknadBesvarer)
     }
@@ -341,6 +349,32 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
             )
             .besvarSporsmal(
                 tag = medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR, index),
+                svar = DatoUtil.periodeTilJson(
+                    fom = soknad.tom!!.minusDays(25),
+                    tom = soknad.tom!!.minusDays(5)
+                )
+            )
+    }
+
+    private fun besvarMedlemskapOppholdUtenforNorge(
+        soknadBesvarer: SoknadBesvarer,
+        soknad: RSSykepengesoknad,
+        index: Int
+    ) {
+        soknadBesvarer
+            .besvarSporsmal(tag = MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE, svar = "JA", ferdigBesvart = false)
+            .besvarSporsmal(
+                tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_HVOR, index),
+                svar = "Land",
+                ferdigBesvart = false
+            )
+            .besvarSporsmal(
+                tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE_FERIE, index),
+                svar = "CHECKED",
+                ferdigBesvart = false
+            )
+            .besvarSporsmal(
+                tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_NAAR, index),
                 svar = DatoUtil.periodeTilJson(
                     fom = soknad.tom!!.minusDays(25),
                     tom = soknad.tom!!.minusDays(5)

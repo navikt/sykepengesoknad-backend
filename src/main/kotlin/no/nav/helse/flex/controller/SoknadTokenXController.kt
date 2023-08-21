@@ -36,6 +36,7 @@ import no.nav.helse.flex.service.HentSoknadService
 import no.nav.helse.flex.service.IdentService
 import no.nav.helse.flex.service.KorrigerSoknadService
 import no.nav.helse.flex.service.MottakerAvSoknadService
+import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE
 import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE
 import no.nav.helse.flex.soknadsopprettelse.OpprettSoknadService
 import no.nav.helse.flex.svarvalidering.validerSvarPaSoknad
@@ -306,17 +307,16 @@ class SoknadTokenXController(
         }
         val (soknad, _) = hentOgSjekkTilgangTilSoknad(soknadId)
         val sporsmal = validerStatusOgHovedsporsmal(soknad = soknad, soknadId = soknadId, sporsmalId = sporsmalId)
-
-        when (sporsmal.tag) {
-            MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE -> {
-                oppdaterSporsmalService.leggTilNyttUndersporsmal(soknad.id, sporsmal.tag)
-            }
-
-            else -> {
-                // Kan bare legge til underspørsmål på spørsmål om medlemskap, siden hvert underspørsmål representerer
-                // en "periode" (opphold, arbeid) som i seg selv har underspørsmål.
-                throw IllegalArgumentException("Kan ikke legge til underspørsmål på spørsmål med tag ${sporsmal.tag}.")
-            }
+        // Kan bare legge til underspørsmål på spørsmål om medlemskap, siden hvert underspørsmål representerer
+        // en "periode" (opphold, arbeid) som i seg selv har underspørsmål.
+        if (listOf(
+                MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
+                MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE
+            ).contains(sporsmal.tag)
+        ) {
+            oppdaterSporsmalService.leggTilNyttUndersporsmal(soknad.id, sporsmal.tag)
+        } else {
+            throw IllegalArgumentException("Kan ikke legge til underspørsmål på spørsmål med tag ${sporsmal.tag}.")
         }
     }
 
@@ -338,6 +338,7 @@ class SoknadTokenXController(
             MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE -> {
                 oppdaterSporsmalService.slettUndersporsmal(soknad, hovedSporsmal, undersporsmalId)
             }
+
             else -> {
                 throw IllegalArgumentException("Kan ikke slette underspørsmål på spørsmål med tag ${hovedSporsmal.tag}.")
             }
