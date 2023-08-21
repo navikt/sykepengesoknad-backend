@@ -14,6 +14,7 @@ import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.service.IdentService
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmArbeidUtenforNorge
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmOppholdUtenforEos
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmOppholdUtenforNorge
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmOppholdstillatelse
 import no.nav.helse.flex.yrkesskade.YrkesskadeIndikatorer
@@ -148,25 +149,22 @@ class SporsmalGenerator(
 
             log.info("Hentet medlemskapvurdering for søknad ${soknad.id} med svar ${medlemskapVurdering.svar}.")
             if (medlemskapVurdering.svar == MedlemskapVurderingSvarType.UAVKLART) {
-                // TODO: Fjern feature-toggle når all funksjonallitet er implementert.
+                // TODO: Fjern feature-toggle før prodsetting.
                 if (stillMedlemskapSporsmal) {
                     medlemskapVurdering.sporsmal.forEach {
                         when (it) {
                             MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE -> medlemskapSporsmal.add(
                                 lagSporsmalOmOppholdstillatelse()
                             )
-
                             MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE -> medlemskapSporsmal.add(
                                 lagSporsmalOmArbeidUtenforNorge()
                             )
-
                             MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE -> medlemskapSporsmal.add(
                                 lagSporsmalOmOppholdUtenforNorge()
                             )
-                            // TODO: Implementer resterende spørsmål.
-                            else -> {
-                                log.warn("Ikke implementert medlemskapsspørsmål ${it.name}. Lager ikke brukerspørsmål.")
-                            }
+                            MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE -> medlemskapSporsmal.add(
+                                lagSporsmalOmOppholdUtenforEos()
+                            )
                         }
                     }
                 } else {

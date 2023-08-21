@@ -81,6 +81,7 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
                 MEDLEMSKAP_OPPHOLDSTILLATELSE,
                 MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
                 MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
+                MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
                 VAER_KLAR_OVER_AT,
                 BEKREFT_OPPLYSNINGER
             )
@@ -116,7 +117,8 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
         soknad.sporsmal!![index - 1].tag shouldBeEqualTo ANDRE_INNTEKTSKILDER_V2
         soknad.sporsmal!![index + 1].tag shouldBeEqualTo MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE
         soknad.sporsmal!![index + 2].tag shouldBeEqualTo MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE
-        soknad.sporsmal!![index + 3].tag shouldBeEqualTo VAER_KLAR_OVER_AT
+        soknad.sporsmal!![index + 3].tag shouldBeEqualTo MEDLEMSKAP_OPPHOLD_UTENFOR_EOS
+        soknad.sporsmal!![index + 4].tag shouldBeEqualTo VAER_KLAR_OVER_AT
     }
 
     @Test
@@ -230,6 +232,32 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
 
     @Test
     @Order(8)
+    fun `Besvar medlemskapspørsmål om opphold utenfor EØS`() {
+        val soknad = hentSoknadMedStatusNy(fnr)
+
+        SoknadBesvarer(rSSykepengesoknad = soknad, mockMvc = this, fnr = fnr)
+            .besvarSporsmal(tag = MEDLEMSKAP_OPPHOLD_UTENFOR_EOS, svar = "JA", ferdigBesvart = false)
+            .besvarSporsmal(
+                tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_HVOR, 0),
+                svar = "Land",
+                ferdigBesvart = false
+            )
+            .besvarSporsmal(
+                tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_FERIE, 0),
+                svar = "CHECKED",
+                ferdigBesvart = false
+            )
+            .besvarSporsmal(
+                tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_NAAR, 0),
+                svar = DatoUtil.periodeTilJson(
+                    fom = soknad.tom!!.minusDays(25),
+                    tom = soknad.tom!!.minusDays(5)
+                )
+            )
+    }
+
+    @Test
+    @Order(9)
     fun `Besvar arbeidstakerspørsmål og send søknaden`() {
         flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
