@@ -195,11 +195,17 @@ class UnderersporsmalSortererTest {
     }
 
     @Test
-    fun `Tag blir returnert uten index og delimiter uansett hvor stort tall index er`() {
-        fjernIndexFraTag("SPORSMAL_TAG_1") `should be equal to` "SPORSMAL_TAG"
-        fjernIndexFraTag("SPORSMAL_TAG_11") `should be equal to` "SPORSMAL_TAG"
-        fjernIndexFraTag("SPORSMAL_TAG_111") `should be equal to` "SPORSMAL_TAG"
-        fjernIndexFraTag("SPORSMAL_TAG_1111") `should be equal to` "SPORSMAL_TAG"
+    fun `Tag blir returnert uten index uansett hvor stort tall index er`() {
+        fjernIndexFraTag("SPORSMAL_TAG_1") `should be equal to` "SPORSMAL_TAG_"
+        fjernIndexFraTag("SPORSMAL_TAG_11") `should be equal to` "SPORSMAL_TAG_"
+        fjernIndexFraTag("SPORSMAL_TAG_111") `should be equal to` "SPORSMAL_TAG_"
+        fjernIndexFraTag("SPORSMAL_TAG_1111") `should be equal to` "SPORSMAL_TAG_"
+    }
+
+    @Test
+    fun `Tag blir ikke fjernet fra hvis det ikke finnes en index`() {
+        fjernIndexFraTag("SPORSMAL_TAG") `should be equal to` "SPORSMAL_TAG"
+        fjernIndexFraTag("SPORSMAL_TAG_") `should be equal to` "SPORSMAL_TAG_"
     }
 
     @Test

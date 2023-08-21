@@ -120,9 +120,9 @@ fun fjernIndexFraTag(input: String): String {
     val sisteUnderscoreIndex = input.lastIndexOf("_")
     val sisteVerdiEtterUnderscore = input.substring(sisteUnderscoreIndex + 1)
 
-    // Sjekker om siste del av tag er et tall og returnerer da tag uten index hvis det er tilfelle.
+    // Sjekker om siste del av tag er et tall og returnerer da tag uten index, men med underscore hvis det er tilfelle.
     if (sisteVerdiEtterUnderscore.toIntOrNull() != null) {
-        return input.substring(0, sisteUnderscoreIndex)
+        return input.substring(0, sisteUnderscoreIndex + 1)
     }
     return input
 }
