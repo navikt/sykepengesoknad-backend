@@ -372,7 +372,7 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
         val flattenEtter = listOf(hovedsporsmalEtter).flatten()
         val utenIdEtter = flattenEtter.utenId()
         val flattenFor =
-            listOf(hovedsporsmalFor.copy(undersporsmal = listOf(hovedsporsmalEtter.undersporsmal[0]))).flatten()
+            listOf(hovedsporsmalFor.copy(undersporsmal = listOf(hovedsporsmalFor.undersporsmal[0]))).flatten()
         val utenIdFor = flattenFor.utenId()
 
         return utenIdFor to utenIdEtter
@@ -473,9 +473,11 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
 
     private fun List<RSSporsmal>.utenId(): List<RSSporsmal> {
         return this.map { sporsmal ->
-            sporsmal.copy(id = "").let { sporsmalSvar ->
-                sporsmalSvar.copy(svar = sporsmalSvar.svar.map { it.copy(id = "") })
-            }
+            sporsmal.copy(
+                id = "",
+                undersporsmal = sporsmal.undersporsmal.utenId(),
+                svar = sporsmal.svar.map { it.copy(id = "") }
+            )
         }
     }
 }
