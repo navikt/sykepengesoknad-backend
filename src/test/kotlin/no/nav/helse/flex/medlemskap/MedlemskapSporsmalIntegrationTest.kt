@@ -247,6 +247,29 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
 
     @Test
     @Order(4)
+    fun `Slett underspørsmål på medlemskapspørsmål om arbeid utenfor Norge`() {
+        val soknadId = hentSoknadMedStatusNy().id
+        val hovedsporsmalFor =
+            hentSoknad(soknadId, fnr).sporsmal!!.first { it.tag == MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE }
+
+        slettUndersporsmal(
+            fnr = fnr,
+            soknadId = soknadId,
+            sporsmalId = hovedsporsmalFor.id!!,
+            undersporsmalId = hovedsporsmalFor.undersporsmal[1].id!!
+        )
+
+        val hovedsporsmalEtter =
+            hentSoknad(soknadId, fnr).sporsmal!!.first { it.tag == MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE }
+        hovedsporsmalEtter.undersporsmal shouldHaveSize 1
+        hovedsporsmalEtter.undersporsmal[0].tag shouldBeEqualTo hovedsporsmalFor.undersporsmal[0].tag
+
+        val (utenIdFor, utenIdEtter) = fjernIdFraHovedsporsmal(hovedsporsmalEtter, hovedsporsmalFor)
+        utenIdEtter shouldBeEqualTo utenIdFor
+    }
+
+    @Test
+    @Order(4)
     fun `Slett underspørsmål på medlemskapspørsmål om opphold utenfor Norge`() {
         val soknadId = hentSoknadMedStatusNy().id
         val hovedsporsmalFor =
@@ -270,10 +293,10 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
 
     @Test
     @Order(4)
-    fun `Slett underspørsmål på medlemskapspørsmål om arbeid utenfor Norge`() {
+    fun `Slett underspørsmål på medlemskapspørsmål om opphold utenfor EØS`() {
         val soknadId = hentSoknadMedStatusNy().id
         val hovedsporsmalFor =
-            hentSoknad(soknadId, fnr).sporsmal!!.first { it.tag == MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE }
+            hentSoknad(soknadId, fnr).sporsmal!!.first { it.tag == MEDLEMSKAP_OPPHOLD_UTENFOR_EOS }
 
         slettUndersporsmal(
             fnr = fnr,
@@ -283,7 +306,7 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
         )
 
         val hovedsporsmalEtter =
-            hentSoknad(soknadId, fnr).sporsmal!!.first { it.tag == MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE }
+            hentSoknad(soknadId, fnr).sporsmal!!.first { it.tag == MEDLEMSKAP_OPPHOLD_UTENFOR_EOS }
         hovedsporsmalEtter.undersporsmal shouldHaveSize 1
         hovedsporsmalEtter.undersporsmal[0].tag shouldBeEqualTo hovedsporsmalFor.undersporsmal[0].tag
 

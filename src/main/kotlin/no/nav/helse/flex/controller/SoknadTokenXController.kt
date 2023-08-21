@@ -337,7 +337,8 @@ class SoknadTokenXController(
         // Det er bare spørsmål om medlemskap i folketrygden som trenger grupperte underspørsmål.
         if (listOf(
                 MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
-                MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE
+                MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
+                MEDLEMSKAP_OPPHOLD_UTENFOR_EOS
             ).contains(sporsmal.tag)
         ) {
             oppdaterSporsmalService.slettUndersporsmal(soknad, sporsmal, undersporsmalId)
