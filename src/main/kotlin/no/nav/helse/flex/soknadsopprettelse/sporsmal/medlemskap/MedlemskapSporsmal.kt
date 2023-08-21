@@ -144,7 +144,6 @@ fun lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforNorge(index: Int): Sporsm
     )
 }
 
-
 fun lagSporsmalOmOppholdUtenforEos(): Sporsmal {
     return Sporsmal(
         tag = MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
@@ -152,7 +151,7 @@ fun lagSporsmalOmOppholdUtenforEos(): Sporsmal {
         svartype = Svartype.JA_NEI,
         kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
         undersporsmal = listOf(
-            lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforNorge(0)
+            lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforEos(0)
         )
     )
 }
@@ -200,4 +199,3 @@ fun lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforEos(index: Int): Sporsmal
         )
     )
 }
-

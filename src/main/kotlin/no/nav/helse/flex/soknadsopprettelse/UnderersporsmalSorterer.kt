@@ -28,6 +28,8 @@ private fun Sporsmal.sorterUndersporsmal(): Sporsmal {
                 MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_GRUPPERING -> it.sorteringMedlemskapArbeidUtenforNorgeGruppering()
                 MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_GRUPPERING -> it.sorteringMedlemskapOppholdUtenforNorgeGruppering()
                 MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE -> it.sorteringMedlemskapOppholdUtenforNorgeBegrunnelse()
+                MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_GRUPPERING -> it.sorteringMedlemskapOppholdUtenforEosGruppering()
+                MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE -> it.sorteringMedlemskapOppholdUtenforEosBegrunnelse()
                 else -> it.tag
             }
         }
@@ -70,6 +72,26 @@ private fun Sporsmal.sorteringMedlemskapOppholdUtenforNorgeBegrunnelse(): String
         MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE_FERIE -> "1"
         MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE_FORSORG -> "2"
         else -> throw RuntimeException("Ukjent underspørsmål for begrunnelse for opphold utenfor Norge: $tag")
+    }
+}
+
+private fun Sporsmal.sorteringMedlemskapOppholdUtenforEosGruppering(): String {
+    val tagUtenIndex = fjernIndexFraTag(this.tag)
+    return when (tagUtenIndex) {
+        MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_HVOR -> "0"
+        MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE -> "1"
+        MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_NAAR -> "2"
+        else -> throw RuntimeException("Ukjent underspørsmål for medlemskap opphold utenfor EØS: $tag")
+    }
+}
+
+private fun Sporsmal.sorteringMedlemskapOppholdUtenforEosBegrunnelse(): String {
+    val tagUtenIndex = fjernIndexFraTag(this.tag)
+    return when (tagUtenIndex) {
+        MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_STUDIE -> "0"
+        MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_FERIE -> "1"
+        MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_FORSORG -> "2"
+        else -> throw RuntimeException("Ukjent underspørsmål for begrunnelse for opphold utenfor EØS: $tag")
     }
 }
 
