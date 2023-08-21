@@ -143,3 +143,61 @@ fun lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforNorge(index: Int): Sporsm
         )
     )
 }
+
+
+fun lagSporsmalOmOppholdUtenforEos(): Sporsmal {
+    return Sporsmal(
+        tag = MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
+        sporsmalstekst = "Har du oppholdt deg utenfor EØS i løpet av de siste 12 månedene?",
+        svartype = Svartype.JA_NEI,
+        kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
+        undersporsmal = listOf(
+            lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforNorge(0)
+        )
+    )
+}
+
+fun lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforEos(index: Int): Sporsmal {
+    return Sporsmal(
+        tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_GRUPPERING, index),
+        svartype = Svartype.IKKE_RELEVANT,
+
+        undersporsmal = listOf(
+            Sporsmal(
+                tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_HVOR, index),
+                sporsmalstekst = "Velg land",
+                svartype = Svartype.COMBOBOX_SINGLE
+            ),
+            Sporsmal(
+                tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE, index),
+                sporsmalstekst = "Grunn for opphold",
+                svartype = Svartype.RADIO_GRUPPE,
+                undersporsmal = listOf(
+                    Sporsmal(
+                        tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_STUDIE, index),
+                        sporsmalstekst = "Studier",
+                        svartype = Svartype.RADIO
+                    ),
+                    Sporsmal(
+                        tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_FERIE, index),
+                        sporsmalstekst = "Ferie",
+                        svartype = Svartype.RADIO
+                    ),
+                    Sporsmal(
+                        tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_FORSORG, index),
+                        sporsmalstekst = "Forsørget medfølgende familiemedlem",
+                        svartype = Svartype.RADIO
+                    )
+                )
+            ),
+            Sporsmal(
+                tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_NAAR, index),
+                svartype = Svartype.PERIODER,
+                // Til- og fra-dato er satt statisk i samarbeid med LovMe.
+                min = LocalDate.now().minusYears(2).format(DateTimeFormatter.ISO_LOCAL_DATE),
+                max = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
+            )
+        )
+    )
+}
+
