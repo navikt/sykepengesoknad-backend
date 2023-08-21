@@ -1,18 +1,11 @@
 package no.nav.helse.flex.medlemskap
 
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSporsmal
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknad
 import no.nav.helse.flex.controller.domain.sykepengesoknad.flatten
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.hentProduserteRecords
-import no.nav.helse.flex.hentSoknad
-import no.nav.helse.flex.hentSoknaderMetadata
-import no.nav.helse.flex.leggTilUndersporsmal
-import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
-import no.nav.helse.flex.sendSykmelding
-import no.nav.helse.flex.slettUndersporsmal
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.medIndex
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
@@ -20,10 +13,8 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
-import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.util.DatoUtil
 import no.nav.helse.flex.util.serialisertTilString
-import no.nav.helse.flex.ventPåRecords
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
@@ -89,6 +80,7 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
                 ANDRE_INNTEKTSKILDER_V2,
                 MEDLEMSKAP_OPPHOLDSTILLATELSE,
                 MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
+                MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
                 VAER_KLAR_OVER_AT,
                 BEKREFT_OPPLYSNINGER
             )
@@ -123,7 +115,8 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
         ) shouldBeEqualTo 8
         soknad.sporsmal!![index - 1].tag shouldBeEqualTo ANDRE_INNTEKTSKILDER_V2
         soknad.sporsmal!![index + 1].tag shouldBeEqualTo MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE
-        soknad.sporsmal!![index + 2].tag shouldBeEqualTo VAER_KLAR_OVER_AT
+        soknad.sporsmal!![index + 2].tag shouldBeEqualTo MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE
+        soknad.sporsmal!![index + 3].tag shouldBeEqualTo VAER_KLAR_OVER_AT
     }
 
     @Test
@@ -184,9 +177,10 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
 
     @Test
     @Order(6)
-    fun `Sletter det ene underspørsmålet`() {
+    fun `Slett ett underspørsmål på spørsmål om arbeid utenfor Norge`() {
         val soknadId = hentSoknadMedStatusNy(fnr).id
-        val hovedsporsmalFor = hentSoknad(soknadId, fnr).sporsmal!!.first { it.tag == MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE }
+        val hovedsporsmalFor =
+            hentSoknad(soknadId, fnr).sporsmal!!.first { it.tag == MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE }
 
         slettUndersporsmal(
             fnr = fnr,
@@ -195,20 +189,48 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
             undersporsmalId = hovedsporsmalFor.undersporsmal[1].id!!
         )
 
-        val hovedsporsmalEtter = hentSoknad(soknadId, fnr).sporsmal!!.first { it.tag == MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE }
+        val hovedsporsmalEtter =
+            hentSoknad(soknadId, fnr).sporsmal!!.first { it.tag == MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE }
         hovedsporsmalEtter.undersporsmal shouldHaveSize 1
         hovedsporsmalEtter.undersporsmal[0].tag shouldBeEqualTo hovedsporsmalFor.undersporsmal[0].tag
 
         val flattenEtter = listOf(hovedsporsmalEtter).flatten()
         val utenIdEtter = flattenEtter.utenId()
-        val flattenFor = listOf(hovedsporsmalFor.copy(undersporsmal = listOf(hovedsporsmalEtter.undersporsmal[0]))).flatten()
+        val flattenFor =
+            listOf(hovedsporsmalFor.copy(undersporsmal = listOf(hovedsporsmalEtter.undersporsmal[0]))).flatten()
         val utenIdFor = flattenFor.utenId()
         utenIdEtter shouldBeEqualTo utenIdFor
     }
 
     @Test
     @Order(7)
-    fun `Besvar arbeidtakerspørsmål og send søknaden`() {
+    fun `Besvar medlemskapspørsmål om opphold utenfor Norge`() {
+        val soknad = hentSoknadMedStatusNy(fnr)
+
+        SoknadBesvarer(rSSykepengesoknad = soknad, mockMvc = this, fnr = fnr)
+            .besvarSporsmal(tag = MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE, svar = "JA", ferdigBesvart = false)
+            .besvarSporsmal(
+                tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_HVOR, 0),
+                svar = "Land",
+                ferdigBesvart = false
+            )
+            .besvarSporsmal(
+                tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE_FERIE, 0),
+                svar = "CHECKED",
+                ferdigBesvart = false
+            )
+            .besvarSporsmal(
+                tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_NAAR, 0),
+                svar = DatoUtil.periodeTilJson(
+                    fom = soknad.tom!!.minusDays(25),
+                    tom = soknad.tom!!.minusDays(5)
+                )
+            )
+    }
+
+    @Test
+    @Order(8)
+    fun `Besvar arbeidstakerspørsmål og send søknaden`() {
         flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
 
@@ -231,6 +253,7 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
         // bare å sjekke at spørsmålene er med.
         kafkaSoknad.sporsmal!!.any { it.tag == MEDLEMSKAP_OPPHOLDSTILLATELSE } shouldBeEqualTo true
         kafkaSoknad.sporsmal!!.any { it.tag == MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE } shouldBeEqualTo true
+        kafkaSoknad.sporsmal!!.any { it.tag == MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE } shouldBeEqualTo true
     }
 
     private fun hentSoknadMedStatusNy(fnr: String): RSSykepengesoknad {
@@ -298,9 +321,9 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
     }
 
     private fun List<RSSporsmal>.utenId(): List<RSSporsmal> {
-        return this.map { spm ->
-            spm.copy(id = "").let { spmSvar ->
-                spmSvar.copy(svar = spmSvar.svar.map { it.copy(id = "") })
+        return this.map { sporsmal ->
+            sporsmal.copy(id = "").let { sporsmalSvar ->
+                sporsmalSvar.copy(svar = sporsmalSvar.svar.map { it.copy(id = "") })
             }
         }
     }
