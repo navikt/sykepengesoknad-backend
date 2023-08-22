@@ -14,8 +14,14 @@ import no.nav.helse.flex.oppdatersporsmal.soknad.muteringer.oppdaterMedSvarPaUtl
 import no.nav.helse.flex.oppdatersporsmal.soknad.muteringer.utlandssoknadMuteringer
 import no.nav.helse.flex.repository.SvarDAO
 import no.nav.helse.flex.repository.SykepengesoknadDAO
-import no.nav.helse.flex.soknadsopprettelse.*
+import no.nav.helse.flex.soknadsopprettelse.KVITTERINGER
+import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLD_UTENFOR_EOS
+import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE
+import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE
+import no.nav.helse.flex.soknadsopprettelse.finnHoyesteIndex
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforEos
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforNorge
 import no.nav.helse.flex.svarvalidering.tilKvittering
 import no.nav.helse.flex.svarvalidering.validerSvarPaSporsmal
 import no.nav.helse.flex.util.Metrikk
@@ -109,14 +115,16 @@ class OppdaterSporsmalService(
 
     fun leggTilNyttUndersporsmal(soknadId: String, tag: String) {
         val soknad = sykepengesoknadDAO.finnSykepengesoknad(soknadId)
-        soknad.sporsmal.first { it.tag == MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE }.let { sporsmal ->
-            val oppdatertSporsmal = sporsmal.copy(
-                undersporsmal = sporsmal.undersporsmal + lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(
-                    finnHoyesteIndex(sporsmal.undersporsmal) + 1
-                )
-            )
-            sykepengesoknadDAO.byttUtSporsmal(soknad.replaceSporsmal(oppdatertSporsmal))
+        val sporsmal = soknad.sporsmal.first { it.tag == tag }
+        val index = finnHoyesteIndex(sporsmal.undersporsmal) + 1
+        val undersporsmal = when (tag) {
+            MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE -> lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(index)
+            MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE -> lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforNorge(index)
+            MEDLEMSKAP_OPPHOLD_UTENFOR_EOS -> lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforEos(index)
+            else -> throw IllegalArgumentException("Kan ikke legge til underspørsmål for tag $tag.")
         }
+        val oppdatertSporsmal = sporsmal.copy(undersporsmal = sporsmal.undersporsmal + undersporsmal)
+        sykepengesoknadDAO.byttUtSporsmal(soknad.replaceSporsmal(oppdatertSporsmal))
     }
 
     fun slettUndersporsmal(soknad: Sykepengesoknad, hovedSporsmal: Sporsmal, undersporsmalId: String) {
