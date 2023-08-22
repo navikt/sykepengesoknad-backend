@@ -33,7 +33,7 @@ fun lagSporsmalOmOppholdstillatelse(): Sporsmal {
                     Sporsmal(
                         tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_PERIODE,
                         sporsmalstekst = "Hvilken periode har du fått oppholdstillatelse?",
-                        svartype = Svartype.PERIODER,
+                        svartype = Svartype.PERIODE,
                         min = LocalDate.now().minusYears(10).format(DateTimeFormatter.ISO_LOCAL_DATE),
                         max = LocalDate.now().plusYears(10).format(DateTimeFormatter.ISO_LOCAL_DATE)
                     )
@@ -79,7 +79,7 @@ fun lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(index: Int): Sporsma
             ),
             Sporsmal(
                 tag = medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR, index),
-                svartype = Svartype.PERIODER,
+                svartype = Svartype.PERIODE,
                 // Til- og fra-dato er satt statisk i samarbeid med LovMe.
                 min = LocalDate.now().minusYears(10).format(DateTimeFormatter.ISO_LOCAL_DATE),
                 max = LocalDate.now().plusYears(1).format(DateTimeFormatter.ISO_LOCAL_DATE)
@@ -135,7 +135,7 @@ fun lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforNorge(index: Int): Sporsm
             ),
             Sporsmal(
                 tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_NAAR, index),
-                svartype = Svartype.PERIODER,
+                svartype = Svartype.PERIODE,
                 // Til- og fra-dato er satt statisk i samarbeid med LovMe.
                 min = LocalDate.now().minusYears(2).format(DateTimeFormatter.ISO_LOCAL_DATE),
                 max = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
@@ -191,7 +191,7 @@ fun lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforEos(index: Int): Sporsmal
             ),
             Sporsmal(
                 tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_NAAR, index),
-                svartype = Svartype.PERIODER,
+                svartype = Svartype.PERIODE,
                 // Til- og fra-dato er satt statisk i samarbeid med LovMe.
                 min = LocalDate.now().minusYears(2).format(DateTimeFormatter.ISO_LOCAL_DATE),
                 max = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
