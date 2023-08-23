@@ -2,7 +2,11 @@ package no.nav.helse.flex.medlemskap
 
 import no.nav.helse.flex.logger
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.http.*
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpMethod
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
@@ -24,8 +28,10 @@ class MedlemskapVurderingClient(
 
     fun hentMedlemskapVurdering(medlemskapVurderingRequest: MedlemskapVurderingRequest): MedlemskapVurderingResponse {
         val headers = HttpHeaders()
+        val navCallId = UUID.randomUUID().toString()
         headers.accept = listOf(MediaType.APPLICATION_JSON)
         headers.set("fnr", medlemskapVurderingRequest.fnr)
+        headers.set("Nav-Call-Id", UUID.randomUUID().toString())
 
         val queryBuilder = UriComponentsBuilder
             .fromHttpUrl(url)
@@ -45,7 +51,10 @@ class MedlemskapVurderingClient(
                     )
             }
         } catch (e: Exception) {
-            throw MedlemskapVurderingClientException("Feil ved kall til MedlemskapVurdering.", e)
+            throw MedlemskapVurderingClientException(
+                "MedlemskapVurdering med Nav-Call-Id: $navCallId feilet.",
+                e
+            )
         }
 
         val medlemskapVurderingResponse = response.body!!
@@ -59,7 +68,9 @@ class MedlemskapVurderingClient(
 
         // Mottar vi UAVKLART må vi få spørsmål å stille brukeren.
         if (medlemskapVurderingResponse.svar == MedlemskapVurderingSvarType.UAVKLART && medlemskapVurderingResponse.sporsmal.isEmpty()) {
-            throw MedlemskapVurderingResponseException("MedlemskapVurdering returnerte svar.UAVKLART uten spørsmål.")
+            throw MedlemskapVurderingResponseException(
+                "MedlemskapVurdering med Nav-Call-Id: $navCallId returnerte svar.UAVKLART uten spørsmål."
+            )
         }
 
         // Mottar vi en avklart situasjon (svar.JA eller svar.NEI) skal vi ikke få spørsmål å stille brukeren.
@@ -69,7 +80,7 @@ class MedlemskapVurderingClient(
             ).contains(medlemskapVurderingResponse.svar) && medlemskapVurderingResponse.sporsmal.isNotEmpty()
         ) {
             throw MedlemskapVurderingResponseException(
-                "MedlemskapVurdering returnerte spørsmål selv om svar var " +
+                "MedlemskapVurdering med Nav-Call-Id: $navCallId returnerte spørsmål selv om svar var " +
                     "svar.${medlemskapVurderingResponse.svar}."
             )
         }

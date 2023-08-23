@@ -43,11 +43,11 @@ class MedlemskapVurderingRestTemplateTest {
     }
 
     @Test
-    @Disabled
+    @Disabled("Testen tar lang tid å kjøre, og er ikke så viktig å ha med i CI.")
     fun failOnReadTimeout() {
         val responsDelayInSeconds = MEDLEMSKAP_VURDERING_REST_TEMPLATE_READ_TIMEOUT + 1L
         assertThrows<ResourceAccessException> {
-            // Oppretter connection, men bruker lang tid på å svare
+            // Oppretter connection, men bruker for lang tid på å svare.
             medlemskapVurderingRestTemplate.getForEntity(
                 "https://mockbin.org/delay/${responsDelayInSeconds * 1000}",
                 String::class.java
