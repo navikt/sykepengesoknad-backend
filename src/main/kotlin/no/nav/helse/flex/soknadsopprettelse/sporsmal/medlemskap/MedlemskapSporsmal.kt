@@ -115,7 +115,7 @@ fun lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforNorge(index: Int): Sporsm
             ),
             Sporsmal(
                 tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE, index),
-                sporsmalstekst = "Hva var grunnen for oppholdet?",
+                sporsmalstekst = "Hva var årsaken til oppholdet?",
                 svartype = Svartype.RADIO_GRUPPE,
                 undersporsmal = listOf(
                     Sporsmal(
@@ -172,7 +172,7 @@ fun lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforEos(index: Int): Sporsmal
             ),
             Sporsmal(
                 tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE, index),
-                sporsmalstekst = "Hva var grunnen for oppholdet?",
+                sporsmalstekst = "Hva var årsaken til oppholdet?",
                 svartype = Svartype.RADIO_GRUPPE,
                 undersporsmal = listOf(
                     Sporsmal(
