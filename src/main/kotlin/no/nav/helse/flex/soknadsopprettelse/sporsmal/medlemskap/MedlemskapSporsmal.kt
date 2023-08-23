@@ -16,7 +16,7 @@ fun lagSporsmalOmOppholdstillatelse(): Sporsmal {
         undersporsmal = listOf(
             Sporsmal(
                 tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_VEDTAKSDATO,
-                sporsmalstekst = "Oppgi vedtaksdato om oppholdstillatelse:",
+                sporsmalstekst = "Når fikk du vedtak om oppholdstillatelse?",
                 svartype = Svartype.DATO,
                 // Vi vet ikke hvor lang tid tilbake en oppholdstillatelse kan ha bli gitt så vi setter 10 år i
                 // samarbeid med LovMe.
@@ -46,7 +46,7 @@ fun lagSporsmalOmOppholdstillatelse(): Sporsmal {
 fun lagSporsmalOmArbeidUtenforNorge(): Sporsmal {
     return Sporsmal(
         tag = MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
-        sporsmalstekst = "Har du utført arbeid utenfor Norge i det siste 12 månedene?",
+        sporsmalstekst = "Har du utført arbeid utenfor Norge i de siste 12 månedene?",
         svartype = Svartype.JA_NEI,
         kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
         undersporsmal = listOf(
@@ -65,20 +65,22 @@ fun lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(index: Int): Sporsma
         svartype = Svartype.IKKE_RELEVANT,
         undersporsmal = listOf(
             Sporsmal(
+                tag = medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_HVOR, index),
+                sporsmalstekst = "I hvilket land utførte du arbeidet?",
+                svartype = Svartype.COMBOBOX_SINGLE
+            ),
+            Sporsmal(
                 tag = medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_ARBEIDSGIVER, index),
-                sporsmalstekst = "Arbeidsgiver",
+                sporsmalstekst = "Hvilken arbeidsgiver jobbet du for?",
                 svartype = Svartype.FRITEKST,
                 min = "1",
                 // Noen arbeidsgivere kan ha ganske lange navn.
                 max = "200"
             ),
-            Sporsmal(
-                tag = medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_HVOR, index),
-                sporsmalstekst = "Velg land",
-                svartype = Svartype.COMBOBOX_SINGLE
-            ),
+
             Sporsmal(
                 tag = medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR, index),
+                sporsmalstekst = "I hvilken periode ble arbeidet utført?",
                 svartype = Svartype.PERIODE,
                 // Til- og fra-dato er satt statisk i samarbeid med LovMe.
                 min = LocalDate.now().minusYears(10).format(DateTimeFormatter.ISO_LOCAL_DATE),
@@ -108,12 +110,12 @@ fun lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforNorge(index: Int): Sporsm
         undersporsmal = listOf(
             Sporsmal(
                 tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_HVOR, index),
-                sporsmalstekst = "Velg land",
+                sporsmalstekst = "I hvilket land utenfor Norge har du oppholdt deg?",
                 svartype = Svartype.COMBOBOX_SINGLE
             ),
             Sporsmal(
                 tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE, index),
-                sporsmalstekst = "Grunn for opphold",
+                sporsmalstekst = "Hva var grunnen for oppholdet?",
                 svartype = Svartype.RADIO_GRUPPE,
                 undersporsmal = listOf(
                     Sporsmal(
@@ -135,6 +137,7 @@ fun lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforNorge(index: Int): Sporsm
             ),
             Sporsmal(
                 tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_NAAR, index),
+                sporsmalstekst = "I hvilken periode oppholdt du deg i dette landet?",
                 svartype = Svartype.PERIODE,
                 // Til- og fra-dato er satt statisk i samarbeid med LovMe.
                 min = LocalDate.now().minusYears(2).format(DateTimeFormatter.ISO_LOCAL_DATE),
@@ -164,12 +167,12 @@ fun lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforEos(index: Int): Sporsmal
         undersporsmal = listOf(
             Sporsmal(
                 tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_HVOR, index),
-                sporsmalstekst = "Velg land",
+                sporsmalstekst = "I hvilket land utenfor EØS har du oppholdt deg?",
                 svartype = Svartype.COMBOBOX_SINGLE
             ),
             Sporsmal(
                 tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE, index),
-                sporsmalstekst = "Grunn for opphold",
+                sporsmalstekst = "Hva var grunnen for oppholdet?",
                 svartype = Svartype.RADIO_GRUPPE,
                 undersporsmal = listOf(
                     Sporsmal(
@@ -191,6 +194,7 @@ fun lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforEos(index: Int): Sporsmal
             ),
             Sporsmal(
                 tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_NAAR, index),
+                sporsmalstekst = "I hvilken periode oppholdt du deg i dette landet?",
                 svartype = Svartype.PERIODE,
                 // Til- og fra-dato er satt statisk i samarbeid med LovMe.
                 min = LocalDate.now().minusYears(2).format(DateTimeFormatter.ISO_LOCAL_DATE),

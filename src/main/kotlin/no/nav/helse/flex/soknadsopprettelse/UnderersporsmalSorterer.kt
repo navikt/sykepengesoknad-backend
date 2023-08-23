@@ -36,7 +36,7 @@ private fun Sporsmal.sorterUndersporsmal(): Sporsmal {
     return this.copy(undersporsmal = sorterteUndersporsmal)
 }
 
-private fun Sporsmal.sorteringMedlemskapOppholdstillatelse(): String? {
+private fun Sporsmal.sorteringMedlemskapOppholdstillatelse(): String {
     return when (tag) {
         MEDLEMSKAP_OPPHOLDSTILLATELSE_VEDTAKSDATO -> "0"
         MEDLEMSKAP_OPPHOLDSTILLATELSE_PERMANENT -> "1"
@@ -48,8 +48,8 @@ private fun Sporsmal.sorteringMedlemskapOppholdstillatelse(): String? {
 private fun Sporsmal.sorteringMedlemskapArbeidUtenforNorgeGruppering(): String {
     val tagUtenIndex = fjernIndexFraTag(this.tag)
     return when (tagUtenIndex) {
-        MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_ARBEIDSGIVER -> "0"
-        MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_HVOR -> "1"
+        MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_HVOR -> "0"
+        MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_ARBEIDSGIVER -> "1"
         MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR -> "2"
         else -> throw RuntimeException("Ukjent underspørsmål for medlemskap arbeid utenfor Norge: $tag")
     }
