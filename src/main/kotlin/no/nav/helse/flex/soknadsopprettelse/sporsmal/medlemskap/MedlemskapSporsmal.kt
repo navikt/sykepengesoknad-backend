@@ -46,7 +46,7 @@ fun lagSporsmalOmOppholdstillatelse(): Sporsmal {
 fun lagSporsmalOmArbeidUtenforNorge(): Sporsmal {
     return Sporsmal(
         tag = MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
-        sporsmalstekst = "Har du utført arbeid utenfor Norge i løpet av de siste 12 måneden?",
+        sporsmalstekst = "Har du utført arbeid utenfor Norge i løpet av de siste 12 månedene?",
         svartype = Svartype.JA_NEI,
         kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
         undersporsmal = listOf(
