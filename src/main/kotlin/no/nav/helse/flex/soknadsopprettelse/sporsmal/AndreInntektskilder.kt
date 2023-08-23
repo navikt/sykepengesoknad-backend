@@ -60,7 +60,7 @@ fun andreInntektskilderArbeidstakerV2(sykmeldingOrgnavn: String, andreKjenteArbe
             Sporsmal(
                 tag = HVILKE_ANDRE_INNTEKTSKILDER,
                 sporsmalstekst = "Velg inntektskildene som passer for deg:",
-                undertekst = "Finner du ikke noe som passer for deg, velger du nei øverst",
+                undertekst = "Finner du ikke noe som passer for deg, svarer du nei på spørsmålet over",
                 svartype = Svartype.CHECKBOX_GRUPPE,
                 undersporsmal = listOf(
                     Sporsmal(
@@ -76,7 +76,7 @@ fun andreInntektskilderArbeidstakerV2(sykmeldingOrgnavn: String, andreKjenteArbe
                         undersporsmal = listOf(
                             Sporsmal(
                                 tag = INNTEKTSKILDE_SELVSTENDIG_4_AR,
-                                sporsmalstekst = "Har du vært næringsdrivende i mer enn 4 år?",
+                                sporsmalstekst = "Har du vært næringsdrivende i mer enn 5 år?",
                                 kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
                                 svartype = Svartype.JA_NEI,
                                 undersporsmal = listOf(
