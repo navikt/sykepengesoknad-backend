@@ -53,6 +53,7 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
 
         val takeRequest = medlemskapMockWebServer.takeRequest()
         takeRequest.headers["fnr"] `should be equal to` fnr
+        takeRequest.headers["Nav-Call-Id"].isNullOrBlank() `should be equal to` false
         takeRequest.headers["Authorization"]!!.shouldStartWith("Bearer ey")
         takeRequest.path `should be equal to` "/$MEDLEMSKAP_VURDERING_PATH?fom=$fom&tom=$tom"
 
@@ -104,7 +105,7 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
                 )
             }
 
-        exception.message `should be equal to` "Feil ved kall til MedlemskapVurdering."
+        exception.message?.shouldStartWith("MedlemskapVurdering med Nav-Call-Id:")
         exception.cause!!.message?.shouldStartWith("500 Server Error")
 
         val takeRequest = medlemskapMockWebServer.takeRequest()
@@ -123,7 +124,7 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
                 )
             }
 
-        exception.message `should be equal to` "Feil ved kall til MedlemskapVurdering."
+        exception.message?.shouldStartWith("MedlemskapVurdering med Nav-Call-Id:")
         exception.cause!!.message?.shouldStartWith("400 Client Error")
 
         val takeRequest = medlemskapMockWebServer.takeRequest()
@@ -142,7 +143,8 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
                 )
             }
 
-        exception.message `should be equal to` "MedlemskapVurdering returnerte svar.UAVKLART uten spørsmål."
+        exception.message?.shouldStartWith("MedlemskapVurdering med Nav-Call-Id:")
+        exception.message?.shouldContain("returnerte svar.UAVKLART uten spørsmål.")
 
         val takeRequest = medlemskapMockWebServer.takeRequest()
         takeRequest.headers["fnr"] `should be equal to` fnr
@@ -165,7 +167,8 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
                 )
             }
 
-        exception.message `should be equal to` "MedlemskapVurdering returnerte spørsmål selv om svar var svar.JA."
+        exception.message?.shouldStartWith("MedlemskapVurdering med Nav-Call-Id:")
+        exception.message?.shouldContain("returnerte spørsmål selv om svar var svar.JA.")
 
         val takeRequest = medlemskapMockWebServer.takeRequest()
         takeRequest.headers["fnr"] `should be equal to` fnr
@@ -187,7 +190,8 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
                 )
             }
 
-        exception.message `should be equal to` "MedlemskapVurdering returnerte spørsmål selv om svar var svar.NEI."
+        exception.message?.shouldStartWith("MedlemskapVurdering med Nav-Call-Id:")
+        exception.message?.shouldContain("returnerte spørsmål selv om svar var svar.NEI.")
 
         val takeRequest = medlemskapMockWebServer.takeRequest()
         takeRequest.headers["fnr"] `should be equal to` fnr
