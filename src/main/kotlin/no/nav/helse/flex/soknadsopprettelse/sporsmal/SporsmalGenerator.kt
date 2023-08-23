@@ -1,5 +1,6 @@
 package no.nav.helse.flex.soknadsopprettelse.sporsmal
 
+import no.nav.helse.flex.config.EnvironmentToggles
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sporsmal
@@ -31,7 +32,7 @@ class SporsmalGenerator(
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val yrkesskadeIndikatorer: YrkesskadeIndikatorer,
     private val medlemskapVurderingClient: MedlemskapVurderingClient,
-
+    private val environmentToggles: EnvironmentToggles,
     @Value("\${ENABLE_MEDLEMSKAP}") var stillMedlemskapSporsmal: Boolean
 ) {
     private val log = logger()
@@ -137,15 +138,29 @@ class SporsmalGenerator(
         val medlemskapSporsmal = mutableListOf<Sporsmal>()
 
         if (!harBlittStiltMedlemskapSporsmal(eksisterendeSoknader, soknad)) {
-            val medlemskapVurdering = medlemskapVurderingClient.hentMedlemskapVurdering(
-                MedlemskapVurderingRequest(
-                    // Bruker 'fnr' fra sykepengesøknaden, ikke liste over identer siden det ikke støttes av LovMe enda.
-                    fnr = soknad.fnr,
-                    fom = soknad.fom!!,
-                    tom = soknad.tom!!,
-                    sykepengesoknadId = soknad.id
+            val medlemskapVurdering = try {
+                medlemskapVurderingClient.hentMedlemskapVurdering(
+                    MedlemskapVurderingRequest(
+                        // Bruker 'fnr' fra sykepengesøknaden, ikke liste over identer siden det ikke støttes av LovMe enda.
+                        fnr = soknad.fnr,
+                        fom = soknad.fom!!,
+                        tom = soknad.tom!!,
+                        sykepengesoknadId = soknad.id
+                    )
                 )
-            )
+            } catch (e: Exception) {
+                // Vi kaster exception i prod, men logger bare og returnerer tom liste i DEV siden det er såpass
+                // mange brukere som ikke finnes i PDL, som igjen gjør at LovMe ikke får gjort oppslag.
+                if (environmentToggles.isProduction()) {
+                    throw e
+                } else {
+                    log.warn(
+                        "Henting av medlemskapvurdering feilet for søknad ${soknad.id}, men vi er i DEV og gjør " +
+                            "ikke noe med det annet enn å returnere en tom liste med spørsmål."
+                    )
+                    return mutableListOf()
+                }
+            }
 
             log.info("Hentet medlemskapvurdering for søknad ${soknad.id} med svar ${medlemskapVurdering.svar}.")
             if (medlemskapVurdering.svar == MedlemskapVurderingSvarType.UAVKLART) {
@@ -156,12 +171,15 @@ class SporsmalGenerator(
                             MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE -> medlemskapSporsmal.add(
                                 lagSporsmalOmOppholdstillatelse()
                             )
+
                             MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE -> medlemskapSporsmal.add(
                                 lagSporsmalOmArbeidUtenforNorge()
                             )
+
                             MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE -> medlemskapSporsmal.add(
                                 lagSporsmalOmOppholdUtenforNorge()
                             )
+
                             MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE -> medlemskapSporsmal.add(
                                 lagSporsmalOmOppholdUtenforEos()
                             )
