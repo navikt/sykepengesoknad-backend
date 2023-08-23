@@ -75,7 +75,7 @@ fun andreInntektskilderArbeidstakerV2(sykmeldingOrgnavn: String, andreKjenteArbe
                         kriterieForVisningAvUndersporsmal = Visningskriterie.CHECKED,
                         undersporsmal = listOf(
                             Sporsmal(
-                                tag = INNTEKTSKILDE_SELVSTENDIG_5_AR,
+                                tag = INNTEKTSKILDE_SELVSTENDIG_N_AR,
                                 sporsmalstekst = "Har du vært næringsdrivende i mer enn 5 år?",
                                 kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
                                 svartype = Svartype.JA_NEI,
