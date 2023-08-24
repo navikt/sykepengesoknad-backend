@@ -81,7 +81,7 @@ class AndreInntektskilderKtTest {
             .map { it.tag }
             .shouldBeEqualTo(
                 listOf(
-                    INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD_JOBBET_SISTE_14_DAGER
+                    INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD_JOBBET_I_DET_SISTE
                 )
             )
 

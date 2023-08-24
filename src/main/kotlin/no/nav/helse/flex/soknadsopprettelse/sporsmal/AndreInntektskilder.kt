@@ -70,7 +70,7 @@ fun andreInntektskilderArbeidstakerV2(sykmeldingOrgnavn: String, andreKjenteArbe
                         kriterieForVisningAvUndersporsmal = Visningskriterie.CHECKED,
                         undersporsmal = listOf(
                             Sporsmal(
-                                tag = INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD_JOBBET_SISTE_14_DAGER,
+                                tag = INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD_JOBBET_I_DET_SISTE,
                                 sporsmalstekst = "Har du jobbet for eller mottatt inntekt fra én eller flere av disse arbeidsgiverne de siste 14 dagene før du ble sykmeldt?",
                                 svartype = Svartype.JA_NEI
                             )
