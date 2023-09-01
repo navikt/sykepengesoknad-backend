@@ -296,7 +296,7 @@ class SoknadTokenXController(
         return RSMottakerResponse(RSMottaker.valueOf(mottaker.name))
     }
 
-    @ProtectedWithClaims(issuer = TOKENX, claimMap = ["acr=Level4"])
+    @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(value = ["/soknader/{soknadId}/sporsmal/{sporsmalId}/undersporsmal"])
     fun leggTilUndersporsmal(
@@ -321,7 +321,7 @@ class SoknadTokenXController(
         }
     }
 
-    @ProtectedWithClaims(issuer = TOKENX, claimMap = ["acr=Level4"])
+    @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping(value = ["/soknader/{soknadId}/sporsmal/{sporsmalId}/undersporsmal/{undersporsmalId}"])
     fun slettUndersporsmal(
