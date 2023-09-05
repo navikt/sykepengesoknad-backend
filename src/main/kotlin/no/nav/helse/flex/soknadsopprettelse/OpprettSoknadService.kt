@@ -1,14 +1,8 @@
 package no.nav.helse.flex.soknadsopprettelse
 
 import no.nav.helse.flex.aktivering.kafka.AktiveringBestilling
-import no.nav.helse.flex.domain.Arbeidssituasjon
+import no.nav.helse.flex.domain.*
 import no.nav.helse.flex.domain.Merknad
-import no.nav.helse.flex.domain.Soknadsperiode
-import no.nav.helse.flex.domain.Soknadstatus
-import no.nav.helse.flex.domain.Soknadstype
-import no.nav.helse.flex.domain.Sykeforloep
-import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.domain.Sykmeldingstype
 import no.nav.helse.flex.domain.exception.SykeforloepManglerSykemeldingException
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.domain.sykmelding.finnSoknadsType
@@ -22,14 +16,11 @@ import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.KlippMetrik
 import no.nav.helse.flex.soknadsopprettelse.splitt.delOppISoknadsperioder
 import no.nav.helse.flex.soknadsopprettelse.splitt.splittMellomTyper
 import no.nav.helse.flex.soknadsopprettelse.splitt.splittSykmeldingiSoknadsPerioder
-import no.nav.helse.flex.util.*
+import no.nav.helse.flex.util.Metrikk
+import no.nav.helse.flex.util.osloZone
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
-import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO.AKTIVITET_IKKE_MULIG
-import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO.AVVENTENDE
-import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO.BEHANDLINGSDAGER
-import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO.GRADERT
-import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO.REISETILSKUDD
+import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO.*
 import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
 import no.nav.syfo.model.sykmeldingstatus.ShortNameDTO
 import org.springframework.stereotype.Service
@@ -62,7 +53,6 @@ class OpprettSoknadService(
         val sykmelding = sykmeldingKafkaMessage.sykmelding
 
         val eksisterendeSoknader = sykepengesoknadDAO.finnSykepengesoknader(identer)
-        val eksisterendeSoknaderOgOprettedeSoknader = eksisterendeSoknader.toMutableList()
 
         val sykeforloep = flexSyketilfelleSykeforloep.firstOrNull {
             it.sykmeldinger.any { sm -> sm.id == sykmelding.id }
@@ -70,9 +60,7 @@ class OpprettSoknadService(
         val startSykeforlop = sykeforloep.oppfolgingsdato
 
         val sykmeldingSplittetMellomTyper = sykmelding.splittMellomTyper()
-        val soknaderTilOppretting = ArrayList<Sykepengesoknad>()
-
-        sykmeldingSplittetMellomTyper.forEach { sm ->
+        val soknaderTilOppretting = sykmeldingSplittetMellomTyper.map { sm ->
             sm.splittSykmeldingiSoknadsPerioder(
                 arbeidssituasjon,
                 eksisterendeSoknader,
@@ -107,11 +95,7 @@ class OpprettSoknadService(
             }
                 .filter { it.soknadPerioder?.isNotEmpty() ?: true }
                 .also { it.lagreJulesoknadKandidater() }
-                .forEach {
-                    eksisterendeSoknaderOgOprettedeSoknader.add(it)
-                    soknaderTilOppretting.add(it)
-                }
-        }
+        }.flatten()
 
         val eksisterendeSoknaderForSm = eksisterendeSoknader.filter { it.sykmeldingId == sykmelding.id }
 
@@ -150,8 +134,18 @@ class OpprettSoknadService(
             }
         }
 
+        val markerForstegangssoknad: (Sykepengesoknad) -> Sykepengesoknad = {
+            val alleSoknader = mutableListOf(*eksisterendeSoknader.toTypedArray(), *soknaderTilOppretting.toTypedArray())
+            it.copy(
+                forstegangssoknad = erForsteSoknadTilArbeidsgiverIForlop(
+                    alleSoknader.filterNot { eksisterendeSoknad -> eksisterendeSoknad.id == it.id },
+                    it
+                )
+            )
+        }
         return soknaderTilOppretting
-            .map { it.lagreSøknad(eksisterendeSoknader) }
+            .map(markerForstegangssoknad)
+            .map { it.lagreSøknad() }
             .mapNotNull { it.publiserEllerReturnerAktiveringBestilling() }
     }
 
@@ -159,7 +153,7 @@ class OpprettSoknadService(
         return lagreJulesoknadKandidater.lagreJulesoknadKandidater(this)
     }
 
-    fun Sykepengesoknad.lagreSøknad(eksisterendeSoknader: List<Sykepengesoknad>): Sykepengesoknad {
+    fun Sykepengesoknad.lagreSøknad(): Sykepengesoknad {
         log.info("Oppretter ${this.soknadstype} søknad ${this.id} for sykmelding: ${this.sykmeldingId} med status ${this.status}")
 
         val lagretSoknad = sykepengesoknadDAO.lagreSykepengesoknad(this)
