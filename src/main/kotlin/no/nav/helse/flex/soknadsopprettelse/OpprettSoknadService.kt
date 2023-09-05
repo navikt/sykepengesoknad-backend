@@ -100,27 +100,6 @@ class OpprettSoknadService(
         val eksisterendeSoknaderForSm = eksisterendeSoknader.filter { it.sykmeldingId == sykmelding.id }
 
         if (eksisterendeSoknaderForSm.isNotEmpty()) {
-            data class SoknadSammenlikner(
-                val fom: LocalDate?,
-                val tom: LocalDate?,
-                val sykmeldingId: String?,
-                val arbeidssituasjon: Arbeidssituasjon?,
-                val soknadstype: Soknadstype,
-                val soknadPerioder: List<Soknadsperiode>?,
-                val arbeidsgiverOrgnummer: String?
-            )
-
-            fun Sykepengesoknad.tilSoknadSammenlikner() =
-                SoknadSammenlikner(
-                    fom = this.fom,
-                    tom = this.tom,
-                    sykmeldingId = this.sykmeldingId,
-                    arbeidssituasjon = this.arbeidssituasjon,
-                    arbeidsgiverOrgnummer = this.arbeidsgiverOrgnummer,
-                    soknadstype = this.soknadstype,
-                    soknadPerioder = this.soknadPerioder
-                )
-
             val sammenliknbartSettAvNyeSoknader = soknaderTilOppretting.map { it.tilSoknadSammenlikner() }.toHashSet()
             val sammenliknbartSettAvEksisterendeSoknaderForSm = eksisterendeSoknaderForSm
                 .filter { it.status != Soknadstatus.KORRIGERT && it.status != Soknadstatus.UTKAST_TIL_KORRIGERING }
@@ -134,17 +113,8 @@ class OpprettSoknadService(
             }
         }
 
-        val markerForstegangssoknad: (Sykepengesoknad) -> Sykepengesoknad = {
-            val alleSoknader = mutableListOf(*eksisterendeSoknader.toTypedArray(), *soknaderTilOppretting.toTypedArray())
-            it.copy(
-                forstegangssoknad = erForsteSoknadTilArbeidsgiverIForlop(
-                    alleSoknader.filterNot { eksisterendeSoknad -> eksisterendeSoknad.id == it.id },
-                    it
-                )
-            )
-        }
         return soknaderTilOppretting
-            .map(markerForstegangssoknad)
+            .map { it.markerForsteganssoknad(eksisterendeSoknader, soknaderTilOppretting) }
             .map { it.lagreSøknad() }
             .mapNotNull { it.publiserEllerReturnerAktiveringBestilling() }
     }
@@ -187,6 +157,22 @@ class OpprettSoknadService(
         log.info("Oppretter søknad for utenlandsopphold: {}", oppholdUtlandSoknad.id)
         return sykepengesoknadDAO.finnSykepengesoknad(oppholdUtlandSoknad.id)
     }
+}
+
+private fun Sykepengesoknad.markerForsteganssoknad(
+    eksisterendeSoknader: List<Sykepengesoknad>,
+    soknaderTilOppretting: List<Sykepengesoknad>
+): Sykepengesoknad {
+    val alleSoknader = mutableListOf(
+        *eksisterendeSoknader.toTypedArray(),
+        *soknaderTilOppretting.toTypedArray()
+    )
+    return this.copy(
+        forstegangssoknad = erForsteSoknadTilArbeidsgiverIForlop(
+            alleSoknader.filterNot { eksisterendeSoknad -> eksisterendeSoknad.id == this.id },
+            this
+        )
+    )
 }
 
 fun SykmeldingKafkaMessage.skapSoknadsId(fom: LocalDate, tom: LocalDate): String {
@@ -233,3 +219,24 @@ private fun PeriodetypeDTO.tilSykmeldingstype(): Sykmeldingstype {
         REISETILSKUDD -> Sykmeldingstype.REISETILSKUDD
     }
 }
+
+data class SoknadSammenlikner(
+    val fom: LocalDate?,
+    val tom: LocalDate?,
+    val sykmeldingId: String?,
+    val arbeidssituasjon: Arbeidssituasjon?,
+    val soknadstype: Soknadstype,
+    val soknadPerioder: List<Soknadsperiode>?,
+    val arbeidsgiverOrgnummer: String?
+)
+
+fun Sykepengesoknad.tilSoknadSammenlikner() =
+    SoknadSammenlikner(
+        fom = this.fom,
+        tom = this.tom,
+        sykmeldingId = this.sykmeldingId,
+        arbeidssituasjon = this.arbeidssituasjon,
+        arbeidsgiverOrgnummer = this.arbeidsgiverOrgnummer,
+        soknadstype = this.soknadstype,
+        soknadPerioder = this.soknadPerioder
+    )
