@@ -18,7 +18,20 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.util.*
 
-fun BaseTestClass.jwt(fnr: String) = server.tokenxToken(fnr = fnr)
+fun BaseTestClass.jwt(fnr: String, acrClaim: String = "idporten-loa-high") = server.tokenxToken(fnr = fnr, acrClaim = acrClaim)
+
+fun BaseTestClass.hentSoknaderMetadataCustomAcr(
+    fnr: String,
+    acrClaim: String
+): String {
+    val responsKode = mockMvc.perform(
+        MockMvcRequestBuilders.get("/api/v2/soknader/metadata")
+            .header("Authorization", "Bearer ${jwt(fnr, acrClaim)}")
+            .contentType(MediaType.APPLICATION_JSON)
+    ).andReturn().response.status.toString()
+
+    return responsKode
+}
 
 fun BaseTestClass.hentSoknaderMetadata(fnr: String): List<RSSykepengesoknadMetadata> {
     val json = mockMvc.perform(
@@ -203,11 +216,12 @@ fun BaseTestClass.oppdaterSporsmal(
 
 fun MockOAuth2Server.tokenxToken(
     fnr: String,
+    acrClaim: String = "idporten-loa-high",
     audience: String = "sykepengesoknad-backend-client-id",
     issuerId: String = "tokenx",
     clientId: String = "sykepengesoknad-frontend-client-id",
     claims: Map<String, Any> = mapOf(
-        "acr" to "Level4",
+        "acr" to acrClaim,
         "idp" to "idporten",
         "client_id" to clientId,
         "pid" to fnr

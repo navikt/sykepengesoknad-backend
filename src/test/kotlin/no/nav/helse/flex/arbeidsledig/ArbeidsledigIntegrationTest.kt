@@ -1,15 +1,8 @@
 package no.nav.helse.flex.arbeidsledig
 
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.hentSoknad
-import no.nav.helse.flex.hentSoknader
-import no.nav.helse.flex.hentSoknaderMetadata
-import no.nav.helse.flex.oppdaterSporsmalMedResult
-import no.nav.helse.flex.sendSoknad
-import no.nav.helse.flex.sendSoknadMedResult
-import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER
 import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
 import no.nav.helse.flex.soknadsopprettelse.ARBEIDSLEDIG_UTLAND
@@ -22,8 +15,6 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
-import no.nav.helse.flex.tilSoknader
-import no.nav.helse.flex.ventPåRecords
 import org.amshove.kluent.`should be true`
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.MethodOrderer
@@ -235,5 +226,26 @@ class ArbeidsledigIntegrationTest : BaseTestClass() {
         val json = oppdaterSporsmalMedResult(fnr, soknaden.sporsmal!![0], soknadsId = soknaden.id)
             .andExpect(MockMvcResultMatchers.status().isBadRequest).andReturn().response.contentAsString
         assertThat(json).isEqualTo("""{"reason":"FEIL_STATUS_FOR_OPPDATER_SPORSMAL"}""")
+    }
+
+    @Test
+    fun `12 - Det virker å hente metadata med det snart (høsten 2023) utdaterte acr claimet`() {
+        val soknadMetadataResponse = hentSoknaderMetadataCustomAcr(fnr, "Level4")
+
+        assertThat(soknadMetadataResponse).isEqualTo("200")
+    }
+
+    @Test
+    fun `13 - Det virker ikke å hente metadata med et ugyldig acr claim`() {
+        val soknadMetadataResponse = hentSoknaderMetadataCustomAcr(fnr, "doNotLetMeIn")
+
+        assertThat(soknadMetadataResponse).isEqualTo("401")
+    }
+
+    @Test
+    fun `14 - Det virker å hente metadata med det nye acr claimet`() {
+        val soknadMetadataResponse = hentSoknaderMetadataCustomAcr(fnr, "idporten-loa-high")
+
+        assertThat(soknadMetadataResponse).isEqualTo("200")
     }
 }
