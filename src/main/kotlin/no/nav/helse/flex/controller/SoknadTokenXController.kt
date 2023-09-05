@@ -387,11 +387,6 @@ class SoknadTokenXController(
         if (!tillattClient.toList().contains(clientId)) {
             throw IkkeTilgangException("Uventet client id $clientId")
         }
-        val idp = claims.getStringClaim("idp")
-        if (idp != tokenxIdportenIdp) {
-            // Sjekker at det var idporten som er IDP for tokenX tokenet
-            throw IkkeTilgangException("Uventet idp $idp")
-        }
         return claims
     }
 
