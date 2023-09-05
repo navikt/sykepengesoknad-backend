@@ -20,19 +20,6 @@ import java.util.*
 
 fun BaseTestClass.jwt(fnr: String, acrClaim: String = "idporten-loa-high") = server.tokenxToken(fnr = fnr, acrClaim = acrClaim)
 
-/*
-fun testAuthVedtakMedTokenXToken(fnr: String, acrClaim: String): String {
-    settUtbetalingKlarTilVisning()
-
-    val responseCode = mockMvc.perform(
-        MockMvcRequestBuilders.get("/api/v3/vedtak")
-            .header("Authorization", "Bearer ${tokenxToken(fnr)}")
-            .contentType(MediaType.APPLICATION_JSON)
-    ).andExpect(MockMvcResultMatchers.status().isOk).andReturn().response.status
-
-    return responseCode.toString()
-}
- */
 fun BaseTestClass.hentSoknaderMetadataCustomAcr(
     fnr: String,
     acrClaim: String
