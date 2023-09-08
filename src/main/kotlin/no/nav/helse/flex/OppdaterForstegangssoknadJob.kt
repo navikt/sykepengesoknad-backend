@@ -43,16 +43,15 @@ class OppdaterForstegangssoknadJob(
                         .filter { it.first.forstegangssoknad == null }
                         .forEach {
                             sykepengesoknadDAO.oppdaterMedForstegangssoknad(it.first.id!!, it.second)
+                            antallOppdatert.incrementAndGet()
                         }
-
-                    antallOppdatert.incrementAndGet()
                 } catch (e: RuntimeException) {
                     log.warn("Kunne ikke oppdatere med forstegangssoknad", e)
                     antallFeilet.incrementAndGet()
                 }
             }
-            if (antallOppdatert.toInt() % 100 == 0) {
-                log.info("Oppdatert $antallOppdatert søknadder med forstegangssoknad. $antallFeilet feilet.")
+            if (antallOppdatert.toInt() > 0) {
+                log.info("Oppdatert $antallOppdatert søknader med forstegangssoknad. $antallFeilet feilet.")
             }
         }
     }
