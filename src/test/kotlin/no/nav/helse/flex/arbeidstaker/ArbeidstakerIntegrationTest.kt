@@ -4,27 +4,16 @@ import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSporsmal
-import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
-import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
 import no.nav.helse.flex.sykepengesoknad.kafka.MerknadDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
-import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
-import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.util.tilOsloLocalDateTime
 import no.nav.syfo.model.Merknad
-import no.nav.syfo.model.sykmeldingstatus.STATUS_BEKREFTET
-import org.amshove.kluent.`should be`
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should be false`
-import org.amshove.kluent.`should be null`
-import org.amshove.kluent.`should not be`
-import org.amshove.kluent.shouldHaveSize
+import org.amshove.kluent.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
@@ -43,6 +32,7 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
 
     private final val fnr = "12454578474"
     private final val basisdato = LocalDate.of(2021, 9, 1)
+    private final val oppfolgingsdato = basisdato.minusDays(20)
 
     @Test
     @Order(1)
@@ -57,6 +47,8 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
                 ),
                 merknader = listOf(Merknad(type = "UGYLDIG_TILBAKEDATERING", beskrivelse = "Hey"))
             ),
+            oppfolgingsdato = oppfolgingsdato,
+
             forventaSoknader = 2
         )
 
@@ -81,7 +73,13 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
         assertThat(kafkaSoknader[1].sendTilGosys).isNull()
         assertThat(kafkaSoknader[1].merknader).isNull()
 
-        sykepengesoknadRepository.findBySykepengesoknadUuidIn(kafkaSoknader.map { it.id }) shouldHaveSize 2
+        val dbSoknader = sykepengesoknadRepository.findBySykepengesoknadUuidIn(kafkaSoknader.map { it.id })
+        dbSoknader shouldHaveSize 2
+
+        dbSoknader[0].fom `should be equal to` basisdato.minusDays(20)
+        dbSoknader[0].forstegangssoknad!!.`should be true`()
+        dbSoknader[1].fom `should be equal to` basisdato.minusDays(2)
+        dbSoknader[1].forstegangssoknad!!.`should be false`()
     }
 
     @Test
@@ -289,31 +287,24 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
 
     @Test
     @Order(9)
-    fun `Ingen søknader opprettes for bekreftet arbeidstakersøknad (strengt fortrolig adddresse)`() {
-        sykepengesoknadDAO.nullstillSoknader(fnr)
+    fun `En ny oppfølgende sykmelding fører ikke til førstegangssoknad`() {
+        val kafkaSoknader = sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = basisdato.plusDays(20),
+                    tom = basisdato.plusDays(60)
 
-        val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(
-            fnr = fnr,
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-            statusEvent = STATUS_BEKREFTET,
-            arbeidsgiver = null
+                )
+            ),
+            oppfolgingsdato = oppfolgingsdato,
+            forventaSoknader = 2
         )
-        val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
-        val sykmelding = skapArbeidsgiverSykmelding(
-            sykmeldingId = sykmeldingId,
-            fom = basisdato.minusDays(20),
-            tom = basisdato.plusDays(15)
-        )
-            .copy(harRedusertArbeidsgiverperiode = true)
 
-        val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
-            sykmelding = sykmelding,
-            event = sykmeldingStatusKafkaMessageDTO.event,
-            kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
-        )
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
+        val dbSoknader = sykepengesoknadRepository.findBySykepengesoknadUuidIn(kafkaSoknader.map { it.id })
+        dbSoknader shouldHaveSize 2
 
-        val hentetViaRest = hentSoknaderMetadata(fnr)
-        assertThat(hentetViaRest).hasSize(0)
+        dbSoknader[0].forstegangssoknad!!.`should be false`()
+        dbSoknader[1].forstegangssoknad!!.`should be false`()
     }
 }
