@@ -34,4 +34,15 @@ interface SykepengesoknadRepository : CrudRepository<SykepengesoknadDbRecord, St
         """
     )
     fun finnSoknaderSomSkalAktiveres(now: LocalDate): List<SykepengesoknadDbRecord>
+
+    @Query(
+        """
+        SELECT *
+        FROM sykepengesoknad
+        WHERE soknadstype != 'OPPHOLD_UTLAND'
+        AND forstegangssoknad IS NULL
+        LIMIT :batchSize
+        """
+    )
+    fun finnSoknaderUtenForstegangs(batchSize: Int): List<SykepengesoknadDbRecord>
 }
