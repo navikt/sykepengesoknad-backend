@@ -58,7 +58,8 @@ class ArbeidGjenopptattMuteringTest {
             opprettet = Instant.now(),
             sporsmal = emptyList(),
             utenlandskSykmelding = false,
-            egenmeldingsdagerFraSykmelding = null
+            egenmeldingsdagerFraSykmelding = null,
+            forstegangssoknad = false
         )
         val standardSoknad = soknad.copy(
             sporsmal = settOppSoknadArbeidstaker(
@@ -129,7 +130,8 @@ class ArbeidGjenopptattMuteringTest {
             opprettet = Instant.now(),
             sporsmal = emptyList(),
             utenlandskSykmelding = false,
-            egenmeldingsdagerFraSykmelding = null
+            egenmeldingsdagerFraSykmelding = null,
+            forstegangssoknad = false
         )
         val standardSoknad = soknad.copy(
             sporsmal = settOppSoknadArbeidstaker(
@@ -195,7 +197,8 @@ class ArbeidGjenopptattMuteringTest {
             opprettet = Instant.now(),
             sporsmal = emptyList(),
             utenlandskSykmelding = false,
-            egenmeldingsdagerFraSykmelding = null
+            egenmeldingsdagerFraSykmelding = null,
+            forstegangssoknad = false
         )
         val standardSoknad = soknad.copy(
             sporsmal = settOppSoknadArbeidstaker(

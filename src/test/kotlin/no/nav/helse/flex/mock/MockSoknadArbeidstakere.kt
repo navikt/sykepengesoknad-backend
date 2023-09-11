@@ -90,7 +90,7 @@ fun gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal(): Sykepenge
         soknadstype = Soknadstype.ARBEIDSTAKERE,
         egenmeldtSykmelding = null,
         utenlandskSykmelding = false,
-        egenmeldingsdagerFraSykmelding = null
+        egenmeldingsdagerFraSykmelding = null, forstegangssoknad = false
 
     )
 
@@ -138,7 +138,8 @@ fun opprettSendtSoknad(): Sykepengesoknad {
         soknadstype = Soknadstype.ARBEIDSTAKERE,
         egenmeldtSykmelding = null,
         utenlandskSykmelding = false,
-        egenmeldingsdagerFraSykmelding = null
+        egenmeldingsdagerFraSykmelding = null,
+        forstegangssoknad = false
     )
 
     val sykepengesoknad = leggSvarPaSoknad(
@@ -205,7 +206,8 @@ fun opprettNySoknadMock(feriesporsmalSomHovedsporsmal: Boolean = true): Sykepeng
         soknadstype = Soknadstype.ARBEIDSTAKERE,
         egenmeldtSykmelding = null,
         utenlandskSykmelding = false,
-        egenmeldingsdagerFraSykmelding = null
+        egenmeldingsdagerFraSykmelding = null,
+        forstegangssoknad = false
     )
 
     val sykepengesoknad = if (feriesporsmalSomHovedsporsmal) {

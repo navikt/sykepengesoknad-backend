@@ -720,7 +720,8 @@ class OverlapperMedFlere : BaseTestClass() {
                     arbeidsgiverOrgnummer = "123454543",
                     arbeidsgiverNavn = "Butikken",
                     utenlandskSykmelding = false,
-                    egenmeldingsdagerFraSykmelding = null
+                    egenmeldingsdagerFraSykmelding = null,
+                    forstegangssoknad = false
                 )
             )
         }

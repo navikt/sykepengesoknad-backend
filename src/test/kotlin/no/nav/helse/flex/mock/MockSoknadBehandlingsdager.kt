@@ -57,7 +57,8 @@ fun opprettBehandlingsdagsoknadTestadata(
         opprettet = Instant.now(),
         sporsmal = emptyList(),
         utenlandskSykmelding = false,
-        egenmeldingsdagerFraSykmelding = null
+        egenmeldingsdagerFraSykmelding = null,
+        forstegangssoknad = false
     )
     return soknadMetadata.copy(
         sporsmal = settOppSykepengesoknadBehandlingsdager(

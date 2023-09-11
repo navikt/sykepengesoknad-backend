@@ -246,7 +246,8 @@ class EttersendingSoknadServiceTest {
             opprettet = Instant.now(),
             sporsmal = emptyList(),
             utenlandskSykmelding = false,
-            egenmeldingsdagerFraSykmelding = null
+            egenmeldingsdagerFraSykmelding = null,
+            forstegangssoknad = false
         )
         return soknadMetadata.copy(
             sporsmal = settOppSykepengesoknadBehandlingsdager(
@@ -291,7 +292,8 @@ class EttersendingSoknadServiceTest {
             opprettet = Instant.now(),
             sporsmal = emptyList(),
             utenlandskSykmelding = false,
-            egenmeldingsdagerFraSykmelding = null
+            egenmeldingsdagerFraSykmelding = null,
+            forstegangssoknad = false
         )
         return soknadMetadata.copy(
             sporsmal = settOppSoknadArbeidstaker(

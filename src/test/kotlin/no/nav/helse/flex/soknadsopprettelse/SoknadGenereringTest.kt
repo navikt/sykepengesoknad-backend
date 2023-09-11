@@ -803,7 +803,8 @@ class SoknadGenereringTest {
             opprettet = fom.atStartOfDay().toInstant(ZoneOffset.UTC),
             soknadPerioder = emptyList(),
             sporsmal = emptyList(),
-            sykmeldingSkrevet = Instant.now()
+            sykmeldingSkrevet = Instant.now(),
+            forstegangssoknad = false
         )
     }
 }
