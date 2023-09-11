@@ -20,8 +20,6 @@ import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.LocalDate
 import java.time.OffsetDateTime
@@ -159,8 +157,7 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
     @Order(5)
     fun `Den nyeste søknaden kan ikke sendes først`() {
         val soknaden = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).filter { it.status == RSSoknadstatus.NY }.sortedBy { it.fom }
-                .last().id,
+            soknadId = hentSoknaderMetadata(fnr).filter { it.status == RSSoknadstatus.NY }.sortedBy { it.fom }.last().id,
             fnr = fnr
         )
 
@@ -174,8 +171,7 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
             .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
             .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
 
-        val res =
-            sendSoknadMedResult(fnr, soknaden.id).andExpect(status().isBadRequest).andReturn().response.contentAsString
+        val res = sendSoknadMedResult(fnr, soknaden.id).andExpect(status().isBadRequest).andReturn().response.contentAsString
         res `should be equal to` "{\"reason\":\"FORSOK_PA_SENDING_AV_NYERE_SOKNAD\"}"
     }
 
@@ -284,9 +280,7 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
 
         assertThat(kafkaSoknader[0].opprinneligSendt).isNotNull()
-        assertThat(kafkaSoknader[0].opprinneligSendt).isEqualToIgnoringNanos(
-            sendtTidspunkt.toInstant().tilOsloLocalDateTime()
-        )
+        assertThat(kafkaSoknader[0].opprinneligSendt).isEqualToIgnoringNanos(sendtTidspunkt.toInstant().tilOsloLocalDateTime())
 
         juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
     }
@@ -312,47 +306,5 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
 
         dbSoknader[0].forstegangssoknad!!.`should be false`()
         dbSoknader[1].forstegangssoknad!!.`should be false`()
-    }
-
-    @Autowired
-    private lateinit var namedParameterJdbcTemplate: NamedParameterJdbcTemplate
-
-    @Autowired
-    private lateinit var oppdaterForstegangssoknadJob: OppdaterForstegangssoknadJob
-
-    @Test
-    @Order(10)
-    fun `Tester oppdater forstegangssoknad job`() {
-        namedParameterJdbcTemplate.update(
-            """
-            UPDATE sykepengesoknad
-            SET forstegangssoknad = null
-            """,
-            MapSqlParameterSource()
-        )
-
-        val dbSoknaderFor = sykepengesoknadRepository.findByFnrIn(listOf(fnr)).map { Pair(it.fom, it.forstegangssoknad) }.sortedBy { it.first }
-        dbSoknaderFor.`should be equal to`(
-            listOf(
-                Pair(basisdato.minusDays(20), null),
-                Pair(basisdato.minusDays(20), null),
-                Pair(basisdato.minusDays(2), null),
-                Pair(basisdato.plusDays(20), null),
-                Pair(basisdato.plusDays(41), null)
-            )
-        )
-
-        oppdaterForstegangssoknadJob.oppdaterForstegangssoknadJob()
-
-        val dbSoknaderEtter = sykepengesoknadRepository.findByFnrIn(listOf(fnr)).map { Pair(it.fom, it.forstegangssoknad) }.sortedBy { it.first }
-        dbSoknaderEtter.`should be equal to`(
-            listOf(
-                Pair(basisdato.minusDays(20), true),
-                Pair(basisdato.minusDays(20), true),
-                Pair(basisdato.minusDays(2), false),
-                Pair(basisdato.plusDays(20), false),
-                Pair(basisdato.plusDays(41), false)
-            )
-        )
     }
 }
