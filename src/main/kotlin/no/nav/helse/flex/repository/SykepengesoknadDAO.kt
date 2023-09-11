@@ -324,7 +324,12 @@ class SykepengesoknadDAO(
         )!!
     }
 
-    fun klippSoknadTom(sykepengesoknadUuid: String, nyTom: LocalDate, tom: LocalDate, fom: LocalDate): List<Soknadsperiode> {
+    fun klippSoknadTom(
+        sykepengesoknadUuid: String,
+        nyTom: LocalDate,
+        tom: LocalDate,
+        fom: LocalDate
+    ): List<Soknadsperiode> {
         val sykepengesoknadId = sykepengesoknadId(sykepengesoknadUuid)
 
         val soknadPerioder = soknadsperiodeDAO.finnSoknadPerioder(setOf(sykepengesoknadId))[sykepengesoknadId]!!
@@ -358,7 +363,12 @@ class SykepengesoknadDAO(
         return nyePerioder
     }
 
-    fun klippSoknadFom(sykepengesoknadUuid: String, nyFom: LocalDate, fom: LocalDate, tom: LocalDate): List<Soknadsperiode> {
+    fun klippSoknadFom(
+        sykepengesoknadUuid: String,
+        nyFom: LocalDate,
+        fom: LocalDate,
+        tom: LocalDate
+    ): List<Soknadsperiode> {
         val sykepengesoknadId = sykepengesoknadId(sykepengesoknadUuid)
 
         val soknadPerioder = soknadsperiodeDAO.finnSoknadPerioder(setOf(sykepengesoknadId))[sykepengesoknadId]!!
@@ -561,6 +571,18 @@ class SykepengesoknadDAO(
                 .addValue("inntektskilder", inntektskilder.serialisertTilString())
                 .addValue("sykepengesoknadUuid", sykepengesoknadUuid)
         )
+    }
+
+    fun oppdaterMedForstegangssoknad(sykepengesoknadId: String, forstegangssoknad: Boolean) {
+        val sql = """
+            UPDATE sykepengesoknad
+            SET forstegangssoknad = :forstegangssoknad
+            WHERE id = :sykepengesoknadId
+            """
+        val params = MapSqlParameterSource()
+            .addValue("sykepengesoknadId", sykepengesoknadId)
+            .addValue("forstegangssoknad", forstegangssoknad)
+        namedParameterJdbcTemplate.update(sql, params)
     }
 }
 
