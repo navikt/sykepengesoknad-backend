@@ -50,7 +50,8 @@ fun settOppSoknadOppholdUtland(fnr: String): Sykepengesoknad {
         egenmeldtSykmelding = null,
         merknaderFraSykmelding = null,
         utenlandskSykmelding = false,
-        egenmeldingsdagerFraSykmelding = null
+        egenmeldingsdagerFraSykmelding = null,
+        forstegangssoknad = null
     )
 }
 

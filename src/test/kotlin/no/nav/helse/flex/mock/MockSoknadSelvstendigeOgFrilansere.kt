@@ -68,7 +68,8 @@ fun opprettNyNaeringsdrivendeSoknad(): Sykepengesoknad {
         soknadstype = Soknadstype.SELVSTENDIGE_OG_FRILANSERE,
         egenmeldtSykmelding = null,
         utenlandskSykmelding = false,
-        egenmeldingsdagerFraSykmelding = null
+        egenmeldingsdagerFraSykmelding = null,
+        forstegangssoknad = false
     )
 
     return (soknadMetadata).copy(
@@ -122,7 +123,8 @@ fun opprettSendtFrilanserSoknad(): Sykepengesoknad {
         soknadstype = Soknadstype.SELVSTENDIGE_OG_FRILANSERE,
         egenmeldtSykmelding = null,
         utenlandskSykmelding = false,
-        egenmeldingsdagerFraSykmelding = null
+        egenmeldingsdagerFraSykmelding = null,
+        forstegangssoknad = false
 
     )
     return (soknadMetadata).copy(

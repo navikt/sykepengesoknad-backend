@@ -40,7 +40,7 @@ data class Sykepengesoknad(
     val egenmeldingsdagerFraSykmelding: String?,
     val inntektskilderDataFraInntektskomponenten: List<ArbeidsforholdFraInntektskomponenten>? = null,
     val korrigeringsfristUtlopt: Boolean? = null,
-    val forstegangssoknad: Boolean? = null
+    val forstegangssoknad: Boolean?
 ) : Serializable {
 
     fun alleSporsmalOgUndersporsmal(): List<Sporsmal> {

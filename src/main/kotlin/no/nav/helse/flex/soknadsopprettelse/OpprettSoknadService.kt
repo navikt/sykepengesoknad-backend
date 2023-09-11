@@ -90,7 +90,8 @@ class OpprettSoknadService(
                     opprettet = Instant.now(),
                     sporsmal = emptyList(),
                     utenlandskSykmelding = sykmeldingKafkaMessage.sykmelding.utenlandskSykmelding != null,
-                    egenmeldingsdagerFraSykmelding = sykmeldingKafkaMessage.event.sporsmals?.firstOrNull { spm -> spm.shortName == ShortNameDTO.EGENMELDINGSDAGER }?.svar
+                    egenmeldingsdagerFraSykmelding = sykmeldingKafkaMessage.event.sporsmals?.firstOrNull { spm -> spm.shortName == ShortNameDTO.EGENMELDINGSDAGER }?.svar,
+                    forstegangssoknad = null
                 )
             }
                 .filter { it.soknadPerioder?.isNotEmpty() ?: true }

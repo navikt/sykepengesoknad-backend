@@ -80,7 +80,8 @@ class FinnOpprinneligSendtTest {
             avbruttFeilinfo = null,
             utenlandskSykmelding = false,
             egenmeldingsdagerFraSykmelding = null,
-            sendt = sendt
+            sendt = sendt,
+            forstegangssoknad = false
         )
     }
 }
