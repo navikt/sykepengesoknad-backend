@@ -13,6 +13,7 @@ fun Sporsmal.plasseringSporsmalBehandlingsdager(): Int {
     return when (this.tag) {
         ANSVARSERKLARING -> -10
         FRAVER_FOR_BEHANDLING -> -9
+        FERIE_V2 -> 103
         ARBEID_UTENFOR_NORGE -> 104
         ANDRE_INNTEKTSKILDER -> 105
         VAER_KLAR_OVER_AT -> 106
@@ -55,6 +56,9 @@ fun settOppSykepengesoknadBehandlingsdager(
         .also {
             if (erForsteSoknadISykeforlop) {
                 it.add(arbeidUtenforNorge())
+            }
+            if (sykepengesoknad.arbeidssituasjon == ARBEIDSTAKER) {
+                it.add(ferieSporsmal(sykepengesoknad.fom!!, sykepengesoknad.tom!!))
             }
             it.addAll(yrkesskade.yrkeskadeSporsmal())
             it.addAll(behandlingsdagerSporsmal(sykepengesoknad))
