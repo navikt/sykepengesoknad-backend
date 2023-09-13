@@ -76,6 +76,7 @@ fun Sporsmal.validerUndersporsmal() {
             }
         }
 
+        BEKREFTELSESPUNKTER,
         JA_NEI,
         CHECKBOX,
         CHECKBOX_PANEL,
@@ -169,6 +170,7 @@ private fun Sporsmal.validerGrenserPaSvar(svar: Svar) {
         CHECKBOX_GRUPPE,
         IKKE_RELEVANT,
         GRUPPE_AV_UNDERSPORSMAL,
+        BEKREFTELSESPUNKTER,
         RADIO,
         RADIO_GRUPPE,
         RADIO_GRUPPE_TIMER_PROSENT,
@@ -290,6 +292,7 @@ private fun Sporsmal.validerSvarverdi(svar: Svar) {
 
         COMBOBOX_SINGLE,
         COMBOBOX_MULTI,
+        BEKREFTELSESPUNKTER,
         LAND -> {
             { verdi.isNotBlank() && verdi.isNotEmpty() }
         }
@@ -396,6 +399,7 @@ fun Sporsmal.validerAntallSvar() {
         }
 
         LAND,
+        BEKREFTELSESPUNKTER,
         COMBOBOX_SINGLE,
         COMBOBOX_MULTI,
         PERIODER,

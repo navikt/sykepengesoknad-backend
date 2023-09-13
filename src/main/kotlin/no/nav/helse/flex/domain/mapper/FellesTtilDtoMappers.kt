@@ -87,6 +87,7 @@ fun Svartype.tilSvartypeDTO(): SvartypeDTO {
         Svartype.TIMER -> SvartypeDTO.TIMER
         Svartype.IKKE_RELEVANT -> SvartypeDTO.IKKE_RELEVANT
         Svartype.GRUPPE_AV_UNDERSPORSMAL -> SvartypeDTO.GRUPPE_AV_UNDERSPORSMAL
+        Svartype.BEKREFTELSESPUNKTER -> SvartypeDTO.BEKREFTELSESPUNKTER
         Svartype.INFO_BEHANDLINGSDAGER -> SvartypeDTO.INFO_BEHANDLINGSDAGER
         Svartype.LAND -> SvartypeDTO.LAND
         Svartype.COMBOBOX_SINGLE -> SvartypeDTO.COMBOBOX_SINGLE

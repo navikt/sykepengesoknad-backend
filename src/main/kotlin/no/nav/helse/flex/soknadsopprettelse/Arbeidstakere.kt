@@ -41,7 +41,6 @@ fun settOppSoknadArbeidstaker(
 ): List<Sporsmal> {
     val (sykepengesoknad, erForsteSoknadISykeforlop, harTidligereUtenlandskSpm, yrkesskade, medlemskapTags) = soknadOptions
     val erGradertReisetilskudd = sykepengesoknad.soknadstype == GRADERT_REISETILSKUDD
-
     return mutableListOf<Sporsmal>().apply {
         add(ansvarserklaringSporsmal(reisetilskudd = erGradertReisetilskudd))
         add(
