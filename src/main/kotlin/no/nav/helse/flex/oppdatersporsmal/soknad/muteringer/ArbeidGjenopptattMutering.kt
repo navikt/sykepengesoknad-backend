@@ -17,13 +17,13 @@ import no.nav.helse.flex.soknadsopprettelse.TILBAKE_NAR
 import no.nav.helse.flex.soknadsopprettelse.UTDANNING
 import no.nav.helse.flex.soknadsopprettelse.UTLAND
 import no.nav.helse.flex.soknadsopprettelse.UTLAND_V2
-import no.nav.helse.flex.soknadsopprettelse.ferieSporsmal
 import no.nav.helse.flex.soknadsopprettelse.gammeltFormatFeriePermisjonUtlandsoppholdSporsmal
 import no.nav.helse.flex.soknadsopprettelse.harFeriePermisjonEllerUtenlandsoppholdSporsmal
 import no.nav.helse.flex.soknadsopprettelse.jobbetDuIPeriodenSporsmal
 import no.nav.helse.flex.soknadsopprettelse.jobbetDuIPeriodenSporsmalSelvstendigFrilanser
 import no.nav.helse.flex.soknadsopprettelse.oppdateringhelpers.finnGyldigDatoSvar
 import no.nav.helse.flex.soknadsopprettelse.oppdateringhelpers.skapOppdaterteSoknadsperioder
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.ferieSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.permisjonSporsmal
 import no.nav.helse.flex.soknadsopprettelse.utenlandsoppholdSporsmal
 import no.nav.helse.flex.soknadsopprettelse.utlandsSporsmalSelvstendig

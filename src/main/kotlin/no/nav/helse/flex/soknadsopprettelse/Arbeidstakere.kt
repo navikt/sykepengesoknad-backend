@@ -80,26 +80,6 @@ fun harUtlandsporsmal(sykepengesoknad: Sykepengesoknad): Boolean {
     return sykepengesoknad.getOptionalSporsmalMedTag(UTLAND_V2).isPresent
 }
 
-fun oppdaterMedSvarPaaBrukteReisetilskuddet(sykepengesoknad: Sykepengesoknad): Sykepengesoknad {
-    val oppdaterteSporsmal = sykepengesoknad
-        .sporsmal
-        .filterNot {
-            it.tag == TRANSPORT_TIL_DAGLIG ||
-                it.tag == REISE_MED_BIL ||
-                it.tag == KVITTERINGER ||
-                it.tag == UTBETALING
-        }
-        .toMutableList()
-
-    if (sykepengesoknad.getSporsmalMedTagOrNull(BRUKTE_REISETILSKUDDET)?.forsteSvar == "JA") {
-        oppdaterteSporsmal.addAll(
-            reisetilskuddSporsmal(sykepengesoknad.fom!!, sykepengesoknad.tom!!, sykepengesoknad.arbeidssituasjon!!)
-        )
-    }
-
-    return sykepengesoknad.copy(sporsmal = oppdaterteSporsmal)
-}
-
 private fun tilbakeIFulltArbeidSporsmal(soknadMetadata: Sykepengesoknad): Sporsmal {
     return Sporsmal(
         tag = TILBAKE_I_ARBEID,
@@ -120,24 +100,6 @@ private fun tilbakeIFulltArbeidSporsmal(soknadMetadata: Sykepengesoknad): Sporsm
                 min = soknadMetadata.fom.format(ISO_LOCAL_DATE),
                 max = soknadMetadata.tom.format(ISO_LOCAL_DATE),
                 pavirkerAndreSporsmal = true
-            )
-        )
-    )
-}
-
-fun ferieSporsmal(fom: LocalDate, tom: LocalDate): Sporsmal {
-    return Sporsmal(
-        tag = FERIE_V2,
-        sporsmalstekst = "Tok du ut feriedager i tidsrommet ${formatterPeriode(fom, tom)}?",
-        svartype = JA_NEI,
-        kriterieForVisningAvUndersporsmal = JA,
-        undersporsmal = listOf(
-            Sporsmal(
-                tag = FERIE_NAR_V2,
-                sporsmalstekst = "Når tok du ut feriedager?",
-                svartype = Svartype.PERIODER,
-                min = fom.format(ISO_LOCAL_DATE),
-                max = tom.format(ISO_LOCAL_DATE)
             )
         )
     )
