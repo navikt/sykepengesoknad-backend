@@ -85,7 +85,7 @@ class YrkesskadeIntegrationTest : BaseTestClass() {
                         saksnr = 123,
                         sakstype = "Type1",
                         mottattdato = LocalDate.now(),
-                        resultat = "INNVILGET",
+                        resultat = "GODKJENT",
                         resultattekst = "Dette er resultatet",
                         vedtaksdato = LocalDate.of(1989, 1, 2),
                         skadeart = "SkadeType1",

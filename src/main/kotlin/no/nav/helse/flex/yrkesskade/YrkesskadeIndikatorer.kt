@@ -12,7 +12,7 @@ class YrkesskadeIndikatorer(
     private val yrkesskadeClient: YrkesskadeClient
 ) {
 
-    val godkjenteSaker = setOf("DELVIS_INNVILGET", "INNVILGET", "DELVIS_GODKJENT", "GODKJENT")
+    val godkjenteSaker = setOf("DELVIS_GODKJENT", "GODKJENT")
 
     fun hentYrkesskadeSporsmalGrunnlag(
         identer: FolkeregisterIdenter,
