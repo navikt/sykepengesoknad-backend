@@ -1,13 +1,7 @@
 package no.nav.helse.flex
 
-import com.fasterxml.jackson.module.kotlin.readValue
-import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknad
-import no.nav.helse.flex.util.OBJECT_MAPPER
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback
-import org.springframework.http.MediaType
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.util.*
 
 fun BaseTestClass.buildAzureClaimSet(
@@ -28,16 +22,6 @@ fun BaseTestClass.buildAzureClaimSet(
 
 fun BaseTestClass.skapAzureJwt(subject: String = "sykepengesoknad-korrigering-metrikk-client-id") =
     buildAzureClaimSet(subject = subject)
-
-fun BaseTestClass.hentSoknaderSomVeilederObo(fnr: String, token: String): List<RSSykepengesoknad> {
-    val json = mockMvc.perform(
-        MockMvcRequestBuilders.get("/api/veileder/soknader?fnr=$fnr")
-            .header("Authorization", "Bearer $token")
-            .contentType(MediaType.APPLICATION_JSON)
-    ).andExpect(MockMvcResultMatchers.status().isOk).andReturn().response.contentAsString
-
-    return OBJECT_MAPPER.readValue(json)
-}
 
 fun MockOAuth2Server.token(
     subject: String,
