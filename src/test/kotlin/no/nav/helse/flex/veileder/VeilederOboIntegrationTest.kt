@@ -1,8 +1,9 @@
 package no.nav.helse.flex.veileder
 
+import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknad
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.hentSoknaderSomVeilederObo
 import no.nav.helse.flex.mockSyfoTilgangskontroll
 import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.skapAzureJwt
@@ -14,6 +15,8 @@ import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
 import no.nav.helse.flex.soknadsopprettelse.FRISKMELDT
 import no.nav.helse.flex.soknadsopprettelse.VAER_KLAR_OVER_AT
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
+import no.nav.helse.flex.util.OBJECT_MAPPER
+import org.amshove.kluent.`should be equal to`
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
@@ -38,11 +41,17 @@ class VeilederOboIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    fun `02 - vi kan hente søknaden som veileder`() {
+    fun `02 - vi kan hente søknaden som veileder med header`() {
         val veilederToken = skapAzureJwt("syfomodiaperson-client-id")
         mockSyfoTilgangskontroll(true, fnr)
 
-        val soknader = hentSoknaderSomVeilederObo(fnr, veilederToken)
+        val soknaderMedQuery = hentSoknaderSomVeilederMedQuery(fnr, veilederToken)
+        syfotilgangskontrollMockRestServiceServer.verify()
+        syfotilgangskontrollMockRestServiceServer.reset()
+
+        mockSyfoTilgangskontroll(true, fnr)
+        val soknader = hentSoknaderSomVeileder(fnr, veilederToken)
+        soknader.`should be equal to`(soknaderMedQuery)
         assertThat(soknader).hasSize(1)
         val soknaden = soknader.first()
         assertThat(soknaden.sporsmal!!.map { it.tag }).isEqualTo(
@@ -72,5 +81,39 @@ class VeilederOboIntegrationTest : BaseTestClass() {
         ).andExpect(MockMvcResultMatchers.status().is4xxClientError).andReturn().response.contentAsString
         syfotilgangskontrollMockRestServiceServer.verify()
         syfotilgangskontrollMockRestServiceServer.reset()
+    }
+
+    @Test
+    fun `04 - krever query eller header`() {
+        val veilederToken = skapAzureJwt("syfomodiaperson-client-id")
+
+        val contentAsString = mockMvc.perform(
+            MockMvcRequestBuilders.get("/api/veileder/soknader")
+                .header("Authorization", "Bearer $veilederToken")
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(MockMvcResultMatchers.status().isBadRequest).andReturn().response.contentAsString
+
+        contentAsString `should be equal to` "{\"reason\":\"MANGLER_FNR\"}"
+    }
+
+    fun BaseTestClass.hentSoknaderSomVeilederMedQuery(fnr: String, token: String): List<RSSykepengesoknad> {
+        val json = mockMvc.perform(
+            MockMvcRequestBuilders.get("/api/veileder/soknader?fnr=$fnr")
+                .header("Authorization", "Bearer $token")
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(MockMvcResultMatchers.status().isOk).andReturn().response.contentAsString
+
+        return OBJECT_MAPPER.readValue(json)
+    }
+
+    fun BaseTestClass.hentSoknaderSomVeileder(fnr: String, token: String): List<RSSykepengesoknad> {
+        val json = mockMvc.perform(
+            MockMvcRequestBuilders.get("/api/veileder/soknader")
+                .header("nav-personident", fnr)
+                .header("Authorization", "Bearer $token")
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(MockMvcResultMatchers.status().isOk).andReturn().response.contentAsString
+
+        return OBJECT_MAPPER.readValue(json)
     }
 }
