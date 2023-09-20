@@ -13,6 +13,7 @@ import org.apache.catalina.connector.ClientAbortException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.HttpMediaTypeNotAcceptableException
+import org.springframework.web.bind.MissingRequestHeaderException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 
@@ -34,6 +35,7 @@ class GlobalExceptionHandler {
 
                 ResponseEntity(ApiError(ex.reason), ex.httpStatus)
             }
+            is MissingRequestHeaderException -> skapResponseEntity(HttpStatus.BAD_REQUEST)
             is IngenTilgangException -> skapResponseEntity(HttpStatus.FORBIDDEN)
             is FinnesInnsendtSoknadException -> skapResponseEntity(HttpStatus.FORBIDDEN)
             is IkkeTilgangException -> skapResponseEntity(HttpStatus.FORBIDDEN)
