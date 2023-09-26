@@ -13,28 +13,6 @@ import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 import java.time.temporal.ChronoUnit
 import java.util.*
 
-fun harSoktSykepengerUnderUtlandsopphold(sykepengesoknad: Sykepengesoknad): Boolean? {
-    return if (!harSvartJaPaPermisjonUtland(sykepengesoknad) || !harSvartJaPaUtland(sykepengesoknad)) {
-        null
-    } else {
-        sykepengesoknad.getOptionalSporsmalMedTag(UTLANDSOPPHOLD_SOKT_SYKEPENGER)
-            .map { it.forsteSvar }
-            .map { "JA" == it }
-            .orElse(null)
-    }
-}
-
-private fun harSvartJaPaPermisjonUtland(sykepengesoknad: Sykepengesoknad): Boolean {
-    val feriePermisjonUtland = sykepengesoknad.getOptionalSporsmalMedTag(FERIE_PERMISJON_UTLAND)
-    return feriePermisjonUtland.isPresent && "JA" == feriePermisjonUtland.get().forsteSvar
-}
-
-private fun harSvartJaPaUtland(sykepengesoknad: Sykepengesoknad): Boolean {
-    val utland = sykepengesoknad.getOptionalSporsmalMedTag(UTLAND)
-    val utlandV2 = sykepengesoknad.getOptionalSporsmalMedTag(UTLAND_V2)
-    return utland.isPresent && "CHECKED" == utland.get().forsteSvar || utlandV2.isPresent && "CHECKED" == utlandV2.get().forsteSvar
-}
-
 internal fun getFaktiskGrad(
     faktiskTimer: Double?,
     avtaltTimer: Double?,
