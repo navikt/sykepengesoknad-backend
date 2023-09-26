@@ -2,7 +2,6 @@ package no.nav.helse.flex.domain.mapper.sporsmalprossesering
 
 import no.nav.helse.flex.domain.Mottaker
 import no.nav.helse.flex.domain.mapper.konverterArbeidstakersoknadTilSykepengesoknadDTO
-import no.nav.helse.flex.domain.mapper.konverterTilSykepengesoknadBehandlingsdagerDTO
 import no.nav.helse.flex.domain.mapper.konverterTilSykepengesoknadDTO
 import no.nav.helse.flex.mock.opprettBehandlingsdagsoknadTestadata
 import no.nav.helse.flex.mock.opprettNySoknadAnnet
@@ -141,7 +140,12 @@ class AndreInntektskilderKtTest {
             .besvarsporsmal(tag = INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD, svar = "CHECKED")
             .besvarsporsmal(tag = INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD + ER_DU_SYKMELDT, svar = "JA")
 
-        val andreInntektskilder = konverterTilSykepengesoknadBehandlingsdagerDTO(soknad).andreInntektskilder!!
+        val andreInntektskilder = konverterTilSykepengesoknadDTO(
+            soknad,
+            Mottaker.NAV,
+            false,
+            hentSoknadsPerioderMedFaktiskGrad(soknad).first
+        ).andreInntektskilder!!
 
         andreInntektskilder.shouldHaveSize(1)
 

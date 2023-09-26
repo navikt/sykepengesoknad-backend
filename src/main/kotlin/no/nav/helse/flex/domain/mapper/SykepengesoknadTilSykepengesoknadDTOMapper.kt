@@ -26,12 +26,7 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
         return when (sykepengesoknad.soknadstype) {
             Soknadstype.OPPHOLD_UTLAND -> konverterOppholdUtlandTilSoknadDTO(sykepengesoknad)
 
-            Soknadstype.BEHANDLINGSDAGER -> konverterTilSykepengesoknadBehandlingsdagerDTO(
-                sykepengesoknad,
-                mottaker,
-                erEttersending
-            )
-
+            Soknadstype.BEHANDLINGSDAGER,
             Soknadstype.ARBEIDSLEDIG,
             Soknadstype.SELVSTENDIGE_OG_FRILANSERE,
             Soknadstype.ANNET_ARBEIDSFORHOLD,
