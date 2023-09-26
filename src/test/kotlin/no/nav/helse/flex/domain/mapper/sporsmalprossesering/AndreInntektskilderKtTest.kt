@@ -111,7 +111,6 @@ class AndreInntektskilderKtTest {
         val andreInntektskilder = konverterSelvstendigOgFrilanserTilSoknadDTO(
             besvartSoknad,
             hentSoknadsPerioderMedFaktiskGrad(besvartSoknad).first,
-            false
         ).andreInntektskilder!!
 
         andreInntektskilder.shouldHaveSize(4)

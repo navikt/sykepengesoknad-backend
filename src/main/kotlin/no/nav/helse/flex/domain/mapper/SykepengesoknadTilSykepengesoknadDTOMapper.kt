@@ -7,6 +7,7 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentSoknadsPerioderMedFaktiskGrad
 import no.nav.helse.flex.juridiskvurdering.JuridiskVurderingKafkaProducer
 import no.nav.helse.flex.repository.RedusertVenteperiodeRepository
+import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsperiodeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import org.springframework.stereotype.Component
@@ -14,7 +15,7 @@ import org.springframework.stereotype.Component
 @Component
 class SykepengesoknadTilSykepengesoknadDTOMapper(
     private val juridiskVurderingKafkaProducer: JuridiskVurderingKafkaProducer,
-    private val redusertVenteperiodeRepository: RedusertVenteperiodeRepository
+    private val redusertVenteperiodeRepository: RedusertVenteperiodeRepository,
 ) {
     fun mapTilSykepengesoknadDTO(
         sykepengesoknad: Sykepengesoknad,
@@ -22,29 +23,10 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
         erEttersending: Boolean = false,
         endeligVurdering: Boolean = true
     ): SykepengesoknadDTO {
-        fun SykepengesoknadDTO.merkFeilinfo(): SykepengesoknadDTO {
-            return if (sykepengesoknad.avbruttFeilinfo == true) {
-                this.copy(sendTilGosys = true, merknader = listOf("AVBRUTT_FEILINFO"))
-            } else {
-                this
-            }
-        }
-
-        fun Sykepengesoknad.hentSoknadsperioder(): List<SoknadsperiodeDTO> {
-            val hentSoknadsPerioderMedFaktiskGrad = hentSoknadsPerioderMedFaktiskGrad(this)
-            hentSoknadsPerioderMedFaktiskGrad.second?.let {
-                if (endeligVurdering) {
-                    juridiskVurderingKafkaProducer.produserMelding(it)
-                }
-            }
-            return hentSoknadsPerioderMedFaktiskGrad.first
-        }
-
         return when (sykepengesoknad.soknadstype) {
             Soknadstype.SELVSTENDIGE_OG_FRILANSERE -> konverterSelvstendigOgFrilanserTilSoknadDTO(
                 sykepengesoknad,
-                sykepengesoknad.hentSoknadsperioder(),
-                redusertVenteperiodeRepository.existsBySykmeldingId(sykepengesoknad.sykmeldingId!!)
+                sykepengesoknad.hentSoknadsperioder(endeligVurdering),
             )
             Soknadstype.OPPHOLD_UTLAND -> konverterOppholdUtlandTilSoknadDTO(sykepengesoknad)
             Soknadstype.ARBEIDSLEDIG -> ArbeidsledigsoknadToSykepengesoknadDTO.konverterArbeidsledigTilSykepengesoknadDTO(
@@ -65,7 +47,7 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
                 sykepengesoknad,
                 mottaker,
                 erEttersending,
-                sykepengesoknad.hentSoknadsperioder()
+                sykepengesoknad.hentSoknadsperioder(endeligVurdering)
             )
             // TODO generaliser mer!!
             Soknadstype.GRADERT_REISETILSKUDD -> {
@@ -74,12 +56,11 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
                         sykepengesoknad,
                         mottaker,
                         erEttersending,
-                        sykepengesoknad.hentSoknadsperioder()
+                        sykepengesoknad.hentSoknadsperioder(endeligVurdering)
                     )
                     Arbeidssituasjon.FRILANSER, Arbeidssituasjon.NAERINGSDRIVENDE -> konverterSelvstendigOgFrilanserTilSoknadDTO(
                         sykepengesoknad,
-                        sykepengesoknad.hentSoknadsperioder(),
-                        redusertVenteperiodeRepository.existsBySykmeldingId(sykepengesoknad.sykmeldingId!!)
+                        sykepengesoknad.hentSoknadsperioder(endeligVurdering),
                     )
                     Arbeidssituasjon.ARBEIDSLEDIG,
                     Arbeidssituasjon.ANNET -> konverterTilSykepengesoknadDTO(
@@ -90,6 +71,34 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
                     else -> throw IllegalStateException("Arbeidssituasjon ${sykepengesoknad.arbeidssituasjon} skal ikke kunne ha gradert reisetilskudd")
                 }
             }
-        }.merkFeilinfo()
+        }
+            .merkSelvstendigOgFrilanserMedRedusertVenteperiode()
+            .merkFeilinfo(sykepengesoknad.avbruttFeilinfo)
+    }
+
+    private fun Sykepengesoknad.hentSoknadsperioder(endeligVurdering: Boolean): List<SoknadsperiodeDTO> {
+        val hentSoknadsPerioderMedFaktiskGrad = hentSoknadsPerioderMedFaktiskGrad(this)
+        hentSoknadsPerioderMedFaktiskGrad.second?.let {
+            if (endeligVurdering) {
+                juridiskVurderingKafkaProducer.produserMelding(it)
+            }
+        }
+        return hentSoknadsPerioderMedFaktiskGrad.first
+    }
+
+    private fun SykepengesoknadDTO.merkFeilinfo(avbruttFeilinfo: Boolean?): SykepengesoknadDTO {
+        return if (avbruttFeilinfo == true) {
+            this.copy(sendTilGosys = true, merknader = listOf("AVBRUTT_FEILINFO"))
+        } else {
+            this
+        }
+    }
+
+    private fun SykepengesoknadDTO.merkSelvstendigOgFrilanserMedRedusertVenteperiode(): SykepengesoknadDTO {
+        return if (arbeidssituasjon == ArbeidssituasjonDTO.FRILANSER || arbeidssituasjon == ArbeidssituasjonDTO.SELVSTENDIG_NARINGSDRIVENDE) {
+            copy(harRedusertVenteperiode = redusertVenteperiodeRepository.existsBySykmeldingId(sykmeldingId!!))
+        } else {
+            this
+        }
     }
 }

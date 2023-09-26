@@ -12,7 +12,6 @@ import no.nav.helse.flex.util.tilOsloLocalDateTime
 fun konverterSelvstendigOgFrilanserTilSoknadDTO(
     sykepengesoknad: Sykepengesoknad,
     soknadsperioder: List<SoknadsperiodeDTO>,
-    harRedusertVenteperiode: Boolean
 ): SykepengesoknadDTO {
     return SykepengesoknadDTO(
         id = sykepengesoknad.id,
@@ -34,7 +33,6 @@ fun konverterSelvstendigOgFrilanserTilSoknadDTO(
         soknadsperioder = soknadsperioder,
         sporsmal = sykepengesoknad.sporsmal.map { it.tilSporsmalDTO() },
         avsendertype = sykepengesoknad.avsendertype?.tilAvsendertypeDTO(),
-        harRedusertVenteperiode = harRedusertVenteperiode,
         permitteringer = sykepengesoknad.hentPermitteringer(),
         merknaderFraSykmelding = sykepengesoknad.merknaderFraSykmelding.tilMerknadDTO(),
         arbeidUtenforNorge = sykepengesoknad.hentArbeidUtenforNorge(),
