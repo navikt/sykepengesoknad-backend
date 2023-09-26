@@ -1,7 +1,6 @@
 package no.nav.helse.flex.domain.mapper.sporsmalprossesering
 
 import no.nav.helse.flex.domain.Mottaker
-import no.nav.helse.flex.domain.mapper.ArbeidsledigsoknadToSykepengesoknadDTO.konverterArbeidsledigTilSykepengesoknadDTO
 import no.nav.helse.flex.domain.mapper.konverterArbeidstakersoknadTilSykepengesoknadDTO
 import no.nav.helse.flex.domain.mapper.konverterTilSykepengesoknadBehandlingsdagerDTO
 import no.nav.helse.flex.domain.mapper.konverterTilSykepengesoknadDTO
@@ -25,8 +24,11 @@ class AndreInntektskilderKtTest {
         val soknad = opprettSendtSoknadForArbeidsledige()
             .besvarsporsmal(tag = ANDRE_INNTEKTSKILDER, svar = "NEI")
 
-        val andreInntektskilder = konverterArbeidsledigTilSykepengesoknadDTO(
-            soknad
+        val andreInntektskilder = konverterTilSykepengesoknadDTO(
+            soknad,
+            Mottaker.NAV,
+            false,
+            hentSoknadsPerioderMedFaktiskGrad(soknad).first
         ).andreInntektskilder!!
 
         andreInntektskilder.shouldHaveSize(0)
@@ -42,8 +44,11 @@ class AndreInntektskilderKtTest {
             .besvarsporsmal(tag = INNTEKTSKILDE_FRILANSER + ER_DU_SYKMELDT, svar = "NEI")
             .besvarsporsmal(tag = INNTEKTSKILDE_ANNET, svar = "CHECKED")
 
-        val andreInntektskilder = konverterArbeidsledigTilSykepengesoknadDTO(
-            soknad
+        val andreInntektskilder = konverterTilSykepengesoknadDTO(
+            soknad,
+            Mottaker.NAV,
+            false,
+            hentSoknadsPerioderMedFaktiskGrad(soknad).first
         ).andreInntektskilder!!
 
         andreInntektskilder.shouldHaveSize(3)
