@@ -25,7 +25,7 @@ import no.nav.helse.flex.soknadsopprettelse.REISE_MED_BIL
 import no.nav.helse.flex.soknadsopprettelse.TRANSPORT_TIL_DAGLIG
 import no.nav.helse.flex.soknadsopprettelse.UTBETALING
 import no.nav.helse.flex.soknadsopprettelse.VAER_KLAR_OVER_AT
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.vaerKlarOverAtReisetilskudd
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.bekreftelsespunkter
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
@@ -121,14 +121,13 @@ class ReisetilskuddIntegrationTest : BaseTestClass() {
                 REISE_MED_BIL,
                 KVITTERINGER,
                 UTBETALING,
-                VAER_KLAR_OVER_AT,
-                BEKREFT_OPPLYSNINGER
+                VAER_KLAR_OVER_AT
             )
         )
 
         assertThat(soknaden.sporsmal!!.first { it.tag == ANSVARSERKLARING }.sporsmalstekst).isEqualTo("Jeg vet at jeg kan miste retten til reisetilskudd og sykepenger hvis opplysningene jeg gir ikke er riktige eller fullstendige. Jeg vet også at NAV kan holde igjen eller kreve tilbake penger, og at å gi feil opplysninger kan være straffbart.")
         assertThat(soknaden.sporsmal!!.first { it.tag == VAER_KLAR_OVER_AT }.sporsmalstekst).isEqualTo(
-            vaerKlarOverAtReisetilskudd().sporsmalstekst
+            bekreftelsespunkter().sporsmalstekst
         )
     }
 

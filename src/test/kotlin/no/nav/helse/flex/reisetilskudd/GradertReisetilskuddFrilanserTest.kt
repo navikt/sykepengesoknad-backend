@@ -11,7 +11,6 @@ import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
 import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER
 import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
 import no.nav.helse.flex.soknadsopprettelse.ARBEID_UTENFOR_NORGE
-import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
 import no.nav.helse.flex.soknadsopprettelse.BRUKTE_REISETILSKUDDET
 import no.nav.helse.flex.soknadsopprettelse.KVITTERINGER
 import no.nav.helse.flex.soknadsopprettelse.REISE_MED_BIL
@@ -113,8 +112,7 @@ class GradertReisetilskuddFrilanserTest : BaseTestClass() {
                 ANDRE_INNTEKTSKILDER,
                 UTLAND,
                 BRUKTE_REISETILSKUDDET,
-                VAER_KLAR_OVER_AT,
-                BEKREFT_OPPLYSNINGER
+                VAER_KLAR_OVER_AT
             )
         )
     }
@@ -150,8 +148,7 @@ class GradertReisetilskuddFrilanserTest : BaseTestClass() {
                 TRANSPORT_TIL_DAGLIG,
                 REISE_MED_BIL,
                 KVITTERINGER,
-                VAER_KLAR_OVER_AT,
-                BEKREFT_OPPLYSNINGER
+                VAER_KLAR_OVER_AT
             )
         )
     }

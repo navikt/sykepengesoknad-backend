@@ -94,7 +94,8 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : BaseTestClass() {
             .besvarSporsmal("ARBEID_UNDERVEIS_100_PROSENT_0", "NEI")
             .besvarSporsmal("HVOR_MYE_PROSENT_0", "CHECKED")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
-            .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
+            .besvarSporsmal(tag = "VAER_KLAR_OVER_AT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
+            .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
             .sendSoknad()
     }
 

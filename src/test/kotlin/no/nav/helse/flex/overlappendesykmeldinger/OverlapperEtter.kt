@@ -249,6 +249,7 @@ class OverlapperEtter : BaseTestClass() {
             .besvarSporsmal(UTLAND_V2, "NEI")
             .besvarSporsmal(ARBEID_UNDERVEIS_100_PROSENT + '0', "NEI")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
+            .besvarSporsmal(tag = "VAER_KLAR_OVER_AT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
             .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
             .sendSoknad()
 
@@ -471,6 +472,7 @@ class OverlapperEtter : BaseTestClass() {
             .besvarSporsmal(UTLAND_V2, "NEI")
             .besvarSporsmal(ARBEID_UNDERVEIS_100_PROSENT + '0', "NEI")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
+            .besvarSporsmal(tag = "VAER_KLAR_OVER_AT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
             .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
             .sendSoknad()
 
@@ -715,6 +717,7 @@ class OverlapperEtter : BaseTestClass() {
             .besvarSporsmal(UTLAND_V2, "NEI")
             .besvarSporsmal(JOBBET_DU_GRADERT + '0', "NEI")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
+            .besvarSporsmal(VAER_KLAR_OVER_AT, "Jeg lover å ikke lyve!", ferdigBesvart = false)
             .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
             .sendSoknad()
 
@@ -806,6 +809,7 @@ class OverlapperEtter : BaseTestClass() {
             .besvarSporsmal(UTLAND_V2, "NEI")
             .besvarSporsmal(JOBBET_DU_GRADERT + '0', "NEI")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
+            .besvarSporsmal(VAER_KLAR_OVER_AT, "Jeg lover å ikke lyve!", ferdigBesvart = false)
             .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
             .sendSoknad()
 

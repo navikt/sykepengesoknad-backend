@@ -58,8 +58,7 @@ class ArbeidstakerIntegrationUtenEgenmeldingTest : BaseTestClass() {
                 "ARBEID_UNDERVEIS_100_PROSENT_0",
                 "ANDRE_INNTEKTSKILDER_V2",
                 "UTLAND_V2",
-                "VAER_KLAR_OVER_AT",
-                "BEKREFT_OPPLYSNINGER"
+                "VAER_KLAR_OVER_AT"
             )
         )
     }

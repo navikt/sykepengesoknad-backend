@@ -11,7 +11,6 @@ import no.nav.helse.flex.domain.Utgiftstype
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
 import no.nav.helse.flex.soknadsopprettelse.*
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.vaerKlarOverAtReisetilskudd
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
@@ -106,7 +105,7 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
             fnr = fnr
         )
 
-        assertThat(soknaden.sporsmal!!.first { it.tag == VAER_KLAR_OVER_AT }.undertekst).contains("sykepenger og reisetilskudd")
+        // assertThat(soknaden.sporsmal!!.first { it.tag == VAER_KLAR_OVER_AT }.undertekst).contains("sykepenger og reisetilskudd")
         assertThat(soknaden.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
                 ANSVARSERKLARING,
@@ -117,17 +116,13 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
                 ANDRE_INNTEKTSKILDER_V2,
                 UTLAND_V2,
                 BRUKTE_REISETILSKUDDET,
-                VAER_KLAR_OVER_AT,
-                BEKREFT_OPPLYSNINGER
+                VAER_KLAR_OVER_AT
             )
         )
 
         assertThat(soknaden.sporsmal!!.first { it.tag == ANSVARSERKLARING }.sporsmalstekst).isEqualTo("Jeg vet at jeg kan miste retten til reisetilskudd og sykepenger hvis opplysningene jeg gir ikke er riktige eller fullstendige. Jeg vet også at NAV kan holde igjen eller kreve tilbake penger, og at å gi feil opplysninger kan være straffbart.")
         assertThat(soknaden.sporsmal!!.first { it.tag == TILBAKE_I_ARBEID }.sporsmalstekst).isEqualTo("Var du tilbake i ditt vanlige arbeid uten ekstra reiseutgifter før 7. september?")
         assertThat(soknaden.sporsmal!!.first { it.tag == "JOBBET_DU_GRADERT_0" }.sporsmalstekst).isEqualTo("Sykmeldingen sier du kunne jobbe 50 % i jobben din hos Kebabbiten. Jobbet du mer enn det?")
-        assertThat(soknaden.sporsmal!!.first { it.tag == VAER_KLAR_OVER_AT }.sporsmalstekst).isEqualTo(
-            vaerKlarOverAtReisetilskudd().sporsmalstekst
-        )
     }
 
     @Test
@@ -233,8 +228,7 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
                 REISE_MED_BIL,
                 KVITTERINGER,
                 UTBETALING,
-                VAER_KLAR_OVER_AT,
-                BEKREFT_OPPLYSNINGER
+                VAER_KLAR_OVER_AT
             )
         )
     }
@@ -351,6 +345,7 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
             .besvarSporsmal(TRANSPORT_TIL_DAGLIG, "NEI")
             .besvarSporsmal(REISE_MED_BIL, "NEI")
             .besvarSporsmal(UTBETALING, "JA")
+            .besvarSporsmal(VAER_KLAR_OVER_AT, "Jeg lover å ikke lyve!", ferdigBesvart = false)
             .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
     }
 
@@ -448,8 +443,7 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
                 ANDRE_INNTEKTSKILDER_V2,
                 UTLAND_V2,
                 BRUKTE_REISETILSKUDDET,
-                VAER_KLAR_OVER_AT,
-                BEKREFT_OPPLYSNINGER
+                VAER_KLAR_OVER_AT
             )
         )
     }
