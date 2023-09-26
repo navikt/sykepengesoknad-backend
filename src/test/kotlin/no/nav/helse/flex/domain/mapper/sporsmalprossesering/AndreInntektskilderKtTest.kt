@@ -1,7 +1,6 @@
 package no.nav.helse.flex.domain.mapper.sporsmalprossesering
 
 import no.nav.helse.flex.domain.Mottaker
-import no.nav.helse.flex.domain.mapper.konverterArbeidstakersoknadTilSykepengesoknadDTO
 import no.nav.helse.flex.domain.mapper.konverterTilSykepengesoknadDTO
 import no.nav.helse.flex.mock.opprettBehandlingsdagsoknadTestadata
 import no.nav.helse.flex.mock.opprettNySoknadAnnet
@@ -88,7 +87,7 @@ class AndreInntektskilderKtTest {
                 )
             )
 
-        val andreInntektskilder = konverterArbeidstakersoknadTilSykepengesoknadDTO(
+        val andreInntektskilder = konverterTilSykepengesoknadDTO(
             besvartSoknad,
             Mottaker.ARBEIDSGIVER_OG_NAV,
             false,

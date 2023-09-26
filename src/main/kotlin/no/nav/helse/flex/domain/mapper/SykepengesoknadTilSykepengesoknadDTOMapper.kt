@@ -26,6 +26,7 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
         return when (sykepengesoknad.soknadstype) {
             Soknadstype.OPPHOLD_UTLAND -> konverterOppholdUtlandTilSoknadDTO(sykepengesoknad)
 
+            Soknadstype.ARBEIDSTAKERE,
             Soknadstype.BEHANDLINGSDAGER,
             Soknadstype.ARBEIDSLEDIG,
             Soknadstype.SELVSTENDIGE_OG_FRILANSERE,
@@ -37,22 +38,10 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
                 sykepengesoknad.hentSoknadsperioder(endeligVurdering)
             )
 
-            Soknadstype.ARBEIDSTAKERE -> konverterArbeidstakersoknadTilSykepengesoknadDTO(
-                sykepengesoknad,
-                mottaker,
-                erEttersending,
-                sykepengesoknad.hentSoknadsperioder(endeligVurdering)
-            )
             // TODO generaliser mer!!
             Soknadstype.GRADERT_REISETILSKUDD -> {
                 when (sykepengesoknad.arbeidssituasjon) {
-                    Arbeidssituasjon.ARBEIDSTAKER -> konverterArbeidstakersoknadTilSykepengesoknadDTO(
-                        sykepengesoknad,
-                        mottaker,
-                        erEttersending,
-                        sykepengesoknad.hentSoknadsperioder(endeligVurdering)
-                    )
-
+                    Arbeidssituasjon.ARBEIDSTAKER,
                     Arbeidssituasjon.FRILANSER,
                     Arbeidssituasjon.NAERINGSDRIVENDE,
                     Arbeidssituasjon.ARBEIDSLEDIG,

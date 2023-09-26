@@ -78,7 +78,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
     fun konverteringEnkleFelter() {
         val sykepengesoknad = gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal()
         val soknad =
-            konverterArbeidstakersoknadTilSykepengesoknadDTO(
+            konverterTilSykepengesoknadDTO(
                 sykepengesoknad,
                 Mottaker.ARBEIDSGIVER_OG_NAV,
                 false,
@@ -697,7 +697,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
     fun soknadSomIkkeErSendtSkalHaNullMottaker() {
         val sykepengesoknad = gammeltFormatOpprettNySoknadMedFeriesporsmalSomUndersporsmal()
 
-        val soknad = konverterArbeidstakersoknadTilSykepengesoknadDTO(
+        val soknad = konverterTilSykepengesoknadDTO(
             sykepengesoknad,
             null,
             false,
@@ -714,7 +714,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
         )
 
         val soknad =
-            konverterArbeidstakersoknadTilSykepengesoknadDTO(
+            konverterTilSykepengesoknadDTO(
                 sykepengesoknad,
                 Mottaker.ARBEIDSGIVER_OG_NAV,
                 true,
@@ -742,7 +742,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
             sykepengesoknaden.copy(sporsmal = sykepengesoknaden.sporsmal.filter { s -> s.tag != "JOBBET_DU_GRADERT_1" })
 
         val soknadsperioder =
-            konverterArbeidstakersoknadTilSykepengesoknadDTO(
+            konverterTilSykepengesoknadDTO(
                 sykepengesoknad,
                 null,
                 false,
