@@ -1,6 +1,5 @@
 package no.nav.helse.flex.domain.mapper
 
-import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Mottaker
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
@@ -31,30 +30,13 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
             Soknadstype.ARBEIDSLEDIG,
             Soknadstype.SELVSTENDIGE_OG_FRILANSERE,
             Soknadstype.ANNET_ARBEIDSFORHOLD,
+            Soknadstype.GRADERT_REISETILSKUDD,
             Soknadstype.REISETILSKUDD -> konverterTilSykepengesoknadDTO(
                 sykepengesoknad,
                 mottaker,
                 erEttersending,
                 sykepengesoknad.hentSoknadsperioder(endeligVurdering)
             )
-
-            // TODO generaliser mer!!
-            Soknadstype.GRADERT_REISETILSKUDD -> {
-                when (sykepengesoknad.arbeidssituasjon) {
-                    Arbeidssituasjon.ARBEIDSTAKER,
-                    Arbeidssituasjon.FRILANSER,
-                    Arbeidssituasjon.NAERINGSDRIVENDE,
-                    Arbeidssituasjon.ARBEIDSLEDIG,
-                    Arbeidssituasjon.ANNET -> konverterTilSykepengesoknadDTO(
-                        sykepengesoknad,
-                        mottaker,
-                        erEttersending,
-                        sykepengesoknad.hentSoknadsperioder(endeligVurdering)
-                    )
-
-                    else -> throw IllegalStateException("Arbeidssituasjon ${sykepengesoknad.arbeidssituasjon} skal ikke kunne ha gradert reisetilskudd")
-                }
-            }
         }
             .merkSelvstendigOgFrilanserMedRedusertVenteperiode()
             .merkFeilinfo(sykepengesoknad.avbruttFeilinfo)
