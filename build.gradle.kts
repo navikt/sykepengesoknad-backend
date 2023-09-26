@@ -1,4 +1,5 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -90,14 +91,16 @@ tasks.getByName<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar
 }
 
 tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "17"
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_17)
+        freeCompilerArgs.add("-Xjsr305=strict")
+
         if (System.getenv("CI") == "true") {
-            kotlinOptions.allWarningsAsErrors = true
+            allWarningsAsErrors.set(true)
         }
     }
 }
+
 tasks.withType<Test> {
     useJUnitPlatform()
     testLogging {
@@ -105,4 +108,7 @@ tasks.withType<Test> {
         exceptionFormat = FULL
     }
     failFast = true
+    reports.html.required.set(false)
+    reports.junitXml.required.set(false)
+    maxParallelForks = (Runtime.getRuntime().availableProcessors() - 1).coerceAtLeast(1).coerceAtMost(4)
 }
