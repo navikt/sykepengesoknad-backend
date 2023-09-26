@@ -130,6 +130,10 @@ fun hentFeriePermUtlandListe(sykepengesoknad: Sykepengesoknad): List<FravarDTO> 
         }
     }
 
+    sykepengesoknad.getSporsmalMedTagOrNull(ARBEIDSLEDIG_UTLAND)?.takeIf { it.forsteSvar == "CHECKED" }?.let {
+        fravarliste.addAll(hentFravar(sykepengesoknad.getSporsmalMedTag(UTLAND_NAR), FravarstypeDTO.UTLANDSOPPHOLD))
+    }
+
     sykepengesoknad.getSporsmalMedTagOrNull(FERIE_V2)?.takeIf { it.forsteSvar == "JA" }?.let {
         fravarliste.addAll(hentFravar(sykepengesoknad.getSporsmalMedTag(FERIE_NAR_V2), FravarstypeDTO.FERIE))
     }
