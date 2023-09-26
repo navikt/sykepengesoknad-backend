@@ -89,11 +89,6 @@ fun samleFravaerListe(soknad: Sykepengesoknad): List<FravarDTO> {
 fun hentFeriePermUtlandListe(sykepengesoknad: Sykepengesoknad): List<FravarDTO> {
     val fravarliste = ArrayList<FravarDTO>()
 
-    if (sykepengesoknad.getSporsmalMedTagOrNull(FERIE_PERMISJON_UTLAND)?.forsteSvar == "JA") {
-        // TODO: Sjekk hvorfor denne skal returnerer tom liste
-        return fravarliste
-    }
-
     sykepengesoknad.getSporsmalMedTagOrNull(FERIE)?.takeIf { it.forsteSvar == "CHECKED" }?.let {
         fravarliste.addAll(hentFravar(sykepengesoknad.getSporsmalMedTag(FERIE_NAR), FravarstypeDTO.FERIE))
     }
@@ -103,9 +98,7 @@ fun hentFeriePermUtlandListe(sykepengesoknad: Sykepengesoknad): List<FravarDTO> 
     }
 
     sykepengesoknad.getSporsmalMedTagOrNull(UTLAND)?.takeIf { it.forsteSvar == "CHECKED" }?.let {
-        sykepengesoknad.getSporsmalMedTagOrNull(UTLAND_NAR)?.let { undersporsmal ->
-            fravarliste.addAll(hentFravar(undersporsmal, FravarstypeDTO.UTLANDSOPPHOLD))
-        }
+        fravarliste.addAll(hentFravar(sykepengesoknad.getSporsmalMedTag(UTLAND_NAR), FravarstypeDTO.UTLANDSOPPHOLD))
     }
 
     sykepengesoknad.getSporsmalMedTagOrNull(ARBEIDSLEDIG_UTLAND)?.takeIf { it.forsteSvar == "CHECKED" }?.let {
