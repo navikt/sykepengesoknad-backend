@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component
 @Component
 class SykepengesoknadTilSykepengesoknadDTOMapper(
     private val juridiskVurderingKafkaProducer: JuridiskVurderingKafkaProducer,
-    private val redusertVenteperiodeRepository: RedusertVenteperiodeRepository,
+    private val redusertVenteperiodeRepository: RedusertVenteperiodeRepository
 ) {
     fun mapTilSykepengesoknadDTO(
         sykepengesoknad: Sykepengesoknad,
@@ -24,25 +24,26 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
         endeligVurdering: Boolean = true
     ): SykepengesoknadDTO {
         return when (sykepengesoknad.soknadstype) {
-            Soknadstype.SELVSTENDIGE_OG_FRILANSERE -> konverterSelvstendigOgFrilanserTilSoknadDTO(
-                sykepengesoknad,
-                sykepengesoknad.hentSoknadsperioder(endeligVurdering),
-            )
             Soknadstype.OPPHOLD_UTLAND -> konverterOppholdUtlandTilSoknadDTO(sykepengesoknad)
             Soknadstype.ARBEIDSLEDIG -> ArbeidsledigsoknadToSykepengesoknadDTO.konverterArbeidsledigTilSykepengesoknadDTO(
                 sykepengesoknad
             )
+
             Soknadstype.BEHANDLINGSDAGER -> konverterTilSykepengesoknadBehandlingsdagerDTO(
                 sykepengesoknad,
                 mottaker,
                 erEttersending
             )
-            Soknadstype.ANNET_ARBEIDSFORHOLD -> konverterTilSykepengesoknadDTO(
+
+            Soknadstype.SELVSTENDIGE_OG_FRILANSERE,
+            Soknadstype.ANNET_ARBEIDSFORHOLD,
+            Soknadstype.REISETILSKUDD -> konverterTilSykepengesoknadDTO(
                 sykepengesoknad,
                 mottaker,
-                erEttersending
+                erEttersending,
+                sykepengesoknad.hentSoknadsperioder(endeligVurdering)
             )
-            Soknadstype.REISETILSKUDD -> konverterTilSykepengesoknadDTO(sykepengesoknad, mottaker, erEttersending)
+
             Soknadstype.ARBEIDSTAKERE -> konverterArbeidstakersoknadTilSykepengesoknadDTO(
                 sykepengesoknad,
                 mottaker,
@@ -58,16 +59,17 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
                         erEttersending,
                         sykepengesoknad.hentSoknadsperioder(endeligVurdering)
                     )
-                    Arbeidssituasjon.FRILANSER, Arbeidssituasjon.NAERINGSDRIVENDE -> konverterSelvstendigOgFrilanserTilSoknadDTO(
-                        sykepengesoknad,
-                        sykepengesoknad.hentSoknadsperioder(endeligVurdering),
-                    )
+
+                    Arbeidssituasjon.FRILANSER,
+                    Arbeidssituasjon.NAERINGSDRIVENDE,
                     Arbeidssituasjon.ARBEIDSLEDIG,
                     Arbeidssituasjon.ANNET -> konverterTilSykepengesoknadDTO(
                         sykepengesoknad,
                         mottaker,
-                        erEttersending
+                        erEttersending,
+                        sykepengesoknad.hentSoknadsperioder(endeligVurdering)
                     )
+
                     else -> throw IllegalStateException("Arbeidssituasjon ${sykepengesoknad.arbeidssituasjon} skal ikke kunne ha gradert reisetilskudd")
                 }
             }
@@ -80,6 +82,7 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
         val hentSoknadsPerioderMedFaktiskGrad = hentSoknadsPerioderMedFaktiskGrad(this)
         hentSoknadsPerioderMedFaktiskGrad.second?.let {
             if (endeligVurdering) {
+                // TODO: Denne burde ligge et annet sted
                 juridiskVurderingKafkaProducer.produserMelding(it)
             }
         }

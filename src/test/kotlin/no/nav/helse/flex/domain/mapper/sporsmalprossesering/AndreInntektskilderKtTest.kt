@@ -3,7 +3,6 @@ package no.nav.helse.flex.domain.mapper.sporsmalprossesering
 import no.nav.helse.flex.domain.Mottaker
 import no.nav.helse.flex.domain.mapper.ArbeidsledigsoknadToSykepengesoknadDTO.konverterArbeidsledigTilSykepengesoknadDTO
 import no.nav.helse.flex.domain.mapper.konverterArbeidstakersoknadTilSykepengesoknadDTO
-import no.nav.helse.flex.domain.mapper.konverterSelvstendigOgFrilanserTilSoknadDTO
 import no.nav.helse.flex.domain.mapper.konverterTilSykepengesoknadBehandlingsdagerDTO
 import no.nav.helse.flex.domain.mapper.konverterTilSykepengesoknadDTO
 import no.nav.helse.flex.mock.opprettBehandlingsdagsoknadTestadata
@@ -108,9 +107,11 @@ class AndreInntektskilderKtTest {
     fun `Frilanser henter andre inntektskilder`() {
         val besvartSoknad = opprettSendtFrilanserSoknad()
 
-        val andreInntektskilder = konverterSelvstendigOgFrilanserTilSoknadDTO(
+        val andreInntektskilder = konverterTilSykepengesoknadDTO(
             besvartSoknad,
-            hentSoknadsPerioderMedFaktiskGrad(besvartSoknad).first,
+            Mottaker.NAV,
+            false,
+            hentSoknadsPerioderMedFaktiskGrad(besvartSoknad).first
         ).andreInntektskilder!!
 
         andreInntektskilder.shouldHaveSize(4)
@@ -152,8 +153,9 @@ class AndreInntektskilderKtTest {
 
         val andreInntektskilder = konverterTilSykepengesoknadDTO(
             soknad,
-            Mottaker.ARBEIDSGIVER_OG_NAV,
-            false
+            Mottaker.NAV,
+            false,
+            hentSoknadsPerioderMedFaktiskGrad(soknad).first
         ).andreInntektskilder!!
 
         andreInntektskilder.shouldHaveSize(1)
