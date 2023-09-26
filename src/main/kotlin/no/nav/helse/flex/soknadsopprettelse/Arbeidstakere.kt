@@ -68,18 +68,6 @@ fun Sykepengesoknad.harFeriePermisjonEllerUtenlandsoppholdSporsmal(): Boolean {
     return this.getSporsmalMedTagOrNull(FERIE_PERMISJON_UTLAND) != null
 }
 
-fun harFeriesporsmal(sykepengesoknad: Sykepengesoknad): Boolean {
-    return sykepengesoknad.getOptionalSporsmalMedTag(FERIE_V2).isPresent
-}
-
-fun harPermisjonsporsmal(sykepengesoknad: Sykepengesoknad): Boolean {
-    return sykepengesoknad.getOptionalSporsmalMedTag(PERMISJON_V2).isPresent
-}
-
-fun harUtlandsporsmal(sykepengesoknad: Sykepengesoknad): Boolean {
-    return sykepengesoknad.getOptionalSporsmalMedTag(UTLAND_V2).isPresent
-}
-
 private fun tilbakeIFulltArbeidSporsmal(soknadMetadata: Sykepengesoknad): Sporsmal {
     return Sporsmal(
         tag = TILBAKE_I_ARBEID,

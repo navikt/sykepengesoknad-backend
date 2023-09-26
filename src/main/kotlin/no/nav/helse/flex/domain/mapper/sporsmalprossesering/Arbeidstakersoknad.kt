@@ -105,48 +105,41 @@ internal fun arbeidGjenopptattDato(sykepengesoknad: Sykepengesoknad): LocalDate?
 }
 
 fun samleFravaerListe(soknad: Sykepengesoknad): List<FravarDTO> {
-    val fravaerliste = hentFeriePermUtlandListe(soknad).toMutableList()
-    return fravaerliste
+    return hentFeriePermUtlandListe(soknad)
 }
 
 fun hentFeriePermUtlandListe(sykepengesoknad: Sykepengesoknad): List<FravarDTO> {
     val fravarliste = ArrayList<FravarDTO>()
 
-    val feriePerimisjonUtland = sykepengesoknad.getSporsmalMedTagOrNull(FERIE_PERMISJON_UTLAND)
+    if (sykepengesoknad.getSporsmalMedTagOrNull(FERIE_PERMISJON_UTLAND)?.forsteSvar == "JA") {
+        // TODO: Sjekk hvorfor denne skal returnerer tom liste
+        return fravarliste
+    }
 
-    if (feriePerimisjonUtland != null) {
-        if ("JA" != feriePerimisjonUtland.forsteSvar) {
-            return fravarliste
+    sykepengesoknad.getSporsmalMedTagOrNull(FERIE)?.takeIf { it.forsteSvar == "CHECKED" }?.let {
+        fravarliste.addAll(hentFravar(sykepengesoknad.getSporsmalMedTag(FERIE_NAR), FravarstypeDTO.FERIE))
+    }
+
+    sykepengesoknad.getSporsmalMedTagOrNull(PERMISJON)?.takeIf { it.forsteSvar == "CHECKED" }?.let {
+        fravarliste.addAll(hentFravar(sykepengesoknad.getSporsmalMedTag(PERMISJON_NAR), FravarstypeDTO.PERMISJON))
+    }
+
+    sykepengesoknad.getSporsmalMedTagOrNull(UTLAND)?.takeIf { it.forsteSvar == "CHECKED" }?.let {
+        sykepengesoknad.getSporsmalMedTagOrNull(UTLAND_NAR)?.let { undersporsmal ->
+            fravarliste.addAll(hentFravar(undersporsmal, FravarstypeDTO.UTLANDSOPPHOLD))
         }
-        sykepengesoknad.getOptionalSporsmalMedTag(FERIE).ifPresent { sporsmal ->
-            if ("CHECKED" == sporsmal.forsteSvar) {
-                fravarliste.addAll(hentFravar(sykepengesoknad.getSporsmalMedTag(FERIE_NAR), FravarstypeDTO.FERIE))
-            }
-        }
-        sykepengesoknad.getOptionalSporsmalMedTag(PERMISJON).ifPresent { sporsmal ->
-            if ("CHECKED" == sporsmal.forsteSvar) {
-                fravarliste.addAll(hentFravar(sykepengesoknad.getSporsmalMedTag(PERMISJON_NAR), FravarstypeDTO.PERMISJON))
-            }
-        }
-        sykepengesoknad.getOptionalSporsmalMedTag(UTLAND).ifPresent { sporsmal ->
-            if ("CHECKED" == sporsmal.forsteSvar) {
-                sykepengesoknad.getOptionalSporsmalMedTag(UTLAND_NAR).ifPresent { undersporsmal ->
-                    fravarliste.addAll(
-                        hentFravar(undersporsmal, FravarstypeDTO.UTLANDSOPPHOLD)
-                    )
-                }
-            }
-        }
-    } else {
-        if (harFeriesporsmal(sykepengesoknad) && "JA" == sykepengesoknad.getSporsmalMedTag(FERIE_V2).forsteSvar) {
-            fravarliste.addAll(hentFravar(sykepengesoknad.getSporsmalMedTag(FERIE_NAR_V2), FravarstypeDTO.FERIE))
-        }
-        if (harPermisjonsporsmal(sykepengesoknad) && "JA" == sykepengesoknad.getSporsmalMedTag(PERMISJON_V2).forsteSvar) {
-            fravarliste.addAll(hentFravar(sykepengesoknad.getSporsmalMedTag(PERMISJON_NAR_V2), FravarstypeDTO.PERMISJON))
-        }
-        if (harUtlandsporsmal(sykepengesoknad) && "JA" == sykepengesoknad.getSporsmalMedTag(UTLAND_V2).forsteSvar) {
-            fravarliste.addAll(hentFravar(sykepengesoknad.getSporsmalMedTag(UTLAND_NAR_V2), FravarstypeDTO.UTLANDSOPPHOLD))
-        }
+    }
+
+    sykepengesoknad.getSporsmalMedTagOrNull(FERIE_V2)?.takeIf { it.forsteSvar == "JA" }?.let {
+        fravarliste.addAll(hentFravar(sykepengesoknad.getSporsmalMedTag(FERIE_NAR_V2), FravarstypeDTO.FERIE))
+    }
+
+    sykepengesoknad.getSporsmalMedTagOrNull(PERMISJON_V2)?.takeIf { it.forsteSvar == "JA" }?.let {
+        fravarliste.addAll(hentFravar(sykepengesoknad.getSporsmalMedTag(PERMISJON_NAR_V2), FravarstypeDTO.PERMISJON))
+    }
+
+    sykepengesoknad.getSporsmalMedTagOrNull(UTLAND_V2)?.takeIf { it.forsteSvar == "JA" }?.let {
+        fravarliste.addAll(hentFravar(sykepengesoknad.getSporsmalMedTag(UTLAND_NAR_V2), FravarstypeDTO.UTLANDSOPPHOLD))
     }
 
     return fravarliste
