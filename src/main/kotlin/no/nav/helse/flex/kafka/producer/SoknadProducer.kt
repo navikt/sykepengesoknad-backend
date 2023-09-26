@@ -1,5 +1,6 @@
 package no.nav.helse.flex.kafka.producer
 
+import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Mottaker
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype.*
@@ -42,7 +43,8 @@ class SoknadProducer(
         val sykepengesoknadDTO = sykepengesoknadTilSykepengesoknadDTOMapper.mapTilSykepengesoknadDTO(
             sykepengesoknad,
             mottaker,
-            erEttersending
+            erEttersending,
+            sykepengesoknad.skalLeggeJuridiskVurderingPaKafka()
         ).copy(
             dodsdato = dodsdato,
             opprinneligSendt = opprinneligSendt?.tilOsloLocalDateTime()
@@ -60,6 +62,7 @@ class SoknadProducer(
                     metrikk.prosesserSelvstendigSoknad(sykepengesoknad, sykepengesoknadDTO)
                     metrikkSelvstendigFrilanser(sykepengesoknad)
                 }
+
                 ARBEIDSLEDIG -> metrikkArbeidsledig(sykepengesoknad)
                 BEHANDLINGSDAGER -> metrikkBehandlingsdager(sykepengesoknad)
                 ANNET_ARBEIDSFORHOLD -> metrikkAnnetArbeidsforhold(sykepengesoknad)
@@ -70,6 +73,23 @@ class SoknadProducer(
             }
         } catch (e: Exception) {
             log.warn("Uventet feil ved opptelling av metrikk", e)
+        }
+    }
+
+    private fun Sykepengesoknad.skalLeggeJuridiskVurderingPaKafka(): Boolean {
+        return when (soknadstype) {
+            ARBEIDSTAKERE, SELVSTENDIGE_OG_FRILANSERE -> {
+                true
+            }
+
+            GRADERT_REISETILSKUDD -> {
+                when (arbeidssituasjon) {
+                    Arbeidssituasjon.ARBEIDSTAKER, Arbeidssituasjon.NAERINGSDRIVENDE, Arbeidssituasjon.FRILANSER -> true
+                    else -> false
+                }
+            }
+
+            else -> false
         }
     }
 
