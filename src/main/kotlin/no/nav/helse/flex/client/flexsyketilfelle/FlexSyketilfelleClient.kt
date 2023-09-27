@@ -102,7 +102,12 @@ class FlexSyketilfelleClient(
         forelopig: Boolean,
         identer: FolkeregisterIdenter
     ): Arbeidsgiverperiode? {
-        val soknadDto = sykepengesoknadTilSykepengesoknadDTOMapper.mapTilSykepengesoknadDTO(soknad, null, false, false)
+        val soknadDto = sykepengesoknadTilSykepengesoknadDTOMapper.mapTilSykepengesoknadDTO(
+            sykepengesoknad = soknad,
+            mottaker = null,
+            erEttersending = false,
+            endeligVurdering = false
+        )
         val requestBody = SoknadOgSykmelding(soknadDto, sykmelding)
 
         val headers = HttpHeaders()

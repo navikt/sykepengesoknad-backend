@@ -31,7 +31,12 @@ class SoknadKafkaFormatController(
             )
         )
         val sykepengesoknad = hentSoknadService.finnSykepengesoknad(id)
-        val dto = sykepengesoknadTilSykepengesoknadDTOMapper.mapTilSykepengesoknadDTO(sykepengesoknad, null, false, false)
+        val dto = sykepengesoknadTilSykepengesoknadDTOMapper.mapTilSykepengesoknadDTO(
+            sykepengesoknad = sykepengesoknad,
+            mottaker = null,
+            erEttersending = false,
+            endeligVurdering = false
+        )
         return dto
     }
 }

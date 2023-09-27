@@ -43,14 +43,25 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
     }
 
     private fun Sykepengesoknad.hentSoknadsperioder(endeligVurdering: Boolean): List<SoknadsperiodeDTO> {
-        val hentSoknadsPerioderMedFaktiskGrad = hentSoknadsPerioderMedFaktiskGrad(this)
-        hentSoknadsPerioderMedFaktiskGrad.second?.let {
-            if (endeligVurdering) {
-                // TODO: Denne burde ligge et annet sted
-                juridiskVurderingKafkaProducer.produserMelding(it)
+        if (soknadstype in listOf(Soknadstype.BEHANDLINGSDAGER, Soknadstype.ARBEIDSLEDIG)) {
+            return soknadPerioder!!.map {
+                SoknadsperiodeDTO(
+                    fom = it.fom,
+                    tom = it.tom,
+                    sykmeldingsgrad = it.grad,
+                    sykmeldingstype = it.sykmeldingstype?.tilSykmeldingstypeDTO()
+                )
             }
+        } else {
+            val hentSoknadsPerioderMedFaktiskGrad = hentSoknadsPerioderMedFaktiskGrad(this)
+            hentSoknadsPerioderMedFaktiskGrad.second?.let {
+                if (endeligVurdering) {
+                    // TODO: Denne burde ligge et annet sted
+                    juridiskVurderingKafkaProducer.produserMelding(it)
+                }
+            }
+            return hentSoknadsPerioderMedFaktiskGrad.first
         }
-        return hentSoknadsPerioderMedFaktiskGrad.first
     }
 
     private fun SykepengesoknadDTO.merkFeilinfo(avbruttFeilinfo: Boolean?): SykepengesoknadDTO {
