@@ -8,10 +8,11 @@ import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
 import java.time.Instant
 import java.time.LocalDate
-import java.util.*
 
 @Repository
-interface MedlemskapVurderingRepository : CrudRepository<MedlemskapVurderingDbRecord, String>
+interface MedlemskapVurderingRepository : CrudRepository<MedlemskapVurderingDbRecord, String> {
+    fun findSvartypeBySykepengesoknadId(sykepengesoknadId: String): MedlemskapVurderingDbRecord?
+}
 
 @Table("medlemskap_vurdering")
 data class MedlemskapVurderingDbRecord(

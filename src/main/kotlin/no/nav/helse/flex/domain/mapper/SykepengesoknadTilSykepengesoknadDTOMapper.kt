@@ -5,16 +5,19 @@ import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentSoknadsPerioderMedFaktiskGrad
 import no.nav.helse.flex.juridiskvurdering.JuridiskVurderingKafkaProducer
+import no.nav.helse.flex.medlemskap.MedlemskapVurderingRepository
 import no.nav.helse.flex.repository.RedusertVenteperiodeRepository
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsperiodeDTO
+import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import org.springframework.stereotype.Component
 
 @Component
 class SykepengesoknadTilSykepengesoknadDTOMapper(
     private val juridiskVurderingKafkaProducer: JuridiskVurderingKafkaProducer,
-    private val redusertVenteperiodeRepository: RedusertVenteperiodeRepository
+    private val redusertVenteperiodeRepository: RedusertVenteperiodeRepository,
+    private val medlemskapVurderingRepository: MedlemskapVurderingRepository
 ) {
     fun mapTilSykepengesoknadDTO(
         sykepengesoknad: Sykepengesoknad,
@@ -40,6 +43,7 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
         }
             .merkSelvstendigOgFrilanserMedRedusertVenteperiode()
             .merkFeilinfo(sykepengesoknad.avbruttFeilinfo)
+            .merkMedMedlemskapStatus()
     }
 
     private fun Sykepengesoknad.hentSoknadsperioder(endeligVurdering: Boolean): List<SoknadsperiodeDTO> {
@@ -75,6 +79,14 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
     private fun SykepengesoknadDTO.merkSelvstendigOgFrilanserMedRedusertVenteperiode(): SykepengesoknadDTO {
         return if (arbeidssituasjon == ArbeidssituasjonDTO.FRILANSER || arbeidssituasjon == ArbeidssituasjonDTO.SELVSTENDIG_NARINGSDRIVENDE) {
             copy(harRedusertVenteperiode = redusertVenteperiodeRepository.existsBySykmeldingId(sykmeldingId!!))
+        } else {
+            this
+        }
+    }
+
+    private fun SykepengesoknadDTO.merkMedMedlemskapStatus(): SykepengesoknadDTO {
+        return if (type == SoknadstypeDTO.ARBEIDSTAKERE) {
+            copy(medlemskapVurdering = medlemskapVurderingRepository.findSvartypeBySykepengesoknadId(id)?.svartype)
         } else {
             this
         }
