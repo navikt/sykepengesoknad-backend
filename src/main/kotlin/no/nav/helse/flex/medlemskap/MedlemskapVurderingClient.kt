@@ -66,13 +66,6 @@ class MedlemskapVurderingClient(
             svarTid
         )
 
-        // Mottar vi UAVKLART må vi få spørsmål å stille brukeren.
-        if (medlemskapVurderingResponse.svar == MedlemskapVurderingSvarType.UAVKLART && medlemskapVurderingResponse.sporsmal.isEmpty()) {
-            throw MedlemskapVurderingResponseException(
-                "MedlemskapVurdering med Nav-Call-Id: $navCallId returnerte svar.UAVKLART uten spørsmål."
-            )
-        }
-
         // Mottar vi en avklart situasjon (svar.JA eller svar.NEI) skal vi ikke få spørsmål å stille brukeren.
         if (listOf(
                 MedlemskapVurderingSvarType.JA,
@@ -115,10 +108,7 @@ class MedlemskapVurderingClientException(message: String?, cause: Throwable?) : 
 /**
  * Kastes når LovMe returnerer en feilmelding / statuskode som ikke er 2xx som følge av en logisk feil.
  */
-class MedlemskapVurderingResponseException : RuntimeException {
-    constructor(message: String?) : super(message)
-    constructor(message: String?, cause: Throwable?) : super(message, cause)
-}
+class MedlemskapVurderingResponseException(message: String?) : RuntimeException(message)
 
 data class MedlemskapVurderingRequest(
     var fnr: String,
