@@ -36,7 +36,6 @@ import no.nav.helse.flex.sykepengesoknad.kafka.*
 import no.nav.helse.flex.testutil.besvarsporsmal
 import no.nav.helse.flex.util.tilOsloLocalDateTime
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.junit.jupiter.MockitoExtension
@@ -79,7 +78,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
     fun konverteringEnkleFelter() {
         val sykepengesoknad = gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal()
         val soknad =
-            konverterArbeidstakersoknadTilSykepengesoknadDTO(
+            konverterTilSykepengesoknadDTO(
                 sykepengesoknad,
                 Mottaker.ARBEIDSGIVER_OG_NAV,
                 false,
@@ -106,12 +105,12 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
     }
 
     @Test
-    fun soktUtenlandsoppholdSettesTilNullHvisSporsmaletIkkeFinnes() {
+    fun soktUtenlandsoppholdSettesTilFalseHvisSporsmaletIkkeFinnes() {
         val sykepengesoknad = gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal()
 
         val soktUtenlandsopphold = harSoktSykepengerUnderUtlandsopphold(sykepengesoknad)
 
-        assertNull(soktUtenlandsopphold)
+        assertThat(soktUtenlandsopphold).isFalse()
     }
 
     @Test
@@ -161,7 +160,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
     }
 
     @Test
-    fun soktUtenlandsoppholdSettesTilNullHvisIkkeBesvart() {
+    fun soktUtenlandsoppholdSettesTilFalseHvisIkkeBesvart() {
         val sykepengesoknad = gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal()
         sykepengesoknad.replaceSporsmal(
             sykepengesoknad.getSporsmalMedTag(UTLAND).toBuilder()
@@ -180,11 +179,11 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
 
         val soktUtenlandsopphold = harSoktSykepengerUnderUtlandsopphold(sykepengesoknad)
 
-        assertNull(soktUtenlandsopphold)
+        assertThat(soktUtenlandsopphold).isFalse()
     }
 
     @Test
-    fun soktUtenlandsoppholdSettesTilNullHvisModerspmIkkeFinnes() {
+    fun soktUtenlandsoppholdSettesTilFalseHvisModerspmIkkeFinnes() {
         var sykepengesoknad = gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal()
         sykepengesoknad.replaceSporsmal(
             sykepengesoknad.getSporsmalMedTag(UTLAND).toBuilder()
@@ -206,11 +205,11 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
 
         val soktUtenlandsopphold = harSoktSykepengerUnderUtlandsopphold(sykepengesoknad)
 
-        assertNull(soktUtenlandsopphold)
+        assertThat(soktUtenlandsopphold).isFalse()
     }
 
     @Test
-    fun soktUtenlandsoppholdSettesTilNullHvisModerspmIkkeFinnesForUtlandV2() {
+    fun soktUtenlandsoppholdSettesTilFalseHvisModerspmIkkeFinnesForUtlandV2() {
         val sykepengesoknad = opprettSendtSoknad()
         sykepengesoknad.replaceSporsmal(
             sykepengesoknad.getSporsmalMedTag(UTLAND_V2).toBuilder()
@@ -232,7 +231,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
 
         val soktUtenlandsopphold = harSoktSykepengerUnderUtlandsopphold(sykepengesoknad)
 
-        assertNull(soktUtenlandsopphold)
+        assertThat(soktUtenlandsopphold).isFalse()
     }
 
     @Test
@@ -698,7 +697,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
     fun soknadSomIkkeErSendtSkalHaNullMottaker() {
         val sykepengesoknad = gammeltFormatOpprettNySoknadMedFeriesporsmalSomUndersporsmal()
 
-        val soknad = konverterArbeidstakersoknadTilSykepengesoknadDTO(
+        val soknad = konverterTilSykepengesoknadDTO(
             sykepengesoknad,
             null,
             false,
@@ -715,7 +714,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
         )
 
         val soknad =
-            konverterArbeidstakersoknadTilSykepengesoknadDTO(
+            konverterTilSykepengesoknadDTO(
                 sykepengesoknad,
                 Mottaker.ARBEIDSGIVER_OG_NAV,
                 true,
@@ -743,7 +742,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
             sykepengesoknaden.copy(sporsmal = sykepengesoknaden.sporsmal.filter { s -> s.tag != "JOBBET_DU_GRADERT_1" })
 
         val soknadsperioder =
-            konverterArbeidstakersoknadTilSykepengesoknadDTO(
+            konverterTilSykepengesoknadDTO(
                 sykepengesoknad,
                 null,
                 false,
