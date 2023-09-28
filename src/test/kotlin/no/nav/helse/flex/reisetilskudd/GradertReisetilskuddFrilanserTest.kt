@@ -8,16 +8,7 @@ import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
 import no.nav.helse.flex.mockFlexSyketilfelleErUtaforVentetid
 import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
-import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER
-import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
-import no.nav.helse.flex.soknadsopprettelse.ARBEID_UTENFOR_NORGE
-import no.nav.helse.flex.soknadsopprettelse.BRUKTE_REISETILSKUDDET
-import no.nav.helse.flex.soknadsopprettelse.KVITTERINGER
-import no.nav.helse.flex.soknadsopprettelse.REISE_MED_BIL
-import no.nav.helse.flex.soknadsopprettelse.TILBAKE_I_ARBEID
-import no.nav.helse.flex.soknadsopprettelse.TRANSPORT_TIL_DAGLIG
-import no.nav.helse.flex.soknadsopprettelse.UTLAND
-import no.nav.helse.flex.soknadsopprettelse.VAER_KLAR_OVER_AT
+import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
@@ -112,7 +103,8 @@ class GradertReisetilskuddFrilanserTest : BaseTestClass() {
                 ANDRE_INNTEKTSKILDER,
                 UTLAND,
                 BRUKTE_REISETILSKUDDET,
-                VAER_KLAR_OVER_AT
+                VAER_KLAR_OVER_AT,
+                BEKREFT_OPPLYSNINGER
             )
         )
     }
@@ -148,7 +140,8 @@ class GradertReisetilskuddFrilanserTest : BaseTestClass() {
                 TRANSPORT_TIL_DAGLIG,
                 REISE_MED_BIL,
                 KVITTERINGER,
-                VAER_KLAR_OVER_AT
+                VAER_KLAR_OVER_AT,
+                BEKREFT_OPPLYSNINGER
             )
         )
     }
