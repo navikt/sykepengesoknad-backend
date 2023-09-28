@@ -62,6 +62,25 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
     }
 
     @Test
+    fun `hentMedlemskapVurdering svarer med UAVKLART og tom liste`() {
+        val fnr = "31111111116"
+
+        val response = medlemskapVurderingClient.hentMedlemskapVurdering(request.copy(fnr = fnr))
+
+        response.svar `should be equal to` MedlemskapVurderingSvarType.UAVKLART
+        response.sporsmal shouldHaveSize 0
+
+        val takeRequest = medlemskapMockWebServer.takeRequest()
+        takeRequest.headers["fnr"] `should be equal to` fnr
+
+        medlemskapVurderingRepository.findAll() shouldHaveSize 1
+
+        // Vi lagrer ikke tom liste med spørsmål.
+        val dbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
+        dbRecords.first().sporsmal `should be equal to` null
+    }
+
+    @Test
     fun `hentMedlemskapVurdering svarer med JA og tom liste`() {
         val fnr = "31111111112"
         val response = medlemskapVurderingClient.hentMedlemskapVurdering(request.copy(fnr = fnr))
@@ -134,31 +153,7 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    fun `hentMedlemskapVurdering kaster exception når vi får UAVKLART, men tom liste med spørsmål`() {
-        val fnr = "31111111116"
-        val exception =
-            assertThrows<MedlemskapVurderingResponseException> {
-                medlemskapVurderingClient.hentMedlemskapVurdering(
-                    request.copy(fnr = fnr)
-                )
-            }
-
-        exception.message?.shouldStartWith("MedlemskapVurdering med Nav-Call-Id:")
-        exception.message?.shouldContain("returnerte svar.UAVKLART uten spørsmål.")
-
-        val takeRequest = medlemskapMockWebServer.takeRequest()
-        takeRequest.headers["fnr"] `should be equal to` fnr
-
-        // Verdier blir lagret før vi validerer responsen.
-        medlemskapVurderingRepository.findAll() shouldHaveSize 1
-
-        // Vi lagrer ikke tom liste med spørsmål.
-        val dbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
-        dbRecords.first().sporsmal `should be equal to` null
-    }
-
-    @Test
-    fun `hentMedlemskapVurdering kaster exception når vi får avklart JA, men liste MED spørsmål`() {
+    fun `hentMedlemskapVurdering kaster exception når vi får avklart JA og liste med spørsmål`() {
         val fnr = "31111111117"
         val exception =
             assertThrows<MedlemskapVurderingResponseException> {
@@ -181,7 +176,7 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    fun `hentMedlemskapVurdering kaster exception når vi får avklart NEI, men liste MED spørsmål`() {
+    fun `hentMedlemskapVurdering kaster exception når vi får avklart NEI og liste med spørsmål`() {
         val fnr = "31111111118"
         val exception =
             assertThrows<MedlemskapVurderingResponseException> {
