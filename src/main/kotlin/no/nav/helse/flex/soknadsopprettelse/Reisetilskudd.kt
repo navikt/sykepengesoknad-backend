@@ -16,7 +16,7 @@ fun skapReisetilskuddsoknad(
 ): List<Sporsmal> {
     return mutableListOf(
         ansvarserklaringSporsmal(reisetilskudd = true),
-        bekreftelsespunkter(),
+        bekreftelsespunkter()
     ).also {
         it.addAll(
             reisetilskuddSporsmal(
