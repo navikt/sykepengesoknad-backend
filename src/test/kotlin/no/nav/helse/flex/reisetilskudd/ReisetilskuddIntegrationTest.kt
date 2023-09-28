@@ -289,6 +289,7 @@ class ReisetilskuddIntegrationTest : BaseTestClass() {
             .besvarSporsmal(TRANSPORT_TIL_DAGLIG, "NEI")
             .besvarSporsmal(REISE_MED_BIL, "NEI")
             .besvarSporsmal(UTBETALING, "JA")
+            .besvarSporsmal(VAER_KLAR_OVER_AT, "Jeg lover å ikke lyve!", false)
             .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
     }
 
