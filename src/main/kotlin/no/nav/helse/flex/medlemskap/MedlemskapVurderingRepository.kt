@@ -11,7 +11,7 @@ import java.time.LocalDate
 
 @Repository
 interface MedlemskapVurderingRepository : CrudRepository<MedlemskapVurderingDbRecord, String> {
-    fun findSvartypeBySykepengesoknadId(sykepengesoknadId: String): MedlemskapVurderingDbRecord?
+    fun findSvartypeBySykepengesoknadIdAndFomAndTom(sykepengesoknadId: String, fom: LocalDate, tom: LocalDate): MedlemskapVurderingDbRecord?
 }
 
 @Table("medlemskap_vurdering")
