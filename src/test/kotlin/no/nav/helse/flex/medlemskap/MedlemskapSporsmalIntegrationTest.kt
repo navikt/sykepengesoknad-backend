@@ -58,6 +58,7 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
         Assertions.assertThat(soknader).hasSize(1)
         Assertions.assertThat(soknader.last().type).isEqualTo(SoknadstypeDTO.ARBEIDSTAKERE)
         Assertions.assertThat(soknader.last().status).isEqualTo(SoknadsstatusDTO.NY)
+        Assertions.assertThat(soknader.last().medlemskapVurdering).isEqualTo("UAVKLART")
     }
 
     @Test
@@ -340,6 +341,7 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
         kafkaSoknad.sporsmal!!.any { it.tag == MEDLEMSKAP_OPPHOLDSTILLATELSE } shouldBeEqualTo true
         kafkaSoknad.sporsmal!!.any { it.tag == MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE } shouldBeEqualTo true
         kafkaSoknad.sporsmal!!.any { it.tag == MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE } shouldBeEqualTo true
+        kafkaSoknad.medlemskapVurdering shouldBeEqualTo "UAVKLART"
     }
 
     private fun hentSoknadMedStatusNy(): RSSykepengesoknad {

@@ -12,6 +12,7 @@ import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.exception.SlettSoknadException
 import no.nav.helse.flex.logger
+import no.nav.helse.flex.medlemskap.MedlemskapVurderingRepository
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.soknadsopprettelse.ArbeidsforholdFraInntektskomponenten
 import no.nav.helse.flex.soknadsopprettelse.sorterSporsmal
@@ -37,7 +38,8 @@ class SykepengesoknadDAO(
     private val sporsmalDAO: SporsmalDAO,
     private val svarDAO: SvarDAO,
     private val soknadLagrer: SoknadLagrer,
-    private val klippetSykepengesoknadRepository: KlippetSykepengesoknadRepository
+    private val klippetSykepengesoknadRepository: KlippetSykepengesoknadRepository,
+    private val medlemskapVurderingRepository: MedlemskapVurderingRepository
 ) {
 
     val log = logger()
@@ -286,6 +288,7 @@ class SykepengesoknadDAO(
 
             sporsmalDAO.slettSporsmal(listOf(id))
             soknadsperiodeDAO.slettSoknadPerioder(id)
+            medlemskapVurderingRepository.deleteBySykepengesoknadId(sykepengesoknadUuid)
 
             namedParameterJdbcTemplate.update(
                 "DELETE FROM SYKEPENGESOKNAD WHERE ID =:soknadsId",

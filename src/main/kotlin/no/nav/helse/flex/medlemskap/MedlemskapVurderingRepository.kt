@@ -3,15 +3,22 @@ package no.nav.helse.flex.medlemskap
 import no.nav.helse.flex.util.serialisertTilString
 import org.postgresql.util.PGobject
 import org.springframework.data.annotation.Id
+import org.springframework.data.jdbc.repository.query.Modifying
+import org.springframework.data.jdbc.repository.query.Query
 import org.springframework.data.relational.core.mapping.Table
 import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
 import java.time.Instant
 import java.time.LocalDate
-import java.util.*
 
 @Repository
-interface MedlemskapVurderingRepository : CrudRepository<MedlemskapVurderingDbRecord, String>
+interface MedlemskapVurderingRepository : CrudRepository<MedlemskapVurderingDbRecord, String> {
+    fun findSvartypeBySykepengesoknadIdAndFomAndTom(sykepengesoknadId: String, fom: LocalDate, tom: LocalDate): MedlemskapVurderingDbRecord?
+
+    @Modifying
+    @Query("delete from medlemskap_vurdering where sykepengesoknad_id = :sykepengesoknadId")
+    fun deleteBySykepengesoknadId(sykepengesoknadId: String): Long
+}
 
 @Table("medlemskap_vurdering")
 data class MedlemskapVurderingDbRecord(
