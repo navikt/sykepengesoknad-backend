@@ -1,0 +1,1 @@
+CREATE INDEX medlemskap_vurdering_sykepengesoknad_uuid_index ON medlemskap_vurdering(sykepengesoknad_id);
