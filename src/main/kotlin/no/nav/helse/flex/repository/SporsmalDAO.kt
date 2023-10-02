@@ -29,7 +29,11 @@ class SporsmalDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemp
                 val svarMap = HashMap<String, MutableList<Svar>>()
                 val sporsmalList = ArrayList<Pair<String, Sporsmal>>()
 
-                data class SporsmalHelper(val sporsmal: Sporsmal, val sykepengesoknadId: String, val underSporsmalId: String?)
+                data class SporsmalHelper(
+                    val sporsmal: Sporsmal,
+                    val sykepengesoknadId: String,
+                    val underSporsmalId: String?
+                )
 
                 val sporsmalMap = HashMap<String, SporsmalHelper>()
 
@@ -90,7 +94,7 @@ class SporsmalDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemp
         }
 
         val sporsmalsIder = namedParameterJdbcTemplate.query(
-            "SELECT ID FROM SPORSMAL WHERE SYKEPENGESOKNAD_ID in (:soknadsIder)",
+            "SELECT id FROM sporsmal WHERE sykepengesoknad_id IN (:soknadsIder)",
 
             MapSqlParameterSource()
                 .addValue("soknadsIder", soknadsIder)
@@ -100,10 +104,22 @@ class SporsmalDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemp
         svarDAO.slettSvar(sporsmalsIder)
 
         namedParameterJdbcTemplate.update(
-            "DELETE FROM SPORSMAL WHERE SYKEPENGESOKNAD_ID in (:soknadsIder)",
-
+            "DELETE FROM sporsmal WHERE sykepengesoknad_id IN (:soknadsIder)",
             MapSqlParameterSource()
                 .addValue("soknadsIder", soknadsIder)
         )
+    }
+
+    fun slettEnkeltSporsmal(sporsmalsIder: List<String>) {
+        if (sporsmalsIder.isEmpty()) {
+            return
+        }
+
+        namedParameterJdbcTemplate.update(
+            "DELETE FROM sporsmal WHERE id IN (:sporsmalsIder)",
+            MapSqlParameterSource()
+                .addValue("sporsmalsIder", sporsmalsIder)
+        )
+        svarDAO.slettSvar(sporsmalsIder)
     }
 }

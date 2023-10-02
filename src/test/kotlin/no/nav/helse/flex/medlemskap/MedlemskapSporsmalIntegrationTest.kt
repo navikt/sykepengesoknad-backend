@@ -18,7 +18,7 @@ import no.nav.helse.flex.util.serialisertTilString
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
-import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
@@ -55,10 +55,10 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
             )
         )
 
-        Assertions.assertThat(soknader).hasSize(1)
-        Assertions.assertThat(soknader.last().type).isEqualTo(SoknadstypeDTO.ARBEIDSTAKERE)
-        Assertions.assertThat(soknader.last().status).isEqualTo(SoknadsstatusDTO.NY)
-        Assertions.assertThat(soknader.last().medlemskapVurdering).isEqualTo("UAVKLART")
+        assertThat(soknader).hasSize(1)
+        assertThat(soknader.last().type).isEqualTo(SoknadstypeDTO.ARBEIDSTAKERE)
+        assertThat(soknader.last().status).isEqualTo(SoknadsstatusDTO.NY)
+        assertThat(soknader.last().medlemskapVurdering).isEqualTo("UAVKLART")
     }
 
     @Test
@@ -69,7 +69,7 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
             fnr = fnr
         )
 
-        Assertions.assertThat(soknad.sporsmal!!.map { it.tag }).isEqualTo(
+        assertThat(soknad.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
                 ANSVARSERKLARING,
                 TILBAKE_I_ARBEID,
@@ -91,7 +91,7 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
 
     @Test
     @Order(2)
-    fun `Response fra LovMed medlemskapvurdering er lagret i databasen`() {
+    fun `Response fra LovMe medlemskapvurdering er lagret i databasen`() {
         val medlemskapVurderingDbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
         val medlemskapVurdering = medlemskapVurderingDbRecords.first()
 
@@ -214,7 +214,7 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
 
     @Test
     @Order(3)
-    fun `Besvar medlemskapspørsmål om opphold utenfor EOS med to perioder`() {
+    fun `Besvar medlemskapspørsmål om opphold utenfor EØS med to perioder`() {
         val soknadId = hentSoknadMedStatusNy().id
 
         hentSoknadSomKanBesvares().let {
@@ -341,6 +341,7 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
         kafkaSoknad.sporsmal!!.any { it.tag == MEDLEMSKAP_OPPHOLDSTILLATELSE } shouldBeEqualTo true
         kafkaSoknad.sporsmal!!.any { it.tag == MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE } shouldBeEqualTo true
         kafkaSoknad.sporsmal!!.any { it.tag == MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE } shouldBeEqualTo true
+        kafkaSoknad.sporsmal!!.any { it.tag == MEDLEMSKAP_OPPHOLD_UTENFOR_EOS } shouldBeEqualTo true
         kafkaSoknad.medlemskapVurdering shouldBeEqualTo "UAVKLART"
     }
 

@@ -31,8 +31,8 @@ fun harBlittStiltMedlemskapSporsmal(
     return eksisterendeSoknader
         .asSequence()
         .filter { it.sykmeldingId != null && it.startSykeforlop != null }
-        // Spørsmål om medlemskap vil bare bli stilt i for søknader med arbeidssituasjon ARBEIDSTAKER, men det gir ikke
-        // noe gevisnt å eksplitt sjekke på det her.
+        // Spørsmål om medlemskap vil bare bli stilt i for søknader med arbeidssituasjon ARBEIDSTAKER, men det ingen
+        // gevinst i å eksplitt sjekke på det her.
         .filter { it.arbeidssituasjon == sykepengesoknad.arbeidssituasjon }
         .filter { it.status !in listOf(Soknadstatus.UTGATT, Soknadstatus.SLETTET, Soknadstatus.AVBRUTT) }
         .filter { it.startSykeforlop == sykepengesoknad.startSykeforlop }
