@@ -77,7 +77,6 @@ fun lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(index: Int): Sporsma
                 // Noen arbeidsgivere kan ha ganske lange navn.
                 max = "200"
             ),
-
             Sporsmal(
                 tag = medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR, index),
                 sporsmalstekst = "I hvilken periode ble arbeidet utført?",

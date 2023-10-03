@@ -137,7 +137,7 @@ class SporsmalGenerator(
     ): MutableList<Sporsmal> {
         val medlemskapSporsmal = mutableListOf<Sporsmal>()
 
-        if (!harBlittStiltMedlemskapSporsmal(eksisterendeSoknader, soknad)) {
+        if (erForsteSoknadIForlop(eksisterendeSoknader, soknad)) {
             val medlemskapVurdering = try {
                 medlemskapVurderingClient.hentMedlemskapVurdering(
                     MedlemskapVurderingRequest(
@@ -192,7 +192,6 @@ class SporsmalGenerator(
                 }
             }
         }
-        // Det skal bare gjøres medlemskapvurdering en gang per sykeforløp for arbeidstakersøknader.
         return medlemskapSporsmal
     }
 }
