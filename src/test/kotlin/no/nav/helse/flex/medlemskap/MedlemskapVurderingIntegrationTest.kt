@@ -7,6 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 import java.util.*
 
+/**
+ * Tester hvordan koden som integrerer med LovMe for å hente spørsmål om medlemskap
+ * oppfører seg basert på hva LovMe svarer, inkludert tester for både tekniske feil
+ * (f.eks nettverksfeil) og det vi tolker som logiske feil i responsen.
+ */
 class MedlemskapVurderingIntegrationTest : BaseTestClass() {
 
     @Autowired

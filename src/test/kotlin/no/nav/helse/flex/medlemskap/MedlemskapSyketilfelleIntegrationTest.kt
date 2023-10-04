@@ -25,6 +25,13 @@ import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 
+/**
+ * Tester forskjellige scenario relatert til at medlemskapspørsmål kun skal stilles i den første søknaden
+ * i et syketilfelle.
+ *
+ * @see MedlemskapSporsmalIntegrationTest for testing av hele flyten fra sykmelding til spørsmål
+ *      om medlemskap blir besvart og sendt inn.
+ */
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
 
@@ -166,6 +173,8 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
                 sykmeldingsperioder = heltSykmeldt(
                     fom = LocalDate.of(2023, 1, 1),
                     tom = LocalDate.of(2023, 1, 7)
+                    // Reisetilskudd er ikke kompatibelt med medlemskapspørsmål og vil resultere i to søknader
+                    // i stedet for at periodene blir slått sammen til én søknad.
                 ) + reisetilskudd(
                     fom = LocalDate.of(2023, 1, 8),
                     tom = LocalDate.of(2023, 1, 17)
@@ -246,8 +255,9 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
         assertThat(soknader1).hasSize(1)
         assertThat(soknader1.last().medlemskapVurdering).isEqualTo("UAVKLART")
 
-        // Den opprinnelige førstegangssøknaden får ikke oppdatert startSyketilfelle, så ny søknad tilfredstiller
-        // sjekken på om det er en førstegangsøknad og at det ikke er stilt medlemskapspørsmål tidligere i syketilfelle.
+        // Den opprinnelige førstegangssøknaden får ikke oppdatert startSyketilfelle, så en tilbakedatert søknad, med
+        // nytt startSyketilfelle tilfredstiller sjekken på om det er en førstegangsøknad og at det ikke er stilt
+        // medlemskapspørsmål tidligere i samme syketilfelle.
         assertThat(soknader2).hasSize(1)
         assertThat(soknader2.last().medlemskapVurdering).isEqualTo("UAVKLART")
     }

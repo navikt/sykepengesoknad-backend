@@ -8,6 +8,10 @@ import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
+/**
+ * Tester hvordan deserialisering av response fra LovMe i forbindelse med henting av spørsmål om
+ * medlemskap oppfører seg i mulige feilsituasjoner.
+ */
 class MedlemskapVurderingResponseTest {
 
     @Test

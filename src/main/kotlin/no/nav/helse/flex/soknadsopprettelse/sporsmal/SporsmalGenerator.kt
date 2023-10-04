@@ -136,7 +136,14 @@ class SporsmalGenerator(
         soknad: Sykepengesoknad
     ): MutableList<Sporsmal> {
         val medlemskapSporsmal = mutableListOf<Sporsmal>()
-
+        // Medlemskapsspørsmål skal kun stilles i søknader som er den første søknaden i et sykeforløp.
+        // Dersom det blir sendt inn en tilbakedatert sykemdling vil det resuletere i en søknad med
+        // en tidligere dato for startSyketilfelle. Den vil da bli tolket som en førstegangssøknad som
+        // skal ha medlemskapsspørsmål. Det resulterer i to søknader med medlemskapspørsmål i samme syketilfelle.
+        // Det er mulig å vurdere en implementasjon som fjerner medlemskapsspørsmålene fra den opprinnelige
+        // førstegangssøknaden, men det forutsetter at søknaden ikke er sendt inn av brukeren, og at vi er
+        // i stand til å knytte den til samme syketilfelle, til tross for at den søknaden fortstatt her
+        // opprinnelig startSyketilfelle.
         if (erForsteSoknadIForlop(eksisterendeSoknader, soknad)) {
             val medlemskapVurdering = try {
                 medlemskapVurderingClient.hentMedlemskapVurdering(

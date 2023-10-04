@@ -27,6 +27,13 @@ import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 
+/**
+ * Tester at spørsmål om medlemskap blir opprettet og besvart som forventet, inkludert at
+ * bruker legger til eller sletter ekstra underspørsmål (perioder).
+ *
+ * @see MedlemskapSyketilfelleIntegrationTest for testing av forskjellige scenario relatert
+ *     til når det stilles medlemskapspørsmål.
+ */
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
 
