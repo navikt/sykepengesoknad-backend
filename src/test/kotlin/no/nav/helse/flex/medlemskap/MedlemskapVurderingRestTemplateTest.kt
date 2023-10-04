@@ -15,6 +15,12 @@ import org.springframework.web.client.ResourceAccessException
 import org.springframework.web.client.RestTemplate
 import java.util.concurrent.TimeUnit
 
+/**
+ * Tester at konfigurasjonen av RestTemplate brukt til å hente spørsmål om medlemskap
+ * fungerer som forventet siden connectTimeout og readTimeout er eksplisitt satt.
+ *
+ * @see AadRestTemplateConfiguration
+ */
 @AutoConfigureWebClient
 @EnableMockOAuth2Server
 @SpringBootTest(

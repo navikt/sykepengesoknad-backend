@@ -14,6 +14,9 @@ import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.util.*
 
+/**
+ * Tester at vi kan lagre og hente spørsmål om medlemskap fra databasen.
+ */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class MedlemskapVurderingRepositoryTest : BaseTestClass() {
 
