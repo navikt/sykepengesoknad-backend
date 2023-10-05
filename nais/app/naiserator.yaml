@@ -87,6 +87,7 @@ spec:
           namespace: teamsykefravr
   envFrom:
     - secret: sykepengesoknad-backend-redis-password
+    - secret: sykepengesoknad-backend-unleash-api-token
   env:
   {{#each env}}
      - name: {{@key}}

@@ -1,5 +1,7 @@
 package no.nav.helse.flex.controller
 
+import io.getunleash.Unleash
+import jakarta.servlet.http.HttpServletResponse
 import no.nav.helse.flex.config.EnvironmentToggles
 import no.nav.helse.flex.config.OIDCIssuer.TOKENX
 import no.nav.helse.flex.controller.domain.RSMottakerResponse
@@ -26,7 +28,6 @@ import no.nav.helse.flex.exception.ReadOnlyException
 import no.nav.helse.flex.exception.SporsmalFinnesIkkeISoknadException
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.oppdatersporsmal.soknad.OppdaterSporsmalService
-import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.sending.SoknadSender
 import no.nav.helse.flex.service.AvbrytSoknadService
 import no.nav.helse.flex.service.EttersendingSoknadService
@@ -66,16 +67,14 @@ class SoknadTokenXController(
     private val oppdaterSporsmalService: OppdaterSporsmalService,
     private val avbrytSoknadService: AvbrytSoknadService,
     private val environmentToggles: EnvironmentToggles,
-    private val sykepengesoknadDAO: SykepengesoknadDAO,
+    private val unleash: Unleash,
 
     @Value("\${DITT_SYKEFRAVAER_FRONTEND_CLIENT_ID}")
     val dittSykefravaerFrontendClientId: String,
 
     @Value("\${SYKEPENGESOKNAD_FRONTEND_CLIENT_ID}")
-    val sykepengesoknadFrontendClientId: String,
+    val sykepengesoknadFrontendClientId: String
 
-    @Value("\${TOKENX_IDPORTEN_IDP}")
-    val tokenxIdportenIdp: String
 ) {
 
     private val log = logger()
@@ -92,8 +91,12 @@ class SoknadTokenXController(
     @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
     @ResponseBody
     @GetMapping(value = ["/soknad/{id}"], produces = [APPLICATION_JSON_VALUE])
-    fun hentSoknad(@PathVariable("id") id: String): RSSykepengesoknad {
+    fun hentSoknad(@PathVariable("id") id: String, res: HttpServletResponse): RSSykepengesoknad {
         val (soknad, identer) = hentOgSjekkTilgangTilSoknad(id)
+        res.setHeader(
+            "unleash",
+            unleash.isEnabled("sykepengesoknad-backend-soknader-for-tilbakedaterte-sykmeldinger-under-behandling").toString()
+        )
         return soknad.utvidSoknadMedKorrigeringsfristUtlopt(identer).tilRSSykepengesoknad()
     }
 
