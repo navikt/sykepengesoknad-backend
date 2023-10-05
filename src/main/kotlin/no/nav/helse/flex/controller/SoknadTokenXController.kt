@@ -1,7 +1,5 @@
 package no.nav.helse.flex.controller
 
-import io.getunleash.Unleash
-import jakarta.servlet.http.HttpServletResponse
 import no.nav.helse.flex.config.EnvironmentToggles
 import no.nav.helse.flex.config.OIDCIssuer.TOKENX
 import no.nav.helse.flex.controller.domain.RSMottakerResponse
@@ -67,7 +65,6 @@ class SoknadTokenXController(
     private val oppdaterSporsmalService: OppdaterSporsmalService,
     private val avbrytSoknadService: AvbrytSoknadService,
     private val environmentToggles: EnvironmentToggles,
-    private val unleash: Unleash,
 
     @Value("\${DITT_SYKEFRAVAER_FRONTEND_CLIENT_ID}")
     val dittSykefravaerFrontendClientId: String,
@@ -91,12 +88,9 @@ class SoknadTokenXController(
     @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
     @ResponseBody
     @GetMapping(value = ["/soknad/{id}"], produces = [APPLICATION_JSON_VALUE])
-    fun hentSoknad(@PathVariable("id") id: String, res: HttpServletResponse): RSSykepengesoknad {
+    fun hentSoknad(@PathVariable("id") id: String): RSSykepengesoknad {
         val (soknad, identer) = hentOgSjekkTilgangTilSoknad(id)
-        res.setHeader(
-            "unleash",
-            unleash.isEnabled("sykepengesoknad-backend-soknader-for-tilbakedaterte-sykmeldinger-under-behandling").toString()
-        )
+
         return soknad.utvidSoknadMedKorrigeringsfristUtlopt(identer).tilRSSykepengesoknad()
     }
 
