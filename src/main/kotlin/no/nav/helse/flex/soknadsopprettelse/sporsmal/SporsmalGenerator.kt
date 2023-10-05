@@ -6,6 +6,7 @@ import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.logger
+import no.nav.helse.flex.medlemskap.MedlemskapToggle
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingClient
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingRequest
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingSporsmal
@@ -20,7 +21,6 @@ import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmOpp
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmOppholdstillatelse
 import no.nav.helse.flex.yrkesskade.YrkesskadeIndikatorer
 import no.nav.helse.flex.yrkesskade.YrkesskadeSporsmalGrunnlag
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -33,7 +33,7 @@ class SporsmalGenerator(
     private val yrkesskadeIndikatorer: YrkesskadeIndikatorer,
     private val medlemskapVurderingClient: MedlemskapVurderingClient,
     private val environmentToggles: EnvironmentToggles,
-    @Value("\${ENABLE_MEDLEMSKAP}") var stillMedlemskapSporsmal: Boolean
+    private val medlemskapToggle: MedlemskapToggle
 ) {
     private val log = logger()
 
@@ -172,7 +172,7 @@ class SporsmalGenerator(
             log.info("Hentet medlemskapvurdering for søknad ${soknad.id} med svar ${medlemskapVurdering.svar}.")
             if (medlemskapVurdering.svar == MedlemskapVurderingSvarType.UAVKLART) {
                 // TODO: Fjern feature-toggle før prodsetting.
-                if (stillMedlemskapSporsmal) {
+                if (medlemskapToggle.stillMedlemskapSporsmal(soknad.fnr)) {
                     medlemskapVurdering.sporsmal.forEach {
                         when (it) {
                             MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE -> medlemskapSporsmal.add(
