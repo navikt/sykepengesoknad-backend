@@ -20,16 +20,16 @@ import java.util.*
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class MedlemskapVurderingRepositoryTest : BaseTestClass() {
 
-    private val sykepengesoknadId = UUID.randomUUID().toString()
-    private val fnr = "11111111111"
-
     @Autowired
     private lateinit var medlemskapVurderingRepository: MedlemskapVurderingRepository
 
     @AfterEach
-    fun resetDatabase() {
+    fun slettFraDatabase() {
         medlemskapVurderingRepository.deleteAll()
     }
+
+    private val sykepengesoknadId = UUID.randomUUID().toString()
+    private val fnr = "11111111111"
 
     @Test
     fun `Lagrer og henter liste med spørsmål`() {

@@ -5,8 +5,8 @@ import org.springframework.stereotype.Component
 
 @Component
 class MedlemskapToggle(
-    @Value("\${ENABLE_MEDLEMSKAP}")
-    private var stillMedlemskapSporsmal: Boolean
+    // Styret av om det er DEV eller PROD. I PROD stilles det ikke medlemskapspørsmål enda.
+    @Value("\${ENABLE_MEDLEMSKAP}") private var stillMedlemskapSporsmal: Boolean
 ) {
 
     fun stillMedlemskapSporsmal(fnr: String): Boolean {

@@ -103,7 +103,8 @@ class SporsmalGenerator(
 
                 val arbeidstakerSporsmal = settOppSoknadArbeidstaker(
                     opts = opts,
-                    andreKjenteArbeidsforhold = andreKjenteArbeidsforhold.map { it.navn }
+                    andreKjenteArbeidsforhold = andreKjenteArbeidsforhold.map { it.navn },
+                    stillMedlemskapSporsmal = medlemskapToggle.stillMedlemskapSporsmal(soknad.fnr)
                 )
                 val medlemskapSporsmal = lagMedlemskapSporsmal(eksisterendeSoknader, soknad)
 
@@ -178,15 +179,12 @@ class SporsmalGenerator(
                             MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE -> medlemskapSporsmal.add(
                                 lagSporsmalOmOppholdstillatelse()
                             )
-
                             MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE -> medlemskapSporsmal.add(
                                 lagSporsmalOmArbeidUtenforNorge()
                             )
-
                             MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE -> medlemskapSporsmal.add(
                                 lagSporsmalOmOppholdUtenforNorge()
                             )
-
                             MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE -> medlemskapSporsmal.add(
                                 lagSporsmalOmOppholdUtenforEos()
                             )

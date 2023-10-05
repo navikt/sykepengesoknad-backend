@@ -1,5 +1,7 @@
 package no.nav.helse.flex.medlemskap
 
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.whenever
 import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSporsmal
@@ -40,17 +42,19 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
     @Autowired
     private lateinit var medlemskapVurderingRepository: MedlemskapVurderingRepository
 
-    // Trigger response fra LovMe med alle spørsmål.
-    private final val fnr = "31111111111"
-
     @AfterAll
-    fun cleanUp() {
+    fun hentAlleKafkaMeldinger() {
         juridiskVurderingKafkaConsumer.hentProduserteRecords()
     }
+
+    // Trigger response fra LovMe med alle spørsmål.
+    private final val fnr = "31111111111"
 
     @Test
     @Order(1)
     fun `Oppretter arbeidstakersøknad med status NY`() {
+        whenever(medlemskapToggle.stillMedlemskapSporsmal(fnr = any<String>())).thenReturn(true)
+
         val soknader = sendSykmelding(
             sykmeldingKafkaMessage(
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
@@ -84,7 +88,6 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
                 PERMISJON_V2,
                 UTLAND_V2,
                 medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0),
-                ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER_V2,
                 MEDLEMSKAP_OPPHOLDSTILLATELSE,
                 MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
@@ -121,7 +124,7 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
             soknad.sporsmal!!.first {
                 it.tag == MEDLEMSKAP_OPPHOLDSTILLATELSE
             }
-        ) shouldBeEqualTo 8
+        ) shouldBeEqualTo 7
         soknad.sporsmal!![index - 1].tag shouldBeEqualTo ANDRE_INNTEKTSKILDER_V2
         soknad.sporsmal!![index + 1].tag shouldBeEqualTo MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE
         soknad.sporsmal!![index + 2].tag shouldBeEqualTo MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE
@@ -395,7 +398,6 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
             .besvarSporsmal(tag = FERIE_V2, svar = "NEI")
             .besvarSporsmal(tag = PERMISJON_V2, svar = "NEI")
             .besvarSporsmal(tag = UTLAND_V2, svar = "NEI")
-            .besvarSporsmal(tag = ARBEID_UTENFOR_NORGE, svar = "NEI")
             .besvarSporsmal(tag = medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0), svar = "NEI")
             .besvarSporsmal(tag = ANDRE_INNTEKTSKILDER_V2, svar = "NEI")
 
