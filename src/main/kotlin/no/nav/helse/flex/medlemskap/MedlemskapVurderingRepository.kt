@@ -13,10 +13,15 @@ import java.time.LocalDate
 
 @Repository
 interface MedlemskapVurderingRepository : CrudRepository<MedlemskapVurderingDbRecord, String> {
-    fun findSvartypeBySykepengesoknadIdAndFomAndTom(sykepengesoknadId: String, fom: LocalDate, tom: LocalDate): MedlemskapVurderingDbRecord?
+
+    fun findSvartypeBySykepengesoknadIdAndFomAndTom(
+        sykepengesoknadId: String,
+        fom: LocalDate,
+        tom: LocalDate
+    ): MedlemskapVurderingDbRecord?
 
     @Modifying
-    @Query("delete from medlemskap_vurdering where sykepengesoknad_id = :sykepengesoknadId")
+    @Query("DELETE FROM medlemskap_vurdering WHERE sykepengesoknad_id = :sykepengesoknadId")
     fun deleteBySykepengesoknadId(sykepengesoknadId: String): Long
 }
 
