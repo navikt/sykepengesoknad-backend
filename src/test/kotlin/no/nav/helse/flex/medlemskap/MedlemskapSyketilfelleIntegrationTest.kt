@@ -38,18 +38,18 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
     @Autowired
     private lateinit var sporsmalDAO: SporsmalDAO
 
-    // Trigger response fra LovMe med alle spørsmål.
-    private final val fnr = "31111111111"
+    @AfterEach
+    fun slettFraDatabase() {
+        databaseReset.resetDatabase()
+    }
 
     @AfterAll
-    fun slettAlleMedlemskapVurderinger() {
+    fun hentAlleKafkaMeldinger() {
         juridiskVurderingKafkaConsumer.hentProduserteRecords()
     }
 
-    @AfterEach
-    fun hentAlleKafkaMeldinger() {
-        databaseReset.resetDatabase()
-    }
+    // Trigger response fra LovMe med alle spørsmål.
+    private final val fnr = "31111111111"
 
     @Test
     fun `Påfølgende søknad får ikke medlemskapspørsmål`() {

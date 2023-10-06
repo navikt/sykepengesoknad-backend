@@ -20,8 +20,6 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
     @Autowired
     private lateinit var medlemskapVurderingRepository: MedlemskapVurderingRepository
 
-    private val sykepengesoknadId = UUID.randomUUID().toString()
-
     @BeforeAll
     fun `Tøm requests til medlemskapVurdering`() {
         repeat(medlemskapMockWebServer.requestCount) {
@@ -29,19 +27,22 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
         }
     }
 
+    @AfterEach
+    fun slettFraDatabase() {
+        medlemskapVurderingRepository.deleteAll()
+    }
+
+    private val sykepengesoknadId = UUID.randomUUID().toString()
     private val fom = LocalDate.of(2023, 1, 1)
+
     private val tom = LocalDate.of(2023, 1, 31)
+
     private val request = MedlemskapVurderingRequest(
         fnr = "",
         fom = fom,
         tom = tom,
         sykepengesoknadId = sykepengesoknadId
     )
-
-    @AfterEach
-    fun resetDatabase() {
-        medlemskapVurderingRepository.deleteAll()
-    }
 
     @Test
     fun `hentMedlemskapVurdering svarer med UAVKLART og liste med spørsmål`() {
@@ -69,7 +70,6 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
     @Test
     fun `hentMedlemskapVurdering svarer med UAVKLART og tom liste`() {
         val fnr = "31111111116"
-
         val response = medlemskapVurderingClient.hentMedlemskapVurdering(request.copy(fnr = fnr))
 
         response.svar `should be equal to` MedlemskapVurderingSvarType.UAVKLART
