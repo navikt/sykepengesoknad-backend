@@ -35,12 +35,12 @@ val confluentVersion = "7.5.0"
 val syfoKafkaVersion = "2021.07.20-09.39-6be2c52c"
 val sykepengesoknadKafkaVersion = "2023.09.28-07.40-9f163a00"
 val mockitoKotlinVersion = "2.2.0"
-val ojdbc8Version = "19.3.0.0"
 val avroVersion = "1.11.3"
 val logstashLogbackEncoderVersion = "7.4"
 val testContainersVersion = "1.19.0"
 val kluentVersion = "1.73"
 val jsonSchemaValidatorVersion = "1.0.87"
+val unleashVersion = "8.3.1"
 
 dependencies {
     implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
@@ -72,6 +72,7 @@ dependencies {
     implementation("no.nav.security:token-client-spring:$tokenSupportVersion")
     implementation("org.apache.avro:avro:$avroVersion")
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashLogbackEncoderVersion")
+    implementation("io.getunleash:unleash-client-java:$unleashVersion")
 
     testImplementation(platform("org.testcontainers:testcontainers-bom:$testContainersVersion"))
     testImplementation("org.springframework.boot:spring-boot-starter-test")

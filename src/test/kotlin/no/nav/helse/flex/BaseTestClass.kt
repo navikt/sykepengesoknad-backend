@@ -1,5 +1,6 @@
 package no.nav.helse.flex
 
+import io.getunleash.FakeUnleash
 import jakarta.annotation.PostConstruct
 import no.nav.helse.flex.client.kvitteringer.SykepengesoknadKvitteringerClient
 import no.nav.helse.flex.juridiskvurdering.juridiskVurderingTopic
@@ -124,6 +125,9 @@ abstract class BaseTestClass {
     lateinit var flexSyketilfelleRestTemplate: RestTemplate
 
     @Autowired
+    lateinit var fakeUnleash: FakeUnleash
+
+    @Autowired
     lateinit var behandleSykmeldingOgBestillAktivering: BehandleSykmeldingOgBestillAktivering
 
     lateinit var syfotilgangskontrollMockRestServiceServer: MockRestServiceServer
@@ -182,6 +186,11 @@ abstract class BaseTestClass {
     @AfterAll
     fun `Vi resetter databasen`() {
         databaseReset.resetDatabase()
+    }
+
+    @AfterAll
+    fun `Disable unleash toggles`() {
+        fakeUnleash.disableAll()
     }
 
     @BeforeAll

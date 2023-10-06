@@ -11,6 +11,7 @@ external-host:
   - pdl-api.dev-fss-pub.nais.io
   - ereg-services.dev-fss-pub.nais.io
   - team-inntekt-proxy.dev-fss-pub.nais.io
+  - flex-unleash-api.nav.cloud.nais.io
 env:
   SPRING_PROFILES_ACTIVE: default,testdatareset,sykmeldinger
   PDL_BASE_URL: https://pdl-api.dev-fss-pub.nais.io
