@@ -29,7 +29,7 @@ repositories {
     }
 }
 
-val tokenSupportVersion = "3.1.5"
+val tokenSupportVersion = "3.1.7"
 val smCommonVersion = "1.0.8"
 val confluentVersion = "7.5.0"
 val syfoKafkaVersion = "2021.07.20-09.39-6be2c52c"
