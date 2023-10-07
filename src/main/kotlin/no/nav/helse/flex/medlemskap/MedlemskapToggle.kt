@@ -1,16 +1,18 @@
 package no.nav.helse.flex.medlemskap
 
-import org.springframework.beans.factory.annotation.Value
+import io.getunleash.Unleash
+import io.getunleash.UnleashContext
 import org.springframework.stereotype.Component
+
+const val UNLEASH_CONTEXT_MEDLEMSKAP_SPORSMAL = "sykepengesoknad-backend-soknad-for-sporsmal-om-medlemskap"
 
 @Component
 class MedlemskapToggle(
-    // Styret av om det er DEV eller PROD. I PROD stilles det ikke medlemskapspørsmål enda.
-    @Value("\${ENABLE_MEDLEMSKAP}") private var stillMedlemskapSporsmal: Boolean
+    private val unleash: Unleash
 ) {
 
     fun stillMedlemskapSporsmal(fnr: String): Boolean {
-        // TODO: Implementer throttling med Unleash basert på fnr.
-        return stillMedlemskapSporsmal
+        val unleashContext = UnleashContext.builder().userId(fnr).build()
+        return unleash.isEnabled(UNLEASH_CONTEXT_MEDLEMSKAP_SPORSMAL, unleashContext)
     }
 }

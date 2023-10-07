@@ -8,7 +8,6 @@ import no.nav.helse.flex.kafka.producer.AivenKafkaProducer
 import no.nav.helse.flex.kafka.producer.RebehandlingSykmeldingSendtProducer
 import no.nav.helse.flex.kafka.sykepengesoknadTopic
 import no.nav.helse.flex.medlemskap.MedlemskapMockDispatcher
-import no.nav.helse.flex.medlemskap.MedlemskapToggle
 import no.nav.helse.flex.mockdispatcher.YrkesskadeMockDispatcher
 import no.nav.helse.flex.personhendelse.AutomatiskInnsendingVedDodsfall
 import no.nav.helse.flex.repository.SykepengesoknadRepository
@@ -118,9 +117,6 @@ abstract class BaseTestClass {
 
     @MockBean
     lateinit var rebehandlingsSykmeldingSendtProducer: RebehandlingSykmeldingSendtProducer
-
-    @MockBean
-    lateinit var medlemskapToggle: MedlemskapToggle
 
     @Autowired
     lateinit var syfotilgangskontrollRestTemplate: RestTemplate

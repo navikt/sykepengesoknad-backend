@@ -198,7 +198,7 @@ class SporsmalGenerator(
                     }
                 } else {
                     log.info(
-                        "Medlemskapvurdering er UAVKLART for søknad ${soknad.id}, men stiller ikke spørsmål i PROD."
+                        "Medlemskapvurdering er UAVKLART for søknad ${soknad.id}, men medlemskapToggle svarte 'false'."
                     )
                 }
             }

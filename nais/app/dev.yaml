@@ -36,4 +36,3 @@ env:
   MEDLEMSKAP_VURDERING_AAD_CLIENT_ID: dev-gcp.medlemskap.medlemskap-sykepenger-listener
   INNTEKTSKOMPONENTEN_URL: "https://team-inntekt-proxy.dev-fss-pub.nais.io/proxy/inntektskomponenten-q1/rs"
   INNTEKTSKOMPONENTEN_AAD_CLIENT_ID: dev-fss.team-inntekt.inntektskomponenten
-  ENABLE_MEDLEMSKAP: true
