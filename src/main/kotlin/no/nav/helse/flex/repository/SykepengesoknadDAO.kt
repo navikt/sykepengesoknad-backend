@@ -258,7 +258,12 @@ class SykepengesoknadDAO(
         ) { row, _ -> row.getString("ID") }
 
         sporsmalDAO.slettSporsmal(soknadsIder)
-        soknadsIder.forEach { soknadsperiodeDAO.slettSoknadPerioder(it) }
+
+        soknadsIder.forEach {
+            soknadsperiodeDAO.slettSoknadPerioder(it)
+            // Sletter på kolonne med indeks i stedet for å lage index på fnr-kolonnen.
+            medlemskapVurderingRepository.deleteBySykepengesoknadId(it)
+        }
 
         val antallSoknaderSlettet = if (soknadsIder.isEmpty()) {
             0
