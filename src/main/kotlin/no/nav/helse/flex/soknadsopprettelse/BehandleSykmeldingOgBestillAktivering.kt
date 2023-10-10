@@ -3,12 +3,14 @@ package no.nav.helse.flex.soknadsopprettelse
 import no.nav.helse.flex.aktivering.kafka.AktiveringProducer
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.logger
+import no.nav.helse.flex.sykmeldingmerknader.OppdateringAvMerknader
 import org.springframework.stereotype.Service
 
 @Service
 class BehandleSykmeldingOgBestillAktivering(
     private val behandleSendtBekreftetSykmelding: BehandleSendtBekreftetSykmelding,
-    private val aktiveringProducer: AktiveringProducer
+    private val aktiveringProducer: AktiveringProducer,
+    private val oppdateringAvMerknader: OppdateringAvMerknader
 
 ) {
     val log = logger()
@@ -16,6 +18,11 @@ class BehandleSykmeldingOgBestillAktivering(
     fun prosesserSykmelding(sykmeldingId: String, sykmeldingKafkaMessage: SykmeldingKafkaMessage?, topic: String) {
         val prosesserSykmelding =
             behandleSendtBekreftetSykmelding.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage, topic)
+
+        sykmeldingKafkaMessage?.let {
+            oppdateringAvMerknader.oppdaterMerknader(it)
+        }
+
         return prosesserSykmelding
             .forEach { aktiveringProducer.leggPaAktiveringTopic(it) }
     }

@@ -196,7 +196,7 @@ fun SykmeldingsperiodeAGDTO.tilSoknadsperioder(): Soknadsperiode {
     )
 }
 
-private fun List<SmMerknad>?.tilMerknader(): List<Merknad>? =
+fun List<SmMerknad>?.tilMerknader(): List<Merknad>? =
     this?.map { Merknad(type = it.type, beskrivelse = it.beskrivelse) }
 
 fun antallDager(fom: LocalDate, tom: LocalDate): Long {
