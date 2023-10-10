@@ -572,7 +572,7 @@ class SykepengesoknadDAO(
     }
 }
 
-private fun String?.tilMerknader(): List<Merknad>? {
+fun String?.tilMerknader(): List<Merknad>? {
     this?.let {
         return OBJECT_MAPPER.readValue(this)
     }
