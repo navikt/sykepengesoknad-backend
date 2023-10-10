@@ -94,7 +94,7 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
         }
 
         val medlemskapVurdering =
-            medlemskapVurderingRepository.findSvartypeBySykepengesoknadIdAndFomAndTom(id, fom!!, tom!!)
+            medlemskapVurderingRepository.findBySykepengesoknadIdAndFomAndTom(id, fom!!, tom!!)
 
         when (medlemskapVurdering?.svartype) {
             "JA", "NEI" -> return copy(medlemskapVurdering = medlemskapVurdering.svartype)

@@ -16,8 +16,7 @@ interface MedlemskapVurderingRepository : CrudRepository<MedlemskapVurderingDbRe
 
     // Spør på 'fom' og 'tom' i tillegg til 'sykepengesoknadId' siden "klipp" av søknaden gjør at de blir hentet
     // ny medlemskapsvurdering en eller flere ganger.
-    fun findSvartypeBySykepengesoknadIdAndFomAndTom(
-        // TODO: Må legge på en index som matcher denne queryen.
+    fun findBySykepengesoknadIdAndFomAndTom(
         sykepengesoknadId: String,
         fom: LocalDate,
         tom: LocalDate
