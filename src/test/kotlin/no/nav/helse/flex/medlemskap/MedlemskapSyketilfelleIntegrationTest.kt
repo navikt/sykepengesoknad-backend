@@ -1,5 +1,7 @@
 package no.nav.helse.flex.medlemskap
 
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.whenever
 import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.hentProduserteRecords
@@ -19,6 +21,7 @@ import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
@@ -37,6 +40,11 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
 
     @Autowired
     private lateinit var sporsmalDAO: SporsmalDAO
+
+    @BeforeEach
+    fun stillMedlemskapSporsmal() {
+        whenever(medlemskapToggle.stillMedlemskapSporsmal(fnr = any<String>())).thenReturn(true)
+    }
 
     @AfterEach
     fun slettFraDatabase() {
