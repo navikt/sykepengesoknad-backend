@@ -80,10 +80,12 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
 
         assertThat(soknader1).hasSize(1)
         assertThat(soknader1.last().medlemskapVurdering).isEqualTo("UAVKLART")
+        assertThat(soknader1.last().forstegangssoknad).isTrue()
 
         assertThat(soknader2).hasSize(1)
         // Skal ikke ha medlemskapspørsmål siden det ikke er en førstegangssøknad.
         assertThat(soknader2.last().medlemskapVurdering).isNull()
+        assertThat(soknader2.last().forstegangssoknad).isFalse()
     }
 
     @Test
@@ -115,12 +117,14 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
 
         assertThat(soknader1).hasSize(1)
         assertThat(soknader1.last().medlemskapVurdering).isEqualTo("UAVKLART")
+        assertThat(soknader1.last().forstegangssoknad).isTrue()
 
         assertThat(soknader2).hasSize(2)
         // Søknaden opprettet som følge av den første søkanden blir slettet siden den neste sykmeldingen er helt
         // overlappende. Både slettet og ny søkand returneres.
         assertThat(soknader2.first().medlemskapVurdering).isNull()
         assertThat(soknader2.last().medlemskapVurdering).isEqualTo("UAVKLART")
+        assertThat(soknader2.last().forstegangssoknad).isTrue()
     }
 
     @Test
@@ -154,12 +158,15 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
 
         assertThat(soknader1).hasSize(1)
         assertThat(soknader1.last().medlemskapVurdering).isEqualTo("UAVKLART")
+        assertThat(soknader1.last().forstegangssoknad).isTrue()
 
         // Søknaden opprettet som følge av den første søkanden blir klippet siden den delvis overlappes av neste
         // sykmelding. Begge søknader returneres etter klippingen.
         assertThat(soknader2).hasSize(2)
         assertThat(soknader2.first().medlemskapVurdering).isEqualTo("UAVKLART")
+        assertThat(soknader2.first().forstegangssoknad).isTrue()
         assertThat(soknader2.last().medlemskapVurdering).isNull()
+        assertThat(soknader2.last().forstegangssoknad).isFalse()
     }
 
     @Test
@@ -186,6 +193,7 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
         assertThat(soknader).hasSize(2)
         assertThat(soknader.first().medlemskapVurdering).isEqualTo("UAVKLART")
         assertThat(soknader.last().medlemskapVurdering).isNull()
+        assertThat(soknader.last().forstegangssoknad).isFalse()
     }
 
     @Test
@@ -224,6 +232,7 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
         assertThat(soknader2).hasSize(1)
         // Skal ikke ha medlemskapspørsmål siden det ikke er en førstegangssøknad.
         assertThat(soknader2.last().medlemskapVurdering).isNull()
+        assertThat(soknader2.last().forstegangssoknad).isFalse()
     }
 
     @Test
@@ -254,12 +263,14 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
 
         assertThat(soknader1).hasSize(1)
         assertThat(soknader1.last().medlemskapVurdering).isEqualTo("UAVKLART")
+        assertThat(soknader1.last().forstegangssoknad).isTrue()
 
         // Den opprinnelige førstegangssøknaden får ikke oppdatert startSyketilfelle, så en tilbakedatert søknad, med
         // nytt startSyketilfelle tilfredstiller sjekken på om det er en førstegangsøknad og at det ikke er stilt
         // medlemskapspørsmål tidligere i samme syketilfelle.
         assertThat(soknader2).hasSize(1)
         assertThat(soknader2.last().medlemskapVurdering).isEqualTo("UAVKLART")
+        assertThat(soknader2.last().forstegangssoknad).isTrue()
     }
 
     private fun slettMedlemskapSporsmal(soknad: SykepengesoknadDTO) {

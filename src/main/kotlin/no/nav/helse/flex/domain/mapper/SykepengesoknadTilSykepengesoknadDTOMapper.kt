@@ -86,7 +86,13 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
 
     private fun SykepengesoknadDTO.merkMedMedlemskapStatus(): SykepengesoknadDTO {
         return if (type == SoknadstypeDTO.ARBEIDSTAKERE) {
-            copy(medlemskapVurdering = medlemskapVurderingRepository.findSvartypeBySykepengesoknadIdAndFomAndTom(id, fom!!, tom!!)?.svartype)
+            copy(
+                medlemskapVurdering = medlemskapVurderingRepository.findSvartypeBySykepengesoknadIdAndFomAndTom(
+                    id,
+                    fom!!,
+                    tom!!
+                )?.svartype
+            )
         } else {
             this
         }

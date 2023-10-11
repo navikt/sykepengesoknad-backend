@@ -59,6 +59,7 @@ fun konverterTilSykepengesoknadDTO(
             )
         } else {
             null
-        }
+        },
+        forstegangssoknad = sykepengesoknad.forstegangssoknad ?: false
     )
 }
