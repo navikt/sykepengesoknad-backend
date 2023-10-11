@@ -59,7 +59,7 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
 
         val takeRequest = medlemskapMockWebServer.takeRequest()
         takeRequest.headers["fnr"] `should be equal to` fnr
-        takeRequest.headers["Nav-Call-Id"].isNullOrBlank() `should be equal to` false
+        takeRequest.headers["Nav-Call-Id"] `should be equal to` request.sykepengesoknadId
         takeRequest.headers["Authorization"]!!.shouldStartWith("Bearer ey")
         takeRequest.path `should be equal to` "/$MEDLEMSKAP_VURDERING_PATH?fom=$fom&tom=$tom"
 

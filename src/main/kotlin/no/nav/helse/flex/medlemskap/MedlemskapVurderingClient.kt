@@ -28,10 +28,10 @@ class MedlemskapVurderingClient(
 
     fun hentMedlemskapVurdering(medlemskapVurderingRequest: MedlemskapVurderingRequest): MedlemskapVurderingResponse {
         val headers = HttpHeaders()
-        val navCallId = UUID.randomUUID().toString()
+        val navCallId = medlemskapVurderingRequest.sykepengesoknadId
         headers.accept = listOf(MediaType.APPLICATION_JSON)
         headers.set("fnr", medlemskapVurderingRequest.fnr)
-        headers.set("Nav-Call-Id", UUID.randomUUID().toString())
+        headers.set("Nav-Call-Id", navCallId)
 
         val queryBuilder = UriComponentsBuilder
             .fromHttpUrl(url)
