@@ -44,6 +44,7 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
             .merkSelvstendigOgFrilanserMedRedusertVenteperiode()
             .merkFeilinfo(sykepengesoknad.avbruttFeilinfo)
             .merkMedMedlemskapStatus()
+            .settForstegangsoknad(sykepengesoknad)
     }
 
     private fun Sykepengesoknad.hentSoknadsperioder(endeligVurdering: Boolean): List<SoknadsperiodeDTO> {
@@ -86,9 +87,18 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
 
     private fun SykepengesoknadDTO.merkMedMedlemskapStatus(): SykepengesoknadDTO {
         return if (type == SoknadstypeDTO.ARBEIDSTAKERE) {
-            copy(medlemskapVurdering = medlemskapVurderingRepository.findSvartypeBySykepengesoknadIdAndFomAndTom(id, fom!!, tom!!)?.svartype)
+            copy(
+                medlemskapVurdering = medlemskapVurderingRepository.findSvartypeBySykepengesoknadIdAndFomAndTom(
+                    id,
+                    fom!!,
+                    tom!!
+                )?.svartype
+            )
         } else {
             this
         }
     }
+
+    private fun SykepengesoknadDTO.settForstegangsoknad(sykepengesoknad: Sykepengesoknad) =
+        this.copy(forstegangssoknad = sykepengesoknad.forstegangssoknad ?: false)
 }
