@@ -27,7 +27,8 @@ class SoknadKafkaFormatController(
         clientIdValidation.validateClientId(
             listOf(
                 NamespaceAndApp(namespace = "flex", app = "sykepengesoknad-korrigering-metrikk"),
-                NamespaceAndApp(namespace = "flex", app = "sykepengesoknad-arkivering-oppgave")
+                NamespaceAndApp(namespace = "flex", app = "sykepengesoknad-arkivering-oppgave"),
+                NamespaceAndApp(namespace = "tbd", app = "sparkel-dokumenter")
             )
         )
         val sykepengesoknad = hentSoknadService.finnSykepengesoknad(id)

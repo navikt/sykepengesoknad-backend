@@ -85,6 +85,8 @@ spec:
         - application: sykepengesoknad-korrigering-metrikk
         - application: syfomodiaperson
           namespace: teamsykefravr
+        - application: sparkel-dokumenter
+          namespace: tbd
   envFrom:
     - secret: sykepengesoknad-backend-redis-password
     - secret: sykepengesoknad-backend-unleash-api-token
