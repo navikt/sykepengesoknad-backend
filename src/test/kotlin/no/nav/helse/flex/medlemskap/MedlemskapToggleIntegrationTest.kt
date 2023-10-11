@@ -74,7 +74,7 @@ class MedlemskapToggleIntegrationTest : BaseTestClass() {
         val soknader = sendSykmelding()
 
         assertThat(soknader).hasSize(1)
-        assertThat(soknader.first().medlemskapVurdering).isEqualTo("UAVKLART")
+        assertThat(soknader.first().medlemskapVurdering).isNull()
 
         val lagretSoknad = hentSoknad(
             soknadId = hentSoknaderMetadata(fnr).first().id,

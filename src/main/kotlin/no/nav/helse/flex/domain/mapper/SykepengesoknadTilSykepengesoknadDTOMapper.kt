@@ -7,6 +7,10 @@ import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentSoknadsPerioderM
 import no.nav.helse.flex.juridiskvurdering.JuridiskVurderingKafkaProducer
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingRepository
 import no.nav.helse.flex.repository.RedusertVenteperiodeRepository
+import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLDSTILLATELSE
+import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLD_UTENFOR_EOS
+import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE
+import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsperiodeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
@@ -85,16 +89,28 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
     }
 
     private fun SykepengesoknadDTO.merkMedMedlemskapStatus(): SykepengesoknadDTO {
-        return if (type == SoknadstypeDTO.ARBEIDSTAKERE) {
-            copy(
-                medlemskapVurdering = medlemskapVurderingRepository.findSvartypeBySykepengesoknadIdAndFomAndTom(
-                    id,
-                    fom!!,
-                    tom!!
-                )?.svartype
-            )
-        } else {
-            this
+        if (type != SoknadstypeDTO.ARBEIDSTAKERE) {
+            return this
         }
+
+        val medlemskapVurdering =
+            medlemskapVurderingRepository.findBySykepengesoknadIdAndFomAndTom(id, fom!!, tom!!)
+
+        when (medlemskapVurdering?.svartype) {
+            "JA", "NEI" -> return copy(medlemskapVurdering = medlemskapVurdering.svartype)
+            "UAVKLART" -> {
+                sporsmal?.firstOrNull {
+                    it.tag in listOf(
+                        MEDLEMSKAP_OPPHOLDSTILLATELSE,
+                        MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
+                        MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
+                        MEDLEMSKAP_OPPHOLD_UTENFOR_EOS
+                    )
+                }?.let {
+                    return copy(medlemskapVurdering = medlemskapVurdering.svartype)
+                }
+            }
+        }
+        return this
     }
 }

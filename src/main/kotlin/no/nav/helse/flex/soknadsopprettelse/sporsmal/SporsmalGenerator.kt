@@ -170,7 +170,10 @@ class SporsmalGenerator(
                 }
             }
 
-            log.info("Hentet medlemskapvurdering for søknad ${soknad.id} med svar ${medlemskapVurdering.svar}.")
+            log.info(
+                "Hentet medlemskapvurdering for søknad ${soknad.id} med svar ${medlemskapVurdering.svar} og " +
+                    "${medlemskapVurdering.sporsmal.size} sporsmal."
+            )
             if (medlemskapVurdering.svar == MedlemskapVurderingSvarType.UAVKLART) {
                 // TODO: Fjern feature-toggle før prodsetting.
                 if (medlemskapToggle.stillMedlemskapSporsmal(soknad.fnr)) {
@@ -179,12 +182,15 @@ class SporsmalGenerator(
                             MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE -> medlemskapSporsmal.add(
                                 lagSporsmalOmOppholdstillatelse()
                             )
+
                             MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE -> medlemskapSporsmal.add(
                                 lagSporsmalOmArbeidUtenforNorge()
                             )
+
                             MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE -> medlemskapSporsmal.add(
                                 lagSporsmalOmOppholdUtenforNorge()
                             )
+
                             MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE -> medlemskapSporsmal.add(
                                 lagSporsmalOmOppholdUtenforEos()
                             )

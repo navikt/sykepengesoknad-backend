@@ -14,7 +14,9 @@ import java.time.LocalDate
 @Repository
 interface MedlemskapVurderingRepository : CrudRepository<MedlemskapVurderingDbRecord, String> {
 
-    fun findSvartypeBySykepengesoknadIdAndFomAndTom(
+    // Spør på 'fom' og 'tom' i tillegg til 'sykepengesoknadId' siden "klipp" av søknaden gjør at de blir hentet
+    // ny medlemskapsvurdering en eller flere ganger.
+    fun findBySykepengesoknadIdAndFomAndTom(
         sykepengesoknadId: String,
         fom: LocalDate,
         tom: LocalDate
