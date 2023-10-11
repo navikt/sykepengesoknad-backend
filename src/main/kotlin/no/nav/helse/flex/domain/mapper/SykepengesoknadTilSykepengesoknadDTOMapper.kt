@@ -98,16 +98,17 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
 
         when (medlemskapVurdering?.svartype) {
             "JA", "NEI" -> return copy(medlemskapVurdering = medlemskapVurdering.svartype)
-            "UAVKLART" -> if (sporsmal?.any {
-                it.tag in listOf(
+            "UAVKLART" -> {
+                sporsmal?.firstOrNull {
+                    it.tag in listOf(
                         MEDLEMSKAP_OPPHOLDSTILLATELSE,
                         MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
                         MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
                         MEDLEMSKAP_OPPHOLD_UTENFOR_EOS
                     )
-            } == true
-            ) {
-                return copy(medlemskapVurdering = medlemskapVurdering.svartype)
+                }?.let {
+                    return copy(medlemskapVurdering = medlemskapVurdering.svartype)
+                }
             }
         }
         return this
