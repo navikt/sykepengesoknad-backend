@@ -44,7 +44,6 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
             .merkSelvstendigOgFrilanserMedRedusertVenteperiode()
             .merkFeilinfo(sykepengesoknad.avbruttFeilinfo)
             .merkMedMedlemskapStatus()
-            .settForstegangsoknad(sykepengesoknad)
     }
 
     private fun Sykepengesoknad.hentSoknadsperioder(endeligVurdering: Boolean): List<SoknadsperiodeDTO> {
@@ -98,7 +97,4 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
             this
         }
     }
-
-    private fun SykepengesoknadDTO.settForstegangsoknad(sykepengesoknad: Sykepengesoknad) =
-        this.copy(forstegangssoknad = sykepengesoknad.forstegangssoknad ?: false)
 }
