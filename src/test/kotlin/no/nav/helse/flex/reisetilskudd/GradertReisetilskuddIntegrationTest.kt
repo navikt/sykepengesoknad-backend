@@ -25,7 +25,6 @@ import no.nav.helse.flex.sendSoknadMedResult
 import no.nav.helse.flex.slettSvar
 import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER_V2
 import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
-import no.nav.helse.flex.soknadsopprettelse.ARBEID_UTENFOR_NORGE
 import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
 import no.nav.helse.flex.soknadsopprettelse.BRUKTE_REISETILSKUDDET
 import no.nav.helse.flex.soknadsopprettelse.FERIE_V2
@@ -77,7 +76,8 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
     @Autowired
     private lateinit var namedParameterJdbcTemplate: NamedParameterJdbcTemplate
 
-    final val fnr = "123456789"
+    // Gjør at MedlemskapMockDispatcher svarer med status JA, så spørsmål om ARBEID_UTENFOR_NORGE vil ikke bli stilt.
+    private val fnr = "12345678900"
 
     val sykmeldingId = UUID.randomUUID().toString()
     val fom: LocalDate = LocalDate.of(2021, 9, 2)
@@ -147,7 +147,6 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
                 PERMISJON_V2,
                 UTLAND_V2,
                 "JOBBET_DU_GRADERT_0",
-                ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER_V2,
                 BRUKTE_REISETILSKUDDET,
                 VAER_KLAR_OVER_AT,
@@ -235,7 +234,6 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
                 PERMISJON_V2,
                 UTLAND_V2,
                 "JOBBET_DU_GRADERT_0",
-                ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER_V2,
                 BRUKTE_REISETILSKUDDET,
                 TRANSPORT_TIL_DAGLIG,
@@ -355,7 +353,6 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
             .besvarSporsmal(FERIE_V2, "NEI")
             .besvarSporsmal(PERMISJON_V2, "NEI")
             .besvarSporsmal(UTLAND_V2, "NEI")
-            .besvarSporsmal(ARBEID_UTENFOR_NORGE, "NEI")
             .besvarSporsmal("JOBBET_DU_GRADERT_0", "NEI")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
             .besvarSporsmal(TRANSPORT_TIL_DAGLIG, "NEI")
@@ -456,7 +453,6 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
                 PERMISJON_V2,
                 UTLAND_V2,
                 "JOBBET_DU_GRADERT_0",
-                ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER_V2,
                 BRUKTE_REISETILSKUDDET,
                 VAER_KLAR_OVER_AT,
@@ -478,7 +474,6 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
             .besvarSporsmal(FERIE_V2, "NEI")
             .besvarSporsmal(PERMISJON_V2, "NEI")
             .besvarSporsmal(UTLAND_V2, "NEI")
-            .besvarSporsmal(ARBEID_UTENFOR_NORGE, "NEI")
             .besvarSporsmal("JOBBET_DU_GRADERT_0", "NEI")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
             .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")

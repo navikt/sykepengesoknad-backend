@@ -12,7 +12,6 @@ import no.nav.helse.flex.oppdaterSporsmalMedResult
 import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER_V2
 import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
-import no.nav.helse.flex.soknadsopprettelse.ARBEID_UTENFOR_NORGE
 import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
 import no.nav.helse.flex.soknadsopprettelse.FERIE_V2
 import no.nav.helse.flex.soknadsopprettelse.PERMISJON_V2
@@ -39,7 +38,8 @@ import java.time.LocalDate
 @TestMethodOrder(MethodOrderer.MethodName::class)
 class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : BaseTestClass() {
 
-    final val fnr = "12345678910"
+    // Gjør at MedlemskapMockDispatcher svarer med status JA, så spørsmål om ARBEID_UTENFOR_NORGE vil ikke bli stilt.
+    private val fnr = "12345678900"
 
     @Test
     fun `1 - vi oppretter en arbeidstakersoknad`() {
@@ -85,7 +85,6 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : BaseTestClass() {
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
             .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
             .besvarSporsmal(TILBAKE_I_ARBEID, "NEI")
-            .besvarSporsmal(ARBEID_UTENFOR_NORGE, "NEI")
             .besvarSporsmal(FERIE_V2, "NEI")
             .besvarSporsmal(PERMISJON_V2, "NEI")
             .besvarSporsmal(UTLAND_V2, "NEI")

@@ -1,7 +1,5 @@
 package no.nav.helse.flex.medlemskap
 
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.whenever
 import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknad
@@ -11,14 +9,7 @@ import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
 import no.nav.helse.flex.sendSykmelding
-import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER_V2
-import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
-import no.nav.helse.flex.soknadsopprettelse.ARBEID_UNDERVEIS_100_PROSENT
-import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
-import no.nav.helse.flex.soknadsopprettelse.FERIE_V2
-import no.nav.helse.flex.soknadsopprettelse.PERMISJON_V2
-import no.nav.helse.flex.soknadsopprettelse.TILBAKE_I_ARBEID
-import no.nav.helse.flex.soknadsopprettelse.UTLAND_V2
+import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.medIndex
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
@@ -39,10 +30,9 @@ import org.junit.jupiter.api.TestMethodOrder
 import java.time.LocalDate
 
 /**
- * Tester at flagget medlemskapVurdering ikke blir satt på søkand som sendes på Kafak når LovMe returnerer
+ * Tester at flagget medlemskapVurdering ikke blir satt på søknad som sendes på Kafka når LovMe returnerer
  * UAVKLART men samtidig en tom liste med spørsmål. Dette er en midlertidig test da UAVKLART alltid skal
  * returnere spørsmål.
- *
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class MedlemskapUavklartIntegrationTest : BaseTestClass() {
@@ -60,11 +50,11 @@ class MedlemskapUavklartIntegrationTest : BaseTestClass() {
 
     @Test
     @Order(1)
-    fun `Oppretter søknad med status UAVKLART`() {
+    fun `Oppretter søknad med status UAVKLART som ikke skal ha ARBEID_UTENFOR_NORGE`() {
         val soknader = sendSykmelding(
             sykmeldingKafkaMessage(
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                // Trigger response fra LovMe med status UAVKLART.
+                // Gjør at MedlemskapMockDispatcher svarer med status UAVKLART og alle medlemskapspørsmål.
                 fnr = "31111111111",
                 sykmeldingsperioder = heltSykmeldt(
                     fom = LocalDate.of(2023, 1, 1),
@@ -81,12 +71,14 @@ class MedlemskapUavklartIntegrationTest : BaseTestClass() {
 
     @Test
     @Order(1)
-    fun `Oppretter søknad med status UAVKLART men ikke spørsmål`() {
+    fun `Oppretter søknad med status UAVKLART men uten spørsmål fra LovMe som skal ha ARBEID_UTENFOR_NORGE`() {
+        // Gjør at MedlemskapMockDispatcher svarer med status UAVKLART men uten medlemskapspørsmål.
+        val fnr = "31111111116"
         val soknader = sendSykmelding(
             sykmeldingKafkaMessage(
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
                 // Trigger response fra LovMe med status UAVKLART uten spørsmål.
-                fnr = "31111111116",
+                fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = LocalDate.of(2023, 1, 1),
                     tom = LocalDate.of(2023, 1, 7)
@@ -98,16 +90,38 @@ class MedlemskapUavklartIntegrationTest : BaseTestClass() {
         assertThat(soknader.last().type).isEqualTo(SoknadstypeDTO.ARBEIDSTAKERE)
         assertThat(soknader.last().status).isEqualTo(SoknadsstatusDTO.NY)
         assertThat(soknader.last().medlemskapVurdering).isNull()
+
+        val soknad = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first().id,
+            fnr = fnr
+        )
+
+        assertThat(soknad.sporsmal!!.map { it.tag }).isEqualTo(
+            listOf(
+                ANSVARSERKLARING,
+                TILBAKE_I_ARBEID,
+                FERIE_V2,
+                PERMISJON_V2,
+                UTLAND_V2,
+                medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0),
+                ARBEID_UTENFOR_NORGE,
+                ANDRE_INNTEKTSKILDER_V2,
+                VAER_KLAR_OVER_AT,
+                BEKREFT_OPPLYSNINGER
+            )
+        )
     }
 
     @Test
     @Order(1)
-    fun `Oppretter søknad med status JA`() {
+    fun `Oppretter søknad med status JA som ikke skal ha ARBEID_UTENFOR_NORGE`() {
+        // Gjør at MedlemskapMockDispatcher svarer med status JA.
+        val fnr = "31111111112"
         val soknader = sendSykmelding(
             sykmeldingKafkaMessage(
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
                 // Trigger response fra LovMe med status JA.
-                fnr = "31111111112",
+                fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = LocalDate.of(2023, 1, 1),
                     tom = LocalDate.of(2023, 1, 7)
@@ -119,16 +133,37 @@ class MedlemskapUavklartIntegrationTest : BaseTestClass() {
         assertThat(soknader.last().type).isEqualTo(SoknadstypeDTO.ARBEIDSTAKERE)
         assertThat(soknader.last().status).isEqualTo(SoknadsstatusDTO.NY)
         assertThat(soknader.last().medlemskapVurdering).isEqualTo("JA")
+
+        val soknad = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first().id,
+            fnr = fnr
+        )
+
+        assertThat(soknad.sporsmal!!.map { it.tag }).isEqualTo(
+            listOf(
+                ANSVARSERKLARING,
+                TILBAKE_I_ARBEID,
+                FERIE_V2,
+                PERMISJON_V2,
+                UTLAND_V2,
+                medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0),
+                ANDRE_INNTEKTSKILDER_V2,
+                VAER_KLAR_OVER_AT,
+                BEKREFT_OPPLYSNINGER
+            )
+        )
     }
 
     @Test
     @Order(1)
-    fun `Oppretter søknad med status NEI`() {
+    fun `Oppretter søknad med status NEI som ikke skal ha ARBEID_UTENFOR_NORGE`() {
+        // Gjør at MedlemskapMockDispatcher svarer med status NEI.
+        val fnr = "31111111113"
         val soknader = sendSykmelding(
             sykmeldingKafkaMessage(
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                // Trigger response fra LovMe med status NEI.
-                fnr = "31111111113",
+
+                fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = LocalDate.of(2023, 1, 1),
                     tom = LocalDate.of(2023, 1, 7)
@@ -140,6 +175,25 @@ class MedlemskapUavklartIntegrationTest : BaseTestClass() {
         assertThat(soknader.last().type).isEqualTo(SoknadstypeDTO.ARBEIDSTAKERE)
         assertThat(soknader.last().status).isEqualTo(SoknadsstatusDTO.NY)
         assertThat(soknader.last().medlemskapVurdering).isEqualTo("NEI")
+
+        val soknad = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first().id,
+            fnr = fnr
+        )
+
+        assertThat(soknad.sporsmal!!.map { it.tag }).isEqualTo(
+            listOf(
+                ANSVARSERKLARING,
+                TILBAKE_I_ARBEID,
+                FERIE_V2,
+                PERMISJON_V2,
+                UTLAND_V2,
+                medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0),
+                ANDRE_INNTEKTSKILDER_V2,
+                VAER_KLAR_OVER_AT,
+                BEKREFT_OPPLYSNINGER
+            )
+        )
     }
 
     @Test
@@ -148,7 +202,9 @@ class MedlemskapUavklartIntegrationTest : BaseTestClass() {
         flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
 
-        hentSoknadSomKanBesvares("31111111116").let {
+        // Gjør at MedlemskapMockDispatcher svarer med status UAVKLART men uten medlemskapspørsmål.
+        val fnr = "31111111116"
+        hentSoknadSomKanBesvares(fnr).let {
             val (_, soknadBesvarer) = it
             besvarArbeidstakerSporsmal(soknadBesvarer)
             val sendtSoknad = soknadBesvarer
@@ -186,5 +242,6 @@ class MedlemskapUavklartIntegrationTest : BaseTestClass() {
             .besvarSporsmal(tag = PERMISJON_V2, svar = "NEI")
             .besvarSporsmal(tag = UTLAND_V2, svar = "NEI")
             .besvarSporsmal(tag = medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0), svar = "NEI")
+            .besvarSporsmal(tag = ARBEID_UTENFOR_NORGE, svar = "NEI")
             .besvarSporsmal(tag = ANDRE_INNTEKTSKILDER_V2, svar = "NEI")
 }

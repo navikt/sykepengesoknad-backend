@@ -16,7 +16,6 @@ import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
 import no.nav.helse.flex.slettSvar
 import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER_V2
 import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
-import no.nav.helse.flex.soknadsopprettelse.ARBEID_UTENFOR_NORGE
 import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
 import no.nav.helse.flex.soknadsopprettelse.BRUKTE_REISETILSKUDDET
 import no.nav.helse.flex.soknadsopprettelse.FERIE_V2
@@ -57,7 +56,8 @@ import java.util.*
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class SlettKvitteringerIntegrasjonsTest : BaseTestClass() {
 
-    private final val fnr = "01017012345"
+    // Gjør at MedlemskapMockDispatcher svarer med status JA, så spørsmål om ARBEID_UTENFOR_NORGE vil ikke bli stilt.
+    private val fnr = "12345678900"
 
     @Test
     @Order(1)
@@ -132,7 +132,6 @@ class SlettKvitteringerIntegrasjonsTest : BaseTestClass() {
                 PERMISJON_V2,
                 UTLAND_V2,
                 "JOBBET_DU_GRADERT_0",
-                ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER_V2,
                 BRUKTE_REISETILSKUDDET,
                 TRANSPORT_TIL_DAGLIG,

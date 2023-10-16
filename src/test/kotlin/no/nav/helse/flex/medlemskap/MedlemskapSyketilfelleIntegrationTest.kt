@@ -1,7 +1,5 @@
 package no.nav.helse.flex.medlemskap
 
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.whenever
 import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.hentProduserteRecords
@@ -22,7 +20,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
@@ -58,8 +55,8 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
         juridiskVurderingKafkaConsumer.hentProduserteRecords()
     }
 
-    // Trigger response fra LovMe med alle spørsmål.
-    private final val fnr = "31111111111"
+    // Gjør at MedlemskapMockDispatcher svarer med status UAVKLART og alle medlemskapspørsmål.
+    private val fnr = "31111111111"
 
     @Test
     fun `Påfølgende søknad får ikke medlemskapspørsmål`() {

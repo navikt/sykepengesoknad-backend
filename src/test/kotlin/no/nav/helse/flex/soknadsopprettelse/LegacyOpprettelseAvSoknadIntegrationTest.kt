@@ -16,7 +16,8 @@ import java.time.LocalDate
 
 class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
 
-    val fnr = "11111111111"
+    // Gjør at MedlemskapMockDispatcher svarer med status JA, så spørsmål om ARBEID_UTENFOR_NORGE vil ikke bli stilt.
+    private val fnr = "12345678900"
 
     @BeforeEach
     @AfterEach
@@ -25,44 +26,7 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    fun `Når man oppretter to søknader i samme forløp vil arbeid utenfor norge spørsmålet kun være i den første`() {
-        sendSykmelding(
-            sykmeldingKafkaMessage(
-                fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = (LocalDate.of(2018, 1, 1)),
-                    tom = (LocalDate.of(2018, 1, 10))
-                )
-            )
-        )
-        sendSykmelding(
-            sykmeldingKafkaMessage(
-                fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = LocalDate.of(2018, 1, 11),
-                    tom = LocalDate.of(2018, 1, 12)
-                )
-            ),
-            oppfolgingsdato = LocalDate.of(2018, 1, 1)
-        )
-
-        val soknaderMetadata = hentSoknaderMetadata(fnr).sortedBy { it.fom }
-
-        val forsteSoknad = hentSoknad(
-            soknadId = soknaderMetadata.first().id,
-            fnr = fnr
-        )
-        assertThat(forsteSoknad.sporsmal!!.any { it.tag == ARBEID_UTENFOR_NORGE }).isTrue()
-
-        val andreSoknad = hentSoknad(
-            soknadId = soknaderMetadata.last().id,
-            fnr = fnr
-        )
-        assertThat(andreSoknad.sporsmal!!.any { it.tag == ARBEID_UTENFOR_NORGE }).isFalse()
-    }
-
-    @Test
-    fun `Når man oppretter to søknader om behandlingsdager i ulike forløp vil egenmeldingspørsmålet være i begge`() {
+    fun `Når man oppretter to BEHANDLINGSDAGER-søknader i ulike forløp vil ARBEID_UTENFOR_NORGE være i begge`() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
@@ -73,6 +37,7 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
             ),
             oppfolgingsdato = LocalDate.of(2018, 1, 1)
         )
+
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
@@ -100,7 +65,7 @@ class LegacyOpprettelseAvSoknadIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    fun `Når man oppretter to arbeidsledig søknader i samme forløp vil arbeid utenfor norge spørsmålet kun være i den første`() {
+    fun `Når man oppretter to ARBEIDSLEDIG søknader i samme forløp vil ARBEID_UTENFOR_NORGE finnes kun i den første`() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,

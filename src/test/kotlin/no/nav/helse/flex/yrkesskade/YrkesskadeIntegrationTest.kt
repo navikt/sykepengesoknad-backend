@@ -26,7 +26,9 @@ class YrkesskadeIntegrationTest : BaseTestClass() {
     private final val basisdato = LocalDate.of(2021, 9, 1)
 
     private val sykmeldingIdMedYrkesskade = UUID.randomUUID().toString()
-    val fnr1 = "54334523"
+
+    // Gjør at MedlemskapMockDispatcher svarer med status JA, så spørsmål om ARBEID_UTENFOR_NORGE vil ikke bli stilt.
+    private val fnr = "12345678900"
 
     @Test
     @Order(1)
@@ -105,7 +107,7 @@ class YrkesskadeIntegrationTest : BaseTestClass() {
         val kafkaSoknader = sendSykmelding(
             sykmeldingKafkaMessage(
                 sykmeldingId = sykmeldingIdMedYrkesskade,
-                fnr = fnr1,
+                fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = basisdato,
                     tom = basisdato.plusDays(35)
@@ -131,15 +133,14 @@ class YrkesskadeIntegrationTest : BaseTestClass() {
     fun `Svarer ja på spørsmålet om yrkesskade`() {
         mockFlexSyketilfelleArbeidsgiverperiode()
 
-        val soknaden = hentSoknader(fnr1).first()
+        val soknaden = hentSoknader(fnr).first()
 
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr1)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
             .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
             .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
             .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
             .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
             .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
-            .besvarSporsmal(tag = "ARBEID_UTENFOR_NORGE", svar = "NEI")
             .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
             .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
             .besvarSporsmal(tag = "YRKESSKADE_V2", svar = "JA", ferdigBesvart = false)
