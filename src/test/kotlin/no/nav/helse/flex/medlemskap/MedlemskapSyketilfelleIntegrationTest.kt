@@ -21,6 +21,7 @@ import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
@@ -41,9 +42,10 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
     @Autowired
     private lateinit var sporsmalDAO: SporsmalDAO
 
-    @BeforeEach
-    fun stillMedlemskapSporsmal() {
-        whenever(medlemskapToggle.stillMedlemskapSporsmal(fnr = any<String>())).thenReturn(true)
+    @BeforeAll
+    fun configureUnleash() {
+        fakeUnleash.resetAll()
+        fakeUnleash.enable(UNLEASH_CONTEXT_MEDLEMSKAP_SPORSMAL)
     }
 
     @AfterEach

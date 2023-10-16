@@ -31,6 +31,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -46,6 +47,12 @@ import java.time.LocalDate
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class MedlemskapUavklartIntegrationTest : BaseTestClass() {
 
+    @BeforeAll
+    fun configureUnleash() {
+        fakeUnleash.resetAll()
+        fakeUnleash.enable(UNLEASH_CONTEXT_MEDLEMSKAP_SPORSMAL)
+    }
+
     @AfterAll
     fun hentAlleKafkaMeldinger() {
         juridiskVurderingKafkaConsumer.hentProduserteRecords()
@@ -54,8 +61,6 @@ class MedlemskapUavklartIntegrationTest : BaseTestClass() {
     @Test
     @Order(1)
     fun `Oppretter søknad med status UAVKLART`() {
-        whenever(medlemskapToggle.stillMedlemskapSporsmal(fnr = any<String>())).thenReturn(true)
-
         val soknader = sendSykmelding(
             sykmeldingKafkaMessage(
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
@@ -77,8 +82,6 @@ class MedlemskapUavklartIntegrationTest : BaseTestClass() {
     @Test
     @Order(1)
     fun `Oppretter søknad med status UAVKLART men ikke spørsmål`() {
-        whenever(medlemskapToggle.stillMedlemskapSporsmal(fnr = any<String>())).thenReturn(true)
-
         val soknader = sendSykmelding(
             sykmeldingKafkaMessage(
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
