@@ -250,33 +250,29 @@ class SykepengesoknadDAO(
 
     fun nullstillSoknader(fnr: String): Int {
         val soknadsIder = namedParameterJdbcTemplate.query(
-            "SELECT ID FROM SYKEPENGESOKNAD WHERE (fnr = :fnr)",
-
-            MapSqlParameterSource()
-                .addValue("fnr", fnr)
-
-        ) { row, _ -> row.getString("ID") }
+            "SELECT id FROM sykepengesoknad WHERE (fnr = :fnr)",
+            MapSqlParameterSource().addValue("fnr", fnr)
+        ) { row, _ -> row.getString("id") }
 
         sporsmalDAO.slettSporsmal(soknadsIder)
+        medlemskapVurderingRepository.deleteByFnr(fnr)
 
         soknadsIder.forEach {
             soknadsperiodeDAO.slettSoknadPerioder(it)
-            // Sletter på kolonne med indeks i stedet for å lage index på fnr-kolonnen.
-            medlemskapVurderingRepository.deleteBySykepengesoknadId(it)
         }
 
         val antallSoknaderSlettet = if (soknadsIder.isEmpty()) {
             0
         } else {
             namedParameterJdbcTemplate.update(
-                "DELETE FROM SYKEPENGESOKNAD WHERE ID in (:soknadsIder)",
+                "DELETE FROM sykepengesoknad WHERE id IN (:soknadsIder)",
 
                 MapSqlParameterSource()
                     .addValue("soknadsIder", soknadsIder)
             )
         }
 
-        log.info("Slettet $antallSoknaderSlettet soknader på fnr: $fnr")
+        log.info("Slettet $antallSoknaderSlettet søknader tilhørende fnr: $fnr")
 
         return antallSoknaderSlettet
     }
