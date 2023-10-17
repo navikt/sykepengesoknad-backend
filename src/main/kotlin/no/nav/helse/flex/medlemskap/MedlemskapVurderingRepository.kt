@@ -25,6 +25,10 @@ interface MedlemskapVurderingRepository : CrudRepository<MedlemskapVurderingDbRe
     @Modifying
     @Query("DELETE FROM medlemskap_vurdering WHERE sykepengesoknad_id = :sykepengesoknadId")
     fun deleteBySykepengesoknadId(sykepengesoknadId: String): Long
+
+    @Modifying
+    @Query("DELETE FROM medlemskap_vurdering WHERE fnr = :fnr")
+    fun deleteByFnr(fnr: String): Long
 }
 
 @Table("medlemskap_vurdering")
