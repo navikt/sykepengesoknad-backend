@@ -244,6 +244,7 @@ class MedlemskapUavklartIntegrationTest : BaseTestClass() {
             val (_, soknadBesvarer) = it
             besvarArbeidstakerSporsmal(soknadBesvarer)
             val sendtSoknad = soknadBesvarer
+                .besvarSporsmal(tag = VAER_KLAR_OVER_AT, svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
                 .besvarSporsmal(tag = BEKREFT_OPPLYSNINGER, svar = "CHECKED")
                 .sendSoknad()
             sendtSoknad.status shouldBeEqualTo RSSoknadstatus.SENDT
