@@ -87,8 +87,7 @@ class MedlemskapToggleIntegrationTest : BaseTestClass() {
                 MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
                 UTLAND_V2,
                 MEDLEMSKAP_OPPHOLDSTILLATELSE,
-                VAER_KLAR_OVER_AT,
-                BEKREFT_OPPLYSNINGER
+                VAER_KLAR_OVER_AT
             )
         )
     }
