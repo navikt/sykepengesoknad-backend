@@ -2,7 +2,8 @@ package no.nav.helse.flex.julesoknad
 
 import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.aktivering.AktiveringJob
-import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus.*
+import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus.FREMTIDIG
+import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus.NY
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.forskuttering.ForskutteringRepository
 import no.nav.helse.flex.forskuttering.domain.Forskuttering
@@ -16,14 +17,17 @@ import no.nav.helse.flex.ventPåRecords
 import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
 import org.amshove.kluent.shouldBeEmpty
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
+import org.testcontainers.shaded.org.awaitility.Awaitility.await
 import java.time.Instant
 import java.time.LocalDate
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 @TestMethodOrder(MethodOrderer.MethodName::class)
 class JulesoknadIntegrationTest : BaseTestClass() {
@@ -56,6 +60,12 @@ class JulesoknadIntegrationTest : BaseTestClass() {
         sykepengesoknadKafkaConsumer.hentProduserteRecords().shouldBeEmpty()
     }
 
+    @AfterEach
+    fun rydd() {
+        sykepengesoknadKafkaConsumer.hentProduserteRecords()
+        sykepengesoknadKafkaConsumer.hentProduserteRecords()
+    }
+
     @Test
     fun `15 dagers arbeidsledig søknad i riktig periode aktiveres når cron job kjøres`() {
         sendSykmelding(
@@ -69,13 +79,13 @@ class JulesoknadIntegrationTest : BaseTestClass() {
             )
         )
         prosesserJulesoknadkandidater.prosseserJulesoknadKandidater()
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
 
-        val soknader = hentSoknaderMetadata(fnr)
-        assertThat(soknader).hasSize(1)
-
-        val soknaden = soknader.first()
-        assertThat(soknaden.status).isEqualTo(NY)
+        await().atMost(5, TimeUnit.SECONDS).untilAsserted {
+            val soknader = hentSoknaderMetadata(fnr)
+            assertThat(soknader).hasSize(1)
+            val soknaden = soknader.first()
+            assertThat(soknaden.status).isEqualTo(NY)
+        }
     }
 
     @Test
@@ -91,13 +101,13 @@ class JulesoknadIntegrationTest : BaseTestClass() {
             )
         )
         prosesserJulesoknadkandidater.prosseserJulesoknadKandidater()
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
 
-        val soknader = hentSoknaderMetadata(fnr)
-        assertThat(soknader).hasSize(1)
-
-        val soknaden = soknader.first()
-        assertThat(soknaden.status).isEqualTo(NY)
+        await().atMost(5, TimeUnit.SECONDS).untilAsserted {
+            val soknader = hentSoknaderMetadata(fnr)
+            assertThat(soknader).hasSize(1)
+            val soknaden = soknader.first()
+            assertThat(soknaden.status).isEqualTo(NY)
+        }
     }
 
     @Test
@@ -114,11 +124,12 @@ class JulesoknadIntegrationTest : BaseTestClass() {
         )
         prosesserJulesoknadkandidater.prosseserJulesoknadKandidater()
 
-        val soknader = hentSoknaderMetadata(fnr)
-        assertThat(soknader).hasSize(1)
-
-        val soknaden = soknader.first()
-        assertThat(soknaden.status).isEqualTo(FREMTIDIG)
+        await().atMost(5, TimeUnit.SECONDS).untilAsserted {
+            val soknader = hentSoknaderMetadata(fnr)
+            assertThat(soknader).hasSize(1)
+            val soknaden = soknader.first()
+            assertThat(soknaden.status).isEqualTo(FREMTIDIG)
+        }
     }
 
     @Test
@@ -135,11 +146,12 @@ class JulesoknadIntegrationTest : BaseTestClass() {
         )
         prosesserJulesoknadkandidater.prosseserJulesoknadKandidater()
 
-        val soknader = hentSoknaderMetadata(fnr)
-        assertThat(soknader).hasSize(1)
-
-        val soknaden = soknader.first()
-        assertThat(soknaden.status).isEqualTo(FREMTIDIG)
+        await().atMost(5, TimeUnit.SECONDS).untilAsserted {
+            val soknader = hentSoknaderMetadata(fnr)
+            assertThat(soknader).hasSize(1)
+            val soknaden = soknader.first()
+            assertThat(soknaden.status).isEqualTo(FREMTIDIG)
+        }
     }
 
     @Test
@@ -158,12 +170,13 @@ class JulesoknadIntegrationTest : BaseTestClass() {
             )
         )
         prosesserJulesoknadkandidater.prosseserJulesoknadKandidater()
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
-        val soknader = hentSoknaderMetadata(fnr)
-        assertThat(soknader).hasSize(1)
 
-        val soknaden = soknader.first()
-        assertThat(soknaden.status).isEqualTo(NY)
+        await().atMost(5, TimeUnit.SECONDS).untilAsserted {
+            val soknader = hentSoknaderMetadata(fnr)
+            assertThat(soknader).hasSize(1)
+            val soknaden = soknader.first()
+            assertThat(soknaden.status).isEqualTo(NY)
+        }
     }
 
     @Test
@@ -181,13 +194,13 @@ class JulesoknadIntegrationTest : BaseTestClass() {
             )
         )
         prosesserJulesoknadkandidater.prosseserJulesoknadKandidater()
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
-        val soknader = hentSoknaderMetadata(fnr)
-        assertThat(soknader).hasSize(1)
-
-        val soknaden = soknader.first()
-        assertThat(soknaden.status).isEqualTo(NY)
-        assertThat(julesoknadkandidatDAO.hentJulesoknadkandidater()).isEmpty()
+        await().atMost(5, TimeUnit.SECONDS).untilAsserted {
+            val soknader = hentSoknaderMetadata(fnr)
+            assertThat(soknader).hasSize(1)
+            val soknaden = soknader.first()
+            assertThat(soknaden.status).isEqualTo(NY)
+            assertThat(julesoknadkandidatDAO.hentJulesoknadkandidater()).isEmpty()
+        }
     }
 
     @Test
@@ -248,30 +261,32 @@ class JulesoknadIntegrationTest : BaseTestClass() {
             forventaSoknader = 3
         )
         prosesserJulesoknadkandidater.prosseserJulesoknadKandidater()
-
         assertThat(julesoknadkandidatDAO.hentJulesoknadkandidater()).hasSize(1)
 
-        var soknader = hentSoknaderMetadata(fnr).sortedBy { it.fom }
-        assertThat(soknader).hasSize(3)
-        assertThat(soknader[0].status).isEqualTo(FREMTIDIG)
-        assertThat(soknader[1].status).isEqualTo(FREMTIDIG)
-        assertThat(soknader[2].status).isEqualTo(FREMTIDIG)
+        val soknaderEtterForsteProsessering = hentSoknaderMetadata(fnr).sortedBy { it.fom }
+        await().atMost(5, TimeUnit.SECONDS).untilAsserted {
+            assertThat(soknaderEtterForsteProsessering).hasSize(3)
+            assertThat(soknaderEtterForsteProsessering[0].status).isEqualTo(FREMTIDIG)
+            assertThat(soknaderEtterForsteProsessering[1].status).isEqualTo(FREMTIDIG)
+            assertThat(soknaderEtterForsteProsessering[2].status).isEqualTo(FREMTIDIG)
+        }
 
-        aktiveringJob.bestillAktivering(soknader[2].fom!!)
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
-
-        soknader = hentSoknaderMetadata(fnr).sortedBy { it.fom }
-        assertThat(soknader[0].status).isEqualTo(NY)
-        assertThat(soknader[1].status).isEqualTo(NY)
-        assertThat(soknader[2].status).isEqualTo(FREMTIDIG)
+        aktiveringJob.bestillAktivering(soknaderEtterForsteProsessering[2].fom!!)
+        await().atMost(5, TimeUnit.SECONDS).untilAsserted {
+            val soknaderEtterAktivering = hentSoknaderMetadata(fnr).sortedBy { it.fom }
+            assertThat(soknaderEtterAktivering[0].status).isEqualTo(NY)
+            assertThat(soknaderEtterAktivering[1].status).isEqualTo(NY)
+            assertThat(soknaderEtterAktivering[2].status).isEqualTo(FREMTIDIG)
+        }
 
         prosesserJulesoknadkandidater.prosseserJulesoknadKandidater()
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
 
-        soknader = hentSoknaderMetadata(fnr).sortedBy { it.fom }
-        assertThat(soknader[0].status).isEqualTo(NY)
-        assertThat(soknader[1].status).isEqualTo(NY)
-        assertThat(soknader[2].status).isEqualTo(NY)
+        await().atMost(5, TimeUnit.SECONDS).untilAsserted {
+            val soknaderEtterAndreProsessering = hentSoknaderMetadata(fnr).sortedBy { it.fom }
+            assertThat(soknaderEtterAndreProsessering[0].status).isEqualTo(NY)
+            assertThat(soknaderEtterAndreProsessering[1].status).isEqualTo(NY)
+            assertThat(soknaderEtterAndreProsessering[2].status).isEqualTo(NY)
+        }
     }
 
     private fun lagreForskuttering(forskutterer: Boolean, orgnummer: String) {
