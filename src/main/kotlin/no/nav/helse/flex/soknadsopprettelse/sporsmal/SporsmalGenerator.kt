@@ -58,6 +58,11 @@ class SporsmalGenerator(
         val andreKjenteArbeidsforhold: List<ArbeidsforholdFraInntektskomponenten>? = null
     )
 
+    data class MedlemskapSporsmal(
+        val stillSporsmalOmArbeidUtenforNorge: Boolean,
+        val sporsmal: List<Sporsmal>
+    )
+
     fun List<Sporsmal>.tilSporsmalOgAndreKjenteArbeidsforhold(): SporsmalOgAndreKjenteArbeidsforhold =
         SporsmalOgAndreKjenteArbeidsforhold(
             sporsmal = this,
@@ -101,15 +106,16 @@ class SporsmalGenerator(
                     startSykeforlop = soknad.startSykeforlop!!
                 )
 
+                val medlemskapSporsmal = lagMedlemskapSporsmal(eksisterendeSoknader, soknad)
+
                 val arbeidstakerSporsmal = settOppSoknadArbeidstaker(
                     opts = opts,
                     andreKjenteArbeidsforhold = andreKjenteArbeidsforhold.map { it.navn },
-                    stillMedlemskapSporsmal = medlemskapToggle.stillMedlemskapSporsmal(soknad.fnr)
+                    stillSporsmalOmArbeidUtenforNorge = medlemskapSporsmal.stillSporsmalOmArbeidUtenforNorge
                 )
-                val medlemskapSporsmal = lagMedlemskapSporsmal(eksisterendeSoknader, soknad)
 
                 SporsmalOgAndreKjenteArbeidsforhold(
-                    sporsmal = arbeidstakerSporsmal + medlemskapSporsmal,
+                    sporsmal = arbeidstakerSporsmal + medlemskapSporsmal.sporsmal,
                     andreKjenteArbeidsforhold = andreKjenteArbeidsforhold
                 )
             }
@@ -132,24 +138,23 @@ class SporsmalGenerator(
         }
     }
 
+    // TODO: Refaktorer denne metoden så vi ikke trenger å returnerer MedlemskapSporsmal over alt.
     private fun lagMedlemskapSporsmal(
         eksisterendeSoknader: List<Sykepengesoknad>,
         soknad: Sykepengesoknad
-    ): MutableList<Sporsmal> {
-        val medlemskapSporsmal = mutableListOf<Sporsmal>()
-        // Medlemskapsspørsmål skal kun stilles i søknader som er den første søknaden i et sykeforløp.
-        // Dersom det blir sendt inn en tilbakedatert sykemdling vil det resuletere i en søknad med
-        // en tidligere dato for startSyketilfelle. Den vil da bli tolket som en førstegangssøknad som
-        // skal ha medlemskapsspørsmål. Det resulterer i to søknader med medlemskapspørsmål i samme syketilfelle.
-        // Det er mulig å vurdere en implementasjon som fjerner medlemskapsspørsmålene fra den opprinnelige
-        // førstegangssøknaden, men det forutsetter at søknaden ikke er sendt inn av brukeren, og at vi er
-        // i stand til å knytte den til samme syketilfelle, til tross for at den søknaden fortstatt her
-        // opprinnelig startSyketilfelle.
+    ): MedlemskapSporsmal {
+        // Medlemskapsspørsmål skal kun stilles i søknader som er den første søknaden i et sykeforløp. Dersom det blir
+        // sendt inn en tilbakedatert sykemdling vil det resuletere i en søknad med en tidligere dato for
+        // startSyketilfelle. Den vil da bli tolket som en førstegangssøknad som skal ha medlemskapsspørsmål. Det
+        // resulterer i to søknader med medlemskapspørsmål i samme syketilfelle. Det er mulig å vurdere en
+        // implementasjon som fjerner medlemskapsspørsmålene fra den opprinnelige førstegangssøknaden, men det
+        // forutsetter at søknaden ikke er sendt inn av brukeren, og at vi er i stand til å knytte den til samme
+        // syketilfelle, til tross for at den søknaden fortstatt her opprinnelig startSyketilfelle.
         if (erForsteSoknadIForlop(eksisterendeSoknader, soknad)) {
             val medlemskapVurdering = try {
                 medlemskapVurderingClient.hentMedlemskapVurdering(
                     MedlemskapVurderingRequest(
-                        // Bruker 'fnr' fra sykepengesøknaden, ikke liste over identer siden det ikke støttes av LovMe enda.
+                        // Bruker 'fnr' fra sykepengesøknaden, ikke liste over identer siden det ikke støttes av LovMe.
                         fnr = soknad.fnr,
                         fom = soknad.fom!!,
                         tom = soknad.tom!!,
@@ -164,9 +169,13 @@ class SporsmalGenerator(
                 } else {
                     log.warn(
                         "Henting av medlemskapvurdering feilet for søknad ${soknad.id}, men vi er i DEV og gjør " +
-                            "ikke noe med det annet enn å returnere en tom liste med spørsmål."
+                            "ikke noe med det annet enn å returnere en tom liste med spørsmål.",
+                        e
                     )
-                    return mutableListOf()
+                    return MedlemskapSporsmal(
+                        stillSporsmalOmArbeidUtenforNorge = true,
+                        sporsmal = emptyList()
+                    )
                 }
             }
 
@@ -174,9 +183,23 @@ class SporsmalGenerator(
                 "Hentet medlemskapvurdering for søknad ${soknad.id} med svar ${medlemskapVurdering.svar} og " +
                     "${medlemskapVurdering.sporsmal.size} sporsmal."
             )
+
             if (medlemskapVurdering.svar == MedlemskapVurderingSvarType.UAVKLART) {
-                // TODO: Fjern feature-toggle før prodsetting.
+                // TODO: Fjern når LovMe har implementert alle scenario sånn at de vil returnere spørsmål ved UAVKLART.
+                if (medlemskapVurdering.sporsmal.isEmpty()) {
+                    log.warn(
+                        "Medlemskapvurdering er UAVKLART for søknad ${soknad.id}, men LovMe returnerte ingen " +
+                            "spørsmål om medlemskap å stille bruker."
+                    )
+                    return MedlemskapSporsmal(
+                        stillSporsmalOmArbeidUtenforNorge = true,
+                        sporsmal = emptyList()
+                    )
+                }
+
+                // Vi har medlemskapsporsmal.
                 if (medlemskapToggle.stillMedlemskapSporsmal(soknad.fnr)) {
+                    val medlemskapSporsmal = mutableListOf<Sporsmal>()
                     medlemskapVurdering.sporsmal.forEach {
                         when (it) {
                             MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE -> medlemskapSporsmal.add(
@@ -196,14 +219,33 @@ class SporsmalGenerator(
                             )
                         }
                     }
+                    return MedlemskapSporsmal(
+                        stillSporsmalOmArbeidUtenforNorge = false,
+                        sporsmal = medlemskapSporsmal
+                    )
                 } else {
                     log.info(
-                        "Medlemskapvurdering er UAVKLART for søknad ${soknad.id}, men stiller ikke spørsmål i PROD."
+                        "Medlemskapvurdering er UAVKLART for søknad ${soknad.id}, men medlemskapToggle svarte 'false' " +
+                            "så det stilles ingen spørsmål om medlemskap til bruker."
+                    )
+                    return MedlemskapSporsmal(
+                        stillSporsmalOmArbeidUtenforNorge = true,
+                        sporsmal = emptyList()
                     )
                 }
+            } else {
+                // MedlemskapVurdering er JA eller NEI.
+                return MedlemskapSporsmal(
+                    stillSporsmalOmArbeidUtenforNorge = false,
+                    sporsmal = emptyList()
+                )
             }
         }
-        return medlemskapSporsmal
+        return MedlemskapSporsmal(
+            // Det er ikke første søknad i forløp, så svarer med at medlemskap er avklart.
+            stillSporsmalOmArbeidUtenforNorge = false,
+            sporsmal = emptyList()
+        )
     }
 }
 

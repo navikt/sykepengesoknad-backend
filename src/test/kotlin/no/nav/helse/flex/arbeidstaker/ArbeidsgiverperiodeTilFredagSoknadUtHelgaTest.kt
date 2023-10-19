@@ -29,7 +29,8 @@ import java.time.LocalDate
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class ArbeidsgiverperiodeTilFredagSoknadUtHelgaTest : BaseTestClass() {
 
-    private final val fnr = "12345674152"
+    // Gjør at MedlemskapMockDispatcher svarer med status JA, så spørsmål om ARBEID_UTENFOR_NORGE vil ikke bli stilt.
+    private final val fnr = "12345678900"
     private final val fredagen = LocalDate.of(2021, 12, 17)
 
     @BeforeEach
@@ -38,7 +39,7 @@ class ArbeidsgiverperiodeTilFredagSoknadUtHelgaTest : BaseTestClass() {
     }
 
     @Test
-    fun `vi besvarer og sender inn en søknad som bare går til arbeidsgiver siden perioden slutta på en fredag, men søknaden gikk til søndag`() {
+    fun `Besvarer og sender inn en søknad som bare går til arbeidsgiver siden perioden slutta på en fredag, men søknaden gikk til søndag`() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
@@ -72,7 +73,6 @@ class ArbeidsgiverperiodeTilFredagSoknadUtHelgaTest : BaseTestClass() {
             .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
             .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
             .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
-            .besvarSporsmal(tag = "ARBEID_UTENFOR_NORGE", svar = "NEI")
             .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
             .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
             .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
@@ -107,7 +107,7 @@ class ArbeidsgiverperiodeTilFredagSoknadUtHelgaTest : BaseTestClass() {
     }
 
     @Test
-    fun `vi besvarer og sender inn en søknad som går til arbeidsgiver og NAV siden perioden slutta på en fredag, men søknaden gikk til mandag`() {
+    fun `Besvarer og sender inn en søknad som går til arbeidsgiver og NAV siden perioden slutta på en fredag, men søknaden gikk til mandag`() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
@@ -140,7 +140,6 @@ class ArbeidsgiverperiodeTilFredagSoknadUtHelgaTest : BaseTestClass() {
             .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
             .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
             .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
-            .besvarSporsmal(tag = "ARBEID_UTENFOR_NORGE", svar = "NEI")
             .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
             .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
             .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")

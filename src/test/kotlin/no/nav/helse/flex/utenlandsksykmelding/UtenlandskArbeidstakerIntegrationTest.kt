@@ -21,7 +21,7 @@ import no.nav.syfo.model.sykmelding.arbeidsgiver.UtenlandskSykmeldingAGDTO
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should not be`
-import org.amshove.kluent.shouldBeFalse
+import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.MethodOrderer
@@ -40,7 +40,8 @@ class UtenlandskArbeidstakerIntegrationTest : BaseTestClass() {
     @Autowired
     private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
 
-    private final val fnr = "12454578474"
+    // Gjør at MedlemskapMockDispatcher svarer med status JA, så spørsmål om ARBEID_UTENFOR_NORGE vil ikke bli stilt.
+    private val fnr = "12345678900"
     private final val basisdato = LocalDate.of(2021, 9, 1)
 
     @Test
@@ -125,7 +126,6 @@ class UtenlandskArbeidstakerIntegrationTest : BaseTestClass() {
             .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
             .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
             .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
-            .besvarSporsmal(tag = "ARBEID_UTENFOR_NORGE", svar = "NEI")
             .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
             .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
             .besvarSporsmal(tag = "UTENLANDSK_SYKMELDING_TRYGD_UTENFOR_NORGE", svar = "NEI")
@@ -146,7 +146,7 @@ class UtenlandskArbeidstakerIntegrationTest : BaseTestClass() {
         assertThat(kafkaSoknader).hasSize(1)
         assertThat(kafkaSoknader[0].status).isEqualTo(SoknadsstatusDTO.SENDT)
         kafkaSoknader[0].utenlandskSykmelding!!.shouldBeTrue()
-        kafkaSoknader[0].arbeidUtenforNorge!!.shouldBeFalse()
+        kafkaSoknader[0].arbeidUtenforNorge.shouldBeNull()
         kafkaSoknader[0].sporsmal.flatten().first { it.tag == "UTENLANDSK_SYKMELDING_VEGNAVN" }.svar!!
             .first().verdi `should be equal to` "Downing Street"
 

@@ -18,7 +18,6 @@ import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER_V2
 import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
 import no.nav.helse.flex.soknadsopprettelse.ARBEID_UNDERVEIS_100_PROSENT
-import no.nav.helse.flex.soknadsopprettelse.ARBEID_UTENFOR_NORGE
 import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
 import no.nav.helse.flex.soknadsopprettelse.FERIE_V2
 import no.nav.helse.flex.soknadsopprettelse.PERMISJON_V2
@@ -103,7 +102,8 @@ class OverlapperFor : BaseTestClass() {
         nyesteSoknad.fom shouldBeEqualTo basisdato
         nyesteSoknad.tom shouldBeEqualTo basisdato.plusDays(7)
 
-        Awaitility.await().until { klippetSykepengesoknadRepository.findBySykmeldingUuid(nyesteSoknad.sykmeldingId!!) != null }
+        Awaitility.await()
+            .until { klippetSykepengesoknadRepository.findBySykmeldingUuid(nyesteSoknad.sykmeldingId!!) != null }
 
         val klipp = klippetSykepengesoknadRepository.findBySykmeldingUuid(nyesteSoknad.sykmeldingId!!)!!
         klipp.sykepengesoknadUuid shouldBeEqualTo klippetSoknad.id
@@ -354,6 +354,8 @@ class OverlapperFor : BaseTestClass() {
             )
         )
 
+        // Alle fnr som ikke er '31111111111', '31111111112' eller '31111111113' gjør  at MedlemskapMockDispatcher
+        // svarer med status JA, så spørsmål om ARBEID_UTENFOR_NORGE vil ikke bli stilt.
         SoknadBesvarer(rsSoknad, this, fnr)
             .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
             .besvarSporsmal(TILBAKE_I_ARBEID, "NEI")
@@ -361,7 +363,6 @@ class OverlapperFor : BaseTestClass() {
             .besvarSporsmal(FERIE_V2, "NEI")
             .besvarSporsmal(UTLAND_V2, "NEI")
             .besvarSporsmal(ARBEID_UNDERVEIS_100_PROSENT + '0', "NEI")
-            .besvarSporsmal(ARBEID_UTENFOR_NORGE, "NEI")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
             .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
             .sendSoknad()

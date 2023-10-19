@@ -19,8 +19,9 @@ import java.time.OffsetDateTime
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class KorrigeringTest : BaseTestClass() {
 
-    private final val fnr = "12454578474"
-    private final val basisdato = LocalDate.now()
+    // Gjør at MedlemskapMockDispatcher svarer med status JA, så spørsmål om ARBEID_UTENFOR_NORGE vil ikke bli stilt.
+    private val fnr = "12345678900"
+    private val basisdato = LocalDate.now()
 
     @Test
     @Order(1)
@@ -61,7 +62,6 @@ class KorrigeringTest : BaseTestClass() {
             .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
             .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
             .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
-            .besvarSporsmal(tag = "ARBEID_UTENFOR_NORGE", svar = "NEI")
             .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
             .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
             .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")

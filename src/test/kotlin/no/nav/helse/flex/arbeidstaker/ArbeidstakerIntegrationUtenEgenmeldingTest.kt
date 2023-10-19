@@ -17,8 +17,9 @@ import java.time.LocalDate
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class ArbeidstakerIntegrationUtenEgenmeldingTest : BaseTestClass() {
 
-    private final val fnr = "12454578474"
-    private final val basisdato = LocalDate.of(2021, 9, 1)
+    // Gjør at MedlemskapMockDispatcher svarer med status JA, så spørsmål om ARBEID_UTENFOR_NORGE vil ikke bli stilt.
+    private val fnr = "12345678900"
+    private val basisdato = LocalDate.of(2021, 9, 1)
 
     @Test
     @Order(1)
@@ -57,7 +58,6 @@ class ArbeidstakerIntegrationUtenEgenmeldingTest : BaseTestClass() {
                 "PERMISJON_V2",
                 "UTLAND_V2",
                 "ARBEID_UNDERVEIS_100_PROSENT_0",
-                "ARBEID_UTENFOR_NORGE",
                 "ANDRE_INNTEKTSKILDER_V2",
                 "VAER_KLAR_OVER_AT",
                 "BEKREFT_OPPLYSNINGER"

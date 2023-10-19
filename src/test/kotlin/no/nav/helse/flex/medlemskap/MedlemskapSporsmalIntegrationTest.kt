@@ -1,7 +1,5 @@
 package no.nav.helse.flex.medlemskap
 
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.whenever
 import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSporsmal
@@ -22,6 +20,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -42,19 +41,23 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
     @Autowired
     private lateinit var medlemskapVurderingRepository: MedlemskapVurderingRepository
 
+    @BeforeAll
+    fun configureUnleash() {
+        fakeUnleash.resetAll()
+        fakeUnleash.enable(UNLEASH_CONTEXT_MEDLEMSKAP_SPORSMAL)
+    }
+
     @AfterAll
     fun hentAlleKafkaMeldinger() {
         juridiskVurderingKafkaConsumer.hentProduserteRecords()
     }
 
-    // Trigger response fra LovMe med alle spørsmål.
-    private final val fnr = "31111111111"
+    // Gjør at MedlemskapMockDispatcher svarer med status UAVKLART og alle medlemskapspørsmål.
+    private val fnr = "31111111111"
 
     @Test
     @Order(1)
     fun `Oppretter arbeidstakersøknad med status NY`() {
-        whenever(medlemskapToggle.stillMedlemskapSporsmal(fnr = any<String>())).thenReturn(true)
-
         val soknader = sendSykmelding(
             sykmeldingKafkaMessage(
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,

@@ -28,8 +28,9 @@ class LangArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
     @Autowired
     private lateinit var aktiveringJob: AktiveringJob
 
-    private final val fnr = "123456789"
-    private final val basisdato = LocalDate.now()
+    // Gjør at MedlemskapMockDispatcher svarer med status JA, så spørsmål om ARBEID_UTENFOR_NORGE vil ikke bli stilt.
+    private val fnr = "12345678900"
+    private val basisdato = LocalDate.now()
 
     @Test
     @Order(1)
@@ -103,7 +104,6 @@ class LangArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
                 "PERMISJON_V2",
                 "UTLAND_V2",
                 "ARBEID_UNDERVEIS_100_PROSENT_0",
-                "ARBEID_UTENFOR_NORGE",
                 "ANDRE_INNTEKTSKILDER_V2",
                 "VAER_KLAR_OVER_AT",
                 "BEKREFT_OPPLYSNINGER"
@@ -129,7 +129,6 @@ class LangArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
             .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
             .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
             .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
-            .besvarSporsmal(tag = "ARBEID_UTENFOR_NORGE", svar = "NEI")
             .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
             .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
             .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")

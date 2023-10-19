@@ -33,8 +33,8 @@ class ArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
     @Autowired
     private lateinit var medlemskapVurderingRepository: MedlemskapVurderingRepository
 
-    // Vil ikke returnere noen spørsmål fra LovMe.
-    private final val fnr = "31111111112"
+    // Gjør at MedlemskapMockDispatcher svarer med status JA, så spørsmål om ARBEID_UTENFOR_NORGE vil ikke bli stilt.
+    private final val fnr = "12345678900"
     private final val basisdato = LocalDate.now()
 
     @Test
@@ -97,7 +97,6 @@ class ArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
                 "UTLAND_V2",
                 "ARBEID_UNDERVEIS_100_PROSENT_0",
                 "ARBEID_UNDERVEIS_100_PROSENT_1",
-                "ARBEID_UTENFOR_NORGE",
                 "ANDRE_INNTEKTSKILDER_V2",
                 "VAER_KLAR_OVER_AT",
                 "BEKREFT_OPPLYSNINGER"
@@ -139,7 +138,6 @@ class ArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
             .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
             .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
             .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
-            .besvarSporsmal(tag = "ARBEID_UTENFOR_NORGE", svar = "NEI")
             .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
             .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_1", svar = "NEI")
             .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")

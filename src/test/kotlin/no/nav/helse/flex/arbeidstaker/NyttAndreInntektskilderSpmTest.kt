@@ -28,7 +28,8 @@ import java.time.LocalDate
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class NyttAndreInntektskilderSpmTest : BaseTestClass() {
 
-    private final val fnr = "11111234565"
+    // Gjør at MedlemskapMockDispatcher svarer med status JA, så spørsmål om ARBEID_UTENFOR_NORGE vil ikke bli stilt.
+    private val fnr = "11111234565"
     private final val basisdato = LocalDate.of(2021, 9, 1)
 
     @Test
@@ -77,7 +78,6 @@ class NyttAndreInntektskilderSpmTest : BaseTestClass() {
             .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
             .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
             .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
-            .besvarSporsmal(tag = "ARBEID_UTENFOR_NORGE", svar = "NEI")
             .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
             .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "JA", ferdigBesvart = false)
             .besvarSporsmal(tag = "INNTEKTSKILDE_STYREVERV", svar = "CHECKED")
