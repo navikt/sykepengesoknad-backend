@@ -1,16 +1,28 @@
 package no.nav.helse.flex.utenlandsksykmelding
 
-import no.nav.helse.flex.*
+import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
+import no.nav.helse.flex.hentSoknad
+import no.nav.helse.flex.hentSoknader
+import no.nav.helse.flex.hentSoknaderMetadata
+import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
+import no.nav.helse.flex.oppdaterSporsmalMedResult
 import no.nav.helse.flex.repository.SykepengesoknadDAO
+import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.testutil.byttSvar
+import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.util.flatten
+import no.nav.helse.flex.ventPåRecords
 import no.nav.syfo.model.sykmelding.arbeidsgiver.UtenlandskSykmeldingAGDTO
-import org.amshove.kluent.*
+import org.amshove.kluent.`should be`
+import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.`should not be`
+import org.amshove.kluent.shouldBeFalse
+import org.amshove.kluent.shouldBeTrue
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
@@ -18,7 +30,9 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import org.testcontainers.shaded.org.awaitility.Awaitility
 import java.time.LocalDate
+import java.util.concurrent.TimeUnit
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class UtenlandskArbeidstakerIntegrationTest : BaseTestClass() {
@@ -76,7 +90,10 @@ class UtenlandskArbeidstakerIntegrationTest : BaseTestClass() {
         val soknaden = hentSoknader(fnr).first()
         val spm = soknaden.sporsmal!!.first { it.tag == "UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE" }
             .byttSvar("UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE", "JA")
-            .byttSvar("UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE_FRITEKST", "Veldig lang tekst Veldig lang tekstVeldig lang tekstVeldig lang tekstVeldig lang tekstVeldig lang tekstVeldig lang tekstVeldig lang tekstVeldig lang tekstVeldig lang tekst tekst tekstsdf sd ds sd der 200 ja ")
+            .byttSvar(
+                "UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE_FRITEKST",
+                "Veldig lang tekst Veldig lang tekstVeldig lang tekstVeldig lang tekstVeldig lang tekstVeldig lang tekstVeldig lang tekstVeldig lang tekstVeldig lang tekstVeldig lang tekst tekst tekstsdf sd ds sd der 200 ja "
+            )
         val response = oppdaterSporsmalMedResult(fnr, spm, soknaden.id).andExpect(status().isBadRequest)
             .andReturn().response.contentAsString
         response `should be equal to` "{\"reason\":\"SPORSMALETS_SVAR_VALIDERER_IKKE\"}"
@@ -126,19 +143,19 @@ class UtenlandskArbeidstakerIntegrationTest : BaseTestClass() {
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
 
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
-
         assertThat(kafkaSoknader).hasSize(1)
         assertThat(kafkaSoknader[0].status).isEqualTo(SoknadsstatusDTO.SENDT)
         kafkaSoknader[0].utenlandskSykmelding!!.shouldBeTrue()
-        kafkaSoknader[0].arbeidUtenforNorge!!.`should be false`()
+        kafkaSoknader[0].arbeidUtenforNorge!!.shouldBeFalse()
         kafkaSoknader[0].sporsmal.flatten().first { it.tag == "UTENLANDSK_SYKMELDING_VEGNAVN" }.svar!!
             .first().verdi `should be equal to` "Downing Street"
 
+        Awaitility.await().atMost(5, TimeUnit.SECONDS).untilAsserted {
+            val soknadFraDatabase = sykepengesoknadDAO.finnSykepengesoknad(sendtSoknad.id)
+            soknadFraDatabase.sendtArbeidsgiver `should not be` null
+            soknadFraDatabase.sendtNav `should be` null
+            soknadFraDatabase.sendt `should be equal to` soknadFraDatabase.sendtArbeidsgiver
+        }
         juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
-
-        val soknadFraDatabase = sykepengesoknadDAO.finnSykepengesoknad(sendtSoknad.id)
-        soknadFraDatabase.sendtArbeidsgiver `should not be` null
-        soknadFraDatabase.sendtNav `should be` null
-        soknadFraDatabase.sendt `should be equal to` soknadFraDatabase.sendtArbeidsgiver
     }
 }

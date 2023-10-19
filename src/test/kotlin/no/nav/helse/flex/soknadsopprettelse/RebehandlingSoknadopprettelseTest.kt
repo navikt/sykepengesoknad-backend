@@ -30,7 +30,9 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mock
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.kafka.support.Acknowledgment
+import org.testcontainers.shaded.org.awaitility.Awaitility.await
 import java.time.LocalDate
+import java.util.concurrent.TimeUnit
 
 class RebehandlingSoknadopprettelseTest : BaseTestClass() {
 
@@ -86,10 +88,13 @@ class RebehandlingSoknadopprettelseTest : BaseTestClass() {
         rebehandlingSykmeldingSendt.listen(cr, acknowledgment)
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
 
-        val sykepengesoknader = sykepengesoknadDAO.finnSykepengesoknaderForSykmelding(sykmeldingId)
-        assertThat(sykepengesoknader.size).isEqualTo(1)
-        assertThat(sykepengesoknader.first().status).isEqualTo(NY)
-        assertThat(sykepengesoknader.first().arbeidssituasjon).isEqualTo(FRILANSER)
+        await().atMost(5, TimeUnit.SECONDS).untilAsserted {
+            val sykepengesoknader = sykepengesoknadDAO.finnSykepengesoknaderForSykmelding(sykmeldingId)
+            assertThat(sykepengesoknader.size).isEqualTo(1)
+            assertThat(sykepengesoknader.first().status).isEqualTo(NY)
+            assertThat(sykepengesoknader.first().arbeidssituasjon).isEqualTo(FRILANSER)
+        }
+
         verify(aivenKafkaProducer, times(1)).produserMelding(any())
     }
 
