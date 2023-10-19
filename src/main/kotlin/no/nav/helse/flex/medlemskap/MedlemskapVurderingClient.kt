@@ -15,7 +15,7 @@ import java.time.LocalDate
 import java.util.*
 import kotlin.system.measureTimeMillis
 
-const val MEDLEMSKAP_VURDERING_PATH = "brukersporsmal"
+const val MEDLEMSKAP_VURDERING_PATH = "/brukersporsmal"
 
 @Component
 class MedlemskapVurderingClient(

@@ -59,7 +59,7 @@ class SporsmalGenerator(
     )
 
     data class MedlemskapSporsmal(
-        val erMedlemskapAvklart: Boolean,
+        val stillSporsmalOmArbeidUtenforNorge: Boolean,
         val sporsmal: List<Sporsmal>
     )
 
@@ -111,7 +111,7 @@ class SporsmalGenerator(
                 val arbeidstakerSporsmal = settOppSoknadArbeidstaker(
                     opts = opts,
                     andreKjenteArbeidsforhold = andreKjenteArbeidsforhold.map { it.navn },
-                    stillSporsmalOmArbeidUtenforNorge = !medlemskapSporsmal.erMedlemskapAvklart
+                    stillSporsmalOmArbeidUtenforNorge = medlemskapSporsmal.stillSporsmalOmArbeidUtenforNorge
                 )
 
                 SporsmalOgAndreKjenteArbeidsforhold(
@@ -173,7 +173,7 @@ class SporsmalGenerator(
                         e
                     )
                     return MedlemskapSporsmal(
-                        erMedlemskapAvklart = false,
+                        stillSporsmalOmArbeidUtenforNorge = true,
                         sporsmal = emptyList()
                     )
                 }
@@ -192,12 +192,12 @@ class SporsmalGenerator(
                             "spørsmål om medlemskap å stille bruker."
                     )
                     return MedlemskapSporsmal(
-                        erMedlemskapAvklart = false,
+                        stillSporsmalOmArbeidUtenforNorge = true,
                         sporsmal = emptyList()
                     )
                 }
 
-                // TODO: Fjern feature-toggle før prodsetting.
+                // Vi har medlemskapsporsmal.
                 if (medlemskapToggle.stillMedlemskapSporsmal(soknad.fnr)) {
                     val medlemskapSporsmal = mutableListOf<Sporsmal>()
                     medlemskapVurdering.sporsmal.forEach {
@@ -220,7 +220,7 @@ class SporsmalGenerator(
                         }
                     }
                     return MedlemskapSporsmal(
-                        erMedlemskapAvklart = true,
+                        stillSporsmalOmArbeidUtenforNorge = false,
                         sporsmal = medlemskapSporsmal
                     )
                 } else {
@@ -229,21 +229,21 @@ class SporsmalGenerator(
                             "så det stilles ingen spørsmål om medlemskap til bruker."
                     )
                     return MedlemskapSporsmal(
-                        erMedlemskapAvklart = false,
+                        stillSporsmalOmArbeidUtenforNorge = true,
                         sporsmal = emptyList()
                     )
                 }
             } else {
                 // MedlemskapVurdering er JA eller NEI.
                 return MedlemskapSporsmal(
-                    erMedlemskapAvklart = true,
+                    stillSporsmalOmArbeidUtenforNorge = false,
                     sporsmal = emptyList()
                 )
             }
         }
         return MedlemskapSporsmal(
             // Det er ikke første søknad i forløp, så svarer med at medlemskap er avklart.
-            erMedlemskapAvklart = true,
+            stillSporsmalOmArbeidUtenforNorge = false,
             sporsmal = emptyList()
         )
     }
