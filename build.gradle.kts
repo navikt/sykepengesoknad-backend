@@ -111,5 +111,9 @@ tasks.withType<Test> {
     failFast = true
     reports.html.required.set(false)
     reports.junitXml.required.set(false)
-    maxParallelForks = (Runtime.getRuntime().availableProcessors() - 1).coerceAtLeast(1).coerceAtMost(4)
+    maxParallelForks = if (System.getenv("CI") == "true") {
+        (Runtime.getRuntime().availableProcessors() - 1).coerceAtLeast(1).coerceAtMost(4)
+    } else {
+        1
+    }
 }
