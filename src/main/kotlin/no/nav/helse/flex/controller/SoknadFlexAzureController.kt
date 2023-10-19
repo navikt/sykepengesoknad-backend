@@ -1,5 +1,6 @@
 package no.nav.helse.flex.controller
 
+import io.swagger.v3.oas.annotations.Hidden
 import no.nav.helse.flex.client.pdl.PdlClient
 import no.nav.helse.flex.client.pdl.PdlIdent
 import no.nav.helse.flex.clientidvalidation.ClientIdValidation
@@ -24,6 +25,7 @@ data class FlexInternalResponse(
 @RestController
 @ProtectedWithClaims(issuer = AZUREATOR)
 @RequestMapping(value = ["/api/v1/flex"], produces = [MediaType.APPLICATION_JSON_VALUE])
+@Hidden
 class SoknadFlexAzureController(
     private val clientIdValidation: ClientIdValidation,
     private val identService: IdentService,
