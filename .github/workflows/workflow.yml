@@ -5,7 +5,7 @@ on:
 
 jobs:
   felles-workflow:
-    uses: navikt/flex-github-actions-workflows/.github/workflows/spring-boot.yml@spring-parallell
+    uses: navikt/flex-github-actions-workflows/.github/workflows/spring-boot.yml@master
     permissions:
       packages: read
       contents: read
