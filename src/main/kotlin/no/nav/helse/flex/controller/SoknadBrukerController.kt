@@ -1,5 +1,6 @@
 package no.nav.helse.flex.controller
 
+import io.swagger.v3.oas.annotations.tags.Tag
 import no.nav.helse.flex.config.EnvironmentToggles
 import no.nav.helse.flex.config.OIDCIssuer.TOKENX
 import no.nav.helse.flex.controller.domain.RSMottakerResponse
@@ -51,7 +52,8 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping(value = ["/api/v2"])
-class SoknadTokenXController(
+@Tag(name = "sykepengesøknader", description = "Operasjoner for å hente og manipulere sykepengesøknader")
+class SoknadBrukerController(
     private val contextHolder: TokenValidationContextHolder,
     private val identService: IdentService,
     private val gjenapneSoknadService: GjenapneSoknadService,

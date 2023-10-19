@@ -1,5 +1,6 @@
 package no.nav.helse.flex.controller
 
+import io.swagger.v3.oas.annotations.Hidden
 import no.nav.helse.flex.client.syfotilgangskontroll.SyfoTilgangskontrollClient
 import no.nav.helse.flex.clientidvalidation.ClientIdValidation
 import no.nav.helse.flex.clientidvalidation.ClientIdValidation.NamespaceAndApp
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @ProtectedWithClaims(issuer = AZUREATOR)
 @RequestMapping(value = ["/api/veileder/soknader"], produces = [MediaType.APPLICATION_JSON_VALUE])
+@Hidden
 class SoknadVeilederAzureController(
     private val clientIdValidation: ClientIdValidation,
     private val syfoTilgangskontrollClient: SyfoTilgangskontrollClient,

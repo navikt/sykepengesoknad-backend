@@ -1,5 +1,6 @@
 package no.nav.helse.flex.controller
 
+import io.swagger.v3.oas.annotations.Hidden
 import no.nav.helse.flex.clientidvalidation.ClientIdValidation
 import no.nav.helse.flex.clientidvalidation.ClientIdValidation.*
 import no.nav.helse.flex.config.OIDCIssuer.AZUREATOR
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
+@Hidden
 class SoknadKafkaFormatController(
     private val clientIdValidation: ClientIdValidation,
     private val hentSoknadService: HentSoknadService,
