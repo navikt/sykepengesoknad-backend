@@ -10,7 +10,7 @@ import org.springframework.scheduling.annotation.EnableScheduling
 
 @SpringBootApplication
 @EnableCaching
-@EnableJwtTokenValidation
+@EnableJwtTokenValidation(ignore = ["org.springdoc"])
 @EnableRetry
 @EnableScheduling
 @EnableKafka
