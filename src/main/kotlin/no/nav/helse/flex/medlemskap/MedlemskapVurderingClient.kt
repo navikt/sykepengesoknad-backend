@@ -15,8 +15,6 @@ import java.time.LocalDate
 import java.util.*
 import kotlin.system.measureTimeMillis
 
-const val MEDLEMSKAP_VURDERING_PATH = "/brukersporsmal"
-
 @Component
 class MedlemskapVurderingClient(
     private val medlemskapVurderingRepository: MedlemskapVurderingRepository,
@@ -35,7 +33,7 @@ class MedlemskapVurderingClient(
 
         val queryBuilder = UriComponentsBuilder
             .fromHttpUrl(url)
-            .pathSegment(MEDLEMSKAP_VURDERING_PATH)
+            .pathSegment("brukersporsmal")
             .queryParam("fom", medlemskapVurderingRequest.fom)
             .queryParam("tom", medlemskapVurderingRequest.tom)
 
