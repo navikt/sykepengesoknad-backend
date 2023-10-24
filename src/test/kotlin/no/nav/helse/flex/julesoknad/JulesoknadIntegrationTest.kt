@@ -36,7 +36,7 @@ class JulesoknadIntegrationTest : BaseTestClass() {
     private lateinit var aktiveringJob: AktiveringJob
 
     @Autowired
-    private lateinit var prosesserJulesoknadkandidater: ProsesserJulesoknadkandidater
+    private lateinit var prosesserJulesoknadkandidat: JulesoknadCronJob
 
     @Autowired
     private lateinit var julesoknadkandidatDAO: JulesoknadkandidatDAO
@@ -78,7 +78,7 @@ class JulesoknadIntegrationTest : BaseTestClass() {
                 )
             )
         )
-        prosesserJulesoknadkandidater.prosseserJulesoknadKandidater()
+        prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
 
         await().atMost(5, TimeUnit.SECONDS).untilAsserted {
             val soknader = hentSoknaderMetadata(fnr)
@@ -100,7 +100,7 @@ class JulesoknadIntegrationTest : BaseTestClass() {
                 )
             )
         )
-        prosesserJulesoknadkandidater.prosseserJulesoknadKandidater()
+        prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
 
         await().atMost(5, TimeUnit.SECONDS).untilAsserted {
             val soknader = hentSoknaderMetadata(fnr)
@@ -122,7 +122,7 @@ class JulesoknadIntegrationTest : BaseTestClass() {
                 )
             )
         )
-        prosesserJulesoknadkandidater.prosseserJulesoknadKandidater()
+        prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
 
         await().atMost(5, TimeUnit.SECONDS).untilAsserted {
             val soknader = hentSoknaderMetadata(fnr)
@@ -144,7 +144,7 @@ class JulesoknadIntegrationTest : BaseTestClass() {
                 )
             )
         )
-        prosesserJulesoknadkandidater.prosseserJulesoknadKandidater()
+        prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
 
         await().atMost(5, TimeUnit.SECONDS).untilAsserted {
             val soknader = hentSoknaderMetadata(fnr)
@@ -169,7 +169,7 @@ class JulesoknadIntegrationTest : BaseTestClass() {
                 )
             )
         )
-        prosesserJulesoknadkandidater.prosseserJulesoknadKandidater()
+        prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
 
         await().atMost(5, TimeUnit.SECONDS).untilAsserted {
             val soknader = hentSoknaderMetadata(fnr)
@@ -193,7 +193,7 @@ class JulesoknadIntegrationTest : BaseTestClass() {
                 )
             )
         )
-        prosesserJulesoknadkandidater.prosseserJulesoknadKandidater()
+        prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
         await().atMost(5, TimeUnit.SECONDS).untilAsserted {
             val soknader = hentSoknaderMetadata(fnr)
             assertThat(soknader).hasSize(1)
@@ -232,7 +232,7 @@ class JulesoknadIntegrationTest : BaseTestClass() {
 
         lagreForskuttering(false, orgnummer)
 
-        prosesserJulesoknadkandidater.prosseserJulesoknadKandidater()
+        prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
 
         val soknaderEtterCronjob = hentSoknaderMetadata(fnr)
@@ -260,7 +260,7 @@ class JulesoknadIntegrationTest : BaseTestClass() {
             ),
             forventaSoknader = 3
         )
-        prosesserJulesoknadkandidater.prosseserJulesoknadKandidater()
+        prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
         assertThat(julesoknadkandidatDAO.hentJulesoknadkandidater()).hasSize(1)
 
         val soknaderEtterForsteProsessering = hentSoknaderMetadata(fnr).sortedBy { it.fom }
@@ -279,13 +279,65 @@ class JulesoknadIntegrationTest : BaseTestClass() {
             assertThat(soknaderEtterAktivering[2].status).isEqualTo(FREMTIDIG)
         }
 
-        prosesserJulesoknadkandidater.prosseserJulesoknadKandidater()
+        prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
 
         await().atMost(5, TimeUnit.SECONDS).untilAsserted {
             val soknaderEtterAndreProsessering = hentSoknaderMetadata(fnr).sortedBy { it.fom }
             assertThat(soknaderEtterAndreProsessering[0].status).isEqualTo(NY)
             assertThat(soknaderEtterAndreProsessering[1].status).isEqualTo(NY)
             assertThat(soknaderEtterAndreProsessering[2].status).isEqualTo(NY)
+        }
+    }
+
+    @Test
+    fun `Lang søknad som treffer over julesøknad perioden får først aktivert julesøknaden når foranliggende søknad til annen sykmelding er aktivert`() {
+        val orgnummer = "999999999"
+        lagreForskuttering(false, orgnummer)
+
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = orgnummer, orgNavn = "Kebab"),
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = LocalDate.of(nesteÅr, 12, 1),
+                    tom = LocalDate.of(nesteÅr, 12, 15)
+                )
+            )
+        )
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = orgnummer, orgNavn = "Kebab"),
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = LocalDate.of(nesteÅr, 11, 15),
+                    tom = LocalDate.of(nesteÅr, 11, 30)
+                )
+            )
+        )
+        assertThat(julesoknadkandidatDAO.hentJulesoknadkandidater()).hasSize(1)
+        prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
+        assertThat(julesoknadkandidatDAO.hentJulesoknadkandidater()).hasSize(1)
+
+        val soknaderEtterForsteProsessering = hentSoknaderMetadata(fnr).sortedBy { it.fom }
+        await().atMost(5, TimeUnit.SECONDS).untilAsserted {
+            assertThat(soknaderEtterForsteProsessering).hasSize(2)
+            assertThat(soknaderEtterForsteProsessering[0].status).isEqualTo(FREMTIDIG)
+            assertThat(soknaderEtterForsteProsessering[1].status).isEqualTo(FREMTIDIG)
+        }
+
+        aktiveringJob.bestillAktivering(soknaderEtterForsteProsessering[1].fom!!)
+        await().atMost(5, TimeUnit.SECONDS).untilAsserted {
+            val soknaderEtterAktivering = hentSoknaderMetadata(fnr).sortedBy { it.fom }
+            assertThat(soknaderEtterAktivering[0].status).isEqualTo(NY)
+            assertThat(soknaderEtterAktivering[1].status).isEqualTo(FREMTIDIG)
+        }
+
+        prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
+
+        await().atMost(5, TimeUnit.SECONDS).untilAsserted {
+            val soknaderEtterAndreProsessering = hentSoknaderMetadata(fnr).sortedBy { it.fom }
+            assertThat(soknaderEtterAndreProsessering[0].status).isEqualTo(NY)
+            assertThat(soknaderEtterAndreProsessering[1].status).isEqualTo(NY)
         }
     }
 

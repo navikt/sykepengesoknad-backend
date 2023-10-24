@@ -20,13 +20,12 @@ import org.springframework.boot.availability.AvailabilityChangeEvent
 import org.springframework.boot.availability.ReadinessState
 import org.springframework.context.ApplicationEventPublisher
 import java.time.LocalDate
-import java.util.*
 
 @TestMethodOrder(MethodOrderer.MethodName::class)
 class JulesoknadHealthTest : BaseTestClass() {
 
     @Autowired
-    private lateinit var prosesserJulesoknadkandidater: ProsesserJulesoknadkandidater
+    private lateinit var prosesserJulesoknadkandidat: JulesoknadCronJob
 
     @Autowired
     private lateinit var forskutteringRepository: ForskutteringRepository
@@ -64,7 +63,7 @@ class JulesoknadHealthTest : BaseTestClass() {
             ReadinessState.REFUSING_TRAFFIC
         )
 
-        prosesserJulesoknadkandidater.prosseserJulesoknadKandidater()
+        prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
 
         val soknader = hentSoknaderMetadata(fnr)
         soknader.shouldHaveSize(1)
@@ -79,7 +78,7 @@ class JulesoknadHealthTest : BaseTestClass() {
             ReadinessState.ACCEPTING_TRAFFIC
         )
 
-        prosesserJulesoknadkandidater.prosseserJulesoknadKandidater()
+        prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
 
         val soknader = hentSoknaderMetadata(fnr)
