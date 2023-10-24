@@ -1,54 +1,31 @@
 package no.nav.helse.flex.julesoknad
 
-import no.nav.helse.flex.ApplicationHealth
 import no.nav.helse.flex.aktivering.kafka.AktiveringBestilling
 import no.nav.helse.flex.aktivering.kafka.AktiveringProducer
-import no.nav.helse.flex.cronjob.LeaderElection
 import no.nav.helse.flex.domain.Soknadstatus
+import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.forskuttering.ForskutteringRepository
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.JulesoknadkandidatDAO
 import no.nav.helse.flex.repository.JulesoknadkandidatDAO.Julesoknadkandidat
 import no.nav.helse.flex.repository.SykepengesoknadDAO
+import no.nav.helse.flex.service.IdentService
 import no.nav.helse.flex.util.Metrikk
-import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.OffsetDateTime
-import java.util.concurrent.TimeUnit
 
 @Service
-class ProsesserJulesoknadkandidater(
+class ProsesserJulesoknadkandidat(
     private val metrikk: Metrikk,
     private val julesoknadkandidatDAO: JulesoknadkandidatDAO,
     private val sykepengesoknadDAO: SykepengesoknadDAO,
-    private val leaderElection: LeaderElection,
     private val forskutteringRepository: ForskutteringRepository,
     private val aktiveringProducer: AktiveringProducer,
-    private val applicationHealth: ApplicationHealth
+    private val identService: IdentService
 ) {
     private val log = logger()
-
-    @Scheduled(initialDelay = 5, fixedDelay = 10, timeUnit = TimeUnit.MINUTES)
-    fun prosseserJulesoknadKandidater() {
-        if (leaderElection.isLeader()) {
-            val julesoknadkandidater = julesoknadkandidatDAO.hentJulesoknadkandidater()
-            if (julesoknadkandidater.isEmpty()) {
-                return
-            }
-
-            log.info("Prosseserer ${julesoknadkandidater.size} julesoknadkandidater")
-
-            julesoknadkandidater.forEach { julesoknadkandidat ->
-                if (!applicationHealth.ok()) {
-                    log.info("Stanser prosseserJulesoknadKandidat siden application state ikke er ok")
-                    return
-                }
-                prosseserJulesoknadKandidat(julesoknadkandidat)
-            }
-        }
-    }
 
     @Transactional
     fun prosseserJulesoknadKandidat(julesoknadkandidat: Julesoknadkandidat) {
@@ -67,17 +44,20 @@ class ProsesserJulesoknadkandidater(
                 julesoknadkandidatDAO.slettJulesoknadkandidat(julesoknadkandidat.julesoknadkandidatId)
                 return
             }
-            val tidligereFremtidigeSoknader = sykepengesoknadDAO.finnSykepengesoknaderForSykmelding(
-                sykmeldingId = soknad.sykmeldingId!!
-            )
-                .filter { it.fom!!.isBefore(soknad.fom) }
-                .filter { it.status == Soknadstatus.FREMTIDIG }
 
-            if (tidligereFremtidigeSoknader.isNotEmpty()) {
-                log.debug("$julesoknadkandidat har tidligere fremtidige søknader på samme sykmelding ")
-                return
-            }
             if (soknad.arbeidsgiverForskuttererIkke()) {
+                val folkeregisterIdenter = identService.hentFolkeregisterIdenterMedHistorikkForFnr(soknad.fnr)
+                val tidligereFremtidigeSoknader = sykepengesoknadDAO.finnSykepengesoknader(
+                    folkeregisterIdenter
+                ).filter { it.soknadstype != Soknadstype.OPPHOLD_UTLAND }
+                    .filter { it.fom != null }
+                    .filter { it.fom!!.isBefore(soknad.fom) }
+                    .filter { it.status == Soknadstatus.FREMTIDIG }
+
+                if (tidligereFremtidigeSoknader.isNotEmpty()) {
+                    log.info("$julesoknadkandidat har tidligere fremtidige søknader, kan derfor ikke aktivere julesøknad")
+                    return
+                }
                 log.info("Arbeidsgiver forskutterer ikke julesøknadkandidat $julesoknadkandidat, aktiverer søknad og sletter kandidat")
 
                 aktiveringProducer.leggPaAktiveringTopic(AktiveringBestilling(soknad.fnr, soknad.id))
