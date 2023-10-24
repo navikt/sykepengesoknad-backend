@@ -187,7 +187,7 @@ class SporsmalGenerator(
             if (medlemskapVurdering.svar == MedlemskapVurderingSvarType.UAVKLART) {
                 // TODO: Fjern når LovMe har implementert alle scenario sånn at de vil returnere spørsmål ved UAVKLART.
                 if (medlemskapVurdering.sporsmal.isEmpty()) {
-                    log.warn(
+                    log.info(
                         "Medlemskapvurdering er UAVKLART for søknad ${soknad.id}, men LovMe returnerte ingen " +
                             "spørsmål om medlemskap å stille bruker."
                     )
