@@ -4,12 +4,13 @@ import no.nav.helse.flex.aktivering.kafka.AktiveringBestilling
 import no.nav.helse.flex.aktivering.kafka.AktiveringProducer
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
-import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.forskuttering.ForskutteringRepository
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.JulesoknadkandidatDAO
 import no.nav.helse.flex.repository.JulesoknadkandidatDAO.Julesoknadkandidat
 import no.nav.helse.flex.repository.SykepengesoknadDAO
+import no.nav.helse.flex.repository.SykepengesoknadDbRecord
+import no.nav.helse.flex.repository.SykepengesoknadRepository
 import no.nav.helse.flex.service.IdentService
 import no.nav.helse.flex.util.Metrikk
 import org.springframework.stereotype.Service
@@ -21,6 +22,7 @@ class ProsesserJulesoknadkandidat(
     private val metrikk: Metrikk,
     private val julesoknadkandidatDAO: JulesoknadkandidatDAO,
     private val sykepengesoknadDAO: SykepengesoknadDAO,
+    private val sykepengesoknadRepository: SykepengesoknadRepository,
     private val forskutteringRepository: ForskutteringRepository,
     private val aktiveringProducer: AktiveringProducer,
     private val identService: IdentService
@@ -32,13 +34,13 @@ class ProsesserJulesoknadkandidat(
         try {
             log.debug("Prosseserer julesoknadkandidat $julesoknadkandidat")
 
-            val soknad = try {
-                sykepengesoknadDAO.finnSykepengesoknad(julesoknadkandidat.sykepengesoknadUuid)
-            } catch (e: SykepengesoknadDAO.SoknadIkkeFunnetException) {
+            val soknad = sykepengesoknadRepository.findBySykepengesoknadUuid(julesoknadkandidat.sykepengesoknadUuid)
+            if (soknad == null) {
                 log.info("Julesøknadkandidat $julesoknadkandidat sin søknad er ikke lengre i db, sletter")
                 julesoknadkandidatDAO.slettJulesoknadkandidat(julesoknadkandidat.julesoknadkandidatId)
                 return
             }
+
             if (soknad.status != Soknadstatus.FREMTIDIG) {
                 log.info("Julesøknadkandidat $julesoknadkandidat har ikke lengre status fremtidig, sletter")
                 julesoknadkandidatDAO.slettJulesoknadkandidat(julesoknadkandidat.julesoknadkandidatId)
@@ -60,7 +62,7 @@ class ProsesserJulesoknadkandidat(
                 }
                 log.info("Arbeidsgiver forskutterer ikke julesøknadkandidat $julesoknadkandidat, aktiverer søknad og sletter kandidat")
 
-                aktiveringProducer.leggPaAktiveringTopic(AktiveringBestilling(soknad.fnr, soknad.id))
+                aktiveringProducer.leggPaAktiveringTopic(AktiveringBestilling(soknad.fnr, soknad.sykepengesoknadUuid))
                 if (soknad.opprettet!!.isBefore(OffsetDateTime.now().minusHours(1).toInstant())) {
                     metrikk.julesoknadAktivertNlEndret()
                 } else {
@@ -75,7 +77,7 @@ class ProsesserJulesoknadkandidat(
         }
     }
 
-    private fun Sykepengesoknad.arbeidsgiverForskuttererIkke(): Boolean {
+    private fun SykepengesoknadDbRecord.arbeidsgiverForskuttererIkke(): Boolean {
         if (this.arbeidssituasjon == no.nav.helse.flex.domain.Arbeidssituasjon.ARBEIDSTAKER) {
             val orgnummer = this.arbeidsgiverOrgnummer ?: throw RuntimeException("Forventer orgnummer")
 
