@@ -341,6 +341,17 @@ class JulesoknadIntegrationTest : BaseTestClass() {
         }
     }
 
+    @Test
+    fun `Fjerner julesøknad kandidat hvis søknaden er borte`() {
+        assertThat(julesoknadkandidatDAO.hentJulesoknadkandidater()).hasSize(0)
+        julesoknadkandidatDAO.lagreJulesoknadkandidat(UUID.randomUUID().toString())
+        assertThat(julesoknadkandidatDAO.hentJulesoknadkandidater()).hasSize(1)
+
+        prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
+
+        assertThat(julesoknadkandidatDAO.hentJulesoknadkandidater()).hasSize(0)
+    }
+
     private fun lagreForskuttering(forskutterer: Boolean, orgnummer: String) {
         forskutteringRepository.save(
             Forskuttering(
