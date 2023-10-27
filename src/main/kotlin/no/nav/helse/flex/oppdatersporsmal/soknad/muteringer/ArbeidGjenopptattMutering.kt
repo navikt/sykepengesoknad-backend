@@ -1,8 +1,7 @@
 package no.nav.helse.flex.oppdatersporsmal.soknad.muteringer
 
-import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.domain.Soknadstype.ARBEIDSTAKERE
-import no.nav.helse.flex.domain.Soknadstype.SELVSTENDIGE_OG_FRILANSERE
+import no.nav.helse.flex.domain.Arbeidssituasjon.*
+import no.nav.helse.flex.domain.Soknadstype.*
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.oppdatersporsmal.soknad.erIkkeAvType
 import no.nav.helse.flex.oppdatersporsmal.soknad.leggTilSporsmaal
@@ -29,8 +28,13 @@ import no.nav.helse.flex.soknadsopprettelse.utenlandsoppholdSporsmal
 import no.nav.helse.flex.soknadsopprettelse.utlandsSporsmalSelvstendig
 
 fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
-    if (erIkkeAvType(SELVSTENDIGE_OG_FRILANSERE, ARBEIDSTAKERE)) {
+    if (erIkkeAvType(SELVSTENDIGE_OG_FRILANSERE, ARBEIDSTAKERE, GRADERT_REISETILSKUDD)) {
         return this
+    }
+    if (soknadstype == GRADERT_REISETILSKUDD) {
+        if (!listOf(ARBEIDSTAKER, NAERINGSDRIVENDE, FRILANSER).contains(arbeidssituasjon)) {
+            return this
+        }
     }
 
     val arbeidGjenopptattDato = this.finnGyldigDatoSvar(TILBAKE_I_ARBEID, TILBAKE_NAR)
@@ -60,7 +64,7 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
         arbeidGjenopptattDato.minusDays(1)
     }
 
-    val oppdaterteSporsmal = if (arbeidssituasjon == Arbeidssituasjon.ARBEIDSTAKER) {
+    val oppdaterteSporsmal = if (arbeidssituasjon == ARBEIDSTAKER) {
         jobbetDuIPeriodenSporsmal(
             this.skapOppdaterteSoknadsperioder(
                 arbeidGjenopptattDato
