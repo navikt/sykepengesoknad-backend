@@ -88,12 +88,12 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
             )
         )
     } else {
-        if (this.soknadstype == ARBEIDSTAKERE) {
+        if (this.arbeidssituasjon == ARBEIDSTAKER) {
             oppdaterteSporsmal.add(ferieSporsmal(this.fom!!, oppdatertTom))
             oppdaterteSporsmal.add(permisjonSporsmal(this.fom, oppdatertTom))
             oppdaterteSporsmal.add(utenlandsoppholdSporsmal(this.fom, oppdatertTom))
         }
-        if (this.soknadstype == SELVSTENDIGE_OG_FRILANSERE) {
+        if (this.arbeidssituasjon == NAERINGSDRIVENDE || this.arbeidssituasjon == FRILANSER) {
             oppdaterteSporsmal.add(utlandsSporsmalSelvstendig(this.fom!!, oppdatertTom))
         }
     }
