@@ -18,7 +18,10 @@ fun lagSporsmalOmOppholdstillatelse(): Sporsmal {
                 tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_VEDTAKSDATO,
                 sporsmalstekst = "Hvilken dato fikk du denne oppholdstillatelsen?",
                 svartype = Svartype.DATO,
+                // Vi vet ikke hvor lang tid tilbake en oppholdstillatelse kan ha bli gitt så vi setter 10 år i
+                // samarbeid med LovMe.
                 min = LocalDate.now().minusYears(10).format(DateTimeFormatter.ISO_LOCAL_DATE),
+                // Vi vet at en vedtaksdato ikke kan være i fremtiden så vi setter dagens dato som maks.
                 max = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
             ),
             Sporsmal(
