@@ -16,26 +16,44 @@ fun lagSporsmalOmOppholdstillatelse(): Sporsmal {
         undersporsmal = listOf(
             Sporsmal(
                 tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_VEDTAKSDATO,
-                sporsmalstekst = "Når fikk du vedtak om oppholdstillatelse?",
+                sporsmalstekst = "Hvilken dato fikk du denne oppholdstillatelsen?",
                 svartype = Svartype.DATO,
-                // Vi vet ikke hvor lang tid tilbake en oppholdstillatelse kan ha bli gitt så vi setter 10 år i
-                // samarbeid med LovMe.
                 min = LocalDate.now().minusYears(10).format(DateTimeFormatter.ISO_LOCAL_DATE),
-                // Vi vet at en vedtaksdato ikke kan være i fremtiden så vi setter dagens dato som maks.
                 max = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
             ),
             Sporsmal(
-                tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_PERMANENT,
-                sporsmalstekst = "Har du fått permanent oppholdstillatelse?",
-                svartype = Svartype.JA_NEI,
-                kriterieForVisningAvUndersporsmal = Visningskriterie.NEI,
+                tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_GRUPPE,
+                sporsmalstekst = "Er oppholdstillatelsen midlertidig eller permanent?",
+                svartype = Svartype.RADIO_GRUPPE,
                 undersporsmal = listOf(
                     Sporsmal(
-                        tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_PERIODE,
-                        sporsmalstekst = "Hvilken periode har du fått oppholdstillatelse?",
-                        svartype = Svartype.PERIODE,
-                        min = LocalDate.now().minusYears(10).format(DateTimeFormatter.ISO_LOCAL_DATE),
-                        max = LocalDate.now().plusYears(10).format(DateTimeFormatter.ISO_LOCAL_DATE)
+                        tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_MIDLERTIDIG,
+                        sporsmalstekst = "Midlertidig",
+                        svartype = Svartype.RADIO,
+                        kriterieForVisningAvUndersporsmal = Visningskriterie.CHECKED,
+                        undersporsmal = listOf(
+                            Sporsmal(
+                                tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_MIDLERTIDIG_PERIODE,
+                                svartype = Svartype.PERIODE,
+                                min = LocalDate.now().minusYears(10).format(DateTimeFormatter.ISO_LOCAL_DATE),
+                                max = LocalDate.now().plusYears(10).format(DateTimeFormatter.ISO_LOCAL_DATE)
+                            )
+                        )
+                    ),
+                    Sporsmal(
+                        tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_PERMANENT,
+                        sporsmalstekst = "Permanent",
+                        svartype = Svartype.RADIO,
+                        kriterieForVisningAvUndersporsmal = Visningskriterie.CHECKED,
+                        undersporsmal = listOf(
+                            Sporsmal(
+                                tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_PERMANENT_DATO,
+                                sporsmalstekst = "Fra og med",
+                                svartype = Svartype.DATO,
+                                min = LocalDate.now().minusYears(10).format(DateTimeFormatter.ISO_LOCAL_DATE),
+                                max = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
+                            )
+                        )
                     )
                 )
             )
