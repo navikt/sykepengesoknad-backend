@@ -1,7 +1,8 @@
 package no.nav.helse.flex.oppdatersporsmal.soknad.muteringer
 
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.domain.Soknadstype.ANNET_ARBEIDSFORHOLD
+import no.nav.helse.flex.domain.Arbeidssituasjon.*
+import no.nav.helse.flex.domain.Soknadstype.*
 import no.nav.helse.flex.domain.Soknadstype.ARBEIDSLEDIG
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.oppdatersporsmal.soknad.erIkkeAvType
@@ -18,8 +19,13 @@ import no.nav.helse.flex.soknadsopprettelse.sporsmal.permisjonSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.utenlandsoppholdArbeidsledigAnnetSporsmal
 
 fun Sykepengesoknad.friskmeldtMuteringer(): Sykepengesoknad {
-    if (erIkkeAvType(ANNET_ARBEIDSFORHOLD, ARBEIDSLEDIG)) {
+    if (erIkkeAvType(ANNET_ARBEIDSFORHOLD, ARBEIDSLEDIG, GRADERT_REISETILSKUDD)) {
         return this
+    }
+    if (soknadstype == GRADERT_REISETILSKUDD) {
+        if (!listOf(ANNET, Arbeidssituasjon.ARBEIDSLEDIG).contains(arbeidssituasjon)) {
+            return this
+        }
     }
 
     val friskmeldtDato = this.finnGyldigDatoSvar(FRISKMELDT, FRISKMELDT_START, relevantSvarVerdi = "NEI")
@@ -48,7 +54,7 @@ fun Sykepengesoknad.friskmeldtMuteringer(): Sykepengesoknad {
         .leggTilSporsmaal(utenlandsoppholdArbeidsledigAnnetSporsmal(this.fom!!, oppdatertTom!!))
         .leggTilSporsmaal(andreInntektskilderArbeidsledig(this.fom, oppdatertTom))
         .run {
-            if (this.arbeidssituasjon == Arbeidssituasjon.ANNET) {
+            if (this.arbeidssituasjon == ANNET) {
                 return@run this.leggTilSporsmaal(permisjonSporsmal(this.fom!!, oppdatertTom))
             }
             return@run this

@@ -1,8 +1,7 @@
 package no.nav.helse.flex.reisetilskudd
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import no.nav.helse.flex.BaseTestClass
-import no.nav.helse.flex.avbrytSoknad
+import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSMottaker
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSvar
@@ -10,52 +9,21 @@ import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Kvittering
 import no.nav.helse.flex.domain.Utgiftstype
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
-import no.nav.helse.flex.ettersendTilArbeidsgiver
-import no.nav.helse.flex.ettersendTilNav
-import no.nav.helse.flex.finnMottakerAvSoknad
-import no.nav.helse.flex.gjenapneSoknad
-import no.nav.helse.flex.hentSoknad
-import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
-import no.nav.helse.flex.korrigerSoknad
-import no.nav.helse.flex.lagreSvar
-import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
-import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
-import no.nav.helse.flex.sendSoknadMedResult
-import no.nav.helse.flex.slettSvar
-import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER_V2
-import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
-import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
-import no.nav.helse.flex.soknadsopprettelse.BRUKTE_REISETILSKUDDET
-import no.nav.helse.flex.soknadsopprettelse.FERIE_V2
-import no.nav.helse.flex.soknadsopprettelse.KVITTERINGER
-import no.nav.helse.flex.soknadsopprettelse.PERMISJON_V2
-import no.nav.helse.flex.soknadsopprettelse.REISE_MED_BIL
-import no.nav.helse.flex.soknadsopprettelse.TILBAKE_I_ARBEID
-import no.nav.helse.flex.soknadsopprettelse.TRANSPORT_TIL_DAGLIG
-import no.nav.helse.flex.soknadsopprettelse.UTBETALING
-import no.nav.helse.flex.soknadsopprettelse.UTLAND_V2
-import no.nav.helse.flex.soknadsopprettelse.VAER_KLAR_OVER_AT
+import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.vaerKlarOverAtReisetilskudd
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.helse.flex.testutil.SoknadBesvarer
-import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.util.OBJECT_MAPPER
 import no.nav.helse.flex.util.serialisertTilString
-import no.nav.helse.flex.ventPåRecords
 import no.nav.syfo.model.sykmelding.model.GradertDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
 import no.nav.syfo.model.sykmeldingstatus.STATUS_SENDT
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should be true`
-import org.amshove.kluent.shouldBeEmpty
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldNotBeNull
+import org.amshove.kluent.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer
@@ -68,6 +36,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.time.Instant
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 import java.util.*
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
@@ -209,6 +178,31 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
 
     @Test
     @Order(6)
+    fun `Tilbake i arbeid muterer søknaden`() {
+        val reisetilskudd = hentSoknader(
+            fnr = fnr
+        ).first()
+
+        reisetilskudd.sporsmal!!.shouldHaveSize(10)
+        SoknadBesvarer(reisetilskudd, this, fnr)
+            .besvarSporsmal(TILBAKE_I_ARBEID, "JA", ferdigBesvart = false)
+            .besvarSporsmal(TILBAKE_NAR, fom.format(ISO_LOCAL_DATE), ferdigBesvart = true, mutert = true)
+        val soknadEtterOppdatering = hentSoknader(
+            fnr = fnr
+        ).first()
+
+        soknadEtterOppdatering.sporsmal!!.shouldHaveSize(6)
+
+        SoknadBesvarer(soknadEtterOppdatering, this, fnr)
+            .besvarSporsmal(TILBAKE_I_ARBEID, "NEI", mutert = true)
+
+        hentSoknader(
+            fnr = fnr
+        ).first().sporsmal!!.shouldHaveSize(10)
+    }
+
+    @Test
+    @Order(7)
     fun `Vi kan besvare spørsmålet om at reisetilskudd ble brukt`() {
         val reisetilskudd = hentSoknad(
             soknadId = hentSoknaderMetadata(fnr).first().id,
@@ -247,7 +241,7 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    @Order(7)
+    @Order(8)
     fun `Vi kan laste opp en kvittering`() {
         val reisetilskuddSoknad = hentSoknad(
             soknadId = hentSoknaderMetadata(fnr).first().id,
@@ -273,7 +267,7 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    @Order(8)
+    @Order(9)
     fun `Vi kan se den opplastede kvitteringen`() {
         val reisetilskuddSoknad = hentSoknad(
             soknadId = hentSoknaderMetadata(fnr).first().id,
@@ -290,7 +284,7 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    @Order(9)
+    @Order(10)
     fun `Vi kan slette en kvittering`() {
         val reisetilskuddSoknad = hentSoknad(
             soknadId = hentSoknaderMetadata(fnr).first().id,
@@ -312,7 +306,7 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    @Order(10)
+    @Order(11)
     fun `Vi laster opp en kvittering igjen`() {
         val reisetilskuddSoknad = hentSoknad(
             soknadId = hentSoknaderMetadata(fnr).first().id,
@@ -333,7 +327,7 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    @Order(11)
+    @Order(12)
     fun `Vi tester å sende inn søknaden før alle svar er besvart og får bad request`() {
         val reisetilskudd = hentSoknaderMetadata(fnr).first()
         sendSoknadMedResult(fnr, reisetilskudd.id)
@@ -341,7 +335,7 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    @Order(12)
+    @Order(13)
     fun `Vi besvarer resten av spørsmålene`() {
         val reisetilskudd = hentSoknad(
             soknadId = hentSoknaderMetadata(fnr).first().id,
@@ -362,7 +356,7 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    @Order(13)
+    @Order(14)
     fun `Vi kan finne mottaker av søknaden`() {
         flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
@@ -372,7 +366,7 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    @Order(14)
+    @Order(15)
     fun `Vi kan sende inn søknaden`() {
         flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
@@ -388,13 +382,13 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    @Order(15)
+    @Order(16)
     fun `Vi leser av alt som er produsert`() {
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 3)
     }
 
     @Test
-    @Order(16)
+    @Order(17)
     fun `Vi ettersender til NAV`() {
         val reisetilskudd = hentSoknaderMetadata(fnr).first()
         ettersendTilNav(reisetilskudd.id, fnr)
@@ -404,7 +398,7 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    @Order(17)
+    @Order(18)
     fun `Vi prøver å ettersende til arbeidsgiver, men den er allerede sendt dit`() {
         val reisetilskudd = hentSoknaderMetadata(fnr).first()
         ettersendTilArbeidsgiver(reisetilskudd.id, fnr)
@@ -412,7 +406,7 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    @Order(18)
+    @Order(19)
     fun `Vi endrer i databasen og ettersender til arbeidsgiver`() {
         val reisetilskudd = hentSoknaderMetadata(fnr).first()
 
@@ -433,7 +427,7 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    @Order(19)
+    @Order(20)
     fun `Vi ombestemmer oss å svarer nei på reisetilskudd brukt`() {
         val soknad = hentSoknaderMetadata(fnr).first()
         val utkast = korrigerSoknad(soknad.id, fnr)
@@ -462,7 +456,7 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    @Order(20)
+    @Order(21)
     fun `Vi sender inn den korrigerte søknaden`() {
         val reisetilskudd = hentSoknad(
             soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.UTKAST_TIL_KORRIGERING }.id,
