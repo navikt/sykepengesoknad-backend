@@ -10,7 +10,7 @@ import java.time.format.DateTimeFormatter
 fun lagSporsmalOmOppholdstillatelse(): Sporsmal {
     return Sporsmal(
         tag = MEDLEMSKAP_OPPHOLDSTILLATELSE,
-        sporsmalstekst = "Har du oppholdstillatelse fra utlendingsdirektoratet?",
+        sporsmalstekst = "Har du oppholdstillatelse fra Utlendingsdirektoratet?",
         svartype = Svartype.JA_NEI,
         kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
         undersporsmal = listOf(
