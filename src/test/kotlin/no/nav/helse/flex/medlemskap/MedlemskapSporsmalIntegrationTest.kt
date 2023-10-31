@@ -496,8 +496,13 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
                 ferdigBesvart = false
             )
             .besvarSporsmal(
-                tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_FERIE, index),
+                tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_ANNET, index),
                 svar = "CHECKED",
+                ferdigBesvart = false
+            )
+            .besvarSporsmal(
+                tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_ANNET_FRITEKST, index),
+                svar = "Handletur",
                 ferdigBesvart = false
             )
             .besvarSporsmal(
