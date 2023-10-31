@@ -169,7 +169,7 @@ fun lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforNorge(index: Int): Sporsm
 fun lagSporsmalOmOppholdUtenforEos(): Sporsmal {
     return Sporsmal(
         tag = MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
-        sporsmalstekst = "Har du oppholdt deg utenfor EØS i løpet av de siste 12 månedene?",
+        sporsmalstekst = "Har du oppholdt deg utenfor EØS i løpet av de siste 12 månedene før du ble syk?",
         svartype = Svartype.JA_NEI,
         kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
         undersporsmal = listOf(
@@ -190,23 +190,43 @@ fun lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforEos(index: Int): Sporsmal
             ),
             Sporsmal(
                 tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE, index),
-                sporsmalstekst = "Hva var årsaken til oppholdet?",
+                sporsmalstekst = "Hva gjorde du i utlandet?",
                 svartype = Svartype.RADIO_GRUPPE,
                 undersporsmal = listOf(
                     Sporsmal(
                         tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_STUDIE, index),
-                        sporsmalstekst = "Studier",
+                        sporsmalstekst = "Jeg studerte",
                         svartype = Svartype.RADIO
                     ),
                     Sporsmal(
                         tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_FERIE, index),
-                        sporsmalstekst = "Ferie",
+                        sporsmalstekst = "Jeg var på ferie",
                         svartype = Svartype.RADIO
                     ),
                     Sporsmal(
-                        tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_FORSORG, index),
-                        sporsmalstekst = "Forsørget medfølgende familiemedlem",
+                        tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_BO, index),
+                        sporsmalstekst = "Jeg bodde der",
                         svartype = Svartype.RADIO
+                    ),
+                    Sporsmal(
+                        tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_EKTEFELLE, index),
+                        sporsmalstekst = "Jeg var med ektefelle/samboer som jobbet der",
+                        svartype = Svartype.RADIO
+                    ),
+                    Sporsmal(
+                        tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_ANNET, index),
+                        sporsmalstekst = "Annet",
+                        svartype = Svartype.RADIO,
+                        kriterieForVisningAvUndersporsmal = Visningskriterie.CHECKED,
+                        undersporsmal = listOf(
+                            Sporsmal(
+                                tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_ANNET_FRITEKST, index),
+                                sporsmalstekst = "Beskriv hva du gjorde",
+                                svartype = Svartype.FRITEKST,
+                                min = "1",
+                                max = "200"
+                            )
+                        )
                     )
                 )
             ),
