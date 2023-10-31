@@ -70,7 +70,7 @@ class SporsmalDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemp
             } ?: emptyList()
         }
             .flatten()
-            .sortedBy { it.second.id?.toString() }
+            .sortedBy { it.second.id }
         val ret = HashMap<String, MutableList<Sporsmal>>()
         unMapped.forEach {
             val lista = ret[it.first]

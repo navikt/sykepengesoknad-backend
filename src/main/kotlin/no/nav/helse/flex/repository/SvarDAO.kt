@@ -8,9 +8,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.util.StringUtils.isEmpty
-import java.util.ArrayList
-import java.util.HashMap
 
 @Service
 @Transactional
@@ -42,7 +39,9 @@ class SvarDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate
     }
 
     fun lagreSvar(sporsmalId: String, svar: Svar?) {
-        @Suppress("DEPRECATION")
+        fun isEmpty(str: String?): Boolean {
+            return str == null || "" == str
+        }
         if (svar == null || isEmpty(svar.verdi)) {
             return
         }
