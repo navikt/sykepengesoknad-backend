@@ -71,6 +71,12 @@ class ValideringTest {
     }
 
     @Test
+    fun gruppeAvUndersporsmalHarRiktigAntallSvar() {
+        getSporsmal(GRUPPE_AV_UNDERSPORSMAL).validerAntallSvar()
+        getSporsmal(GRUPPE_AV_UNDERSPORSMAL, getSvar(1)).`valider antall svar og forvent ValideringException`()
+    }
+
+    @Test
     fun FritekstSporsmalHarRiktigAntallSvar() {
         getSporsmalMedGrenser(FRITEKST, "1", null).`valider antall svar og forvent ValideringException`()
         getSporsmal(FRITEKST, getSvar(1)).validerAntallSvar()
@@ -253,6 +259,7 @@ class ValideringTest {
         assertThat(validerGrenser(getSporsmal(JA_NEI), "BOGUS")).isTrue()
         assertThat(validerGrenser(getSporsmal(FRITEKST), "BOGUS")).isTrue()
         assertThat(validerGrenser(getSporsmal(IKKE_RELEVANT), "BOGUS")).isTrue()
+        assertThat(validerGrenser(getSporsmal(GRUPPE_AV_UNDERSPORSMAL), "BOGUS")).isTrue()
         assertThat(validerGrenser(getSporsmal(CHECKBOX), "BOGUS")).isTrue()
         assertThat(validerGrenser(getSporsmal(CHECKBOX_PANEL), "BOGUS")).isTrue()
         assertThat(validerGrenser(getSporsmal(CHECKBOX_GRUPPE), "BOGUS")).isTrue()
@@ -515,6 +522,28 @@ class ValideringTest {
         val sporsmal = sporsmalBuilder()
             .tag("ANY")
             .svartype(IKKE_RELEVANT)
+            .undersporsmal(getBesvarteCheckedSporsmal(CHECKBOX_PANEL, 1, 0))
+            .build()
+
+        assertThat(validerUndersporsmal(sporsmal)).isFalse()
+    }
+
+    @Test
+    fun gruppeAvUndersporsmalValidererOKForBesvarteCheckboxPanel() {
+        val sporsmal = sporsmalBuilder()
+            .tag("ANY")
+            .svartype(GRUPPE_AV_UNDERSPORSMAL)
+            .undersporsmal(getBesvarteCheckedSporsmal(CHECKBOX_PANEL, 1, 1))
+            .build()
+
+        assertThat(validerUndersporsmal(sporsmal)).isTrue()
+    }
+
+    @Test
+    fun gruppeAvUndersporsmalValidererFeilForUbesvarteCheckboxPanel() {
+        val sporsmal = sporsmalBuilder()
+            .tag("ANY")
+            .svartype(GRUPPE_AV_UNDERSPORSMAL)
             .undersporsmal(getBesvarteCheckedSporsmal(CHECKBOX_PANEL, 1, 0))
             .build()
 
