@@ -9,8 +9,8 @@ import no.nav.helse.flex.domain.sporsmalBuilder
 import no.nav.helse.flex.mock.opprettSendtSoknad
 import no.nav.helse.flex.soknadsopprettelse.settOppSoknadOppholdUtland
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import java.util.Arrays.asList
 import java.util.Collections.emptyList
 
@@ -68,6 +68,12 @@ class ValideringTest {
     fun ikkeRelevantSporsmalHarRiktigAntallSvar() {
         getSporsmal(IKKE_RELEVANT).validerAntallSvar()
         getSporsmal(IKKE_RELEVANT, getSvar(1)).`valider antall svar og forvent ValideringException`()
+    }
+
+    @Test
+    fun gruppeAvUndersporsmalHarRiktigAntallSvar() {
+        getSporsmal(GRUPPE_AV_UNDERSPORSMAL).validerAntallSvar()
+        getSporsmal(GRUPPE_AV_UNDERSPORSMAL, getSvar(1)).`valider antall svar og forvent ValideringException`()
     }
 
     @Test
@@ -253,6 +259,7 @@ class ValideringTest {
         assertThat(validerGrenser(getSporsmal(JA_NEI), "BOGUS")).isTrue()
         assertThat(validerGrenser(getSporsmal(FRITEKST), "BOGUS")).isTrue()
         assertThat(validerGrenser(getSporsmal(IKKE_RELEVANT), "BOGUS")).isTrue()
+        assertThat(validerGrenser(getSporsmal(GRUPPE_AV_UNDERSPORSMAL), "BOGUS")).isTrue()
         assertThat(validerGrenser(getSporsmal(CHECKBOX), "BOGUS")).isTrue()
         assertThat(validerGrenser(getSporsmal(CHECKBOX_PANEL), "BOGUS")).isTrue()
         assertThat(validerGrenser(getSporsmal(CHECKBOX_GRUPPE), "BOGUS")).isTrue()
@@ -522,6 +529,28 @@ class ValideringTest {
     }
 
     @Test
+    fun gruppeAvUndersporsmalValidererOKForBesvarteCheckboxPanel() {
+        val sporsmal = sporsmalBuilder()
+            .tag("ANY")
+            .svartype(GRUPPE_AV_UNDERSPORSMAL)
+            .undersporsmal(getBesvarteCheckedSporsmal(CHECKBOX_PANEL, 1, 1))
+            .build()
+
+        assertThat(validerUndersporsmal(sporsmal)).isTrue()
+    }
+
+    @Test
+    fun gruppeAvUndersporsmalValidererFeilForUbesvarteCheckboxPanel() {
+        val sporsmal = sporsmalBuilder()
+            .tag("ANY")
+            .svartype(GRUPPE_AV_UNDERSPORSMAL)
+            .undersporsmal(getBesvarteCheckedSporsmal(CHECKBOX_PANEL, 1, 0))
+            .build()
+
+        assertThat(validerUndersporsmal(sporsmal)).isFalse()
+    }
+
+    @Test
     fun ferieSporsmalMedSvarverdiJaOppholdUtland() {
         val soknadGodkjentFerieSporsmal = settOppSoknadOppholdUtland("fnr").copy(
             sporsmal = listOf(
@@ -637,10 +666,8 @@ class ValideringTest {
     }
 
     private fun Sporsmal.`valider antall svar og forvent ValideringException`() {
-        try {
+        assertThrows<ValideringException> {
             validerAntallSvar()
-            Assertions.fail("Forventer exeption")
-        } catch (e: ValideringException) {
         }
     }
 

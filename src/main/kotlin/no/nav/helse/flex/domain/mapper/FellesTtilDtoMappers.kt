@@ -86,6 +86,7 @@ fun Svartype.tilSvartypeDTO(): SvartypeDTO {
         Svartype.TALL -> SvartypeDTO.TALL
         Svartype.TIMER -> SvartypeDTO.TIMER
         Svartype.IKKE_RELEVANT -> SvartypeDTO.IKKE_RELEVANT
+        Svartype.GRUPPE_AV_UNDERSPORSMAL -> SvartypeDTO.GRUPPE_AV_UNDERSPORSMAL
         Svartype.INFO_BEHANDLINGSDAGER -> SvartypeDTO.INFO_BEHANDLINGSDAGER
         Svartype.LAND -> SvartypeDTO.LAND
         Svartype.COMBOBOX_SINGLE -> SvartypeDTO.COMBOBOX_SINGLE
@@ -143,10 +144,10 @@ fun Soknadstype.tilSoknadstypeDTO(): SoknadstypeDTO {
 private val objectmapper = ObjectMapper().registerModule(JavaTimeModule()).registerKotlinModule()
 
 fun String.getJsonPeriode(): PeriodeDTO {
-    try {
-        return objectmapper.readValue(this, PeriodeDTO::class.java)
+    return try {
+        objectmapper.readValue(this, PeriodeDTO::class.java)
     } catch (e: IOException) {
-        return this.getJsonPeriodeFraGammeltFormat()
+        this.getJsonPeriodeFraGammeltFormat()
     }
 }
 

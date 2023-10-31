@@ -83,7 +83,7 @@ fun medIndex(tekst: String, index: Int): String {
 fun lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(index: Int): Sporsmal {
     return Sporsmal(
         tag = medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_GRUPPERING, index),
-        svartype = Svartype.IKKE_RELEVANT,
+        svartype = Svartype.GRUPPE_AV_UNDERSPORSMAL,
         undersporsmal = listOf(
             Sporsmal(
                 tag = medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_HVOR, index),
@@ -125,8 +125,7 @@ fun lagSporsmalOmOppholdUtenforNorge(): Sporsmal {
 fun lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforNorge(index: Int): Sporsmal {
     return Sporsmal(
         tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_GRUPPERING, index),
-        svartype = Svartype.IKKE_RELEVANT,
-
+        svartype = Svartype.GRUPPE_AV_UNDERSPORSMAL,
         undersporsmal = listOf(
             Sporsmal(
                 tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_HVOR, index),
@@ -182,8 +181,7 @@ fun lagSporsmalOmOppholdUtenforEos(): Sporsmal {
 fun lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforEos(index: Int): Sporsmal {
     return Sporsmal(
         tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_GRUPPERING, index),
-        svartype = Svartype.IKKE_RELEVANT,
-
+        svartype = Svartype.GRUPPE_AV_UNDERSPORSMAL,
         undersporsmal = listOf(
             Sporsmal(
                 tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_HVOR, index),

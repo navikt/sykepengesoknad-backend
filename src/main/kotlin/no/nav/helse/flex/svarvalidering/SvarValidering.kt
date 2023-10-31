@@ -91,6 +91,7 @@ fun Sporsmal.validerUndersporsmal() {
         COMBOBOX_SINGLE,
         COMBOBOX_MULTI,
         IKKE_RELEVANT,
+        GRUPPE_AV_UNDERSPORSMAL,
         PROSENT,
         RADIO,
         TALL,
@@ -167,6 +168,7 @@ private fun Sporsmal.validerGrenserPaSvar(svar: Svar) {
         CHECKBOX_PANEL,
         CHECKBOX_GRUPPE,
         IKKE_RELEVANT,
+        GRUPPE_AV_UNDERSPORSMAL,
         RADIO,
         RADIO_GRUPPE,
         RADIO_GRUPPE_TIMER_PROSENT,
@@ -338,6 +340,7 @@ private fun Sporsmal.validerSvarverdi(svar: Svar) {
         RADIO_GRUPPE,
         RADIO_GRUPPE_TIMER_PROSENT,
         IKKE_RELEVANT,
+        GRUPPE_AV_UNDERSPORSMAL,
         INFO_BEHANDLINGSDAGER,
         CHECKBOX_GRUPPE -> throw IllegalStateException("Skal ha validert 0 svar allerede")
     }
@@ -386,6 +389,7 @@ fun Sporsmal.validerAntallSvar() {
         RADIO_GRUPPE,
         RADIO_GRUPPE_TIMER_PROSENT,
         IKKE_RELEVANT,
+        GRUPPE_AV_UNDERSPORSMAL,
         INFO_BEHANDLINGSDAGER,
         CHECKBOX_GRUPPE -> {
             { it == 0 }
