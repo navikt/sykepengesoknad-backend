@@ -67,7 +67,7 @@ fun lagSporsmalOmOppholdstillatelse(): Sporsmal {
 fun lagSporsmalOmArbeidUtenforNorge(): Sporsmal {
     return Sporsmal(
         tag = MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
-        sporsmalstekst = "Har du utført arbeid utenfor Norge i løpet av de siste 12 månedene?",
+        sporsmalstekst = "Har du arbeidet utenfor Norge i løpet av de siste 12 månedene før du ble syk?",
         svartype = Svartype.JA_NEI,
         kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
         undersporsmal = listOf(
@@ -87,7 +87,7 @@ fun lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(index: Int): Sporsma
         undersporsmal = listOf(
             Sporsmal(
                 tag = medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_HVOR, index),
-                sporsmalstekst = "I hvilket land utførte du arbeidet?",
+                sporsmalstekst = "I hvilket land arbeidet du?",
                 svartype = Svartype.COMBOBOX_SINGLE
             ),
             Sporsmal(
@@ -100,7 +100,7 @@ fun lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(index: Int): Sporsma
             ),
             Sporsmal(
                 tag = medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR, index),
-                sporsmalstekst = "I hvilken periode ble arbeidet utført?",
+                sporsmalstekst = "I hvilken periode arbeidet du i utlandet?",
                 svartype = Svartype.PERIODE,
                 // Til- og fra-dato er satt statisk i samarbeid med LovMe.
                 min = LocalDate.now().minusYears(10).format(DateTimeFormatter.ISO_LOCAL_DATE),
