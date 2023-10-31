@@ -141,15 +141,23 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
         val soknad = hentSoknadMedStatusNy()
 
         SoknadBesvarer(rSSykepengesoknad = soknad, mockMvc = this, fnr = fnr)
-            .besvarSporsmal(tag = MEDLEMSKAP_OPPHOLDSTILLATELSE, svar = "JA", ferdigBesvart = false)
+            .besvarSporsmal(
+                tag = MEDLEMSKAP_OPPHOLDSTILLATELSE,
+                svar = "JA",
+                ferdigBesvart = false
+            )
             .besvarSporsmal(
                 tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_VEDTAKSDATO,
                 svar = soknad.fom.toString(),
                 ferdigBesvart = false
             )
-            .besvarSporsmal(tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_PERMANENT, svar = "NEI", ferdigBesvart = false)
             .besvarSporsmal(
-                tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_PERIODE,
+                tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_MIDLERTIDIG,
+                svar = "CHECKED",
+                ferdigBesvart = false
+            )
+            .besvarSporsmal(
+                tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_MIDLERTIDIG_PERIODE,
                 svar = DatoUtil.periodeTilJson(
                     fom = soknad.tom!!.minusDays(25),
                     tom = soknad.tom!!.minusDays(5)
