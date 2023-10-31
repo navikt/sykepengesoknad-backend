@@ -144,10 +144,10 @@ fun Soknadstype.tilSoknadstypeDTO(): SoknadstypeDTO {
 private val objectmapper = ObjectMapper().registerModule(JavaTimeModule()).registerKotlinModule()
 
 fun String.getJsonPeriode(): PeriodeDTO {
-    try {
-        return objectmapper.readValue(this, PeriodeDTO::class.java)
+    return try {
+        objectmapper.readValue(this, PeriodeDTO::class.java)
     } catch (e: IOException) {
-        return this.getJsonPeriodeFraGammeltFormat()
+        this.getJsonPeriodeFraGammeltFormat()
     }
 }
 
