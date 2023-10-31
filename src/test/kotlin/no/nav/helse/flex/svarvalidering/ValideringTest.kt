@@ -9,8 +9,8 @@ import no.nav.helse.flex.domain.sporsmalBuilder
 import no.nav.helse.flex.mock.opprettSendtSoknad
 import no.nav.helse.flex.soknadsopprettelse.settOppSoknadOppholdUtland
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import java.util.Arrays.asList
 import java.util.Collections.emptyList
 
@@ -666,10 +666,8 @@ class ValideringTest {
     }
 
     private fun Sporsmal.`valider antall svar og forvent ValideringException`() {
-        try {
+        assertThrows<ValideringException> {
             validerAntallSvar()
-            Assertions.fail("Forventer exeption")
-        } catch (e: ValideringException) {
         }
     }
 
