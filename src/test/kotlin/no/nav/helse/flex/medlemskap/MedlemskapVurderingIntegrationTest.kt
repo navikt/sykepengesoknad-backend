@@ -1,8 +1,18 @@
 package no.nav.helse.flex.medlemskap
 
 import no.nav.helse.flex.BaseTestClass
-import org.amshove.kluent.*
-import org.junit.jupiter.api.*
+import no.nav.helse.flex.util.serialisertTilString
+import okhttp3.mockwebserver.MockResponse
+import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.`should contain same`
+import org.amshove.kluent.`should not be`
+import org.amshove.kluent.shouldContain
+import org.amshove.kluent.shouldHaveSize
+import org.amshove.kluent.shouldStartWith
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 import java.util.*
@@ -47,6 +57,20 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
     @Test
     fun `hentMedlemskapVurdering svarer med UAVKLART og liste med spørsmål`() {
         val fnr = "31111111111"
+        medlemskapMockWebServer.enqueue(
+            MockResponse().setResponseCode(200).setBody(
+                MedlemskapVurderingResponse(
+                    svar = MedlemskapVurderingSvarType.UAVKLART,
+                    sporsmal = listOf(
+                        MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
+                        MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
+                        MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
+                        MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE
+                    )
+                ).serialisertTilString()
+            )
+        )
+
         val response = medlemskapVurderingClient.hentMedlemskapVurdering(request.copy(fnr = fnr))
 
         response.svar `should be equal to` MedlemskapVurderingSvarType.UAVKLART
@@ -70,6 +94,15 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
     @Test
     fun `hentMedlemskapVurdering svarer med UAVKLART og tom liste`() {
         val fnr = "31111111116"
+        medlemskapMockWebServer.enqueue(
+            MockResponse().setResponseCode(200).setBody(
+                MedlemskapVurderingResponse(
+                    svar = MedlemskapVurderingSvarType.UAVKLART,
+                    sporsmal = emptyList()
+                ).serialisertTilString()
+            )
+        )
+
         val response = medlemskapVurderingClient.hentMedlemskapVurdering(request.copy(fnr = fnr))
 
         response.svar `should be equal to` MedlemskapVurderingSvarType.UAVKLART
@@ -88,6 +121,14 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
     @Test
     fun `hentMedlemskapVurdering svarer med JA og tom liste`() {
         val fnr = "31111111112"
+        medlemskapMockWebServer.enqueue(
+            MockResponse().setResponseCode(200).setBody(
+                MedlemskapVurderingResponse(
+                    svar = MedlemskapVurderingSvarType.JA,
+                    sporsmal = emptyList()
+                ).serialisertTilString()
+            )
+        )
         val response = medlemskapVurderingClient.hentMedlemskapVurdering(request.copy(fnr = fnr))
 
         response.svar `should be equal to` MedlemskapVurderingSvarType.JA
@@ -104,6 +145,15 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
     @Test
     fun `hentMedlemskapVurdering svarer med NEI og tom liste`() {
         val fnr = "31111111113"
+        medlemskapMockWebServer.enqueue(
+            MockResponse().setResponseCode(200).setBody(
+                MedlemskapVurderingResponse(
+                    svar = MedlemskapVurderingSvarType.NEI,
+                    sporsmal = emptyList()
+                ).serialisertTilString()
+            )
+        )
+
         val response = medlemskapVurderingClient.hentMedlemskapVurdering(request.copy(fnr = fnr))
 
         response.svar `should be equal to` MedlemskapVurderingSvarType.NEI
@@ -122,6 +172,10 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
     @Test
     fun `hentMedlemskapVurdering kaster exception når det returneres HttpStatus 5xx`() {
         val fnr = "31111111114"
+        medlemskapMockWebServer.enqueue(
+            MockResponse().setResponseCode(500)
+        )
+
         val exception =
             assertThrows<MedlemskapVurderingClientException> {
                 medlemskapVurderingClient.hentMedlemskapVurdering(
@@ -141,6 +195,10 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
     @Test
     fun `hentMedlemskapVurdering kaster exception når det returneres HttpStatus 4xx`() {
         val fnr = "31111111115"
+        medlemskapMockWebServer.enqueue(
+            MockResponse().setResponseCode(400)
+        )
+
         val exception =
             assertThrows<MedlemskapVurderingClientException> {
                 medlemskapVurderingClient.hentMedlemskapVurdering(
@@ -160,6 +218,17 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
     @Test
     fun `hentMedlemskapVurdering kaster exception når vi får avklart JA og liste med spørsmål`() {
         val fnr = "31111111117"
+        medlemskapMockWebServer.enqueue(
+            MockResponse().setResponseCode(200).setBody(
+                MedlemskapVurderingResponse(
+                    svar = MedlemskapVurderingSvarType.JA,
+                    sporsmal = listOf(
+                        MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE
+                    )
+                ).serialisertTilString()
+            )
+        )
+
         val exception =
             assertThrows<MedlemskapVurderingResponseException> {
                 medlemskapVurderingClient.hentMedlemskapVurdering(
@@ -183,6 +252,17 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
     @Test
     fun `hentMedlemskapVurdering kaster exception når vi får avklart NEI og liste med spørsmål`() {
         val fnr = "31111111118"
+        medlemskapMockWebServer.enqueue(
+            MockResponse().setResponseCode(200).setBody(
+                MedlemskapVurderingResponse(
+                    svar = MedlemskapVurderingSvarType.NEI,
+                    sporsmal = listOf(
+                        MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE
+                    )
+                ).serialisertTilString()
+            )
+        )
+
         val exception =
             assertThrows<MedlemskapVurderingResponseException> {
                 medlemskapVurderingClient.hentMedlemskapVurdering(
