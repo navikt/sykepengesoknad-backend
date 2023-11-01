@@ -68,8 +68,8 @@ class MedlemskapToggleIntegrationTest : BaseTestClass() {
                 ANDRE_INNTEKTSKILDER_V2,
                 MEDLEMSKAP_OPPHOLDSTILLATELSE,
                 MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
-                MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
                 UTLAND_V2,
+                MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
                 MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
                 VAER_KLAR_OVER_AT,
                 BEKREFT_OPPLYSNINGER

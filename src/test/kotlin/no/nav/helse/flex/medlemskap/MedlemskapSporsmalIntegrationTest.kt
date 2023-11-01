@@ -93,8 +93,8 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
                 ANDRE_INNTEKTSKILDER_V2,
                 MEDLEMSKAP_OPPHOLDSTILLATELSE,
                 MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
-                MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
                 UTLAND_V2,
+                MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
                 MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
                 VAER_KLAR_OVER_AT,
                 BEKREFT_OPPLYSNINGER
@@ -130,8 +130,8 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
         ) shouldBeEqualTo 6
         soknad.sporsmal!![index - 1].tag shouldBeEqualTo ANDRE_INNTEKTSKILDER_V2
         soknad.sporsmal!![index + 1].tag shouldBeEqualTo MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE
-        soknad.sporsmal!![index + 2].tag shouldBeEqualTo MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE
-        soknad.sporsmal!![index + 3].tag shouldBeEqualTo UTLAND_V2
+        soknad.sporsmal!![index + 2].tag shouldBeEqualTo UTLAND_V2
+        soknad.sporsmal!![index + 3].tag shouldBeEqualTo MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE
         soknad.sporsmal!![index + 4].tag shouldBeEqualTo MEDLEMSKAP_OPPHOLD_UTENFOR_EOS
         soknad.sporsmal!![index + 5].tag shouldBeEqualTo VAER_KLAR_OVER_AT
     }
