@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.*
+import kotlin.collections.ArrayList
 
 @Service
 @Transactional
@@ -32,7 +33,8 @@ class SporsmalDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemp
                 data class SporsmalHelper(
                     val sporsmal: Sporsmal,
                     val sykepengesoknadId: String,
-                    val underSporsmalId: String?
+                    val underSporsmalId: String?,
+                    val undersporsmal: ArrayList<Sporsmal>
                 )
 
                 val sporsmalMap = HashMap<String, SporsmalHelper>()
@@ -42,27 +44,29 @@ class SporsmalDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemp
                     val kriterie = resultSet.getString("KRITERIE_FOR_VISNING")
                     svarMap[sporsmalId] = ArrayList()
                     val sykepengesoknadId = resultSet.getString("SYKEPENGESOKNAD_ID")
+
+                    val undersporsmal = ArrayList<Sporsmal>()
                     val sporsmal = Sporsmal(
-                        sporsmalId,
-                        resultSet.getString("TAG"),
-                        resultSet.getString("TEKST"),
-                        resultSet.getString("UNDERTEKST"),
-                        Svartype.valueOf(resultSet.getString("SVARTYPE")),
-                        resultSet.getString("MIN"),
-                        resultSet.getString("MAX"),
-                        false,
-                        if (kriterie == null) null else Visningskriterie.valueOf(kriterie),
-                        svarMap[sporsmalId]!!,
-                        ArrayList()
+                        id = sporsmalId,
+                        tag = resultSet.getString("TAG"),
+                        sporsmalstekst = resultSet.getString("TEKST"),
+                        undertekst = resultSet.getString("UNDERTEKST"),
+                        svartype = Svartype.valueOf(resultSet.getString("SVARTYPE")),
+                        min = resultSet.getString("MIN"),
+                        max = resultSet.getString("MAX"),
+                        pavirkerAndreSporsmal = false,
+                        kriterieForVisningAvUndersporsmal = if (kriterie == null) null else Visningskriterie.valueOf(kriterie),
+                        svar = svarMap[sporsmalId]!!,
+                        undersporsmal = undersporsmal
                     )
                     val underSporsmalId = resultSet.getNullableString("UNDER_SPORSMAL_ID")
-                    sporsmalMap[sporsmalId] = SporsmalHelper(sporsmal, sykepengesoknadId, underSporsmalId)
+                    sporsmalMap[sporsmalId] = SporsmalHelper(sporsmal, sykepengesoknadId, underSporsmalId, undersporsmal)
                 }
                 sporsmalMap.values.forEach { spm ->
                     if (spm.underSporsmalId == null) {
                         sporsmalList.add(Pair(spm.sykepengesoknadId, spm.sporsmal))
                     } else {
-                        (sporsmalMap[spm.underSporsmalId]!!.sporsmal.undersporsmal as ArrayList).add(spm.sporsmal)
+                        sporsmalMap[spm.underSporsmalId]!!.undersporsmal.add(spm.sporsmal)
                     }
                 }
                 populerMedSvar(svarMap)
