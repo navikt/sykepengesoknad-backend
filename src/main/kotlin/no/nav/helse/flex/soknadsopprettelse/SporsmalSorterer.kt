@@ -36,8 +36,6 @@ fun Sporsmal.fellesPlasseringSporsmal(): Int {
         TILBAKE_I_ARBEID -> -8
         FERIE_V2 -> -7
         PERMISJON_V2 -> -6
-        UTLAND_V2 -> -5
-        UTLANDSOPPHOLD_SOKT_SYKEPENGER -> -4
 
         ARBEID_UTENFOR_NORGE -> 99
 
@@ -49,21 +47,25 @@ fun Sporsmal.fellesPlasseringSporsmal(): Int {
 
         ARBEIDSLEDIG_UTLAND -> 107
 
-        PERMITTERT_NAA -> 797
-        PERMITTERT_PERIODE -> 798
-        YRKESSKADE -> 799
+        PERMITTERT_NAA -> 497
+        PERMITTERT_PERIODE -> 498
+        YRKESSKADE -> 499
+
+        MEDLEMSKAP_OPPHOLDSTILLATELSE -> 550
+        MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE -> 551
+        // Det vil ikke bli spurt om disse to i samme søknad, men plasserer de ulikt på grunn av testrekkefølge.
+        MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE -> 552
+
+        UTLAND_V2 -> 560
+        UTLANDSOPPHOLD_SOKT_SYKEPENGER -> 561
+
+        MEDLEMSKAP_OPPHOLD_UTENFOR_EOS -> 583
 
         BRUKTE_REISETILSKUDDET -> 800
         TRANSPORT_TIL_DAGLIG -> 801
         REISE_MED_BIL -> 802
         KVITTERINGER -> 803
         UTBETALING -> 804
-
-        MEDLEMSKAP_OPPHOLDSTILLATELSE -> 850
-        MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE -> 851
-        // Det vil ikke bli spurt om disse to i samme søknad, men plasserer de ulikt på grunn av testrekkefølge.
-        MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE -> 852
-        MEDLEMSKAP_OPPHOLD_UTENFOR_EOS -> 853
 
         VAER_KLAR_OVER_AT -> 999
         BEKREFT_OPPLYSNINGER -> 1000

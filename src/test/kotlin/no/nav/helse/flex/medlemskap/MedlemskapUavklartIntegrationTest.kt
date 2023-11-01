@@ -102,10 +102,10 @@ class MedlemskapUavklartIntegrationTest : BaseTestClass() {
                 TILBAKE_I_ARBEID,
                 FERIE_V2,
                 PERMISJON_V2,
-                UTLAND_V2,
                 medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0),
                 ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER_V2,
+                UTLAND_V2,
                 VAER_KLAR_OVER_AT,
                 BEKREFT_OPPLYSNINGER
             )
@@ -145,9 +145,9 @@ class MedlemskapUavklartIntegrationTest : BaseTestClass() {
                 TILBAKE_I_ARBEID,
                 FERIE_V2,
                 PERMISJON_V2,
-                UTLAND_V2,
                 medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0),
                 ANDRE_INNTEKTSKILDER_V2,
+                UTLAND_V2,
                 VAER_KLAR_OVER_AT,
                 BEKREFT_OPPLYSNINGER
             )
@@ -187,9 +187,9 @@ class MedlemskapUavklartIntegrationTest : BaseTestClass() {
                 TILBAKE_I_ARBEID,
                 FERIE_V2,
                 PERMISJON_V2,
-                UTLAND_V2,
                 medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0),
                 ANDRE_INNTEKTSKILDER_V2,
+                UTLAND_V2,
                 VAER_KLAR_OVER_AT,
                 BEKREFT_OPPLYSNINGER
             )
