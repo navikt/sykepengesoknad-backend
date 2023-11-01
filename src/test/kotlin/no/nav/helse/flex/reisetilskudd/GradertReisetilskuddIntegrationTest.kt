@@ -177,7 +177,7 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
             fnr = fnr
         ).first()
 
-        reisetilskudd.sporsmal!!.shouldHaveSize(10)
+        reisetilskudd.sporsmal!!.shouldHaveSize(9)
         SoknadBesvarer(reisetilskudd, this, fnr)
             .besvarSporsmal(TILBAKE_I_ARBEID, "JA", ferdigBesvart = false)
             .besvarSporsmal(TILBAKE_NAR, fom.format(ISO_LOCAL_DATE), ferdigBesvart = true, mutert = true)
@@ -185,14 +185,14 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
             fnr = fnr
         ).first()
 
-        soknadEtterOppdatering.sporsmal!!.shouldHaveSize(6)
+        soknadEtterOppdatering.sporsmal!!.shouldHaveSize(5)
 
         SoknadBesvarer(soknadEtterOppdatering, this, fnr)
             .besvarSporsmal(TILBAKE_I_ARBEID, "NEI", mutert = true)
 
         hentSoknader(
             fnr = fnr
-        ).first().sporsmal!!.shouldHaveSize(10)
+        ).first().sporsmal!!.shouldHaveSize(9)
     }
 
     @Test
