@@ -237,7 +237,6 @@ fun gammeltFormatOpprettNySoknadMedFeriesporsmalSomUndersporsmal(): Sykepengesok
 private fun leggSvarPaSoknad(sykepengesoknad: Sykepengesoknad): Sykepengesoknad {
     val s = sykepengesoknad
         .besvarsporsmal(ANSVARSERKLARING, "CHECKED")
-        .arbeidUtenforNorge()
         .tilbakeIFulltArbeid()
         .jobbetDu100Prosent()
         .jobbetDuGradert()

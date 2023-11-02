@@ -20,8 +20,7 @@ import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
 fun settOppSoknadArbeidstaker(
     opts: SettOppSoknadOpts,
-    andreKjenteArbeidsforhold: List<String>,
-    stillSporsmalOmArbeidUtenforNorge: Boolean = true
+    andreKjenteArbeidsforhold: List<String>
 ): List<Sporsmal> {
     val (sykepengesoknad, erForsteSoknadISykeforlop, harTidligereUtenlandskSpm, yrkesskade) = opts
 
@@ -40,10 +39,6 @@ fun settOppSoknadArbeidstaker(
         vaerKlarOverAt(gradertReisetilskudd = gradertReisetilskudd),
         bekreftOpplysningerSporsmal()
     ).also {
-        // TODO: Fjern spørsmål om arbeid utenfor Norge når alle søknader skal ha spørsmål om medlemskap.
-        if (erForsteSoknadISykeforlop && stillSporsmalOmArbeidUtenforNorge) {
-            it.add(arbeidUtenforNorge())
-        }
         it.addAll(yrkesskade.yrkeskadeSporsmal())
 
         if (sykepengesoknad.utenlandskSykmelding) {

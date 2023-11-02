@@ -26,6 +26,14 @@ class MedlemskapVurderingClient(
 ) {
     val log = logger()
 
+    /**
+     * Henter medlemskap vurdering fra LovMe og lagrer den i database. Svar fra LovMe blir lagret selv om det kastes
+     * exception på grunn av logiske feil.
+     *
+     * @return MedlemskapVurderingResponse hentet fra Lovme.
+     * @throws MedlemskapVurderingClientException ved tekniske feil.
+     * @throws MedlemskapVurderingResponseException ved logisk feil, som f.eks. at det returneres spørsmål når det ikke forventes.
+     */
     fun hentMedlemskapVurdering(medlemskapVurderingRequest: MedlemskapVurderingRequest): MedlemskapVurderingResponse {
         val headers = HttpHeaders()
         val navCallId = medlemskapVurderingRequest.sykepengesoknadId
