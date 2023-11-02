@@ -38,7 +38,6 @@ class GammeltEgenmeldingSporsmalTest : BaseTestClass() {
     @Autowired
     private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
 
-    // Gjør at MedlemskapMockDispatcher svarer med status JA, så spørsmål om ARBEID_UTENFOR_NORGE vil ikke bli stilt.
     private val fnr = "12345678900"
 
     @Test

@@ -53,7 +53,6 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
         juridiskVurderingKafkaConsumer.hentProduserteRecords()
     }
 
-    // Gjør at MedlemskapMockDispatcher svarer med status UAVKLART og alle medlemskapspørsmål.
     private val fnr = "31111111111"
 
     @Test

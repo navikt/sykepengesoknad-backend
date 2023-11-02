@@ -33,7 +33,6 @@ class ArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
     @Autowired
     private lateinit var medlemskapVurderingRepository: MedlemskapVurderingRepository
 
-    // Gjør at MedlemskapMockDispatcher svarer med status JA, så spørsmål om ARBEID_UTENFOR_NORGE vil ikke bli stilt.
     private final val fnr = "12345678900"
     private final val basisdato = LocalDate.now()
 

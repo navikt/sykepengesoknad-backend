@@ -27,7 +27,6 @@ import java.time.LocalDate
 @TestMethodOrder(MethodOrderer.MethodName::class)
 class BrukerIkkeTimerForFaktiskGradHvisIkkeChecked : BaseTestClass() {
 
-    // Gjør at MedlemskapMockDispatcher svarer med status JA, så spørsmål om ARBEID_UTENFOR_NORGE vil ikke bli stilt.
     private val fnr = "12345678900"
     private val start = LocalDate.of(2020, 9, 22)
     private val slutt = LocalDate.of(2020, 10, 10)
