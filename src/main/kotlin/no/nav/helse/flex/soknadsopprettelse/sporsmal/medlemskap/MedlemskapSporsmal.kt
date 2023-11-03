@@ -37,6 +37,7 @@ fun lagSporsmalOmOppholdstillatelse(): Sporsmal {
                         undersporsmal = listOf(
                             Sporsmal(
                                 tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_MIDLERTIDIG_PERIODE,
+                                sporsmalstekst = "Periode for oppholdstillatelse",
                                 svartype = Svartype.PERIODE,
                                 min = LocalDate.now().minusYears(10).format(DateTimeFormatter.ISO_LOCAL_DATE),
                                 max = LocalDate.now().plusYears(10).format(DateTimeFormatter.ISO_LOCAL_DATE)
