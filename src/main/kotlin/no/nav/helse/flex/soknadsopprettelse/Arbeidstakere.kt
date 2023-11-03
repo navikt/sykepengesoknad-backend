@@ -12,17 +12,34 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.Visningskriterie.CHECKED
 import no.nav.helse.flex.domain.Visningskriterie.JA
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.*
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmArbeidUtenforNorge
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmOppholdUtenforEos
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmOppholdUtenforNorge
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmOppholdstillatelse
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.utenlandsksykmelding.utenlandskSykmeldingSporsmal
 import no.nav.helse.flex.soknadsopprettelse.undersporsmal.jobbetDuUndersporsmal
 import no.nav.helse.flex.util.DatoUtil.formatterPeriode
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
+interface MedlemskapSporsmalTag
+
+enum class LovMeSporsmalTag : MedlemskapSporsmalTag {
+    OPPHOLDSTILATELSE,
+    ARBEID_UTENFOR_NORGE,
+    OPPHOLD_UTENFOR_NORGE,
+    OPPHOLD_UTENFOR_EØS_OMRÅDE
+}
+
+enum class SykepengesoknadSporsmalTag : MedlemskapSporsmalTag {
+    ARBEID_UTENFOR_NORGE
+}
+
 fun settOppSoknadArbeidstaker(
     soknadOptions: SettOppSoknadOptions,
     andreKjenteArbeidsforhold: List<String>
 ): List<Sporsmal> {
-    val (sykepengesoknad, erForsteSoknadISykeforlop, harTidligereUtenlandskSpm, yrkesskade) = soknadOptions
+    val (sykepengesoknad, erForsteSoknadISykeforlop, harTidligereUtenlandskSpm, yrkesskade, medlemskapTags) = soknadOptions
     val erGradertReisetilskudd = sykepengesoknad.soknadstype == GRADERT_REISETILSKUDD
 
     return mutableListOf<Sporsmal>().apply {
@@ -51,6 +68,21 @@ fun settOppSoknadArbeidstaker(
         if (erGradertReisetilskudd) {
             add(brukteReisetilskuddetSpørsmål())
         }
+
+        addAll(
+            medlemskapTags!!.map {
+                when (it) {
+                    LovMeSporsmalTag.OPPHOLDSTILATELSE -> lagSporsmalOmOppholdstillatelse()
+                    LovMeSporsmalTag.ARBEID_UTENFOR_NORGE -> lagSporsmalOmArbeidUtenforNorge()
+                    LovMeSporsmalTag.OPPHOLD_UTENFOR_NORGE -> lagSporsmalOmOppholdUtenforNorge()
+                    LovMeSporsmalTag.OPPHOLD_UTENFOR_EØS_OMRÅDE -> lagSporsmalOmOppholdUtenforEos()
+                    SykepengesoknadSporsmalTag.ARBEID_UTENFOR_NORGE -> arbeidUtenforNorge()
+                    else -> {
+                        throw RuntimeException("Ukjent MedlemskapSporsmalTag: $it.")
+                    }
+                }
+            }
+        )
     }
 }
 

@@ -16,10 +16,6 @@ import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.service.IdentService
 import no.nav.helse.flex.soknadsopprettelse.*
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmArbeidUtenforNorge
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmOppholdUtenforEos
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmOppholdUtenforNorge
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmOppholdstillatelse
 import no.nav.helse.flex.yrkesskade.YrkesskadeIndikatorer
 import no.nav.helse.flex.yrkesskade.YrkesskadeSporsmalGrunnlag
 import org.springframework.stereotype.Service
@@ -104,12 +100,14 @@ class SporsmalGenerator(
                 )
 
                 val arbeidstakerSporsmal = settOppSoknadArbeidstaker(
-                    soknadOptions = soknadOptions,
+                    soknadOptions = soknadOptions.copy(
+                        medlemskapSporsmalTags = lagMedlemsskapSporsmalTags(eksisterendeSoknader, soknad)
+                    ),
                     andreKjenteArbeidsforhold = andreKjenteArbeidsforhold.map { it.navn }
                 )
 
                 SporsmalOgAndreKjenteArbeidsforhold(
-                    sporsmal = arbeidstakerSporsmal + lagMedlemskapSporsmal(eksisterendeSoknader, soknad),
+                    sporsmal = arbeidstakerSporsmal,
                     andreKjenteArbeidsforhold = andreKjenteArbeidsforhold
                 )
             }
@@ -132,17 +130,17 @@ class SporsmalGenerator(
         }
     }
 
-    private fun lagMedlemskapSporsmal(
+    private fun lagMedlemsskapSporsmalTags(
         eksisterendeSoknader: List<Sykepengesoknad>,
         soknad: Sykepengesoknad
-    ): List<Sporsmal> {
+    ): List<MedlemskapSporsmalTag> {
         // Medlemskapspørsmal skal kun stilles i den første søknaden i et sykeforløp, uavhengig av arbeidsgiver.
         if (!erForsteSoknadIForlop(eksisterendeSoknader, soknad)) {
             return emptyList()
         }
 
         val medlemskapVurdering = hentMedlemskapVurdering(soknad)
-            ?: return listOf(arbeidUtenforNorge())
+            ?: return listOf(SykepengesoknadSporsmalTag.ARBEID_UTENFOR_NORGE)
 
         val (svar, sporsmal) = medlemskapVurdering
 
@@ -152,20 +150,20 @@ class SporsmalGenerator(
 
             svar == MedlemskapVurderingSvarType.UAVKLART && sporsmal.isEmpty() -> {
                 log.info("Medlemskapvurdering er UAVKLART for søknad ${soknad.id}, men LovMe returnerte ingen spørsmål.")
-                listOf(arbeidUtenforNorge())
+                listOf(SykepengesoknadSporsmalTag.ARBEID_UTENFOR_NORGE)
             }
 
             !medlemskapToggle.stillMedlemskapSporsmal(soknad.fnr) -> {
                 log.info("Medlemskapvurdering er UAVKLART for søknad ${soknad.id}, men medlemskapToggle svarte 'false'.")
-                listOf(arbeidUtenforNorge())
+                listOf(SykepengesoknadSporsmalTag.ARBEID_UTENFOR_NORGE)
             }
 
             else -> sporsmal.map {
                 when (it) {
-                    MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE -> lagSporsmalOmOppholdstillatelse()
-                    MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE -> lagSporsmalOmArbeidUtenforNorge()
-                    MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE -> lagSporsmalOmOppholdUtenforNorge()
-                    MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE -> lagSporsmalOmOppholdUtenforEos()
+                    MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE -> LovMeSporsmalTag.OPPHOLDSTILATELSE
+                    MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE -> LovMeSporsmalTag.ARBEID_UTENFOR_NORGE
+                    MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE -> LovMeSporsmalTag.OPPHOLD_UTENFOR_NORGE
+                    MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE -> LovMeSporsmalTag.OPPHOLD_UTENFOR_EØS_OMRÅDE
                 }
             }
         }
@@ -202,5 +200,6 @@ data class SettOppSoknadOptions(
     val sykepengesoknad: Sykepengesoknad,
     val erForsteSoknadISykeforlop: Boolean,
     val harTidligereUtenlandskSpm: Boolean,
-    val yrkesskade: YrkesskadeSporsmalGrunnlag
+    val yrkesskade: YrkesskadeSporsmalGrunnlag,
+    val medlemskapSporsmalTags: List<MedlemskapSporsmalTag>? = emptyList()
 )
