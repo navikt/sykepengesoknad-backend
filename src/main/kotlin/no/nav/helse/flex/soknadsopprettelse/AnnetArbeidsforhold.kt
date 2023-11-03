@@ -5,32 +5,29 @@ import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.utenlandsksykmelding.utenlandskSykmeldingSporsmal
 
-fun settOppSoknadAnnetArbeidsforhold(opts: SettOppSoknadOpts): List<Sporsmal> {
+fun settOppSoknadAnnetArbeidsforhold(opts: SettOppSoknadOptions): List<Sporsmal> {
     val (sykepengesoknad, erForsteSoknadISykeforlop, harTidligereUtenlandskSpm, yrkesskade) = opts
+    val erGradertReisetilskudd = sykepengesoknad.soknadstype == Soknadstype.GRADERT_REISETILSKUDD
 
-    val gradertReisetilskudd = sykepengesoknad.soknadstype == Soknadstype.GRADERT_REISETILSKUDD
+    return mutableListOf<Sporsmal>().apply {
+        add(ansvarserklaringSporsmal(erGradertReisetilskudd))
+        add(andreInntektskilderArbeidsledig(sykepengesoknad.fom!!, sykepengesoknad.tom!!))
+        add(friskmeldingSporsmal(sykepengesoknad.fom, sykepengesoknad.tom))
+        add(permisjonSporsmal(sykepengesoknad.fom, sykepengesoknad.tom))
+        add(utenlandsoppholdArbeidsledigAnnetSporsmal(sykepengesoknad.fom, sykepengesoknad.tom))
+        add(vaerKlarOverAt(erGradertReisetilskudd))
+        add(bekreftOpplysningerSporsmal())
 
-    return mutableListOf(
-        ansvarserklaringSporsmal(reisetilskudd = gradertReisetilskudd),
-        andreInntektskilderArbeidsledig(sykepengesoknad.fom!!, sykepengesoknad.tom!!),
-        friskmeldingSporsmal(sykepengesoknad.fom, sykepengesoknad.tom),
-        permisjonSporsmal(sykepengesoknad.fom, sykepengesoknad.tom),
-        utenlandsoppholdArbeidsledigAnnetSporsmal(sykepengesoknad.fom, sykepengesoknad.tom),
-        vaerKlarOverAt(gradertReisetilskudd = gradertReisetilskudd),
-        bekreftOpplysningerSporsmal()
-    ).also {
         if (erForsteSoknadISykeforlop) {
-            it.add(arbeidUtenforNorge())
+            add(arbeidUtenforNorge())
         }
-        it.addAll(yrkesskade.yrkeskadeSporsmal())
+        addAll(yrkesskade.yrkeskadeSporsmal())
 
-        if (sykepengesoknad.utenlandskSykmelding) {
-            if (erForsteSoknadISykeforlop || !harTidligereUtenlandskSpm) {
-                it.addAll(utenlandskSykmeldingSporsmal(sykepengesoknad))
-            }
+        if (sykepengesoknad.utenlandskSykmelding && (erForsteSoknadISykeforlop || !harTidligereUtenlandskSpm)) {
+            addAll(utenlandskSykmeldingSporsmal(sykepengesoknad))
         }
-        if (gradertReisetilskudd) {
-            it.add(brukteReisetilskuddetSpørsmål())
+        if (erGradertReisetilskudd) {
+            add(brukteReisetilskuddetSpørsmål())
         }
     }.toList()
 }

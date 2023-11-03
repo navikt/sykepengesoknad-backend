@@ -5,7 +5,7 @@ import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.soknadsopprettelse.*
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.SettOppSoknadOpts
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.SettOppSoknadOptions
 import no.nav.helse.flex.svarvalidering.validerSvarPaSoknad
 import no.nav.helse.flex.testutil.besvarsporsmal
 import no.nav.helse.flex.util.DatoUtil.periodeTilJson
@@ -24,7 +24,7 @@ import java.util.*
 fun deprecatedGetSoknadMedFeriesporsmalSomUndersporsmal(soknadMetadata: Sykepengesoknad): Sykepengesoknad {
     val sykepengesoknad = soknadMetadata.copy(
         sporsmal = settOppSoknadArbeidstaker(
-            SettOppSoknadOpts(
+            SettOppSoknadOptions(
                 sykepengesoknad = soknadMetadata,
                 erForsteSoknadISykeforlop = true,
                 harTidligereUtenlandskSpm = false,
@@ -145,7 +145,7 @@ fun opprettSendtSoknad(): Sykepengesoknad {
     val sykepengesoknad = leggSvarPaSoknad(
         soknadMetadata.copy(
             sporsmal = settOppSoknadArbeidstaker(
-                SettOppSoknadOpts(
+                SettOppSoknadOptions(
                     sykepengesoknad = soknadMetadata,
                     erForsteSoknadISykeforlop = true,
                     harTidligereUtenlandskSpm = false,
@@ -213,7 +213,7 @@ fun opprettNySoknadMock(feriesporsmalSomHovedsporsmal: Boolean = true): Sykepeng
     val sykepengesoknad = if (feriesporsmalSomHovedsporsmal) {
         soknad.copy(
             sporsmal = settOppSoknadArbeidstaker(
-                SettOppSoknadOpts(
+                SettOppSoknadOptions(
                     sykepengesoknad = soknad,
                     erForsteSoknadISykeforlop = true,
                     harTidligereUtenlandskSpm = false,

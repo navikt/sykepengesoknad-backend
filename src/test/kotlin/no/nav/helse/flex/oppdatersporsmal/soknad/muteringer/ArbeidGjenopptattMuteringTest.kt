@@ -5,7 +5,7 @@ import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.soknadsopprettelse.*
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.SettOppSoknadOpts
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.SettOppSoknadOptions
 import no.nav.helse.flex.testutil.besvarsporsmal
 import no.nav.helse.flex.util.tilOsloInstant
 import no.nav.helse.flex.yrkesskade.YrkesskadeSporsmalGrunnlag
@@ -63,7 +63,7 @@ class ArbeidGjenopptattMuteringTest {
         )
         val standardSoknad = soknad.copy(
             sporsmal = settOppSoknadArbeidstaker(
-                opts = SettOppSoknadOpts(
+                soknadOptions = SettOppSoknadOptions(
                     sykepengesoknad = soknad,
                     erForsteSoknadISykeforlop = true,
                     harTidligereUtenlandskSpm = false,
@@ -135,7 +135,7 @@ class ArbeidGjenopptattMuteringTest {
         )
         val standardSoknad = soknad.copy(
             sporsmal = settOppSoknadArbeidstaker(
-                SettOppSoknadOpts(
+                SettOppSoknadOptions(
                     sykepengesoknad = soknad,
                     erForsteSoknadISykeforlop = true,
                     harTidligereUtenlandskSpm = false,
@@ -202,7 +202,7 @@ class ArbeidGjenopptattMuteringTest {
         )
         val standardSoknad = soknad.copy(
             sporsmal = settOppSoknadArbeidstaker(
-                opts = SettOppSoknadOpts(
+                soknadOptions = SettOppSoknadOptions(
                     sykepengesoknad = soknad,
                     erForsteSoknadISykeforlop = true,
                     harTidligereUtenlandskSpm = false,

@@ -38,15 +38,21 @@ class SporsmalGenerator(
 ) {
     private val log = logger()
 
+    data class SporsmalOgAndreKjenteArbeidsforhold(
+        val sporsmal: List<Sporsmal>,
+        val andreKjenteArbeidsforhold: List<ArbeidsforholdFraInntektskomponenten>? = null
+    )
+
     fun lagSporsmalPaSoknad(id: String) {
         val soknad = sykepengesoknadDAO.finnSykepengesoknad(id)
-
         val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(soknad.fnr)
+        val eksisterendeSoknader = sykepengesoknadDAO.finnSykepengesoknader(identer).filterNot { it.id == soknad.id }
 
-        val andreSoknader = sykepengesoknadDAO.finnSykepengesoknader(identer).filterNot { it.id == soknad.id }
-
-        val sporsmalOgAndreKjenteArbeidsforhold = genererSykepengesoknadSporsmal(soknad, andreSoknader, identer)
-
+        val sporsmalOgAndreKjenteArbeidsforhold = lagSykepengesoknadSporsmal(
+            soknad = soknad,
+            eksisterendeSoknader = eksisterendeSoknader,
+            identer = identer
+        )
         sykepengesoknadDAO.byttUtSporsmal(soknad.copy(sporsmal = sporsmalOgAndreKjenteArbeidsforhold.sporsmal))
 
         sporsmalOgAndreKjenteArbeidsforhold.andreKjenteArbeidsforhold?.let {
@@ -54,23 +60,13 @@ class SporsmalGenerator(
         }
     }
 
-    data class SporsmalOgAndreKjenteArbeidsforhold(
-        val sporsmal: List<Sporsmal>,
-        val andreKjenteArbeidsforhold: List<ArbeidsforholdFraInntektskomponenten>? = null
-    )
-
-    data class MedlemskapSporsmal(
-        val stillSporsmalOmArbeidUtenforNorge: Boolean,
-        val sporsmal: List<Sporsmal>
-    )
-
-    fun List<Sporsmal>.tilSporsmalOgAndreKjenteArbeidsforhold(): SporsmalOgAndreKjenteArbeidsforhold =
+    private fun List<Sporsmal>.tilSporsmalOgAndreKjenteArbeidsforhold(): SporsmalOgAndreKjenteArbeidsforhold =
         SporsmalOgAndreKjenteArbeidsforhold(
             sporsmal = this,
             andreKjenteArbeidsforhold = null
         )
 
-    private fun genererSykepengesoknadSporsmal(
+    private fun lagSykepengesoknadSporsmal(
         soknad: Sykepengesoknad,
         eksisterendeSoknader: List<Sykepengesoknad>,
         identer: FolkeregisterIdenter
@@ -79,12 +75,12 @@ class SporsmalGenerator(
         val erEnkeltstaendeBehandlingsdagSoknad = soknad.soknadstype == Soknadstype.BEHANDLINGSDAGER
         val harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad)
         val yrkesskadeSporsmalGrunnlag = yrkesskadeIndikatorer.hentYrkesskadeSporsmalGrunnlag(
-            identer,
-            soknad.sykmeldingId,
-            erForsteSoknadISykeforlop
+            identer = identer,
+            sykmeldingId = soknad.sykmeldingId,
+            erForsteSoknadISykeforlop = erForsteSoknadISykeforlop
         )
 
-        val opts = SettOppSoknadOpts(
+        val soknadOptions = SettOppSoknadOptions(
             sykepengesoknad = soknad,
             erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
             harTidligereUtenlandskSpm = harTidligereUtenlandskSpm,
@@ -92,11 +88,11 @@ class SporsmalGenerator(
         )
 
         if (erEnkeltstaendeBehandlingsdagSoknad) {
-            return settOppSykepengesoknadBehandlingsdager(opts).tilSporsmalOgAndreKjenteArbeidsforhold()
+            return settOppSykepengesoknadBehandlingsdager(soknadOptions).tilSporsmalOgAndreKjenteArbeidsforhold()
         }
 
         if (soknad.soknadstype == Soknadstype.REISETILSKUDD) {
-            return skapReisetilskuddsoknad(opts).tilSporsmalOgAndreKjenteArbeidsforhold()
+            return skapReisetilskuddsoknad(soknadOptions).tilSporsmalOgAndreKjenteArbeidsforhold()
         }
 
         return when (soknad.arbeidssituasjon) {
@@ -108,12 +104,11 @@ class SporsmalGenerator(
                 )
 
                 val arbeidstakerSporsmal = settOppSoknadArbeidstaker(
-                    opts = opts,
+                    soknadOptions = soknadOptions,
                     andreKjenteArbeidsforhold = andreKjenteArbeidsforhold.map { it.navn }
                 )
 
                 SporsmalOgAndreKjenteArbeidsforhold(
-                    // TODO: Flytt opprettelse av de faktisk medlemskapspørsmålene til Arbeidstakere.
                     sporsmal = arbeidstakerSporsmal + lagMedlemskapSporsmal(eksisterendeSoknader, soknad),
                     andreKjenteArbeidsforhold = andreKjenteArbeidsforhold
                 )
@@ -121,10 +116,10 @@ class SporsmalGenerator(
 
             else -> {
                 when (soknad.arbeidssituasjon) {
-                    Arbeidssituasjon.NAERINGSDRIVENDE -> settOppSoknadSelvstendigOgFrilanser(opts)
-                    Arbeidssituasjon.FRILANSER -> settOppSoknadSelvstendigOgFrilanser(opts)
-                    Arbeidssituasjon.ARBEIDSLEDIG -> settOppSoknadArbeidsledig(opts)
-                    Arbeidssituasjon.ANNET -> settOppSoknadAnnetArbeidsforhold(opts)
+                    Arbeidssituasjon.NAERINGSDRIVENDE,
+                    Arbeidssituasjon.FRILANSER -> settOppSoknadSelvstendigOgFrilanser(soknadOptions)
+                    Arbeidssituasjon.ARBEIDSLEDIG -> settOppSoknadArbeidsledig(soknadOptions)
+                    Arbeidssituasjon.ANNET -> settOppSoknadAnnetArbeidsforhold(soknadOptions)
 
                     else -> {
                         throw RuntimeException(
@@ -203,7 +198,7 @@ class SporsmalGenerator(
     }
 }
 
-data class SettOppSoknadOpts(
+data class SettOppSoknadOptions(
     val sykepengesoknad: Sykepengesoknad,
     val erForsteSoknadISykeforlop: Boolean,
     val harTidligereUtenlandskSpm: Boolean,

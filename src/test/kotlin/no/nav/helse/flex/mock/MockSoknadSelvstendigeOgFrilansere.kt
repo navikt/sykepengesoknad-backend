@@ -7,7 +7,7 @@ import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.soknadsopprettelse.*
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.SettOppSoknadOpts
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.SettOppSoknadOptions
 import no.nav.helse.flex.testutil.besvarsporsmal
 import no.nav.helse.flex.util.DatoUtil.periodeTilJson
 import no.nav.helse.flex.util.tilOsloInstant
@@ -74,7 +74,7 @@ fun opprettNyNaeringsdrivendeSoknad(): Sykepengesoknad {
 
     return (soknadMetadata).copy(
         sporsmal = settOppSoknadSelvstendigOgFrilanser(
-            SettOppSoknadOpts(
+            SettOppSoknadOptions(
                 soknadMetadata,
                 false,
                 false,
@@ -129,7 +129,7 @@ fun opprettSendtFrilanserSoknad(): Sykepengesoknad {
     )
     return (soknadMetadata).copy(
         sporsmal = settOppSoknadSelvstendigOgFrilanser(
-            SettOppSoknadOpts(
+            SettOppSoknadOptions(
                 soknadMetadata,
                 false,
                 false,

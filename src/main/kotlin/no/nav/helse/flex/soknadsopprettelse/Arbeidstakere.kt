@@ -19,46 +19,39 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
 fun settOppSoknadArbeidstaker(
-    opts: SettOppSoknadOpts,
+    soknadOptions: SettOppSoknadOptions,
     andreKjenteArbeidsforhold: List<String>
 ): List<Sporsmal> {
-    val (sykepengesoknad, erForsteSoknadISykeforlop, harTidligereUtenlandskSpm, yrkesskade) = opts
+    val (sykepengesoknad, erForsteSoknadISykeforlop, harTidligereUtenlandskSpm, yrkesskade) = soknadOptions
+    val erGradertReisetilskudd = sykepengesoknad.soknadstype == GRADERT_REISETILSKUDD
 
-    val gradertReisetilskudd = sykepengesoknad.soknadstype == GRADERT_REISETILSKUDD
-
-    return mutableListOf(
-        ansvarserklaringSporsmal(reisetilskudd = gradertReisetilskudd),
-        if (gradertReisetilskudd) {
-            tilbakeIFulltArbeidGradertReisetilskuddSporsmal(sykepengesoknad)
-        } else {
-            tilbakeIFulltArbeidSporsmal(sykepengesoknad)
-        },
-        ferieSporsmal(sykepengesoknad.fom!!, sykepengesoknad.tom!!),
-        permisjonSporsmal(sykepengesoknad.fom, sykepengesoknad.tom),
-        utenlandsoppholdSporsmal(sykepengesoknad.fom, sykepengesoknad.tom),
-        vaerKlarOverAt(gradertReisetilskudd = gradertReisetilskudd),
-        bekreftOpplysningerSporsmal()
-    ).also {
-        it.addAll(yrkesskade.yrkeskadeSporsmal())
-
-        if (sykepengesoknad.utenlandskSykmelding) {
-            if (erForsteSoknadISykeforlop || !harTidligereUtenlandskSpm) {
-                it.addAll(utenlandskSykmeldingSporsmal(sykepengesoknad))
+    return mutableListOf<Sporsmal>().apply {
+        add(ansvarserklaringSporsmal(reisetilskudd = erGradertReisetilskudd))
+        add(
+            if (erGradertReisetilskudd) {
+                tilbakeIFulltArbeidGradertReisetilskuddSporsmal(sykepengesoknad)
+            } else {
+                tilbakeIFulltArbeidSporsmal(sykepengesoknad)
             }
-        }
-
-        it.add(andreInntektskilderArbeidstakerV2(sykepengesoknad.arbeidsgiverNavn!!, andreKjenteArbeidsforhold))
-
-        it.addAll(
-            jobbetDuIPeriodenSporsmal(
-                sykepengesoknad.soknadPerioder!!,
-                sykepengesoknad.arbeidsgiverNavn
-            )
         )
-        if (gradertReisetilskudd) {
-            it.add(brukteReisetilskuddetSpørsmål())
+        add(ferieSporsmal(sykepengesoknad.fom!!, sykepengesoknad.tom!!))
+        add(permisjonSporsmal(sykepengesoknad.fom, sykepengesoknad.tom))
+        add(utenlandsoppholdSporsmal(sykepengesoknad.fom, sykepengesoknad.tom))
+        add(vaerKlarOverAt(erGradertReisetilskudd))
+        add(bekreftOpplysningerSporsmal())
+        addAll(yrkesskade.yrkeskadeSporsmal())
+
+        if (sykepengesoknad.utenlandskSykmelding && (erForsteSoknadISykeforlop || !harTidligereUtenlandskSpm)) {
+            addAll(utenlandskSykmeldingSporsmal(sykepengesoknad))
         }
-    }.toList()
+
+        add(andreInntektskilderArbeidstakerV2(sykepengesoknad.arbeidsgiverNavn!!, andreKjenteArbeidsforhold))
+        addAll(jobbetDuIPeriodenSporsmal(sykepengesoknad.soknadPerioder!!, sykepengesoknad.arbeidsgiverNavn))
+
+        if (erGradertReisetilskudd) {
+            add(brukteReisetilskuddetSpørsmål())
+        }
+    }
 }
 
 fun Sykepengesoknad.harFeriePermisjonEllerUtenlandsoppholdSporsmal(): Boolean {
