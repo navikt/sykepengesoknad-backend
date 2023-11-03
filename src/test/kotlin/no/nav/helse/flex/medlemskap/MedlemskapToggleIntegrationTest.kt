@@ -83,9 +83,9 @@ class MedlemskapToggleIntegrationTest : BaseTestClass() {
                 medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0),
                 ANDRE_INNTEKTSKILDER_V2,
                 MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
-                UTLAND_V2,
                 MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
                 MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
+                UTLAND_V2,
                 MEDLEMSKAP_OPPHOLDSTILLATELSE,
                 VAER_KLAR_OVER_AT,
                 BEKREFT_OPPLYSNINGER
