@@ -17,7 +17,6 @@ import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.service.IdentService
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.yrkesskade.YrkesskadeIndikatorer
-import no.nav.helse.flex.yrkesskade.YrkesskadeSporsmalGrunnlag
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -195,11 +194,3 @@ class SporsmalGenerator(
         }.getOrNull()
     }
 }
-
-data class SettOppSoknadOptions(
-    val sykepengesoknad: Sykepengesoknad,
-    val erForsteSoknadISykeforlop: Boolean,
-    val harTidligereUtenlandskSpm: Boolean,
-    val yrkesskade: YrkesskadeSporsmalGrunnlag,
-    val medlemskapSporsmalTags: List<MedlemskapSporsmalTag>? = emptyList()
-)

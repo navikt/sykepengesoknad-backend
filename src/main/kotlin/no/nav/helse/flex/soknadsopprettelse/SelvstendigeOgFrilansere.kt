@@ -9,9 +9,7 @@ import no.nav.helse.flex.domain.Svartype.DATO
 import no.nav.helse.flex.domain.Svartype.JA_NEI
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.Sykmeldingstype
-import no.nav.helse.flex.domain.Visningskriterie
 import no.nav.helse.flex.domain.Visningskriterie.JA
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.SettOppSoknadOptions
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderSelvstendigOgFrilanser
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.ansvarserklaringSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.arbeidUtenforNorge
@@ -103,8 +101,8 @@ fun jobbetDuGradert(
     return Sporsmal(
         tag = JOBBET_DU_GRADERT + index,
         sporsmalstekst = "Sykmeldingen sier du kunne jobbe ${100 - periode.grad} % som $arbeidssituasjon. Jobbet du mer enn det?",
-        svartype = Svartype.JA_NEI,
-        kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
+        svartype = JA_NEI,
+        kriterieForVisningAvUndersporsmal = JA,
         undersporsmal = jobbetDuGradertUndersporsmal(periode, 100 + 1 - periode.grad, index)
     )
 }

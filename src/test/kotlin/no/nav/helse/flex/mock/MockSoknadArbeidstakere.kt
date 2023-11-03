@@ -5,7 +5,6 @@ import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.soknadsopprettelse.*
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.SettOppSoknadOptions
 import no.nav.helse.flex.svarvalidering.validerSvarPaSoknad
 import no.nav.helse.flex.testutil.besvarsporsmal
 import no.nav.helse.flex.util.DatoUtil.periodeTilJson
@@ -250,10 +249,6 @@ private fun leggSvarPaSoknad(sykepengesoknad: Sykepengesoknad): Sykepengesoknad 
             .utenlandsopphold()
             .ferie()
     }
-}
-
-private fun Sykepengesoknad.arbeidUtenforNorge(): Sykepengesoknad {
-    return besvarsporsmal(ARBEID_UTENFOR_NORGE, "NEI")
 }
 
 private fun Sykepengesoknad.tilbakeIFulltArbeid(): Sykepengesoknad {
