@@ -51,15 +51,16 @@ fun Sporsmal.fellesPlasseringSporsmal(): Int {
         PERMITTERT_PERIODE -> 498
         YRKESSKADE -> 499
 
-        MEDLEMSKAP_OPPHOLDSTILLATELSE -> 500
-        MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE -> 501
+        MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE -> 500
+
+        // Det vil ikke bli spurt om disse to i samme søknad, men plasserer de ulikt på grunn av testrekkefølge.
+        MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE -> 510
+        MEDLEMSKAP_OPPHOLD_UTENFOR_EOS -> 511
 
         UTLAND_V2 -> 520
         UTLANDSOPPHOLD_SOKT_SYKEPENGER -> 521
 
-        // Det vil ikke bli spurt om disse to i samme søknad, men plasserer de ulikt på grunn av testrekkefølge.
-        MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE -> 552
-        MEDLEMSKAP_OPPHOLD_UTENFOR_EOS -> 553
+        MEDLEMSKAP_OPPHOLDSTILLATELSE -> 530
 
         BRUKTE_REISETILSKUDDET -> 800
         TRANSPORT_TIL_DAGLIG -> 801

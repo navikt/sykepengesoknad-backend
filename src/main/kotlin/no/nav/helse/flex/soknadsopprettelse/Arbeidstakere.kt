@@ -72,10 +72,10 @@ fun settOppSoknadArbeidstaker(
         addAll(
             medlemskapTags!!.map {
                 when (it) {
-                    LovMeSporsmalTag.OPPHOLDSTILATELSE -> lagSporsmalOmOppholdstillatelse()
-                    LovMeSporsmalTag.ARBEID_UTENFOR_NORGE -> lagSporsmalOmArbeidUtenforNorge()
-                    LovMeSporsmalTag.OPPHOLD_UTENFOR_NORGE -> lagSporsmalOmOppholdUtenforNorge()
-                    LovMeSporsmalTag.OPPHOLD_UTENFOR_EØS_OMRÅDE -> lagSporsmalOmOppholdUtenforEos()
+                    LovMeSporsmalTag.OPPHOLDSTILATELSE -> lagSporsmalOmOppholdstillatelse(sykepengesoknad.tom)
+                    LovMeSporsmalTag.ARBEID_UTENFOR_NORGE -> lagSporsmalOmArbeidUtenforNorge(sykepengesoknad.tom)
+                    LovMeSporsmalTag.OPPHOLD_UTENFOR_NORGE -> lagSporsmalOmOppholdUtenforNorge(sykepengesoknad.tom)
+                    LovMeSporsmalTag.OPPHOLD_UTENFOR_EØS_OMRÅDE -> lagSporsmalOmOppholdUtenforEos(sykepengesoknad.tom)
                     SykepengesoknadSporsmalTag.ARBEID_UTENFOR_NORGE -> arbeidUtenforNorge()
                     else -> {
                         throw RuntimeException("Ukjent MedlemskapSporsmalTag: $it.")

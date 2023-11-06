@@ -118,9 +118,9 @@ class OppdaterSporsmalService(
         val sporsmal = soknad.sporsmal.first { it.tag == tag }
         val index = finnHoyesteIndex(sporsmal.undersporsmal) + 1
         val undersporsmal = when (tag) {
-            MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE -> lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(index)
-            MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE -> lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforNorge(index)
-            MEDLEMSKAP_OPPHOLD_UTENFOR_EOS -> lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforEos(index)
+            MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE -> lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(index, soknad.tom!!)
+            MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE -> lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforNorge(index, soknad.tom!!)
+            MEDLEMSKAP_OPPHOLD_UTENFOR_EOS -> lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforEos(index, soknad.tom!!)
             else -> throw IllegalArgumentException("Kan ikke legge til underspørsmål for tag $tag.")
         }
         val oppdatertSporsmal = sporsmal.copy(undersporsmal = sporsmal.undersporsmal + undersporsmal)

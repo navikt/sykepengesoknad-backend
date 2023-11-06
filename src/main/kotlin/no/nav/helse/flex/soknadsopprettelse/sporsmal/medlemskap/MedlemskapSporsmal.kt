@@ -5,12 +5,12 @@ import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Visningskriterie
 import no.nav.helse.flex.soknadsopprettelse.*
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
-fun lagSporsmalOmOppholdstillatelse(): Sporsmal {
+fun lagSporsmalOmOppholdstillatelse(tom: LocalDate): Sporsmal {
     return Sporsmal(
         tag = MEDLEMSKAP_OPPHOLDSTILLATELSE,
-        sporsmalstekst = "Har du oppholdstillatelse fra utlendingsdirektoratet?",
+        sporsmalstekst = "Har du oppholdstillatelse fra Utlendingsdirektoratet?",
         svartype = Svartype.JA_NEI,
         kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
         undersporsmal = listOf(
@@ -20,9 +20,9 @@ fun lagSporsmalOmOppholdstillatelse(): Sporsmal {
                 svartype = Svartype.DATO,
                 // Vi vet ikke hvor lang tid tilbake en oppholdstillatelse kan ha bli gitt så vi setter 10 år i
                 // samarbeid med LovMe.
-                min = LocalDate.now().minusYears(10).format(DateTimeFormatter.ISO_LOCAL_DATE),
+                min = tom.minusYears(10).format(ISO_LOCAL_DATE),
                 // Vi vet at en vedtaksdato ikke kan være i fremtiden så vi setter dagens dato som maks.
-                max = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
+                max = tom.format(ISO_LOCAL_DATE)
             ),
             Sporsmal(
                 tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_GRUPPE,
@@ -37,9 +37,10 @@ fun lagSporsmalOmOppholdstillatelse(): Sporsmal {
                         undersporsmal = listOf(
                             Sporsmal(
                                 tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_MIDLERTIDIG_PERIODE,
+                                sporsmalstekst = "Periode for oppholdstillatelse",
                                 svartype = Svartype.PERIODE,
-                                min = LocalDate.now().minusYears(10).format(DateTimeFormatter.ISO_LOCAL_DATE),
-                                max = LocalDate.now().plusYears(10).format(DateTimeFormatter.ISO_LOCAL_DATE)
+                                min = tom.minusYears(10).format(ISO_LOCAL_DATE),
+                                max = tom.plusYears(10).format(ISO_LOCAL_DATE)
                             )
                         )
                     ),
@@ -53,8 +54,8 @@ fun lagSporsmalOmOppholdstillatelse(): Sporsmal {
                                 tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_PERMANENT_DATO,
                                 sporsmalstekst = "Fra og med",
                                 svartype = Svartype.DATO,
-                                min = LocalDate.now().minusYears(10).format(DateTimeFormatter.ISO_LOCAL_DATE),
-                                max = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
+                                min = tom.minusYears(10).format(ISO_LOCAL_DATE),
+                                max = tom.format(ISO_LOCAL_DATE)
                             )
                         )
                     )
@@ -64,14 +65,14 @@ fun lagSporsmalOmOppholdstillatelse(): Sporsmal {
     )
 }
 
-fun lagSporsmalOmArbeidUtenforNorge(): Sporsmal {
+fun lagSporsmalOmArbeidUtenforNorge(tom: LocalDate): Sporsmal {
     return Sporsmal(
         tag = MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
-        sporsmalstekst = "Har du utført arbeid utenfor Norge i løpet av de siste 12 månedene?",
+        sporsmalstekst = "Har du arbeidet utenfor Norge i løpet av de siste 12 månedene før du ble syk?",
         svartype = Svartype.JA_NEI,
         kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
         undersporsmal = listOf(
-            lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(0)
+            lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(0, tom)
         )
     )
 }
@@ -80,14 +81,14 @@ fun medIndex(tekst: String, index: Int): String {
     return "$tekst$index"
 }
 
-fun lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(index: Int): Sporsmal {
+fun lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(index: Int, tom: LocalDate): Sporsmal {
     return Sporsmal(
         tag = medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_GRUPPERING, index),
         svartype = Svartype.GRUPPE_AV_UNDERSPORSMAL,
         undersporsmal = listOf(
             Sporsmal(
                 tag = medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_HVOR, index),
-                sporsmalstekst = "I hvilket land utførte du arbeidet?",
+                sporsmalstekst = "I hvilket land arbeidet du?",
                 svartype = Svartype.COMBOBOX_SINGLE
             ),
             Sporsmal(
@@ -100,29 +101,29 @@ fun lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(index: Int): Sporsma
             ),
             Sporsmal(
                 tag = medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR, index),
-                sporsmalstekst = "I hvilken periode ble arbeidet utført?",
+                sporsmalstekst = "I hvilken periode arbeidet du i utlandet?",
                 svartype = Svartype.PERIODE,
                 // Til- og fra-dato er satt statisk i samarbeid med LovMe.
-                min = LocalDate.now().minusYears(10).format(DateTimeFormatter.ISO_LOCAL_DATE),
-                max = LocalDate.now().plusYears(1).format(DateTimeFormatter.ISO_LOCAL_DATE)
+                min = tom.minusYears(10).format(ISO_LOCAL_DATE),
+                max = tom.plusYears(1).format(ISO_LOCAL_DATE)
             )
         )
     )
 }
 
-fun lagSporsmalOmOppholdUtenforNorge(): Sporsmal {
+fun lagSporsmalOmOppholdUtenforNorge(tom: LocalDate): Sporsmal {
     return Sporsmal(
         tag = MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
-        sporsmalstekst = "Har du oppholdt deg utenfor Norge i løpet av de siste 12 månedene?",
+        sporsmalstekst = "Har du oppholdt deg i utlandet i løpet av de siste 12 månedene før du ble syk?",
         svartype = Svartype.JA_NEI,
         kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
         undersporsmal = listOf(
-            lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforNorge(0)
+            lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforNorge(0, tom)
         )
     )
 }
 
-fun lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforNorge(index: Int): Sporsmal {
+fun lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforNorge(index: Int, tom: LocalDate): Sporsmal {
     return Sporsmal(
         tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_GRUPPERING, index),
         svartype = Svartype.GRUPPE_AV_UNDERSPORSMAL,
@@ -134,23 +135,43 @@ fun lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforNorge(index: Int): Sporsm
             ),
             Sporsmal(
                 tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE, index),
-                sporsmalstekst = "Hva var årsaken til oppholdet?",
+                sporsmalstekst = "Hva gjorde du i utlandet?",
                 svartype = Svartype.RADIO_GRUPPE,
                 undersporsmal = listOf(
                     Sporsmal(
                         tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE_STUDIE, index),
-                        sporsmalstekst = "Studier",
+                        sporsmalstekst = "Jeg studerte",
                         svartype = Svartype.RADIO
                     ),
                     Sporsmal(
                         tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE_FERIE, index),
-                        sporsmalstekst = "Ferie",
+                        sporsmalstekst = "Jeg var på ferie",
                         svartype = Svartype.RADIO
                     ),
                     Sporsmal(
-                        tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE_FORSORG, index),
-                        sporsmalstekst = "Forsørget medfølgende familiemedlem",
+                        tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE_BO, index),
+                        sporsmalstekst = "Jeg bodde der",
                         svartype = Svartype.RADIO
+                    ),
+                    Sporsmal(
+                        tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE_EKTEFELLE, index),
+                        sporsmalstekst = "Jeg var med ektefelle/samboer som jobbet der",
+                        svartype = Svartype.RADIO
+                    ),
+                    Sporsmal(
+                        tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE_ANNET, index),
+                        sporsmalstekst = "Annet",
+                        svartype = Svartype.RADIO,
+                        kriterieForVisningAvUndersporsmal = Visningskriterie.CHECKED,
+                        undersporsmal = listOf(
+                            Sporsmal(
+                                tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE_ANNET_FRITEKST, index),
+                                sporsmalstekst = "Beskriv hva du gjorde",
+                                svartype = Svartype.FRITEKST,
+                                min = "1",
+                                max = "200"
+                            )
+                        )
                     )
                 )
             ),
@@ -159,26 +180,26 @@ fun lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforNorge(index: Int): Sporsm
                 sporsmalstekst = "I hvilken periode oppholdt du deg i dette landet?",
                 svartype = Svartype.PERIODE,
                 // Til- og fra-dato er satt statisk i samarbeid med LovMe.
-                min = LocalDate.now().minusYears(2).format(DateTimeFormatter.ISO_LOCAL_DATE),
-                max = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
+                min = tom.minusYears(2).format(ISO_LOCAL_DATE),
+                max = tom.format(ISO_LOCAL_DATE)
             )
         )
     )
 }
 
-fun lagSporsmalOmOppholdUtenforEos(): Sporsmal {
+fun lagSporsmalOmOppholdUtenforEos(tom: LocalDate): Sporsmal {
     return Sporsmal(
         tag = MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
-        sporsmalstekst = "Har du oppholdt deg utenfor EØS i løpet av de siste 12 månedene?",
+        sporsmalstekst = "Har du oppholdt deg utenfor EØS i løpet av de siste 12 månedene før du ble syk?",
         svartype = Svartype.JA_NEI,
         kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
         undersporsmal = listOf(
-            lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforEos(0)
+            lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforEos(0, tom)
         )
     )
 }
 
-fun lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforEos(index: Int): Sporsmal {
+fun lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforEos(index: Int, tom: LocalDate): Sporsmal {
     return Sporsmal(
         tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_GRUPPERING, index),
         svartype = Svartype.GRUPPE_AV_UNDERSPORSMAL,
@@ -190,23 +211,43 @@ fun lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforEos(index: Int): Sporsmal
             ),
             Sporsmal(
                 tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE, index),
-                sporsmalstekst = "Hva var årsaken til oppholdet?",
+                sporsmalstekst = "Hva gjorde du i utlandet?",
                 svartype = Svartype.RADIO_GRUPPE,
                 undersporsmal = listOf(
                     Sporsmal(
                         tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_STUDIE, index),
-                        sporsmalstekst = "Studier",
+                        sporsmalstekst = "Jeg studerte",
                         svartype = Svartype.RADIO
                     ),
                     Sporsmal(
                         tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_FERIE, index),
-                        sporsmalstekst = "Ferie",
+                        sporsmalstekst = "Jeg var på ferie",
                         svartype = Svartype.RADIO
                     ),
                     Sporsmal(
-                        tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_FORSORG, index),
-                        sporsmalstekst = "Forsørget medfølgende familiemedlem",
+                        tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_BO, index),
+                        sporsmalstekst = "Jeg bodde der",
                         svartype = Svartype.RADIO
+                    ),
+                    Sporsmal(
+                        tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_EKTEFELLE, index),
+                        sporsmalstekst = "Jeg var med ektefelle/samboer som jobbet der",
+                        svartype = Svartype.RADIO
+                    ),
+                    Sporsmal(
+                        tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_ANNET, index),
+                        sporsmalstekst = "Annet",
+                        svartype = Svartype.RADIO,
+                        kriterieForVisningAvUndersporsmal = Visningskriterie.CHECKED,
+                        undersporsmal = listOf(
+                            Sporsmal(
+                                tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_ANNET_FRITEKST, index),
+                                sporsmalstekst = "Beskriv hva du gjorde",
+                                svartype = Svartype.FRITEKST,
+                                min = "1",
+                                max = "200"
+                            )
+                        )
                     )
                 )
             ),
@@ -215,8 +256,8 @@ fun lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforEos(index: Int): Sporsmal
                 sporsmalstekst = "I hvilken periode oppholdt du deg i dette landet?",
                 svartype = Svartype.PERIODE,
                 // Til- og fra-dato er satt statisk i samarbeid med LovMe.
-                min = LocalDate.now().minusYears(2).format(DateTimeFormatter.ISO_LOCAL_DATE),
-                max = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
+                min = tom.minusYears(2).format(ISO_LOCAL_DATE),
+                max = tom.format(ISO_LOCAL_DATE)
             )
         )
     )

@@ -78,7 +78,9 @@ private fun Sporsmal.sorteringMedlemskapOppholdUtenforNorgeBegrunnelse(): String
     return when (tagUtenIndex) {
         MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE_STUDIE -> "0"
         MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE_FERIE -> "1"
-        MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE_FORSORG -> "2"
+        MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE_BO -> "2"
+        MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE_EKTEFELLE -> "3"
+        MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE_ANNET -> "4"
         else -> throw RuntimeException("Ukjent underspørsmål for begrunnelse for opphold utenfor Norge: $tag")
     }
 }
@@ -98,7 +100,9 @@ private fun Sporsmal.sorteringMedlemskapOppholdUtenforEosBegrunnelse(): String {
     return when (tagUtenIndex) {
         MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_STUDIE -> "0"
         MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_FERIE -> "1"
-        MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_FORSORG -> "2"
+        MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_BO -> "2"
+        MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_EKTEFELLE -> "3"
+        MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_ANNET -> "4"
         else -> throw RuntimeException("Ukjent underspørsmål for begrunnelse for opphold utenfor EØS: $tag")
     }
 }

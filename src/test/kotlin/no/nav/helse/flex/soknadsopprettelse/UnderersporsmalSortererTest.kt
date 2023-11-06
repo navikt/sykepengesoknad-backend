@@ -112,7 +112,7 @@ class UnderersporsmalSortererTest {
 
     @Test
     fun `Test sortering av medlemskapspørsmål om oppholdstillatelse`() {
-        val sporsmalet = lagSporsmalOmOppholdstillatelse()
+        val sporsmalet = lagSporsmalOmOppholdstillatelse(LocalDate.now())
         val soknad = sporsmalet.tilSoknad()
 
         val sporsmal = soknad.getSporsmalMedTag(MEDLEMSKAP_OPPHOLDSTILLATELSE)
@@ -138,7 +138,7 @@ class UnderersporsmalSortererTest {
 
     @Test
     fun `Test sortering av medlemskapsørsmål om arbeid utenfor Norge`() {
-        val sporsmalet = lagSporsmalOmArbeidUtenforNorge()
+        val sporsmalet = lagSporsmalOmArbeidUtenforNorge(LocalDate.now())
         val soknad = sporsmalet.tilSoknad()
 
         val soknadShufflet = soknad.shuffleSporsmalRekursivt()
@@ -156,10 +156,10 @@ class UnderersporsmalSortererTest {
 
     @Test
     fun `Test sortering av medlemskapspørsmål om arbeid utenfor Norge med to underspørsmål`() {
-        val sporsmalet = lagSporsmalOmArbeidUtenforNorge().let {
+        val sporsmalet = lagSporsmalOmArbeidUtenforNorge(LocalDate.now()).let {
             it.copy(
                 undersporsmal = it.undersporsmal + listOf(
-                    lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(1)
+                    lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(1, LocalDate.now())
                 )
             )
         }
@@ -196,7 +196,7 @@ class UnderersporsmalSortererTest {
 
     @Test
     fun `Test sortering av medlemskapspørsmål om opphold utenfor Norge`() {
-        val sporsmalet = lagSporsmalOmOppholdUtenforNorge()
+        val sporsmalet = lagSporsmalOmOppholdUtenforNorge(LocalDate.now())
         val soknad = sporsmalet.tilSoknad()
 
         val soknadShufflet = soknad.shuffleSporsmalRekursivt()
@@ -215,7 +215,9 @@ class UnderersporsmalSortererTest {
         val forventetSorteringBegrunnelse = listOf(
             medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE_STUDIE, 0),
             medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE_FERIE, 0),
-            medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE_FORSORG, 0)
+            medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE_BO, 0),
+            medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE_EKTEFELLE, 0),
+            medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE_ANNET, 0)
         )
 
         soknadSortert.getSporsmalMedTag(
@@ -225,7 +227,7 @@ class UnderersporsmalSortererTest {
 
     @Test
     fun `Test sortering av medlemskapspørsmål om opphold utenfor EØS`() {
-        val sporsmalet = lagSporsmalOmOppholdUtenforEos()
+        val sporsmalet = lagSporsmalOmOppholdUtenforEos(LocalDate.now())
         val soknad = sporsmalet.tilSoknad()
 
         val soknadShufflet = soknad.shuffleSporsmalRekursivt()
@@ -244,7 +246,9 @@ class UnderersporsmalSortererTest {
         val forventetSorteringBegrunnelse = listOf(
             medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_STUDIE, 0),
             medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_FERIE, 0),
-            medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_FORSORG, 0)
+            medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_BO, 0),
+            medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_EKTEFELLE, 0),
+            medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_ANNET, 0)
         )
 
         soknadSortert.getSporsmalMedTag(
@@ -270,15 +274,15 @@ class UnderersporsmalSortererTest {
     fun `Finn høyeste index til underspørsmål`() {
         finnHoyesteIndex(
             listOf(
-                lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(0)
+                lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(0, LocalDate.now())
             )
         ) `should be equal to` 0
 
         finnHoyesteIndex(
             listOf(
-                lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(1),
-                lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(111),
-                lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(9)
+                lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(1, LocalDate.now()),
+                lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(111, LocalDate.now()),
+                lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(9, LocalDate.now())
             )
         ) `should be equal to` 111
     }

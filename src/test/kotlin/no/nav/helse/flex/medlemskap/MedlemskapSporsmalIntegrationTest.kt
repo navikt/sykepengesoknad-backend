@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
 /**
  * Tester at spørsmål om medlemskap blir opprettet og besvart som forventet, inkludert at
@@ -54,6 +55,8 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
     }
 
     private val fnr = "31111111111"
+    private val fom = LocalDate.of(2023, 1, 1)
+    private val tom = LocalDate.of(2023, 1, 7)
 
     @Test
     @Order(1)
@@ -77,8 +80,8 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
-                    fom = LocalDate.of(2023, 1, 1),
-                    tom = LocalDate.of(2023, 1, 7)
+                    fom = fom,
+                    tom = tom
                 )
             )
         )
@@ -105,11 +108,11 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
                 PERMISJON_V2,
                 medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0),
                 ANDRE_INNTEKTSKILDER_V2,
-                MEDLEMSKAP_OPPHOLDSTILLATELSE,
                 MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
-                UTLAND_V2,
                 MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
                 MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
+                UTLAND_V2,
+                MEDLEMSKAP_OPPHOLDSTILLATELSE,
                 VAER_KLAR_OVER_AT,
                 BEKREFT_OPPLYSNINGER
             )
@@ -137,17 +140,16 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
     fun `Spørsmål er riktig sortert`() {
         val soknad = hentSoknadMedStatusNy()
 
-        val index = soknad.sporsmal!!.indexOf(
-            soknad.sporsmal!!.first {
-                it.tag == MEDLEMSKAP_OPPHOLDSTILLATELSE
-            }
-        ) shouldBeEqualTo 6
-        soknad.sporsmal!![index - 1].tag shouldBeEqualTo ANDRE_INNTEKTSKILDER_V2
+        val index = soknad.sporsmal!!.indexOfFirst { it.tag == ANDRE_INNTEKTSKILDER_V2 }
+        index shouldBeEqualTo 5
+
+        soknad.sporsmal!![index].tag shouldBeEqualTo ANDRE_INNTEKTSKILDER_V2
         soknad.sporsmal!![index + 1].tag shouldBeEqualTo MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE
-        soknad.sporsmal!![index + 2].tag shouldBeEqualTo UTLAND_V2
-        soknad.sporsmal!![index + 3].tag shouldBeEqualTo MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE
-        soknad.sporsmal!![index + 4].tag shouldBeEqualTo MEDLEMSKAP_OPPHOLD_UTENFOR_EOS
-        soknad.sporsmal!![index + 5].tag shouldBeEqualTo VAER_KLAR_OVER_AT
+        soknad.sporsmal!![index + 2].tag shouldBeEqualTo MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE
+        soknad.sporsmal!![index + 3].tag shouldBeEqualTo MEDLEMSKAP_OPPHOLD_UTENFOR_EOS
+        soknad.sporsmal!![index + 4].tag shouldBeEqualTo UTLAND_V2
+        soknad.sporsmal!![index + 5].tag shouldBeEqualTo MEDLEMSKAP_OPPHOLDSTILLATELSE
+        soknad.sporsmal!![index + 6].tag shouldBeEqualTo VAER_KLAR_OVER_AT
     }
 
     @Test
@@ -284,6 +286,46 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
 
     @Test
     @Order(4)
+    fun `Grenseverdier på spørsmål følger perioden til søknaden`() {
+        val soknad = hentSoknadMedStatusNy()
+
+        soknad.getSporsmalMedTag("MEDLEMSKAP_OPPHOLDSTILLATELSE_VEDTAKSDATO").let {
+            it.min shouldBeEqualTo tom.minusYears(10).format(ISO_LOCAL_DATE)
+            it.max shouldBeEqualTo tom.format(ISO_LOCAL_DATE)
+        }
+        soknad.getSporsmalMedTag("MEDLEMSKAP_OPPHOLDSTILLATELSE_MIDLERTIDIG_PERIODE").let {
+            it.min shouldBeEqualTo tom.minusYears(10).format(ISO_LOCAL_DATE)
+            it.max shouldBeEqualTo tom.plusYears(10).format(ISO_LOCAL_DATE)
+        }
+        soknad.getSporsmalMedTag("MEDLEMSKAP_OPPHOLDSTILLATELSE_PERMANENT_DATO").let {
+            it.min shouldBeEqualTo tom.minusYears(10).format(ISO_LOCAL_DATE)
+            it.max shouldBeEqualTo tom.format(ISO_LOCAL_DATE)
+        }
+
+        val arbeidUtenforNorgePeriodeEn = soknad.getSporsmalMedTag("MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR_0")
+        val arbeidUtenforNorgePeriodeTo = soknad.getSporsmalMedTag("MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR_1")
+        arbeidUtenforNorgePeriodeEn.min shouldBeEqualTo tom.minusYears(10).format(ISO_LOCAL_DATE)
+        arbeidUtenforNorgePeriodeEn.max shouldBeEqualTo tom.plusYears(1).format(ISO_LOCAL_DATE)
+        arbeidUtenforNorgePeriodeEn.min shouldBeEqualTo arbeidUtenforNorgePeriodeTo.min
+        arbeidUtenforNorgePeriodeEn.max shouldBeEqualTo arbeidUtenforNorgePeriodeTo.max
+
+        val oppholdUtenforNorgePeriodeEn = soknad.getSporsmalMedTag("MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_NAAR_0")
+        val oppholdUtenforNorgePeriodeTo = soknad.getSporsmalMedTag("MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_NAAR_1")
+        oppholdUtenforNorgePeriodeEn.min shouldBeEqualTo tom.minusYears(2).format(ISO_LOCAL_DATE)
+        oppholdUtenforNorgePeriodeEn.max shouldBeEqualTo tom.format(ISO_LOCAL_DATE)
+        oppholdUtenforNorgePeriodeEn.min shouldBeEqualTo oppholdUtenforNorgePeriodeTo.min
+        oppholdUtenforNorgePeriodeEn.max shouldBeEqualTo oppholdUtenforNorgePeriodeTo.max
+
+        val oppholdUtenforEOSPeriodeEn = soknad.getSporsmalMedTag("MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_NAAR_0")
+        val oppholdUtenforEOSPeriodeTo = soknad.getSporsmalMedTag("MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_NAAR_1")
+        oppholdUtenforEOSPeriodeEn.min shouldBeEqualTo tom.minusYears(2).format(ISO_LOCAL_DATE)
+        oppholdUtenforEOSPeriodeEn.max shouldBeEqualTo tom.format(ISO_LOCAL_DATE)
+        oppholdUtenforEOSPeriodeEn.min shouldBeEqualTo oppholdUtenforEOSPeriodeTo.min
+        oppholdUtenforEOSPeriodeEn.max shouldBeEqualTo oppholdUtenforEOSPeriodeTo.max
+    }
+
+    @Test
+    @Order(5)
     fun `Slett underspørsmål på medlemskapspørsmål om arbeid utenfor Norge`() {
         val soknadId = hentSoknadMedStatusNy().id
         val hovedsporsmalFor =
@@ -306,7 +348,7 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     fun `Slett underspørsmål på medlemskapspørsmål om opphold utenfor Norge`() {
         val soknadId = hentSoknadMedStatusNy().id
         val hovedsporsmalFor =
@@ -329,7 +371,7 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     fun `Slett underspørsmål på medlemskapspørsmål om opphold utenfor EØS`() {
         val soknadId = hentSoknadMedStatusNy().id
         val hovedsporsmalFor =
@@ -352,7 +394,7 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    @Order(5)
+    @Order(6)
     fun `Besvar arbeidstakerspørsmål og send søknaden`() {
         flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
@@ -496,8 +538,13 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
                 ferdigBesvart = false
             )
             .besvarSporsmal(
-                tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_FERIE, index),
+                tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_ANNET, index),
                 svar = "CHECKED",
+                ferdigBesvart = false
+            )
+            .besvarSporsmal(
+                tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_ANNET_FRITEKST, index),
+                svar = "Handletur",
                 ferdigBesvart = false
             )
             .besvarSporsmal(
