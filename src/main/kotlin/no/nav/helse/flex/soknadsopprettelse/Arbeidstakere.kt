@@ -12,58 +12,78 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.Visningskriterie.CHECKED
 import no.nav.helse.flex.domain.Visningskriterie.JA
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.*
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmArbeidUtenforNorge
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmOppholdUtenforEos
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmOppholdUtenforNorge
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmOppholdstillatelse
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.utenlandsksykmelding.utenlandskSykmeldingSporsmal
 import no.nav.helse.flex.soknadsopprettelse.undersporsmal.jobbetDuUndersporsmal
 import no.nav.helse.flex.util.DatoUtil.formatterPeriode
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
+interface MedlemskapSporsmalTag
+
+enum class LovMeSporsmalTag : MedlemskapSporsmalTag {
+    OPPHOLDSTILATELSE,
+    ARBEID_UTENFOR_NORGE,
+    OPPHOLD_UTENFOR_NORGE,
+    OPPHOLD_UTENFOR_EØS_OMRÅDE
+}
+
+enum class SykepengesoknadSporsmalTag : MedlemskapSporsmalTag {
+    ARBEID_UTENFOR_NORGE
+}
+
 fun settOppSoknadArbeidstaker(
-    opts: SettOppSoknadOpts,
-    andreKjenteArbeidsforhold: List<String>,
-    stillSporsmalOmArbeidUtenforNorge: Boolean = true
+    soknadOptions: SettOppSoknadOptions,
+    andreKjenteArbeidsforhold: List<String>
 ): List<Sporsmal> {
-    val (sykepengesoknad, erForsteSoknadISykeforlop, harTidligereUtenlandskSpm, yrkesskade) = opts
+    val (sykepengesoknad, erForsteSoknadISykeforlop, harTidligereUtenlandskSpm, yrkesskade, medlemskapTags) = soknadOptions
+    val erGradertReisetilskudd = sykepengesoknad.soknadstype == GRADERT_REISETILSKUDD
 
-    val gradertReisetilskudd = sykepengesoknad.soknadstype == GRADERT_REISETILSKUDD
-
-    return mutableListOf(
-        ansvarserklaringSporsmal(reisetilskudd = gradertReisetilskudd),
-        if (gradertReisetilskudd) {
-            tilbakeIFulltArbeidGradertReisetilskuddSporsmal(sykepengesoknad)
-        } else {
-            tilbakeIFulltArbeidSporsmal(sykepengesoknad)
-        },
-        ferieSporsmal(sykepengesoknad.fom!!, sykepengesoknad.tom!!),
-        permisjonSporsmal(sykepengesoknad.fom, sykepengesoknad.tom),
-        utenlandsoppholdSporsmal(sykepengesoknad.fom, sykepengesoknad.tom),
-        vaerKlarOverAt(gradertReisetilskudd = gradertReisetilskudd),
-        bekreftOpplysningerSporsmal()
-    ).also {
-        // TODO: Fjern spørsmål om arbeid utenfor Norge når alle søknader skal ha spørsmål om medlemskap.
-        if (erForsteSoknadISykeforlop && stillSporsmalOmArbeidUtenforNorge) {
-            it.add(arbeidUtenforNorge())
-        }
-        it.addAll(yrkesskade.yrkeskadeSporsmal())
-
-        if (sykepengesoknad.utenlandskSykmelding) {
-            if (erForsteSoknadISykeforlop || !harTidligereUtenlandskSpm) {
-                it.addAll(utenlandskSykmeldingSporsmal(sykepengesoknad))
+    return mutableListOf<Sporsmal>().apply {
+        add(ansvarserklaringSporsmal(reisetilskudd = erGradertReisetilskudd))
+        add(
+            if (erGradertReisetilskudd) {
+                tilbakeIFulltArbeidGradertReisetilskuddSporsmal(sykepengesoknad)
+            } else {
+                tilbakeIFulltArbeidSporsmal(sykepengesoknad)
             }
-        }
-
-        it.add(andreInntektskilderArbeidstakerV2(sykepengesoknad.arbeidsgiverNavn!!, andreKjenteArbeidsforhold))
-
-        it.addAll(
-            jobbetDuIPeriodenSporsmal(
-                sykepengesoknad.soknadPerioder!!,
-                sykepengesoknad.arbeidsgiverNavn
-            )
         )
-        if (gradertReisetilskudd) {
-            it.add(brukteReisetilskuddetSpørsmål())
+        add(ferieSporsmal(sykepengesoknad.fom!!, sykepengesoknad.tom!!))
+        add(permisjonSporsmal(sykepengesoknad.fom, sykepengesoknad.tom))
+        add(utenlandsoppholdSporsmal(sykepengesoknad.fom, sykepengesoknad.tom))
+        add(vaerKlarOverAt(erGradertReisetilskudd))
+        add(bekreftOpplysningerSporsmal())
+        addAll(yrkesskade.yrkeskadeSporsmal())
+
+        if (sykepengesoknad.utenlandskSykmelding && (erForsteSoknadISykeforlop || !harTidligereUtenlandskSpm)) {
+            addAll(utenlandskSykmeldingSporsmal(sykepengesoknad))
         }
-    }.toList()
+
+        add(andreInntektskilderArbeidstakerV2(sykepengesoknad.arbeidsgiverNavn!!, andreKjenteArbeidsforhold))
+        addAll(jobbetDuIPeriodenSporsmal(sykepengesoknad.soknadPerioder!!, sykepengesoknad.arbeidsgiverNavn))
+
+        if (erGradertReisetilskudd) {
+            add(brukteReisetilskuddetSpørsmål())
+        }
+
+        addAll(
+            medlemskapTags!!.map {
+                when (it) {
+                    LovMeSporsmalTag.OPPHOLDSTILATELSE -> lagSporsmalOmOppholdstillatelse()
+                    LovMeSporsmalTag.ARBEID_UTENFOR_NORGE -> lagSporsmalOmArbeidUtenforNorge()
+                    LovMeSporsmalTag.OPPHOLD_UTENFOR_NORGE -> lagSporsmalOmOppholdUtenforNorge()
+                    LovMeSporsmalTag.OPPHOLD_UTENFOR_EØS_OMRÅDE -> lagSporsmalOmOppholdUtenforEos()
+                    SykepengesoknadSporsmalTag.ARBEID_UTENFOR_NORGE -> arbeidUtenforNorge()
+                    else -> {
+                        throw RuntimeException("Ukjent MedlemskapSporsmalTag: $it.")
+                    }
+                }
+            }
+        )
+    }
 }
 
 fun Sykepengesoknad.harFeriePermisjonEllerUtenlandsoppholdSporsmal(): Boolean {

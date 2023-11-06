@@ -29,7 +29,6 @@ import java.time.LocalDate
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class ArbeidsgiverperiodeTilFredagSoknadUtHelgaTest : BaseTestClass() {
 
-    // Gjør at MedlemskapMockDispatcher svarer med status JA, så spørsmål om ARBEID_UTENFOR_NORGE vil ikke bli stilt.
     private final val fnr = "12345678900"
     private final val fredagen = LocalDate.of(2021, 12, 17)
 

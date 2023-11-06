@@ -10,6 +10,8 @@ import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.medIndex
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
+import no.nav.helse.flex.util.serialisertTilString
+import okhttp3.mockwebserver.MockResponse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
@@ -27,8 +29,23 @@ import java.time.LocalDate
 class MedlemskapToggleIntegrationTest : BaseTestClass() {
 
     @BeforeEach
-    fun resetFakeUnleash() {
+    fun setUpMockRessurser() {
         fakeUnleash.resetAll()
+        medlemskapMockWebServer.enqueue(
+            MockResponse()
+                .setResponseCode(200)
+                .setBody(
+                    MedlemskapVurderingResponse(
+                        svar = MedlemskapVurderingSvarType.UAVKLART,
+                        sporsmal = listOf(
+                            MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
+                            MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
+                            MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
+                            MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE
+                        )
+                    ).serialisertTilString()
+                )
+        )
     }
 
     @AfterEach
@@ -41,7 +58,6 @@ class MedlemskapToggleIntegrationTest : BaseTestClass() {
         juridiskVurderingKafkaConsumer.hentProduserteRecords()
     }
 
-    // Gjør at MedlemskapMockDispatcher svarer med status UAVKLART og alle medlemskapspørsmål.
     private val fnr = "31111111111"
 
     @Test

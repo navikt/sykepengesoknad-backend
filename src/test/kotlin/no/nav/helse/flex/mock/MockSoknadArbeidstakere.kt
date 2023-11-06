@@ -5,7 +5,6 @@ import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.soknadsopprettelse.*
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.SettOppSoknadOpts
 import no.nav.helse.flex.svarvalidering.validerSvarPaSoknad
 import no.nav.helse.flex.testutil.besvarsporsmal
 import no.nav.helse.flex.util.DatoUtil.periodeTilJson
@@ -24,7 +23,7 @@ import java.util.*
 fun deprecatedGetSoknadMedFeriesporsmalSomUndersporsmal(soknadMetadata: Sykepengesoknad): Sykepengesoknad {
     val sykepengesoknad = soknadMetadata.copy(
         sporsmal = settOppSoknadArbeidstaker(
-            SettOppSoknadOpts(
+            SettOppSoknadOptions(
                 sykepengesoknad = soknadMetadata,
                 erForsteSoknadISykeforlop = true,
                 harTidligereUtenlandskSpm = false,
@@ -145,7 +144,7 @@ fun opprettSendtSoknad(): Sykepengesoknad {
     val sykepengesoknad = leggSvarPaSoknad(
         soknadMetadata.copy(
             sporsmal = settOppSoknadArbeidstaker(
-                SettOppSoknadOpts(
+                SettOppSoknadOptions(
                     sykepengesoknad = soknadMetadata,
                     erForsteSoknadISykeforlop = true,
                     harTidligereUtenlandskSpm = false,
@@ -213,7 +212,7 @@ fun opprettNySoknadMock(feriesporsmalSomHovedsporsmal: Boolean = true): Sykepeng
     val sykepengesoknad = if (feriesporsmalSomHovedsporsmal) {
         soknad.copy(
             sporsmal = settOppSoknadArbeidstaker(
-                SettOppSoknadOpts(
+                SettOppSoknadOptions(
                     sykepengesoknad = soknad,
                     erForsteSoknadISykeforlop = true,
                     harTidligereUtenlandskSpm = false,
@@ -237,7 +236,6 @@ fun gammeltFormatOpprettNySoknadMedFeriesporsmalSomUndersporsmal(): Sykepengesok
 private fun leggSvarPaSoknad(sykepengesoknad: Sykepengesoknad): Sykepengesoknad {
     val s = sykepengesoknad
         .besvarsporsmal(ANSVARSERKLARING, "CHECKED")
-        .arbeidUtenforNorge()
         .tilbakeIFulltArbeid()
         .jobbetDu100Prosent()
         .jobbetDuGradert()
@@ -251,10 +249,6 @@ private fun leggSvarPaSoknad(sykepengesoknad: Sykepengesoknad): Sykepengesoknad 
             .utenlandsopphold()
             .ferie()
     }
-}
-
-private fun Sykepengesoknad.arbeidUtenforNorge(): Sykepengesoknad {
-    return besvarsporsmal(ARBEID_UTENFOR_NORGE, "NEI")
 }
 
 private fun Sykepengesoknad.tilbakeIFulltArbeid(): Sykepengesoknad {

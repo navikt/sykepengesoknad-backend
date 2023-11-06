@@ -19,7 +19,6 @@ import java.time.OffsetDateTime
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class KorrigeringTest : BaseTestClass() {
 
-    // Gjør at MedlemskapMockDispatcher svarer med status JA, så spørsmål om ARBEID_UTENFOR_NORGE vil ikke bli stilt.
     private val fnr = "12345678900"
     private val basisdato = LocalDate.now()
 

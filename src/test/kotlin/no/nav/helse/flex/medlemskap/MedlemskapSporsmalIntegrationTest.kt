@@ -15,6 +15,7 @@ import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.util.DatoUtil
 import no.nav.helse.flex.util.serialisertTilString
+import okhttp3.mockwebserver.MockResponse
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
@@ -52,12 +53,25 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
         juridiskVurderingKafkaConsumer.hentProduserteRecords()
     }
 
-    // Gjør at MedlemskapMockDispatcher svarer med status UAVKLART og alle medlemskapspørsmål.
     private val fnr = "31111111111"
 
     @Test
     @Order(1)
     fun `Oppretter arbeidstakersøknad med status NY`() {
+        medlemskapMockWebServer.enqueue(
+            MockResponse().setResponseCode(200).setBody(
+                MedlemskapVurderingResponse(
+                    svar = MedlemskapVurderingSvarType.UAVKLART,
+                    sporsmal = listOf(
+                        MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
+                        MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
+                        MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
+                        MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE
+                    )
+                ).serialisertTilString()
+            )
+        )
+
         val soknader = sendSykmelding(
             sykmeldingKafkaMessage(
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,

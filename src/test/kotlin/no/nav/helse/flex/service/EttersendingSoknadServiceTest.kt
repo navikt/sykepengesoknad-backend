@@ -10,9 +10,9 @@ import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.kafka.producer.SoknadProducer
 import no.nav.helse.flex.repository.SykepengesoknadDAO
+import no.nav.helse.flex.soknadsopprettelse.SettOppSoknadOptions
 import no.nav.helse.flex.soknadsopprettelse.settOppSoknadArbeidstaker
 import no.nav.helse.flex.soknadsopprettelse.settOppSykepengesoknadBehandlingsdager
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.SettOppSoknadOpts
 import no.nav.helse.flex.soknadsopprettelse.tilSoknadsperioder
 import no.nav.helse.flex.util.Metrikk
 import no.nav.helse.flex.util.tilOsloInstant
@@ -252,7 +252,7 @@ class EttersendingSoknadServiceTest {
         return soknadMetadata.copy(
             sporsmal = settOppSykepengesoknadBehandlingsdager(
 
-                SettOppSoknadOpts(
+                SettOppSoknadOptions(
                     sykepengesoknad = soknadMetadata,
                     erForsteSoknadISykeforlop = true,
                     harTidligereUtenlandskSpm = false,
@@ -297,7 +297,7 @@ class EttersendingSoknadServiceTest {
         )
         return soknadMetadata.copy(
             sporsmal = settOppSoknadArbeidstaker(
-                SettOppSoknadOpts(
+                SettOppSoknadOptions(
                     sykepengesoknad = soknadMetadata,
                     erForsteSoknadISykeforlop = true,
                     harTidligereUtenlandskSpm = false,

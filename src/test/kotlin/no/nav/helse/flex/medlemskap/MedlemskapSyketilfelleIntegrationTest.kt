@@ -15,7 +15,9 @@ import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.reisetilskudd
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.util.flatten
+import no.nav.helse.flex.util.serialisertTilString
 import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
+import okhttp3.mockwebserver.MockResponse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
@@ -55,11 +57,14 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
         juridiskVurderingKafkaConsumer.hentProduserteRecords()
     }
 
-    // Gjør at MedlemskapMockDispatcher svarer med status UAVKLART og alle medlemskapspørsmål.
     private val fnr = "31111111111"
 
     @Test
     fun `Påfølgende søknad får ikke medlemskapspørsmål`() {
+        medlemskapMockWebServer.enqueue(
+            lagUavklartMockResponse()
+        )
+
         val soknader1 = sendSykmelding(
             sykmeldingKafkaMessage(
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
@@ -97,6 +102,12 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
 
     @Test
     fun `Helt overlappende får spørsmål siden den første er slettet`() {
+        repeat(2) {
+            medlemskapMockWebServer.enqueue(
+                lagUavklartMockResponse()
+            )
+        }
+
         val soknader1 = sendSykmelding(
             sykmeldingKafkaMessage(
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
@@ -127,8 +138,8 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
         assertThat(soknader1.last().forstegangssoknad).isTrue()
 
         assertThat(soknader2).hasSize(2)
-        // Søknaden opprettet som følge av den første søkanden blir slettet siden den neste sykmeldingen er helt
-        // overlappende. Både slettet og ny søkand returneres.
+        // Søknaden opprettet som følge av den første søknaden blir slettet siden den neste sykmeldingen er helt
+        // overlappende. Både slettet og ny søknad returneres.
         assertThat(soknader2.first().medlemskapVurdering).isNull()
         assertThat(soknader2.last().medlemskapVurdering).isEqualTo("UAVKLART")
         assertThat(soknader2.last().forstegangssoknad).isTrue()
@@ -136,6 +147,12 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
 
     @Test
     fun `Kun den første av søknader som klippes får medlemskapspørsmål`() {
+        repeat(2) {
+            medlemskapMockWebServer.enqueue(
+                lagUavklartMockResponse()
+            )
+        }
+
         val soknader1 = sendSykmelding(
             sykmeldingKafkaMessage(
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
@@ -178,6 +195,9 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
 
     @Test
     fun `Andre periode i ikke-kompatibel søknad får ikke medlemskapspørsmål`() {
+        medlemskapMockWebServer.enqueue(
+            lagUavklartMockResponse()
+        )
         val soknader = sendSykmelding(
             forventaSoknader = 2,
             sykmeldingKafkaMessage = sykmeldingKafkaMessage(
@@ -205,6 +225,10 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
 
     @Test
     fun `Påfølgende søknad får ikke medlemskapspørsmål selv om det ikke er stilt spørsmål tidligere i syketilfelle`() {
+        medlemskapMockWebServer.enqueue(
+            lagUavklartMockResponse()
+        )
+
         val soknader1 = sendSykmelding(
             sykmeldingKafkaMessage(
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
@@ -244,6 +268,12 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
 
     @Test
     fun `Tilbakedatert søknad får medlemskapspørsmål`() {
+        repeat(2) {
+            medlemskapMockWebServer.enqueue(
+                lagUavklartMockResponse()
+            )
+        }
+
         val soknader1 = sendSykmelding(
             sykmeldingKafkaMessage(
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
@@ -279,6 +309,18 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
         assertThat(soknader2.last().medlemskapVurdering).isEqualTo("UAVKLART")
         assertThat(soknader2.last().forstegangssoknad).isTrue()
     }
+
+    private fun lagUavklartMockResponse() = MockResponse().setResponseCode(200).setBody(
+        MedlemskapVurderingResponse(
+            svar = MedlemskapVurderingSvarType.UAVKLART,
+            sporsmal = listOf(
+                MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
+                MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
+                MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
+                MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE
+            )
+        ).serialisertTilString()
+    )
 
     private fun slettMedlemskapSporsmal(soknad: SykepengesoknadDTO) {
         val medlemskapSporsmal = soknad.sporsmal!!

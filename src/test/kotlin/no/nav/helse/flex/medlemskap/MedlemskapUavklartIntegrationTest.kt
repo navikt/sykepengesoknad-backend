@@ -17,7 +17,9 @@ import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
+import no.nav.helse.flex.util.serialisertTilString
 import no.nav.helse.flex.ventPåRecords
+import okhttp3.mockwebserver.MockResponse
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.assertj.core.api.Assertions.assertThat
@@ -51,11 +53,25 @@ class MedlemskapUavklartIntegrationTest : BaseTestClass() {
     @Test
     @Order(1)
     fun `Oppretter søknad med status UAVKLART som ikke skal ha ARBEID_UTENFOR_NORGE`() {
+        val fnr = "31111111111"
+        medlemskapMockWebServer.enqueue(
+            MockResponse().setResponseCode(200).setBody(
+                MedlemskapVurderingResponse(
+                    svar = MedlemskapVurderingSvarType.UAVKLART,
+                    sporsmal = listOf(
+                        MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
+                        MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
+                        MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
+                        MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE
+                    )
+                ).serialisertTilString()
+            )
+        )
+
         val soknader = sendSykmelding(
             sykmeldingKafkaMessage(
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                // Gjør at MedlemskapMockDispatcher svarer med status UAVKLART og alle medlemskapspørsmål.
-                fnr = "31111111111",
+                fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = LocalDate.of(2023, 1, 1),
                     tom = LocalDate.of(2023, 1, 7)
@@ -72,12 +88,19 @@ class MedlemskapUavklartIntegrationTest : BaseTestClass() {
     @Test
     @Order(1)
     fun `Oppretter søknad med status UAVKLART men uten spørsmål fra LovMe som skal ha ARBEID_UTENFOR_NORGE`() {
-        // Gjør at MedlemskapMockDispatcher svarer med status UAVKLART men uten medlemskapspørsmål.
         val fnr = "31111111116"
+        medlemskapMockWebServer.enqueue(
+            MockResponse().setResponseCode(200).setBody(
+                MedlemskapVurderingResponse(
+                    svar = MedlemskapVurderingSvarType.UAVKLART,
+                    sporsmal = emptyList()
+                ).serialisertTilString()
+            )
+        )
+
         val soknader = sendSykmelding(
             sykmeldingKafkaMessage(
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                // Trigger response fra LovMe med status UAVKLART uten spørsmål.
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = LocalDate.of(2023, 1, 1),
@@ -115,12 +138,19 @@ class MedlemskapUavklartIntegrationTest : BaseTestClass() {
     @Test
     @Order(1)
     fun `Oppretter søknad med status JA som ikke skal ha ARBEID_UTENFOR_NORGE`() {
-        // Gjør at MedlemskapMockDispatcher svarer med status JA.
         val fnr = "31111111112"
+        medlemskapMockWebServer.enqueue(
+            MockResponse().setResponseCode(200).setBody(
+                MedlemskapVurderingResponse(
+                    svar = MedlemskapVurderingSvarType.JA,
+                    sporsmal = emptyList()
+                ).serialisertTilString()
+            )
+        )
+
         val soknader = sendSykmelding(
             sykmeldingKafkaMessage(
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                // Trigger response fra LovMe med status JA.
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = LocalDate.of(2023, 1, 1),
@@ -157,12 +187,19 @@ class MedlemskapUavklartIntegrationTest : BaseTestClass() {
     @Test
     @Order(1)
     fun `Oppretter søknad med status NEI som ikke skal ha ARBEID_UTENFOR_NORGE`() {
-        // Gjør at MedlemskapMockDispatcher svarer med status NEI.
         val fnr = "31111111113"
+        medlemskapMockWebServer.enqueue(
+            MockResponse().setResponseCode(200).setBody(
+                MedlemskapVurderingResponse(
+                    svar = MedlemskapVurderingSvarType.NEI,
+                    sporsmal = emptyList()
+                ).serialisertTilString()
+            )
+        )
+
         val soknader = sendSykmelding(
             sykmeldingKafkaMessage(
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(
                     fom = LocalDate.of(2023, 1, 1),
@@ -202,7 +239,6 @@ class MedlemskapUavklartIntegrationTest : BaseTestClass() {
         flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
 
-        // Gjør at MedlemskapMockDispatcher svarer med status UAVKLART men uten medlemskapspørsmål.
         val fnr = "31111111116"
         hentSoknadSomKanBesvares(fnr).let {
             val (_, soknadBesvarer) = it
