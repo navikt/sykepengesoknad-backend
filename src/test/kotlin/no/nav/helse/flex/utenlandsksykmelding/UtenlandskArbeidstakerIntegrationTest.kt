@@ -137,7 +137,7 @@ class UtenlandskArbeidstakerIntegrationTest : BaseTestClass() {
                 tag = "UTENLANDSK_SYKMELDING_GYLDIGHET_ADRESSE",
                 svar = soknaden.tom!!.plusDays(10).toString()
             )
-            .besvarSporsmal(tag = "VAER_KLAR_OVER_AT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
+            .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
             .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
             .sendSoknad()
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)

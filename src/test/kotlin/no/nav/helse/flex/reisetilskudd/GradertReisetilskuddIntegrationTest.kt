@@ -116,7 +116,7 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
                 ANDRE_INNTEKTSKILDER_V2,
                 UTLAND_V2,
                 BRUKTE_REISETILSKUDDET,
-                VAER_KLAR_OVER_AT
+                TIL_SLUTT
             )
         )
 
@@ -228,7 +228,7 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
                 REISE_MED_BIL,
                 KVITTERINGER,
                 UTBETALING,
-                VAER_KLAR_OVER_AT
+                TIL_SLUTT
             )
         )
     }
@@ -345,7 +345,7 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
             .besvarSporsmal(TRANSPORT_TIL_DAGLIG, "NEI")
             .besvarSporsmal(REISE_MED_BIL, "NEI")
             .besvarSporsmal(UTBETALING, "JA")
-            .besvarSporsmal(VAER_KLAR_OVER_AT, "Jeg lover å ikke lyve!", ferdigBesvart = false)
+            .besvarSporsmal(TIL_SLUTT, "Jeg lover å ikke lyve!", ferdigBesvart = false)
             .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
     }
 
@@ -443,7 +443,7 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
                 ANDRE_INNTEKTSKILDER_V2,
                 UTLAND_V2,
                 BRUKTE_REISETILSKUDDET,
-                VAER_KLAR_OVER_AT
+                TIL_SLUTT
             )
         )
     }

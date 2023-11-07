@@ -70,6 +70,7 @@ fun Sporsmal.fellesPlasseringSporsmal(): Int {
 
         VAER_KLAR_OVER_AT -> 999
         BEKREFT_OPPLYSNINGER -> 1000
+        TIL_SLUTT -> 1001
         else -> plasseringAvSporsmalSomKanRepeteresFlereGanger()
     }
 }

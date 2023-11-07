@@ -312,6 +312,6 @@ private fun Sykepengesoknad.andreInntektskilder(): Sykepengesoknad {
 }
 
 private fun Sykepengesoknad.bekreftelsespunkter(): Sykepengesoknad {
-    return besvarsporsmal(VAER_KLAR_OVER_AT, "Jeg lover å ikke lyve")
+    return besvarsporsmal(TIL_SLUTT, "Jeg lover å ikke lyve")
         .besvarsporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
 }

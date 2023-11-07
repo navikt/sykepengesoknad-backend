@@ -113,7 +113,7 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
                 MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
                 UTLAND_V2,
                 MEDLEMSKAP_OPPHOLDSTILLATELSE,
-                VAER_KLAR_OVER_AT
+                TIL_SLUTT
             )
         )
     }
@@ -148,7 +148,7 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
         soknad.sporsmal!![index + 3].tag shouldBeEqualTo MEDLEMSKAP_OPPHOLD_UTENFOR_EOS
         soknad.sporsmal!![index + 4].tag shouldBeEqualTo UTLAND_V2
         soknad.sporsmal!![index + 5].tag shouldBeEqualTo MEDLEMSKAP_OPPHOLDSTILLATELSE
-        soknad.sporsmal!![index + 6].tag shouldBeEqualTo VAER_KLAR_OVER_AT
+        soknad.sporsmal!![index + 6].tag shouldBeEqualTo TIL_SLUTT
     }
 
     @Test
@@ -402,7 +402,7 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
             val (_, soknadBesvarer) = it
             besvarArbeidstakerSporsmal(soknadBesvarer)
             val sendtSoknad = soknadBesvarer
-                .besvarSporsmal(tag = "VAER_KLAR_OVER_AT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
+                .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
                 .besvarSporsmal(tag = BEKREFT_OPPLYSNINGER, svar = "CHECKED")
                 .sendSoknad()
             sendtSoknad.status shouldBeEqualTo RSSoknadstatus.SENDT

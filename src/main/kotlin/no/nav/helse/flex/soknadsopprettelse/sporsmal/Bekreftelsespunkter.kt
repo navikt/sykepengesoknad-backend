@@ -3,11 +3,11 @@ package no.nav.helse.flex.soknadsopprettelse.sporsmal
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
-import no.nav.helse.flex.soknadsopprettelse.VAER_KLAR_OVER_AT
+import no.nav.helse.flex.soknadsopprettelse.TIL_SLUTT
 
 fun bekreftelsespunkter(): Sporsmal {
     return Sporsmal(
-        tag = VAER_KLAR_OVER_AT,
+        tag = TIL_SLUTT,
         sporsmalstekst = "Viktig å være klar over:",
         svartype = Svartype.BEKREFTELSESPUNKTER,
         undersporsmal = listOf(

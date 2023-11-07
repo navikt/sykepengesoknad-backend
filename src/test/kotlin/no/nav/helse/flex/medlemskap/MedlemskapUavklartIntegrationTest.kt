@@ -129,7 +129,7 @@ class MedlemskapUavklartIntegrationTest : BaseTestClass() {
                 ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER_V2,
                 UTLAND_V2,
-                VAER_KLAR_OVER_AT
+                TIL_SLUTT
             )
         )
     }
@@ -177,7 +177,7 @@ class MedlemskapUavklartIntegrationTest : BaseTestClass() {
                 medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0),
                 ANDRE_INNTEKTSKILDER_V2,
                 UTLAND_V2,
-                VAER_KLAR_OVER_AT
+                TIL_SLUTT
             )
         )
     }
@@ -225,7 +225,7 @@ class MedlemskapUavklartIntegrationTest : BaseTestClass() {
                 medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0),
                 ANDRE_INNTEKTSKILDER_V2,
                 UTLAND_V2,
-                VAER_KLAR_OVER_AT
+                TIL_SLUTT
             )
         )
     }
@@ -241,7 +241,7 @@ class MedlemskapUavklartIntegrationTest : BaseTestClass() {
             val (_, soknadBesvarer) = it
             besvarArbeidstakerSporsmal(soknadBesvarer)
             val sendtSoknad = soknadBesvarer
-                .besvarSporsmal(tag = VAER_KLAR_OVER_AT, svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
+                .besvarSporsmal(tag = TIL_SLUTT, svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
                 .besvarSporsmal(tag = BEKREFT_OPPLYSNINGER, svar = "CHECKED")
                 .sendSoknad()
             sendtSoknad.status shouldBeEqualTo RSSoknadstatus.SENDT

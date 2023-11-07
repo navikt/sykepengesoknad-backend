@@ -87,7 +87,7 @@ class MedlemskapToggleIntegrationTest : BaseTestClass() {
                 MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
                 UTLAND_V2,
                 MEDLEMSKAP_OPPHOLDSTILLATELSE,
-                VAER_KLAR_OVER_AT
+                TIL_SLUTT
             )
         )
     }
@@ -114,7 +114,7 @@ class MedlemskapToggleIntegrationTest : BaseTestClass() {
                 ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER_V2,
                 UTLAND_V2,
-                VAER_KLAR_OVER_AT
+                TIL_SLUTT
             )
         )
     }
