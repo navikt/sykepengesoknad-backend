@@ -53,8 +53,7 @@ fun settOppSoknadArbeidstaker(
         add(ferieSporsmal(sykepengesoknad.fom!!, sykepengesoknad.tom!!))
         add(permisjonSporsmal(sykepengesoknad.fom, sykepengesoknad.tom))
         add(utenlandsoppholdSporsmal(sykepengesoknad.fom, sykepengesoknad.tom))
-        add(vaerKlarOverAt(erGradertReisetilskudd))
-        add(bekreftOpplysningerSporsmal())
+        add(bekreftelsespunkter())
         addAll(yrkesskade.yrkeskadeSporsmal())
 
         if (sykepengesoknad.utenlandskSykmelding && (erForsteSoknadISykeforlop || !harTidligereUtenlandskSpm)) {
