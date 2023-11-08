@@ -57,7 +57,7 @@ fun settOppSoknadArbeidstaker(
         if (toggle) {
             add(tilSlutt())
         }
-        if(!toggle) {
+        if (!toggle) {
             add(vaerKlarOverAt(erGradertReisetilskudd))
             add(bekreftOpplysningerSporsmal())
         }

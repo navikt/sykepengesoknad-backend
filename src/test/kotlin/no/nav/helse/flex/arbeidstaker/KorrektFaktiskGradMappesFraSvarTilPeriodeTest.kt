@@ -45,6 +45,7 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : BaseTestClass() {
         fakeUnleash.enable(UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL)
     }
     private val fnr = "12345678900"
+
     @Test
     fun `1 - vi oppretter en arbeidstakersoknad`() {
         // Opprett søknad

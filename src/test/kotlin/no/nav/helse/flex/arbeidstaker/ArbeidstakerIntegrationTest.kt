@@ -22,7 +22,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.LocalDate
 import java.time.OffsetDateTime
 
-
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class ArbeidstakerIntegrationTest : BaseTestClass() {
 

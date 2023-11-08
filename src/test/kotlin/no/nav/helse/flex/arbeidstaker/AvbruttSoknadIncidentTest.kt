@@ -107,7 +107,6 @@ class AvbruttSoknadIncidentTest : BaseTestClass() {
 
     @Test
     fun `4 - vi korrigerer og sender inn søknaden`() {
-
         fakeUnleash.resetAll()
         fakeUnleash.enable("sykepengesoknad-backend-bekreftelsespunkter")
         flexSyketilfelleMockRestServiceServer.reset()

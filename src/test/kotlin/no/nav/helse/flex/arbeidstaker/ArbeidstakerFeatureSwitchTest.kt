@@ -12,7 +12,6 @@ import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 
-
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class ArbeidstakerFeatureSwitchTest : BaseTestClass() {
 
@@ -29,6 +28,7 @@ class ArbeidstakerFeatureSwitchTest : BaseTestClass() {
         fakeUnleash.resetAll()
         fakeUnleash.disable(UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL)
     }
+
     @Test
     @Order(1)
     fun `oppretter søknad med featureswitch på`() {
