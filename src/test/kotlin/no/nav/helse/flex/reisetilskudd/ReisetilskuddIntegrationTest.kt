@@ -19,7 +19,8 @@ import no.nav.helse.flex.oppdaterSporsmalMedResult
 import no.nav.helse.flex.sendSoknadMedResult
 import no.nav.helse.flex.slettSvar
 import no.nav.helse.flex.soknadsopprettelse.*
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.bekreftelsespunkter
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.tilSlutt
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
@@ -59,6 +60,8 @@ class ReisetilskuddIntegrationTest : BaseTestClass() {
     @Test
     @Order(0)
     fun `Det er ingen søknader til å begynne med`() {
+        fakeUnleash.resetAll()
+        fakeUnleash.enable(UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL)
         val soknader = hentSoknaderMetadata(fnr)
         soknader.shouldBeEmpty()
     }
@@ -121,7 +124,7 @@ class ReisetilskuddIntegrationTest : BaseTestClass() {
 
         assertThat(soknaden.sporsmal!!.first { it.tag == ANSVARSERKLARING }.sporsmalstekst).isEqualTo("Jeg vet at jeg kan miste retten til reisetilskudd og sykepenger hvis opplysningene jeg gir ikke er riktige eller fullstendige. Jeg vet også at NAV kan holde igjen eller kreve tilbake penger, og at å gi feil opplysninger kan være straffbart.")
         assertThat(soknaden.sporsmal!!.first { it.tag == TIL_SLUTT }.sporsmalstekst).isEqualTo(
-            bekreftelsespunkter().sporsmalstekst
+            tilSlutt().sporsmalstekst
         )
     }
 

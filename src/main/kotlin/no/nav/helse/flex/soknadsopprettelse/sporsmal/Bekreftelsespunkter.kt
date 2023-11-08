@@ -5,7 +5,7 @@ import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
 import no.nav.helse.flex.soknadsopprettelse.TIL_SLUTT
 
-fun bekreftelsespunkter(): Sporsmal {
+fun tilSlutt(): Sporsmal {
     return Sporsmal(
         tag = TIL_SLUTT,
         sporsmalstekst = "Viktig å være klar over:",

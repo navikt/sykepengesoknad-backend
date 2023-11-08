@@ -12,11 +12,17 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
 fun skapReisetilskuddsoknad(
-    opts: SettOppSoknadOptions
+    opts: SettOppSoknadOptions,
+    toggle: Boolean = true
 ): List<Sporsmal> {
     return mutableListOf(
         ansvarserklaringSporsmal(reisetilskudd = true),
-        bekreftelsespunkter()
+        if (toggle) {
+            tilSlutt()
+        } else {
+            vaerKlarOverAtReisetilskudd()
+            bekreftOpplysningerSporsmal()
+        }
     ).also {
         it.addAll(
             reisetilskuddSporsmal(

@@ -4,6 +4,7 @@ import no.nav.helse.flex.*
 import no.nav.helse.flex.aktivering.AktiveringJob
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
@@ -14,10 +15,7 @@ import no.nav.syfo.model.sykmeldingstatus.SporsmalOgSvarDTO
 import no.nav.syfo.model.sykmeldingstatus.SvartypeDTO
 import org.amshove.kluent.*
 import org.apache.kafka.clients.producer.ProducerRecord
-import org.junit.jupiter.api.MethodOrderer
-import org.junit.jupiter.api.Order
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestMethodOrder
+import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 
@@ -55,6 +53,8 @@ class EgenmeldingsdagerVideresendingTest : BaseTestClass() {
     @Test
     @Order(1)
     fun `Arbeidstakersøknad opprettes`() {
+        fakeUnleash.resetAll()
+        fakeUnleash.enable(UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL)
         mockFlexSyketilfelleSykeforloep(
             sykmeldingKafkaMessage.sykmelding.id,
             sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder.minOf { it.fom }

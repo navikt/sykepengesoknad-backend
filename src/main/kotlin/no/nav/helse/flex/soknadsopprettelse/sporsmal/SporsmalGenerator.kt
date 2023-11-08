@@ -1,5 +1,7 @@
 package no.nav.helse.flex.soknadsopprettelse.sporsmal
 
+import io.getunleash.Unleash
+import io.getunleash.UnleashContext
 import no.nav.helse.flex.config.EnvironmentToggles
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstype
@@ -20,6 +22,8 @@ import no.nav.helse.flex.yrkesskade.YrkesskadeIndikatorer
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
+const val UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL = "sykepengesoknad-backend-bekreftelsespunkter"
+
 @Service
 @Transactional
 class SporsmalGenerator(
@@ -29,7 +33,8 @@ class SporsmalGenerator(
     private val yrkesskadeIndikatorer: YrkesskadeIndikatorer,
     private val medlemskapVurderingClient: MedlemskapVurderingClient,
     private val environmentToggles: EnvironmentToggles,
-    private val medlemskapToggle: MedlemskapToggle
+    private val medlemskapToggle: MedlemskapToggle,
+    private val unleash: Unleash
 ) {
     private val log = logger()
 
@@ -69,6 +74,7 @@ class SporsmalGenerator(
         val erForsteSoknadISykeforlop = erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad)
         val erEnkeltstaendeBehandlingsdagSoknad = soknad.soknadstype == Soknadstype.BEHANDLINGSDAGER
         val harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad)
+        val nyttTilSluttSpmToggle = unleash.isEnabled(UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL, UnleashContext.builder().userId(soknad.fnr).build())
         val yrkesskadeSporsmalGrunnlag = yrkesskadeIndikatorer.hentYrkesskadeSporsmalGrunnlag(
             identer = identer,
             sykmeldingId = soknad.sykmeldingId,
@@ -87,7 +93,7 @@ class SporsmalGenerator(
         }
 
         if (soknad.soknadstype == Soknadstype.REISETILSKUDD) {
-            return skapReisetilskuddsoknad(soknadOptions).tilSporsmalOgAndreKjenteArbeidsforhold()
+            return skapReisetilskuddsoknad(soknadOptions, nyttTilSluttSpmToggle).tilSporsmalOgAndreKjenteArbeidsforhold()
         }
 
         return when (soknad.arbeidssituasjon) {
@@ -102,7 +108,8 @@ class SporsmalGenerator(
                     soknadOptions = soknadOptions.copy(
                         medlemskapSporsmalTags = lagMedlemsskapSporsmalTags(eksisterendeSoknader, soknad)
                     ),
-                    andreKjenteArbeidsforhold = andreKjenteArbeidsforhold.map { it.navn }
+                    andreKjenteArbeidsforhold = andreKjenteArbeidsforhold.map { it.navn },
+                    toggle = nyttTilSluttSpmToggle
                 )
 
                 SporsmalOgAndreKjenteArbeidsforhold(

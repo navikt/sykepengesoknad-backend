@@ -35,11 +35,14 @@ class ArbeidsgiverperiodeTilFredagSoknadUtHelgaTest : BaseTestClass() {
     @BeforeEach
     fun setUp() {
         databaseReset.resetDatabase()
+        fakeUnleash.resetAll()
+        fakeUnleash.enable("sykepengesoknad-backend-bekreftelsespunkter")
     }
 
     @Test
     fun `Besvarer og sender inn en søknad som bare går til arbeidsgiver siden perioden slutta på en fredag, men søknaden gikk til søndag`() {
         sendSykmelding(
+
             sykmeldingKafkaMessage(
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(

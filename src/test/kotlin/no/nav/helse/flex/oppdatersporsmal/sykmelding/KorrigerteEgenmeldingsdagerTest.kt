@@ -7,6 +7,7 @@ import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
 import no.nav.helse.flex.repository.SykepengesoknadDAO
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
@@ -44,6 +45,8 @@ class KorrigerteEgenmeldingsdagerTest : BaseTestClass() {
     @Test
     @Order(1)
     fun `Arbeidstakersøknad opprettes`() {
+        fakeUnleash.resetAll()
+        fakeUnleash.enable(UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL)
         mockFlexSyketilfelleSykeforloep(
             sykmeldingKafkaMessage.sykmelding.id,
             sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder.minOf { it.fom }

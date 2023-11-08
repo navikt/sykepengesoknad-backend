@@ -15,6 +15,7 @@ import no.nav.helse.flex.lagreSvar
 import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
 import no.nav.helse.flex.slettSvar
 import no.nav.helse.flex.soknadsopprettelse.*
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
@@ -48,6 +49,8 @@ class SlettKvitteringerIntegrasjonsTest : BaseTestClass() {
     @Test
     @Order(1)
     fun `Det finnes ingen søknader`() {
+        fakeUnleash.resetAll()
+        fakeUnleash.enable(UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL)
         val soknader = hentSoknaderMetadata(fnr)
         soknader.shouldBeEmpty()
     }
