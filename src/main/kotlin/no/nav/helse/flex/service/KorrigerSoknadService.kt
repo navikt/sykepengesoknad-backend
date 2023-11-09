@@ -69,7 +69,7 @@ class KorrigerSoknadService(
                                 underspm
                             }
                         }
-                        spm.copy(undersporsmal = endretUndersporsmal)
+                        spm.copy(svar = emptyList(), undersporsmal = endretUndersporsmal)
                     }
                     else -> {
                         spm
