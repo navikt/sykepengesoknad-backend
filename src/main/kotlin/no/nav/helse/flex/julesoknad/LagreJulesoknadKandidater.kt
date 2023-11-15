@@ -27,7 +27,7 @@ class LagreJulesoknadKandidater(
         list.forEach {
             if (it.harSoknadstypeSomKanGiJulesoknad() &&
                 it.erLengreEnn14Dager() &&
-                it.fomDatoMellom11novemberOg7desember() &&
+                it.fomDatoMellom15novemberOg7desember() &&
                 it.tomDatoEtter13Desember()
             ) {
                 log.info("Sykmelding ${it.sykmeldingId} har søknad som kan kanskje omfattes av julesøknadregler")
@@ -43,7 +43,7 @@ class LagreJulesoknadKandidater(
 
     private fun Sykepengesoknad.erLengreEnn14Dager(): Boolean = DAYS.between(this.fom, this.tom) >= 14
 
-    private fun Sykepengesoknad.fomDatoMellom11novemberOg7desember(): Boolean =
+    private fun Sykepengesoknad.fomDatoMellom15novemberOg7desember(): Boolean =
         this.fom!!.isBeforeOrEqual(LocalDate.of(this.fom.year, 12, 7)) &&
             this.fom.isAfterOrEqual(LocalDate.of(this.fom.year, 11, 15))
 
