@@ -37,6 +37,7 @@ import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.KafkaContainer
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
+import java.time.Instant
 import kotlin.concurrent.thread
 
 private class RedisContainer : GenericContainer<RedisContainer>("bitnami/redis:6.2")
@@ -113,6 +114,16 @@ abstract class BaseTestClass {
 
             threads.forEach { it.join() }
         }
+    }
+
+    @BeforeAll
+    fun debugStart() {
+        println("STARTED ${this.javaClass.canonicalName} at ${Instant.now()}")
+    }
+
+    @AfterAll
+    fun debugEnd() {
+        println("COMPLETED ${this.javaClass.canonicalName} at ${Instant.now()}")
     }
 
     @MockBean
