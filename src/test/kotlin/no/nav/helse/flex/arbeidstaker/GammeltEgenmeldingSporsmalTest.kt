@@ -16,6 +16,7 @@ import no.nav.helse.flex.soknadsopprettelse.PAPIRSYKMELDING_NAR
 import no.nav.helse.flex.soknadsopprettelse.TIDLIGERE_EGENMELDING
 import no.nav.helse.flex.soknadsopprettelse.TIDLIGERE_PAPIRSYKMELDING
 import no.nav.helse.flex.soknadsopprettelse.TIDLIGERE_SYK
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL
 import no.nav.helse.flex.sykepengesoknad.kafka.PeriodeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
@@ -25,6 +26,7 @@ import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.util.DatoUtil
 import no.nav.helse.flex.ventPåRecords
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
@@ -37,6 +39,12 @@ class GammeltEgenmeldingSporsmalTest : BaseTestClass() {
 
     @Autowired
     private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
+
+    @BeforeAll
+    fun configureUnleash() {
+        fakeUnleash.resetAll()
+        fakeUnleash.enable(UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL)
+    }
 
     private val fnr = "12345678900"
 
@@ -88,6 +96,7 @@ class GammeltEgenmeldingSporsmalTest : BaseTestClass() {
             .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
             .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
             .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
+            .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
             .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
             .sendSoknad()
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)

@@ -7,6 +7,7 @@ import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknad
 import no.nav.helse.flex.controller.domain.sykepengesoknad.flatten
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.soknadsopprettelse.*
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.medIndex
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
@@ -46,7 +47,7 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
     @BeforeAll
     fun configureUnleash() {
         fakeUnleash.resetAll()
-        fakeUnleash.enable(UNLEASH_CONTEXT_MEDLEMSKAP_SPORSMAL)
+        fakeUnleash.enable(UNLEASH_CONTEXT_MEDLEMSKAP_SPORSMAL, UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL)
     }
 
     @AfterAll
@@ -113,8 +114,7 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
                 MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
                 UTLAND_V2,
                 MEDLEMSKAP_OPPHOLDSTILLATELSE,
-                VAER_KLAR_OVER_AT,
-                BEKREFT_OPPLYSNINGER
+                TIL_SLUTT
             )
         )
     }
@@ -149,7 +149,7 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
         soknad.sporsmal!![index + 3].tag shouldBeEqualTo MEDLEMSKAP_OPPHOLD_UTENFOR_EOS
         soknad.sporsmal!![index + 4].tag shouldBeEqualTo UTLAND_V2
         soknad.sporsmal!![index + 5].tag shouldBeEqualTo MEDLEMSKAP_OPPHOLDSTILLATELSE
-        soknad.sporsmal!![index + 6].tag shouldBeEqualTo VAER_KLAR_OVER_AT
+        soknad.sporsmal!![index + 6].tag shouldBeEqualTo TIL_SLUTT
     }
 
     @Test
@@ -403,6 +403,7 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
             val (_, soknadBesvarer) = it
             besvarArbeidstakerSporsmal(soknadBesvarer)
             val sendtSoknad = soknadBesvarer
+                .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
                 .besvarSporsmal(tag = BEKREFT_OPPLYSNINGER, svar = "CHECKED")
                 .sendSoknad()
             sendtSoknad.status shouldBeEqualTo RSSoknadstatus.SENDT

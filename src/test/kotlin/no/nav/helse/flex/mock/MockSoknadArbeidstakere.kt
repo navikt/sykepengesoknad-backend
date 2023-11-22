@@ -240,7 +240,7 @@ private fun leggSvarPaSoknad(sykepengesoknad: Sykepengesoknad): Sykepengesoknad 
         .jobbetDu100Prosent()
         .jobbetDuGradert()
         .andreInntektskilder()
-        .besvarsporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
+        .bekreftelsespunkter()
 
     return if (s.harFeriePermisjonEllerUtenlandsoppholdSporsmal()) {
         s.feriePermisjonUtland()
@@ -309,4 +309,9 @@ private fun Sykepengesoknad.andreInntektskilder(): Sykepengesoknad {
         .besvarsporsmal(INNTEKTSKILDE_SELVSTENDIG_N_AR, "JA")
         .besvarsporsmal(INNTEKTSKILDE_SELVSTENDIG_VARIG_ENDRING_NEI, "CHECKED")
         .besvarsporsmal(INNTEKTSKILDE_SELVSTENDIG_DAGMAMMA, "CHECKED")
+}
+
+private fun Sykepengesoknad.bekreftelsespunkter(): Sykepengesoknad {
+    return besvarsporsmal(TIL_SLUTT, "Jeg lover å ikke lyve")
+        .besvarsporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
 }

@@ -4,6 +4,7 @@ import no.nav.helse.flex.*
 import no.nav.helse.flex.client.yrkesskade.SakDto
 import no.nav.helse.flex.client.yrkesskade.SakerResponse
 import no.nav.helse.flex.mockdispatcher.YrkesskadeMockDispatcher
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
@@ -32,6 +33,8 @@ class YrkesskadeIntegrationTest : BaseTestClass() {
     @Test
     @Order(1)
     fun `Køer opp yrkesskaderesponse`() {
+        fakeUnleash.resetAll()
+        fakeUnleash.enable(UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL)
         YrkesskadeMockDispatcher.queuedSakerRespons.add(
             SakerResponse(
                 listOf(
@@ -144,6 +147,7 @@ class YrkesskadeIntegrationTest : BaseTestClass() {
             .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
             .besvarSporsmal(tag = "YRKESSKADE_V2", svar = "JA", ferdigBesvart = false)
             .besvarSporsmal(tag = "YRKESSKADE_V2_DATO", svar = "CHECKED")
+            .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
             .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
             .sendSoknad()
 

@@ -79,12 +79,12 @@ class ArbeidGjenopptattMuteringTest {
             .fjernSporsmal("UTLAND_V2")
 
         soknadUtenUtdanning.sporsmal.find { it.tag == UTLAND_V2 }.`should be null`()
-        soknadUtenUtdanning.sporsmal.shouldHaveSize(8)
+        soknadUtenUtdanning.sporsmal.shouldHaveSize(7)
 
         val mutertSoknad = soknadUtenUtdanning.arbeidGjenopptattMutering()
 
         mutertSoknad.sporsmal.find { it.tag == UTLAND_V2 }.`should not be null`()
-        mutertSoknad.sporsmal.shouldHaveSize(9)
+        mutertSoknad.sporsmal.shouldHaveSize(8)
     }
 
     @Test
@@ -145,7 +145,7 @@ class ArbeidGjenopptattMuteringTest {
 
         )
 
-        standardSoknad.sporsmal.shouldHaveSize(10)
+        standardSoknad.sporsmal.shouldHaveSize(9)
         standardSoknad.sporsmal.find { it.tag == "ARBEID_UNDERVEIS_100_PROSENT_1" }.`should not be null`()
 
         val mutertSoknadUtenSpm = standardSoknad
@@ -153,14 +153,14 @@ class ArbeidGjenopptattMuteringTest {
             .besvarsporsmal(TILBAKE_NAR, svar = basisdato.plusDays(4).format(ISO_LOCAL_DATE))
             .arbeidGjenopptattMutering()
 
-        mutertSoknadUtenSpm.sporsmal.shouldHaveSize(9)
+        mutertSoknadUtenSpm.sporsmal.shouldHaveSize(8)
         mutertSoknadUtenSpm.sporsmal.find { it.tag == "ARBEID_UNDERVEIS_100_PROSENT_1" }.`should be null`()
 
         val mutertSoknadMedSpm = mutertSoknadUtenSpm
             .besvarsporsmal(TILBAKE_I_ARBEID, svar = "NEI")
             .arbeidGjenopptattMutering()
 
-        mutertSoknadMedSpm.sporsmal.shouldHaveSize(10)
+        mutertSoknadMedSpm.sporsmal.shouldHaveSize(9)
         mutertSoknadMedSpm.sporsmal.find { it.tag == "ARBEID_UNDERVEIS_100_PROSENT_1" }.`should not be null`()
     }
 

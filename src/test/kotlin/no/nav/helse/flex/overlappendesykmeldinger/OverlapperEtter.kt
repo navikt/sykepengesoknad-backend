@@ -20,6 +20,7 @@ import no.nav.helse.flex.repository.KlippetSykepengesoknadRepository
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.soknadsopprettelse.*
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testdata.behandingsdager
 import no.nav.helse.flex.testdata.gradertSykmeldt
@@ -75,6 +76,8 @@ class OverlapperEtter : BaseTestClass() {
     @Test
     @Order(1)
     fun `Fremtidig arbeidstakersøknad opprettes for en sykmelding`() {
+        fakeUnleash.resetAll()
+        fakeUnleash.enable(UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL)
         val kafkaSoknader = sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
@@ -249,6 +252,7 @@ class OverlapperEtter : BaseTestClass() {
             .besvarSporsmal(UTLAND_V2, "NEI")
             .besvarSporsmal(ARBEID_UNDERVEIS_100_PROSENT + '0', "NEI")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
+            .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
             .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
             .sendSoknad()
 
@@ -471,6 +475,7 @@ class OverlapperEtter : BaseTestClass() {
             .besvarSporsmal(UTLAND_V2, "NEI")
             .besvarSporsmal(ARBEID_UNDERVEIS_100_PROSENT + '0', "NEI")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
+            .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
             .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
             .sendSoknad()
 
@@ -715,6 +720,7 @@ class OverlapperEtter : BaseTestClass() {
             .besvarSporsmal(UTLAND_V2, "NEI")
             .besvarSporsmal(JOBBET_DU_GRADERT + '0', "NEI")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
+            .besvarSporsmal(TIL_SLUTT, "Jeg lover å ikke lyve!", ferdigBesvart = false)
             .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
             .sendSoknad()
 
@@ -806,6 +812,7 @@ class OverlapperEtter : BaseTestClass() {
             .besvarSporsmal(UTLAND_V2, "NEI")
             .besvarSporsmal(JOBBET_DU_GRADERT + '0', "NEI")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
+            .besvarSporsmal(TIL_SLUTT, "Jeg lover å ikke lyve!", ferdigBesvart = false)
             .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
             .sendSoknad()
 

@@ -14,19 +14,8 @@ import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
 import no.nav.helse.flex.lagreSvar
 import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
 import no.nav.helse.flex.slettSvar
-import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER_V2
-import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
-import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
-import no.nav.helse.flex.soknadsopprettelse.BRUKTE_REISETILSKUDDET
-import no.nav.helse.flex.soknadsopprettelse.FERIE_V2
-import no.nav.helse.flex.soknadsopprettelse.KVITTERINGER
-import no.nav.helse.flex.soknadsopprettelse.PERMISJON_V2
-import no.nav.helse.flex.soknadsopprettelse.REISE_MED_BIL
-import no.nav.helse.flex.soknadsopprettelse.TILBAKE_I_ARBEID
-import no.nav.helse.flex.soknadsopprettelse.TRANSPORT_TIL_DAGLIG
-import no.nav.helse.flex.soknadsopprettelse.UTBETALING
-import no.nav.helse.flex.soknadsopprettelse.UTLAND_V2
-import no.nav.helse.flex.soknadsopprettelse.VAER_KLAR_OVER_AT
+import no.nav.helse.flex.soknadsopprettelse.*
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
@@ -51,7 +40,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import java.time.Instant
 import java.time.LocalDate
-import java.util.*
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class SlettKvitteringerIntegrasjonsTest : BaseTestClass() {
@@ -61,6 +49,8 @@ class SlettKvitteringerIntegrasjonsTest : BaseTestClass() {
     @Test
     @Order(1)
     fun `Det finnes ingen søknader`() {
+        fakeUnleash.resetAll()
+        fakeUnleash.enable(UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL)
         val soknader = hentSoknaderMetadata(fnr)
         soknader.shouldBeEmpty()
     }
@@ -137,8 +127,7 @@ class SlettKvitteringerIntegrasjonsTest : BaseTestClass() {
                 REISE_MED_BIL,
                 KVITTERINGER,
                 UTBETALING,
-                VAER_KLAR_OVER_AT,
-                BEKREFT_OPPLYSNINGER
+                TIL_SLUTT
             )
         )
     }

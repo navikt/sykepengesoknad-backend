@@ -23,6 +23,8 @@ class ArbeidstakerIntegrationUtenEgenmeldingTest : BaseTestClass() {
     @Test
     @Order(1)
     fun `Arbeidstakersøknad opprettes for en sykmelding`() {
+        fakeUnleash.resetAll()
+        fakeUnleash.enable("sykepengesoknad-backend-bekreftelsespunkter")
         val kafkaSoknader = sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
@@ -58,8 +60,7 @@ class ArbeidstakerIntegrationUtenEgenmeldingTest : BaseTestClass() {
                 "ARBEID_UNDERVEIS_100_PROSENT_0",
                 "ANDRE_INNTEKTSKILDER_V2",
                 "UTLAND_V2",
-                "VAER_KLAR_OVER_AT",
-                "BEKREFT_OPPLYSNINGER"
+                "TIL_SLUTT"
             )
         )
     }

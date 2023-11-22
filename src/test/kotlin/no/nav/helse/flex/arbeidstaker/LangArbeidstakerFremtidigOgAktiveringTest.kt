@@ -34,6 +34,8 @@ class LangArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
     @Test
     @Order(1)
     fun `Fremtidige arbeidstakersøknad opprettes for en sykmelding`() {
+        fakeUnleash.resetAll()
+        fakeUnleash.enable("sykepengesoknad-backend-bekreftelsespunkter")
         val kafkaSoknader = sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
@@ -104,8 +106,7 @@ class LangArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
                 "ARBEID_UNDERVEIS_100_PROSENT_0",
                 "ANDRE_INNTEKTSKILDER_V2",
                 "UTLAND_V2",
-                "VAER_KLAR_OVER_AT",
-                "BEKREFT_OPPLYSNINGER"
+                "TIL_SLUTT"
             )
         )
         assertThat(soknad1.status).isEqualTo(RSSoknadstatus.NY)
@@ -130,6 +131,7 @@ class LangArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
             .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
             .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
             .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
+            .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
             .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
             .sendSoknad()
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
@@ -172,6 +174,7 @@ class LangArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
             .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
             .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
             .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
+            .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
             .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
             .sendSoknad()
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)

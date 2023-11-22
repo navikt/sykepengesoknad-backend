@@ -6,6 +6,7 @@ import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSporsmal
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL
 import no.nav.helse.flex.sykepengesoknad.kafka.MerknadDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
@@ -15,10 +16,7 @@ import no.nav.helse.flex.util.tilOsloLocalDateTime
 import no.nav.syfo.model.Merknad
 import org.amshove.kluent.*
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.MethodOrderer
-import org.junit.jupiter.api.Order
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestMethodOrder
+import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.LocalDate
@@ -33,6 +31,12 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
     private val fnr = "12345678900"
     private val basisdato = LocalDate.of(2021, 9, 1)
     private val oppfolgingsdato = basisdato.minusDays(20)
+
+    @BeforeEach
+    fun setup() {
+        fakeUnleash.resetAll()
+        fakeUnleash.enable(UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL)
+    }
 
     @Test
     @Order(1)
@@ -105,8 +109,7 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
                 "ARBEID_UNDERVEIS_100_PROSENT_0",
                 "ANDRE_INNTEKTSKILDER_V2",
                 "UTLAND_V2",
-                "VAER_KLAR_OVER_AT",
-                "BEKREFT_OPPLYSNINGER"
+                "TIL_SLUTT"
             )
         )
         assertThat(soknad1.sporsmal!!.first { it.tag == ANSVARSERKLARING }.sporsmalstekst).isEqualTo("Jeg vet at jeg kan miste retten til sykepenger hvis opplysningene jeg gir ikke er riktige eller fullstendige. Jeg vet også at NAV kan holde igjen eller kreve tilbake penger, og at å gi feil opplysninger kan være straffbart.")
@@ -121,8 +124,7 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
                 "ARBEID_UNDERVEIS_100_PROSENT_0",
                 "ANDRE_INNTEKTSKILDER_V2",
                 "UTLAND_V2",
-                "VAER_KLAR_OVER_AT",
-                "BEKREFT_OPPLYSNINGER"
+                "TIL_SLUTT"
             )
         )
     }
@@ -140,6 +142,7 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
         )
 
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+            .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
             .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
 
         val besvartSporsmal = hentAnsvarserklering(soknaden.id)
@@ -155,6 +158,8 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
     @Test
     @Order(5)
     fun `Den nyeste søknaden kan ikke sendes først`() {
+        fakeUnleash.resetAll()
+        fakeUnleash.enable(UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL)
         val soknaden = hentSoknad(
             soknadId = hentSoknaderMetadata(fnr).filter { it.status == RSSoknadstatus.NY }.sortedBy { it.fom }.last().id,
             fnr = fnr
@@ -168,6 +173,7 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
             .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
             .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
             .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
+            .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
             .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
 
         val res = sendSoknadMedResult(fnr, soknaden.id).andExpect(status().isBadRequest).andReturn().response.contentAsString
@@ -192,6 +198,7 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
             .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
             .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
             .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
+            .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
             .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
             .sendSoknad()
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
@@ -271,6 +278,7 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
 
         val sendtSoknad = SoknadBesvarer(rSSykepengesoknad = korrigerendeSoknad, mockMvc = this, fnr = fnr)
             .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
+            .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg er ærlig!", ferdigBesvart = false)
             .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
             .sendSoknad()
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)

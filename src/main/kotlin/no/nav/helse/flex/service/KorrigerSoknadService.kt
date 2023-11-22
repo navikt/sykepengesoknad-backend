@@ -11,6 +11,7 @@ import no.nav.helse.flex.repository.SykepengesoknadRepository
 import no.nav.helse.flex.repository.normaliser
 import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
 import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
+import no.nav.helse.flex.soknadsopprettelse.TIL_SLUTT
 import no.nav.helse.flex.svarvalidering.ValideringException
 import no.nav.helse.flex.util.Metrikk
 import org.springframework.http.HttpStatus
@@ -56,12 +57,26 @@ class KorrigerSoknadService(
             sendtArbeidsgiver = null,
             korrigerer = soknadSomKorrigeres.id,
             sporsmal = soknadSomKorrigeres.sporsmal.map { spm ->
-                if (spm.tag == ANSVARSERKLARING || spm.tag == BEKREFT_OPPLYSNINGER) {
-                    spm.copy(svar = emptyList())
-                } else {
-                    spm
+                when (spm.tag) {
+                    ANSVARSERKLARING, BEKREFT_OPPLYSNINGER -> {
+                        spm.copy(svar = emptyList())
+                    }
+                    TIL_SLUTT -> {
+                        val endretUndersporsmal = spm.undersporsmal.mapIndexed { index, underspm ->
+                            if (index == 0) {
+                                underspm.copy(svar = emptyList())
+                            } else {
+                                underspm
+                            }
+                        }
+                        spm.copy(svar = emptyList(), undersporsmal = endretUndersporsmal)
+                    }
+                    else -> {
+                        spm
+                    }
                 }
             }
+
         )
 
         sykepengesoknadDAO.lagreSykepengesoknad(korrigering)

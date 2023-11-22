@@ -10,6 +10,7 @@ import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
 import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.soknadsopprettelse.*
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.medIndex
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
@@ -42,7 +43,7 @@ class MedlemskapUavklartIntegrationTest : BaseTestClass() {
     @BeforeAll
     fun configureUnleash() {
         fakeUnleash.resetAll()
-        fakeUnleash.enable(UNLEASH_CONTEXT_MEDLEMSKAP_SPORSMAL)
+        fakeUnleash.enable(UNLEASH_CONTEXT_MEDLEMSKAP_SPORSMAL, UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL)
     }
 
     @AfterAll
@@ -129,8 +130,7 @@ class MedlemskapUavklartIntegrationTest : BaseTestClass() {
                 ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER_V2,
                 UTLAND_V2,
-                VAER_KLAR_OVER_AT,
-                BEKREFT_OPPLYSNINGER
+                TIL_SLUTT
             )
         )
     }
@@ -178,8 +178,7 @@ class MedlemskapUavklartIntegrationTest : BaseTestClass() {
                 medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0),
                 ANDRE_INNTEKTSKILDER_V2,
                 UTLAND_V2,
-                VAER_KLAR_OVER_AT,
-                BEKREFT_OPPLYSNINGER
+                TIL_SLUTT
             )
         )
     }
@@ -227,8 +226,7 @@ class MedlemskapUavklartIntegrationTest : BaseTestClass() {
                 medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0),
                 ANDRE_INNTEKTSKILDER_V2,
                 UTLAND_V2,
-                VAER_KLAR_OVER_AT,
-                BEKREFT_OPPLYSNINGER
+                TIL_SLUTT
             )
         )
     }
@@ -244,6 +242,7 @@ class MedlemskapUavklartIntegrationTest : BaseTestClass() {
             val (_, soknadBesvarer) = it
             besvarArbeidstakerSporsmal(soknadBesvarer)
             val sendtSoknad = soknadBesvarer
+                .besvarSporsmal(tag = TIL_SLUTT, svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
                 .besvarSporsmal(tag = BEKREFT_OPPLYSNINGER, svar = "CHECKED")
                 .sendSoknad()
             sendtSoknad.status shouldBeEqualTo RSSoknadstatus.SENDT
