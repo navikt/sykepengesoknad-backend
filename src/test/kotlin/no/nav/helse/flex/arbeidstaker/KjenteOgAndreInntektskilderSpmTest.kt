@@ -15,6 +15,7 @@ import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_KJENTE_INNTEKTSKILDER
 import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL
 import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
 import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.`should be null`
 import org.amshove.kluent.shouldHaveSize
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
@@ -110,5 +111,26 @@ class KjenteOgAndreInntektskilderSpmTest : BaseTestClass() {
         )
 
         juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
+    }
+
+    @Test
+    @Order(5)
+    fun `Kjente inntektskilder lages ikke uten unleash toggle`() {
+        databaseReset.resetDatabase()
+        fakeUnleash.resetAll()
+        fakeUnleash.disable(UNLEASH_CONTEXT_KJENTE_INNTEKTSKILDER)
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = basisdato.minusDays(20),
+                    tom = basisdato
+                ),
+                arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "MATBUTIKKEN AS")
+            )
+        )
+
+        val soknaden = hentSoknader(fnr).first()
+        soknaden.sporsmal?.firstOrNull { it.tag == KJENTE_INNTEKTSKILDER }.`should be null`()
     }
 }
