@@ -3,8 +3,7 @@ package no.nav.helse.flex.arbeidstaker
 import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.flatten
-import no.nav.helse.flex.soknadsopprettelse.Arbeidsforholdstype
-import no.nav.helse.flex.soknadsopprettelse.KJENTE_INNTEKTSKILDER
+import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.sykepengesoknad.kafka.InntektskildeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.InntektskildetypeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
@@ -64,12 +63,30 @@ class KjenteOgAndreInntektskilderSpmTest : BaseTestClass() {
     @Order(3)
     fun `Har forventa kjente inntektskilder spm`() {
         val soknaden = hentSoknader(fnr).first()
-        val spm = soknaden.sporsmal!!.first { it.tag == KJENTE_INNTEKTSKILDER }
-        val sporsmalstekster =
-            listOf(spm).flatten().map { it.sporsmalstekst }
+        val spm = listOf(soknaden.sporsmal!!.first { it.tag == KJENTE_INNTEKTSKILDER }).flatten()
+        val sporsmalstekster = spm.map { it.sporsmalstekst }
         sporsmalstekster[0] `should be equal to` "Du er oppført med flere inntektskilder i Arbeidsgiver- og arbeidstakerregisteret. Vi trenger mer informasjon om disse."
         sporsmalstekster[3] `should be equal to` "Jobber du fortsatt ved Bensinstasjonen AS?"
         sporsmalstekster[5] `should be equal to` "Har du utført arbeid ved Bensinstasjonen AS i minst én dag i perioden 28. juli - 11. august 2021?"
+
+        // sjekker sorteringa
+        val sporsmalstags = spm.map { it.tag }
+        sporsmalstags[0] `should be equal to` KJENTE_INNTEKTSKILDER
+        sporsmalstags[1] `should be equal to` KJENTE_INNTEKTSKILDER_GRUPPE + "0"
+        sporsmalstags[2] `should be equal to` KJENTE_INNTEKTSKILDER_GRUPPE_TITTEL + "0"
+        sporsmalstags[3] `should be equal to` KJENTE_INNTEKTSKILDER_JOBBER_FORTSATT + "0"
+        sporsmalstags[4] `should be equal to` KJENTE_INNTEKTSKILDER_JOBBER_FORTSATT_JA + "0"
+        sporsmalstags[5] `should be equal to` KJENTE_INNTEKTSKILDER_UTFORT_ARBEID + "0"
+        sporsmalstags[6] `should be equal to` KJENTE_INNTEKTSKILDER_ARSAK_IKKE_JOBBET + "0"
+        sporsmalstags[7] `should be equal to` KJENTE_INNTEKTSKILDER_ARSAK_IKKE_JOBBET_SYKMELDT + "0"
+        sporsmalstags[8] `should be equal to` KJENTE_INNTEKTSKILDER_ARSAK_IKKE_JOBBET_TURNUS + "0"
+        sporsmalstags[9] `should be equal to` KJENTE_INNTEKTSKILDER_ARSAK_IKKE_JOBBET_FERIE + "0"
+        sporsmalstags[10] `should be equal to` KJENTE_INNTEKTSKILDER_ARSAK_IKKE_JOBBET_AVSPASERING + "0"
+        sporsmalstags[11] `should be equal to` KJENTE_INNTEKTSKILDER_ARSAK_IKKE_JOBBET_PERMITTERT + "0"
+        sporsmalstags[12] `should be equal to` KJENTE_INNTEKTSKILDER_ARSAK_IKKE_JOBBET_PERMISJON + "0"
+        sporsmalstags[13] `should be equal to` KJENTE_INNTEKTSKILDER_ARSAK_IKKE_JOBBET_ANNEN + "0"
+        sporsmalstags[14] `should be equal to` KJENTE_INNTEKTSKILDER_JOBBER_FORTSATT_NEI + "0"
+        sporsmalstags[15] `should be equal to` KJENTE_INNTEKTSKILDER_DATO_SLUTTET + "0"
     }
 
     @Test
