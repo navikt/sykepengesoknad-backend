@@ -1,14 +1,11 @@
 package no.nav.helse.flex.soknadsopprettelse.sporsmal
 
-import io.getunleash.Unleash
-import io.getunleash.UnleashContext
 import no.nav.helse.flex.config.EnvironmentToggles
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.logger
-import no.nav.helse.flex.medlemskap.MedlemskapToggle
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingClient
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingRequest
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingResponse
@@ -18,11 +15,10 @@ import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.service.IdentService
 import no.nav.helse.flex.soknadsopprettelse.*
+import no.nav.helse.flex.unleash.UnleashToggles
 import no.nav.helse.flex.yrkesskade.YrkesskadeIndikatorer
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-
-const val UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL = "sykepengesoknad-backend-bekreftelsespunkter"
 
 @Service
 @Transactional
@@ -33,8 +29,7 @@ class SporsmalGenerator(
     private val yrkesskadeIndikatorer: YrkesskadeIndikatorer,
     private val medlemskapVurderingClient: MedlemskapVurderingClient,
     private val environmentToggles: EnvironmentToggles,
-    private val medlemskapToggle: MedlemskapToggle,
-    private val unleash: Unleash
+    private val unleashToggles: UnleashToggles
 ) {
     private val log = logger()
 
@@ -74,7 +69,7 @@ class SporsmalGenerator(
         val erForsteSoknadISykeforlop = erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad)
         val erEnkeltstaendeBehandlingsdagSoknad = soknad.soknadstype == Soknadstype.BEHANDLINGSDAGER
         val harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad)
-        val nyttTilSluttSpmToggle = unleash.isEnabled(UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL, UnleashContext.builder().userId(soknad.fnr).build())
+        val nyttTilSluttSpmToggle = unleashToggles.nyttTilSluttSporsmal(soknad.fnr)
         val yrkesskadeSporsmalGrunnlag = yrkesskadeIndikatorer.hentYrkesskadeSporsmalGrunnlag(
             identer = identer,
             sykmeldingId = soknad.sykmeldingId,
@@ -85,7 +80,8 @@ class SporsmalGenerator(
             sykepengesoknad = soknad,
             erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
             harTidligereUtenlandskSpm = harTidligereUtenlandskSpm,
-            yrkesskade = yrkesskadeSporsmalGrunnlag
+            yrkesskade = yrkesskadeSporsmalGrunnlag,
+            kjenteInntektskilderEnabled = unleashToggles.stillKjenteInntektskilderSporsmal(soknad.fnr)
         )
 
         if (erEnkeltstaendeBehandlingsdagSoknad) {
@@ -159,7 +155,7 @@ class SporsmalGenerator(
                 listOf(SykepengesoknadSporsmalTag.ARBEID_UTENFOR_NORGE)
             }
 
-            !medlemskapToggle.stillMedlemskapSporsmal(soknad.fnr) -> {
+            !unleashToggles.stillMedlemskapSporsmal(soknad.fnr) -> {
                 log.info("Medlemskapvurdering er UAVKLART for søknad ${soknad.id}, men medlemskapToggle svarte 'false'.")
                 listOf(SykepengesoknadSporsmalTag.ARBEID_UTENFOR_NORGE)
             }

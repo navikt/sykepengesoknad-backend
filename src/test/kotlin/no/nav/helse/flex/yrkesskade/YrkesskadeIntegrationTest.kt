@@ -4,10 +4,10 @@ import no.nav.helse.flex.*
 import no.nav.helse.flex.client.yrkesskade.SakDto
 import no.nav.helse.flex.client.yrkesskade.SakerResponse
 import no.nav.helse.flex.mockdispatcher.YrkesskadeMockDispatcher
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
+import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL
 import no.nav.helse.flex.util.flatten
 import org.amshove.kluent.*
 import org.junit.jupiter.api.MethodOrderer

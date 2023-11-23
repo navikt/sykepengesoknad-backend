@@ -16,13 +16,13 @@ import no.nav.helse.flex.soknadsopprettelse.PAPIRSYKMELDING_NAR
 import no.nav.helse.flex.soknadsopprettelse.TIDLIGERE_EGENMELDING
 import no.nav.helse.flex.soknadsopprettelse.TIDLIGERE_PAPIRSYKMELDING
 import no.nav.helse.flex.soknadsopprettelse.TIDLIGERE_SYK
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL
 import no.nav.helse.flex.sykepengesoknad.kafka.PeriodeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
+import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL
 import no.nav.helse.flex.util.DatoUtil
 import no.nav.helse.flex.ventPåRecords
 import org.assertj.core.api.Assertions.assertThat

@@ -31,6 +31,7 @@ private fun Sporsmal.sorterUndersporsmal(): Sporsmal {
                 MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE -> it.sorteringMedlemskapOppholdUtenforNorgeBegrunnelse()
                 MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_GRUPPERING -> it.sorteringMedlemskapOppholdUtenforEosGruppering()
                 MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE -> it.sorteringMedlemskapOppholdUtenforEosBegrunnelse()
+                KJENTE_INNTEKTSKILDER_ARSAK_IKKE_JOBBET -> it.sorteringKjenteInntektskilderArsak()
                 else -> it.tag
             }
         }
@@ -104,6 +105,20 @@ private fun Sporsmal.sorteringMedlemskapOppholdUtenforEosBegrunnelse(): String {
         MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_EKTEFELLE -> "3"
         MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_ANNET -> "4"
         else -> throw RuntimeException("Ukjent underspørsmål for begrunnelse for opphold utenfor EØS: $tag")
+    }
+}
+
+private fun Sporsmal.sorteringKjenteInntektskilderArsak(): String {
+    val tagUtenIndex = fjernIndexFraTag(this.tag)
+    return when (tagUtenIndex) {
+        KJENTE_INNTEKTSKILDER_ARSAK_IKKE_JOBBET_SYKMELDT -> "0"
+        KJENTE_INNTEKTSKILDER_ARSAK_IKKE_JOBBET_TURNUS -> "1"
+        KJENTE_INNTEKTSKILDER_ARSAK_IKKE_JOBBET_FERIE -> "2"
+        KJENTE_INNTEKTSKILDER_ARSAK_IKKE_JOBBET_AVSPASERING -> "3"
+        KJENTE_INNTEKTSKILDER_ARSAK_IKKE_JOBBET_PERMITTERT -> "4"
+        KJENTE_INNTEKTSKILDER_ARSAK_IKKE_JOBBET_PERMISJON -> "5"
+        KJENTE_INNTEKTSKILDER_ARSAK_IKKE_JOBBET_ANNEN -> "6"
+        else -> throw RuntimeException("Ukjent underspørsmål for kjente inntektskilder årsak: $tag")
     }
 }
 
