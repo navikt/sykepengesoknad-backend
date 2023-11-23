@@ -67,7 +67,7 @@ class KjenteOgAndreInntektskilderSpmTest : BaseTestClass() {
         val sporsmalstekster = spm.map { it.sporsmalstekst }
         sporsmalstekster[0] `should be equal to` "Du er oppført med flere inntektskilder i Arbeidsgiver- og arbeidstakerregisteret. Vi trenger mer informasjon om disse."
         sporsmalstekster[3] `should be equal to` "Jobber du fortsatt ved Bensinstasjonen AS?"
-        sporsmalstekster[5] `should be equal to` "Har du utført arbeid ved Bensinstasjonen AS i minst én dag i perioden 28. juli - 11. august 2021?"
+        sporsmalstekster[5] `should be equal to` "Har du utført noe arbeid ved Bensinstasjonen AS i perioden 28. juli - 11. august 2021?"
 
         // sjekker sorteringa
         val sporsmalstags = spm.map { it.tag }

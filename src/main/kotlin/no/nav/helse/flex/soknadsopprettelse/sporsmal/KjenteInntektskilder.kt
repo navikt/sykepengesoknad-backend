@@ -42,7 +42,7 @@ fun kjenteInntektskilderSporsmal(andreKjenteArbeidsforhold: List<String>, startS
                                 undersporsmal = listOf(
                                     Sporsmal(
                                         tag = KJENTE_INNTEKTSKILDER_UTFORT_ARBEID + idx,
-                                        sporsmalstekst = "Har du utført arbeid ved $arbeidsforhold i minst én dag i perioden $fjortenDagerFørStartSyketilfelle?",
+                                        sporsmalstekst = "Har du utført noe arbeid ved $arbeidsforhold i perioden $fjortenDagerFørStartSyketilfelle?",
                                         undertekst = null,
                                         svartype = Svartype.JA_NEI,
                                         kriterieForVisningAvUndersporsmal = Visningskriterie.NEI,
