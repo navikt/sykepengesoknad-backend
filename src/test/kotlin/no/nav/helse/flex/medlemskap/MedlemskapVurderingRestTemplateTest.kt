@@ -3,6 +3,7 @@ package no.nav.helse.flex.medlemskap
 import no.nav.helse.flex.config.AadRestTemplateConfiguration
 import no.nav.helse.flex.config.MEDLEMSKAP_VURDERING_REST_TEMPLATE_CONNECT_TIMEOUT
 import no.nav.helse.flex.config.MEDLEMSKAP_VURDERING_REST_TEMPLATE_READ_TIMEOUT
+import no.nav.helse.flex.unleash.UnleashToggles
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
 import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.Disabled
@@ -37,7 +38,7 @@ class MedlemskapVurderingRestTemplateTest {
     private lateinit var medlemskapVurderingRestTemplate: RestTemplate
 
     @MockBean
-    lateinit var medlemskapToggle: MedlemskapToggle
+    lateinit var medlemskapToggle: UnleashToggles
 
     @Test
     fun failOnConnectTimeout() {

@@ -8,5 +8,6 @@ data class SettOppSoknadOptions(
     val erForsteSoknadISykeforlop: Boolean,
     val harTidligereUtenlandskSpm: Boolean,
     val yrkesskade: YrkesskadeSporsmalGrunnlag,
-    val medlemskapSporsmalTags: List<MedlemskapSporsmalTag>? = emptyList()
+    val medlemskapSporsmalTags: List<MedlemskapSporsmalTag>? = emptyList(),
+    val kjenteInntektskilderEnabled: Boolean = false
 )

@@ -1,21 +1,18 @@
 package no.nav.helse.flex.arbeidstaker
 
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
-import no.nav.helse.flex.hentSoknad
-import no.nav.helse.flex.hentSoknaderMetadata
-import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
-import no.nav.helse.flex.sendSykmelding
+import no.nav.helse.flex.controller.domain.sykepengesoknad.flatten
 import no.nav.helse.flex.soknadsopprettelse.Arbeidsforholdstype
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL
+import no.nav.helse.flex.soknadsopprettelse.KJENTE_INNTEKTSKILDER
 import no.nav.helse.flex.sykepengesoknad.kafka.InntektskildeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.InntektskildetypeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
-import no.nav.helse.flex.tilSoknader
-import no.nav.helse.flex.ventPåRecords
+import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_KJENTE_INNTEKTSKILDER
 import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldHaveSize
@@ -24,7 +21,7 @@ import org.junit.jupiter.api.*
 import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class NyttAndreInntektskilderSpmTest : BaseTestClass() {
+class KjenteOgAndreInntektskilderSpmTest : BaseTestClass() {
 
     private val fnr = "11111234565"
     private final val basisdato = LocalDate.of(2021, 9, 1)
@@ -33,6 +30,7 @@ class NyttAndreInntektskilderSpmTest : BaseTestClass() {
     @Order(1)
     fun `Arbeidstakersøknader opprettes for en lang sykmelding`() {
         fakeUnleash.resetAll()
+        fakeUnleash.enable(UNLEASH_CONTEXT_KJENTE_INNTEKTSKILDER)
         fakeUnleash.enable(UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL)
         sendSykmelding(
             sykmeldingKafkaMessage(
@@ -63,7 +61,19 @@ class NyttAndreInntektskilderSpmTest : BaseTestClass() {
 
     @Test
     @Order(3)
-    fun `Vi besvarer og sender inn den første søknaden`() {
+    fun `Har forventa kjente inntektskilder spm`() {
+        val soknaden = hentSoknader(fnr).first()
+        val spm = soknaden.sporsmal!!.first { it.tag == KJENTE_INNTEKTSKILDER }
+        val sporsmalstekster =
+            listOf(spm).flatten().map { it.sporsmalstekst }
+        sporsmalstekster[0] `should be equal to` "Du er oppført med flere inntektskilder i Arbeidsgiver- og arbeidstakerregisteret. Vi trenger mer informasjon om disse."
+        sporsmalstekster[3] `should be equal to` "Jobber du fortsatt ved Bensinstasjonen AS?"
+        sporsmalstekster[5] `should be equal to` "Har du utført arbeid ved Bensinstasjonen AS i minst én dag i perioden 28. juli - 11. august 2021?"
+    }
+
+    @Test
+    @Order(4)
+    fun `Vi besvarer og sender inn søknaden`() {
         flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
         val soknaden = hentSoknad(
@@ -78,6 +88,9 @@ class NyttAndreInntektskilderSpmTest : BaseTestClass() {
             .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
             .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
             .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
+            .besvarSporsmal(tag = "KJENTE_INNTEKTSKILDER_JOBBER_FORTSATT_JA_0", svar = "CHECKED", ferdigBesvart = false)
+            .besvarSporsmal(tag = "KJENTE_INNTEKTSKILDER_UTFORT_ARBEID_0", svar = "NEI", ferdigBesvart = false)
+            .besvarSporsmal(tag = "KJENTE_INNTEKTSKILDER_ARSAK_IKKE_JOBBET_TURNUS_0", svar = "CHECKED")
             .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "JA", ferdigBesvart = false)
             .besvarSporsmal(tag = "INNTEKTSKILDE_STYREVERV", svar = "CHECKED")
             .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)

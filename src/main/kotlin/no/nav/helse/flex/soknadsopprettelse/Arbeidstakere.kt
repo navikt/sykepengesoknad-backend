@@ -73,6 +73,9 @@ fun settOppSoknadArbeidstaker(
         if (erGradertReisetilskudd) {
             add(brukteReisetilskuddetSpørsmål())
         }
+        if (soknadOptions.kjenteInntektskilderEnabled && erForsteSoknadISykeforlop && andreKjenteArbeidsforhold.isNotEmpty()) {
+            add(kjenteInntektskilderSporsmal(andreKjenteArbeidsforhold, sykepengesoknad.startSykeforlop!!))
+        }
 
         addAll(
             medlemskapTags!!.map {

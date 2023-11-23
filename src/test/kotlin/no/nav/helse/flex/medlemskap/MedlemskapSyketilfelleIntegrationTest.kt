@@ -15,6 +15,7 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.reisetilskudd
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
+import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_MEDLEMSKAP_SPORSMAL
 import no.nav.helse.flex.util.flatten
 import no.nav.helse.flex.util.serialisertTilString
 import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
