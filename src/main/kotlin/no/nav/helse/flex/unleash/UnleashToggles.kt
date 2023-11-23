@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component
 
 const val UNLEASH_CONTEXT_MEDLEMSKAP_SPORSMAL = "sykepengesoknad-backend-soknad-for-sporsmal-om-medlemskap"
 const val UNLEASH_CONTEXT_KJENTE_INNTEKTSKILDER = "sykepengesoknad-backend-kjente-inntektskilder"
+const val UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL = "sykepengesoknad-backend-bekreftelsespunkter"
 
 @Component
 class UnleashToggles(
@@ -20,5 +21,9 @@ class UnleashToggles(
     fun stillKjenteInntektskilderSporsmal(fnr: String): Boolean {
         val unleashContext = UnleashContext.builder().userId(fnr).build()
         return unleash.isEnabled(UNLEASH_CONTEXT_KJENTE_INNTEKTSKILDER, unleashContext)
+    }
+
+    fun nyttTilSluttSporsmal(fnr: String): Boolean {
+        return unleash.isEnabled(UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL, UnleashContext.builder().userId(fnr).build())
     }
 }
