@@ -497,7 +497,8 @@ class SykepengesoknadDAO(
                     utenlandskSykmelding = resultSet.getBoolean("UTENLANDSK_SYKMELDING"),
                     egenmeldingsdagerFraSykmelding = resultSet.getString("EGENMELDINGSDAGER_FRA_SYKMELDING"),
                     inntektskilderDataFraInntektskomponenten = resultSet.getNullableString("INNTEKTSKILDER_DATA_FRA_INNTEKTSKOMPONENTEN")?.tilArbeidsforholdFraInntektskomponenten(),
-                    forstegangssoknad = resultSet.getNullableBoolean("FORSTEGANGSSOKNAD")
+                    forstegangssoknad = resultSet.getNullableBoolean("FORSTEGANGSSOKNAD"),
+                    tidligereArbeidsgiverOrgnummer = resultSet.getNullableString("TIDLIGERE_ARBEIDSGIVER_ORGNUMMER")
                 )
             )
         }

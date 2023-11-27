@@ -72,7 +72,8 @@ fun skapSykmeldingStatusKafkaMessageDTO(
     fnr: String,
     timestamp: OffsetDateTime = OffsetDateTime.now(),
     arbeidsgiver: ArbeidsgiverStatusDTO? = null,
-    sykmeldingId: String = UUID.randomUUID().toString()
+    sykmeldingId: String = UUID.randomUUID().toString(),
+    tidligereArbeidsgiverOrgnummer: String? = null
 
 ): SykmeldingStatusKafkaMessageDTO {
     return SykmeldingStatusKafkaMessageDTO(
@@ -89,7 +90,13 @@ fun skapSykmeldingStatusKafkaMessageDTO(
                     svar = arbeidssituasjon.name
                 )
             )
-        ),
+        ).let {
+            if (tidligereArbeidsgiverOrgnummer != null) {
+                it.copy(tidligereArbeidsgiver = TidligereArbeidsgiverDTO("", tidligereArbeidsgiverOrgnummer, ""))
+            } else {
+                it
+            }
+        },
         kafkaMetadata = KafkaMetadataDTO(
             sykmeldingId = sykmeldingId,
             timestamp = timestamp,
@@ -239,7 +246,8 @@ fun sykmeldingKafkaMessage(
     merknader: List<Merknad>? = null,
     utenlandskSykemelding: UtenlandskSykmeldingAGDTO? = null,
     sykmeldingSkrevet: OffsetDateTime = timestamp,
-    signaturDato: OffsetDateTime = timestamp
+    signaturDato: OffsetDateTime = timestamp,
+    tidligereArbeidsgiverOrgnummer: String? = null
 ): SykmeldingKafkaMessage {
     val faktiskArbeidsgiver = if (arbeidssituasjon == Arbeidssituasjon.ARBEIDSTAKER) {
         arbeidsgiver!!
@@ -256,7 +264,8 @@ fun sykmeldingKafkaMessage(
         },
         arbeidsgiver = faktiskArbeidsgiver,
         sykmeldingId = sykmeldingId,
-        timestamp = timestamp
+        timestamp = timestamp,
+        tidligereArbeidsgiverOrgnummer = tidligereArbeidsgiverOrgnummer
     )
 
     val sykmelding = skapArbeidsgiverSykmelding(

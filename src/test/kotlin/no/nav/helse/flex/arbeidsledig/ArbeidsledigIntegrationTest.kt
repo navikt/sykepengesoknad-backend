@@ -30,17 +30,21 @@ class ArbeidsledigIntegrationTest : BaseTestClass() {
 
     final val fnr = "123456789"
 
+    val tidligereArbeidsgiverOrgnummer = "gamlejobben"
+
     @Test
     fun `01 - vi oppretter en arbeidsledigsøknad`() {
         val soknader = sendSykmelding(
             sykmeldingKafkaMessage(
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
-                fnr = fnr
+                fnr = fnr,
+                tidligereArbeidsgiverOrgnummer = tidligereArbeidsgiverOrgnummer
             )
         )
 
         assertThat(soknader).hasSize(1)
         assertThat(soknader.last().type).isEqualTo(SoknadstypeDTO.ARBEIDSLEDIG)
+        assertThat(soknader.last().tidligereArbeidsgiverOrgnummer).isEqualTo(tidligereArbeidsgiverOrgnummer)
     }
 
     @Test
@@ -212,6 +216,7 @@ class ArbeidsledigIntegrationTest : BaseTestClass() {
         assertThat(soknader.last().status).isEqualTo(SoknadsstatusDTO.SENDT)
         assertThat(soknader.last().permitteringer).hasSize(0)
         soknader.last().arbeidUtenforNorge!!.`should be true`()
+        assertThat(soknader.last().tidligereArbeidsgiverOrgnummer).isEqualTo(tidligereArbeidsgiverOrgnummer)
     }
 
     @Test
