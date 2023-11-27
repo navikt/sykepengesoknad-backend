@@ -45,7 +45,8 @@ data class SykepengesoknadDbRecord(
     val opprettetAvInntektsmelding: Boolean = false,
     val utenlandskSykmelding: Boolean,
     val egenmeldingsdagerFraSykmelding: String? = null,
-    val forstegangssoknad: Boolean?
+    val forstegangssoknad: Boolean?,
+    val tidligereArbeidsgiverOrgnummer: String? = null
 )
 
 data class SporsmalDbRecord(

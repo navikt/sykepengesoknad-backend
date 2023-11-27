@@ -60,6 +60,7 @@ fun konverterTilSykepengesoknadDTO(
         } else {
             null
         },
-        forstegangssoknad = sykepengesoknad.forstegangssoknad ?: false
+        forstegangssoknad = sykepengesoknad.forstegangssoknad ?: false,
+        tidligereArbeidsgiverOrgnummer = sykepengesoknad.tidligereArbeidsgiverOrgnummer
     )
 }

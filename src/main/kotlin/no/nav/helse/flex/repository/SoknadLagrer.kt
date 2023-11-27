@@ -33,8 +33,8 @@ class SoknadLagrer(
         }
 
         val sql = """
-INSERT INTO SYKEPENGESOKNAD (ID, SYKEPENGESOKNAD_UUID, SOKNADSTYPE, STATUS, FOM, TOM, OPPRETTET, AVBRUTT_DATO, SYKMELDING_UUID, SENDT_NAV, SENDT_ARBEIDSGIVER, KORRIGERER, KORRIGERT_AV, ARBEIDSGIVER_ORGNUMMER, ARBEIDSGIVER_NAVN, ARBEIDSSITUASJON, START_SYKEFORLOP, SYKMELDING_SKREVET, SYKMELDING_SIGNATUR_DATO, OPPRINNELSE, FNR, EGENMELDT_SYKMELDING, MERKNADER_FRA_SYKMELDING, AVBRUTT_FEILINFO, OPPRETTET_AV_INNTEKTSMELDING, UTENLANDSK_SYKMELDING, EGENMELDINGSDAGER_FRA_SYKMELDING, FORSTEGANGSSOKNAD) 
-VALUES (:id, :uuid, :soknadstype, :status, :fom, :tom, :opprettet, :avbrutt, :sykmeldingUuid, :sendtNav, :sendtArbeidsgiver, :korrigerer, :korrigertAv, :arbeidsgiverOrgnummer, :arbeidsgiverNavn, :arbeidssituasjon, :startSykeforlop, :sykmeldingSkrevet, :sykmeldingSignaturDato, :opprinnelse, :fnr, :egenmeldtSykmelding, :merknaderFraSykmelding, :avbruttFeilinfo, :opprettetAvInntektsmelding, :utenlandskSykmelding, :egenmeldingsdagerFraSykmelding, :forstegangssoknad) 
+INSERT INTO SYKEPENGESOKNAD (ID, SYKEPENGESOKNAD_UUID, SOKNADSTYPE, STATUS, FOM, TOM, OPPRETTET, AVBRUTT_DATO, SYKMELDING_UUID, SENDT_NAV, SENDT_ARBEIDSGIVER, KORRIGERER, KORRIGERT_AV, ARBEIDSGIVER_ORGNUMMER, ARBEIDSGIVER_NAVN, ARBEIDSSITUASJON, START_SYKEFORLOP, SYKMELDING_SKREVET, SYKMELDING_SIGNATUR_DATO, OPPRINNELSE, FNR, EGENMELDT_SYKMELDING, MERKNADER_FRA_SYKMELDING, AVBRUTT_FEILINFO, OPPRETTET_AV_INNTEKTSMELDING, UTENLANDSK_SYKMELDING, EGENMELDINGSDAGER_FRA_SYKMELDING, FORSTEGANGSSOKNAD, TIDLIGERE_ARBEIDSGIVER_ORGNUMMER) 
+VALUES (:id, :uuid, :soknadstype, :status, :fom, :tom, :opprettet, :avbrutt, :sykmeldingUuid, :sendtNav, :sendtArbeidsgiver, :korrigerer, :korrigertAv, :arbeidsgiverOrgnummer, :arbeidsgiverNavn, :arbeidssituasjon, :startSykeforlop, :sykmeldingSkrevet, :sykmeldingSignaturDato, :opprinnelse, :fnr, :egenmeldtSykmelding, :merknaderFraSykmelding, :avbruttFeilinfo, :opprettetAvInntektsmelding, :utenlandskSykmelding, :egenmeldingsdagerFraSykmelding, :forstegangssoknad, :tidligereArbeidsgiverOrgnummer) 
 ON CONFLICT ON CONSTRAINT sykepengesoknad_pkey DO NOTHING
 """
         jdbcTemplate.batchUpdate(
@@ -70,6 +70,7 @@ ON CONFLICT ON CONSTRAINT sykepengesoknad_pkey DO NOTHING
                     .addValue("utenlandskSykmelding", sykepengesoknad.utenlandskSykmelding)
                     .addValue("egenmeldingsdagerFraSykmelding", sykepengesoknad.egenmeldingsdagerFraSykmelding)
                     .addValue("forstegangssoknad", sykepengesoknad.forstegangssoknad)
+                    .addValue("tidligereArbeidsgiverOrgnummer", sykepengesoknad.tidligereArbeidsgiverOrgnummer)
             }
                 .toTypedArray()
         )
