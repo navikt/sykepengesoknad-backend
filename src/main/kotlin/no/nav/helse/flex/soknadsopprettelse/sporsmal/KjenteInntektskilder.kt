@@ -6,6 +6,7 @@ import no.nav.helse.flex.domain.Visningskriterie
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.util.DatoUtil
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
 fun kjenteInntektskilderSporsmal(andreKjenteArbeidsforhold: List<String>, startSyketilfelle: LocalDate): Sporsmal {
     if (andreKjenteArbeidsforhold.isEmpty()) throw IllegalArgumentException("Kan ikke lage spørsmål om kjente inntektskilder uten andre kjente inntektskilder")
@@ -65,7 +66,6 @@ fun kjenteInntektskilderSporsmal(andreKjenteArbeidsforhold: List<String>, startS
                                                         tag = it.first,
                                                         sporsmalstekst = it.second,
                                                         svartype = Svartype.CHECKBOX
-
                                                     )
                                                 }
                                             )
@@ -84,7 +84,8 @@ fun kjenteInntektskilderSporsmal(andreKjenteArbeidsforhold: List<String>, startS
                                         tag = KJENTE_INNTEKTSKILDER_DATO_SLUTTET + idx,
                                         sporsmalstekst = "Når sluttet du?",
                                         undertekst = null,
-                                        svartype = Svartype.DATO
+                                        svartype = Svartype.DATO,
+                                        max = startSyketilfelle.minusDays(1).format(ISO_LOCAL_DATE)
                                     )
                                 )
                             )
