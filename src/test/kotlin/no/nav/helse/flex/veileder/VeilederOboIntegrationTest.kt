@@ -4,7 +4,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknad
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.mockSyfoTilgangskontroll
+import no.nav.helse.flex.mockIstilgangskontroll
 import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.skapAzureJwt
 import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER
@@ -43,7 +43,7 @@ class VeilederOboIntegrationTest : BaseTestClass() {
     @Test
     fun `02 - vi kan hente søknaden som veileder med header`() {
         val veilederToken = skapAzureJwt("syfomodiaperson-client-id")
-        mockSyfoTilgangskontroll(true, fnr)
+        mockIstilgangskontroll(true, fnr)
 
         val soknader = hentSoknaderSomVeileder(fnr, veilederToken)
         assertThat(soknader).hasSize(1)
@@ -59,14 +59,14 @@ class VeilederOboIntegrationTest : BaseTestClass() {
                 BEKREFT_OPPLYSNINGER
             )
         )
-        syfotilgangskontrollMockRestServiceServer.verify()
-        syfotilgangskontrollMockRestServiceServer.reset()
+        istilgangskontrollMockRestServiceServer.verify()
+        istilgangskontrollMockRestServiceServer.reset()
     }
 
     @Test
     fun `03 - vi kan ikke hente søknaden som veileder uten tilgang`() {
         val veilederToken = skapAzureJwt("syfomodiaperson-client-id")
-        mockSyfoTilgangskontroll(false, fnr)
+        mockIstilgangskontroll(false, fnr)
 
         mockMvc.perform(
             MockMvcRequestBuilders.get("/api/veileder/soknader")
@@ -74,8 +74,8 @@ class VeilederOboIntegrationTest : BaseTestClass() {
                 .header("Authorization", "Bearer $veilederToken")
                 .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(MockMvcResultMatchers.status().is4xxClientError).andReturn().response.contentAsString
-        syfotilgangskontrollMockRestServiceServer.verify()
-        syfotilgangskontrollMockRestServiceServer.reset()
+        istilgangskontrollMockRestServiceServer.verify()
+        istilgangskontrollMockRestServiceServer.reset()
     }
 
     @Test

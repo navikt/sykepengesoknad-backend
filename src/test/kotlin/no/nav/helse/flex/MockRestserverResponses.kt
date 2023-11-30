@@ -1,6 +1,6 @@
 package no.nav.helse.flex
 
-import no.nav.helse.flex.client.syfotilgangskontroll.SyfoTilgangskontrollClient.Companion.NAV_PERSONIDENT_HEADER
+import no.nav.helse.flex.client.istilgangskontroll.IstilgangskontrollClient.Companion.NAV_PERSONIDENT_HEADER
 import no.nav.helse.flex.domain.Arbeidsgiverperiode
 import no.nav.helse.flex.domain.SimpleSykmelding
 import no.nav.helse.flex.domain.Sykeforloep
@@ -16,12 +16,12 @@ import org.springframework.test.web.client.response.MockRestResponseCreators.wit
 import org.springframework.test.web.client.response.MockRestResponseCreators.withUnauthorizedRequest
 import java.time.LocalDate
 
-fun BaseTestClass.mockSyfoTilgangskontroll(
+fun BaseTestClass.mockIstilgangskontroll(
     tilgang: Boolean,
     fnr: String
 ) {
-    syfotilgangskontrollMockRestServiceServer
-        .expect(requestTo("http://syfotilgang/syfo-tilgangskontroll/api/tilgang/navident/person"))
+    istilgangskontrollMockRestServiceServer
+        .expect(requestTo("http://istilgang/api/tilgang/navident/person"))
         .andExpect(header(NAV_PERSONIDENT_HEADER, fnr))
         .andRespond(
             if (tilgang) {
