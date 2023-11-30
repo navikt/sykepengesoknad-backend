@@ -1,6 +1,6 @@
 AZURE_APP_PRE_AUTHORIZED_APPS: "[{\"name\":\"dev-gcp:flex:sykepengesoknad-korrigering-metrikk\",\"clientId\":\"sykepengesoknad-korrigering-metrikk-client-id\"},{\"name\":\"dev-gcp:teamsykefravr:syfomodiaperson\",\"clientId\":\"syfomodiaperson-client-id\"},{\"name\":\"dev-gcp:flex:flex-internal-frontend\",\"clientId\":\"flex-internal-frontend-client-id\"}]"
 
-syfotilgangskontroll.url: http://syfotilgang
+istilgangskontroll.url: http://istilgang
 sykepengesoknad.kvitteringer.url: http://sykepengesoknad-kvitteringer
 flex.syketilfelle.url: http://flex-syketilfelle
 
@@ -50,10 +50,10 @@ no.nav.security.jwt:
           client-id: client-id
           client-secret: secretzz
           client-auth-method: client_secret_basic
-      onbehalfof-syfotilgangskontroll:
+      onbehalfof-istilgangskontroll:
         token-endpoint-url: http://localhost:${mock-oauth2-server.port}/azureator/token
         grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
-        scope: syfotilgangskontroll-client
+        scope: istilgangskontroll-client
         authentication:
           client-id: client-id
           client-secret: secretzz

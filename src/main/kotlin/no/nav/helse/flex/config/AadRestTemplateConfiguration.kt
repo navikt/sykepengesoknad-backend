@@ -96,13 +96,13 @@ class AadRestTemplateConfiguration {
         )
 
     @Bean
-    fun syfotilgangskontrollRestTemplate(
+    fun istilgangskontrollRestTemplate(
         restTemplateBuilder: RestTemplateBuilder,
         clientConfigurationProperties: ClientConfigurationProperties,
         oAuth2AccessTokenService: OAuth2AccessTokenService
     ): RestTemplate =
         downstreamRestTemplate(
-            registrationName = "onbehalfof-syfotilgangskontroll",
+            registrationName = "onbehalfof-istilgangskontroll",
             restTemplateBuilder = restTemplateBuilder,
             clientConfigurationProperties = clientConfigurationProperties,
             oAuth2AccessTokenService = oAuth2AccessTokenService

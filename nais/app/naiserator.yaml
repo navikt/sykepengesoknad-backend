@@ -70,7 +70,7 @@ spec:
         - application: flex-syketilfelle
         - application: yrkesskade-saker
           namespace: yrkesskade
-        - application: syfo-tilgangskontroll
+        - application: istilgangskontroll
           namespace: teamsykefravr
         - application: medlemskap-sykepenger-listener
           namespace: medlemskap

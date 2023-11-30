@@ -119,7 +119,7 @@ abstract class BaseTestClass {
     lateinit var rebehandlingsSykmeldingSendtProducer: RebehandlingSykmeldingSendtProducer
 
     @Autowired
-    lateinit var syfotilgangskontrollRestTemplate: RestTemplate
+    lateinit var istilgangskontrollRestTemplate: RestTemplate
 
     @Autowired
     lateinit var flexSyketilfelleRestTemplate: RestTemplate
@@ -130,13 +130,13 @@ abstract class BaseTestClass {
     @Autowired
     lateinit var behandleSykmeldingOgBestillAktivering: BehandleSykmeldingOgBestillAktivering
 
-    lateinit var syfotilgangskontrollMockRestServiceServer: MockRestServiceServer
+    lateinit var istilgangskontrollMockRestServiceServer: MockRestServiceServer
     lateinit var flexSyketilfelleMockRestServiceServer: MockRestServiceServer
 
     @PostConstruct
     fun setupRestServiceServers() {
-        syfotilgangskontrollMockRestServiceServer =
-            MockRestServiceServer.bindTo(syfotilgangskontrollRestTemplate).ignoreExpectOrder(true).build()
+        istilgangskontrollMockRestServiceServer =
+            MockRestServiceServer.bindTo(istilgangskontrollRestTemplate).ignoreExpectOrder(true).build()
         flexSyketilfelleMockRestServiceServer =
             MockRestServiceServer.bindTo(flexSyketilfelleRestTemplate).ignoreExpectOrder(true).build()
     }

@@ -1,4 +1,4 @@
-package no.nav.helse.flex.client.syfotilgangskontroll
+package no.nav.helse.flex.client.istilgangskontroll
 
 import no.nav.helse.flex.logger
 import org.springframework.beans.factory.annotation.Value
@@ -13,12 +13,12 @@ import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
 
 @Component
-class SyfoTilgangskontrollClient(
-    @Value("\${syfotilgangskontroll.url}") private val url: String,
-    private val syfotilgangskontrollRestTemplate: RestTemplate
+class IstilgangskontrollClient(
+    @Value("\${istilgangskontroll.url}") private val url: String,
+    private val istilgangskontrollRestTemplate: RestTemplate
 ) {
     companion object {
-        const val ACCESS_TO_USER_WITH_AZURE_V2_PATH = "/syfo-tilgangskontroll/api/tilgang/navident/person"
+        const val ACCESS_TO_USER_WITH_AZURE_V2_PATH = "/api/tilgang/navident/person"
         const val NAV_PERSONIDENT_HEADER = "nav-personident"
     }
 
@@ -31,7 +31,7 @@ class SyfoTilgangskontrollClient(
         headers[NAV_PERSONIDENT_HEADER] = fnr
 
         return try {
-            val response = syfotilgangskontrollRestTemplate.exchange(
+            val response = istilgangskontrollRestTemplate.exchange(
                 accessToUserV2Url(),
                 GET,
                 HttpEntity<Any>(headers),
@@ -40,7 +40,7 @@ class SyfoTilgangskontrollClient(
             response.statusCode.is2xxSuccessful
         } catch (e: HttpClientErrorException) {
             if (e.statusCode != HttpStatusCode.valueOf(403)) {
-                log.error("Kall til SyfoTilgangskontroll feilet med HttpStatusCode ${e.statusCode.value()}", e)
+                log.error("Kall til istilgangskontroll feilet med HttpStatusCode ${e.statusCode.value()}", e)
             }
             false
         }

@@ -1,7 +1,7 @@
 package no.nav.helse.flex.controller
 
 import io.swagger.v3.oas.annotations.Hidden
-import no.nav.helse.flex.client.syfotilgangskontroll.SyfoTilgangskontrollClient
+import no.nav.helse.flex.client.istilgangskontroll.IstilgangskontrollClient
 import no.nav.helse.flex.clientidvalidation.ClientIdValidation
 import no.nav.helse.flex.clientidvalidation.ClientIdValidation.NamespaceAndApp
 import no.nav.helse.flex.config.OIDCIssuer.AZUREATOR
@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController
 @Hidden
 class SoknadVeilederAzureController(
     private val clientIdValidation: ClientIdValidation,
-    private val syfoTilgangskontrollClient: SyfoTilgangskontrollClient,
+    private val istilgangskontrollClient: IstilgangskontrollClient,
     private val identService: IdentService,
     private val hentSoknadService: HentSoknadService
 ) {
@@ -36,7 +36,7 @@ class SoknadVeilederAzureController(
     ): List<RSSykepengesoknad> {
         clientIdValidation.validateClientId(NamespaceAndApp(namespace = "teamsykefravr", app = "syfomodiaperson"))
 
-        if (!syfoTilgangskontrollClient.sjekkTilgangVeileder(fnr)) {
+        if (!istilgangskontrollClient.sjekkTilgangVeileder(fnr)) {
             log.info("Veileder forsøker å hente søknader, men har ikke tilgang til bruker.")
             throw IkkeTilgangException("Har ikke tilgang til bruker")
         }

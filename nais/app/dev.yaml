@@ -20,8 +20,8 @@ env:
   FASIT_ENVIRONMENT_NAME: "q1"
   SYKEPENGESOKNAD_KVITTERINGER_URL: "http://sykepengesoknad-kvitteringer"
   SYKEPENGESOKNAD_KVITTERINGER_TOKENX_CLIENT_ID: dev-gcp:flex:sykepengesoknad-kvitteringer
-  SYFOTILGANGSKONTROLL_URL: "http://syfo-tilgangskontroll.teamsykefravr"
-  SYFOTILGANGSKONTROLL_AAD_CLIENT_ID: dev-gcp.teamsykefravr.syfo-tilgangskontroll
+  ISTILGANGSKONTROLL_URL: "http://istilgangskontroll.teamsykefravr"
+  ISTILGANGSKONTROLL_AAD_CLIENT_ID: dev-gcp.teamsykefravr.istilgangskontroll
   FLEX_SYKETILFELLE_URL: "http://flex-syketilfelle"
   FLEX_SYKETILFELLE_AAD_CLIENT_ID: dev-gcp.flex.flex-syketilfelle
   SKRIVEMODUS: READWRITE
