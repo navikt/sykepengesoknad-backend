@@ -48,10 +48,12 @@ class OppdaterSporsmalService(
             throw IllegalArgumentException("Spørsmål i databasen er ulikt spørsmål som er besvart")
         }
 
-        sporsmal.validerSvarPaSporsmal()
+        val validerteSporsmal = sporsmal
+            .nullstillTidligereSvar()
+            .also { it.validerSvarPaSporsmal() }
 
         val oppdatertSoknad = soknadFraBasenForOppdatering
-            .replaceSporsmal(sporsmal)
+            .replaceSporsmal(validerteSporsmal)
             .jobbaDuHundreGate()
             .friskmeldtMuteringer()
             .brukteDuReisetilskuddetMutering()
