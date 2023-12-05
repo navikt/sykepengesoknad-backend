@@ -145,14 +145,18 @@ class ArbeidsledigIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    fun `06 - unødvendige spørsmål kommer tilbake når man svarer at man ikke ble friskmeldt likevel`() {
+    fun `06 - unødvendige spørsmål kommer tilbake når man svarer at man ikke ble friskmeldt første dagen likevel`() {
         val soknaden = hentSoknad(
             soknadId = hentSoknaderMetadata(fnr).first().id,
             fnr = fnr
         )
 
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
-            .besvarSporsmal(FRISKMELDT, "JA", mutert = true)
+            .besvarSporsmal(
+                FRISKMELDT_START,
+                LocalDate.of(2020, 2, 4).format(DateTimeFormatter.ISO_LOCAL_DATE),
+                mutert = true
+            )
             .also {
                 assertThat(it.rSSykepengesoknad.sporsmal!!.map { it.tag }).isEqualTo(
                     listOf(
@@ -185,8 +189,9 @@ class ArbeidsledigIntegrationTest : BaseTestClass() {
         )
 
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
-            .besvarSporsmal(FRISKMELDT, "NEI", mutert = true)
             .besvarSporsmal(ARBEID_UTENFOR_NORGE, "JA")
+            .besvarSporsmal(ANDRE_INNTEKTSKILDER, "NEI")
+            .besvarSporsmal(ARBEIDSLEDIG_UTLAND, "NEI")
             .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
     }
 
@@ -215,6 +220,7 @@ class ArbeidsledigIntegrationTest : BaseTestClass() {
         assertThat(soknader.last().type).isEqualTo(SoknadstypeDTO.ARBEIDSLEDIG)
         assertThat(soknader.last().status).isEqualTo(SoknadsstatusDTO.SENDT)
         assertThat(soknader.last().permitteringer).hasSize(0)
+        assertThat(soknader.last().friskmeldt).isEqualTo(LocalDate.of(2020, 2, 4))
         soknader.last().arbeidUtenforNorge!!.`should be true`()
         assertThat(soknader.last().tidligereArbeidsgiverOrgnummer).isEqualTo(tidligereArbeidsgiverOrgnummer)
     }
