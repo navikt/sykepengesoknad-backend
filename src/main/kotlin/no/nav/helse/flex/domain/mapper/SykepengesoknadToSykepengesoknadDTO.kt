@@ -30,6 +30,7 @@ fun konverterTilSykepengesoknadDTO(
         tom = sykepengesoknad.tom,
         startSyketilfelle = sykepengesoknad.startSykeforlop,
         arbeidGjenopptatt = arbeidGjenopptattDato(sykepengesoknad),
+        friskmeldt = sykepengesoknad.friskmeldtDato(),
         sykmeldingSkrevet = sykepengesoknad.sykmeldingSkrevet?.tilOsloLocalDateTime(),
         opprettet = sykepengesoknad.opprettet?.tilOsloLocalDateTime(),
         sendtNav = sykepengesoknad.sendtNav?.tilOsloLocalDateTime(),
