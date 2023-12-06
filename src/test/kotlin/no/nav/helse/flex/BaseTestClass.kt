@@ -8,6 +8,9 @@ import no.nav.helse.flex.kafka.producer.AivenKafkaProducer
 import no.nav.helse.flex.kafka.producer.RebehandlingSykmeldingSendtProducer
 import no.nav.helse.flex.kafka.sykepengesoknadTopic
 import no.nav.helse.flex.medlemskap.MedlemskapMockDispatcher
+import no.nav.helse.flex.mockdispatcher.EregMockDispatcher
+import no.nav.helse.flex.mockdispatcher.InntektskomponentenMockDispatcher
+import no.nav.helse.flex.mockdispatcher.PdlMockDispatcher
 import no.nav.helse.flex.mockdispatcher.YrkesskadeMockDispatcher
 import no.nav.helse.flex.personhendelse.AutomatiskInnsendingVedDodsfall
 import no.nav.helse.flex.repository.SykepengesoknadRepository

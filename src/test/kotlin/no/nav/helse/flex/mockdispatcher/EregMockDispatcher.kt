@@ -1,4 +1,4 @@
-package no.nav.helse.flex
+package no.nav.helse.flex.mockdispatcher
 
 import no.nav.helse.flex.client.ereg.Navn
 import no.nav.helse.flex.client.ereg.Nokkelinfo

@@ -1,4 +1,4 @@
-package no.nav.helse.flex
+package no.nav.helse.flex.mockdispatcher
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.client.inntektskomponenten.Aktoer
