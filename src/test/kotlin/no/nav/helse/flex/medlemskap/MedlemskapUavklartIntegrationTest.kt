@@ -34,9 +34,8 @@ import org.junit.jupiter.api.TestMethodOrder
 import java.time.LocalDate
 
 /**
- * Tester at flagget medlemskapVurdering ikke blir satt på søknad som sendes på Kafka når LovMe returnerer
- * UAVKLART men samtidig en tom liste med spørsmål. Dette er en midlertidig test da UAVKLART alltid skal
- * returnere spørsmål.
+ * Tester som verifiserer at flagget "medlemskapVurdering" ikke er statt på søknader som sendes på Kafka
+ * når det ikke er stilt spørsmål i en UAVKLART-situasjon.
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class MedlemskapUavklartIntegrationTest : BaseTestClass() {
@@ -50,41 +49,6 @@ class MedlemskapUavklartIntegrationTest : BaseTestClass() {
     @AfterAll
     fun hentAlleKafkaMeldinger() {
         juridiskVurderingKafkaConsumer.hentProduserteRecords()
-    }
-
-    @Test
-    @Order(1)
-    fun `Oppretter søknad med status UAVKLART som ikke skal ha ARBEID_UTENFOR_NORGE`() {
-        val fnr = "31111111111"
-        medlemskapMockWebServer.enqueue(
-            MockResponse().setResponseCode(200).setBody(
-                MedlemskapVurderingResponse(
-                    svar = MedlemskapVurderingSvarType.UAVKLART,
-                    sporsmal = listOf(
-                        MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
-                        MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
-                        MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
-                        MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE
-                    )
-                ).serialisertTilString()
-            )
-        )
-
-        val soknader = sendSykmelding(
-            sykmeldingKafkaMessage(
-                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = LocalDate.of(2023, 1, 1),
-                    tom = LocalDate.of(2023, 1, 7)
-                )
-            )
-        )
-
-        assertThat(soknader).hasSize(1)
-        assertThat(soknader.last().type).isEqualTo(SoknadstypeDTO.ARBEIDSTAKERE)
-        assertThat(soknader.last().status).isEqualTo(SoknadsstatusDTO.NY)
-        assertThat(soknader.last().medlemskapVurdering).isEqualTo("UAVKLART")
     }
 
     @Test
@@ -137,104 +101,8 @@ class MedlemskapUavklartIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    @Order(1)
-    fun `Oppretter søknad med status JA som ikke skal ha ARBEID_UTENFOR_NORGE`() {
-        val fnr = "31111111112"
-        medlemskapMockWebServer.enqueue(
-            MockResponse().setResponseCode(200).setBody(
-                MedlemskapVurderingResponse(
-                    svar = MedlemskapVurderingSvarType.JA,
-                    sporsmal = emptyList()
-                ).serialisertTilString()
-            )
-        )
-
-        val soknader = sendSykmelding(
-            sykmeldingKafkaMessage(
-                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = LocalDate.of(2023, 1, 1),
-                    tom = LocalDate.of(2023, 1, 7)
-                )
-            )
-        )
-
-        assertThat(soknader).hasSize(1)
-        assertThat(soknader.last().type).isEqualTo(SoknadstypeDTO.ARBEIDSTAKERE)
-        assertThat(soknader.last().status).isEqualTo(SoknadsstatusDTO.NY)
-        assertThat(soknader.last().medlemskapVurdering).isEqualTo("JA")
-
-        val soknad = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
-
-        assertThat(soknad.sporsmal!!.map { it.tag }).isEqualTo(
-            listOf(
-                ANSVARSERKLARING,
-                TILBAKE_I_ARBEID,
-                FERIE_V2,
-                PERMISJON_V2,
-                medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0),
-                ANDRE_INNTEKTSKILDER_V2,
-                UTLAND_V2,
-                TIL_SLUTT
-            )
-        )
-    }
-
-    @Test
-    @Order(1)
-    fun `Oppretter søknad med status NEI som ikke skal ha ARBEID_UTENFOR_NORGE`() {
-        val fnr = "31111111113"
-        medlemskapMockWebServer.enqueue(
-            MockResponse().setResponseCode(200).setBody(
-                MedlemskapVurderingResponse(
-                    svar = MedlemskapVurderingSvarType.NEI,
-                    sporsmal = emptyList()
-                ).serialisertTilString()
-            )
-        )
-
-        val soknader = sendSykmelding(
-            sykmeldingKafkaMessage(
-                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = LocalDate.of(2023, 1, 1),
-                    tom = LocalDate.of(2023, 1, 7)
-                )
-            )
-        )
-
-        assertThat(soknader).hasSize(1)
-        assertThat(soknader.last().type).isEqualTo(SoknadstypeDTO.ARBEIDSTAKERE)
-        assertThat(soknader.last().status).isEqualTo(SoknadsstatusDTO.NY)
-        assertThat(soknader.last().medlemskapVurdering).isEqualTo("NEI")
-
-        val soknad = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
-
-        assertThat(soknad.sporsmal!!.map { it.tag }).isEqualTo(
-            listOf(
-                ANSVARSERKLARING,
-                TILBAKE_I_ARBEID,
-                FERIE_V2,
-                PERMISJON_V2,
-                medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0),
-                ANDRE_INNTEKTSKILDER_V2,
-                UTLAND_V2,
-                TIL_SLUTT
-            )
-        )
-    }
-
-    @Test
     @Order(2)
-    fun `Besvar arbeidstakerspørsmål og sender søknaden med status UAVKLART men uten spørsmål`() {
+    fun `Sender søknad med status UAVKLART uten spørsmål og sjekker at flagget medlemskapVurdering ikke er satt`() {
         flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
 
