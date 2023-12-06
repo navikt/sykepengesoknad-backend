@@ -20,6 +20,7 @@ import no.nav.helse.flex.util.flatten
 import no.nav.helse.flex.util.serialisertTilString
 import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
 import okhttp3.mockwebserver.MockResponse
+import org.amshove.kluent.`should be equal to`
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
@@ -29,6 +30,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
+import java.util.concurrent.TimeUnit
 
 /**
  * Tester forskjellige scenario relatert til at medlemskapspørsmål kun skal stilles i den første søknaden
@@ -44,7 +46,7 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
     private lateinit var sporsmalDAO: SporsmalDAO
 
     @BeforeAll
-    fun configureUnleash() {
+    fun konfigurerUnleash() {
         fakeUnleash.resetAll()
         fakeUnleash.enable(UNLEASH_CONTEXT_MEDLEMSKAP_SPORSMAL, UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL)
     }
@@ -57,6 +59,11 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
     @AfterAll
     fun hentAlleKafkaMeldinger() {
         juridiskVurderingKafkaConsumer.hentProduserteRecords()
+    }
+
+    @AfterAll
+    fun sjekkAtAlleMockWebServerRequestsErKonsumert() {
+        assertThat(medlemskapMockWebServer.takeRequest(100, TimeUnit.MILLISECONDS)).isNull()
     }
 
     private val fnr = "31111111111"
@@ -91,6 +98,10 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
                 )
             )
         )
+
+        medlemskapMockWebServer.takeRequest().let {
+            it.headers["fnr"] `should be equal to` fnr
+        }
 
         assertThat(soknader1).hasSize(1)
         assertThat(soknader1.last().medlemskapVurdering).isEqualTo("UAVKLART")
@@ -134,6 +145,12 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
                 )
             )
         )
+
+        repeat(2) {
+            medlemskapMockWebServer.takeRequest().let {
+                it.headers["fnr"] `should be equal to` fnr
+            }
+        }
 
         assertThat(soknader1).hasSize(1)
         assertThat(soknader1.last().medlemskapVurdering).isEqualTo("UAVKLART")
@@ -182,6 +199,12 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
             )
         )
 
+        repeat(2) {
+            medlemskapMockWebServer.takeRequest().let {
+                it.headers["fnr"] `should be equal to` fnr
+            }
+        }
+
         assertThat(soknader1).hasSize(1)
         assertThat(soknader1.last().medlemskapVurdering).isEqualTo("UAVKLART")
         assertThat(soknader1.last().forstegangssoknad).isTrue()
@@ -200,6 +223,7 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
         medlemskapMockWebServer.enqueue(
             lagUavklartMockResponse()
         )
+
         val soknader = sendSykmelding(
             forventaSoknader = 2,
             sykmeldingKafkaMessage = sykmeldingKafkaMessage(
@@ -218,6 +242,10 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
                 )
             )
         )
+
+        medlemskapMockWebServer.takeRequest().let {
+            it.headers["fnr"] `should be equal to` fnr
+        }
 
         assertThat(soknader).hasSize(2)
         assertThat(soknader.first().medlemskapVurdering).isEqualTo("UAVKLART")
@@ -259,6 +287,10 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
             )
         )
 
+        medlemskapMockWebServer.takeRequest().let {
+            it.headers["fnr"] `should be equal to` fnr
+        }
+
         val lagretForstegangssoknad = hentSoknad(fnr = fnr, soknadId = soknader1.first().id)
         assertThat(lagretForstegangssoknad.sporsmal!!.find { it.tag == MEDLEMSKAP_OPPHOLDSTILLATELSE }).isNull()
 
@@ -299,6 +331,12 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
                 )
             )
         )
+
+        repeat(2) {
+            medlemskapMockWebServer.takeRequest().let {
+                it.headers["fnr"] `should be equal to` fnr
+            }
+        }
 
         assertThat(soknader1).hasSize(1)
         assertThat(soknader1.last().medlemskapVurdering).isEqualTo("UAVKLART")

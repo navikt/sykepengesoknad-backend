@@ -89,7 +89,11 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
     }
 
     private fun SykepengesoknadDTO.merkMedMedlemskapStatus(): SykepengesoknadDTO {
-        if (type != SoknadstypeDTO.ARBEIDSTAKERE) {
+        if (!listOf(
+                SoknadstypeDTO.ARBEIDSTAKERE,
+                SoknadstypeDTO.GRADERT_REISETILSKUDD
+            ).contains(type)
+        ) {
             return this
         }
 

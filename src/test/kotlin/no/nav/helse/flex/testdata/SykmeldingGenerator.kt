@@ -214,6 +214,24 @@ fun reisetilskudd(
     )
 }
 
+fun gradertReisetilskudd(
+    fom: LocalDate = LocalDate.of(2020, 2, 1),
+    tom: LocalDate = LocalDate.of(2020, 2, 15)
+): List<SykmeldingsperiodeAGDTO> {
+    return listOf(
+        SykmeldingsperiodeAGDTO(
+            fom = fom,
+            tom = tom,
+            type = PeriodetypeDTO.GRADERT,
+            reisetilskudd = false,
+            aktivitetIkkeMulig = null,
+            behandlingsdager = null,
+            gradert = GradertDTO(50, true),
+            innspillTilArbeidsgiver = null
+        )
+    )
+}
+
 fun behandingsdager(
     fom: LocalDate = LocalDate.of(2018, 1, 1),
     tom: LocalDate = LocalDate.of(2018, 1, 10),

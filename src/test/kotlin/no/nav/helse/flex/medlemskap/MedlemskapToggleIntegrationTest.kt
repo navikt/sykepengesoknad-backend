@@ -14,6 +14,7 @@ import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_MEDLEMSKAP_SPORSMAL
 import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL
 import no.nav.helse.flex.util.serialisertTilString
 import okhttp3.mockwebserver.MockResponse
+import org.amshove.kluent.`should be equal to`
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
@@ -22,6 +23,7 @@ import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import java.time.LocalDate
+import java.util.concurrent.TimeUnit
 
 /**
  * Tester at toggle for medlemskapspørsmål fungerer som forventet. Dvs. at det ikke stilles spørsmål om arbeid utenfor
@@ -61,6 +63,11 @@ class MedlemskapToggleIntegrationTest : BaseTestClass() {
         juridiskVurderingKafkaConsumer.hentProduserteRecords()
     }
 
+    @AfterAll
+    fun sjekkAtAlleMockWebServerRequestsErKonsumert() {
+        assertThat(medlemskapMockWebServer.takeRequest(100, TimeUnit.MILLISECONDS)).isNull()
+    }
+
     private val fnr = "31111111111"
 
     @Test
@@ -76,6 +83,10 @@ class MedlemskapToggleIntegrationTest : BaseTestClass() {
             soknadId = hentSoknaderMetadata(fnr).first().id,
             fnr = fnr
         )
+
+        medlemskapMockWebServer.takeRequest().let {
+            it.headers["fnr"] `should be equal to` fnr
+        }
 
         assertThat(lagretSoknad.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
@@ -106,6 +117,10 @@ class MedlemskapToggleIntegrationTest : BaseTestClass() {
             soknadId = hentSoknaderMetadata(fnr).first().id,
             fnr = fnr
         )
+
+        medlemskapMockWebServer.takeRequest().let {
+            it.headers["fnr"] `should be equal to` fnr
+        }
 
         assertThat(lagretSoknad.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(

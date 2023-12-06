@@ -31,6 +31,7 @@ import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
+import java.util.concurrent.TimeUnit
 
 /**
  * Tester at spørsmål om medlemskap blir opprettet og besvart som forventet, inkludert at
@@ -46,7 +47,7 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
     private lateinit var medlemskapVurderingRepository: MedlemskapVurderingRepository
 
     @BeforeAll
-    fun configureUnleash() {
+    fun konfigurerUnleash() {
         fakeUnleash.resetAll()
         fakeUnleash.enable(UNLEASH_CONTEXT_MEDLEMSKAP_SPORSMAL, UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL)
     }
@@ -54,6 +55,11 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
     @AfterAll
     fun hentAlleKafkaMeldinger() {
         juridiskVurderingKafkaConsumer.hentProduserteRecords()
+    }
+
+    @AfterAll
+    fun sjekkAtAlleMockWebServerRequestsErKonsumert() {
+        assertThat(medlemskapMockWebServer.takeRequest(100, TimeUnit.MILLISECONDS)).isNull()
     }
 
     private val fnr = "31111111111"
@@ -87,6 +93,10 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
                 )
             )
         )
+
+        medlemskapMockWebServer.takeRequest().let {
+            it.headers["fnr"] `should be equal to` fnr
+        }
 
         assertThat(soknader).hasSize(1)
         assertThat(soknader.last().type).isEqualTo(SoknadstypeDTO.ARBEIDSTAKERE)
@@ -413,7 +423,6 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
         kafkaSoknader shouldHaveSize 1
         val kafkaSoknad = kafkaSoknader.first()
-
         kafkaSoknad.status shouldBeEqualTo SoknadsstatusDTO.SENDT
 
         // Spørsmålene som omhandler medlemskap blir ikke mappet om til eget felt i SykepengesoknadDTO så vi trenger

@@ -22,6 +22,7 @@ import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL
 import no.nav.helse.flex.util.serialisertTilString
 import no.nav.helse.flex.ventPåRecords
 import okhttp3.mockwebserver.MockResponse
+import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.assertj.core.api.Assertions.assertThat
@@ -32,6 +33,7 @@ import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import java.time.LocalDate
+import java.util.concurrent.TimeUnit
 
 /**
  * Tester som verifiserer at flagget "medlemskapVurdering" ikke er statt på søknader som sendes på Kafka
@@ -49,6 +51,11 @@ class MedlemskapUavklartIntegrationTest : BaseTestClass() {
     @AfterAll
     fun hentAlleKafkaMeldinger() {
         juridiskVurderingKafkaConsumer.hentProduserteRecords()
+    }
+
+    @AfterAll
+    fun sjekkAtAlleMockWebServerRequestsErKonsumert() {
+        assertThat(medlemskapMockWebServer.takeRequest(100, TimeUnit.MILLISECONDS)).isNull()
     }
 
     @Test
@@ -84,6 +91,10 @@ class MedlemskapUavklartIntegrationTest : BaseTestClass() {
             soknadId = hentSoknaderMetadata(fnr).first().id,
             fnr = fnr
         )
+
+        medlemskapMockWebServer.takeRequest().let {
+            it.headers["fnr"] `should be equal to` fnr
+        }
 
         assertThat(soknad.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
