@@ -66,11 +66,11 @@ class OppdaterSporsmalService(
         if (soknadenErMutert) {
             sykepengesoknadDAO.byttUtSporsmal(oppdatertSoknad)
         } else {
-            svarDAO.overskrivSvar(listOf(sporsmal).flatten())
+            svarDAO.overskrivSvar(listOf(validerteSporsmal).flatten())
         }
         // Vi må returnerer oppdatert spørsmål når vi har lagret en kvittering sånn at den har en id hvis den blir
         // forsøket slettet uten at siden må lastes på nytt.
-        val soknad = if (soknadenErMutert || sporsmal.tag == KVITTERINGER) {
+        val soknad = if (soknadenErMutert || validerteSporsmal.tag == KVITTERINGER) {
             sykepengesoknadDAO.finnSykepengesoknad(oppdatertSoknad.id)
         } else {
             oppdatertSoknad
