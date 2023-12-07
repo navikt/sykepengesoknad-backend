@@ -66,18 +66,6 @@ class AndreInntektskilderKtTest {
         val besvartSoknad = opprettSendtSoknad()
 
         besvartSoknad
-            .getSporsmalMedTag(INNTEKTSKILDE_SELVSTENDIG_VARIG_ENDRING_GRUPPE)
-            .undersporsmal
-            .map { it.tag }
-            .shouldBeEqualTo(
-                listOf(
-                    INNTEKTSKILDE_SELVSTENDIG_VARIG_ENDRING_JA,
-                    INNTEKTSKILDE_SELVSTENDIG_VARIG_ENDRING_NEI,
-                    INNTEKTSKILDE_SELVSTENDIG_VARIG_ENDRING_VET_IKKE
-                )
-            )
-
-        besvartSoknad
             .getSporsmalMedTag(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD)
             .undersporsmal
             .map { it.tag }

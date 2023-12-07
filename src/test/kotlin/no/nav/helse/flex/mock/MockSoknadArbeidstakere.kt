@@ -306,8 +306,6 @@ private fun Sykepengesoknad.andreInntektskilder(): Sykepengesoknad {
         .besvarsporsmal(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD, "CHECKED")
         .besvarsporsmal(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD_JOBBET_I_DET_SISTE, "JA")
         .besvarsporsmal(INNTEKTSKILDE_SELVSTENDIG, "CHECKED")
-        .besvarsporsmal(INNTEKTSKILDE_SELVSTENDIG_N_AR, "JA")
-        .besvarsporsmal(INNTEKTSKILDE_SELVSTENDIG_VARIG_ENDRING_NEI, "CHECKED")
         .besvarsporsmal(INNTEKTSKILDE_SELVSTENDIG_DAGMAMMA, "CHECKED")
 }
 
