@@ -5,7 +5,9 @@ import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Visningskriterie
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.util.DatoUtil
+import no.nav.helse.flex.util.DatoUtil.formatterDato
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
 fun kjenteInntektskilderSporsmal(andreKjenteArbeidsforhold: List<String>, startSyketilfelle: LocalDate): Sporsmal {
     if (andreKjenteArbeidsforhold.isEmpty()) throw IllegalArgumentException("Kan ikke lage spørsmål om kjente inntektskilder uten andre kjente inntektskilder")
@@ -21,7 +23,6 @@ fun kjenteInntektskilderSporsmal(andreKjenteArbeidsforhold: List<String>, startS
         undersporsmal = andreKjenteArbeidsforhold.mapIndexed { idx, arbeidsforhold ->
             Sporsmal(
                 tag = KJENTE_INNTEKTSKILDER_GRUPPE + idx,
-                undertekst = null,
                 svartype = Svartype.GRUPPE_AV_UNDERSPORSMAL,
                 undersporsmal = listOf(
                     Sporsmal(
@@ -30,20 +31,33 @@ fun kjenteInntektskilderSporsmal(andreKjenteArbeidsforhold: List<String>, startS
                         svartype = Svartype.IKKE_RELEVANT
                     ),
                     Sporsmal(
-                        tag = KJENTE_INNTEKTSKILDER_JOBBER_FORTSATT + idx,
-                        sporsmalstekst = "Jobber du fortsatt ved $arbeidsforhold?",
+                        tag = KJENTE_INNTEKTSKILDER_SLUTTET + idx,
+                        sporsmalstekst = "Har du sluttet hos $arbeidsforhold før du ble sykmeldt ${formatterDato(startSyketilfelle)}?",
                         svartype = Svartype.RADIO_GRUPPE,
                         undersporsmal = listOf(
                             Sporsmal(
-                                tag = KJENTE_INNTEKTSKILDER_JOBBER_FORTSATT_JA + idx,
+                                tag = KJENTE_INNTEKTSKILDER_SLUTTET_JA + idx,
                                 sporsmalstekst = "Ja",
+                                svartype = Svartype.RADIO,
+                                kriterieForVisningAvUndersporsmal = Visningskriterie.CHECKED,
+                                undersporsmal = listOf(
+                                    Sporsmal(
+                                        tag = KJENTE_INNTEKTSKILDER_DATO_SLUTTET + idx,
+                                        sporsmalstekst = "Når sluttet du?",
+                                        svartype = Svartype.DATO,
+                                        max = startSyketilfelle.minusDays(1).format(ISO_LOCAL_DATE)
+                                    )
+                                )
+                            ),
+                            Sporsmal(
+                                tag = KJENTE_INNTEKTSKILDER_SLUTTET_NEI + idx,
+                                sporsmalstekst = "Nei",
                                 svartype = Svartype.RADIO,
                                 kriterieForVisningAvUndersporsmal = Visningskriterie.CHECKED,
                                 undersporsmal = listOf(
                                     Sporsmal(
                                         tag = KJENTE_INNTEKTSKILDER_UTFORT_ARBEID + idx,
                                         sporsmalstekst = "Har du utført noe arbeid ved $arbeidsforhold i perioden $fjortenDagerFørStartSyketilfelle?",
-                                        undertekst = null,
                                         svartype = Svartype.JA_NEI,
                                         kriterieForVisningAvUndersporsmal = Visningskriterie.NEI,
                                         undersporsmal = listOf(
@@ -65,26 +79,10 @@ fun kjenteInntektskilderSporsmal(andreKjenteArbeidsforhold: List<String>, startS
                                                         tag = it.first,
                                                         sporsmalstekst = it.second,
                                                         svartype = Svartype.CHECKBOX
-
                                                     )
                                                 }
                                             )
                                         )
-                                    )
-                                )
-
-                            ),
-                            Sporsmal(
-                                tag = KJENTE_INNTEKTSKILDER_JOBBER_FORTSATT_NEI + idx,
-                                sporsmalstekst = "Nei",
-                                svartype = Svartype.RADIO,
-                                kriterieForVisningAvUndersporsmal = Visningskriterie.CHECKED,
-                                undersporsmal = listOf(
-                                    Sporsmal(
-                                        tag = KJENTE_INNTEKTSKILDER_DATO_SLUTTET + idx,
-                                        sporsmalstekst = "Når sluttet du?",
-                                        undertekst = null,
-                                        svartype = Svartype.DATO
                                     )
                                 )
                             )
