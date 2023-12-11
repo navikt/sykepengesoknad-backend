@@ -79,40 +79,7 @@ fun andreInntektskilderArbeidstakerV2(sykmeldingOrgnavn: String, andreKjenteArbe
                     Sporsmal(
                         tag = INNTEKTSKILDE_SELVSTENDIG,
                         sporsmalstekst = "Selvstendig næringsdrivende",
-                        svartype = Svartype.CHECKBOX,
-                        kriterieForVisningAvUndersporsmal = Visningskriterie.CHECKED,
-                        undersporsmal = listOf(
-                            Sporsmal(
-                                tag = INNTEKTSKILDE_SELVSTENDIG_N_AR,
-                                sporsmalstekst = "Har du vært næringsdrivende i mer enn 5 år?",
-                                kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
-                                svartype = Svartype.JA_NEI,
-                                undersporsmal = listOf(
-                                    Sporsmal(
-                                        tag = INNTEKTSKILDE_SELVSTENDIG_VARIG_ENDRING_GRUPPE,
-                                        sporsmalstekst = "Har det vært endring i din arbeidssituasjon eller virksomhet?",
-                                        svartype = Svartype.RADIO_GRUPPE,
-                                        undersporsmal = listOf(
-                                            Sporsmal(
-                                                tag = INNTEKTSKILDE_SELVSTENDIG_VARIG_ENDRING_JA,
-                                                sporsmalstekst = "Ja",
-                                                svartype = Svartype.RADIO
-                                            ),
-                                            Sporsmal(
-                                                tag = INNTEKTSKILDE_SELVSTENDIG_VARIG_ENDRING_NEI,
-                                                sporsmalstekst = "Nei",
-                                                svartype = Svartype.RADIO
-                                            ),
-                                            Sporsmal(
-                                                tag = INNTEKTSKILDE_SELVSTENDIG_VARIG_ENDRING_VET_IKKE,
-                                                sporsmalstekst = "Vet ikke",
-                                                svartype = Svartype.RADIO
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                        )
+                        svartype = Svartype.CHECKBOX
                     ),
                     Sporsmal(
                         tag = INNTEKTSKILDE_SELVSTENDIG_DAGMAMMA,
