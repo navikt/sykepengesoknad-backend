@@ -2,6 +2,7 @@ package no.nav.helse.flex.frilanser
 
 import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
+import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSvar
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.hentSoknader
 import no.nav.helse.flex.hentSoknaderMetadata
@@ -135,6 +136,37 @@ class FrilanserIntegrationTest : BaseTestClass() {
 
     @Test
     @Order(6)
+    fun `Vi svarer nei på at vi ble friskmeldt - underspørsmål nullstilles`() {
+        val soknaden = hentSoknader(fnr).first()
+
+        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+            .besvarSporsmal(
+                TILBAKE_I_ARBEID,
+                "NEI",
+                mutert = true
+            )
+            .also {
+                assertThat(it.rSSykepengesoknad.sporsmal!!.map { it.tag }).isEqualTo(
+                    listOf(
+                        ANSVARSERKLARING,
+                        TILBAKE_I_ARBEID,
+                        "ARBEID_UNDERVEIS_100_PROSENT_0",
+                        ARBEID_UTENFOR_NORGE,
+                        ANDRE_INNTEKTSKILDER,
+                        UTLAND,
+                        VAER_KLAR_OVER_AT,
+                        BEKREFT_OPPLYSNINGER
+                    )
+                )
+
+                assertThat(it.rSSykepengesoknad.sporsmal!!.first { it.tag == TILBAKE_I_ARBEID }.undersporsmal.first().svar).isEqualTo(
+                    emptyList<RSSvar>()
+                )
+            }
+    }
+
+    @Test
+    @Order(7)
     fun `Vi svarer at vi ble friskmeldt midt i søknadsperioden - Det muterer søknaden`() {
         val soknaden = hentSoknader(fnr).first()
 
@@ -164,7 +196,7 @@ class FrilanserIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    @Order(7)
+    @Order(8)
     fun `vi svarer på resten som ikke muterer søknaden`() {
         val soknaden = hentSoknader(fnr).first()
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
@@ -179,7 +211,7 @@ class FrilanserIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    @Order(8)
+    @Order(9)
     fun `utland muterer ikke søknaden på frilansersøknad`() {
         val soknaden = hentSoknader(fnr).first()
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
@@ -198,8 +230,8 @@ class FrilanserIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    @Order(9)
-    fun `10 - vi sender inn søknaden - Den får da status sendt og blir publisert på kafka`() {
+    @Order(10)
+    fun `vi sender inn søknaden - Den får da status sendt og blir publisert på kafka`() {
         sendSoknad(fnr, hentSoknaderMetadata(fnr).first().id)
 
         val soknaden = hentSoknaderMetadata(fnr).first()

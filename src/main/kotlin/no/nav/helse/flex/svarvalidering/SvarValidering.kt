@@ -47,18 +47,7 @@ fun Sykepengesoknad.validerSpesialsvarPaSoknad() {
 fun Sporsmal.validerUndersporsmal() {
     val besvarteUndersporsmal = undersporsmal.filter { it.svar.isNotEmpty() }
 
-    fun validerUnderspørsmål() {
-        if (kriterieForVisningAvUndersporsmal != null) {
-            if (svar.size == 1) {
-                if (svar.first().verdi == kriterieForVisningAvUndersporsmal.name) {
-                    undersporsmal.forEach { it.validerSvarPaSporsmal() }
-                }
-            }
-        } else {
-            undersporsmal.forEach { it.validerSvarPaSporsmal() }
-        }
-    }
-    return when (svartype) {
+    when (svartype) {
         CHECKBOX_GRUPPE -> {
             if (besvarteUndersporsmal.isEmpty()) {
                 throw ValideringException("Spørsmål ${this.id} av typen $svartype må ha minst ett besvart underspørsmål")
@@ -98,7 +87,17 @@ fun Sporsmal.validerUndersporsmal() {
         TALL,
         INFO_BEHANDLINGSDAGER,
         RADIO_GRUPPE_UKEKALENDER,
-        KVITTERING -> validerUnderspørsmål()
+        KVITTERING -> {
+            if (kriterieForVisningAvUndersporsmal != null) {
+                if (svar.size == 1) {
+                    if (svar.first().verdi == kriterieForVisningAvUndersporsmal.name) {
+                        undersporsmal.forEach { it.validerSvarPaSporsmal() }
+                    }
+                }
+            } else {
+                undersporsmal.forEach { it.validerSvarPaSporsmal() }
+            }
+        }
     }
 }
 
