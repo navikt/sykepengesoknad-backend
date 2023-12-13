@@ -18,7 +18,8 @@ class ReistilskuddBuggFixTest : BaseTestClass() {
 
     @Test
     fun `kjører ok`() {
-        soknadLagrer.lagreSoknad(opprettNySoknadReisetilskudd(LocalDate.of(2023, 11, 25), false))
+        val soknad = opprettNySoknadReisetilskudd(LocalDate.of(2023, 11, 25), false)
+        soknadLagrer.lagreSoknad(soknad.copy(sporsmal = soknad.sporsmal.filter { it.tag != "VAER_KLAR_OVER_AT" }))
         soknadLagrer.lagreSoknad(opprettNySoknadReisetilskudd(LocalDate.of(2023, 11, 25), true))
 
         reisetilskuddFixCronjob.fixReistilskuddImpl() `should be equal to` 1
