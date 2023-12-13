@@ -20,6 +20,7 @@ data class Sykepengesoknad(
     val opprinnelse: Opprinnelse = Opprinnelse.SYKEPENGESOKNAD_BACKEND,
     val avsendertype: Avsendertype? = null,
     val sykmeldingId: String?,
+    val aktivertDato: LocalDate? = null,
     val fom: LocalDate?,
     val tom: LocalDate?,
     val startSykeforlop: LocalDate?,

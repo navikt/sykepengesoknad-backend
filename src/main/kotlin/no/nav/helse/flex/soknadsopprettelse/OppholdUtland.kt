@@ -52,7 +52,8 @@ fun settOppSoknadOppholdUtland(fnr: String): Sykepengesoknad {
         utenlandskSykmelding = false,
         egenmeldingsdagerFraSykmelding = null,
         forstegangssoknad = null,
-        tidligereArbeidsgiverOrgnummer = null
+        tidligereArbeidsgiverOrgnummer = null,
+        aktivertDato = null
     )
 }
 

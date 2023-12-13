@@ -81,7 +81,8 @@ class FinnOpprinneligSendtTest {
             utenlandskSykmelding = false,
             egenmeldingsdagerFraSykmelding = null,
             sendt = sendt,
-            forstegangssoknad = false
+            forstegangssoknad = false,
+            aktivertDato = null
         )
     }
 }

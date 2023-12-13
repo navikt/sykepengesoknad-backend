@@ -23,6 +23,7 @@ data class SykepengesoknadDbRecord(
     val status: Soknadstatus,
     val opprettet: Instant?,
     val avbruttDato: LocalDate?,
+    val aktivertDato: LocalDate?,
     val sendtNav: Instant?,
     val sendtArbeidsgiver: Instant?,
     val sendt: Instant?,

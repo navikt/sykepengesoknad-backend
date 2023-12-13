@@ -1,5 +1,6 @@
 package no.nav.helse.flex.repository
 
+import no.nav.helse.flex.domain.Soknadstype
 import org.springframework.data.jdbc.repository.query.Query
 import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
@@ -12,6 +13,8 @@ interface SykepengesoknadRepository : CrudRepository<SykepengesoknadDbRecord, St
     fun findBySykepengesoknadUuidIn(sykepengesoknadUuid: List<String>): List<SykepengesoknadDbRecord>
     fun findByFnrIn(fnrs: List<String>): List<SykepengesoknadDbRecord>
     fun findBySykmeldingUuid(sykmeldingUuid: String): List<SykepengesoknadDbRecord>
+
+    fun findBySoknadstypeAndAktivertDatoBetween(soknadstype: Soknadstype, fra: LocalDate, til: LocalDate): List<SykepengesoknadDbRecord>
 
     @Query(
         """
