@@ -22,5 +22,6 @@ class ReistilskuddBuggFixTest : BaseTestClass() {
         soknadLagrer.lagreSoknad(opprettNySoknadReisetilskudd(LocalDate.of(2023, 11, 25), true))
 
         reisetilskuddFixCronjob.fixReistilskuddImpl() `should be equal to` 1
+        reisetilskuddFixCronjob.fixReistilskuddImpl() `should be equal to` 0
     }
 }

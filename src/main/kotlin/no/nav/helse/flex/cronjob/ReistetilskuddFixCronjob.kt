@@ -5,6 +5,7 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.repository.SykepengesoknadRepository
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.vaerKlarOverAtReisetilskudd
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import java.time.LocalDate
@@ -36,7 +37,20 @@ class ReistetilskuddFixCronjob(
             val soknad = sykepengesoknadDAO.finnSykepengesoknad(it.sykepengesoknadUuid)
             return@filter soknad.harBugCaset()
         }
+
         log.info("Fant ${bugSoknader.size} bug soknader")
+
+        bugSoknader.map { it.sykepengesoknadUuid }.forEach { sykepengesoknadUuid ->
+            log.info("Fikser vær klar over at bug for soknad $sykepengesoknadUuid")
+
+            val soknad = sykepengesoknadDAO.finnSykepengesoknad(sykepengesoknadUuid)
+
+            val oppdatertSoknad = soknad.copy(
+                sporsmal = soknad.sporsmal.toMutableList().also { it.add(vaerKlarOverAtReisetilskudd()) }
+            )
+            sykepengesoknadDAO.byttUtSporsmal(oppdatertSoknad)
+        }
+
         return bugSoknader.size
     }
 }

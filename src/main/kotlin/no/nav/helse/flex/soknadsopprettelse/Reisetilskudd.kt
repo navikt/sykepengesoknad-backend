@@ -16,14 +16,14 @@ fun skapReisetilskuddsoknad(
     toggle: Boolean = true
 ): List<Sporsmal> {
     return mutableListOf(
-        ansvarserklaringSporsmal(reisetilskudd = true),
-        if (toggle) {
-            tilSlutt()
-        } else {
-            vaerKlarOverAtReisetilskudd()
-            bekreftOpplysningerSporsmal()
-        }
+        ansvarserklaringSporsmal(reisetilskudd = true)
     ).also {
+        if (toggle) {
+            it.add(tilSlutt())
+        } else {
+            it.add(vaerKlarOverAtReisetilskudd())
+            it.add(bekreftOpplysningerSporsmal())
+        }
         it.addAll(
             reisetilskuddSporsmal(
                 opts.sykepengesoknad.fom!!,
