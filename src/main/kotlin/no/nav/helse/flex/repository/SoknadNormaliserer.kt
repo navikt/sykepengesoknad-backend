@@ -48,7 +48,8 @@ fun Sykepengesoknad.normaliser(): NormalisertSoknad {
         sendt = sendt,
         egenmeldingsdagerFraSykmelding = egenmeldingsdagerFraSykmelding,
         forstegangssoknad = forstegangssoknad,
-        tidligereArbeidsgiverOrgnummer = tidligereArbeidsgiverOrgnummer
+        tidligereArbeidsgiverOrgnummer = tidligereArbeidsgiverOrgnummer,
+        aktivertDato = aktivertDato
     )
     val perioder = this.soknadPerioder
         ?.map {

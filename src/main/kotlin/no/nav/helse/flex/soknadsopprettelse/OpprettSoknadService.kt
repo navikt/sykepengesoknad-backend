@@ -92,7 +92,8 @@ class OpprettSoknadService(
                     utenlandskSykmelding = sykmeldingKafkaMessage.sykmelding.utenlandskSykmelding != null,
                     egenmeldingsdagerFraSykmelding = sykmeldingKafkaMessage.event.sporsmals?.firstOrNull { spm -> spm.shortName == ShortNameDTO.EGENMELDINGSDAGER }?.svar,
                     forstegangssoknad = null,
-                    tidligereArbeidsgiverOrgnummer = sykmeldingKafkaMessage.event.tidligereArbeidsgiver?.orgnummer
+                    tidligereArbeidsgiverOrgnummer = sykmeldingKafkaMessage.event.tidligereArbeidsgiver?.orgnummer,
+                    aktivertDato = null
                 )
             }
                 .filter { it.soknadPerioder?.isNotEmpty() ?: true }
