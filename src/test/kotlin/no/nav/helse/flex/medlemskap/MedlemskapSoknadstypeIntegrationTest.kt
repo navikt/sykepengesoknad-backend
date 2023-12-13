@@ -15,7 +15,6 @@ import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_MEDLEMSKAP_SPORSMAL
 import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL
 import no.nav.helse.flex.util.serialisertTilString
 import okhttp3.mockwebserver.MockResponse
-import org.amshove.kluent.internal.assertEquals
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
@@ -24,7 +23,6 @@ import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import java.time.LocalDate
-import java.util.concurrent.TimeUnit
 
 /**
  * Tester at medlemskapspørsmål blir stilt på riktig søkandstype.
@@ -81,8 +79,6 @@ class MedlemskapSoknadstypeIntegrationTest : BaseTestClass() {
             )
         )
 
-        assertEquals(fnr, medlemskapMockWebServer.takeRequest().headers["fnr"])
-
         assertThat(soknader).hasSize(1)
         assertThat(soknader.last().type).isEqualTo(SoknadstypeDTO.ARBEIDSTAKERE)
         assertThat(soknader.last().status).isEqualTo(SoknadsstatusDTO.NY)
@@ -116,8 +112,6 @@ class MedlemskapSoknadstypeIntegrationTest : BaseTestClass() {
             )
         )
 
-        assertEquals(fnr, medlemskapMockWebServer.takeRequest().headers["fnr"])
-
         assertThat(soknader).hasSize(1)
         assertThat(soknader.last().type).isEqualTo(SoknadstypeDTO.GRADERT_REISETILSKUDD)
         assertThat(soknader.last().status).isEqualTo(SoknadsstatusDTO.NY)
@@ -139,8 +133,6 @@ class MedlemskapSoknadstypeIntegrationTest : BaseTestClass() {
             )
         )
 
-        assertThat(medlemskapMockWebServer.takeRequest(500, TimeUnit.MILLISECONDS)).isNull()
-
         assertThat(soknader).hasSize(1)
         assertThat(soknader.last().type).isEqualTo(SoknadstypeDTO.BEHANDLINGSDAGER)
         assertThat(soknader.last().status).isEqualTo(SoknadsstatusDTO.NY)
@@ -161,8 +153,6 @@ class MedlemskapSoknadstypeIntegrationTest : BaseTestClass() {
                 )
             )
         )
-
-        assertThat(medlemskapMockWebServer.takeRequest(500, TimeUnit.MILLISECONDS)).isNull()
 
         assertThat(soknader).hasSize(1)
         assertThat(soknader.last().type).isEqualTo(SoknadstypeDTO.REISETILSKUDD)

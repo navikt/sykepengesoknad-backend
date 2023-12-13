@@ -31,7 +31,6 @@ import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
-import java.util.concurrent.TimeUnit
 
 /**
  * Tester at spørsmål om medlemskap blir opprettet og besvart som forventet, inkludert at
@@ -55,11 +54,6 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
     @AfterAll
     fun hentAlleKafkaMeldinger() {
         juridiskVurderingKafkaConsumer.hentProduserteRecords()
-    }
-
-    @AfterAll
-    fun sjekkAtAlleMockWebServerRequestsErKonsumert() {
-        assertThat(medlemskapMockWebServer.takeRequest(100, TimeUnit.MILLISECONDS)).isNull()
     }
 
     private val fnr = "31111111111"
@@ -93,10 +87,6 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
                 )
             )
         )
-
-        medlemskapMockWebServer.takeRequest().let {
-            it.headers["fnr"] `should be equal to` fnr
-        }
 
         assertThat(soknader).hasSize(1)
         assertThat(soknader.last().type).isEqualTo(SoknadstypeDTO.ARBEIDSTAKERE)

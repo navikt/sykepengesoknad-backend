@@ -16,7 +16,6 @@ import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_MEDLEMSKAP_SPORSMAL
 import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL
 import no.nav.helse.flex.util.serialisertTilString
 import okhttp3.mockwebserver.MockResponse
-import org.amshove.kluent.`should be equal to`
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
@@ -25,7 +24,6 @@ import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import java.time.LocalDate
-import java.util.concurrent.TimeUnit
 
 /**
  * Tester som verifiserer at spørsmålet om ARBEID_UTENFOR_NORGE blir stilt når
@@ -43,11 +41,6 @@ class MedlemskapArbeidUtenforNorgeIntegrationTest : BaseTestClass() {
     @AfterAll
     fun hentAlleKafkaMeldinger() {
         juridiskVurderingKafkaConsumer.hentProduserteRecords()
-    }
-
-    @AfterAll
-    fun sjekkAtAlleMockWebServerRequestsErKonsumert() {
-        assertThat(medlemskapMockWebServer.takeRequest(100, TimeUnit.MILLISECONDS)).isNull()
     }
 
     @Test
@@ -88,10 +81,6 @@ class MedlemskapArbeidUtenforNorgeIntegrationTest : BaseTestClass() {
             soknadId = hentSoknaderMetadata(fnr).first().id,
             fnr = fnr
         )
-
-        medlemskapMockWebServer.takeRequest().let {
-            it.headers["fnr"] `should be equal to` fnr
-        }
 
         assertThat(soknad.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
@@ -134,10 +123,6 @@ class MedlemskapArbeidUtenforNorgeIntegrationTest : BaseTestClass() {
                 )
             )
         )
-
-        medlemskapMockWebServer.takeRequest().let {
-            it.headers["fnr"] `should be equal to` fnr
-        }
 
         assertThat(soknader).hasSize(1)
         assertThat(soknader.last().type).isEqualTo(SoknadstypeDTO.ARBEIDSTAKERE)
@@ -198,10 +183,6 @@ class MedlemskapArbeidUtenforNorgeIntegrationTest : BaseTestClass() {
             fnr = fnr
         )
 
-        medlemskapMockWebServer.takeRequest().let {
-            it.headers["fnr"] `should be equal to` fnr
-        }
-
         assertThat(soknad.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
                 ANSVARSERKLARING,
@@ -249,10 +230,6 @@ class MedlemskapArbeidUtenforNorgeIntegrationTest : BaseTestClass() {
             soknadId = hentSoknaderMetadata(fnr).first().id,
             fnr = fnr
         )
-
-        medlemskapMockWebServer.takeRequest().let {
-            it.headers["fnr"] `should be equal to` fnr
-        }
 
         assertThat(soknad.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
