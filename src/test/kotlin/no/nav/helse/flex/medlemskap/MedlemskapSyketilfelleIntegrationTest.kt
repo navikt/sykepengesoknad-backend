@@ -44,7 +44,7 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
     private lateinit var sporsmalDAO: SporsmalDAO
 
     @BeforeAll
-    fun configureUnleash() {
+    fun konfigurerUnleash() {
         fakeUnleash.resetAll()
         fakeUnleash.enable(UNLEASH_CONTEXT_MEDLEMSKAP_SPORSMAL, UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL)
     }
@@ -200,6 +200,7 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
         medlemskapMockWebServer.enqueue(
             lagUavklartMockResponse()
         )
+
         val soknader = sendSykmelding(
             forventaSoknader = 2,
             sykmeldingKafkaMessage = sykmeldingKafkaMessage(

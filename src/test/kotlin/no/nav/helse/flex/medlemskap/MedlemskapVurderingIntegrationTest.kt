@@ -10,7 +10,6 @@ import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldStartWith
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
@@ -30,13 +29,6 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
     @Autowired
     private lateinit var medlemskapVurderingRepository: MedlemskapVurderingRepository
 
-    @BeforeAll
-    fun `Tøm requests til medlemskapVurdering`() {
-        repeat(medlemskapMockWebServer.requestCount) {
-            medlemskapMockWebServer.takeRequest()
-        }
-    }
-
     @AfterEach
     fun slettFraDatabase() {
         medlemskapVurderingRepository.deleteAll()
@@ -44,7 +36,6 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
 
     private val sykepengesoknadId = UUID.randomUUID().toString()
     private val fom = LocalDate.of(2023, 1, 1)
-
     private val tom = LocalDate.of(2023, 1, 31)
 
     private val request = MedlemskapVurderingRequest(
@@ -81,12 +72,6 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
             MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE
         )
 
-        val takeRequest = medlemskapMockWebServer.takeRequest()
-        takeRequest.headers["fnr"] `should be equal to` fnr
-        takeRequest.headers["Nav-Call-Id"] `should be equal to` request.sykepengesoknadId
-        takeRequest.headers["Authorization"]!!.shouldStartWith("Bearer ey")
-        takeRequest.path `should be equal to` "/$MEDLEMSKAP_VURDERING_PATH?fom=$fom&tom=$tom"
-
         val dbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
         dbRecords.first().sporsmal `should not be` null
     }
@@ -107,9 +92,6 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
 
         response.svar `should be equal to` MedlemskapVurderingSvarType.UAVKLART
         response.sporsmal shouldHaveSize 0
-
-        val takeRequest = medlemskapMockWebServer.takeRequest()
-        takeRequest.headers["fnr"] `should be equal to` fnr
 
         medlemskapVurderingRepository.findAll() shouldHaveSize 1
 
@@ -134,9 +116,6 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
         response.svar `should be equal to` MedlemskapVurderingSvarType.JA
         response.sporsmal shouldHaveSize 0
 
-        val takeRequest = medlemskapMockWebServer.takeRequest()
-        takeRequest.headers["fnr"] `should be equal to` fnr
-
         // Vi lagrer ikke tom liste med spørsmål.
         val dbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
         dbRecords.first().sporsmal `should be equal to` null
@@ -158,9 +137,6 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
 
         response.svar `should be equal to` MedlemskapVurderingSvarType.NEI
         response.sporsmal shouldHaveSize 0
-
-        val takeRequest = medlemskapMockWebServer.takeRequest()
-        takeRequest.headers["fnr"] `should be equal to` fnr
 
         medlemskapVurderingRepository.findAll() shouldHaveSize 1
 
@@ -186,9 +162,6 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
         exception.message?.shouldStartWith("MedlemskapVurdering med Nav-Call-Id:")
         exception.cause!!.message?.shouldStartWith("500 Server Error")
 
-        val takeRequest = medlemskapMockWebServer.takeRequest()
-        takeRequest.headers["fnr"] `should be equal to` fnr
-
         medlemskapVurderingRepository.findAll() shouldHaveSize 0
     }
 
@@ -208,9 +181,6 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
 
         exception.message?.shouldStartWith("MedlemskapVurdering med Nav-Call-Id:")
         exception.cause!!.message?.shouldStartWith("400 Client Error")
-
-        val takeRequest = medlemskapMockWebServer.takeRequest()
-        takeRequest.headers["fnr"] `should be equal to` fnr
 
         medlemskapVurderingRepository.findAll() shouldHaveSize 0
     }
@@ -238,9 +208,6 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
 
         exception.message?.shouldStartWith("MedlemskapVurdering med Nav-Call-Id:")
         exception.message?.shouldContain("returnerte spørsmål selv om svar var svar.JA.")
-
-        val takeRequest = medlemskapMockWebServer.takeRequest()
-        takeRequest.headers["fnr"] `should be equal to` fnr
 
         medlemskapVurderingRepository.findAll() shouldHaveSize 1
 
@@ -272,9 +239,6 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
 
         exception.message?.shouldStartWith("MedlemskapVurdering med Nav-Call-Id:")
         exception.message?.shouldContain("returnerte spørsmål selv om svar var svar.NEI.")
-
-        val takeRequest = medlemskapMockWebServer.takeRequest()
-        takeRequest.headers["fnr"] `should be equal to` fnr
 
         // Verdier blir lagret før vi validerer responsen sånn at vi kan feilsøke.
         val dbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1

@@ -46,7 +46,7 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
     private lateinit var medlemskapVurderingRepository: MedlemskapVurderingRepository
 
     @BeforeAll
-    fun configureUnleash() {
+    fun konfigurerUnleash() {
         fakeUnleash.resetAll()
         fakeUnleash.enable(UNLEASH_CONTEXT_MEDLEMSKAP_SPORSMAL, UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL)
     }
@@ -413,7 +413,6 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
         kafkaSoknader shouldHaveSize 1
         val kafkaSoknad = kafkaSoknader.first()
-
         kafkaSoknad.status shouldBeEqualTo SoknadsstatusDTO.SENDT
 
         // Spørsmålene som omhandler medlemskap blir ikke mappet om til eget felt i SykepengesoknadDTO så vi trenger
