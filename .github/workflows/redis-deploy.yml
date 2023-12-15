@@ -13,7 +13,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - uses: nais/deploy/actions/deploy@v1
+      - uses: nais/deploy/actions/deploy@v2
         name: Deploy to dev-gcp
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
@@ -27,7 +27,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - uses: nais/deploy/actions/deploy@v1
+      - uses: nais/deploy/actions/deploy@v2
         name: Deploy to prod-gcp
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
