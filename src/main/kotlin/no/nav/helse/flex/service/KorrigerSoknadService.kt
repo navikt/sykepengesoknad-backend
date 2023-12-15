@@ -5,6 +5,7 @@ import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.exception.AbstractApiError
 import no.nav.helse.flex.exception.LogLevel
+import no.nav.helse.flex.medlemskap.MedlemskapVurderingRepository
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.repository.SykepengesoknadDbRecord
 import no.nav.helse.flex.repository.SykepengesoknadRepository
@@ -28,7 +29,8 @@ class KorrigerSoknadService(
     val sykepengesoknadDAO: SykepengesoknadDAO,
     val metrikk: Metrikk,
     val identService: IdentService,
-    val sykepengesoknadRepository: SykepengesoknadRepository
+    val sykepengesoknadRepository: SykepengesoknadRepository,
+    val medlemskapVurderingRepository: MedlemskapVurderingRepository
 ) {
 
     fun finnEllerOpprettUtkast(soknadSomKorrigeres: Sykepengesoknad, identer: FolkeregisterIdenter): Sykepengesoknad {
@@ -76,8 +78,18 @@ class KorrigerSoknadService(
                     }
                 }
             }
-
         )
+
+        medlemskapVurderingRepository
+            .findBySykepengesoknadIdAndFomAndTom(soknadSomKorrigeres.id, soknadSomKorrigeres.fom!!, soknadSomKorrigeres.tom!!)
+            ?.let {
+                medlemskapVurderingRepository.save(
+                    it.copy(
+                        id = null,
+                        sykepengesoknadId = korrigering.id
+                    )
+                )
+            }
 
         sykepengesoknadDAO.lagreSykepengesoknad(korrigering)
         metrikk.tellUtkastTilKorrigeringOpprettet(korrigering.soknadstype)
