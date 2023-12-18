@@ -25,7 +25,7 @@ import org.junit.jupiter.api.TestMethodOrder
 import java.time.LocalDate
 
 /**
- * Tester at medlemskapspørsmål blir stilt på riktig søkandstype.
+ * Tester at medlemskapspørsmål blir stilt på riktig søknadstype.
  *
  * LovMe lytter på og prosesserer Soknadstype.ARBEIDSTAKERE.
  * Flex lager medlemskapsspørsmål på Arbeidssituasjon.ARBEIDSTAKER som inkluderer søknadstypene

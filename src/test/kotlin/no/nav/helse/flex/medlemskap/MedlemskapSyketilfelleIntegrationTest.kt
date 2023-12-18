@@ -186,7 +186,7 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
         assertThat(soknader1.last().medlemskapVurdering).isEqualTo("UAVKLART")
         assertThat(soknader1.last().forstegangssoknad).isTrue()
 
-        // Søknaden opprettet som følge av den første søkanden blir klippet siden den delvis overlappes av neste
+        // Søknaden opprettet som følge av den første søknaden blir klippet siden den delvis overlappes av neste
         // sykmelding. Begge søknader returneres etter klippingen.
         assertThat(soknader2).hasSize(2)
         assertThat(soknader2.first().medlemskapVurdering).isEqualTo("UAVKLART")
