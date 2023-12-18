@@ -34,8 +34,8 @@ import org.junit.jupiter.api.TestMethodOrder
 import java.time.LocalDate
 
 /**
- * Tester som verifiserer at flagget "medlemskapVurdering" ikke er statt på søknader som sendes på Kafka
- * når det ikke er stilt spørsmål i en UAVKLART-situasjon.
+ * Tester som verifiserer at flagget "medlemskapVurdering" IKKE er statt på søknader som sendes på Kafka
+ * når det IKKE er stilt spørsmål selv om medlemskapvurdering er UAVKLART.
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class MedlemskapUavklartIntegrationTest : BaseTestClass() {

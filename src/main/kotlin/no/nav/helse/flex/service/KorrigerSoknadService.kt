@@ -5,6 +5,7 @@ import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.exception.AbstractApiError
 import no.nav.helse.flex.exception.LogLevel
+import no.nav.helse.flex.medlemskap.MedlemskapVurderingRepository
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.repository.SykepengesoknadDbRecord
 import no.nav.helse.flex.repository.SykepengesoknadRepository
@@ -28,7 +29,8 @@ class KorrigerSoknadService(
     val sykepengesoknadDAO: SykepengesoknadDAO,
     val metrikk: Metrikk,
     val identService: IdentService,
-    val sykepengesoknadRepository: SykepengesoknadRepository
+    val sykepengesoknadRepository: SykepengesoknadRepository,
+    val medlemskapVurderingRepository: MedlemskapVurderingRepository
 ) {
 
     fun finnEllerOpprettUtkast(soknadSomKorrigeres: Sykepengesoknad, identer: FolkeregisterIdenter): Sykepengesoknad {
@@ -45,7 +47,9 @@ class KorrigerSoknadService(
 
         return sykepengesoknadDAO.finnSykepengesoknader(identer)
             .firstOrNull { soknad -> soknadSomKorrigeres.id == soknad.korrigerer }
-            ?: opprettUtkast(soknadSomKorrigeres)
+            ?: opprettUtkast(soknadSomKorrigeres).also { korrigerendeSoknad: Sykepengesoknad ->
+                dupliserMedlemskapVurdering(soknadSomKorrigeres, korrigerendeSoknad)
+            }
     }
 
     private fun opprettUtkast(soknadSomKorrigeres: Sykepengesoknad): Sykepengesoknad {
@@ -56,32 +60,53 @@ class KorrigerSoknadService(
             sendtNav = null,
             sendtArbeidsgiver = null,
             korrigerer = soknadSomKorrigeres.id,
-            sporsmal = soknadSomKorrigeres.sporsmal.map { spm ->
-                when (spm.tag) {
+            // Kopierer spørsmålene fra søkanden som korrigeres. Tar med svar på alle spørsmål så nær som
+            // ANSVARSERKLARING og BEKREFT_OPPLYSNINGER siden vi vil at innsender skal svare på disse på nytt siden
+            // det er en ny søknad og svarene er endret.
+            sporsmal = soknadSomKorrigeres.sporsmal.map { sporsmal ->
+                when (sporsmal.tag) {
                     ANSVARSERKLARING, BEKREFT_OPPLYSNINGER -> {
-                        spm.copy(svar = emptyList())
+                        sporsmal.copy(svar = emptyList())
                     }
+
+                    // TIL_SLUTT kan ikke besvares, men har BEKREFT_OPPLYSNIGNER som underspørsmål.
                     TIL_SLUTT -> {
-                        val endretUndersporsmal = spm.undersporsmal.mapIndexed { index, underspm ->
+                        val endretUndersporsmal = sporsmal.undersporsmal.mapIndexed { index, undersporsmal ->
                             if (index == 0) {
-                                underspm.copy(svar = emptyList())
+                                undersporsmal.copy(svar = emptyList())
                             } else {
-                                underspm
+                                undersporsmal
                             }
                         }
-                        spm.copy(svar = emptyList(), undersporsmal = endretUndersporsmal)
+                        sporsmal.copy(svar = emptyList(), undersporsmal = endretUndersporsmal)
                     }
+
                     else -> {
-                        spm
+                        sporsmal
                     }
                 }
             }
-
         )
 
         sykepengesoknadDAO.lagreSykepengesoknad(korrigering)
         metrikk.tellUtkastTilKorrigeringOpprettet(korrigering.soknadstype)
         return sykepengesoknadDAO.finnSykepengesoknad(korrigering.id)
+    }
+
+    // Lager en kopi av medlemskapsvurderingen som tilhørende søknaden som blir korrigere og bruker sykepengesoknadId
+    // tilhørende den korrigerende søkanden sånn at feltet "medlemskapVurdering" blir populert når søknaden sendes og
+    // legges på Kafka. Det er nødvendig hvis medlemskapsinformasjon skal knyttes til en eventuell Gosys-oppgave
+    // opprettet av sykepengesoknad-arkivering-oppgave.
+    private fun dupliserMedlemskapVurdering(soknadSomKorrigeres: Sykepengesoknad, korrigering: Sykepengesoknad) {
+        medlemskapVurderingRepository.findBySykepengesoknadIdAndFomAndTom(
+            soknadSomKorrigeres.id,
+            soknadSomKorrigeres.fom!!,
+            soknadSomKorrigeres.tom!!
+        )?.let {
+            medlemskapVurderingRepository.save(
+                it.copy(id = null, sykepengesoknadId = korrigering.id)
+            )
+        }
     }
 
     fun utvidSoknadMedKorrigeringsfristUtlopt(

@@ -185,7 +185,7 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
 
     @Test
     @Order(3)
-    fun `Besvar medlemskapspørsmål om arbeid utenfor Norge med to perioder`() {
+    fun `Besvar medlemskapspørsmål om Arbeid Utenfor Norge med to perioder`() {
         val soknadId = hentSoknadMedStatusNy().id
 
         hentSoknadSomKanBesvares().let {
@@ -404,7 +404,7 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
             val (_, soknadBesvarer) = it
             besvarArbeidstakerSporsmal(soknadBesvarer)
             val sendtSoknad = soknadBesvarer
-                .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
+                .besvarSporsmal(tag = "TIL_SLUTT", svar = "Svar 1", ferdigBesvart = false)
                 .besvarSporsmal(tag = BEKREFT_OPPLYSNINGER, svar = "CHECKED")
                 .sendSoknad()
             sendtSoknad.status shouldBeEqualTo RSSoknadstatus.SENDT
@@ -421,6 +421,38 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
         kafkaSoknad.sporsmal!!.any { it.tag == MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE } shouldBeEqualTo true
         kafkaSoknad.sporsmal!!.any { it.tag == MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE } shouldBeEqualTo true
         kafkaSoknad.sporsmal!!.any { it.tag == MEDLEMSKAP_OPPHOLD_UTENFOR_EOS } shouldBeEqualTo true
+        kafkaSoknad.medlemskapVurdering shouldBeEqualTo "UAVKLART"
+    }
+
+    @Test
+    @Order(7)
+    fun `Korrigert søknad har duplisert medlemskapVurdering`() {
+        val soknad = hentSoknader(fnr).first()
+        val korrigerendeSoknad = korrigerSoknad(soknad.id, fnr)
+
+        mockFlexSyketilfelleArbeidsgiverperiode(andreKorrigerteRessurser = soknad.id)
+
+        val sendtSoknad = SoknadBesvarer(rSSykepengesoknad = korrigerendeSoknad, mockMvc = this, fnr = fnr)
+            .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
+            .besvarSporsmal(tag = "TIL_SLUTT", svar = "Svar 2", ferdigBesvart = false)
+            .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
+            .sendSoknad()
+        assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
+
+        val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
+        kafkaSoknader shouldHaveSize 1
+        val kafkaSoknad = kafkaSoknader.first()
+
+        assertThat(
+            medlemskapVurderingRepository.findBySykepengesoknadIdAndFomAndTom(
+                sendtSoknad.id,
+                sendtSoknad.fom!!,
+                sendtSoknad.tom!!
+            )
+        ).isNotNull
+
+        kafkaSoknad.id shouldBeEqualTo sendtSoknad.id
+        kafkaSoknad.status shouldBeEqualTo SoknadsstatusDTO.SENDT
         kafkaSoknad.medlemskapVurdering shouldBeEqualTo "UAVKLART"
     }
 
