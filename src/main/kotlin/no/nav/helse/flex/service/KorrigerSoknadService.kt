@@ -48,7 +48,7 @@ class KorrigerSoknadService(
         return sykepengesoknadDAO.finnSykepengesoknader(identer)
             .firstOrNull { soknad -> soknadSomKorrigeres.id == soknad.korrigerer }
             ?: opprettUtkast(soknadSomKorrigeres).also { korrigerendeSoknad: Sykepengesoknad ->
-                kopierMedlemskapVurdering(soknadSomKorrigeres, korrigerendeSoknad)
+                dupliserMedlemskapVurdering(soknadSomKorrigeres, korrigerendeSoknad)
             }
     }
 
@@ -93,11 +93,11 @@ class KorrigerSoknadService(
         return sykepengesoknadDAO.finnSykepengesoknad(korrigering.id)
     }
 
-    // Lager en kopi av medlemskapsvurderingen som tilhørende søkanden som blir korrigere hvis den
-    // finnes og bruker sykepengesoknadendId til den korrigerende søkanden  sånn at feltet "medlemskapVurdering"
-    // blir populert når søknaden sendes og legges på Kafka, som igjen er nødvendig hvis medlemskapsinformasjon skal
-    // knyttes til en eventuell Gosys-oppgave opprettet av sykepengesoknad-arkivering-oppgave.
-    private fun kopierMedlemskapVurdering(soknadSomKorrigeres: Sykepengesoknad, korrigering: Sykepengesoknad) {
+    // Lager en kopi av medlemskapsvurderingen som tilhørende søknaden som blir korrigere og bruker sykepengesoknadId
+    // tilhørende den korrigerende søkanden sånn at feltet "medlemskapVurdering" blir populert når søknaden sendes og
+    // legges på Kafka. Det er nødvendig hvis medlemskapsinformasjon skal knyttes til en eventuell Gosys-oppgave
+    // opprettet av sykepengesoknad-arkivering-oppgave.
+    private fun dupliserMedlemskapVurdering(soknadSomKorrigeres: Sykepengesoknad, korrigering: Sykepengesoknad) {
         medlemskapVurderingRepository.findBySykepengesoknadIdAndFomAndTom(
             soknadSomKorrigeres.id,
             soknadSomKorrigeres.fom!!,
