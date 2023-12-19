@@ -69,6 +69,8 @@ fun Sporsmal.fellesPlasseringSporsmal(): Int {
         KVITTERINGER -> 803
         UTBETALING -> 804
 
+        INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET -> 900
+
         VAER_KLAR_OVER_AT -> 999
         BEKREFT_OPPLYSNINGER -> 1000
         TIL_SLUTT -> 1001

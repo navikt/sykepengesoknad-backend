@@ -15,6 +15,7 @@ import no.nav.helse.flex.soknadsopprettelse.sporsmal.ansvarserklaringSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.arbeidUtenforNorge
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.bekreftOpplysningerSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.jobbetDuGradertUndersporsmal
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.lagSporsmalOmInntektsopplyninger
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.tilbakeIFulltArbeidGradertReisetilskuddSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.utenlandsksykmelding.utenlandskSykmeldingSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.vaerKlarOverAt
@@ -42,12 +43,21 @@ fun settOppSoknadSelvstendigOgFrilanser(
         )
         add(andreInntektskilderSelvstendigOgFrilanser(sykepengesoknad.arbeidssituasjon!!))
         add(utlandsSporsmalSelvstendig(sykepengesoknad.fom!!, sykepengesoknad.tom!!))
+
         add(bekreftOpplysningerSporsmal())
         add(vaerKlarOverAt(erGradertReisetilskudd))
-        addAll(jobbetDuIPeriodenSporsmalSelvstendigFrilanser(sykepengesoknad.soknadPerioder!!, sykepengesoknad.arbeidssituasjon))
+        addAll(
+            jobbetDuIPeriodenSporsmalSelvstendigFrilanser(
+                sykepengesoknad.soknadPerioder!!,
+                sykepengesoknad.arbeidssituasjon
+            )
+        )
 
         if (erForsteSoknadISykeforlop) {
             add(arbeidUtenforNorge())
+            if (sykepengesoknad.arbeidssituasjon == Arbeidssituasjon.NAERINGSDRIVENDE) {
+                add(lagSporsmalOmInntektsopplyninger(sykepengesoknad))
+            }
         }
         addAll(yrkesskade.yrkeskadeSporsmal())
 
