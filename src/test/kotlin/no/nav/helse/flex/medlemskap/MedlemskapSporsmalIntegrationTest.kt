@@ -45,6 +45,8 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
     @Autowired
     private lateinit var medlemskapVurderingRepository: MedlemskapVurderingRepository
 
+
+
     @BeforeAll
     fun konfigurerUnleash() {
         fakeUnleash.resetAll()
