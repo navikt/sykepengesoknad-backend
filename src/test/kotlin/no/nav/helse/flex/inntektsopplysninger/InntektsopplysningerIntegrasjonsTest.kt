@@ -1,13 +1,9 @@
 package no.nav.helse.flex.inntektsopplysninger
 
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknad
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.hentProduserteRecords
-import no.nav.helse.flex.hentSoknad
-import no.nav.helse.flex.hentSoknaderMetadata
-import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.medIndex
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
@@ -15,9 +11,7 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
-import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_NARINGSDRIVENDE_INNTEKTSOPPLYSNINGER
-import no.nav.helse.flex.ventPåRecords
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.assertj.core.api.Assertions.assertThat
@@ -148,6 +142,61 @@ class InntektsopplysningerIntegrasjonsTest : BaseTestClass() {
         kafkaSoknader shouldHaveSize 1
         val kafkaSoknad = kafkaSoknader.first()
 
+        kafkaSoknad.status shouldBeEqualTo SoknadsstatusDTO.SENDT
+    }
+
+    @Test
+    @Order(3)
+    fun `Korrigerer søknad med inntektsopplysninger til ikke ny i arbeidslivet`() {
+        val fnr = "99999999002"
+        val soknad = hentSoknader(fnr).first()
+        val korrigerendeSoknad = korrigerSoknad(soknad.id, fnr)
+
+        mockFlexSyketilfelleArbeidsgiverperiode(andreKorrigerteRessurser = soknad.id)
+
+        val sendtSoknad = SoknadBesvarer(rSSykepengesoknad = korrigerendeSoknad, mockMvc = this, fnr = fnr)
+            .besvarSporsmal(tag = ANSVARSERKLARING, svar = "CHECKED")
+            // Nullstiller det andre alternative i Checkbox-gruppen, sånn at gruppen ikke validerer på grunn av to svar.
+            .besvarSporsmal(
+                tag = INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET_JA,
+                svar = null,
+                ferdigBesvart = false
+            )
+            .besvarSporsmal(
+                tag = INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET_NEI,
+                svar = "CHECKED",
+                ferdigBesvart = false
+            ).besvarSporsmal(
+                tag = INNTEKTSOPPLYSNINGER_VARIG_ENDRING,
+                svar = "JA",
+                ferdigBesvart = false
+            ).besvarSporsmal(
+                tag = INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE_OPPRETTELSE_NEDLEGGELSE,
+                svar = "CHECKED",
+                ferdigBesvart = false
+            ).besvarSporsmal(
+                tag = INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE_ANNET,
+                svar = "CHECKED",
+                ferdigBesvart = false
+            ).besvarSporsmal(
+                tag = INNTEKTSOPPLYSNINGER_VARIG_ENDRING_25_PROSENT,
+                svar = "JA",
+                ferdigBesvart = false
+            ).besvarSporsmal(
+                tag = INNTEKTSOPPLYSNINGER_VARIG_ENDRING_DATO,
+                svar = soknad.fom!!.minusYears(3).toString()
+            )
+            .besvarSporsmal(tag = VAER_KLAR_OVER_AT, svar = "Svar", ferdigBesvart = false)
+            .besvarSporsmal(tag = BEKREFT_OPPLYSNINGER, svar = "CHECKED")
+            .sendSoknad()
+
+        assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
+
+        val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
+        kafkaSoknader shouldHaveSize 1
+        val kafkaSoknad = kafkaSoknader.first()
+
+        kafkaSoknad.id shouldBeEqualTo korrigerendeSoknad.id
         kafkaSoknad.status shouldBeEqualTo SoknadsstatusDTO.SENDT
     }
 

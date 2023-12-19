@@ -44,11 +44,9 @@ fun lagSporsmalOmInntektsopplyninger(soknad: Sykepengesoknad): Sporsmal {
                 undersporsmal = listOf(
                     Sporsmal(
                         tag = INNTEKTSOPPLYSNINGER_VARIG_ENDRING,
-                        sporsmalstekst = "Har det skjedd en varig endring i arbeidssituasjonen eller virksomheten din i mellom ${
-                        DatoUtil.formatterDato(
-                            datoForVarigEndringEtter
-                        )
-                        } og frem til sykmeldingstidspunktet?",
+                        sporsmalstekst = "Har det skjedd en varig endring i arbeidssituasjonen eller virksomheten din " +
+                            "i mellom ${DatoUtil.formatterDato(datoForVarigEndringEtter)} og frem til" +
+                            "sykmeldingstidspunktet?",
                         svartype = Svartype.JA_NEI,
                         kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
                         undersporsmal = listOf(
