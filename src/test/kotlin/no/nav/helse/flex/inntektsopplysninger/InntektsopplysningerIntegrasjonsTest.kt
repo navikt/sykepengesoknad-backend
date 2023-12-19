@@ -1,13 +1,12 @@
 package no.nav.helse.flex.inntektsopplysninger
 
 import no.nav.helse.flex.BaseTestClass
-import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
+import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
+import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.hentProduserteRecords
 import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknaderMetadata
-import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
-import no.nav.helse.flex.mockFlexSyketilfelleErUtaforVentetid
-import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
+import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER
 import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
 import no.nav.helse.flex.soknadsopprettelse.ARBEID_UNDERVEIS_100_PROSENT
@@ -19,12 +18,15 @@ import no.nav.helse.flex.soknadsopprettelse.UTLAND
 import no.nav.helse.flex.soknadsopprettelse.VAER_KLAR_OVER_AT
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.medIndex
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
-import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
-import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
+import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
+import no.nav.helse.flex.testdata.heltSykmeldt
+import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
+import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_NARINGSDRIVENDE_INNTEKTSOPPLYSNINGER
 import no.nav.helse.flex.ventPåRecords
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldHaveSize
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
@@ -32,6 +34,7 @@ import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
+import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class InntektsopplysningerIntegrasjonsTest : BaseTestClass() {
@@ -46,44 +49,31 @@ class InntektsopplysningerIntegrasjonsTest : BaseTestClass() {
         juridiskVurderingKafkaConsumer.hentProduserteRecords()
     }
 
+
+    private val fom = LocalDate.of(2023, 1, 1)
+    private val tom = LocalDate.of(2023, 1, 30)
+
     @Test
     @Order(1)
-    fun `Stiller ikke spørsmål om inntektsopplysnninger på førstegangssøknad når Unleash toggel er disabled`() {
+    fun `Stiller ikke spørsmål om inntektsopplysnninger på førstegangssøknad når Unleash toggle er disabled`() {
         val fnr = "99999999001"
-        val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
-        val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
-        val sykmelding = skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId)
-            .copy(harRedusertArbeidsgiverperiode = true)
 
-        mockFlexSyketilfelleErUtaforVentetid(sykmelding.id, true)
-        mockFlexSyketilfelleSykeforloep(sykmeldingId)
-
-        val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
-            sykmelding = sykmelding,
-            event = sykmeldingStatusKafkaMessageDTO.event,
-            kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
+        val soknader = sendSykmelding(
+            sykmeldingKafkaMessage(
+                arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = fom,
+                    tom = tom
+                )
+            )
         )
 
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
-            sykmeldingId,
-            sykmeldingKafkaMessage,
-            SYKMELDINGSENDT_TOPIC
-        )
+        soknader shouldHaveSize 1
+        val soknad = soknader.first()
+        soknad.arbeidssituasjon shouldBeEqualTo ArbeidssituasjonDTO.SELVSTENDIG_NARINGSDRIVENDE
 
-        val kafkaRecords = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
-
-
-        val sykepengesoknad = kafkaRecords.tilSoknader().first()
-
-        sykepengesoknad.arbeidssituasjon shouldBeEqualTo ArbeidssituasjonDTO.SELVSTENDIG_NARINGSDRIVENDE
-
-
-        val lagretSoknad = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
-
-        assertThat(lagretSoknad.sporsmal!!.map { it.tag }).isEqualTo(
+        assertThat(soknad.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
                 ANSVARSERKLARING,
                 TILBAKE_I_ARBEID,
@@ -98,45 +88,28 @@ class InntektsopplysningerIntegrasjonsTest : BaseTestClass() {
     }
 
     @Test
-    @Order(2)
+    @Order(1)
     fun `Stiller spørsmål om inntektsopplysnninger på førstegangssøknad når Unleash toggle er enabled`() {
         fakeUnleash.enable(UNLEASH_CONTEXT_NARINGSDRIVENDE_INNTEKTSOPPLYSNINGER)
 
         val fnr = "99999999002"
-        val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
-        val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
-        val sykmelding = skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId)
-            .copy(harRedusertArbeidsgiverperiode = true)
 
-        mockFlexSyketilfelleErUtaforVentetid(sykmelding.id, true)
-        mockFlexSyketilfelleSykeforloep(sykmeldingId)
-
-        val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
-            sykmelding = sykmelding,
-            event = sykmeldingStatusKafkaMessageDTO.event,
-            kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
+        val soknader = sendSykmelding(
+            sykmeldingKafkaMessage(
+                arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(
+                    fom = fom,
+                    tom = tom
+                )
+            )
         )
 
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
-            sykmeldingId,
-            sykmeldingKafkaMessage,
-            SYKMELDINGSENDT_TOPIC
-        )
+        soknader shouldHaveSize 1
+        val soknad = soknader.first()
+        soknad.arbeidssituasjon shouldBeEqualTo ArbeidssituasjonDTO.SELVSTENDIG_NARINGSDRIVENDE
 
-        val kafkaRecords = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
-
-
-        val sykepengesoknad = kafkaRecords.tilSoknader().first()
-
-        sykepengesoknad.arbeidssituasjon shouldBeEqualTo ArbeidssituasjonDTO.SELVSTENDIG_NARINGSDRIVENDE
-
-
-        val lagretSoknad = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
-
-        assertThat(lagretSoknad.sporsmal!!.map { it.tag }).isEqualTo(
+        assertThat(soknad.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
                 ANSVARSERKLARING,
                 TILBAKE_I_ARBEID,
@@ -149,5 +122,36 @@ class InntektsopplysningerIntegrasjonsTest : BaseTestClass() {
                 BEKREFT_OPPLYSNINGER
             )
         )
+    }
+
+    @Test
+    @Order(2)
+    fun `Besvar og sendt inn søknad uten inntektsopplysninger`() {
+        val fnr = "99999999001"
+        val lagretSoknad = hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first().id,
+            fnr = fnr
+        )
+
+        lagretSoknad.status shouldBeEqualTo RSSoknadstatus.NY
+
+        val sendtSoknad = SoknadBesvarer(rSSykepengesoknad = lagretSoknad, mockMvc = this, fnr = fnr)
+            .besvarSporsmal(tag = ANSVARSERKLARING, svar = "CHECKED")
+            .besvarSporsmal(tag = TILBAKE_I_ARBEID, svar = "NEI")
+            .besvarSporsmal(tag = medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0), svar = "NEI")
+            .besvarSporsmal(tag = ARBEID_UTENFOR_NORGE, svar = "NEI")
+            .besvarSporsmal(tag = ANDRE_INNTEKTSKILDER, svar = "NEI")
+            .besvarSporsmal(tag = UTLAND, svar = "NEI")
+            .besvarSporsmal(tag = VAER_KLAR_OVER_AT, svar = "Svar", ferdigBesvart = false)
+            .besvarSporsmal(tag = BEKREFT_OPPLYSNINGER, svar = "CHECKED")
+            .sendSoknad()
+
+        sendtSoknad.status shouldBeEqualTo RSSoknadstatus.SENDT
+
+        val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
+        kafkaSoknader shouldHaveSize 1
+        val kafkaSoknad = kafkaSoknader.first()
+
+        kafkaSoknad.status shouldBeEqualTo SoknadsstatusDTO.SENDT
     }
 }
