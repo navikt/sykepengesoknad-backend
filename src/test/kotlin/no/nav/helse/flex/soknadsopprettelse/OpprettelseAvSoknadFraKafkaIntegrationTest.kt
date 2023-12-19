@@ -182,6 +182,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
     @Test
     fun `oppretter 2 søknader for næringsdrivende når sykmeldigna er lengre enn 31 dager`() {
         val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
+
         val sykmelding = skapArbeidsgiverSykmelding(
             sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId,
             fom = LocalDate.of(2020, 2, 1),

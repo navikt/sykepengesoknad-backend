@@ -61,7 +61,10 @@ fun Sporsmal.validerUndersporsmal() {
             if (besvarteUndersporsmal.size == 1) {
                 besvarteUndersporsmal.forEach { it.validerSvarPaSporsmal() }
             } else {
-                throw ValideringException("Spørsmål ${this.id} av typen $svartype må ha eksakt ett besvart underspørsmål")
+                throw ValideringException(
+                    "Spørsmål med id: ${this.id} med tag: ${this.tag} av typen: $svartype må ha eksakt ett" +
+                        "besvart underspørsmål. Antall besvarte underspørsmål er: ${besvarteUndersporsmal.size}."
+                )
             }
         }
 
