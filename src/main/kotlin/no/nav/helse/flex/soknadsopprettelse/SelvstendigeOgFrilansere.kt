@@ -55,7 +55,8 @@ fun settOppSoknadSelvstendigOgFrilanser(
 
         if (erForsteSoknadISykeforlop) {
             add(arbeidUtenforNorge())
-            if (sykepengesoknad.arbeidssituasjon == Arbeidssituasjon.NAERINGSDRIVENDE) {
+
+            if (sykepengesoknad.arbeidssituasjon == Arbeidssituasjon.NAERINGSDRIVENDE && opts.naringsdrivendeInntektsopplysningerEnabled) {
                 add(lagSporsmalOmInntektsopplyninger(sykepengesoknad))
             }
         }
