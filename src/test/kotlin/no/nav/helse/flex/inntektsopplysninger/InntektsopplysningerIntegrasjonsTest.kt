@@ -2,20 +2,13 @@ package no.nav.helse.flex.inntektsopplysninger
 
 import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
+import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknad
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.hentProduserteRecords
 import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.sendSykmelding
-import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER
-import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
-import no.nav.helse.flex.soknadsopprettelse.ARBEID_UNDERVEIS_100_PROSENT
-import no.nav.helse.flex.soknadsopprettelse.ARBEID_UTENFOR_NORGE
-import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET
-import no.nav.helse.flex.soknadsopprettelse.TILBAKE_I_ARBEID
-import no.nav.helse.flex.soknadsopprettelse.UTLAND
-import no.nav.helse.flex.soknadsopprettelse.VAER_KLAR_OVER_AT
+import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.medIndex
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
@@ -48,7 +41,6 @@ class InntektsopplysningerIntegrasjonsTest : BaseTestClass() {
     fun hentAlleKafkaMeldinger() {
         juridiskVurderingKafkaConsumer.hentProduserteRecords()
     }
-
 
     private val fom = LocalDate.of(2023, 1, 1)
     private val tom = LocalDate.of(2023, 1, 30)
@@ -126,27 +118,31 @@ class InntektsopplysningerIntegrasjonsTest : BaseTestClass() {
 
     @Test
     @Order(2)
-    fun `Besvar og sendt inn søknad uten inntektsopplysninger`() {
-        val fnr = "99999999001"
+    fun `Besvar og sendt inn søknad med inntektsopplysninger som ny i arbeidslivet`() {
+        val fnr = "99999999002"
         val lagretSoknad = hentSoknad(
             soknadId = hentSoknaderMetadata(fnr).first().id,
             fnr = fnr
         )
 
-        lagretSoknad.status shouldBeEqualTo RSSoknadstatus.NY
-
-        val sendtSoknad = SoknadBesvarer(rSSykepengesoknad = lagretSoknad, mockMvc = this, fnr = fnr)
-            .besvarSporsmal(tag = ANSVARSERKLARING, svar = "CHECKED")
-            .besvarSporsmal(tag = TILBAKE_I_ARBEID, svar = "NEI")
-            .besvarSporsmal(tag = medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0), svar = "NEI")
-            .besvarSporsmal(tag = ARBEID_UTENFOR_NORGE, svar = "NEI")
-            .besvarSporsmal(tag = ANDRE_INNTEKTSKILDER, svar = "NEI")
-            .besvarSporsmal(tag = UTLAND, svar = "NEI")
-            .besvarSporsmal(tag = VAER_KLAR_OVER_AT, svar = "Svar", ferdigBesvart = false)
-            .besvarSporsmal(tag = BEKREFT_OPPLYSNINGER, svar = "CHECKED")
-            .sendSoknad()
-
-        sendtSoknad.status shouldBeEqualTo RSSoknadstatus.SENDT
+        hentSoknadSomKanBesvares(fnr).let {
+            val (_, soknadBesvarer) = it
+            besvarStandardsporsmalSporsmal(soknadBesvarer)
+            val sendtSoknad = soknadBesvarer
+                .besvarSporsmal(
+                    tag = INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET_JA,
+                    svar = "CHECKED",
+                    ferdigBesvart = false
+                )
+                .besvarSporsmal(
+                    tag = INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET_DATO,
+                    svar = lagretSoknad.fom!!.minusDays(1).toString()
+                )
+                .besvarSporsmal(tag = VAER_KLAR_OVER_AT, svar = "Svar", ferdigBesvart = false)
+                .besvarSporsmal(tag = BEKREFT_OPPLYSNINGER, svar = "CHECKED")
+                .sendSoknad()
+            sendtSoknad.status shouldBeEqualTo RSSoknadstatus.SENDT
+        }
 
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
         kafkaSoknader shouldHaveSize 1
@@ -154,4 +150,26 @@ class InntektsopplysningerIntegrasjonsTest : BaseTestClass() {
 
         kafkaSoknad.status shouldBeEqualTo SoknadsstatusDTO.SENDT
     }
+
+    private fun hentSoknadSomKanBesvares(fnr: String): Pair<RSSykepengesoknad, SoknadBesvarer> {
+        val soknad = hentSoknadMedStatusNy(fnr)
+        val soknadBesvarer = SoknadBesvarer(rSSykepengesoknad = soknad, mockMvc = this, fnr = fnr)
+        return Pair(soknad, soknadBesvarer)
+    }
+
+    private fun hentSoknadMedStatusNy(fnr: String): RSSykepengesoknad {
+        return hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
+            fnr = fnr
+        )
+    }
+
+    private fun besvarStandardsporsmalSporsmal(soknadBesvarer: SoknadBesvarer) =
+        soknadBesvarer
+            .besvarSporsmal(tag = ANSVARSERKLARING, svar = "CHECKED")
+            .besvarSporsmal(tag = TILBAKE_I_ARBEID, svar = "NEI")
+            .besvarSporsmal(tag = medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0), svar = "NEI")
+            .besvarSporsmal(tag = ARBEID_UTENFOR_NORGE, svar = "NEI")
+            .besvarSporsmal(tag = ANDRE_INNTEKTSKILDER, svar = "NEI")
+            .besvarSporsmal(tag = UTLAND, svar = "NEI")
 }
