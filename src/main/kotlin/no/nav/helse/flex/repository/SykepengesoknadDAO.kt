@@ -11,12 +11,18 @@ import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.exception.SlettSoknadException
+import no.nav.helse.flex.inntektsopplysninger.InntektsopplysningerDokumentType
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingRepository
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.soknadsopprettelse.ArbeidsforholdFraInntektskomponenten
 import no.nav.helse.flex.soknadsopprettelse.sorterSporsmal
-import no.nav.helse.flex.util.*
+import no.nav.helse.flex.util.OBJECT_MAPPER
+import no.nav.helse.flex.util.isAfterOrEqual
+import no.nav.helse.flex.util.isBeforeOrEqual
+import no.nav.helse.flex.util.osloZone
+import no.nav.helse.flex.util.serialisertTilString
+import no.nav.helse.flex.util.tilOsloZone
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.dao.IncorrectResultSizeDataAccessException
 import org.springframework.jdbc.core.RowMapper
@@ -328,7 +334,12 @@ class SykepengesoknadDAO(
         )!!
     }
 
-    fun klippSoknadTom(sykepengesoknadUuid: String, nyTom: LocalDate, tom: LocalDate, fom: LocalDate): List<Soknadsperiode> {
+    fun klippSoknadTom(
+        sykepengesoknadUuid: String,
+        nyTom: LocalDate,
+        tom: LocalDate,
+        fom: LocalDate
+    ): List<Soknadsperiode> {
         val sykepengesoknadId = sykepengesoknadId(sykepengesoknadUuid)
 
         val soknadPerioder = soknadsperiodeDAO.finnSoknadPerioder(setOf(sykepengesoknadId))[sykepengesoknadId]!!
@@ -362,7 +373,12 @@ class SykepengesoknadDAO(
         return nyePerioder
     }
 
-    fun klippSoknadFom(sykepengesoknadUuid: String, nyFom: LocalDate, fom: LocalDate, tom: LocalDate): List<Soknadsperiode> {
+    fun klippSoknadFom(
+        sykepengesoknadUuid: String,
+        nyFom: LocalDate,
+        fom: LocalDate,
+        tom: LocalDate
+    ): List<Soknadsperiode> {
         val sykepengesoknadId = sykepengesoknadId(sykepengesoknadUuid)
 
         val soknadPerioder = soknadsperiodeDAO.finnSoknadPerioder(setOf(sykepengesoknadId))[sykepengesoknadId]!!
@@ -496,10 +512,16 @@ class SykepengesoknadDAO(
                     opprettetAvInntektsmelding = resultSet.getBoolean("OPPRETTET_AV_INNTEKTSMELDING"),
                     utenlandskSykmelding = resultSet.getBoolean("UTENLANDSK_SYKMELDING"),
                     egenmeldingsdagerFraSykmelding = resultSet.getString("EGENMELDINGSDAGER_FRA_SYKMELDING"),
-                    inntektskilderDataFraInntektskomponenten = resultSet.getNullableString("INNTEKTSKILDER_DATA_FRA_INNTEKTSKOMPONENTEN")?.tilArbeidsforholdFraInntektskomponenten(),
+                    inntektskilderDataFraInntektskomponenten = resultSet.getNullableString("INNTEKTSKILDER_DATA_FRA_INNTEKTSKOMPONENTEN")
+                        ?.tilArbeidsforholdFraInntektskomponenten(),
                     forstegangssoknad = resultSet.getNullableBoolean("FORSTEGANGSSOKNAD"),
                     tidligereArbeidsgiverOrgnummer = resultSet.getNullableString("TIDLIGERE_ARBEIDSGIVER_ORGNUMMER"),
-                    aktivertDato = resultSet.getObject("AKTIVERT_DATO", LocalDate::class.java)
+                    aktivertDato = resultSet.getObject("AKTIVERT_DATO", LocalDate::class.java),
+                    inntektsopplysningerNyKvittering = resultSet.getNullableBoolean("INNTEKTSOPPLYSNINGER_NY_KVITTERING"),
+                    inntektsopplysningerInnsendingId = resultSet.getNullableString("INNTEKTSOPPLYSNINGER_INNSENDING_ID"),
+                    inntektsopplysningerInnsendingDokumenter = resultSet.getNullableString("INNTEKTSOPPLYSNINGER_INNSENDING_DOKUMENTER")
+                        ?.split(",")
+                        ?.map { InntektsopplysningerDokumentType.valueOf(it) }
                 )
             )
         }
@@ -559,7 +581,10 @@ class SykepengesoknadDAO(
         )
     }
 
-    fun lagreInntektskilderDataFraInntektskomponenten(sykepengesoknadUuid: String, inntektskilder: List<ArbeidsforholdFraInntektskomponenten>) {
+    fun lagreInntektskilderDataFraInntektskomponenten(
+        sykepengesoknadUuid: String,
+        inntektskilder: List<ArbeidsforholdFraInntektskomponenten>
+    ) {
         namedParameterJdbcTemplate.update(
             """UPDATE SYKEPENGESOKNAD SET INNTEKTSKILDER_DATA_FRA_INNTEKTSKOMPONENTEN = :inntektskilder WHERE SYKEPENGESOKNAD_UUID = :sykepengesoknadUuid""",
 

@@ -65,7 +65,6 @@ class SoknadSender(
             .finnOpprinneligSendt(sendtSoknad.normaliser().soknad)
 
         try {
-
             hentOgLagreOmNaringsdrivendeSendeInntektsopplysninger(sendtSoknad)
         } catch (e: Exception) {
             log.error("Feil ved henting og lagring av inntektsopplysninger for næringsdrivende. ${sendtSoknad.id}", e)

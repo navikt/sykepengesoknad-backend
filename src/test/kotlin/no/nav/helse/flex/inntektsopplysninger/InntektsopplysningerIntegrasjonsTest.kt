@@ -136,6 +136,10 @@ class InntektsopplysningerIntegrasjonsTest : BaseTestClass() {
                 .besvarSporsmal(tag = BEKREFT_OPPLYSNINGER, svar = "CHECKED")
                 .sendSoknad()
             sendtSoknad.status shouldBeEqualTo RSSoknadstatus.SENDT
+
+            sendtSoknad.inntektsopplysningerNyKvittering shouldBeEqualTo true
+            sendtSoknad.inntektsopplysningerInnsendingDokumenter!!.isNotEmpty() shouldBeEqualTo true
+            sendtSoknad.inntektsopplysningerInnsendingId shouldBeEqualTo "TODO"
         }
 
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
@@ -147,7 +151,7 @@ class InntektsopplysningerIntegrasjonsTest : BaseTestClass() {
 
     @Test
     @Order(3)
-    fun `Korrigerer søknad med inntektsopplysninger til ikke ny i arbeidslivet`() {
+    fun `Korrigerer til ikke ny i arbeidslivet og mindre enn 25 så det ikke trengs dokumentasjon`() {
         val fnr = "99999999002"
         val soknad = hentSoknader(fnr).first()
         val korrigerendeSoknad = korrigerSoknad(soknad.id, fnr)
@@ -180,6 +184,39 @@ class InntektsopplysningerIntegrasjonsTest : BaseTestClass() {
                 ferdigBesvart = false
             ).besvarSporsmal(
                 tag = INNTEKTSOPPLYSNINGER_VARIG_ENDRING_25_PROSENT,
+                svar = "NEI"
+            )
+            .besvarSporsmal(tag = VAER_KLAR_OVER_AT, svar = "Svar", ferdigBesvart = false)
+            .besvarSporsmal(tag = BEKREFT_OPPLYSNINGER, svar = "CHECKED")
+            .sendSoknad()
+
+        assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
+
+        sendtSoknad.inntektsopplysningerNyKvittering shouldBeEqualTo true
+        sendtSoknad.inntektsopplysningerInnsendingDokumenter shouldBeEqualTo null
+        sendtSoknad.inntektsopplysningerInnsendingId shouldBeEqualTo null
+
+        val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
+        kafkaSoknader shouldHaveSize 1
+        val kafkaSoknad = kafkaSoknader.first()
+
+        kafkaSoknad.id shouldBeEqualTo korrigerendeSoknad.id
+        kafkaSoknad.status shouldBeEqualTo SoknadsstatusDTO.SENDT
+    }
+
+    @Test
+    @Order(4)
+    fun `Korrigerer til søknad med større endring enn 25 prosent`() {
+        val fnr = "99999999002"
+        val soknad = hentSoknader(fnr).first { it.status == RSSoknadstatus.SENDT }
+        val korrigerendeSoknad = korrigerSoknad(soknad.id, fnr)
+
+        mockFlexSyketilfelleArbeidsgiverperiode(andreKorrigerteRessurser = soknad.id)
+
+        val sendtSoknad = SoknadBesvarer(rSSykepengesoknad = korrigerendeSoknad, mockMvc = this, fnr = fnr)
+            .besvarSporsmal(tag = ANSVARSERKLARING, svar = "CHECKED")
+            .besvarSporsmal(
+                tag = INNTEKTSOPPLYSNINGER_VARIG_ENDRING_25_PROSENT,
                 svar = "JA",
                 ferdigBesvart = false
             ).besvarSporsmal(
@@ -191,6 +228,10 @@ class InntektsopplysningerIntegrasjonsTest : BaseTestClass() {
             .sendSoknad()
 
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
+
+        sendtSoknad.inntektsopplysningerNyKvittering shouldBeEqualTo true
+        sendtSoknad.inntektsopplysningerInnsendingDokumenter!!.isNotEmpty() shouldBeEqualTo true
+        sendtSoknad.inntektsopplysningerInnsendingId shouldBeEqualTo "TODO"
 
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
         kafkaSoknader shouldHaveSize 1
