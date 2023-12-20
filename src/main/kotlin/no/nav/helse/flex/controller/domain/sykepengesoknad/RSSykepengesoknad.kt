@@ -32,7 +32,7 @@ data class RSSykepengesoknad(
     val inntektskilderDataFraInntektskomponenten: List<ArbeidsforholdFraInntektskomponenten>?,
     val inntektsopplysningerNyKvittering: Boolean? = null,
     val inntektsopplysningerInnsendingId: String? = null,
-    val inntektsopplysningerInnsendingDokumenter: List<InntektsopplysningerDokumentType>? = null
+    val inntektsopplysningerInnsendingDokumenter: List<InntektsopplysningerDokumentType>? = null,
     val korrigeringsfristUtlopt: Boolean?,
     val forstegangssoknad: Boolean?
 ) {
