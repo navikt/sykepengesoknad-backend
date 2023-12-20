@@ -106,7 +106,8 @@ fun Sykepengesoknad.tilRSSykepengesoknad() = RSSykepengesoknad(
     utenlandskSykmelding = this.utenlandskSykmelding,
     klippet = this.klippet,
     inntektskilderDataFraInntektskomponenten = this.inntektskilderDataFraInntektskomponenten,
-    korrigeringsfristUtlopt = this.korrigeringsfristUtlopt
+    korrigeringsfristUtlopt = this.korrigeringsfristUtlopt,
+    forstegangssoknad = this.forstegangssoknad
 )
 
 fun Sykepengesoknad.tilRSSykepengesoknadMetadata() = RSSykepengesoknadMetadata(
@@ -129,7 +130,8 @@ fun Sykepengesoknad.tilRSSykepengesoknadMetadata() = RSSykepengesoknadMetadata(
     soknadPerioder = this.soknadPerioder?.map { mapSoknadsperiode(it) },
     egenmeldtSykmelding = this.egenmeldtSykmelding,
     merknaderFraSykmelding = this.merknaderFraSykmelding?.map { it.mapMerknad() },
-    opprettetAvInntektsmelding = this.opprettetAvInntektsmelding
+    opprettetAvInntektsmelding = this.opprettetAvInntektsmelding,
+    forstegangssoknad = this.forstegangssoknad
 )
 
 fun Sykepengesoknad.tilRSSykepengesoknadFlexInternal() = RSSykepengesoknadFlexInternal(

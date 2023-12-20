@@ -60,9 +60,7 @@ class AadRestTemplateConfiguration {
         val registrationName = "medlemskap-vurdering-sykepenger-client-credentials"
         val clientProperties = clientConfigurationProperties.registration[registrationName]
             ?: throw RuntimeException("Fant ikke config for $registrationName.")
-
         return restTemplateBuilder
-            // https://kotlinlang.org/docs/fun-interfaces.html#sam-conversions
             .requestFactory(Supplier { HttpComponentsClientHttpRequestFactory(httpClient) })
             .additionalInterceptors(bearerTokenInterceptor(clientProperties, oAuth2AccessTokenService))
             .setConnectTimeout(Duration.ofSeconds(MEDLEMSKAP_VURDERING_REST_TEMPLATE_CONNECT_TIMEOUT))
