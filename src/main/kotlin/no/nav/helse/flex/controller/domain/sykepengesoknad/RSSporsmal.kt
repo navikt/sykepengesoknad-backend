@@ -8,7 +8,6 @@ data class RSSporsmal(
     val svartype: RSSvartype?,
     val min: String?,
     val max: String?,
-    val pavirkerAndreSporsmal: Boolean,
     val kriterieForVisningAvUndersporsmal: RSVisningskriterie?,
     val svar: List<RSSvar>,
     val undersporsmal: List<RSSporsmal>

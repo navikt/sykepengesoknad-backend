@@ -62,7 +62,6 @@ private fun arbeidsgiverSporsmal(): Sporsmal {
         tag = ARBEIDSGIVER,
         sporsmalstekst = "Har du arbeidsgiver?",
         svartype = JA_NEI,
-        pavirkerAndreSporsmal = true,
         kriterieForVisningAvUndersporsmal = JA,
         undersporsmal = listOf(
             Sporsmal(

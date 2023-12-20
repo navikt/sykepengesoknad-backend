@@ -70,7 +70,6 @@ class BehandlingsdagerKtTest {
             svartype = Svartype.INFO_BEHANDLINGSDAGER,
             min = null,
             max = null,
-            pavirkerAndreSporsmal = false,
             kriterieForVisningAvUndersporsmal = null,
             undersporsmal = listOf(
                 Sporsmal(
@@ -81,7 +80,6 @@ class BehandlingsdagerKtTest {
                     svartype = Svartype.RADIO_GRUPPE_UKEKALENDER,
                     min = "2019-11-05",
                     max = "2019-11-08",
-                    pavirkerAndreSporsmal = false,
                     kriterieForVisningAvUndersporsmal = null
                 )
             )
@@ -100,7 +98,6 @@ class BehandlingsdagerKtTest {
             svartype = Svartype.INFO_BEHANDLINGSDAGER,
             min = null,
             max = null,
-            pavirkerAndreSporsmal = false,
             kriterieForVisningAvUndersporsmal = null,
             undersporsmal = listOf(
                 Sporsmal(
@@ -111,7 +108,6 @@ class BehandlingsdagerKtTest {
                     svartype = Svartype.RADIO_GRUPPE_UKEKALENDER,
                     min = "2019-11-05",
                     max = "2019-11-08",
-                    pavirkerAndreSporsmal = false,
                     kriterieForVisningAvUndersporsmal = null
                 )
             )

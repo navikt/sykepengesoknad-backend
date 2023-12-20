@@ -148,6 +148,5 @@ fun arbeidsgiverLeggerUtSpørsmål() = Sporsmal(
 fun brukteReisetilskuddetSpørsmål() = Sporsmal(
     tag = BRUKTE_REISETILSKUDDET,
     sporsmalstekst = "Hadde du ekstra reiseutgifter mens du var sykmeldt?",
-    svartype = JA_NEI,
-    pavirkerAndreSporsmal = true
+    svartype = JA_NEI
 )
