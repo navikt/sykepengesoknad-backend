@@ -118,9 +118,9 @@ class ArbeidstakereTest {
         )
         val oppdatertSoknad: Sykepengesoknad = sykepengesoknad.arbeidGjenopptattMutering()
 
-        assertThat(oppdatertSoknad.getOptionalSporsmalMedTag(FERIE_V2)).isNotPresent
-        assertThat(oppdatertSoknad.getOptionalSporsmalMedTag(PERMISJON_V2)).isNotPresent
-        assertThat(oppdatertSoknad.getOptionalSporsmalMedTag(UTLAND_V2)).isNotPresent
+        assertThat(oppdatertSoknad.getSporsmalMedTagOrNull(FERIE_V2)).isNull()
+        assertThat(oppdatertSoknad.getSporsmalMedTagOrNull(PERMISJON_V2)).isNull()
+        assertThat(oppdatertSoknad.getSporsmalMedTagOrNull(UTLAND_V2)).isNull()
     }
 
     @Test
@@ -142,7 +142,7 @@ class ArbeidstakereTest {
         )
         val oppdatertSoknad: Sykepengesoknad = sykepengesoknad.arbeidGjenopptattMutering()
 
-        assertThat(oppdatertSoknad.getOptionalSporsmalMedTag(FERIE_PERMISJON_UTLAND)).isNotPresent
+        assertThat(oppdatertSoknad.getSporsmalMedTagOrNull(FERIE_PERMISJON_UTLAND)).isNull()
     }
 
     @Test
@@ -164,7 +164,7 @@ class ArbeidstakereTest {
         )
         val oppdatertSoknad: Sykepengesoknad = sykepengesoknad.arbeidGjenopptattMutering()
 
-        assertThat(oppdatertSoknad.getOptionalSporsmalMedTag(FERIE_V2)).isNotPresent
+        assertThat(oppdatertSoknad.getSporsmalMedTagOrNull(FERIE_V2)).isNull()
     }
 
     @Test
@@ -236,7 +236,7 @@ class ArbeidstakereTest {
         )
         val oppdatertSoknad: Sykepengesoknad = sykepengesoknad.arbeidGjenopptattMutering()
 
-        assertThat(oppdatertSoknad.getOptionalSporsmalMedTag(UTDANNING)).isNotPresent
+        assertThat(oppdatertSoknad.getSporsmalMedTagOrNull(UTDANNING)).isNull()
     }
 
     @Test
@@ -322,7 +322,7 @@ class ArbeidstakereTest {
     @Test
     fun leggerIkkeTilSporsmalOmABeholdeSykepenger() {
         val sykepengesoknad = opprettNySoknadMock()
-        assertThat(sykepengesoknad.getOptionalSporsmalMedTag(UTLANDSOPPHOLD_SOKT_SYKEPENGER)).isNotPresent
+        assertThat(sykepengesoknad.getSporsmalMedTagOrNull(UTLANDSOPPHOLD_SOKT_SYKEPENGER)).isNull()
     }
 
     @Test
@@ -340,7 +340,7 @@ class ArbeidstakereTest {
         )
         val oppdatertSoknad: Sykepengesoknad = sykepengesoknad.oppdaterMedSvarPaUtlandsopphold()
 
-        assertThat(oppdatertSoknad.getOptionalSporsmalMedTag(UTLANDSOPPHOLD_SOKT_SYKEPENGER)).isNotPresent
+        assertThat(oppdatertSoknad.getSporsmalMedTagOrNull(UTLANDSOPPHOLD_SOKT_SYKEPENGER)).isNull()
     }
 
     @Test
@@ -365,7 +365,7 @@ class ArbeidstakereTest {
         )
         val oppdatertSoknad: Sykepengesoknad = sykepengesoknad.oppdaterMedSvarPaUtlandsopphold()
 
-        assertThat(oppdatertSoknad.getOptionalSporsmalMedTag(UTLANDSOPPHOLD_SOKT_SYKEPENGER)).isNotPresent
+        assertThat(oppdatertSoknad.getSporsmalMedTagOrNull(UTLANDSOPPHOLD_SOKT_SYKEPENGER)).isNull()
     }
 
     @Test
@@ -390,7 +390,7 @@ class ArbeidstakereTest {
         )
         val oppdatertSoknad: Sykepengesoknad = sykepengesoknad.oppdaterMedSvarPaUtlandsopphold()
 
-        assertThat(oppdatertSoknad.getOptionalSporsmalMedTag(UTLANDSOPPHOLD_SOKT_SYKEPENGER)).isNotPresent
+        assertThat(oppdatertSoknad.getSporsmalMedTagOrNull(UTLANDSOPPHOLD_SOKT_SYKEPENGER)).isNull()
     }
 
     @Test
@@ -415,7 +415,7 @@ class ArbeidstakereTest {
         )
         val oppdatertSoknad: Sykepengesoknad = sykepengesoknad.oppdaterMedSvarPaUtlandsopphold()
 
-        assertThat(oppdatertSoknad.getOptionalSporsmalMedTag(UTLANDSOPPHOLD_SOKT_SYKEPENGER)).isPresent
+        assertThat(oppdatertSoknad.getSporsmalMedTagOrNull(UTLANDSOPPHOLD_SOKT_SYKEPENGER)).isNotNull
     }
 
     @Test
@@ -440,7 +440,7 @@ class ArbeidstakereTest {
         )
         val oppdatertSoknad: Sykepengesoknad = sykepengesoknad.oppdaterMedSvarPaUtlandsopphold()
 
-        assertThat(oppdatertSoknad.getOptionalSporsmalMedTag(UTLANDSOPPHOLD_SOKT_SYKEPENGER)).isPresent
+        assertThat(oppdatertSoknad.getSporsmalMedTagOrNull(UTLANDSOPPHOLD_SOKT_SYKEPENGER)).isNotNull
     }
 
     @Test
