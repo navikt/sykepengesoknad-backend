@@ -58,10 +58,6 @@ data class Sykepengesoknad(
         return sporsmal.flatten().firstOrNull { s -> s.tag == tag }
     }
 
-    fun getOptionalSporsmalMedTag(tag: String): Optional<Sporsmal> {
-        return Optional.ofNullable(getSporsmalMedTagOrNull(tag))
-    }
-
     protected fun addHovedsporsmalHjelper(nyttSporsmal: Sporsmal, etterHovedsporsmal: Sporsmal?): List<Sporsmal> =
         if (sporsmal.none { s -> s.tag == nyttSporsmal.tag }) {
             val spm = sporsmal.toMutableList()
