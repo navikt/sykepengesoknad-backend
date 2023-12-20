@@ -1,5 +1,6 @@
 package no.nav.helse.flex.controller.domain.sykepengesoknad
 
+import no.nav.helse.flex.inntektsopplysninger.InntektsopplysningerDokumentType
 import no.nav.helse.flex.soknadsopprettelse.ArbeidsforholdFraInntektskomponenten
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -29,6 +30,9 @@ data class RSSykepengesoknad(
     val utenlandskSykmelding: Boolean,
     val klippet: Boolean,
     val inntektskilderDataFraInntektskomponenten: List<ArbeidsforholdFraInntektskomponenten>?,
+    val inntektsopplysningerNyKvittering: Boolean? = null,
+    val inntektsopplysningerInnsendingId: String? = null,
+    val inntektsopplysningerInnsendingDokumenter: List<InntektsopplysningerDokumentType>? = null,
     val korrigeringsfristUtlopt: Boolean?,
     val forstegangssoknad: Boolean?
 ) {

@@ -25,6 +25,7 @@ import no.nav.helse.flex.exception.ForsokPaSendingAvNyereSoknadException
 import no.nav.helse.flex.exception.IkkeTilgangException
 import no.nav.helse.flex.exception.ReadOnlyException
 import no.nav.helse.flex.exception.SporsmalFinnesIkkeISoknadException
+import no.nav.helse.flex.inntektsopplysninger.InntektsopplysningForNaringsdrivende
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.oppdatersporsmal.soknad.OppdaterSporsmalService
 import no.nav.helse.flex.sending.SoknadSender
@@ -67,6 +68,7 @@ class SoknadBrukerController(
     private val oppdaterSporsmalService: OppdaterSporsmalService,
     private val avbrytSoknadService: AvbrytSoknadService,
     private val environmentToggles: EnvironmentToggles,
+    private val inntektsopplysningForNaringsdrivende: InntektsopplysningForNaringsdrivende,
 
     @Value("\${DITT_SYKEFRAVAER_FRONTEND_CLIENT_ID}")
     val dittSykefravaerFrontendClientId: String,
@@ -127,13 +129,20 @@ class SoknadBrukerController(
             )
         }
 
-        try {
-            soknadSender.sendSoknad(soknadFraBase, BRUKER, null, identer)
-            log.info("Soknad sendt id: ${soknadFraBase.id}")
+        val sendtSoknad = try {
+            soknadSender.sendSoknad(soknadFraBase, BRUKER, null, identer).also {
+                log.info("Soknad sendt id: ${soknadFraBase.id}")
+            }
         } catch (e: Exception) {
             log.error("Innsending av søknad ${soknadFraBase.id} feilet")
             metrikk.tellInnsendingFeilet(soknadFraBase.soknadstype.name)
             throw e
+        }
+
+        try {
+            inntektsopplysningForNaringsdrivende.lagreInnsendingsopplysninger(sendtSoknad)
+        } catch (e: Exception) {
+            log.error("Henting og lagring av inntetksopplysninger for feilet for søknad ${sendtSoknad.id}.")
         }
     }
 

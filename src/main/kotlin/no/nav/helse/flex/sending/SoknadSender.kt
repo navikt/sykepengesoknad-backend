@@ -25,12 +25,13 @@ class SoknadSender(
     private val soknadProducer: SoknadProducer,
     private val sykepengesoknadRepository: SykepengesoknadRepository
 ) {
+
     fun sendSoknad(
         sykepengesoknad: Sykepengesoknad,
         avsendertype: Avsendertype,
         dodsdato: LocalDate?,
         identer: FolkeregisterIdenter
-    ) {
+    ): Sykepengesoknad {
         if (sykepengesoknad.status !in listOf(NY, UTKAST_TIL_KORRIGERING)) {
             throw RuntimeException("Søknad ${sykepengesoknad.id} kan ikke gå i fra status ${sykepengesoknad.status} til SENDT.")
         }
@@ -62,5 +63,7 @@ class SoknadSender(
             dodsdato = dodsdato,
             opprinneligSendt = opprinneligSendt
         )
+
+        return sendtSoknad
     }
 }

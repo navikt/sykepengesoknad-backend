@@ -1,5 +1,6 @@
 package no.nav.helse.flex.domain
 
+import no.nav.helse.flex.inntektsopplysninger.InntektsopplysningerDokumentType
 import no.nav.helse.flex.soknadsopprettelse.ArbeidsforholdFraInntektskomponenten
 import java.io.Serializable
 import java.time.Instant
@@ -42,7 +43,10 @@ data class Sykepengesoknad(
     val inntektskilderDataFraInntektskomponenten: List<ArbeidsforholdFraInntektskomponenten>? = null,
     val korrigeringsfristUtlopt: Boolean? = null,
     val forstegangssoknad: Boolean?,
-    val tidligereArbeidsgiverOrgnummer: String? = null
+    val tidligereArbeidsgiverOrgnummer: String? = null,
+    val inntektsopplysningerNyKvittering: Boolean? = null,
+    val inntektsopplysningerInnsendingId: String? = null,
+    val inntektsopplysningerInnsendingDokumenter: List<InntektsopplysningerDokumentType>? = null
 ) : Serializable {
 
     fun alleSporsmalOgUndersporsmal(): List<Sporsmal> {
