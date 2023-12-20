@@ -19,15 +19,13 @@ fun tilbakeIFulltArbeidGradertReisetilskuddSporsmal(soknadMetadata: Sykepengesok
         }?",
         svartype = Svartype.JA_NEI,
         kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
-        pavirkerAndreSporsmal = true,
         undersporsmal = listOf(
             Sporsmal(
                 tag = TILBAKE_NAR,
                 sporsmalstekst = "Når var du tilbake?",
                 svartype = Svartype.DATO,
                 min = soknadMetadata.fom!!.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                max = soknadMetadata.tom.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                pavirkerAndreSporsmal = true
+                max = soknadMetadata.tom.format(DateTimeFormatter.ISO_LOCAL_DATE)
             )
         )
     )

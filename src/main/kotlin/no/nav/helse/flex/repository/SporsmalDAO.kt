@@ -54,7 +54,6 @@ class SporsmalDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemp
                         svartype = Svartype.valueOf(resultSet.getString("SVARTYPE")),
                         min = resultSet.getString("MIN"),
                         max = resultSet.getString("MAX"),
-                        pavirkerAndreSporsmal = false,
                         kriterieForVisningAvUndersporsmal = if (kriterie == null) null else Visningskriterie.valueOf(kriterie),
                         svar = svarMap[sporsmalId]!!,
                         undersporsmal = undersporsmal

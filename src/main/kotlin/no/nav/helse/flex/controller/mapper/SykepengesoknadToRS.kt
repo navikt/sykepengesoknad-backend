@@ -46,7 +46,6 @@ fun Sporsmal.mapSporsmalTilRs(): RSSporsmal {
         svartype = EnumUtil.konverter(RSSvartype::class.java, this.svartype),
         min = this.min,
         max = this.max,
-        pavirkerAndreSporsmal = this.pavirkerAndreSporsmal,
         kriterieForVisningAvUndersporsmal = EnumUtil.konverter(
             RSVisningskriterie::class.java,
             this.kriterieForVisningAvUndersporsmal

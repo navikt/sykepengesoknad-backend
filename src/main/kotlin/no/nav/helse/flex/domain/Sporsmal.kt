@@ -10,7 +10,6 @@ data class Sporsmal(
     val svartype: Svartype,
     val min: String? = null,
     val max: String? = null,
-    val pavirkerAndreSporsmal: Boolean = false,
     val kriterieForVisningAvUndersporsmal: Visningskriterie? = null,
     val svar: List<Svar> = emptyList(),
     val undersporsmal: List<Sporsmal> = emptyList()
@@ -23,7 +22,6 @@ data class Sporsmal(
         var svartype: Svartype? = null,
         var min: String? = null,
         var max: String? = null,
-        var pavirkerAndreSporsmal: Boolean = false,
         var kriterieForVisningAvUndersporsmal: Visningskriterie? = null,
         var svar: List<Svar> = emptyList(),
         var undersporsmal: List<Sporsmal> = emptyList()
@@ -63,11 +61,6 @@ data class Sporsmal(
             return this
         }
 
-        fun pavirkerAndreSporsmal(pavirkerAndreSporsmal: Boolean): SporsmalBuilder {
-            this.pavirkerAndreSporsmal = pavirkerAndreSporsmal
-            return this
-        }
-
         fun kriterieForVisningAvUndersporsmal(kriterieForVisningAvUndersporsmal: Visningskriterie?): SporsmalBuilder {
             this.kriterieForVisningAvUndersporsmal = kriterieForVisningAvUndersporsmal
             return this
@@ -92,7 +85,6 @@ data class Sporsmal(
                 svartype = svartype!!,
                 min = min,
                 max = max,
-                pavirkerAndreSporsmal = pavirkerAndreSporsmal,
                 kriterieForVisningAvUndersporsmal = kriterieForVisningAvUndersporsmal,
                 svar = svar,
                 undersporsmal = undersporsmal
@@ -108,7 +100,6 @@ data class Sporsmal(
             svartype = svartype,
             min = min,
             max = max,
-            pavirkerAndreSporsmal = pavirkerAndreSporsmal,
             kriterieForVisningAvUndersporsmal = kriterieForVisningAvUndersporsmal,
             svar = svar,
             undersporsmal = undersporsmal

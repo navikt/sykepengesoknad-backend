@@ -109,15 +109,13 @@ private fun tilbakeIFulltArbeidSporsmal(soknadMetadata: Sykepengesoknad): Sporsm
         }?",
         svartype = JA_NEI,
         kriterieForVisningAvUndersporsmal = JA,
-        pavirkerAndreSporsmal = true,
         undersporsmal = listOf(
             Sporsmal(
                 tag = TILBAKE_NAR,
                 sporsmalstekst = "Når begynte du å jobbe igjen?",
                 svartype = DATO,
                 min = soknadMetadata.fom.format(ISO_LOCAL_DATE),
-                max = soknadMetadata.tom.format(ISO_LOCAL_DATE),
-                pavirkerAndreSporsmal = true
+                max = soknadMetadata.tom.format(ISO_LOCAL_DATE)
             )
         )
     )
@@ -152,7 +150,6 @@ fun gammeltFormatFeriePermisjonUtlandsoppholdSporsmal(fom: LocalDate, tom: Local
         }?",
         svartype = JA_NEI,
         kriterieForVisningAvUndersporsmal = JA,
-        pavirkerAndreSporsmal = true,
         undersporsmal = listOf(
             Sporsmal(
                 tag = FERIE_PERMISJON_UTLAND_HVA,
@@ -164,14 +161,12 @@ fun gammeltFormatFeriePermisjonUtlandsoppholdSporsmal(fom: LocalDate, tom: Local
                         sporsmalstekst = "Jeg tok ut ferie",
                         svartype = CHECKBOX,
                         kriterieForVisningAvUndersporsmal = CHECKED,
-                        pavirkerAndreSporsmal = true,
                         undersporsmal = listOf(
                             Sporsmal(
                                 tag = FERIE_NAR,
                                 svartype = Svartype.PERIODER,
                                 min = fom.format(ISO_LOCAL_DATE),
-                                max = tom.format(ISO_LOCAL_DATE),
-                                pavirkerAndreSporsmal = true
+                                max = tom.format(ISO_LOCAL_DATE)
                             )
                         )
                     ),
@@ -194,14 +189,12 @@ fun gammeltFormatFeriePermisjonUtlandsoppholdSporsmal(fom: LocalDate, tom: Local
                         sporsmalstekst = "Jeg var utenfor EØS",
                         svartype = CHECKBOX,
                         kriterieForVisningAvUndersporsmal = CHECKED,
-                        pavirkerAndreSporsmal = true,
                         undersporsmal = listOf(
                             Sporsmal(
                                 tag = UTLAND_NAR,
                                 svartype = Svartype.PERIODER,
                                 min = fom.format(ISO_LOCAL_DATE),
-                                max = tom.format(ISO_LOCAL_DATE),
-                                pavirkerAndreSporsmal = true
+                                max = tom.format(ISO_LOCAL_DATE)
                             )
                         )
                     )

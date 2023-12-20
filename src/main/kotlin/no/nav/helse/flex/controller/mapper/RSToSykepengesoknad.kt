@@ -25,7 +25,6 @@ fun RSSporsmal.mapSporsmal(): Sporsmal {
         .svartype(konverter(Svartype::class.java, this.svartype))
         .min(this.min)
         .max(this.max)
-        .pavirkerAndreSporsmal(this.pavirkerAndreSporsmal)
         .kriterieForVisningAvUndersporsmal(
             konverter(
                 Visningskriterie::class.java,

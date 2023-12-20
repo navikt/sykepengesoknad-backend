@@ -128,15 +128,13 @@ private fun tilbakeIFulltArbeidSporsmal(soknadMetadata: Sykepengesoknad): Sporsm
         }?",
         svartype = JA_NEI,
         kriterieForVisningAvUndersporsmal = JA,
-        pavirkerAndreSporsmal = true,
         undersporsmal = listOf(
             Sporsmal(
                 tag = TILBAKE_NAR,
                 sporsmalstekst = "Når begynte du å jobbe igjen?",
                 svartype = DATO,
                 min = soknadMetadata.fom!!.format(ISO_LOCAL_DATE),
-                max = soknadMetadata.tom.format(ISO_LOCAL_DATE),
-                pavirkerAndreSporsmal = true
+                max = soknadMetadata.tom.format(ISO_LOCAL_DATE)
             )
         )
     )

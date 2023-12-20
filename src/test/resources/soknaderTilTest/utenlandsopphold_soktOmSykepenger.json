@@ -35,7 +35,6 @@
       "svartype": "CHECKBOX_PANEL",
       "min": null,
       "max": null,
-      "pavirkerAndreSporsmal": false,
       "kriterieForVisningAvUndersporsmal": null,
       "svar": [
         {
@@ -52,7 +51,6 @@
       "svartype": "JA_NEI",
       "min": null,
       "max": null,
-      "pavirkerAndreSporsmal": false,
       "kriterieForVisningAvUndersporsmal": "JA",
       "svar": [
         {
@@ -68,7 +66,6 @@
           "svartype": "PERIODER",
           "min": "2018-09-23",
           "max": "2019-03-22",
-          "pavirkerAndreSporsmal": false,
           "kriterieForVisningAvUndersporsmal": null,
           "svar": [],
           "undersporsmal": []
@@ -83,7 +80,6 @@
       "svartype": "JA_NEI",
       "min": null,
       "max": null,
-      "pavirkerAndreSporsmal": true,
       "kriterieForVisningAvUndersporsmal": "JA",
       "svar": [
         {
@@ -99,7 +95,6 @@
           "svartype": "DATO",
           "min": "2019-03-24",
           "max": "2019-04-01",
-          "pavirkerAndreSporsmal": true,
           "kriterieForVisningAvUndersporsmal": null,
           "svar": [],
           "undersporsmal": []
@@ -114,7 +109,6 @@
       "svartype": "JA_NEI",
       "min": null,
       "max": null,
-      "pavirkerAndreSporsmal": false,
       "kriterieForVisningAvUndersporsmal": "JA",
       "svar": [],
       "undersporsmal": [
@@ -126,7 +120,6 @@
           "svartype": "CHECKBOX_GRUPPE",
           "min": null,
           "max": null,
-          "pavirkerAndreSporsmal": false,
           "kriterieForVisningAvUndersporsmal": null,
           "svar": [],
           "undersporsmal": [
@@ -138,7 +131,6 @@
               "svartype": "CHECKBOX",
               "min": null,
               "max": null,
-              "pavirkerAndreSporsmal": false,
               "kriterieForVisningAvUndersporsmal": "CHECKED",
               "svar": [],
               "undersporsmal": [
@@ -150,7 +142,6 @@
                   "svartype": "JA_NEI",
                   "min": null,
                   "max": null,
-                  "pavirkerAndreSporsmal": false,
                   "kriterieForVisningAvUndersporsmal": null,
                   "svar": [],
                   "undersporsmal": []
@@ -165,7 +156,6 @@
               "svartype": "CHECKBOX",
               "min": null,
               "max": null,
-              "pavirkerAndreSporsmal": false,
               "kriterieForVisningAvUndersporsmal": "CHECKED",
               "svar": [],
               "undersporsmal": [
@@ -177,7 +167,6 @@
                   "svartype": "JA_NEI",
                   "min": null,
                   "max": null,
-                  "pavirkerAndreSporsmal": false,
                   "kriterieForVisningAvUndersporsmal": null,
                   "svar": [],
                   "undersporsmal": []
@@ -192,7 +181,6 @@
               "svartype": "CHECKBOX",
               "min": null,
               "max": null,
-              "pavirkerAndreSporsmal": false,
               "kriterieForVisningAvUndersporsmal": "CHECKED",
               "svar": [],
               "undersporsmal": [
@@ -204,7 +192,6 @@
                   "svartype": "JA_NEI",
                   "min": null,
                   "max": null,
-                  "pavirkerAndreSporsmal": false,
                   "kriterieForVisningAvUndersporsmal": null,
                   "svar": [],
                   "undersporsmal": []
@@ -219,7 +206,6 @@
               "svartype": "CHECKBOX",
               "min": null,
               "max": null,
-              "pavirkerAndreSporsmal": false,
               "kriterieForVisningAvUndersporsmal": "CHECKED",
               "svar": [],
               "undersporsmal": [
@@ -231,7 +217,6 @@
                   "svartype": "JA_NEI",
                   "min": null,
                   "max": null,
-                  "pavirkerAndreSporsmal": false,
                   "kriterieForVisningAvUndersporsmal": null,
                   "svar": [],
                   "undersporsmal": []
@@ -246,7 +231,6 @@
               "svartype": "CHECKBOX",
               "min": null,
               "max": null,
-              "pavirkerAndreSporsmal": false,
               "kriterieForVisningAvUndersporsmal": "CHECKED",
               "svar": [],
               "undersporsmal": [
@@ -258,7 +242,6 @@
                   "svartype": "JA_NEI",
                   "min": null,
                   "max": null,
-                  "pavirkerAndreSporsmal": false,
                   "kriterieForVisningAvUndersporsmal": null,
                   "svar": [],
                   "undersporsmal": []
@@ -273,7 +256,6 @@
               "svartype": "CHECKBOX",
               "min": null,
               "max": null,
-              "pavirkerAndreSporsmal": false,
               "kriterieForVisningAvUndersporsmal": null,
               "svar": [],
               "undersporsmal": []
@@ -290,7 +272,6 @@
       "svartype": "IKKE_RELEVANT",
       "min": null,
       "max": null,
-      "pavirkerAndreSporsmal": false,
       "kriterieForVisningAvUndersporsmal": null,
       "svar": [],
       "undersporsmal": []
@@ -303,7 +284,6 @@
       "svartype": "CHECKBOX_PANEL",
       "min": null,
       "max": null,
-      "pavirkerAndreSporsmal": false,
       "kriterieForVisningAvUndersporsmal": null,
       "svar": [],
       "undersporsmal": []
@@ -316,7 +296,6 @@
       "svartype": "JA_NEI",
       "min": null,
       "max": null,
-      "pavirkerAndreSporsmal": false,
       "kriterieForVisningAvUndersporsmal": "JA",
       "svar": [],
       "undersporsmal": [
@@ -327,7 +306,6 @@
           "svartype": "TALL",
           "min": 1,
           "max": 150,
-          "pavirkerAndreSporsmal": false,
           "kriterieForVisningAvUndersporsmal": null,
           "svar": [],
           "undersporsmal": []
@@ -340,7 +318,6 @@
           "svartype": "RADIO_GRUPPE_TIMER_PROSENT",
           "min": null,
           "max": null,
-          "pavirkerAndreSporsmal": false,
           "kriterieForVisningAvUndersporsmal": null,
           "svar": [],
           "undersporsmal": [
@@ -352,7 +329,6 @@
               "svartype": "RADIO",
               "min": null,
               "max": null,
-              "pavirkerAndreSporsmal": false,
               "kriterieForVisningAvUndersporsmal": "CHECKED",
               "svar": [
                 {
@@ -368,7 +344,6 @@
                   "svartype": "TALL",
                   "min": 1,
                   "max": 99,
-                  "pavirkerAndreSporsmal": false,
                   "kriterieForVisningAvUndersporsmal": null,
                   "svar": [],
                   "undersporsmal": []
@@ -383,7 +358,6 @@
               "svartype": "RADIO",
               "min": null,
               "max": null,
-              "pavirkerAndreSporsmal": false,
               "kriterieForVisningAvUndersporsmal": "CHECKED",
               "svar": [],
               "undersporsmal": [
@@ -394,7 +368,6 @@
                   "svartype": "TALL",
                   "min": 1,
                   "max": 64,
-                  "pavirkerAndreSporsmal": false,
                   "kriterieForVisningAvUndersporsmal": null,
                   "svar": [],
                   "undersporsmal": []
@@ -413,9 +386,12 @@
       "svartype": "JA_NEI",
       "min": null,
       "max": null,
-      "pavirkerAndreSporsmal": true,
       "kriterieForVisningAvUndersporsmal": "JA",
-      "svar": [{ "verdi": "JA"}],
+      "svar": [
+        {
+          "verdi": "JA"
+        }
+      ],
       "undersporsmal": [
         {
           "id": "188637",
@@ -425,7 +401,6 @@
           "svartype": "CHECKBOX_GRUPPE",
           "min": null,
           "max": null,
-          "pavirkerAndreSporsmal": false,
           "kriterieForVisningAvUndersporsmal": null,
           "svar": [],
           "undersporsmal": [
@@ -437,7 +412,6 @@
               "svartype": "CHECKBOX",
               "min": null,
               "max": null,
-              "pavirkerAndreSporsmal": true,
               "kriterieForVisningAvUndersporsmal": "CHECKED",
               "svar": [],
               "undersporsmal": [
@@ -449,7 +423,6 @@
                   "svartype": "PERIODER",
                   "min": "2019-03-24",
                   "max": "2019-03-26",
-                  "pavirkerAndreSporsmal": true,
                   "kriterieForVisningAvUndersporsmal": null,
                   "svar": [],
                   "undersporsmal": []
@@ -464,7 +437,6 @@
               "svartype": "CHECKBOX",
               "min": null,
               "max": null,
-              "pavirkerAndreSporsmal": false,
               "kriterieForVisningAvUndersporsmal": "CHECKED",
               "svar": [],
               "undersporsmal": [
@@ -476,7 +448,6 @@
                   "svartype": "PERIODER",
                   "min": "2019-03-24",
                   "max": "2019-03-26",
-                  "pavirkerAndreSporsmal": false,
                   "kriterieForVisningAvUndersporsmal": null,
                   "svar": [],
                   "undersporsmal": []
@@ -491,9 +462,12 @@
               "svartype": "CHECKBOX",
               "min": null,
               "max": null,
-              "pavirkerAndreSporsmal": true,
               "kriterieForVisningAvUndersporsmal": "CHECKED",
-              "svar": [{"verdi": "CHECKED"}],
+              "svar": [
+                {
+                  "verdi": "CHECKED"
+                }
+              ],
               "undersporsmal": [
                 {
                   "id": "188643",
@@ -503,7 +477,6 @@
                   "svartype": "PERIODER",
                   "min": "2019-03-24",
                   "max": "2019-03-26",
-                  "pavirkerAndreSporsmal": true,
                   "kriterieForVisningAvUndersporsmal": null,
                   "svar": [
                     {
@@ -520,9 +493,12 @@
                   "svartype": "JA_NEI",
                   "min": null,
                   "max": null,
-                  "pavirkerAndreSporsmal": false,
                   "kriterieForVisningAvUndersporsmal": null,
-                  "svar": [{"verdi": "JA"}],
+                  "svar": [
+                    {
+                      "verdi": "JA"
+                    }
+                  ],
                   "undersporsmal": []
                 }
               ]
