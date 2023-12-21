@@ -140,7 +140,7 @@ class SoknadBrukerController(
         }
 
         try {
-            inntektsopplysningForNaringsdrivende.lagreInnsendingsopplysninger(sendtSoknad)
+            inntektsopplysningForNaringsdrivende.lagreOpplysningerOmDokumentasjonAvInntektsopplysninger(sendtSoknad)
         } catch (e: Exception) {
             log.error("Henting og lagring av inntetksopplysninger for feilet for søknad ${sendtSoknad.id}.")
         }
