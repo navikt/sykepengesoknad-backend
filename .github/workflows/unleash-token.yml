@@ -7,7 +7,7 @@ on:
 jobs:
   deploy-unleash-token:
     name: Deploy unleash-token
-    uses: navikt/flex-github-actions-workflows/.github/workflows/nais-deploy-dev-og-prod.yml@master
+    uses: navikt/flex-github-actions-workflows/.github/workflows/nais-deploy-dev-og-prod.yml@main
     with:
       image: "n/a"
       app: "n/a"
