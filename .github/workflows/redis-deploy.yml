@@ -7,7 +7,7 @@ on:
 
 jobs:
   deploy-redis-to-dev-gcp:
-    if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/dev-')
+    if: github.ref_name == 'main' || startsWith(github.ref_name, 'dev-')
     name: Deploy til dev-gcp
     runs-on: ubuntu-latest
     permissions:
@@ -22,7 +22,7 @@ jobs:
           RESOURCE: nais/redis/redis.yaml
 
   deploy-redis-to-prod-gcp:
-    if: github.ref == 'refs/heads/master'
+    if: github.ref_name == 'main'
     name: Deploy til prod-gcp
     runs-on: ubuntu-latest
     permissions:

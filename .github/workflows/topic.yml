@@ -6,7 +6,7 @@ on:
       - .github/workflows/topic.yml
 jobs:
   deploy-topic-to-dev:
-    if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/dev-')
+    if: github.ref_name == 'main' || startsWith(github.ref_name, 'dev-')
     name: Deploy topic to dev-gcp
     runs-on: ubuntu-latest
     permissions:
@@ -34,7 +34,7 @@ jobs:
           VARS: nais/topics/dev.json
 
   deploy-topic-to-prod:
-    if: github.ref == 'refs/heads/master'
+    if: github.ref_name == 'main'
     name: Deploy topic to prod-gcp
     runs-on: ubuntu-latest
     permissions:
