@@ -6,7 +6,7 @@ on:
 
 jobs:
   merge-dependabot-pr:
-    uses: navikt/flex-github-actions-workflows/.github/workflows/merge-dependabot-pr.yml@master
+    uses: navikt/flex-github-actions-workflows/.github/workflows/merge-dependabot-pr.yml@main
     permissions:
       actions: write
       checks: read
