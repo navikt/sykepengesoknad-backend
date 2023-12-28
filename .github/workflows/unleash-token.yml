@@ -1,17 +1,16 @@
-name: "Deploy unleash-token"
+name: 'Deploy unleash-token'
 on:
   push:
     paths:
       - nais/unleash-token/**
       - .github/workflows/unleash-token.yml
+
 jobs:
   deploy-unleash-token:
-    name: Deploy unleash-token
     uses: navikt/flex-github-actions-workflows/.github/workflows/nais-deploy-dev-og-prod.yml@main
+    permissions:
+      id-token: write
     with:
-      image: "n/a"
-      app: "n/a"
-      nais-template: "nais/unleash-token/unleash-token.yaml"
-      prod-vars: "nais/unleash-token/prod.yaml"
-      dev-vars: "nais/unleash-token/dev.yaml"
+      app: ${{ github.event.repository.name }}-unleash
+      nais-template: nais/unleash-token/unleash-token.yaml
     secrets: inherit
