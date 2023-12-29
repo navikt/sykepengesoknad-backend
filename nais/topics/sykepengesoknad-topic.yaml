@@ -25,9 +25,6 @@ spec:
       application: spedisjon
       access: read
     - team: flex
-      application: sykepengesoknad-korrigering-metrikk
-      access: read
-    - team: flex
       application: sykepengesoknad-narmesteleder-varsler
       access: read
     - team: flex

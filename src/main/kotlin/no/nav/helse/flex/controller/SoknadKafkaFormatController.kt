@@ -28,7 +28,6 @@ class SoknadKafkaFormatController(
     fun soknadMedKafkaFormatv3(@PathVariable("id") id: String): SykepengesoknadDTO {
         clientIdValidation.validateClientId(
             listOf(
-                NamespaceAndApp(namespace = "flex", app = "sykepengesoknad-korrigering-metrikk"),
                 NamespaceAndApp(namespace = "flex", app = "sykepengesoknad-arkivering-oppgave"),
                 NamespaceAndApp(namespace = "tbd", app = "sparkel-dokumenter")
             )

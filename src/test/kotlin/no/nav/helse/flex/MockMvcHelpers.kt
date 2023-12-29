@@ -20,7 +20,7 @@ fun BaseTestClass.buildAzureClaimSet(
     )
 }
 
-fun BaseTestClass.skapAzureJwt(subject: String = "sykepengesoknad-korrigering-metrikk-client-id") =
+fun BaseTestClass.skapAzureJwt(subject: String = "sykepengesoknad-arkivering-oppgave-client-id") =
     buildAzureClaimSet(subject = subject)
 
 fun MockOAuth2Server.token(

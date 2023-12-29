@@ -1,4 +1,4 @@
-AZURE_APP_PRE_AUTHORIZED_APPS: "[{\"name\":\"dev-gcp:flex:sykepengesoknad-korrigering-metrikk\",\"clientId\":\"sykepengesoknad-korrigering-metrikk-client-id\"},{\"name\":\"dev-gcp:teamsykefravr:syfomodiaperson\",\"clientId\":\"syfomodiaperson-client-id\"},{\"name\":\"dev-gcp:flex:flex-internal-frontend\",\"clientId\":\"flex-internal-frontend-client-id\"}]"
+AZURE_APP_PRE_AUTHORIZED_APPS: "[{\"name\":\"dev-gcp:flex:sykepengesoknad-arkivering-oppgave\",\"clientId\":\"sykepengesoknad-arkivering-oppgave-client-id\"},{\"name\":\"dev-gcp:teamsykefravr:syfomodiaperson\",\"clientId\":\"syfomodiaperson-client-id\"},{\"name\":\"dev-gcp:flex:flex-internal-frontend\",\"clientId\":\"flex-internal-frontend-client-id\"}]"
 
 istilgangskontroll.url: http://istilgang
 sykepengesoknad.kvitteringer.url: http://sykepengesoknad-kvitteringer

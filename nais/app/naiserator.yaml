@@ -84,7 +84,6 @@ spec:
         - application: sykepengesoknad
         - application: sykepengesoknad-arkivering-oppgave
         - application: flex-internal-frontend
-        - application: sykepengesoknad-korrigering-metrikk
         - application: syfomodiaperson
           namespace: teamsykefravr
         - application: sparkel-dokumenter
