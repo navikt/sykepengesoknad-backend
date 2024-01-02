@@ -17,17 +17,19 @@ class SvarDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate
         val svarMap = HashMap<String, MutableList<Svar>>()
         sporsmalIder.chunked(1000).forEach {
             namedParameterJdbcTemplate.query(
-                "SELECT * FROM SVAR " +
-                    "WHERE SPORSMAL_ID IN (:sporsmalIder) ",
+                """
+                SELECT * FROM svar
+                WHERE sporsmal_id IN (:sporsmalIder)
+                """.trimIndent(),
                 MapSqlParameterSource()
                     .addValue("sporsmalIder", it),
             ) { resultSet ->
-                val sporsmalId = resultSet.getString("SPORSMAL_ID")
+                val sporsmalId = resultSet.getString("sporsmal_id")
                 svarMap.computeIfAbsent(sporsmalId) { ArrayList() }
                 svarMap[sporsmalId]!!.add(
                     Svar(
-                        id = resultSet.getString("ID"),
-                        verdi = resultSet.getString("VERDI"),
+                        id = resultSet.getString("id"),
+                        verdi = resultSet.getString("verdi"),
                     ),
                 )
             }
@@ -46,7 +48,10 @@ class SvarDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate
             return
         }
         namedParameterJdbcTemplate.update(
-            "INSERT INTO SVAR (SPORSMAL_ID, VERDI) VALUES (:sporsmalId, :verdi)",
+            """
+            INSERT INTO svar (sporsmal_id, verdi) 
+            VALUES (:sporsmalId, :verdi)
+            """.trimIndent(),
             MapSqlParameterSource()
                 .addValue("sporsmalId", sporsmalId)
                 .addValue("verdi", svar.verdi),
@@ -55,10 +60,16 @@ class SvarDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate
 
     fun slettSvar(sykepengesoknadUUID: String) {
         namedParameterJdbcTemplate.update(
-            "DELETE FROM SVAR " +
-                "WHERE SVAR.ID IN (SELECT SVAR.ID FROM SVAR INNER JOIN SPORSMAL ON SVAR.SPORSMAL_ID = SPORSMAL.ID " +
-                "INNER JOIN SYKEPENGESOKNAD ON SPORSMAL.SYKEPENGESOKNAD_ID = SYKEPENGESOKNAD.ID " +
-                "WHERE SYKEPENGESOKNAD_UUID = :soknadUUID)",
+            """
+            DELETE FROM svar
+            WHERE svar.id IN 
+            (
+                SELECT svar.id FROM svar 
+                INNER JOIN sporsmal ON svar.sporsmal_id = sporsmal.id
+                INNER JOIN sykepengesoknad ON sporsmal.sykepengesoknad_id = sykepengesoknad.id
+                WHERE sykepengesoknad_uuid = :soknadUUID
+            )
+            """.trimIndent(),
             MapSqlParameterSource()
                 .addValue("soknadUUID", sykepengesoknadUUID),
         )
@@ -71,7 +82,7 @@ class SvarDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate
 
         sporsmalIder.chunked(1000).forEach {
             namedParameterJdbcTemplate.update(
-                "DELETE FROM SVAR WHERE SPORSMAL_ID IN (:sporsmalIder)",
+                "DELETE FROM svar WHERE sporsmal_id IN (:sporsmalIder)",
                 MapSqlParameterSource()
                     .addValue("sporsmalIder", it),
             )
@@ -83,7 +94,7 @@ class SvarDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate
         svarId: String,
     ) {
         namedParameterJdbcTemplate.update(
-            "DELETE FROM SVAR WHERE SPORSMAL_ID = :sporsmalId AND ID = :svarId",
+            "DELETE FROM svar WHERE sporsmal_id = :sporsmalId AND id = :svarId",
             MapSqlParameterSource()
                 .addValue("sporsmalId", sporsmalId)
                 .addValue("svarId", svarId),

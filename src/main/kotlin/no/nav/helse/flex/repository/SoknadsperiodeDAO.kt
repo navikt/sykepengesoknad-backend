@@ -23,8 +23,10 @@ class SoknadsperiodeDAO(private val namedParameterJdbcTemplate: NamedParameterJd
         }
         soknadPerioder.forEach { (fom, tom, grad, sykmeldingstype) ->
             namedParameterJdbcTemplate.update(
-                "INSERT INTO SOKNADPERIODE (SYKEPENGESOKNAD_ID, FOM, TOM, GRAD, SYKMELDINGSTYPE) " +
-                    "VALUES (:sykepengesoknadId, :fom, :tom, :grad, :sykmeldingstype)",
+                """
+                INSERT INTO soknadperiode (sykepengesoknad_id, fom, tom, grad, sykmeldingstype)
+                VALUES (:sykepengesoknadId, :fom, :tom, :grad, :sykmeldingstype)
+                """.trimIndent(),
                 MapSqlParameterSource()
                     .addValue("sykepengesoknadId", sykepengesoknadId)
                     .addValue("fom", fom)
@@ -39,19 +41,21 @@ class SoknadsperiodeDAO(private val namedParameterJdbcTemplate: NamedParameterJd
         val unMapped =
             sykepengesoknadIds.chunked(1000).map {
                 namedParameterJdbcTemplate.query(
-                    "SELECT * FROM SOKNADPERIODE " +
-                        "WHERE SYKEPENGESOKNAD_ID in (:sykepengesoknadId) " +
-                        "ORDER BY FOM",
+                    """
+                    SELECT * FROM soknadperiode
+                    WHERE sykepengesoknad_id IN (:sykepengesoknadId)
+                    ORDER BY fom
+                    """.trimIndent(),
                     MapSqlParameterSource()
                         .addValue("sykepengesoknadId", it),
                 ) { resultSet, _ ->
                     Pair(
                         resultSet.getString("SYKEPENGESOKNAD_ID"),
                         Soknadsperiode(
-                            resultSet.getObject("FOM", LocalDate::class.java),
-                            resultSet.getObject("TOM", LocalDate::class.java),
-                            resultSet.getInt("GRAD"),
-                            Optional.ofNullable(resultSet.getString("SYKMELDINGSTYPE"))
+                            resultSet.getObject("fom", LocalDate::class.java),
+                            resultSet.getObject("tom", LocalDate::class.java),
+                            resultSet.getInt("grad"),
+                            Optional.ofNullable(resultSet.getString("sykmeldingstype"))
                                 .map { Sykmeldingstype.valueOf(it) }.orElse(null),
                         ),
                     )
@@ -73,7 +77,10 @@ class SoknadsperiodeDAO(private val namedParameterJdbcTemplate: NamedParameterJd
 
     fun slettSoknadPerioder(sykepengesoknadId: String) {
         namedParameterJdbcTemplate.update(
-            "DELETE FROM SOKNADPERIODE " + "WHERE SYKEPENGESOKNAD_ID = :sykepengesoknadId",
+            """
+            DELETE FROM soknadperiode
+            WHERE sykepengesoknad_id = :sykepengesoknadId
+            """.trimIndent(),
             MapSqlParameterSource()
                 .addValue("sykepengesoknadId", sykepengesoknadId),
         )

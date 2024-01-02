@@ -1,5 +1,3 @@
-@file:Suppress("ktlint:standard:max-line-length")
-
 package no.nav.helse.flex.julesoknad
 
 import no.nav.helse.flex.BaseTestClass
@@ -299,7 +297,7 @@ class JulesoknadIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    fun `Lang søknad som treffer over julesøknad perioden får først aktivert julesøknaden når foranliggende søknad til annen sykmelding er aktivert`() {
+    fun `Aktivert julesøknade når tidligere søknad fra annen sykmelding blir aktivert`() {
         val orgnummer = "999999999"
         lagreForskuttering(false, orgnummer)
 

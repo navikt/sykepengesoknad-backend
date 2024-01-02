@@ -25,7 +25,7 @@ class SoknadKafkaFormatController(
     @ResponseBody
     @GetMapping(value = ["/api/v3/soknader/{id}/kafkaformat"], produces = [APPLICATION_JSON_VALUE])
     fun soknadMedKafkaFormatv3(
-        @PathVariable("id") id: String,
+        @PathVariable id: String,
     ): SykepengesoknadDTO {
         clientIdValidation.validateClientId(
             listOf(

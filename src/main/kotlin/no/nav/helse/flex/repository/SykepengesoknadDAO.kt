@@ -56,7 +56,7 @@ class SykepengesoknadDAO(
     fun finnSykepengesoknader(identer: List<String>): List<Sykepengesoknad> {
         val soknader =
             namedParameterJdbcTemplate.query(
-                "SELECT * FROM SYKEPENGESOKNAD WHERE FNR IN (:identer)",
+                "SELECT * FROM sykepengesoknad WHERE fnr IN (:identer)",
                 MapSqlParameterSource("identer", identer),
                 sykepengesoknadRowMapper(),
             )
@@ -67,7 +67,7 @@ class SykepengesoknadDAO(
     fun finnSykepengesoknad(sykepengesoknadId: String): Sykepengesoknad {
         val soknader =
             namedParameterJdbcTemplate.query(
-                "SELECT * FROM SYKEPENGESOKNAD WHERE SYKEPENGESOKNAD_UUID = :id",
+                "SELECT * FROM sykepengesoknad WHERE sykepengesoknad_uuid = :id",
                 MapSqlParameterSource("id", sykepengesoknadId),
                 sykepengesoknadRowMapper(),
             )
@@ -78,7 +78,7 @@ class SykepengesoknadDAO(
     fun finnSykepengesoknaderForSykmelding(sykmeldingId: String): List<Sykepengesoknad> {
         val soknader =
             namedParameterJdbcTemplate.query(
-                "SELECT * FROM SYKEPENGESOKNAD WHERE SYKMELDING_UUID = :sykmeldingId",
+                "SELECT * FROM sykepengesoknad WHERE sykmelding_uuid = :sykmeldingId",
                 MapSqlParameterSource("sykmeldingId", sykmeldingId),
                 sykepengesoknadRowMapper(),
             )
@@ -113,14 +113,12 @@ class SykepengesoknadDAO(
     fun finnSykepengesoknaderUtenSporsmal(identer: List<String>): List<Sykepengesoknad> {
         val soknader =
             namedParameterJdbcTemplate.query(
-                "SELECT * FROM SYKEPENGESOKNAD " +
-                    "WHERE FNR IN (:identer) ",
+                " SELECT * FROM sykepengesoknad WHERE fnr IN (:identer)",
                 MapSqlParameterSource()
                     .addValue("identer", identer),
                 sykepengesoknadRowMapper(),
             )
         val soknadsIder = soknader.map { it.first }.toSet()
-
         val soknadsPerioder = soknadsperiodeDAO.finnSoknadPerioder(soknadsIder)
 
         return soknader
@@ -135,13 +133,15 @@ class SykepengesoknadDAO(
     fun finnMottakerAvSoknad(soknadUuid: String): Mottaker? {
         val mottaker =
             namedParameterJdbcTemplate.queryForObject(
-                "SELECT CASE " +
-                    "WHEN SENDT_ARBEIDSGIVER IS NOT NULL AND SENDT_NAV IS NOT NULL THEN 'ARBEIDSGIVER_OG_NAV' " +
-                    "WHEN SENDT_ARBEIDSGIVER IS NOT NULL THEN 'ARBEIDSGIVER' " +
-                    "WHEN SENDT_NAV IS NOT NULL THEN 'NAV' " +
-                    "END " +
-                    "FROM SYKEPENGESOKNAD " +
-                    "WHERE SYKEPENGESOKNAD_UUID = :soknadUuid",
+                """
+                SELECT CASE
+                WHEN sendt_arbeidsgiver IS NOT NULL AND sendt_nav IS NOT NULL THEN 'ARBEIDSGIVER_OG_NAV'
+                WHEN sendt_arbeidsgiver IS NOT NULL THEN 'ARBEIDSGIVER'
+                WHEN sendt_nav IS NOT NULL THEN 'NAV'
+                END
+                FROM sykepengesoknad
+                WHERE sykepengesoknad_uuid = :soknadUuid
+                """,
                 MapSqlParameterSource("soknadUuid", soknadUuid),
                 Mottaker::class.java,
             )
@@ -157,8 +157,12 @@ class SykepengesoknadDAO(
     fun oppdaterKorrigertAv(sykepengesoknad: Sykepengesoknad) {
         val raderOppdatert =
             namedParameterJdbcTemplate.update(
-                "UPDATE SYKEPENGESOKNAD SET KORRIGERT_AV = :korrigertAv, STATUS = :korrigertStatus " +
-                    "WHERE SYKEPENGESOKNAD_UUID = :korrigerer",
+                """
+                UPDATE sykepengesoknad 
+                SET korrigert_av = :korrigertAv, 
+                    status = :korrigertStatus
+                WHERE sykepengesoknad_uuid = :korrigerer
+                """.trimIndent(),
                 MapSqlParameterSource()
                     .addValue("korrigertStatus", Soknadstatus.KORRIGERT.name)
                     .addValue("korrigertAv", sykepengesoknad.id)
@@ -173,7 +177,11 @@ class SykepengesoknadDAO(
     fun oppdaterStatus(sykepengesoknad: Sykepengesoknad) {
         val raderOppdatert =
             namedParameterJdbcTemplate.update(
-                """UPDATE SYKEPENGESOKNAD SET STATUS = :status WHERE SYKEPENGESOKNAD_UUID = :id""",
+                """
+                UPDATE sykepengesoknad 
+                SET status = :status 
+                WHERE sykepengesoknad_uuid = :id
+                """.trimIndent(),
                 MapSqlParameterSource()
                     .addValue("status", sykepengesoknad.status.name)
                     .addValue("id", sykepengesoknad.id),
@@ -189,9 +197,13 @@ class SykepengesoknadDAO(
         sendtNav: LocalDateTime,
     ) {
         namedParameterJdbcTemplate.update(
-            "UPDATE SYKEPENGESOKNAD SET SENDT_NAV = :sendtNav, STATUS = :status " +
-                "WHERE SYKEPENGESOKNAD_UUID = :sykepengesoknadId " +
-                "AND SENDT_NAV IS NULL",
+            """
+            UPDATE sykepengesoknad 
+            SET sendt_nav = :sendtNav, 
+                status = :status
+            WHERE sykepengesoknad_uuid = :sykepengesoknadId
+            AND sendt_nav IS NULL
+            """.trimIndent(),
             MapSqlParameterSource()
                 .addValue("status", Soknadstatus.SENDT.name)
                 .addValue("sendtNav", sendtNav)
@@ -204,9 +216,12 @@ class SykepengesoknadDAO(
         sendtAg: LocalDateTime,
     ) {
         namedParameterJdbcTemplate.update(
-            "UPDATE SYKEPENGESOKNAD SET SENDT_ARBEIDSGIVER = :sendtAg " +
-                "WHERE SYKEPENGESOKNAD_UUID = :sykepengesoknadId " +
-                "AND SENDT_ARBEIDSGIVER IS NULL",
+            """
+            UPDATE sykepengesoknad 
+            SET sendt_arbeidsgiver = :sendtAg
+            WHERE sykepengesoknad_uuid = :sykepengesoknadId
+            AND sendt_arbeidsgiver IS NULL
+            """.trimIndent(),
             MapSqlParameterSource()
                 .addValue("sendtAg", sendtAg)
                 .addValue("sykepengesoknadId", sykepengesoknadId),
@@ -216,9 +231,13 @@ class SykepengesoknadDAO(
     fun aktiverSoknad(uuid: String) {
         val raderOppdatert =
             namedParameterJdbcTemplate.update(
-                "UPDATE SYKEPENGESOKNAD SET AKTIVERT_DATO = :dato, STATUS = :status " +
-                    "WHERE SYKEPENGESOKNAD_UUID = :sykepengesoknadId " +
-                    "AND STATUS = 'FREMTIDIG'",
+                """
+                UPDATE sykepengesoknad 
+                SET aktivert_dato = :dato, 
+                    status = :status
+                WHERE sykepengesoknad_uuid = :sykepengesoknadId
+                AND status = 'FREMTIDIG'
+                """.trimIndent(),
                 MapSqlParameterSource()
                     .addValue("dato", LocalDate.now())
                     .addValue("status", Soknadstatus.NY.name)
@@ -236,7 +255,12 @@ class SykepengesoknadDAO(
     ) {
         val raderOppdatert =
             namedParameterJdbcTemplate.update(
-                "UPDATE SYKEPENGESOKNAD SET AVBRUTT_DATO = :dato, STATUS = :status " + "WHERE SYKEPENGESOKNAD_UUID = :sykepengesoknadId",
+                """
+                UPDATE sykepengesoknad 
+                SET avbrutt_dato = :dato, 
+                    status = :status
+                WHERE sykepengesoknad_uuid = :sykepengesoknadId
+                """.trimIndent(),
                 MapSqlParameterSource()
                     .addValue("dato", dato)
                     .addValue("status", Soknadstatus.AVBRUTT.name)
@@ -252,7 +276,12 @@ class SykepengesoknadDAO(
     fun gjenapneSoknad(sykepengesoknad: Sykepengesoknad) {
         val raderOppdatert =
             namedParameterJdbcTemplate.update(
-                "UPDATE SYKEPENGESOKNAD SET AVBRUTT_DATO = :dato, STATUS = :status " + "WHERE SYKEPENGESOKNAD_UUID = :sykepengesoknadId",
+                """
+                UPDATE sykepengesoknad 
+                SET avbrutt_dato = :dato, 
+                    status = :status
+                WHERE sykepengesoknad_uuid = :sykepengesoknadId
+                """.trimIndent(),
                 MapSqlParameterSource()
                     .addValue("dato", null)
                     .addValue("status", Soknadstatus.NY.name)
@@ -316,7 +345,7 @@ class SykepengesoknadDAO(
             medlemskapVurderingRepository.deleteBySykepengesoknadId(sykepengesoknadUuid)
 
             namedParameterJdbcTemplate.update(
-                "DELETE FROM SYKEPENGESOKNAD WHERE ID =:soknadsId",
+                "DELETE FROM sykepengesoknad WHERE id =:soknadsId",
                 MapSqlParameterSource()
                     .addValue("soknadsId", id),
             )
@@ -343,7 +372,7 @@ class SykepengesoknadDAO(
 
     fun sykepengesoknadId(uuid: String): String {
         return namedParameterJdbcTemplate.queryForObject(
-            "SELECT ID FROM SYKEPENGESOKNAD WHERE SYKEPENGESOKNAD_UUID =:uuid",
+            "SELECT id FROM sykepengesoknad WHERE sykepengesoknad_uuid =:uuid",
             MapSqlParameterSource()
                 .addValue("uuid", uuid),
             String::class.java,
@@ -438,12 +467,18 @@ class SykepengesoknadDAO(
     ) {
         val raderOppdatert =
             namedParameterJdbcTemplate.update(
-                "UPDATE SYKEPENGESOKNAD SET TOM = :nyTom WHERE ID = :sykepengesoknadId AND TOM = :tom AND FOM = :fom",
+                """
+                UPDATE sykepengesoknad 
+                SET tom = :nyTom 
+                WHERE id = :sykepengesoknadId 
+                AND fom = :fom
+                AND tom = :tom 
+                """.trimIndent(),
                 MapSqlParameterSource()
                     .addValue("nyTom", nyTom)
                     .addValue("sykepengesoknadId", sykepengesoknadId)
-                    .addValue("tom", tom)
-                    .addValue("fom", fom),
+                    .addValue("fom", fom)
+                    .addValue("tom", tom),
             )
 
         if (raderOppdatert != 1) {
@@ -459,8 +494,13 @@ class SykepengesoknadDAO(
     ) {
         val raderOppdatert =
             namedParameterJdbcTemplate.update(
-                "UPDATE SYKEPENGESOKNAD SET FOM = :nyFom " +
-                    "WHERE ID = :sykepengesoknadId AND FOM = :fom AND TOM = :tom",
+                """
+                UPDATE sykepengesoknad 
+                SET fom = :nyFom
+                WHERE id = :sykepengesoknadId 
+                AND fom = :fom 
+                AND tom = :tom
+                """.trimIndent(),
                 MapSqlParameterSource()
                     .addValue("nyFom", nyFom)
                     .addValue("sykepengesoknadId", sykepengesoknadId)
@@ -483,13 +523,15 @@ class SykepengesoknadDAO(
         val sendtArbeidsgiver =
             if (Mottaker.ARBEIDSGIVER == mottaker || Mottaker.ARBEIDSGIVER_OG_NAV == mottaker) sendt else null
         namedParameterJdbcTemplate.update(
-            "UPDATE sykepengesoknad " +
-                "SET status = :statusSendt, " +
-                "avsendertype = :avsendertype, " +
-                "sendt_nav = :sendtNav, " +
-                "sendt_arbeidsgiver = :sendtArbeidsgiver, " +
-                "sendt = :sendt " +
-                "WHERE SYKEPENGESOKNAD_UUID = :sykepengesoknadId",
+            """
+            UPDATE sykepengesoknad
+            SET status = :statusSendt,
+                avsendertype = :avsendertype,
+                sendt_nav = :sendtNav,
+                sendt_arbeidsgiver = :sendtArbeidsgiver,
+                sendt = :sendt
+            WHERE sykepengesoknad_uuid = :sykepengesoknadId
+            """.trimIndent(),
             MapSqlParameterSource()
                 .addValue("statusSendt", Soknadstatus.SENDT.name)
                 .addValue("avsendertype", avsendertype.name)
@@ -509,58 +551,58 @@ class SykepengesoknadDAO(
     private fun sykepengesoknadRowMapper(): RowMapper<Pair<String, Sykepengesoknad>> {
         return RowMapper { resultSet, _ ->
             Pair(
-                resultSet.getString("ID"),
+                resultSet.getString("id"),
                 Sykepengesoknad(
-                    id = resultSet.getString("SYKEPENGESOKNAD_UUID"),
-                    soknadstype = Soknadstype.valueOf(resultSet.getString("SOKNADSTYPE")),
-                    fnr = resultSet.getString("FNR"),
-                    sykmeldingId = resultSet.getString("SYKMELDING_UUID"),
-                    status = Soknadstatus.valueOf(resultSet.getString("STATUS")),
-                    fom = resultSet.getObject("FOM", LocalDate::class.java),
-                    tom = resultSet.getObject("TOM", LocalDate::class.java),
-                    opprettet = resultSet.getObject("OPPRETTET", OffsetDateTime::class.java)?.toInstant(),
-                    avbruttDato = resultSet.getObject("AVBRUTT_DATO", LocalDate::class.java),
-                    startSykeforlop = resultSet.getObject("START_SYKEFORLOP", LocalDate::class.java),
+                    id = resultSet.getString("sykepengesoknad_uuid"),
+                    soknadstype = Soknadstype.valueOf(resultSet.getString("soknadstype")),
+                    fnr = resultSet.getString("fnr"),
+                    sykmeldingId = resultSet.getString("sykmelding_uuid"),
+                    status = Soknadstatus.valueOf(resultSet.getString("status")),
+                    fom = resultSet.getObject("fom", LocalDate::class.java),
+                    tom = resultSet.getObject("tom", LocalDate::class.java),
+                    opprettet = resultSet.getObject("opprettet", OffsetDateTime::class.java)?.toInstant(),
+                    avbruttDato = resultSet.getObject("avbrutt_dato", LocalDate::class.java),
+                    startSykeforlop = resultSet.getObject("start_sykeforlop", LocalDate::class.java),
                     sykmeldingSkrevet =
-                        resultSet.getObject("SYKMELDING_SKREVET", OffsetDateTime::class.java)
+                        resultSet.getObject("sykmelding_skrevet", OffsetDateTime::class.java)
                             ?.toInstant(),
                     sykmeldingSignaturDato =
-                        resultSet.getObject("SYKMELDING_SIGNATUR_DATO", OffsetDateTime::class.java)
+                        resultSet.getObject("sykmelding_signatur_dato", OffsetDateTime::class.java)
                             ?.toInstant(),
-                    sendtNav = resultSet.getObject("SENDT_NAV", OffsetDateTime::class.java)?.toInstant(),
+                    sendtNav = resultSet.getObject("sendt_nav", OffsetDateTime::class.java)?.toInstant(),
                     arbeidssituasjon =
-                        Optional.ofNullable(resultSet.getString("ARBEIDSSITUASJON"))
+                        Optional.ofNullable(resultSet.getString("arbeidssituasjon"))
                             .map { Arbeidssituasjon.valueOf(it) }.orElse(null),
                     sendtArbeidsgiver =
-                        resultSet.getObject("SENDT_ARBEIDSGIVER", OffsetDateTime::class.java)
+                        resultSet.getObject("sendt_arbeidsgiver", OffsetDateTime::class.java)
                             ?.toInstant(),
-                    sendt = resultSet.getObject("SENDT", OffsetDateTime::class.java)?.toInstant(),
-                    arbeidsgiverOrgnummer = resultSet.getString("ARBEIDSGIVER_ORGNUMMER"),
-                    arbeidsgiverNavn = resultSet.getString("ARBEIDSGIVER_NAVN"),
-                    korrigerer = resultSet.getString("KORRIGERER"),
-                    korrigertAv = resultSet.getString("KORRIGERT_AV"),
+                    sendt = resultSet.getObject("sendt", OffsetDateTime::class.java)?.toInstant(),
+                    arbeidsgiverOrgnummer = resultSet.getString("arbeidsgiver_orgnummer"),
+                    arbeidsgiverNavn = resultSet.getString("arbeidsgiver_navn"),
+                    korrigerer = resultSet.getString("korrigerer"),
+                    korrigertAv = resultSet.getString("korrigert_av"),
                     soknadPerioder = emptyList(),
                     sporsmal = emptyList(),
-                    opprinnelse = Opprinnelse.valueOf(resultSet.getString("OPPRINNELSE")),
+                    opprinnelse = Opprinnelse.valueOf(resultSet.getString("opprinnelse")),
                     avsendertype =
-                        Optional.ofNullable(resultSet.getString("AVSENDERTYPE"))
+                        Optional.ofNullable(resultSet.getString("avsendertype"))
                             .map { Avsendertype.valueOf(it) }.orElse(null),
-                    egenmeldtSykmelding = resultSet.getNullableBoolean("EGENMELDT_SYKMELDING"),
-                    avbruttFeilinfo = resultSet.getNullableBoolean("AVBRUTT_FEILINFO"),
-                    merknaderFraSykmelding = resultSet.getNullableString("MERKNADER_FRA_SYKMELDING").tilMerknader(),
-                    opprettetAvInntektsmelding = resultSet.getBoolean("OPPRETTET_AV_INNTEKTSMELDING"),
-                    utenlandskSykmelding = resultSet.getBoolean("UTENLANDSK_SYKMELDING"),
-                    egenmeldingsdagerFraSykmelding = resultSet.getString("EGENMELDINGSDAGER_FRA_SYKMELDING"),
+                    egenmeldtSykmelding = resultSet.getNullableBoolean("egenmeldt_sykmelding"),
+                    avbruttFeilinfo = resultSet.getNullableBoolean("avbrutt_feilinfo"),
+                    merknaderFraSykmelding = resultSet.getNullableString("merknader_fra_sykmelding").tilMerknader(),
+                    opprettetAvInntektsmelding = resultSet.getBoolean("opprettet_av_inntektsmelding"),
+                    utenlandskSykmelding = resultSet.getBoolean("utenlandsk_sykmelding"),
+                    egenmeldingsdagerFraSykmelding = resultSet.getString("egenmeldingsdager_fra_sykmelding"),
                     inntektskilderDataFraInntektskomponenten =
-                        resultSet.getNullableString("INNTEKTSKILDER_DATA_FRA_INNTEKTSKOMPONENTEN")
+                        resultSet.getNullableString("inntektskilder_data_fra_inntektskomponenten")
                             ?.tilArbeidsforholdFraInntektskomponenten(),
-                    forstegangssoknad = resultSet.getNullableBoolean("FORSTEGANGSSOKNAD"),
-                    tidligereArbeidsgiverOrgnummer = resultSet.getNullableString("TIDLIGERE_ARBEIDSGIVER_ORGNUMMER"),
-                    aktivertDato = resultSet.getObject("AKTIVERT_DATO", LocalDate::class.java),
-                    inntektsopplysningerNyKvittering = resultSet.getNullableBoolean("INNTEKTSOPPLYSNINGER_NY_KVITTERING"),
-                    inntektsopplysningerInnsendingId = resultSet.getNullableString("INNTEKTSOPPLYSNINGER_INNSENDING_ID"),
+                    forstegangssoknad = resultSet.getNullableBoolean("forstegangssoknad"),
+                    tidligereArbeidsgiverOrgnummer = resultSet.getNullableString("tidligere_arbeidsgiver_orgnummer"),
+                    aktivertDato = resultSet.getObject("aktivert_dato", LocalDate::class.java),
+                    inntektsopplysningerNyKvittering = resultSet.getNullableBoolean("inntektsopplysninger_ny_kvittering"),
+                    inntektsopplysningerInnsendingId = resultSet.getNullableString("inntektsopplysninger_innsending_id"),
                     inntektsopplysningerInnsendingDokumenter =
-                        resultSet.getNullableString("INNTEKTSOPPLYSNINGER_INNSENDING_DOKUMENTER")
+                        resultSet.getNullableString("inntektsopplysninger_innsending_dokumenter")
                             ?.split(",")
                             ?.map { InntektsopplysningerDokumentType.valueOf(it) },
                 ),
@@ -573,9 +615,11 @@ class SykepengesoknadDAO(
     fun finnGamleUtkastForSletting(): List<GammeltUtkast> {
         return namedParameterJdbcTemplate.query(
             """
-                    SELECT SYKEPENGESOKNAD_UUID FROM SYKEPENGESOKNAD 
-                    WHERE STATUS = 'UTKAST_TIL_KORRIGERING' AND OPPRETTET <= :enUkeSiden
-                    """,
+            SELECT sykepengesoknad_uuid 
+            FROM sykepengesoknad 
+            WHERE status = 'UTKAST_TIL_KORRIGERING' 
+            AND opprettet <= :enUkeSiden
+            """.trimIndent(),
             MapSqlParameterSource()
                 .addValue("enUkeSiden", LocalDate.now(osloZone).atStartOfDay().minusDays(7)),
         ) { resultSet, _ ->
@@ -588,11 +632,13 @@ class SykepengesoknadDAO(
     fun deaktiverSoknader(): Int {
         return namedParameterJdbcTemplate.update(
             """
-                        UPDATE SYKEPENGESOKNAD SET STATUS = 'UTGATT'
-                        WHERE STATUS IN ('NY', 'AVBRUTT')
-                        AND OPPRETTET < :dato
-                        AND AVBRUTT_FEILINFO IS NULL
-                        AND ((TOM < :dato) OR (SOKNADSTYPE = 'OPPHOLD_UTLAND'))""",
+            UPDATE sykepengesoknad 
+            SET status = 'UTGATT'
+            WHERE status IN ('NY', 'AVBRUTT')
+            AND opprettet < :dato
+            AND avbrutt_feilinfo IS NULL
+            AND ((tom < :dato) OR (soknadstype = 'OPPHOLD_UTLAND'))
+            """.trimIndent(),
             MapSqlParameterSource()
                 .addValue("dato", LocalDate.now(osloZone).minusMonths(4)),
         )
@@ -601,12 +647,12 @@ class SykepengesoknadDAO(
     fun finnUpubliserteUtlopteSoknader(): List<String> {
         return namedParameterJdbcTemplate.query(
             """
-            SELECT SYKEPENGESOKNAD_UUID 
-            FROM SYKEPENGESOKNAD 
-            WHERE UTLOPT_PUBLISERT IS NULL 
-            AND FNR IS NOT NULL
-            AND STATUS = 'UTGATT'
-            AND OPPRINNELSE != 'SYFOSERVICE'
+            SELECT sykepengesoknad_uuid 
+            FROM sykepengesoknad 
+            WHERE utlopt_publisert IS NULL 
+            AND fnr IS NOT NULL
+            AND status = 'UTGATT'
+            AND opprinnelse != 'SYFOSERVICE'
             FETCH FIRST 1000 ROWS ONLY
             """.trimIndent(),
             MapSqlParameterSource(),
@@ -618,8 +664,12 @@ class SykepengesoknadDAO(
         publisert: LocalDateTime,
     ) {
         namedParameterJdbcTemplate.update(
-            "UPDATE SYKEPENGESOKNAD SET UTLOPT_PUBLISERT = :publisert " +
-                "WHERE SYKEPENGESOKNAD_UUID = :sykepengesoknadId AND UTLOPT_PUBLISERT IS NULL",
+            """
+            UPDATE sykepengesoknad 
+            SET utlopt_publisert = :publisert
+            WHERE sykepengesoknad_uuid = :sykepengesoknadId 
+            AND utlopt_publisert IS NULL
+            """.trimIndent(),
             MapSqlParameterSource()
                 .addValue("publisert", publisert)
                 .addValue("sykepengesoknadId", sykepengesoknadId),
@@ -631,8 +681,11 @@ class SykepengesoknadDAO(
         inntektskilder: List<ArbeidsforholdFraInntektskomponenten>,
     ) {
         namedParameterJdbcTemplate.update(
-            "UPDATE SYKEPENGESOKNAD SET INNTEKTSKILDER_DATA_FRA_INNTEKTSKOMPONENTEN = :inntektskilder " +
-                "WHERE SYKEPENGESOKNAD_UUID = :sykepengesoknadUuid",
+            """
+            UPDATE sykepengesoknad 
+            SET inntektskilder_data_fra_inntektskomponenten = :inntektskilder
+            WHERE sykepengesoknad_uuid = :sykepengesoknadUuid
+            """.trimIndent(),
             MapSqlParameterSource()
                 .addValue("inntektskilder", inntektskilder.serialisertTilString())
                 .addValue("sykepengesoknadUuid", sykepengesoknadUuid),

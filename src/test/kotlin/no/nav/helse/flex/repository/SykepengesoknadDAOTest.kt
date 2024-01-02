@@ -172,9 +172,12 @@ class SykepengesoknadDAOTest : BaseTestClass() {
         sendtArbeidsgiver: LocalDateTime?,
     ) {
         jdbcTemplate.update(
-            "UPDATE SYKEPENGESOKNAD " +
-                "SET SENDT_NAV = ?, SENDT_ARBEIDSGIVER = ? " +
-                "WHERE SYKEPENGESOKNAD_UUID = ?",
+            """
+            UPDATE sykepengesoknad
+            SET sendt_nav = ?, 
+                sendt_arbeidsgiver = ?
+            WHERE sykepengesoknad_uuid = ?
+            """.trimIndent(),
             sendtNav,
             sendtArbeidsgiver,
             soknadId,

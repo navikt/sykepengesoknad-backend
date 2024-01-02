@@ -1,5 +1,3 @@
-@file:Suppress("ktlint:standard:max-line-length")
-
 package no.nav.helse.flex.soknadsopprettelse
 
 import no.nav.helse.flex.domain.Arbeidssituasjon
@@ -101,7 +99,7 @@ class SoknadGenereringTest {
     }
 
     @Test
-    fun `Søknad med arbeidssituasjon NÆRINGSDRIVENDE er første siden til arbeidsgiver 'fom' er før tidligere søknader`() {
+    fun `NÆRINGSDRIVENDE er første til arbeidsgiver da 'fom' er før tidligere søknader`() {
         val startSykeforloep = LocalDate.of(2023, 1, 1)
         val eksisterendeSoknader =
             listOf(
@@ -129,7 +127,7 @@ class SoknadGenereringTest {
     }
 
     @Test
-    fun `Søknad med arbeidssituasjon NÆRINGSDRIVENDE er ikke første til arbeidsgiver siden siden 'fom' er etter tidligere søknader med samme arbeidssituasjon`() {
+    fun `NÆRINGSDRIVENDE er ikke første siden siden 'fom' er etter tidligere søknader med samme arbeidssituasjon`() {
         val startSykeforloep = LocalDate.of(2023, 1, 1)
         val eksisterendeSoknader =
             listOf(
