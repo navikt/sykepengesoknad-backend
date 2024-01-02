@@ -14,15 +14,15 @@ import org.springframework.context.annotation.Profile
 class UnleashConfig(
     @Value("\${UNLEASH_SERVER_API_URL}") val apiUrl: String,
     @Value("\${UNLEASH_SERVER_API_TOKEN}") val apiToken: String,
-    @Value("\${NAIS_APP_NAME}") val appName: String
+    @Value("\${NAIS_APP_NAME}") val appName: String,
 ) : DisposableBean {
-
-    private val config: UnleashConfig = UnleashConfig.builder()
-        .appName(appName)
-        .unleashAPI("$apiUrl/api")
-        .apiKey(apiToken)
-        .synchronousFetchOnInitialisation(true)
-        .build()
+    private val config: UnleashConfig =
+        UnleashConfig.builder()
+            .appName(appName)
+            .unleashAPI("$apiUrl/api")
+            .apiKey(apiToken)
+            .synchronousFetchOnInitialisation(true)
+            .build()
     private val defaultUnleash = DefaultUnleash(config)
 
     @Bean

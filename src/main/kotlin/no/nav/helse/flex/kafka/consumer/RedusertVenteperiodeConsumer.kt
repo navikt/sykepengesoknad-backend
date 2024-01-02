@@ -12,9 +12,8 @@ import org.springframework.stereotype.Component
 
 @Component
 class RedusertVenteperiodeConsumer(
-    private val db: RedusertVenteperiodeRepository
+    private val db: RedusertVenteperiodeRepository,
 ) {
-
     val log = logger()
 
     @KafkaListener(
@@ -22,9 +21,12 @@ class RedusertVenteperiodeConsumer(
         containerFactory = "aivenKafkaListenerContainerFactory",
         properties = ["auto.offset.reset = earliest"],
         id = "redusert-venteperiode-consumer-2",
-        idIsGroup = true
+        idIsGroup = true,
     )
-    fun listen(cr: ConsumerRecord<String, String?>, acknowledgment: Acknowledgment) {
+    fun listen(
+        cr: ConsumerRecord<String, String?>,
+        acknowledgment: Acknowledgment,
+    ) {
         prosesserKafkaMelding(cr.key(), cr.value())
 
         acknowledgment.acknowledge()
@@ -32,15 +34,15 @@ class RedusertVenteperiodeConsumer(
 
     fun prosesserKafkaMelding(
         sykmeldingId: String,
-        sykmeldingKafkaMessage: String?
+        sykmeldingKafkaMessage: String?,
     ) {
         val kafkaMessage = sykmeldingKafkaMessage?.readValue()
 
         if (kafkaMessage == null) {
             db.delete(
                 RedusertVenteperiodeDbRecord(
-                    sykmeldingId
-                )
+                    sykmeldingId,
+                ),
             )
         } else if (kafkaMessage.sykmelding.harRedusertArbeidsgiverperiode) {
             db.insert(sykmeldingId)
@@ -50,10 +52,10 @@ class RedusertVenteperiodeConsumer(
     private fun String.readValue(): KafkaMelding = OBJECT_MAPPER.readValue(this)
 
     private data class KafkaMelding(
-        val sykmelding: Sykmelding
+        val sykmelding: Sykmelding,
     ) {
         data class Sykmelding(
-            val harRedusertArbeidsgiverperiode: Boolean
+            val harRedusertArbeidsgiverperiode: Boolean,
         )
     }
 }

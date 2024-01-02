@@ -28,7 +28,6 @@ import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class ArbeidsgiverperiodeTilFredagSoknadUtHelgaTest : BaseTestClass() {
-
     private final val fnr = "12345678900"
     private final val fredagen = LocalDate.of(2021, 12, 17)
 
@@ -40,16 +39,16 @@ class ArbeidsgiverperiodeTilFredagSoknadUtHelgaTest : BaseTestClass() {
     }
 
     @Test
-    fun `Besvarer og sender inn en søknad som bare går til arbeidsgiver siden perioden slutta på en fredag, men søknaden gikk til søndag`() {
+    fun `Søknad som bare går til arbeidsgiver siden perioden slutta på en fredag, men søknaden gikk til søndag`() {
         sendSykmelding(
-
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = fredagen.minusDays(14),
-                    tom = fredagen.plusDays(2)
-                )
-            )
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = fredagen.minusDays(14),
+                        tom = fredagen.plusDays(2),
+                    ),
+            ),
         )
 
         val hentetViaRest = hentSoknaderMetadata(fnr)
@@ -58,28 +57,31 @@ class ArbeidsgiverperiodeTilFredagSoknadUtHelgaTest : BaseTestClass() {
         flexSyketilfelleMockRestServiceServer.reset()
 
         mockFlexSyketilfelleArbeidsgiverperiode(
-            arbeidsgiverperiode = Arbeidsgiverperiode(
-                antallBrukteDager = 16,
-                oppbruktArbeidsgiverperiode = true,
-                arbeidsgiverPeriode = Periode(fom = fredagen.minusDays(14), tom = fredagen)
+            arbeidsgiverperiode =
+                Arbeidsgiverperiode(
+                    antallBrukteDager = 16,
+                    oppbruktArbeidsgiverperiode = true,
+                    arbeidsgiverPeriode = Periode(fom = fredagen.minusDays(14), tom = fredagen),
+                ),
+        )
+        val soknaden =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
+                fnr = fnr,
             )
-        )
-        val soknaden = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
-            fnr = fnr
-        )
 
-        val sendtSoknad = SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
-            .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
-            .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
-            .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
-            .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
-            .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
-            .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
-            .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
-            .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
-            .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
-            .sendSoknad()
+        val sendtSoknad =
+            SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+                .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
+                .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
+                .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
+                .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
+                .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
+                .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
+                .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
+                .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
+                .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
+                .sendSoknad()
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
 
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
@@ -88,37 +90,42 @@ class ArbeidsgiverperiodeTilFredagSoknadUtHelgaTest : BaseTestClass() {
         assertThat(kafkaSoknader[0].status).isEqualTo(SoknadsstatusDTO.SENDT)
         assertThat(kafkaSoknader[0].mottaker).isEqualTo(MottakerDTO.ARBEIDSGIVER)
 
-        val vurdering = juridiskVurderingKafkaConsumer
-            .ventPåRecords(antall = 4)
-            .tilJuridiskVurdering()
-            .first { it.paragraf == "8-11" }
+        val vurdering =
+            juridiskVurderingKafkaConsumer
+                .ventPåRecords(antall = 4)
+                .tilJuridiskVurdering()
+                .first { it.paragraf == "8-11" }
 
         vurdering.paragraf `should be equal to` "8-11"
         vurdering.utfall `should be equal to` Utfall.VILKAR_IKKE_OPPFYLT
-        vurdering.input `should be equal to` mapOf(
-            "versjon" to "2022-02-01",
-            "sykepengesoknadTom" to "2021-12-19",
-            "arbeidsgiverperiode" to mapOf(
-                "fom" to "2021-12-03",
-                "tom" to "2021-12-17"
+        vurdering.input `should be equal to`
+            mapOf(
+                "versjon" to "2022-02-01",
+                "sykepengesoknadTom" to "2021-12-19",
+                "arbeidsgiverperiode" to
+                    mapOf(
+                        "fom" to "2021-12-03",
+                        "tom" to "2021-12-17",
+                    ),
             )
-        )
-        vurdering.output `should be equal to` mapOf(
-            "versjon" to "2022-02-01",
-            "kunHelgEtterArbeidsgiverperiode" to true
-        )
+        vurdering.output `should be equal to`
+            mapOf(
+                "versjon" to "2022-02-01",
+                "kunHelgEtterArbeidsgiverperiode" to true,
+            )
     }
 
     @Test
-    fun `Besvarer og sender inn en søknad som går til arbeidsgiver og NAV siden perioden slutta på en fredag, men søknaden gikk til mandag`() {
+    fun `Søknad som går til arbeidsgiver og NAV siden perioden slutta på en fredag, men søknaden gikk til mandag`() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = fredagen.minusDays(14),
-                    tom = fredagen.plusDays(3)
-                )
-            )
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = fredagen.minusDays(14),
+                        tom = fredagen.plusDays(3),
+                    ),
+            ),
         )
 
         val hentetViaRest = hentSoknaderMetadata(fnr)
@@ -126,28 +133,31 @@ class ArbeidsgiverperiodeTilFredagSoknadUtHelgaTest : BaseTestClass() {
 
         flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode(
-            arbeidsgiverperiode = Arbeidsgiverperiode(
-                antallBrukteDager = 16,
-                oppbruktArbeidsgiverperiode = true,
-                arbeidsgiverPeriode = Periode(fom = fredagen.minusDays(14), tom = fredagen)
+            arbeidsgiverperiode =
+                Arbeidsgiverperiode(
+                    antallBrukteDager = 16,
+                    oppbruktArbeidsgiverperiode = true,
+                    arbeidsgiverPeriode = Periode(fom = fredagen.minusDays(14), tom = fredagen),
+                ),
+        )
+        val soknaden =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
+                fnr = fnr,
             )
-        )
-        val soknaden = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
-            fnr = fnr
-        )
 
-        val sendtSoknad = SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
-            .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
-            .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
-            .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
-            .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
-            .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
-            .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
-            .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
-            .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
-            .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
-            .sendSoknad()
+        val sendtSoknad =
+            SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+                .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
+                .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
+                .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
+                .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
+                .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
+                .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
+                .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
+                .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
+                .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
+                .sendSoknad()
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
 
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()

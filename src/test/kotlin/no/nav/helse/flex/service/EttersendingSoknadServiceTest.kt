@@ -37,7 +37,6 @@ import java.util.*
 
 @ExtendWith(MockitoExtension::class)
 class EttersendingSoknadServiceTest {
-
     @Mock
     private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
 
@@ -54,17 +53,18 @@ class EttersendingSoknadServiceTest {
 
     @Test
     fun ettersendTilNavOppdatererSendtNavOgSender() {
-        val soknadBehandlingsdager = behandlingsdagerSoknadMock().copy(
-            id = "behandlingsdagerId",
-            sendtArbeidsgiver = LocalDateTime.now().minusHours(4).tilOsloInstant(),
-            status = SENDT
-        )
+        val soknadBehandlingsdager =
+            behandlingsdagerSoknadMock().copy(
+                id = "behandlingsdagerId",
+                sendtArbeidsgiver = LocalDateTime.now().minusHours(4).tilOsloInstant(),
+                status = SENDT,
+            )
         val soknadArbeidstaker =
             arbeidstakereSoknadMock()
                 .copy(
                     id = "arbeidstakerId",
                     sendtArbeidsgiver = LocalDateTime.now().minusHours(4).tilOsloInstant(),
-                    status = SENDT
+                    status = SENDT,
                 )
 
         whenever(sykepengesoknadDAO.finnSykepengesoknad("behandlingsdagerId")).thenReturn(soknadBehandlingsdager)
@@ -81,7 +81,7 @@ class EttersendingSoknadServiceTest {
             eq(Mottaker.ARBEIDSGIVER_OG_NAV),
             eq(true),
             eq(null),
-            eq(null)
+            eq(null),
         )
     }
 
@@ -109,14 +109,16 @@ class EttersendingSoknadServiceTest {
 
     @Test
     fun ettersendTilNAVGjorIngentingHvisSoknadAlleredeErSendtTilNav() {
-        val soknadBehandlingsdager = behandlingsdagerSoknadMock().copy(
-            status = SENDT,
-            sendtNav = LocalDateTime.now().minusHours(4).tilOsloInstant()
-        )
-        val soknadArbeidstaker = arbeidstakereSoknadMock().copy(
-            status = SENDT,
-            sendtNav = LocalDateTime.now().minusHours(4).tilOsloInstant()
-        )
+        val soknadBehandlingsdager =
+            behandlingsdagerSoknadMock().copy(
+                status = SENDT,
+                sendtNav = LocalDateTime.now().minusHours(4).tilOsloInstant(),
+            )
+        val soknadArbeidstaker =
+            arbeidstakereSoknadMock().copy(
+                status = SENDT,
+                sendtNav = LocalDateTime.now().minusHours(4).tilOsloInstant(),
+            )
 
         ettersendingSoknadService.ettersendTilNav(soknadBehandlingsdager)
         ettersendingSoknadService.ettersendTilNav(soknadArbeidstaker)
@@ -153,13 +155,13 @@ class EttersendingSoknadServiceTest {
             behandlingsdagerSoknadMock().copy(
                 id = "behandlingsdagerId",
                 sendtNav = LocalDateTime.now().minusHours(4).tilOsloInstant(),
-                status = SENDT
+                status = SENDT,
             )
         val soknadArbeidstaker =
             arbeidstakereSoknadMock().copy(
                 id = "arbeidstakerId",
                 sendtNav = LocalDateTime.now().minusHours(4).tilOsloInstant(),
-                status = SENDT
+                status = SENDT,
             )
 
         whenever(sykepengesoknadDAO.finnSykepengesoknad("behandlingsdagerId")).thenReturn(soknadBehandlingsdager)
@@ -198,16 +200,17 @@ class EttersendingSoknadServiceTest {
 
     @Test
     fun ettersendTilArbeidsgiverGjorIngentingHvisSoknadAlleredeErSendtTilArbeidsgiver() {
-        val soknadBehandlingsdager = behandlingsdagerSoknadMock().copy(
-            id = "arbeidstakerId",
-            sendtArbeidsgiver = LocalDateTime.now().minusHours(4).tilOsloInstant(),
-            status = SENDT
-        )
+        val soknadBehandlingsdager =
+            behandlingsdagerSoknadMock().copy(
+                id = "arbeidstakerId",
+                sendtArbeidsgiver = LocalDateTime.now().minusHours(4).tilOsloInstant(),
+                status = SENDT,
+            )
         val soknadArbeidstaker =
             arbeidstakereSoknadMock().copy(
                 id = "arbeidstakerId",
                 sendtArbeidsgiver = LocalDateTime.now().minusHours(4).tilOsloInstant(),
-                status = SENDT
+                status = SENDT,
             )
 
         ettersendingSoknadService.ettersendTilArbeidsgiver(soknadBehandlingsdager)
@@ -218,93 +221,97 @@ class EttersendingSoknadServiceTest {
     }
 
     private fun behandlingsdagerSoknadMock(): Sykepengesoknad {
-        val soknadMetadata = Sykepengesoknad(
-            arbeidsgiverOrgnummer = "123456789",
-            arbeidsgiverNavn = "Bedrift AS",
-            startSykeforlop = LocalDate.now(),
-            sykmeldingSkrevet = Instant.now(),
-            arbeidssituasjon = ARBEIDSTAKER,
-            soknadPerioder = listOf(
-                SykmeldingsperiodeAGDTO(
-                    fom = LocalDate.now().minusDays(20),
-                    tom = LocalDate.now().minusDays(10),
-                    gradert = GradertDTO(grad = 100, reisetilskudd = false),
-                    type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
-                    aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
-                    behandlingsdager = null,
-                    innspillTilArbeidsgiver = null,
-                    reisetilskudd = false
-                )
-            ).tilSoknadsperioder(),
-            fnr = fnr,
-            fom = LocalDate.now().minusDays(20),
-            tom = LocalDate.now().minusDays(10),
-            soknadstype = Soknadstype.ARBEIDSTAKERE,
-            sykmeldingId = "sykmeldingId",
-            id = UUID.randomUUID().toString(),
-            status = NY,
-            opprettet = Instant.now(),
-            sporsmal = emptyList(),
-            utenlandskSykmelding = false,
-            egenmeldingsdagerFraSykmelding = null,
-            forstegangssoknad = false
-        )
-        return soknadMetadata.copy(
-            sporsmal = settOppSykepengesoknadBehandlingsdager(
-
-                SettOppSoknadOptions(
-                    sykepengesoknad = soknadMetadata,
-                    erForsteSoknadISykeforlop = true,
-                    harTidligereUtenlandskSpm = false,
-                    yrkesskade = YrkesskadeSporsmalGrunnlag()
-                )
-
+        val soknadMetadata =
+            Sykepengesoknad(
+                arbeidsgiverOrgnummer = "123456789",
+                arbeidsgiverNavn = "Bedrift AS",
+                startSykeforlop = LocalDate.now(),
+                sykmeldingSkrevet = Instant.now(),
+                arbeidssituasjon = ARBEIDSTAKER,
+                soknadPerioder =
+                    listOf(
+                        SykmeldingsperiodeAGDTO(
+                            fom = LocalDate.now().minusDays(20),
+                            tom = LocalDate.now().minusDays(10),
+                            gradert = GradertDTO(grad = 100, reisetilskudd = false),
+                            type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+                            aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                            behandlingsdager = null,
+                            innspillTilArbeidsgiver = null,
+                            reisetilskudd = false,
+                        ),
+                    ).tilSoknadsperioder(),
+                fnr = fnr,
+                fom = LocalDate.now().minusDays(20),
+                tom = LocalDate.now().minusDays(10),
+                soknadstype = Soknadstype.ARBEIDSTAKERE,
+                sykmeldingId = "sykmeldingId",
+                id = UUID.randomUUID().toString(),
+                status = NY,
+                opprettet = Instant.now(),
+                sporsmal = emptyList(),
+                utenlandskSykmelding = false,
+                egenmeldingsdagerFraSykmelding = null,
+                forstegangssoknad = false,
             )
+        return soknadMetadata.copy(
+            sporsmal =
+                settOppSykepengesoknadBehandlingsdager(
+                    SettOppSoknadOptions(
+                        sykepengesoknad = soknadMetadata,
+                        erForsteSoknadISykeforlop = true,
+                        harTidligereUtenlandskSpm = false,
+                        yrkesskade = YrkesskadeSporsmalGrunnlag(),
+                    ),
+                ),
         )
     }
 
     private fun arbeidstakereSoknadMock(): Sykepengesoknad {
-        val soknadMetadata = Sykepengesoknad(
-            arbeidsgiverOrgnummer = "123456789",
-            arbeidsgiverNavn = "Bedrift AS",
-            startSykeforlop = LocalDate.now(),
-            sykmeldingSkrevet = Instant.now(),
-            arbeidssituasjon = ARBEIDSTAKER,
-            soknadPerioder = listOf(
-                SykmeldingsperiodeAGDTO(
-                    fom = LocalDate.now().minusDays(20),
-                    tom = LocalDate.now().minusDays(10),
-                    gradert = GradertDTO(grad = 100, reisetilskudd = false),
-                    type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
-                    aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
-                    behandlingsdager = null,
-                    innspillTilArbeidsgiver = null,
-                    reisetilskudd = false
-                )
-            ).tilSoknadsperioder(),
-            fnr = fnr,
-            fom = LocalDate.now().minusDays(20),
-            tom = LocalDate.now().minusDays(10),
-            soknadstype = Soknadstype.ARBEIDSTAKERE,
-            sykmeldingId = "sykmeldingId",
-            id = UUID.randomUUID().toString(),
-            status = NY,
-            opprettet = Instant.now(),
-            sporsmal = emptyList(),
-            utenlandskSykmelding = false,
-            egenmeldingsdagerFraSykmelding = null,
-            forstegangssoknad = false
-        )
-        return soknadMetadata.copy(
-            sporsmal = settOppSoknadArbeidstaker(
-                SettOppSoknadOptions(
-                    sykepengesoknad = soknadMetadata,
-                    erForsteSoknadISykeforlop = true,
-                    harTidligereUtenlandskSpm = false,
-                    yrkesskade = YrkesskadeSporsmalGrunnlag()
-                ),
-                emptyList()
+        val soknadMetadata =
+            Sykepengesoknad(
+                arbeidsgiverOrgnummer = "123456789",
+                arbeidsgiverNavn = "Bedrift AS",
+                startSykeforlop = LocalDate.now(),
+                sykmeldingSkrevet = Instant.now(),
+                arbeidssituasjon = ARBEIDSTAKER,
+                soknadPerioder =
+                    listOf(
+                        SykmeldingsperiodeAGDTO(
+                            fom = LocalDate.now().minusDays(20),
+                            tom = LocalDate.now().minusDays(10),
+                            gradert = GradertDTO(grad = 100, reisetilskudd = false),
+                            type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+                            aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                            behandlingsdager = null,
+                            innspillTilArbeidsgiver = null,
+                            reisetilskudd = false,
+                        ),
+                    ).tilSoknadsperioder(),
+                fnr = fnr,
+                fom = LocalDate.now().minusDays(20),
+                tom = LocalDate.now().minusDays(10),
+                soknadstype = Soknadstype.ARBEIDSTAKERE,
+                sykmeldingId = "sykmeldingId",
+                id = UUID.randomUUID().toString(),
+                status = NY,
+                opprettet = Instant.now(),
+                sporsmal = emptyList(),
+                utenlandskSykmelding = false,
+                egenmeldingsdagerFraSykmelding = null,
+                forstegangssoknad = false,
             )
+        return soknadMetadata.copy(
+            sporsmal =
+                settOppSoknadArbeidstaker(
+                    SettOppSoknadOptions(
+                        sykepengesoknad = soknadMetadata,
+                        erForsteSoknadISykeforlop = true,
+                        harTidligereUtenlandskSpm = false,
+                        yrkesskade = YrkesskadeSporsmalGrunnlag(),
+                    ),
+                    emptyList(),
+                ),
         )
     }
 }

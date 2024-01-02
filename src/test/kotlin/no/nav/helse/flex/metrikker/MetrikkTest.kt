@@ -16,16 +16,16 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @TestMethodOrder(MethodOrderer.MethodName::class)
 class MetrikkTest : BaseTestClass() {
-
     @Autowired
     private lateinit var metrikk: Metrikk
 
     @Autowired
     private lateinit var registry: MeterRegistry
 
-    fun MockMvc.metrikker(): List<String> = this
-        .perform(get("/internal/prometheus"))
-        .andExpect(status().isOk).andReturn().response.contentAsString.split("\n")
+    fun MockMvc.metrikker(): List<String> =
+        this
+            .perform(get("/internal/prometheus"))
+            .andExpect(status().isOk).andReturn().response.contentAsString.split("\n")
 
     @Test
     fun `1 - teller en sendt søknad`() {

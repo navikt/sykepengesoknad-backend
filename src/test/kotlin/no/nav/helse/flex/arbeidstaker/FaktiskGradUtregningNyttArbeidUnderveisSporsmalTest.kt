@@ -21,7 +21,6 @@ import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class FaktiskGradUtregningNyttArbeidUnderveisSporsmalTest : BaseTestClass() {
-
     private val fnr = "12345678900"
 
     @BeforeAll
@@ -35,25 +34,30 @@ class FaktiskGradUtregningNyttArbeidUnderveisSporsmalTest : BaseTestClass() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = LocalDate.of(2022, 12, 12), // Mandag
-                    tom = LocalDate.of(2022, 12, 16) // Fredag
-                )
-            )
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        // Mandag
+                        fom = LocalDate.of(2022, 12, 12),
+                        // Fredag
+                        tom = LocalDate.of(2022, 12, 16),
+                    ),
+            ),
         )
 
-        val perioderMedGrad = besvarOgSendSoknad(
+        val perioderMedGrad =
+            besvarOgSendSoknad(
+                listOf(
+                    "JOBBER_DU_NORMAL_ARBEIDSUKE_0" to "JA",
+                    "HVOR_MYE_TIMER_0" to "CHECKED",
+                    "HVOR_MYE_TIMER_VERDI_0" to "18,75",
+                    "ARBEID_UNDERVEIS_100_PROSENT_0" to "JA",
+                ),
+            )
+
+        perioderMedGrad shouldBeEqualTo
             listOf(
-                "JOBBER_DU_NORMAL_ARBEIDSUKE_0" to "JA",
-                "HVOR_MYE_TIMER_0" to "CHECKED",
-                "HVOR_MYE_TIMER_VERDI_0" to "18,75",
-                "ARBEID_UNDERVEIS_100_PROSENT_0" to "JA"
+                Triple(50, 100, 37.5),
             )
-        )
-
-        perioderMedGrad shouldBeEqualTo listOf(
-            Triple(50, 100, 37.5)
-        )
     }
 
     @Test
@@ -61,26 +65,31 @@ class FaktiskGradUtregningNyttArbeidUnderveisSporsmalTest : BaseTestClass() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = LocalDate.of(2022, 12, 12), // Mandag
-                    tom = LocalDate.of(2022, 12, 16) // Fredag
-                )
-            )
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        // Mandag
+                        fom = LocalDate.of(2022, 12, 12),
+                        // Fredag
+                        tom = LocalDate.of(2022, 12, 16),
+                    ),
+            ),
         )
 
-        val perioderMedGrad = besvarOgSendSoknad(
+        val perioderMedGrad =
+            besvarOgSendSoknad(
+                listOf(
+                    "JOBBER_DU_NORMAL_ARBEIDSUKE_0" to "NEI",
+                    "HVOR_MANGE_TIMER_PER_UKE_0" to "40",
+                    "HVOR_MYE_TIMER_0" to "CHECKED",
+                    "HVOR_MYE_TIMER_VERDI_0" to "10",
+                    "ARBEID_UNDERVEIS_100_PROSENT_0" to "JA",
+                ),
+            )
+
+        perioderMedGrad shouldBeEqualTo
             listOf(
-                "JOBBER_DU_NORMAL_ARBEIDSUKE_0" to "NEI",
-                "HVOR_MANGE_TIMER_PER_UKE_0" to "40",
-                "HVOR_MYE_TIMER_0" to "CHECKED",
-                "HVOR_MYE_TIMER_VERDI_0" to "10",
-                "ARBEID_UNDERVEIS_100_PROSENT_0" to "JA"
+                Triple(25, 100, 40.0),
             )
-        )
-
-        perioderMedGrad shouldBeEqualTo listOf(
-            Triple(25, 100, 40.0)
-        )
     }
 
     @Test
@@ -88,26 +97,31 @@ class FaktiskGradUtregningNyttArbeidUnderveisSporsmalTest : BaseTestClass() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = LocalDate.of(2022, 12, 5), // Mandag
-                    tom = LocalDate.of(2022, 12, 16) // Fredag
-                )
-            )
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        // Mandag
+                        fom = LocalDate.of(2022, 12, 5),
+                        // Fredag
+                        tom = LocalDate.of(2022, 12, 16),
+                    ),
+            ),
         )
 
-        val perioderMedGrad = besvarOgSendSoknad(
+        val perioderMedGrad =
+            besvarOgSendSoknad(
+                listOf(
+                    "JOBBER_DU_NORMAL_ARBEIDSUKE_0" to "NEI",
+                    "HVOR_MANGE_TIMER_PER_UKE_0" to "40",
+                    "HVOR_MYE_TIMER_0" to "CHECKED",
+                    "HVOR_MYE_TIMER_VERDI_0" to "10",
+                    "ARBEID_UNDERVEIS_100_PROSENT_0" to "JA",
+                ),
+            )
+
+        perioderMedGrad shouldBeEqualTo
             listOf(
-                "JOBBER_DU_NORMAL_ARBEIDSUKE_0" to "NEI",
-                "HVOR_MANGE_TIMER_PER_UKE_0" to "40",
-                "HVOR_MYE_TIMER_0" to "CHECKED",
-                "HVOR_MYE_TIMER_VERDI_0" to "10",
-                "ARBEID_UNDERVEIS_100_PROSENT_0" to "JA"
+                Triple(13, 100, 40.0),
             )
-        )
-
-        perioderMedGrad shouldBeEqualTo listOf(
-            Triple(13, 100, 40.0)
-        )
     }
 
     @Test
@@ -115,26 +129,31 @@ class FaktiskGradUtregningNyttArbeidUnderveisSporsmalTest : BaseTestClass() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = LocalDate.of(2022, 12, 5), // Mandag
-                    tom = LocalDate.of(2022, 12, 16) // Fredag
-                )
-            )
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        // Mandag
+                        fom = LocalDate.of(2022, 12, 5),
+                        // Fredag
+                        tom = LocalDate.of(2022, 12, 16),
+                    ),
+            ),
         )
 
-        val perioderMedGrad = besvarOgSendSoknad(
+        val perioderMedGrad =
+            besvarOgSendSoknad(
+                listOf(
+                    "JOBBER_DU_NORMAL_ARBEIDSUKE_0" to "NEI",
+                    "HVOR_MANGE_TIMER_PER_UKE_0" to "40",
+                    "HVOR_MYE_TIMER_0" to "CHECKED",
+                    "HVOR_MYE_TIMER_VERDI_0" to "9",
+                    "ARBEID_UNDERVEIS_100_PROSENT_0" to "JA",
+                ),
+            )
+
+        perioderMedGrad shouldBeEqualTo
             listOf(
-                "JOBBER_DU_NORMAL_ARBEIDSUKE_0" to "NEI",
-                "HVOR_MANGE_TIMER_PER_UKE_0" to "40",
-                "HVOR_MYE_TIMER_0" to "CHECKED",
-                "HVOR_MYE_TIMER_VERDI_0" to "9",
-                "ARBEID_UNDERVEIS_100_PROSENT_0" to "JA"
+                Triple(11, 100, 40.0),
             )
-        )
-
-        perioderMedGrad shouldBeEqualTo listOf(
-            Triple(11, 100, 40.0)
-        )
     }
 
     @Test
@@ -142,26 +161,31 @@ class FaktiskGradUtregningNyttArbeidUnderveisSporsmalTest : BaseTestClass() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = LocalDate.of(2022, 12, 5), // Mandag
-                    tom = LocalDate.of(2022, 12, 16) // Fredag
-                )
-            )
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        // Fredag
+                        fom = LocalDate.of(2022, 12, 5),
+                        // Fredag
+                        tom = LocalDate.of(2022, 12, 16),
+                    ),
+            ),
         )
 
-        val perioderMedGrad = besvarOgSendSoknad(
+        val perioderMedGrad =
+            besvarOgSendSoknad(
+                listOf(
+                    "JOBBER_DU_NORMAL_ARBEIDSUKE_0" to "NEI",
+                    "HVOR_MANGE_TIMER_PER_UKE_0" to "40",
+                    "HVOR_MYE_PROSENT_0" to "CHECKED",
+                    "HVOR_MYE_PROSENT_VERDI_0" to "15",
+                    "ARBEID_UNDERVEIS_100_PROSENT_0" to "JA",
+                ),
+            )
+
+        perioderMedGrad shouldBeEqualTo
             listOf(
-                "JOBBER_DU_NORMAL_ARBEIDSUKE_0" to "NEI",
-                "HVOR_MANGE_TIMER_PER_UKE_0" to "40",
-                "HVOR_MYE_PROSENT_0" to "CHECKED",
-                "HVOR_MYE_PROSENT_VERDI_0" to "15",
-                "ARBEID_UNDERVEIS_100_PROSENT_0" to "JA"
+                Triple(15, 100, 40.0),
             )
-        )
-
-        perioderMedGrad shouldBeEqualTo listOf(
-            Triple(15, 100, 40.0)
-        )
     }
 
     @Test
@@ -169,30 +193,33 @@ class FaktiskGradUtregningNyttArbeidUnderveisSporsmalTest : BaseTestClass() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = LocalDate.of(2022, 12, 5), // Mandag
-                    tom = LocalDate.of(2022, 12, 16) // Fredag
-                )
-            )
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        // Mandag
+                        fom = LocalDate.of(2022, 12, 5),
+                        // Fredag
+                        tom = LocalDate.of(2022, 12, 16),
+                    ),
+            ),
         )
 
-        val perioderMedGrad = besvarOgSendSoknad(
+        val perioderMedGrad =
+            besvarOgSendSoknad(
+                listOf(
+                    "JOBBER_DU_NORMAL_ARBEIDSUKE_0" to "JA",
+                    "HVOR_MYE_PROSENT_0" to "CHECKED",
+                    "HVOR_MYE_PROSENT_VERDI_0" to "15",
+                    "ARBEID_UNDERVEIS_100_PROSENT_0" to "JA",
+                ),
+            )
+
+        perioderMedGrad shouldBeEqualTo
             listOf(
-                "JOBBER_DU_NORMAL_ARBEIDSUKE_0" to "JA",
-                "HVOR_MYE_PROSENT_0" to "CHECKED",
-                "HVOR_MYE_PROSENT_VERDI_0" to "15",
-                "ARBEID_UNDERVEIS_100_PROSENT_0" to "JA"
+                Triple(15, 100, 37.5),
             )
-        )
-
-        perioderMedGrad shouldBeEqualTo listOf(
-            Triple(15, 100, 37.5)
-        )
     }
 
-    fun besvarOgSendSoknad(
-        svar: List<Pair<String, String>>
-    ): List<Triple<Int?, Int?, Double?>> {
+    fun besvarOgSendSoknad(svar: List<Pair<String, String>>): List<Triple<Int?, Int?, Double?>> {
         val hentetViaRest = hentSoknader(fnr)
         mockFlexSyketilfelleArbeidsgiverperiode()
         val soknad = hentetViaRest.first { it.status == RSSoknadstatus.NY }

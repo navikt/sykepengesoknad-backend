@@ -25,7 +25,6 @@ import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class InntektsopplysningerIntegrasjonsTest : BaseTestClass() {
-
     @BeforeAll
     fun konfigurerUnleash() {
         fakeUnleash.resetAll()
@@ -44,16 +43,18 @@ class InntektsopplysningerIntegrasjonsTest : BaseTestClass() {
     fun `Stiller ikke spørsmål om inntektsopplysnninger på førstegangssøknad når Unleash toggle er disabled`() {
         val fnr = "99999999001"
 
-        val soknader = sendSykmelding(
-            sykmeldingKafkaMessage(
-                arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
-                fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = fom,
-                    tom = tom
-                )
+        val soknader =
+            sendSykmelding(
+                sykmeldingKafkaMessage(
+                    arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
+                    fnr = fnr,
+                    sykmeldingsperioder =
+                        heltSykmeldt(
+                            fom = fom,
+                            tom = tom,
+                        ),
+                ),
             )
-        )
 
         soknader shouldHaveSize 1
         val soknad = soknader.first()
@@ -68,8 +69,8 @@ class InntektsopplysningerIntegrasjonsTest : BaseTestClass() {
                 ANDRE_INNTEKTSKILDER,
                 UTLAND,
                 VAER_KLAR_OVER_AT,
-                BEKREFT_OPPLYSNINGER
-            )
+                BEKREFT_OPPLYSNINGER,
+            ),
         )
     }
 
@@ -80,16 +81,18 @@ class InntektsopplysningerIntegrasjonsTest : BaseTestClass() {
 
         val fnr = "99999999002"
 
-        val soknader = sendSykmelding(
-            sykmeldingKafkaMessage(
-                arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
-                fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = fom,
-                    tom = tom
-                )
+        val soknader =
+            sendSykmelding(
+                sykmeldingKafkaMessage(
+                    arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
+                    fnr = fnr,
+                    sykmeldingsperioder =
+                        heltSykmeldt(
+                            fom = fom,
+                            tom = tom,
+                        ),
+                ),
             )
-        )
 
         soknader shouldHaveSize 1
         val soknad = soknader.first()
@@ -105,8 +108,8 @@ class InntektsopplysningerIntegrasjonsTest : BaseTestClass() {
                 UTLAND,
                 INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET,
                 VAER_KLAR_OVER_AT,
-                BEKREFT_OPPLYSNINGER
-            )
+                BEKREFT_OPPLYSNINGER,
+            ),
         )
     }
 
@@ -114,27 +117,29 @@ class InntektsopplysningerIntegrasjonsTest : BaseTestClass() {
     @Order(2)
     fun `Besvar og sendt inn søknad med inntektsopplysninger som ny i arbeidslivet`() {
         val fnr = "99999999002"
-        val lagretSoknad = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val lagretSoknad =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
 
         hentSoknadSomKanBesvares(fnr).let {
             val (_, soknadBesvarer) = it
             besvarStandardsporsmalSporsmal(soknadBesvarer)
-            val sendtSoknad = soknadBesvarer
-                .besvarSporsmal(
-                    tag = INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET_JA,
-                    svar = "CHECKED",
-                    ferdigBesvart = false
-                )
-                .besvarSporsmal(
-                    tag = INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET_DATO,
-                    svar = lagretSoknad.fom!!.minusDays(1).toString()
-                )
-                .besvarSporsmal(tag = VAER_KLAR_OVER_AT, svar = "Svar", ferdigBesvart = false)
-                .besvarSporsmal(tag = BEKREFT_OPPLYSNINGER, svar = "CHECKED")
-                .sendSoknad()
+            val sendtSoknad =
+                soknadBesvarer
+                    .besvarSporsmal(
+                        tag = INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET_JA,
+                        svar = "CHECKED",
+                        ferdigBesvart = false,
+                    )
+                    .besvarSporsmal(
+                        tag = INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET_DATO,
+                        svar = lagretSoknad.fom!!.minusDays(1).toString(),
+                    )
+                    .besvarSporsmal(tag = VAER_KLAR_OVER_AT, svar = "Svar", ferdigBesvart = false)
+                    .besvarSporsmal(tag = BEKREFT_OPPLYSNINGER, svar = "CHECKED")
+                    .sendSoknad()
             sendtSoknad.status shouldBeEqualTo RSSoknadstatus.SENDT
 
             sendtSoknad.inntektsopplysningerNyKvittering shouldBeEqualTo true
@@ -158,37 +163,38 @@ class InntektsopplysningerIntegrasjonsTest : BaseTestClass() {
 
         mockFlexSyketilfelleArbeidsgiverperiode(andreKorrigerteRessurser = soknad.id)
 
-        val sendtSoknad = SoknadBesvarer(rSSykepengesoknad = korrigerendeSoknad, mockMvc = this, fnr = fnr)
-            .besvarSporsmal(tag = ANSVARSERKLARING, svar = "CHECKED")
-            // Nullstiller det andre alternative i Checkbox-gruppen, sånn at gruppen ikke validerer på grunn av to svar.
-            .besvarSporsmal(
-                tag = INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET_JA,
-                svar = null,
-                ferdigBesvart = false
-            )
-            .besvarSporsmal(
-                tag = INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET_NEI,
-                svar = "CHECKED",
-                ferdigBesvart = false
-            ).besvarSporsmal(
-                tag = INNTEKTSOPPLYSNINGER_VARIG_ENDRING,
-                svar = "JA",
-                ferdigBesvart = false
-            ).besvarSporsmal(
-                tag = INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE_OPPRETTELSE_NEDLEGGELSE,
-                svar = "CHECKED",
-                ferdigBesvart = false
-            ).besvarSporsmal(
-                tag = INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE_ANNET,
-                svar = "CHECKED",
-                ferdigBesvart = false
-            ).besvarSporsmal(
-                tag = INNTEKTSOPPLYSNINGER_VARIG_ENDRING_25_PROSENT,
-                svar = "NEI"
-            )
-            .besvarSporsmal(tag = VAER_KLAR_OVER_AT, svar = "Svar", ferdigBesvart = false)
-            .besvarSporsmal(tag = BEKREFT_OPPLYSNINGER, svar = "CHECKED")
-            .sendSoknad()
+        val sendtSoknad =
+            SoknadBesvarer(rSSykepengesoknad = korrigerendeSoknad, mockMvc = this, fnr = fnr)
+                .besvarSporsmal(tag = ANSVARSERKLARING, svar = "CHECKED")
+                // Nullstiller det andre alternative i Checkbox-gruppen, sånn at gruppen ikke validerer på grunn av to svar.
+                .besvarSporsmal(
+                    tag = INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET_JA,
+                    svar = null,
+                    ferdigBesvart = false,
+                )
+                .besvarSporsmal(
+                    tag = INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET_NEI,
+                    svar = "CHECKED",
+                    ferdigBesvart = false,
+                ).besvarSporsmal(
+                    tag = INNTEKTSOPPLYSNINGER_VARIG_ENDRING,
+                    svar = "JA",
+                    ferdigBesvart = false,
+                ).besvarSporsmal(
+                    tag = INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE_OPPRETTELSE_NEDLEGGELSE,
+                    svar = "CHECKED",
+                    ferdigBesvart = false,
+                ).besvarSporsmal(
+                    tag = INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE_ANNET,
+                    svar = "CHECKED",
+                    ferdigBesvart = false,
+                ).besvarSporsmal(
+                    tag = INNTEKTSOPPLYSNINGER_VARIG_ENDRING_25_PROSENT,
+                    svar = "NEI",
+                )
+                .besvarSporsmal(tag = VAER_KLAR_OVER_AT, svar = "Svar", ferdigBesvart = false)
+                .besvarSporsmal(tag = BEKREFT_OPPLYSNINGER, svar = "CHECKED")
+                .sendSoknad()
 
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
 
@@ -213,19 +219,20 @@ class InntektsopplysningerIntegrasjonsTest : BaseTestClass() {
 
         mockFlexSyketilfelleArbeidsgiverperiode(andreKorrigerteRessurser = soknad.id)
 
-        val sendtSoknad = SoknadBesvarer(rSSykepengesoknad = korrigerendeSoknad, mockMvc = this, fnr = fnr)
-            .besvarSporsmal(tag = ANSVARSERKLARING, svar = "CHECKED")
-            .besvarSporsmal(
-                tag = INNTEKTSOPPLYSNINGER_VARIG_ENDRING_25_PROSENT,
-                svar = "JA",
-                ferdigBesvart = false
-            ).besvarSporsmal(
-                tag = INNTEKTSOPPLYSNINGER_VARIG_ENDRING_DATO,
-                svar = soknad.fom!!.minusYears(3).toString()
-            )
-            .besvarSporsmal(tag = VAER_KLAR_OVER_AT, svar = "Svar", ferdigBesvart = false)
-            .besvarSporsmal(tag = BEKREFT_OPPLYSNINGER, svar = "CHECKED")
-            .sendSoknad()
+        val sendtSoknad =
+            SoknadBesvarer(rSSykepengesoknad = korrigerendeSoknad, mockMvc = this, fnr = fnr)
+                .besvarSporsmal(tag = ANSVARSERKLARING, svar = "CHECKED")
+                .besvarSporsmal(
+                    tag = INNTEKTSOPPLYSNINGER_VARIG_ENDRING_25_PROSENT,
+                    svar = "JA",
+                    ferdigBesvart = false,
+                ).besvarSporsmal(
+                    tag = INNTEKTSOPPLYSNINGER_VARIG_ENDRING_DATO,
+                    svar = soknad.fom!!.minusYears(3).toString(),
+                )
+                .besvarSporsmal(tag = VAER_KLAR_OVER_AT, svar = "Svar", ferdigBesvart = false)
+                .besvarSporsmal(tag = BEKREFT_OPPLYSNINGER, svar = "CHECKED")
+                .sendSoknad()
 
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
 
@@ -250,7 +257,7 @@ class InntektsopplysningerIntegrasjonsTest : BaseTestClass() {
     private fun hentSoknadMedStatusNy(fnr: String): RSSykepengesoknad {
         return hentSoknad(
             soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
-            fnr = fnr
+            fnr = fnr,
         )
     }
 

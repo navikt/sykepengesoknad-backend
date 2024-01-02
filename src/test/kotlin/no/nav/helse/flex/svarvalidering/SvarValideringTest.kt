@@ -1,3 +1,5 @@
+@file:Suppress("ktlint:standard:max-line-length")
+
 package no.nav.helse.flex.svarvalidering
 
 import no.nav.helse.flex.domain.Kvittering
@@ -29,7 +31,6 @@ import java.time.LocalDate
 import java.util.*
 
 internal class SvarValideringTest {
-
     @Test
     fun `test er double med max en desimal`() {
         "34.2".`er double med max en desimal`().`should be true`()
@@ -110,12 +111,13 @@ internal class SvarValideringTest {
         spm.validerSvarPaSporsmal()
 
         spm.byttSvar(svar = "ikke jsånn") `valider svar og forvent feilmelding` "Spørsmål ${spm.id} med tag KVITTERINGER har feil svarverdi ikke jsånn"
-        val kvittering = Kvittering(
-            belop = 234,
-            blobId = UUID.randomUUID().toString(),
-            opprettet = Instant.now(),
-            typeUtgift = Utgiftstype.OFFENTLIG_TRANSPORT
-        )
+        val kvittering =
+            Kvittering(
+                belop = 234,
+                blobId = UUID.randomUUID().toString(),
+                opprettet = Instant.now(),
+                typeUtgift = Utgiftstype.OFFENTLIG_TRANSPORT,
+            )
         spm.byttSvar(svar = kvittering.serialisertTilString()).validerSvarPaSporsmal()
 
         // krever uuid
@@ -144,7 +146,9 @@ internal class SvarValideringTest {
 
         spm.byttSvar(svar = "JA")
             .byttSvar(tag = BIL_DATOER, svar = igår)
-            .`valider svar og forvent feilmelding`("Spørsmål ${spm.idForTag(BIL_DATOER)} med tag $BIL_DATOER har svarverdi utenfor grenseverdi $igår")
+            .`valider svar og forvent feilmelding`(
+                "Spørsmål ${spm.idForTag(BIL_DATOER)} med tag $BIL_DATOER har svarverdi utenfor grenseverdi $igår",
+            )
 
         spm.byttSvar(svar = "JA")
             .byttSvar(tag = BIL_DATOER, svar = LocalDate.now().toString())
@@ -167,7 +171,9 @@ internal class SvarValideringTest {
             .byttSvar(tag = BIL_DATOER, svar = LocalDate.now().toString())
             .byttSvar(tag = BIL_BOMPENGER, svar = "JA")
             .byttSvar(tag = KM_HJEM_JOBB, svar = "4.4")
-            .`valider svar og forvent feilmelding`("Spørsmål ${spm.idForTag(BIL_BOMPENGER_BELOP)} med tag $BIL_BOMPENGER_BELOP har feil antall svar 0")
+            .`valider svar og forvent feilmelding`(
+                "Spørsmål ${spm.idForTag(BIL_BOMPENGER_BELOP)} med tag $BIL_BOMPENGER_BELOP har feil antall svar 0",
+            )
 
         spm.byttSvar(svar = "JA")
             .byttSvar(tag = BIL_DATOER, svar = LocalDate.now().toString())
@@ -191,7 +197,9 @@ internal class SvarValideringTest {
             .validerSvarPaSporsmal()
 
         spm.byttSvar(svar = "JA")
-            .`valider svar og forvent feilmelding`("Spørsmål ${spm.idForTag(TYPE_TRANSPORT)} av typen ${Svartype.CHECKBOX_GRUPPE} må ha minst ett besvart underspørsmål")
+            .`valider svar og forvent feilmelding`(
+                "Spørsmål ${spm.idForTag(TYPE_TRANSPORT)} av typen ${Svartype.CHECKBOX_GRUPPE} må ha minst ett besvart underspørsmål",
+            )
 
         spm.byttSvar(svar = "JA")
             .byttSvar(tag = BIL_TIL_DAGLIG, svar = "CHECKED")
@@ -203,9 +211,13 @@ internal class SvarValideringTest {
     }
 
     private fun String.`er double med max en desimal`() = this.erDoubleMedMaxEnDesimal()
+
     private fun String.`er heltall`() = this.erHeltall()
+
     private fun String.`er dato`() = this.erDato()
+
     private fun String.`er uuid`() = this.erUUID()
+
     private infix fun Sporsmal.`valider svar og forvent feilmelding`(s: String) {
         try {
             validerSvarPaSporsmal()

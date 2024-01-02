@@ -12,7 +12,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
 class ApplicationHealthTest : BaseTestClass() {
-
     @Autowired
     private lateinit var applicationAvailability: ApplicationAvailability
 
@@ -31,7 +30,7 @@ class ApplicationHealthTest : BaseTestClass() {
         AvailabilityChangeEvent.publish(
             applicationEventPublisher,
             this,
-            LivenessState.BROKEN
+            LivenessState.BROKEN,
         )
 
         // App DOWN
@@ -44,7 +43,7 @@ class ApplicationHealthTest : BaseTestClass() {
         AvailabilityChangeEvent.publish(
             applicationEventPublisher,
             this,
-            LivenessState.CORRECT
+            LivenessState.CORRECT,
         )
     }
 
@@ -60,7 +59,7 @@ class ApplicationHealthTest : BaseTestClass() {
         AvailabilityChangeEvent.publish(
             applicationEventPublisher,
             this,
-            ReadinessState.REFUSING_TRAFFIC
+            ReadinessState.REFUSING_TRAFFIC,
         )
 
         // App OUT_OF_SERVICE
@@ -73,7 +72,7 @@ class ApplicationHealthTest : BaseTestClass() {
         AvailabilityChangeEvent.publish(
             applicationEventPublisher,
             this,
-            ReadinessState.ACCEPTING_TRAFFIC
+            ReadinessState.ACCEPTING_TRAFFIC,
         )
     }
 }

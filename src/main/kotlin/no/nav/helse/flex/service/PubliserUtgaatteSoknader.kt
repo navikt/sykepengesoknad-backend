@@ -20,7 +20,7 @@ class PubliserUtgaatteSoknader(
     val toggle: EnvironmentToggles,
     val leaderElection: LeaderElection,
     val sykepengesoknadDAO: SykepengesoknadDAO,
-    registry: MeterRegistry
+    registry: MeterRegistry,
 ) {
     val log = logger()
     val counter = registry.counter("publisert_utgatt_soknad_pa_kafka")

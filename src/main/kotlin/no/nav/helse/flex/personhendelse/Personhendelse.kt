@@ -20,7 +20,7 @@ val GenericRecord.endringstype get(): String {
 }
 val GenericRecord.dodsdato get(): LocalDate {
     return LocalDate.ofEpochDay(
-        (get("doedsfall") as GenericRecord?)?.get("doedsdato").toString().toLong()
+        (get("doedsfall") as GenericRecord?)?.get("doedsdato").toString().toLong(),
     )
 }
 

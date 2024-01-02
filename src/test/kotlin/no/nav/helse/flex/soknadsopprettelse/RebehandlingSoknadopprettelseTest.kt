@@ -35,7 +35,6 @@ import java.time.LocalDate
 import java.util.concurrent.TimeUnit
 
 class RebehandlingSoknadopprettelseTest : BaseTestClass() {
-
     @Autowired
     private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
 
@@ -77,10 +76,11 @@ class RebehandlingSoknadopprettelseTest : BaseTestClass() {
 
     @Test
     fun `Rebehandler sykmelding for Frilanser`() {
-        val cr = skapConsumerRecord(
-            statusEvent = STATUS_BEKREFTET,
-            arbeidssituasjon = FRILANSER
-        )
+        val cr =
+            skapConsumerRecord(
+                statusEvent = STATUS_BEKREFTET,
+                arbeidssituasjon = FRILANSER,
+            )
 
         mockFlexSyketilfelleErUtaforVentetid(sykmeldingId, true)
         mockFlexSyketilfelleSykeforloep(sykmeldingId)
@@ -103,9 +103,9 @@ class RebehandlingSoknadopprettelseTest : BaseTestClass() {
         rebehandlingSykmeldingSendt.listen(
             skapConsumerRecord(
                 statusEvent = STATUS_SENDT,
-                arbeidssituasjon = FRILANSER
+                arbeidssituasjon = FRILANSER,
             ),
-            acknowledgment
+            acknowledgment,
         )
         val sykepengesoknader = sykepengesoknadDAO.finnSykepengesoknaderForSykmelding(sykmeldingId)
         assertThat(sykepengesoknader.size).isEqualTo(0)
@@ -114,37 +114,41 @@ class RebehandlingSoknadopprettelseTest : BaseTestClass() {
 
     private fun skapConsumerRecord(
         statusEvent: String = STATUS_SENDT,
-        arbeidssituasjon: Arbeidssituasjon = ARBEIDSTAKER
+        arbeidssituasjon: Arbeidssituasjon = ARBEIDSTAKER,
     ): ConsumerRecord<String, String> {
-        val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(
-            fnr = fnr,
-            statusEvent = statusEvent,
-            arbeidssituasjon = arbeidssituasjon,
-            arbeidsgiver = ArbeidsgiverStatusDTO("123", "456", "Jobb")
-        )
-        val sykmelding = skapArbeidsgiverSykmelding(
-            sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
-        )
-            .copy(
-                sykmeldingsperioder = listOf(
-                    SykmeldingsperiodeAGDTO(
-                        fom = LocalDate.of(2020, 2, 1),
-                        tom = LocalDate.of(2020, 2, 5),
-                        type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
-                        reisetilskudd = false,
-                        aktivitetIkkeMulig = null,
-                        behandlingsdager = null,
-                        gradert = null,
-                        innspillTilArbeidsgiver = null
-                    )
-                ),
-                syketilfelleStartDato = LocalDate.of(2020, 2, 1)
+        val sykmeldingStatusKafkaMessageDTO =
+            skapSykmeldingStatusKafkaMessageDTO(
+                fnr = fnr,
+                statusEvent = statusEvent,
+                arbeidssituasjon = arbeidssituasjon,
+                arbeidsgiver = ArbeidsgiverStatusDTO("123", "456", "Jobb"),
             )
-        val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
-            sykmelding = sykmelding,
-            event = sykmeldingStatusKafkaMessageDTO.event,
-            kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
-        )
+        val sykmelding =
+            skapArbeidsgiverSykmelding(
+                sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId,
+            )
+                .copy(
+                    sykmeldingsperioder =
+                        listOf(
+                            SykmeldingsperiodeAGDTO(
+                                fom = LocalDate.of(2020, 2, 1),
+                                tom = LocalDate.of(2020, 2, 5),
+                                type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+                                reisetilskudd = false,
+                                aktivitetIkkeMulig = null,
+                                behandlingsdager = null,
+                                gradert = null,
+                                innspillTilArbeidsgiver = null,
+                            ),
+                        ),
+                    syketilfelleStartDato = LocalDate.of(2020, 2, 1),
+                )
+        val sykmeldingKafkaMessage =
+            SykmeldingKafkaMessage(
+                sykmelding = sykmelding,
+                event = sykmeldingStatusKafkaMessageDTO.event,
+                kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
+            )
         sykmeldingId = sykmeldingKafkaMessage.sykmelding.id
         return ConsumerRecord(topic, 1, 1L, sykmeldingId, sykmeldingKafkaMessage.serialisertTilString())
     }

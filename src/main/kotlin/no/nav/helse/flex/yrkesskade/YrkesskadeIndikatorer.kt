@@ -8,44 +8,43 @@ import java.time.LocalDate
 
 @Component
 class YrkesskadeIndikatorer(
-
-    private val yrkesskadeClient: YrkesskadeClient
+    private val yrkesskadeClient: YrkesskadeClient,
 ) {
-
     val godkjenteSaker = setOf("DELVIS_GODKJENT", "GODKJENT")
 
     fun hentYrkesskadeSporsmalGrunnlag(
         identer: FolkeregisterIdenter,
         sykmeldingId: String?,
-        erForsteSoknadISykeforlop: Boolean
+        erForsteSoknadISykeforlop: Boolean,
     ): YrkesskadeSporsmalGrunnlag {
         if (!erForsteSoknadISykeforlop) {
             return YrkesskadeSporsmalGrunnlag(
-                godkjenteSaker = emptyList()
+                godkjenteSaker = emptyList(),
             )
         }
 
         val ysSakerResponse = yrkesskadeClient.hentSaker(HarYsSakerRequest(identer.alle()))
 
         return YrkesskadeSporsmalGrunnlag(
-            godkjenteSaker = ysSakerResponse.saker
-                .filter { godkjenteSaker.contains(it.resultat) }
-                .filter { it.vedtaksdato != null }
-                .map {
-                    YrkesskadeSak(
-                        skadedato = it.skadedato,
-                        vedtaksdato = it.vedtaksdato!!
-                    )
-                }
+            godkjenteSaker =
+                ysSakerResponse.saker
+                    .filter { godkjenteSaker.contains(it.resultat) }
+                    .filter { it.vedtaksdato != null }
+                    .map {
+                        YrkesskadeSak(
+                            skadedato = it.skadedato,
+                            vedtaksdato = it.vedtaksdato!!,
+                        )
+                    },
         )
     }
 }
 
 data class YrkesskadeSporsmalGrunnlag(
-    val godkjenteSaker: List<YrkesskadeSak> = emptyList()
+    val godkjenteSaker: List<YrkesskadeSak> = emptyList(),
 )
 
 data class YrkesskadeSak(
     val skadedato: LocalDate?,
-    val vedtaksdato: LocalDate
+    val vedtaksdato: LocalDate,
 )

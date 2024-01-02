@@ -36,7 +36,6 @@ import java.time.LocalDate
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class MedlemskapSoknadstypeIntegrationTest : BaseTestClass() {
-
     @BeforeAll
     fun configureUnleash() {
         fakeUnleash.resetAll()
@@ -59,25 +58,28 @@ class MedlemskapSoknadstypeIntegrationTest : BaseTestClass() {
             MockResponse().setResponseCode(200).setBody(
                 MedlemskapVurderingResponse(
                     svar = MedlemskapVurderingSvarType.UAVKLART,
-                    sporsmal = listOf(
-                        MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
-                        MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE
-                    )
-                ).serialisertTilString()
-            )
+                    sporsmal =
+                        listOf(
+                            MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
+                            MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
+                        ),
+                ).serialisertTilString(),
+            ),
         )
 
         val fnr = "31111111111"
-        val soknader = sendSykmelding(
-            sykmeldingKafkaMessage(
-                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = fom,
-                    tom = tom
-                )
+        val soknader =
+            sendSykmelding(
+                sykmeldingKafkaMessage(
+                    arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                    fnr = fnr,
+                    sykmeldingsperioder =
+                        heltSykmeldt(
+                            fom = fom,
+                            tom = tom,
+                        ),
+                ),
             )
-        )
 
         assertThat(soknader).hasSize(1)
         assertThat(soknader.last().type).isEqualTo(SoknadstypeDTO.ARBEIDSTAKERE)
@@ -92,25 +94,28 @@ class MedlemskapSoknadstypeIntegrationTest : BaseTestClass() {
             MockResponse().setResponseCode(200).setBody(
                 MedlemskapVurderingResponse(
                     svar = MedlemskapVurderingSvarType.UAVKLART,
-                    sporsmal = listOf(
-                        MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
-                        MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE
-                    )
-                ).serialisertTilString()
-            )
+                    sporsmal =
+                        listOf(
+                            MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
+                            MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
+                        ),
+                ).serialisertTilString(),
+            ),
         )
 
         val fnr = "31111111112"
-        val soknader = sendSykmelding(
-            sykmeldingKafkaMessage(
-                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                fnr = fnr,
-                sykmeldingsperioder = gradertReisetilskudd(
-                    fom = fom,
-                    tom = tom
-                )
+        val soknader =
+            sendSykmelding(
+                sykmeldingKafkaMessage(
+                    arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                    fnr = fnr,
+                    sykmeldingsperioder =
+                        gradertReisetilskudd(
+                            fom = fom,
+                            tom = tom,
+                        ),
+                ),
             )
-        )
 
         assertThat(soknader).hasSize(1)
         assertThat(soknader.last().type).isEqualTo(SoknadstypeDTO.GRADERT_REISETILSKUDD)
@@ -122,16 +127,18 @@ class MedlemskapSoknadstypeIntegrationTest : BaseTestClass() {
     @Order(3)
     fun `Soknadstype BEHANDLINGSDAGER skal ikke ha medlemskapspørsmål`() {
         val fnr = "31111111113"
-        val soknader = sendSykmelding(
-            sykmeldingKafkaMessage(
-                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                fnr = fnr,
-                sykmeldingsperioder = behandingsdager(
-                    fom = fom,
-                    tom = tom
-                )
+        val soknader =
+            sendSykmelding(
+                sykmeldingKafkaMessage(
+                    arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                    fnr = fnr,
+                    sykmeldingsperioder =
+                        behandingsdager(
+                            fom = fom,
+                            tom = tom,
+                        ),
+                ),
             )
-        )
 
         assertThat(soknader).hasSize(1)
         assertThat(soknader.last().type).isEqualTo(SoknadstypeDTO.BEHANDLINGSDAGER)
@@ -143,16 +150,18 @@ class MedlemskapSoknadstypeIntegrationTest : BaseTestClass() {
     @Order(4)
     fun `Soknadstype REISETILSKUDD skal ikke ha medlemskapspørsmål`() {
         val fnr = "31111111114"
-        val soknader = sendSykmelding(
-            sykmeldingKafkaMessage(
-                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                fnr = fnr,
-                sykmeldingsperioder = reisetilskudd(
-                    fom = fom,
-                    tom = tom
-                )
+        val soknader =
+            sendSykmelding(
+                sykmeldingKafkaMessage(
+                    arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                    fnr = fnr,
+                    sykmeldingsperioder =
+                        reisetilskudd(
+                            fom = fom,
+                            tom = tom,
+                        ),
+                ),
             )
-        )
 
         assertThat(soknader).hasSize(1)
         assertThat(soknader.last().type).isEqualTo(SoknadstypeDTO.REISETILSKUDD)

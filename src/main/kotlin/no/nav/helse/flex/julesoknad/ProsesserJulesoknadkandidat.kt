@@ -25,7 +25,7 @@ class ProsesserJulesoknadkandidat(
     private val sykepengesoknadRepository: SykepengesoknadRepository,
     private val forskutteringRepository: ForskutteringRepository,
     private val aktiveringProducer: AktiveringProducer,
-    private val identService: IdentService
+    private val identService: IdentService,
 ) {
     private val log = logger()
 
@@ -49,12 +49,13 @@ class ProsesserJulesoknadkandidat(
 
             if (soknad.arbeidsgiverForskuttererIkke()) {
                 val folkeregisterIdenter = identService.hentFolkeregisterIdenterMedHistorikkForFnr(soknad.fnr)
-                val tidligereFremtidigeSoknader = sykepengesoknadDAO.finnSykepengesoknader(
-                    folkeregisterIdenter
-                ).filter { it.soknadstype != Soknadstype.OPPHOLD_UTLAND }
-                    .filter { it.fom != null }
-                    .filter { it.fom!!.isBefore(soknad.fom) }
-                    .filter { it.status == Soknadstatus.FREMTIDIG }
+                val tidligereFremtidigeSoknader =
+                    sykepengesoknadDAO.finnSykepengesoknader(
+                        folkeregisterIdenter,
+                    ).filter { it.soknadstype != Soknadstype.OPPHOLD_UTLAND }
+                        .filter { it.fom != null }
+                        .filter { it.fom!!.isBefore(soknad.fom) }
+                        .filter { it.status == Soknadstatus.FREMTIDIG }
 
                 if (tidligereFremtidigeSoknader.isNotEmpty()) {
                     log.info("$julesoknadkandidat har tidligere fremtidige søknader, kan derfor ikke aktivere julesøknad")
@@ -81,10 +82,11 @@ class ProsesserJulesoknadkandidat(
         if (this.arbeidssituasjon == no.nav.helse.flex.domain.Arbeidssituasjon.ARBEIDSTAKER) {
             val orgnummer = this.arbeidsgiverOrgnummer ?: throw RuntimeException("Forventer orgnummer")
 
-            val forskuttering = forskutteringRepository.finnForskuttering(
-                brukerFnr = this.fnr,
-                orgnummer = orgnummer
-            )?.arbeidsgiverForskutterer
+            val forskuttering =
+                forskutteringRepository.finnForskuttering(
+                    brukerFnr = this.fnr,
+                    orgnummer = orgnummer,
+                )?.arbeidsgiverForskutterer
             if (forskuttering == true) {
                 return false
             }

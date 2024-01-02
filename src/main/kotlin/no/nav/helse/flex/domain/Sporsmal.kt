@@ -12,7 +12,7 @@ data class Sporsmal(
     val max: String? = null,
     val kriterieForVisningAvUndersporsmal: Visningskriterie? = null,
     val svar: List<Svar> = emptyList(),
-    val undersporsmal: List<Sporsmal> = emptyList()
+    val undersporsmal: List<Sporsmal> = emptyList(),
 ) : Serializable {
     class SporsmalBuilder(
         var id: String? = null,
@@ -24,7 +24,7 @@ data class Sporsmal(
         var max: String? = null,
         var kriterieForVisningAvUndersporsmal: Visningskriterie? = null,
         var svar: List<Svar> = emptyList(),
-        var undersporsmal: List<Sporsmal> = emptyList()
+        var undersporsmal: List<Sporsmal> = emptyList(),
     ) {
         fun id(id: String?): SporsmalBuilder {
             this.id = id
@@ -87,7 +87,7 @@ data class Sporsmal(
                 max = max,
                 kriterieForVisningAvUndersporsmal = kriterieForVisningAvUndersporsmal,
                 svar = svar,
-                undersporsmal = undersporsmal
+                undersporsmal = undersporsmal,
             )
     }
 
@@ -102,16 +102,16 @@ data class Sporsmal(
             max = max,
             kriterieForVisningAvUndersporsmal = kriterieForVisningAvUndersporsmal,
             svar = svar,
-            undersporsmal = undersporsmal
+            undersporsmal = undersporsmal,
         )
 
     val forsteSvar: String?
-        get() = if (svar.isEmpty()) {
-            null
-        } else {
-            svar[0].verdi
-        }
+        get() =
+            if (svar.isEmpty()) {
+                null
+            } else {
+                svar[0].verdi
+            }
 }
 
-fun sporsmalBuilder(): Sporsmal.SporsmalBuilder =
-    Sporsmal.SporsmalBuilder()
+fun sporsmalBuilder(): Sporsmal.SporsmalBuilder = Sporsmal.SporsmalBuilder()

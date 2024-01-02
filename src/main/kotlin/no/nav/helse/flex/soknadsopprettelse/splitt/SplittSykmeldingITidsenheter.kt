@@ -30,17 +30,18 @@ fun ArbeidsgiverSykmelding.splittSykmeldingiSoknadsPerioder(
     sykmeldingId: String,
     behandletTidspunkt: Instant,
     orgnummer: String?,
-    klippMetrikk: KlippMetrikk
+    klippMetrikk: KlippMetrikk,
 ): List<Tidsenhet> {
-    val sykmeldingTidsenheter = SykmeldingTidsenheter(
-        mutableListOf(),
-        mutableListOf(
-            Tidsenhet(
-                fom = eldstePeriodeFOM(perioder = sykmeldingsperioder),
-                tom = hentSenesteTOMFraPerioder(perioder = sykmeldingsperioder)
-            )
+    val sykmeldingTidsenheter =
+        SykmeldingTidsenheter(
+            mutableListOf(),
+            mutableListOf(
+                Tidsenhet(
+                    fom = eldstePeriodeFOM(perioder = sykmeldingsperioder),
+                    tom = hentSenesteTOMFraPerioder(perioder = sykmeldingsperioder),
+                ),
+            ),
         )
-    )
 
     if (harBehandlingsdager(arbeidssituasjon)) {
         sykmeldingTidsenheter.splittLangeSykmeldingperioderMedBehandlingsdager()
@@ -52,7 +53,7 @@ fun ArbeidsgiverSykmelding.splittSykmeldingiSoknadsPerioder(
             sykmeldingId,
             behandletTidspunkt,
             orgnummer,
-            klippMetrikk
+            klippMetrikk,
         )
     }
 
@@ -86,28 +87,29 @@ private fun SykmeldingTidsenheter.splittPeriodenSomOverlapperSendtSoknad(
     sykmeldingId: String,
     behandletTidspunkt: Instant,
     orgnummer: String?,
-    klippMetrikk: KlippMetrikk
+    klippMetrikk: KlippMetrikk,
 ): SykmeldingTidsenheter {
     val splittbareTidsenheter = splittbar.toMutableList()
     splittbar.clear()
 
-    val soknadskandidater = eksisterendeSoknader.asSequence()
-        .filterNot { it.sykmeldingId == sykmeldingId } // Korrigerte sykmeldinger håndteres her SlettSoknaderTilKorrigertSykmeldingService
-        .filter { it.soknadstype == Soknadstype.ARBEIDSTAKERE }
-        .filter { it.status == Soknadstatus.SENDT }
-        .filter { it.sykmeldingSkrevet!!.isBefore(behandletTidspunkt) }
-        .filter { it.arbeidsgiverOrgnummer == orgnummer }
-        .filter { sok ->
-            splittbareTidsenheter.forEach {
-                val soknadPeriode = sok.fom!!..sok.tom!!
-                val sykmeldingPeriode = it.fom..it.tom
-                if (sykmeldingPeriode.overlap(soknadPeriode)) {
-                    return@filter true
+    val soknadskandidater =
+        eksisterendeSoknader.asSequence()
+            .filterNot { it.sykmeldingId == sykmeldingId } // Korrigerte sykmeldinger håndteres her SlettSoknaderTilKorrigertSykmeldingService
+            .filter { it.soknadstype == Soknadstype.ARBEIDSTAKERE }
+            .filter { it.status == Soknadstatus.SENDT }
+            .filter { it.sykmeldingSkrevet!!.isBefore(behandletTidspunkt) }
+            .filter { it.arbeidsgiverOrgnummer == orgnummer }
+            .filter { sok ->
+                splittbareTidsenheter.forEach {
+                    val soknadPeriode = sok.fom!!..sok.tom!!
+                    val sykmeldingPeriode = it.fom..it.tom
+                    if (sykmeldingPeriode.overlap(soknadPeriode)) {
+                        return@filter true
+                    }
                 }
+                return@filter false
             }
-            return@filter false
-        }
-        .toList()
+            .toList()
 
     while (splittbareTidsenheter.isNotEmpty()) {
         var tidsenhet = splittbareTidsenheter.removeFirst()
@@ -133,7 +135,7 @@ private fun SykmeldingTidsenheter.splittPeriodenSomOverlapperSendtSoknad(
                     sykmeldingId = sykmeldingId,
                     eksisterendeSykepengesoknadId = sok.id,
                     klippet = true,
-                    endringIUforegrad = EndringIUforegrad.VET_IKKE
+                    endringIUforegrad = EndringIUforegrad.VET_IKKE,
                 )
             }
 
@@ -154,7 +156,7 @@ private fun SykmeldingTidsenheter.splittPeriodenSomOverlapperSendtSoknad(
                     sykmeldingId = sykmeldingId,
                     eksisterendeSykepengesoknadId = sok.id,
                     klippet = true,
-                    endringIUforegrad = EndringIUforegrad.VET_IKKE
+                    endringIUforegrad = EndringIUforegrad.VET_IKKE,
                 )
             }
 
@@ -177,7 +179,7 @@ private fun SykmeldingTidsenheter.splittPeriodenSomOverlapperSendtSoknad(
                     sykmeldingId = sykmeldingId,
                     eksisterendeSykepengesoknadId = sok.id,
                     klippet = true,
-                    endringIUforegrad = EndringIUforegrad.VET_IKKE
+                    endringIUforegrad = EndringIUforegrad.VET_IKKE,
                 )
             }
 
@@ -192,7 +194,7 @@ private fun SykmeldingTidsenheter.splittPeriodenSomOverlapperSendtSoknad(
                     sykmeldingId = sykmeldingId,
                     eksisterendeSykepengesoknadId = sok.id,
                     klippet = false,
-                    endringIUforegrad = EndringIUforegrad.VET_IKKE
+                    endringIUforegrad = EndringIUforegrad.VET_IKKE,
                 )
             }
         }

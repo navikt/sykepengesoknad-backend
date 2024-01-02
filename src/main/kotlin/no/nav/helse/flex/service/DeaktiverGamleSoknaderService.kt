@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service
 @Service
 class DeaktiverGamleSoknaderService(
     private val sykepengesoknadDAO: SykepengesoknadDAO,
-    private val registry: MeterRegistry
+    private val registry: MeterRegistry,
 ) {
     val log = logger()
 

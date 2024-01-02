@@ -13,13 +13,11 @@ import java.util.*
 
 @Component
 class YrkesskadeClient(
-
     @Value("\${YRKESSKADE_URL}")
     private val url: String,
     private val yrkesskadeRestTemplate: RestTemplate,
-    private val environmentToggles: EnvironmentToggles
+    private val environmentToggles: EnvironmentToggles,
 ) {
-
     val log = logger()
 
     fun hentSaker(harYsSakerRequest: HarYsSakerRequest): SakerResponse {
@@ -31,16 +29,17 @@ class YrkesskadeClient(
             headers.contentType = MediaType.APPLICATION_JSON
             headers["Nav-Consumer-Id"] = "sykepengesoknad-backend"
 
-            val result = yrkesskadeRestTemplate
-                .exchange(
-                    uriBuilder.toUriString(),
-                    HttpMethod.POST,
-                    HttpEntity(
-                        harYsSakerRequest.serialisertTilString(),
-                        headers
-                    ),
-                    SakerResponse::class.java
-                )
+            val result =
+                yrkesskadeRestTemplate
+                    .exchange(
+                        uriBuilder.toUriString(),
+                        HttpMethod.POST,
+                        HttpEntity(
+                            harYsSakerRequest.serialisertTilString(),
+                            headers,
+                        ),
+                        SakerResponse::class.java,
+                    )
 
             if (result.statusCode != HttpStatus.OK) {
                 val message = "Kall mot yrkesskade feiler med HTTP-" + result.statusCode
@@ -54,10 +53,16 @@ class YrkesskadeClient(
             log.error(message)
             throw RuntimeException(message)
         } catch (e: HttpClientErrorException) {
-            if (e.message?.contains("Det må angis et gyldig fødselsnummer") == true && environmentToggles.isNotProduction()) {
+            if (e.message?.contains("Det må angis et gyldig fødselsnummer") == true &&
+                environmentToggles.isNotProduction()
+            ) {
                 return SakerResponse(emptyList())
             }
-            if (e.message?.contains("Bad Request from POST https://yrkesskade-infotrygd.dev-fss-pub.nais.io/api/v1/saker/") == true && environmentToggles.isNotProduction()) {
+            if (e.message?.contains(
+                    "Bad Request from POST https://yrkesskade-infotrygd.dev-fss-pub.nais.io/api/v1/saker/",
+                ) == true &&
+                environmentToggles.isNotProduction()
+            ) {
                 return SakerResponse(emptyList())
             }
             throw e

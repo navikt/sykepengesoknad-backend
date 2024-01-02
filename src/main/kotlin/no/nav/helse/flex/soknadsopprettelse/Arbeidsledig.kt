@@ -5,9 +5,7 @@ import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.utenlandsksykmelding.utenlandskSykmeldingSporsmal
 
-fun settOppSoknadArbeidsledig(
-    opts: SettOppSoknadOptions
-): List<Sporsmal> {
+fun settOppSoknadArbeidsledig(opts: SettOppSoknadOptions): List<Sporsmal> {
     val (sykepengesoknad, erForsteSoknadISykeforlop, harTidligereUtenlandskSpm, yrkesskade) = opts
     val erGradertReisetilskudd = sykepengesoknad.soknadstype == Soknadstype.GRADERT_REISETILSKUDD
 

@@ -11,14 +11,13 @@ import java.time.Duration
 @Configuration
 class CacheConfig {
     @Bean
-    fun cacheManager(
-        redisConnectionFactory: RedisConnectionFactory
-    ): CacheManager {
+    fun cacheManager(redisConnectionFactory: RedisConnectionFactory): CacheManager {
         val cacheConfigurations: MutableMap<String, RedisCacheConfiguration> = HashMap()
 
-        cacheConfigurations["flex-folkeregister-identer-med-historikk"] = RedisCacheConfiguration
-            .defaultCacheConfig()
-            .entryTtl(Duration.ofSeconds(3600L))
+        cacheConfigurations["flex-folkeregister-identer-med-historikk"] =
+            RedisCacheConfiguration
+                .defaultCacheConfig()
+                .entryTtl(Duration.ofSeconds(3600L))
 
         return RedisCacheManager.builder(redisConnectionFactory)
             .cacheDefaults(RedisCacheConfiguration.defaultCacheConfig())

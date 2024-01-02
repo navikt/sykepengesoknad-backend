@@ -28,9 +28,8 @@ import java.time.temporal.ChronoUnit
 class SoknadProducer(
     private val kafkaProducer: AivenKafkaProducer,
     private val metrikk: Metrikk,
-    private val sykepengesoknadTilSykepengesoknadDTOMapper: SykepengesoknadTilSykepengesoknadDTOMapper
+    private val sykepengesoknadTilSykepengesoknadDTOMapper: SykepengesoknadTilSykepengesoknadDTOMapper,
 ) {
-
     private val log = logger()
 
     fun soknadEvent(
@@ -38,17 +37,18 @@ class SoknadProducer(
         mottaker: Mottaker? = null,
         erEttersending: Boolean = false,
         dodsdato: LocalDate? = null,
-        opprinneligSendt: Instant? = null
+        opprinneligSendt: Instant? = null,
     ) {
-        val sykepengesoknadDTO = sykepengesoknadTilSykepengesoknadDTOMapper.mapTilSykepengesoknadDTO(
-            sykepengesoknad,
-            mottaker,
-            erEttersending,
-            sykepengesoknad.skalLeggeJuridiskVurderingPaKafka()
-        ).copy(
-            dodsdato = dodsdato,
-            opprinneligSendt = opprinneligSendt?.tilOsloLocalDateTime()
-        )
+        val sykepengesoknadDTO =
+            sykepengesoknadTilSykepengesoknadDTOMapper.mapTilSykepengesoknadDTO(
+                sykepengesoknad,
+                mottaker,
+                erEttersending,
+                sykepengesoknad.skalLeggeJuridiskVurderingPaKafka(),
+            ).copy(
+                dodsdato = dodsdato,
+                opprinneligSendt = opprinneligSendt?.tilOsloLocalDateTime(),
+            )
 
         kafkaProducer.produserMelding(sykepengesoknadDTO)
 
@@ -97,7 +97,7 @@ class SoknadProducer(
         if (soknad.status == Soknadstatus.SENDT) {
             metrikk.tellDagerFraAktiveringTilInnsending(
                 ANNET_ARBEIDSFORHOLD.name,
-                beregnDagerBruktPaInnsending(soknad.tom!!)
+                beregnDagerBruktPaInnsending(soknad.tom!!),
             )
             if (soknad.startSykeforlop?.isBefore(soknad.fom) == true) {
                 metrikk.tellForlengelseSoknadISyketilfelle(ANNET_ARBEIDSFORHOLD.name)
@@ -111,7 +111,7 @@ class SoknadProducer(
         if (Soknadstatus.SENDT == soknad.status) {
             metrikk.tellDagerFraAktiveringTilInnsending(
                 ARBEIDSLEDIG.name,
-                beregnDagerBruktPaInnsending(soknad.tom!!)
+                beregnDagerBruktPaInnsending(soknad.tom!!),
             )
             if (soknad.startSykeforlop?.isBefore(soknad.fom) == true) {
                 metrikk.tellForlengelseSoknadISyketilfelle(ARBEIDSLEDIG.name)
@@ -119,10 +119,11 @@ class SoknadProducer(
                 metrikk.tellForsteSoknadISyketilfelle(ARBEIDSLEDIG.name)
             }
             if (soknad.getSporsmalMedTagOrNull(FRISKMELDT)?.forsteSvar == "NEI") {
-                val friskmeldtDato = LocalDate.parse(
-                    soknad.getSporsmalMedTagOrNull(FRISKMELDT_START)?.forsteSvar,
-                    DateTimeFormatter.ISO_DATE
-                )
+                val friskmeldtDato =
+                    LocalDate.parse(
+                        soknad.getSporsmalMedTagOrNull(FRISKMELDT_START)?.forsteSvar,
+                        DateTimeFormatter.ISO_DATE,
+                    )
                 val antallFriskmeldteDager = friskmeldtDato.until(soknad.tom, ChronoUnit.DAYS) + 1 // Fordi det er tom
                 metrikk.tellAntallFriskmeldteDagerForArbeidsledige(antallFriskmeldteDager)
             }
@@ -133,7 +134,7 @@ class SoknadProducer(
         if (Soknadstatus.SENDT == soknad.status) {
             metrikk.tellDagerFraAktiveringTilInnsending(
                 soknad.soknadstype.name,
-                beregnDagerBruktPaInnsending(soknad.tom!!)
+                beregnDagerBruktPaInnsending(soknad.tom!!),
             )
             if (soknad.startSykeforlop?.isBefore(soknad.fom) == true) {
                 metrikk.tellForlengelseSoknadISyketilfelle(soknad.soknadstype.name)
@@ -147,7 +148,7 @@ class SoknadProducer(
         if (Soknadstatus.SENDT == soknad.status) {
             metrikk.tellDagerFraAktiveringTilInnsending(
                 BEHANDLINGSDAGER.name,
-                beregnDagerBruktPaInnsending(soknad.tom!!)
+                beregnDagerBruktPaInnsending(soknad.tom!!),
             )
             if (soknad.startSykeforlop?.isBefore(soknad.fom) == true) {
                 metrikk.tellForlengelseSoknadISyketilfelle(BEHANDLINGSDAGER.name)
@@ -188,7 +189,7 @@ class SoknadProducer(
         if (SoknadsstatusDTO.SENDT == soknad.status) {
             metrikk.tellDagerFraAktiveringTilInnsending(
                 ARBEIDSTAKERE.name,
-                beregnDagerBruktPaInnsending(soknad.tom!!)
+                beregnDagerBruktPaInnsending(soknad.tom!!),
             )
             if (soknad.startSyketilfelle != null && soknad.startSyketilfelle!!.isBefore(soknad.fom!!)) {
                 metrikk.tellForlengelseSoknadISyketilfelle(ARBEIDSTAKERE.name)
@@ -201,7 +202,7 @@ class SoknadProducer(
 
 fun finnDagerSpartVedArbeidGjenopptattTidligere(
     arbeidGjenopptatt: LocalDate?,
-    soknadsperioder: List<SoknadsperiodeDTO>?
+    soknadsperioder: List<SoknadsperiodeDTO>?,
 ): Double {
     var dagerSpart = 0.0
     if (arbeidGjenopptatt != null) {
@@ -216,7 +217,7 @@ fun finnDagerSpartVedArbeidGjenopptattTidligere(
 
 fun finnDagerSpartFordiJobbetMerEnnSoknadTilsier(
     arbeidGjenopptatt: LocalDate?,
-    soknadsperioder: List<SoknadsperiodeDTO>
+    soknadsperioder: List<SoknadsperiodeDTO>,
 ): Double {
     var dagerSpart = 0.0
     for ((fom, tom, sykmeldingsgrad, faktiskGrad) in soknadsperioder) {
@@ -232,9 +233,9 @@ fun finnDagerSpartFordiJobbetMerEnnSoknadTilsier(
             dagerSpart = dagerSpart + (sykmeldingsgrad!! - (100 - faktiskGrad)) * (
                 Period.between(
                     fom!!,
-                    sisteDagIPeriode!!
+                    sisteDagIPeriode!!,
                 ).days + 1
-                ) / 100.0
+            ) / 100.0
         }
     }
     return dagerSpart

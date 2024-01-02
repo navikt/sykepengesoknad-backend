@@ -9,11 +9,11 @@ import org.apache.kafka.common.PartitionInfo
 import org.apache.kafka.common.utils.Utils
 
 abstract class FnrPartitioner : Partitioner {
-
     companion object {
-
-        fun kalkulerPartisjon(keyBytes: ByteArray, numPartitions: Int): Int =
-            Utils.toPositive(Utils.murmur2(keyBytes)) % (numPartitions)
+        fun kalkulerPartisjon(
+            keyBytes: ByteArray,
+            numPartitions: Int,
+        ): Int = Utils.toPositive(Utils.murmur2(keyBytes)) % (numPartitions)
     }
 
     override fun configure(configs: MutableMap<String, *>?) {}
@@ -26,7 +26,7 @@ abstract class FnrPartitioner : Partitioner {
         keyBytes: ByteArray?,
         value: Any?,
         valueBytes: ByteArray?,
-        cluster: Cluster?
+        cluster: Cluster?,
     ): Int {
         val partitions: List<PartitionInfo> = cluster!!.partitionsForTopic(topic)
         val numPartitions: Int = partitions.size
@@ -40,14 +40,13 @@ abstract class FnrPartitioner : Partitioner {
 }
 
 class SykepengesoknadPartitioner : FnrPartitioner() {
-
     override fun partition(
         topic: String?,
         key: Any?,
         keyBytes: ByteArray?,
         value: Any?,
         valueBytes: ByteArray?,
-        cluster: Cluster?
+        cluster: Cluster?,
     ): Int {
         val soknad = value as SykepengesoknadDTO
         val actualKey: String = soknad.fnr
@@ -56,14 +55,13 @@ class SykepengesoknadPartitioner : FnrPartitioner() {
 }
 
 class AktiveringBestillingPartitioner : FnrPartitioner() {
-
     override fun partition(
         topic: String?,
         key: Any?,
         keyBytes: ByteArray?,
         value: Any?,
         valueBytes: ByteArray?,
-        cluster: Cluster?
+        cluster: Cluster?,
     ): Int {
         val aktiveringBestilling = value as AktiveringBestilling
         val actualKey: String = aktiveringBestilling.fnr

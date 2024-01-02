@@ -18,7 +18,7 @@ internal fun getFaktiskGrad(
     avtaltTimer: Double?,
     periode: Soknadsperiode,
     ferieOgPermisjonPerioder: List<FravarDTO>,
-    arbeidgjenopptattDato: LocalDate?
+    arbeidgjenopptattDato: LocalDate?,
 ): Int? {
     val antallVirkedagerPerUke = 5
 
@@ -31,14 +31,18 @@ internal fun getFaktiskGrad(
     }
 }
 
-private fun antallVirkedagerIPeriode(periode: Soknadsperiode, arbeidgjenopptattDato: LocalDate?): Int {
+private fun antallVirkedagerIPeriode(
+    periode: Soknadsperiode,
+    arbeidgjenopptattDato: LocalDate?,
+): Int {
     var virkedager = 0
 
-    val slutt = if (arbeidgjenopptattDato == null) {
-        Math.toIntExact(ChronoUnit.DAYS.between(periode.fom, periode.tom) + 1)
-    } else {
-        Math.toIntExact(ChronoUnit.DAYS.between(periode.fom, arbeidgjenopptattDato))
-    }
+    val slutt =
+        if (arbeidgjenopptattDato == null) {
+            Math.toIntExact(ChronoUnit.DAYS.between(periode.fom, periode.tom) + 1)
+        } else {
+            Math.toIntExact(ChronoUnit.DAYS.between(periode.fom, arbeidgjenopptattDato))
+        }
 
     for (i in 0 until slutt) {
         if (erIkkeHelgedag(periode.fom.plusDays(i.toLong()))) {
@@ -53,7 +57,10 @@ private fun erIkkeHelgedag(dag: LocalDate): Boolean {
     return dag.dayOfWeek != DayOfWeek.SATURDAY && dag.dayOfWeek != DayOfWeek.SUNDAY
 }
 
-private fun antallVirkedagerIPerioder(ferieOgPermisjonPerioder: List<FravarDTO>, soknadsperiode: Soknadsperiode): Int {
+private fun antallVirkedagerIPerioder(
+    ferieOgPermisjonPerioder: List<FravarDTO>,
+    soknadsperiode: Soknadsperiode,
+): Int {
     val virkedager = HashSet<LocalDate>()
 
     ferieOgPermisjonPerioder.forEach { (fom, tom) ->
@@ -120,7 +127,10 @@ fun hentFeriePermUtlandListe(sykepengesoknad: Sykepengesoknad): List<FravarDTO> 
     return fravarliste
 }
 
-private fun hentFravar(sporsmal: Sporsmal, fravartype: FravarstypeDTO): List<FravarDTO> {
+private fun hentFravar(
+    sporsmal: Sporsmal,
+    fravartype: FravarstypeDTO,
+): List<FravarDTO> {
     val fravarliste = ArrayList<FravarDTO>()
     val svarliste = sporsmal.svar
 
@@ -130,8 +140,8 @@ private fun hentFravar(sporsmal: Sporsmal, fravartype: FravarstypeDTO): List<Fra
             FravarDTO(
                 fom,
                 tom,
-                fravartype
-            )
+                fravartype,
+            ),
         )
     }
     return fravarliste

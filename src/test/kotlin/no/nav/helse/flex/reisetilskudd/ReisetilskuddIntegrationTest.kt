@@ -48,7 +48,6 @@ import java.util.*
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class ReisetilskuddIntegrationTest : BaseTestClass() {
-
     final val fnr = "123456789"
 
     companion object {
@@ -69,27 +68,29 @@ class ReisetilskuddIntegrationTest : BaseTestClass() {
     @Test
     @Order(1)
     fun `01 - vi oppretter en reisetilskuddsøknad`() {
-        val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(
-            fnr = fnr,
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-            statusEvent = STATUS_SENDT,
-            arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "Kebabbiten")
-
-        )
+        val sykmeldingStatusKafkaMessageDTO =
+            skapSykmeldingStatusKafkaMessageDTO(
+                fnr = fnr,
+                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                statusEvent = STATUS_SENDT,
+                arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "Kebabbiten"),
+            )
         val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
-        val sykmelding = skapArbeidsgiverSykmelding(
-            sykmeldingId = sykmeldingId,
-            fom = fom,
-            tom = tom,
-            type = PeriodetypeDTO.REISETILSKUDD,
-            reisetilskudd = true
-        )
+        val sykmelding =
+            skapArbeidsgiverSykmelding(
+                sykmeldingId = sykmeldingId,
+                fom = fom,
+                tom = tom,
+                type = PeriodetypeDTO.REISETILSKUDD,
+                reisetilskudd = true,
+            )
 
-        val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
-            sykmelding = sykmelding,
-            event = sykmeldingStatusKafkaMessageDTO.event,
-            kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
-        )
+        val sykmeldingKafkaMessage =
+            SykmeldingKafkaMessage(
+                sykmelding = sykmelding,
+                event = sykmeldingStatusKafkaMessageDTO.event,
+                kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
+            )
 
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
@@ -106,10 +107,11 @@ class ReisetilskuddIntegrationTest : BaseTestClass() {
         val soknader = hentSoknaderMetadata(fnr)
         assertThat(soknader).hasSize(1)
 
-        val soknaden = hentSoknad(
-            soknadId = soknader.first().id,
-            fnr = fnr
-        )
+        val soknaden =
+            hentSoknad(
+                soknadId = soknader.first().id,
+                fnr = fnr,
+            )
 
         assertThat(soknaden.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
@@ -118,13 +120,21 @@ class ReisetilskuddIntegrationTest : BaseTestClass() {
                 REISE_MED_BIL,
                 KVITTERINGER,
                 UTBETALING,
-                TIL_SLUTT
-            )
+                TIL_SLUTT,
+            ),
         )
 
-        assertThat(soknaden.sporsmal!!.first { it.tag == ANSVARSERKLARING }.sporsmalstekst).isEqualTo("Jeg vet at jeg kan miste retten til reisetilskudd og sykepenger hvis opplysningene jeg gir ikke er riktige eller fullstendige. Jeg vet også at NAV kan holde igjen eller kreve tilbake penger, og at å gi feil opplysninger kan være straffbart.")
+        assertThat(
+            soknaden.sporsmal!!.first {
+                it.tag == ANSVARSERKLARING
+            }.sporsmalstekst,
+        ).isEqualTo(
+            "Jeg vet at jeg kan miste retten til reisetilskudd og sykepenger hvis opplysningene jeg gir ikke er " +
+                "riktige eller fullstendige. Jeg vet også at NAV kan holde igjen eller kreve tilbake penger, og at å " +
+                "gi feil opplysninger kan være straffbart.",
+        )
         assertThat(soknaden.sporsmal!!.first { it.tag == TIL_SLUTT }.sporsmalstekst).isEqualTo(
-            tilSlutt().sporsmalstekst
+            tilSlutt().sporsmalstekst,
         )
     }
 
@@ -151,37 +161,42 @@ class ReisetilskuddIntegrationTest : BaseTestClass() {
     @Test
     @Order(5)
     fun `Vi kan besvare et av spørsmålene`() {
-        val reisetilskudd = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val reisetilskudd =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
         SoknadBesvarer(reisetilskudd, this, fnr)
             .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
 
-        val svaret = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        ).sporsmal!!.find { it.tag == ANSVARSERKLARING }!!.svar.first()
+        val svaret =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            ).sporsmal!!.find { it.tag == ANSVARSERKLARING }!!.svar.first()
         svaret.verdi shouldBeEqualTo "CHECKED"
     }
 
     @Test
     @Order(6)
     fun `Vi kan laste opp en kvittering`() {
-        val reisetilskuddSoknad = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val reisetilskuddSoknad =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
         val kvitteringSpm = reisetilskuddSoknad.sporsmal!!.first { it.tag == KVITTERINGER }
-        val svar = RSSvar(
-            verdi = Kvittering(
-                blobId = "9a186e3c-aeeb-4566-a865-15aa9139d364",
-                belop = 133700,
-                typeUtgift = Utgiftstype.PARKERING,
-                opprettet = Instant.now()
-            ).serialisertTilString(),
-            id = null
-        )
+        val svar =
+            RSSvar(
+                verdi =
+                    Kvittering(
+                        blobId = "9a186e3c-aeeb-4566-a865-15aa9139d364",
+                        belop = 133700,
+                        typeUtgift = Utgiftstype.PARKERING,
+                        opprettet = Instant.now(),
+                    ).serialisertTilString(),
+                id = null,
+            )
 
         val spmSomBleSvart = lagreSvar(fnr, reisetilskuddSoknad.id, kvitteringSpm.id!!, svar).oppdatertSporsmal
 
@@ -194,10 +209,11 @@ class ReisetilskuddIntegrationTest : BaseTestClass() {
     @Test
     @Order(7)
     fun `Vi kan se den opplastede kvitteringen`() {
-        val reisetilskuddSoknad = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val reisetilskuddSoknad =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
         val kvitteringSpm = reisetilskuddSoknad.sporsmal!!.first { it.tag == KVITTERINGER }
         kvitteringSpm.svar.size `should be equal to` 1
 
@@ -211,10 +227,11 @@ class ReisetilskuddIntegrationTest : BaseTestClass() {
     @Test
     @Order(8)
     fun `Vi kan slette en kvittering`() {
-        val reisetilskuddSoknad = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val reisetilskuddSoknad =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
         val kvitteringSpm = reisetilskuddSoknad.sporsmal!!.first { it.tag == KVITTERINGER }
         kvitteringSpm.svar.size `should be equal to` 1
 
@@ -222,10 +239,11 @@ class ReisetilskuddIntegrationTest : BaseTestClass() {
 
         slettSvar(fnr, reisetilskuddSoknad.id, kvitteringSpm.id!!, svaret.id!!)
 
-        val reisetilskuddSoknadEtter = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val reisetilskuddSoknadEtter =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
         val kvitteringSpmEtter = reisetilskuddSoknadEtter.sporsmal!!.first { it.tag == KVITTERINGER }
         kvitteringSpmEtter.svar.size `should be equal to` 0
     }
@@ -233,20 +251,23 @@ class ReisetilskuddIntegrationTest : BaseTestClass() {
     @Test
     @Order(9)
     fun `Vi laster opp en kvittering igjen`() {
-        val reisetilskuddSoknad = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val reisetilskuddSoknad =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
         val kvitteringSpm = reisetilskuddSoknad.sporsmal!!.first { it.tag == KVITTERINGER }
-        val svar = RSSvar(
-            verdi = Kvittering(
-                blobId = "9a186e3c-aeeb-4566-a865-15aa9139d364",
-                belop = 133700,
-                typeUtgift = Utgiftstype.PARKERING,
-                opprettet = Instant.now()
-            ).serialisertTilString(),
-            id = null
-        )
+        val svar =
+            RSSvar(
+                verdi =
+                    Kvittering(
+                        blobId = "9a186e3c-aeeb-4566-a865-15aa9139d364",
+                        belop = 133700,
+                        typeUtgift = Utgiftstype.PARKERING,
+                        opprettet = Instant.now(),
+                    ).serialisertTilString(),
+                id = null,
+            )
 
         lagreSvar(fnr, reisetilskuddSoknad.id, kvitteringSpm.id!!, svar)
     }
@@ -262,25 +283,28 @@ class ReisetilskuddIntegrationTest : BaseTestClass() {
     @Test
     @Order(11)
     fun `Vi besvarer et spørsmål med feil type verdi`() {
-        val reisetilskudd = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val reisetilskudd =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
         val utbetaling = reisetilskudd.sporsmal!!.first { it.tag == UTBETALING }.byttSvar(svar = "TJA")
 
-        val json = oppdaterSporsmalMedResult(fnr, utbetaling, reisetilskudd.id)
-            .andExpect(MockMvcResultMatchers.status().isBadRequest)
-            .andReturn().response.contentAsString
+        val json =
+            oppdaterSporsmalMedResult(fnr, utbetaling, reisetilskudd.id)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest)
+                .andReturn().response.contentAsString
         json shouldBeEqualTo "{\"reason\":\"SPORSMALETS_SVAR_VALIDERER_IKKE\"}"
     }
 
     @Test
     @Order(12)
     fun `Vi besvarer resten av spørsmålene`() {
-        val reisetilskudd = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val reisetilskudd =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
         SoknadBesvarer(reisetilskudd, this, fnr)
             .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
             .besvarSporsmal(TRANSPORT_TIL_DAGLIG, "NEI")
@@ -293,12 +317,14 @@ class ReisetilskuddIntegrationTest : BaseTestClass() {
     @Test
     @Order(13)
     fun `Vi kan sende inn søknaden`() {
-        val reisetilskudd = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
-        val sendtSøknad = SoknadBesvarer(reisetilskudd, this, fnr)
-            .sendSoknad()
+        val reisetilskudd =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
+        val sendtSøknad =
+            SoknadBesvarer(reisetilskudd, this, fnr)
+                .sendSoknad()
         sendtSøknad.status shouldBeEqualTo RSSoknadstatus.SENDT
     }
 

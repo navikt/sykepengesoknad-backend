@@ -14,8 +14,7 @@ class JuridiskVurderingKafkaProducer(
     @Value("\${nais.app.name}")
     private val naisAppName: String,
     @Value("\${nais.app.image}")
-    private val naisAppImage: String
-
+    private val naisAppImage: String,
 ) {
     val log = logger()
 
@@ -26,37 +25,38 @@ class JuridiskVurderingKafkaProducer(
                 ProducerRecord(
                     juridiskVurderingTopic,
                     dto.fodselsnummer,
-                    dto
-                )
+                    dto,
+                ),
             ).get()
         } catch (e: Throwable) {
             log.warn(
                 "Uventet exception ved publisering av juridiskvurdering ${dto.id} på topic $juridiskVurderingTopic",
-                e
+                e,
             )
             throw e
         }
     }
 
-    fun JuridiskVurdering.tilDto(): JuridiskVurderingKafkaDto = JuridiskVurderingKafkaDto(
-        bokstav = bokstav,
-        fodselsnummer = fodselsnummer,
-        sporing = sporing,
-        lovverk = lovverk,
-        lovverksversjon = lovverksversjon,
-        paragraf = paragraf,
-        ledd = ledd,
-        punktum = punktum,
-        input = input,
-        output = output,
-        utfall = utfall,
-        id = UUID.randomUUID().toString(),
-        eventName = "subsumsjon",
-        versjon = "1.0.0",
-        kilde = naisAppName,
-        versjonAvKode = naisAppImage,
-        tidsstempel = Instant.now()
-    )
+    fun JuridiskVurdering.tilDto(): JuridiskVurderingKafkaDto =
+        JuridiskVurderingKafkaDto(
+            bokstav = bokstav,
+            fodselsnummer = fodselsnummer,
+            sporing = sporing,
+            lovverk = lovverk,
+            lovverksversjon = lovverksversjon,
+            paragraf = paragraf,
+            ledd = ledd,
+            punktum = punktum,
+            input = input,
+            output = output,
+            utfall = utfall,
+            id = UUID.randomUUID().toString(),
+            eventName = "subsumsjon",
+            versjon = "1.0.0",
+            kilde = naisAppName,
+            versjonAvKode = naisAppImage,
+            tidsstempel = Instant.now(),
+        )
 }
 
 val juridiskVurderingTopic = "flex.omrade-helse-etterlevelse"

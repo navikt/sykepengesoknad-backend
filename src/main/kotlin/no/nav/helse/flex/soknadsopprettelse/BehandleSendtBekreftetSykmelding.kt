@@ -30,11 +30,15 @@ class BehandleSendtBekreftetSykmelding(
     private val sykmeldingStatusService: GjenapneSykmeldingService,
     private val klippOgOpprett: KlippOgOpprett,
     private val skalOppretteSoknader: SkalOppretteSoknader,
-    private val lockRepository: LockRepository
+    private val lockRepository: LockRepository,
 ) {
     val log = logger()
 
-    fun prosesserSykmelding(sykmeldingId: String, sykmeldingKafkaMessage: SykmeldingKafkaMessage?, topic: String): List<AktiveringBestilling> {
+    fun prosesserSykmelding(
+        sykmeldingId: String,
+        sykmeldingKafkaMessage: SykmeldingKafkaMessage?,
+        topic: String,
+    ): List<AktiveringBestilling> {
         if (sykmeldingKafkaMessage == null) {
             log.info("Mottok tombstone event for sykmelding $sykmeldingId")
             sykmeldingStatusService.prosesserTombstoneSykmelding(sykmeldingId, topic)
@@ -44,8 +48,9 @@ class BehandleSendtBekreftetSykmelding(
             return prosseserKafkaMessage(sykmeldingKafkaMessage)
         } catch (e: SkalRebehandlesException) {
             log.error(
-                "Feil under opprettelse av søknad for sykmelding ${sykmeldingKafkaMessage.event.sykmeldingId}, legger til rebehandling ${e.rebehandlingsTid}",
-                e
+                "Feil under opprettelse av søknad for sykmelding ${sykmeldingKafkaMessage.event.sykmeldingId}, " +
+                    "legger til rebehandling ${e.rebehandlingsTid}",
+                e,
             )
             rebehandlingSykmeldingSendtProducer.leggPaRebehandlingTopic(sykmeldingKafkaMessage, e.rebehandlingsTid)
             TransactionInterceptor.currentTransactionStatus()
@@ -60,7 +65,10 @@ class BehandleSendtBekreftetSykmelding(
             STATUS_BEKREFTET -> handterBekreftetSykmelding(sykmeldingKafkaMessage)
             STATUS_SENDT -> handterSendtSykmelding(sykmeldingKafkaMessage)
             else -> {
-                log.info("Ignorerer statusmelding for sykmelding ${sykmeldingKafkaMessage.sykmelding.id} med status ${sykmeldingKafkaMessage.event.statusEvent}")
+                log.info(
+                    "Ignorerer statusmelding for sykmelding ${sykmeldingKafkaMessage.sykmelding.id} med " +
+                        "status ${sykmeldingKafkaMessage.event.statusEvent}",
+                )
                 emptyList()
             }
         }
@@ -71,31 +79,35 @@ class BehandleSendtBekreftetSykmelding(
             Arbeidssituasjon.NAERINGSDRIVENDE,
             Arbeidssituasjon.FRILANSER,
             Arbeidssituasjon.ARBEIDSLEDIG,
-            Arbeidssituasjon.ANNET -> {
+            Arbeidssituasjon.ANNET,
+            -> {
                 eksterneKallKlippOgOpprett(sykmeldingStatusKafkaMessageDTO, arbeidssituasjon)
             }
+
             Arbeidssituasjon.ARBEIDSTAKER -> {
                 // Bekreftet sykmelding for arbeidstaker tilsvarer strengt fortrolig addresse.
                 // At denne bekreftes og ikke sendes styres av sykefravaer frontend
                 emptyList()
             }
+
             null -> emptyList()
         }
     }
 
     private fun eksterneKallKlippOgOpprett(
         sykmeldingKafkaMessage: SykmeldingKafkaMessage,
-        arbeidssituasjon: Arbeidssituasjon
+        arbeidssituasjon: Arbeidssituasjon,
     ): List<AktiveringBestilling> {
         val fnr = sykmeldingKafkaMessage.kafkaMetadata.fnr
 
         val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(fnr)
 
-        val skalOppretteSoknad = skalOppretteSoknader.skalOppretteSoknader(
-            sykmeldingKafkaMessage = sykmeldingKafkaMessage,
-            arbeidssituasjon = arbeidssituasjon,
-            identer = identer
-        )
+        val skalOppretteSoknad =
+            skalOppretteSoknader.skalOppretteSoknader(
+                sykmeldingKafkaMessage = sykmeldingKafkaMessage,
+                arbeidssituasjon = arbeidssituasjon,
+                identer = identer,
+            )
         if (!skalOppretteSoknad) {
             return emptyList()
         }
@@ -112,11 +124,15 @@ class BehandleSendtBekreftetSykmelding(
 
     private fun handterSendtSykmelding(sykmeldingStatusKafkaMessageDTO: SykmeldingKafkaMessage): List<AktiveringBestilling> {
         return when (val arbeidssituasjon = sykmeldingStatusKafkaMessageDTO.hentArbeidssituasjon()) {
-            Arbeidssituasjon.ARBEIDSTAKER -> eksterneKallKlippOgOpprett(
-                sykmeldingStatusKafkaMessageDTO,
-                arbeidssituasjon
+            Arbeidssituasjon.ARBEIDSTAKER ->
+                eksterneKallKlippOgOpprett(
+                    sykmeldingStatusKafkaMessageDTO,
+                    arbeidssituasjon,
+                )
+
+            else -> throw UventetArbeidssituasjonException(
+                "Uventet arbeidssituasjon $arbeidssituasjon for sendt sykmelding ${sykmeldingStatusKafkaMessageDTO.sykmelding.id}",
             )
-            else -> throw UventetArbeidssituasjonException("Uventet arbeidssituasjon $arbeidssituasjon for sendt sykmelding ${sykmeldingStatusKafkaMessageDTO.sykmelding.id}")
         }
     }
 }
@@ -124,7 +140,7 @@ class BehandleSendtBekreftetSykmelding(
 fun SykmeldingKafkaMessage.hentArbeidssituasjon(): Arbeidssituasjon? {
     this.event.sporsmals?.firstOrNull { sporsmal -> sporsmal.shortName == ShortNameDTO.ARBEIDSSITUASJON }?.svar?.let {
         return no.nav.helse.flex.domain.Arbeidssituasjon.valueOf(
-            it
+            it,
         )
     }
     return null

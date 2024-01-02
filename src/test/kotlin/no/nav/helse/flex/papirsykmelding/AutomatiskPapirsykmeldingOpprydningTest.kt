@@ -29,7 +29,6 @@ import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.MethodName::class)
 class AutomatiskPapirsykmeldingOpprydningTest : BaseTestClass() {
-
     @BeforeEach
     fun setUp() {
         flexSyketilfelleMockRestServiceServer.reset()
@@ -39,29 +38,32 @@ class AutomatiskPapirsykmeldingOpprydningTest : BaseTestClass() {
 
     companion object {
         private val fnr = "12345678900"
-        val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(
-            fnr = fnr,
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-            statusEvent = STATUS_SENDT,
-            arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "Kebabbiten")
-        )
+        val sykmeldingStatusKafkaMessageDTO =
+            skapSykmeldingStatusKafkaMessageDTO(
+                fnr = fnr,
+                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                statusEvent = STATUS_SENDT,
+                arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "Kebabbiten"),
+            )
         val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
-        val sykmelding = skapArbeidsgiverSykmelding(
-            sykmeldingId = sykmeldingId,
-            fom = LocalDate.of(2020, 1, 1),
-            tom = LocalDate.of(2020, 3, 15)
-        )
+        val sykmelding =
+            skapArbeidsgiverSykmelding(
+                sykmeldingId = sykmeldingId,
+                fom = LocalDate.of(2020, 1, 1),
+                tom = LocalDate.of(2020, 3, 15),
+            )
     }
 
     @Test
     fun `1 - arbeidstakersøknader opprettes for en lang sykmelding`() {
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
-        val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
-            sykmelding = sykmelding,
-            event = sykmeldingStatusKafkaMessageDTO.event,
-            kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
-        )
+        val sykmeldingKafkaMessage =
+            SykmeldingKafkaMessage(
+                sykmelding = sykmelding,
+                event = sykmeldingStatusKafkaMessageDTO.event,
+                kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
+            )
 
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
 
@@ -80,22 +82,24 @@ class AutomatiskPapirsykmeldingOpprydningTest : BaseTestClass() {
     fun `2 - vi sender inn den ene søknaden`() {
         flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
-        val førsteSøknad = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first { it.fom == LocalDate.of(2020, 1, 1) }.id,
-            fnr = fnr
-        )
+        val førsteSøknad =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first { it.fom == LocalDate.of(2020, 1, 1) }.id,
+                fnr = fnr,
+            )
 
-        val sendtSoknad = SoknadBesvarer(rSSykepengesoknad = førsteSøknad, mockMvc = this, fnr = fnr)
-            .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
-            .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
-            .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
-            .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
-            .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
-            .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
-            .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
-            .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
-            .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
-            .sendSoknad()
+        val sendtSoknad =
+            SoknadBesvarer(rSSykepengesoknad = førsteSøknad, mockMvc = this, fnr = fnr)
+                .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
+                .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
+                .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
+                .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
+                .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
+                .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
+                .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
+                .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
+                .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
+                .sendSoknad()
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
         val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
 
@@ -108,11 +112,12 @@ class AutomatiskPapirsykmeldingOpprydningTest : BaseTestClass() {
     fun `3 - vi mottar identisk sykmelding igjen, ingenting endres`() {
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
-        val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
-            sykmelding = sykmelding,
-            event = sykmeldingStatusKafkaMessageDTO.event,
-            kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
-        )
+        val sykmeldingKafkaMessage =
+            SykmeldingKafkaMessage(
+                sykmelding = sykmelding,
+                event = sykmeldingStatusKafkaMessageDTO.event,
+                kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
+            )
 
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
 
@@ -129,17 +134,19 @@ class AutomatiskPapirsykmeldingOpprydningTest : BaseTestClass() {
     fun `4 - vi mottar en korrigert sykmelding med litt lengre periode, sendt blir korreigert og søknadene opprettes på nytt`() {
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
-        val sykmelding = skapArbeidsgiverSykmelding(
-            sykmeldingId = sykmeldingId,
-            fom = LocalDate.of(2020, 1, 1),
-            tom = LocalDate.of(2020, 4, 15)
-        )
+        val sykmelding =
+            skapArbeidsgiverSykmelding(
+                sykmeldingId = sykmeldingId,
+                fom = LocalDate.of(2020, 1, 1),
+                tom = LocalDate.of(2020, 4, 15),
+            )
 
-        val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
-            sykmelding = sykmelding,
-            event = sykmeldingStatusKafkaMessageDTO.event,
-            kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
-        )
+        val sykmeldingKafkaMessage =
+            SykmeldingKafkaMessage(
+                sykmelding = sykmelding,
+                event = sykmeldingStatusKafkaMessageDTO.event,
+                kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
+            )
 
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
 
@@ -165,17 +172,19 @@ class AutomatiskPapirsykmeldingOpprydningTest : BaseTestClass() {
     fun `5 - vi mottar den korrigerte sykmeldingen igjen, ingenting endres`() {
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
-        val sykmelding = skapArbeidsgiverSykmelding(
-            sykmeldingId = sykmeldingId,
-            fom = LocalDate.of(2020, 1, 1),
-            tom = LocalDate.of(2020, 4, 15)
-        )
+        val sykmelding =
+            skapArbeidsgiverSykmelding(
+                sykmeldingId = sykmeldingId,
+                fom = LocalDate.of(2020, 1, 1),
+                tom = LocalDate.of(2020, 4, 15),
+            )
 
-        val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
-            sykmelding = sykmelding,
-            event = sykmeldingStatusKafkaMessageDTO.event,
-            kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
-        )
+        val sykmeldingKafkaMessage =
+            SykmeldingKafkaMessage(
+                sykmelding = sykmelding,
+                event = sykmeldingStatusKafkaMessageDTO.event,
+                kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
+            )
 
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
 
@@ -194,19 +203,21 @@ class AutomatiskPapirsykmeldingOpprydningTest : BaseTestClass() {
     fun `6 - sykmeldingen korrigeres igjen, men må med annen sykmeldingsgrad`() {
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
-        val sykmelding = skapArbeidsgiverSykmelding(
-            sykmeldingId = sykmeldingId,
-            fom = LocalDate.of(2020, 1, 1),
-            tom = LocalDate.of(2020, 4, 15),
-            type = PeriodetypeDTO.GRADERT,
-            gradert = GradertDTO(grad = 33, reisetilskudd = false)
-        )
+        val sykmelding =
+            skapArbeidsgiverSykmelding(
+                sykmeldingId = sykmeldingId,
+                fom = LocalDate.of(2020, 1, 1),
+                tom = LocalDate.of(2020, 4, 15),
+                type = PeriodetypeDTO.GRADERT,
+                gradert = GradertDTO(grad = 33, reisetilskudd = false),
+            )
 
-        val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
-            sykmelding = sykmelding,
-            event = sykmeldingStatusKafkaMessageDTO.event,
-            kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
-        )
+        val sykmeldingKafkaMessage =
+            SykmeldingKafkaMessage(
+                sykmelding = sykmelding,
+                event = sykmeldingStatusKafkaMessageDTO.event,
+                kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
+            )
 
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
 

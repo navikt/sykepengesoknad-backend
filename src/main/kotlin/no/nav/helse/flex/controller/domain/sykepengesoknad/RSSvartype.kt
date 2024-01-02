@@ -26,5 +26,5 @@ enum class RSSvartype {
     KVITTERING,
     DATOER,
     BELOP,
-    KILOMETER
+    KILOMETER,
 }

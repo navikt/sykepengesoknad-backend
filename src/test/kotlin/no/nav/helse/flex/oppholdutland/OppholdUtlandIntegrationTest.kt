@@ -28,7 +28,6 @@ import java.time.format.DateTimeFormatter
 
 @TestMethodOrder(MethodOrderer.MethodName::class)
 class OppholdUtlandIntegrationTest : BaseTestClass() {
-
     final val fnr = "123456789"
 
     @Test
@@ -51,17 +50,18 @@ class OppholdUtlandIntegrationTest : BaseTestClass() {
         val soknader = hentSoknaderMetadata(fnr)
         assertThat(soknader).hasSize(1)
 
-        val soknad = hentSoknad(
-            soknadId = soknader.first().id,
-            fnr = fnr
-        )
+        val soknad =
+            hentSoknad(
+                soknadId = soknader.first().id,
+                fnr = fnr,
+            )
         assertThat(soknad.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
                 PERIODEUTLAND,
                 LAND,
                 ARBEIDSGIVER,
-                BEKREFT_OPPLYSNINGER_UTLAND_INFO
-            )
+                BEKREFT_OPPLYSNINGER_UTLAND_INFO,
+            ),
         )
     }
 
@@ -74,71 +74,78 @@ class OppholdUtlandIntegrationTest : BaseTestClass() {
 
     @Test
     fun `05 - Vi besvarer land spørsmålet`() {
-        val soknad = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val soknad =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
         SoknadBesvarer(soknad, this, fnr)
             .besvarSporsmal(LAND, svarListe = listOf("Syden", "Kina"))
 
-        val soknadEtter = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val soknadEtter =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
         assertThat(soknadEtter.getSporsmalMedTag("LAND").svar.map { it.verdi }).isEqualTo(
             listOf(
                 "Syden",
-                "Kina"
-            )
+                "Kina",
+            ),
         )
     }
 
     @Test
     fun `06 - Vi besvarer periode og arbeidsgiver spørsmålene`() {
-        val soknad = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val soknad =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
 
         SoknadBesvarer(soknad, this, fnr)
             .besvarSporsmal(
                 PERIODEUTLAND,
                 svar = "{\"fom\":\"${
-                LocalDate.now().minusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE)
-                }\",\"tom\":\"${LocalDate.now().minusWeeks(1).format(DateTimeFormatter.ISO_LOCAL_DATE)}\"}"
+                    LocalDate.now().minusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE)
+                }\",\"tom\":\"${LocalDate.now().minusWeeks(1).format(DateTimeFormatter.ISO_LOCAL_DATE)}\"}",
             )
             .besvarSporsmal(ARBEIDSGIVER, svar = "NEI")
     }
 
     @Test
     fun `07 - Bekreft teksten endrer seg hvis vi får arbeirdsgiver`() {
-        val soknad = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val soknad =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
 
         assertThat(soknad.getSporsmalMedTag(BEKREFT_OPPLYSNINGER_UTLAND_INFO).undertekst).isEqualTo(
-            """<ul>
-    <li>Jeg har avklart med legen at reisen ikke vil forlenge sykefraværet</li>
-    <li>Reisen hindrer ikke planlagt behandling eller avtaler med NAV</li>
-</ul>
-            """.trimIndent()
+            """
+            <ul>
+                <li>Jeg har avklart med legen at reisen ikke vil forlenge sykefraværet</li>
+                <li>Reisen hindrer ikke planlagt behandling eller avtaler med NAV</li>
+            </ul>
+            """.trimIndent(),
         )
         SoknadBesvarer(soknad, this, fnr)
             .besvarSporsmal(ARBEIDSGIVER, svar = "JA", ferdigBesvart = false)
             .besvarSporsmal(SYKMELDINGSGRAD, "JA", ferdigBesvart = false)
             .besvarSporsmal(FERIE, "JA", mutert = true)
 
-        val soknadEtter = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val soknadEtter =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
         assertThat(soknadEtter.getSporsmalMedTag(BEKREFT_OPPLYSNINGER_UTLAND_INFO).undertekst).isEqualTo(
-            """<ul>
-    <li>Jeg har avklart med legen at reisen ikke vil forlenge sykefraværet</li>
-    <li>Reisen hindrer ikke planlagt behandling eller avtaler med NAV</li>
-<li>Reisen er avklart med arbeidsgiveren min</li></ul>
-            """.trimIndent()
+            """
+            <ul>
+                <li>Jeg har avklart med legen at reisen ikke vil forlenge sykefraværet</li>
+                <li>Reisen hindrer ikke planlagt behandling eller avtaler med NAV</li>
+            <li>Reisen er avklart med arbeidsgiveren min</li></ul>
+            """.trimIndent(),
         )
 
         SoknadBesvarer(soknadEtter, this, fnr)
@@ -148,28 +155,31 @@ class OppholdUtlandIntegrationTest : BaseTestClass() {
 
     @Test
     fun `08 - Vi bekrefter opplysninger`() {
-        val soknad = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val soknad =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
         SoknadBesvarer(soknad, this, fnr)
             .besvarSporsmal(BEKREFT_OPPLYSNINGER_UTLAND, svar = "CHECKED")
 
-        val soknadEtter = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val soknadEtter =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
         assertThat(soknadEtter.getSporsmalMedTag(BEKREFT_OPPLYSNINGER_UTLAND).svar.map { it.verdi }).isEqualTo(
-            listOf("CHECKED")
+            listOf("CHECKED"),
         )
     }
 
     @Test
     fun `09 - Vi sender søknaden`() {
-        val soknad = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val soknad =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
 
         SoknadBesvarer(soknad, this, fnr).sendSoknad()
 
@@ -180,10 +190,11 @@ class OppholdUtlandIntegrationTest : BaseTestClass() {
 
     @Test
     fun `10 - Vi kan ikke korrigere utandssoknaden`() {
-        val soknaden = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val soknaden =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
         korrigerSoknadMedResult(soknaden.id, fnr).andExpect(MockMvcResultMatchers.status().isBadRequest)
             .andReturn()
     }

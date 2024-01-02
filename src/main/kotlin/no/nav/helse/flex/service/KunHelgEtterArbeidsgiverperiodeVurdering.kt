@@ -16,7 +16,7 @@ import java.time.temporal.TemporalAdjusters
 
 fun MottakerAvSoknadService.kunHelgEtterArbeidsgiverperiodeVurdering(
     mottakerResultat: MottakerOgVurdering,
-    sykepengesoknad: Sykepengesoknad
+    sykepengesoknad: Sykepengesoknad,
 ): Mottaker? {
     if (mottakerResultat.mottaker.tilNav() &&
         mottakerResultat.arbeidsgiverperiode != null &&
@@ -30,40 +30,43 @@ fun MottakerAvSoknadService.kunHelgEtterArbeidsgiverperiodeVurdering(
             arbeidsgiverperiodeTom.erFredag() && sykepengesoknadTom!!.erHelgenEtter(arbeidsgiverperiodeTom)
 
         if (sykepengesoknad.status == Soknadstatus.SENDT && kunHelgEtterArbeidsgiverperiode) {
-            val vurdering = JuridiskVurdering(
-                fodselsnummer = sykepengesoknad.fnr,
-                sporing = hashMapOf(SOKNAD to listOf(sykepengesoknad.id))
-                    .also { map ->
-                        sykepengesoknad.sykmeldingId?.let {
-                            map[SYKMELDING] = listOf(it)
-                        }
-                        sykepengesoknad.arbeidsgiverOrgnummer?.let {
-                            map[ORGANISASJONSNUMMER] = listOf(it)
-                        }
-                    },
-                input = hashMapOf<String, Any>(
-                    "versjon" to LocalDate.of(2022, 2, 1)
-
-                ).also { map ->
-                    sykepengesoknadTom?.let {
-                        map["sykepengesoknadTom"] = it
-                    }
-                    arbeidsgiverperiode.arbeidsgiverPeriode?.let {
-                        map["arbeidsgiverperiode"] = it
-                    }
-                },
-                output = mapOf(
-                    "kunHelgEtterArbeidsgiverperiode" to kunHelgEtterArbeidsgiverperiode,
-                    "versjon" to LocalDate.of(2022, 2, 1)
-                ),
-                lovverk = "folketrygdloven",
-                paragraf = "8-11",
-                bokstav = null,
-                ledd = null,
-                punktum = null,
-                lovverksversjon = LocalDate.of(1997, 5, 1),
-                utfall = VILKAR_IKKE_OPPFYLT
-            )
+            val vurdering =
+                JuridiskVurdering(
+                    fodselsnummer = sykepengesoknad.fnr,
+                    sporing =
+                        hashMapOf(SOKNAD to listOf(sykepengesoknad.id))
+                            .also { map ->
+                                sykepengesoknad.sykmeldingId?.let {
+                                    map[SYKMELDING] = listOf(it)
+                                }
+                                sykepengesoknad.arbeidsgiverOrgnummer?.let {
+                                    map[ORGANISASJONSNUMMER] = listOf(it)
+                                }
+                            },
+                    input =
+                        hashMapOf<String, Any>(
+                            "versjon" to LocalDate.of(2022, 2, 1),
+                        ).also { map ->
+                            sykepengesoknadTom?.let {
+                                map["sykepengesoknadTom"] = it
+                            }
+                            arbeidsgiverperiode.arbeidsgiverPeriode?.let {
+                                map["arbeidsgiverperiode"] = it
+                            }
+                        },
+                    output =
+                        mapOf(
+                            "kunHelgEtterArbeidsgiverperiode" to kunHelgEtterArbeidsgiverperiode,
+                            "versjon" to LocalDate.of(2022, 2, 1),
+                        ),
+                    lovverk = "folketrygdloven",
+                    paragraf = "8-11",
+                    bokstav = null,
+                    ledd = null,
+                    punktum = null,
+                    lovverksversjon = LocalDate.of(1997, 5, 1),
+                    utfall = VILKAR_IKKE_OPPFYLT,
+                )
             juridiskVurderingKafkaProducer.produserMelding(vurdering)
         }
 
@@ -75,11 +78,12 @@ fun MottakerAvSoknadService.kunHelgEtterArbeidsgiverperiodeVurdering(
     return null
 }
 
-private fun Mottaker.tilNav(): Boolean = when (this) {
-    Mottaker.NAV -> true
-    Mottaker.ARBEIDSGIVER_OG_NAV -> true
-    Mottaker.ARBEIDSGIVER -> false
-}
+private fun Mottaker.tilNav(): Boolean =
+    when (this) {
+        Mottaker.NAV -> true
+        Mottaker.ARBEIDSGIVER_OG_NAV -> true
+        Mottaker.ARBEIDSGIVER -> false
+    }
 
 private fun LocalDate.erHelgenEtter(arbeidsgiverperiodeTom: LocalDate): Boolean {
     val nesteLørdag = arbeidsgiverperiodeTom.with(TemporalAdjusters.next(DayOfWeek.SATURDAY))

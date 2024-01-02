@@ -27,7 +27,6 @@ import java.time.LocalDateTime
 import java.util.*
 
 class SykepengesoknadDAOTest : BaseTestClass() {
-
     @Autowired
     private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
 
@@ -85,23 +84,26 @@ class SykepengesoknadDAOTest : BaseTestClass() {
     @Test
     fun finnEldreSoknader() {
         val sykepengesoknad = opprettNyNaeringsdrivendeSoknad()
-        val soknadUnderUtfylling = sykepengesoknadDAO.lagreSykepengesoknad(
-            sykepengesoknad.copy(
-                id = UUID.randomUUID().toString(),
-                fom = LocalDate.of(2018, 6, 1)
+        val soknadUnderUtfylling =
+            sykepengesoknadDAO.lagreSykepengesoknad(
+                sykepengesoknad.copy(
+                    id = UUID.randomUUID().toString(),
+                    fom = LocalDate.of(2018, 6, 1),
+                ),
             )
-        )
-        val eldreSoknad = sykepengesoknadDAO.lagreSykepengesoknad(
-            sykepengesoknad.copy(
-                id = UUID.randomUUID().toString(),
-                fom = LocalDate.of(2018, 5, 29)
+        val eldreSoknad =
+            sykepengesoknadDAO.lagreSykepengesoknad(
+                sykepengesoknad.copy(
+                    id = UUID.randomUUID().toString(),
+                    fom = LocalDate.of(2018, 5, 29),
+                ),
             )
-        )
 
-        val eldsteSoknaden = sykepengesoknadRepository.findEldsteSoknaden(
-            listOf(soknadUnderUtfylling.fnr),
-            soknadUnderUtfylling.fom
-        )
+        val eldsteSoknaden =
+            sykepengesoknadRepository.findEldsteSoknaden(
+                listOf(soknadUnderUtfylling.fnr),
+                soknadUnderUtfylling.fom,
+            )
 
         assertThat(eldsteSoknaden).isEqualTo(eldreSoknad.id)
         assertThat(soknadUnderUtfylling.fom).isAfter(eldreSoknad.fom)
@@ -109,9 +111,10 @@ class SykepengesoknadDAOTest : BaseTestClass() {
 
     @Test
     fun finnMottakerAvSoknad_mottakerErAgOgNav() {
-        val soknadId = sykepengesoknadDAO.lagreSykepengesoknad(
-            gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal()
-        ).id
+        val soknadId =
+            sykepengesoknadDAO.lagreSykepengesoknad(
+                gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal(),
+            ).id
 
         val now = LocalDateTime.now()
         settSendt(soknadId, now, now)
@@ -123,9 +126,10 @@ class SykepengesoknadDAOTest : BaseTestClass() {
 
     @Test
     fun finnMottakerAvSoknad_mottakerErAg() {
-        val soknadId = sykepengesoknadDAO.lagreSykepengesoknad(
-            gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal()
-        ).id
+        val soknadId =
+            sykepengesoknadDAO.lagreSykepengesoknad(
+                gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal(),
+            ).id
 
         settSendt(soknadId, null, LocalDateTime.now())
 
@@ -136,9 +140,10 @@ class SykepengesoknadDAOTest : BaseTestClass() {
 
     @Test
     fun finnMottakerAvSoknad_mottakerErNav() {
-        val soknadId = sykepengesoknadDAO.lagreSykepengesoknad(
-            gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal()
-        ).id
+        val soknadId =
+            sykepengesoknadDAO.lagreSykepengesoknad(
+                gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal(),
+            ).id
 
         settSendt(soknadId, LocalDateTime.now(), null)
 
@@ -149,9 +154,10 @@ class SykepengesoknadDAOTest : BaseTestClass() {
 
     @Test
     fun finnMottakerAvSoknad_soknadIkkeSendt() {
-        val soknadId = sykepengesoknadDAO.lagreSykepengesoknad(
-            gammeltFormatOpprettNySoknadMedFeriesporsmalSomUndersporsmal()
-        ).id
+        val soknadId =
+            sykepengesoknadDAO.lagreSykepengesoknad(
+                gammeltFormatOpprettNySoknadMedFeriesporsmalSomUndersporsmal(),
+            ).id
 
         settSendt(soknadId, null, null)
 
@@ -160,14 +166,18 @@ class SykepengesoknadDAOTest : BaseTestClass() {
         assertThat(mottaker).isNull()
     }
 
-    private fun settSendt(soknadId: String, sendtNav: LocalDateTime?, sendtArbeidsgiver: LocalDateTime?) {
+    private fun settSendt(
+        soknadId: String,
+        sendtNav: LocalDateTime?,
+        sendtArbeidsgiver: LocalDateTime?,
+    ) {
         jdbcTemplate.update(
             "UPDATE SYKEPENGESOKNAD " +
                 "SET SENDT_NAV = ?, SENDT_ARBEIDSGIVER = ? " +
                 "WHERE SYKEPENGESOKNAD_UUID = ?",
             sendtNav,
             sendtArbeidsgiver,
-            soknadId
+            soknadId,
         )
     }
 
@@ -246,7 +256,9 @@ class SykepengesoknadDAOTest : BaseTestClass() {
 
     @Test
     fun kanOppretteArbeidstakerSoknad() {
-        sykepengesoknadDAO.lagreSykepengesoknad(gammeltFormatOpprettNySoknadMedFeriesporsmalSomUndersporsmal().copy(sykmeldingId = ("sykmeldingId1")))
+        sykepengesoknadDAO.lagreSykepengesoknad(
+            gammeltFormatOpprettNySoknadMedFeriesporsmalSomUndersporsmal().copy(sykmeldingId = ("sykmeldingId1")),
+        )
 
         val soknad = sykepengesoknadDAO.finnSykepengesoknaderForSykmelding("sykmeldingId1")
 
@@ -269,14 +281,16 @@ class SykepengesoknadDAOTest : BaseTestClass() {
 
     private fun Sykepengesoknad.svarJaPaUtlandsporsmal(): Sykepengesoknad {
         val utlandSpm = this.getSporsmalMedTag(UTLAND).copy(svar = listOf(Svar(null, "CHECKED")))
-        val utlandNarSpm = this.getSporsmalMedTag(UTLAND_NAR).copy(
-            svar = listOf(
-                Svar(
-                    null,
-                    "{\"fom\":\"2019-02-28\",\"tom\":\"2019-03-14\"}"
-                )
+        val utlandNarSpm =
+            this.getSporsmalMedTag(UTLAND_NAR).copy(
+                svar =
+                    listOf(
+                        Svar(
+                            null,
+                            "{\"fom\":\"2019-02-28\",\"tom\":\"2019-03-14\"}",
+                        ),
+                    ),
             )
-        )
 
         return this.replaceSporsmal(utlandSpm).replaceSporsmal(utlandNarSpm)
     }

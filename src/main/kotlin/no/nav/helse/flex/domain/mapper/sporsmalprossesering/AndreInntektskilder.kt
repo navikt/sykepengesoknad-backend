@@ -18,16 +18,17 @@ fun hentInntektListe(soknad: Sykepengesoknad): List<InntektskildeDTO> {
                 if (sporsmal.undersporsmal.firstOrNull()?.tag?.endsWith(ER_DU_SYKMELDT) == true) {
                     InntektskildeDTO(
                         type = mapSporsmalTilInntektskildetype(sporsmal),
-                        sykmeldt = if (sporsmal.undersporsmal.isEmpty()) {
-                            null
-                        } else {
-                            "JA" == sporsmal.undersporsmal[0].forsteSvar
-                        }
+                        sykmeldt =
+                            if (sporsmal.undersporsmal.isEmpty()) {
+                                null
+                            } else {
+                                "JA" == sporsmal.undersporsmal[0].forsteSvar
+                            },
                     )
                 } else {
                     InntektskildeDTO(
                         type = mapSporsmalTilInntektskildetype(sporsmal),
-                        sykmeldt = null
+                        sykmeldt = null,
                     )
                 }
             }

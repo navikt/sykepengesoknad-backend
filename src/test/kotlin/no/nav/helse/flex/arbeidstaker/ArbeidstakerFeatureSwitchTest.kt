@@ -14,7 +14,6 @@ import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class ArbeidstakerFeatureSwitchTest : BaseTestClass() {
-
     @Autowired
     private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
 
@@ -37,16 +36,15 @@ class ArbeidstakerFeatureSwitchTest : BaseTestClass() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = basisdato.minusDays(2),
-                    tom = basisdato.plusDays(5)
-
-                ),
-                merknader = listOf(Merknad(type = "UGYLDIG_TILBAKEDATERING", beskrivelse = "Hey"))
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = basisdato.minusDays(2),
+                        tom = basisdato.plusDays(5),
+                    ),
+                merknader = listOf(Merknad(type = "UGYLDIG_TILBAKEDATERING", beskrivelse = "Hey")),
             ),
             oppfolgingsdato = oppfolgingsdato,
-
-            forventaSoknader = 1
+            forventaSoknader = 1,
         )
         val soknader = hentSoknaderMetadata(fnr)
 
@@ -60,10 +58,18 @@ class ArbeidstakerFeatureSwitchTest : BaseTestClass() {
                 "ARBEID_UNDERVEIS_100_PROSENT_0",
                 "ANDRE_INNTEKTSKILDER_V2",
                 "UTLAND_V2",
-                "TIL_SLUTT"
-            )
+                "TIL_SLUTT",
+            ),
         )
-        assertThat(soknad1.sporsmal!!.first { it.tag == ANSVARSERKLARING }.sporsmalstekst).isEqualTo("Jeg vet at jeg kan miste retten til sykepenger hvis opplysningene jeg gir ikke er riktige eller fullstendige. Jeg vet også at NAV kan holde igjen eller kreve tilbake penger, og at å gi feil opplysninger kan være straffbart.")
+        assertThat(
+            soknad1.sporsmal!!.first {
+                it.tag == ANSVARSERKLARING
+            }.sporsmalstekst,
+        ).isEqualTo(
+            "Jeg vet at jeg kan miste retten til sykepenger hvis opplysningene jeg gir ikke er riktige eller " +
+                "fullstendige. Jeg vet også at NAV kan holde igjen eller kreve tilbake penger, og at å gi feil " +
+                "opplysninger kan være straffbart.",
+        )
     }
 
     @Test
@@ -72,16 +78,15 @@ class ArbeidstakerFeatureSwitchTest : BaseTestClass() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = basisdato.minusDays(2),
-                    tom = basisdato.plusDays(5)
-
-                ),
-                merknader = listOf(Merknad(type = "UGYLDIG_TILBAKEDATERING", beskrivelse = "Hey"))
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = basisdato.minusDays(2),
+                        tom = basisdato.plusDays(5),
+                    ),
+                merknader = listOf(Merknad(type = "UGYLDIG_TILBAKEDATERING", beskrivelse = "Hey")),
             ),
             oppfolgingsdato = oppfolgingsdato,
-
-            forventaSoknader = 1
+            forventaSoknader = 1,
         )
         val soknader = hentSoknaderMetadata(fnr)
 
@@ -96,9 +101,17 @@ class ArbeidstakerFeatureSwitchTest : BaseTestClass() {
                 "ANDRE_INNTEKTSKILDER_V2",
                 "UTLAND_V2",
                 "VAER_KLAR_OVER_AT",
-                "BEKREFT_OPPLYSNINGER"
-            )
+                "BEKREFT_OPPLYSNINGER",
+            ),
         )
-        assertThat(soknad1.sporsmal!!.first { it.tag == ANSVARSERKLARING }.sporsmalstekst).isEqualTo("Jeg vet at jeg kan miste retten til sykepenger hvis opplysningene jeg gir ikke er riktige eller fullstendige. Jeg vet også at NAV kan holde igjen eller kreve tilbake penger, og at å gi feil opplysninger kan være straffbart.")
+        assertThat(
+            soknad1.sporsmal!!.first {
+                it.tag == ANSVARSERKLARING
+            }.sporsmalstekst,
+        ).isEqualTo(
+            "Jeg vet at jeg kan miste retten til sykepenger hvis opplysningene jeg gir ikke er riktige eller " +
+                "fullstendige. Jeg vet også at NAV kan holde igjen eller kreve tilbake penger, og at å gi feil " +
+                "opplysninger kan være straffbart.",
+        )
     }
 }

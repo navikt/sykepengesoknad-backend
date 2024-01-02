@@ -23,7 +23,6 @@ import java.time.format.DateTimeFormatter
 import java.time.temporal.TemporalAdjusters
 
 class ArbeidstakereTest {
-
     @Test
     fun utenFriskmeldingErOppdaterteSoknadsperioderUendret() {
         var sykepengesoknad = opprettNySoknadMock()
@@ -43,24 +42,28 @@ class ArbeidstakereTest {
         val friskmeldtDato = LocalDate.now().plusDays(19)
         val periode2TomOppdatert = LocalDate.now().plusDays(18)
 
-        var sykepengesoknad = opprettNySoknadMock().copy(
-            soknadPerioder = listOf(
-                Soknadsperiode(fom = periode1Fom, tom = periode1Tom, grad = 100, sykmeldingstype = null),
-                Soknadsperiode(fom = periode2Fom, tom = periode2Tom, grad = 100, sykmeldingstype = null)
+        var sykepengesoknad =
+            opprettNySoknadMock().copy(
+                soknadPerioder =
+                    listOf(
+                        Soknadsperiode(fom = periode1Fom, tom = periode1Tom, grad = 100, sykmeldingstype = null),
+                        Soknadsperiode(fom = periode2Fom, tom = periode2Tom, grad = 100, sykmeldingstype = null),
+                    ),
             )
-        )
-        sykepengesoknad = sykepengesoknad.replaceSporsmal(
-            sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
-                min = null,
-                max = null,
-                svar = listOf(
-                    Svar(
-                        null,
-                        verdi = friskmeldtDato.format(DateTimeFormatter.ISO_LOCAL_DATE)
-                    )
-                )
+        sykepengesoknad =
+            sykepengesoknad.replaceSporsmal(
+                sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
+                    min = null,
+                    max = null,
+                    svar =
+                        listOf(
+                            Svar(
+                                null,
+                                verdi = friskmeldtDato.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                            ),
+                        ),
+                ),
             )
-        )
         val oppdaterteSoknadsperioder = getOppdaterteSoknadsperioder(sykepengesoknad)
 
         assertThat(oppdaterteSoknadsperioder).hasSize(2)
@@ -79,19 +82,22 @@ class ArbeidstakereTest {
         val friskmeldtDato = LocalDate.now().plusDays(10)
         val periode1TomOppdatert = LocalDate.now().plusDays(9)
 
-        var sykepengesoknad = opprettNySoknadMock().copy(
-            soknadPerioder = listOf(
-                Soknadsperiode(periode1Fom, periode1Tom, grad = 100, sykmeldingstype = null),
-                Soknadsperiode(periode2Fom, periode2Tom, grad = 100, sykmeldingstype = null)
+        var sykepengesoknad =
+            opprettNySoknadMock().copy(
+                soknadPerioder =
+                    listOf(
+                        Soknadsperiode(periode1Fom, periode1Tom, grad = 100, sykmeldingstype = null),
+                        Soknadsperiode(periode2Fom, periode2Tom, grad = 100, sykmeldingstype = null),
+                    ),
             )
-        )
-        sykepengesoknad = sykepengesoknad.replaceSporsmal(
-            sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
-                min = null,
-                max = null,
-                svar = listOf(Svar(null, friskmeldtDato.format(DateTimeFormatter.ISO_LOCAL_DATE)))
+        sykepengesoknad =
+            sykepengesoknad.replaceSporsmal(
+                sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
+                    min = null,
+                    max = null,
+                    svar = listOf(Svar(null, friskmeldtDato.format(DateTimeFormatter.ISO_LOCAL_DATE))),
+                ),
             )
-        )
         val oppdaterteSoknadsperioder = getOppdaterteSoknadsperioder(sykepengesoknad)
 
         assertThat(oppdaterteSoknadsperioder).hasSize(1)
@@ -104,18 +110,20 @@ class ArbeidstakereTest {
         val fom = LocalDate.now().plusDays(5)
         val tom = LocalDate.now().plusDays(15)
 
-        var sykepengesoknad = opprettNySoknadMock().copy(
-            fom = fom,
-            tom = tom,
-            soknadPerioder = listOf(Soknadsperiode(fom, tom, grad = 100, sykmeldingstype = null))
-        )
-        sykepengesoknad = sykepengesoknad.replaceSporsmal(
-            sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
-                min = fom.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                max = tom.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                svar = listOf(Svar(null, fom.format(DateTimeFormatter.ISO_LOCAL_DATE)))
+        var sykepengesoknad =
+            opprettNySoknadMock().copy(
+                fom = fom,
+                tom = tom,
+                soknadPerioder = listOf(Soknadsperiode(fom, tom, grad = 100, sykmeldingstype = null)),
             )
-        )
+        sykepengesoknad =
+            sykepengesoknad.replaceSporsmal(
+                sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
+                    min = fom.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                    max = tom.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                    svar = listOf(Svar(null, fom.format(DateTimeFormatter.ISO_LOCAL_DATE))),
+                ),
+            )
         val oppdatertSoknad: Sykepengesoknad = sykepengesoknad.arbeidGjenopptattMutering()
 
         assertThat(oppdatertSoknad.getSporsmalMedTagOrNull(FERIE_V2)).isNull()
@@ -128,18 +136,20 @@ class ArbeidstakereTest {
         val fom = LocalDate.now().plusDays(5)
         val tom = LocalDate.now().plusDays(15)
 
-        var sykepengesoknad = gammeltFormatOpprettNySoknadMedFeriesporsmalSomUndersporsmal().copy(
-            fom = fom,
-            tom = tom,
-            soknadPerioder = listOf(Soknadsperiode(fom, tom, 100, null))
-        )
-        sykepengesoknad = sykepengesoknad.replaceSporsmal(
-            sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
-                min = fom.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                max = tom.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                svar = listOf(Svar(null, fom.format(DateTimeFormatter.ISO_LOCAL_DATE)))
+        var sykepengesoknad =
+            gammeltFormatOpprettNySoknadMedFeriesporsmalSomUndersporsmal().copy(
+                fom = fom,
+                tom = tom,
+                soknadPerioder = listOf(Soknadsperiode(fom, tom, 100, null)),
             )
-        )
+        sykepengesoknad =
+            sykepengesoknad.replaceSporsmal(
+                sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
+                    min = fom.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                    max = tom.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                    svar = listOf(Svar(null, fom.format(DateTimeFormatter.ISO_LOCAL_DATE))),
+                ),
+            )
         val oppdatertSoknad: Sykepengesoknad = sykepengesoknad.arbeidGjenopptattMutering()
 
         assertThat(oppdatertSoknad.getSporsmalMedTagOrNull(FERIE_PERMISJON_UTLAND)).isNull()
@@ -150,18 +160,20 @@ class ArbeidstakereTest {
         val fom = LocalDate.now().plusDays(5)
         val tom = LocalDate.now().plusDays(15)
 
-        var sykepengesoknad = opprettNySoknadMock().copy(
-            fom = fom,
-            tom = tom,
-            soknadPerioder = listOf(Soknadsperiode(fom, tom, 100, null))
-        )
-        sykepengesoknad = sykepengesoknad.replaceSporsmal(
-            sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
-                min = fom.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                max = tom.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                svar = listOf(Svar(null, fom.format(DateTimeFormatter.ISO_LOCAL_DATE)))
+        var sykepengesoknad =
+            opprettNySoknadMock().copy(
+                fom = fom,
+                tom = tom,
+                soknadPerioder = listOf(Soknadsperiode(fom, tom, 100, null)),
             )
-        )
+        sykepengesoknad =
+            sykepengesoknad.replaceSporsmal(
+                sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
+                    min = fom.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                    max = tom.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                    svar = listOf(Svar(null, fom.format(DateTimeFormatter.ISO_LOCAL_DATE))),
+                ),
+            )
         val oppdatertSoknad: Sykepengesoknad = sykepengesoknad.arbeidGjenopptattMutering()
 
         assertThat(oppdatertSoknad.getSporsmalMedTagOrNull(FERIE_V2)).isNull()
@@ -172,18 +184,20 @@ class ArbeidstakereTest {
         val fom = LocalDate.now().minusDays(25)
         val tom = LocalDate.now().minusDays(17)
 
-        var sykepengesoknad = gammeltFormatOpprettNySoknadMedFeriesporsmalSomUndersporsmal().copy(
-            fom = fom,
-            tom = tom
-        )
-        val arbeidGjenopptattDato = LocalDate.now().minusDays(24)
-        sykepengesoknad = sykepengesoknad.replaceSporsmal(
-            sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
-                min = null,
-                max = null,
-                svar = listOf(Svar(null, arbeidGjenopptattDato.format(DateTimeFormatter.ISO_LOCAL_DATE)))
+        var sykepengesoknad =
+            gammeltFormatOpprettNySoknadMedFeriesporsmalSomUndersporsmal().copy(
+                fom = fom,
+                tom = tom,
             )
-        )
+        val arbeidGjenopptattDato = LocalDate.now().minusDays(24)
+        sykepengesoknad =
+            sykepengesoknad.replaceSporsmal(
+                sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
+                    min = null,
+                    max = null,
+                    svar = listOf(Svar(null, arbeidGjenopptattDato.format(DateTimeFormatter.ISO_LOCAL_DATE))),
+                ),
+            )
         val oppdatertMin =
             sykepengesoknad.arbeidGjenopptattMutering().getSporsmalMedTag(FERIE_NAR).min
         val oppdatertMax =
@@ -197,18 +211,20 @@ class ArbeidstakereTest {
     fun ferieKuttesTilEnDag() {
         val fom = LocalDate.now().minusDays(25)
         val tom = LocalDate.now().minusDays(17)
-        var sykepengesoknad = opprettNySoknadMock().copy(
-            fom = fom,
-            tom = tom
-        )
-        val arbeidGjenopptattDato = LocalDate.now().minusDays(24)
-        sykepengesoknad = sykepengesoknad.replaceSporsmal(
-            sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
-                min = null,
-                max = null,
-                svar = listOf(Svar(null, arbeidGjenopptattDato.format(DateTimeFormatter.ISO_LOCAL_DATE)))
+        var sykepengesoknad =
+            opprettNySoknadMock().copy(
+                fom = fom,
+                tom = tom,
             )
-        )
+        val arbeidGjenopptattDato = LocalDate.now().minusDays(24)
+        sykepengesoknad =
+            sykepengesoknad.replaceSporsmal(
+                sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
+                    min = null,
+                    max = null,
+                    svar = listOf(Svar(null, arbeidGjenopptattDato.format(DateTimeFormatter.ISO_LOCAL_DATE))),
+                ),
+            )
         val oppdatertMin =
             sykepengesoknad.arbeidGjenopptattMutering().getSporsmalMedTag(FERIE_NAR_V2).min
         val oppdatertMax =
@@ -222,18 +238,20 @@ class ArbeidstakereTest {
     fun utdanningFjernesVedFriskmelding() {
         val fom = LocalDate.now().plusDays(5)
         val tom = LocalDate.now().plusDays(15)
-        var sykepengesoknad = gammeltFormatOpprettNySoknadMedFeriesporsmalSomUndersporsmal().copy(
-            fom = fom,
-            tom = tom,
-            soknadPerioder = listOf(Soknadsperiode(fom, tom, 100, null))
-        )
-        sykepengesoknad = sykepengesoknad.replaceSporsmal(
-            sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
-                min = fom.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                max = tom.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                svar = listOf(Svar(null, fom.format(DateTimeFormatter.ISO_LOCAL_DATE)))
+        var sykepengesoknad =
+            gammeltFormatOpprettNySoknadMedFeriesporsmalSomUndersporsmal().copy(
+                fom = fom,
+                tom = tom,
+                soknadPerioder = listOf(Soknadsperiode(fom, tom, 100, null)),
             )
-        )
+        sykepengesoknad =
+            sykepengesoknad.replaceSporsmal(
+                sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
+                    min = fom.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                    max = tom.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                    svar = listOf(Svar(null, fom.format(DateTimeFormatter.ISO_LOCAL_DATE))),
+                ),
+            )
         val oppdatertSoknad: Sykepengesoknad = sykepengesoknad.arbeidGjenopptattMutering()
 
         assertThat(oppdatertSoknad.getSporsmalMedTagOrNull(UTDANNING)).isNull()
@@ -242,13 +260,14 @@ class ArbeidstakereTest {
     @Test
     fun utenFriskmeldingErFeriesporsmalSomUndersporsmalUendret() {
         var sykepengesoknad = gammeltFormatOpprettNySoknadMedFeriesporsmalSomUndersporsmal()
-        sykepengesoknad = sykepengesoknad.replaceSporsmal(
-            sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
-                min = null,
-                max = null,
-                svar = emptyList()
+        sykepengesoknad =
+            sykepengesoknad.replaceSporsmal(
+                sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
+                    min = null,
+                    max = null,
+                    svar = emptyList(),
+                ),
             )
-        )
         val max = sykepengesoknad.getSporsmalMedTag(FERIE_NAR).max
         val oppdatertMax =
             sykepengesoknad.arbeidGjenopptattMutering().getSporsmalMedTag(FERIE_NAR).max
@@ -259,13 +278,14 @@ class ArbeidstakereTest {
     @Test
     fun utenFriskmeldingErFeriesporsmalUendret() {
         var sykepengesoknad = opprettNySoknadMock()
-        sykepengesoknad = sykepengesoknad.replaceSporsmal(
-            sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
-                min = null,
-                max = null,
-                svar = emptyList()
+        sykepengesoknad =
+            sykepengesoknad.replaceSporsmal(
+                sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
+                    min = null,
+                    max = null,
+                    svar = emptyList(),
+                ),
             )
-        )
         val max = sykepengesoknad.getSporsmalMedTag(FERIE_NAR_V2).max
         val oppdatertMax =
             sykepengesoknad.arbeidGjenopptattMutering().getSporsmalMedTag(FERIE_NAR_V2).max
@@ -278,18 +298,20 @@ class ArbeidstakereTest {
         val periodeFom = LocalDate.now().minusDays(25)
         val periodeTom = LocalDate.now().minusDays(17)
 
-        var sykepengesoknad = gammeltFormatOpprettNySoknadMedFeriesporsmalSomUndersporsmal().copy(
-            fom = periodeFom,
-            tom = periodeTom
-        )
-        val arbeidGjenopptattDato = LocalDate.now().minusDays(23)
-        sykepengesoknad = sykepengesoknad.replaceSporsmal(
-            sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
-                min = null,
-                max = null,
-                svar = listOf(Svar(null, arbeidGjenopptattDato.format(DateTimeFormatter.ISO_LOCAL_DATE)))
+        var sykepengesoknad =
+            gammeltFormatOpprettNySoknadMedFeriesporsmalSomUndersporsmal().copy(
+                fom = periodeFom,
+                tom = periodeTom,
             )
-        )
+        val arbeidGjenopptattDato = LocalDate.now().minusDays(23)
+        sykepengesoknad =
+            sykepengesoknad.replaceSporsmal(
+                sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
+                    min = null,
+                    max = null,
+                    svar = listOf(Svar(null, arbeidGjenopptattDato.format(DateTimeFormatter.ISO_LOCAL_DATE))),
+                ),
+            )
         val oppdatertMax =
             sykepengesoknad.arbeidGjenopptattMutering().getSporsmalMedTag(FERIE_NAR).max
 
@@ -301,18 +323,20 @@ class ArbeidstakereTest {
         val periodeFom = LocalDate.now().minusDays(25)
         val periodeTom = LocalDate.now().minusDays(17)
 
-        var sykepengesoknad = opprettNySoknadMock().copy(
-            fom = periodeFom,
-            tom = periodeTom
-        )
-        val arbeidGjenopptattDato = LocalDate.now().minusDays(23)
-        sykepengesoknad = sykepengesoknad.replaceSporsmal(
-            sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
-                min = null,
-                max = null,
-                svar = listOf(Svar(null, arbeidGjenopptattDato.format(DateTimeFormatter.ISO_LOCAL_DATE)))
+        var sykepengesoknad =
+            opprettNySoknadMock().copy(
+                fom = periodeFom,
+                tom = periodeTom,
             )
-        )
+        val arbeidGjenopptattDato = LocalDate.now().minusDays(23)
+        sykepengesoknad =
+            sykepengesoknad.replaceSporsmal(
+                sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
+                    min = null,
+                    max = null,
+                    svar = listOf(Svar(null, arbeidGjenopptattDato.format(DateTimeFormatter.ISO_LOCAL_DATE))),
+                ),
+            )
         val oppdatertMax =
             sykepengesoknad.arbeidGjenopptattMutering().getSporsmalMedTag(FERIE_NAR_V2).max
 
@@ -331,13 +355,14 @@ class ArbeidstakereTest {
         val nesteSondag = nesteLordag.with(TemporalAdjusters.next(DayOfWeek.SUNDAY))
 
         var sykepengesoknad = opprettNySoknadMock()
-        sykepengesoknad = sykepengesoknad.replaceSporsmal(
-            sykepengesoknad.getSporsmalMedTag(UTLAND_NAR_V2).copy(
-                min = null,
-                max = null,
-                svar = listOf(Svar(null, DatoUtil.periodeTilJson(nesteLordag, nesteSondag)))
+        sykepengesoknad =
+            sykepengesoknad.replaceSporsmal(
+                sykepengesoknad.getSporsmalMedTag(UTLAND_NAR_V2).copy(
+                    min = null,
+                    max = null,
+                    svar = listOf(Svar(null, DatoUtil.periodeTilJson(nesteLordag, nesteSondag))),
+                ),
             )
-        )
         val oppdatertSoknad: Sykepengesoknad = sykepengesoknad.oppdaterMedSvarPaUtlandsopphold()
 
         assertThat(oppdatertSoknad.getSporsmalMedTagOrNull(UTLANDSOPPHOLD_SOKT_SYKEPENGER)).isNull()
@@ -349,20 +374,22 @@ class ArbeidstakereTest {
         val nesteFredag = nesteMandag.with(TemporalAdjusters.next(DayOfWeek.FRIDAY))
 
         var sykepengesoknad = opprettNySoknadMock()
-        sykepengesoknad = sykepengesoknad.replaceSporsmal(
-            sykepengesoknad.getSporsmalMedTag(FERIE_NAR_V2).copy(
-                min = null,
-                max = null,
-                svar = listOf(Svar(null, DatoUtil.periodeTilJson(nesteMandag, nesteFredag)))
+        sykepengesoknad =
+            sykepengesoknad.replaceSporsmal(
+                sykepengesoknad.getSporsmalMedTag(FERIE_NAR_V2).copy(
+                    min = null,
+                    max = null,
+                    svar = listOf(Svar(null, DatoUtil.periodeTilJson(nesteMandag, nesteFredag))),
+                ),
             )
-        )
-        sykepengesoknad = sykepengesoknad.replaceSporsmal(
-            sykepengesoknad.getSporsmalMedTag(UTLAND_NAR_V2).copy(
-                min = null,
-                max = null,
-                svar = listOf(Svar(null, DatoUtil.periodeTilJson(nesteMandag, nesteFredag)))
+        sykepengesoknad =
+            sykepengesoknad.replaceSporsmal(
+                sykepengesoknad.getSporsmalMedTag(UTLAND_NAR_V2).copy(
+                    min = null,
+                    max = null,
+                    svar = listOf(Svar(null, DatoUtil.periodeTilJson(nesteMandag, nesteFredag))),
+                ),
             )
-        )
         val oppdatertSoknad: Sykepengesoknad = sykepengesoknad.oppdaterMedSvarPaUtlandsopphold()
 
         assertThat(oppdatertSoknad.getSporsmalMedTagOrNull(UTLANDSOPPHOLD_SOKT_SYKEPENGER)).isNull()
@@ -374,20 +401,22 @@ class ArbeidstakereTest {
         val nesteFredag = nesteMandag.with(TemporalAdjusters.next(DayOfWeek.FRIDAY))
 
         var sykepengesoknad = gammeltFormatOpprettNySoknadMedFeriesporsmalSomUndersporsmal()
-        sykepengesoknad = sykepengesoknad.replaceSporsmal(
-            sykepengesoknad.getSporsmalMedTag(FERIE_NAR).copy(
-                min = null,
-                max = null,
-                svar = listOf(Svar(null, DatoUtil.periodeTilJson(nesteMandag, nesteFredag)))
+        sykepengesoknad =
+            sykepengesoknad.replaceSporsmal(
+                sykepengesoknad.getSporsmalMedTag(FERIE_NAR).copy(
+                    min = null,
+                    max = null,
+                    svar = listOf(Svar(null, DatoUtil.periodeTilJson(nesteMandag, nesteFredag))),
+                ),
             )
-        )
-        sykepengesoknad = sykepengesoknad.replaceSporsmal(
-            sykepengesoknad.getSporsmalMedTag(UTLAND_NAR).copy(
-                min = null,
-                max = null,
-                svar = listOf(Svar(null, DatoUtil.periodeTilJson(nesteMandag, nesteFredag)))
+        sykepengesoknad =
+            sykepengesoknad.replaceSporsmal(
+                sykepengesoknad.getSporsmalMedTag(UTLAND_NAR).copy(
+                    min = null,
+                    max = null,
+                    svar = listOf(Svar(null, DatoUtil.periodeTilJson(nesteMandag, nesteFredag))),
+                ),
             )
-        )
         val oppdatertSoknad: Sykepengesoknad = sykepengesoknad.oppdaterMedSvarPaUtlandsopphold()
 
         assertThat(oppdatertSoknad.getSporsmalMedTagOrNull(UTLANDSOPPHOLD_SOKT_SYKEPENGER)).isNull()
@@ -399,20 +428,22 @@ class ArbeidstakereTest {
         val nesteFredag = nesteMandag.with(TemporalAdjusters.next(DayOfWeek.FRIDAY))
 
         var sykepengesoknad = opprettNySoknadMock()
-        sykepengesoknad = sykepengesoknad.replaceSporsmal(
-            sykepengesoknad.getSporsmalMedTag(FERIE_NAR_V2).copy(
-                min = null,
-                max = null,
-                svar = emptyList()
+        sykepengesoknad =
+            sykepengesoknad.replaceSporsmal(
+                sykepengesoknad.getSporsmalMedTag(FERIE_NAR_V2).copy(
+                    min = null,
+                    max = null,
+                    svar = emptyList(),
+                ),
             )
-        )
-        sykepengesoknad = sykepengesoknad.replaceSporsmal(
-            sykepengesoknad.getSporsmalMedTag(UTLAND_NAR_V2).copy(
-                min = null,
-                max = null,
-                svar = listOf(Svar(null, DatoUtil.periodeTilJson(nesteMandag, nesteFredag)))
+        sykepengesoknad =
+            sykepengesoknad.replaceSporsmal(
+                sykepengesoknad.getSporsmalMedTag(UTLAND_NAR_V2).copy(
+                    min = null,
+                    max = null,
+                    svar = listOf(Svar(null, DatoUtil.periodeTilJson(nesteMandag, nesteFredag))),
+                ),
             )
-        )
         val oppdatertSoknad: Sykepengesoknad = sykepengesoknad.oppdaterMedSvarPaUtlandsopphold()
 
         assertThat(oppdatertSoknad.getSporsmalMedTagOrNull(UTLANDSOPPHOLD_SOKT_SYKEPENGER)).isNotNull
@@ -424,20 +455,22 @@ class ArbeidstakereTest {
         val nesteFredag = nesteMandag.with(TemporalAdjusters.next(DayOfWeek.FRIDAY))
 
         var sykepengesoknad = gammeltFormatOpprettNySoknadMedFeriesporsmalSomUndersporsmal()
-        sykepengesoknad = sykepengesoknad.replaceSporsmal(
-            sykepengesoknad.getSporsmalMedTag(FERIE_NAR).copy(
-                min = null,
-                max = null,
-                svar = emptyList()
+        sykepengesoknad =
+            sykepengesoknad.replaceSporsmal(
+                sykepengesoknad.getSporsmalMedTag(FERIE_NAR).copy(
+                    min = null,
+                    max = null,
+                    svar = emptyList(),
+                ),
             )
-        )
-        sykepengesoknad = sykepengesoknad.replaceSporsmal(
-            sykepengesoknad.getSporsmalMedTag(UTLAND_NAR).copy(
-                min = null,
-                max = null,
-                svar = listOf(Svar(null, DatoUtil.periodeTilJson(nesteMandag, nesteFredag)))
+        sykepengesoknad =
+            sykepengesoknad.replaceSporsmal(
+                sykepengesoknad.getSporsmalMedTag(UTLAND_NAR).copy(
+                    min = null,
+                    max = null,
+                    svar = listOf(Svar(null, DatoUtil.periodeTilJson(nesteMandag, nesteFredag))),
+                ),
             )
-        )
         val oppdatertSoknad: Sykepengesoknad = sykepengesoknad.oppdaterMedSvarPaUtlandsopphold()
 
         assertThat(oppdatertSoknad.getSporsmalMedTagOrNull(UTLANDSOPPHOLD_SOKT_SYKEPENGER)).isNotNull
@@ -445,10 +478,11 @@ class ArbeidstakereTest {
 
     @Test
     fun sortererSporsmalISykepengesoknad() {
-        val ekstraGradertsporsmal = Sporsmal(
-            tag = JOBBET_DU_GRADERT + 4,
-            svartype = Svartype.JA_NEI
-        )
+        val ekstraGradertsporsmal =
+            Sporsmal(
+                tag = JOBBET_DU_GRADERT + 4,
+                svartype = Svartype.JA_NEI,
+            )
         val nyttSporsmalForan = opprettNySoknadMock().sporsmal.toMutableList()
         nyttSporsmalForan.add(0, ekstraGradertsporsmal)
         val nyttSporsmalBak = opprettNySoknadMock().sporsmal.toMutableList()
@@ -465,13 +499,14 @@ class ArbeidstakereTest {
         val isoDato = LocalDate.now().minusDays(19).format(DateTimeFormatter.ISO_LOCAL_DATE)
 
         var sykepengesoknad = gammeltFormatOpprettNySoknadMedFeriesporsmalSomUndersporsmal()
-        sykepengesoknad = sykepengesoknad.replaceSporsmal(
-            sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
-                min = null,
-                max = null,
-                svar = listOf(Svar(null, isoDato))
+        sykepengesoknad =
+            sykepengesoknad.replaceSporsmal(
+                sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
+                    min = null,
+                    max = null,
+                    svar = listOf(Svar(null, isoDato)),
+                ),
             )
-        )
         val gyldigArbeidGjenopptattsvar = getGyldigArbeidGjenopptattsvar(sykepengesoknad)
 
         assertThat(gyldigArbeidGjenopptattsvar).isEqualTo(LocalDate.now().minusDays(19))
@@ -482,13 +517,14 @@ class ArbeidstakereTest {
         val isoDato = LocalDate.now().minusDays(19).format(PeriodeMapper.sporsmalstekstFormat)
 
         var sykepengesoknad = opprettNySoknadMock()
-        sykepengesoknad = sykepengesoknad.replaceSporsmal(
-            sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
-                min = null,
-                max = null,
-                svar = listOf(Svar(null, isoDato))
+        sykepengesoknad =
+            sykepengesoknad.replaceSporsmal(
+                sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
+                    min = null,
+                    max = null,
+                    svar = listOf(Svar(null, isoDato)),
+                ),
             )
-        )
         val gyldigArbeidGjenopptattsvar = getGyldigArbeidGjenopptattsvar(sykepengesoknad)
 
         assertThat(gyldigArbeidGjenopptattsvar).isEqualTo(LocalDate.now().minusDays(19))
@@ -499,13 +535,14 @@ class ArbeidstakereTest {
         val isoDato = "02.02.20__"
 
         var sykepengesoknad = opprettNySoknadMock()
-        sykepengesoknad = sykepengesoknad.replaceSporsmal(
-            sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
-                min = null,
-                max = null,
-                svar = listOf(Svar(null, isoDato))
+        sykepengesoknad =
+            sykepengesoknad.replaceSporsmal(
+                sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
+                    min = null,
+                    max = null,
+                    svar = listOf(Svar(null, isoDato)),
+                ),
             )
-        )
         val gyldigArbeidGjenopptattsvar = getGyldigArbeidGjenopptattsvar(sykepengesoknad)
 
         assertThat(gyldigArbeidGjenopptattsvar).isNull()

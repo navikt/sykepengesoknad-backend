@@ -4,14 +4,20 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 
-fun max(a: LocalDate, b: LocalDate): LocalDate {
+fun max(
+    a: LocalDate,
+    b: LocalDate,
+): LocalDate {
     if (a.isAfter(b)) {
         return a
     }
     return b
 }
 
-fun min(a: LocalDate, b: LocalDate): LocalDate {
+fun min(
+    a: LocalDate,
+    b: LocalDate,
+): LocalDate {
     if (a.isBefore(b)) {
         return a
     }

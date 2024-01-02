@@ -25,12 +25,13 @@ fun Sporsmal.plasseringSporsmalUtland(): Int {
 }
 
 fun settOppSoknadOppholdUtland(fnr: String): Sykepengesoknad {
-    val sporsmal = listOf(
-        periodeSporsmal(),
-        landSporsmal(),
-        arbeidsgiverSporsmal(),
-        bekreftSporsmal(false)
-    )
+    val sporsmal =
+        listOf(
+            periodeSporsmal(),
+            landSporsmal(),
+            arbeidsgiverSporsmal(),
+            bekreftSporsmal(false),
+        )
 
     return Sykepengesoknad(
         id = randomUUID().toString(),
@@ -53,7 +54,7 @@ fun settOppSoknadOppholdUtland(fnr: String): Sykepengesoknad {
         egenmeldingsdagerFraSykmelding = null,
         forstegangssoknad = null,
         tidligereArbeidsgiverOrgnummer = null,
-        aktivertDato = null
+        aktivertDato = null,
     )
 }
 
@@ -63,18 +64,19 @@ private fun arbeidsgiverSporsmal(): Sporsmal {
         sporsmalstekst = "Har du arbeidsgiver?",
         svartype = JA_NEI,
         kriterieForVisningAvUndersporsmal = JA,
-        undersporsmal = listOf(
-            Sporsmal(
-                tag = SYKMELDINGSGRAD,
-                sporsmalstekst = "Er du 100 % sykmeldt?",
-                svartype = JA_NEI
+        undersporsmal =
+            listOf(
+                Sporsmal(
+                    tag = SYKMELDINGSGRAD,
+                    sporsmalstekst = "Er du 100 % sykmeldt?",
+                    svartype = JA_NEI,
+                ),
+                Sporsmal(
+                    tag = FERIE,
+                    sporsmalstekst = "Har du avtalt med arbeidsgiveren din at du skal ta ut feriedager i hele perioden?",
+                    svartype = JA_NEI,
+                ),
             ),
-            Sporsmal(
-                tag = FERIE,
-                sporsmalstekst = "Har du avtalt med arbeidsgiveren din at du skal ta ut feriedager i hele perioden?",
-                svartype = JA_NEI
-            )
-        )
     )
 }
 
@@ -84,7 +86,7 @@ private fun periodeSporsmal(): Sporsmal {
         sporsmalstekst = "Når skal du reise?",
         svartype = Svartype.PERIODER,
         min = now().minusMonths(3).format(ISO_LOCAL_DATE),
-        max = now().plusMonths(6).format(ISO_LOCAL_DATE)
+        max = now().plusMonths(6).format(ISO_LOCAL_DATE),
     )
 }
 
@@ -93,7 +95,7 @@ private fun landSporsmal(): Sporsmal {
         tag = LAND,
         sporsmalstekst = "Hvilket land skal du reise til?",
         svartype = Svartype.LAND,
-        max = "50"
+        max = "50",
     )
 }
 
@@ -102,22 +104,24 @@ fun bekreftSporsmal(harArbeidsgiver: Boolean): Sporsmal {
         tag = BEKREFT_OPPLYSNINGER_UTLAND_INFO,
         sporsmalstekst = "Før du reiser ber vi deg bekrefte:",
         svartype = IKKE_RELEVANT,
-        undersporsmal = listOf(
-            Sporsmal(
-                tag = BEKREFT_OPPLYSNINGER_UTLAND,
-                sporsmalstekst =
-                if (harArbeidsgiver) {
-                    "Jeg bekrefter de tre punktene ovenfor"
-                } else {
-                    "Jeg bekrefter de to punktene ovenfor"
-                },
-                svartype = CHECKBOX_PANEL
-            )
-        ),
-        undertekst = "<ul>\n" +
-            "    <li>Jeg har avklart med legen at reisen ikke vil forlenge sykefraværet</li>\n" +
-            "    <li>Reisen hindrer ikke planlagt behandling eller avtaler med NAV</li>\n" +
-            (if (harArbeidsgiver) "<li>Reisen er avklart med arbeidsgiveren min</li>" else "") +
-            "</ul>"
+        undersporsmal =
+            listOf(
+                Sporsmal(
+                    tag = BEKREFT_OPPLYSNINGER_UTLAND,
+                    sporsmalstekst =
+                        if (harArbeidsgiver) {
+                            "Jeg bekrefter de tre punktene ovenfor"
+                        } else {
+                            "Jeg bekrefter de to punktene ovenfor"
+                        },
+                    svartype = CHECKBOX_PANEL,
+                ),
+            ),
+        undertekst =
+            "<ul>\n" +
+                "    <li>Jeg har avklart med legen at reisen ikke vil forlenge sykefraværet</li>\n" +
+                "    <li>Reisen hindrer ikke planlagt behandling eller avtaler med NAV</li>\n" +
+                (if (harArbeidsgiver) "<li>Reisen er avklart med arbeidsgiveren min</li>" else "") +
+                "</ul>",
     )
 }

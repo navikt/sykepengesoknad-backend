@@ -39,7 +39,7 @@ class OpprettSoknadService(
     private val klippMetrikk: KlippMetrikk,
     private val soknadProducer: SoknadProducer,
     private val lagreJulesoknadKandidater: LagreJulesoknadKandidater,
-    private val slettSoknaderTilKorrigertSykmeldingService: SlettSoknaderTilKorrigertSykmeldingService
+    private val slettSoknaderTilKorrigertSykmeldingService: SlettSoknaderTilKorrigertSykmeldingService,
 ) {
     private val log = logger()
 
@@ -48,66 +48,73 @@ class OpprettSoknadService(
         arbeidssituasjon: Arbeidssituasjon,
         identer: FolkeregisterIdenter,
         arbeidsgiverStatusDTO: ArbeidsgiverStatusDTO?,
-        flexSyketilfelleSykeforloep: List<Sykeforloep>
+        flexSyketilfelleSykeforloep: List<Sykeforloep>,
     ): List<AktiveringBestilling> {
         val sykmelding = sykmeldingKafkaMessage.sykmelding
 
         val eksisterendeSoknader = sykepengesoknadDAO.finnSykepengesoknader(identer)
 
-        val sykeforloep = flexSyketilfelleSykeforloep.firstOrNull {
-            it.sykmeldinger.any { sm -> sm.id == sykmelding.id }
-        } ?: throw SykeforloepManglerSykemeldingException("Sykeforloep mangler sykmelding ${sykmelding.id}")
+        val sykeforloep =
+            flexSyketilfelleSykeforloep.firstOrNull {
+                it.sykmeldinger.any { sm -> sm.id == sykmelding.id }
+            } ?: throw SykeforloepManglerSykemeldingException("Sykeforloep mangler sykmelding ${sykmelding.id}")
         val startSykeforlop = sykeforloep.oppfolgingsdato
 
         val sykmeldingSplittetMellomTyper = sykmelding.splittMellomTyper()
-        val soknaderTilOppretting = sykmeldingSplittetMellomTyper.map { sm ->
-            sm.splittSykmeldingiSoknadsPerioder(
-                arbeidssituasjon,
-                eksisterendeSoknader,
-                sm.id,
-                sm.behandletTidspunkt.toInstant(),
-                arbeidsgiverStatusDTO?.orgnummer,
-                klippMetrikk
-            ).map {
-                val perioderFraSykmeldingen = it.delOppISoknadsperioder(sm)
-                Sykepengesoknad(
-                    id = sykmeldingKafkaMessage.skapSoknadsId(it.fom, it.tom),
-                    fnr = identer.originalIdent,
-                    startSykeforlop = startSykeforlop,
-                    fom = it.fom,
-                    tom = it.tom,
-                    arbeidssituasjon = arbeidssituasjon,
-                    arbeidsgiverOrgnummer = arbeidsgiverStatusDTO?.orgnummer,
-                    arbeidsgiverNavn = arbeidsgiverStatusDTO?.orgNavn?.prettyOrgnavn(),
-                    sykmeldingId = sm.id,
-                    sykmeldingSkrevet = sm.behandletTidspunkt.toInstant(),
-                    sykmeldingSignaturDato = sm.signaturDato?.toInstant(),
-                    soknadPerioder = perioderFraSykmeldingen.tilSoknadsperioder(),
-                    egenmeldtSykmelding = sm.egenmeldt,
-                    merknaderFraSykmelding = sm.merknader.tilMerknader(),
-                    soknadstype = finnSoknadsType(arbeidssituasjon, perioderFraSykmeldingen),
-                    status = Soknadstatus.FREMTIDIG,
-                    opprettet = Instant.now(),
-                    sporsmal = emptyList(),
-                    utenlandskSykmelding = sykmeldingKafkaMessage.sykmelding.utenlandskSykmelding != null,
-                    egenmeldingsdagerFraSykmelding = sykmeldingKafkaMessage.event.sporsmals?.firstOrNull { spm -> spm.shortName == ShortNameDTO.EGENMELDINGSDAGER }?.svar,
-                    forstegangssoknad = null,
-                    tidligereArbeidsgiverOrgnummer = sykmeldingKafkaMessage.event.tidligereArbeidsgiver?.orgnummer,
-                    aktivertDato = null
-                )
-            }
-                .filter { it.soknadPerioder?.isNotEmpty() ?: true }
-                .also { it.lagreJulesoknadKandidater() }
-        }.flatten()
+        val soknaderTilOppretting =
+            sykmeldingSplittetMellomTyper.map { sm ->
+                sm.splittSykmeldingiSoknadsPerioder(
+                    arbeidssituasjon,
+                    eksisterendeSoknader,
+                    sm.id,
+                    sm.behandletTidspunkt.toInstant(),
+                    arbeidsgiverStatusDTO?.orgnummer,
+                    klippMetrikk,
+                ).map {
+                    val perioderFraSykmeldingen = it.delOppISoknadsperioder(sm)
+                    Sykepengesoknad(
+                        id = sykmeldingKafkaMessage.skapSoknadsId(it.fom, it.tom),
+                        fnr = identer.originalIdent,
+                        startSykeforlop = startSykeforlop,
+                        fom = it.fom,
+                        tom = it.tom,
+                        arbeidssituasjon = arbeidssituasjon,
+                        arbeidsgiverOrgnummer = arbeidsgiverStatusDTO?.orgnummer,
+                        arbeidsgiverNavn = arbeidsgiverStatusDTO?.orgNavn?.prettyOrgnavn(),
+                        sykmeldingId = sm.id,
+                        sykmeldingSkrevet = sm.behandletTidspunkt.toInstant(),
+                        sykmeldingSignaturDato = sm.signaturDato?.toInstant(),
+                        soknadPerioder = perioderFraSykmeldingen.tilSoknadsperioder(),
+                        egenmeldtSykmelding = sm.egenmeldt,
+                        merknaderFraSykmelding = sm.merknader.tilMerknader(),
+                        soknadstype = finnSoknadsType(arbeidssituasjon, perioderFraSykmeldingen),
+                        status = Soknadstatus.FREMTIDIG,
+                        opprettet = Instant.now(),
+                        sporsmal = emptyList(),
+                        utenlandskSykmelding = sykmeldingKafkaMessage.sykmelding.utenlandskSykmelding != null,
+                        egenmeldingsdagerFraSykmelding =
+                            sykmeldingKafkaMessage.event.sporsmals?.firstOrNull {
+                                    spm ->
+                                spm.shortName == ShortNameDTO.EGENMELDINGSDAGER
+                            }?.svar,
+                        forstegangssoknad = null,
+                        tidligereArbeidsgiverOrgnummer = sykmeldingKafkaMessage.event.tidligereArbeidsgiver?.orgnummer,
+                        aktivertDato = null,
+                    )
+                }
+                    .filter { it.soknadPerioder?.isNotEmpty() ?: true }
+                    .also { it.lagreJulesoknadKandidater() }
+            }.flatten()
 
         val eksisterendeSoknaderForSm = eksisterendeSoknader.filter { it.sykmeldingId == sykmelding.id }
 
         if (eksisterendeSoknaderForSm.isNotEmpty()) {
             val sammenliknbartSettAvNyeSoknader = soknaderTilOppretting.map { it.tilSoknadSammenlikner() }.toHashSet()
-            val sammenliknbartSettAvEksisterendeSoknaderForSm = eksisterendeSoknaderForSm
-                .filter { it.status != Soknadstatus.KORRIGERT && it.status != Soknadstatus.UTKAST_TIL_KORRIGERING }
-                .map { it.tilSoknadSammenlikner() }
-                .toHashSet()
+            val sammenliknbartSettAvEksisterendeSoknaderForSm =
+                eksisterendeSoknaderForSm
+                    .filter { it.status != Soknadstatus.KORRIGERT && it.status != Soknadstatus.UTKAST_TIL_KORRIGERING }
+                    .map { it.tilSoknadSammenlikner() }
+                    .toHashSet()
             if (sammenliknbartSettAvEksisterendeSoknaderForSm == sammenliknbartSettAvNyeSoknader) {
                 log.info("Oppretter ikke søknader for sykmelding ${sykmelding.id} siden eksisterende identiske søknader finnes")
                 return emptyList()
@@ -164,23 +171,28 @@ class OpprettSoknadService(
 
 private fun Sykepengesoknad.markerForsteganssoknad(
     eksisterendeSoknader: List<Sykepengesoknad>,
-    soknaderTilOppretting: List<Sykepengesoknad>
+    soknaderTilOppretting: List<Sykepengesoknad>,
 ): Sykepengesoknad {
-    val alleSoknader = mutableListOf(
-        *eksisterendeSoknader.toTypedArray(),
-        *soknaderTilOppretting.toTypedArray()
-    )
-    return this.copy(
-        forstegangssoknad = erForsteSoknadTilArbeidsgiverIForlop(
-            alleSoknader.filterNot { eksisterendeSoknad -> eksisterendeSoknad.id == this.id },
-            this
+    val alleSoknader =
+        mutableListOf(
+            *eksisterendeSoknader.toTypedArray(),
+            *soknaderTilOppretting.toTypedArray(),
         )
+    return this.copy(
+        forstegangssoknad =
+            erForsteSoknadTilArbeidsgiverIForlop(
+                alleSoknader.filterNot { eksisterendeSoknad -> eksisterendeSoknad.id == this.id },
+                this,
+            ),
     )
 }
 
-fun SykmeldingKafkaMessage.skapSoknadsId(fom: LocalDate, tom: LocalDate): String {
+fun SykmeldingKafkaMessage.skapSoknadsId(
+    fom: LocalDate,
+    tom: LocalDate,
+): String {
     return UUID.nameUUIDFromBytes(
-        "${sykmelding.id}$fom$tom${event.timestamp}".toByteArray()
+        "${sykmelding.id}$fom$tom${event.timestamp}".toByteArray(),
     ).toString()
 }
 
@@ -194,14 +206,16 @@ fun SykmeldingsperiodeAGDTO.tilSoknadsperioder(): Soknadsperiode {
         fom = fom,
         tom = tom,
         grad = gradert?.grad ?: gradForAktivitetIkkeMulig ?: 0,
-        sykmeldingstype = type.tilSykmeldingstype()
+        sykmeldingstype = type.tilSykmeldingstype(),
     )
 }
 
-fun List<SmMerknad>?.tilMerknader(): List<Merknad>? =
-    this?.map { Merknad(type = it.type, beskrivelse = it.beskrivelse) }
+fun List<SmMerknad>?.tilMerknader(): List<Merknad>? = this?.map { Merknad(type = it.type, beskrivelse = it.beskrivelse) }
 
-fun antallDager(fom: LocalDate, tom: LocalDate): Long {
+fun antallDager(
+    fom: LocalDate,
+    tom: LocalDate,
+): Long {
     return ChronoUnit.DAYS.between(fom, tom) + 1
 }
 
@@ -230,7 +244,7 @@ data class SoknadSammenlikner(
     val arbeidssituasjon: Arbeidssituasjon?,
     val soknadstype: Soknadstype,
     val soknadPerioder: List<Soknadsperiode>?,
-    val arbeidsgiverOrgnummer: String?
+    val arbeidsgiverOrgnummer: String?,
 )
 
 fun Sykepengesoknad.tilSoknadSammenlikner() =
@@ -241,5 +255,5 @@ fun Sykepengesoknad.tilSoknadSammenlikner() =
         arbeidssituasjon = this.arbeidssituasjon,
         arbeidsgiverOrgnummer = this.arbeidsgiverOrgnummer,
         soknadstype = this.soknadstype,
-        soknadPerioder = this.soknadPerioder
+        soknadPerioder = this.soknadPerioder,
     )

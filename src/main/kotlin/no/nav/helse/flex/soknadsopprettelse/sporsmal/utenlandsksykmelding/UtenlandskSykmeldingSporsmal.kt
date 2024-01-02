@@ -7,6 +7,6 @@ fun utenlandskSykmeldingSporsmal(sykepengesoknad: Sykepengesoknad): List<Sporsma
     return listOf(
         borDuINorge(sykepengesoknad),
         trygdUtenforNorge(),
-        lønnetArbeidUtenforNorge()
+        lønnetArbeidUtenforNorge(),
     )
 }

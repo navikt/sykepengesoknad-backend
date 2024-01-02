@@ -8,17 +8,19 @@ import org.springframework.stereotype.Component
 
 @Component
 class RedigerteEgenmeldingsdagerConsumer(
-    private val korrigerteEgenmeldingsdager: KorrigerteEgenmeldingsdager
+    private val korrigerteEgenmeldingsdager: KorrigerteEgenmeldingsdager,
 ) {
-
     @KafkaListener(
         topics = [SYKMELDINGSENDT_TOPIC],
         containerFactory = "aivenKafkaListenerContainerFactory",
         properties = ["auto.offset.reset = earliest"],
         id = "redigerte-egenmeldingsdager",
-        idIsGroup = true
+        idIsGroup = true,
     )
-    fun listen(cr: ConsumerRecord<String, String?>, acknowledgment: Acknowledgment) {
+    fun listen(
+        cr: ConsumerRecord<String, String?>,
+        acknowledgment: Acknowledgment,
+    ) {
         val kafkaMessage = cr.value()?.tilSykmeldingKafkaMessage()
 
         if (kafkaMessage?.event?.erSvarOppdatering != true) {

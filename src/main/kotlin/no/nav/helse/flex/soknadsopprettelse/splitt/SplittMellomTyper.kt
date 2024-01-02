@@ -15,12 +15,13 @@ fun ArbeidsgiverSykmelding.splittMellomTyper(): List<ArbeidsgiverSykmelding> {
             return@forEach
         }
 
-        behandles = if (behandles!!.erKompatibel(nestePeriode)) {
-            behandles!!.copy(sykmeldingsperioder = listOf(*behandles!!.sykmeldingsperioder.toTypedArray(), nestePeriode))
-        } else {
-            ret.add(behandles!!)
-            this.copy(sykmeldingsperioder = listOf(nestePeriode))
-        }
+        behandles =
+            if (behandles!!.erKompatibel(nestePeriode)) {
+                behandles!!.copy(sykmeldingsperioder = listOf(*behandles!!.sykmeldingsperioder.toTypedArray(), nestePeriode))
+            } else {
+                ret.add(behandles!!)
+                this.copy(sykmeldingsperioder = listOf(nestePeriode))
+            }
     }
     if (behandles != null) {
         ret.add(behandles!!)

@@ -29,19 +29,22 @@ private fun yrkesskadeSporsmalV2(v2GodkjenteSaker: List<YrkesskadeSak>): Sporsma
         sporsmalstekst = "Skyldes dette sykefraværet en eller flere av disse godkjente yrkesskadene?",
         svartype = Svartype.JA_NEI,
         kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
-        undersporsmal = listOf(
-            Sporsmal(
-                tag = YRKESSKADE_V2_VELG_DATO,
-                sporsmalstekst = "Hvilken skadedato skyldes dette sykefraværet? Du kan velge flere",
-                svartype = Svartype.CHECKBOX_GRUPPE,
-                undersporsmal = v2GodkjenteSaker.map {
-                    Sporsmal(
-                        sporsmalstekst = skapSkadedatoTekst(it),
-                        svartype = Svartype.CHECKBOX,
-                        tag = YRKESSKADE_V2_DATO,
-                        undertekst = (it.skadedato ?: it.vedtaksdato).toString() // For sortering
-                    )
-                }
-            )
-        )
+        undersporsmal =
+            listOf(
+                Sporsmal(
+                    tag = YRKESSKADE_V2_VELG_DATO,
+                    sporsmalstekst = "Hvilken skadedato skyldes dette sykefraværet? Du kan velge flere",
+                    svartype = Svartype.CHECKBOX_GRUPPE,
+                    undersporsmal =
+                        v2GodkjenteSaker.map {
+                            Sporsmal(
+                                sporsmalstekst = skapSkadedatoTekst(it),
+                                svartype = Svartype.CHECKBOX,
+                                tag = YRKESSKADE_V2_DATO,
+                                // For sortering.
+                                undertekst = (it.skadedato ?: it.vedtaksdato).toString(),
+                            )
+                        },
+                ),
+            ),
     )

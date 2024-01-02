@@ -20,7 +20,6 @@ import org.mockito.Mockito.times
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class TilbakedatertSykmeldingIntegrationTest : BaseTestClass() {
-
     private val fnr = "123456789"
 
     private val sykmeldingid = "1db78df1-d1d7-4dc4-affd-06e1e08066ce"
@@ -123,32 +122,34 @@ class TilbakedatertSykmeldingIntegrationTest : BaseTestClass() {
             skapSykmeldingStatusKafkaMessageDTO(
                 fnr = fnr,
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
-                sykmeldingId = sykmeldingid
+                sykmeldingId = sykmeldingid,
             )
-        val sykmelding = skapArbeidsgiverSykmelding(
-            sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
-        ).let {
-            if (merknad == null) {
-                it
-            } else {
-                it.copy(
-                    merknader = listOf(Merknad(type = merknad, beskrivelse = merknad))
-                )
+        val sykmelding =
+            skapArbeidsgiverSykmelding(
+                sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId,
+            ).let {
+                if (merknad == null) {
+                    it
+                } else {
+                    it.copy(
+                        merknader = listOf(Merknad(type = merknad, beskrivelse = merknad)),
+                    )
+                }
             }
-        }
 
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
-        val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
-            sykmelding = sykmelding,
-            event = sykmeldingStatusKafkaMessageDTO.event,
-            kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
-        )
+        val sykmeldingKafkaMessage =
+            SykmeldingKafkaMessage(
+                sykmelding = sykmelding,
+                event = sykmeldingStatusKafkaMessageDTO.event,
+                kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
+            )
 
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
             sykmelding.id,
             sykmeldingKafkaMessage,
-            SYKMELDINGSENDT_TOPIC
+            SYKMELDINGSENDT_TOPIC,
         )
     }
 }

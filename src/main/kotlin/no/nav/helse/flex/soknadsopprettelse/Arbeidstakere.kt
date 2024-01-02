@@ -28,17 +28,17 @@ enum class LovMeSporsmalTag : MedlemskapSporsmalTag {
     OPPHOLDSTILATELSE,
     ARBEID_UTENFOR_NORGE,
     OPPHOLD_UTENFOR_NORGE,
-    OPPHOLD_UTENFOR_EØS_OMRÅDE
+    OPPHOLD_UTENFOR_EØS_OMRÅDE,
 }
 
 enum class SykepengesoknadSporsmalTag : MedlemskapSporsmalTag {
-    ARBEID_UTENFOR_NORGE
+    ARBEID_UTENFOR_NORGE,
 }
 
 fun settOppSoknadArbeidstaker(
     soknadOptions: SettOppSoknadOptions,
     andreKjenteArbeidsforhold: List<String>,
-    toggle: Boolean = true
+    toggle: Boolean = true,
 ): List<Sporsmal> {
     val (sykepengesoknad, erForsteSoknadISykeforlop, harTidligereUtenlandskSpm, yrkesskade, medlemskapTags) = soknadOptions
     val erGradertReisetilskudd = sykepengesoknad.soknadstype == GRADERT_REISETILSKUDD
@@ -49,7 +49,7 @@ fun settOppSoknadArbeidstaker(
                 tilbakeIFulltArbeidGradertReisetilskuddSporsmal(sykepengesoknad)
             } else {
                 tilbakeIFulltArbeidSporsmal(sykepengesoknad)
-            }
+            },
         )
         add(ferieSporsmal(sykepengesoknad.fom!!, sykepengesoknad.tom!!))
         add(permisjonSporsmal(sykepengesoknad.fom, sykepengesoknad.tom))
@@ -89,7 +89,7 @@ fun settOppSoknadArbeidstaker(
                         throw RuntimeException("Ukjent MedlemskapSporsmalTag: $it.")
                     }
                 }
-            }
+            },
         )
     }
 }
@@ -102,111 +102,124 @@ private fun tilbakeIFulltArbeidSporsmal(soknadMetadata: Sykepengesoknad): Sporsm
     return Sporsmal(
         tag = TILBAKE_I_ARBEID,
         sporsmalstekst = "Var du tilbake i fullt arbeid hos ${soknadMetadata.arbeidsgiverNavn} i løpet av perioden ${
-        formatterPeriode(
-            soknadMetadata.fom!!,
-            soknadMetadata.tom!!
-        )
+            formatterPeriode(
+                soknadMetadata.fom!!,
+                soknadMetadata.tom!!,
+            )
         }?",
         svartype = JA_NEI,
         kriterieForVisningAvUndersporsmal = JA,
-        undersporsmal = listOf(
-            Sporsmal(
-                tag = TILBAKE_NAR,
-                sporsmalstekst = "Når begynte du å jobbe igjen?",
-                svartype = DATO,
-                min = soknadMetadata.fom.format(ISO_LOCAL_DATE),
-                max = soknadMetadata.tom.format(ISO_LOCAL_DATE)
-            )
-        )
+        undersporsmal =
+            listOf(
+                Sporsmal(
+                    tag = TILBAKE_NAR,
+                    sporsmalstekst = "Når begynte du å jobbe igjen?",
+                    svartype = DATO,
+                    min = soknadMetadata.fom.format(ISO_LOCAL_DATE),
+                    max = soknadMetadata.tom.format(ISO_LOCAL_DATE),
+                ),
+            ),
     )
 }
 
-fun utenlandsoppholdSporsmal(fom: LocalDate, tom: LocalDate): Sporsmal {
+fun utenlandsoppholdSporsmal(
+    fom: LocalDate,
+    tom: LocalDate,
+): Sporsmal {
     return Sporsmal(
         tag = UTLAND_V2,
         sporsmalstekst = "Var du på reise utenfor EØS mens du var sykmeldt ${formatterPeriode(fom, tom)}?",
         svartype = JA_NEI,
         kriterieForVisningAvUndersporsmal = JA,
-        undersporsmal = listOf(
-            Sporsmal(
-                tag = UTLAND_NAR_V2,
-                sporsmalstekst = "Når var du utenfor EØS?",
-                svartype = Svartype.PERIODER,
-                min = fom.format(ISO_LOCAL_DATE),
-                max = tom.format(ISO_LOCAL_DATE)
-            )
-        )
+        undersporsmal =
+            listOf(
+                Sporsmal(
+                    tag = UTLAND_NAR_V2,
+                    sporsmalstekst = "Når var du utenfor EØS?",
+                    svartype = Svartype.PERIODER,
+                    min = fom.format(ISO_LOCAL_DATE),
+                    max = tom.format(ISO_LOCAL_DATE),
+                ),
+            ),
     )
 }
 
-fun gammeltFormatFeriePermisjonUtlandsoppholdSporsmal(fom: LocalDate, tom: LocalDate): Sporsmal {
+fun gammeltFormatFeriePermisjonUtlandsoppholdSporsmal(
+    fom: LocalDate,
+    tom: LocalDate,
+): Sporsmal {
     return Sporsmal(
         tag = FERIE_PERMISJON_UTLAND,
         sporsmalstekst = "Har du hatt ferie, permisjon eller vært utenfor EØS mens du var sykmeldt ${
-        formatterPeriode(
-            fom,
-            tom
-        )
+            formatterPeriode(
+                fom,
+                tom,
+            )
         }?",
         svartype = JA_NEI,
         kriterieForVisningAvUndersporsmal = JA,
-        undersporsmal = listOf(
-            Sporsmal(
-                tag = FERIE_PERMISJON_UTLAND_HVA,
-                sporsmalstekst = "Kryss av alt som gjelder deg:",
-                svartype = CHECKBOX_GRUPPE,
-                undersporsmal = listOf(
-                    Sporsmal(
-                        tag = FERIE,
-                        sporsmalstekst = "Jeg tok ut ferie",
-                        svartype = CHECKBOX,
-                        kriterieForVisningAvUndersporsmal = CHECKED,
-                        undersporsmal = listOf(
+        undersporsmal =
+            listOf(
+                Sporsmal(
+                    tag = FERIE_PERMISJON_UTLAND_HVA,
+                    sporsmalstekst = "Kryss av alt som gjelder deg:",
+                    svartype = CHECKBOX_GRUPPE,
+                    undersporsmal =
+                        listOf(
                             Sporsmal(
-                                tag = FERIE_NAR,
-                                svartype = Svartype.PERIODER,
-                                min = fom.format(ISO_LOCAL_DATE),
-                                max = tom.format(ISO_LOCAL_DATE)
-                            )
-                        )
-                    ),
-                    Sporsmal(
-                        tag = PERMISJON,
-                        sporsmalstekst = "Jeg hadde permisjon",
-                        svartype = CHECKBOX,
-                        kriterieForVisningAvUndersporsmal = CHECKED,
-                        undersporsmal = listOf(
+                                tag = FERIE,
+                                sporsmalstekst = "Jeg tok ut ferie",
+                                svartype = CHECKBOX,
+                                kriterieForVisningAvUndersporsmal = CHECKED,
+                                undersporsmal =
+                                    listOf(
+                                        Sporsmal(
+                                            tag = FERIE_NAR,
+                                            svartype = Svartype.PERIODER,
+                                            min = fom.format(ISO_LOCAL_DATE),
+                                            max = tom.format(ISO_LOCAL_DATE),
+                                        ),
+                                    ),
+                            ),
                             Sporsmal(
-                                tag = PERMISJON_NAR,
-                                svartype = Svartype.PERIODER,
-                                min = fom.format(ISO_LOCAL_DATE),
-                                max = tom.format(ISO_LOCAL_DATE)
-                            )
-                        )
-                    ),
-                    Sporsmal(
-                        tag = UTLAND,
-                        sporsmalstekst = "Jeg var utenfor EØS",
-                        svartype = CHECKBOX,
-                        kriterieForVisningAvUndersporsmal = CHECKED,
-                        undersporsmal = listOf(
+                                tag = PERMISJON,
+                                sporsmalstekst = "Jeg hadde permisjon",
+                                svartype = CHECKBOX,
+                                kriterieForVisningAvUndersporsmal = CHECKED,
+                                undersporsmal =
+                                    listOf(
+                                        Sporsmal(
+                                            tag = PERMISJON_NAR,
+                                            svartype = Svartype.PERIODER,
+                                            min = fom.format(ISO_LOCAL_DATE),
+                                            max = tom.format(ISO_LOCAL_DATE),
+                                        ),
+                                    ),
+                            ),
                             Sporsmal(
-                                tag = UTLAND_NAR,
-                                svartype = Svartype.PERIODER,
-                                min = fom.format(ISO_LOCAL_DATE),
-                                max = tom.format(ISO_LOCAL_DATE)
-                            )
-                        )
-                    )
-                )
-            )
-        )
+                                tag = UTLAND,
+                                sporsmalstekst = "Jeg var utenfor EØS",
+                                svartype = CHECKBOX,
+                                kriterieForVisningAvUndersporsmal = CHECKED,
+                                undersporsmal =
+                                    listOf(
+                                        Sporsmal(
+                                            tag = UTLAND_NAR,
+                                            svartype = Svartype.PERIODER,
+                                            min = fom.format(ISO_LOCAL_DATE),
+                                            max = tom.format(ISO_LOCAL_DATE),
+                                        ),
+                                    ),
+                            ),
+                        ),
+                ),
+            ),
     )
 }
 
 fun jobbetDuIPeriodenSporsmal(
     soknadsperioder: List<Soknadsperiode>,
-    arbeidsgiverNavn: String
+    arbeidsgiverNavn: String,
 ): List<Sporsmal> {
     return soknadsperioder
         .lastIndex.downTo(0)
@@ -221,22 +234,27 @@ fun jobbetDuIPeriodenSporsmal(
         }
 }
 
-private fun jobbetDu100Prosent(periode: Soknadsperiode, arbeidsgiver: String, index: Int): Sporsmal {
+private fun jobbetDu100Prosent(
+    periode: Soknadsperiode,
+    arbeidsgiver: String,
+    index: Int,
+): Sporsmal {
     return Sporsmal(
         tag = ARBEID_UNDERVEIS_100_PROSENT + index,
         sporsmalstekst = "I perioden ${
-        formatterPeriode(
-            periode.fom,
-            periode.tom
-        )
+            formatterPeriode(
+                periode.fom,
+                periode.tom,
+            )
         } var du 100 % sykmeldt fra $arbeidsgiver. Jobbet du noe hos $arbeidsgiver i denne perioden?",
         svartype = JA_NEI,
         kriterieForVisningAvUndersporsmal = JA,
-        undersporsmal = jobbetDuUndersporsmal(
-            periode = periode,
-            minProsent = 1,
-            index = index,
-            arbeidsgiverNavn = arbeidsgiver
-        )
+        undersporsmal =
+            jobbetDuUndersporsmal(
+                periode = periode,
+                minProsent = 1,
+                index = index,
+                arbeidsgiverNavn = arbeidsgiver,
+            ),
     )
 }

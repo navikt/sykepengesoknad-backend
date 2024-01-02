@@ -36,18 +36,18 @@ import java.util.*
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class FrilanserIntegrationTest : BaseTestClass() {
-
     final val fnr = "123456789"
 
     @Test
     @Order(1)
     fun `vi oppretter en frilanser søknad`() {
-        val soknader = sendSykmelding(
-            sykmeldingKafkaMessage(
-                arbeidssituasjon = Arbeidssituasjon.FRILANSER,
-                fnr = fnr
+        val soknader =
+            sendSykmelding(
+                sykmeldingKafkaMessage(
+                    arbeidssituasjon = Arbeidssituasjon.FRILANSER,
+                    fnr = fnr,
+                ),
             )
-        )
 
         assertThat(soknader).hasSize(1)
         assertThat(soknader.last().type).isEqualTo(SoknadstypeDTO.SELVSTENDIGE_OG_FRILANSERE)
@@ -70,8 +70,8 @@ class FrilanserIntegrationTest : BaseTestClass() {
                 ANDRE_INNTEKTSKILDER,
                 UTLAND,
                 VAER_KLAR_OVER_AT,
-                BEKREFT_OPPLYSNINGER
-            )
+                BEKREFT_OPPLYSNINGER,
+            ),
         )
     }
 
@@ -99,8 +99,8 @@ class FrilanserIntegrationTest : BaseTestClass() {
                 ANDRE_INNTEKTSKILDER,
                 UTLAND,
                 VAER_KLAR_OVER_AT,
-                BEKREFT_OPPLYSNINGER
-            )
+                BEKREFT_OPPLYSNINGER,
+            ),
         )
     }
 
@@ -113,12 +113,12 @@ class FrilanserIntegrationTest : BaseTestClass() {
             .besvarSporsmal(
                 TILBAKE_I_ARBEID,
                 "JA",
-                ferdigBesvart = false
+                ferdigBesvart = false,
             )
             .besvarSporsmal(
                 TILBAKE_NAR,
                 LocalDate.of(2020, 2, 1).format(DateTimeFormatter.ISO_LOCAL_DATE),
-                mutert = true
+                mutert = true,
             )
             .also {
                 assertThat(it.rSSykepengesoknad.sporsmal!!.map { it.tag }).isEqualTo(
@@ -128,8 +128,8 @@ class FrilanserIntegrationTest : BaseTestClass() {
                         ARBEID_UTENFOR_NORGE,
                         ANDRE_INNTEKTSKILDER,
                         VAER_KLAR_OVER_AT,
-                        BEKREFT_OPPLYSNINGER
-                    )
+                        BEKREFT_OPPLYSNINGER,
+                    ),
                 )
             }
     }
@@ -143,7 +143,7 @@ class FrilanserIntegrationTest : BaseTestClass() {
             .besvarSporsmal(
                 TILBAKE_I_ARBEID,
                 "NEI",
-                mutert = true
+                mutert = true,
             )
             .also {
                 assertThat(it.rSSykepengesoknad.sporsmal!!.map { it.tag }).isEqualTo(
@@ -155,12 +155,12 @@ class FrilanserIntegrationTest : BaseTestClass() {
                         ANDRE_INNTEKTSKILDER,
                         UTLAND,
                         VAER_KLAR_OVER_AT,
-                        BEKREFT_OPPLYSNINGER
-                    )
+                        BEKREFT_OPPLYSNINGER,
+                    ),
                 )
 
                 assertThat(it.rSSykepengesoknad.sporsmal!!.first { it.tag == TILBAKE_I_ARBEID }.undersporsmal.first().svar).isEqualTo(
-                    emptyList<RSSvar>()
+                    emptyList<RSSvar>(),
                 )
             }
     }
@@ -174,23 +174,23 @@ class FrilanserIntegrationTest : BaseTestClass() {
             .besvarSporsmal(
                 TILBAKE_I_ARBEID,
                 "JA",
-                ferdigBesvart = false
+                ferdigBesvart = false,
             )
             .besvarSporsmal(
                 TILBAKE_NAR,
                 LocalDate.of(2020, 2, 4).format(DateTimeFormatter.ISO_LOCAL_DATE),
-                mutert = true
+                mutert = true,
             )
             .also {
                 assertThat(it.muterteSoknaden).isTrue()
 
                 assertThat(it.rSSykepengesoknad.sporsmal!!.first { it.tag == "ARBEID_UNDERVEIS_100_PROSENT_0" }.sporsmalstekst)
                     .isEqualTo(
-                        "I perioden 1. - 3. februar 2020 var du 100% sykmeldt som frilanser. Jobbet du noe i denne perioden?"
+                        "I perioden 1. - 3. februar 2020 var du 100% sykmeldt som frilanser. Jobbet du noe i denne perioden?",
                     )
                 assertThat(it.rSSykepengesoknad.sporsmal!!.first { it.tag == UTLAND }.sporsmalstekst)
                     .isEqualTo(
-                        "Har du vært utenfor EØS mens du var sykmeldt 1. - 3. februar 2020?"
+                        "Har du vært utenfor EØS mens du var sykmeldt 1. - 3. februar 2020?",
                     )
             }
     }
@@ -220,8 +220,7 @@ class FrilanserIntegrationTest : BaseTestClass() {
                 PERIODER,
                 svar = """{"fom":"${soknaden.fom!!}","tom":"${soknaden.fom!!.plusDays(1)}"}""",
                 mutert = false,
-                ferdigBesvart = false
-
+                ferdigBesvart = false,
             )
             .besvarSporsmal(UTLANDSOPPHOLD_SOKT_SYKEPENGER, "NEI", mutert = false)
             .also {

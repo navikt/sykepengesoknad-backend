@@ -1,6 +1,6 @@
 package no.nav.helse.flex.aktivering.kafka
 
-import no.nav.helse.flex.kafka.sykepengesoknadAktiveringTopic
+import no.nav.helse.flex.kafka.SYKEPENGESOKNAD_AKTIVERING_TOPIC
 import no.nav.helse.flex.logger
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -14,13 +14,16 @@ class AktiveringProducer(private val aktiveringKafkaProducer: KafkaProducer<Stri
         try {
             aktiveringKafkaProducer.send(
                 ProducerRecord(
-                    sykepengesoknadAktiveringTopic,
+                    SYKEPENGESOKNAD_AKTIVERING_TOPIC,
                     aktiveringBestilling.soknadId,
-                    aktiveringBestilling
-                )
+                    aktiveringBestilling,
+                ),
             ).get()
         } catch (exception: Exception) {
-            log.error("Det feiler når aktivering bestilling ${aktiveringBestilling.soknadId} skal legges på $sykepengesoknadAktiveringTopic", exception)
+            log.error(
+                "Det feiler når aktivering bestilling ${aktiveringBestilling.soknadId} skal legges på $SYKEPENGESOKNAD_AKTIVERING_TOPIC",
+                exception,
+            )
             throw RuntimeException(exception)
         }
     }

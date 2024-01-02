@@ -4,5 +4,5 @@ import java.io.Serializable
 
 data class Svar(
     val id: String?,
-    val verdi: String
+    val verdi: String,
 ) : Serializable

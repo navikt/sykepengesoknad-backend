@@ -15,9 +15,8 @@ import org.springframework.stereotype.Component
 @Component
 class ClientIdValidation(
     private val tokenValidationContextHolder: TokenValidationContextHolder,
-    @Value("\${AZURE_APP_PRE_AUTHORIZED_APPS}") private val azureAppPreAuthorizedApps: String
+    @Value("\${AZURE_APP_PRE_AUTHORIZED_APPS}") private val azureAppPreAuthorizedApps: String,
 ) {
-
     private val log = logger()
     private val allowedClientIds: List<PreAuthorizedClient> = OBJECT_MAPPER.readValue(azureAppPreAuthorizedApps)
 
@@ -26,9 +25,10 @@ class ClientIdValidation(
     fun validateClientId(app: NamespaceAndApp) = validateClientId(listOf(app))
 
     fun validateClientId(apps: List<NamespaceAndApp>) {
-        val clientIds = allowedClientIds
-            .filter { apps.contains(it.tilNamespaceAndApp()) }
-            .map { it.clientId }
+        val clientIds =
+            allowedClientIds
+                .filter { apps.contains(it.tilNamespaceAndApp()) }
+                .map { it.clientId }
 
         val azp = tokenValidationContextHolder.hentAzpClaim()
         if (clientIds.ikkeInneholder(azp)) {
@@ -55,7 +55,7 @@ class UkjentClientException(message: String, grunn: Throwable? = null) : Abstrac
     httpStatus = HttpStatus.FORBIDDEN,
     reason = "UKJENT_CLIENT",
     loglevel = LogLevel.WARN,
-    grunn = grunn
+    grunn = grunn,
 )
 
 private fun PreAuthorizedClient.tilNamespaceAndApp(): NamespaceAndApp {

@@ -24,7 +24,6 @@ import java.time.LocalDate
 import java.time.OffsetDateTime
 
 class AutomatiskInnsendingVedDodsfallTest : BaseTestClass() {
-
     @Autowired
     private lateinit var namedParameterJdbcTemplate: NamedParameterJdbcTemplate
 
@@ -54,8 +53,16 @@ class AutomatiskInnsendingVedDodsfallTest : BaseTestClass() {
 
     @Test
     fun `Prossererer ikke dødsfall som er ikke er mottatt for mer enn 14 dager siden`() {
-        dodsmeldingDAO.lagreDodsmelding(FolkeregisterIdenter("aktor1", emptyList()), LocalDate.now().minusDays(10), OffsetDateTime.now().minusDays(10))
-        dodsmeldingDAO.lagreDodsmelding(FolkeregisterIdenter("aktor2", emptyList()), LocalDate.now().minusDays(10), OffsetDateTime.now().minusDays(10))
+        dodsmeldingDAO.lagreDodsmelding(
+            FolkeregisterIdenter("aktor1", emptyList()),
+            LocalDate.now().minusDays(10),
+            OffsetDateTime.now().minusDays(10),
+        )
+        dodsmeldingDAO.lagreDodsmelding(
+            FolkeregisterIdenter("aktor2", emptyList()),
+            LocalDate.now().minusDays(10),
+            OffsetDateTime.now().minusDays(10),
+        )
 
         antallDodsmeldingerIDb().shouldBeEqualTo(2)
 
@@ -69,10 +76,26 @@ class AutomatiskInnsendingVedDodsfallTest : BaseTestClass() {
 
     @Test
     fun `Prossererer dødsfall som er mottatt for over 14 dager siden `() {
-        dodsmeldingDAO.lagreDodsmelding(FolkeregisterIdenter("aktor1", emptyList()), LocalDate.now().minusDays(10), OffsetDateTime.now().minusDays(10))
-        dodsmeldingDAO.lagreDodsmelding(FolkeregisterIdenter("aktor2", emptyList()), LocalDate.now().minusDays(10), OffsetDateTime.now().minusDays(10))
-        dodsmeldingDAO.lagreDodsmelding(FolkeregisterIdenter("aktor3", emptyList()), LocalDate.now().minusDays(16), OffsetDateTime.now().minusDays(16))
-        dodsmeldingDAO.lagreDodsmelding(FolkeregisterIdenter("aktor4", emptyList()), LocalDate.now().minusDays(17), OffsetDateTime.now().minusDays(16))
+        dodsmeldingDAO.lagreDodsmelding(
+            FolkeregisterIdenter("aktor1", emptyList()),
+            LocalDate.now().minusDays(10),
+            OffsetDateTime.now().minusDays(10),
+        )
+        dodsmeldingDAO.lagreDodsmelding(
+            FolkeregisterIdenter("aktor2", emptyList()),
+            LocalDate.now().minusDays(10),
+            OffsetDateTime.now().minusDays(10),
+        )
+        dodsmeldingDAO.lagreDodsmelding(
+            FolkeregisterIdenter("aktor3", emptyList()),
+            LocalDate.now().minusDays(16),
+            OffsetDateTime.now().minusDays(16),
+        )
+        dodsmeldingDAO.lagreDodsmelding(
+            FolkeregisterIdenter("aktor4", emptyList()),
+            LocalDate.now().minusDays(17),
+            OffsetDateTime.now().minusDays(16),
+        )
 
         antallDodsmeldingerIDb().shouldBeEqualTo(4)
         automatiskInnsendingVedDodsfall.sendSoknaderForDode().shouldBeEqualTo(2)
@@ -87,20 +110,21 @@ class AutomatiskInnsendingVedDodsfallTest : BaseTestClass() {
 
     @Test
     fun `Automatisk innsending av fremtidig søknad`() {
-        val soknad = opprettNySoknad().copy(
-            status = Soknadstatus.FREMTIDIG,
-            sporsmal = emptyList(),
-            fnr = "aktor1",
-            fom = LocalDate.now().minusWeeks(3),
-            tom = LocalDate.now().minusWeeks(2)
-        )
+        val soknad =
+            opprettNySoknad().copy(
+                status = Soknadstatus.FREMTIDIG,
+                sporsmal = emptyList(),
+                fnr = "aktor1",
+                fom = LocalDate.now().minusWeeks(3),
+                tom = LocalDate.now().minusWeeks(2),
+            )
 
         sykepengesoknadDAO.lagreSykepengesoknad(soknad)
 
         dodsmeldingDAO.lagreDodsmelding(
             identer = FolkeregisterIdenter("aktor1", emptyList()),
             dodsdato = soknad.tom!!.minusDays(1),
-            meldingMottattDato = soknad.tom!!.minusDays(1).atStartOfDay().tilOsloInstant().tilOsloZone()
+            meldingMottattDato = soknad.tom!!.minusDays(1).atStartOfDay().tilOsloInstant().tilOsloZone(),
         )
 
         antallDodsmeldingerIDb().shouldBeEqualTo(1)
@@ -121,9 +145,8 @@ class AutomatiskInnsendingVedDodsfallTest : BaseTestClass() {
             """
                 SELECT COUNT(1) FROM DODSMELDING 
             """,
-
             MapSqlParameterSource(),
-            Integer::class.java
+            Integer::class.java,
         )!!.toInt()
     }
 
@@ -132,8 +155,7 @@ class AutomatiskInnsendingVedDodsfallTest : BaseTestClass() {
             """
                 DELETE FROM DODSMELDING 
             """,
-
-            MapSqlParameterSource()
+            MapSqlParameterSource(),
         )
     }
 }

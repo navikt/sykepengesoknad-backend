@@ -29,7 +29,7 @@ class AutomatiskInnsendingVedDodsfall(
     private val avbrytSoknadService: AvbrytSoknadService,
     private val soknadSender: SoknadSender,
     private val aktiverEnkeltSoknad: AktiverEnkeltSoknad,
-    private val identService: IdentService
+    private val identService: IdentService,
 ) {
     private val log = logger()
 
@@ -55,7 +55,10 @@ class AutomatiskInnsendingVedDodsfall(
         return antall
     }
 
-    fun automatiskInnsending(fnr: String, dodsdato: LocalDate): FolkeregisterIdenter {
+    fun automatiskInnsending(
+        fnr: String,
+        dodsdato: LocalDate,
+    ): FolkeregisterIdenter {
         val treMndSiden = LocalDate.now(osloZone).minusMonths(3)
         val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(fnr)
 

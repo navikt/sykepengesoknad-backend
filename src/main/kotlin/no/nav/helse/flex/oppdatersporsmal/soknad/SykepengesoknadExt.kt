@@ -22,7 +22,7 @@ fun Sykepengesoknad.leggTilSporsmaal(sporsmal: Sporsmal): Sykepengesoknad {
         return if (eksisterendeSpm.erUlikUtenomSvarTekstOgId(sporsmal)) {
             // Fjerne spørsmpålet
             this.copy(
-                sporsmal = this.sporsmal.filterNot { it.tag == sporsmal.tag } + sporsmal
+                sporsmal = this.sporsmal.filterNot { it.tag == sporsmal.tag } + sporsmal,
             )
         } else {
             this

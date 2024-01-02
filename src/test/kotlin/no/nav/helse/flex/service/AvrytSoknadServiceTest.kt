@@ -20,7 +20,6 @@ import org.mockito.junit.jupiter.MockitoExtension
 
 @ExtendWith(MockitoExtension::class)
 class AvrytSoknadServiceTest {
-
     @Mock
     private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
 

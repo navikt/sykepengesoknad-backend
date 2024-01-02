@@ -13,7 +13,7 @@ class JulesoknadCronJob(
     private val julesoknadkandidatDAO: JulesoknadkandidatDAO,
     private val leaderElection: LeaderElection,
     private val applicationHealth: ApplicationHealth,
-    private val prosesserJulesoknadkandidat: ProsesserJulesoknadkandidat
+    private val prosesserJulesoknadkandidat: ProsesserJulesoknadkandidat,
 ) {
     private val log = logger()
 

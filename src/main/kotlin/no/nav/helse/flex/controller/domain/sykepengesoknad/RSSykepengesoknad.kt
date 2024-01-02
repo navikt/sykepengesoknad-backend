@@ -34,7 +34,7 @@ data class RSSykepengesoknad(
     val inntektsopplysningerInnsendingId: String? = null,
     val inntektsopplysningerInnsendingDokumenter: List<InntektsopplysningerDokumentType>? = null,
     val korrigeringsfristUtlopt: Boolean?,
-    val forstegangssoknad: Boolean?
+    val forstegangssoknad: Boolean?,
 ) {
     fun alleSporsmalOgUndersporsmal(): List<RSSporsmal> {
         return sporsmal?.flatten()?.toList() ?: emptyList()

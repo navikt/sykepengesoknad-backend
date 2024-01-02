@@ -15,13 +15,13 @@ enum class EndringIUforegrad {
     ØKT_UFØREGRAD,
     SAMME_UFØREGRAD,
     LAVERE_UFØREGRAD,
-    VET_IKKE
+    VET_IKKE,
 }
 
 internal fun SykepengesoknadDAO.soknadKandidaterSomKanKlippes(
     orgnummer: String?,
     sykmeldingKafkaMessage: SykmeldingKafkaMessage,
-    identer: FolkeregisterIdenter
+    identer: FolkeregisterIdenter,
 ) = alleSomOverlapper(orgnummer, sykmeldingKafkaMessage, identer).filter {
     it.sykmeldingSkrevet!!.isBefore(sykmeldingKafkaMessage.sykmelding.behandletTidspunkt.toInstant()) ||
         it.signaturDatoIsBefore(sykmeldingKafkaMessage.sykmelding)
@@ -30,7 +30,7 @@ internal fun SykepengesoknadDAO.soknadKandidaterSomKanKlippes(
 internal fun SykepengesoknadDAO.soknadKandidaterSomKanKlippeSykmeldingen(
     orgnummer: String?,
     sykmeldingKafkaMessage: SykmeldingKafkaMessage,
-    identer: FolkeregisterIdenter
+    identer: FolkeregisterIdenter,
 ) = alleSomOverlapper(orgnummer, sykmeldingKafkaMessage, identer).filter {
     it.sykmeldingSkrevet!!.isAfter(sykmeldingKafkaMessage.sykmelding.behandletTidspunkt.toInstant()) ||
         it.signaturDatoIsAfter(sykmeldingKafkaMessage.sykmelding)
@@ -39,7 +39,7 @@ internal fun SykepengesoknadDAO.soknadKandidaterSomKanKlippeSykmeldingen(
 private fun SykepengesoknadDAO.alleSomOverlapper(
     orgnummer: String?,
     sykmeldingKafkaMessage: SykmeldingKafkaMessage,
-    identer: FolkeregisterIdenter
+    identer: FolkeregisterIdenter,
 ): List<Sykepengesoknad> {
     val sykmeldingId = sykmeldingKafkaMessage.sykmelding.id
     val sykmeldingPeriode = sykmeldingKafkaMessage.periode()
@@ -75,7 +75,7 @@ private fun Sykepengesoknad.signaturDatoIsAfter(sykmelding: ArbeidsgiverSykmeldi
 
 internal fun finnEndringIUforegrad(
     tidligerePerioder: List<Soknadsperiode>?,
-    nyePerioder: List<Soknadsperiode>
+    nyePerioder: List<Soknadsperiode>,
 ): EndringIUforegrad {
     if (tidligerePerioder == null || tidligerePerioder.size > 1 || nyePerioder.size > 1) {
         return EndringIUforegrad.FLERE_PERIODER
@@ -100,11 +100,13 @@ internal fun List<SykmeldingsperiodeAGDTO>.periode(): ClosedRange<LocalDate> {
     return sykmeldingFom..sykmeldingTom
 }
 
-internal fun SykmeldingKafkaMessage.erstattPerioder(nyePerioder: List<SykmeldingsperiodeAGDTO>) = copy(
-    sykmelding = sykmelding.copy(
-        sykmeldingsperioder = nyePerioder
+internal fun SykmeldingKafkaMessage.erstattPerioder(nyePerioder: List<SykmeldingsperiodeAGDTO>) =
+    copy(
+        sykmelding =
+            sykmelding.copy(
+                sykmeldingsperioder = nyePerioder,
+            ),
     )
-)
 
 /**
  * Så lenge de har minst en dato til felles

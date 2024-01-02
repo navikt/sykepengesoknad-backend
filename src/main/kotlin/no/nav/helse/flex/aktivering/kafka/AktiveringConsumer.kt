@@ -1,7 +1,7 @@
 package no.nav.helse.flex.aktivering.kafka
 
 import no.nav.helse.flex.aktivering.AktiverEnkeltSoknad
-import no.nav.helse.flex.kafka.sykepengesoknadAktiveringTopic
+import no.nav.helse.flex.kafka.SYKEPENGESOKNAD_AKTIVERING_TOPIC
 import no.nav.helse.flex.logger
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.kafka.annotation.KafkaListener
@@ -10,19 +10,22 @@ import org.springframework.stereotype.Component
 
 @Component
 class AktiveringConsumer(
-    private val aktiverEnkeltSoknad: AktiverEnkeltSoknad
+    private val aktiverEnkeltSoknad: AktiverEnkeltSoknad,
 ) {
     private val log = logger()
 
     @KafkaListener(
-        topics = [sykepengesoknadAktiveringTopic],
+        topics = [SYKEPENGESOKNAD_AKTIVERING_TOPIC],
         containerFactory = "aivenKafkaListenerContainerFactory",
         properties = ["auto.offset.reset = earliest"],
         id = "sykepengesoknad-aktivering",
         idIsGroup = false,
-        concurrency = "4"
+        concurrency = "4",
     )
-    fun listen(cr: ConsumerRecord<String, String>, acknowledgment: Acknowledgment) {
+    fun listen(
+        cr: ConsumerRecord<String, String>,
+        acknowledgment: Acknowledgment,
+    ) {
         try {
             aktiverEnkeltSoknad.aktiverSoknad(cr.key())
         } catch (e: Exception) {

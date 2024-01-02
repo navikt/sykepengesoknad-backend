@@ -27,7 +27,6 @@ import java.util.*
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class GradertReisetilskuddArbeidsledigTest : BaseTestClass() {
-
     final val fnr = "123456789"
 
     val sykmeldingId = UUID.randomUUID().toString()
@@ -42,26 +41,29 @@ class GradertReisetilskuddArbeidsledigTest : BaseTestClass() {
     @Test
     @Order(1)
     fun `Vi oppretter en reisetilskuddsøknad`() {
-        val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(
-            fnr = fnr,
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
-            statusEvent = STATUS_BEKREFTET
-        )
+        val sykmeldingStatusKafkaMessageDTO =
+            skapSykmeldingStatusKafkaMessageDTO(
+                fnr = fnr,
+                arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
+                statusEvent = STATUS_BEKREFTET,
+            )
         val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
-        val sykmelding = skapArbeidsgiverSykmelding(
-            sykmeldingId = sykmeldingId,
-            fom = fom,
-            tom = tom,
-            type = PeriodetypeDTO.GRADERT,
-            gradert = GradertDTO(50, true),
-            reisetilskudd = false
-        )
+        val sykmelding =
+            skapArbeidsgiverSykmelding(
+                sykmeldingId = sykmeldingId,
+                fom = fom,
+                tom = tom,
+                type = PeriodetypeDTO.GRADERT,
+                gradert = GradertDTO(50, true),
+                reisetilskudd = false,
+            )
 
-        val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
-            sykmelding = sykmelding,
-            event = sykmeldingStatusKafkaMessageDTO.event,
-            kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
-        )
+        val sykmeldingKafkaMessage =
+            SykmeldingKafkaMessage(
+                sykmelding = sykmelding,
+                event = sykmeldingStatusKafkaMessageDTO.event,
+                kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
+            )
 
         mockFlexSyketilfelleErUtaforVentetid(sykmeldingId, true)
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
@@ -69,7 +71,7 @@ class GradertReisetilskuddArbeidsledigTest : BaseTestClass() {
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
             sykmeldingId,
             sykmeldingKafkaMessage,
-            SYKMELDINGSENDT_TOPIC
+            SYKMELDINGSENDT_TOPIC,
         )
 
         val soknader =
@@ -84,10 +86,11 @@ class GradertReisetilskuddArbeidsledigTest : BaseTestClass() {
         val soknader = hentSoknaderMetadata(fnr)
         assertThat(soknader).hasSize(1)
 
-        val soknaden = hentSoknad(
-            soknadId = soknader.first().id,
-            fnr = fnr
-        )
+        val soknaden =
+            hentSoknad(
+                soknadId = soknader.first().id,
+                fnr = fnr,
+            )
 
         assertThat(soknaden.sporsmal!!.first { it.tag == VAER_KLAR_OVER_AT }.undertekst).contains("sykepenger og reisetilskudd")
         assertThat(soknaden.sporsmal!!.map { it.tag }).isEqualTo(
@@ -99,25 +102,27 @@ class GradertReisetilskuddArbeidsledigTest : BaseTestClass() {
                 ARBEIDSLEDIG_UTLAND,
                 BRUKTE_REISETILSKUDDET,
                 VAER_KLAR_OVER_AT,
-                BEKREFT_OPPLYSNINGER
-            )
+                BEKREFT_OPPLYSNINGER,
+            ),
         )
     }
 
     @Test
     @Order(3)
     fun `Svar på firskmeldt muterer søknaden`() {
-        val reisetilskudd = hentSoknader(
-            fnr = fnr
-        ).first()
+        val reisetilskudd =
+            hentSoknader(
+                fnr = fnr,
+            ).first()
 
         reisetilskudd.sporsmal!!.shouldHaveSize(8)
         SoknadBesvarer(reisetilskudd, this, fnr)
             .besvarSporsmal(FRISKMELDT, "NEI", ferdigBesvart = false)
             .besvarSporsmal(FRISKMELDT_START, fom.format(DateTimeFormatter.ISO_LOCAL_DATE), ferdigBesvart = true, mutert = true)
-        val soknadEtterOppdatering = hentSoknader(
-            fnr = fnr
-        ).first()
+        val soknadEtterOppdatering =
+            hentSoknader(
+                fnr = fnr,
+            ).first()
 
         soknadEtterOppdatering.sporsmal!!.shouldHaveSize(6)
 
@@ -125,7 +130,7 @@ class GradertReisetilskuddArbeidsledigTest : BaseTestClass() {
             .besvarSporsmal(FRISKMELDT, "JA", mutert = true)
 
         hentSoknader(
-            fnr = fnr
+            fnr = fnr,
         ).first().sporsmal!!.shouldHaveSize(8)
     }
 }

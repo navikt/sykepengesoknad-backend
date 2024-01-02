@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Profile
 @Configuration
 @Profile("test")
 class UnleashTestConfig() {
-
     private val fakeUnleash = FakeUnleash()
 
     @Bean

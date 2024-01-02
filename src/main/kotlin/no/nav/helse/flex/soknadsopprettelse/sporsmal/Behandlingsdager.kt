@@ -26,17 +26,24 @@ fun behandlingsdagerSporsmal(soknadMetadata: Sykepengesoknad): List<Sporsmal> {
             val periode = soknadMetadata.soknadPerioder[index]
             val uker = splittPeriodeIUker(periode)
 
-            val sporsmalstekst = if (soknadMetadata.arbeidssituasjon == Arbeidssituasjon.ARBEIDSLEDIG) {
-                "Hvilke dager kunne du ikke være arbeidssøker på grunn av behandling mellom ${formatterPeriode(periode.fom, periode.tom)}?"
-            } else {
-                "Hvilke dager måtte du være helt borte fra jobben på grunn av behandling mellom ${formatterPeriode(periode.fom, periode.tom)}?"
-            }
+            val sporsmalstekst =
+                if (soknadMetadata.arbeidssituasjon == Arbeidssituasjon.ARBEIDSLEDIG) {
+                    "Hvilke dager kunne du ikke være arbeidssøker på grunn av behandling mellom ${formatterPeriode(
+                        periode.fom,
+                        periode.tom,
+                    )}?"
+                } else {
+                    "Hvilke dager måtte du være helt borte fra jobben på grunn av behandling mellom ${formatterPeriode(
+                        periode.fom,
+                        periode.tom,
+                    )}?"
+                }
 
             Sporsmal(
                 tag = ENKELTSTAENDE_BEHANDLINGSDAGER + index,
                 sporsmalstekst = sporsmalstekst,
                 svartype = Svartype.INFO_BEHANDLINGSDAGER,
-                undersporsmal = skapUndersporsmalUke(uker)
+                undersporsmal = skapUndersporsmalUke(uker),
             )
         }
 }
@@ -59,7 +66,7 @@ private fun skapUndersporsmalUke(uker: List<Uke>): List<Sporsmal> {
                 tag = ENKELTSTAENDE_BEHANDLINGSDAGER_UKE + ukeIndex,
                 svartype = Svartype.RADIO_GRUPPE_UKEKALENDER,
                 min = "${uke.ukestart}",
-                max = "${uke.ukeslutt}"
+                max = "${uke.ukeslutt}",
             )
         }
 }

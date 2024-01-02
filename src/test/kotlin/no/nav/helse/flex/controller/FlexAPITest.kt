@@ -24,25 +24,27 @@ class FlexAPITest : BaseTestClass() {
 
     @BeforeAll
     fun `Legger til søknader i databasen`() {
-        kafkaMelding = sendSykmelding(
-            sykmeldingKafkaMessage(
-                fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt()
-            )
-        ).first()
+        kafkaMelding =
+            sendSykmelding(
+                sykmeldingKafkaMessage(
+                    fnr = fnr,
+                    sykmeldingsperioder = heltSykmeldt(),
+                ),
+            ).first()
     }
 
     @Test
     fun `Kan hente søknader fra flex-internal-frontend`() {
-        val result = mockMvc
-            .perform(
-                MockMvcRequestBuilders
-                    .get("/api/v1/flex/sykepengesoknader")
-                    .header("Authorization", "Bearer ${skapAzureJwt("flex-internal-frontend-client-id")}")
-                    .header("fnr", fnr)
-                    .contentType(MediaType.APPLICATION_JSON)
-            )
-            .andExpect(MockMvcResultMatchers.status().isOk).andReturn()
+        val result =
+            mockMvc
+                .perform(
+                    MockMvcRequestBuilders
+                        .get("/api/v1/flex/sykepengesoknader")
+                        .header("Authorization", "Bearer ${skapAzureJwt("flex-internal-frontend-client-id")}")
+                        .header("fnr", fnr)
+                        .contentType(MediaType.APPLICATION_JSON),
+                )
+                .andExpect(MockMvcResultMatchers.status().isOk).andReturn()
 
         val fraRest: FlexInternalResponse = OBJECT_MAPPER.readValue(result.response.contentAsString)
         fraRest.sykepengesoknadListe.shouldHaveSize(1)
@@ -59,7 +61,7 @@ class FlexAPITest : BaseTestClass() {
                     .get("/api/v1/flex/sykepengesoknader")
                     .header("Authorization", "Bearer ${skapAzureJwt("en-annen-client-id")}")
                     .header("fnr", fnr)
-                    .contentType(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON),
             )
             .andExpect(MockMvcResultMatchers.status().is4xxClientError)
     }
@@ -72,22 +74,23 @@ class FlexAPITest : BaseTestClass() {
                     .get("/api/v1/flex/sykepengesoknader")
                     .header("Authorization", "Bearer ${jwt(fnr)}")
                     .header("fnr", fnr)
-                    .contentType(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON),
             )
             .andExpect(MockMvcResultMatchers.status().is4xxClientError)
     }
 
     @Test
     fun `Kan hente identer fra flex-internal-frontend`() {
-        val result = mockMvc
-            .perform(
-                MockMvcRequestBuilders
-                    .get("/api/v1/flex/identer")
-                    .header("Authorization", "Bearer ${skapAzureJwt("flex-internal-frontend-client-id")}")
-                    .header("ident", "211111111111")
-                    .contentType(MediaType.APPLICATION_JSON)
-            )
-            .andExpect(MockMvcResultMatchers.status().isOk).andReturn()
+        val result =
+            mockMvc
+                .perform(
+                    MockMvcRequestBuilders
+                        .get("/api/v1/flex/identer")
+                        .header("Authorization", "Bearer ${skapAzureJwt("flex-internal-frontend-client-id")}")
+                        .header("ident", "211111111111")
+                        .contentType(MediaType.APPLICATION_JSON),
+                )
+                .andExpect(MockMvcResultMatchers.status().isOk).andReturn()
 
         val fraRest: List<PdlIdent> = OBJECT_MAPPER.readValue(result.response.contentAsString)
         fraRest.shouldHaveSize(3)
@@ -104,7 +107,7 @@ class FlexAPITest : BaseTestClass() {
                     .get("/api/v1/flex/identer")
                     .header("Authorization", "Bearer ${jwt(fnr)}")
                     .header("ident", "211111111111")
-                    .contentType(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON),
             )
             .andExpect(MockMvcResultMatchers.status().is4xxClientError)
     }

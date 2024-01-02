@@ -8,9 +8,8 @@ import org.springframework.transaction.annotation.Transactional
 
 @Repository
 class LockRepository(
-    private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate
+    private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
 ) {
-
     // Må loope gjennom alle keys fordi fnr er større enn en int
     // pg_try_advisory_xact_lock(key bigint)
     // pg_try_advisory_xact_lock(key1 int, key2 int)
@@ -18,11 +17,12 @@ class LockRepository(
     fun settAdvisoryLock(vararg keys: Long): Boolean {
         var locked = true
         keys.forEach {
-            val lock = namedParameterJdbcTemplate.queryForObject(
-                "SELECT pg_try_advisory_xact_lock(:key)",
-                MapSqlParameterSource().addValue("key", it),
-                Boolean::class.java
-            ) ?: false
+            val lock =
+                namedParameterJdbcTemplate.queryForObject(
+                    "SELECT pg_try_advisory_xact_lock(:key)",
+                    MapSqlParameterSource().addValue("key", it),
+                    Boolean::class.java,
+                ) ?: false
             if (!lock) {
                 locked = false
             }

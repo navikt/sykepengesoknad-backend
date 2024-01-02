@@ -14,7 +14,6 @@ import java.time.LocalDate
 import java.util.*
 
 class FinnOpprinneligSendtTest {
-
     val lengesiden = Instant.now().minusSeconds(5000)
     val endaLengreSiden = Instant.now().minusSeconds(10000)
 
@@ -23,7 +22,7 @@ class FinnOpprinneligSendtTest {
         val denViSender = skapDbRecord(sendt = Instant.now())
         listOf(
             denViSender,
-            skapDbRecord(sendt = lengesiden)
+            skapDbRecord(sendt = lengesiden),
         ).finnOpprinneligSendt(denViSender) `should be equal to` lengesiden
     }
 
@@ -33,7 +32,7 @@ class FinnOpprinneligSendtTest {
         listOf(
             denViSender,
             skapDbRecord(sendt = lengesiden),
-            skapDbRecord(sendt = endaLengreSiden)
+            skapDbRecord(sendt = endaLengreSiden),
         ).finnOpprinneligSendt(denViSender) `should be equal to` endaLengreSiden
     }
 
@@ -41,7 +40,7 @@ class FinnOpprinneligSendtTest {
     fun `finner ingen opprinnelig sendt når det ikke er noen tidligere overlappende`() {
         val denViSender = skapDbRecord(sendt = Instant.now())
         listOf(
-            denViSender
+            denViSender,
         ).finnOpprinneligSendt(denViSender).shouldBeNull()
     }
 
@@ -50,7 +49,7 @@ class FinnOpprinneligSendtTest {
         korrigerer: String? = null,
         sykepengesoknadUuid: String = UUID.randomUUID().toString(),
         fom: LocalDate = LocalDate.now().minusDays(4),
-        tom: LocalDate = LocalDate.now()
+        tom: LocalDate = LocalDate.now(),
     ): SykepengesoknadDbRecord {
         return SykepengesoknadDbRecord(
             id = UUID.randomUUID().toString(),
@@ -82,7 +81,7 @@ class FinnOpprinneligSendtTest {
             egenmeldingsdagerFraSykmelding = null,
             sendt = sendt,
             forstegangssoknad = false,
-            aktivertDato = null
+            aktivertDato = null,
         )
     }
 }

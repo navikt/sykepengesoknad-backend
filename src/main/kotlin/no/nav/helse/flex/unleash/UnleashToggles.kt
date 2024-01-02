@@ -12,9 +12,8 @@ const val UNLEASH_CONTEXT_NARINGSDRIVENDE_INNTEKTSOPPLYSNINGER =
 
 @Component
 class UnleashToggles(
-    private val unleash: Unleash
+    private val unleash: Unleash,
 ) {
-
     fun stillMedlemskapSporsmal(fnr: String): Boolean {
         val unleashContext = UnleashContext.builder().userId(fnr).build()
         return unleash.isEnabled(UNLEASH_CONTEXT_MEDLEMSKAP_SPORSMAL, unleashContext)
@@ -32,7 +31,7 @@ class UnleashToggles(
     fun naringsdrivendeInntektsopplysninger(fnr: String): Boolean {
         return unleash.isEnabled(
             UNLEASH_CONTEXT_NARINGSDRIVENDE_INNTEKTSOPPLYSNINGER,
-            UnleashContext.builder().userId(fnr).build()
+            UnleashContext.builder().userId(fnr).build(),
         )
     }
 }

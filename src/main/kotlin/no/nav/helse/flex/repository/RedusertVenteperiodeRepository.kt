@@ -15,7 +15,7 @@ interface RedusertVenteperiodeRepository : CrudRepository<RedusertVenteperiodeDb
         INSERT INTO redusert_venteperiode(sykmelding_id)
         VALUES (:sykmeldingId)
         ON CONFLICT DO NOTHING
-        """
+        """,
     )
     fun insert(sykmeldingId: String)
 
@@ -25,5 +25,5 @@ interface RedusertVenteperiodeRepository : CrudRepository<RedusertVenteperiodeDb
 @Table("redusert_venteperiode")
 data class RedusertVenteperiodeDbRecord(
     @Id
-    val sykmeldingId: String
+    val sykmeldingId: String,
 )

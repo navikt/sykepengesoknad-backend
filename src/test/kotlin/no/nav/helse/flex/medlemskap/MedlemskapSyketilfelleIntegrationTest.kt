@@ -39,7 +39,6 @@ import java.time.LocalDate
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
-
     @Autowired
     private lateinit var sporsmalDAO: SporsmalDAO
 
@@ -64,33 +63,38 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
     @Test
     fun `Påfølgende søknad får ikke medlemskapspørsmål`() {
         medlemskapMockWebServer.enqueue(
-            lagUavklartMockResponse()
+            lagUavklartMockResponse(),
         )
 
-        val soknader1 = sendSykmelding(
-            sykmeldingKafkaMessage(
-                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                fnr = fnr,
-                arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "000000001", orgNavn = "Arbeidsgiver 1"),
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = LocalDate.of(2023, 1, 1),
-                    tom = LocalDate.of(2023, 1, 7)
-                )
+        val soknader1 =
+            sendSykmelding(
+                sykmeldingKafkaMessage(
+                    arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                    fnr = fnr,
+                    arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "000000001", orgNavn = "Arbeidsgiver 1"),
+                    sykmeldingsperioder =
+                        heltSykmeldt(
+                            fom = LocalDate.of(2023, 1, 1),
+                            tom = LocalDate.of(2023, 1, 7),
+                        ),
+                ),
             )
-        )
 
-        val soknader2 = sendSykmelding(
-            oppfolgingsdato = LocalDate.of(2023, 1, 1),
-            sykmeldingKafkaMessage = sykmeldingKafkaMessage(
-                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                fnr = fnr,
-                arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "000000001", orgNavn = "Arbeidsgiver 1"),
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = LocalDate.of(2023, 1, 8),
-                    tom = LocalDate.of(2023, 1, 17)
-                )
+        val soknader2 =
+            sendSykmelding(
+                oppfolgingsdato = LocalDate.of(2023, 1, 1),
+                sykmeldingKafkaMessage =
+                    sykmeldingKafkaMessage(
+                        arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                        fnr = fnr,
+                        arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "000000001", orgNavn = "Arbeidsgiver 1"),
+                        sykmeldingsperioder =
+                            heltSykmeldt(
+                                fom = LocalDate.of(2023, 1, 8),
+                                tom = LocalDate.of(2023, 1, 17),
+                            ),
+                    ),
             )
-        )
 
         assertThat(soknader1).hasSize(1)
         assertThat(soknader1.last().medlemskapVurdering).isEqualTo("UAVKLART")
@@ -106,34 +110,39 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
     fun `Helt overlappende får spørsmål siden den første er slettet`() {
         repeat(2) {
             medlemskapMockWebServer.enqueue(
-                lagUavklartMockResponse()
+                lagUavklartMockResponse(),
             )
         }
 
-        val soknader1 = sendSykmelding(
-            sykmeldingKafkaMessage(
-                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                fnr = fnr,
-                arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "000000001", orgNavn = "Arbeidsgiver 1"),
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = LocalDate.of(2023, 1, 1),
-                    tom = LocalDate.of(2023, 1, 7)
-                )
+        val soknader1 =
+            sendSykmelding(
+                sykmeldingKafkaMessage(
+                    arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                    fnr = fnr,
+                    arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "000000001", orgNavn = "Arbeidsgiver 1"),
+                    sykmeldingsperioder =
+                        heltSykmeldt(
+                            fom = LocalDate.of(2023, 1, 1),
+                            tom = LocalDate.of(2023, 1, 7),
+                        ),
+                ),
             )
-        )
 
-        val soknader2 = sendSykmelding(
-            forventaSoknader = 2,
-            sykmeldingKafkaMessage = sykmeldingKafkaMessage(
-                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                fnr = fnr,
-                arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "000000001", orgNavn = "Arbeidsgiver 1"),
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = LocalDate.of(2023, 1, 1),
-                    tom = LocalDate.of(2023, 1, 7)
-                )
+        val soknader2 =
+            sendSykmelding(
+                forventaSoknader = 2,
+                sykmeldingKafkaMessage =
+                    sykmeldingKafkaMessage(
+                        arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                        fnr = fnr,
+                        arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "000000001", orgNavn = "Arbeidsgiver 1"),
+                        sykmeldingsperioder =
+                            heltSykmeldt(
+                                fom = LocalDate.of(2023, 1, 1),
+                                tom = LocalDate.of(2023, 1, 7),
+                            ),
+                    ),
             )
-        )
 
         assertThat(soknader1).hasSize(1)
         assertThat(soknader1.last().medlemskapVurdering).isEqualTo("UAVKLART")
@@ -151,36 +160,41 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
     fun `Kun den første av søknader som klippes får medlemskapspørsmål`() {
         repeat(2) {
             medlemskapMockWebServer.enqueue(
-                lagUavklartMockResponse()
+                lagUavklartMockResponse(),
             )
         }
 
-        val soknader1 = sendSykmelding(
-            sykmeldingKafkaMessage(
-                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                fnr = fnr,
-                arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "000000001", orgNavn = "Arbeidsgiver 1"),
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = LocalDate.of(2023, 1, 1),
-                    tom = LocalDate.of(2023, 1, 7)
-                )
+        val soknader1 =
+            sendSykmelding(
+                sykmeldingKafkaMessage(
+                    arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                    fnr = fnr,
+                    arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "000000001", orgNavn = "Arbeidsgiver 1"),
+                    sykmeldingsperioder =
+                        heltSykmeldt(
+                            fom = LocalDate.of(2023, 1, 1),
+                            tom = LocalDate.of(2023, 1, 7),
+                        ),
+                ),
             )
-        )
 
-        val soknader2 = sendSykmelding(
-            forventaSoknader = 2,
-            // Tvinger samme startStyketilfelle siden dette er en mock og ikke et faktisk kall til flex-syketilfelle.
-            oppfolgingsdato = LocalDate.of(2023, 1, 1),
-            sykmeldingKafkaMessage = sykmeldingKafkaMessage(
-                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                fnr = fnr,
-                arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "000000001", orgNavn = "Arbeidsgiver 1"),
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = LocalDate.of(2023, 1, 5),
-                    tom = LocalDate.of(2023, 1, 17)
-                )
+        val soknader2 =
+            sendSykmelding(
+                forventaSoknader = 2,
+                // Tvinger samme startStyketilfelle siden dette er en mock og ikke et faktisk kall til flex-syketilfelle.
+                oppfolgingsdato = LocalDate.of(2023, 1, 1),
+                sykmeldingKafkaMessage =
+                    sykmeldingKafkaMessage(
+                        arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                        fnr = fnr,
+                        arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "000000001", orgNavn = "Arbeidsgiver 1"),
+                        sykmeldingsperioder =
+                            heltSykmeldt(
+                                fom = LocalDate.of(2023, 1, 5),
+                                tom = LocalDate.of(2023, 1, 17),
+                            ),
+                    ),
             )
-        )
 
         assertThat(soknader1).hasSize(1)
         assertThat(soknader1.last().medlemskapVurdering).isEqualTo("UAVKLART")
@@ -198,27 +212,30 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
     @Test
     fun `Andre periode i ikke-kompatibel søknad får ikke medlemskapspørsmål`() {
         medlemskapMockWebServer.enqueue(
-            lagUavklartMockResponse()
+            lagUavklartMockResponse(),
         )
 
-        val soknader = sendSykmelding(
-            forventaSoknader = 2,
-            sykmeldingKafkaMessage = sykmeldingKafkaMessage(
-                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                fnr = fnr,
-                arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "000000001", orgNavn = "Arbeidsgiver 1"),
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = LocalDate.of(2023, 1, 1),
-                    tom = LocalDate.of(2023, 1, 7)
-                    // Reisetilskudd er ikke kompatibelt med medlemskapspørsmål og vil resultere i to søknader
-                    // i stedet for at periodene blir slått sammen til én søknad.
-                ) + reisetilskudd(
-                    fom = LocalDate.of(2023, 1, 8),
-                    tom = LocalDate.of(2023, 1, 17)
-
-                )
+        val soknader =
+            sendSykmelding(
+                forventaSoknader = 2,
+                sykmeldingKafkaMessage =
+                    sykmeldingKafkaMessage(
+                        arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                        fnr = fnr,
+                        arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "000000001", orgNavn = "Arbeidsgiver 1"),
+                        sykmeldingsperioder =
+                            heltSykmeldt(
+                                fom = LocalDate.of(2023, 1, 1),
+                                tom = LocalDate.of(2023, 1, 7),
+                                // Reisetilskudd er ikke kompatibelt med medlemskapspørsmål og vil resultere i to søknader
+                                // i stedet for at periodene blir slått sammen til én søknad.
+                            ) +
+                                reisetilskudd(
+                                    fom = LocalDate.of(2023, 1, 8),
+                                    tom = LocalDate.of(2023, 1, 17),
+                                ),
+                    ),
             )
-        )
 
         assertThat(soknader).hasSize(2)
         assertThat(soknader.first().medlemskapVurdering).isEqualTo("UAVKLART")
@@ -229,36 +246,41 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
     @Test
     fun `Påfølgende søknad får ikke medlemskapspørsmål selv om det ikke er stilt spørsmål tidligere i syketilfelle`() {
         medlemskapMockWebServer.enqueue(
-            lagUavklartMockResponse()
+            lagUavklartMockResponse(),
         )
 
-        val soknader1 = sendSykmelding(
-            sykmeldingKafkaMessage(
-                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                fnr = fnr,
-                arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "000000001", orgNavn = "Arbeidsgiver 1"),
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = LocalDate.of(2023, 1, 1),
-                    tom = LocalDate.of(2023, 1, 7)
-                )
+        val soknader1 =
+            sendSykmelding(
+                sykmeldingKafkaMessage(
+                    arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                    fnr = fnr,
+                    arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "000000001", orgNavn = "Arbeidsgiver 1"),
+                    sykmeldingsperioder =
+                        heltSykmeldt(
+                            fom = LocalDate.of(2023, 1, 1),
+                            tom = LocalDate.of(2023, 1, 7),
+                        ),
+                ),
             )
-        )
 
         // Simulerer at søknaden ble opprettet før vi begynte å stille medlemskapspørsmål ved å slette spørsmålene.
         slettMedlemskapSporsmal(soknader1.first())
 
-        val soknader2 = sendSykmelding(
-            oppfolgingsdato = LocalDate.of(2023, 1, 1),
-            sykmeldingKafkaMessage = sykmeldingKafkaMessage(
-                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                fnr = fnr,
-                arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "000000001", orgNavn = "Arbeidsgiver 1"),
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = LocalDate.of(2023, 1, 8),
-                    tom = LocalDate.of(2023, 1, 17)
-                )
+        val soknader2 =
+            sendSykmelding(
+                oppfolgingsdato = LocalDate.of(2023, 1, 1),
+                sykmeldingKafkaMessage =
+                    sykmeldingKafkaMessage(
+                        arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                        fnr = fnr,
+                        arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "000000001", orgNavn = "Arbeidsgiver 1"),
+                        sykmeldingsperioder =
+                            heltSykmeldt(
+                                fom = LocalDate.of(2023, 1, 8),
+                                tom = LocalDate.of(2023, 1, 17),
+                            ),
+                    ),
             )
-        )
 
         val lagretForstegangssoknad = hentSoknad(fnr = fnr, soknadId = soknader1.first().id)
         assertThat(lagretForstegangssoknad.sporsmal!!.find { it.tag == MEDLEMSKAP_OPPHOLDSTILLATELSE }).isNull()
@@ -273,33 +295,38 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
     fun `Tilbakedatert søknad får medlemskapspørsmål`() {
         repeat(2) {
             medlemskapMockWebServer.enqueue(
-                lagUavklartMockResponse()
+                lagUavklartMockResponse(),
             )
         }
 
-        val soknader1 = sendSykmelding(
-            sykmeldingKafkaMessage(
-                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                fnr = fnr,
-                arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "000000001", orgNavn = "Arbeidsgiver 1"),
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = LocalDate.of(2023, 1, 8),
-                    tom = LocalDate.of(2023, 1, 17)
-                )
+        val soknader1 =
+            sendSykmelding(
+                sykmeldingKafkaMessage(
+                    arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                    fnr = fnr,
+                    arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "000000001", orgNavn = "Arbeidsgiver 1"),
+                    sykmeldingsperioder =
+                        heltSykmeldt(
+                            fom = LocalDate.of(2023, 1, 8),
+                            tom = LocalDate.of(2023, 1, 17),
+                        ),
+                ),
             )
-        )
 
-        val soknader2 = sendSykmelding(
-            sykmeldingKafkaMessage = sykmeldingKafkaMessage(
-                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                fnr = fnr,
-                arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "000000001", orgNavn = "Arbeidsgiver 1"),
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = LocalDate.of(2023, 1, 1),
-                    tom = LocalDate.of(2023, 1, 7)
-                )
+        val soknader2 =
+            sendSykmelding(
+                sykmeldingKafkaMessage =
+                    sykmeldingKafkaMessage(
+                        arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                        fnr = fnr,
+                        arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "000000001", orgNavn = "Arbeidsgiver 1"),
+                        sykmeldingsperioder =
+                            heltSykmeldt(
+                                fom = LocalDate.of(2023, 1, 1),
+                                tom = LocalDate.of(2023, 1, 7),
+                            ),
+                    ),
             )
-        )
 
         assertThat(soknader1).hasSize(1)
         assertThat(soknader1.last().medlemskapVurdering).isEqualTo("UAVKLART")
@@ -313,28 +340,32 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
         assertThat(soknader2.last().forstegangssoknad).isTrue()
     }
 
-    private fun lagUavklartMockResponse() = MockResponse().setResponseCode(200).setBody(
-        MedlemskapVurderingResponse(
-            svar = MedlemskapVurderingSvarType.UAVKLART,
-            sporsmal = listOf(
-                MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
-                MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
-                MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
-                MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE
-            )
-        ).serialisertTilString()
-    )
+    private fun lagUavklartMockResponse() =
+        MockResponse().setResponseCode(200).setBody(
+            MedlemskapVurderingResponse(
+                svar = MedlemskapVurderingSvarType.UAVKLART,
+                sporsmal =
+                    listOf(
+                        MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
+                        MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
+                        MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
+                        MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE,
+                    ),
+            ).serialisertTilString(),
+        )
 
     private fun slettMedlemskapSporsmal(soknad: SykepengesoknadDTO) {
-        val medlemskapSporsmal = soknad.sporsmal!!
-            .filter {
-                it.tag in listOf(
-                    MEDLEMSKAP_OPPHOLDSTILLATELSE,
-                    MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
-                    MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
-                    MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE
-                )
-            }.flatten()
+        val medlemskapSporsmal =
+            soknad.sporsmal!!
+                .filter {
+                    it.tag in
+                        listOf(
+                            MEDLEMSKAP_OPPHOLDSTILLATELSE,
+                            MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
+                            MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
+                            MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
+                        )
+                }.flatten()
         sporsmalDAO.slettEnkeltSporsmal(medlemskapSporsmal.map { it.id!! }.distinct())
     }
 }

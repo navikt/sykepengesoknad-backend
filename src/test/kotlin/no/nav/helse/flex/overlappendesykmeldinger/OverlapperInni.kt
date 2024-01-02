@@ -18,7 +18,6 @@ import java.time.OffsetDateTime
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class OverlapperInni : BaseTestClass() {
-
     @Autowired
     private lateinit var klippMetrikkRepository: KlippMetrikkRepository
 
@@ -35,20 +34,22 @@ class OverlapperInni : BaseTestClass() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = basisDato.plusDays(1),
-                    tom = basisDato.plusDays(30)
-                )
-            )
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = basisDato.plusDays(1),
+                        tom = basisDato.plusDays(30),
+                    ),
+            ),
         )
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = basisDato.plusDays(10),
-                    tom = basisDato.plusDays(20)
-                )
-            )
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = basisDato.plusDays(10),
+                        tom = basisDato.plusDays(20),
+                    ),
+            ),
         )
 
         val klippmetrikker = klippMetrikkRepository.findAll().toList()
@@ -82,21 +83,24 @@ class OverlapperInni : BaseTestClass() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = basisDato.minusDays(30),
-                    tom = basisDato.minusDays(1)
-                )
-            )
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = basisDato.minusDays(30),
+                        tom = basisDato.minusDays(1),
+                    ),
+            ),
         )
         sendSykmelding(
             forventaSoknader = 3,
-            sykmeldingKafkaMessage = sykmeldingKafkaMessage(
-                fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = basisDato.minusDays(20),
-                    tom = basisDato.minusDays(10)
-                )
-            )
+            sykmeldingKafkaMessage =
+                sykmeldingKafkaMessage(
+                    fnr = fnr,
+                    sykmeldingsperioder =
+                        heltSykmeldt(
+                            fom = basisDato.minusDays(20),
+                            tom = basisDato.minusDays(10),
+                        ),
+                ),
         )
 
         val klippmetrikker = klippMetrikkRepository.findAll().toList()
@@ -109,19 +113,21 @@ class OverlapperInni : BaseTestClass() {
         val hentetViaRest = hentSoknaderMetadata(fnr).sortedBy { it.fom }
         hentetViaRest shouldHaveSize 3
 
-        val forsteSoknad = hentSoknad(
-            soknadId = hentetViaRest[0].id,
-            fnr = fnr
-        )
+        val forsteSoknad =
+            hentSoknad(
+                soknadId = hentetViaRest[0].id,
+                fnr = fnr,
+            )
         forsteSoknad.status shouldBeEqualTo RSSoknadstatus.NY
         forsteSoknad.fom shouldBeEqualTo basisDato.minusDays(30)
         forsteSoknad.tom shouldBeEqualTo basisDato.minusDays(21)
         hentSoknad(forsteSoknad.id, fnr).klippet shouldBeEqualTo true
 
-        val periodeSpmSok1 = forsteSoknad.sporsmal
-            ?.find { it.tag == FERIE_V2 }
-            ?.undersporsmal
-            ?.first()
+        val periodeSpmSok1 =
+            forsteSoknad.sporsmal
+                ?.find { it.tag == FERIE_V2 }
+                ?.undersporsmal
+                ?.first()
         periodeSpmSok1?.min shouldBeEqualTo basisDato.minusDays(30).toString()
         periodeSpmSok1?.max shouldBeEqualTo basisDato.minusDays(21).toString()
 
@@ -131,19 +137,21 @@ class OverlapperInni : BaseTestClass() {
         soknadSomOverlappet.tom shouldBeEqualTo basisDato.minusDays(10)
         hentSoknad(soknadSomOverlappet.id, fnr).klippet shouldBeEqualTo false
 
-        val sisteSoknad = hentSoknad(
-            soknadId = hentetViaRest[2].id,
-            fnr = fnr
-        )
+        val sisteSoknad =
+            hentSoknad(
+                soknadId = hentetViaRest[2].id,
+                fnr = fnr,
+            )
         sisteSoknad.status shouldBeEqualTo RSSoknadstatus.NY
         sisteSoknad.fom shouldBeEqualTo basisDato.minusDays(9)
         sisteSoknad.tom shouldBeEqualTo basisDato.minusDays(1)
         hentSoknad(sisteSoknad.id, fnr).klippet shouldBeEqualTo true
 
-        val periodeSpmSok3 = sisteSoknad.sporsmal
-            ?.find { it.tag == FERIE_V2 }
-            ?.undersporsmal
-            ?.first()
+        val periodeSpmSok3 =
+            sisteSoknad.sporsmal
+                ?.find { it.tag == FERIE_V2 }
+                ?.undersporsmal
+                ?.first()
         periodeSpmSok3?.min shouldBeEqualTo basisDato.minusDays(9).toString()
         periodeSpmSok3?.max shouldBeEqualTo basisDato.minusDays(1).toString()
     }
@@ -155,23 +163,25 @@ class OverlapperInni : BaseTestClass() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = basisDato.minusDays(10),
-                    tom = basisDato.plusDays(10)
-                ),
-                sykmeldingSkrevet = sykmeldingSkrevet
-            )
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = basisDato.minusDays(10),
+                        tom = basisDato.plusDays(10),
+                    ),
+                sykmeldingSkrevet = sykmeldingSkrevet,
+            ),
         )
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = basisDato.minusDays(5),
-                    tom = basisDato.plusDays(5)
-                ),
-                sykmeldingSkrevet = sykmeldingSkrevet.minusHours(1)
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = basisDato.minusDays(5),
+                        tom = basisDato.plusDays(5),
+                    ),
+                sykmeldingSkrevet = sykmeldingSkrevet.minusHours(1),
             ),
-            forventaSoknader = 0
+            forventaSoknader = 0,
         )
 
         val klippmetrikker = klippMetrikkRepository.findAll().toList()

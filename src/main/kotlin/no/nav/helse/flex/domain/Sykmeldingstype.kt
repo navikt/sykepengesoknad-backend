@@ -6,5 +6,5 @@ enum class Sykmeldingstype {
     BEHANDLINGSDAGER,
     AVVENTENDE,
     REISETILSKUDD,
-    UKJENT
+    UKJENT,
 }

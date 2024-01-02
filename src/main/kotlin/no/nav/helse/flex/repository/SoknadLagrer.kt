@@ -10,9 +10,8 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 @Repository
 class SoknadLagrer(
-    private val jdbcTemplate: NamedParameterJdbcTemplate
+    private val jdbcTemplate: NamedParameterJdbcTemplate,
 ) {
-
     fun lagreSoknad(soknad: Sykepengesoknad) {
         val normalisertSoknad = soknad.normaliser()
         listOf(normalisertSoknad.soknad).lagre()
@@ -73,7 +72,7 @@ ON CONFLICT ON CONSTRAINT sykepengesoknad_pkey DO NOTHING
                     .addValue("tidligereArbeidsgiverOrgnummer", sykepengesoknad.tidligereArbeidsgiverOrgnummer)
                     .addValue("aktivertDato", sykepengesoknad.aktivertDato)
             }
-                .toTypedArray()
+                .toTypedArray(),
         )
     }
 
@@ -97,7 +96,7 @@ ON CONFLICT ON CONSTRAINT soknadperiode_pkey DO NOTHING
                     .addValue("grad", it.grad)
                     .addValue("sykmeldingstype", it.sykmeldingstype?.name)
             }
-                .toTypedArray()
+                .toTypedArray(),
         )
     }
 
@@ -125,7 +124,7 @@ ON CONFLICT ON CONSTRAINT sporsmal_pkey DO NOTHING"""
                     .addValue("max", it.max)
                     .addValue("kriterie", it.kriterieForVisningAvUndersporsmal?.name)
             }
-                .toTypedArray()
+                .toTypedArray(),
         )
     }
 
@@ -147,7 +146,7 @@ ON CONFLICT ON CONSTRAINT svar_pkey DO NOTHING
                         .addValue("sporsmalId", it.sporsmalId)
                         .addValue("verdi", it.verdi)
                 }
-                .toTypedArray()
+                .toTypedArray(),
         )
     }
 }

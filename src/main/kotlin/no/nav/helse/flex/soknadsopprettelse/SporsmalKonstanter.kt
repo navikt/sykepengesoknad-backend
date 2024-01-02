@@ -1,3 +1,5 @@
+@file:Suppress("ktlint:standard:max-line-length")
+
 package no.nav.helse.flex.soknadsopprettelse
 
 const val BEKREFT_OPPLYSNINGER = "BEKREFT_OPPLYSNINGER"

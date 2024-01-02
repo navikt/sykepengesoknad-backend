@@ -19,7 +19,6 @@ import java.util.*
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class MedlemskapVurderingRepositoryTest : BaseTestClass() {
-
     @Autowired
     private lateinit var medlemskapVurderingRepository: MedlemskapVurderingRepository
 
@@ -47,8 +46,8 @@ class MedlemskapVurderingRepositoryTest : BaseTestClass() {
                 tom = tom,
                 svartype = "UAVKLART",
                 sporsmal = listOf("En", "To").tilPostgresJson(),
-                sykepengesoknadId = sykepengesoknadId
-            )
+                sykepengesoknadId = sykepengesoknadId,
+            ),
         )
 
         val dbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
@@ -80,9 +79,8 @@ class MedlemskapVurderingRepositoryTest : BaseTestClass() {
                 tom = tom,
                 svartype = "JA",
                 sporsmal = emptyList<String>().tilPostgresJson(),
-                sykepengesoknadId = sykepengesoknadId
-
-            )
+                sykepengesoknadId = sykepengesoknadId,
+            ),
         )
 
         val dbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
@@ -113,9 +111,8 @@ class MedlemskapVurderingRepositoryTest : BaseTestClass() {
                 fom = fom,
                 tom = tom,
                 svartype = "JA",
-                sykepengesoknadId = sykepengesoknadId
-
-            )
+                sykepengesoknadId = sykepengesoknadId,
+            ),
         )
 
         val dbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1

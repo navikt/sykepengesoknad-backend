@@ -12,12 +12,15 @@ fun Tidsenhet.delOppISoknadsperioder(sykmeldingDokument: ArbeidsgiverSykmelding)
         .map {
             it.copy(
                 fom = max(it.fom, this.fom),
-                tom = min(it.tom, this.tom)
+                tom = min(it.tom, this.tom),
             )
         }
         .sortedBy { it.fom }
 }
 
-private fun periodeTrefferInnenforTidsenhet(periode: SykmeldingsperiodeAGDTO, tidsenhet: Tidsenhet): Boolean {
+private fun periodeTrefferInnenforTidsenhet(
+    periode: SykmeldingsperiodeAGDTO,
+    tidsenhet: Tidsenhet,
+): Boolean {
     return !periode.fom.isAfter(tidsenhet.tom) && !periode.tom.isBefore(tidsenhet.fom)
 }

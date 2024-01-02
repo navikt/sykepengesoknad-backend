@@ -18,7 +18,7 @@ fun Sykepengesoknad.skapOppdaterteSoknadsperioder(oppdatertFomDato: LocalDate?):
                         fom = soknadsperiode.fom,
                         tom = oppdatertFomDato.minusDays(1),
                         grad = soknadsperiode.grad,
-                        sykmeldingstype = soknadsperiode.sykmeldingstype
+                        sykmeldingstype = soknadsperiode.sykmeldingstype,
                     )
                 }
             }

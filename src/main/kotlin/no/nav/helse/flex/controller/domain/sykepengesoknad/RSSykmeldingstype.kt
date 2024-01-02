@@ -6,5 +6,5 @@ enum class RSSykmeldingstype {
     BEHANDLINGSDAGER,
     AVVENTENDE,
     REISETILSKUDD,
-    UKJENT
+    UKJENT,
 }

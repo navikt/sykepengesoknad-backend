@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 class KlippOgOpprett(
     private val opprettSoknadService: OpprettSoknadService,
-    private val overlapp: Overlapp
+    private val overlapp: Overlapp,
 ) {
     val log = logger()
 
@@ -25,7 +25,7 @@ class KlippOgOpprett(
         sykmeldingKafkaMessage: SykmeldingKafkaMessage,
         arbeidssituasjon: Arbeidssituasjon,
         identer: FolkeregisterIdenter,
-        sykeForloep: List<Sykeforloep>
+        sykeForloep: List<Sykeforloep>,
     ): List<AktiveringBestilling> {
         var kafkaMessage = sykmeldingKafkaMessage
         val sykmeldingId = sykmeldingKafkaMessage.event.sykmeldingId
@@ -37,14 +37,15 @@ class KlippOgOpprett(
 
         if (finnSoknadsType(
                 arbeidssituasjon = arbeidssituasjon,
-                perioderFraSykmeldingen = sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder
+                perioderFraSykmeldingen = sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder,
             ) == Soknadstype.ARBEIDSTAKERE
         ) {
-            kafkaMessage = overlapp.klipp(
-                sykmeldingKafkaMessage = kafkaMessage,
-                arbeidsgiverStatusDTO = arbeidsgiverStatusDTO,
-                identer = identer
-            )
+            kafkaMessage =
+                overlapp.klipp(
+                    sykmeldingKafkaMessage = kafkaMessage,
+                    arbeidsgiverStatusDTO = arbeidsgiverStatusDTO,
+                    identer = identer,
+                )
         }
 
         return opprettSoknadService.opprettSykepengesoknaderForSykmelding(
@@ -52,7 +53,7 @@ class KlippOgOpprett(
             arbeidssituasjon = arbeidssituasjon,
             identer = identer,
             arbeidsgiverStatusDTO = arbeidsgiverStatusDTO,
-            flexSyketilfelleSykeforloep = sykeForloep
+            flexSyketilfelleSykeforloep = sykeForloep,
         )
     }
 }

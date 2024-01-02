@@ -19,7 +19,6 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 class OppdaterForskutteringTest : BaseTestClass() {
-
     @Autowired
     lateinit var forskutteringRepository: ForskutteringRepository
 
@@ -31,7 +30,10 @@ class OppdaterForskutteringTest : BaseTestClass() {
 
         val narmesteLederLeesah = getNarmesteLederLeesah(narmesteLederId)
 
-        forskutteringRepository.finnForskuttering(narmesteLederLeesah.fnr, narmesteLederLeesah.orgnummer)?.arbeidsgiverForskutterer.shouldBeNull()
+        forskutteringRepository.finnForskuttering(
+            narmesteLederLeesah.fnr,
+            narmesteLederLeesah.orgnummer,
+        )?.arbeidsgiverForskutterer.shouldBeNull()
 
         sendNarmesteLederLeesah(narmesteLederLeesah)
 
@@ -43,7 +45,10 @@ class OppdaterForskutteringTest : BaseTestClass() {
         narmesteLeder.shouldNotBeNull()
         narmesteLeder.aktivTom.shouldBeNull()
 
-        forskutteringRepository.finnForskuttering(narmesteLederLeesah.fnr, narmesteLederLeesah.orgnummer)?.arbeidsgiverForskutterer!!.shouldBeTrue()
+        forskutteringRepository.finnForskuttering(
+            narmesteLederLeesah.fnr,
+            narmesteLederLeesah.orgnummer,
+        )?.arbeidsgiverForskutterer!!.shouldBeTrue()
     }
 
     @Test
@@ -51,7 +56,10 @@ class OppdaterForskutteringTest : BaseTestClass() {
         forskutteringRepository.deleteAll()
         val narmesteLederId = UUID.randomUUID()
         val narmesteLederLeesah = getNarmesteLederLeesah(narmesteLederId, arbeidsgiverForskutterer = true)
-        forskutteringRepository.finnForskuttering(narmesteLederLeesah.fnr, narmesteLederLeesah.orgnummer)?.arbeidsgiverForskutterer.shouldBeNull()
+        forskutteringRepository.finnForskuttering(
+            narmesteLederLeesah.fnr,
+            narmesteLederLeesah.orgnummer,
+        )?.arbeidsgiverForskutterer.shouldBeNull()
 
         sendNarmesteLederLeesah(narmesteLederLeesah)
         await().atMost(10, TimeUnit.SECONDS).until {
@@ -60,7 +68,10 @@ class OppdaterForskutteringTest : BaseTestClass() {
 
         val narmesteLeder = forskutteringRepository.findByNarmesteLederId(narmesteLederId)!!
         narmesteLeder.arbeidsgiverForskutterer!!.shouldBeTrue()
-        forskutteringRepository.finnForskuttering(narmesteLederLeesah.fnr, narmesteLederLeesah.orgnummer)?.arbeidsgiverForskutterer!!.shouldBeTrue()
+        forskutteringRepository.finnForskuttering(
+            narmesteLederLeesah.fnr,
+            narmesteLederLeesah.orgnummer,
+        )?.arbeidsgiverForskutterer!!.shouldBeTrue()
 
         sendNarmesteLederLeesah(
             getNarmesteLederLeesah(
@@ -68,15 +79,18 @@ class OppdaterForskutteringTest : BaseTestClass() {
                 telefonnummer = "98989898",
                 epost = "mail@banken.no",
                 aktivTom = LocalDate.now(),
-                arbeidsgiverForskutterer = false
-            )
+                arbeidsgiverForskutterer = false,
+            ),
         )
 
         await().atMost(10, TimeUnit.SECONDS).until {
             forskutteringRepository.findByNarmesteLederId(narmesteLederId)!!.arbeidsgiverForskutterer == false
         }
 
-        forskutteringRepository.finnForskuttering(narmesteLederLeesah.fnr, narmesteLederLeesah.orgnummer)?.arbeidsgiverForskutterer!!.shouldBeFalse()
+        forskutteringRepository.finnForskuttering(
+            narmesteLederLeesah.fnr,
+            narmesteLederLeesah.orgnummer,
+        )?.arbeidsgiverForskutterer!!.shouldBeFalse()
 
         val oppdaterNl = forskutteringRepository.findByNarmesteLederId(narmesteLederId)!!
         oppdaterNl.aktivTom `should be equal to` LocalDate.now()
@@ -88,8 +102,8 @@ class OppdaterForskutteringTest : BaseTestClass() {
                 NARMESTELEDER_LEESAH_TOPIC,
                 null,
                 nl.narmesteLederId.toString(),
-                nl.serialisertTilString()
-            )
+                nl.serialisertTilString(),
+            ),
         ).get()
     }
 }
@@ -101,7 +115,7 @@ fun getNarmesteLederLeesah(
     aktivTom: LocalDate? = null,
     fnr: String = "12345678910",
     orgnummer: String = "999999",
-    arbeidsgiverForskutterer: Boolean? = true
+    arbeidsgiverForskutterer: Boolean? = true,
 ): NarmesteLederLeesah =
     NarmesteLederLeesah(
         narmesteLederId = narmesteLederId,
@@ -113,5 +127,5 @@ fun getNarmesteLederLeesah(
         aktivFom = LocalDate.now(),
         aktivTom = aktivTom,
         arbeidsgiverForskutterer = arbeidsgiverForskutterer,
-        timestamp = OffsetDateTime.now(ZoneOffset.UTC)
+        timestamp = OffsetDateTime.now(ZoneOffset.UTC),
     )

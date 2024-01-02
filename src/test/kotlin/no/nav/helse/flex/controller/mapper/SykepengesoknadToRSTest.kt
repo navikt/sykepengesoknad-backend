@@ -5,7 +5,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 class SykepengesoknadToRSTest {
-
     @Test
     fun mappingTaklerAtSykmeldingSkrevetErNull() {
         val sykepengesoknadSelvstendigFrilanser = opprettNyNaeringsdrivendeSoknad().copy(sykmeldingSkrevet = null)

@@ -14,20 +14,23 @@ import java.util.*
 
 object PeriodeMapper {
     val sporsmalstekstFormat = DateTimeFormatter.ofPattern("dd.MM.yyyy")
-    private val objectMapperISOFormat = ObjectMapper()
-        .registerModule(JavaTimeModule())
-        .registerKotlinModule()
+    private val objectMapperISOFormat =
+        ObjectMapper()
+            .registerModule(JavaTimeModule())
+            .registerKotlinModule()
 
-    val javaTimeModuleSporsmalstektsFormat = JavaTimeModule().addDeserializer(
-        LocalDate::class.java,
-        LocalDateDeserializer(
-            sporsmalstekstFormat
+    val javaTimeModuleSporsmalstektsFormat =
+        JavaTimeModule().addDeserializer(
+            LocalDate::class.java,
+            LocalDateDeserializer(
+                sporsmalstekstFormat,
+            ),
         )
-    )
 
-    val objectMapperSporsmalstekstFormat = ObjectMapper()
-        .registerModule(javaTimeModuleSporsmalstektsFormat)
-        .registerKotlinModule()
+    val objectMapperSporsmalstekstFormat =
+        ObjectMapper()
+            .registerModule(javaTimeModuleSporsmalstektsFormat)
+            .registerKotlinModule()
 
     fun jsonISOFormatTilPeriode(json: String): Periode {
         return getPeriode(json, objectMapperISOFormat)
@@ -37,7 +40,10 @@ object PeriodeMapper {
         return getPeriode(json, objectMapperSporsmalstekstFormat)
     }
 
-    private fun getPeriode(json: String, objectMapper: ObjectMapper?): Periode {
+    private fun getPeriode(
+        json: String,
+        objectMapper: ObjectMapper?,
+    ): Periode {
         return try {
             val periode = objectMapper!!.readValue(json, Periode::class.java)
             require(!periode.fom.isAfter(periode.tom))

@@ -14,11 +14,15 @@ import java.util.*
 class InntektskomponentenClient(
     private val inntektskomponentenRestTemplate: RestTemplate,
     @Value("\${INNTEKTSKOMPONENTEN_URL}")
-    private val url: String
+    private val url: String,
 ) {
     val log = logger()
 
-    fun hentInntekter(fnr: String, fom: YearMonth, tom: YearMonth): HentInntekterResponse {
+    fun hentInntekter(
+        fnr: String,
+        fom: YearMonth,
+        tom: YearMonth,
+    ): HentInntekterResponse {
         val uriBuilder =
             UriComponentsBuilder.fromHttpUrl("$url/api/v1/hentinntektliste")
 
@@ -28,22 +32,23 @@ class InntektskomponentenClient(
         headers.contentType = MediaType.APPLICATION_JSON
         headers.accept = listOf(MediaType.APPLICATION_JSON)
 
-        val result = inntektskomponentenRestTemplate
-            .exchange(
-                uriBuilder.toUriString(),
-                HttpMethod.POST,
-                HttpEntity(
-                    HentInntekterRequest(
-                        maanedFom = fom,
-                        maanedTom = tom,
-                        formaal = "Sykepenger",
-                        ainntektsfilter = "8-28",
-                        ident = Aktoer(identifikator = fnr, aktoerType = "NATURLIG_IDENT")
-                    ).serialisertTilString(),
-                    headers
-                ),
-                HentInntekterResponse::class.java
-            )
+        val result =
+            inntektskomponentenRestTemplate
+                .exchange(
+                    uriBuilder.toUriString(),
+                    HttpMethod.POST,
+                    HttpEntity(
+                        HentInntekterRequest(
+                            maanedFom = fom,
+                            maanedTom = tom,
+                            formaal = "Sykepenger",
+                            ainntektsfilter = "8-28",
+                            ident = Aktoer(identifikator = fnr, aktoerType = "NATURLIG_IDENT"),
+                        ).serialisertTilString(),
+                        headers,
+                    ),
+                    HentInntekterResponse::class.java,
+                )
 
         if (result.statusCode != HttpStatus.OK) {
             val message = "Kall mot inntektskomponenten feiler med HTTP-" + result.statusCode

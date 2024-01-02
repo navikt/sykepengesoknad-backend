@@ -26,7 +26,6 @@ import java.util.*
 
 @TestMethodOrder(MethodOrderer.MethodName::class)
 class GjenapneSykmeldingIntegrationMedTombstoneTest : BaseTestClass() {
-
     private final val fnr = "123456789"
 
     @BeforeEach
@@ -40,22 +39,24 @@ class GjenapneSykmeldingIntegrationMedTombstoneTest : BaseTestClass() {
             sykmeldingKafkaMessage(
                 fnr = fnr,
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = LocalDate.of(2018, 1, 1),
-                    tom = LocalDate.of(2018, 1, 10)
-                )
-            )
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = LocalDate.of(2018, 1, 1),
+                        tom = LocalDate.of(2018, 1, 10),
+                    ),
+            ),
         )
 
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = LocalDate.of(2018, 1, 1),
-                    tom = LocalDate.of(2018, 1, 10)
-                )
-            )
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = LocalDate.of(2018, 1, 1),
+                        tom = LocalDate.of(2018, 1, 10),
+                    ),
+            ),
         )
 
         val hentetViaRest = hentSoknaderMetadata(fnr)
@@ -66,10 +67,11 @@ class GjenapneSykmeldingIntegrationMedTombstoneTest : BaseTestClass() {
 
     @Test
     fun `2 - vi svarer på den ene søknaden`() {
-        val rsSykepengesoknad = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val rsSykepengesoknad =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
         SoknadBesvarer(rSSykepengesoknad = rsSykepengesoknad, mockMvc = this, fnr = fnr)
             .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
             .besvarSporsmal(tag = "FRISKMELDT", svar = "JA")
@@ -96,13 +98,13 @@ class GjenapneSykmeldingIntegrationMedTombstoneTest : BaseTestClass() {
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
             sykmeldingId = sykmedlingIdTilNy,
             sykmeldingKafkaMessage = null,
-            topic = SYKMELDINGBEKREFTET_TOPIC
+            topic = SYKMELDINGBEKREFTET_TOPIC,
         )
 
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
             sykmeldingId = sykmedlingIdTilSendt,
             sykmeldingKafkaMessage = null,
-            topic = SYKMELDINGSENDT_TOPIC
+            topic = SYKMELDINGSENDT_TOPIC,
         )
 
         val soknadPaKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().last()
@@ -111,7 +113,7 @@ class GjenapneSykmeldingIntegrationMedTombstoneTest : BaseTestClass() {
 
         assertThat(soknaderEtterEvents).hasSize(1)
         assertThat(soknaderEtterEvents.find { it.status == RSSoknadstatus.SENDT }!!.sykmeldingId).isEqualTo(
-            sykmedlingIdTilSendt
+            sykmedlingIdTilSendt,
         )
 
         assertThat(soknadPaKafka.status).isEqualTo(SoknadsstatusDTO.SLETTET)
@@ -120,15 +122,17 @@ class GjenapneSykmeldingIntegrationMedTombstoneTest : BaseTestClass() {
 
     @Test
     fun `4 - en arbeidstakersøknad kan ikke slettes fra kafka`() {
-        val kafkaSoknad = sendSykmelding(
-            sykmeldingKafkaMessage(
-                fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = LocalDate.of(2018, 1, 1),
-                    tom = LocalDate.of(2018, 1, 10)
-                )
+        val kafkaSoknad =
+            sendSykmelding(
+                sykmeldingKafkaMessage(
+                    fnr = fnr,
+                    sykmeldingsperioder =
+                        heltSykmeldt(
+                            fom = LocalDate.of(2018, 1, 1),
+                            tom = LocalDate.of(2018, 1, 10),
+                        ),
+                ),
             )
-        )
 
         val soknader = hentSoknaderMetadata(fnr)
         assertThat(soknader).hasSize(2)
@@ -136,7 +140,7 @@ class GjenapneSykmeldingIntegrationMedTombstoneTest : BaseTestClass() {
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
             sykmeldingId = kafkaSoknad.first().sykmeldingId!!,
             sykmeldingKafkaMessage = null,
-            topic = SYKMELDINGSENDT_TOPIC
+            topic = SYKMELDINGSENDT_TOPIC,
         )
 
         val soknaderEtterApenMelding = hentSoknaderMetadata(fnr)

@@ -31,7 +31,6 @@ import java.time.LocalDate
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class MedlemskapArbeidUtenforNorgeIntegrationTest : BaseTestClass() {
-
     @BeforeAll
     fun konfigurerUnleash() {
         fakeUnleash.resetAll()
@@ -51,36 +50,40 @@ class MedlemskapArbeidUtenforNorgeIntegrationTest : BaseTestClass() {
             MockResponse().setResponseCode(200).setBody(
                 MedlemskapVurderingResponse(
                     svar = MedlemskapVurderingSvarType.UAVKLART,
-                    sporsmal = listOf(
-                        MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
-                        MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
-                        MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
-                        MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE
-                    )
-                ).serialisertTilString()
-            )
+                    sporsmal =
+                        listOf(
+                            MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
+                            MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
+                            MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
+                            MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE,
+                        ),
+                ).serialisertTilString(),
+            ),
         )
 
-        val soknader = sendSykmelding(
-            sykmeldingKafkaMessage(
-                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = LocalDate.of(2023, 1, 1),
-                    tom = LocalDate.of(2023, 1, 7)
-                )
+        val soknader =
+            sendSykmelding(
+                sykmeldingKafkaMessage(
+                    arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                    fnr = fnr,
+                    sykmeldingsperioder =
+                        heltSykmeldt(
+                            fom = LocalDate.of(2023, 1, 1),
+                            tom = LocalDate.of(2023, 1, 7),
+                        ),
+                ),
             )
-        )
 
         assertThat(soknader).hasSize(1)
         assertThat(soknader.last().type).isEqualTo(SoknadstypeDTO.ARBEIDSTAKERE)
         assertThat(soknader.last().status).isEqualTo(SoknadsstatusDTO.NY)
         assertThat(soknader.last().medlemskapVurdering).isEqualTo("UAVKLART")
 
-        val soknad = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val soknad =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
 
         assertThat(soknad.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
@@ -95,8 +98,8 @@ class MedlemskapArbeidUtenforNorgeIntegrationTest : BaseTestClass() {
                 MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
                 UTLAND_V2,
                 MEDLEMSKAP_OPPHOLDSTILLATELSE,
-                TIL_SLUTT
-            )
+                TIL_SLUTT,
+            ),
         )
     }
 
@@ -108,31 +111,34 @@ class MedlemskapArbeidUtenforNorgeIntegrationTest : BaseTestClass() {
             MockResponse().setResponseCode(200).setBody(
                 MedlemskapVurderingResponse(
                     svar = MedlemskapVurderingSvarType.UAVKLART,
-                    sporsmal = emptyList()
-                ).serialisertTilString()
-            )
+                    sporsmal = emptyList(),
+                ).serialisertTilString(),
+            ),
         )
 
-        val soknader = sendSykmelding(
-            sykmeldingKafkaMessage(
-                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = LocalDate.of(2023, 1, 1),
-                    tom = LocalDate.of(2023, 1, 7)
-                )
+        val soknader =
+            sendSykmelding(
+                sykmeldingKafkaMessage(
+                    arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                    fnr = fnr,
+                    sykmeldingsperioder =
+                        heltSykmeldt(
+                            fom = LocalDate.of(2023, 1, 1),
+                            tom = LocalDate.of(2023, 1, 7),
+                        ),
+                ),
             )
-        )
 
         assertThat(soknader).hasSize(1)
         assertThat(soknader.last().type).isEqualTo(SoknadstypeDTO.ARBEIDSTAKERE)
         assertThat(soknader.last().status).isEqualTo(SoknadsstatusDTO.NY)
         assertThat(soknader.last().medlemskapVurdering).isNull()
 
-        val soknad = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val soknad =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
 
         assertThat(soknad.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
@@ -144,8 +150,8 @@ class MedlemskapArbeidUtenforNorgeIntegrationTest : BaseTestClass() {
                 ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER_V2,
                 UTLAND_V2,
-                TIL_SLUTT
-            )
+                TIL_SLUTT,
+            ),
         )
     }
 
@@ -157,31 +163,34 @@ class MedlemskapArbeidUtenforNorgeIntegrationTest : BaseTestClass() {
             MockResponse().setResponseCode(200).setBody(
                 MedlemskapVurderingResponse(
                     svar = MedlemskapVurderingSvarType.JA,
-                    sporsmal = emptyList()
-                ).serialisertTilString()
-            )
+                    sporsmal = emptyList(),
+                ).serialisertTilString(),
+            ),
         )
 
-        val soknader = sendSykmelding(
-            sykmeldingKafkaMessage(
-                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = LocalDate.of(2023, 1, 1),
-                    tom = LocalDate.of(2023, 1, 7)
-                )
+        val soknader =
+            sendSykmelding(
+                sykmeldingKafkaMessage(
+                    arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                    fnr = fnr,
+                    sykmeldingsperioder =
+                        heltSykmeldt(
+                            fom = LocalDate.of(2023, 1, 1),
+                            tom = LocalDate.of(2023, 1, 7),
+                        ),
+                ),
             )
-        )
 
         assertThat(soknader).hasSize(1)
         assertThat(soknader.last().type).isEqualTo(SoknadstypeDTO.ARBEIDSTAKERE)
         assertThat(soknader.last().status).isEqualTo(SoknadsstatusDTO.NY)
         assertThat(soknader.last().medlemskapVurdering).isEqualTo("JA")
 
-        val soknad = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val soknad =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
 
         assertThat(soknad.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
@@ -192,8 +201,8 @@ class MedlemskapArbeidUtenforNorgeIntegrationTest : BaseTestClass() {
                 medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0),
                 ANDRE_INNTEKTSKILDER_V2,
                 UTLAND_V2,
-                TIL_SLUTT
-            )
+                TIL_SLUTT,
+            ),
         )
     }
 
@@ -205,31 +214,34 @@ class MedlemskapArbeidUtenforNorgeIntegrationTest : BaseTestClass() {
             MockResponse().setResponseCode(200).setBody(
                 MedlemskapVurderingResponse(
                     svar = MedlemskapVurderingSvarType.NEI,
-                    sporsmal = emptyList()
-                ).serialisertTilString()
-            )
+                    sporsmal = emptyList(),
+                ).serialisertTilString(),
+            ),
         )
 
-        val soknader = sendSykmelding(
-            sykmeldingKafkaMessage(
-                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = LocalDate.of(2023, 1, 1),
-                    tom = LocalDate.of(2023, 1, 7)
-                )
+        val soknader =
+            sendSykmelding(
+                sykmeldingKafkaMessage(
+                    arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                    fnr = fnr,
+                    sykmeldingsperioder =
+                        heltSykmeldt(
+                            fom = LocalDate.of(2023, 1, 1),
+                            tom = LocalDate.of(2023, 1, 7),
+                        ),
+                ),
             )
-        )
 
         assertThat(soknader).hasSize(1)
         assertThat(soknader.last().type).isEqualTo(SoknadstypeDTO.ARBEIDSTAKERE)
         assertThat(soknader.last().status).isEqualTo(SoknadsstatusDTO.NY)
         assertThat(soknader.last().medlemskapVurdering).isEqualTo("NEI")
 
-        val soknad = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val soknad =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
 
         assertThat(soknad.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
@@ -240,8 +252,8 @@ class MedlemskapArbeidUtenforNorgeIntegrationTest : BaseTestClass() {
                 medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0),
                 ANDRE_INNTEKTSKILDER_V2,
                 UTLAND_V2,
-                TIL_SLUTT
-            )
+                TIL_SLUTT,
+            ),
         )
     }
 }

@@ -27,37 +27,44 @@ fun Sykepengesoknad.oppdaterMedSvarPaUtlandsopphold(): Sykepengesoknad {
         return this
     }
 
-    val gyldigeFerieperioder = hentGyldigePerioder(
-        if (harFeriePermisjonEllerUtenlandsoppholdSporsmal()) FERIE else FERIE_V2,
-        if (harFeriePermisjonEllerUtenlandsoppholdSporsmal()) FERIE_NAR else FERIE_NAR_V2
-    )
+    val gyldigeFerieperioder =
+        hentGyldigePerioder(
+            if (harFeriePermisjonEllerUtenlandsoppholdSporsmal()) FERIE else FERIE_V2,
+            if (harFeriePermisjonEllerUtenlandsoppholdSporsmal()) FERIE_NAR else FERIE_NAR_V2,
+        )
 
-    val gyldigeUtlandsperioder = hentGyldigePerioder(
-        if (harFeriePermisjonEllerUtenlandsoppholdSporsmal()) UTLAND else UTLAND_V2,
-        if (harFeriePermisjonEllerUtenlandsoppholdSporsmal()) UTLAND_NAR else UTLAND_NAR_V2
-    )
+    val gyldigeUtlandsperioder =
+        hentGyldigePerioder(
+            if (harFeriePermisjonEllerUtenlandsoppholdSporsmal()) UTLAND else UTLAND_V2,
+            if (harFeriePermisjonEllerUtenlandsoppholdSporsmal()) UTLAND_NAR else UTLAND_NAR_V2,
+        )
 
-    val harUtlandsoppholdUtenforHelgOgFerie = gyldigeUtlandsperioder
-        .filter { DatoUtil.periodeErUtenforHelg(it) }
-        .any { periode -> DatoUtil.periodeHarDagerUtenforAndrePerioder(periode, gyldigeFerieperioder) }
+    val harUtlandsoppholdUtenforHelgOgFerie =
+        gyldigeUtlandsperioder
+            .filter { DatoUtil.periodeErUtenforHelg(it) }
+            .any { periode -> DatoUtil.periodeHarDagerUtenforAndrePerioder(periode, gyldigeFerieperioder) }
 
     val maybeSoktOmSykepengerSporsmal = getSporsmalMedTagOrNull(UTLANDSOPPHOLD_SOKT_SYKEPENGER)
 
     if (harUtlandsoppholdUtenforHelgOgFerie) {
-        val oppholdUtland = Sporsmal(
-            tag = UTLANDSOPPHOLD_SOKT_SYKEPENGER,
-            sporsmalstekst = "Har du søkt om å beholde sykepengene for de dagene du var utenfor EØS?",
-            svartype = Svartype.JA_NEI,
-            svar = maybeSoktOmSykepengerSporsmal?.svar ?: emptyList(),
-            undersporsmal = Collections.emptyList()
-        )
+        val oppholdUtland =
+            Sporsmal(
+                tag = UTLANDSOPPHOLD_SOKT_SYKEPENGER,
+                sporsmalstekst = "Har du søkt om å beholde sykepengene for de dagene du var utenfor EØS?",
+                svartype = Svartype.JA_NEI,
+                svar = maybeSoktOmSykepengerSporsmal?.svar ?: emptyList(),
+                undersporsmal = Collections.emptyList(),
+            )
 
         return this.leggTilSporsmaal(oppholdUtland)
     }
     return fjernSporsmal(UTLANDSOPPHOLD_SOKT_SYKEPENGER)
 }
 
-private fun Sykepengesoknad.hentGyldigePerioder(hva: String, nar: String): List<Periode> {
+private fun Sykepengesoknad.hentGyldigePerioder(
+    hva: String,
+    nar: String,
+): List<Periode> {
     return if (this.harFeriePermisjonEllerUtenlandsoppholdSporsmal()) {
         val harFeriePermisjonUtlandsopphold =
             this.getSporsmalMedTagOrNull(FERIE_PERMISJON_UTLAND)?.forsteSvar == "JA"

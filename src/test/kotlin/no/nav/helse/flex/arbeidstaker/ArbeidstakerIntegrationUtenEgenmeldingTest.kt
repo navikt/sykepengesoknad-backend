@@ -16,7 +16,6 @@ import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class ArbeidstakerIntegrationUtenEgenmeldingTest : BaseTestClass() {
-
     private val fnr = "12345678900"
     private val basisdato = LocalDate.of(2021, 9, 1)
 
@@ -25,16 +24,17 @@ class ArbeidstakerIntegrationUtenEgenmeldingTest : BaseTestClass() {
     fun `Arbeidstakersøknad opprettes for en sykmelding`() {
         fakeUnleash.resetAll()
         fakeUnleash.enable("sykepengesoknad-backend-bekreftelsespunkter")
-        val kafkaSoknader = sendSykmelding(
-            sykmeldingKafkaMessage(
-                fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = basisdato.minusDays(20),
-                    tom = basisdato
-
-                )
+        val kafkaSoknader =
+            sendSykmelding(
+                sykmeldingKafkaMessage(
+                    fnr = fnr,
+                    sykmeldingsperioder =
+                        heltSykmeldt(
+                            fom = basisdato.minusDays(20),
+                            tom = basisdato,
+                        ),
+                ),
             )
-        )
 
         val hentetViaRest = hentSoknaderMetadata(fnr)
         assertThat(hentetViaRest).hasSize(1)
@@ -60,8 +60,8 @@ class ArbeidstakerIntegrationUtenEgenmeldingTest : BaseTestClass() {
                 "ARBEID_UNDERVEIS_100_PROSENT_0",
                 "ANDRE_INNTEKTSKILDER_V2",
                 "UTLAND_V2",
-                "TIL_SLUTT"
-            )
+                "TIL_SLUTT",
+            ),
         )
     }
 }

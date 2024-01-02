@@ -14,24 +14,27 @@ import java.time.OffsetDateTime
 
 class SoknadIdTest {
     val fnr = "124919274"
-    val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(
-        fnr = fnr,
-        arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-        statusEvent = STATUS_SENDT,
-        arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "Kebabbiten")
-    )
+    val sykmeldingStatusKafkaMessageDTO =
+        skapSykmeldingStatusKafkaMessageDTO(
+            fnr = fnr,
+            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+            statusEvent = STATUS_SENDT,
+            arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "Kebabbiten"),
+        )
     val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
-    val sykmelding = skapArbeidsgiverSykmelding(
-        sykmeldingId = sykmeldingId,
-        fom = LocalDate.of(2020, 1, 1),
-        tom = LocalDate.of(2020, 3, 15)
-    )
+    val sykmelding =
+        skapArbeidsgiverSykmelding(
+            sykmeldingId = sykmeldingId,
+            fom = LocalDate.of(2020, 1, 1),
+            tom = LocalDate.of(2020, 3, 15),
+        )
 
-    val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
-        sykmelding = sykmelding,
-        event = sykmeldingStatusKafkaMessageDTO.event,
-        kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
-    )
+    val sykmeldingKafkaMessage =
+        SykmeldingKafkaMessage(
+            sykmelding = sykmelding,
+            event = sykmeldingStatusKafkaMessageDTO.event,
+            kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
+        )
 
     @Test
     fun `skap søknad id gir samme resultat for samme sykmeldingKafkaMessage`() {
@@ -53,11 +56,13 @@ class SoknadIdTest {
     fun `skap søknad id gir ulikt resultat når timestamp er forskjellig`() {
         val soknadIdEn = sykmeldingKafkaMessage.skapSoknadsId(LocalDate.now(), LocalDate.now())
 
-        val soknadIdTo = sykmeldingKafkaMessage.copy(
-            event = sykmeldingKafkaMessage.event.copy(
-                timestamp = OffsetDateTime.now().plusDays(1)
-            )
-        ).skapSoknadsId(LocalDate.now(), LocalDate.now())
+        val soknadIdTo =
+            sykmeldingKafkaMessage.copy(
+                event =
+                    sykmeldingKafkaMessage.event.copy(
+                        timestamp = OffsetDateTime.now().plusDays(1),
+                    ),
+            ).skapSoknadsId(LocalDate.now(), LocalDate.now())
 
         soknadIdEn `should not be equal to` soknadIdTo
     }

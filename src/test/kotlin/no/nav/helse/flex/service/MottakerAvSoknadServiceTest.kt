@@ -29,7 +29,6 @@ import java.util.*
 
 @ExtendWith(MockitoExtension::class)
 class MottakerAvSoknadServiceTest {
-
     @Mock
     private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
 
@@ -54,17 +53,18 @@ class MottakerAvSoknadServiceTest {
     @Mock
     private lateinit var juridiskVurderingKafkaProducer: JuridiskVurderingKafkaProducer
 
-    private val forskutteringJa = Forskuttering(
-        id = null,
-        oppdatert = Instant.now(),
-        timestamp = Instant.now(),
-        narmesteLederId = UUID.randomUUID(),
-        orgnummer = "org",
-        brukerFnr = fnr,
-        aktivFom = now(),
-        aktivTom = null,
-        arbeidsgiverForskutterer = true
-    )
+    private val forskutteringJa =
+        Forskuttering(
+            id = null,
+            oppdatert = Instant.now(),
+            timestamp = Instant.now(),
+            narmesteLederId = UUID.randomUUID(),
+            orgnummer = "org",
+            brukerFnr = fnr,
+            aktivFom = now(),
+            aktivTom = null,
+            arbeidsgiverForskutterer = true,
+        )
 
     private val forskutteringNei = forskutteringJa.copy(arbeidsgiverForskutterer = false)
 
@@ -73,25 +73,26 @@ class MottakerAvSoknadServiceTest {
         whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), isNull(), any(), any()))
             .thenReturn((Arbeidsgiverperiode(0, true, Periode(now(), now().plusDays(16)))))
 
-        val soknad = Sykepengesoknad(
-            id = "sykepengesoknadId",
-            fnr = fnr,
-            sykmeldingId = "sykmeldingId",
-            status = NY,
-            fom = now(),
-            tom = now().plusDays(16),
-            opprettet = Instant.now(),
-            startSykeforlop = now(),
-            sykmeldingSkrevet = Instant.now(),
-            arbeidsgiverOrgnummer = "orgnummer",
-            arbeidsgiverNavn = "arbNavn",
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-            soknadPerioder = emptyList(),
-            sporsmal = emptyList(),
-            soknadstype = Soknadstype.ARBEIDSTAKERE,
-            utenlandskSykmelding = false,
-            egenmeldingsdagerFraSykmelding = null, forstegangssoknad = false
-        )
+        val soknad =
+            Sykepengesoknad(
+                id = "sykepengesoknadId",
+                fnr = fnr,
+                sykmeldingId = "sykmeldingId",
+                status = NY,
+                fom = now(),
+                tom = now().plusDays(16),
+                opprettet = Instant.now(),
+                startSykeforlop = now(),
+                sykmeldingSkrevet = Instant.now(),
+                arbeidsgiverOrgnummer = "orgnummer",
+                arbeidsgiverNavn = "arbNavn",
+                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadPerioder = emptyList(),
+                sporsmal = emptyList(),
+                soknadstype = Soknadstype.ARBEIDSTAKERE,
+                utenlandskSykmelding = false,
+                egenmeldingsdagerFraSykmelding = null, forstegangssoknad = false,
+            )
 
         val mottaker = soknadService.finnMottakerAvSoknad(soknad, folkeregisterIdenter)
 
@@ -102,25 +103,26 @@ class MottakerAvSoknadServiceTest {
     fun soknadForArbeidstakerErInnenforArbeidsgiverperioden_soknadSendesTilArbeidsgiverNullTilfelle() {
         whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), isNull(), any(), any())).thenReturn(null)
 
-        val soknad = Sykepengesoknad(
-            id = "sykepengesoknadId",
-            fnr = fnr,
-            sykmeldingId = "sykmeldingId",
-            status = NY,
-            fom = now(),
-            tom = now().plusDays(16),
-            opprettet = Instant.now(),
-            startSykeforlop = now(),
-            sykmeldingSkrevet = Instant.now(),
-            arbeidsgiverOrgnummer = "orgnummer",
-            arbeidsgiverNavn = "arbNavn",
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-            soknadPerioder = emptyList(),
-            sporsmal = emptyList(),
-            soknadstype = Soknadstype.ARBEIDSTAKERE,
-            utenlandskSykmelding = false,
-            egenmeldingsdagerFraSykmelding = null, forstegangssoknad = false
-        )
+        val soknad =
+            Sykepengesoknad(
+                id = "sykepengesoknadId",
+                fnr = fnr,
+                sykmeldingId = "sykmeldingId",
+                status = NY,
+                fom = now(),
+                tom = now().plusDays(16),
+                opprettet = Instant.now(),
+                startSykeforlop = now(),
+                sykmeldingSkrevet = Instant.now(),
+                arbeidsgiverOrgnummer = "orgnummer",
+                arbeidsgiverNavn = "arbNavn",
+                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadPerioder = emptyList(),
+                sporsmal = emptyList(),
+                soknadstype = Soknadstype.ARBEIDSTAKERE,
+                utenlandskSykmelding = false,
+                egenmeldingsdagerFraSykmelding = null, forstegangssoknad = false,
+            )
 
         val mottaker = soknadService.finnMottakerAvSoknad(soknad, folkeregisterIdenter)
 
@@ -132,25 +134,26 @@ class MottakerAvSoknadServiceTest {
         whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), isNull(), any(), any()))
             .thenReturn((Arbeidsgiverperiode(0, false, Periode(now(), now().plusDays(16)))))
 
-        val soknad = Sykepengesoknad(
-            id = "sykepengesoknadId",
-            fnr = fnr,
-            sykmeldingId = "sykmeldingId",
-            status = NY,
-            fom = now(),
-            tom = now().plusDays(20),
-            opprettet = Instant.now(),
-            startSykeforlop = now(),
-            sykmeldingSkrevet = Instant.now(),
-            arbeidsgiverOrgnummer = "orgnummer",
-            arbeidsgiverNavn = "arbNavn",
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-            soknadPerioder = emptyList(),
-            sporsmal = emptyList(),
-            soknadstype = Soknadstype.ARBEIDSTAKERE,
-            utenlandskSykmelding = false,
-            egenmeldingsdagerFraSykmelding = null, forstegangssoknad = false
-        )
+        val soknad =
+            Sykepengesoknad(
+                id = "sykepengesoknadId",
+                fnr = fnr,
+                sykmeldingId = "sykmeldingId",
+                status = NY,
+                fom = now(),
+                tom = now().plusDays(20),
+                opprettet = Instant.now(),
+                startSykeforlop = now(),
+                sykmeldingSkrevet = Instant.now(),
+                arbeidsgiverOrgnummer = "orgnummer",
+                arbeidsgiverNavn = "arbNavn",
+                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadPerioder = emptyList(),
+                sporsmal = emptyList(),
+                soknadstype = Soknadstype.ARBEIDSTAKERE,
+                utenlandskSykmelding = false,
+                egenmeldingsdagerFraSykmelding = null, forstegangssoknad = false,
+            )
 
         val mottaker = soknadService.finnMottakerAvSoknad(soknad, folkeregisterIdenter)
 
@@ -162,25 +165,26 @@ class MottakerAvSoknadServiceTest {
         whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), isNull(), any(), any()))
             .thenReturn((Arbeidsgiverperiode(0, true, Periode(now(), now().plusDays(16)))))
 
-        val soknad = Sykepengesoknad(
-            id = "sykepengesoknadId",
-            fnr = fnr,
-            sykmeldingId = "sykmeldingId",
-            status = NY,
-            fom = now(),
-            tom = now().plusDays(20),
-            opprettet = Instant.now(),
-            startSykeforlop = now(),
-            sykmeldingSkrevet = Instant.now(),
-            arbeidsgiverOrgnummer = "orgnummer",
-            arbeidsgiverNavn = "arbNavn",
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-            soknadPerioder = emptyList(),
-            sporsmal = emptyList(),
-            soknadstype = Soknadstype.ARBEIDSTAKERE,
-            utenlandskSykmelding = false,
-            egenmeldingsdagerFraSykmelding = null, forstegangssoknad = false
-        )
+        val soknad =
+            Sykepengesoknad(
+                id = "sykepengesoknadId",
+                fnr = fnr,
+                sykmeldingId = "sykmeldingId",
+                status = NY,
+                fom = now(),
+                tom = now().plusDays(20),
+                opprettet = Instant.now(),
+                startSykeforlop = now(),
+                sykmeldingSkrevet = Instant.now(),
+                arbeidsgiverOrgnummer = "orgnummer",
+                arbeidsgiverNavn = "arbNavn",
+                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadPerioder = emptyList(),
+                sporsmal = emptyList(),
+                soknadstype = Soknadstype.ARBEIDSTAKERE,
+                utenlandskSykmelding = false,
+                egenmeldingsdagerFraSykmelding = null, forstegangssoknad = false,
+            )
 
         val mottaker = soknadService.finnMottakerAvSoknad(soknad, folkeregisterIdenter)
 
@@ -194,26 +198,26 @@ class MottakerAvSoknadServiceTest {
 
         whenever(forskutteringRepository.finnForskuttering(any(), any())).thenReturn(forskutteringJa)
 
-        val soknad = Sykepengesoknad(
-            id = "sykepengesoknadId",
-            fnr = fnr,
-            sykmeldingId = "sykmeldingId",
-            status = NY,
-            fom = now().plusDays(17),
-            tom = now().plusDays(20),
-            opprettet = Instant.now(),
-            startSykeforlop = now(),
-            sykmeldingSkrevet = Instant.now(),
-            arbeidsgiverOrgnummer = "orgnummer",
-            arbeidsgiverNavn = "arbNavn",
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-            soknadPerioder = emptyList(),
-            sporsmal = emptyList(),
-            soknadstype = Soknadstype.ARBEIDSTAKERE,
-            utenlandskSykmelding = false,
-            egenmeldingsdagerFraSykmelding = null, forstegangssoknad = false
-
-        )
+        val soknad =
+            Sykepengesoknad(
+                id = "sykepengesoknadId",
+                fnr = fnr,
+                sykmeldingId = "sykmeldingId",
+                status = NY,
+                fom = now().plusDays(17),
+                tom = now().plusDays(20),
+                opprettet = Instant.now(),
+                startSykeforlop = now(),
+                sykmeldingSkrevet = Instant.now(),
+                arbeidsgiverOrgnummer = "orgnummer",
+                arbeidsgiverNavn = "arbNavn",
+                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadPerioder = emptyList(),
+                sporsmal = emptyList(),
+                soknadstype = Soknadstype.ARBEIDSTAKERE,
+                utenlandskSykmelding = false,
+                egenmeldingsdagerFraSykmelding = null, forstegangssoknad = false,
+            )
         val mottaker = soknadService.finnMottakerAvSoknad(soknad, folkeregisterIdenter)
 
         assertThat(mottaker).isEqualByComparingTo(Mottaker.ARBEIDSGIVER_OG_NAV)
@@ -226,25 +230,26 @@ class MottakerAvSoknadServiceTest {
 
         whenever(forskutteringRepository.finnForskuttering(any(), any())).thenReturn(forskutteringNei)
 
-        val soknad = Sykepengesoknad(
-            id = "sykepengesoknadId",
-            fnr = fnr,
-            sykmeldingId = "sykmeldingId",
-            status = NY,
-            fom = now().plusDays(17),
-            tom = now().plusDays(20),
-            opprettet = Instant.now(),
-            startSykeforlop = now(),
-            sykmeldingSkrevet = Instant.now(),
-            arbeidsgiverOrgnummer = "orgnummer",
-            arbeidsgiverNavn = "arbNavn",
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-            soknadPerioder = emptyList(),
-            sporsmal = emptyList(),
-            soknadstype = Soknadstype.ARBEIDSTAKERE,
-            utenlandskSykmelding = false,
-            egenmeldingsdagerFraSykmelding = null, forstegangssoknad = false
-        )
+        val soknad =
+            Sykepengesoknad(
+                id = "sykepengesoknadId",
+                fnr = fnr,
+                sykmeldingId = "sykmeldingId",
+                status = NY,
+                fom = now().plusDays(17),
+                tom = now().plusDays(20),
+                opprettet = Instant.now(),
+                startSykeforlop = now(),
+                sykmeldingSkrevet = Instant.now(),
+                arbeidsgiverOrgnummer = "orgnummer",
+                arbeidsgiverNavn = "arbNavn",
+                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadPerioder = emptyList(),
+                sporsmal = emptyList(),
+                soknadstype = Soknadstype.ARBEIDSTAKERE,
+                utenlandskSykmelding = false,
+                egenmeldingsdagerFraSykmelding = null, forstegangssoknad = false,
+            )
 
         val mottaker = soknadService.finnMottakerAvSoknad(soknad, folkeregisterIdenter)
 
@@ -258,25 +263,26 @@ class MottakerAvSoknadServiceTest {
 
         whenever(forskutteringRepository.finnForskuttering(any(), any())).thenReturn(null)
 
-        val soknad = Sykepengesoknad(
-            id = "sykepengesoknadId",
-            fnr = fnr,
-            sykmeldingId = "sykmeldingId",
-            status = NY,
-            fom = now().plusDays(17),
-            tom = now().plusDays(20),
-            opprettet = Instant.now(),
-            startSykeforlop = now(),
-            sykmeldingSkrevet = Instant.now(),
-            arbeidsgiverOrgnummer = "orgnummer",
-            arbeidsgiverNavn = "arbNavn",
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-            soknadPerioder = emptyList(),
-            sporsmal = emptyList(),
-            soknadstype = Soknadstype.ARBEIDSTAKERE,
-            utenlandskSykmelding = false,
-            egenmeldingsdagerFraSykmelding = null, forstegangssoknad = false
-        )
+        val soknad =
+            Sykepengesoknad(
+                id = "sykepengesoknadId",
+                fnr = fnr,
+                sykmeldingId = "sykmeldingId",
+                status = NY,
+                fom = now().plusDays(17),
+                tom = now().plusDays(20),
+                opprettet = Instant.now(),
+                startSykeforlop = now(),
+                sykmeldingSkrevet = Instant.now(),
+                arbeidsgiverOrgnummer = "orgnummer",
+                arbeidsgiverNavn = "arbNavn",
+                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadPerioder = emptyList(),
+                sporsmal = emptyList(),
+                soknadstype = Soknadstype.ARBEIDSTAKERE,
+                utenlandskSykmelding = false,
+                egenmeldingsdagerFraSykmelding = null, forstegangssoknad = false,
+            )
 
         val mottaker = soknadService.finnMottakerAvSoknad(soknad, folkeregisterIdenter)
 
@@ -290,25 +296,26 @@ class MottakerAvSoknadServiceTest {
 
         whenever(forskutteringRepository.finnForskuttering(any(), any())).thenReturn(null)
 
-        val soknad = Sykepengesoknad(
-            id = "sykepengesoknadId",
-            fnr = fnr,
-            sykmeldingId = "sykmeldingId",
-            status = NY,
-            fom = now().plusDays(17),
-            tom = now().plusDays(20),
-            opprettet = Instant.now(),
-            startSykeforlop = now(),
-            sykmeldingSkrevet = Instant.now(),
-            arbeidsgiverOrgnummer = "orgnummer",
-            arbeidsgiverNavn = "arbNavn",
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-            soknadPerioder = emptyList(),
-            sporsmal = emptyList(),
-            soknadstype = Soknadstype.ARBEIDSTAKERE,
-            utenlandskSykmelding = false,
-            egenmeldingsdagerFraSykmelding = null, forstegangssoknad = false
-        )
+        val soknad =
+            Sykepengesoknad(
+                id = "sykepengesoknadId",
+                fnr = fnr,
+                sykmeldingId = "sykmeldingId",
+                status = NY,
+                fom = now().plusDays(17),
+                tom = now().plusDays(20),
+                opprettet = Instant.now(),
+                startSykeforlop = now(),
+                sykmeldingSkrevet = Instant.now(),
+                arbeidsgiverOrgnummer = "orgnummer",
+                arbeidsgiverNavn = "arbNavn",
+                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadPerioder = emptyList(),
+                sporsmal = emptyList(),
+                soknadstype = Soknadstype.ARBEIDSTAKERE,
+                utenlandskSykmelding = false,
+                egenmeldingsdagerFraSykmelding = null, forstegangssoknad = false,
+            )
         val mottaker = soknadService.finnMottakerAvSoknad(soknad, folkeregisterIdenter)
 
         assertThat(mottaker).isEqualByComparingTo(Mottaker.ARBEIDSGIVER_OG_NAV)
@@ -321,25 +328,26 @@ class MottakerAvSoknadServiceTest {
 
         whenever(forskutteringRepository.finnForskuttering(any(), any())).thenReturn(null)
 
-        val soknad = Sykepengesoknad(
-            id = "sykepengesoknadId",
-            fnr = fnr,
-            sykmeldingId = "sykmeldingId",
-            status = NY,
-            fom = now().plusDays(17),
-            tom = now().plusDays(20),
-            opprettet = Instant.now(),
-            startSykeforlop = now(),
-            sykmeldingSkrevet = Instant.now(),
-            arbeidsgiverOrgnummer = "orgnummer",
-            arbeidsgiverNavn = "arbNavn",
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-            soknadPerioder = emptyList(),
-            sporsmal = emptyList(),
-            soknadstype = Soknadstype.ARBEIDSTAKERE,
-            utenlandskSykmelding = false,
-            egenmeldingsdagerFraSykmelding = null, forstegangssoknad = false
-        )
+        val soknad =
+            Sykepengesoknad(
+                id = "sykepengesoknadId",
+                fnr = fnr,
+                sykmeldingId = "sykmeldingId",
+                status = NY,
+                fom = now().plusDays(17),
+                tom = now().plusDays(20),
+                opprettet = Instant.now(),
+                startSykeforlop = now(),
+                sykmeldingSkrevet = Instant.now(),
+                arbeidsgiverOrgnummer = "orgnummer",
+                arbeidsgiverNavn = "arbNavn",
+                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadPerioder = emptyList(),
+                sporsmal = emptyList(),
+                soknadstype = Soknadstype.ARBEIDSTAKERE,
+                utenlandskSykmelding = false,
+                egenmeldingsdagerFraSykmelding = null, forstegangssoknad = false,
+            )
 
         val mottaker = soknadService.finnMottakerAvSoknad(soknad, folkeregisterIdenter)
 
@@ -353,25 +361,26 @@ class MottakerAvSoknadServiceTest {
 
         whenever(forskutteringRepository.finnForskuttering(any(), any())).thenReturn(null)
 
-        val soknad = Sykepengesoknad(
-            id = "sykepengesoknadId",
-            fnr = fnr,
-            sykmeldingId = "sykmeldingId",
-            status = NY,
-            fom = now().plusDays(17),
-            tom = now().plusDays(20),
-            opprettet = Instant.now(),
-            startSykeforlop = now(),
-            sykmeldingSkrevet = Instant.now(),
-            arbeidsgiverOrgnummer = "orgnummer",
-            arbeidsgiverNavn = "arbNavn",
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-            soknadPerioder = emptyList(),
-            sporsmal = emptyList(),
-            soknadstype = Soknadstype.ARBEIDSTAKERE,
-            utenlandskSykmelding = false,
-            egenmeldingsdagerFraSykmelding = null, forstegangssoknad = false
-        )
+        val soknad =
+            Sykepengesoknad(
+                id = "sykepengesoknadId",
+                fnr = fnr,
+                sykmeldingId = "sykmeldingId",
+                status = NY,
+                fom = now().plusDays(17),
+                tom = now().plusDays(20),
+                opprettet = Instant.now(),
+                startSykeforlop = now(),
+                sykmeldingSkrevet = Instant.now(),
+                arbeidsgiverOrgnummer = "orgnummer",
+                arbeidsgiverNavn = "arbNavn",
+                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadPerioder = emptyList(),
+                sporsmal = emptyList(),
+                soknadstype = Soknadstype.ARBEIDSTAKERE,
+                utenlandskSykmelding = false,
+                egenmeldingsdagerFraSykmelding = null, forstegangssoknad = false,
+            )
 
         val mottaker = soknadService.finnMottakerAvSoknad(soknad, folkeregisterIdenter)
 
@@ -380,26 +389,27 @@ class MottakerAvSoknadServiceTest {
 
     @Test
     fun soknadForArbeidstakerErSendtTilAgOgNav_korrigeringSendesTilAgOgNAV() {
-        val soknad = Sykepengesoknad(
-            id = "sykepengesoknadId",
-            fnr = fnr,
-            sykmeldingId = "sykmeldingId",
-            status = NY,
-            fom = now().plusDays(0),
-            tom = now().plusDays(16),
-            opprettet = Instant.now(),
-            startSykeforlop = now(),
-            sykmeldingSkrevet = Instant.now(),
-            arbeidsgiverOrgnummer = "orgnummer",
-            arbeidsgiverNavn = "arbNavn",
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-            soknadPerioder = emptyList(),
-            sporsmal = emptyList(),
-            soknadstype = Soknadstype.ARBEIDSTAKERE,
-            korrigerer = "korrigertSoknad",
-            utenlandskSykmelding = false,
-            egenmeldingsdagerFraSykmelding = null, forstegangssoknad = false
-        )
+        val soknad =
+            Sykepengesoknad(
+                id = "sykepengesoknadId",
+                fnr = fnr,
+                sykmeldingId = "sykmeldingId",
+                status = NY,
+                fom = now().plusDays(0),
+                tom = now().plusDays(16),
+                opprettet = Instant.now(),
+                startSykeforlop = now(),
+                sykmeldingSkrevet = Instant.now(),
+                arbeidsgiverOrgnummer = "orgnummer",
+                arbeidsgiverNavn = "arbNavn",
+                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadPerioder = emptyList(),
+                sporsmal = emptyList(),
+                soknadstype = Soknadstype.ARBEIDSTAKERE,
+                korrigerer = "korrigertSoknad",
+                utenlandskSykmelding = false,
+                egenmeldingsdagerFraSykmelding = null, forstegangssoknad = false,
+            )
         whenever(sykepengesoknadDAO.finnMottakerAvSoknad("korrigertSoknad"))
             .thenReturn(Mottaker.ARBEIDSGIVER_OG_NAV)
 
@@ -413,26 +423,27 @@ class MottakerAvSoknadServiceTest {
         whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), isNull(), any(), any()))
             .thenReturn((Arbeidsgiverperiode(0, true, Periode(now(), now().plusDays(16)))))
 
-        val soknad = Sykepengesoknad(
-            id = "sykepengesoknadId",
-            fnr = fnr,
-            sykmeldingId = "sykmeldingId",
-            status = NY,
-            fom = now().plusDays(0),
-            tom = now().plusDays(17),
-            opprettet = Instant.now(),
-            startSykeforlop = now(),
-            sykmeldingSkrevet = Instant.now(),
-            arbeidsgiverOrgnummer = "orgnummer",
-            arbeidsgiverNavn = "arbNavn",
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-            soknadPerioder = emptyList(),
-            sporsmal = emptyList(),
-            soknadstype = Soknadstype.ARBEIDSTAKERE,
-            korrigerer = "korrigertSoknad",
-            utenlandskSykmelding = false,
-            egenmeldingsdagerFraSykmelding = null, forstegangssoknad = false
-        )
+        val soknad =
+            Sykepengesoknad(
+                id = "sykepengesoknadId",
+                fnr = fnr,
+                sykmeldingId = "sykmeldingId",
+                status = NY,
+                fom = now().plusDays(0),
+                tom = now().plusDays(17),
+                opprettet = Instant.now(),
+                startSykeforlop = now(),
+                sykmeldingSkrevet = Instant.now(),
+                arbeidsgiverOrgnummer = "orgnummer",
+                arbeidsgiverNavn = "arbNavn",
+                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadPerioder = emptyList(),
+                sporsmal = emptyList(),
+                soknadstype = Soknadstype.ARBEIDSTAKERE,
+                korrigerer = "korrigertSoknad",
+                utenlandskSykmelding = false,
+                egenmeldingsdagerFraSykmelding = null, forstegangssoknad = false,
+            )
 
         whenever(sykepengesoknadDAO.finnMottakerAvSoknad("korrigertSoknad"))
             .thenReturn(Mottaker.NAV)
@@ -449,26 +460,27 @@ class MottakerAvSoknadServiceTest {
 
         whenever(forskutteringRepository.finnForskuttering(any(), any())).thenReturn(forskutteringNei)
 
-        val soknad = Sykepengesoknad(
-            id = "sykepengesoknadId",
-            fnr = fnr,
-            sykmeldingId = "sykmeldingId",
-            status = NY,
-            fom = now().plusDays(17),
-            tom = now().plusDays(20),
-            opprettet = Instant.now(),
-            startSykeforlop = now(),
-            sykmeldingSkrevet = Instant.now(),
-            arbeidsgiverOrgnummer = "orgnummer",
-            arbeidsgiverNavn = "arbNavn",
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-            soknadPerioder = emptyList(),
-            sporsmal = emptyList(),
-            soknadstype = Soknadstype.ARBEIDSTAKERE,
-            korrigerer = "korrigertSoknad",
-            utenlandskSykmelding = false,
-            egenmeldingsdagerFraSykmelding = null, forstegangssoknad = false
-        )
+        val soknad =
+            Sykepengesoknad(
+                id = "sykepengesoknadId",
+                fnr = fnr,
+                sykmeldingId = "sykmeldingId",
+                status = NY,
+                fom = now().plusDays(17),
+                tom = now().plusDays(20),
+                opprettet = Instant.now(),
+                startSykeforlop = now(),
+                sykmeldingSkrevet = Instant.now(),
+                arbeidsgiverOrgnummer = "orgnummer",
+                arbeidsgiverNavn = "arbNavn",
+                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadPerioder = emptyList(),
+                sporsmal = emptyList(),
+                soknadstype = Soknadstype.ARBEIDSTAKERE,
+                korrigerer = "korrigertSoknad",
+                utenlandskSykmelding = false,
+                egenmeldingsdagerFraSykmelding = null, forstegangssoknad = false,
+            )
 
         whenever(sykepengesoknadDAO.finnMottakerAvSoknad("korrigertSoknad"))
             .thenReturn(Mottaker.NAV)
@@ -483,26 +495,27 @@ class MottakerAvSoknadServiceTest {
         whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), isNull(), any(), any()))
             .thenReturn((Arbeidsgiverperiode(0, false, Periode(now(), now().plusDays(16)))))
 
-        val soknad = Sykepengesoknad(
-            id = "sykepengesoknadId",
-            fnr = fnr,
-            sykmeldingId = "sykmeldingId",
-            status = NY,
-            fom = now().plusDays(0),
-            tom = now().plusDays(16),
-            opprettet = Instant.now(),
-            startSykeforlop = now(),
-            sykmeldingSkrevet = Instant.now(),
-            arbeidsgiverOrgnummer = "orgnummer",
-            arbeidsgiverNavn = "arbNavn",
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-            soknadPerioder = emptyList(),
-            sporsmal = emptyList(),
-            soknadstype = Soknadstype.ARBEIDSTAKERE,
-            korrigerer = "korrigertSoknad",
-            utenlandskSykmelding = false,
-            egenmeldingsdagerFraSykmelding = null, forstegangssoknad = false
-        )
+        val soknad =
+            Sykepengesoknad(
+                id = "sykepengesoknadId",
+                fnr = fnr,
+                sykmeldingId = "sykmeldingId",
+                status = NY,
+                fom = now().plusDays(0),
+                tom = now().plusDays(16),
+                opprettet = Instant.now(),
+                startSykeforlop = now(),
+                sykmeldingSkrevet = Instant.now(),
+                arbeidsgiverOrgnummer = "orgnummer",
+                arbeidsgiverNavn = "arbNavn",
+                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadPerioder = emptyList(),
+                sporsmal = emptyList(),
+                soknadstype = Soknadstype.ARBEIDSTAKERE,
+                korrigerer = "korrigertSoknad",
+                utenlandskSykmelding = false,
+                egenmeldingsdagerFraSykmelding = null, forstegangssoknad = false,
+            )
 
         whenever(sykepengesoknadDAO.finnMottakerAvSoknad("korrigertSoknad"))
             .thenReturn(Mottaker.NAV)
@@ -517,26 +530,27 @@ class MottakerAvSoknadServiceTest {
         whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), isNull(), any(), any()))
             .thenReturn((Arbeidsgiverperiode(0, true, Periode(now(), now().plusDays(16)))))
 
-        val soknad = Sykepengesoknad(
-            id = "sykepengesoknadId",
-            fnr = fnr,
-            sykmeldingId = "sykmeldingId",
-            status = NY,
-            fom = now().plusDays(0),
-            tom = now().plusDays(17),
-            opprettet = Instant.now(),
-            startSykeforlop = now(),
-            sykmeldingSkrevet = Instant.now(),
-            arbeidsgiverOrgnummer = "orgnummer",
-            arbeidsgiverNavn = "arbNavn",
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-            soknadPerioder = emptyList(),
-            sporsmal = emptyList(),
-            soknadstype = Soknadstype.ARBEIDSTAKERE,
-            korrigerer = "korrigertSoknad",
-            utenlandskSykmelding = false,
-            egenmeldingsdagerFraSykmelding = null, forstegangssoknad = false
-        )
+        val soknad =
+            Sykepengesoknad(
+                id = "sykepengesoknadId",
+                fnr = fnr,
+                sykmeldingId = "sykmeldingId",
+                status = NY,
+                fom = now().plusDays(0),
+                tom = now().plusDays(17),
+                opprettet = Instant.now(),
+                startSykeforlop = now(),
+                sykmeldingSkrevet = Instant.now(),
+                arbeidsgiverOrgnummer = "orgnummer",
+                arbeidsgiverNavn = "arbNavn",
+                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadPerioder = emptyList(),
+                sporsmal = emptyList(),
+                soknadstype = Soknadstype.ARBEIDSTAKERE,
+                korrigerer = "korrigertSoknad",
+                utenlandskSykmelding = false,
+                egenmeldingsdagerFraSykmelding = null, forstegangssoknad = false,
+            )
 
         whenever(sykepengesoknadDAO.finnMottakerAvSoknad("korrigertSoknad"))
             .thenReturn(Mottaker.ARBEIDSGIVER)
@@ -551,26 +565,27 @@ class MottakerAvSoknadServiceTest {
         whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), isNull(), any(), any()))
             .thenReturn((Arbeidsgiverperiode(0, false, Periode(now(), now().plusDays(16)))))
 
-        val soknad = Sykepengesoknad(
-            id = "sykepengesoknadId",
-            fnr = fnr,
-            sykmeldingId = "sykmeldingId",
-            status = NY,
-            fom = now().plusDays(0),
-            tom = now().plusDays(16),
-            opprettet = Instant.now(),
-            startSykeforlop = now(),
-            sykmeldingSkrevet = Instant.now(),
-            arbeidsgiverOrgnummer = "orgnummer",
-            arbeidsgiverNavn = "arbNavn",
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-            soknadPerioder = emptyList(),
-            sporsmal = emptyList(),
-            soknadstype = Soknadstype.ARBEIDSTAKERE,
-            korrigerer = "korrigertSoknad",
-            utenlandskSykmelding = false,
-            egenmeldingsdagerFraSykmelding = null, forstegangssoknad = false
-        )
+        val soknad =
+            Sykepengesoknad(
+                id = "sykepengesoknadId",
+                fnr = fnr,
+                sykmeldingId = "sykmeldingId",
+                status = NY,
+                fom = now().plusDays(0),
+                tom = now().plusDays(16),
+                opprettet = Instant.now(),
+                startSykeforlop = now(),
+                sykmeldingSkrevet = Instant.now(),
+                arbeidsgiverOrgnummer = "orgnummer",
+                arbeidsgiverNavn = "arbNavn",
+                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadPerioder = emptyList(),
+                sporsmal = emptyList(),
+                soknadstype = Soknadstype.ARBEIDSTAKERE,
+                korrigerer = "korrigertSoknad",
+                utenlandskSykmelding = false,
+                egenmeldingsdagerFraSykmelding = null, forstegangssoknad = false,
+            )
 
         whenever(sykepengesoknadDAO.finnMottakerAvSoknad("korrigertSoknad"))
             .thenReturn(Mottaker.ARBEIDSGIVER)
@@ -585,26 +600,27 @@ class MottakerAvSoknadServiceTest {
         whenever(flexSyketilfelleClient.beregnArbeidsgiverperiode(any(), isNull(), any(), any()))
             .thenReturn((Arbeidsgiverperiode(0, true, Periode(now(), now().plusDays(16)))))
 
-        val soknad = Sykepengesoknad(
-            id = "sykepengesoknadId",
-            fnr = fnr,
-            sykmeldingId = "sykmeldingId",
-            status = NY,
-            fom = now().plusDays(17),
-            tom = now().plusDays(20),
-            opprettet = Instant.now(),
-            startSykeforlop = now(),
-            sykmeldingSkrevet = Instant.now(),
-            arbeidsgiverOrgnummer = "orgnummer",
-            arbeidsgiverNavn = "arbNavn",
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-            soknadPerioder = emptyList(),
-            sporsmal = emptyList(),
-            soknadstype = Soknadstype.ARBEIDSTAKERE,
-            korrigerer = "korrigertSoknad",
-            utenlandskSykmelding = false,
-            egenmeldingsdagerFraSykmelding = null, forstegangssoknad = false
-        )
+        val soknad =
+            Sykepengesoknad(
+                id = "sykepengesoknadId",
+                fnr = fnr,
+                sykmeldingId = "sykmeldingId",
+                status = NY,
+                fom = now().plusDays(17),
+                tom = now().plusDays(20),
+                opprettet = Instant.now(),
+                startSykeforlop = now(),
+                sykmeldingSkrevet = Instant.now(),
+                arbeidsgiverOrgnummer = "orgnummer",
+                arbeidsgiverNavn = "arbNavn",
+                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadPerioder = emptyList(),
+                sporsmal = emptyList(),
+                soknadstype = Soknadstype.ARBEIDSTAKERE,
+                korrigerer = "korrigertSoknad",
+                utenlandskSykmelding = false,
+                egenmeldingsdagerFraSykmelding = null, forstegangssoknad = false,
+            )
 
         whenever(forskutteringRepository.finnForskuttering(any(), any())).thenReturn(forskutteringNei)
 
@@ -618,26 +634,27 @@ class MottakerAvSoknadServiceTest {
 
     @Test
     fun soknadForArbeidstakerErIkkeSendt_korrigeringSkalFeile() {
-        val soknad = Sykepengesoknad(
-            id = "sykepengesoknadId",
-            fnr = fnr,
-            sykmeldingId = "sykmeldingId",
-            status = NY,
-            fom = now().plusDays(0),
-            tom = now().plusDays(20),
-            opprettet = Instant.now(),
-            startSykeforlop = now(),
-            sykmeldingSkrevet = Instant.now(),
-            arbeidsgiverOrgnummer = "orgnummer",
-            arbeidsgiverNavn = "arbNavn",
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-            soknadPerioder = emptyList(),
-            sporsmal = emptyList(),
-            soknadstype = Soknadstype.ARBEIDSTAKERE,
-            korrigerer = "korrigertSoknad",
-            utenlandskSykmelding = false,
-            egenmeldingsdagerFraSykmelding = null, forstegangssoknad = false
-        )
+        val soknad =
+            Sykepengesoknad(
+                id = "sykepengesoknadId",
+                fnr = fnr,
+                sykmeldingId = "sykmeldingId",
+                status = NY,
+                fom = now().plusDays(0),
+                tom = now().plusDays(20),
+                opprettet = Instant.now(),
+                startSykeforlop = now(),
+                sykmeldingSkrevet = Instant.now(),
+                arbeidsgiverOrgnummer = "orgnummer",
+                arbeidsgiverNavn = "arbNavn",
+                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadPerioder = emptyList(),
+                sporsmal = emptyList(),
+                soknadstype = Soknadstype.ARBEIDSTAKERE,
+                korrigerer = "korrigertSoknad",
+                utenlandskSykmelding = false,
+                egenmeldingsdagerFraSykmelding = null, forstegangssoknad = false,
+            )
 
         whenever(sykepengesoknadDAO.finnMottakerAvSoknad("korrigertSoknad"))
             .thenReturn(null)

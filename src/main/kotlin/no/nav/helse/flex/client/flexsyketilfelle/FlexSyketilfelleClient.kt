@@ -26,9 +26,8 @@ class FlexSyketilfelleClient(
     private val flexSyketilfelleRestTemplate: RestTemplate,
     private val sykepengesoknadTilSykepengesoknadDTOMapper: SykepengesoknadTilSykepengesoknadDTOMapper,
     @Value("\${flex.syketilfelle.url}")
-    private val url: String
+    private val url: String,
 ) {
-
     val log = logger()
 
     fun FolkeregisterIdenter.tilFnrHeader(): String = this.alle().joinToString(separator = ", ")
@@ -39,18 +38,20 @@ class FlexSyketilfelleClient(
         headers.contentType = MediaType.APPLICATION_JSON
         headers.set("fnr", identer.tilFnrHeader())
 
-        val queryBuilder = UriComponentsBuilder
-            .fromHttpUrl(url)
-            .pathSegment("api", "v1", "sykeforloep")
-            .queryParam("hentAndreIdenter", "false")
+        val queryBuilder =
+            UriComponentsBuilder
+                .fromHttpUrl(url)
+                .pathSegment("api", "v1", "sykeforloep")
+                .queryParam("hentAndreIdenter", "false")
 
-        val result = flexSyketilfelleRestTemplate
-            .exchange(
-                queryBuilder.toUriString(),
-                GET,
-                HttpEntity(null, headers),
-                Array<Sykeforloep>::class.java
-            )
+        val result =
+            flexSyketilfelleRestTemplate
+                .exchange(
+                    queryBuilder.toUriString(),
+                    GET,
+                    HttpEntity(null, headers),
+                    Array<Sykeforloep>::class.java,
+                )
 
         if (!result.statusCode.is2xxSuccessful) {
             val message = "Kall mot flex-syketilfelle feiler med HTTP-${result.statusCode}"
@@ -66,24 +67,26 @@ class FlexSyketilfelleClient(
     fun erUtenforVentetid(
         identer: FolkeregisterIdenter,
         sykmeldingId: String,
-        erUtenforVentetidRequest: ErUtenforVentetidRequest
+        erUtenforVentetidRequest: ErUtenforVentetidRequest,
     ): Boolean {
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
         headers.set("fnr", identer.tilFnrHeader())
 
-        val queryBuilder = UriComponentsBuilder
-            .fromHttpUrl(url)
-            .pathSegment("api", "v1", "ventetid", sykmeldingId, "erUtenforVentetid")
-            .queryParam("hentAndreIdenter", "false")
+        val queryBuilder =
+            UriComponentsBuilder
+                .fromHttpUrl(url)
+                .pathSegment("api", "v1", "ventetid", sykmeldingId, "erUtenforVentetid")
+                .queryParam("hentAndreIdenter", "false")
 
-        val result = flexSyketilfelleRestTemplate
-            .exchange(
-                queryBuilder.toUriString(),
-                HttpMethod.POST,
-                HttpEntity(erUtenforVentetidRequest, headers),
-                Boolean::class.java
-            )
+        val result =
+            flexSyketilfelleRestTemplate
+                .exchange(
+                    queryBuilder.toUriString(),
+                    HttpMethod.POST,
+                    HttpEntity(erUtenforVentetidRequest, headers),
+                    Boolean::class.java,
+                )
 
         if (!result.statusCode.is2xxSuccessful) {
             val message = "Kall mot flex-syketilfelle feiler med HTTP-${result.statusCode}"
@@ -100,36 +103,39 @@ class FlexSyketilfelleClient(
         soknad: Sykepengesoknad,
         sykmelding: SykmeldingKafkaMessage?,
         forelopig: Boolean,
-        identer: FolkeregisterIdenter
+        identer: FolkeregisterIdenter,
     ): Arbeidsgiverperiode? {
-        val soknadDto = sykepengesoknadTilSykepengesoknadDTOMapper.mapTilSykepengesoknadDTO(
-            sykepengesoknad = soknad,
-            mottaker = null,
-            erEttersending = false,
-            endeligVurdering = false
-        )
+        val soknadDto =
+            sykepengesoknadTilSykepengesoknadDTOMapper.mapTilSykepengesoknadDTO(
+                sykepengesoknad = soknad,
+                mottaker = null,
+                erEttersending = false,
+                endeligVurdering = false,
+            )
         val requestBody = SoknadOgSykmelding(soknadDto, sykmelding)
 
         val headers = HttpHeaders()
         headers.set("fnr", identer.tilFnrHeader())
         headers.set("forelopig", forelopig.toString()) // Hvis true så publiseres ikke juridisk vurdering
 
-        val queryBuilder = UriComponentsBuilder
-            .fromHttpUrl(url)
-            .pathSegment("api", "v2", "arbeidsgiverperiode")
-            .queryParam("hentAndreIdenter", "false")
+        val queryBuilder =
+            UriComponentsBuilder
+                .fromHttpUrl(url)
+                .pathSegment("api", "v2", "arbeidsgiverperiode")
+                .queryParam("hentAndreIdenter", "false")
 
         if (soknadDto.korrigerer != null) {
             queryBuilder.queryParam("andreKorrigerteRessurser", soknadDto.korrigerer)
         }
 
-        val result = flexSyketilfelleRestTemplate
-            .exchange(
-                queryBuilder.toUriString(),
-                HttpMethod.POST,
-                HttpEntity(requestBody, headers),
-                Arbeidsgiverperiode::class.java
-            )
+        val result =
+            flexSyketilfelleRestTemplate
+                .exchange(
+                    queryBuilder.toUriString(),
+                    HttpMethod.POST,
+                    HttpEntity(requestBody, headers),
+                    Arbeidsgiverperiode::class.java,
+                )
 
         if (!result.statusCode.is2xxSuccessful) {
             val message = "Kall mot flex-syketilfelle feiler med HTTP-${result.statusCode}"
@@ -148,6 +154,6 @@ class FlexSyketilfelleClient(
 
     private data class SoknadOgSykmelding(
         val soknad: SykepengesoknadDTO,
-        val sykmelding: SykmeldingKafkaMessage?
+        val sykmelding: SykmeldingKafkaMessage?,
     )
 }

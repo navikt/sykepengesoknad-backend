@@ -1,3 +1,5 @@
+@file:Suppress("ktlint:standard:max-line-length")
+
 package no.nav.helse.flex.soknadsopprettelse.sporsmal
 
 import no.nav.helse.flex.domain.Sporsmal
@@ -5,11 +7,12 @@ import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.soknadsopprettelse.VAER_KLAR_OVER_AT
 
 fun vaerKlarOverAt(gradertReisetilskudd: Boolean): Sporsmal {
-    val sykepenger = if (gradertReisetilskudd) {
-        "sykepenger og reisetilskudd"
-    } else {
-        "sykepenger"
-    }
+    val sykepenger =
+        if (gradertReisetilskudd) {
+            "sykepenger og reisetilskudd"
+        } else {
+            "sykepenger"
+        }
 
     val sporsmalstekst =
         "<ul>" +
@@ -32,6 +35,6 @@ fun vaerKlarOverAt(gradertReisetilskudd: Boolean): Sporsmal {
         tag = VAER_KLAR_OVER_AT,
         svartype = Svartype.IKKE_RELEVANT,
         sporsmalstekst = "Viktig å være klar over:",
-        undertekst = sporsmalstekst
+        undertekst = sporsmalstekst,
     )
 }

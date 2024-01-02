@@ -10,9 +10,8 @@ import java.time.Instant
 
 @Component
 class OppdateringAvForskuttering(
-    val forskutteringRepository: ForskutteringRepository
+    val forskutteringRepository: ForskutteringRepository,
 ) {
-
     val log = logger()
 
     fun behandleMeldingFraKafka(meldingString: String) {
@@ -31,14 +30,15 @@ class OppdateringAvForskuttering(
     fun String.tilNarmesteLederLeesah(): NarmesteLederLeesah = OBJECT_MAPPER.readValue(this)
 }
 
-private fun NarmesteLederLeesah.tilNarmesteLeder(id: String?): Forskuttering = Forskuttering(
-    id = id,
-    narmesteLederId = narmesteLederId,
-    brukerFnr = fnr,
-    orgnummer = orgnummer,
-    aktivFom = aktivFom,
-    aktivTom = aktivTom,
-    arbeidsgiverForskutterer = arbeidsgiverForskutterer,
-    timestamp = timestamp.toInstant(),
-    oppdatert = Instant.now()
-)
+private fun NarmesteLederLeesah.tilNarmesteLeder(id: String?): Forskuttering =
+    Forskuttering(
+        id = id,
+        narmesteLederId = narmesteLederId,
+        brukerFnr = fnr,
+        orgnummer = orgnummer,
+        aktivFom = aktivFom,
+        aktivTom = aktivTom,
+        arbeidsgiverForskutterer = arbeidsgiverForskutterer,
+        timestamp = timestamp.toInstant(),
+        oppdatert = Instant.now(),
+    )

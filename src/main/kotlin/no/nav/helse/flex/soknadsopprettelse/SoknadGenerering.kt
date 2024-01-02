@@ -7,7 +7,7 @@ import no.nav.helse.flex.util.isBeforeOrEqual
 
 fun erForsteSoknadTilArbeidsgiverIForlop(
     eksisterendeSoknader: List<Sykepengesoknad>,
-    sykepengesoknad: Sykepengesoknad
+    sykepengesoknad: Sykepengesoknad,
 ): Boolean {
     return eksisterendeSoknader.asSequence()
         .finnTidligereSoknaderMedSammeArbeidssituasjon(sykepengesoknad)
@@ -18,7 +18,7 @@ fun erForsteSoknadTilArbeidsgiverIForlop(
 
 fun erForsteSoknadIForlop(
     eksisterendeSoknader: List<Sykepengesoknad>,
-    sykepengesoknad: Sykepengesoknad
+    sykepengesoknad: Sykepengesoknad,
 ): Boolean {
     return eksisterendeSoknader.asSequence()
         // Finner søknader med samme arbeidssituasjon som, men med 'fom' FØR eller LIK søknaden det sammenlignes med.
@@ -33,7 +33,7 @@ fun erForsteSoknadIForlop(
 
 fun harBlittStiltUtlandsSporsmal(
     eksisterendeSoknader: List<Sykepengesoknad>,
-    sykepengesoknad: Sykepengesoknad
+    sykepengesoknad: Sykepengesoknad,
 ): Boolean {
     return eksisterendeSoknader.asSequence()
         .finnTidligereSoknaderMedSammeArbeidssituasjon(sykepengesoknad)
@@ -44,7 +44,9 @@ fun harBlittStiltUtlandsSporsmal(
 }
 
 // Finner søknader med samme arbeidssituasjon som, men med 'fom' FØR søknaden det sammenlignes med.
-private fun Sequence<Sykepengesoknad>.finnTidligereSoknaderMedSammeArbeidssituasjon(sykepengesoknad: Sykepengesoknad): Sequence<Sykepengesoknad> =
+private fun Sequence<Sykepengesoknad>.finnTidligereSoknaderMedSammeArbeidssituasjon(
+    sykepengesoknad: Sykepengesoknad,
+): Sequence<Sykepengesoknad> =
     this.filter { it.fom != null && it.fom.isBefore(sykepengesoknad.fom) }
         .filter { it.sykmeldingId != null && it.startSykeforlop != null }
         .filter { it.arbeidssituasjon == sykepengesoknad.arbeidssituasjon }
@@ -57,7 +59,7 @@ private fun Sequence<Sykepengesoknad>.harSammeArbeidsgiver(sykepengesoknad: Syke
             if (listOf(
                     Soknadstype.ARBEIDSTAKERE,
                     Soknadstype.BEHANDLINGSDAGER,
-                    Soknadstype.GRADERT_REISETILSKUDD
+                    Soknadstype.GRADERT_REISETILSKUDD,
                 ).contains(it.soknadstype)
             ) {
                 return@filter it.arbeidsgiverOrgnummer == sykepengesoknad.arbeidsgiverOrgnummer

@@ -23,120 +23,124 @@ import java.util.*
 
 @Component
 class MockSoknadSelvstendigeOgFrilansere(private val sykepengesoknadDAO: SykepengesoknadDAO?) {
-
     fun opprettOgLagreNySoknad(): Sykepengesoknad {
         return sykepengesoknadDAO!!.lagreSykepengesoknad(opprettNyNaeringsdrivendeSoknad())
     }
 }
 
 fun opprettNyNaeringsdrivendeSoknad(): Sykepengesoknad {
-    val soknadMetadata = Sykepengesoknad(
-        id = UUID.randomUUID().toString(),
-        status = Soknadstatus.NY,
-        opprettet = Instant.now(),
-        sporsmal = emptyList(),
-        fnr = "fnr-7454630",
-        startSykeforlop = of(2018, 6, 1),
-        fom = of(2018, 6, 1),
-        tom = of(2018, 6, 10),
-        arbeidssituasjon = NAERINGSDRIVENDE, arbeidsgiverOrgnummer = null, arbeidsgiverNavn = null,
-        sykmeldingId = "289148ba-4c3c-4b3f-b7a3-385b7e7c927d",
-        sykmeldingSkrevet = of(2018, 6, 1).atStartOfDay().tilOsloInstant(),
-        soknadPerioder = listOf(
-            SykmeldingsperiodeAGDTO(
-                fom = of(2018, 6, 1),
-                tom = of(2018, 6, 5),
-                gradert = GradertDTO(grad = 100, reisetilskudd = false),
-                type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
-                aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
-                behandlingsdager = null,
-                innspillTilArbeidsgiver = null,
-                reisetilskudd = false
-            ),
-            SykmeldingsperiodeAGDTO(
-                fom = of(2018, 6, 6),
-                tom = of(2018, 6, 10),
-                gradert = GradertDTO(grad = 40, reisetilskudd = false),
-                type = PeriodetypeDTO.GRADERT,
-                aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
-                behandlingsdager = null,
-                innspillTilArbeidsgiver = null,
-                reisetilskudd = false
-            )
-        ).tilSoknadsperioder(),
-        soknadstype = Soknadstype.SELVSTENDIGE_OG_FRILANSERE,
-        egenmeldtSykmelding = null,
-        utenlandskSykmelding = false,
-        egenmeldingsdagerFraSykmelding = null,
-        forstegangssoknad = false
-    )
+    val soknadMetadata =
+        Sykepengesoknad(
+            id = UUID.randomUUID().toString(),
+            status = Soknadstatus.NY,
+            opprettet = Instant.now(),
+            sporsmal = emptyList(),
+            fnr = "fnr-7454630",
+            startSykeforlop = of(2018, 6, 1),
+            fom = of(2018, 6, 1),
+            tom = of(2018, 6, 10),
+            arbeidssituasjon = NAERINGSDRIVENDE, arbeidsgiverOrgnummer = null, arbeidsgiverNavn = null,
+            sykmeldingId = "289148ba-4c3c-4b3f-b7a3-385b7e7c927d",
+            sykmeldingSkrevet = of(2018, 6, 1).atStartOfDay().tilOsloInstant(),
+            soknadPerioder =
+                listOf(
+                    SykmeldingsperiodeAGDTO(
+                        fom = of(2018, 6, 1),
+                        tom = of(2018, 6, 5),
+                        gradert = GradertDTO(grad = 100, reisetilskudd = false),
+                        type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+                        aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                        behandlingsdager = null,
+                        innspillTilArbeidsgiver = null,
+                        reisetilskudd = false,
+                    ),
+                    SykmeldingsperiodeAGDTO(
+                        fom = of(2018, 6, 6),
+                        tom = of(2018, 6, 10),
+                        gradert = GradertDTO(grad = 40, reisetilskudd = false),
+                        type = PeriodetypeDTO.GRADERT,
+                        aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                        behandlingsdager = null,
+                        innspillTilArbeidsgiver = null,
+                        reisetilskudd = false,
+                    ),
+                ).tilSoknadsperioder(),
+            soknadstype = Soknadstype.SELVSTENDIGE_OG_FRILANSERE,
+            egenmeldtSykmelding = null,
+            utenlandskSykmelding = false,
+            egenmeldingsdagerFraSykmelding = null,
+            forstegangssoknad = false,
+        )
 
     return (soknadMetadata).copy(
-        sporsmal = settOppSoknadSelvstendigOgFrilanser(
-            SettOppSoknadOptions(
-                soknadMetadata,
-                false,
-                false,
-                YrkesskadeSporsmalGrunnlag()
-            )
-        ),
-        status = Soknadstatus.NY
+        sporsmal =
+            settOppSoknadSelvstendigOgFrilanser(
+                SettOppSoknadOptions(
+                    soknadMetadata,
+                    false,
+                    false,
+                    YrkesskadeSporsmalGrunnlag(),
+                ),
+            ),
+        status = Soknadstatus.NY,
     ).leggSvarPaSoknad()
 }
 
 fun opprettSendtFrilanserSoknad(): Sykepengesoknad {
-    val soknadMetadata = Sykepengesoknad(
-        id = UUID.randomUUID().toString(),
-        status = Soknadstatus.NY,
-        opprettet = Instant.now(),
-        sporsmal = emptyList(),
-        fnr = "fnr-7454630",
-        startSykeforlop = of(2018, 5, 20),
-        fom = of(2018, 5, 20),
-        tom = of(2018, 5, 28),
-        arbeidssituasjon = FRILANSER, arbeidsgiverOrgnummer = null, arbeidsgiverNavn = null,
-        sykmeldingId = "14e78e84-50a5-45bb-9919-191c54f99691",
-        sykmeldingSkrevet = of(2018, 5, 20).atStartOfDay().tilOsloInstant(),
-        soknadPerioder = listOf(
-            SykmeldingsperiodeAGDTO(
-                fom = of(2018, 5, 20),
-                tom = of(2018, 5, 24),
-                gradert = GradertDTO(grad = 100, reisetilskudd = false),
-                type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
-                aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
-                behandlingsdager = null,
-                innspillTilArbeidsgiver = null,
-                reisetilskudd = false
-            ),
-            SykmeldingsperiodeAGDTO(
-                fom = of(2018, 5, 25),
-                tom = of(2018, 5, 28),
-                gradert = GradertDTO(grad = 40, reisetilskudd = false),
-                type = PeriodetypeDTO.GRADERT,
-                aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
-                behandlingsdager = null,
-                innspillTilArbeidsgiver = null,
-                reisetilskudd = false
-            )
-        ).tilSoknadsperioder(),
-        soknadstype = Soknadstype.SELVSTENDIGE_OG_FRILANSERE,
-        egenmeldtSykmelding = null,
-        utenlandskSykmelding = false,
-        egenmeldingsdagerFraSykmelding = null,
-        forstegangssoknad = false
-
-    )
+    val soknadMetadata =
+        Sykepengesoknad(
+            id = UUID.randomUUID().toString(),
+            status = Soknadstatus.NY,
+            opprettet = Instant.now(),
+            sporsmal = emptyList(),
+            fnr = "fnr-7454630",
+            startSykeforlop = of(2018, 5, 20),
+            fom = of(2018, 5, 20),
+            tom = of(2018, 5, 28),
+            arbeidssituasjon = FRILANSER, arbeidsgiverOrgnummer = null, arbeidsgiverNavn = null,
+            sykmeldingId = "14e78e84-50a5-45bb-9919-191c54f99691",
+            sykmeldingSkrevet = of(2018, 5, 20).atStartOfDay().tilOsloInstant(),
+            soknadPerioder =
+                listOf(
+                    SykmeldingsperiodeAGDTO(
+                        fom = of(2018, 5, 20),
+                        tom = of(2018, 5, 24),
+                        gradert = GradertDTO(grad = 100, reisetilskudd = false),
+                        type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+                        aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                        behandlingsdager = null,
+                        innspillTilArbeidsgiver = null,
+                        reisetilskudd = false,
+                    ),
+                    SykmeldingsperiodeAGDTO(
+                        fom = of(2018, 5, 25),
+                        tom = of(2018, 5, 28),
+                        gradert = GradertDTO(grad = 40, reisetilskudd = false),
+                        type = PeriodetypeDTO.GRADERT,
+                        aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                        behandlingsdager = null,
+                        innspillTilArbeidsgiver = null,
+                        reisetilskudd = false,
+                    ),
+                ).tilSoknadsperioder(),
+            soknadstype = Soknadstype.SELVSTENDIGE_OG_FRILANSERE,
+            egenmeldtSykmelding = null,
+            utenlandskSykmelding = false,
+            egenmeldingsdagerFraSykmelding = null,
+            forstegangssoknad = false,
+        )
     return (soknadMetadata).copy(
-        sporsmal = settOppSoknadSelvstendigOgFrilanser(
-            SettOppSoknadOptions(
-                soknadMetadata,
-                false,
-                false,
-                YrkesskadeSporsmalGrunnlag()
-            )
-        ),
+        sporsmal =
+            settOppSoknadSelvstendigOgFrilanser(
+                SettOppSoknadOptions(
+                    soknadMetadata,
+                    false,
+                    false,
+                    YrkesskadeSporsmalGrunnlag(),
+                ),
+            ),
         status = Soknadstatus.SENDT,
-        sendtNav = Instant.now()
+        sendtNav = Instant.now(),
     ).leggSvarPaSoknad()
 }
 

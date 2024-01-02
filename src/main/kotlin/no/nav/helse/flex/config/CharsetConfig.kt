@@ -11,6 +11,9 @@ class CharsetConfig : WebMvcConfigurer {
     override fun configureMessageConverters(converters: List<HttpMessageConverter<*>>) {
         converters
             .filterIsInstance<MappingJackson2HttpMessageConverter>()
-            .forEach { converter: HttpMessageConverter<*> -> (converter as MappingJackson2HttpMessageConverter).defaultCharset = StandardCharsets.UTF_8 }
+            .forEach {
+                    converter: HttpMessageConverter<*> ->
+                (converter as MappingJackson2HttpMessageConverter).defaultCharset = StandardCharsets.UTF_8
+            }
     }
 }

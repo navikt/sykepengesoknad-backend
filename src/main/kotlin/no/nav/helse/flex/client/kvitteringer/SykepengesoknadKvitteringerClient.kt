@@ -8,9 +8,8 @@ import org.springframework.web.client.RestTemplate
 class SykepengesoknadKvitteringerClient(
     @Value("\${sykepengesoknad.kvitteringer.url}")
     private val sykepengesoknadKvitteringerUrl: String,
-    private val sykepengesoknadKvitteringerRestTemplate: RestTemplate
+    private val sykepengesoknadKvitteringerRestTemplate: RestTemplate,
 ) {
-
     fun slettKvittering(blobName: String) {
         sykepengesoknadKvitteringerRestTemplate.delete("$sykepengesoknadKvitteringerUrl/api/v2/kvittering/$blobName")
     }

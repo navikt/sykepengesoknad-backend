@@ -69,15 +69,11 @@ class SoknadBrukerController(
     private val avbrytSoknadService: AvbrytSoknadService,
     private val environmentToggles: EnvironmentToggles,
     private val inntektsopplysningForNaringsdrivende: InntektsopplysningForNaringsdrivende,
-
     @Value("\${DITT_SYKEFRAVAER_FRONTEND_CLIENT_ID}")
     val dittSykefravaerFrontendClientId: String,
-
     @Value("\${SYKEPENGESOKNAD_FRONTEND_CLIENT_ID}")
-    val sykepengesoknadFrontendClientId: String
-
+    val sykepengesoknadFrontendClientId: String,
 ) {
-
     private val log = logger()
 
     @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
@@ -92,7 +88,9 @@ class SoknadBrukerController(
     @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
     @ResponseBody
     @GetMapping(value = ["/soknad/{id}"], produces = [APPLICATION_JSON_VALUE])
-    fun hentSoknad(@PathVariable("id") id: String): RSSykepengesoknad {
+    fun hentSoknad(
+        @PathVariable("id") id: String,
+    ): RSSykepengesoknad {
         val (soknad, identer) = hentOgSjekkTilgangTilSoknad(id)
 
         return soknad.utvidSoknadMedKorrigeringsfristUtlopt(identer).tilRSSykepengesoknad()
@@ -112,7 +110,9 @@ class SoknadBrukerController(
 
     @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
     @PostMapping(value = ["/soknader/{id}/send"])
-    fun sendSoknadRestful(@PathVariable("id") id: String) {
+    fun sendSoknadRestful(
+        @PathVariable("id") id: String,
+    ) {
         if (environmentToggles.isReadOnly()) {
             throw ReadOnlyException()
         }
@@ -125,19 +125,20 @@ class SoknadBrukerController(
         val eldsteSoknaden = hentSoknadService.hentEldsteSoknaden(identer, soknadFraBase.fom)
         if (eldsteSoknaden != null && eldsteSoknaden != soknadFraBase.id) {
             throw ForsokPaSendingAvNyereSoknadException(
-                "Forsøk på sending av en nyere søknad med id: ${soknadFraBase.id}."
+                "Forsøk på sending av en nyere søknad med id: ${soknadFraBase.id}.",
             )
         }
 
-        val sendtSoknad = try {
-            soknadSender.sendSoknad(soknadFraBase, BRUKER, null, identer).also {
-                log.info("Soknad sendt id: ${soknadFraBase.id}")
+        val sendtSoknad =
+            try {
+                soknadSender.sendSoknad(soknadFraBase, BRUKER, null, identer).also {
+                    log.info("Soknad sendt id: ${soknadFraBase.id}")
+                }
+            } catch (e: Exception) {
+                log.error("Innsending av søknad ${soknadFraBase.id} feilet")
+                metrikk.tellInnsendingFeilet(soknadFraBase.soknadstype.name)
+                throw e
             }
-        } catch (e: Exception) {
-            log.error("Innsending av søknad ${soknadFraBase.id} feilet")
-            metrikk.tellInnsendingFeilet(soknadFraBase.soknadstype.name)
-            throw e
-        }
 
         try {
             inntektsopplysningForNaringsdrivende.lagreOpplysningerOmDokumentasjonAvInntektsopplysninger(sendtSoknad)
@@ -148,7 +149,9 @@ class SoknadBrukerController(
 
     @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
     @PostMapping(value = ["/soknader/{id}/ettersendTilNav"])
-    fun ettersendTilNav(@PathVariable("id") id: String) {
+    fun ettersendTilNav(
+        @PathVariable("id") id: String,
+    ) {
         if (environmentToggles.isReadOnly()) {
             throw ReadOnlyException()
         }
@@ -160,7 +163,9 @@ class SoknadBrukerController(
 
     @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
     @PostMapping(value = ["/soknader/{id}/ettersendTilArbeidsgiver"])
-    fun ettersendTilArbeidsgiver(@PathVariable("id") id: String) {
+    fun ettersendTilArbeidsgiver(
+        @PathVariable("id") id: String,
+    ) {
         if (environmentToggles.isReadOnly()) {
             throw ReadOnlyException()
         }
@@ -172,7 +177,9 @@ class SoknadBrukerController(
 
     @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
     @PostMapping(value = ["/soknader/{id}/avbryt"])
-    fun avbryt(@PathVariable("id") id: String) {
+    fun avbryt(
+        @PathVariable("id") id: String,
+    ) {
         if (environmentToggles.isReadOnly()) {
             throw ReadOnlyException()
         }
@@ -188,7 +195,9 @@ class SoknadBrukerController(
 
     @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
     @PostMapping(value = ["/soknader/{id}/gjenapne"])
-    fun gjenapne(@PathVariable("id") id: String) {
+    fun gjenapne(
+        @PathVariable("id") id: String,
+    ) {
         if (environmentToggles.isReadOnly()) {
             throw ReadOnlyException()
         }
@@ -201,7 +210,8 @@ class SoknadBrukerController(
             Soknadstype.ARBEIDSLEDIG,
             Soknadstype.REISETILSKUDD,
             Soknadstype.GRADERT_REISETILSKUDD,
-            Soknadstype.BEHANDLINGSDAGER -> {
+            Soknadstype.BEHANDLINGSDAGER,
+            -> {
                 if (soknadFraBase.status !== Soknadstatus.AVBRUTT) {
                     log.info("Kan ikke gjenåpne søknad som ikke er avbrutt: $id")
                     throw IllegalArgumentException("Kan ikke gjenåpne søknad som ikke er avbrutt")
@@ -216,7 +226,9 @@ class SoknadBrukerController(
 
     @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
     @PostMapping(value = ["/soknader/{id}/korriger"], produces = [APPLICATION_JSON_VALUE])
-    fun korriger(@PathVariable("id") id: String): RSSykepengesoknad {
+    fun korriger(
+        @PathVariable("id") id: String,
+    ): RSSykepengesoknad {
         if (environmentToggles.isReadOnly()) {
             throw ReadOnlyException()
         }
@@ -230,12 +242,12 @@ class SoknadBrukerController(
     @PutMapping(
         value = ["/soknader/{soknadId}/sporsmal/{sporsmalId}"],
         consumes = [APPLICATION_JSON_VALUE],
-        produces = [APPLICATION_JSON_VALUE]
+        produces = [APPLICATION_JSON_VALUE],
     )
     fun oppdaterSporsmal(
         @PathVariable("soknadId") soknadId: String,
         @PathVariable("sporsmalId") sporsmalId: String,
-        @RequestBody rsSporsmal: RSSporsmal
+        @RequestBody rsSporsmal: RSSporsmal,
     ): RSOppdaterSporsmalResponse {
         if (environmentToggles.isReadOnly()) {
             throw ReadOnlyException()
@@ -258,12 +270,12 @@ class SoknadBrukerController(
     @PostMapping(
         value = ["/soknader/{soknadId}/sporsmal/{sporsmalId}/svar"],
         consumes = [APPLICATION_JSON_VALUE],
-        produces = [APPLICATION_JSON_VALUE]
+        produces = [APPLICATION_JSON_VALUE],
     )
     fun lagreNyttSvar(
         @PathVariable soknadId: String,
         @PathVariable sporsmalId: String,
-        @RequestBody svar: RSSvar
+        @RequestBody svar: RSSvar,
     ): RSOppdaterSporsmalResponse {
         if (environmentToggles.isReadOnly()) {
             throw ReadOnlyException()
@@ -282,7 +294,7 @@ class SoknadBrukerController(
     fun slettSvar(
         @PathVariable soknadId: String,
         @PathVariable sporsmalId: String,
-        @PathVariable svarId: String
+        @PathVariable svarId: String,
     ) {
         if (environmentToggles.isReadOnly()) {
             throw ReadOnlyException()
@@ -292,13 +304,15 @@ class SoknadBrukerController(
         oppdaterSporsmalService.slettSvar(
             lagretSoknad = soknad,
             sporsmalId = sporsmalId,
-            svarId = svarId
+            svarId = svarId,
         )
     }
 
     @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
     @GetMapping(value = ["/soknader/{id}/mottaker"], produces = [APPLICATION_JSON_VALUE])
-    fun hentMottakerAvSoknad(@PathVariable("id") id: String): RSMottakerResponse {
+    fun hentMottakerAvSoknad(
+        @PathVariable("id") id: String,
+    ): RSMottakerResponse {
         val (sykepengesoknad, identer) = hentOgSjekkTilgangTilSoknad(id)
         val mottaker = mottakerAvSoknadService.finnMottakerAvSoknad(sykepengesoknad, identer)
         return RSMottakerResponse(RSMottaker.valueOf(mottaker.name))
@@ -309,7 +323,7 @@ class SoknadBrukerController(
     @PostMapping(value = ["/soknader/{soknadId}/sporsmal/{sporsmalId}/undersporsmal"])
     fun leggTilUndersporsmal(
         @PathVariable soknadId: String,
-        @PathVariable sporsmalId: String
+        @PathVariable sporsmalId: String,
     ) {
         if (environmentToggles.isReadOnly()) {
             throw ReadOnlyException()
@@ -320,7 +334,7 @@ class SoknadBrukerController(
         if (listOf(
                 MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
                 MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
-                MEDLEMSKAP_OPPHOLD_UTENFOR_EOS
+                MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
             ).contains(sporsmal.tag)
         ) {
             oppdaterSporsmalService.leggTilNyttUndersporsmal(soknad.id, sporsmal.tag)
@@ -335,7 +349,7 @@ class SoknadBrukerController(
     fun slettUndersporsmal(
         @PathVariable soknadId: String,
         @PathVariable sporsmalId: String,
-        @PathVariable undersporsmalId: String
+        @PathVariable undersporsmalId: String,
     ) {
         if (environmentToggles.isReadOnly()) {
             throw ReadOnlyException()
@@ -346,7 +360,7 @@ class SoknadBrukerController(
         if (listOf(
                 MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
                 MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
-                MEDLEMSKAP_OPPHOLD_UTENFOR_EOS
+                MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
             ).contains(sporsmal.tag)
         ) {
             oppdaterSporsmalService.slettUndersporsmal(soknad, sporsmal, undersporsmalId)
@@ -369,7 +383,7 @@ class SoknadBrukerController(
     private fun validerStatusOgHovedsporsmal(
         soknad: Sykepengesoknad,
         soknadId: String,
-        sporsmalId: String
+        sporsmalId: String,
     ): Sporsmal {
         if (!listOf(Soknadstatus.NY, Soknadstatus.UTKAST_TIL_KORRIGERING).contains(soknad.status)) {
             throw FeilStatusForOppdaterSporsmalException("Søknad $soknadId har status ${soknad.status}. Da kan man ikke besvare spørsmål.")
@@ -404,19 +418,19 @@ class SoknadBrukerController(
 
     private fun skapOppdaterSpmResponse(
         oppdaterSporsmalResultat: OppdaterSporsmalService.OppdaterSporsmalResultat,
-        sporsmalTag: String
+        sporsmalTag: String,
     ): RSOppdaterSporsmalResponse {
         val sporsmalSomBleOppdatert = oppdaterSporsmalResultat.oppdatertSoknad.sporsmal.find { it.tag == sporsmalTag }!!
 
         if (oppdaterSporsmalResultat.mutert) {
             return RSOppdaterSporsmalResponse(
                 mutertSoknad = oppdaterSporsmalResultat.oppdatertSoknad.tilRSSykepengesoknad(),
-                oppdatertSporsmal = sporsmalSomBleOppdatert.mapSporsmalTilRs()
+                oppdatertSporsmal = sporsmalSomBleOppdatert.mapSporsmalTilRs(),
             )
         }
         return RSOppdaterSporsmalResponse(
             mutertSoknad = null,
-            oppdatertSporsmal = sporsmalSomBleOppdatert.mapSporsmalTilRs()
+            oppdatertSporsmal = sporsmalSomBleOppdatert.mapSporsmalTilRs(),
         )
     }
 }

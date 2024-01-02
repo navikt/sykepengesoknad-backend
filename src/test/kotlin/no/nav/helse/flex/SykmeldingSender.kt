@@ -17,13 +17,14 @@ import java.time.LocalDate
 fun BaseTestClass.sendSykmelding(
     sykmeldingKafkaMessage: SykmeldingKafkaMessage,
     oppfolgingsdato: LocalDate = sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder.minOf { it.fom },
-    forventaSoknader: Int = 1
+    forventaSoknader: Int = 1,
 ): List<SykepengesoknadDTO> {
     flexSyketilfelleMockRestServiceServer.reset()
 
-    if (sykmeldingKafkaMessage.hentArbeidssituasjon() in listOf(
+    if (sykmeldingKafkaMessage.hentArbeidssituasjon() in
+        listOf(
             Arbeidssituasjon.FRILANSER,
-            Arbeidssituasjon.NAERINGSDRIVENDE
+            Arbeidssituasjon.NAERINGSDRIVENDE,
         )
     ) {
         mockFlexSyketilfelleErUtaforVentetid(sykmeldingKafkaMessage.sykmelding.id, true)
@@ -31,21 +32,22 @@ fun BaseTestClass.sendSykmelding(
 
     mockFlexSyketilfelleSykeforloep(
         sykmeldingKafkaMessage.sykmelding.id,
-        oppfolgingsdato
+        oppfolgingsdato,
     )
 
-    val topic = if (sykmeldingKafkaMessage.event.statusEvent == STATUS_SENDT) {
-        SYKMELDINGSENDT_TOPIC
-    } else {
-        SYKMELDINGBEKREFTET_TOPIC
-    }
+    val topic =
+        if (sykmeldingKafkaMessage.event.statusEvent == STATUS_SENDT) {
+            SYKMELDINGSENDT_TOPIC
+        } else {
+            SYKMELDINGBEKREFTET_TOPIC
+        }
 
     kafkaProducer.send(
         ProducerRecord(
             topic,
             sykmeldingKafkaMessage.sykmelding.id,
-            sykmeldingKafkaMessage.serialisertTilString()
-        )
+            sykmeldingKafkaMessage.serialisertTilString(),
+        ),
     )
 
     val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = forventaSoknader).tilSoknader()

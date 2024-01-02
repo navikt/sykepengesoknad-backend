@@ -16,7 +16,7 @@ import java.util.Optional.ofNullable
 private fun mapSvarTilRSSvar(svar: Svar): RSSvar {
     return RSSvar(
         id = svar.id,
-        verdi = svar.verdi
+        verdi = svar.verdi,
     )
 }
 
@@ -25,7 +25,7 @@ private fun mapSoknadsperiode(soknadsperiode: Soknadsperiode): RSSoknadsperiode 
         fom = soknadsperiode.fom,
         tom = soknadsperiode.tom,
         grad = soknadsperiode.grad,
-        sykmeldingstype = mapSykmeldingstype(soknadsperiode.sykmeldingstype)
+        sykmeldingstype = mapSykmeldingstype(soknadsperiode.sykmeldingstype),
     )
 }
 
@@ -46,22 +46,26 @@ fun Sporsmal.mapSporsmalTilRs(): RSSporsmal {
         svartype = EnumUtil.konverter(RSSvartype::class.java, this.svartype),
         min = this.min,
         max = this.max,
-        kriterieForVisningAvUndersporsmal = EnumUtil.konverter(
-            RSVisningskriterie::class.java,
-            this.kriterieForVisningAvUndersporsmal
-        ),
+        kriterieForVisningAvUndersporsmal =
+            EnumUtil.konverter(
+                RSVisningskriterie::class.java,
+                this.kriterieForVisningAvUndersporsmal,
+            ),
         svar = this.svar.map { mapSvarTilRSSvar(it) },
-        undersporsmal = this.undersporsmal.map { it.mapSporsmalTilRs() }
+        undersporsmal = this.undersporsmal.map { it.mapSporsmalTilRs() },
     )
 }
 
-private fun map(arbeidsgiverNavn: String?, arbeidsgiverOrgnummer: String?): RSArbeidsgiver? {
+private fun map(
+    arbeidsgiverNavn: String?,
+    arbeidsgiverOrgnummer: String?,
+): RSArbeidsgiver? {
     return if (arbeidsgiverNavn == null || arbeidsgiverOrgnummer == null) {
         null
     } else {
         RSArbeidsgiver(
             navn = arbeidsgiverNavn,
-            orgnummer = arbeidsgiverOrgnummer
+            orgnummer = arbeidsgiverOrgnummer,
         )
     }
 }
@@ -77,85 +81,88 @@ fun konverterSoknadstatus(soknadstatus: Soknadstatus): RSSoknadstatus {
 private fun Merknad.mapMerknad(): RSMerknad {
     return RSMerknad(
         type = this.type,
-        beskrivelse = this.beskrivelse
+        beskrivelse = this.beskrivelse,
     )
 }
 
-fun Sykepengesoknad.tilRSSykepengesoknad() = RSSykepengesoknad(
-    id = this.id,
-    soknadstype = EnumUtil.konverter(RSSoknadstype::class.java, this.soknadstype),
-    status = konverterSoknadstatus(this.status),
-    opprettetDato = this.opprettet?.tilLocalDate(),
-    avbruttDato = this.avbruttDato,
-    sendtTilNAVDato = this.sendtNav?.tilOsloLocalDateTime(),
-    sendtTilArbeidsgiverDato = this.sendtArbeidsgiver?.tilOsloLocalDateTime(),
-    korrigerer = this.korrigerer,
-    korrigertAv = this.korrigertAv,
-    sporsmal = this.sporsmal.map { it.mapSporsmalTilRs() },
-    arbeidsgiver = map(this.arbeidsgiverNavn, this.arbeidsgiverOrgnummer),
-    sykmeldingId = this.sykmeldingId,
-    fom = this.fom,
-    tom = this.tom,
-    startSykeforlop = this.startSykeforlop,
-    sykmeldingUtskrevet = this.sykmeldingSkrevet?.tilLocalDate(),
-    arbeidssituasjon = EnumUtil.konverter(RSArbeidssituasjon::class.java, this.arbeidssituasjon),
-    soknadPerioder = this.soknadPerioder?.map { mapSoknadsperiode(it) },
-    egenmeldtSykmelding = this.egenmeldtSykmelding,
-    merknaderFraSykmelding = this.merknaderFraSykmelding?.map { it.mapMerknad() },
-    opprettetAvInntektsmelding = this.opprettetAvInntektsmelding,
-    utenlandskSykmelding = this.utenlandskSykmelding,
-    klippet = this.klippet,
-    inntektskilderDataFraInntektskomponenten = this.inntektskilderDataFraInntektskomponenten,
-    korrigeringsfristUtlopt = this.korrigeringsfristUtlopt,
-    inntektsopplysningerNyKvittering = this.inntektsopplysningerNyKvittering,
-    inntektsopplysningerInnsendingId = this.inntektsopplysningerInnsendingId,
-    inntektsopplysningerInnsendingDokumenter = this.inntektsopplysningerInnsendingDokumenter,
-    forstegangssoknad = this.forstegangssoknad
-)
+fun Sykepengesoknad.tilRSSykepengesoknad() =
+    RSSykepengesoknad(
+        id = this.id,
+        soknadstype = EnumUtil.konverter(RSSoknadstype::class.java, this.soknadstype),
+        status = konverterSoknadstatus(this.status),
+        opprettetDato = this.opprettet?.tilLocalDate(),
+        avbruttDato = this.avbruttDato,
+        sendtTilNAVDato = this.sendtNav?.tilOsloLocalDateTime(),
+        sendtTilArbeidsgiverDato = this.sendtArbeidsgiver?.tilOsloLocalDateTime(),
+        korrigerer = this.korrigerer,
+        korrigertAv = this.korrigertAv,
+        sporsmal = this.sporsmal.map { it.mapSporsmalTilRs() },
+        arbeidsgiver = map(this.arbeidsgiverNavn, this.arbeidsgiverOrgnummer),
+        sykmeldingId = this.sykmeldingId,
+        fom = this.fom,
+        tom = this.tom,
+        startSykeforlop = this.startSykeforlop,
+        sykmeldingUtskrevet = this.sykmeldingSkrevet?.tilLocalDate(),
+        arbeidssituasjon = EnumUtil.konverter(RSArbeidssituasjon::class.java, this.arbeidssituasjon),
+        soknadPerioder = this.soknadPerioder?.map { mapSoknadsperiode(it) },
+        egenmeldtSykmelding = this.egenmeldtSykmelding,
+        merknaderFraSykmelding = this.merknaderFraSykmelding?.map { it.mapMerknad() },
+        opprettetAvInntektsmelding = this.opprettetAvInntektsmelding,
+        utenlandskSykmelding = this.utenlandskSykmelding,
+        klippet = this.klippet,
+        inntektskilderDataFraInntektskomponenten = this.inntektskilderDataFraInntektskomponenten,
+        korrigeringsfristUtlopt = this.korrigeringsfristUtlopt,
+        inntektsopplysningerNyKvittering = this.inntektsopplysningerNyKvittering,
+        inntektsopplysningerInnsendingId = this.inntektsopplysningerInnsendingId,
+        inntektsopplysningerInnsendingDokumenter = this.inntektsopplysningerInnsendingDokumenter,
+        forstegangssoknad = this.forstegangssoknad,
+    )
 
-fun Sykepengesoknad.tilRSSykepengesoknadMetadata() = RSSykepengesoknadMetadata(
-    id = this.id,
-    sykmeldingId = this.sykmeldingId,
-    soknadstype = EnumUtil.konverter(RSSoknadstype::class.java, this.soknadstype),
-    status = konverterSoknadstatus(this.status),
-    fom = this.fom,
-    tom = this.tom,
-    opprettetDato = this.opprettet?.tilLocalDate(),
-    sendtTilNAVDato = ofNullable(this.sendtNav?.tilOsloLocalDateTime()).orElse(null),
-    sendtTilArbeidsgiverDato = this.sendtArbeidsgiver?.tilOsloLocalDateTime(),
-    avbruttDato = this.avbruttDato,
-    startSykeforlop = this.startSykeforlop,
-    sykmeldingUtskrevet = this.sykmeldingSkrevet?.tilLocalDate(),
-    arbeidsgiver = map(this.arbeidsgiverNavn, this.arbeidsgiverOrgnummer),
-    korrigerer = this.korrigerer,
-    korrigertAv = this.korrigertAv,
-    arbeidssituasjon = EnumUtil.konverter(RSArbeidssituasjon::class.java, this.arbeidssituasjon),
-    soknadPerioder = this.soknadPerioder?.map { mapSoknadsperiode(it) },
-    egenmeldtSykmelding = this.egenmeldtSykmelding,
-    merknaderFraSykmelding = this.merknaderFraSykmelding?.map { it.mapMerknad() },
-    opprettetAvInntektsmelding = this.opprettetAvInntektsmelding,
-    forstegangssoknad = this.forstegangssoknad
-)
+fun Sykepengesoknad.tilRSSykepengesoknadMetadata() =
+    RSSykepengesoknadMetadata(
+        id = this.id,
+        sykmeldingId = this.sykmeldingId,
+        soknadstype = EnumUtil.konverter(RSSoknadstype::class.java, this.soknadstype),
+        status = konverterSoknadstatus(this.status),
+        fom = this.fom,
+        tom = this.tom,
+        opprettetDato = this.opprettet?.tilLocalDate(),
+        sendtTilNAVDato = ofNullable(this.sendtNav?.tilOsloLocalDateTime()).orElse(null),
+        sendtTilArbeidsgiverDato = this.sendtArbeidsgiver?.tilOsloLocalDateTime(),
+        avbruttDato = this.avbruttDato,
+        startSykeforlop = this.startSykeforlop,
+        sykmeldingUtskrevet = this.sykmeldingSkrevet?.tilLocalDate(),
+        arbeidsgiver = map(this.arbeidsgiverNavn, this.arbeidsgiverOrgnummer),
+        korrigerer = this.korrigerer,
+        korrigertAv = this.korrigertAv,
+        arbeidssituasjon = EnumUtil.konverter(RSArbeidssituasjon::class.java, this.arbeidssituasjon),
+        soknadPerioder = this.soknadPerioder?.map { mapSoknadsperiode(it) },
+        egenmeldtSykmelding = this.egenmeldtSykmelding,
+        merknaderFraSykmelding = this.merknaderFraSykmelding?.map { it.mapMerknad() },
+        opprettetAvInntektsmelding = this.opprettetAvInntektsmelding,
+        forstegangssoknad = this.forstegangssoknad,
+    )
 
-fun Sykepengesoknad.tilRSSykepengesoknadFlexInternal() = RSSykepengesoknadFlexInternal(
-    id = this.id,
-    sykmeldingId = this.sykmeldingId,
-    soknadstype = EnumUtil.konverter(RSSoknadstype::class.java, this.soknadstype),
-    status = konverterSoknadstatus(this.status),
-    fom = this.fom,
-    tom = this.tom,
-    opprettetDato = this.opprettet?.tilOsloLocalDateTime(),
-    sendtTilNAVDato = this.sendtNav?.tilOsloLocalDateTime(),
-    sendtTilArbeidsgiverDato = this.sendtArbeidsgiver?.tilOsloLocalDateTime(),
-    avbruttDato = this.avbruttDato,
-    startSykeforlop = this.startSykeforlop,
-    sykmeldingUtskrevet = this.sykmeldingSkrevet?.tilOsloLocalDateTime(),
-    sykmeldingSignaturDato = this.sykmeldingSignaturDato?.tilOsloLocalDateTime(),
-    arbeidsgiverNavn = this.arbeidsgiverNavn,
-    arbeidsgiverOrgnummer = this.arbeidsgiverOrgnummer,
-    korrigerer = this.korrigerer,
-    korrigertAv = this.korrigertAv,
-    arbeidssituasjon = EnumUtil.konverter(RSArbeidssituasjon::class.java, this.arbeidssituasjon),
-    soknadPerioder = this.soknadPerioder?.map { mapSoknadsperiode(it) },
-    merknaderFraSykmelding = this.merknaderFraSykmelding?.map { it.mapMerknad() }
-)
+fun Sykepengesoknad.tilRSSykepengesoknadFlexInternal() =
+    RSSykepengesoknadFlexInternal(
+        id = this.id,
+        sykmeldingId = this.sykmeldingId,
+        soknadstype = EnumUtil.konverter(RSSoknadstype::class.java, this.soknadstype),
+        status = konverterSoknadstatus(this.status),
+        fom = this.fom,
+        tom = this.tom,
+        opprettetDato = this.opprettet?.tilOsloLocalDateTime(),
+        sendtTilNAVDato = this.sendtNav?.tilOsloLocalDateTime(),
+        sendtTilArbeidsgiverDato = this.sendtArbeidsgiver?.tilOsloLocalDateTime(),
+        avbruttDato = this.avbruttDato,
+        startSykeforlop = this.startSykeforlop,
+        sykmeldingUtskrevet = this.sykmeldingSkrevet?.tilOsloLocalDateTime(),
+        sykmeldingSignaturDato = this.sykmeldingSignaturDato?.tilOsloLocalDateTime(),
+        arbeidsgiverNavn = this.arbeidsgiverNavn,
+        arbeidsgiverOrgnummer = this.arbeidsgiverOrgnummer,
+        korrigerer = this.korrigerer,
+        korrigertAv = this.korrigertAv,
+        arbeidssituasjon = EnumUtil.konverter(RSArbeidssituasjon::class.java, this.arbeidssituasjon),
+        soknadPerioder = this.soknadPerioder?.map { mapSoknadsperiode(it) },
+        merknaderFraSykmelding = this.merknaderFraSykmelding?.map { it.mapMerknad() },
+    )

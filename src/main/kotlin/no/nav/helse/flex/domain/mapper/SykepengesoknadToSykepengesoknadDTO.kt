@@ -13,7 +13,7 @@ fun konverterTilSykepengesoknadDTO(
     sykepengesoknad: Sykepengesoknad,
     mottaker: Mottaker?,
     erEttersending: Boolean,
-    soknadsperioder: List<SoknadsperiodeDTO>
+    soknadsperioder: List<SoknadsperiodeDTO>,
 ): SykepengesoknadDTO {
     return SykepengesoknadDTO(
         id = sykepengesoknad.id,
@@ -53,15 +53,16 @@ fun konverterTilSykepengesoknadDTO(
         merknaderFraSykmelding = sykepengesoknad.merknaderFraSykmelding.tilMerknadDTO(),
         behandlingsdager = sykepengesoknad.hentBehandlingsdager(),
         fravarForSykmeldingen = hentFravarForSykmeldingen(sykepengesoknad),
-        arbeidsgiver = if (sykepengesoknad.arbeidsgiverOrgnummer != null) {
-            ArbeidsgiverDTO(
-                sykepengesoknad.arbeidsgiverNavn,
-                sykepengesoknad.arbeidsgiverOrgnummer
-            )
-        } else {
-            null
-        },
+        arbeidsgiver =
+            if (sykepengesoknad.arbeidsgiverOrgnummer != null) {
+                ArbeidsgiverDTO(
+                    sykepengesoknad.arbeidsgiverNavn,
+                    sykepengesoknad.arbeidsgiverOrgnummer,
+                )
+            } else {
+                null
+            },
         forstegangssoknad = sykepengesoknad.forstegangssoknad ?: false,
-        tidligereArbeidsgiverOrgnummer = sykepengesoknad.tidligereArbeidsgiverOrgnummer
+        tidligereArbeidsgiverOrgnummer = sykepengesoknad.tidligereArbeidsgiverOrgnummer,
     )
 }

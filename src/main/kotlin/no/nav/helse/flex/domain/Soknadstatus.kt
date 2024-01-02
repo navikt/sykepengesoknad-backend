@@ -8,5 +8,5 @@ enum class Soknadstatus {
     KORRIGERT,
     AVBRUTT,
     UTGATT,
-    SLETTET
+    SLETTET,
 }

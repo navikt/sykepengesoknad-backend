@@ -21,34 +21,36 @@ import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class EgenmeldingsdagerVideresendingTest : BaseTestClass() {
-
     @Autowired
     private lateinit var aktiveringJob: AktiveringJob
 
     private val fnr = "12345678900"
     private val basisdato = LocalDate.of(2099, 9, 1)
-    private val sykmeldingKafkaMessage = sykmeldingKafkaMessage(
-        fnr = fnr,
-        sykmeldingsperioder = heltSykmeldt(
-            fom = basisdato,
-            tom = basisdato.plusDays(10)
-
-        )
-    ).let {
-        it.copy(
-            event = it.event.copy(
-                erSvarOppdatering = true,
-                sporsmals = it.event.sporsmals!!.plus(
-                    SporsmalOgSvarDTO(
-                        tekst = "Brukte du egenmeldingsdager før sykmeldinga?",
-                        shortName = ShortNameDTO.EGENMELDINGSDAGER,
-                        svartype = SvartypeDTO.DAGER,
-                        svar = basisdato.minusDays(3).datesUntil(basisdato).toList().serialisertTilString()
-                    )
-                )
+    private val sykmeldingKafkaMessage =
+        sykmeldingKafkaMessage(
+            fnr = fnr,
+            sykmeldingsperioder =
+                heltSykmeldt(
+                    fom = basisdato,
+                    tom = basisdato.plusDays(10),
+                ),
+        ).let {
+            it.copy(
+                event =
+                    it.event.copy(
+                        erSvarOppdatering = true,
+                        sporsmals =
+                            it.event.sporsmals!!.plus(
+                                SporsmalOgSvarDTO(
+                                    tekst = "Brukte du egenmeldingsdager før sykmeldinga?",
+                                    shortName = ShortNameDTO.EGENMELDINGSDAGER,
+                                    svartype = SvartypeDTO.DAGER,
+                                    svar = basisdato.minusDays(3).datesUntil(basisdato).toList().serialisertTilString(),
+                                ),
+                            ),
+                    ),
             )
-        )
-    }
+        }
 
     @Test
     @Order(1)
@@ -57,22 +59,23 @@ class EgenmeldingsdagerVideresendingTest : BaseTestClass() {
         fakeUnleash.enable(UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL)
         mockFlexSyketilfelleSykeforloep(
             sykmeldingKafkaMessage.sykmelding.id,
-            sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder.minOf { it.fom }
+            sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder.minOf { it.fom },
         )
         kafkaProducer.send(
             ProducerRecord(
                 SYKMELDINGSENDT_TOPIC,
                 sykmeldingKafkaMessage.sykmelding.id,
-                sykmeldingKafkaMessage.serialisertTilString()
-            )
+                sykmeldingKafkaMessage.serialisertTilString(),
+            ),
         )
         val kafkaSoknad = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()
         kafkaSoknad.status shouldBeEqualTo SoknadsstatusDTO.FREMTIDIG
-        kafkaSoknad.egenmeldingsdagerFraSykmelding shouldBeEqualTo listOf(
-            basisdato.minusDays(3),
-            basisdato.minusDays(2),
-            basisdato.minusDays(1)
-        )
+        kafkaSoknad.egenmeldingsdagerFraSykmelding shouldBeEqualTo
+            listOf(
+                basisdato.minusDays(3),
+                basisdato.minusDays(2),
+                basisdato.minusDays(1),
+            )
     }
 
     @Test
@@ -81,11 +84,12 @@ class EgenmeldingsdagerVideresendingTest : BaseTestClass() {
         aktiveringJob.bestillAktivering(now = basisdato.plusDays(16))
         val kafkaSoknad = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()
         kafkaSoknad.status shouldBeEqualTo SoknadsstatusDTO.NY
-        kafkaSoknad.egenmeldingsdagerFraSykmelding shouldBeEqualTo listOf(
-            basisdato.minusDays(3),
-            basisdato.minusDays(2),
-            basisdato.minusDays(1)
-        )
+        kafkaSoknad.egenmeldingsdagerFraSykmelding shouldBeEqualTo
+            listOf(
+                basisdato.minusDays(3),
+                basisdato.minusDays(2),
+                basisdato.minusDays(1),
+            )
     }
 
     @Test
@@ -93,10 +97,11 @@ class EgenmeldingsdagerVideresendingTest : BaseTestClass() {
     fun `Vi besvarer og sender inn søknaden`() {
         flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
-        val soknaden = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
-            fnr = fnr
-        )
+        val soknaden =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
+                fnr = fnr,
+            )
 
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
             .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
@@ -113,10 +118,11 @@ class EgenmeldingsdagerVideresendingTest : BaseTestClass() {
         juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
         val kafkaSoknad = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()
         kafkaSoknad.status shouldBeEqualTo SoknadsstatusDTO.SENDT
-        kafkaSoknad.egenmeldingsdagerFraSykmelding shouldBeEqualTo listOf(
-            basisdato.minusDays(3),
-            basisdato.minusDays(2),
-            basisdato.minusDays(1)
-        )
+        kafkaSoknad.egenmeldingsdagerFraSykmelding shouldBeEqualTo
+            listOf(
+                basisdato.minusDays(3),
+                basisdato.minusDays(2),
+                basisdato.minusDays(1),
+            )
     }
 }

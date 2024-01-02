@@ -29,16 +29,17 @@ class UnderersporsmalSortererTest {
         val soknadShufflet = soknad.shuffleSporsmalRekursivt()
         val soknadSortert = soknadShufflet.sorterUndersporsmal()
 
-        val forventetSortering = listOf(
-            INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD,
-            INNTEKTSKILDE_SELVSTENDIG,
-            INNTEKTSKILDE_SELVSTENDIG_DAGMAMMA,
-            INNTEKTSKILDE_JORDBRUKER,
-            INNTEKTSKILDE_FRILANSER,
-            INNTEKTSKILDE_OMSORGSLONN,
-            INNTEKTSKILDE_FOSTERHJEM,
-            INNTEKTSKILDE_ANNET
-        )
+        val forventetSortering =
+            listOf(
+                INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD,
+                INNTEKTSKILDE_SELVSTENDIG,
+                INNTEKTSKILDE_SELVSTENDIG_DAGMAMMA,
+                INNTEKTSKILDE_JORDBRUKER,
+                INNTEKTSKILDE_FRILANSER,
+                INNTEKTSKILDE_OMSORGSLONN,
+                INNTEKTSKILDE_FOSTERHJEM,
+                INNTEKTSKILDE_ANNET,
+            )
         soknadSortert.getSporsmalMedTag(HVILKE_ANDRE_INNTEKTSKILDER).undersporsmal.map { it.tag } `should be equal to` forventetSortering
     }
 
@@ -50,12 +51,13 @@ class UnderersporsmalSortererTest {
         val soknadShufflet = soknad.shuffleSporsmalRekursivt()
         val soknadSortert = soknadShufflet.sorterUndersporsmal()
 
-        val forventetSortering = listOf(
-            INNTEKTSKILDE_ARBEIDSFORHOLD,
-            INNTEKTSKILDE_JORDBRUKER,
-            INNTEKTSKILDE_FRILANSER_SELVSTENDIG,
-            INNTEKTSKILDE_ANNET
-        )
+        val forventetSortering =
+            listOf(
+                INNTEKTSKILDE_ARBEIDSFORHOLD,
+                INNTEKTSKILDE_JORDBRUKER,
+                INNTEKTSKILDE_FRILANSER_SELVSTENDIG,
+                INNTEKTSKILDE_ANNET,
+            )
         soknadSortert.getSporsmalMedTag(HVILKE_ANDRE_INNTEKTSKILDER)
             .undersporsmal.map { it.tag } `should be equal to` forventetSortering
     }
@@ -68,14 +70,15 @@ class UnderersporsmalSortererTest {
         val soknadShufflet = soknad.shuffleSporsmalRekursivt()
         val soknadSortert = soknadShufflet.sorterUndersporsmal()
 
-        val forventetSortering = listOf(
-            INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD,
-            INNTEKTSKILDE_SELVSTENDIG,
-            INNTEKTSKILDE_SELVSTENDIG_DAGMAMMA,
-            INNTEKTSKILDE_JORDBRUKER,
-            INNTEKTSKILDE_FRILANSER,
-            INNTEKTSKILDE_ANNET
-        )
+        val forventetSortering =
+            listOf(
+                INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD,
+                INNTEKTSKILDE_SELVSTENDIG,
+                INNTEKTSKILDE_SELVSTENDIG_DAGMAMMA,
+                INNTEKTSKILDE_JORDBRUKER,
+                INNTEKTSKILDE_FRILANSER,
+                INNTEKTSKILDE_ANNET,
+            )
         soknadSortert.getSporsmalMedTag(HVILKE_ANDRE_INNTEKTSKILDER)
             .undersporsmal.map { it.tag } `should be equal to` forventetSortering
     }
@@ -86,10 +89,11 @@ class UnderersporsmalSortererTest {
         val soknadShufflet = soknad.shuffleSporsmalRekursivt()
         val soknadSortert = soknadShufflet.sorterUndersporsmal()
 
-        val forventetSortering = listOf(
-            SYKMELDINGSGRAD,
-            FERIE
-        )
+        val forventetSortering =
+            listOf(
+                SYKMELDINGSGRAD,
+                FERIE,
+            )
         soknadSortert.getSporsmalMedTag(ARBEIDSGIVER).undersporsmal.map { it.tag } `should be equal to` forventetSortering
     }
 
@@ -101,11 +105,12 @@ class UnderersporsmalSortererTest {
         val soknadShufflet = soknad.shuffleSporsmalRekursivt()
         val soknadSortert = soknadShufflet.sorterUndersporsmal()
 
-        val forventetSortering = listOf(
-            BIL_DATOER,
-            BIL_BOMPENGER,
-            KM_HJEM_JOBB
-        )
+        val forventetSortering =
+            listOf(
+                BIL_DATOER,
+                BIL_BOMPENGER,
+                KM_HJEM_JOBB,
+            )
         soknadSortert.getSporsmalMedTag(REISE_MED_BIL)
             .undersporsmal.map { it.tag } `should be equal to` forventetSortering
     }
@@ -119,15 +124,17 @@ class UnderersporsmalSortererTest {
         val soknadShufflet = soknad.replaceSporsmal(sporsmal.copy(undersporsmal = sporsmal.undersporsmal.shuffled()))
         val soknadSortert = soknadShufflet.sorterUndersporsmal()
 
-        val forventetSortering = listOf(
-            MEDLEMSKAP_OPPHOLDSTILLATELSE_VEDTAKSDATO,
-            MEDLEMSKAP_OPPHOLDSTILLATELSE_GRUPPE
-        )
+        val forventetSortering =
+            listOf(
+                MEDLEMSKAP_OPPHOLDSTILLATELSE_VEDTAKSDATO,
+                MEDLEMSKAP_OPPHOLDSTILLATELSE_GRUPPE,
+            )
 
-        val forventetSorteringGruppe = listOf(
-            MEDLEMSKAP_OPPHOLDSTILLATELSE_MIDLERTIDIG,
-            MEDLEMSKAP_OPPHOLDSTILLATELSE_PERMANENT
-        )
+        val forventetSorteringGruppe =
+            listOf(
+                MEDLEMSKAP_OPPHOLDSTILLATELSE_MIDLERTIDIG,
+                MEDLEMSKAP_OPPHOLDSTILLATELSE_PERMANENT,
+            )
 
         soknadSortert.getSporsmalMedTag(MEDLEMSKAP_OPPHOLDSTILLATELSE)
             .undersporsmal.map { it.tag } `should be equal to` forventetSortering
@@ -144,11 +151,12 @@ class UnderersporsmalSortererTest {
         val soknadShufflet = soknad.shuffleSporsmalRekursivt()
         val soknadSortert = soknadShufflet.sorterUndersporsmal()
 
-        val forventetSortering = listOf(
-            medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_HVOR, 0),
-            medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_ARBEIDSGIVER, 0),
-            medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR, 0)
-        )
+        val forventetSortering =
+            listOf(
+                medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_HVOR, 0),
+                medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_ARBEIDSGIVER, 0),
+                medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR, 0),
+            )
 
         soknadSortert.getSporsmalMedTag(medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_GRUPPERING, 0))
             .undersporsmal.map { it.tag } `should be equal to` forventetSortering
@@ -156,33 +164,39 @@ class UnderersporsmalSortererTest {
 
     @Test
     fun `Test sortering av medlemskapspørsmål om arbeid utenfor Norge med to underspørsmål`() {
-        val sporsmalet = lagSporsmalOmArbeidUtenforNorge(LocalDate.now()).let {
-            it.copy(
-                undersporsmal = it.undersporsmal + listOf(
-                    lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(1, LocalDate.now())
+        val sporsmalet =
+            lagSporsmalOmArbeidUtenforNorge(LocalDate.now()).let {
+                it.copy(
+                    undersporsmal =
+                        it.undersporsmal +
+                            listOf(
+                                lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(1, LocalDate.now()),
+                            ),
                 )
-            )
-        }
+            }
         val soknad = sporsmalet.tilSoknad()
 
         val soknadShufflet = soknad.shuffleSporsmalRekursivt()
         val soknadSortert = soknadShufflet.sorterUndersporsmal()
 
-        val forventetSortering = listOf(
-            medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_GRUPPERING, 0),
-            medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_GRUPPERING, 1)
-        )
+        val forventetSortering =
+            listOf(
+                medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_GRUPPERING, 0),
+                medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_GRUPPERING, 1),
+            )
 
-        val forventetSorteringForstePeriode = listOf(
-            medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_HVOR, 0),
-            medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_ARBEIDSGIVER, 0),
-            medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR, 0)
-        )
-        val forventetSorteringAndrePeriode = listOf(
-            medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_HVOR, 1),
-            medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_ARBEIDSGIVER, 1),
-            medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR, 1)
-        )
+        val forventetSorteringForstePeriode =
+            listOf(
+                medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_HVOR, 0),
+                medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_ARBEIDSGIVER, 0),
+                medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR, 0),
+            )
+        val forventetSorteringAndrePeriode =
+            listOf(
+                medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_HVOR, 1),
+                medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_ARBEIDSGIVER, 1),
+                medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR, 1),
+            )
 
         soknadSortert.getSporsmalMedTag(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE)
             .undersporsmal.map { it.tag } `should be equal to` forventetSortering
@@ -202,26 +216,28 @@ class UnderersporsmalSortererTest {
         val soknadShufflet = soknad.shuffleSporsmalRekursivt()
         val soknadSortert = soknadShufflet.sorterUndersporsmal()
 
-        val forventetSortering = listOf(
-            medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_HVOR, 0),
-            medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE, 0),
-            medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_NAAR, 0)
-        )
+        val forventetSortering =
+            listOf(
+                medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_HVOR, 0),
+                medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE, 0),
+                medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_NAAR, 0),
+            )
 
         soknadSortert.getSporsmalMedTag(
-            medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_GRUPPERING, 0)
+            medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_GRUPPERING, 0),
         ).undersporsmal.map { it.tag } `should be equal to` forventetSortering
 
-        val forventetSorteringBegrunnelse = listOf(
-            medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE_STUDIE, 0),
-            medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE_FERIE, 0),
-            medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE_BO, 0),
-            medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE_EKTEFELLE, 0),
-            medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE_ANNET, 0)
-        )
+        val forventetSorteringBegrunnelse =
+            listOf(
+                medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE_STUDIE, 0),
+                medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE_FERIE, 0),
+                medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE_BO, 0),
+                medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE_EKTEFELLE, 0),
+                medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE_ANNET, 0),
+            )
 
         soknadSortert.getSporsmalMedTag(
-            medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE, 0)
+            medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE, 0),
         ).undersporsmal.map { it.tag } `should be equal to` forventetSorteringBegrunnelse
     }
 
@@ -233,26 +249,28 @@ class UnderersporsmalSortererTest {
         val soknadShufflet = soknad.shuffleSporsmalRekursivt()
         val soknadSortert = soknadShufflet.sorterUndersporsmal()
 
-        val forventetSortering = listOf(
-            medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_HVOR, 0),
-            medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE, 0),
-            medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_NAAR, 0)
-        )
+        val forventetSortering =
+            listOf(
+                medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_HVOR, 0),
+                medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE, 0),
+                medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_NAAR, 0),
+            )
 
         soknadSortert.getSporsmalMedTag(
-            medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_GRUPPERING, 0)
+            medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_GRUPPERING, 0),
         ).undersporsmal.map { it.tag } `should be equal to` forventetSortering
 
-        val forventetSorteringBegrunnelse = listOf(
-            medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_STUDIE, 0),
-            medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_FERIE, 0),
-            medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_BO, 0),
-            medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_EKTEFELLE, 0),
-            medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_ANNET, 0)
-        )
+        val forventetSorteringBegrunnelse =
+            listOf(
+                medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_STUDIE, 0),
+                medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_FERIE, 0),
+                medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_BO, 0),
+                medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_EKTEFELLE, 0),
+                medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_ANNET, 0),
+            )
 
         soknadSortert.getSporsmalMedTag(
-            medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE, 0)
+            medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE, 0),
         ).undersporsmal.map { it.tag } `should be equal to` forventetSorteringBegrunnelse
     }
 
@@ -274,16 +292,16 @@ class UnderersporsmalSortererTest {
     fun `Finn høyeste index til underspørsmål`() {
         finnHoyesteIndex(
             listOf(
-                lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(0, LocalDate.now())
-            )
+                lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(0, LocalDate.now()),
+            ),
         ) `should be equal to` 0
 
         finnHoyesteIndex(
             listOf(
                 lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(1, LocalDate.now()),
                 lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(111, LocalDate.now()),
-                lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(9, LocalDate.now())
-            )
+                lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(9, LocalDate.now()),
+            ),
         ) `should be equal to` 111
     }
 
@@ -321,6 +339,6 @@ fun Sporsmal.tilSoknad(): Sykepengesoknad {
         merknaderFraSykmelding = null,
         utenlandskSykmelding = false,
         egenmeldingsdagerFraSykmelding = null,
-        forstegangssoknad = false
+        forstegangssoknad = false,
     )
 }

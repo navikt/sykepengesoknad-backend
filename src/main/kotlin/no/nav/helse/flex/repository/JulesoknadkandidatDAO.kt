@@ -9,20 +9,19 @@ import java.time.OffsetDateTime
 @Transactional
 @Repository
 class JulesoknadkandidatDAO(
-    private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate
+    private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
 ) {
-
     data class Julesoknadkandidat(val julesoknadkandidatId: String, val sykepengesoknadUuid: String)
 
     fun hentJulesoknadkandidater(): List<Julesoknadkandidat> {
         return namedParameterJdbcTemplate.query(
             """
                     SELECT ID, SYKEPENGESOKNAD_UUID FROM JULESOKNADKANDIDAT
-                    """
+                    """,
         ) { resultSet, _ ->
             Julesoknadkandidat(
                 julesoknadkandidatId = resultSet.getString("ID"),
-                sykepengesoknadUuid = resultSet.getString("SYKEPENGESOKNAD_UUID")
+                sykepengesoknadUuid = resultSet.getString("SYKEPENGESOKNAD_UUID"),
             )
         }
     }
@@ -36,7 +35,7 @@ class JulesoknadkandidatDAO(
                     """,
             MapSqlParameterSource()
                 .addValue("sykepengesoknadUuid", sykepengesoknadUuid)
-                .addValue("opprettet", OffsetDateTime.now())
+                .addValue("opprettet", OffsetDateTime.now()),
         )
     }
 
@@ -44,7 +43,7 @@ class JulesoknadkandidatDAO(
         namedParameterJdbcTemplate.update(
             "DELETE FROM JULESOKNADKANDIDAT WHERE ID = :julesoknadkandidatId",
             MapSqlParameterSource()
-                .addValue("julesoknadkandidatId", julesoknadkandidatId)
+                .addValue("julesoknadkandidatId", julesoknadkandidatId),
         )
     }
 }

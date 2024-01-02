@@ -36,27 +36,30 @@ class MottakerAvSoknadService(
     val identService: IdentService,
     val metrikk: Metrikk,
     val juridiskVurderingKafkaProducer: JuridiskVurderingKafkaProducer,
-    val forskutteringRepository: ForskutteringRepository
+    val forskutteringRepository: ForskutteringRepository,
 ) {
     val log = logger()
 
     fun finnMottakerAvSoknad(
         sykepengesoknad: Sykepengesoknad,
         identer: FolkeregisterIdenter,
-        sykmelding: SykmeldingKafkaMessage? = null
+        sykmelding: SykmeldingKafkaMessage? = null,
     ): Mottaker {
         return when (sykepengesoknad.soknadstype) {
             SELVSTENDIGE_OG_FRILANSERE,
             OPPHOLD_UTLAND,
             ARBEIDSLEDIG,
             ANNET_ARBEIDSFORHOLD,
-            REISETILSKUDD -> NAV
+            REISETILSKUDD,
+            -> NAV
 
             BEHANDLINGSDAGER,
-            GRADERT_REISETILSKUDD -> when (sykepengesoknad.arbeidssituasjon) {
-                ARBEIDSTAKER -> mottakerAvSoknadForArbeidstaker(sykepengesoknad, identer, null)
-                else -> NAV
-            }
+            GRADERT_REISETILSKUDD,
+            ->
+                when (sykepengesoknad.arbeidssituasjon) {
+                    ARBEIDSTAKER -> mottakerAvSoknadForArbeidstaker(sykepengesoknad, identer, null)
+                    else -> NAV
+                }
 
             ARBEIDSTAKERE -> mottakerAvSoknadForArbeidstaker(sykepengesoknad, identer, sykmelding)
         }
@@ -65,7 +68,7 @@ class MottakerAvSoknadService(
     private fun mottakerAvSoknadForArbeidstaker(
         sykepengesoknad: Sykepengesoknad,
         identer: FolkeregisterIdenter,
-        sykmelding: SykmeldingKafkaMessage?
+        sykmelding: SykmeldingKafkaMessage?,
     ): Mottaker {
         val mottakerAvKorrigertSoknad = mottakerAvKorrigertSoknad(sykepengesoknad)
 
@@ -73,12 +76,13 @@ class MottakerAvSoknadService(
             return ARBEIDSGIVER_OG_NAV
         }
 
-        val mottakerResultat = beregnMottakerAvSoknadForArbeidstakerOgBehandlingsdager(sykepengesoknad, identer, sykmelding)
-            .also {
-                it.vurdering.forEach { jv ->
-                    juridiskVurderingKafkaProducer.produserMelding(jv)
+        val mottakerResultat =
+            beregnMottakerAvSoknadForArbeidstakerOgBehandlingsdager(sykepengesoknad, identer, sykmelding)
+                .also {
+                    it.vurdering.forEach { jv ->
+                        juridiskVurderingKafkaProducer.produserMelding(jv)
+                    }
                 }
-            }
 
         if (mottakerAvKorrigertSoknad != null && mottakerAvKorrigertSoknad != mottakerResultat.mottaker) {
             return ARBEIDSGIVER_OG_NAV
@@ -97,10 +101,11 @@ class MottakerAvSoknadService(
             return false
         }
 
-        val forskuttering = forskutteringRepository.finnForskuttering(
-            brukerFnr = sykepengesoknad.fnr,
-            orgnummer = sykepengesoknad.arbeidsgiverOrgnummer
-        )?.arbeidsgiverForskutterer
+        val forskuttering =
+            forskutteringRepository.finnForskuttering(
+                brukerFnr = sykepengesoknad.fnr,
+                orgnummer = sykepengesoknad.arbeidsgiverOrgnummer,
+            )?.arbeidsgiverForskutterer
 
         if (forskuttering == null) {
             // Ukjent telles som forskuttering
@@ -112,27 +117,28 @@ class MottakerAvSoknadService(
     class MottakerOgVurdering(
         val mottaker: Mottaker,
         val arbeidsgiverperiode: Arbeidsgiverperiode?,
-        val vurdering: List<JuridiskVurdering>
+        val vurdering: List<JuridiskVurdering>,
     )
 
     private fun beregnMottakerAvSoknadForArbeidstakerOgBehandlingsdager(
         sykepengesoknad: Sykepengesoknad,
         identer: FolkeregisterIdenter,
-        sykmelding: SykmeldingKafkaMessage?
+        sykmelding: SykmeldingKafkaMessage?,
     ): MottakerOgVurdering {
-        val arbeidsgiverperiode = flexSyketilfelleClient.beregnArbeidsgiverperiode(
-            soknad = sykepengesoknad,
-            sykmelding = sykmelding,
-            identer = identer,
-            forelopig = sykepengesoknad.status != Soknadstatus.SENDT
-        )
+        val arbeidsgiverperiode =
+            flexSyketilfelleClient.beregnArbeidsgiverperiode(
+                soknad = sykepengesoknad,
+                sykmelding = sykmelding,
+                identer = identer,
+                forelopig = sykepengesoknad.status != Soknadstatus.SENDT,
+            )
 
         if (arbeidsgiverperiode == null) {
             // Innenfor ag perioden
             return MottakerOgVurdering(
                 ARBEIDSGIVER,
                 null,
-                listOfNotNull(skapJuridiskVurdering(Utfall.VILKAR_OPPFYLT, sykepengesoknad))
+                listOfNotNull(skapJuridiskVurdering(Utfall.VILKAR_OPPFYLT, sykepengesoknad)),
             )
         }
 
@@ -146,7 +152,7 @@ class MottakerAvSoknadService(
             return MottakerOgVurdering(
                 ARBEIDSGIVER,
                 arbeidsgiverperiode,
-                listOfNotNull(skapJuridiskVurdering(Utfall.VILKAR_IKKE_OPPFYLT, sykepengesoknad, arbeidsgiverperiode))
+                listOfNotNull(skapJuridiskVurdering(Utfall.VILKAR_IKKE_OPPFYLT, sykepengesoknad, arbeidsgiverperiode)),
             )
         }
 
@@ -162,15 +168,15 @@ class MottakerAvSoknadService(
                         Utfall.VILKAR_IKKE_OPPFYLT,
                         sykepengesoknad,
                         arbeidsgiverperiode,
-                        Periode(fom = sykepengesoknadFom, tom = arbeidsgiverperiodeTom)
+                        Periode(fom = sykepengesoknadFom, tom = arbeidsgiverperiodeTom),
                     ),
                     skapJuridiskVurdering(
                         Utfall.VILKAR_OPPFYLT,
                         sykepengesoknad,
                         arbeidsgiverperiode,
-                        Periode(fom = arbeidsgiverperiodeTom.plusDays(1), tom = sykepengesoknadTom)
-                    )
-                )
+                        Periode(fom = arbeidsgiverperiodeTom.plusDays(1), tom = sykepengesoknadTom),
+                    ),
+                ),
             )
         }
 
@@ -182,7 +188,7 @@ class MottakerAvSoknadService(
             return MottakerOgVurdering(
                 ARBEIDSGIVER_OG_NAV,
                 arbeidsgiverperiode,
-                listOfNotNull(skapJuridiskVurdering(Utfall.VILKAR_OPPFYLT, sykepengesoknad, arbeidsgiverperiode))
+                listOfNotNull(skapJuridiskVurdering(Utfall.VILKAR_OPPFYLT, sykepengesoknad, arbeidsgiverperiode)),
             )
         }
 
@@ -190,7 +196,7 @@ class MottakerAvSoknadService(
         return MottakerOgVurdering(
             NAV,
             arbeidsgiverperiode,
-            listOfNotNull(skapJuridiskVurdering(Utfall.VILKAR_OPPFYLT, sykepengesoknad, arbeidsgiverperiode))
+            listOfNotNull(skapJuridiskVurdering(Utfall.VILKAR_OPPFYLT, sykepengesoknad, arbeidsgiverperiode)),
         )
     }
 
@@ -198,7 +204,7 @@ class MottakerAvSoknadService(
         utfall: Utfall,
         sykepengesoknad: Sykepengesoknad,
         arbeidsgiverperiode: Arbeidsgiverperiode = Arbeidsgiverperiode(),
-        periode: Periode? = null
+        periode: Periode? = null,
     ): JuridiskVurdering? {
         if (sykepengesoknad.status != Soknadstatus.SENDT) {
             return null
@@ -206,40 +212,43 @@ class MottakerAvSoknadService(
 
         return JuridiskVurdering(
             fodselsnummer = sykepengesoknad.fnr,
-            sporing = hashMapOf(SOKNAD to listOf(sykepengesoknad.id))
-                .also { map ->
-                    sykepengesoknad.sykmeldingId?.let {
-                        map[SYKMELDING] = listOf(it)
+            sporing =
+                hashMapOf(SOKNAD to listOf(sykepengesoknad.id))
+                    .also { map ->
+                        sykepengesoknad.sykmeldingId?.let {
+                            map[SYKMELDING] = listOf(it)
+                        }
+                        sykepengesoknad.arbeidsgiverOrgnummer?.let {
+                            map[ORGANISASJONSNUMMER] = listOf(it)
+                        }
+                    },
+            input =
+                hashMapOf<String, Any>(
+                    "oppbruktArbeidsgiverperiode" to arbeidsgiverperiode.oppbruktArbeidsgiverperiode,
+                    "versjon" to LocalDate.of(2022, 2, 1),
+                ).also { map ->
+                    sykepengesoknad.tom?.let {
+                        map["sykepengesoknadTom"] = it
                     }
-                    sykepengesoknad.arbeidsgiverOrgnummer?.let {
-                        map[ORGANISASJONSNUMMER] = listOf(it)
+                    sykepengesoknad.fom?.let {
+                        map["sykepengesoknadFom"] = it
+                    }
+                    arbeidsgiverperiode.arbeidsgiverPeriode?.let {
+                        map["arbeidsgiverperiode"] = it
                     }
                 },
-            input = hashMapOf<String, Any>(
-                "oppbruktArbeidsgiverperiode" to arbeidsgiverperiode.oppbruktArbeidsgiverperiode,
-                "versjon" to LocalDate.of(2022, 2, 1)
-            ).also { map ->
-                sykepengesoknad.tom?.let {
-                    map["sykepengesoknadTom"] = it
-                }
-                sykepengesoknad.fom?.let {
-                    map["sykepengesoknadFom"] = it
-                }
-                arbeidsgiverperiode.arbeidsgiverPeriode?.let {
-                    map["arbeidsgiverperiode"] = it
-                }
-            },
-            output = mapOf(
-                "periode" to (periode ?: Periode(fom = sykepengesoknad.fom!!, tom = sykepengesoknad.tom!!)),
-                "versjon" to LocalDate.of(2022, 2, 1)
-            ),
+            output =
+                mapOf(
+                    "periode" to (periode ?: Periode(fom = sykepengesoknad.fom!!, tom = sykepengesoknad.tom!!)),
+                    "versjon" to LocalDate.of(2022, 2, 1),
+                ),
             lovverk = "folketrygdloven",
             paragraf = "8-17",
             ledd = 1,
             bokstav = "a",
             punktum = null,
             lovverksversjon = LocalDate.of(2018, 1, 1),
-            utfall = utfall
+            utfall = utfall,
         )
     }
 

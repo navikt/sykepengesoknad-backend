@@ -57,13 +57,14 @@ fun Sporsmal.validerUndersporsmal() {
         }
 
         RADIO_GRUPPE,
-        RADIO_GRUPPE_TIMER_PROSENT -> {
+        RADIO_GRUPPE_TIMER_PROSENT,
+        -> {
             if (besvarteUndersporsmal.size == 1) {
                 besvarteUndersporsmal.forEach { it.validerSvarPaSporsmal() }
             } else {
                 throw ValideringException(
                     "Spørsmål med id: ${this.id} med tag: ${this.tag} av typen: $svartype må ha eksakt ett" +
-                        "besvart underspørsmål. Antall besvarte underspørsmål er: ${besvarteUndersporsmal.size}."
+                        "besvart underspørsmål. Antall besvarte underspørsmål er: ${besvarteUndersporsmal.size}.",
                 )
             }
         }
@@ -90,7 +91,8 @@ fun Sporsmal.validerUndersporsmal() {
         TALL,
         INFO_BEHANDLINGSDAGER,
         RADIO_GRUPPE_UKEKALENDER,
-        KVITTERING -> {
+        KVITTERING,
+        -> {
             if (kriterieForVisningAvUndersporsmal != null) {
                 if (svar.size == 1) {
                     if (svar.first().verdi == kriterieForVisningAvUndersporsmal.name) {
@@ -165,43 +167,49 @@ private fun validerGrenserPaKvittering(svar: Svar): () -> Boolean {
 }
 
 private fun Sporsmal.validerGrenserPaSvar(svar: Svar) {
-    val predikat: () -> Boolean = when (svartype) {
-        JA_NEI,
-        CHECKBOX,
-        CHECKBOX_PANEL,
-        CHECKBOX_GRUPPE,
-        IKKE_RELEVANT,
-        GRUPPE_AV_UNDERSPORSMAL,
-        BEKREFTELSESPUNKTER,
-        RADIO,
-        RADIO_GRUPPE,
-        RADIO_GRUPPE_TIMER_PROSENT,
-        INFO_BEHANDLINGSDAGER -> {
-            { true }
+    val predikat: () -> Boolean =
+        when (svartype) {
+            JA_NEI,
+            CHECKBOX,
+            CHECKBOX_PANEL,
+            CHECKBOX_GRUPPE,
+            IKKE_RELEVANT,
+            GRUPPE_AV_UNDERSPORSMAL,
+            BEKREFTELSESPUNKTER,
+            RADIO,
+            RADIO_GRUPPE,
+            RADIO_GRUPPE_TIMER_PROSENT,
+            INFO_BEHANDLINGSDAGER,
+            -> {
+                { true }
+            }
+
+            DATO,
+            DATOER,
+            -> validerGrenserPaDato(svar)
+
+            KVITTERING -> validerGrenserPaKvittering(svar)
+            RADIO_GRUPPE_UKEKALENDER -> {
+                { svar.verdi == INGEN_BEHANDLING || validerGrenserPaDato(svar)() }
+            }
+
+            PROSENT,
+            TIMER,
+            TALL,
+            BELOP,
+            KILOMETER,
+            -> validerGrenserPaaTall(svar)
+
+            FRITEKST,
+            COMBOBOX_SINGLE,
+            COMBOBOX_MULTI,
+            LAND,
+            -> validerGrenserPaaTekst(svar)
+
+            PERIODE,
+            PERIODER,
+            -> validerGrenserPaPeriode(svar)
         }
-
-        DATO,
-        DATOER -> validerGrenserPaDato(svar)
-
-        KVITTERING -> validerGrenserPaKvittering(svar)
-        RADIO_GRUPPE_UKEKALENDER -> {
-            { svar.verdi == INGEN_BEHANDLING || validerGrenserPaDato(svar)() }
-        }
-
-        PROSENT,
-        TIMER,
-        TALL,
-        BELOP,
-        KILOMETER -> validerGrenserPaaTall(svar)
-
-        FRITEKST,
-        COMBOBOX_SINGLE,
-        COMBOBOX_MULTI,
-        LAND -> validerGrenserPaaTekst(svar)
-
-        PERIODE,
-        PERIODER -> validerGrenserPaPeriode(svar)
-    }
     if (!predikat()) {
         throw ValideringException("Spørsmål $id med tag $tag har svarverdi utenfor grenseverdi ${svar.verdi}")
     }
@@ -212,11 +220,12 @@ fun Sporsmal.validerGrenserPaSvar() {
 }
 
 private fun validerKvittering(verdi: String): () -> Boolean {
-    val kvittering = try {
-        verdi.tilKvittering()
-    } catch (e: Exception) {
-        return { false }
-    }
+    val kvittering =
+        try {
+            verdi.tilKvittering()
+        } catch (e: Exception) {
+            return { false }
+        }
     return { kvittering.blobId.erUUID() && kvittering.belop >= 0 }
 }
 
@@ -283,72 +292,80 @@ fun String.erDoubleMedMaxEnDesimal(): Boolean {
 
 private fun Sporsmal.validerSvarverdi(svar: Svar) {
     val verdi = svar.verdi
-    val predikat: () -> Boolean = when (svartype) {
-        FRITEKST -> {
-            if (min == null) {
-                { true }
-            } else {
-                { verdi.trim().length >= min.toInt() }
+    val predikat: () -> Boolean =
+        when (svartype) {
+            FRITEKST -> {
+                if (min == null) {
+                    { true }
+                } else {
+                    { verdi.trim().length >= min.toInt() }
+                }
             }
-        }
 
-        COMBOBOX_SINGLE,
-        COMBOBOX_MULTI,
-        BEKREFTELSESPUNKTER,
-        LAND -> {
-            { verdi.isNotBlank() && verdi.isNotEmpty() }
-        }
-
-        JA_NEI -> {
-            { "JA" == verdi || "NEI" == verdi }
-        }
-
-        CHECKBOX_PANEL,
-        RADIO,
-        CHECKBOX -> {
-            { "CHECKED" == verdi }
-        }
-
-        DATO,
-        DATOER -> {
-            { verdi.erDato() }
-        }
-
-        PROSENT,
-        BELOP -> {
-            { verdi.erHeltall() }
-        }
-
-        TIMER,
-        TALL -> {
-            { verdi.erFlyttall() }
-        }
-
-        KILOMETER -> {
-            { verdi.erDoubleMedMaxEnDesimal() }
-        }
-
-        KVITTERING -> validerKvittering(svar.verdi)
-        PERIODE,
-        PERIODER -> {
-            {
-                verdi.erPeriode()
+            COMBOBOX_SINGLE,
+            COMBOBOX_MULTI,
+            BEKREFTELSESPUNKTER,
+            LAND,
+            -> {
+                { verdi.isNotBlank() && verdi.isNotEmpty() }
             }
-        }
 
-        RADIO_GRUPPE_UKEKALENDER -> {
-            {
-                verdi == INGEN_BEHANDLING || verdi.erDato()
+            JA_NEI -> {
+                { "JA" == verdi || "NEI" == verdi }
             }
-        }
 
-        RADIO_GRUPPE,
-        RADIO_GRUPPE_TIMER_PROSENT,
-        IKKE_RELEVANT,
-        GRUPPE_AV_UNDERSPORSMAL,
-        INFO_BEHANDLINGSDAGER,
-        CHECKBOX_GRUPPE -> throw IllegalStateException("Skal ha validert 0 svar allerede")
-    }
+            CHECKBOX_PANEL,
+            RADIO,
+            CHECKBOX,
+            -> {
+                { "CHECKED" == verdi }
+            }
+
+            DATO,
+            DATOER,
+            -> {
+                { verdi.erDato() }
+            }
+
+            PROSENT,
+            BELOP,
+            -> {
+                { verdi.erHeltall() }
+            }
+
+            TIMER,
+            TALL,
+            -> {
+                { verdi.erFlyttall() }
+            }
+
+            KILOMETER -> {
+                { verdi.erDoubleMedMaxEnDesimal() }
+            }
+
+            KVITTERING -> validerKvittering(svar.verdi)
+            PERIODE,
+            PERIODER,
+            -> {
+                {
+                    verdi.erPeriode()
+                }
+            }
+
+            RADIO_GRUPPE_UKEKALENDER -> {
+                {
+                    verdi == INGEN_BEHANDLING || verdi.erDato()
+                }
+            }
+
+            RADIO_GRUPPE,
+            RADIO_GRUPPE_TIMER_PROSENT,
+            IKKE_RELEVANT,
+            GRUPPE_AV_UNDERSPORSMAL,
+            INFO_BEHANDLINGSDAGER,
+            CHECKBOX_GRUPPE,
+            -> throw IllegalStateException("Skal ha validert 0 svar allerede")
+        }
     if (!predikat()) {
         throw ValideringException("Spørsmål $id med tag $tag har feil svarverdi $verdi")
     }
@@ -365,54 +382,58 @@ private fun Sporsmal.validerKunUnikeSvar() {
 }
 
 fun Sporsmal.validerAntallSvar() {
-    val predikat: (Int) -> Boolean = when (this.svartype) {
-        JA_NEI,
-        BELOP,
-        KILOMETER,
-        CHECKBOX_PANEL,
-        DATO,
-        RADIO_GRUPPE_UKEKALENDER,
-        RADIO,
-        PROSENT,
-        PERIODE,
-        TIMER,
-        TALL,
-        CHECKBOX -> {
-            { it == 1 }
-        }
+    val predikat: (Int) -> Boolean =
+        when (this.svartype) {
+            JA_NEI,
+            BELOP,
+            KILOMETER,
+            CHECKBOX_PANEL,
+            DATO,
+            RADIO_GRUPPE_UKEKALENDER,
+            RADIO,
+            PROSENT,
+            PERIODE,
+            TIMER,
+            TALL,
+            CHECKBOX,
+            -> {
+                { it == 1 }
+            }
 
-        FRITEKST -> {
-            {
-                if (min == null) {
-                    true
-                } else {
-                    it == 1
+            FRITEKST -> {
+                {
+                    if (min == null) {
+                        true
+                    } else {
+                        it == 1
+                    }
                 }
             }
-        }
 
-        RADIO_GRUPPE,
-        RADIO_GRUPPE_TIMER_PROSENT,
-        IKKE_RELEVANT,
-        GRUPPE_AV_UNDERSPORSMAL,
-        INFO_BEHANDLINGSDAGER,
-        CHECKBOX_GRUPPE -> {
-            { it == 0 }
-        }
+            RADIO_GRUPPE,
+            RADIO_GRUPPE_TIMER_PROSENT,
+            IKKE_RELEVANT,
+            GRUPPE_AV_UNDERSPORSMAL,
+            INFO_BEHANDLINGSDAGER,
+            CHECKBOX_GRUPPE,
+            -> {
+                { it == 0 }
+            }
 
-        LAND,
-        BEKREFTELSESPUNKTER,
-        COMBOBOX_SINGLE,
-        COMBOBOX_MULTI,
-        PERIODER,
-        DATOER -> {
-            { it > 0 }
-        }
+            LAND,
+            BEKREFTELSESPUNKTER,
+            COMBOBOX_SINGLE,
+            COMBOBOX_MULTI,
+            PERIODER,
+            DATOER,
+            -> {
+                { it > 0 }
+            }
 
-        KVITTERING -> {
-            { it >= 0 }
+            KVITTERING -> {
+                { it >= 0 }
+            }
         }
-    }
     if (!predikat(svar.size)) {
         throw ValideringException("Spørsmål $id med tag $tag har feil antall svar ${svar.size}")
     }
@@ -422,5 +443,5 @@ class ValideringException(message: String) : AbstractApiError(
     message = message,
     httpStatus = BAD_REQUEST,
     reason = "SPORSMALETS_SVAR_VALIDERER_IKKE",
-    loglevel = LogLevel.WARN
+    loglevel = LogLevel.WARN,
 )

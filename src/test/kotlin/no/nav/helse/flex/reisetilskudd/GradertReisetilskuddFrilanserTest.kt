@@ -31,7 +31,6 @@ import java.util.*
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class GradertReisetilskuddFrilanserTest : BaseTestClass() {
-
     final val fnr = "123456789"
 
     val sykmeldingId = UUID.randomUUID().toString()
@@ -46,26 +45,29 @@ class GradertReisetilskuddFrilanserTest : BaseTestClass() {
     @Test
     @Order(1)
     fun `Vi oppretter en reisetilskuddsøknad`() {
-        val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(
-            fnr = fnr,
-            arbeidssituasjon = Arbeidssituasjon.FRILANSER,
-            statusEvent = STATUS_BEKREFTET
-        )
+        val sykmeldingStatusKafkaMessageDTO =
+            skapSykmeldingStatusKafkaMessageDTO(
+                fnr = fnr,
+                arbeidssituasjon = Arbeidssituasjon.FRILANSER,
+                statusEvent = STATUS_BEKREFTET,
+            )
         val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
-        val sykmelding = skapArbeidsgiverSykmelding(
-            sykmeldingId = sykmeldingId,
-            fom = fom,
-            tom = tom,
-            type = PeriodetypeDTO.GRADERT,
-            gradert = GradertDTO(50, true),
-            reisetilskudd = false
-        )
+        val sykmelding =
+            skapArbeidsgiverSykmelding(
+                sykmeldingId = sykmeldingId,
+                fom = fom,
+                tom = tom,
+                type = PeriodetypeDTO.GRADERT,
+                gradert = GradertDTO(50, true),
+                reisetilskudd = false,
+            )
 
-        val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
-            sykmelding = sykmelding,
-            event = sykmeldingStatusKafkaMessageDTO.event,
-            kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
-        )
+        val sykmeldingKafkaMessage =
+            SykmeldingKafkaMessage(
+                sykmelding = sykmelding,
+                event = sykmeldingStatusKafkaMessageDTO.event,
+                kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
+            )
 
         mockFlexSyketilfelleErUtaforVentetid(sykmeldingId, true)
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
@@ -73,7 +75,7 @@ class GradertReisetilskuddFrilanserTest : BaseTestClass() {
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
             sykmeldingId,
             sykmeldingKafkaMessage,
-            SYKMELDINGSENDT_TOPIC
+            SYKMELDINGSENDT_TOPIC,
         )
 
         val soknader =
@@ -88,10 +90,11 @@ class GradertReisetilskuddFrilanserTest : BaseTestClass() {
         val soknader = hentSoknaderMetadata(fnr)
         assertThat(soknader).hasSize(1)
 
-        val soknaden = hentSoknad(
-            soknadId = soknader.first().id,
-            fnr = fnr
-        )
+        val soknaden =
+            hentSoknad(
+                soknadId = soknader.first().id,
+                fnr = fnr,
+            )
 
         assertThat(soknaden.sporsmal!!.first { it.tag == VAER_KLAR_OVER_AT }.undertekst).contains("sykepenger og reisetilskudd")
         assertThat(soknaden.sporsmal!!.map { it.tag }).isEqualTo(
@@ -104,25 +107,27 @@ class GradertReisetilskuddFrilanserTest : BaseTestClass() {
                 UTLAND,
                 BRUKTE_REISETILSKUDDET,
                 VAER_KLAR_OVER_AT,
-                BEKREFT_OPPLYSNINGER
-            )
+                BEKREFT_OPPLYSNINGER,
+            ),
         )
     }
 
     @Test
     @Order(3)
     fun `Vi kan besvare spørsmålet om at reisetilskudd ble brukt og får ikke utbetalings spm`() {
-        val reisetilskudd = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val reisetilskudd =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
         SoknadBesvarer(reisetilskudd, this, fnr)
             .besvarSporsmal(BRUKTE_REISETILSKUDDET, "JA", mutert = true)
 
-        val reisetilskuddEtterSvar = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val reisetilskuddEtterSvar =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
         reisetilskuddEtterSvar
             .sporsmal!!
             .find { it.tag == BRUKTE_REISETILSKUDDET }!!
@@ -141,8 +146,8 @@ class GradertReisetilskuddFrilanserTest : BaseTestClass() {
                 REISE_MED_BIL,
                 KVITTERINGER,
                 VAER_KLAR_OVER_AT,
-                BEKREFT_OPPLYSNINGER
-            )
+                BEKREFT_OPPLYSNINGER,
+            ),
         )
     }
 }

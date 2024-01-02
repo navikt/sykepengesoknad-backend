@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 class GjenapneSoknadService(
     private val sykepengesoknadDAO: SykepengesoknadDAO,
-    private val soknadProducer: SoknadProducer
+    private val soknadProducer: SoknadProducer,
 ) {
     fun gjenapneSoknad(sykepengesoknad: Sykepengesoknad) {
         sykepengesoknadDAO.gjenapneSoknad(sykepengesoknad)
