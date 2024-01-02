@@ -44,8 +44,7 @@ fun Mottaker.tilMottakerDTO(): MottakerDTO {
     }
 }
 
-fun List<Merknad>?.tilMerknadDTO(): List<MerknadDTO>? =
-    this?.map { MerknadDTO(type = it.type, beskrivelse = it.beskrivelse) }
+fun List<Merknad>?.tilMerknadDTO(): List<MerknadDTO>? = this?.map { MerknadDTO(type = it.type, beskrivelse = it.beskrivelse) }
 
 fun Visningskriterie.tilVisningskriteriumDTO(): VisningskriteriumDTO {
     return when (this) {
@@ -121,7 +120,7 @@ fun Sporsmal.tilSporsmalDTO(): SporsmalDTO {
         svartype = this.svartype.tilSvartypeDTO(),
         kriterieForVisningAvUndersporsmal = this.kriterieForVisningAvUndersporsmal?.tilVisningskriteriumDTO(),
         svar = this.svar.map { it.tilSvarDTO() },
-        undersporsmal = this.undersporsmal.map { it.tilSporsmalDTO() }
+        undersporsmal = this.undersporsmal.map { it.tilSporsmalDTO() },
     )
 }
 
@@ -166,7 +165,7 @@ fun String.getJsonPeriodeFraGammeltFormat(): PeriodeDTO {
         val fomTom = objectmapper.readValue(this, FomTom::class.java)
         return PeriodeDTO(
             fom = fomTom.fom.gammeltFormatTilLocalDate(),
-            tom = fomTom.tom.gammeltFormatTilLocalDate()
+            tom = fomTom.tom.gammeltFormatTilLocalDate(),
         )
     } catch (e: IOException) {
         throw RuntimeException("Feil ved parsing av periode: $this", e)

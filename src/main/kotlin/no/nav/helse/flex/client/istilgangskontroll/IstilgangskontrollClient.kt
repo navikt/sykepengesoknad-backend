@@ -15,7 +15,7 @@ import org.springframework.web.client.RestTemplate
 @Component
 class IstilgangskontrollClient(
     @Value("\${istilgangskontroll.url}") private val url: String,
-    private val istilgangskontrollRestTemplate: RestTemplate
+    private val istilgangskontrollRestTemplate: RestTemplate,
 ) {
     companion object {
         const val ACCESS_TO_USER_WITH_AZURE_V2_PATH = "/api/tilgang/navident/person"
@@ -31,12 +31,13 @@ class IstilgangskontrollClient(
         headers[NAV_PERSONIDENT_HEADER] = fnr
 
         return try {
-            val response = istilgangskontrollRestTemplate.exchange(
-                accessToUserV2Url(),
-                GET,
-                HttpEntity<Any>(headers),
-                String::class.java
-            )
+            val response =
+                istilgangskontrollRestTemplate.exchange(
+                    accessToUserV2Url(),
+                    GET,
+                    HttpEntity<Any>(headers),
+                    String::class.java,
+                )
             response.statusCode.is2xxSuccessful
         } catch (e: HttpClientErrorException) {
             if (e.statusCode != HttpStatusCode.valueOf(403)) {

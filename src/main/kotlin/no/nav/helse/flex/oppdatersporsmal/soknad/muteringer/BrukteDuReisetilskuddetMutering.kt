@@ -29,12 +29,13 @@ fun Sykepengesoknad.brukteDuReisetilskuddetMutering(): Sykepengesoknad {
     }
 
     return this.copy(
-        sporsmal = sporsmal
-            .asSequence()
-            .filterNot { (_, tag) -> tag == TRANSPORT_TIL_DAGLIG }
-            .filterNot { (_, tag) -> tag == REISE_MED_BIL }
-            .filterNot { (_, tag) -> tag == KVITTERINGER }
-            .filterNot { (_, tag) -> tag == UTBETALING }
-            .toMutableList()
+        sporsmal =
+            sporsmal
+                .asSequence()
+                .filterNot { (_, tag) -> tag == TRANSPORT_TIL_DAGLIG }
+                .filterNot { (_, tag) -> tag == REISE_MED_BIL }
+                .filterNot { (_, tag) -> tag == KVITTERINGER }
+                .filterNot { (_, tag) -> tag == UTBETALING }
+                .toMutableList(),
     )
 }

@@ -12,8 +12,11 @@ private const val X_REQUEST_ID_MDC_MARKER = "x_request_id"
 
 @Component
 class LogRequestIdFilter : HttpFilter() {
-
-    override fun doFilter(request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain) {
+    override fun doFilter(
+        request: HttpServletRequest,
+        response: HttpServletResponse,
+        filterChain: FilterChain,
+    ) {
         try {
             request.getHeader(X_REQUEST_ID_HEADER)?.let {
                 MDC.put(X_REQUEST_ID_MDC_MARKER, it)

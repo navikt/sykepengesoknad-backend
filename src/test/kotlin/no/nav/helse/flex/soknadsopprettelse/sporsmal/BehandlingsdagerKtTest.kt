@@ -23,103 +23,20 @@ import java.time.LocalDateTime
 import java.util.*
 
 class BehandlingsdagerKtTest {
-
-    val testSoknad = Sykepengesoknad(
-        fnr = "fnr-7454630",
-        startSykeforlop = LocalDate.of(2019, 12, 5).minusMonths(1),
-        fom = LocalDate.of(2019, 12, 5).minusMonths(1),
-        tom = LocalDate.of(2019, 12, 5).minusMonths(1).plusDays(8),
-        arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-        soknadstype = Soknadstype.BEHANDLINGSDAGER,
-        arbeidsgiverOrgnummer = "123456789",
-        arbeidsgiverNavn = "ARBEIDSGIVER A/S",
-        sykmeldingId = "sykmeldingId",
-        sykmeldingSkrevet = LocalDateTime.now().minusMonths(1).tilOsloInstant(),
-        soknadPerioder = listOf(
-            SykmeldingsperiodeAGDTO(
-                LocalDate.of(2019, 12, 5).minusMonths(1),
-                LocalDate.of(2019, 12, 5).minusMonths(1).plusDays(4),
-                gradert = GradertDTO(grad = 100, reisetilskudd = false),
-                type = PeriodetypeDTO.BEHANDLINGSDAGER,
-                aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
-                behandlingsdager = null,
-                innspillTilArbeidsgiver = null,
-                reisetilskudd = false
-            )
-        ).tilSoknadsperioder(),
-        egenmeldtSykmelding = null,
-        id = UUID.randomUUID().toString(),
-        status = Soknadstatus.NY,
-        opprettet = Instant.now(),
-        sporsmal = emptyList(),
-        utenlandskSykmelding = false,
-        egenmeldingsdagerFraSykmelding = null,
-        forstegangssoknad = false
-    )
-
-    @Test
-    fun `oppretter spørsmål`() {
-        val sporsmalList = behandlingsdagerSporsmal(testSoknad)
-        sporsmalList.shouldHaveSize(1)
-
-        sporsmalList[0] `should be equal to` Sporsmal(
-            id = null,
-            tag = "ENKELTSTAENDE_BEHANDLINGSDAGER_0",
-            sporsmalstekst = "Hvilke dager måtte du være helt borte fra jobben på grunn av behandling mellom 5. - 9. november 2019?",
-            undertekst = null,
-            svartype = Svartype.INFO_BEHANDLINGSDAGER,
-            min = null,
-            max = null,
-            kriterieForVisningAvUndersporsmal = null,
-            undersporsmal = listOf(
-                Sporsmal(
-                    id = null,
-                    tag = "ENKELTSTAENDE_BEHANDLINGSDAGER_UKE_0",
-                    sporsmalstekst = "05.11.2019 - 08.11.2019",
-                    undertekst = null,
-                    svartype = Svartype.RADIO_GRUPPE_UKEKALENDER,
-                    min = "2019-11-05",
-                    max = "2019-11-08",
-                    kriterieForVisningAvUndersporsmal = null
-                )
-            )
-        )
-    }
-
-    @Test
-    fun `oppretter spørsmål for arbeidsledige`() {
-        val sporsmalList = behandlingsdagerSporsmal(testSoknad.copy(arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG))
-        sporsmalList.shouldHaveSize(1)
-        sporsmalList[0] `should be equal to` Sporsmal(
-            id = null,
-            tag = "ENKELTSTAENDE_BEHANDLINGSDAGER_0",
-            sporsmalstekst = "Hvilke dager kunne du ikke være arbeidssøker på grunn av behandling mellom 5. - 9. november 2019?",
-            undertekst = null,
-            svartype = Svartype.INFO_BEHANDLINGSDAGER,
-            min = null,
-            max = null,
-            kriterieForVisningAvUndersporsmal = null,
-            undersporsmal = listOf(
-                Sporsmal(
-                    id = null,
-                    tag = "ENKELTSTAENDE_BEHANDLINGSDAGER_UKE_0",
-                    sporsmalstekst = "05.11.2019 - 08.11.2019",
-                    undertekst = null,
-                    svartype = Svartype.RADIO_GRUPPE_UKEKALENDER,
-                    min = "2019-11-05",
-                    max = "2019-11-08",
-                    kriterieForVisningAvUndersporsmal = null
-                )
-            )
-
-        )
-    }
-
-    @Test
-    fun `oppretter spørsmål når det er flere perioder i soknaden`() {
-        val soknadMedFlerePerioder = testSoknad
-            .copy(
-                soknadPerioder = listOf(
+    val testSoknad =
+        Sykepengesoknad(
+            fnr = "fnr-7454630",
+            startSykeforlop = LocalDate.of(2019, 12, 5).minusMonths(1),
+            fom = LocalDate.of(2019, 12, 5).minusMonths(1),
+            tom = LocalDate.of(2019, 12, 5).minusMonths(1).plusDays(8),
+            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+            soknadstype = Soknadstype.BEHANDLINGSDAGER,
+            arbeidsgiverOrgnummer = "123456789",
+            arbeidsgiverNavn = "ARBEIDSGIVER A/S",
+            sykmeldingId = "sykmeldingId",
+            sykmeldingSkrevet = LocalDateTime.now().minusMonths(1).tilOsloInstant(),
+            soknadPerioder =
+                listOf(
                     SykmeldingsperiodeAGDTO(
                         LocalDate.of(2019, 12, 5).minusMonths(1),
                         LocalDate.of(2019, 12, 5).minusMonths(1).plusDays(4),
@@ -128,54 +45,145 @@ class BehandlingsdagerKtTest {
                         aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
                         behandlingsdager = null,
                         innspillTilArbeidsgiver = null,
-                        reisetilskudd = false
+                        reisetilskudd = false,
                     ),
-                    SykmeldingsperiodeAGDTO(
-                        LocalDate.of(2019, 12, 5).minusMonths(1).plusDays(5),
-                        LocalDate.of(2019, 12, 5).minusMonths(1).plusDays(30),
-                        gradert = GradertDTO(grad = 100, reisetilskudd = false),
-                        type = PeriodetypeDTO.BEHANDLINGSDAGER,
-                        aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
-                        behandlingsdager = null,
-                        innspillTilArbeidsgiver = null,
-                        reisetilskudd = false
-                    )
-                ).tilSoknadsperioder()
+                ).tilSoknadsperioder(),
+            egenmeldtSykmelding = null,
+            id = UUID.randomUUID().toString(),
+            status = Soknadstatus.NY,
+            opprettet = Instant.now(),
+            sporsmal = emptyList(),
+            utenlandskSykmelding = false,
+            egenmeldingsdagerFraSykmelding = null,
+            forstegangssoknad = false,
+        )
+
+    @Test
+    fun `oppretter spørsmål`() {
+        val sporsmalList = behandlingsdagerSporsmal(testSoknad)
+        sporsmalList.shouldHaveSize(1)
+
+        sporsmalList[0] `should be equal to`
+            Sporsmal(
+                id = null,
+                tag = "ENKELTSTAENDE_BEHANDLINGSDAGER_0",
+                sporsmalstekst = "Hvilke dager måtte du være helt borte fra jobben på grunn av behandling mellom 5. - 9. november 2019?",
+                undertekst = null,
+                svartype = Svartype.INFO_BEHANDLINGSDAGER,
+                min = null,
+                max = null,
+                kriterieForVisningAvUndersporsmal = null,
+                undersporsmal =
+                    listOf(
+                        Sporsmal(
+                            id = null,
+                            tag = "ENKELTSTAENDE_BEHANDLINGSDAGER_UKE_0",
+                            sporsmalstekst = "05.11.2019 - 08.11.2019",
+                            undertekst = null,
+                            svartype = Svartype.RADIO_GRUPPE_UKEKALENDER,
+                            min = "2019-11-05",
+                            max = "2019-11-08",
+                            kriterieForVisningAvUndersporsmal = null,
+                        ),
+                    ),
             )
+    }
+
+    @Test
+    fun `oppretter spørsmål for arbeidsledige`() {
+        val sporsmalList = behandlingsdagerSporsmal(testSoknad.copy(arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG))
+        sporsmalList.shouldHaveSize(1)
+        sporsmalList[0] `should be equal to`
+            Sporsmal(
+                id = null,
+                tag = "ENKELTSTAENDE_BEHANDLINGSDAGER_0",
+                sporsmalstekst = "Hvilke dager kunne du ikke være arbeidssøker på grunn av behandling mellom 5. - 9. november 2019?",
+                undertekst = null,
+                svartype = Svartype.INFO_BEHANDLINGSDAGER,
+                min = null,
+                max = null,
+                kriterieForVisningAvUndersporsmal = null,
+                undersporsmal =
+                    listOf(
+                        Sporsmal(
+                            id = null,
+                            tag = "ENKELTSTAENDE_BEHANDLINGSDAGER_UKE_0",
+                            sporsmalstekst = "05.11.2019 - 08.11.2019",
+                            undertekst = null,
+                            svartype = Svartype.RADIO_GRUPPE_UKEKALENDER,
+                            min = "2019-11-05",
+                            max = "2019-11-08",
+                            kriterieForVisningAvUndersporsmal = null,
+                        ),
+                    ),
+            )
+    }
+
+    @Test
+    fun `oppretter spørsmål når det er flere perioder i soknaden`() {
+        val soknadMedFlerePerioder =
+            testSoknad
+                .copy(
+                    soknadPerioder =
+                        listOf(
+                            SykmeldingsperiodeAGDTO(
+                                LocalDate.of(2019, 12, 5).minusMonths(1),
+                                LocalDate.of(2019, 12, 5).minusMonths(1).plusDays(4),
+                                gradert = GradertDTO(grad = 100, reisetilskudd = false),
+                                type = PeriodetypeDTO.BEHANDLINGSDAGER,
+                                aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                                behandlingsdager = null,
+                                innspillTilArbeidsgiver = null,
+                                reisetilskudd = false,
+                            ),
+                            SykmeldingsperiodeAGDTO(
+                                LocalDate.of(2019, 12, 5).minusMonths(1).plusDays(5),
+                                LocalDate.of(2019, 12, 5).minusMonths(1).plusDays(30),
+                                gradert = GradertDTO(grad = 100, reisetilskudd = false),
+                                type = PeriodetypeDTO.BEHANDLINGSDAGER,
+                                aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                                behandlingsdager = null,
+                                innspillTilArbeidsgiver = null,
+                                reisetilskudd = false,
+                            ),
+                        ).tilSoknadsperioder(),
+                )
         val sporsmalList = behandlingsdagerSporsmal(soknadMedFlerePerioder)
         assertEquals(sporsmalList.size, 2)
         assertEquals(
             sporsmalList[0].sporsmalstekst,
-            "Hvilke dager måtte du være helt borte fra jobben på grunn av behandling mellom 5. - 9. november 2019?"
+            "Hvilke dager måtte du være helt borte fra jobben på grunn av behandling mellom 5. - 9. november 2019?",
         )
         assertEquals(
             sporsmalList[1].sporsmalstekst,
-            "Hvilke dager måtte du være helt borte fra jobben på grunn av behandling mellom 10. november - 5. desember 2019?"
+            "Hvilke dager måtte du være helt borte fra jobben på grunn av behandling mellom 10. november - 5. desember 2019?",
         )
     }
 
     @Test
     fun `oppretter spørsmål når det starter på en søndag`() {
-        val soknad = testSoknad
-            .copy(
-                soknadPerioder = listOf(
-                    SykmeldingsperiodeAGDTO(
-                        LocalDate.of(2019, 12, 1),
-                        LocalDate.of(2020, 1, 1),
-                        gradert = GradertDTO(grad = 100, reisetilskudd = false),
-                        type = PeriodetypeDTO.BEHANDLINGSDAGER,
-                        aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
-                        behandlingsdager = null,
-                        innspillTilArbeidsgiver = null,
-                        reisetilskudd = false
-                    )
-                ).tilSoknadsperioder()
-            )
+        val soknad =
+            testSoknad
+                .copy(
+                    soknadPerioder =
+                        listOf(
+                            SykmeldingsperiodeAGDTO(
+                                LocalDate.of(2019, 12, 1),
+                                LocalDate.of(2020, 1, 1),
+                                gradert = GradertDTO(grad = 100, reisetilskudd = false),
+                                type = PeriodetypeDTO.BEHANDLINGSDAGER,
+                                aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                                behandlingsdager = null,
+                                innspillTilArbeidsgiver = null,
+                                reisetilskudd = false,
+                            ),
+                        ).tilSoknadsperioder(),
+                )
         val sporsmalList = behandlingsdagerSporsmal(soknad)
         assertEquals(sporsmalList.size, 1)
         assertEquals(
             sporsmalList[0].sporsmalstekst,
-            "Hvilke dager måtte du være helt borte fra jobben på grunn av behandling mellom 1. desember 2019 - 1. januar 2020?"
+            "Hvilke dager måtte du være helt borte fra jobben på grunn av behandling mellom 1. desember 2019 - 1. januar 2020?",
         )
         assertEquals(sporsmalList[0].undersporsmal[0].min, "2019-12-02")
         assertEquals(sporsmalList[0].undersporsmal[0].max, "2019-12-06")
@@ -191,16 +199,17 @@ class BehandlingsdagerKtTest {
 
     @Test
     fun `test oppdeling i uker når vi starter på en søndag`() {
-        val periode = SykmeldingsperiodeAGDTO(
-            fom = LocalDate.of(2019, 12, 1),
-            tom = LocalDate.of(2020, 1, 1),
-            gradert = GradertDTO(grad = 100, reisetilskudd = false),
-            type = PeriodetypeDTO.BEHANDLINGSDAGER,
-            aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
-            behandlingsdager = null,
-            innspillTilArbeidsgiver = null,
-            reisetilskudd = false
-        ).tilSoknadsperioder()
+        val periode =
+            SykmeldingsperiodeAGDTO(
+                fom = LocalDate.of(2019, 12, 1),
+                tom = LocalDate.of(2020, 1, 1),
+                gradert = GradertDTO(grad = 100, reisetilskudd = false),
+                type = PeriodetypeDTO.BEHANDLINGSDAGER,
+                aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                behandlingsdager = null,
+                innspillTilArbeidsgiver = null,
+                reisetilskudd = false,
+            ).tilSoknadsperioder()
         val res = splittPeriodeIUker(periode)
 
         assertEquals(res[0].ukestart, LocalDate.of(2019, 12, 2))
@@ -213,16 +222,17 @@ class BehandlingsdagerKtTest {
 
     @Test
     fun `test oppdeling i uker når vi slutter på en søndag`() {
-        val periode = SykmeldingsperiodeAGDTO(
-            fom = LocalDate.of(2019, 12, 2),
-            tom = LocalDate.of(2019, 12, 8),
-            gradert = GradertDTO(grad = 100, reisetilskudd = false),
-            type = PeriodetypeDTO.BEHANDLINGSDAGER,
-            aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
-            behandlingsdager = null,
-            innspillTilArbeidsgiver = null,
-            reisetilskudd = false
-        ).tilSoknadsperioder()
+        val periode =
+            SykmeldingsperiodeAGDTO(
+                fom = LocalDate.of(2019, 12, 2),
+                tom = LocalDate.of(2019, 12, 8),
+                gradert = GradertDTO(grad = 100, reisetilskudd = false),
+                type = PeriodetypeDTO.BEHANDLINGSDAGER,
+                aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                behandlingsdager = null,
+                innspillTilArbeidsgiver = null,
+                reisetilskudd = false,
+            ).tilSoknadsperioder()
         val res = splittPeriodeIUker(periode)
 
         assertEquals(res[0].ukestart, LocalDate.of(2019, 12, 2))
@@ -231,16 +241,17 @@ class BehandlingsdagerKtTest {
 
     @Test
     fun `test oppdeling i uker når vi slutter på en mandag`() {
-        val periode = SykmeldingsperiodeAGDTO(
-            fom = LocalDate.of(2019, 12, 2),
-            tom = LocalDate.of(2019, 12, 9),
-            gradert = GradertDTO(grad = 100, reisetilskudd = false),
-            type = PeriodetypeDTO.BEHANDLINGSDAGER,
-            aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
-            behandlingsdager = null,
-            innspillTilArbeidsgiver = null,
-            reisetilskudd = false
-        ).tilSoknadsperioder()
+        val periode =
+            SykmeldingsperiodeAGDTO(
+                fom = LocalDate.of(2019, 12, 2),
+                tom = LocalDate.of(2019, 12, 9),
+                gradert = GradertDTO(grad = 100, reisetilskudd = false),
+                type = PeriodetypeDTO.BEHANDLINGSDAGER,
+                aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                behandlingsdager = null,
+                innspillTilArbeidsgiver = null,
+                reisetilskudd = false,
+            ).tilSoknadsperioder()
         val res = splittPeriodeIUker(periode)
 
         assertEquals(res[0].ukestart, LocalDate.of(2019, 12, 2))
@@ -251,16 +262,17 @@ class BehandlingsdagerKtTest {
 
     @Test
     fun `test oppdeling i uker når hele greia er midt i en uke`() {
-        val periode = SykmeldingsperiodeAGDTO(
-            fom = LocalDate.of(2019, 12, 3),
-            tom = LocalDate.of(2019, 12, 4),
-            gradert = GradertDTO(grad = 100, reisetilskudd = false),
-            type = PeriodetypeDTO.BEHANDLINGSDAGER,
-            aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
-            behandlingsdager = null,
-            innspillTilArbeidsgiver = null,
-            reisetilskudd = false
-        ).tilSoknadsperioder()
+        val periode =
+            SykmeldingsperiodeAGDTO(
+                fom = LocalDate.of(2019, 12, 3),
+                tom = LocalDate.of(2019, 12, 4),
+                gradert = GradertDTO(grad = 100, reisetilskudd = false),
+                type = PeriodetypeDTO.BEHANDLINGSDAGER,
+                aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                behandlingsdager = null,
+                innspillTilArbeidsgiver = null,
+                reisetilskudd = false,
+            ).tilSoknadsperioder()
         val res = splittPeriodeIUker(periode)
 
         assertEquals(res[0].ukestart, LocalDate.of(2019, 12, 3))
@@ -269,16 +281,17 @@ class BehandlingsdagerKtTest {
 
     @Test
     fun `test oppdeling i uker når hele greia er  en dag midt i en uke`() {
-        val periode = SykmeldingsperiodeAGDTO(
-            fom = LocalDate.of(2019, 12, 3),
-            tom = LocalDate.of(2019, 12, 3),
-            gradert = GradertDTO(grad = 100, reisetilskudd = false),
-            type = PeriodetypeDTO.BEHANDLINGSDAGER,
-            aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
-            behandlingsdager = null,
-            innspillTilArbeidsgiver = null,
-            reisetilskudd = false
-        ).tilSoknadsperioder()
+        val periode =
+            SykmeldingsperiodeAGDTO(
+                fom = LocalDate.of(2019, 12, 3),
+                tom = LocalDate.of(2019, 12, 3),
+                gradert = GradertDTO(grad = 100, reisetilskudd = false),
+                type = PeriodetypeDTO.BEHANDLINGSDAGER,
+                aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                behandlingsdager = null,
+                innspillTilArbeidsgiver = null,
+                reisetilskudd = false,
+            ).tilSoknadsperioder()
         val res = splittPeriodeIUker(periode)
 
         assertEquals(res[0].ukestart, LocalDate.of(2019, 12, 3))
@@ -288,16 +301,17 @@ class BehandlingsdagerKtTest {
     @Test
     fun `når fom er etter tom forventer vi en exception`() {
         assertThrows(IllegalArgumentException::class.java) {
-            val periode = SykmeldingsperiodeAGDTO(
-                fom = LocalDate.of(2019, 12, 3),
-                tom = LocalDate.of(2019, 12, 2),
-                gradert = GradertDTO(grad = 100, reisetilskudd = false),
-                type = PeriodetypeDTO.BEHANDLINGSDAGER,
-                aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
-                behandlingsdager = null,
-                innspillTilArbeidsgiver = null,
-                reisetilskudd = false
-            ).tilSoknadsperioder()
+            val periode =
+                SykmeldingsperiodeAGDTO(
+                    fom = LocalDate.of(2019, 12, 3),
+                    tom = LocalDate.of(2019, 12, 2),
+                    gradert = GradertDTO(grad = 100, reisetilskudd = false),
+                    type = PeriodetypeDTO.BEHANDLINGSDAGER,
+                    aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                    behandlingsdager = null,
+                    innspillTilArbeidsgiver = null,
+                    reisetilskudd = false,
+                ).tilSoknadsperioder()
             splittPeriodeIUker(periode)
         }
     }

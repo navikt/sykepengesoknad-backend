@@ -13,13 +13,12 @@ import java.time.LocalDate
 
 @Repository
 interface MedlemskapVurderingRepository : CrudRepository<MedlemskapVurderingDbRecord, String> {
-
     // Spør på 'fom' og 'tom' i tillegg til 'sykepengesoknadId' siden "klipp" av søknaden gjør at de blir hentet
     // ny medlemskapsvurdering en eller flere ganger.
     fun findBySykepengesoknadIdAndFomAndTom(
         sykepengesoknadId: String,
         fom: LocalDate,
-        tom: LocalDate
+        tom: LocalDate,
     ): MedlemskapVurderingDbRecord?
 
     @Modifying
@@ -42,8 +41,11 @@ data class MedlemskapVurderingDbRecord(
     val tom: LocalDate,
     val svartype: String,
     val sporsmal: PGobject? = null,
-    val sykepengesoknadId: String
+    val sykepengesoknadId: String,
 )
 
 fun Any.tilPostgresJson(): PGobject =
-    PGobject().apply { type = "json"; value = this@tilPostgresJson.serialisertTilString() }
+    PGobject().apply {
+        type = "json"
+        value = this@tilPostgresJson.serialisertTilString()
+    }

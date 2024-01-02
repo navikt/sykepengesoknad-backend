@@ -43,7 +43,6 @@ import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class SlettKvitteringerIntegrasjonsTest : BaseTestClass() {
-
     private val fnr = "12345678900"
 
     @Test
@@ -61,29 +60,31 @@ class SlettKvitteringerIntegrasjonsTest : BaseTestClass() {
         val fom: LocalDate = LocalDate.of(2022, 1, 1)
         val tom: LocalDate = LocalDate.of(2022, 1, 6)
 
-        val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(
-            fnr = fnr,
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-            statusEvent = STATUS_SENDT,
-            arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "Kebabbiten")
-
-        )
+        val sykmeldingStatusKafkaMessageDTO =
+            skapSykmeldingStatusKafkaMessageDTO(
+                fnr = fnr,
+                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                statusEvent = STATUS_SENDT,
+                arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "Kebabbiten"),
+            )
         val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
 
-        val sykmelding = skapArbeidsgiverSykmelding(
-            sykmeldingId = sykmeldingId,
-            fom = fom,
-            tom = tom,
-            type = PeriodetypeDTO.GRADERT,
-            gradert = GradertDTO(50, true),
-            reisetilskudd = false
-        )
+        val sykmelding =
+            skapArbeidsgiverSykmelding(
+                sykmeldingId = sykmeldingId,
+                fom = fom,
+                tom = tom,
+                type = PeriodetypeDTO.GRADERT,
+                gradert = GradertDTO(50, true),
+                reisetilskudd = false,
+            )
 
-        val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
-            sykmelding = sykmelding,
-            event = sykmeldingStatusKafkaMessageDTO.event,
-            kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
-        )
+        val sykmeldingKafkaMessage =
+            SykmeldingKafkaMessage(
+                sykmelding = sykmelding,
+                event = sykmeldingStatusKafkaMessageDTO.event,
+                kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
+            )
 
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
@@ -97,17 +98,19 @@ class SlettKvitteringerIntegrasjonsTest : BaseTestClass() {
     @Test
     @Order(3)
     fun `Besvarer spørsmålet om at reisetilskudd ble brukt`() {
-        val reisetilskudd = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val reisetilskudd =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
         SoknadBesvarer(reisetilskudd, this, fnr)
             .besvarSporsmal(BRUKTE_REISETILSKUDDET, "JA", mutert = true)
 
-        val reisetilskuddEtterSvar = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val reisetilskuddEtterSvar =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
         reisetilskuddEtterSvar
             .sporsmal!!
             .find { it.tag == BRUKTE_REISETILSKUDDET }!!
@@ -127,8 +130,8 @@ class SlettKvitteringerIntegrasjonsTest : BaseTestClass() {
                 REISE_MED_BIL,
                 KVITTERINGER,
                 UTBETALING,
-                TIL_SLUTT
-            )
+                TIL_SLUTT,
+            ),
         )
     }
 
@@ -137,25 +140,29 @@ class SlettKvitteringerIntegrasjonsTest : BaseTestClass() {
     fun `Lagrer to kvitteringer og får returnert id på lagret svar`() {
         val (soknadId, kvitteringSpm) = hentKvitteringSpm()
 
-        val forsteSvar = RSSvar(
-            verdi = Kvittering(
-                blobId = "9a186e3c-aeeb-4566-a865-15aa9139d364",
-                belop = 100,
-                typeUtgift = Utgiftstype.PARKERING,
-                opprettet = Instant.now()
-            ).serialisertTilString(),
-            id = null
-        )
+        val forsteSvar =
+            RSSvar(
+                verdi =
+                    Kvittering(
+                        blobId = "9a186e3c-aeeb-4566-a865-15aa9139d364",
+                        belop = 100,
+                        typeUtgift = Utgiftstype.PARKERING,
+                        opprettet = Instant.now(),
+                    ).serialisertTilString(),
+                id = null,
+            )
 
-        val andreSvar = RSSvar(
-            verdi = Kvittering(
-                blobId = "1b186e3c-aeeb-4566-a865-15aa9139d365",
-                belop = 200,
-                typeUtgift = Utgiftstype.TAXI,
-                opprettet = Instant.now()
-            ).serialisertTilString(),
-            id = null
-        )
+        val andreSvar =
+            RSSvar(
+                verdi =
+                    Kvittering(
+                        blobId = "1b186e3c-aeeb-4566-a865-15aa9139d365",
+                        belop = 200,
+                        typeUtgift = Utgiftstype.TAXI,
+                        opprettet = Instant.now(),
+                    ).serialisertTilString(),
+                id = null,
+            )
 
         val lagretForsteSvar = lagreSvar(fnr, soknadId, kvitteringSpm.id!!, forsteSvar)
         lagretForsteSvar.oppdatertSporsmal.svar.first().id `should not be` null
@@ -189,10 +196,11 @@ class SlettKvitteringerIntegrasjonsTest : BaseTestClass() {
     }
 
     private fun hentKvitteringSpm(): Pair<String, RSSporsmal> {
-        val soknad = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val soknad =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
         val kvitteringSpm = soknad.sporsmal!!.first { it.tag == KVITTERINGER }
         return Pair(soknad.id, kvitteringSpm)
     }

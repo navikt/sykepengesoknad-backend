@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SoknadLagrerTest : BaseTestClass() {
-
     @Autowired
     private lateinit var soknadLagrer: SoknadLagrer
 

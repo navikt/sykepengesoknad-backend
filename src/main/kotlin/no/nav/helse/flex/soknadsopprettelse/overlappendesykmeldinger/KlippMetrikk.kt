@@ -8,14 +8,13 @@ import java.time.Instant
 
 @Component
 class KlippMetrikk(private val klippMetrikkRepository: KlippMetrikkRepository) {
-
     fun klippMetrikk(
         klippMetrikkVariant: KlippVariant,
         soknadstatus: String,
         eksisterendeSykepengesoknadId: String,
         endringIUforegrad: EndringIUforegrad,
         sykmeldingId: String,
-        klippet: Boolean
+        klippet: Boolean,
     ) {
         klippMetrikkRepository.save(
             KlippMetrikkDbRecord(
@@ -26,8 +25,8 @@ class KlippMetrikk(private val klippMetrikkRepository: KlippMetrikkRepository) {
                 klippet = klippet,
                 variant = klippMetrikkVariant.name,
                 soknadstatus = soknadstatus,
-                timestamp = Instant.now()
-            )
+                timestamp = Instant.now(),
+            ),
         )
     }
 }

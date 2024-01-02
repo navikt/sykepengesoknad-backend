@@ -15,7 +15,6 @@ import java.time.LocalDate
 import java.util.*
 
 class SlettGamleUtkastServiceTest : BaseTestClass() {
-
     @Autowired
     private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
 
@@ -36,11 +35,12 @@ class SlettGamleUtkastServiceTest : BaseTestClass() {
 
     @Test
     fun `Et gammel arbeidstakersøknad utkast blir slettet`() {
-        val soknad = opprettNySoknad().copy(
-            status = Soknadstatus.UTKAST_TIL_KORRIGERING,
-            tom = LocalDate.now().minusDays(7),
-            opprettet = LocalDate.now().minusDays(7).atStartOfDay().tilOsloInstant()
-        )
+        val soknad =
+            opprettNySoknad().copy(
+                status = Soknadstatus.UTKAST_TIL_KORRIGERING,
+                tom = LocalDate.now().minusDays(7),
+                opprettet = LocalDate.now().minusDays(7).atStartOfDay().tilOsloInstant(),
+            )
         sykepengesoknadDAO.lagreSykepengesoknad(soknad)
 
         val soknad2 = soknad.copy(status = Soknadstatus.SENDT, id = UUID.randomUUID().toString())
@@ -48,8 +48,8 @@ class SlettGamleUtkastServiceTest : BaseTestClass() {
 
         assertThat(
             sykepengesoknadDAO.finnSykepengesoknaderForSykmelding(
-                soknad.sykmeldingId!!
-            )
+                soknad.sykmeldingId!!,
+            ),
         ).hasSize(2)
 
         val antall = slettGamleUtkastService.slettGamleUtkast()
@@ -57,8 +57,8 @@ class SlettGamleUtkastServiceTest : BaseTestClass() {
 
         assertThat(
             sykepengesoknadDAO.finnSykepengesoknaderForSykmelding(
-                soknad.sykmeldingId!!
-            )
+                soknad.sykmeldingId!!,
+            ),
         ).hasSize(1)
 
         assertThat(sykepengesoknadDAO.finnSykepengesoknad(soknad2.id).status).isEqualTo(Soknadstatus.SENDT)
@@ -67,17 +67,18 @@ class SlettGamleUtkastServiceTest : BaseTestClass() {
     @Test
     fun `Sletter ikke utkast yngre enn 7 dager`() {
         @Suppress("DEPRECATION")
-        val soknad = opprettNySoknadMock().copy(
-            status = Soknadstatus.UTKAST_TIL_KORRIGERING,
-            tom = LocalDate.now().minusDays(6),
-            opprettet = LocalDate.now().minusDays(6).atStartOfDay().tilOsloInstant()
-        )
+        val soknad =
+            opprettNySoknadMock().copy(
+                status = Soknadstatus.UTKAST_TIL_KORRIGERING,
+                tom = LocalDate.now().minusDays(6),
+                opprettet = LocalDate.now().minusDays(6).atStartOfDay().tilOsloInstant(),
+            )
         sykepengesoknadDAO.lagreSykepengesoknad(soknad)
 
         assertThat(
             sykepengesoknadDAO.finnSykepengesoknaderForSykmelding(
-                soknad.sykmeldingId!!
-            )
+                soknad.sykmeldingId!!,
+            ),
         ).hasSize(1)
 
         val antall = slettGamleUtkastService.slettGamleUtkast()
@@ -85,8 +86,8 @@ class SlettGamleUtkastServiceTest : BaseTestClass() {
 
         assertThat(
             sykepengesoknadDAO.finnSykepengesoknaderForSykmelding(
-                soknad.sykmeldingId!!
-            )
+                soknad.sykmeldingId!!,
+            ),
         ).hasSize(1)
 
         assertThat(sykepengesoknadDAO.finnSykepengesoknad(soknad.id).status).isEqualTo(Soknadstatus.UTKAST_TIL_KORRIGERING)

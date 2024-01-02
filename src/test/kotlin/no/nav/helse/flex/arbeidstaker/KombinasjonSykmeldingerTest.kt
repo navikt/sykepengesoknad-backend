@@ -15,7 +15,6 @@ import java.time.LocalDate
 import java.util.UUID
 
 class KombinasjonSykmeldingerTest : BaseTestClass() {
-
     final val fnr = "123456789"
 
     val basisDato = LocalDate.of(2020, 3, 13)
@@ -32,30 +31,31 @@ class KombinasjonSykmeldingerTest : BaseTestClass() {
             sykmeldingKafkaMessage(
                 sykmeldingId = sykmeldingId,
                 fnr = fnr,
-                sykmeldingsperioder = listOf(
-                    SykmeldingsperiodeAGDTO(
-                        fom = basisDato,
-                        tom = basisDato.plusDays(2),
-                        type = PeriodetypeDTO.BEHANDLINGSDAGER,
-                        reisetilskudd = false,
-                        aktivitetIkkeMulig = null,
-                        behandlingsdager = 1,
-                        gradert = null,
-                        innspillTilArbeidsgiver = null
-                    ),
-                    SykmeldingsperiodeAGDTO(
-                        fom = basisDato.plusDays(3),
-                        tom = basisDato.plusDays(4),
-                        type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
-                        reisetilskudd = false,
-                        aktivitetIkkeMulig = null,
-                        behandlingsdager = null,
-                        gradert = null,
-                        innspillTilArbeidsgiver = null
-                    )
-                ).shuffled()
+                sykmeldingsperioder =
+                    listOf(
+                        SykmeldingsperiodeAGDTO(
+                            fom = basisDato,
+                            tom = basisDato.plusDays(2),
+                            type = PeriodetypeDTO.BEHANDLINGSDAGER,
+                            reisetilskudd = false,
+                            aktivitetIkkeMulig = null,
+                            behandlingsdager = 1,
+                            gradert = null,
+                            innspillTilArbeidsgiver = null,
+                        ),
+                        SykmeldingsperiodeAGDTO(
+                            fom = basisDato.plusDays(3),
+                            tom = basisDato.plusDays(4),
+                            type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+                            reisetilskudd = false,
+                            aktivitetIkkeMulig = null,
+                            behandlingsdager = null,
+                            gradert = null,
+                            innspillTilArbeidsgiver = null,
+                        ),
+                    ).shuffled(),
             ),
-            forventaSoknader = 2
+            forventaSoknader = 2,
         )
 
         val hentetViaRest = hentSoknaderMetadata(fnr).filter { it.sykmeldingId == sykmeldingId }
@@ -75,30 +75,31 @@ class KombinasjonSykmeldingerTest : BaseTestClass() {
             sykmeldingKafkaMessage(
                 sykmeldingId = sykmeldingId,
                 fnr = fnr,
-                sykmeldingsperioder = listOf(
-                    SykmeldingsperiodeAGDTO(
-                        fom = basisDato,
-                        tom = basisDato.plusDays(2),
-                        type = PeriodetypeDTO.BEHANDLINGSDAGER,
-                        reisetilskudd = false,
-                        aktivitetIkkeMulig = null,
-                        behandlingsdager = 1,
-                        gradert = null,
-                        innspillTilArbeidsgiver = null
-                    ),
-                    SykmeldingsperiodeAGDTO(
-                        fom = basisDato.plusDays(3),
-                        tom = basisDato.plusDays(4),
-                        type = PeriodetypeDTO.REISETILSKUDD,
-                        reisetilskudd = true,
-                        aktivitetIkkeMulig = null,
-                        behandlingsdager = null,
-                        gradert = null,
-                        innspillTilArbeidsgiver = null
-                    )
-                ).shuffled()
+                sykmeldingsperioder =
+                    listOf(
+                        SykmeldingsperiodeAGDTO(
+                            fom = basisDato,
+                            tom = basisDato.plusDays(2),
+                            type = PeriodetypeDTO.BEHANDLINGSDAGER,
+                            reisetilskudd = false,
+                            aktivitetIkkeMulig = null,
+                            behandlingsdager = 1,
+                            gradert = null,
+                            innspillTilArbeidsgiver = null,
+                        ),
+                        SykmeldingsperiodeAGDTO(
+                            fom = basisDato.plusDays(3),
+                            tom = basisDato.plusDays(4),
+                            type = PeriodetypeDTO.REISETILSKUDD,
+                            reisetilskudd = true,
+                            aktivitetIkkeMulig = null,
+                            behandlingsdager = null,
+                            gradert = null,
+                            innspillTilArbeidsgiver = null,
+                        ),
+                    ).shuffled(),
             ),
-            forventaSoknader = 2
+            forventaSoknader = 2,
         )
 
         val hentetViaRest = hentSoknaderMetadata(fnr).filter { it.sykmeldingId == sykmeldingId }
@@ -118,29 +119,30 @@ class KombinasjonSykmeldingerTest : BaseTestClass() {
             sykmeldingKafkaMessage(
                 sykmeldingId = sykmeldingId,
                 fnr = fnr,
-                sykmeldingsperioder = listOf(
-                    SykmeldingsperiodeAGDTO(
-                        fom = basisDato,
-                        tom = basisDato.plusDays(2),
-                        type = PeriodetypeDTO.GRADERT,
-                        reisetilskudd = false,
-                        aktivitetIkkeMulig = null,
-                        behandlingsdager = null,
-                        gradert = GradertDTO(grad = 1, reisetilskudd = false),
-                        innspillTilArbeidsgiver = null
-                    ),
-                    SykmeldingsperiodeAGDTO(
-                        fom = basisDato.plusDays(3),
-                        tom = basisDato.plusDays(4),
-                        type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
-                        reisetilskudd = false,
-                        aktivitetIkkeMulig = null,
-                        behandlingsdager = null,
-                        gradert = null,
-                        innspillTilArbeidsgiver = null
-                    )
-                ).shuffled()
-            )
+                sykmeldingsperioder =
+                    listOf(
+                        SykmeldingsperiodeAGDTO(
+                            fom = basisDato,
+                            tom = basisDato.plusDays(2),
+                            type = PeriodetypeDTO.GRADERT,
+                            reisetilskudd = false,
+                            aktivitetIkkeMulig = null,
+                            behandlingsdager = null,
+                            gradert = GradertDTO(grad = 1, reisetilskudd = false),
+                            innspillTilArbeidsgiver = null,
+                        ),
+                        SykmeldingsperiodeAGDTO(
+                            fom = basisDato.plusDays(3),
+                            tom = basisDato.plusDays(4),
+                            type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+                            reisetilskudd = false,
+                            aktivitetIkkeMulig = null,
+                            behandlingsdager = null,
+                            gradert = null,
+                            innspillTilArbeidsgiver = null,
+                        ),
+                    ).shuffled(),
+            ),
         )
 
         val hentetViaRest = hentSoknaderMetadata(fnr).filter { it.sykmeldingId == sykmeldingId }
@@ -157,30 +159,31 @@ class KombinasjonSykmeldingerTest : BaseTestClass() {
             sykmeldingKafkaMessage(
                 sykmeldingId = sykmeldingId,
                 fnr = fnr,
-                sykmeldingsperioder = listOf(
-                    SykmeldingsperiodeAGDTO(
-                        fom = basisDato,
-                        tom = basisDato.plusDays(2),
-                        type = PeriodetypeDTO.GRADERT,
-                        reisetilskudd = false,
-                        aktivitetIkkeMulig = null,
-                        behandlingsdager = null,
-                        gradert = GradertDTO(grad = 1, reisetilskudd = true),
-                        innspillTilArbeidsgiver = null
-                    ),
-                    SykmeldingsperiodeAGDTO(
-                        fom = basisDato.plusDays(3),
-                        tom = basisDato.plusDays(4),
-                        type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
-                        reisetilskudd = false,
-                        aktivitetIkkeMulig = null,
-                        behandlingsdager = null,
-                        gradert = null,
-                        innspillTilArbeidsgiver = null
-                    )
-                ).shuffled()
+                sykmeldingsperioder =
+                    listOf(
+                        SykmeldingsperiodeAGDTO(
+                            fom = basisDato,
+                            tom = basisDato.plusDays(2),
+                            type = PeriodetypeDTO.GRADERT,
+                            reisetilskudd = false,
+                            aktivitetIkkeMulig = null,
+                            behandlingsdager = null,
+                            gradert = GradertDTO(grad = 1, reisetilskudd = true),
+                            innspillTilArbeidsgiver = null,
+                        ),
+                        SykmeldingsperiodeAGDTO(
+                            fom = basisDato.plusDays(3),
+                            tom = basisDato.plusDays(4),
+                            type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+                            reisetilskudd = false,
+                            aktivitetIkkeMulig = null,
+                            behandlingsdager = null,
+                            gradert = null,
+                            innspillTilArbeidsgiver = null,
+                        ),
+                    ).shuffled(),
             ),
-            forventaSoknader = 2
+            forventaSoknader = 2,
         )
 
         val hentetViaRest = hentSoknaderMetadata(fnr).filter { it.sykmeldingId == sykmeldingId }
@@ -200,40 +203,41 @@ class KombinasjonSykmeldingerTest : BaseTestClass() {
             sykmeldingKafkaMessage(
                 sykmeldingId = sykmeldingId,
                 fnr = fnr,
-                sykmeldingsperioder = listOf(
-                    SykmeldingsperiodeAGDTO(
-                        fom = basisDato,
-                        tom = basisDato.plusDays(2),
-                        type = PeriodetypeDTO.GRADERT,
-                        reisetilskudd = false,
-                        aktivitetIkkeMulig = null,
-                        behandlingsdager = null,
-                        gradert = GradertDTO(grad = 1, reisetilskudd = true),
-                        innspillTilArbeidsgiver = null
-                    ),
-                    SykmeldingsperiodeAGDTO(
-                        fom = basisDato.plusDays(3),
-                        tom = basisDato.plusDays(4),
-                        type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
-                        reisetilskudd = false,
-                        aktivitetIkkeMulig = null,
-                        behandlingsdager = null,
-                        gradert = null,
-                        innspillTilArbeidsgiver = null
-                    ),
-                    SykmeldingsperiodeAGDTO(
-                        fom = basisDato.plusDays(5),
-                        tom = basisDato.plusDays(6),
-                        type = PeriodetypeDTO.GRADERT,
-                        reisetilskudd = false,
-                        aktivitetIkkeMulig = null,
-                        behandlingsdager = null,
-                        gradert = GradertDTO(20, false),
-                        innspillTilArbeidsgiver = null
-                    )
-                ).shuffled()
+                sykmeldingsperioder =
+                    listOf(
+                        SykmeldingsperiodeAGDTO(
+                            fom = basisDato,
+                            tom = basisDato.plusDays(2),
+                            type = PeriodetypeDTO.GRADERT,
+                            reisetilskudd = false,
+                            aktivitetIkkeMulig = null,
+                            behandlingsdager = null,
+                            gradert = GradertDTO(grad = 1, reisetilskudd = true),
+                            innspillTilArbeidsgiver = null,
+                        ),
+                        SykmeldingsperiodeAGDTO(
+                            fom = basisDato.plusDays(3),
+                            tom = basisDato.plusDays(4),
+                            type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+                            reisetilskudd = false,
+                            aktivitetIkkeMulig = null,
+                            behandlingsdager = null,
+                            gradert = null,
+                            innspillTilArbeidsgiver = null,
+                        ),
+                        SykmeldingsperiodeAGDTO(
+                            fom = basisDato.plusDays(5),
+                            tom = basisDato.plusDays(6),
+                            type = PeriodetypeDTO.GRADERT,
+                            reisetilskudd = false,
+                            aktivitetIkkeMulig = null,
+                            behandlingsdager = null,
+                            gradert = GradertDTO(20, false),
+                            innspillTilArbeidsgiver = null,
+                        ),
+                    ).shuffled(),
             ),
-            forventaSoknader = 2
+            forventaSoknader = 2,
         )
 
         val hentetViaRest = hentSoknaderMetadata(fnr).filter { it.sykmeldingId == sykmeldingId }

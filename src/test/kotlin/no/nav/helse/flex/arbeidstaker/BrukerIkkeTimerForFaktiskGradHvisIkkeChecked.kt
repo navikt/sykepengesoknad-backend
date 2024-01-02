@@ -27,7 +27,6 @@ import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.MethodName::class)
 class BrukerIkkeTimerForFaktiskGradHvisIkkeChecked : BaseTestClass() {
-
     @BeforeAll
     fun configureUnleash() {
         fakeUnleash.resetAll()
@@ -43,11 +42,12 @@ class BrukerIkkeTimerForFaktiskGradHvisIkkeChecked : BaseTestClass() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                sykmeldingsperioder = gradertSykmeldt(
-                    fom = start,
-                    tom = slutt
-                )
-            )
+                sykmeldingsperioder =
+                    gradertSykmeldt(
+                        fom = start,
+                        tom = slutt,
+                    ),
+            ),
         )
     }
 
@@ -56,10 +56,11 @@ class BrukerIkkeTimerForFaktiskGradHvisIkkeChecked : BaseTestClass() {
         flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
 
-        val soknaden = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val soknaden =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
 
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
             .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
@@ -81,10 +82,11 @@ class BrukerIkkeTimerForFaktiskGradHvisIkkeChecked : BaseTestClass() {
 
     @Test
     fun `4 - vi sjekker at faktisk grad er hentet ut korrekt`() {
-        val soknaden = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val soknaden =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
 
         assertThat(soknaden.status).isEqualTo(RSSoknadstatus.SENDT)
 

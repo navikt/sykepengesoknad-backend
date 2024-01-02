@@ -34,32 +34,38 @@ class OppdaterSporsmalService(
     val sykepengesoknadKvitteringerClient: SykepengesoknadKvitteringerClient,
     val sykepengesoknadDAO: SykepengesoknadDAO,
     val svarDAO: SvarDAO,
-    val metrikk: Metrikk
+    val metrikk: Metrikk,
 ) {
     val log = logger()
 
     class OppdaterSporsmalResultat(val oppdatertSoknad: Sykepengesoknad, val mutert: Boolean)
 
-    fun oppdaterSporsmal(soknadFraBasenForOppdatering: Sykepengesoknad, sporsmal: Sporsmal): OppdaterSporsmalResultat {
-        val sporsmaletFraBasen = soknadFraBasenForOppdatering.sporsmal.find { it.id == sporsmal.id }
-            ?: throw IllegalArgumentException("Soknad fra basen skal ha spørsmålet")
+    fun oppdaterSporsmal(
+        soknadFraBasenForOppdatering: Sykepengesoknad,
+        sporsmal: Sporsmal,
+    ): OppdaterSporsmalResultat {
+        val sporsmaletFraBasen =
+            soknadFraBasenForOppdatering.sporsmal.find { it.id == sporsmal.id }
+                ?: throw IllegalArgumentException("Soknad fra basen skal ha spørsmålet")
 
         if (listOf(sporsmal).erUlikUtenomSvar(listOf(sporsmaletFraBasen))) {
             throw IllegalArgumentException("Spørsmål i databasen er ulikt spørsmål som er besvart")
         }
 
-        val validerteSporsmal = sporsmal
-            .nullstillTidligereSvar()
-            .also { it.validerSvarPaSporsmal() }
+        val validerteSporsmal =
+            sporsmal
+                .nullstillTidligereSvar()
+                .also { it.validerSvarPaSporsmal() }
 
-        val oppdatertSoknad = soknadFraBasenForOppdatering
-            .replaceSporsmal(validerteSporsmal)
-            .jobbaDuHundreGate()
-            .friskmeldtMuteringer()
-            .brukteDuReisetilskuddetMutering()
-            .utlandssoknadMuteringer()
-            .arbeidGjenopptattMutering()
-            .oppdaterMedSvarPaUtlandsopphold()
+        val oppdatertSoknad =
+            soknadFraBasenForOppdatering
+                .replaceSporsmal(validerteSporsmal)
+                .jobbaDuHundreGate()
+                .friskmeldtMuteringer()
+                .brukteDuReisetilskuddetMutering()
+                .utlandssoknadMuteringer()
+                .arbeidGjenopptattMutering()
+                .oppdaterMedSvarPaUtlandsopphold()
 
         val soknadenErMutert = soknadFraBasenForOppdatering.sporsmal.erUlikUtenomSvar(oppdatertSoknad.sporsmal)
 
@@ -70,37 +76,48 @@ class OppdaterSporsmalService(
         }
         // Vi må returnerer oppdatert spørsmål når vi har lagret en kvittering sånn at den har en id hvis den blir
         // forsøket slettet uten at siden må lastes på nytt.
-        val soknad = if (soknadenErMutert || validerteSporsmal.tag == KVITTERINGER) {
-            sykepengesoknadDAO.finnSykepengesoknad(oppdatertSoknad.id)
-        } else {
-            oppdatertSoknad
-        }
+        val soknad =
+            if (soknadenErMutert || validerteSporsmal.tag == KVITTERINGER) {
+                sykepengesoknadDAO.finnSykepengesoknad(oppdatertSoknad.id)
+            } else {
+                oppdatertSoknad
+            }
         return OppdaterSporsmalResultat(soknad, soknadenErMutert)
     }
 
-    fun lagreNyttSvar(lagretSoknad: Sykepengesoknad, sporsmalId: String, svar: Svar): OppdaterSporsmalResultat {
+    fun lagreNyttSvar(
+        lagretSoknad: Sykepengesoknad,
+        sporsmalId: String,
+        svar: Svar,
+    ): OppdaterSporsmalResultat {
         val soknadId = lagretSoknad.id
 
         val sporsmal = (
             lagretSoknad.sporsmal.flatten()
                 .find { it.id == sporsmalId }
                 ?: throw IllegalArgumentException("$sporsmalId finnes ikke i søknad $soknadId")
-            )
+        )
 
         val oppdatertSporsmal = sporsmal.copy(svar = sporsmal.svar.toMutableList().also { it.add(svar) })
 
         return oppdaterSporsmal(lagretSoknad, oppdatertSporsmal)
     }
 
-    fun slettSvar(lagretSoknad: Sykepengesoknad, sporsmalId: String, svarId: String) {
+    fun slettSvar(
+        lagretSoknad: Sykepengesoknad,
+        sporsmalId: String,
+        svarId: String,
+    ) {
         val soknadId = lagretSoknad.id
-        val sporsmal = lagretSoknad.sporsmal
-            .flatten()
-            .find { it.id == sporsmalId }
-            ?: throw IllegalArgumentException("Spørsmål $sporsmalId finnes ikke i søknad $soknadId.")
+        val sporsmal =
+            lagretSoknad.sporsmal
+                .flatten()
+                .find { it.id == sporsmalId }
+                ?: throw IllegalArgumentException("Spørsmål $sporsmalId finnes ikke i søknad $soknadId.")
 
-        val svarSomSkalFjernes = sporsmal.svar.find { it.id == svarId }
-            ?: throw IllegalArgumentException("Svar $svarId finnes ikke i spørsmål $sporsmalId og søknad $soknadId.")
+        val svarSomSkalFjernes =
+            sporsmal.svar.find { it.id == svarId }
+                ?: throw IllegalArgumentException("Svar $svarId finnes ikke i spørsmål $sporsmalId og søknad $soknadId.")
 
         // Spesialhåndterer sletting av kvitteringer da frontendkoden forventer at man skal kunne slette flere
         // kvitteringer uten å laste søknaden på nytt. oppdaterSporsmal() sletter alle svar tilhørende spørsmålet
@@ -115,28 +132,40 @@ class OppdaterSporsmalService(
         log.info("Slettet svar $svarId for spørsmål $sporsmalId og søknad $soknadId.")
     }
 
-    fun leggTilNyttUndersporsmal(soknadId: String, tag: String) {
+    fun leggTilNyttUndersporsmal(
+        soknadId: String,
+        tag: String,
+    ) {
         val soknad = sykepengesoknadDAO.finnSykepengesoknad(soknadId)
         val sporsmal = soknad.sporsmal.first { it.tag == tag }
         val index = finnHoyesteIndex(sporsmal.undersporsmal) + 1
-        val undersporsmal = when (tag) {
-            MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE -> lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(index, soknad.tom!!)
-            MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE -> lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforNorge(index, soknad.tom!!)
-            MEDLEMSKAP_OPPHOLD_UTENFOR_EOS -> lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforEos(index, soknad.tom!!)
-            else -> throw IllegalArgumentException("Kan ikke legge til underspørsmål for tag $tag.")
-        }
+        val undersporsmal =
+            when (tag) {
+                MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE -> lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(index, soknad.tom!!)
+                MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE -> lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforNorge(index, soknad.tom!!)
+                MEDLEMSKAP_OPPHOLD_UTENFOR_EOS -> lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforEos(index, soknad.tom!!)
+                else -> throw IllegalArgumentException("Kan ikke legge til underspørsmål for tag $tag.")
+            }
         val oppdatertSporsmal = sporsmal.copy(undersporsmal = sporsmal.undersporsmal + undersporsmal)
         sykepengesoknadDAO.byttUtSporsmal(soknad.replaceSporsmal(oppdatertSporsmal))
     }
 
-    fun slettUndersporsmal(soknad: Sykepengesoknad, hovedSporsmal: Sporsmal, undersporsmalId: String) {
-        val oppdatertSporsmal = hovedSporsmal.copy(
-            undersporsmal = hovedSporsmal.undersporsmal.filterNot { it.id == undersporsmalId }
-        )
+    fun slettUndersporsmal(
+        soknad: Sykepengesoknad,
+        hovedSporsmal: Sporsmal,
+        undersporsmalId: String,
+    ) {
+        val oppdatertSporsmal =
+            hovedSporsmal.copy(
+                undersporsmal = hovedSporsmal.undersporsmal.filterNot { it.id == undersporsmalId },
+            )
         sykepengesoknadDAO.byttUtSporsmal(soknad.replaceSporsmal(oppdatertSporsmal))
     }
 
-    private fun slettKvittering(sporsmal: Sporsmal, svar: Svar) {
+    private fun slettKvittering(
+        sporsmal: Sporsmal,
+        svar: Svar,
+    ) {
         svarDAO.slettSvar(sporsmal.id!!, svar.id!!)
         sykepengesoknadKvitteringerClient.slettKvittering(svar.verdi.tilKvittering().blobId)
     }

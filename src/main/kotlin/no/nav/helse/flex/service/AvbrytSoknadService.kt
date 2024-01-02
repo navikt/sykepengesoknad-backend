@@ -16,7 +16,7 @@ import java.time.LocalDate
 class AvbrytSoknadService(
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val metrikk: Metrikk,
-    private val soknadProducer: SoknadProducer
+    private val soknadProducer: SoknadProducer,
 ) {
     val log = logger()
 
@@ -43,7 +43,8 @@ class AvbrytSoknadService(
                     Soknadstype.BEHANDLINGSDAGER,
                     Soknadstype.REISETILSKUDD,
                     Soknadstype.GRADERT_REISETILSKUDD,
-                    Soknadstype.ARBEIDSTAKERE -> {
+                    Soknadstype.ARBEIDSTAKERE,
+                    -> {
                         sykepengesoknad.avbrytOgPubliser()
                     }
                 }

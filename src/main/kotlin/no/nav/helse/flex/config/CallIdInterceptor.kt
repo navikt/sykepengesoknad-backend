@@ -20,7 +20,7 @@ class CallIdInterceptor : ClientHttpRequestInterceptor {
     override fun intercept(
         httpRequest: HttpRequest,
         bytes: ByteArray,
-        clientHttpRequestExecution: ClientHttpRequestExecution
+        clientHttpRequestExecution: ClientHttpRequestExecution,
     ): ClientHttpResponse {
         Optional.ofNullable(MDC.get(NAV_CALLID))
             .ifPresent { callid ->

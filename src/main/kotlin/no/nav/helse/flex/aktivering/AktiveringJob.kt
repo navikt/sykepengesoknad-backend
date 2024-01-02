@@ -16,9 +16,8 @@ import kotlin.system.measureTimeMillis
 class AktiveringJob(
     val aktiveringProducer: AktiveringProducer,
     val leaderElection: LeaderElection,
-    val sykepengesoknadRepository: SykepengesoknadRepository
+    val sykepengesoknadRepository: SykepengesoknadRepository,
 ) {
-
     val log = logger()
 
     @Scheduled(initialDelay = 5, fixedDelay = 120, timeUnit = TimeUnit.MINUTES)
@@ -34,13 +33,14 @@ class AktiveringJob(
                 return
             }
             log.info("Publiserer ${soknaderSomSkalAktiveres.size} soknader som skal aktiveres på kafka ")
-            val publiseringstid = measureTimeMillis {
-                soknaderSomSkalAktiveres.forEach {
-                    aktiveringProducer.leggPaAktiveringTopic(
-                        AktiveringBestilling(it.fnr, it.sykepengesoknadUuid)
-                    )
+            val publiseringstid =
+                measureTimeMillis {
+                    soknaderSomSkalAktiveres.forEach {
+                        aktiveringProducer.leggPaAktiveringTopic(
+                            AktiveringBestilling(it.fnr, it.sykepengesoknadUuid),
+                        )
+                    }
                 }
-            }
 
             log.info("Har publisert ${soknaderSomSkalAktiveres.size} soknader som skal aktiveres på kafka. Tid $publiseringstid")
         }

@@ -15,7 +15,6 @@ import java.time.temporal.ChronoUnit
 
 @Component
 class Metrikk(private val registry: MeterRegistry) {
-
     fun utelattSykmeldingFraSoknadOpprettelse(grunn: String) {
         registry.counter("sykmelding_utelatt_opprettelse", Tags.of("grunn", grunn)).increment()
     }
@@ -41,8 +40,8 @@ class Metrikk(private val registry: MeterRegistry) {
                 "type",
                 "info",
                 "oppbruktArbeidsgiverperiode",
-                oppbruktArbeidsgiverperiode.toString()
-            )
+                oppbruktArbeidsgiverperiode.toString(),
+            ),
         ).increment()
     }
 
@@ -57,8 +56,8 @@ class Metrikk(private val registry: MeterRegistry) {
                 "type",
                 "info",
                 "soknadstype",
-                soknadstype.name
-            )
+                soknadstype.name,
+            ),
         )
             .increment()
     }
@@ -66,21 +65,21 @@ class Metrikk(private val registry: MeterRegistry) {
     fun soknadAvbrutt(soknadstype: Soknadstype) {
         registry.counter(
             "syfosoknad_soknad_avbrutt",
-            Tags.of("type", "info", "soknadstype", soknadstype.name)
+            Tags.of("type", "info", "soknadstype", soknadstype.name),
         ).increment()
     }
 
     fun tellSoknadSendt(soknadstype: Soknadstype) {
         registry.counter(
             "syfosoknad_soknad_sendt",
-            Tags.of("type", "info", "soknadstype", soknadstype.name)
+            Tags.of("type", "info", "soknadstype", soknadstype.name),
         ).increment()
     }
 
     fun tellUtkastTilKorrigeringOpprettet(soknadstype: Soknadstype) {
         registry.counter(
             "syfosoknad_utkast_til_korrigering_opprettet",
-            Tags.of("type", "info", "soknadstype", soknadstype.name)
+            Tags.of("type", "info", "soknadstype", soknadstype.name),
         ).increment()
     }
 
@@ -100,7 +99,10 @@ class Metrikk(private val registry: MeterRegistry) {
         registry.counter("syfosoknad_med_sparte_dagsverk", Tags.of("type", "info")).increment()
     }
 
-    fun antallDagsverkSpart(type: String?, antallDagsverk: Double) {
+    fun antallDagsverkSpart(
+        type: String?,
+        antallDagsverk: Double,
+    ) {
         registry.counter("syfosoknad_dagsverk_spart", Tags.of("type", type)).increment(antallDagsverk)
     }
 
@@ -115,8 +117,8 @@ class Metrikk(private val registry: MeterRegistry) {
                 "type",
                 "info",
                 "soknadstype",
-                soknadstype
-            )
+                soknadstype,
+            ),
         )
             .increment()
     }
@@ -128,13 +130,16 @@ class Metrikk(private val registry: MeterRegistry) {
                 "type",
                 "info",
                 "soknadstype",
-                soknadstype
-            )
+                soknadstype,
+            ),
         )
             .increment()
     }
 
-    fun tellDagerFraAktiveringTilInnsending(soknadstype: String?, dager: Long) {
+    fun tellDagerFraAktiveringTilInnsending(
+        soknadstype: String?,
+        dager: Long,
+    ) {
         registry.counter(
             "syfosoknad_dager_fra_aktivering_til_innsending",
             Tags.of(
@@ -143,13 +148,16 @@ class Metrikk(private val registry: MeterRegistry) {
                 "soknadstype",
                 soknadstype,
                 "dager",
-                dager.toString()
-            )
+                dager.toString(),
+            ),
         )
             .increment()
     }
 
-    fun prosesserSelvstendigSoknad(soknad: Sykepengesoknad, sykepengesoknadDTO: SykepengesoknadDTO) {
+    fun prosesserSelvstendigSoknad(
+        soknad: Sykepengesoknad,
+        sykepengesoknadDTO: SykepengesoknadDTO,
+    ) {
         if (soknad.status != Soknadstatus.SENDT) {
             return
         }
@@ -161,19 +169,20 @@ class Metrikk(private val registry: MeterRegistry) {
             soknad.getSporsmalMedTagOrNull(TILBAKE_I_ARBEID)
                 ?.let {
                     if (it.forsteSvar == "JA") {
-                        val tilbake = LocalDate.parse(
-                            soknad.getSporsmalMedTagOrNull(TILBAKE_NAR)?.forsteSvar!!,
-                            DateTimeFormatter.ISO_DATE
-                        )
+                        val tilbake =
+                            LocalDate.parse(
+                                soknad.getSporsmalMedTagOrNull(TILBAKE_NAR)?.forsteSvar!!,
+                                DateTimeFormatter.ISO_DATE,
+                            )
                         val dager = ChronoUnit.DAYS.between(tilbake, soknad.tom!!)
                         registry.counter(
                             "syfosoknad_anmodningsvedtak6_tilbake_i_arbeid",
-                            Tags.of("type", "info", "dager", dager.toString())
+                            Tags.of("type", "info", "dager", dager.toString()),
                         ).increment()
                     }
                 }
             if (soknad.sporsmal.filter { sporsmal -> sporsmal.tag.matches("^JOBBET_DU_(100|GRADERT).*".toRegex()) }
-                .any { it.forsteSvar == "JA" }.apply {}
+                    .any { it.forsteSvar == "JA" }.apply {}
             ) {
                 registry.counter("syfosoknad_anmodningsvedtak6_jobbet_du_noe", Tags.of("type", "info")).increment()
             }
@@ -187,8 +196,8 @@ class Metrikk(private val registry: MeterRegistry) {
                 "type",
                 "info",
                 "dager",
-                antallFriskmeldteDager.toString()
-            )
+                antallFriskmeldteDager.toString(),
+            ),
         )
             .increment()
     }

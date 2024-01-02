@@ -7,7 +7,7 @@ import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 
 fun finnSoknadsType(
     arbeidssituasjon: Arbeidssituasjon,
-    perioderFraSykmeldingen: List<SykmeldingsperiodeAGDTO>
+    perioderFraSykmeldingen: List<SykmeldingsperiodeAGDTO>,
 ): Soknadstype {
     if (perioderFraSykmeldingen.any { it.type === PeriodetypeDTO.BEHANDLINGSDAGER }) {
         return Soknadstype.BEHANDLINGSDAGER

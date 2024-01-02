@@ -9,7 +9,6 @@ private const val ANTALL_PARTISJONER = 10
 private const val REPETER_TEST_ANTALL_GANGER = 3
 
 class FnrPartitionerTest {
-
     @Test
     fun `Alle meldinger med samme fnr skal sendes på samme partisjon`() {
         val syntetiskeFnr = hentSyntetiskeFnr()
@@ -37,6 +36,5 @@ class FnrPartitionerTest {
             .shouldHaveSize(ANTALL_PARTISJONER)
     }
 
-    private fun hentSyntetiskeFnr() =
-        this.javaClass.classLoader.getResourceAsStream("syntetiske-fnr.txt")!!.bufferedReader().readLines()
+    private fun hentSyntetiskeFnr() = this.javaClass.classLoader.getResourceAsStream("syntetiske-fnr.txt")!!.bufferedReader().readLines()
 }

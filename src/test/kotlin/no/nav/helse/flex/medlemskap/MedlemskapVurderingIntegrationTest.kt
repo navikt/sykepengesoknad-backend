@@ -22,7 +22,6 @@ import java.util.*
  * (f.eks nettverksfeil) og det vi tolker som logiske feil i responsen.
  */
 class MedlemskapVurderingIntegrationTest : BaseTestClass() {
-
     @Autowired
     private lateinit var medlemskapVurderingClient: MedlemskapVurderingClient
 
@@ -38,12 +37,13 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
     private val fom = LocalDate.of(2023, 1, 1)
     private val tom = LocalDate.of(2023, 1, 31)
 
-    private val request = MedlemskapVurderingRequest(
-        fnr = "",
-        fom = fom,
-        tom = tom,
-        sykepengesoknadId = sykepengesoknadId
-    )
+    private val request =
+        MedlemskapVurderingRequest(
+            fnr = "",
+            fom = fom,
+            tom = tom,
+            sykepengesoknadId = sykepengesoknadId,
+        )
 
     @Test
     fun `hentMedlemskapVurdering svarer med UAVKLART og liste med spørsmål`() {
@@ -52,25 +52,27 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
             MockResponse().setResponseCode(200).setBody(
                 MedlemskapVurderingResponse(
                     svar = MedlemskapVurderingSvarType.UAVKLART,
-                    sporsmal = listOf(
-                        MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
-                        MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
-                        MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
-                        MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE
-                    )
-                ).serialisertTilString()
-            )
+                    sporsmal =
+                        listOf(
+                            MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
+                            MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
+                            MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
+                            MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE,
+                        ),
+                ).serialisertTilString(),
+            ),
         )
 
         val response = medlemskapVurderingClient.hentMedlemskapVurdering(request.copy(fnr = fnr))
 
         response.svar `should be equal to` MedlemskapVurderingSvarType.UAVKLART
-        response.sporsmal `should contain same` listOf(
-            MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
-            MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
-            MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
-            MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE
-        )
+        response.sporsmal `should contain same`
+            listOf(
+                MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
+                MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
+                MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
+                MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE,
+            )
 
         val dbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
         dbRecords.first().sporsmal `should not be` null
@@ -83,9 +85,9 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
             MockResponse().setResponseCode(200).setBody(
                 MedlemskapVurderingResponse(
                     svar = MedlemskapVurderingSvarType.UAVKLART,
-                    sporsmal = emptyList()
-                ).serialisertTilString()
-            )
+                    sporsmal = emptyList(),
+                ).serialisertTilString(),
+            ),
         )
 
         val response = medlemskapVurderingClient.hentMedlemskapVurdering(request.copy(fnr = fnr))
@@ -107,9 +109,9 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
             MockResponse().setResponseCode(200).setBody(
                 MedlemskapVurderingResponse(
                     svar = MedlemskapVurderingSvarType.JA,
-                    sporsmal = emptyList()
-                ).serialisertTilString()
-            )
+                    sporsmal = emptyList(),
+                ).serialisertTilString(),
+            ),
         )
         val response = medlemskapVurderingClient.hentMedlemskapVurdering(request.copy(fnr = fnr))
 
@@ -128,9 +130,9 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
             MockResponse().setResponseCode(200).setBody(
                 MedlemskapVurderingResponse(
                     svar = MedlemskapVurderingSvarType.NEI,
-                    sporsmal = emptyList()
-                ).serialisertTilString()
-            )
+                    sporsmal = emptyList(),
+                ).serialisertTilString(),
+            ),
         )
 
         val response = medlemskapVurderingClient.hentMedlemskapVurdering(request.copy(fnr = fnr))
@@ -149,13 +151,13 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
     fun `hentMedlemskapVurdering kaster exception når det returneres HttpStatus 5xx`() {
         val fnr = "31111111114"
         medlemskapMockWebServer.enqueue(
-            MockResponse().setResponseCode(500)
+            MockResponse().setResponseCode(500),
         )
 
         val exception =
             assertThrows<MedlemskapVurderingClientException> {
                 medlemskapVurderingClient.hentMedlemskapVurdering(
-                    request.copy(fnr = fnr)
+                    request.copy(fnr = fnr),
                 )
             }
 
@@ -169,13 +171,13 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
     fun `hentMedlemskapVurdering kaster exception når det returneres HttpStatus 4xx`() {
         val fnr = "31111111115"
         medlemskapMockWebServer.enqueue(
-            MockResponse().setResponseCode(400)
+            MockResponse().setResponseCode(400),
         )
 
         val exception =
             assertThrows<MedlemskapVurderingClientException> {
                 medlemskapVurderingClient.hentMedlemskapVurdering(
-                    request.copy(fnr = fnr)
+                    request.copy(fnr = fnr),
                 )
             }
 
@@ -192,17 +194,18 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
             MockResponse().setResponseCode(200).setBody(
                 MedlemskapVurderingResponse(
                     svar = MedlemskapVurderingSvarType.JA,
-                    sporsmal = listOf(
-                        MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE
-                    )
-                ).serialisertTilString()
-            )
+                    sporsmal =
+                        listOf(
+                            MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
+                        ),
+                ).serialisertTilString(),
+            ),
         )
 
         val exception =
             assertThrows<MedlemskapVurderingResponseException> {
                 medlemskapVurderingClient.hentMedlemskapVurdering(
-                    request.copy(fnr = fnr)
+                    request.copy(fnr = fnr),
                 )
             }
 
@@ -223,17 +226,18 @@ class MedlemskapVurderingIntegrationTest : BaseTestClass() {
             MockResponse().setResponseCode(200).setBody(
                 MedlemskapVurderingResponse(
                     svar = MedlemskapVurderingSvarType.NEI,
-                    sporsmal = listOf(
-                        MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE
-                    )
-                ).serialisertTilString()
-            )
+                    sporsmal =
+                        listOf(
+                            MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
+                        ),
+                ).serialisertTilString(),
+            ),
         )
 
         val exception =
             assertThrows<MedlemskapVurderingResponseException> {
                 medlemskapVurderingClient.hentMedlemskapVurdering(
-                    request.copy(fnr = fnr)
+                    request.copy(fnr = fnr),
                 )
             }
 

@@ -11,18 +11,17 @@ import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
 import java.util.*
 
+private const val TEMA = "Tema"
+private const val TEMA_SYK = "SYK"
+private const val IDENT = "ident"
+
 @Component
 class PdlClient(
     @Value("\${pdl.api.url}")
     private val pdlApiUrl: String,
-    private val pdlRestTemplate: RestTemplate
+    private val pdlRestTemplate: RestTemplate,
 ) {
-
-    private val TEMA = "Tema"
-    private val TEMA_SYK = "SYK"
-    private val IDENT = "ident"
-
-    private val HENT_IDENTER_MED_HISTORIKK =
+    private val hentIdenterMedHistorikkQuery =
         """
 query(${"$"}ident: ID!){
   hentIdenter(ident: ${"$"}ident, historikk: true) {
@@ -36,17 +35,19 @@ query(${"$"}ident: ID!){
 
     @Retryable(exclude = [FunctionalPdlError::class])
     fun hentIdenterMedHistorikk(ident: String): List<PdlIdent> {
-        val graphQLRequest = GraphQLRequest(
-            query = HENT_IDENTER_MED_HISTORIKK,
-            variables = Collections.singletonMap(IDENT, ident)
-        )
+        val graphQLRequest =
+            GraphQLRequest(
+                query = hentIdenterMedHistorikkQuery,
+                variables = Collections.singletonMap(IDENT, ident),
+            )
 
-        val responseEntity = pdlRestTemplate.exchange(
-            "$pdlApiUrl/graphql",
-            HttpMethod.POST,
-            HttpEntity(requestToJson(graphQLRequest), createHeaderWithTema()),
-            String::class.java
-        )
+        val responseEntity =
+            pdlRestTemplate.exchange(
+                "$pdlApiUrl/graphql",
+                HttpMethod.POST,
+                HttpEntity(requestToJson(graphQLRequest), createHeaderWithTema()),
+                String::class.java,
+            )
 
         if (responseEntity.statusCode != HttpStatus.OK) {
             throw RuntimeException("PDL svarer med status ${responseEntity.statusCode} - ${responseEntity.body}")

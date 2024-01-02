@@ -20,7 +20,6 @@ import java.time.LocalDate
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class RedusertVenteperiodeConsumerTest : BaseTestClass() {
-
     @Autowired
     private lateinit var redusertVenteperiodeRepository: RedusertVenteperiodeRepository
 
@@ -35,7 +34,7 @@ class RedusertVenteperiodeConsumerTest : BaseTestClass() {
     fun `Sykmelding med redusert venteperiode lagres`() {
         redusertVenteperiodeConsumer.prosesserKafkaMelding(
             sykmeldingId,
-            kafkaMessage.serialisertTilString()
+            kafkaMessage.serialisertTilString(),
         )
 
         redusertVenteperiodeRepository.existsBySykmeldingId(sykmeldingId) shouldBeEqualTo true
@@ -46,7 +45,7 @@ class RedusertVenteperiodeConsumerTest : BaseTestClass() {
     fun `Kan lese inn samme sykmelding flere ganger`() {
         redusertVenteperiodeConsumer.prosesserKafkaMelding(
             sykmeldingId,
-            kafkaMessage.serialisertTilString()
+            kafkaMessage.serialisertTilString(),
         )
 
         redusertVenteperiodeRepository.existsBySykmeldingId(sykmeldingId) shouldBeEqualTo true
@@ -57,32 +56,35 @@ class RedusertVenteperiodeConsumerTest : BaseTestClass() {
     fun `Fjernes ved tombstone event`() {
         redusertVenteperiodeConsumer.prosesserKafkaMelding(
             sykmeldingId,
-            null
+            null,
         )
 
         redusertVenteperiodeRepository.existsBySykmeldingId(sykmeldingId) shouldBeEqualTo false
     }
 
     private fun redusertVenteperiodeSykmelding(): SykmeldingKafkaMessage {
-        val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(
-            fnr = "12345678901",
-            arbeidssituasjon = Arbeidssituasjon.FRILANSER,
-            statusEvent = STATUS_BEKREFTET
-        )
+        val sykmeldingStatusKafkaMessageDTO =
+            skapSykmeldingStatusKafkaMessageDTO(
+                fnr = "12345678901",
+                arbeidssituasjon = Arbeidssituasjon.FRILANSER,
+                statusEvent = STATUS_BEKREFTET,
+            )
 
-        val sykmelding = skapArbeidsgiverSykmelding(
-            sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId,
-            fom = LocalDate.now(),
-            tom = LocalDate.now()
-        ).copy(
-            harRedusertArbeidsgiverperiode = true
-        )
+        val sykmelding =
+            skapArbeidsgiverSykmelding(
+                sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId,
+                fom = LocalDate.now(),
+                tom = LocalDate.now(),
+            ).copy(
+                harRedusertArbeidsgiverperiode = true,
+            )
 
-        val sykmeldingKafkaMessage = SykmeldingKafkaMessage(
-            sykmelding = sykmelding,
-            event = sykmeldingStatusKafkaMessageDTO.event,
-            kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata
-        )
+        val sykmeldingKafkaMessage =
+            SykmeldingKafkaMessage(
+                sykmelding = sykmelding,
+                event = sykmeldingStatusKafkaMessageDTO.event,
+                kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
+            )
 
         return sykmeldingKafkaMessage
     }

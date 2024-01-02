@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 @Transactional
 class OppdateringAvMerknader(
-    private val sykepengesoknadRepository: SykepengesoknadRepository
+    private val sykepengesoknadRepository: SykepengesoknadRepository,
 ) {
     val log = logger()
 

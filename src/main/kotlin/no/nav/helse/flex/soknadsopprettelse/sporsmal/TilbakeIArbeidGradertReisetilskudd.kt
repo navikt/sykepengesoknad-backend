@@ -13,20 +13,21 @@ fun tilbakeIFulltArbeidGradertReisetilskuddSporsmal(soknadMetadata: Sykepengesok
     return Sporsmal(
         tag = TILBAKE_I_ARBEID,
         sporsmalstekst = "Var du tilbake i ditt vanlige arbeid uten ekstra reiseutgifter før ${
-        DatoUtil.formatterDatoUtenÅr(
-            soknadMetadata.tom!!.plusDays(1)
-        )
+            DatoUtil.formatterDatoUtenÅr(
+                soknadMetadata.tom!!.plusDays(1),
+            )
         }?",
         svartype = Svartype.JA_NEI,
         kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
-        undersporsmal = listOf(
-            Sporsmal(
-                tag = TILBAKE_NAR,
-                sporsmalstekst = "Når var du tilbake?",
-                svartype = Svartype.DATO,
-                min = soknadMetadata.fom!!.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                max = soknadMetadata.tom.format(DateTimeFormatter.ISO_LOCAL_DATE)
-            )
-        )
+        undersporsmal =
+            listOf(
+                Sporsmal(
+                    tag = TILBAKE_NAR,
+                    sporsmalstekst = "Når var du tilbake?",
+                    svartype = Svartype.DATO,
+                    min = soknadMetadata.fom!!.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                    max = soknadMetadata.tom.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                ),
+            ),
     )
 }

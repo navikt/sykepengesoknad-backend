@@ -18,49 +18,55 @@ import java.time.LocalDate.now
 import java.time.LocalDateTime
 import java.util.*
 
-fun opprettNySoknadReisetilskudd(aktivertDato: LocalDate, toggle: Boolean): Sykepengesoknad {
-    val soknadMetadata = Sykepengesoknad(
-        fnr = "11111111111",
-        startSykeforlop = now().minusDays(24),
-        fom = now().minusDays(19),
-        tom = now().minusDays(10),
-        soknadstype = Soknadstype.REISETILSKUDD,
-        arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-        arbeidsgiverNavn = null,
-        arbeidsgiverOrgnummer = null,
-        sykmeldingId = "289148ba-4c3c-4b3f-b7a3-209jf32f",
-        sykmeldingSkrevet = LocalDateTime.now().minusDays(19).tilOsloInstant(),
-        soknadPerioder = listOf(
-            SykmeldingsperiodeAGDTO(
-                fom = now().minusDays(19),
-                tom = now().minusDays(10),
-                gradert = null,
-                type = PeriodetypeDTO.REISETILSKUDD,
-                aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
-                behandlingsdager = null,
-                innspillTilArbeidsgiver = null,
-                reisetilskudd = true
-            )
-        ).tilSoknadsperioder(),
-        id = UUID.randomUUID().toString(),
-        status = Soknadstatus.NY,
-        opprettet = Instant.now(),
-        sporsmal = emptyList(),
-        utenlandskSykmelding = false,
-        egenmeldingsdagerFraSykmelding = null,
-        forstegangssoknad = false,
-        aktivertDato = aktivertDato
-    )
+fun opprettNySoknadReisetilskudd(
+    aktivertDato: LocalDate,
+    toggle: Boolean,
+): Sykepengesoknad {
+    val soknadMetadata =
+        Sykepengesoknad(
+            fnr = "11111111111",
+            startSykeforlop = now().minusDays(24),
+            fom = now().minusDays(19),
+            tom = now().minusDays(10),
+            soknadstype = Soknadstype.REISETILSKUDD,
+            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+            arbeidsgiverNavn = null,
+            arbeidsgiverOrgnummer = null,
+            sykmeldingId = "289148ba-4c3c-4b3f-b7a3-209jf32f",
+            sykmeldingSkrevet = LocalDateTime.now().minusDays(19).tilOsloInstant(),
+            soknadPerioder =
+                listOf(
+                    SykmeldingsperiodeAGDTO(
+                        fom = now().minusDays(19),
+                        tom = now().minusDays(10),
+                        gradert = null,
+                        type = PeriodetypeDTO.REISETILSKUDD,
+                        aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                        behandlingsdager = null,
+                        innspillTilArbeidsgiver = null,
+                        reisetilskudd = true,
+                    ),
+                ).tilSoknadsperioder(),
+            id = UUID.randomUUID().toString(),
+            status = Soknadstatus.NY,
+            opprettet = Instant.now(),
+            sporsmal = emptyList(),
+            utenlandskSykmelding = false,
+            egenmeldingsdagerFraSykmelding = null,
+            forstegangssoknad = false,
+            aktivertDato = aktivertDato,
+        )
 
     return soknadMetadata.copy(
-        sporsmal = skapReisetilskuddsoknad(
-            SettOppSoknadOptions(
-                sykepengesoknad = soknadMetadata,
-                erForsteSoknadISykeforlop = false,
-                harTidligereUtenlandskSpm = false,
-                yrkesskade = YrkesskadeSporsmalGrunnlag()
+        sporsmal =
+            skapReisetilskuddsoknad(
+                SettOppSoknadOptions(
+                    sykepengesoknad = soknadMetadata,
+                    erForsteSoknadISykeforlop = false,
+                    harTidligereUtenlandskSpm = false,
+                    yrkesskade = YrkesskadeSporsmalGrunnlag(),
+                ),
+                toggle = toggle,
             ),
-            toggle = toggle
-        )
     )
 }

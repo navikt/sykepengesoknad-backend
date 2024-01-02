@@ -51,17 +51,19 @@ class NullstillUndersporsmalSvarTest : BaseTestClass() {
     private final val fnr = "123456789"
     private val basisdato = LocalDate.of(2023, 1, 1)
 
-    private val soknaden get() = hentSoknad(
-        soknadId = hentSoknaderMetadata(fnr).first().id,
-        fnr = fnr
-    )
+    private val soknaden get() =
+        hentSoknad(
+            soknadId = hentSoknaderMetadata(fnr).first().id,
+            fnr = fnr,
+        )
 
     private val RSSporsmal.forsteSvar: String?
-        get() = if (svar.isEmpty()) {
-            null
-        } else {
-            svar[0].verdi
-        }
+        get() =
+            if (svar.isEmpty()) {
+                null
+            } else {
+                svar[0].verdi
+            }
 
     @BeforeAll
     fun `Bruker til slutt spørsmålet`() {
@@ -75,11 +77,12 @@ class NullstillUndersporsmalSvarTest : BaseTestClass() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = basisdato,
-                    tom = basisdato.plusDays(20)
-                )
-            )
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = basisdato,
+                        tom = basisdato.plusDays(20),
+                    ),
+            ),
         )
         val soknad = hentSoknaderMetadata(fnr).first()
         soknad.soknadstype shouldBeEqualTo RSSoknadstype.ARBEIDSTAKERE

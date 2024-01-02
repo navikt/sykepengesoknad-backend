@@ -1,8 +1,8 @@
 package no.nav.helse.flex.kafka.consumer
 
+import no.nav.helse.flex.kafka.SYKMELDING_SENDT_RETRY_TOPIC
 import no.nav.helse.flex.kafka.producer.BEHANDLINGSTIDSPUNKT
 import no.nav.helse.flex.kafka.producer.RebehandlingSykmeldingSendtProducer
-import no.nav.helse.flex.kafka.sykmeldingSendtRetryTopic
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.soknadsopprettelse.BehandleSykmeldingOgBestillAktivering
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -20,36 +20,38 @@ import java.time.ZoneOffset
 @Profile("sykmeldinger")
 class RebehandlingSykmeldingSendt(
     private val rebehandlingSykmeldingSendtProducer: RebehandlingSykmeldingSendtProducer,
-    private val behandleSykmeldingOgBestillAktivering: BehandleSykmeldingOgBestillAktivering
-
+    private val behandleSykmeldingOgBestillAktivering: BehandleSykmeldingOgBestillAktivering,
 ) {
-
     val log = logger()
 
     @KafkaListener(
-        topics = [sykmeldingSendtRetryTopic],
+        topics = [SYKMELDING_SENDT_RETRY_TOPIC],
         containerFactory = "aivenKafkaListenerContainerFactory",
         properties = ["auto.offset.reset = latest"],
         id = "sykmelding-retry",
-        idIsGroup = false
+        idIsGroup = false,
     )
-    fun listen(cr: ConsumerRecord<String, String>, acknowledgment: Acknowledgment) {
+    fun listen(
+        cr: ConsumerRecord<String, String>,
+        acknowledgment: Acknowledgment,
+    ) {
         val sykmeldingKafkaMessage = cr.value().tilSykmeldingKafkaMessage()
-        val behandlingstidspunkt = cr.headers().lastHeader(BEHANDLINGSTIDSPUNKT)
-            ?.value()
-            ?.let { String(it, StandardCharsets.UTF_8) }
-            ?.let { Instant.ofEpochMilli(it.toLong()) }
-            ?: Instant.now()
+        val behandlingstidspunkt =
+            cr.headers().lastHeader(BEHANDLINGSTIDSPUNKT)
+                ?.value()
+                ?.let { String(it, StandardCharsets.UTF_8) }
+                ?.let { Instant.ofEpochMilli(it.toLong()) }
+                ?: Instant.now()
 
         try {
             val sovetid = behandlingstidspunkt.sovetid()
             if (sovetid > 0) {
                 log.info(
                     "Mottok rebehandling av sykmelding ${sykmeldingKafkaMessage.event.sykmeldingId} med behandlingstidspunkt ${
-                    behandlingstidspunkt.atOffset(
-                        ZoneOffset.UTC
-                    )
-                    } sover i $sovetid millisekunder"
+                        behandlingstidspunkt.atOffset(
+                            ZoneOffset.UTC,
+                        )
+                    } sover i $sovetid millisekunder",
                 )
                 acknowledgment.nack(Duration.ofMillis(sovetid))
             } else {
@@ -59,11 +61,11 @@ class RebehandlingSykmeldingSendt(
         } catch (e: Exception) {
             rebehandlingSykmeldingSendtProducer.leggPaRebehandlingTopic(
                 sykmeldingKafkaMessage,
-                OffsetDateTime.now().plusMinutes(10)
+                OffsetDateTime.now().plusMinutes(10),
             )
             log.error(
                 "Uventet feil ved rebehandling av sykmelding ${sykmeldingKafkaMessage.event.sykmeldingId}, rebehandles om 10 minutter",
-                e
+                e,
             )
 
             acknowledgment.acknowledge()

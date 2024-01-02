@@ -11,7 +11,6 @@ import java.io.Serializable
 
 @Component
 class IdentService(private val pdlClient: PdlClient) {
-
     private fun List<PdlIdent>.folkeregisteridenter(): List<String> {
         return this.filter { it.gruppe == FOLKEREGISTERIDENT }.map { it.ident }
     }
@@ -21,7 +20,7 @@ class IdentService(private val pdlClient: PdlClient) {
         val identer = pdlClient.hentIdenterMedHistorikk(fnr)
         return FolkeregisterIdenter(
             originalIdent = fnr,
-            andreIdenter = identer.folkeregisteridenter().filterNot { it == fnr }
+            andreIdenter = identer.folkeregisteridenter().filterNot { it == fnr },
         )
     }
 

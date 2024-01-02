@@ -17,5 +17,5 @@ data class Forskuttering(
     val brukerFnr: String,
     val aktivFom: LocalDate,
     val aktivTom: LocalDate?,
-    val arbeidsgiverForskutterer: Boolean?
+    val arbeidsgiverForskutterer: Boolean?,
 )

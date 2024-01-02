@@ -13,9 +13,8 @@ import java.util.concurrent.TimeUnit
 class AutomatiskInnsendingJob(
     val automatiskInnsendingVedDodsfall: AutomatiskInnsendingVedDodsfall,
     val leaderElection: LeaderElection,
-    val env: EnvironmentToggles
+    val env: EnvironmentToggles,
 ) {
-
     @Scheduled(initialDelay = 5, fixedDelay = 30, timeUnit = TimeUnit.MINUTES)
     fun automatiskUtsending() {
         if (leaderElection.isLeader()) {

@@ -10,7 +10,6 @@ import java.time.LocalDate
 import java.time.OffsetDateTime
 
 class PeriodeMapperTest {
-
     @Test
     fun jsonMappesTilPeriode() {
         val (fom, tom) = jsonISOFormatTilPeriode("{\"fom\":\"2018-01-01\",\"tom\":\"2018-02-01\"}")

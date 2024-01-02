@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 
 class IdentServiceTest : BaseTestClass() {
-
     @Autowired
     private lateinit var identService: IdentService
 

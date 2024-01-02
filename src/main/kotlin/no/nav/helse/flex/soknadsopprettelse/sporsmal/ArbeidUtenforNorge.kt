@@ -8,5 +8,5 @@ fun arbeidUtenforNorge(): Sporsmal =
     Sporsmal(
         tag = ARBEID_UTENFOR_NORGE,
         sporsmalstekst = "Har du arbeidet i utlandet i løpet av de siste 12 månedene?",
-        svartype = Svartype.JA_NEI
+        svartype = Svartype.JA_NEI,
     )

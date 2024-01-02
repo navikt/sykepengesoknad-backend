@@ -42,50 +42,53 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
         if (arbeidGjenopptattDato == this.fom) {
             // Fjerner spørsmål som forsvinner
             return this.copy(
-                sporsmal = sporsmal
-                    .asSequence()
-                    .filterNot { (_, tag) -> tag.startsWith(JOBBET_DU_GRADERT) }
-                    .filterNot { (_, tag) -> tag.startsWith(JOBBET_DU_100_PROSENT) }
-                    .filterNot { (_, tag) -> tag.startsWith(ARBEID_UNDERVEIS_100_PROSENT) }
-                    .filterNot { (_, tag) -> tag == FERIE_PERMISJON_UTLAND }
-                    .filterNot { (_, tag) -> tag == FERIE_V2 }
-                    .filterNot { (_, tag) -> tag == PERMISJON_V2 }
-                    .filterNot { (_, tag) -> tag == UTLAND_V2 }
-                    .filterNot { (_, tag) -> tag == UTLAND }
-                    .filterNot { (_, tag) -> tag == UTDANNING }
-                    .toMutableList()
+                sporsmal =
+                    sporsmal
+                        .asSequence()
+                        .filterNot { (_, tag) -> tag.startsWith(JOBBET_DU_GRADERT) }
+                        .filterNot { (_, tag) -> tag.startsWith(JOBBET_DU_100_PROSENT) }
+                        .filterNot { (_, tag) -> tag.startsWith(ARBEID_UNDERVEIS_100_PROSENT) }
+                        .filterNot { (_, tag) -> tag == FERIE_PERMISJON_UTLAND }
+                        .filterNot { (_, tag) -> tag == FERIE_V2 }
+                        .filterNot { (_, tag) -> tag == PERMISJON_V2 }
+                        .filterNot { (_, tag) -> tag == UTLAND_V2 }
+                        .filterNot { (_, tag) -> tag == UTLAND }
+                        .filterNot { (_, tag) -> tag == UTDANNING }
+                        .toMutableList(),
             )
         }
     }
 
-    val oppdatertTom = if (arbeidGjenopptattDato == null) {
-        this.tom!!
-    } else {
-        arbeidGjenopptattDato.minusDays(1)
-    }
+    val oppdatertTom =
+        if (arbeidGjenopptattDato == null) {
+            this.tom!!
+        } else {
+            arbeidGjenopptattDato.minusDays(1)
+        }
 
-    val oppdaterteSporsmal = if (arbeidssituasjon == ARBEIDSTAKER) {
-        jobbetDuIPeriodenSporsmal(
-            this.skapOppdaterteSoknadsperioder(
-                arbeidGjenopptattDato
-            ),
-            this.arbeidsgiverNavn!!
-        ).toMutableList()
-    } else {
-        jobbetDuIPeriodenSporsmalSelvstendigFrilanser(
-            this.skapOppdaterteSoknadsperioder(
-                arbeidGjenopptattDato
-            ),
-            this.arbeidssituasjon!!
-        ).toMutableList()
-    }
+    val oppdaterteSporsmal =
+        if (arbeidssituasjon == ARBEIDSTAKER) {
+            jobbetDuIPeriodenSporsmal(
+                this.skapOppdaterteSoknadsperioder(
+                    arbeidGjenopptattDato,
+                ),
+                this.arbeidsgiverNavn!!,
+            ).toMutableList()
+        } else {
+            jobbetDuIPeriodenSporsmalSelvstendigFrilanser(
+                this.skapOppdaterteSoknadsperioder(
+                    arbeidGjenopptattDato,
+                ),
+                this.arbeidssituasjon!!,
+            ).toMutableList()
+        }
 
     if (harFeriePermisjonEllerUtenlandsoppholdSporsmal()) {
         oppdaterteSporsmal.add(
             gammeltFormatFeriePermisjonUtlandsoppholdSporsmal(
                 this.fom!!,
-                oppdatertTom
-            )
+                oppdatertTom,
+            ),
         )
     } else {
         if (this.arbeidssituasjon == ARBEIDSTAKER) {
@@ -102,9 +105,13 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
         .let { oppdatertSoknad ->
             // periode spørsmål som ikke er med i oppdaterteSporsmal fjernes
             oppdatertSoknad.copy(
-                sporsmal = oppdatertSoknad.sporsmal
-                    .filterNot { spm -> spm.tag.startsWith(ARBEID_UNDERVEIS_100_PROSENT) && oppdaterteSporsmal.none { it.tag == spm.tag } }
-                    .filterNot { spm -> spm.tag.startsWith(JOBBET_DU_GRADERT) && oppdaterteSporsmal.none { it.tag == spm.tag } }
+                sporsmal =
+                    oppdatertSoknad.sporsmal
+                        .filterNot {
+                                spm ->
+                            spm.tag.startsWith(ARBEID_UNDERVEIS_100_PROSENT) && oppdaterteSporsmal.none { it.tag == spm.tag }
+                        }
+                        .filterNot { spm -> spm.tag.startsWith(JOBBET_DU_GRADERT) && oppdaterteSporsmal.none { it.tag == spm.tag } },
             )
         }
 }

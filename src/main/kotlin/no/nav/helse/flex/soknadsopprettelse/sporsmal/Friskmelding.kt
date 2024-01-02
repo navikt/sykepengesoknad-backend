@@ -9,19 +9,23 @@ import no.nav.helse.flex.util.DatoUtil
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-fun friskmeldingSporsmal(fom: LocalDate, tom: LocalDate): Sporsmal =
+fun friskmeldingSporsmal(
+    fom: LocalDate,
+    tom: LocalDate,
+): Sporsmal =
     Sporsmal(
         tag = FRISKMELDT,
         sporsmalstekst = "Brukte du hele sykmeldingen fram til ${DatoUtil.formatterDato(tom)}?",
         svartype = Svartype.JA_NEI,
         kriterieForVisningAvUndersporsmal = Visningskriterie.NEI,
-        undersporsmal = listOf(
-            Sporsmal(
-                tag = FRISKMELDT_START,
-                sporsmalstekst = "Fra hvilken dato trengte du ikke lenger sykmeldingen?",
-                svartype = Svartype.DATO,
-                min = fom.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                max = tom.format(DateTimeFormatter.ISO_LOCAL_DATE)
-            )
-        )
+        undersporsmal =
+            listOf(
+                Sporsmal(
+                    tag = FRISKMELDT_START,
+                    sporsmalstekst = "Fra hvilken dato trengte du ikke lenger sykmeldingen?",
+                    svartype = Svartype.DATO,
+                    min = fom.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                    max = tom.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                ),
+            ),
     )

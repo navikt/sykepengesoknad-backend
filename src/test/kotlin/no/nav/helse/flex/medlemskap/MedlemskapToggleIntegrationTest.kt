@@ -29,7 +29,6 @@ import java.time.LocalDate
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class MedlemskapToggleIntegrationTest : BaseTestClass() {
-
     @BeforeEach
     fun setUpMockRessurser() {
         fakeUnleash.resetAll()
@@ -40,14 +39,15 @@ class MedlemskapToggleIntegrationTest : BaseTestClass() {
                 .setBody(
                     MedlemskapVurderingResponse(
                         svar = MedlemskapVurderingSvarType.UAVKLART,
-                        sporsmal = listOf(
-                            MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
-                            MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
-                            MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
-                            MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE
-                        )
-                    ).serialisertTilString()
-                )
+                        sporsmal =
+                            listOf(
+                                MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
+                                MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
+                                MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
+                                MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE,
+                            ),
+                    ).serialisertTilString(),
+                ),
         )
     }
 
@@ -72,10 +72,11 @@ class MedlemskapToggleIntegrationTest : BaseTestClass() {
         assertThat(soknader).hasSize(1)
         assertThat(soknader.first().medlemskapVurdering).isEqualTo("UAVKLART")
 
-        val lagretSoknad = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val lagretSoknad =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
 
         assertThat(lagretSoknad.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
@@ -90,8 +91,8 @@ class MedlemskapToggleIntegrationTest : BaseTestClass() {
                 MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
                 UTLAND_V2,
                 MEDLEMSKAP_OPPHOLDSTILLATELSE,
-                TIL_SLUTT
-            )
+                TIL_SLUTT,
+            ),
         )
     }
 
@@ -102,10 +103,11 @@ class MedlemskapToggleIntegrationTest : BaseTestClass() {
         assertThat(soknader).hasSize(1)
         assertThat(soknader.first().medlemskapVurdering).isNull()
 
-        val lagretSoknad = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val lagretSoknad =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
 
         assertThat(lagretSoknad.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
@@ -117,19 +119,21 @@ class MedlemskapToggleIntegrationTest : BaseTestClass() {
                 ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER_V2,
                 UTLAND_V2,
-                TIL_SLUTT
-            )
+                TIL_SLUTT,
+            ),
         )
     }
 
-    private fun sendSykmelding() = sendSykmelding(
-        sykmeldingKafkaMessage(
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-            fnr = fnr,
-            sykmeldingsperioder = heltSykmeldt(
-                fom = LocalDate.of(2023, 1, 1),
-                tom = LocalDate.of(2023, 1, 7)
-            )
+    private fun sendSykmelding() =
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                fnr = fnr,
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = LocalDate.of(2023, 1, 1),
+                        tom = LocalDate.of(2023, 1, 7),
+                    ),
+            ),
         )
-    )
 }

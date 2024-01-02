@@ -15,7 +15,6 @@ import java.util.Arrays.asList
 import java.util.Collections.emptyList
 
 class ValideringTest {
-
     val soknad = opprettSendtSoknad()
 
     @Test
@@ -77,7 +76,7 @@ class ValideringTest {
     }
 
     @Test
-    fun FritekstSporsmalHarRiktigAntallSvar() {
+    fun fritekstSporsmalHarRiktigAntallSvar() {
         getSporsmalMedGrenser(FRITEKST, "1", null).`valider antall svar og forvent ValideringException`()
         getSporsmal(FRITEKST, getSvar(1)).validerAntallSvar()
         getSporsmalMedGrenser(FRITEKST, "1", null).`valider antall svar og forvent ValideringException`()
@@ -175,7 +174,7 @@ class ValideringTest {
     }
 
     @Test
-    fun IkkeRelevantHarRiktigVerdi() {
+    fun ikkeRelevantHarRiktigVerdi() {
         assertThat(validerSvarverdi(getSporsmal(CHECKBOX), "BOGUS")).isFalse()
     }
 
@@ -288,32 +287,32 @@ class ValideringTest {
         assertThat(
             validerGrenser(
                 getSporsmalMedGrenser(PERIODE, "2018-05-20", "2018-05-25"),
-                "{\"fom\":\"2018-05-21\",\"tom\":\"2018-05-23\"}"
-            )
+                "{\"fom\":\"2018-05-21\",\"tom\":\"2018-05-23\"}",
+            ),
         ).isTrue()
         assertThat(
             validerGrenser(
                 getSporsmalMedGrenser(PERIODE, "2018-05-20", "2018-05-25"),
-                "{\"fom\":\"2018-05-20\",\"tom\":\"2018-05-23\"}"
-            )
+                "{\"fom\":\"2018-05-20\",\"tom\":\"2018-05-23\"}",
+            ),
         ).isTrue()
         assertThat(
             validerGrenser(
                 getSporsmalMedGrenser(PERIODE, "2018-05-20", "2018-05-25"),
-                "{\"fom\":\"2018-05-20\",\"tom\":\"2018-05-25\"}"
-            )
+                "{\"fom\":\"2018-05-20\",\"tom\":\"2018-05-25\"}",
+            ),
         ).isTrue()
         assertThat(
             validerGrenser(
                 getSporsmalMedGrenser(PERIODE, "2018-05-20", "2018-05-25"),
-                "{\"fom\":\"2018-05-19\",\"tom\":\"2018-05-25\"}"
-            )
+                "{\"fom\":\"2018-05-19\",\"tom\":\"2018-05-25\"}",
+            ),
         ).isFalse()
         assertThat(
             validerGrenser(
                 getSporsmalMedGrenser(PERIODE, "2018-05-20", "2018-05-25"),
-                "{\"fom\":\"2018-05-20\",\"tom\":\"2018-05-26\"}"
-            )
+                "{\"fom\":\"2018-05-20\",\"tom\":\"2018-05-26\"}",
+            ),
         ).isFalse()
     }
 
@@ -322,32 +321,32 @@ class ValideringTest {
         assertThat(
             validerGrenser(
                 getSporsmalMedGrenser(PERIODER, "2018-05-20", "2018-05-25"),
-                "{\"fom\":\"2018-05-21\",\"tom\":\"2018-05-23\"}"
-            )
+                "{\"fom\":\"2018-05-21\",\"tom\":\"2018-05-23\"}",
+            ),
         ).isTrue()
         assertThat(
             validerGrenser(
                 getSporsmalMedGrenser(PERIODER, "2018-05-20", "2018-05-25"),
-                "{\"fom\":\"2018-05-20\",\"tom\":\"2018-05-23\"}"
-            )
+                "{\"fom\":\"2018-05-20\",\"tom\":\"2018-05-23\"}",
+            ),
         ).isTrue()
         assertThat(
             validerGrenser(
                 getSporsmalMedGrenser(PERIODER, "2018-05-20", "2018-05-25"),
-                "{\"fom\":\"2018-05-20\",\"tom\":\"2018-05-25\"}"
-            )
+                "{\"fom\":\"2018-05-20\",\"tom\":\"2018-05-25\"}",
+            ),
         ).isTrue()
         assertThat(
             validerGrenser(
                 getSporsmalMedGrenser(PERIODER, "2018-05-20", "2018-05-25"),
-                "{\"fom\":\"2018-05-19\",\"tom\":\"2018-05-25\"}"
-            )
+                "{\"fom\":\"2018-05-19\",\"tom\":\"2018-05-25\"}",
+            ),
         ).isFalse()
         assertThat(
             validerGrenser(
                 getSporsmalMedGrenser(PERIODER, "2018-05-20", "2018-05-25"),
-                "{\"fom\":\"2018-05-20\",\"tom\":\"2018-05-26\"}"
-            )
+                "{\"fom\":\"2018-05-20\",\"tom\":\"2018-05-26\"}",
+            ),
         ).isFalse()
     }
 
@@ -387,194 +386,217 @@ class ValideringTest {
 
     @Test
     fun valideringOKVedSvarPaAlleUndersporsmal() {
-        val sporsmal = sporsmalBuilder()
-            .tag("ANY")
-            .svartype(JA_NEI)
-            .undersporsmal(getBesvarteCheckedSporsmal(CHECKBOX, 3, 3))
-            .build()
+        val sporsmal =
+            sporsmalBuilder()
+                .tag("ANY")
+                .svartype(JA_NEI)
+                .undersporsmal(getBesvarteCheckedSporsmal(CHECKBOX, 3, 3))
+                .build()
 
         assertThat(validerUndersporsmal(sporsmal)).isTrue()
     }
 
     @Test
     fun valideringAvUndersporsmalFeilerVedManglendeSvar() {
-        val sporsmal = sporsmalBuilder()
-            .tag("ANY")
-            .svartype(JA_NEI)
-            .undersporsmal(getBesvarteCheckedSporsmal(CHECKBOX, 3, 2))
-            .build()
+        val sporsmal =
+            sporsmalBuilder()
+                .tag("ANY")
+                .svartype(JA_NEI)
+                .undersporsmal(getBesvarteCheckedSporsmal(CHECKBOX, 3, 2))
+                .build()
 
         assertThat(validerUndersporsmal(sporsmal)).isFalse()
     }
 
     @Test
     fun valideringAvCheckboxGruppeKreverMinstEttSvar() {
-        val sporsmal = sporsmalBuilder()
-            .tag("ANY")
-            .svartype(CHECKBOX_GRUPPE)
-            .undersporsmal(getBesvarteCheckedSporsmal(CHECKBOX, 3, 0))
-            .build()
+        val sporsmal =
+            sporsmalBuilder()
+                .tag("ANY")
+                .svartype(CHECKBOX_GRUPPE)
+                .undersporsmal(getBesvarteCheckedSporsmal(CHECKBOX, 3, 0))
+                .build()
 
         assertThat(validerUndersporsmal(sporsmal)).isFalse()
     }
 
     @Test
     fun valideringAvCheckboxGruppeKreverBareEttSvar() {
-        val sporsmal = sporsmalBuilder()
-            .tag("ANY")
-            .svartype(CHECKBOX_GRUPPE)
-            .undersporsmal(getBesvarteCheckedSporsmal(CHECKBOX, 3, 1))
-            .build()
+        val sporsmal =
+            sporsmalBuilder()
+                .tag("ANY")
+                .svartype(CHECKBOX_GRUPPE)
+                .undersporsmal(getBesvarteCheckedSporsmal(CHECKBOX, 3, 1))
+                .build()
 
         assertThat(validerUndersporsmal(sporsmal)).isTrue()
     }
 
     @Test
     fun checkboxGruppeValidererOKForFlereBesvarte() {
-        val sporsmal = sporsmalBuilder()
-            .tag("ANY")
-            .svartype(CHECKBOX_GRUPPE)
-            .undersporsmal(getBesvarteCheckedSporsmal(CHECKBOX, 3, 2))
-            .build()
+        val sporsmal =
+            sporsmalBuilder()
+                .tag("ANY")
+                .svartype(CHECKBOX_GRUPPE)
+                .undersporsmal(getBesvarteCheckedSporsmal(CHECKBOX, 3, 2))
+                .build()
 
         assertThat(validerUndersporsmal(sporsmal)).isTrue()
     }
 
     @Test
     fun valideringAvRadioGruppeFeilerVedManglendeSvar() {
-        val sporsmal = sporsmalBuilder()
-            .tag("ANY")
-            .svartype(RADIO_GRUPPE)
-            .undersporsmal(getBesvarteCheckedSporsmal(RADIO, 3, 0))
-            .build()
+        val sporsmal =
+            sporsmalBuilder()
+                .tag("ANY")
+                .svartype(RADIO_GRUPPE)
+                .undersporsmal(getBesvarteCheckedSporsmal(RADIO, 3, 0))
+                .build()
 
         assertThat(validerUndersporsmal(sporsmal)).isFalse()
     }
 
     @Test
     fun valideringAvRadioGruppeKreverAkkuratEttSvar() {
-        val sporsmal = sporsmalBuilder()
-            .tag("ANY")
-            .svartype(RADIO_GRUPPE)
-            .undersporsmal(getBesvarteCheckedSporsmal(RADIO, 3, 1))
-            .build()
+        val sporsmal =
+            sporsmalBuilder()
+                .tag("ANY")
+                .svartype(RADIO_GRUPPE)
+                .undersporsmal(getBesvarteCheckedSporsmal(RADIO, 3, 1))
+                .build()
 
         assertThat(validerUndersporsmal(sporsmal)).isTrue()
     }
 
     @Test
     fun valideringAvRadioGruppeTimerProsentFeilerVedMerEnnEttSvar() {
-        val sporsmal = sporsmalBuilder()
-            .tag("ANY")
-            .svartype(RADIO_GRUPPE)
-            .undersporsmal(getBesvarteCheckedSporsmal(RADIO, 3, 2))
-            .build()
+        val sporsmal =
+            sporsmalBuilder()
+                .tag("ANY")
+                .svartype(RADIO_GRUPPE)
+                .undersporsmal(getBesvarteCheckedSporsmal(RADIO, 3, 2))
+                .build()
 
         assertThat(validerUndersporsmal(sporsmal)).isFalse()
     }
 
     @Test
     fun valideringAvRadioGruppeTimerProsentFeilerVedManglendeSvar() {
-        val sporsmal = sporsmalBuilder()
-            .tag("ANY")
-            .svartype(RADIO_GRUPPE)
-            .undersporsmal(getBesvarteCheckedSporsmal(RADIO, 3, 0))
-            .build()
+        val sporsmal =
+            sporsmalBuilder()
+                .tag("ANY")
+                .svartype(RADIO_GRUPPE)
+                .undersporsmal(getBesvarteCheckedSporsmal(RADIO, 3, 0))
+                .build()
 
         assertThat(validerUndersporsmal(sporsmal)).isFalse()
     }
 
     @Test
     fun valideringAvRadioGruppeTimerProsentKreverAkkuratEttSvar() {
-        val sporsmal = sporsmalBuilder()
-            .tag("ANY")
-            .svartype(RADIO_GRUPPE)
-            .undersporsmal(getBesvarteCheckedSporsmal(RADIO, 3, 1))
-            .build()
+        val sporsmal =
+            sporsmalBuilder()
+                .tag("ANY")
+                .svartype(RADIO_GRUPPE)
+                .undersporsmal(getBesvarteCheckedSporsmal(RADIO, 3, 1))
+                .build()
 
         assertThat(validerUndersporsmal(sporsmal)).isTrue()
     }
 
     @Test
     fun valideringAvRadioGruppeFeilerVedMerEnnEttSvar() {
-        val sporsmal = sporsmalBuilder()
-            .tag("ANY")
-            .svartype(RADIO_GRUPPE)
-            .undersporsmal(getBesvarteCheckedSporsmal(RADIO, 3, 2))
-            .build()
+        val sporsmal =
+            sporsmalBuilder()
+                .tag("ANY")
+                .svartype(RADIO_GRUPPE)
+                .undersporsmal(getBesvarteCheckedSporsmal(RADIO, 3, 2))
+                .build()
 
         assertThat(validerUndersporsmal(sporsmal)).isFalse()
     }
 
     @Test
     fun ikkeRelevantValidererOKForBesvarteCheckboxPanel() {
-        val sporsmal = sporsmalBuilder()
-            .tag("ANY")
-            .svartype(IKKE_RELEVANT)
-            .undersporsmal(getBesvarteCheckedSporsmal(CHECKBOX_PANEL, 1, 1))
-            .build()
+        val sporsmal =
+            sporsmalBuilder()
+                .tag("ANY")
+                .svartype(IKKE_RELEVANT)
+                .undersporsmal(getBesvarteCheckedSporsmal(CHECKBOX_PANEL, 1, 1))
+                .build()
 
         assertThat(validerUndersporsmal(sporsmal)).isTrue()
     }
 
     @Test
     fun ikkeRelevantValidererFeilForUbesvarteCheckboxPanel() {
-        val sporsmal = sporsmalBuilder()
-            .tag("ANY")
-            .svartype(IKKE_RELEVANT)
-            .undersporsmal(getBesvarteCheckedSporsmal(CHECKBOX_PANEL, 1, 0))
-            .build()
+        val sporsmal =
+            sporsmalBuilder()
+                .tag("ANY")
+                .svartype(IKKE_RELEVANT)
+                .undersporsmal(getBesvarteCheckedSporsmal(CHECKBOX_PANEL, 1, 0))
+                .build()
 
         assertThat(validerUndersporsmal(sporsmal)).isFalse()
     }
 
     @Test
     fun gruppeAvUndersporsmalValidererOKForBesvarteCheckboxPanel() {
-        val sporsmal = sporsmalBuilder()
-            .tag("ANY")
-            .svartype(GRUPPE_AV_UNDERSPORSMAL)
-            .undersporsmal(getBesvarteCheckedSporsmal(CHECKBOX_PANEL, 1, 1))
-            .build()
+        val sporsmal =
+            sporsmalBuilder()
+                .tag("ANY")
+                .svartype(GRUPPE_AV_UNDERSPORSMAL)
+                .undersporsmal(getBesvarteCheckedSporsmal(CHECKBOX_PANEL, 1, 1))
+                .build()
 
         assertThat(validerUndersporsmal(sporsmal)).isTrue()
     }
 
     @Test
     fun gruppeAvUndersporsmalValidererFeilForUbesvarteCheckboxPanel() {
-        val sporsmal = sporsmalBuilder()
-            .tag("ANY")
-            .svartype(GRUPPE_AV_UNDERSPORSMAL)
-            .undersporsmal(getBesvarteCheckedSporsmal(CHECKBOX_PANEL, 1, 0))
-            .build()
+        val sporsmal =
+            sporsmalBuilder()
+                .tag("ANY")
+                .svartype(GRUPPE_AV_UNDERSPORSMAL)
+                .undersporsmal(getBesvarteCheckedSporsmal(CHECKBOX_PANEL, 1, 0))
+                .build()
 
         assertThat(validerUndersporsmal(sporsmal)).isFalse()
     }
 
     @Test
     fun ferieSporsmalMedSvarverdiJaOppholdUtland() {
-        val soknadGodkjentFerieSporsmal = settOppSoknadOppholdUtland("fnr").copy(
-            sporsmal = listOf(
-                getSporsmalMedTomtUndersporsmal(JA_NEI, listOf(Svar(null, "JA"))),
-                getSporsmalMedTomtUndersporsmal(JA_NEI, listOf(Svar(null, "JA"))),
-                getUndersporsmalMedTagOgSvar("FERIE", "NEI")
+        val soknadGodkjentFerieSporsmal =
+            settOppSoknadOppholdUtland("fnr").copy(
+                sporsmal =
+                    listOf(
+                        getSporsmalMedTomtUndersporsmal(JA_NEI, listOf(Svar(null, "JA"))),
+                        getSporsmalMedTomtUndersporsmal(JA_NEI, listOf(Svar(null, "JA"))),
+                        getUndersporsmalMedTagOgSvar("FERIE", "NEI"),
+                    ),
             )
-        )
         assertThat(validerSvarPaSoknad(soknadGodkjentFerieSporsmal)).isTrue()
     }
 
     @Test
     fun ferieSporsmalMedSvarverdiNeiOppholdUtland() {
-        val soknadIkkeGodkjentFerieSporsmal = settOppSoknadOppholdUtland("fnr").copy(
-            sporsmal = listOf(
-                getSporsmalMedTomtUndersporsmal(JA_NEI, listOf(Svar(null, "JA"))),
-                getSporsmalMedTomtUndersporsmal(JA_NEI, listOf(Svar(null, "JA"))),
-                getUndersporsmalMedTagOgSvar("FERIE", "JA")
+        val soknadIkkeGodkjentFerieSporsmal =
+            settOppSoknadOppholdUtland("fnr").copy(
+                sporsmal =
+                    listOf(
+                        getSporsmalMedTomtUndersporsmal(JA_NEI, listOf(Svar(null, "JA"))),
+                        getSporsmalMedTomtUndersporsmal(JA_NEI, listOf(Svar(null, "JA"))),
+                        getUndersporsmalMedTagOgSvar("FERIE", "JA"),
+                    ),
             )
-        )
         assertThat(validerSvarPaSoknad(soknadIkkeGodkjentFerieSporsmal)).isFalse()
     }
 
-    private fun getBesvarteCheckedSporsmal(svartype: Svartype, antall: Int, besvarte: Int): MutableList<Sporsmal> {
+    private fun getBesvarteCheckedSporsmal(
+        svartype: Svartype,
+        antall: Int,
+        besvarte: Int,
+    ): MutableList<Sporsmal> {
         val sporsmal = ArrayList<Sporsmal>()
         for (i in 0 until antall) {
             sporsmal.add(
@@ -587,9 +609,9 @@ class ValideringTest {
                             emptyList()
                         } else {
                             listOf(Svar(null, "CHECKED"))
-                        }
+                        },
                     )
-                    .build()
+                    .build(),
             )
         }
         return sporsmal
@@ -599,7 +621,10 @@ class ValideringTest {
         return getSporsmalMedGrenser(svartype, null, null)
     }
 
-    private fun getSporsmal(svartype: Svartype, svar: List<Svar>): Sporsmal {
+    private fun getSporsmal(
+        svartype: Svartype,
+        svar: List<Svar>,
+    ): Sporsmal {
         return getSporsmalMedGrenser(svartype, null, null, svar)
     }
 
@@ -607,7 +632,7 @@ class ValideringTest {
         svartype: Svartype,
         min: String?,
         max: String?,
-        svar: List<Svar> = emptyList()
+        svar: List<Svar> = emptyList(),
     ): Sporsmal {
         return sporsmalBuilder()
             .tag("ANY")
@@ -618,7 +643,10 @@ class ValideringTest {
             .build()
     }
 
-    private fun getSporsmalMedTomtUndersporsmal(svartype: Svartype, svar: List<Svar>): Sporsmal {
+    private fun getSporsmalMedTomtUndersporsmal(
+        svartype: Svartype,
+        svar: List<Svar>,
+    ): Sporsmal {
         return sporsmalBuilder()
             .tag("ANY")
             .svartype(svartype)
@@ -636,7 +664,10 @@ class ValideringTest {
         assertThat(validerGrenser(getSporsmalMedGrenser(LAND, "20", "40"), "En kort tekst")).isFalse()
     }
 
-    private fun getUndersporsmalMedTagOgSvar(tag: String, verdipasvar: String): Sporsmal {
+    private fun getUndersporsmalMedTagOgSvar(
+        tag: String,
+        verdipasvar: String,
+    ): Sporsmal {
         val svar = ArrayList<Svar>()
         svar.add(Svar(null, verdipasvar))
         return sporsmalBuilder()
@@ -651,8 +682,8 @@ class ValideringTest {
                         .svartype(JA_NEI)
                         .svar(listOf(Svar(null, verdipasvar)))
                         .undersporsmal(emptyList())
-                        .build()
-                )
+                        .build(),
+                ),
             )
             .build()
     }
@@ -671,7 +702,10 @@ class ValideringTest {
         }
     }
 
-    private fun validerSvarverdi(sporsmal: Sporsmal, verdi: String): Boolean {
+    private fun validerSvarverdi(
+        sporsmal: Sporsmal,
+        verdi: String,
+    ): Boolean {
         return try {
             sporsmal.copy(svar = listOf(Svar(null, verdi = verdi))).validerSvarverdier()
             true
@@ -682,7 +716,10 @@ class ValideringTest {
         }
     }
 
-    private fun validerGrenser(sporsmal: Sporsmal, verdi: String): Boolean {
+    private fun validerGrenser(
+        sporsmal: Sporsmal,
+        verdi: String,
+    ): Boolean {
         return try {
             sporsmal.copy(svar = listOf(Svar(null, verdi = verdi))).validerGrenserPaSvar()
             true

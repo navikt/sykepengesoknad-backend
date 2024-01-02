@@ -14,16 +14,16 @@ class DatabaseReset(
     private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val klippMetrikkRepository: KlippMetrikkRepository,
-    private val medlemskapVurderingRepository: MedlemskapVurderingRepository
+    private val medlemskapVurderingRepository: MedlemskapVurderingRepository,
 ) {
-
     fun resetDatabase() {
-        val aktorIder = namedParameterJdbcTemplate.query(
-            "SELECT distinct(FNR) FROM sykepengesoknad",
-            MapSqlParameterSource()
-        ) { resultSet, _ ->
-            resultSet.getString("FNR")
-        }
+        val aktorIder =
+            namedParameterJdbcTemplate.query(
+                "SELECT distinct(FNR) FROM sykepengesoknad",
+                MapSqlParameterSource(),
+            ) { resultSet, _ ->
+                resultSet.getString("FNR")
+            }
 
         if (aktorIder.size > 10) {
             throw RuntimeException("Sikker på at det er så mye testdata som ${aktorIder.size} i databasen")

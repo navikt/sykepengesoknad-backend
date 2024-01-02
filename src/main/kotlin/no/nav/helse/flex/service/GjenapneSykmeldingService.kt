@@ -18,15 +18,19 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 class GjenapneSykmeldingService(
     private val soknadProducer: SoknadProducer,
-    private val sykepengesoknadDAO: SykepengesoknadDAO
+    private val sykepengesoknadDAO: SykepengesoknadDAO,
 ) {
     val log = logger()
 
-    fun prosesserTombstoneSykmelding(sykmeldingId: String, topic: String) {
-        val soknaderTilSykmeldingSomKanSlettes = sykepengesoknadDAO
-            .finnSykepengesoknaderForSykmelding(sykmeldingId)
-            .filter { listOf(NY, FREMTIDIG, AVBRUTT, UTKAST_TIL_KORRIGERING).contains(it.status) }
-            .filter { it.arbeidssituasjon != Arbeidssituasjon.ARBEIDSTAKER }
+    fun prosesserTombstoneSykmelding(
+        sykmeldingId: String,
+        topic: String,
+    ) {
+        val soknaderTilSykmeldingSomKanSlettes =
+            sykepengesoknadDAO
+                .finnSykepengesoknaderForSykmelding(sykmeldingId)
+                .filter { listOf(NY, FREMTIDIG, AVBRUTT, UTKAST_TIL_KORRIGERING).contains(it.status) }
+                .filter { it.arbeidssituasjon != Arbeidssituasjon.ARBEIDSTAKER }
 
         if (soknaderTilSykmeldingSomKanSlettes.isEmpty()) {
             log.info("Mottok status åpen for sykmelding $sykmeldingId på kafka. Ingen tilhørende søknader.")

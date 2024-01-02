@@ -10,7 +10,6 @@ import java.time.Duration
 
 @Configuration
 class RestTemplateConfig {
-
     @Bean
     fun restTemplate(callIdInterceptor: CallIdInterceptor): RestTemplate {
         return RestTemplateBuilder()
@@ -36,9 +35,7 @@ class RestTemplateConfig {
     }
 
     @Bean
-    fun plainRestTemplate(
-        restTemplateBuilder: RestTemplateBuilder
-    ): RestTemplate =
+    fun plainRestTemplate(restTemplateBuilder: RestTemplateBuilder): RestTemplate =
         restTemplateBuilder
             .setConnectTimeout(Duration.ofSeconds(5L))
             .setReadTimeout(Duration.ofSeconds(10L)).build()

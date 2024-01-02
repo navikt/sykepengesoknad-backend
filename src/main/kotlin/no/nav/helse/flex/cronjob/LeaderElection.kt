@@ -21,14 +21,18 @@ import java.net.InetAddress
 class LeaderElection(
     private val plainTextUtf8RestTemplate: RestTemplate,
     @param:Value("\${elector.path}") private val electorPath: String,
-    private val applicationAvailability: ApplicationAvailability
+    private val applicationAvailability: ApplicationAvailability,
 ) {
-
     val log = logger()
 
     fun isLeader(): Boolean {
-        if (applicationAvailability.readinessState == ReadinessState.REFUSING_TRAFFIC || applicationAvailability.livenessState == LivenessState.BROKEN) {
-            log.info("Ser ikke etter leader med readiness [ ${applicationAvailability.readinessState} ] og liveness [ ${applicationAvailability.livenessState} ]")
+        if (applicationAvailability.readinessState == ReadinessState.REFUSING_TRAFFIC ||
+            applicationAvailability.livenessState == LivenessState.BROKEN
+        ) {
+            log.info(
+                "Ser ikke etter leader med readiness [ ${applicationAvailability.readinessState} ] og " +
+                    "liveness [ ${applicationAvailability.livenessState} ]",
+            )
             return false
         }
 
@@ -43,15 +47,17 @@ class LeaderElection(
     private fun kallElector(): Boolean {
         val hostname: String = InetAddress.getLocalHost().hostName
 
-        val uriString = UriComponentsBuilder.fromHttpUrl(getHttpPath(electorPath))
-            .toUriString()
-        val result = plainTextUtf8RestTemplate
-            .exchange(
-                uriString,
-                HttpMethod.GET,
-                null,
-                String::class.java
-            )
+        val uriString =
+            UriComponentsBuilder.fromHttpUrl(getHttpPath(electorPath))
+                .toUriString()
+        val result =
+            plainTextUtf8RestTemplate
+                .exchange(
+                    uriString,
+                    HttpMethod.GET,
+                    null,
+                    String::class.java,
+                )
         if (result.statusCode != HttpStatus.OK) {
             val message = "Kall mot elector feiler med HTTP-" + result.statusCode
             log.error(message)
@@ -73,11 +79,13 @@ class LeaderElection(
             true -> url
             else -> "http://$url"
         }
+
     private data class Leader(val name: String)
 
-    private val objectMapper = ObjectMapper()
-        .registerModule(JavaTimeModule())
-        .registerKotlinModule()
-        .configure(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE, true)
-        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+    private val objectMapper =
+        ObjectMapper()
+            .registerModule(JavaTimeModule())
+            .registerKotlinModule()
+            .configure(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE, true)
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 }

@@ -27,7 +27,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
 @TestMethodOrder(MethodOrderer.MethodName::class)
 class TransaksjonshandteringTest : BaseTestClass() {
-
     final val fnr = "123456789"
 
     @Test
@@ -35,17 +34,18 @@ class TransaksjonshandteringTest : BaseTestClass() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
-                fnr = fnr
-            )
+                fnr = fnr,
+            ),
         )
     }
 
     @Test
     fun `02 - vi besvarer alle sporsmal`() {
-        val soknaden = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val soknaden =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
 
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
             .besvarSporsmal(FRISKMELDT, "JA")

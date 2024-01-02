@@ -19,27 +19,26 @@ import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class UtenlandskArbeidsledigSporsmalAndreSoknadIntegrationTest : BaseTestClass() {
-
     private final val fnr = "12454578474"
     private final val basisdato = LocalDate.of(2021, 9, 1)
 
     @Test
     @Order(1)
     fun `Søknad 1 opprettes`() {
-        val kafkaSoknader = sendSykmelding(
-            sykmeldingKafkaMessage(
-                fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = basisdato,
-                    tom = basisdato.plusDays(15)
-
+        val kafkaSoknader =
+            sendSykmelding(
+                sykmeldingKafkaMessage(
+                    fnr = fnr,
+                    sykmeldingsperioder =
+                        heltSykmeldt(
+                            fom = basisdato,
+                            tom = basisdato.plusDays(15),
+                        ),
+                    utenlandskSykemelding = null,
+                    arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
                 ),
-                utenlandskSykemelding = null,
-                arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG
-
-            ),
-            oppfolgingsdato = basisdato
-        )
+                oppfolgingsdato = basisdato,
+            )
 
         kafkaSoknader[0].utenlandskSykmelding!!.shouldBeFalse()
         kafkaSoknader[0].startSyketilfelle!!.toString() shouldBeEqualTo "2021-09-01"
@@ -67,21 +66,20 @@ class UtenlandskArbeidsledigSporsmalAndreSoknadIntegrationTest : BaseTestClass()
     @Test
     @Order(3)
     fun `Søknad 2 opprettes for utelnlandsk sykmelding `() {
-        val kafkaSoknader = sendSykmelding(
-            sykmeldingKafkaMessage(
-                fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = basisdato.plusDays(16),
-                    tom = basisdato.plusDays(30)
-
+        val kafkaSoknader =
+            sendSykmelding(
+                sykmeldingKafkaMessage(
+                    fnr = fnr,
+                    sykmeldingsperioder =
+                        heltSykmeldt(
+                            fom = basisdato.plusDays(16),
+                            tom = basisdato.plusDays(30),
+                        ),
+                    utenlandskSykemelding = UtenlandskSykmeldingAGDTO("Granka"),
+                    arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
                 ),
-                utenlandskSykemelding = UtenlandskSykmeldingAGDTO("Granka"),
-                arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG
-
-            ),
-            oppfolgingsdato = basisdato
-
-        )
+                oppfolgingsdato = basisdato,
+            )
 
         kafkaSoknader[0].utenlandskSykmelding!!.shouldBeTrue()
         kafkaSoknader[0].startSyketilfelle!!.toString() shouldBeEqualTo "2021-09-01"

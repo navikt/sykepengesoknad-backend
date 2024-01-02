@@ -18,7 +18,7 @@ class KorrigerteEgenmeldingsdager(
     private val identService: IdentService,
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val mottakerAvSoknadService: MottakerAvSoknadService,
-    private val ettersendingSoknadService: EttersendingSoknadService
+    private val ettersendingSoknadService: EttersendingSoknadService,
 ) {
     val log = logger()
 
@@ -30,28 +30,33 @@ class KorrigerteEgenmeldingsdager(
 
             log.info("Sykmelding $sykmeldingId har fått oppdaterte svar, sjekker om søknader skal ettersendes til NAV")
 
-            val sendteSoknader = sykepengesoknadDAO
-                .finnSykepengesoknader(identer)
-                .filter { it.status == Soknadstatus.SENDT }
-                .filter { it.fom != null }
-                .sortedBy { it.fom }
+            val sendteSoknader =
+                sykepengesoknadDAO
+                    .finnSykepengesoknader(identer)
+                    .filter { it.status == Soknadstatus.SENDT }
+                    .filter { it.fom != null }
+                    .sortedBy { it.fom }
 
-            val forsteSoknadForSykmeldingenBleBeregnetTilInnenforArbeidsgiverperioden = sendteSoknader.firstOrNull {
-                it.sykmeldingId == sykmeldingId && it.beregnetTilKunInnenforArbeidsgiverperioden()
-            }
+            val forsteSoknadForSykmeldingenBleBeregnetTilInnenforArbeidsgiverperioden =
+                sendteSoknader.firstOrNull {
+                    it.sykmeldingId == sykmeldingId && it.beregnetTilKunInnenforArbeidsgiverperioden()
+                }
             if (forsteSoknadForSykmeldingenBleBeregnetTilInnenforArbeidsgiverperioden == null) {
                 log.info("Søknader for sykmelding $sykmeldingId skal ikke ettersendes til NAV")
                 return
             }
 
             sendteSoknader
-                .filter { it.arbeidsgiverOrgnummer == forsteSoknadForSykmeldingenBleBeregnetTilInnenforArbeidsgiverperioden.arbeidsgiverOrgnummer }
+                .filter {
+                    it.arbeidsgiverOrgnummer ==
+                        forsteSoknadForSykmeldingenBleBeregnetTilInnenforArbeidsgiverperioden.arbeidsgiverOrgnummer
+                }
                 .filter { it.beregnetTilKunInnenforArbeidsgiverperioden() }
                 .filter {
                     mottakerAvSoknadService.finnMottakerAvSoknad(
                         it,
                         identer,
-                        sykmeldingKafkaMessage
+                        sykmeldingKafkaMessage,
                     ) != Mottaker.ARBEIDSGIVER
                 }
                 .forEach {

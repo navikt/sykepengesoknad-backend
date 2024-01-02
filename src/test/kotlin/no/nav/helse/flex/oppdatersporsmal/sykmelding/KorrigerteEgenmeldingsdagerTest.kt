@@ -28,19 +28,20 @@ import java.util.concurrent.TimeUnit
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class KorrigerteEgenmeldingsdagerTest : BaseTestClass() {
-
     @Autowired
     private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
 
     private val fnr = "12345678900"
     private val basisdato = LocalDate.of(2021, 9, 1)
-    private val sykmeldingKafkaMessage = sykmeldingKafkaMessage(
-        fnr = fnr,
-        sykmeldingsperioder = heltSykmeldt(
-            fom = basisdato,
-            tom = basisdato.plusDays(10)
+    private val sykmeldingKafkaMessage =
+        sykmeldingKafkaMessage(
+            fnr = fnr,
+            sykmeldingsperioder =
+                heltSykmeldt(
+                    fom = basisdato,
+                    tom = basisdato.plusDays(10),
+                ),
         )
-    )
 
     @Test
     @Order(1)
@@ -49,14 +50,14 @@ class KorrigerteEgenmeldingsdagerTest : BaseTestClass() {
         fakeUnleash.enable(UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL)
         mockFlexSyketilfelleSykeforloep(
             sykmeldingKafkaMessage.sykmelding.id,
-            sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder.minOf { it.fom }
+            sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder.minOf { it.fom },
         )
         kafkaProducer.send(
             ProducerRecord(
                 SYKMELDINGSENDT_TOPIC,
                 sykmeldingKafkaMessage.sykmelding.id,
-                sykmeldingKafkaMessage.serialisertTilString()
-            )
+                sykmeldingKafkaMessage.serialisertTilString(),
+            ),
         )
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
     }
@@ -66,22 +67,24 @@ class KorrigerteEgenmeldingsdagerTest : BaseTestClass() {
     fun `Vi besvarer og sender inn søknaden`() {
         flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
-        val soknaden = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
-            fnr = fnr
-        )
+        val soknaden =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
+                fnr = fnr,
+            )
 
-        val sendtSoknad = SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
-            .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
-            .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
-            .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
-            .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
-            .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
-            .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
-            .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
-            .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
-            .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
-            .sendSoknad()
+        val sendtSoknad =
+            SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+                .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
+                .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
+                .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
+                .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
+                .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
+                .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
+                .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
+                .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
+                .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
+                .sendSoknad()
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
         juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
@@ -98,33 +101,36 @@ class KorrigerteEgenmeldingsdagerTest : BaseTestClass() {
         flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleSykeforloep(
             sykmeldingKafkaMessage.sykmelding.id,
-            sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder.minOf { it.fom }
+            sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder.minOf { it.fom },
         )
         mockFlexSyketilfelleArbeidsgiverperiode(
-            arbeidsgiverperiode = Arbeidsgiverperiode(
-                antallBrukteDager = 14,
-                oppbruktArbeidsgiverperiode = false,
-                arbeidsgiverPeriode = Periode(basisdato.minusDays(3), basisdato.minusDays(3).plusDays(16))
-            )
+            arbeidsgiverperiode =
+                Arbeidsgiverperiode(
+                    antallBrukteDager = 14,
+                    oppbruktArbeidsgiverperiode = false,
+                    arbeidsgiverPeriode = Periode(basisdato.minusDays(3), basisdato.minusDays(3).plusDays(16)),
+                ),
         )
         kafkaProducer.send(
             ProducerRecord(
                 SYKMELDINGSENDT_TOPIC,
                 sykmeldingKafkaMessage.sykmelding.id,
                 sykmeldingKafkaMessage.copy(
-                    event = sykmeldingKafkaMessage.event.copy(
-                        erSvarOppdatering = true,
-                        sporsmals = sykmeldingKafkaMessage.event.sporsmals!!.plus(
-                            SporsmalOgSvarDTO(
-                                tekst = "Brukte du egenmeldingsdager før sykmeldinga?",
-                                shortName = ShortNameDTO.EGENMELDINGSDAGER,
-                                svartype = SvartypeDTO.DAGER,
-                                svar = basisdato.minusDays(3).datesUntil(basisdato).toList().serialisertTilString()
-                            )
-                        )
-                    )
-                ).serialisertTilString()
-            )
+                    event =
+                        sykmeldingKafkaMessage.event.copy(
+                            erSvarOppdatering = true,
+                            sporsmals =
+                                sykmeldingKafkaMessage.event.sporsmals!!.plus(
+                                    SporsmalOgSvarDTO(
+                                        tekst = "Brukte du egenmeldingsdager før sykmeldinga?",
+                                        shortName = ShortNameDTO.EGENMELDINGSDAGER,
+                                        svartype = SvartypeDTO.DAGER,
+                                        svar = basisdato.minusDays(3).datesUntil(basisdato).toList().serialisertTilString(),
+                                    ),
+                                ),
+                        ),
+                ).serialisertTilString(),
+            ),
         )
 
         juridiskVurderingKafkaConsumer.ventPåRecords(antall = 1)
@@ -137,33 +143,36 @@ class KorrigerteEgenmeldingsdagerTest : BaseTestClass() {
         flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleSykeforloep(
             sykmeldingKafkaMessage.sykmelding.id,
-            sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder.minOf { it.fom }
+            sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder.minOf { it.fom },
         )
         mockFlexSyketilfelleArbeidsgiverperiode(
-            arbeidsgiverperiode = Arbeidsgiverperiode(
-                antallBrukteDager = 20,
-                oppbruktArbeidsgiverperiode = true,
-                arbeidsgiverPeriode = Periode(basisdato.minusDays(9), basisdato.minusDays(9).plusDays(16))
-            )
+            arbeidsgiverperiode =
+                Arbeidsgiverperiode(
+                    antallBrukteDager = 20,
+                    oppbruktArbeidsgiverperiode = true,
+                    arbeidsgiverPeriode = Periode(basisdato.minusDays(9), basisdato.minusDays(9).plusDays(16)),
+                ),
         )
         kafkaProducer.send(
             ProducerRecord(
                 SYKMELDINGSENDT_TOPIC,
                 sykmeldingKafkaMessage.sykmelding.id,
                 sykmeldingKafkaMessage.copy(
-                    event = sykmeldingKafkaMessage.event.copy(
-                        erSvarOppdatering = true,
-                        sporsmals = sykmeldingKafkaMessage.event.sporsmals!!.plus(
-                            SporsmalOgSvarDTO(
-                                tekst = "Brukte du egenmeldingsdager før sykmeldinga?",
-                                shortName = ShortNameDTO.EGENMELDINGSDAGER,
-                                svartype = SvartypeDTO.DAGER,
-                                svar = basisdato.minusDays(9).datesUntil(basisdato).toList().serialisertTilString()
-                            )
-                        )
-                    )
-                ).serialisertTilString()
-            )
+                    event =
+                        sykmeldingKafkaMessage.event.copy(
+                            erSvarOppdatering = true,
+                            sporsmals =
+                                sykmeldingKafkaMessage.event.sporsmals!!.plus(
+                                    SporsmalOgSvarDTO(
+                                        tekst = "Brukte du egenmeldingsdager før sykmeldinga?",
+                                        shortName = ShortNameDTO.EGENMELDINGSDAGER,
+                                        svartype = SvartypeDTO.DAGER,
+                                        svar = basisdato.minusDays(9).datesUntil(basisdato).toList().serialisertTilString(),
+                                    ),
+                                ),
+                        ),
+                ).serialisertTilString(),
+            ),
         )
 
         juridiskVurderingKafkaConsumer.ventPåRecords(antall = 3)

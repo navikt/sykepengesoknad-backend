@@ -20,7 +20,6 @@ import java.util.UUID
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class YrkesskadeIntegrationTest : BaseTestClass() {
-
     @Autowired
     private lateinit var yrkesskadeIndikatorer: YrkesskadeIndikatorer
 
@@ -51,7 +50,7 @@ class YrkesskadeIntegrationTest : BaseTestClass() {
                         diagnose = "Diagnose1",
                         skadedato = LocalDate.of(2023, 1, 2),
                         kildetabell = "Tabell1",
-                        saksreferanse = "Ref123"
+                        saksreferanse = "Ref123",
                     ),
                     SakDto(
                         kommunenr = "0101",
@@ -66,7 +65,7 @@ class YrkesskadeIntegrationTest : BaseTestClass() {
                         diagnose = "Diagnose1",
                         skadedato = null,
                         kildetabell = "Tabell1",
-                        saksreferanse = "Ref123"
+                        saksreferanse = "Ref123",
                     ),
                     SakDto(
                         kommunenr = "0101",
@@ -81,7 +80,7 @@ class YrkesskadeIntegrationTest : BaseTestClass() {
                         diagnose = "Diagnose1",
                         skadedato = LocalDate.of(2023, 1, 2),
                         kildetabell = "Tabell1",
-                        saksreferanse = "Ref123"
+                        saksreferanse = "Ref123",
                     ),
                     SakDto(
                         kommunenr = "0101",
@@ -96,34 +95,38 @@ class YrkesskadeIntegrationTest : BaseTestClass() {
                         diagnose = "Diagnose1",
                         skadedato = LocalDate.of(1982, 1, 2),
                         kildetabell = "Tabell1",
-                        saksreferanse = "Ref123"
-                    )
-                )
-            )
+                        saksreferanse = "Ref123",
+                    ),
+                ),
+            ),
         )
     }
 
     @Test
     @Order(2)
     fun `Arbeidstakersøknad for sykmelding med yrkesskade opprettes med yrkesskadespørsmål i seg i førstegangssoknaden`() {
-        val kafkaSoknader = sendSykmelding(
-            sykmeldingKafkaMessage(
-                sykmeldingId = sykmeldingIdMedYrkesskade,
-                fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = basisdato,
-                    tom = basisdato.plusDays(35)
-                )
-            ),
-            forventaSoknader = 2
-
-        )
+        val kafkaSoknader =
+            sendSykmelding(
+                sykmeldingKafkaMessage(
+                    sykmeldingId = sykmeldingIdMedYrkesskade,
+                    fnr = fnr,
+                    sykmeldingsperioder =
+                        heltSykmeldt(
+                            fom = basisdato,
+                            tom = basisdato.plusDays(35),
+                        ),
+                ),
+                forventaSoknader = 2,
+            )
 
         kafkaSoknader.first().sporsmal!!.any { it.tag == "YRKESSKADE_V2" }.`should be true`()
         kafkaSoknader.first().sporsmal!!.any { it.tag == "YRKESSKADE" }.`should be false`()
         kafkaSoknader.last().sporsmal!!.any { it.tag == "YRKESSKADE_V2" }.`should be false`()
 
-        val spmTekster = kafkaSoknader.first().sporsmal.flatten().filter { it.tag == "YRKESSKADE_V2_DATO" }.map { it.sporsmalstekst }.toList()
+        val spmTekster =
+            kafkaSoknader.first().sporsmal.flatten().filter {
+                it.tag == "YRKESSKADE_V2_DATO"
+            }.map { it.sporsmalstekst }.toList()
 
         spmTekster[0] `should be equal to` "Skadedato 2. januar 1982 (Vedtaksdato 2. januar 1989)"
         spmTekster[1] `should be equal to` "Vedtaksdato 9. mai 1987"

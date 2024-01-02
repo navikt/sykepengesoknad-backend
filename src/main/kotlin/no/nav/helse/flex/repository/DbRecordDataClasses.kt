@@ -50,7 +50,7 @@ data class SykepengesoknadDbRecord(
     val tidligereArbeidsgiverOrgnummer: String? = null,
     val inntektsopplysningerNyKvittering: Boolean? = null,
     val inntektsopplysningerInnsendingId: String? = null,
-    val inntektsopplysningerInnsendingDokumenter: String? = null
+    val inntektsopplysningerInnsendingDokumenter: String? = null,
 )
 
 data class SporsmalDbRecord(
@@ -63,7 +63,7 @@ data class SporsmalDbRecord(
     val svartype: Svartype,
     val min: String?,
     val max: String?,
-    val kriterieForVisningAvUndersporsmal: Visningskriterie?
+    val kriterieForVisningAvUndersporsmal: Visningskriterie?,
 )
 
 data class SoknadsperiodeDbRecord(
@@ -72,11 +72,11 @@ data class SoknadsperiodeDbRecord(
     val fom: LocalDate,
     val tom: LocalDate,
     val grad: Int,
-    val sykmeldingstype: Sykmeldingstype?
+    val sykmeldingstype: Sykmeldingstype?,
 )
 
 data class SvarDbRecord(
     val id: String,
     val sporsmalId: String,
-    val verdi: String
+    val verdi: String,
 )

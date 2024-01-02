@@ -10,7 +10,6 @@ import java.util.*
 
 @TestMethodOrder(MethodOrderer.MethodName::class)
 class JulesoknadDaoTest : BaseTestClass() {
-
     @Autowired
     private lateinit var julesoknadkandidatDAO: JulesoknadkandidatDAO
 

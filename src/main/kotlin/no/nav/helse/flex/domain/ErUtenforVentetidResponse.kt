@@ -4,5 +4,5 @@ import java.time.LocalDate
 
 data class ErUtenforVentetidResponse(
     val erUtenforVentetid: Boolean,
-    val oppfolgingsdato: LocalDate?
+    val oppfolgingsdato: LocalDate?,
 )

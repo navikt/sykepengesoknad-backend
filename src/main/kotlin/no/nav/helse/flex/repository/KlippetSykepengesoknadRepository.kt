@@ -9,7 +9,9 @@ import java.time.Instant
 @Repository
 interface KlippetSykepengesoknadRepository : CrudRepository<KlippetSykepengesoknadDbRecord, String> {
     fun findBySykmeldingUuid(sykmeldingUuid: String): KlippetSykepengesoknadDbRecord?
+
     fun findAllBySykepengesoknadUuidIn(sykepengesoknadUuid: List<String>): List<KlippetSykepengesoknadDbRecord>
+
     fun findAllBySykmeldingUuidIn(sykmeldingUuid: List<String>): List<KlippetSykepengesoknadDbRecord>
 }
 
@@ -22,7 +24,7 @@ data class KlippetSykepengesoknadDbRecord(
     val klippVariant: KlippVariant,
     val periodeFor: String,
     val periodeEtter: String?,
-    val timestamp: Instant
+    val timestamp: Instant,
 )
 
 /**
@@ -38,5 +40,5 @@ enum class KlippVariant {
     SYKMELDING_STARTER_FOR_SLUTTER_INNI,
     SYKMELDING_STARTER_INNI_SLUTTER_ETTER,
     SYKMELDING_STARTER_INNI_SLUTTER_INNI,
-    SYKMELDING_STARTER_FOR_SLUTTER_ETTER
+    SYKMELDING_STARTER_FOR_SLUTTER_ETTER,
 }

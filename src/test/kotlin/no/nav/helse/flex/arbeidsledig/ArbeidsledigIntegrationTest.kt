@@ -27,20 +27,20 @@ import java.util.*
 
 @TestMethodOrder(MethodOrderer.MethodName::class)
 class ArbeidsledigIntegrationTest : BaseTestClass() {
-
     final val fnr = "123456789"
 
     val tidligereArbeidsgiverOrgnummer = "gamlejobben"
 
     @Test
     fun `01 - vi oppretter en arbeidsledigsøknad`() {
-        val soknader = sendSykmelding(
-            sykmeldingKafkaMessage(
-                arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
-                fnr = fnr,
-                tidligereArbeidsgiverOrgnummer = tidligereArbeidsgiverOrgnummer
+        val soknader =
+            sendSykmelding(
+                sykmeldingKafkaMessage(
+                    arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
+                    fnr = fnr,
+                    tidligereArbeidsgiverOrgnummer = tidligereArbeidsgiverOrgnummer,
+                ),
             )
-        )
 
         assertThat(soknader).hasSize(1)
         assertThat(soknader.last().type).isEqualTo(SoknadstypeDTO.ARBEIDSLEDIG)
@@ -61,17 +61,18 @@ class ArbeidsledigIntegrationTest : BaseTestClass() {
                 ANDRE_INNTEKTSKILDER,
                 ARBEIDSLEDIG_UTLAND,
                 VAER_KLAR_OVER_AT,
-                BEKREFT_OPPLYSNINGER
-            )
+                BEKREFT_OPPLYSNINGER,
+            ),
         )
     }
 
     @Test
     fun `03 - vi svarer på ansvarserklæringa som ikke muterer søknaden`() {
-        val soknaden = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val soknaden =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
 
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
             .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
@@ -82,18 +83,19 @@ class ArbeidsledigIntegrationTest : BaseTestClass() {
 
     @Test
     fun `04 - vi svarer at vi ble friskmeldt midt i søknadsperioden - Det muterer søknaden`() {
-        val soknaden = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val soknaden =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
 
         assertThat(soknaden.sporsmal!!.first { it.tag == ANDRE_INNTEKTSKILDER }.sporsmalstekst)
             .isEqualTo(
-                "Har du hatt inntekt mens du har vært sykmeldt i perioden 1. - 15. februar 2020?"
+                "Har du hatt inntekt mens du har vært sykmeldt i perioden 1. - 15. februar 2020?",
             )
         assertThat(soknaden.sporsmal!!.first { it.tag == ARBEIDSLEDIG_UTLAND }.sporsmalstekst)
             .isEqualTo(
-                "Var du på reise utenfor EØS mens du var sykmeldt 1. - 15. februar 2020?"
+                "Var du på reise utenfor EØS mens du var sykmeldt 1. - 15. februar 2020?",
             )
 
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
@@ -101,35 +103,36 @@ class ArbeidsledigIntegrationTest : BaseTestClass() {
             .besvarSporsmal(
                 FRISKMELDT_START,
                 LocalDate.of(2020, 2, 5).format(DateTimeFormatter.ISO_LOCAL_DATE),
-                mutert = true
+                mutert = true,
             )
             .also {
                 assertThat(it.muterteSoknaden).isTrue()
 
                 assertThat(it.rSSykepengesoknad.sporsmal!!.first { it.tag == ANDRE_INNTEKTSKILDER }.sporsmalstekst)
                     .isEqualTo(
-                        "Har du hatt inntekt mens du har vært sykmeldt i perioden 1. - 4. februar 2020?"
+                        "Har du hatt inntekt mens du har vært sykmeldt i perioden 1. - 4. februar 2020?",
                     )
 
                 assertThat(it.rSSykepengesoknad.sporsmal!!.first { it.tag == ARBEIDSLEDIG_UTLAND }.sporsmalstekst)
                     .isEqualTo(
-                        "Var du på reise utenfor EØS mens du var sykmeldt 1. - 4. februar 2020?"
+                        "Var du på reise utenfor EØS mens du var sykmeldt 1. - 4. februar 2020?",
                     )
             }
     }
 
     @Test
     fun `05 - unødvendige spørsmål forsvinner når man blir friskmeldt første dag i søknadsperioden`() {
-        val soknaden = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val soknaden =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
 
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
             .besvarSporsmal(
                 FRISKMELDT_START,
                 LocalDate.of(2020, 2, 1).format(DateTimeFormatter.ISO_LOCAL_DATE),
-                mutert = true
+                mutert = true,
             )
             .also {
                 assertThat(it.rSSykepengesoknad.sporsmal!!.map { it.tag }).isEqualTo(
@@ -138,24 +141,25 @@ class ArbeidsledigIntegrationTest : BaseTestClass() {
                         FRISKMELDT,
                         ARBEID_UTENFOR_NORGE,
                         VAER_KLAR_OVER_AT,
-                        BEKREFT_OPPLYSNINGER
-                    )
+                        BEKREFT_OPPLYSNINGER,
+                    ),
                 )
             }
     }
 
     @Test
     fun `06 - unødvendige spørsmål kommer tilbake når man svarer at man ikke ble friskmeldt første dagen likevel`() {
-        val soknaden = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val soknaden =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
 
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
             .besvarSporsmal(
                 FRISKMELDT_START,
                 LocalDate.of(2020, 2, 4).format(DateTimeFormatter.ISO_LOCAL_DATE),
-                mutert = true
+                mutert = true,
             )
             .also {
                 assertThat(it.rSSykepengesoknad.sporsmal!!.map { it.tag }).isEqualTo(
@@ -166,27 +170,29 @@ class ArbeidsledigIntegrationTest : BaseTestClass() {
                         ANDRE_INNTEKTSKILDER,
                         ARBEIDSLEDIG_UTLAND,
                         VAER_KLAR_OVER_AT,
-                        BEKREFT_OPPLYSNINGER
-                    )
+                        BEKREFT_OPPLYSNINGER,
+                    ),
                 )
             }
     }
 
     @Test
     fun `07 - vi kan ikke sende inn søknaden før alle spørsmål er besvart`() {
-        val soknaden = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val soknaden =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
         sendSoknadMedResult(fnr, soknaden.id).andExpect(((MockMvcResultMatchers.status().isBadRequest)))
     }
 
     @Test
     fun `08 - vi besvarer alle sporsmal`() {
-        val soknaden = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val soknaden =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
 
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
             .besvarSporsmal(ARBEID_UTENFOR_NORGE, "JA")
@@ -197,10 +203,11 @@ class ArbeidsledigIntegrationTest : BaseTestClass() {
 
     @Test
     fun `09 - vi får en feil dersom spørsmål id ikke finnes i søknaden`() {
-        val soknaden = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val soknaden =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
 
         val json =
             oppdaterSporsmalMedResult(fnr, soknaden.sporsmal!![0].copy(id = "FEILID"), soknadsId = soknaden.id)
@@ -227,15 +234,17 @@ class ArbeidsledigIntegrationTest : BaseTestClass() {
 
     @Test
     fun `11 - vi kan ikke besvare spørsmål på en søknad som er sendt`() {
-        val soknaden = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val soknaden =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
 
         assertThat(soknaden.status).isEqualTo(RSSoknadstatus.SENDT)
 
-        val json = oppdaterSporsmalMedResult(fnr, soknaden.sporsmal!![0], soknadsId = soknaden.id)
-            .andExpect(MockMvcResultMatchers.status().isBadRequest).andReturn().response.contentAsString
+        val json =
+            oppdaterSporsmalMedResult(fnr, soknaden.sporsmal!![0], soknadsId = soknaden.id)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest).andReturn().response.contentAsString
         assertThat(json).isEqualTo("""{"reason":"FEIL_STATUS_FOR_OPPDATER_SPORSMAL"}""")
     }
 

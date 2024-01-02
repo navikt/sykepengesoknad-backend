@@ -13,5 +13,5 @@ data class JuridiskVurdering(
     val bokstav: String?,
     val input: Map<String, Any>,
     val output: Map<String, Any>?,
-    val utfall: Utfall
+    val utfall: Utfall,
 )

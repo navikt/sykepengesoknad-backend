@@ -7,17 +7,19 @@ import org.springframework.stereotype.Component
 
 @Component
 class NarmestelederListener(
-    private val oppdateringAvForskuttering: OppdateringAvForskuttering
+    private val oppdateringAvForskuttering: OppdateringAvForskuttering,
 ) {
-
     @KafkaListener(
         topics = [NARMESTELEDER_LEESAH_TOPIC],
         containerFactory = "aivenKafkaListenerContainerFactory",
         properties = ["auto.offset.reset = earliest"],
         id = "narmesteleder-listener",
-        idIsGroup = false
+        idIsGroup = false,
     )
-    fun listen(cr: ConsumerRecord<String, String>, acknowledgment: Acknowledgment) {
+    fun listen(
+        cr: ConsumerRecord<String, String>,
+        acknowledgment: Acknowledgment,
+    ) {
         oppdateringAvForskuttering.behandleMeldingFraKafka(cr.value())
         acknowledgment.acknowledge()
     }

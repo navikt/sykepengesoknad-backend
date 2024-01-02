@@ -5,7 +5,11 @@ import no.nav.helse.flex.util.DatoUtil
 import no.nav.helse.flex.util.parseGyldigDato
 import java.time.LocalDate
 
-fun Sykepengesoknad.finnGyldigDatoSvar(hovedtag: String, undertag: String, relevantSvarVerdi: String = "JA"): LocalDate? {
+fun Sykepengesoknad.finnGyldigDatoSvar(
+    hovedtag: String,
+    undertag: String,
+    relevantSvarVerdi: String = "JA",
+): LocalDate? {
     val hovedsporsmal = this.getSporsmalMedTag(hovedtag)
     if (hovedsporsmal.svartype != no.nav.helse.flex.domain.Svartype.JA_NEI) {
         throw RuntimeException("Hovedspørsmål skal være type JA_NEI $hovedsporsmal")

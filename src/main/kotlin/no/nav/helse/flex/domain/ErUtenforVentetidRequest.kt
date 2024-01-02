@@ -5,5 +5,5 @@ import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 
 data class ErUtenforVentetidRequest(
     val tilleggsopplysninger: Tilleggsopplysninger? = null,
-    val sykmeldingKafkaMessage: SykmeldingKafkaMessage? = null
+    val sykmeldingKafkaMessage: SykmeldingKafkaMessage? = null,
 )

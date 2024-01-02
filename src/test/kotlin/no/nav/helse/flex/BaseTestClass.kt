@@ -4,9 +4,9 @@ import io.getunleash.FakeUnleash
 import jakarta.annotation.PostConstruct
 import no.nav.helse.flex.client.kvitteringer.SykepengesoknadKvitteringerClient
 import no.nav.helse.flex.juridiskvurdering.juridiskVurderingTopic
+import no.nav.helse.flex.kafka.SYKEPENGESOKNAD_TOPIC
 import no.nav.helse.flex.kafka.producer.AivenKafkaProducer
 import no.nav.helse.flex.kafka.producer.RebehandlingSykmeldingSendtProducer
-import no.nav.helse.flex.kafka.sykepengesoknadTopic
 import no.nav.helse.flex.medlemskap.MedlemskapMockDispatcher
 import no.nav.helse.flex.mockdispatcher.EregMockDispatcher
 import no.nav.helse.flex.mockdispatcher.InntektskomponentenMockDispatcher
@@ -43,6 +43,7 @@ import org.testcontainers.utility.DockerImageName
 import kotlin.concurrent.thread
 
 private class RedisContainer : GenericContainer<RedisContainer>("bitnami/redis:6.2")
+
 private class PostgreSQLContainer14 : PostgreSQLContainer<PostgreSQLContainer14>("postgres:14-alpine")
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -51,7 +52,6 @@ private class PostgreSQLContainer14 : PostgreSQLContainer<PostgreSQLContainer14>
 @AutoConfigureMockMvc(print = MockMvcPrint.NONE, printOnlyOnFailure = false)
 @AutoConfigureObservability
 abstract class BaseTestClass {
-
     companion object {
         val pdlMockWebserver: MockWebServer
         val medlemskapMockWebServer: MockWebServer
@@ -93,26 +93,31 @@ abstract class BaseTestClass {
                 }
             }.also { threads.add(it) }
 
-            pdlMockWebserver = MockWebServer().apply {
-                System.setProperty("pdl.api.url", "http://localhost:$port")
-                dispatcher = PdlMockDispatcher
-            }
-            medlemskapMockWebServer = MockWebServer().apply {
-                System.setProperty("MEDLEMSKAP_VURDERING_URL", "http://localhost:$port")
-                dispatcher = MedlemskapMockDispatcher
-            }
-            inntektskomponentenMockWebServer = MockWebServer().apply {
-                System.setProperty("INNTEKTSKOMPONENTEN_URL", "http://localhost:$port")
-                dispatcher = InntektskomponentenMockDispatcher
-            }
-            eregMockWebServer = MockWebServer().apply {
-                System.setProperty("EREG_URL", "http://localhost:$port")
-                dispatcher = EregMockDispatcher
-            }
-            yrkesskadeMockWebServer = MockWebServer().apply {
-                System.setProperty("YRKESSKADE_URL", "http://localhost:$port")
-                dispatcher = YrkesskadeMockDispatcher
-            }
+            pdlMockWebserver =
+                MockWebServer().apply {
+                    System.setProperty("pdl.api.url", "http://localhost:$port")
+                    dispatcher = PdlMockDispatcher
+                }
+            medlemskapMockWebServer =
+                MockWebServer().apply {
+                    System.setProperty("MEDLEMSKAP_VURDERING_URL", "http://localhost:$port")
+                    dispatcher = MedlemskapMockDispatcher
+                }
+            inntektskomponentenMockWebServer =
+                MockWebServer().apply {
+                    System.setProperty("INNTEKTSKOMPONENTEN_URL", "http://localhost:$port")
+                    dispatcher = InntektskomponentenMockDispatcher
+                }
+            eregMockWebServer =
+                MockWebServer().apply {
+                    System.setProperty("EREG_URL", "http://localhost:$port")
+                    dispatcher = EregMockDispatcher
+                }
+            yrkesskadeMockWebServer =
+                MockWebServer().apply {
+                    System.setProperty("YRKESSKADE_URL", "http://localhost:$port")
+                    dispatcher = YrkesskadeMockDispatcher
+                }
 
             threads.forEach { it.join() }
         }
@@ -198,7 +203,7 @@ abstract class BaseTestClass {
 
     @BeforeAll
     fun `Vi leser sykepengesoknad kafka topicet og feiler om noe eksisterer`() {
-        sykepengesoknadKafkaConsumer.subscribeHvisIkkeSubscribed(sykepengesoknadTopic)
+        sykepengesoknadKafkaConsumer.subscribeHvisIkkeSubscribed(SYKEPENGESOKNAD_TOPIC)
         sykepengesoknadKafkaConsumer.hentProduserteRecords().shouldBeEmpty()
     }
 

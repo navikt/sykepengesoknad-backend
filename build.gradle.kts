@@ -5,7 +5,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("org.springframework.boot") version "3.2.1"
     id("io.spring.dependency-management") version "1.1.4"
-    id("org.jlleitschuh.gradle.ktlint") version "11.6.1"
+    id("org.jlleitschuh.gradle.ktlint") version "12.0.3"
     kotlin("jvm") version "1.9.22"
     kotlin("plugin.spring") version "1.9.22"
 }
@@ -112,9 +112,10 @@ tasks.withType<Test> {
     failFast = false
     reports.html.required.set(false)
     reports.junitXml.required.set(false)
-    maxParallelForks = if (System.getenv("CI") == "true") {
-        (Runtime.getRuntime().availableProcessors() - 1).coerceAtLeast(1).coerceAtMost(4)
-    } else {
-        2
-    }
+    maxParallelForks =
+        if (System.getenv("CI") == "true") {
+            (Runtime.getRuntime().availableProcessors() - 1).coerceAtLeast(1).coerceAtMost(4)
+        } else {
+            2
+        }
 }

@@ -40,12 +40,13 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
     @Test
     @Order(1)
     fun `behandingsdagsøknad opprettes for en lang sykmelding`() {
-        val kafkaSoknader = sendSykmelding(
-            sykmeldingKafkaMessage(
-                fnr = fnr,
-                sykmeldingsperioder = behandingsdager()
+        val kafkaSoknader =
+            sendSykmelding(
+                sykmeldingKafkaMessage(
+                    fnr = fnr,
+                    sykmeldingsperioder = behandingsdager(),
+                ),
             )
-        )
 
         val soknader = hentSoknaderMetadata(fnr)
         assertThat(soknader).hasSize(1)
@@ -59,10 +60,11 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
     @Test
     @Order(2)
     fun `behandlingsdager har riktig formattert spørsmålstekst`() {
-        val soknaden = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val soknaden =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
         val uke0 = soknaden.sporsmal!!.first { it.tag == "ENKELTSTAENDE_BEHANDLINGSDAGER_0" }.undersporsmal[0]
         val uke1 = soknaden.sporsmal!!.first { it.tag == "ENKELTSTAENDE_BEHANDLINGSDAGER_0" }.undersporsmal[1]
 
@@ -77,10 +79,11 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
         mockFlexSyketilfelleArbeidsgiverperiode()
 
         // Svar på søknad
-        val rsSykepengesoknad = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val rsSykepengesoknad =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
 
         SoknadBesvarer(rSSykepengesoknad = rsSykepengesoknad, mockMvc = this, fnr = fnr)
             .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
@@ -91,12 +94,12 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
             .besvarSporsmal(
                 tag = "ENKELTSTAENDE_BEHANDLINGSDAGER_UKE_0",
                 svar = "${rsSykepengesoknad.fom}",
-                ferdigBesvart = false
+                ferdigBesvart = false,
             )
             .besvarSporsmal(
                 tag = "ENKELTSTAENDE_BEHANDLINGSDAGER_UKE_1",
                 svarListe = emptyList(),
-                ferdigBesvart = false
+                ferdigBesvart = false,
             )
             .also {
                 sendSoknadMedResult(fnr, rsSykepengesoknad.id)
@@ -111,10 +114,11 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
         assertThat(soknadPaKafka.fnr).isEqualTo("123456789")
         assertThat(soknadPaKafka.behandlingsdager).isEqualTo(listOf(rsSykepengesoknad.fom, rsSykepengesoknad.tom))
 
-        val refreshedSoknad = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val refreshedSoknad =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
         assertThat(refreshedSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
         assertThat(refreshedSoknad.sporsmal!!.find { it.tag == ANSVARSERKLARING }!!.svar[0].verdi).isEqualTo("CHECKED")
         assertThat(refreshedSoknad.sporsmal!!.find { it.tag == BEKREFT_OPPLYSNINGER }!!.svar[0].verdi).isEqualTo("CHECKED")
@@ -156,23 +160,25 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                sykmeldingsperioder = behandingsdager()
-            )
+                sykmeldingsperioder = behandingsdager(),
+            ),
         )
 
-        val soknad = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
-            fnr = fnr
-        )
+        val soknad =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
+                fnr = fnr,
+            )
         SoknadBesvarer(rSSykepengesoknad = soknad, mockMvc = this, fnr = fnr)
             .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
 
         // Avbryt søknad
         avbrytSoknad(soknadId = soknad.id, fnr = fnr)
-        val avbruttSoknad = hentSoknad(
-            soknadId = soknad.id,
-            fnr = fnr
-        )
+        val avbruttSoknad =
+            hentSoknad(
+                soknadId = soknad.id,
+                fnr = fnr,
+            )
         assertThat(avbruttSoknad.status).isEqualTo(RSSoknadstatus.AVBRUTT)
 
         val avbruttPåKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().last()
@@ -181,10 +187,11 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
 
         // Gjenåpne søknad
         gjenapneSoknad(soknadId = soknad.id, fnr = fnr)
-        val gjenapnetSoknad = hentSoknad(
-            soknadId = avbruttSoknad.id,
-            fnr = fnr
-        )
+        val gjenapnetSoknad =
+            hentSoknad(
+                soknadId = avbruttSoknad.id,
+                fnr = fnr,
+            )
         assertThat(gjenapnetSoknad.status).isEqualTo(RSSoknadstatus.NY)
         assertThat(gjenapnetSoknad.sporsmal?.sumOf { it.svar.size }).isEqualTo(0)
 
@@ -206,30 +213,31 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
             sykmeldingKafkaMessage(
                 fnr = fnr,
                 sykmeldingId = sykmeldingId,
-                sykmeldingsperioder = listOf(
-                    SykmeldingsperiodeAGDTO(
-                        fom = LocalDate.of(2020, 3, 1),
-                        tom = LocalDate.of(2020, 3, 15),
-                        type = PeriodetypeDTO.BEHANDLINGSDAGER,
-                        reisetilskudd = false,
-                        aktivitetIkkeMulig = null,
-                        behandlingsdager = 1,
-                        gradert = null,
-                        innspillTilArbeidsgiver = null
+                sykmeldingsperioder =
+                    listOf(
+                        SykmeldingsperiodeAGDTO(
+                            fom = LocalDate.of(2020, 3, 1),
+                            tom = LocalDate.of(2020, 3, 15),
+                            type = PeriodetypeDTO.BEHANDLINGSDAGER,
+                            reisetilskudd = false,
+                            aktivitetIkkeMulig = null,
+                            behandlingsdager = 1,
+                            gradert = null,
+                            innspillTilArbeidsgiver = null,
+                        ),
+                        SykmeldingsperiodeAGDTO(
+                            fom = LocalDate.of(2020, 3, 16),
+                            tom = LocalDate.of(2020, 3, 31),
+                            type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+                            reisetilskudd = false,
+                            aktivitetIkkeMulig = null,
+                            behandlingsdager = null,
+                            gradert = null,
+                            innspillTilArbeidsgiver = null,
+                        ),
                     ),
-                    SykmeldingsperiodeAGDTO(
-                        fom = LocalDate.of(2020, 3, 16),
-                        tom = LocalDate.of(2020, 3, 31),
-                        type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
-                        reisetilskudd = false,
-                        aktivitetIkkeMulig = null,
-                        behandlingsdager = null,
-                        gradert = null,
-                        innspillTilArbeidsgiver = null
-                    )
-                )
             ),
-            forventaSoknader = 2
+            forventaSoknader = 2,
         )
 
         val soknader = hentSoknaderMetadata(fnr).filter { it.sykmeldingId == sykmeldingId }
@@ -253,30 +261,31 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
             sykmeldingKafkaMessage(
                 fnr = fnr,
                 sykmeldingId = sykmeldingId,
-                sykmeldingsperioder = listOf(
-                    SykmeldingsperiodeAGDTO(
-                        fom = LocalDate.of(2020, 3, 1),
-                        tom = LocalDate.of(2020, 3, 15),
-                        type = PeriodetypeDTO.BEHANDLINGSDAGER,
-                        reisetilskudd = false,
-                        aktivitetIkkeMulig = null,
-                        behandlingsdager = 1,
-                        gradert = null,
-                        innspillTilArbeidsgiver = null
+                sykmeldingsperioder =
+                    listOf(
+                        SykmeldingsperiodeAGDTO(
+                            fom = LocalDate.of(2020, 3, 1),
+                            tom = LocalDate.of(2020, 3, 15),
+                            type = PeriodetypeDTO.BEHANDLINGSDAGER,
+                            reisetilskudd = false,
+                            aktivitetIkkeMulig = null,
+                            behandlingsdager = 1,
+                            gradert = null,
+                            innspillTilArbeidsgiver = null,
+                        ),
+                        SykmeldingsperiodeAGDTO(
+                            fom = LocalDate.of(2020, 3, 16),
+                            tom = LocalDate.of(2020, 3, 31),
+                            type = PeriodetypeDTO.BEHANDLINGSDAGER,
+                            reisetilskudd = false,
+                            aktivitetIkkeMulig = null,
+                            behandlingsdager = 1,
+                            gradert = null,
+                            innspillTilArbeidsgiver = null,
+                        ),
                     ),
-                    SykmeldingsperiodeAGDTO(
-                        fom = LocalDate.of(2020, 3, 16),
-                        tom = LocalDate.of(2020, 3, 31),
-                        type = PeriodetypeDTO.BEHANDLINGSDAGER,
-                        reisetilskudd = false,
-                        aktivitetIkkeMulig = null,
-                        behandlingsdager = 1,
-                        gradert = null,
-                        innspillTilArbeidsgiver = null
-                    )
-                )
             ),
-            forventaSoknader = 2
+            forventaSoknader = 2,
         )
 
         val soknader = hentSoknaderMetadata(fnr).filter { it.sykmeldingId == sykmeldingId }

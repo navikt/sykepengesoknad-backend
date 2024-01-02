@@ -39,7 +39,6 @@ import java.time.LocalDate
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class MedlemskapUavklartIntegrationTest : BaseTestClass() {
-
     @BeforeAll
     fun configureUnleash() {
         fakeUnleash.resetAll()
@@ -59,31 +58,34 @@ class MedlemskapUavklartIntegrationTest : BaseTestClass() {
             MockResponse().setResponseCode(200).setBody(
                 MedlemskapVurderingResponse(
                     svar = MedlemskapVurderingSvarType.UAVKLART,
-                    sporsmal = emptyList()
-                ).serialisertTilString()
-            )
+                    sporsmal = emptyList(),
+                ).serialisertTilString(),
+            ),
         )
 
-        val soknader = sendSykmelding(
-            sykmeldingKafkaMessage(
-                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = LocalDate.of(2023, 1, 1),
-                    tom = LocalDate.of(2023, 1, 7)
-                )
+        val soknader =
+            sendSykmelding(
+                sykmeldingKafkaMessage(
+                    arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                    fnr = fnr,
+                    sykmeldingsperioder =
+                        heltSykmeldt(
+                            fom = LocalDate.of(2023, 1, 1),
+                            tom = LocalDate.of(2023, 1, 7),
+                        ),
+                ),
             )
-        )
 
         assertThat(soknader).hasSize(1)
         assertThat(soknader.last().type).isEqualTo(SoknadstypeDTO.ARBEIDSTAKERE)
         assertThat(soknader.last().status).isEqualTo(SoknadsstatusDTO.NY)
         assertThat(soknader.last().medlemskapVurdering).isNull()
 
-        val soknad = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val soknad =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
 
         assertThat(soknad.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
@@ -95,8 +97,8 @@ class MedlemskapUavklartIntegrationTest : BaseTestClass() {
                 ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER_V2,
                 UTLAND_V2,
-                TIL_SLUTT
-            )
+                TIL_SLUTT,
+            ),
         )
     }
 
@@ -110,10 +112,11 @@ class MedlemskapUavklartIntegrationTest : BaseTestClass() {
         hentSoknadSomKanBesvares(fnr).let {
             val (_, soknadBesvarer) = it
             besvarArbeidstakerSporsmal(soknadBesvarer)
-            val sendtSoknad = soknadBesvarer
-                .besvarSporsmal(tag = TIL_SLUTT, svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
-                .besvarSporsmal(tag = BEKREFT_OPPLYSNINGER, svar = "CHECKED")
-                .sendSoknad()
+            val sendtSoknad =
+                soknadBesvarer
+                    .besvarSporsmal(tag = TIL_SLUTT, svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
+                    .besvarSporsmal(tag = BEKREFT_OPPLYSNINGER, svar = "CHECKED")
+                    .sendSoknad()
             sendtSoknad.status shouldBeEqualTo RSSoknadstatus.SENDT
         }
 
@@ -128,7 +131,7 @@ class MedlemskapUavklartIntegrationTest : BaseTestClass() {
     private fun hentSoknadMedStatusNy(fnr: String): RSSykepengesoknad {
         return hentSoknad(
             soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
-            fnr = fnr
+            fnr = fnr,
         )
     }
 

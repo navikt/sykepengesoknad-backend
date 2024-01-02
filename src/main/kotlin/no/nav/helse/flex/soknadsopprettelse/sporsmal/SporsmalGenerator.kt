@@ -29,13 +29,13 @@ class SporsmalGenerator(
     private val yrkesskadeIndikatorer: YrkesskadeIndikatorer,
     private val medlemskapVurderingClient: MedlemskapVurderingClient,
     private val environmentToggles: EnvironmentToggles,
-    private val unleashToggles: UnleashToggles
+    private val unleashToggles: UnleashToggles,
 ) {
     private val log = logger()
 
     data class SporsmalOgAndreKjenteArbeidsforhold(
         val sporsmal: List<Sporsmal>,
-        val andreKjenteArbeidsforhold: List<ArbeidsforholdFraInntektskomponenten>? = null
+        val andreKjenteArbeidsforhold: List<ArbeidsforholdFraInntektskomponenten>? = null,
     )
 
     fun lagSporsmalPaSoknad(id: String) {
@@ -43,11 +43,12 @@ class SporsmalGenerator(
         val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(soknad.fnr)
         val eksisterendeSoknader = sykepengesoknadDAO.finnSykepengesoknader(identer).filterNot { it.id == soknad.id }
 
-        val sporsmalOgAndreKjenteArbeidsforhold = lagSykepengesoknadSporsmal(
-            soknad = soknad,
-            eksisterendeSoknader = eksisterendeSoknader,
-            identer = identer
-        )
+        val sporsmalOgAndreKjenteArbeidsforhold =
+            lagSykepengesoknadSporsmal(
+                soknad = soknad,
+                eksisterendeSoknader = eksisterendeSoknader,
+                identer = identer,
+            )
         sykepengesoknadDAO.byttUtSporsmal(soknad.copy(sporsmal = sporsmalOgAndreKjenteArbeidsforhold.sporsmal))
 
         sporsmalOgAndreKjenteArbeidsforhold.andreKjenteArbeidsforhold?.let {
@@ -58,32 +59,34 @@ class SporsmalGenerator(
     private fun List<Sporsmal>.tilSporsmalOgAndreKjenteArbeidsforhold(): SporsmalOgAndreKjenteArbeidsforhold =
         SporsmalOgAndreKjenteArbeidsforhold(
             sporsmal = this,
-            andreKjenteArbeidsforhold = null
+            andreKjenteArbeidsforhold = null,
         )
 
     private fun lagSykepengesoknadSporsmal(
         soknad: Sykepengesoknad,
         eksisterendeSoknader: List<Sykepengesoknad>,
-        identer: FolkeregisterIdenter
+        identer: FolkeregisterIdenter,
     ): SporsmalOgAndreKjenteArbeidsforhold {
         val erForsteSoknadISykeforlop = erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad)
         val erEnkeltstaendeBehandlingsdagSoknad = soknad.soknadstype == Soknadstype.BEHANDLINGSDAGER
         val harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad)
         val nyttTilSluttSpmToggle = unleashToggles.nyttTilSluttSporsmal(soknad.fnr)
-        val yrkesskadeSporsmalGrunnlag = yrkesskadeIndikatorer.hentYrkesskadeSporsmalGrunnlag(
-            identer = identer,
-            sykmeldingId = soknad.sykmeldingId,
-            erForsteSoknadISykeforlop = erForsteSoknadISykeforlop
-        )
+        val yrkesskadeSporsmalGrunnlag =
+            yrkesskadeIndikatorer.hentYrkesskadeSporsmalGrunnlag(
+                identer = identer,
+                sykmeldingId = soknad.sykmeldingId,
+                erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
+            )
 
-        val soknadOptions = SettOppSoknadOptions(
-            sykepengesoknad = soknad,
-            erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
-            harTidligereUtenlandskSpm = harTidligereUtenlandskSpm,
-            yrkesskade = yrkesskadeSporsmalGrunnlag,
-            kjenteInntektskilderEnabled = unleashToggles.stillKjenteInntektskilderSporsmal(soknad.fnr),
-            naringsdrivendeInntektsopplysningerEnabled = unleashToggles.naringsdrivendeInntektsopplysninger(soknad.fnr)
-        )
+        val soknadOptions =
+            SettOppSoknadOptions(
+                sykepengesoknad = soknad,
+                erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
+                harTidligereUtenlandskSpm = harTidligereUtenlandskSpm,
+                yrkesskade = yrkesskadeSporsmalGrunnlag,
+                kjenteInntektskilderEnabled = unleashToggles.stillKjenteInntektskilderSporsmal(soknad.fnr),
+                naringsdrivendeInntektsopplysningerEnabled = unleashToggles.naringsdrivendeInntektsopplysninger(soknad.fnr),
+            )
 
         if (erEnkeltstaendeBehandlingsdagSoknad) {
             return settOppSykepengesoknadBehandlingsdager(soknadOptions).tilSporsmalOgAndreKjenteArbeidsforhold()
@@ -95,37 +98,41 @@ class SporsmalGenerator(
 
         return when (soknad.arbeidssituasjon) {
             Arbeidssituasjon.ARBEIDSTAKER -> {
-                val andreKjenteArbeidsforhold = andreArbeidsforholdHenting.hentArbeidsforhold(
-                    fnr = soknad.fnr,
-                    arbeidsgiverOrgnummer = soknad.arbeidsgiverOrgnummer!!,
-                    startSykeforlop = soknad.startSykeforlop!!
-                )
+                val andreKjenteArbeidsforhold =
+                    andreArbeidsforholdHenting.hentArbeidsforhold(
+                        fnr = soknad.fnr,
+                        arbeidsgiverOrgnummer = soknad.arbeidsgiverOrgnummer!!,
+                        startSykeforlop = soknad.startSykeforlop!!,
+                    )
 
-                val arbeidstakerSporsmal = settOppSoknadArbeidstaker(
-                    soknadOptions = soknadOptions.copy(
-                        medlemskapSporsmalTags = lagMedlemsskapSporsmalTags(eksisterendeSoknader, soknad)
-                    ),
-                    andreKjenteArbeidsforhold = andreKjenteArbeidsforhold.map { it.navn },
-                    toggle = nyttTilSluttSpmToggle
-                )
+                val arbeidstakerSporsmal =
+                    settOppSoknadArbeidstaker(
+                        soknadOptions =
+                            soknadOptions.copy(
+                                medlemskapSporsmalTags = lagMedlemsskapSporsmalTags(eksisterendeSoknader, soknad),
+                            ),
+                        andreKjenteArbeidsforhold = andreKjenteArbeidsforhold.map { it.navn },
+                        toggle = nyttTilSluttSpmToggle,
+                    )
 
                 SporsmalOgAndreKjenteArbeidsforhold(
                     sporsmal = arbeidstakerSporsmal,
-                    andreKjenteArbeidsforhold = andreKjenteArbeidsforhold
+                    andreKjenteArbeidsforhold = andreKjenteArbeidsforhold,
                 )
             }
 
             else -> {
                 when (soknad.arbeidssituasjon) {
                     Arbeidssituasjon.NAERINGSDRIVENDE,
-                    Arbeidssituasjon.FRILANSER -> settOppSoknadSelvstendigOgFrilanser(soknadOptions)
+                    Arbeidssituasjon.FRILANSER,
+                    -> settOppSoknadSelvstendigOgFrilanser(soknadOptions)
                     Arbeidssituasjon.ARBEIDSLEDIG -> settOppSoknadArbeidsledig(soknadOptions)
                     Arbeidssituasjon.ANNET -> settOppSoknadAnnetArbeidsforhold(soknadOptions)
 
                     else -> {
                         throw RuntimeException(
                             "Arbeidssituasjon ${soknad.arbeidssituasjon} for sykepengesøknad ${soknad.id} er ukjent. " +
-                                "Kan ikke generere spørsmål."
+                                "Kan ikke generere spørsmål.",
                         )
                     }
                 }.tilSporsmalOgAndreKjenteArbeidsforhold()
@@ -135,15 +142,16 @@ class SporsmalGenerator(
 
     private fun lagMedlemsskapSporsmalTags(
         eksisterendeSoknader: List<Sykepengesoknad>,
-        soknad: Sykepengesoknad
+        soknad: Sykepengesoknad,
     ): List<MedlemskapSporsmalTag> {
         // Medlemskapspørsmal skal kun stilles i den første søknaden i et sykeforløp, uavhengig av arbeidsgiver.
         if (!erForsteSoknadIForlop(eksisterendeSoknader, soknad)) {
             return emptyList()
         }
 
-        val medlemskapVurdering = hentMedlemskapVurdering(soknad)
-            ?: return listOf(SykepengesoknadSporsmalTag.ARBEID_UTENFOR_NORGE)
+        val medlemskapVurdering =
+            hentMedlemskapVurdering(soknad)
+                ?: return listOf(SykepengesoknadSporsmalTag.ARBEID_UTENFOR_NORGE)
 
         val (svar, sporsmal) = medlemskapVurdering
 
@@ -161,14 +169,15 @@ class SporsmalGenerator(
                 listOf(SykepengesoknadSporsmalTag.ARBEID_UTENFOR_NORGE)
             }
 
-            else -> sporsmal.map {
-                when (it) {
-                    MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE -> LovMeSporsmalTag.OPPHOLDSTILATELSE
-                    MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE -> LovMeSporsmalTag.ARBEID_UTENFOR_NORGE
-                    MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE -> LovMeSporsmalTag.OPPHOLD_UTENFOR_NORGE
-                    MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE -> LovMeSporsmalTag.OPPHOLD_UTENFOR_EØS_OMRÅDE
+            else ->
+                sporsmal.map {
+                    when (it) {
+                        MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE -> LovMeSporsmalTag.OPPHOLDSTILATELSE
+                        MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE -> LovMeSporsmalTag.ARBEID_UTENFOR_NORGE
+                        MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE -> LovMeSporsmalTag.OPPHOLD_UTENFOR_NORGE
+                        MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE -> LovMeSporsmalTag.OPPHOLD_UTENFOR_EØS_OMRÅDE
+                    }
                 }
-            }
         }
     }
 
@@ -180,8 +189,8 @@ class SporsmalGenerator(
                     fnr = soknad.fnr,
                     fom = soknad.fom ?: error("'fom' kan ikke være null."),
                     tom = soknad.tom ?: error("'tom' kan ikke være null."),
-                    sykepengesoknadId = soknad.id
-                )
+                    sykepengesoknadId = soknad.id,
+                ),
             )
         }.onFailure { e ->
             // Vi kaster exception i PROD, men logger bare og returnerer tom liste i DEV siden det er såpass
@@ -192,7 +201,7 @@ class SporsmalGenerator(
                 log.warn(
                     "Henting av medlemskapvurdering feilet for søknad ${soknad.id}, men vi er i DEV og gjør ikke" +
                         "noe med det annet enn å returnere en tom liste med spørsmål.",
-                    e
+                    e,
                 )
             }
         }.getOrNull()

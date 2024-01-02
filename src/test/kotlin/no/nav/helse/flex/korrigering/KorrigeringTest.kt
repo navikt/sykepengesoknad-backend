@@ -16,7 +16,6 @@ import java.time.OffsetDateTime
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class KorrigeringTest : BaseTestClass() {
-
     private val fnr = "12345678900"
     private val basisdato = LocalDate.now()
 
@@ -28,12 +27,12 @@ class KorrigeringTest : BaseTestClass() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = basisdato.minusDays(20),
-                    tom = basisdato.minusDays(1)
-
-                )
-            )
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = basisdato.minusDays(20),
+                        tom = basisdato.minusDays(1),
+                    ),
+            ),
         )
 
         val soknader = hentSoknader(fnr)
@@ -55,17 +54,18 @@ class KorrigeringTest : BaseTestClass() {
         mockFlexSyketilfelleArbeidsgiverperiode()
         val soknaden = hentSoknader(fnr).first()
 
-        val sendtSoknad = SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
-            .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
-            .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
-            .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
-            .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
-            .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
-            .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
-            .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
-            .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
-            .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
-            .sendSoknad()
+        val sendtSoknad =
+            SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+                .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
+                .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
+                .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
+                .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
+                .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
+                .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
+                .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
+                .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
+                .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
+                .sendSoknad()
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
@@ -100,11 +100,12 @@ class KorrigeringTest : BaseTestClass() {
         val korrigerendeSoknad = korrigerSoknad(soknaden.id, fnr)
         mockFlexSyketilfelleArbeidsgiverperiode(andreKorrigerteRessurser = soknaden.id)
 
-        val sendtSoknad = SoknadBesvarer(rSSykepengesoknad = korrigerendeSoknad, mockMvc = this, fnr = fnr)
-            .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
-            .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg er ærlig!", ferdigBesvart = false)
-            .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
-            .sendSoknad()
+        val sendtSoknad =
+            SoknadBesvarer(rSSykepengesoknad = korrigerendeSoknad, mockMvc = this, fnr = fnr)
+                .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
+                .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg er ærlig!", ferdigBesvart = false)
+                .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
+                .sendSoknad()
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
@@ -139,8 +140,9 @@ class KorrigeringTest : BaseTestClass() {
         val soknaden = hentSoknader.first { it.status == RSSoknadstatus.SENDT }
         soknaden.korrigeringsfristUtlopt `should be` true
 
-        val contentAsString = korrigerSoknadMedResult(soknaden.id, fnr).andExpect(status().isBadRequest)
-            .andReturn().response.contentAsString
+        val contentAsString =
+            korrigerSoknadMedResult(soknaden.id, fnr).andExpect(status().isBadRequest)
+                .andReturn().response.contentAsString
 
         contentAsString `should be equal to` "{\"reason\":\"KORRIGERINGSFRIST_UTLOPT\"}"
     }

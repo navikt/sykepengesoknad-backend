@@ -21,8 +21,8 @@ object MedlemskapMockDispatcher : QueueDispatcher() {
             MockResponse().setResponseCode(200).setBody(
                 MedlemskapVurderingResponse(
                     svar = MedlemskapVurderingSvarType.JA,
-                    sporsmal = emptyList()
-                ).serialisertTilString()
+                    sporsmal = emptyList(),
+                ).serialisertTilString(),
             )
         }
     }

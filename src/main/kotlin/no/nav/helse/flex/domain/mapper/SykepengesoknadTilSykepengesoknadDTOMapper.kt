@@ -21,13 +21,13 @@ import org.springframework.stereotype.Component
 class SykepengesoknadTilSykepengesoknadDTOMapper(
     private val juridiskVurderingKafkaProducer: JuridiskVurderingKafkaProducer,
     private val redusertVenteperiodeRepository: RedusertVenteperiodeRepository,
-    private val medlemskapVurderingRepository: MedlemskapVurderingRepository
+    private val medlemskapVurderingRepository: MedlemskapVurderingRepository,
 ) {
     fun mapTilSykepengesoknadDTO(
         sykepengesoknad: Sykepengesoknad,
         mottaker: Mottaker? = null,
         erEttersending: Boolean = false,
-        endeligVurdering: Boolean = true
+        endeligVurdering: Boolean = true,
     ): SykepengesoknadDTO {
         return when (sykepengesoknad.soknadstype) {
             Soknadstype.OPPHOLD_UTLAND -> konverterOppholdUtlandTilSoknadDTO(sykepengesoknad)
@@ -38,12 +38,14 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
             Soknadstype.SELVSTENDIGE_OG_FRILANSERE,
             Soknadstype.ANNET_ARBEIDSFORHOLD,
             Soknadstype.GRADERT_REISETILSKUDD,
-            Soknadstype.REISETILSKUDD -> konverterTilSykepengesoknadDTO(
-                sykepengesoknad,
-                mottaker,
-                erEttersending,
-                sykepengesoknad.hentSoknadsperioder(endeligVurdering)
-            )
+            Soknadstype.REISETILSKUDD,
+            ->
+                konverterTilSykepengesoknadDTO(
+                    sykepengesoknad,
+                    mottaker,
+                    erEttersending,
+                    sykepengesoknad.hentSoknadsperioder(endeligVurdering),
+                )
         }
             .merkSelvstendigOgFrilanserMedRedusertVenteperiode()
             .merkFeilinfo(sykepengesoknad.avbruttFeilinfo)
@@ -57,7 +59,7 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
                     fom = it.fom,
                     tom = it.tom,
                     sykmeldingsgrad = it.grad,
-                    sykmeldingstype = it.sykmeldingstype?.tilSykmeldingstypeDTO()
+                    sykmeldingstype = it.sykmeldingstype?.tilSykmeldingstypeDTO(),
                 )
             }
         } else {
@@ -81,7 +83,10 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
     }
 
     private fun SykepengesoknadDTO.merkSelvstendigOgFrilanserMedRedusertVenteperiode(): SykepengesoknadDTO {
-        return if (arbeidssituasjon == ArbeidssituasjonDTO.FRILANSER || arbeidssituasjon == ArbeidssituasjonDTO.SELVSTENDIG_NARINGSDRIVENDE) {
+        return if (
+            arbeidssituasjon == ArbeidssituasjonDTO.FRILANSER ||
+            arbeidssituasjon == ArbeidssituasjonDTO.SELVSTENDIG_NARINGSDRIVENDE
+        ) {
             copy(harRedusertVenteperiode = redusertVenteperiodeRepository.existsBySykmeldingId(sykmeldingId!!))
         } else {
             this
@@ -91,7 +96,7 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
     private fun SykepengesoknadDTO.merkMedMedlemskapStatus(): SykepengesoknadDTO {
         if (!listOf(
                 SoknadstypeDTO.ARBEIDSTAKERE,
-                SoknadstypeDTO.GRADERT_REISETILSKUDD
+                SoknadstypeDTO.GRADERT_REISETILSKUDD,
             ).contains(type)
         ) {
             return this
@@ -104,12 +109,13 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
             "JA", "NEI" -> return copy(medlemskapVurdering = medlemskapVurdering.svartype)
             "UAVKLART" -> {
                 sporsmal?.firstOrNull {
-                    it.tag in listOf(
-                        MEDLEMSKAP_OPPHOLDSTILLATELSE,
-                        MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
-                        MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
-                        MEDLEMSKAP_OPPHOLD_UTENFOR_EOS
-                    )
+                    it.tag in
+                        listOf(
+                            MEDLEMSKAP_OPPHOLDSTILLATELSE,
+                            MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
+                            MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
+                            MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
+                        )
                 }?.let {
                     return copy(medlemskapVurdering = medlemskapVurdering.svartype)
                 }

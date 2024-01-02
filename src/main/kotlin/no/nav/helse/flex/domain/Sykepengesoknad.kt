@@ -46,9 +46,8 @@ data class Sykepengesoknad(
     val tidligereArbeidsgiverOrgnummer: String? = null,
     val inntektsopplysningerNyKvittering: Boolean? = null,
     val inntektsopplysningerInnsendingId: String? = null,
-    val inntektsopplysningerInnsendingDokumenter: List<InntektsopplysningerDokumentType>? = null
+    val inntektsopplysningerInnsendingDokumenter: List<InntektsopplysningerDokumentType>? = null,
 ) : Serializable {
-
     fun alleSporsmalOgUndersporsmal(): List<Sporsmal> {
         return sporsmal.flatten()
     }
@@ -62,7 +61,10 @@ data class Sykepengesoknad(
         return sporsmal.flatten().firstOrNull { s -> s.tag == tag }
     }
 
-    protected fun addHovedsporsmalHjelper(nyttSporsmal: Sporsmal, etterHovedsporsmal: Sporsmal?): List<Sporsmal> =
+    protected fun addHovedsporsmalHjelper(
+        nyttSporsmal: Sporsmal,
+        etterHovedsporsmal: Sporsmal?,
+    ): List<Sporsmal> =
         if (sporsmal.none { s -> s.tag == nyttSporsmal.tag }) {
             val spm = sporsmal.toMutableList()
             etterHovedsporsmal
@@ -81,18 +83,22 @@ data class Sykepengesoknad(
             sporsmal
         }
 
-    protected fun fjernSporsmalHjelper(tag: String): List<Sporsmal> =
-        fjernSporsmalHjelper(tag, sporsmal)
+    protected fun fjernSporsmalHjelper(tag: String): List<Sporsmal> = fjernSporsmalHjelper(tag, sporsmal)
 
-    private fun fjernSporsmalHjelper(tag: String, sporsmal: List<Sporsmal>): List<Sporsmal> =
+    private fun fjernSporsmalHjelper(
+        tag: String,
+        sporsmal: List<Sporsmal>,
+    ): List<Sporsmal> =
         sporsmal
             .filterNot { it.tag == tag }
             .map { it.copy(undersporsmal = fjernSporsmalHjelper(tag, it.undersporsmal)) }
 
-    protected fun replaceSporsmalHjelper(nyttSporsmal: Sporsmal): List<Sporsmal> =
-        replaceSporsmalHjelper(nyttSporsmal, sporsmal)
+    protected fun replaceSporsmalHjelper(nyttSporsmal: Sporsmal): List<Sporsmal> = replaceSporsmalHjelper(nyttSporsmal, sporsmal)
 
-    private fun replaceSporsmalHjelper(nyttSporsmal: Sporsmal, sporsmal: List<Sporsmal>): List<Sporsmal> =
+    private fun replaceSporsmalHjelper(
+        nyttSporsmal: Sporsmal,
+        sporsmal: List<Sporsmal>,
+    ): List<Sporsmal> =
         sporsmal.map { spm ->
             if (nyttSporsmal.tag == spm.tag) {
                 nyttSporsmal
@@ -101,27 +107,28 @@ data class Sykepengesoknad(
             }
         }
 
-    protected fun replaceSporsmalHjelper(nyttSporsmal: List<Sporsmal>): List<Sporsmal> =
-        replaceSporsmalHjelper(nyttSporsmal, sporsmal)
+    protected fun replaceSporsmalHjelper(nyttSporsmal: List<Sporsmal>): List<Sporsmal> = replaceSporsmalHjelper(nyttSporsmal, sporsmal)
 
-    private fun replaceSporsmalHjelper(nyttSporsmal: List<Sporsmal>, sporsmal: List<Sporsmal>): List<Sporsmal> =
+    private fun replaceSporsmalHjelper(
+        nyttSporsmal: List<Sporsmal>,
+        sporsmal: List<Sporsmal>,
+    ): List<Sporsmal> =
         sporsmal.map { spm ->
             nyttSporsmal.find { it.tag == spm.tag }
                 ?: spm.copy(undersporsmal = replaceSporsmalHjelper(nyttSporsmal, spm.undersporsmal))
         }
 
-    fun replaceSporsmal(nyttSporsmal: Sporsmal): Sykepengesoknad =
-        copy(sporsmal = replaceSporsmalHjelper(nyttSporsmal))
+    fun replaceSporsmal(nyttSporsmal: Sporsmal): Sykepengesoknad = copy(sporsmal = replaceSporsmalHjelper(nyttSporsmal))
 
     @Deprecated("Denne håndterer ikke underspørsmål så bra hvis de er underspørsmål til hovedspørsmål som også byttes")
-    fun replaceSporsmal(nyttSporsmal: List<Sporsmal>): Sykepengesoknad =
-        copy(sporsmal = replaceSporsmalHjelper(nyttSporsmal))
+    fun replaceSporsmal(nyttSporsmal: List<Sporsmal>): Sykepengesoknad = copy(sporsmal = replaceSporsmalHjelper(nyttSporsmal))
 
-    fun addHovedsporsmal(nyttSporsmal: Sporsmal, etterHovedsporsmal: Sporsmal?): Sykepengesoknad =
-        copy(sporsmal = addHovedsporsmalHjelper(nyttSporsmal, etterHovedsporsmal))
+    fun addHovedsporsmal(
+        nyttSporsmal: Sporsmal,
+        etterHovedsporsmal: Sporsmal?,
+    ): Sykepengesoknad = copy(sporsmal = addHovedsporsmalHjelper(nyttSporsmal, etterHovedsporsmal))
 
-    fun fjernSporsmal(tag: String): Sykepengesoknad =
-        copy(sporsmal = fjernSporsmalHjelper(tag))
+    fun fjernSporsmal(tag: String): Sykepengesoknad = copy(sporsmal = fjernSporsmalHjelper(tag))
 }
 
 fun List<Sporsmal>.flatten(): List<Sporsmal> =

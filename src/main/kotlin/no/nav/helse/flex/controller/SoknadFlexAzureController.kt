@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*
 
 data class FlexInternalResponse(
     val sykepengesoknadListe: List<RSSykepengesoknadFlexInternal>,
-    val klippetSykepengesoknadRecord: Set<KlippetSykepengesoknadDbRecord>
+    val klippetSykepengesoknadRecord: Set<KlippetSykepengesoknadDbRecord>,
 )
 
 @RestController
@@ -31,16 +31,19 @@ class SoknadFlexAzureController(
     private val identService: IdentService,
     private val pdlClient: PdlClient,
     private val hentSoknadService: HentSoknadService,
-    private val klippetSykepengesoknadRepository: KlippetSykepengesoknadRepository
+    private val klippetSykepengesoknadRepository: KlippetSykepengesoknadRepository,
 ) {
     val log = logger()
 
     @RequestMapping(method = [RequestMethod.GET], path = ["/sykepengesoknader"])
-    fun hentSykepengeSoknader(@RequestHeader(value = "fnr") fnr: String): FlexInternalResponse {
+    fun hentSykepengeSoknader(
+        @RequestHeader(value = "fnr") fnr: String,
+    ): FlexInternalResponse {
         clientIdValidation.validateClientId(NamespaceAndApp(namespace = "flex", app = "flex-internal-frontend"))
-        val soknader = hentSoknadService
-            .hentSoknader(identService.hentFolkeregisterIdenterMedHistorikkForFnr(fnr))
-            .map { it.tilRSSykepengesoknadFlexInternal() }
+        val soknader =
+            hentSoknadService
+                .hentSoknader(identService.hentFolkeregisterIdenterMedHistorikkForFnr(fnr))
+                .map { it.tilRSSykepengesoknadFlexInternal() }
 
         val sokUuider = soknader.map { it.id }
         val klippetSoknad = klippetSykepengesoknadRepository.findAllBySykepengesoknadUuidIn(sokUuider)
@@ -50,12 +53,14 @@ class SoknadFlexAzureController(
 
         return FlexInternalResponse(
             sykepengesoknadListe = soknader,
-            klippetSykepengesoknadRecord = (klippetSoknad + klippetSykmelding).toSet()
+            klippetSykepengesoknadRecord = (klippetSoknad + klippetSykmelding).toSet(),
         )
     }
 
     @RequestMapping(method = [RequestMethod.GET], path = ["/identer"])
-    fun hentIdenter(@RequestHeader(value = "ident") ident: String): List<PdlIdent> {
+    fun hentIdenter(
+        @RequestHeader(value = "ident") ident: String,
+    ): List<PdlIdent> {
         clientIdValidation.validateClientId(NamespaceAndApp(namespace = "flex", app = "flex-internal-frontend"))
         return pdlClient.hentIdenterMedHistorikk(ident)
     }

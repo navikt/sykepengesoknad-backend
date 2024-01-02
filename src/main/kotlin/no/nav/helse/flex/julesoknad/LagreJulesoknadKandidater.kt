@@ -14,7 +14,7 @@ import java.time.temporal.ChronoUnit.DAYS
 
 @Service
 class LagreJulesoknadKandidater(
-    private val julesoknadkandidatDAO: JulesoknadkandidatDAO
+    private val julesoknadkandidatDAO: JulesoknadkandidatDAO,
 ) {
     private val log = logger()
 

@@ -12,8 +12,9 @@ fun hentEgenmeldinger(sykepengesoknad: Sykepengesoknad): List<PeriodeDTO> {
     if (null != sporsmal) {
         if ("CHECKED" == sporsmal.forsteSvar) {
             val sporsmalMedTag = sykepengesoknad.getSporsmalMedTag(EGENMELDINGER_NAR)
-            val map = sporsmalMedTag.svar
-                .map { svar -> svar.verdi.getJsonPeriode() }
+            val map =
+                sporsmalMedTag.svar
+                    .map { svar -> svar.verdi.getJsonPeriode() }
             return map
         }
     }

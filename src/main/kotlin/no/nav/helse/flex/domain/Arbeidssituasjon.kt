@@ -5,7 +5,8 @@ enum class Arbeidssituasjon(val navn: String) {
     FRILANSER("frilanser"),
     ARBEIDSTAKER("arbeidstaker"),
     ARBEIDSLEDIG("arbeidsledig"),
-    ANNET("annet");
+    ANNET("annet"),
+    ;
 
     override fun toString(): String {
         return navn

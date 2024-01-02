@@ -29,10 +29,9 @@ import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.*
 
-private const val fnr = "11111111111"
+private const val FNR = "11111111111"
 
 class OverlapperMedFlere : BaseTestClass() {
-
     @Autowired
     private lateinit var soknadLagrer: SoknadLagrer
 
@@ -46,12 +45,13 @@ class OverlapperMedFlere : BaseTestClass() {
 
     @BeforeAll
     fun init() {
-        overlappTester = OverlappTester(
-            soknadLagrer = soknadLagrer,
-            sykepengesoknadDAO = sykepengesoknadDAO,
-            baseTestClass = this,
-            skalPrintePerioder = true
-        )
+        overlappTester =
+            OverlappTester(
+                soknadLagrer = soknadLagrer,
+                sykepengesoknadDAO = sykepengesoknadDAO,
+                baseTestClass = this,
+                skalPrintePerioder = true,
+            )
     }
 
     @AfterEach
@@ -69,95 +69,106 @@ class OverlapperMedFlere : BaseTestClass() {
     fun `Overlapper i midten av en lang rekke med fremtidige søknader`() {
         overlappTester.testKlipp(
             forventaSoknadPaKafka = 4,
-            eksisterendeSoknader = listOf(
-                Soknad(
-                    soknadPerioder = listOf(
-                        Soknadsperiode(
-                            fom = LocalDate.of(2022, 1, 1),
-                            tom = LocalDate.of(2022, 1, 31),
-                            grad = 100,
-                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
-                        )
-                    )
+            eksisterendeSoknader =
+                listOf(
+                    Soknad(
+                        soknadPerioder =
+                            listOf(
+                                Soknadsperiode(
+                                    fom = LocalDate.of(2022, 1, 1),
+                                    tom = LocalDate.of(2022, 1, 31),
+                                    grad = 100,
+                                    sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+                                ),
+                            ),
+                    ),
+                    Soknad(
+                        soknadPerioder =
+                            listOf(
+                                Soknadsperiode(
+                                    fom = LocalDate.of(2022, 2, 1),
+                                    tom = LocalDate.of(2022, 2, 28),
+                                    grad = 100,
+                                    sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+                                ),
+                            ),
+                    ),
+                    Soknad(
+                        soknadPerioder =
+                            listOf(
+                                Soknadsperiode(
+                                    fom = LocalDate.of(2022, 3, 1),
+                                    tom = LocalDate.of(2022, 3, 31),
+                                    grad = 100,
+                                    sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+                                ),
+                            ),
+                    ),
                 ),
+            overlappendeSoknad =
                 Soknad(
-                    soknadPerioder = listOf(
-                        Soknadsperiode(
-                            fom = LocalDate.of(2022, 2, 1),
-                            tom = LocalDate.of(2022, 2, 28),
-                            grad = 100,
-                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
-                        )
-                    )
+                    soknadPerioder =
+                        listOf(
+                            Soknadsperiode(
+                                fom = LocalDate.of(2022, 1, 15),
+                                tom = LocalDate.of(2022, 3, 15),
+                                grad = 100,
+                                sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+                            ),
+                        ),
                 ),
-                Soknad(
-                    soknadPerioder = listOf(
-                        Soknadsperiode(
-                            fom = LocalDate.of(2022, 3, 1),
-                            tom = LocalDate.of(2022, 3, 31),
-                            grad = 100,
-                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
-                        )
-                    )
-                )
-            ),
-            overlappendeSoknad = Soknad(
-                soknadPerioder = listOf(
-                    Soknadsperiode(
-                        fom = LocalDate.of(2022, 1, 15),
-                        tom = LocalDate.of(2022, 3, 15),
-                        grad = 100,
-                        sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
-                    )
-                )
-            ),
             dagensDato = LocalDate.of(2022, 1, 1),
-            forventetResultat = listOf(
-                Soknad(
-                    status = Soknadstatus.FREMTIDIG,
-                    soknadPerioder = listOf(
-                        Soknadsperiode(
-                            fom = LocalDate.of(2022, 1, 1),
-                            tom = LocalDate.of(2022, 1, 14),
-                            grad = 100,
-                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
-                        )
-                    )
+            forventetResultat =
+                listOf(
+                    Soknad(
+                        status = Soknadstatus.FREMTIDIG,
+                        soknadPerioder =
+                            listOf(
+                                Soknadsperiode(
+                                    fom = LocalDate.of(2022, 1, 1),
+                                    tom = LocalDate.of(2022, 1, 14),
+                                    grad = 100,
+                                    sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+                                ),
+                            ),
+                    ),
+                    Soknad(
+                        status = Soknadstatus.FREMTIDIG,
+                        soknadPerioder =
+                            listOf(
+                                Soknadsperiode(
+                                    fom = LocalDate.of(2022, 1, 15),
+                                    tom = LocalDate.of(2022, 2, 13),
+                                    grad = 100,
+                                    sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+                                ),
+                            ),
+                    ),
+                    Soknad(
+                        status = Soknadstatus.FREMTIDIG,
+                        soknadPerioder =
+                            listOf(
+                                Soknadsperiode(
+                                    fom = LocalDate.of(2022, 2, 14),
+                                    tom = LocalDate.of(2022, 3, 15),
+                                    grad = 100,
+                                    sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+                                ),
+                            ),
+                    ),
+                    Soknad(
+                        status = Soknadstatus.FREMTIDIG,
+                        soknadPerioder =
+                            listOf(
+                                Soknadsperiode(
+                                    fom = LocalDate.of(2022, 3, 16),
+                                    tom = LocalDate.of(2022, 3, 31),
+                                    grad = 100,
+                                    sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+                                ),
+                            ),
+                    ),
                 ),
-                Soknad(
-                    status = Soknadstatus.FREMTIDIG,
-                    soknadPerioder = listOf(
-                        Soknadsperiode(
-                            fom = LocalDate.of(2022, 1, 15),
-                            tom = LocalDate.of(2022, 2, 13),
-                            grad = 100,
-                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
-                        )
-                    )
-                ),
-                Soknad(
-                    status = Soknadstatus.FREMTIDIG,
-                    soknadPerioder = listOf(
-                        Soknadsperiode(
-                            fom = LocalDate.of(2022, 2, 14),
-                            tom = LocalDate.of(2022, 3, 15),
-                            grad = 100,
-                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
-                        )
-                    )
-                ),
-                Soknad(
-                    status = Soknadstatus.FREMTIDIG,
-                    soknadPerioder = listOf(
-                        Soknadsperiode(
-                            fom = LocalDate.of(2022, 3, 16),
-                            tom = LocalDate.of(2022, 3, 31),
-                            grad = 100,
-                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
-                        )
-                    )
-                )
-            )
         )
         val klippmetrikker = klippMetrikkRepository.findAll().toList().sortedBy { it.variant }
         klippmetrikker shouldHaveSize 3
@@ -180,95 +191,106 @@ class OverlapperMedFlere : BaseTestClass() {
     fun `Overlapper i midten av en lang rekke med nye søknader`() {
         overlappTester.testKlipp(
             forventaSoknadPaKafka = 5,
-            eksisterendeSoknader = listOf(
-                Soknad(
-                    soknadPerioder = listOf(
-                        Soknadsperiode(
-                            fom = LocalDate.of(2022, 1, 1),
-                            tom = LocalDate.of(2022, 1, 31),
-                            grad = 100,
-                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
-                        )
-                    )
+            eksisterendeSoknader =
+                listOf(
+                    Soknad(
+                        soknadPerioder =
+                            listOf(
+                                Soknadsperiode(
+                                    fom = LocalDate.of(2022, 1, 1),
+                                    tom = LocalDate.of(2022, 1, 31),
+                                    grad = 100,
+                                    sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+                                ),
+                            ),
+                    ),
+                    Soknad(
+                        soknadPerioder =
+                            listOf(
+                                Soknadsperiode(
+                                    fom = LocalDate.of(2022, 2, 1),
+                                    tom = LocalDate.of(2022, 2, 28),
+                                    grad = 100,
+                                    sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+                                ),
+                            ),
+                    ),
+                    Soknad(
+                        soknadPerioder =
+                            listOf(
+                                Soknadsperiode(
+                                    fom = LocalDate.of(2022, 3, 1),
+                                    tom = LocalDate.of(2022, 3, 31),
+                                    grad = 100,
+                                    sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+                                ),
+                            ),
+                    ),
                 ),
+            overlappendeSoknad =
                 Soknad(
-                    soknadPerioder = listOf(
-                        Soknadsperiode(
-                            fom = LocalDate.of(2022, 2, 1),
-                            tom = LocalDate.of(2022, 2, 28),
-                            grad = 100,
-                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
-                        )
-                    )
+                    soknadPerioder =
+                        listOf(
+                            Soknadsperiode(
+                                fom = LocalDate.of(2022, 1, 15),
+                                tom = LocalDate.of(2022, 3, 15),
+                                grad = 100,
+                                sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+                            ),
+                        ),
                 ),
-                Soknad(
-                    soknadPerioder = listOf(
-                        Soknadsperiode(
-                            fom = LocalDate.of(2022, 3, 1),
-                            tom = LocalDate.of(2022, 3, 31),
-                            grad = 100,
-                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
-                        )
-                    )
-                )
-            ),
-            overlappendeSoknad = Soknad(
-                soknadPerioder = listOf(
-                    Soknadsperiode(
-                        fom = LocalDate.of(2022, 1, 15),
-                        tom = LocalDate.of(2022, 3, 15),
-                        grad = 100,
-                        sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
-                    )
-                )
-            ),
             dagensDato = LocalDate.of(2022, 4, 1),
-            forventetResultat = listOf(
-                Soknad(
-                    status = Soknadstatus.NY,
-                    soknadPerioder = listOf(
-                        Soknadsperiode(
-                            fom = LocalDate.of(2022, 1, 1),
-                            tom = LocalDate.of(2022, 1, 14),
-                            grad = 100,
-                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
-                        )
-                    )
+            forventetResultat =
+                listOf(
+                    Soknad(
+                        status = Soknadstatus.NY,
+                        soknadPerioder =
+                            listOf(
+                                Soknadsperiode(
+                                    fom = LocalDate.of(2022, 1, 1),
+                                    tom = LocalDate.of(2022, 1, 14),
+                                    grad = 100,
+                                    sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+                                ),
+                            ),
+                    ),
+                    Soknad(
+                        status = Soknadstatus.NY,
+                        soknadPerioder =
+                            listOf(
+                                Soknadsperiode(
+                                    fom = LocalDate.of(2022, 1, 15),
+                                    tom = LocalDate.of(2022, 2, 13),
+                                    grad = 100,
+                                    sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+                                ),
+                            ),
+                    ),
+                    Soknad(
+                        status = Soknadstatus.NY,
+                        soknadPerioder =
+                            listOf(
+                                Soknadsperiode(
+                                    fom = LocalDate.of(2022, 2, 14),
+                                    tom = LocalDate.of(2022, 3, 15),
+                                    grad = 100,
+                                    sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+                                ),
+                            ),
+                    ),
+                    Soknad(
+                        status = Soknadstatus.NY,
+                        soknadPerioder =
+                            listOf(
+                                Soknadsperiode(
+                                    fom = LocalDate.of(2022, 3, 16),
+                                    tom = LocalDate.of(2022, 3, 31),
+                                    grad = 100,
+                                    sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+                                ),
+                            ),
+                    ),
                 ),
-                Soknad(
-                    status = Soknadstatus.NY,
-                    soknadPerioder = listOf(
-                        Soknadsperiode(
-                            fom = LocalDate.of(2022, 1, 15),
-                            tom = LocalDate.of(2022, 2, 13),
-                            grad = 100,
-                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
-                        )
-                    )
-                ),
-                Soknad(
-                    status = Soknadstatus.NY,
-                    soknadPerioder = listOf(
-                        Soknadsperiode(
-                            fom = LocalDate.of(2022, 2, 14),
-                            tom = LocalDate.of(2022, 3, 15),
-                            grad = 100,
-                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
-                        )
-                    )
-                ),
-                Soknad(
-                    status = Soknadstatus.NY,
-                    soknadPerioder = listOf(
-                        Soknadsperiode(
-                            fom = LocalDate.of(2022, 3, 16),
-                            tom = LocalDate.of(2022, 3, 31),
-                            grad = 100,
-                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
-                        )
-                    )
-                )
-            )
         )
     }
 
@@ -276,105 +298,117 @@ class OverlapperMedFlere : BaseTestClass() {
     fun `Overlapper i midten av en lang rekke fremtidige soknader med gap i midten`() {
         overlappTester.testKlipp(
             forventaSoknadPaKafka = 5,
-            eksisterendeSoknader = listOf(
-                Soknad(
-                    soknadPerioder = listOf(
-                        Soknadsperiode(
-                            fom = LocalDate.of(2022, 1, 1),
-                            tom = LocalDate.of(2022, 1, 15),
-                            grad = 100,
-                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
-                        )
-                    )
+            eksisterendeSoknader =
+                listOf(
+                    Soknad(
+                        soknadPerioder =
+                            listOf(
+                                Soknadsperiode(
+                                    fom = LocalDate.of(2022, 1, 1),
+                                    tom = LocalDate.of(2022, 1, 15),
+                                    grad = 100,
+                                    sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+                                ),
+                            ),
+                    ),
+                    Soknad(
+                        soknadPerioder =
+                            listOf(
+                                Soknadsperiode(
+                                    fom = LocalDate.of(2022, 1, 16),
+                                    tom = LocalDate.of(2022, 1, 20),
+                                    grad = 100,
+                                    sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+                                ),
+                            ),
+                    ),
+                    Soknad(
+                        soknadPerioder =
+                            listOf(
+                                Soknadsperiode(
+                                    fom = LocalDate.of(2022, 2, 1),
+                                    tom = LocalDate.of(2022, 2, 15),
+                                    grad = 100,
+                                    sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+                                ),
+                            ),
+                    ),
+                    Soknad(
+                        soknadPerioder =
+                            listOf(
+                                Soknadsperiode(
+                                    fom = LocalDate.of(2022, 2, 16),
+                                    tom = LocalDate.of(2022, 2, 28),
+                                    grad = 100,
+                                    sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+                                ),
+                            ),
+                    ),
                 ),
+            overlappendeSoknad =
                 Soknad(
-                    soknadPerioder = listOf(
-                        Soknadsperiode(
-                            fom = LocalDate.of(2022, 1, 16),
-                            tom = LocalDate.of(2022, 1, 20),
-                            grad = 100,
-                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
-                        )
-                    )
+                    soknadPerioder =
+                        listOf(
+                            Soknadsperiode(
+                                fom = LocalDate.of(2022, 1, 10),
+                                tom = LocalDate.of(2022, 2, 20),
+                                grad = 100,
+                                sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+                            ),
+                        ),
                 ),
-                Soknad(
-                    soknadPerioder = listOf(
-                        Soknadsperiode(
-                            fom = LocalDate.of(2022, 2, 1),
-                            tom = LocalDate.of(2022, 2, 15),
-                            grad = 100,
-                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
-                        )
-                    )
-                ),
-                Soknad(
-                    soknadPerioder = listOf(
-                        Soknadsperiode(
-                            fom = LocalDate.of(2022, 2, 16),
-                            tom = LocalDate.of(2022, 2, 28),
-                            grad = 100,
-                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
-                        )
-                    )
-                )
-            ),
-            overlappendeSoknad = Soknad(
-                soknadPerioder = listOf(
-                    Soknadsperiode(
-                        fom = LocalDate.of(2022, 1, 10),
-                        tom = LocalDate.of(2022, 2, 20),
-                        grad = 100,
-                        sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
-                    )
-                )
-            ),
             dagensDato = LocalDate.of(2022, 1, 1),
-            forventetResultat = listOf(
-                Soknad(
-                    status = Soknadstatus.FREMTIDIG,
-                    soknadPerioder = listOf(
-                        Soknadsperiode(
-                            fom = LocalDate.of(2022, 1, 1),
-                            tom = LocalDate.of(2022, 1, 9),
-                            grad = 100,
-                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
-                        )
-                    )
+            forventetResultat =
+                listOf(
+                    Soknad(
+                        status = Soknadstatus.FREMTIDIG,
+                        soknadPerioder =
+                            listOf(
+                                Soknadsperiode(
+                                    fom = LocalDate.of(2022, 1, 1),
+                                    tom = LocalDate.of(2022, 1, 9),
+                                    grad = 100,
+                                    sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+                                ),
+                            ),
+                    ),
+                    Soknad(
+                        status = Soknadstatus.FREMTIDIG,
+                        soknadPerioder =
+                            listOf(
+                                Soknadsperiode(
+                                    fom = LocalDate.of(2022, 1, 10),
+                                    tom = LocalDate.of(2022, 1, 30),
+                                    grad = 100,
+                                    sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+                                ),
+                            ),
+                    ),
+                    Soknad(
+                        status = Soknadstatus.FREMTIDIG,
+                        soknadPerioder =
+                            listOf(
+                                Soknadsperiode(
+                                    fom = LocalDate.of(2022, 1, 31),
+                                    tom = LocalDate.of(2022, 2, 20),
+                                    grad = 100,
+                                    sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+                                ),
+                            ),
+                    ),
+                    Soknad(
+                        status = Soknadstatus.FREMTIDIG,
+                        soknadPerioder =
+                            listOf(
+                                Soknadsperiode(
+                                    fom = LocalDate.of(2022, 2, 21),
+                                    tom = LocalDate.of(2022, 2, 28),
+                                    grad = 100,
+                                    sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+                                ),
+                            ),
+                    ),
                 ),
-                Soknad(
-                    status = Soknadstatus.FREMTIDIG,
-                    soknadPerioder = listOf(
-                        Soknadsperiode(
-                            fom = LocalDate.of(2022, 1, 10),
-                            tom = LocalDate.of(2022, 1, 30),
-                            grad = 100,
-                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
-                        )
-                    )
-                ),
-                Soknad(
-                    status = Soknadstatus.FREMTIDIG,
-                    soknadPerioder = listOf(
-                        Soknadsperiode(
-                            fom = LocalDate.of(2022, 1, 31),
-                            tom = LocalDate.of(2022, 2, 20),
-                            grad = 100,
-                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
-                        )
-                    )
-                ),
-                Soknad(
-                    status = Soknadstatus.FREMTIDIG,
-                    soknadPerioder = listOf(
-                        Soknadsperiode(
-                            fom = LocalDate.of(2022, 2, 21),
-                            tom = LocalDate.of(2022, 2, 28),
-                            grad = 100,
-                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
-                        )
-                    )
-                )
-            )
         )
     }
 
@@ -382,64 +416,72 @@ class OverlapperMedFlere : BaseTestClass() {
     fun `Overlapper i midten og første av 3 deler aktiveres nå`() {
         overlappTester.testKlipp(
             dagensDato = LocalDate.of(2022, 1, 10),
-            eksisterendeSoknader = listOf(
-                Soknad(
-                    soknadPerioder = listOf(
-                        Soknadsperiode(
-                            fom = LocalDate.of(2022, 1, 1),
-                            tom = LocalDate.of(2022, 1, 30),
-                            grad = 50,
-                            sykmeldingstype = Sykmeldingstype.GRADERT
-                        )
-                    )
-                )
-            ),
-            overlappendeSoknad = Soknad(
-                soknadPerioder = listOf(
-                    Soknadsperiode(
-                        fom = LocalDate.of(2022, 1, 10),
-                        tom = LocalDate.of(2022, 1, 20),
-                        grad = 100,
-                        sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
-                    )
-                )
-            ),
-            forventetResultat = listOf(
-                Soknad(
-                    status = Soknadstatus.NY,
-                    soknadPerioder = listOf(
-                        Soknadsperiode(
-                            fom = LocalDate.of(2022, 1, 1),
-                            tom = LocalDate.of(2022, 1, 9),
-                            grad = 50,
-                            sykmeldingstype = Sykmeldingstype.GRADERT
-                        )
-                    )
+            eksisterendeSoknader =
+                listOf(
+                    Soknad(
+                        soknadPerioder =
+                            listOf(
+                                Soknadsperiode(
+                                    fom = LocalDate.of(2022, 1, 1),
+                                    tom = LocalDate.of(2022, 1, 30),
+                                    grad = 50,
+                                    sykmeldingstype = Sykmeldingstype.GRADERT,
+                                ),
+                            ),
+                    ),
                 ),
+            overlappendeSoknad =
                 Soknad(
-                    status = Soknadstatus.FREMTIDIG,
-                    soknadPerioder = listOf(
-                        Soknadsperiode(
-                            fom = LocalDate.of(2022, 1, 10),
-                            tom = LocalDate.of(2022, 1, 20),
-                            grad = 100,
-                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
-                        )
-                    )
+                    soknadPerioder =
+                        listOf(
+                            Soknadsperiode(
+                                fom = LocalDate.of(2022, 1, 10),
+                                tom = LocalDate.of(2022, 1, 20),
+                                grad = 100,
+                                sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+                            ),
+                        ),
                 ),
-                Soknad(
-                    status = Soknadstatus.FREMTIDIG,
-                    soknadPerioder = listOf(
-                        Soknadsperiode(
-                            fom = LocalDate.of(2022, 1, 21),
-                            tom = LocalDate.of(2022, 1, 30),
-                            grad = 50,
-                            sykmeldingstype = Sykmeldingstype.GRADERT
-                        )
-                    )
-                )
-            ),
-            forventaSoknadPaKafka = 2
+            forventetResultat =
+                listOf(
+                    Soknad(
+                        status = Soknadstatus.NY,
+                        soknadPerioder =
+                            listOf(
+                                Soknadsperiode(
+                                    fom = LocalDate.of(2022, 1, 1),
+                                    tom = LocalDate.of(2022, 1, 9),
+                                    grad = 50,
+                                    sykmeldingstype = Sykmeldingstype.GRADERT,
+                                ),
+                            ),
+                    ),
+                    Soknad(
+                        status = Soknadstatus.FREMTIDIG,
+                        soknadPerioder =
+                            listOf(
+                                Soknadsperiode(
+                                    fom = LocalDate.of(2022, 1, 10),
+                                    tom = LocalDate.of(2022, 1, 20),
+                                    grad = 100,
+                                    sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+                                ),
+                            ),
+                    ),
+                    Soknad(
+                        status = Soknadstatus.FREMTIDIG,
+                        soknadPerioder =
+                            listOf(
+                                Soknadsperiode(
+                                    fom = LocalDate.of(2022, 1, 21),
+                                    tom = LocalDate.of(2022, 1, 30),
+                                    grad = 50,
+                                    sykmeldingstype = Sykmeldingstype.GRADERT,
+                                ),
+                            ),
+                    ),
+                ),
+            forventaSoknadPaKafka = 2,
         )
     }
 
@@ -447,202 +489,224 @@ class OverlapperMedFlere : BaseTestClass() {
     fun `Overlapper i midten av en lang rekke med sendte soknader`() {
         overlappTester.testKlipp(
             forventaSoknadPaKafka = 3,
-            eksisterendeSoknader = listOf(
-                Soknad(
-                    status = Soknadstatus.SENDT,
-                    soknadPerioder = listOf(
-                        Soknadsperiode(
-                            fom = LocalDate.of(2022, 1, 1),
-                            tom = LocalDate.of(2022, 1, 31),
-                            grad = 100,
-                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
-                        )
-                    )
+            eksisterendeSoknader =
+                listOf(
+                    Soknad(
+                        status = Soknadstatus.SENDT,
+                        soknadPerioder =
+                            listOf(
+                                Soknadsperiode(
+                                    fom = LocalDate.of(2022, 1, 1),
+                                    tom = LocalDate.of(2022, 1, 31),
+                                    grad = 100,
+                                    sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+                                ),
+                            ),
+                    ),
+                    Soknad(
+                        status = Soknadstatus.SENDT,
+                        soknadPerioder =
+                            listOf(
+                                Soknadsperiode(
+                                    fom = LocalDate.of(2022, 2, 1),
+                                    tom = LocalDate.of(2022, 2, 28),
+                                    grad = 100,
+                                    sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+                                ),
+                            ),
+                    ),
+                    Soknad(
+                        status = Soknadstatus.SENDT,
+                        soknadPerioder =
+                            listOf(
+                                Soknadsperiode(
+                                    fom = LocalDate.of(2022, 3, 1),
+                                    tom = LocalDate.of(2022, 3, 31),
+                                    grad = 100,
+                                    sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+                                ),
+                            ),
+                    ),
                 ),
+            overlappendeSoknad =
                 Soknad(
-                    status = Soknadstatus.SENDT,
-                    soknadPerioder = listOf(
-                        Soknadsperiode(
-                            fom = LocalDate.of(2022, 2, 1),
-                            tom = LocalDate.of(2022, 2, 28),
-                            grad = 100,
-                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
-                        )
-                    )
+                    soknadPerioder =
+                        listOf(
+                            Soknadsperiode(
+                                fom = LocalDate.of(2022, 1, 15),
+                                tom = LocalDate.of(2022, 3, 15),
+                                grad = 50,
+                                sykmeldingstype = Sykmeldingstype.GRADERT,
+                            ),
+                        ),
                 ),
-                Soknad(
-                    status = Soknadstatus.SENDT,
-                    soknadPerioder = listOf(
-                        Soknadsperiode(
-                            fom = LocalDate.of(2022, 3, 1),
-                            tom = LocalDate.of(2022, 3, 31),
-                            grad = 100,
-                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
-                        )
-                    )
-                )
-            ),
-            overlappendeSoknad = Soknad(
-                soknadPerioder = listOf(
-                    Soknadsperiode(
-                        fom = LocalDate.of(2022, 1, 15),
-                        tom = LocalDate.of(2022, 3, 15),
-                        grad = 50,
-                        sykmeldingstype = Sykmeldingstype.GRADERT
-                    )
-                )
-            ),
             dagensDato = LocalDate.of(2022, 4, 1),
-            forventetResultat = listOf(
-                Soknad(
-                    status = Soknadstatus.SENDT,
-                    soknadPerioder = listOf(
-                        Soknadsperiode(
-                            fom = LocalDate.of(2022, 1, 1),
-                            tom = LocalDate.of(2022, 1, 31),
-                            grad = 100,
-                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
-                        )
-                    )
+            forventetResultat =
+                listOf(
+                    Soknad(
+                        status = Soknadstatus.SENDT,
+                        soknadPerioder =
+                            listOf(
+                                Soknadsperiode(
+                                    fom = LocalDate.of(2022, 1, 1),
+                                    tom = LocalDate.of(2022, 1, 31),
+                                    grad = 100,
+                                    sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+                                ),
+                            ),
+                    ),
+                    Soknad(
+                        status = Soknadstatus.SENDT,
+                        soknadPerioder =
+                            listOf(
+                                Soknadsperiode(
+                                    fom = LocalDate.of(2022, 2, 1),
+                                    tom = LocalDate.of(2022, 2, 28),
+                                    grad = 100,
+                                    sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+                                ),
+                            ),
+                    ),
+                    Soknad(
+                        status = Soknadstatus.SENDT,
+                        soknadPerioder =
+                            listOf(
+                                Soknadsperiode(
+                                    fom = LocalDate.of(2022, 3, 1),
+                                    tom = LocalDate.of(2022, 3, 31),
+                                    grad = 100,
+                                    sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+                                ),
+                            ),
+                    ),
+                    Soknad(
+                        status = Soknadstatus.NY,
+                        soknadPerioder =
+                            listOf(
+                                Soknadsperiode(
+                                    fom = LocalDate.of(2022, 1, 15),
+                                    tom = LocalDate.of(2022, 1, 31),
+                                    grad = 50,
+                                    sykmeldingstype = Sykmeldingstype.GRADERT,
+                                ),
+                            ),
+                    ),
+                    Soknad(
+                        status = Soknadstatus.NY,
+                        soknadPerioder =
+                            listOf(
+                                Soknadsperiode(
+                                    fom = LocalDate.of(2022, 2, 1),
+                                    tom = LocalDate.of(2022, 2, 28),
+                                    grad = 50,
+                                    sykmeldingstype = Sykmeldingstype.GRADERT,
+                                ),
+                            ),
+                    ),
+                    Soknad(
+                        status = Soknadstatus.NY,
+                        soknadPerioder =
+                            listOf(
+                                Soknadsperiode(
+                                    fom = LocalDate.of(2022, 3, 1),
+                                    tom = LocalDate.of(2022, 3, 15),
+                                    grad = 50,
+                                    sykmeldingstype = Sykmeldingstype.GRADERT,
+                                ),
+                            ),
+                    ),
                 ),
-                Soknad(
-                    status = Soknadstatus.SENDT,
-                    soknadPerioder = listOf(
-                        Soknadsperiode(
-                            fom = LocalDate.of(2022, 2, 1),
-                            tom = LocalDate.of(2022, 2, 28),
-                            grad = 100,
-                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
-                        )
-                    )
-                ),
-                Soknad(
-                    status = Soknadstatus.SENDT,
-                    soknadPerioder = listOf(
-                        Soknadsperiode(
-                            fom = LocalDate.of(2022, 3, 1),
-                            tom = LocalDate.of(2022, 3, 31),
-                            grad = 100,
-                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
-                        )
-                    )
-                ),
-                Soknad(
-                    status = Soknadstatus.NY,
-                    soknadPerioder = listOf(
-                        Soknadsperiode(
-                            fom = LocalDate.of(2022, 1, 15),
-                            tom = LocalDate.of(2022, 1, 31),
-                            grad = 50,
-                            sykmeldingstype = Sykmeldingstype.GRADERT
-                        )
-                    )
-                ),
-                Soknad(
-                    status = Soknadstatus.NY,
-                    soknadPerioder = listOf(
-                        Soknadsperiode(
-                            fom = LocalDate.of(2022, 2, 1),
-                            tom = LocalDate.of(2022, 2, 28),
-                            grad = 50,
-                            sykmeldingstype = Sykmeldingstype.GRADERT
-                        )
-                    )
-                ),
-                Soknad(
-                    status = Soknadstatus.NY,
-                    soknadPerioder = listOf(
-                        Soknadsperiode(
-                            fom = LocalDate.of(2022, 3, 1),
-                            tom = LocalDate.of(2022, 3, 15),
-                            grad = 50,
-                            sykmeldingstype = Sykmeldingstype.GRADERT
-                        )
-                    )
-                )
-            )
         )
     }
 
     @Test
     fun `Eldre sykmelding overlapper både fullstendig og delvis`() {
         val sykmeldingSkrevet = OffsetDateTime.now()
-        val overlappendeSoknad = Soknad(
-            sykmeldingSkrevet = sykmeldingSkrevet.minusDays(1),
-            soknadPerioder = listOf(
-                Soknadsperiode(
-                    fom = LocalDate.of(2022, 1, 1),
-                    tom = LocalDate.of(2022, 1, 10),
-                    grad = 100,
-                    sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
-                )
+        val overlappendeSoknad =
+            Soknad(
+                sykmeldingSkrevet = sykmeldingSkrevet.minusDays(1),
+                soknadPerioder =
+                    listOf(
+                        Soknadsperiode(
+                            fom = LocalDate.of(2022, 1, 1),
+                            tom = LocalDate.of(2022, 1, 10),
+                            grad = 100,
+                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+                        ),
+                    ),
             )
-        )
 
         overlappTester.testKlipp(
             dagensDato = LocalDate.of(2022, 1, 1),
-            eksisterendeSoknader = listOf(
-                Soknad(
-                    sykmeldingSkrevet = sykmeldingSkrevet,
-                    soknadPerioder = listOf(
-                        Soknadsperiode(
-                            fom = LocalDate.of(2022, 1, 1),
-                            tom = LocalDate.of(2022, 1, 10),
-                            grad = 50,
-                            sykmeldingstype = Sykmeldingstype.GRADERT
-                        )
-                    )
+            eksisterendeSoknader =
+                listOf(
+                    Soknad(
+                        sykmeldingSkrevet = sykmeldingSkrevet,
+                        soknadPerioder =
+                            listOf(
+                                Soknadsperiode(
+                                    fom = LocalDate.of(2022, 1, 1),
+                                    tom = LocalDate.of(2022, 1, 10),
+                                    grad = 50,
+                                    sykmeldingstype = Sykmeldingstype.GRADERT,
+                                ),
+                            ),
+                    ),
+                    Soknad(
+                        sykmeldingSkrevet = sykmeldingSkrevet,
+                        soknadPerioder =
+                            listOf(
+                                Soknadsperiode(
+                                    fom = LocalDate.of(2022, 1, 5),
+                                    tom = LocalDate.of(2022, 1, 20),
+                                    grad = 100,
+                                    sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+                                ),
+                            ),
+                    ),
                 ),
-                Soknad(
-                    sykmeldingSkrevet = sykmeldingSkrevet,
-                    soknadPerioder = listOf(
-                        Soknadsperiode(
-                            fom = LocalDate.of(2022, 1, 5),
-                            tom = LocalDate.of(2022, 1, 20),
-                            grad = 100,
-                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
-                        )
-                    )
-                )
-            ),
             overlappendeSoknad = overlappendeSoknad,
-            forventetResultat = listOf(
-                Soknad(
-                    status = Soknadstatus.FREMTIDIG,
-                    soknadPerioder = listOf(
-                        Soknadsperiode(
-                            fom = LocalDate.of(2022, 1, 1),
-                            tom = LocalDate.of(2022, 1, 10),
-                            grad = 50,
-                            sykmeldingstype = Sykmeldingstype.GRADERT
-                        )
-                    )
+            forventetResultat =
+                listOf(
+                    Soknad(
+                        status = Soknadstatus.FREMTIDIG,
+                        soknadPerioder =
+                            listOf(
+                                Soknadsperiode(
+                                    fom = LocalDate.of(2022, 1, 1),
+                                    tom = LocalDate.of(2022, 1, 10),
+                                    grad = 50,
+                                    sykmeldingstype = Sykmeldingstype.GRADERT,
+                                ),
+                            ),
+                    ),
+                    Soknad(
+                        status = Soknadstatus.FREMTIDIG,
+                        soknadPerioder =
+                            listOf(
+                                Soknadsperiode(
+                                    fom = LocalDate.of(2022, 1, 5),
+                                    tom = LocalDate.of(2022, 1, 20),
+                                    grad = 100,
+                                    sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+                                ),
+                            ),
+                    ),
                 ),
-                Soknad(
-                    status = Soknadstatus.FREMTIDIG,
-                    soknadPerioder = listOf(
-                        Soknadsperiode(
-                            fom = LocalDate.of(2022, 1, 5),
-                            tom = LocalDate.of(2022, 1, 20),
-                            grad = 100,
-                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
-                        )
-                    )
-                )
-            ),
-            forventaSoknadPaKafka = 0
+            forventaSoknadPaKafka = 0,
         )
 
         // Siden den forventer 0 søknader på kafka så må vi dobbeltsjekke at den ikke har feilet på noe
         sendSykmelding(
             sykmeldingKafkaMessage(
-                fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = overlappendeSoknad.soknadPerioder.minOf { it.fom }.plusYears(1),
-                    tom = overlappendeSoknad.soknadPerioder.maxOf { it.tom }.plusYears(1)
-                )
+                fnr = FNR,
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = overlappendeSoknad.soknadPerioder.minOf { it.fom }.plusYears(1),
+                        tom = overlappendeSoknad.soknadPerioder.maxOf { it.tom }.plusYears(1),
+                    ),
             ),
-            forventaSoknader = 1
+            forventaSoknader = 1,
         )
     }
 
@@ -650,13 +714,13 @@ class OverlapperMedFlere : BaseTestClass() {
         private val soknadLagrer: SoknadLagrer,
         private val sykepengesoknadDAO: SykepengesoknadDAO,
         private val baseTestClass: BaseTestClass,
-        private val skalPrintePerioder: Boolean = false
+        private val skalPrintePerioder: Boolean = false,
     ) {
         data class Soknad(
             val soknadPerioder: List<Soknadsperiode>,
             val status: Soknadstatus = Soknadstatus.FREMTIDIG,
             val traceId: String = UUID.randomUUID().toString(),
-            val sykmeldingSkrevet: OffsetDateTime? = null
+            val sykmeldingSkrevet: OffsetDateTime? = null,
         )
 
         fun testKlipp(
@@ -664,7 +728,7 @@ class OverlapperMedFlere : BaseTestClass() {
             overlappendeSoknad: Soknad,
             dagensDato: LocalDate,
             forventetResultat: List<Soknad>,
-            forventaSoknadPaKafka: Int
+            forventaSoknadPaKafka: Int,
         ) {
             eksisterendeSoknader.forEach { lagreEksisterendeSoknad(it) }
 
@@ -672,22 +736,23 @@ class OverlapperMedFlere : BaseTestClass() {
 
             baseTestClass.sendSykmelding(
                 sykmeldingKafkaMessage(
-                    fnr = fnr,
+                    fnr = FNR,
                     sykmeldingId = overlappendeSoknad.traceId,
                     sykmeldingSkrevet = overlappendeSoknad.sykmeldingSkrevet ?: OffsetDateTime.now(),
-                    sykmeldingsperioder = if (overlappendeSoknad.soknadPerioder.any { it.grad != 100 }) {
-                        gradertSykmeldt(
-                            fom = overlappendeSoknad.soknadPerioder.minOf { it.fom },
-                            tom = overlappendeSoknad.soknadPerioder.maxOf { it.tom }
-                        )
-                    } else {
-                        heltSykmeldt(
-                            fom = overlappendeSoknad.soknadPerioder.minOf { it.fom },
-                            tom = overlappendeSoknad.soknadPerioder.maxOf { it.tom }
-                        )
-                    }
+                    sykmeldingsperioder =
+                        if (overlappendeSoknad.soknadPerioder.any { it.grad != 100 }) {
+                            gradertSykmeldt(
+                                fom = overlappendeSoknad.soknadPerioder.minOf { it.fom },
+                                tom = overlappendeSoknad.soknadPerioder.maxOf { it.tom },
+                            )
+                        } else {
+                            heltSykmeldt(
+                                fom = overlappendeSoknad.soknadPerioder.minOf { it.fom },
+                                tom = overlappendeSoknad.soknadPerioder.maxOf { it.tom },
+                            )
+                        },
                 ),
-                forventaSoknader = forventaSoknadPaKafka
+                forventaSoknader = forventaSoknadPaKafka,
             )
 
             riktigStatusUtIfraDagensDato(dagensDato)
@@ -695,7 +760,7 @@ class OverlapperMedFlere : BaseTestClass() {
             resultatetErSomForventet(
                 eksisterendeSoknader,
                 overlappendeSoknad,
-                forventetResultat
+                forventetResultat,
             )
         }
 
@@ -706,7 +771,7 @@ class OverlapperMedFlere : BaseTestClass() {
                 Sykepengesoknad(
                     id = UUID.randomUUID().toString(),
                     sykmeldingId = soknad.traceId,
-                    fnr = fnr,
+                    fnr = FNR,
                     soknadstype = Soknadstype.ARBEIDSTAKERE,
                     status = soknad.status,
                     opprettet = now,
@@ -721,13 +786,13 @@ class OverlapperMedFlere : BaseTestClass() {
                     arbeidsgiverNavn = "Butikken",
                     utenlandskSykmelding = false,
                     egenmeldingsdagerFraSykmelding = null,
-                    forstegangssoknad = false
-                )
+                    forstegangssoknad = false,
+                ),
             )
         }
 
         private fun riktigStatusUtIfraDagensDato(dagensDato: LocalDate) {
-            sykepengesoknadDAO.finnSykepengesoknader(listOf(fnr))
+            sykepengesoknadDAO.finnSykepengesoknader(listOf(FNR))
                 .forEach {
                     if (it.status !in listOf(Soknadstatus.FREMTIDIG, Soknadstatus.NY)) return@forEach
 
@@ -739,20 +804,21 @@ class OverlapperMedFlere : BaseTestClass() {
         private fun resultatetErSomForventet(
             eksisterende: List<Soknad>,
             overlappendeSoknad: Soknad,
-            forventet: List<Soknad>
+            forventet: List<Soknad>,
         ) {
             val forventetResultat = forventet.sortedBy { it.soknadPerioder.minOf { p -> p.fom } }
 
-            val faktiskResultat = sykepengesoknadDAO.finnSykepengesoknader(listOf(fnr))
-                .sortedBy { it.fom }
-                .map {
-                    Soknad(
-                        soknadPerioder = it.soknadPerioder!!,
-                        status = it.status,
-                        traceId = it.sykmeldingId!!,
-                        sykmeldingSkrevet = null
-                    )
-                }
+            val faktiskResultat =
+                sykepengesoknadDAO.finnSykepengesoknader(listOf(FNR))
+                    .sortedBy { it.fom }
+                    .map {
+                        Soknad(
+                            soknadPerioder = it.soknadPerioder!!,
+                            status = it.status,
+                            traceId = it.sykmeldingId!!,
+                            sykmeldingSkrevet = null,
+                        )
+                    }
 
             if (skalPrintePerioder) {
                 printPerioder(eksisterende, overlappendeSoknad, forventetResultat, faktiskResultat)
@@ -761,21 +827,22 @@ class OverlapperMedFlere : BaseTestClass() {
             forventetResultat.map {
                 it.copy(
                     traceId = "",
-                    sykmeldingSkrevet = null
+                    sykmeldingSkrevet = null,
                 )
-            } shouldBeEqualTo faktiskResultat.map {
-                it.copy(
-                    traceId = "",
-                    sykmeldingSkrevet = null
-                )
-            }
+            } shouldBeEqualTo
+                faktiskResultat.map {
+                    it.copy(
+                        traceId = "",
+                        sykmeldingSkrevet = null,
+                    )
+                }
         }
 
         private fun printPerioder(
             eksisterende: List<Soknad>,
             overlappendeSoknad: Soknad,
             forventet: List<Soknad>,
-            faktisk: List<Soknad>
+            faktisk: List<Soknad>,
         ) {
             val perioder = forventet.flatMap { it.soknadPerioder } + faktisk.flatMap { it.soknadPerioder }
             val minFom = perioder.minOf { it.fom }

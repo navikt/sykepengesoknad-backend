@@ -27,7 +27,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
 @TestMethodOrder(MethodOrderer.MethodName::class)
 class VeilederOboIntegrationTest : BaseTestClass() {
-
     final val fnr = "123456789"
 
     @Test
@@ -35,8 +34,8 @@ class VeilederOboIntegrationTest : BaseTestClass() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG
-            )
+                arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
+            ),
         )
     }
 
@@ -56,8 +55,8 @@ class VeilederOboIntegrationTest : BaseTestClass() {
                 ANDRE_INNTEKTSKILDER,
                 ARBEIDSLEDIG_UTLAND,
                 VAER_KLAR_OVER_AT,
-                BEKREFT_OPPLYSNINGER
-            )
+                BEKREFT_OPPLYSNINGER,
+            ),
         )
         istilgangskontrollMockRestServiceServer.verify()
         istilgangskontrollMockRestServiceServer.reset()
@@ -72,7 +71,7 @@ class VeilederOboIntegrationTest : BaseTestClass() {
             MockMvcRequestBuilders.get("/api/veileder/soknader")
                 .header("nav-personident", fnr)
                 .header("Authorization", "Bearer $veilederToken")
-                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON),
         ).andExpect(MockMvcResultMatchers.status().is4xxClientError).andReturn().response.contentAsString
         istilgangskontrollMockRestServiceServer.verify()
         istilgangskontrollMockRestServiceServer.reset()
@@ -82,22 +81,27 @@ class VeilederOboIntegrationTest : BaseTestClass() {
     fun `04 - api krever header`() {
         val veilederToken = skapAzureJwt("syfomodiaperson-client-id")
 
-        val contentAsString = mockMvc.perform(
-            MockMvcRequestBuilders.get("/api/veileder/soknader")
-                .header("Authorization", "Bearer $veilederToken")
-                .contentType(MediaType.APPLICATION_JSON)
-        ).andExpect(MockMvcResultMatchers.status().isBadRequest).andReturn().response.contentAsString
+        val contentAsString =
+            mockMvc.perform(
+                MockMvcRequestBuilders.get("/api/veileder/soknader")
+                    .header("Authorization", "Bearer $veilederToken")
+                    .contentType(MediaType.APPLICATION_JSON),
+            ).andExpect(MockMvcResultMatchers.status().isBadRequest).andReturn().response.contentAsString
 
         contentAsString `should be equal to` "{\"reason\":\"Bad Request\"}"
     }
 
-    fun BaseTestClass.hentSoknaderSomVeileder(fnr: String, token: String): List<RSSykepengesoknad> {
-        val json = mockMvc.perform(
-            MockMvcRequestBuilders.get("/api/veileder/soknader")
-                .header("nav-personident", fnr)
-                .header("Authorization", "Bearer $token")
-                .contentType(MediaType.APPLICATION_JSON)
-        ).andExpect(MockMvcResultMatchers.status().isOk).andReturn().response.contentAsString
+    fun BaseTestClass.hentSoknaderSomVeileder(
+        fnr: String,
+        token: String,
+    ): List<RSSykepengesoknad> {
+        val json =
+            mockMvc.perform(
+                MockMvcRequestBuilders.get("/api/veileder/soknader")
+                    .header("nav-personident", fnr)
+                    .header("Authorization", "Bearer $token")
+                    .contentType(MediaType.APPLICATION_JSON),
+            ).andExpect(MockMvcResultMatchers.status().isOk).andReturn().response.contentAsString
 
         return OBJECT_MAPPER.readValue(json)
     }

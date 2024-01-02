@@ -13,9 +13,14 @@ import org.springframework.stereotype.Component
 @Component
 class AddCacheHeaderFilter : Filter {
     override fun destroy() {}
+
     override fun init(filterConfig: FilterConfig?) {}
 
-    override fun doFilter(request: ServletRequest?, response: ServletResponse?, chain: FilterChain?) {
+    override fun doFilter(
+        request: ServletRequest?,
+        response: ServletResponse?,
+        chain: FilterChain?,
+    ) {
         val req = request as? HttpServletRequest
         val res = response as? HttpServletResponse
         res?.setHeader(CACHE_CONTROL, "no-cache, no-store, must-revalidate")

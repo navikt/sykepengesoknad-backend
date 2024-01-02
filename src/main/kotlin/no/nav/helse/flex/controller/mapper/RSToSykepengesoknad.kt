@@ -12,7 +12,7 @@ import no.nav.helse.flex.util.EnumUtil.konverter
 fun RSSvar.mapSvar(): Svar {
     return Svar(
         id = id,
-        verdi = verdi
+        verdi = verdi,
     )
 }
 
@@ -28,13 +28,13 @@ fun RSSporsmal.mapSporsmal(): Sporsmal {
         .kriterieForVisningAvUndersporsmal(
             konverter(
                 Visningskriterie::class.java,
-                this.kriterieForVisningAvUndersporsmal
-            )
+                this.kriterieForVisningAvUndersporsmal,
+            ),
         )
         .svar(
             this.svar
                 .filter { it.verdi.isNotEmpty() }
-                .map { it.mapSvar() }
+                .map { it.mapSvar() },
         )
         .undersporsmal(this.undersporsmal.map { it.mapSporsmal() })
         .build()

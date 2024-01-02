@@ -16,25 +16,26 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 
 class SplittSykmeldingperioderTest : BaseTestClass() {
-
     @Autowired
     lateinit var klippMetrikk: KlippMetrikk
 
     @Test
     fun splitter33dagersSMtil16Og17() {
-        val sykmeldingDokument = skapArbeidsgiverSykmelding(
-            fom = LocalDate.of(2017, 1, 1),
-            tom = LocalDate.of(2017, 2, 2)
-        )
+        val sykmeldingDokument =
+            skapArbeidsgiverSykmelding(
+                fom = LocalDate.of(2017, 1, 1),
+                tom = LocalDate.of(2017, 2, 2),
+            )
 
-        val tidsenheter = sykmeldingDokument.splittSykmeldingiSoknadsPerioder(
-            Arbeidssituasjon.ARBEIDSTAKER,
-            emptyList(),
-            sykmeldingDokument.id,
-            sykmeldingDokument.behandletTidspunkt.toInstant(),
-            "12345678",
-            klippMetrikk
-        )
+        val tidsenheter =
+            sykmeldingDokument.splittSykmeldingiSoknadsPerioder(
+                Arbeidssituasjon.ARBEIDSTAKER,
+                emptyList(),
+                sykmeldingDokument.id,
+                sykmeldingDokument.behandletTidspunkt.toInstant(),
+                "12345678",
+                klippMetrikk,
+            )
         assertThat(tidsenheter.size).isEqualTo(2)
         assertThat(tidsenheter[0].fom).isEqualTo(LocalDate.of(2017, 1, 1))
         assertThat(tidsenheter[0].tom).isEqualTo(LocalDate.of(2017, 1, 17))
@@ -45,19 +46,21 @@ class SplittSykmeldingperioderTest : BaseTestClass() {
 
     @Test
     fun splitterIkkeSMunder32dager() {
-        val sykmeldingDokument = skapArbeidsgiverSykmelding(
-            fom = LocalDate.of(2017, 1, 1),
-            tom = LocalDate.of(2017, 1, 16)
-        )
+        val sykmeldingDokument =
+            skapArbeidsgiverSykmelding(
+                fom = LocalDate.of(2017, 1, 1),
+                tom = LocalDate.of(2017, 1, 16),
+            )
 
-        val tidsenheter = sykmeldingDokument.splittSykmeldingiSoknadsPerioder(
-            Arbeidssituasjon.ARBEIDSTAKER,
-            emptyList(),
-            sykmeldingDokument.id,
-            sykmeldingDokument.behandletTidspunkt.toInstant(),
-            "12345678",
-            klippMetrikk
-        )
+        val tidsenheter =
+            sykmeldingDokument.splittSykmeldingiSoknadsPerioder(
+                Arbeidssituasjon.ARBEIDSTAKER,
+                emptyList(),
+                sykmeldingDokument.id,
+                sykmeldingDokument.behandletTidspunkt.toInstant(),
+                "12345678",
+                klippMetrikk,
+            )
 
         assertThat(tidsenheter.size).isEqualTo(1)
         assertThat(tidsenheter.get(0).fom).isEqualTo(LocalDate.of(2017, 1, 1))
@@ -66,39 +69,42 @@ class SplittSykmeldingperioderTest : BaseTestClass() {
 
     @Test
     fun splitter92dagersiTreSykmeldinger() {
-        val sykmeldingDokument = skapArbeidsgiverSykmelding().copy(
-            sykmeldingsperioder = listOf(
-                SykmeldingsperiodeAGDTO(
-                    fom = LocalDate.of(2017, 1, 1),
-                    tom = LocalDate.of(2017, 2, 15),
-                    type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
-                    reisetilskudd = false,
-                    aktivitetIkkeMulig = null,
-                    behandlingsdager = null,
-                    gradert = null,
-                    innspillTilArbeidsgiver = null
-                ),
-                SykmeldingsperiodeAGDTO(
-                    fom = LocalDate.of(2017, 2, 16),
-                    tom = LocalDate.of(2017, 4, 2),
-                    type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
-                    reisetilskudd = false,
-                    aktivitetIkkeMulig = null,
-                    behandlingsdager = null,
-                    gradert = null,
-                    innspillTilArbeidsgiver = null
-                )
+        val sykmeldingDokument =
+            skapArbeidsgiverSykmelding().copy(
+                sykmeldingsperioder =
+                    listOf(
+                        SykmeldingsperiodeAGDTO(
+                            fom = LocalDate.of(2017, 1, 1),
+                            tom = LocalDate.of(2017, 2, 15),
+                            type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+                            reisetilskudd = false,
+                            aktivitetIkkeMulig = null,
+                            behandlingsdager = null,
+                            gradert = null,
+                            innspillTilArbeidsgiver = null,
+                        ),
+                        SykmeldingsperiodeAGDTO(
+                            fom = LocalDate.of(2017, 2, 16),
+                            tom = LocalDate.of(2017, 4, 2),
+                            type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+                            reisetilskudd = false,
+                            aktivitetIkkeMulig = null,
+                            behandlingsdager = null,
+                            gradert = null,
+                            innspillTilArbeidsgiver = null,
+                        ),
+                    ),
             )
-        )
 
-        val tidsenheter = sykmeldingDokument.splittSykmeldingiSoknadsPerioder(
-            Arbeidssituasjon.ARBEIDSTAKER,
-            emptyList(),
-            sykmeldingDokument.id,
-            sykmeldingDokument.behandletTidspunkt.toInstant(),
-            "12345678",
-            klippMetrikk
-        )
+        val tidsenheter =
+            sykmeldingDokument.splittSykmeldingiSoknadsPerioder(
+                Arbeidssituasjon.ARBEIDSTAKER,
+                emptyList(),
+                sykmeldingDokument.id,
+                sykmeldingDokument.behandletTidspunkt.toInstant(),
+                "12345678",
+                klippMetrikk,
+            )
 
         assertThat(tidsenheter.size).isEqualTo(3)
         assertThat(tidsenheter.get(0).fom).isEqualTo(LocalDate.of(2017, 1, 1))
@@ -113,39 +119,42 @@ class SplittSykmeldingperioderTest : BaseTestClass() {
 
     @Test
     fun splitter100dagersSMiFireSykmeldinger() {
-        val sykmeldingDokument = skapArbeidsgiverSykmelding().copy(
-            sykmeldingsperioder = listOf(
-                SykmeldingsperiodeAGDTO(
-                    fom = LocalDate.of(2017, 1, 1),
-                    tom = LocalDate.of(2017, 2, 15),
-                    type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
-                    reisetilskudd = false,
-                    aktivitetIkkeMulig = null,
-                    behandlingsdager = null,
-                    gradert = null,
-                    innspillTilArbeidsgiver = null
-                ),
-                SykmeldingsperiodeAGDTO(
-                    fom = LocalDate.of(2017, 2, 16),
-                    tom = LocalDate.of(2017, 4, 10),
-                    type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
-                    reisetilskudd = false,
-                    aktivitetIkkeMulig = null,
-                    behandlingsdager = null,
-                    gradert = null,
-                    innspillTilArbeidsgiver = null
-                )
+        val sykmeldingDokument =
+            skapArbeidsgiverSykmelding().copy(
+                sykmeldingsperioder =
+                    listOf(
+                        SykmeldingsperiodeAGDTO(
+                            fom = LocalDate.of(2017, 1, 1),
+                            tom = LocalDate.of(2017, 2, 15),
+                            type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+                            reisetilskudd = false,
+                            aktivitetIkkeMulig = null,
+                            behandlingsdager = null,
+                            gradert = null,
+                            innspillTilArbeidsgiver = null,
+                        ),
+                        SykmeldingsperiodeAGDTO(
+                            fom = LocalDate.of(2017, 2, 16),
+                            tom = LocalDate.of(2017, 4, 10),
+                            type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+                            reisetilskudd = false,
+                            aktivitetIkkeMulig = null,
+                            behandlingsdager = null,
+                            gradert = null,
+                            innspillTilArbeidsgiver = null,
+                        ),
+                    ),
             )
-        )
 
-        val tidsenheter = sykmeldingDokument.splittSykmeldingiSoknadsPerioder(
-            Arbeidssituasjon.ARBEIDSTAKER,
-            emptyList(),
-            sykmeldingDokument.id,
-            sykmeldingDokument.behandletTidspunkt.toInstant(),
-            "12345678",
-            klippMetrikk
-        )
+        val tidsenheter =
+            sykmeldingDokument.splittSykmeldingiSoknadsPerioder(
+                Arbeidssituasjon.ARBEIDSTAKER,
+                emptyList(),
+                sykmeldingDokument.id,
+                sykmeldingDokument.behandletTidspunkt.toInstant(),
+                "12345678",
+                klippMetrikk,
+            )
 
         assertThat(tidsenheter.size).isEqualTo(4)
         assertThat(tidsenheter.get(0).fom).isEqualTo(LocalDate.of(2017, 1, 1))
@@ -163,19 +172,21 @@ class SplittSykmeldingperioderTest : BaseTestClass() {
 
     @Test
     fun splitter32dagersSMiTo16dagers() {
-        val sykmeldingDokument = skapArbeidsgiverSykmelding(
-            fom = LocalDate.of(2017, 1, 1),
-            tom = LocalDate.of(2017, 2, 1)
-        )
+        val sykmeldingDokument =
+            skapArbeidsgiverSykmelding(
+                fom = LocalDate.of(2017, 1, 1),
+                tom = LocalDate.of(2017, 2, 1),
+            )
 
-        val tidsenheter = sykmeldingDokument.splittSykmeldingiSoknadsPerioder(
-            Arbeidssituasjon.ARBEIDSTAKER,
-            emptyList(),
-            sykmeldingDokument.id,
-            sykmeldingDokument.behandletTidspunkt.toInstant(),
-            "12345678",
-            klippMetrikk
-        )
+        val tidsenheter =
+            sykmeldingDokument.splittSykmeldingiSoknadsPerioder(
+                Arbeidssituasjon.ARBEIDSTAKER,
+                emptyList(),
+                sykmeldingDokument.id,
+                sykmeldingDokument.behandletTidspunkt.toInstant(),
+                "12345678",
+                klippMetrikk,
+            )
 
         assertThat(tidsenheter.size).isEqualTo(2)
         assertThat(tidsenheter.get(0).fom).isEqualTo(LocalDate.of(2017, 1, 1))
@@ -187,29 +198,32 @@ class SplittSykmeldingperioderTest : BaseTestClass() {
 
     @Test
     fun splitter33dagersSMtil16Og17EnkeltstaendeBehandling() {
-        val sykmeldingDokument = skapArbeidsgiverSykmelding().copy(
-            sykmeldingsperioder = listOf(
-                SykmeldingsperiodeAGDTO(
-                    fom = LocalDate.of(2017, 1, 1),
-                    tom = LocalDate.of(2017, 2, 2),
-                    type = PeriodetypeDTO.BEHANDLINGSDAGER,
-                    reisetilskudd = false,
-                    aktivitetIkkeMulig = null,
-                    behandlingsdager = null,
-                    gradert = null,
-                    innspillTilArbeidsgiver = null
-                )
+        val sykmeldingDokument =
+            skapArbeidsgiverSykmelding().copy(
+                sykmeldingsperioder =
+                    listOf(
+                        SykmeldingsperiodeAGDTO(
+                            fom = LocalDate.of(2017, 1, 1),
+                            tom = LocalDate.of(2017, 2, 2),
+                            type = PeriodetypeDTO.BEHANDLINGSDAGER,
+                            reisetilskudd = false,
+                            aktivitetIkkeMulig = null,
+                            behandlingsdager = null,
+                            gradert = null,
+                            innspillTilArbeidsgiver = null,
+                        ),
+                    ),
             )
-        )
 
-        val tidsenheter = sykmeldingDokument.splittSykmeldingiSoknadsPerioder(
-            Arbeidssituasjon.ARBEIDSTAKER,
-            emptyList(),
-            sykmeldingDokument.id,
-            sykmeldingDokument.behandletTidspunkt.toInstant(),
-            "12345678",
-            klippMetrikk
-        )
+        val tidsenheter =
+            sykmeldingDokument.splittSykmeldingiSoknadsPerioder(
+                Arbeidssituasjon.ARBEIDSTAKER,
+                emptyList(),
+                sykmeldingDokument.id,
+                sykmeldingDokument.behandletTidspunkt.toInstant(),
+                "12345678",
+                klippMetrikk,
+            )
 
         assertThat(tidsenheter.size).isEqualTo(2)
         assertThat(tidsenheter.get(0).fom).isEqualTo(LocalDate.of(2017, 1, 1))
@@ -221,29 +235,32 @@ class SplittSykmeldingperioderTest : BaseTestClass() {
 
     @Test
     fun splitterIkkesykmeldingDokumentunder32dagerEnkeltstaendeBehandling() {
-        val sykmeldingDokument = skapArbeidsgiverSykmelding().copy(
-            sykmeldingsperioder = listOf(
-                SykmeldingsperiodeAGDTO(
-                    fom = LocalDate.of(2017, 1, 1),
-                    tom = LocalDate.of(2017, 1, 16),
-                    type = PeriodetypeDTO.BEHANDLINGSDAGER,
-                    reisetilskudd = false,
-                    aktivitetIkkeMulig = null,
-                    behandlingsdager = null,
-                    gradert = null,
-                    innspillTilArbeidsgiver = null
-                )
+        val sykmeldingDokument =
+            skapArbeidsgiverSykmelding().copy(
+                sykmeldingsperioder =
+                    listOf(
+                        SykmeldingsperiodeAGDTO(
+                            fom = LocalDate.of(2017, 1, 1),
+                            tom = LocalDate.of(2017, 1, 16),
+                            type = PeriodetypeDTO.BEHANDLINGSDAGER,
+                            reisetilskudd = false,
+                            aktivitetIkkeMulig = null,
+                            behandlingsdager = null,
+                            gradert = null,
+                            innspillTilArbeidsgiver = null,
+                        ),
+                    ),
             )
-        )
 
-        val tidsenheter = sykmeldingDokument.splittSykmeldingiSoknadsPerioder(
-            Arbeidssituasjon.ARBEIDSTAKER,
-            emptyList(),
-            sykmeldingDokument.id,
-            sykmeldingDokument.behandletTidspunkt.toInstant(),
-            "12345678",
-            klippMetrikk
-        )
+        val tidsenheter =
+            sykmeldingDokument.splittSykmeldingiSoknadsPerioder(
+                Arbeidssituasjon.ARBEIDSTAKER,
+                emptyList(),
+                sykmeldingDokument.id,
+                sykmeldingDokument.behandletTidspunkt.toInstant(),
+                "12345678",
+                klippMetrikk,
+            )
 
         assertThat(tidsenheter.size).isEqualTo(1)
         assertThat(tidsenheter.get(0).fom).isEqualTo(LocalDate.of(2017, 1, 1))
@@ -252,50 +269,54 @@ class SplittSykmeldingperioderTest : BaseTestClass() {
 
     @Test
     fun splitter61dagersiTreSykmeldingerEnkeltstaendeBehandling() {
-        val sykmeldingDokument = skapArbeidsgiverSykmelding().copy(
-            sykmeldingsperioder = listOf(
-                SykmeldingsperiodeAGDTO(
-                    fom = LocalDate.of(2017, 1, 1),
-                    tom = LocalDate.of(2017, 2, 15),
-                    type = PeriodetypeDTO.BEHANDLINGSDAGER,
-                    reisetilskudd = false,
-                    aktivitetIkkeMulig = null,
-                    behandlingsdager = null,
-                    gradert = null,
-                    innspillTilArbeidsgiver = null
-                ),
-                SykmeldingsperiodeAGDTO(
-                    fom = LocalDate.of(2017, 2, 16),
-                    tom = LocalDate.of(2017, 3, 2),
-                    type = PeriodetypeDTO.BEHANDLINGSDAGER,
-                    reisetilskudd = false,
-                    aktivitetIkkeMulig = null,
-                    behandlingsdager = null,
-                    gradert = null,
-                    innspillTilArbeidsgiver = null
-                )
+        val sykmeldingDokument =
+            skapArbeidsgiverSykmelding().copy(
+                sykmeldingsperioder =
+                    listOf(
+                        SykmeldingsperiodeAGDTO(
+                            fom = LocalDate.of(2017, 1, 1),
+                            tom = LocalDate.of(2017, 2, 15),
+                            type = PeriodetypeDTO.BEHANDLINGSDAGER,
+                            reisetilskudd = false,
+                            aktivitetIkkeMulig = null,
+                            behandlingsdager = null,
+                            gradert = null,
+                            innspillTilArbeidsgiver = null,
+                        ),
+                        SykmeldingsperiodeAGDTO(
+                            fom = LocalDate.of(2017, 2, 16),
+                            tom = LocalDate.of(2017, 3, 2),
+                            type = PeriodetypeDTO.BEHANDLINGSDAGER,
+                            reisetilskudd = false,
+                            aktivitetIkkeMulig = null,
+                            behandlingsdager = null,
+                            gradert = null,
+                            innspillTilArbeidsgiver = null,
+                        ),
+                    ),
             )
-        )
         val splittetPaType = sykmeldingDokument.splittMellomTyper()
 
         assertThat(splittetPaType.size).isEqualTo(2)
 
-        val foerstePeriode = splittetPaType.first().splittSykmeldingiSoknadsPerioder(
-            Arbeidssituasjon.ARBEIDSTAKER,
-            emptyList(),
-            sykmeldingDokument.id,
-            sykmeldingDokument.behandletTidspunkt.toInstant(),
-            "12345678",
-            klippMetrikk
-        )
-        val andrePeriode = splittetPaType.last().splittSykmeldingiSoknadsPerioder(
-            Arbeidssituasjon.ARBEIDSTAKER,
-            emptyList(),
-            sykmeldingDokument.id,
-            sykmeldingDokument.behandletTidspunkt.toInstant(),
-            "12345678",
-            klippMetrikk
-        )
+        val foerstePeriode =
+            splittetPaType.first().splittSykmeldingiSoknadsPerioder(
+                Arbeidssituasjon.ARBEIDSTAKER,
+                emptyList(),
+                sykmeldingDokument.id,
+                sykmeldingDokument.behandletTidspunkt.toInstant(),
+                "12345678",
+                klippMetrikk,
+            )
+        val andrePeriode =
+            splittetPaType.last().splittSykmeldingiSoknadsPerioder(
+                Arbeidssituasjon.ARBEIDSTAKER,
+                emptyList(),
+                sykmeldingDokument.id,
+                sykmeldingDokument.behandletTidspunkt.toInstant(),
+                "12345678",
+                klippMetrikk,
+            )
 
         assertThat(foerstePeriode.size).isEqualTo(2)
         assertThat(foerstePeriode.get(0).fom).isEqualTo(LocalDate.of(2017, 1, 1))
@@ -316,50 +337,54 @@ class SplittSykmeldingperioderTest : BaseTestClass() {
 
     @Test
     fun splitter100dagerssykmeldingDokumentiFireSykmeldingerEnkeltstaendeBehandling() {
-        val sykmeldingDokument = skapArbeidsgiverSykmelding().copy(
-            sykmeldingsperioder = listOf(
-                SykmeldingsperiodeAGDTO(
-                    fom = LocalDate.of(2017, 1, 1),
-                    tom = LocalDate.of(2017, 2, 15),
-                    type = PeriodetypeDTO.BEHANDLINGSDAGER,
-                    reisetilskudd = false,
-                    aktivitetIkkeMulig = null,
-                    behandlingsdager = null,
-                    gradert = null,
-                    innspillTilArbeidsgiver = null
-                ),
-                SykmeldingsperiodeAGDTO(
-                    fom = LocalDate.of(2017, 2, 16),
-                    tom = LocalDate.of(2017, 4, 10),
-                    type = PeriodetypeDTO.BEHANDLINGSDAGER,
-                    reisetilskudd = false,
-                    aktivitetIkkeMulig = null,
-                    behandlingsdager = null,
-                    gradert = null,
-                    innspillTilArbeidsgiver = null
-                )
+        val sykmeldingDokument =
+            skapArbeidsgiverSykmelding().copy(
+                sykmeldingsperioder =
+                    listOf(
+                        SykmeldingsperiodeAGDTO(
+                            fom = LocalDate.of(2017, 1, 1),
+                            tom = LocalDate.of(2017, 2, 15),
+                            type = PeriodetypeDTO.BEHANDLINGSDAGER,
+                            reisetilskudd = false,
+                            aktivitetIkkeMulig = null,
+                            behandlingsdager = null,
+                            gradert = null,
+                            innspillTilArbeidsgiver = null,
+                        ),
+                        SykmeldingsperiodeAGDTO(
+                            fom = LocalDate.of(2017, 2, 16),
+                            tom = LocalDate.of(2017, 4, 10),
+                            type = PeriodetypeDTO.BEHANDLINGSDAGER,
+                            reisetilskudd = false,
+                            aktivitetIkkeMulig = null,
+                            behandlingsdager = null,
+                            gradert = null,
+                            innspillTilArbeidsgiver = null,
+                        ),
+                    ),
             )
-        )
         val splittetPaType = sykmeldingDokument.splittMellomTyper()
 
         assertThat(splittetPaType.size).isEqualTo(2)
 
-        val foerstePeriode = splittetPaType.first().splittSykmeldingiSoknadsPerioder(
-            Arbeidssituasjon.ARBEIDSTAKER,
-            emptyList(),
-            sykmeldingDokument.id,
-            sykmeldingDokument.behandletTidspunkt.toInstant(),
-            "12345678",
-            klippMetrikk
-        )
-        val andrePeriode = splittetPaType.last().splittSykmeldingiSoknadsPerioder(
-            Arbeidssituasjon.ARBEIDSTAKER,
-            emptyList(),
-            sykmeldingDokument.id,
-            sykmeldingDokument.behandletTidspunkt.toInstant(),
-            "12345678",
-            klippMetrikk
-        )
+        val foerstePeriode =
+            splittetPaType.first().splittSykmeldingiSoknadsPerioder(
+                Arbeidssituasjon.ARBEIDSTAKER,
+                emptyList(),
+                sykmeldingDokument.id,
+                sykmeldingDokument.behandletTidspunkt.toInstant(),
+                "12345678",
+                klippMetrikk,
+            )
+        val andrePeriode =
+            splittetPaType.last().splittSykmeldingiSoknadsPerioder(
+                Arbeidssituasjon.ARBEIDSTAKER,
+                emptyList(),
+                sykmeldingDokument.id,
+                sykmeldingDokument.behandletTidspunkt.toInstant(),
+                "12345678",
+                klippMetrikk,
+            )
 
         assertThat(foerstePeriode.size).isEqualTo(2)
         assertThat(foerstePeriode.get(0).fom).isEqualTo(LocalDate.of(2017, 1, 1))
@@ -387,28 +412,31 @@ class SplittSykmeldingperioderTest : BaseTestClass() {
 
     @Test
     fun splitter32dagerssykmeldingDokumentiTo16dagersEnkeltstaendeBehandling() {
-        val sykmeldingDokument = skapArbeidsgiverSykmelding().copy(
-            sykmeldingsperioder = listOf(
-                SykmeldingsperiodeAGDTO(
-                    fom = LocalDate.of(2017, 1, 1),
-                    tom = LocalDate.of(2017, 2, 1),
-                    type = PeriodetypeDTO.BEHANDLINGSDAGER,
-                    reisetilskudd = false,
-                    aktivitetIkkeMulig = null,
-                    behandlingsdager = null,
-                    gradert = null,
-                    innspillTilArbeidsgiver = null
-                )
+        val sykmeldingDokument =
+            skapArbeidsgiverSykmelding().copy(
+                sykmeldingsperioder =
+                    listOf(
+                        SykmeldingsperiodeAGDTO(
+                            fom = LocalDate.of(2017, 1, 1),
+                            tom = LocalDate.of(2017, 2, 1),
+                            type = PeriodetypeDTO.BEHANDLINGSDAGER,
+                            reisetilskudd = false,
+                            aktivitetIkkeMulig = null,
+                            behandlingsdager = null,
+                            gradert = null,
+                            innspillTilArbeidsgiver = null,
+                        ),
+                    ),
             )
-        )
-        val tidsenheter = sykmeldingDokument.splittSykmeldingiSoknadsPerioder(
-            Arbeidssituasjon.ARBEIDSTAKER,
-            emptyList(),
-            sykmeldingDokument.id,
-            sykmeldingDokument.behandletTidspunkt.toInstant(),
-            "12345678",
-            klippMetrikk
-        )
+        val tidsenheter =
+            sykmeldingDokument.splittSykmeldingiSoknadsPerioder(
+                Arbeidssituasjon.ARBEIDSTAKER,
+                emptyList(),
+                sykmeldingDokument.id,
+                sykmeldingDokument.behandletTidspunkt.toInstant(),
+                "12345678",
+                klippMetrikk,
+            )
 
         assertThat(tidsenheter.size).isEqualTo(2)
         assertThat(tidsenheter.get(0).fom).isEqualTo(LocalDate.of(2017, 1, 1))
@@ -425,28 +453,31 @@ class SplittSykmeldingperioderTest : BaseTestClass() {
 
     @Test
     fun splitterIkkeSlikAtSisteSoknadBlirKortereEnnEnUkeEnkeltstaendeBehandling() {
-        val sykmeldingDokument = skapArbeidsgiverSykmelding().copy(
-            sykmeldingsperioder = listOf(
-                SykmeldingsperiodeAGDTO(
-                    fom = LocalDate.of(2019, 11, 1),
-                    tom = LocalDate.of(2019, 12, 9),
-                    type = PeriodetypeDTO.BEHANDLINGSDAGER,
-                    reisetilskudd = false,
-                    aktivitetIkkeMulig = null,
-                    behandlingsdager = null,
-                    gradert = null,
-                    innspillTilArbeidsgiver = null
-                )
+        val sykmeldingDokument =
+            skapArbeidsgiverSykmelding().copy(
+                sykmeldingsperioder =
+                    listOf(
+                        SykmeldingsperiodeAGDTO(
+                            fom = LocalDate.of(2019, 11, 1),
+                            tom = LocalDate.of(2019, 12, 9),
+                            type = PeriodetypeDTO.BEHANDLINGSDAGER,
+                            reisetilskudd = false,
+                            aktivitetIkkeMulig = null,
+                            behandlingsdager = null,
+                            gradert = null,
+                            innspillTilArbeidsgiver = null,
+                        ),
+                    ),
             )
-        )
-        val tidsenheter = sykmeldingDokument.splittSykmeldingiSoknadsPerioder(
-            Arbeidssituasjon.ARBEIDSTAKER,
-            emptyList(),
-            sykmeldingDokument.id,
-            sykmeldingDokument.behandletTidspunkt.toInstant(),
-            "12345678",
-            klippMetrikk
-        )
+        val tidsenheter =
+            sykmeldingDokument.splittSykmeldingiSoknadsPerioder(
+                Arbeidssituasjon.ARBEIDSTAKER,
+                emptyList(),
+                sykmeldingDokument.id,
+                sykmeldingDokument.behandletTidspunkt.toInstant(),
+                "12345678",
+                klippMetrikk,
+            )
 
         assertThat(tidsenheter.size).isEqualTo(2)
         assertThat(tidsenheter.get(0).fom).isEqualTo(LocalDate.of(2019, 11, 1))

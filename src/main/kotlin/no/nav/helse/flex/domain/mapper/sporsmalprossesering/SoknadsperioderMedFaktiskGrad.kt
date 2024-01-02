@@ -36,12 +36,12 @@ fun hentSoknadsPerioderMedFaktiskGrad(sykepengesoknad: Sykepengesoknad): Pair<Li
             if (soknadPeriode.grad == 100) {
                 listOf(
                     JOBBET_DU_100_PROSENT + i,
-                    ARBEID_UNDERVEIS_100_PROSENT + i
+                    ARBEID_UNDERVEIS_100_PROSENT + i,
                 )
             } else {
                 listOf(JOBBET_DU_GRADERT + i)
             }
-            )
+        )
 
         var avtaltTimer: Double? = null
         var faktiskTimer: Double? = null
@@ -58,10 +58,11 @@ fun hentSoknadsPerioderMedFaktiskGrad(sykepengesoknad: Sykepengesoknad): Pair<Li
         val sporsmal = hentSporsmal()
         sporsmal?.let { inputSpm.add(it) }
         if (sporsmal?.forsteSvar == "JA") {
-            avtaltTimer = sykepengesoknad.getSporsmalMedTagOrNull(HVOR_MANGE_TIMER_PER_UKE + i)
-                ?.forsteSvar
-                ?.replace(',', '.')
-                ?.let { java.lang.Double.parseDouble(it) }
+            avtaltTimer =
+                sykepengesoknad.getSporsmalMedTagOrNull(HVOR_MANGE_TIMER_PER_UKE + i)
+                    ?.forsteSvar
+                    ?.replace(',', '.')
+                    ?.let { java.lang.Double.parseDouble(it) }
 
             sykepengesoknad.getSporsmalMedTagOrNull(JOBBER_DU_NORMAL_ARBEIDSUKE + i)
                 ?.forsteSvar
@@ -76,36 +77,41 @@ fun hentSoknadsPerioderMedFaktiskGrad(sykepengesoknad: Sykepengesoknad): Pair<Li
             val faktiskTimerSporsmal = sykepengesoknad.getSporsmalMedTagOrNull(HVOR_MYE_TIMER_VERDI + i)
             val hvorMyeTimer = sykepengesoknad.getSporsmalMedTagOrNull(HVOR_MYE_TIMER + i)
             if (faktiskTimerSporsmal?.svar?.isNotEmpty() == true && hvorMyeTimer?.forsteSvar == "CHECKED") {
-                faktiskTimer = faktiskTimerSporsmal
-                    .forsteSvar
-                    ?.replace(',', '.')
-                    ?.let { java.lang.Double.parseDouble(it) }
+                faktiskTimer =
+                    faktiskTimerSporsmal
+                        .forsteSvar
+                        ?.replace(',', '.')
+                        ?.let { java.lang.Double.parseDouble(it) }
 
-                val ferieOgPermisjonPerioder = fravar
-                    .filter { (_, _, type) -> listOf(FravarstypeDTO.FERIE, FravarstypeDTO.PERMISJON).contains(type) }
-                faktiskGrad = getFaktiskGrad(
-                    faktiskTimer,
-                    avtaltTimer,
-                    soknadPeriode,
-                    ferieOgPermisjonPerioder,
-                    arbeidGjenopptattDato(sykepengesoknad)
-                )
+                val ferieOgPermisjonPerioder =
+                    fravar
+                        .filter { (_, _, type) -> listOf(FravarstypeDTO.FERIE, FravarstypeDTO.PERMISJON).contains(type) }
+                faktiskGrad =
+                    getFaktiskGrad(
+                        faktiskTimer,
+                        avtaltTimer,
+                        soknadPeriode,
+                        ferieOgPermisjonPerioder,
+                        arbeidGjenopptattDato(sykepengesoknad),
+                    )
             } else {
-                faktiskGrad = if (gradSporsmal?.forsteSvar == null) {
-                    null
-                } else {
-                    gradSporsmal.forsteSvar!!.replace(',', '.').toDouble().roundToInt()
-                }
+                faktiskGrad =
+                    if (gradSporsmal?.forsteSvar == null) {
+                        null
+                    } else {
+                        gradSporsmal.forsteSvar!!.replace(',', '.').toDouble().roundToInt()
+                    }
             }
         }
 
-        val kappetFaktiskGrad = if (faktiskGrad != null && faktiskGrad > 100) {
-            100
-        } else if (faktiskGrad != null && faktiskGrad < (100 - soknadPeriode.grad)) {
-            100 - soknadPeriode.grad
-        } else {
-            faktiskGrad
-        }
+        val kappetFaktiskGrad =
+            if (faktiskGrad != null && faktiskGrad > 100) {
+                100
+            } else if (faktiskGrad != null && faktiskGrad < (100 - soknadPeriode.grad)) {
+                100 - soknadPeriode.grad
+            } else {
+                faktiskGrad
+            }
 
         perioder.add(
             SoknadsperiodeDTO(
@@ -116,32 +122,35 @@ fun hentSoknadsPerioderMedFaktiskGrad(sykepengesoknad: Sykepengesoknad): Pair<Li
                 avtaltTimer = avtaltTimer,
                 faktiskTimer = faktiskTimer,
                 sykmeldingstype = soknadPeriode.sykmeldingstype?.tilSykmeldingstypeDTO(),
-                grad = soknadPeriode.grad
-            )
+                grad = soknadPeriode.grad,
+            ),
         )
     }
     val juridiskVurdering =
         if (sykepengesoknad.status == Soknadstatus.SENDT) {
             JuridiskVurdering(
-                sporing = hashMapOf(
-                    SOKNAD to listOf(sykepengesoknad.id)
-                ).also { map ->
-                    sykepengesoknad.sykmeldingId?.let {
-                        map[SYKMELDING] = listOf(it)
-                    }
-                    sykepengesoknad.arbeidsgiverOrgnummer?.let {
-                        map[ORGANISASJONSNUMMER] = listOf(it)
-                    }
-                },
-                input = mapOf(
-                    "fravar" to fravar,
-                    "versjon" to LocalDate.of(2022, 2, 1),
-                    "arbeidUnderveis" to inputSpm.map { it.tilSimpeltSporsmal() }
-                ),
-                output = mapOf(
-                    "perioder" to perioder.map { it.tilSimpelPeriode() },
-                    "versjon" to LocalDate.of(2022, 2, 1)
-                ),
+                sporing =
+                    hashMapOf(
+                        SOKNAD to listOf(sykepengesoknad.id),
+                    ).also { map ->
+                        sykepengesoknad.sykmeldingId?.let {
+                            map[SYKMELDING] = listOf(it)
+                        }
+                        sykepengesoknad.arbeidsgiverOrgnummer?.let {
+                            map[ORGANISASJONSNUMMER] = listOf(it)
+                        }
+                    },
+                input =
+                    mapOf(
+                        "fravar" to fravar,
+                        "versjon" to LocalDate.of(2022, 2, 1),
+                        "arbeidUnderveis" to inputSpm.map { it.tilSimpeltSporsmal() },
+                    ),
+                output =
+                    mapOf(
+                        "perioder" to perioder.map { it.tilSimpelPeriode() },
+                        "versjon" to LocalDate.of(2022, 2, 1),
+                    ),
                 fodselsnummer = sykepengesoknad.fnr,
                 lovverk = "folketrygdloven",
                 paragraf = "8-13",
@@ -149,7 +158,7 @@ fun hentSoknadsPerioderMedFaktiskGrad(sykepengesoknad: Sykepengesoknad): Pair<Li
                 punktum = null,
                 bokstav = null,
                 lovverksversjon = LocalDate.of(1997, 5, 1),
-                utfall = Utfall.VILKAR_BEREGNET
+                utfall = Utfall.VILKAR_BEREGNET,
             )
         } else {
             null
@@ -160,25 +169,28 @@ fun hentSoknadsPerioderMedFaktiskGrad(sykepengesoknad: Sykepengesoknad): Pair<Li
 data class SimpeltSporsmal(
     val tag: String,
     val svar: List<String>,
-    val undersporsmal: List<SimpeltSporsmal>
+    val undersporsmal: List<SimpeltSporsmal>,
 )
 
 data class SimpelPeriode(
     val fom: LocalDate? = null,
     val tom: LocalDate? = null,
-    val faktiskGrad: Int? = null
+    val faktiskGrad: Int? = null,
 )
 
-private fun SoknadsperiodeDTO.tilSimpelPeriode(): SimpelPeriode = SimpelPeriode(
-    fom = fom,
-    tom = tom,
-    faktiskGrad = faktiskGrad
-)
+private fun SoknadsperiodeDTO.tilSimpelPeriode(): SimpelPeriode =
+    SimpelPeriode(
+        fom = fom,
+        tom = tom,
+        faktiskGrad = faktiskGrad,
+    )
 
-private fun Sporsmal.tilSimpeltSporsmal(): SimpeltSporsmal = SimpeltSporsmal(
-    tag = tag,
-    svar = svar.map { it.verdi },
-    undersporsmal = undersporsmal
-        .filter { kriterieForVisningAvUndersporsmal?.toString() == forsteSvar }
-        .map { it.tilSimpeltSporsmal() }
-)
+private fun Sporsmal.tilSimpeltSporsmal(): SimpeltSporsmal =
+    SimpeltSporsmal(
+        tag = tag,
+        svar = svar.map { it.verdi },
+        undersporsmal =
+            undersporsmal
+                .filter { kriterieForVisningAvUndersporsmal?.toString() == forsteSvar }
+                .map { it.tilSimpeltSporsmal() },
+    )

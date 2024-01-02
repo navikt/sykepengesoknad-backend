@@ -18,7 +18,7 @@ import java.time.LocalDate
 
 fun BaseTestClass.mockIstilgangskontroll(
     tilgang: Boolean,
-    fnr: String
+    fnr: String,
 ) {
     istilgangskontrollMockRestServiceServer
         .expect(requestTo("http://istilgang/api/tilgang/navident/person"))
@@ -27,24 +27,27 @@ fun BaseTestClass.mockIstilgangskontroll(
             if (tilgang) {
                 withSuccess(
                     OBJECT_MAPPER.writeValueAsBytes(
-                        "Har tilgang"
+                        "Har tilgang",
                     ),
-                    MediaType.APPLICATION_JSON
+                    MediaType.APPLICATION_JSON,
                 )
             } else {
                 withUnauthorizedRequest()
-            }
+            },
         )
 }
 
-fun BaseTestClass.mockFlexSyketilfelleSykeforloep(sykmeldingId: String, oppfolgingsdato: LocalDate = LocalDate.now()) {
+fun BaseTestClass.mockFlexSyketilfelleSykeforloep(
+    sykmeldingId: String,
+    oppfolgingsdato: LocalDate = LocalDate.now(),
+) {
     return mockFlexSyketilfelleSykeforloep(
         listOf(
             Sykeforloep(
                 oppfolgingsdato = oppfolgingsdato,
-                sykmeldinger = listOf(SimpleSykmelding(id = sykmeldingId, fom = oppfolgingsdato, tom = oppfolgingsdato))
-            )
-        )
+                sykmeldinger = listOf(SimpleSykmelding(id = sykmeldingId, fom = oppfolgingsdato, tom = oppfolgingsdato)),
+            ),
+        ),
     )
 }
 
@@ -55,30 +58,33 @@ fun BaseTestClass.mockFlexSyketilfelleSykeforloep(sykeforloep: List<Sykeforloep>
         .andRespond(
             withSuccess(
                 OBJECT_MAPPER.writeValueAsBytes(
-                    sykeforloep
+                    sykeforloep,
                 ),
-                MediaType.APPLICATION_JSON
-            )
+                MediaType.APPLICATION_JSON,
+            ),
         )
 }
 
-fun BaseTestClass.mockFlexSyketilfelleErUtaforVentetid(sykmeldingId: String, utafor: Boolean) {
+fun BaseTestClass.mockFlexSyketilfelleErUtaforVentetid(
+    sykmeldingId: String,
+    utafor: Boolean,
+) {
     flexSyketilfelleMockRestServiceServer
         .expect(requestTo("http://flex-syketilfelle/api/v1/ventetid/$sykmeldingId/erUtenforVentetid?hentAndreIdenter=false"))
         .andExpect(method(HttpMethod.POST))
         .andRespond(
             withSuccess(
                 OBJECT_MAPPER.writeValueAsBytes(
-                    utafor
+                    utafor,
                 ),
-                MediaType.APPLICATION_JSON
-            )
+                MediaType.APPLICATION_JSON,
+            ),
         )
 }
 
 fun BaseTestClass.mockFlexSyketilfelleArbeidsgiverperiode(
     andreKorrigerteRessurser: String? = null,
-    arbeidsgiverperiode: Arbeidsgiverperiode? = null
+    arbeidsgiverperiode: Arbeidsgiverperiode? = null,
 ) {
     fun url(): String {
         val baseUrl = "http://flex-syketilfelle/api/v2/arbeidsgiverperiode?hentAndreIdenter=false"
@@ -94,10 +100,10 @@ fun BaseTestClass.mockFlexSyketilfelleArbeidsgiverperiode(
             .andRespond(
                 withSuccess(
                     OBJECT_MAPPER.writeValueAsBytes(
-                        arbeidsgiverperiode
+                        arbeidsgiverperiode,
                     ),
-                    MediaType.APPLICATION_JSON
-                )
+                    MediaType.APPLICATION_JSON,
+                ),
             )
     } else {
         flexSyketilfelleMockRestServiceServer

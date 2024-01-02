@@ -24,5 +24,5 @@ data class RSSykepengesoknadMetadata(
     val egenmeldtSykmelding: Boolean?,
     val merknaderFraSykmelding: List<RSMerknad>?,
     val opprettetAvInntektsmelding: Boolean,
-    val forstegangssoknad: Boolean?
+    val forstegangssoknad: Boolean?,
 )

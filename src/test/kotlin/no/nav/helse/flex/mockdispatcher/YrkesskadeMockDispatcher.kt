@@ -10,6 +10,7 @@ import okhttp3.mockwebserver.RecordedRequest
 object YrkesskadeMockDispatcher : Dispatcher() {
     val log = logger()
     val queuedSakerRespons = mutableListOf<SakerResponse>()
+
     override fun dispatch(request: RecordedRequest): MockResponse {
         return when (request.requestLine) {
             "POST /api/v1/saker/ HTTP/1.1" -> {

@@ -18,7 +18,7 @@ enum class InntektsopplysningerDokumentType {
     NARINGSSPESIFIKASJON,
     NARINGSSPESIFIKASJON_OPTIONAL,
     REGNSKAP_FORRIGE_AAR,
-    REGNSKAP_FORELOPIG
+    REGNSKAP_FORELOPIG,
 }
 
 fun dokumenterSomSkalSendesInn(dagensDato: LocalDate): List<InntektsopplysningerDokumentType> {
@@ -26,16 +26,18 @@ fun dokumenterSomSkalSendesInn(dagensDato: LocalDate): List<Inntektsopplysninger
     val fristSkattemelding = LocalDate.of(dagensDato.year, 5, 31)
 
     return when {
-        dagensDato.isBefore(fristSkattemelding) -> listOf(
-            REGNSKAP_FORRIGE_AAR,
-            SKATTEMELDING_OPTIONAL,
-            NARINGSSPESIFIKASJON_OPTIONAL
-        )
+        dagensDato.isBefore(fristSkattemelding) ->
+            listOf(
+                REGNSKAP_FORRIGE_AAR,
+                SKATTEMELDING_OPTIONAL,
+                NARINGSSPESIFIKASJON_OPTIONAL,
+            )
 
-        dagensDato.isAfter(fristSkattemelding) && dagensDato.isBefore(sisteTertialStart) -> listOf(
-            SKATTEMELDING,
-            NARINGSSPESIFIKASJON
-        )
+        dagensDato.isAfter(fristSkattemelding) && dagensDato.isBefore(sisteTertialStart) ->
+            listOf(
+                SKATTEMELDING,
+                NARINGSSPESIFIKASJON,
+            )
 
         else -> listOf(SKATTEMELDING, NARINGSSPESIFIKASJON, REGNSKAP_FORELOPIG)
     }

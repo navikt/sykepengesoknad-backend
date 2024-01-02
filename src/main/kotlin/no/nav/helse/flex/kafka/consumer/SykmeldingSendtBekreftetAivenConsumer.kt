@@ -21,18 +21,20 @@ const val SYKMELDINGBEKREFTET_TOPIC = "teamsykmelding." + "syfo-bekreftet-sykmel
 @Component
 @Profile("sykmeldinger")
 class SykmeldingSendtBekreftetAivenConsumer(
-    private val behandleSykmeldingOgBestillAktivering: BehandleSykmeldingOgBestillAktivering
+    private val behandleSykmeldingOgBestillAktivering: BehandleSykmeldingOgBestillAktivering,
 ) {
-
     val log = logger()
 
     @KafkaListener(
         topics = [SYKMELDINGSENDT_TOPIC, SYKMELDINGBEKREFTET_TOPIC],
         id = "sykmelding-sendt-bekreftet",
         idIsGroup = false,
-        containerFactory = "aivenKafkaListenerContainerFactory"
+        containerFactory = "aivenKafkaListenerContainerFactory",
     )
-    fun listen(cr: ConsumerRecord<String, String?>, acknowledgment: Acknowledgment) {
+    fun listen(
+        cr: ConsumerRecord<String, String?>,
+        acknowledgment: Acknowledgment,
+    ) {
         MDC.put(NAV_CALLID, getSafeNavCallIdHeaderAsString(cr.headers()))
         val melding = cr.value()?.tilSykmeldingKafkaMessage()
 

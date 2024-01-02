@@ -37,7 +37,6 @@ import java.util.concurrent.TimeUnit
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class UtenlandskArbeidstakerIntegrationTest : BaseTestClass() {
-
     @Autowired
     private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
 
@@ -49,17 +48,18 @@ class UtenlandskArbeidstakerIntegrationTest : BaseTestClass() {
     fun `Arbeidstakersøknad opprettes`() {
         fakeUnleash.resetAll()
         fakeUnleash.enable(UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL)
-        val kafkaSoknader = sendSykmelding(
-            sykmeldingKafkaMessage(
-                fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = basisdato,
-                    tom = basisdato.plusDays(15)
-
+        val kafkaSoknader =
+            sendSykmelding(
+                sykmeldingKafkaMessage(
+                    fnr = fnr,
+                    sykmeldingsperioder =
+                        heltSykmeldt(
+                            fom = basisdato,
+                            tom = basisdato.plusDays(15),
+                        ),
+                    utenlandskSykemelding = UtenlandskSykmeldingAGDTO("hellas"),
                 ),
-                utenlandskSykemelding = UtenlandskSykmeldingAGDTO("hellas")
             )
-        )
 
         kafkaSoknader[0].utenlandskSykmelding!!.shouldBeTrue()
     }
@@ -68,10 +68,12 @@ class UtenlandskArbeidstakerIntegrationTest : BaseTestClass() {
     @Order(2)
     fun `Fritekst trenger svar når det er påkrevd`() {
         val soknaden = hentSoknader(fnr).first()
-        val spm = soknaden.sporsmal!!.first { it.tag == "UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE" }
-            .byttSvar("UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE", "JA")
-        val response = oppdaterSporsmalMedResult(fnr, spm, soknaden.id).andExpect(status().isBadRequest)
-            .andReturn().response.contentAsString
+        val spm =
+            soknaden.sporsmal!!.first { it.tag == "UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE" }
+                .byttSvar("UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE", "JA")
+        val response =
+            oppdaterSporsmalMedResult(fnr, spm, soknaden.id).andExpect(status().isBadRequest)
+                .andReturn().response.contentAsString
         response `should be equal to` "{\"reason\":\"SPORSMALETS_SVAR_VALIDERER_IKKE\"}"
     }
 
@@ -79,11 +81,13 @@ class UtenlandskArbeidstakerIntegrationTest : BaseTestClass() {
     @Order(3)
     fun `Fritekst trenger lengde når det er påkrevd`() {
         val soknaden = hentSoknader(fnr).first()
-        val spm = soknaden.sporsmal!!.first { it.tag == "UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE" }
-            .byttSvar("UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE", "JA")
-            .byttSvar("UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE_FRITEKST", "")
-        val response = oppdaterSporsmalMedResult(fnr, spm, soknaden.id).andExpect(status().isBadRequest)
-            .andReturn().response.contentAsString
+        val spm =
+            soknaden.sporsmal!!.first { it.tag == "UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE" }
+                .byttSvar("UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE", "JA")
+                .byttSvar("UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE_FRITEKST", "")
+        val response =
+            oppdaterSporsmalMedResult(fnr, spm, soknaden.id).andExpect(status().isBadRequest)
+                .andReturn().response.contentAsString
         response `should be equal to` "{\"reason\":\"SPORSMALETS_SVAR_VALIDERER_IKKE\"}"
     }
 
@@ -91,14 +95,18 @@ class UtenlandskArbeidstakerIntegrationTest : BaseTestClass() {
     @Order(3)
     fun `Fritekst validerer maxlengde`() {
         val soknaden = hentSoknader(fnr).first()
-        val spm = soknaden.sporsmal!!.first { it.tag == "UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE" }
-            .byttSvar("UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE", "JA")
-            .byttSvar(
-                "UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE_FRITEKST",
-                "Veldig lang tekst Veldig lang tekstVeldig lang tekstVeldig lang tekstVeldig lang tekstVeldig lang tekstVeldig lang tekstVeldig lang tekstVeldig lang tekstVeldig lang tekst tekst tekstsdf sd ds sd der 200 ja "
-            )
-        val response = oppdaterSporsmalMedResult(fnr, spm, soknaden.id).andExpect(status().isBadRequest)
-            .andReturn().response.contentAsString
+        val spm =
+            soknaden.sporsmal!!.first { it.tag == "UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE" }
+                .byttSvar("UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE", "JA")
+                .byttSvar(
+                    "UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE_FRITEKST",
+                    "Veldig lang tekst Veldig lang tekstVeldig lang tekstVeldig lang tekstVeldig lang tekstVeldig " +
+                        "lang tekstVeldig lang tekstVeldig lang tekstVeldig lang tekstVeldig lang tekst tekst tekstsdf " +
+                        "sd ds sd der 200 ja ",
+                )
+        val response =
+            oppdaterSporsmalMedResult(fnr, spm, soknaden.id).andExpect(status().isBadRequest)
+                .andReturn().response.contentAsString
         response `should be equal to` "{\"reason\":\"SPORSMALETS_SVAR_VALIDERER_IKKE\"}"
     }
 
@@ -106,9 +114,10 @@ class UtenlandskArbeidstakerIntegrationTest : BaseTestClass() {
     @Order(4)
     fun `Fritekst godtar min lengde `() {
         val soknaden = hentSoknader(fnr).first()
-        val spm = soknaden.sporsmal!!.first { it.tag == "UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE" }
-            .byttSvar("UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE", "JA")
-            .byttSvar("UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE_FRITEKST", "X")
+        val spm =
+            soknaden.sporsmal!!.first { it.tag == "UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE" }
+                .byttSvar("UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE", "JA")
+                .byttSvar("UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE_FRITEKST", "X")
         oppdaterSporsmalMedResult(fnr, spm, soknaden.id).andExpect(status().isOk).andReturn()
     }
 
@@ -117,32 +126,34 @@ class UtenlandskArbeidstakerIntegrationTest : BaseTestClass() {
     fun `Vi besvarer og sender inn den første søknaden`() {
         flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
-        val soknaden = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
-            fnr = fnr
-        )
-
-        val sendtSoknad = SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
-            .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
-            .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
-            .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
-            .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
-            .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
-            .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
-            .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
-            .besvarSporsmal(tag = "UTENLANDSK_SYKMELDING_TRYGD_UTENFOR_NORGE", svar = "NEI")
-            .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
-            .besvarSporsmal(tag = "UTENLANDSK_SYKMELDING_BOSTED", svar = "JA", ferdigBesvart = false)
-            .besvarSporsmal(tag = "UTENLANDSK_SYKMELDING_VEGNAVN", svar = "Downing Street", ferdigBesvart = false)
-            .besvarSporsmal(tag = "UTENLANDSK_SYKMELDING_LAND", svar = "UK", ferdigBesvart = false)
-            .besvarSporsmal(tag = "UTENLANDSK_SYKMELDING_TELEFONNUMMER", svar = "123456sdfgsdg", ferdigBesvart = false)
-            .besvarSporsmal(
-                tag = "UTENLANDSK_SYKMELDING_GYLDIGHET_ADRESSE",
-                svar = soknaden.tom!!.plusDays(10).toString()
+        val soknaden =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
+                fnr = fnr,
             )
-            .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
-            .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
-            .sendSoknad()
+
+        val sendtSoknad =
+            SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+                .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
+                .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
+                .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
+                .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
+                .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
+                .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
+                .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
+                .besvarSporsmal(tag = "UTENLANDSK_SYKMELDING_TRYGD_UTENFOR_NORGE", svar = "NEI")
+                .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
+                .besvarSporsmal(tag = "UTENLANDSK_SYKMELDING_BOSTED", svar = "JA", ferdigBesvart = false)
+                .besvarSporsmal(tag = "UTENLANDSK_SYKMELDING_VEGNAVN", svar = "Downing Street", ferdigBesvart = false)
+                .besvarSporsmal(tag = "UTENLANDSK_SYKMELDING_LAND", svar = "UK", ferdigBesvart = false)
+                .besvarSporsmal(tag = "UTENLANDSK_SYKMELDING_TELEFONNUMMER", svar = "123456sdfgsdg", ferdigBesvart = false)
+                .besvarSporsmal(
+                    tag = "UTENLANDSK_SYKMELDING_GYLDIGHET_ADRESSE",
+                    svar = soknaden.tom!!.plusDays(10).toString(),
+                )
+                .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
+                .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
+                .sendSoknad()
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
 
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()

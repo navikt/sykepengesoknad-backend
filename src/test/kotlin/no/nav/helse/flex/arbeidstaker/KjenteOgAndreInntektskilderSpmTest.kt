@@ -1,3 +1,5 @@
+@file:Suppress("ktlint:standard:max-line-length")
+
 package no.nav.helse.flex.arbeidstaker
 
 import no.nav.helse.flex.*
@@ -23,7 +25,6 @@ import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class KjenteOgAndreInntektskilderSpmTest : BaseTestClass() {
-
     private val fnr = "11111234565"
     private final val basisdato = LocalDate.of(2021, 9, 1)
 
@@ -36,28 +37,32 @@ class KjenteOgAndreInntektskilderSpmTest : BaseTestClass() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = basisdato.minusDays(20),
-                    tom = basisdato
-                ),
-                arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "MATBUTIKKEN AS")
-            )
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = basisdato.minusDays(20),
+                        tom = basisdato,
+                    ),
+                arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "MATBUTIKKEN AS"),
+            ),
         )
     }
 
     @Test
     @Order(2)
     fun `Har forventa andre inntektskilder spm`() {
-        val soknaden = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
-            fnr = fnr
-        )
+        val soknaden =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
+                fnr = fnr,
+            )
         soknaden.inntektskilderDataFraInntektskomponenten!!.shouldHaveSize(1)
         soknaden.inntektskilderDataFraInntektskomponenten!!.first().navn `should be equal to` "Bensinstasjonen AS"
         soknaden.inntektskilderDataFraInntektskomponenten!!.first().orgnummer `should be equal to` "999333666"
         soknaden.inntektskilderDataFraInntektskomponenten!!.first().arbeidsforholdstype `should be equal to` Arbeidsforholdstype.ARBEIDSTAKER
 
-        soknaden.sporsmal!!.find { it.tag == "ANDRE_INNTEKTSKILDER_V2" }!!.sporsmalstekst `should be equal to` "Har du andre inntektskilder enn Matbutikken AS og Bensinstasjonen AS?"
+        soknaden.sporsmal!!.find {
+            it.tag == "ANDRE_INNTEKTSKILDER_V2"
+        }!!.sporsmalstekst `should be equal to` "Har du andre inntektskilder enn Matbutikken AS og Bensinstasjonen AS?"
     }
 
     @Test
@@ -96,38 +101,41 @@ class KjenteOgAndreInntektskilderSpmTest : BaseTestClass() {
     fun `Vi besvarer og sender inn søknaden`() {
         flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
-        val soknaden = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
-            fnr = fnr
-        )
+        val soknaden =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
+                fnr = fnr,
+            )
 
-        val sendtSoknad = SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
-            .besvarSporsmal(tag = ANSVARSERKLARING, svar = "CHECKED")
-            .besvarSporsmal(tag = TILBAKE_I_ARBEID, svar = "NEI")
-            .besvarSporsmal(tag = FERIE_V2, svar = "NEI")
-            .besvarSporsmal(tag = PERMISJON_V2, svar = "NEI")
-            .besvarSporsmal(tag = UTLAND_V2, svar = "NEI")
-            .besvarSporsmal(tag = medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0), svar = "NEI")
-            .besvarSporsmal(tag = medIndex(KJENTE_INNTEKTSKILDER_SLUTTET_NEI, 0), svar = "CHECKED", ferdigBesvart = false)
-            .besvarSporsmal(tag = medIndex(KJENTE_INNTEKTSKILDER_UTFORT_ARBEID, 0), svar = "NEI", ferdigBesvart = false)
-            .besvarSporsmal(tag = medIndex(KJENTE_INNTEKTSKILDER_ARSAK_IKKE_JOBBET_TURNUS, 0), svar = "CHECKED")
-            .besvarSporsmal(tag = ANDRE_INNTEKTSKILDER_V2, svar = "JA", ferdigBesvart = false)
-            .besvarSporsmal(tag = INNTEKTSKILDE_STYREVERV, svar = "CHECKED")
-            .besvarSporsmal(tag = TIL_SLUTT, svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
-            .besvarSporsmal(tag = BEKREFT_OPPLYSNINGER, svar = "CHECKED")
-            .sendSoknad()
+        val sendtSoknad =
+            SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+                .besvarSporsmal(tag = ANSVARSERKLARING, svar = "CHECKED")
+                .besvarSporsmal(tag = TILBAKE_I_ARBEID, svar = "NEI")
+                .besvarSporsmal(tag = FERIE_V2, svar = "NEI")
+                .besvarSporsmal(tag = PERMISJON_V2, svar = "NEI")
+                .besvarSporsmal(tag = UTLAND_V2, svar = "NEI")
+                .besvarSporsmal(tag = medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0), svar = "NEI")
+                .besvarSporsmal(tag = medIndex(KJENTE_INNTEKTSKILDER_SLUTTET_NEI, 0), svar = "CHECKED", ferdigBesvart = false)
+                .besvarSporsmal(tag = medIndex(KJENTE_INNTEKTSKILDER_UTFORT_ARBEID, 0), svar = "NEI", ferdigBesvart = false)
+                .besvarSporsmal(tag = medIndex(KJENTE_INNTEKTSKILDER_ARSAK_IKKE_JOBBET_TURNUS, 0), svar = "CHECKED")
+                .besvarSporsmal(tag = ANDRE_INNTEKTSKILDER_V2, svar = "JA", ferdigBesvart = false)
+                .besvarSporsmal(tag = INNTEKTSKILDE_STYREVERV, svar = "CHECKED")
+                .besvarSporsmal(tag = TIL_SLUTT, svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
+                .besvarSporsmal(tag = BEKREFT_OPPLYSNINGER, svar = "CHECKED")
+                .sendSoknad()
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
 
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
 
         assertThat(kafkaSoknader).hasSize(1)
         assertThat(kafkaSoknader[0].status).isEqualTo(SoknadsstatusDTO.SENDT)
-        kafkaSoknader[0].andreInntektskilder `should be equal to` listOf(
-            InntektskildeDTO(
-                type = InntektskildetypeDTO.STYREVERV,
-                sykmeldt = null
+        kafkaSoknader[0].andreInntektskilder `should be equal to`
+            listOf(
+                InntektskildeDTO(
+                    type = InntektskildetypeDTO.STYREVERV,
+                    sykmeldt = null,
+                ),
             )
-        )
 
         juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
     }
@@ -141,12 +149,13 @@ class KjenteOgAndreInntektskilderSpmTest : BaseTestClass() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = basisdato.minusDays(20),
-                    tom = basisdato
-                ),
-                arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "MATBUTIKKEN AS")
-            )
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = basisdato.minusDays(20),
+                        tom = basisdato,
+                    ),
+                arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "MATBUTIKKEN AS"),
+            ),
         )
 
         val soknaden = hentSoknader(fnr).first()

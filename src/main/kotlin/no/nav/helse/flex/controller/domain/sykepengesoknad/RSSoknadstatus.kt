@@ -8,5 +8,5 @@ enum class RSSoknadstatus {
     KORRIGERT,
     AVBRUTT,
     UTGAATT,
-    SLETTET
+    SLETTET,
 }

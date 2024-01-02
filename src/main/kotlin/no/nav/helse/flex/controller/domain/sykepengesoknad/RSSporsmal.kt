@@ -10,5 +10,5 @@ data class RSSporsmal(
     val max: String?,
     val kriterieForVisningAvUndersporsmal: RSVisningskriterie?,
     val svar: List<RSSvar>,
-    val undersporsmal: List<RSSporsmal>
+    val undersporsmal: List<RSSporsmal>,
 )

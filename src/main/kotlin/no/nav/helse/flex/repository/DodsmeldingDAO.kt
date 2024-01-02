@@ -17,17 +17,17 @@ import java.time.OffsetDateTime
 @Repository
 class DodsmeldingDAO(
     private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
-    private val toggle: EnvironmentToggles
+    private val toggle: EnvironmentToggles,
 ) {
-
     data class Dodsfall(val fnr: String, val dodsdato: LocalDate)
 
     fun fnrMedToUkerGammelDodsmelding(): List<Dodsfall> {
-        val mottattFør = if (toggle.isProduction()) {
-            now(osloZone).minusWeeks(2)
-        } else {
-            now(osloZone).plusDays(1)
-        }
+        val mottattFør =
+            if (toggle.isProduction()) {
+                now(osloZone).minusWeeks(2)
+            } else {
+                now(osloZone).plusDays(1)
+            }
 
         return namedParameterJdbcTemplate.query(
             """
@@ -35,11 +35,11 @@ class DodsmeldingDAO(
                     WHERE MELDING_MOTTATT_DATO < :mottattFor
                     """,
             MapSqlParameterSource()
-                .addValue("mottattFor", mottattFør)
+                .addValue("mottattFor", mottattFør),
         ) { resultSet, _ ->
             Dodsfall(
                 fnr = resultSet.getString("FNR"),
-                dodsdato = resultSet.getDate("DODSDATO").toLocalDate()
+                dodsdato = resultSet.getDate("DODSDATO").toLocalDate(),
             )
         }
     }
@@ -50,26 +50,31 @@ class DodsmeldingDAO(
                 SELECT COUNT(1) FROM DODSMELDING 
                 WHERE FNR IN (:identer)
             """,
-
             MapSqlParameterSource()
                 .addValue("identer", identer.alle()),
-
-            Integer::class.java
+            Integer::class.java,
         )?.toInt() == 1
     }
 
-    fun oppdaterDodsdato(identer: FolkeregisterIdenter, dodsdato: LocalDate) {
+    fun oppdaterDodsdato(
+        identer: FolkeregisterIdenter,
+        dodsdato: LocalDate,
+    ) {
         namedParameterJdbcTemplate.update(
             """UPDATE DODSMELDING 
             SET DODSDATO = :dodsdato
             WHERE FNR IN (:identer) """,
             MapSqlParameterSource()
                 .addValue("identer", identer.alle())
-                .addValue("dodsdato", dodsdato)
+                .addValue("dodsdato", dodsdato),
         )
     }
 
-    fun lagreDodsmelding(identer: FolkeregisterIdenter, dodsdato: LocalDate, meldingMottattDato: OffsetDateTime = OffsetDateTime.now()) {
+    fun lagreDodsmelding(
+        identer: FolkeregisterIdenter,
+        dodsdato: LocalDate,
+        meldingMottattDato: OffsetDateTime = OffsetDateTime.now(),
+    ) {
         namedParameterJdbcTemplate.update(
             """INSERT INTO DODSMELDING (
             FNR, DODSDATO, MELDING_MOTTATT_DATO)
@@ -78,7 +83,7 @@ class DodsmeldingDAO(
             MapSqlParameterSource()
                 .addValue("fnr", identer.originalIdent)
                 .addValue("dodsdato", dodsdato)
-                .addValue("meldingMottattDato", meldingMottattDato)
+                .addValue("meldingMottattDato", meldingMottattDato),
         )
     }
 
@@ -86,7 +91,7 @@ class DodsmeldingDAO(
         namedParameterJdbcTemplate.update(
             "DELETE FROM DODSMELDING WHERE FNR IN (:identer)",
             MapSqlParameterSource()
-                .addValue("identer", identer.alle())
+                .addValue("identer", identer.alle()),
         )
     }
 }

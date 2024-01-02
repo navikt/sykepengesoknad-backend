@@ -23,14 +23,13 @@ class SoknadSender(
     private val svarDAO: SvarDAO,
     private val mottakerAvSoknadService: MottakerAvSoknadService,
     private val soknadProducer: SoknadProducer,
-    private val sykepengesoknadRepository: SykepengesoknadRepository
+    private val sykepengesoknadRepository: SykepengesoknadRepository,
 ) {
-
     fun sendSoknad(
         sykepengesoknad: Sykepengesoknad,
         avsendertype: Avsendertype,
         dodsdato: LocalDate?,
-        identer: FolkeregisterIdenter
+        identer: FolkeregisterIdenter,
     ): Sykepengesoknad {
         if (sykepengesoknad.status !in listOf(NY, UTKAST_TIL_KORRIGERING)) {
             throw RuntimeException("Søknad ${sykepengesoknad.id} kan ikke gå i fra status ${sykepengesoknad.status} til SENDT.")
@@ -46,22 +45,24 @@ class SoknadSender(
             sykepengesoknadDAO.oppdaterKorrigertAv(sykepengesoknad)
         }
 
-        val soknadSomSendes = sykepengesoknadDAO
-            .finnSykepengesoknad(sykepengesoknad.id)
-            .copy(status = Soknadstatus.SENDT)
+        val soknadSomSendes =
+            sykepengesoknadDAO
+                .finnSykepengesoknad(sykepengesoknad.id)
+                .copy(status = Soknadstatus.SENDT)
 
         val mottaker = mottakerAvSoknadService.finnMottakerAvSoknad(soknadSomSendes, identer)
         val sendtSoknad = sykepengesoknadDAO.sendSoknad(sykepengesoknad, mottaker, avsendertype)
-        val opprinneligSendt = sykepengesoknadRepository
-            .findByFnrIn(identer.alle())
-            .finnOpprinneligSendt(sendtSoknad.normaliser().soknad)
+        val opprinneligSendt =
+            sykepengesoknadRepository
+                .findByFnrIn(identer.alle())
+                .finnOpprinneligSendt(sendtSoknad.normaliser().soknad)
 
         soknadProducer.soknadEvent(
             sykepengesoknad = sendtSoknad,
             mottaker = mottaker,
             erEttersending = false,
             dodsdato = dodsdato,
-            opprinneligSendt = opprinneligSendt
+            opprinneligSendt = opprinneligSendt,
         )
 
         return sendtSoknad

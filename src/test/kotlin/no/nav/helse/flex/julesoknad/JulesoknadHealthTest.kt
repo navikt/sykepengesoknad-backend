@@ -23,7 +23,6 @@ import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.MethodName::class)
 class JulesoknadHealthTest : BaseTestClass() {
-
     @Autowired
     private lateinit var prosesserJulesoknadkandidat: JulesoknadCronJob
 
@@ -47,11 +46,12 @@ class JulesoknadHealthTest : BaseTestClass() {
             sykmeldingKafkaMessage(
                 fnr = fnr,
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = LocalDate.of(nesteÅr, 12, 1),
-                    tom = LocalDate.of(nesteÅr, 12, 15)
-                )
-            )
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = LocalDate.of(nesteÅr, 12, 1),
+                        tom = LocalDate.of(nesteÅr, 12, 15),
+                    ),
+            ),
         )
     }
 
@@ -60,7 +60,7 @@ class JulesoknadHealthTest : BaseTestClass() {
         AvailabilityChangeEvent.publish(
             applicationEventPublisher,
             this,
-            ReadinessState.REFUSING_TRAFFIC
+            ReadinessState.REFUSING_TRAFFIC,
         )
 
         prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
@@ -75,7 +75,7 @@ class JulesoknadHealthTest : BaseTestClass() {
         AvailabilityChangeEvent.publish(
             applicationEventPublisher,
             this,
-            ReadinessState.ACCEPTING_TRAFFIC
+            ReadinessState.ACCEPTING_TRAFFIC,
         )
 
         prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()

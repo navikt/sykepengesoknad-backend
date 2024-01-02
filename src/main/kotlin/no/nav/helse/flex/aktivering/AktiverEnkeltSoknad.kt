@@ -21,7 +21,7 @@ class AktiverEnkeltSoknad(
     private val sykepengesoknadRepository: SykepengesoknadRepository,
     private val soknadsperiodeDAO: SoknadsperiodeDAO,
     private val sporsmalGenerator: SporsmalGenerator,
-    private val registry: MeterRegistry
+    private val registry: MeterRegistry,
 ) {
     val log = logger()
 
@@ -46,25 +46,33 @@ class AktiverEnkeltSoknad(
             val forventetTom = perioder.maxOf { it.tom }
 
             if (sok.fom != forventetFom || sok.tom != forventetTom) {
-                log.warn("Søknad $id har perioder som starter på $forventetFom og slutter på $forventetTom, dette stemmer ikke med søknaden sin fom ${sok.fom} og tom ${sok.tom}")
+                log.warn(
+                    "Søknad $id har perioder som starter på $forventetFom og slutter på $forventetTom, dette stemmer " +
+                        "ikke med søknaden sin fom ${sok.fom} og tom ${sok.tom}",
+                )
                 return
             }
         }
 
-        val aktiverTid = measureTimeMillis {
-            sykepengesoknadDAO.aktiverSoknad(id)
-        }
-        val lagSpm = measureTimeMillis {
-            sporsmalGenerator.lagSporsmalPaSoknad(id)
-        }
-        val publiserSoknad = measureTimeMillis {
-            val soknad = sykepengesoknadDAO.finnSykepengesoknad(id)
-
-            when (soknad.soknadstype) {
-                Soknadstype.OPPHOLD_UTLAND -> throw IllegalArgumentException("Søknad med type ${soknad.soknadstype.name} kan ikke aktiveres")
-                else -> soknadProducer.soknadEvent(soknad)
+        val aktiverTid =
+            measureTimeMillis {
+                sykepengesoknadDAO.aktiverSoknad(id)
             }
-        }
+        val lagSpm =
+            measureTimeMillis {
+                sporsmalGenerator.lagSporsmalPaSoknad(id)
+            }
+        val publiserSoknad =
+            measureTimeMillis {
+                val soknad = sykepengesoknadDAO.finnSykepengesoknad(id)
+
+                when (soknad.soknadstype) {
+                    Soknadstype.OPPHOLD_UTLAND -> throw IllegalArgumentException(
+                        "Søknad med type ${soknad.soknadstype.name} kan ikke aktiveres",
+                    )
+                    else -> soknadProducer.soknadEvent(soknad)
+                }
+            }
         log.info("Aktiverte søknad med id $id - Aktiver: $aktiverTid Spm: $lagSpm Kafka: $publiserSoknad")
         registry.counter("aktiverte_sykepengesoknader").increment()
     }

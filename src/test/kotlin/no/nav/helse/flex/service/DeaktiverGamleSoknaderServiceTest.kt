@@ -20,7 +20,6 @@ import java.time.LocalDateTime
 import java.util.*
 
 class DeaktiverGamleSoknaderServiceTest : BaseTestClass() {
-
     @Autowired
     private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
 
@@ -47,12 +46,13 @@ class DeaktiverGamleSoknaderServiceTest : BaseTestClass() {
 
     @Test
     fun `En gammel arbeidstakersøknad blir deaktivert`() {
-        val nySoknad = opprettNySoknad().copy(
-            status = Soknadstatus.NY,
-            fnr = "12345784312",
-            tom = LocalDate.now().minusMonths(4).minusDays(1),
-            opprettet = LocalDate.now().minusMonths(4).minusDays(1).atStartOfDay().tilOsloInstant()
-        )
+        val nySoknad =
+            opprettNySoknad().copy(
+                status = Soknadstatus.NY,
+                fnr = "12345784312",
+                tom = LocalDate.now().minusMonths(4).minusDays(1),
+                opprettet = LocalDate.now().minusMonths(4).minusDays(1).atStartOfDay().tilOsloInstant(),
+            )
         sykepengesoknadDAO.lagreSykepengesoknad(nySoknad)
 
         val sendtSoknad = nySoknad.copy(status = Soknadstatus.SENDT, id = UUID.randomUUID().toString())
@@ -74,12 +74,13 @@ class DeaktiverGamleSoknaderServiceTest : BaseTestClass() {
 
     @Test
     fun `En avbrutt søknad blir deaktivert`() {
-        val avbruttSoknad = opprettNySoknad().copy(
-            status = Soknadstatus.AVBRUTT,
-            fnr = "12345784312",
-            tom = LocalDate.now().minusMonths(4).minusDays(1),
-            opprettet = LocalDate.now().minusMonths(4).minusDays(1).atStartOfDay().tilOsloInstant()
-        )
+        val avbruttSoknad =
+            opprettNySoknad().copy(
+                status = Soknadstatus.AVBRUTT,
+                fnr = "12345784312",
+                tom = LocalDate.now().minusMonths(4).minusDays(1),
+                opprettet = LocalDate.now().minusMonths(4).minusDays(1).atStartOfDay().tilOsloInstant(),
+            )
         sykepengesoknadDAO.lagreSykepengesoknad(avbruttSoknad)
 
         val sendtSoknad = avbruttSoknad.copy(status = Soknadstatus.SENDT, id = UUID.randomUUID().toString())
@@ -101,8 +102,9 @@ class DeaktiverGamleSoknaderServiceTest : BaseTestClass() {
 
     @Test
     fun `En gammel utenlandssoknad blir deaktivert`() {
-        val nySoknad = settOppSoknadOppholdUtland("fnr")
-            .copy(opprettet = LocalDateTime.now().minusMonths(4).minusDays(1).tilOsloInstant(), status = Soknadstatus.NY)
+        val nySoknad =
+            settOppSoknadOppholdUtland("fnr")
+                .copy(opprettet = LocalDateTime.now().minusMonths(4).minusDays(1).tilOsloInstant(), status = Soknadstatus.NY)
         sykepengesoknadDAO.lagreSykepengesoknad(nySoknad)
 
         val sendtSoknad = nySoknad.copy(status = Soknadstatus.SENDT, id = UUID.randomUUID().toString())
@@ -124,11 +126,12 @@ class DeaktiverGamleSoknaderServiceTest : BaseTestClass() {
 
     @Test
     fun `Søknader blir publisert uten spørsmål`() {
-        val nySoknad = opprettNySoknad().copy(
-            status = Soknadstatus.NY,
-            tom = LocalDate.now().minusMonths(4).minusDays(1),
-            opprettet = LocalDate.now().minusMonths(4).minusDays(1).atStartOfDay().tilOsloInstant()
-        )
+        val nySoknad =
+            opprettNySoknad().copy(
+                status = Soknadstatus.NY,
+                tom = LocalDate.now().minusMonths(4).minusDays(1),
+                opprettet = LocalDate.now().minusMonths(4).minusDays(1).atStartOfDay().tilOsloInstant(),
+            )
         sykepengesoknadDAO.lagreSykepengesoknad(nySoknad)
 
         val antall = deaktiverGamleSoknaderService.deaktiverSoknader()

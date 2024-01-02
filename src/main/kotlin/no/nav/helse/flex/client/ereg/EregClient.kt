@@ -17,10 +17,8 @@ import org.springframework.web.util.UriComponentsBuilder
 class EregClient(
     private val plainRestTemplate: RestTemplate,
     private val environmentToggles: EnvironmentToggles,
-    @Value("\${EREG_URL}") private val eregUrl: String
-
+    @Value("\${EREG_URL}") private val eregUrl: String,
 ) {
-
     val log = logger()
 
     fun hentBedrift(virksomhetsnummer: String): Nokkelinfo {
@@ -31,13 +29,14 @@ class EregClient(
             val headers = HttpHeaders()
             headers.contentType = MediaType.APPLICATION_JSON
 
-            val result = plainRestTemplate
-                .exchange(
-                    uriBuilder.toUriString(),
-                    HttpMethod.GET,
-                    HttpEntity<Any>(headers),
-                    Nokkelinfo::class.java
-                )
+            val result =
+                plainRestTemplate
+                    .exchange(
+                        uriBuilder.toUriString(),
+                        HttpMethod.GET,
+                        HttpEntity<Any>(headers),
+                        Nokkelinfo::class.java,
+                    )
 
             if (result.statusCode != OK) {
                 val message = "Kall mot syfosoknad feiler med HTTP-" + result.statusCode

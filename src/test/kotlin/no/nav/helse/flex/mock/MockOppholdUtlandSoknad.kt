@@ -16,7 +16,10 @@ fun mockUtlandssoknad(): Sykepengesoknad {
     return leggSvarPaSoknad(settOppSoknadOppholdUtland("fnr-7454630"), "NEI")
 }
 
-private fun leggSvarPaSoknad(sykepengesoknad: Sykepengesoknad, feriesvar: String): Sykepengesoknad {
+private fun leggSvarPaSoknad(
+    sykepengesoknad: Sykepengesoknad,
+    feriesvar: String,
+): Sykepengesoknad {
     return sykepengesoknad
         .perioder()
         .arbeidsgiver(feriesvar)

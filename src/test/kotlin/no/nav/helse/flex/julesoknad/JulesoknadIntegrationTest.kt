@@ -1,3 +1,5 @@
+@file:Suppress("ktlint:standard:max-line-length")
+
 package no.nav.helse.flex.julesoknad
 
 import no.nav.helse.flex.BaseTestClass
@@ -31,7 +33,6 @@ import java.util.concurrent.TimeUnit
 
 @TestMethodOrder(MethodOrderer.MethodName::class)
 class JulesoknadIntegrationTest : BaseTestClass() {
-
     @Autowired
     private lateinit var aktiveringJob: AktiveringJob
 
@@ -72,11 +73,12 @@ class JulesoknadIntegrationTest : BaseTestClass() {
             sykmeldingKafkaMessage(
                 fnr = fnr,
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = LocalDate.of(nesteÅr, 12, 1),
-                    tom = LocalDate.of(nesteÅr, 12, 15)
-                )
-            )
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = LocalDate.of(nesteÅr, 12, 1),
+                        tom = LocalDate.of(nesteÅr, 12, 15),
+                    ),
+            ),
         )
         prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
 
@@ -94,11 +96,12 @@ class JulesoknadIntegrationTest : BaseTestClass() {
             sykmeldingKafkaMessage(
                 fnr = fnr,
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = LocalDate.of(nesteÅr, 12, 5),
-                    tom = LocalDate.of(nesteÅr + 1, 1, 1)
-                )
-            )
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = LocalDate.of(nesteÅr, 12, 5),
+                        tom = LocalDate.of(nesteÅr + 1, 1, 1),
+                    ),
+            ),
         )
         prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
 
@@ -116,11 +119,12 @@ class JulesoknadIntegrationTest : BaseTestClass() {
             sykmeldingKafkaMessage(
                 fnr = fnr,
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = LocalDate.of(nesteÅr, 12, 1),
-                    tom = LocalDate.of(nesteÅr, 12, 14)
-                )
-            )
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = LocalDate.of(nesteÅr, 12, 1),
+                        tom = LocalDate.of(nesteÅr, 12, 14),
+                    ),
+            ),
         )
         prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
 
@@ -138,11 +142,12 @@ class JulesoknadIntegrationTest : BaseTestClass() {
             sykmeldingKafkaMessage(
                 fnr = fnr,
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = LocalDate.of(nesteÅr, 12, 8),
-                    tom = LocalDate.of(nesteÅr, 12, 22)
-                )
-            )
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = LocalDate.of(nesteÅr, 12, 8),
+                        tom = LocalDate.of(nesteÅr, 12, 22),
+                    ),
+            ),
         )
         prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
 
@@ -163,11 +168,12 @@ class JulesoknadIntegrationTest : BaseTestClass() {
             sykmeldingKafkaMessage(
                 fnr = fnr,
                 arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = orgnummer, orgNavn = "Kebab"),
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = LocalDate.of(nesteÅr, 12, 1),
-                    tom = LocalDate.of(nesteÅr, 12, 15)
-                )
-            )
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = LocalDate.of(nesteÅr, 12, 1),
+                        tom = LocalDate.of(nesteÅr, 12, 15),
+                    ),
+            ),
         )
         prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
 
@@ -187,11 +193,12 @@ class JulesoknadIntegrationTest : BaseTestClass() {
             sykmeldingKafkaMessage(
                 fnr = fnr,
                 arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = orgnummer, orgNavn = "Kebab"),
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = LocalDate.of(nesteÅr, 12, 1),
-                    tom = LocalDate.of(nesteÅr, 12, 15)
-                )
-            )
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = LocalDate.of(nesteÅr, 12, 1),
+                        tom = LocalDate.of(nesteÅr, 12, 15),
+                    ),
+            ),
         )
         prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
         await().atMost(5, TimeUnit.SECONDS).untilAsserted {
@@ -212,11 +219,12 @@ class JulesoknadIntegrationTest : BaseTestClass() {
             sykmeldingKafkaMessage(
                 fnr = fnr,
                 arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = orgnummer, orgNavn = "Kebab"),
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = LocalDate.of(nesteÅr, 12, 1),
-                    tom = LocalDate.of(nesteÅr, 12, 15)
-                )
-            )
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = LocalDate.of(nesteÅr, 12, 1),
+                        tom = LocalDate.of(nesteÅr, 12, 15),
+                    ),
+            ),
         )
         val soknader = hentSoknaderMetadata(fnr)
         assertThat(soknader).hasSize(1)
@@ -253,12 +261,13 @@ class JulesoknadIntegrationTest : BaseTestClass() {
             sykmeldingKafkaMessage(
                 fnr = fnr,
                 arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = orgnummer, orgNavn = "Kebab"),
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = LocalDate.of(nesteÅr, 10, 1),
-                    tom = LocalDate.of(nesteÅr, 12, 30)
-                )
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = LocalDate.of(nesteÅr, 10, 1),
+                        tom = LocalDate.of(nesteÅr, 12, 30),
+                    ),
             ),
-            forventaSoknader = 3
+            forventaSoknader = 3,
         )
         prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
         assertThat(julesoknadkandidatDAO.hentJulesoknadkandidater()).hasSize(1)
@@ -298,21 +307,23 @@ class JulesoknadIntegrationTest : BaseTestClass() {
             sykmeldingKafkaMessage(
                 fnr = fnr,
                 arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = orgnummer, orgNavn = "Kebab"),
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = LocalDate.of(nesteÅr, 12, 1),
-                    tom = LocalDate.of(nesteÅr, 12, 15)
-                )
-            )
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = LocalDate.of(nesteÅr, 12, 1),
+                        tom = LocalDate.of(nesteÅr, 12, 15),
+                    ),
+            ),
         )
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
                 arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = orgnummer, orgNavn = "Kebab"),
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = LocalDate.of(nesteÅr, 11, 15),
-                    tom = LocalDate.of(nesteÅr, 11, 30)
-                )
-            )
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = LocalDate.of(nesteÅr, 11, 15),
+                        tom = LocalDate.of(nesteÅr, 11, 30),
+                    ),
+            ),
         )
         assertThat(julesoknadkandidatDAO.hentJulesoknadkandidater()).hasSize(1)
         prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
@@ -352,7 +363,10 @@ class JulesoknadIntegrationTest : BaseTestClass() {
         assertThat(julesoknadkandidatDAO.hentJulesoknadkandidater()).hasSize(0)
     }
 
-    private fun lagreForskuttering(forskutterer: Boolean, orgnummer: String) {
+    private fun lagreForskuttering(
+        forskutterer: Boolean,
+        orgnummer: String,
+    ) {
         forskutteringRepository.save(
             Forskuttering(
                 id = null,
@@ -363,8 +377,8 @@ class JulesoknadIntegrationTest : BaseTestClass() {
                 aktivTom = null,
                 arbeidsgiverForskutterer = forskutterer,
                 timestamp = Instant.now(),
-                oppdatert = Instant.now()
-            )
+                oppdatert = Instant.now(),
+            ),
         )
     }
 }

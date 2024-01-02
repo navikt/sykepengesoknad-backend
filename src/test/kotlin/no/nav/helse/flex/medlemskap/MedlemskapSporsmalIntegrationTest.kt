@@ -41,7 +41,6 @@ import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
-
     @Autowired
     private lateinit var medlemskapVurderingRepository: MedlemskapVurderingRepository
 
@@ -67,26 +66,29 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
             MockResponse().setResponseCode(200).setBody(
                 MedlemskapVurderingResponse(
                     svar = MedlemskapVurderingSvarType.UAVKLART,
-                    sporsmal = listOf(
-                        MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
-                        MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
-                        MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
-                        MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE
-                    )
-                ).serialisertTilString()
-            )
+                    sporsmal =
+                        listOf(
+                            MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
+                            MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
+                            MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
+                            MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE,
+                        ),
+                ).serialisertTilString(),
+            ),
         )
 
-        val soknader = sendSykmelding(
-            sykmeldingKafkaMessage(
-                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = fom,
-                    tom = tom
-                )
+        val soknader =
+            sendSykmelding(
+                sykmeldingKafkaMessage(
+                    arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                    fnr = fnr,
+                    sykmeldingsperioder =
+                        heltSykmeldt(
+                            fom = fom,
+                            tom = tom,
+                        ),
+                ),
             )
-        )
 
         assertThat(soknader).hasSize(1)
         assertThat(soknader.last().type).isEqualTo(SoknadstypeDTO.ARBEIDSTAKERE)
@@ -97,10 +99,11 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
     @Test
     @Order(2)
     fun `Verifiser at søknaden har spørsmål som forventet`() {
-        val soknad = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val soknad =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
 
         assertThat(soknad.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
@@ -115,8 +118,8 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
                 MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
                 UTLAND_V2,
                 MEDLEMSKAP_OPPHOLDSTILLATELSE,
-                TIL_SLUTT
-            )
+                TIL_SLUTT,
+            ),
         )
     }
 
@@ -128,12 +131,13 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
 
         medlemskapVurdering.fnr `should be equal to` fnr
         medlemskapVurdering.svartype `should be equal to` MedlemskapVurderingSvarType.UAVKLART.toString()
-        medlemskapVurdering.sporsmal!!.value `should be equal to` listOf(
-            MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
-            MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
-            MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
-            MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE
-        ).serialisertTilString()
+        medlemskapVurdering.sporsmal!!.value `should be equal to`
+            listOf(
+                MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
+                MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
+                MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
+                MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE,
+            ).serialisertTilString()
     }
 
     @Test
@@ -162,24 +166,25 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
             .besvarSporsmal(
                 tag = MEDLEMSKAP_OPPHOLDSTILLATELSE,
                 svar = "JA",
-                ferdigBesvart = false
+                ferdigBesvart = false,
             )
             .besvarSporsmal(
                 tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_VEDTAKSDATO,
                 svar = soknad.fom.toString(),
-                ferdigBesvart = false
+                ferdigBesvart = false,
             )
             .besvarSporsmal(
                 tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_MIDLERTIDIG,
                 svar = "CHECKED",
-                ferdigBesvart = false
+                ferdigBesvart = false,
             )
             .besvarSporsmal(
                 tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_MIDLERTIDIG_PERIODE,
-                svar = DatoUtil.periodeTilJson(
-                    fom = soknad.tom!!.minusDays(25),
-                    tom = soknad.tom!!.minusDays(5)
-                )
+                svar =
+                    DatoUtil.periodeTilJson(
+                        fom = soknad.tom!!.minusDays(25),
+                        tom = soknad.tom!!.minusDays(5),
+                    ),
             )
     }
 
@@ -193,7 +198,7 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
             besvarMedlemskapArbeidUtenforNorge(
                 soknadBesvarer = soknadBesvarer,
                 soknad = soknad,
-                index = 0
+                index = 0,
             )
         }
 
@@ -204,14 +209,15 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
             besvarMedlemskapArbeidUtenforNorge(
                 soknadBesvarer = soknadBesvarer,
                 soknad = soknad,
-                index = 1
+                index = 1,
             )
         }
 
-        val lagretSoknad = hentSoknad(
-            soknadId = soknadId,
-            fnr = fnr
-        )
+        val lagretSoknad =
+            hentSoknad(
+                soknadId = soknadId,
+                fnr = fnr,
+            )
         lagretSoknad.sporsmal!!.first {
             it.tag == MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE
         }.undersporsmal shouldHaveSize 2
@@ -227,7 +233,7 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
             besvarMedlemskapOppholdUtenforNorge(
                 soknadBesvarer = soknadBesvarer,
                 soknad = soknad,
-                index = 0
+                index = 0,
             )
         }
 
@@ -238,14 +244,15 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
             besvarMedlemskapOppholdUtenforNorge(
                 soknadBesvarer = soknadBesvarer,
                 soknad = soknad,
-                index = 1
+                index = 1,
             )
         }
 
-        val lagretSoknad = hentSoknad(
-            soknadId = soknadId,
-            fnr = fnr
-        )
+        val lagretSoknad =
+            hentSoknad(
+                soknadId = soknadId,
+                fnr = fnr,
+            )
         lagretSoknad.sporsmal!!.first {
             it.tag == MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE
         }.undersporsmal shouldHaveSize 2
@@ -261,7 +268,7 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
             besvarMedlemskapOppholdUtenforEos(
                 soknadBesvarer = soknadBesvarer,
                 soknad = soknad,
-                index = 0
+                index = 0,
             )
         }
 
@@ -272,14 +279,15 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
             besvarMedlemskapOppholdUtenforEos(
                 soknadBesvarer = soknadBesvarer,
                 soknad = soknad,
-                index = 1
+                index = 1,
             )
         }
 
-        val lagretSoknad = hentSoknad(
-            soknadId = soknadId,
-            fnr = fnr
-        )
+        val lagretSoknad =
+            hentSoknad(
+                soknadId = soknadId,
+                fnr = fnr,
+            )
         lagretSoknad.sporsmal!!.first {
             it.tag == MEDLEMSKAP_OPPHOLD_UTENFOR_EOS
         }.undersporsmal shouldHaveSize 2
@@ -336,7 +344,7 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
             fnr = fnr,
             soknadId = soknadId,
             sporsmalId = hovedsporsmalFor.id!!,
-            undersporsmalId = hovedsporsmalFor.undersporsmal[1].id!!
+            undersporsmalId = hovedsporsmalFor.undersporsmal[1].id!!,
         )
 
         val hovedsporsmalEtter =
@@ -359,7 +367,7 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
             fnr = fnr,
             soknadId = soknadId,
             sporsmalId = hovedsporsmalFor.id!!,
-            undersporsmalId = hovedsporsmalFor.undersporsmal[1].id!!
+            undersporsmalId = hovedsporsmalFor.undersporsmal[1].id!!,
         )
 
         val hovedsporsmalEtter =
@@ -382,7 +390,7 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
             fnr = fnr,
             soknadId = soknadId,
             sporsmalId = hovedsporsmalFor.id!!,
-            undersporsmalId = hovedsporsmalFor.undersporsmal[1].id!!
+            undersporsmalId = hovedsporsmalFor.undersporsmal[1].id!!,
         )
 
         val hovedsporsmalEtter =
@@ -403,10 +411,11 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
         hentSoknadSomKanBesvares().let {
             val (_, soknadBesvarer) = it
             besvarArbeidstakerSporsmal(soknadBesvarer)
-            val sendtSoknad = soknadBesvarer
-                .besvarSporsmal(tag = "TIL_SLUTT", svar = "Svar 1", ferdigBesvart = false)
-                .besvarSporsmal(tag = BEKREFT_OPPLYSNINGER, svar = "CHECKED")
-                .sendSoknad()
+            val sendtSoknad =
+                soknadBesvarer
+                    .besvarSporsmal(tag = "TIL_SLUTT", svar = "Svar 1", ferdigBesvart = false)
+                    .besvarSporsmal(tag = BEKREFT_OPPLYSNINGER, svar = "CHECKED")
+                    .sendSoknad()
             sendtSoknad.status shouldBeEqualTo RSSoknadstatus.SENDT
         }
 
@@ -432,11 +441,12 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
 
         mockFlexSyketilfelleArbeidsgiverperiode(andreKorrigerteRessurser = soknad.id)
 
-        val sendtSoknad = SoknadBesvarer(rSSykepengesoknad = korrigerendeSoknad, mockMvc = this, fnr = fnr)
-            .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
-            .besvarSporsmal(tag = "TIL_SLUTT", svar = "Svar 2", ferdigBesvart = false)
-            .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
-            .sendSoknad()
+        val sendtSoknad =
+            SoknadBesvarer(rSSykepengesoknad = korrigerendeSoknad, mockMvc = this, fnr = fnr)
+                .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
+                .besvarSporsmal(tag = "TIL_SLUTT", svar = "Svar 2", ferdigBesvart = false)
+                .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
+                .sendSoknad()
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
 
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
@@ -447,8 +457,8 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
             medlemskapVurderingRepository.findBySykepengesoknadIdAndFomAndTom(
                 sendtSoknad.id,
                 sendtSoknad.fom!!,
-                sendtSoknad.tom!!
-            )
+                sendtSoknad.tom!!,
+            ),
         ).isNotNull
 
         kafkaSoknad.id shouldBeEqualTo sendtSoknad.id
@@ -459,15 +469,19 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
     private fun hentSoknadMedStatusNy(): RSSykepengesoknad {
         return hentSoknad(
             soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
-            fnr = fnr
+            fnr = fnr,
         )
     }
 
-    private fun leggTilUndersporsmal(soknadId: String, tag: String) {
-        val lagretSoknad = hentSoknad(
-            soknadId = soknadId,
-            fnr = fnr
-        )
+    private fun leggTilUndersporsmal(
+        soknadId: String,
+        tag: String,
+    ) {
+        val lagretSoknad =
+            hentSoknad(
+                soknadId = soknadId,
+                fnr = fnr,
+            )
 
         val hovedsporsmal = lagretSoknad.sporsmal!!.first { it.tag == tag }
         leggTilUndersporsmal(fnr, soknadId, hovedsporsmal.id!!)
@@ -481,7 +495,7 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
 
     private fun fjernIdFraHovedsporsmal(
         hovedsporsmalEtter: RSSporsmal,
-        hovedsporsmalFor: RSSporsmal
+        hovedsporsmalFor: RSSporsmal,
     ): Pair<List<RSSporsmal>, List<RSSporsmal>> {
         val flattenEtter = listOf(hovedsporsmalEtter).flatten()
         val utenIdEtter = flattenEtter.utenId()
@@ -505,87 +519,90 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
     private fun besvarMedlemskapArbeidUtenforNorge(
         soknadBesvarer: SoknadBesvarer,
         soknad: RSSykepengesoknad,
-        index: Int
+        index: Int,
     ) {
         soknadBesvarer
             .besvarSporsmal(
                 tag = MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
                 svar = "JA",
-                ferdigBesvart = false
+                ferdigBesvart = false,
             )
             .besvarSporsmal(
                 tag = medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_ARBEIDSGIVER, index),
                 svar = medIndex("Arbeidsgiver", index),
-                ferdigBesvart = false
+                ferdigBesvart = false,
             )
             .besvarSporsmal(
                 tag = medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_HVOR, index),
                 svar = medIndex("Land", index),
-                ferdigBesvart = false
+                ferdigBesvart = false,
             )
             .besvarSporsmal(
                 tag = medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR, index),
-                svar = DatoUtil.periodeTilJson(
-                    fom = soknad.tom!!.minusDays(25),
-                    tom = soknad.tom!!.minusDays(5)
-                )
+                svar =
+                    DatoUtil.periodeTilJson(
+                        fom = soknad.tom!!.minusDays(25),
+                        tom = soknad.tom!!.minusDays(5),
+                    ),
             )
     }
 
     private fun besvarMedlemskapOppholdUtenforNorge(
         soknadBesvarer: SoknadBesvarer,
         soknad: RSSykepengesoknad,
-        index: Int
+        index: Int,
     ) {
         soknadBesvarer
             .besvarSporsmal(tag = MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE, svar = "JA", ferdigBesvart = false)
             .besvarSporsmal(
                 tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_HVOR, index),
                 svar = "Land",
-                ferdigBesvart = false
+                ferdigBesvart = false,
             )
             .besvarSporsmal(
                 tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE_FERIE, index),
                 svar = "CHECKED",
-                ferdigBesvart = false
+                ferdigBesvart = false,
             )
             .besvarSporsmal(
                 tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_NAAR, index),
-                svar = DatoUtil.periodeTilJson(
-                    fom = soknad.tom!!.minusDays(25),
-                    tom = soknad.tom!!.minusDays(5)
-                )
+                svar =
+                    DatoUtil.periodeTilJson(
+                        fom = soknad.tom!!.minusDays(25),
+                        tom = soknad.tom!!.minusDays(5),
+                    ),
             )
     }
 
     private fun besvarMedlemskapOppholdUtenforEos(
         soknadBesvarer: SoknadBesvarer,
         soknad: RSSykepengesoknad,
-        index: Int
+        index: Int,
     ) {
         soknadBesvarer
             .besvarSporsmal(tag = MEDLEMSKAP_OPPHOLD_UTENFOR_EOS, svar = "JA", ferdigBesvart = false)
             .besvarSporsmal(
                 tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_HVOR, index),
                 svar = "Land",
-                ferdigBesvart = false
+                ferdigBesvart = false,
             )
             .besvarSporsmal(
                 tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_ANNET, index),
                 svar = "CHECKED",
-                ferdigBesvart = false
+                ferdigBesvart = false,
             )
             .besvarSporsmal(
                 tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_ANNET_FRITEKST, index),
                 svar = "Handletur",
-                ferdigBesvart = false
+                ferdigBesvart = false,
             )
             .besvarSporsmal(
                 tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_NAAR, index),
-                svar = DatoUtil.periodeTilJson(
-                    fom = soknad.tom!!.minusDays(25),
-                    tom = soknad.tom!!.minusDays(5)
-                )
+                svar =
+                    DatoUtil.periodeTilJson(
+                        fom = soknad.tom!!.minusDays(25),
+                        tom = soknad.tom!!.minusDays(5),
+                    ),
             )
     }
 
@@ -594,7 +611,7 @@ class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
             sporsmal.copy(
                 id = "",
                 undersporsmal = sporsmal.undersporsmal.utenId(),
-                svar = sporsmal.svar.map { it.copy(id = "") }
+                svar = sporsmal.svar.map { it.copy(id = "") },
             )
         }
     }

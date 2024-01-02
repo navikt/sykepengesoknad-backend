@@ -19,34 +19,36 @@ import java.time.temporal.ChronoUnit.SECONDS
 import java.util.*
 
 class SoknadKafkaFormatControllerTest : BaseTestClass() {
-
     @Test
     fun `Vi kan hente en søknad på samme format som kafka topicet med version 2 token`() {
-        val kafkaSoknad = sendSykmelding(
-            sykmeldingKafkaMessage(
-                fnr = "1234",
-                sykmeldingsperioder = heltSykmeldt()
-            )
-        ).first()
+        val kafkaSoknad =
+            sendSykmelding(
+                sykmeldingKafkaMessage(
+                    fnr = "1234",
+                    sykmeldingsperioder = heltSykmeldt(),
+                ),
+            ).first()
 
-        val result = mockMvc
-            .perform(
-                MockMvcRequestBuilders
-                    .get("/api/v3/soknader/${kafkaSoknad.id}/kafkaformat")
-                    .header("Authorization", "Bearer ${skapAzureJwt()}")
-                    .header(NAV_CALLID, UUID.randomUUID().toString())
-                    .contentType(MediaType.APPLICATION_JSON)
-            )
-            .andExpect(MockMvcResultMatchers.status().isOk).andReturn()
+        val result =
+            mockMvc
+                .perform(
+                    MockMvcRequestBuilders
+                        .get("/api/v3/soknader/${kafkaSoknad.id}/kafkaformat")
+                        .header("Authorization", "Bearer ${skapAzureJwt()}")
+                        .header(NAV_CALLID, UUID.randomUUID().toString())
+                        .contentType(MediaType.APPLICATION_JSON),
+                )
+                .andExpect(MockMvcResultMatchers.status().isOk).andReturn()
 
         val fraRest = OBJECT_MAPPER.readValue<SykepengesoknadDTO>(result.response.contentAsString)
 
         assertThat(fraRest.fnr).isEqualTo(kafkaSoknad.fnr)
 
-        fun SykepengesoknadDTO.fjernMs(): SykepengesoknadDTO = this.copy(
-            opprettet = opprettet?.truncatedTo(SECONDS),
-            sykmeldingSkrevet = sykmeldingSkrevet?.truncatedTo(SECONDS)
-        )
+        fun SykepengesoknadDTO.fjernMs(): SykepengesoknadDTO =
+            this.copy(
+                opprettet = opprettet?.truncatedTo(SECONDS),
+                sykmeldingSkrevet = sykmeldingSkrevet?.truncatedTo(SECONDS),
+            )
 
         fraRest.fjernMs().shouldBeEqualTo(kafkaSoknad.fjernMs())
     }
@@ -58,7 +60,7 @@ class SoknadKafkaFormatControllerTest : BaseTestClass() {
                 MockMvcRequestBuilders
                     .get("/api/v3/soknader/whatever/kafkaformat")
                     .header(NAV_CALLID, UUID.randomUUID().toString())
-                    .contentType(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON),
             )
             .andExpect(MockMvcResultMatchers.status().isUnauthorized).andReturn()
     }
@@ -71,7 +73,7 @@ class SoknadKafkaFormatControllerTest : BaseTestClass() {
                     .get("/api/v3/soknader/whatever/kafkaformat")
                     .header("Authorization", "Bearer sdafsdaf")
                     .header(NAV_CALLID, UUID.randomUUID().toString())
-                    .contentType(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON),
             )
             .andExpect(MockMvcResultMatchers.status().isUnauthorized).andReturn()
 
@@ -81,7 +83,7 @@ class SoknadKafkaFormatControllerTest : BaseTestClass() {
                     .get("/api/v3/soknader/whatever/kafkaformat")
                     .header("Authorization", "dsgfdgdfgf")
                     .header(NAV_CALLID, UUID.randomUUID().toString())
-                    .contentType(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON),
             )
             .andExpect(MockMvcResultMatchers.status().isUnauthorized).andReturn()
     }
@@ -94,7 +96,7 @@ class SoknadKafkaFormatControllerTest : BaseTestClass() {
                     .get("/api/v3/soknader/whatever/kafkaformat")
                     .header("Authorization", "Bearer ${skapAzureJwt("facebook")}")
                     .header(NAV_CALLID, UUID.randomUUID().toString())
-                    .contentType(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON),
             )
             .andExpect(MockMvcResultMatchers.status().isForbidden).andReturn()
     }
@@ -107,7 +109,7 @@ class SoknadKafkaFormatControllerTest : BaseTestClass() {
                     .get("/api/v3/soknader/e65e14ad-35eb-4695-add9-9f26ba120818/kafkaformat")
                     .header("Authorization", "Bearer ${skapAzureJwt()}")
                     .header(NAV_CALLID, UUID.randomUUID().toString())
-                    .contentType(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON),
             )
             .andExpect(MockMvcResultMatchers.status().isNotFound).andReturn()
     }

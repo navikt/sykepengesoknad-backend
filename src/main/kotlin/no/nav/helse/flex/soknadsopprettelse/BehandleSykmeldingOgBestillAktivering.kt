@@ -10,12 +10,15 @@ import org.springframework.stereotype.Service
 class BehandleSykmeldingOgBestillAktivering(
     private val behandleSendtBekreftetSykmelding: BehandleSendtBekreftetSykmelding,
     private val aktiveringProducer: AktiveringProducer,
-    private val oppdateringAvMerknader: OppdateringAvMerknader
-
+    private val oppdateringAvMerknader: OppdateringAvMerknader,
 ) {
     val log = logger()
 
-    fun prosesserSykmelding(sykmeldingId: String, sykmeldingKafkaMessage: SykmeldingKafkaMessage?, topic: String) {
+    fun prosesserSykmelding(
+        sykmeldingId: String,
+        sykmeldingKafkaMessage: SykmeldingKafkaMessage?,
+        topic: String,
+    ) {
         val prosesserSykmelding =
             behandleSendtBekreftetSykmelding.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage, topic)
 

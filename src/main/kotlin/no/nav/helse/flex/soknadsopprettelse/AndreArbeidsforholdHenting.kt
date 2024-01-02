@@ -10,23 +10,29 @@ import java.time.YearMonth
 @Component
 class AndreArbeidsforholdHenting(
     val inntektskomponentenClient: InntektskomponentenClient,
-    val eregClient: EregClient
+    val eregClient: EregClient,
 ) {
-    fun hentArbeidsforhold(fnr: String, arbeidsgiverOrgnummer: String, startSykeforlop: LocalDate): List<ArbeidsforholdFraInntektskomponenten> {
+    fun hentArbeidsforhold(
+        fnr: String,
+        arbeidsgiverOrgnummer: String,
+        startSykeforlop: LocalDate,
+    ): List<ArbeidsforholdFraInntektskomponenten> {
         val sykmeldingOrgnummer = arbeidsgiverOrgnummer
 
-        val hentInntekter = inntektskomponentenClient.hentInntekter(
-            fnr,
-            fom = startSykeforlop.yearMonth().minusMonths(3),
-            tom = startSykeforlop.yearMonth()
-        )
+        val hentInntekter =
+            inntektskomponentenClient.hentInntekter(
+                fnr,
+                fom = startSykeforlop.yearMonth().minusMonths(3),
+                tom = startSykeforlop.yearMonth(),
+            )
 
         fun ArbeidsInntektMaaned.orgnumreForManed(): Set<String> {
-            val inntekterOrgnummer = this.arbeidsInntektInformasjon.inntektListe
-                .filter { it.inntektType == "LOENNSINNTEKT" }
-                .filter { it.virksomhet.aktoerType == "ORGANISASJON" }
-                .map { it.virksomhet.identifikator }
-                .toSet()
+            val inntekterOrgnummer =
+                this.arbeidsInntektInformasjon.inntektListe
+                    .filter { it.inntektType == "LOENNSINNTEKT" }
+                    .filter { it.virksomhet.aktoerType == "ORGANISASJON" }
+                    .map { it.virksomhet.identifikator }
+                    .toSet()
 
             return inntekterOrgnummer
         }
@@ -35,25 +41,29 @@ class AndreArbeidsforholdHenting(
 
         return alleMånedersOrgnr
             .filter { it != sykmeldingOrgnummer }
-            .map(fun(orgnr: String): ArbeidsforholdFraInntektskomponenten {
-                val hentBedrift = eregClient.hentBedrift(orgnr)
-                return ArbeidsforholdFraInntektskomponenten(
-                    orgnummer = orgnr,
-                    navn = hentBedrift.navn.navnelinje1.prettyOrgnavn(),
-                    arbeidsforholdstype = Arbeidsforholdstype.ARBEIDSTAKER
-                )
-            })
+            .map(tilArbeidsforholdFraInntektskomponenten())
     }
+
+    private fun tilArbeidsforholdFraInntektskomponenten() =
+        fun(orgnr: String): ArbeidsforholdFraInntektskomponenten {
+            val hentBedrift = eregClient.hentBedrift(orgnr)
+            return ArbeidsforholdFraInntektskomponenten(
+                orgnummer = orgnr,
+                navn = hentBedrift.navn.navnelinje1.prettyOrgnavn(),
+                arbeidsforholdstype = Arbeidsforholdstype.ARBEIDSTAKER,
+            )
+        }
 }
 
-fun LocalDate.yearMonth() = YearMonth.from(this)
+fun LocalDate.yearMonth(): YearMonth = YearMonth.from(this)
 
 enum class Arbeidsforholdstype {
-    FRILANSER, ARBEIDSTAKER
+    FRILANSER,
+    ARBEIDSTAKER,
 }
 
 data class ArbeidsforholdFraInntektskomponenten(
     val orgnummer: String,
     val navn: String,
-    val arbeidsforholdstype: Arbeidsforholdstype
+    val arbeidsforholdstype: Arbeidsforholdstype,
 )

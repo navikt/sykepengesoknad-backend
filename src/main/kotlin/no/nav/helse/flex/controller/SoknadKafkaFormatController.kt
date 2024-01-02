@@ -19,26 +19,28 @@ import org.springframework.web.bind.annotation.RestController
 class SoknadKafkaFormatController(
     private val clientIdValidation: ClientIdValidation,
     private val hentSoknadService: HentSoknadService,
-    private val sykepengesoknadTilSykepengesoknadDTOMapper: SykepengesoknadTilSykepengesoknadDTOMapper
+    private val sykepengesoknadTilSykepengesoknadDTOMapper: SykepengesoknadTilSykepengesoknadDTOMapper,
 ) {
-
     @ProtectedWithClaims(issuer = AZUREATOR)
     @ResponseBody
     @GetMapping(value = ["/api/v3/soknader/{id}/kafkaformat"], produces = [APPLICATION_JSON_VALUE])
-    fun soknadMedKafkaFormatv3(@PathVariable("id") id: String): SykepengesoknadDTO {
+    fun soknadMedKafkaFormatv3(
+        @PathVariable("id") id: String,
+    ): SykepengesoknadDTO {
         clientIdValidation.validateClientId(
             listOf(
                 NamespaceAndApp(namespace = "flex", app = "sykepengesoknad-arkivering-oppgave"),
-                NamespaceAndApp(namespace = "tbd", app = "sparkel-dokumenter")
-            )
+                NamespaceAndApp(namespace = "tbd", app = "sparkel-dokumenter"),
+            ),
         )
         val sykepengesoknad = hentSoknadService.finnSykepengesoknad(id)
-        val dto = sykepengesoknadTilSykepengesoknadDTOMapper.mapTilSykepengesoknadDTO(
-            sykepengesoknad = sykepengesoknad,
-            mottaker = null,
-            erEttersending = false,
-            endeligVurdering = false
-        )
+        val dto =
+            sykepengesoknadTilSykepengesoknadDTOMapper.mapTilSykepengesoknadDTO(
+                sykepengesoknad = sykepengesoknad,
+                mottaker = null,
+                erEttersending = false,
+                endeligVurdering = false,
+            )
         return dto
     }
 }

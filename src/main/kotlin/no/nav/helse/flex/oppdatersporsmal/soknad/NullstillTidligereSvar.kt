@@ -14,7 +14,7 @@ private fun List<Sporsmal>.nullstillUndersporsmalSvar(): List<Sporsmal> {
     return map {
         it.copy(
             svar = emptyList(),
-            undersporsmal = it.undersporsmal.nullstillUndersporsmalSvar()
+            undersporsmal = it.undersporsmal.nullstillUndersporsmalSvar(),
         )
     }
 }

@@ -6,5 +6,5 @@ data class RSSoknadsperiode(
     val fom: LocalDate,
     val tom: LocalDate,
     val grad: Int,
-    val sykmeldingstype: RSSykmeldingstype?
+    val sykmeldingstype: RSSykmeldingstype?,
 )

@@ -9,8 +9,7 @@ import org.springframework.stereotype.Service
 class SlettGamleUtkastService(
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val sykepengesoknadDAOKt: SykepengesoknadDAO,
-    private val registry: MeterRegistry
-
+    private val registry: MeterRegistry,
 ) {
     val log = logger()
 

@@ -13,7 +13,6 @@ import org.junit.jupiter.api.assertThrows
  * medlemskap oppfører seg i mulige feilsituasjoner.
  */
 class MedlemskapVurderingResponseTest {
-
     @Test
     fun deserialiserUavklart() {
         val jsonResponse = """
@@ -31,12 +30,13 @@ class MedlemskapVurderingResponseTest {
         val response = objectMapper.readValue(jsonResponse, MedlemskapVurderingResponse::class.java)
 
         response.svar `should be equal to` MedlemskapVurderingSvarType.UAVKLART
-        response.sporsmal `should contain same` listOf(
-            MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
-            MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
-            MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
-            MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE
-        )
+        response.sporsmal `should contain same`
+            listOf(
+                MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
+                MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
+                MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
+                MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE,
+            )
     }
 
     @Test

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service
 @Service
 class SlettSoknaderTilKorrigertSykmeldingService(
     private val sykepengesoknadDAO: SykepengesoknadDAO,
-    private val soknadProducer: SoknadProducer
+    private val soknadProducer: SoknadProducer,
 ) {
     val log = logger()
 
@@ -35,12 +35,18 @@ class SlettSoknaderTilKorrigertSykmeldingService(
         if (publiser) {
             soknadProducer.soknadEvent(slettet, null, false)
         }
-        log.info("Sletter tidligere ${this.status} søknad ${this.id} grunnet mottatt sykmelding ${this.sykmeldingId} som tolkes til å være korrigert")
+        log.info(
+            "Sletter tidligere ${this.status} søknad ${this.id} grunnet mottatt sykmelding ${this.sykmeldingId} som " +
+                "tolkes til å være korrigert",
+        )
         sykepengesoknadDAO.slettSoknad(slettet)
     }
 
     private fun Sykepengesoknad.settKorrigert() {
-        log.info("Setter tidligere ${this.status} søknad ${this.id} til korrigert grunnet mottatt sykmelding ${this.sykmeldingId} som tolkes til å være korrigert")
+        log.info(
+            "Setter tidligere ${this.status} søknad ${this.id} til korrigert grunnet mottatt sykmelding " +
+                "${this.sykmeldingId} som tolkes til å være korrigert",
+        )
         sykepengesoknadDAO.oppdaterStatus(this.copy(status = Soknadstatus.KORRIGERT))
     }
 }

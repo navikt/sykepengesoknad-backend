@@ -26,13 +26,13 @@ class SoknadVeilederAzureController(
     private val clientIdValidation: ClientIdValidation,
     private val istilgangskontrollClient: IstilgangskontrollClient,
     private val identService: IdentService,
-    private val hentSoknadService: HentSoknadService
+    private val hentSoknadService: HentSoknadService,
 ) {
     val log = logger()
 
     @RequestMapping(method = [RequestMethod.GET])
     fun hentVeilederSoknader(
-        @RequestHeader(value = "nav-personident") fnr: String
+        @RequestHeader(value = "nav-personident") fnr: String,
     ): List<RSSykepengesoknad> {
         clientIdValidation.validateClientId(NamespaceAndApp(namespace = "teamsykefravr", app = "syfomodiaperson"))
 

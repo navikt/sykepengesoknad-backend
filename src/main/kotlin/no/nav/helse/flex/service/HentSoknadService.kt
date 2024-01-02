@@ -12,7 +12,7 @@ import java.time.LocalDate
 @Transactional
 class HentSoknadService(
     private val sykepengesoknadDAO: SykepengesoknadDAO,
-    private val sykepengesoknadRepository: SykepengesoknadRepository
+    private val sykepengesoknadRepository: SykepengesoknadRepository,
 ) {
     val log = logger()
 
@@ -28,7 +28,10 @@ class HentSoknadService(
         return sykepengesoknadDAO.finnSykepengesoknad(uuid)
     }
 
-    fun hentEldsteSoknaden(identer: FolkeregisterIdenter, fom: LocalDate?): String? {
+    fun hentEldsteSoknaden(
+        identer: FolkeregisterIdenter,
+        fom: LocalDate?,
+    ): String? {
         return sykepengesoknadRepository.findEldsteSoknaden(identer.alle(), fom)
     }
 }

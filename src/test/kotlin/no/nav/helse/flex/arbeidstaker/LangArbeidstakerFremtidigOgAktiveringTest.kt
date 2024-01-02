@@ -24,7 +24,6 @@ import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class LangArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
-
     @Autowired
     private lateinit var aktiveringJob: AktiveringJob
 
@@ -36,16 +35,18 @@ class LangArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
     fun `Fremtidige arbeidstakersøknad opprettes for en sykmelding`() {
         fakeUnleash.resetAll()
         fakeUnleash.enable("sykepengesoknad-backend-bekreftelsespunkter")
-        val kafkaSoknader = sendSykmelding(
-            sykmeldingKafkaMessage(
-                fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = basisdato.minusDays(1),
-                    tom = basisdato.plusDays(35)
-                )
-            ),
-            forventaSoknader = 2
-        )
+        val kafkaSoknader =
+            sendSykmelding(
+                sykmeldingKafkaMessage(
+                    fnr = fnr,
+                    sykmeldingsperioder =
+                        heltSykmeldt(
+                            fom = basisdato.minusDays(1),
+                            tom = basisdato.plusDays(35),
+                        ),
+                ),
+                forventaSoknader = 2,
+            )
 
         val hentetViaRest = hentSoknaderMetadata(fnr)
         assertThat(hentetViaRest).hasSize(2)
@@ -60,14 +61,16 @@ class LangArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
     @Test
     @Order(2)
     fun `søknadene har ingen som spørsmål som fremtidig`() {
-        val soknad1 = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
-        val soknad2 = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).last().id,
-            fnr = fnr
-        )
+        val soknad1 =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
+        val soknad2 =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).last().id,
+                fnr = fnr,
+            )
         assertThat(soknad1.sporsmal!!).hasSize(0)
         assertThat(soknad2.sporsmal!!).hasSize(0)
     }
@@ -88,14 +91,16 @@ class LangArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
     @Order(4)
     fun `søknaden har forventa spørsmål som NY`() {
         val soknader = hentSoknaderMetadata(fnr).sortedBy { it.fom }
-        val soknad1 = hentSoknad(
-            soknadId = soknader.first().id,
-            fnr = fnr
-        )
-        val soknad2 = hentSoknad(
-            soknadId = soknader.last().id,
-            fnr = fnr
-        )
+        val soknad1 =
+            hentSoknad(
+                soknadId = soknader.first().id,
+                fnr = fnr,
+            )
+        val soknad2 =
+            hentSoknad(
+                soknadId = soknader.last().id,
+                fnr = fnr,
+            )
 
         assertThat(soknad1.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
@@ -106,8 +111,8 @@ class LangArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
                 "ARBEID_UNDERVEIS_100_PROSENT_0",
                 "ANDRE_INNTEKTSKILDER_V2",
                 "UTLAND_V2",
-                "TIL_SLUTT"
-            )
+                "TIL_SLUTT",
+            ),
         )
         assertThat(soknad1.status).isEqualTo(RSSoknadstatus.NY)
         assertThat(soknad2.status).isEqualTo(RSSoknadstatus.FREMTIDIG)
@@ -118,22 +123,24 @@ class LangArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
     fun `vi besvarer og sender inn søknaden`() {
         flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
-        val soknaden = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
-            fnr = fnr
-        )
+        val soknaden =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
+                fnr = fnr,
+            )
 
-        val sendtSoknad = SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
-            .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
-            .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
-            .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
-            .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
-            .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
-            .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
-            .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
-            .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
-            .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
-            .sendSoknad()
+        val sendtSoknad =
+            SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+                .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
+                .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
+                .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
+                .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
+                .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
+                .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
+                .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
+                .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
+                .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
+                .sendSoknad()
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
 
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
@@ -161,22 +168,24 @@ class LangArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
     fun `vi besvarer og sender inn den andre søknaden som har færre spørsmål`() {
         flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
-        val soknaden = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
-            fnr = fnr
-        )
+        val soknaden =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
+                fnr = fnr,
+            )
 
-        val sendtSoknad = SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
-            .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
-            .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
-            .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
-            .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
-            .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
-            .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
-            .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
-            .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
-            .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
-            .sendSoknad()
+        val sendtSoknad =
+            SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+                .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
+                .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
+                .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
+                .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
+                .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
+                .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
+                .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
+                .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
+                .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
+                .sendSoknad()
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
 
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()

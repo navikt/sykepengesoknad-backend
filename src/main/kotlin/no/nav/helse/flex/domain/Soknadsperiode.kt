@@ -7,5 +7,5 @@ data class Soknadsperiode(
     val fom: LocalDate,
     val tom: LocalDate,
     val grad: Int,
-    val sykmeldingstype: Sykmeldingstype?
+    val sykmeldingstype: Sykmeldingstype?,
 ) : Serializable

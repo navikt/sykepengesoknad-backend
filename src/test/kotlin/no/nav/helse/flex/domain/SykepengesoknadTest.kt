@@ -5,7 +5,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 class SykepengesoknadTest {
-
     private val sykepengesoknad: Sykepengesoknad
         get() = settOppSoknadOppholdUtland("fnr")
 
@@ -13,32 +12,47 @@ class SykepengesoknadTest {
     fun alleSporsmalOgUndersporsmalReturnererAlleSporsmal() {
         val sporsmalOgUndersporsmal = sykepengesoknad.alleSporsmalOgUndersporsmal()
 
-        assertThat(sporsmalOgUndersporsmal.map { it.sporsmalstekst }.map { i -> i!!.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0] }.joinToString(",")).isEqualTo("Når,Hvilket,Har,Er,Har,Før,Jeg")
+        assertThat(
+            sporsmalOgUndersporsmal.map {
+                it.sporsmalstekst
+            }.map { i ->
+                i!!.split(" ".toRegex()).dropLastWhile {
+                    it.isEmpty()
+                }.toTypedArray()[0]
+            }.joinToString(","),
+        ).isEqualTo("Når,Hvilket,Har,Er,Har,Før,Jeg")
     }
 
     @Test
     fun replaceSporsmalBytterUtSporsmal() {
         var sykepengesoknad = sykepengesoknad
 
-        sykepengesoknad = sykepengesoknad.replaceSporsmal(
-            sykepengesoknad.getSporsmalMedTag("ARBEIDSGIVER").toBuilder()
-                .sporsmalstekst("HEISANN")
-                .build()
-        )
+        sykepengesoknad =
+            sykepengesoknad.replaceSporsmal(
+                sykepengesoknad.getSporsmalMedTag("ARBEIDSGIVER").toBuilder()
+                    .sporsmalstekst("HEISANN")
+                    .build(),
+            )
 
         val sporsmalOgUndersporsmal = sykepengesoknad.alleSporsmalOgUndersporsmal()
-        assertThat(sporsmalOgUndersporsmal.map { it.sporsmalstekst }.map { i -> i!!.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0] }.joinToString(",")).isEqualTo("Når,Hvilket,HEISANN,Er,Har,Før,Jeg")
+        assertThat(
+            sporsmalOgUndersporsmal.map { it.sporsmalstekst }.map {
+                    i ->
+                i!!.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0]
+            }.joinToString(","),
+        ).isEqualTo("Når,Hvilket,HEISANN,Er,Har,Før,Jeg")
     }
 
     @Test
     fun replaceSporsmalBytterIkkeAndreSporsmal() {
         var sykepengesoknad = sykepengesoknad
 
-        sykepengesoknad = sykepengesoknad.replaceSporsmal(
-            sykepengesoknad.getSporsmalMedTag("ARBEIDSGIVER").toBuilder()
-                .sporsmalstekst("9")
-                .build()
-        )
+        sykepengesoknad =
+            sykepengesoknad.replaceSporsmal(
+                sykepengesoknad.getSporsmalMedTag("ARBEIDSGIVER").toBuilder()
+                    .sporsmalstekst("9")
+                    .build(),
+            )
 
         val sporsmal = sykepengesoknad.sporsmal
         assertThat(sporsmal).hasSize(4)
@@ -74,13 +88,14 @@ class SykepengesoknadTest {
     fun leggTilHovedsporsmalLeggerSegEttersporsmal() {
         var sykepengesoknad = sykepengesoknad
 
-        sykepengesoknad = sykepengesoknad.addHovedsporsmal(
-            sporsmalBuilder()
-                .tag("tag")
-                .svartype(Svartype.CHECKBOX)
-                .build(),
-            sykepengesoknad.getSporsmalMedTag("ARBEIDSGIVER")
-        )
+        sykepengesoknad =
+            sykepengesoknad.addHovedsporsmal(
+                sporsmalBuilder()
+                    .tag("tag")
+                    .svartype(Svartype.CHECKBOX)
+                    .build(),
+                sykepengesoknad.getSporsmalMedTag("ARBEIDSGIVER"),
+            )
 
         assertThat(sykepengesoknad.sporsmal[3].tag).isEqualTo("tag")
         assertThat(sykepengesoknad.sporsmal.size).isEqualTo(5)
@@ -90,13 +105,14 @@ class SykepengesoknadTest {
     fun leggTilHovedsporsmalUtenEttersporsmalLeggerSegSist() {
         var sykepengesoknad = sykepengesoknad
 
-        sykepengesoknad = sykepengesoknad.addHovedsporsmal(
-            sporsmalBuilder()
-                .tag("tag")
-                .svartype(Svartype.CHECKBOX)
-                .build(),
-            null
-        )
+        sykepengesoknad =
+            sykepengesoknad.addHovedsporsmal(
+                sporsmalBuilder()
+                    .tag("tag")
+                    .svartype(Svartype.CHECKBOX)
+                    .build(),
+                null,
+            )
 
         assertThat(sykepengesoknad.sporsmal[4].tag).isEqualTo("tag")
         assertThat(sykepengesoknad.sporsmal.size).isEqualTo(5)

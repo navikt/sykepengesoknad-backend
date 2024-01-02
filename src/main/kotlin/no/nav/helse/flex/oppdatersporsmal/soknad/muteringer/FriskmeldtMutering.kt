@@ -33,22 +33,24 @@ fun Sykepengesoknad.friskmeldtMuteringer(): Sykepengesoknad {
         if (friskmeldtDato == this.fom) {
             // Fjerner spørsmål som forsvinner
             return this.copy(
-                sporsmal = sporsmal
-                    .asSequence()
-                    .filterNot { (_, tag) -> tag == UTDANNING }
-                    .filterNot { (_, tag) -> tag == ARBEIDSLEDIG_UTLAND }
-                    .filterNot { (_, tag) -> tag == ANDRE_INNTEKTSKILDER }
-                    .filterNot { (_, tag) -> tag == PERMISJON_V2 }
-                    .toMutableList()
+                sporsmal =
+                    sporsmal
+                        .asSequence()
+                        .filterNot { (_, tag) -> tag == UTDANNING }
+                        .filterNot { (_, tag) -> tag == ARBEIDSLEDIG_UTLAND }
+                        .filterNot { (_, tag) -> tag == ANDRE_INNTEKTSKILDER }
+                        .filterNot { (_, tag) -> tag == PERMISJON_V2 }
+                        .toMutableList(),
             )
         }
     }
 
-    val oppdatertTom = if (friskmeldtDato == null) {
-        this.tom
-    } else {
-        friskmeldtDato.minusDays(1)
-    }
+    val oppdatertTom =
+        if (friskmeldtDato == null) {
+            this.tom
+        } else {
+            friskmeldtDato.minusDays(1)
+        }
 
     return this
         .leggTilSporsmaal(utenlandsoppholdArbeidsledigAnnetSporsmal(this.fom!!, oppdatertTom!!))

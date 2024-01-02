@@ -8,6 +8,6 @@ fun bekreftOpplysningerSporsmal(): Sporsmal {
     return Sporsmal(
         tag = BEKREFT_OPPLYSNINGER,
         sporsmalstekst = "Jeg har lest all informasjonen jeg har fått i søknaden og bekrefter at opplysningene jeg har gitt er korrekte.",
-        svartype = Svartype.CHECKBOX_PANEL
+        svartype = Svartype.CHECKBOX_PANEL,
     )
 }

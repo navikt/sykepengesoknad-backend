@@ -22,7 +22,7 @@ class MedlemskapVurderingClient(
     private val medlemskapVurderingRepository: MedlemskapVurderingRepository,
     private val medlemskapVurderingRestTemplate: RestTemplate,
     @Value("\${MEDLEMSKAP_VURDERING_URL}")
-    private val url: String
+    private val url: String,
 ) {
     val log = logger()
 
@@ -41,47 +41,50 @@ class MedlemskapVurderingClient(
         headers.set("fnr", medlemskapVurderingRequest.fnr)
         headers.set("Nav-Call-Id", navCallId)
 
-        val queryBuilder = UriComponentsBuilder
-            .fromHttpUrl(url)
-            .pathSegment(MEDLEMSKAP_VURDERING_PATH)
-            .queryParam("fom", medlemskapVurderingRequest.fom)
-            .queryParam("tom", medlemskapVurderingRequest.tom)
+        val queryBuilder =
+            UriComponentsBuilder
+                .fromHttpUrl(url)
+                .pathSegment(MEDLEMSKAP_VURDERING_PATH)
+                .queryParam("fom", medlemskapVurderingRequest.fom)
+                .queryParam("tom", medlemskapVurderingRequest.tom)
 
         val response: ResponseEntity<MedlemskapVurderingResponse>
-        val svarTid = try {
-            measureTimeMillis {
-                response = medlemskapVurderingRestTemplate
-                    .exchange(
-                        queryBuilder.toUriString(),
-                        HttpMethod.GET,
-                        HttpEntity(null, headers),
-                        MedlemskapVurderingResponse::class.java
-                    )
+        val svarTid =
+            try {
+                measureTimeMillis {
+                    response =
+                        medlemskapVurderingRestTemplate
+                            .exchange(
+                                queryBuilder.toUriString(),
+                                HttpMethod.GET,
+                                HttpEntity(null, headers),
+                                MedlemskapVurderingResponse::class.java,
+                            )
+                }
+            } catch (e: Exception) {
+                throw MedlemskapVurderingClientException(
+                    "MedlemskapVurdering med Nav-Call-Id: $navCallId feilet.",
+                    e,
+                )
             }
-        } catch (e: Exception) {
-            throw MedlemskapVurderingClientException(
-                "MedlemskapVurdering med Nav-Call-Id: $navCallId feilet.",
-                e
-            )
-        }
 
         val medlemskapVurderingResponse = response.body!!
 
         lagreVurdering(
             medlemskapVurderingRequest,
             medlemskapVurderingResponse,
-            svarTid
+            svarTid,
         )
 
         // Mottar vi en avklart situasjon (svar.JA eller svar.NEI) skal vi ikke få spørsmål å stille brukeren.
         if (listOf(
                 MedlemskapVurderingSvarType.JA,
-                MedlemskapVurderingSvarType.NEI
+                MedlemskapVurderingSvarType.NEI,
             ).contains(medlemskapVurderingResponse.svar) && medlemskapVurderingResponse.sporsmal.isNotEmpty()
         ) {
             throw MedlemskapVurderingResponseException(
                 "MedlemskapVurdering med Nav-Call-Id: $navCallId returnerte spørsmål selv om svar var " +
-                    "svar.${medlemskapVurderingResponse.svar}."
+                    "svar.${medlemskapVurderingResponse.svar}.",
             )
         }
         return response.body!!
@@ -90,7 +93,7 @@ class MedlemskapVurderingClient(
     private fun lagreVurdering(
         medlemskapVurderingRequest: MedlemskapVurderingRequest,
         medlemskapVurderingResponse: MedlemskapVurderingResponse,
-        svarTid: Long
+        svarTid: Long,
     ) {
         medlemskapVurderingRepository.save(
             MedlemskapVurderingDbRecord(
@@ -101,8 +104,8 @@ class MedlemskapVurderingClient(
                 tom = medlemskapVurderingRequest.tom,
                 svartype = medlemskapVurderingResponse.svar.toString(),
                 sporsmal = medlemskapVurderingResponse.sporsmal.takeIf { it.isNotEmpty() }?.tilPostgresJson(),
-                sykepengesoknadId = medlemskapVurderingRequest.sykepengesoknadId
-            )
+                sykepengesoknadId = medlemskapVurderingRequest.sykepengesoknadId,
+            ),
         )
     }
 }
@@ -121,18 +124,23 @@ data class MedlemskapVurderingRequest(
     var fnr: String,
     var fom: LocalDate,
     var tom: LocalDate,
-    var sykepengesoknadId: String
+    var sykepengesoknadId: String,
 )
 
 data class MedlemskapVurderingResponse(
     var svar: MedlemskapVurderingSvarType,
-    val sporsmal: List<MedlemskapVurderingSporsmal>
+    val sporsmal: List<MedlemskapVurderingSporsmal>,
 )
 
 enum class MedlemskapVurderingSvarType {
-    JA, NEI, UAVKLART
+    JA,
+    NEI,
+    UAVKLART,
 }
 
 enum class MedlemskapVurderingSporsmal {
-    OPPHOLDSTILATELSE, ARBEID_UTENFOR_NORGE, OPPHOLD_UTENFOR_EØS_OMRÅDE, OPPHOLD_UTENFOR_NORGE,
+    OPPHOLDSTILATELSE,
+    ARBEID_UTENFOR_NORGE,
+    OPPHOLD_UTENFOR_EØS_OMRÅDE,
+    OPPHOLD_UTENFOR_NORGE,
 }

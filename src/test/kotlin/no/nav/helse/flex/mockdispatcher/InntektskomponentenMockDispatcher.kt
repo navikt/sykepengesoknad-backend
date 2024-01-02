@@ -15,78 +15,89 @@ import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.RecordedRequest
 
 object InntektskomponentenMockDispatcher : Dispatcher() {
-
     override fun dispatch(request: RecordedRequest): MockResponse {
         val req: HentInntekterRequest = OBJECT_MAPPER.readValue(request.body.readUtf8())
         if (req.ident.identifikator == "11111234565") {
             return HentInntekterResponse(
-                arbeidsInntektMaaned = listOf(
-                    ArbeidsInntektMaaned(
-                        arbeidsInntektInformasjon = ArbeidsInntektInformasjon(
-                            inntektListe = listOf(
-                                InntektListe(
-                                    inntektType = "LOENNSINNTEKT",
-                                    virksomhet = Aktoer("999333666", "ORGANISASJON")
-                                )
-                            )
-                        )
+                arbeidsInntektMaaned =
+                    listOf(
+                        ArbeidsInntektMaaned(
+                            arbeidsInntektInformasjon =
+                                ArbeidsInntektInformasjon(
+                                    inntektListe =
+                                        listOf(
+                                            InntektListe(
+                                                inntektType = "LOENNSINNTEKT",
+                                                virksomhet = Aktoer("999333666", "ORGANISASJON"),
+                                            ),
+                                        ),
+                                ),
+                        ),
+                        ArbeidsInntektMaaned(
+                            arbeidsInntektInformasjon =
+                                ArbeidsInntektInformasjon(
+                                    inntektListe =
+                                        listOf(
+                                            InntektListe(
+                                                inntektType = "LOENNSINNTEKT",
+                                                virksomhet = Aktoer("999333666", "ORGANISASJON"),
+                                            ),
+                                        ),
+                                ),
+                        ),
                     ),
-                    ArbeidsInntektMaaned(
-                        arbeidsInntektInformasjon = ArbeidsInntektInformasjon(
-                            inntektListe = listOf(
-                                InntektListe(
-                                    inntektType = "LOENNSINNTEKT",
-                                    virksomhet = Aktoer("999333666", "ORGANISASJON")
-                                )
-                            )
-                        )
-                    )
-                ),
-                ident = req.ident
+                ident = req.ident,
             ).tilMockResponse()
         }
         if (req.ident.identifikator == "22222222222") {
             return HentInntekterResponse(
-                arbeidsInntektMaaned = listOf(
-                    ArbeidsInntektMaaned(
-                        arbeidsInntektInformasjon = ArbeidsInntektInformasjon(
-                            inntektListe = listOf(
-                                InntektListe(
-                                    inntektType = "LOENNSINNTEKT",
-                                    virksomhet = Aktoer("999333666", "ORGANISASJON")
+                arbeidsInntektMaaned =
+                    listOf(
+                        ArbeidsInntektMaaned(
+                            arbeidsInntektInformasjon =
+                                ArbeidsInntektInformasjon(
+                                    inntektListe =
+                                        listOf(
+                                            InntektListe(
+                                                inntektType = "LOENNSINNTEKT",
+                                                virksomhet = Aktoer("999333666", "ORGANISASJON"),
+                                            ),
+                                            InntektListe(
+                                                inntektType = "LOENNSINNTEKT",
+                                                virksomhet = Aktoer("999888777", "ORGANISASJON"),
+                                            ),
+                                        ),
                                 ),
-                                InntektListe(
-                                    inntektType = "LOENNSINNTEKT",
-                                    virksomhet = Aktoer("999888777", "ORGANISASJON")
-                                )
-                            )
-                        )
-                    )
-                ),
-                ident = req.ident
+                        ),
+                    ),
+                ident = req.ident,
             ).tilMockResponse()
         }
         if (req.ident.identifikator == "3333333333") {
             return HentInntekterResponse(
-                arbeidsInntektMaaned = listOf(
-                    ArbeidsInntektMaaned(
-                        arbeidsInntektInformasjon = ArbeidsInntektInformasjon(
-                            arbeidsforholdListe = listOf(
-                                ArbeidsforholdFrilanser(
-                                    arbeidsforholdstype = "frilanserOppdragstakerHonorarPersonerMm",
-                                    arbeidsgiver = Aktoer("999333666", "ORGANISASJON")
-                                )
-                            ),
-                            inntektListe = listOf(
-                                InntektListe(
-                                    inntektType = "LOENNSINNTEKT",
-                                    virksomhet = Aktoer("999333666", "ORGANISASJON")
-                                )
-                            )
-                        )
-                    )
-                ),
-                ident = req.ident
+                arbeidsInntektMaaned =
+                    listOf(
+                        ArbeidsInntektMaaned(
+                            arbeidsInntektInformasjon =
+                                ArbeidsInntektInformasjon(
+                                    arbeidsforholdListe =
+                                        listOf(
+                                            ArbeidsforholdFrilanser(
+                                                arbeidsforholdstype = "frilanserOppdragstakerHonorarPersonerMm",
+                                                arbeidsgiver = Aktoer("999333666", "ORGANISASJON"),
+                                            ),
+                                        ),
+                                    inntektListe =
+                                        listOf(
+                                            InntektListe(
+                                                inntektType = "LOENNSINNTEKT",
+                                                virksomhet = Aktoer("999333666", "ORGANISASJON"),
+                                            ),
+                                        ),
+                                ),
+                        ),
+                    ),
+                ident = req.ident,
             ).tilMockResponse()
         }
         return HentInntekterResponse(arbeidsInntektMaaned = emptyList(), ident = req.ident).tilMockResponse()

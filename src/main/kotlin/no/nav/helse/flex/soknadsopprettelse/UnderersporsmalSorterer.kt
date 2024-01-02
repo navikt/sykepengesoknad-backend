@@ -6,35 +6,37 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 fun Sykepengesoknad.sorterUndersporsmal(): Sykepengesoknad {
     return this
         .copy(
-            sporsmal = this.sporsmal.map {
-                it.sorterUndersporsmal()
-            }
+            sporsmal =
+                this.sporsmal.map {
+                    it.sorterUndersporsmal()
+                },
         )
 }
 
 private fun Sporsmal.sorterUndersporsmal(): Sporsmal {
-    val sorterteUndersporsmal = this.undersporsmal
-        .map { it.sorterUndersporsmal() }
-        .sortedBy {
-            val tagUtenIndex = fjernIndexFraTag(this.tag)
-            when (tagUtenIndex) {
-                HVILKE_ANDRE_INNTEKTSKILDER -> it.sorteringAndreInntektskilder()
-                INNTEKTSKILDE_SELVSTENDIG_VARIG_ENDRING_GRUPPE -> it.sorteringVarigEndring()
-                ARBEIDSGIVER -> it.sorteringArbeidsgiver()
-                REISE_MED_BIL -> it.sorteringReiseMedBil()
-                UTENLANDSK_SYKMELDING_BOSTED -> it.sorteringBosted()
-                YRKESSKADE_V2_VELG_DATO -> it.sorteringYrkesskader()
-                MEDLEMSKAP_OPPHOLDSTILLATELSE -> it.sorteringMedlemskapOppholdstillatelse()
-                MEDLEMSKAP_OPPHOLDSTILLATELSE_GRUPPE -> it.sorteringMedlemskapOppholdstillatelseGruppering()
-                MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_GRUPPERING -> it.sorteringMedlemskapArbeidUtenforNorgeGruppering()
-                MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_GRUPPERING -> it.sorteringMedlemskapOppholdUtenforNorgeGruppering()
-                MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE -> it.sorteringMedlemskapOppholdUtenforNorgeBegrunnelse()
-                MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_GRUPPERING -> it.sorteringMedlemskapOppholdUtenforEosGruppering()
-                MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE -> it.sorteringMedlemskapOppholdUtenforEosBegrunnelse()
-                KJENTE_INNTEKTSKILDER_ARSAK_IKKE_JOBBET -> it.sorteringKjenteInntektskilderArsak()
-                else -> it.tag
+    val sorterteUndersporsmal =
+        this.undersporsmal
+            .map { it.sorterUndersporsmal() }
+            .sortedBy {
+                val tagUtenIndex = fjernIndexFraTag(this.tag)
+                when (tagUtenIndex) {
+                    HVILKE_ANDRE_INNTEKTSKILDER -> it.sorteringAndreInntektskilder()
+                    INNTEKTSKILDE_SELVSTENDIG_VARIG_ENDRING_GRUPPE -> it.sorteringVarigEndring()
+                    ARBEIDSGIVER -> it.sorteringArbeidsgiver()
+                    REISE_MED_BIL -> it.sorteringReiseMedBil()
+                    UTENLANDSK_SYKMELDING_BOSTED -> it.sorteringBosted()
+                    YRKESSKADE_V2_VELG_DATO -> it.sorteringYrkesskader()
+                    MEDLEMSKAP_OPPHOLDSTILLATELSE -> it.sorteringMedlemskapOppholdstillatelse()
+                    MEDLEMSKAP_OPPHOLDSTILLATELSE_GRUPPE -> it.sorteringMedlemskapOppholdstillatelseGruppering()
+                    MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_GRUPPERING -> it.sorteringMedlemskapArbeidUtenforNorgeGruppering()
+                    MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_GRUPPERING -> it.sorteringMedlemskapOppholdUtenforNorgeGruppering()
+                    MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE -> it.sorteringMedlemskapOppholdUtenforNorgeBegrunnelse()
+                    MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_GRUPPERING -> it.sorteringMedlemskapOppholdUtenforEosGruppering()
+                    MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE -> it.sorteringMedlemskapOppholdUtenforEosBegrunnelse()
+                    KJENTE_INNTEKTSKILDER_ARSAK_IKKE_JOBBET -> it.sorteringKjenteInntektskilderArsak()
+                    else -> it.tag
+                }
             }
-        }
     return this.copy(undersporsmal = sorterteUndersporsmal)
 }
 

@@ -23,7 +23,6 @@ fun konverterOppholdUtlandTilSoknadDTO(sykepengesoknad: Sykepengesoknad): Sykepe
         sporsmal = sykepengesoknad.sporsmal.map { it.tilSporsmalDTO() },
         avsendertype = sykepengesoknad.avsendertype?.tilAvsendertypeDTO(),
         merknaderFraSykmelding = sykepengesoknad.merknaderFraSykmelding.tilMerknadDTO(),
-        egenmeldingsdagerFraSykmelding = sykepengesoknad.egenmeldingsdagerFraSykmelding.parseEgenmeldingsdagerFraSykmelding()
-
+        egenmeldingsdagerFraSykmelding = sykepengesoknad.egenmeldingsdagerFraSykmelding.parseEgenmeldingsdagerFraSykmelding(),
     )
 }

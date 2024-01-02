@@ -30,10 +30,12 @@ class KorrigerSoknadService(
     val metrikk: Metrikk,
     val identService: IdentService,
     val sykepengesoknadRepository: SykepengesoknadRepository,
-    val medlemskapVurderingRepository: MedlemskapVurderingRepository
+    val medlemskapVurderingRepository: MedlemskapVurderingRepository,
 ) {
-
-    fun finnEllerOpprettUtkast(soknadSomKorrigeres: Sykepengesoknad, identer: FolkeregisterIdenter): Sykepengesoknad {
+    fun finnEllerOpprettUtkast(
+        soknadSomKorrigeres: Sykepengesoknad,
+        identer: FolkeregisterIdenter,
+    ): Sykepengesoknad {
         if (soknadSomKorrigeres.status != Soknadstatus.SENDT) {
             throw ValideringException("Kan ikke korrigere søknad: ${soknadSomKorrigeres.id} som ikke har status sendt")
         }
@@ -53,40 +55,43 @@ class KorrigerSoknadService(
     }
 
     private fun opprettUtkast(soknadSomKorrigeres: Sykepengesoknad): Sykepengesoknad {
-        val korrigering = soknadSomKorrigeres.copy(
-            id = UUID.randomUUID().toString(),
-            status = Soknadstatus.UTKAST_TIL_KORRIGERING,
-            opprettet = Instant.now(),
-            sendtNav = null,
-            sendtArbeidsgiver = null,
-            korrigerer = soknadSomKorrigeres.id,
-            // Kopierer spørsmålene fra søkanden som korrigeres. Tar med svar på alle spørsmål så nær som
-            // ANSVARSERKLARING og BEKREFT_OPPLYSNINGER siden vi vil at innsender skal svare på disse på nytt siden
-            // det er en ny søknad og svarene er endret.
-            sporsmal = soknadSomKorrigeres.sporsmal.map { sporsmal ->
-                when (sporsmal.tag) {
-                    ANSVARSERKLARING, BEKREFT_OPPLYSNINGER -> {
-                        sporsmal.copy(svar = emptyList())
-                    }
+        val korrigering =
+            soknadSomKorrigeres.copy(
+                id = UUID.randomUUID().toString(),
+                status = Soknadstatus.UTKAST_TIL_KORRIGERING,
+                opprettet = Instant.now(),
+                sendtNav = null,
+                sendtArbeidsgiver = null,
+                korrigerer = soknadSomKorrigeres.id,
+                // Kopierer spørsmålene fra søkanden som korrigeres. Tar med svar på alle spørsmål så nær som
+                // ANSVARSERKLARING og BEKREFT_OPPLYSNINGER siden vi vil at innsender skal svare på disse på nytt siden
+                // det er en ny søknad og svarene er endret.
+                sporsmal =
+                    soknadSomKorrigeres.sporsmal.map { sporsmal ->
+                        when (sporsmal.tag) {
+                            ANSVARSERKLARING, BEKREFT_OPPLYSNINGER -> {
+                                sporsmal.copy(svar = emptyList())
+                            }
 
-                    // TIL_SLUTT kan ikke besvares, men har BEKREFT_OPPLYSNIGNER som underspørsmål.
-                    TIL_SLUTT -> {
-                        val endretUndersporsmal = sporsmal.undersporsmal.mapIndexed { index, undersporsmal ->
-                            if (index == 0) {
-                                undersporsmal.copy(svar = emptyList())
-                            } else {
-                                undersporsmal
+                            // TIL_SLUTT kan ikke besvares, men har BEKREFT_OPPLYSNIGNER som underspørsmål.
+                            TIL_SLUTT -> {
+                                val endretUndersporsmal =
+                                    sporsmal.undersporsmal.mapIndexed { index, undersporsmal ->
+                                        if (index == 0) {
+                                            undersporsmal.copy(svar = emptyList())
+                                        } else {
+                                            undersporsmal
+                                        }
+                                    }
+                                sporsmal.copy(svar = emptyList(), undersporsmal = endretUndersporsmal)
+                            }
+
+                            else -> {
+                                sporsmal
                             }
                         }
-                        sporsmal.copy(svar = emptyList(), undersporsmal = endretUndersporsmal)
-                    }
-
-                    else -> {
-                        sporsmal
-                    }
-                }
-            }
-        )
+                    },
+            )
 
         sykepengesoknadDAO.lagreSykepengesoknad(korrigering)
         metrikk.tellUtkastTilKorrigeringOpprettet(korrigering.soknadstype)
@@ -97,31 +102,35 @@ class KorrigerSoknadService(
     // tilhørende den korrigerende søkanden sånn at feltet "medlemskapVurdering" blir populert når søknaden sendes og
     // legges på Kafka. Det er nødvendig hvis medlemskapsinformasjon skal knyttes til en eventuell Gosys-oppgave
     // opprettet av sykepengesoknad-arkivering-oppgave.
-    private fun dupliserMedlemskapVurdering(soknadSomKorrigeres: Sykepengesoknad, korrigering: Sykepengesoknad) {
+    private fun dupliserMedlemskapVurdering(
+        soknadSomKorrigeres: Sykepengesoknad,
+        korrigering: Sykepengesoknad,
+    ) {
         medlemskapVurderingRepository.findBySykepengesoknadIdAndFomAndTom(
             soknadSomKorrigeres.id,
             soknadSomKorrigeres.fom!!,
-            soknadSomKorrigeres.tom!!
+            soknadSomKorrigeres.tom!!,
         )?.let {
             medlemskapVurderingRepository.save(
-                it.copy(id = null, sykepengesoknadId = korrigering.id)
+                it.copy(id = null, sykepengesoknadId = korrigering.id),
             )
         }
     }
 
     fun utvidSoknadMedKorrigeringsfristUtlopt(
         sykepengesoknad: Sykepengesoknad,
-        identer: FolkeregisterIdenter
+        identer: FolkeregisterIdenter,
     ): Sykepengesoknad {
         val soknader = sykepengesoknadRepository.findByFnrIn(identer.alle())
         val sykepengesoknadDbRecord = sykepengesoknad.normaliser().soknad
         soknader.finnTidligsteSendt(sykepengesoknadDbRecord)?.let {
             return sykepengesoknad.copy(
-                korrigeringsfristUtlopt = OffsetDateTime.now().minusMonths(12).isAfter(
-                    it.atOffset(
-                        ZoneOffset.UTC
-                    )
-                )
+                korrigeringsfristUtlopt =
+                    OffsetDateTime.now().minusMonths(12).isAfter(
+                        it.atOffset(
+                            ZoneOffset.UTC,
+                        ),
+                    ),
             )
         }
 
@@ -137,8 +146,9 @@ fun List<SykepengesoknadDbRecord>.finnTidligsteSendt(soknad: SykepengesoknadDbRe
 }
 
 fun List<SykepengesoknadDbRecord>.finnOpprinneligSendt(korrigerer: String): Instant? {
-    val opprinnelig = this.firstOrNull { it.sykepengesoknadUuid == korrigerer }
-        ?: throw RuntimeException("Forventa å finne søknad med id $korrigerer")
+    val opprinnelig =
+        this.firstOrNull { it.sykepengesoknadUuid == korrigerer }
+            ?: throw RuntimeException("Forventa å finne søknad med id $korrigerer")
 
     if (opprinnelig.korrigerer != null) {
         return finnOpprinneligSendt(opprinnelig.korrigerer)
@@ -151,5 +161,5 @@ class KorrigeringsfristUtloptException(soknad: Sykepengesoknad) : AbstractApiErr
     message = "Kan ikke korrigere søknad: ${soknad.id} som har korrigeringsfrist utløpt",
     httpStatus = HttpStatus.BAD_REQUEST,
     reason = "KORRIGERINGSFRIST_UTLOPT",
-    loglevel = LogLevel.ERROR
+    loglevel = LogLevel.ERROR,
 )

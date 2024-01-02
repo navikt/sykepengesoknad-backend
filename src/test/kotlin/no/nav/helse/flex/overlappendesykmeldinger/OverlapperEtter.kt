@@ -48,7 +48,6 @@ import java.util.*
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class OverlapperEtter : BaseTestClass() {
-
     @Autowired
     private lateinit var aktiveringJob: AktiveringJob
 
@@ -78,15 +77,17 @@ class OverlapperEtter : BaseTestClass() {
     fun `Fremtidig arbeidstakersøknad opprettes for en sykmelding`() {
         fakeUnleash.resetAll()
         fakeUnleash.enable(UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL)
-        val kafkaSoknader = sendSykmelding(
-            sykmeldingKafkaMessage(
-                fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = basisdato.minusDays(1),
-                    tom = basisdato.plusDays(15)
-                )
+        val kafkaSoknader =
+            sendSykmelding(
+                sykmeldingKafkaMessage(
+                    fnr = fnr,
+                    sykmeldingsperioder =
+                        heltSykmeldt(
+                            fom = basisdato.minusDays(1),
+                            tom = basisdato.plusDays(15),
+                        ),
+                ),
             )
-        )
         kafkaSoknader[0].status shouldBeEqualTo SoknadsstatusDTO.FREMTIDIG
 
         val hentetViaRest = hentSoknaderMetadata(fnr)
@@ -98,17 +99,19 @@ class OverlapperEtter : BaseTestClass() {
     @Test
     @Order(2)
     fun `Fremtidig arbeidstakersøknad opprettes for en overlappende sykmelding i scenario 1`() {
-        val kafkaSoknader = sendSykmelding(
-            sykmeldingKafkaMessage(
-                fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = basisdato,
-                    tom = basisdato.plusDays(15)
-                )
-            ),
-            oppfolgingsdato = basisdato.minusDays(1),
-            forventaSoknader = 2
-        )
+        val kafkaSoknader =
+            sendSykmelding(
+                sykmeldingKafkaMessage(
+                    fnr = fnr,
+                    sykmeldingsperioder =
+                        heltSykmeldt(
+                            fom = basisdato,
+                            tom = basisdato.plusDays(15),
+                        ),
+                ),
+                oppfolgingsdato = basisdato.minusDays(1),
+                forventaSoknader = 2,
+            )
 
         kafkaSoknader[0].status shouldBeEqualTo SoknadsstatusDTO.FREMTIDIG
         kafkaSoknader[0].fom shouldBeEqualTo basisdato
@@ -121,10 +124,11 @@ class OverlapperEtter : BaseTestClass() {
         val soknaderMetadata = hentSoknaderMetadata(fnr)
         soknaderMetadata shouldHaveSize 2
 
-        val forsteSoknad = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first().id,
-            fnr = fnr
-        )
+        val forsteSoknad =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
 
         forsteSoknad.soknadstype shouldBeEqualTo RSSoknadstype.ARBEIDSTAKERE
         forsteSoknad.status shouldBeEqualTo RSSoknadstatus.NY
@@ -132,17 +136,19 @@ class OverlapperEtter : BaseTestClass() {
         forsteSoknad.tom shouldBeEqualTo basisdato.minusDays(1)
         val forsteSoknadSpmFinnes = forsteSoknad.sporsmal?.find { it.tag == TILBAKE_I_ARBEID }
         forsteSoknadSpmFinnes shouldNotBeEqualTo null
-        val periodeSpmSok1 = forsteSoknad.sporsmal
-            ?.find { it.tag == FERIE_V2 }
-            ?.undersporsmal
-            ?.first()
+        val periodeSpmSok1 =
+            forsteSoknad.sporsmal
+                ?.find { it.tag == FERIE_V2 }
+                ?.undersporsmal
+                ?.first()
         periodeSpmSok1?.min shouldBeEqualTo basisdato.minusDays(1).toString()
         periodeSpmSok1?.max shouldBeEqualTo basisdato.minusDays(1).toString()
 
-        val fremtidigSoknad = hentSoknad(
-            soknadId = soknaderMetadata.last().id,
-            fnr = fnr
-        )
+        val fremtidigSoknad =
+            hentSoknad(
+                soknadId = soknaderMetadata.last().id,
+                fnr = fnr,
+            )
         fremtidigSoknad.soknadstype shouldBeEqualTo RSSoknadstype.ARBEIDSTAKERE
         fremtidigSoknad.status shouldBeEqualTo RSSoknadstatus.FREMTIDIG
         fremtidigSoknad.fom shouldBeEqualTo basisdato
@@ -171,10 +177,11 @@ class OverlapperEtter : BaseTestClass() {
         val soknaderMetadata = hentSoknaderMetadata(fnr)
         soknaderMetadata shouldHaveSize 2
 
-        val forsteSoknad = hentSoknad(
-            soknadId = soknaderMetadata.first().id,
-            fnr = fnr
-        )
+        val forsteSoknad =
+            hentSoknad(
+                soknadId = soknaderMetadata.first().id,
+                fnr = fnr,
+            )
 
         forsteSoknad.soknadstype shouldBeEqualTo RSSoknadstype.ARBEIDSTAKERE
         forsteSoknad.status shouldBeEqualTo RSSoknadstatus.NY
@@ -182,25 +189,28 @@ class OverlapperEtter : BaseTestClass() {
         forsteSoknad.tom shouldBeEqualTo basisdato.minusDays(1)
         val forsteSoknadSpmFinnes = forsteSoknad.sporsmal?.find { it.tag == TILBAKE_I_ARBEID }
         forsteSoknadSpmFinnes shouldNotBeEqualTo null
-        val periodeSpmSok1 = forsteSoknad.sporsmal
-            ?.find { it.tag == FERIE_V2 }
-            ?.undersporsmal
-            ?.first()
+        val periodeSpmSok1 =
+            forsteSoknad.sporsmal
+                ?.find { it.tag == FERIE_V2 }
+                ?.undersporsmal
+                ?.first()
         periodeSpmSok1?.min shouldBeEqualTo basisdato.minusDays(1).toString()
         periodeSpmSok1?.max shouldBeEqualTo basisdato.minusDays(1).toString()
 
-        val andreSoknad = hentSoknad(
-            soknadId = soknaderMetadata.last().id,
-            fnr = fnr
-        )
+        val andreSoknad =
+            hentSoknad(
+                soknadId = soknaderMetadata.last().id,
+                fnr = fnr,
+            )
         andreSoknad.soknadstype shouldBeEqualTo RSSoknadstype.ARBEIDSTAKERE
         andreSoknad.status shouldBeEqualTo RSSoknadstatus.NY
         andreSoknad.fom shouldBeEqualTo basisdato
         andreSoknad.tom shouldBeEqualTo basisdato.plusDays(15)
-        val periodeSpmSok2 = andreSoknad.sporsmal
-            ?.find { it.tag == FERIE_V2 }
-            ?.undersporsmal
-            ?.first()
+        val periodeSpmSok2 =
+            andreSoknad.sporsmal
+                ?.find { it.tag == FERIE_V2 }
+                ?.undersporsmal
+                ?.first()
         periodeSpmSok2?.min shouldBeEqualTo basisdato.toString()
         periodeSpmSok2?.max shouldBeEqualTo basisdato.plusDays(15).toString()
     }
@@ -217,11 +227,12 @@ class OverlapperEtter : BaseTestClass() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = basisdato,
-                    tom = basisdato.plusDays(15)
-                )
-            )
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = basisdato,
+                        tom = basisdato.plusDays(15),
+                    ),
+            ),
         )
 
         aktiveringJob.bestillAktivering(basisdato.plusDays(16))
@@ -231,17 +242,19 @@ class OverlapperEtter : BaseTestClass() {
         val soknaderMetadata = hentSoknaderMetadata(fnr)
         soknaderMetadata shouldHaveSize 1
 
-        val rsSoknad = hentSoknad(
-            soknadId = soknaderMetadata.first().id,
-            fnr = fnr
-        )
+        val rsSoknad =
+            hentSoknad(
+                soknadId = soknaderMetadata.first().id,
+                fnr = fnr,
+            )
 
         mockFlexSyketilfelleArbeidsgiverperiode(
-            arbeidsgiverperiode = Arbeidsgiverperiode(
-                antallBrukteDager = 16,
-                oppbruktArbeidsgiverperiode = true,
-                arbeidsgiverPeriode = Periode(fom = rsSoknad.fom!!, tom = rsSoknad.tom!!)
-            )
+            arbeidsgiverperiode =
+                Arbeidsgiverperiode(
+                    antallBrukteDager = 16,
+                    oppbruktArbeidsgiverperiode = true,
+                    arbeidsgiverPeriode = Periode(fom = rsSoknad.fom!!, tom = rsSoknad.tom!!),
+                ),
         )
 
         SoknadBesvarer(rsSoknad, this, fnr)
@@ -263,15 +276,17 @@ class OverlapperEtter : BaseTestClass() {
     @Test
     @Order(11)
     fun `Overlappende sykmelding med samme grad blir klippet`() {
-        val soknad = sendSykmelding(
-            sykmeldingKafkaMessage(
-                fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = basisdato.plusDays(10),
-                    tom = basisdato.plusDays(20)
-                )
-            )
-        ).first()
+        val soknad =
+            sendSykmelding(
+                sykmeldingKafkaMessage(
+                    fnr = fnr,
+                    sykmeldingsperioder =
+                        heltSykmeldt(
+                            fom = basisdato.plusDays(10),
+                            tom = basisdato.plusDays(20),
+                        ),
+                ),
+            ).first()
 
         soknad.fom shouldBeEqualTo basisdato.plusDays(16)
         soknad.tom shouldBeEqualTo basisdato.plusDays(20)
@@ -282,22 +297,24 @@ class OverlapperEtter : BaseTestClass() {
         klipp.sykepengesoknadUuid shouldNotBeEqualTo soknad.id
         klipp.sykmeldingUuid shouldBeEqualTo soknad.sykmeldingId
         klipp.klippVariant shouldBeEqualTo KlippVariant.SYKMELDING_STARTER_FOR_SLUTTER_INNI
-        klipp.periodeFor.tilSoknadsperioder() shouldBeEqualTo listOf(
-            Soknadsperiode(
-                fom = basisdato.plusDays(10),
-                tom = basisdato.plusDays(20),
-                grad = 100,
-                sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
+        klipp.periodeFor.tilSoknadsperioder() shouldBeEqualTo
+            listOf(
+                Soknadsperiode(
+                    fom = basisdato.plusDays(10),
+                    tom = basisdato.plusDays(20),
+                    grad = 100,
+                    sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+                ),
             )
-        )
-        klipp.periodeEtter.tilSoknadsperioder() shouldBeEqualTo listOf(
-            Soknadsperiode(
-                fom = basisdato.plusDays(16),
-                tom = basisdato.plusDays(20),
-                grad = 100,
-                sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG
+        klipp.periodeEtter.tilSoknadsperioder() shouldBeEqualTo
+            listOf(
+                Soknadsperiode(
+                    fom = basisdato.plusDays(16),
+                    tom = basisdato.plusDays(20),
+                    grad = 100,
+                    sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+                ),
             )
-        )
 
         val klippmetrikker = klippMetrikkRepository.findAll().toList()
         klippmetrikker shouldHaveSize 1
@@ -317,15 +334,17 @@ class OverlapperEtter : BaseTestClass() {
     @Test
     @Order(20)
     fun `Brukeren har en ny søknad`() {
-        val soknad = sendSykmelding(
-            sykmeldingKafkaMessage(
-                fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = basisdato.minusDays(15),
-                    tom = basisdato.minusDays(1)
-                )
-            )
-        ).first()
+        val soknad =
+            sendSykmelding(
+                sykmeldingKafkaMessage(
+                    fnr = fnr,
+                    sykmeldingsperioder =
+                        heltSykmeldt(
+                            fom = basisdato.minusDays(15),
+                            tom = basisdato.minusDays(1),
+                        ),
+                ),
+            ).first()
 
         soknad.status shouldBeEqualTo SoknadsstatusDTO.NY
     }
@@ -333,17 +352,20 @@ class OverlapperEtter : BaseTestClass() {
     @Test
     @Order(21)
     fun `Overlappende sykmelding med forskjellig grad blir klippet`() {
-        val soknad = sendSykmelding(
-            forventaSoknader = 2,
-            sykmeldingKafkaMessage = sykmeldingKafkaMessage(
-                fnr = fnr,
-                sykmeldingsperioder = gradertSykmeldt(
-                    fom = basisdato.minusDays(10),
-                    tom = basisdato.plusDays(5),
-                    grad = 50
-                )
-            )
-        ).last()
+        val soknad =
+            sendSykmelding(
+                forventaSoknader = 2,
+                sykmeldingKafkaMessage =
+                    sykmeldingKafkaMessage(
+                        fnr = fnr,
+                        sykmeldingsperioder =
+                            gradertSykmeldt(
+                                fom = basisdato.minusDays(10),
+                                tom = basisdato.plusDays(5),
+                                grad = 50,
+                            ),
+                    ),
+            ).last()
 
         soknad.fom shouldBeEqualTo basisdato.minusDays(10)
         soknad.tom shouldBeEqualTo basisdato.plusDays(5)
@@ -369,17 +391,19 @@ class OverlapperEtter : BaseTestClass() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = basisdato.minusDays(15),
-                    tom = basisdato.minusDays(5)
-                )
-            )
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = basisdato.minusDays(15),
+                        tom = basisdato.minusDays(5),
+                    ),
+            ),
         )
 
-        val soknaden = hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
-            fnr = fnr
-        )
+        val soknaden =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
+                fnr = fnr,
+            )
 
         SoknadBesvarer(soknaden, this, fnr)
             .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
@@ -391,16 +415,19 @@ class OverlapperEtter : BaseTestClass() {
     @Test
     @Order(31)
     fun `Overlappende sykmelding klipper NY søknad og oppdaterer spørsmål`() {
-        val overlappendeSykmeldingId = sendSykmelding(
-            forventaSoknader = 2,
-            sykmeldingKafkaMessage = sykmeldingKafkaMessage(
-                fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = basisdato.minusDays(10),
-                    tom = basisdato.minusDays(1)
-                )
-            )
-        ).last().sykmeldingId
+        val overlappendeSykmeldingId =
+            sendSykmelding(
+                forventaSoknader = 2,
+                sykmeldingKafkaMessage =
+                    sykmeldingKafkaMessage(
+                        fnr = fnr,
+                        sykmeldingsperioder =
+                            heltSykmeldt(
+                                fom = basisdato.minusDays(10),
+                                tom = basisdato.minusDays(1),
+                            ),
+                    ),
+            ).last().sykmeldingId
 
         val soknaderMetadata = hentSoknaderMetadata(fnr)
         soknaderMetadata shouldHaveSize 2
@@ -409,10 +436,11 @@ class OverlapperEtter : BaseTestClass() {
         overlappendeSoknad.fom shouldBeEqualTo basisdato.minusDays(10)
         overlappendeSoknad.tom shouldBeEqualTo basisdato.minusDays(1)
 
-        val klippetSoknad = hentSoknad(
-            soknadId = soknaderMetadata.first { it.sykmeldingId != overlappendeSykmeldingId }.id,
-            fnr = fnr
-        )
+        val klippetSoknad =
+            hentSoknad(
+                soknadId = soknaderMetadata.first { it.sykmeldingId != overlappendeSykmeldingId }.id,
+                fnr = fnr,
+            )
 
         klippetSoknad.soknadstype shouldBeEqualTo RSSoknadstype.ARBEIDSTAKERE
         klippetSoknad.status shouldBeEqualTo RSSoknadstatus.NY
@@ -423,10 +451,10 @@ class OverlapperEtter : BaseTestClass() {
 
         val periodeSpm = klippetSoknad.sporsmal!!.first { it.tag == FERIE_V2 }
         periodeSpm.sporsmalstekst shouldBeEqualTo "Tok du ut feriedager i tidsrommet ${
-        DatoUtil.formatterPeriode(
-            klippetSoknad.fom!!,
-            klippetSoknad.tom!!
-        )
+            DatoUtil.formatterPeriode(
+                klippetSoknad.fom!!,
+                klippetSoknad.tom!!,
+            )
         }?"
         periodeSpm.svar.size shouldBeEqualTo 0
     }
@@ -443,28 +471,31 @@ class OverlapperEtter : BaseTestClass() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = basisdato,
-                    tom = basisdato.plusDays(15)
-                )
-            )
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = basisdato,
+                        tom = basisdato.plusDays(15),
+                    ),
+            ),
         )
         aktiveringJob.bestillAktivering(basisdato.plusDays(16))
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
 
         val rsSoknader = hentSoknaderMetadata(fnr).shouldHaveSize(1)
-        val rsSoknad = hentSoknad(
-            soknadId = rsSoknader.first().id,
-            fnr = fnr
-        )
+        val rsSoknad =
+            hentSoknad(
+                soknadId = rsSoknader.first().id,
+                fnr = fnr,
+            )
 
         mockFlexSyketilfelleArbeidsgiverperiode(
-            arbeidsgiverperiode = Arbeidsgiverperiode(
-                antallBrukteDager = 16,
-                oppbruktArbeidsgiverperiode = true,
-                arbeidsgiverPeriode = Periode(fom = rsSoknad.fom!!, tom = rsSoknad.tom!!)
-            )
+            arbeidsgiverperiode =
+                Arbeidsgiverperiode(
+                    antallBrukteDager = 16,
+                    oppbruktArbeidsgiverperiode = true,
+                    arbeidsgiverPeriode = Periode(fom = rsSoknad.fom!!, tom = rsSoknad.tom!!),
+                ),
         )
 
         SoknadBesvarer(rsSoknad, this, fnr)
@@ -482,12 +513,13 @@ class OverlapperEtter : BaseTestClass() {
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
         juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
 
-        val identiskSoknad = sykepengesoknadDAO
-            .finnSykepengesoknad(rsSoknad.id)
-            .copy(
-                id = UUID.randomUUID().toString(),
-                sykmeldingId = UUID.randomUUID().toString()
-            )
+        val identiskSoknad =
+            sykepengesoknadDAO
+                .finnSykepengesoknad(rsSoknad.id)
+                .copy(
+                    id = UUID.randomUUID().toString(),
+                    sykmeldingId = UUID.randomUUID().toString(),
+                )
         sykepengesoknadDAO.lagreSykepengesoknad(identiskSoknad)
 
         val klippmetrikker = klippMetrikkRepository.findAll().toList().sortedBy { it.variant }
@@ -497,15 +529,17 @@ class OverlapperEtter : BaseTestClass() {
     @Test
     @Order(41)
     fun `Sykmelding overlapper med tom på de to identiske søknadene`() {
-        val soknad = sendSykmelding(
-            sykmeldingKafkaMessage(
-                fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = basisdato.plusDays(15),
-                    tom = basisdato.plusDays(20)
-                )
-            )
-        ).first()
+        val soknad =
+            sendSykmelding(
+                sykmeldingKafkaMessage(
+                    fnr = fnr,
+                    sykmeldingsperioder =
+                        heltSykmeldt(
+                            fom = basisdato.plusDays(15),
+                            tom = basisdato.plusDays(20),
+                        ),
+                ),
+            ).first()
 
         soknad.fom shouldBeEqualTo basisdato.plusDays(16)
         soknad.tom shouldBeEqualTo basisdato.plusDays(20)
@@ -531,22 +565,24 @@ class OverlapperEtter : BaseTestClass() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = basisdato.minusDays(15),
-                    tom = basisdato.minusDays(5)
-                )
-            )
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = basisdato.minusDays(15),
+                        tom = basisdato.minusDays(5),
+                    ),
+            ),
         )
 
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                sykmeldingsperioder = behandingsdager(
-                    fom = basisdato.minusDays(10),
-                    tom = basisdato.minusDays(1),
-                    behandlingsdager = 2
-                )
-            )
+                sykmeldingsperioder =
+                    behandingsdager(
+                        fom = basisdato.minusDays(10),
+                        tom = basisdato.minusDays(1),
+                        behandlingsdager = 2,
+                    ),
+            ),
         )
 
         val soknader = sykepengesoknadDAO.finnSykepengesoknader(listOf(fnr))
@@ -571,22 +607,24 @@ class OverlapperEtter : BaseTestClass() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = basisdato,
-                    tom = basisdato.plusDays(10)
-                )
-            )
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = basisdato,
+                        tom = basisdato.plusDays(10),
+                    ),
+            ),
         )
 
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                sykmeldingsperioder = behandingsdager(
-                    fom = basisdato.plusDays(5),
-                    tom = basisdato.plusDays(15),
-                    behandlingsdager = 2
-                )
-            )
+                sykmeldingsperioder =
+                    behandingsdager(
+                        fom = basisdato.plusDays(5),
+                        tom = basisdato.plusDays(15),
+                        behandlingsdager = 2,
+                    ),
+            ),
         )
 
         val soknader = sykepengesoknadDAO.finnSykepengesoknader(listOf(fnr))
@@ -611,20 +649,22 @@ class OverlapperEtter : BaseTestClass() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = basisdato.minusDays(15),
-                    tom = basisdato.minusDays(5)
-                )
-            )
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = basisdato.minusDays(15),
+                        tom = basisdato.minusDays(5),
+                    ),
+            ),
         )
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                sykmeldingsperioder = reisetilskudd(
-                    fom = basisdato.minusDays(10),
-                    tom = basisdato.minusDays(1)
-                )
-            )
+                sykmeldingsperioder =
+                    reisetilskudd(
+                        fom = basisdato.minusDays(10),
+                        tom = basisdato.minusDays(1),
+                    ),
+            ),
         )
 
         val soknader = sykepengesoknadDAO.finnSykepengesoknader(listOf(fnr))
@@ -649,20 +689,22 @@ class OverlapperEtter : BaseTestClass() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = basisdato,
-                    tom = basisdato.plusDays(10)
-                )
-            )
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = basisdato,
+                        tom = basisdato.plusDays(10),
+                    ),
+            ),
         )
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                sykmeldingsperioder = reisetilskudd(
-                    fom = basisdato.plusDays(5),
-                    tom = basisdato.plusDays(15)
-                )
-            )
+                sykmeldingsperioder =
+                    reisetilskudd(
+                        fom = basisdato.plusDays(5),
+                        tom = basisdato.plusDays(15),
+                    ),
+            ),
         )
 
         val soknader = sykepengesoknadDAO.finnSykepengesoknader(listOf(fnr))
@@ -687,29 +729,32 @@ class OverlapperEtter : BaseTestClass() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                sykmeldingsperioder = gradertSykmeldt(
-                    fom = basisdato.minusDays(20),
-                    tom = basisdato.minusDays(1),
-                    grad = 50
-                )
-            )
+                sykmeldingsperioder =
+                    gradertSykmeldt(
+                        fom = basisdato.minusDays(20),
+                        tom = basisdato.minusDays(1),
+                        grad = 50,
+                    ),
+            ),
         )
 
         val soknaderMetadata = hentSoknaderMetadata(fnr)
         soknaderMetadata shouldHaveSize 1
         soknaderMetadata.first().status shouldBeEqualTo RSSoknadstatus.NY
 
-        val rsSoknad = hentSoknad(
-            soknadId = soknaderMetadata.first().id,
-            fnr = fnr
-        )
+        val rsSoknad =
+            hentSoknad(
+                soknadId = soknaderMetadata.first().id,
+                fnr = fnr,
+            )
 
         mockFlexSyketilfelleArbeidsgiverperiode(
-            arbeidsgiverperiode = Arbeidsgiverperiode(
-                antallBrukteDager = 19,
-                oppbruktArbeidsgiverperiode = true,
-                arbeidsgiverPeriode = Periode(fom = rsSoknad.fom!!, tom = rsSoknad.tom!!)
-            )
+            arbeidsgiverperiode =
+                Arbeidsgiverperiode(
+                    antallBrukteDager = 19,
+                    oppbruktArbeidsgiverperiode = true,
+                    arbeidsgiverPeriode = Periode(fom = rsSoknad.fom!!, tom = rsSoknad.tom!!),
+                ),
         )
 
         SoknadBesvarer(rsSoknad, this, fnr)
@@ -734,13 +779,14 @@ class OverlapperEtter : BaseTestClass() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                sykmeldingsperioder = gradertSykmeldt(
-                    fom = basisdato.minusDays(5),
-                    tom = basisdato,
-                    grad = 80
-                )
+                sykmeldingsperioder =
+                    gradertSykmeldt(
+                        fom = basisdato.minusDays(5),
+                        tom = basisdato,
+                        grad = 80,
+                    ),
             ),
-            forventaSoknader = 2
+            forventaSoknader = 2,
         )
 
         val soknaderMetadata = hentSoknaderMetadata(fnr)
@@ -780,28 +826,31 @@ class OverlapperEtter : BaseTestClass() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                sykmeldingsperioder = gradertSykmeldt(
-                    fom = basisdato.minusDays(5),
-                    tom = basisdato.minusDays(1)
-                )
-            )
+                sykmeldingsperioder =
+                    gradertSykmeldt(
+                        fom = basisdato.minusDays(5),
+                        tom = basisdato.minusDays(1),
+                    ),
+            ),
         )
 
         val soknaderMetadata = hentSoknaderMetadata(fnr)
         soknaderMetadata shouldHaveSize 1
         soknaderMetadata.first().status shouldBeEqualTo RSSoknadstatus.NY
 
-        val rsSoknad = hentSoknad(
-            soknadId = soknaderMetadata.first().id,
-            fnr = fnr
-        )
+        val rsSoknad =
+            hentSoknad(
+                soknadId = soknaderMetadata.first().id,
+                fnr = fnr,
+            )
 
         mockFlexSyketilfelleArbeidsgiverperiode(
-            arbeidsgiverperiode = Arbeidsgiverperiode(
-                antallBrukteDager = 4,
-                oppbruktArbeidsgiverperiode = true,
-                arbeidsgiverPeriode = Periode(fom = rsSoknad.fom!!, tom = rsSoknad.tom!!)
-            )
+            arbeidsgiverperiode =
+                Arbeidsgiverperiode(
+                    antallBrukteDager = 4,
+                    oppbruktArbeidsgiverperiode = true,
+                    arbeidsgiverPeriode = Periode(fom = rsSoknad.fom!!, tom = rsSoknad.tom!!),
+                ),
         )
 
         SoknadBesvarer(rsSoknad, this, fnr)
@@ -826,13 +875,14 @@ class OverlapperEtter : BaseTestClass() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                sykmeldingsperioder = gradertSykmeldt(
-                    fom = basisdato.minusDays(5),
-                    tom = basisdato.plusDays(60),
-                    grad = 80
-                )
+                sykmeldingsperioder =
+                    gradertSykmeldt(
+                        fom = basisdato.minusDays(5),
+                        tom = basisdato.plusDays(60),
+                        grad = 80,
+                    ),
             ),
-            forventaSoknader = 3
+            forventaSoknader = 3,
         )
 
         val soknaderMetadata = hentSoknaderMetadata(fnr)
@@ -878,23 +928,27 @@ class OverlapperEtter : BaseTestClass() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = basisdato.minusDays(5),
-                    tom = basisdato
-                ),
-                sykmeldingSkrevet = sykmeldingSkrevet
-            )
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = basisdato.minusDays(5),
+                        tom = basisdato,
+                    ),
+                sykmeldingSkrevet = sykmeldingSkrevet,
+            ),
         )
-        val overlappendeSoknad = sendSykmelding(
-            sykmeldingKafkaMessage = sykmeldingKafkaMessage(
-                fnr = fnr,
-                sykmeldingsperioder = heltSykmeldt(
-                    fom = basisdato.minusDays(1),
-                    tom = basisdato.plusDays(10)
-                ),
-                sykmeldingSkrevet = sykmeldingSkrevet.minusHours(1)
-            )
-        ).last()
+        val overlappendeSoknad =
+            sendSykmelding(
+                sykmeldingKafkaMessage =
+                    sykmeldingKafkaMessage(
+                        fnr = fnr,
+                        sykmeldingsperioder =
+                            heltSykmeldt(
+                                fom = basisdato.minusDays(1),
+                                tom = basisdato.plusDays(10),
+                            ),
+                        sykmeldingSkrevet = sykmeldingSkrevet.minusHours(1),
+                    ),
+            ).last()
 
         overlappendeSoknad.fom shouldBeEqualTo basisdato.plusDays(1)
         overlappendeSoknad.tom shouldBeEqualTo basisdato.plusDays(10)

@@ -7,5 +7,5 @@ import no.nav.syfo.model.sykmeldingstatus.SykmeldingStatusKafkaEventDTO
 data class SykmeldingKafkaMessage(
     val sykmelding: ArbeidsgiverSykmelding,
     val kafkaMetadata: KafkaMetadataDTO,
-    val event: SykmeldingStatusKafkaEventDTO
+    val event: SykmeldingStatusKafkaEventDTO,
 )

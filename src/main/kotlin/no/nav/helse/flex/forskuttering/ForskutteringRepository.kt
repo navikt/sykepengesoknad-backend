@@ -10,6 +10,11 @@ import java.util.*
 interface ForskutteringRepository : CrudRepository<Forskuttering, String> {
     fun findByNarmesteLederId(narmesteLederId: UUID): Forskuttering?
 
-    @Query("SELECT * from forskuttering where bruker_fnr = :brukerFnr and orgnummer = :orgnummer ORDER BY aktiv_tom DESC NULLS FIRST LIMIT 1 ")
-    fun finnForskuttering(brukerFnr: String, orgnummer: String): Forskuttering?
+    @Query(
+        "SELECT * from forskuttering where bruker_fnr = :brukerFnr and orgnummer = :orgnummer ORDER BY aktiv_tom DESC NULLS FIRST LIMIT 1 ",
+    )
+    fun finnForskuttering(
+        brukerFnr: String,
+        orgnummer: String,
+    ): Forskuttering?
 }
