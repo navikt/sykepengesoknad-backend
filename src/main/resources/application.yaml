@@ -126,9 +126,9 @@ spring:
   cache.type: redis
   data:
     redis:
-      host: sykepengesoknad-backend-redis
-      port: 6379
-      password: ${REDIS_PASSWORD}
+      url: ${REDIS_URI_SESSIONS}
+      username: ${REDIS_USERNAME_SESSIONS}
+      password: ${REDIS_PASSWORD_SESSIONS}
 
 aiven-kafka:
   auto-offset-reset: none
