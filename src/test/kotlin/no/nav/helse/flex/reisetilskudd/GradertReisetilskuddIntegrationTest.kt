@@ -445,8 +445,11 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
         val reisetilskudd = hentSoknaderMetadata(fnr).first()
 
         namedParameterJdbcTemplate.update(
-            "UPDATE SYKEPENGESOKNAD SET SENDT_ARBEIDSGIVER = null " +
-                "WHERE SYKEPENGESOKNAD_UUID = :sykepengesoknadId",
+            """
+            UPDATE sykepengesoknad 
+            SET sendt_arbeidsgiver = null
+            WHERE sykepengesoknad_uuid = :sykepengesoknadId
+            """,
             MapSqlParameterSource()
                 .addValue("sykepengesoknadId", reisetilskudd.id),
         )

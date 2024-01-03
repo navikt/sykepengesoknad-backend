@@ -89,7 +89,7 @@ class SoknadBrukerController(
     @ResponseBody
     @GetMapping(value = ["/soknad/{id}"], produces = [APPLICATION_JSON_VALUE])
     fun hentSoknad(
-        @PathVariable("id") id: String,
+        @PathVariable id: String,
     ): RSSykepengesoknad {
         val (soknad, identer) = hentOgSjekkTilgangTilSoknad(id)
 
@@ -111,7 +111,7 @@ class SoknadBrukerController(
     @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
     @PostMapping(value = ["/soknader/{id}/send"])
     fun sendSoknadRestful(
-        @PathVariable("id") id: String,
+        @PathVariable id: String,
     ) {
         if (environmentToggles.isReadOnly()) {
             throw ReadOnlyException()
@@ -150,7 +150,7 @@ class SoknadBrukerController(
     @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
     @PostMapping(value = ["/soknader/{id}/ettersendTilNav"])
     fun ettersendTilNav(
-        @PathVariable("id") id: String,
+        @PathVariable id: String,
     ) {
         if (environmentToggles.isReadOnly()) {
             throw ReadOnlyException()
@@ -164,7 +164,7 @@ class SoknadBrukerController(
     @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
     @PostMapping(value = ["/soknader/{id}/ettersendTilArbeidsgiver"])
     fun ettersendTilArbeidsgiver(
-        @PathVariable("id") id: String,
+        @PathVariable id: String,
     ) {
         if (environmentToggles.isReadOnly()) {
             throw ReadOnlyException()
@@ -178,7 +178,7 @@ class SoknadBrukerController(
     @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
     @PostMapping(value = ["/soknader/{id}/avbryt"])
     fun avbryt(
-        @PathVariable("id") id: String,
+        @PathVariable id: String,
     ) {
         if (environmentToggles.isReadOnly()) {
             throw ReadOnlyException()
@@ -196,7 +196,7 @@ class SoknadBrukerController(
     @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
     @PostMapping(value = ["/soknader/{id}/gjenapne"])
     fun gjenapne(
-        @PathVariable("id") id: String,
+        @PathVariable id: String,
     ) {
         if (environmentToggles.isReadOnly()) {
             throw ReadOnlyException()
@@ -227,7 +227,7 @@ class SoknadBrukerController(
     @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
     @PostMapping(value = ["/soknader/{id}/korriger"], produces = [APPLICATION_JSON_VALUE])
     fun korriger(
-        @PathVariable("id") id: String,
+        @PathVariable id: String,
     ): RSSykepengesoknad {
         if (environmentToggles.isReadOnly()) {
             throw ReadOnlyException()
@@ -245,8 +245,8 @@ class SoknadBrukerController(
         produces = [APPLICATION_JSON_VALUE],
     )
     fun oppdaterSporsmal(
-        @PathVariable("soknadId") soknadId: String,
-        @PathVariable("sporsmalId") sporsmalId: String,
+        @PathVariable soknadId: String,
+        @PathVariable sporsmalId: String,
         @RequestBody rsSporsmal: RSSporsmal,
     ): RSOppdaterSporsmalResponse {
         if (environmentToggles.isReadOnly()) {
@@ -311,7 +311,7 @@ class SoknadBrukerController(
     @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
     @GetMapping(value = ["/soknader/{id}/mottaker"], produces = [APPLICATION_JSON_VALUE])
     fun hentMottakerAvSoknad(
-        @PathVariable("id") id: String,
+        @PathVariable id: String,
     ): RSMottakerResponse {
         val (sykepengesoknad, identer) = hentOgSjekkTilgangTilSoknad(id)
         val mottaker = mottakerAvSoknadService.finnMottakerAvSoknad(sykepengesoknad, identer)

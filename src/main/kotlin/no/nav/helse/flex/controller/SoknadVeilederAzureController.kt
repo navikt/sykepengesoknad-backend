@@ -13,9 +13,9 @@ import no.nav.helse.flex.service.HentSoknadService
 import no.nav.helse.flex.service.IdentService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.http.MediaType
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -30,7 +30,7 @@ class SoknadVeilederAzureController(
 ) {
     val log = logger()
 
-    @RequestMapping(method = [RequestMethod.GET])
+    @GetMapping
     fun hentVeilederSoknader(
         @RequestHeader(value = "nav-personident") fnr: String,
     ): List<RSSykepengesoknad> {

@@ -21,8 +21,8 @@ import no.nav.syfo.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.GradertDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertThrows
+import org.junit.jupiter.api.Assertions.fail
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.ArgumentMatchers.anyBoolean
@@ -93,11 +93,11 @@ class EttersendingSoknadServiceTest {
 
             try {
                 ettersendingSoknadService.ettersendTilNav(soknadBehandlingsdager)
-                Assertions.fail("Forventer exception")
+                fail("Forventer exception")
             } catch (e: Exception) {
                 try {
                     ettersendingSoknadService.ettersendTilNav(soknadArbeidstaker)
-                    Assertions.fail("Forventer exception")
+                    fail("Forventer exception")
                 } catch (e: Exception) {
                     verify(sykepengesoknadDAO, never()).settSendtNav(anyString(), any())
                     verify(soknadProducer, never()).soknadEvent(any(), any(), anyBoolean(), eq(null), eq(null))
@@ -135,11 +135,11 @@ class EttersendingSoknadServiceTest {
 
             try {
                 ettersendingSoknadService.ettersendTilNav(soknadBehandlingsdager)
-                Assertions.fail("Forventer exception")
+                fail("Forventer exception")
             } catch (e: Exception) {
                 try {
                     ettersendingSoknadService.ettersendTilNav(soknadArbeidstaker)
-                    Assertions.fail("Forventer exception")
+                    fail("Forventer exception")
                 } catch (e: Exception) {
                     verify(sykepengesoknadDAO, never()).settSendtNav(anyString(), any())
                     verify(soknadProducer, never()).soknadEvent(any(), any(), anyBoolean(), eq(null), eq(null))
@@ -184,11 +184,11 @@ class EttersendingSoknadServiceTest {
 
             try {
                 ettersendingSoknadService.ettersendTilArbeidsgiver(soknadBehandlingsdager)
-                Assertions.fail("Forventer exception")
+                fail("Forventer exception")
             } catch (e: Exception) {
                 try {
                     ettersendingSoknadService.ettersendTilArbeidsgiver(soknadArbeidstaker)
-                    Assertions.fail("Forventer exception")
+                    fail("Forventer exception")
                 } catch (e: Exception) {
                     verify(sykepengesoknadDAO, never()).settSendtNav(anyString(), any())
                     verify(soknadProducer, never()).soknadEvent(any(), any(), anyBoolean(), eq(null), eq(null))

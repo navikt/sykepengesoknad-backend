@@ -20,10 +20,11 @@ class SporsmalDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemp
         val unMapped =
             sykepengesoknadIds.chunked(1000).map {
                 namedParameterJdbcTemplate.query<List<Pair<String, Sporsmal>>>(
-                    "SELECT * FROM SPORSMAL " +
-                        "WHERE SPORSMAL.SYKEPENGESOKNAD_ID in (:sykepengesoknadIds) ",
-                    MapSqlParameterSource()
-                        .addValue("sykepengesoknadIds", it),
+                    """
+                    SELECT * FROM sporsmal
+                    WHERE sykepengesoknad_id IN (:sykepengesoknadIds)
+                    """.trimIndent(),
+                    MapSqlParameterSource().addValue("sykepengesoknadIds", it),
                 ) { resultSet ->
                     val svarMap = HashMap<String, MutableList<Svar>>()
                     val sporsmalList = ArrayList<Pair<String, Sporsmal>>()
@@ -38,26 +39,26 @@ class SporsmalDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemp
                     val sporsmalMap = HashMap<String, SporsmalHelper>()
 
                     while (resultSet.next()) {
-                        val sporsmalId = resultSet.getString("ID")
-                        val kriterie = resultSet.getString("KRITERIE_FOR_VISNING")
+                        val sporsmalId = resultSet.getString("id")
+                        val kriterie = resultSet.getString("kriterie_for_visning")
                         svarMap[sporsmalId] = ArrayList()
-                        val sykepengesoknadId = resultSet.getString("SYKEPENGESOKNAD_ID")
+                        val sykepengesoknadId = resultSet.getString("sykepengesoknad_id")
 
                         val undersporsmal = ArrayList<Sporsmal>()
                         val sporsmal =
                             Sporsmal(
                                 id = sporsmalId,
-                                tag = resultSet.getString("TAG"),
-                                sporsmalstekst = resultSet.getString("TEKST"),
-                                undertekst = resultSet.getString("UNDERTEKST"),
-                                svartype = Svartype.valueOf(resultSet.getString("SVARTYPE")),
-                                min = resultSet.getString("MIN"),
-                                max = resultSet.getString("MAX"),
+                                tag = resultSet.getString("tag"),
+                                sporsmalstekst = resultSet.getString("tekst"),
+                                undertekst = resultSet.getString("undertekst"),
+                                svartype = Svartype.valueOf(resultSet.getString("svartype")),
+                                min = resultSet.getString("min"),
+                                max = resultSet.getString("max"),
                                 kriterieForVisningAvUndersporsmal = if (kriterie == null) null else Visningskriterie.valueOf(kriterie),
                                 svar = svarMap[sporsmalId]!!,
                                 undersporsmal = undersporsmal,
                             )
-                        val underSporsmalId = resultSet.getNullableString("UNDER_SPORSMAL_ID")
+                        val underSporsmalId = resultSet.getNullableString("under_sporsmal_id")
                         sporsmalMap[sporsmalId] = SporsmalHelper(sporsmal, sykepengesoknadId, underSporsmalId, undersporsmal)
                     }
                     sporsmalMap.values.forEach { spm ->
@@ -97,15 +98,21 @@ class SporsmalDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemp
 
         val sporsmalsIder =
             namedParameterJdbcTemplate.query(
-                "SELECT id FROM sporsmal WHERE sykepengesoknad_id IN (:soknadsIder)",
+                """
+                SELECT id FROM sporsmal 
+                WHERE sykepengesoknad_id IN (:soknadsIder)
+                """.trimIndent(),
                 MapSqlParameterSource()
                     .addValue("soknadsIder", soknadsIder),
-            ) { row, _ -> row.getString("ID") }
+            ) { row, _ -> row.getString("id") }
 
         svarDAO.slettSvar(sporsmalsIder)
 
         namedParameterJdbcTemplate.update(
-            "DELETE FROM sporsmal WHERE sykepengesoknad_id IN (:soknadsIder)",
+            """
+            DELETE FROM sporsmal 
+            WHERE sykepengesoknad_id IN (:soknadsIder)
+            """.trimIndent(),
             MapSqlParameterSource()
                 .addValue("soknadsIder", soknadsIder),
         )
@@ -117,7 +124,10 @@ class SporsmalDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemp
         }
 
         namedParameterJdbcTemplate.update(
-            "DELETE FROM sporsmal WHERE id IN (:sporsmalsIder)",
+            """
+            DELETE FROM sporsmal 
+            WHERE id IN (:sporsmalsIder)
+            """.trimIndent(),
             MapSqlParameterSource()
                 .addValue("sporsmalsIder", sporsmalsIder),
         )
