@@ -12,6 +12,7 @@ import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_NARINGSDRIVENDE_INNTEKTSOPPLYSNINGER
+import no.nav.helse.flex.util.flatten
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBeNull
@@ -110,6 +111,16 @@ class InntektsopplysningerIntegrasjonsTest : BaseTestClass() {
                 INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET,
                 VAER_KLAR_OVER_AT,
                 BEKREFT_OPPLYSNINGER,
+            ),
+        )
+        soknad.sporsmal.flatten().first { it.tag == INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE }
+            .undersporsmal!!.map { it.tag }.shouldBeEqualTo(
+            listOf(
+                INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE_OPPRETTELSE_NEDLEGGELSE,
+                INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE_ENDRET_INNSATS,
+                INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE_OMLEGGING_AV_VIRKSOMHETEN,
+                INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE_ENDRET_MARKEDSSITUASJON,
+                INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE_ANNET,
             ),
         )
     }

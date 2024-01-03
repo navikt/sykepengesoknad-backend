@@ -34,10 +34,22 @@ private fun Sporsmal.sorterUndersporsmal(): Sporsmal {
                     MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_GRUPPERING -> it.sorteringMedlemskapOppholdUtenforEosGruppering()
                     MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE -> it.sorteringMedlemskapOppholdUtenforEosBegrunnelse()
                     KJENTE_INNTEKTSKILDER_ARSAK_IKKE_JOBBET -> it.sorteringKjenteInntektskilderArsak()
+                    INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE -> it.sorteringVarigEndringBegrunnelse()
                     else -> it.tag
                 }
             }
     return this.copy(undersporsmal = sorterteUndersporsmal)
+}
+
+private fun Sporsmal.sorteringVarigEndringBegrunnelse(): String {
+    return when (tag) {
+        INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE_OPPRETTELSE_NEDLEGGELSE -> "0"
+        INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE_ENDRET_INNSATS -> "1"
+        INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE_OMLEGGING_AV_VIRKSOMHETEN -> "2"
+        INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE_ENDRET_MARKEDSSITUASJON -> "3"
+        INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE_ANNET -> "4"
+        else -> throw RuntimeException("Ukjent underspørsmål for varig endring begrunnelse: $tag")
+    }
 }
 
 private fun Sporsmal.sorteringMedlemskapOppholdstillatelse(): String {
