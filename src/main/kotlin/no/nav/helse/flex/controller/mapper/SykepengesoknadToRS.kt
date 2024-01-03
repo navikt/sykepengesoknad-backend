@@ -114,7 +114,7 @@ fun Sykepengesoknad.tilRSSykepengesoknad() =
         korrigeringsfristUtlopt = this.korrigeringsfristUtlopt,
         inntektsopplysningerNyKvittering = this.inntektsopplysningerNyKvittering,
         inntektsopplysningerInnsendingId = this.inntektsopplysningerInnsendingId,
-        inntektsopplysningerInnsendingDokumenter = this.inntektsopplysningerInnsendingDokumenter,
+        inntektsopplysningerInnsendingDokumenter = this.inntektsopplysningerInnsendingDokumenter?.map { it.tittel },
         forstegangssoknad = this.forstegangssoknad,
     )
 

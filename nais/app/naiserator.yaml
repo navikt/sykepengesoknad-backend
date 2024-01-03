@@ -74,6 +74,8 @@ spec:
           namespace: teamsykefravr
         - application: medlemskap-sykepenger-listener
           namespace: medlemskap
+        - application: innsending-api
+          namespace: team-soknad
       external:
   {{#each external-host}}
         - host: {{this}}

@@ -14,6 +14,7 @@ import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_NARINGSDRIVENDE_INNTEKTSOPPLYSNINGER
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
+import org.amshove.kluent.shouldNotBeNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
@@ -144,7 +145,7 @@ class InntektsopplysningerIntegrasjonsTest : BaseTestClass() {
 
             sendtSoknad.inntektsopplysningerNyKvittering shouldBeEqualTo true
             sendtSoknad.inntektsopplysningerInnsendingDokumenter!!.isNotEmpty() shouldBeEqualTo true
-            sendtSoknad.inntektsopplysningerInnsendingId shouldBeEqualTo "TODO"
+            sendtSoknad.inntektsopplysningerInnsendingId.shouldNotBeNull()
         }
 
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
@@ -238,7 +239,7 @@ class InntektsopplysningerIntegrasjonsTest : BaseTestClass() {
 
         sendtSoknad.inntektsopplysningerNyKvittering shouldBeEqualTo true
         sendtSoknad.inntektsopplysningerInnsendingDokumenter!!.isNotEmpty() shouldBeEqualTo true
-        sendtSoknad.inntektsopplysningerInnsendingId shouldBeEqualTo "TODO"
+        sendtSoknad.inntektsopplysningerInnsendingId.shouldNotBeNull()
 
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
         kafkaSoknader shouldHaveSize 1

@@ -12,13 +12,13 @@ import no.nav.helse.flex.soknadsopprettelse.INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIV
 import no.nav.helse.flex.soknadsopprettelse.INNTEKTSOPPLYSNINGER_VARIG_ENDRING_25_PROSENT
 import java.time.LocalDate
 
-enum class InntektsopplysningerDokumentType {
-    SKATTEMELDING,
-    SKATTEMELDING_OPTIONAL,
-    NARINGSSPESIFIKASJON,
-    NARINGSSPESIFIKASJON_OPTIONAL,
-    REGNSKAP_FORRIGE_AAR,
-    REGNSKAP_FORELOPIG,
+enum class InntektsopplysningerDokumentType(val vedleggsnr: String, val tittel: String) {
+    SKATTEMELDING("N6", "Skattemelding"),
+    SKATTEMELDING_OPTIONAL("N6", "Skattemelding hvis den er klar"),
+    NARINGSSPESIFIKASJON("L1", "Næringsoppgave/Næringsspessifikasjon"),
+    NARINGSSPESIFIKASJON_OPTIONAL("N6", "Næringsoppgave/Næringsspessifikasjon hvis den er klar"),
+    REGNSKAP_FORRIGE_AAR("L3", "Regnskap for siste år"),
+    REGNSKAP_FORELOPIG("L3", "Foreløpig regnskap i år"),
 }
 
 fun dokumenterSomSkalSendesInn(dagensDato: LocalDate): List<InntektsopplysningerDokumentType> {
