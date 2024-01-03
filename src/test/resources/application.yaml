@@ -19,7 +19,7 @@ no.nav.security.jwt:
   client:
     registration:
       sykepengesoknad-kvitteringer-tokenx:
-        token-endpoint-url: http://localhost:${mock-oauth2-server.port}/azureator/token
+        token-endpoint-url: http://localhost:${mock-oauth2-server.port}/tokenx/token
         grant-type: client_credentials
         scope: sykepengesoknad-kvitteringer
         authentication:
@@ -74,7 +74,14 @@ no.nav.security.jwt:
           client-id: client-id
           client-secret: secretzz
           client-auth-method: client_secret_basic
-
+      innsending-api-tokenx:
+        token-endpoint-url: http://localhost:${mock-oauth2-server.port}/tokenx/token
+        grant-type: client_credentials
+        scope: innsending-api
+        authentication:
+          client-id: client-id
+          client-secret: secretzz
+          client-auth-method: client_secret_basic
 
 EREG_URL: "http://ereg"
 

@@ -8,10 +8,7 @@ import no.nav.helse.flex.kafka.SYKEPENGESOKNAD_TOPIC
 import no.nav.helse.flex.kafka.producer.AivenKafkaProducer
 import no.nav.helse.flex.kafka.producer.RebehandlingSykmeldingSendtProducer
 import no.nav.helse.flex.medlemskap.MedlemskapMockDispatcher
-import no.nav.helse.flex.mockdispatcher.EregMockDispatcher
-import no.nav.helse.flex.mockdispatcher.InntektskomponentenMockDispatcher
-import no.nav.helse.flex.mockdispatcher.PdlMockDispatcher
-import no.nav.helse.flex.mockdispatcher.YrkesskadeMockDispatcher
+import no.nav.helse.flex.mockdispatcher.*
 import no.nav.helse.flex.personhendelse.AutomatiskInnsendingVedDodsfall
 import no.nav.helse.flex.repository.SykepengesoknadRepository
 import no.nav.helse.flex.soknadsopprettelse.BehandleSykmeldingOgBestillAktivering
@@ -58,6 +55,7 @@ abstract class BaseTestClass {
         private val inntektskomponentenMockWebServer: MockWebServer
         private val eregMockWebServer: MockWebServer
         private val yrkesskadeMockWebServer: MockWebServer
+        private val innsendingApiMockWebServer: MockWebServer
 
         init {
             val threads = mutableListOf<Thread>()
@@ -117,6 +115,11 @@ abstract class BaseTestClass {
                 MockWebServer().apply {
                     System.setProperty("YRKESSKADE_URL", "http://localhost:$port")
                     dispatcher = YrkesskadeMockDispatcher
+                }
+            innsendingApiMockWebServer =
+                MockWebServer().apply {
+                    System.setProperty("INNSENDING_API_URL", "http://localhost:$port")
+                    dispatcher = InnsendingApiMockDispatcher
                 }
 
             threads.forEach { it.join() }

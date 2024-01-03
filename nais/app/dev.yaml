@@ -17,12 +17,12 @@ env:
   SPRING_PROFILES_ACTIVE: default,testdatareset,sykmeldinger
   PDL_BASE_URL: https://pdl-api.dev-fss-pub.nais.io
   PDL_API_AAD_CLIENT_ID: dev-fss.pdl.pdl-api
-  FASIT_ENVIRONMENT_NAME: "q1"
-  SYKEPENGESOKNAD_KVITTERINGER_URL: "http://sykepengesoknad-kvitteringer"
+  FASIT_ENVIRONMENT_NAME: q1
+  SYKEPENGESOKNAD_KVITTERINGER_URL: http://sykepengesoknad-kvitteringer
   SYKEPENGESOKNAD_KVITTERINGER_TOKENX_CLIENT_ID: dev-gcp:flex:sykepengesoknad-kvitteringer
-  ISTILGANGSKONTROLL_URL: "http://istilgangskontroll.teamsykefravr"
+  ISTILGANGSKONTROLL_URL: http://istilgangskontroll.teamsykefravr
   ISTILGANGSKONTROLL_AAD_CLIENT_ID: dev-gcp.teamsykefravr.istilgangskontroll
-  FLEX_SYKETILFELLE_URL: "http://flex-syketilfelle"
+  FLEX_SYKETILFELLE_URL: http://flex-syketilfelle
   FLEX_SYKETILFELLE_AAD_CLIENT_ID: dev-gcp.flex.flex-syketilfelle
   SKRIVEMODUS: READWRITE
   DITT_SYKEFRAVAER_FRONTEND_CLIENT_ID: dev-gcp:flex:ditt-sykefravaer
@@ -32,7 +32,9 @@ env:
   EREG_URL: https://ereg-services.dev-fss-pub.nais.io
   YRKESSKADE_URL: http://yrkesskade-saker.yrkesskade
   YRKESSKADE_AAD_CLIENT_ID: dev-gcp.yrkesskade.yrkesskade-saker
-  MEDLEMSKAP_VURDERING_URL: "http://medlemskap-sykepenger-listener.medlemskap"
+  MEDLEMSKAP_VURDERING_URL: http://medlemskap-sykepenger-listener.medlemskap
   MEDLEMSKAP_VURDERING_AAD_CLIENT_ID: dev-gcp.medlemskap.medlemskap-sykepenger-listener
-  INNTEKTSKOMPONENTEN_URL: "https://team-inntekt-proxy.dev-fss-pub.nais.io/proxy/inntektskomponenten-q1/rs"
+  INNTEKTSKOMPONENTEN_URL: https://team-inntekt-proxy.dev-fss-pub.nais.io/proxy/inntektskomponenten-q1/rs
   INNTEKTSKOMPONENTEN_AAD_CLIENT_ID: dev-fss.team-inntekt.inntektskomponenten
+  INNSENDING_API_TOKENX_CLIENT_ID: dev-gcp:team-soknad:innsending-api
+  INNSENDING_API_URL: http://innsending-api.team-soknad

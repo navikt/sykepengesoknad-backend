@@ -134,6 +134,19 @@ class AadRestTemplateConfiguration {
         )
 
     @Bean
+    fun innsendingApiRestTemplate(
+        restTemplateBuilder: RestTemplateBuilder,
+        clientConfigurationProperties: ClientConfigurationProperties,
+        oAuth2AccessTokenService: OAuth2AccessTokenService,
+    ): RestTemplate =
+        downstreamRestTemplate(
+            registrationName = "innsending-api-tokenx",
+            restTemplateBuilder = restTemplateBuilder,
+            clientConfigurationProperties = clientConfigurationProperties,
+            oAuth2AccessTokenService = oAuth2AccessTokenService,
+        )
+
+    @Bean
     fun inntektskomponentenRestTemplate(
         restTemplateBuilder: RestTemplateBuilder,
         clientConfigurationProperties: ClientConfigurationProperties,
