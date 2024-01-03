@@ -4,6 +4,7 @@ import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknad
 import no.nav.helse.flex.domain.Arbeidssituasjon
+import no.nav.helse.flex.mockdispatcher.InnsendingApiMockDispatcher
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.medIndex
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
@@ -15,6 +16,7 @@ import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_NARINGSDRIVENDE_INNTEKTSOPPLYSN
 import no.nav.helse.flex.util.flatten
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
+import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
@@ -77,7 +79,7 @@ class InntektsopplysningerIntegrasjonsTest : BaseTestClass() {
     }
 
     @Test
-    @Order(1)
+    @Order(2)
     fun `Stiller spørsmål om inntektsopplysnninger på førstegangssøknad når Unleash toggle er enabled`() {
         fakeUnleash.enable(UNLEASH_CONTEXT_NARINGSDRIVENDE_INNTEKTSOPPLYSNINGER)
 
@@ -126,8 +128,10 @@ class InntektsopplysningerIntegrasjonsTest : BaseTestClass() {
     }
 
     @Test
-    @Order(2)
+    @Order(3)
     fun `Besvar og sendt inn søknad med inntektsopplysninger som ny i arbeidslivet`() {
+        InnsendingApiMockDispatcher.getRequests().shouldHaveSize(0)
+
         val fnr = "99999999002"
         val lagretSoknad =
             hentSoknad(
@@ -164,10 +168,18 @@ class InntektsopplysningerIntegrasjonsTest : BaseTestClass() {
         val kafkaSoknad = kafkaSoknader.first()
 
         kafkaSoknad.status shouldBeEqualTo SoknadsstatusDTO.SENDT
+        InnsendingApiMockDispatcher.getRequests().shouldHaveSize(1)
+        val lastRequest = InnsendingApiMockDispatcher.lastRequest()
+        lastRequest.brukernotifikasjonstype shouldBeEqualTo "oppgave"
+        lastRequest.tittel shouldBeEqualTo "Inntektsopplysninger for selvstendig næringsdrivende og/eller frilansere som skal ha sykepenger"
+        lastRequest.vedleggsListe.shouldNotBeEmpty()
+        lastRequest.tema shouldBeEqualTo "SYK"
+        lastRequest.skjemanr shouldBeEqualTo "NAV 08-35.01"
+        lastRequest.sprak shouldBeEqualTo "nb_NO"
     }
 
     @Test
-    @Order(3)
+    @Order(4)
     fun `Korrigerer til ikke ny i arbeidslivet og mindre enn 25 så det ikke trengs dokumentasjon`() {
         val fnr = "99999999002"
         val soknad = hentSoknader(fnr).first()
@@ -220,11 +232,14 @@ class InntektsopplysningerIntegrasjonsTest : BaseTestClass() {
 
         kafkaSoknad.id shouldBeEqualTo korrigerendeSoknad.id
         kafkaSoknad.status shouldBeEqualTo SoknadsstatusDTO.SENDT
+        InnsendingApiMockDispatcher.getRequests().shouldHaveSize(1)
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     fun `Korrigerer til søknad med større endring enn 25 prosent`() {
+        InnsendingApiMockDispatcher.getRequests().shouldHaveSize(1)
+
         val fnr = "99999999002"
         val soknad = hentSoknader(fnr).first { it.status == RSSoknadstatus.SENDT }
         val korrigerendeSoknad = korrigerSoknad(soknad.id, fnr)
@@ -258,6 +273,7 @@ class InntektsopplysningerIntegrasjonsTest : BaseTestClass() {
 
         kafkaSoknad.id shouldBeEqualTo korrigerendeSoknad.id
         kafkaSoknad.status shouldBeEqualTo SoknadsstatusDTO.SENDT
+        InnsendingApiMockDispatcher.getRequests().shouldHaveSize(2)
     }
 
     private fun hentSoknadSomKanBesvares(fnr: String): Pair<RSSykepengesoknad, SoknadBesvarer> {
