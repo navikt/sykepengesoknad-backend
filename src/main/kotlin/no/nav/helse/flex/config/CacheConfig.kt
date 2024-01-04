@@ -50,6 +50,7 @@ class CacheConfig(
         return RedisCacheManager.builder(redisConnectionFactory)
             .cacheDefaults(RedisCacheConfiguration.defaultCacheConfig())
             .withInitialCacheConfigurations(cacheConfigurations)
+            .enableStatistics()
             .build()
     }
 }
