@@ -124,11 +124,6 @@ spring:
       auto-offset-reset: none
       enable-auto-commit: false
   cache.type: redis
-  data:
-    redis:
-      host: ${REDIS_URI_SESSIONS}
-      username: ${REDIS_USERNAME_SESSIONS}
-      password: ${REDIS_PASSWORD_SESSIONS}
 
 aiven-kafka:
   auto-offset-reset: none
