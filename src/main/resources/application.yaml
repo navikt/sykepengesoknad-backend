@@ -126,7 +126,7 @@ spring:
   cache.type: redis
   data:
     redis:
-      url: ${REDIS_URI_SESSIONS}
+      host: ${REDIS_URI_SESSIONS}
       username: ${REDIS_USERNAME_SESSIONS}
       password: ${REDIS_PASSWORD_SESSIONS}
 
