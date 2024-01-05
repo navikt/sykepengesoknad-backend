@@ -40,9 +40,6 @@ spec:
     pool: {{kafkaPool}}
   tokenx:
     enabled: true
-  redis:
-    - instance: sessions
-      access: readwrite
   gcp:
     sqlInstances:
       - name: sykepengesoknad
@@ -68,6 +65,7 @@ spec:
   accessPolicy:
     outbound:
       rules:
+        - application: sykepengesoknad-backend-redis
         - application: sykepengesoknad-kvitteringer
         - application: flex-syketilfelle
         - application: yrkesskade-saker
@@ -96,6 +94,7 @@ spec:
         - application: flex-openapi-docs-ui
         {{/if}}
   envFrom:
+    - secret: sykepengesoknad-backend-redis-password
     - secret: sykepengesoknad-backend-unleash-api-token
   env:
   {{#each env}}

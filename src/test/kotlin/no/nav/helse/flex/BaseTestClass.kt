@@ -62,13 +62,13 @@ abstract class BaseTestClass {
 
             thread {
                 RedisContainer().apply {
-                    withEnv("ALLOW_EMPTY_PASSWORD", "yes")
                     withExposedPorts(6379)
+                    val passord = "hemmelig"
+                    withEnv("REDIS_PASSWORD", passord)
                     start()
-
-                    System.setProperty("REDIS_URI_SESSIONS", "rediss://$host:$firstMappedPort")
-                    System.setProperty("REDIS_USERNAME_SESSIONS", "default")
-                    System.setProperty("REDIS_PASSWORD_SESSIONS", "")
+                    System.setProperty("spring.data.redis.host", host)
+                    System.setProperty("spring.data.redis.port", firstMappedPort.toString())
+                    System.setProperty("spring.data.redis.password", passord)
                 }
             }.also { threads.add(it) }
 
