@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 
+private const val AZP_CLAIM = "azp"
+
 @Component
 class ClientIdValidation(
     private val tokenValidationContextHolder: TokenValidationContextHolder,
@@ -37,12 +39,10 @@ class ClientIdValidation(
     }
 
     private fun TokenValidationContextHolder.hentAzpClaim(): String {
-        try {
-            return this.tokenValidationContext.getJwtToken(AZUREATOR).jwtTokenClaims.getStringClaim("azp")!!
-        } catch (e: Exception) {
-            log.error("Fant ikke azp claim!", e)
-            throw UkjentClientException("ukjent feil", e)
-        }
+        return this.getTokenValidationContext().getJwtToken(AZUREATOR)
+            ?.jwtTokenClaims
+            ?.getStringClaim(AZP_CLAIM)
+            ?: throw UkjentClientException("Fant ikke azp claim.")
     }
 
     private fun List<String>.ikkeInneholder(s: String): Boolean {

@@ -13,8 +13,6 @@ import org.apache.hc.core5.util.Timeout
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.http.HttpRequest
-import org.springframework.http.client.ClientHttpRequestExecution
 import org.springframework.http.client.ClientHttpRequestInterceptor
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
 import org.springframework.web.client.RestTemplate
@@ -179,9 +177,10 @@ class AadRestTemplateConfiguration {
         clientProperties: ClientProperties,
         oAuth2AccessTokenService: OAuth2AccessTokenService,
     ): ClientHttpRequestInterceptor {
-        return ClientHttpRequestInterceptor { request: HttpRequest, body: ByteArray, execution: ClientHttpRequestExecution ->
-            val response = oAuth2AccessTokenService.getAccessToken(clientProperties)
-            request.headers.setBearerAuth(response.accessToken)
+        return ClientHttpRequestInterceptor { request, body, execution ->
+            oAuth2AccessTokenService.getAccessToken(clientProperties)?.accessToken?.let {
+                request.headers.setBearerAuth(it)
+            } ?: log.warn("No bearer token received from OAuth2AccessTokenService.")
             execution.execute(request, body)
         }
     }

@@ -402,7 +402,7 @@ class SoknadBrukerController(
     }
 
     private fun validerTokenXClaims(vararg tillattClient: String): JwtTokenClaims {
-        val context = contextHolder.tokenValidationContext
+        val context = contextHolder.getTokenValidationContext()
         val claims = context.getClaims(TOKENX)
         val clientId = claims.getStringClaim("client_id")
 
