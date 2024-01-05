@@ -1,0 +1,31 @@
+apiVersion: "nais.io/v1alpha1"
+kind: "Application"
+metadata:
+  labels:
+    team: flex
+  name: sykepengesoknad-backend-redis
+  namespace: flex
+  annotations:
+    nais.io/run-as-group: "0" # Fix permissions for bitnami/redis
+    nais.io/read-only-file-system: "false" # Fix permissions for bitnami/redis
+spec:
+  image: bitnami/redis:6.2
+  port: 6379
+  replicas:
+    min: 2
+    max: 2
+  resources:
+    limits:
+      cpu: 250m
+      memory: 256Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+  service:
+    port: 6379
+  envFrom:
+    - secret: sykepengesoknad-backend-redis-password
+  accessPolicy:
+    inbound:
+      rules:
+        - application: sykepengesoknad-backend
