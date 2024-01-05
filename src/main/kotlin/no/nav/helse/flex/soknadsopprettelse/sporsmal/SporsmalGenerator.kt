@@ -93,7 +93,10 @@ class SporsmalGenerator(
         }
 
         if (soknad.soknadstype == Soknadstype.REISETILSKUDD) {
-            return skapReisetilskuddsoknad(soknadOptions, nyttTilSluttSpmToggle).tilSporsmalOgAndreKjenteArbeidsforhold()
+            return skapReisetilskuddsoknad(
+                soknadOptions,
+                nyttTilSluttSpmToggle,
+            ).tilSporsmalOgAndreKjenteArbeidsforhold()
         }
 
         return when (soknad.arbeidssituasjon) {
@@ -126,6 +129,7 @@ class SporsmalGenerator(
                     Arbeidssituasjon.NAERINGSDRIVENDE,
                     Arbeidssituasjon.FRILANSER,
                     -> settOppSoknadSelvstendigOgFrilanser(soknadOptions)
+
                     Arbeidssituasjon.ARBEIDSLEDIG -> settOppSoknadArbeidsledig(soknadOptions)
                     Arbeidssituasjon.ANNET -> settOppSoknadAnnetArbeidsforhold(soknadOptions)
 
@@ -157,19 +161,35 @@ class SporsmalGenerator(
 
         return when {
             // Det skal ikke stilles medlemskapspørsmål hvis det er et avklart medlemskapsforhold.
-            svar in listOf(MedlemskapVurderingSvarType.JA, MedlemskapVurderingSvarType.NEI) -> emptyList()
+            svar in
+                listOf(
+                    MedlemskapVurderingSvarType.JA,
+                    MedlemskapVurderingSvarType.NEI,
+                )
+            -> emptyList()
 
+            // LovMe kan returnerer UAVKLART uten tilhørende spørsmål når det ikke er et scenario de har implementert
+            // på sin side. Blir også brukt hvis LovMe anser tidligere svar (på spørsmål i søkand) som fortsatt gyldige.
+            // I disse tilfellene stiller vi det "gamle" spørsmålet om Arbeid Utenfor Norge.
             svar == MedlemskapVurderingSvarType.UAVKLART && sporsmal.isEmpty() -> {
                 log.info("Medlemskapvurdering er UAVKLART for søknad ${soknad.id}, men LovMe returnerte ingen spørsmål.")
                 listOf(SykepengesoknadSporsmalTag.ARBEID_UTENFOR_NORGE)
             }
 
+            // TODO: Fjern denne når toggle er slått på for alle brukere.
             !unleashToggles.stillMedlemskapSporsmal(soknad.fnr) -> {
-                log.info("Medlemskapvurdering er UAVKLART for søknad ${soknad.id}, men medlemskapToggle svarte 'false'.")
+                log.info(
+                    "Medlemskapvurdering er UAVKLART for søknad ${soknad.id}, men medlemskapToggle svarte " +
+                        "'false' så det stilles ingen spørsmål i søknaden .",
+                )
                 listOf(SykepengesoknadSporsmalTag.ARBEID_UTENFOR_NORGE)
             }
 
-            else ->
+            else -> {
+                log.info(
+                    "Medlemskapvurdering er UAVKLART for søknad ${soknad.id}, medlemskapToggle svarte 'true' så det " +
+                        "stilles spørsmål i søknaden .",
+                )
                 sporsmal.map {
                     when (it) {
                         MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE -> LovMeSporsmalTag.OPPHOLDSTILATELSE
@@ -178,6 +198,7 @@ class SporsmalGenerator(
                         MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE -> LovMeSporsmalTag.OPPHOLD_UTENFOR_EØS_OMRÅDE
                     }
                 }
+            }
         }
     }
 
