@@ -40,6 +40,9 @@ spec:
     pool: {{kafkaPool}}
   tokenx:
     enabled: true
+  redis:
+    - instance: sessions
+      access: readwrite
   gcp:
     sqlInstances:
       - name: sykepengesoknad
