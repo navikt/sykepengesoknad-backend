@@ -131,7 +131,8 @@ private fun Sporsmal.sorteringKjenteInntektskilderArsak(): String {
         KJENTE_INNTEKTSKILDER_ARSAK_IKKE_JOBBET_AVSPASERING -> "3"
         KJENTE_INNTEKTSKILDER_ARSAK_IKKE_JOBBET_PERMITTERT -> "4"
         KJENTE_INNTEKTSKILDER_ARSAK_IKKE_JOBBET_PERMISJON -> "5"
-        KJENTE_INNTEKTSKILDER_ARSAK_IKKE_JOBBET_ANNEN -> "6"
+        KJENTE_INNTEKTSKILDER_ARSAK_IKKE_JOBBET_TILKALLINGSVIKAR -> "6"
+        KJENTE_INNTEKTSKILDER_ARSAK_IKKE_JOBBET_ANNEN -> "7"
         else -> throw RuntimeException("Ukjent underspørsmål for kjente inntektskilder årsak: $tag")
     }
 }
