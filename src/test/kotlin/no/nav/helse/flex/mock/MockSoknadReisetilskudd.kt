@@ -18,9 +18,7 @@ import java.time.LocalDate.now
 import java.time.LocalDateTime
 import java.util.*
 
-fun opprettNySoknadReisetilskudd(
-    aktivertDato: LocalDate,
-): Sykepengesoknad {
+fun opprettNySoknadReisetilskudd(aktivertDato: LocalDate): Sykepengesoknad {
     val soknadMetadata =
         Sykepengesoknad(
             fnr = "11111111111",
