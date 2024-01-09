@@ -88,7 +88,7 @@ class SporsmalGenerator(
             )
 
         if (erEnkeltstaendeBehandlingsdagSoknad) {
-            return settOppSykepengesoknadBehandlingsdager(soknadOptions).tilSporsmalOgAndreKjenteArbeidsforhold()
+            return settOppSykepengesoknadBehandlingsdager(soknadOptions, nyttTilSluttSpmToggle).tilSporsmalOgAndreKjenteArbeidsforhold()
         }
 
         if (soknad.soknadstype == Soknadstype.REISETILSKUDD) {
