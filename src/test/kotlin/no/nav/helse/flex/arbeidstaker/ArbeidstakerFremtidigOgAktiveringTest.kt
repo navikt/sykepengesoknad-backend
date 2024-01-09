@@ -38,8 +38,6 @@ class ArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
     @Test
     @Order(1)
     fun `Arbeidstakersøknad med status FREMTIDIG opprettes når vi mottar en sykmelding`() {
-        fakeUnleash.resetAll()
-        fakeUnleash.enable("sykepengesoknad-backend-bekreftelsespunkter")
         val kafkaSoknader =
             sendSykmelding(
                 sykmeldingKafkaMessage(

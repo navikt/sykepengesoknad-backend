@@ -66,7 +66,6 @@ fun opprettNySoknadReisetilskudd(
                     harTidligereUtenlandskSpm = false,
                     yrkesskade = YrkesskadeSporsmalGrunnlag(),
                 ),
-                toggle = toggle,
             ),
     )
 }

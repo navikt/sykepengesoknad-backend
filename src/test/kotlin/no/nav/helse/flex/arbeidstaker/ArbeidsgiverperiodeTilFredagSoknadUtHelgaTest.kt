@@ -34,8 +34,6 @@ class ArbeidsgiverperiodeTilFredagSoknadUtHelgaTest : BaseTestClass() {
     @BeforeEach
     fun setUp() {
         databaseReset.resetDatabase()
-        fakeUnleash.resetAll()
-        fakeUnleash.enable("sykepengesoknad-backend-bekreftelsespunkter")
     }
 
     @Test

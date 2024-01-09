@@ -73,8 +73,6 @@ class AvbruttSoknadIncidentTest : BaseTestClass() {
 
     @Test
     fun `3 - vi besvarer og sender inn søknaden`() {
-        fakeUnleash.resetAll()
-        fakeUnleash.enable("sykepengesoknad-backend-bekreftelsespunkter")
         flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
         val soknaden =
@@ -109,8 +107,6 @@ class AvbruttSoknadIncidentTest : BaseTestClass() {
 
     @Test
     fun `4 - vi korrigerer og sender inn søknaden`() {
-        fakeUnleash.resetAll()
-        fakeUnleash.enable("sykepengesoknad-backend-bekreftelsespunkter")
         flexSyketilfelleMockRestServiceServer.reset()
         val soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.SENDT }.id
         korrigerSoknad(soknadId, fnr)

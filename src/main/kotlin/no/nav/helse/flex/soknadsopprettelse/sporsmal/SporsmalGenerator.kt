@@ -95,7 +95,6 @@ class SporsmalGenerator(
         if (soknad.soknadstype == Soknadstype.REISETILSKUDD) {
             return skapReisetilskuddsoknad(
                 soknadOptions,
-                nyttTilSluttSpmToggle,
             ).tilSporsmalOgAndreKjenteArbeidsforhold()
         }
 
@@ -115,7 +114,6 @@ class SporsmalGenerator(
                                 medlemskapSporsmalTags = lagMedlemsskapSporsmalTags(eksisterendeSoknader, soknad),
                             ),
                         andreKjenteArbeidsforhold = andreKjenteArbeidsforhold.map { it.navn },
-                        toggle = nyttTilSluttSpmToggle,
                     )
 
                 SporsmalOgAndreKjenteArbeidsforhold(
