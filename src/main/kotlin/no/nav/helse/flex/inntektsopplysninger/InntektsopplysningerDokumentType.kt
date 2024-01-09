@@ -15,8 +15,8 @@ import java.time.LocalDate
 enum class InntektsopplysningerDokumentType(val vedleggsnr: String, val tittel: String) {
     SKATTEMELDING("N6", "Skattemelding"),
     SKATTEMELDING_OPTIONAL("N6", "Skattemelding hvis den er klar"),
-    NARINGSSPESIFIKASJON("L1", "Næringsoppgave/Næringsspessifikasjon"),
-    NARINGSSPESIFIKASJON_OPTIONAL("N6", "Næringsoppgave/Næringsspessifikasjon hvis den er klar"),
+    NARINGSSPESIFIKASJON("L1", "Næringsoppgave/Næringsspesifikasjon"),
+    NARINGSSPESIFIKASJON_OPTIONAL("N6", "Næringsoppgave/Næringsspesifikasjon hvis den er klar"),
     REGNSKAP_FORRIGE_AAR("L3", "Regnskap for siste år"),
     REGNSKAP_FORELOPIG("L3", "Foreløpig regnskap i år"),
 }
