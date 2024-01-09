@@ -92,6 +92,7 @@ fun kjenteInntektskilderSporsmal(
                                                                             KJENTE_INNTEKTSKILDER_ARSAK_IKKE_JOBBET_AVSPASERING + idx to "Jeg avspaserte",
                                                                             KJENTE_INNTEKTSKILDER_ARSAK_IKKE_JOBBET_PERMITTERT + idx to "Jeg var permittert",
                                                                             KJENTE_INNTEKTSKILDER_ARSAK_IKKE_JOBBET_PERMISJON + idx to "Jeg hadde permisjon",
+                                                                            KJENTE_INNTEKTSKILDER_ARSAK_IKKE_JOBBET_TILKALLINGSVIKAR + idx to "Jeg er tilkallingsvikar",
                                                                             KJENTE_INNTEKTSKILDER_ARSAK_IKKE_JOBBET_ANNEN + idx to "Annen årsak",
                                                                         ).map {
                                                                             Sporsmal(

@@ -93,7 +93,8 @@ class KjenteOgAndreInntektskilderSpmTest : BaseTestClass() {
         sporsmalstags[12] `should be equal to` medIndex(KJENTE_INNTEKTSKILDER_ARSAK_IKKE_JOBBET_AVSPASERING, 0)
         sporsmalstags[13] `should be equal to` medIndex(KJENTE_INNTEKTSKILDER_ARSAK_IKKE_JOBBET_PERMITTERT, 0)
         sporsmalstags[14] `should be equal to` medIndex(KJENTE_INNTEKTSKILDER_ARSAK_IKKE_JOBBET_PERMISJON, 0)
-        sporsmalstags[15] `should be equal to` medIndex(KJENTE_INNTEKTSKILDER_ARSAK_IKKE_JOBBET_ANNEN, 0)
+        sporsmalstags[15] `should be equal to` medIndex(KJENTE_INNTEKTSKILDER_ARSAK_IKKE_JOBBET_TILKALLINGSVIKAR, 0)
+        sporsmalstags[16] `should be equal to` medIndex(KJENTE_INNTEKTSKILDER_ARSAK_IKKE_JOBBET_ANNEN, 0)
     }
 
     @Test
