@@ -18,10 +18,7 @@ import java.time.LocalDate.now
 import java.time.LocalDateTime
 import java.util.*
 
-fun opprettNySoknadReisetilskudd(
-    aktivertDato: LocalDate,
-    toggle: Boolean,
-): Sykepengesoknad {
+fun opprettNySoknadReisetilskudd(aktivertDato: LocalDate): Sykepengesoknad {
     val soknadMetadata =
         Sykepengesoknad(
             fnr = "11111111111",
@@ -66,7 +63,6 @@ fun opprettNySoknadReisetilskudd(
                     harTidligereUtenlandskSpm = false,
                     yrkesskade = YrkesskadeSporsmalGrunnlag(),
                 ),
-                toggle = toggle,
             ),
     )
 }

@@ -11,19 +11,10 @@ import no.nav.helse.flex.util.DatoUtil.formatterPeriode
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
-fun skapReisetilskuddsoknad(
-    opts: SettOppSoknadOptions,
-    toggle: Boolean = true,
-): List<Sporsmal> {
+fun skapReisetilskuddsoknad(opts: SettOppSoknadOptions): List<Sporsmal> {
     return mutableListOf(
         ansvarserklaringSporsmal(reisetilskudd = true),
     ).also {
-        if (toggle) {
-            it.add(tilSlutt())
-        } else {
-            it.add(vaerKlarOverAtReisetilskudd())
-            it.add(bekreftOpplysningerSporsmal())
-        }
         it.addAll(
             reisetilskuddSporsmal(
                 opts.sykepengesoknad.fom!!,
@@ -32,6 +23,7 @@ fun skapReisetilskuddsoknad(
             ),
         )
         it.addAll(opts.yrkesskade.yrkeskadeSporsmal())
+        it.add(tilSlutt())
     }.toList()
 }
 

@@ -70,7 +70,6 @@ class SporsmalGenerator(
         val erForsteSoknadISykeforlop = erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad)
         val erEnkeltstaendeBehandlingsdagSoknad = soknad.soknadstype == Soknadstype.BEHANDLINGSDAGER
         val harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad)
-        val nyttTilSluttSpmToggle = unleashToggles.nyttTilSluttSporsmal(soknad.fnr)
         val yrkesskadeSporsmalGrunnlag =
             yrkesskadeIndikatorer.hentYrkesskadeSporsmalGrunnlag(
                 identer = identer,
@@ -95,7 +94,6 @@ class SporsmalGenerator(
         if (soknad.soknadstype == Soknadstype.REISETILSKUDD) {
             return skapReisetilskuddsoknad(
                 soknadOptions,
-                nyttTilSluttSpmToggle,
             ).tilSporsmalOgAndreKjenteArbeidsforhold()
         }
 
@@ -115,7 +113,6 @@ class SporsmalGenerator(
                                 medlemskapSporsmalTags = lagMedlemsskapSporsmalTags(eksisterendeSoknader, soknad),
                             ),
                         andreKjenteArbeidsforhold = andreKjenteArbeidsforhold.map { it.navn },
-                        toggle = nyttTilSluttSpmToggle,
                     )
 
                 SporsmalOgAndreKjenteArbeidsforhold(
