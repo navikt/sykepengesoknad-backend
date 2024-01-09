@@ -70,7 +70,6 @@ class SporsmalGenerator(
         val erForsteSoknadISykeforlop = erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad)
         val erEnkeltstaendeBehandlingsdagSoknad = soknad.soknadstype == Soknadstype.BEHANDLINGSDAGER
         val harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad)
-        val nyttTilSluttSpmToggle = unleashToggles.nyttTilSluttSporsmal(soknad.fnr)
         val yrkesskadeSporsmalGrunnlag =
             yrkesskadeIndikatorer.hentYrkesskadeSporsmalGrunnlag(
                 identer = identer,
