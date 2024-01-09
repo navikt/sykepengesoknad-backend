@@ -33,7 +33,9 @@ class JuridiskVurderingKafkaProducer(
                 "Uventet exception ved publisering av juridiskvurdering ${dto.id} på topic $juridiskVurderingTopic",
                 e,
             )
-            throw e
+            // get() kaster InterruptedException eller ExecutionException. Begge er checked, så pakker  de den inn i
+            // en RuntimeException da en CheckedException kan forhindre rollback i metoder annotert med @Transactional.
+            throw RuntimeException(e)
         }
     }
 
