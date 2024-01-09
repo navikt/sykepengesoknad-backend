@@ -20,7 +20,6 @@ import java.util.*
 
 fun opprettNySoknadReisetilskudd(
     aktivertDato: LocalDate,
-    toggle: Boolean,
 ): Sykepengesoknad {
     val soknadMetadata =
         Sykepengesoknad(
