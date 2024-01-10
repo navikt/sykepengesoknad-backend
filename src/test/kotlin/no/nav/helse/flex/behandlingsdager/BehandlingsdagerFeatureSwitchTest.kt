@@ -17,7 +17,6 @@ import org.junit.jupiter.api.TestMethodOrder
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class BehandlingsdagerFeatureSwitchTest : BaseTestClass() {
-
     private val fnr = "12345678900"
 
     @AfterEach
