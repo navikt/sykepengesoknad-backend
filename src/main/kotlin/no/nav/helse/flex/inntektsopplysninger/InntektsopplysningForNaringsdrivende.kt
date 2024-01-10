@@ -7,7 +7,7 @@ import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.repository.SykepengesoknadRepository
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET
+import no.nav.helse.flex.soknadsopprettelse.INNTEKTSOPPLYSNINGER_DRIFT_VIRKSOMHETEN
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
@@ -33,7 +33,7 @@ class InntektsopplysningForNaringsdrivende(
             return
         }
 
-        val visNyKvittering = soknad.getSporsmalMedTagOrNull(INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET) != null
+        val visNyKvittering = soknad.getSporsmalMedTagOrNull(INNTEKTSOPPLYSNINGER_DRIFT_VIRKSOMHETEN) != null
 
         sykepengesoknadRepository.findBySykepengesoknadUuid(soknad.id)?.let { sykepengeSoknad ->
             val oppdatertSoknad =
