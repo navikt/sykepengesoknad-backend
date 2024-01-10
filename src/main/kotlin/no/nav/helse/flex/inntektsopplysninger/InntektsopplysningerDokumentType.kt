@@ -7,9 +7,7 @@ import no.nav.helse.flex.inntektsopplysninger.InntektsopplysningerDokumentType.R
 import no.nav.helse.flex.inntektsopplysninger.InntektsopplysningerDokumentType.REGNSKAP_FORRIGE_AAR
 import no.nav.helse.flex.inntektsopplysninger.InntektsopplysningerDokumentType.SKATTEMELDING
 import no.nav.helse.flex.inntektsopplysninger.InntektsopplysningerDokumentType.SKATTEMELDING_OPTIONAL
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET_JA
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET_NEI
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSOPPLYSNINGER_VARIG_ENDRING_25_PROSENT
+import no.nav.helse.flex.soknadsopprettelse.*
 import java.time.LocalDate
 
 enum class InntektsopplysningerDokumentType(val vedleggsnr: String, val tittel: String) {
@@ -44,6 +42,12 @@ fun dokumenterSomSkalSendesInn(dagensDato: LocalDate): List<Inntektsopplysninger
 }
 
 fun Sykepengesoknad.inntektsopplysningerMaaDokumenteres(): Boolean {
+    getSporsmalMedTagOrNull(INNTEKTSOPPLYSNINGER_DRIFT_VIRKSOMHETEN_NEI)?.let {
+        if (it.forsteSvar == "CHECKED") {
+            return false
+        }
+    }
+
     getSporsmalMedTagOrNull(INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET_JA)?.let {
         if (it.forsteSvar == "CHECKED") {
             return true

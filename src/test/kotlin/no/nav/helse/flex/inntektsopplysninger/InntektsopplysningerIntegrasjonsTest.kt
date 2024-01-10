@@ -110,7 +110,7 @@ class InntektsopplysningerIntegrasjonsTest : BaseTestClass() {
                 ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER,
                 UTLAND,
-                INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET,
+                INNTEKTSOPPLYSNINGER_DRIFT_VIRKSOMHETEN,
                 VAER_KLAR_OVER_AT,
                 BEKREFT_OPPLYSNINGER,
             ),
@@ -144,6 +144,11 @@ class InntektsopplysningerIntegrasjonsTest : BaseTestClass() {
             besvarStandardsporsmalSporsmal(soknadBesvarer)
             val sendtSoknad =
                 soknadBesvarer
+                    .besvarSporsmal(
+                        tag = INNTEKTSOPPLYSNINGER_DRIFT_VIRKSOMHETEN_JA,
+                        svar = "CHECKED",
+                        ferdigBesvart = false,
+                    )
                     .besvarSporsmal(
                         tag = INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET_JA,
                         svar = "CHECKED",
