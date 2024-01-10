@@ -16,7 +16,7 @@ class InnsendingApiClient(
 ) {
     val log = logger()
 
-    fun opprettEttersendinbg(request: EttersendingRequest): EttersendingResponse {
+    fun opprettEttersending(request: EttersendingRequest): EttersendingResponse {
         val uriBuilder =
             UriComponentsBuilder.fromHttpUrl("$url/ekstern/v1/ettersending")
 
@@ -50,7 +50,6 @@ class InnsendingApiClient(
 }
 
 data class EttersendingRequest(
-    val tittel: String,
     val skjemanr: String,
     val sprak: String,
     val tema: String,

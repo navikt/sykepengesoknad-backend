@@ -176,7 +176,6 @@ class InntektsopplysningerIntegrasjonsTest : BaseTestClass() {
         InnsendingApiMockDispatcher.getRequests().shouldHaveSize(1)
         val lastRequest = InnsendingApiMockDispatcher.lastRequest()
         lastRequest.brukernotifikasjonstype shouldBeEqualTo "oppgave"
-        lastRequest.tittel shouldBeEqualTo "Inntektsopplysninger for selvstendig næringsdrivende og/eller frilansere som skal ha sykepenger"
         lastRequest.vedleggsListe.shouldNotBeEmpty()
         lastRequest.tema shouldBeEqualTo "SYK"
         lastRequest.skjemanr shouldBeEqualTo "NAV 08-35.01"

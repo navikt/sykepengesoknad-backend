@@ -41,9 +41,8 @@ class InntektsopplysningForNaringsdrivende(
                     val dokumenter = dokumenterSomSkalSendesInn(LocalDate.now())
 
                     val innsendingResponse =
-                        innsendingApiClient.opprettEttersendinbg(
+                        innsendingApiClient.opprettEttersending(
                             EttersendingRequest(
-                                tittel = "Inntektsopplysninger for selvstendig næringsdrivende og/eller frilansere som skal ha sykepenger",
                                 skjemanr = "NAV 08-35.01",
                                 sprak = "nb_NO",
                                 tema = "SYK",
