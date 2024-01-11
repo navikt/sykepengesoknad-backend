@@ -130,7 +130,7 @@ class SporsmalGenerator(
                     Arbeidssituasjon.FRILANSER,
                     -> settOppSoknadSelvstendigOgFrilanser(soknadOptions)
 
-                    Arbeidssituasjon.ARBEIDSLEDIG -> settOppSoknadArbeidsledig(soknadOptions)
+                    Arbeidssituasjon.ARBEIDSLEDIG -> settOppSoknadArbeidsledig(soknadOptions, nyttTilSluttSpmToggle)
                     Arbeidssituasjon.ANNET -> settOppSoknadAnnetArbeidsforhold(soknadOptions)
 
                     else -> {
