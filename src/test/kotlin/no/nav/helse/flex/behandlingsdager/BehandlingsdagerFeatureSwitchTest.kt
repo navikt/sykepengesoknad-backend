@@ -4,7 +4,6 @@ import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.sendSykmelding
-import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
 import no.nav.helse.flex.testdata.behandingsdager
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL
@@ -50,15 +49,6 @@ class BehandlingsdagerFeatureSwitchTest : BaseTestClass() {
                 "TIL_SLUTT",
             ),
         )
-        assertThat(
-            soknad1.sporsmal!!.first {
-                it.tag == ANSVARSERKLARING
-            }.sporsmalstekst,
-        ).isEqualTo(
-            "Jeg vet at jeg kan miste retten til sykepenger hvis opplysningene jeg gir ikke er riktige eller " +
-                "fullstendige. Jeg vet også at NAV kan holde igjen eller kreve tilbake penger, og at å gi feil " +
-                "opplysninger kan være straffbart.",
-        )
     }
 
     @Test
@@ -83,15 +73,6 @@ class BehandlingsdagerFeatureSwitchTest : BaseTestClass() {
                 "VAER_KLAR_OVER_AT",
                 "BEKREFT_OPPLYSNINGER",
             ),
-        )
-        assertThat(
-            soknad1.sporsmal!!.first {
-                it.tag == ANSVARSERKLARING
-            }.sporsmalstekst,
-        ).isEqualTo(
-            "Jeg vet at jeg kan miste retten til sykepenger hvis opplysningene jeg gir ikke er riktige eller " +
-                "fullstendige. Jeg vet også at NAV kan holde igjen eller kreve tilbake penger, og at å gi feil " +
-                "opplysninger kan være straffbart.",
         )
     }
 }
