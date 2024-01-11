@@ -6,5 +6,5 @@ data class KafkaMetadataDTO(
     val sykmeldingId: String,
     val timestamp: OffsetDateTime,
     val fnr: String,
-    val source: String
+    val source: String,
 )

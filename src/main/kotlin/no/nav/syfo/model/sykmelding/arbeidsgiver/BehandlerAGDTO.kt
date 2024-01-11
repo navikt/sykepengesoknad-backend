@@ -8,5 +8,5 @@ data class BehandlerAGDTO(
     val etternavn: String,
     val hpr: String?,
     val adresse: AdresseDTO,
-    val tlf: String?
+    val tlf: String?,
 )
