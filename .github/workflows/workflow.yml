@@ -14,5 +14,4 @@ jobs:
       security-events: write
     with:
       app: ${{ github.event.repository.name }}
-      runner: ubuntu-latest-8-cores
     secrets: inherit
