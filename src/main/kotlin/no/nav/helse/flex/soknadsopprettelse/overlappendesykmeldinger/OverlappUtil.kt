@@ -59,7 +59,7 @@ private fun Sykepengesoknad.signaturDatoIsBefore(sykmelding: ArbeidsgiverSykmeld
     return when {
         this.sykmeldingSkrevet != sykmelding.behandletTidspunkt.toInstant() -> false
         this.sykmeldingSignaturDato == null || sykmelding.signaturDato == null -> false
-        this.sykmeldingSignaturDato.isBefore(sykmelding.signaturDato!!.toInstant()) -> true
+        this.sykmeldingSignaturDato.isBefore(sykmelding.signaturDato.toInstant()) -> true
         else -> false
     }
 }
@@ -68,7 +68,7 @@ private fun Sykepengesoknad.signaturDatoIsAfter(sykmelding: ArbeidsgiverSykmeldi
     return when {
         this.sykmeldingSkrevet != sykmelding.behandletTidspunkt.toInstant() -> false
         this.sykmeldingSignaturDato == null || sykmelding.signaturDato == null -> false
-        this.sykmeldingSignaturDato.isAfter(sykmelding.signaturDato!!.toInstant()) -> true
+        this.sykmeldingSignaturDato.isAfter(sykmelding.signaturDato.toInstant()) -> true
         else -> false
     }
 }
