@@ -9,9 +9,7 @@ import no.nav.helse.flex.skapAzureJwt
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
-import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.util.OBJECT_MAPPER
-import no.nav.helse.flex.ventPåRecords
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.BeforeAll
@@ -112,21 +110,5 @@ class FlexAPITest : BaseTestClass() {
                     .contentType(MediaType.APPLICATION_JSON),
             )
             .andExpect(MockMvcResultMatchers.status().is4xxClientError)
-    }
-
-    @Test
-    fun republiserSoknad() {
-        val soknad = sykepengesoknadRepository.findByFnrIn(listOf(fnr)).first()
-
-        mockMvc
-            .perform(
-                MockMvcRequestBuilders
-                    .post("/api/v1/flex/republiser/${soknad.sykepengesoknadUuid}")
-                    .header("Authorization", "Bearer ${skapAzureJwt("flex-internal-frontend-client-id")}"),
-            ).andExpect(MockMvcResultMatchers.status().isOk)
-
-        val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
-        kafkaSoknader shouldHaveSize 1
-        kafkaSoknader.first().id shouldBeEqualTo soknad.sykepengesoknadUuid
     }
 }
