@@ -1,4 +1,4 @@
-package no.nav.syfo.model.sykmeldingstatus
+package no.nav.syfo.sykmelding.kafka.model.sykmeldingstatus
 
 import java.time.OffsetDateTime
 

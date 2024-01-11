@@ -2,8 +2,8 @@ package no.nav.helse.flex.domain.sykmelding
 
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstype
-import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
-import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO
 
 fun finnSoknadsType(
     arbeidssituasjon: Arbeidssituasjon,

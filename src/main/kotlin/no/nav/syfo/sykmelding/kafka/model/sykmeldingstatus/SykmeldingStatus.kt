@@ -1,4 +1,4 @@
-package no.nav.syfo.model.sykmeldingstatus
+package no.nav.syfo.sykmelding.kafka.model.sykmeldingstatus
 
 const val STATUS_APEN = "APEN"
 const val STATUS_AVBRUTT = "AVBRUTT"

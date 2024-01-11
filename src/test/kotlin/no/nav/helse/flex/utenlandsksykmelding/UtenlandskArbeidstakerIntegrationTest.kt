@@ -18,7 +18,6 @@ import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL
 import no.nav.helse.flex.util.flatten
 import no.nav.helse.flex.ventPåRecords
-import no.nav.syfo.model.sykmelding.arbeidsgiver.UtenlandskSykmeldingAGDTO
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should not be`
@@ -57,7 +56,10 @@ class UtenlandskArbeidstakerIntegrationTest : BaseTestClass() {
                             fom = basisdato,
                             tom = basisdato.plusDays(15),
                         ),
-                    utenlandskSykemelding = UtenlandskSykmeldingAGDTO("hellas"),
+                    utenlandskSykemelding =
+                        no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.UtenlandskSykmeldingAGDTO(
+                            "hellas",
+                        ),
                 ),
             )
 

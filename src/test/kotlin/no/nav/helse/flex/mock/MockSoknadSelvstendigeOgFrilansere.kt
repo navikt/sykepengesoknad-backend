@@ -11,10 +11,10 @@ import no.nav.helse.flex.testutil.besvarsporsmal
 import no.nav.helse.flex.util.DatoUtil.periodeTilJson
 import no.nav.helse.flex.util.tilOsloInstant
 import no.nav.helse.flex.yrkesskade.YrkesskadeSporsmalGrunnlag
-import no.nav.syfo.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO
-import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
-import no.nav.syfo.model.sykmelding.model.GradertDTO
-import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmelding.model.GradertDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO
 import org.springframework.stereotype.Component
 import java.time.Instant
 import java.time.LocalDate.of
@@ -47,9 +47,16 @@ fun opprettNyNaeringsdrivendeSoknad(): Sykepengesoknad {
                     SykmeldingsperiodeAGDTO(
                         fom = of(2018, 6, 1),
                         tom = of(2018, 6, 5),
-                        gradert = GradertDTO(grad = 100, reisetilskudd = false),
+                        gradert =
+                            GradertDTO(
+                                grad = 100,
+                                reisetilskudd = false,
+                            ),
                         type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
-                        aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                        aktivitetIkkeMulig =
+                            AktivitetIkkeMuligAGDTO(
+                                arbeidsrelatertArsak = null,
+                            ),
                         behandlingsdager = null,
                         innspillTilArbeidsgiver = null,
                         reisetilskudd = false,
@@ -57,9 +64,16 @@ fun opprettNyNaeringsdrivendeSoknad(): Sykepengesoknad {
                     SykmeldingsperiodeAGDTO(
                         fom = of(2018, 6, 6),
                         tom = of(2018, 6, 10),
-                        gradert = GradertDTO(grad = 40, reisetilskudd = false),
+                        gradert =
+                            GradertDTO(
+                                grad = 40,
+                                reisetilskudd = false,
+                            ),
                         type = PeriodetypeDTO.GRADERT,
-                        aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                        aktivitetIkkeMulig =
+                            AktivitetIkkeMuligAGDTO(
+                                arbeidsrelatertArsak = null,
+                            ),
                         behandlingsdager = null,
                         innspillTilArbeidsgiver = null,
                         reisetilskudd = false,
@@ -105,9 +119,16 @@ fun opprettSendtFrilanserSoknad(): Sykepengesoknad {
                     SykmeldingsperiodeAGDTO(
                         fom = of(2018, 5, 20),
                         tom = of(2018, 5, 24),
-                        gradert = GradertDTO(grad = 100, reisetilskudd = false),
+                        gradert =
+                            GradertDTO(
+                                grad = 100,
+                                reisetilskudd = false,
+                            ),
                         type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
-                        aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                        aktivitetIkkeMulig =
+                            AktivitetIkkeMuligAGDTO(
+                                arbeidsrelatertArsak = null,
+                            ),
                         behandlingsdager = null,
                         innspillTilArbeidsgiver = null,
                         reisetilskudd = false,
@@ -115,9 +136,16 @@ fun opprettSendtFrilanserSoknad(): Sykepengesoknad {
                     SykmeldingsperiodeAGDTO(
                         fom = of(2018, 5, 25),
                         tom = of(2018, 5, 28),
-                        gradert = GradertDTO(grad = 40, reisetilskudd = false),
+                        gradert =
+                            GradertDTO(
+                                grad = 40,
+                                reisetilskudd = false,
+                            ),
                         type = PeriodetypeDTO.GRADERT,
-                        aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                        aktivitetIkkeMulig =
+                            AktivitetIkkeMuligAGDTO(
+                                arbeidsrelatertArsak = null,
+                            ),
                         behandlingsdager = null,
                         innspillTilArbeidsgiver = null,
                         reisetilskudd = false,

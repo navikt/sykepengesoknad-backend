@@ -9,10 +9,10 @@ import no.nav.helse.flex.soknadsopprettelse.settOppSoknadAnnetArbeidsforhold
 import no.nav.helse.flex.soknadsopprettelse.tilSoknadsperioder
 import no.nav.helse.flex.util.tilOsloInstant
 import no.nav.helse.flex.yrkesskade.YrkesskadeSporsmalGrunnlag
-import no.nav.syfo.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO
-import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
-import no.nav.syfo.model.sykmelding.model.GradertDTO
-import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmelding.model.GradertDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO
 import java.time.Instant
 import java.time.LocalDate.now
 import java.time.LocalDateTime
@@ -36,9 +36,16 @@ fun opprettNySoknadAnnet(): Sykepengesoknad {
                     SykmeldingsperiodeAGDTO(
                         fom = now().minusDays(19),
                         tom = now().minusDays(10),
-                        gradert = GradertDTO(grad = 100, reisetilskudd = false),
+                        gradert =
+                            GradertDTO(
+                                grad = 100,
+                                reisetilskudd = false,
+                            ),
                         type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
-                        aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                        aktivitetIkkeMulig =
+                            AktivitetIkkeMuligAGDTO(
+                                arbeidsrelatertArsak = null,
+                            ),
                         behandlingsdager = null,
                         innspillTilArbeidsgiver = null,
                         reisetilskudd = false,

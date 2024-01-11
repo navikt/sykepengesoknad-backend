@@ -1,38 +1,33 @@
 package no.nav.helse.flex.reisetilskudd
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import no.nav.helse.flex.BaseTestClass
-import no.nav.helse.flex.avbrytSoknad
+import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSvar
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Kvittering
 import no.nav.helse.flex.domain.Utgiftstype
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
-import no.nav.helse.flex.gjenapneSoknad
-import no.nav.helse.flex.hentSoknad
-import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
-import no.nav.helse.flex.lagreSvar
-import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
-import no.nav.helse.flex.oppdaterSporsmalMedResult
-import no.nav.helse.flex.sendSoknadMedResult
-import no.nav.helse.flex.slettSvar
-import no.nav.helse.flex.soknadsopprettelse.*
+import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
+import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
+import no.nav.helse.flex.soknadsopprettelse.KVITTERINGER
+import no.nav.helse.flex.soknadsopprettelse.REISE_MED_BIL
+import no.nav.helse.flex.soknadsopprettelse.TIL_SLUTT
+import no.nav.helse.flex.soknadsopprettelse.TRANSPORT_TIL_DAGLIG
+import no.nav.helse.flex.soknadsopprettelse.UTBETALING
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.tilSlutt
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.testutil.byttSvar
-import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL
 import no.nav.helse.flex.util.OBJECT_MAPPER
 import no.nav.helse.flex.util.serialisertTilString
-import no.nav.helse.flex.ventPåRecords
-import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
-import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
-import no.nav.syfo.model.sykmeldingstatus.STATUS_SENDT
+import no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmeldingstatus.ArbeidsgiverStatusDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmeldingstatus.STATUS_SENDT
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
@@ -73,7 +68,11 @@ class ReisetilskuddIntegrationTest : BaseTestClass() {
                 fnr = fnr,
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
                 statusEvent = STATUS_SENDT,
-                arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "Kebabbiten"),
+                arbeidsgiver =
+                    ArbeidsgiverStatusDTO(
+                        orgnummer = "123454543",
+                        orgNavn = "Kebabbiten",
+                    ),
             )
         val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
         val sykmelding =

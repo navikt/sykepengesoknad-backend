@@ -16,15 +16,6 @@ import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
-import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
-import no.nav.syfo.model.sykmelding.model.GradertDTO
-import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
-import no.nav.syfo.model.sykmeldingstatus.STATUS_BEKREFTET
-import no.nav.syfo.model.sykmeldingstatus.STATUS_SENDT
-import no.nav.syfo.model.sykmeldingstatus.ShortNameDTO
-import no.nav.syfo.model.sykmeldingstatus.SporsmalOgSvarDTO
-import no.nav.syfo.model.sykmeldingstatus.SvartypeDTO
-import no.nav.syfo.model.sykmeldingstatus.SykmeldingStatusKafkaMessageDTO
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertThrows
@@ -118,10 +109,10 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
             sykmeldingStatusKafkaMessageDTO.event.copy(
                 sporsmals =
                     listOf(
-                        SporsmalOgSvarDTO(
+                        no.nav.syfo.sykmelding.kafka.model.sykmeldingstatus.SporsmalOgSvarDTO(
                             tekst = "Harru forsikring?",
-                            svartype = SvartypeDTO.JA_NEI,
-                            shortName = ShortNameDTO.FORSIKRING,
+                            svartype = no.nav.syfo.sykmelding.kafka.model.sykmeldingstatus.SvartypeDTO.JA_NEI,
+                            shortName = no.nav.syfo.sykmelding.kafka.model.sykmeldingstatus.ShortNameDTO.FORSIKRING,
                             svar = "JA",
                         ),
                         sykmeldingStatusKafkaMessageDTO.event.sporsmals!![0],
@@ -159,10 +150,10 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
             sykmeldingStatusKafkaMessageDTO.event.copy(
                 sporsmals =
                     listOf(
-                        SporsmalOgSvarDTO(
+                        no.nav.syfo.sykmelding.kafka.model.sykmeldingstatus.SporsmalOgSvarDTO(
                             tekst = "Harru forsikring?",
-                            svartype = SvartypeDTO.JA_NEI,
-                            shortName = ShortNameDTO.FORSIKRING,
+                            svartype = no.nav.syfo.sykmelding.kafka.model.sykmeldingstatus.SvartypeDTO.JA_NEI,
+                            shortName = no.nav.syfo.sykmelding.kafka.model.sykmeldingstatus.ShortNameDTO.FORSIKRING,
                             svar = "NEI",
                         ),
                         sykmeldingStatusKafkaMessageDTO.event.sporsmals!![0],
@@ -276,20 +267,20 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
                 .copy(
                     sykmeldingsperioder =
                         listOf(
-                            SykmeldingsperiodeAGDTO(
+                            no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO(
                                 fom = LocalDate.of(2020, 5, 4),
                                 tom = LocalDate.of(2020, 5, 18),
-                                type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+                                type = no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
                                 reisetilskudd = false,
                                 aktivitetIkkeMulig = null,
                                 behandlingsdager = null,
                                 gradert = null,
                                 innspillTilArbeidsgiver = null,
                             ),
-                            SykmeldingsperiodeAGDTO(
+                            no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO(
                                 fom = LocalDate.of(2019, 3, 28),
                                 tom = LocalDate.of(2020, 1, 6),
-                                type = PeriodetypeDTO.BEHANDLINGSDAGER,
+                                type = no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO.BEHANDLINGSDAGER,
                                 reisetilskudd = false,
                                 aktivitetIkkeMulig = null,
                                 behandlingsdager = 4,
@@ -326,20 +317,20 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
                 .copy(
                     sykmeldingsperioder =
                         listOf(
-                            SykmeldingsperiodeAGDTO(
+                            no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO(
                                 fom = LocalDate.of(2020, 5, 1),
                                 tom = LocalDate.of(2020, 5, 1),
-                                type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+                                type = no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
                                 reisetilskudd = false,
                                 aktivitetIkkeMulig = null,
                                 behandlingsdager = null,
                                 gradert = null,
                                 innspillTilArbeidsgiver = null,
                             ),
-                            SykmeldingsperiodeAGDTO(
+                            no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO(
                                 fom = LocalDate.of(2019, 1, 1),
                                 tom = LocalDate.of(2019, 1, 1),
-                                type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+                                type = no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
                                 reisetilskudd = false,
                                 aktivitetIkkeMulig = null,
                                 behandlingsdager = null,
@@ -378,11 +369,11 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
                     harRedusertArbeidsgiverperiode = true,
                     sykmeldingsperioder =
                         listOf(
-                            SykmeldingsperiodeAGDTO(
+                            no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO(
                                 fom = LocalDate.of(2020, 2, 1),
                                 tom = LocalDate.of(2020, 3, 15),
-                                type = PeriodetypeDTO.GRADERT,
-                                gradert = GradertDTO(42, true),
+                                type = no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO.GRADERT,
+                                gradert = no.nav.syfo.sykmelding.kafka.model.sykmelding.model.GradertDTO(42, true),
                                 reisetilskudd = false,
                                 aktivitetIkkeMulig = null,
                                 behandlingsdager = null,
@@ -419,10 +410,10 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
                     harRedusertArbeidsgiverperiode = true,
                     sykmeldingsperioder =
                         listOf(
-                            SykmeldingsperiodeAGDTO(
+                            no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO(
                                 fom = LocalDate.of(2020, 2, 1),
                                 tom = LocalDate.of(2020, 3, 15),
-                                type = PeriodetypeDTO.AVVENTENDE,
+                                type = no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO.AVVENTENDE,
                                 reisetilskudd = false,
                                 aktivitetIkkeMulig = null,
                                 behandlingsdager = null,
@@ -455,21 +446,21 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
                 harRedusertArbeidsgiverperiode = true,
                 sykmeldingsperioder =
                     listOf(
-                        SykmeldingsperiodeAGDTO(
+                        no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO(
                             fom = LocalDate.of(2020, 2, 1),
                             tom = LocalDate.of(2020, 2, 5),
-                            type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+                            type = no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
                             reisetilskudd = false,
                             aktivitetIkkeMulig = null,
                             behandlingsdager = null,
                             gradert = null,
                             innspillTilArbeidsgiver = null,
                         ),
-                        SykmeldingsperiodeAGDTO(
+                        no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO(
                             fom = LocalDate.of(2020, 2, 6),
                             tom = LocalDate.of(2020, 3, 15),
-                            type = PeriodetypeDTO.GRADERT,
-                            gradert = GradertDTO(30, false),
+                            type = no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO.GRADERT,
+                            gradert = no.nav.syfo.sykmelding.kafka.model.sykmelding.model.GradertDTO(30, false),
                             reisetilskudd = false,
                             aktivitetIkkeMulig = null,
                             behandlingsdager = null,
@@ -664,7 +655,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
         assertThrows(RuntimeException::class.java) {
             val sykmeldingStatusKafkaMessageDTO =
                 skapKafkaMelding(
-                    statusEvent = STATUS_BEKREFTET,
+                    statusEvent = no.nav.syfo.sykmelding.kafka.model.sykmeldingstatus.STATUS_BEKREFTET,
                     arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
                 )
             val sykmelding = skapSykmeldingDTO(sykmeldingStatusKafkaMessageDTO)
@@ -687,7 +678,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
         val dato = LocalDate.now()
         val sykmeldingStatusKafkaMessageDTO =
             skapKafkaMelding(
-                statusEvent = STATUS_BEKREFTET,
+                statusEvent = no.nav.syfo.sykmelding.kafka.model.sykmeldingstatus.STATUS_BEKREFTET,
                 arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
             )
         val sykmelding =
@@ -696,10 +687,10 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
                 syketilfelleStartDato = dato,
                 sykmeldingsperioder =
                     listOf(
-                        SykmeldingsperiodeAGDTO(
+                        no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO(
                             fom = dato,
                             tom = dato.plusDays(40),
-                            type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+                            type = no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
                             reisetilskudd = false,
                             aktivitetIkkeMulig = null,
                             behandlingsdager = null,
@@ -729,7 +720,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
         val dato = LocalDate.now()
         val sykmeldingStatusKafkaMessageDTO =
             skapKafkaMelding(
-                statusEvent = STATUS_BEKREFTET,
+                statusEvent = no.nav.syfo.sykmelding.kafka.model.sykmeldingstatus.STATUS_BEKREFTET,
                 arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
             )
         val sykmelding =
@@ -738,10 +729,10 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
                 syketilfelleStartDato = dato,
                 sykmeldingsperioder =
                     listOf(
-                        SykmeldingsperiodeAGDTO(
+                        no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO(
                             fom = dato,
                             tom = dato.plusDays(40),
-                            type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+                            type = no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
                             reisetilskudd = false,
                             aktivitetIkkeMulig = null,
                             behandlingsdager = null,
@@ -774,7 +765,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
     }
 
     private fun skapKafkaMelding(
-        statusEvent: String = STATUS_SENDT,
+        statusEvent: String = no.nav.syfo.sykmelding.kafka.model.sykmeldingstatus.STATUS_SENDT,
         arbeidssituasjon: Arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
     ) = skapSykmeldingStatusKafkaMessageDTO(
         fnr = fnr,
@@ -784,14 +775,14 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
     )
 
     private fun skapSykmeldingDTO(
-        sykmeldingStatusKafkaMessageDTO: SykmeldingStatusKafkaMessageDTO,
+        sykmeldingStatusKafkaMessageDTO: no.nav.syfo.sykmelding.kafka.model.sykmeldingstatus.SykmeldingStatusKafkaMessageDTO,
         syketilfelleStartDato: LocalDate? = LocalDate.of(2020, 2, 1),
-        sykmeldingsperioder: List<SykmeldingsperiodeAGDTO> =
+        sykmeldingsperioder: List<no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO> =
             listOf(
-                SykmeldingsperiodeAGDTO(
+                no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO(
                     fom = LocalDate.of(2020, 2, 1),
                     tom = LocalDate.of(2020, 2, 5),
-                    type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+                    type = no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
                     reisetilskudd = false,
                     aktivitetIkkeMulig = null,
                     behandlingsdager = null,

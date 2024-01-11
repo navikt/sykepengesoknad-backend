@@ -18,7 +18,7 @@ import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_MEDLEMSKAP_SPORSMAL
 import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL
 import no.nav.helse.flex.util.flatten
 import no.nav.helse.flex.util.serialisertTilString
-import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmeldingstatus.ArbeidsgiverStatusDTO
 import okhttp3.mockwebserver.MockResponse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
@@ -71,7 +71,11 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
                 sykmeldingKafkaMessage(
                     arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
                     fnr = fnr,
-                    arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "000000001", orgNavn = "Arbeidsgiver 1"),
+                    arbeidsgiver =
+                        ArbeidsgiverStatusDTO(
+                            orgnummer = "000000001",
+                            orgNavn = "Arbeidsgiver 1",
+                        ),
                     sykmeldingsperioder =
                         heltSykmeldt(
                             fom = LocalDate.of(2023, 1, 1),
@@ -87,7 +91,11 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
                     sykmeldingKafkaMessage(
                         arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
                         fnr = fnr,
-                        arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "000000001", orgNavn = "Arbeidsgiver 1"),
+                        arbeidsgiver =
+                            ArbeidsgiverStatusDTO(
+                                orgnummer = "000000001",
+                                orgNavn = "Arbeidsgiver 1",
+                            ),
                         sykmeldingsperioder =
                             heltSykmeldt(
                                 fom = LocalDate.of(2023, 1, 8),
@@ -119,7 +127,11 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
                 sykmeldingKafkaMessage(
                     arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
                     fnr = fnr,
-                    arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "000000001", orgNavn = "Arbeidsgiver 1"),
+                    arbeidsgiver =
+                        ArbeidsgiverStatusDTO(
+                            orgnummer = "000000001",
+                            orgNavn = "Arbeidsgiver 1",
+                        ),
                     sykmeldingsperioder =
                         heltSykmeldt(
                             fom = LocalDate.of(2023, 1, 1),
@@ -135,7 +147,11 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
                     sykmeldingKafkaMessage(
                         arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
                         fnr = fnr,
-                        arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "000000001", orgNavn = "Arbeidsgiver 1"),
+                        arbeidsgiver =
+                            ArbeidsgiverStatusDTO(
+                                orgnummer = "000000001",
+                                orgNavn = "Arbeidsgiver 1",
+                            ),
                         sykmeldingsperioder =
                             heltSykmeldt(
                                 fom = LocalDate.of(2023, 1, 1),
@@ -169,7 +185,11 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
                 sykmeldingKafkaMessage(
                     arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
                     fnr = fnr,
-                    arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "000000001", orgNavn = "Arbeidsgiver 1"),
+                    arbeidsgiver =
+                        ArbeidsgiverStatusDTO(
+                            orgnummer = "000000001",
+                            orgNavn = "Arbeidsgiver 1",
+                        ),
                     sykmeldingsperioder =
                         heltSykmeldt(
                             fom = LocalDate.of(2023, 1, 1),
@@ -187,7 +207,11 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
                     sykmeldingKafkaMessage(
                         arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
                         fnr = fnr,
-                        arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "000000001", orgNavn = "Arbeidsgiver 1"),
+                        arbeidsgiver =
+                            ArbeidsgiverStatusDTO(
+                                orgnummer = "000000001",
+                                orgNavn = "Arbeidsgiver 1",
+                            ),
                         sykmeldingsperioder =
                             heltSykmeldt(
                                 fom = LocalDate.of(2023, 1, 5),
@@ -222,7 +246,11 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
                     sykmeldingKafkaMessage(
                         arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
                         fnr = fnr,
-                        arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "000000001", orgNavn = "Arbeidsgiver 1"),
+                        arbeidsgiver =
+                            ArbeidsgiverStatusDTO(
+                                orgnummer = "000000001",
+                                orgNavn = "Arbeidsgiver 1",
+                            ),
                         sykmeldingsperioder =
                             heltSykmeldt(
                                 fom = LocalDate.of(2023, 1, 1),
@@ -254,7 +282,11 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
                 sykmeldingKafkaMessage(
                     arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
                     fnr = fnr,
-                    arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "000000001", orgNavn = "Arbeidsgiver 1"),
+                    arbeidsgiver =
+                        ArbeidsgiverStatusDTO(
+                            orgnummer = "000000001",
+                            orgNavn = "Arbeidsgiver 1",
+                        ),
                     sykmeldingsperioder =
                         heltSykmeldt(
                             fom = LocalDate.of(2023, 1, 1),
@@ -273,7 +305,11 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
                     sykmeldingKafkaMessage(
                         arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
                         fnr = fnr,
-                        arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "000000001", orgNavn = "Arbeidsgiver 1"),
+                        arbeidsgiver =
+                            ArbeidsgiverStatusDTO(
+                                orgnummer = "000000001",
+                                orgNavn = "Arbeidsgiver 1",
+                            ),
                         sykmeldingsperioder =
                             heltSykmeldt(
                                 fom = LocalDate.of(2023, 1, 8),
@@ -304,7 +340,11 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
                 sykmeldingKafkaMessage(
                     arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
                     fnr = fnr,
-                    arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "000000001", orgNavn = "Arbeidsgiver 1"),
+                    arbeidsgiver =
+                        ArbeidsgiverStatusDTO(
+                            orgnummer = "000000001",
+                            orgNavn = "Arbeidsgiver 1",
+                        ),
                     sykmeldingsperioder =
                         heltSykmeldt(
                             fom = LocalDate.of(2023, 1, 8),
@@ -319,7 +359,11 @@ class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
                     sykmeldingKafkaMessage(
                         arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
                         fnr = fnr,
-                        arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "000000001", orgNavn = "Arbeidsgiver 1"),
+                        arbeidsgiver =
+                            ArbeidsgiverStatusDTO(
+                                orgnummer = "000000001",
+                                orgNavn = "Arbeidsgiver 1",
+                            ),
                         sykmeldingsperioder =
                             heltSykmeldt(
                                 fom = LocalDate.of(2023, 1, 1),

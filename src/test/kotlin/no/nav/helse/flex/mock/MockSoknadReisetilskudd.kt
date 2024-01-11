@@ -9,9 +9,6 @@ import no.nav.helse.flex.soknadsopprettelse.skapReisetilskuddsoknad
 import no.nav.helse.flex.soknadsopprettelse.tilSoknadsperioder
 import no.nav.helse.flex.util.tilOsloInstant
 import no.nav.helse.flex.yrkesskade.YrkesskadeSporsmalGrunnlag
-import no.nav.syfo.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO
-import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
-import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDate.now
@@ -33,12 +30,15 @@ fun opprettNySoknadReisetilskudd(aktivertDato: LocalDate): Sykepengesoknad {
             sykmeldingSkrevet = LocalDateTime.now().minusDays(19).tilOsloInstant(),
             soknadPerioder =
                 listOf(
-                    SykmeldingsperiodeAGDTO(
+                    no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO(
                         fom = now().minusDays(19),
                         tom = now().minusDays(10),
                         gradert = null,
-                        type = PeriodetypeDTO.REISETILSKUDD,
-                        aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                        type = no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO.REISETILSKUDD,
+                        aktivitetIkkeMulig =
+                            no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO(
+                                arbeidsrelatertArsak = null,
+                            ),
                         behandlingsdager = null,
                         innspillTilArbeidsgiver = null,
                         reisetilskudd = true,

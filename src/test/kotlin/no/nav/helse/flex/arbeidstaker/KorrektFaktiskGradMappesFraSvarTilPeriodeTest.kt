@@ -1,15 +1,8 @@
 package no.nav.helse.flex.arbeidstaker
 
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
-import no.nav.helse.flex.hentSoknad
-import no.nav.helse.flex.hentSoknader
-import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.juridiskvurdering.Utfall
-import no.nav.helse.flex.korrigerSoknad
-import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
-import no.nav.helse.flex.oppdaterSporsmalMedResult
-import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER_V2
 import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
 import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
@@ -20,14 +13,12 @@ import no.nav.helse.flex.soknadsopprettelse.UTLAND_V2
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.testutil.jsonTilHashMap
-import no.nav.helse.flex.tilJuridiskVurdering
-import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL
-import no.nav.helse.flex.ventPåRecords
-import no.nav.syfo.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO
-import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
-import no.nav.syfo.model.sykmelding.model.GradertDTO
-import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmelding.model.GradertDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO.AKTIVITET_IKKE_MULIG
+import no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO.GRADERT
 import org.amshove.kluent.`should be equal to`
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
@@ -58,9 +49,16 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : BaseTestClass() {
                         SykmeldingsperiodeAGDTO(
                             fom = (LocalDate.of(2018, 1, 13)),
                             tom = (LocalDate.of(2018, 1, 14)),
-                            gradert = GradertDTO(grad = 100, reisetilskudd = false),
-                            type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
-                            aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                            gradert =
+                                GradertDTO(
+                                    grad = 100,
+                                    reisetilskudd = false,
+                                ),
+                            type = AKTIVITET_IKKE_MULIG,
+                            aktivitetIkkeMulig =
+                                AktivitetIkkeMuligAGDTO(
+                                    arbeidsrelatertArsak = null,
+                                ),
                             behandlingsdager = null,
                             innspillTilArbeidsgiver = null,
                             reisetilskudd = false,
@@ -68,9 +66,16 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : BaseTestClass() {
                         SykmeldingsperiodeAGDTO(
                             fom = (LocalDate.of(2018, 1, 15)),
                             tom = (LocalDate.of(2018, 1, 29)),
-                            gradert = GradertDTO(grad = 70, reisetilskudd = false),
-                            type = PeriodetypeDTO.GRADERT,
-                            aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                            gradert =
+                                GradertDTO(
+                                    grad = 70,
+                                    reisetilskudd = false,
+                                ),
+                            type = GRADERT,
+                            aktivitetIkkeMulig =
+                                AktivitetIkkeMuligAGDTO(
+                                    arbeidsrelatertArsak = null,
+                                ),
                             behandlingsdager = null,
                             innspillTilArbeidsgiver = null,
                             reisetilskudd = false,

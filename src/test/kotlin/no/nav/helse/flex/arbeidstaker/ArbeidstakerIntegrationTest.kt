@@ -13,7 +13,7 @@ import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL
 import no.nav.helse.flex.util.tilOsloLocalDateTime
-import no.nav.syfo.model.Merknad
+import no.nav.syfo.sykmelding.kafka.model.Merknad
 import org.amshove.kluent.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
@@ -49,7 +49,13 @@ class ArbeidstakerIntegrationTest : BaseTestClass() {
                             fom = basisdato.minusDays(20),
                             tom = basisdato.plusDays(15),
                         ),
-                    merknader = listOf(Merknad(type = "UGYLDIG_TILBAKEDATERING", beskrivelse = "Hey")),
+                    merknader =
+                        listOf(
+                            Merknad(
+                                type = "UGYLDIG_TILBAKEDATERING",
+                                beskrivelse = "Hey",
+                            ),
+                        ),
                 ),
                 oppfolgingsdato = oppfolgingsdato,
                 forventaSoknader = 2,

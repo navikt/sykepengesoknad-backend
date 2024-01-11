@@ -15,7 +15,7 @@ import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.overlap
 import no.nav.helse.flex.util.isAfterOrEqual
 import no.nav.helse.flex.util.isBeforeOrEqual
 import no.nav.helse.flex.util.min
-import no.nav.syfo.model.sykmelding.arbeidsgiver.ArbeidsgiverSykmelding
+import no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.ArbeidsgiverSykmelding
 import java.time.DayOfWeek
 import java.time.Instant
 import java.time.LocalDate

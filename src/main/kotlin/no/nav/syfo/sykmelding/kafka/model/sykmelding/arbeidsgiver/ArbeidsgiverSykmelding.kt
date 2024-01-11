@@ -1,6 +1,5 @@
-package no.nav.syfo.model.sykmelding.arbeidsgiver
+package no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver
 
-import no.nav.syfo.model.Merknad
 import java.time.LocalDate
 import java.time.OffsetDateTime
 
@@ -19,7 +18,7 @@ data class ArbeidsgiverSykmelding(
     val egenmeldt: Boolean,
     val papirsykmelding: Boolean,
     val harRedusertArbeidsgiverperiode: Boolean,
-    val merknader: List<Merknad>?,
+    val merknader: List<no.nav.syfo.sykmelding.kafka.model.Merknad>?,
     val utenlandskSykmelding: UtenlandskSykmeldingAGDTO?,
     val signaturDato: OffsetDateTime?,
 )

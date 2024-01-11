@@ -1,16 +1,8 @@
 package no.nav.helse.flex.behandlingsdager
 
-import no.nav.helse.flex.BaseTestClass
-import no.nav.helse.flex.avbrytSoknad
+import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
-import no.nav.helse.flex.gjenapneSoknad
-import no.nav.helse.flex.hentSoknad
-import no.nav.helse.flex.hentSoknaderMetadata
-import no.nav.helse.flex.korrigerSoknad
-import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
-import no.nav.helse.flex.sendSoknadMedResult
-import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
 import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
@@ -19,10 +11,8 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO.NY
 import no.nav.helse.flex.testdata.behandingsdager
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
-import no.nav.helse.flex.tilSoknader
-import no.nav.helse.flex.ventPåRecords
-import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
-import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO
 import org.amshove.kluent.`should be equal to`
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.MethodOrderer

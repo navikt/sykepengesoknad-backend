@@ -19,10 +19,10 @@ import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL
 import no.nav.helse.flex.util.OBJECT_MAPPER
 import no.nav.helse.flex.util.serialisertTilString
-import no.nav.syfo.model.sykmelding.model.GradertDTO
-import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
-import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
-import no.nav.syfo.model.sykmeldingstatus.STATUS_SENDT
+import no.nav.syfo.sykmelding.kafka.model.sykmelding.model.GradertDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmeldingstatus.ArbeidsgiverStatusDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmeldingstatus.STATUS_SENDT
 import org.amshove.kluent.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
@@ -65,7 +65,11 @@ class GradertReisetilskuddIntegrationTest : BaseTestClass() {
                 fnr = fnr,
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
                 statusEvent = STATUS_SENDT,
-                arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "Kebabbiten"),
+                arbeidsgiver =
+                    ArbeidsgiverStatusDTO(
+                        orgnummer = "123454543",
+                        orgNavn = "Kebabbiten",
+                    ),
             )
         val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
         val sykmelding =

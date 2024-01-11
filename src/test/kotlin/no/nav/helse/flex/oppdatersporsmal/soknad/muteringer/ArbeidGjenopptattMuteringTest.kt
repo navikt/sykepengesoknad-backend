@@ -8,10 +8,10 @@ import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.testutil.besvarsporsmal
 import no.nav.helse.flex.util.tilOsloInstant
 import no.nav.helse.flex.yrkesskade.YrkesskadeSporsmalGrunnlag
-import no.nav.syfo.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO
-import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
-import no.nav.syfo.model.sykmelding.model.GradertDTO
-import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmelding.model.GradertDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should be null`
 import org.amshove.kluent.`should not be null`
@@ -44,9 +44,16 @@ class ArbeidGjenopptattMuteringTest {
                         SykmeldingsperiodeAGDTO(
                             fom = fom,
                             tom = LocalDate.now().minusDays(15),
-                            gradert = GradertDTO(grad = 100, reisetilskudd = false),
+                            gradert =
+                                GradertDTO(
+                                    grad = 100,
+                                    reisetilskudd = false,
+                                ),
                             type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
-                            aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                            aktivitetIkkeMulig =
+                                AktivitetIkkeMuligAGDTO(
+                                    arbeidsrelatertArsak = null,
+                                ),
                             behandlingsdager = null,
                             innspillTilArbeidsgiver = null,
                             reisetilskudd = false,
@@ -110,9 +117,16 @@ class ArbeidGjenopptattMuteringTest {
                         SykmeldingsperiodeAGDTO(
                             fom = basisdato,
                             tom = basisdato.plusDays(4),
-                            gradert = GradertDTO(grad = 100, reisetilskudd = false),
-                            type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
-                            aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                            gradert =
+                                no.nav.syfo.sykmelding.kafka.model.sykmelding.model.GradertDTO(
+                                    grad = 100,
+                                    reisetilskudd = false,
+                                ),
+                            type = no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+                            aktivitetIkkeMulig =
+                                AktivitetIkkeMuligAGDTO(
+                                    arbeidsrelatertArsak = null,
+                                ),
                             behandlingsdager = null,
                             innspillTilArbeidsgiver = null,
                             reisetilskudd = false,
@@ -120,9 +134,16 @@ class ArbeidGjenopptattMuteringTest {
                         SykmeldingsperiodeAGDTO(
                             fom = basisdato.plusDays(5),
                             tom = basisdato.plusDays(10),
-                            gradert = GradertDTO(grad = 100, reisetilskudd = false),
-                            type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
-                            aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                            gradert =
+                                no.nav.syfo.sykmelding.kafka.model.sykmelding.model.GradertDTO(
+                                    grad = 100,
+                                    reisetilskudd = false,
+                                ),
+                            type = no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+                            aktivitetIkkeMulig =
+                                AktivitetIkkeMuligAGDTO(
+                                    arbeidsrelatertArsak = null,
+                                ),
                             behandlingsdager = null,
                             innspillTilArbeidsgiver = null,
                             reisetilskudd = false,
@@ -192,9 +213,16 @@ class ArbeidGjenopptattMuteringTest {
                         SykmeldingsperiodeAGDTO(
                             fom = fom,
                             tom = LocalDate.now().minusDays(15),
-                            gradert = GradertDTO(grad = 100, reisetilskudd = false),
-                            type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
-                            aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                            gradert =
+                                no.nav.syfo.sykmelding.kafka.model.sykmelding.model.GradertDTO(
+                                    grad = 100,
+                                    reisetilskudd = false,
+                                ),
+                            type = no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+                            aktivitetIkkeMulig =
+                                AktivitetIkkeMuligAGDTO(
+                                    arbeidsrelatertArsak = null,
+                                ),
                             behandlingsdager = null,
                             innspillTilArbeidsgiver = null,
                             reisetilskudd = false,

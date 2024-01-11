@@ -10,10 +10,11 @@ import no.nav.helse.flex.testutil.besvarsporsmal
 import no.nav.helse.flex.util.DatoUtil.periodeTilJson
 import no.nav.helse.flex.util.tilOsloInstant
 import no.nav.helse.flex.yrkesskade.YrkesskadeSporsmalGrunnlag
-import no.nav.syfo.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO
-import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
-import no.nav.syfo.model.sykmelding.model.GradertDTO
-import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmelding.model.GradertDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO.AKTIVITET_IKKE_MULIG
+import no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO.GRADERT
 import java.time.Instant
 import java.time.LocalDate.now
 import java.time.LocalDateTime
@@ -71,9 +72,16 @@ fun gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal(): Sykepenge
                     SykmeldingsperiodeAGDTO(
                         now().minusMonths(1),
                         now().minusMonths(1).plusDays(4),
-                        gradert = GradertDTO(grad = 100, reisetilskudd = false),
-                        type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
-                        aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                        gradert =
+                            GradertDTO(
+                                grad = 100,
+                                reisetilskudd = false,
+                            ),
+                        type = AKTIVITET_IKKE_MULIG,
+                        aktivitetIkkeMulig =
+                            AktivitetIkkeMuligAGDTO(
+                                arbeidsrelatertArsak = null,
+                            ),
                         behandlingsdager = null,
                         innspillTilArbeidsgiver = null,
                         reisetilskudd = false,
@@ -81,9 +89,16 @@ fun gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal(): Sykepenge
                     SykmeldingsperiodeAGDTO(
                         now().minusMonths(1).plusDays(5),
                         now().minusMonths(1).plusDays(8),
-                        gradert = GradertDTO(grad = 40, reisetilskudd = false),
-                        type = PeriodetypeDTO.GRADERT,
-                        aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                        gradert =
+                            GradertDTO(
+                                grad = 40,
+                                reisetilskudd = false,
+                            ),
+                        type = GRADERT,
+                        aktivitetIkkeMulig =
+                            AktivitetIkkeMuligAGDTO(
+                                arbeidsrelatertArsak = null,
+                            ),
                         behandlingsdager = null,
                         innspillTilArbeidsgiver = null,
                         reisetilskudd = false,
@@ -120,9 +135,16 @@ fun opprettSendtSoknad(): Sykepengesoknad {
                     SykmeldingsperiodeAGDTO(
                         fom = now().minusMonths(1),
                         tom = now().minusMonths(1).plusDays(4),
-                        gradert = GradertDTO(grad = 100, reisetilskudd = false),
-                        type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
-                        aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                        gradert =
+                            GradertDTO(
+                                grad = 100,
+                                reisetilskudd = false,
+                            ),
+                        type = AKTIVITET_IKKE_MULIG,
+                        aktivitetIkkeMulig =
+                            AktivitetIkkeMuligAGDTO(
+                                arbeidsrelatertArsak = null,
+                            ),
                         behandlingsdager = null,
                         innspillTilArbeidsgiver = null,
                         reisetilskudd = false,
@@ -130,9 +152,16 @@ fun opprettSendtSoknad(): Sykepengesoknad {
                     SykmeldingsperiodeAGDTO(
                         fom = now().minusMonths(1).plusDays(5),
                         tom = now().minusMonths(1).plusDays(8),
-                        gradert = GradertDTO(grad = 40, reisetilskudd = false),
-                        type = PeriodetypeDTO.GRADERT,
-                        aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                        gradert =
+                            GradertDTO(
+                                grad = 40,
+                                reisetilskudd = false,
+                            ),
+                        type = GRADERT,
+                        aktivitetIkkeMulig =
+                            AktivitetIkkeMuligAGDTO(
+                                arbeidsrelatertArsak = null,
+                            ),
                         behandlingsdager = null,
                         innspillTilArbeidsgiver = null,
                         reisetilskudd = false,
@@ -192,9 +221,16 @@ fun opprettNySoknadMock(feriesporsmalSomHovedsporsmal: Boolean = true): Sykepeng
                     SykmeldingsperiodeAGDTO(
                         now().minusDays(19),
                         now().minusDays(15),
-                        gradert = GradertDTO(grad = 100, reisetilskudd = false),
-                        type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
-                        aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                        gradert =
+                            GradertDTO(
+                                grad = 100,
+                                reisetilskudd = false,
+                            ),
+                        type = AKTIVITET_IKKE_MULIG,
+                        aktivitetIkkeMulig =
+                            AktivitetIkkeMuligAGDTO(
+                                arbeidsrelatertArsak = null,
+                            ),
                         behandlingsdager = null,
                         innspillTilArbeidsgiver = null,
                         reisetilskudd = false,
@@ -202,9 +238,16 @@ fun opprettNySoknadMock(feriesporsmalSomHovedsporsmal: Boolean = true): Sykepeng
                     SykmeldingsperiodeAGDTO(
                         now().minusDays(14),
                         now().minusDays(10),
-                        gradert = GradertDTO(grad = 40, reisetilskudd = false),
-                        type = PeriodetypeDTO.GRADERT,
-                        aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                        gradert =
+                            GradertDTO(
+                                grad = 40,
+                                reisetilskudd = false,
+                            ),
+                        type = GRADERT,
+                        aktivitetIkkeMulig =
+                            AktivitetIkkeMuligAGDTO(
+                                arbeidsrelatertArsak = null,
+                            ),
                         behandlingsdager = null,
                         innspillTilArbeidsgiver = null,
                         reisetilskudd = false,

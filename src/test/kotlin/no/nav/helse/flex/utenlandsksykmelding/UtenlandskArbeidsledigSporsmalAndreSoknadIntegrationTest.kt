@@ -3,18 +3,15 @@ package no.nav.helse.flex.utenlandsksykmelding
 import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
-import no.nav.syfo.model.sykmelding.arbeidsgiver.UtenlandskSykmeldingAGDTO
 import org.amshove.kluent.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
@@ -75,7 +72,10 @@ class UtenlandskArbeidsledigSporsmalAndreSoknadIntegrationTest : BaseTestClass()
                             fom = basisdato.plusDays(16),
                             tom = basisdato.plusDays(30),
                         ),
-                    utenlandskSykemelding = UtenlandskSykmeldingAGDTO("Granka"),
+                    utenlandskSykemelding =
+                        no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.UtenlandskSykmeldingAGDTO(
+                            "Granka",
+                        ),
                     arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
                 ),
                 oppfolgingsdato = basisdato,

@@ -10,7 +10,7 @@ import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.soknadsopprettelse.tilSoknadsperioder
 import no.nav.helse.flex.util.isAfterOrEqual
 import no.nav.helse.flex.util.isBeforeOrEqual
-import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmeldingstatus.ArbeidsgiverStatusDTO
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 

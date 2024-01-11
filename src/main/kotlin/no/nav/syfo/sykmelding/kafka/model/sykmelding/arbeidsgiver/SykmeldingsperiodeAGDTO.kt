@@ -1,7 +1,7 @@
-package no.nav.syfo.model.sykmelding.arbeidsgiver
+package no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver
 
-import no.nav.syfo.model.sykmelding.model.GradertDTO
-import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmelding.model.GradertDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO
 import java.time.LocalDate
 
 data class SykmeldingsperiodeAGDTO(

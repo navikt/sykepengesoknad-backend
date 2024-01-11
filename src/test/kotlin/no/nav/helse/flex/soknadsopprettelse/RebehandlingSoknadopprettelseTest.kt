@@ -17,11 +17,6 @@ import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.helse.flex.util.serialisertTilString
 import no.nav.helse.flex.ventPåRecords
-import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
-import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
-import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
-import no.nav.syfo.model.sykmeldingstatus.STATUS_BEKREFTET
-import no.nav.syfo.model.sykmeldingstatus.STATUS_SENDT
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -78,7 +73,7 @@ class RebehandlingSoknadopprettelseTest : BaseTestClass() {
     fun `Rebehandler sykmelding for Frilanser`() {
         val cr =
             skapConsumerRecord(
-                statusEvent = STATUS_BEKREFTET,
+                statusEvent = no.nav.syfo.sykmelding.kafka.model.sykmeldingstatus.STATUS_BEKREFTET,
                 arbeidssituasjon = FRILANSER,
             )
 
@@ -102,7 +97,7 @@ class RebehandlingSoknadopprettelseTest : BaseTestClass() {
     fun `Ved UventetArbeidssituasjonException så legges sykmelding tilbake til rebehandling`() {
         rebehandlingSykmeldingSendt.listen(
             skapConsumerRecord(
-                statusEvent = STATUS_SENDT,
+                statusEvent = no.nav.syfo.sykmelding.kafka.model.sykmeldingstatus.STATUS_SENDT,
                 arbeidssituasjon = FRILANSER,
             ),
             acknowledgment,
@@ -113,7 +108,7 @@ class RebehandlingSoknadopprettelseTest : BaseTestClass() {
     }
 
     private fun skapConsumerRecord(
-        statusEvent: String = STATUS_SENDT,
+        statusEvent: String = no.nav.syfo.sykmelding.kafka.model.sykmeldingstatus.STATUS_SENDT,
         arbeidssituasjon: Arbeidssituasjon = ARBEIDSTAKER,
     ): ConsumerRecord<String, String> {
         val sykmeldingStatusKafkaMessageDTO =
@@ -121,7 +116,12 @@ class RebehandlingSoknadopprettelseTest : BaseTestClass() {
                 fnr = fnr,
                 statusEvent = statusEvent,
                 arbeidssituasjon = arbeidssituasjon,
-                arbeidsgiver = ArbeidsgiverStatusDTO("123", "456", "Jobb"),
+                arbeidsgiver =
+                    no.nav.syfo.sykmelding.kafka.model.sykmeldingstatus.ArbeidsgiverStatusDTO(
+                        "123",
+                        "456",
+                        "Jobb",
+                    ),
             )
         val sykmelding =
             skapArbeidsgiverSykmelding(
@@ -130,10 +130,10 @@ class RebehandlingSoknadopprettelseTest : BaseTestClass() {
                 .copy(
                     sykmeldingsperioder =
                         listOf(
-                            SykmeldingsperiodeAGDTO(
+                            no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO(
                                 fom = LocalDate.of(2020, 2, 1),
                                 tom = LocalDate.of(2020, 2, 5),
-                                type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+                                type = no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
                                 reisetilskudd = false,
                                 aktivitetIkkeMulig = null,
                                 behandlingsdager = null,

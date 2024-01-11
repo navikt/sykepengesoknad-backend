@@ -8,10 +8,6 @@ import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.soknadsopprettelse.tilSoknadsperioder
 import no.nav.helse.flex.util.tilOsloInstant
-import no.nav.syfo.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO
-import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
-import no.nav.syfo.model.sykmelding.model.GradertDTO
-import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -37,12 +33,19 @@ class BehandlingsdagerKtTest {
             sykmeldingSkrevet = LocalDateTime.now().minusMonths(1).tilOsloInstant(),
             soknadPerioder =
                 listOf(
-                    SykmeldingsperiodeAGDTO(
+                    no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO(
                         LocalDate.of(2019, 12, 5).minusMonths(1),
                         LocalDate.of(2019, 12, 5).minusMonths(1).plusDays(4),
-                        gradert = GradertDTO(grad = 100, reisetilskudd = false),
-                        type = PeriodetypeDTO.BEHANDLINGSDAGER,
-                        aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                        gradert =
+                            no.nav.syfo.sykmelding.kafka.model.sykmelding.model.GradertDTO(
+                                grad = 100,
+                                reisetilskudd = false,
+                            ),
+                        type = no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO.BEHANDLINGSDAGER,
+                        aktivitetIkkeMulig =
+                            no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO(
+                                arbeidsrelatertArsak = null,
+                            ),
                         behandlingsdager = null,
                         innspillTilArbeidsgiver = null,
                         reisetilskudd = false,
@@ -126,22 +129,36 @@ class BehandlingsdagerKtTest {
                 .copy(
                     soknadPerioder =
                         listOf(
-                            SykmeldingsperiodeAGDTO(
+                            no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO(
                                 LocalDate.of(2019, 12, 5).minusMonths(1),
                                 LocalDate.of(2019, 12, 5).minusMonths(1).plusDays(4),
-                                gradert = GradertDTO(grad = 100, reisetilskudd = false),
-                                type = PeriodetypeDTO.BEHANDLINGSDAGER,
-                                aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                                gradert =
+                                    no.nav.syfo.sykmelding.kafka.model.sykmelding.model.GradertDTO(
+                                        grad = 100,
+                                        reisetilskudd = false,
+                                    ),
+                                type = no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO.BEHANDLINGSDAGER,
+                                aktivitetIkkeMulig =
+                                    no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO(
+                                        arbeidsrelatertArsak = null,
+                                    ),
                                 behandlingsdager = null,
                                 innspillTilArbeidsgiver = null,
                                 reisetilskudd = false,
                             ),
-                            SykmeldingsperiodeAGDTO(
+                            no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO(
                                 LocalDate.of(2019, 12, 5).minusMonths(1).plusDays(5),
                                 LocalDate.of(2019, 12, 5).minusMonths(1).plusDays(30),
-                                gradert = GradertDTO(grad = 100, reisetilskudd = false),
-                                type = PeriodetypeDTO.BEHANDLINGSDAGER,
-                                aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                                gradert =
+                                    no.nav.syfo.sykmelding.kafka.model.sykmelding.model.GradertDTO(
+                                        grad = 100,
+                                        reisetilskudd = false,
+                                    ),
+                                type = no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO.BEHANDLINGSDAGER,
+                                aktivitetIkkeMulig =
+                                    no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO(
+                                        arbeidsrelatertArsak = null,
+                                    ),
                                 behandlingsdager = null,
                                 innspillTilArbeidsgiver = null,
                                 reisetilskudd = false,
@@ -167,12 +184,19 @@ class BehandlingsdagerKtTest {
                 .copy(
                     soknadPerioder =
                         listOf(
-                            SykmeldingsperiodeAGDTO(
+                            no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO(
                                 LocalDate.of(2019, 12, 1),
                                 LocalDate.of(2020, 1, 1),
-                                gradert = GradertDTO(grad = 100, reisetilskudd = false),
-                                type = PeriodetypeDTO.BEHANDLINGSDAGER,
-                                aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                                gradert =
+                                    no.nav.syfo.sykmelding.kafka.model.sykmelding.model.GradertDTO(
+                                        grad = 100,
+                                        reisetilskudd = false,
+                                    ),
+                                type = no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO.BEHANDLINGSDAGER,
+                                aktivitetIkkeMulig =
+                                    no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO(
+                                        arbeidsrelatertArsak = null,
+                                    ),
                                 behandlingsdager = null,
                                 innspillTilArbeidsgiver = null,
                                 reisetilskudd = false,
@@ -200,12 +224,19 @@ class BehandlingsdagerKtTest {
     @Test
     fun `test oppdeling i uker når vi starter på en søndag`() {
         val periode =
-            SykmeldingsperiodeAGDTO(
+            no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO(
                 fom = LocalDate.of(2019, 12, 1),
                 tom = LocalDate.of(2020, 1, 1),
-                gradert = GradertDTO(grad = 100, reisetilskudd = false),
-                type = PeriodetypeDTO.BEHANDLINGSDAGER,
-                aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                gradert =
+                    no.nav.syfo.sykmelding.kafka.model.sykmelding.model.GradertDTO(
+                        grad = 100,
+                        reisetilskudd = false,
+                    ),
+                type = no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO.BEHANDLINGSDAGER,
+                aktivitetIkkeMulig =
+                    no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO(
+                        arbeidsrelatertArsak = null,
+                    ),
                 behandlingsdager = null,
                 innspillTilArbeidsgiver = null,
                 reisetilskudd = false,
@@ -223,12 +254,19 @@ class BehandlingsdagerKtTest {
     @Test
     fun `test oppdeling i uker når vi slutter på en søndag`() {
         val periode =
-            SykmeldingsperiodeAGDTO(
+            no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO(
                 fom = LocalDate.of(2019, 12, 2),
                 tom = LocalDate.of(2019, 12, 8),
-                gradert = GradertDTO(grad = 100, reisetilskudd = false),
-                type = PeriodetypeDTO.BEHANDLINGSDAGER,
-                aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                gradert =
+                    no.nav.syfo.sykmelding.kafka.model.sykmelding.model.GradertDTO(
+                        grad = 100,
+                        reisetilskudd = false,
+                    ),
+                type = no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO.BEHANDLINGSDAGER,
+                aktivitetIkkeMulig =
+                    no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO(
+                        arbeidsrelatertArsak = null,
+                    ),
                 behandlingsdager = null,
                 innspillTilArbeidsgiver = null,
                 reisetilskudd = false,
@@ -242,12 +280,19 @@ class BehandlingsdagerKtTest {
     @Test
     fun `test oppdeling i uker når vi slutter på en mandag`() {
         val periode =
-            SykmeldingsperiodeAGDTO(
+            no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO(
                 fom = LocalDate.of(2019, 12, 2),
                 tom = LocalDate.of(2019, 12, 9),
-                gradert = GradertDTO(grad = 100, reisetilskudd = false),
-                type = PeriodetypeDTO.BEHANDLINGSDAGER,
-                aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                gradert =
+                    no.nav.syfo.sykmelding.kafka.model.sykmelding.model.GradertDTO(
+                        grad = 100,
+                        reisetilskudd = false,
+                    ),
+                type = no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO.BEHANDLINGSDAGER,
+                aktivitetIkkeMulig =
+                    no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO(
+                        arbeidsrelatertArsak = null,
+                    ),
                 behandlingsdager = null,
                 innspillTilArbeidsgiver = null,
                 reisetilskudd = false,
@@ -263,12 +308,19 @@ class BehandlingsdagerKtTest {
     @Test
     fun `test oppdeling i uker når hele greia er midt i en uke`() {
         val periode =
-            SykmeldingsperiodeAGDTO(
+            no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO(
                 fom = LocalDate.of(2019, 12, 3),
                 tom = LocalDate.of(2019, 12, 4),
-                gradert = GradertDTO(grad = 100, reisetilskudd = false),
-                type = PeriodetypeDTO.BEHANDLINGSDAGER,
-                aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                gradert =
+                    no.nav.syfo.sykmelding.kafka.model.sykmelding.model.GradertDTO(
+                        grad = 100,
+                        reisetilskudd = false,
+                    ),
+                type = no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO.BEHANDLINGSDAGER,
+                aktivitetIkkeMulig =
+                    no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO(
+                        arbeidsrelatertArsak = null,
+                    ),
                 behandlingsdager = null,
                 innspillTilArbeidsgiver = null,
                 reisetilskudd = false,
@@ -282,12 +334,19 @@ class BehandlingsdagerKtTest {
     @Test
     fun `test oppdeling i uker når hele greia er  en dag midt i en uke`() {
         val periode =
-            SykmeldingsperiodeAGDTO(
+            no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO(
                 fom = LocalDate.of(2019, 12, 3),
                 tom = LocalDate.of(2019, 12, 3),
-                gradert = GradertDTO(grad = 100, reisetilskudd = false),
-                type = PeriodetypeDTO.BEHANDLINGSDAGER,
-                aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                gradert =
+                    no.nav.syfo.sykmelding.kafka.model.sykmelding.model.GradertDTO(
+                        grad = 100,
+                        reisetilskudd = false,
+                    ),
+                type = no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO.BEHANDLINGSDAGER,
+                aktivitetIkkeMulig =
+                    no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO(
+                        arbeidsrelatertArsak = null,
+                    ),
                 behandlingsdager = null,
                 innspillTilArbeidsgiver = null,
                 reisetilskudd = false,
@@ -302,12 +361,19 @@ class BehandlingsdagerKtTest {
     fun `når fom er etter tom forventer vi en exception`() {
         assertThrows(IllegalArgumentException::class.java) {
             val periode =
-                SykmeldingsperiodeAGDTO(
+                no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO(
                     fom = LocalDate.of(2019, 12, 3),
                     tom = LocalDate.of(2019, 12, 2),
-                    gradert = GradertDTO(grad = 100, reisetilskudd = false),
-                    type = PeriodetypeDTO.BEHANDLINGSDAGER,
-                    aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                    gradert =
+                        no.nav.syfo.sykmelding.kafka.model.sykmelding.model.GradertDTO(
+                            grad = 100,
+                            reisetilskudd = false,
+                        ),
+                    type = no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO.BEHANDLINGSDAGER,
+                    aktivitetIkkeMulig =
+                        no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO(
+                            arbeidsrelatertArsak = null,
+                        ),
                     behandlingsdager = null,
                     innspillTilArbeidsgiver = null,
                     reisetilskudd = false,

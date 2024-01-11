@@ -1,4 +1,4 @@
-package no.nav.syfo.model
+package no.nav.syfo.sykmelding.kafka.model
 
 data class Merknad(
     val type: String,

@@ -18,18 +18,17 @@ import no.nav.helse.flex.soknadsopprettelse.splitt.splittMellomTyper
 import no.nav.helse.flex.soknadsopprettelse.splitt.splittSykmeldingiSoknadsPerioder
 import no.nav.helse.flex.util.Metrikk
 import no.nav.helse.flex.util.osloZone
-import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
-import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
-import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO.*
-import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
-import no.nav.syfo.model.sykmeldingstatus.ShortNameDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmeldingstatus.ArbeidsgiverStatusDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmeldingstatus.ShortNameDTO
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 import java.util.*
-import no.nav.syfo.model.Merknad as SmMerknad
+import no.nav.syfo.sykmelding.kafka.model.Merknad as SmMerknad
 
 @Service
 @Transactional
@@ -201,7 +200,7 @@ fun List<SykmeldingsperiodeAGDTO>.tilSoknadsperioder(): List<Soknadsperiode> {
 }
 
 fun SykmeldingsperiodeAGDTO.tilSoknadsperioder(): Soknadsperiode {
-    val gradForAktivitetIkkeMulig = if (type == AKTIVITET_IKKE_MULIG) 100 else null
+    val gradForAktivitetIkkeMulig = if (type == PeriodetypeDTO.AKTIVITET_IKKE_MULIG) 100 else null
     return Soknadsperiode(
         fom = fom,
         tom = tom,
@@ -229,11 +228,11 @@ fun hentSenesteTOMFraPerioder(perioder: List<SykmeldingsperiodeAGDTO>): LocalDat
 
 private fun PeriodetypeDTO.tilSykmeldingstype(): Sykmeldingstype {
     return when (this) {
-        AKTIVITET_IKKE_MULIG -> Sykmeldingstype.AKTIVITET_IKKE_MULIG
-        AVVENTENDE -> Sykmeldingstype.AVVENTENDE
-        BEHANDLINGSDAGER -> Sykmeldingstype.BEHANDLINGSDAGER
-        GRADERT -> Sykmeldingstype.GRADERT
-        REISETILSKUDD -> Sykmeldingstype.REISETILSKUDD
+        PeriodetypeDTO.AKTIVITET_IKKE_MULIG -> Sykmeldingstype.AKTIVITET_IKKE_MULIG
+        PeriodetypeDTO.AVVENTENDE -> Sykmeldingstype.AVVENTENDE
+        PeriodetypeDTO.BEHANDLINGSDAGER -> Sykmeldingstype.BEHANDLINGSDAGER
+        PeriodetypeDTO.GRADERT -> Sykmeldingstype.GRADERT
+        PeriodetypeDTO.REISETILSKUDD -> Sykmeldingstype.REISETILSKUDD
     }
 }
 

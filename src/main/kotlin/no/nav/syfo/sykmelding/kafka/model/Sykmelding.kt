@@ -1,6 +1,6 @@
 @file:Suppress("ktlint:standard:max-line-length")
 
-package no.nav.syfo.model
+package no.nav.syfo.sykmelding.kafka.model
 
 import java.time.LocalDate
 import java.time.LocalDateTime

@@ -7,7 +7,6 @@ import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.helse.flex.testutil.SoknadBesvarer
-import no.nav.syfo.model.Merknad
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldHaveSize
@@ -16,7 +15,6 @@ import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
-import org.mockito.Mockito.times
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class TilbakedatertSykmeldingIntegrationTest : BaseTestClass() {
@@ -132,7 +130,13 @@ class TilbakedatertSykmeldingIntegrationTest : BaseTestClass() {
                     it
                 } else {
                     it.copy(
-                        merknader = listOf(Merknad(type = merknad, beskrivelse = merknad)),
+                        merknader =
+                            listOf(
+                                no.nav.syfo.sykmelding.kafka.model.Merknad(
+                                    type = merknad,
+                                    beskrivelse = merknad,
+                                ),
+                            ),
                     )
                 }
             }

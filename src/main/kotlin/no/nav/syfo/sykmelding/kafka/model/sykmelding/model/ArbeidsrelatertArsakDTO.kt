@@ -1,4 +1,4 @@
-package no.nav.syfo.model.sykmelding.model
+package no.nav.syfo.sykmelding.kafka.model.sykmelding.model
 
 class ArbeidsrelatertArsakDTO(
     val beskrivelse: String?,

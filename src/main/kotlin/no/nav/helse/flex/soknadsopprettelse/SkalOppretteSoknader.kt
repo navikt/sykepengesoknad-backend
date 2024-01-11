@@ -10,8 +10,8 @@ import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.util.Metrikk
-import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO.AVVENTENDE
-import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO.REISETILSKUDD
+import no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO.AVVENTENDE
+import no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO.REISETILSKUDD
 import org.springframework.stereotype.Service
 
 @Service

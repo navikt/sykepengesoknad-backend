@@ -9,17 +9,19 @@ import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
 import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
-import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO.*
+import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO.NY
+import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO.SENDT
+import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO.SLETTET
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL
 import no.nav.helse.flex.ventPåRecords
-import no.nav.syfo.model.sykmelding.model.GradertDTO
-import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
-import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
-import no.nav.syfo.model.sykmeldingstatus.STATUS_SENDT
+import no.nav.syfo.sykmelding.kafka.model.sykmelding.model.GradertDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmeldingstatus.ArbeidsgiverStatusDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmeldingstatus.STATUS_SENDT
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.MethodOrderer
@@ -43,7 +45,11 @@ class AutomatiskPapirsykmeldingOpprydningTest : BaseTestClass() {
                 fnr = fnr,
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
                 statusEvent = STATUS_SENDT,
-                arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "Kebabbiten"),
+                arbeidsgiver =
+                    ArbeidsgiverStatusDTO(
+                        orgnummer = "123454543",
+                        orgNavn = "Kebabbiten",
+                    ),
             )
         val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
         val sykmelding =
@@ -209,7 +215,11 @@ class AutomatiskPapirsykmeldingOpprydningTest : BaseTestClass() {
                 fom = LocalDate.of(2020, 1, 1),
                 tom = LocalDate.of(2020, 4, 15),
                 type = PeriodetypeDTO.GRADERT,
-                gradert = GradertDTO(grad = 33, reisetilskudd = false),
+                gradert =
+                    GradertDTO(
+                        grad = 33,
+                        reisetilskudd = false,
+                    ),
             )
 
         val sykmeldingKafkaMessage =

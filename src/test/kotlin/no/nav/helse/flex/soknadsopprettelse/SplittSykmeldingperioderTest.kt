@@ -7,8 +7,6 @@ import no.nav.helse.flex.soknadsopprettelse.splitt.Tidsenhet
 import no.nav.helse.flex.soknadsopprettelse.splitt.splittMellomTyper
 import no.nav.helse.flex.soknadsopprettelse.splitt.splittSykmeldingiSoknadsPerioder
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
-import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
-import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -73,20 +71,20 @@ class SplittSykmeldingperioderTest : BaseTestClass() {
             skapArbeidsgiverSykmelding().copy(
                 sykmeldingsperioder =
                     listOf(
-                        SykmeldingsperiodeAGDTO(
+                        no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO(
                             fom = LocalDate.of(2017, 1, 1),
                             tom = LocalDate.of(2017, 2, 15),
-                            type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+                            type = no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
                             reisetilskudd = false,
                             aktivitetIkkeMulig = null,
                             behandlingsdager = null,
                             gradert = null,
                             innspillTilArbeidsgiver = null,
                         ),
-                        SykmeldingsperiodeAGDTO(
+                        no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO(
                             fom = LocalDate.of(2017, 2, 16),
                             tom = LocalDate.of(2017, 4, 2),
-                            type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+                            type = no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
                             reisetilskudd = false,
                             aktivitetIkkeMulig = null,
                             behandlingsdager = null,
@@ -123,20 +121,20 @@ class SplittSykmeldingperioderTest : BaseTestClass() {
             skapArbeidsgiverSykmelding().copy(
                 sykmeldingsperioder =
                     listOf(
-                        SykmeldingsperiodeAGDTO(
+                        no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO(
                             fom = LocalDate.of(2017, 1, 1),
                             tom = LocalDate.of(2017, 2, 15),
-                            type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+                            type = no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
                             reisetilskudd = false,
                             aktivitetIkkeMulig = null,
                             behandlingsdager = null,
                             gradert = null,
                             innspillTilArbeidsgiver = null,
                         ),
-                        SykmeldingsperiodeAGDTO(
+                        no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO(
                             fom = LocalDate.of(2017, 2, 16),
                             tom = LocalDate.of(2017, 4, 10),
-                            type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+                            type = no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
                             reisetilskudd = false,
                             aktivitetIkkeMulig = null,
                             behandlingsdager = null,
@@ -202,10 +200,10 @@ class SplittSykmeldingperioderTest : BaseTestClass() {
             skapArbeidsgiverSykmelding().copy(
                 sykmeldingsperioder =
                     listOf(
-                        SykmeldingsperiodeAGDTO(
+                        no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO(
                             fom = LocalDate.of(2017, 1, 1),
                             tom = LocalDate.of(2017, 2, 2),
-                            type = PeriodetypeDTO.BEHANDLINGSDAGER,
+                            type = no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO.BEHANDLINGSDAGER,
                             reisetilskudd = false,
                             aktivitetIkkeMulig = null,
                             behandlingsdager = null,
@@ -239,10 +237,10 @@ class SplittSykmeldingperioderTest : BaseTestClass() {
             skapArbeidsgiverSykmelding().copy(
                 sykmeldingsperioder =
                     listOf(
-                        SykmeldingsperiodeAGDTO(
+                        no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO(
                             fom = LocalDate.of(2017, 1, 1),
                             tom = LocalDate.of(2017, 1, 16),
-                            type = PeriodetypeDTO.BEHANDLINGSDAGER,
+                            type = no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO.BEHANDLINGSDAGER,
                             reisetilskudd = false,
                             aktivitetIkkeMulig = null,
                             behandlingsdager = null,
@@ -273,20 +271,20 @@ class SplittSykmeldingperioderTest : BaseTestClass() {
             skapArbeidsgiverSykmelding().copy(
                 sykmeldingsperioder =
                     listOf(
-                        SykmeldingsperiodeAGDTO(
+                        no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO(
                             fom = LocalDate.of(2017, 1, 1),
                             tom = LocalDate.of(2017, 2, 15),
-                            type = PeriodetypeDTO.BEHANDLINGSDAGER,
+                            type = no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO.BEHANDLINGSDAGER,
                             reisetilskudd = false,
                             aktivitetIkkeMulig = null,
                             behandlingsdager = null,
                             gradert = null,
                             innspillTilArbeidsgiver = null,
                         ),
-                        SykmeldingsperiodeAGDTO(
+                        no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO(
                             fom = LocalDate.of(2017, 2, 16),
                             tom = LocalDate.of(2017, 3, 2),
-                            type = PeriodetypeDTO.BEHANDLINGSDAGER,
+                            type = no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO.BEHANDLINGSDAGER,
                             reisetilskudd = false,
                             aktivitetIkkeMulig = null,
                             behandlingsdager = null,
@@ -341,20 +339,20 @@ class SplittSykmeldingperioderTest : BaseTestClass() {
             skapArbeidsgiverSykmelding().copy(
                 sykmeldingsperioder =
                     listOf(
-                        SykmeldingsperiodeAGDTO(
+                        no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO(
                             fom = LocalDate.of(2017, 1, 1),
                             tom = LocalDate.of(2017, 2, 15),
-                            type = PeriodetypeDTO.BEHANDLINGSDAGER,
+                            type = no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO.BEHANDLINGSDAGER,
                             reisetilskudd = false,
                             aktivitetIkkeMulig = null,
                             behandlingsdager = null,
                             gradert = null,
                             innspillTilArbeidsgiver = null,
                         ),
-                        SykmeldingsperiodeAGDTO(
+                        no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO(
                             fom = LocalDate.of(2017, 2, 16),
                             tom = LocalDate.of(2017, 4, 10),
-                            type = PeriodetypeDTO.BEHANDLINGSDAGER,
+                            type = no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO.BEHANDLINGSDAGER,
                             reisetilskudd = false,
                             aktivitetIkkeMulig = null,
                             behandlingsdager = null,
@@ -416,10 +414,10 @@ class SplittSykmeldingperioderTest : BaseTestClass() {
             skapArbeidsgiverSykmelding().copy(
                 sykmeldingsperioder =
                     listOf(
-                        SykmeldingsperiodeAGDTO(
+                        no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO(
                             fom = LocalDate.of(2017, 1, 1),
                             tom = LocalDate.of(2017, 2, 1),
-                            type = PeriodetypeDTO.BEHANDLINGSDAGER,
+                            type = no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO.BEHANDLINGSDAGER,
                             reisetilskudd = false,
                             aktivitetIkkeMulig = null,
                             behandlingsdager = null,
@@ -457,10 +455,10 @@ class SplittSykmeldingperioderTest : BaseTestClass() {
             skapArbeidsgiverSykmelding().copy(
                 sykmeldingsperioder =
                     listOf(
-                        SykmeldingsperiodeAGDTO(
+                        no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO(
                             fom = LocalDate.of(2019, 11, 1),
                             tom = LocalDate.of(2019, 12, 9),
-                            type = PeriodetypeDTO.BEHANDLINGSDAGER,
+                            type = no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO.BEHANDLINGSDAGER,
                             reisetilskudd = false,
                             aktivitetIkkeMulig = null,
                             behandlingsdager = null,

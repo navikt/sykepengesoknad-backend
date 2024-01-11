@@ -24,10 +24,10 @@ import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL
 import no.nav.helse.flex.util.OBJECT_MAPPER
 import no.nav.helse.flex.util.serialisertTilString
 import no.nav.helse.flex.ventPåRecords
-import no.nav.syfo.model.sykmelding.model.GradertDTO
-import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
-import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
-import no.nav.syfo.model.sykmeldingstatus.STATUS_SENDT
+import no.nav.syfo.sykmelding.kafka.model.sykmelding.model.GradertDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmeldingstatus.ArbeidsgiverStatusDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmeldingstatus.STATUS_SENDT
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should not be`
@@ -65,7 +65,11 @@ class SlettKvitteringerIntegrasjonsTest : BaseTestClass() {
                 fnr = fnr,
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
                 statusEvent = STATUS_SENDT,
-                arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "Kebabbiten"),
+                arbeidsgiver =
+                    ArbeidsgiverStatusDTO(
+                        orgnummer = "123454543",
+                        orgNavn = "Kebabbiten",
+                    ),
             )
         val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
 

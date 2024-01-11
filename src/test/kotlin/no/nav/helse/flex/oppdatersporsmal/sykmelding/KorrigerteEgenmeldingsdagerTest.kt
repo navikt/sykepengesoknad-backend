@@ -12,9 +12,9 @@ import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL
 import no.nav.helse.flex.util.serialisertTilString
-import no.nav.syfo.model.sykmeldingstatus.ShortNameDTO
-import no.nav.syfo.model.sykmeldingstatus.SporsmalOgSvarDTO
-import no.nav.syfo.model.sykmeldingstatus.SvartypeDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmeldingstatus.ShortNameDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmeldingstatus.SporsmalOgSvarDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmeldingstatus.SvartypeDTO
 import org.amshove.kluent.*
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.awaitility.Awaitility.await
@@ -125,7 +125,9 @@ class KorrigerteEgenmeldingsdagerTest : BaseTestClass() {
                                         tekst = "Brukte du egenmeldingsdager før sykmeldinga?",
                                         shortName = ShortNameDTO.EGENMELDINGSDAGER,
                                         svartype = SvartypeDTO.DAGER,
-                                        svar = basisdato.minusDays(3).datesUntil(basisdato).toList().serialisertTilString(),
+                                        svar =
+                                            basisdato.minusDays(3).datesUntil(basisdato).toList()
+                                                .serialisertTilString(),
                                     ),
                                 ),
                         ),
@@ -167,7 +169,9 @@ class KorrigerteEgenmeldingsdagerTest : BaseTestClass() {
                                         tekst = "Brukte du egenmeldingsdager før sykmeldinga?",
                                         shortName = ShortNameDTO.EGENMELDINGSDAGER,
                                         svartype = SvartypeDTO.DAGER,
-                                        svar = basisdato.minusDays(9).datesUntil(basisdato).toList().serialisertTilString(),
+                                        svar =
+                                            basisdato.minusDays(9).datesUntil(basisdato).toList()
+                                                .serialisertTilString(),
                                     ),
                                 ),
                         ),

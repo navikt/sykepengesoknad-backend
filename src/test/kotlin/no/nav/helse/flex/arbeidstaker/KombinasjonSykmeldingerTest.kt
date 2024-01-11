@@ -5,14 +5,14 @@ import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
-import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
-import no.nav.syfo.model.sykmelding.model.GradertDTO
-import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmelding.model.GradertDTO
+import no.nav.syfo.sykmelding.kafka.model.sykmelding.model.PeriodetypeDTO
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
-import java.util.UUID
+import java.util.*
 
 class KombinasjonSykmeldingerTest : BaseTestClass() {
     final val fnr = "123456789"
@@ -128,7 +128,11 @@ class KombinasjonSykmeldingerTest : BaseTestClass() {
                             reisetilskudd = false,
                             aktivitetIkkeMulig = null,
                             behandlingsdager = null,
-                            gradert = GradertDTO(grad = 1, reisetilskudd = false),
+                            gradert =
+                                GradertDTO(
+                                    grad = 1,
+                                    reisetilskudd = false,
+                                ),
                             innspillTilArbeidsgiver = null,
                         ),
                         SykmeldingsperiodeAGDTO(
@@ -168,7 +172,11 @@ class KombinasjonSykmeldingerTest : BaseTestClass() {
                             reisetilskudd = false,
                             aktivitetIkkeMulig = null,
                             behandlingsdager = null,
-                            gradert = GradertDTO(grad = 1, reisetilskudd = true),
+                            gradert =
+                                GradertDTO(
+                                    grad = 1,
+                                    reisetilskudd = true,
+                                ),
                             innspillTilArbeidsgiver = null,
                         ),
                         SykmeldingsperiodeAGDTO(
@@ -212,7 +220,11 @@ class KombinasjonSykmeldingerTest : BaseTestClass() {
                             reisetilskudd = false,
                             aktivitetIkkeMulig = null,
                             behandlingsdager = null,
-                            gradert = GradertDTO(grad = 1, reisetilskudd = true),
+                            gradert =
+                                GradertDTO(
+                                    grad = 1,
+                                    reisetilskudd = true,
+                                ),
                             innspillTilArbeidsgiver = null,
                         ),
                         SykmeldingsperiodeAGDTO(

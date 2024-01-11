@@ -1,4 +1,4 @@
-package no.nav.syfo.model.sykmelding.arbeidsgiver
+package no.nav.syfo.sykmelding.kafka.model.sykmelding.arbeidsgiver
 
 data class PrognoseAGDTO(
     val arbeidsforEtterPeriode: Boolean,

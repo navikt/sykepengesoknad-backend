@@ -10,9 +10,6 @@ import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL
 import no.nav.helse.flex.util.serialisertTilString
-import no.nav.syfo.model.sykmeldingstatus.ShortNameDTO
-import no.nav.syfo.model.sykmeldingstatus.SporsmalOgSvarDTO
-import no.nav.syfo.model.sykmeldingstatus.SvartypeDTO
 import org.amshove.kluent.*
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.junit.jupiter.api.*
@@ -41,10 +38,10 @@ class EgenmeldingsdagerVideresendingTest : BaseTestClass() {
                         erSvarOppdatering = true,
                         sporsmals =
                             it.event.sporsmals!!.plus(
-                                SporsmalOgSvarDTO(
+                                no.nav.syfo.sykmelding.kafka.model.sykmeldingstatus.SporsmalOgSvarDTO(
                                     tekst = "Brukte du egenmeldingsdager før sykmeldinga?",
-                                    shortName = ShortNameDTO.EGENMELDINGSDAGER,
-                                    svartype = SvartypeDTO.DAGER,
+                                    shortName = no.nav.syfo.sykmelding.kafka.model.sykmeldingstatus.ShortNameDTO.EGENMELDINGSDAGER,
+                                    svartype = no.nav.syfo.sykmelding.kafka.model.sykmeldingstatus.SvartypeDTO.DAGER,
                                     svar = basisdato.minusDays(3).datesUntil(basisdato).toList().serialisertTilString(),
                                 ),
                             ),
