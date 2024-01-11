@@ -5,16 +5,12 @@ import no.nav.helse.flex.inntektsopplysninger.InntektsopplysningerDokumentType.N
 import no.nav.helse.flex.inntektsopplysninger.InntektsopplysningerDokumentType.NARINGSSPESIFIKASJON_OPTIONAL
 import no.nav.helse.flex.inntektsopplysninger.InntektsopplysningerDokumentType.REGNSKAP_FORELOPIG
 import no.nav.helse.flex.inntektsopplysninger.InntektsopplysningerDokumentType.REGNSKAP_FORRIGE_AAR
-import no.nav.helse.flex.inntektsopplysninger.InntektsopplysningerDokumentType.SKATTEMELDING
-import no.nav.helse.flex.inntektsopplysninger.InntektsopplysningerDokumentType.SKATTEMELDING_OPTIONAL
 import no.nav.helse.flex.soknadsopprettelse.*
 import java.time.LocalDate
 
 enum class InntektsopplysningerDokumentType(val vedleggsnr: String, val tittel: String) {
-    SKATTEMELDING("N6", "Skattemelding"),
-    SKATTEMELDING_OPTIONAL("N6", "Skattemelding hvis den er klar"),
-    NARINGSSPESIFIKASJON("L1", "Næringsoppgave/Næringsspesifikasjon"),
-    NARINGSSPESIFIKASJON_OPTIONAL("N6", "Næringsoppgave/Næringsspesifikasjon hvis den er klar"),
+    NARINGSSPESIFIKASJON("L1", "Skattemelding/Næringsspesifikasjon"),
+    NARINGSSPESIFIKASJON_OPTIONAL("N6", "Skattemelding/Næringsspesifikasjon hvis den er klar"),
     REGNSKAP_FORRIGE_AAR("L3", "Regnskap for siste år"),
     REGNSKAP_FORELOPIG("L3", "Foreløpig regnskap i år"),
 }
@@ -27,17 +23,15 @@ fun dokumenterSomSkalSendesInn(dagensDato: LocalDate): List<Inntektsopplysninger
         dagensDato.isBefore(fristSkattemelding) ->
             listOf(
                 REGNSKAP_FORRIGE_AAR,
-                SKATTEMELDING_OPTIONAL,
                 NARINGSSPESIFIKASJON_OPTIONAL,
             )
 
         dagensDato.isAfter(fristSkattemelding) && dagensDato.isBefore(sisteTertialStart) ->
             listOf(
-                SKATTEMELDING,
                 NARINGSSPESIFIKASJON,
             )
 
-        else -> listOf(SKATTEMELDING, NARINGSSPESIFIKASJON, REGNSKAP_FORELOPIG)
+        else -> listOf(NARINGSSPESIFIKASJON, REGNSKAP_FORELOPIG)
     }
 }
 
