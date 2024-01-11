@@ -25,7 +25,6 @@ class InntektsopplysningerDokumenterTest {
         val forventet =
             listOf(
                 InntektsopplysningerDokumentType.REGNSKAP_FORRIGE_AAR,
-                InntektsopplysningerDokumentType.SKATTEMELDING_OPTIONAL,
                 InntektsopplysningerDokumentType.NARINGSSPESIFIKASJON_OPTIONAL,
             )
         assertEquals(forventet, dokumenterSomSkalSendesInn(testDato))
@@ -36,7 +35,6 @@ class InntektsopplysningerDokumenterTest {
         val testDato = LocalDate.of(2023, 6, 1)
         val forventet =
             listOf(
-                InntektsopplysningerDokumentType.SKATTEMELDING,
                 InntektsopplysningerDokumentType.NARINGSSPESIFIKASJON,
             )
         assertEquals(forventet, dokumenterSomSkalSendesInn(testDato))
@@ -47,7 +45,6 @@ class InntektsopplysningerDokumenterTest {
         val testDato = LocalDate.of(2023, 9, 1)
         val forventet =
             listOf(
-                InntektsopplysningerDokumentType.SKATTEMELDING,
                 InntektsopplysningerDokumentType.NARINGSSPESIFIKASJON,
                 InntektsopplysningerDokumentType.REGNSKAP_FORELOPIG,
             )
