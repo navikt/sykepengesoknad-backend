@@ -21,6 +21,7 @@ fun Sporsmal.plasseringSporsmalUtland(): Int {
         LAND -> -9
         ARBEIDSGIVER -> -8
         BEKREFT_OPPLYSNINGER_UTLAND_INFO -> -7
+        TIL_SLUTT -> 10
         else -> 0
     }
 }
