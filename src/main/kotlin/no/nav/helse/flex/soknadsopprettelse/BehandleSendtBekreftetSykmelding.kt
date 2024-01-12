@@ -79,6 +79,8 @@ class BehandleSendtBekreftetSykmelding(
             Arbeidssituasjon.NAERINGSDRIVENDE,
             Arbeidssituasjon.FRILANSER,
             Arbeidssituasjon.ARBEIDSLEDIG,
+            Arbeidssituasjon.FISKER,
+            Arbeidssituasjon.JORDBRUKER,
             Arbeidssituasjon.ANNET,
             -> {
                 eksterneKallKlippOgOpprett(sykmeldingStatusKafkaMessageDTO, arbeidssituasjon)
@@ -138,10 +140,19 @@ class BehandleSendtBekreftetSykmelding(
 }
 
 fun SykmeldingKafkaMessage.hentArbeidssituasjon(): Arbeidssituasjon? {
-    this.event.sporsmals?.firstOrNull { sporsmal -> sporsmal.shortName == ShortNameKafkaDTO.ARBEIDSSITUASJON }?.svar?.let {
-        return no.nav.helse.flex.domain.Arbeidssituasjon.valueOf(
-            it,
-        )
+    this.event.sporsmals?.firstOrNull { sporsmal -> sporsmal.shortName == ShortNameKafkaDTO.ARBEIDSSITUASJON }?.svar?.let { it ->
+        val arbeidssituasjon =
+            Arbeidssituasjon.valueOf(
+                it,
+            )
+        return when (arbeidssituasjon) {
+            Arbeidssituasjon.NAERINGSDRIVENDE ->
+                this.event.brukerSvar?.arbeidssituasjon?.let {
+                    Arbeidssituasjon.valueOf(it.svar.name)
+                }
+
+            else -> arbeidssituasjon
+        }
     }
     return null
 }

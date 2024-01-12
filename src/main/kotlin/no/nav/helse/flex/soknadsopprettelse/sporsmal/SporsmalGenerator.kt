@@ -123,6 +123,8 @@ class SporsmalGenerator(
 
             else -> {
                 when (soknad.arbeidssituasjon) {
+                    Arbeidssituasjon.FISKER,
+                    Arbeidssituasjon.JORDBRUKER,
                     Arbeidssituasjon.NAERINGSDRIVENDE,
                     Arbeidssituasjon.FRILANSER,
                     -> settOppSoknadSelvstendigOgFrilanser(soknadOptions)

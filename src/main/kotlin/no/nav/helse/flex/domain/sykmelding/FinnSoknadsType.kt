@@ -23,7 +23,11 @@ fun finnSoknadsType(
 
     return when (arbeidssituasjon) {
         Arbeidssituasjon.ARBEIDSTAKER -> Soknadstype.ARBEIDSTAKERE
-        Arbeidssituasjon.NAERINGSDRIVENDE, Arbeidssituasjon.FRILANSER -> Soknadstype.SELVSTENDIGE_OG_FRILANSERE
+        Arbeidssituasjon.NAERINGSDRIVENDE,
+        Arbeidssituasjon.FRILANSER,
+        Arbeidssituasjon.FISKER,
+        Arbeidssituasjon.JORDBRUKER,
+        -> Soknadstype.SELVSTENDIGE_OG_FRILANSERE
         Arbeidssituasjon.ARBEIDSLEDIG -> Soknadstype.ARBEIDSLEDIG
         Arbeidssituasjon.ANNET -> Soknadstype.ANNET_ARBEIDSFORHOLD
     }
