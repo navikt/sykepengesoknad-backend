@@ -19,7 +19,7 @@ private fun leggSvarPaSoknad(
         .arbeidsgiver(feriesvar)
         .besvarsporsmal(LAND, "England")
         .besvarsporsmal(TIL_SLUTT, "Jeg lover å ikke lyve!")
-        .besvarsporsmal(BEKREFT_OPPLYSNINGER,"CHECKED")
+        .besvarsporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
 }
 
 private fun Sykepengesoknad.arbeidsgiver(feriesvarverdi: String): Sykepengesoknad {
