@@ -3,9 +3,16 @@ package no.nav.helse.flex.testdata
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.syfo.model.Merknad
-import no.nav.syfo.model.sykmelding.arbeidsgiver.*
-import no.nav.syfo.model.sykmelding.model.*
-import no.nav.syfo.model.sykmeldingstatus.*
+import no.nav.syfo.model.sykmelding.arbeidsgiver.ArbeidsgiverAGDTO
+import no.nav.syfo.model.sykmelding.arbeidsgiver.ArbeidsgiverSykmelding
+import no.nav.syfo.model.sykmelding.arbeidsgiver.BehandlerAGDTO
+import no.nav.syfo.model.sykmelding.arbeidsgiver.KontaktMedPasientAGDTO
+import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
+import no.nav.syfo.model.sykmelding.arbeidsgiver.UtenlandskSykmeldingAGDTO
+import no.nav.syfo.model.sykmelding.model.AdresseDTO
+import no.nav.syfo.model.sykmelding.model.GradertDTO
+import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
+import no.nav.syfo.sykmelding.kafka.model.*
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -74,7 +81,7 @@ fun skapSykmeldingStatusKafkaMessageDTO(
     statusEvent: String = STATUS_BEKREFTET,
     fnr: String,
     timestamp: OffsetDateTime = OffsetDateTime.now(),
-    arbeidsgiver: ArbeidsgiverStatusDTO? = null,
+    arbeidsgiver: ArbeidsgiverStatusKafkaDTO? = null,
     sykmeldingId: String = UUID.randomUUID().toString(),
     tidligereArbeidsgiverOrgnummer: String? = null,
 ): SykmeldingStatusKafkaMessageDTO {
@@ -87,16 +94,17 @@ fun skapSykmeldingStatusKafkaMessageDTO(
                 timestamp = timestamp,
                 sporsmals =
                     listOf(
-                        SporsmalOgSvarDTO(
+                        SporsmalOgSvarKafkaDTO(
                             tekst = "Hva jobber du som?",
-                            shortName = ShortNameDTO.ARBEIDSSITUASJON,
-                            svartype = SvartypeDTO.ARBEIDSSITUASJON,
+                            shortName = ShortNameKafkaDTO.ARBEIDSSITUASJON,
+                            svartype = SvartypeKafkaDTO.ARBEIDSSITUASJON,
                             svar = arbeidssituasjon.name,
                         ),
                     ),
+                brukerSvar = null,
             ).let {
                 if (tidligereArbeidsgiverOrgnummer != null) {
-                    it.copy(tidligereArbeidsgiver = TidligereArbeidsgiverDTO("", tidligereArbeidsgiverOrgnummer, ""))
+                    it.copy(tidligereArbeidsgiver = TidligereArbeidsgiverKafkaDTO("", tidligereArbeidsgiverOrgnummer, ""))
                 } else {
                     it
                 }
@@ -263,7 +271,7 @@ fun sykmeldingKafkaMessage(
     arbeidssituasjon: Arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
     fnr: String,
     timestamp: OffsetDateTime = OffsetDateTime.now(),
-    arbeidsgiver: ArbeidsgiverStatusDTO? = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "Butikken"),
+    arbeidsgiver: ArbeidsgiverStatusKafkaDTO? = ArbeidsgiverStatusKafkaDTO(orgnummer = "123454543", orgNavn = "Butikken"),
     sykmeldingId: String = UUID.randomUUID().toString(),
     sykmeldingsperioder: List<SykmeldingsperiodeAGDTO> =
         heltSykmeldt(

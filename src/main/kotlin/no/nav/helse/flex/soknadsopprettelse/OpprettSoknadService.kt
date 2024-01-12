@@ -21,8 +21,8 @@ import no.nav.helse.flex.util.osloZone
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO.*
-import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
-import no.nav.syfo.model.sykmeldingstatus.ShortNameDTO
+import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
+import no.nav.syfo.sykmelding.kafka.model.ShortNameKafkaDTO
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
@@ -47,7 +47,7 @@ class OpprettSoknadService(
         sykmeldingKafkaMessage: SykmeldingKafkaMessage,
         arbeidssituasjon: Arbeidssituasjon,
         identer: FolkeregisterIdenter,
-        arbeidsgiverStatusDTO: ArbeidsgiverStatusDTO?,
+        arbeidsgiverStatusDTO: ArbeidsgiverStatusKafkaDTO?,
         flexSyketilfelleSykeforloep: List<Sykeforloep>,
     ): List<AktiveringBestilling> {
         val sykmelding = sykmeldingKafkaMessage.sykmelding
@@ -95,7 +95,7 @@ class OpprettSoknadService(
                         egenmeldingsdagerFraSykmelding =
                             sykmeldingKafkaMessage.event.sporsmals?.firstOrNull {
                                     spm ->
-                                spm.shortName == ShortNameDTO.EGENMELDINGSDAGER
+                                spm.shortName == ShortNameKafkaDTO.EGENMELDINGSDAGER
                             }?.svar,
                         forstegangssoknad = null,
                         tidligereArbeidsgiverOrgnummer = sykmeldingKafkaMessage.event.tidligereArbeidsgiver?.orgnummer,

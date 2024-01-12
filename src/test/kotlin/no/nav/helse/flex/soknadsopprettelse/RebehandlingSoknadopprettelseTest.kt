@@ -19,9 +19,9 @@ import no.nav.helse.flex.util.serialisertTilString
 import no.nav.helse.flex.ventPåRecords
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
-import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
-import no.nav.syfo.model.sykmeldingstatus.STATUS_BEKREFTET
-import no.nav.syfo.model.sykmeldingstatus.STATUS_SENDT
+import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
+import no.nav.syfo.sykmelding.kafka.model.STATUS_BEKREFTET
+import no.nav.syfo.sykmelding.kafka.model.STATUS_SENDT
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -121,7 +121,7 @@ class RebehandlingSoknadopprettelseTest : BaseTestClass() {
                 fnr = fnr,
                 statusEvent = statusEvent,
                 arbeidssituasjon = arbeidssituasjon,
-                arbeidsgiver = ArbeidsgiverStatusDTO("123", "456", "Jobb"),
+                arbeidsgiver = ArbeidsgiverStatusKafkaDTO("123", "456", "Jobb"),
             )
         val sykmelding =
             skapArbeidsgiverSykmelding(

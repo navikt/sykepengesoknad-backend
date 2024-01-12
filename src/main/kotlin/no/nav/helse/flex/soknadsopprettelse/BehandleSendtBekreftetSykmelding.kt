@@ -13,9 +13,9 @@ import no.nav.helse.flex.service.GjenapneSykmeldingService
 import no.nav.helse.flex.service.IdentService
 import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.KlippOgOpprett
 import no.nav.helse.flex.util.Metrikk
-import no.nav.syfo.model.sykmeldingstatus.STATUS_BEKREFTET
-import no.nav.syfo.model.sykmeldingstatus.STATUS_SENDT
-import no.nav.syfo.model.sykmeldingstatus.ShortNameDTO
+import no.nav.syfo.sykmelding.kafka.model.STATUS_BEKREFTET
+import no.nav.syfo.sykmelding.kafka.model.STATUS_SENDT
+import no.nav.syfo.sykmelding.kafka.model.ShortNameKafkaDTO
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.transaction.interceptor.TransactionInterceptor
@@ -138,7 +138,7 @@ class BehandleSendtBekreftetSykmelding(
 }
 
 fun SykmeldingKafkaMessage.hentArbeidssituasjon(): Arbeidssituasjon? {
-    this.event.sporsmals?.firstOrNull { sporsmal -> sporsmal.shortName == ShortNameDTO.ARBEIDSSITUASJON }?.svar?.let {
+    this.event.sporsmals?.firstOrNull { sporsmal -> sporsmal.shortName == ShortNameKafkaDTO.ARBEIDSSITUASJON }?.svar?.let {
         return no.nav.helse.flex.domain.Arbeidssituasjon.valueOf(
             it,
         )
@@ -147,6 +147,6 @@ fun SykmeldingKafkaMessage.hentArbeidssituasjon(): Arbeidssituasjon? {
 }
 
 fun SykmeldingKafkaMessage.harForsikring(): Boolean {
-    this.event.sporsmals?.firstOrNull { sporsmal -> sporsmal.shortName == ShortNameDTO.FORSIKRING }?.svar?.let { return it == "JA" }
+    this.event.sporsmals?.firstOrNull { sporsmal -> sporsmal.shortName == ShortNameKafkaDTO.FORSIKRING }?.svar?.let { return it == "JA" }
     return false
 }

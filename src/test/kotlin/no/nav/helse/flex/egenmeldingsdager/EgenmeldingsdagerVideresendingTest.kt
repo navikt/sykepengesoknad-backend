@@ -1,21 +1,30 @@
 package no.nav.helse.flex.egenmeldingsdager
 
-import no.nav.helse.flex.*
+import no.nav.helse.flex.BaseTestClass
 import no.nav.helse.flex.aktivering.AktiveringJob
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
+import no.nav.helse.flex.hentSoknad
+import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
+import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
+import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
+import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL
 import no.nav.helse.flex.util.serialisertTilString
-import no.nav.syfo.model.sykmeldingstatus.ShortNameDTO
-import no.nav.syfo.model.sykmeldingstatus.SporsmalOgSvarDTO
-import no.nav.syfo.model.sykmeldingstatus.SvartypeDTO
-import org.amshove.kluent.*
+import no.nav.helse.flex.ventPåRecords
+import no.nav.syfo.sykmelding.kafka.model.ShortNameKafkaDTO
+import no.nav.syfo.sykmelding.kafka.model.SporsmalOgSvarKafkaDTO
+import no.nav.syfo.sykmelding.kafka.model.SvartypeKafkaDTO
+import org.amshove.kluent.shouldBeEqualTo
 import org.apache.kafka.clients.producer.ProducerRecord
-import org.junit.jupiter.api.*
+import org.junit.jupiter.api.MethodOrderer
+import org.junit.jupiter.api.Order
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 
@@ -41,10 +50,10 @@ class EgenmeldingsdagerVideresendingTest : BaseTestClass() {
                         erSvarOppdatering = true,
                         sporsmals =
                             it.event.sporsmals!!.plus(
-                                SporsmalOgSvarDTO(
+                                SporsmalOgSvarKafkaDTO(
                                     tekst = "Brukte du egenmeldingsdager før sykmeldinga?",
-                                    shortName = ShortNameDTO.EGENMELDINGSDAGER,
-                                    svartype = SvartypeDTO.DAGER,
+                                    shortName = ShortNameKafkaDTO.EGENMELDINGSDAGER,
+                                    svartype = SvartypeKafkaDTO.DAGER,
                                     svar = basisdato.minusDays(3).datesUntil(basisdato).toList().serialisertTilString(),
                                 ),
                             ),

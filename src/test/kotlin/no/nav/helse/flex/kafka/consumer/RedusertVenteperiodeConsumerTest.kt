@@ -7,7 +7,7 @@ import no.nav.helse.flex.repository.RedusertVenteperiodeRepository
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.helse.flex.util.serialisertTilString
-import no.nav.syfo.model.sykmeldingstatus.STATUS_BEKREFTET
+import no.nav.syfo.sykmelding.kafka.model.STATUS_BEKREFTET
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order

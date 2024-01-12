@@ -15,14 +15,12 @@ import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.ventPåRecords
-import no.nav.syfo.model.sykmeldingstatus.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import java.time.LocalDate
-import java.util.*
 
 @TestMethodOrder(MethodOrderer.MethodName::class)
 class GjenapneSykmeldingIntegrationMedTombstoneTest : BaseTestClass() {

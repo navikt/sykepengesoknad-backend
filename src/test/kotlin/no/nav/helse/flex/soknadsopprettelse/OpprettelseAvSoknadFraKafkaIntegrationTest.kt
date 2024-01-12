@@ -19,12 +19,12 @@ import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.GradertDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
-import no.nav.syfo.model.sykmeldingstatus.STATUS_BEKREFTET
-import no.nav.syfo.model.sykmeldingstatus.STATUS_SENDT
-import no.nav.syfo.model.sykmeldingstatus.ShortNameDTO
-import no.nav.syfo.model.sykmeldingstatus.SporsmalOgSvarDTO
-import no.nav.syfo.model.sykmeldingstatus.SvartypeDTO
-import no.nav.syfo.model.sykmeldingstatus.SykmeldingStatusKafkaMessageDTO
+import no.nav.syfo.sykmelding.kafka.model.STATUS_BEKREFTET
+import no.nav.syfo.sykmelding.kafka.model.STATUS_SENDT
+import no.nav.syfo.sykmelding.kafka.model.ShortNameKafkaDTO
+import no.nav.syfo.sykmelding.kafka.model.SporsmalOgSvarKafkaDTO
+import no.nav.syfo.sykmelding.kafka.model.SvartypeKafkaDTO
+import no.nav.syfo.sykmelding.kafka.model.SykmeldingStatusKafkaMessageDTO
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertThrows
@@ -118,10 +118,10 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
             sykmeldingStatusKafkaMessageDTO.event.copy(
                 sporsmals =
                     listOf(
-                        SporsmalOgSvarDTO(
+                        SporsmalOgSvarKafkaDTO(
                             tekst = "Harru forsikring?",
-                            svartype = SvartypeDTO.JA_NEI,
-                            shortName = ShortNameDTO.FORSIKRING,
+                            svartype = SvartypeKafkaDTO.JA_NEI,
+                            shortName = ShortNameKafkaDTO.FORSIKRING,
                             svar = "JA",
                         ),
                         sykmeldingStatusKafkaMessageDTO.event.sporsmals!![0],
@@ -159,10 +159,10 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
             sykmeldingStatusKafkaMessageDTO.event.copy(
                 sporsmals =
                     listOf(
-                        SporsmalOgSvarDTO(
+                        SporsmalOgSvarKafkaDTO(
                             tekst = "Harru forsikring?",
-                            svartype = SvartypeDTO.JA_NEI,
-                            shortName = ShortNameDTO.FORSIKRING,
+                            svartype = SvartypeKafkaDTO.JA_NEI,
+                            shortName = ShortNameKafkaDTO.FORSIKRING,
                             svar = "NEI",
                         ),
                         sykmeldingStatusKafkaMessageDTO.event.sporsmals!![0],
