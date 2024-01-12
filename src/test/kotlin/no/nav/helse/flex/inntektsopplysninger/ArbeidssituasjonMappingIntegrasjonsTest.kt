@@ -1,8 +1,10 @@
 package no.nav.helse.flex.inntektsopplysninger
 
 import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.controller.domain.sykepengesoknad.RSArbeidssituasjon
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.hentProduserteRecords
+import no.nav.helse.flex.hentSoknader
 import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
@@ -47,6 +49,8 @@ class ArbeidssituasjonMappingIntegrasjonsTest : BaseTestClass() {
         val soknad = soknader.first()
         soknad.arbeidssituasjon shouldBeEqualTo ArbeidssituasjonDTO.SELVSTENDIG_NARINGSDRIVENDE
 
+        hentSoknader(fnr).first().arbeidssituasjon shouldBeEqualTo RSArbeidssituasjon.FISKER
+
         sykepengesoknadRepository.findBySykepengesoknadUuid(soknad.id)!!.arbeidssituasjon shouldBeEqualTo Arbeidssituasjon.FISKER
     }
 
@@ -66,6 +70,8 @@ class ArbeidssituasjonMappingIntegrasjonsTest : BaseTestClass() {
         val soknad = soknader.first()
         soknad.arbeidssituasjon shouldBeEqualTo ArbeidssituasjonDTO.SELVSTENDIG_NARINGSDRIVENDE
 
+        hentSoknader(fnr).first().arbeidssituasjon shouldBeEqualTo RSArbeidssituasjon.JORDBRUKER
+
         sykepengesoknadRepository.findBySykepengesoknadUuid(soknad.id)!!.arbeidssituasjon shouldBeEqualTo Arbeidssituasjon.JORDBRUKER
     }
 
@@ -79,25 +85,24 @@ class ArbeidssituasjonMappingIntegrasjonsTest : BaseTestClass() {
                 fnr = fnr,
             )
 
-        val sykmeldingFisker =
-            sykmeldingKafkaMessage.copy(
-                event =
-                    sykmeldingKafkaMessage.event.copy(
-                        brukerSvar =
-                            sykmeldingKafkaMessage.event.brukerSvar!!.copy(
-                                arbeidssituasjon =
-                                    SporsmalSvar(
-                                        "Arbeidssituasjon",
-                                        no.nav.syfo.sykmelding.kafka.model.Arbeidssituasjon.FISKER,
-                                    ),
-                            ),
-                    ),
-            )
-
         val soknader =
             sendSykmelding(
-                sykmeldingFisker,
+                sykmeldingKafkaMessage.copy(
+                    event =
+                        sykmeldingKafkaMessage.event.copy(
+                            brukerSvar =
+                                sykmeldingKafkaMessage.event.brukerSvar!!.copy(
+                                    arbeidssituasjon =
+                                        SporsmalSvar(
+                                            "Arbeidssituasjon",
+                                            no.nav.syfo.sykmelding.kafka.model.Arbeidssituasjon.FISKER,
+                                        ),
+                                ),
+                        ),
+                ),
             )
+
+        hentSoknader(fnr).first().arbeidssituasjon shouldBeEqualTo RSArbeidssituasjon.ARBEIDSTAKER
 
         soknader shouldHaveSize 1
         val soknad = soknader.first()
