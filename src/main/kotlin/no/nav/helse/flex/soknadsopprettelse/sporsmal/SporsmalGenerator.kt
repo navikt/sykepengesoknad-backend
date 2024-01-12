@@ -128,7 +128,7 @@ class SporsmalGenerator(
                     Arbeidssituasjon.JORDBRUKER,
                     Arbeidssituasjon.NAERINGSDRIVENDE,
                     Arbeidssituasjon.FRILANSER,
-                    -> settOppSoknadSelvstendigOgFrilanser(soknadOptions)
+                    -> settOppSoknadSelvstendigOgFrilanser(soknadOptions, nyttTilSluttSpmToggle)
 
                     Arbeidssituasjon.ARBEIDSLEDIG -> settOppSoknadArbeidsledig(soknadOptions, nyttTilSluttSpmToggle)
                     Arbeidssituasjon.ANNET -> settOppSoknadAnnetArbeidsforhold(soknadOptions)
