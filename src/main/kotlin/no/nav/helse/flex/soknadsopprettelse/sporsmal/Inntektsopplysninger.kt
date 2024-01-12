@@ -108,21 +108,27 @@ fun lagSporsmalOmInntektsopplyninger(soknad: Sykepengesoknad): Sporsmal {
                                                                             ),
                                                                         ),
                                                                 ),
-                                                            ),
-                                                    ),
-                                                    Sporsmal(
-                                                        tag = INNTEKTSOPPLYSNINGER_VARIG_ENDRING_25_PROSENT,
-                                                        sporsmalstekst = "Har du hatt mer enn 25 prosent endring i årsinntekten din som følge av den varige endringen?",
-                                                        svartype = Svartype.JA_NEI,
-                                                        kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
-                                                        undersporsmal =
-                                                            listOf(
                                                                 Sporsmal(
-                                                                    tag = INNTEKTSOPPLYSNINGER_VARIG_ENDRING_DATO,
-                                                                    sporsmalstekst = "Når skjedde den siste varige endringen?",
-                                                                    svartype = Svartype.DATO,
-                                                                    min = datoForVarigEndringEtter.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                                                                    max = soknad.fom.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                                                                    tag = INNTEKTSOPPLYSNINGER_VARIG_ENDRING_25_PROSENT,
+                                                                    sporsmalstekst = "Har du hatt mer enn 25 prosent endring i årsinntekten din som følge av den varige endringen?",
+                                                                    svartype = Svartype.JA_NEI,
+                                                                    kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
+                                                                    undersporsmal =
+                                                                        listOf(
+                                                                            Sporsmal(
+                                                                                tag = INNTEKTSOPPLYSNINGER_VARIG_ENDRING_DATO,
+                                                                                sporsmalstekst = "Når skjedde den siste varige endringen?",
+                                                                                svartype = Svartype.DATO,
+                                                                                min =
+                                                                                    datoForVarigEndringEtter.format(
+                                                                                        DateTimeFormatter.ISO_LOCAL_DATE,
+                                                                                    ),
+                                                                                max =
+                                                                                    soknad.fom.format(
+                                                                                        DateTimeFormatter.ISO_LOCAL_DATE,
+                                                                                    ),
+                                                                            ),
+                                                                        ),
                                                                 ),
                                                             ),
                                                     ),
