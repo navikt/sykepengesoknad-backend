@@ -35,6 +35,7 @@ private fun Sporsmal.sorterUndersporsmal(): Sporsmal {
                     MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE -> it.sorteringMedlemskapOppholdUtenforEosBegrunnelse()
                     KJENTE_INNTEKTSKILDER_ARSAK_IKKE_JOBBET -> it.sorteringKjenteInntektskilderArsak()
                     INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE -> it.sorteringVarigEndringBegrunnelse()
+                    INNTEKTSOPPLYSNINGER_VARIG_ENDRING -> it.sorteringVarigEndringJa()
                     else -> it.tag
                 }
             }
@@ -48,6 +49,14 @@ private fun Sporsmal.sorteringVarigEndringBegrunnelse(): String {
         INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE_OMLEGGING_AV_VIRKSOMHETEN -> "2"
         INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE_ENDRET_MARKEDSSITUASJON -> "3"
         INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE_ANNET -> "4"
+        else -> throw RuntimeException("Ukjent underspørsmål for varig endring begrunnelse: $tag")
+    }
+}
+
+private fun Sporsmal.sorteringVarigEndringJa(): String {
+    return when (tag) {
+        INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE -> "0"
+        INNTEKTSOPPLYSNINGER_VARIG_ENDRING_25_PROSENT -> "1"
         else -> throw RuntimeException("Ukjent underspørsmål for varig endring begrunnelse: $tag")
     }
 }

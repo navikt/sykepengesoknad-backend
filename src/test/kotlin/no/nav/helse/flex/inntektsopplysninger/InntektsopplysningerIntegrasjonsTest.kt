@@ -125,6 +125,14 @@ class InntektsopplysningerIntegrasjonsTest : BaseTestClass() {
                 INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE_ANNET,
             ),
         )
+
+        soknad.sporsmal.flatten().first { it.tag == INNTEKTSOPPLYSNINGER_VARIG_ENDRING }
+            .undersporsmal!!.map { it.tag }.shouldBeEqualTo(
+            listOf(
+                INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE,
+                INNTEKTSOPPLYSNINGER_VARIG_ENDRING_25_PROSENT,
+            ),
+        )
     }
 
     @Test
