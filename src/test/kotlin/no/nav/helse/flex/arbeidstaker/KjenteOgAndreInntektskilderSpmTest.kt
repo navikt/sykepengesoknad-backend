@@ -15,7 +15,7 @@ import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_KJENTE_INNTEKTSKILDER
 import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL
-import no.nav.syfo.model.sykmeldingstatus.ArbeidsgiverStatusDTO
+import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should be null`
 import org.amshove.kluent.shouldHaveSize
@@ -42,7 +42,7 @@ class KjenteOgAndreInntektskilderSpmTest : BaseTestClass() {
                         fom = basisdato.minusDays(20),
                         tom = basisdato,
                     ),
-                arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "MATBUTIKKEN AS"),
+                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = "123454543", orgNavn = "MATBUTIKKEN AS"),
             ),
         )
     }
@@ -155,7 +155,7 @@ class KjenteOgAndreInntektskilderSpmTest : BaseTestClass() {
                         fom = basisdato.minusDays(20),
                         tom = basisdato,
                     ),
-                arbeidsgiver = ArbeidsgiverStatusDTO(orgnummer = "123454543", orgNavn = "MATBUTIKKEN AS"),
+                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = "123454543", orgNavn = "MATBUTIKKEN AS"),
             ),
         )
 

@@ -1,8 +1,6 @@
-package no.nav.helse.flex.domain.sykmelding
+package no.nav.syfo.sykmelding.kafka.model
 
 import no.nav.syfo.model.sykmelding.arbeidsgiver.ArbeidsgiverSykmelding
-import no.nav.syfo.sykmelding.kafka.model.KafkaMetadataDTO
-import no.nav.syfo.sykmelding.kafka.model.SykmeldingStatusKafkaEventDTO
 
 data class SykmeldingKafkaMessage(
     val sykmelding: ArbeidsgiverSykmelding,

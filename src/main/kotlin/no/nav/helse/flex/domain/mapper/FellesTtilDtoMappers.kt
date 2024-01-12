@@ -3,17 +3,7 @@ package no.nav.helse.flex.domain.mapper
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.domain.Avsendertype
-import no.nav.helse.flex.domain.Merknad
-import no.nav.helse.flex.domain.Mottaker
-import no.nav.helse.flex.domain.Soknadstatus
-import no.nav.helse.flex.domain.Soknadstype
-import no.nav.helse.flex.domain.Sporsmal
-import no.nav.helse.flex.domain.Svar
-import no.nav.helse.flex.domain.Svartype
-import no.nav.helse.flex.domain.Sykmeldingstype
-import no.nav.helse.flex.domain.Visningskriterie
+import no.nav.helse.flex.domain.*
 import no.nav.helse.flex.sykepengesoknad.kafka.*
 import java.io.IOException
 import java.time.LocalDate
@@ -67,7 +57,7 @@ fun Soknadstatus.tilSoknadstatusDTO(): SoknadsstatusDTO {
     }
 }
 
-fun Svartype.tilSvartypeDTO(): SvartypeDTO {
+fun Svartype.tilSvartypeKafkaDTO(): SvartypeDTO {
     return when (this) {
         Svartype.JA_NEI -> SvartypeDTO.JA_NEI
         Svartype.CHECKBOX -> SvartypeDTO.CHECKBOX
@@ -117,7 +107,7 @@ fun Sporsmal.tilSporsmalDTO(): SporsmalDTO {
         undertekst = this.undertekst,
         min = this.min,
         max = this.max,
-        svartype = this.svartype.tilSvartypeDTO(),
+        svartype = this.svartype.tilSvartypeKafkaDTO(),
         kriterieForVisningAvUndersporsmal = this.kriterieForVisningAvUndersporsmal?.tilVisningskriteriumDTO(),
         svar = this.svar.map { it.tilSvarDTO() },
         undersporsmal = this.undersporsmal.map { it.tilSporsmalDTO() },

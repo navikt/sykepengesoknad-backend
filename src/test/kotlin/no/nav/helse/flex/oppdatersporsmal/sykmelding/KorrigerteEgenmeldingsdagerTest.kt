@@ -12,9 +12,9 @@ import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL
 import no.nav.helse.flex.util.serialisertTilString
-import no.nav.syfo.model.sykmeldingstatus.ShortNameDTO
-import no.nav.syfo.model.sykmeldingstatus.SporsmalOgSvarDTO
-import no.nav.syfo.model.sykmeldingstatus.SvartypeDTO
+import no.nav.syfo.sykmelding.kafka.model.ShortNameKafkaDTO
+import no.nav.syfo.sykmelding.kafka.model.SporsmalOgSvarKafkaDTO
+import no.nav.syfo.sykmelding.kafka.model.SvartypeKafkaDTO
 import org.amshove.kluent.*
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.awaitility.Awaitility.await
@@ -121,10 +121,10 @@ class KorrigerteEgenmeldingsdagerTest : BaseTestClass() {
                             erSvarOppdatering = true,
                             sporsmals =
                                 sykmeldingKafkaMessage.event.sporsmals!!.plus(
-                                    SporsmalOgSvarDTO(
+                                    SporsmalOgSvarKafkaDTO(
                                         tekst = "Brukte du egenmeldingsdager før sykmeldinga?",
-                                        shortName = ShortNameDTO.EGENMELDINGSDAGER,
-                                        svartype = SvartypeDTO.DAGER,
+                                        shortName = ShortNameKafkaDTO.EGENMELDINGSDAGER,
+                                        svartype = SvartypeKafkaDTO.DAGER,
                                         svar = basisdato.minusDays(3).datesUntil(basisdato).toList().serialisertTilString(),
                                     ),
                                 ),
@@ -163,10 +163,10 @@ class KorrigerteEgenmeldingsdagerTest : BaseTestClass() {
                             erSvarOppdatering = true,
                             sporsmals =
                                 sykmeldingKafkaMessage.event.sporsmals!!.plus(
-                                    SporsmalOgSvarDTO(
+                                    SporsmalOgSvarKafkaDTO(
                                         tekst = "Brukte du egenmeldingsdager før sykmeldinga?",
-                                        shortName = ShortNameDTO.EGENMELDINGSDAGER,
-                                        svartype = SvartypeDTO.DAGER,
+                                        shortName = ShortNameKafkaDTO.EGENMELDINGSDAGER,
+                                        svartype = SvartypeKafkaDTO.DAGER,
                                         svar = basisdato.minusDays(9).datesUntil(basisdato).toList().serialisertTilString(),
                                     ),
                                 ),
