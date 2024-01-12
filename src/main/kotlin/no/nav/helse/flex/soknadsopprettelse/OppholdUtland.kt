@@ -31,16 +31,16 @@ fun settOppSoknadOppholdUtland(
     toggle: Boolean = true,
 ): Sykepengesoknad {
     val sporsmal =
-        listOf(
-            periodeSporsmal(),
-            landSporsmal(),
-            arbeidsgiverSporsmal(),
+        mutableListOf<Sporsmal>().apply {
+            add(periodeSporsmal())
+            add(landSporsmal())
+            add(arbeidsgiverSporsmal())
             if (toggle) {
-                tilSlutt()
+                add(tilSlutt())
             } else {
-                bekreftSporsmal(false)
-            },
-        )
+                add(bekreftSporsmal(false))
+            }
+        }
 
     return Sykepengesoknad(
         id = randomUUID().toString(),
