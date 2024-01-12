@@ -61,6 +61,7 @@ enum class Arbeidssituasjon {
     FRILANSER,
     NAERINGSDRIVENDE,
     FISKER,
+    JORDBRUKER,
     ARBEIDSLEDIG,
     ANNET,
 }
