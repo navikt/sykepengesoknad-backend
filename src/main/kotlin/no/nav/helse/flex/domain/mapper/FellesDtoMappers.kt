@@ -57,7 +57,7 @@ fun Soknadstatus.tilSoknadstatusDTO(): SoknadsstatusDTO {
     }
 }
 
-fun Svartype.tilSvartypeKafkaDTO(): SvartypeDTO {
+fun Svartype.tilSvartypeDTO(): SvartypeDTO {
     return when (this) {
         Svartype.JA_NEI -> SvartypeDTO.JA_NEI
         Svartype.CHECKBOX -> SvartypeDTO.CHECKBOX
@@ -107,7 +107,7 @@ fun Sporsmal.tilSporsmalDTO(): SporsmalDTO {
         undertekst = this.undertekst,
         min = this.min,
         max = this.max,
-        svartype = this.svartype.tilSvartypeKafkaDTO(),
+        svartype = this.svartype.tilSvartypeDTO(),
         kriterieForVisningAvUndersporsmal = this.kriterieForVisningAvUndersporsmal?.tilVisningskriteriumDTO(),
         svar = this.svar.map { it.tilSvarDTO() },
         undersporsmal = this.undersporsmal.map { it.tilSporsmalDTO() },
