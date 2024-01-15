@@ -1,5 +1,6 @@
 package no.nav.helse.flex.repository
 
+import org.springframework.data.jdbc.repository.query.Modifying
 import org.springframework.data.jdbc.repository.query.Query
 import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
@@ -40,4 +41,17 @@ interface SykepengesoknadRepository : CrudRepository<SykepengesoknadDbRecord, St
         """,
     )
     fun finnSoknaderSomSkalAktiveres(now: LocalDate): List<SykepengesoknadDbRecord>
+
+    @Modifying
+    @Query(
+        """
+        UPDATE sykepengesoknad 
+        SET start_sykeforlop = :startSykeforlop
+        WHERE sykepengesoknad_uuid = :uuid
+        """,
+    )
+    fun oppdaterStartSykeforlop(
+        startSykeforlop: LocalDate,
+        uuid: String,
+    ): Boolean
 }
