@@ -98,10 +98,18 @@ fun skapSykmeldingStatusKafkaMessageDTO(
                             tekst = "Hva jobber du som?",
                             shortName = ShortNameKafkaDTO.ARBEIDSSITUASJON,
                             svartype = SvartypeKafkaDTO.ARBEIDSSITUASJON,
-                            svar = arbeidssituasjon.name,
+                            svar =
+                                if (listOf(Arbeidssituasjon.FISKER, Arbeidssituasjon.JORDBRUKER).contains(
+                                        arbeidssituasjon,
+                                    )
+                                ) {
+                                    Arbeidssituasjon.NAERINGSDRIVENDE.name
+                                } else {
+                                    arbeidssituasjon.name
+                                },
                         ),
                     ),
-                brukerSvar = null,
+                brukerSvar = lagKomplettInnsendtSkjemaSvar(arbeidssituasjon),
             ).let {
                 if (tidligereArbeidsgiverOrgnummer != null) {
                     it.copy(tidligereArbeidsgiver = TidligereArbeidsgiverKafkaDTO("", tidligereArbeidsgiverOrgnummer, ""))
@@ -116,6 +124,26 @@ fun skapSykmeldingStatusKafkaMessageDTO(
                 source = "Test",
                 fnr = fnr,
             ),
+    )
+}
+
+fun lagKomplettInnsendtSkjemaSvar(arbeidssituasjon: Arbeidssituasjon): KomplettInnsendtSkjemaSvar {
+    return KomplettInnsendtSkjemaSvar(
+        erOpplysningeneRiktige = SporsmalSvar("Sporsmal", JaEllerNei.JA),
+        uriktigeOpplysninger = null,
+        arbeidssituasjon =
+            SporsmalSvar(
+                "Arbeidssituasjon",
+                no.nav.syfo.sykmelding.kafka.model.Arbeidssituasjon.valueOf(arbeidssituasjon.name),
+            ),
+        arbeidsgiverOrgnummer = null,
+        riktigNarmesteLeder = null,
+        harBruktEgenmelding = null,
+        egenmeldingsperioder = null,
+        harForsikring = null,
+        egenmeldingsdager = null,
+        harBruktEgenmeldingsdager = null,
+        fisker = null,
     )
 }
 

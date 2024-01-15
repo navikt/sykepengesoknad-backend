@@ -3,7 +3,9 @@ package no.nav.helse.flex.soknadsopprettelse
 import no.nav.helse.flex.domain.Arbeidssituasjon.ANNET
 import no.nav.helse.flex.domain.Arbeidssituasjon.ARBEIDSLEDIG
 import no.nav.helse.flex.domain.Arbeidssituasjon.ARBEIDSTAKER
+import no.nav.helse.flex.domain.Arbeidssituasjon.FISKER
 import no.nav.helse.flex.domain.Arbeidssituasjon.FRILANSER
+import no.nav.helse.flex.domain.Arbeidssituasjon.JORDBRUKER
 import no.nav.helse.flex.domain.Arbeidssituasjon.NAERINGSDRIVENDE
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Sykepengesoknad
@@ -24,7 +26,11 @@ fun Sporsmal.plasseringSporsmalBehandlingsdager(): Int {
 
 fun andreInntekstkilder(soknadMetadata: Sykepengesoknad): Sporsmal {
     return when (soknadMetadata.arbeidssituasjon) {
-        NAERINGSDRIVENDE -> andreInntektskilderSelvstendigOgFrilanser(soknadMetadata.arbeidssituasjon)
+        FISKER,
+        JORDBRUKER,
+        NAERINGSDRIVENDE,
+        -> andreInntektskilderSelvstendigOgFrilanser(NAERINGSDRIVENDE)
+
         FRILANSER -> andreInntektskilderSelvstendigOgFrilanser(soknadMetadata.arbeidssituasjon)
         ARBEIDSTAKER -> andreInntektskilderArbeidstaker(soknadMetadata.arbeidsgiverNavn)
         ARBEIDSLEDIG -> andreInntektskilderArbeidsledig(soknadMetadata.fom!!, soknadMetadata.tom!!)
