@@ -155,7 +155,7 @@ Det endelige resultatet vil derfor være som følger:
     |        100        | [25, 25, 25, 25] | 
 
 ## Redis
-Sykepengesoknad-backend bruker redis for cache. Denne deployes ved endringer i redis-config.yaml av en egen GHA workflow.
+Sykepengesoknad-backend bruker redis for cache av identer hentet fra PDL. Den er satt opp med standard oppsett i naiserator.yaml ([doc](https://docs.nais.io/persistence/redis/))
 
 ## Data
 Sykepengesoknad-backend har en postgres database. Her lagres alle søknadene strukturert.
@@ -165,7 +165,7 @@ Det er ikke noe sletting av søknader fra denne databasen, når søknader utløp
 Databasen lagrer også dødsmeldinger som kommer inn på personer som har en søknad.
 Denne dødsmeldingen ligger lagret i 2 uker før den slettes samtidig som NYe søknader automatisk sendes inn.
 
-Ved endring av status på søknad så publiserers også hele søknaden på Aiven kafka slik at andre apper kan lese dataene.
+Ved endring av status på søknad så publiserers også hele søknaden på kafka slik at andre apper kan lese dataene.
 Dette kafkatopicet lagrer dataene i 6 måneder etter publisering.
 
 ___
