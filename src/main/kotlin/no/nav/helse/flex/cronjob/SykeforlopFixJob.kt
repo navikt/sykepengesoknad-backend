@@ -4,6 +4,7 @@ package no.nav.helse.flex.cronjob
 
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadDAO
+import no.nav.helse.flex.repository.SykepengesoknadRepository
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import java.time.LocalDate
@@ -12,11 +13,12 @@ import java.util.concurrent.TimeUnit
 @Component
 class SykeforlopFixJob(
     private val sykepengesoknadDAO: SykepengesoknadDAO,
+    private val sykepengesoknadRepository: SykepengesoknadRepository,
     private val leaderElection: LeaderElection,
 ) {
     private val log = logger()
 
-    private data class Soknad(
+    data class Soknad(
         val sykepengesoknad_uuid: String,
         val fom: LocalDate,
         val tom: LocalDate,
@@ -59,22 +61,24 @@ class SykeforlopFixJob(
     @Scheduled(initialDelay = 5, fixedDelay = 30, timeUnit = TimeUnit.MINUTES)
     fun job() {
         if (leaderElection.isLeader()) {
-            soknader.forEach { sok ->
-                log.info("Henter soknad ${sok.sykepengesoknad_uuid}")
-                val soknaden = sykepengesoknadDAO.finnSykepengesoknad(sok.sykepengesoknad_uuid)
-                require(soknaden.id == sok.sykepengesoknad_uuid)
-                require(soknaden.fom == sok.fom)
-                require(soknaden.tom == sok.tom)
+            fix(soknader)
+        }
+    }
 
-                // Oppdaterer bare en gang
-                if (soknaden.startSykeforlop == sok.startSykeforlop) {
-                    log.info(
-                        "Flytter soknad ${sok.sykepengesoknad_uuid} sin startSykeforlop fra ${soknaden.startSykeforlop} til ${sok.faktiskStartSykeforlop}",
-                    )
-                    sykepengesoknadDAO.lagreSykepengesoknad(
-                        soknaden.copy(startSykeforlop = sok.faktiskStartSykeforlop),
-                    )
-                }
+    fun fix(soknader: List<Soknad>) {
+        soknader.forEach { sok ->
+            log.info("Henter soknad ${sok.sykepengesoknad_uuid}")
+            val soknaden = sykepengesoknadDAO.finnSykepengesoknad(sok.sykepengesoknad_uuid)
+            require(soknaden.id == sok.sykepengesoknad_uuid)
+            require(soknaden.fom == sok.fom)
+            require(soknaden.tom == sok.tom)
+
+            // Oppdaterer bare en gang
+            if (soknaden.startSykeforlop == sok.startSykeforlop) {
+                log.info(
+                    "Flytter soknad ${sok.sykepengesoknad_uuid} sin startSykeforlop fra ${soknaden.startSykeforlop} til ${sok.faktiskStartSykeforlop}",
+                )
+                sykepengesoknadRepository.oppdaterStartSykeforlop(sok.faktiskStartSykeforlop, sok.sykepengesoknad_uuid)
             }
         }
     }
