@@ -51,7 +51,7 @@ class SporsmalGenerator(
             )
         sykepengesoknadDAO.byttUtSporsmal(soknad.copy(sporsmal = sporsmalOgAndreKjenteArbeidsforhold.sporsmal))
 
-        sporsmalOgAndreKjenteArbeidsforhold.andreKjenteArbeidsforhold?.let { // er dette inkludert frilanser?
+        sporsmalOgAndreKjenteArbeidsforhold.andreKjenteArbeidsforhold?.let {
             sykepengesoknadDAO.lagreInntektskilderDataFraInntektskomponenten(soknad.id, it)
         }
     }
