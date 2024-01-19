@@ -105,7 +105,10 @@ class SporsmalGenerator(
                         arbeidsgiverOrgnummer = soknad.arbeidsgiverOrgnummer!!,
                         startSykeforlop = soknad.startSykeforlop!!,
                     )
-                val andreKjenteArbeidsforhold = andreKjenteArbeidsforholdMedFrilanser.filter { it.arbeidsforholdstype == Arbeidsforholdstype.ARBEIDSTAKER }
+                val andreKjenteArbeidsforhold =
+                    andreKjenteArbeidsforholdMedFrilanser.filter {
+                        it.arbeidsforholdstype == Arbeidsforholdstype.ARBEIDSTAKER
+                    }
                 val arbeidstakerSporsmal =
                     settOppSoknadArbeidstaker(
                         soknadOptions =
