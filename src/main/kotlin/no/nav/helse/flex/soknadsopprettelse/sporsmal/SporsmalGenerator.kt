@@ -32,7 +32,7 @@ class SporsmalGenerator(
     private val unleashToggles: UnleashToggles,
 ) {
     private val log = logger()
-
+// https://app.mural.co/t/navdesign3580/m/navdesign3580/1704453814431/e59808f679436f6511e583d25ebf98e1b8e6f54c?sender=u0721df100129e7cf10fb4831
     data class SporsmalOgAndreKjenteArbeidsforhold(
         val sporsmal: List<Sporsmal>,
         val andreKjenteArbeidsforhold: List<ArbeidsforholdFraInntektskomponenten>? = null,
