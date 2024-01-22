@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
 @Component
-@Transactional
+@Transactional(rollbackFor = [Throwable::class])
 class Overlapp(
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val klippMetrikk: KlippMetrikk,

@@ -18,7 +18,6 @@ import java.util.*
 import java.util.concurrent.ExecutionException
 
 class RollbackOnCheckedExceptionsTest : BaseTestClass() {
-
     @Autowired
     private lateinit var mockService: MockService
 
@@ -51,7 +50,6 @@ class RollbackOnCheckedExceptionsTest : BaseTestClass() {
 
 @Component
 class MockKafkaProducer() {
-
     fun mockSendMelding(): RecordMetadata {
         throw ExecutionException("ExecutionException", RuntimeException("RuntimeException"))
     }
@@ -60,9 +58,8 @@ class MockKafkaProducer() {
 @Service
 class MockService(
     private val mockKafkaProducer: MockKafkaProducer,
-    private val medlemskapVurderingRepository: MedlemskapVurderingRepository
+    private val medlemskapVurderingRepository: MedlemskapVurderingRepository,
 ) {
-
     @Transactional
     fun sendMeldingRullerIkkeTilbake(): RecordMetadata {
         lagreMelding()
@@ -90,7 +87,3 @@ class MockService(
         )
     }
 }
-
-
-
-

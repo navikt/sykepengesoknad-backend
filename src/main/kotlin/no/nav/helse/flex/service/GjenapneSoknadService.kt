@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
-@Transactional
+@Transactional(rollbackFor = [Throwable::class])
 class GjenapneSoknadService(
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val soknadProducer: SoknadProducer,

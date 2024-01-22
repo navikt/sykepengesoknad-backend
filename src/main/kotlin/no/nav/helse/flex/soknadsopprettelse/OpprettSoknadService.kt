@@ -33,7 +33,7 @@ import java.util.*
 import no.nav.syfo.model.Merknad as SmMerknad
 
 @Service
-@Transactional
+@Transactional(rollbackFor = [Throwable::class])
 class OpprettSoknadService(
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val metrikk: Metrikk,

@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional
 import kotlin.system.measureTimeMillis
 
 @Service
-@Transactional
+@Transactional(rollbackFor = [Throwable::class])
 class AktiverEnkeltSoknad(
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val soknadProducer: SoknadProducer,

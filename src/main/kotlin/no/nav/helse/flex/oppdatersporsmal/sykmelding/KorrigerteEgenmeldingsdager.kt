@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
-@Transactional
+@Transactional(rollbackFor = [Throwable::class])
 class KorrigerteEgenmeldingsdager(
     private val identService: IdentService,
     private val sykepengesoknadDAO: SykepengesoknadDAO,
