@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 
 @Service
-@Transactional
+@Transactional(rollbackFor = [Throwable::class])
 class AutomatiskInnsendingVedDodsfall(
     private val dodsmeldingDAO: DodsmeldingDAO,
     private val registry: MeterRegistry,

@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional
 import org.springframework.transaction.interceptor.TransactionInterceptor
 
 @Service
-@Transactional
+@Transactional(rollbackFor = [Throwable::class])
 class BehandleSendtBekreftetSykmelding(
     private val rebehandlingSykmeldingSendtProducer: RebehandlingSykmeldingSendtProducer,
     private val identService: IdentService,

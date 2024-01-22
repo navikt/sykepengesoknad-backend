@@ -20,7 +20,7 @@ import java.time.LocalDate
 import java.util.*
 
 @Component
-@Transactional
+@Transactional(rollbackFor = [Throwable::class])
 class Soknadsklipper(
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val aktiveringProducer: AktiveringProducer,

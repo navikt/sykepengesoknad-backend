@@ -29,7 +29,7 @@ import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 
 @Service
-@Transactional
+@Transactional(rollbackFor = [Throwable::class])
 class MottakerAvSoknadService(
     val sykepengesoknadDAO: SykepengesoknadDAO,
     val flexSyketilfelleClient: FlexSyketilfelleClient,

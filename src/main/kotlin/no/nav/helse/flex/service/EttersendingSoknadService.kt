@@ -1,6 +1,7 @@
 package no.nav.helse.flex.service
 
 import no.nav.helse.flex.domain.Arbeidssituasjon
+import no.nav.helse.flex.domain.Mottaker
 import no.nav.helse.flex.domain.Soknadstatus.SENDT
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
@@ -13,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 
 @Service
-@Transactional
+@Transactional(rollbackFor = [Throwable::class])
 class EttersendingSoknadService(
     val sykepengesoknadDAO: SykepengesoknadDAO,
     val soknadProducer: SoknadProducer,
@@ -112,10 +113,10 @@ class EttersendingSoknadService(
         sykepengesoknadDAO.settSendtNav(id, LocalDateTime.now())
         soknadProducer.soknadEvent(
             sykepengesoknadDAO.finnSykepengesoknad(id),
-            no.nav.helse.flex.domain.Mottaker.ARBEIDSGIVER_OG_NAV,
+            Mottaker.ARBEIDSGIVER_OG_NAV,
             true,
         )
-        metrikk.ettersending(no.nav.helse.flex.domain.Mottaker.NAV.name)
+        metrikk.ettersending(Mottaker.NAV.name)
     }
 
     private fun Sykepengesoknad.ettersendArbeidsgiver() {

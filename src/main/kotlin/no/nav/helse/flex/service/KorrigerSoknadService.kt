@@ -24,7 +24,7 @@ import java.time.ZoneOffset
 import java.util.*
 
 @Service
-@Transactional
+@Transactional(rollbackFor = [Throwable::class])
 class KorrigerSoknadService(
     val sykepengesoknadDAO: SykepengesoknadDAO,
     val metrikk: Metrikk,

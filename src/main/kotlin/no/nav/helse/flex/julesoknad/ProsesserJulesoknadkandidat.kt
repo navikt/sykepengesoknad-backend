@@ -32,7 +32,7 @@ class ProsesserJulesoknadkandidat(
     @Transactional
     fun prosseserJulesoknadKandidat(julesoknadkandidat: Julesoknadkandidat) {
         try {
-            log.debug("Prosseserer julesoknadkandidat $julesoknadkandidat")
+            log.debug("Prosseserer julesoknadkandidat {}", julesoknadkandidat)
 
             val soknad = sykepengesoknadRepository.findBySykepengesoknadUuid(julesoknadkandidat.sykepengesoknadUuid)
             if (soknad == null) {
