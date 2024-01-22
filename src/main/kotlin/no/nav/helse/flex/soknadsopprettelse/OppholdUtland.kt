@@ -9,6 +9,7 @@ import no.nav.helse.flex.domain.Svartype.IKKE_RELEVANT
 import no.nav.helse.flex.domain.Svartype.JA_NEI
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.Visningskriterie.JA
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.tilSlutt
 import java.time.Instant
 import java.time.LocalDate.now
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
@@ -20,18 +21,26 @@ fun Sporsmal.plasseringSporsmalUtland(): Int {
         LAND -> -9
         ARBEIDSGIVER -> -8
         BEKREFT_OPPLYSNINGER_UTLAND_INFO -> -7
+        TIL_SLUTT -> 10
         else -> 0
     }
 }
 
-fun settOppSoknadOppholdUtland(fnr: String): Sykepengesoknad {
+fun settOppSoknadOppholdUtland(
+    fnr: String,
+    toggle: Boolean = true,
+): Sykepengesoknad {
     val sporsmal =
-        listOf(
-            periodeSporsmal(),
-            landSporsmal(),
-            arbeidsgiverSporsmal(),
-            bekreftSporsmal(false),
-        )
+        mutableListOf<Sporsmal>().apply {
+            add(periodeSporsmal())
+            add(landSporsmal())
+            add(arbeidsgiverSporsmal())
+            if (toggle) {
+                add(tilSlutt())
+            } else {
+                add(bekreftSporsmal(false))
+            }
+        }
 
     return Sykepengesoknad(
         id = randomUUID().toString(),

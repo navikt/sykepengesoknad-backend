@@ -16,6 +16,7 @@ import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.KlippMetrik
 import no.nav.helse.flex.soknadsopprettelse.splitt.delOppISoknadsperioder
 import no.nav.helse.flex.soknadsopprettelse.splitt.splittMellomTyper
 import no.nav.helse.flex.soknadsopprettelse.splitt.splittSykmeldingiSoknadsPerioder
+import no.nav.helse.flex.unleash.UnleashToggles
 import no.nav.helse.flex.util.Metrikk
 import no.nav.helse.flex.util.osloZone
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
@@ -40,6 +41,7 @@ class OpprettSoknadService(
     private val soknadProducer: SoknadProducer,
     private val lagreJulesoknadKandidater: LagreJulesoknadKandidater,
     private val slettSoknaderTilKorrigertSykmeldingService: SlettSoknaderTilKorrigertSykmeldingService,
+    private val unleashToggles: UnleashToggles,
 ) {
     private val log = logger()
 
@@ -160,7 +162,8 @@ class OpprettSoknadService(
     }
 
     private fun opprettNySoknadUtland(fnr: String): Sykepengesoknad {
-        val oppholdUtlandSoknad = settOppSoknadOppholdUtland(fnr)
+        val nyttTilSluttSpmToggle = unleashToggles.nyttTilSluttSporsmal(fnr)
+        val oppholdUtlandSoknad = settOppSoknadOppholdUtland(fnr, nyttTilSluttSpmToggle)
         sykepengesoknadDAO.lagreSykepengesoknad(oppholdUtlandSoknad)
         metrikk.tellSoknadOpprettet(Soknadstype.OPPHOLD_UTLAND)
 

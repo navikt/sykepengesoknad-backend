@@ -12,7 +12,7 @@ import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
 import no.nav.helse.flex.sendSoknadMedResult
 import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
-import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
+import no.nav.helse.flex.soknadsopprettelse.TIL_SLUTT
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO.AVBRUTT
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO.NY
@@ -20,6 +20,7 @@ import no.nav.helse.flex.testdata.behandingsdager
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
+import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL
 import no.nav.helse.flex.ventPåRecords
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
@@ -40,6 +41,8 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
     @Test
     @Order(1)
     fun `behandingsdagsøknad opprettes for en lang sykmelding`() {
+        fakeUnleash.resetAll()
+        fakeUnleash.enable(UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL)
         val kafkaSoknader =
             sendSykmelding(
                 sykmeldingKafkaMessage(
@@ -90,7 +93,6 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
             .besvarSporsmal(tag = "ARBEID_UTENFOR_NORGE", svar = "NEI")
             .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
             .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER", svar = "NEI")
-            .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
             .besvarSporsmal(
                 tag = "ENKELTSTAENDE_BEHANDLINGSDAGER_UKE_0",
                 svar = "${rsSykepengesoknad.fom}",
@@ -106,6 +108,8 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
                     .andExpect(((MockMvcResultMatchers.status().isBadRequest)))
             }
             .besvarSporsmal(tag = "ENKELTSTAENDE_BEHANDLINGSDAGER_UKE_1", svar = "${rsSykepengesoknad.tom}")
+            .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
+            .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
             .sendSoknad()
 
         val soknadPaKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()
@@ -121,7 +125,7 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
             )
         assertThat(refreshedSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
         assertThat(refreshedSoknad.sporsmal!!.find { it.tag == ANSVARSERKLARING }!!.svar[0].verdi).isEqualTo("CHECKED")
-        assertThat(refreshedSoknad.sporsmal!!.find { it.tag == BEKREFT_OPPLYSNINGER }!!.svar[0].verdi).isEqualTo("CHECKED")
+        assertThat(refreshedSoknad.sporsmal!!.find { it.tag == TIL_SLUTT }!!.undersporsmal[0].svar[0].verdi).isEqualTo("CHECKED")
 
         juridiskVurderingKafkaConsumer.ventPåRecords(antall = 1)
     }
@@ -138,11 +142,12 @@ class BehandligsdagerIntegrationTest : BaseTestClass() {
         val korrigerSoknad = korrigerSoknad(soknadId = soknaden.id, fnr = fnr)
         assertThat(korrigerSoknad.status).isEqualTo(RSSoknadstatus.UTKAST_TIL_KORRIGERING)
         assertThat(korrigerSoknad.sporsmal!!.find { it.tag == ANSVARSERKLARING }!!.svar.size).isEqualTo(0)
-        assertThat(korrigerSoknad.sporsmal!!.find { it.tag == BEKREFT_OPPLYSNINGER }!!.svar.size).isEqualTo(0)
+        assertThat(korrigerSoknad.sporsmal!!.find { it.tag == TIL_SLUTT }!!.undersporsmal[0].svar.size).isEqualTo(0)
         assertThat(korrigerSoknad.korrigerer).isEqualTo(soknaden.id)
 
         SoknadBesvarer(rSSykepengesoknad = korrigerSoknad, mockMvc = this, fnr = fnr)
             .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
+            .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
             .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
             .sendSoknad()
 

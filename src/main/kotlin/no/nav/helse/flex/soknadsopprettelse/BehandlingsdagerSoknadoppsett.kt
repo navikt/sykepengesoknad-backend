@@ -20,6 +20,7 @@ fun Sporsmal.plasseringSporsmalBehandlingsdager(): Int {
         ANDRE_INNTEKTSKILDER -> 105
         VAER_KLAR_OVER_AT -> 106
         BEKREFT_OPPLYSNINGER -> 107
+        TIL_SLUTT -> 110
         else -> plasseringAvSporsmalSomKanRepeteresFlereGanger()
     }
 }
@@ -47,14 +48,15 @@ private fun Sporsmal.plasseringAvSporsmalSomKanRepeteresFlereGanger(): Int {
     }
 }
 
-fun settOppSykepengesoknadBehandlingsdager(opts: SettOppSoknadOptions): List<Sporsmal> {
+fun settOppSykepengesoknadBehandlingsdager(
+    opts: SettOppSoknadOptions,
+    toggle: Boolean = true,
+): List<Sporsmal> {
     val (sykepengesoknad, erForsteSoknadISykeforlop, _, yrkesskade) = opts
 
     return mutableListOf(
         ansvarserklaringSporsmal(),
-        vaerKlarOverAtBehandlingsdager(),
         andreInntekstkilder(sykepengesoknad),
-        bekreftOpplysningerSporsmal(),
     )
         .also {
             if (erForsteSoknadISykeforlop) {
@@ -65,5 +67,11 @@ fun settOppSykepengesoknadBehandlingsdager(opts: SettOppSoknadOptions): List<Spo
             }
             it.addAll(yrkesskade.yrkeskadeSporsmal())
             it.addAll(behandlingsdagerSporsmal(sykepengesoknad))
+            if (toggle) {
+                it.add(tilSlutt())
+            } else {
+                it.add(vaerKlarOverAtBehandlingsdager())
+                it.add(bekreftOpplysningerSporsmal())
+            }
         }.toList()
 }

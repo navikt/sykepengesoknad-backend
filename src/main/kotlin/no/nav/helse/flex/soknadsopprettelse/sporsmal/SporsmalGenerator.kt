@@ -70,6 +70,7 @@ class SporsmalGenerator(
         val erForsteSoknadISykeforlop = erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad)
         val erEnkeltstaendeBehandlingsdagSoknad = soknad.soknadstype == Soknadstype.BEHANDLINGSDAGER
         val harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad)
+        val nyttTilSluttSpmToggle = unleashToggles.nyttTilSluttSporsmal(soknad.fnr)
         val yrkesskadeSporsmalGrunnlag =
             yrkesskadeIndikatorer.hentYrkesskadeSporsmalGrunnlag(
                 identer = identer,
@@ -88,7 +89,7 @@ class SporsmalGenerator(
             )
 
         if (erEnkeltstaendeBehandlingsdagSoknad) {
-            return settOppSykepengesoknadBehandlingsdager(soknadOptions).tilSporsmalOgAndreKjenteArbeidsforhold()
+            return settOppSykepengesoknadBehandlingsdager(soknadOptions, nyttTilSluttSpmToggle).tilSporsmalOgAndreKjenteArbeidsforhold()
         }
 
         if (soknad.soknadstype == Soknadstype.REISETILSKUDD) {
@@ -127,10 +128,10 @@ class SporsmalGenerator(
                     Arbeidssituasjon.JORDBRUKER,
                     Arbeidssituasjon.NAERINGSDRIVENDE,
                     Arbeidssituasjon.FRILANSER,
-                    -> settOppSoknadSelvstendigOgFrilanser(soknadOptions)
+                    -> settOppSoknadSelvstendigOgFrilanser(soknadOptions, nyttTilSluttSpmToggle)
 
-                    Arbeidssituasjon.ARBEIDSLEDIG -> settOppSoknadArbeidsledig(soknadOptions)
-                    Arbeidssituasjon.ANNET -> settOppSoknadAnnetArbeidsforhold(soknadOptions)
+                    Arbeidssituasjon.ARBEIDSLEDIG -> settOppSoknadArbeidsledig(soknadOptions, nyttTilSluttSpmToggle)
+                    Arbeidssituasjon.ANNET -> settOppSoknadAnnetArbeidsforhold(soknadOptions, nyttTilSluttSpmToggle)
 
                     else -> {
                         throw RuntimeException(

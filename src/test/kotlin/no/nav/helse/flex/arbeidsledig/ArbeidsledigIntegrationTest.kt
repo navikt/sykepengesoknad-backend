@@ -23,7 +23,6 @@ import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.util.*
 
 @TestMethodOrder(MethodOrderer.MethodName::class)
 class ArbeidsledigIntegrationTest : BaseTestClass() {

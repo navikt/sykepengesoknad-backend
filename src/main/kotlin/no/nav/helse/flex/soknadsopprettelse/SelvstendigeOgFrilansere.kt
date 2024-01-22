@@ -10,23 +10,18 @@ import no.nav.helse.flex.domain.Svartype.JA_NEI
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.Sykmeldingstype
 import no.nav.helse.flex.domain.Visningskriterie.JA
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderSelvstendigOgFrilanser
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.ansvarserklaringSporsmal
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.arbeidUtenforNorge
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.bekreftOpplysningerSporsmal
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.jobbetDuGradertUndersporsmal
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.lagSporsmalOmInntektsopplyninger
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.tilbakeIFulltArbeidGradertReisetilskuddSporsmal
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.utenlandsksykmelding.utenlandskSykmeldingSporsmal
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.vaerKlarOverAt
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.yrkeskadeSporsmal
 import no.nav.helse.flex.soknadsopprettelse.undersporsmal.jobbetDuUndersporsmal
 import no.nav.helse.flex.util.DatoUtil.formatterDato
 import no.nav.helse.flex.util.DatoUtil.formatterPeriode
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
-fun settOppSoknadSelvstendigOgFrilanser(opts: SettOppSoknadOptions): List<Sporsmal> {
+fun settOppSoknadSelvstendigOgFrilanser(
+    opts: SettOppSoknadOptions,
+    toggle: Boolean = true,
+): List<Sporsmal> {
     val (sykepengesoknad, erForsteSoknadISykeforlop, harTidligereUtenlandskSpm, yrkesskade) = opts
     val erGradertReisetilskudd = sykepengesoknad.soknadstype == Soknadstype.GRADERT_REISETILSKUDD
 
@@ -41,9 +36,12 @@ fun settOppSoknadSelvstendigOgFrilanser(opts: SettOppSoknadOptions): List<Sporsm
         )
         add(andreInntektskilderSelvstendigOgFrilanser(sykepengesoknad.arbeidssituasjon!!))
         add(utlandsSporsmalSelvstendig(sykepengesoknad.fom!!, sykepengesoknad.tom!!))
-
-        add(bekreftOpplysningerSporsmal())
-        add(vaerKlarOverAt(erGradertReisetilskudd))
+        if (toggle) {
+            add(tilSlutt())
+        } else {
+            add(bekreftOpplysningerSporsmal())
+            add(vaerKlarOverAt(erGradertReisetilskudd))
+        }
         addAll(
             jobbetDuIPeriodenSporsmalSelvstendigFrilanser(
                 sykepengesoknad.soknadPerioder!!,
