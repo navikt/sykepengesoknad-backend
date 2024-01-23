@@ -26,7 +26,7 @@ fun skapSkadedatoTekst(y: YrkesskadeSak): String {
 private fun yrkesskadeSporsmalV2(v2GodkjenteSaker: List<YrkesskadeSak>): Sporsmal =
     Sporsmal(
         tag = YRKESSKADE_V2,
-        sporsmalstekst = "Skyldes dette sykefraværet en eller flere av disse godkjente yrkesskadene?",
+        sporsmalstekst = "Skyldes dette sykefraværet en yrkesskade?",
         svartype = Svartype.JA_NEI,
         kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
         undersporsmal =
