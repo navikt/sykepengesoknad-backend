@@ -13,6 +13,7 @@ object EregMockDispatcher : Dispatcher() {
         val orgnavn =
             when (orgnummr) {
                 "999333666" -> "BENSINSTASJONEN AS"
+                "999333667" -> "FRILANSERANSETTER AS"
                 "999888777" -> "KIOSKEN,AVD OSLO AS"
                 else -> "UKJENT"
             }
