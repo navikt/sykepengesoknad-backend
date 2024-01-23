@@ -24,6 +24,13 @@ object InntektskomponentenMockDispatcher : Dispatcher() {
                         ArbeidsInntektMaaned(
                             arbeidsInntektInformasjon =
                                 ArbeidsInntektInformasjon(
+                                    arbeidsforholdListe =
+                                        listOf(
+                                            ArbeidsforholdFrilanser(
+                                                arbeidsforholdstype = "frilanserOppdragstakerHonorarPersonerMm",
+                                                arbeidsgiver = Aktoer("999333667", "ORGANISASJON"),
+                                            ),
+                                        ),
                                     inntektListe =
                                         listOf(
                                             InntektListe(
@@ -36,7 +43,6 @@ object InntektskomponentenMockDispatcher : Dispatcher() {
                                             ),
                                         ),
                                 ),
-
                         ),
                         ArbeidsInntektMaaned(
                             arbeidsInntektInformasjon =
@@ -47,7 +53,7 @@ object InntektskomponentenMockDispatcher : Dispatcher() {
                                                 inntektType = "LOENNSINNTEKT",
                                                 virksomhet = Aktoer("999333666", "ORGANISASJON"),
                                             ),
-                                              InntektListe(
+                                            InntektListe(
                                                 inntektType = "LOENNSINNTEKT",
                                                 virksomhet = Aktoer("999333667", "ORGANISASJON"),
                                             ),

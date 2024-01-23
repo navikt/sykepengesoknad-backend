@@ -12,7 +12,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
 fun kjenteInntektskilderSporsmal(
-    andreKjenteArbeidsforhold: List<String>,
+    andreKjenteArbeidsforhold: List<ArbeidsforholdFraInntektskomponenten>,
     startSyketilfelle: LocalDate,
 ): Sporsmal {
     if (andreKjenteArbeidsforhold.isEmpty()) {
@@ -39,12 +39,12 @@ fun kjenteInntektskilderSporsmal(
                         listOf(
                             Sporsmal(
                                 tag = KJENTE_INNTEKTSKILDER_GRUPPE_TITTEL + idx,
-                                sporsmalstekst = arbeidsforhold,
+                                sporsmalstekst = arbeidsforhold.navn,
                                 svartype = Svartype.IKKE_RELEVANT,
                             ),
                             Sporsmal(
                                 tag = KJENTE_INNTEKTSKILDER_SLUTTET + idx,
-                                sporsmalstekst = "Har du sluttet hos $arbeidsforhold før du ble sykmeldt ${formatterDato(
+                                sporsmalstekst = "Har du sluttet hos ${arbeidsforhold.navn} før du ble sykmeldt ${formatterDato(
                                     startSyketilfelle,
                                 )}?",
                                 svartype = Svartype.RADIO_GRUPPE,
@@ -74,7 +74,7 @@ fun kjenteInntektskilderSporsmal(
                                                 listOf(
                                                     Sporsmal(
                                                         tag = KJENTE_INNTEKTSKILDER_UTFORT_ARBEID + idx,
-                                                        sporsmalstekst = "Har du utført noe arbeid ved $arbeidsforhold i perioden $fjortenDagerFørStartSyketilfelle?",
+                                                        sporsmalstekst = "Har du utført noe arbeid ved ${arbeidsforhold.navn} i perioden $fjortenDagerFørStartSyketilfelle?",
                                                         svartype = Svartype.JA_NEI,
                                                         kriterieForVisningAvUndersporsmal = Visningskriterie.NEI,
                                                         undersporsmal =

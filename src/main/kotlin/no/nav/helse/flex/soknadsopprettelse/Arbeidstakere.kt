@@ -11,6 +11,7 @@ import no.nav.helse.flex.domain.Svartype.JA_NEI
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.Visningskriterie.CHECKED
 import no.nav.helse.flex.domain.Visningskriterie.JA
+import no.nav.helse.flex.soknadsopprettelse.Arbeidsforholdstype.ARBEIDSTAKER
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmArbeidUtenforNorge
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmOppholdUtenforEos
@@ -37,7 +38,7 @@ enum class SykepengesoknadSporsmalTag : MedlemskapSporsmalTag {
 
 fun settOppSoknadArbeidstaker(
     soknadOptions: SettOppSoknadOptions,
-    andreKjenteArbeidsforhold: List<String>,
+    andreKjenteArbeidsforhold: List<ArbeidsforholdFraInntektskomponenten>,
 ): List<Sporsmal> {
     val (sykepengesoknad, erForsteSoknadISykeforlop, harTidligereUtenlandskSpm, yrkesskade, medlemskapTags) = soknadOptions
     val erGradertReisetilskudd = sykepengesoknad.soknadstype == GRADERT_REISETILSKUDD
@@ -60,14 +61,15 @@ fun settOppSoknadArbeidstaker(
             addAll(utenlandskSykmeldingSporsmal(sykepengesoknad))
         }
 
-        add(andreInntektskilderArbeidstakerV2(sykepengesoknad.arbeidsgiverNavn!!, andreKjenteArbeidsforhold))
+        add(andreInntektskilderArbeidstakerV2(sykepengesoknad.arbeidsgiverNavn!!, andreKjenteArbeidsforhold.map { it.navn }))
         addAll(jobbetDuIPeriodenSporsmal(sykepengesoknad.soknadPerioder!!, sykepengesoknad.arbeidsgiverNavn))
 
         if (erGradertReisetilskudd) {
             add(brukteReisetilskuddetSpørsmål())
         }
-        if (soknadOptions.kjenteInntektskilderEnabled && erForsteSoknadISykeforlop && andreKjenteArbeidsforhold.isNotEmpty()) {
-            add(kjenteInntektskilderSporsmal(andreKjenteArbeidsforhold, sykepengesoknad.startSykeforlop!!))
+        val andreKjenteArbeidsforholdUtenFrilanser = andreKjenteArbeidsforhold.filter { it.arbeidsforholdstype == ARBEIDSTAKER }
+        if (soknadOptions.kjenteInntektskilderEnabled && erForsteSoknadISykeforlop && andreKjenteArbeidsforholdUtenFrilanser.isNotEmpty()) {
+            add(kjenteInntektskilderSporsmal(andreKjenteArbeidsforholdUtenFrilanser, sykepengesoknad.startSykeforlop!!))
         }
 
         addAll(
