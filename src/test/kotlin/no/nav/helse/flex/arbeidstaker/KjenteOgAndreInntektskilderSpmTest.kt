@@ -55,22 +55,31 @@ class KjenteOgAndreInntektskilderSpmTest : BaseTestClass() {
                 soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
                 fnr = fnr,
             )
-        soknaden.inntektskilderDataFraInntektskomponenten!!.shouldHaveSize(1)
-        soknaden.inntektskilderDataFraInntektskomponenten!!.first().navn `should be equal to` "Bensinstasjonen AS"
-        soknaden.inntektskilderDataFraInntektskomponenten!!.first().orgnummer `should be equal to` "999333666"
-        soknaden.inntektskilderDataFraInntektskomponenten!!.first().arbeidsforholdstype `should be equal to` Arbeidsforholdstype.ARBEIDSTAKER
+        soknaden.inntektskilderDataFraInntektskomponenten!!.shouldHaveSize(2)
+        val arbeidstaker = soknaden.inntektskilderDataFraInntektskomponenten!!.first()
+        arbeidstaker.navn `should be equal to` "Bensinstasjonen AS"
+        arbeidstaker.orgnummer `should be equal to` "999333666"
+        arbeidstaker.arbeidsforholdstype `should be equal to` Arbeidsforholdstype.ARBEIDSTAKER
+        val frilanser = soknaden.inntektskilderDataFraInntektskomponenten!!.last()
+        frilanser.navn `should be equal to` "Frilanseransetter AS"
+        frilanser.orgnummer `should be equal to` "999333667"
+        frilanser.arbeidsforholdstype `should be equal to` Arbeidsforholdstype.FRILANSER
 
         soknaden.sporsmal!!.find {
             it.tag == "ANDRE_INNTEKTSKILDER_V2"
-        }!!.sporsmalstekst `should be equal to` "Har du andre inntektskilder enn Matbutikken AS og Bensinstasjonen AS?"
+        }!!.sporsmalstekst `should be equal to` "Har du andre inntektskilder enn Matbutikken AS, Bensinstasjonen AS og Frilanseransetter AS?"
     }
 
     @Test
     @Order(3)
     fun `Har forventa kjente inntektskilder spm`() {
         val soknaden = hentSoknader(fnr).first()
+        // Kun en undergruppe fordi frilanseren er filtrert bort
+        soknaden.sporsmal!!.first { it.tag == KJENTE_INNTEKTSKILDER }.undersporsmal.shouldHaveSize(1)
+
         val spm = listOf(soknaden.sporsmal!!.first { it.tag == KJENTE_INNTEKTSKILDER }).flatten()
         val sporsmalstekster = spm.map { it.sporsmalstekst }
+
         sporsmalstekster[0] `should be equal to` "Du er oppført med flere inntektskilder i Arbeidsgiver- og arbeidstakerregisteret. Vi trenger mer informasjon om disse."
         sporsmalstekster[3] `should be equal to` "Har du sluttet hos Bensinstasjonen AS før du ble sykmeldt 12. august 2021?"
         sporsmalstekster[5] `should be equal to` "Når sluttet du?"

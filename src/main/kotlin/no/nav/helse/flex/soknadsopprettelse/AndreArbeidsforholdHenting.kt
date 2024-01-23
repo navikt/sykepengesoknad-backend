@@ -19,12 +19,12 @@ class AndreArbeidsforholdHenting(
     ): List<ArbeidsforholdFraInntektskomponenten> {
         val sykmeldingOrgnummer = arbeidsgiverOrgnummer
 
-        val hentInntekter =
+        val hentedeInntekter =
             inntektskomponentenClient.hentInntekter(
                 fnr,
                 fom = startSykeforlop.yearMonth().minusMonths(3),
                 tom = startSykeforlop.yearMonth(),
-            )
+            ).arbeidsInntektMaaned
 
         fun ArbeidsInntektMaaned.orgnumreForManed(): Set<String> {
             val inntekterOrgnummer =
@@ -37,20 +37,45 @@ class AndreArbeidsforholdHenting(
             return inntekterOrgnummer
         }
 
-        val alleMånedersOrgnr = hentInntekter.arbeidsInntektMaaned.flatMap { it.orgnumreForManed() }.toSet()
+        val alleMånedersOrgnr = hentedeInntekter.flatMap { it.orgnumreForManed() }.toSet()
 
+        fun ArbeidsInntektMaaned.frilansOrgnumere(): Set<String> {
+            val frilansArbeidsforholdOrgnumre =
+                this.arbeidsInntektInformasjon.arbeidsforholdListe
+                    .filter { it.arbeidsforholdstype == "frilanserOppdragstakerHonorarPersonerMm" }
+                    .map { it.arbeidsgiver.identifikator }
+                    .toSet()
+
+            val ikkeFrilansForhold =
+                this.arbeidsInntektInformasjon.arbeidsforholdListe
+                    .filter { it.arbeidsforholdstype == "ordinaertArbeidsforhold" }
+                    .map { it.arbeidsgiver.identifikator }
+                    .toSet()
+
+            return frilansArbeidsforholdOrgnumre.subtract(ikkeFrilansForhold)
+        }
+
+        val frilansOrgrunmrene = hentedeInntekter.flatMap { it.frilansOrgnumere() }.toSet()
         return alleMånedersOrgnr
             .filter { it != sykmeldingOrgnummer }
-            .map(tilArbeidsforholdFraInntektskomponenten())
+            .map(tilArbeidsforholdFraInntektskomponenten(frilansOrgrunmrene))
     }
 
-    private fun tilArbeidsforholdFraInntektskomponenten() =
+    private fun tilArbeidsforholdFraInntektskomponenten(frilansOrgnummer: Set<String>) =
         fun(orgnr: String): ArbeidsforholdFraInntektskomponenten {
             val hentBedrift = eregClient.hentBedrift(orgnr)
             return ArbeidsforholdFraInntektskomponenten(
                 orgnummer = orgnr,
                 navn = hentBedrift.navn.navnelinje1.prettyOrgnavn(),
-                arbeidsforholdstype = Arbeidsforholdstype.ARBEIDSTAKER,
+                arbeidsforholdstype =
+                    if (frilansOrgnummer.contains(
+                            orgnr,
+                        )
+                    ) {
+                        Arbeidsforholdstype.FRILANSER
+                    } else {
+                        Arbeidsforholdstype.ARBEIDSTAKER
+                    },
             )
         }
 }

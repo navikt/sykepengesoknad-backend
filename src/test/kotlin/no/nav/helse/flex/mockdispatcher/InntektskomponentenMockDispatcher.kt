@@ -24,11 +24,22 @@ object InntektskomponentenMockDispatcher : Dispatcher() {
                         ArbeidsInntektMaaned(
                             arbeidsInntektInformasjon =
                                 ArbeidsInntektInformasjon(
+                                    arbeidsforholdListe =
+                                        listOf(
+                                            ArbeidsforholdFrilanser(
+                                                arbeidsforholdstype = "frilanserOppdragstakerHonorarPersonerMm",
+                                                arbeidsgiver = Aktoer("999333667", "ORGANISASJON"),
+                                            ),
+                                        ),
                                     inntektListe =
                                         listOf(
                                             InntektListe(
                                                 inntektType = "LOENNSINNTEKT",
                                                 virksomhet = Aktoer("999333666", "ORGANISASJON"),
+                                            ),
+                                            InntektListe(
+                                                inntektType = "LOENNSINNTEKT",
+                                                virksomhet = Aktoer("999333667", "ORGANISASJON"),
                                             ),
                                         ),
                                 ),
@@ -41,6 +52,10 @@ object InntektskomponentenMockDispatcher : Dispatcher() {
                                             InntektListe(
                                                 inntektType = "LOENNSINNTEKT",
                                                 virksomhet = Aktoer("999333666", "ORGANISASJON"),
+                                            ),
+                                            InntektListe(
+                                                inntektType = "LOENNSINNTEKT",
+                                                virksomhet = Aktoer("999333667", "ORGANISASJON"),
                                             ),
                                         ),
                                 ),

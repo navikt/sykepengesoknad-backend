@@ -113,7 +113,7 @@ class SporsmalGenerator(
                             soknadOptions.copy(
                                 medlemskapSporsmalTags = lagMedlemsskapSporsmalTags(eksisterendeSoknader, soknad),
                             ),
-                        andreKjenteArbeidsforhold = andreKjenteArbeidsforhold.map { it.navn },
+                        andreKjenteArbeidsforhold = andreKjenteArbeidsforhold,
                     )
 
                 SporsmalOgAndreKjenteArbeidsforhold(

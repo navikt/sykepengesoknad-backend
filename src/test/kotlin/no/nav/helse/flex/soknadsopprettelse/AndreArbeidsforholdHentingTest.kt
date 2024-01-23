@@ -3,6 +3,7 @@ package no.nav.helse.flex.soknadsopprettelse
 import no.nav.helse.flex.BaseTestClass
 import org.amshove.kluent.`should be empty`
 import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
@@ -12,12 +13,24 @@ class AndreArbeidsforholdHentingTest : BaseTestClass() {
     lateinit var andreArbeidsforholdHenting: AndreArbeidsforholdHenting
 
     @Test
-    fun `finner det ene vi allerede vet om`() {
+    fun `finner det ene arbeidstaker forholdet vi allerede vet om`() {
         andreArbeidsforholdHenting.hentArbeidsforhold(
             fnr = "11111234565",
             arbeidsgiverOrgnummer = "999333666",
             startSykeforlop = LocalDate.now(),
-        ).`should be empty`()
+        ).filter { it.arbeidsforholdstype == Arbeidsforholdstype.ARBEIDSTAKER }.`should be empty`()
+    }
+
+    @Test
+    fun `finner et frilanser arbeidsforhold`() {
+        val frilanserArbeidsforholdet =
+            andreArbeidsforholdHenting.hentArbeidsforhold(
+                fnr = "11111234565",
+                arbeidsgiverOrgnummer = "999333666",
+                startSykeforlop = LocalDate.now(),
+            ).filter { it.arbeidsforholdstype == Arbeidsforholdstype.FRILANSER }
+        frilanserArbeidsforholdet.shouldHaveSize(1)
+        frilanserArbeidsforholdet.first().orgnummer `should be equal to` "999333667"
     }
 
     @Test
