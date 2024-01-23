@@ -71,6 +71,7 @@ class KjenteOgAndreInntektskilderSpmTest : BaseTestClass() {
         val soknaden = hentSoknader(fnr).first()
         val spm = listOf(soknaden.sporsmal!!.first { it.tag == KJENTE_INNTEKTSKILDER }).flatten()
         val sporsmalstekster = spm.map { it.sporsmalstekst }
+        soknaden.inntektskilderDataFraInntektskomponenten!!.shouldHaveSize(1)
         sporsmalstekster[0] `should be equal to` "Du er oppført med flere inntektskilder i Arbeidsgiver- og arbeidstakerregisteret. Vi trenger mer informasjon om disse."
         sporsmalstekster[3] `should be equal to` "Har du sluttet hos Bensinstasjonen AS før du ble sykmeldt 12. august 2021?"
         sporsmalstekster[5] `should be equal to` "Når sluttet du?"
