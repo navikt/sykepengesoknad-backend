@@ -1,6 +1,7 @@
 package no.nav.helse.flex.soknadsopprettelse
 
 import no.nav.helse.flex.domain.Arbeidssituasjon
+import no.nav.helse.flex.domain.Arbeidssituasjon.*
 import no.nav.helse.flex.domain.Soknadsperiode
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sporsmal
@@ -52,7 +53,9 @@ fun settOppSoknadSelvstendigOgFrilanser(
         if (erForsteSoknadISykeforlop) {
             add(arbeidUtenforNorge())
 
-            if (sykepengesoknad.arbeidssituasjon == Arbeidssituasjon.NAERINGSDRIVENDE && opts.naringsdrivendeInntektsopplysningerEnabled) {
+            if (listOf(NAERINGSDRIVENDE, FISKER, JORDBRUKER).contains(sykepengesoknad.arbeidssituasjon) &&
+                opts.naringsdrivendeInntektsopplysningerEnabled
+            ) {
                 add(lagSporsmalOmInntektsopplyninger(sykepengesoknad))
             }
         }

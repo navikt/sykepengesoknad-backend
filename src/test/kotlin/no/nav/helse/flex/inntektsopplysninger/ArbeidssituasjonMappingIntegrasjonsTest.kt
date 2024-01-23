@@ -47,7 +47,7 @@ class ArbeidssituasjonMappingIntegrasjonsTest : BaseTestClass() {
 
         soknader shouldHaveSize 1
         val soknad = soknader.first()
-        soknad.arbeidssituasjon shouldBeEqualTo ArbeidssituasjonDTO.SELVSTENDIG_NARINGSDRIVENDE
+        soknad.arbeidssituasjon shouldBeEqualTo ArbeidssituasjonDTO.FISKER
 
         hentSoknader(fnr).first().arbeidssituasjon shouldBeEqualTo RSArbeidssituasjon.FISKER
 
@@ -68,7 +68,7 @@ class ArbeidssituasjonMappingIntegrasjonsTest : BaseTestClass() {
 
         soknader shouldHaveSize 1
         val soknad = soknader.first()
-        soknad.arbeidssituasjon shouldBeEqualTo ArbeidssituasjonDTO.SELVSTENDIG_NARINGSDRIVENDE
+        soknad.arbeidssituasjon shouldBeEqualTo ArbeidssituasjonDTO.JORDBRUKER
 
         hentSoknader(fnr).first().arbeidssituasjon shouldBeEqualTo RSArbeidssituasjon.JORDBRUKER
 
