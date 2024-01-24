@@ -26,19 +26,7 @@ class TilbakedatertSykmeldingIntegrationTest : BaseTestClass() {
 
     @Test
     @Order(1)
-    fun `oppretter ikke søknad for sykmelding under behandling når feature switch er av`() {
-        sendSykmeldingMedMerknad("UNDER_BEHANDLING")
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 0)
-
-        val hentetViaRest = hentSoknaderMetadata(fnr)
-        assertThat(hentetViaRest).hasSize(0)
-    }
-
-    @Test
-    @Order(2)
-    fun `oppretter søknad for sykmelding under behandling når featureswitch er på`() {
-        fakeUnleash.resetAll()
-        fakeUnleash.enable("sykepengesoknad-backend-soknader-for-tilbakedaterte-sykmeldinger-under-behandling")
+    fun `oppretter søknad for sykmelding under behandling `() {
         sendSykmeldingMedMerknad("UNDER_BEHANDLING")
 
         val records = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
@@ -50,7 +38,7 @@ class TilbakedatertSykmeldingIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    @Order(3)
+    @Order(2)
     fun `endrer merknaden på sykmeldinga til UGYLDIG_TILBAKEDATERING`() {
         sendSykmeldingMedMerknad("UGYLDIG_TILBAKEDATERING")
 
@@ -63,7 +51,7 @@ class TilbakedatertSykmeldingIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    @Order(4)
+    @Order(3)
     fun `endrer merknaden på sykmeldinga til ingen merknad`() {
         sendSykmeldingMedMerknad(null)
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 0)
@@ -74,7 +62,7 @@ class TilbakedatertSykmeldingIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    @Order(5)
+    @Order(4)
     fun `endrer merknaden tilbake sykmeldinga til UNDER_BEHANDLING`() {
         sendSykmeldingMedMerknad("UNDER_BEHANDLING")
 
@@ -87,7 +75,7 @@ class TilbakedatertSykmeldingIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    @Order(6)
+    @Order(5)
     fun `sender inn søknaden`() {
         val soknaden = hentSoknader(fnr = fnr).first()
 
@@ -105,7 +93,7 @@ class TilbakedatertSykmeldingIntegrationTest : BaseTestClass() {
     }
 
     @Test
-    @Order(7)
+    @Order(6)
     fun `merknaden oppdateres for søknader som er sendt, men det publiseres ikke på kafka`() {
         sendSykmeldingMedMerknad(null)
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 0)

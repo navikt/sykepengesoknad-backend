@@ -1,6 +1,5 @@
 package no.nav.helse.flex.soknadsopprettelse
 
-import io.getunleash.Unleash
 import no.nav.helse.flex.client.flexsyketilfelle.FlexSyketilfelleClient
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Arbeidssituasjon.FRILANSER
@@ -18,7 +17,6 @@ import org.springframework.stereotype.Service
 class SkalOppretteSoknader(
     private val flexSyketilfelleClient: FlexSyketilfelleClient,
     private val metrikk: Metrikk,
-    private val unleash: Unleash,
 ) {
     private val log = logger()
 
@@ -34,14 +32,6 @@ class SkalOppretteSoknader(
         if (perioder.any { it.type == AVVENTENDE }) {
             metrikk.utelattSykmeldingFraSoknadOpprettelse("avventende")
             log.info("Sykmelding ${sykmelding.id} har periodetype AVVENTENDE vi ennå ikke oppretter søknader for")
-            return false
-        }
-
-        if (sykmelding.merknader?.any { it.type == "UNDER_BEHANDLING" } == true &&
-            !unleash.isEnabled("sykepengesoknad-backend-soknader-for-tilbakedaterte-sykmeldinger-under-behandling")
-        ) {
-            metrikk.utelattSykmeldingFraSoknadOpprettelse("under_behandling")
-            log.info("Sykmelding ${sykmelding.id} har merknad UNDER_BEHANDLING vi ikke oppretter søknader for")
             return false
         }
 
