@@ -17,7 +17,10 @@ class InntektsopplysningForNaringsdrivende(
     private val innsendingApiClient: InnsendingApiClient,
 ) {
     fun lagreOpplysningerOmDokumentasjonAvInntektsopplysninger(soknad: Sykepengesoknad) {
-        if (soknad.arbeidssituasjon != Arbeidssituasjon.NAERINGSDRIVENDE) {
+        if (!listOf(Arbeidssituasjon.NAERINGSDRIVENDE, Arbeidssituasjon.FISKER, Arbeidssituasjon.JORDBRUKER).contains(
+                soknad.arbeidssituasjon,
+            )
+        ) {
             return
         }
 
