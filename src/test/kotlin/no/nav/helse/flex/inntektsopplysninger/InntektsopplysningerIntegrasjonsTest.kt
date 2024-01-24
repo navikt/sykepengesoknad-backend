@@ -192,9 +192,45 @@ class InntektsopplysningerIntegrasjonsTest : BaseTestClass() {
 
     @Test
     @Order(4)
-    fun `Korrigerer til ikke ny i arbeidslivet og mindre enn 25 så det ikke trengs dokumentasjon`() {
+    fun `Korrigerer datoen på ny i arbeidslivet, vi beholder samme innsending id`() {
         val fnr = "99999999002"
         val soknad = hentSoknader(fnr).first()
+        val korrigerendeSoknad = korrigerSoknad(soknad.id, fnr)
+
+        mockFlexSyketilfelleArbeidsgiverperiode(andreKorrigerteRessurser = soknad.id)
+
+        val sendtSoknad =
+            SoknadBesvarer(rSSykepengesoknad = korrigerendeSoknad, mockMvc = this, fnr = fnr)
+                .besvarSporsmal(tag = ANSVARSERKLARING, svar = "CHECKED")
+                // Nullstiller det andre alternative i Checkbox-gruppen, sånn at gruppen ikke validerer på grunn av to svar.
+                .besvarSporsmal(
+                    tag = INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET_DATO,
+                    svar = korrigerendeSoknad.fom!!.minusDays(2).toString(),
+                )
+                .besvarSporsmal(tag = VAER_KLAR_OVER_AT, svar = "Svar", ferdigBesvart = false)
+                .besvarSporsmal(tag = BEKREFT_OPPLYSNINGER, svar = "CHECKED")
+                .sendSoknad()
+
+        assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
+
+        sendtSoknad.inntektsopplysningerNyKvittering shouldBeEqualTo true
+        sendtSoknad.inntektsopplysningerInnsendingDokumenter shouldBeEqualTo soknad.inntektsopplysningerInnsendingDokumenter
+        sendtSoknad.inntektsopplysningerInnsendingId shouldBeEqualTo soknad.inntektsopplysningerInnsendingId
+
+        val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
+        kafkaSoknader shouldHaveSize 1
+        val kafkaSoknad = kafkaSoknader.first()
+
+        kafkaSoknad.id shouldBeEqualTo korrigerendeSoknad.id
+        kafkaSoknad.status shouldBeEqualTo SoknadsstatusDTO.SENDT
+        InnsendingApiMockDispatcher.getRequests().shouldHaveSize(1)
+    }
+
+    @Test
+    @Order(5)
+    fun `Korrigerer til ikke ny i arbeidslivet og mindre enn 25 så det ikke trengs dokumentasjon`() {
+        val fnr = "99999999002"
+        val soknad = hentSoknader(fnr).first { it.status == RSSoknadstatus.SENDT }
         val korrigerendeSoknad = korrigerSoknad(soknad.id, fnr)
 
         mockFlexSyketilfelleArbeidsgiverperiode(andreKorrigerteRessurser = soknad.id)
@@ -248,7 +284,7 @@ class InntektsopplysningerIntegrasjonsTest : BaseTestClass() {
     }
 
     @Test
-    @Order(5)
+    @Order(6)
     fun `Korrigerer til søknad med større endring enn 25 prosent`() {
         InnsendingApiMockDispatcher.getRequests().shouldHaveSize(1)
 
