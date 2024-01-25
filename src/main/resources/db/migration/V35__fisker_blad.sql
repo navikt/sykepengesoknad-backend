@@ -1,0 +1,1 @@
+ALTER TABLE sykepengesoknad ADD COLUMN fisker_blad VARCHAR NULL;
