@@ -9,11 +9,14 @@ import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadsperiode
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykmeldingstype
 import no.nav.helse.flex.domain.Arbeidssituasjon
+import no.nav.helse.flex.domain.FiskerBlad
 import no.nav.helse.flex.domain.exception.ManglerSykmeldingException
 import no.nav.helse.flex.domain.exception.ProduserKafkaMeldingException
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
 import no.nav.helse.flex.repository.SykepengesoknadDAO
+import no.nav.helse.flex.sykepengesoknad.kafka.FiskerBladDTO
+import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
@@ -81,6 +84,38 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
         val hentetViaRest = hentSoknaderMetadata(fnr).sortedBy { it.fom }
         assertThat(hentetViaRest).hasSize(1)
         assertThat(hentetViaRest[0].soknadstype).isEqualTo(RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE)
+
+        verify(aivenKafkaProducer, times(1)).produserMelding(any())
+    }
+
+    @Test
+    fun `oppretter kort søknad for fisker`() {
+        val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr, arbeidssituasjon = Arbeidssituasjon.FISKER)
+        val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
+        val sykmelding =
+            skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId)
+                .copy(harRedusertArbeidsgiverperiode = true)
+
+        mockFlexSyketilfelleErUtaforVentetid(sykmelding.id, true)
+        mockFlexSyketilfelleSykeforloep(sykmeldingId)
+
+        val sykmeldingKafkaMessage =
+            SykmeldingKafkaMessage(
+                sykmelding = sykmelding,
+                event = sykmeldingStatusKafkaMessageDTO.event,
+                kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
+            )
+
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
+
+        val soknad = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
+        assertThat(soknad).hasSize(1)
+        assertThat(soknad.first().fiskerBlad).isEqualTo(FiskerBladDTO.A)
+        assertThat(soknad.first().type).isEqualTo(SoknadstypeDTO.SELVSTENDIGE_OG_FRILANSERE)
+
+        val hentetSoknad = sykepengesoknadDAO.finnSykepengesoknad(soknad.first().id)
+        assertThat(hentetSoknad.fiskerBlad).isNotNull
+        assertThat(hentetSoknad.fiskerBlad).isEqualTo(FiskerBlad.A)
 
         verify(aivenKafkaProducer, times(1)).produserMelding(any())
     }

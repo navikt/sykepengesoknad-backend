@@ -1,15 +1,7 @@
 package no.nav.helse.flex.repository
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.domain.Avsendertype
-import no.nav.helse.flex.domain.Merknad
-import no.nav.helse.flex.domain.Mottaker
-import no.nav.helse.flex.domain.Opprinnelse
-import no.nav.helse.flex.domain.Soknadsperiode
-import no.nav.helse.flex.domain.Soknadstatus
-import no.nav.helse.flex.domain.Soknadstype
-import no.nav.helse.flex.domain.Sykepengesoknad
+import no.nav.helse.flex.domain.*
 import no.nav.helse.flex.domain.exception.SlettSoknadException
 import no.nav.helse.flex.inntektsopplysninger.InntektsopplysningerDokumentType
 import no.nav.helse.flex.logger
@@ -17,12 +9,7 @@ import no.nav.helse.flex.medlemskap.MedlemskapVurderingRepository
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.soknadsopprettelse.ArbeidsforholdFraInntektskomponenten
 import no.nav.helse.flex.soknadsopprettelse.sorterSporsmal
-import no.nav.helse.flex.util.OBJECT_MAPPER
-import no.nav.helse.flex.util.isAfterOrEqual
-import no.nav.helse.flex.util.isBeforeOrEqual
-import no.nav.helse.flex.util.osloZone
-import no.nav.helse.flex.util.serialisertTilString
-import no.nav.helse.flex.util.tilOsloZone
+import no.nav.helse.flex.util.*
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.dao.IncorrectResultSizeDataAccessException
 import org.springframework.jdbc.core.RowMapper
@@ -605,6 +592,9 @@ class SykepengesoknadDAO(
                         resultSet.getNullableString("inntektsopplysninger_innsending_dokumenter")
                             ?.split(",")
                             ?.map { InntektsopplysningerDokumentType.valueOf(it) },
+                    fiskerBlad =
+                        Optional.ofNullable(resultSet.getString("fisker_blad"))
+                            .map { FiskerBlad.valueOf(it) }.orElse(null),
                 ),
             )
         }

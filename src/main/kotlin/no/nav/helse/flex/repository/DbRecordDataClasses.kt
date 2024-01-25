@@ -1,13 +1,6 @@
 package no.nav.helse.flex.repository
 
-import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.domain.Avsendertype
-import no.nav.helse.flex.domain.Opprinnelse
-import no.nav.helse.flex.domain.Soknadstatus
-import no.nav.helse.flex.domain.Soknadstype
-import no.nav.helse.flex.domain.Svartype
-import no.nav.helse.flex.domain.Sykmeldingstype
-import no.nav.helse.flex.domain.Visningskriterie
+import no.nav.helse.flex.domain.*
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Table
 import java.time.Instant
@@ -51,6 +44,7 @@ data class SykepengesoknadDbRecord(
     val inntektsopplysningerNyKvittering: Boolean? = null,
     val inntektsopplysningerInnsendingId: String? = null,
     val inntektsopplysningerInnsendingDokumenter: String? = null,
+    val fiskerBlad: FiskerBlad? = null,
 )
 
 data class SporsmalDbRecord(
