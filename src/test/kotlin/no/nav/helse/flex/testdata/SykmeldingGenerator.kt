@@ -109,7 +109,11 @@ fun skapSykmeldingStatusKafkaMessageDTO(
                                 },
                         ),
                     ),
-                brukerSvar = lagKomplettInnsendtSkjemaSvar(arbeidssituasjon),
+                brukerSvar =
+                    when (arbeidssituasjon) {
+                        Arbeidssituasjon.FISKER -> lagFiskerInnsendtSkjemaSvar(arbeidssituasjon)
+                        else -> lagKomplettInnsendtSkjemaSvar(arbeidssituasjon)
+                    },
             ).let {
                 if (tidligereArbeidsgiverOrgnummer != null) {
                     it.copy(tidligereArbeidsgiver = TidligereArbeidsgiverKafkaDTO("", tidligereArbeidsgiverOrgnummer, ""))
@@ -127,7 +131,10 @@ fun skapSykmeldingStatusKafkaMessageDTO(
     )
 }
 
-fun lagKomplettInnsendtSkjemaSvar(arbeidssituasjon: Arbeidssituasjon): KomplettInnsendtSkjemaSvar {
+fun lagKomplettInnsendtSkjemaSvar(
+    arbeidssituasjon: Arbeidssituasjon,
+    fiskerSvar: FiskereSvarKafkaDTO? = null,
+): KomplettInnsendtSkjemaSvar {
     return KomplettInnsendtSkjemaSvar(
         erOpplysningeneRiktige = SporsmalSvar("Sporsmal", JaEllerNei.JA),
         uriktigeOpplysninger = null,
@@ -143,8 +150,18 @@ fun lagKomplettInnsendtSkjemaSvar(arbeidssituasjon: Arbeidssituasjon): KomplettI
         harForsikring = null,
         egenmeldingsdager = null,
         harBruktEgenmeldingsdager = null,
-        fisker = null,
+        fisker = fiskerSvar,
     )
+}
+
+fun lagFiskerInnsendtSkjemaSvar(arbeidssituasjon: Arbeidssituasjon): KomplettInnsendtSkjemaSvar {
+    val fiskerSvar =
+        FiskereSvarKafkaDTO(
+            blad = SporsmalSvar("Hvilket blad?", Blad.A),
+            lottOgHyre = SporsmalSvar("Lott eller hyre?", LottOgHyre.LOTT),
+        )
+
+    return lagKomplettInnsendtSkjemaSvar(arbeidssituasjon, fiskerSvar)
 }
 
 fun skapArbeidsgiverSykmelding(

@@ -51,6 +51,7 @@ fun Sykepengesoknad.normaliser(): NormalisertSoknad {
             forstegangssoknad = forstegangssoknad,
             tidligereArbeidsgiverOrgnummer = tidligereArbeidsgiverOrgnummer,
             aktivertDato = aktivertDato,
+            fiskerBlad = fiskerBlad,
         )
     val perioder =
         this.soknadPerioder

@@ -17,6 +17,7 @@ import no.nav.helse.flex.soknadsopprettelse.splitt.delOppISoknadsperioder
 import no.nav.helse.flex.soknadsopprettelse.splitt.splittMellomTyper
 import no.nav.helse.flex.soknadsopprettelse.splitt.splittSykmeldingiSoknadsPerioder
 import no.nav.helse.flex.unleash.UnleashToggles
+import no.nav.helse.flex.util.EnumUtil
 import no.nav.helse.flex.util.Metrikk
 import no.nav.helse.flex.util.osloZone
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
@@ -102,6 +103,11 @@ class OpprettSoknadService(
                         forstegangssoknad = null,
                         tidligereArbeidsgiverOrgnummer = sykmeldingKafkaMessage.event.tidligereArbeidsgiver?.orgnummer,
                         aktivertDato = null,
+                        fiskerBlad =
+                            EnumUtil.konverter(
+                                FiskerBlad::class.java,
+                                sykmeldingKafkaMessage.event.brukerSvar?.fisker?.blad?.svar?.name,
+                            ),
                     )
                 }
                     .filter { it.soknadPerioder?.isNotEmpty() ?: true }
