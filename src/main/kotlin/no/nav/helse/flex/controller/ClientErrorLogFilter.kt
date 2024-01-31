@@ -20,7 +20,7 @@ class ClientErrorLogFilter : OncePerRequestFilter() {
 
         val is4xx = response.status.toString().startsWith("4")
         val is2xx = response.status.toString().startsWith("2")
-
+        log.info("HTTP ${response.status} - ${request.requestURI}")
         if (is2xx) log.info("HTTP 2xx-feilrespons: ${response.status} - ${request.requestURI}")
         if (is4xx) log.warn("HTTP 4xx-feilrespons: ${response.status} - ${request.requestURI}")
     }
