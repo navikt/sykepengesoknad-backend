@@ -16,10 +16,9 @@ import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
-import org.mockito.Mockito.times
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class TilbakedatertSykmeldingIntegrationTest : BaseTestClass() {
+class TilbakedatertSykmeldingIntegrationTest : FellesTestOppsett() {
     private val fnr = "123456789"
 
     private val sykmeldingid = "1db78df1-d1d7-4dc4-affd-06e1e08066ce"

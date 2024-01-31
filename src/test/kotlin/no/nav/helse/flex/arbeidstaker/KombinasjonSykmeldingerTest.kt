@@ -1,6 +1,6 @@
 package no.nav.helse.flex.arbeidstaker
 
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.sendSykmelding
@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.util.UUID
 
-class KombinasjonSykmeldingerTest : BaseTestClass() {
+class KombinasjonSykmeldingerTest : FellesTestOppsett() {
     final val fnr = "123456789"
 
     val basisDato = LocalDate.of(2020, 3, 13)

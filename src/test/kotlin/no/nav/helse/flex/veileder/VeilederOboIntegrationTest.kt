@@ -1,7 +1,7 @@
 package no.nav.helse.flex.veileder
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknad
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.mockIstilgangskontroll
@@ -26,7 +26,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
 @TestMethodOrder(MethodOrderer.MethodName::class)
-class VeilederOboIntegrationTest : BaseTestClass() {
+class VeilederOboIntegrationTest : FellesTestOppsett() {
     final val fnr = "123456789"
 
     @Test
@@ -91,7 +91,7 @@ class VeilederOboIntegrationTest : BaseTestClass() {
         contentAsString `should be equal to` "{\"reason\":\"Bad Request\"}"
     }
 
-    fun BaseTestClass.hentSoknaderSomVeileder(
+    fun FellesTestOppsett.hentSoknaderSomVeileder(
         fnr: String,
         token: String,
     ): List<RSSykepengesoknad> {

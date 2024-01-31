@@ -1,6 +1,6 @@
 package no.nav.helse.flex.medlemskap
 
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.hentProduserteRecords
 import no.nav.helse.flex.hentSoknad
@@ -28,7 +28,7 @@ import java.time.LocalDate
  * Norge når det stilles medlemskapspørsmål.
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class MedlemskapToggleIntegrationTest : BaseTestClass() {
+class MedlemskapToggleIntegrationTest : FellesTestOppsett() {
     @BeforeEach
     fun setUpMockRessurser() {
         fakeUnleash.resetAll()

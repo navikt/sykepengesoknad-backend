@@ -27,7 +27,7 @@ import java.time.LocalDate
 import java.util.concurrent.TimeUnit
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class KorrigerteEgenmeldingsdagerTest : BaseTestClass() {
+class KorrigerteEgenmeldingsdagerTest : FellesTestOppsett() {
     @Autowired
     private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
 

@@ -18,12 +18,12 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.util.*
 
-fun BaseTestClass.jwt(
+fun FellesTestOppsett.jwt(
     fnr: String,
     acrClaim: String = "idporten-loa-high",
 ) = server.tokenxToken(fnr = fnr, acrClaim = acrClaim)
 
-fun BaseTestClass.hentSoknaderMetadataCustomAcr(
+fun FellesTestOppsett.hentSoknaderMetadataCustomAcr(
     fnr: String,
     acrClaim: String,
 ): String {
@@ -37,7 +37,7 @@ fun BaseTestClass.hentSoknaderMetadataCustomAcr(
     return responsKode
 }
 
-fun BaseTestClass.hentSoknaderMetadata(fnr: String): List<RSSykepengesoknadMetadata> {
+fun FellesTestOppsett.hentSoknaderMetadata(fnr: String): List<RSSykepengesoknadMetadata> {
     val json =
         mockMvc.perform(
             MockMvcRequestBuilders.get("/api/v2/soknader/metadata")
@@ -48,7 +48,7 @@ fun BaseTestClass.hentSoknaderMetadata(fnr: String): List<RSSykepengesoknadMetad
     return OBJECT_MAPPER.readValue(json)
 }
 
-fun BaseTestClass.hentSoknad(
+fun FellesTestOppsett.hentSoknad(
     soknadId: String,
     fnr: String,
 ): RSSykepengesoknad {
@@ -62,12 +62,12 @@ fun BaseTestClass.hentSoknad(
     return OBJECT_MAPPER.readValue(json)
 }
 
-fun BaseTestClass.hentSoknader(fnr: String): List<RSSykepengesoknad> =
+fun FellesTestOppsett.hentSoknader(fnr: String): List<RSSykepengesoknad> =
     hentSoknaderMetadata(fnr).map {
         hentSoknad(it.id, fnr)
     }
 
-fun BaseTestClass.lagreSvarMedResult(
+fun FellesTestOppsett.lagreSvarMedResult(
     fnr: String,
     soknadId: String,
     sporsmalId: String,
@@ -81,7 +81,7 @@ fun BaseTestClass.lagreSvarMedResult(
     )
 }
 
-fun BaseTestClass.lagreSvar(
+fun FellesTestOppsett.lagreSvar(
     fnr: String,
     soknadId: String,
     sporsmalId: String,
@@ -95,7 +95,7 @@ fun BaseTestClass.lagreSvar(
     return OBJECT_MAPPER.readValue(json)
 }
 
-fun BaseTestClass.slettSvarMedResult(
+fun FellesTestOppsett.slettSvarMedResult(
     fnr: String,
     soknadId: String,
     sporsmalId: String,
@@ -107,7 +107,7 @@ fun BaseTestClass.slettSvarMedResult(
     )
 }
 
-fun BaseTestClass.slettSvar(
+fun FellesTestOppsett.slettSvar(
     fnr: String,
     soknadId: String,
     sporsmalId: String,
@@ -117,7 +117,7 @@ fun BaseTestClass.slettSvar(
         .andReturn()
 }
 
-fun BaseTestClass.leggTilUndersporsmal(
+fun FellesTestOppsett.leggTilUndersporsmal(
     fnr: String,
     soknadId: String,
     sporsmalId: String,
@@ -129,7 +129,7 @@ fun BaseTestClass.leggTilUndersporsmal(
     )
 }
 
-fun BaseTestClass.slettUndersporsmal(
+fun FellesTestOppsett.slettUndersporsmal(
     fnr: String,
     soknadId: String,
     sporsmalId: String,
@@ -141,7 +141,7 @@ fun BaseTestClass.slettUndersporsmal(
     )
 }
 
-fun BaseTestClass.opprettUtlandssoknad(fnr: String) {
+fun FellesTestOppsett.opprettUtlandssoknad(fnr: String) {
     mockMvc.perform(
         MockMvcRequestBuilders.post("/api/v2/opprettSoknadUtland")
             .header("Authorization", "Bearer ${jwt(fnr)}")
@@ -149,7 +149,7 @@ fun BaseTestClass.opprettUtlandssoknad(fnr: String) {
     ).andExpect(MockMvcResultMatchers.status().isOk).andReturn()
 }
 
-fun BaseTestClass.korrigerSoknadMedResult(
+fun FellesTestOppsett.korrigerSoknadMedResult(
     soknadId: String,
     fnr: String,
 ): ResultActions {
@@ -160,7 +160,7 @@ fun BaseTestClass.korrigerSoknadMedResult(
     )
 }
 
-fun BaseTestClass.korrigerSoknad(
+fun FellesTestOppsett.korrigerSoknad(
     soknadId: String,
     fnr: String,
 ): RSSykepengesoknad {
@@ -170,7 +170,7 @@ fun BaseTestClass.korrigerSoknad(
     return OBJECT_MAPPER.readValue(json)
 }
 
-fun BaseTestClass.finnMottakerAvSoknad(
+fun FellesTestOppsett.finnMottakerAvSoknad(
     soknadId: String,
     fnr: String,
 ): RSMottakerResponse {
@@ -184,7 +184,7 @@ fun BaseTestClass.finnMottakerAvSoknad(
     return OBJECT_MAPPER.readValue(json)
 }
 
-fun BaseTestClass.gjenapneSoknad(
+fun FellesTestOppsett.gjenapneSoknad(
     soknadId: String,
     fnr: String,
 ) {
@@ -195,7 +195,7 @@ fun BaseTestClass.gjenapneSoknad(
     ).andExpect(MockMvcResultMatchers.status().isOk).andReturn().response.contentAsString
 }
 
-fun BaseTestClass.avbrytSoknad(
+fun FellesTestOppsett.avbrytSoknad(
     soknadId: String,
     fnr: String,
 ) {
@@ -206,7 +206,7 @@ fun BaseTestClass.avbrytSoknad(
     ).andExpect(MockMvcResultMatchers.status().isOk).andReturn().response.contentAsString
 }
 
-fun BaseTestClass.ettersendTilNav(
+fun FellesTestOppsett.ettersendTilNav(
     soknadId: String,
     fnr: String,
 ) {
@@ -217,7 +217,7 @@ fun BaseTestClass.ettersendTilNav(
     ).andExpect(MockMvcResultMatchers.status().isOk).andReturn().response.contentAsString
 }
 
-fun BaseTestClass.ettersendTilArbeidsgiver(
+fun FellesTestOppsett.ettersendTilArbeidsgiver(
     soknadId: String,
     fnr: String,
 ) {
@@ -228,7 +228,7 @@ fun BaseTestClass.ettersendTilArbeidsgiver(
     ).andExpect(MockMvcResultMatchers.status().isOk).andReturn().response.contentAsString
 }
 
-fun BaseTestClass.sendSoknadMedResult(
+fun FellesTestOppsett.sendSoknadMedResult(
     fnr: String,
     soknadId: String,
 ): ResultActions {
@@ -239,14 +239,14 @@ fun BaseTestClass.sendSoknadMedResult(
     )
 }
 
-fun BaseTestClass.sendSoknad(
+fun FellesTestOppsett.sendSoknad(
     fnr: String,
     soknadId: String,
 ): ResultActions {
     return this.sendSoknadMedResult(fnr, soknadId).andExpect(((MockMvcResultMatchers.status().isOk)))
 }
 
-fun BaseTestClass.oppdaterSporsmalMedResult(
+fun FellesTestOppsett.oppdaterSporsmalMedResult(
     fnr: String,
     rsSporsmal: RSSporsmal,
     soknadsId: String,
@@ -259,7 +259,7 @@ fun BaseTestClass.oppdaterSporsmalMedResult(
     )
 }
 
-fun BaseTestClass.oppdaterSporsmal(
+fun FellesTestOppsett.oppdaterSporsmal(
     fnr: String,
     rsSporsmal: RSSporsmal,
     soknadsId: String,

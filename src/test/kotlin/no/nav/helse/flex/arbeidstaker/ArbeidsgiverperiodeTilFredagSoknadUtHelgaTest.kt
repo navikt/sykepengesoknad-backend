@@ -1,6 +1,6 @@
 package no.nav.helse.flex.arbeidstaker
 
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.domain.Arbeidsgiverperiode
 import no.nav.helse.flex.domain.Periode
@@ -27,7 +27,7 @@ import org.junit.jupiter.api.TestMethodOrder
 import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class ArbeidsgiverperiodeTilFredagSoknadUtHelgaTest : BaseTestClass() {
+class ArbeidsgiverperiodeTilFredagSoknadUtHelgaTest : FellesTestOppsett() {
     private final val fnr = "12345678900"
     private final val fredagen = LocalDate.of(2021, 12, 17)
 

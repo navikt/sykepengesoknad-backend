@@ -1,7 +1,7 @@
 package no.nav.helse.flex.controller
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.client.pdl.PdlIdent
 import no.nav.helse.flex.jwt
 import no.nav.helse.flex.sendSykmelding
@@ -18,7 +18,7 @@ import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
-class FlexAPITest : BaseTestClass() {
+class FlexAPITest : FellesTestOppsett() {
     val fnr = "12345678901"
     lateinit var kafkaMelding: SykepengesoknadDTO
 

@@ -1,6 +1,6 @@
 package no.nav.helse.flex.medlemskap
 
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknad
 import no.nav.helse.flex.domain.Arbeidssituasjon
@@ -38,7 +38,7 @@ import java.time.LocalDate
  * når det IKKE er stilt spørsmål selv om medlemskapvurdering er UAVKLART.
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class MedlemskapUavklartIntegrationTest : BaseTestClass() {
+class MedlemskapUavklartIntegrationTest : FellesTestOppsett() {
     @BeforeAll
     fun configureUnleash() {
         fakeUnleash.resetAll()

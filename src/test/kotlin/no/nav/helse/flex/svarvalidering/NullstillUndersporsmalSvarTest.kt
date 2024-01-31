@@ -1,6 +1,6 @@
 package no.nav.helse.flex.svarvalidering
 
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSporsmal
@@ -47,7 +47,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class NullstillUndersporsmalSvarTest : BaseTestClass() {
+class NullstillUndersporsmalSvarTest : FellesTestOppsett() {
     private final val fnr = "123456789"
     private val basisdato = LocalDate.of(2023, 1, 1)
 

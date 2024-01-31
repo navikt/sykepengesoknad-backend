@@ -1,6 +1,6 @@
 package no.nav.helse.flex.utenlandsksykmelding
 
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknader
@@ -36,7 +36,7 @@ import java.time.LocalDate
 import java.util.concurrent.TimeUnit
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class UtenlandskArbeidstakerIntegrationTest : BaseTestClass() {
+class UtenlandskArbeidstakerIntegrationTest : FellesTestOppsett() {
     @Autowired
     private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
 

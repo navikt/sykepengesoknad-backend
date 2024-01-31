@@ -1,6 +1,6 @@
 package no.nav.helse.flex.arbeidstaker
 
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.aktivering.AktiveringJob
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
@@ -23,7 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class LangArbeidstakerFremtidigOgAktiveringTest : BaseTestClass() {
+class LangArbeidstakerFremtidigOgAktiveringTest : FellesTestOppsett() {
     @Autowired
     private lateinit var aktiveringJob: AktiveringJob
 

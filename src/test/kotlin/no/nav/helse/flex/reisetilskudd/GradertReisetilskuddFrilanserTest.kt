@@ -1,6 +1,6 @@
 package no.nav.helse.flex.reisetilskudd
 
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.hentSoknad
@@ -30,7 +30,7 @@ import java.time.LocalDate
 import java.util.*
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class GradertReisetilskuddFrilanserTest : BaseTestClass() {
+class GradertReisetilskuddFrilanserTest : FellesTestOppsett() {
     final val fnr = "123456789"
 
     val sykmeldingId = UUID.randomUUID().toString()

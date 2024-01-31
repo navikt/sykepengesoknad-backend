@@ -15,7 +15,7 @@ import java.time.LocalDate
 import java.time.OffsetDateTime
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class KorrigeringTest : BaseTestClass() {
+class KorrigeringTest : FellesTestOppsett() {
     private val fnr = "12345678900"
     private val basisdato = LocalDate.now()
 

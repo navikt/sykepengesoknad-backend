@@ -14,7 +14,7 @@ import org.junit.jupiter.api.TestMethodOrder
 import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class AnnetArbeidsforholdFeatureSwitchTest : BaseTestClass() {
+class AnnetArbeidsforholdFeatureSwitchTest : FellesTestOppsett() {
     private val fnr = "123456989"
 
     @AfterEach

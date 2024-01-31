@@ -1,6 +1,6 @@
 package no.nav.helse.flex.testutil
 
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSporsmal
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSvar
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknad
@@ -50,7 +50,7 @@ private fun RSSporsmal.erSporsmalMedIdEllerHarUndersporsmalMedId(id: String): Bo
 
 class SoknadBesvarer(
     var rSSykepengesoknad: RSSykepengesoknad,
-    val mockMvc: BaseTestClass,
+    val mockMvc: FellesTestOppsett,
     val fnr: String,
     val muterteSoknaden: Boolean = false,
 ) {

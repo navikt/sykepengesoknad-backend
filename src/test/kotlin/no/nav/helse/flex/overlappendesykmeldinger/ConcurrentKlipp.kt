@@ -1,6 +1,6 @@
 package no.nav.helse.flex.overlappendesykmeldinger
 
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
 import no.nav.helse.flex.hentSoknad
@@ -31,7 +31,7 @@ import java.util.concurrent.CompletableFuture
 import kotlin.concurrent.thread
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class ConcurrentKlipp : BaseTestClass() {
+class ConcurrentKlipp : FellesTestOppsett() {
     @Autowired
     private lateinit var lockRepository: LockRepository
 

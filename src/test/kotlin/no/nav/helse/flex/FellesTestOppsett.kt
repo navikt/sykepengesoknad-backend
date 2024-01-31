@@ -48,7 +48,7 @@ private class PostgreSQLContainer14 : PostgreSQLContainer<PostgreSQLContainer14>
 @SpringBootTest(classes = [Application::class])
 @AutoConfigureMockMvc(print = MockMvcPrint.NONE, printOnlyOnFailure = false)
 @AutoConfigureObservability
-abstract class BaseTestClass {
+abstract class FellesTestOppsett {
     companion object {
         val pdlMockWebserver: MockWebServer
         val medlemskapMockWebServer: MockWebServer

@@ -1,6 +1,6 @@
 package no.nav.helse.flex.frilanser
 
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSvar
 import no.nav.helse.flex.domain.Arbeidssituasjon
@@ -32,10 +32,9 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.util.*
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class FrilanserIntegrationTest : BaseTestClass() {
+class FrilanserIntegrationTest : FellesTestOppsett() {
     final val fnr = "123456789"
 
     @Test

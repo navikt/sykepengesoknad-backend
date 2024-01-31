@@ -1,6 +1,6 @@
 package no.nav.helse.flex.medlemskap
 
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.util.serialisertTilString
 import okhttp3.mockwebserver.MockResponse
 import org.amshove.kluent.`should be equal to`
@@ -21,7 +21,7 @@ import java.util.*
  * oppfører seg basert på hva LovMe svarer, inkludert tester for både tekniske feil
  * (f.eks nettverksfeil) og det vi tolker som logiske feil i responsen.
  */
-class MedlemskapVurderingIntegrationTest : BaseTestClass() {
+class MedlemskapVurderingIntegrationTest : FellesTestOppsett() {
     @Autowired
     private lateinit var medlemskapVurderingClient: MedlemskapVurderingClient
 

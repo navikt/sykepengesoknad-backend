@@ -1,6 +1,6 @@
 package no.nav.helse.flex.medlemskap
 
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.util.serialisertTilString
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldHaveSize
@@ -18,7 +18,7 @@ import java.util.*
  * Tester at vi kan lagre og hente spørsmål om medlemskap fra databasen.
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class MedlemskapVurderingRepositoryTest : BaseTestClass() {
+class MedlemskapVurderingRepositoryTest : FellesTestOppsett() {
     @Autowired
     private lateinit var medlemskapVurderingRepository: MedlemskapVurderingRepository
 

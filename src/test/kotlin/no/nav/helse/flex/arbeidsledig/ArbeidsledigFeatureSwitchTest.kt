@@ -1,6 +1,6 @@
 package no.nav.helse.flex.arbeidsledig
 
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknaderMetadata
@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class ArbeidsledigFeatureSwitchTest : BaseTestClass() {
+class ArbeidsledigFeatureSwitchTest : FellesTestOppsett() {
     private val fnr = "123456789"
 
     @AfterEach

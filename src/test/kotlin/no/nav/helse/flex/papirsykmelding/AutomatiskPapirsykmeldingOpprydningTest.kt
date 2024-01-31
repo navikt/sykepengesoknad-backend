@@ -1,6 +1,6 @@
 package no.nav.helse.flex.papirsykmelding
 
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
@@ -28,7 +28,7 @@ import org.junit.jupiter.api.TestMethodOrder
 import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.MethodName::class)
-class AutomatiskPapirsykmeldingOpprydningTest : BaseTestClass() {
+class AutomatiskPapirsykmeldingOpprydningTest : FellesTestOppsett() {
     @BeforeEach
     fun setUp() {
         flexSyketilfelleMockRestServiceServer.reset()

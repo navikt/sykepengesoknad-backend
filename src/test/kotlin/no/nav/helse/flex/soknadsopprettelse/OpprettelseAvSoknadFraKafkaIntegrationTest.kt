@@ -42,7 +42,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.MethodName::class)
-class OpprettelseAvSoknadFraKafkaIntegrationTest : BaseTestClass() {
+class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
     private val fnr = "123456789"
 
     @Autowired

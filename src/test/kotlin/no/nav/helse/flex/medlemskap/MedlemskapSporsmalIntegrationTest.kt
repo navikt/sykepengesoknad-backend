@@ -40,7 +40,7 @@ import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
  *     til når det stilles medlemskapspørsmål.
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class MedlemskapSporsmalIntegrationTest : BaseTestClass() {
+class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
     @Autowired
     private lateinit var medlemskapVurderingRepository: MedlemskapVurderingRepository
 

@@ -3,7 +3,6 @@ package no.nav.helse.flex.utenlandsksykmelding
 import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
@@ -14,11 +13,10 @@ import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class UtenlandskArbeidsledigSporsmalAndreSoknadIntegrationTest : BaseTestClass() {
+class UtenlandskArbeidsledigSporsmalAndreSoknadIntegrationTest : FellesTestOppsett() {
     private final val fnr = "12454578474"
     private final val basisdato = LocalDate.of(2021, 9, 1)
 

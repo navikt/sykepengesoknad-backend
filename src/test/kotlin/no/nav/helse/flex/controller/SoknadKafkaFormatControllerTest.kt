@@ -1,7 +1,7 @@
 package no.nav.helse.flex.controller
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.skapAzureJwt
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
@@ -18,7 +18,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.time.temporal.ChronoUnit.SECONDS
 import java.util.*
 
-class SoknadKafkaFormatControllerTest : BaseTestClass() {
+class SoknadKafkaFormatControllerTest : FellesTestOppsett() {
     @Test
     fun `Vi kan hente en søknad på samme format som kafka topicet med version 2 token`() {
         val kafkaSoknad =

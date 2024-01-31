@@ -1,6 +1,6 @@
 package no.nav.helse.flex.julesoknad
 
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus.*
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.forskuttering.ForskutteringRepository
@@ -22,7 +22,7 @@ import org.springframework.context.ApplicationEventPublisher
 import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.MethodName::class)
-class JulesoknadHealthTest : BaseTestClass() {
+class JulesoknadHealthTest : FellesTestOppsett() {
     @Autowired
     private lateinit var prosesserJulesoknadkandidat: JulesoknadCronJob
 

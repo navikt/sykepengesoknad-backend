@@ -40,7 +40,7 @@ import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 import java.util.*
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class GradertReisetilskuddIntegrationTest : BaseTestClass() {
+class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
     @Autowired
     private lateinit var namedParameterJdbcTemplate: NamedParameterJdbcTemplate
 

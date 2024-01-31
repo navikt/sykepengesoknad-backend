@@ -1,6 +1,6 @@
 package no.nav.helse.flex.julesoknad
 
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.aktivering.AktiveringJob
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus.FREMTIDIG
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus.NY
@@ -30,7 +30,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 @TestMethodOrder(MethodOrderer.MethodName::class)
-class JulesoknadIntegrationTest : BaseTestClass() {
+class JulesoknadIntegrationTest : FellesTestOppsett() {
     @Autowired
     private lateinit var aktiveringJob: AktiveringJob
 

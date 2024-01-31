@@ -1,6 +1,6 @@
 package no.nav.helse.flex.overlappendesykmeldinger
 
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadsperiode
 import no.nav.helse.flex.domain.Soknadstatus
@@ -31,7 +31,7 @@ import java.util.*
 
 private const val FNR = "11111111111"
 
-class OverlapperMedFlere : BaseTestClass() {
+class OverlapperMedFlere : FellesTestOppsett() {
     @Autowired
     private lateinit var soknadLagrer: SoknadLagrer
 
@@ -49,7 +49,7 @@ class OverlapperMedFlere : BaseTestClass() {
             OverlappTester(
                 soknadLagrer = soknadLagrer,
                 sykepengesoknadDAO = sykepengesoknadDAO,
-                baseTestClass = this,
+                fellesTestOppsett = this,
                 skalPrintePerioder = true,
             )
     }
@@ -713,7 +713,7 @@ class OverlapperMedFlere : BaseTestClass() {
     private class OverlappTester(
         private val soknadLagrer: SoknadLagrer,
         private val sykepengesoknadDAO: SykepengesoknadDAO,
-        private val baseTestClass: BaseTestClass,
+        private val fellesTestOppsett: FellesTestOppsett,
         private val skalPrintePerioder: Boolean = false,
     ) {
         data class Soknad(
@@ -734,7 +734,7 @@ class OverlapperMedFlere : BaseTestClass() {
 
             riktigStatusUtIfraDagensDato(dagensDato)
 
-            baseTestClass.sendSykmelding(
+            fellesTestOppsett.sendSykmelding(
                 sykmeldingKafkaMessage(
                     fnr = FNR,
                     sykmeldingId = overlappendeSoknad.traceId,

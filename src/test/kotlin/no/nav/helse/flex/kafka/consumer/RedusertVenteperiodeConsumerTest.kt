@@ -1,6 +1,6 @@
 package no.nav.helse.flex.kafka.consumer
 
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.repository.RedusertVenteperiodeRepository
@@ -19,7 +19,7 @@ import java.time.LocalDate
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class RedusertVenteperiodeConsumerTest : BaseTestClass() {
+class RedusertVenteperiodeConsumerTest : FellesTestOppsett() {
     @Autowired
     private lateinit var redusertVenteperiodeRepository: RedusertVenteperiodeRepository
 

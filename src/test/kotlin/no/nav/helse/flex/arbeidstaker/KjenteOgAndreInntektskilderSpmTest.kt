@@ -24,7 +24,7 @@ import org.junit.jupiter.api.*
 import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class KjenteOgAndreInntektskilderSpmTest : BaseTestClass() {
+class KjenteOgAndreInntektskilderSpmTest : FellesTestOppsett() {
     private val fnr = "11111234565"
     private final val basisdato = LocalDate.of(2021, 9, 1)
 

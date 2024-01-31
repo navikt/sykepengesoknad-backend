@@ -1,6 +1,6 @@
 package no.nav.helse.flex.overlappendesykmeldinger
 
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.domain.Arbeidsgiverperiode
 import no.nav.helse.flex.domain.Periode
@@ -32,7 +32,7 @@ import java.time.OffsetDateTime
 import java.util.*
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class OverlapperFullstendig : BaseTestClass() {
+class OverlapperFullstendig : FellesTestOppsett() {
     private final val basisdato = LocalDate.now()
     private final val fnr = "11111111111"
 
