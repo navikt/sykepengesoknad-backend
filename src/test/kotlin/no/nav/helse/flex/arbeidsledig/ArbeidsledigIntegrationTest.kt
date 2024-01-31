@@ -25,7 +25,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @TestMethodOrder(MethodOrderer.MethodName::class)
-class ArbeidsledigIntegrationTest : BaseTestClass() {
+class ArbeidsledigIntegrationTest : FellesTestOppsett() {
     final val fnr = "123456789"
 
     val tidligereArbeidsgiverOrgnummer = "gamlejobben"

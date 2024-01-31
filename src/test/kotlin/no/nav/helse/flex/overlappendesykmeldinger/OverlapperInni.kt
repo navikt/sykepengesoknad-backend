@@ -17,7 +17,7 @@ import java.time.LocalDate
 import java.time.OffsetDateTime
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class OverlapperInni : BaseTestClass() {
+class OverlapperInni : FellesTestOppsett() {
     @Autowired
     private lateinit var klippMetrikkRepository: KlippMetrikkRepository
 

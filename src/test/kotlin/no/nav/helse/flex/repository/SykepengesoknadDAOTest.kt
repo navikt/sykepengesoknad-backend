@@ -1,6 +1,6 @@
 package no.nav.helse.flex.repository
 
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.domain.Mottaker
 import no.nav.helse.flex.domain.Soknadstatus.*
 import no.nav.helse.flex.domain.Svar
@@ -26,7 +26,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-class SykepengesoknadDAOTest : BaseTestClass() {
+class SykepengesoknadDAOTest : FellesTestOppsett() {
     @Autowired
     private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
 

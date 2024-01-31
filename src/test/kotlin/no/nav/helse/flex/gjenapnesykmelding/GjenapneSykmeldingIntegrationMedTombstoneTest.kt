@@ -1,6 +1,6 @@
 package no.nav.helse.flex.gjenapnesykmelding
 
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
 import no.nav.helse.flex.domain.Arbeidssituasjon
@@ -23,7 +23,7 @@ import org.junit.jupiter.api.TestMethodOrder
 import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.MethodName::class)
-class GjenapneSykmeldingIntegrationMedTombstoneTest : BaseTestClass() {
+class GjenapneSykmeldingIntegrationMedTombstoneTest : FellesTestOppsett() {
     private final val fnr = "123456789"
 
     @BeforeEach

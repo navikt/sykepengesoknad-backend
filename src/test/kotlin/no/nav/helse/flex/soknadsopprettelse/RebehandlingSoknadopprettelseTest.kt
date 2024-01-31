@@ -3,7 +3,7 @@ package no.nav.helse.flex.soknadsopprettelse
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Arbeidssituasjon.ARBEIDSTAKER
 import no.nav.helse.flex.domain.Arbeidssituasjon.FRILANSER
@@ -34,7 +34,7 @@ import org.testcontainers.shaded.org.awaitility.Awaitility.await
 import java.time.LocalDate
 import java.util.concurrent.TimeUnit
 
-class RebehandlingSoknadopprettelseTest : BaseTestClass() {
+class RebehandlingSoknadopprettelseTest : FellesTestOppsett() {
     @Autowired
     private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
 

@@ -1,7 +1,7 @@
 package no.nav.helse.flex.reisetilskudd
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.avbrytSoknad
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSvar
@@ -47,7 +47,7 @@ import java.time.LocalDate
 import java.util.*
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class ReisetilskuddIntegrationTest : BaseTestClass() {
+class ReisetilskuddIntegrationTest : FellesTestOppsett() {
     final val fnr = "123456789"
 
     companion object {

@@ -1,6 +1,6 @@
 package no.nav.helse.flex.egenmeldingsdager
 
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.aktivering.AktiveringJob
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.hentSoknad
@@ -29,7 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class EgenmeldingsdagerVideresendingTest : BaseTestClass() {
+class EgenmeldingsdagerVideresendingTest : FellesTestOppsett() {
     @Autowired
     private lateinit var aktiveringJob: AktiveringJob
 

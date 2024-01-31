@@ -1,6 +1,6 @@
 package no.nav.helse.flex.forskuttering
 
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.forskuttering.domain.NarmesteLederLeesah
 import no.nav.helse.flex.util.serialisertTilString
 import org.amshove.kluent.`should be equal to`
@@ -18,7 +18,7 @@ import java.time.ZoneOffset
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class OppdaterForskutteringTest : BaseTestClass() {
+class OppdaterForskutteringTest : FellesTestOppsett() {
     @Autowired
     lateinit var forskutteringRepository: ForskutteringRepository
 

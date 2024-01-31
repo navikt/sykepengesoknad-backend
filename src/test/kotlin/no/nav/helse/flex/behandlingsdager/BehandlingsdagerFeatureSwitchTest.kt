@@ -1,6 +1,6 @@
 package no.nav.helse.flex.behandlingsdager
 
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.sendSykmelding
@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class BehandlingsdagerFeatureSwitchTest : BaseTestClass() {
+class BehandlingsdagerFeatureSwitchTest : FellesTestOppsett() {
     private val fnr = "12345678900"
 
     @AfterEach

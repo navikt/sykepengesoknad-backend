@@ -1,6 +1,6 @@
 package no.nav.helse.flex.soknadsopprettelse
 
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.FellesTestOppsett
 import org.amshove.kluent.`should be empty`
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldHaveSize
@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 
-class AndreArbeidsforholdHentingTest : BaseTestClass() {
+class AndreArbeidsforholdHentingTest : FellesTestOppsett() {
     @Autowired
     lateinit var andreArbeidsforholdHenting: AndreArbeidsforholdHenting
 

@@ -17,7 +17,7 @@ import java.time.LocalDate
 import java.util.*
 import java.util.concurrent.ExecutionException
 
-class RollbackOnCheckedExceptionsTest : BaseTestClass() {
+class RollbackOnCheckedExceptionsTest : FellesTestOppsett() {
     @Autowired
     private lateinit var mockService: MockService
 

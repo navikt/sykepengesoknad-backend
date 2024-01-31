@@ -15,7 +15,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class AnnetArbeidsforholdIntegrationTest : BaseTestClass() {
+class AnnetArbeidsforholdIntegrationTest : FellesTestOppsett() {
     final val fnr = "123456789"
 
     @Test

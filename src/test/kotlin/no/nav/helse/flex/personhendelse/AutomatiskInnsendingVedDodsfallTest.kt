@@ -1,6 +1,6 @@
 package no.nav.helse.flex.personhendelse
 
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.mock.opprettNySoknad
 import no.nav.helse.flex.repository.DodsmeldingDAO
@@ -24,7 +24,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import java.time.LocalDate
 import java.time.OffsetDateTime
 
-class AutomatiskInnsendingVedDodsfallTest : BaseTestClass() {
+class AutomatiskInnsendingVedDodsfallTest : FellesTestOppsett() {
     @Autowired
     private lateinit var namedParameterJdbcTemplate: NamedParameterJdbcTemplate
 

@@ -1,6 +1,6 @@
 package no.nav.helse.flex.medlemskap
 
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.hentProduserteRecords
 import no.nav.helse.flex.hentSoknad
@@ -38,7 +38,7 @@ import java.time.LocalDate
  *      om medlemskap blir besvart og sendt inn.
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class MedlemskapSyketilfelleIntegrationTest : BaseTestClass() {
+class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
     @Autowired
     private lateinit var sporsmalDAO: SporsmalDAO
 

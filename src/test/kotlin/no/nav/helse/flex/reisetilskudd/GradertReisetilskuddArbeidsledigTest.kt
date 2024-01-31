@@ -26,7 +26,7 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class GradertReisetilskuddArbeidsledigTest : BaseTestClass() {
+class GradertReisetilskuddArbeidsledigTest : FellesTestOppsett() {
     final val fnr = "123456789"
 
     val sykmeldingId = UUID.randomUUID().toString()

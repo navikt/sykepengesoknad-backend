@@ -1,6 +1,6 @@
 package no.nav.helse.flex.behandlingsdager
 
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.avbrytSoknad
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
@@ -35,7 +35,7 @@ import java.time.LocalDate
 import java.util.*
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class BehandligsdagerIntegrationTest : BaseTestClass() {
+class BehandligsdagerIntegrationTest : FellesTestOppsett() {
     final val fnr = "123456789"
 
     @Test

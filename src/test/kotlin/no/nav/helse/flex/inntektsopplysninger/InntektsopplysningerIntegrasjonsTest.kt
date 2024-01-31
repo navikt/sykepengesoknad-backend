@@ -28,7 +28,7 @@ import org.junit.jupiter.api.TestMethodOrder
 import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class InntektsopplysningerIntegrasjonsTest : BaseTestClass() {
+class InntektsopplysningerIntegrasjonsTest : FellesTestOppsett() {
     @BeforeAll
     fun konfigurerUnleash() {
         fakeUnleash.resetAll()

@@ -19,7 +19,7 @@ import java.time.LocalDate
 import java.util.UUID
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class YrkesskadeIntegrationTest : BaseTestClass() {
+class YrkesskadeIntegrationTest : FellesTestOppsett() {
     @Autowired
     private lateinit var yrkesskadeIndikatorer: YrkesskadeIndikatorer
 

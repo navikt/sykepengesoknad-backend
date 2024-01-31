@@ -1,7 +1,7 @@
 package no.nav.helse.flex.reisetilskudd
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSporsmal
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSvar
 import no.nav.helse.flex.domain.Arbeidssituasjon
@@ -42,7 +42,7 @@ import java.time.Instant
 import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class SlettKvitteringerIntegrasjonsTest : BaseTestClass() {
+class SlettKvitteringerIntegrasjonsTest : FellesTestOppsett() {
     private val fnr = "12345678900"
 
     @Test

@@ -1,6 +1,6 @@
 package no.nav.helse.flex.oppholdutland
 
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.korrigerSoknadMedResult
@@ -27,7 +27,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @TestMethodOrder(MethodOrderer.MethodName::class)
-class OppholdUtlandIntegrationTest : BaseTestClass() {
+class OppholdUtlandIntegrationTest : FellesTestOppsett() {
     final val fnr = "123456789"
 
     @Test

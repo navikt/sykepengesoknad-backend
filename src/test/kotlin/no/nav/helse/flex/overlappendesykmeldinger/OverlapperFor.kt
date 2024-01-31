@@ -1,7 +1,7 @@
 package no.nav.helse.flex.overlappendesykmeldinger
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.avbrytSoknad
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.domain.Arbeidsgiverperiode
@@ -39,7 +39,7 @@ import java.time.OffsetDateTime
 import java.time.temporal.ChronoUnit.DAYS
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class OverlapperFor : BaseTestClass() {
+class OverlapperFor : FellesTestOppsett() {
     @Autowired
     private lateinit var klippetSykepengesoknadRepository: KlippetSykepengesoknadRepository
 

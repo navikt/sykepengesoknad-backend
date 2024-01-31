@@ -16,7 +16,7 @@ import org.springframework.test.web.client.response.MockRestResponseCreators.wit
 import org.springframework.test.web.client.response.MockRestResponseCreators.withUnauthorizedRequest
 import java.time.LocalDate
 
-fun BaseTestClass.mockIstilgangskontroll(
+fun FellesTestOppsett.mockIstilgangskontroll(
     tilgang: Boolean,
     fnr: String,
 ) {
@@ -37,7 +37,7 @@ fun BaseTestClass.mockIstilgangskontroll(
         )
 }
 
-fun BaseTestClass.mockFlexSyketilfelleSykeforloep(
+fun FellesTestOppsett.mockFlexSyketilfelleSykeforloep(
     sykmeldingId: String,
     oppfolgingsdato: LocalDate = LocalDate.now(),
 ) {
@@ -51,7 +51,7 @@ fun BaseTestClass.mockFlexSyketilfelleSykeforloep(
     )
 }
 
-fun BaseTestClass.mockFlexSyketilfelleSykeforloep(sykeforloep: List<Sykeforloep>) {
+fun FellesTestOppsett.mockFlexSyketilfelleSykeforloep(sykeforloep: List<Sykeforloep>) {
     flexSyketilfelleMockRestServiceServer
         .expect(manyTimes(), requestTo("http://flex-syketilfelle/api/v1/sykeforloep?hentAndreIdenter=false"))
         .andExpect(method(HttpMethod.GET))
@@ -65,7 +65,7 @@ fun BaseTestClass.mockFlexSyketilfelleSykeforloep(sykeforloep: List<Sykeforloep>
         )
 }
 
-fun BaseTestClass.mockFlexSyketilfelleErUtaforVentetid(
+fun FellesTestOppsett.mockFlexSyketilfelleErUtaforVentetid(
     sykmeldingId: String,
     utafor: Boolean,
 ) {
@@ -82,7 +82,7 @@ fun BaseTestClass.mockFlexSyketilfelleErUtaforVentetid(
         )
 }
 
-fun BaseTestClass.mockFlexSyketilfelleArbeidsgiverperiode(
+fun FellesTestOppsett.mockFlexSyketilfelleArbeidsgiverperiode(
     andreKorrigerteRessurser: String? = null,
     arbeidsgiverperiode: Arbeidsgiverperiode? = null,
 ) {

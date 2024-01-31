@@ -2,7 +2,7 @@ package no.nav.helse.flex.metrikker
 
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Tags
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.util.Metrikk
 import org.assertj.core.api.Assertions.assertThat
@@ -15,7 +15,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @TestMethodOrder(MethodOrderer.MethodName::class)
-class MetrikkTest : BaseTestClass() {
+class MetrikkTest : FellesTestOppsett() {
     @Autowired
     private lateinit var metrikk: Metrikk
 

@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class OppholdUtlandFeatureSwitchTest : BaseTestClass() {
+class OppholdUtlandFeatureSwitchTest : FellesTestOppsett() {
     private val fnr = "123456789"
 
     @AfterEach

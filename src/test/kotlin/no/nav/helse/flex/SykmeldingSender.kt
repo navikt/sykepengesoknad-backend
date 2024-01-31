@@ -14,7 +14,7 @@ import org.apache.kafka.clients.producer.ProducerRecord
 import org.awaitility.Awaitility.await
 import java.time.LocalDate
 
-fun BaseTestClass.sendSykmelding(
+fun FellesTestOppsett.sendSykmelding(
     sykmeldingKafkaMessage: SykmeldingKafkaMessage,
     oppfolgingsdato: LocalDate = sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder.minOf { it.fom },
     forventaSoknader: Int = 1,

@@ -4,7 +4,7 @@ import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback
 import java.util.*
 
-fun BaseTestClass.buildAzureClaimSet(
+fun FellesTestOppsett.buildAzureClaimSet(
     subject: String,
     issuer: String = "azureator",
     audience: String = "syfosoknad-client-id",
@@ -20,7 +20,7 @@ fun BaseTestClass.buildAzureClaimSet(
     )
 }
 
-fun BaseTestClass.skapAzureJwt(subject: String = "sykepengesoknad-arkivering-oppgave-client-id") = buildAzureClaimSet(subject = subject)
+fun FellesTestOppsett.skapAzureJwt(subject: String = "sykepengesoknad-arkivering-oppgave-client-id") = buildAzureClaimSet(subject = subject)
 
 fun MockOAuth2Server.token(
     subject: String,

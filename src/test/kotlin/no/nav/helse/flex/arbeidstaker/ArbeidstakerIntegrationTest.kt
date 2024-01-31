@@ -23,7 +23,7 @@ import java.time.LocalDate
 import java.time.OffsetDateTime
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class ArbeidstakerIntegrationTest : BaseTestClass() {
+class ArbeidstakerIntegrationTest : FellesTestOppsett() {
     @Autowired
     private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
 

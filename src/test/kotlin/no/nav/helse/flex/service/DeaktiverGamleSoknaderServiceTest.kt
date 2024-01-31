@@ -1,6 +1,6 @@
 package no.nav.helse.flex.service
 
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.mock.opprettNySoknad
 import no.nav.helse.flex.repository.SykepengesoknadDAO
@@ -19,7 +19,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-class DeaktiverGamleSoknaderServiceTest : BaseTestClass() {
+class DeaktiverGamleSoknaderServiceTest : FellesTestOppsett() {
     @Autowired
     private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
 

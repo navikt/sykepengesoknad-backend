@@ -1,6 +1,6 @@
 package no.nav.helse.flex.medlemskap
 
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.hentProduserteRecords
 import no.nav.helse.flex.hentSoknad
@@ -30,7 +30,7 @@ import java.time.LocalDate
  * det ikke stilles erstattende medlemskapspørsmål.
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class MedlemskapArbeidUtenforNorgeIntegrationTest : BaseTestClass() {
+class MedlemskapArbeidUtenforNorgeIntegrationTest : FellesTestOppsett() {
     @BeforeAll
     fun konfigurerUnleash() {
         fakeUnleash.resetAll()

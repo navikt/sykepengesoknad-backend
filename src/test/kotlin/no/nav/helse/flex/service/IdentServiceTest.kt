@@ -1,11 +1,11 @@
 package no.nav.helse.flex.service
 
-import no.nav.helse.flex.BaseTestClass
+import no.nav.helse.flex.FellesTestOppsett
 import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 
-class IdentServiceTest : BaseTestClass() {
+class IdentServiceTest : FellesTestOppsett() {
     @Autowired
     private lateinit var identService: IdentService
 

@@ -11,7 +11,7 @@ import org.springframework.context.ApplicationEventPublisher
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
-class ApplicationHealthTest : BaseTestClass() {
+class ApplicationHealthTest : FellesTestOppsett() {
     @Autowired
     private lateinit var applicationAvailability: ApplicationAvailability
 
