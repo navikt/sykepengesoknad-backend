@@ -6,14 +6,12 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import no.nav.helse.flex.logger
 import org.slf4j.MDC
-import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
 
 private const val X_REQUEST_ID_HEADER = "x-request-id"
 private const val X_REQUEST_ID_MDC_MARKER = "x_request_id"
 
 @Component
-@Order(2)
 class LogRequestIdFilter : HttpFilter() {
     private val log = logger()
 
