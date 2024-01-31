@@ -22,7 +22,7 @@ import java.time.Duration
 import java.util.function.Supplier
 
 const val MEDLEMSKAP_VURDERING_REST_TEMPLATE_CONNECT_TIMEOUT = 2L
-const val MEDLEMSKAP_VURDERING_REST_TEMPLATE_READ_TIMEOUT = 45L
+const val MEDLEMSKAP_VURDERING_REST_TEMPLATE_READ_TIMEOUT = 25L
 
 @EnableOAuth2Client(cacheEnabled = true)
 @Configuration
