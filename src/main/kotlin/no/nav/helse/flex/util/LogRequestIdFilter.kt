@@ -1,21 +1,21 @@
 package no.nav.helse.flex.util
 
 import jakarta.servlet.FilterChain
-import jakarta.servlet.http.HttpFilter
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import no.nav.helse.flex.logger
 import org.slf4j.MDC
+import org.springframework.core.Ordered
+import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
+import org.springframework.web.filter.OncePerRequestFilter
 
 private const val X_REQUEST_ID_HEADER = "x-request-id"
 private const val X_REQUEST_ID_MDC_MARKER = "x_request_id"
 
 @Component
-class LogRequestIdFilter : HttpFilter() {
-    private val log = logger()
-
-    override fun doFilter(
+@Order(Ordered.HIGHEST_PRECEDENCE + 1)
+class LogRequestIdFilter : OncePerRequestFilter() {
+    override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
         filterChain: FilterChain,
@@ -23,8 +23,7 @@ class LogRequestIdFilter : HttpFilter() {
         try {
             request.getHeader(X_REQUEST_ID_HEADER)?.let {
                 MDC.put(X_REQUEST_ID_MDC_MARKER, it)
-                // Legger på x-request-id på response for bedre feilhåndtering i frontend.
-                log.info("Legger på $X_REQUEST_ID_HEADER på response.")
+                // Legger på x-request-id på response for lettere feilhåndtering i frontend.
                 response.setHeader(X_REQUEST_ID_HEADER, it)
             }
             filterChain.doFilter(request, response)
