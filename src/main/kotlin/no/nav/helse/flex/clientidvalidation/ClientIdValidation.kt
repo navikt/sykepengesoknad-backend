@@ -37,12 +37,8 @@ class ClientIdValidation(
     }
 
     private fun TokenValidationContextHolder.hentAzpClaim(): String {
-        try {
-            return this.tokenValidationContext.getJwtToken(AZUREATOR).jwtTokenClaims.getStringClaim("azp")!!
-        } catch (e: Exception) {
-            log.error("Fant ikke azp claim!", e)
-            throw UkjentClientException("ukjent feil", e)
-        }
+        return this.getTokenValidationContext().getJwtToken(AZUREATOR)?.jwtTokenClaims?.getStringClaim("azp")
+            ?: throw UkjentClientException("Fant ikke azp claim!")
     }
 
     private fun List<String>.ikkeInneholder(s: String): Boolean {
