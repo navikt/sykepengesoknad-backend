@@ -50,7 +50,6 @@ private fun Sporsmal.plasseringAvSporsmalSomKanRepeteresFlereGanger(): Int {
 
 fun settOppSykepengesoknadBehandlingsdager(
     opts: SettOppSoknadOptions,
-    toggle: Boolean = true,
 ): List<Sporsmal> {
     val (sykepengesoknad, erForsteSoknadISykeforlop, _, yrkesskade) = opts
 
@@ -67,11 +66,6 @@ fun settOppSykepengesoknadBehandlingsdager(
             }
             it.addAll(yrkesskade.yrkeskadeSporsmal())
             it.addAll(behandlingsdagerSporsmal(sykepengesoknad))
-            if (toggle) {
-                it.add(tilSlutt())
-            } else {
-                it.add(vaerKlarOverAtBehandlingsdager())
-                it.add(bekreftOpplysningerSporsmal())
-            }
+            it.add(tilSlutt())
         }.toList()
 }

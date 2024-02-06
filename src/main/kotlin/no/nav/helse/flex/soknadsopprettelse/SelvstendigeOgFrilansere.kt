@@ -21,7 +21,6 @@ import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
 fun settOppSoknadSelvstendigOgFrilanser(
     opts: SettOppSoknadOptions,
-    toggle: Boolean = true,
 ): List<Sporsmal> {
     val (sykepengesoknad, erForsteSoknadISykeforlop, harTidligereUtenlandskSpm, yrkesskade) = opts
     val erGradertReisetilskudd = sykepengesoknad.soknadstype == Soknadstype.GRADERT_REISETILSKUDD
@@ -37,12 +36,7 @@ fun settOppSoknadSelvstendigOgFrilanser(
         )
         add(andreInntektskilderSelvstendigOgFrilanser(sykepengesoknad.arbeidssituasjon!!))
         add(utlandsSporsmalSelvstendig(sykepengesoknad.fom!!, sykepengesoknad.tom!!))
-        if (toggle) {
-            add(tilSlutt())
-        } else {
-            add(bekreftOpplysningerSporsmal())
-            add(vaerKlarOverAt(erGradertReisetilskudd))
-        }
+        add(tilSlutt())
         addAll(
             jobbetDuIPeriodenSporsmalSelvstendigFrilanser(
                 sykepengesoknad.soknadPerioder!!,
