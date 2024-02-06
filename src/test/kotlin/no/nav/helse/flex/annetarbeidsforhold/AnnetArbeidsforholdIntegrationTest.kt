@@ -54,7 +54,7 @@ class AnnetArbeidsforholdIntegrationTest : FellesTestOppsett() {
                 ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER,
                 ARBEIDSLEDIG_UTLAND,
-                TIL_SLUTT
+                TIL_SLUTT,
             ),
         )
     }
