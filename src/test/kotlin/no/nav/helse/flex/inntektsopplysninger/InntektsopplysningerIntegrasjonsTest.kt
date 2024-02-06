@@ -138,7 +138,7 @@ class InntektsopplysningerIntegrasjonsTest : FellesTestOppsett() {
     @Test
     @Order(3)
     fun `Besvar og sendt inn søknad med inntektsopplysninger som ny i arbeidslivet`() {
-        InnsendingApiMockDispatcher.getRequests().shouldHaveSize(0)
+        InnsendingApiMockDispatcher.getOpprettEttersendingRequests().shouldHaveSize(0)
 
         val fnr = "99999999002"
         val lagretSoknad =
@@ -181,8 +181,10 @@ class InntektsopplysningerIntegrasjonsTest : FellesTestOppsett() {
         val kafkaSoknad = kafkaSoknader.first()
 
         kafkaSoknad.status shouldBeEqualTo SoknadsstatusDTO.SENDT
-        InnsendingApiMockDispatcher.getRequests().shouldHaveSize(1)
-        val lastRequest = InnsendingApiMockDispatcher.lastRequest()
+        InnsendingApiMockDispatcher.getOpprettEttersendingRequests().shouldHaveSize(1)
+        InnsendingApiMockDispatcher.getSlettEttersendingRequests().shouldHaveSize(0)
+
+        val lastRequest = InnsendingApiMockDispatcher.getOpprettEttersendingLastRequest()
         lastRequest.brukernotifikasjonstype shouldBeEqualTo "oppgave"
         lastRequest.vedleggsListe.shouldNotBeEmpty()
         lastRequest.tema shouldBeEqualTo "SYK"
@@ -223,7 +225,8 @@ class InntektsopplysningerIntegrasjonsTest : FellesTestOppsett() {
 
         kafkaSoknad.id shouldBeEqualTo korrigerendeSoknad.id
         kafkaSoknad.status shouldBeEqualTo SoknadsstatusDTO.SENDT
-        InnsendingApiMockDispatcher.getRequests().shouldHaveSize(1)
+        InnsendingApiMockDispatcher.getOpprettEttersendingRequests().shouldHaveSize(1)
+        InnsendingApiMockDispatcher.getSlettEttersendingRequests().shouldHaveSize(0)
     }
 
     @Test
@@ -280,13 +283,17 @@ class InntektsopplysningerIntegrasjonsTest : FellesTestOppsett() {
 
         kafkaSoknad.id shouldBeEqualTo korrigerendeSoknad.id
         kafkaSoknad.status shouldBeEqualTo SoknadsstatusDTO.SENDT
-        InnsendingApiMockDispatcher.getRequests().shouldHaveSize(1)
+        InnsendingApiMockDispatcher.getOpprettEttersendingRequests().shouldHaveSize(1)
+        InnsendingApiMockDispatcher.getSlettEttersendingRequests().shouldHaveSize(1)
+        InnsendingApiMockDispatcher.getSlettEttersendingRequests().last().requestLine shouldBeEqualTo
+            "DELETE /ekstern/v1/ettersending/${soknad.inntektsopplysningerInnsendingId} HTTP/1.1"
     }
 
     @Test
     @Order(6)
     fun `Korrigerer til søknad med større endring enn 25 prosent`() {
-        InnsendingApiMockDispatcher.getRequests().shouldHaveSize(1)
+        InnsendingApiMockDispatcher.getOpprettEttersendingRequests().shouldHaveSize(1)
+        InnsendingApiMockDispatcher.getSlettEttersendingRequests().shouldHaveSize(1)
 
         val fnr = "99999999002"
         val soknad = hentSoknader(fnr).first { it.status == RSSoknadstatus.SENDT }
@@ -321,7 +328,8 @@ class InntektsopplysningerIntegrasjonsTest : FellesTestOppsett() {
 
         kafkaSoknad.id shouldBeEqualTo korrigerendeSoknad.id
         kafkaSoknad.status shouldBeEqualTo SoknadsstatusDTO.SENDT
-        InnsendingApiMockDispatcher.getRequests().shouldHaveSize(2)
+        InnsendingApiMockDispatcher.getOpprettEttersendingRequests().shouldHaveSize(2)
+        InnsendingApiMockDispatcher.getSlettEttersendingRequests().shouldHaveSize(1)
     }
 
     private fun hentSoknadSomKanBesvares(fnr: String): Pair<RSSykepengesoknad, SoknadBesvarer> {
