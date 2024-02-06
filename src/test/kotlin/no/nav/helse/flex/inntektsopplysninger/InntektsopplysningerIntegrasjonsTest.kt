@@ -72,8 +72,7 @@ class InntektsopplysningerIntegrasjonsTest : FellesTestOppsett() {
                 ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER,
                 UTLAND,
-                VAER_KLAR_OVER_AT,
-                BEKREFT_OPPLYSNINGER,
+                TIL_SLUTT,
             ),
         )
     }
@@ -111,8 +110,7 @@ class InntektsopplysningerIntegrasjonsTest : FellesTestOppsett() {
                 ANDRE_INNTEKTSKILDER,
                 UTLAND,
                 INNTEKTSOPPLYSNINGER_DRIFT_VIRKSOMHETEN,
-                VAER_KLAR_OVER_AT,
-                BEKREFT_OPPLYSNINGER,
+                TIL_SLUTT,
             ),
         )
         soknad.sporsmal.flatten().first { it.tag == INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE }

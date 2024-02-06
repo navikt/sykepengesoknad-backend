@@ -54,8 +54,7 @@ class AnnetArbeidsforholdIntegrationTest : FellesTestOppsett() {
                 ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER,
                 ARBEIDSLEDIG_UTLAND,
-                VAER_KLAR_OVER_AT,
-                BEKREFT_OPPLYSNINGER,
+                TIL_SLUTT
             ),
         )
     }
@@ -150,8 +149,7 @@ class AnnetArbeidsforholdIntegrationTest : FellesTestOppsett() {
                 ANSVARSERKLARING,
                 FRISKMELDT,
                 ARBEID_UTENFOR_NORGE,
-                VAER_KLAR_OVER_AT,
-                BEKREFT_OPPLYSNINGER,
+                TIL_SLUTT,
             ),
         )
 

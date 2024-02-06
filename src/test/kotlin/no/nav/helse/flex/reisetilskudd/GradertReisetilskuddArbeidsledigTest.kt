@@ -101,8 +101,7 @@ class GradertReisetilskuddArbeidsledigTest : FellesTestOppsett() {
                 ANDRE_INNTEKTSKILDER,
                 ARBEIDSLEDIG_UTLAND,
                 BRUKTE_REISETILSKUDDET,
-                VAER_KLAR_OVER_AT,
-                BEKREFT_OPPLYSNINGER,
+                TIL_SLUTT,
             ),
         )
     }

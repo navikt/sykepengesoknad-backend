@@ -106,8 +106,7 @@ class GradertReisetilskuddFrilanserTest : FellesTestOppsett() {
                 ANDRE_INNTEKTSKILDER,
                 UTLAND,
                 BRUKTE_REISETILSKUDDET,
-                VAER_KLAR_OVER_AT,
-                BEKREFT_OPPLYSNINGER,
+                TIL_SLUTT,
             ),
         )
     }
@@ -145,8 +144,7 @@ class GradertReisetilskuddFrilanserTest : FellesTestOppsett() {
                 TRANSPORT_TIL_DAGLIG,
                 REISE_MED_BIL,
                 KVITTERINGER,
-                VAER_KLAR_OVER_AT,
-                BEKREFT_OPPLYSNINGER,
+                TIL_SLUTT,
             ),
         )
     }
