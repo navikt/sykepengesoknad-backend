@@ -28,7 +28,6 @@ import no.nav.helse.flex.testdata.reisetilskudd
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
-import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL
 import no.nav.helse.flex.util.DatoUtil
 import no.nav.helse.flex.util.OBJECT_MAPPER
 import no.nav.helse.flex.ventPåRecords
@@ -75,8 +74,6 @@ class OverlapperEtter : FellesTestOppsett() {
     @Test
     @Order(1)
     fun `Fremtidig arbeidstakersøknad opprettes for en sykmelding`() {
-        fakeUnleash.resetAll()
-        fakeUnleash.enable(UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL)
         val kafkaSoknader =
             sendSykmelding(
                 sykmeldingKafkaMessage(

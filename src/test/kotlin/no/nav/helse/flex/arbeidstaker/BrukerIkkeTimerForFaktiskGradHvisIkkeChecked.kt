@@ -16,10 +16,8 @@ import no.nav.helse.flex.testdata.gradertSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
-import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL
 import no.nav.helse.flex.ventPåRecords
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
@@ -27,11 +25,6 @@ import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.MethodName::class)
 class BrukerIkkeTimerForFaktiskGradHvisIkkeChecked : FellesTestOppsett() {
-    @BeforeAll
-    fun configureUnleash() {
-        fakeUnleash.resetAll()
-        fakeUnleash.enable(UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL)
-    }
 
     private val fnr = "12345678900"
     private val start = LocalDate.of(2020, 9, 22)

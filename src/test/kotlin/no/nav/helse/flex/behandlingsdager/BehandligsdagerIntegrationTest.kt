@@ -20,7 +20,6 @@ import no.nav.helse.flex.testdata.behandingsdager
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
-import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL
 import no.nav.helse.flex.ventPåRecords
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
@@ -41,8 +40,6 @@ class BehandligsdagerIntegrationTest : FellesTestOppsett() {
     @Test
     @Order(1)
     fun `behandingsdagsøknad opprettes for en lang sykmelding`() {
-        fakeUnleash.resetAll()
-        fakeUnleash.enable(UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL)
         val kafkaSoknader =
             sendSykmelding(
                 sykmeldingKafkaMessage(

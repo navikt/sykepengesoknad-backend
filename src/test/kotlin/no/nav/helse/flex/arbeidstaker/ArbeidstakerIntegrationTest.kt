@@ -11,7 +11,6 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
-import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL
 import no.nav.helse.flex.util.tilOsloLocalDateTime
 import no.nav.syfo.model.Merknad
 import org.amshove.kluent.*
@@ -30,13 +29,6 @@ class ArbeidstakerIntegrationTest : FellesTestOppsett() {
     private val fnr = "12345678900"
     private val basisdato = LocalDate.of(2021, 9, 1)
     private val oppfolgingsdato = basisdato.minusDays(20)
-
-    @BeforeEach
-    fun setup() {
-        fakeUnleash.resetAll()
-        fakeUnleash.enable(UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL)
-    }
-
     @Test
     @Order(1)
     fun `Arbeidstakersøknader opprettes for en lang sykmelding`() {
@@ -166,8 +158,6 @@ class ArbeidstakerIntegrationTest : FellesTestOppsett() {
     @Test
     @Order(5)
     fun `Den nyeste søknaden kan ikke sendes først`() {
-        fakeUnleash.resetAll()
-        fakeUnleash.enable(UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL)
         val soknaden =
             hentSoknad(
                 soknadId = hentSoknaderMetadata(fnr).filter { it.status == RSSoknadstatus.NY }.sortedBy { it.fom }.last().id,
