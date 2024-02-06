@@ -47,6 +47,21 @@ class InnsendingApiClient(
         log.error(message)
         throw RuntimeException(message)
     }
+
+    fun slett(innsendingsId: String) {
+        val uriBuilder =
+            UriComponentsBuilder.fromHttpUrl("$url/ekstern/v1/ettersending/$innsendingsId")
+
+        try {
+            innsendingApiRestTemplate
+                .delete(
+                    uriBuilder.toUriString(),
+                )
+        } catch (e: Exception) {
+            log.error("Feil ved sletting av innsending", e)
+            throw e
+        }
+    }
 }
 
 data class EttersendingRequest(

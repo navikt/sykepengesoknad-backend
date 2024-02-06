@@ -80,6 +80,13 @@ class InntektsopplysningForNaringsdrivende(
                     inntektsopplysningerInnsendingDokumenter = dokumenter.joinToString(","),
                 )
             } else {
+                if (soknad.korrigerer != null) {
+                    val korrigertSoknad =
+                        sykepengesoknadRepository.findBySykepengesoknadUuid(soknad.korrigerer)
+                    if (korrigertSoknad?.inntektsopplysningerInnsendingId != null) {
+                        innsendingApiClient.slett(korrigertSoknad.inntektsopplysningerInnsendingId)
+                    }
+                }
                 return sykepengesoknadDbRecord.copy(
                     inntektsopplysningerNyKvittering = visNyKvittering,
                 )

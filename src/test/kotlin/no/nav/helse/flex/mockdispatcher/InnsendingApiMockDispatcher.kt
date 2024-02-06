@@ -3,6 +3,7 @@ package no.nav.helse.flex.mockdispatcher
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.client.innsendingapi.EttersendingRequest
 import no.nav.helse.flex.client.innsendingapi.EttersendingResponse
+import no.nav.helse.flex.logger
 import no.nav.helse.flex.util.OBJECT_MAPPER
 import no.nav.helse.flex.util.serialisertTilString
 import okhttp3.mockwebserver.MockResponse
@@ -12,11 +13,11 @@ import org.springframework.http.MediaType
 import java.util.UUID
 
 object InnsendingApiMockDispatcher : QueueDispatcher() {
-    private val requests = mutableListOf<RecordedRequest>()
+    private val opprettEttersendRequests = mutableListOf<RecordedRequest>()
+    private val slettEttersendingRequests = mutableListOf<RecordedRequest>()
+    val log = logger()
 
     override fun dispatch(request: RecordedRequest): MockResponse {
-        requests.add(request)
-
         fun withContentTypeApplicationJson(createMockResponse: () -> MockResponse): MockResponse =
             createMockResponse().addHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
 
@@ -24,18 +25,37 @@ object InnsendingApiMockDispatcher : QueueDispatcher() {
             return withContentTypeApplicationJson { responseQueue.take() }
         }
 
-        return withContentTypeApplicationJson {
-            MockResponse().setResponseCode(200).setBody(
-                EttersendingResponse(
-                    innsendingsId = UUID.randomUUID().toString(),
-                ).serialisertTilString(),
-            )
+        return if (request.requestLine == "POST /ekstern/v1/ettersending HTTP/1.1") {
+            opprettEttersendRequests.add(request)
+
+            withContentTypeApplicationJson {
+                MockResponse().setResponseCode(200).setBody(
+                    EttersendingResponse(
+                        innsendingsId = UUID.randomUUID().toString(),
+                    ).serialisertTilString(),
+                )
+            }
+        } else if (request.requestLine.startsWith("DELETE /ekstern/v1/ettersending/")) {
+            slettEttersendingRequests.add(request)
+            withContentTypeApplicationJson {
+                MockResponse().setResponseCode(200).setBody(
+                    """{
+                      "status": "null",
+                      "info": "null"
+                    }""",
+                )
+            }
+        } else {
+            log.error("Ukjent api: " + request.requestLine)
+            MockResponse().setResponseCode(404)
         }
     }
 
-    fun getRequests(): List<RecordedRequest> = requests.toList()
+    fun getOpprettEttersendingRequests(): List<RecordedRequest> = opprettEttersendRequests.toList()
 
-    fun lastRequest(): EttersendingRequest {
-        return OBJECT_MAPPER.readValue(requests.last().body.readUtf8())
+    fun getSlettEttersendingRequests(): List<RecordedRequest> = slettEttersendingRequests.toList()
+
+    fun getOpprettEttersendingLastRequest(): EttersendingRequest {
+        return OBJECT_MAPPER.readValue(opprettEttersendRequests.last().body.readUtf8())
     }
 }
