@@ -20,6 +20,7 @@ import java.time.LocalDate
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class FaktiskGradUtregningNyttArbeidUnderveisSporsmalTest : FellesTestOppsett() {
     private val fnr = "12345678900"
+
     @Test
     fun `Jobbet 18,75 timer og normalarbeidsuke gir faktisk grad 50 prosent`() {
         sendSykmelding(

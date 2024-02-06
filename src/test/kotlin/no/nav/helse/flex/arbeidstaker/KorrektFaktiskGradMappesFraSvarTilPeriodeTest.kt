@@ -29,7 +29,6 @@ import no.nav.syfo.model.sykmelding.model.GradertDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import org.amshove.kluent.`should be equal to`
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
@@ -38,7 +37,6 @@ import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.MethodName::class)
 class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : FellesTestOppsett() {
-
     private val fnr = "12345678900"
 
     @Test

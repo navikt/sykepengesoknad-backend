@@ -25,7 +25,6 @@ import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.MethodName::class)
 class BrukerIkkeTimerForFaktiskGradHvisIkkeChecked : FellesTestOppsett() {
-
     private val fnr = "12345678900"
     private val start = LocalDate.of(2020, 9, 22)
     private val slutt = LocalDate.of(2020, 10, 10)

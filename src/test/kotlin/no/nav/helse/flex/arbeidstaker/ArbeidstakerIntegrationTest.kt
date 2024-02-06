@@ -29,6 +29,7 @@ class ArbeidstakerIntegrationTest : FellesTestOppsett() {
     private val fnr = "12345678900"
     private val basisdato = LocalDate.of(2021, 9, 1)
     private val oppfolgingsdato = basisdato.minusDays(20)
+
     @Test
     @Order(1)
     fun `Arbeidstakersøknader opprettes for en lang sykmelding`() {

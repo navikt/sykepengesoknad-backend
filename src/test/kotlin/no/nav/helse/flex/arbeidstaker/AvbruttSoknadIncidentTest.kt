@@ -29,6 +29,7 @@ class AvbruttSoknadIncidentTest : FellesTestOppsett() {
 
     private val fnr = "12345678900"
     private val basisdato = LocalDate.of(2021, 9, 1)
+
     @Test
     fun `1 - arbeidstakersøknad opprettes for en lang sykmelding`() {
         val kafkaSoknader =

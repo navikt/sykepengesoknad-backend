@@ -19,9 +19,7 @@ import no.nav.helse.flex.util.DatoUtil.formatterPeriode
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
-fun settOppSoknadSelvstendigOgFrilanser(
-    opts: SettOppSoknadOptions,
-): List<Sporsmal> {
+fun settOppSoknadSelvstendigOgFrilanser(opts: SettOppSoknadOptions): List<Sporsmal> {
     val (sykepengesoknad, erForsteSoknadISykeforlop, harTidligereUtenlandskSpm, yrkesskade) = opts
     val erGradertReisetilskudd = sykepengesoknad.soknadstype == Soknadstype.GRADERT_REISETILSKUDD
 
