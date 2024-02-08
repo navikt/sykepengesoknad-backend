@@ -77,6 +77,7 @@ class GjenapneSykmeldingIntegrationMedTombstoneTest : FellesTestOppsett() {
             .besvarSporsmal(tag = "ARBEIDSLEDIG_UTLAND", svar = "NEI")
             .besvarSporsmal(tag = "ARBEID_UTENFOR_NORGE", svar = "NEI")
             .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER", svar = "NEI")
+            .besvarSporsmal(tag = "TIL_SLUTT", svar = "svar 1, og 2", ferdigBesvart = false)
             .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
             .sendSoknad()
 

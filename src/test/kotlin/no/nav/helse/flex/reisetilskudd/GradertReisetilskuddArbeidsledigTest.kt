@@ -92,7 +92,6 @@ class GradertReisetilskuddArbeidsledigTest : FellesTestOppsett() {
                 fnr = fnr,
             )
 
-        assertThat(soknaden.sporsmal!!.first { it.tag == VAER_KLAR_OVER_AT }.undertekst).contains("sykepenger og reisetilskudd")
         assertThat(soknaden.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
                 ANSVARSERKLARING,
@@ -114,7 +113,7 @@ class GradertReisetilskuddArbeidsledigTest : FellesTestOppsett() {
                 fnr = fnr,
             ).first()
 
-        reisetilskudd.sporsmal!!.shouldHaveSize(8)
+        reisetilskudd.sporsmal!!.shouldHaveSize(7)
         SoknadBesvarer(reisetilskudd, this, fnr)
             .besvarSporsmal(FRISKMELDT, "NEI", ferdigBesvart = false)
             .besvarSporsmal(FRISKMELDT_START, fom.format(DateTimeFormatter.ISO_LOCAL_DATE), ferdigBesvart = true, mutert = true)
@@ -123,13 +122,13 @@ class GradertReisetilskuddArbeidsledigTest : FellesTestOppsett() {
                 fnr = fnr,
             ).first()
 
-        soknadEtterOppdatering.sporsmal!!.shouldHaveSize(6)
+        soknadEtterOppdatering.sporsmal!!.shouldHaveSize(5)
 
         SoknadBesvarer(soknadEtterOppdatering, this, fnr)
             .besvarSporsmal(FRISKMELDT, "JA", mutert = true)
 
         hentSoknader(
             fnr = fnr,
-        ).first().sporsmal!!.shouldHaveSize(8)
+        ).first().sporsmal!!.shouldHaveSize(7)
     }
 }

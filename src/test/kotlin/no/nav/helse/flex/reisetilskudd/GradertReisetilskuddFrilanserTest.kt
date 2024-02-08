@@ -96,7 +96,6 @@ class GradertReisetilskuddFrilanserTest : FellesTestOppsett() {
                 fnr = fnr,
             )
 
-        assertThat(soknaden.sporsmal!!.first { it.tag == VAER_KLAR_OVER_AT }.undertekst).contains("sykepenger og reisetilskudd")
         assertThat(soknaden.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
                 ANSVARSERKLARING,

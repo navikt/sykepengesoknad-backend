@@ -131,8 +131,7 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
                         ANSVARSERKLARING,
                         FRISKMELDT,
                         ARBEID_UTENFOR_NORGE,
-                        VAER_KLAR_OVER_AT,
-                        BEKREFT_OPPLYSNINGER,
+                        TIL_SLUTT,
                     ),
                 )
             }
@@ -160,8 +159,7 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
                         ARBEID_UTENFOR_NORGE,
                         ANDRE_INNTEKTSKILDER,
                         ARBEIDSLEDIG_UTLAND,
-                        VAER_KLAR_OVER_AT,
-                        BEKREFT_OPPLYSNINGER,
+                        TIL_SLUTT,
                     ),
                 )
             }
@@ -189,6 +187,7 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
             .besvarSporsmal(ARBEID_UTENFOR_NORGE, "JA")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER, "NEI")
             .besvarSporsmal(ARBEIDSLEDIG_UTLAND, "NEI")
+            .besvarSporsmal(TIL_SLUTT, "Skal si ifra om noe endrer seg", ferdigBesvart = false)
             .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
     }
 

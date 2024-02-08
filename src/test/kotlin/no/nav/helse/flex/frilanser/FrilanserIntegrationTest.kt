@@ -115,8 +115,7 @@ class FrilanserIntegrationTest : FellesTestOppsett() {
                         TILBAKE_I_ARBEID,
                         ARBEID_UTENFOR_NORGE,
                         ANDRE_INNTEKTSKILDER,
-                        VAER_KLAR_OVER_AT,
-                        BEKREFT_OPPLYSNINGER,
+                        TIL_SLUTT,
                     ),
                 )
             }
@@ -142,8 +141,7 @@ class FrilanserIntegrationTest : FellesTestOppsett() {
                         ARBEID_UTENFOR_NORGE,
                         ANDRE_INNTEKTSKILDER,
                         UTLAND,
-                        VAER_KLAR_OVER_AT,
-                        BEKREFT_OPPLYSNINGER,
+                        TIL_SLUTT,
                     ),
                 )
 
@@ -192,6 +190,7 @@ class FrilanserIntegrationTest : FellesTestOppsett() {
             .besvarSporsmal(ARBEID_UTENFOR_NORGE, "NEI", mutert = false)
             .besvarSporsmal(ANDRE_INNTEKTSKILDER, "NEI", mutert = false)
             .besvarSporsmal(UTLAND, "NEI", mutert = false)
+            .besvarSporsmal(TIL_SLUTT, "punkt 1, 2 ... 5", ferdigBesvart = false)
             .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED", mutert = false)
             .also {
                 assertThat(it.muterteSoknaden).isFalse()
