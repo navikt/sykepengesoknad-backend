@@ -214,12 +214,17 @@ class SporsmalGenerator(
                 ),
             )
         }.onFailure { e ->
-            // TODO: Kast exception i prod når vi har kontroll på at AAREG og LovMe håndterer timeouts.
-            log.warn(
-                "Henting av medlemskapvurdering feilet for søknad ${soknad.id}, men vi er i DEV og gjør ikke" +
-                    "noe med det annet enn å returnere en tom liste med spørsmål.",
-                e,
-            )
+            // Vi kaster exception i PROD, men logger bare og returnerer tom liste i DEV siden det er såpass
+            // mange brukere som ikke finnes i PDL, som igjen gjør at LovMe ikke får gjort oppslag.
+            if (environmentToggles.isProduction()) {
+                throw e
+            } else {
+                log.warn(
+                    "Henting av medlemskapvurdering feilet for søknad ${soknad.id}, men vi er i DEV og gjør ikke" +
+                        "noe med det annet enn å returnere en tom liste med spørsmål.",
+                    e,
+                )
+            }
         }.getOrNull()
     }
 }
