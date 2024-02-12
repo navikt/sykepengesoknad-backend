@@ -9,28 +9,23 @@ import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL
 import no.nav.helse.flex.util.flatten
-import org.amshove.kluent.*
-import org.junit.jupiter.api.MethodOrderer
-import org.junit.jupiter.api.Order
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestMethodOrder
-import org.springframework.beans.factory.annotation.Autowired
+import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
+import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
+import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.`should be false`
+import org.amshove.kluent.`should be true`
+import org.junit.jupiter.api.*
 import java.time.LocalDate
-import java.util.UUID
+import java.util.*
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class YrkesskadeIntegrationTest : FellesTestOppsett() {
-    @Autowired
-    private lateinit var yrkesskadeIndikatorer: YrkesskadeIndikatorer
-
     private final val basisdato = LocalDate.of(2021, 9, 1)
-
     private val sykmeldingIdMedYrkesskade = UUID.randomUUID().toString()
-
     private val fnr = "12345678900"
 
     @Test
-    @Order(1)
+    @BeforeAll
     fun `Køer opp yrkesskaderesponse`() {
         fakeUnleash.resetAll()
         fakeUnleash.enable(UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL)
@@ -134,6 +129,35 @@ class YrkesskadeIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
+    @Order(5)
+    fun `Behandlingsdagersøknad for sykmelding med yrkesskade opprettes uten yrkesskadespørsmål i seg`() {
+        val kafkaSoknader =
+            sendSykmelding(
+                sykmeldingKafkaMessage(
+                    sykmeldingId = UUID.randomUUID().toString(),
+                    fnr = fnr,
+                    sykmeldingsperioder =
+                        listOf(
+                            SykmeldingsperiodeAGDTO(
+                                fom = LocalDate.of(2020, 1, 1),
+                                tom = LocalDate.of(2020, 1, 20),
+                                type = PeriodetypeDTO.BEHANDLINGSDAGER,
+                                reisetilskudd = false,
+                                aktivitetIkkeMulig = null,
+                                behandlingsdager = 1,
+                                gradert = null,
+                                innspillTilArbeidsgiver = null,
+                            ),
+                        ),
+                ),
+                forventaSoknader = 1,
+            )
+
+        kafkaSoknader.first().sporsmal!!.any { it.tag == "YRKESSKADE_V2" }.`should be false`()
+        kafkaSoknader.first().sporsmal!!.any { it.tag == "YRKESSKADE" }.`should be false`()
+    }
+
+    @Test
     @Order(3)
     fun `Svarer ja på spørsmålet om yrkesskade`() {
         mockFlexSyketilfelleArbeidsgiverperiode()
@@ -159,7 +183,7 @@ class YrkesskadeIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    @Order(6)
+    @Order(4)
     fun `4 juridiske vurderinger`() {
         juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
     }

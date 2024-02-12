@@ -65,7 +65,6 @@ fun settOppSykepengesoknadBehandlingsdager(
             if (sykepengesoknad.arbeidssituasjon == ARBEIDSTAKER) {
                 it.add(ferieSporsmal(sykepengesoknad.fom!!, sykepengesoknad.tom!!))
             }
-            it.addAll(yrkesskade.yrkeskadeSporsmal())
             it.addAll(behandlingsdagerSporsmal(sykepengesoknad))
             if (toggle) {
                 it.add(tilSlutt())
