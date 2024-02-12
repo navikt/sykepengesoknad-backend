@@ -52,7 +52,7 @@ fun settOppSykepengesoknadBehandlingsdager(
     opts: SettOppSoknadOptions,
     toggle: Boolean = true,
 ): List<Sporsmal> {
-    val (sykepengesoknad, erForsteSoknadISykeforlop, _, yrkesskade) = opts
+    val (sykepengesoknad, erForsteSoknadISykeforlop, _, _) = opts
 
     return mutableListOf(
         ansvarserklaringSporsmal(),
