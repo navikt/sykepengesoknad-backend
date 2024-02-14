@@ -96,7 +96,6 @@ class GradertReisetilskuddFrilanserTest : FellesTestOppsett() {
                 fnr = fnr,
             )
 
-        assertThat(soknaden.sporsmal!!.first { it.tag == VAER_KLAR_OVER_AT }.undertekst).contains("sykepenger og reisetilskudd")
         assertThat(soknaden.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
                 ANSVARSERKLARING,
@@ -106,8 +105,7 @@ class GradertReisetilskuddFrilanserTest : FellesTestOppsett() {
                 ANDRE_INNTEKTSKILDER,
                 UTLAND,
                 BRUKTE_REISETILSKUDDET,
-                VAER_KLAR_OVER_AT,
-                BEKREFT_OPPLYSNINGER,
+                TIL_SLUTT,
             ),
         )
     }
@@ -145,8 +143,7 @@ class GradertReisetilskuddFrilanserTest : FellesTestOppsett() {
                 TRANSPORT_TIL_DAGLIG,
                 REISE_MED_BIL,
                 KVITTERINGER,
-                VAER_KLAR_OVER_AT,
-                BEKREFT_OPPLYSNINGER,
+                TIL_SLUTT,
             ),
         )
     }

@@ -26,20 +26,13 @@ fun Sporsmal.plasseringSporsmalUtland(): Int {
     }
 }
 
-fun settOppSoknadOppholdUtland(
-    fnr: String,
-    toggle: Boolean = true,
-): Sykepengesoknad {
+fun settOppSoknadOppholdUtland(fnr: String): Sykepengesoknad {
     val sporsmal =
         mutableListOf<Sporsmal>().apply {
             add(periodeSporsmal())
             add(landSporsmal())
             add(arbeidsgiverSporsmal())
-            if (toggle) {
-                add(tilSlutt())
-            } else {
-                add(bekreftSporsmal(false))
-            }
+            add(tilSlutt())
         }
 
     return Sykepengesoknad(

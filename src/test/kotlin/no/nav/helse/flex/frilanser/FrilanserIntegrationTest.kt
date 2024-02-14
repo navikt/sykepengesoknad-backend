@@ -8,16 +8,7 @@ import no.nav.helse.flex.hentSoknader
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.sendSoknad
 import no.nav.helse.flex.sendSykmelding
-import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER
-import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
-import no.nav.helse.flex.soknadsopprettelse.ARBEID_UTENFOR_NORGE
-import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
-import no.nav.helse.flex.soknadsopprettelse.PERIODER
-import no.nav.helse.flex.soknadsopprettelse.TILBAKE_I_ARBEID
-import no.nav.helse.flex.soknadsopprettelse.TILBAKE_NAR
-import no.nav.helse.flex.soknadsopprettelse.UTLAND
-import no.nav.helse.flex.soknadsopprettelse.UTLANDSOPPHOLD_SOKT_SYKEPENGER
-import no.nav.helse.flex.soknadsopprettelse.VAER_KLAR_OVER_AT
+import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
@@ -68,8 +59,7 @@ class FrilanserIntegrationTest : FellesTestOppsett() {
                 ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER,
                 UTLAND,
-                VAER_KLAR_OVER_AT,
-                BEKREFT_OPPLYSNINGER,
+                TIL_SLUTT,
             ),
         )
     }
@@ -97,8 +87,7 @@ class FrilanserIntegrationTest : FellesTestOppsett() {
                 ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER,
                 UTLAND,
-                VAER_KLAR_OVER_AT,
-                BEKREFT_OPPLYSNINGER,
+                TIL_SLUTT,
             ),
         )
     }
@@ -126,8 +115,7 @@ class FrilanserIntegrationTest : FellesTestOppsett() {
                         TILBAKE_I_ARBEID,
                         ARBEID_UTENFOR_NORGE,
                         ANDRE_INNTEKTSKILDER,
-                        VAER_KLAR_OVER_AT,
-                        BEKREFT_OPPLYSNINGER,
+                        TIL_SLUTT,
                     ),
                 )
             }
@@ -153,8 +141,7 @@ class FrilanserIntegrationTest : FellesTestOppsett() {
                         ARBEID_UTENFOR_NORGE,
                         ANDRE_INNTEKTSKILDER,
                         UTLAND,
-                        VAER_KLAR_OVER_AT,
-                        BEKREFT_OPPLYSNINGER,
+                        TIL_SLUTT,
                     ),
                 )
 
@@ -203,6 +190,7 @@ class FrilanserIntegrationTest : FellesTestOppsett() {
             .besvarSporsmal(ARBEID_UTENFOR_NORGE, "NEI", mutert = false)
             .besvarSporsmal(ANDRE_INNTEKTSKILDER, "NEI", mutert = false)
             .besvarSporsmal(UTLAND, "NEI", mutert = false)
+            .besvarSporsmal(TIL_SLUTT, "punkt 1, 2 ... 5", ferdigBesvart = false)
             .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED", mutert = false)
             .also {
                 assertThat(it.muterteSoknaden).isFalse()

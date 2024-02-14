@@ -7,7 +7,6 @@ import no.nav.helse.flex.mockdispatcher.YrkesskadeMockDispatcher
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
-import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL
 import no.nav.helse.flex.util.flatten
 import org.amshove.kluent.*
 import org.junit.jupiter.api.MethodOrderer
@@ -32,8 +31,6 @@ class YrkesskadeIntegrationTest : FellesTestOppsett() {
     @Test
     @Order(1)
     fun `Køer opp yrkesskaderesponse`() {
-        fakeUnleash.resetAll()
-        fakeUnleash.enable(UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL)
         YrkesskadeMockDispatcher.queuedSakerRespons.add(
             SakerResponse(
                 listOf(

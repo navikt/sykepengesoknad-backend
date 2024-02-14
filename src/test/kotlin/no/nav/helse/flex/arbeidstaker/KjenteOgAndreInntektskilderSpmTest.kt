@@ -14,7 +14,6 @@ import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_KJENTE_INNTEKTSKILDER
-import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL
 import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should be null`
@@ -33,7 +32,6 @@ class KjenteOgAndreInntektskilderSpmTest : FellesTestOppsett() {
     fun `Arbeidstakersøknader opprettes for en lang sykmelding`() {
         fakeUnleash.resetAll()
         fakeUnleash.enable(UNLEASH_CONTEXT_KJENTE_INNTEKTSKILDER)
-        fakeUnleash.enable(UNLEASH_CONTEXT_TIL_SLUTT_SPORSMAL)
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
