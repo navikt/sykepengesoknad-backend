@@ -5,10 +5,7 @@ import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.utenlandsksykmelding.utenlandskSykmeldingSporsmal
 
-fun settOppSoknadAnnetArbeidsforhold(
-    opts: SettOppSoknadOptions,
-    toggle: Boolean = true,
-): List<Sporsmal> {
+fun settOppSoknadAnnetArbeidsforhold(opts: SettOppSoknadOptions): List<Sporsmal> {
     val (sykepengesoknad, erForsteSoknadISykeforlop, harTidligereUtenlandskSpm, yrkesskade) = opts
     val erGradertReisetilskudd = sykepengesoknad.soknadstype == Soknadstype.GRADERT_REISETILSKUDD
 
@@ -18,12 +15,7 @@ fun settOppSoknadAnnetArbeidsforhold(
         add(friskmeldingSporsmal(sykepengesoknad.fom, sykepengesoknad.tom))
         add(permisjonSporsmal(sykepengesoknad.fom, sykepengesoknad.tom))
         add(utenlandsoppholdArbeidsledigAnnetSporsmal(sykepengesoknad.fom, sykepengesoknad.tom))
-        if (toggle) {
-            add(tilSlutt())
-        } else {
-            add(vaerKlarOverAt(erGradertReisetilskudd))
-            add(bekreftOpplysningerSporsmal())
-        }
+        add(tilSlutt())
 
         if (erForsteSoknadISykeforlop) {
             add(arbeidUtenforNorge())

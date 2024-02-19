@@ -6,13 +6,7 @@ import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.korrigerSoknadMedResult
 import no.nav.helse.flex.opprettUtlandssoknad
 import no.nav.helse.flex.sendSoknadMedResult
-import no.nav.helse.flex.soknadsopprettelse.ARBEIDSGIVER
-import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER_UTLAND
-import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER_UTLAND_INFO
-import no.nav.helse.flex.soknadsopprettelse.FERIE
-import no.nav.helse.flex.soknadsopprettelse.LAND
-import no.nav.helse.flex.soknadsopprettelse.PERIODEUTLAND
-import no.nav.helse.flex.soknadsopprettelse.SYKMELDINGSGRAD
+import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.testutil.SoknadBesvarer
@@ -60,7 +54,7 @@ class OppholdUtlandIntegrationTest : FellesTestOppsett() {
                 PERIODEUTLAND,
                 LAND,
                 ARBEIDSGIVER,
-                BEKREFT_OPPLYSNINGER_UTLAND_INFO,
+                TIL_SLUTT,
             ),
         )
     }
@@ -121,36 +115,24 @@ class OppholdUtlandIntegrationTest : FellesTestOppsett() {
                 fnr = fnr,
             )
 
-        assertThat(soknad.getSporsmalMedTag(BEKREFT_OPPLYSNINGER_UTLAND_INFO).undertekst).isEqualTo(
-            """
-            <ul>
-                <li>Jeg har avklart med legen at reisen ikke vil forlenge sykefraværet</li>
-                <li>Reisen hindrer ikke planlagt behandling eller avtaler med NAV</li>
-            </ul>
-            """.trimIndent(),
-        )
         SoknadBesvarer(soknad, this, fnr)
             .besvarSporsmal(ARBEIDSGIVER, svar = "JA", ferdigBesvart = false)
             .besvarSporsmal(SYKMELDINGSGRAD, "JA", ferdigBesvart = false)
-            .besvarSporsmal(FERIE, "JA", mutert = true)
+            .besvarSporsmal(FERIE, "JA", mutert = true, ferdigBesvart = false)
+            .besvarSporsmal(TIL_SLUTT, "svar", ferdigBesvart = false)
+            .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
 
         val soknadEtter =
             hentSoknad(
                 soknadId = hentSoknaderMetadata(fnr).first().id,
                 fnr = fnr,
             )
-        assertThat(soknadEtter.getSporsmalMedTag(BEKREFT_OPPLYSNINGER_UTLAND_INFO).undertekst).isEqualTo(
-            """
-            <ul>
-                <li>Jeg har avklart med legen at reisen ikke vil forlenge sykefraværet</li>
-                <li>Reisen hindrer ikke planlagt behandling eller avtaler med NAV</li>
-            <li>Reisen er avklart med arbeidsgiveren min</li></ul>
-            """.trimIndent(),
-        )
 
         SoknadBesvarer(soknadEtter, this, fnr)
             .besvarSporsmal(FERIE, svar = "NEI", ferdigBesvart = false)
-            .besvarSporsmal(ARBEIDSGIVER, svar = "NEI", mutert = true)
+            .besvarSporsmal(ARBEIDSGIVER, svar = "NEI", ferdigBesvart = false)
+            .besvarSporsmal(TIL_SLUTT, "svar", ferdigBesvart = false)
+            .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
     }
 
     @Test
@@ -161,16 +143,15 @@ class OppholdUtlandIntegrationTest : FellesTestOppsett() {
                 fnr = fnr,
             )
         SoknadBesvarer(soknad, this, fnr)
-            .besvarSporsmal(BEKREFT_OPPLYSNINGER_UTLAND, svar = "CHECKED")
+            .besvarSporsmal(TIL_SLUTT, svar = "svar", ferdigBesvart = false)
+            .besvarSporsmal(BEKREFT_OPPLYSNINGER, svar = "CHECKED")
 
         val soknadEtter =
             hentSoknad(
                 soknadId = hentSoknaderMetadata(fnr).first().id,
                 fnr = fnr,
             )
-        assertThat(soknadEtter.getSporsmalMedTag(BEKREFT_OPPLYSNINGER_UTLAND).svar.map { it.verdi }).isEqualTo(
-            listOf("CHECKED"),
-        )
+        assertThat(soknadEtter.sporsmal?.last()?.undersporsmal?.get(0)?.tag).isEqualTo("BEKREFT_OPPLYSNINGER")
     }
 
     @Test

@@ -7,13 +7,7 @@ import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.mockIstilgangskontroll
 import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.skapAzureJwt
-import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER
-import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
-import no.nav.helse.flex.soknadsopprettelse.ARBEIDSLEDIG_UTLAND
-import no.nav.helse.flex.soknadsopprettelse.ARBEID_UTENFOR_NORGE
-import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
-import no.nav.helse.flex.soknadsopprettelse.FRISKMELDT
-import no.nav.helse.flex.soknadsopprettelse.VAER_KLAR_OVER_AT
+import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.util.OBJECT_MAPPER
 import org.amshove.kluent.`should be equal to`
@@ -54,8 +48,7 @@ class VeilederOboIntegrationTest : FellesTestOppsett() {
                 ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER,
                 ARBEIDSLEDIG_UTLAND,
-                VAER_KLAR_OVER_AT,
-                BEKREFT_OPPLYSNINGER,
+                TIL_SLUTT,
             ),
         )
         istilgangskontrollMockRestServiceServer.verify()

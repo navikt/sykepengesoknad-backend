@@ -66,11 +66,6 @@ fun settOppSykepengesoknadBehandlingsdager(
                 it.add(ferieSporsmal(sykepengesoknad.fom!!, sykepengesoknad.tom!!))
             }
             it.addAll(behandlingsdagerSporsmal(sykepengesoknad))
-            if (toggle) {
-                it.add(tilSlutt())
-            } else {
-                it.add(vaerKlarOverAtBehandlingsdager())
-                it.add(bekreftOpplysningerSporsmal())
-            }
+            it.add(tilSlutt())
         }.toList()
 }

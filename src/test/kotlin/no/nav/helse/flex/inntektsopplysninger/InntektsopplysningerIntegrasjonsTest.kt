@@ -72,8 +72,7 @@ class InntektsopplysningerIntegrasjonsTest : FellesTestOppsett() {
                 ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER,
                 UTLAND,
-                VAER_KLAR_OVER_AT,
-                BEKREFT_OPPLYSNINGER,
+                TIL_SLUTT,
             ),
         )
     }
@@ -111,8 +110,7 @@ class InntektsopplysningerIntegrasjonsTest : FellesTestOppsett() {
                 ANDRE_INNTEKTSKILDER,
                 UTLAND,
                 INNTEKTSOPPLYSNINGER_DRIFT_VIRKSOMHETEN,
-                VAER_KLAR_OVER_AT,
-                BEKREFT_OPPLYSNINGER,
+                TIL_SLUTT,
             ),
         )
         soknad.sporsmal.flatten().first { it.tag == INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE }
@@ -166,7 +164,7 @@ class InntektsopplysningerIntegrasjonsTest : FellesTestOppsett() {
                         tag = INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET_DATO,
                         svar = lagretSoknad.fom!!.minusDays(1).toString(),
                     )
-                    .besvarSporsmal(tag = VAER_KLAR_OVER_AT, svar = "Svar", ferdigBesvart = false)
+                    .besvarSporsmal(tag = TIL_SLUTT, svar = "Svar", ferdigBesvart = false)
                     .besvarSporsmal(tag = BEKREFT_OPPLYSNINGER, svar = "CHECKED")
                     .sendSoknad()
             sendtSoknad.status shouldBeEqualTo RSSoknadstatus.SENDT
@@ -209,7 +207,7 @@ class InntektsopplysningerIntegrasjonsTest : FellesTestOppsett() {
                     tag = INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET_DATO,
                     svar = korrigerendeSoknad.fom!!.minusDays(2).toString(),
                 )
-                .besvarSporsmal(tag = VAER_KLAR_OVER_AT, svar = "Svar", ferdigBesvart = false)
+                .besvarSporsmal(tag = TIL_SLUTT, svar = "Svar", ferdigBesvart = false)
                 .besvarSporsmal(tag = BEKREFT_OPPLYSNINGER, svar = "CHECKED")
                 .sendSoknad()
 
@@ -267,7 +265,7 @@ class InntektsopplysningerIntegrasjonsTest : FellesTestOppsett() {
                     tag = INNTEKTSOPPLYSNINGER_VARIG_ENDRING_25_PROSENT,
                     svar = "NEI",
                 )
-                .besvarSporsmal(tag = VAER_KLAR_OVER_AT, svar = "Svar", ferdigBesvart = false)
+                .besvarSporsmal(tag = TIL_SLUTT, svar = "Svar", ferdigBesvart = false)
                 .besvarSporsmal(tag = BEKREFT_OPPLYSNINGER, svar = "CHECKED")
                 .sendSoknad()
 
@@ -312,7 +310,7 @@ class InntektsopplysningerIntegrasjonsTest : FellesTestOppsett() {
                     tag = INNTEKTSOPPLYSNINGER_VARIG_ENDRING_DATO,
                     svar = soknad.fom!!.minusYears(3).toString(),
                 )
-                .besvarSporsmal(tag = VAER_KLAR_OVER_AT, svar = "Svar", ferdigBesvart = false)
+                .besvarSporsmal(tag = TIL_SLUTT, svar = "Svar", ferdigBesvart = false)
                 .besvarSporsmal(tag = BEKREFT_OPPLYSNINGER, svar = "CHECKED")
                 .sendSoknad()
 

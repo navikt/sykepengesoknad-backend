@@ -3,14 +3,7 @@ package no.nav.helse.flex.arbeidsledig
 import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER
-import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
-import no.nav.helse.flex.soknadsopprettelse.ARBEIDSLEDIG_UTLAND
-import no.nav.helse.flex.soknadsopprettelse.ARBEID_UTENFOR_NORGE
-import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
-import no.nav.helse.flex.soknadsopprettelse.FRISKMELDT
-import no.nav.helse.flex.soknadsopprettelse.FRISKMELDT_START
-import no.nav.helse.flex.soknadsopprettelse.VAER_KLAR_OVER_AT
+import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
@@ -59,8 +52,7 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
                 ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER,
                 ARBEIDSLEDIG_UTLAND,
-                VAER_KLAR_OVER_AT,
-                BEKREFT_OPPLYSNINGER,
+                TIL_SLUTT,
             ),
         )
     }
@@ -139,8 +131,7 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
                         ANSVARSERKLARING,
                         FRISKMELDT,
                         ARBEID_UTENFOR_NORGE,
-                        VAER_KLAR_OVER_AT,
-                        BEKREFT_OPPLYSNINGER,
+                        TIL_SLUTT,
                     ),
                 )
             }
@@ -168,8 +159,7 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
                         ARBEID_UTENFOR_NORGE,
                         ANDRE_INNTEKTSKILDER,
                         ARBEIDSLEDIG_UTLAND,
-                        VAER_KLAR_OVER_AT,
-                        BEKREFT_OPPLYSNINGER,
+                        TIL_SLUTT,
                     ),
                 )
             }
@@ -197,6 +187,7 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
             .besvarSporsmal(ARBEID_UTENFOR_NORGE, "JA")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER, "NEI")
             .besvarSporsmal(ARBEIDSLEDIG_UTLAND, "NEI")
+            .besvarSporsmal(TIL_SLUTT, "Skal si ifra om noe endrer seg", ferdigBesvart = false)
             .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
     }
 
