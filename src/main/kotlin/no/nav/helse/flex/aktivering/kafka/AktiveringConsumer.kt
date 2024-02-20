@@ -29,8 +29,11 @@ class AktiveringConsumer(
         try {
             aktiverEnkeltSoknad.aktiverSoknad(cr.key())
         } catch (e: Exception) {
-            // De som feiler blir lagt tilbake igjen av AktiveringJob
-            log.warn("Feilet ved aktivering av søknad ${cr.key()}, forsøker igjen senere", e)
+            // De som feiler blir lagt tilbake igjen av AktiveringJob.
+            log.error(
+                "Feilet ved aktivering av søknad ${cr.key()}, men blir plukket opp igjen av AktiveringJob som kjører om 2 timer.",
+                e,
+            )
         }
 
         acknowledgment.acknowledge()
