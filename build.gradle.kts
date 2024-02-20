@@ -35,7 +35,7 @@ val avroVersion = "1.11.3"
 val logstashLogbackEncoderVersion = "7.4"
 val testContainersVersion = "1.19.5"
 val kluentVersion = "1.73"
-val jsonSchemaValidatorVersion = "1.3.2"
+val jsonSchemaValidatorVersion = "1.3.3"
 val unleashVersion = "9.2.0"
 val springdocOpenapiVersion = "2.3.0"
 
