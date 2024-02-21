@@ -1,7 +1,5 @@
 package no.nav.helse.flex.aktivering
 
-import no.nav.helse.flex.aktivering.kafka.AktiveringBestilling
-import no.nav.helse.flex.aktivering.kafka.AktiveringProducer
 import no.nav.helse.flex.cronjob.LeaderElection
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadRepository
@@ -22,27 +20,27 @@ class AktiveringJob(
 
     @Scheduled(initialDelay = 5, fixedDelay = 120, timeUnit = TimeUnit.MINUTES)
     fun startBestillAktivering() {
-        bestillAktivering()
+        if (leaderElection.isLeader()) {
+            bestillAktivering()
+        }
     }
 
     fun bestillAktivering(now: LocalDate = LocalDate.now(osloZone)) {
-        if (leaderElection.isLeader()) {
-            val soknaderSomSkalAktiveres = sykepengesoknadRepository.finnSoknaderSomSkalAktiveres(now)
-
-            if (soknaderSomSkalAktiveres.isEmpty()) {
-                return
-            }
-            log.info("Publiserer ${soknaderSomSkalAktiveres.size} soknader som skal aktiveres på kafka ")
-            val publiseringstid =
-                measureTimeMillis {
-                    soknaderSomSkalAktiveres.forEach {
-                        aktiveringProducer.leggPaAktiveringTopic(
-                            AktiveringBestilling(it.fnr, it.sykepengesoknadUuid),
-                        )
-                    }
-                }
-
-            log.info("Har publisert ${soknaderSomSkalAktiveres.size} soknader som skal aktiveres på kafka. Tid $publiseringstid")
+        val skalAktiveres = sykepengesoknadRepository.finnSoknaderSomSkalAktiveres(now)
+        if (skalAktiveres.isEmpty()) {
+            return
         }
+        val publiseringstid =
+            measureTimeMillis {
+                skalAktiveres.forEach {
+                    aktiveringProducer.leggPaAktiveringTopic(AktiveringBestilling(it.fnr, it.sykepengesoknadUuid))
+                }
+            }
+        log.info("Publiserte ${skalAktiveres.size} soknader som skal aktiveres på $publiseringstid millisekunder.")
     }
 }
+
+data class AktiveringBestilling(
+    val fnr: String,
+    val soknadId: String,
+)

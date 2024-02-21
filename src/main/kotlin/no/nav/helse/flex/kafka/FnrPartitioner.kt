@@ -1,6 +1,6 @@
 package no.nav.helse.flex.kafka
 
-import no.nav.helse.flex.aktivering.kafka.AktiveringBestilling
+import no.nav.helse.flex.aktivering.AktiveringBestilling
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import org.apache.kafka.clients.producer.Partitioner
 import org.apache.kafka.common.Cluster

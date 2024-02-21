@@ -15,7 +15,7 @@ import kotlin.system.measureTimeMillis
 
 @Service
 @Transactional(rollbackFor = [Throwable::class])
-class AktiverEnkeltSoknad(
+class SoknadAktivering(
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val soknadProducer: SoknadProducer,
     private val sykepengesoknadRepository: SykepengesoknadRepository,
@@ -23,20 +23,20 @@ class AktiverEnkeltSoknad(
     private val sporsmalGenerator: SporsmalGenerator,
     private val registry: MeterRegistry,
 ) {
-    val log = logger()
+    private final val log = logger()
 
     fun aktiverSoknad(id: String) {
-        log.info("Forsøker å aktivere soknad $id")
+        log.info("Forsøker å aktivere soknad $id.")
 
         val sok = sykepengesoknadRepository.findBySykepengesoknadUuid(id)
 
         if (sok == null) {
-            log.warn("Søknad $id mangler fra databasen. Kan ha blitt klippet")
+            log.warn("Søknad $id mangler fra databasen. Kan ha blitt klippet.")
             return
         }
 
         if (sok.status != Soknadstatus.FREMTIDIG) {
-            log.warn("Søknad $id er allerede aktivert")
+            log.warn("Søknad $id er allerede aktivert.")
             return
         }
 
@@ -45,10 +45,11 @@ class AktiverEnkeltSoknad(
             val forventetFom = perioder.minOf { it.fom }
             val forventetTom = perioder.maxOf { it.tom }
 
+            // TODO: Skriv noe mer om hvorfor det bare er greit å logge her.
             if (sok.fom != forventetFom || sok.tom != forventetTom) {
                 log.warn(
                     "Søknad $id har perioder som starter på $forventetFom og slutter på $forventetTom, dette stemmer " +
-                        "ikke med søknaden sin fom ${sok.fom} og tom ${sok.tom}",
+                        "ikke med søknaden sin fom ${sok.fom} og tom ${sok.tom}. Aktiverer ikke søknaden.",
                 )
                 return
             }
@@ -73,7 +74,9 @@ class AktiverEnkeltSoknad(
                     else -> soknadProducer.soknadEvent(soknad)
                 }
             }
-        log.info("Aktiverte søknad med id $id - Aktiver: $aktiverTid Spm: $lagSpm Kafka: $publiserSoknad")
+        log.info(
+            "Aktiverte søknad med id $id. Tid brukt på aktivering: $aktiverTid, spørsmålsgenerering: $lagSpm, publisering: $publiserSoknad",
+        )
         registry.counter("aktiverte_sykepengesoknader").increment()
     }
 }

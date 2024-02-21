@@ -1,7 +1,7 @@
 package no.nav.helse.flex.julesoknad
 
-import no.nav.helse.flex.aktivering.kafka.AktiveringBestilling
-import no.nav.helse.flex.aktivering.kafka.AktiveringProducer
+import no.nav.helse.flex.aktivering.AktiveringBestilling
+import no.nav.helse.flex.aktivering.AktiveringProducer
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.forskuttering.ForskutteringRepository

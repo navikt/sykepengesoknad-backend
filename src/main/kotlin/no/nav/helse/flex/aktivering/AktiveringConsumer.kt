@@ -1,6 +1,5 @@
-package no.nav.helse.flex.aktivering.kafka
+package no.nav.helse.flex.aktivering
 
-import no.nav.helse.flex.aktivering.AktiverEnkeltSoknad
 import no.nav.helse.flex.kafka.SYKEPENGESOKNAD_AKTIVERING_TOPIC
 import no.nav.helse.flex.logger
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -10,7 +9,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class AktiveringConsumer(
-    private val aktiverEnkeltSoknad: AktiverEnkeltSoknad,
+    private val soknadAktivering: SoknadAktivering,
 ) {
     private val log = logger()
 
@@ -27,15 +26,16 @@ class AktiveringConsumer(
         acknowledgment: Acknowledgment,
     ) {
         try {
-            aktiverEnkeltSoknad.aktiverSoknad(cr.key())
+            soknadAktivering.aktiverSoknad(cr.key())
         } catch (e: Exception) {
             // De som feiler blir lagt tilbake igjen av AktiveringJob.
+            // TODO: Logg error eller warning basert på antall retries.
             log.error(
                 "Feilet ved aktivering av søknad ${cr.key()}, men blir plukket opp igjen av AktiveringJob som kjører om 2 timer.",
                 e,
             )
+        } finally {
+            acknowledgment.acknowledge()
         }
-
-        acknowledgment.acknowledge()
     }
 }

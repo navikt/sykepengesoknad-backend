@@ -4,7 +4,7 @@ import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient
 import io.confluent.kafka.serializers.KafkaAvroDeserializer
 import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
-import no.nav.helse.flex.aktivering.kafka.AktiveringBestilling
+import no.nav.helse.flex.aktivering.AktiveringBestilling
 import no.nav.helse.flex.juridiskvurdering.JuridiskVurderingKafkaDto
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import org.apache.avro.generic.GenericRecord
