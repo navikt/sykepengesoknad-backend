@@ -14,10 +14,10 @@ class RetryLogger(
 
     fun inkrementerRetriesOgReturnerLogger(id: String): LoggerFunction {
         try {
-            val retries = retryRepository.inkrementerRetries(id)
+            val antallRetry = retryRepository.inkrementerRetries(id)
             // Det ville sett mye bedre å returnerer en lambda av typen (String, Throwable) -> Unit
             // men vi trenger klasser for å kunne asserte type i testene.
-            return if (retries.retryCount > MAX_RETRIES_BEFORE_ERROR) {
+            return if (antallRetry > MAX_RETRIES_BEFORE_ERROR) {
                 ErrorLogger(log)
             } else {
                 WarnLogger(log)
