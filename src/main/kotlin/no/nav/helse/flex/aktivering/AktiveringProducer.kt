@@ -1,4 +1,4 @@
-package no.nav.helse.flex.aktivering.kafka
+package no.nav.helse.flex.aktivering
 
 import no.nav.helse.flex.kafka.SYKEPENGESOKNAD_AKTIVERING_TOPIC
 import no.nav.helse.flex.logger

@@ -1,6 +1,6 @@
 package no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger
 
-import no.nav.helse.flex.aktivering.kafka.AktiveringBestilling
+import no.nav.helse.flex.aktivering.AktiveringBestilling
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykeforloep

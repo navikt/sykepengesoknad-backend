@@ -1,7 +1,7 @@
 package no.nav.helse.flex.personhendelse
 
 import io.micrometer.core.instrument.MeterRegistry
-import no.nav.helse.flex.aktivering.AktiverEnkeltSoknad
+import no.nav.helse.flex.aktivering.SoknadAktivering
 import no.nav.helse.flex.domain.Avsendertype
 import no.nav.helse.flex.domain.Mottaker
 import no.nav.helse.flex.domain.Soknadstatus
@@ -28,7 +28,7 @@ class AutomatiskInnsendingVedDodsfall(
     private val mottakerAvSoknadService: MottakerAvSoknadService,
     private val avbrytSoknadService: AvbrytSoknadService,
     private val soknadSender: SoknadSender,
-    private val aktiverEnkeltSoknad: AktiverEnkeltSoknad,
+    private val soknadAktivering: SoknadAktivering,
     private val identService: IdentService,
 ) {
     private val log = logger()
@@ -75,7 +75,7 @@ class AutomatiskInnsendingVedDodsfall(
                 }
 
                 if (sykepengesoknad.status == Soknadstatus.FREMTIDIG) {
-                    aktiverEnkeltSoknad.aktiverSoknad(sykepengesoknad.id)
+                    soknadAktivering.aktiverSoknad(sykepengesoknad.id)
                     sykepengesoknad = sykepengesoknadDAO.finnSykepengesoknad(sykepengesoknad.id)
                 }
 

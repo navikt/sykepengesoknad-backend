@@ -1,6 +1,6 @@
 package no.nav.helse.flex.soknadsopprettelse
 
-import no.nav.helse.flex.aktivering.kafka.AktiveringProducer
+import no.nav.helse.flex.aktivering.AktiveringProducer
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.sykmeldingmerknader.OppdateringAvMerknader

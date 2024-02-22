@@ -1,6 +1,6 @@
 package no.nav.helse.flex.soknadsopprettelse
 
-import no.nav.helse.flex.aktivering.kafka.AktiveringBestilling
+import no.nav.helse.flex.aktivering.AktiveringBestilling
 import no.nav.helse.flex.client.flexsyketilfelle.FlexSyketilfelleClient
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.exception.SkalRebehandlesException
