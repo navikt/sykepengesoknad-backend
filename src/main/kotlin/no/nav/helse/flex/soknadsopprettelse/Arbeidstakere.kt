@@ -11,7 +11,6 @@ import no.nav.helse.flex.domain.Svartype.JA_NEI
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.Visningskriterie.CHECKED
 import no.nav.helse.flex.domain.Visningskriterie.JA
-import no.nav.helse.flex.soknadsopprettelse.Arbeidsforholdstype.ARBEIDSTAKER
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmArbeidUtenforNorge
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmOppholdUtenforEos
@@ -66,10 +65,6 @@ fun settOppSoknadArbeidstaker(
 
         if (erGradertReisetilskudd) {
             add(brukteReisetilskuddetSpørsmål())
-        }
-        val andreKjenteArbeidsforholdUtenFrilanser = andreKjenteArbeidsforhold.filter { it.arbeidsforholdstype == ARBEIDSTAKER }
-        if (soknadOptions.kjenteInntektskilderEnabled && erForsteSoknadISykeforlop && andreKjenteArbeidsforholdUtenFrilanser.isNotEmpty()) {
-            add(kjenteInntektskilderSporsmal(andreKjenteArbeidsforholdUtenFrilanser, sykepengesoknad.startSykeforlop!!))
         }
 
         addAll(

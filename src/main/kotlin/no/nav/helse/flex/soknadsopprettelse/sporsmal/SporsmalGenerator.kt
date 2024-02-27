@@ -83,7 +83,6 @@ class SporsmalGenerator(
                 erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
                 harTidligereUtenlandskSpm = harTidligereUtenlandskSpm,
                 yrkesskade = yrkesskadeSporsmalGrunnlag,
-                kjenteInntektskilderEnabled = unleashToggles.stillKjenteInntektskilderSporsmal(soknad.fnr),
                 naringsdrivendeInntektsopplysningerEnabled = unleashToggles.naringsdrivendeInntektsopplysninger(soknad.fnr),
             )
 
