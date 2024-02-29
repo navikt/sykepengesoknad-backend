@@ -3,6 +3,8 @@ kafkaPool: nav-dev
 environment: dev
 db_tier: db-f1-micro
 db_size: 10
+db_highAvailability: false
+db_pointInTimeRecovery: false
 cpu: 300m
 memory: 640Mi
 replicas_min: 1
