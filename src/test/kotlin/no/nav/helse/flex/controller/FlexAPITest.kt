@@ -34,7 +34,39 @@ class FlexAPITest : FellesTestOppsett() {
     }
 
     @Test
-    fun `Kan hente søknader fra flex-internal-frontend`() {
+    fun `Kan hente søknader og enkelt søknad fra flex-internal-frontend`() {
+        val result =
+            mockMvc
+                .perform(
+                    MockMvcRequestBuilders
+                        .get("/api/v1/flex/sykepengesoknader")
+                        .header("Authorization", "Bearer ${skapAzureJwt("flex-internal-frontend-client-id")}")
+                        .header("fnr", fnr)
+                        .contentType(MediaType.APPLICATION_JSON),
+                )
+                .andExpect(MockMvcResultMatchers.status().isOk).andReturn()
+
+        val fraRest: FlexInternalResponse = OBJECT_MAPPER.readValue(result.response.contentAsString)
+        fraRest.sykepengesoknadListe.shouldHaveSize(1)
+        fraRest.klippetSykepengesoknadRecord.shouldHaveSize(0)
+        fraRest.sykepengesoknadListe[0].id.shouldBeEqualTo(kafkaMelding.id)
+        fraRest.sykepengesoknadListe[0].sykmeldingId.shouldBeEqualTo(kafkaMelding.sykmeldingId)
+
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .get("/api/v1/flex/sykepengesoknader/" + kafkaMelding.id)
+                    .header("Authorization", "Bearer ${skapAzureJwt("flex-internal-frontend-client-id")}")
+                    .contentType(MediaType.APPLICATION_JSON),
+            )
+            .andExpect(MockMvcResultMatchers.status().isOk).andReturn().let {
+                val res: FlexInternalSoknadResponse = OBJECT_MAPPER.readValue(it.response.contentAsString)
+                res.sykepengesoknad.id.shouldBeEqualTo(kafkaMelding.id)
+            }
+    }
+
+    @Test
+    fun `Kan hente enkelt søknad fra flex-internal-frontend`() {
         val result =
             mockMvc
                 .perform(

@@ -6,7 +6,9 @@ import no.nav.helse.flex.client.pdl.PdlIdent
 import no.nav.helse.flex.clientidvalidation.ClientIdValidation
 import no.nav.helse.flex.clientidvalidation.ClientIdValidation.NamespaceAndApp
 import no.nav.helse.flex.config.OIDCIssuer.AZUREATOR
+import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknad
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknadFlexInternal
+import no.nav.helse.flex.controller.mapper.tilRSSykepengesoknad
 import no.nav.helse.flex.controller.mapper.tilRSSykepengesoknadFlexInternal
 import no.nav.helse.flex.repository.KlippetSykepengesoknadDbRecord
 import no.nav.helse.flex.repository.KlippetSykepengesoknadRepository
@@ -14,14 +16,16 @@ import no.nav.helse.flex.service.HentSoknadService
 import no.nav.helse.flex.service.IdentService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.http.MediaType
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestHeader
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 data class FlexInternalResponse(
     val sykepengesoknadListe: List<RSSykepengesoknadFlexInternal>,
     val klippetSykepengesoknadRecord: Set<KlippetSykepengesoknadDbRecord>,
+)
+
+data class FlexInternalSoknadResponse(
+    val sykepengesoknad: RSSykepengesoknad,
+    val fnr: String,
 )
 
 @RestController
@@ -36,7 +40,7 @@ class SoknadFlexAzureController(
     private val klippetSykepengesoknadRepository: KlippetSykepengesoknadRepository,
 ) {
     @GetMapping("/sykepengesoknader")
-    fun hentSykepengeSoknader(
+    fun hentSykepengesoknader(
         @RequestHeader fnr: String,
     ): FlexInternalResponse {
         clientIdValidation.validateClientId(NamespaceAndApp(namespace = "flex", app = "flex-internal-frontend"))
@@ -63,5 +67,14 @@ class SoknadFlexAzureController(
     ): List<PdlIdent> {
         clientIdValidation.validateClientId(NamespaceAndApp(namespace = "flex", app = "flex-internal-frontend"))
         return pdlClient.hentIdenterMedHistorikk(ident)
+    }
+
+    @GetMapping("/sykepengesoknader/{id}")
+    fun hentSykepengesoknad(
+        @PathVariable id: String,
+    ): FlexInternalSoknadResponse {
+        clientIdValidation.validateClientId(NamespaceAndApp(namespace = "flex", app = "flex-internal-frontend"))
+        val soknad = hentSoknadService.finnSykepengesoknad(id)
+        return FlexInternalSoknadResponse(sykepengesoknad = soknad.tilRSSykepengesoknad(), fnr = soknad.fnr)
     }
 }
