@@ -1,0 +1,1 @@
+CREATE INDEX sykepengesoknad_opprettet_idx ON sykepengesoknad (opprettet);
