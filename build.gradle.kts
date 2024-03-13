@@ -37,7 +37,7 @@ val testContainersVersion = "1.19.6"
 val kluentVersion = "1.73"
 val jsonSchemaValidatorVersion = "1.3.3"
 val unleashVersion = "9.2.0"
-val springdocOpenapiVersion = "2.3.0"
+val springdocOpenapiVersion = "2.4.0"
 
 dependencies {
     implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
