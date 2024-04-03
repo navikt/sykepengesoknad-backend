@@ -20,7 +20,7 @@ fun lagSporsmalOmInntektsopplyninger(soknad: Sykepengesoknad): Sporsmal {
 
     return Sporsmal(
         tag = INNTEKTSOPPLYSNINGER_DRIFT_VIRKSOMHETEN,
-        sporsmalstekst = "Har det vært drift i virksomheten frem til du ble sykmeldt?",
+        sporsmalstekst = "Har det vært drift i virksomheten din fram til dagen du ble sykmeldt?",
         svartype = Svartype.RADIO_GRUPPE,
         undersporsmal =
             listOf(
