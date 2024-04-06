@@ -485,6 +485,7 @@ class SoknadGenereringTest {
                 ),
             )
 
+        // Bryr seg ikke om den eksisterende søknaden er første søknad i forløp og har de spørsmålene den skal ha.
         val soknad =
             lagSoknad(
                 arbeidsgiver = 2,
@@ -540,9 +541,9 @@ class SoknadGenereringTest {
                     soknadsType = Soknadstype.ARBEIDSTAKERE,
                 ).copy(
                     sporsmal =
-                        listOf(
-                            SporsmalBuilder().id("1").tag(UTENLANDSK_SYKMELDING_BOSTED).svartype(Svartype.JA_NEI).build(),
-                        ),
+                    listOf(
+                        SporsmalBuilder().id("1").tag(UTENLANDSK_SYKMELDING_BOSTED).svartype(Svartype.JA_NEI).build(),
+                    ),
                 ),
             )
 
@@ -601,9 +602,9 @@ class SoknadGenereringTest {
                     soknadsType = Soknadstype.ARBEIDSTAKERE,
                 ).copy(
                     sporsmal =
-                        listOf(
-                            SporsmalBuilder().id("1").tag(UTENLANDSK_SYKMELDING_BOSTED).svartype(Svartype.JA_NEI).build(),
-                        ),
+                    listOf(
+                        SporsmalBuilder().id("1").tag(UTENLANDSK_SYKMELDING_BOSTED).svartype(Svartype.JA_NEI).build(),
+                    ),
                 ),
             )
 
