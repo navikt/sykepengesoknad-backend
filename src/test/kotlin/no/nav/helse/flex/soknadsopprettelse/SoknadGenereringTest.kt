@@ -13,6 +13,7 @@ import java.time.LocalDate
 import java.time.ZoneOffset
 import java.util.*
 
+// TODO: Utvid med tester for skalHaSporsmalOmMedlemskap().
 class SoknadGenereringTest {
     @Test
     fun `Søknad er første til arbeidsgiver siden 'fom' er før tidligere søknader`() {
@@ -415,119 +416,6 @@ class SoknadGenereringTest {
     }
 
     @Test
-    fun `Søknad er ikke første siden det finnes tidligere soknader uavhengig av arbeidsgiver`() {
-        val startSykeforloep = LocalDate.of(2023, 1, 1)
-        val eksisterendeSoknader =
-            listOf(
-                lagSoknad(
-                    arbeidsgiver = 1,
-                    fom = LocalDate.of(2023, 1, 1),
-                    tom = LocalDate.of(2023, 1, 1),
-                    startSykeforlop = startSykeforloep,
-                    arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                    soknadsType = Soknadstype.ARBEIDSTAKERE,
-                ),
-            )
-
-        val soknad =
-            lagSoknad(
-                arbeidsgiver = 2,
-                fom = LocalDate.of(2023, 2, 1),
-                tom = LocalDate.of(2023, 2, 1),
-                startSykeforlop = startSykeforloep,
-                arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                soknadsType = Soknadstype.ARBEIDSTAKERE,
-            )
-
-        erForsteSoknadIForlop(eksisterendeSoknader, soknad) `should be` false
-    }
-
-    @Test
-    fun `Søknad er ikke første siden det finnes tidligere soknader til annen arbeidsgiver`() {
-        val startSykeforloep = LocalDate.of(2023, 1, 1)
-        val eksisterendeSoknader =
-            listOf(
-                lagSoknad(
-                    arbeidsgiver = 1,
-                    fom = LocalDate.of(2023, 1, 1),
-                    tom = LocalDate.of(2023, 1, 1),
-                    startSykeforlop = startSykeforloep,
-                    arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                    soknadsType = Soknadstype.ARBEIDSTAKERE,
-                ),
-            )
-
-        val soknad =
-            lagSoknad(
-                arbeidsgiver = 1,
-                fom = LocalDate.of(2023, 2, 1),
-                tom = LocalDate.of(2023, 2, 1),
-                startSykeforlop = startSykeforloep,
-                arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                soknadsType = Soknadstype.ARBEIDSTAKERE,
-            )
-
-        erForsteSoknadIForlop(eksisterendeSoknader, soknad) `should be` false
-    }
-
-    @Test
-    fun `Søknad er ikke første søknad siden det finnes en søknad med samme periode uavhengig av arbeidsgiver`() {
-        val startSykeforloep = LocalDate.of(2023, 1, 1)
-        val eksisterendeSoknader =
-            listOf(
-                lagSoknad(
-                    arbeidsgiver = 1,
-                    fom = LocalDate.of(2023, 1, 1),
-                    tom = LocalDate.of(2023, 2, 1),
-                    startSykeforlop = startSykeforloep,
-                    arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                    soknadsType = Soknadstype.ARBEIDSTAKERE,
-                ),
-            )
-
-        // Bryr seg ikke om den eksisterende søknaden er første søknad i forløp og har de spørsmålene den skal ha.
-        val soknad =
-            lagSoknad(
-                arbeidsgiver = 2,
-                fom = LocalDate.of(2023, 1, 1),
-                tom = LocalDate.of(2023, 2, 1),
-                startSykeforlop = startSykeforloep,
-                arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                soknadsType = Soknadstype.ARBEIDSTAKERE,
-            )
-
-        erForsteSoknadIForlop(eksisterendeSoknader, soknad) `should be` false
-    }
-
-    @Test
-    fun `Søknad er første søknad siden den har en periode som er tidligere enn eksisterende søknader`() {
-        val startSykeforloep = LocalDate.of(2023, 1, 1)
-        val eksisterendeSoknader =
-            listOf(
-                lagSoknad(
-                    arbeidsgiver = 1,
-                    fom = LocalDate.of(2023, 2, 1),
-                    tom = LocalDate.of(2023, 2, 1),
-                    startSykeforlop = startSykeforloep,
-                    arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                    soknadsType = Soknadstype.ARBEIDSTAKERE,
-                ),
-            )
-
-        val soknad =
-            lagSoknad(
-                arbeidsgiver = 2,
-                fom = LocalDate.of(2023, 1, 1),
-                tom = LocalDate.of(2023, 1, 1),
-                startSykeforlop = startSykeforloep,
-                arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                soknadsType = Soknadstype.ARBEIDSTAKERE,
-            )
-
-        erForsteSoknadIForlop(eksisterendeSoknader, soknad) `should be` true
-    }
-
-    @Test
     fun `Har blitt stilt spørsmål om UTENLANDSK_SYKMELDING_BOSTED i en tidligere søknad i sykeforløpet`() {
         val startSykeforloep = LocalDate.of(2023, 1, 1)
         val eksisterendeSoknader =
@@ -541,9 +429,9 @@ class SoknadGenereringTest {
                     soknadsType = Soknadstype.ARBEIDSTAKERE,
                 ).copy(
                     sporsmal =
-                    listOf(
-                        SporsmalBuilder().id("1").tag(UTENLANDSK_SYKMELDING_BOSTED).svartype(Svartype.JA_NEI).build(),
-                    ),
+                        listOf(
+                            SporsmalBuilder().id("1").tag(UTENLANDSK_SYKMELDING_BOSTED).svartype(Svartype.JA_NEI).build(),
+                        ),
                 ),
             )
 
@@ -602,9 +490,9 @@ class SoknadGenereringTest {
                     soknadsType = Soknadstype.ARBEIDSTAKERE,
                 ).copy(
                     sporsmal =
-                    listOf(
-                        SporsmalBuilder().id("1").tag(UTENLANDSK_SYKMELDING_BOSTED).svartype(Svartype.JA_NEI).build(),
-                    ),
+                        listOf(
+                            SporsmalBuilder().id("1").tag(UTENLANDSK_SYKMELDING_BOSTED).svartype(Svartype.JA_NEI).build(),
+                        ),
                 ),
             )
 

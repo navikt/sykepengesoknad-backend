@@ -23,8 +23,8 @@ import org.junit.jupiter.api.TestMethodOrder
 import java.time.LocalDate
 
 /**
- * Tester at toggle for medlemskapspørsmål fungerer som forventet. Dvs. at det ikke stilles spørsmål om arbeid utenfor
- * Norge når det stilles medlemskapspørsmål.
+ * Tester at toggle for medlemskapspørsmål fungerer som forventet. Dvs. at det ikke stilles spørsmål
+ * om ARBEID_UTENFOR_NORGE når det stilles medlemskapspørsmål.
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class MedlemskapToggleIntegrationTest : FellesTestOppsett() {

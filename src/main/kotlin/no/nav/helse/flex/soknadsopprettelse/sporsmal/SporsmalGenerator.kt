@@ -108,9 +108,9 @@ class SporsmalGenerator(
                 val arbeidstakerSporsmal =
                     settOppSoknadArbeidstaker(
                         soknadOptions =
-                        soknadOptions.copy(
-                            medlemskapSporsmalTags = lagMedlemsskapSporsmalTags(eksisterendeSoknader, soknad),
-                        ),
+                            soknadOptions.copy(
+                                medlemskapSporsmalTags = lagMedlemsskapSporsmalTags(eksisterendeSoknader, soknad),
+                            ),
                         andreKjenteArbeidsforhold = andreKjenteArbeidsforhold,
                     )
 
@@ -146,14 +146,12 @@ class SporsmalGenerator(
         eksisterendeSoknader: List<Sykepengesoknad>,
         soknad: Sykepengesoknad,
     ): List<MedlemskapSporsmalTag> {
-        // Medlemskapspørsmal skal kun stilles i den første søknaden i et sykeforløp, uavhengig av arbeidsgiver.
-        if (!erForsteSoknadIForlop(eksisterendeSoknader, soknad)) {
-            log.info("Søknad ${soknad.id} er ikke første søknad i sykeforløp, så det stilles ingen medlemskapspørsmål.")
-            // Vi stiller hverken medlemskapspørsmål eller ARBEID_UTENFOR_NORGE siden søknaden ikke er første i forløp.
+        // Medlemskapspørsmal skal kun stilles i én første søknad i et sykeforløp, uavhengig av arbeidsgiver.
+        if (!skalHaSporsmalOmMedlemskap(eksisterendeSoknader, soknad)) {
             return emptyList()
         }
 
-        // Stiller spørsmål om ARBEID_UTENFOR_NORGE hvis det ikke blir returnert en medlemskapvurdering i det hele tatt.
+        // Stiller spørsmål om ARBEID_UTENFOR_NORGE hvis det ikke blir returnert en medlemskapvurdering fra LovMe.
         val medlemskapVurdering =
             hentMedlemskapVurdering(soknad)
                 ?: return listOf(SykepengesoknadSporsmalTag.ARBEID_UTENFOR_NORGE)
@@ -177,7 +175,6 @@ class SporsmalGenerator(
                 listOf(SykepengesoknadSporsmalTag.ARBEID_UTENFOR_NORGE)
             }
 
-            // TODO: Fjern denne når toggle er slått på for alle brukere.
             !unleashToggles.stillMedlemskapSporsmal(soknad.fnr) -> {
                 log.info(
                     "Medlemskapvurdering er UAVKLART for søknad ${soknad.id}, men medlemskapToggle svarte " +

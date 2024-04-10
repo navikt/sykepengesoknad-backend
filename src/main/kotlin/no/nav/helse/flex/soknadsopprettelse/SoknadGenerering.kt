@@ -3,7 +3,6 @@ package no.nav.helse.flex.soknadsopprettelse
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.util.isBeforeOrEqual
 
 fun erForsteSoknadTilArbeidsgiverIForlop(
     eksisterendeSoknader: List<Sykepengesoknad>,
@@ -13,21 +12,6 @@ fun erForsteSoknadTilArbeidsgiverIForlop(
         .finnTidligereSoknaderMedSammeArbeidssituasjon(sykepengesoknad)
         .harSammeArbeidsgiver(sykepengesoknad)
         // Sjekker om det finnes en tidligere søknad med samme startdato for sykeforløp.
-        .none { it.startSykeforlop == sykepengesoknad.startSykeforlop }
-}
-
-fun erForsteSoknadIForlop(
-    eksisterendeSoknader: List<Sykepengesoknad>,
-    sykepengesoknad: Sykepengesoknad,
-): Boolean {
-    return eksisterendeSoknader.asSequence()
-        // Finner eksisterende søknader med 'fom' FØR eller LIK søknaden det sammenlignes med.
-        .filter { it.fom != null && it.fom.isBeforeOrEqual(sykepengesoknad.fom!!) }
-        .filter { it.sykmeldingId != null && it.startSykeforlop != null }
-        // Spørsmål om medlemskap vil bare bli stilt i for søknader med arbeidssituasjon.ARBEIDSTAKER, men det ingen
-        // gevinst i å eksplitt sjekke på det, men vi sjekker at søknadene vi sammenligner med har lik arbeidssituasjon.
-        .filter { it.arbeidssituasjon == sykepengesoknad.arbeidssituasjon }
-        // Sjekker om det finnes en ekisterende søknader med samme startdato for sykeforløp.
         .none { it.startSykeforlop == sykepengesoknad.startSykeforlop }
 }
 
@@ -42,6 +26,26 @@ fun harBlittStiltUtlandsSporsmal(
         .filter { it.startSykeforlop == sykepengesoknad.startSykeforlop }
         .any { it -> it.sporsmal.any { it.tag == UTENLANDSK_SYKMELDING_BOSTED } }
 }
+
+// Returnerer 'true' hvis det er første søknad til arbeidsgiver i forløpet og eventuelt andre første søkander til
+// andre arbeidsgivere heller ikke allerede har fått medlemskapsspørsmål.
+fun skalHaSporsmalOmMedlemskap(
+    eksisterendeSoknader: List<Sykepengesoknad>,
+    sykepengesoknad: Sykepengesoknad,
+): Boolean =
+    erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, sykepengesoknad) &&
+        eksisterendeSoknader.none { soknad ->
+            soknad.sporsmal.any {
+                it.tag in
+                    listOf(
+                        MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
+                        MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
+                        MEDLEMSKAP_OPPHOLDSTILLATELSE,
+                        MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
+                        ARBEID_UTENFOR_NORGE,
+                    )
+            }
+        }
 
 // Finner søknader med samme arbeidssituasjon som, men med 'fom' FØR søknaden det sammenlignes med.
 private fun Sequence<Sykepengesoknad>.finnTidligereSoknaderMedSammeArbeidssituasjon(

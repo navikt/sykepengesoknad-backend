@@ -20,8 +20,6 @@ import no.nav.helse.flex.util.serialisertTilString
 import no.nav.helse.flex.ventPåRecords
 import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
 import okhttp3.mockwebserver.MockResponse
-import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldNotBe
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
@@ -29,11 +27,12 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
-import java.util.concurrent.TimeUnit
+
+// TODO: Flytt disse testene til MedlemskapSyketilfelleIntegrationTest.kt og rydd i eventuelle duplikater der.
 
 /**
  * Verifiserer at en av to førstegangssøknader med forskjellig arbeidsgiver før spørsmål om medlemskap
- * eller ARBEID_UTENFOR_NORGE når de aktiveres frem i tid.
+ * eller ARBEID_UTENFOR_NORGE både når de aktiveres én og en eller og når de aktiveres frem i tid.
  */
 class MedlemskapToArbeidsgivereIntegrationTest : FellesTestOppsett() {
     @Autowired
@@ -57,7 +56,7 @@ class MedlemskapToArbeidsgivereIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `Søknader til hver sin arbeidsgiver aktiveres når sykmelding mottas skal ha spørsmål om medlemskap`() {
+    fun `To søknader i samme syketilfelle til hver sin arbeidsgiver aktiveres når sykmelding sendes`() {
         val fnr = "31111111111"
 
         medlemskapMockWebServer.enqueue(
@@ -76,7 +75,7 @@ class MedlemskapToArbeidsgivereIntegrationTest : FellesTestOppsett() {
                             tom = basisDato.minusDays(2),
                         ),
                 ),
-            )
+            ).last()
 
         val andreSoknad =
             sendSykmelding(
@@ -90,24 +89,18 @@ class MedlemskapToArbeidsgivereIntegrationTest : FellesTestOppsett() {
                             tom = basisDato.minusDays(2),
                         ),
                 ),
-            )
-
-        // Det skal kun gjøres request til LovMe for den første søknaden.
-        medlemskapMockWebServer.takeRequest(10, TimeUnit.MILLISECONDS) shouldNotBe null
-        medlemskapMockWebServer.takeRequest(10, TimeUnit.MILLISECONDS) shouldBe null
-
-        assertThat(forsteSoknad).hasSize(1)
+            ).last()
 
         // Det skal være gjort en medlemskapsvurdering for den første søknaden, men ikke den andre.
-        assertThat(forsteSoknad.last().medlemskapVurdering).isEqualTo("UAVKLART")
-        assertThat(andreSoknad.last().medlemskapVurdering).isNull()
+        assertThat(forsteSoknad.medlemskapVurdering).isEqualTo("UAVKLART")
+        assertThat(andreSoknad.medlemskapVurdering).isNull()
 
         // Begge søknader er 'forstegangssoknad' siden de har forskjellig arbeidsgiver.
-        assertThat(forsteSoknad.last().forstegangssoknad).isTrue()
-        assertThat(andreSoknad.last().forstegangssoknad).isTrue()
+        assertThat(forsteSoknad.forstegangssoknad).isTrue()
+        assertThat(andreSoknad.forstegangssoknad).isTrue()
 
         // Første søknad skal inneholde spørsmål om medlemskap, men ikke ARBEID_UTENFOR_NORGE.
-        forsteSoknad.last().sporsmal.flatten().map { it.tag }
+        forsteSoknad.sporsmal.flatten().map { it.tag }
             .apply {
                 assertThat(this).contains(
                     MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
@@ -121,10 +114,9 @@ class MedlemskapToArbeidsgivereIntegrationTest : FellesTestOppsett() {
                 )
             }
 
-        // TODO: Blir dette riktig siden den andre søknaden også strengt tatt er en førstegangssøknad?
         // Andre søknad skal hverken inneholde ARBEID_UTENFOR_NORGE eller spørsmål om medlemskap siden vi har stilt
         // spørsmål om medlemskapspørsmål til den samme brukeren i en søknad for en annen arbeidsgiver.
-        assertThat(andreSoknad.last().sporsmal.flatten().map { it.tag }).doesNotContain(
+        assertThat(andreSoknad.sporsmal.flatten().map { it.tag }).doesNotContain(
             MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
             MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
             MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
@@ -134,8 +126,12 @@ class MedlemskapToArbeidsgivereIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `Søknader til hver sin arbeidsgiver som aktiveres frem i tid skal ha ha spørsmål om medlemskap`() {
+    fun `To søknader i samme syketilfelle til hver sin arbeidsgiver aktiveres samtidig`() {
         val fnr = "41111111111"
+
+        medlemskapMockWebServer.enqueue(
+            lagUavklartMockResponse(),
+        )
 
         val forsteSoknad =
             sendSykmelding(
@@ -149,7 +145,7 @@ class MedlemskapToArbeidsgivereIntegrationTest : FellesTestOppsett() {
                             tom = basisDato.plusDays(6),
                         ),
                 ),
-            )
+            ).last()
 
         val andreSoknad =
             sendSykmelding(
@@ -163,38 +159,57 @@ class MedlemskapToArbeidsgivereIntegrationTest : FellesTestOppsett() {
                             tom = basisDato.plusDays(6),
                         ),
                 ),
-            )
+            ).last()
 
         // Ingen av søknadene skal være aktivert enda.
-        assertThat(forsteSoknad.last().status).isEqualTo(SoknadsstatusDTO.FREMTIDIG)
-        assertThat(andreSoknad.last().status).isEqualTo(SoknadsstatusDTO.FREMTIDIG)
+        assertThat(forsteSoknad.status).isEqualTo(SoknadsstatusDTO.FREMTIDIG)
+        assertThat(andreSoknad.status).isEqualTo(SoknadsstatusDTO.FREMTIDIG)
 
         // Aktiverer søknadene.
         aktiveringJob.bestillAktivering(now = basisDato.plusDays(7))
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2).tilSoknader()
 
-        // Sikrer at vi referer til riktig soknad.
+        // Sikrer at vi referer til riktig soknad mottatt på Kafka.
         assertThat(kafkaSoknader).hasSize(2)
-        val forsteKafkaSoknad = kafkaSoknader.find { it.id == forsteSoknad.last().id }
-        val andreKafkaSoknad = kafkaSoknader.find { it.id == andreSoknad.last().id }
+        val forsteKafkaSoknad = kafkaSoknader.find { it.id == forsteSoknad.id }
+        val andreKafkaSoknad = kafkaSoknader.find { it.id == andreSoknad.id }
 
-        // Aktiverte søknader skal ha status FFREMTIDIG.
+        // Søkander skal være aktivert.
         assertThat(forsteKafkaSoknad!!.status).isEqualTo(SoknadsstatusDTO.NY)
         assertThat(andreKafkaSoknad!!.status).isEqualTo(SoknadsstatusDTO.NY)
 
-        // Det skal kun gjøres request til LovMe for den første søknaden.
-        medlemskapMockWebServer.takeRequest(10, TimeUnit.MILLISECONDS) shouldBe null
+        // Det skal være gjort en medlemskapsvurdering for den første søknaden, men ikke den andre.
+        assertThat(forsteKafkaSoknad.medlemskapVurdering).isEqualTo("UAVKLART")
+        assertThat(andreKafkaSoknad.medlemskapVurdering).isNull()
 
-        // Begge søknadene mangler både spørsmål om medlemskap og ARBEID_UTENFOR_NORGE.
-        kafkaSoknader.forEach { soknad ->
-            assertThat(soknad.sporsmal.flatten().map { it.tag }).doesNotContain(
-                MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
-                MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
-                MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
-                MEDLEMSKAP_OPPHOLDSTILLATELSE,
-                ARBEID_UTENFOR_NORGE,
-            )
-        }
+        // Begge søknader er 'forstegangssoknad' siden de har forskjellig arbeidsgiver.
+        assertThat(forsteKafkaSoknad.forstegangssoknad).isTrue()
+        assertThat(andreKafkaSoknad.forstegangssoknad).isTrue()
+
+        // Første søknad skal inneholde spørsmål om medlemskap, men ikke ARBEID_UTENFOR_NORGE.
+        forsteKafkaSoknad.sporsmal.flatten().map { it.tag }
+            .apply {
+                assertThat(this).contains(
+                    MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
+                    MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
+                    MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
+                    MEDLEMSKAP_OPPHOLDSTILLATELSE,
+                )
+            }.also {
+                assertThat(it).doesNotContain(
+                    ARBEID_UTENFOR_NORGE,
+                )
+            }
+
+        // Andre søknad skal hverken inneholde ARBEID_UTENFOR_NORGE eller spørsmål om medlemskap siden vi har stilt
+        // spørsmål om medlemskapspørsmål til den samme brukeren i en søknad for en annen arbeidsgiver.
+        assertThat(andreKafkaSoknad.sporsmal.flatten().map { it.tag }).doesNotContain(
+            MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
+            MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
+            MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
+            MEDLEMSKAP_OPPHOLDSTILLATELSE,
+            ARBEID_UTENFOR_NORGE,
+        )
     }
 
     private fun lagUavklartMockResponse() =

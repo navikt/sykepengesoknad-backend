@@ -29,12 +29,13 @@ import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 
+// TODO: Bruk Klient i test i stedet for assertThat() for likhet på tvers av tester.
+
 /**
- * Tester forskjellige scenario relatert til at medlemskapspørsmål kun skal stilles i den første søknaden
- * i et syketilfelle.
+ * Tester at medlemskapspørsmål kun skal stilles i én førstegangssøknad et syketilfelle, uavhenging av arbeidsgiver.
  *
- * @see MedlemskapSporsmalIntegrationTest for testing av hele flyten fra sykmelding til spørsmål
- *      om medlemskap blir besvart og sendt inn.
+ * @see MedlemskapSporsmalIntegrationTest for testing av hele flyten fra sykmelding blir sendt til spørsmål
+ *      om medlemskap blir besvart og søknaden sendt inn.
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
@@ -291,12 +292,10 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `Tilbakedatert søknad får medlemskapspørsmål`() {
-        repeat(2) {
-            medlemskapMockWebServer.enqueue(
-                lagUavklartMockResponse(),
-            )
-        }
+    fun `Tilbakedatert søknad med tidligere startSyketilfelle får ikke medlemskapspørsmål`() {
+        medlemskapMockWebServer.enqueue(
+            lagUavklartMockResponse(),
+        )
 
         val soknader1 =
             sendSykmelding(
@@ -331,11 +330,10 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
         assertThat(soknader1.last().medlemskapVurdering).isEqualTo("UAVKLART")
         assertThat(soknader1.last().forstegangssoknad).isTrue()
 
-        // Den opprinnelige førstegangssøknaden får ikke oppdatert startSyketilfelle, så en tilbakedatert søknad, med
-        // nytt startSyketilfelle tilfredstiller sjekken på om det er en førstegangsøknad og at det ikke er stilt
-        // medlemskapspørsmål tidligere i samme syketilfelle.
+        // En tilbakedatert søknad vil ikke få medlemskapspørsmål siden en søknad opprettet før den tilbakedaterte
+        // allerede har medlemskapspørsmål.
         assertThat(soknader2).hasSize(1)
-        assertThat(soknader2.last().medlemskapVurdering).isEqualTo("UAVKLART")
+        assertThat(soknader2.last().medlemskapVurdering).isNull()
         assertThat(soknader2.last().forstegangssoknad).isTrue()
     }
 
