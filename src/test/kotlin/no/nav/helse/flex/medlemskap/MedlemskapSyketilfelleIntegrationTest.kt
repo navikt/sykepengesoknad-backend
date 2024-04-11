@@ -1,22 +1,27 @@
 package no.nav.helse.flex.medlemskap
 
 import no.nav.helse.flex.FellesTestOppsett
+import no.nav.helse.flex.aktivering.AktiveringJob
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.hentProduserteRecords
 import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.repository.SporsmalDAO
 import no.nav.helse.flex.sendSykmelding
+import no.nav.helse.flex.soknadsopprettelse.ARBEID_UTENFOR_NORGE
 import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLDSTILLATELSE
 import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLD_UTENFOR_EOS
 import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE
 import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE
+import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.reisetilskudd
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
+import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_MEDLEMSKAP_SPORSMAL
 import no.nav.helse.flex.util.flatten
 import no.nav.helse.flex.util.serialisertTilString
+import no.nav.helse.flex.ventPåRecords
 import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
 import okhttp3.mockwebserver.MockResponse
 import org.assertj.core.api.Assertions.assertThat
@@ -39,8 +44,12 @@ import java.time.LocalDate
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
+
     @Autowired
     private lateinit var sporsmalDAO: SporsmalDAO
+
+    @Autowired
+    private lateinit var aktiveringJob: AktiveringJob
 
     @BeforeAll
     fun konfigurerUnleash() {
@@ -107,7 +116,7 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `Helt overlappende får spørsmål siden den første er slettet`() {
+    fun `Helt overlappende søknad med samme arbeidsgiver får spørsmål siden den første søknaden er slettet`() {
         repeat(2) {
             medlemskapMockWebServer.enqueue(
                 lagUavklartMockResponse(),
@@ -244,7 +253,7 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `Påfølgende søknad får ikke medlemskapspørsmål selv om det ikke er stilt spørsmål tidligere i syketilfelle`() {
+    fun `Påfølgende søknad får ikke medlemskapspørsmål selv om første søknad i samme syketilfelle mangler spørsmål`() {
         medlemskapMockWebServer.enqueue(
             lagUavklartMockResponse(),
         )
@@ -335,6 +344,161 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
         assertThat(soknader2).hasSize(1)
         assertThat(soknader2.last().medlemskapVurdering).isNull()
         assertThat(soknader2.last().forstegangssoknad).isTrue()
+    }
+
+    @Test
+    fun `En av to søknader til hver sin arbeidsgiver får medlemskapspørsmål når søknadene aktiveres hver for seg`() {
+        val fnr = "31111111111"
+        val basisDato = LocalDate.now()
+
+        medlemskapMockWebServer.enqueue(
+            lagUavklartMockResponse(),
+        )
+
+        val forsteSoknad =
+            sendSykmelding(
+                sykmeldingKafkaMessage(
+                    arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                    fnr = fnr,
+                    arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = "000000001", orgNavn = "Arbeidsgiver 1"),
+                    sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = basisDato.minusDays(6),
+                        tom = basisDato.minusDays(2),
+                    ),
+                ),
+            ).last()
+
+        val andreSoknad =
+            sendSykmelding(
+                sykmeldingKafkaMessage(
+                    arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                    fnr = fnr,
+                    arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = "000000002", orgNavn = "Arbeidsgiver 2"),
+                    sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = basisDato.minusDays(6),
+                        tom = basisDato.minusDays(2),
+                    ),
+                ),
+            ).last()
+
+        // Begge søknader er 'forstegangssoknad' siden de har forskjellig arbeidsgiver.
+        assertThat(forsteSoknad.forstegangssoknad).isTrue()
+        assertThat(andreSoknad.forstegangssoknad).isTrue()
+
+        // Første søknad skal inneholde spørsmål om medlemskap, men ikke ARBEID_UTENFOR_NORGE.
+        assertThat(forsteSoknad.medlemskapVurdering).isEqualTo("UAVKLART")
+
+        forsteSoknad.sporsmal.flatten().map { it.tag }
+            .apply {
+                assertThat(this).contains(
+                    MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
+                    MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
+                    MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
+                    MEDLEMSKAP_OPPHOLDSTILLATELSE,
+                )
+            }.also {
+                assertThat(it).doesNotContain(
+                    ARBEID_UTENFOR_NORGE,
+                )
+            }
+
+        // Andre søknad skal hverken inneholde ARBEID_UTENFOR_NORGE eller spørsmål om medlemskap siden vi har stilt
+        // spørsmål om medlemskapspørsmål til den samme brukeren i en søknad for en annen arbeidsgiver.
+        assertThat(andreSoknad.medlemskapVurdering).isNull()
+
+        assertThat(andreSoknad.sporsmal.flatten().map { it.tag }).doesNotContain(
+            MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
+            MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
+            MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
+            MEDLEMSKAP_OPPHOLDSTILLATELSE,
+            ARBEID_UTENFOR_NORGE,
+        )
+    }
+
+    @Test
+    fun `En av to søknader til hver sin arbeidsgiver får medlemskapspørsmål når søknadene aktiveres samtidig`() {
+        val fnr = "41111111111"
+        val basisDato = LocalDate.now()
+
+        medlemskapMockWebServer.enqueue(
+            lagUavklartMockResponse(),
+        )
+
+        val forsteSoknad =
+            sendSykmelding(
+                sykmeldingKafkaMessage(
+                    arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                    fnr = fnr,
+                    arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = "000000001", orgNavn = "Arbeidsgiver 1"),
+                    sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = basisDato.plusDays(2),
+                        tom = basisDato.plusDays(6),
+                    ),
+                ),
+            ).last()
+
+        val andreSoknad =
+            sendSykmelding(
+                sykmeldingKafkaMessage(
+                    arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                    fnr = fnr,
+                    arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = "000000002", orgNavn = "Arbeidsgiver 2"),
+                    sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = basisDato.plusDays(2),
+                        tom = basisDato.plusDays(6),
+                    ),
+                ),
+            ).last()
+
+        assertThat(forsteSoknad.status).isEqualTo(SoknadsstatusDTO.FREMTIDIG)
+        assertThat(andreSoknad.status).isEqualTo(SoknadsstatusDTO.FREMTIDIG)
+
+        aktiveringJob.bestillAktivering(now = basisDato.plusDays(7))
+        val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2).tilSoknader()
+
+        assertThat(kafkaSoknader).hasSize(2)
+        val forsteKafkaSoknad = kafkaSoknader.find { it.id == forsteSoknad.id }
+        val andreKafkaSoknad = kafkaSoknader.find { it.id == andreSoknad.id }
+
+        assertThat(forsteKafkaSoknad!!.status).isEqualTo(SoknadsstatusDTO.NY)
+        assertThat(andreKafkaSoknad!!.status).isEqualTo(SoknadsstatusDTO.NY)
+
+        // Begge søknader er 'forstegangssoknad' siden de har forskjellig arbeidsgiver.
+        assertThat(forsteKafkaSoknad.forstegangssoknad).isTrue()
+        assertThat(andreKafkaSoknad.forstegangssoknad).isTrue()
+
+        // Første søknad skal inneholde spørsmål om medlemskap, men ikke ARBEID_UTENFOR_NORGE.
+        assertThat(forsteKafkaSoknad.medlemskapVurdering).isEqualTo("UAVKLART")
+
+        forsteKafkaSoknad.sporsmal.flatten().map { it.tag }
+            .apply {
+                assertThat(this).contains(
+                    MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
+                    MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
+                    MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
+                    MEDLEMSKAP_OPPHOLDSTILLATELSE,
+                )
+            }.also {
+                assertThat(it).doesNotContain(
+                    ARBEID_UTENFOR_NORGE,
+                )
+            }
+
+        // Andre søknad skal hverken inneholde ARBEID_UTENFOR_NORGE eller spørsmål om medlemskap siden vi har stilt
+        // spørsmål om medlemskapspørsmål til den samme brukeren i en søknad for en annen arbeidsgiver.
+        assertThat(andreKafkaSoknad.medlemskapVurdering).isNull()
+
+        assertThat(andreKafkaSoknad.sporsmal.flatten().map { it.tag }).doesNotContain(
+            MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
+            MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
+            MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
+            MEDLEMSKAP_OPPHOLDSTILLATELSE,
+            ARBEID_UTENFOR_NORGE,
+        )
     }
 
     private fun lagUavklartMockResponse() =
