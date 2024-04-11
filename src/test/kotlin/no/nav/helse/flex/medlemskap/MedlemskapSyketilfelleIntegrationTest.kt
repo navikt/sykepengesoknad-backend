@@ -34,8 +34,7 @@ import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 
-// TODO: Bruk Klient i test i stedet for assertThat() for likhet på tvers av tester.
-
+// TODO: Bruk kluent stedet for assertThat() for likhet på tvers av tester.
 /**
  * Tester at medlemskapspørsmål kun skal stilles i én førstegangssøknad et syketilfelle, uavhenging av arbeidsgiver.
  *

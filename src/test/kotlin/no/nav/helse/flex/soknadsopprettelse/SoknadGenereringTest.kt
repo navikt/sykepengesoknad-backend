@@ -13,7 +13,6 @@ import java.time.LocalDate
 import java.time.ZoneOffset
 import java.util.*
 
-// TODO: Utvid med tester for skalHaSporsmalOmMedlemskap().
 class SoknadGenereringTest {
     @Test
     fun `Søknad er første til arbeidsgiver siden 'fom' er før tidligere søknader`() {
@@ -429,9 +428,9 @@ class SoknadGenereringTest {
                     soknadsType = Soknadstype.ARBEIDSTAKERE,
                 ).copy(
                     sporsmal =
-                        listOf(
-                            SporsmalBuilder().id("1").tag(UTENLANDSK_SYKMELDING_BOSTED).svartype(Svartype.JA_NEI).build(),
-                        ),
+                    listOf(
+                        SporsmalBuilder().id("1").tag(UTENLANDSK_SYKMELDING_BOSTED).svartype(Svartype.JA_NEI).build(),
+                    ),
                 ),
             )
 
@@ -490,9 +489,9 @@ class SoknadGenereringTest {
                     soknadsType = Soknadstype.ARBEIDSTAKERE,
                 ).copy(
                     sporsmal =
-                        listOf(
-                            SporsmalBuilder().id("1").tag(UTENLANDSK_SYKMELDING_BOSTED).svartype(Svartype.JA_NEI).build(),
-                        ),
+                    listOf(
+                        SporsmalBuilder().id("1").tag(UTENLANDSK_SYKMELDING_BOSTED).svartype(Svartype.JA_NEI).build(),
+                    ),
                 ),
             )
 
@@ -507,6 +506,112 @@ class SoknadGenereringTest {
             )
 
         harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad) `should be` false
+    }
+
+    @Test
+    fun `Første søknad til arbeidsgiver skal ha medlemskapspørsmål siden det er eneste førstegangssøknad`() {
+        val startSykeforloep = LocalDate.of(2023, 1, 1)
+
+        val soknad =
+            lagSoknad(
+                arbeidsgiver = 1,
+                fom = LocalDate.of(2023, 1, 17),
+                tom = LocalDate.of(2023, 1, 31),
+                startSykeforlop = startSykeforloep,
+                arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadsType = Soknadstype.ARBEIDSTAKERE,
+            )
+
+        skalHaSporsmalOmMedlemskap(emptyList(), soknad) `should be` true
+    }
+
+    @Test
+    fun `Søknad er ikke første søknad og skal ikke ha medlemskapspørsmål`() {
+        val startSykeforloep = LocalDate.of(2023, 1, 1)
+        val eksisterendeSoknader =
+            listOf(
+                lagSoknad(
+                    arbeidsgiver = 1,
+                    fom = LocalDate.of(2023, 1, 1),
+                    tom = LocalDate.of(2023, 1, 16),
+                    startSykeforlop = startSykeforloep,
+                    arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                    soknadsType = Soknadstype.ARBEIDSTAKERE,
+                ),
+            )
+
+        val soknad =
+            lagSoknad(
+                arbeidsgiver = 1,
+                fom = LocalDate.of(2023, 1, 17),
+                tom = LocalDate.of(2023, 1, 31),
+                startSykeforlop = startSykeforloep,
+                arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadsType = Soknadstype.ARBEIDSTAKERE,
+            )
+
+        skalHaSporsmalOmMedlemskap(eksisterendeSoknader, soknad) `should be` false
+    }
+
+    @Test
+    fun `Første søknad til arbeidsgiver skal ha medlemskapspørsmål da ingen andre førstegangssøknader har`() {
+        val startSykeforloep = LocalDate.of(2023, 1, 1)
+        val eksisterendeSoknader =
+            listOf(
+                lagSoknad(
+                    arbeidsgiver = 1,
+                    fom = LocalDate.of(2023, 2, 1),
+                    tom = LocalDate.of(2023, 2, 1),
+                    startSykeforlop = startSykeforloep,
+                    arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                    soknadsType = Soknadstype.ARBEIDSTAKERE,
+                )
+            )
+
+        val soknad =
+            lagSoknad(
+                arbeidsgiver = 2,
+                fom = LocalDate.of(2023, 2, 1),
+                tom = LocalDate.of(2023, 2, 1),
+                startSykeforlop = startSykeforloep,
+                arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadsType = Soknadstype.ARBEIDSTAKERE,
+            )
+
+        skalHaSporsmalOmMedlemskap(eksisterendeSoknader, soknad) `should be` true
+    }
+
+    @Test
+    fun `Første søknad til arbeidsgiver skal ha ikke ha medlemskapspørsmål siden en annen førstegangssøknad har`() {
+        val startSykeforloep = LocalDate.of(2023, 1, 1)
+        val eksisterendeSoknader =
+            listOf(
+                lagSoknad(
+                    arbeidsgiver = 1,
+                    fom = LocalDate.of(2023, 2, 1),
+                    tom = LocalDate.of(2023, 2, 1),
+                    startSykeforlop = startSykeforloep,
+                    arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                    soknadsType = Soknadstype.ARBEIDSTAKERE,
+                ).copy(
+                    sporsmal =
+                    listOf(
+                        SporsmalBuilder().id("1").tag(MEDLEMSKAP_OPPHOLDSTILLATELSE).svartype(Svartype.JA_NEI).build(),
+                    ),
+                ),
+            )
+
+        val soknad =
+            lagSoknad(
+                arbeidsgiver = 2,
+                fom = LocalDate.of(2023, 2, 1),
+                tom = LocalDate.of(2023, 2, 1),
+                startSykeforlop = startSykeforloep,
+                arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadsType = Soknadstype.ARBEIDSTAKERE,
+            )
+
+        skalHaSporsmalOmMedlemskap(eksisterendeSoknader, soknad) `should be` false
     }
 
     private fun lagSoknad(
