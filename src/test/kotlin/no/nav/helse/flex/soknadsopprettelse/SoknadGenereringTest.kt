@@ -428,9 +428,9 @@ class SoknadGenereringTest {
                     soknadsType = Soknadstype.ARBEIDSTAKERE,
                 ).copy(
                     sporsmal =
-                    listOf(
-                        SporsmalBuilder().id("1").tag(UTENLANDSK_SYKMELDING_BOSTED).svartype(Svartype.JA_NEI).build(),
-                    ),
+                        listOf(
+                            SporsmalBuilder().id("1").tag(UTENLANDSK_SYKMELDING_BOSTED).svartype(Svartype.JA_NEI).build(),
+                        ),
                 ),
             )
 
@@ -489,9 +489,9 @@ class SoknadGenereringTest {
                     soknadsType = Soknadstype.ARBEIDSTAKERE,
                 ).copy(
                     sporsmal =
-                    listOf(
-                        SporsmalBuilder().id("1").tag(UTENLANDSK_SYKMELDING_BOSTED).svartype(Svartype.JA_NEI).build(),
-                    ),
+                        listOf(
+                            SporsmalBuilder().id("1").tag(UTENLANDSK_SYKMELDING_BOSTED).svartype(Svartype.JA_NEI).build(),
+                        ),
                 ),
             )
 
@@ -565,7 +565,7 @@ class SoknadGenereringTest {
                     startSykeforlop = startSykeforloep,
                     arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
                     soknadsType = Soknadstype.ARBEIDSTAKERE,
-                )
+                ),
             )
 
         val soknad =
@@ -595,9 +595,9 @@ class SoknadGenereringTest {
                     soknadsType = Soknadstype.ARBEIDSTAKERE,
                 ).copy(
                     sporsmal =
-                    listOf(
-                        SporsmalBuilder().id("1").tag(MEDLEMSKAP_OPPHOLDSTILLATELSE).svartype(Svartype.JA_NEI).build(),
-                    ),
+                        listOf(
+                            SporsmalBuilder().id("1").tag(MEDLEMSKAP_OPPHOLDSTILLATELSE).svartype(Svartype.JA_NEI).build(),
+                        ),
                 ),
             )
 

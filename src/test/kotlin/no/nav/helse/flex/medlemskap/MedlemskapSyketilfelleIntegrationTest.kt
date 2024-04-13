@@ -12,7 +12,8 @@ import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLDSTILLATELSE
 import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLD_UTENFOR_EOS
 import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE
 import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE
-import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
+import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO.*
+import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.reisetilskudd
@@ -24,7 +25,11 @@ import no.nav.helse.flex.util.serialisertTilString
 import no.nav.helse.flex.ventPåRecords
 import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
 import okhttp3.mockwebserver.MockResponse
-import org.assertj.core.api.Assertions.assertThat
+import org.amshove.kluent.`should be`
+import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.`should contain all`
+import org.amshove.kluent.`should not contain`
+import org.amshove.kluent.`should not contain any`
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
@@ -34,16 +39,14 @@ import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 
-// TODO: Bruk kluent stedet for assertThat() for likhet på tvers av tester.
 /**
- * Tester at medlemskapspørsmål kun skal stilles i én førstegangssøknad et syketilfelle, uavhenging av arbeidsgiver.
+ * Tester at medlemskapspørsmål kun skal stilles i én førstegangssøknad et syketilfelle, uavhengig av arbeidsgiver.
  *
  * @see MedlemskapSporsmalIntegrationTest for testing av hele flyten fra sykmelding blir sendt til spørsmål
  *      om medlemskap blir besvart og søknaden sendt inn.
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
-
     @Autowired
     private lateinit var sporsmalDAO: SporsmalDAO
 
@@ -74,7 +77,7 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
             lagUavklartMockResponse(),
         )
 
-        val soknader1 =
+        val forsteSoknad =
             sendSykmelding(
                 sykmeldingKafkaMessage(
                     arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
@@ -86,9 +89,9 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
                             tom = LocalDate.of(2023, 1, 7),
                         ),
                 ),
-            )
+            ).first()
 
-        val soknader2 =
+        val andreSoknad =
             sendSykmelding(
                 oppfolgingsdato = LocalDate.of(2023, 1, 1),
                 sykmeldingKafkaMessage =
@@ -102,16 +105,14 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
                                 tom = LocalDate.of(2023, 1, 17),
                             ),
                     ),
-            )
+            ).first()
 
-        assertThat(soknader1).hasSize(1)
-        assertThat(soknader1.last().medlemskapVurdering).isEqualTo("UAVKLART")
-        assertThat(soknader1.last().forstegangssoknad).isTrue()
+        forsteSoknad.medlemskapVurdering `should be equal to` "UAVKLART"
+        forsteSoknad.forstegangssoknad `should be` true
 
-        assertThat(soknader2).hasSize(1)
         // Skal ikke ha medlemskapspørsmål siden det ikke er en førstegangssøknad.
-        assertThat(soknader2.last().medlemskapVurdering).isNull()
-        assertThat(soknader2.last().forstegangssoknad).isFalse()
+        andreSoknad.medlemskapVurdering `should be` null
+        andreSoknad.forstegangssoknad `should be` false
     }
 
     @Test
@@ -122,7 +123,7 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
             )
         }
 
-        val soknader1 =
+        val opprinneligSoknad =
             sendSykmelding(
                 sykmeldingKafkaMessage(
                     arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
@@ -134,9 +135,12 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
                             tom = LocalDate.of(2023, 1, 7),
                         ),
                 ),
-            )
+            ).first()
 
-        val soknader2 =
+        opprinneligSoknad.medlemskapVurdering `should be equal to` "UAVKLART"
+        opprinneligSoknad.forstegangssoknad `should be` true
+
+        val klippendeSoknader =
             sendSykmelding(
                 forventaSoknader = 2,
                 sykmeldingKafkaMessage =
@@ -152,16 +156,19 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
                     ),
             )
 
-        assertThat(soknader1).hasSize(1)
-        assertThat(soknader1.last().medlemskapVurdering).isEqualTo("UAVKLART")
-        assertThat(soknader1.last().forstegangssoknad).isTrue()
-
-        assertThat(soknader2).hasSize(2)
         // Søknaden opprettet som følge av den første søknaden blir slettet siden den neste sykmeldingen er helt
         // overlappende. Både slettet og ny søknad returneres.
-        assertThat(soknader2.first().medlemskapVurdering).isNull()
-        assertThat(soknader2.last().medlemskapVurdering).isEqualTo("UAVKLART")
-        assertThat(soknader2.last().forstegangssoknad).isTrue()
+        klippendeSoknader.size `should be equal to` 2
+
+        val forsteSoknad = klippendeSoknader.first()
+        val overlappendeSoknad = klippendeSoknader.last()
+
+        forsteSoknad.medlemskapVurdering `should be` null
+        forsteSoknad.status `should be equal to` SLETTET
+
+        overlappendeSoknad.medlemskapVurdering `should be equal to` "UAVKLART"
+        overlappendeSoknad.status `should be equal to` NY
+        overlappendeSoknad.forstegangssoknad `should be` true
     }
 
     @Test
@@ -172,7 +179,7 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
             )
         }
 
-        val soknader1 =
+        val opprinneligSoknad =
             sendSykmelding(
                 sykmeldingKafkaMessage(
                     arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
@@ -184,12 +191,15 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
                             tom = LocalDate.of(2023, 1, 7),
                         ),
                 ),
-            )
+            ).first()
 
-        val soknader2 =
+        opprinneligSoknad.medlemskapVurdering `should be equal to` "UAVKLART"
+        opprinneligSoknad.forstegangssoknad `should be` true
+
+        val klippendeSoknader =
             sendSykmelding(
                 forventaSoknader = 2,
-                // Tvinger samme startStyketilfelle siden dette er en mock og ikke et faktisk kall til flex-syketilfelle.
+                // Tvinger samme startSyketilfelle siden dette er en mock og ikke et faktisk kall til flex-syketilfelle.
                 oppfolgingsdato = LocalDate.of(2023, 1, 1),
                 sykmeldingKafkaMessage =
                     sykmeldingKafkaMessage(
@@ -204,17 +214,19 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
                     ),
             )
 
-        assertThat(soknader1).hasSize(1)
-        assertThat(soknader1.last().medlemskapVurdering).isEqualTo("UAVKLART")
-        assertThat(soknader1.last().forstegangssoknad).isTrue()
-
-        // Søknaden opprettet som følge av den første søknaden blir klippet siden den delvis overlappes av neste
+        // Søknadene opprettes som følge av at den første søknaden blir klippet siden den delvis overlappes av neste
         // sykmelding. Begge søknader returneres etter klippingen.
-        assertThat(soknader2).hasSize(2)
-        assertThat(soknader2.first().medlemskapVurdering).isEqualTo("UAVKLART")
-        assertThat(soknader2.first().forstegangssoknad).isTrue()
-        assertThat(soknader2.last().medlemskapVurdering).isNull()
-        assertThat(soknader2.last().forstegangssoknad).isFalse()
+        klippendeSoknader.size `should be equal to` 2
+
+        val forsteSoknad = klippendeSoknader.first()
+        val andreSoknad = klippendeSoknader.last()
+
+        forsteSoknad.id `should be equal to` opprinneligSoknad.id
+        forsteSoknad.medlemskapVurdering `should be equal to` "UAVKLART"
+        forsteSoknad.forstegangssoknad `should be` true
+
+        andreSoknad.medlemskapVurdering `should be` null
+        andreSoknad.forstegangssoknad `should be` false
     }
 
     @Test
@@ -235,8 +247,6 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
                             heltSykmeldt(
                                 fom = LocalDate.of(2023, 1, 1),
                                 tom = LocalDate.of(2023, 1, 7),
-                                // Reisetilskudd er ikke kompatibelt med medlemskapspørsmål og vil resultere i to søknader
-                                // i stedet for at periodene blir slått sammen til én søknad.
                             ) +
                                 reisetilskudd(
                                     fom = LocalDate.of(2023, 1, 8),
@@ -245,10 +255,19 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
                     ),
             )
 
-        assertThat(soknader).hasSize(2)
-        assertThat(soknader.first().medlemskapVurdering).isEqualTo("UAVKLART")
-        assertThat(soknader.last().medlemskapVurdering).isNull()
-        assertThat(soknader.last().forstegangssoknad).isFalse()
+        // Reisetilskudd er ikke kompatibelt med medlemskapspørsmål og vil resultere i to søknader
+        // i stedet for at periodene blir slått sammen til én søknad.
+        soknader.size `should be equal to` 2
+
+        val arbeidstakerSoknad = soknader.first()
+        val reisetilskuddSoknad = soknader.last()
+
+        arbeidstakerSoknad.type `should be equal to` SoknadstypeDTO.ARBEIDSTAKERE
+        arbeidstakerSoknad.medlemskapVurdering `should be equal to` "UAVKLART"
+
+        reisetilskuddSoknad.type `should be equal to` SoknadstypeDTO.REISETILSKUDD
+        reisetilskuddSoknad.medlemskapVurdering `should be` null
+        reisetilskuddSoknad.forstegangssoknad `should be` false
     }
 
     @Test
@@ -257,7 +276,7 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
             lagUavklartMockResponse(),
         )
 
-        val soknader1 =
+        val forsteSoknad =
             sendSykmelding(
                 sykmeldingKafkaMessage(
                     arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
@@ -269,12 +288,14 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
                             tom = LocalDate.of(2023, 1, 7),
                         ),
                 ),
-            )
+            ).first()
 
         // Simulerer at søknaden ble opprettet før vi begynte å stille medlemskapspørsmål ved å slette spørsmålene.
-        slettMedlemskapSporsmal(soknader1.first())
+        slettMedlemskapSporsmal(forsteSoknad)
+        val lagretForstegangssoknad = hentSoknad(fnr = fnr, soknadId = forsteSoknad.id)
+        lagretForstegangssoknad.sporsmal!!.find { it.tag == MEDLEMSKAP_OPPHOLDSTILLATELSE } `should be` null
 
-        val soknader2 =
+        val andreSoknad =
             sendSykmelding(
                 oppfolgingsdato = LocalDate.of(2023, 1, 1),
                 sykmeldingKafkaMessage =
@@ -288,15 +309,11 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
                                 tom = LocalDate.of(2023, 1, 17),
                             ),
                     ),
-            )
+            ).first()
 
-        val lagretForstegangssoknad = hentSoknad(fnr = fnr, soknadId = soknader1.first().id)
-        assertThat(lagretForstegangssoknad.sporsmal!!.find { it.tag == MEDLEMSKAP_OPPHOLDSTILLATELSE }).isNull()
-
-        assertThat(soknader2).hasSize(1)
-        // Skal ikke ha medlemskapspørsmål siden det ikke er en førstegangssøknad.
-        assertThat(soknader2.last().medlemskapVurdering).isNull()
-        assertThat(soknader2.last().forstegangssoknad).isFalse()
+        // Påfølgende søknad ikke ha medlemskapspørsmål siden det ikke er en førstegangssøknad.
+        andreSoknad.medlemskapVurdering `should be` null
+        andreSoknad.forstegangssoknad `should be` false
     }
 
     @Test
@@ -305,7 +322,7 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
             lagUavklartMockResponse(),
         )
 
-        val soknader1 =
+        val forsteSoknad =
             sendSykmelding(
                 sykmeldingKafkaMessage(
                     arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
@@ -317,9 +334,9 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
                             tom = LocalDate.of(2023, 1, 17),
                         ),
                 ),
-            )
+            ).first()
 
-        val soknader2 =
+        val andreSoknad =
             sendSykmelding(
                 sykmeldingKafkaMessage =
                     sykmeldingKafkaMessage(
@@ -332,17 +349,15 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
                                 tom = LocalDate.of(2023, 1, 7),
                             ),
                     ),
-            )
+            ).first()
 
-        assertThat(soknader1).hasSize(1)
-        assertThat(soknader1.last().medlemskapVurdering).isEqualTo("UAVKLART")
-        assertThat(soknader1.last().forstegangssoknad).isTrue()
+        forsteSoknad.medlemskapVurdering `should be equal to` "UAVKLART"
+        forsteSoknad.forstegangssoknad `should be` true
 
         // En tilbakedatert søknad vil ikke få medlemskapspørsmål siden en søknad opprettet før den tilbakedaterte
         // allerede har medlemskapspørsmål.
-        assertThat(soknader2).hasSize(1)
-        assertThat(soknader2.last().medlemskapVurdering).isNull()
-        assertThat(soknader2.last().forstegangssoknad).isTrue()
+        andreSoknad.medlemskapVurdering `should be` null
+        andreSoknad.forstegangssoknad `should be` true
     }
 
     @Test
@@ -361,12 +376,12 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
                     fnr = fnr,
                     arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = "000000001", orgNavn = "Arbeidsgiver 1"),
                     sykmeldingsperioder =
-                    heltSykmeldt(
-                        fom = basisDato.minusDays(6),
-                        tom = basisDato.minusDays(2),
-                    ),
+                        heltSykmeldt(
+                            fom = basisDato.minusDays(6),
+                            tom = basisDato.minusDays(2),
+                        ),
                 ),
-            ).last()
+            ).first()
 
         val andreSoknad =
             sendSykmelding(
@@ -375,45 +390,43 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
                     fnr = fnr,
                     arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = "000000002", orgNavn = "Arbeidsgiver 2"),
                     sykmeldingsperioder =
-                    heltSykmeldt(
-                        fom = basisDato.minusDays(6),
-                        tom = basisDato.minusDays(2),
-                    ),
+                        heltSykmeldt(
+                            fom = basisDato.minusDays(6),
+                            tom = basisDato.minusDays(2),
+                        ),
                 ),
-            ).last()
+            ).first()
 
-        // Begge søknader er 'forstegangssoknad' siden de har forskjellig arbeidsgiver.
-        assertThat(forsteSoknad.forstegangssoknad).isTrue()
-        assertThat(andreSoknad.forstegangssoknad).isTrue()
+        // Begge søknadene er 'forstegangssoknad' siden de har forskjellig arbeidsgiver.
+        forsteSoknad.forstegangssoknad `should be` true
+        andreSoknad.forstegangssoknad `should be` true
 
         // Første søknad skal inneholde spørsmål om medlemskap, men ikke ARBEID_UTENFOR_NORGE.
-        assertThat(forsteSoknad.medlemskapVurdering).isEqualTo("UAVKLART")
-
+        forsteSoknad.medlemskapVurdering `should be equal to` "UAVKLART"
         forsteSoknad.sporsmal.flatten().map { it.tag }
             .apply {
-                assertThat(this).contains(
-                    MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
-                    MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
-                    MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
-                    MEDLEMSKAP_OPPHOLDSTILLATELSE,
-                )
+                this `should contain all`
+                    listOf(
+                        MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
+                        MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
+                        MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
+                        MEDLEMSKAP_OPPHOLDSTILLATELSE,
+                    )
             }.also {
-                assertThat(it).doesNotContain(
-                    ARBEID_UTENFOR_NORGE,
-                )
+                it `should not contain` ARBEID_UTENFOR_NORGE
             }
 
         // Andre søknad skal hverken inneholde ARBEID_UTENFOR_NORGE eller spørsmål om medlemskap siden vi har stilt
         // spørsmål om medlemskapspørsmål til den samme brukeren i en søknad for en annen arbeidsgiver.
-        assertThat(andreSoknad.medlemskapVurdering).isNull()
-
-        assertThat(andreSoknad.sporsmal.flatten().map { it.tag }).doesNotContain(
-            MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
-            MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
-            MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
-            MEDLEMSKAP_OPPHOLDSTILLATELSE,
-            ARBEID_UTENFOR_NORGE,
-        )
+        andreSoknad.medlemskapVurdering `should be` null
+        andreSoknad.sporsmal.flatten().map { it.tag } `should not contain any`
+            listOf(
+                MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
+                MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
+                MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
+                MEDLEMSKAP_OPPHOLDSTILLATELSE,
+                ARBEID_UTENFOR_NORGE,
+            )
     }
 
     @Test
@@ -432,12 +445,12 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
                     fnr = fnr,
                     arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = "000000001", orgNavn = "Arbeidsgiver 1"),
                     sykmeldingsperioder =
-                    heltSykmeldt(
-                        fom = basisDato.plusDays(2),
-                        tom = basisDato.plusDays(6),
-                    ),
+                        heltSykmeldt(
+                            fom = basisDato.plusDays(2),
+                            tom = basisDato.plusDays(6),
+                        ),
                 ),
-            ).last()
+            ).first()
 
         val andreSoknad =
             sendSykmelding(
@@ -446,58 +459,57 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
                     fnr = fnr,
                     arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = "000000002", orgNavn = "Arbeidsgiver 2"),
                     sykmeldingsperioder =
-                    heltSykmeldt(
-                        fom = basisDato.plusDays(2),
-                        tom = basisDato.plusDays(6),
-                    ),
+                        heltSykmeldt(
+                            fom = basisDato.plusDays(2),
+                            tom = basisDato.plusDays(6),
+                        ),
                 ),
-            ).last()
+            ).first()
 
-        assertThat(forsteSoknad.status).isEqualTo(SoknadsstatusDTO.FREMTIDIG)
-        assertThat(andreSoknad.status).isEqualTo(SoknadsstatusDTO.FREMTIDIG)
+        forsteSoknad.status `should be equal to` FREMTIDIG
+        andreSoknad.status `should be equal to` FREMTIDIG
 
+        // Aktiverer begge søknadene samtidig
         aktiveringJob.bestillAktivering(now = basisDato.plusDays(7))
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2).tilSoknader()
 
-        assertThat(kafkaSoknader).hasSize(2)
+        kafkaSoknader.size `should be equal to` 2
         val forsteKafkaSoknad = kafkaSoknader.find { it.id == forsteSoknad.id }
         val andreKafkaSoknad = kafkaSoknader.find { it.id == andreSoknad.id }
 
-        assertThat(forsteKafkaSoknad!!.status).isEqualTo(SoknadsstatusDTO.NY)
-        assertThat(andreKafkaSoknad!!.status).isEqualTo(SoknadsstatusDTO.NY)
+        forsteKafkaSoknad!!.status `should be equal to` NY
+        andreKafkaSoknad!!.status `should be equal to` NY
 
-        // Begge søknader er 'forstegangssoknad' siden de har forskjellig arbeidsgiver.
-        assertThat(forsteKafkaSoknad.forstegangssoknad).isTrue()
-        assertThat(andreKafkaSoknad.forstegangssoknad).isTrue()
+        // Begge søknadene er 'forstegangssoknad' siden de har forskjellig arbeidsgiver.
+        forsteKafkaSoknad.forstegangssoknad `should be` true
+        andreKafkaSoknad.forstegangssoknad `should be` true
 
         // Første søknad skal inneholde spørsmål om medlemskap, men ikke ARBEID_UTENFOR_NORGE.
-        assertThat(forsteKafkaSoknad.medlemskapVurdering).isEqualTo("UAVKLART")
-
+        forsteKafkaSoknad.medlemskapVurdering `should be equal to` "UAVKLART"
         forsteKafkaSoknad.sporsmal.flatten().map { it.tag }
             .apply {
-                assertThat(this).contains(
-                    MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
-                    MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
-                    MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
-                    MEDLEMSKAP_OPPHOLDSTILLATELSE,
-                )
+                this `should contain all`
+                    listOf(
+                        MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
+                        MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
+                        MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
+                        MEDLEMSKAP_OPPHOLDSTILLATELSE,
+                    )
             }.also {
-                assertThat(it).doesNotContain(
-                    ARBEID_UTENFOR_NORGE,
-                )
+                it `should not contain` ARBEID_UTENFOR_NORGE
             }
 
         // Andre søknad skal hverken inneholde ARBEID_UTENFOR_NORGE eller spørsmål om medlemskap siden vi har stilt
         // spørsmål om medlemskapspørsmål til den samme brukeren i en søknad for en annen arbeidsgiver.
-        assertThat(andreKafkaSoknad.medlemskapVurdering).isNull()
-
-        assertThat(andreKafkaSoknad.sporsmal.flatten().map { it.tag }).doesNotContain(
-            MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
-            MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
-            MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
-            MEDLEMSKAP_OPPHOLDSTILLATELSE,
-            ARBEID_UTENFOR_NORGE,
-        )
+        andreKafkaSoknad.medlemskapVurdering `should be` null
+        andreKafkaSoknad.sporsmal.flatten().map { it.tag } `should not contain any`
+            listOf(
+                MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
+                MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
+                MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
+                MEDLEMSKAP_OPPHOLDSTILLATELSE,
+                ARBEID_UTENFOR_NORGE,
+            )
     }
 
     private fun lagUavklartMockResponse() =
@@ -515,17 +527,22 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
         )
 
     private fun slettMedlemskapSporsmal(soknad: SykepengesoknadDTO) {
+        val medlemskapTags =
+            listOf(
+                MEDLEMSKAP_OPPHOLDSTILLATELSE,
+                MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
+                MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
+                MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
+            )
+
         val medlemskapSporsmal =
             soknad.sporsmal!!
-                .filter {
-                    it.tag in
-                        listOf(
-                            MEDLEMSKAP_OPPHOLDSTILLATELSE,
-                            MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
-                            MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
-                            MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
-                        )
-                }.flatten()
-        sporsmalDAO.slettEnkeltSporsmal(medlemskapSporsmal.map { it.id!! }.distinct())
+                .filter { it.tag in medlemskapTags }
+                .flatten()
+                .map { it.id!! }
+                // TODO: Kan slettes?
+                .distinct()
+
+        sporsmalDAO.slettEnkeltSporsmal(medlemskapSporsmal)
     }
 }
