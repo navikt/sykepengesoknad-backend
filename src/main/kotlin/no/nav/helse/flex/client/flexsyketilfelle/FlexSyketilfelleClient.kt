@@ -6,6 +6,7 @@ import no.nav.helse.flex.domain.Sykeforloep
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.mapper.SykepengesoknadTilSykepengesoknadDTOMapper
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
+import no.nav.helse.flex.domain.sykmelding.SykmeldingRequest
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
@@ -47,7 +48,8 @@ class FlexSyketilfelleClient(
                 .pathSegment("api", "v1", "sykeforloep")
                 .queryParam("hentAndreIdenter", "false")
 
-        val entity = HttpEntity(OBJECT_MAPPER.writeValueAsString(sykmeldingKafkaMessage), headers)
+        val sykmeldingRequest = SykmeldingRequest(sykmeldingKafkaMessage)
+        val entity = HttpEntity(OBJECT_MAPPER.writeValueAsString(sykmeldingRequest), headers)
 
         val result =
             flexSyketilfelleRestTemplate

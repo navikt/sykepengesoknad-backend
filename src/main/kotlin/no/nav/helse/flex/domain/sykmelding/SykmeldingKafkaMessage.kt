@@ -9,3 +9,7 @@ data class SykmeldingKafkaMessage(
     val kafkaMetadata: KafkaMetadataDTO,
     val event: SykmeldingStatusKafkaEventDTO,
 )
+
+data class SykmeldingRequest(
+    val sykmeldingKafkaMessage: SykmeldingKafkaMessage,
+)
