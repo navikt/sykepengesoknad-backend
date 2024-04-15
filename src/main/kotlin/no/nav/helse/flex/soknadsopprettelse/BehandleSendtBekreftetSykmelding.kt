@@ -119,7 +119,7 @@ class BehandleSendtBekreftetSykmelding(
             throw RuntimeException("Det finnes allerede en advisory lock for sykmelding ${sykmeldingKafkaMessage.sykmelding.id}")
         }
 
-        val sykeForloep = flexSyketilfelleClient.hentSykeforloep(identer)
+        val sykeForloep = flexSyketilfelleClient.hentSykeforloep(identer, sykmeldingKafkaMessage)
 
         return klippOgOpprett.klippOgOpprett(sykmeldingKafkaMessage, arbeidssituasjon, identer, sykeForloep)
     }

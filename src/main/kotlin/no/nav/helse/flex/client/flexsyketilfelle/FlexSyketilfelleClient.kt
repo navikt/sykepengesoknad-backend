@@ -6,14 +6,15 @@ import no.nav.helse.flex.domain.Sykeforloep
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.mapper.SykepengesoknadTilSykepengesoknadDTOMapper
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
+import no.nav.helse.flex.domain.sykmelding.SykmeldingRequest
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
+import no.nav.helse.flex.util.OBJECT_MAPPER
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpMethod
-import org.springframework.http.HttpMethod.GET
+import org.springframework.http.HttpMethod.POST
 import org.springframework.http.MediaType
 import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
@@ -33,7 +34,10 @@ class FlexSyketilfelleClient(
     fun FolkeregisterIdenter.tilFnrHeader(): String = this.alle().joinToString(separator = ", ")
 
     @Retryable
-    fun hentSykeforloep(identer: FolkeregisterIdenter): List<Sykeforloep> {
+    fun hentSykeforloep(
+        identer: FolkeregisterIdenter,
+        sykmeldingKafkaMessage: SykmeldingKafkaMessage,
+    ): List<Sykeforloep> {
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
         headers.set("fnr", identer.tilFnrHeader())
@@ -44,12 +48,15 @@ class FlexSyketilfelleClient(
                 .pathSegment("api", "v1", "sykeforloep")
                 .queryParam("hentAndreIdenter", "false")
 
+        val sykmeldingRequest = SykmeldingRequest(sykmeldingKafkaMessage)
+        val entity = HttpEntity(OBJECT_MAPPER.writeValueAsString(sykmeldingRequest), headers)
+
         val result =
             flexSyketilfelleRestTemplate
                 .exchange(
                     queryBuilder.toUriString(),
-                    GET,
-                    HttpEntity(null, headers),
+                    POST,
+                    entity,
                     Array<Sykeforloep>::class.java,
                 )
 
@@ -83,7 +90,7 @@ class FlexSyketilfelleClient(
             flexSyketilfelleRestTemplate
                 .exchange(
                     queryBuilder.toUriString(),
-                    HttpMethod.POST,
+                    POST,
                     HttpEntity(erUtenforVentetidRequest, headers),
                     Boolean::class.java,
                 )
@@ -132,7 +139,7 @@ class FlexSyketilfelleClient(
             flexSyketilfelleRestTemplate
                 .exchange(
                     queryBuilder.toUriString(),
-                    HttpMethod.POST,
+                    POST,
                     HttpEntity(requestBody, headers),
                     Arbeidsgiverperiode::class.java,
                 )

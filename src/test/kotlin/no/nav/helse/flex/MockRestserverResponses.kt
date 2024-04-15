@@ -54,7 +54,7 @@ fun FellesTestOppsett.mockFlexSyketilfelleSykeforloep(
 fun FellesTestOppsett.mockFlexSyketilfelleSykeforloep(sykeforloep: List<Sykeforloep>) {
     flexSyketilfelleMockRestServiceServer
         .expect(manyTimes(), requestTo("http://flex-syketilfelle/api/v1/sykeforloep?hentAndreIdenter=false"))
-        .andExpect(method(HttpMethod.GET))
+        .andExpect(method(HttpMethod.POST))
         .andRespond(
             withSuccess(
                 OBJECT_MAPPER.writeValueAsBytes(
