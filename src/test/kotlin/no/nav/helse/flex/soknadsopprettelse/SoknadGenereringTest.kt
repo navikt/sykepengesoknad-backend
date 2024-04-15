@@ -605,13 +605,122 @@ class SoknadGenereringTest {
             lagSoknad(
                 arbeidsgiver = 2,
                 fom = LocalDate.of(2023, 2, 1),
-                tom = LocalDate.of(2023, 2, 1),
+                tom = LocalDate.of(2023, 2, 10),
                 startSykeforlop = startSykeforloep,
                 arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
                 soknadsType = Soknadstype.ARBEIDSTAKERE,
             )
 
         skalHaSporsmalOmMedlemskap(eksisterendeSoknader, soknad) `should be` false
+    }
+
+    @Test
+    fun `Tilbakedatert søknad får ikke medlemskapspørsmål når forrige første søknad har spørsmål`() {
+        val startSykeforloep = LocalDate.of(2023, 1, 1)
+        val eksisterendeSoknader =
+            listOf(
+                lagSoknad(
+                    arbeidsgiver = 1,
+                    fom = LocalDate.of(2023, 2, 11),
+                    tom = LocalDate.of(2023, 2, 20),
+                    startSykeforlop = startSykeforloep,
+                    arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                    soknadsType = Soknadstype.ARBEIDSTAKERE,
+                ).copy(
+                    sporsmal =
+                        listOf(
+                            SporsmalBuilder().id("1").tag(ARBEID_UTENFOR_NORGE).svartype(Svartype.JA_NEI).build(),
+                        ),
+                ),
+            )
+
+        val soknad =
+            lagSoknad(
+                arbeidsgiver = 1,
+                fom = LocalDate.of(2023, 2, 1),
+                tom = LocalDate.of(2023, 2, 15),
+                startSykeforlop = startSykeforloep,
+                arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadsType = Soknadstype.ARBEIDSTAKERE,
+            )
+
+        skalHaSporsmalOmMedlemskap(eksisterendeSoknader, soknad) `should be` false
+    }
+
+    @Test
+    fun `Søknad får ikke medlemskapspørsmål når en påfølgende søknad til en annen arbeidsgiver har spørsmål`() {
+        val startSykeforloep = LocalDate.of(2023, 1, 1)
+        val eksisterendeSoknader =
+            listOf(
+                lagSoknad(
+                    arbeidsgiver = 1,
+                    fom = LocalDate.of(2023, 2, 11),
+                    tom = LocalDate.of(2023, 2, 20),
+                    startSykeforlop = startSykeforloep,
+                    arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                    soknadsType = Soknadstype.ARBEIDSTAKERE,
+                ).copy(
+                    sporsmal =
+                        listOf(
+                            SporsmalBuilder().id("1").tag(ARBEID_UTENFOR_NORGE).svartype(Svartype.JA_NEI).build(),
+                        ),
+                ),
+                // Tilbakedatert, får ikke spørsmål.
+                lagSoknad(
+                    arbeidsgiver = 1,
+                    fom = LocalDate.of(2023, 2, 1),
+                    tom = LocalDate.of(2023, 2, 15),
+                    startSykeforlop = startSykeforloep,
+                    arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                    soknadsType = Soknadstype.ARBEIDSTAKERE,
+                ),
+            )
+
+        val soknad =
+            lagSoknad(
+                arbeidsgiver = 2,
+                fom = LocalDate.of(2023, 2, 1),
+                tom = LocalDate.of(2023, 2, 15),
+                startSykeforlop = startSykeforloep,
+                arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadsType = Soknadstype.ARBEIDSTAKERE,
+            )
+
+        skalHaSporsmalOmMedlemskap(eksisterendeSoknader, soknad) `should be` false
+    }
+
+    @Test
+    fun `Tilbakedatert søknad får medlemskapspørsmål når tidligere søknad er slettet`() {
+        val startSykeforloep = LocalDate.of(2023, 1, 1)
+        val eksisterendeSoknader =
+            listOf(
+                lagSoknad(
+                    arbeidsgiver = 1,
+                    fom = LocalDate.of(2023, 2, 11),
+                    tom = LocalDate.of(2023, 2, 20),
+                    startSykeforlop = startSykeforloep,
+                    arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                    soknadsType = Soknadstype.ARBEIDSTAKERE,
+                ).copy(
+                    status = Soknadstatus.SLETTET,
+                    sporsmal =
+                        listOf(
+                            SporsmalBuilder().id("1").tag(ARBEID_UTENFOR_NORGE).svartype(Svartype.JA_NEI).build(),
+                        ),
+                ),
+            )
+
+        val soknad =
+            lagSoknad(
+                arbeidsgiver = 1,
+                fom = LocalDate.of(2023, 2, 1),
+                tom = LocalDate.of(2023, 2, 15),
+                startSykeforlop = startSykeforloep,
+                arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadsType = Soknadstype.ARBEIDSTAKERE,
+            )
+
+        skalHaSporsmalOmMedlemskap(eksisterendeSoknader, soknad) `should be` true
     }
 
     private fun lagSoknad(

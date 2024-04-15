@@ -1,6 +1,7 @@
 package no.nav.helse.flex.soknadsopprettelse
 
 import no.nav.helse.flex.domain.Arbeidssituasjon
+import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 
@@ -27,25 +28,34 @@ fun harBlittStiltUtlandsSporsmal(
         .any { it -> it.sporsmal.any { it.tag == UTENLANDSK_SYKMELDING_BOSTED } }
 }
 
-// Returnerer 'true' hvis det er første søknad til arbeidsgiver i forløpet og eventuelt andre første søkander til
-// andre arbeidsgivere heller ikke allerede har fått medlemskapsspørsmål.
 fun skalHaSporsmalOmMedlemskap(
     eksisterendeSoknader: List<Sykepengesoknad>,
     sykepengesoknad: Sykepengesoknad,
 ): Boolean =
+// Returnerer 'true' hvis det er første søknad til arbeidsgiver i forløpet og eventuelt andre søknader ikke inneholder
+// medlemskapsspørsmål.
     erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, sykepengesoknad) &&
-        eksisterendeSoknader.none { soknad ->
-            soknad.sporsmal.any {
-                it.tag in
-                    listOf(
-                        MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
-                        MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
-                        MEDLEMSKAP_OPPHOLDSTILLATELSE,
-                        MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
-                        ARBEID_UTENFOR_NORGE,
-                    )
+        // TODO: Vurder om vi bare skal sjekke andre førstegangssøknader (til andre arbeidsgivere). Vil påvirke om tilbakedaterte får spørsmål.
+        eksisterendeSoknader.asSequence()
+            .filterNot {
+                listOf(
+                    Soknadstatus.AVBRUTT,
+                    Soknadstatus.UTGATT,
+                    Soknadstatus.SLETTET,
+                ).contains(it.status)
             }
-        }
+            .none { soknad ->
+                soknad.sporsmal.any {
+                    it.tag in
+                        listOf(
+                            MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
+                            MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
+                            MEDLEMSKAP_OPPHOLDSTILLATELSE,
+                            MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
+                            ARBEID_UTENFOR_NORGE,
+                        )
+                }
+            }
 
 // Finner søknader med samme arbeidssituasjon som, men med 'fom' FØR søknaden det sammenlignes med.
 private fun Sequence<Sykepengesoknad>.finnTidligereSoknaderMedSammeArbeidssituasjon(

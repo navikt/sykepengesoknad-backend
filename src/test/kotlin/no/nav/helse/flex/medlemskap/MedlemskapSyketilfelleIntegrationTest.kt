@@ -540,8 +540,6 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
                 .filter { it.tag in medlemskapTags }
                 .flatten()
                 .map { it.id!! }
-                // TODO: Kan slettes?
-                .distinct()
 
         sporsmalDAO.slettEnkeltSporsmal(medlemskapSporsmal)
     }
