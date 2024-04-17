@@ -146,11 +146,12 @@ class SporsmalGenerator(
         eksisterendeSoknader: List<Sykepengesoknad>,
         soknad: Sykepengesoknad,
     ): List<MedlemskapSporsmalTag> {
-        // Medlemskapspørsmal skal kun stilles i den første søknaden i et sykeforløp, uavhengig av arbeidsgiver.
-        if (!erForsteSoknadIForlop(eksisterendeSoknader, soknad)) {
+        // Medlemskapspørsmal skal kun stilles i én første søknad i et sykeforløp, uavhengig av arbeidsgiver.
+        if (!skalHaSporsmalOmMedlemskap(eksisterendeSoknader, soknad)) {
             return emptyList()
         }
 
+        // Stiller spørsmål om ARBEID_UTENFOR_NORGE hvis det ikke blir returnert en medlemskapvurdering fra LovMe.
         val medlemskapVurdering =
             hentMedlemskapVurdering(soknad)
                 ?: return listOf(SykepengesoknadSporsmalTag.ARBEID_UTENFOR_NORGE)
@@ -174,7 +175,6 @@ class SporsmalGenerator(
                 listOf(SykepengesoknadSporsmalTag.ARBEID_UTENFOR_NORGE)
             }
 
-            // TODO: Fjern denne når toggle er slått på for alle brukere.
             !unleashToggles.stillMedlemskapSporsmal(soknad.fnr) -> {
                 log.info(
                     "Medlemskapvurdering er UAVKLART for søknad ${soknad.id}, men medlemskapToggle svarte " +
