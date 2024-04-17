@@ -297,6 +297,7 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
 
         val andreSoknad =
             sendSykmelding(
+                // Setter samme startSyketilfelle siden dette er en mock og ikke et faktisk kall til flex-syketilfelle.
                 oppfolgingsdato = LocalDate.of(2023, 1, 1),
                 sykmeldingKafkaMessage =
                     sykmeldingKafkaMessage(
@@ -317,7 +318,7 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `Tilbakedatert søknad med tidligere startSyketilfelle får ikke medlemskapspørsmål`() {
+    fun `Tilbakedatert søknad med tidligere startSyketilfelle får medlemskapspørsmål`() {
         medlemskapMockWebServer.enqueue(
             lagUavklartMockResponse(),
         )
@@ -354,9 +355,8 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
         forsteSoknad.medlemskapVurdering `should be equal to` "UAVKLART"
         forsteSoknad.forstegangssoknad `should be` true
 
-        // En tilbakedatert søknad vil ikke få medlemskapspørsmål siden en søknad opprettet før den tilbakedaterte
-        // allerede har medlemskapspørsmål.
-        andreSoknad.medlemskapVurdering `should be` null
+        // En tilbakedatert søknad vil få medlemskapspørsmål siden den vil ha en annen dato for startSykeforløp.
+        forsteSoknad.medlemskapVurdering `should be equal to` "UAVKLART"
         andreSoknad.forstegangssoknad `should be` true
     }
 
