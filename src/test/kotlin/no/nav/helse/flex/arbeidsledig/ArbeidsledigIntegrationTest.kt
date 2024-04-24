@@ -26,13 +26,14 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
 
     @Test
     fun `01 - Opprett arbeidsledigsøknad`() {
-        val soknader = sendSykmelding(
-            sykmeldingKafkaMessage(
-                arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
-                fnr = FNR,
-                tidligereArbeidsgiverOrgnummer = TIDLIGERE_ARBEIDSGIVER_ORGNR,
-            ),
-        )
+        val soknader =
+            sendSykmelding(
+                sykmeldingKafkaMessage(
+                    arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
+                    fnr = FNR,
+                    tidligereArbeidsgiverOrgnummer = TIDLIGERE_ARBEIDSGIVER_ORGNR,
+                ),
+            )
 
         assertThat(soknader).hasSize(1)
         with(soknader.last()) {
@@ -61,10 +62,11 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
 
     @Test
     fun `03 - Sjekk at svar på ansvarserklæringa muterer ikke søknaden`() {
-        val soknaden = hentSoknad(
-            soknadId = hentSoknaderMetadata(FNR).first().id,
-            fnr = FNR,
-        )
+        val soknaden =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(FNR).first().id,
+                fnr = FNR,
+            )
 
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = FNR)
             .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
@@ -189,9 +191,13 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
             .besvarSporsmal(ANDRE_INNTEKTSKILDER, "NEI")
             .besvarSporsmal(ARBEIDSLEDIG_UTLAND, "JA", ferdigBesvart = false)
             .besvarSporsmal(UTLANDSOPPHOLD_SOKT_SYKEPENGER, "JA", ferdigBesvart = false)
-            .besvarSporsmal(UTLAND_NAR, svar = "{\"fom\":\"${
-                LocalDate.of(2020, 2, 1).format(DateTimeFormatter.ISO_LOCAL_DATE)}\"," +
-                "\"tom\":\"${LocalDate.of(2020, 2, 3).format(DateTimeFormatter.ISO_LOCAL_DATE)}\"}")
+            .besvarSporsmal(
+                UTLAND_NAR,
+                svar =
+                    "{\"fom\":\"${
+                        LocalDate.of(2020, 2, 1).format(DateTimeFormatter.ISO_LOCAL_DATE)}\"," +
+                        "\"tom\":\"${LocalDate.of(2020, 2, 3).format(DateTimeFormatter.ISO_LOCAL_DATE)}\"}",
+            )
             .besvarSporsmal(TIL_SLUTT, "Skal si ifra om noe endrer seg", ferdigBesvart = false)
             .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
     }
