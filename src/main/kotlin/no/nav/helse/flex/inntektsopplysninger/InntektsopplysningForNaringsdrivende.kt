@@ -9,6 +9,7 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.repository.SykepengesoknadDbRecord
 import no.nav.helse.flex.repository.SykepengesoknadRepository
 import no.nav.helse.flex.soknadsopprettelse.INNTEKTSOPPLYSNINGER_DRIFT_VIRKSOMHETEN
+import no.nav.helse.flex.soknadsopprettelse.INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
@@ -37,8 +38,10 @@ class InntektsopplysningForNaringsdrivende(
             return
         }
 
-        val visNyKvittering = soknad.getSporsmalMedTagOrNull(INNTEKTSOPPLYSNINGER_DRIFT_VIRKSOMHETEN) != null
-
+        val visNyKvittering =
+            soknad.getSporsmalMedTagOrNull(INNTEKTSOPPLYSNINGER_DRIFT_VIRKSOMHETEN) != null || soknad.getSporsmalMedTagOrNull(
+                INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET,
+            ) != null
         val sykepengesoknadDbRecord =
             sykepengesoknadRepository.findBySykepengesoknadUuid(soknad.id)
                 ?: throw IllegalStateException("Fant ikke søknad")

@@ -25,8 +25,8 @@ fun lagSporsmalOmInntektsopplyninger(soknad: Sykepengesoknad): Sporsmal {
         undersporsmal =
             listOf(
                 Sporsmal(
-                    tag = INNTEKTSOPPLYSNINGER_DRIFT_VIRKSOMHETEN_JA,
-                    sporsmalstekst = "Ja",
+                    tag = INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET_NEI,
+                    sporsmalstekst = "Nei",
                     svartype = Svartype.RADIO,
                     kriterieForVisningAvUndersporsmal = Visningskriterie.CHECKED,
                     undersporsmal =
@@ -139,15 +139,15 @@ fun lagSporsmalOmInntektsopplyninger(soknad: Sykepengesoknad): Sporsmal {
                         ),
                 ),
                 Sporsmal(
-                    tag = INNTEKTSOPPLYSNINGER_DRIFT_VIRKSOMHETEN_NEI,
-                    sporsmalstekst = "Nei",
+                    tag = INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET_JA,
+                    sporsmalstekst = "Ja",
                     svartype = Svartype.RADIO,
                     kriterieForVisningAvUndersporsmal = Visningskriterie.CHECKED,
                     undersporsmal =
                         listOf(
                             Sporsmal(
-                                tag = INNTEKTSOPPLYSNINGER_DRIFT_VIRKSOMHETEN_OPPHORT,
-                                sporsmalstekst = "Når opphørte driften i virksomheten?",
+                                tag = INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET_NAR,
+                                sporsmalstekst = "Når ble virksomheten avviklet?",
                                 svartype = Svartype.DATO,
                                 min = null,
                                 max = soknad.fom.minusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE),

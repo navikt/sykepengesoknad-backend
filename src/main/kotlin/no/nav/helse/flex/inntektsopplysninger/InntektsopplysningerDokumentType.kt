@@ -42,6 +42,12 @@ fun Sykepengesoknad.inntektsopplysningerMaaDokumenteres(): Boolean {
         }
     }
 
+    getSporsmalMedTagOrNull(INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET_JA)?.let {
+        if (it.forsteSvar == "CHECKED") {
+            return false
+        }
+    }
+
     getSporsmalMedTagOrNull(INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET_JA)?.let {
         if (it.forsteSvar == "CHECKED") {
             return true
