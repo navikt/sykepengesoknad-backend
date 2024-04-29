@@ -19,8 +19,8 @@ fun lagSporsmalOmInntektsopplyninger(soknad: Sykepengesoknad): Sporsmal {
     val datoForVarigEndringEtter = beregnDatoForVarigEndringEtter(soknad.startSykeforlop!!)
 
     return Sporsmal(
-        tag = INNTEKTSOPPLYSNINGER_DRIFT_VIRKSOMHETEN,
-        sporsmalstekst = "Har det vært drift i virksomheten din fram til dagen du ble sykmeldt?",
+        tag = INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET,
+        sporsmalstekst = "Har du registrert virksomheten din som avviklet og slettet i Altinn før du ble sykmeldt?",
         svartype = Svartype.RADIO_GRUPPE,
         undersporsmal =
             listOf(
