@@ -109,7 +109,7 @@ class InntektsopplysningerIntegrasjonsTest : FellesTestOppsett() {
                 ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER,
                 UTLAND,
-                INNTEKTSOPPLYSNINGER_DRIFT_VIRKSOMHETEN,
+                INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET,
                 TIL_SLUTT,
             ),
         )
@@ -151,7 +151,7 @@ class InntektsopplysningerIntegrasjonsTest : FellesTestOppsett() {
             val sendtSoknad =
                 soknadBesvarer
                     .besvarSporsmal(
-                        tag = INNTEKTSOPPLYSNINGER_DRIFT_VIRKSOMHETEN_JA,
+                        tag = INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET_NEI,
                         svar = "CHECKED",
                         ferdigBesvart = false,
                     )

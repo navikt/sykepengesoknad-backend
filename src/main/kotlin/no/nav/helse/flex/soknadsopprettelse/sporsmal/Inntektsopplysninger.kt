@@ -19,14 +19,14 @@ fun lagSporsmalOmInntektsopplyninger(soknad: Sykepengesoknad): Sporsmal {
     val datoForVarigEndringEtter = beregnDatoForVarigEndringEtter(soknad.startSykeforlop!!)
 
     return Sporsmal(
-        tag = INNTEKTSOPPLYSNINGER_DRIFT_VIRKSOMHETEN,
-        sporsmalstekst = "Har det vært drift i virksomheten din fram til dagen du ble sykmeldt?",
+        tag = INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET,
+        sporsmalstekst = "Har du registrert virksomheten din som avviklet og slettet i Altinn før du ble sykmeldt?",
         svartype = Svartype.RADIO_GRUPPE,
         undersporsmal =
             listOf(
                 Sporsmal(
-                    tag = INNTEKTSOPPLYSNINGER_DRIFT_VIRKSOMHETEN_JA,
-                    sporsmalstekst = "Ja",
+                    tag = INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET_NEI,
+                    sporsmalstekst = "Nei",
                     svartype = Svartype.RADIO,
                     kriterieForVisningAvUndersporsmal = Visningskriterie.CHECKED,
                     undersporsmal =
@@ -139,15 +139,15 @@ fun lagSporsmalOmInntektsopplyninger(soknad: Sykepengesoknad): Sporsmal {
                         ),
                 ),
                 Sporsmal(
-                    tag = INNTEKTSOPPLYSNINGER_DRIFT_VIRKSOMHETEN_NEI,
-                    sporsmalstekst = "Nei",
+                    tag = INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET_JA,
+                    sporsmalstekst = "Ja",
                     svartype = Svartype.RADIO,
                     kriterieForVisningAvUndersporsmal = Visningskriterie.CHECKED,
                     undersporsmal =
                         listOf(
                             Sporsmal(
-                                tag = INNTEKTSOPPLYSNINGER_DRIFT_VIRKSOMHETEN_OPPHORT,
-                                sporsmalstekst = "Når opphørte driften i virksomheten?",
+                                tag = INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET_NAR,
+                                sporsmalstekst = "Når ble virksomheten avviklet?",
                                 svartype = Svartype.DATO,
                                 min = null,
                                 max = soknad.fom.minusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE),
