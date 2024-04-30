@@ -7,6 +7,7 @@ import jakarta.servlet.ServletResponse
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletRequestWrapper
 import jakarta.servlet.http.HttpServletResponse
+import no.nav.helse.flex.jwt
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
 import org.springframework.beans.factory.annotation.Autowired
@@ -31,11 +32,10 @@ class AuthenticationHeaderFilter : Filter {
         response: ServletResponse?,
         chain: FilterChain,
     ) {
-        println("AuthenticationHeaderFilter")
         val httpRequest = request as HttpServletRequest
         val httpResponse = response as HttpServletResponse?
         val mutableRequest = MutableHttpServletRequest(httpRequest)
-        // TODO mutableRequest.putHeader("Authorization", "Bearer ${server.skapAzureJwt()}")
+        mutableRequest.putHeader("Authorization", "Bearer ${server.jwt(TestdataGenerator.FNR)}")
         chain.doFilter(mutableRequest, httpResponse)
     }
 }

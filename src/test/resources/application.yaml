@@ -90,7 +90,6 @@ pdl.api.url: "http://pdl-api.pdl"
 narmesteleder.url: "http://narmesteleder"
 
 
-syfosyketilfelleApi.url: http://localhost:8080
 
 
 management:
