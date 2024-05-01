@@ -1,3 +1,5 @@
+package no.nav.helse.flex.testoppsett
+
 import no.nav.helse.flex.medlemskap.MedlemskapMockDispatcher
 import no.nav.helse.flex.mockdispatcher.*
 import okhttp3.mockwebserver.MockWebServer

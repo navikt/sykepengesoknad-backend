@@ -1,6 +1,5 @@
-import no.nav.helse.flex.testoppsett.startKafkaContainer
-import no.nav.helse.flex.testoppsett.startPostgresContainer
-import no.nav.helse.flex.testoppsett.startRedisContainer
+package no.nav.helse.flex.testoppsett
+
 import kotlin.concurrent.thread
 
 fun startAlleContainere() {
