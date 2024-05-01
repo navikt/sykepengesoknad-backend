@@ -62,7 +62,7 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
                 fnr = fnr,
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
                 statusEvent = STATUS_SENDT,
-                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = "123454543", orgNavn = "Kebabbiten"),
+                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = "123454543", orgNavn = "Gatekjøkkenet"),
             )
         val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
         val sykmelding =
@@ -139,7 +139,7 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
             soknaden.sporsmal!!.first {
                 it.tag == "JOBBET_DU_GRADERT_0"
             }.sporsmalstekst,
-        ).isEqualTo("Sykmeldingen sier du kunne jobbe 50 % i jobben din hos Kebabbiten. Jobbet du mer enn det?")
+        ).isEqualTo("Sykmeldingen sier du kunne jobbe 50 % i jobben din hos Gatekjøkkenet. Jobbet du mer enn det?")
     }
 
     @Test
