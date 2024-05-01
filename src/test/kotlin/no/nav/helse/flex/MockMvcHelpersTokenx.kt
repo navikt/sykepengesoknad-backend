@@ -23,6 +23,11 @@ fun FellesTestOppsett.jwt(
     acrClaim: String = "idporten-loa-high",
 ) = server.tokenxToken(fnr = fnr, acrClaim = acrClaim)
 
+fun MockOAuth2Server.jwt(
+    fnr: String,
+    acrClaim: String = "idporten-loa-high",
+) = tokenxToken(fnr = fnr, acrClaim = acrClaim)
+
 fun FellesTestOppsett.hentSoknaderMetadataCustomAcr(
     fnr: String,
     acrClaim: String,

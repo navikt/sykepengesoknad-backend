@@ -89,17 +89,8 @@ kafka-schema-registry.url: http://schema.url
 pdl.api.url: "http://pdl-api.pdl"
 narmesteleder.url: "http://narmesteleder"
 
-server:
-  port: 7070
-  servlet.context-path: /sykepengesoknad-backend
-  shutdown: graceful
 
 
-syfosyketilfelleApi.url: http://localhost:8080
-
-javax.net.ssl:
-  trustStore: truststore
-  trustStorePassword: truststorepassword
 
 management:
   endpoint:
@@ -112,7 +103,6 @@ management:
   health:
     livenessstate.enabled: true
     readinessState.enabled: true
-  metrics.export.prometheus.enabled: true
 
 spring:
   profiles.active: test,cronjobber,sykmeldinger

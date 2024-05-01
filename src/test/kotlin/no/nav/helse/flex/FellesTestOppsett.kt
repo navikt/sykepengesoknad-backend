@@ -7,12 +7,13 @@ import no.nav.helse.flex.juridiskvurdering.juridiskVurderingTopic
 import no.nav.helse.flex.kafka.SYKEPENGESOKNAD_TOPIC
 import no.nav.helse.flex.kafka.producer.AivenKafkaProducer
 import no.nav.helse.flex.kafka.producer.RebehandlingSykmeldingSendtProducer
-import no.nav.helse.flex.medlemskap.MedlemskapMockDispatcher
 import no.nav.helse.flex.mockdispatcher.*
 import no.nav.helse.flex.personhendelse.AutomatiskInnsendingVedDodsfall
 import no.nav.helse.flex.repository.SykepengesoknadRepository
 import no.nav.helse.flex.soknadsopprettelse.BehandleSykmeldingOgBestillAktivering
 import no.nav.helse.flex.testdata.DatabaseReset
+import no.nav.helse.flex.testoppsett.startAlleContainere
+import no.nav.helse.flex.testoppsett.startMockWebServere
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
 import okhttp3.mockwebserver.MockWebServer
@@ -33,15 +34,6 @@ import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.web.client.RestTemplate
-import org.testcontainers.containers.GenericContainer
-import org.testcontainers.containers.KafkaContainer
-import org.testcontainers.containers.PostgreSQLContainer
-import org.testcontainers.utility.DockerImageName
-import kotlin.concurrent.thread
-
-private class RedisContainer : GenericContainer<RedisContainer>("bitnami/redis:6.2")
-
-private class PostgreSQLContainer14 : PostgreSQLContainer<PostgreSQLContainer14>("postgres:14-alpine")
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @EnableMockOAuth2Server
@@ -58,71 +50,15 @@ abstract class FellesTestOppsett {
         private val innsendingApiMockWebServer: MockWebServer
 
         init {
-            val threads = mutableListOf<Thread>()
-
-            thread {
-                RedisContainer().apply {
-                    withEnv("ALLOW_EMPTY_PASSWORD", "yes")
-                    withExposedPorts(6379)
-                    start()
-
-                    System.setProperty("REDIS_URI_SESSIONS", "rediss://$host:$firstMappedPort")
-                    System.setProperty("REDIS_USERNAME_SESSIONS", "default")
-                    System.setProperty("REDIS_PASSWORD_SESSIONS", "")
-                }
-            }.also { threads.add(it) }
-
-            thread {
-                KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.5.3")).apply {
-                    start()
-                    System.setProperty("KAFKA_BROKERS", bootstrapServers)
-                }
-            }.also { threads.add(it) }
-
-            thread {
-                PostgreSQLContainer14().apply {
-                    // Cloud SQL har wal_level = 'logical' på grunn av flagget cloudsql.logical_decoding i
-                    // naiserator.yaml. Vi må sette det samme lokalt for at flyway migrering skal fungere.
-                    withCommand("postgres", "-c", "wal_level=logical")
-                    start()
-                    System.setProperty("spring.datasource.url", "$jdbcUrl&reWriteBatchedInserts=true")
-                    System.setProperty("spring.datasource.username", username)
-                    System.setProperty("spring.datasource.password", password)
-                }
-            }.also { threads.add(it) }
-
-            pdlMockWebserver =
-                MockWebServer().apply {
-                    System.setProperty("pdl.api.url", "http://localhost:$port")
-                    dispatcher = PdlMockDispatcher
-                }
-            medlemskapMockWebServer =
-                MockWebServer().apply {
-                    System.setProperty("MEDLEMSKAP_VURDERING_URL", "http://localhost:$port")
-                    dispatcher = MedlemskapMockDispatcher
-                }
-            inntektskomponentenMockWebServer =
-                MockWebServer().apply {
-                    System.setProperty("INNTEKTSKOMPONENTEN_URL", "http://localhost:$port")
-                    dispatcher = InntektskomponentenMockDispatcher
-                }
-            eregMockWebServer =
-                MockWebServer().apply {
-                    System.setProperty("EREG_URL", "http://localhost:$port")
-                    dispatcher = EregMockDispatcher
-                }
-            yrkesskadeMockWebServer =
-                MockWebServer().apply {
-                    System.setProperty("YRKESSKADE_URL", "http://localhost:$port")
-                    dispatcher = YrkesskadeMockDispatcher
-                }
-            innsendingApiMockWebServer =
-                MockWebServer().apply {
-                    System.setProperty("INNSENDING_API_URL", "http://localhost:$port")
-                    dispatcher = InnsendingApiMockDispatcher
-                }
-
-            threads.forEach { it.join() }
+            startAlleContainere()
+            startMockWebServere().also {
+                pdlMockWebserver = it.pdlMockWebserver
+                medlemskapMockWebServer = it.medlemskapMockWebServer
+                inntektskomponentenMockWebServer = it.inntektskomponentenMockWebServer
+                eregMockWebServer = it.eregMockWebServer
+                yrkesskadeMockWebServer = it.yrkesskadeMockWebServer
+                innsendingApiMockWebServer = it.innsendingApiMockWebServer
+            }
         }
     }
 
