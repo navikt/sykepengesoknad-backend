@@ -37,7 +37,6 @@ val testContainersVersion = "1.19.7"
 val kluentVersion = "1.73"
 val jsonSchemaValidatorVersion = "1.4.0"
 val unleashVersion = "9.2.0"
-val springdocOpenapiVersion = "2.5.0"
 
 dependencies {
     implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
@@ -61,7 +60,6 @@ dependencies {
     implementation("no.nav.security:token-validation-spring:$tokenSupportVersion")
     implementation("no.nav.security:token-client-spring:$tokenSupportVersion")
     implementation("no.nav.helse.flex:sykepengesoknad-kafka:$sykepengesoknadKafkaVersion")
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springdocOpenapiVersion")
     implementation("io.confluent:kafka-connect-avro-converter:$confluentVersion")
     implementation("io.confluent:kafka-schema-registry-client:$confluentVersion")
     implementation("no.nav.helse.flex:sykepengesoknad-kafka:$sykepengesoknadKafkaVersion")
