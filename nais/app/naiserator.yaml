@@ -92,9 +92,6 @@ spec:
           namespace: teamsykefravr
         - application: sparkel-dokumenter
           namespace: tbd
-        {{#if flex-openapi-docs-ui}}
-        - application: flex-openapi-docs-ui
-        {{/if}}
   envFrom:
     - secret: sykepengesoknad-backend-unleash-api-token
   env:
