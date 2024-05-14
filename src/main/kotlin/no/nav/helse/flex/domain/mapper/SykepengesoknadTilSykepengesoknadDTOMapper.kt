@@ -48,7 +48,6 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
                 )
         }
             .merkSelvstendigOgFrilanserMedRedusertVenteperiode()
-            .merkFeilinfo(sykepengesoknad.avbruttFeilinfo)
             .merkMedMedlemskapStatus()
     }
 
@@ -71,14 +70,6 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
                 }
             }
             return hentSoknadsPerioderMedFaktiskGrad.first
-        }
-    }
-
-    private fun SykepengesoknadDTO.merkFeilinfo(avbruttFeilinfo: Boolean?): SykepengesoknadDTO {
-        return if (avbruttFeilinfo == true) {
-            this.copy(sendTilGosys = true, merknader = listOf("AVBRUTT_FEILINFO"))
-        } else {
-            this
         }
     }
 

@@ -35,7 +35,6 @@ data class SykepengesoknadDbRecord(
     val arbeidssituasjon: Arbeidssituasjon?,
     val egenmeldtSykmelding: Boolean?,
     val merknaderFraSykmelding: String?,
-    val avbruttFeilinfo: Boolean?,
     val opprettetAvInntektsmelding: Boolean = false,
     val utenlandskSykmelding: Boolean,
     val egenmeldingsdagerFraSykmelding: String? = null,

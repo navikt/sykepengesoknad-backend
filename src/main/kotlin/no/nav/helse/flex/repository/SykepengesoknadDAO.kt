@@ -575,7 +575,6 @@ class SykepengesoknadDAO(
                         Optional.ofNullable(resultSet.getString("avsendertype"))
                             .map { Avsendertype.valueOf(it) }.orElse(null),
                     egenmeldtSykmelding = resultSet.getNullableBoolean("egenmeldt_sykmelding"),
-                    avbruttFeilinfo = resultSet.getNullableBoolean("avbrutt_feilinfo"),
                     merknaderFraSykmelding = resultSet.getNullableString("merknader_fra_sykmelding").tilMerknader(),
                     opprettetAvInntektsmelding = resultSet.getBoolean("opprettet_av_inntektsmelding"),
                     utenlandskSykmelding = resultSet.getBoolean("utenlandsk_sykmelding"),
@@ -626,7 +625,6 @@ class SykepengesoknadDAO(
             SET status = 'UTGATT'
             WHERE status IN ('NY', 'AVBRUTT')
             AND opprettet < :dato
-            AND avbrutt_feilinfo IS NULL
             AND ((tom < :dato) OR (soknadstype = 'OPPHOLD_UTLAND'))
             """.trimIndent(),
             MapSqlParameterSource()

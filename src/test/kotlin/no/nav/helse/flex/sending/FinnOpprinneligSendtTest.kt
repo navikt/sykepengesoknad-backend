@@ -76,7 +76,6 @@ class FinnOpprinneligSendtTest {
             arbeidssituasjon = Arbeidssituasjon.ANNET,
             egenmeldtSykmelding = null,
             merknaderFraSykmelding = null,
-            avbruttFeilinfo = null,
             utenlandskSykmelding = false,
             egenmeldingsdagerFraSykmelding = null,
             sendt = sendt,
