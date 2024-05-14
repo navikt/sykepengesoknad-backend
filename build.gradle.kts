@@ -26,7 +26,7 @@ repositories {
     }
 }
 
-val tokenSupportVersion = "4.1.4"
+val tokenSupportVersion = "4.1.5"
 val confluentVersion = "7.6.1"
 val syfoKafkaVersion = "2021.07.20-09.39-6be2c52c"
 val sykepengesoknadKafkaVersion = "2024.05.04-08.31-672172ee"
