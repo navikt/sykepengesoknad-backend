@@ -34,7 +34,6 @@ data class Sykepengesoknad(
     val arbeidssituasjon: Arbeidssituasjon?,
     val egenmeldtSykmelding: Boolean? = null,
     val merknaderFraSykmelding: List<Merknad>? = null,
-    val avbruttFeilinfo: Boolean? = null,
     val opprettetAvInntektsmelding: Boolean = false,
     val sendt: Instant? = null,
     val utenlandskSykmelding: Boolean,

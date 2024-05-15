@@ -43,7 +43,6 @@ fun Sykepengesoknad.normaliser(): NormalisertSoknad {
             arbeidssituasjon = arbeidssituasjon,
             egenmeldtSykmelding = egenmeldtSykmelding,
             merknaderFraSykmelding = merknaderFraSykmelding?.serialisertTilString(),
-            avbruttFeilinfo = avbruttFeilinfo,
             opprettetAvInntektsmelding = opprettetAvInntektsmelding,
             utenlandskSykmelding = utenlandskSykmelding,
             sendt = sendt,
