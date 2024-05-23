@@ -72,11 +72,11 @@ class KorrigerSoknadService(
                 // det er en ny søknad og svarene er endret.
                 sporsmal =
                     if (hasVaerKlarOverAt) {
-                        val filteredSporsmal =
+                        val filtererertSporsmalsliste =
                             soknadSomKorrigeres.sporsmal.filterNot {
                                 it.tag == VAER_KLAR_OVER_AT || it.tag == BEKREFT_OPPLYSNINGER
                             }
-                        filteredSporsmal + tilSlutt()
+                        filtererertSporsmalsliste + tilSlutt()
                     } else {
                         soknadSomKorrigeres.sporsmal.flatMap { sporsmal ->
                             when (sporsmal.tag) {
