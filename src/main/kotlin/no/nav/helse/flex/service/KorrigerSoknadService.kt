@@ -13,6 +13,8 @@ import no.nav.helse.flex.repository.normaliser
 import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
 import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
 import no.nav.helse.flex.soknadsopprettelse.TIL_SLUTT
+import no.nav.helse.flex.soknadsopprettelse.VAER_KLAR_OVER_AT
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.tilSlutt
 import no.nav.helse.flex.svarvalidering.ValideringException
 import no.nav.helse.flex.util.Metrikk
 import org.springframework.http.HttpStatus
@@ -55,6 +57,8 @@ class KorrigerSoknadService(
     }
 
     private fun opprettUtkast(soknadSomKorrigeres: Sykepengesoknad): Sykepengesoknad {
+        val hasVaerKlarOverAt = soknadSomKorrigeres.sporsmal.any { it.tag == VAER_KLAR_OVER_AT }
+
         val korrigering =
             soknadSomKorrigeres.copy(
                 id = UUID.randomUUID().toString(),
@@ -67,27 +71,32 @@ class KorrigerSoknadService(
                 // ANSVARSERKLARING og BEKREFT_OPPLYSNINGER siden vi vil at innsender skal svare på disse på nytt siden
                 // det er en ny søknad og svarene er endret.
                 sporsmal =
-                    soknadSomKorrigeres.sporsmal.map { sporsmal ->
-                        when (sporsmal.tag) {
-                            ANSVARSERKLARING, BEKREFT_OPPLYSNINGER -> {
-                                sporsmal.copy(svar = emptyList())
+                    if (hasVaerKlarOverAt) {
+                        val filteredSporsmal =
+                            soknadSomKorrigeres.sporsmal.filterNot {
+                                it.tag == VAER_KLAR_OVER_AT || it.tag == BEKREFT_OPPLYSNINGER
                             }
-
-                            // TIL_SLUTT kan ikke besvares, men har BEKREFT_OPPLYSNIGNER som underspørsmål.
-                            TIL_SLUTT -> {
-                                val endretUndersporsmal =
-                                    sporsmal.undersporsmal.mapIndexed { index, undersporsmal ->
-                                        if (index == 0) {
-                                            undersporsmal.copy(svar = emptyList())
-                                        } else {
-                                            undersporsmal
+                        filteredSporsmal + tilSlutt()
+                    } else {
+                        soknadSomKorrigeres.sporsmal.flatMap { sporsmal ->
+                            when (sporsmal.tag) {
+                                ANSVARSERKLARING -> {
+                                    listOf(sporsmal.copy(svar = emptyList()))
+                                }
+                                TIL_SLUTT -> {
+                                    val endretUndersporsmal =
+                                        sporsmal.undersporsmal.mapIndexed { index, undersporsmal ->
+                                            if (index == 0) {
+                                                undersporsmal.copy(svar = emptyList())
+                                            } else {
+                                                undersporsmal
+                                            }
                                         }
-                                    }
-                                sporsmal.copy(svar = emptyList(), undersporsmal = endretUndersporsmal)
-                            }
-
-                            else -> {
-                                sporsmal
+                                    listOf(sporsmal.copy(svar = emptyList(), undersporsmal = endretUndersporsmal))
+                                }
+                                else -> {
+                                    listOf(sporsmal)
+                                }
                             }
                         }
                     },
