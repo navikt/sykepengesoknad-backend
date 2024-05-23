@@ -57,7 +57,7 @@ class KorrigerSoknadService(
     }
 
     private fun opprettUtkast(soknadSomKorrigeres: Sykepengesoknad): Sykepengesoknad {
-        val hasVaerKlarOverAt = soknadSomKorrigeres.sporsmal.any { it.tag == VAER_KLAR_OVER_AT }
+        val harVaerKlarOverAt = soknadSomKorrigeres.sporsmal.any { it.tag == VAER_KLAR_OVER_AT }
 
         val korrigering =
             soknadSomKorrigeres.copy(
@@ -71,7 +71,7 @@ class KorrigerSoknadService(
                 // ANSVARSERKLARING og BEKREFT_OPPLYSNINGER siden vi vil at innsender skal svare på disse på nytt siden
                 // det er en ny søknad og svarene er endret.
                 sporsmal =
-                    if (hasVaerKlarOverAt) {
+                    if (harVaerKlarOverAt) {
                         val filtererertSporsmalsliste =
                             soknadSomKorrigeres.sporsmal.filterNot {
                                 it.tag == VAER_KLAR_OVER_AT || it.tag == BEKREFT_OPPLYSNINGER
