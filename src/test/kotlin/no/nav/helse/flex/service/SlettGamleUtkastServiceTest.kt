@@ -2,8 +2,8 @@ package no.nav.helse.flex.service
 
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.domain.Soknadstatus
+import no.nav.helse.flex.mock.opprettNyArbeidstakerSoknad
 import no.nav.helse.flex.mock.opprettNySoknad
-import no.nav.helse.flex.mock.opprettNySoknadMock
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.util.tilOsloInstant
 import org.assertj.core.api.Assertions.assertThat
@@ -66,9 +66,8 @@ class SlettGamleUtkastServiceTest : FellesTestOppsett() {
 
     @Test
     fun `Sletter ikke utkast yngre enn 7 dager`() {
-        @Suppress("DEPRECATION")
         val soknad =
-            opprettNySoknadMock().copy(
+            opprettNyArbeidstakerSoknad().copy(
                 status = Soknadstatus.UTKAST_TIL_KORRIGERING,
                 tom = LocalDate.now().minusDays(6),
                 opprettet = LocalDate.now().minusDays(6).atStartOfDay().tilOsloInstant(),

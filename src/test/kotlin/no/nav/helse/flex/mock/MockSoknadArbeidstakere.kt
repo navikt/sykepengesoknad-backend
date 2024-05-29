@@ -20,86 +20,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 import java.util.*
 
-fun deprecatedGetSoknadMedFeriesporsmalSomUndersporsmal(soknadMetadata: Sykepengesoknad): Sykepengesoknad {
-    val sykepengesoknad =
-        soknadMetadata.copy(
-            sporsmal =
-                settOppSoknadArbeidstaker(
-                    SettOppSoknadOptions(
-                        sykepengesoknad = soknadMetadata,
-                        erForsteSoknadISykeforlop = true,
-                        harTidligereUtenlandskSpm = false,
-                        yrkesskade = YrkesskadeSporsmalGrunnlag(),
-                    ),
-                    andreKjenteArbeidsforhold = emptyList(),
-                ),
-        )
-            .fjernSporsmal(FERIE_V2)
-            .fjernSporsmal(PERMISJON_V2)
-            .fjernSporsmal(UTLAND_V2)
-
-    val spm =
-        sykepengesoknad.sporsmal.toMutableList().also {
-            it.add(
-                gammeltFormatFeriePermisjonUtlandsoppholdSporsmal(
-                    soknadMetadata.fom!!,
-                    soknadMetadata.tom!!,
-                ),
-            )
-        }
-    return sykepengesoknad.copy(sporsmal = spm)
-}
-
-fun gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal(): Sykepengesoknad {
-    val soknadMetadata =
-        Sykepengesoknad(
-            id = UUID.randomUUID().toString(),
-            status = Soknadstatus.NY,
-            opprettet = Instant.now(),
-            sporsmal = emptyList(),
-            fnr = "fnr-7454630",
-            startSykeforlop = now().minusMonths(1),
-            fom = now().minusMonths(1),
-            tom = now().minusMonths(1).plusDays(8),
-            arbeidssituasjon = ARBEIDSTAKER,
-            arbeidsgiverOrgnummer = "123456789",
-            arbeidsgiverNavn = "ARBEIDSGIVER A/S",
-            sykmeldingId = "14e78e84-50a5-45bb-9919-191c54f99691",
-            sykmeldingSkrevet = LocalDateTime.now().minusMonths(1).tilOsloInstant(),
-            soknadPerioder =
-                listOf(
-                    SykmeldingsperiodeAGDTO(
-                        now().minusMonths(1),
-                        now().minusMonths(1).plusDays(4),
-                        gradert = GradertDTO(grad = 100, reisetilskudd = false),
-                        type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
-                        aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
-                        behandlingsdager = null,
-                        innspillTilArbeidsgiver = null,
-                        reisetilskudd = false,
-                    ),
-                    SykmeldingsperiodeAGDTO(
-                        now().minusMonths(1).plusDays(5),
-                        now().minusMonths(1).plusDays(8),
-                        gradert = GradertDTO(grad = 40, reisetilskudd = false),
-                        type = PeriodetypeDTO.GRADERT,
-                        aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
-                        behandlingsdager = null,
-                        innspillTilArbeidsgiver = null,
-                        reisetilskudd = false,
-                    ),
-                ).tilSoknadsperioder(),
-            soknadstype = Soknadstype.ARBEIDSTAKERE,
-            egenmeldtSykmelding = null,
-            utenlandskSykmelding = false,
-            egenmeldingsdagerFraSykmelding = null, forstegangssoknad = false,
-        )
-
-    val sykepengesoknad = leggSvarPaSoknad(deprecatedGetSoknadMedFeriesporsmalSomUndersporsmal(soknadMetadata))
-    return sykepengesoknad.copy(sendtNav = Instant.now(), sendtArbeidsgiver = Instant.now())
-}
-
-fun opprettSendtSoknad(): Sykepengesoknad {
+fun opprettNyArbeidstakerSoknad(): Sykepengesoknad {
     val soknadMetadata =
         Sykepengesoknad(
             id = UUID.randomUUID().toString(),
@@ -170,79 +91,6 @@ fun opprettSendtSoknad(): Sykepengesoknad {
     )
 }
 
-@Deprecated("")
-fun opprettNySoknadMock(feriesporsmalSomHovedsporsmal: Boolean = true): Sykepengesoknad {
-    val soknad =
-        Sykepengesoknad(
-            id = UUID.randomUUID().toString(),
-            status = Soknadstatus.NY,
-            opprettet = Instant.now(),
-            sporsmal = emptyList(),
-            fnr = "fnr-7454630",
-            startSykeforlop = now().minusDays(24),
-            fom = now().minusDays(19),
-            tom = now().minusDays(10),
-            arbeidssituasjon = ARBEIDSTAKER,
-            arbeidsgiverOrgnummer = "123456789",
-            arbeidsgiverNavn = "ARBEIDSGIVER A/S",
-            sykmeldingId = "289148ba-4c3c-4b3f-b7a3-385b7e7c927d",
-            sykmeldingSkrevet = LocalDateTime.now().minusDays(19).tilOsloInstant(),
-            soknadPerioder =
-                listOf(
-                    SykmeldingsperiodeAGDTO(
-                        now().minusDays(19),
-                        now().minusDays(15),
-                        gradert = GradertDTO(grad = 100, reisetilskudd = false),
-                        type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
-                        aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
-                        behandlingsdager = null,
-                        innspillTilArbeidsgiver = null,
-                        reisetilskudd = false,
-                    ),
-                    SykmeldingsperiodeAGDTO(
-                        now().minusDays(14),
-                        now().minusDays(10),
-                        gradert = GradertDTO(grad = 40, reisetilskudd = false),
-                        type = PeriodetypeDTO.GRADERT,
-                        aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
-                        behandlingsdager = null,
-                        innspillTilArbeidsgiver = null,
-                        reisetilskudd = false,
-                    ),
-                ).tilSoknadsperioder(),
-            soknadstype = Soknadstype.ARBEIDSTAKERE,
-            egenmeldtSykmelding = null,
-            utenlandskSykmelding = false,
-            egenmeldingsdagerFraSykmelding = null,
-            forstegangssoknad = false,
-        )
-
-    val sykepengesoknad =
-        if (feriesporsmalSomHovedsporsmal) {
-            soknad.copy(
-                sporsmal =
-                    settOppSoknadArbeidstaker(
-                        SettOppSoknadOptions(
-                            sykepengesoknad = soknad,
-                            erForsteSoknadISykeforlop = true,
-                            harTidligereUtenlandskSpm = false,
-                            yrkesskade = YrkesskadeSporsmalGrunnlag(),
-                        ),
-                        andreKjenteArbeidsforhold = emptyList(),
-                    ),
-            )
-        } else {
-            deprecatedGetSoknadMedFeriesporsmalSomUndersporsmal(soknad)
-        }
-
-    return leggSvarPaSoknad(sykepengesoknad)
-}
-
-fun gammeltFormatOpprettNySoknadMedFeriesporsmalSomUndersporsmal(): Sykepengesoknad {
-    @Suppress("DEPRECATION")
-    return opprettNySoknadMock(false)
-}
-
 private fun leggSvarPaSoknad(sykepengesoknad: Sykepengesoknad): Sykepengesoknad {
     val s =
         sykepengesoknad
@@ -253,13 +101,9 @@ private fun leggSvarPaSoknad(sykepengesoknad: Sykepengesoknad): Sykepengesoknad 
             .andreInntektskilder()
             .bekreftelsespunkter()
 
-    return if (s.harFeriePermisjonEllerUtenlandsoppholdSporsmal()) {
-        s.feriePermisjonUtland()
-    } else {
-        s.besvarsporsmal(PERMISJON_V2, "NEI")
-            .utenlandsopphold()
-            .ferie()
-    }
+    return s.besvarsporsmal(PERMISJON_V2, "NEI")
+        .utenlandsopphold()
+        .ferie()
 }
 
 private fun Sykepengesoknad.tilbakeIFulltArbeid(): Sykepengesoknad {
@@ -280,21 +124,6 @@ private fun Sykepengesoknad.jobbetDuGradert(): Sykepengesoknad {
         .besvarsporsmal(HVOR_MANGE_TIMER_PER_UKE + "1", "37.5")
         .besvarsporsmal(HVOR_MYE_TIMER + "1", "CHECKED")
         .besvarsporsmal(HVOR_MYE_TIMER_VERDI + "1", "66")
-}
-
-private fun Sykepengesoknad.feriePermisjonUtland(): Sykepengesoknad {
-    return besvarsporsmal(FERIE_PERMISJON_UTLAND, "JA")
-        .besvarsporsmal(FERIE, "CHECKED")
-        .besvarsporsmal(FERIE_NAR, periodeTilJson(fom!!.plusDays(2), fom!!.plusDays(4)))
-        .besvarsporsmal(UTLAND, "CHECKED")
-        .besvarsporsmal(
-            tag = UTLAND_NAR,
-            svarListe =
-                listOf(
-                    periodeTilJson(fom!!.plusDays(1), fom!!.plusDays(2)),
-                    periodeTilJson(fom!!.plusDays(4), fom!!.plusDays(6)),
-                ),
-        )
 }
 
 private fun Sykepengesoknad.ferie(): Sykepengesoknad {

@@ -3,9 +3,9 @@ package no.nav.helse.flex.domain.mapper.sporsmalprossesering
 import no.nav.helse.flex.domain.Mottaker
 import no.nav.helse.flex.domain.mapper.konverterTilSykepengesoknadDTO
 import no.nav.helse.flex.mock.opprettBehandlingsdagsoknadTestadata
+import no.nav.helse.flex.mock.opprettNyArbeidstakerSoknad
 import no.nav.helse.flex.mock.opprettNySoknadAnnet
 import no.nav.helse.flex.mock.opprettSendtFrilanserSoknad
-import no.nav.helse.flex.mock.opprettSendtSoknad
 import no.nav.helse.flex.mock.opprettSendtSoknadForArbeidsledige
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.sykepengesoknad.kafka.InntektskildetypeDTO
@@ -66,7 +66,7 @@ class AndreInntektskilderKtTest {
 
     @Test
     fun `Arbeidstakere henter andre inntektskilder`() {
-        val besvartSoknad = opprettSendtSoknad()
+        val besvartSoknad = opprettNyArbeidstakerSoknad()
 
         besvartSoknad
             .getSporsmalMedTag(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD)

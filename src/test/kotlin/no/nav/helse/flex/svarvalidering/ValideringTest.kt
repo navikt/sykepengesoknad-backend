@@ -6,7 +6,7 @@ import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Svartype.*
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.sporsmalBuilder
-import no.nav.helse.flex.mock.opprettSendtSoknad
+import no.nav.helse.flex.mock.opprettNyArbeidstakerSoknad
 import no.nav.helse.flex.soknadsopprettelse.settOppSoknadOppholdUtland
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -15,7 +15,7 @@ import java.util.Arrays.asList
 import java.util.Collections.emptyList
 
 class ValideringTest {
-    val soknad = opprettSendtSoknad()
+    val soknad = opprettNyArbeidstakerSoknad()
 
     @Test
     fun jaNeiSporsmalHarRiktigAntallSvar() {

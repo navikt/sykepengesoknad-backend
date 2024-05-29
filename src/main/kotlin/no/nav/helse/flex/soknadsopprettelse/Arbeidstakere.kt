@@ -4,12 +4,9 @@ import no.nav.helse.flex.domain.Soknadsperiode
 import no.nav.helse.flex.domain.Soknadstype.GRADERT_REISETILSKUDD
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svartype
-import no.nav.helse.flex.domain.Svartype.CHECKBOX
-import no.nav.helse.flex.domain.Svartype.CHECKBOX_GRUPPE
 import no.nav.helse.flex.domain.Svartype.DATO
 import no.nav.helse.flex.domain.Svartype.JA_NEI
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.domain.Visningskriterie.CHECKED
 import no.nav.helse.flex.domain.Visningskriterie.JA
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmArbeidUtenforNorge
@@ -84,10 +81,6 @@ fun settOppSoknadArbeidstaker(
     }
 }
 
-fun Sykepengesoknad.harFeriePermisjonEllerUtenlandsoppholdSporsmal(): Boolean {
-    return this.getSporsmalMedTagOrNull(FERIE_PERMISJON_UTLAND) != null
-}
-
 private fun tilbakeIFulltArbeidSporsmal(soknadMetadata: Sykepengesoknad): Sporsmal {
     return Sporsmal(
         tag = TILBAKE_I_ARBEID,
@@ -129,79 +122,6 @@ fun utenlandsoppholdSporsmal(
                     svartype = Svartype.PERIODER,
                     min = fom.format(ISO_LOCAL_DATE),
                     max = tom.format(ISO_LOCAL_DATE),
-                ),
-            ),
-    )
-}
-
-fun gammeltFormatFeriePermisjonUtlandsoppholdSporsmal(
-    fom: LocalDate,
-    tom: LocalDate,
-): Sporsmal {
-    return Sporsmal(
-        tag = FERIE_PERMISJON_UTLAND,
-        sporsmalstekst = "Har du hatt ferie, permisjon eller vært utenfor EØS mens du var sykmeldt ${
-            formatterPeriode(
-                fom,
-                tom,
-            )
-        }?",
-        svartype = JA_NEI,
-        kriterieForVisningAvUndersporsmal = JA,
-        undersporsmal =
-            listOf(
-                Sporsmal(
-                    tag = FERIE_PERMISJON_UTLAND_HVA,
-                    sporsmalstekst = "Kryss av alt som gjelder deg:",
-                    svartype = CHECKBOX_GRUPPE,
-                    undersporsmal =
-                        listOf(
-                            Sporsmal(
-                                tag = FERIE,
-                                sporsmalstekst = "Jeg tok ut ferie",
-                                svartype = CHECKBOX,
-                                kriterieForVisningAvUndersporsmal = CHECKED,
-                                undersporsmal =
-                                    listOf(
-                                        Sporsmal(
-                                            tag = FERIE_NAR,
-                                            svartype = Svartype.PERIODER,
-                                            min = fom.format(ISO_LOCAL_DATE),
-                                            max = tom.format(ISO_LOCAL_DATE),
-                                        ),
-                                    ),
-                            ),
-                            Sporsmal(
-                                tag = PERMISJON,
-                                sporsmalstekst = "Jeg hadde permisjon",
-                                svartype = CHECKBOX,
-                                kriterieForVisningAvUndersporsmal = CHECKED,
-                                undersporsmal =
-                                    listOf(
-                                        Sporsmal(
-                                            tag = PERMISJON_NAR,
-                                            svartype = Svartype.PERIODER,
-                                            min = fom.format(ISO_LOCAL_DATE),
-                                            max = tom.format(ISO_LOCAL_DATE),
-                                        ),
-                                    ),
-                            ),
-                            Sporsmal(
-                                tag = UTLAND,
-                                sporsmalstekst = "Jeg var utenfor EØS",
-                                svartype = CHECKBOX,
-                                kriterieForVisningAvUndersporsmal = CHECKED,
-                                undersporsmal =
-                                    listOf(
-                                        Sporsmal(
-                                            tag = UTLAND_NAR,
-                                            svartype = Svartype.PERIODER,
-                                            min = fom.format(ISO_LOCAL_DATE),
-                                            max = tom.format(ISO_LOCAL_DATE),
-                                        ),
-                                    ),
-                            ),
-                        ),
                 ),
             ),
     )
