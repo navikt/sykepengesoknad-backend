@@ -5,15 +5,10 @@ import no.nav.helse.flex.domain.Mottaker
 import no.nav.helse.flex.domain.Soknadstatus.*
 import no.nav.helse.flex.domain.Svar
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.mock.MockSoknadSelvstendigeOgFrilansere
-import no.nav.helse.flex.mock.gammeltFormatOpprettNySoknadMedFeriesporsmalSomUndersporsmal
-import no.nav.helse.flex.mock.gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal
-import no.nav.helse.flex.mock.mockUtlandssoknad
-import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknad
-import no.nav.helse.flex.mock.opprettSendtFrilanserSoknad
+import no.nav.helse.flex.mock.*
 import no.nav.helse.flex.service.FolkeregisterIdenter
-import no.nav.helse.flex.soknadsopprettelse.UTLAND
-import no.nav.helse.flex.soknadsopprettelse.UTLAND_NAR
+import no.nav.helse.flex.soknadsopprettelse.UTLAND_NAR_V2
+import no.nav.helse.flex.soknadsopprettelse.UTLAND_V2
 import no.nav.helse.flex.util.tilOsloLocalDateTime
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -113,7 +108,7 @@ class SykepengesoknadDAOTest : FellesTestOppsett() {
     fun finnMottakerAvSoknad_mottakerErAgOgNav() {
         val soknadId =
             sykepengesoknadDAO.lagreSykepengesoknad(
-                gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal(),
+                opprettNyArbeidstakerSoknad(),
             ).id
 
         val now = LocalDateTime.now()
@@ -128,7 +123,7 @@ class SykepengesoknadDAOTest : FellesTestOppsett() {
     fun finnMottakerAvSoknad_mottakerErAg() {
         val soknadId =
             sykepengesoknadDAO.lagreSykepengesoknad(
-                gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal(),
+                opprettNyArbeidstakerSoknad(),
             ).id
 
         settSendt(soknadId, null, LocalDateTime.now())
@@ -142,7 +137,7 @@ class SykepengesoknadDAOTest : FellesTestOppsett() {
     fun finnMottakerAvSoknad_mottakerErNav() {
         val soknadId =
             sykepengesoknadDAO.lagreSykepengesoknad(
-                gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal(),
+                opprettNyArbeidstakerSoknad(),
             ).id
 
         settSendt(soknadId, LocalDateTime.now(), null)
@@ -156,7 +151,7 @@ class SykepengesoknadDAOTest : FellesTestOppsett() {
     fun finnMottakerAvSoknad_soknadIkkeSendt() {
         val soknadId =
             sykepengesoknadDAO.lagreSykepengesoknad(
-                gammeltFormatOpprettNySoknadMedFeriesporsmalSomUndersporsmal(),
+                opprettNyArbeidstakerSoknad(),
             ).id
 
         settSendt(soknadId, null, null)
@@ -216,7 +211,7 @@ class SykepengesoknadDAOTest : FellesTestOppsett() {
 
     @Test
     fun sjekkAtSendtTilAGBlirSattSoknad() {
-        val uuid = sykepengesoknadDAO.lagreSykepengesoknad(gammeltFormatOpprettNySoknadMedFeriesporsmalSomUndersporsmal()).id
+        val uuid = sykepengesoknadDAO.lagreSykepengesoknad(opprettNyArbeidstakerSoknad()).id
 
         val (id) = sykepengesoknadDAO.finnSykepengesoknad(uuid)
 
@@ -260,7 +255,7 @@ class SykepengesoknadDAOTest : FellesTestOppsett() {
     @Test
     fun kanOppretteArbeidstakerSoknad() {
         sykepengesoknadDAO.lagreSykepengesoknad(
-            gammeltFormatOpprettNySoknadMedFeriesporsmalSomUndersporsmal().copy(sykmeldingId = ("sykmeldingId1")),
+            opprettNyArbeidstakerSoknad().copy(sykmeldingId = ("sykmeldingId1")),
         )
 
         val soknad = sykepengesoknadDAO.finnSykepengesoknaderForSykmelding("sykmeldingId1")
@@ -270,7 +265,7 @@ class SykepengesoknadDAOTest : FellesTestOppsett() {
 
     @Test
     fun sletterSvarPaaSoknad() {
-        val uuid = sykepengesoknadDAO.lagreSykepengesoknad(gammeltFormatOpprettNySoknadMedFeriesporsmalSomUndersporsmal()).id
+        val uuid = sykepengesoknadDAO.lagreSykepengesoknad(opprettNyArbeidstakerSoknad()).id
         val soknadFraBasen = sykepengesoknadDAO.finnSykepengesoknad(uuid).svarJaPaUtlandsporsmal()
 
         sykepengesoknadDAO.byttUtSporsmal(soknadFraBasen)
@@ -283,9 +278,9 @@ class SykepengesoknadDAOTest : FellesTestOppsett() {
     }
 
     private fun Sykepengesoknad.svarJaPaUtlandsporsmal(): Sykepengesoknad {
-        val utlandSpm = this.getSporsmalMedTag(UTLAND).copy(svar = listOf(Svar(null, "CHECKED")))
+        val utlandSpm = this.getSporsmalMedTag(UTLAND_V2).copy(svar = listOf(Svar(null, "CHECKED")))
         val utlandNarSpm =
-            this.getSporsmalMedTag(UTLAND_NAR).copy(
+            this.getSporsmalMedTag(UTLAND_NAR_V2).copy(
                 svar =
                     listOf(
                         Svar(

@@ -15,9 +15,7 @@ import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentEgenmeldinger
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentFeriePermUtlandListe
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentSoknadsPerioderMedFaktiskGrad
 import no.nav.helse.flex.domain.sporsmalBuilder
-import no.nav.helse.flex.mock.gammeltFormatOpprettNySoknadMedFeriesporsmalSomUndersporsmal
-import no.nav.helse.flex.mock.gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal
-import no.nav.helse.flex.mock.opprettSendtSoknad
+import no.nav.helse.flex.mock.opprettNyArbeidstakerSoknad
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.sykepengesoknad.kafka.*
 import no.nav.helse.flex.testutil.besvarsporsmal
@@ -64,7 +62,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
 
     @Test
     fun konverteringEnkleFelter() {
-        val sykepengesoknad = gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal()
+        val sykepengesoknad = opprettNyArbeidstakerSoknad()
         val soknad =
             konverterTilSykepengesoknadDTO(
                 sykepengesoknad,
@@ -93,115 +91,8 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
     }
 
     @Test
-    fun soktUtenlandsoppholdSettesTilFalseHvisSporsmaletIkkeFinnes() {
-        val sykepengesoknad = gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal()
-
-        val soktUtenlandsopphold = harSoktSykepengerUnderUtlandsopphold(sykepengesoknad)
-
-        assertThat(soktUtenlandsopphold).isFalse()
-    }
-
-    @Test
-    fun soktUtenlandsoppholdSettesTilTrueHvisJa() {
-        var sykepengesoknad = gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal()
-        sykepengesoknad =
-            sykepengesoknad.replaceSporsmal(
-                sykepengesoknad.getSporsmalMedTag(UTLAND).toBuilder()
-                    .undersporsmal(
-                        listOf(
-                            sykepengesoknad.getSporsmalMedTag(UTLAND_NAR),
-                            sporsmalBuilder()
-                                .tag(UTLANDSOPPHOLD_SOKT_SYKEPENGER)
-                                .svartype(Svartype.JA_NEI)
-                                .svar(listOf(Svar(null, "JA")))
-                                .build(),
-                        ),
-                    )
-                    .build(),
-            )
-
-        val soktUtenlandsopphold = harSoktSykepengerUnderUtlandsopphold(sykepengesoknad)
-
-        assertThat(soktUtenlandsopphold).isTrue()
-    }
-
-    @Test
-    fun soktUtenlandsoppholdSettesTilFalseHvisNei() {
-        var sykepengesoknad = gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal()
-        sykepengesoknad =
-            sykepengesoknad.replaceSporsmal(
-                sykepengesoknad.getSporsmalMedTag(UTLAND).toBuilder()
-                    .undersporsmal(
-                        listOf(
-                            sykepengesoknad.getSporsmalMedTag(UTLAND_NAR),
-                            sporsmalBuilder()
-                                .tag(UTLANDSOPPHOLD_SOKT_SYKEPENGER)
-                                .svartype(Svartype.JA_NEI)
-                                .svar(listOf(Svar(null, "NEI")))
-                                .build(),
-                        ),
-                    )
-                    .build(),
-            )
-
-        val soktUtenlandsopphold = harSoktSykepengerUnderUtlandsopphold(sykepengesoknad)
-
-        assertThat(soktUtenlandsopphold).isFalse()
-    }
-
-    @Test
-    fun soktUtenlandsoppholdSettesTilFalseHvisIkkeBesvart() {
-        val sykepengesoknad = gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal()
-        sykepengesoknad.replaceSporsmal(
-            sykepengesoknad.getSporsmalMedTag(UTLAND).toBuilder()
-                .undersporsmal(
-                    listOf(
-                        sykepengesoknad.getSporsmalMedTag(UTLAND_NAR),
-                        sporsmalBuilder()
-                            .tag(UTLANDSOPPHOLD_SOKT_SYKEPENGER)
-                            .svartype(Svartype.JA_NEI)
-                            .svar(emptyList())
-                            .build(),
-                    ),
-                )
-                .build(),
-        )
-
-        val soktUtenlandsopphold = harSoktSykepengerUnderUtlandsopphold(sykepengesoknad)
-
-        assertThat(soktUtenlandsopphold).isFalse()
-    }
-
-    @Test
-    fun soktUtenlandsoppholdSettesTilFalseHvisModerspmIkkeFinnes() {
-        var sykepengesoknad = gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal()
-        sykepengesoknad.replaceSporsmal(
-            sykepengesoknad.getSporsmalMedTag(UTLAND).toBuilder()
-                .undersporsmal(
-                    listOf(
-                        sykepengesoknad.getSporsmalMedTag(UTLAND_NAR),
-                        sporsmalBuilder()
-                            .tag(UTLANDSOPPHOLD_SOKT_SYKEPENGER)
-                            .svartype(Svartype.JA_NEI)
-                            .svar(listOf(Svar(null, "JA")))
-                            .build(),
-                    ),
-                )
-                .build(),
-        )
-        sykepengesoknad =
-            sykepengesoknad.replaceSporsmal(
-                sykepengesoknad.getSporsmalMedTag(FERIE_PERMISJON_UTLAND).toBuilder().svar(emptyList()).build(),
-            )
-
-        val soktUtenlandsopphold = harSoktSykepengerUnderUtlandsopphold(sykepengesoknad)
-
-        assertThat(soktUtenlandsopphold).isFalse()
-    }
-
-    @Test
     fun soktUtenlandsoppholdSettesTilFalseHvisModerspmIkkeFinnesForUtlandV2() {
-        val sykepengesoknad = opprettSendtSoknad()
+        val sykepengesoknad = opprettNyArbeidstakerSoknad()
         sykepengesoknad.replaceSporsmal(
             sykepengesoknad.getSporsmalMedTag(UTLAND_V2).toBuilder()
                 .undersporsmal(
@@ -210,7 +101,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
                         sporsmalBuilder()
                             .tag(UTLANDSOPPHOLD_SOKT_SYKEPENGER)
                             .svartype(Svartype.JA_NEI)
-                            .svar(listOf(Svar(null, "JA")))
+                            .svar(listOf(Svar(null, "CHECKED")))
                             .build(),
                     ),
                 )
@@ -228,7 +119,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
     @Test
     fun arbeidGjenopptattDatoSettesLikBesvartDato() {
         val toDagerSiden = now().minusDays(2).format(ISO_LOCAL_DATE)
-        var sykepengesoknad = gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal()
+        var sykepengesoknad = opprettNyArbeidstakerSoknad()
         sykepengesoknad =
             sykepengesoknad.replaceSporsmal(
                 sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).toBuilder()
@@ -243,7 +134,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
 
     @Test
     fun arbeidGjenopptattSettesTilNullHvisIkkeBesvart() {
-        var sykepengesoknad = gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal()
+        var sykepengesoknad = opprettNyArbeidstakerSoknad()
         sykepengesoknad =
             sykepengesoknad.replaceSporsmal(
                 sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).toBuilder()
@@ -257,30 +148,20 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
     }
 
     @Test
-    fun utenFravaerMedFerieSporsmalSomUndersporsmal() {
-        var sykepengesoknad = gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal()
+    fun utenFravaerMedFerieSporsmal() {
+        var sykepengesoknad = opprettNyArbeidstakerSoknad()
         sykepengesoknad =
             sykepengesoknad.replaceSporsmal(
-                sykepengesoknad.getSporsmalMedTag(FERIE_NAR).toBuilder()
+                sykepengesoknad.getSporsmalMedTag(FERIE_NAR_V2).toBuilder()
                     .svar(emptyList())
                     .build(),
             )
         sykepengesoknad =
             sykepengesoknad.replaceSporsmal(
-                sykepengesoknad.getSporsmalMedTag(UTLAND_NAR).toBuilder()
+                sykepengesoknad.getSporsmalMedTag(UTLAND_NAR_V2).toBuilder()
                     .svar(emptyList())
                     .build(),
             )
-
-        val fravar = hentFeriePermUtlandListe(sykepengesoknad)
-
-        assertThat(fravar).isEmpty()
-    }
-
-    @Test
-    fun feriePermUtlandFinnesIkkeNarFerieSporsmalVarUndersporsmal() {
-        var sykepengesoknad = gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal()
-        sykepengesoknad = sykepengesoknad.fjernSporsmal(FERIE_PERMISJON_UTLAND)
 
         val fravar = hentFeriePermUtlandListe(sykepengesoknad)
 
@@ -289,7 +170,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
 
     @Test
     fun feriePermUtlandFinnesIkkeNarFerieSporsmalVarHovedsporsmal() {
-        var sykepengesoknad = opprettSendtSoknad()
+        var sykepengesoknad = opprettNyArbeidstakerSoknad()
         sykepengesoknad = sykepengesoknad.fjernSporsmal(FERIE_V2)
         sykepengesoknad = sykepengesoknad.fjernSporsmal(PERMISJON_V2)
         sykepengesoknad = sykepengesoknad.fjernSporsmal(UTLAND_V2)
@@ -300,40 +181,8 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
     }
 
     @Test
-    fun medFravaerMedFerieSporsmalSomUndersporsmal() {
-        val sykepengesoknad = gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal()
-
-        val forventetFravar = ArrayList<FravarDTO>()
-        forventetFravar.add(
-            FravarDTO(
-                sykepengesoknad.fom!!.plusDays(2),
-                sykepengesoknad.fom!!.plusDays(4),
-                FravarstypeDTO.FERIE,
-            ),
-        )
-        forventetFravar.add(
-            FravarDTO(
-                sykepengesoknad.fom!!.plusDays(1),
-                sykepengesoknad.fom!!.plusDays(2),
-                FravarstypeDTO.UTLANDSOPPHOLD,
-            ),
-        )
-        forventetFravar.add(
-            FravarDTO(
-                sykepengesoknad.fom!!.plusDays(4),
-                sykepengesoknad.fom!!.plusDays(6),
-                FravarstypeDTO.UTLANDSOPPHOLD,
-            ),
-        )
-
-        val fravar = hentFeriePermUtlandListe(sykepengesoknad)
-
-        assertThat(fravar).isEqualTo(forventetFravar)
-    }
-
-    @Test
     fun utenFravaer() {
-        var sykepengesoknad = opprettSendtSoknad()
+        var sykepengesoknad = opprettNyArbeidstakerSoknad()
         sykepengesoknad =
             sykepengesoknad.replaceSporsmal(
                 sykepengesoknad.getSporsmalMedTag(FERIE_NAR_V2).toBuilder()
@@ -354,7 +203,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
 
     @Test
     fun medFravaer() {
-        val sykepengesoknad = opprettSendtSoknad()
+        val sykepengesoknad = opprettNyArbeidstakerSoknad()
 
         val forventetFravar = ArrayList<FravarDTO>()
         forventetFravar.add(
@@ -386,10 +235,10 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
     fun feriefravarSettes() {
         val fom = now().minusDays(4)
         val tom = now().minusDays(2)
-        var sykepengesoknad = gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal()
+        var sykepengesoknad = opprettNyArbeidstakerSoknad()
         sykepengesoknad =
             sykepengesoknad.replaceSporsmal(
-                sykepengesoknad.getSporsmalMedTag(FERIE_NAR).toBuilder()
+                sykepengesoknad.getSporsmalMedTag(FERIE_NAR_V2).toBuilder()
                     .svar(
                         listOf(
                             Svar(
@@ -414,84 +263,10 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
     }
 
     @Test
-    fun permisjonsfravarSettes() {
-        val fom = now().minusDays(4)
-        val tom = now().minusDays(2)
-        var sykepengesoknad = gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal()
-        sykepengesoknad =
-            sykepengesoknad.replaceSporsmal(
-                sykepengesoknad.getSporsmalMedTag(PERMISJON).toBuilder()
-                    .svar(listOf(Svar(null, "CHECKED")))
-                    .build(),
-            )
-        sykepengesoknad =
-            sykepengesoknad.replaceSporsmal(
-                sykepengesoknad.getSporsmalMedTag(PERMISJON_NAR).toBuilder()
-                    .svar(
-                        listOf(
-                            Svar(
-                                null,
-                                "{\"fom\":\"" + fom.format(ISO_LOCAL_DATE) +
-                                    "\",\"tom\":\"" + tom.format(ISO_LOCAL_DATE) + "\"}",
-                            ),
-                        ),
-                    )
-                    .build(),
-            )
-
-        val (fom1, tom1, type) =
-            hentFeriePermUtlandListe(sykepengesoknad).stream()
-                .filter { (_, _, type) -> FravarstypeDTO.PERMISJON == type }
-                .findFirst()
-                .get()
-
-        assertThat(fom1).isEqualTo(fom)
-        assertThat(tom1).isEqualTo(tom)
-        assertThat(type).isEqualTo(FravarstypeDTO.PERMISJON)
-    }
-
-    @Test
-    fun utlandsfravarSettesMedFeriesporsmalSomUndersporsmal() {
-        val fom = now().minusDays(4)
-        val tom = now().minusDays(2)
-        var sykepengesoknad = gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal()
-        sykepengesoknad =
-            sykepengesoknad.replaceSporsmal(
-                sykepengesoknad.getSporsmalMedTag(UTLAND).toBuilder()
-                    .svar(listOf(Svar(null, "CHECKED")))
-                    .build(),
-            )
-        sykepengesoknad =
-            sykepengesoknad.replaceSporsmal(
-                sykepengesoknad.getSporsmalMedTag(UTLAND_NAR).toBuilder()
-                    .svar(
-                        listOf(
-                            Svar(
-                                null,
-                                "{\"fom\":\"" + fom.format(ISO_LOCAL_DATE) +
-                                    "\",\"tom\":\"" + tom.format(ISO_LOCAL_DATE) + "\"}",
-                            ),
-                        ),
-                    )
-                    .build(),
-            )
-
-        val (fom1, tom1, type) =
-            hentFeriePermUtlandListe(sykepengesoknad).stream()
-                .filter { (_, _, type) -> FravarstypeDTO.UTLANDSOPPHOLD == type }
-                .findFirst()
-                .get()
-
-        assertThat(fom1).isEqualTo(fom)
-        assertThat(tom1).isEqualTo(tom)
-        assertThat(type).isEqualTo(FravarstypeDTO.UTLANDSOPPHOLD)
-    }
-
-    @Test
     fun utlandsfravarSettes() {
         val fom = now().minusDays(4)
         val tom = now().minusDays(2)
-        var sykepengesoknad = opprettSendtSoknad()
+        var sykepengesoknad = opprettNyArbeidstakerSoknad()
         sykepengesoknad =
             sykepengesoknad.replaceSporsmal(
                 sykepengesoknad.getSporsmalMedTag(UTLAND_V2).toBuilder()
@@ -529,7 +304,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
         val fom = now().minusDays(10)
         val tom = now().minusDays(5)
         val sykepengesoknad =
-            gammeltFormatOpprettSendtSoknadMedFeriesporsmalSomUndersporsmal()
+            opprettNyArbeidstakerSoknad()
                 .copy(sporsmal = listOf(gammeltEgenmeldingSpm(fom)))
                 .besvarsporsmal(
                     "EGENMELDINGER_NAR",
@@ -549,7 +324,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
     fun mapperKorrigertArbeidstidProsentBesvart() {
         val mandag = now().with(next(MONDAY))
         val sykepengesoknad =
-            gammeltFormatOpprettNySoknadMedFeriesporsmalSomUndersporsmal().copy(
+            opprettNyArbeidstakerSoknad().copy(
                 soknadPerioder = listOf(Soknadsperiode(mandag, mandag.with(next(THURSDAY)), 100, null)),
             )
 
@@ -565,7 +340,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
     fun mapperKorrigertArbeidstidTimerBesvart() {
         val mandag = now().with(next(MONDAY))
         var sykepengesoknad =
-            gammeltFormatOpprettNySoknadMedFeriesporsmalSomUndersporsmal().copy(
+            opprettNyArbeidstakerSoknad().copy(
                 soknadPerioder = (
                     listOf(
                         Soknadsperiode(now(), now(), 100, null),
@@ -576,7 +351,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
 
         sykepengesoknad =
             sykepengesoknad.replaceSporsmal(
-                sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
+                sykepengesoknad.getSporsmalMedTag(TILBAKE_I_ARBEID).undersporsmal[0].copy(
                     svar = emptyList(),
                 ),
             )
@@ -593,7 +368,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
     fun mapperKorrigertArbeidstidMedArbeidGjenopptattDatoSatt() {
         val mandag = now().with(next(MONDAY))
         var sykepengesoknad =
-            gammeltFormatOpprettNySoknadMedFeriesporsmalSomUndersporsmal().copy(
+            opprettNyArbeidstakerSoknad().copy(
                 soknadPerioder =
                     listOf(
                         Soknadsperiode(now(), now(), 100, null),
@@ -620,7 +395,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
     fun mapperKorrigertArbeidstidTimerBesvartMedFravar() {
         val mandag = now().with(next(MONDAY))
         var sykepengesoknad =
-            gammeltFormatOpprettNySoknadMedFeriesporsmalSomUndersporsmal().copy(
+            opprettNyArbeidstakerSoknad().copy(
                 soknadPerioder = (
                     listOf(
                         Soknadsperiode(now(), now(), 100, null),
@@ -636,22 +411,17 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
                         .build(),
                 )
                 .replaceSporsmal(
-                    sykepengesoknad.getSporsmalMedTag(FERIE_PERMISJON_UTLAND).toBuilder()
-                        .svar(singletonList(Svar(null, verdi = "JA")))
+                    sykepengesoknad.getSporsmalMedTag(FERIE_V2).toBuilder()
+                        .svar(listOf(Svar(null, "JA")))
                         .build(),
                 )
                 .replaceSporsmal(
-                    sykepengesoknad.getSporsmalMedTag(FERIE).toBuilder()
-                        .svar(singletonList(Svar(null, verdi = "CHECKED")))
-                        .build(),
-                )
-                .replaceSporsmal(
-                    sykepengesoknad.getSporsmalMedTag(UTLAND).toBuilder()
+                    sykepengesoknad.getSporsmalMedTag(UTLAND_V2).toBuilder()
                         .svar(emptyList())
                         .build(),
                 )
                 .replaceSporsmal(
-                    sykepengesoknad.getSporsmalMedTag(FERIE_NAR).toBuilder()
+                    sykepengesoknad.getSporsmalMedTag(FERIE_NAR_V2).toBuilder()
                         .svar(
                             singletonList(
                                 Svar(
@@ -678,7 +448,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
     @Test
     fun soknadsperioderUtenFravarBlirTattMed() {
         var sykepengesoknad =
-            gammeltFormatOpprettNySoknadMedFeriesporsmalSomUndersporsmal().copy(
+            opprettNyArbeidstakerSoknad().copy(
                 soknadPerioder = (listOf(Soknadsperiode(now().minusDays(19), now().minusDays(15), 100, null))),
             )
         sykepengesoknad =
@@ -705,7 +475,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
     @Test
     fun utkastTilEndringSkalBliNy() {
         val sykepengesoknad =
-            gammeltFormatOpprettNySoknadMedFeriesporsmalSomUndersporsmal().copy(
+            opprettNyArbeidstakerSoknad().copy(
                 status = (Soknadstatus.UTKAST_TIL_KORRIGERING),
             )
 
@@ -716,7 +486,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
 
     @Test
     fun soknadSomIkkeErSendtSkalHaNullMottaker() {
-        val sykepengesoknad = gammeltFormatOpprettNySoknadMedFeriesporsmalSomUndersporsmal()
+        val sykepengesoknad = opprettNyArbeidstakerSoknad()
 
         val soknad =
             konverterTilSykepengesoknadDTO(
@@ -732,7 +502,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
     @Test
     fun soknadSomErEttersendtSkalHaEttersendingLikTrue() {
         val sykepengesoknad =
-            gammeltFormatOpprettNySoknadMedFeriesporsmalSomUndersporsmal().copy(
+            opprettNyArbeidstakerSoknad().copy(
                 status = (Soknadstatus.SENDT),
             )
 
@@ -753,7 +523,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
     @Test
     fun mapperSoknadsperioderSelvOmViHarEndretAntallPeriodesporsmal() {
         val sykepengesoknaden =
-            gammeltFormatOpprettNySoknadMedFeriesporsmalSomUndersporsmal().copy(
+            opprettNyArbeidstakerSoknad().copy(
                 soknadPerioder = (
                     listOf(
                         Soknadsperiode(now().minusDays(19), now().minusDays(15), 100, AKTIVITET_IKKE_MULIG),
