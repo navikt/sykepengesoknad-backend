@@ -37,7 +37,6 @@ fun konverterTilSykepengesoknadDTO(
         opprettet = sykepengesoknad.opprettet?.tilOsloLocalDateTime(),
         sendtNav = sykepengesoknad.sendtNav?.tilOsloLocalDateTime(),
         sendtArbeidsgiver = sykepengesoknad.sendtArbeidsgiver?.tilOsloLocalDateTime(),
-        egenmeldinger = hentEgenmeldinger(sykepengesoknad),
         papirsykmeldinger = hentPapirsykmeldinger(sykepengesoknad),
         fravar = samleFravaerListe(sykepengesoknad),
         andreInntektskilder = hentInntektListe(sykepengesoknad),

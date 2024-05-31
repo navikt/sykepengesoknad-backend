@@ -1,6 +1,5 @@
 package no.nav.helse.flex.domain.mapper
 
-import no.nav.helse.flex.arbeidstaker.gammeltEgenmeldingSpm
 import no.nav.helse.flex.domain.Mottaker
 import no.nav.helse.flex.domain.Soknadsperiode
 import no.nav.helse.flex.domain.Soknadstatus
@@ -11,14 +10,12 @@ import no.nav.helse.flex.domain.Sykmeldingstype.GRADERT
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.arbeidGjenopptattDato
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.getFaktiskGrad
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.harSoktSykepengerUnderUtlandsopphold
-import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentEgenmeldinger
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentFeriePermUtlandListe
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentSoknadsPerioderMedFaktiskGrad
 import no.nav.helse.flex.domain.sporsmalBuilder
 import no.nav.helse.flex.mock.opprettNyArbeidstakerSoknad
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.sykepengesoknad.kafka.*
-import no.nav.helse.flex.testutil.besvarsporsmal
 import no.nav.helse.flex.util.tilOsloLocalDateTime
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -297,27 +294,6 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
         assertThat(fom1).isEqualTo(fom)
         assertThat(tom1).isEqualTo(tom)
         assertThat(type).isEqualTo(FravarstypeDTO.UTLANDSOPPHOLD)
-    }
-
-    @Test
-    fun egenmeldingTest() {
-        val fom = now().minusDays(10)
-        val tom = now().minusDays(5)
-        val sykepengesoknad =
-            opprettNyArbeidstakerSoknad()
-                .copy(sporsmal = listOf(gammeltEgenmeldingSpm(fom)))
-                .besvarsporsmal(
-                    "EGENMELDINGER_NAR",
-                    "{\"fom\":\"" + fom.format(ISO_LOCAL_DATE) +
-                        "\",\"tom\":\"" + tom.format(ISO_LOCAL_DATE) + "\"}",
-                )
-                .besvarsporsmal("TIDLIGERE_EGENMELDING", "CHECKED")
-
-        val egenmeldinger = hentEgenmeldinger(sykepengesoknad)
-
-        assertThat(egenmeldinger).hasSize(1)
-        assertThat(egenmeldinger[0].fom).isEqualTo(fom)
-        assertThat(egenmeldinger[0].tom).isEqualTo(tom)
     }
 
     @Test
