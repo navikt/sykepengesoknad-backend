@@ -115,7 +115,7 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
                 PERMISJON_V2,
                 "JOBBET_DU_GRADERT_0",
                 ANDRE_INNTEKTSKILDER_V2,
-                UTLAND_V2,
+                OPPHOLD_UTENFOR_EOS,
                 BRUKTE_REISETILSKUDDET,
                 TIL_SLUTT,
             ),
@@ -247,7 +247,7 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
                 PERMISJON_V2,
                 "JOBBET_DU_GRADERT_0",
                 ANDRE_INNTEKTSKILDER_V2,
-                UTLAND_V2,
+                OPPHOLD_UTENFOR_EOS,
                 BRUKTE_REISETILSKUDDET,
                 TRANSPORT_TIL_DAGLIG,
                 REISE_MED_BIL,
@@ -374,7 +374,7 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
             .besvarSporsmal(TILBAKE_I_ARBEID, "NEI")
             .besvarSporsmal(FERIE_V2, "NEI")
             .besvarSporsmal(PERMISJON_V2, "NEI")
-            .besvarSporsmal(UTLAND_V2, "NEI")
+            .besvarSporsmal(OPPHOLD_UTENFOR_EOS, "NEI")
             .besvarSporsmal("JOBBET_DU_GRADERT_0", "NEI")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
             .besvarSporsmal(TRANSPORT_TIL_DAGLIG, "NEI")
@@ -481,7 +481,7 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
                 PERMISJON_V2,
                 "JOBBET_DU_GRADERT_0",
                 ANDRE_INNTEKTSKILDER_V2,
-                UTLAND_V2,
+                OPPHOLD_UTENFOR_EOS,
                 BRUKTE_REISETILSKUDDET,
                 TIL_SLUTT,
             ),
@@ -501,7 +501,7 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
             .besvarSporsmal(TILBAKE_I_ARBEID, "NEI")
             .besvarSporsmal(FERIE_V2, "NEI")
             .besvarSporsmal(PERMISJON_V2, "NEI")
-            .besvarSporsmal(UTLAND_V2, "NEI")
+            .besvarSporsmal(OPPHOLD_UTENFOR_EOS, "NEI")
             .besvarSporsmal("JOBBET_DU_GRADERT_0", "NEI")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
             .besvarSporsmal(TIL_SLUTT, "Jeg lover å ikke lyve!", ferdigBesvart = false)

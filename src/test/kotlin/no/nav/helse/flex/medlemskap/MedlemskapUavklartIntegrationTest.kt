@@ -95,7 +95,7 @@ class MedlemskapUavklartIntegrationTest : FellesTestOppsett() {
                 medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0),
                 ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER_V2,
-                UTLAND_V2,
+                OPPHOLD_UTENFOR_EOS,
                 TIL_SLUTT,
             ),
         )
@@ -146,7 +146,7 @@ class MedlemskapUavklartIntegrationTest : FellesTestOppsett() {
             .besvarSporsmal(tag = TILBAKE_I_ARBEID, svar = "NEI")
             .besvarSporsmal(tag = FERIE_V2, svar = "NEI")
             .besvarSporsmal(tag = PERMISJON_V2, svar = "NEI")
-            .besvarSporsmal(tag = UTLAND_V2, svar = "NEI")
+            .besvarSporsmal(tag = OPPHOLD_UTENFOR_EOS, svar = "NEI")
             .besvarSporsmal(tag = medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0), svar = "NEI")
             .besvarSporsmal(tag = ARBEID_UTENFOR_NORGE, svar = "NEI")
             .besvarSporsmal(tag = ANDRE_INNTEKTSKILDER_V2, svar = "NEI")

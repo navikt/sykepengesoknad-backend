@@ -23,13 +23,13 @@ import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD
 import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD_JOBBET_I_DET_SISTE
 import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_STYREVERV
 import no.nav.helse.flex.soknadsopprettelse.JOBBER_DU_NORMAL_ARBEIDSUKE
+import no.nav.helse.flex.soknadsopprettelse.OPPHOLD_UTENFOR_EOS
+import no.nav.helse.flex.soknadsopprettelse.OPPHOLD_UTENFOR_EOS_NAR
 import no.nav.helse.flex.soknadsopprettelse.PERMISJON_NAR_V2
 import no.nav.helse.flex.soknadsopprettelse.PERMISJON_V2
 import no.nav.helse.flex.soknadsopprettelse.TILBAKE_I_ARBEID
 import no.nav.helse.flex.soknadsopprettelse.TILBAKE_NAR
 import no.nav.helse.flex.soknadsopprettelse.TIL_SLUTT
-import no.nav.helse.flex.soknadsopprettelse.UTLAND_NAR_V2
-import no.nav.helse.flex.soknadsopprettelse.UTLAND_V2
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.medIndex
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
@@ -230,12 +230,12 @@ class NullstillUndersporsmalSvarTest : FellesTestOppsett() {
 
     @Test
     @Order(7)
-    fun `Kan svare på UTLAND_V2`() {
+    fun `Kan svare på OPPHOLD_UTENFOR_EOS`() {
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
-            .besvarSporsmal(UTLAND_V2, "NEI")
+            .besvarSporsmal(OPPHOLD_UTENFOR_EOS, "NEI")
 
-        soknaden.getSporsmalMedTag(UTLAND_V2).forsteSvar shouldBeEqualTo "NEI"
-        soknaden.getSporsmalMedTag(UTLAND_NAR_V2).forsteSvar shouldBeEqualTo null
+        soknaden.getSporsmalMedTag(OPPHOLD_UTENFOR_EOS).forsteSvar shouldBeEqualTo "NEI"
+        soknaden.getSporsmalMedTag(OPPHOLD_UTENFOR_EOS_NAR).forsteSvar shouldBeEqualTo null
     }
 
     @Test

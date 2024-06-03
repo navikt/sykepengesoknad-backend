@@ -10,7 +10,6 @@ import no.nav.helse.flex.oppdatersporsmal.soknad.muteringer.arbeidGjenopptattMut
 import no.nav.helse.flex.oppdatersporsmal.soknad.muteringer.brukteDuReisetilskuddetMutering
 import no.nav.helse.flex.oppdatersporsmal.soknad.muteringer.friskmeldtMuteringer
 import no.nav.helse.flex.oppdatersporsmal.soknad.muteringer.jobbaDuHundreGate
-import no.nav.helse.flex.oppdatersporsmal.soknad.muteringer.oppdaterMedSvarPaUtlandsopphold
 import no.nav.helse.flex.oppdatersporsmal.soknad.muteringer.utlandssoknadMuteringer
 import no.nav.helse.flex.repository.SvarDAO
 import no.nav.helse.flex.repository.SykepengesoknadDAO
@@ -65,7 +64,6 @@ class OppdaterSporsmalService(
                 .brukteDuReisetilskuddetMutering()
                 .utlandssoknadMuteringer()
                 .arbeidGjenopptattMutering()
-                .oppdaterMedSvarPaUtlandsopphold()
 
         val soknadenErMutert = soknadFraBasenForOppdatering.sporsmal.erUlikUtenomSvar(oppdatertSoknad.sporsmal)
 

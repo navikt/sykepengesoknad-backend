@@ -49,7 +49,7 @@ class TransaksjonshandteringTest : FellesTestOppsett() {
             .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
             .besvarSporsmal(ARBEID_UTENFOR_NORGE, "JA")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER, "NEI")
-            .besvarSporsmal(ARBEIDSLEDIG_UTLAND, "NEI")
+            .besvarSporsmal(OPPHOLD_UTENFOR_EOS, "NEI")
     }
 
     @Test

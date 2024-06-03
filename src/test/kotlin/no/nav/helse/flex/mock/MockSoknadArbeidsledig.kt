@@ -7,9 +7,9 @@ import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER
 import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
-import no.nav.helse.flex.soknadsopprettelse.ARBEIDSLEDIG_UTLAND
 import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
 import no.nav.helse.flex.soknadsopprettelse.FRISKMELDT
+import no.nav.helse.flex.soknadsopprettelse.OPPHOLD_UTENFOR_EOS
 import no.nav.helse.flex.soknadsopprettelse.SettOppSoknadOptions
 import no.nav.helse.flex.soknadsopprettelse.settOppSoknadArbeidsledig
 import no.nav.helse.flex.soknadsopprettelse.tilSoknadsperioder
@@ -88,7 +88,7 @@ fun opprettSendtSoknadForArbeidsledige(): Sykepengesoknad {
     soknad = soknad.besvarsporsmal(tag = ANSVARSERKLARING, svar = "CHECKED")
     soknad = soknad.besvarsporsmal(tag = FRISKMELDT, svar = "NEI")
     soknad = soknad.besvarsporsmal(tag = ANDRE_INNTEKTSKILDER, svar = "NEI")
-    soknad = soknad.besvarsporsmal(tag = ARBEIDSLEDIG_UTLAND, svar = "NEI")
+    soknad = soknad.besvarsporsmal(tag = OPPHOLD_UTENFOR_EOS, svar = "NEI")
     soknad = soknad.besvarsporsmal(tag = BEKREFT_OPPLYSNINGER, svar = "CHECKED")
 
     return soknad

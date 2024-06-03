@@ -4,7 +4,6 @@ import no.nav.helse.flex.domain.Mottaker
 import no.nav.helse.flex.domain.Soknadsperiode
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Svar
-import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Sykmeldingstype.AKTIVITET_IKKE_MULIG
 import no.nav.helse.flex.domain.Sykmeldingstype.GRADERT
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.arbeidGjenopptattDato
@@ -12,7 +11,6 @@ import no.nav.helse.flex.domain.mapper.sporsmalprossesering.getFaktiskGrad
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.harSoktSykepengerUnderUtlandsopphold
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentFeriePermUtlandListe
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentSoknadsPerioderMedFaktiskGrad
-import no.nav.helse.flex.domain.sporsmalBuilder
 import no.nav.helse.flex.mock.opprettNyArbeidstakerSoknad
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.sykepengesoknad.kafka.*
@@ -91,21 +89,16 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
     fun soktUtenlandsoppholdSettesTilFalseHvisModerspmIkkeFinnesForUtlandV2() {
         val sykepengesoknad = opprettNyArbeidstakerSoknad()
         sykepengesoknad.replaceSporsmal(
-            sykepengesoknad.getSporsmalMedTag(UTLAND_V2).toBuilder()
+            sykepengesoknad.getSporsmalMedTag(OPPHOLD_UTENFOR_EOS).toBuilder()
                 .undersporsmal(
                     listOf(
-                        sykepengesoknad.getSporsmalMedTag(UTLAND_NAR_V2),
-                        sporsmalBuilder()
-                            .tag(UTLANDSOPPHOLD_SOKT_SYKEPENGER)
-                            .svartype(Svartype.JA_NEI)
-                            .svar(listOf(Svar(null, "CHECKED")))
-                            .build(),
+                        sykepengesoknad.getSporsmalMedTag(OPPHOLD_UTENFOR_EOS_NAR),
                     ),
                 )
                 .build(),
         )
         sykepengesoknad.replaceSporsmal(
-            sykepengesoknad.getSporsmalMedTag(UTLAND_V2).toBuilder().svar(emptyList()).build(),
+            sykepengesoknad.getSporsmalMedTag(OPPHOLD_UTENFOR_EOS).toBuilder().svar(emptyList()).build(),
         )
 
         val soktUtenlandsopphold = harSoktSykepengerUnderUtlandsopphold(sykepengesoknad)
@@ -155,7 +148,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
             )
         sykepengesoknad =
             sykepengesoknad.replaceSporsmal(
-                sykepengesoknad.getSporsmalMedTag(UTLAND_NAR_V2).toBuilder()
+                sykepengesoknad.getSporsmalMedTag(OPPHOLD_UTENFOR_EOS_NAR).toBuilder()
                     .svar(emptyList())
                     .build(),
             )
@@ -170,7 +163,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
         var sykepengesoknad = opprettNyArbeidstakerSoknad()
         sykepengesoknad = sykepengesoknad.fjernSporsmal(FERIE_V2)
         sykepengesoknad = sykepengesoknad.fjernSporsmal(PERMISJON_V2)
-        sykepengesoknad = sykepengesoknad.fjernSporsmal(UTLAND_V2)
+        sykepengesoknad = sykepengesoknad.fjernSporsmal(OPPHOLD_UTENFOR_EOS)
 
         val fravar = hentFeriePermUtlandListe(sykepengesoknad)
 
@@ -188,7 +181,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
             )
         sykepengesoknad =
             sykepengesoknad.replaceSporsmal(
-                sykepengesoknad.getSporsmalMedTag(UTLAND_NAR_V2).toBuilder()
+                sykepengesoknad.getSporsmalMedTag(OPPHOLD_UTENFOR_EOS_NAR).toBuilder()
                     .svar(emptyList())
                     .build(),
             )
@@ -266,13 +259,13 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
         var sykepengesoknad = opprettNyArbeidstakerSoknad()
         sykepengesoknad =
             sykepengesoknad.replaceSporsmal(
-                sykepengesoknad.getSporsmalMedTag(UTLAND_V2).toBuilder()
+                sykepengesoknad.getSporsmalMedTag(OPPHOLD_UTENFOR_EOS).toBuilder()
                     .svar(listOf(Svar(null, "JA")))
                     .build(),
             )
         sykepengesoknad =
             sykepengesoknad.replaceSporsmal(
-                sykepengesoknad.getSporsmalMedTag(UTLAND_NAR_V2).toBuilder()
+                sykepengesoknad.getSporsmalMedTag(OPPHOLD_UTENFOR_EOS_NAR).toBuilder()
                     .svar(
                         listOf(
                             Svar(
@@ -392,7 +385,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
                         .build(),
                 )
                 .replaceSporsmal(
-                    sykepengesoknad.getSporsmalMedTag(UTLAND_V2).toBuilder()
+                    sykepengesoknad.getSporsmalMedTag(OPPHOLD_UTENFOR_EOS).toBuilder()
                         .svar(emptyList())
                         .build(),
                 )

@@ -7,8 +7,8 @@ import no.nav.helse.flex.domain.Svar
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.mock.*
 import no.nav.helse.flex.service.FolkeregisterIdenter
-import no.nav.helse.flex.soknadsopprettelse.UTLAND_NAR_V2
-import no.nav.helse.flex.soknadsopprettelse.UTLAND_V2
+import no.nav.helse.flex.soknadsopprettelse.OPPHOLD_UTENFOR_EOS
+import no.nav.helse.flex.soknadsopprettelse.OPPHOLD_UTENFOR_EOS_NAR
 import no.nav.helse.flex.util.tilOsloLocalDateTime
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -278,9 +278,9 @@ class SykepengesoknadDAOTest : FellesTestOppsett() {
     }
 
     private fun Sykepengesoknad.svarJaPaUtlandsporsmal(): Sykepengesoknad {
-        val utlandSpm = this.getSporsmalMedTag(UTLAND_V2).copy(svar = listOf(Svar(null, "CHECKED")))
+        val utlandSpm = this.getSporsmalMedTag(OPPHOLD_UTENFOR_EOS).copy(svar = listOf(Svar(null, "CHECKED")))
         val utlandNarSpm =
-            this.getSporsmalMedTag(UTLAND_NAR_V2).copy(
+            this.getSporsmalMedTag(OPPHOLD_UTENFOR_EOS_NAR).copy(
                 svar =
                     listOf(
                         Svar(

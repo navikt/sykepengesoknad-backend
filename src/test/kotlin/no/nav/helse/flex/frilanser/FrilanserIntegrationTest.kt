@@ -58,7 +58,7 @@ class FrilanserIntegrationTest : FellesTestOppsett() {
                 "ARBEID_UNDERVEIS_100_PROSENT_0",
                 ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER,
-                UTLAND,
+                OPPHOLD_UTENFOR_EOS,
                 TIL_SLUTT,
             ),
         )
@@ -86,7 +86,7 @@ class FrilanserIntegrationTest : FellesTestOppsett() {
                 "ARBEID_UNDERVEIS_100_PROSENT_0",
                 ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER,
-                UTLAND,
+                OPPHOLD_UTENFOR_EOS,
                 TIL_SLUTT,
             ),
         )
@@ -140,7 +140,7 @@ class FrilanserIntegrationTest : FellesTestOppsett() {
                         "ARBEID_UNDERVEIS_100_PROSENT_0",
                         ARBEID_UTENFOR_NORGE,
                         ANDRE_INNTEKTSKILDER,
-                        UTLAND,
+                        OPPHOLD_UTENFOR_EOS,
                         TIL_SLUTT,
                     ),
                 )
@@ -174,9 +174,9 @@ class FrilanserIntegrationTest : FellesTestOppsett() {
                     .isEqualTo(
                         "I perioden 1. - 3. februar 2020 var du 100% sykmeldt som frilanser. Jobbet du noe i denne perioden?",
                     )
-                assertThat(it.rSSykepengesoknad.sporsmal!!.first { it.tag == UTLAND }.sporsmalstekst)
+                assertThat(it.rSSykepengesoknad.sporsmal!!.first { it.tag == OPPHOLD_UTENFOR_EOS }.sporsmalstekst)
                     .isEqualTo(
-                        "Har du vært utenfor EØS mens du var sykmeldt 1. - 3. februar 2020?",
+                        "Var du på reise utenfor EØS mens du var sykmeldt 1. - 3. februar 2020?",
                     )
             }
     }
@@ -189,7 +189,7 @@ class FrilanserIntegrationTest : FellesTestOppsett() {
             .besvarSporsmal("ARBEID_UNDERVEIS_100_PROSENT_0", "NEI", mutert = false)
             .besvarSporsmal(ARBEID_UTENFOR_NORGE, "NEI", mutert = false)
             .besvarSporsmal(ANDRE_INNTEKTSKILDER, "NEI", mutert = false)
-            .besvarSporsmal(UTLAND, "NEI", mutert = false)
+            .besvarSporsmal(OPPHOLD_UTENFOR_EOS, "NEI", mutert = false)
             .besvarSporsmal(TIL_SLUTT, "punkt 1, 2 ... 5", ferdigBesvart = false)
             .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED", mutert = false)
             .also {
@@ -199,17 +199,16 @@ class FrilanserIntegrationTest : FellesTestOppsett() {
 
     @Test
     @Order(9)
-    fun `utland muterer ikke søknaden på frilansersøknad`() {
+    fun `OPPHOLD_UTENFOR_EOS muterer ikke søknaden på frilansersøknad`() {
         val soknaden = hentSoknader(fnr).first()
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
-            .besvarSporsmal(UTLAND, "JA", mutert = false, ferdigBesvart = false)
+            .besvarSporsmal(OPPHOLD_UTENFOR_EOS, "JA", mutert = false, ferdigBesvart = false)
             .besvarSporsmal(
-                PERIODER,
+                OPPHOLD_UTENFOR_EOS_NAR,
                 svar = """{"fom":"${soknaden.fom!!}","tom":"${soknaden.fom!!.plusDays(1)}"}""",
                 mutert = false,
                 ferdigBesvart = false,
             )
-            .besvarSporsmal(UTLANDSOPPHOLD_SOKT_SYKEPENGER, "NEI", mutert = false)
             .also {
                 assertThat(it.muterteSoknaden).isFalse()
             }

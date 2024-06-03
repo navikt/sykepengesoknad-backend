@@ -5,7 +5,6 @@ import no.nav.helse.flex.domain.Arbeidssituasjon.*
 import no.nav.helse.flex.domain.Soknadsperiode
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sporsmal
-import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Svartype.DATO
 import no.nav.helse.flex.domain.Svartype.JA_NEI
 import no.nav.helse.flex.domain.Sykepengesoknad
@@ -16,7 +15,6 @@ import no.nav.helse.flex.soknadsopprettelse.sporsmal.utenlandsksykmelding.utenla
 import no.nav.helse.flex.soknadsopprettelse.undersporsmal.jobbetDuUndersporsmal
 import no.nav.helse.flex.util.DatoUtil.formatterDato
 import no.nav.helse.flex.util.DatoUtil.formatterPeriode
-import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
 fun settOppSoknadSelvstendigOgFrilanser(opts: SettOppSoknadOptions): List<Sporsmal> {
@@ -33,7 +31,7 @@ fun settOppSoknadSelvstendigOgFrilanser(opts: SettOppSoknadOptions): List<Sporsm
             },
         )
         add(andreInntektskilderSelvstendigOgFrilanser(sykepengesoknad.arbeidssituasjon!!))
-        add(utlandsSporsmalSelvstendig(sykepengesoknad.fom!!, sykepengesoknad.tom!!))
+        add(oppholdUtenforEOSSporsmal(sykepengesoknad.fom!!, sykepengesoknad.tom!!))
         add(tilSlutt())
         addAll(
             jobbetDuIPeriodenSporsmalSelvstendigFrilanser(
@@ -131,34 +129,6 @@ private fun tilbakeIFulltArbeidSporsmal(soknadMetadata: Sykepengesoknad): Sporsm
                     svartype = DATO,
                     min = soknadMetadata.fom!!.format(ISO_LOCAL_DATE),
                     max = soknadMetadata.tom.format(ISO_LOCAL_DATE),
-                ),
-            ),
-    )
-}
-
-fun utlandsSporsmalSelvstendig(
-    fom: LocalDate,
-    tom: LocalDate,
-): Sporsmal {
-    return Sporsmal(
-        tag = UTLAND,
-        sporsmalstekst = "Har du vært utenfor EØS mens du var sykmeldt " + formatterPeriode(fom, tom) + "?",
-        svartype = JA_NEI,
-        kriterieForVisningAvUndersporsmal = JA,
-        undersporsmal =
-            listOf(
-                Sporsmal(
-                    tag = PERIODER,
-                    sporsmalstekst = "Når var du utenfor EØS?",
-                    svartype = Svartype.PERIODER,
-                    min = fom.format(ISO_LOCAL_DATE),
-                    max = tom.format(ISO_LOCAL_DATE),
-                ),
-                Sporsmal(
-                    tag = UTLANDSOPPHOLD_SOKT_SYKEPENGER,
-                    sporsmalstekst = "Har du søkt om å beholde sykepengene for disse dagene?",
-                    svartype = JA_NEI,
-                    undersporsmal = emptyList(),
                 ),
             ),
     )
