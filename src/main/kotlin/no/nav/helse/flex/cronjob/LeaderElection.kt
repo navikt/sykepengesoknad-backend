@@ -1,11 +1,8 @@
 package no.nav.helse.flex.cronjob
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import no.nav.helse.flex.logger
+import no.nav.helse.flex.util.OBJECT_MAPPER
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.availability.ApplicationAvailability
 import org.springframework.boot.availability.LivenessState
@@ -65,7 +62,7 @@ class LeaderElection(
         }
 
         result.body?.let {
-            val leader: Leader = objectMapper.readValue(it)
+            val leader: Leader = OBJECT_MAPPER.readValue(it)
             return leader.name == hostname
         }
 
@@ -81,11 +78,4 @@ class LeaderElection(
         }
 
     private data class Leader(val name: String)
-
-    private val objectMapper =
-        ObjectMapper()
-            .registerModule(JavaTimeModule())
-            .registerKotlinModule()
-            .configure(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE, true)
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 }

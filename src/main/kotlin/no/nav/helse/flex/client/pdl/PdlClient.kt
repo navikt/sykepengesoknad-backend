@@ -1,7 +1,6 @@
 package no.nav.helse.flex.client.pdl
 
 import com.fasterxml.jackson.core.JsonProcessingException
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.util.OBJECT_MAPPER
 import org.springframework.beans.factory.annotation.Value
@@ -75,7 +74,7 @@ query(${"$"}ident: ID!){
 
     private fun requestToJson(graphQLRequest: Any): String {
         return try {
-            ObjectMapper().writeValueAsString(graphQLRequest)
+            OBJECT_MAPPER.writeValueAsString(graphQLRequest)
         } catch (e: JsonProcessingException) {
             throw RuntimeException(e)
         }

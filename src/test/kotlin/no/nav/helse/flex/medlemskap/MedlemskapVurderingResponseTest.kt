@@ -1,7 +1,7 @@
 package no.nav.helse.flex.medlemskap
 
 import com.fasterxml.jackson.databind.DatabindException
-import no.nav.security.mock.oauth2.http.objectMapper
+import no.nav.helse.flex.util.OBJECT_MAPPER
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should contain same`
 import org.amshove.kluent.shouldHaveSize
@@ -27,7 +27,7 @@ class MedlemskapVurderingResponseTest {
         }
         """
 
-        val response = objectMapper.readValue(jsonResponse, MedlemskapVurderingResponse::class.java)
+        val response = OBJECT_MAPPER.readValue(jsonResponse, MedlemskapVurderingResponse::class.java)
 
         response.svar `should be equal to` MedlemskapVurderingSvarType.UAVKLART
         response.sporsmal `should contain same`
@@ -52,8 +52,36 @@ class MedlemskapVurderingResponseTest {
         """
 
         assertThrows<DatabindException> {
-            objectMapper.readValue(jsonResponse, MedlemskapVurderingResponse::class.java)
+            OBJECT_MAPPER.readValue(jsonResponse, MedlemskapVurderingResponse::class.java)
         }
+    }
+
+    @Test
+    fun `deserialiser ukjent felt kjentOppholdstilatelse uten feil`() {
+        val jsonResponse = """
+        {
+          "svar": "UAVKLART",
+          "sporsmal": [
+            "OPPHOLDSTILATELSE",
+            "OPPHOLD_UTENFOR_NORGE",
+            "ARBEID_UTENFOR_NORGE"
+          ],
+          "kjentOppholdstilatelse": {
+            "fom": "2022-01-01",
+            "tom": "2024-02-03"
+          }
+        }
+        """
+
+        val response = OBJECT_MAPPER.readValue(jsonResponse, MedlemskapVurderingResponse::class.java)
+
+        response.svar `should be equal to` MedlemskapVurderingSvarType.UAVKLART
+        response.sporsmal `should contain same`
+            listOf(
+                MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
+                MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE,
+                MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
+            )
     }
 
     @Test
@@ -65,7 +93,7 @@ class MedlemskapVurderingResponseTest {
         """
 
         assertThrows<DatabindException> {
-            objectMapper.readValue(jsonResponse, MedlemskapVurderingResponse::class.java)
+            OBJECT_MAPPER.readValue(jsonResponse, MedlemskapVurderingResponse::class.java)
         }
     }
 
@@ -78,7 +106,7 @@ class MedlemskapVurderingResponseTest {
         }
         """
 
-        val response = objectMapper.readValue(jsonResponse, MedlemskapVurderingResponse::class.java)
+        val response = OBJECT_MAPPER.readValue(jsonResponse, MedlemskapVurderingResponse::class.java)
 
         response.svar `should be equal to` MedlemskapVurderingSvarType.UAVKLART
         response.sporsmal shouldHaveSize 0
