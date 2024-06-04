@@ -12,8 +12,8 @@ import no.nav.helse.flex.exception.AbstractApiError
 import no.nav.helse.flex.exception.LogLevel
 import no.nav.helse.flex.soknadsopprettelse.FERIE
 import no.nav.helse.flex.util.DatoUtil
-import no.nav.helse.flex.util.OBJECT_MAPPER
 import no.nav.helse.flex.util.PeriodeMapper
+import no.nav.helse.flex.util.objectMapper
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import java.lang.Double.isNaN
 import java.time.LocalDate
@@ -111,7 +111,7 @@ private fun String.tilLocalDate(): LocalDate {
 }
 
 fun String.tilKvittering(): Kvittering {
-    return OBJECT_MAPPER.readValue(this)
+    return objectMapper.readValue(this)
 }
 
 private fun Sporsmal.validerGrenserPaDato(svar: Svar): () -> Boolean {

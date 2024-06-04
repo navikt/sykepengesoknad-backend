@@ -1,10 +1,8 @@
 package no.nav.helse.flex.domain.mapper
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import no.nav.helse.flex.domain.*
 import no.nav.helse.flex.sykepengesoknad.kafka.*
+import no.nav.helse.flex.util.objectMapper
 import java.io.IOException
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -133,11 +131,9 @@ fun Soknadstype.tilSoknadstypeDTO(): SoknadstypeDTO {
     }
 }
 
-private val objectmapper = ObjectMapper().registerModule(JavaTimeModule()).registerKotlinModule()
-
 fun String.getJsonPeriode(): PeriodeDTO {
     return try {
-        objectmapper.readValue(this, PeriodeDTO::class.java)
+        objectMapper.readValue(this, PeriodeDTO::class.java)
     } catch (e: IOException) {
         this.getJsonPeriodeFraGammeltFormat()
     }
@@ -154,7 +150,7 @@ fun String.getJsonPeriodeFraGammeltFormat(): PeriodeDTO {
     }
 
     try {
-        val fomTom = objectmapper.readValue(this, FomTom::class.java)
+        val fomTom = objectMapper.readValue(this, FomTom::class.java)
         return PeriodeDTO(
             fom = fomTom.fom.gammeltFormatTilLocalDate(),
             tom = fomTom.tom.gammeltFormatTilLocalDate(),

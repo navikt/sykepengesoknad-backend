@@ -29,7 +29,7 @@ import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.util.DatoUtil
-import no.nav.helse.flex.util.OBJECT_MAPPER
+import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.ventPåRecords
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldBeEqualTo
@@ -63,7 +63,7 @@ class OverlapperEtter : FellesTestOppsett() {
         return if (this == null) {
             null
         } else {
-            OBJECT_MAPPER.readValue(this)
+            objectMapper.readValue(this)
         }
     }
 

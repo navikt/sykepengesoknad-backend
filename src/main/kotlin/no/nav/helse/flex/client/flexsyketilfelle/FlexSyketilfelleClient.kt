@@ -10,7 +10,7 @@ import no.nav.helse.flex.domain.sykmelding.SykmeldingRequest
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
-import no.nav.helse.flex.util.OBJECT_MAPPER
+import no.nav.helse.flex.util.objectMapper
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -49,7 +49,7 @@ class FlexSyketilfelleClient(
                 .queryParam("hentAndreIdenter", "false")
 
         val sykmeldingRequest = SykmeldingRequest(sykmeldingKafkaMessage)
-        val entity = HttpEntity(OBJECT_MAPPER.writeValueAsString(sykmeldingRequest), headers)
+        val entity = HttpEntity(objectMapper.writeValueAsString(sykmeldingRequest), headers)
 
         val result =
             flexSyketilfelleRestTemplate

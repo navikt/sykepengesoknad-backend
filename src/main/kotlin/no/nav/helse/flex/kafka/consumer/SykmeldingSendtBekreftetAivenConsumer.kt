@@ -4,7 +4,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.soknadsopprettelse.BehandleSykmeldingOgBestillAktivering
-import no.nav.helse.flex.util.OBJECT_MAPPER
+import no.nav.helse.flex.util.objectMapper
 import no.nav.syfo.kafka.NAV_CALLID
 import no.nav.syfo.kafka.getSafeNavCallIdHeaderAsString
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -51,4 +51,4 @@ class SykmeldingSendtBekreftetAivenConsumer(
     }
 }
 
-fun String.tilSykmeldingKafkaMessage(): SykmeldingKafkaMessage = OBJECT_MAPPER.readValue(this)
+fun String.tilSykmeldingKafkaMessage(): SykmeldingKafkaMessage = objectMapper.readValue(this)

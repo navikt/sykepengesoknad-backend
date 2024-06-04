@@ -9,7 +9,7 @@ import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.skapAzureJwt
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
-import no.nav.helse.flex.util.OBJECT_MAPPER
+import no.nav.helse.flex.util.objectMapper
 import org.amshove.kluent.`should be equal to`
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.MethodOrderer
@@ -96,6 +96,6 @@ class VeilederOboIntegrationTest : FellesTestOppsett() {
                     .contentType(MediaType.APPLICATION_JSON),
             ).andExpect(MockMvcResultMatchers.status().isOk).andReturn().response.contentAsString
 
-        return OBJECT_MAPPER.readValue(json)
+        return objectMapper.readValue(json)
     }
 }

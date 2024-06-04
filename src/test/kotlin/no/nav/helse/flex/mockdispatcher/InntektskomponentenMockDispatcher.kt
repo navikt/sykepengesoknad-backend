@@ -8,7 +8,7 @@ import no.nav.helse.flex.client.inntektskomponenten.ArbeidsforholdFrilanser
 import no.nav.helse.flex.client.inntektskomponenten.HentInntekterRequest
 import no.nav.helse.flex.client.inntektskomponenten.HentInntekterResponse
 import no.nav.helse.flex.client.inntektskomponenten.InntektListe
-import no.nav.helse.flex.util.OBJECT_MAPPER
+import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.util.serialisertTilString
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
@@ -16,7 +16,7 @@ import okhttp3.mockwebserver.RecordedRequest
 
 object InntektskomponentenMockDispatcher : Dispatcher() {
     override fun dispatch(request: RecordedRequest): MockResponse {
-        val req: HentInntekterRequest = OBJECT_MAPPER.readValue(request.body.readUtf8())
+        val req: HentInntekterRequest = objectMapper.readValue(request.body.readUtf8())
         if (req.ident.identifikator == "11111234565") {
             return HentInntekterResponse(
                 arbeidsInntektMaaned =

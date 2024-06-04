@@ -4,7 +4,7 @@ import no.nav.helse.flex.client.istilgangskontroll.IstilgangskontrollClient.Comp
 import no.nav.helse.flex.domain.Arbeidsgiverperiode
 import no.nav.helse.flex.domain.SimpleSykmelding
 import no.nav.helse.flex.domain.Sykeforloep
-import no.nav.helse.flex.util.OBJECT_MAPPER
+import no.nav.helse.flex.util.objectMapper
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.test.web.client.ExpectedCount.manyTimes
@@ -26,7 +26,7 @@ fun FellesTestOppsett.mockIstilgangskontroll(
         .andRespond(
             if (tilgang) {
                 withSuccess(
-                    OBJECT_MAPPER.writeValueAsBytes(
+                    objectMapper.writeValueAsBytes(
                         "Har tilgang",
                     ),
                     MediaType.APPLICATION_JSON,
@@ -57,7 +57,7 @@ fun FellesTestOppsett.mockFlexSyketilfelleSykeforloep(sykeforloep: List<Sykeforl
         .andExpect(method(HttpMethod.POST))
         .andRespond(
             withSuccess(
-                OBJECT_MAPPER.writeValueAsBytes(
+                objectMapper.writeValueAsBytes(
                     sykeforloep,
                 ),
                 MediaType.APPLICATION_JSON,
@@ -74,7 +74,7 @@ fun FellesTestOppsett.mockFlexSyketilfelleErUtaforVentetid(
         .andExpect(method(HttpMethod.POST))
         .andRespond(
             withSuccess(
-                OBJECT_MAPPER.writeValueAsBytes(
+                objectMapper.writeValueAsBytes(
                     utafor,
                 ),
                 MediaType.APPLICATION_JSON,
@@ -99,7 +99,7 @@ fun FellesTestOppsett.mockFlexSyketilfelleArbeidsgiverperiode(
             .andExpect(method(HttpMethod.POST))
             .andRespond(
                 withSuccess(
-                    OBJECT_MAPPER.writeValueAsBytes(
+                    objectMapper.writeValueAsBytes(
                         arbeidsgiverperiode,
                     ),
                     MediaType.APPLICATION_JSON,

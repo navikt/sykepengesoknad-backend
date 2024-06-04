@@ -4,7 +4,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.client.innsendingapi.EttersendingRequest
 import no.nav.helse.flex.client.innsendingapi.EttersendingResponse
 import no.nav.helse.flex.logger
-import no.nav.helse.flex.util.OBJECT_MAPPER
+import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.util.serialisertTilString
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.QueueDispatcher
@@ -52,6 +52,6 @@ object InnsendingApiMockDispatcher : QueueDispatcher() {
     fun getSlettEttersendingRequests(): List<RecordedRequest> = slettEttersendingRequests.toList()
 
     fun getOpprettEttersendingLastRequest(): EttersendingRequest {
-        return OBJECT_MAPPER.readValue(opprettEttersendRequests.last().body.readUtf8())
+        return objectMapper.readValue(opprettEttersendRequests.last().body.readUtf8())
     }
 }

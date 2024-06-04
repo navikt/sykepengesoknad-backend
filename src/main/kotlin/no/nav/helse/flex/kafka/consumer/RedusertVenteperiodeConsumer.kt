@@ -4,7 +4,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.RedusertVenteperiodeDbRecord
 import no.nav.helse.flex.repository.RedusertVenteperiodeRepository
-import no.nav.helse.flex.util.OBJECT_MAPPER
+import no.nav.helse.flex.util.objectMapper
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.support.Acknowledgment
@@ -49,7 +49,7 @@ class RedusertVenteperiodeConsumer(
         }
     }
 
-    private fun String.readValue(): KafkaMelding = OBJECT_MAPPER.readValue(this)
+    private fun String.readValue(): KafkaMelding = objectMapper.readValue(this)
 
     private data class KafkaMelding(
         val sykmelding: Sykmelding,
