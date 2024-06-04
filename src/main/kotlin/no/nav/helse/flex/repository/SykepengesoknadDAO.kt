@@ -683,14 +683,14 @@ class SykepengesoknadDAO(
 
 fun String?.tilMerknader(): List<Merknad>? {
     this?.let {
-        return OBJECT_MAPPER.readValue(this)
+        return objectMapper.readValue(this)
     }
     return null
 }
 
 private fun String?.tilArbeidsforholdFraInntektskomponenten(): List<ArbeidsforholdFraInntektskomponenten>? {
     this?.let {
-        return OBJECT_MAPPER.readValue(this)
+        return objectMapper.readValue(this)
     }
     return null
 }

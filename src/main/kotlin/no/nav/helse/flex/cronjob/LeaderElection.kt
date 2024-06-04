@@ -2,7 +2,7 @@ package no.nav.helse.flex.cronjob
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.logger
-import no.nav.helse.flex.util.OBJECT_MAPPER
+import no.nav.helse.flex.util.objectMapper
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.availability.ApplicationAvailability
 import org.springframework.boot.availability.LivenessState
@@ -62,7 +62,7 @@ class LeaderElection(
         }
 
         result.body?.let {
-            val leader: Leader = OBJECT_MAPPER.readValue(it)
+            val leader: Leader = objectMapper.readValue(it)
             return leader.name == hostname
         }
 

@@ -7,7 +7,7 @@ import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSporsmal
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSvar
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknad
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknadMetadata
-import no.nav.helse.flex.util.OBJECT_MAPPER
+import no.nav.helse.flex.util.objectMapper
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback
 import org.amshove.kluent.`should be null`
@@ -50,7 +50,7 @@ fun FellesTestOppsett.hentSoknaderMetadata(fnr: String): List<RSSykepengesoknadM
                 .contentType(MediaType.APPLICATION_JSON),
         ).andExpect(MockMvcResultMatchers.status().isOk).andReturn().response.contentAsString
 
-    return OBJECT_MAPPER.readValue(json)
+    return objectMapper.readValue(json)
 }
 
 fun FellesTestOppsett.hentSoknad(
@@ -64,7 +64,7 @@ fun FellesTestOppsett.hentSoknad(
                 .contentType(MediaType.APPLICATION_JSON),
         ).andExpect(MockMvcResultMatchers.status().isOk).andReturn().response.contentAsString
 
-    return OBJECT_MAPPER.readValue(json)
+    return objectMapper.readValue(json)
 }
 
 fun FellesTestOppsett.hentSoknader(fnr: String): List<RSSykepengesoknad> =
@@ -81,7 +81,7 @@ fun FellesTestOppsett.lagreSvarMedResult(
     return this.mockMvc.perform(
         MockMvcRequestBuilders.post("/api/v2/soknader/$soknadId/sporsmal/$sporsmalId/svar")
             .header("Authorization", "Bearer ${jwt(fnr)}")
-            .content(OBJECT_MAPPER.writeValueAsString(svar))
+            .content(objectMapper.writeValueAsString(svar))
             .contentType(MediaType.APPLICATION_JSON),
     )
 }
@@ -97,7 +97,7 @@ fun FellesTestOppsett.lagreSvar(
             .andExpect(MockMvcResultMatchers.status().isCreated)
             .andReturn().response.contentAsString
 
-    return OBJECT_MAPPER.readValue(json)
+    return objectMapper.readValue(json)
 }
 
 fun FellesTestOppsett.slettSvarMedResult(
@@ -172,7 +172,7 @@ fun FellesTestOppsett.korrigerSoknad(
     val json =
         this.korrigerSoknadMedResult(soknadId, fnr).andExpect(MockMvcResultMatchers.status().isOk)
             .andReturn().response.contentAsString
-    return OBJECT_MAPPER.readValue(json)
+    return objectMapper.readValue(json)
 }
 
 fun FellesTestOppsett.finnMottakerAvSoknad(
@@ -186,7 +186,7 @@ fun FellesTestOppsett.finnMottakerAvSoknad(
                 .contentType(MediaType.APPLICATION_JSON),
         ).andExpect(MockMvcResultMatchers.status().isOk)
             .andReturn().response.contentAsString
-    return OBJECT_MAPPER.readValue(json)
+    return objectMapper.readValue(json)
 }
 
 fun FellesTestOppsett.gjenapneSoknad(
@@ -259,7 +259,7 @@ fun FellesTestOppsett.oppdaterSporsmalMedResult(
     return mockMvc.perform(
         MockMvcRequestBuilders.put("/api/v2/soknader/$soknadsId/sporsmal/${rsSporsmal.id}")
             .header("Authorization", "Bearer ${jwt(fnr)}")
-            .content(OBJECT_MAPPER.writeValueAsString(rsSporsmal))
+            .content(objectMapper.writeValueAsString(rsSporsmal))
             .contentType(MediaType.APPLICATION_JSON),
     )
 }
@@ -273,7 +273,7 @@ fun FellesTestOppsett.oppdaterSporsmal(
     val json =
         this.oppdaterSporsmalMedResult(fnr, rsSporsmal, soknadsId).andExpect(MockMvcResultMatchers.status().isOk)
             .andReturn().response.contentAsString
-    val response = OBJECT_MAPPER.readValue<RSOppdaterSporsmalResponse>(json)
+    val response = objectMapper.readValue<RSOppdaterSporsmalResponse>(json)
     if (mutert) {
         response.mutertSoknad.`should not be null`()
     } else {

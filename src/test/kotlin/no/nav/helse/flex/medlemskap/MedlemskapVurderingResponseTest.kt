@@ -1,7 +1,7 @@
 package no.nav.helse.flex.medlemskap
 
 import com.fasterxml.jackson.databind.DatabindException
-import no.nav.helse.flex.util.OBJECT_MAPPER
+import no.nav.helse.flex.util.objectMapper
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should contain same`
 import org.amshove.kluent.shouldHaveSize
@@ -27,7 +27,7 @@ class MedlemskapVurderingResponseTest {
         }
         """
 
-        val response = OBJECT_MAPPER.readValue(jsonResponse, MedlemskapVurderingResponse::class.java)
+        val response = objectMapper.readValue(jsonResponse, MedlemskapVurderingResponse::class.java)
 
         response.svar `should be equal to` MedlemskapVurderingSvarType.UAVKLART
         response.sporsmal `should contain same`
@@ -52,7 +52,7 @@ class MedlemskapVurderingResponseTest {
         """
 
         assertThrows<DatabindException> {
-            OBJECT_MAPPER.readValue(jsonResponse, MedlemskapVurderingResponse::class.java)
+            objectMapper.readValue(jsonResponse, MedlemskapVurderingResponse::class.java)
         }
     }
 
@@ -73,7 +73,7 @@ class MedlemskapVurderingResponseTest {
         }
         """
 
-        val response = OBJECT_MAPPER.readValue(jsonResponse, MedlemskapVurderingResponse::class.java)
+        val response = objectMapper.readValue(jsonResponse, MedlemskapVurderingResponse::class.java)
 
         response.svar `should be equal to` MedlemskapVurderingSvarType.UAVKLART
         response.sporsmal `should contain same`
@@ -93,7 +93,7 @@ class MedlemskapVurderingResponseTest {
         """
 
         assertThrows<DatabindException> {
-            OBJECT_MAPPER.readValue(jsonResponse, MedlemskapVurderingResponse::class.java)
+            objectMapper.readValue(jsonResponse, MedlemskapVurderingResponse::class.java)
         }
     }
 
@@ -106,7 +106,7 @@ class MedlemskapVurderingResponseTest {
         }
         """
 
-        val response = OBJECT_MAPPER.readValue(jsonResponse, MedlemskapVurderingResponse::class.java)
+        val response = objectMapper.readValue(jsonResponse, MedlemskapVurderingResponse::class.java)
 
         response.svar `should be equal to` MedlemskapVurderingSvarType.UAVKLART
         response.sporsmal shouldHaveSize 0

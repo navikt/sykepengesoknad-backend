@@ -4,7 +4,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.juridiskvurdering.JuridiskVurderingKafkaDto
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.helse.flex.testutil.SubsumsjonAssertions.assertSubsumsjonsmelding
-import no.nav.helse.flex.util.OBJECT_MAPPER
+import no.nav.helse.flex.util.objectMapper
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.awaitility.Awaitility.await
@@ -60,9 +60,9 @@ fun List<ConsumerRecord<String, String>>.tilJuridiskVurdering(): List<JuridiskVu
             assertSubsumsjonsmelding(it.value())
             it.value()
         }
-        .map { OBJECT_MAPPER.readValue(it) }
+        .map { objectMapper.readValue(it) }
 }
 
 private fun String.tilTilSykepengesoknad(): SykepengesoknadDTO {
-    return OBJECT_MAPPER.readValue(this)
+    return objectMapper.readValue(this)
 }

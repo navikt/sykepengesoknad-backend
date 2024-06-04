@@ -20,7 +20,7 @@ import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
-import no.nav.helse.flex.util.OBJECT_MAPPER
+import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.util.serialisertTilString
 import no.nav.helse.flex.ventPåRecords
 import no.nav.syfo.model.sykmelding.model.GradertDTO
@@ -171,11 +171,11 @@ class SlettKvitteringerIntegrasjonsTest : FellesTestOppsett() {
         lagretSpm.svar.size `should be` 2
 
         val forsteLagretSvar = lagretSpm.svar.first()
-        val forsteKvittering: Kvittering = OBJECT_MAPPER.readValue(forsteLagretSvar.verdi)
+        val forsteKvittering: Kvittering = objectMapper.readValue(forsteLagretSvar.verdi)
         forsteKvittering.typeUtgift.`should be equal to`(Utgiftstype.PARKERING)
 
         val andreLagretSvar = lagretSpm.svar.drop(1).first()
-        val andreKvittering: Kvittering = OBJECT_MAPPER.readValue(andreLagretSvar.verdi)
+        val andreKvittering: Kvittering = objectMapper.readValue(andreLagretSvar.verdi)
         andreKvittering.typeUtgift.`should be equal to`(Utgiftstype.TAXI)
     }
 

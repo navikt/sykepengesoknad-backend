@@ -7,7 +7,7 @@ import no.nav.helse.flex.skapAzureJwt
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
-import no.nav.helse.flex.util.OBJECT_MAPPER
+import no.nav.helse.flex.util.objectMapper
 import no.nav.syfo.kafka.NAV_CALLID
 import org.amshove.kluent.shouldBeEqualTo
 import org.assertj.core.api.Assertions.assertThat
@@ -40,7 +40,7 @@ class SoknadKafkaFormatControllerTest : FellesTestOppsett() {
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk).andReturn()
 
-        val fraRest = OBJECT_MAPPER.readValue<SykepengesoknadDTO>(result.response.contentAsString)
+        val fraRest = objectMapper.readValue<SykepengesoknadDTO>(result.response.contentAsString)
 
         assertThat(fraRest.fnr).isEqualTo(kafkaSoknad.fnr)
 

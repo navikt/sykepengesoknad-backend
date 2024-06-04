@@ -9,7 +9,7 @@ import no.nav.helse.flex.skapAzureJwt
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
-import no.nav.helse.flex.util.OBJECT_MAPPER
+import no.nav.helse.flex.util.objectMapper
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.BeforeAll
@@ -46,7 +46,7 @@ class FlexAPITest : FellesTestOppsett() {
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk).andReturn()
 
-        val fraRest: FlexInternalResponse = OBJECT_MAPPER.readValue(result.response.contentAsString)
+        val fraRest: FlexInternalResponse = objectMapper.readValue(result.response.contentAsString)
         fraRest.sykepengesoknadListe.shouldHaveSize(1)
         fraRest.klippetSykepengesoknadRecord.shouldHaveSize(0)
         fraRest.sykepengesoknadListe[0].id.shouldBeEqualTo(kafkaMelding.id)
@@ -60,7 +60,7 @@ class FlexAPITest : FellesTestOppsett() {
                     .contentType(MediaType.APPLICATION_JSON),
             )
             .andExpect(MockMvcResultMatchers.status().isOk).andReturn().let {
-                val res: FlexInternalSoknadResponse = OBJECT_MAPPER.readValue(it.response.contentAsString)
+                val res: FlexInternalSoknadResponse = objectMapper.readValue(it.response.contentAsString)
                 res.sykepengesoknad.id.shouldBeEqualTo(kafkaMelding.id)
             }
     }
@@ -78,7 +78,7 @@ class FlexAPITest : FellesTestOppsett() {
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk).andReturn()
 
-        val fraRest: FlexInternalResponse = OBJECT_MAPPER.readValue(result.response.contentAsString)
+        val fraRest: FlexInternalResponse = objectMapper.readValue(result.response.contentAsString)
         fraRest.sykepengesoknadListe.shouldHaveSize(1)
         fraRest.klippetSykepengesoknadRecord.shouldHaveSize(0)
         fraRest.sykepengesoknadListe[0].id.shouldBeEqualTo(kafkaMelding.id)
@@ -124,7 +124,7 @@ class FlexAPITest : FellesTestOppsett() {
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk).andReturn()
 
-        val fraRest: List<PdlIdent> = OBJECT_MAPPER.readValue(result.response.contentAsString)
+        val fraRest: List<PdlIdent> = objectMapper.readValue(result.response.contentAsString)
         fraRest.shouldHaveSize(3)
         fraRest[0] shouldBeEqualTo PdlIdent("FOLKEREGISTERIDENT", "211111111111")
         fraRest[1] shouldBeEqualTo PdlIdent("FOLKEREGISTERIDENT", "111111111111")

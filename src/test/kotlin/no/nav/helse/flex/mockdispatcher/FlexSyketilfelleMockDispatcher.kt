@@ -6,7 +6,7 @@ import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.SimpleSykmelding
 import no.nav.helse.flex.domain.Sykeforloep
 import no.nav.helse.flex.domain.sykmelding.SykmeldingRequest
-import no.nav.helse.flex.util.OBJECT_MAPPER
+import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.util.serialisertTilString
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
@@ -16,7 +16,7 @@ import java.time.LocalDate
 object FlexSyketilfelleMockDispatcher : Dispatcher() {
     override fun dispatch(request: RecordedRequest): MockResponse {
         return if (request.requestLine == "POST /api/v1/sykeforloep?hentAndreIdenter=false HTTP/1.1") {
-            val requestBody: SykmeldingRequest = OBJECT_MAPPER.readValue(request.body.readUtf8())
+            val requestBody: SykmeldingRequest = objectMapper.readValue(request.body.readUtf8())
             val sykeforloep =
                 Sykeforloep(
                     oppfolgingsdato = requestBody.sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder.first().fom,

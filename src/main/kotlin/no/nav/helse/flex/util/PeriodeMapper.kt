@@ -13,21 +13,21 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 
 object PeriodeMapper {
-    val sporsmalstekstFormat = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+    val sporsmalstekstFormat = DateTimeFormatter.ofPattern("dd.MM.yyyy")!!
     private val objectMapperISOFormat =
         ObjectMapper()
             .registerModule(JavaTimeModule())
             .registerKotlinModule()
 
-    val javaTimeModuleSporsmalstektsFormat =
+    private val javaTimeModuleSporsmalstektsFormat =
         JavaTimeModule().addDeserializer(
             LocalDate::class.java,
             LocalDateDeserializer(
                 sporsmalstekstFormat,
             ),
-        )
+        )!!
 
-    val objectMapperSporsmalstekstFormat =
+    private val objectMapperSporsmalstekstFormat =
         ObjectMapper()
             .registerModule(javaTimeModuleSporsmalstektsFormat)
             .registerKotlinModule()

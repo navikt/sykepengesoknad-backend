@@ -2,7 +2,7 @@ package no.nav.helse.flex.client.pdl
 
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.module.kotlin.readValue
-import no.nav.helse.flex.util.OBJECT_MAPPER
+import no.nav.helse.flex.util.objectMapper
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.*
 import org.springframework.retry.annotation.Retryable
@@ -52,7 +52,7 @@ query(${"$"}ident: ID!){
             throw RuntimeException("PDL svarer med status ${responseEntity.statusCode} - ${responseEntity.body}")
         }
 
-        val parsedResponse: GetPersonResponse? = responseEntity.body?.let { OBJECT_MAPPER.readValue(it) }
+        val parsedResponse: GetPersonResponse? = responseEntity.body?.let { objectMapper.readValue(it) }
 
         parsedResponse?.data?.let {
             return it.hentIdenter?.identer ?: emptyList()
@@ -74,7 +74,7 @@ query(${"$"}ident: ID!){
 
     private fun requestToJson(graphQLRequest: Any): String {
         return try {
-            OBJECT_MAPPER.writeValueAsString(graphQLRequest)
+            objectMapper.writeValueAsString(graphQLRequest)
         } catch (e: JsonProcessingException) {
             throw RuntimeException(e)
         }

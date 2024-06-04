@@ -2,7 +2,7 @@ package no.nav.helse.flex.domain.mapper
 
 import no.nav.helse.flex.domain.*
 import no.nav.helse.flex.sykepengesoknad.kafka.*
-import no.nav.helse.flex.util.OBJECT_MAPPER
+import no.nav.helse.flex.util.objectMapper
 import java.io.IOException
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -133,7 +133,7 @@ fun Soknadstype.tilSoknadstypeDTO(): SoknadstypeDTO {
 
 fun String.getJsonPeriode(): PeriodeDTO {
     return try {
-        OBJECT_MAPPER.readValue(this, PeriodeDTO::class.java)
+        objectMapper.readValue(this, PeriodeDTO::class.java)
     } catch (e: IOException) {
         this.getJsonPeriodeFraGammeltFormat()
     }
@@ -150,7 +150,7 @@ fun String.getJsonPeriodeFraGammeltFormat(): PeriodeDTO {
     }
 
     try {
-        val fomTom = OBJECT_MAPPER.readValue(this, FomTom::class.java)
+        val fomTom = objectMapper.readValue(this, FomTom::class.java)
         return PeriodeDTO(
             fom = fomTom.fom.gammeltFormatTilLocalDate(),
             tom = fomTom.tom.gammeltFormatTilLocalDate(),

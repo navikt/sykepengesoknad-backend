@@ -4,7 +4,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.forskuttering.domain.Forskuttering
 import no.nav.helse.flex.forskuttering.domain.NarmesteLederLeesah
 import no.nav.helse.flex.logger
-import no.nav.helse.flex.util.OBJECT_MAPPER
+import no.nav.helse.flex.util.objectMapper
 import org.springframework.stereotype.Component
 import java.time.Instant
 
@@ -27,7 +27,7 @@ class OppdateringAvForskuttering(
         }
     }
 
-    fun String.tilNarmesteLederLeesah(): NarmesteLederLeesah = OBJECT_MAPPER.readValue(this)
+    fun String.tilNarmesteLederLeesah(): NarmesteLederLeesah = objectMapper.readValue(this)
 }
 
 private fun NarmesteLederLeesah.tilNarmesteLeder(id: String?): Forskuttering =

@@ -16,7 +16,7 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.helse.flex.testutil.SoknadBesvarer
-import no.nav.helse.flex.util.OBJECT_MAPPER
+import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.util.serialisertTilString
 import no.nav.syfo.model.sykmelding.model.GradertDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
@@ -283,7 +283,7 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
 
         val returnertSvar = spmSomBleSvart.svar.first()
 
-        val returnertKvittering: Kvittering = OBJECT_MAPPER.readValue(returnertSvar.verdi)
+        val returnertKvittering: Kvittering = objectMapper.readValue(returnertSvar.verdi)
         returnertKvittering.typeUtgift.`should be equal to`(Utgiftstype.PARKERING)
     }
 
@@ -299,7 +299,7 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
         kvitteringSpm.svar.size `should be equal to` 1
 
         val returnertSvar = kvitteringSpm.svar.first()
-        val returnertKvittering: Kvittering = OBJECT_MAPPER.readValue(returnertSvar.verdi)
+        val returnertKvittering: Kvittering = objectMapper.readValue(returnertSvar.verdi)
 
         returnertKvittering.blobId.`should be equal to`("9a186e3c-aeeb-4566-a865-15aa9139d364")
         returnertKvittering.belop.`should be equal to`(133700)

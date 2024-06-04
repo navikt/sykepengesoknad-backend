@@ -8,7 +8,7 @@ import no.nav.helse.flex.client.pdl.HentIdenter
 import no.nav.helse.flex.client.pdl.PdlClient
 import no.nav.helse.flex.client.pdl.PdlIdent
 import no.nav.helse.flex.client.pdl.ResponseData
-import no.nav.helse.flex.util.OBJECT_MAPPER
+import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.util.serialisertTilString
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
@@ -16,7 +16,7 @@ import okhttp3.mockwebserver.RecordedRequest
 
 object PdlMockDispatcher : Dispatcher() {
     override fun dispatch(request: RecordedRequest): MockResponse {
-        val graphReq: PdlClient.GraphQLRequest = OBJECT_MAPPER.readValue(request.body.readUtf8())
+        val graphReq: PdlClient.GraphQLRequest = objectMapper.readValue(request.body.readUtf8())
         val ident = graphReq.variables["ident"] ?: return MockResponse().setStatus("400").setBody("Ingen ident variabel")
 
         if (ident.startsWith("2")) {
