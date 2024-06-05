@@ -12,6 +12,8 @@ import no.nav.helse.flex.repository.SykepengesoknadRepository
 import no.nav.helse.flex.repository.normaliser
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.service.MottakerAvSoknadService
+import no.nav.helse.flex.soknadsopprettelse.OPPHOLD_UTENFOR_EOS
+import no.nav.helse.flex.soknadsopprettelse.OpprettSoknadService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
@@ -24,6 +26,7 @@ class SoknadSender(
     private val mottakerAvSoknadService: MottakerAvSoknadService,
     private val soknadProducer: SoknadProducer,
     private val sykepengesoknadRepository: SykepengesoknadRepository,
+    private val opprettSoknadService: OpprettSoknadService,
 ) {
     fun sendSoknad(
         sykepengesoknad: Sykepengesoknad,
@@ -37,6 +40,17 @@ class SoknadSender(
 
         if (sykepengesoknad.sporsmal.isEmpty()) {
             throw RuntimeException("Kan ikke sende soknad ${sykepengesoknad.id} med som ikke har spørsmål.")
+        }
+
+        val harOppholdtSegUtenforEOS =
+            sykepengesoknad.sporsmal
+                .firstOrNull { it.tag == OPPHOLD_UTENFOR_EOS }
+                ?.svar
+                ?.firstOrNull()
+                ?.let { it.verdi == "JA" } ?: false
+
+        if (harOppholdtSegUtenforEOS) {
+            opprettSoknadService.opprettSoknadUtland(identer)
         }
 
         svarDAO.overskrivSvar(sykepengesoknad)
