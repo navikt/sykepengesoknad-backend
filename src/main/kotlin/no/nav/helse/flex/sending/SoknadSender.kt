@@ -13,10 +13,16 @@ import no.nav.helse.flex.repository.normaliser
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.service.MottakerAvSoknadService
 import no.nav.helse.flex.soknadsopprettelse.OPPHOLD_UTENFOR_EOS
+import no.nav.helse.flex.soknadsopprettelse.OPPHOLD_UTENFOR_EOS_NAR
+import no.nav.helse.flex.soknadsopprettelse.FERIE_V2
+import no.nav.helse.flex.soknadsopprettelse.FERIE_NAR_V2
 import no.nav.helse.flex.soknadsopprettelse.OpprettSoknadService
+import no.nav.helse.flex.util.DatoUtil
+import no.nav.helse.flex.util.PeriodeMapper
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
+import java.util.Collections
 
 @Service
 @Transactional
@@ -34,28 +40,15 @@ class SoknadSender(
         dodsdato: LocalDate?,
         identer: FolkeregisterIdenter,
     ): Sykepengesoknad {
-        if (sykepengesoknad.status !in listOf(NY, UTKAST_TIL_KORRIGERING)) {
-            throw RuntimeException("Søknad ${sykepengesoknad.id} kan ikke gå i fra status ${sykepengesoknad.status} til SENDT.")
-        }
+        validerSoknad(sykepengesoknad)
 
-        if (sykepengesoknad.sporsmal.isEmpty()) {
-            throw RuntimeException("Kan ikke sende soknad ${sykepengesoknad.id} med som ikke har spørsmål.")
-        }
-
-        val harOppholdtSegUtenforEOS =
-            sykepengesoknad.sporsmal
-                .firstOrNull { it.tag == OPPHOLD_UTENFOR_EOS }
-                ?.svar
-                ?.firstOrNull()
-                ?.let { it.verdi == "JA" } ?: false
-
-        if (harOppholdtSegUtenforEOS) {
+        if (skalOppretteSoknadForOppholdUtenforEOS(sykepengesoknad)) {
             opprettSoknadService.opprettSoknadUtland(identer)
         }
 
         svarDAO.overskrivSvar(sykepengesoknad)
 
-        if (sykepengesoknad.korrigerer != null) {
+        sykepengesoknad.korrigerer?.let {
             sykepengesoknadDAO.oppdaterKorrigertAv(sykepengesoknad)
         }
 
@@ -80,5 +73,49 @@ class SoknadSender(
         )
 
         return sendtSoknad
+    }
+
+    private fun validerSoknad(sykepengesoknad: Sykepengesoknad) {
+        when {
+            sykepengesoknad.status !in listOf(NY, UTKAST_TIL_KORRIGERING) ->
+                throw RuntimeException("Søknad ${sykepengesoknad.id} kan ikke gå i fra status ${sykepengesoknad.status} til SENDT.")
+            sykepengesoknad.sporsmal.isEmpty() ->
+                throw RuntimeException("Kan ikke sende soknad ${sykepengesoknad.id} som ikke har spørsmål.")
+        }
+    }
+
+    private fun skalOppretteSoknadForOppholdUtenforEOS(sykepengesoknad: Sykepengesoknad): Boolean {
+
+        val gyldigeFerieperioder = sykepengesoknad.hentGyldigePerioder(FERIE_V2, FERIE_NAR_V2,)
+        val gyldigeUtlandsperioder = sykepengesoknad.hentGyldigePerioder(OPPHOLD_UTENFOR_EOS, OPPHOLD_UTENFOR_EOS_NAR)
+
+        val gyldigPeriode = gyldigeUtlandsperioder
+            .filter { DatoUtil.periodeErUtenforHelg(it) }
+            .any { periode -> DatoUtil.periodeHarDagerUtenforAndrePerioder(periode, gyldigeFerieperioder) }
+
+        val harOppholdtSegUtenforEOS = sykepengesoknad.getSporsmalMedTagOrNull(OPPHOLD_UTENFOR_EOS)
+            ?.svar?.firstOrNull()?.verdi == "JA"
+
+        return gyldigPeriode && harOppholdtSegUtenforEOS
+    }
+
+    private fun Sykepengesoknad.hentGyldigePerioder(
+        hva: String,
+        nar: String,
+    ): List<Periode> {
+        return if (this.getSporsmalMedTagOrNull(hva)?.forsteSvar == "JA") {
+            getGyldigePeriodesvar(this.getSporsmalMedTag(nar))
+        } else {
+            Collections.emptyList()
+        }
+    }
+
+    private fun getGyldigePeriodesvar(sporsmal: Sporsmal): List<Periode> {
+        return sporsmal.svar.asSequence()
+            .map { PeriodeMapper.jsonTilOptionalPeriode(it.verdi) }
+            .filter { it.isPresent }
+            .map { it.get() }
+            .filter { DatoUtil.periodeErInnenforMinMax(it, sporsmal.min, sporsmal.max) }
+            .toList()
     }
 }
