@@ -40,11 +40,25 @@ class SykepengesoknadDAO(
 
     fun finnSykepengesoknader(identer: FolkeregisterIdenter): List<Sykepengesoknad> = finnSykepengesoknader(identer.alle())
 
-    fun finnSykepengesoknader(identer: List<String>): List<Sykepengesoknad> {
+    fun finnSykepengesoknader(
+        identer: List<String>,
+        soknadsType: Soknadstype? = null,
+    ): List<Sykepengesoknad> {
+        val sql =
+            "SELECT * FROM sykepengesoknad WHERE fnr IN (:identer)" +
+                (if (soknadsType != null) " AND soknadstype = :soknadstype" else "")
+
+        val parameters =
+            MapSqlParameterSource("identer", identer).apply {
+                if (soknadsType != null) {
+                    addValue("soknadstype", soknadsType.name)
+                }
+            }
+
         val soknader =
             namedParameterJdbcTemplate.query(
-                "SELECT * FROM sykepengesoknad WHERE fnr IN (:identer)",
-                MapSqlParameterSource("identer", identer),
+                sql,
+                parameters,
                 sykepengesoknadRowMapper(),
             )
 
