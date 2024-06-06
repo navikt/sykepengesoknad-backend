@@ -33,13 +33,14 @@ class SoknadSenderTest : FellesTestOppsett() {
         soknaden: RSSykepengesoknad,
         ferieFom: LocalDate? = null,
         ferieTom: LocalDate? = null,
+        permisjonFom: LocalDate? = null,
+        permisjonTom: LocalDate? = null,
         utenforEOSTom: LocalDate? = soknaden.tom,
     ): SoknadBesvarer {
         val soknadBesvart =
             SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
                 .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
                 .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
-                .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
                 .besvarSporsmal(OPPHOLD_UTENFOR_EOS, "JA", mutert = false, ferdigBesvart = false)
                 .besvarSporsmal(
                     OPPHOLD_UTENFOR_EOS_NAR,
@@ -62,33 +63,26 @@ class SoknadSenderTest : FellesTestOppsett() {
         } else {
             soknadBesvart.besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
         }
+
+        if (permisjonFom != null && permisjonTom != null) {
+            soknadBesvart
+                .besvarSporsmal(tag = "PERMISJON_V2", svar = "JA", ferdigBesvart = false)
+                .besvarSporsmal(
+                    tag = "PERMISJON_NAR_V2",
+                    svar = """{"fom":"$permisjonFom","tom":"$permisjonTom"}""",
+                )
+        } else {
+            soknadBesvart.besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
+        }
         return soknadBesvart
     }
 
-    private fun verifiserKafkaSoknader(
-        expectedSize: Int,
-        expectedStatus: SoknadsstatusDTO,
-    ) {
-        val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = expectedSize).tilSoknader()
-        assertThat(kafkaSoknader).hasSize(expectedSize)
-        assertThat(kafkaSoknader[0].status).isEqualTo(expectedStatus)
+    private fun verifiserKafkaSoknader() {
+        val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
+        assertThat(kafkaSoknader).hasSize(1)
+        assertThat(kafkaSoknader[0].status).isEqualTo(SoknadsstatusDTO.SENDT)
         kafkaSoknader[0].arbeidUtenforNorge.shouldBeNull()
         juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
-    }
-
-    private fun sendTestSoknad(
-        utenforEOSTom: LocalDate?,
-        ferieFom: LocalDate? = null,
-        ferieTom: LocalDate? = null,
-    ): RSSykepengesoknad {
-        flexSyketilfelleMockRestServiceServer.reset()
-        mockFlexSyketilfelleArbeidsgiverperiode()
-        sendSykmelding(sykmeldingKafkaMessage(fnr = fnr))
-        mockFlexSyketilfelleArbeidsgiverperiode()
-
-        val soknaden = hentSoknad(hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id, fnr)
-        val besvarer = soknadBesvarer(soknaden, ferieFom, ferieTom, utenforEOSTom)
-        return besvarer.sendSoknad()
     }
 
     @Test
@@ -112,7 +106,7 @@ class SoknadSenderTest : FellesTestOppsett() {
 
         val sendtSoknad = soknadBesvarer(soknaden, utenforEOSTom = oppholdUtenforEOSIEnDag).sendSoknad()
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
-        verifiserKafkaSoknader(1, SoknadsstatusDTO.SENDT)
+        verifiserKafkaSoknader()
 
         val soknadFraDatabase = sykepengesoknadDAO.finnSykepengesoknad(sendtSoknad.id)
         assertThat(soknadFraDatabase.status).shouldBeEquivalentTo(SoknadsstatusDTO.SENDT)
@@ -153,7 +147,7 @@ class SoknadSenderTest : FellesTestOppsett() {
                 .sendSoknad()
 
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
-        verifiserKafkaSoknader(1, SoknadsstatusDTO.SENDT)
+        verifiserKafkaSoknader()
 
         val soknadFraDatabase = sykepengesoknadDAO.finnSykepengesoknad(sendtSoknad.id)
         assertThat(soknadFraDatabase.status).shouldBeEquivalentTo(SoknadsstatusDTO.SENDT)
@@ -194,7 +188,7 @@ class SoknadSenderTest : FellesTestOppsett() {
                 .sendSoknad()
 
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
-        verifiserKafkaSoknader(1, SoknadsstatusDTO.SENDT)
+        verifiserKafkaSoknader()
 
         val soknadFraDatabase = sykepengesoknadDAO.finnSykepengesoknad(sendtSoknad.id)
         assertThat(soknadFraDatabase.status).shouldBeEquivalentTo(SoknadsstatusDTO.SENDT)
@@ -234,7 +228,7 @@ class SoknadSenderTest : FellesTestOppsett() {
             )
                 .sendSoknad()
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
-        verifiserKafkaSoknader(1, SoknadsstatusDTO.SENDT)
+        verifiserKafkaSoknader()
 
         val soknadFraDatabase = sykepengesoknadDAO.finnSykepengesoknad(sendtSoknad.id)
         assertThat(soknadFraDatabase.status).shouldBeEquivalentTo(SoknadsstatusDTO.SENDT)
@@ -269,12 +263,144 @@ class SoknadSenderTest : FellesTestOppsett() {
             soknadBesvarer(soknaden, ferieFom = ferieStarterForsteDagenIPerioden, ferieTom = ferieVarerIFemDager)
                 .sendSoknad()
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
-        verifiserKafkaSoknader(1, SoknadsstatusDTO.SENDT)
+        verifiserKafkaSoknader()
 
         val soknadFraDatabase = sykepengesoknadDAO.finnSykepengesoknad(sendtSoknad.id)
         assertThat(soknadFraDatabase.status).shouldBeEquivalentTo(SoknadsstatusDTO.SENDT)
 
         // Sjekker at Opphold Utland søknad har blitt laget
+        val oppholdUtlandSoknader = sykepengesoknadDAO.finnSykepengesoknader(identer = listOf(fnr), Soknadstype.OPPHOLD_UTLAND)
+        assertThat(oppholdUtlandSoknader.size).isEqualTo(1)
+        assertThat(oppholdUtlandSoknader.first().fnr).isEqualTo(fnr)
+    }
+
+    @Test
+    fun `lager ikke søknad hvis opphold utenfor EØS dekker hele perioden med permisjon`() {
+        flexSyketilfelleMockRestServiceServer.reset()
+        mockFlexSyketilfelleArbeidsgiverperiode()
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+            ),
+        )
+
+        mockFlexSyketilfelleArbeidsgiverperiode()
+        val soknaden =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
+                fnr = fnr,
+            )
+
+        val permisjonStarterForsteDagenIPerioden = soknaden.fom
+        val permisjonVarerIHelePerioden = soknaden.tom
+        val oppholdUtenforEOSSamtidigSomPermisjon = soknaden.tom
+
+        val sendtSoknad =
+            soknadBesvarer(
+                soknaden,
+                permisjonFom = permisjonStarterForsteDagenIPerioden,
+                permisjonTom = permisjonVarerIHelePerioden,
+                utenforEOSTom = oppholdUtenforEOSSamtidigSomPermisjon,
+            )
+                .sendSoknad()
+
+        assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
+        verifiserKafkaSoknader()
+
+        val soknadFraDatabase = sykepengesoknadDAO.finnSykepengesoknad(sendtSoknad.id)
+        assertThat(soknadFraDatabase.status).shouldBeEquivalentTo(SoknadsstatusDTO.SENDT)
+
+        // Sjekker at Opphold Utland søknad ikke har blitt laget
+        val oppholdUtlandSoknader = sykepengesoknadDAO.finnSykepengesoknader(identer = listOf(fnr), Soknadstype.OPPHOLD_UTLAND)
+        assertThat(oppholdUtlandSoknader.size).isEqualTo(0)
+    }
+
+    @Test
+    fun `lager ikke søknad hvis opphold utenfor EØS dekker hele perioden med helg, ferie og permisjon`() {
+        flexSyketilfelleMockRestServiceServer.reset()
+        mockFlexSyketilfelleArbeidsgiverperiode()
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+            ),
+        )
+
+        mockFlexSyketilfelleArbeidsgiverperiode()
+        val soknaden =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
+                fnr = fnr,
+            )
+
+        val ferieStarterEtterForsteHelg = soknaden.fom?.plusDays(2)
+        val ferieVarerTilAndreHelg = soknaden.fom?.plusDays(7)
+        val permisjonStarterIAndreHelg = soknaden.fom?.plusDays(8)
+        val permisjonVarerUtPerioden = soknaden.tom
+        val oppholdUtenforEOSSamtidigSomPermisjon = soknaden.tom
+
+        val sendtSoknad =
+            soknadBesvarer(
+                soknaden,
+                ferieFom = ferieStarterEtterForsteHelg,
+                ferieTom = ferieVarerTilAndreHelg,
+                permisjonFom = permisjonStarterIAndreHelg,
+                permisjonTom = permisjonVarerUtPerioden,
+                utenforEOSTom = oppholdUtenforEOSSamtidigSomPermisjon,
+            )
+                .sendSoknad()
+
+        assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
+        verifiserKafkaSoknader()
+
+        val soknadFraDatabase = sykepengesoknadDAO.finnSykepengesoknad(sendtSoknad.id)
+        assertThat(soknadFraDatabase.status).shouldBeEquivalentTo(SoknadsstatusDTO.SENDT)
+
+        // Sjekker at Opphold Utland søknad ikke har blitt laget
+        val oppholdUtlandSoknader = sykepengesoknadDAO.finnSykepengesoknader(identer = listOf(fnr), Soknadstype.OPPHOLD_UTLAND)
+        assertThat(oppholdUtlandSoknader.size).isEqualTo(0)
+    }
+
+    @Test
+    fun `lager søknad hvis opphold utenfor EØS har noen dager utenfor perioder med ferie og permisjon`() {
+        flexSyketilfelleMockRestServiceServer.reset()
+        mockFlexSyketilfelleArbeidsgiverperiode()
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+            ),
+        )
+
+        mockFlexSyketilfelleArbeidsgiverperiode()
+        val soknaden =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
+                fnr = fnr,
+            )
+
+        val ferieBegynnerIMidtenAvForsteUke = soknaden.fom?.plusDays(4)
+        val ferieVarerTilSluttenAvForsteUke = soknaden.fom?.plusDays(6)
+        val permisjonStarterIMidtenAvAndreUke = soknaden.fom?.plusDays(11)
+        val permisjonVarerTilTorsdagIAndreUke = soknaden.fom?.plusDays(12)
+        val oppholdUtenforEOSTilTorsdagAndreUke = soknaden.fom?.plusDays(12)
+
+        val sendtSoknad =
+            soknadBesvarer(
+                soknaden,
+                ferieFom = ferieBegynnerIMidtenAvForsteUke,
+                ferieTom = ferieVarerTilSluttenAvForsteUke,
+                permisjonFom = permisjonStarterIMidtenAvAndreUke,
+                permisjonTom = permisjonVarerTilTorsdagIAndreUke,
+                utenforEOSTom = oppholdUtenforEOSTilTorsdagAndreUke,
+            )
+                .sendSoknad()
+
+        assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
+        verifiserKafkaSoknader()
+
+        val soknadFraDatabase = sykepengesoknadDAO.finnSykepengesoknad(sendtSoknad.id)
+        assertThat(soknadFraDatabase.status).shouldBeEquivalentTo(SoknadsstatusDTO.SENDT)
+
+        // Sjekker at Opphold Utland søknad ikke har blitt laget
         val oppholdUtlandSoknader = sykepengesoknadDAO.finnSykepengesoknader(identer = listOf(fnr), Soknadstype.OPPHOLD_UTLAND)
         assertThat(oppholdUtlandSoknader.size).isEqualTo(1)
         assertThat(oppholdUtlandSoknader.first().fnr).isEqualTo(fnr)

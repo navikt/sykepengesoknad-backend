@@ -80,17 +80,22 @@ class SoknadSender(
 
     private fun skalOppretteSoknadForOppholdUtenforEOS(sykepengesoknad: Sykepengesoknad): Boolean {
         val gyldigeFerieperioder = sykepengesoknad.hentGyldigePerioder(FERIE_V2, FERIE_NAR_V2)
+        val gyldigePermisjonperioder = sykepengesoknad.hentGyldigePerioder(PERMISJON_V2, PERMISJON_NAR_V2)
         val gyldigeUtlandsperioder = sykepengesoknad.hentGyldigePerioder(OPPHOLD_UTENFOR_EOS, OPPHOLD_UTENFOR_EOS_NAR)
 
-        val dagerUtenforFerieOgHelg =
-            gyldigeUtlandsperioder.flatMap { it.hentUkedager() }
-                .filter { dag -> gyldigeFerieperioder.none { it.erIPeriode(dag) } }
+        val dagerUtenforFeriePermisjonOgHelg =
+            gyldigeUtlandsperioder
+                .flatMap { it.hentUkedager() }
+                .filter { dag ->
+                    gyldigeFerieperioder.none { it.erIPeriode(dag) } &&
+                        gyldigePermisjonperioder.none { it.erIPeriode(dag) }
+                }
 
         val harOppholdtSegUtenforEOS =
             sykepengesoknad.getSporsmalMedTagOrNull(OPPHOLD_UTENFOR_EOS)
                 ?.svar?.firstOrNull()?.verdi == "JA"
 
-        return dagerUtenforFerieOgHelg.isNotEmpty() && harOppholdtSegUtenforEOS
+        return dagerUtenforFeriePermisjonOgHelg.isNotEmpty() && harOppholdtSegUtenforEOS
     }
 
     private fun Sykepengesoknad.hentGyldigePerioder(
