@@ -10,11 +10,7 @@ import no.nav.helse.flex.repository.SykepengesoknadRepository
 import no.nav.helse.flex.repository.normaliser
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.service.MottakerAvSoknadService
-import no.nav.helse.flex.soknadsopprettelse.FERIE_NAR_V2
-import no.nav.helse.flex.soknadsopprettelse.FERIE_V2
-import no.nav.helse.flex.soknadsopprettelse.OPPHOLD_UTENFOR_EOS
-import no.nav.helse.flex.soknadsopprettelse.OPPHOLD_UTENFOR_EOS_NAR
-import no.nav.helse.flex.soknadsopprettelse.OpprettSoknadService
+import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.util.DatoUtil
 import no.nav.helse.flex.util.PeriodeMapper
 import org.springframework.stereotype.Service
@@ -86,16 +82,15 @@ class SoknadSender(
         val gyldigeFerieperioder = sykepengesoknad.hentGyldigePerioder(FERIE_V2, FERIE_NAR_V2)
         val gyldigeUtlandsperioder = sykepengesoknad.hentGyldigePerioder(OPPHOLD_UTENFOR_EOS, OPPHOLD_UTENFOR_EOS_NAR)
 
-        val gyldigPeriode =
-            gyldigeUtlandsperioder
-                .filter { DatoUtil.periodeErUtenforHelg(it) }
-                .any { periode -> DatoUtil.periodeHarDagerUtenforAndrePerioder(periode, gyldigeFerieperioder) }
+        val dagerUtenforFerieOgHelg =
+            gyldigeUtlandsperioder.flatMap { it.hentUkedager() }
+                .filter { dag -> gyldigeFerieperioder.none { it.erIPeriode(dag) } }
 
         val harOppholdtSegUtenforEOS =
             sykepengesoknad.getSporsmalMedTagOrNull(OPPHOLD_UTENFOR_EOS)
                 ?.svar?.firstOrNull()?.verdi == "JA"
 
-        return gyldigPeriode && harOppholdtSegUtenforEOS
+        return dagerUtenforFerieOgHelg.isNotEmpty() && harOppholdtSegUtenforEOS
     }
 
     private fun Sykepengesoknad.hentGyldigePerioder(
