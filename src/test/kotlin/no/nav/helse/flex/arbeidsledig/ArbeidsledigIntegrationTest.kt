@@ -89,7 +89,7 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
             )
         assertThat(soknaden.sporsmal!!.first { it.tag == ARBEIDSLEDIG_UTLAND }.sporsmalstekst)
             .isEqualTo(
-                "Var du på reise utenfor EØS mens du var sykmeldt 1. - 15. februar 2020?",
+                "Var du på reise utenfor EU/EØS mens du var sykmeldt 1. - 15. februar 2020?",
             )
 
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = FNR)
@@ -109,7 +109,7 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
 
                 assertThat(it.rSSykepengesoknad.sporsmal!!.first { it.tag == ARBEIDSLEDIG_UTLAND }.sporsmalstekst)
                     .isEqualTo(
-                        "Var du på reise utenfor EØS mens du var sykmeldt 1. - 4. februar 2020?",
+                        "Var du på reise utenfor EU/EØS mens du var sykmeldt 1. - 4. februar 2020?",
                     )
             }
     }

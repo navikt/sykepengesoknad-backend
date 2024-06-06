@@ -142,14 +142,14 @@ fun utlandsSporsmalSelvstendig(
 ): Sporsmal {
     return Sporsmal(
         tag = UTLAND,
-        sporsmalstekst = "Har du vært utenfor EØS mens du var sykmeldt " + formatterPeriode(fom, tom) + "?",
+        sporsmalstekst = "Har du vært utenfor EU/EØS mens du var sykmeldt " + formatterPeriode(fom, tom) + "?",
         svartype = JA_NEI,
         kriterieForVisningAvUndersporsmal = JA,
         undersporsmal =
             listOf(
                 Sporsmal(
                     tag = PERIODER,
-                    sporsmalstekst = "Når var du utenfor EØS?",
+                    sporsmalstekst = "Når var du utenfor EU/EØS?",
                     svartype = Svartype.PERIODER,
                     min = fom.format(ISO_LOCAL_DATE),
                     max = tom.format(ISO_LOCAL_DATE),

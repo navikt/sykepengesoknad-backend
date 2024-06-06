@@ -8,7 +8,7 @@ import no.nav.helse.flex.soknadsopprettelse.*
 fun trygdUtenforNorge() =
     Sporsmal(
         tag = UTENLANDSK_SYKMELDING_TRYGD_UTENFOR_NORGE,
-        sporsmalstekst = "Har du mottatt sykepenger eller lignende i andre EØS-land i løpet av de siste tre årene?",
+        sporsmalstekst = "Har du mottatt sykepenger eller lignende i andre EU/EØS-land i løpet av de siste tre årene?",
         undertekst = null,
         svartype = Svartype.JA_NEI,
         min = null,

@@ -176,7 +176,7 @@ class FrilanserIntegrationTest : FellesTestOppsett() {
                     )
                 assertThat(it.rSSykepengesoknad.sporsmal!!.first { it.tag == UTLAND }.sporsmalstekst)
                     .isEqualTo(
-                        "Har du vært utenfor EØS mens du var sykmeldt 1. - 3. februar 2020?",
+                        "Har du vært utenfor EU/EØS mens du var sykmeldt 1. - 3. februar 2020?",
                     )
             }
     }

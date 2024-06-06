@@ -111,14 +111,14 @@ fun utenlandsoppholdSporsmal(
 ): Sporsmal {
     return Sporsmal(
         tag = UTLAND_V2,
-        sporsmalstekst = "Var du på reise utenfor EØS mens du var sykmeldt ${formatterPeriode(fom, tom)}?",
+        sporsmalstekst = "Var du på reise utenfor EU/EØS mens du var sykmeldt ${formatterPeriode(fom, tom)}?",
         svartype = JA_NEI,
         kriterieForVisningAvUndersporsmal = JA,
         undersporsmal =
             listOf(
                 Sporsmal(
                     tag = UTLAND_NAR_V2,
-                    sporsmalstekst = "Når var du utenfor EØS?",
+                    sporsmalstekst = "Når var du utenfor EU/EØS?",
                     svartype = Svartype.PERIODER,
                     min = fom.format(ISO_LOCAL_DATE),
                     max = tom.format(ISO_LOCAL_DATE),
