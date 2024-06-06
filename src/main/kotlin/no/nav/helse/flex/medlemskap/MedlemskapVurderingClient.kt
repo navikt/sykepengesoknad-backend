@@ -12,7 +12,6 @@ import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
 import java.time.Instant
 import java.time.LocalDate
-import java.util.*
 import kotlin.system.measureTimeMillis
 
 const val MEDLEMSKAP_VURDERING_PATH = "brukersporsmal"
@@ -27,7 +26,7 @@ class MedlemskapVurderingClient(
     val log = logger()
 
     /**
-     * Henter medlemskap vurdering fra LovMe og lagrer den i database. Svar fra LovMe blir lagret selv om det kastes
+     * Henter medlemskapvurdering fra LovMe og lagrer den i database. Svar fra LovMe blir lagret selv om det kastes
      * exception på grunn av logiske feil.
      *
      * @return MedlemskapVurderingResponse hentet fra Lovme.
@@ -70,11 +69,21 @@ class MedlemskapVurderingClient(
 
         val medlemskapVurderingResponse = response.body!!
 
-        lagreVurdering(
+        lagreMedlemskapVurdering(
             medlemskapVurderingRequest,
             medlemskapVurderingResponse,
             svarTid,
         )
+
+        // Informasjon om periode for kjent oppholdstillatelse skal kun returneres når spørsmål om oppholdstillatelse stilles.
+        if (medlemskapVurderingResponse.kjentOppholdstillatelse != null &&
+            !medlemskapVurderingResponse.sporsmal.contains(MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE)
+        ) {
+            throw MedlemskapVurderingResponseException(
+                "MedlemskapVurdering med Nav-Call-Id: $navCallId returnerte kjentOppholdstillatelse når spørsmål " +
+                    "${MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE} mangler.",
+            )
+        }
 
         // Mottar vi en avklart situasjon (svar.JA eller svar.NEI) skal vi ikke få spørsmål å stille brukeren.
         if (listOf(
@@ -90,7 +99,7 @@ class MedlemskapVurderingClient(
         return response.body!!
     }
 
-    private fun lagreVurdering(
+    private fun lagreMedlemskapVurdering(
         medlemskapVurderingRequest: MedlemskapVurderingRequest,
         medlemskapVurderingResponse: MedlemskapVurderingResponse,
         svarTid: Long,
@@ -105,6 +114,7 @@ class MedlemskapVurderingClient(
                 svartype = medlemskapVurderingResponse.svar.toString(),
                 sporsmal = medlemskapVurderingResponse.sporsmal.takeIf { it.isNotEmpty() }?.tilPostgresJson(),
                 sykepengesoknadId = medlemskapVurderingRequest.sykepengesoknadId,
+                kjentOppholdstillatelse = medlemskapVurderingResponse.kjentOppholdstillatelse?.tilPostgresJson(),
             ),
         )
     }

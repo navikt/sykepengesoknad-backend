@@ -42,6 +42,7 @@ data class MedlemskapVurderingDbRecord(
     val svartype: String,
     val sporsmal: PGobject? = null,
     val sykepengesoknadId: String,
+    val kjentOppholdstillatelse: PGobject? = null,
 )
 
 fun Any.tilPostgresJson(): PGobject =
