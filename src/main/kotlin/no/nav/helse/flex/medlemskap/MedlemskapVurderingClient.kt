@@ -130,6 +130,14 @@ data class MedlemskapVurderingRequest(
 data class MedlemskapVurderingResponse(
     var svar: MedlemskapVurderingSvarType,
     val sporsmal: List<MedlemskapVurderingSporsmal>,
+    // Blir bare satt hvis vi får returnert spørsmål om oppholdstillatelse.
+    val kjentOppholdstillatelse: KjentOppholdstillatelse? = null,
+)
+
+data class KjentOppholdstillatelse(
+    val fom: LocalDate,
+    // Oppholdstillatelsen har ikke sluttdato hvis den er permanent.
+    val tom: LocalDate? = null,
 )
 
 enum class MedlemskapVurderingSvarType {
