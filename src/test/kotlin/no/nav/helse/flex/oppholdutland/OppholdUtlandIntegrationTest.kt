@@ -108,7 +108,7 @@ class OppholdUtlandIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `07 - Bekreft teksten endrer seg hvis vi får arbeirdsgiver`() {
+    fun `07 - Bekreft teksten endrer seg hvis vi får arbeidsgiver`() {
         val soknad =
             hentSoknad(
                 soknadId = hentSoknaderMetadata(fnr).first().id,
