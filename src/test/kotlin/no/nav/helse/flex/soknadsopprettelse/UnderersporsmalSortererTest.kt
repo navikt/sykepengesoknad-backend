@@ -4,7 +4,9 @@ import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sporsmal
+import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Sykepengesoknad
+import no.nav.helse.flex.domain.Visningskriterie
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderArbeidsledig
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderArbeidstaker
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderSelvstendigOgFrilanser
@@ -18,6 +20,7 @@ import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.Test
 import java.time.Instant
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 import java.util.*
 
 class UnderersporsmalSortererTest {
@@ -118,6 +121,25 @@ class UnderersporsmalSortererTest {
     @Test
     fun `Test sortering av medlemskapspørsmål om oppholdstillatelse`() {
         val sporsmalet = lagSporsmalOmOppholdstillatelse(LocalDate.now())
+        val soknad = sporsmalet.tilSoknad()
+
+        val sporsmal = soknad.getSporsmalMedTag(MEDLEMSKAP_OPPHOLDSTILLATELSE_V2)
+        val soknadShufflet = soknad.replaceSporsmal(sporsmal.copy(undersporsmal = sporsmal.undersporsmal.shuffled()))
+        val soknadSortert = soknadShufflet.sorterUndersporsmal()
+
+        val forventetSortering =
+            listOf(
+                MEDLEMSKAP_OPPHOLDSTILLATELSE_VEDTAKSDATO,
+                MEDLEMSKAP_OPPHOLDSTILLATELSE_PERIODE,
+            )
+
+        soknadSortert.getSporsmalMedTag(MEDLEMSKAP_OPPHOLDSTILLATELSE_V2)
+            .undersporsmal.map { it.tag } `should be equal to` forventetSortering
+    }
+
+    @Test
+    fun `Test sortering av opprinnelig medlemskapspørsmål om oppholdstillatelse`() {
+        val sporsmalet = lagOpprinneligSporsmalOmOppholdstillatelse(LocalDate.now())
         val soknad = sporsmalet.tilSoknad()
 
         val sporsmal = soknad.getSporsmalMedTag(MEDLEMSKAP_OPPHOLDSTILLATELSE)
@@ -317,6 +339,68 @@ class UnderersporsmalSortererTest {
                 it
             }
         }
+    }
+
+    private fun lagOpprinneligSporsmalOmOppholdstillatelse(tom: LocalDate): Sporsmal {
+        return Sporsmal(
+            tag = MEDLEMSKAP_OPPHOLDSTILLATELSE,
+            sporsmalstekst = "Har du oppholdstillatelse fra Utlendingsdirektoratet?",
+            svartype = Svartype.JA_NEI,
+            kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
+            undersporsmal =
+                listOf(
+                    Sporsmal(
+                        tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_VEDTAKSDATO,
+                        sporsmalstekst = "Hvilken dato fikk du denne oppholdstillatelsen?",
+                        svartype = Svartype.DATO,
+                        // Vi vet ikke hvor lang tid tilbake en oppholdstillatelse kan ha bli gitt så vi setter 10 år i
+                        // samarbeid med LovMe.
+                        min = tom.minusYears(10).format(ISO_LOCAL_DATE),
+                        // Vi vet at en vedtaksdato ikke kan være i fremtiden så vi setter dagens dato som maks.
+                        max = tom.format(ISO_LOCAL_DATE),
+                    ),
+                    Sporsmal(
+                        tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_GRUPPE,
+                        sporsmalstekst = "Er oppholdstillatelsen midlertidig eller permanent?",
+                        svartype = Svartype.RADIO_GRUPPE,
+                        undersporsmal =
+                            listOf(
+                                Sporsmal(
+                                    tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_MIDLERTIDIG,
+                                    sporsmalstekst = "Midlertidig",
+                                    svartype = Svartype.RADIO,
+                                    kriterieForVisningAvUndersporsmal = Visningskriterie.CHECKED,
+                                    undersporsmal =
+                                        listOf(
+                                            Sporsmal(
+                                                tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_MIDLERTIDIG_PERIODE,
+                                                sporsmalstekst = "Periode for oppholdstillatelse",
+                                                svartype = Svartype.PERIODE,
+                                                min = tom.minusYears(10).format(ISO_LOCAL_DATE),
+                                                max = tom.plusYears(10).format(ISO_LOCAL_DATE),
+                                            ),
+                                        ),
+                                ),
+                                Sporsmal(
+                                    tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_PERMANENT,
+                                    sporsmalstekst = "Permanent",
+                                    svartype = Svartype.RADIO,
+                                    kriterieForVisningAvUndersporsmal = Visningskriterie.CHECKED,
+                                    undersporsmal =
+                                        listOf(
+                                            Sporsmal(
+                                                tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_PERMANENT_DATO,
+                                                sporsmalstekst = "Fra og med",
+                                                svartype = Svartype.DATO,
+                                                min = tom.minusYears(10).format(ISO_LOCAL_DATE),
+                                                max = tom.format(ISO_LOCAL_DATE),
+                                            ),
+                                        ),
+                                ),
+                            ),
+                    ),
+                ),
+        )
     }
 }
 

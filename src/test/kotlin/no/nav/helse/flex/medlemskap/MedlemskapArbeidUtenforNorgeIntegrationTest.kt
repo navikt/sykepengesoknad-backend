@@ -97,7 +97,7 @@ class MedlemskapArbeidUtenforNorgeIntegrationTest : FellesTestOppsett() {
                 MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
                 MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
                 OPPHOLD_UTENFOR_EOS,
-                MEDLEMSKAP_OPPHOLDSTILLATELSE,
+                MEDLEMSKAP_OPPHOLDSTILLATELSE_V2,
                 TIL_SLUTT,
             ),
         )
