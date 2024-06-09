@@ -17,8 +17,8 @@ object MedlemskapMockDispatcher : QueueDispatcher() {
         return withContentTypeApplicationJson {
             MockResponse().setResponseCode(200).setBody(
                 MedlemskapVurderingResponse(
-                    svar = MedlemskapVurderingSvarType.JA,
-                    sporsmal = emptyList(),
+                    svar = MedlemskapVurderingSvarType.UAVKLART,
+                    sporsmal = listOf(MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE),
                 ).serialisertTilString(),
             )
         }
