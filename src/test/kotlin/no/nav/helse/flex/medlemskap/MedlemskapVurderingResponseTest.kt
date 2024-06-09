@@ -4,9 +4,11 @@ import com.fasterxml.jackson.databind.DatabindException
 import no.nav.helse.flex.util.objectMapper
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should contain same`
+import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import java.time.LocalDate
 
 /**
  * Tester hvordan deserialisering av response fra LovMe i forbindelse med henting av spørsmål om
@@ -37,6 +39,7 @@ class MedlemskapVurderingResponseTest {
                 MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
                 MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE,
             )
+        response.kjentOppholdstillatelse shouldBe null
     }
 
     @Test
@@ -57,18 +60,16 @@ class MedlemskapVurderingResponseTest {
     }
 
     @Test
-    fun `deserialiser ukjent felt kjentOppholdstilatelse uten feil`() {
+    fun deserialiserMidlertidigOppholdstillatelse() {
         val jsonResponse = """
         {
           "svar": "UAVKLART",
           "sporsmal": [
-            "OPPHOLDSTILATELSE",
-            "OPPHOLD_UTENFOR_NORGE",
-            "ARBEID_UTENFOR_NORGE"
+            "OPPHOLDSTILATELSE"
           ],
-          "kjentOppholdstilatelse": {
-            "fom": "2022-01-01",
-            "tom": "2024-02-03"
+          "kjentOppholdstillatelse": {
+            "fom": "2024-01-01",
+            "tom": "2024-01-31"
           }
         }
         """
@@ -79,9 +80,34 @@ class MedlemskapVurderingResponseTest {
         response.sporsmal `should contain same`
             listOf(
                 MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
-                MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE,
-                MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
             )
+        response.kjentOppholdstillatelse?.fom `should be equal to` LocalDate.of(2024, 1, 1)
+        response.kjentOppholdstillatelse?.tom `should be equal to` LocalDate.of(2024, 1, 31)
+    }
+
+    @Test
+    fun deserialiserPermanentOppholdstillatelse() {
+        val jsonResponse = """
+        {
+          "svar": "UAVKLART",
+          "sporsmal": [
+            "OPPHOLDSTILATELSE"
+          ],
+          "kjentOppholdstillatelse": {
+            "fom": "2024-01-01"
+          }
+        }
+        """
+
+        val response = objectMapper.readValue(jsonResponse, MedlemskapVurderingResponse::class.java)
+
+        response.svar `should be equal to` MedlemskapVurderingSvarType.UAVKLART
+        response.sporsmal `should contain same`
+            listOf(
+                MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
+            )
+        response.kjentOppholdstillatelse?.fom `should be equal to` LocalDate.of(2024, 1, 1)
+        response.kjentOppholdstillatelse?.tom shouldBe null
     }
 
     @Test
@@ -110,5 +136,6 @@ class MedlemskapVurderingResponseTest {
 
         response.svar `should be equal to` MedlemskapVurderingSvarType.UAVKLART
         response.sporsmal shouldHaveSize 0
+        response.kjentOppholdstillatelse?.tom shouldBe null
     }
 }
