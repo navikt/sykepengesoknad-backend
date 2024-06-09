@@ -137,6 +137,8 @@ class UnderersporsmalSortererTest {
             .undersporsmal.map { it.tag } `should be equal to` forventetSortering
     }
 
+    // Tester sortering av opprinnelig spørsmål om oppholdstillatelse siden det fortsatt finnes i søkander som
+    // kan korrigeres.
     @Test
     fun `Test sortering av opprinnelig medlemskapspørsmål om oppholdstillatelse`() {
         val sporsmalet = lagOpprinneligSporsmalOmOppholdstillatelse(LocalDate.now())
@@ -353,10 +355,7 @@ class UnderersporsmalSortererTest {
                         tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_VEDTAKSDATO,
                         sporsmalstekst = "Hvilken dato fikk du denne oppholdstillatelsen?",
                         svartype = Svartype.DATO,
-                        // Vi vet ikke hvor lang tid tilbake en oppholdstillatelse kan ha bli gitt så vi setter 10 år i
-                        // samarbeid med LovMe.
                         min = tom.minusYears(10).format(ISO_LOCAL_DATE),
-                        // Vi vet at en vedtaksdato ikke kan være i fremtiden så vi setter dagens dato som maks.
                         max = tom.format(ISO_LOCAL_DATE),
                     ),
                     Sporsmal(
