@@ -117,7 +117,7 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
                 MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
                 MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
                 OPPHOLD_UTENFOR_EOS,
-                MEDLEMSKAP_OPPHOLDSTILLATELSE,
+                MEDLEMSKAP_OPPHOLDSTILLATELSE_V2,
                 TIL_SLUTT,
             ),
         )
@@ -153,7 +153,7 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
         soknad.sporsmal!![index + 2].tag shouldBeEqualTo MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE
         soknad.sporsmal!![index + 3].tag shouldBeEqualTo MEDLEMSKAP_OPPHOLD_UTENFOR_EOS
         soknad.sporsmal!![index + 4].tag shouldBeEqualTo OPPHOLD_UTENFOR_EOS
-        soknad.sporsmal!![index + 5].tag shouldBeEqualTo MEDLEMSKAP_OPPHOLDSTILLATELSE
+        soknad.sporsmal!![index + 5].tag shouldBeEqualTo MEDLEMSKAP_OPPHOLDSTILLATELSE_V2
         soknad.sporsmal!![index + 6].tag shouldBeEqualTo TIL_SLUTT
     }
 
@@ -164,7 +164,7 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
 
         SoknadBesvarer(rSSykepengesoknad = soknad, mockMvc = this, fnr = fnr)
             .besvarSporsmal(
-                tag = MEDLEMSKAP_OPPHOLDSTILLATELSE,
+                tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_V2,
                 svar = "JA",
                 ferdigBesvart = false,
             )
@@ -174,12 +174,7 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
                 ferdigBesvart = false,
             )
             .besvarSporsmal(
-                tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_MIDLERTIDIG,
-                svar = "CHECKED",
-                ferdigBesvart = false,
-            )
-            .besvarSporsmal(
-                tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_MIDLERTIDIG_PERIODE,
+                tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_PERIODE,
                 svar =
                     DatoUtil.periodeTilJson(
                         fom = soknad.tom!!.minusDays(25),
@@ -302,13 +297,9 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
             it.min shouldBeEqualTo tom.minusYears(10).format(ISO_LOCAL_DATE)
             it.max shouldBeEqualTo tom.format(ISO_LOCAL_DATE)
         }
-        soknad.getSporsmalMedTag("MEDLEMSKAP_OPPHOLDSTILLATELSE_MIDLERTIDIG_PERIODE").let {
+        soknad.getSporsmalMedTag("MEDLEMSKAP_OPPHOLDSTILLATELSE_PERIODE").let {
             it.min shouldBeEqualTo tom.minusYears(10).format(ISO_LOCAL_DATE)
             it.max shouldBeEqualTo tom.plusYears(10).format(ISO_LOCAL_DATE)
-        }
-        soknad.getSporsmalMedTag("MEDLEMSKAP_OPPHOLDSTILLATELSE_PERMANENT_DATO").let {
-            it.min shouldBeEqualTo tom.minusYears(10).format(ISO_LOCAL_DATE)
-            it.max shouldBeEqualTo tom.format(ISO_LOCAL_DATE)
         }
 
         val arbeidUtenforNorgePeriodeEn = soknad.getSporsmalMedTag("MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR_0")
@@ -426,7 +417,8 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
 
         // Spørsmålene som omhandler medlemskap blir ikke mappet om til eget felt i SykepengesoknadDTO så vi trenger
         // bare å sjekke at spørsmålene er med.
-        kafkaSoknad.sporsmal!!.any { it.tag == MEDLEMSKAP_OPPHOLDSTILLATELSE } shouldBeEqualTo true
+        kafkaSoknad.sporsmal!!.any { it.tag == MEDLEMSKAP_OPPHOLDSTILLATELSE } shouldBeEqualTo false
+        kafkaSoknad.sporsmal!!.any { it.tag == MEDLEMSKAP_OPPHOLDSTILLATELSE_V2 } shouldBeEqualTo true
         kafkaSoknad.sporsmal!!.any { it.tag == MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE } shouldBeEqualTo true
         kafkaSoknad.sporsmal!!.any { it.tag == MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE } shouldBeEqualTo true
         kafkaSoknad.sporsmal!!.any { it.tag == MEDLEMSKAP_OPPHOLD_UTENFOR_EOS } shouldBeEqualTo true

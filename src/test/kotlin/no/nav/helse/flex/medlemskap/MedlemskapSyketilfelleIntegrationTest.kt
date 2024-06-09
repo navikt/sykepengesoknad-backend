@@ -9,6 +9,7 @@ import no.nav.helse.flex.repository.SporsmalDAO
 import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.soknadsopprettelse.ARBEID_UTENFOR_NORGE
 import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLDSTILLATELSE
+import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLDSTILLATELSE_V2
 import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLD_UTENFOR_EOS
 import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE
 import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE
@@ -410,7 +411,7 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
                         MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
                         MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
                         MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
-                        MEDLEMSKAP_OPPHOLDSTILLATELSE,
+                        MEDLEMSKAP_OPPHOLDSTILLATELSE_V2,
                     )
             }.also {
                 it `should not contain` ARBEID_UTENFOR_NORGE
@@ -493,7 +494,7 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
                         MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
                         MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
                         MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
-                        MEDLEMSKAP_OPPHOLDSTILLATELSE,
+                        MEDLEMSKAP_OPPHOLDSTILLATELSE_V2,
                     )
             }.also {
                 it `should not contain` ARBEID_UTENFOR_NORGE
