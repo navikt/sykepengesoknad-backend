@@ -137,7 +137,7 @@ class UnderersporsmalSortererTest {
             .undersporsmal.map { it.tag } `should be equal to` forventetSortering
     }
 
-    // Tester sortering av opprinnelig spørsmål om oppholdstillatelse siden det fortsatt finnes i søkander som
+    // Tester sortering av opprinnelig spørsmål om oppholdstillatelse siden det fortsatt finnes i søknader som
     // kan korrigeres.
     @Test
     fun `Test sortering av opprinnelig medlemskapspørsmål om oppholdstillatelse`() {
