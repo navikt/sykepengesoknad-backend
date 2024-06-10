@@ -19,6 +19,7 @@ import no.nav.helse.flex.util.DatoUtil
 import no.nav.helse.flex.util.serialisertTilString
 import okhttp3.mockwebserver.MockResponse
 import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.assertj.core.api.Assertions.assertThat
@@ -121,6 +122,17 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
                 TIL_SLUTT,
             ),
         )
+    }
+
+    @Test
+    @Order(2)
+    fun `kjentOppholdstillatelse er null siden LovMe ikke returnerte noen verdi`() {
+        val soknad =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
+        soknad.kjentOppholdstillatelse shouldBe null
     }
 
     @Test
