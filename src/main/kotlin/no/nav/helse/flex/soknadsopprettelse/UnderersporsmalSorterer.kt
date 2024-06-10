@@ -115,7 +115,7 @@ private fun Sporsmal.sorteringMedlemskapOppholdUtenforEosGruppering(): String {
         MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_HVOR -> "0"
         MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE -> "1"
         MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_NAAR -> "2"
-        else -> throw RuntimeException("Ukjent underspørsmål for medlemskap opphold utenfor EØS: $tag")
+        else -> throw RuntimeException("Ukjent underspørsmål for medlemskap opphold utenfor EU/EØS: $tag")
     }
 }
 
@@ -127,7 +127,7 @@ private fun Sporsmal.sorteringMedlemskapOppholdUtenforEosBegrunnelse(): String {
         MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_BO -> "2"
         MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_EKTEFELLE -> "3"
         MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_ANNET -> "4"
-        else -> throw RuntimeException("Ukjent underspørsmål for begrunnelse for opphold utenfor EØS: $tag")
+        else -> throw RuntimeException("Ukjent underspørsmål for begrunnelse for opphold utenfor EU/EØS: $tag")
     }
 }
 

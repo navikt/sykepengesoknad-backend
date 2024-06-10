@@ -44,7 +44,7 @@ fun Sykepengesoknad.oppdaterMedSvarPaUtlandsopphold(): Sykepengesoknad {
         val oppholdUtland =
             Sporsmal(
                 tag = UTLANDSOPPHOLD_SOKT_SYKEPENGER,
-                sporsmalstekst = "Har du søkt om å beholde sykepengene for de dagene du var utenfor EØS?",
+                sporsmalstekst = "Har du søkt om å beholde sykepengene for de dagene du var utenfor EU/EØS?",
                 svartype = Svartype.JA_NEI,
                 svar = maybeSoktOmSykepengerSporsmal?.svar ?: emptyList(),
                 undersporsmal = Collections.emptyList(),
