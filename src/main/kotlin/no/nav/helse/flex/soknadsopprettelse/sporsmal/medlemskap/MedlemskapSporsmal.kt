@@ -209,7 +209,7 @@ fun lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforNorge(
 fun lagSporsmalOmOppholdUtenforEos(tom: LocalDate): Sporsmal {
     return Sporsmal(
         tag = MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
-        sporsmalstekst = "Har du oppholdt deg utenfor EU/EØS i løpet av de siste 12 månedene før du ble syk?",
+        sporsmalstekst = "Har du oppholdt deg utenfor EU/EØS eller Sveits i løpet av de siste 12 månedene før du ble syk?",
         svartype = Svartype.JA_NEI,
         kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
         undersporsmal =
@@ -230,7 +230,7 @@ fun lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforEos(
             listOf(
                 Sporsmal(
                     tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_HVOR, index),
-                    sporsmalstekst = "I hvilket land utenfor EU/EØS har du oppholdt deg?",
+                    sporsmalstekst = "I hvilket land utenfor EU/EØS eller Sveits har du oppholdt deg?",
                     svartype = Svartype.COMBOBOX_SINGLE,
                 ),
                 Sporsmal(
