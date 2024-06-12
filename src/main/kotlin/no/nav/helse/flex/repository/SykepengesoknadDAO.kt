@@ -102,16 +102,18 @@ class SykepengesoknadDAO(
                 .groupBy { it.sykepengesoknadUuid }
 
         val kjenteOppholdstillatelser: Map<String, KjentOppholdstillatelse?> =
-            soknader.associateBy(
-                { it.second.id },
-                {
-                    medlemskapVurderingRepository.findBySykepengesoknadIdAndFomAndTom(
-                        sykepengesoknadId = it.second.id,
-                        fom = it.second.fom!!,
-                        tom = it.second.tom!!,
-                    )?.hentKjentOppholdstillatelse()
-                },
-            )
+            // Vi henter kun medlemskapsvurdering for arbeidstakersøknader.
+            soknader.filter { it.second.soknadstype == Soknadstype.ARBEIDSTAKERE }
+                .associateBy(
+                    { it.second.id },
+                    {
+                        medlemskapVurderingRepository.findBySykepengesoknadIdAndFomAndTom(
+                            sykepengesoknadId = it.second.id,
+                            fom = it.second.fom!!,
+                            tom = it.second.tom!!,
+                        )?.hentKjentOppholdstillatelse()
+                    },
+                )
 
         return soknader
             .map {
