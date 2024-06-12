@@ -63,7 +63,7 @@ object DatoUtil {
             .anyMatch { dagIPeriode: LocalDate? ->
                 andrePerioder.stream()
                     .noneMatch { annenPeriode: Periode ->
-                        annenPeriode.erIPeriode(
+                        annenPeriode.sjekkOmDagenErIPeriode(
                             dagIPeriode!!,
                         )
                     }

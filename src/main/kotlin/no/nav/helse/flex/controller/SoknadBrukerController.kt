@@ -28,6 +28,7 @@ import no.nav.helse.flex.exception.SporsmalFinnesIkkeISoknadException
 import no.nav.helse.flex.inntektsopplysninger.InntektsopplysningForNaringsdrivende
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.oppdatersporsmal.soknad.OppdaterSporsmalService
+import no.nav.helse.flex.oppholdUtenforEOS.OppholdUtenforEOSService
 import no.nav.helse.flex.sending.SoknadSender
 import no.nav.helse.flex.service.AvbrytSoknadService
 import no.nav.helse.flex.service.EttersendingSoknadService
@@ -73,6 +74,7 @@ class SoknadBrukerController(
     val dittSykefravaerFrontendClientId: String,
     @Value("\${SYKEPENGESOKNAD_FRONTEND_CLIENT_ID}")
     val sykepengesoknadFrontendClientId: String,
+    private val oppholdUtenforEOSService: OppholdUtenforEOSService,
 ) {
     private val log = logger()
 
@@ -139,6 +141,7 @@ class SoknadBrukerController(
                 metrikk.tellInnsendingFeilet(soknadFraBase.soknadstype.name)
                 throw e
             }
+        oppholdUtenforEOSService.skalOppretteSoknadForOppholdUtenforEOS(sendtSoknad, identer)
 
         try {
             inntektsopplysningForNaringsdrivende.lagreOpplysningerOmDokumentasjonAvInntektsopplysninger(sendtSoknad)

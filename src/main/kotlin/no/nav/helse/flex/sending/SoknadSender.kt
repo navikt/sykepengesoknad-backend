@@ -24,8 +24,6 @@ class SoknadSender(
     private val mottakerAvSoknadService: MottakerAvSoknadService,
     private val soknadProducer: SoknadProducer,
     private val sykepengesoknadRepository: SykepengesoknadRepository,
-    private val opprettSoknadService: OpprettSoknadService,
-    private val oppholdUtenforEOSService: OppholdUtenforEOSService,
 ) {
     fun sendSoknad(
         sykepengesoknad: Sykepengesoknad,
@@ -34,10 +32,6 @@ class SoknadSender(
         identer: FolkeregisterIdenter,
     ): Sykepengesoknad {
         validerSoknad(sykepengesoknad)
-
-        if (oppholdUtenforEOSService.skalOppretteSoknadForOppholdUtenforEOS(sykepengesoknad)) {
-            opprettSoknadService.opprettSoknadUtland(identer)
-        }
 
         svarDAO.overskrivSvar(sykepengesoknad)
 

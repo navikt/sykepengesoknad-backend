@@ -57,7 +57,7 @@ class PeriodeMapperTest {
     fun erIPeriode_dagInnenforPeriodeGirTrue() {
         val periode = jsonISOFormatTilPeriode("{\"fom\":\"2018-01-03\",\"tom\":\"2018-01-20\"}")
 
-        val actual = periode.erIPeriode(LocalDate.of(2018, 1, 10))
+        val actual = periode.sjekkOmDagenErIPeriode(LocalDate.of(2018, 1, 10))
 
         assertThat(actual).isTrue()
     }
@@ -66,7 +66,7 @@ class PeriodeMapperTest {
     fun erIPeriode_sammeDagSomFomGirTrue() {
         val periode = jsonISOFormatTilPeriode("{\"fom\":\"2018-01-03\",\"tom\":\"2018-01-20\"}")
 
-        val actual = periode.erIPeriode(LocalDate.of(2018, 1, 3))
+        val actual = periode.sjekkOmDagenErIPeriode(LocalDate.of(2018, 1, 3))
 
         assertThat(actual).isTrue()
     }
@@ -75,7 +75,7 @@ class PeriodeMapperTest {
     fun erIPeriode_dagenForFomGirFalse() {
         val periode = jsonISOFormatTilPeriode("{\"fom\":\"2018-01-03\",\"tom\":\"2018-01-20\"}")
 
-        val actual = periode.erIPeriode(LocalDate.of(2018, 1, 2))
+        val actual = periode.sjekkOmDagenErIPeriode(LocalDate.of(2018, 1, 2))
 
         assertThat(actual).isFalse()
     }
@@ -84,7 +84,7 @@ class PeriodeMapperTest {
     fun erIPeriode_sammeDagSomTomGirTrue() {
         val periode = jsonISOFormatTilPeriode("{\"fom\":\"2018-01-03\",\"tom\":\"2018-01-20\"}")
 
-        val actual = periode.erIPeriode(LocalDate.of(2018, 1, 20))
+        val actual = periode.sjekkOmDagenErIPeriode(LocalDate.of(2018, 1, 20))
 
         assertThat(actual).isTrue()
     }
@@ -93,7 +93,7 @@ class PeriodeMapperTest {
     fun erIPeriode_dagenEtterTomGirFalse() {
         val periode = jsonISOFormatTilPeriode("{\"fom\":\"2018-01-03\",\"tom\":\"2018-01-20\"}")
 
-        val actual = periode.erIPeriode(LocalDate.of(2018, 1, 21))
+        val actual = periode.sjekkOmDagenErIPeriode(LocalDate.of(2018, 1, 21))
 
         assertThat(actual).isFalse()
     }
