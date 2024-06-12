@@ -19,9 +19,9 @@ import no.nav.helse.flex.util.DatoUtil
 import no.nav.helse.flex.util.serialisertTilString
 import okhttp3.mockwebserver.MockResponse
 import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
+import org.amshove.kluent.shouldNotBe
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
@@ -73,6 +73,11 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
                             MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
                             MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
                             MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE,
+                        ),
+                    kjentOppholdstillatelse =
+                        KjentOppholdstillatelse(
+                            fom = fom.minusMonths(2),
+                            tom = tom.plusMonths(2),
                         ),
                 ).serialisertTilString(),
             ),
@@ -126,17 +131,6 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
 
     @Test
     @Order(2)
-    fun `kjentOppholdstillatelse er null siden LovMe ikke returnerte noen verdi`() {
-        val soknad =
-            hentSoknad(
-                soknadId = hentSoknaderMetadata(fnr).first().id,
-                fnr = fnr,
-            )
-        soknad.kjentOppholdstillatelse shouldBe null
-    }
-
-    @Test
-    @Order(2)
     fun `Response fra LovMe medlemskapvurdering er lagret i databasen`() {
         val medlemskapVurderingDbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
         val medlemskapVurdering = medlemskapVurderingDbRecords.first()
@@ -150,6 +144,20 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
                 MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
                 MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE,
             ).serialisertTilString()
+        medlemskapVurdering.hentKjentOppholdstillatelse() shouldNotBe null
+    }
+
+    @Test
+    @Order(2)
+    fun `Soknad returneres med kjentOppholdstillatelse`() {
+        val soknad =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
+
+        soknad.kjentOppholdstillatelse!!.fom shouldBeEqualTo fom.minusMonths(2)
+        soknad.kjentOppholdstillatelse!!.tom shouldBeEqualTo tom.plusMonths(2)
     }
 
     @Test
