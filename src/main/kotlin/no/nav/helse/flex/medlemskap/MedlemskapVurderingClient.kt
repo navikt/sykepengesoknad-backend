@@ -75,13 +75,23 @@ class MedlemskapVurderingClient(
             svarTid,
         )
 
-        // Informasjon om periode for kjent oppholdstillatelse skal kun returneres når spørsmål om oppholdstillatelse stilles.
+        // Periode for kjent oppholdstillatelse skal kun returneres når spørsmål om oppholdstillatelse stilles.
         if (medlemskapVurderingResponse.kjentOppholdstillatelse != null &&
             !medlemskapVurderingResponse.sporsmal.contains(MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE)
         ) {
             throw MedlemskapVurderingResponseException(
                 "MedlemskapVurdering med Nav-Call-Id: $navCallId returnerte kjentOppholdstillatelse når spørsmål " +
                     "${MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE} mangler.",
+            )
+        }
+
+        // Periode for kjent oppholdstillatelse skal alltid returneres når spørsmål om oppholdstillatelse stilles.
+        if (medlemskapVurderingResponse.kjentOppholdstillatelse == null &&
+            medlemskapVurderingResponse.sporsmal.contains(MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE)
+        ) {
+            throw MedlemskapVurderingResponseException(
+                "MedlemskapVurdering med Nav-Call-Id: $navCallId mangler kjentOppholdstillatelse når spørsmål " +
+                    "${MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE} stilles.",
             )
         }
 
