@@ -1,5 +1,7 @@
 package no.nav.helse.flex.medlemskap
 
+import com.fasterxml.jackson.module.kotlin.readValue
+import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.util.serialisertTilString
 import org.postgresql.util.PGobject
 import org.springframework.data.annotation.Id
@@ -44,6 +46,9 @@ data class MedlemskapVurderingDbRecord(
     val sykepengesoknadId: String,
     val kjentOppholdstillatelse: PGobject? = null,
 )
+
+fun MedlemskapVurderingDbRecord.hentKjentOppholdstillatelse(): KjentOppholdstillatelse? =
+    kjentOppholdstillatelse?.value?.let { objectMapper.readValue(it) }
 
 fun Any.tilPostgresJson(): PGobject =
     PGobject().apply {
