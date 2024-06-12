@@ -524,6 +524,11 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
                         MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
                         MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE,
                     ),
+                kjentOppholdstillatelse =
+                    KjentOppholdstillatelse(
+                        fom = LocalDate.of(2023, 1, 1).minusMonths(1),
+                        tom = LocalDate.of(2023, 1, 7).plusMonths(1),
+                    ),
             ).serialisertTilString(),
         )
 
