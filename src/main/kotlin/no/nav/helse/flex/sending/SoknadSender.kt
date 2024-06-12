@@ -4,7 +4,6 @@ import no.nav.helse.flex.domain.*
 import no.nav.helse.flex.domain.Soknadstatus.NY
 import no.nav.helse.flex.domain.Soknadstatus.UTKAST_TIL_KORRIGERING
 import no.nav.helse.flex.kafka.producer.SoknadProducer
-import no.nav.helse.flex.oppholdUtenforEOS.OppholdUtenforEOSService
 import no.nav.helse.flex.repository.SvarDAO
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.repository.SykepengesoknadRepository
