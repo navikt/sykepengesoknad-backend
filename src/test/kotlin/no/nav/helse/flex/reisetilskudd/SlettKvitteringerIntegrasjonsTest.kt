@@ -121,7 +121,7 @@ class SlettKvitteringerIntegrasjonsTest : FellesTestOppsett() {
                 PERMISJON_V2,
                 "JOBBET_DU_GRADERT_0",
                 ANDRE_INNTEKTSKILDER_V2,
-                UTLAND_V2,
+                OPPHOLD_UTENFOR_EOS,
                 BRUKTE_REISETILSKUDDET,
                 TRANSPORT_TIL_DAGLIG,
                 REISE_MED_BIL,

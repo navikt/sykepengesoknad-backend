@@ -65,7 +65,7 @@ class OppdaterSporsmalService(
                 .brukteDuReisetilskuddetMutering()
                 .utlandssoknadMuteringer()
                 .arbeidGjenopptattMutering()
-                .oppdaterMedSvarPaUtlandsopphold()
+                .oppdaterMedSvarPaUtlandsopphold() // TODO: denne kan fjernes helt etterhvert
 
         val soknadenErMutert = soknadFraBasenForOppdatering.sporsmal.erUlikUtenomSvar(oppdatertSoknad.sporsmal)
 

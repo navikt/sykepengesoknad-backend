@@ -8,28 +8,7 @@ import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
 import no.nav.helse.flex.sendSykmelding
-import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER_V2
-import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
-import no.nav.helse.flex.soknadsopprettelse.ARBEID_UNDERVEIS_100_PROSENT
-import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
-import no.nav.helse.flex.soknadsopprettelse.FERIE_NAR_V2
-import no.nav.helse.flex.soknadsopprettelse.FERIE_V2
-import no.nav.helse.flex.soknadsopprettelse.HVOR_MANGE_TIMER_PER_UKE
-import no.nav.helse.flex.soknadsopprettelse.HVOR_MYE_PROSENT
-import no.nav.helse.flex.soknadsopprettelse.HVOR_MYE_PROSENT_VERDI
-import no.nav.helse.flex.soknadsopprettelse.HVOR_MYE_TIMER
-import no.nav.helse.flex.soknadsopprettelse.HVOR_MYE_TIMER_VERDI
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD_JOBBET_I_DET_SISTE
-import no.nav.helse.flex.soknadsopprettelse.INNTEKTSKILDE_STYREVERV
-import no.nav.helse.flex.soknadsopprettelse.JOBBER_DU_NORMAL_ARBEIDSUKE
-import no.nav.helse.flex.soknadsopprettelse.PERMISJON_NAR_V2
-import no.nav.helse.flex.soknadsopprettelse.PERMISJON_V2
-import no.nav.helse.flex.soknadsopprettelse.TILBAKE_I_ARBEID
-import no.nav.helse.flex.soknadsopprettelse.TILBAKE_NAR
-import no.nav.helse.flex.soknadsopprettelse.TIL_SLUTT
-import no.nav.helse.flex.soknadsopprettelse.UTLAND_NAR_V2
-import no.nav.helse.flex.soknadsopprettelse.UTLAND_V2
+import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.medIndex
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
@@ -230,12 +209,12 @@ class NullstillUndersporsmalSvarTest : FellesTestOppsett() {
 
     @Test
     @Order(7)
-    fun `Kan svare på UTLAND_V2`() {
+    fun `Kan svare på OPPHOLD_UTENFOR_EOS`() {
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
-            .besvarSporsmal(UTLAND_V2, "NEI")
+            .besvarSporsmal(OPPHOLD_UTENFOR_EOS, "NEI")
 
-        soknaden.getSporsmalMedTag(UTLAND_V2).forsteSvar shouldBeEqualTo "NEI"
-        soknaden.getSporsmalMedTag(UTLAND_NAR_V2).forsteSvar shouldBeEqualTo null
+        soknaden.getSporsmalMedTag(OPPHOLD_UTENFOR_EOS).forsteSvar shouldBeEqualTo "NEI"
+        soknaden.getSporsmalMedTag(OPPHOLD_UTENFOR_EOS_NAR).forsteSvar shouldBeEqualTo null
     }
 
     @Test

@@ -156,9 +156,8 @@ private fun Sykepengesoknad.leggSvarPaSoknad(): Sykepengesoknad {
 }
 
 private fun Sykepengesoknad.harDuOppholdtDegIUtlandet(): Sykepengesoknad {
-    return besvarsporsmal(UTLAND, "JA")
-        .besvarsporsmal(PERIODER, periodeTilJson(fom!!.plusDays(2), fom!!.plusDays(4)))
-        .besvarsporsmal(UTLANDSOPPHOLD_SOKT_SYKEPENGER, "NEI")
+    return besvarsporsmal(OPPHOLD_UTENFOR_EOS, "JA")
+        .besvarsporsmal(OPPHOLD_UTENFOR_EOS_NAR, periodeTilJson(fom!!.plusDays(2), fom!!.plusDays(4)))
 }
 
 private fun Sykepengesoknad.andreInntektskilder(): Sykepengesoknad {

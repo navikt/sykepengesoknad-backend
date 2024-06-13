@@ -57,7 +57,7 @@ class ArbeidstakerIntegrationUtenEgenmeldingTest : FellesTestOppsett() {
                 "PERMISJON_V2",
                 "ARBEID_UNDERVEIS_100_PROSENT_0",
                 "ANDRE_INNTEKTSKILDER_V2",
-                "UTLAND_V2",
+                "OPPHOLD_UTENFOR_EOS",
                 "TIL_SLUTT",
             ),
         )

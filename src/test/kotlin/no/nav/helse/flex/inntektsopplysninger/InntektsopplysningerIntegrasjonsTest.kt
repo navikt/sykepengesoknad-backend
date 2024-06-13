@@ -71,7 +71,7 @@ class InntektsopplysningerIntegrasjonsTest : FellesTestOppsett() {
                 medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0),
                 ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER,
-                UTLAND,
+                OPPHOLD_UTENFOR_EOS,
                 TIL_SLUTT,
             ),
         )
@@ -108,7 +108,7 @@ class InntektsopplysningerIntegrasjonsTest : FellesTestOppsett() {
                 medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0),
                 ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER,
-                UTLAND,
+                OPPHOLD_UTENFOR_EOS,
                 INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET,
                 TIL_SLUTT,
             ),
@@ -350,5 +350,5 @@ class InntektsopplysningerIntegrasjonsTest : FellesTestOppsett() {
             .besvarSporsmal(tag = medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0), svar = "NEI")
             .besvarSporsmal(tag = ARBEID_UTENFOR_NORGE, svar = "NEI")
             .besvarSporsmal(tag = ANDRE_INNTEKTSKILDER, svar = "NEI")
-            .besvarSporsmal(tag = UTLAND, svar = "NEI")
+            .besvarSporsmal(tag = OPPHOLD_UTENFOR_EOS, svar = "NEI")
 }

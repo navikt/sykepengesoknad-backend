@@ -9,6 +9,7 @@ import no.nav.helse.flex.oppdatersporsmal.soknad.erIkkeAvType
 import no.nav.helse.flex.oppdatersporsmal.soknad.leggTilSporsmaal
 import no.nav.helse.flex.soknadsopprettelse.FERIE_NAR_V2
 import no.nav.helse.flex.soknadsopprettelse.FERIE_V2
+import no.nav.helse.flex.soknadsopprettelse.OPPHOLD_UTENFOR_EOS
 import no.nav.helse.flex.soknadsopprettelse.UTLANDSOPPHOLD_SOKT_SYKEPENGER
 import no.nav.helse.flex.soknadsopprettelse.UTLAND_NAR_V2
 import no.nav.helse.flex.soknadsopprettelse.UTLAND_V2
@@ -17,7 +18,9 @@ import no.nav.helse.flex.util.PeriodeMapper
 import java.util.*
 
 fun Sykepengesoknad.oppdaterMedSvarPaUtlandsopphold(): Sykepengesoknad {
-    if (erIkkeAvType(Soknadstype.ARBEIDSTAKERE)) {
+    if (getSporsmalMedTagOrNull(OPPHOLD_UTENFOR_EOS) !== null &&
+        erIkkeAvType(Soknadstype.ARBEIDSTAKERE)
+    ) {
         return this
     }
 

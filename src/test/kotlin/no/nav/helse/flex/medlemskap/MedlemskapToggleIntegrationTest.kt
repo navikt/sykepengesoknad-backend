@@ -87,7 +87,7 @@ class MedlemskapToggleIntegrationTest : FellesTestOppsett() {
                 MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
                 MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
                 MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
-                UTLAND_V2,
+                OPPHOLD_UTENFOR_EOS,
                 MEDLEMSKAP_OPPHOLDSTILLATELSE,
                 TIL_SLUTT,
             ),
@@ -116,7 +116,7 @@ class MedlemskapToggleIntegrationTest : FellesTestOppsett() {
                 medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0),
                 ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER_V2,
-                UTLAND_V2,
+                OPPHOLD_UTENFOR_EOS,
                 TIL_SLUTT,
             ),
         )

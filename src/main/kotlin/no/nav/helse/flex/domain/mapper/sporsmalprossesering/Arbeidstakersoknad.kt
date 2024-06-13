@@ -124,6 +124,10 @@ fun hentFeriePermUtlandListe(sykepengesoknad: Sykepengesoknad): List<FravarDTO> 
         fravarliste.addAll(hentFravar(sykepengesoknad.getSporsmalMedTag(UTLAND_NAR_V2), FravarstypeDTO.UTLANDSOPPHOLD))
     }
 
+    sykepengesoknad.getSporsmalMedTagOrNull(OPPHOLD_UTENFOR_EOS)?.takeIf { it.forsteSvar == "JA" }?.let {
+        fravarliste.addAll(hentFravar(sykepengesoknad.getSporsmalMedTag(OPPHOLD_UTENFOR_EOS_NAR), FravarstypeDTO.UTLANDSOPPHOLD))
+    }
+
     return fravarliste
 }
 

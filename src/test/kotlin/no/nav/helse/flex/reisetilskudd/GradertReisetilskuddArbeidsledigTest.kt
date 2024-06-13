@@ -98,7 +98,7 @@ class GradertReisetilskuddArbeidsledigTest : FellesTestOppsett() {
                 FRISKMELDT,
                 ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER,
-                ARBEIDSLEDIG_UTLAND,
+                OPPHOLD_UTENFOR_EOS,
                 BRUKTE_REISETILSKUDDET,
                 TIL_SLUTT,
             ),
