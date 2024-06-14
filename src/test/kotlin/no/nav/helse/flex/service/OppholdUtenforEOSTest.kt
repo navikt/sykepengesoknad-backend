@@ -179,10 +179,20 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
         val soknaden = settOppSykepengeSoknad(fom, tom)
 
         var oppholdUtenforEOSIStartePaLordag = soknaden.fom
+
         if (oppholdUtenforEOSIStartePaLordag != null) {
-            while (oppholdUtenforEOSIStartePaLordag?.dayOfWeek != DayOfWeek.SATURDAY) {
-                oppholdUtenforEOSIStartePaLordag = oppholdUtenforEOSIStartePaLordag?.plusDays(1)
+            var dato = oppholdUtenforEOSIStartePaLordag
+            var fantLordag: LocalDate? = null
+
+            for (i in 0..7) {
+                if (dato?.dayOfWeek == DayOfWeek.SATURDAY) {
+                    fantLordag = dato
+                    break
+                }
+                dato = dato?.plusDays(1)
             }
+
+            oppholdUtenforEOSIStartePaLordag = fantLordag ?: throw RuntimeException("Fant ikke en lørdag innenfor en 8 dagers periode!")
         }
 
         val oppholdUtenforEOSVarerUtHelgen = oppholdUtenforEOSIStartePaLordag?.plusDays(1)
