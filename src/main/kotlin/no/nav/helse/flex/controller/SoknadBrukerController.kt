@@ -142,9 +142,8 @@ class SoknadBrukerController(
                 throw e
             }
 
-        if (environmentToggles.isNotProduction()) {
-            oppholdUtenforEOSService.skalOppretteSoknadForOppholdUtenforEOS(sendtSoknad, identer)
-        }
+        oppholdUtenforEOSService.skalOppretteSoknadForOppholdUtenforEOS(sendtSoknad, identer)
+
         try {
             inntektsopplysningForNaringsdrivende.lagreOpplysningerOmDokumentasjonAvInntektsopplysninger(sendtSoknad)
         } catch (e: Exception) {

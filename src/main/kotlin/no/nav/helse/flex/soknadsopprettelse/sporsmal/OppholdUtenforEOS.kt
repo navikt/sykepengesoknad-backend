@@ -29,7 +29,7 @@ fun oppholdUtenforEOSSporsmal(
             listOf(
                 Sporsmal(
                     tag = OPPHOLD_UTENFOR_EOS_NAR,
-                    sporsmalstekst = "Når var du utenfor EØS?",
+                    sporsmalstekst = "Når var du utenfor EU/EØS?",
                     svartype = Svartype.PERIODER,
                     min = fom.format(ISO_LOCAL_DATE),
                     max = tom.format(ISO_LOCAL_DATE),
