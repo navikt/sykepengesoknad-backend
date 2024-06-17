@@ -28,6 +28,7 @@ import no.nav.helse.flex.testdata.reisetilskudd
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
+import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS
 import no.nav.helse.flex.util.DatoUtil
 import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.ventPåRecords
@@ -36,10 +37,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBeEqualTo
 import org.awaitility.Awaitility.await
-import org.junit.jupiter.api.MethodOrderer
-import org.junit.jupiter.api.Order
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestMethodOrder
+import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 import java.time.OffsetDateTime
@@ -59,6 +57,11 @@ class OverlapperEtter : FellesTestOppsett() {
     @Autowired
     private lateinit var klippetSykepengesoknadRepository: KlippetSykepengesoknadRepository
 
+    @BeforeAll
+    fun konfigurerUnleash() {
+        fakeUnleash.resetAll()
+    }
+
     fun String?.tilSoknadsperioder(): List<Soknadsperiode>? {
         return if (this == null) {
             null
@@ -74,6 +77,7 @@ class OverlapperEtter : FellesTestOppsett() {
     @Test
     @Order(1)
     fun `Fremtidig arbeidstakersøknad opprettes for en sykmelding`() {
+        fakeUnleash.enable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
         val kafkaSoknader =
             sendSykmelding(
                 sykmeldingKafkaMessage(

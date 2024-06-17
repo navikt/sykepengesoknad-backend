@@ -7,15 +7,13 @@ import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.helse.flex.testutil.SoknadBesvarer
+import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS
 import no.nav.syfo.model.Merknad
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldHaveSize
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.MethodOrderer
-import org.junit.jupiter.api.Order
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestMethodOrder
+import org.junit.jupiter.api.*
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class TilbakedatertSykmeldingIntegrationTest : FellesTestOppsett() {
@@ -23,9 +21,15 @@ class TilbakedatertSykmeldingIntegrationTest : FellesTestOppsett() {
 
     private val sykmeldingid = "1db78df1-d1d7-4dc4-affd-06e1e08066ce"
 
+    @BeforeAll
+    fun konfigurerUnleash() {
+        fakeUnleash.resetAll()
+    }
+
     @Test
     @Order(1)
     fun `oppretter søknad for sykmelding under behandling `() {
+        fakeUnleash.enable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
         sendSykmeldingMedMerknad("UNDER_BEHANDLING")
 
         val records = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()

@@ -47,7 +47,11 @@ fun settOppSoknadArbeidstaker(
         )
         add(ferieSporsmal(sykepengesoknad.fom!!, sykepengesoknad.tom!!))
         add(permisjonSporsmal(sykepengesoknad.fom, sykepengesoknad.tom))
-        add(oppholdUtenforEOSSporsmal(sykepengesoknad.fom, sykepengesoknad.tom))
+        if (soknadOptions.nyttOppholdUtenforEOSEnabled) {
+            add(oppholdUtenforEOSSporsmal(sykepengesoknad.fom, sykepengesoknad.tom))
+        } else {
+            add(gammeltUtenlandsoppholdArbeidstakerSporsmal(sykepengesoknad.fom, sykepengesoknad.tom))
+        }
         add(tilSlutt())
         addAll(yrkesskade.yrkeskadeSporsmal())
 

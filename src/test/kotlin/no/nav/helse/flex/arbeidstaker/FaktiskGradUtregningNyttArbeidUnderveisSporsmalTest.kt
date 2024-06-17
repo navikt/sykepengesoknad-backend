@@ -10,8 +10,10 @@ import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
+import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS
 import no.nav.helse.flex.ventPåRecords
 import org.amshove.kluent.shouldBeEqualTo
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
@@ -21,8 +23,14 @@ import java.time.LocalDate
 class FaktiskGradUtregningNyttArbeidUnderveisSporsmalTest : FellesTestOppsett() {
     private val fnr = "12345678900"
 
+    @BeforeAll
+    fun konfigurerUnleash() {
+        fakeUnleash.resetAll()
+    }
+
     @Test
     fun `Jobbet 18,75 timer og normalarbeidsuke gir faktisk grad 50 prosent`() {
+        fakeUnleash.enable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
@@ -54,6 +62,7 @@ class FaktiskGradUtregningNyttArbeidUnderveisSporsmalTest : FellesTestOppsett() 
 
     @Test
     fun `Jobbet 10 timer og 40 timersuke gir faktisk grad 25 prosent`() {
+        fakeUnleash.enable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
@@ -86,6 +95,7 @@ class FaktiskGradUtregningNyttArbeidUnderveisSporsmalTest : FellesTestOppsett() 
 
     @Test
     fun `Jobbet 10 timer og 40 timersuke over 2 uker gir faktisk grad 13 prosent`() {
+        fakeUnleash.enable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
@@ -118,6 +128,7 @@ class FaktiskGradUtregningNyttArbeidUnderveisSporsmalTest : FellesTestOppsett() 
 
     @Test
     fun `Jobbet 9 timer og 40 timersuke over 2 uker gir faktisk grad 11 prosent`() {
+        fakeUnleash.enable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
@@ -150,6 +161,7 @@ class FaktiskGradUtregningNyttArbeidUnderveisSporsmalTest : FellesTestOppsett() 
 
     @Test
     fun `Jobbet 15 prosent og 40 timersuke over 2 uker gir faktisk grad 15 prosent`() {
+        fakeUnleash.enable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
@@ -182,6 +194,7 @@ class FaktiskGradUtregningNyttArbeidUnderveisSporsmalTest : FellesTestOppsett() 
 
     @Test
     fun `Jobbet 15 prosent og normal timersuke over 2 uker gir faktisk grad 15 prosent`() {
+        fakeUnleash.enable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,

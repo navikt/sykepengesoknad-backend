@@ -9,9 +9,11 @@ import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.skapAzureJwt
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
+import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS
 import no.nav.helse.flex.util.objectMapper
 import org.amshove.kluent.`should be equal to`
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
@@ -23,8 +25,15 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 class VeilederOboIntegrationTest : FellesTestOppsett() {
     final val fnr = "123456789"
 
+    @BeforeAll
+    fun konfigurerUnleash() {
+        fakeUnleash.resetAll()
+    }
+
     @Test
     fun `01 - vi oppretter en arbeidsledigsøknad`() {
+        fakeUnleash.enable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
+
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
