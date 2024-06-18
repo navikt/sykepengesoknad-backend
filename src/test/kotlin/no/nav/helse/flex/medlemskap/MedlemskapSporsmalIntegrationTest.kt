@@ -178,6 +178,14 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
+    @Order(2)
+    fun `Spørsmål om oppholdstillatelse har riktig informasjon om kjent oppholdstillatelse fra UDI`() {
+        val soknad = hentSoknadMedStatusNy()
+        soknad.sporsmal!!.find { it.tag == MEDLEMSKAP_OPPHOLDSTILLATELSE_V2 }!!.sporsmalstekst shouldBeEqualTo
+            "Har Utlendingsdirektoratet gitt deg en oppholdstillatelse før 1. november 2022?"
+    }
+
+    @Test
     @Order(3)
     fun `Besvar medlemskapspørsmål om oppholdstillatelse`() {
         val soknad = hentSoknadMedStatusNy()

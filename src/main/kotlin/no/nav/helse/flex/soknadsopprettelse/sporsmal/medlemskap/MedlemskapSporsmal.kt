@@ -3,16 +3,23 @@ package no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Visningskriterie
+import no.nav.helse.flex.medlemskap.KjentOppholdstillatelse
 import no.nav.helse.flex.soknadsopprettelse.*
+import no.nav.helse.flex.util.DatoUtil
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
-fun lagSporsmalOmOppholdstillatelse(tom: LocalDate): Sporsmal {
+fun lagSporsmalOmOppholdstillatelse(
+    tom: LocalDate,
+    // kjentOppholdstillatelse skal aldri være null siden vi kaster exception hvis vi ikke mottar den sammen med
+    // spørsmål om medlemskap OPPHOLDSTILLATELSE fra LovMe.
+    kjentOppholdstillatelse: KjentOppholdstillatelse?,
+): Sporsmal {
     return Sporsmal(
         tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_V2,
-        sporsmalstekst =
-            "Har du hatt en oppholdstillatelse fra Utlendingsdirektoratet som gjelder en periode før " +
-                "tillatelsen som gjelder nå?",
+        sporsmalstekst = "Har Utlendingsdirektoratet gitt deg en oppholdstillatelse før ${DatoUtil.formatterDato(
+            kjentOppholdstillatelse?.fom!!,
+        )}?",
         svartype = Svartype.JA_NEI,
         kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
         undersporsmal =
