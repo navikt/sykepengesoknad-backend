@@ -16,10 +16,11 @@ import no.nav.helse.flex.soknadsopprettelse.PERMISJON_V2
 import no.nav.helse.flex.soknadsopprettelse.UTDANNING
 import no.nav.helse.flex.soknadsopprettelse.oppdateringhelpers.finnGyldigDatoSvar
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderArbeidsledig
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.gammeltUtenlandsoppholdArbeidsledigAnnetSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.oppholdUtenforEOSSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.permisjonSporsmal
 
-fun Sykepengesoknad.friskmeldtMuteringer(): Sykepengesoknad {
+fun Sykepengesoknad.friskmeldtMuteringer(toggle: Boolean? = true): Sykepengesoknad {
     if (erIkkeAvType(ANNET_ARBEIDSFORHOLD, ARBEIDSLEDIG, GRADERT_REISETILSKUDD)) {
         return this
     }
@@ -54,8 +55,15 @@ fun Sykepengesoknad.friskmeldtMuteringer(): Sykepengesoknad {
             friskmeldtDato.minusDays(1)
         }
 
+    val skalStilleNyEOSSporsmal =
+        if (toggle!!) {
+            oppholdUtenforEOSSporsmal(this.fom!!, oppdatertTom!!)
+        } else {
+            gammeltUtenlandsoppholdArbeidsledigAnnetSporsmal(this.fom!!, oppdatertTom!!)
+        }
+
     return this
-        .leggTilSporsmaal(oppholdUtenforEOSSporsmal(this.fom!!, oppdatertTom!!))
+        .leggTilSporsmaal(skalStilleNyEOSSporsmal)
         .leggTilSporsmaal(andreInntektskilderArbeidsledig(this.fom, oppdatertTom))
         .run {
             if (this.arbeidssituasjon == ANNET) {

@@ -23,8 +23,10 @@ import no.nav.helse.flex.soknadsopprettelse.oppdateringhelpers.skapOppdaterteSok
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.ferieSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.oppholdUtenforEOSSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.permisjonSporsmal
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.gammeltUtenlandsoppholdArbeidstakerSporsmal
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.gammeltUtenlandsoppholdSelvstendigSporsmal
 
-fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
+fun Sykepengesoknad.arbeidGjenopptattMutering(toggle: Boolean? = true): Sykepengesoknad {
     if (erIkkeAvType(SELVSTENDIGE_OG_FRILANSERE, ARBEIDSTAKERE, GRADERT_REISETILSKUDD)) {
         return this
     }
@@ -80,13 +82,27 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
             ).toMutableList()
         }
 
+    val basertPaToggleForArbeidstakere =
+        if (toggle!!) {
+            oppholdUtenforEOSSporsmal(this.fom!!, oppdatertTom)
+        } else {
+            gammeltUtenlandsoppholdArbeidstakerSporsmal(this.fom!!, oppdatertTom)
+        }
+
+    val basertPaToggleForNaringsdrivendeOgFrilansere =
+        if (toggle) {
+            oppholdUtenforEOSSporsmal(this.fom, oppdatertTom)
+        } else {
+            gammeltUtenlandsoppholdSelvstendigSporsmal(this.fom, oppdatertTom)
+        }
+
     if (this.arbeidssituasjon == ARBEIDSTAKER) {
-        oppdaterteSporsmal.add(ferieSporsmal(this.fom!!, oppdatertTom))
+        oppdaterteSporsmal.add(ferieSporsmal(this.fom, oppdatertTom))
         oppdaterteSporsmal.add(permisjonSporsmal(this.fom, oppdatertTom))
-        oppdaterteSporsmal.add(oppholdUtenforEOSSporsmal(this.fom, oppdatertTom))
+        oppdaterteSporsmal.add(basertPaToggleForArbeidstakere)
     }
     if (this.arbeidssituasjon == NAERINGSDRIVENDE || this.arbeidssituasjon == FRILANSER) {
-        oppdaterteSporsmal.add(oppholdUtenforEOSSporsmal(fom!!, oppdatertTom))
+        oppdaterteSporsmal.add(basertPaToggleForNaringsdrivendeOgFrilansere)
     }
 
     return this.leggTilSporsmaal(oppdaterteSporsmal)
