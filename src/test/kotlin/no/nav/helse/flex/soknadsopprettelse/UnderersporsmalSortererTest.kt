@@ -7,6 +7,7 @@ import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.Visningskriterie
+import no.nav.helse.flex.medlemskap.KjentOppholdstillatelse
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderArbeidsledig
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderArbeidstaker
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderSelvstendigOgFrilanser
@@ -120,7 +121,7 @@ class UnderersporsmalSortererTest {
 
     @Test
     fun `Test sortering av medlemskapspørsmål om oppholdstillatelse`() {
-        val sporsmalet = lagSporsmalOmOppholdstillatelse(LocalDate.now())
+        val sporsmalet = lagSporsmalOmOppholdstillatelse(LocalDate.now(), KjentOppholdstillatelse(LocalDate.now()))
         val soknad = sporsmalet.tilSoknad()
 
         val sporsmal = soknad.getSporsmalMedTag(MEDLEMSKAP_OPPHOLDSTILLATELSE_V2)
