@@ -21,10 +21,10 @@ import no.nav.helse.flex.soknadsopprettelse.jobbetDuIPeriodenSporsmalSelvstendig
 import no.nav.helse.flex.soknadsopprettelse.oppdateringhelpers.finnGyldigDatoSvar
 import no.nav.helse.flex.soknadsopprettelse.oppdateringhelpers.skapOppdaterteSoknadsperioder
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.ferieSporsmal
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.oppholdUtenforEOSSporsmal
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.permisjonSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.gammeltUtenlandsoppholdArbeidstakerSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.gammeltUtenlandsoppholdSelvstendigSporsmal
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.oppholdUtenforEOSSporsmal
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.permisjonSporsmal
 
 fun Sykepengesoknad.arbeidGjenopptattMutering(toggle: Boolean? = true): Sykepengesoknad {
     if (erIkkeAvType(SELVSTENDIGE_OG_FRILANSERE, ARBEIDSTAKERE, GRADERT_REISETILSKUDD)) {
