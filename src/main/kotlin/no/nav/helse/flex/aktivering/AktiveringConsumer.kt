@@ -28,13 +28,13 @@ class AktiveringConsumer(
         } catch (e: Exception) {
             val warnEllerErrorLogger = retryLogger.inkrementerRetriesOgReturnerLogger(cr.key())
             warnEllerErrorLogger.log(
-                "Feilet ved aktivering av søknad ${cr.key()} , men vi acker.",
+                "Feilet ved aktivering av søknad ${cr.key()}.",
                 e,
             )
             acknowledgment.acknowledge()
-            return
+        } finally {
+            // Søknaden blir forsøkt aktivert igjen av AktiveringJobb.
+            acknowledgment.acknowledge()
         }
-        // Søknaden blir forsøkt aktivert igjen av AktiveringJobb.
-        return acknowledgment.acknowledge()
     }
 }
