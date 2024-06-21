@@ -35,7 +35,7 @@ val avroVersion = "1.11.3"
 val logstashLogbackEncoderVersion = "7.4"
 val testContainersVersion = "1.19.8"
 val kluentVersion = "1.73"
-val jsonSchemaValidatorVersion = "1.4.0"
+val jsonSchemaValidatorVersion = "1.4.2"
 val unleashVersion = "9.2.2"
 
 dependencies {
