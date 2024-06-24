@@ -23,7 +23,6 @@ import java.time.OffsetDateTime
 
 @TestMethodOrder(MethodOrderer.MethodName::class)
 class OppholdUtenforEOSSporsmalTest : FellesTestOppsett() {
-
     @Autowired
     private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
 
@@ -125,15 +124,16 @@ class OppholdUtenforEOSSporsmalTest : FellesTestOppsett() {
                 soknadId = hentSoknaderMetadata(fnr).first().id,
                 fnr = fnr,
             )
-        val sendtSykepengeSoknad = SoknadBesvarer(rSSykepengesoknad = rsSykepengesoknad, mockMvc = this, fnr = fnr)
-            .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
-            .besvarSporsmal(tag = "FRISKMELDT", svar = "JA")
-            .besvarSporsmal(tag = "ARBEID_UTENFOR_NORGE", svar = "NEI")
-            .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER", svar = "NEI")
-            .besvarSporsmal(tag = "ARBEIDSLEDIG_UTLAND", svar = "NEI")
-            .besvarSporsmal(tag = "TIL_SLUTT", svar = "svar 1, og 2", ferdigBesvart = false)
-            .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
-            .sendSoknad()
+        val sendtSykepengeSoknad =
+            SoknadBesvarer(rSSykepengesoknad = rsSykepengesoknad, mockMvc = this, fnr = fnr)
+                .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
+                .besvarSporsmal(tag = "FRISKMELDT", svar = "JA")
+                .besvarSporsmal(tag = "ARBEID_UTENFOR_NORGE", svar = "NEI")
+                .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER", svar = "NEI")
+                .besvarSporsmal(tag = "ARBEIDSLEDIG_UTLAND", svar = "NEI")
+                .besvarSporsmal(tag = "TIL_SLUTT", svar = "svar 1, og 2", ferdigBesvart = false)
+                .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
+                .sendSoknad()
         sendtSykepengeSoknad.status `should be equal to` sendtSykepengeSoknad.status
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
         kafkaSoknader.size `should be equal to` 1
@@ -179,16 +179,17 @@ class OppholdUtenforEOSSporsmalTest : FellesTestOppsett() {
                 soknadId = hentSoknaderMetadata(fnr).first().id,
                 fnr = fnr,
             )
-        val sendtSykepengeSoknad = SoknadBesvarer(rSSykepengesoknad = rsSykepengesoknad, mockMvc = this, fnr = fnr)
-            .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
-            .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
-            .besvarSporsmal("ARBEID_UNDERVEIS_100_PROSENT_0", "NEI")
-            .besvarSporsmal(tag = "ARBEID_UTENFOR_NORGE", svar = "NEI")
-            .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER", svar = "NEI")
-            .besvarSporsmal(tag = "UTLAND", svar = "NEI")
-            .besvarSporsmal(tag = "TIL_SLUTT", svar = "svar 1, og 2", ferdigBesvart = false)
-            .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
-            .sendSoknad()
+        val sendtSykepengeSoknad =
+            SoknadBesvarer(rSSykepengesoknad = rsSykepengesoknad, mockMvc = this, fnr = fnr)
+                .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
+                .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
+                .besvarSporsmal("ARBEID_UNDERVEIS_100_PROSENT_0", "NEI")
+                .besvarSporsmal(tag = "ARBEID_UTENFOR_NORGE", svar = "NEI")
+                .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER", svar = "NEI")
+                .besvarSporsmal(tag = "UTLAND", svar = "NEI")
+                .besvarSporsmal(tag = "TIL_SLUTT", svar = "svar 1, og 2", ferdigBesvart = false)
+                .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
+                .sendSoknad()
         sendtSykepengeSoknad.status `should be equal to` sendtSykepengeSoknad.status
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
         kafkaSoknader.size `should be equal to` 1
