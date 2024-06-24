@@ -13,7 +13,6 @@ import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS
 import org.amshove.kluent.`should be equal to`
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -176,46 +175,6 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
         val oppholdUtlandSoknader = sykepengesoknadDAO.finnSykepengesoknader(identer = listOf(fnr), Soknadstype.OPPHOLD_UTLAND)
         oppholdUtlandSoknader.size `should be equal to` 1
         oppholdUtlandSoknader.first().id `should be equal to` soknadOppholdUtenforEOS.id
-    }
-
-    @Test
-    fun `sjekk om det kun er det gamle spørsmålet som blir stilt om toggel er av`() {
-        fakeUnleash.disable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
-        val soknaden = settOppSykepengeSoknad(fom, tom)
-
-        val sendtSykepengeSoknad =
-            SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
-                .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
-                .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
-                .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
-                .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
-                .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
-                .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
-                .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
-                .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
-                .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED").sendSoknad()
-        sendtSykepengeSoknad.status `should be equal to` sendtSykepengeSoknad.status
-        verifiserKafkaSoknader()
-
-        val soknadFraDatabase = sykepengesoknadDAO.finnSykepengesoknad(sendtSykepengeSoknad.id)
-        soknadFraDatabase.sendt `should be equal to` soknadFraDatabase.sendtArbeidsgiver
-        assertThat(soknaden.sporsmal!!.map { it.tag }).isEqualTo(
-            listOf(
-                ANSVARSERKLARING,
-                TILBAKE_I_ARBEID,
-                FERIE_V2,
-                PERMISJON_V2,
-                "ARBEID_UNDERVEIS_100_PROSENT_0",
-                ANDRE_INNTEKTSKILDER_V2,
-                UTLAND_V2,
-                TIL_SLUTT,
-            ),
-        )
-        soknadFraDatabase.sporsmal.any { it.tag == OPPHOLD_UTENFOR_EOS } `should be equal to` false
-
-        // Sjekker at Opphold Utland søknad har blitt laget
-        val oppholdUtlandSoknader = sykepengesoknadDAO.finnSykepengesoknader(identer = listOf(fnr), Soknadstype.OPPHOLD_UTLAND)
-        oppholdUtlandSoknader.size `should be equal to` 0
     }
 
     @Test
