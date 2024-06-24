@@ -13,7 +13,11 @@ fun settOppSoknadArbeidsledig(opts: SettOppSoknadOptions): List<Sporsmal> {
         add(ansvarserklaringSporsmal(erGradertReisetilskudd))
         add(andreInntektskilderArbeidsledig(sykepengesoknad.fom!!, sykepengesoknad.tom!!))
         add(friskmeldingSporsmal(sykepengesoknad.fom, sykepengesoknad.tom))
-        add(utenlandsoppholdArbeidsledigAnnetSporsmal(sykepengesoknad.fom, sykepengesoknad.tom))
+        if (opts.nyttOppholdUtenforEOSEnabled) {
+            add(oppholdUtenforEOSSporsmal(sykepengesoknad.fom, sykepengesoknad.tom))
+        } else {
+            add(gammeltUtenlandsoppholdArbeidsledigAnnetSporsmal(sykepengesoknad.fom, sykepengesoknad.tom))
+        }
         add(tilSlutt())
         if (erForsteSoknadISykeforlop) {
             add(arbeidUtenforNorge())

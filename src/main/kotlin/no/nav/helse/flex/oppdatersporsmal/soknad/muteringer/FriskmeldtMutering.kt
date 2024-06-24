@@ -11,14 +11,16 @@ import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER
 import no.nav.helse.flex.soknadsopprettelse.ARBEIDSLEDIG_UTLAND
 import no.nav.helse.flex.soknadsopprettelse.FRISKMELDT
 import no.nav.helse.flex.soknadsopprettelse.FRISKMELDT_START
+import no.nav.helse.flex.soknadsopprettelse.OPPHOLD_UTENFOR_EOS
 import no.nav.helse.flex.soknadsopprettelse.PERMISJON_V2
 import no.nav.helse.flex.soknadsopprettelse.UTDANNING
 import no.nav.helse.flex.soknadsopprettelse.oppdateringhelpers.finnGyldigDatoSvar
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderArbeidsledig
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.gammeltUtenlandsoppholdArbeidsledigAnnetSporsmal
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.oppholdUtenforEOSSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.permisjonSporsmal
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.utenlandsoppholdArbeidsledigAnnetSporsmal
 
-fun Sykepengesoknad.friskmeldtMuteringer(): Sykepengesoknad {
+fun Sykepengesoknad.friskmeldtMuteringer(toggle: Boolean? = true): Sykepengesoknad {
     if (erIkkeAvType(ANNET_ARBEIDSFORHOLD, ARBEIDSLEDIG, GRADERT_REISETILSKUDD)) {
         return this
     }
@@ -38,6 +40,7 @@ fun Sykepengesoknad.friskmeldtMuteringer(): Sykepengesoknad {
                         .asSequence()
                         .filterNot { (_, tag) -> tag == UTDANNING }
                         .filterNot { (_, tag) -> tag == ARBEIDSLEDIG_UTLAND }
+                        .filterNot { (_, tag) -> tag == OPPHOLD_UTENFOR_EOS }
                         .filterNot { (_, tag) -> tag == ANDRE_INNTEKTSKILDER }
                         .filterNot { (_, tag) -> tag == PERMISJON_V2 }
                         .toMutableList(),
@@ -52,8 +55,15 @@ fun Sykepengesoknad.friskmeldtMuteringer(): Sykepengesoknad {
             friskmeldtDato.minusDays(1)
         }
 
+    val skalStilleNyEOSSporsmal =
+        if (toggle!!) {
+            oppholdUtenforEOSSporsmal(this.fom!!, oppdatertTom!!)
+        } else {
+            gammeltUtenlandsoppholdArbeidsledigAnnetSporsmal(this.fom!!, oppdatertTom!!)
+        }
+
     return this
-        .leggTilSporsmaal(utenlandsoppholdArbeidsledigAnnetSporsmal(this.fom!!, oppdatertTom!!))
+        .leggTilSporsmaal(skalStilleNyEOSSporsmal)
         .leggTilSporsmaal(andreInntektskilderArbeidsledig(this.fom, oppdatertTom))
         .run {
             if (this.arbeidssituasjon == ANNET) {

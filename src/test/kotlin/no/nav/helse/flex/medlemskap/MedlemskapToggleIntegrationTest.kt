@@ -11,6 +11,7 @@ import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.medIndex
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_MEDLEMSKAP_SPORSMAL
+import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS
 import no.nav.helse.flex.util.serialisertTilString
 import okhttp3.mockwebserver.MockResponse
 import org.assertj.core.api.Assertions.assertThat
@@ -31,6 +32,7 @@ class MedlemskapToggleIntegrationTest : FellesTestOppsett() {
     @BeforeEach
     fun setUpMockRessurser() {
         fakeUnleash.resetAll()
+        fakeUnleash.enable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
         medlemskapMockWebServer.enqueue(
             MockResponse()
                 .setResponseCode(200)
@@ -87,7 +89,7 @@ class MedlemskapToggleIntegrationTest : FellesTestOppsett() {
                 MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
                 MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
                 MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
-                UTLAND_V2,
+                OPPHOLD_UTENFOR_EOS,
                 MEDLEMSKAP_OPPHOLDSTILLATELSE,
                 TIL_SLUTT,
             ),
@@ -116,7 +118,7 @@ class MedlemskapToggleIntegrationTest : FellesTestOppsett() {
                 medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0),
                 ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER_V2,
-                UTLAND_V2,
+                OPPHOLD_UTENFOR_EOS,
                 TIL_SLUTT,
             ),
         )

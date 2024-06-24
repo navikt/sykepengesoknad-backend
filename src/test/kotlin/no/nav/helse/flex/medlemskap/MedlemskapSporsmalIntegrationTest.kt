@@ -14,6 +14,7 @@ import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_MEDLEMSKAP_SPORSMAL
+import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS
 import no.nav.helse.flex.util.DatoUtil
 import no.nav.helse.flex.util.serialisertTilString
 import okhttp3.mockwebserver.MockResponse
@@ -46,7 +47,7 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
     @BeforeAll
     fun konfigurerUnleash() {
         fakeUnleash.resetAll()
-        fakeUnleash.enable(UNLEASH_CONTEXT_MEDLEMSKAP_SPORSMAL)
+        fakeUnleash.enable(UNLEASH_CONTEXT_MEDLEMSKAP_SPORSMAL, UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
     }
 
     @AfterAll
@@ -115,7 +116,7 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
                 MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
                 MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
                 MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
-                UTLAND_V2,
+                OPPHOLD_UTENFOR_EOS,
                 MEDLEMSKAP_OPPHOLDSTILLATELSE,
                 TIL_SLUTT,
             ),
@@ -151,7 +152,7 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
         soknad.sporsmal!![index + 1].tag shouldBeEqualTo MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE
         soknad.sporsmal!![index + 2].tag shouldBeEqualTo MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE
         soknad.sporsmal!![index + 3].tag shouldBeEqualTo MEDLEMSKAP_OPPHOLD_UTENFOR_EOS
-        soknad.sporsmal!![index + 4].tag shouldBeEqualTo UTLAND_V2
+        soknad.sporsmal!![index + 4].tag shouldBeEqualTo OPPHOLD_UTENFOR_EOS
         soknad.sporsmal!![index + 5].tag shouldBeEqualTo MEDLEMSKAP_OPPHOLDSTILLATELSE
         soknad.sporsmal!![index + 6].tag shouldBeEqualTo TIL_SLUTT
     }
@@ -511,7 +512,7 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
             .besvarSporsmal(tag = TILBAKE_I_ARBEID, svar = "NEI")
             .besvarSporsmal(tag = FERIE_V2, svar = "NEI")
             .besvarSporsmal(tag = PERMISJON_V2, svar = "NEI")
-            .besvarSporsmal(tag = UTLAND_V2, svar = "NEI")
+            .besvarSporsmal(tag = OPPHOLD_UTENFOR_EOS, svar = "NEI")
             .besvarSporsmal(tag = medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0), svar = "NEI")
             .besvarSporsmal(tag = ANDRE_INNTEKTSKILDER_V2, svar = "NEI")
 

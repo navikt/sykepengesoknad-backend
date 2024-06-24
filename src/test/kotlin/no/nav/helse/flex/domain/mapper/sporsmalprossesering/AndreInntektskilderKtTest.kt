@@ -1,5 +1,6 @@
 package no.nav.helse.flex.domain.mapper.sporsmalprossesering
 
+import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.domain.Mottaker
 import no.nav.helse.flex.domain.mapper.konverterTilSykepengesoknadDTO
 import no.nav.helse.flex.mock.opprettBehandlingsdagsoknadTestadata
@@ -10,12 +11,19 @@ import no.nav.helse.flex.mock.opprettSendtSoknadForArbeidsledige
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.sykepengesoknad.kafka.InntektskildetypeDTO
 import no.nav.helse.flex.testutil.besvarsporsmal
+import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldHaveSize
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 
-class AndreInntektskilderKtTest {
+class AndreInntektskilderKtTest : FellesTestOppsett() {
+    @BeforeAll
+    fun konfigurerUnleash() {
+        fakeUnleash.resetAll()
+    }
+
     @Test
     fun `Arbeidsledig har ikke svart på andre inntektskilder`() {
         val soknad =
@@ -100,6 +108,7 @@ class AndreInntektskilderKtTest {
 
     @Test
     fun `Frilanser henter andre inntektskilder`() {
+        fakeUnleash.enable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
         val besvartSoknad = opprettSendtFrilanserSoknad()
 
         val andreInntektskilder =

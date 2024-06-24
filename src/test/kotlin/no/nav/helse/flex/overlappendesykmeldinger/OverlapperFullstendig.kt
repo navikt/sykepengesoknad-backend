@@ -17,6 +17,7 @@ import no.nav.helse.flex.testdata.gradertSykmeldt
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
+import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS
 import no.nav.helse.flex.ventPåRecords
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldBeEqualTo
@@ -44,6 +45,7 @@ class OverlapperFullstendig : FellesTestOppsett() {
     @BeforeEach
     fun setUp() {
         databaseReset.resetDatabase()
+        fakeUnleash.resetAll()
     }
 
     @Test
@@ -212,6 +214,7 @@ class OverlapperFullstendig : FellesTestOppsett() {
 
     @Test
     fun `Overlapper fullstendig med en sendt søknad og splittes opp i 3`() {
+        fakeUnleash.enable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
@@ -249,7 +252,7 @@ class OverlapperFullstendig : FellesTestOppsett() {
             .besvarSporsmal(TILBAKE_I_ARBEID, "NEI")
             .besvarSporsmal(PERMISJON_V2, "NEI")
             .besvarSporsmal(FERIE_V2, "NEI")
-            .besvarSporsmal(UTLAND_V2, "NEI")
+            .besvarSporsmal(OPPHOLD_UTENFOR_EOS, "NEI")
             .besvarSporsmal(ARBEID_UNDERVEIS_100_PROSENT + '0', "NEI")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
             .besvarSporsmal(TIL_SLUTT, "Jeg lover å ikke lyve!", ferdigBesvart = false)

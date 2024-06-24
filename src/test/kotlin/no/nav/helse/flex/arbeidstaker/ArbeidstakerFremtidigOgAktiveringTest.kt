@@ -14,13 +14,11 @@ import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
+import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS
 import no.nav.helse.flex.util.DatoUtil
 import no.nav.helse.flex.ventPåRecords
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.MethodOrderer
-import org.junit.jupiter.api.Order
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestMethodOrder
+import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 
@@ -35,9 +33,15 @@ class ArbeidstakerFremtidigOgAktiveringTest : FellesTestOppsett() {
     private final val fnr = "12345678900"
     private final val basisdato = LocalDate.now()
 
+    @BeforeAll
+    fun konfigurerUnleash() {
+        fakeUnleash.resetAll()
+    }
+
     @Test
     @Order(1)
     fun `Arbeidstakersøknad med status FREMTIDIG opprettes når vi mottar en sykmelding`() {
+        fakeUnleash.enable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
         val kafkaSoknader =
             sendSykmelding(
                 sykmeldingKafkaMessage(
@@ -100,7 +104,7 @@ class ArbeidstakerFremtidigOgAktiveringTest : FellesTestOppsett() {
                 "ARBEID_UNDERVEIS_100_PROSENT_0",
                 "ARBEID_UNDERVEIS_100_PROSENT_1",
                 "ANDRE_INNTEKTSKILDER_V2",
-                "UTLAND_V2",
+                "OPPHOLD_UTENFOR_EOS",
                 "TIL_SLUTT",
             ),
         )
@@ -141,7 +145,7 @@ class ArbeidstakerFremtidigOgAktiveringTest : FellesTestOppsett() {
                 .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
                 .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
                 .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
-                .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
+                .besvarSporsmal(tag = "OPPHOLD_UTENFOR_EOS", svar = "NEI")
                 .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
                 .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_1", svar = "NEI")
                 .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")

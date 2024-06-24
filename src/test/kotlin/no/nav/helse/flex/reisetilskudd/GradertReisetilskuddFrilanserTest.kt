@@ -14,6 +14,7 @@ import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
+import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS
 import no.nav.helse.flex.ventPåRecords
 import no.nav.syfo.model.sykmelding.model.GradertDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
@@ -40,11 +41,13 @@ class GradertReisetilskuddFrilanserTest : FellesTestOppsett() {
     @BeforeAll
     fun `Det er ingen søknader til å begynne med`() {
         hentSoknaderMetadata(fnr).shouldBeEmpty()
+        fakeUnleash.resetAll()
     }
 
     @Test
     @Order(1)
     fun `Vi oppretter en reisetilskuddsøknad`() {
+        fakeUnleash.enable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
         val sykmeldingStatusKafkaMessageDTO =
             skapSykmeldingStatusKafkaMessageDTO(
                 fnr = fnr,
@@ -103,7 +106,7 @@ class GradertReisetilskuddFrilanserTest : FellesTestOppsett() {
                 "JOBBET_DU_GRADERT_0",
                 ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER,
-                UTLAND,
+                OPPHOLD_UTENFOR_EOS,
                 BRUKTE_REISETILSKUDDET,
                 TIL_SLUTT,
             ),
@@ -138,7 +141,7 @@ class GradertReisetilskuddFrilanserTest : FellesTestOppsett() {
                 "JOBBET_DU_GRADERT_0",
                 ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER,
-                UTLAND,
+                OPPHOLD_UTENFOR_EOS,
                 BRUKTE_REISETILSKUDDET,
                 TRANSPORT_TIL_DAGLIG,
                 REISE_MED_BIL,

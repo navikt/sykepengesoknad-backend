@@ -132,9 +132,9 @@ private fun Sykepengesoknad.ferie(): Sykepengesoknad {
 }
 
 private fun Sykepengesoknad.utenlandsopphold(): Sykepengesoknad {
-    return besvarsporsmal(UTLAND_V2, "JA")
+    return besvarsporsmal(OPPHOLD_UTENFOR_EOS, "JA")
         .besvarsporsmal(
-            tag = UTLAND_NAR_V2,
+            tag = OPPHOLD_UTENFOR_EOS_NAR,
             svarListe =
                 listOf(
                     periodeTilJson(fom!!.plusDays(1), fom!!.plusDays(1)),

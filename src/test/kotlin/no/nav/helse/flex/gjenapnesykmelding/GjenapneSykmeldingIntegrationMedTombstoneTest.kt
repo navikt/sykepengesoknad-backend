@@ -14,6 +14,7 @@ import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
+import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS
 import no.nav.helse.flex.ventPåRecords
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -29,6 +30,8 @@ class GjenapneSykmeldingIntegrationMedTombstoneTest : FellesTestOppsett() {
     @BeforeEach
     fun setUp() {
         flexSyketilfelleMockRestServiceServer.reset()
+        fakeUnleash.resetAll()
+        fakeUnleash.enable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
     }
 
     @Test
@@ -74,7 +77,7 @@ class GjenapneSykmeldingIntegrationMedTombstoneTest : FellesTestOppsett() {
             .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
             .besvarSporsmal(tag = "FRISKMELDT", svar = "JA")
             .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER", svar = "NEI")
-            .besvarSporsmal(tag = "ARBEIDSLEDIG_UTLAND", svar = "NEI")
+            .besvarSporsmal(tag = "OPPHOLD_UTENFOR_EOS", svar = "NEI")
             .besvarSporsmal(tag = "ARBEID_UTENFOR_NORGE", svar = "NEI")
             .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER", svar = "NEI")
             .besvarSporsmal(tag = "TIL_SLUTT", svar = "svar 1, og 2", ferdigBesvart = false)

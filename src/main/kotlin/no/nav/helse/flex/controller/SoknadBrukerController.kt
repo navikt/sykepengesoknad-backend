@@ -37,11 +37,13 @@ import no.nav.helse.flex.service.HentSoknadService
 import no.nav.helse.flex.service.IdentService
 import no.nav.helse.flex.service.KorrigerSoknadService
 import no.nav.helse.flex.service.MottakerAvSoknadService
+import no.nav.helse.flex.service.OppholdUtenforEOSService
 import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLD_UTENFOR_EOS
 import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE
 import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE
 import no.nav.helse.flex.soknadsopprettelse.OpprettSoknadService
 import no.nav.helse.flex.svarvalidering.validerSvarPaSoknad
+import no.nav.helse.flex.unleash.UnleashToggles
 import no.nav.helse.flex.util.Metrikk
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
@@ -69,10 +71,12 @@ class SoknadBrukerController(
     private val avbrytSoknadService: AvbrytSoknadService,
     private val environmentToggles: EnvironmentToggles,
     private val inntektsopplysningForNaringsdrivende: InntektsopplysningForNaringsdrivende,
+    private val oppholdUtenforEOSService: OppholdUtenforEOSService,
     @Value("\${DITT_SYKEFRAVAER_FRONTEND_CLIENT_ID}")
     val dittSykefravaerFrontendClientId: String,
     @Value("\${SYKEPENGESOKNAD_FRONTEND_CLIENT_ID}")
     val sykepengesoknadFrontendClientId: String,
+    private val unleashToggles: UnleashToggles,
 ) {
     private val log = logger()
 
@@ -139,6 +143,10 @@ class SoknadBrukerController(
                 metrikk.tellInnsendingFeilet(soknadFraBase.soknadstype.name)
                 throw e
             }
+
+        if (unleashToggles.stillNySporsmalOmOppholdUtenforEOS(fnr = soknadFraBase.fnr)) {
+            oppholdUtenforEOSService.skalOppretteSoknadForOppholdUtenforEOS(sendtSoknad, identer)
+        }
 
         try {
             inntektsopplysningForNaringsdrivende.lagreOpplysningerOmDokumentasjonAvInntektsopplysninger(sendtSoknad)

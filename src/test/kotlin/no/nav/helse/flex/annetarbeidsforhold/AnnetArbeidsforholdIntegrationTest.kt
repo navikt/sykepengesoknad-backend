@@ -9,6 +9,7 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
+import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
 import java.time.LocalDate
@@ -18,9 +19,15 @@ import java.time.format.DateTimeFormatter
 class AnnetArbeidsforholdIntegrationTest : FellesTestOppsett() {
     final val fnr = "123456789"
 
+    @BeforeAll
+    fun konfigurerUnleash() {
+        fakeUnleash.resetAll()
+    }
+
     @Test
     @Order(1)
     fun `Vi oppretter en søknad med arbeidssituasjon ANNET`() {
+        fakeUnleash.enable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
         val soknader =
             sendSykmelding(
                 sykmeldingKafkaMessage(
@@ -53,7 +60,7 @@ class AnnetArbeidsforholdIntegrationTest : FellesTestOppsett() {
                 PERMISJON_V2,
                 ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER,
-                ARBEIDSLEDIG_UTLAND,
+                OPPHOLD_UTENFOR_EOS,
                 TIL_SLUTT,
             ),
         )
@@ -73,7 +80,7 @@ class AnnetArbeidsforholdIntegrationTest : FellesTestOppsett() {
                 "Har du hatt inntekt mens du har vært sykmeldt i perioden 1. - 10. januar 2018?",
             )
 
-        assertThat(soknaden.sporsmal!!.first { it.tag == ARBEIDSLEDIG_UTLAND }.sporsmalstekst)
+        assertThat(soknaden.sporsmal!!.first { it.tag == OPPHOLD_UTENFOR_EOS }.sporsmalstekst)
             .isEqualTo(
                 "Var du på reise utenfor EU/EØS mens du var sykmeldt 1. - 10. januar 2018?",
             )
@@ -96,7 +103,7 @@ class AnnetArbeidsforholdIntegrationTest : FellesTestOppsett() {
                         "Har du hatt inntekt mens du har vært sykmeldt i perioden 1. - 4. januar 2018?",
                     )
 
-                assertThat(oppdatertSoknad.sporsmal!!.first { it.tag == ARBEIDSLEDIG_UTLAND }.sporsmalstekst)
+                assertThat(oppdatertSoknad.sporsmal!!.first { it.tag == OPPHOLD_UTENFOR_EOS }.sporsmalstekst)
                     .isEqualTo(
                         "Var du på reise utenfor EU/EØS mens du var sykmeldt 1. - 4. januar 2018?",
                     )
@@ -162,7 +169,7 @@ class AnnetArbeidsforholdIntegrationTest : FellesTestOppsett() {
                         PERMISJON_V2,
                         ARBEID_UTENFOR_NORGE,
                         ANDRE_INNTEKTSKILDER,
-                        ARBEIDSLEDIG_UTLAND,
+                        OPPHOLD_UTENFOR_EOS,
                         TIL_SLUTT,
                     ),
                 )
@@ -185,7 +192,7 @@ class AnnetArbeidsforholdIntegrationTest : FellesTestOppsett() {
                 .besvarSporsmal(PERMISJON_V2, "NEI")
                 .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
                 .besvarSporsmal(ANDRE_INNTEKTSKILDER, "NEI")
-                .besvarSporsmal(ARBEIDSLEDIG_UTLAND, "NEI")
+                .besvarSporsmal(OPPHOLD_UTENFOR_EOS, "NEI")
                 .besvarSporsmal(ARBEID_UTENFOR_NORGE, "NEI")
                 .besvarSporsmal(TIL_SLUTT, "punkt 1, 2 og 3", ferdigBesvart = false)
                 .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")

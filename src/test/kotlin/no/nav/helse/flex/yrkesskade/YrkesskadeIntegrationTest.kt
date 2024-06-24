@@ -7,6 +7,7 @@ import no.nav.helse.flex.mockdispatcher.YrkesskadeMockDispatcher
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
+import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS
 import no.nav.helse.flex.util.flatten
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
@@ -26,6 +27,7 @@ class YrkesskadeIntegrationTest : FellesTestOppsett() {
     @Test
     @BeforeAll
     fun `Køer opp yrkesskaderesponse`() {
+        fakeUnleash.resetAll()
         YrkesskadeMockDispatcher.queuedSakerRespons.add(
             SakerResponse(
                 listOf(
@@ -97,6 +99,7 @@ class YrkesskadeIntegrationTest : FellesTestOppsett() {
     @Test
     @Order(2)
     fun `Arbeidstakersøknad for sykmelding med yrkesskade opprettes med yrkesskadespørsmål i seg i førstegangssoknaden`() {
+        fakeUnleash.enable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
         val kafkaSoknader =
             sendSykmelding(
                 sykmeldingKafkaMessage(
@@ -166,7 +169,7 @@ class YrkesskadeIntegrationTest : FellesTestOppsett() {
             .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
             .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
             .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
-            .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
+            .besvarSporsmal(tag = "OPPHOLD_UTENFOR_EOS", svar = "NEI")
             .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
             .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
             .besvarSporsmal(tag = "YRKESSKADE_V2", svar = "JA", ferdigBesvart = false)

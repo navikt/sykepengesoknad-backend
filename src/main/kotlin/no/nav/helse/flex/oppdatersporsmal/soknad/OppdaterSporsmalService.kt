@@ -24,6 +24,7 @@ import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagGruppertUnder
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforNorge
 import no.nav.helse.flex.svarvalidering.tilKvittering
 import no.nav.helse.flex.svarvalidering.validerSvarPaSporsmal
+import no.nav.helse.flex.unleash.UnleashToggles
 import no.nav.helse.flex.util.Metrikk
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -35,6 +36,7 @@ class OppdaterSporsmalService(
     val sykepengesoknadDAO: SykepengesoknadDAO,
     val svarDAO: SvarDAO,
     val metrikk: Metrikk,
+    private val unleashToggles: UnleashToggles,
 ) {
     val log = logger()
 
@@ -57,15 +59,16 @@ class OppdaterSporsmalService(
                 .nullstillTidligereSvar()
                 .also { it.validerSvarPaSporsmal() }
 
+        val nyEOSToggle = unleashToggles.stillNySporsmalOmOppholdUtenforEOS(fnr = soknadFraBasenForOppdatering.fnr)
         val oppdatertSoknad =
             soknadFraBasenForOppdatering
                 .replaceSporsmal(validerteSporsmal)
                 .jobbaDuHundreGate()
-                .friskmeldtMuteringer()
+                .friskmeldtMuteringer(nyEOSToggle)
                 .brukteDuReisetilskuddetMutering()
                 .utlandssoknadMuteringer()
-                .arbeidGjenopptattMutering()
-                .oppdaterMedSvarPaUtlandsopphold()
+                .arbeidGjenopptattMutering(nyEOSToggle)
+                .oppdaterMedSvarPaUtlandsopphold() // TODO: denne kan fjernes helt etterhvert
 
         val soknadenErMutert = soknadFraBasenForOppdatering.sporsmal.erUlikUtenomSvar(oppdatertSoknad.sporsmal)
 

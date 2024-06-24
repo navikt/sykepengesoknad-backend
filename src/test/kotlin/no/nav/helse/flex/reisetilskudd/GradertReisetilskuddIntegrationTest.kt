@@ -16,6 +16,7 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.helse.flex.testutil.SoknadBesvarer
+import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS
 import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.util.serialisertTilString
 import no.nav.syfo.model.sykmelding.model.GradertDTO
@@ -52,11 +53,13 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
     @BeforeAll
     fun `Det er ingen søknader til å begynne med`() {
         hentSoknaderMetadata(fnr).shouldBeEmpty()
+        fakeUnleash.resetAll()
     }
 
     @Test
     @Order(1)
     fun `Vi oppretter en reisetilskuddsøknad`() {
+        fakeUnleash.enable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
         val sykmeldingStatusKafkaMessageDTO =
             skapSykmeldingStatusKafkaMessageDTO(
                 fnr = fnr,
@@ -115,7 +118,7 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
                 PERMISJON_V2,
                 "JOBBET_DU_GRADERT_0",
                 ANDRE_INNTEKTSKILDER_V2,
-                UTLAND_V2,
+                OPPHOLD_UTENFOR_EOS,
                 BRUKTE_REISETILSKUDDET,
                 TIL_SLUTT,
             ),
@@ -247,7 +250,7 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
                 PERMISJON_V2,
                 "JOBBET_DU_GRADERT_0",
                 ANDRE_INNTEKTSKILDER_V2,
-                UTLAND_V2,
+                OPPHOLD_UTENFOR_EOS,
                 BRUKTE_REISETILSKUDDET,
                 TRANSPORT_TIL_DAGLIG,
                 REISE_MED_BIL,
@@ -374,7 +377,7 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
             .besvarSporsmal(TILBAKE_I_ARBEID, "NEI")
             .besvarSporsmal(FERIE_V2, "NEI")
             .besvarSporsmal(PERMISJON_V2, "NEI")
-            .besvarSporsmal(UTLAND_V2, "NEI")
+            .besvarSporsmal(OPPHOLD_UTENFOR_EOS, "NEI")
             .besvarSporsmal("JOBBET_DU_GRADERT_0", "NEI")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
             .besvarSporsmal(TRANSPORT_TIL_DAGLIG, "NEI")
@@ -481,7 +484,7 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
                 PERMISJON_V2,
                 "JOBBET_DU_GRADERT_0",
                 ANDRE_INNTEKTSKILDER_V2,
-                UTLAND_V2,
+                OPPHOLD_UTENFOR_EOS,
                 BRUKTE_REISETILSKUDDET,
                 TIL_SLUTT,
             ),
@@ -501,7 +504,7 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
             .besvarSporsmal(TILBAKE_I_ARBEID, "NEI")
             .besvarSporsmal(FERIE_V2, "NEI")
             .besvarSporsmal(PERMISJON_V2, "NEI")
-            .besvarSporsmal(UTLAND_V2, "NEI")
+            .besvarSporsmal(OPPHOLD_UTENFOR_EOS, "NEI")
             .besvarSporsmal("JOBBET_DU_GRADERT_0", "NEI")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
             .besvarSporsmal(TIL_SLUTT, "Jeg lover å ikke lyve!", ferdigBesvart = false)

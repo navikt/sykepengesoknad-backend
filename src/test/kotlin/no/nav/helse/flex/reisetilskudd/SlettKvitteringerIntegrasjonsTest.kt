@@ -20,6 +20,7 @@ import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
+import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS
 import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.util.serialisertTilString
 import no.nav.helse.flex.ventPåRecords
@@ -33,10 +34,7 @@ import org.amshove.kluent.`should not be`
 import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
 import org.assertj.core.api.Assertions
-import org.junit.jupiter.api.MethodOrderer
-import org.junit.jupiter.api.Order
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestMethodOrder
+import org.junit.jupiter.api.*
 import java.time.Instant
 import java.time.LocalDate
 
@@ -44,9 +42,15 @@ import java.time.LocalDate
 class SlettKvitteringerIntegrasjonsTest : FellesTestOppsett() {
     private val fnr = "12345678900"
 
+    @BeforeAll
+    fun konfigurerUnleash() {
+        fakeUnleash.resetAll()
+    }
+
     @Test
     @Order(1)
     fun `Det finnes ingen søknader`() {
+        fakeUnleash.enable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
         val soknader = hentSoknaderMetadata(fnr)
         soknader.shouldBeEmpty()
     }
@@ -121,7 +125,7 @@ class SlettKvitteringerIntegrasjonsTest : FellesTestOppsett() {
                 PERMISJON_V2,
                 "JOBBET_DU_GRADERT_0",
                 ANDRE_INNTEKTSKILDER_V2,
-                UTLAND_V2,
+                OPPHOLD_UTENFOR_EOS,
                 BRUKTE_REISETILSKUDDET,
                 TRANSPORT_TIL_DAGLIG,
                 REISE_MED_BIL,

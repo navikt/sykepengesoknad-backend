@@ -14,6 +14,7 @@ import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
+import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS
 import no.nav.helse.flex.ventPåRecords
 import no.nav.syfo.model.sykmelding.model.GradertDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
@@ -31,6 +32,8 @@ class AutomatiskPapirsykmeldingOpprydningTest : FellesTestOppsett() {
     @BeforeEach
     fun setUp() {
         flexSyketilfelleMockRestServiceServer.reset()
+        fakeUnleash.resetAll()
+        fakeUnleash.enable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
     }
 
     companion object {
@@ -91,7 +94,7 @@ class AutomatiskPapirsykmeldingOpprydningTest : FellesTestOppsett() {
                 .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
                 .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
                 .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
-                .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
+                .besvarSporsmal(tag = "OPPHOLD_UTENFOR_EOS", svar = "NEI")
                 .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
                 .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
                 .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)

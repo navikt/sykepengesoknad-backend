@@ -10,6 +10,7 @@ import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
+import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS
 import no.nav.helse.flex.util.serialisertTilString
 import no.nav.syfo.sykmelding.kafka.model.ShortNameKafkaDTO
 import no.nav.syfo.sykmelding.kafka.model.SporsmalOgSvarKafkaDTO
@@ -17,10 +18,7 @@ import no.nav.syfo.sykmelding.kafka.model.SvartypeKafkaDTO
 import org.amshove.kluent.*
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.awaitility.Awaitility.await
-import org.junit.jupiter.api.MethodOrderer
-import org.junit.jupiter.api.Order
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestMethodOrder
+import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 import java.util.concurrent.TimeUnit
@@ -42,9 +40,15 @@ class KorrigerteEgenmeldingsdagerTest : FellesTestOppsett() {
                 ),
         )
 
+    @BeforeAll
+    fun konfigurerUnleash() {
+        fakeUnleash.resetAll()
+    }
+
     @Test
     @Order(1)
     fun `Arbeidstakersøknad opprettes`() {
+        fakeUnleash.enable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
         mockFlexSyketilfelleSykeforloep(
             sykmeldingKafkaMessage.sykmelding.id,
             sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder.minOf { it.fom },
@@ -76,7 +80,7 @@ class KorrigerteEgenmeldingsdagerTest : FellesTestOppsett() {
                 .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
                 .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
                 .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
-                .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
+                .besvarSporsmal(tag = "OPPHOLD_UTENFOR_EOS", svar = "NEI")
                 .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
                 .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
                 .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)

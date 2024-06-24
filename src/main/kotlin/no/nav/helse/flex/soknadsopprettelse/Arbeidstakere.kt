@@ -3,7 +3,6 @@ package no.nav.helse.flex.soknadsopprettelse
 import no.nav.helse.flex.domain.Soknadsperiode
 import no.nav.helse.flex.domain.Soknadstype.GRADERT_REISETILSKUDD
 import no.nav.helse.flex.domain.Sporsmal
-import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Svartype.DATO
 import no.nav.helse.flex.domain.Svartype.JA_NEI
 import no.nav.helse.flex.domain.Sykepengesoknad
@@ -16,7 +15,6 @@ import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmOpp
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.utenlandsksykmelding.utenlandskSykmeldingSporsmal
 import no.nav.helse.flex.soknadsopprettelse.undersporsmal.jobbetDuUndersporsmal
 import no.nav.helse.flex.util.DatoUtil.formatterPeriode
-import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
 interface MedlemskapSporsmalTag
@@ -49,7 +47,11 @@ fun settOppSoknadArbeidstaker(
         )
         add(ferieSporsmal(sykepengesoknad.fom!!, sykepengesoknad.tom!!))
         add(permisjonSporsmal(sykepengesoknad.fom, sykepengesoknad.tom))
-        add(utenlandsoppholdSporsmal(sykepengesoknad.fom, sykepengesoknad.tom))
+        if (soknadOptions.nyttOppholdUtenforEOSEnabled) {
+            add(oppholdUtenforEOSSporsmal(sykepengesoknad.fom, sykepengesoknad.tom))
+        } else {
+            add(gammeltUtenlandsoppholdArbeidstakerSporsmal(sykepengesoknad.fom, sykepengesoknad.tom))
+        }
         add(tilSlutt())
         addAll(yrkesskade.yrkeskadeSporsmal())
 
@@ -100,28 +102,6 @@ private fun tilbakeIFulltArbeidSporsmal(soknadMetadata: Sykepengesoknad): Sporsm
                     svartype = DATO,
                     min = soknadMetadata.fom.format(ISO_LOCAL_DATE),
                     max = soknadMetadata.tom.format(ISO_LOCAL_DATE),
-                ),
-            ),
-    )
-}
-
-fun utenlandsoppholdSporsmal(
-    fom: LocalDate,
-    tom: LocalDate,
-): Sporsmal {
-    return Sporsmal(
-        tag = UTLAND_V2,
-        sporsmalstekst = "Var du på reise utenfor EU/EØS mens du var sykmeldt ${formatterPeriode(fom, tom)}?",
-        svartype = JA_NEI,
-        kriterieForVisningAvUndersporsmal = JA,
-        undersporsmal =
-            listOf(
-                Sporsmal(
-                    tag = UTLAND_NAR_V2,
-                    sporsmalstekst = "Når var du utenfor EU/EØS?",
-                    svartype = Svartype.PERIODER,
-                    min = fom.format(ISO_LOCAL_DATE),
-                    max = tom.format(ISO_LOCAL_DATE),
                 ),
             ),
     )

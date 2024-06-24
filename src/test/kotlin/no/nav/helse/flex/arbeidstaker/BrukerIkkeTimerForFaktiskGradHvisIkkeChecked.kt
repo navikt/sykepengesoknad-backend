@@ -6,18 +6,15 @@ import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
 import no.nav.helse.flex.sendSykmelding
-import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER_V2
-import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
-import no.nav.helse.flex.soknadsopprettelse.FERIE_V2
-import no.nav.helse.flex.soknadsopprettelse.PERMISJON_V2
-import no.nav.helse.flex.soknadsopprettelse.TILBAKE_I_ARBEID
-import no.nav.helse.flex.soknadsopprettelse.UTLAND_V2
+import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.testdata.gradertSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
+import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS
 import no.nav.helse.flex.ventPåRecords
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
@@ -28,6 +25,12 @@ class BrukerIkkeTimerForFaktiskGradHvisIkkeChecked : FellesTestOppsett() {
     private val fnr = "12345678900"
     private val start = LocalDate.of(2020, 9, 22)
     private val slutt = LocalDate.of(2020, 10, 10)
+
+    @BeforeAll
+    fun konfigurerUnleash() {
+        fakeUnleash.resetAll()
+        fakeUnleash.enable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
+    }
 
     @Test
     fun `1 - vi oppretter en arbeidstakersoknad`() {
@@ -59,7 +62,7 @@ class BrukerIkkeTimerForFaktiskGradHvisIkkeChecked : FellesTestOppsett() {
             .besvarSporsmal(TILBAKE_I_ARBEID, "NEI")
             .besvarSporsmal(FERIE_V2, "NEI")
             .besvarSporsmal(PERMISJON_V2, "NEI")
-            .besvarSporsmal(UTLAND_V2, "NEI")
+            .besvarSporsmal(OPPHOLD_UTENFOR_EOS, "NEI")
             .besvarSporsmal("JOBBET_DU_GRADERT_0", "JA", false)
             .besvarSporsmal("HVOR_MANGE_TIMER_PER_UKE_0", "23", false)
             .besvarSporsmal("HVOR_MYE_PROSENT_0", "CHECKED", false)

@@ -84,6 +84,7 @@ class SporsmalGenerator(
                 harTidligereUtenlandskSpm = harTidligereUtenlandskSpm,
                 yrkesskade = yrkesskadeSporsmalGrunnlag,
                 naringsdrivendeInntektsopplysningerEnabled = unleashToggles.naringsdrivendeInntektsopplysninger(soknad.fnr),
+                nyttOppholdUtenforEOSEnabled = unleashToggles.stillNySporsmalOmOppholdUtenforEOS(soknad.fnr),
             )
 
         if (erEnkeltstaendeBehandlingsdagSoknad) {

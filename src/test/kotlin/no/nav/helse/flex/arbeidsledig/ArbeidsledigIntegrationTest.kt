@@ -8,8 +8,10 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
+import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS
 import org.amshove.kluent.`should be true`
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
@@ -22,6 +24,12 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
     companion object {
         const val FNR = "123456789"
         const val TIDLIGERE_ARBEIDSGIVER_ORGNR = "gamlejobben"
+    }
+
+    @BeforeAll
+    fun konfigurerUnleash() {
+        fakeUnleash.resetAll()
+        fakeUnleash.enable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
     }
 
     @Test
@@ -54,7 +62,7 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
                 FRISKMELDT,
                 ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER,
-                ARBEIDSLEDIG_UTLAND,
+                OPPHOLD_UTENFOR_EOS,
                 TIL_SLUTT,
             ),
         )
@@ -87,7 +95,7 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
             .isEqualTo(
                 "Har du hatt inntekt mens du har vært sykmeldt i perioden 1. - 15. februar 2020?",
             )
-        assertThat(soknaden.sporsmal!!.first { it.tag == ARBEIDSLEDIG_UTLAND }.sporsmalstekst)
+        assertThat(soknaden.sporsmal!!.first { it.tag == OPPHOLD_UTENFOR_EOS }.sporsmalstekst)
             .isEqualTo(
                 "Var du på reise utenfor EU/EØS mens du var sykmeldt 1. - 15. februar 2020?",
             )
@@ -107,7 +115,7 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
                         "Har du hatt inntekt mens du har vært sykmeldt i perioden 1. - 4. februar 2020?",
                     )
 
-                assertThat(it.rSSykepengesoknad.sporsmal!!.first { it.tag == ARBEIDSLEDIG_UTLAND }.sporsmalstekst)
+                assertThat(it.rSSykepengesoknad.sporsmal!!.first { it.tag == OPPHOLD_UTENFOR_EOS }.sporsmalstekst)
                     .isEqualTo(
                         "Var du på reise utenfor EU/EØS mens du var sykmeldt 1. - 4. februar 2020?",
                     )
@@ -161,7 +169,7 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
                         FRISKMELDT,
                         ARBEID_UTENFOR_NORGE,
                         ANDRE_INNTEKTSKILDER,
-                        ARBEIDSLEDIG_UTLAND,
+                        OPPHOLD_UTENFOR_EOS,
                         TIL_SLUTT,
                     ),
                 )
@@ -189,10 +197,9 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = FNR)
             .besvarSporsmal(ARBEID_UTENFOR_NORGE, "JA")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER, "NEI")
-            .besvarSporsmal(ARBEIDSLEDIG_UTLAND, "JA", ferdigBesvart = false)
-            .besvarSporsmal(UTLANDSOPPHOLD_SOKT_SYKEPENGER, "JA", ferdigBesvart = false)
+            .besvarSporsmal(OPPHOLD_UTENFOR_EOS, "JA", ferdigBesvart = false)
             .besvarSporsmal(
-                UTLAND_NAR,
+                OPPHOLD_UTENFOR_EOS_NAR,
                 svar =
                     "{\"fom\":\"${
                         LocalDate.of(2020, 2, 1).format(DateTimeFormatter.ISO_LOCAL_DATE)}\"," +

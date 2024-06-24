@@ -79,14 +79,14 @@ class ArbeidGjenopptattMuteringTest {
         val soknadUtenUtdanning =
             standardSoknad
                 .besvarsporsmal(TILBAKE_I_ARBEID, svar = "NEI")
-                .fjernSporsmal("UTLAND_V2")
+                .fjernSporsmal("OPPHOLD_UTENFOR_EOS")
 
-        soknadUtenUtdanning.sporsmal.find { it.tag == UTLAND_V2 }.`should be null`()
+        soknadUtenUtdanning.sporsmal.find { it.tag == OPPHOLD_UTENFOR_EOS }.`should be null`()
         soknadUtenUtdanning.sporsmal.shouldHaveSize(7)
 
         val mutertSoknad = soknadUtenUtdanning.arbeidGjenopptattMutering()
 
-        mutertSoknad.sporsmal.find { it.tag == UTLAND_V2 }.`should not be null`()
+        mutertSoknad.sporsmal.find { it.tag == OPPHOLD_UTENFOR_EOS }.`should not be null`()
         mutertSoknad.sporsmal.shouldHaveSize(8)
     }
 

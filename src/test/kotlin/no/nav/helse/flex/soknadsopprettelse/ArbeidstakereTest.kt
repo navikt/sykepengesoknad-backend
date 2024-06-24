@@ -1,10 +1,6 @@
 package no.nav.helse.flex.soknadsopprettelse
 
-import no.nav.helse.flex.domain.Soknadsperiode
-import no.nav.helse.flex.domain.Sporsmal
-import no.nav.helse.flex.domain.Svar
-import no.nav.helse.flex.domain.Svartype
-import no.nav.helse.flex.domain.Sykepengesoknad
+import no.nav.helse.flex.domain.*
 import no.nav.helse.flex.mock.opprettNyArbeidstakerSoknad
 import no.nav.helse.flex.oppdatersporsmal.soknad.muteringer.arbeidGjenopptattMutering
 import no.nav.helse.flex.oppdatersporsmal.soknad.muteringer.oppdaterMedSvarPaUtlandsopphold
@@ -233,7 +229,7 @@ class ArbeidstakereTest {
         var sykepengesoknad = opprettNyArbeidstakerSoknad()
         sykepengesoknad =
             sykepengesoknad.replaceSporsmal(
-                sykepengesoknad.getSporsmalMedTag(UTLAND_NAR_V2).copy(
+                sykepengesoknad.getSporsmalMedTag(OPPHOLD_UTENFOR_EOS_NAR).copy(
                     min = null,
                     max = null,
                     svar = listOf(Svar(null, DatoUtil.periodeTilJson(nesteLordag, nesteSondag))),
@@ -260,7 +256,7 @@ class ArbeidstakereTest {
             )
         sykepengesoknad =
             sykepengesoknad.replaceSporsmal(
-                sykepengesoknad.getSporsmalMedTag(UTLAND_NAR_V2).copy(
+                sykepengesoknad.getSporsmalMedTag(OPPHOLD_UTENFOR_EOS_NAR).copy(
                     min = null,
                     max = null,
                     svar = listOf(Svar(null, DatoUtil.periodeTilJson(nesteMandag, nesteFredag))),
@@ -269,33 +265,6 @@ class ArbeidstakereTest {
         val oppdatertSoknad: Sykepengesoknad = sykepengesoknad.oppdaterMedSvarPaUtlandsopphold()
 
         assertThat(oppdatertSoknad.getSporsmalMedTagOrNull(UTLANDSOPPHOLD_SOKT_SYKEPENGER)).isNull()
-    }
-
-    @Test
-    fun leggerTilSporsmalHvisUtlandsoppholdErUtenforHelgOgFerie() {
-        val nesteMandag = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.MONDAY))
-        val nesteFredag = nesteMandag.with(TemporalAdjusters.next(DayOfWeek.FRIDAY))
-
-        var sykepengesoknad = opprettNyArbeidstakerSoknad()
-        sykepengesoknad =
-            sykepengesoknad.replaceSporsmal(
-                sykepengesoknad.getSporsmalMedTag(FERIE_NAR_V2).copy(
-                    min = null,
-                    max = null,
-                    svar = emptyList(),
-                ),
-            )
-        sykepengesoknad =
-            sykepengesoknad.replaceSporsmal(
-                sykepengesoknad.getSporsmalMedTag(UTLAND_NAR_V2).copy(
-                    min = null,
-                    max = null,
-                    svar = listOf(Svar(null, DatoUtil.periodeTilJson(nesteMandag, nesteFredag))),
-                ),
-            )
-        val oppdatertSoknad: Sykepengesoknad = sykepengesoknad.oppdaterMedSvarPaUtlandsopphold()
-
-        assertThat(oppdatertSoknad.getSporsmalMedTagOrNull(UTLANDSOPPHOLD_SOKT_SYKEPENGER)).isNotNull
     }
 
     @Test
