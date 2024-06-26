@@ -188,4 +188,33 @@ class OppholdUtlandIntegrationTest : FellesTestOppsett() {
 
         hentSoknaderMetadata(fnr).size `should be equal to` 2
     }
+
+    @Test
+    fun `12 - utlandssøknad som avbrytes blir publisert på kafka, og ikke slettet fra db`() {
+        hentSoknaderMetadata(fnr).let {
+            it.size `should be equal to` 2
+            avbrytSoknad(it.last().id, fnr)
+            sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().let { kafkaSoknader ->
+                kafkaSoknader.size `should be equal to` 1
+                kafkaSoknader.first().type `should be equal to` SoknadstypeDTO.OPPHOLD_UTLAND
+                kafkaSoknader.first().status `should be equal to` SoknadsstatusDTO.AVBRUTT
+            }
+        }
+
+        hentSoknaderMetadata(fnr).size `should be equal to` 2
+    }
+
+    @Test
+    fun `13 - utlandssøknad kan gjenåpnes`() {
+        hentSoknaderMetadata(fnr).let {
+            it.size `should be equal to` 2
+            gjenapneSoknad(it.last().id, fnr)
+            sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().let { kafkaSoknader ->
+                kafkaSoknader.size `should be equal to` 1
+                kafkaSoknader.first().type `should be equal to` SoknadstypeDTO.OPPHOLD_UTLAND
+                kafkaSoknader.first().status `should be equal to` SoknadsstatusDTO.NY
+            }
+        }
+        hentSoknaderMetadata(fnr).size `should be equal to` 2
+    }
 }
