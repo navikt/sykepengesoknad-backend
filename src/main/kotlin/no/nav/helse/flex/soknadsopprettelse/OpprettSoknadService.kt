@@ -171,7 +171,9 @@ class OpprettSoknadService(
         metrikk.tellSoknadOpprettet(Soknadstype.OPPHOLD_UTLAND)
 
         log.info("Oppretter søknad for utenlandsopphold: {}", oppholdUtlandSoknad.id)
-        return sykepengesoknadDAO.finnSykepengesoknad(oppholdUtlandSoknad.id)
+        val sykepengesoknad = sykepengesoknadDAO.finnSykepengesoknad(oppholdUtlandSoknad.id)
+        soknadProducer.soknadEvent(sykepengesoknad)
+        return sykepengesoknad
     }
 }
 
