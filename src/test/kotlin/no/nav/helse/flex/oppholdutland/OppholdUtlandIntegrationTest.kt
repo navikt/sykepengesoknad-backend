@@ -1,18 +1,11 @@
 package no.nav.helse.flex.oppholdutland
 
-import no.nav.helse.flex.FellesTestOppsett
-import no.nav.helse.flex.hentSoknad
-import no.nav.helse.flex.hentSoknaderMetadata
-import no.nav.helse.flex.korrigerSoknadMedResult
-import no.nav.helse.flex.opprettUtlandssoknad
-import no.nav.helse.flex.sendSoknadMedResult
+import no.nav.helse.flex.*
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.testutil.SoknadBesvarer
-import no.nav.helse.flex.tilSoknader
-import no.nav.helse.flex.ventPåRecords
-import org.assertj.core.api.Assertions.assertThat
+import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
@@ -24,39 +17,46 @@ import java.time.format.DateTimeFormatter
 class OppholdUtlandIntegrationTest : FellesTestOppsett() {
     final val fnr = "123456789"
 
+    private fun verifiserKafkaSoknader() {
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().let { kafkaSoknader ->
+            kafkaSoknader.size `should be equal to` 1
+            kafkaSoknader.first().type `should be equal to` SoknadstypeDTO.OPPHOLD_UTLAND
+            kafkaSoknader.first().status `should be equal to` SoknadsstatusDTO.NY
+        }
+    }
+
     @Test
     fun `01 - utlandssøknad opprettes`() {
         opprettUtlandssoknad(fnr)
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 0)
+        verifiserKafkaSoknader()
 
-        assertThat(hentSoknaderMetadata(fnr)).hasSize(1)
+        hentSoknader(fnr).size `should be equal to` 1
     }
 
     @Test
     fun `02 - utlandssøknad opprettes ikke når det allerede finnes en`() {
         opprettUtlandssoknad(fnr)
-
-        assertThat(hentSoknaderMetadata(fnr)).hasSize(1)
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 0)
+        hentSoknaderMetadata(fnr).size `should be equal to` 1
     }
 
     @Test
     fun `03 - søknaden har forventa spørsmål`() {
         val soknader = hentSoknaderMetadata(fnr)
-        assertThat(soknader).hasSize(1)
+        soknader.size `should be equal to` 1
 
         val soknad =
             hentSoknad(
                 soknadId = soknader.first().id,
                 fnr = fnr,
             )
-        assertThat(soknad.sporsmal!!.map { it.tag }).isEqualTo(
+        soknad.sporsmal!!.map { it.tag } `should be equal to`
             listOf(
                 PERIODEUTLAND,
                 LAND,
                 ARBEIDSGIVER,
                 TIL_SLUTT,
-            ),
-        )
+            )
     }
 
     @Test
@@ -81,12 +81,11 @@ class OppholdUtlandIntegrationTest : FellesTestOppsett() {
                 soknadId = hentSoknaderMetadata(fnr).first().id,
                 fnr = fnr,
             )
-        assertThat(soknadEtter.getSporsmalMedTag("LAND").svar.map { it.verdi }).isEqualTo(
+        soknadEtter.getSporsmalMedTag("LAND").svar.map { it.verdi } `should be equal to`
             listOf(
                 "Syden",
                 "Kina",
-            ),
-        )
+            )
     }
 
     @Test
@@ -151,7 +150,7 @@ class OppholdUtlandIntegrationTest : FellesTestOppsett() {
                 soknadId = hentSoknaderMetadata(fnr).first().id,
                 fnr = fnr,
             )
-        assertThat(soknadEtter.sporsmal?.last()?.undersporsmal?.get(0)?.tag).isEqualTo("BEKREFT_OPPLYSNINGER")
+        soknadEtter.sporsmal?.last()?.undersporsmal?.get(0)?.tag `should be equal to` "BEKREFT_OPPLYSNINGER"
     }
 
     @Test
@@ -165,8 +164,8 @@ class OppholdUtlandIntegrationTest : FellesTestOppsett() {
         SoknadBesvarer(soknad, this, fnr).sendSoknad()
 
         val soknadPaKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()
-        assertThat(soknadPaKafka.type).isEqualTo(SoknadstypeDTO.OPPHOLD_UTLAND)
-        assertThat(soknadPaKafka.status).isEqualTo(SoknadsstatusDTO.SENDT)
+        soknadPaKafka.type `should be equal to` SoknadstypeDTO.OPPHOLD_UTLAND
+        soknadPaKafka.status `should be equal to` SoknadsstatusDTO.SENDT
     }
 
     @Test
@@ -182,10 +181,40 @@ class OppholdUtlandIntegrationTest : FellesTestOppsett() {
 
     @Test
     fun `11 - utlandssøknad opprettes når det allerede finnes en som er sendt`() {
-        assertThat(hentSoknaderMetadata(fnr)).hasSize(1)
+        hentSoknaderMetadata(fnr).size `should be equal to` 1
 
         opprettUtlandssoknad(fnr)
+        verifiserKafkaSoknader()
 
-        assertThat(hentSoknaderMetadata(fnr)).hasSize(2)
+        hentSoknaderMetadata(fnr).size `should be equal to` 2
+    }
+
+    @Test
+    fun `12 - utlandssøknad som avbrytes blir publisert på kafka, og ikke slettet fra db`() {
+        hentSoknaderMetadata(fnr).let {
+            it.size `should be equal to` 2
+            avbrytSoknad(it.last().id, fnr)
+            sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().let { kafkaSoknader ->
+                kafkaSoknader.size `should be equal to` 1
+                kafkaSoknader.first().type `should be equal to` SoknadstypeDTO.OPPHOLD_UTLAND
+                kafkaSoknader.first().status `should be equal to` SoknadsstatusDTO.AVBRUTT
+            }
+        }
+
+        hentSoknaderMetadata(fnr).size `should be equal to` 2
+    }
+
+    @Test
+    fun `13 - utlandssøknad kan gjenåpnes`() {
+        hentSoknaderMetadata(fnr).let {
+            it.size `should be equal to` 2
+            gjenapneSoknad(it.last().id, fnr)
+            sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().let { kafkaSoknader ->
+                kafkaSoknader.size `should be equal to` 1
+                kafkaSoknader.first().type `should be equal to` SoknadstypeDTO.OPPHOLD_UTLAND
+                kafkaSoknader.first().status `should be equal to` SoknadsstatusDTO.NY
+            }
+        }
+        hentSoknaderMetadata(fnr).size `should be equal to` 2
     }
 }

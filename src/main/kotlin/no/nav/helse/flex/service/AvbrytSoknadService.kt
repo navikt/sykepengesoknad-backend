@@ -1,7 +1,6 @@
 package no.nav.helse.flex.service
 
 import no.nav.helse.flex.domain.Soknadstatus
-import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.kafka.producer.SoknadProducer
 import no.nav.helse.flex.logger
@@ -33,21 +32,7 @@ class AvbrytSoknadService(
             }
             Soknadstatus.NY, Soknadstatus.FREMTIDIG -> {
                 metrikk.soknadAvbrutt(sykepengesoknad.soknadstype)
-                return when (sykepengesoknad.soknadstype) {
-                    Soknadstype.OPPHOLD_UTLAND -> {
-                        sykepengesoknadDAO.slettSoknad(sykepengesoknad)
-                    }
-                    Soknadstype.SELVSTENDIGE_OG_FRILANSERE,
-                    Soknadstype.ARBEIDSLEDIG,
-                    Soknadstype.ANNET_ARBEIDSFORHOLD,
-                    Soknadstype.BEHANDLINGSDAGER,
-                    Soknadstype.REISETILSKUDD,
-                    Soknadstype.GRADERT_REISETILSKUDD,
-                    Soknadstype.ARBEIDSTAKERE,
-                    -> {
-                        sykepengesoknad.avbrytOgPubliser()
-                    }
-                }
+                return sykepengesoknad.avbrytOgPubliser()
             }
             else -> {
                 log.error("Kan ikke avbryte søknad med status: {}", sykepengesoknad.status)

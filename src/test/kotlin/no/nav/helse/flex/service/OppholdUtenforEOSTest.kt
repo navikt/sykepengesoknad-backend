@@ -8,6 +8,7 @@ import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
+import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
@@ -91,11 +92,19 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
         }
     }
 
-    private fun verifiserKafkaSoknader() {
-        val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
-        kafkaSoknader.size `should be equal to` 1
-        kafkaSoknader.first().status `should be equal to` SoknadsstatusDTO.SENDT
-        kafkaSoknader.first().arbeidUtenforNorge `should be equal to` null
+    private fun verifiserKafkaSoknader(forventetAntallSoknader: Int = 1) {
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = forventetAntallSoknader).tilSoknader().let { kafkaSoknader ->
+            kafkaSoknader.size `should be equal to` forventetAntallSoknader
+            kafkaSoknader.first().status `should be equal to` SoknadsstatusDTO.SENDT
+            kafkaSoknader.first().type `should be equal to` SoknadstypeDTO.ARBEIDSTAKERE
+            kafkaSoknader.first().arbeidUtenforNorge `should be equal to` null
+
+            // Sjekker at opphold_utland søknad er lagt på kafka
+            if (forventetAntallSoknader == 2) {
+                kafkaSoknader[1].status `should be equal to` SoknadsstatusDTO.NY
+                kafkaSoknader[1].type `should be equal to` SoknadstypeDTO.OPPHOLD_UTLAND
+            }
+        }
         juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
     }
 
@@ -131,7 +140,11 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
         flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
         opprettUtlandssoknad(fnr)
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 0)
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().let { kafkaSoknader ->
+            kafkaSoknader.size `should be equal to` 1
+            kafkaSoknader.first().type `should be equal to` SoknadstypeDTO.OPPHOLD_UTLAND
+            kafkaSoknader.first().status `should be equal to` SoknadsstatusDTO.NY
+        }
 
         hentSoknaderMetadata(fnr).size `should be equal to` 1
 
@@ -322,7 +335,7 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
                 utenforEOSTom = oppholdUtenforEOSIHelePerioden,
             ).sendSoknad()
         sendtSykepengeSoknad.status `should be equal to` sendtSykepengeSoknad.status
-        verifiserKafkaSoknader()
+        verifiserKafkaSoknader(2)
 
         val soknadFraDatabase = sykepengesoknadDAO.finnSykepengesoknad(sendtSykepengeSoknad.id)
         soknadFraDatabase.sendt `should be equal to` soknadFraDatabase.sendtArbeidsgiver
@@ -345,7 +358,7 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
             soknadBesvarer(soknaden, ferieFom = ferieStarterForsteDagenIPerioden, ferieTom = ferieVarerIFemDager)
                 .sendSoknad()
         sendtSykepengeSoknad.status `should be equal to` sendtSykepengeSoknad.status
-        verifiserKafkaSoknader()
+        verifiserKafkaSoknader(2)
 
         val soknadFraDatabase = sykepengesoknadDAO.finnSykepengesoknad(sendtSykepengeSoknad.id)
         soknadFraDatabase.sendt `should be equal to` soknadFraDatabase.sendtArbeidsgiver
@@ -413,7 +426,7 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
                 .sendSoknad()
 
         sendtSykepengeSoknad.status `should be equal to` sendtSykepengeSoknad.status
-        verifiserKafkaSoknader()
+        verifiserKafkaSoknader(2)
 
         val soknadFraDatabase = sykepengesoknadDAO.finnSykepengesoknad(sendtSykepengeSoknad.id)
         soknadFraDatabase.sendt `should be equal to` soknadFraDatabase.sendtArbeidsgiver

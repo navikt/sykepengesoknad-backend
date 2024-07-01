@@ -17,7 +17,6 @@ import no.nav.helse.flex.controller.mapper.tilRSSykepengesoknad
 import no.nav.helse.flex.controller.mapper.tilRSSykepengesoknadMetadata
 import no.nav.helse.flex.domain.Avsendertype.BRUKER
 import no.nav.helse.flex.domain.Soknadstatus
-import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.exception.FeilStatusForOppdaterSporsmalException
@@ -211,25 +210,13 @@ class SoknadBrukerController(
         }
         val (soknadFraBase, _) = hentOgSjekkTilgangTilSoknad(id)
 
-        return when (soknadFraBase.soknadstype) {
-            Soknadstype.SELVSTENDIGE_OG_FRILANSERE,
-            Soknadstype.ARBEIDSTAKERE,
-            Soknadstype.ANNET_ARBEIDSFORHOLD,
-            Soknadstype.ARBEIDSLEDIG,
-            Soknadstype.REISETILSKUDD,
-            Soknadstype.GRADERT_REISETILSKUDD,
-            Soknadstype.BEHANDLINGSDAGER,
-            -> {
-                if (soknadFraBase.status !== Soknadstatus.AVBRUTT) {
-                    log.info("Kan ikke gjenåpne søknad som ikke er avbrutt: $id")
-                    throw IllegalArgumentException("Kan ikke gjenåpne søknad som ikke er avbrutt")
-                }
-                log.info("Gjenåpner søknad: ${soknadFraBase.id}")
-                gjenapneSoknadService.gjenapneSoknad(soknadFraBase)
-            }
-
-            Soknadstype.OPPHOLD_UTLAND -> log.error("Kallet gjenapneSoknad er ikke støttet for soknadstypen: ${Soknadstype.OPPHOLD_UTLAND}")
+        if (soknadFraBase.status !== Soknadstatus.AVBRUTT) {
+            log.info("Kan ikke gjenåpne søknad som ikke er avbrutt: $id")
+            throw IllegalArgumentException("Kan ikke gjenåpne søknad som ikke er avbrutt")
         }
+        log.info("Gjenåpner søknad: ${soknadFraBase.id}")
+        gjenapneSoknadService.gjenapneSoknad(soknadFraBase)
+        return
     }
 
     @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])

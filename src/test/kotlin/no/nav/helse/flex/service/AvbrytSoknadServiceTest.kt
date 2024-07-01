@@ -19,7 +19,7 @@ import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 
 @ExtendWith(MockitoExtension::class)
-class AvrytSoknadServiceTest {
+class AvbrytSoknadServiceTest {
     @Mock
     private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
 
@@ -53,7 +53,7 @@ class AvrytSoknadServiceTest {
         val soknad = settOppSoknadOppholdUtland("fnr")
         avbrytSoknadService.avbrytSoknad(soknad)
 
-        verify(sykepengesoknadDAO).slettSoknad(any<Sykepengesoknad>())
+        verify(sykepengesoknadDAO).avbrytSoknad(any(), any())
     }
 
     @Test

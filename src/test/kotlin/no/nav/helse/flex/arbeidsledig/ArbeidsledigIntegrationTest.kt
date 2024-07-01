@@ -9,7 +9,8 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS
-import org.amshove.kluent.`should be true`
+import org.amshove.kluent.`should be`
+import org.amshove.kluent.`should be equal to`
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer
@@ -43,20 +44,20 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
                 ),
             )
 
-        assertThat(soknader).hasSize(1)
+        soknader.size `should be equal to` 1
         with(soknader.last()) {
-            assertThat(type).isEqualTo(SoknadstypeDTO.ARBEIDSLEDIG)
-            assertThat(tidligereArbeidsgiverOrgnummer).isEqualTo(TIDLIGERE_ARBEIDSGIVER_ORGNR)
+            type `should be equal to` SoknadstypeDTO.ARBEIDSLEDIG
+            tidligereArbeidsgiverOrgnummer `should be equal to` TIDLIGERE_ARBEIDSGIVER_ORGNR
         }
     }
 
     @Test
     fun `02 - Sjekk at søknaden inneholder alle nødvendige spørsmål`() {
         val soknader = hentSoknader(FNR)
-        assertThat(soknader).hasSize(1)
+        soknader.size `should be equal to` 1
 
         val soknaden = soknader.first()
-        assertThat(soknaden.sporsmal!!.map { it.tag }).isEqualTo(
+        soknaden.sporsmal!!.map { it.tag } `should be equal to`
             listOf(
                 ANSVARSERKLARING,
                 FRISKMELDT,
@@ -64,8 +65,7 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
                 ANDRE_INNTEKTSKILDER,
                 OPPHOLD_UTENFOR_EOS,
                 TIL_SLUTT,
-            ),
-        )
+            )
     }
 
     @Test
@@ -91,14 +91,10 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
                 fnr = FNR,
             )
 
-        assertThat(soknaden.sporsmal!!.first { it.tag == ANDRE_INNTEKTSKILDER }.sporsmalstekst)
-            .isEqualTo(
-                "Har du hatt inntekt mens du har vært sykmeldt i perioden 1. - 15. februar 2020?",
-            )
-        assertThat(soknaden.sporsmal!!.first { it.tag == OPPHOLD_UTENFOR_EOS }.sporsmalstekst)
-            .isEqualTo(
-                "Var du på reise utenfor EU/EØS mens du var sykmeldt 1. - 15. februar 2020?",
-            )
+        soknaden.getSporsmalMedTag(ANDRE_INNTEKTSKILDER).sporsmalstekst `should be equal to`
+            "Har du hatt inntekt mens du har vært sykmeldt i perioden 1. - 15. februar 2020?"
+        soknaden.getSporsmalMedTag(OPPHOLD_UTENFOR_EOS).sporsmalstekst `should be equal to`
+            "Var du på reise utenfor EU/EØS mens du var sykmeldt 1. - 15. februar 2020?"
 
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = FNR)
             .besvarSporsmal(FRISKMELDT, "NEI", false)
@@ -107,18 +103,14 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
                 LocalDate.of(2020, 2, 5).format(DateTimeFormatter.ISO_LOCAL_DATE),
                 mutert = true,
             )
-            .also {
-                assertThat(it.muterteSoknaden).isTrue()
+            .also { soknadBesvarer ->
+                soknadBesvarer.muterteSoknaden `should be` true
 
-                assertThat(it.rSSykepengesoknad.sporsmal!!.first { it.tag == ANDRE_INNTEKTSKILDER }.sporsmalstekst)
-                    .isEqualTo(
-                        "Har du hatt inntekt mens du har vært sykmeldt i perioden 1. - 4. februar 2020?",
-                    )
+                soknadBesvarer.rSSykepengesoknad.getSporsmalMedTag(ANDRE_INNTEKTSKILDER).sporsmalstekst `should be equal to`
+                    "Har du hatt inntekt mens du har vært sykmeldt i perioden 1. - 4. februar 2020?"
 
-                assertThat(it.rSSykepengesoknad.sporsmal!!.first { it.tag == OPPHOLD_UTENFOR_EOS }.sporsmalstekst)
-                    .isEqualTo(
-                        "Var du på reise utenfor EU/EØS mens du var sykmeldt 1. - 4. februar 2020?",
-                    )
+                soknadBesvarer.rSSykepengesoknad.getSporsmalMedTag(OPPHOLD_UTENFOR_EOS).sporsmalstekst `should be equal to`
+                    "Var du på reise utenfor EU/EØS mens du var sykmeldt 1. - 4. februar 2020?"
             }
     }
 
@@ -136,15 +128,14 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
                 LocalDate.of(2020, 2, 1).format(DateTimeFormatter.ISO_LOCAL_DATE),
                 mutert = true,
             )
-            .also {
-                assertThat(it.rSSykepengesoknad.sporsmal!!.map { it.tag }).isEqualTo(
+            .also { soknadBesvarer ->
+                soknadBesvarer.rSSykepengesoknad.sporsmal!!.map { it.tag } `should be equal to`
                     listOf(
                         ANSVARSERKLARING,
                         FRISKMELDT,
                         ARBEID_UTENFOR_NORGE,
                         TIL_SLUTT,
-                    ),
-                )
+                    )
             }
     }
 
@@ -162,8 +153,8 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
                 LocalDate.of(2020, 2, 4).format(DateTimeFormatter.ISO_LOCAL_DATE),
                 mutert = true,
             )
-            .also {
-                assertThat(it.rSSykepengesoknad.sporsmal!!.map { it.tag }).isEqualTo(
+            .also { soknadBesvarer ->
+                soknadBesvarer.rSSykepengesoknad.sporsmal!!.map { it.tag } `should be equal to`
                     listOf(
                         ANSVARSERKLARING,
                         FRISKMELDT,
@@ -171,8 +162,7 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
                         ANDRE_INNTEKTSKILDER,
                         OPPHOLD_UTENFOR_EOS,
                         TIL_SLUTT,
-                    ),
-                )
+                    )
             }
     }
 
@@ -217,10 +207,11 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
                 fnr = FNR,
             )
 
-        val json =
-            oppdaterSporsmalMedResult(FNR, soknaden.sporsmal!![0].copy(id = "FEILID"), soknadsId = soknaden.id)
-                .andExpect(MockMvcResultMatchers.status().isBadRequest).andReturn().response.contentAsString
-        assertThat(json).isEqualTo("""{"reason":"SPORSMAL_FINNES_IKKE_I_SOKNAD"}""")
+        oppdaterSporsmalMedResult(FNR, soknaden.sporsmal!![0].copy(id = "FEILID"), soknadsId = soknaden.id)
+            .andExpect(MockMvcResultMatchers.status().isBadRequest).andReturn().response.contentAsString
+            .also {
+                it `should be equal to` """{"reason":"SPORSMAL_FINNES_IKKE_I_SOKNAD"}"""
+            }
     }
 
     @Test
@@ -228,19 +219,23 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
         sendSoknad(FNR, hentSoknaderMetadata(FNR).first().id)
 
         val soknaden = hentSoknaderMetadata(FNR).first()
-        assertThat(soknaden.status).isEqualTo(RSSoknadstatus.SENDT)
+        soknaden.status `should be equal to` RSSoknadstatus.SENDT
 
-        val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
-        assertThat(soknader).hasSize(1)
+        val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2).tilSoknader()
+        soknader.size `should be equal to` 2
+        with(soknader.first()) {
+            type `should be equal to` SoknadstypeDTO.ARBEIDSLEDIG
+            status `should be equal to` SoknadsstatusDTO.SENDT
+            permitteringer?.size `should be equal to` 0
+            friskmeldt `should be equal to` LocalDate.of(2020, 2, 4)
+            arbeidUtenforNorge!! `should be` true
+            tidligereArbeidsgiverOrgnummer `should be equal to` TIDLIGERE_ARBEIDSGIVER_ORGNR
+            fravar!![0].fom `should be equal to` LocalDate.of(2020, 2, 1)
+            fravar!![0].tom `should be equal to` LocalDate.of(2020, 2, 3)
+        }
         with(soknader.last()) {
-            assertThat(type).isEqualTo(SoknadstypeDTO.ARBEIDSLEDIG)
-            assertThat(status).isEqualTo(SoknadsstatusDTO.SENDT)
-            assertThat(permitteringer).hasSize(0)
-            assertThat(friskmeldt).isEqualTo(LocalDate.of(2020, 2, 4))
-            arbeidUtenforNorge!!.`should be true`()
-            assertThat(tidligereArbeidsgiverOrgnummer).isEqualTo(TIDLIGERE_ARBEIDSGIVER_ORGNR)
-            assertThat(fravar!![0].fom).isEqualTo(LocalDate.of(2020, 2, 1))
-            assertThat(fravar!![0].tom).isEqualTo(LocalDate.of(2020, 2, 3))
+            type `should be equal to` SoknadstypeDTO.OPPHOLD_UTLAND
+            status `should be equal to` SoknadsstatusDTO.NY
         }
     }
 
@@ -252,32 +247,30 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
                 fnr = FNR,
             )
 
-        assertThat(soknaden.status).isEqualTo(RSSoknadstatus.SENDT)
+        soknaden.status `should be equal to` RSSoknadstatus.SENDT
 
-        val json =
-            oppdaterSporsmalMedResult(FNR, soknaden.sporsmal!![0], soknadsId = soknaden.id)
-                .andExpect(MockMvcResultMatchers.status().isBadRequest).andReturn().response.contentAsString
-        assertThat(json).isEqualTo("""{"reason":"FEIL_STATUS_FOR_OPPDATER_SPORSMAL"}""")
+        oppdaterSporsmalMedResult(FNR, soknaden.sporsmal!![0], soknadsId = soknaden.id)
+            .andExpect(MockMvcResultMatchers.status().isBadRequest).andReturn().response.contentAsString
+            .also {
+                it `should be equal to` """{"reason":"FEIL_STATUS_FOR_OPPDATER_SPORSMAL"}"""
+            }
     }
 
     @Test
     fun `12 - Det virker å hente metadata med det snart (høsten 2023) utdaterte acr claimet`() {
         val soknadMetadataResponse = hentSoknaderMetadataCustomAcr(FNR, "Level4")
-
-        assertThat(soknadMetadataResponse).isEqualTo("200")
+        soknadMetadataResponse `should be equal to` "200"
     }
 
     @Test
     fun `13 - Det virker ikke å hente metadata med et ugyldig acr claim`() {
         val soknadMetadataResponse = hentSoknaderMetadataCustomAcr(FNR, "doNotLetMeIn")
-
-        assertThat(soknadMetadataResponse).isEqualTo("401")
+        soknadMetadataResponse `should be equal to` "401"
     }
 
     @Test
     fun `14 - Det virker å hente metadata med det nye acr claimet`() {
         val soknadMetadataResponse = hentSoknaderMetadataCustomAcr(FNR, "idporten-loa-high")
-
-        assertThat(soknadMetadataResponse).isEqualTo("200")
+        soknadMetadataResponse `should be equal to` "200"
     }
 }
