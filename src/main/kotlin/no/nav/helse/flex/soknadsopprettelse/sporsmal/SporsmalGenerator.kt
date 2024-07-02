@@ -7,10 +7,12 @@ import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingClient
+import no.nav.helse.flex.medlemskap.MedlemskapVurderingRepository
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingRequest
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingResponse
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingSporsmal
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingSvarType
+import no.nav.helse.flex.medlemskap.hentKjentOppholdstillatelse
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.service.IdentService
@@ -30,6 +32,7 @@ class SporsmalGenerator(
     private val medlemskapVurderingClient: MedlemskapVurderingClient,
     private val environmentToggles: EnvironmentToggles,
     private val unleashToggles: UnleashToggles,
+    private val medlemskapVurderingRepository: MedlemskapVurderingRepository,
 ) {
     private val log = logger()
 
@@ -111,6 +114,16 @@ class SporsmalGenerator(
                         soknadOptions =
                             soknadOptions.copy(
                                 medlemskapSporsmalTags = lagMedlemsskapSporsmalTags(eksisterendeSoknader, soknad),
+                                // TODO: Refaktorer hentOppholdstillatelse() ut av lagMedlemsskapSporsmalTags()
+                                //  sånn at vi slipper å gå til databasen rett etter vi har hentet
+                                //  og lagret medlemskapsvurdering.
+                                kjentOppholdstillatelse =
+                                    medlemskapVurderingRepository.findBySykepengesoknadIdAndFomAndTom(
+                                        sykepengesoknadId = soknad.id,
+                                        // fom og tom vil ikke være tomme for Arbeidssiduasjon.ARBEIDSTAKER.
+                                        fom = soknad.fom!!,
+                                        tom = soknad.tom!!,
+                                    )?.hentKjentOppholdstillatelse(),
                             ),
                         andreKjenteArbeidsforhold = andreKjenteArbeidsforhold,
                     )

@@ -3,14 +3,23 @@ package no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Visningskriterie
+import no.nav.helse.flex.medlemskap.KjentOppholdstillatelse
 import no.nav.helse.flex.soknadsopprettelse.*
+import no.nav.helse.flex.util.DatoUtil
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
-fun lagSporsmalOmOppholdstillatelse(tom: LocalDate): Sporsmal {
+fun lagSporsmalOmOppholdstillatelse(
+    tom: LocalDate,
+    // kjentOppholdstillatelse skal aldri være null siden vi kaster exception hvis vi ikke mottar den sammen med
+    // spørsmål om medlemskap OPPHOLDSTILLATELSE fra LovMe.
+    kjentOppholdstillatelse: KjentOppholdstillatelse?,
+): Sporsmal {
     return Sporsmal(
-        tag = MEDLEMSKAP_OPPHOLDSTILLATELSE,
-        sporsmalstekst = "Har du oppholdstillatelse fra Utlendingsdirektoratet?",
+        tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_V2,
+        sporsmalstekst = "Har Utlendingsdirektoratet gitt deg en oppholdstillatelse før ${DatoUtil.formatterDato(
+            kjentOppholdstillatelse?.fom!!,
+        )}?",
         svartype = Svartype.JA_NEI,
         kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
         undersporsmal =
@@ -26,44 +35,11 @@ fun lagSporsmalOmOppholdstillatelse(tom: LocalDate): Sporsmal {
                     max = tom.format(ISO_LOCAL_DATE),
                 ),
                 Sporsmal(
-                    tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_GRUPPE,
-                    sporsmalstekst = "Er oppholdstillatelsen midlertidig eller permanent?",
-                    svartype = Svartype.RADIO_GRUPPE,
-                    undersporsmal =
-                        listOf(
-                            Sporsmal(
-                                tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_MIDLERTIDIG,
-                                sporsmalstekst = "Midlertidig",
-                                svartype = Svartype.RADIO,
-                                kriterieForVisningAvUndersporsmal = Visningskriterie.CHECKED,
-                                undersporsmal =
-                                    listOf(
-                                        Sporsmal(
-                                            tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_MIDLERTIDIG_PERIODE,
-                                            sporsmalstekst = "Periode for oppholdstillatelse",
-                                            svartype = Svartype.PERIODE,
-                                            min = tom.minusYears(10).format(ISO_LOCAL_DATE),
-                                            max = tom.plusYears(10).format(ISO_LOCAL_DATE),
-                                        ),
-                                    ),
-                            ),
-                            Sporsmal(
-                                tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_PERMANENT,
-                                sporsmalstekst = "Permanent",
-                                svartype = Svartype.RADIO,
-                                kriterieForVisningAvUndersporsmal = Visningskriterie.CHECKED,
-                                undersporsmal =
-                                    listOf(
-                                        Sporsmal(
-                                            tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_PERMANENT_DATO,
-                                            sporsmalstekst = "Fra og med",
-                                            svartype = Svartype.DATO,
-                                            min = tom.minusYears(10).format(ISO_LOCAL_DATE),
-                                            max = tom.format(ISO_LOCAL_DATE),
-                                        ),
-                                    ),
-                            ),
-                        ),
+                    tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_PERIODE,
+                    sporsmalstekst = "Hvilken periode gjelder denne oppholdstillatelsen?",
+                    svartype = Svartype.PERIODE,
+                    min = tom.minusYears(10).format(ISO_LOCAL_DATE),
+                    max = tom.plusYears(10).format(ISO_LOCAL_DATE),
                 ),
             ),
     )

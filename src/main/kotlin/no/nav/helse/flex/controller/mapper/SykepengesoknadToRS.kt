@@ -116,6 +116,7 @@ fun Sykepengesoknad.tilRSSykepengesoknad() =
         inntektsopplysningerInnsendingId = this.inntektsopplysningerInnsendingId,
         inntektsopplysningerInnsendingDokumenter = this.inntektsopplysningerInnsendingDokumenter?.map { it.tittel },
         forstegangssoknad = this.forstegangssoknad,
+        kjentOppholdstillatelse = this.kjentOppholdstillatelse,
     )
 
 fun Sykepengesoknad.tilRSSykepengesoknadMetadata() =

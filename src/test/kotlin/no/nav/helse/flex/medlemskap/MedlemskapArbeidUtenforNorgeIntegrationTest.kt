@@ -57,6 +57,11 @@ class MedlemskapArbeidUtenforNorgeIntegrationTest : FellesTestOppsett() {
                             MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
                             MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE,
                         ),
+                    kjentOppholdstillatelse =
+                        KjentOppholdstillatelse(
+                            fom = LocalDate.of(2023, 1, 1).minusMonths(1),
+                            tom = LocalDate.of(2023, 1, 7).plusMonths(1),
+                        ),
                 ).serialisertTilString(),
             ),
         )
@@ -97,7 +102,7 @@ class MedlemskapArbeidUtenforNorgeIntegrationTest : FellesTestOppsett() {
                 MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
                 MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
                 OPPHOLD_UTENFOR_EOS,
-                MEDLEMSKAP_OPPHOLDSTILLATELSE,
+                MEDLEMSKAP_OPPHOLDSTILLATELSE_V2,
                 TIL_SLUTT,
             ),
         )

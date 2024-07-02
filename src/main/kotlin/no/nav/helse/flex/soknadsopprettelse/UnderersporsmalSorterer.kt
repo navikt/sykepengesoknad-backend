@@ -26,7 +26,9 @@ private fun Sporsmal.sorterUndersporsmal(): Sporsmal {
                     REISE_MED_BIL -> it.sorteringReiseMedBil()
                     UTENLANDSK_SYKMELDING_BOSTED -> it.sorteringBosted()
                     YRKESSKADE_V2_VELG_DATO -> it.sorteringYrkesskader()
-                    MEDLEMSKAP_OPPHOLDSTILLATELSE -> it.sorteringMedlemskapOppholdstillatelse()
+                    MEDLEMSKAP_OPPHOLDSTILLATELSE,
+                    MEDLEMSKAP_OPPHOLDSTILLATELSE_V2,
+                    -> it.sorteringMedlemskapOppholdstillatelse()
                     MEDLEMSKAP_OPPHOLDSTILLATELSE_GRUPPE -> it.sorteringMedlemskapOppholdstillatelseGruppering()
                     MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_GRUPPERING -> it.sorteringMedlemskapArbeidUtenforNorgeGruppering()
                     MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_GRUPPERING -> it.sorteringMedlemskapOppholdUtenforNorgeGruppering()
@@ -64,7 +66,9 @@ private fun Sporsmal.sorteringVarigEndringJa(): String {
 private fun Sporsmal.sorteringMedlemskapOppholdstillatelse(): String {
     return when (tag) {
         MEDLEMSKAP_OPPHOLDSTILLATELSE_VEDTAKSDATO -> "0"
-        MEDLEMSKAP_OPPHOLDSTILLATELSE_GRUPPE -> "1"
+        MEDLEMSKAP_OPPHOLDSTILLATELSE_PERIODE,
+        MEDLEMSKAP_OPPHOLDSTILLATELSE_GRUPPE,
+        -> "1"
         else -> throw RuntimeException("Ukjent underspørsmål for medlemskap oppholdstillatelse: $tag")
     }
 }

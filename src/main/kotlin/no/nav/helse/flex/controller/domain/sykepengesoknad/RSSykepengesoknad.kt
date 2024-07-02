@@ -1,5 +1,6 @@
 package no.nav.helse.flex.controller.domain.sykepengesoknad
 
+import no.nav.helse.flex.medlemskap.KjentOppholdstillatelse
 import no.nav.helse.flex.soknadsopprettelse.ArbeidsforholdFraInntektskomponenten
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -34,6 +35,7 @@ data class RSSykepengesoknad(
     val inntektsopplysningerInnsendingDokumenter: List<String>? = null,
     val korrigeringsfristUtlopt: Boolean?,
     val forstegangssoknad: Boolean?,
+    val kjentOppholdstillatelse: KjentOppholdstillatelse? = null,
 ) {
     fun alleSporsmalOgUndersporsmal(): List<RSSporsmal> {
         return sporsmal?.flatten()?.toList() ?: emptyList()

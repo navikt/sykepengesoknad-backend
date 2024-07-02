@@ -55,7 +55,6 @@ class MedlemskapVurderingIntegrationTest : FellesTestOppsett() {
                     svar = MedlemskapVurderingSvarType.UAVKLART,
                     sporsmal =
                         listOf(
-                            MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
                             MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
                             MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
                             MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE,
@@ -69,7 +68,6 @@ class MedlemskapVurderingIntegrationTest : FellesTestOppsett() {
         response.svar `should be equal to` MedlemskapVurderingSvarType.UAVKLART
         response.sporsmal `should contain same`
             listOf(
-                MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
                 MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
                 MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
                 MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE,
@@ -103,40 +101,6 @@ class MedlemskapVurderingIntegrationTest : FellesTestOppsett() {
         // Vi lagrer ikke tom liste med spørsmål.
         val dbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
         dbRecords.first().sporsmal `should be equal to` null
-    }
-
-    @Test
-    fun `hentMedlemskapVurdering returnerer kjentOppholdstillatelse sammen med spørsmål om OPPHOLDSTILLATELSE`() {
-        val fnr = "31111111111"
-        val kjentOppholdstillatelse =
-            KjentOppholdstillatelse(
-                fom = LocalDate.of(2024, 1, 1),
-                tom = LocalDate.of(2024, 1, 31),
-            )
-        medlemskapMockWebServer.enqueue(
-            MockResponse().setResponseCode(200).setBody(
-                MedlemskapVurderingResponse(
-                    svar = MedlemskapVurderingSvarType.UAVKLART,
-                    sporsmal =
-                        listOf(
-                            MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
-                        ),
-                    kjentOppholdstillatelse = kjentOppholdstillatelse,
-                ).serialisertTilString(),
-            ),
-        )
-
-        val response = medlemskapVurderingClient.hentMedlemskapVurdering(request.copy(fnr = fnr))
-
-        response.svar `should be equal to` MedlemskapVurderingSvarType.UAVKLART
-        response.sporsmal `should contain same`
-            listOf(
-                MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
-            )
-        response.kjentOppholdstillatelse `should be equal to` kjentOppholdstillatelse
-
-        val dbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
-        dbRecords.first().kjentOppholdstillatelse!!.value `should be equal to` kjentOppholdstillatelse.serialisertTilString()
     }
 
     @Test
@@ -235,7 +199,7 @@ class MedlemskapVurderingIntegrationTest : FellesTestOppsett() {
                     svar = MedlemskapVurderingSvarType.JA,
                     sporsmal =
                         listOf(
-                            MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
+                            MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE,
                         ),
                 ).serialisertTilString(),
             ),
@@ -267,7 +231,7 @@ class MedlemskapVurderingIntegrationTest : FellesTestOppsett() {
                     svar = MedlemskapVurderingSvarType.NEI,
                     sporsmal =
                         listOf(
-                            MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
+                            MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE,
                         ),
                 ).serialisertTilString(),
             ),
@@ -289,7 +253,75 @@ class MedlemskapVurderingIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `hentMedlemskapVurdering kaster exception når vi får kjentOppholdstillatelse uten tilhørende spørsmål`() {
+    fun `hentMedlemskapVurdering returnerer kjentOppholdstillatelse sammen med OPPHOLDSTILLATELSE`() {
+        val fnr = "31111111111"
+        val kjentOppholdstillatelse =
+            KjentOppholdstillatelse(
+                fom = LocalDate.of(2024, 1, 1),
+                tom = LocalDate.of(2024, 1, 31),
+            )
+        medlemskapMockWebServer.enqueue(
+            MockResponse().setResponseCode(200).setBody(
+                MedlemskapVurderingResponse(
+                    svar = MedlemskapVurderingSvarType.UAVKLART,
+                    sporsmal =
+                        listOf(
+                            MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
+                        ),
+                    kjentOppholdstillatelse = kjentOppholdstillatelse,
+                ).serialisertTilString(),
+            ),
+        )
+
+        val response = medlemskapVurderingClient.hentMedlemskapVurdering(request.copy(fnr = fnr))
+
+        response.svar `should be equal to` MedlemskapVurderingSvarType.UAVKLART
+        response.sporsmal `should contain same`
+            listOf(
+                MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
+            )
+        response.kjentOppholdstillatelse `should be equal to` kjentOppholdstillatelse
+
+        val dbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
+        dbRecords.first().kjentOppholdstillatelse!!.value `should be equal to` kjentOppholdstillatelse.serialisertTilString()
+    }
+
+    @Test
+    fun `hentMedlemskapVurdering kaster exception når vi får OPPHOLDSTILLATELSE uten kjentOppholdstillatelse`() {
+        val fnr = "31111111117"
+        medlemskapMockWebServer.enqueue(
+            MockResponse().setResponseCode(200).setBody(
+                MedlemskapVurderingResponse(
+                    svar = MedlemskapVurderingSvarType.UAVKLART,
+                    sporsmal =
+                        listOf(
+                            MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
+                        ),
+                ).serialisertTilString(),
+            ),
+        )
+
+        val exception =
+            assertThrows<MedlemskapVurderingResponseException> {
+                medlemskapVurderingClient.hentMedlemskapVurdering(
+                    request.copy(fnr = fnr),
+                )
+            }
+
+        exception.message?.shouldStartWith("MedlemskapVurdering med Nav-Call-Id:")
+        exception.message?.shouldContain(
+            "mangler kjentOppholdstillatelse når spørsmål ${MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE} stilles.",
+        )
+
+        medlemskapVurderingRepository.findAll() shouldHaveSize 1
+
+        // Verdier blir lagret før vi validerer responsen sånn at vi kan feilsøke.
+        val dbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
+        dbRecords.first().sporsmal `should not be` null
+    }
+
+    @Test
+    fun `hentMedlemskapVurdering kaster exception når vi får kjentOppholdstillatelse uten OPPHOLDSTILLATELSE`() {
         val fnr = "31111111117"
         medlemskapMockWebServer.enqueue(
             MockResponse().setResponseCode(200).setBody(
