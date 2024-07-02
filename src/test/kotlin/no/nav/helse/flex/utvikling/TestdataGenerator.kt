@@ -8,6 +8,7 @@ import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_MEDLEMSKAP_SPORSMAL
+import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS
 import no.nav.helse.flex.util.serialisertTilString
 import no.nav.security.token.support.core.api.Unprotected
 import no.nav.syfo.model.sykmelding.arbeidsgiver.ArbeidsgiverAGDTO
@@ -86,8 +87,9 @@ class TestdataGenerator {
     }
 
     @PostConstruct
-    fun toggleMedlemskapSporsmalPaa() {
+    fun toggleSporsmal() {
         fakeUnleash.enable(UNLEASH_CONTEXT_MEDLEMSKAP_SPORSMAL)
+        fakeUnleash.enable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
     }
 
     @PostConstruct
@@ -97,7 +99,7 @@ class TestdataGenerator {
                 fnr = FNR,
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
                 statusEvent = STATUS_SENDT,
-                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = "123454543", orgNavn = "Gatekjøkkenet"),
+                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = "987654321", orgNavn = "Gatekjøkkenet"),
             )
         val sykmelding =
             skapArbeidsgiverSykmelding(
