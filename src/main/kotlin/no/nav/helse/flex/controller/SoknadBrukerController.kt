@@ -396,8 +396,6 @@ class SoknadBrukerController(
         return korrigerSoknadService.utvidSoknadMedKorrigeringsfristUtlopt(this, identer)
     }
 
-
-
     private fun JwtTokenClaims.hentIdenter(): FolkeregisterIdenter {
         return identService.hentFolkeregisterIdenterMedHistorikkForFnr(this.getStringClaim("pid"))
     }

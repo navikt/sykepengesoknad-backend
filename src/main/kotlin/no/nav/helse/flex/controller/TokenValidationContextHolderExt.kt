@@ -5,8 +5,6 @@ import no.nav.helse.flex.exception.IkkeTilgangException
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.security.token.support.core.jwt.JwtTokenClaims
 
-
-
 fun TokenValidationContextHolder.validerTokenXClaims(vararg tillattClient: String): JwtTokenClaims {
     val context = this.getTokenValidationContext()
     val claims = context.getClaims(TOKENX)

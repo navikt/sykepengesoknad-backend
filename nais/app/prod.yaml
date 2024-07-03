@@ -39,3 +39,4 @@ env:
   INNTEKTSKOMPONENTEN_AAD_CLIENT_ID: prod-fss.team-inntekt.inntektskomponenten
   INNSENDING_API_TOKENX_CLIENT_ID: prod-gcp:team-soknad:innsending-api
   INNSENDING_API_URL: http://innsending-api.team-soknad
+  HAG_API_ENABLED: false
