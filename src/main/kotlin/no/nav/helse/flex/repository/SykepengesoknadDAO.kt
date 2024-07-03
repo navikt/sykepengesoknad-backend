@@ -5,7 +5,9 @@ import no.nav.helse.flex.domain.*
 import no.nav.helse.flex.domain.exception.SlettSoknadException
 import no.nav.helse.flex.inntektsopplysninger.InntektsopplysningerDokumentType
 import no.nav.helse.flex.logger
+import no.nav.helse.flex.medlemskap.KjentOppholdstillatelse
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingRepository
+import no.nav.helse.flex.medlemskap.hentKjentOppholdstillatelse
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.soknadsopprettelse.ArbeidsforholdFraInntektskomponenten
 import no.nav.helse.flex.soknadsopprettelse.sorterSporsmal
@@ -92,11 +94,26 @@ class SykepengesoknadDAO(
 
         val soknadsPerioder = soknadsperiodeDAO.finnSoknadPerioder(soknadsIder)
         val sporsmal = sporsmalDAO.finnSporsmal(soknadsIder)
+
         val klipp =
             klippetSykepengesoknadRepository
                 .findAllBySykepengesoknadUuidIn(soknadsUUIDer)
                 .filter { it.klippVariant.toString().startsWith("SOKNAD") }
                 .groupBy { it.sykepengesoknadUuid }
+
+        val kjenteOppholdstillatelser: Map<String, KjentOppholdstillatelse?> =
+            // Vi henter kun medlemskapsvurdering for arbeidstakersøknader.
+            soknader.filter { it.second.soknadstype == Soknadstype.ARBEIDSTAKERE }
+                .associateBy(
+                    { it.second.id },
+                    {
+                        medlemskapVurderingRepository.findBySykepengesoknadIdAndFomAndTom(
+                            sykepengesoknadId = it.second.id,
+                            fom = it.second.fom!!,
+                            tom = it.second.tom!!,
+                        )?.hentKjentOppholdstillatelse()
+                    },
+                )
 
         return soknader
             .map {
@@ -104,6 +121,7 @@ class SykepengesoknadDAO(
                     soknadPerioder = soknadsPerioder[it.first] ?: emptyList(),
                     sporsmal = sporsmal[it.first] ?: emptyList(),
                     klippet = klipp.containsKey(it.second.id),
+                    kjentOppholdstillatelse = kjenteOppholdstillatelser[it.second.id],
                 )
             }
             .map { it.sorterSporsmal() }

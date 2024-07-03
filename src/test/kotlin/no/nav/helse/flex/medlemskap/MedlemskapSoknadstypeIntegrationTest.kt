@@ -59,8 +59,8 @@ class MedlemskapSoknadstypeIntegrationTest : FellesTestOppsett() {
                     svar = MedlemskapVurderingSvarType.UAVKLART,
                     sporsmal =
                         listOf(
-                            MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
                             MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
+                            MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE,
                         ),
                 ).serialisertTilString(),
             ),
@@ -95,8 +95,8 @@ class MedlemskapSoknadstypeIntegrationTest : FellesTestOppsett() {
                     svar = MedlemskapVurderingSvarType.UAVKLART,
                     sporsmal =
                         listOf(
-                            MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
                             MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
+                            MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE,
                         ),
                 ).serialisertTilString(),
             ),

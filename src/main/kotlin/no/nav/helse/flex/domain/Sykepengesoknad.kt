@@ -1,11 +1,11 @@
 package no.nav.helse.flex.domain
 
 import no.nav.helse.flex.inntektsopplysninger.InntektsopplysningerDokumentType
+import no.nav.helse.flex.medlemskap.KjentOppholdstillatelse
 import no.nav.helse.flex.soknadsopprettelse.ArbeidsforholdFraInntektskomponenten
 import java.io.Serializable
 import java.time.Instant
 import java.time.LocalDate
-import java.util.*
 
 data class Sykepengesoknad(
     val id: String,
@@ -47,6 +47,7 @@ data class Sykepengesoknad(
     val inntektsopplysningerInnsendingId: String? = null,
     val inntektsopplysningerInnsendingDokumenter: List<InntektsopplysningerDokumentType>? = null,
     val fiskerBlad: FiskerBlad? = null,
+    val kjentOppholdstillatelse: KjentOppholdstillatelse? = null,
 ) : Serializable {
     fun alleSporsmalOgUndersporsmal(): List<Sporsmal> {
         return sporsmal.flatten()
@@ -61,7 +62,7 @@ data class Sykepengesoknad(
         return sporsmal.flatten().firstOrNull { s -> s.tag == tag }
     }
 
-    protected fun addHovedsporsmalHjelper(
+    private fun addHovedsporsmalHjelper(
         nyttSporsmal: Sporsmal,
         etterHovedsporsmal: Sporsmal?,
     ): List<Sporsmal> =
@@ -83,7 +84,7 @@ data class Sykepengesoknad(
             sporsmal
         }
 
-    protected fun fjernSporsmalHjelper(tag: String): List<Sporsmal> = fjernSporsmalHjelper(tag, sporsmal)
+    private fun fjernSporsmalHjelper(tag: String): List<Sporsmal> = fjernSporsmalHjelper(tag, sporsmal)
 
     private fun fjernSporsmalHjelper(
         tag: String,
@@ -93,7 +94,7 @@ data class Sykepengesoknad(
             .filterNot { it.tag == tag }
             .map { it.copy(undersporsmal = fjernSporsmalHjelper(tag, it.undersporsmal)) }
 
-    protected fun replaceSporsmalHjelper(nyttSporsmal: Sporsmal): List<Sporsmal> = replaceSporsmalHjelper(nyttSporsmal, sporsmal)
+    private fun replaceSporsmalHjelper(nyttSporsmal: Sporsmal): List<Sporsmal> = replaceSporsmalHjelper(nyttSporsmal, sporsmal)
 
     private fun replaceSporsmalHjelper(
         nyttSporsmal: Sporsmal,
@@ -107,7 +108,7 @@ data class Sykepengesoknad(
             }
         }
 
-    protected fun replaceSporsmalHjelper(nyttSporsmal: List<Sporsmal>): List<Sporsmal> = replaceSporsmalHjelper(nyttSporsmal, sporsmal)
+    private fun replaceSporsmalHjelper(nyttSporsmal: List<Sporsmal>): List<Sporsmal> = replaceSporsmalHjelper(nyttSporsmal, sporsmal)
 
     private fun replaceSporsmalHjelper(
         nyttSporsmal: List<Sporsmal>,

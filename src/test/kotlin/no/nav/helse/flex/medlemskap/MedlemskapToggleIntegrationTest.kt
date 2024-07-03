@@ -41,9 +41,7 @@ class MedlemskapToggleIntegrationTest : FellesTestOppsett() {
                         svar = MedlemskapVurderingSvarType.UAVKLART,
                         sporsmal =
                             listOf(
-                                MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
                                 MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
-                                MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
                                 MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE,
                             ),
                     ).serialisertTilString(),
@@ -88,9 +86,7 @@ class MedlemskapToggleIntegrationTest : FellesTestOppsett() {
                 ANDRE_INNTEKTSKILDER_V2,
                 MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
                 MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
-                MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
                 OPPHOLD_UTENFOR_EOS,
-                MEDLEMSKAP_OPPHOLDSTILLATELSE,
                 TIL_SLUTT,
             ),
         )
