@@ -28,6 +28,7 @@ env:
   SKRIVEMODUS: READWRITE
   DITT_SYKEFRAVAER_FRONTEND_CLIENT_ID: prod-gcp:flex:ditt-sykefravaer
   SYKEPENGESOKNAD_FRONTEND_CLIENT_ID: prod-gcp:flex:sykepengesoknad
+  SPINNTEKTSMELDING_FRONTEND_CLIENT_ID: prod-gcp:helsearbeidsgiver:spinntektsmelding-frontend
   TOKENX_IDPORTEN_IDP: https://oidc.difi.no/idporten-oidc-provider/
   EREG_URL: https://ereg-services.prod-fss-pub.nais.io
   YRKESSKADE_URL: http://yrkesskade-saker.yrkesskade

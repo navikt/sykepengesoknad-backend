@@ -96,6 +96,8 @@ spec:
           namespace: teamsykefravr
         - application: sparkel-dokumenter
           namespace: tbd
+        - application: spinntektsmelding-frontend
+          namespace: helsearbeidsgiver
   envFrom:
     - secret: sykepengesoknad-backend-unleash-api-token
   env:
