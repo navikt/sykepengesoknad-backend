@@ -5,7 +5,6 @@ import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.mapper.parseEgenmeldingsdagerFraSykmelding
-import no.nav.helse.flex.logger
 import no.nav.helse.flex.service.HentSoknadService
 import no.nav.helse.flex.service.IdentService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
@@ -26,8 +25,6 @@ class ArbeidsgiverInntektsmeldingController(
     @Value("\${HAG_API_ENABLED}")
     val hagApiEnabled: String,
 ) {
-    private val log = logger()
-
     @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
     @PostMapping(
         value = ["/soknader"],
@@ -38,7 +35,6 @@ class ArbeidsgiverInntektsmeldingController(
         @RequestBody request: HentSoknaderRequest,
     ): List<HentSoknaderResponse> {
         if (hagApiEnabled == "false") {
-            log.error("API er ikke påskrudd")
             throw RuntimeException("API er ikke påskrudd")
         }
         contextHolder.validerTokenXClaims(spinntektsmeldingFrontendClientId)
