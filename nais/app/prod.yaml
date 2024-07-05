@@ -28,6 +28,7 @@ env:
   SKRIVEMODUS: READWRITE
   DITT_SYKEFRAVAER_FRONTEND_CLIENT_ID: prod-gcp:flex:ditt-sykefravaer
   SYKEPENGESOKNAD_FRONTEND_CLIENT_ID: prod-gcp:flex:sykepengesoknad
+  SPINNTEKTSMELDING_FRONTEND_CLIENT_ID: prod-gcp:helsearbeidsgiver:spinntektsmelding-frontend
   TOKENX_IDPORTEN_IDP: https://oidc.difi.no/idporten-oidc-provider/
   EREG_URL: https://ereg-services.prod-fss-pub.nais.io
   YRKESSKADE_URL: http://yrkesskade-saker.yrkesskade
@@ -38,3 +39,4 @@ env:
   INNTEKTSKOMPONENTEN_AAD_CLIENT_ID: prod-fss.team-inntekt.inntektskomponenten
   INNSENDING_API_TOKENX_CLIENT_ID: prod-gcp:team-soknad:innsending-api
   INNSENDING_API_URL: http://innsending-api.team-soknad
+  HAG_API_ENABLED: false

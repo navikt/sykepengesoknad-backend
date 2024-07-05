@@ -6,6 +6,7 @@ flex.syketilfelle.url: http://flex-syketilfelle
 
 DITT_SYKEFRAVAER_FRONTEND_CLIENT_ID: ditt-sykefravaer-frontend-client-id
 SYKEPENGESOKNAD_FRONTEND_CLIENT_ID: sykepengesoknad-frontend-client-id
+SPINNTEKTSMELDING_FRONTEND_CLIENT_ID: spinntekstmelding-frontend-client-id
 TOKENX_IDPORTEN_IDP: idporten
 
 no.nav.security.jwt:
@@ -134,3 +135,4 @@ aiven-kafka:
   auto-offset-reset: earliest
 
 SKRIVEMODUS: READWRITE
+HAG_API_ENABLED: true

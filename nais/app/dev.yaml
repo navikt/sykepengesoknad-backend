@@ -29,6 +29,7 @@ env:
   SKRIVEMODUS: READWRITE
   DITT_SYKEFRAVAER_FRONTEND_CLIENT_ID: dev-gcp:flex:ditt-sykefravaer
   SYKEPENGESOKNAD_FRONTEND_CLIENT_ID: dev-gcp:flex:sykepengesoknad
+  SPINNTEKTSMELDING_FRONTEND_CLIENT_ID: dev-gcp:helsearbeidsgiver:spinntektsmelding-frontend
   TOKENX_IDPORTEN_IDP: https://oidc-ver2.difi.no/idporten-oidc-provider/
   AIVEN_KAFKA_AUTO_OFFSET_RESET: latest
   EREG_URL: https://ereg-services.dev-fss-pub.nais.io
@@ -40,3 +41,4 @@ env:
   INNTEKTSKOMPONENTEN_AAD_CLIENT_ID: dev-fss.team-inntekt.inntektskomponenten
   INNSENDING_API_TOKENX_CLIENT_ID: dev-gcp:team-soknad:innsending-api
   INNSENDING_API_URL: http://innsending-api.team-soknad
+  HAG_API_ENABLED: true

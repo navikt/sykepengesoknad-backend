@@ -84,7 +84,7 @@ class SoknadBrukerController(
     @GetMapping(value = ["/soknader/metadata"], produces = [APPLICATION_JSON_VALUE])
     fun hentSoknaderMetadata(): List<RSSykepengesoknadMetadata> {
         val identer =
-            validerTokenXClaims(dittSykefravaerFrontendClientId, sykepengesoknadFrontendClientId).hentIdenter()
+            contextHolder.validerTokenXClaims(dittSykefravaerFrontendClientId, sykepengesoknadFrontendClientId).hentIdenter()
         return hentSoknadService.hentSoknaderUtenSporsmal(identer).map { it.tilRSSykepengesoknadMetadata() }
     }
 
@@ -105,7 +105,7 @@ class SoknadBrukerController(
         if (environmentToggles.isReadOnly()) {
             throw ReadOnlyException()
         }
-        val identer = validerTokenXClaims(sykepengesoknadFrontendClientId).hentIdenter()
+        val identer = contextHolder.validerTokenXClaims(sykepengesoknadFrontendClientId).hentIdenter()
         return opprettSoknadService
             .opprettSoknadUtland(identer)
             .tilRSSykepengesoknad()
@@ -367,7 +367,7 @@ class SoknadBrukerController(
     data class SoknadOgIdenter(val sykepengesoknad: Sykepengesoknad, val identer: FolkeregisterIdenter)
 
     private fun hentOgSjekkTilgangTilSoknad(soknadId: String): SoknadOgIdenter {
-        val identer = validerTokenXClaims(sykepengesoknadFrontendClientId).hentIdenter()
+        val identer = contextHolder.validerTokenXClaims(sykepengesoknadFrontendClientId).hentIdenter()
         val sykepengesoknad = hentSoknadService.finnSykepengesoknad(soknadId)
         if (!identer.alle().contains(sykepengesoknad.fnr)) {
             throw IkkeTilgangException("Er ikke eier")
@@ -394,17 +394,6 @@ class SoknadBrukerController(
 
     private fun Sykepengesoknad.utvidSoknadMedKorrigeringsfristUtlopt(identer: FolkeregisterIdenter): Sykepengesoknad {
         return korrigerSoknadService.utvidSoknadMedKorrigeringsfristUtlopt(this, identer)
-    }
-
-    private fun validerTokenXClaims(vararg tillattClient: String): JwtTokenClaims {
-        val context = contextHolder.getTokenValidationContext()
-        val claims = context.getClaims(TOKENX)
-        val clientId = claims.getStringClaim("client_id")
-
-        if (!tillattClient.toList().contains(clientId)) {
-            throw IkkeTilgangException("Uventet clientId: $clientId")
-        }
-        return claims
     }
 
     private fun JwtTokenClaims.hentIdenter(): FolkeregisterIdenter {

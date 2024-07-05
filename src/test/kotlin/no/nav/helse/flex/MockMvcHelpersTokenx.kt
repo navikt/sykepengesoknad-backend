@@ -1,6 +1,8 @@
 package no.nav.helse.flex
 
 import com.fasterxml.jackson.module.kotlin.readValue
+import no.nav.helse.flex.controller.HentSoknaderRequest
+import no.nav.helse.flex.controller.HentSoknaderResponse
 import no.nav.helse.flex.controller.domain.RSMottakerResponse
 import no.nav.helse.flex.controller.domain.RSOppdaterSporsmalResponse
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSporsmal
@@ -8,6 +10,7 @@ import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSvar
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknad
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknadMetadata
 import no.nav.helse.flex.util.objectMapper
+import no.nav.helse.flex.util.serialisertTilString
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback
 import org.amshove.kluent.`should be null`
@@ -48,6 +51,21 @@ fun FellesTestOppsett.hentSoknaderMetadata(fnr: String): List<RSSykepengesoknadM
             MockMvcRequestBuilders.get("/api/v2/soknader/metadata")
                 .header("Authorization", "Bearer ${jwt(fnr)}")
                 .contentType(MediaType.APPLICATION_JSON),
+        ).andExpect(MockMvcResultMatchers.status().isOk).andReturn().response.contentAsString
+
+    return objectMapper.readValue(json)
+}
+
+fun FellesTestOppsett.hentSomArbeidsgiver(req: HentSoknaderRequest): List<HentSoknaderResponse> {
+    val json =
+        mockMvc.perform(
+            MockMvcRequestBuilders.post("/api/v1/arbeidsgiver/soknader")
+                .header(
+                    "Authorization",
+                    "Bearer ${server.tokenxToken(fnr = "whatever", clientId = "spinntekstmelding-frontend-client-id")}",
+                )
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(req.serialisertTilString()),
         ).andExpect(MockMvcResultMatchers.status().isOk).andReturn().response.contentAsString
 
     return objectMapper.readValue(json)
