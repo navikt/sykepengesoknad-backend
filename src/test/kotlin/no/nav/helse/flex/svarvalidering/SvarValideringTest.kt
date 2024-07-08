@@ -2,24 +2,11 @@
 
 package no.nav.helse.flex.svarvalidering
 
-import no.nav.helse.flex.domain.Kvittering
-import no.nav.helse.flex.domain.Sporsmal
-import no.nav.helse.flex.domain.Svartype
-import no.nav.helse.flex.domain.Utgiftstype
-import no.nav.helse.flex.domain.flatten
-import no.nav.helse.flex.soknadsopprettelse.BIL_BOMPENGER
-import no.nav.helse.flex.soknadsopprettelse.BIL_BOMPENGER_BELOP
-import no.nav.helse.flex.soknadsopprettelse.BIL_DATOER
-import no.nav.helse.flex.soknadsopprettelse.BIL_TIL_DAGLIG
-import no.nav.helse.flex.soknadsopprettelse.KM_HJEM_JOBB
-import no.nav.helse.flex.soknadsopprettelse.REISE_MED_BIL
-import no.nav.helse.flex.soknadsopprettelse.TRANSPORT_TIL_DAGLIG
-import no.nav.helse.flex.soknadsopprettelse.TYPE_TRANSPORT
-import no.nav.helse.flex.soknadsopprettelse.kvitteringSporsmal
-import no.nav.helse.flex.soknadsopprettelse.offentligTransportBeløpSpørsmål
-import no.nav.helse.flex.soknadsopprettelse.reiseMedBilSpørsmål
-import no.nav.helse.flex.soknadsopprettelse.transportTilDagligSpørsmål
+import no.nav.helse.flex.domain.*
+import no.nav.helse.flex.soknadsopprettelse.*
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.oppholdUtenforEOSSporsmal
 import no.nav.helse.flex.testutil.byttSvar
+import no.nav.helse.flex.util.DatoUtil.periodeTilJson
 import no.nav.helse.flex.util.serialisertTilString
 import org.amshove.kluent.`should be false`
 import org.amshove.kluent.`should be true`
@@ -203,6 +190,39 @@ internal class SvarValideringTest {
 
         spm.byttSvar(svar = "JA")
             .byttSvar(tag = BIL_TIL_DAGLIG, svar = "CHECKED")
+            .validerSvarPaSporsmal()
+    }
+
+    @Test
+    fun `test land spørsmål`() {
+        val spm = landSporsmal()
+
+        spm `valider svar og forvent feilmelding` "Spørsmål ${spm.id} med tag $LAND har feil antall svar 0"
+
+        spm.byttSvar(svar = "Sverige").validerSvarPaSporsmal()
+    }
+
+    @Test
+    fun `test periode utland spørsmål`() {
+        val spm = periodeSporsmal()
+
+        spm `valider svar og forvent feilmelding` "Spørsmål ${spm.id} med tag $PERIODEUTLAND har feil antall svar 0"
+
+        spm.byttSvar(svar = periodeTilJson(LocalDate.now(), LocalDate.now())).validerSvarPaSporsmal()
+    }
+
+    @Test
+    fun `test opphold utenfor EØS spørsmål`() {
+        val spm = oppholdUtenforEOSSporsmal(LocalDate.now(), LocalDate.now())
+
+        spm `valider svar og forvent feilmelding` "Spørsmål ${spm.id} med tag $OPPHOLD_UTENFOR_EOS har feil antall svar 0"
+
+        spm.byttSvar(svar = "NEI").validerSvarPaSporsmal()
+
+        spm.byttSvar(svar = "JA") `valider svar og forvent feilmelding` "Spørsmål ${spm.id} med tag $OPPHOLD_UTENFOR_EOS_NAR har feil antall svar 0"
+
+        spm.byttSvar(tag = OPPHOLD_UTENFOR_EOS, svar = "JA")
+            .byttSvar(tag = OPPHOLD_UTENFOR_EOS_NAR, svar = periodeTilJson(LocalDate.now(), LocalDate.now()))
             .validerSvarPaSporsmal()
     }
 

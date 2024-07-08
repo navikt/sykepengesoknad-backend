@@ -82,7 +82,7 @@ private fun arbeidsgiverSporsmal(): Sporsmal {
     )
 }
 
-private fun periodeSporsmal(): Sporsmal {
+fun periodeSporsmal(): Sporsmal {
     return Sporsmal(
         tag = PERIODEUTLAND,
         sporsmalstekst = "Når skal du reise?",
@@ -92,7 +92,7 @@ private fun periodeSporsmal(): Sporsmal {
     )
 }
 
-private fun landSporsmal(): Sporsmal {
+fun landSporsmal(): Sporsmal {
     return Sporsmal(
         tag = LAND,
         sporsmalstekst = "Hvilket land skal du reise til?",

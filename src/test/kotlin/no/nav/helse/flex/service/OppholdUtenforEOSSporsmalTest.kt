@@ -214,4 +214,137 @@ class OppholdUtenforEOSSporsmalTest : FellesTestOppsett() {
         val oppholdUtlandSoknader = sykepengesoknadDAO.finnSykepengesoknader(identer = listOf(fnr), Soknadstype.OPPHOLD_UTLAND)
         oppholdUtlandSoknader.size `should be equal to` 0
     }
+
+    @Test
+    fun `gammel arbeidstakersøknad får gammelt opphold utland spørsmål ved mutering etter toggle er slått på`() {
+        mockFlexSyketilfelleArbeidsgiverperiode()
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(fom = fom, tom = tom),
+                timestamp = OffsetDateTime.now().minusWeeks(3),
+            ),
+        )
+
+        // skrur på nytt opphold utland spørsmål
+        fakeUnleash.enable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
+
+        val hentetViaRest = hentSoknaderMetadata(fnr)
+        hentetViaRest.size `should be equal to` 1
+        hentetViaRest[0].soknadstype `should be equal to` RSSoknadstype.ARBEIDSTAKERE
+        hentetViaRest[0].status `should be equal to` RSSoknadstatus.NY
+
+        mockFlexSyketilfelleArbeidsgiverperiode()
+        val rsSykepengesoknad =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
+
+        val sendtSykepengeSoknad =
+            SoknadBesvarer(rSSykepengesoknad = rsSykepengesoknad, mockMvc = this, fnr = fnr)
+                .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
+                .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
+                .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
+                .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
+                .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
+                .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
+                .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
+                .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
+                .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED").sendSoknad()
+        sendtSykepengeSoknad.status `should be equal to` sendtSykepengeSoknad.status
+        val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
+        kafkaSoknader.size `should be equal to` 1
+        kafkaSoknader.first().status `should be equal to` SoknadsstatusDTO.SENDT
+        kafkaSoknader.first().arbeidUtenforNorge `should be equal to` null
+        juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
+
+        val soknadFraDatabase = sykepengesoknadDAO.finnSykepengesoknad(sendtSykepengeSoknad.id)
+        soknadFraDatabase.sendt `should be equal to` soknadFraDatabase.sendtArbeidsgiver
+        rsSykepengesoknad.sporsmal!!.map { it.tag } `should be equal to`
+            listOf(
+                ANSVARSERKLARING,
+                TILBAKE_I_ARBEID,
+                FERIE_V2,
+                PERMISJON_V2,
+                "ARBEID_UNDERVEIS_100_PROSENT_0",
+                ANDRE_INNTEKTSKILDER_V2,
+                UTLAND_V2,
+                TIL_SLUTT,
+            )
+
+        soknadFraDatabase.sporsmal.any { it.tag == OPPHOLD_UTENFOR_EOS } `should be equal to` false
+
+        // Sjekker at Opphold Utland søknad har blitt laget
+        val oppholdUtlandSoknader = sykepengesoknadDAO.finnSykepengesoknader(identer = listOf(fnr), Soknadstype.OPPHOLD_UTLAND)
+        oppholdUtlandSoknader.size `should be equal to` 0
+    }
+
+    @Test
+    fun `ny arbeidstakersøknad får nytt opphold utland spørsmål ved mutering etter toggle er slått av`() {
+        // skrur på nytt opphold utland spørsmål
+        fakeUnleash.enable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
+
+        mockFlexSyketilfelleArbeidsgiverperiode()
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(fom = fom, tom = tom),
+                timestamp = OffsetDateTime.now().minusWeeks(3),
+            ),
+        )
+
+        // skrur av nytt opphold utland spørsmål
+        fakeUnleash.disable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
+
+        val hentetViaRest = hentSoknaderMetadata(fnr)
+        hentetViaRest.size `should be equal to` 1
+        hentetViaRest[0].soknadstype `should be equal to` RSSoknadstype.ARBEIDSTAKERE
+        hentetViaRest[0].status `should be equal to` RSSoknadstatus.NY
+
+        mockFlexSyketilfelleArbeidsgiverperiode()
+        val rsSykepengesoknad =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).first().id,
+                fnr = fnr,
+            )
+
+        val sendtSykepengeSoknad =
+            SoknadBesvarer(rSSykepengesoknad = rsSykepengesoknad, mockMvc = this, fnr = fnr)
+                .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
+                .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
+                .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
+                .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
+                .besvarSporsmal(tag = "OPPHOLD_UTENFOR_EOS", svar = "NEI")
+                .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
+                .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
+                .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
+                .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED").sendSoknad()
+        sendtSykepengeSoknad.status `should be equal to` sendtSykepengeSoknad.status
+        val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
+        kafkaSoknader.size `should be equal to` 1
+        kafkaSoknader.first().status `should be equal to` SoknadsstatusDTO.SENDT
+        kafkaSoknader.first().arbeidUtenforNorge `should be equal to` null
+        juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
+
+        val soknadFraDatabase = sykepengesoknadDAO.finnSykepengesoknad(sendtSykepengeSoknad.id)
+        soknadFraDatabase.sendt `should be equal to` soknadFraDatabase.sendtArbeidsgiver
+        rsSykepengesoknad.sporsmal!!.map { it.tag } `should be equal to`
+            listOf(
+                ANSVARSERKLARING,
+                TILBAKE_I_ARBEID,
+                FERIE_V2,
+                PERMISJON_V2,
+                "ARBEID_UNDERVEIS_100_PROSENT_0",
+                ANDRE_INNTEKTSKILDER_V2,
+                OPPHOLD_UTENFOR_EOS,
+                TIL_SLUTT,
+            )
+
+        soknadFraDatabase.sporsmal.any { it.tag == UTLAND_V2 } `should be equal to` false
+
+        // Sjekker at Opphold Utland søknad har blitt laget
+        val oppholdUtlandSoknader = sykepengesoknadDAO.finnSykepengesoknader(identer = listOf(fnr), Soknadstype.OPPHOLD_UTLAND)
+        oppholdUtlandSoknader.size `should be equal to` 0
+    }
 }

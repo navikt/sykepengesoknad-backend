@@ -18,6 +18,7 @@ fun Sykepengesoknad.erIkkeAvType(vararg typer: Soknadstype): Boolean = !erAvType
 
 fun Sykepengesoknad.leggTilSporsmaal(sporsmal: Sporsmal): Sykepengesoknad {
     val eksisterendeSpm = this.sporsmal.find { it.tag == sporsmal.tag }
+
     if (eksisterendeSpm != null) {
         return if (eksisterendeSpm.erUlikUtenomSvarTekstOgId(sporsmal)) {
             // Fjerne spørsmpålet
