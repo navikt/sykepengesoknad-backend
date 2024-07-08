@@ -39,6 +39,7 @@ class HentSoknadService(
         ) {
             val soknadUtenNyttSporsmal = soknad.fjernSporsmal(OPPHOLD_UTENFOR_EOS)
             sykepengesoknadDAO.byttUtSporsmal(soknadUtenNyttSporsmal)
+            log.info("Fjernet nytt spørsmål med tag OPPHOLD_UTENFOR_EOS fra søknad med id ${soknadUtenNyttSporsmal.id}")
             return sykepengesoknadDAO.finnSykepengesoknad(uuid)
         }
         return soknad
