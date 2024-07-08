@@ -26,7 +26,7 @@ import no.nav.helse.flex.soknadsopprettelse.sporsmal.gammeltUtenlandsoppholdSelv
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.oppholdUtenforEOSSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.permisjonSporsmal
 
-fun Sykepengesoknad.arbeidGjenopptattMutering(toggle: Boolean? = true): Sykepengesoknad {
+fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
     if (erIkkeAvType(SELVSTENDIGE_OG_FRILANSERE, ARBEIDSTAKERE, GRADERT_REISETILSKUDD)) {
         return this
     }
@@ -83,17 +83,17 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(toggle: Boolean? = true): Sykepeng
         }
 
     val basertPaToggleForArbeidstakere =
-        if (toggle!!) {
-            oppholdUtenforEOSSporsmal(this.fom!!, oppdatertTom)
-        } else {
+        if (this.sporsmal.any { it.tag == UTLAND_V2 }) {
             gammeltUtenlandsoppholdArbeidstakerSporsmal(this.fom!!, oppdatertTom)
+        } else {
+            oppholdUtenforEOSSporsmal(this.fom!!, oppdatertTom)
         }
 
     val basertPaToggleForNaringsdrivendeOgFrilansere =
-        if (toggle) {
-            oppholdUtenforEOSSporsmal(this.fom, oppdatertTom)
-        } else {
+        if (this.sporsmal.any { it.tag == UTLAND }) {
             gammeltUtenlandsoppholdSelvstendigSporsmal(this.fom, oppdatertTom)
+        } else {
+            oppholdUtenforEOSSporsmal(this.fom, oppdatertTom)
         }
 
     if (this.arbeidssituasjon == ARBEIDSTAKER) {

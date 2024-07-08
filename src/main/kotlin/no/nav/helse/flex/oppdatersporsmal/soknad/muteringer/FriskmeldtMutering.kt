@@ -7,20 +7,11 @@ import no.nav.helse.flex.domain.Soknadstype.ARBEIDSLEDIG
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.oppdatersporsmal.soknad.erIkkeAvType
 import no.nav.helse.flex.oppdatersporsmal.soknad.leggTilSporsmaal
-import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER
-import no.nav.helse.flex.soknadsopprettelse.ARBEIDSLEDIG_UTLAND
-import no.nav.helse.flex.soknadsopprettelse.FRISKMELDT
-import no.nav.helse.flex.soknadsopprettelse.FRISKMELDT_START
-import no.nav.helse.flex.soknadsopprettelse.OPPHOLD_UTENFOR_EOS
-import no.nav.helse.flex.soknadsopprettelse.PERMISJON_V2
-import no.nav.helse.flex.soknadsopprettelse.UTDANNING
+import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.soknadsopprettelse.oppdateringhelpers.finnGyldigDatoSvar
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderArbeidsledig
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.gammeltUtenlandsoppholdArbeidsledigAnnetSporsmal
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.oppholdUtenforEOSSporsmal
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.permisjonSporsmal
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.*
 
-fun Sykepengesoknad.friskmeldtMuteringer(toggle: Boolean? = true): Sykepengesoknad {
+fun Sykepengesoknad.friskmeldtMuteringer(): Sykepengesoknad {
     if (erIkkeAvType(ANNET_ARBEIDSFORHOLD, ARBEIDSLEDIG, GRADERT_REISETILSKUDD)) {
         return this
     }
@@ -56,10 +47,10 @@ fun Sykepengesoknad.friskmeldtMuteringer(toggle: Boolean? = true): Sykepengesokn
         }
 
     val skalStilleNyEOSSporsmal =
-        if (toggle!!) {
-            oppholdUtenforEOSSporsmal(this.fom!!, oppdatertTom!!)
-        } else {
+        if (this.sporsmal.any { it.tag == ARBEIDSLEDIG_UTLAND }) {
             gammeltUtenlandsoppholdArbeidsledigAnnetSporsmal(this.fom!!, oppdatertTom!!)
+        } else {
+            oppholdUtenforEOSSporsmal(this.fom!!, oppdatertTom!!)
         }
 
     return this
