@@ -95,7 +95,8 @@ fun periodeSporsmal(): Sporsmal {
 fun landSporsmal(): Sporsmal {
     return Sporsmal(
         tag = LAND,
-        sporsmalstekst = "Hvilket land skal du reise til?",
+        sporsmalstekst = "Hvilke(t) land skal du reise til?",
+        undertekst = "Du kan velge flere.",
         svartype = Svartype.LAND,
         max = "50",
     )

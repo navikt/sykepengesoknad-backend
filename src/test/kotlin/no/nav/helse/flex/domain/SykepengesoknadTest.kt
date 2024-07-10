@@ -20,7 +20,7 @@ class SykepengesoknadTest {
                     it.isEmpty()
                 }.toTypedArray()[0]
             }.joinToString(","),
-        ).isEqualTo("Når,Hvilket,Har,Er,Har,Viktig,Jeg")
+        ).isEqualTo("Når,Hvilke(t),Har,Er,Har,Viktig,Jeg")
     }
 
     @Test
@@ -40,7 +40,7 @@ class SykepengesoknadTest {
                     i ->
                 i!!.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0]
             }.joinToString(","),
-        ).isEqualTo("Når,Hvilket,HEISANN,Er,Har,Viktig,Jeg")
+        ).isEqualTo("Når,Hvilke(t),HEISANN,Er,Har,Viktig,Jeg")
     }
 
     @Test
@@ -57,7 +57,7 @@ class SykepengesoknadTest {
         val sporsmal = sykepengesoknad.sporsmal
         assertThat(sporsmal).hasSize(4)
         assertThat(sporsmal[0].sporsmalstekst).isEqualTo("Når skal du reise?")
-        assertThat(sporsmal[1].sporsmalstekst).isEqualTo("Hvilket land skal du reise til?")
+        assertThat(sporsmal[1].sporsmalstekst).isEqualTo("Hvilke(t) land skal du reise til?")
         assertThat(sporsmal[2].sporsmalstekst).isEqualTo("9")
         assertThat(sporsmal[3].sporsmalstekst).isEqualTo("Viktig å være klar over:")
     }
