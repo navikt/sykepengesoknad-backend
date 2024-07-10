@@ -49,7 +49,6 @@ private fun yrkesskadeSporsmalV2(v2GodkjenteSaker: List<YrkesskadeSak>): Sporsma
                                 sporsmalstekst = "Nylig registrert skade",
                                 svartype = Svartype.CHECKBOX,
                                 tag = YRKESSKADE_V2_DATO,
-                                undertekst = "zzz",
                                 // todo fungerer sortering?
                             ),
                 ),

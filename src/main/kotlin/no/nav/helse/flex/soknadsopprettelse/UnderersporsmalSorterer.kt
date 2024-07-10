@@ -208,7 +208,7 @@ private fun Sporsmal.sorteringBosted(): String {
 }
 
 private fun Sporsmal.sorteringYrkesskader(): String {
-    return undertekst ?: "0"
+    return undertekst ?: "Z"
 }
 
 /**
