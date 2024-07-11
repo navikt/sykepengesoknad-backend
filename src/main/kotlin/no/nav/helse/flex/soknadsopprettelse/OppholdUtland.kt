@@ -17,8 +17,8 @@ import java.util.UUID.randomUUID
 
 fun Sporsmal.plasseringSporsmalUtland(): Int {
     return when (this.tag) {
-        PERIODEUTLAND -> -10
-        LAND -> -9
+        LAND -> -10
+        PERIODEUTLAND -> -9
         ARBEIDSGIVER -> -8
         BEKREFT_OPPLYSNINGER_UTLAND_INFO -> -7
         TIL_SLUTT -> 10

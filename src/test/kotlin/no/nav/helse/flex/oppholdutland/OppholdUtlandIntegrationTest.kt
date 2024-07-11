@@ -52,8 +52,8 @@ class OppholdUtlandIntegrationTest : FellesTestOppsett() {
             )
         soknad.sporsmal!!.map { it.tag } `should be equal to`
             listOf(
-                PERIODEUTLAND,
                 LAND,
+                PERIODEUTLAND,
                 ARBEIDSGIVER,
                 TIL_SLUTT,
             )
