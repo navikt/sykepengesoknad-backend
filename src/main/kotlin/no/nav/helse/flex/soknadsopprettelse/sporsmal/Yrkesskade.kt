@@ -44,7 +44,12 @@ private fun yrkesskadeSporsmalV2(v2GodkjenteSaker: List<YrkesskadeSak>): Sporsma
                                 // For sortering.
                                 undertekst = (it.skadedato ?: it.vedtaksdato).toString(),
                             )
-                        },
+                        } +
+                            Sporsmal(
+                                sporsmalstekst = "Nylig registrert skade",
+                                svartype = Svartype.CHECKBOX,
+                                tag = YRKESSKADE_V2_DATO,
+                            ),
                 ),
             ),
     )

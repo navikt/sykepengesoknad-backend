@@ -126,6 +126,7 @@ class YrkesskadeIntegrationTest : FellesTestOppsett() {
         spmTekster[0] `should be equal to` "Skadedato 2. januar 1982 (Vedtaksdato 2. januar 1989)"
         spmTekster[1] `should be equal to` "Vedtaksdato 9. mai 1987"
         spmTekster[2] `should be equal to` "Skadedato 2. januar 2023 (Vedtaksdato 2. januar 2023)"
+        spmTekster[3] `should be equal to` "Nylig registrert skade"
     }
 
     @Test
