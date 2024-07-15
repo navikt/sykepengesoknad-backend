@@ -34,6 +34,10 @@ class SoknadVeilederAzureController(
     fun hentVeilederSoknader(
         @RequestHeader(value = "nav-personident") fnr: String,
     ): List<RSSykepengesoknad> {
+        return hentSoknader(fnr)
+    }
+
+    private fun hentSoknader(fnr: String): List<RSSykepengesoknad> {
         clientIdValidation.validateClientId(NamespaceAndApp(namespace = "teamsykefravr", app = "syfomodiaperson"))
 
         if (!istilgangskontrollClient.sjekkTilgangVeileder(fnr)) {

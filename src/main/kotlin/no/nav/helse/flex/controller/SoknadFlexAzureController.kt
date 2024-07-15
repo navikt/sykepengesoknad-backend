@@ -43,6 +43,10 @@ class SoknadFlexAzureController(
     fun hentSykepengesoknader(
         @RequestHeader fnr: String,
     ): FlexInternalResponse {
+        return hentSoknader(fnr)
+    }
+
+    private fun hentSoknader(fnr: String): FlexInternalResponse {
         clientIdValidation.validateClientId(NamespaceAndApp(namespace = "flex", app = "flex-internal-frontend"))
         val soknader =
             hentSoknadService
@@ -65,6 +69,10 @@ class SoknadFlexAzureController(
     fun hentIdenter(
         @RequestHeader ident: String,
     ): List<PdlIdent> {
+        return hentIdenterFelles(ident)
+    }
+
+    private fun hentIdenterFelles(ident: String): List<PdlIdent> {
         clientIdValidation.validateClientId(NamespaceAndApp(namespace = "flex", app = "flex-internal-frontend"))
         return pdlClient.hentIdenterMedHistorikk(ident)
     }
