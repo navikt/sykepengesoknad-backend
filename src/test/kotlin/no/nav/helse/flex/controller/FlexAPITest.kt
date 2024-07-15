@@ -10,6 +10,7 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.util.objectMapper
+import no.nav.helse.flex.util.serialisertTilString
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.BeforeAll
@@ -39,12 +40,23 @@ class FlexAPITest : FellesTestOppsett() {
             mockMvc
                 .perform(
                     MockMvcRequestBuilders
-                        .get("/api/v1/flex/sykepengesoknader")
+                        .post("/api/v1/flex/sykepengesoknader")
                         .header("Authorization", "Bearer ${skapAzureJwt("flex-internal-frontend-client-id")}")
-                        .header("fnr", fnr)
+                        .content(SoknadFlexAzureController.HentSykepengesoknaderRequest(fnr).serialisertTilString())
                         .contentType(MediaType.APPLICATION_JSON),
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk).andReturn()
+
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .get("/api/v1/flex/sykepengesoknader")
+                    .header("Authorization", "Bearer ${skapAzureJwt("flex-internal-frontend-client-id")}")
+                    .header("fnr", fnr)
+                    .contentType(MediaType.APPLICATION_JSON),
+            )
+            .andExpect(MockMvcResultMatchers.status().isOk).andReturn()
+            .also { it.response.contentAsString shouldBeEqualTo result.response.contentAsString }
 
         val fraRest: FlexInternalResponse = objectMapper.readValue(result.response.contentAsString)
         fraRest.sykepengesoknadListe.shouldHaveSize(1)
@@ -112,7 +124,7 @@ class FlexAPITest : FellesTestOppsett() {
     }
 
     @Test
-    fun `Kan hente identer fra flex-internal-frontend`() {
+    fun `Kan hente identer fra flex-internal-frontend med get`() {
         val result =
             mockMvc
                 .perform(
@@ -120,6 +132,26 @@ class FlexAPITest : FellesTestOppsett() {
                         .get("/api/v1/flex/identer")
                         .header("Authorization", "Bearer ${skapAzureJwt("flex-internal-frontend-client-id")}")
                         .header("ident", "211111111111")
+                        .contentType(MediaType.APPLICATION_JSON),
+                )
+                .andExpect(MockMvcResultMatchers.status().isOk).andReturn()
+
+        val fraRest: List<PdlIdent> = objectMapper.readValue(result.response.contentAsString)
+        fraRest.shouldHaveSize(3)
+        fraRest[0] shouldBeEqualTo PdlIdent("FOLKEREGISTERIDENT", "211111111111")
+        fraRest[1] shouldBeEqualTo PdlIdent("FOLKEREGISTERIDENT", "111111111111")
+        fraRest[2] shouldBeEqualTo PdlIdent("AKTORID", "21111111111100")
+    }
+
+    @Test
+    fun `Kan hente identer fra flex-internal-frontend med post`() {
+        val result =
+            mockMvc
+                .perform(
+                    MockMvcRequestBuilders
+                        .post("/api/v1/flex/identer")
+                        .header("Authorization", "Bearer ${skapAzureJwt("flex-internal-frontend-client-id")}")
+                        .content(SoknadFlexAzureController.HentIdenterRequest("211111111111").serialisertTilString())
                         .contentType(MediaType.APPLICATION_JSON),
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk).andReturn()

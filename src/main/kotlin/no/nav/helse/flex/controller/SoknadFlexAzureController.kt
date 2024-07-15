@@ -15,7 +15,7 @@ import no.nav.helse.flex.repository.KlippetSykepengesoknadRepository
 import no.nav.helse.flex.service.HentSoknadService
 import no.nav.helse.flex.service.IdentService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
-import org.springframework.http.MediaType
+import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.web.bind.annotation.*
 
 data class FlexInternalResponse(
@@ -30,7 +30,6 @@ data class FlexInternalSoknadResponse(
 
 @RestController
 @ProtectedWithClaims(issuer = AZUREATOR)
-@RequestMapping(value = ["/api/v1/flex"], produces = [MediaType.APPLICATION_JSON_VALUE])
 @Hidden
 class SoknadFlexAzureController(
     private val clientIdValidation: ClientIdValidation,
@@ -39,11 +38,26 @@ class SoknadFlexAzureController(
     private val hentSoknadService: HentSoknadService,
     private val klippetSykepengesoknadRepository: KlippetSykepengesoknadRepository,
 ) {
-    @GetMapping("/sykepengesoknader")
-    fun hentSykepengesoknader(
+    @GetMapping("/api/v1/flex/sykepengesoknader", produces = [APPLICATION_JSON_VALUE])
+    fun deprecatedHentSykepengesoknader(
         @RequestHeader fnr: String,
     ): FlexInternalResponse {
         return hentSoknader(fnr)
+    }
+
+    data class HentSykepengesoknaderRequest(
+        val fnr: String,
+    )
+
+    @PostMapping(
+        "/api/v1/flex/sykepengesoknader",
+        consumes = [APPLICATION_JSON_VALUE],
+        produces = [APPLICATION_JSON_VALUE],
+    )
+    fun hentSykepengesoknader(
+        @RequestBody req: HentSykepengesoknaderRequest,
+    ): FlexInternalResponse {
+        return hentSoknader(req.fnr)
     }
 
     private fun hentSoknader(fnr: String): FlexInternalResponse {
@@ -65,11 +79,22 @@ class SoknadFlexAzureController(
         )
     }
 
-    @GetMapping("/identer")
-    fun hentIdenter(
+    @GetMapping("/api/v1/flex/identer", produces = [APPLICATION_JSON_VALUE])
+    fun deprecatedHentIdenter(
         @RequestHeader ident: String,
     ): List<PdlIdent> {
         return hentIdenterFelles(ident)
+    }
+
+    data class HentIdenterRequest(
+        val ident: String,
+    )
+
+    @PostMapping("/api/v1/flex/identer", consumes = [APPLICATION_JSON_VALUE], produces = [APPLICATION_JSON_VALUE])
+    fun hentIdenter(
+        @RequestBody req: HentIdenterRequest,
+    ): List<PdlIdent> {
+        return hentIdenterFelles(req.ident)
     }
 
     private fun hentIdenterFelles(ident: String): List<PdlIdent> {
@@ -77,7 +102,7 @@ class SoknadFlexAzureController(
         return pdlClient.hentIdenterMedHistorikk(ident)
     }
 
-    @GetMapping("/sykepengesoknader/{id}")
+    @GetMapping("/api/v1/flex/sykepengesoknader/{id}")
     fun hentSykepengesoknad(
         @PathVariable id: String,
     ): FlexInternalSoknadResponse {

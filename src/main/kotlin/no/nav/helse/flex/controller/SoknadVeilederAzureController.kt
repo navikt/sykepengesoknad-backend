@@ -12,15 +12,11 @@ import no.nav.helse.flex.logger
 import no.nav.helse.flex.service.HentSoknadService
 import no.nav.helse.flex.service.IdentService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
-import org.springframework.http.MediaType
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestHeader
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @ProtectedWithClaims(issuer = AZUREATOR)
-@RequestMapping(value = ["/api/veileder/soknader"], produces = [MediaType.APPLICATION_JSON_VALUE])
 @Hidden
 class SoknadVeilederAzureController(
     private val clientIdValidation: ClientIdValidation,
@@ -30,11 +26,26 @@ class SoknadVeilederAzureController(
 ) {
     val log = logger()
 
-    @GetMapping
-    fun hentVeilederSoknader(
+    @GetMapping(value = ["/api/veileder/soknader"], produces = [APPLICATION_JSON_VALUE])
+    fun deprecatedHentVeilederSoknader(
         @RequestHeader(value = "nav-personident") fnr: String,
     ): List<RSSykepengesoknad> {
         return hentSoknader(fnr)
+    }
+
+    data class HentVeilederSoknaderRequest(
+        val fnr: String,
+    )
+
+    @PostMapping(
+        value = ["/api/veileder/soknader"],
+        consumes = [APPLICATION_JSON_VALUE],
+        produces = [APPLICATION_JSON_VALUE],
+    )
+    fun hentVeilederSoknader(
+        @RequestBody req: HentVeilederSoknaderRequest,
+    ): List<RSSykepengesoknad> {
+        return hentSoknader(req.fnr)
     }
 
     private fun hentSoknader(fnr: String): List<RSSykepengesoknad> {

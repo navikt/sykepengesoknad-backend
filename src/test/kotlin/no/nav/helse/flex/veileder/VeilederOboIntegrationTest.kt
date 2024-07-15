@@ -2,6 +2,7 @@ package no.nav.helse.flex.veileder
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.FellesTestOppsett
+import no.nav.helse.flex.controller.SoknadVeilederAzureController
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknad
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.mockIstilgangskontroll
@@ -11,7 +12,9 @@ import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS
 import no.nav.helse.flex.util.objectMapper
+import no.nav.helse.flex.util.serialisertTilString
 import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.shouldBeEqualTo
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer
@@ -49,6 +52,12 @@ class VeilederOboIntegrationTest : FellesTestOppsett() {
 
         val soknader = hentSoknaderSomVeileder(fnr, veilederToken)
         assertThat(soknader).hasSize(1)
+
+        istilgangskontrollMockRestServiceServer.verify()
+        istilgangskontrollMockRestServiceServer.reset()
+        mockIstilgangskontroll(true, fnr)
+        hentSoknaderSomVeilederPost(fnr, veilederToken).also { it shouldBeEqualTo soknader }
+
         val soknaden = soknader.first()
         assertThat(soknaden.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
@@ -102,6 +111,23 @@ class VeilederOboIntegrationTest : FellesTestOppsett() {
                 MockMvcRequestBuilders.get("/api/veileder/soknader")
                     .header("nav-personident", fnr)
                     .header("Authorization", "Bearer $token")
+                    .contentType(MediaType.APPLICATION_JSON),
+            ).andExpect(MockMvcResultMatchers.status().isOk).andReturn().response.contentAsString
+
+        return objectMapper.readValue(json)
+    }
+
+    fun FellesTestOppsett.hentSoknaderSomVeilederPost(
+        fnr: String,
+        token: String,
+    ): List<RSSykepengesoknad> {
+        val json =
+            mockMvc.perform(
+                MockMvcRequestBuilders.post("/api/veileder/soknader")
+                    .header("Authorization", "Bearer $token")
+                    .content(
+                        SoknadVeilederAzureController.HentVeilederSoknaderRequest(fnr).serialisertTilString(),
+                    )
                     .contentType(MediaType.APPLICATION_JSON),
             ).andExpect(MockMvcResultMatchers.status().isOk).andReturn().response.contentAsString
 
