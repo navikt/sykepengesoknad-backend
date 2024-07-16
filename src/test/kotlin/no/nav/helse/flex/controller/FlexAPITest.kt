@@ -47,17 +47,6 @@ class FlexAPITest : FellesTestOppsett() {
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk).andReturn()
 
-        mockMvc
-            .perform(
-                MockMvcRequestBuilders
-                    .get("/api/v1/flex/sykepengesoknader")
-                    .header("Authorization", "Bearer ${skapAzureJwt("flex-internal-frontend-client-id")}")
-                    .header("fnr", fnr)
-                    .contentType(MediaType.APPLICATION_JSON),
-            )
-            .andExpect(MockMvcResultMatchers.status().isOk).andReturn()
-            .also { it.response.contentAsString shouldBeEqualTo result.response.contentAsString }
-
         val fraRest: FlexInternalResponse = objectMapper.readValue(result.response.contentAsString)
         fraRest.sykepengesoknadListe.shouldHaveSize(1)
         fraRest.klippetSykepengesoknadRecord.shouldHaveSize(0)
@@ -83,9 +72,9 @@ class FlexAPITest : FellesTestOppsett() {
             mockMvc
                 .perform(
                     MockMvcRequestBuilders
-                        .get("/api/v1/flex/sykepengesoknader")
+                        .post("/api/v1/flex/sykepengesoknader")
                         .header("Authorization", "Bearer ${skapAzureJwt("flex-internal-frontend-client-id")}")
-                        .header("fnr", fnr)
+                        .content(SoknadFlexAzureController.HentSykepengesoknaderRequest(fnr).serialisertTilString())
                         .contentType(MediaType.APPLICATION_JSON),
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk).andReturn()
@@ -102,9 +91,9 @@ class FlexAPITest : FellesTestOppsett() {
         mockMvc
             .perform(
                 MockMvcRequestBuilders
-                    .get("/api/v1/flex/sykepengesoknader")
+                    .post("/api/v1/flex/sykepengesoknader")
                     .header("Authorization", "Bearer ${skapAzureJwt("en-annen-client-id")}")
-                    .header("fnr", fnr)
+                    .content(SoknadFlexAzureController.HentSykepengesoknaderRequest(fnr).serialisertTilString())
                     .contentType(MediaType.APPLICATION_JSON),
             )
             .andExpect(MockMvcResultMatchers.status().is4xxClientError)
@@ -115,36 +104,16 @@ class FlexAPITest : FellesTestOppsett() {
         mockMvc
             .perform(
                 MockMvcRequestBuilders
-                    .get("/api/v1/flex/sykepengesoknader")
+                    .post("/api/v1/flex/sykepengesoknader")
                     .header("Authorization", "Bearer ${jwt(fnr)}")
-                    .header("fnr", fnr)
+                    .content(SoknadFlexAzureController.HentSykepengesoknaderRequest(fnr).serialisertTilString())
                     .contentType(MediaType.APPLICATION_JSON),
             )
             .andExpect(MockMvcResultMatchers.status().is4xxClientError)
     }
 
     @Test
-    fun `Kan hente identer fra flex-internal-frontend med get`() {
-        val result =
-            mockMvc
-                .perform(
-                    MockMvcRequestBuilders
-                        .get("/api/v1/flex/identer")
-                        .header("Authorization", "Bearer ${skapAzureJwt("flex-internal-frontend-client-id")}")
-                        .header("ident", "211111111111")
-                        .contentType(MediaType.APPLICATION_JSON),
-                )
-                .andExpect(MockMvcResultMatchers.status().isOk).andReturn()
-
-        val fraRest: List<PdlIdent> = objectMapper.readValue(result.response.contentAsString)
-        fraRest.shouldHaveSize(3)
-        fraRest[0] shouldBeEqualTo PdlIdent("FOLKEREGISTERIDENT", "211111111111")
-        fraRest[1] shouldBeEqualTo PdlIdent("FOLKEREGISTERIDENT", "111111111111")
-        fraRest[2] shouldBeEqualTo PdlIdent("AKTORID", "21111111111100")
-    }
-
-    @Test
-    fun `Kan hente identer fra flex-internal-frontend med post`() {
+    fun `Kan hente identer fra flex-internal-frontend`() {
         val result =
             mockMvc
                 .perform(
@@ -168,9 +137,9 @@ class FlexAPITest : FellesTestOppsett() {
         mockMvc
             .perform(
                 MockMvcRequestBuilders
-                    .get("/api/v1/flex/identer")
+                    .post("/api/v1/flex/identer")
                     .header("Authorization", "Bearer ${jwt(fnr)}")
-                    .header("ident", "211111111111")
+                    .content(SoknadFlexAzureController.HentIdenterRequest("211111111111").serialisertTilString())
                     .contentType(MediaType.APPLICATION_JSON),
             )
             .andExpect(MockMvcResultMatchers.status().is4xxClientError)

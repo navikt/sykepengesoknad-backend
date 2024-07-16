@@ -38,13 +38,6 @@ class SoknadFlexAzureController(
     private val hentSoknadService: HentSoknadService,
     private val klippetSykepengesoknadRepository: KlippetSykepengesoknadRepository,
 ) {
-    @GetMapping("/api/v1/flex/sykepengesoknader", produces = [APPLICATION_JSON_VALUE])
-    fun deprecatedHentSykepengesoknader(
-        @RequestHeader fnr: String,
-    ): FlexInternalResponse {
-        return hentSoknader(fnr)
-    }
-
     data class HentSykepengesoknaderRequest(
         val fnr: String,
     )
@@ -57,14 +50,10 @@ class SoknadFlexAzureController(
     fun hentSykepengesoknader(
         @RequestBody req: HentSykepengesoknaderRequest,
     ): FlexInternalResponse {
-        return hentSoknader(req.fnr)
-    }
-
-    private fun hentSoknader(fnr: String): FlexInternalResponse {
         clientIdValidation.validateClientId(NamespaceAndApp(namespace = "flex", app = "flex-internal-frontend"))
         val soknader =
             hentSoknadService
-                .hentSoknader(identService.hentFolkeregisterIdenterMedHistorikkForFnr(fnr))
+                .hentSoknader(identService.hentFolkeregisterIdenterMedHistorikkForFnr(req.fnr))
                 .map { it.tilRSSykepengesoknadFlexInternal() }
 
         val sokUuider = soknader.map { it.id }
@@ -79,13 +68,6 @@ class SoknadFlexAzureController(
         )
     }
 
-    @GetMapping("/api/v1/flex/identer", produces = [APPLICATION_JSON_VALUE])
-    fun deprecatedHentIdenter(
-        @RequestHeader ident: String,
-    ): List<PdlIdent> {
-        return hentIdenterFelles(ident)
-    }
-
     data class HentIdenterRequest(
         val ident: String,
     )
@@ -94,12 +76,8 @@ class SoknadFlexAzureController(
     fun hentIdenter(
         @RequestBody req: HentIdenterRequest,
     ): List<PdlIdent> {
-        return hentIdenterFelles(req.ident)
-    }
-
-    private fun hentIdenterFelles(ident: String): List<PdlIdent> {
         clientIdValidation.validateClientId(NamespaceAndApp(namespace = "flex", app = "flex-internal-frontend"))
-        return pdlClient.hentIdenterMedHistorikk(ident)
+        return pdlClient.hentIdenterMedHistorikk(req.ident)
     }
 
     @GetMapping("/api/v1/flex/sykepengesoknader/{id}")
