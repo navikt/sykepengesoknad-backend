@@ -2,12 +2,14 @@
 
 package no.nav.helse.flex.soknadsopprettelse.sporsmal
 
+import no.nav.helse.flex.client.inntektskomponenten.HentPensjonsgivendeInntektResponse
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.Visningskriterie
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.util.DatoUtil
+import no.nav.helse.flex.util.serialisertTilString
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -15,7 +17,10 @@ private fun beregnDatoForVarigEndringEtter(startSykeforlop: LocalDate): LocalDat
     return startSykeforlop.minusYears(5)
 }
 
-fun lagSporsmalOmInntektsopplyninger(soknad: Sykepengesoknad): Sporsmal {
+fun lagSporsmalOmInntektsopplyninger(
+    soknad: Sykepengesoknad,
+    pensjonsgivendeInntekt: List<HentPensjonsgivendeInntektResponse>?,
+): Sporsmal {
     val datoForVarigEndringEtter = beregnDatoForVarigEndringEtter(soknad.startSykeforlop!!)
 
     return Sporsmal(
@@ -37,7 +42,7 @@ fun lagSporsmalOmInntektsopplyninger(soknad: Sykepengesoknad): Sporsmal {
                                     DatoUtil.formatterDato(
                                         datoForVarigEndringEtter,
                                     )
-                                }?",
+                                }? Dette er pensjonsgivende inntekt: ${pensjonsgivendeInntekt?.serialisertTilString()}",
                                 svartype = Svartype.RADIO_GRUPPE,
                                 undersporsmal =
                                     listOf(
