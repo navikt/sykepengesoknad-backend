@@ -55,6 +55,8 @@ class PensjongivendeInntektClient(
                 }
 
                 result.body?.let {
+                    log.info(result.serialisertTilString())
+                    log.info(it.serialisertTilString())
                     return@map it
                 }
 
