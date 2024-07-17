@@ -30,7 +30,7 @@ class PensjongivendeInntektClient(
         headers.contentType = MediaType.APPLICATION_JSON
         headers.accept = listOf(MediaType.APPLICATION_JSON)
 
-        val treSisteAar = (LocalDate.now().year..LocalDate.now().minusYears(3).year).map { it.toString() }
+        val treSisteAar = (LocalDate.now().year downTo LocalDate.now().minusYears(3).year).map { it.toString() }
         log.info("Tre siste år: ${treSisteAar.serialisertTilString()}")
 
         val pensjonsgivendeInntektSisteTreAar =
