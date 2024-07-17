@@ -26,13 +26,6 @@ class SoknadVeilederAzureController(
 ) {
     val log = logger()
 
-    @GetMapping(value = ["/api/veileder/soknader"], produces = [APPLICATION_JSON_VALUE])
-    fun deprecatedHentVeilederSoknader(
-        @RequestHeader(value = "nav-personident") fnr: String,
-    ): List<RSSykepengesoknad> {
-        return hentSoknader(fnr)
-    }
-
     data class HentVeilederSoknaderRequest(
         val fnr: String,
     )
@@ -45,18 +38,14 @@ class SoknadVeilederAzureController(
     fun hentVeilederSoknader(
         @RequestBody req: HentVeilederSoknaderRequest,
     ): List<RSSykepengesoknad> {
-        return hentSoknader(req.fnr)
-    }
-
-    private fun hentSoknader(fnr: String): List<RSSykepengesoknad> {
         clientIdValidation.validateClientId(NamespaceAndApp(namespace = "teamsykefravr", app = "syfomodiaperson"))
 
-        if (!istilgangskontrollClient.sjekkTilgangVeileder(fnr)) {
+        if (!istilgangskontrollClient.sjekkTilgangVeileder(req.fnr)) {
             log.info("Veileder forsøker å hente søknader, men har ikke tilgang til bruker.")
             throw IkkeTilgangException("Har ikke tilgang til bruker")
         }
         return hentSoknadService
-            .hentSoknader(identService.hentFolkeregisterIdenterMedHistorikkForFnr(fnr))
+            .hentSoknader(identService.hentFolkeregisterIdenterMedHistorikkForFnr(req.fnr))
             .map { it.tilRSSykepengesoknad() }
     }
 }
