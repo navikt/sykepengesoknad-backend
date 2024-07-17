@@ -47,6 +47,7 @@ abstract class FellesTestOppsett {
         private val eregMockWebServer: MockWebServer
         private val yrkesskadeMockWebServer: MockWebServer
         private val innsendingApiMockWebServer: MockWebServer
+        private val pensjonsgivendeInntektMockWebServer: MockWebServer
 
         init {
             startAlleContainere()
@@ -57,6 +58,7 @@ abstract class FellesTestOppsett {
                 eregMockWebServer = it.eregMockWebServer
                 yrkesskadeMockWebServer = it.yrkesskadeMockWebServer
                 innsendingApiMockWebServer = it.innsendingApiMockWebServer
+                pensjonsgivendeInntektMockWebServer = it.pensjonsgivendeInntektMockWebServer
             }
         }
     }
