@@ -54,8 +54,8 @@ class PensjongivendeInntektClient(
                     throw RuntimeException(message)
                 }
 
+                log.info(result.serialisertTilString())
                 result.body?.let {
-                    log.info(result.serialisertTilString())
                     log.info(it.serialisertTilString())
                     return@map it
                 }
