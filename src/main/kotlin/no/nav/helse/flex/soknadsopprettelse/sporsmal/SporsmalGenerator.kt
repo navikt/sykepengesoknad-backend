@@ -1,5 +1,6 @@
 package no.nav.helse.flex.soknadsopprettelse.sporsmal
 
+import no.nav.helse.flex.client.inntektskomponenten.PensjongivendeInntektClient
 import no.nav.helse.flex.arbeidsgiverperiode.erUtenforArbeidsgiverPeriode
 import no.nav.helse.flex.config.EnvironmentToggles
 import no.nav.helse.flex.domain.Arbeidssituasjon
@@ -30,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional
 class SporsmalGenerator(
     private val identService: IdentService,
     private val arbeidsforholdFraInntektskomponentenHenting: ArbeidsforholdFraInntektskomponentenHenting,
+    private val pensjonsgivendeInntektClient: PensjongivendeInntektClient,
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val sykepengesoknadRepository: SykepengesoknadRepository,
     private val yrkesskadeIndikatorer: YrkesskadeIndikatorer,
@@ -181,7 +183,10 @@ class SporsmalGenerator(
                     Arbeidssituasjon.JORDBRUKER,
                     Arbeidssituasjon.NAERINGSDRIVENDE,
                     Arbeidssituasjon.FRILANSER,
-                    -> settOppSoknadSelvstendigOgFrilanser(soknadOptions)
+                    -> {
+                        val pensjonsgivendeInntekt = pensjonsgivendeInntektClient.hentPensjonsgivendeInntekter(soknad.fnr)
+                        settOppSoknadSelvstendigOgFrilanser(soknadOptions, pensjonsgivendeInntekt)
+                    }
 
                     Arbeidssituasjon.ARBEIDSLEDIG -> settOppSoknadArbeidsledig(soknadOptions)
                     Arbeidssituasjon.ANNET -> settOppSoknadAnnetArbeidsforhold(soknadOptions)

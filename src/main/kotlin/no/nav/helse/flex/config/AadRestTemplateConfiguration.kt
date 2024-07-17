@@ -174,6 +174,21 @@ class AadRestTemplateConfiguration {
             readTimeout = Duration.ofSeconds(15),
         )
 
+    @Bean
+    fun persongivendeInntektRestTemplate(
+        restTemplateBuilder: RestTemplateBuilder,
+        clientConfigurationProperties: ClientConfigurationProperties,
+        oAuth2AccessTokenService: OAuth2AccessTokenService,
+    ): RestTemplate =
+        downstreamRestTemplate(
+            registrationName = "pensjonsgivende-inntekt-client-credentials",
+            restTemplateBuilder = restTemplateBuilder,
+            clientConfigurationProperties = clientConfigurationProperties,
+            oAuth2AccessTokenService = oAuth2AccessTokenService,
+            connectTimeout = Duration.ofSeconds(5),
+            readTimeout = Duration.ofSeconds(15),
+        )
+
     private fun downstreamRestTemplate(
         restTemplateBuilder: RestTemplateBuilder,
         clientConfigurationProperties: ClientConfigurationProperties,
