@@ -2,13 +2,6 @@ package no.nav.helse.flex.client.inntektskomponenten
 
 import java.util.UUID
 
-data class HentPensjonsgivendeInntekt(
-    val rettighetspakke: String,
-    val inntektsaar: String,
-    val personidentifikator: String,
-    val korrelasjonsid: UUID,
-)
-
 data class HentPensjonsgivendeInntektResponse(
     val norskPersonidentifikator: String,
     val inntektsaar: String,

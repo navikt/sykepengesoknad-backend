@@ -25,6 +25,8 @@ class PensjongivendeInntektClient(
         val headers = HttpHeaders()
         headers["Nav-Consumer-Id"] = "sykepengesoknad-backend"
         headers["Nav-Call-Id"] = UUID.randomUUID().toString()
+        headers["rettighetspakke"] = "navSykepenger"
+        headers["Nav-Personident"] = fnr
         headers.contentType = MediaType.APPLICATION_JSON
         headers.accept = listOf(MediaType.APPLICATION_JSON)
 
@@ -32,20 +34,13 @@ class PensjongivendeInntektClient(
 
         val pensjonsgivendeInntektSisteTreAar =
             treSisteAar.map { aar ->
+                headers["inntektsaar"] = aar
                 val result =
                     persongivendeInntektRestTemplate
                         .exchange(
                             uriBuilder.toUriString(),
                             HttpMethod.GET,
-                            HttpEntity(
-                                HentPensjonsgivendeInntekt(
-                                    rettighetspakke = "navSykepenger",
-                                    inntektsaar = aar,
-                                    personidentifikator = fnr,
-                                    korrelasjonsid = UUID.randomUUID(),
-                                ).serialisertTilString(),
-                                headers,
-                            ),
+                            HttpEntity<Any>(headers),
                             HentPensjonsgivendeInntektResponse::class.java,
                         )
                 if (result.statusCode != HttpStatus.OK) {
@@ -54,9 +49,9 @@ class PensjongivendeInntektClient(
                     throw RuntimeException(message)
                 }
 
-                log.info(result.serialisertTilString())
+                log.info("Kall mot Sigrun result: ${result.serialisertTilString()}")
                 result.body?.let {
-                    log.info(it.serialisertTilString())
+                    log.info("Kall mot Sigrun result body: ${it.serialisertTilString()}")
                     return@map it
                 }
 
