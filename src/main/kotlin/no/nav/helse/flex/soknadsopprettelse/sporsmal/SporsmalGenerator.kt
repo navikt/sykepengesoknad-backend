@@ -19,6 +19,7 @@ import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.service.IdentService
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.unleash.UnleashToggles
+import no.nav.helse.flex.util.serialisertTilString
 import no.nav.helse.flex.yrkesskade.YrkesskadeIndikatorer
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -160,6 +161,7 @@ class SporsmalGenerator(
                     Arbeidssituasjon.FRILANSER,
                     -> {
                         val pensjonsgivendeInntekt = pensjonsgivendeInntektClient.hentPensjonsgivendeInntekter(soknad.fnr)
+                        log.info("PensjonsgivendeInntekt: ${pensjonsgivendeInntekt.serialisertTilString()}")
                         settOppSoknadSelvstendigOgFrilanser(soknadOptions, pensjonsgivendeInntekt)
                     }
 
