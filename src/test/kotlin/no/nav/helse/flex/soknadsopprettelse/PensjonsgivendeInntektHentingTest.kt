@@ -11,9 +11,9 @@ class PensjonsgivendeInntektHentingTest : FellesTestOppsett() {
 
     @Test
     fun `henter ut pensjonsgivende inntekt for fnr`() {
-        //pensjongivendeInntektClient.hentPensjonsgivendeInntekter(fnr = "11111234565").let {
-            //it.size `should be equal to` 3
-            //it.first().pensjonsgivendeInntekt.pensjonsgivendeInntektAvNaeringsinntekt `should be equal to` 300000
-        //}
+        // pensjongivendeInntektClient.hentPensjonsgivendeInntekter(fnr = "11111234565").let {
+        // it.size `should be equal to` 3
+        // it.first().pensjonsgivendeInntekt.pensjonsgivendeInntektAvNaeringsinntekt `should be equal to` 300000
+        // }
     }
 }
