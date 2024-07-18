@@ -20,7 +20,7 @@ import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
 fun settOppSoknadSelvstendigOgFrilanser(
     opts: SettOppSoknadOptions,
-    pensjongivendeInntekt: List<HentPensjonsgivendeInntektResponse>? = null,
+    pensjongivendeInntekt: HentPensjonsgivendeInntektResponse? = null,
 ): List<Sporsmal> {
     val (sykepengesoknad, erForsteSoknadISykeforlop, harTidligereUtenlandskSpm, yrkesskade) = opts
     val erGradertReisetilskudd = sykepengesoknad.soknadstype == Soknadstype.GRADERT_REISETILSKUDD
