@@ -147,7 +147,7 @@ class SporsmalGenerator(
                     Arbeidssituasjon.FRILANSER,
                     -> {
                         val pensjonsgivendeInntekt = pensjonsgivendeInntektClient.hentPensjonsgivendeInntekter(soknad.fnr)
-                        log.info("PensjonsgivendeInntekt: ${pensjonsgivendeInntekt.serialisertTilString()}")
+                        log.info("PensjonsgivendeInntekt: ${pensjonsgivendeInntekt?.serialisertTilString()}")
                         settOppSoknadSelvstendigOgFrilanser(soknadOptions, pensjonsgivendeInntekt)
                     }
 

@@ -19,7 +19,7 @@ private fun beregnDatoForVarigEndringEtter(startSykeforlop: LocalDate): LocalDat
 
 fun lagSporsmalOmInntektsopplyninger(
     soknad: Sykepengesoknad,
-    pensjonsgivendeInntekt: List<HentPensjonsgivendeInntektResponse>?,
+    pensjonsgivendeInntekt: HentPensjonsgivendeInntektResponse?,
 ): Sporsmal {
     val datoForVarigEndringEtter = beregnDatoForVarigEndringEtter(soknad.startSykeforlop!!)
 
