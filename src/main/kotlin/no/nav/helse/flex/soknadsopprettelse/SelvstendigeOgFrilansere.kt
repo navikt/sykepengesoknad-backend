@@ -1,5 +1,6 @@
 package no.nav.helse.flex.soknadsopprettelse
 
+import no.nav.helse.flex.client.inntektskomponenten.HentPensjonsgivendeInntektResponse
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Arbeidssituasjon.*
 import no.nav.helse.flex.domain.Soknadsperiode
@@ -17,7 +18,10 @@ import no.nav.helse.flex.util.DatoUtil.formatterDato
 import no.nav.helse.flex.util.DatoUtil.formatterPeriode
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
-fun settOppSoknadSelvstendigOgFrilanser(opts: SettOppSoknadOptions): List<Sporsmal> {
+fun settOppSoknadSelvstendigOgFrilanser(
+    opts: SettOppSoknadOptions,
+    pensjongivendeInntekt: HentPensjonsgivendeInntektResponse? = null,
+): List<Sporsmal> {
     val (sykepengesoknad, erForsteSoknadISykeforlop, harTidligereUtenlandskSpm, yrkesskade) = opts
     val erGradertReisetilskudd = sykepengesoknad.soknadstype == Soknadstype.GRADERT_REISETILSKUDD
 
