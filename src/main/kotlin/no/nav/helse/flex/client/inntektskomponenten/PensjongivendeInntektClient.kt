@@ -35,7 +35,7 @@ class PensjongivendeInntektClient(
 
         val result: ResponseEntity<HentPensjonsgivendeInntektResponse>
         try {
-             result =
+            result =
                 persongivendeInntektRestTemplate
                     .exchange(
                         uriBuilder.toUriString(),
