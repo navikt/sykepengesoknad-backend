@@ -39,7 +39,7 @@ env:
   INNTEKTSKOMPONENTEN_URL: https://team-inntekt-proxy.prod-fss-pub.nais.io/proxy/inntektskomponenten/rs
   INNTEKTSKOMPONENTEN_AAD_CLIENT_ID: prod-fss.team-inntekt.inntektskomponenten
   PENSJONSGIVENDE_INNTEKT_URL: https://team-inntekt-proxy.prod-fss-pub.nais.io/proxy/sigrun
-  PENSJONSGIVENDE_INNTEKT_CLIENT_ID: prod-fss.team-inntekt.inntektskomponenten
+  PENSJONSGIVENDE_INNTEKT_CLIENT_ID: prod-fss.team-inntekt.sigrun
   INNSENDING_API_TOKENX_CLIENT_ID: prod-gcp:team-soknad:innsending-api
   INNSENDING_API_URL: http://innsending-api.team-soknad
   GRUNNBELOEP_API_URL: https://g.nav.no/api/v1
