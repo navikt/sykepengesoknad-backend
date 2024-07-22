@@ -1,7 +1,7 @@
 package no.nav.helse.flex.soknadsopprettelse
 
-import no.nav.helse.flex.client.gronnbeloep.GrunnbeloepClient
-import no.nav.helse.flex.client.gronnbeloep.GrunnbeloepResponse
+import no.nav.helse.flex.client.grunnbeloep.GrunnbeloepClient
+import no.nav.helse.flex.client.grunnbeloep.GrunnbeloepResponse
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import java.time.LocalDate
@@ -16,7 +16,7 @@ class HentGrunnbeloepService(private val grunnbeloepClient: GrunnbeloepClient) {
         return grunnbeloepClient.getHistorikk(fra)
     }
 
-    fun hentGronnbeloepForFemAarSiden(): Mono<List<GrunnbeloepResponse>> {
+    fun hentGrunnbeloepForFemAarSiden(): Mono<List<GrunnbeloepResponse>> {
         val detteAaret = LocalDate.now().year
         val sisteFemAar =
             (detteAaret - 5 until detteAaret).map {

@@ -1,6 +1,6 @@
 package no.nav.helse.flex.mockdispatcher
 
-import no.nav.helse.flex.client.gronnbeloep.GrunnbeloepResponse
+import no.nav.helse.flex.client.grunnbeloep.GrunnbeloepResponse
 import no.nav.helse.flex.util.serialisertTilString
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.QueueDispatcher

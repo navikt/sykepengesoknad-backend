@@ -1,4 +1,4 @@
-package no.nav.helse.flex.client.gronnbeloep
+package no.nav.helse.flex.client.grunnbeloep
 
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
