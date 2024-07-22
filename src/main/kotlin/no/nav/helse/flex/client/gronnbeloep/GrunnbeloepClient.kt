@@ -15,24 +15,28 @@ class GrunnbeloepClient(
     private val webClient = webClientBuilder.baseUrl(url).build()
 
     fun getGrunnbeloep(dato: LocalDate?): Mono<GrunnbeloepResponse> {
-        val formatertDato = dato?.format(DateTimeFormatter.ISO_DATE)
         return webClient.get()
             .uri { uriBuilder ->
-                uriBuilder.path("/grunnbeloep")
-                    .queryParam("dato", formatertDato)
-                    .build()
+                val builder = uriBuilder.path("/grunnbeloep")
+                if (dato != null) {
+                    val formatertDato = dato.format(DateTimeFormatter.ISO_DATE)
+                    builder.queryParam("dato", formatertDato)
+                }
+                builder.build()
             }
             .retrieve()
             .bodyToMono(GrunnbeloepResponse::class.java)
     }
 
     fun getHistorikk(fra: LocalDate?): Mono<List<GrunnbeloepResponse>> {
-        val formatertDato = fra?.format(DateTimeFormatter.ISO_DATE)
         return webClient.get()
             .uri { uriBuilder ->
-                uriBuilder.path("/historikk")
-                    .queryParam("fra", formatertDato)
-                    .build()
+                val builder = uriBuilder.path("/historikk")
+                if (fra != null) {
+                    val formatertDato = fra.format(DateTimeFormatter.ISO_DATE)
+                    builder.queryParam("fra", formatertDato)
+                }
+                builder.build()
             }
             .retrieve()
             .bodyToFlux(GrunnbeloepResponse::class.java)

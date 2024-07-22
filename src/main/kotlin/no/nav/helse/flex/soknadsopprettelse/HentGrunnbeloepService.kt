@@ -20,7 +20,7 @@ class HentGrunnbeloepService(private val grunnbeloepClient: GrunnbeloepClient) {
         val detteAaret = LocalDate.now().year
         val sisteFemAar =
             (detteAaret - 5 until detteAaret).map {
-                grunnbeloepClient.getGrunnbeloep(LocalDate.of(it, 1, 1))
+                getGrunnbeloep(LocalDate.of(it, 1, 1))
             }
 
         return Mono.zip(sisteFemAar) { results ->
