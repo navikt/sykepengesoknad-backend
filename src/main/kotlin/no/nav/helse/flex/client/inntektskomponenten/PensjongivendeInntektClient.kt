@@ -18,7 +18,7 @@ class PensjongivendeInntektClient(
     val log = logger()
 
     fun hentPensjonsgivendeInntekter(fnr: String): HentPensjonsgivendeInntektResponse? {
-        //TODO: Fjern dette før prodsetting!!
+        // TODO: Fjern dette før prodsetting!!
         log.info("fnr som vi sender med kallet er: $fnr")
         val uriBuilder =
             UriComponentsBuilder.fromHttpUrl("$url/api/v1/pensjonsgivendeinntektforfolketrygden")
