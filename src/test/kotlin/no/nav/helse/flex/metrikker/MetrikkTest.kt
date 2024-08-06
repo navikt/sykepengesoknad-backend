@@ -37,7 +37,7 @@ class MetrikkTest : FellesTestOppsett() {
         val count = registry.counter("syfosoknad_soknad_sendt", Tags.of("type", "info", "soknadstype", "ARBEIDSTAKERE")).count()
 
         val counter = sendtArbeidstakerLinjer.first { !it.startsWith("#") }
-        assertThat(counter).isEqualTo("syfosoknad_soknad_sendt_total{soknadstype=\"ARBEIDSTAKERE\",type=\"info\",} $count")
+        assertThat(counter).isEqualTo("syfosoknad_soknad_sendt_total{soknadstype=\"ARBEIDSTAKERE\",type=\"info\"} $count")
     }
 
     @Test
@@ -50,6 +50,6 @@ class MetrikkTest : FellesTestOppsett() {
         val count = registry.counter("syfosoknad_soknad_sendt", Tags.of("type", "info", "soknadstype", "ARBEIDSTAKERE")).count()
 
         val counter = sendtArbeidstakerLinjer.first { !it.startsWith("#") }
-        assertThat(counter).isEqualTo("syfosoknad_soknad_sendt_total{soknadstype=\"ARBEIDSTAKERE\",type=\"info\",} $count")
+        assertThat(counter).isEqualTo("syfosoknad_soknad_sendt_total{soknadstype=\"ARBEIDSTAKERE\",type=\"info\"} $count")
     }
 }
