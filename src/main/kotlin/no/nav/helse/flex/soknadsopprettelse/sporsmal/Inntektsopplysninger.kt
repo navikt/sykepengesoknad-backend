@@ -36,8 +36,7 @@ fun lagSporsmalOmInntektsopplyninger(soknad: Sykepengesoknad): Sporsmal {
                                 sporsmalstekst = "Er du ny i arbeidslivet etter ${
                                     DatoUtil.formatterDato(
                                         datoForVarigEndringEtter,
-                                    )
-                                }?",
+                                    )}?",
                                 svartype = Svartype.RADIO_GRUPPE,
                                 undersporsmal =
                                     listOf(

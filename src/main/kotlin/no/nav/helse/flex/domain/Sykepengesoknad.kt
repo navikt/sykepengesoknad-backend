@@ -48,6 +48,7 @@ data class Sykepengesoknad(
     val inntektsopplysningerInnsendingDokumenter: List<InntektsopplysningerDokumentType>? = null,
     val fiskerBlad: FiskerBlad? = null,
     val kjentOppholdstillatelse: KjentOppholdstillatelse? = null,
+    val antattArbeidsgiverperiode: Boolean? = null,
 ) : Serializable {
     fun alleSporsmalOgUndersporsmal(): List<Sporsmal> {
         return sporsmal.flatten()

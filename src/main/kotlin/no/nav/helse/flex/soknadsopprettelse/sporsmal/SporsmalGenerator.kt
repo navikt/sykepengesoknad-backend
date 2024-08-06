@@ -1,5 +1,6 @@
 package no.nav.helse.flex.soknadsopprettelse.sporsmal
 
+import no.nav.helse.flex.client.flexsyketilfelle.FlexSyketilfelleClient
 import no.nav.helse.flex.config.EnvironmentToggles
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstype
@@ -33,6 +34,7 @@ class SporsmalGenerator(
     private val environmentToggles: EnvironmentToggles,
     private val unleashToggles: UnleashToggles,
     private val medlemskapVurderingRepository: MedlemskapVurderingRepository,
+    private val flexSyketilfelleClient: FlexSyketilfelleClient,
 ) {
     private val log = logger()
 
@@ -108,6 +110,7 @@ class SporsmalGenerator(
                         arbeidsgiverOrgnummer = soknad.arbeidsgiverOrgnummer!!,
                         startSykeforlop = soknad.startSykeforlop!!,
                     )
+                // instantiate a flex syketilfelle client
 
                 val arbeidstakerSporsmal =
                     settOppSoknadArbeidstaker(
@@ -126,6 +129,8 @@ class SporsmalGenerator(
                                     )?.hentKjentOppholdstillatelse(),
                             ),
                         andreKjenteArbeidsforhold = andreKjenteArbeidsforhold,
+                        // flexSyketilfelleClient = flexSyketilfelleClient,
+                        // identService = identService,
                     )
 
                 SporsmalOgAndreKjenteArbeidsforhold(

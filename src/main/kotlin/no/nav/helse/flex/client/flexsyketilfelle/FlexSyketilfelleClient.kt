@@ -105,6 +105,14 @@ class FlexSyketilfelleClient(
             ?: throw RuntimeException("Ingen data returnert fra flex-syketilfelle i erUtenforVentetid")
     }
 
+    /*
+
+    denne kan vi bruke for å finne ut om søkeren er i AG eller ikke, men burde vi kanskje som håvard sier også lagre dette ned i db?
+
+
+
+     */
+
     @Retryable
     fun beregnArbeidsgiverperiode(
         soknad: Sykepengesoknad,

@@ -1,6 +1,7 @@
 package no.nav.helse.flex.soknadsopprettelse
 
 import no.nav.helse.flex.aktivering.AktiveringBestilling
+import no.nav.helse.flex.client.flexsyketilfelle.FlexSyketilfelleClient
 import no.nav.helse.flex.domain.*
 import no.nav.helse.flex.domain.Merknad
 import no.nav.helse.flex.domain.exception.SykeforloepManglerSykemeldingException
@@ -41,8 +42,11 @@ class OpprettSoknadService(
     private val soknadProducer: SoknadProducer,
     private val lagreJulesoknadKandidater: LagreJulesoknadKandidater,
     private val slettSoknaderTilKorrigertSykmeldingService: SlettSoknaderTilKorrigertSykmeldingService,
+    private val flexSyketilfelleClient: FlexSyketilfelleClient?,
 ) {
     private val log = logger()
+
+    // her tenker jeg
 
     fun opprettSykepengesoknaderForSykmelding(
         sykmeldingKafkaMessage: SykmeldingKafkaMessage,
@@ -50,6 +54,7 @@ class OpprettSoknadService(
         identer: FolkeregisterIdenter,
         arbeidsgiverStatusDTO: ArbeidsgiverStatusKafkaDTO?,
         flexSyketilfelleSykeforloep: List<Sykeforloep>,
+        flexSyketilfelleClient: FlexSyketilfelleClient?,
     ): List<AktiveringBestilling> {
         val sykmelding = sykmeldingKafkaMessage.sykmelding
 
@@ -60,6 +65,19 @@ class OpprettSoknadService(
                 it.sykmeldinger.any { sm -> sm.id == sykmelding.id }
             } ?: throw SykeforloepManglerSykemeldingException("Sykeforloep mangler sykmelding ${sykmelding.id}")
         val startSykeforlop = sykeforloep.oppfolgingsdato
+
+        // helper function to determine if arbeidsgiveperiode
+//        fun erArbeidsgiverperiode(sykepengesoknad : Sykepengesoknad): Boolean {
+//            if (flexSyketilfelleClient == null) {
+//                return false
+//            }
+//         flexSyketilfelleClient.beregnArbeidsgiverperiode(
+//                    soknad = sykepengesoknad,
+//                    sykmelding = null,
+//                    forelopig = sykepengesoknad.status != Soknadstatus.SENDT,
+//                    identer = identer,
+//                )
+//        }
 
         val sykmeldingSplittetMellomTyper = sykmelding.splittMellomTyper()
         val soknaderTilOppretting =
@@ -73,6 +91,7 @@ class OpprettSoknadService(
                     klippMetrikk,
                 ).map {
                     val perioderFraSykmeldingen = it.delOppISoknadsperioder(sm)
+                    // her opprettets søknnaden
                     Sykepengesoknad(
                         id = sykmeldingKafkaMessage.skapSoknadsId(it.fom, it.tom),
                         fnr = identer.originalIdent,
@@ -106,11 +125,28 @@ class OpprettSoknadService(
                                 FiskerBlad::class.java,
                                 sykmeldingKafkaMessage.event.brukerSvar?.fisker?.blad?.svar?.name,
                             ),
+                        antattArbeidsgiverperiode = null,
                     )
                 }
                     .filter { it.soknadPerioder?.isNotEmpty() ?: true }
                     .also { it.lagreJulesoknadKandidater() }
             }.flatten()
+
+        for (sykepengesoknad in soknaderTilOppretting) {
+            if (flexSyketilfelleClient != null) {
+                val arbeidsgiverperiode =
+                    flexSyketilfelleClient.beregnArbeidsgiverperiode(
+                        soknad = sykepengesoknad,
+                        sykmelding = null,
+                        forelopig = sykepengesoknad.status != Soknadstatus.SENDT,
+                        identer = identer,
+                    )
+
+                if (arbeidsgiverperiode != null && arbeidsgiverperiode.oppbruktArbeidsgiverperiode) {
+                    sykepengesoknadDAO.lagreSykepengesoknad(sykepengesoknad.copy(antattArbeidsgiverperiode = true))
+                }
+            }
+        }
 
         val eksisterendeSoknaderForSm = eksisterendeSoknader.filter { it.sykmeldingId == sykmelding.id }
 

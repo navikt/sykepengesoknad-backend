@@ -1,6 +1,7 @@
 package no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger
 
 import no.nav.helse.flex.aktivering.AktiveringBestilling
+import no.nav.helse.flex.client.flexsyketilfelle.FlexSyketilfelleClient
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykeforloep
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional
 class KlippOgOpprett(
     private val opprettSoknadService: OpprettSoknadService,
     private val overlapp: Overlapp,
+    private val flexSyketilfelleClient: FlexSyketilfelleClient,
 ) {
     val log = logger()
 
@@ -48,12 +50,14 @@ class KlippOgOpprett(
                 )
         }
 
+        // er det her vi bør gjette på arbeidsgiverperiode?
         return opprettSoknadService.opprettSykepengesoknaderForSykmelding(
             sykmeldingKafkaMessage = kafkaMessage,
             arbeidssituasjon = arbeidssituasjon,
             identer = identer,
             arbeidsgiverStatusDTO = arbeidsgiverStatusDTO,
             flexSyketilfelleSykeforloep = sykeForloep,
+            flexSyketilfelleClient = flexSyketilfelleClient,
         )
     }
 }
