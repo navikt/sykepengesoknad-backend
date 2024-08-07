@@ -7,7 +7,6 @@ import no.nav.helse.flex.kafka.consumer.SYKMELDINGBEKREFTET_TOPIC
 import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
-import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_MEDLEMSKAP_SPORSMAL
 import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS
 import no.nav.helse.flex.util.serialisertTilString
 import no.nav.security.token.support.core.api.Unprotected
@@ -88,7 +87,6 @@ class TestdataGenerator {
 
     @PostConstruct
     fun toggleSporsmal() {
-        fakeUnleash.enable(UNLEASH_CONTEXT_MEDLEMSKAP_SPORSMAL)
         fakeUnleash.enable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
     }
 

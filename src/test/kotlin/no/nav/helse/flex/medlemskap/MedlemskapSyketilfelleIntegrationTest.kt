@@ -20,7 +20,6 @@ import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.reisetilskudd
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.tilSoknader
-import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_MEDLEMSKAP_SPORSMAL
 import no.nav.helse.flex.util.flatten
 import no.nav.helse.flex.util.serialisertTilString
 import no.nav.helse.flex.ventPåRecords
@@ -33,7 +32,6 @@ import org.amshove.kluent.`should not contain`
 import org.amshove.kluent.`should not contain any`
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
@@ -53,12 +51,6 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
 
     @Autowired
     private lateinit var aktiveringJob: AktiveringJob
-
-    @BeforeAll
-    fun konfigurerUnleash() {
-        fakeUnleash.resetAll()
-        fakeUnleash.enable(UNLEASH_CONTEXT_MEDLEMSKAP_SPORSMAL)
-    }
 
     @AfterEach
     fun slettFraDatabase() {

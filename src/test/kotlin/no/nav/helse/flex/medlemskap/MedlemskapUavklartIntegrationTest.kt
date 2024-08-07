@@ -17,7 +17,6 @@ import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
-import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_MEDLEMSKAP_SPORSMAL
 import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS
 import no.nav.helse.flex.util.serialisertTilString
 import no.nav.helse.flex.ventPåRecords
@@ -42,7 +41,7 @@ class MedlemskapUavklartIntegrationTest : FellesTestOppsett() {
     @BeforeAll
     fun configureUnleash() {
         fakeUnleash.resetAll()
-        fakeUnleash.enable(UNLEASH_CONTEXT_MEDLEMSKAP_SPORSMAL, UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
+        fakeUnleash.enable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
     }
 
     @AfterAll

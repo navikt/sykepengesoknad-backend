@@ -189,19 +189,9 @@ class SporsmalGenerator(
                 listOf(SykepengesoknadSporsmalTag.ARBEID_UTENFOR_NORGE)
             }
 
-            !unleashToggles.stillMedlemskapSporsmal(soknad.fnr) -> {
-                log.info(
-                    "Medlemskapvurdering er UAVKLART for søknad ${soknad.id}, men medlemskapToggle svarte " +
-                        "'false' så det stilles ingen spørsmål i søknaden .",
-                )
-                listOf(SykepengesoknadSporsmalTag.ARBEID_UTENFOR_NORGE)
-            }
-
+            //  LovMe kan returnerer UAVKLART med tilhørende spørsmål.
             else -> {
-                log.info(
-                    "Medlemskapvurdering er UAVKLART for søknad ${soknad.id}, medlemskapToggle svarte 'true' så det " +
-                        "stilles spørsmål i søknaden .",
-                )
+                log.info("Medlemskapvurdering er UAVKLART med spørsmål for søknad ${soknad.id}.")
                 sporsmal.map {
                     when (it) {
                         MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE -> LovMeSporsmalTag.OPPHOLDSTILATELSE
