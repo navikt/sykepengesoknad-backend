@@ -113,6 +113,23 @@ class OpprettSoknadService(
                     .also { it.lagreJulesoknadKandidater() }
             }.flatten()
 
+        for (sykepengesoknad in soknaderTilOppretting) {
+            if (flexSyketilfelleClient != null) {
+                val arbeidsgiverperiode =
+                    flexSyketilfelleClient.beregnArbeidsgiverperiode(
+                        soknad = sykepengesoknad,
+                        sykmelding = null,
+                        forelopig = sykepengesoknad.status != Soknadstatus.SENDT,
+                        identer = identer,
+                    )
+
+                if (arbeidsgiverperiode != null && arbeidsgiverperiode.oppbruktArbeidsgiverperiode) {
+                    // sykepengesoknad.lagreSykepengesoknad(sykepengesoknad.copy(antattArbeidsgiverperiode = true))
+                    log.info("found soknad med oppbrukt arbeidsgiverperiode")
+                }
+            }
+        }
+
         val eksisterendeSoknaderForSm = eksisterendeSoknader.filter { it.sykmeldingId == sykmelding.id }
 
         if (eksisterendeSoknaderForSm.isNotEmpty()) {
