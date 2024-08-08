@@ -106,6 +106,7 @@ class OpprettSoknadService(
                                 FiskerBlad::class.java,
                                 sykmeldingKafkaMessage.event.brukerSvar?.fisker?.blad?.svar?.name,
                             ),
+                        antattArbeidsgiverperiode = null,
                     )
                 }
                     .filter { it.soknadPerioder?.isNotEmpty() ?: true }

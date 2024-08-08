@@ -53,6 +53,8 @@ fun FellesTestOppsett.sendSykmelding(
 
     val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = forventaSoknader).tilSoknader()
 
+
+    // det er her den failer
     soknader.forEach {
         await().until {
             if (it.status == SoknadsstatusDTO.SLETTET) {
