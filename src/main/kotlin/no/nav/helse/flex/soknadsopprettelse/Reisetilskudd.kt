@@ -13,7 +13,7 @@ import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
 fun skapReisetilskuddsoknad(opts: SettOppSoknadOptions): List<Sporsmal> {
     return mutableListOf(
-        ansvarserklaringSporsmal(reisetilskudd = true),
+        ansvarserklaringSporsmal(),
     ).also {
         it.addAll(
             reisetilskuddSporsmal(
