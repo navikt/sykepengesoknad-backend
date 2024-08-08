@@ -20,6 +20,7 @@ fun FellesTestOppsett.sendSykmelding(
     forventaSoknader: Int = 1,
 ): List<SykepengesoknadDTO> {
     flexSyketilfelleMockRestServiceServer.reset()
+    repeat(forventaSoknader) { mockFlexSyketilfelleArbeidsgiverperiode() }
 
     if (sykmeldingKafkaMessage.hentArbeidssituasjon() in
         listOf(
