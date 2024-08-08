@@ -125,11 +125,7 @@ class ReisetilskuddIntegrationTest : FellesTestOppsett() {
             soknaden.sporsmal!!.first {
                 it.tag == ANSVARSERKLARING
             }.sporsmalstekst,
-        ).isEqualTo(
-            "Jeg vet at jeg kan miste retten til reisetilskudd og sykepenger hvis opplysningene jeg gir ikke er " +
-                "riktige eller fullstendige. Jeg vet også at NAV kan holde igjen eller kreve tilbake penger, og at å " +
-                "gi feil opplysninger kan være straffbart.",
-        )
+        ).isEqualTo("Jeg vil svare så godt jeg kan på spørsmålene i søknaden.")
         assertThat(soknaden.sporsmal!!.first { it.tag == TIL_SLUTT }.sporsmalstekst).isEqualTo(
             tilSlutt().sporsmalstekst,
         )

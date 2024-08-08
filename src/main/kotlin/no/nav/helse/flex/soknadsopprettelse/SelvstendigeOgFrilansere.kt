@@ -22,7 +22,7 @@ fun settOppSoknadSelvstendigOgFrilanser(opts: SettOppSoknadOptions): List<Sporsm
     val erGradertReisetilskudd = sykepengesoknad.soknadstype == Soknadstype.GRADERT_REISETILSKUDD
 
     return mutableListOf<Sporsmal>().apply {
-        add(ansvarserklaringSporsmal(erGradertReisetilskudd))
+        add(ansvarserklaringSporsmal())
         add(
             if (erGradertReisetilskudd) {
                 tilbakeIFulltArbeidGradertReisetilskuddSporsmal(sykepengesoknad)
