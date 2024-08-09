@@ -20,6 +20,7 @@ fun FellesTestOppsett.sendSykmelding(
     forventaSoknader: Int = 1,
 ): List<SykepengesoknadDTO> {
     flexSyketilfelleMockRestServiceServer.reset()
+    repeat(forventaSoknader) { mockFlexSyketilfelleArbeidsgiverperiode() }
 
     if (sykmeldingKafkaMessage.hentArbeidssituasjon() in
         listOf(
@@ -52,6 +53,7 @@ fun FellesTestOppsett.sendSykmelding(
 
     val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = forventaSoknader).tilSoknader()
 
+    // det er her den failer
     soknader.forEach {
         await().until {
             if (it.status == SoknadsstatusDTO.SLETTET) {
