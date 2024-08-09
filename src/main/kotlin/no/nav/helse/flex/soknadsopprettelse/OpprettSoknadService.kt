@@ -1,6 +1,7 @@
 package no.nav.helse.flex.soknadsopprettelse
 
 import no.nav.helse.flex.aktivering.AktiveringBestilling
+import no.nav.helse.flex.client.flexsyketilfelle.FlexSyketilfelleClient
 import no.nav.helse.flex.domain.*
 import no.nav.helse.flex.domain.Merknad
 import no.nav.helse.flex.domain.exception.SykeforloepManglerSykemeldingException
@@ -41,6 +42,7 @@ class OpprettSoknadService(
     private val soknadProducer: SoknadProducer,
     private val lagreJulesoknadKandidater: LagreJulesoknadKandidater,
     private val slettSoknaderTilKorrigertSykmeldingService: SlettSoknaderTilKorrigertSykmeldingService,
+    private val flexSyketilfelleClient: FlexSyketilfelleClient,
 ) {
     private val log = logger()
 
@@ -114,7 +116,7 @@ class OpprettSoknadService(
             }.flatten()
 
         for (sykepengesoknad in soknaderTilOppretting) {
-            if (flexSyketilfelleClient != null) {
+            if (sykepengesoknad.soknadstype == Soknadstype.ARBEIDSTAKERE) {
                 val arbeidsgiverperiode =
                     flexSyketilfelleClient.beregnArbeidsgiverperiode(
                         soknad = sykepengesoknad,
@@ -122,7 +124,6 @@ class OpprettSoknadService(
                         forelopig = sykepengesoknad.status != Soknadstatus.SENDT,
                         identer = identer,
                     )
-
                 if (arbeidsgiverperiode != null && arbeidsgiverperiode.oppbruktArbeidsgiverperiode) {
                     // sykepengesoknad.lagreSykepengesoknad(sykepengesoknad.copy(antattArbeidsgiverperiode = true))
                     log.info("found soknad med oppbrukt arbeidsgiverperiode")
