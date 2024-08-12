@@ -15,31 +15,24 @@ interface VedtaksperiodeBehandlingRepository : CrudRepository<VedtaksperiodeBeha
         behandlingId: String,
     ): VedtaksperiodeBehandlingDbRecord?
 
-    fun findByVedtaksperiodeId(vedtaksperiodeId: String): List<VedtaksperiodeBehandlingDbRecord>
-
-    fun findByIdIn(id: List<String>): List<VedtaksperiodeBehandlingDbRecord>
-
     @Query(
         """
-            select distinct fnr
-            from 
-            (
-                select max(s.fnr) as fnr, max(s.sendt) as sendt
-                from vedtaksperiode_behandling v, sykepengesoknad s, vedtaksperiode_behandling_sykepengesoknad vbs
-                WHERE vbs.sykepengesoknad_uuid = s.sykepengesoknad_uuid 
-                AND vbs.vedtaksperiode_behandling_id = v.id
-                AND v.siste_spleisstatus = 'VENTER_PÅ_ARBEIDSGIVER' 
-                AND v.siste_varslingstatus is null 
-                group by v.vedtaksperiode_id, v.behandling_id
-            ) as sub
-            where sendt < :sendtFoer
-
+            SELECT vbs.sykepengesoknad_uuid, vb.vedtaksperiode_id
+            FROM vedtaksperiode_behandling_sykepengesoknad vbs,
+            vedtaksperiode_behandling vb 
+            WHERE vb.id = vbs.vedtaksperiode_behandling_id
+            AND vbs.sykepengesoknad_uuid in(:soknadUuider)
         """,
     )
-    fun finnPersonerMedPerioderSomVenterPaaArbeidsgiver(
-        @Param("sendtFoer") sendtFoer: Instant,
-    ): List<String>
+    fun finnVedtaksperiodeiderForSoknad(
+        @Param("soknadUuider") soknadUuider: List<String>,
+    ): List<SoknadVedtaksperiodeId>
 }
+
+data class SoknadVedtaksperiodeId(
+    val sykepengesoknadUuid: String,
+    val vedtaksperiodeId: String,
+)
 
 @Table("vedtaksperiode_behandling")
 data class VedtaksperiodeBehandlingDbRecord(
@@ -62,16 +55,15 @@ data class VedtaksperiodeBehandlingSykepengesoknadDbRecord(
 )
 
 @Repository
-interface VedtaksperiodeBehandlingSykepengesoknadRepository : CrudRepository<VedtaksperiodeBehandlingSykepengesoknadDbRecord, String> {
+interface VedtaksperiodeBehandlingSykepengesoknadRepository :
+    CrudRepository<VedtaksperiodeBehandlingSykepengesoknadDbRecord, String> {
     fun findByVedtaksperiodeBehandlingIdIn(ider: List<String>): List<VedtaksperiodeBehandlingSykepengesoknadDbRecord>
 
     fun findBySykepengesoknadUuidIn(ider: List<String>): List<VedtaksperiodeBehandlingSykepengesoknadDbRecord>
 }
 
 @Repository
-interface VedtaksperiodeBehandlingStatusRepository : CrudRepository<VedtaksperiodeBehandlingStatusDbRecord, String> {
-    fun findByVedtaksperiodeBehandlingIdIn(ider: List<String>): List<VedtaksperiodeBehandlingStatusDbRecord>
-}
+interface VedtaksperiodeBehandlingStatusRepository : CrudRepository<VedtaksperiodeBehandlingStatusDbRecord, String>
 
 @Table("vedtaksperiode_behandling_status")
 data class VedtaksperiodeBehandlingStatusDbRecord(
