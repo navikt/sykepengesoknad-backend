@@ -20,8 +20,6 @@ class VedtaksperiodeBehandlingConsumer(
         containerFactory = "aivenKafkaListenerContainerFactory",
         id = "sis-consumer",
         idIsGroup = false,
-        // earliest
-        properties = ["auto.offset.reset=earliest"],
     )
     fun listen(
         cr: ConsumerRecord<String, String>,
