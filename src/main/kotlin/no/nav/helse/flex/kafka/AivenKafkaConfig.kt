@@ -182,6 +182,7 @@ class AivenKafkaConfig(
 }
 
 const val SYKEPENGESOKNAD_TOPIC = "flex." + "sykepengesoknad"
+const val SIS_TOPIC = "tbd." + "sis"
 const val SYKMELDING_SENDT_RETRY_TOPIC = "flex." + "sykmeldinger-sendt-retry"
 const val SYKEPENGESOKNAD_AKTIVERING_TOPIC = "flex." + "sykepengesoknad-aktivering"
 const val PERSONHENDELSE_TOPIC = "pdl." + "leesah-v1"
