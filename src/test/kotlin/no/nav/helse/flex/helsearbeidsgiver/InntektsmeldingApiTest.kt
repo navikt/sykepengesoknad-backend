@@ -4,15 +4,30 @@ import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.HentSoknaderRequest
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
+import no.nav.helse.flex.vedtaksperiodebehandling.Behandlingstatusmelding
+import no.nav.helse.flex.vedtaksperiodebehandling.Behandlingstatustype
+import no.nav.helse.flex.vedtaksperiodebehandling.VedtaksperiodeBehandlingRepository
+import no.nav.helse.flex.vedtaksperiodebehandling.VedtaksperiodeBehandlingSykepengesoknadRepository
 import org.amshove.kluent.*
+import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.*
+import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
+import java.time.OffsetDateTime
+import java.util.*
+import java.util.concurrent.TimeUnit
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class InntektsmeldingApiTest : FellesTestOppsett() {
     private val fnr = "12345678900"
     private val fnr2 = "11111111111"
     private val basisdato = LocalDate.of(2021, 9, 1)
+
+    @Autowired
+    lateinit var vedtaksperiodeBehandlingSykepengesoknadRepository: VedtaksperiodeBehandlingSykepengesoknadRepository
+
+    @Autowired
+    lateinit var vedtaksperiodeBehandlingRepository: VedtaksperiodeBehandlingRepository
 
     @Test
     @Order(1)
@@ -108,5 +123,49 @@ class InntektsmeldingApiTest : FellesTestOppsett() {
                 orgnummer = "123454543",
             ),
         ) shouldHaveSize 2
+    }
+
+    @Test
+    @Order(3)
+    fun `Vi returnerer vedtaksperiode id på en søknad hvis vi kjenner den`() {
+        val soknader =
+            hentSomArbeidsgiver(
+                HentSoknaderRequest(
+                    fnr = fnr2,
+                    eldsteFom = basisdato.minusDays(360),
+                    orgnummer = "123454543",
+                ),
+            )
+        soknader[0].vedtaksperiodeId.shouldBeNull()
+        soknader[1].vedtaksperiodeId.shouldBeNull()
+        val tidspunkt = OffsetDateTime.now()
+
+        val behandlingstatusmelding =
+            Behandlingstatusmelding(
+                vedtaksperiodeId = UUID.randomUUID().toString(),
+                behandlingId = UUID.randomUUID().toString(),
+                status = Behandlingstatustype.OPPRETTET,
+                tidspunkt = tidspunkt,
+                eksterneSøknadIder = listOf(soknader.first().sykepengesoknadUuid),
+            )
+
+        sendBehandlingsstatusMelding(behandlingstatusmelding)
+        await().atMost(5, TimeUnit.SECONDS).until {
+            vedtaksperiodeBehandlingSykepengesoknadRepository.findBySykepengesoknadUuidIn(
+                listOf(soknader.first().sykepengesoknadUuid),
+            ).firstOrNull()?.vedtaksperiodeBehandlingId != null
+        }
+
+        hentSomArbeidsgiver(
+            HentSoknaderRequest(
+                fnr = fnr2,
+                eldsteFom = basisdato.minusDays(360),
+                orgnummer = "123454543",
+            ),
+        ).let {
+            it[0].vedtaksperiodeId.shouldNotBeNull()
+            it[0].vedtaksperiodeId shouldBeEqualTo behandlingstatusmelding.vedtaksperiodeId
+            it[1].vedtaksperiodeId.shouldBeNull()
+        }
     }
 }
