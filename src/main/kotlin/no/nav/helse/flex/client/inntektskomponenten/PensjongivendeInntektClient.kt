@@ -26,7 +26,7 @@ class PensjongivendeInntektClient(
         val headers = HttpHeaders()
         headers["Nav-Consumer-Id"] = "sykepengesoknad-backend"
         headers["Nav-Call-Id"] = UUID.randomUUID().toString()
-        headers["rettighetspakke"] = "navSykepenger"
+        headers["rettighetspakke"] = "navForeldrepenger"
         headers["Nav-Personident"] = fnr
         headers["inntektsaar"] = "2023"
         headers.contentType = MediaType.APPLICATION_JSON
