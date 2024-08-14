@@ -62,7 +62,6 @@ dependencies {
     implementation("no.nav.helse.flex:sykepengesoknad-kafka:$sykepengesoknadKafkaVersion")
     implementation("io.confluent:kafka-connect-avro-converter:$confluentVersion")
     implementation("io.confluent:kafka-schema-registry-client:$confluentVersion")
-    implementation("no.nav.helse.flex:sykepengesoknad-kafka:$sykepengesoknadKafkaVersion")
     implementation("no.nav.syfo.kafka:kafkautils:$syfoKafkaVersion")
     implementation("no.nav.syfo.kafka:serialisering:$syfoKafkaVersion")
     implementation("org.apache.avro:avro:$avroVersion")

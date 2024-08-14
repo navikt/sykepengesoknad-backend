@@ -99,7 +99,7 @@ private fun leggSvarPaSoknad(sykepengesoknad: Sykepengesoknad): Sykepengesoknad 
             .jobbetDu100Prosent()
             .jobbetDuGradert()
             .andreInntektskilder()
-            .bekreftelsespunkter()
+            .oppsummering()
 
     return s.besvarsporsmal(PERMISJON_V2, "NEI")
         .utenlandsopphold()
@@ -151,7 +151,7 @@ private fun Sykepengesoknad.andreInntektskilder(): Sykepengesoknad {
         .besvarsporsmal(INNTEKTSKILDE_SELVSTENDIG_DAGMAMMA, "CHECKED")
 }
 
-private fun Sykepengesoknad.bekreftelsespunkter(): Sykepengesoknad {
+private fun Sykepengesoknad.oppsummering(): Sykepengesoknad {
     return besvarsporsmal(TIL_SLUTT, "Jeg lover å ikke lyve")
         .besvarsporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
 }

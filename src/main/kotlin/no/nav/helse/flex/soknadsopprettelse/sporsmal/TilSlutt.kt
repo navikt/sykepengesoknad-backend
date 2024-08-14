@@ -8,8 +8,7 @@ import no.nav.helse.flex.soknadsopprettelse.TIL_SLUTT
 fun tilSlutt(): Sporsmal {
     return Sporsmal(
         tag = TIL_SLUTT,
-        sporsmalstekst = "Viktig å være klar over:",
-        svartype = Svartype.BEKREFTELSESPUNKTER,
+        svartype = Svartype.OPPSUMMERING,
         undersporsmal =
             listOf(
                 Sporsmal(
