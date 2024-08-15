@@ -377,8 +377,7 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
             .besvarSporsmal(TRANSPORT_TIL_DAGLIG, "NEI")
             .besvarSporsmal(REISE_MED_BIL, "NEI")
             .besvarSporsmal(UTBETALING, "JA")
-            .besvarSporsmal(TIL_SLUTT, "Jeg lover å ikke lyve!", ferdigBesvart = false)
-            .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
+            .oppsummering()
     }
 
     @Test
@@ -501,8 +500,7 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
             .besvarSporsmal(OPPHOLD_UTENFOR_EOS, "NEI")
             .besvarSporsmal("JOBBET_DU_GRADERT_0", "NEI")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
-            .besvarSporsmal(TIL_SLUTT, "Jeg lover å ikke lyve!", ferdigBesvart = false)
-            .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
+            .oppsummering()
             .sendSoknad()
 
         val sendtSøknad = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()

@@ -419,13 +419,13 @@ fun Sporsmal.validerAntallSvar() {
             GRUPPE_AV_UNDERSPORSMAL,
             INFO_BEHANDLINGSDAGER,
             CHECKBOX_GRUPPE,
+            OPPSUMMERING,
             -> {
                 { it == 0 }
             }
 
             LAND,
             BEKREFTELSESPUNKTER,
-            OPPSUMMERING,
             COMBOBOX_SINGLE,
             COMBOBOX_MULTI,
             PERIODER,

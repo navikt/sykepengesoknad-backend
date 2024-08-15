@@ -264,8 +264,7 @@ class OverlapperEtter : FellesTestOppsett() {
             .besvarSporsmal(OPPHOLD_UTENFOR_EOS, "NEI")
             .besvarSporsmal(ARBEID_UNDERVEIS_100_PROSENT + '0', "NEI")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
-            .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
-            .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
+            .oppsummering()
             .sendSoknad()
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
@@ -505,8 +504,7 @@ class OverlapperEtter : FellesTestOppsett() {
             .besvarSporsmal(OPPHOLD_UTENFOR_EOS, "NEI")
             .besvarSporsmal(ARBEID_UNDERVEIS_100_PROSENT + '0', "NEI")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
-            .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
-            .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
+            .oppsummering()
             .sendSoknad()
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
@@ -764,8 +762,7 @@ class OverlapperEtter : FellesTestOppsett() {
             .besvarSporsmal(OPPHOLD_UTENFOR_EOS, "NEI")
             .besvarSporsmal(JOBBET_DU_GRADERT + '0', "NEI")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
-            .besvarSporsmal(TIL_SLUTT, "Jeg lover å ikke lyve!", ferdigBesvart = false)
-            .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
+            .oppsummering()
             .sendSoknad()
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
@@ -860,8 +857,7 @@ class OverlapperEtter : FellesTestOppsett() {
             .besvarSporsmal(OPPHOLD_UTENFOR_EOS, "NEI")
             .besvarSporsmal(JOBBET_DU_GRADERT + '0', "NEI")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
-            .besvarSporsmal(TIL_SLUTT, "Jeg lover å ikke lyve!", ferdigBesvart = false)
-            .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
+            .oppsummering()
             .sendSoknad()
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)

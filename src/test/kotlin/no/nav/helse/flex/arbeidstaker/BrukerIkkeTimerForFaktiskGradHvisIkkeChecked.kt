@@ -67,7 +67,7 @@ class BrukerIkkeTimerForFaktiskGradHvisIkkeChecked : FellesTestOppsett() {
             .besvarSporsmal("HVOR_MYE_PROSENT_VERDI_0", "51", false)
             .besvarSporsmal("HVOR_MYE_TIMER_VERDI_0", "12", true)
             .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
-            .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
+            .besvarSporsmal(tag = "TIL_SLUTT", svar = null, ferdigBesvart = false)
             .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
             .sendSoknad()
         juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)

@@ -7,6 +7,7 @@ import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknad
 import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.oppdaterSporsmal
 import no.nav.helse.flex.sendSoknadMedResult
+import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
 fun RSSporsmal.byttSvar(
@@ -116,5 +117,9 @@ class SoknadBesvarer(
             soknadId = rSSykepengesoknad.id,
             fnr = fnr,
         )
+    }
+
+    fun oppsummering(): SoknadBesvarer {
+        return besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
     }
 }

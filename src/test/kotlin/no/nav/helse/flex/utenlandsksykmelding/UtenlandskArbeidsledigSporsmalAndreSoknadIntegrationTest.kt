@@ -55,7 +55,7 @@ class UtenlandskArbeidsledigSporsmalAndreSoknadIntegrationTest : FellesTestOppse
             .besvarSporsmal(tag = "ARBEID_UTENFOR_NORGE", svar = "NEI")
             .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER", svar = "NEI")
             .besvarSporsmal(tag = "OPPHOLD_UTENFOR_EOS", svar = "NEI")
-            .besvarSporsmal(tag = "TIL_SLUTT", svar = "svar", ferdigBesvart = false)
+            .besvarSporsmal(tag = "TIL_SLUTT", svar = null, ferdigBesvart = false)
             .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
             .sendSoknad()
 
@@ -99,7 +99,7 @@ class UtenlandskArbeidsledigSporsmalAndreSoknadIntegrationTest : FellesTestOppse
             .besvarSporsmal(tag = "UTENLANDSK_SYKMELDING_BOSTED", svar = "NEI")
             .besvarSporsmal(tag = "UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE", svar = "NEI")
             .besvarSporsmal(tag = "UTENLANDSK_SYKMELDING_TRYGD_UTENFOR_NORGE", svar = "NEI")
-            .besvarSporsmal(tag = "TIL_SLUTT", svar = "svar", ferdigBesvart = false)
+            .besvarSporsmal(tag = "TIL_SLUTT", svar = null, ferdigBesvart = false)
             .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
             .sendSoknad()
 

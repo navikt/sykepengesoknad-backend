@@ -50,8 +50,7 @@ class TransaksjonshandteringTest : FellesTestOppsett() {
 
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
             .besvarSporsmal(FRISKMELDT, "JA")
-            .besvarSporsmal(TIL_SLUTT, "svar", ferdigBesvart = false)
-            .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
+            .oppsummering()
             .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
             .besvarSporsmal(ARBEID_UTENFOR_NORGE, "JA")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER, "NEI")

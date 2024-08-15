@@ -192,8 +192,7 @@ class AnnetArbeidsforholdIntegrationTest : FellesTestOppsett() {
                 .besvarSporsmal(ANDRE_INNTEKTSKILDER, "NEI")
                 .besvarSporsmal(OPPHOLD_UTENFOR_EOS, "NEI")
                 .besvarSporsmal(ARBEID_UTENFOR_NORGE, "NEI")
-                .besvarSporsmal(TIL_SLUTT, "punkt 1, 2 og 3", ferdigBesvart = false)
-                .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
+                .oppsummering()
                 .sendSoknad()
 
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)

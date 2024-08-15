@@ -192,8 +192,7 @@ class FrilanserIntegrationTest : FellesTestOppsett() {
             .besvarSporsmal(ARBEID_UTENFOR_NORGE, "NEI", mutert = false)
             .besvarSporsmal(ANDRE_INNTEKTSKILDER, "NEI", mutert = false)
             .besvarSporsmal(OPPHOLD_UTENFOR_EOS, "NEI", mutert = false)
-            .besvarSporsmal(TIL_SLUTT, "punkt 1, 2 ... 5", ferdigBesvart = false)
-            .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED", mutert = false)
+            .oppsummering()
             .also {
                 assertThat(it.muterteSoknaden).isFalse()
             }

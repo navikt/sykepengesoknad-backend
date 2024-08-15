@@ -118,8 +118,7 @@ class OppholdUtlandIntegrationTest : FellesTestOppsett() {
             .besvarSporsmal(ARBEIDSGIVER, svar = "JA", ferdigBesvart = false)
             .besvarSporsmal(SYKMELDINGSGRAD, "JA", ferdigBesvart = false)
             .besvarSporsmal(FERIE, "JA", mutert = true, ferdigBesvart = false)
-            .besvarSporsmal(TIL_SLUTT, "svar", ferdigBesvart = false)
-            .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
+            .oppsummering()
 
         val soknadEtter =
             hentSoknad(
@@ -130,8 +129,7 @@ class OppholdUtlandIntegrationTest : FellesTestOppsett() {
         SoknadBesvarer(soknadEtter, this, fnr)
             .besvarSporsmal(FERIE, svar = "NEI", ferdigBesvart = false)
             .besvarSporsmal(ARBEIDSGIVER, svar = "NEI", ferdigBesvart = false)
-            .besvarSporsmal(TIL_SLUTT, "svar", ferdigBesvart = false)
-            .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
+            .oppsummering()
     }
 
     @Test
@@ -141,9 +139,7 @@ class OppholdUtlandIntegrationTest : FellesTestOppsett() {
                 soknadId = hentSoknaderMetadata(fnr).first().id,
                 fnr = fnr,
             )
-        SoknadBesvarer(soknad, this, fnr)
-            .besvarSporsmal(TIL_SLUTT, svar = "svar", ferdigBesvart = false)
-            .besvarSporsmal(BEKREFT_OPPLYSNINGER, svar = "CHECKED")
+        SoknadBesvarer(soknad, this, fnr).oppsummering()
 
         val soknadEtter =
             hentSoknad(

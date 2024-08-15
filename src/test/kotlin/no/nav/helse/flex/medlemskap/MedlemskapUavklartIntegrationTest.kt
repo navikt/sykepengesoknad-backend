@@ -111,7 +111,6 @@ class MedlemskapUavklartIntegrationTest : FellesTestOppsett() {
             besvarArbeidstakerSporsmal(soknadBesvarer)
             val sendtSoknad =
                 soknadBesvarer
-                    .besvarSporsmal(tag = TIL_SLUTT, svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
                     .besvarSporsmal(tag = BEKREFT_OPPLYSNINGER, svar = "CHECKED")
                     .sendSoknad()
             sendtSoknad.status shouldBeEqualTo RSSoknadstatus.SENDT

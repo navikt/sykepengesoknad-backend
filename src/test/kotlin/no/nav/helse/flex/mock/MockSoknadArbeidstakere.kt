@@ -8,6 +8,7 @@ import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.svarvalidering.validerSvarPaSoknad
 import no.nav.helse.flex.testutil.besvarsporsmal
 import no.nav.helse.flex.util.DatoUtil.periodeTilJson
+import no.nav.helse.flex.util.oppsummering
 import no.nav.helse.flex.util.tilOsloInstant
 import no.nav.helse.flex.yrkesskade.YrkesskadeSporsmalGrunnlag
 import no.nav.syfo.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO
@@ -149,9 +150,4 @@ private fun Sykepengesoknad.andreInntektskilder(): Sykepengesoknad {
         .besvarsporsmal(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD_JOBBET_I_DET_SISTE, "JA")
         .besvarsporsmal(INNTEKTSKILDE_SELVSTENDIG, "CHECKED")
         .besvarsporsmal(INNTEKTSKILDE_SELVSTENDIG_DAGMAMMA, "CHECKED")
-}
-
-private fun Sykepengesoknad.oppsummering(): Sykepengesoknad {
-    return besvarsporsmal(TIL_SLUTT, "Jeg lover å ikke lyve")
-        .besvarsporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
 }

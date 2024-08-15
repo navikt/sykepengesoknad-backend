@@ -78,8 +78,7 @@ class GjenapneSykmeldingIntegrationMedTombstoneTest : FellesTestOppsett() {
             .besvarSporsmal(tag = "OPPHOLD_UTENFOR_EOS", svar = "NEI")
             .besvarSporsmal(tag = "ARBEID_UTENFOR_NORGE", svar = "NEI")
             .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER", svar = "NEI")
-            .besvarSporsmal(tag = "TIL_SLUTT", svar = "svar 1, og 2", ferdigBesvart = false)
-            .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
+            .oppsummering()
             .sendSoknad()
 
         val soknadPaKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().last()

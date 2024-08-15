@@ -62,7 +62,7 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
                     besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
                     besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
                     besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
-                    besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
+                    besvarSporsmal(tag = "TIL_SLUTT", svar = null, ferdigBesvart = false)
                     besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
                     besvarPeriodeSporsmal("OPPHOLD_UTENFOR_EOS", "OPPHOLD_UTENFOR_EOS_NAR", utenforEOSFom, utenforEOSTom)
                     besvarPeriodeSporsmal("FERIE_V2", "FERIE_NAR_V2", ferieFom, ferieTom)
@@ -168,8 +168,7 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
             )
             .besvarSporsmal(LAND, svarListe = listOf("Kina"))
             .besvarSporsmal(ARBEIDSGIVER, svar = "NEI")
-            .besvarSporsmal(TIL_SLUTT, "svar", ferdigBesvart = false)
-            .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
+            .oppsummering()
             .sendSoknad()
 
         val soknaden = settOppSykepengeSoknad(fom, tom)
