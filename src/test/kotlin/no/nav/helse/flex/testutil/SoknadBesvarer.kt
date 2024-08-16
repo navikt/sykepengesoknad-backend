@@ -8,6 +8,7 @@ import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.oppdaterSporsmal
 import no.nav.helse.flex.sendSoknadMedResult
 import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
+import no.nav.helse.flex.soknadsopprettelse.TIL_SLUTT
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
 fun RSSporsmal.byttSvar(
@@ -120,6 +121,7 @@ class SoknadBesvarer(
     }
 
     fun oppsummering(): SoknadBesvarer {
-        return besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
+        return this.besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED", ferdigBesvart = false)
+            .besvarSporsmal(TIL_SLUTT, "true")
     }
 }

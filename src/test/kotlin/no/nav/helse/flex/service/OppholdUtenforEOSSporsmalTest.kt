@@ -75,7 +75,7 @@ class OppholdUtenforEOSSporsmalTest : FellesTestOppsett() {
                 .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
                 .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
                 .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
-                .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED").sendSoknad()
+                .oppsummering().sendSoknad()
         sendtSykepengeSoknad.status `should be equal to` sendtSykepengeSoknad.status
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
         kafkaSoknader.size `should be equal to` 1
@@ -249,7 +249,7 @@ class OppholdUtenforEOSSporsmalTest : FellesTestOppsett() {
                 .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
                 .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
                 .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
-                .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED").sendSoknad()
+                .oppsummering().sendSoknad()
         sendtSykepengeSoknad.status `should be equal to` sendtSykepengeSoknad.status
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
         kafkaSoknader.size `should be equal to` 1
@@ -316,7 +316,7 @@ class OppholdUtenforEOSSporsmalTest : FellesTestOppsett() {
                 .besvarSporsmal(tag = "OPPHOLD_UTENFOR_EOS", svar = "NEI")
                 .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
                 .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
-                .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED").sendSoknad()
+                .oppsummering().sendSoknad()
         sendtSykepengeSoknad.status `should be equal to` sendtSykepengeSoknad.status
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
         kafkaSoknader.size `should be equal to` 1
@@ -399,7 +399,7 @@ class OppholdUtenforEOSSporsmalTest : FellesTestOppsett() {
                 .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
                 .besvarSporsmal(tag = "UTLAND_V2", svar = "NEI")
                 .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
-                .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED").sendSoknad()
+                .oppsummering().sendSoknad()
         sendtSykepengeSoknad.status `should be equal to` sendtSykepengeSoknad.status
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
         kafkaSoknader.size `should be equal to` 1

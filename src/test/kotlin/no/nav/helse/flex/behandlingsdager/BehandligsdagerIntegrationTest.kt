@@ -105,8 +105,7 @@ class BehandligsdagerIntegrationTest : FellesTestOppsett() {
                     .andExpect(((MockMvcResultMatchers.status().isBadRequest)))
             }
             .besvarSporsmal(tag = "ENKELTSTAENDE_BEHANDLINGSDAGER_UKE_1", svar = "${rsSykepengesoknad.tom}")
-            .besvarSporsmal(tag = "TIL_SLUTT", svar = null, ferdigBesvart = false)
-            .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
+            .oppsummering()
             .sendSoknad()
 
         val soknadPaKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()
@@ -144,8 +143,7 @@ class BehandligsdagerIntegrationTest : FellesTestOppsett() {
 
         SoknadBesvarer(rSSykepengesoknad = korrigerSoknad, mockMvc = this, fnr = fnr)
             .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
-            .besvarSporsmal(tag = "TIL_SLUTT", svar = null, ferdigBesvart = false)
-            .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
+            .oppsummering()
             .sendSoknad()
 
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()

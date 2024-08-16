@@ -150,7 +150,7 @@ class UtenlandskArbeidstakerIntegrationTest : FellesTestOppsett() {
                     tag = "UTENLANDSK_SYKMELDING_GYLDIGHET_ADRESSE",
                     svar = soknaden.tom!!.plusDays(10).toString(),
                 )
-                .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
+                .oppsummering()
                 .sendSoknad()
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
 

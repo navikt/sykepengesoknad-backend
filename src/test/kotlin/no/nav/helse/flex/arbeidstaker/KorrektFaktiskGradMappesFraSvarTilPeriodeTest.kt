@@ -96,8 +96,7 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : FellesTestOppsett() {
             .besvarSporsmal("ARBEID_UNDERVEIS_100_PROSENT_0", "NEI")
             .besvarSporsmal("HVOR_MYE_PROSENT_0", "CHECKED")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
-            .besvarSporsmal(tag = "TIL_SLUTT", svar = null, ferdigBesvart = false)
-            .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
+            .oppsummering()
             .sendSoknad()
     }
 

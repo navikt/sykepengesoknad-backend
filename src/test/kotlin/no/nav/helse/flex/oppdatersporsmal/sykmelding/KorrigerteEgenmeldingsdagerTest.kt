@@ -81,7 +81,7 @@ class KorrigerteEgenmeldingsdagerTest : FellesTestOppsett() {
                 .besvarSporsmal(tag = "OPPHOLD_UTENFOR_EOS", svar = "NEI")
                 .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
                 .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
-                .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
+                .oppsummering()
                 .sendSoknad()
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)

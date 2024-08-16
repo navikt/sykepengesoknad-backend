@@ -223,9 +223,9 @@ class NullstillUndersporsmalSvarTest : FellesTestOppsett() {
     @Order(8)
     fun `Kan svare på TIL_SLUTT`() {
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
-            .besvarSporsmal(tag = BEKREFT_OPPLYSNINGER, svar = "CHECKED")
+            .oppsummering()
 
-        soknaden.getSporsmalMedTag(TIL_SLUTT).forsteSvar shouldBeEqualTo null
+        soknaden.getSporsmalMedTag(TIL_SLUTT).forsteSvar shouldBeEqualTo "true"
         soknaden.getSporsmalMedTag(BEKREFT_OPPLYSNINGER).forsteSvar shouldBeEqualTo "CHECKED"
     }
 

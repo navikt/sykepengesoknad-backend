@@ -306,8 +306,6 @@ private fun Sporsmal.validerSvarverdi(svar: Svar) {
 
             COMBOBOX_SINGLE,
             COMBOBOX_MULTI,
-            BEKREFTELSESPUNKTER,
-            OPPSUMMERING,
             LAND,
             -> {
                 { verdi.isNotBlank() && verdi.isNotEmpty() }
@@ -368,6 +366,12 @@ private fun Sporsmal.validerSvarverdi(svar: Svar) {
             INFO_BEHANDLINGSDAGER,
             CHECKBOX_GRUPPE,
             -> throw IllegalStateException("Skal ha validert 0 svar allerede")
+
+            BEKREFTELSESPUNKTER,
+            OPPSUMMERING,
+            -> {
+                { verdi.toBoolean() }
+            }
         }
     if (!predikat()) {
         throw ValideringException("Spørsmål $id med tag $tag har feil svarverdi $verdi")
@@ -399,6 +403,8 @@ fun Sporsmal.validerAntallSvar() {
             TIMER,
             TALL,
             CHECKBOX,
+            BEKREFTELSESPUNKTER,
+            OPPSUMMERING,
             -> {
                 { it == 1 }
             }
@@ -419,13 +425,11 @@ fun Sporsmal.validerAntallSvar() {
             GRUPPE_AV_UNDERSPORSMAL,
             INFO_BEHANDLINGSDAGER,
             CHECKBOX_GRUPPE,
-            OPPSUMMERING,
             -> {
                 { it == 0 }
             }
 
             LAND,
-            BEKREFTELSESPUNKTER,
             COMBOBOX_SINGLE,
             COMBOBOX_MULTI,
             PERIODER,
