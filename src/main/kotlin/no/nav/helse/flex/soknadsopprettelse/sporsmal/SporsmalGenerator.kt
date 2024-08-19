@@ -80,13 +80,16 @@ class SporsmalGenerator(
                 erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
             )
 
+        if (unleashToggles.tilkommenInntektEnabled(soknad.fnr)) {
+            log.info("Tilkommen inntekt toggle enabled")
+        }
+
         val soknadOptions =
             SettOppSoknadOptions(
                 sykepengesoknad = soknad,
                 erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
                 harTidligereUtenlandskSpm = harTidligereUtenlandskSpm,
                 yrkesskade = yrkesskadeSporsmalGrunnlag,
-                naringsdrivendeInntektsopplysningerEnabled = unleashToggles.naringsdrivendeInntektsopplysninger(soknad.fnr),
                 nyttOppholdUtenforEOSEnabled = unleashToggles.stillNySporsmalOmOppholdUtenforEOS(soknad.fnr),
             )
 

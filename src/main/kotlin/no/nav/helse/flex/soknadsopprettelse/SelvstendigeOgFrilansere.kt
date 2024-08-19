@@ -47,9 +47,7 @@ fun settOppSoknadSelvstendigOgFrilanser(opts: SettOppSoknadOptions): List<Sporsm
         if (erForsteSoknadISykeforlop) {
             add(arbeidUtenforNorge())
 
-            if (listOf(NAERINGSDRIVENDE, FISKER, JORDBRUKER).contains(sykepengesoknad.arbeidssituasjon) &&
-                opts.naringsdrivendeInntektsopplysningerEnabled
-            ) {
+            if (listOf(NAERINGSDRIVENDE, FISKER, JORDBRUKER).contains(sykepengesoknad.arbeidssituasjon)) {
                 add(lagSporsmalOmInntektsopplyninger(sykepengesoknad))
             }
         }
