@@ -10,7 +10,6 @@ import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.skapAzureJwt
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
-import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS
 import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.util.serialisertTilString
 import org.assertj.core.api.Assertions.assertThat
@@ -33,8 +32,6 @@ class VeilederOboIntegrationTest : FellesTestOppsett() {
 
     @Test
     fun `01 - vi oppretter en arbeidsledigsøknad`() {
-        fakeUnleash.enable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
-
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,

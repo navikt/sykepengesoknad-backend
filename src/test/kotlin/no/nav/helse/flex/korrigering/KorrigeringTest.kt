@@ -5,7 +5,6 @@ import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
-import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS
 import org.amshove.kluent.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
@@ -27,7 +26,6 @@ class KorrigeringTest : FellesTestOppsett() {
     @Test
     @Order(1)
     fun `Arbeidstakersøknad opprettes`() {
-        fakeUnleash.enable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,

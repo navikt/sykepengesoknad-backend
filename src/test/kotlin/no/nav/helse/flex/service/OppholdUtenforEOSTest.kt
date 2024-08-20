@@ -12,7 +12,6 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
-import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS
 import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -136,7 +135,6 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
 
     @Test
     fun `søknad om opphold utenfor EØS opprettes ikke dersom det finnes eksisterende søknad`() {
-        fakeUnleash.enable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
         flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
         opprettUtlandssoknad(fnr)
@@ -192,7 +190,6 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
 
     @Test
     fun `lager ikke søknad hvis opphold utenfor EØS kun er i helg`() {
-        fakeUnleash.enable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
         val soknaden = settOppSykepengeSoknad(fom, tom)
 
         var oppholdUtenforEOSIStartePaLordag = soknaden.fom
@@ -233,7 +230,6 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
 
     @Test
     fun `lager ikke søknad hvis opphold utenfor EØS er kun i ferie`() {
-        fakeUnleash.enable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
         val soknaden = settOppSykepengeSoknad(fom, tom)
 
         val ferieStarterForsteDagenIPerioden = soknaden.fom
@@ -262,7 +258,6 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
 
     @Test
     fun `lager ikke søknad hvis opphold utenfor EØS dekker hele perioden med permisjon`() {
-        fakeUnleash.enable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
         val soknaden = settOppSykepengeSoknad(fom, tom)
 
         val permisjonStarterForsteDagenIPerioden = soknaden.fom
@@ -291,7 +286,6 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
 
     @Test
     fun `lager ikke søknad hvis opphold utenfor EØS dekker hele perioden med helg og ferie`() {
-        fakeUnleash.enable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
         val soknaden = settOppSykepengeSoknad(fom, tom)
 
         val ferieStarterForsteDagenIPerioden = soknaden.fom
@@ -320,7 +314,6 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
 
     @Test
     fun `lager søknad hvis opphold utenfor EØS ikke dekker hele perioden med helg og ferie`() {
-        fakeUnleash.enable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
         val soknaden = settOppSykepengeSoknad(fom, tom)
 
         val ferieStarterForsteDagenIPerioden = soknaden.fom
@@ -348,7 +341,6 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
 
     @Test
     fun `oppretter utland søknad hvis utlandsopphold er utenfor helg eller ferie`() {
-        fakeUnleash.enable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
         val soknaden = settOppSykepengeSoknad(fom, tom)
 
         val ferieStarterForsteDagenIPerioden = soknaden.fom
@@ -371,7 +363,6 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
 
     @Test
     fun `lager ikke søknad hvis opphold utenfor EØS dekker hele perioden med helg, ferie og permisjon`() {
-        fakeUnleash.enable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
         val soknaden = settOppSykepengeSoknad(fom, tom)
 
         val starterMedFerie = soknaden.fom
@@ -405,7 +396,6 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
 
     @Test
     fun `lager søknad hvis opphold utenfor EØS har noen dager utenfor perioder med ferie og permisjon`() {
-        fakeUnleash.enable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
         val soknaden = settOppSykepengeSoknad(fom, tom)
 
         val ferieBegynnerIMidtenAvForsteUke = soknaden.fom?.plusDays(4)

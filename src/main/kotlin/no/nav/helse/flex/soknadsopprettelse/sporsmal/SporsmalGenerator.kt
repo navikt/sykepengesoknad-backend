@@ -90,7 +90,6 @@ class SporsmalGenerator(
                 erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
                 harTidligereUtenlandskSpm = harTidligereUtenlandskSpm,
                 yrkesskade = yrkesskadeSporsmalGrunnlag,
-                nyttOppholdUtenforEOSEnabled = unleashToggles.stillNySporsmalOmOppholdUtenforEOS(soknad.fnr),
             )
 
         if (erEnkeltstaendeBehandlingsdagSoknad) {

@@ -11,7 +11,6 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
-import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS
 import no.nav.helse.flex.util.tilOsloLocalDateTime
 import no.nav.syfo.model.Merknad
 import org.amshove.kluent.*
@@ -39,7 +38,6 @@ class ArbeidstakerIntegrationTest : FellesTestOppsett() {
     @Test
     @Order(1)
     fun `Arbeidstakersøknader opprettes for en lang sykmelding`() {
-        fakeUnleash.enable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
         val kafkaSoknader =
             sendSykmelding(
                 sykmeldingKafkaMessage(
