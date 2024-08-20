@@ -12,7 +12,7 @@ import java.util.*
 @Component
 class PensjongivendeInntektClient(
     private val persongivendeInntektRestTemplate: RestTemplate,
-    @Value("\${PENSJONSGIVENDE_INNTEKT_URL}")
+    @Value("\${SIGRUN_URL}")
     private val url: String,
 ) {
     val log = logger()
@@ -26,7 +26,7 @@ class PensjongivendeInntektClient(
         val headers = HttpHeaders()
         headers["Nav-Consumer-Id"] = "sykepengesoknad-backend"
         headers["Nav-Call-Id"] = UUID.randomUUID().toString()
-        headers["rettighetspakke"] = "navForeldrepenger"
+        headers["rettighetspakke"] = "navSykepenger"
         headers["Nav-Personident"] = fnr
         headers["inntektsaar"] = "2023"
         headers.contentType = MediaType.APPLICATION_JSON
