@@ -22,7 +22,7 @@ fun startMockWebServere(): MockWebServere {
         }
     val pensjonsgivendeInntektMockWebServer =
         MockWebServer().apply {
-            System.setProperty("PENSJONSGIVENDE_INNTEKT_URL", "http://localhost:$port")
+            System.setProperty("SIGRUN_URL", "http://localhost:$port")
             dispatcher = SigrunMockDispatcher
         }
     val eregMockWebServer =
