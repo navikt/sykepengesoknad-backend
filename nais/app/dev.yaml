@@ -14,6 +14,7 @@ external-host:
   - ereg-services.dev-fss-pub.nais.io
   - team-inntekt-proxy.dev-fss-pub.nais.io
   - flex-unleash-api.nav.cloud.nais.io
+  - aareg-services-q1.dev-fss-pub.nais.io
 flex-openapi-docs-ui: true
 env:
   SPRING_PROFILES_ACTIVE: default,testdatareset,sykmeldinger
@@ -43,3 +44,5 @@ env:
   INNSENDING_API_URL: http://innsending-api.team-soknad
   GRUNNBELOEP_API_URL: https://g.nav.no/api/v1
   HAG_API_ENABLED: true
+  AAREG_URL: https://aareg-services-q1.dev-fss-pub.nais.io
+  AAREG_AAD_CLIENT_ID: dev-fss.arbeidsforhold.aareg-services-nais-q1
