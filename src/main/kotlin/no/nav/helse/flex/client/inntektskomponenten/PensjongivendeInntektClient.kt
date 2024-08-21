@@ -58,7 +58,7 @@ class PensjongivendeInntektClient(
             }
         } catch (e: Exception) {
             val message = "Kall mot Sigrun returnerer ikke data"
-            log.error(message , e)
+            log.error(message, e)
             throw RuntimeException(message)
         }
         return result.body!!
