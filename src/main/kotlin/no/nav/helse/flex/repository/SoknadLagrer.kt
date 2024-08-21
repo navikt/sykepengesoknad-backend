@@ -106,8 +106,8 @@ ON CONFLICT ON CONSTRAINT soknadperiode_pkey DO NOTHING
         }
         val sql =
             """
-INSERT INTO SPORSMAL(ID, SYKEPENGESOKNAD_ID, UNDER_SPORSMAL_ID, TEKST, UNDERTEKST, TAG, SVARTYPE, MIN, MAX, KRITERIE_FOR_VISNING) 
-VALUES (:id, :sykepengesoknadId, :underSporsmalId, :tekst, :undertekst, :tag, :svartype, :min, :max, :kriterie)
+INSERT INTO SPORSMAL(ID, SYKEPENGESOKNAD_ID, UNDER_SPORSMAL_ID, TEKST, UNDERTEKST, TAG, SVARTYPE, MIN, MAX, KRITERIE_FOR_VISNING, METADATA) 
+VALUES (:id, :sykepengesoknadId, :underSporsmalId, :tekst, :undertekst, :tag, :svartype, :min, :max, :kriterie, :metadata)
 ON CONFLICT ON CONSTRAINT sporsmal_pkey DO NOTHING"""
         jdbcTemplate.batchUpdate(
             sql,
@@ -123,6 +123,7 @@ ON CONFLICT ON CONSTRAINT sporsmal_pkey DO NOTHING"""
                     .addValue("min", it.min)
                     .addValue("max", it.max)
                     .addValue("kriterie", it.kriterieForVisningAvUndersporsmal?.name)
+                    .addValue("metadata", it.metadata)
             }
                 .toTypedArray(),
         )

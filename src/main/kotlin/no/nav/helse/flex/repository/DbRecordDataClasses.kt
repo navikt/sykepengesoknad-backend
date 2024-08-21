@@ -57,6 +57,7 @@ data class SporsmalDbRecord(
     val min: String?,
     val max: String?,
     val kriterieForVisningAvUndersporsmal: Visningskriterie?,
+    val metadata: String?,
 )
 
 data class SoknadsperiodeDbRecord(

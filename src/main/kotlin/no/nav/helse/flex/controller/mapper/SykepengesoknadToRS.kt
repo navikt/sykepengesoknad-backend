@@ -53,6 +53,7 @@ fun Sporsmal.mapSporsmalTilRs(): RSSporsmal {
             ),
         svar = this.svar.map { mapSvarTilRSSvar(it) },
         undersporsmal = this.undersporsmal.map { it.mapSporsmalTilRs() },
+        metadata = this.metadata,
     )
 }
 

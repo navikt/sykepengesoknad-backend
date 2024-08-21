@@ -84,6 +84,7 @@ fun Sykepengesoknad.normaliser(): NormalisertSoknad {
                 max = s.max,
                 min = s.min,
                 kriterieForVisningAvUndersporsmal = s.kriterieForVisningAvUndersporsmal,
+                metadata = s.metadata?.serialisertTilString(),
             )
         sporsmal.add(spmDbRecord)
         s.svar.forEach { sv ->
