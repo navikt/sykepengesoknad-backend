@@ -40,6 +40,11 @@ fun startMockWebServere(): MockWebServere {
             System.setProperty("GRUNNBELOEP_API_URL", "http://localhost:$port")
             dispatcher = GrunnbeloepApoMockDispatcher
         }
+    val aaregMockWebServer =
+        MockWebServer().apply {
+            System.setProperty("AAREG_URL", "http://localhost:$port")
+            dispatcher = AaregMockDispatcher
+        }
 
     return MockWebServere(
         pdlMockWebserver = pdlMockWebserver,
@@ -49,6 +54,7 @@ fun startMockWebServere(): MockWebServere {
         yrkesskadeMockWebServer = yrkesskadeMockWebServer,
         innsendingApiMockWebServer = innsendingApiMockWebServer,
         grunnbeloepApiMockWebServer = grunnbeloepApiMockWebServer,
+        aaregMockWebServer = aaregMockWebServer,
     )
 }
 
@@ -60,4 +66,5 @@ data class MockWebServere(
     val yrkesskadeMockWebServer: MockWebServer,
     val innsendingApiMockWebServer: MockWebServer,
     val grunnbeloepApiMockWebServer: MockWebServer,
+    val aaregMockWebServer: MockWebServer,
 )

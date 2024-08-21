@@ -14,6 +14,7 @@ external-host:
   - ereg-services.prod-fss-pub.nais.io
   - team-inntekt-proxy.prod-fss-pub.nais.io
   - flex-unleash-api.nav.cloud.nais.io
+  - aareg-services.prod-fss-pub.nais.io
 env:
   SPRING_PROFILES_ACTIVE: default,sykmeldinger
   PDL_BASE_URL: https://pdl-api.prod-fss-pub.nais.io
@@ -41,3 +42,5 @@ env:
   INNSENDING_API_URL: http://innsending-api.team-soknad
   GRUNNBELOEP_API_URL: https://g.nav.no/api/v1
   HAG_API_ENABLED: false
+  AAREG_URL: https://aareg-services.prod-fss-pub.nais.io
+  AAREG_AAD_CLIENT_ID: prod-fss.arbeidsforhold.aareg-services-nais
