@@ -16,13 +16,15 @@ object SigrunMockDispatcher : Dispatcher() {
             norskPersonidentifikator = fnr,
             inntektsaar = inntektsAar,
             pensjonsgivendeInntekt =
-                PensjonsgivendeInntekt(
-                    datoForFastsetting = "2024-07-17",
-                    skatteordning = Skatteordning.FASTLAND,
-                    pensjonsgivendeInntektAvLoennsinntekt = 100000,
-                    pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = 5000,
-                    pensjonsgivendeInntektAvNaeringsinntekt = 300000,
-                    pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage = 2000,
+                listOf(
+                    PensjonsgivendeInntekt(
+                        datoForFastsetting = "2024-07-17",
+                        skatteordning = Skatteordning.FASTLAND,
+                        pensjonsgivendeInntektAvLoennsinntekt = 100000,
+                        pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = 5000,
+                        pensjonsgivendeInntektAvNaeringsinntekt = 300000,
+                        pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage = 2000,
+                    ),
                 ),
         ).tilMockResponse()
     }
