@@ -5,7 +5,7 @@ import java.util.UUID
 data class HentPensjonsgivendeInntektResponse(
     val norskPersonidentifikator: String,
     val inntektsaar: String,
-    val pensjonsgivendeInntekt: PensjonsgivendeInntekt,
+    val pensjonsgivendeInntekt: List<PensjonsgivendeInntekt>,
 )
 
 data class PensjonsgivendeInntekt(
