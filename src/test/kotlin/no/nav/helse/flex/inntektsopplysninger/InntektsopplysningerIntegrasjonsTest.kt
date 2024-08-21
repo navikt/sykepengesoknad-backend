@@ -12,7 +12,6 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
-import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_NARINGSDRIVENDE_INNTEKTSOPPLYSNINGER
 import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS
 import no.nav.helse.flex.util.flatten
 import org.amshove.kluent.shouldBeEqualTo
@@ -33,6 +32,7 @@ class InntektsopplysningerIntegrasjonsTest : FellesTestOppsett() {
     @BeforeAll
     fun konfigurerUnleash() {
         fakeUnleash.resetAll()
+        fakeUnleash.enable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
     }
 
     @AfterAll
@@ -44,46 +44,8 @@ class InntektsopplysningerIntegrasjonsTest : FellesTestOppsett() {
     private val tom = LocalDate.of(2023, 1, 30)
 
     @Test
-    @Order(1)
-    fun `Stiller ikke spørsmål om inntektsopplysnninger på førstegangssøknad når Unleash toggle er disabled`() {
-        fakeUnleash.enable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
-        val fnr = "99999999001"
-
-        val soknader =
-            sendSykmelding(
-                sykmeldingKafkaMessage(
-                    arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
-                    fnr = fnr,
-                    sykmeldingsperioder =
-                        heltSykmeldt(
-                            fom = fom,
-                            tom = tom,
-                        ),
-                ),
-            )
-
-        soknader shouldHaveSize 1
-        val soknad = soknader.first()
-        soknad.arbeidssituasjon shouldBeEqualTo ArbeidssituasjonDTO.SELVSTENDIG_NARINGSDRIVENDE
-
-        assertThat(soknad.sporsmal!!.map { it.tag }).isEqualTo(
-            listOf(
-                ANSVARSERKLARING,
-                TILBAKE_I_ARBEID,
-                medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0),
-                ARBEID_UTENFOR_NORGE,
-                ANDRE_INNTEKTSKILDER,
-                OPPHOLD_UTENFOR_EOS,
-                TIL_SLUTT,
-            ),
-        )
-    }
-
-    @Test
     @Order(2)
     fun `Stiller spørsmål om inntektsopplysnninger på førstegangssøknad når Unleash toggle er enabled`() {
-        fakeUnleash.enable(UNLEASH_CONTEXT_NARINGSDRIVENDE_INNTEKTSOPPLYSNINGER)
-
         val fnr = "99999999002"
 
         val soknader =
