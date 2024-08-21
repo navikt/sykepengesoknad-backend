@@ -18,7 +18,10 @@ class PensjongivendeInntektClient(
 ) {
     val log = logger()
 
-    fun hentPensjonsgivendeInntekter(fnr: String): HentPensjonsgivendeInntektResponse? {
+    fun hentPensjonsgivendeInntekt(
+        fnr: String,
+        arViHenterFor: Int,
+    ): HentPensjonsgivendeInntektResponse? {
         // TODO: Fjern dette før prodsetting!!
         log.info("fnr som vi sender med kallet er: $fnr")
         val uriBuilder =
@@ -29,12 +32,9 @@ class PensjongivendeInntektClient(
         headers["Nav-Call-Id"] = UUID.randomUUID().toString()
         headers["rettighetspakke"] = "navSykepenger"
         headers["Nav-Personident"] = fnr
-        headers["inntektsaar"] = "2023"
+        headers["inntektsaar"] = arViHenterFor.toString()
         headers.contentType = MediaType.APPLICATION_JSON
         headers.accept = listOf(MediaType.APPLICATION_JSON)
-
-        // val treSisteAar = (LocalDate.now().year downTo LocalDate.now().minusYears(2).year).map { it.toString() }
-        // log.info("Tre siste år: ${treSisteAar.serialisertTilString()}")
 
         val result: ResponseEntity<HentPensjonsgivendeInntektResponse>
         try {
@@ -62,5 +62,27 @@ class PensjongivendeInntektClient(
             throw RuntimeException(message)
         }
         return result.body!!
+    }
+
+    fun hentPensjonsgivendeInntektForTreSisteArene(fnr: String): List<HentPensjonsgivendeInntektResponse>? {
+        val treFerdigliknetAr = mutableListOf<HentPensjonsgivendeInntektResponse>()
+        val naVarendeAr = LocalDate.now().year
+        var arViHarSjekket = 0
+
+        for (yearOffset in 0..4) {
+            if (treFerdigliknetAr.size == 3) {
+                break
+            }
+
+            val arViHenterFor = naVarendeAr - yearOffset
+            val svar = hentPensjonsgivendeInntekt(fnr, arViHenterFor)
+
+            if (svar != null) {
+                treFerdigliknetAr.add(svar)
+            }
+            arViHarSjekket++
+        }
+
+        return if (treFerdigliknetAr.size == 3) treFerdigliknetAr else null
     }
 }
