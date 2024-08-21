@@ -7,6 +7,7 @@ import org.springframework.http.*
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
+import java.time.LocalDate
 import java.util.*
 
 @Component
@@ -57,7 +58,7 @@ class PensjongivendeInntektClient(
             }
         } catch (e: Exception) {
             val message = "Kall mot Sigrun returnerer ikke data"
-            log.error(message + e)
+            log.error(message , e)
             throw RuntimeException(message)
         }
         return result.body!!
