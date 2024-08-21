@@ -4,6 +4,7 @@ import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svar
 import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Visningskriterie
+import no.nav.helse.flex.util.objectMapper
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
@@ -18,13 +19,13 @@ import kotlin.collections.ArrayList
 class SporsmalDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate, private val svarDAO: SvarDAO) {
     fun finnSporsmal(sykepengesoknadIds: Set<String>): HashMap<String, MutableList<Sporsmal>> {
         val unMapped =
-            sykepengesoknadIds.chunked(1000).map {
+            sykepengesoknadIds.chunked(1000).map { id ->
                 namedParameterJdbcTemplate.query<List<Pair<String, Sporsmal>>>(
                     """
                     SELECT * FROM sporsmal
                     WHERE sykepengesoknad_id IN (:sykepengesoknadIds)
                     """.trimIndent(),
-                    MapSqlParameterSource().addValue("sykepengesoknadIds", it),
+                    MapSqlParameterSource().addValue("sykepengesoknadIds", id),
                 ) { resultSet ->
                     val svarMap = HashMap<String, MutableList<Svar>>()
                     val sporsmalList = ArrayList<Pair<String, Sporsmal>>()
@@ -54,6 +55,7 @@ class SporsmalDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemp
                                 svartype = Svartype.valueOf(resultSet.getString("svartype")),
                                 min = resultSet.getString("min"),
                                 max = resultSet.getString("max"),
+                                metadata = resultSet.getString("metadata")?.let { objectMapper.readTree(it) },
                                 kriterieForVisningAvUndersporsmal = if (kriterie == null) null else Visningskriterie.valueOf(kriterie),
                                 svar = svarMap[sporsmalId]!!,
                                 undersporsmal = undersporsmal,

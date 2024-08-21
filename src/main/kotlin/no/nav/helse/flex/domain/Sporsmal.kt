@@ -1,5 +1,6 @@
 package no.nav.helse.flex.domain
 
+import com.fasterxml.jackson.databind.JsonNode
 import java.io.Serializable
 
 data class Sporsmal(
@@ -10,6 +11,7 @@ data class Sporsmal(
     val svartype: Svartype,
     val min: String? = null,
     val max: String? = null,
+    val metadata: JsonNode? = null,
     val kriterieForVisningAvUndersporsmal: Visningskriterie? = null,
     val svar: List<Svar> = emptyList(),
     val undersporsmal: List<Sporsmal> = emptyList(),
