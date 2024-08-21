@@ -31,11 +31,7 @@ fun settOppSoknadSelvstendigOgFrilanser(opts: SettOppSoknadOptions): List<Sporsm
             },
         )
         add(andreInntektskilderSelvstendigOgFrilanser(sykepengesoknad.arbeidssituasjon!!))
-        if (opts.nyttOppholdUtenforEOSEnabled) {
-            add(oppholdUtenforEOSSporsmal(sykepengesoknad.fom!!, sykepengesoknad.tom!!))
-        } else {
-            add(gammeltUtenlandsoppholdSelvstendigSporsmal(sykepengesoknad.fom!!, sykepengesoknad.tom!!))
-        }
+        add(oppholdUtenforEOSSporsmal(sykepengesoknad.fom!!, sykepengesoknad.tom!!))
         add(tilSlutt())
         addAll(
             jobbetDuIPeriodenSporsmalSelvstendigFrilanser(

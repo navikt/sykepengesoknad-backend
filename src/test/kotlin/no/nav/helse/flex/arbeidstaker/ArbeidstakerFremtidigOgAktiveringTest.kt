@@ -14,7 +14,6 @@ import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
-import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS
 import no.nav.helse.flex.util.DatoUtil
 import no.nav.helse.flex.ventPåRecords
 import org.assertj.core.api.Assertions.assertThat
@@ -41,7 +40,6 @@ class ArbeidstakerFremtidigOgAktiveringTest : FellesTestOppsett() {
     @Test
     @Order(1)
     fun `Arbeidstakersøknad med status FREMTIDIG opprettes når vi mottar en sykmelding`() {
-        fakeUnleash.enable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
         val kafkaSoknader =
             sendSykmelding(
                 sykmeldingKafkaMessage(

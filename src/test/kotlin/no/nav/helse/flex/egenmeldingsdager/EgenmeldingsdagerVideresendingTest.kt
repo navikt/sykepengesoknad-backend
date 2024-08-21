@@ -13,7 +13,6 @@ import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
-import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS
 import no.nav.helse.flex.util.serialisertTilString
 import no.nav.helse.flex.ventPåRecords
 import no.nav.syfo.sykmelding.kafka.model.ShortNameKafkaDTO
@@ -66,7 +65,6 @@ class EgenmeldingsdagerVideresendingTest : FellesTestOppsett() {
     @Test
     @Order(1)
     fun `Arbeidstakersøknad opprettes`() {
-        fakeUnleash.enable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
         mockFlexSyketilfelleSykeforloep(
             sykmeldingKafkaMessage.sykmelding.id,
             sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder.minOf { it.fom },

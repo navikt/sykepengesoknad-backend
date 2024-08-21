@@ -142,10 +142,7 @@ class SoknadBrukerController(
                 metrikk.tellInnsendingFeilet(soknadFraBase.soknadstype.name)
                 throw e
             }
-
-        if (unleashToggles.stillNySporsmalOmOppholdUtenforEOS(fnr = soknadFraBase.fnr)) {
-            oppholdUtenforEOSService.skalOppretteSoknadForOppholdUtenforEOS(sendtSoknad, identer)
-        }
+        oppholdUtenforEOSService.skalOppretteSoknadForOppholdUtenforEOS(sendtSoknad, identer)
 
         try {
             inntektsopplysningForNaringsdrivende.lagreOpplysningerOmDokumentasjonAvInntektsopplysninger(sendtSoknad)

@@ -21,7 +21,6 @@ import no.nav.helse.flex.testdata.gradertSykmeldt
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
-import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS
 import no.nav.helse.flex.util.DatoUtil
 import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.ventPåRecords
@@ -340,7 +339,6 @@ class OverlapperFor : FellesTestOppsett() {
 
     @Test
     fun `Sendt arbeidstakersøknad starter før og slutter inni, splittes`() {
-        fakeUnleash.enable(UNLEASH_CONTEXT_NY_OPPHOLD_UTENFOR_EOS)
         val fnr = "88888888888"
         sendSykmelding(
             sykmeldingKafkaMessage(
