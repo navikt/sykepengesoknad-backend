@@ -6,7 +6,6 @@ import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svar
 import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Visningskriterie
-import no.nav.helse.flex.domain.sporsmalBuilder
 import no.nav.helse.flex.util.EnumUtil.konverter
 
 fun RSSvar.mapSvar(): Svar {
@@ -17,25 +16,23 @@ fun RSSvar.mapSvar(): Svar {
 }
 
 fun RSSporsmal.mapSporsmal(): Sporsmal {
-    return sporsmalBuilder()
-        .id(this.id)
-        .tag(this.tag)
-        .sporsmalstekst(this.sporsmalstekst)
-        .undertekst(this.undertekst)
-        .svartype(konverter(Svartype::class.java, this.svartype))
-        .min(this.min)
-        .max(this.max)
-        .kriterieForVisningAvUndersporsmal(
+    return Sporsmal(
+        id = this.id,
+        tag = this.tag,
+        sporsmalstekst = this.sporsmalstekst,
+        undertekst = this.undertekst,
+        svartype = konverter(Svartype::class.java, this.svartype),
+        min = this.min,
+        max = this.max,
+        kriterieForVisningAvUndersporsmal =
             konverter(
                 Visningskriterie::class.java,
                 this.kriterieForVisningAvUndersporsmal,
             ),
-        )
-        .svar(
+        svar =
             this.svar
                 .filter { it.verdi.isNotEmpty() }
                 .map { it.mapSvar() },
-        )
-        .undersporsmal(this.undersporsmal.map { it.mapSporsmal() })
-        .build()
+        undersporsmal = this.undersporsmal.map { it.mapSporsmal() },
+    )
 }
