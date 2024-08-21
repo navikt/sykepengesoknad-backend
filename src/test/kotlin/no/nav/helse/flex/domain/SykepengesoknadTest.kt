@@ -29,15 +29,14 @@ class SykepengesoknadTest {
 
         sykepengesoknad =
             sykepengesoknad.replaceSporsmal(
-                sykepengesoknad.getSporsmalMedTag("ARBEIDSGIVER").toBuilder()
-                    .sporsmalstekst("HEISANN")
-                    .build(),
+                sykepengesoknad.getSporsmalMedTag("ARBEIDSGIVER").copy(
+                    sporsmalstekst = "HEISANN",
+                ),
             )
 
         val sporsmalOgUndersporsmal = sykepengesoknad.alleSporsmalOgUndersporsmal()
         assertThat(
-            sporsmalOgUndersporsmal.map { it.sporsmalstekst }.map {
-                    i ->
+            sporsmalOgUndersporsmal.map { it.sporsmalstekst }.map { i ->
                 i!!.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0]
             }.joinToString(","),
         ).isEqualTo("Når,Hvilke(t),HEISANN,Er,Har,Viktig,Jeg")
@@ -49,9 +48,9 @@ class SykepengesoknadTest {
 
         sykepengesoknad =
             sykepengesoknad.replaceSporsmal(
-                sykepengesoknad.getSporsmalMedTag("ARBEIDSGIVER").toBuilder()
-                    .sporsmalstekst("9")
-                    .build(),
+                sykepengesoknad.getSporsmalMedTag("ARBEIDSGIVER").copy(
+                    sporsmalstekst = "9",
+                ),
             )
 
         val sporsmal = sykepengesoknad.sporsmal
@@ -90,10 +89,10 @@ class SykepengesoknadTest {
 
         sykepengesoknad =
             sykepengesoknad.addHovedsporsmal(
-                sporsmalBuilder()
-                    .tag("tag")
-                    .svartype(Svartype.CHECKBOX)
-                    .build(),
+                Sporsmal(
+                    tag = "tag",
+                    svartype = Svartype.CHECKBOX,
+                ),
                 sykepengesoknad.getSporsmalMedTag("ARBEIDSGIVER"),
             )
 
@@ -107,10 +106,10 @@ class SykepengesoknadTest {
 
         sykepengesoknad =
             sykepengesoknad.addHovedsporsmal(
-                sporsmalBuilder()
-                    .tag("tag")
-                    .svartype(Svartype.CHECKBOX)
-                    .build(),
+                Sporsmal(
+                    tag = "tag",
+                    svartype = Svartype.CHECKBOX,
+                ),
                 null,
             )
 

@@ -5,13 +5,11 @@ import no.nav.helse.flex.domain.Svar
 import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Svartype.*
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.domain.sporsmalBuilder
 import no.nav.helse.flex.mock.opprettNyArbeidstakerSoknad
 import no.nav.helse.flex.soknadsopprettelse.settOppSoknadOppholdUtland
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import java.util.Arrays.asList
 import java.util.Collections.emptyList
 
 class ValideringTest {
@@ -387,11 +385,11 @@ class ValideringTest {
     @Test
     fun valideringOKVedSvarPaAlleUndersporsmal() {
         val sporsmal =
-            sporsmalBuilder()
-                .tag("ANY")
-                .svartype(JA_NEI)
-                .undersporsmal(getBesvarteCheckedSporsmal(CHECKBOX, 3, 3))
-                .build()
+            Sporsmal(
+                tag = ("ANY"),
+                svartype = (JA_NEI),
+                undersporsmal = getBesvarteCheckedSporsmal(CHECKBOX, 3, 3),
+            )
 
         assertThat(validerUndersporsmal(sporsmal)).isTrue()
     }
@@ -399,11 +397,11 @@ class ValideringTest {
     @Test
     fun valideringAvUndersporsmalFeilerVedManglendeSvar() {
         val sporsmal =
-            sporsmalBuilder()
-                .tag("ANY")
-                .svartype(JA_NEI)
-                .undersporsmal(getBesvarteCheckedSporsmal(CHECKBOX, 3, 2))
-                .build()
+            Sporsmal(
+                tag = ("ANY"),
+                svartype = (JA_NEI),
+                undersporsmal = getBesvarteCheckedSporsmal(CHECKBOX, 3, 2),
+            )
 
         assertThat(validerUndersporsmal(sporsmal)).isFalse()
     }
@@ -411,11 +409,11 @@ class ValideringTest {
     @Test
     fun valideringAvCheckboxGruppeKreverMinstEttSvar() {
         val sporsmal =
-            sporsmalBuilder()
-                .tag("ANY")
-                .svartype(CHECKBOX_GRUPPE)
-                .undersporsmal(getBesvarteCheckedSporsmal(CHECKBOX, 3, 0))
-                .build()
+            Sporsmal(
+                tag = ("ANY"),
+                svartype = (CHECKBOX_GRUPPE),
+                undersporsmal = getBesvarteCheckedSporsmal(CHECKBOX, 3, 0),
+            )
 
         assertThat(validerUndersporsmal(sporsmal)).isFalse()
     }
@@ -423,11 +421,11 @@ class ValideringTest {
     @Test
     fun valideringAvCheckboxGruppeKreverBareEttSvar() {
         val sporsmal =
-            sporsmalBuilder()
-                .tag("ANY")
-                .svartype(CHECKBOX_GRUPPE)
-                .undersporsmal(getBesvarteCheckedSporsmal(CHECKBOX, 3, 1))
-                .build()
+            Sporsmal(
+                tag = ("ANY"),
+                svartype = (CHECKBOX_GRUPPE),
+                undersporsmal = getBesvarteCheckedSporsmal(CHECKBOX, 3, 1),
+            )
 
         assertThat(validerUndersporsmal(sporsmal)).isTrue()
     }
@@ -435,11 +433,11 @@ class ValideringTest {
     @Test
     fun checkboxGruppeValidererOKForFlereBesvarte() {
         val sporsmal =
-            sporsmalBuilder()
-                .tag("ANY")
-                .svartype(CHECKBOX_GRUPPE)
-                .undersporsmal(getBesvarteCheckedSporsmal(CHECKBOX, 3, 2))
-                .build()
+            Sporsmal(
+                tag = ("ANY"),
+                svartype = (CHECKBOX_GRUPPE),
+                undersporsmal = getBesvarteCheckedSporsmal(CHECKBOX, 3, 2),
+            )
 
         assertThat(validerUndersporsmal(sporsmal)).isTrue()
     }
@@ -447,11 +445,11 @@ class ValideringTest {
     @Test
     fun valideringAvRadioGruppeFeilerVedManglendeSvar() {
         val sporsmal =
-            sporsmalBuilder()
-                .tag("ANY")
-                .svartype(RADIO_GRUPPE)
-                .undersporsmal(getBesvarteCheckedSporsmal(RADIO, 3, 0))
-                .build()
+            Sporsmal(
+                tag = ("ANY"),
+                svartype = (RADIO_GRUPPE),
+                undersporsmal = getBesvarteCheckedSporsmal(RADIO, 3, 0),
+            )
 
         assertThat(validerUndersporsmal(sporsmal)).isFalse()
     }
@@ -459,11 +457,11 @@ class ValideringTest {
     @Test
     fun valideringAvRadioGruppeKreverAkkuratEttSvar() {
         val sporsmal =
-            sporsmalBuilder()
-                .tag("ANY")
-                .svartype(RADIO_GRUPPE)
-                .undersporsmal(getBesvarteCheckedSporsmal(RADIO, 3, 1))
-                .build()
+            Sporsmal(
+                tag = ("ANY"),
+                svartype = (RADIO_GRUPPE),
+                undersporsmal = getBesvarteCheckedSporsmal(RADIO, 3, 1),
+            )
 
         assertThat(validerUndersporsmal(sporsmal)).isTrue()
     }
@@ -471,11 +469,11 @@ class ValideringTest {
     @Test
     fun valideringAvRadioGruppeTimerProsentFeilerVedMerEnnEttSvar() {
         val sporsmal =
-            sporsmalBuilder()
-                .tag("ANY")
-                .svartype(RADIO_GRUPPE)
-                .undersporsmal(getBesvarteCheckedSporsmal(RADIO, 3, 2))
-                .build()
+            Sporsmal(
+                tag = ("ANY"),
+                svartype = (RADIO_GRUPPE),
+                undersporsmal = getBesvarteCheckedSporsmal(RADIO, 3, 2),
+            )
 
         assertThat(validerUndersporsmal(sporsmal)).isFalse()
     }
@@ -483,11 +481,11 @@ class ValideringTest {
     @Test
     fun valideringAvRadioGruppeTimerProsentFeilerVedManglendeSvar() {
         val sporsmal =
-            sporsmalBuilder()
-                .tag("ANY")
-                .svartype(RADIO_GRUPPE)
-                .undersporsmal(getBesvarteCheckedSporsmal(RADIO, 3, 0))
-                .build()
+            Sporsmal(
+                tag = ("ANY"),
+                svartype = (RADIO_GRUPPE),
+                undersporsmal = getBesvarteCheckedSporsmal(RADIO, 3, 0),
+            )
 
         assertThat(validerUndersporsmal(sporsmal)).isFalse()
     }
@@ -495,11 +493,11 @@ class ValideringTest {
     @Test
     fun valideringAvRadioGruppeTimerProsentKreverAkkuratEttSvar() {
         val sporsmal =
-            sporsmalBuilder()
-                .tag("ANY")
-                .svartype(RADIO_GRUPPE)
-                .undersporsmal(getBesvarteCheckedSporsmal(RADIO, 3, 1))
-                .build()
+            Sporsmal(
+                tag = ("ANY"),
+                svartype = (RADIO_GRUPPE),
+                undersporsmal = getBesvarteCheckedSporsmal(RADIO, 3, 1),
+            )
 
         assertThat(validerUndersporsmal(sporsmal)).isTrue()
     }
@@ -507,11 +505,11 @@ class ValideringTest {
     @Test
     fun valideringAvRadioGruppeFeilerVedMerEnnEttSvar() {
         val sporsmal =
-            sporsmalBuilder()
-                .tag("ANY")
-                .svartype(RADIO_GRUPPE)
-                .undersporsmal(getBesvarteCheckedSporsmal(RADIO, 3, 2))
-                .build()
+            Sporsmal(
+                tag = ("ANY"),
+                svartype = (RADIO_GRUPPE),
+                undersporsmal = getBesvarteCheckedSporsmal(RADIO, 3, 2),
+            )
 
         assertThat(validerUndersporsmal(sporsmal)).isFalse()
     }
@@ -519,11 +517,11 @@ class ValideringTest {
     @Test
     fun ikkeRelevantValidererOKForBesvarteCheckboxPanel() {
         val sporsmal =
-            sporsmalBuilder()
-                .tag("ANY")
-                .svartype(IKKE_RELEVANT)
-                .undersporsmal(getBesvarteCheckedSporsmal(CHECKBOX_PANEL, 1, 1))
-                .build()
+            Sporsmal(
+                tag = ("ANY"),
+                svartype = (IKKE_RELEVANT),
+                undersporsmal = getBesvarteCheckedSporsmal(CHECKBOX_PANEL, 1, 1),
+            )
 
         assertThat(validerUndersporsmal(sporsmal)).isTrue()
     }
@@ -531,11 +529,11 @@ class ValideringTest {
     @Test
     fun ikkeRelevantValidererFeilForUbesvarteCheckboxPanel() {
         val sporsmal =
-            sporsmalBuilder()
-                .tag("ANY")
-                .svartype(IKKE_RELEVANT)
-                .undersporsmal(getBesvarteCheckedSporsmal(CHECKBOX_PANEL, 1, 0))
-                .build()
+            Sporsmal(
+                tag = ("ANY"),
+                svartype = (IKKE_RELEVANT),
+                undersporsmal = getBesvarteCheckedSporsmal(CHECKBOX_PANEL, 1, 0),
+            )
 
         assertThat(validerUndersporsmal(sporsmal)).isFalse()
     }
@@ -543,11 +541,11 @@ class ValideringTest {
     @Test
     fun gruppeAvUndersporsmalValidererOKForBesvarteCheckboxPanel() {
         val sporsmal =
-            sporsmalBuilder()
-                .tag("ANY")
-                .svartype(GRUPPE_AV_UNDERSPORSMAL)
-                .undersporsmal(getBesvarteCheckedSporsmal(CHECKBOX_PANEL, 1, 1))
-                .build()
+            Sporsmal(
+                tag = ("ANY"),
+                svartype = (GRUPPE_AV_UNDERSPORSMAL),
+                undersporsmal = getBesvarteCheckedSporsmal(CHECKBOX_PANEL, 1, 1),
+            )
 
         assertThat(validerUndersporsmal(sporsmal)).isTrue()
     }
@@ -555,11 +553,11 @@ class ValideringTest {
     @Test
     fun gruppeAvUndersporsmalValidererFeilForUbesvarteCheckboxPanel() {
         val sporsmal =
-            sporsmalBuilder()
-                .tag("ANY")
-                .svartype(GRUPPE_AV_UNDERSPORSMAL)
-                .undersporsmal(getBesvarteCheckedSporsmal(CHECKBOX_PANEL, 1, 0))
-                .build()
+            Sporsmal(
+                tag = ("ANY"),
+                svartype = (GRUPPE_AV_UNDERSPORSMAL),
+                undersporsmal = getBesvarteCheckedSporsmal(CHECKBOX_PANEL, 1, 0),
+            )
 
         assertThat(validerUndersporsmal(sporsmal)).isFalse()
     }
@@ -600,18 +598,17 @@ class ValideringTest {
         val sporsmal = ArrayList<Sporsmal>()
         for (i in 0 until antall) {
             sporsmal.add(
-                sporsmalBuilder()
-                    .tag("ANY")
-                    .svartype(svartype)
-                    .undersporsmal(emptyList())
-                    .svar(
+                Sporsmal(
+                    tag = ("ANY"),
+                    svartype = (svartype),
+                    undersporsmal = (emptyList()),
+                    svar =
                         if (i >= besvarte) {
                             emptyList()
                         } else {
                             listOf(Svar(null, "CHECKED"))
                         },
-                    )
-                    .build(),
+                ),
             )
         }
         return sporsmal
@@ -634,27 +631,27 @@ class ValideringTest {
         max: String?,
         svar: List<Svar> = emptyList(),
     ): Sporsmal {
-        return sporsmalBuilder()
-            .tag("ANY")
-            .svartype(svartype)
-            .min(min)
-            .max(max)
-            .svar(svar)
-            .build()
+        return Sporsmal(
+            tag = ("ANY"),
+            svartype = (svartype),
+            min = (min),
+            max = (max),
+            svar = (svar),
+        )
     }
 
     private fun getSporsmalMedTomtUndersporsmal(
         svartype: Svartype,
         svar: List<Svar>,
     ): Sporsmal {
-        return sporsmalBuilder()
-            .tag("ANY")
-            .svartype(svartype)
-            .min(null)
-            .max(null)
-            .svar(svar)
-            .undersporsmal(emptyList())
-            .build()
+        return Sporsmal(
+            tag = ("ANY"),
+            svartype = (svartype),
+            min = (null),
+            max = (null),
+            svar = (svar),
+            undersporsmal = (emptyList()),
+        )
     }
 
     @Test
@@ -670,22 +667,22 @@ class ValideringTest {
     ): Sporsmal {
         val svar = ArrayList<Svar>()
         svar.add(Svar(null, verdipasvar))
-        return sporsmalBuilder()
-            .tag("ANY")
-            .svartype(JA_NEI)
-            .svar(listOf(Svar(null, "JA")))
-            .undersporsmal(
-                asList(
+        return Sporsmal(
+            tag = ("ANY"),
+            svartype = (JA_NEI),
+            svar = (listOf(Svar(null, "JA"))),
+            undersporsmal = (
+                listOf(
                     getSporsmalMedTomtUndersporsmal(JA_NEI, listOf(Svar(null, "JA"))),
-                    sporsmalBuilder()
-                        .tag(tag)
-                        .svartype(JA_NEI)
-                        .svar(listOf(Svar(null, verdipasvar)))
-                        .undersporsmal(emptyList())
-                        .build(),
-                ),
-            )
-            .build()
+                    Sporsmal(
+                        tag = (tag),
+                        svartype = (JA_NEI),
+                        svar = (listOf(Svar(null, verdipasvar))),
+                        undersporsmal = (emptyList()),
+                    ),
+                )
+            ),
+        )
     }
 
     private fun getSvar(antall: Int): List<Svar> {

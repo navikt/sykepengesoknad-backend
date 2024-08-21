@@ -1,11 +1,6 @@
 package no.nav.helse.flex.soknadsopprettelse
 
-import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.domain.Soknadstatus
-import no.nav.helse.flex.domain.Soknadstype
-import no.nav.helse.flex.domain.Sporsmal.SporsmalBuilder
-import no.nav.helse.flex.domain.Svartype
-import no.nav.helse.flex.domain.Sykepengesoknad
+import no.nav.helse.flex.domain.*
 import org.amshove.kluent.`should be`
 import org.junit.jupiter.api.Test
 import java.time.Instant
@@ -429,11 +424,11 @@ class SoknadGenereringTest {
                 ).copy(
                     sporsmal =
                         listOf(
-                            SporsmalBuilder()
-                                .id("1")
-                                .tag(UTENLANDSK_SYKMELDING_BOSTED)
-                                .svartype(Svartype.JA_NEI)
-                                .build(),
+                            Sporsmal(
+                                id = ("1"),
+                                tag = (UTENLANDSK_SYKMELDING_BOSTED),
+                                svartype = (Svartype.JA_NEI),
+                            ),
                         ),
                 ),
             )
@@ -494,11 +489,11 @@ class SoknadGenereringTest {
                 ).copy(
                     sporsmal =
                         listOf(
-                            SporsmalBuilder()
-                                .id("1")
-                                .tag(UTENLANDSK_SYKMELDING_BOSTED)
-                                .svartype(Svartype.JA_NEI)
-                                .build(),
+                            Sporsmal(
+                                id = ("1"),
+                                tag = (UTENLANDSK_SYKMELDING_BOSTED),
+                                svartype = (Svartype.JA_NEI),
+                            ),
                         ),
                 ),
             )
@@ -604,11 +599,11 @@ class SoknadGenereringTest {
                 ).copy(
                     sporsmal =
                         listOf(
-                            SporsmalBuilder()
-                                .id("1")
-                                .tag(ARBEID_UTENFOR_NORGE)
-                                .svartype(Svartype.JA_NEI)
-                                .build(),
+                            Sporsmal(
+                                id = ("1"),
+                                tag = (ARBEID_UTENFOR_NORGE),
+                                svartype = (Svartype.JA_NEI),
+                            ),
                         ),
                 ),
             )
@@ -641,11 +636,11 @@ class SoknadGenereringTest {
                 ).copy(
                     sporsmal =
                         listOf(
-                            SporsmalBuilder()
-                                .id("1")
-                                .tag(ARBEID_UTENFOR_NORGE)
-                                .svartype(Svartype.JA_NEI)
-                                .build(),
+                            Sporsmal(
+                                id = ("1"),
+                                tag = (ARBEID_UTENFOR_NORGE),
+                                svartype = (Svartype.JA_NEI),
+                            ),
                         ),
                     status = Soknadstatus.SLETTET,
                 ),
@@ -678,11 +673,11 @@ class SoknadGenereringTest {
                 ).copy(
                     sporsmal =
                         listOf(
-                            SporsmalBuilder()
-                                .id("1")
-                                .tag(ARBEID_UTENFOR_NORGE)
-                                .svartype(Svartype.JA_NEI)
-                                .build(),
+                            Sporsmal(
+                                id = ("1"),
+                                tag = (ARBEID_UTENFOR_NORGE),
+                                svartype = (Svartype.JA_NEI),
+                            ),
                         ),
                 ),
             )
@@ -714,11 +709,11 @@ class SoknadGenereringTest {
                 ).copy(
                     sporsmal =
                         listOf(
-                            SporsmalBuilder()
-                                .id("1")
-                                .tag(ARBEID_UTENFOR_NORGE)
-                                .svartype(Svartype.JA_NEI)
-                                .build(),
+                            Sporsmal(
+                                id = ("1"),
+                                tag = (ARBEID_UTENFOR_NORGE),
+                                svartype = (Svartype.JA_NEI),
+                            ),
                         ),
                 ),
             )
