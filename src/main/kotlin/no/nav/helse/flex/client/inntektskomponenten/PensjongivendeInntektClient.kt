@@ -1,13 +1,13 @@
 package no.nav.helse.flex.client.inntektskomponenten
 
 import no.nav.helse.flex.logger
-import no.nav.helse.flex.util.serialisertTilString
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.*
+import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
+import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
-import java.time.LocalDate
 import java.util.*
 
 @Component
@@ -18,71 +18,62 @@ class PensjongivendeInntektClient(
 ) {
     val log = logger()
 
+    @Retryable
     fun hentPensjonsgivendeInntekt(
         fnr: String,
         arViHenterFor: Int,
-    ): HentPensjonsgivendeInntektResponse? {
-        // TODO: Fjern dette før prodsetting!!
-        log.info("fnr som vi sender med kallet er: $fnr")
+    ): HentPensjonsgivendeInntektResponse {
         val uriBuilder =
             UriComponentsBuilder.fromHttpUrl("$url/api/v1/pensjonsgivendeinntektforfolketrygden")
 
-        val headers = HttpHeaders()
-        headers["Nav-Consumer-Id"] = "sykepengesoknad-backend"
-        headers["Nav-Call-Id"] = UUID.randomUUID().toString()
-        headers["rettighetspakke"] = "navSykepenger"
-        headers["Nav-Personident"] = fnr
-        headers["inntektsaar"] = arViHenterFor.toString()
-        headers.contentType = MediaType.APPLICATION_JSON
-        headers.accept = listOf(MediaType.APPLICATION_JSON)
+        val headers =
+            HttpHeaders().apply {
+                this["Nav-Consumer-Id"] = "sykepengesoknad-backend"
+                this["Nav-Call-Id"] = UUID.randomUUID().toString()
+                this["rettighetspakke"] = "navSykepenger"
+                this["Nav-Personident"] = fnr
+                this["inntektsaar"] = arViHenterFor.toString()
+                this.contentType = MediaType.APPLICATION_JSON
+                this.accept = listOf(MediaType.APPLICATION_JSON)
+            }
 
-        val result: ResponseEntity<HentPensjonsgivendeInntektResponse>
         try {
-            result =
-                persongivendeInntektRestTemplate
-                    .exchange(
-                        uriBuilder.toUriString(),
-                        HttpMethod.GET,
-                        HttpEntity<Any>(headers),
-                        HentPensjonsgivendeInntektResponse::class.java,
-                    )
+            val result =
+                persongivendeInntektRestTemplate.exchange(
+                    uriBuilder.toUriString(),
+                    HttpMethod.GET,
+                    HttpEntity<Any>(headers),
+                    HentPensjonsgivendeInntektResponse::class.java,
+                )
+
+            if (result.statusCode == HttpStatus.NOT_FOUND) {
+                val message = "Ingen pensjonsgivende inntekt funnet for år $arViHenterFor på personidentifikator $fnr"
+                log.warn(message)
+                throw IngenPensjonsgivendeInntektFunnetException(message)
+            }
+
             if (result.statusCode != HttpStatus.OK) {
-                val message = "Kall mot Sigrun feiler med HTTP-" + result.statusCode
+                val message = "Kall mot Sigrun feiler med HTTP-${result.statusCode}"
                 log.error(message)
                 throw RuntimeException(message)
             }
 
-            log.info("Kall mot Sigrun result: ${result.serialisertTilString()}")
-            result.body?.let {
-                return it
-            }
-        } catch (e: Exception) {
-            val message = "Kall mot Sigrun returnerer ikke data"
+            return result.body ?: throw RuntimeException("Uventet feil: responsen er null selv om den ikke skulle være det.")
+        } catch (e: HttpClientErrorException) {
+            val message =
+                if (e.statusCode == HttpStatus.NOT_FOUND && e.responseBodyAsString.contains("PGIF-008")) {
+                    "Ingen pensjonsgivende inntekt funnet på oppgitt personidentifikator og inntektsår."
+                } else {
+                    "Klientfeil ved kall mot Sigrun: ${e.statusCode} - ${e.message}"
+                }
             log.error(message, e)
-            throw RuntimeException(message)
+            throw RuntimeException(message, e)
+        } catch (e: Exception) {
+            val message = "Feil ved kall mot Sigrun: ${e.message}"
+            log.error(message, e)
+            throw RuntimeException(message, e)
         }
-        return result.body!!
-    }
-
-    fun hentPensjonsgivendeInntektForTreSisteArene(fnr: String): List<HentPensjonsgivendeInntektResponse>? {
-        val treFerdigliknetAr = mutableListOf<HentPensjonsgivendeInntektResponse>()
-        val naVarendeAr = LocalDate.now().year
-        var arViHarSjekket = 0
-
-        for (yearOffset in 0..4) {
-            if (treFerdigliknetAr.size == 3) {
-                break
-            }
-
-            val arViHenterFor = naVarendeAr - yearOffset
-            val svar = hentPensjonsgivendeInntekt(fnr, arViHenterFor)
-
-            if (svar != null) {
-                treFerdigliknetAr.add(svar)
-            }
-            arViHarSjekket++
-        }
-
-        return if (treFerdigliknetAr.size == 3) treFerdigliknetAr else null
     }
 }
+
+class IngenPensjonsgivendeInntektFunnetException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)
