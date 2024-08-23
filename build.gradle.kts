@@ -67,7 +67,7 @@ dependencies {
     implementation("no.nav.syfo.kafka:serialisering:$syfoKafkaVersion")
     implementation("org.apache.avro:avro:$avroVersion")
     implementation("io.getunleash:unleash-client-java:$unleashVersion")
-    implementation("org.springframework.boot:spring-boot-starter-webflux:3.3.2")
+    implementation("org.springframework.boot:spring-boot-starter-webflux:3.3.3")
 
     testImplementation(platform("org.testcontainers:testcontainers-bom:$testContainersVersion"))
     testImplementation("org.springframework.boot:spring-boot-starter-test")
