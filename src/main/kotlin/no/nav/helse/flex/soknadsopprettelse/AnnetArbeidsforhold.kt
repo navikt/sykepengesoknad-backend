@@ -10,7 +10,7 @@ fun settOppSoknadAnnetArbeidsforhold(opts: SettOppSoknadOptions): List<Sporsmal>
     val erGradertReisetilskudd = sykepengesoknad.soknadstype == Soknadstype.GRADERT_REISETILSKUDD
 
     return mutableListOf<Sporsmal>().apply {
-        add(ansvarserklaringSporsmal(erGradertReisetilskudd))
+        add(ansvarserklaringSporsmal())
         add(andreInntektskilderArbeidsledig(sykepengesoknad.fom!!, sykepengesoknad.tom!!))
         add(friskmeldingSporsmal(sykepengesoknad.fom, sykepengesoknad.tom))
         add(permisjonSporsmal(sykepengesoknad.fom, sykepengesoknad.tom))
