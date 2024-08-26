@@ -9,6 +9,14 @@ fun tilSlutt(): Sporsmal {
     return Sporsmal(
         tag = TIL_SLUTT,
         svartype = Svartype.OPPSUMMERING,
+        undersporsmal = listOf(),
+    )
+}
+
+fun tilSluttGammel(): Sporsmal {
+    return Sporsmal(
+        tag = TIL_SLUTT,
+        svartype = Svartype.OPPSUMMERING,
         undersporsmal =
             listOf(
                 Sporsmal(

@@ -24,7 +24,6 @@ class SykepengesoknadTest {
                 Svartype.JA_NEI,
                 Svartype.JA_NEI,
                 Svartype.OPPSUMMERING,
-                Svartype.CHECKBOX_PANEL,
             ),
         )
     }
@@ -41,7 +40,7 @@ class SykepengesoknadTest {
                     it.isEmpty()
                 }.toTypedArray()[0]
             }.joinToString(","),
-        ).isEqualTo("Når,Hvilke(t),Har,Er,Har,Jeg")
+        ).isEqualTo("Når,Hvilke(t),Har,Er,Har")
     }
 
     @Test
@@ -61,7 +60,7 @@ class SykepengesoknadTest {
                     i ->
                 i.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0]
             }.joinToString(","),
-        ).isEqualTo("Når,Hvilke(t),HEISANN,Er,Har,Jeg")
+        ).isEqualTo("Når,Hvilke(t),HEISANN,Er,Har")
     }
 
     @Test
@@ -85,22 +84,22 @@ class SykepengesoknadTest {
     @Test
     fun fjernHovedsporsmal() {
         var sykepengesoknad = sykepengesoknad
-        assertThat(sykepengesoknad.alleSporsmalOgUndersporsmal().size).isEqualTo(7)
+        assertThat(sykepengesoknad.alleSporsmalOgUndersporsmal().size).isEqualTo(6)
 
         sykepengesoknad = sykepengesoknad.fjernSporsmal("ARBEIDSGIVER")
 
-        assertThat(sykepengesoknad.alleSporsmalOgUndersporsmal().size).isEqualTo(4)
+        assertThat(sykepengesoknad.alleSporsmalOgUndersporsmal().size).isEqualTo(3)
         assertThat(sykepengesoknad.alleSporsmalOgUndersporsmal().stream().anyMatch { (_, tag) -> tag == "1" }).isFalse()
     }
 
     @Test
     fun fjernUndersporsmal() {
         var sykepengesoknad = sykepengesoknad
-        assertThat(sykepengesoknad.alleSporsmalOgUndersporsmal().size).isEqualTo(7)
+        assertThat(sykepengesoknad.alleSporsmalOgUndersporsmal().size).isEqualTo(6)
 
         sykepengesoknad = sykepengesoknad.fjernSporsmal("SYKMELDINGSGRAD")
 
-        assertThat(sykepengesoknad.alleSporsmalOgUndersporsmal().size).isEqualTo(6)
+        assertThat(sykepengesoknad.alleSporsmalOgUndersporsmal().size).isEqualTo(5)
         assertThat(sykepengesoknad.alleSporsmalOgUndersporsmal().stream().anyMatch { (_, tag) -> tag == "2" }).isFalse()
     }
 

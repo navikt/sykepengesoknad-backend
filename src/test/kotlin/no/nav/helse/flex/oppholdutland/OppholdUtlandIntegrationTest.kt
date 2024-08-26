@@ -133,23 +133,6 @@ class OppholdUtlandIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `08 - Vi bekrefter opplysninger`() {
-        val soknad =
-            hentSoknad(
-                soknadId = hentSoknaderMetadata(fnr).first().id,
-                fnr = fnr,
-            )
-        SoknadBesvarer(soknad, this, fnr).oppsummering()
-
-        val soknadEtter =
-            hentSoknad(
-                soknadId = hentSoknaderMetadata(fnr).first().id,
-                fnr = fnr,
-            )
-        soknadEtter.sporsmal?.last()?.undersporsmal?.get(0)?.tag `should be equal to` "BEKREFT_OPPLYSNINGER"
-    }
-
-    @Test
     fun `09 - Vi sender søknaden`() {
         val soknad =
             hentSoknad(

@@ -226,7 +226,6 @@ class NullstillUndersporsmalSvarTest : FellesTestOppsett() {
             .oppsummering()
 
         soknaden.getSporsmalMedTag(TIL_SLUTT).forsteSvar shouldBeEqualTo "true"
-        soknaden.getSporsmalMedTag(BEKREFT_OPPLYSNINGER).forsteSvar shouldBeEqualTo "CHECKED"
     }
 
     @Test

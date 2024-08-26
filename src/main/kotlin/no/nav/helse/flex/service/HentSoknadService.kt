@@ -4,10 +4,7 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.repository.SykepengesoknadRepository
-import no.nav.helse.flex.soknadsopprettelse.ARBEIDSLEDIG_UTLAND
-import no.nav.helse.flex.soknadsopprettelse.OPPHOLD_UTENFOR_EOS
-import no.nav.helse.flex.soknadsopprettelse.UTLAND
-import no.nav.helse.flex.soknadsopprettelse.UTLAND_V2
+import no.nav.helse.flex.soknadsopprettelse.*
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
@@ -30,6 +27,20 @@ class HentSoknadService(
 
     fun finnSykepengesoknad(uuid: String): Sykepengesoknad {
         val soknad = sykepengesoknadDAO.finnSykepengesoknad(uuid)
+        handterUtland(soknad)
+        fjernBekreftOpplysninger(soknad)
+        return sykepengesoknadDAO.finnSykepengesoknad(uuid)
+    }
+
+    private fun fjernBekreftOpplysninger(soknad: Sykepengesoknad) {
+        if (soknad.getSporsmalMedTagOrNull(BEKREFT_OPPLYSNINGER) != null) {
+            val soknadUtenBekreft = soknad.fjernSporsmal(BEKREFT_OPPLYSNINGER)
+            sykepengesoknadDAO.byttUtSporsmal(soknadUtenBekreft)
+            log.info("Fjernet nytt spørsmål med tag $BEKREFT_OPPLYSNINGER fra søknad med id ${soknadUtenBekreft.id}")
+        }
+    }
+
+    private fun handterUtland(soknad: Sykepengesoknad) {
         if (soknad.getSporsmalMedTagOrNull(OPPHOLD_UTENFOR_EOS) != null &&
             (
                 soknad.getSporsmalMedTagOrNull(UTLAND_V2) != null ||
@@ -40,9 +51,7 @@ class HentSoknadService(
             val soknadUtenNyttSporsmal = soknad.fjernSporsmal(OPPHOLD_UTENFOR_EOS)
             sykepengesoknadDAO.byttUtSporsmal(soknadUtenNyttSporsmal)
             log.info("Fjernet nytt spørsmål med tag OPPHOLD_UTENFOR_EOS fra søknad med id ${soknadUtenNyttSporsmal.id}")
-            return sykepengesoknadDAO.finnSykepengesoknad(uuid)
         }
-        return soknad
     }
 
     fun hentEldsteSoknaden(

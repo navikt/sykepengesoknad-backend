@@ -10,6 +10,7 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.flatten
 import no.nav.helse.flex.exception.AbstractApiError
 import no.nav.helse.flex.exception.LogLevel
+import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
 import no.nav.helse.flex.soknadsopprettelse.FERIE
 import no.nav.helse.flex.util.DatoUtil
 import no.nav.helse.flex.util.PeriodeMapper
@@ -27,6 +28,7 @@ fun Sykepengesoknad.validerSvarPaSoknad() {
 private const val INGEN_BEHANDLING = "Ikke til behandling"
 
 fun Sporsmal.validerSvarPaSporsmal() {
+    if (tag == BEKREFT_OPPLYSNINGER) return
     validerAntallSvar()
     validerSvarverdier()
     validerKunUnikeSvar()
