@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
+import java.time.LocalDate
 import java.util.*
 
 @Component
@@ -73,6 +74,26 @@ class PensjongivendeInntektClient(
             log.error(message, e)
             throw RuntimeException(message, e)
         }
+    }
+
+    fun hentPensjonsgivendeInntektForTreSisteArene(fnr: String): List<HentPensjonsgivendeInntektResponse>? {
+        val treFerdigliknetAr = mutableListOf<HentPensjonsgivendeInntektResponse>()
+        val naVarendeAr = LocalDate.now().year
+        var arViHarSjekket = 0
+
+        for (yearOffset in 0..4) {
+            if (treFerdigliknetAr.size == 3) {
+                break
+            }
+
+            val arViHenterFor = naVarendeAr - yearOffset
+            val svar = hentPensjonsgivendeInntekt(fnr, arViHenterFor)
+
+            treFerdigliknetAr.add(svar)
+            arViHarSjekket++
+        }
+
+        return if (treFerdigliknetAr.size == 3) treFerdigliknetAr else null
     }
 }
 

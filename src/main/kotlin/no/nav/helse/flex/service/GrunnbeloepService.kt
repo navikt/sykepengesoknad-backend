@@ -1,13 +1,15 @@
-package no.nav.helse.flex.soknadsopprettelse
+package no.nav.helse.flex.service
 
 import no.nav.helse.flex.client.grunnbeloep.GrunnbeloepClient
 import no.nav.helse.flex.client.grunnbeloep.GrunnbeloepResponse
+import org.springframework.cache.annotation.CacheConfig
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import java.time.LocalDate
 
 @Service
-class HentGrunnbeloepService(private val grunnbeloepClient: GrunnbeloepClient) {
+@CacheConfig
+class GrunnbeloepService(private val grunnbeloepClient: GrunnbeloepClient) {
     fun getGrunnbeloep(dato: LocalDate?): Mono<GrunnbeloepResponse> {
         return grunnbeloepClient.getGrunnbeloep(dato)
     }
@@ -28,8 +30,9 @@ class HentGrunnbeloepService(private val grunnbeloepClient: GrunnbeloepClient) {
         }
     }
 
+    // TODO: Cache
     fun hentHistorikkSisteFemAar(): Mono<List<GrunnbeloepResponse>> {
-        val femAarSiden = LocalDate.now().minusYears(5)
+        val femAarSiden = LocalDate.of(2024, 1, 1).minusYears(5)
         return getHistorikk(femAarSiden)
     }
 }

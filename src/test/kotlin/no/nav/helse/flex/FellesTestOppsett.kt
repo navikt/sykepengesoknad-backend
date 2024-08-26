@@ -48,6 +48,7 @@ abstract class FellesTestOppsett {
         private val yrkesskadeMockWebServer: MockWebServer
         private val innsendingApiMockWebServer: MockWebServer
         private val pensjonsgivendeInntektMockWebServer: MockWebServer
+        private val grunnbeloepApiMockWebServer: MockWebServer
 
         init {
             startAlleContainere()
@@ -59,6 +60,7 @@ abstract class FellesTestOppsett {
                 yrkesskadeMockWebServer = it.yrkesskadeMockWebServer
                 innsendingApiMockWebServer = it.innsendingApiMockWebServer
                 pensjonsgivendeInntektMockWebServer = it.pensjonsgivendeInntektMockWebServer
+                grunnbeloepApiMockWebServer = it.grunnbeloepApiMockWebServer
             }
         }
     }
