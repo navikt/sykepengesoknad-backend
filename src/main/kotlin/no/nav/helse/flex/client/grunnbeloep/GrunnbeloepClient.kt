@@ -1,6 +1,8 @@
 package no.nav.helse.flex.client.grunnbeloep
 
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.http.HttpHeaders
+import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
@@ -38,6 +40,7 @@ class GrunnbeloepClient(
                 }
                 builder.build()
             }
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .retrieve()
             .bodyToFlux(GrunnbeloepResponse::class.java)
             .collectList()
