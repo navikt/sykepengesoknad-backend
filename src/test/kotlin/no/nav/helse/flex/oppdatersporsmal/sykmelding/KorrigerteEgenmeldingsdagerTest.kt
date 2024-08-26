@@ -16,6 +16,7 @@ import no.nav.syfo.sykmelding.kafka.model.SporsmalOgSvarKafkaDTO
 import no.nav.syfo.sykmelding.kafka.model.SvartypeKafkaDTO
 import org.amshove.kluent.*
 import org.apache.kafka.clients.producer.ProducerRecord
+import org.assertj.core.api.Assertions.assertThat
 import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
@@ -85,13 +86,14 @@ class KorrigerteEgenmeldingsdagerTest : FellesTestOppsett() {
                 .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
                 .sendSoknad()
 
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
+        val sendtSoknadKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
         juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
 
         val soknadFraDatabase = sykepengesoknadDAO.finnSykepengesoknad(sendtSoknad.id)
         soknadFraDatabase.status shouldBeEqualTo Soknadstatus.SENDT
         soknadFraDatabase.sendtArbeidsgiver shouldNotBeEqualTo null
         soknadFraDatabase.sendtNav shouldBeEqualTo null
+        sendtSoknadKafka.first().egenmeldingsdagerFraSykmelding.shouldBeNull()
     }
 
     @Test
@@ -180,5 +182,26 @@ class KorrigerteEgenmeldingsdagerTest : FellesTestOppsett() {
         await().atMost(10, TimeUnit.SECONDS).until {
             hentSoknaderMetadata(fnr).first().sendtTilNAVDato != null
         }
+    }
+
+    @Test
+    @Order(5)
+    fun `Vi korrigerer og sender inn, egenmeldingsdagene er ikke oppdatert`() {
+        val soknaden = hentSoknader(fnr).first()
+
+        val korrigerendeSoknad = korrigerSoknad(soknaden.id, fnr)
+        mockFlexSyketilfelleArbeidsgiverperiode(andreKorrigerteRessurser = soknaden.id)
+
+        val sendtSoknad =
+            SoknadBesvarer(rSSykepengesoknad = korrigerendeSoknad, mockMvc = this, fnr = fnr)
+                .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
+                .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg er ærlig!", ferdigBesvart = false)
+                .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
+                .sendSoknad()
+        assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
+
+        val sendtSoknadKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
+        juridiskVurderingKafkaConsumer.ventPåRecords(antall = 1)
+        sendtSoknadKafka.first().egenmeldingsdagerFraSykmelding.shouldBeNull()
     }
 }
