@@ -190,6 +190,7 @@ class KorrigerteEgenmeldingsdagerTest : FellesTestOppsett() {
         val soknaden = hentSoknader(fnr).first()
 
         val korrigerendeSoknad = korrigerSoknad(soknaden.id, fnr)
+        flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode(andreKorrigerteRessurser = soknaden.id)
 
         val sendtSoknad =
