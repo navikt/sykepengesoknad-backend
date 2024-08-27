@@ -7,6 +7,7 @@ import no.nav.helse.flex.client.inntektskomponenten.PensjonsgivendeInntekt
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.util.beregnGjennomsnittligInntekt
+import no.nav.helse.flex.util.serialisertTilString
 import no.nav.helse.flex.util.sykepengegrunnlagUtregner
 import org.springframework.stereotype.Service
 import java.math.BigInteger
@@ -29,20 +30,25 @@ class SykepengegrunnlagService(
 
     fun sykepengegrunnlagNaeringsdrivende(soknad: Sykepengesoknad): SykepengegrunnlagNaeringsdrivende? {
         try {
+            log.info("Finner sykepengegrunnlag for selvstendig næringsdrivende ${soknad.id}")
             val grunnbeloepSisteFemAar =
                 grunnbeloepService.hentHistorikkSisteFemAar().block()
                     ?: throw Exception("finner ikke historikk for g fra siste fem år")
+            log.info("Grunnbeløp siste 5 år: ${grunnbeloepSisteFemAar.serialisertTilString()}")
 
             val grunnbeloepSykmldTidspunkt =
                 grunnbeloepSisteFemAar.find { it.dato.tilAar() == soknad.aktivertDato?.year }?.grunnbeloep
                     ?: throw Exception("Fant ikke g på sykmeldingstidspunkt")
+            log.info("Grunnbeløp på sykemeldingstidspunkt $grunnbeloepSykmldTidspunkt")
 
             val pensjonsgivendeInntekter =
                 pensjongivendeInntektClient.hentPensjonsgivendeInntektForTreSisteArene(soknad.fnr)
                     ?: throw Exception("Fant ikke pensjonsgivendeInntekter for ${soknad.fnr}")
+            log.info("Pensjonsgivende inntekter siste 3 år: ${pensjonsgivendeInntekter.serialisertTilString()}")
 
             val beregnetInntektPerAar =
                 finnBeregnetInntektPerAar(pensjonsgivendeInntekter, grunnbeloepSisteFemAar, grunnbeloepSykmldTidspunkt)
+            log.info("Beregnet inntekt per år: ${beregnetInntektPerAar.serialisertTilString()}")
 
             if (alleAarUnder1g(beregnetInntektPerAar, grunnbeloepSykmldTidspunkt)) return null
 
