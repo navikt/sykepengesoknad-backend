@@ -16,6 +16,7 @@ fun sykepengegrunnlagUtregner(
 /**
  * Finner gennomsnittlig inntekt og justerer basert på regler i rundskriv.
  * Dersom snittet er over 6G fastsettes sykepengegrunnlaget til 6G
+ * @return gjennomsnittlig inntekt, fastsatt sykepengegrunnlag
  */
 fun beregnGjennomsnittligInntekt(
     beregnetInntektPerAar: Map<String, BigInteger>,
@@ -38,6 +39,7 @@ fun beregnGjennomsnittligInntekt(
     justerteInntekter.putAll(reduserteVerdierMellom6og12G)
 
     val snittVerdi = justerteInntekter.values.sumOf { it } / 3.toBigInteger()
+    val fastsattSykepengegrunnlag = if (snittVerdi > g6) g6 else snittVerdi
 
-    return Pair(snittVerdi, g6)
+    return Pair(snittVerdi, fastsattSykepengegrunnlag)
 }

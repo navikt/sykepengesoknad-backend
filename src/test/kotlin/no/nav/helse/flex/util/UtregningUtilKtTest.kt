@@ -24,6 +24,6 @@ class UtregningUtilKtTest {
         beregnGjennomsnittligInntekt(
             beregnetInntektPerAar,
             grunnbeloepSykmldTidspunkt = 96883,
-        ) `should be equal to` 589138.toBigInteger()
+        ) `should be equal to` Pair(589138.toBigInteger(), 581298.toBigInteger())
     }
 }
