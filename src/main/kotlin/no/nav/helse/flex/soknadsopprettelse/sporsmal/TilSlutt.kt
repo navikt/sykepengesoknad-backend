@@ -16,7 +16,7 @@ fun tilSlutt(): Sporsmal {
 fun tilSluttGammel(): Sporsmal {
     return Sporsmal(
         tag = TIL_SLUTT,
-        svartype = Svartype.OPPSUMMERING,
+        svartype = Svartype.BEKREFTELSESPUNKTER,
         undersporsmal =
             listOf(
                 Sporsmal(
