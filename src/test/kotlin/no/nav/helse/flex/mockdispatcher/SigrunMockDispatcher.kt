@@ -67,60 +67,61 @@ object SigrunMockDispatcher : Dispatcher() {
                 }
                 else -> return MockResponse().setResponseCode(404)
             }
-        }
-        when (inntektsAar) {
-            "2024" -> {
-                return HentPensjonsgivendeInntektResponse(
-                    norskPersonidentifikator = fnr,
-                    inntektsaar = inntektsAar,
-                    pensjonsgivendeInntekt =
-                        listOf(
-                            PensjonsgivendeInntekt(
-                                datoForFastsetting = "2024-07-17",
-                                skatteordning = Skatteordning.FASTLAND,
-                                pensjonsgivendeInntektAvLoennsinntekt = 100000,
-                                pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = 5000,
-                                pensjonsgivendeInntektAvNaeringsinntekt = 400000,
-                                pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage = 2000,
+        } else {
+            when (inntektsAar) {
+                "2024" -> {
+                    return HentPensjonsgivendeInntektResponse(
+                        norskPersonidentifikator = fnr,
+                        inntektsaar = inntektsAar,
+                        pensjonsgivendeInntekt =
+                            listOf(
+                                PensjonsgivendeInntekt(
+                                    datoForFastsetting = "2024-07-17",
+                                    skatteordning = Skatteordning.FASTLAND,
+                                    pensjonsgivendeInntektAvLoennsinntekt = 100000,
+                                    pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = 5000,
+                                    pensjonsgivendeInntektAvNaeringsinntekt = 400000,
+                                    pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage = 2000,
+                                ),
                             ),
-                        ),
-                ).tilMockResponse()
-            }
-            "2023" -> {
-                return HentPensjonsgivendeInntektResponse(
-                    norskPersonidentifikator = fnr,
-                    inntektsaar = inntektsAar,
-                    pensjonsgivendeInntekt =
-                        listOf(
-                            PensjonsgivendeInntekt(
-                                datoForFastsetting = "2023-07-17",
-                                skatteordning = Skatteordning.FASTLAND,
-                                pensjonsgivendeInntektAvLoennsinntekt = 100000,
-                                pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = 5000,
-                                pensjonsgivendeInntektAvNaeringsinntekt = 350000,
-                                pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage = 2000,
+                    ).tilMockResponse()
+                }
+                "2023" -> {
+                    return HentPensjonsgivendeInntektResponse(
+                        norskPersonidentifikator = fnr,
+                        inntektsaar = inntektsAar,
+                        pensjonsgivendeInntekt =
+                            listOf(
+                                PensjonsgivendeInntekt(
+                                    datoForFastsetting = "2023-07-17",
+                                    skatteordning = Skatteordning.FASTLAND,
+                                    pensjonsgivendeInntektAvLoennsinntekt = 100000,
+                                    pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = 5000,
+                                    pensjonsgivendeInntektAvNaeringsinntekt = 350000,
+                                    pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage = 2000,
+                                ),
                             ),
-                        ),
-                ).tilMockResponse()
-            }
-            "2022" -> {
-                return HentPensjonsgivendeInntektResponse(
-                    norskPersonidentifikator = fnr,
-                    inntektsaar = inntektsAar,
-                    pensjonsgivendeInntekt =
-                        listOf(
-                            PensjonsgivendeInntekt(
-                                datoForFastsetting = "2022-07-17",
-                                skatteordning = Skatteordning.FASTLAND,
-                                pensjonsgivendeInntektAvLoennsinntekt = 100000,
-                                pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = 5000,
-                                pensjonsgivendeInntektAvNaeringsinntekt = 300000,
-                                pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage = 2000,
+                    ).tilMockResponse()
+                }
+                "2022" -> {
+                    return HentPensjonsgivendeInntektResponse(
+                        norskPersonidentifikator = fnr,
+                        inntektsaar = inntektsAar,
+                        pensjonsgivendeInntekt =
+                            listOf(
+                                PensjonsgivendeInntekt(
+                                    datoForFastsetting = "2022-07-17",
+                                    skatteordning = Skatteordning.FASTLAND,
+                                    pensjonsgivendeInntektAvLoennsinntekt = 100000,
+                                    pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = 5000,
+                                    pensjonsgivendeInntektAvNaeringsinntekt = 300000,
+                                    pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage = 2000,
+                                ),
                             ),
-                        ),
-                ).tilMockResponse()
+                    ).tilMockResponse()
+                }
+                else -> return MockResponse().setResponseCode(404)
             }
-            else -> return MockResponse().setResponseCode(404)
         }
     }
 
