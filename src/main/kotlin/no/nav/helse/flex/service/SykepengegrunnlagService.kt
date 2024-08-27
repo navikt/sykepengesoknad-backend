@@ -28,40 +28,45 @@ class SykepengegrunnlagService(
     private val log = logger()
 
     fun sykepengegrunnlagNaeringsdrivende(soknad: Sykepengesoknad): SykepengegrunnlagNaeringsdrivende? {
-        val grunnbeloepSisteFemAar =
-            grunnbeloepService.hentHistorikkSisteFemAar().block()
-                ?: throw Exception("finner ikke historikk for g fra siste fem år")
+        try {
+            val grunnbeloepSisteFemAar =
+                grunnbeloepService.hentHistorikkSisteFemAar().block()
+                    ?: throw Exception("finner ikke historikk for g fra siste fem år")
 
-        val grunnbeloepSykmldTidspunkt =
-            grunnbeloepSisteFemAar.find { it.dato.tilAar() == soknad.aktivertDato?.year }?.grunnbeloep
-                ?: throw Exception("Fant ikke g på sykmeldingstidspunkt")
+            val grunnbeloepSykmldTidspunkt =
+                grunnbeloepSisteFemAar.find { it.dato.tilAar() == soknad.aktivertDato?.year }?.grunnbeloep
+                    ?: throw Exception("Fant ikke g på sykmeldingstidspunkt")
 
-        val pensjonsgivendeInntekter =
-            pensjongivendeInntektClient.hentPensjonsgivendeInntektForTreSisteArene(soknad.fnr)
-                ?: throw Exception("Fant ikke pensjonsgivendeInntekter for ${soknad.fnr}")
+            val pensjonsgivendeInntekter =
+                pensjongivendeInntektClient.hentPensjonsgivendeInntektForTreSisteArene(soknad.fnr)
+                    ?: throw Exception("Fant ikke pensjonsgivendeInntekter for ${soknad.fnr}")
 
-        val beregnetInntektPerAar =
-            finnBeregnetInntektPerAar(pensjonsgivendeInntekter, grunnbeloepSisteFemAar, grunnbeloepSykmldTidspunkt)
+            val beregnetInntektPerAar =
+                finnBeregnetInntektPerAar(pensjonsgivendeInntekter, grunnbeloepSisteFemAar, grunnbeloepSykmldTidspunkt)
 
-        if (alleAarUnder1g(beregnetInntektPerAar, grunnbeloepSykmldTidspunkt)) return null
+            if (alleAarUnder1g(beregnetInntektPerAar, grunnbeloepSykmldTidspunkt)) return null
 
-        val (gjennomsnittligInntektAlleAar, fastsattSykepengegrunnlag) =
-            beregnGjennomsnittligInntekt(beregnetInntektPerAar, grunnbeloepSykmldTidspunkt)
+            val (gjennomsnittligInntektAlleAar, fastsattSykepengegrunnlag) =
+                beregnGjennomsnittligInntekt(beregnetInntektPerAar, grunnbeloepSykmldTidspunkt)
 
-        val grunnbeloepForRelevanteTreAar =
-            grunnbeloepSisteFemAar.filter { grunnbeloepResponse ->
-                grunnbeloepResponse.dato.tilAar() in beregnetInntektPerAar.keys.map { it.toInt() }
-            }.associate { grunnbeloepResponse ->
-                grunnbeloepResponse.dato to grunnbeloepResponse.gjennomsnittPerAar.toBigInteger()
-            }
+            val grunnbeloepForRelevanteTreAar =
+                grunnbeloepSisteFemAar.filter { grunnbeloepResponse ->
+                    grunnbeloepResponse.dato.tilAar() in beregnetInntektPerAar.keys.map { it.toInt() }
+                }.associate { grunnbeloepResponse ->
+                    grunnbeloepResponse.dato to grunnbeloepResponse.gjennomsnittPerAar.toBigInteger()
+                }
 
-        return SykepengegrunnlagNaeringsdrivende(
-            fastsattSykepengegrunnlag = fastsattSykepengegrunnlag,
-            gjennomsnittTotal = gjennomsnittligInntektAlleAar,
-            gjennomsnittPerAar = beregnetInntektPerAar,
-            grunnbeloepPerAar = grunnbeloepForRelevanteTreAar,
-            grunnbeloepPaaSykmeldingstidspunkt = grunnbeloepSykmldTidspunkt,
-        )
+            return SykepengegrunnlagNaeringsdrivende(
+                fastsattSykepengegrunnlag = fastsattSykepengegrunnlag,
+                gjennomsnittTotal = gjennomsnittligInntektAlleAar,
+                gjennomsnittPerAar = beregnetInntektPerAar,
+                grunnbeloepPerAar = grunnbeloepForRelevanteTreAar,
+                grunnbeloepPaaSykmeldingstidspunkt = grunnbeloepSykmldTidspunkt,
+            )
+        } catch (e: Exception) {
+            log.error(e.message, e)
+            return null
+        }
     }
 
     private fun finnBeregnetInntektPerAar(
