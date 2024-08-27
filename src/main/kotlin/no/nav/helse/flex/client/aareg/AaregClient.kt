@@ -1,12 +1,11 @@
 package no.nav.helse.flex.client.aareg
 
 import no.nav.helse.flex.logger
+import no.nav.helse.flex.util.serialisertTilString
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.*
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
-import org.springframework.web.util.UriComponentsBuilder
-import java.time.LocalDate
 
 @Component
 class AaregClient(
@@ -16,35 +15,24 @@ class AaregClient(
 ) {
     val log = logger()
 
-    private val arbeidsforholdPath = "$url/api/v1/arbeidstaker/arbeidsforhold"
-    private val navPersonident = "Nav-Personident"
-    private val ansettelsesperiodeFomQueryParam = "ansettelsesperiodeFom"
-    private val sporingsinformasjon = "sporingsinformasjon"
-
-    fun hentArbeidsforhold(
-        fnr: String,
-        ansettelsesperiodeFom: LocalDate,
-    ): List<Arbeidsforhold> {
-        val uriBuilder =
-            UriComponentsBuilder.fromHttpUrl(
-                "$arbeidsforholdPath?" +
-                    "$ansettelsesperiodeFomQueryParam=$ansettelsesperiodeFom&" +
-                    "$sporingsinformasjon=false",
-            )
-
+    fun hentArbeidsforholdoversikt(fnr: String): ArbeidsforholdoversiktResponse {
         val headers = HttpHeaders()
-        headers[navPersonident] = fnr
+        headers.contentType = MediaType.APPLICATION_JSON
 
         val result =
             aaregRestTemplate
                 .exchange(
-                    uriBuilder.toUriString(),
-                    HttpMethod.GET,
+                    "$url/api/v2/arbeidstaker/arbeidsforholdoversikt",
+                    HttpMethod.POST,
                     HttpEntity(
-                        null,
+                        ArbeidsforholdRequest(
+                            arbeidstakerId = fnr,
+                            arbeidsforholdtyper = listOf("ordinaertArbeidsforhold"),
+                            arbeidsforholdstatuser = listOf("AKTIV", "AVSLUTTET"),
+                        ).serialisertTilString(),
                         headers,
                     ),
-                    Array<Arbeidsforhold>::class.java,
+                    ArbeidsforholdoversiktResponse::class.java,
                 )
 
         if (result.statusCode != HttpStatus.OK) {
@@ -53,7 +41,7 @@ class AaregClient(
             throw RuntimeException(message)
         }
 
-        result.body?.let { return it.toList() }
+        result.body?.let { return it }
 
         val message = "Kall mot aareg returnerer ikke data"
         log.error(message)

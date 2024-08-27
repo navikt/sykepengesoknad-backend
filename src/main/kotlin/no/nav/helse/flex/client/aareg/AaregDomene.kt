@@ -2,20 +2,50 @@ package no.nav.helse.flex.client.aareg
 
 import java.time.LocalDate
 
-data class Arbeidsforhold(
-    val arbeidsgiver: Arbeidsgiver,
-    val opplysningspliktig: Opplysningspliktig,
-    val ansettelsesperiode: Ansettelsesperiode,
+data class ArbeidsforholdRequest(
+    val arbeidstakerId: String,
+    val arbeidsforholdtyper: List<String>,
+    val arbeidsforholdstatuser: List<String>,
 )
 
-data class Ansettelsesperiode(val periode: Periode)
+data class ArbeidsforholdoversiktResponse(
+    val arbeidsforholdoversikter: List<ArbeidsforholdOversikt>,
+)
 
-data class Periode(val fom: LocalDate, val tom: LocalDate?)
+data class ArbeidsforholdOversikt(
+    val type: Kodeverksentitet,
+    val arbeidstaker: Arbeidstaker,
+    val arbeidssted: Arbeidssted,
+    val opplysningspliktig: Opplysningspliktig,
+    val startdato: LocalDate,
+    val sluttdato: LocalDate? = null,
+    val yrke: Kodeverksentitet,
+    val avtaltStillingsprosent: Int,
+    val permisjonsprosent: Int? = null,
+    val permitteringsprosent: Int? = null,
+)
 
-data class Arbeidsgiver(val type: String, val organisasjonsnummer: String?)
+data class Kodeverksentitet(
+    val kode: String,
+    val beskrivelse: String,
+)
 
-data class Arbeidsgiverinfo(val orgnummer: String, val tomDate: LocalDate?)
+data class Arbeidstaker(
+    val identer: List<Ident>,
+)
 
-data class Gyldighetsperiode(val fom: LocalDate?, val tom: LocalDate?)
+data class Arbeidssted(
+    val type: String,
+    val identer: List<Ident>,
+)
 
-data class Opplysningspliktig(val type: String, val organisasjonsnummer: String?)
+data class Opplysningspliktig(
+    val type: String,
+    val identer: List<Ident>,
+)
+
+data class Ident(
+    val type: String,
+    val ident: String,
+    val gjeldende: Boolean? = null,
+)
