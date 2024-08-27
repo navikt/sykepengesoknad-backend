@@ -6,12 +6,14 @@ import no.nav.helse.flex.client.inntektskomponenten.PensjongivendeInntektClient
 import no.nav.helse.flex.client.inntektskomponenten.PensjonsgivendeInntekt
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.logger
+import no.nav.helse.flex.util.beregnGjennomsnittligInntekt
 import no.nav.helse.flex.util.sykepengegrunnlagUtregner
 import org.springframework.stereotype.Service
 import java.math.BigInteger
 import java.time.LocalDate
 
 data class SykepengegrunnlagNaeringsdrivende(
+    val fastsattSykepengegrunnlag: BigInteger,
     val gjennomsnittTotal: BigInteger,
     val gjennomsnittPerAar: Map<String, BigInteger>,
     val grunnbeloepPerAar: Map<String, BigInteger>,
@@ -43,7 +45,8 @@ class SykepengegrunnlagService(
 
         if (alleAarUnder1g(beregnetInntektPerAar, grunnbeloepSykmldTidspunkt)) return null
 
-        val gjennomsnittligInntektAlleAar = beregnetInntektPerAar.values.sumOf { it.toInt() } / 3
+        val (gjennomsnittligInntektAlleAar, fastsattSykepengegrunnlag) =
+            beregnGjennomsnittligInntekt(beregnetInntektPerAar, grunnbeloepSykmldTidspunkt)
 
         val grunnbeloepForRelevanteTreAar =
             grunnbeloepSisteFemAar.filter { grunnbeloepResponse ->
@@ -53,7 +56,8 @@ class SykepengegrunnlagService(
             }
 
         return SykepengegrunnlagNaeringsdrivende(
-            gjennomsnittTotal = gjennomsnittligInntektAlleAar.toBigInteger(),
+            fastsattSykepengegrunnlag = fastsattSykepengegrunnlag,
+            gjennomsnittTotal = gjennomsnittligInntektAlleAar,
             gjennomsnittPerAar = beregnetInntektPerAar,
             grunnbeloepPerAar = grunnbeloepForRelevanteTreAar,
             grunnbeloepPaaSykmeldingstidspunkt = grunnbeloepSykmldTidspunkt,
