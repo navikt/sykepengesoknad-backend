@@ -1,6 +1,5 @@
 package no.nav.helse.flex.soknadsopprettelse
 
-import no.nav.helse.flex.client.inntektskomponenten.HentPensjonsgivendeInntektResponse
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Arbeidssituasjon.*
 import no.nav.helse.flex.domain.Soknadsperiode
@@ -11,6 +10,7 @@ import no.nav.helse.flex.domain.Svartype.JA_NEI
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.Sykmeldingstype
 import no.nav.helse.flex.domain.Visningskriterie.JA
+import no.nav.helse.flex.service.SykepengegrunnlagNaeringsdrivende
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.utenlandsksykmelding.utenlandskSykmeldingSporsmal
 import no.nav.helse.flex.soknadsopprettelse.undersporsmal.jobbetDuUndersporsmal
@@ -20,7 +20,7 @@ import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
 fun settOppSoknadSelvstendigOgFrilanser(
     opts: SettOppSoknadOptions,
-    pensjongivendeInntekt: HentPensjonsgivendeInntektResponse? = null,
+    sykepengegrunnlagNaeringsdrivende: SykepengegrunnlagNaeringsdrivende? = null,
 ): List<Sporsmal> {
     val (sykepengesoknad, erForsteSoknadISykeforlop, harTidligereUtenlandskSpm, yrkesskade) = opts
     val erGradertReisetilskudd = sykepengesoknad.soknadstype == Soknadstype.GRADERT_REISETILSKUDD
@@ -48,7 +48,7 @@ fun settOppSoknadSelvstendigOgFrilanser(
             add(arbeidUtenforNorge())
 
             if (listOf(NAERINGSDRIVENDE, FISKER, JORDBRUKER).contains(sykepengesoknad.arbeidssituasjon)) {
-                add(lagSporsmalOmInntektsopplyninger(sykepengesoknad, pensjongivendeInntekt))
+                add(lagSporsmalOmInntektsopplyninger(sykepengesoknad, sykepengegrunnlagNaeringsdrivende))
             }
         }
         addAll(yrkesskade.yrkeskadeSporsmal())

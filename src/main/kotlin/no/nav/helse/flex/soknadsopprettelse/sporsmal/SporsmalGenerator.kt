@@ -1,6 +1,5 @@
 package no.nav.helse.flex.soknadsopprettelse.sporsmal
 
-import no.nav.helse.flex.client.inntektskomponenten.PensjongivendeInntektClient
 import no.nav.helse.flex.config.EnvironmentToggles
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstype
@@ -17,6 +16,7 @@ import no.nav.helse.flex.medlemskap.hentKjentOppholdstillatelse
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.service.IdentService
+import no.nav.helse.flex.service.SykepengegrunnlagService
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.unleash.UnleashToggles
 import no.nav.helse.flex.yrkesskade.YrkesskadeIndikatorer
@@ -28,7 +28,7 @@ import org.springframework.transaction.annotation.Transactional
 class SporsmalGenerator(
     private val identService: IdentService,
     private val andreArbeidsforholdHenting: AndreArbeidsforholdHenting,
-    private val pensjonsgivendeInntektClient: PensjongivendeInntektClient,
+    private val sykepengegrunnlagService: SykepengegrunnlagService,
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val yrkesskadeIndikatorer: YrkesskadeIndikatorer,
     private val medlemskapVurderingClient: MedlemskapVurderingClient,
@@ -145,8 +145,8 @@ class SporsmalGenerator(
                     Arbeidssituasjon.NAERINGSDRIVENDE,
                     Arbeidssituasjon.FRILANSER,
                     -> {
-                        val pensjonsgivendeInntekt = pensjonsgivendeInntektClient.hentPensjonsgivendeInntekt(soknad.fnr, 2023)
-                        settOppSoknadSelvstendigOgFrilanser(soknadOptions, pensjonsgivendeInntekt)
+                        val sykepengegrunnlag = sykepengegrunnlagService.sykepengegrunnlagNaeringsdrivende(soknad)
+                        settOppSoknadSelvstendigOgFrilanser(soknadOptions, sykepengegrunnlag)
                     }
 
                     Arbeidssituasjon.ARBEIDSLEDIG -> settOppSoknadArbeidsledig(soknadOptions)
