@@ -3,6 +3,7 @@ package no.nav.helse.flex.service
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknad
 import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.`should not be`
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.Instant
@@ -24,8 +25,9 @@ class SykepengegrunnlagServiceTest : FellesTestOppsett() {
             )
         val grunnlagVerdier = sykepengegrunnlagService.sykepengegrunnlagNaeringsdrivende(soknad)
 
-        grunnlagVerdier.let {
-            it.gjennomsnittTotal `should be equal to` 321150.toBigInteger()
+        grunnlagVerdier `should not be` null
+        grunnlagVerdier!!.let {
+            it.gjennomsnittTotal `should be equal to` 372758.toBigInteger()
             it.grunnbeloepPerAar.size `should be equal to` 3
             it.gjennomsnittPerAar.size `should be equal to` 3
         }
