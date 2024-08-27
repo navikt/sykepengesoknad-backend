@@ -5,11 +5,14 @@ import no.nav.helse.flex.util.serialisertTilString
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.QueueDispatcher
 import okhttp3.mockwebserver.RecordedRequest
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 
 object GrunnbeloepApiMockDispatcher : QueueDispatcher() {
     override fun dispatch(request: RecordedRequest): MockResponse {
-        return when (request.path) {
-            "/grunnbeloep?dato=2022-01-01" -> {
+        val decodePathÆØÅ = URLDecoder.decode(request.path, StandardCharsets.UTF_8.name())
+        return when (decodePathÆØÅ) {
+            "/grunnbeløp?dato=2022-01-01" -> {
                 val response =
                     GrunnbeloepResponse(
                         dato = "2022-01-01",
@@ -24,7 +27,7 @@ object GrunnbeloepApiMockDispatcher : QueueDispatcher() {
                     .setBody(response.serialisertTilString())
             }
 
-            "/historikk?fra=2019-01-01" -> {
+            "/historikk/grunnbeløp?fra=2019-01-01" -> {
                 val responses =
                     listOf(
                         GrunnbeloepResponse(

@@ -5,14 +5,10 @@ import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknad
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should not be`
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
 import java.time.Instant
 import java.time.LocalDate
 
 class SykepengegrunnlagServiceTest : FellesTestOppsett() {
-    @Autowired
-    private lateinit var sykepengegrunnlagService: SykepengegrunnlagService
-
     @Test
     fun `sjekker utregning av sykepengegrunnlag`() {
         val soknad =
