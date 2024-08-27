@@ -1,5 +1,7 @@
 package no.nav.helse.flex.soknadsopprettelse.sporsmal
 
+import no.nav.helse.flex.client.aareg.AaregClient
+import no.nav.helse.flex.client.aareg.ArbeidsforholdoversiktResponse
 import no.nav.helse.flex.config.EnvironmentToggles
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstype
@@ -33,6 +35,7 @@ class SporsmalGenerator(
     private val environmentToggles: EnvironmentToggles,
     private val unleashToggles: UnleashToggles,
     private val medlemskapVurderingRepository: MedlemskapVurderingRepository,
+    private val aaregClient: AaregClient,
 ) {
     private val log = logger()
 
@@ -80,8 +83,15 @@ class SporsmalGenerator(
                 erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
             )
 
-        if (unleashToggles.tilkommenInntektEnabled(soknad.fnr)) {
-            log.info("Tilkommen inntekt toggle enabled")
+        fun tilkommenInntektGrunnlagHenting(): ArbeidsforholdoversiktResponse? {
+            if (soknad.soknadstype != Soknadstype.ARBEIDSTAKERE) {
+                return null
+            }
+            if (unleashToggles.tilkommenInntektEnabled(soknad.fnr)) {
+                log.info("Tilkommen inntekt toggle enabled")
+                return aaregClient.hentArbeidsforholdoversikt(soknad.fnr)
+            }
+            return null
         }
 
         val soknadOptions =
@@ -90,6 +100,8 @@ class SporsmalGenerator(
                 erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
                 harTidligereUtenlandskSpm = harTidligereUtenlandskSpm,
                 yrkesskade = yrkesskadeSporsmalGrunnlag,
+                arbeidsforholdoversiktResponse = tilkommenInntektGrunnlagHenting(),
+                eksisterendeSoknader = eksisterendeSoknader,
             )
 
         if (erEnkeltstaendeBehandlingsdagSoknad) {

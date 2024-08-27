@@ -262,6 +262,7 @@ class EttersendingSoknadServiceTest {
                         erForsteSoknadISykeforlop = true,
                         harTidligereUtenlandskSpm = false,
                         yrkesskade = YrkesskadeSporsmalGrunnlag(),
+                        eksisterendeSoknader = emptyList(),
                     ),
                 ),
         )
@@ -309,6 +310,7 @@ class EttersendingSoknadServiceTest {
                         erForsteSoknadISykeforlop = true,
                         harTidligereUtenlandskSpm = false,
                         yrkesskade = YrkesskadeSporsmalGrunnlag(),
+                        eksisterendeSoknader = emptyList(),
                     ),
                     emptyList(),
                 ),

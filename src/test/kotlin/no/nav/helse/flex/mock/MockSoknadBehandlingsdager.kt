@@ -69,6 +69,7 @@ fun opprettBehandlingsdagsoknadTestadata(
                     forsteSoknadIForlop,
                     false,
                     YrkesskadeSporsmalGrunnlag(),
+                    eksisterendeSoknader = emptyList(),
                 ),
             ),
     )

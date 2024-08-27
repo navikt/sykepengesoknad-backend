@@ -61,6 +61,7 @@ fun opprettNySoknadAnnet(): Sykepengesoknad {
                     false,
                     false,
                     YrkesskadeSporsmalGrunnlag(),
+                    eksisterendeSoknader = emptyList(),
                 ),
             ),
     )
