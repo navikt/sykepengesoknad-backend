@@ -20,7 +20,7 @@ class GrunnbeloepClient(
     val log = logger()
     private val webClient = webClientBuilder.baseUrl(url).build()
 
-    fun getGrunnbeloep(dato: LocalDate?): Mono<GrunnbeloepResponse> {
+    fun getGrunnbeloep(dato: LocalDate?): Mono<GrunnbeloepResponse>? {
         log.info("Henter grunnbeløp for dato $dato")
         return webClient.get()
             .uri { uriBuilder ->
@@ -32,8 +32,16 @@ class GrunnbeloepClient(
                 builder.build()
             }
             .retrieve()
+            .onStatus({ status -> status.is4xxClientError || status.is5xxServerError }) { response ->
+                response.createException()
+                    .flatMap { Mono.error(RuntimeException("Feil ved henting av grunnbeløp for dato $dato: ${response.statusCode()}")) }
+            }
             .bodyToMono(GrunnbeloepResponse::class.java)
             .retryWhen(Retry.backoff(3, Duration.ofSeconds(2)))
+            .onErrorResume { error ->
+                log.error("Feil ved henting av grunnbeløp for dato $dato", error)
+                Mono.empty()
+            }
     }
 
     fun getHistorikk(fra: LocalDate?): Mono<List<GrunnbeloepResponse>> {
@@ -49,9 +57,17 @@ class GrunnbeloepClient(
             }
             .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .retrieve()
+            .onStatus({ status -> status.is4xxClientError || status.is5xxServerError }) { response ->
+                response.createException()
+                    .flatMap { Mono.error(RuntimeException("Feil ved henting av grunnbeløp historikk: ${response.statusCode()}")) }
+            }
             .bodyToFlux(GrunnbeloepResponse::class.java)
             .collectList()
             .retryWhen(Retry.backoff(3, Duration.ofSeconds(2)))
+            .onErrorResume { error ->
+                log.error("Feil ved henting av grunnbeløp historikk fra $fra til i dag", error)
+                Mono.just(emptyList<GrunnbeloepResponse>())
+            }
     }
 }
 
