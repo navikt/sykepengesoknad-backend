@@ -25,6 +25,7 @@ class AaregDataHenting(
             .filter { it.startdato.isAfter(startSykeforlop) }
             .filter { arbeidsforhold -> !arbeidsforhold.arbeidssted.identer.any { it.ident == arbeidsgiverOrgnummer } }
             .mapNotNull { it.tilArbeidsforholdFraInntektskomponenten() }
+            .sortedBy { it.arbeidsforholdsoversikt.startdato }
     }
 
     private fun ArbeidsforholdOversikt.tilArbeidsforholdFraInntektskomponenten(): ArbeidsforholdFraAAreg? {

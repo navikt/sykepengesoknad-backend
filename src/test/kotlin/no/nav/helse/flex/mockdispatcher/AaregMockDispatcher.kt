@@ -2,7 +2,6 @@ package no.nav.helse.flex.mockdispatcher
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.client.aareg.*
-import no.nav.helse.flex.client.inntektskomponenten.*
 import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.util.serialisertTilString
 import okhttp3.mockwebserver.MockResponse
@@ -18,7 +17,8 @@ object AaregMockDispatcher : QueueDispatcher() {
             return ArbeidsforholdoversiktResponse(
                 arbeidsforholdoversikter =
                     listOf(
-                        skapArbeidsforholdOversikt(fnr = fnr),
+                        skapArbeidsforholdOversikt(fnr = fnr, startdato = LocalDate.now().minusDays(40), arbeidssted = "999333666"),
+                        skapArbeidsforholdOversikt(fnr = fnr, startdato = LocalDate.now().minusDays(10), arbeidssted = "999888777"),
                     ),
             ).tilMockResponse()
         }
@@ -34,16 +34,17 @@ object AaregMockDispatcher : QueueDispatcher() {
 fun skapArbeidsforholdOversikt(
     startdato: LocalDate = LocalDate.now().minusDays(10),
     sluttdato: LocalDate? = null,
+    arbeidssted: String,
     fnr: String,
 ): ArbeidsforholdOversikt {
     return ArbeidsforholdOversikt(
-        type = Kodeverksentitet("ORDINERT", "Ordinært arbeidsforhold"),
-        arbeidstaker = Arbeidstaker(listOf(Ident("FNR", fnr, true))),
-        arbeidssted = Arbeidssted("VIRKSOMHET", listOf(Ident("ORGNR", "999333666", true))),
-        opplysningspliktig = Opplysningspliktig("VIRKSOMHET", listOf(Ident("ORGNR", "999333666", true))),
+        type = Kodeverksentitet("ordinaertArbeidsforhold", "Ordinært arbeidsforhold"),
+        arbeidstaker = Arbeidstaker(listOf(Ident("FOLKEREGISTERIDENT", fnr, true))),
+        arbeidssted = Arbeidssted("Underenhet", listOf(Ident("ORGANISASJONSNUMMER", arbeidssted))),
+        opplysningspliktig = Opplysningspliktig("Hovedenhet", listOf(Ident("ORGANISASJONSNUMMER", "11224455441"))),
         startdato = startdato,
         sluttdato = sluttdato,
-        yrke = Kodeverksentitet("1234", "Kodeverksentitet"),
+        yrke = Kodeverksentitet("1231119", "KONTORLEDER"),
         avtaltStillingsprosent = 100,
         permisjonsprosent = 0,
         permitteringsprosent = 0,
