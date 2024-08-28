@@ -10,6 +10,7 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.flatten
 import no.nav.helse.flex.exception.AbstractApiError
 import no.nav.helse.flex.exception.LogLevel
+import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
 import no.nav.helse.flex.soknadsopprettelse.FERIE
 import no.nav.helse.flex.util.DatoUtil
 import no.nav.helse.flex.util.PeriodeMapper
@@ -27,6 +28,7 @@ fun Sykepengesoknad.validerSvarPaSoknad() {
 private const val INGEN_BEHANDLING = "Ikke til behandling"
 
 fun Sporsmal.validerSvarPaSporsmal() {
+    if (tag == BEKREFT_OPPLYSNINGER) return
     validerAntallSvar()
     validerSvarverdier()
     validerKunUnikeSvar()
@@ -70,6 +72,7 @@ fun Sporsmal.validerUndersporsmal() {
         }
 
         BEKREFTELSESPUNKTER,
+        OPPSUMMERING,
         JA_NEI,
         CHECKBOX,
         CHECKBOX_PANEL,
@@ -176,6 +179,7 @@ private fun Sporsmal.validerGrenserPaSvar(svar: Svar) {
             IKKE_RELEVANT,
             GRUPPE_AV_UNDERSPORSMAL,
             BEKREFTELSESPUNKTER,
+            OPPSUMMERING,
             RADIO,
             RADIO_GRUPPE,
             RADIO_GRUPPE_TIMER_PROSENT,
@@ -304,7 +308,6 @@ private fun Sporsmal.validerSvarverdi(svar: Svar) {
 
             COMBOBOX_SINGLE,
             COMBOBOX_MULTI,
-            BEKREFTELSESPUNKTER,
             LAND,
             -> {
                 { verdi.isNotBlank() && verdi.isNotEmpty() }
@@ -365,6 +368,12 @@ private fun Sporsmal.validerSvarverdi(svar: Svar) {
             INFO_BEHANDLINGSDAGER,
             CHECKBOX_GRUPPE,
             -> throw IllegalStateException("Skal ha validert 0 svar allerede")
+
+            BEKREFTELSESPUNKTER,
+            OPPSUMMERING,
+            -> {
+                { verdi.toBoolean() }
+            }
         }
     if (!predikat()) {
         throw ValideringException("Spørsmål $id med tag $tag har feil svarverdi $verdi")
@@ -396,6 +405,8 @@ fun Sporsmal.validerAntallSvar() {
             TIMER,
             TALL,
             CHECKBOX,
+            BEKREFTELSESPUNKTER,
+            OPPSUMMERING,
             -> {
                 { it == 1 }
             }
@@ -421,7 +432,6 @@ fun Sporsmal.validerAntallSvar() {
             }
 
             LAND,
-            BEKREFTELSESPUNKTER,
             COMBOBOX_SINGLE,
             COMBOBOX_MULTI,
             PERIODER,

@@ -4,6 +4,7 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.testutil.besvarsporsmal
 import no.nav.helse.flex.util.DatoUtil.periodeTilJson
+import no.nav.helse.flex.util.oppsummering
 import java.time.LocalDate.now
 
 fun mockUtlandssoknad(): Sykepengesoknad {
@@ -18,8 +19,7 @@ private fun leggSvarPaSoknad(
         .perioder()
         .arbeidsgiver(feriesvar)
         .besvarsporsmal(LAND, "England")
-        .besvarsporsmal(TIL_SLUTT, "Jeg lover å ikke lyve!")
-        .besvarsporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
+        .oppsummering()
 }
 
 private fun Sykepengesoknad.arbeidsgiver(feriesvarverdi: String): Sykepengesoknad {

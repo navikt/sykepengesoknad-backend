@@ -193,8 +193,7 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
                         LocalDate.of(2020, 2, 1).format(DateTimeFormatter.ISO_LOCAL_DATE)}\"," +
                         "\"tom\":\"${LocalDate.of(2020, 2, 3).format(DateTimeFormatter.ISO_LOCAL_DATE)}\"}",
             )
-            .besvarSporsmal(TIL_SLUTT, "Skal si ifra om noe endrer seg", ferdigBesvart = false)
-            .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
+            .oppsummering()
     }
 
     @Test

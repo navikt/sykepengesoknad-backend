@@ -5,6 +5,8 @@ package no.nav.helse.flex.svarvalidering
 import no.nav.helse.flex.domain.*
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.oppholdUtenforEOSSporsmal
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.tilSlutt
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.tilSluttGammel
 import no.nav.helse.flex.testutil.byttSvar
 import no.nav.helse.flex.util.DatoUtil.periodeTilJson
 import no.nav.helse.flex.util.serialisertTilString
@@ -224,6 +226,22 @@ internal class SvarValideringTest {
         spm.byttSvar(tag = OPPHOLD_UTENFOR_EOS, svar = "JA")
             .byttSvar(tag = OPPHOLD_UTENFOR_EOS_NAR, svar = periodeTilJson(LocalDate.now(), LocalDate.now()))
             .validerSvarPaSporsmal()
+    }
+
+    @Test
+    fun `test TIL_SLUTT`() {
+        val spm = tilSlutt()
+        spm `valider svar og forvent feilmelding` "Spørsmål ${spm.id} med tag $TIL_SLUTT har feil antall svar 0"
+
+        spm.byttSvar(svar = "true").validerSvarPaSporsmal()
+    }
+
+    @Test
+    fun `test TIL_SLUTT med BEKREFT_OPPLYSNINGER`() {
+        val spm = tilSluttGammel()
+        spm `valider svar og forvent feilmelding` "Spørsmål ${spm.id} med tag $TIL_SLUTT har feil antall svar 0"
+
+        spm.byttSvar(svar = "true").validerSvarPaSporsmal()
     }
 
     private fun Sporsmal.idForTag(tag: String): String? {

@@ -12,7 +12,6 @@ import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
 import no.nav.helse.flex.sendSoknadMedResult
 import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
-import no.nav.helse.flex.soknadsopprettelse.TIL_SLUTT
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO.AVBRUTT
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO.NY
@@ -105,8 +104,7 @@ class BehandligsdagerIntegrationTest : FellesTestOppsett() {
                     .andExpect(((MockMvcResultMatchers.status().isBadRequest)))
             }
             .besvarSporsmal(tag = "ENKELTSTAENDE_BEHANDLINGSDAGER_UKE_1", svar = "${rsSykepengesoknad.tom}")
-            .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
-            .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
+            .oppsummering()
             .sendSoknad()
 
         val soknadPaKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()
@@ -122,7 +120,6 @@ class BehandligsdagerIntegrationTest : FellesTestOppsett() {
             )
         assertThat(refreshedSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
         assertThat(refreshedSoknad.sporsmal!!.find { it.tag == ANSVARSERKLARING }!!.svar[0].verdi).isEqualTo("CHECKED")
-        assertThat(refreshedSoknad.sporsmal!!.find { it.tag == TIL_SLUTT }!!.undersporsmal[0].svar[0].verdi).isEqualTo("CHECKED")
 
         juridiskVurderingKafkaConsumer.ventPåRecords(antall = 1)
     }
@@ -139,13 +136,11 @@ class BehandligsdagerIntegrationTest : FellesTestOppsett() {
         val korrigerSoknad = korrigerSoknad(soknadId = soknaden.id, fnr = fnr)
         assertThat(korrigerSoknad.status).isEqualTo(RSSoknadstatus.UTKAST_TIL_KORRIGERING)
         assertThat(korrigerSoknad.sporsmal!!.find { it.tag == ANSVARSERKLARING }!!.svar.size).isEqualTo(0)
-        assertThat(korrigerSoknad.sporsmal!!.find { it.tag == TIL_SLUTT }!!.undersporsmal[0].svar.size).isEqualTo(0)
         assertThat(korrigerSoknad.korrigerer).isEqualTo(soknaden.id)
 
         SoknadBesvarer(rSSykepengesoknad = korrigerSoknad, mockMvc = this, fnr = fnr)
             .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
-            .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
-            .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
+            .oppsummering()
             .sendSoknad()
 
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()

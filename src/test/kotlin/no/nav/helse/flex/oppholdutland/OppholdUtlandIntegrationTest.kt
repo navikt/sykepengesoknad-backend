@@ -118,8 +118,7 @@ class OppholdUtlandIntegrationTest : FellesTestOppsett() {
             .besvarSporsmal(ARBEIDSGIVER, svar = "JA", ferdigBesvart = false)
             .besvarSporsmal(SYKMELDINGSGRAD, "JA", ferdigBesvart = false)
             .besvarSporsmal(FERIE, "JA", mutert = true, ferdigBesvart = false)
-            .besvarSporsmal(TIL_SLUTT, "svar", ferdigBesvart = false)
-            .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
+            .oppsummering()
 
         val soknadEtter =
             hentSoknad(
@@ -130,27 +129,7 @@ class OppholdUtlandIntegrationTest : FellesTestOppsett() {
         SoknadBesvarer(soknadEtter, this, fnr)
             .besvarSporsmal(FERIE, svar = "NEI", ferdigBesvart = false)
             .besvarSporsmal(ARBEIDSGIVER, svar = "NEI", ferdigBesvart = false)
-            .besvarSporsmal(TIL_SLUTT, "svar", ferdigBesvart = false)
-            .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
-    }
-
-    @Test
-    fun `08 - Vi bekrefter opplysninger`() {
-        val soknad =
-            hentSoknad(
-                soknadId = hentSoknaderMetadata(fnr).first().id,
-                fnr = fnr,
-            )
-        SoknadBesvarer(soknad, this, fnr)
-            .besvarSporsmal(TIL_SLUTT, svar = "svar", ferdigBesvart = false)
-            .besvarSporsmal(BEKREFT_OPPLYSNINGER, svar = "CHECKED")
-
-        val soknadEtter =
-            hentSoknad(
-                soknadId = hentSoknaderMetadata(fnr).first().id,
-                fnr = fnr,
-            )
-        soknadEtter.sporsmal?.last()?.undersporsmal?.get(0)?.tag `should be equal to` "BEKREFT_OPPLYSNINGER"
+            .oppsummering()
     }
 
     @Test

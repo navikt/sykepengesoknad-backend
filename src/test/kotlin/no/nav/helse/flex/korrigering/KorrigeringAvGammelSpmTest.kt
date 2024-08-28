@@ -1,43 +1,23 @@
 package no.nav.helse.flex.korrigering
 
-import no.nav.helse.flex.*
+import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svartype
-import no.nav.helse.flex.kafka.producer.SoknadProducer
-import no.nav.helse.flex.medlemskap.MedlemskapVurderingRepository
 import no.nav.helse.flex.mock.opprettNySoknad
-import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.service.FolkeregisterIdenter
-import no.nav.helse.flex.service.IdentService
 import no.nav.helse.flex.service.KorrigerSoknadService
 import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
 import no.nav.helse.flex.soknadsopprettelse.VAER_KLAR_OVER_AT
-import no.nav.helse.flex.util.Metrikk
-import org.amshove.kluent.*
+import org.amshove.kluent.shouldBeEqualTo
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.*
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.beans.factory.annotation.Autowired
 
 @ExtendWith(MockitoExtension::class)
 class KorrigeringAvGammelSpmTest : FellesTestOppsett() {
-    @Autowired
-    private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
-
-    @Autowired
-    private lateinit var soknadProducer: SoknadProducer
-
-    @Autowired
-    private lateinit var metrikk: Metrikk
-
-    @Autowired
-    private lateinit var medlemskapVurderingRepository: MedlemskapVurderingRepository
-
-    @Autowired
-    private lateinit var identService: IdentService
-
     @Autowired
     private lateinit var korrigerSoknadService: KorrigerSoknadService
 
@@ -83,5 +63,6 @@ class KorrigeringAvGammelSpmTest : FellesTestOppsett() {
         assertThat(korrigertSoknad.sporsmal.map { it.tag }).isEqualTo(
             listOf("TIL_SLUTT"),
         )
+        assertThat(korrigertSoknad.alleSporsmalOgUndersporsmal().size == 1)
     }
 }

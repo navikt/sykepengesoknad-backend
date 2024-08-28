@@ -429,8 +429,7 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
             besvarArbeidstakerSporsmal(soknadBesvarer)
             val sendtSoknad =
                 soknadBesvarer
-                    .besvarSporsmal(tag = "TIL_SLUTT", svar = "Svar 1", ferdigBesvart = false)
-                    .besvarSporsmal(tag = BEKREFT_OPPLYSNINGER, svar = "CHECKED")
+                    .oppsummering()
                     .sendSoknad()
             sendtSoknad.status shouldBeEqualTo RSSoknadstatus.SENDT
         }
@@ -461,8 +460,7 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
         val sendtSoknad =
             SoknadBesvarer(rSSykepengesoknad = korrigerendeSoknad, mockMvc = this, fnr = fnr)
                 .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
-                .besvarSporsmal(tag = "TIL_SLUTT", svar = "Svar 2", ferdigBesvart = false)
-                .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
+                .oppsummering()
                 .sendSoknad()
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
 

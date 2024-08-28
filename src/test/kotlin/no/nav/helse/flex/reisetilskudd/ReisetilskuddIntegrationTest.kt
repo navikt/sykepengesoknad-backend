@@ -303,8 +303,7 @@ class ReisetilskuddIntegrationTest : FellesTestOppsett() {
             .besvarSporsmal(TRANSPORT_TIL_DAGLIG, "NEI")
             .besvarSporsmal(REISE_MED_BIL, "NEI")
             .besvarSporsmal(UTBETALING, "JA")
-            .besvarSporsmal(TIL_SLUTT, "Jeg lover å ikke lyve!", false)
-            .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
+            .oppsummering()
     }
 
     @Test

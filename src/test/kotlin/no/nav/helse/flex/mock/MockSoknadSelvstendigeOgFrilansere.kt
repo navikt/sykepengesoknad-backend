@@ -9,6 +9,7 @@ import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.testutil.besvarsporsmal
 import no.nav.helse.flex.util.DatoUtil.periodeTilJson
+import no.nav.helse.flex.util.oppsummering
 import no.nav.helse.flex.util.tilOsloInstant
 import no.nav.helse.flex.yrkesskade.YrkesskadeSporsmalGrunnlag
 import no.nav.syfo.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO
@@ -146,7 +147,7 @@ fun opprettSendtFrilanserSoknad(): Sykepengesoknad {
 
 private fun Sykepengesoknad.leggSvarPaSoknad(): Sykepengesoknad {
     return this
-        .besvarsporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
+        .oppsummering()
         .besvarsporsmal(ARBEID_UNDERVEIS_100_PROSENT + "0", "NEI")
         .besvarsporsmal(JOBBET_DU_GRADERT + "1", "NEI")
         .harDuOppholdtDegIUtlandet()

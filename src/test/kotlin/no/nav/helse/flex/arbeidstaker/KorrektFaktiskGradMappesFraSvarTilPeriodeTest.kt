@@ -96,8 +96,7 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : FellesTestOppsett() {
             .besvarSporsmal("ARBEID_UNDERVEIS_100_PROSENT_0", "NEI")
             .besvarSporsmal("HVOR_MYE_PROSENT_0", "CHECKED")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
-            .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
-            .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
+            .oppsummering()
             .sendSoknad()
     }
 
@@ -219,8 +218,7 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : FellesTestOppsett() {
             .besvarSporsmal("HVOR_MYE_TIMER_VERDI_1", "5")
             .besvarSporsmal("ARBEID_UNDERVEIS_100_PROSENT_0", "NEI")
             .besvarSporsmal("HVOR_MYE_PROSENT_0", "CHECKED")
-            .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
-            .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
+            .oppsummering()
             .sendSoknad()
 
         juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
@@ -250,8 +248,7 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : FellesTestOppsett() {
             .besvarSporsmal("HVOR_MYE_TIMER_VERDI_1", "70")
             .besvarSporsmal("ARBEID_UNDERVEIS_100_PROSENT_0", "NEI")
             .besvarSporsmal("HVOR_MYE_PROSENT_0", "CHECKED")
-            .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
-            .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
+            .oppsummering()
             .sendSoknad()
 
         juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
@@ -281,8 +278,7 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : FellesTestOppsett() {
             .besvarSporsmal("HVOR_MYE_PROSENT_VERDI_1", "89")
             .besvarSporsmal("ARBEID_UNDERVEIS_100_PROSENT_0", "NEI")
             .besvarSporsmal("HVOR_MYE_PROSENT_0", "CHECKED")
-            .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
-            .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED")
+            .oppsummering()
             .sendSoknad()
 
         juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)

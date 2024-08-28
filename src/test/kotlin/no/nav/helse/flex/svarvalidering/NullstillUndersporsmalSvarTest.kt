@@ -223,11 +223,9 @@ class NullstillUndersporsmalSvarTest : FellesTestOppsett() {
     @Order(8)
     fun `Kan svare på TIL_SLUTT`() {
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
-            .besvarSporsmal(tag = TIL_SLUTT, svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
-            .besvarSporsmal(tag = BEKREFT_OPPLYSNINGER, svar = "CHECKED")
+            .oppsummering()
 
-        soknaden.getSporsmalMedTag(TIL_SLUTT).forsteSvar shouldBeEqualTo "Jeg lover å ikke lyve!"
-        soknaden.getSporsmalMedTag(BEKREFT_OPPLYSNINGER).forsteSvar shouldBeEqualTo "CHECKED"
+        soknaden.getSporsmalMedTag(TIL_SLUTT).forsteSvar shouldBeEqualTo "true"
     }
 
     @Test

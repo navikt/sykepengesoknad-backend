@@ -9,18 +9,38 @@ class SykepengesoknadTest {
         get() = settOppSoknadOppholdUtland("fnr")
 
     @Test
-    fun alleSporsmalOgUndersporsmalReturnererAlleSporsmal() {
+    fun alleSporsmalOgUndersporsmalHarKorrektSvartype() {
         val sporsmalOgUndersporsmal = sykepengesoknad.alleSporsmalOgUndersporsmal()
 
         assertThat(
             sporsmalOgUndersporsmal.map {
+                it.svartype
+            },
+        ).isEqualTo(
+            listOf(
+                Svartype.PERIODER,
+                Svartype.LAND,
+                Svartype.JA_NEI,
+                Svartype.JA_NEI,
+                Svartype.JA_NEI,
+                Svartype.OPPSUMMERING,
+            ),
+        )
+    }
+
+    @Test
+    fun alleSporsmalOgUndersporsmalReturnererAlleSporsmal() {
+        val sporsmalOgUndersporsmal = sykepengesoknad.alleSporsmalOgUndersporsmal()
+
+        assertThat(
+            sporsmalOgUndersporsmal.mapNotNull {
                 it.sporsmalstekst
             }.map { i ->
-                i!!.split(" ".toRegex()).dropLastWhile {
+                i.split(" ".toRegex()).dropLastWhile {
                     it.isEmpty()
                 }.toTypedArray()[0]
             }.joinToString(","),
-        ).isEqualTo("Når,Hvilke(t),Har,Er,Har,Viktig,Jeg")
+        ).isEqualTo("Når,Hvilke(t),Har,Er,Har")
     }
 
     @Test
@@ -36,10 +56,11 @@ class SykepengesoknadTest {
 
         val sporsmalOgUndersporsmal = sykepengesoknad.alleSporsmalOgUndersporsmal()
         assertThat(
-            sporsmalOgUndersporsmal.map { it.sporsmalstekst }.map { i ->
-                i!!.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0]
+            sporsmalOgUndersporsmal.mapNotNull { it.sporsmalstekst }.map {
+                    i ->
+                i.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0]
             }.joinToString(","),
-        ).isEqualTo("Når,Hvilke(t),HEISANN,Er,Har,Viktig,Jeg")
+        ).isEqualTo("Når,Hvilke(t),HEISANN,Er,Har")
     }
 
     @Test
@@ -58,28 +79,27 @@ class SykepengesoknadTest {
         assertThat(sporsmal[0].sporsmalstekst).isEqualTo("Når skal du reise?")
         assertThat(sporsmal[1].sporsmalstekst).isEqualTo("Hvilke(t) land skal du reise til?")
         assertThat(sporsmal[2].sporsmalstekst).isEqualTo("9")
-        assertThat(sporsmal[3].sporsmalstekst).isEqualTo("Viktig å være klar over:")
     }
 
     @Test
     fun fjernHovedsporsmal() {
         var sykepengesoknad = sykepengesoknad
-        assertThat(sykepengesoknad.alleSporsmalOgUndersporsmal().size).isEqualTo(7)
+        assertThat(sykepengesoknad.alleSporsmalOgUndersporsmal().size).isEqualTo(6)
 
         sykepengesoknad = sykepengesoknad.fjernSporsmal("ARBEIDSGIVER")
 
-        assertThat(sykepengesoknad.alleSporsmalOgUndersporsmal().size).isEqualTo(4)
+        assertThat(sykepengesoknad.alleSporsmalOgUndersporsmal().size).isEqualTo(3)
         assertThat(sykepengesoknad.alleSporsmalOgUndersporsmal().stream().anyMatch { (_, tag) -> tag == "1" }).isFalse()
     }
 
     @Test
     fun fjernUndersporsmal() {
         var sykepengesoknad = sykepengesoknad
-        assertThat(sykepengesoknad.alleSporsmalOgUndersporsmal().size).isEqualTo(7)
+        assertThat(sykepengesoknad.alleSporsmalOgUndersporsmal().size).isEqualTo(6)
 
         sykepengesoknad = sykepengesoknad.fjernSporsmal("SYKMELDINGSGRAD")
 
-        assertThat(sykepengesoknad.alleSporsmalOgUndersporsmal().size).isEqualTo(6)
+        assertThat(sykepengesoknad.alleSporsmalOgUndersporsmal().size).isEqualTo(5)
         assertThat(sykepengesoknad.alleSporsmalOgUndersporsmal().stream().anyMatch { (_, tag) -> tag == "2" }).isFalse()
     }
 

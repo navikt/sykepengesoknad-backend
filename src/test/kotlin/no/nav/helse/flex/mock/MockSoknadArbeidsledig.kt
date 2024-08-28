@@ -7,6 +7,7 @@ import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.testutil.besvarsporsmal
+import no.nav.helse.flex.util.oppsummering
 import no.nav.helse.flex.util.tilOsloInstant
 import no.nav.helse.flex.yrkesskade.YrkesskadeSporsmalGrunnlag
 import no.nav.syfo.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO
@@ -82,7 +83,7 @@ fun opprettSendtSoknadForArbeidsledige(): Sykepengesoknad {
     soknad = soknad.besvarsporsmal(tag = FRISKMELDT, svar = "NEI")
     soknad = soknad.besvarsporsmal(tag = ANDRE_INNTEKTSKILDER, svar = "NEI")
     soknad = soknad.besvarsporsmal(tag = OPPHOLD_UTENFOR_EOS, svar = "NEI")
-    soknad = soknad.besvarsporsmal(tag = BEKREFT_OPPLYSNINGER, svar = "CHECKED")
+    soknad = soknad.oppsummering()
 
     return soknad
 }

@@ -228,8 +228,8 @@ class FaktiskGradUtregningNyttArbeidUnderveisSporsmalTest : FellesTestOppsett() 
             .besvarSporsmal(PERMISJON_V2, "NEI")
             .besvarSporsmal(OPPHOLD_UTENFOR_EOS, "NEI")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
-            .besvarSporsmal(TIL_SLUTT, svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
-            .besvarSporsmal(BEKREFT_OPPLYSNINGER, "CHECKED").also {
+            .oppsummering()
+            .also {
                 svar.forEachIndexed { index, pair ->
                     it.besvarSporsmal(pair.first, pair.second, index == svar.size - 1)
                 }

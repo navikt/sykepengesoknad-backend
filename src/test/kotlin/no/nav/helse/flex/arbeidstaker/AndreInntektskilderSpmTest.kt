@@ -89,8 +89,7 @@ class AndreInntektskilderSpmTest : FellesTestOppsett() {
                 .besvarSporsmal(tag = medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0), svar = "NEI")
                 .besvarSporsmal(tag = ANDRE_INNTEKTSKILDER_V2, svar = "JA", ferdigBesvart = false)
                 .besvarSporsmal(tag = INNTEKTSKILDE_STYREVERV, svar = "CHECKED")
-                .besvarSporsmal(tag = TIL_SLUTT, svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
-                .besvarSporsmal(tag = BEKREFT_OPPLYSNINGER, svar = "CHECKED")
+                .oppsummering()
                 .sendSoknad()
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
 

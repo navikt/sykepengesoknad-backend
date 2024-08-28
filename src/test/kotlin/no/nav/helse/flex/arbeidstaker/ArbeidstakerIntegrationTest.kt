@@ -144,7 +144,7 @@ class ArbeidstakerIntegrationTest : FellesTestOppsett() {
             )
 
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
-            .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
+            .besvarSporsmal(tag = "TIL_SLUTT", svar = null, ferdigBesvart = false)
             .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
 
         val besvartSporsmal = hentAnsvarserklering(soknaden.id)
@@ -174,8 +174,7 @@ class ArbeidstakerIntegrationTest : FellesTestOppsett() {
             .besvarSporsmal(tag = "OPPHOLD_UTENFOR_EOS", svar = "NEI")
             .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
             .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
-            .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
-            .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
+            .oppsummering()
 
         val res = sendSoknadMedResult(fnr, soknaden.id).andExpect(status().isBadRequest).andReturn().response.contentAsString
         res `should be equal to` "{\"reason\":\"FORSOK_PA_SENDING_AV_NYERE_SOKNAD\"}"
@@ -201,8 +200,7 @@ class ArbeidstakerIntegrationTest : FellesTestOppsett() {
                 .besvarSporsmal(tag = "OPPHOLD_UTENFOR_EOS", svar = "NEI")
                 .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
                 .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
-                .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg lover å ikke lyve!", ferdigBesvart = false)
-                .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
+                .oppsummering()
                 .sendSoknad()
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
 
@@ -240,7 +238,7 @@ class ArbeidstakerIntegrationTest : FellesTestOppsett() {
                 .besvarSporsmal(tag = "OPPHOLD_UTENFOR_EOS", svar = "NEI")
                 .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
                 .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
-                .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
+                .oppsummering()
                 .sendSoknad()
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
@@ -285,8 +283,7 @@ class ArbeidstakerIntegrationTest : FellesTestOppsett() {
         val sendtSoknad =
             SoknadBesvarer(rSSykepengesoknad = korrigerendeSoknad, mockMvc = this, fnr = fnr)
                 .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
-                .besvarSporsmal(tag = "TIL_SLUTT", svar = "Jeg er ærlig!", ferdigBesvart = false)
-                .besvarSporsmal(tag = "BEKREFT_OPPLYSNINGER", svar = "CHECKED")
+                .oppsummering()
                 .sendSoknad()
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
 
