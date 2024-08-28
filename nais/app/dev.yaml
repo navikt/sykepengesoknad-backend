@@ -15,6 +15,7 @@ external-host:
   - team-inntekt-proxy.dev-fss-pub.nais.io
   - flex-unleash-api.nav.cloud.nais.io
   - aareg-services-q1.dev-fss-pub.nais.io
+  - g.nav.no
 flex-openapi-docs-ui: true
 env:
   SPRING_PROFILES_ACTIVE: default,testdatareset,sykmeldinger
