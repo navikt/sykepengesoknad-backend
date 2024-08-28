@@ -10,7 +10,7 @@ import java.time.LocalDate
 @Service
 @CacheConfig
 class GrunnbeloepService(private val grunnbeloepClient: GrunnbeloepClient) {
-    fun getGrunnbeloep(dato: LocalDate?): Mono<GrunnbeloepResponse> {
+    fun getGrunnbeloep(dato: LocalDate?): Mono<GrunnbeloepResponse>? {
         return grunnbeloepClient.getGrunnbeloep(dato)
     }
 
