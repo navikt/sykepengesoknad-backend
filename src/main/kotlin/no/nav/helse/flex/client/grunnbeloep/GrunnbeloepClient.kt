@@ -1,5 +1,6 @@
 package no.nav.helse.flex.client.grunnbeloep
 
+import no.nav.helse.flex.logger
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
@@ -16,9 +17,11 @@ class GrunnbeloepClient(
     webClientBuilder: WebClient.Builder,
     @Value("\${GRUNNBELOEP_API_URL}") private val url: String,
 ) {
+    val log = logger()
     private val webClient = webClientBuilder.baseUrl(url).build()
 
     fun getGrunnbeloep(dato: LocalDate?): Mono<GrunnbeloepResponse> {
+        log.info("Henter grunnbeløp for dato $dato")
         return webClient.get()
             .uri { uriBuilder ->
                 val builder = uriBuilder.path("/grunnbeløp")
@@ -34,6 +37,7 @@ class GrunnbeloepClient(
     }
 
     fun getHistorikk(fra: LocalDate?): Mono<List<GrunnbeloepResponse>> {
+        log.info("Henter grunnbeløp historikk fra $fra til i dag")
         return webClient.get()
             .uri { uriBuilder ->
                 val builder = uriBuilder.path("/historikk/grunnbeløp")
