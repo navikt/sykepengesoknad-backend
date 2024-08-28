@@ -57,9 +57,9 @@ class GrunnbeloepClient(
 
 data class GrunnbeloepResponse(
     val dato: String,
-    val grunnbeloep: Int,
-    val grunnbeloepPerMaaned: Int,
-    val gjennomsnittPerAar: Int,
+    val grunnbeløp: Int,
+    val grunnbeløpPerMaaned: Int,
+    val gjennomsnittPerÅr: Int,
     val omregningsfaktor: Float,
     val virkningstidspunktForMinsteinntekt: String,
 )
