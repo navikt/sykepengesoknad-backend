@@ -1,47 +1,32 @@
 package no.nav.helse.flex.soknadsopprettelse.sporsmal
 
-import no.nav.helse.flex.client.aareg.ArbeidsforholdoversiktResponse
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.Visningskriterie
+import no.nav.helse.flex.soknadsopprettelse.ArbeidsforholdFraAAreg
 import no.nav.helse.flex.util.DatoUtil
-import java.time.LocalDate
+import no.nav.helse.flex.util.toJsonNode
 
 fun tilkommenInntektSporsmal(
-    arbeidsforholdoversiktResponse: ArbeidsforholdoversiktResponse,
+    nyeArbeidsforhold: List<ArbeidsforholdFraAAreg>,
     denneSoknaden: Sykepengesoknad,
     eksisterendeSoknader: List<Sykepengesoknad>,
 ): List<Sporsmal> {
     // TODO returner tidlig hvis flere søknader i parallell med denne
 
     val periodeTekst = DatoUtil.formatterPeriode(denneSoknaden.fom!!, denneSoknaden.tom!!)
-    val startSykeforlop: LocalDate = denneSoknaden.startSykeforlop ?: denneSoknaden.fom
-    val nyeArbeidsforhold =
-        arbeidsforholdoversiktResponse
-            .arbeidsforholdoversikter
-            .filter { it.startdato.isAfter(startSykeforlop) }
-            .filter { arbeidsforhold -> !arbeidsforhold.arbeidssted.identer.any { it.ident == denneSoknaden.arbeidsgiverOrgnummer } }
-
-    if (nyeArbeidsforhold.size > 1) {
-        // TODO log at vi ikke takler flere
-        return emptyList()
-    }
 
     return nyeArbeidsforhold.mapNotNull { arbeidsforhold ->
-        val orgnummer = arbeidsforhold.arbeidssted.identer.firstOrNull { it.type == "ORGANISASJONSNUMMER" }?.ident
-        if (orgnummer == null) {
-            // TODO logg at vi ikke takler dette
-            return@mapNotNull null
-        }
 
         return@mapNotNull Sporsmal(
             tag = "TILKOMMEN_INNTEKT_FORSTEGANG",
-            sporsmalstekst = "Har du startet å jobbe hos $orgnummer?",
+            sporsmalstekst = "Har du startet å jobbe hos ${arbeidsforhold.navn}?",
             undertekst = null,
             svartype = Svartype.JA_NEI,
             min = null,
             max = null,
+            metadata = mapOf("orgnummer" to arbeidsforhold.orgnummer).toJsonNode(),
             kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
             undersporsmal =
                 listOf(
