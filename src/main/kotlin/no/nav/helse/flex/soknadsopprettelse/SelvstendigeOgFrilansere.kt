@@ -1,5 +1,6 @@
 package no.nav.helse.flex.soknadsopprettelse
 
+import no.nav.helse.flex.client.inntektskomponenten.HentPensjonsgivendeInntektResponse
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Arbeidssituasjon.*
 import no.nav.helse.flex.domain.Soknadsperiode

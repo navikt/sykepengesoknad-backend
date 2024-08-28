@@ -1,5 +1,6 @@
 package no.nav.helse.flex.soknadsopprettelse.sporsmal
 
+import no.nav.helse.flex.client.inntektskomponenten.PensjongivendeInntektClient
 import no.nav.helse.flex.config.EnvironmentToggles
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstype
