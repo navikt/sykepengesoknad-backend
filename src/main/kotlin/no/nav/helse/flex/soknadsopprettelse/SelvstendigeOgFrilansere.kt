@@ -48,7 +48,7 @@ fun settOppSoknadSelvstendigOgFrilanser(
             add(arbeidUtenforNorge())
 
             if (listOf(NAERINGSDRIVENDE, FISKER, JORDBRUKER).contains(sykepengesoknad.arbeidssituasjon)) {
-                add(lagSporsmalOmInntektsopplyninger(sykepengesoknad))
+                add(lagSporsmalOmInntektsopplyninger(sykepengesoknad, pensjongivendeInntekt))
             }
         }
         addAll(yrkesskade.yrkeskadeSporsmal())
