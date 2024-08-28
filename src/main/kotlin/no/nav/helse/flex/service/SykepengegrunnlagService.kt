@@ -37,7 +37,7 @@ class SykepengegrunnlagService(
             log.info("Grunnbeløp siste 5 år: ${grunnbeloepSisteFemAar.serialisertTilString()}")
 
             val grunnbeloepSykmldTidspunkt =
-                grunnbeloepSisteFemAar.find { it.dato.tilAar() == soknad.aktivertDato?.year }?.grunnbeloep
+                grunnbeloepSisteFemAar.find { it.dato.tilAar() == soknad.startSykeforlop?.year }?.grunnbeloep
                     ?: throw Exception("Fant ikke g på sykmeldingstidspunkt")
             log.info("Grunnbeløp på sykemeldingstidspunkt $grunnbeloepSykmldTidspunkt")
 
