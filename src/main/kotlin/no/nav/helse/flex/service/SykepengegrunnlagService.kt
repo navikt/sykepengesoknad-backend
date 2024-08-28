@@ -37,7 +37,7 @@ class SykepengegrunnlagService(
             log.info("Grunnbeløp siste 5 år: ${grunnbeloepSisteFemAar.serialisertTilString()}")
 
             val grunnbeloepSykmldTidspunkt =
-                grunnbeloepSisteFemAar.find { it.dato.tilAar() == soknad.startSykeforlop?.year }?.grunnbeloep
+                grunnbeloepSisteFemAar.find { it.dato.tilAar() == soknad.startSykeforlop?.year }?.grunnbeløp?.takeIf { it > 0 }
                     ?: throw Exception("Fant ikke g på sykmeldingstidspunkt")
             log.info("Grunnbeløp på sykemeldingstidspunkt $grunnbeloepSykmldTidspunkt")
 
@@ -59,7 +59,7 @@ class SykepengegrunnlagService(
                 grunnbeloepSisteFemAar.filter { grunnbeloepResponse ->
                     grunnbeloepResponse.dato.tilAar() in beregnetInntektPerAar.keys.map { it.toInt() }
                 }.associate { grunnbeloepResponse ->
-                    grunnbeloepResponse.dato to grunnbeloepResponse.gjennomsnittPerAar.toBigInteger()
+                    grunnbeloepResponse.dato to grunnbeloepResponse.gjennomsnittPerÅr.toBigInteger()
                 }
 
             return SykepengegrunnlagNaeringsdrivende(
@@ -110,7 +110,7 @@ class SykepengegrunnlagService(
                     PensjonsgivendeInntekt::pensjonsgivendeInntektAvNaeringsinntekt,
                 ).toBigInteger(),
             gPaaSykmeldingstidspunktet = grunnbeloepSykmldTidspunkt.toBigInteger(),
-            gjennomsnittligGIKalenderaaret = grunnbeloepForAaret.gjennomsnittPerAar.toBigInteger(),
+            gjennomsnittligGIKalenderaaret = grunnbeloepForAaret.gjennomsnittPerÅr.toBigInteger(),
         )
     }
 }
