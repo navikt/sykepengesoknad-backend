@@ -1,9 +1,13 @@
 package no.nav.helse.flex.client.grunnbeloep
 
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.http.HttpHeaders
+import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
+import reactor.util.retry.Retry
+import java.time.Duration
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -17,7 +21,7 @@ class GrunnbeloepClient(
     fun getGrunnbeloep(dato: LocalDate?): Mono<GrunnbeloepResponse> {
         return webClient.get()
             .uri { uriBuilder ->
-                val builder = uriBuilder.path("/grunnbeloep")
+                val builder = uriBuilder.path("/grunnbeløp")
                 if (dato != null) {
                     val formatertDato = dato.format(DateTimeFormatter.ISO_DATE)
                     builder.queryParam("dato", formatertDato)
@@ -26,21 +30,24 @@ class GrunnbeloepClient(
             }
             .retrieve()
             .bodyToMono(GrunnbeloepResponse::class.java)
+            .retryWhen(Retry.backoff(3, Duration.ofSeconds(2)))
     }
 
     fun getHistorikk(fra: LocalDate?): Mono<List<GrunnbeloepResponse>> {
         return webClient.get()
             .uri { uriBuilder ->
-                val builder = uriBuilder.path("/historikk")
+                val builder = uriBuilder.path("/historikk/grunnbeløp")
                 if (fra != null) {
                     val formatertDato = fra.format(DateTimeFormatter.ISO_DATE)
                     builder.queryParam("fra", formatertDato)
                 }
                 builder.build()
             }
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .retrieve()
             .bodyToFlux(GrunnbeloepResponse::class.java)
             .collectList()
+            .retryWhen(Retry.backoff(3, Duration.ofSeconds(2)))
     }
 }
 

@@ -38,7 +38,7 @@ fun startMockWebServere(): MockWebServere {
     val grunnbeloepApiMockWebServer =
         MockWebServer().apply {
             System.setProperty("GRUNNBELOEP_API_URL", "http://localhost:$port")
-            dispatcher = GrunnbeloepApoMockDispatcher
+            dispatcher = GrunnbeloepApiMockDispatcher
         }
     val aaregMockWebServer =
         MockWebServer().apply {
