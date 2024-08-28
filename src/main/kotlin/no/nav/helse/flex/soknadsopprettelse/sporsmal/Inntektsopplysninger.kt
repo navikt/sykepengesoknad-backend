@@ -2,7 +2,6 @@
 
 package no.nav.helse.flex.soknadsopprettelse.sporsmal
 
-import no.nav.helse.flex.client.inntektskomponenten.HentPensjonsgivendeInntektResponse
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Sykepengesoknad
