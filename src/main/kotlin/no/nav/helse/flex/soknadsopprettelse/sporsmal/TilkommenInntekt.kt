@@ -26,7 +26,7 @@ fun tilkommenInntektSporsmal(
             svartype = Svartype.JA_NEI,
             min = null,
             max = null,
-            metadata = mapOf("orgnummer" to arbeidsforhold.orgnummer).toJsonNode(),
+            metadata = mapOf("orgnummer" to arbeidsforhold.orgnummer, "orgnavn" to arbeidsforhold.navn).toJsonNode(),
             kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
             undersporsmal =
                 listOf(
