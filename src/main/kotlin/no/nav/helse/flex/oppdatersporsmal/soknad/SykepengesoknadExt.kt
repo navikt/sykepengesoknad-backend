@@ -42,7 +42,7 @@ fun Sykepengesoknad.leggTilSporsmaal(sporsmal: List<Sporsmal>): Sykepengesoknad 
 
 fun List<Sporsmal>.erUlikUtenomSvar(sammenlign: List<Sporsmal>): Boolean {
     fun List<Sporsmal>.flattenOgFjernSvar(): List<Sporsmal> {
-        return this.flatten().map { it.copy(svar = emptyList(), undersporsmal = emptyList()) }.sortedBy { it.id }
+        return this.flatten().map { it.copy(svar = emptyList(), undersporsmal = emptyList(), metadata = null) }.sortedBy { it.id }
     }
 
     return this.flattenOgFjernSvar() != sammenlign.flattenOgFjernSvar()

@@ -33,6 +33,7 @@ class SporsmalGenerator(
     private val environmentToggles: EnvironmentToggles,
     private val unleashToggles: UnleashToggles,
     private val medlemskapVurderingRepository: MedlemskapVurderingRepository,
+    private val aaregDataHenting: AaregDataHenting,
 ) {
     private val log = logger()
 
@@ -80,8 +81,19 @@ class SporsmalGenerator(
                 erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
             )
 
-        if (unleashToggles.tilkommenInntektEnabled(soknad.fnr)) {
-            log.info("Tilkommen inntekt toggle enabled")
+        fun tilkommenInntektGrunnlagHenting(): List<ArbeidsforholdFraAAreg>? {
+            if (soknad.soknadstype != Soknadstype.ARBEIDSTAKERE) {
+                return null
+            }
+            if (unleashToggles.tilkommenInntektEnabled(soknad.fnr)) {
+                log.info("Tilkommen inntekt toggle enabled")
+                return aaregDataHenting.hentNyeArbeidsforhold(
+                    fnr = soknad.fnr,
+                    arbeidsgiverOrgnummer = soknad.arbeidsgiverOrgnummer!!,
+                    startSykeforlop = soknad.startSykeforlop!!,
+                )
+            }
+            return null
         }
 
         val soknadOptions =
@@ -90,6 +102,8 @@ class SporsmalGenerator(
                 erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
                 harTidligereUtenlandskSpm = harTidligereUtenlandskSpm,
                 yrkesskade = yrkesskadeSporsmalGrunnlag,
+                arbeidsforholdoversiktResponse = tilkommenInntektGrunnlagHenting(),
+                eksisterendeSoknader = eksisterendeSoknader,
             )
 
         if (erEnkeltstaendeBehandlingsdagSoknad) {

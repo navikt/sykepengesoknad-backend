@@ -54,8 +54,22 @@ fun settOppSoknadArbeidstaker(
         if (sykepengesoknad.utenlandskSykmelding && (erForsteSoknadISykeforlop || !harTidligereUtenlandskSpm)) {
             addAll(utenlandskSykmeldingSporsmal(sykepengesoknad))
         }
+        if (soknadOptions.arbeidsforholdoversiktResponse != null) {
+            addAll(
+                tilkommenInntektSporsmal(
+                    soknadOptions.arbeidsforholdoversiktResponse,
+                    denneSoknaden = sykepengesoknad,
+                    eksisterendeSoknader = soknadOptions.eksisterendeSoknader,
+                ),
+            )
+        }
 
-        add(andreInntektskilderArbeidstakerV2(sykepengesoknad.arbeidsgiverNavn!!, andreKjenteArbeidsforhold.map { it.navn }))
+        add(
+            andreInntektskilderArbeidstakerV2(
+                sykepengesoknad.arbeidsgiverNavn!!,
+                andreKjenteArbeidsforhold.map { it.navn },
+            ),
+        )
         addAll(jobbetDuIPeriodenSporsmal(sykepengesoknad.soknadPerioder!!, sykepengesoknad.arbeidsgiverNavn))
 
         if (erGradertReisetilskudd) {
@@ -70,6 +84,7 @@ fun settOppSoknadArbeidstaker(
                             sykepengesoknad.tom,
                             soknadOptions.kjentOppholdstillatelse,
                         )
+
                     LovMeSporsmalTag.ARBEID_UTENFOR_NORGE -> lagSporsmalOmArbeidUtenforNorge(sykepengesoknad.tom)
                     LovMeSporsmalTag.OPPHOLD_UTENFOR_NORGE -> lagSporsmalOmOppholdUtenforNorge(sykepengesoknad.tom)
                     LovMeSporsmalTag.OPPHOLD_UTENFOR_EØS_OMRÅDE -> lagSporsmalOmOppholdUtenforEos(sykepengesoknad.tom)
