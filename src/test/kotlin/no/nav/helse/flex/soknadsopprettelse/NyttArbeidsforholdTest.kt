@@ -2,12 +2,14 @@ package no.nav.helse.flex.soknadsopprettelse
 
 import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
+import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.medIndex
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
+import org.amshove.kluent.`should be empty`
 import org.amshove.kluent.`should be equal to`
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
@@ -88,5 +90,66 @@ class NyttArbeidsforholdTest : FellesTestOppsett() {
         assertThat(kafkaSoknader[0].status).isEqualTo(SoknadsstatusDTO.SENDT)
 
         juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
+    }
+
+    @Test
+    @Order(90)
+    fun `Vi lager ikke tilkommen inntekt spm ved sykmelding fra flere arbeidsgivere`() {
+        databaseReset.resetDatabase()
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = basisdato.minusDays(20),
+                        tom = basisdato,
+                    ),
+                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = "999888777", orgNavn = "Kiosken, avd Oslo AS"),
+            ),
+        )
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = basisdato.minusDays(20),
+                        tom = basisdato,
+                    ),
+                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = "123454543", orgNavn = "MATBUTIKKEN AS"),
+            ),
+        )
+
+        hentSoknader(fnr = fnr).flatMap { it.sporsmal!! }.filter { it.tag == TILKOMMEN_INNTEKT_FORSTEGANG }.`should be empty`()
+    }
+
+    @Test
+    @Order(91)
+    fun `Vi lager ikke tilkommen inntekt spm ved sykmelding fra andre arbeidssituasjoner`() {
+        databaseReset.resetDatabase()
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = basisdato.minusDays(20),
+                        tom = basisdato,
+                    ),
+                arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
+                arbeidsgiver = null,
+            ),
+        )
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = basisdato.minusDays(20),
+                        tom = basisdato,
+                    ),
+                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = "123454543", orgNavn = "MATBUTIKKEN AS"),
+            ),
+        )
+
+        hentSoknader(fnr = fnr).flatMap { it.sporsmal!! }.filter { it.tag == TILKOMMEN_INNTEKT_FORSTEGANG }.`should be empty`()
     }
 }

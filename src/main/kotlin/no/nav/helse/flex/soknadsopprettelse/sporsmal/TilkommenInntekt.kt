@@ -1,9 +1,6 @@
 package no.nav.helse.flex.soknadsopprettelse.sporsmal
 
-import no.nav.helse.flex.domain.Sporsmal
-import no.nav.helse.flex.domain.Svartype
-import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.domain.Visningskriterie
+import no.nav.helse.flex.domain.*
 import no.nav.helse.flex.soknadsopprettelse.ArbeidsforholdFraAAreg
 import no.nav.helse.flex.util.DatoUtil
 import no.nav.helse.flex.util.toJsonNode
@@ -13,7 +10,15 @@ fun tilkommenInntektSporsmal(
     denneSoknaden: Sykepengesoknad,
     eksisterendeSoknader: List<Sykepengesoknad>,
 ): List<Sporsmal> {
-    // TODO returner tidlig hvis flere søknader i parallell med denne
+    val overlapperMedAndreArbeidsgivereEllerArbeidssituasjoner =
+        eksisterendeSoknader
+            .filter { it.fom != null && it.tom != null }
+            .filter { it.arbeidsgiverOrgnummer != denneSoknaden.arbeidsgiverOrgnummer }
+            .any { it.tilPeriode().overlapper(denneSoknaden.tilPeriode()) }
+
+    if (overlapperMedAndreArbeidsgivereEllerArbeidssituasjoner) {
+        return emptyList()
+    }
 
     val periodeTekst = DatoUtil.formatterPeriode(denneSoknaden.fom!!, denneSoknaden.tom!!)
 
@@ -47,4 +52,8 @@ fun tilkommenInntektSporsmal(
                 ),
         )
     }
+}
+
+private fun Sykepengesoknad.tilPeriode(): Periode {
+    return Periode(fom!!, tom!!)
 }
