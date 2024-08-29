@@ -22,4 +22,8 @@ data class Periode(
         }
         return ukedager
     }
+
+    fun overlapper(andre: Periode) =
+        (this.fom >= andre.fom && this.fom <= andre.tom) ||
+            (this.tom <= andre.tom && this.tom >= andre.fom)
 }
