@@ -32,7 +32,7 @@ class SykepengegrunnlagService(
         try {
             log.info("Finner sykepengegrunnlag for selvstendig næringsdrivende ${soknad.id}")
             val grunnbeloepSisteFemAar =
-                grunnbeloepService.hentHistorikkSisteFemAar().block()
+                grunnbeloepService.hentHistorikkSisteFemAar().block()?.takeIf { it.isNotEmpty() }
                     ?: throw Exception("finner ikke historikk for g fra siste fem år")
             log.info("Grunnbeløp siste 5 år: ${grunnbeloepSisteFemAar.serialisertTilString()}")
 

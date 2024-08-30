@@ -11,6 +11,9 @@ import org.springframework.web.util.UriComponentsBuilder
 import java.time.LocalDate
 import java.util.*
 
+class IngenPensjonsgivendeInntektFunnetException(message: String, cause: Throwable? = null) :
+    RuntimeException(message, cause)
+
 @Component
 class PensjongivendeInntektClient(
     private val persongivendeInntektRestTemplate: RestTemplate,
@@ -47,28 +50,63 @@ class PensjongivendeInntektClient(
                     HentPensjonsgivendeInntektResponse::class.java,
                 )
 
-            if (result.statusCode == HttpStatus.NOT_FOUND) {
-                val message = "Ingen pensjonsgivende inntekt funnet for år $arViHenterFor på personidentifikator $fnr"
-                log.warn(message)
-                throw IngenPensjonsgivendeInntektFunnetException(message)
-            }
-
-            if (result.statusCode != HttpStatus.OK) {
-                val message = "Kall mot Sigrun feiler med HTTP-${result.statusCode}"
-                log.error(message)
-                throw RuntimeException(message)
-            }
-
-            return result.body ?: throw RuntimeException("Uventet feil: responsen er null selv om den ikke skulle være det.")
+            return result.body
+                ?: throw RuntimeException("Uventet feil: responsen er null selv om den ikke skulle være det.")
         } catch (e: HttpClientErrorException) {
-            val message =
-                if (e.statusCode == HttpStatus.NOT_FOUND && e.responseBodyAsString.contains("PGIF-008")) {
-                    "Ingen pensjonsgivende inntekt funnet på oppgitt personidentifikator og inntektsår."
-                } else {
-                    "Klientfeil ved kall mot Sigrun: ${e.statusCode} - ${e.message}"
+            if (e.statusCode == HttpStatus.NOT_FOUND && e.responseBodyAsString.contains("PGIF-008")) {
+                throw IngenPensjonsgivendeInntektFunnetException(
+                    "Ingen pensjonsgivende inntekt funnet på oppgitt personidentifikator og inntektsår.",
+                    e,
+                )
+            }
+            val feilmelding =
+                when (e.statusCode) {
+                    HttpStatus.NOT_FOUND ->
+                        when {
+                            e.responseBodyAsString.contains("PGIF-007") -> "Ikke treff på oppgitt personidentifikator."
+                            e.responseBodyAsString.contains("PGIF-003") -> "Ukjent url benyttet."
+                            else -> "Ressurs ikke funnet."
+                        }
+
+                    HttpStatus.UNAUTHORIZED ->
+                        if (e.responseBodyAsString.contains("PGIF-004")) {
+                            "Feil i forbindelse med autentisering."
+                        } else {
+                            "Uautorisert tilgang."
+                        }
+
+                    HttpStatus.FORBIDDEN ->
+                        if (e.responseBodyAsString.contains("PGIF-005")) {
+                            "Feil i forbindelse med autorisering."
+                        } else {
+                            "Forbudt tilgang."
+                        }
+
+                    HttpStatus.BAD_REQUEST ->
+                        if (e.responseBodyAsString.contains("PGIF-006")) {
+                            "Feil i forbindelse med validering av inputdata."
+                        } else {
+                            "Ugyldig forespørsel."
+                        }
+
+                    HttpStatus.NOT_ACCEPTABLE ->
+                        if (e.responseBodyAsString.contains("PGIF-009")) {
+                            "Feil tilknyttet dataformat. Kun JSON eller XML er støttet."
+                        } else {
+                            "Ugyldig dataformat."
+                        }
+
+                    HttpStatus.INTERNAL_SERVER_ERROR ->
+                        when {
+                            e.responseBodyAsString.contains("PGIF-001") -> "Uventet feil på tjenesten."
+                            e.responseBodyAsString.contains("PGIF-002") -> "Uventet feil i et bakenforliggende system."
+                            else -> "Serverfeil."
+                        }
+
+                    else -> "Klientfeil ved kall mot Sigrun: ${e.statusCode} - ${e.message}"
                 }
-            log.error(message, e)
-            throw RuntimeException(message, e)
+            log.error(feilmelding, e)
+            throw RuntimeException(feilmelding, e)
         } catch (e: Exception) {
             val message = "Feil ved kall mot Sigrun: ${e.message}"
             log.error(message, e)
@@ -87,7 +125,18 @@ class PensjongivendeInntektClient(
             }
 
             val arViHenterFor = naVarendeAr - yearOffset
-            val svar = hentPensjonsgivendeInntekt(fnr, arViHenterFor)
+            val svar =
+                try {
+                    hentPensjonsgivendeInntekt(fnr, arViHenterFor)
+                } catch (_: IngenPensjonsgivendeInntektFunnetException) {
+                    HentPensjonsgivendeInntektResponse(
+                        fnr,
+                        arViHenterFor.toString(),
+                        emptyList(),
+                    )
+                } catch (_: Exception) {
+                    break
+                }
 
             treFerdigliknetAr.add(svar)
             arViHarSjekket++
@@ -96,5 +145,3 @@ class PensjongivendeInntektClient(
         return if (treFerdigliknetAr.size == 3) treFerdigliknetAr else null
     }
 }
-
-class IngenPensjonsgivendeInntektFunnetException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)
