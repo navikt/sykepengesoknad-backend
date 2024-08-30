@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
-import java.time.LocalDate
 import java.util.*
 
 class IngenPensjonsgivendeInntektFunnetException(message: String, cause: Throwable? = null) :
@@ -114,17 +113,19 @@ class PensjongivendeInntektClient(
         }
     }
 
-    fun hentPensjonsgivendeInntektForTreSisteArene(fnr: String): List<HentPensjonsgivendeInntektResponse>? {
+    fun hentPensjonsgivendeInntektForTreSisteArene(
+        fnr: String,
+        sykmeldingstidspunkt: Int,
+    ): List<HentPensjonsgivendeInntektResponse>? {
         val treFerdigliknetAr = mutableListOf<HentPensjonsgivendeInntektResponse>()
-        val naVarendeAr = LocalDate.now().year
         var arViHarSjekket = 0
 
-        for (yearOffset in 0..4) {
+        for (yearOffset in 0..3) {
             if (treFerdigliknetAr.size == 3) {
                 break
             }
 
-            val arViHenterFor = naVarendeAr - yearOffset
+            val arViHenterFor = sykmeldingstidspunkt - yearOffset
             val svar =
                 try {
                     hentPensjonsgivendeInntekt(fnr, arViHenterFor)
