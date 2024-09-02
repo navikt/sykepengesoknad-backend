@@ -48,6 +48,7 @@ class ArbeidsgiverInntektsmeldingController(
                 .filter { it.fom?.isAfter(request.eldsteFom.minusDays(1)) ?: false }
                 .filter { it.arbeidsgiverOrgnummer == request.orgnummer }
                 .filter { it.soknadstype == Soknadstype.ARBEIDSTAKERE }
+                .filter { it.status == Soknadstatus.SENDT }
                 .map { it.tilHentSoknaderResponse() }
                 .sortedBy { it.fom }
 

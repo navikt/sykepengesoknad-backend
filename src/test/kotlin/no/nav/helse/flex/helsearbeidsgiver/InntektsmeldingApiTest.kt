@@ -2,11 +2,11 @@ package no.nav.helse.flex.helsearbeidsgiver
 
 import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.HentSoknaderRequest
+import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.vedtaksperiodebehandling.Behandlingstatusmelding
 import no.nav.helse.flex.vedtaksperiodebehandling.Behandlingstatustype
-import no.nav.helse.flex.vedtaksperiodebehandling.VedtaksperiodeBehandlingRepository
 import no.nav.helse.flex.vedtaksperiodebehandling.VedtaksperiodeBehandlingSykepengesoknadRepository
 import org.amshove.kluent.*
 import org.awaitility.Awaitility.await
@@ -25,9 +25,6 @@ class InntektsmeldingApiTest : FellesTestOppsett() {
 
     @Autowired
     lateinit var vedtaksperiodeBehandlingSykepengesoknadRepository: VedtaksperiodeBehandlingSykepengesoknadRepository
-
-    @Autowired
-    lateinit var vedtaksperiodeBehandlingRepository: VedtaksperiodeBehandlingRepository
 
     @Test
     @Order(1)
@@ -79,6 +76,26 @@ class InntektsmeldingApiTest : FellesTestOppsett() {
 
     @Test
     @Order(2)
+    fun `Vi finner ingen søknader før de er sendt`() {
+        hentSomArbeidsgiver(
+            HentSoknaderRequest(
+                fnr = fnr,
+                eldsteFom = basisdato.minusDays(90),
+                orgnummer = "123454543",
+            ),
+        ) shouldHaveSize 0
+    }
+
+    @Test
+    @Order(3)
+    fun `Hacker til alle som sendt i databasen`() {
+        sykepengesoknadRepository.findAll().toList().forEach {
+            sykepengesoknadRepository.save(it.copy(status = Soknadstatus.SENDT))
+        }
+    }
+
+    @Test
+    @Order(4)
     fun `Vi finner 4 søknader med riktig orgnummer og eldsteFom langt tilbake`() {
         hentSomArbeidsgiver(
             HentSoknaderRequest(
@@ -90,7 +107,7 @@ class InntektsmeldingApiTest : FellesTestOppsett() {
     }
 
     @Test
-    @Order(2)
+    @Order(4)
     fun `Vi finner 3 søknader med riktig orgnummer og eldsteFom dagen etter første sykmelding fom`() {
         hentSomArbeidsgiver(
             HentSoknaderRequest(
@@ -102,7 +119,7 @@ class InntektsmeldingApiTest : FellesTestOppsett() {
     }
 
     @Test
-    @Order(2)
+    @Order(4)
     fun `Vi finner 0 søknader med feil orgnummer og eldsteFom dagen etter første sykmelding fom`() {
         hentSomArbeidsgiver(
             HentSoknaderRequest(
@@ -114,7 +131,7 @@ class InntektsmeldingApiTest : FellesTestOppsett() {
     }
 
     @Test
-    @Order(2)
+    @Order(4)
     fun `Vi finner 2 søknader med riktig orgnummer for det andre fødselsnummeret`() {
         hentSomArbeidsgiver(
             HentSoknaderRequest(
@@ -126,7 +143,7 @@ class InntektsmeldingApiTest : FellesTestOppsett() {
     }
 
     @Test
-    @Order(3)
+    @Order(5)
     fun `Vi returnerer vedtaksperiode id på en søknad hvis vi kjenner den`() {
         val soknader =
             hentSomArbeidsgiver(
