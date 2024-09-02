@@ -56,7 +56,7 @@ fun settOppSoknadArbeidstaker(
         }
         if (soknadOptions.arbeidsforholdoversiktResponse != null) {
             addAll(
-                tilkommenInntektSporsmal(
+                nyttArbeidsforholdSporsmal(
                     soknadOptions.arbeidsforholdoversiktResponse,
                     denneSoknaden = sykepengesoknad,
                     eksisterendeSoknader = soknadOptions.eksisterendeSoknader,
