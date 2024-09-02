@@ -49,7 +49,7 @@ class NyttArbeidsforholdTest : FellesTestOppsett() {
 
         val tilkommenInntektSpm =
             soknaden.sporsmal!!.find {
-                it.tag == "TILKOMMEN_INNTEKT_FORSTEGANG"
+                it.tag == "NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG"
             }!!
         tilkommenInntektSpm.sporsmalstekst `should be equal to` "Har du startet å jobbe hos Kiosken, avd Oslo AS?"
         tilkommenInntektSpm.metadata!!.get("orgnummer").textValue() `should be equal to` "999888777"
@@ -71,13 +71,13 @@ class NyttArbeidsforholdTest : FellesTestOppsett() {
                 .besvarSporsmal(tag = PERMISJON_V2, svar = "NEI")
                 .besvarSporsmal(tag = OPPHOLD_UTENFOR_EOS, svar = "NEI")
                 .besvarSporsmal(tag = medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0), svar = "NEI")
-                .besvarSporsmal(tag = TILKOMMEN_INNTEKT_FORSTEGANG, svar = "JA", ferdigBesvart = false)
+                .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG, svar = "JA", ferdigBesvart = false)
                 .besvarSporsmal(
-                    tag = TILKOMMEN_INNTEKT_FORSTEGANG_FORSTE_ARBEIDSDAG,
+                    tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG_FORSTE_ARBEIDSDAG,
                     svar = LocalDate.now().minusDays(4).toString(),
                     ferdigBesvart = false,
                 )
-                .besvarSporsmal(tag = TILKOMMEN_INNTEKT_BRUTTO, svar = "4000", ferdigBesvart = true)
+                .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO, svar = "4000", ferdigBesvart = true)
                 .besvarSporsmal(tag = ANDRE_INNTEKTSKILDER_V2, svar = "NEI")
                 .besvarSporsmal(tag = INNTEKTSKILDE_STYREVERV, svar = "CHECKED")
                 .oppsummering()
@@ -119,7 +119,7 @@ class NyttArbeidsforholdTest : FellesTestOppsett() {
             ),
         )
 
-        hentSoknader(fnr = fnr).flatMap { it.sporsmal!! }.filter { it.tag == TILKOMMEN_INNTEKT_FORSTEGANG }.`should be empty`()
+        hentSoknader(fnr = fnr).flatMap { it.sporsmal!! }.filter { it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG }.`should be empty`()
     }
 
     @Test
@@ -150,6 +150,6 @@ class NyttArbeidsforholdTest : FellesTestOppsett() {
             ),
         )
 
-        hentSoknader(fnr = fnr).flatMap { it.sporsmal!! }.filter { it.tag == TILKOMMEN_INNTEKT_FORSTEGANG }.`should be empty`()
+        hentSoknader(fnr = fnr).flatMap { it.sporsmal!! }.filter { it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG }.`should be empty`()
     }
 }

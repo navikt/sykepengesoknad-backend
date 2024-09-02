@@ -5,7 +5,7 @@ import no.nav.helse.flex.soknadsopprettelse.ArbeidsforholdFraAAreg
 import no.nav.helse.flex.util.DatoUtil
 import no.nav.helse.flex.util.toJsonNode
 
-fun tilkommenInntektSporsmal(
+fun nyttArbeidsforholdSporsmal(
     nyeArbeidsforhold: List<ArbeidsforholdFraAAreg>,
     denneSoknaden: Sykepengesoknad,
     eksisterendeSoknader: List<Sykepengesoknad>,
@@ -25,7 +25,7 @@ fun tilkommenInntektSporsmal(
     return nyeArbeidsforhold.mapNotNull { arbeidsforhold ->
 
         return@mapNotNull Sporsmal(
-            tag = "TILKOMMEN_INNTEKT_FORSTEGANG",
+            tag = "NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG",
             sporsmalstekst = "Har du startet å jobbe hos ${arbeidsforhold.navn}?",
             undertekst = null,
             svartype = Svartype.JA_NEI,
@@ -36,13 +36,13 @@ fun tilkommenInntektSporsmal(
             undersporsmal =
                 listOf(
                     Sporsmal(
-                        tag = "TILKOMMEN_INNTEKT_FORSTEGANG_FORSTE_ARBEIDSDAG",
+                        tag = "NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG_FORSTE_ARBEIDSDAG",
                         sporsmalstekst = "Når hadde du din første arbeidsdag?",
                         undertekst = null,
                         svartype = Svartype.DATO,
                     ),
                     Sporsmal(
-                        tag = "TILKOMMEN_INNTEKT_BRUTTO",
+                        tag = "NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO",
                         sporsmalstekst = "Hvor mye har du tjent i perioden $periodeTekst?",
                         undertekst =
                             "Oppgi det du har tjent brutto (før skatt) i perioden $periodeTekst. " +
