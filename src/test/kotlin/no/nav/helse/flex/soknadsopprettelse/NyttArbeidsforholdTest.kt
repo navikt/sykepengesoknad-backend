@@ -52,8 +52,8 @@ class NyttArbeidsforholdTest : FellesTestOppsett() {
                 it.tag == "NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG"
             }!!
         tilkommenInntektSpm.sporsmalstekst `should be equal to` "Har du startet å jobbe hos Kiosken, avd Oslo AS?"
-        tilkommenInntektSpm.metadata!!.get("orgnummer").textValue() `should be equal to` "999888777"
-        tilkommenInntektSpm.metadata!!.get("orgnavn").textValue() `should be equal to` "Kiosken, avd Oslo AS"
+        tilkommenInntektSpm.metadata!!.get("arbeidsstedOrgnummer").textValue() `should be equal to` "999888777"
+        tilkommenInntektSpm.metadata!!.get("arbeidsstedNavn").textValue() `should be equal to` "Kiosken, avd Oslo AS"
     }
 
     @Test

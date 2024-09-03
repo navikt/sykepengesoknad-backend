@@ -8,7 +8,7 @@ import java.time.LocalDate
 import java.time.YearMonth
 
 @Component
-class AndreArbeidsforholdHenting(
+class ArbeidsforholdFraInntektskomponentenHenting(
     val inntektskomponentenClient: InntektskomponentenClient,
     val eregClient: EregClient,
 ) {
