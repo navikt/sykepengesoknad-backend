@@ -6,6 +6,7 @@ import no.nav.helse.flex.client.inntektskomponenten.PensjongivendeInntektClient
 import no.nav.helse.flex.client.inntektskomponenten.PensjonsgivendeInntekt
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.logger
+import no.nav.helse.flex.util.beregnEndring25Prosent
 import no.nav.helse.flex.util.beregnGjennomsnittligInntekt
 import no.nav.helse.flex.util.serialisertTilString
 import no.nav.helse.flex.util.sykepengegrunnlagUtregner
@@ -19,6 +20,7 @@ data class SykepengegrunnlagNaeringsdrivende(
     val gjennomsnittPerAar: Map<String, BigInteger>,
     val grunnbeloepPerAar: Map<String, BigInteger>,
     val grunnbeloepPaaSykmeldingstidspunkt: Int,
+    val endring25Prosent: List<BigInteger>,
 )
 
 @Service
@@ -68,6 +70,7 @@ class SykepengegrunnlagService(
                 gjennomsnittPerAar = beregnetInntektPerAar,
                 grunnbeloepPerAar = grunnbeloepForRelevanteTreAar,
                 grunnbeloepPaaSykmeldingstidspunkt = grunnbeloepPaaSykmeldingstidspunkt,
+                endring25Prosent = beregnEndring25Prosent(fastsattSykepengegrunnlag),
             )
         } catch (e: Exception) {
             log.error(e.message, e)

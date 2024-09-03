@@ -22,11 +22,16 @@ class SykepengegrunnlagServiceTest : FellesTestOppsett() {
         val grunnlagVerdier = sykepengegrunnlagService.sykepengegrunnlagNaeringsdrivende(soknad)
 
         grunnlagVerdier `should not be` null
-        grunnlagVerdier!!.let {
-            it.fastsattSykepengegrunnlag `should be equal to` 372758.toBigInteger()
-            it.gjennomsnittTotal `should be equal to` 372758.toBigInteger()
-            it.grunnbeloepPerAar.size `should be equal to` 3
-            it.gjennomsnittPerAar.size `should be equal to` 3
+        grunnlagVerdier!!.let { grunnlag ->
+            grunnlag.fastsattSykepengegrunnlag `should be equal to` 372758.toBigInteger()
+            grunnlag.gjennomsnittTotal `should be equal to` 372758.toBigInteger()
+            grunnlag.grunnbeloepPerAar.size `should be equal to` 3
+            grunnlag.gjennomsnittPerAar.size `should be equal to` 3
+            grunnlag.endring25Prosent.let {
+                it.size `should be equal to` 2
+                it[0] `should be equal to` 279569.toBigInteger()
+                it[1] `should be equal to` 465948.toBigInteger()
+            }
         }
     }
 

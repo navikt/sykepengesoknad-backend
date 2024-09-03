@@ -26,4 +26,13 @@ class UtregningUtilKtTest {
             grunnbeloepSykmldTidspunkt = 96883,
         ) `should be equal to` Pair(589138.toBigInteger(), 581298.toBigInteger())
     }
+
+    @Test
+    fun beregnEndring25Prosent() {
+        val beregnetGrunnlag = 500000.toBigInteger()
+        beregnEndring25Prosent(beregnetGrunnlag).let {
+            it[0] `should be equal to` 375000.toBigInteger()
+            it[1] `should be equal to` 625000.toBigInteger()
+        }
+    }
 }

@@ -1,6 +1,7 @@
 package no.nav.helse.flex.util
 
 import java.math.BigInteger
+import kotlin.math.roundToInt
 
 /**
  * (Pensjonsgivende inntekt i kalenderåret * G på sykmeldingstidspunktet)
@@ -42,4 +43,11 @@ fun beregnGjennomsnittligInntekt(
     val fastsattSykepengegrunnlag = if (snittVerdi > g6) g6 else snittVerdi
 
     return Pair(snittVerdi, fastsattSykepengegrunnlag)
+}
+
+fun beregnEndring25Prosent(snittPGI: BigInteger): List<BigInteger> {
+    return listOf(
+        (snittPGI.toDouble() * 0.75).roundToInt().toBigInteger(),
+        (snittPGI.toDouble() * 1.25).roundToInt().toBigInteger(),
+    )
 }
