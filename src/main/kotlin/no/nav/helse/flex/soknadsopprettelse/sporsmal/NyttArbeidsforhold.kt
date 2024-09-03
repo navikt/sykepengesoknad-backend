@@ -1,7 +1,7 @@
 package no.nav.helse.flex.soknadsopprettelse.sporsmal
 
 import no.nav.helse.flex.domain.*
-import no.nav.helse.flex.soknadsopprettelse.ArbeidsforholdFraAAreg
+import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.util.DatoUtil
 import no.nav.helse.flex.util.toJsonNode
 
@@ -22,40 +22,71 @@ fun nyttArbeidsforholdSporsmal(
 
     val periodeTekst = DatoUtil.formatterPeriode(denneSoknaden.fom!!, denneSoknaden.tom!!)
 
-    return nyeArbeidsforhold.mapNotNull { arbeidsforhold ->
+    return nyeArbeidsforhold.map { arbeidsforhold ->
 
-        return@mapNotNull Sporsmal(
-            tag = "NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG",
+        val harAlleredeStartet =
+            eksisterendeSoknader
+                .filter { it.startSykeforlop == denneSoknaden.startSykeforlop }
+                .filter { it.status == Soknadstatus.SENDT }
+                .flatMap { it.sporsmal }
+                .filter { it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG }
+                .filter { it.metadata!!["arbeidsstedOrgnummer"].asText() == arbeidsforhold.arbeidsstedOrgnummer }
+                .any { it.forsteSvar == "JA" }
+
+        val metadata =
+            mapOf(
+                "arbeidsstedOrgnummer" to arbeidsforhold.arbeidsstedOrgnummer,
+                "arbeidsstedNavn" to arbeidsforhold.arbeidsstedNavn,
+            ).toJsonNode()
+        if (harAlleredeStartet) {
+            return@map Sporsmal(
+                tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_PAFOLGENDE,
+                sporsmalstekst = "Har du jobbet noe hos ${arbeidsforhold.arbeidsstedNavn} i perioden $periodeTekst?",
+                undertekst = null,
+                svartype = Svartype.JA_NEI,
+                min = null,
+                max = null,
+                metadata = metadata,
+                kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
+                undersporsmal =
+                    listOf(
+                        bruttoInntektSporsmal(periodeTekst),
+                    ),
+            )
+        }
+
+        return@map Sporsmal(
+            tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG,
             sporsmalstekst = "Har du startet å jobbe hos ${arbeidsforhold.arbeidsstedNavn}?",
             undertekst = null,
             svartype = Svartype.JA_NEI,
             min = null,
             max = null,
-            metadata =
-                mapOf(
-                    "arbeidsstedOrgnummer" to arbeidsforhold.arbeidsstedOrgnummer,
-                    "arbeidsstedNavn" to arbeidsforhold.arbeidsstedNavn,
-                ).toJsonNode(),
+            metadata = metadata,
             kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
             undersporsmal =
                 listOf(
                     Sporsmal(
-                        tag = "NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG_FORSTE_ARBEIDSDAG",
+                        tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG_FORSTE_ARBEIDSDAG,
                         sporsmalstekst = "Når hadde du din første arbeidsdag?",
                         undertekst = null,
                         svartype = Svartype.DATO,
                     ),
-                    Sporsmal(
-                        tag = "NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO",
-                        sporsmalstekst = "Hvor mye har du tjent i perioden $periodeTekst?",
-                        undertekst =
-                            "Oppgi det du har tjent før skatt. Se på lønnslippen eller kontrakten hvor mye du har tjent eller skal tjene.",
-                        svartype = Svartype.BELOP,
-                    ),
+                    bruttoInntektSporsmal(periodeTekst),
                 ),
         )
     }
 }
+
+private fun bruttoInntektSporsmal(periodeTekst: String) =
+    Sporsmal(
+        tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO,
+        sporsmalstekst = "Hvor mye har du tjent i perioden $periodeTekst?",
+        undertekst =
+            "Oppgi det du har tjent før skatt. " +
+                "Se på lønnslippen eller kontrakten hvor mye du har tjent eller skal tjene.",
+        svartype = Svartype.BELOP,
+    )
 
 private fun Sykepengesoknad.tilPeriode(): Periode {
     return Periode(fom!!, tom!!)

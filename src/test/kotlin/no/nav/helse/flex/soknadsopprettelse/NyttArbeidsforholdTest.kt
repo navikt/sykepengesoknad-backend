@@ -1,6 +1,7 @@
 package no.nav.helse.flex.soknadsopprettelse
 
 import no.nav.helse.flex.*
+import no.nav.helse.flex.aktivering.SoknadAktivering
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.medIndex
@@ -11,14 +12,19 @@ import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
 import org.amshove.kluent.`should be empty`
 import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.shouldContain
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
+import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class NyttArbeidsforholdTest : FellesTestOppsett() {
     private val fnr = "22222220001"
     private final val basisdato = LocalDate.now().minusDays(1)
+
+    @Autowired
+    lateinit var soknadAktivering: SoknadAktivering
 
     @BeforeAll
     fun konfigurerUnleash() {
@@ -44,16 +50,16 @@ class NyttArbeidsforholdTest : FellesTestOppsett() {
 
     @Test
     @Order(2)
-    fun `Har forventa tilkommen inntekt spm`() {
+    fun `Har forventa nytt arbeidsforhold førstegangsspørsmål`() {
         val soknaden = hentSoknader(fnr = fnr).first()
 
-        val tilkommenInntektSpm =
+        val nyttArbeidsforholdSpm =
             soknaden.sporsmal!!.find {
                 it.tag == "NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG"
             }!!
-        tilkommenInntektSpm.sporsmalstekst `should be equal to` "Har du startet å jobbe hos Kiosken, avd Oslo AS?"
-        tilkommenInntektSpm.metadata!!.get("arbeidsstedOrgnummer").textValue() `should be equal to` "999888777"
-        tilkommenInntektSpm.metadata!!.get("arbeidsstedNavn").textValue() `should be equal to` "Kiosken, avd Oslo AS"
+        nyttArbeidsforholdSpm.sporsmalstekst `should be equal to` "Har du startet å jobbe hos Kiosken, avd Oslo AS?"
+        nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedOrgnummer").textValue() `should be equal to` "999888777"
+        nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedNavn").textValue() `should be equal to` "Kiosken, avd Oslo AS"
     }
 
     @Test
@@ -79,7 +85,70 @@ class NyttArbeidsforholdTest : FellesTestOppsett() {
                 )
                 .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO, svar = "4000", ferdigBesvart = true)
                 .besvarSporsmal(tag = ANDRE_INNTEKTSKILDER_V2, svar = "NEI")
-                .besvarSporsmal(tag = INNTEKTSKILDE_STYREVERV, svar = "CHECKED")
+                .oppsummering()
+                .sendSoknad()
+        assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
+
+        val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
+
+        assertThat(kafkaSoknader).hasSize(1)
+        assertThat(kafkaSoknader[0].status).isEqualTo(SoknadsstatusDTO.SENDT)
+
+        juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
+    }
+
+    @Test
+    @Order(4)
+    fun `Sykmeldingen forlenges`() {
+        val soknad =
+            sendSykmelding(
+                sykmeldingKafkaMessage(
+                    fnr = fnr,
+                    sykmeldingsperioder =
+                        heltSykmeldt(
+                            fom = basisdato.plusDays(1),
+                            tom = basisdato.plusDays(21),
+                        ),
+                    arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = "123454543", orgNavn = "MATBUTIKKEN AS"),
+                ),
+                oppfolgingsdato = basisdato.minusDays(20),
+            )
+        soknadAktivering.aktiverSoknad(soknad.first().id)
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
+    }
+
+    @Test
+    @Order(5)
+    fun `Har forventa nytt arbeidsforhold påfølgende spørsmål`() {
+        val soknaden = hentSoknader(fnr = fnr).first { it.status == RSSoknadstatus.NY }
+
+        val nyttArbeidsforholdSpm =
+            soknaden.sporsmal!!.find {
+                it.tag == "NYTT_ARBEIDSFORHOLD_UNDERVEIS_PAFOLGENDE"
+            }!!
+        nyttArbeidsforholdSpm.sporsmalstekst!!.shouldContain("Har du jobbet noe hos Kiosken, avd Oslo AS i perioden")
+        nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedOrgnummer").textValue() `should be equal to` "999888777"
+        nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedNavn").textValue() `should be equal to` "Kiosken, avd Oslo AS"
+    }
+
+    @Test
+    @Order(6)
+    fun `Vi besvarer og sender inn den andre søknaden`() {
+        flexSyketilfelleMockRestServiceServer.reset()
+        mockFlexSyketilfelleArbeidsgiverperiode()
+        val soknaden = hentSoknader(fnr = fnr).first { it.status == RSSoknadstatus.NY }
+
+        val sendtSoknad =
+            SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+                .besvarSporsmal(tag = ANSVARSERKLARING, svar = "CHECKED")
+                .besvarSporsmal(tag = TILBAKE_I_ARBEID, svar = "NEI")
+                .besvarSporsmal(tag = FERIE_V2, svar = "NEI")
+                .besvarSporsmal(tag = PERMISJON_V2, svar = "NEI")
+                .besvarSporsmal(tag = OPPHOLD_UTENFOR_EOS, svar = "NEI")
+                .besvarSporsmal(tag = medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0), svar = "NEI")
+                .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_PAFOLGENDE, svar = "JA", ferdigBesvart = false)
+                .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO, svar = "4000", ferdigBesvart = true)
+                .besvarSporsmal(tag = ANDRE_INNTEKTSKILDER_V2, svar = "NEI")
                 .oppsummering()
                 .sendSoknad()
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
@@ -119,7 +188,8 @@ class NyttArbeidsforholdTest : FellesTestOppsett() {
             ),
         )
 
-        hentSoknader(fnr = fnr).flatMap { it.sporsmal!! }.filter { it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG }.`should be empty`()
+        hentSoknader(fnr = fnr).flatMap { it.sporsmal!! }.filter { it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG }
+            .`should be empty`()
     }
 
     @Test
@@ -150,6 +220,7 @@ class NyttArbeidsforholdTest : FellesTestOppsett() {
             ),
         )
 
-        hentSoknader(fnr = fnr).flatMap { it.sporsmal!! }.filter { it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG }.`should be empty`()
+        hentSoknader(fnr = fnr).flatMap { it.sporsmal!! }.filter { it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG }
+            .`should be empty`()
     }
 }
