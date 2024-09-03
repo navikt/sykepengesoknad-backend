@@ -29,14 +29,16 @@ fun beregnGjennomsnittligInntekt(
 
     val justerteInntekter = beregnetInntektPerAar.mapValues { it.value.toBigDecimal() }.toMutableMap()
 
-    val verdierPaa12G = justerteInntekter.filterValues { it >= g12 }.map {
-        it.key to g12
-    }.toMap()
+    val verdierPaa12G =
+        justerteInntekter.filterValues { it >= g12 }.map {
+            it.key to g12
+        }.toMap()
     justerteInntekter.putAll(verdierPaa12G)
 
-    val reduserteVerdierMellom6og12G = justerteInntekter.filterValues { it in g6..g12 }.map {
-        it.key to (g6 + (it.value - g6) / BigDecimal(3)).setScale(2, RoundingMode.HALF_UP)
-    }.toMap()
+    val reduserteVerdierMellom6og12G =
+        justerteInntekter.filterValues { it in g6..g12 }.map {
+            it.key to (g6 + (it.value - g6) / BigDecimal(3)).setScale(2, RoundingMode.HALF_UP)
+        }.toMap()
     justerteInntekter.putAll(reduserteVerdierMellom6og12G)
 
     val snittVerdi = justerteInntekter.values.sumOf { it }.divide(BigDecimal(3), 2, RoundingMode.HALF_UP)
@@ -44,7 +46,7 @@ fun beregnGjennomsnittligInntekt(
 
     return Pair(
         snittVerdi.setScale(2, RoundingMode.HALF_UP),
-        fastsattSykepengegrunnlag.setScale(2, RoundingMode.HALF_UP)
+        fastsattSykepengegrunnlag.setScale(2, RoundingMode.HALF_UP),
     )
 }
 

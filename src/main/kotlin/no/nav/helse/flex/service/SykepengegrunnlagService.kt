@@ -1,5 +1,7 @@
 package no.nav.helse.flex.service
 
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.node.ObjectNode
 import no.nav.helse.flex.client.grunnbeloep.GrunnbeloepResponse
 import no.nav.helse.flex.client.inntektskomponenten.HentPensjonsgivendeInntektResponse
 import no.nav.helse.flex.client.inntektskomponenten.PensjongivendeInntektClient
@@ -18,7 +20,30 @@ data class SykepengegrunnlagNaeringsdrivende(
     val grunnbeloepPerAar: Map<String, BigInteger>,
     val grunnbeloepPaaSykmeldingstidspunkt: Int,
     val endring25Prosent: List<BigInteger>,
-)
+) {
+    @Override fun toJsonNode(): JsonNode {
+        val inntektNode: ObjectNode = objectMapper.createObjectNode()
+
+        gjennomsnittPerAar.forEach { (year, amount) ->
+            inntektNode.put("inntekt-$year", amount)
+        }
+        grunnbeloepPerAar.forEach { (year, amount) ->
+            inntektNode.put("g-$year", amount)
+        }
+
+        inntektNode.put("g-sykmelding", grunnbeloepPaaSykmeldingstidspunkt)
+        inntektNode.put("beregnet-snitt", gjennomsnittTotal)
+        inntektNode.put("fastsatt-sykepengegrunnlag", fastsattSykepengegrunnlag)
+
+        inntektNode.put("beregnet-p25", endring25Prosent.getOrNull(0))
+        inntektNode.put("beregnet-m25", endring25Prosent.getOrNull(1))
+
+        val rootNode: ObjectNode = objectMapper.createObjectNode()
+        rootNode.set<ObjectNode>("inntekt", inntektNode)
+
+        return rootNode
+    }
+}
 
 @Service
 class SykepengegrunnlagService(
@@ -81,7 +106,7 @@ class SykepengegrunnlagService(
     ) = grunnbeloepSisteFemAar.filter { grunnbeloepResponse ->
         grunnbeloepResponse.dato.tilAar() in beregnetInntektPerAar.keys.map { it.toInt() }
     }.associate { grunnbeloepResponse ->
-        grunnbeloepResponse.dato to grunnbeloepResponse.gjennomsnittPerÅr.toBigInteger()
+        grunnbeloepResponse.dato.tilAar().toString() to grunnbeloepResponse.gjennomsnittPerÅr.toBigInteger()
     }
 
     private fun finnBeregnetInntektPerAar(

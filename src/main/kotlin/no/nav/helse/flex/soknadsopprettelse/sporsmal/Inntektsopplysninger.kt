@@ -9,7 +9,6 @@ import no.nav.helse.flex.domain.Visningskriterie
 import no.nav.helse.flex.service.SykepengegrunnlagNaeringsdrivende
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.util.DatoUtil
-import no.nav.helse.flex.util.serialisertTilString
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -42,7 +41,7 @@ fun lagSporsmalOmInntektsopplyninger(
                                     DatoUtil.formatterDato(
                                         datoForVarigEndringEtter,
                                     )
-                                }? Dette er sykepengegrunnlaget: ${sykepengegrunnlagNaeringsdrivende?.serialisertTilString()}",
+                                }?",
                                 svartype = Svartype.RADIO_GRUPPE,
                                 undersporsmal =
                                     listOf(
@@ -118,6 +117,7 @@ fun lagSporsmalOmInntektsopplyninger(
                                                                     sporsmalstekst = "Har du hatt mer enn 25 prosent endring i årsinntekten din som følge av den varige endringen?",
                                                                     svartype = Svartype.JA_NEI,
                                                                     kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
+                                                                    metadata = sykepengegrunnlagNaeringsdrivende?.toJsonNode(),
                                                                     undersporsmal =
                                                                         listOf(
                                                                             Sporsmal(

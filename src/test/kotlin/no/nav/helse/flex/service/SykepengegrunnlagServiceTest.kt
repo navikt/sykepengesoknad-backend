@@ -2,6 +2,7 @@ package no.nav.helse.flex.service
 
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknad
+import no.nav.helse.flex.util.objectMapper
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should not be`
 import org.junit.jupiter.api.Test
@@ -56,5 +57,42 @@ class SykepengegrunnlagServiceTest : FellesTestOppsett() {
             it.grunnbeloepPerAar.size `should be equal to` 3
             it.gjennomsnittPerAar.size `should be equal to` 3
         }
+    }
+
+    @Test
+    fun `sjekker json for frontend`() {
+        val soknad =
+            opprettNyNaeringsdrivendeSoknad().copy(
+                fnr = "87654321234",
+                startSykeforlop = LocalDate.now(),
+                fom = LocalDate.now().minusDays(30),
+                tom = LocalDate.now().minusDays(1),
+                sykmeldingSkrevet = Instant.now(),
+                aktivertDato = LocalDate.now().minusDays(30),
+            )
+
+        val grunnlagVerdier = sykepengegrunnlagService.sykepengegrunnlagNaeringsdrivende(soknad)
+
+        grunnlagVerdier `should not be` null
+        grunnlagVerdier!!.toJsonNode().toString() `should be equal to`
+            objectMapper.readTree(
+                """
+                {
+                  "inntekt" : {
+                    "inntekt-2024" : 862538,
+                    "inntekt-2023" : 821596,
+                    "inntekt-2022" : 790821,
+                    "g-2022" : 109784,
+                    "g-2023" : 116239,
+                    "g-2024" : 122225,
+                    "g-sykmelding" : 124028,
+                    "beregnet-snitt" : 771107,
+                    "fastsatt-sykepengegrunnlag" : 744168,
+                    "beregnet-p25" : 558126,
+                    "beregnet-m25" : 930210
+                  }
+                }
+                """.trimIndent(),
+            ).toString()
     }
 }
