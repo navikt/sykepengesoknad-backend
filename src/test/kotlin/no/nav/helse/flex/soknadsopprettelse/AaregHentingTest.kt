@@ -7,6 +7,7 @@ import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
+import java.util.UUID
 
 class AaregHentingTest : FellesTestOppsett() {
     @Autowired
@@ -18,6 +19,7 @@ class AaregHentingTest : FellesTestOppsett() {
             fnr = "11111234565",
             arbeidsgiverOrgnummer = "999333666",
             startSykeforlop = LocalDate.now(),
+            sykepengesoknadId = UUID.randomUUID().toString(),
         ).`should be empty`()
     }
 
@@ -28,9 +30,10 @@ class AaregHentingTest : FellesTestOppsett() {
                 fnr = "22222220001",
                 arbeidsgiverOrgnummer = "112233445",
                 startSykeforlop = LocalDate.now().minusDays(50),
+                sykepengesoknadId = UUID.randomUUID().toString(),
             )
         nyeArbeidsforhold.shouldHaveSize(2)
-        nyeArbeidsforhold[0].navn `should be equal to` "Bensinstasjonen AS"
-        nyeArbeidsforhold[1].navn `should be equal to` "Kiosken, avd Oslo AS"
+        nyeArbeidsforhold[0].arbeidsstedNavn `should be equal to` "Bensinstasjonen AS"
+        nyeArbeidsforhold[1].arbeidsstedNavn `should be equal to` "Kiosken, avd Oslo AS"
     }
 }

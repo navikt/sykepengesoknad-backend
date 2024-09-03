@@ -8,13 +8,13 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 
-class AndreArbeidsforholdHentingTest : FellesTestOppsett() {
+class ArbeidsforholdFraInntektskomponentenHentingTest : FellesTestOppsett() {
     @Autowired
-    lateinit var andreArbeidsforholdHenting: AndreArbeidsforholdHenting
+    lateinit var arbeidsforholdFraInntektskomponentenHenting: ArbeidsforholdFraInntektskomponentenHenting
 
     @Test
     fun `finner det ene arbeidstaker forholdet vi allerede vet om`() {
-        andreArbeidsforholdHenting.hentArbeidsforhold(
+        arbeidsforholdFraInntektskomponentenHenting.hentArbeidsforhold(
             fnr = "11111234565",
             arbeidsgiverOrgnummer = "999333666",
             startSykeforlop = LocalDate.now(),
@@ -24,7 +24,7 @@ class AndreArbeidsforholdHentingTest : FellesTestOppsett() {
     @Test
     fun `finner et frilanser arbeidsforhold`() {
         val frilanserArbeidsforholdet =
-            andreArbeidsforholdHenting.hentArbeidsforhold(
+            arbeidsforholdFraInntektskomponentenHenting.hentArbeidsforhold(
                 fnr = "11111234565",
                 arbeidsgiverOrgnummer = "999333666",
                 startSykeforlop = LocalDate.now(),
@@ -35,7 +35,7 @@ class AndreArbeidsforholdHentingTest : FellesTestOppsett() {
 
     @Test
     fun `finner ett vi ikke vet om`() {
-        andreArbeidsforholdHenting.hentArbeidsforhold(
+        arbeidsforholdFraInntektskomponentenHenting.hentArbeidsforhold(
             fnr = "11111234565",
             arbeidsgiverOrgnummer = "999333667",
             startSykeforlop = LocalDate.now(),
@@ -44,7 +44,7 @@ class AndreArbeidsforholdHentingTest : FellesTestOppsett() {
 
     @Test
     fun `finner to vi ikke vet om`() {
-        andreArbeidsforholdHenting.hentArbeidsforhold(
+        arbeidsforholdFraInntektskomponentenHenting.hentArbeidsforhold(
             fnr = "22222222222",
             arbeidsgiverOrgnummer = "999333667",
             startSykeforlop = LocalDate.now(),
@@ -53,7 +53,7 @@ class AndreArbeidsforholdHentingTest : FellesTestOppsett() {
 
     @Test
     fun `utelater ikke frilansinntekt`() {
-        andreArbeidsforholdHenting.hentArbeidsforhold(
+        arbeidsforholdFraInntektskomponentenHenting.hentArbeidsforhold(
             fnr = "3333333333",
             arbeidsgiverOrgnummer = "99944736",
             startSykeforlop = LocalDate.now(),

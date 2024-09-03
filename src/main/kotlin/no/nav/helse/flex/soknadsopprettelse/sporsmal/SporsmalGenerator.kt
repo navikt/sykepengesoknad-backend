@@ -26,7 +26,7 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 class SporsmalGenerator(
     private val identService: IdentService,
-    private val andreArbeidsforholdHenting: AndreArbeidsforholdHenting,
+    private val arbeidsforholdFraInntektskomponentenHenting: ArbeidsforholdFraInntektskomponentenHenting,
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val yrkesskadeIndikatorer: YrkesskadeIndikatorer,
     private val medlemskapVurderingClient: MedlemskapVurderingClient,
@@ -91,6 +91,7 @@ class SporsmalGenerator(
                     fnr = soknad.fnr,
                     arbeidsgiverOrgnummer = soknad.arbeidsgiverOrgnummer!!,
                     startSykeforlop = soknad.startSykeforlop!!,
+                    sykepengesoknadId = soknad.id,
                 )
             }
             return null
@@ -119,7 +120,7 @@ class SporsmalGenerator(
         return when (soknad.arbeidssituasjon) {
             Arbeidssituasjon.ARBEIDSTAKER -> {
                 val andreKjenteArbeidsforhold =
-                    andreArbeidsforholdHenting.hentArbeidsforhold(
+                    arbeidsforholdFraInntektskomponentenHenting.hentArbeidsforhold(
                         fnr = soknad.fnr,
                         arbeidsgiverOrgnummer = soknad.arbeidsgiverOrgnummer!!,
                         startSykeforlop = soknad.startSykeforlop!!,

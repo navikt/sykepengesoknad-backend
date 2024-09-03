@@ -26,12 +26,16 @@ fun nyttArbeidsforholdSporsmal(
 
         return@mapNotNull Sporsmal(
             tag = "NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG",
-            sporsmalstekst = "Har du startet å jobbe hos ${arbeidsforhold.navn}?",
+            sporsmalstekst = "Har du startet å jobbe hos ${arbeidsforhold.arbeidsstedNavn}?",
             undertekst = null,
             svartype = Svartype.JA_NEI,
             min = null,
             max = null,
-            metadata = mapOf("orgnummer" to arbeidsforhold.orgnummer, "orgnavn" to arbeidsforhold.navn).toJsonNode(),
+            metadata =
+                mapOf(
+                    "arbeidsstedOrgnummer" to arbeidsforhold.arbeidsstedOrgnummer,
+                    "arbeidsstedNavn" to arbeidsforhold.arbeidsstedNavn,
+                ).toJsonNode(),
             kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
             undersporsmal =
                 listOf(
