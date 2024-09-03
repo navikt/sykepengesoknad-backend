@@ -6,10 +6,7 @@ import no.nav.helse.flex.client.inntektskomponenten.PensjongivendeInntektClient
 import no.nav.helse.flex.client.inntektskomponenten.PensjonsgivendeInntekt
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.logger
-import no.nav.helse.flex.util.beregnEndring25Prosent
-import no.nav.helse.flex.util.beregnGjennomsnittligInntekt
-import no.nav.helse.flex.util.serialisertTilString
-import no.nav.helse.flex.util.sykepengegrunnlagUtregner
+import no.nav.helse.flex.util.*
 import org.springframework.stereotype.Service
 import java.math.BigInteger
 import java.time.LocalDate
@@ -65,8 +62,8 @@ class SykepengegrunnlagService(
                 finnGrunnbeloepForTreRelevanteAar(grunnbeloepSisteFemAar, beregnetInntektPerAar)
 
             return SykepengegrunnlagNaeringsdrivende(
-                fastsattSykepengegrunnlag = fastsattSykepengegrunnlag,
-                gjennomsnittTotal = gjennomsnittligInntektAlleAar,
+                fastsattSykepengegrunnlag = fastsattSykepengegrunnlag.roundToBigInteger(),
+                gjennomsnittTotal = gjennomsnittligInntektAlleAar.roundToBigInteger(),
                 gjennomsnittPerAar = beregnetInntektPerAar,
                 grunnbeloepPerAar = grunnbeloepForRelevanteTreAar,
                 grunnbeloepPaaSykmeldingstidspunkt = grunnbeloepPaaSykmeldingstidspunkt,

@@ -52,7 +52,7 @@ class SykepengegrunnlagServiceTest : FellesTestOppsett() {
         grunnlagVerdier `should not be` null
         grunnlagVerdier!!.let {
             it.fastsattSykepengegrunnlag `should be equal to` 744168.toBigInteger()
-            it.gjennomsnittTotal `should be equal to` 771106.toBigInteger()
+            it.gjennomsnittTotal `should be equal to` 771107.toBigInteger()
             it.grunnbeloepPerAar.size `should be equal to` 3
             it.gjennomsnittPerAar.size `should be equal to` 3
         }
