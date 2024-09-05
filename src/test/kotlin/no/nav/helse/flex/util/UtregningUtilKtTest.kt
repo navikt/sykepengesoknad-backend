@@ -2,6 +2,7 @@ package no.nav.helse.flex.util
 
 import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.Test
+import kotlin.math.roundToInt
 
 class UtregningUtilKtTest {
     @Test
@@ -24,6 +25,33 @@ class UtregningUtilKtTest {
         beregnGjennomsnittligInntekt(
             beregnetInntektPerAar,
             grunnbeloepSykmldTidspunkt = 96883,
-        ) `should be equal to` Pair(589138.toBigInteger(), 581298.toBigInteger())
+        ).let {
+            it.first.toDouble().roundToInt().toBigInteger() `should be equal to` 589139.toBigInteger()
+            it.second.toDouble().roundToInt().toBigInteger() `should be equal to` 581298.toBigInteger()
+        }
+    }
+
+    @Test
+    fun beregnEndring25Prosent() {
+        // Heltall, ingen avrunding
+        val beregnetGrunnlag1 = 500000.0.toBigDecimal()
+        beregnEndring25Prosent(beregnetGrunnlag1).let {
+            it[0] `should be equal to` 375000.toBigInteger() // 500000 * 0.75 = 375000
+            it[1] `should be equal to` 625000.toBigInteger() // 500000 * 1.25 = 625000
+        }
+
+        // Avrunding opp og ned ved desimaler
+        val beregnetGrunnlag2 = 500001.0.toBigDecimal()
+        beregnEndring25Prosent(beregnetGrunnlag2).let {
+            it[0] `should be equal to` 375001.toBigInteger() // 500001 * 0.75 = 375000.75, rounded to 375001
+            it[1] `should be equal to` 625001.toBigInteger() // 500001 * 1.25 = 625001.25, rounded to 625001
+        }
+
+        // Avrunding opp ved 0.5
+        val beregnetGrunnlag3 = 500002.0.toBigDecimal()
+        beregnEndring25Prosent(beregnetGrunnlag3).let {
+            it[0] `should be equal to` 375002.toBigInteger() // 500002 * 0.75 = 375001,5, rounded to 375002
+            it[1] `should be equal to` 625003.toBigInteger() // 500002 * 1.25 = 625002.5, rounded to 625003
+        }
     }
 }
