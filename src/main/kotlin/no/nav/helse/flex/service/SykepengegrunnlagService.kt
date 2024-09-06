@@ -22,7 +22,8 @@ data class SykepengegrunnlagNaeringsdrivende(
     val grunnbeloepPaaSykmeldingstidspunkt: Int,
     val endring25Prosent: List<BigInteger>,
 ) {
-    @Override fun toJsonNode(): JsonNode {
+    @Override
+    fun toJsonNode(): JsonNode {
         val inntektNode: ObjectNode = objectMapper.createObjectNode()
 
         gjennomsnittPerAar.forEach { (year, amount) ->
@@ -76,10 +77,12 @@ class SykepengegrunnlagService(
             log.info("Pensjonsgivende inntekter siste 3 år for fnr ${soknad.fnr}: ${pensjonsgivendeInntekter.serialisertTilString()}")
 
             val beregnetInntektPerAar =
-                finnBeregnetInntektPerAar(pensjonsgivendeInntekter, grunnbeloepSisteFemAar, grunnbeloepPaaSykmeldingstidspunkt)
+                finnBeregnetInntektPerAar(
+                    pensjonsgivendeInntekter,
+                    grunnbeloepSisteFemAar,
+                    grunnbeloepPaaSykmeldingstidspunkt,
+                )
             log.info("Beregnet inntekt per år: ${beregnetInntektPerAar.serialisertTilString()}")
-
-            if (alleAarUnder1g(beregnetInntektPerAar, grunnbeloepPaaSykmeldingstidspunkt)) return null
 
             val (gjennomsnittligInntektAlleAar, fastsattSykepengegrunnlag) =
                 beregnGjennomsnittligInntekt(beregnetInntektPerAar, grunnbeloepPaaSykmeldingstidspunkt)
@@ -183,13 +186,6 @@ class SykepengegrunnlagService(
 
             aar to finnInntektForAaret(inntekt, grunnbeloepSykmldTidspunkt, grunnbeloepForAaret)
         }.toMap()
-    }
-
-    private fun alleAarUnder1g(
-        beregnetInntektPerAar: Map<String, BigInteger>,
-        grunnbeloepSykmldTidspunkt: Int,
-    ): Boolean {
-        return beregnetInntektPerAar.all { it.value < grunnbeloepSykmldTidspunkt.toBigInteger() }
     }
 
     private fun finnInntektForAaret(
