@@ -81,7 +81,6 @@ class SykepengegrunnlagServiceTest : FellesTestOppsett() {
             objectMapper.readTree(
                 """
                 {
-                  "inntekt" : {
                     "inntekt-2023" : 1067008,
                     "inntekt-2022" : 1129745,
                     "inntekt-2021" : 1184422,
@@ -94,7 +93,6 @@ class SykepengegrunnlagServiceTest : FellesTestOppsett() {
                     "beregnet-p25" : 558126,
                     "beregnet-m25" : 930210
                   }
-                }
                 """.trimIndent(),
             ).toString()
     }

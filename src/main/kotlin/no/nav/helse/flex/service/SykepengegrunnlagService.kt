@@ -40,10 +40,7 @@ data class SykepengegrunnlagNaeringsdrivende(
         inntektNode.put("beregnet-p25", endring25Prosent.getOrNull(0))
         inntektNode.put("beregnet-m25", endring25Prosent.getOrNull(1))
 
-        val rootNode: ObjectNode = objectMapper.createObjectNode()
-        rootNode.set<ObjectNode>("inntekt", inntektNode)
-
-        return rootNode
+        return inntektNode
     }
 }
 
