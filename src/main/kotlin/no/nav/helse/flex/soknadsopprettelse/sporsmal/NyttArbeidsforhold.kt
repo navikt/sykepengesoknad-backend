@@ -4,6 +4,7 @@ import no.nav.helse.flex.domain.*
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.util.DatoUtil
 import no.nav.helse.flex.util.toJsonNode
+import java.time.format.DateTimeFormatter
 
 fun nyttArbeidsforholdSporsmal(
     nyeArbeidsforhold: List<ArbeidsforholdFraAAreg>,
@@ -71,6 +72,7 @@ fun nyttArbeidsforholdSporsmal(
                         sporsmalstekst = "Når hadde du din første arbeidsdag?",
                         undertekst = null,
                         svartype = Svartype.DATO,
+                        max = denneSoknaden.tom.format(DateTimeFormatter.ISO_LOCAL_DATE),
                     ),
                     bruttoInntektSporsmal(periodeTekst),
                 ),
