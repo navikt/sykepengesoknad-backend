@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import no.nav.helse.flex.client.grunnbeloep.GrunnbeloepResponse
 import no.nav.helse.flex.client.inntektskomponenten.HentPensjonsgivendeInntektResponse
+import no.nav.helse.flex.client.inntektskomponenten.IngenPensjonsgivendeInntektFunnetException
 import no.nav.helse.flex.client.inntektskomponenten.PensjongivendeInntektClient
 import no.nav.helse.flex.client.inntektskomponenten.PensjonsgivendeInntekt
 import no.nav.helse.flex.domain.Sykepengesoknad
@@ -70,7 +71,7 @@ class SykepengegrunnlagService(
             log.info("Grunnbeløp på sykemeldingstidspunkt $sykmeldingstidspunkt $grunnbeloepPaaSykmeldingstidspunkt")
 
             val pensjonsgivendeInntekter =
-                pensjongivendeInntektClient.hentPensjonsgivendeInntektForTreSisteArene(soknad.fnr, sykmeldingstidspunkt)
+                hentPensjonsgivendeInntektForTreSisteArene(soknad.fnr, sykmeldingstidspunkt)
                     ?: throw Exception("Fant ikke 3 år med pensjonsgivende inntekter for ${soknad.fnr}")
             log.info("Pensjonsgivende inntekter siste 3 år for fnr ${soknad.fnr}: ${pensjonsgivendeInntekter.serialisertTilString()}")
 
@@ -97,6 +98,66 @@ class SykepengegrunnlagService(
         } catch (e: Exception) {
             log.error(e.message, e)
             return null
+        }
+    }
+
+    fun hentPensjonsgivendeInntektForTreSisteArene(
+        fnr: String,
+        sykmeldingstidspunkt: Int,
+    ): List<HentPensjonsgivendeInntektResponse>? {
+        val treFerdigliknetAr = mutableListOf<HentPensjonsgivendeInntektResponse>()
+        var arViHarSjekket = 0
+        var ingenInntektCounter = 0
+        var forsteArHarVerdi = false
+
+        for (yearOffset in 0..3) {
+            if (treFerdigliknetAr.size == 3) {
+                break
+            }
+
+            val arViHenterFor = sykmeldingstidspunkt - yearOffset - 1
+            val svar =
+                try {
+                    pensjongivendeInntektClient.hentPensjonsgivendeInntekt(fnr, arViHenterFor)
+                } catch (e: IngenPensjonsgivendeInntektFunnetException) {
+                    ingenInntektCounter++
+                    HentPensjonsgivendeInntektResponse(
+                        fnr,
+                        arViHenterFor.toString(),
+                        emptyList(),
+                    )
+                }
+
+            if (svar.pensjonsgivendeInntekt.isNotEmpty()) {
+                treFerdigliknetAr.add(svar)
+                if (arViHarSjekket == 0) {
+                    forsteArHarVerdi = true
+                }
+            } else if (arViHarSjekket == 0) {
+                ingenInntektCounter++
+            }
+
+            arViHarSjekket++
+
+            // Sjekk om vi skal avbryte
+            if (forsteArHarVerdi && ingenInntektCounter == 2 && treFerdigliknetAr.size == 1) {
+                break
+            }
+            if (treFerdigliknetAr.size == 2 && svar.pensjonsgivendeInntekt.isNotEmpty() && ingenInntektCounter == 1) {
+                continue // Fortsett å hente for det fjerde året
+            }
+        }
+
+        return if (treFerdigliknetAr.size == 3 ||
+            (
+                forsteArHarVerdi &&
+                    treFerdigliknetAr.size == 2 &&
+                    ingenInntektCounter == 1
+            )
+        ) {
+            treFerdigliknetAr
+        } else {
+            null
         }
     }
 

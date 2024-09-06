@@ -112,37 +112,4 @@ class PensjongivendeInntektClient(
             throw RuntimeException(message, e)
         }
     }
-
-    fun hentPensjonsgivendeInntektForTreSisteArene(
-        fnr: String,
-        sykmeldingstidspunkt: Int,
-    ): List<HentPensjonsgivendeInntektResponse>? {
-        val treFerdigliknetAr = mutableListOf<HentPensjonsgivendeInntektResponse>()
-        var arViHarSjekket = 0
-
-        for (yearOffset in 0..3) {
-            if (treFerdigliknetAr.size == 3) {
-                break
-            }
-
-            val arViHenterFor = sykmeldingstidspunkt - yearOffset
-            val svar =
-                try {
-                    hentPensjonsgivendeInntekt(fnr, arViHenterFor)
-                } catch (_: IngenPensjonsgivendeInntektFunnetException) {
-                    HentPensjonsgivendeInntektResponse(
-                        fnr,
-                        arViHenterFor.toString(),
-                        emptyList(),
-                    )
-                } catch (_: Exception) {
-                    break
-                }
-
-            treFerdigliknetAr.add(svar)
-            arViHarSjekket++
-        }
-
-        return if (treFerdigliknetAr.size == 3) treFerdigliknetAr else null
-    }
 }
