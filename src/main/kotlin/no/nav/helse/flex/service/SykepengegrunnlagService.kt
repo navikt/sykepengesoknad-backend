@@ -105,57 +105,50 @@ class SykepengegrunnlagService(
         fnr: String,
         sykmeldingstidspunkt: Int,
     ): List<HentPensjonsgivendeInntektResponse>? {
-        val treFerdigliknetAr = mutableListOf<HentPensjonsgivendeInntektResponse>()
-        var arViHarSjekket = 0
+        val ferdigliknetInntekter = mutableListOf<HentPensjonsgivendeInntektResponse>()
         var ingenInntektCounter = 0
-        var forsteArHarVerdi = false
+        var forsteArHarInntekt = false
 
         for (yearOffset in 0..3) {
-            if (treFerdigliknetAr.size == 3) {
-                break
-            }
+            if (ferdigliknetInntekter.size == 3) break
 
-            val arViHenterFor = sykmeldingstidspunkt - yearOffset - 1
+            val arViHenterFor =
+                if (sykmeldingstidspunkt == LocalDate.now().year) {
+                    sykmeldingstidspunkt - yearOffset - 1
+                } else {
+                    sykmeldingstidspunkt - yearOffset
+                }
+
             val svar =
                 try {
                     pensjongivendeInntektClient.hentPensjonsgivendeInntekt(fnr, arViHenterFor)
                 } catch (e: IngenPensjonsgivendeInntektFunnetException) {
                     ingenInntektCounter++
-                    HentPensjonsgivendeInntektResponse(
-                        fnr,
-                        arViHenterFor.toString(),
-                        emptyList(),
-                    )
+                    HentPensjonsgivendeInntektResponse(fnr, arViHenterFor.toString(), emptyList())
                 }
 
             if (svar.pensjonsgivendeInntekt.isNotEmpty()) {
-                treFerdigliknetAr.add(svar)
-                if (arViHarSjekket == 0) {
-                    forsteArHarVerdi = true
-                }
-            } else if (arViHarSjekket == 0) {
+                ferdigliknetInntekter.add(svar)
+                if (yearOffset == 0) forsteArHarInntekt = true
+            } else if (yearOffset == 0) {
                 ingenInntektCounter++
             }
 
-            arViHarSjekket++
-
-            // Sjekk om vi skal avbryte
-            if (forsteArHarVerdi && ingenInntektCounter == 2 && treFerdigliknetAr.size == 1) {
+            // Avbryt hvis første år har verdi og vi har 2 år uten inntekt
+            if (forsteArHarInntekt && ingenInntektCounter == 2 && ferdigliknetInntekter.size == 1) {
                 break
             }
-            if (treFerdigliknetAr.size == 2 && svar.pensjonsgivendeInntekt.isNotEmpty() && ingenInntektCounter == 1) {
-                continue // Fortsett å hente for det fjerde året
+
+            // Hvis vi har 2 år med inntekt og ett år uten inntekt, fortsett til det fjerde året
+            if (ferdigliknetInntekter.size == 2 && svar.pensjonsgivendeInntekt.isNotEmpty() && ingenInntektCounter == 1) {
+                continue
             }
         }
 
-        return if (treFerdigliknetAr.size == 3 ||
-            (
-                forsteArHarVerdi &&
-                    treFerdigliknetAr.size == 2 &&
-                    ingenInntektCounter == 1
-            )
+        return if (ferdigliknetInntekter.size == 3 ||
+            (forsteArHarInntekt && ferdigliknetInntekter.size == 2 && ingenInntektCounter == 1)
         ) {
-            treFerdigliknetAr
+            ferdigliknetInntekter
         } else {
             null
         }
