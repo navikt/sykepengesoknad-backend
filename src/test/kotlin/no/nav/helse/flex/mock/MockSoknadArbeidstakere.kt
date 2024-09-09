@@ -79,7 +79,7 @@ fun opprettNyArbeidstakerSoknad(): Sykepengesoknad {
                             yrkesskade = YrkesskadeSporsmalGrunnlag(),
                             eksisterendeSoknader = emptyList(),
                         ),
-                        andreKjenteArbeidsforhold = emptyList(),
+                        andreKjenteArbeidsforholdFraInntektskomponenten = emptyList(),
                     ),
             ),
         ).sorterSporsmal()
