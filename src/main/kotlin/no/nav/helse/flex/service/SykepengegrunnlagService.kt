@@ -37,6 +37,7 @@ data class SykepengegrunnlagNaeringsdrivende(
         inntektNode.put("beregnet-snitt", gjennomsnittTotal)
         inntektNode.put("fastsatt-sykepengegrunnlag", fastsattSykepengegrunnlag)
 
+        // p25 = pluss 25%, m25 = minus 25%
         inntektNode.put("beregnet-p25", endring25Prosent.getOrNull(0))
         inntektNode.put("beregnet-m25", endring25Prosent.getOrNull(1))
 

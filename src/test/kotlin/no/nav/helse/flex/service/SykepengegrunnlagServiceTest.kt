@@ -33,8 +33,8 @@ class SykepengegrunnlagServiceTest : FellesTestOppsett() {
             grunnlag.gjennomsnittPerAar.size `should be equal to` 3
             grunnlag.endring25Prosent.let {
                 it.size `should be equal to` 2
-                it[0] `should be equal to` 294385.toBigInteger()
-                it[1] `should be equal to` 490641.toBigInteger()
+                it[0] `should be equal to` 490641.toBigInteger()
+                it[1] `should be equal to` 294385.toBigInteger()
             }
         }
     }
@@ -90,8 +90,8 @@ class SykepengegrunnlagServiceTest : FellesTestOppsett() {
                     "g-sykmelding" : 124028,
                     "beregnet-snitt" : 871798,
                     "fastsatt-sykepengegrunnlag" : 744168,
-                    "beregnet-p25" : 558126,
-                    "beregnet-m25" : 930210
+                    "beregnet-p25" : 930210,
+                    "beregnet-m25" : 558126
                   }
                 """.trimIndent(),
             ).toString()

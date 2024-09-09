@@ -52,8 +52,8 @@ fun beregnGjennomsnittligInntekt(
 
 fun beregnEndring25Prosent(snittPGI: BigDecimal): List<BigInteger> {
     return listOf(
-        (snittPGI * BigDecimal("0.75")).roundToBigInteger(),
         (snittPGI * BigDecimal("1.25")).roundToBigInteger(),
+        (snittPGI * BigDecimal("0.75")).roundToBigInteger(),
     )
 }
 
