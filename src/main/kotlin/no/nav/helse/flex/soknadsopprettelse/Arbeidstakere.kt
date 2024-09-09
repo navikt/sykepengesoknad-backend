@@ -32,7 +32,7 @@ enum class SykepengesoknadSporsmalTag : MedlemskapSporsmalTag {
 
 fun settOppSoknadArbeidstaker(
     soknadOptions: SettOppSoknadOptions,
-    andreKjenteArbeidsforhold: List<ArbeidsforholdFraInntektskomponenten>,
+    andreKjenteArbeidsforholdFraInntektskomponenten: List<ArbeidsforholdFraInntektskomponenten>,
 ): List<Sporsmal> {
     val (sykepengesoknad, erForsteSoknadISykeforlop, harTidligereUtenlandskSpm, yrkesskade, medlemskapTags) = soknadOptions
     val erGradertReisetilskudd = sykepengesoknad.soknadstype == GRADERT_REISETILSKUDD
@@ -67,7 +67,7 @@ fun settOppSoknadArbeidstaker(
         add(
             andreInntektskilderArbeidstakerV2(
                 sykepengesoknad.arbeidsgiverNavn!!,
-                andreKjenteArbeidsforhold.map { it.navn },
+                andreKjenteArbeidsforholdFraInntektskomponenten.map { it.navn },
             ),
         )
         addAll(jobbetDuIPeriodenSporsmal(sykepengesoknad.soknadPerioder!!, sykepengesoknad.arbeidsgiverNavn))

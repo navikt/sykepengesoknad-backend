@@ -73,7 +73,7 @@ class ArbeidGjenopptattMuteringTest {
                                 yrkesskade = YrkesskadeSporsmalGrunnlag(),
                                 eksisterendeSoknader = emptyList(),
                             ),
-                        andreKjenteArbeidsforhold = emptyList(),
+                        andreKjenteArbeidsforholdFraInntektskomponenten = emptyList(),
                     ),
             )
 
@@ -223,7 +223,7 @@ class ArbeidGjenopptattMuteringTest {
                                 yrkesskade = YrkesskadeSporsmalGrunnlag(),
                                 eksisterendeSoknader = emptyList(),
                             ),
-                        andreKjenteArbeidsforhold = emptyList(),
+                        andreKjenteArbeidsforholdFraInntektskomponenten = emptyList(),
                     ),
             )
 

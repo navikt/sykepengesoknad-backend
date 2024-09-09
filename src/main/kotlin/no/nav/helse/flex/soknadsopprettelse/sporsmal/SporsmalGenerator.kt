@@ -142,7 +142,7 @@ class SporsmalGenerator(
                                         tom = soknad.tom!!,
                                     )?.hentKjentOppholdstillatelse(),
                             ),
-                        andreKjenteArbeidsforhold = andreKjenteArbeidsforhold,
+                        andreKjenteArbeidsforholdFraInntektskomponenten = andreKjenteArbeidsforhold,
                     )
 
                 SporsmalOgAndreKjenteArbeidsforhold(
