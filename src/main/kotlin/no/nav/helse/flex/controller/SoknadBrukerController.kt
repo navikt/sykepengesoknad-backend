@@ -224,8 +224,8 @@ class SoknadBrukerController(
         if (environmentToggles.isReadOnly()) {
             throw ReadOnlyException()
         }
-        log.info("Ber om utkast til korrigering av: $id")
         val (soknad, identer) = hentOgSjekkTilgangTilSoknad(id)
+        log.info("Ber om utkast til korrigering av: ${soknad.id}")
         val utkast = korrigerSoknadService.finnEllerOpprettUtkast(soknad, identer)
         return utkast.tilRSSykepengesoknad()
     }
