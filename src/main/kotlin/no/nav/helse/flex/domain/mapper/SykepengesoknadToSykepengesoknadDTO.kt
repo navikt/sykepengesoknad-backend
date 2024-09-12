@@ -4,10 +4,8 @@ import no.nav.helse.flex.domain.Mottaker
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.*
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.arbeidGjenopptattDato
-import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidsgiverDTO
-import no.nav.helse.flex.sykepengesoknad.kafka.FiskerBladDTO
-import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsperiodeDTO
-import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
+import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentInntektFraNyttArbeidsforhold
+import no.nav.helse.flex.sykepengesoknad.kafka.*
 import no.nav.helse.flex.util.EnumUtil
 import no.nav.helse.flex.util.tilOsloLocalDateTime
 
@@ -66,5 +64,6 @@ fun konverterTilSykepengesoknadDTO(
         forstegangssoknad = sykepengesoknad.forstegangssoknad ?: false,
         tidligereArbeidsgiverOrgnummer = sykepengesoknad.tidligereArbeidsgiverOrgnummer,
         fiskerBlad = EnumUtil.konverter(FiskerBladDTO::class.java, sykepengesoknad.fiskerBlad),
+        inntektFraNyttArbeidsforhold = sykepengesoknad.hentInntektFraNyttArbeidsforhold(),
     )
 }

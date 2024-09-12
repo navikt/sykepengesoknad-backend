@@ -32,14 +32,15 @@ fun nyttArbeidsforholdSporsmal(
                 .flatMap { it.sporsmal }
                 .filter { it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG }
                 .filter { it.metadata!!["arbeidsstedOrgnummer"].asText() == arbeidsforhold.arbeidsstedOrgnummer }
-                .any { it.forsteSvar == "JA" }
+                .firstOrNull { it.forsteSvar == "JA" }
 
         val metadata =
             mapOf(
                 "arbeidsstedOrgnummer" to arbeidsforhold.arbeidsstedOrgnummer,
                 "arbeidsstedNavn" to arbeidsforhold.arbeidsstedNavn,
-            ).toJsonNode()
-        if (harAlleredeStartet) {
+                "opplysningspliktigOrgnummer" to arbeidsforhold.opplysningspliktigOrgnummer,
+            )
+        if (harAlleredeStartet != null) {
             return@map Sporsmal(
                 tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_PAFOLGENDE,
                 sporsmalstekst = "Har du jobbet noe hos ${arbeidsforhold.arbeidsstedNavn} i perioden $periodeTekst?",
@@ -47,7 +48,14 @@ fun nyttArbeidsforholdSporsmal(
                 svartype = Svartype.JA_NEI,
                 min = null,
                 max = null,
-                metadata = metadata,
+                metadata =
+                    metadata.toMutableMap().also { metadata ->
+                        metadata["forsteArbeidsdag"] =
+                            harAlleredeStartet
+                                .undersporsmal
+                                .first { it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG_FORSTE_ARBEIDSDAG }
+                                .forsteSvar!!
+                    }.toJsonNode(),
                 kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
                 undersporsmal =
                     listOf(
@@ -63,7 +71,7 @@ fun nyttArbeidsforholdSporsmal(
             svartype = Svartype.JA_NEI,
             min = null,
             max = null,
-            metadata = metadata,
+            metadata = metadata.toJsonNode(),
             kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
             undersporsmal =
                 listOf(
