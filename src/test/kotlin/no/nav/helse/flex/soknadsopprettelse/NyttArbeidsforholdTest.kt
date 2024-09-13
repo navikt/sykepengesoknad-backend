@@ -10,9 +10,7 @@ import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
-import org.amshove.kluent.`should be empty`
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.shouldContain
+import org.amshove.kluent.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
@@ -55,7 +53,7 @@ class NyttArbeidsforholdTest : FellesTestOppsett() {
 
         val nyttArbeidsforholdSpm =
             soknaden.sporsmal!!.find {
-                it.tag == "NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG"
+                it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG
             }!!
         nyttArbeidsforholdSpm.sporsmalstekst `should be equal to` "Har du startet å jobbe hos Kiosken, avd Oslo AS?"
         nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedOrgnummer").textValue() `should be equal to` "999888777"
@@ -80,7 +78,7 @@ class NyttArbeidsforholdTest : FellesTestOppsett() {
                 .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG, svar = "JA", ferdigBesvart = false)
                 .besvarSporsmal(
                     tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG_FORSTE_ARBEIDSDAG,
-                    svar = LocalDate.now().minusDays(4).toString(),
+                    svar = basisdato.minusDays(4).toString(),
                     ferdigBesvart = false,
                 )
                 .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO, svar = "4000", ferdigBesvart = true)
@@ -90,9 +88,19 @@ class NyttArbeidsforholdTest : FellesTestOppsett() {
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
 
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
+        kafkaSoknader.shouldHaveSize(1)
 
-        assertThat(kafkaSoknader).hasSize(1)
-        assertThat(kafkaSoknader[0].status).isEqualTo(SoknadsstatusDTO.SENDT)
+        kafkaSoknader[0].status `should be equal to` SoknadsstatusDTO.SENDT
+        kafkaSoknader[0].inntektFraNyttArbeidsforhold!!.shouldHaveSize(1)
+
+        val inntektFraNyttArbeidsforhold = kafkaSoknader[0].inntektFraNyttArbeidsforhold!!.first()
+        inntektFraNyttArbeidsforhold.fom `should be equal to` basisdato.minusDays(4)
+        inntektFraNyttArbeidsforhold.tom `should be equal to` basisdato
+        inntektFraNyttArbeidsforhold.forstegangssporsmal.`should be true`()
+        inntektFraNyttArbeidsforhold.belopPerDag `should be equal to` 800
+        inntektFraNyttArbeidsforhold.arbeidsstedOrgnummer `should be equal to` "999888777"
+        inntektFraNyttArbeidsforhold.opplysningspliktigOrgnummer `should be equal to` "11224455441"
+        inntektFraNyttArbeidsforhold.forsteArbeidsdag `should be equal to` basisdato.minusDays(4)
 
         juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
     }
@@ -157,6 +165,16 @@ class NyttArbeidsforholdTest : FellesTestOppsett() {
 
         assertThat(kafkaSoknader).hasSize(1)
         assertThat(kafkaSoknader[0].status).isEqualTo(SoknadsstatusDTO.SENDT)
+        kafkaSoknader[0].inntektFraNyttArbeidsforhold!!.shouldHaveSize(1)
+
+        val inntektFraNyttArbeidsforhold = kafkaSoknader[0].inntektFraNyttArbeidsforhold!!.first()
+        inntektFraNyttArbeidsforhold.fom `should be equal to` basisdato.plusDays(1)
+        inntektFraNyttArbeidsforhold.tom `should be equal to` basisdato.plusDays(21)
+        inntektFraNyttArbeidsforhold.forstegangssporsmal.`should be false`()
+        inntektFraNyttArbeidsforhold.belopPerDag `should be equal to` 190
+        inntektFraNyttArbeidsforhold.arbeidsstedOrgnummer `should be equal to` "999888777"
+        inntektFraNyttArbeidsforhold.opplysningspliktigOrgnummer `should be equal to` "11224455441"
+        inntektFraNyttArbeidsforhold.forsteArbeidsdag `should be equal to` basisdato.minusDays(4)
 
         juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
     }
