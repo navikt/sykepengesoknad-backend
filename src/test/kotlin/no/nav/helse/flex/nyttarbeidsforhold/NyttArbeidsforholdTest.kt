@@ -70,12 +70,7 @@ class NyttArbeidsforholdTest : FellesTestOppsett() {
 
         val sendtSoknad =
             SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
-                .besvarSporsmal(tag = ANSVARSERKLARING, svar = "CHECKED")
-                .besvarSporsmal(tag = TILBAKE_I_ARBEID, svar = "NEI")
-                .besvarSporsmal(tag = FERIE_V2, svar = "NEI")
-                .besvarSporsmal(tag = PERMISJON_V2, svar = "NEI")
-                .besvarSporsmal(tag = OPPHOLD_UTENFOR_EOS, svar = "NEI")
-                .besvarSporsmal(tag = medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0), svar = "NEI")
+                .standardSvar()
                 .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG, svar = "JA", ferdigBesvart = false)
                 .besvarSporsmal(
                     tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG_FORSTE_ARBEIDSDAG,
@@ -83,8 +78,6 @@ class NyttArbeidsforholdTest : FellesTestOppsett() {
                     ferdigBesvart = false,
                 )
                 .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO, svar = "4000", ferdigBesvart = true)
-                .besvarSporsmal(tag = ANDRE_INNTEKTSKILDER_V2, svar = "NEI")
-                .oppsummering()
                 .sendSoknad()
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
 
@@ -149,16 +142,10 @@ class NyttArbeidsforholdTest : FellesTestOppsett() {
 
         val sendtSoknad =
             SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
-                .besvarSporsmal(tag = ANSVARSERKLARING, svar = "CHECKED")
-                .besvarSporsmal(tag = TILBAKE_I_ARBEID, svar = "NEI")
-                .besvarSporsmal(tag = FERIE_V2, svar = "NEI")
-                .besvarSporsmal(tag = PERMISJON_V2, svar = "NEI")
-                .besvarSporsmal(tag = OPPHOLD_UTENFOR_EOS, svar = "NEI")
+                .standardSvar()
                 .besvarSporsmal(tag = medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0), svar = "NEI")
                 .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_PAFOLGENDE, svar = "JA", ferdigBesvart = false)
                 .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO, svar = "4000", ferdigBesvart = true)
-                .besvarSporsmal(tag = ANDRE_INNTEKTSKILDER_V2, svar = "NEI")
-                .oppsummering()
                 .sendSoknad()
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
 

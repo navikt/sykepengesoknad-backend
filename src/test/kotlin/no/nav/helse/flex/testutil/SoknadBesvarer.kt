@@ -7,7 +7,8 @@ import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknad
 import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.oppdaterSporsmal
 import no.nav.helse.flex.sendSoknadMedResult
-import no.nav.helse.flex.soknadsopprettelse.TIL_SLUTT
+import no.nav.helse.flex.soknadsopprettelse.*
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.medIndex
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
 fun RSSporsmal.byttSvar(
@@ -55,11 +56,32 @@ class SoknadBesvarer(
     val fnr: String,
     val muterteSoknaden: Boolean = false,
 ) {
+    fun standardSvar(): SoknadBesvarer {
+        return besvarSporsmal(tag = ANSVARSERKLARING, svar = "CHECKED", aksepterManglendeSporsmal = true)
+            .besvarSporsmal(tag = TILBAKE_I_ARBEID, svar = "NEI", aksepterManglendeSporsmal = true)
+            .besvarSporsmal(tag = FERIE_V2, svar = "NEI", aksepterManglendeSporsmal = true)
+            .besvarSporsmal(tag = PERMISJON_V2, svar = "NEI", aksepterManglendeSporsmal = true)
+            .besvarSporsmal(tag = OPPHOLD_UTENFOR_EOS, svar = "NEI", aksepterManglendeSporsmal = true)
+            .besvarSporsmal(
+                tag = medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0),
+                svar = "NEI",
+                aksepterManglendeSporsmal = true,
+            )
+            .besvarSporsmal(
+                tag = medIndex(ARBEID_UNDERVEIS_100_PROSENT, 1),
+                svar = "NEI",
+                aksepterManglendeSporsmal = true,
+            )
+            .besvarSporsmal(tag = ANDRE_INNTEKTSKILDER_V2, svar = "NEI", aksepterManglendeSporsmal = true)
+            .oppsummering()
+    }
+
     fun besvarSporsmal(
         tag: String,
         svar: String?,
         ferdigBesvart: Boolean = true,
         mutert: Boolean = false,
+        aksepterManglendeSporsmal: Boolean = false,
     ): SoknadBesvarer {
         val svarListe =
             if (svar == null) {
@@ -67,7 +89,7 @@ class SoknadBesvarer(
             } else {
                 listOf(svar)
             }
-        return besvarSporsmal(tag, svarListe, ferdigBesvart, mutert)
+        return besvarSporsmal(tag, svarListe, ferdigBesvart, mutert, aksepterManglendeSporsmal)
     }
 
     fun besvarSporsmal(
@@ -75,10 +97,15 @@ class SoknadBesvarer(
         svarListe: List<String>,
         ferdigBesvart: Boolean = true,
         mutert: Boolean = false,
+        aksepterManglendeSporsmal: Boolean = false,
     ): SoknadBesvarer {
         val sporsmal =
             rSSykepengesoknad.alleSporsmalOgUndersporsmal().find { it.tag == tag }
-                ?: throw RuntimeException("Spørsmål ikke funnet $tag - sporsmal: ${rSSykepengesoknad.sporsmal}")
+                ?: if (aksepterManglendeSporsmal) {
+                    return this
+                } else {
+                    throw RuntimeException("Spørsmål ikke funnet $tag - sporsmal: ${rSSykepengesoknad.sporsmal}")
+                }
         val rsSvar = svarListe.map { RSSvar(verdi = it) }
         val oppdatertSoknad = rSSykepengesoknad.byttSvar(sporsmal.tag, rsSvar)
         rSSykepengesoknad = oppdatertSoknad
