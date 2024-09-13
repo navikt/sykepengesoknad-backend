@@ -1,50 +1,16 @@
 package no.nav.helse.flex.nyttarbeidsforhold
 
 import no.nav.helse.flex.*
-import no.nav.helse.flex.aktivering.SoknadAktivering
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
-import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.soknadsopprettelse.*
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.medIndex
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
-import no.nav.helse.flex.testdata.heltSykmeldt
-import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
-import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
 import org.amshove.kluent.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
-import org.springframework.beans.factory.annotation.Autowired
-import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class NyttArbeidsforholdNeiFørsteTest : FellesTestOppsett() {
-    private val fnr = "22222220001"
-    private final val basisdato = LocalDate.now().minusDays(1)
-
-    @BeforeAll
-    fun konfigurerUnleash() {
-        fakeUnleash.resetAll()
-        fakeUnleash.enable("sykepengesoknad-backend-tilkommen-inntekt")
-    }
-
-    @Test
-    @Order(1)
-    fun `Arbeidstakersøknader opprettes for en lang sykmelding`() {
-        sendSykmelding(
-            sykmeldingKafkaMessage(
-                fnr = fnr,
-                sykmeldingsperioder =
-                heltSykmeldt(
-                    fom = basisdato.minusDays(20),
-                    tom = basisdato,
-                ),
-                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = "123454543", orgNavn = "MATBUTIKKEN AS"),
-            ),
-        )
-    }
-
-
+class NyttArbeidsforholdNeiFørsteTest : NyttArbeidsforholdFellesOppsett() {
     @Test
     @Order(3)
     fun `Vi besvarer og sender inn søknaden med nei`() {
@@ -66,5 +32,4 @@ class NyttArbeidsforholdNeiFørsteTest : FellesTestOppsett() {
 
         juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
     }
-
 }
