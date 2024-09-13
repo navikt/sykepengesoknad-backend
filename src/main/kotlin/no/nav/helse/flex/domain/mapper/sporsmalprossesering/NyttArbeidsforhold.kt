@@ -1,6 +1,5 @@
 package no.nav.helse.flex.domain.mapper.sporsmalprossesering
 
-import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.soknadsopprettelse.NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO
@@ -11,8 +10,7 @@ import no.nav.helse.flex.sykepengesoknad.kafka.InntektFraNyttArbeidsforholdDTO
 import no.nav.helse.flex.util.max
 import java.time.LocalDate
 
-fun Sykepengesoknad.hentInntektFraNyttArbeidsforhold(): List<InntektFraNyttArbeidsforholdDTO>? {
-    if (status != Soknadstatus.SENDT) return null
+fun Sykepengesoknad.hentInntektFraNyttArbeidsforhold(): List<InntektFraNyttArbeidsforholdDTO> {
     val soknad = this
 
     fun Sporsmal.hentInntektFraNyttArbeidsforhold(): InntektFraNyttArbeidsforholdDTO? {
@@ -30,6 +28,8 @@ fun Sykepengesoknad.hentInntektFraNyttArbeidsforhold(): List<InntektFraNyttArbei
         }
 
         if (tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG) {
+            if (forsteSvar != "JA") return null
+
             val forsteArbeidsdag =
                 this.undersporsmal.firstOrNull {
                     it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG_FORSTE_ARBEIDSDAG
@@ -47,6 +47,8 @@ fun Sykepengesoknad.hentInntektFraNyttArbeidsforhold(): List<InntektFraNyttArbei
             )
         }
         if (tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS_PAFOLGENDE) {
+            if (forsteSvar != "JA") return null
+
             return InntektFraNyttArbeidsforholdDTO(
                 forstegangssporsmal = false,
                 fom = soknad.fom!!,
