@@ -18,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class NyttArbeidsforholdTest : FellesTestOppsett() {
+class NyttArbeidsforholdNeiPåfølgendeTest : FellesTestOppsett() {
     private val fnr = "22222220001"
     private final val basisdato = LocalDate.now().minusDays(1)
 
@@ -38,32 +38,19 @@ class NyttArbeidsforholdTest : FellesTestOppsett() {
             sykmeldingKafkaMessage(
                 fnr = fnr,
                 sykmeldingsperioder =
-                    heltSykmeldt(
-                        fom = basisdato.minusDays(20),
-                        tom = basisdato,
-                    ),
+                heltSykmeldt(
+                    fom = basisdato.minusDays(20),
+                    tom = basisdato,
+                ),
                 arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = "123454543", orgNavn = "MATBUTIKKEN AS"),
             ),
         )
     }
 
-    @Test
-    @Order(2)
-    fun `Har forventa nytt arbeidsforhold førstegangsspørsmål`() {
-        val soknaden = hentSoknader(fnr = fnr).first()
-
-        val nyttArbeidsforholdSpm =
-            soknaden.sporsmal!!.find {
-                it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG
-            }!!
-        nyttArbeidsforholdSpm.sporsmalstekst `should be equal to` "Har du startet å jobbe hos Kiosken, avd Oslo AS?"
-        nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedOrgnummer").textValue() `should be equal to` "999888777"
-        nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedNavn").textValue() `should be equal to` "Kiosken, avd Oslo AS"
-    }
 
     @Test
     @Order(3)
-    fun `Vi besvarer og sender inn søknaden`() {
+    fun `Vi besvarer og sender inn søknade med ja på første`() {
         flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
         val soknaden = hentSoknader(fnr = fnr).first()
@@ -107,10 +94,10 @@ class NyttArbeidsforholdTest : FellesTestOppsett() {
                 sykmeldingKafkaMessage(
                     fnr = fnr,
                     sykmeldingsperioder =
-                        heltSykmeldt(
-                            fom = basisdato.plusDays(1),
-                            tom = basisdato.plusDays(21),
-                        ),
+                    heltSykmeldt(
+                        fom = basisdato.plusDays(1),
+                        tom = basisdato.plusDays(21),
+                    ),
                     arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = "123454543", orgNavn = "MATBUTIKKEN AS"),
                 ),
                 oppfolgingsdato = basisdato.minusDays(20),
@@ -135,7 +122,7 @@ class NyttArbeidsforholdTest : FellesTestOppsett() {
 
     @Test
     @Order(6)
-    fun `Vi besvarer og sender inn den andre søknaden`() {
+    fun `Vi besvarer og sender inn den andre søknaden med nei på påfølgende`() {
         flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
         val soknaden = hentSoknader(fnr = fnr).first { it.status == RSSoknadstatus.NY }
@@ -143,89 +130,15 @@ class NyttArbeidsforholdTest : FellesTestOppsett() {
         val sendtSoknad =
             SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
                 .standardSvar()
-                .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_PAFOLGENDE, svar = "JA", ferdigBesvart = false)
-                .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO, svar = "4000", ferdigBesvart = true)
+                .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_PAFOLGENDE, svar = "NEI")
                 .sendSoknad()
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
 
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
 
-        assertThat(kafkaSoknader).hasSize(1)
-        assertThat(kafkaSoknader[0].status).isEqualTo(SoknadsstatusDTO.SENDT)
-        kafkaSoknader[0].inntektFraNyttArbeidsforhold!!.shouldHaveSize(1)
-
-        val inntektFraNyttArbeidsforhold = kafkaSoknader[0].inntektFraNyttArbeidsforhold!!.first()
-        inntektFraNyttArbeidsforhold.fom `should be equal to` basisdato.plusDays(1)
-        inntektFraNyttArbeidsforhold.tom `should be equal to` basisdato.plusDays(21)
-        inntektFraNyttArbeidsforhold.forstegangssporsmal.`should be false`()
-        inntektFraNyttArbeidsforhold.belopPerDag `should be equal to` 190
-        inntektFraNyttArbeidsforhold.arbeidsstedOrgnummer `should be equal to` "999888777"
-        inntektFraNyttArbeidsforhold.opplysningspliktigOrgnummer `should be equal to` "11224455441"
-        inntektFraNyttArbeidsforhold.forsteArbeidsdag `should be equal to` basisdato.minusDays(4)
+         kafkaSoknader[0].inntektFraNyttArbeidsforhold!!.shouldBeEmpty()
 
         juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
     }
 
-    @Test
-    @Order(90)
-    fun `Vi lager ikke tilkommen inntekt spm ved sykmelding fra flere arbeidsgivere`() {
-        databaseReset.resetDatabase()
-        sendSykmelding(
-            sykmeldingKafkaMessage(
-                fnr = fnr,
-                sykmeldingsperioder =
-                    heltSykmeldt(
-                        fom = basisdato.minusDays(20),
-                        tom = basisdato,
-                    ),
-                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = "999888777", orgNavn = "Kiosken, avd Oslo AS"),
-            ),
-        )
-        sendSykmelding(
-            sykmeldingKafkaMessage(
-                fnr = fnr,
-                sykmeldingsperioder =
-                    heltSykmeldt(
-                        fom = basisdato.minusDays(20),
-                        tom = basisdato,
-                    ),
-                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = "123454543", orgNavn = "MATBUTIKKEN AS"),
-            ),
-        )
-
-        hentSoknader(fnr = fnr).flatMap { it.sporsmal!! }.filter { it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG }
-            .`should be empty`()
-    }
-
-    @Test
-    @Order(91)
-    fun `Vi lager ikke tilkommen inntekt spm ved sykmelding fra andre arbeidssituasjoner`() {
-        databaseReset.resetDatabase()
-        sendSykmelding(
-            sykmeldingKafkaMessage(
-                fnr = fnr,
-                sykmeldingsperioder =
-                    heltSykmeldt(
-                        fom = basisdato.minusDays(20),
-                        tom = basisdato,
-                    ),
-                arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
-                arbeidsgiver = null,
-            ),
-        )
-        sendSykmelding(
-            sykmeldingKafkaMessage(
-                fnr = fnr,
-                sykmeldingsperioder =
-                    heltSykmeldt(
-                        fom = basisdato.minusDays(20),
-                        tom = basisdato,
-                    ),
-                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = "123454543", orgNavn = "MATBUTIKKEN AS"),
-            ),
-        )
-
-        hentSoknader(fnr = fnr).flatMap { it.sporsmal!! }.filter { it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG }
-            .`should be empty`()
-    }
 }
