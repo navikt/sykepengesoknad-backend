@@ -43,7 +43,7 @@ fun jobbetDuUndersporsmal(
                             listOf(
                                 Sporsmal(
                                     sporsmalstekst = "Oppgi totalt antall timer du jobbet i perioden $periodeTekst$arbeidsgiver",
-                                    undertekst = "Oppgi i timer. Eksempel: 12",
+                                    undertekst = "Eksempel: 8,5",
                                     tag = HVOR_MYE_TIMER_VERDI + index,
                                     svartype = Svartype.TIMER,
                                     min = "1",
@@ -83,6 +83,7 @@ fun jobbetDuUndersporsmal(
                 listOf(
                     Sporsmal(
                         sporsmalstekst = "Oppgi timer per uke",
+                        undertekst = "Eksempel: 8,5",
                         tag = HVOR_MANGE_TIMER_PER_UKE + index,
                         svartype = Svartype.TIMER,
                         min = "1",
