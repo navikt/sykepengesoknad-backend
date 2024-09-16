@@ -102,12 +102,8 @@ class SykepengegrunnlagService(
         sykmeldingstidspunkt: Int,
     ): List<HentPensjonsgivendeInntektResponse>? {
         val ferdigliknetInntekter = mutableListOf<HentPensjonsgivendeInntektResponse>()
-        var ingenInntektCounter = 0
-        var forsteArHarInntekt = false
 
-        for (yearOffset in 0..3) {
-            if (ferdigliknetInntekter.size == 3) break
-
+        for (yearOffset in 0 until 3) {
             val arViHenterFor =
                 if (sykmeldingstidspunkt == LocalDate.now().year) {
                     sykmeldingstidspunkt - yearOffset - 1
@@ -119,31 +115,17 @@ class SykepengegrunnlagService(
                 try {
                     pensjongivendeInntektClient.hentPensjonsgivendeInntekt(fnr, arViHenterFor)
                 } catch (e: IngenPensjonsgivendeInntektFunnetException) {
-                    ingenInntektCounter++
-                    HentPensjonsgivendeInntektResponse(fnr, arViHenterFor.toString(), emptyList())
+                    return null
                 }
 
             if (svar.pensjonsgivendeInntekt.isNotEmpty()) {
                 ferdigliknetInntekter.add(svar)
-                if (yearOffset == 0) forsteArHarInntekt = true
-            } else if (yearOffset == 0) {
-                ingenInntektCounter++
-            }
-
-            // Avbryt hvis første år har verdi og vi har 2 år uten inntekt
-            if (forsteArHarInntekt && ingenInntektCounter == 2 && ferdigliknetInntekter.size == 1) {
-                break
-            }
-
-            // Hvis vi har 2 år med inntekt og ett år uten inntekt, fortsett til det fjerde året
-            if (ferdigliknetInntekter.size == 2 && svar.pensjonsgivendeInntekt.isNotEmpty() && ingenInntektCounter == 1) {
-                continue
+            } else {
+                return null
             }
         }
 
-        return if (ferdigliknetInntekter.size == 3 ||
-            (forsteArHarInntekt && ferdigliknetInntekter.size == 2 && ingenInntektCounter == 1)
-        ) {
+        return if (ferdigliknetInntekter.size == 3) {
             ferdigliknetInntekter
         } else {
             null
