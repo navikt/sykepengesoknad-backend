@@ -16,10 +16,16 @@ fun Sykepengesoknad.hentInntektFraNyttArbeidsforhold(): List<InntektFraNyttArbei
     val soknad = this
 
     fun Sporsmal.hentInntektFraNyttArbeidsforhold(): InntektFraNyttArbeidsforholdDTO? {
+        data class Belop(
+            val virkedager: Int,
+            val belopPerDag: Int,
+            val belop: Int,
+        )
+
         fun belopPerDag(
             fom: LocalDate,
             tom: LocalDate,
-        ): Int {
+        ): Belop {
             val ferieOgPermisjonsdager =
                 samleFravaerListe(soknad)
                     .filter { it.type == FravarstypeDTO.FERIE || it.type == FravarstypeDTO.PERMISJON }
@@ -37,10 +43,11 @@ fun Sykepengesoknad.hentInntektFraNyttArbeidsforhold(): List<InntektFraNyttArbei
                     .filter { it.erUkedag() }
                     .filter { it !in ferieOgPermisjonsdager }
 
-            if (dager.isEmpty()) return 0
+            if (dager.isEmpty()) return Belop(0, 0, belop.toInt())
 
             // Rund ned til nærmeste hele krone
-            return (belop / dager.size).toInt()
+            val belopPerDag = (belop / dager.size).toInt()
+            return Belop(dager.size, belopPerDag, belop.toInt())
         }
 
         if (tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG) {
@@ -52,12 +59,15 @@ fun Sykepengesoknad.hentInntektFraNyttArbeidsforhold(): List<InntektFraNyttArbei
                 }?.forsteSvar?.tilLocalDate()!!
             val fom = max(soknad.fom!!, forsteArbeidsdag)
             val tom = soknad.tom!!
+            val belopPerDag = belopPerDag(fom, tom)
             return InntektFraNyttArbeidsforholdDTO(
                 forstegangssporsmal = true,
                 fom = fom,
                 tom = tom,
                 forsteArbeidsdag = forsteArbeidsdag,
-                belopPerDag = belopPerDag(fom, tom),
+                belopPerDag = belopPerDag.belopPerDag,
+                belop = belopPerDag.belop,
+                virkedager = belopPerDag.virkedager,
                 arbeidsstedOrgnummer = metadata?.get("arbeidsstedOrgnummer")?.asText()!!,
                 opplysningspliktigOrgnummer = metadata.get("opplysningspliktigOrgnummer")?.asText()!!,
             )
@@ -65,12 +75,15 @@ fun Sykepengesoknad.hentInntektFraNyttArbeidsforhold(): List<InntektFraNyttArbei
         if (tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS_PAFOLGENDE) {
             if (forsteSvar != "JA") return null
 
+            val belopPerDag = belopPerDag(soknad.fom!!, soknad.tom!!)
             return InntektFraNyttArbeidsforholdDTO(
                 forstegangssporsmal = false,
                 fom = soknad.fom!!,
                 tom = soknad.tom!!,
                 forsteArbeidsdag = this.metadata?.get("forsteArbeidsdag")?.asText()?.tilLocalDate()!!,
-                belopPerDag = belopPerDag(soknad.fom, soknad.tom),
+                belopPerDag = belopPerDag.belopPerDag,
+                belop = belopPerDag.belop,
+                virkedager = belopPerDag.virkedager,
                 arbeidsstedOrgnummer = metadata.get("arbeidsstedOrgnummer")?.asText()!!,
                 opplysningspliktigOrgnummer = metadata.get("opplysningspliktigOrgnummer")?.asText()!!,
             )
