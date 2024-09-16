@@ -6,7 +6,9 @@ import no.nav.helse.flex.soknadsopprettelse.NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO
 import no.nav.helse.flex.soknadsopprettelse.NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG
 import no.nav.helse.flex.soknadsopprettelse.NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG_FORSTE_ARBEIDSDAG
 import no.nav.helse.flex.soknadsopprettelse.NYTT_ARBEIDSFORHOLD_UNDERVEIS_PAFOLGENDE
+import no.nav.helse.flex.sykepengesoknad.kafka.FravarstypeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.InntektFraNyttArbeidsforholdDTO
+import no.nav.helse.flex.util.erUkedag
 import no.nav.helse.flex.util.max
 import java.time.LocalDate
 
@@ -18,14 +20,27 @@ fun Sykepengesoknad.hentInntektFraNyttArbeidsforhold(): List<InntektFraNyttArbei
             fom: LocalDate,
             tom: LocalDate,
         ): Int {
-            val antallDager = tom.toEpochDay() - fom.toEpochDay() + 1
+            val ferieOgPermisjonsdager =
+                samleFravaerListe(soknad)
+                    .filter { it.type == FravarstypeDTO.FERIE || it.type == FravarstypeDTO.PERMISJON }
+                    .filter { it.fom != null && it.tom != null }
+                    .map { it.fom!!.datesUntil(it.tom!!.plusDays(1)).toList() }
+                    .flatten()
+                    .toSet()
+
             val belop =
                 undersporsmal.firstOrNull { it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO }?.forsteSvar?.toDouble()!! / 100
 
-            // TODO hensynta helg og ferie
+            // Lag liste av alle dager i perioden
+            val dager =
+                fom.datesUntil(tom.plusDays(1)).toList()
+                    .filter { it.erUkedag() }
+                    .filter { it !in ferieOgPermisjonsdager }
+
+            if (dager.isEmpty()) return 0
 
             // Rund ned til nærmeste hele krone
-            return (belop / antallDager).toInt()
+            return (belop / dager.size).toInt()
         }
 
         if (tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG) {
