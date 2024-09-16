@@ -44,7 +44,7 @@ class NyttArbeidsforholdNeiPafølgendeTest : NyttArbeidsforholdFellesOppsett() {
         inntektFraNyttArbeidsforhold.fom `should be equal to` basisdato.minusDays(4)
         inntektFraNyttArbeidsforhold.tom `should be equal to` basisdato
         inntektFraNyttArbeidsforhold.forstegangssporsmal.`should be true`()
-        inntektFraNyttArbeidsforhold.belopPerDag `should be equal to` 800
+        inntektFraNyttArbeidsforhold.belopPerDag `should be equal to` 1333
         inntektFraNyttArbeidsforhold.arbeidsstedOrgnummer `should be equal to` "999888777"
         inntektFraNyttArbeidsforhold.opplysningspliktigOrgnummer `should be equal to` "11224455441"
         inntektFraNyttArbeidsforhold.forsteArbeidsdag `should be equal to` basisdato.minusDays(4)

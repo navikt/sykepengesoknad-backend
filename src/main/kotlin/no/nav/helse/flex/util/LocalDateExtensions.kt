@@ -16,6 +16,10 @@ fun LocalDate.erHelg(): Boolean {
     return this.dayOfWeek == SUNDAY || this.dayOfWeek == SATURDAY
 }
 
+fun LocalDate.erUkedag(): Boolean {
+    return !erHelg()
+}
+
 fun LocalDate.datoMånedÅrFormat(): String? {
     return this.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
 }
