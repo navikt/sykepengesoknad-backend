@@ -5,5 +5,9 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 fun Sykepengesoknad.erUtenforArbeidsgiverPeriode(andreSoknader: List<Sykepengesoknad>): Boolean {
     val sykmeldtFraArbeidsgiverOrgnr = this.arbeidsgiverOrgnummer
 
-    return true
+    val arbeidsgiverperiodeFom = this.fom!!
+    val arbeidsgiverperiodeTom = this.tom!!
+
+    val avstandFomTilTom = arbeidsgiverperiodeFom.until(arbeidsgiverperiodeTom).days + 1
+    return avstandFomTilTom > 16
 }
