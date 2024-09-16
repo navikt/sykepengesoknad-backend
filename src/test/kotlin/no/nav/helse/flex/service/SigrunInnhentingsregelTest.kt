@@ -166,7 +166,7 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
     } // personMedInntekt1Av3Aar
 
     @Test
-    fun `skal hente et fjerde år når første og tredje år har inntekt, men ikke andre`() {
+    fun `skal ikke hente et fjerde år når 1 av 3 år ikke returnerer inntekt`() {
         val soknad =
             opprettNyNaeringsdrivendeSoknad().copy(
                 fnr = "56909901141",
@@ -178,52 +178,7 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
             )
         val result = sykepengegrunnlagService.hentPensjonsgivendeInntektForTreSisteArene(soknad.fnr, soknad.startSykeforlop!!.year)
 
-        result!!.size `should be equal to` 3
-        result `should be equal to`
-            listOf(
-                HentPensjonsgivendeInntektResponse(
-                    "56909901141",
-                    "2023",
-                    listOf(
-                        PensjonsgivendeInntekt(
-                            datoForFastsetting = "2023-07-17",
-                            skatteordning = Skatteordning.FASTLAND,
-                            pensjonsgivendeInntektAvLoennsinntekt = 0,
-                            pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = 0,
-                            pensjonsgivendeInntektAvNaeringsinntekt = 100000,
-                            pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage = 0,
-                        ),
-                    ),
-                ),
-                HentPensjonsgivendeInntektResponse(
-                    "56909901141",
-                    "2021",
-                    listOf(
-                        PensjonsgivendeInntekt(
-                            datoForFastsetting = "2021-07-17",
-                            skatteordning = Skatteordning.FASTLAND,
-                            pensjonsgivendeInntektAvLoennsinntekt = 0,
-                            pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = 0,
-                            pensjonsgivendeInntektAvNaeringsinntekt = 100000,
-                            pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage = 0,
-                        ),
-                    ),
-                ),
-                HentPensjonsgivendeInntektResponse(
-                    "56909901141",
-                    "2020",
-                    listOf(
-                        PensjonsgivendeInntekt(
-                            datoForFastsetting = "2020-07-17",
-                            skatteordning = Skatteordning.FASTLAND,
-                            pensjonsgivendeInntektAvLoennsinntekt = 0,
-                            pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = 0,
-                            pensjonsgivendeInntektAvNaeringsinntekt = 1000000,
-                            pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage = 0,
-                        ),
-                    ),
-                ),
-            )
+        result `should be equal to` null
     } // personMedInntekt2Av3Aar
 
     @Test
