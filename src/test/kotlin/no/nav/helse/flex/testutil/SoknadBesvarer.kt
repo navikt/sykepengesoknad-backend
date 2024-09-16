@@ -10,6 +10,7 @@ import no.nav.helse.flex.sendSoknadMedResult
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.medIndex
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import java.time.LocalDate
 
 fun RSSporsmal.byttSvar(
     tag: String? = null,
@@ -74,6 +75,14 @@ class SoknadBesvarer(
             )
             .besvarSporsmal(tag = ANDRE_INNTEKTSKILDER_V2, svar = "NEI", aksepterManglendeSporsmal = true)
             .oppsummering()
+    }
+
+    fun medFerie(
+        fom: LocalDate,
+        tom: LocalDate,
+    ): SoknadBesvarer {
+        return this.besvarSporsmal(tag = "FERIE_V2", svar = "JA", ferdigBesvart = false)
+            .besvarSporsmal(tag = "FERIE_NAR_V2", svar = """{"fom":"$fom","tom":"$tom"}""")
     }
 
     fun besvarSporsmal(
