@@ -62,7 +62,7 @@ class NyttArbeidsforholdTest : NyttArbeidsforholdFellesOppsett() {
                     svar = basisdato.minusDays(4).toString(),
                     ferdigBesvart = false,
                 )
-                .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO, svar = "4000", ferdigBesvart = true)
+                .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO, svar = "400000", ferdigBesvart = true)
                 .sendSoknad()
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
 
@@ -142,7 +142,7 @@ class NyttArbeidsforholdTest : NyttArbeidsforholdFellesOppsett() {
             SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
                 .standardSvar()
                 .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_PAFOLGENDE, svar = "JA", ferdigBesvart = false)
-                .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO, svar = "4000", ferdigBesvart = true)
+                .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO, svar = "400000", ferdigBesvart = true)
                 .sendSoknad()
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
 

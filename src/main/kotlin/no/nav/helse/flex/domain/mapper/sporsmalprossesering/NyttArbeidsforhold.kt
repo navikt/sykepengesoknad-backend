@@ -19,7 +19,8 @@ fun Sykepengesoknad.hentInntektFraNyttArbeidsforhold(): List<InntektFraNyttArbei
             tom: LocalDate,
         ): Int {
             val antallDager = tom.toEpochDay() - fom.toEpochDay() + 1
-            val belop = undersporsmal.firstOrNull { it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO }?.forsteSvar?.toDouble()!!
+            val belop =
+                undersporsmal.firstOrNull { it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO }?.forsteSvar?.toDouble()!! / 100
 
             // TODO hensynta helg og ferie
 
