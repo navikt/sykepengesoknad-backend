@@ -13,7 +13,7 @@ import java.time.LocalDate
 
 class NyttArbeidsforholdFellesOppsett : FellesTestOppsett() {
     val fnr = "22222220001"
-    final val basisdato = LocalDate.now().minusDays(1)
+    final val basisdato = LocalDate.of(2024, 9, 15)
 
     @Autowired
     lateinit var soknadAktivering: SoknadAktivering
