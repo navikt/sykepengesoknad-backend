@@ -27,6 +27,23 @@ class NyttArbeidsforholdTest : NyttArbeidsforholdFellesOppsett() {
         nyttArbeidsforholdSpm.sporsmalstekst `should be equal to` "Har du startet å jobbe hos Kiosken, avd Oslo AS?"
         nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedOrgnummer").textValue() `should be equal to` "999888777"
         nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedNavn").textValue() `should be equal to` "Kiosken, avd Oslo AS"
+        nyttArbeidsforholdSpm.undersporsmal.map { it.tag } `should be equal to`
+            listOf(
+                NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG_FORSTE_ARBEIDSDAG,
+                NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO,
+            )
+        soknaden.sporsmal!!.map { it.tag } `should be equal to`
+            listOf(
+                ANSVARSERKLARING,
+                TILBAKE_I_ARBEID,
+                FERIE_V2,
+                PERMISJON_V2,
+                "ARBEID_UNDERVEIS_100_PROSENT_0",
+                NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG,
+                ANDRE_INNTEKTSKILDER_V2,
+                OPPHOLD_UTENFOR_EOS,
+                TIL_SLUTT,
+            )
     }
 
     @Test
@@ -99,6 +116,19 @@ class NyttArbeidsforholdTest : NyttArbeidsforholdFellesOppsett() {
         nyttArbeidsforholdSpm.sporsmalstekst!!.shouldContain("Har du jobbet noe hos Kiosken, avd Oslo AS i perioden")
         nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedOrgnummer").textValue() `should be equal to` "999888777"
         nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedNavn").textValue() `should be equal to` "Kiosken, avd Oslo AS"
+
+        soknaden.sporsmal!!.map { it.tag } `should be equal to`
+            listOf(
+                ANSVARSERKLARING,
+                TILBAKE_I_ARBEID,
+                FERIE_V2,
+                PERMISJON_V2,
+                "ARBEID_UNDERVEIS_100_PROSENT_0",
+                NYTT_ARBEIDSFORHOLD_UNDERVEIS_PAFOLGENDE,
+                ANDRE_INNTEKTSKILDER_V2,
+                OPPHOLD_UTENFOR_EOS,
+                TIL_SLUTT,
+            )
     }
 
     @Test
