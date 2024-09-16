@@ -54,25 +54,21 @@ class SykepengegrunnlagService(
 
     fun sykepengegrunnlagNaeringsdrivende(soknad: Sykepengesoknad): SykepengegrunnlagNaeringsdrivende? {
         try {
-            log.info("Finner sykepengegrunnlag for selvstendig næringsdrivende ${soknad.id}")
             val grunnbeloepSisteFemAar =
                 grunnbeloepService.hentHistorikkSisteFemAar().block()?.takeIf { it.isNotEmpty() }
                     ?: throw Exception("finner ikke historikk for g fra siste fem år")
-            log.info("Grunnbeløp siste 5 år: ${grunnbeloepSisteFemAar.serialisertTilString()}")
 
             val sykmeldingstidspunkt =
                 soknad.startSykeforlop?.year
-                    ?: throw Exception("Fant ikke sykmeldingstidspunkt")
+                    ?: throw Exception("Fant ikke sykmeldingstidspunkt for soknad ${soknad.id}")
 
             val grunnbeloepPaaSykmeldingstidspunkt =
                 grunnbeloepSisteFemAar.find { it.dato.tilAar() == sykmeldingstidspunkt }?.grunnbeløp?.takeIf { it > 0 }
-                    ?: throw Exception("Fant ikke g på sykmeldingstidspunkt $sykmeldingstidspunkt")
-            log.info("Grunnbeløp på sykemeldingstidspunkt $sykmeldingstidspunkt $grunnbeloepPaaSykmeldingstidspunkt")
+                    ?: throw Exception("Fant ikke g på sykmeldingstidspunkt for soknad ${soknad.id}")
 
             val pensjonsgivendeInntekter =
                 hentPensjonsgivendeInntektForTreSisteArene(soknad.fnr, sykmeldingstidspunkt)
-                    ?: throw Exception("Fant ikke 3 år med pensjonsgivende inntekter for ${soknad.fnr}")
-            log.info("Pensjonsgivende inntekter siste 3 år for fnr ${soknad.fnr}: ${pensjonsgivendeInntekter.serialisertTilString()}")
+                    ?: throw Exception("Fant ikke 3 år med pensjonsgivende inntekter for person med soknad ${soknad.id}")
 
             val beregnetInntektPerAar =
                 finnBeregnetInntektPerAar(
@@ -80,7 +76,6 @@ class SykepengegrunnlagService(
                     grunnbeloepSisteFemAar,
                     grunnbeloepPaaSykmeldingstidspunkt,
                 )
-            log.info("Beregnet inntekt per år: ${beregnetInntektPerAar.serialisertTilString()}")
 
             val (gjennomsnittligInntektAlleAar, fastsattSykepengegrunnlag) =
                 beregnGjennomsnittligInntekt(beregnetInntektPerAar, grunnbeloepPaaSykmeldingstidspunkt)
