@@ -17,8 +17,16 @@ object AaregMockDispatcher : QueueDispatcher() {
             return ArbeidsforholdoversiktResponse(
                 arbeidsforholdoversikter =
                     listOf(
-                        skapArbeidsforholdOversikt(fnr = fnr, startdato = LocalDate.now().minusDays(40), arbeidssted = "999333666"),
-                        skapArbeidsforholdOversikt(fnr = fnr, startdato = LocalDate.now().minusDays(10), arbeidssted = "999888777"),
+                        skapArbeidsforholdOversikt(
+                            fnr = fnr,
+                            startdato = LocalDate.of(2024, 9, 15).minusDays(40),
+                            arbeidssted = "999333666",
+                        ),
+                        skapArbeidsforholdOversikt(
+                            fnr = fnr,
+                            startdato = LocalDate.of(2024, 9, 15).minusDays(10),
+                            arbeidssted = "999888777",
+                        ),
                     ),
             ).tilMockResponse()
         }
@@ -32,7 +40,7 @@ object AaregMockDispatcher : QueueDispatcher() {
 }
 
 fun skapArbeidsforholdOversikt(
-    startdato: LocalDate = LocalDate.now().minusDays(10),
+    startdato: LocalDate = LocalDate.of(2024, 9, 15).minusDays(10),
     sluttdato: LocalDate? = null,
     arbeidssted: String,
     fnr: String,

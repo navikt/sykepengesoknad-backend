@@ -99,6 +99,7 @@ class SporsmalGenerator(
                     arbeidsgiverOrgnummer = soknad.arbeidsgiverOrgnummer!!,
                     startSykeforlop = soknad.startSykeforlop!!,
                     sykepengesoknadId = soknad.id,
+                    soknadTom = soknad.tom!!,
                 )
             }
             return null
