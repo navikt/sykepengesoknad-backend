@@ -15,10 +15,12 @@ import no.nav.helse.flex.medlemskap.MedlemskapVurderingSporsmal
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingSvarType
 import no.nav.helse.flex.medlemskap.hentKjentOppholdstillatelse
 import no.nav.helse.flex.repository.SykepengesoknadDAO
+import no.nav.helse.flex.repository.SykepengesoknadRepository
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.service.IdentService
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.unleash.UnleashToggles
+import no.nav.helse.flex.util.serialisertTilString
 import no.nav.helse.flex.yrkesskade.YrkesskadeIndikatorer
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -29,6 +31,7 @@ class SporsmalGenerator(
     private val identService: IdentService,
     private val arbeidsforholdFraInntektskomponentenHenting: ArbeidsforholdFraInntektskomponentenHenting,
     private val sykepengesoknadDAO: SykepengesoknadDAO,
+    private val sykepengesoknadRepository: SykepengesoknadRepository,
     private val yrkesskadeIndikatorer: YrkesskadeIndikatorer,
     private val medlemskapVurderingClient: MedlemskapVurderingClient,
     private val environmentToggles: EnvironmentToggles,
@@ -56,8 +59,12 @@ class SporsmalGenerator(
             )
         sykepengesoknadDAO.byttUtSporsmal(soknad.copy(sporsmal = sporsmalOgAndreKjenteArbeidsforhold.sporsmal))
 
-        sporsmalOgAndreKjenteArbeidsforhold.andreKjenteArbeidsforhold?.let {
-            sykepengesoknadDAO.lagreInntektskilderDataFraInntektskomponenten(soknad.id, it)
+        sporsmalOgAndreKjenteArbeidsforhold.andreKjenteArbeidsforhold?.let { andreKjenteArbeidsforhold ->
+            sykepengesoknadRepository.findBySykepengesoknadUuid(id)?.let {
+                sykepengesoknadRepository.save(
+                    it.copy(inntektskilderDataFraInntektskomponenten = andreKjenteArbeidsforhold.serialisertTilString()),
+                )
+            }
         }
     }
 
