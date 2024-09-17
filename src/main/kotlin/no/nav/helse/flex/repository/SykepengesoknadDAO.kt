@@ -694,22 +694,6 @@ class SykepengesoknadDAO(
                 .addValue("sykepengesoknadId", sykepengesoknadId),
         )
     }
-
-    fun lagreInntektskilderDataFraInntektskomponenten(
-        sykepengesoknadUuid: String,
-        inntektskilder: List<ArbeidsforholdFraInntektskomponenten>,
-    ) {
-        namedParameterJdbcTemplate.update(
-            """
-            UPDATE sykepengesoknad 
-            SET inntektskilder_data_fra_inntektskomponenten = :inntektskilder
-            WHERE sykepengesoknad_uuid = :sykepengesoknadUuid
-            """.trimIndent(),
-            MapSqlParameterSource()
-                .addValue("inntektskilder", inntektskilder.serialisertTilString())
-                .addValue("sykepengesoknadUuid", sykepengesoknadUuid),
-        )
-    }
 }
 
 fun String?.tilMerknader(): List<Merknad>? {
