@@ -24,8 +24,6 @@ class ArbeidsgiverInntektsmeldingController(
     private val vedtaksperiodeBehandlingRepository: VedtaksperiodeBehandlingRepository,
     @Value("\${SPINNTEKTSMELDING_FRONTEND_CLIENT_ID}")
     val spinntektsmeldingFrontendClientId: String,
-    @Value("\${HAG_API_ENABLED}")
-    val hagApiEnabled: String,
 ) {
     @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
     @PostMapping(
@@ -36,9 +34,6 @@ class ArbeidsgiverInntektsmeldingController(
     fun hentSoknaderForInntektsmeldingFrontend(
         @RequestBody request: HentSoknaderRequest,
     ): List<HentSoknaderResponse> {
-        if (hagApiEnabled == "false") {
-            throw RuntimeException("API er ikke påskrudd")
-        }
         contextHolder.validerTokenXClaims(spinntektsmeldingFrontendClientId)
 
         val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(request.fnr)
