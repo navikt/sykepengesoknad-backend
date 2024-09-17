@@ -43,6 +43,5 @@ env:
   INNSENDING_API_TOKENX_CLIENT_ID: dev-gcp:team-soknad:innsending-api
   INNSENDING_API_URL: http://innsending-api.team-soknad
   GRUNNBELOEP_API_URL: https://g.nav.no/api/v1
-  HAG_API_ENABLED: true
   AAREG_URL: https://aareg-services-q1.dev-fss-pub.nais.io
   AAREG_AAD_CLIENT_ID: dev-fss.arbeidsforhold.aareg-services-nais-q1

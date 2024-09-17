@@ -143,4 +143,3 @@ aiven-kafka:
   auto-offset-reset: earliest
 
 SKRIVEMODUS: READWRITE
-HAG_API_ENABLED: true
