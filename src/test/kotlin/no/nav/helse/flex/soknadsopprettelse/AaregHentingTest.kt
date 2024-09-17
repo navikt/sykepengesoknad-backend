@@ -3,6 +3,7 @@ package no.nav.helse.flex.soknadsopprettelse
 import no.nav.helse.flex.FellesTestOppsett
 import org.amshove.kluent.`should be empty`
 import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -18,8 +19,9 @@ class AaregHentingTest : FellesTestOppsett() {
         aaregDataHenting.hentNyeArbeidsforhold(
             fnr = "11111234565",
             arbeidsgiverOrgnummer = "999333666",
-            startSykeforlop = LocalDate.now(),
+            startSykeforlop = LocalDate.of(2024, 9, 15),
             sykepengesoknadId = UUID.randomUUID().toString(),
+            soknadTom = LocalDate.of(2024, 9, 15),
         ).`should be empty`()
     }
 
@@ -29,11 +31,25 @@ class AaregHentingTest : FellesTestOppsett() {
             aaregDataHenting.hentNyeArbeidsforhold(
                 fnr = "22222220001",
                 arbeidsgiverOrgnummer = "112233445",
-                startSykeforlop = LocalDate.now().minusDays(50),
+                startSykeforlop = LocalDate.of(2024, 9, 15).minusDays(50),
                 sykepengesoknadId = UUID.randomUUID().toString(),
+                soknadTom = LocalDate.of(2024, 9, 15),
             )
         nyeArbeidsforhold.shouldHaveSize(2)
         nyeArbeidsforhold[0].arbeidsstedNavn `should be equal to` "Bensinstasjonen AS"
         nyeArbeidsforhold[1].arbeidsstedNavn `should be equal to` "Kiosken, avd Oslo AS"
+    }
+
+    @Test
+    fun `tar ikke med arbeidsforhold som er oppstått etter søknadens tom`() {
+        val nyeArbeidsforhold =
+            aaregDataHenting.hentNyeArbeidsforhold(
+                fnr = "22222220001",
+                arbeidsgiverOrgnummer = "112233445",
+                startSykeforlop = LocalDate.of(2024, 9, 15).minusDays(50),
+                sykepengesoknadId = UUID.randomUUID().toString(),
+                soknadTom = LocalDate.of(2024, 9, 15).minusDays(42),
+            )
+        nyeArbeidsforhold.shouldBeEmpty()
     }
 }

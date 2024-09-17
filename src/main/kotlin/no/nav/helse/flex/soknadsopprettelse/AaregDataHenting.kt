@@ -4,6 +4,7 @@ import no.nav.helse.flex.client.aareg.AaregClient
 import no.nav.helse.flex.client.aareg.ArbeidsforholdOversikt
 import no.nav.helse.flex.client.ereg.EregClient
 import no.nav.helse.flex.logger
+import no.nav.helse.flex.util.isBeforeOrEqual
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 
@@ -19,6 +20,7 @@ class AaregDataHenting(
         arbeidsgiverOrgnummer: String,
         startSykeforlop: LocalDate,
         sykepengesoknadId: String,
+        soknadTom: LocalDate,
     ): List<ArbeidsforholdFraAAreg> {
         val arbeidsforholOversikt = aaregClient.hentArbeidsforholdoversikt(fnr).arbeidsforholdoversikter
 
@@ -47,6 +49,7 @@ class AaregDataHenting(
         }
         return arbeidsforholOversikt
             .filter { it.startdato.isAfter(startSykeforlop) }
+            .filter { it.startdato.isBeforeOrEqual(soknadTom) }
             .filter { it.erOrganisasjonArbeidsforhold() }
             .filter { arbeidsforhold -> !arbeidsforhold.arbeidssted.identer.any { it.ident == arbeidsgiverOrgnummer } }
             .map { it.tilArbeidsforholdFraAAreg() }
