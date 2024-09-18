@@ -47,6 +47,16 @@ class NyttArbeidsforholdTest : NyttArbeidsforholdFellesOppsett() {
     }
 
     @Test
+    @Order(2)
+    fun `Vi har lagret dataene på forventet format i databasen`() {
+        val soknaden = hentSoknader(fnr = fnr).first()
+
+        val sykepengesoknadDbRecord = sykepengesoknadRepository.findBySykepengesoknadUuid(soknaden.id)!!
+        @Suppress("ktlint:standard:max-line-length")
+        sykepengesoknadDbRecord.arbeidsforholdFraAareg `should be equal to` """[{"opplysningspliktigOrgnummer":"11224455441","arbeidsstedOrgnummer":"999888777","arbeidsstedNavn":"Kiosken, avd Oslo AS","startdato":"2024-09-05"}]"""
+    }
+
+    @Test
     @Order(3)
     fun `Vi besvarer og sender inn søknaden`() {
         flexSyketilfelleMockRestServiceServer.reset()

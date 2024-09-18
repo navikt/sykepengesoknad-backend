@@ -44,6 +44,7 @@ class SporsmalGenerator(
     data class SporsmalOgAndreKjenteArbeidsforhold(
         val sporsmal: List<Sporsmal>,
         val andreKjenteArbeidsforhold: List<ArbeidsforholdFraInntektskomponenten>? = null,
+        val arbeidsforholdFraAAreg: List<ArbeidsforholdFraAAreg>? = null,
     )
 
     fun lagSporsmalPaSoknad(id: String) {
@@ -59,12 +60,19 @@ class SporsmalGenerator(
             )
         sykepengesoknadDAO.byttUtSporsmal(soknad.copy(sporsmal = sporsmalOgAndreKjenteArbeidsforhold.sporsmal))
 
-        sporsmalOgAndreKjenteArbeidsforhold.andreKjenteArbeidsforhold?.let { andreKjenteArbeidsforhold ->
-            sykepengesoknadRepository.findBySykepengesoknadUuid(id)?.let {
-                sykepengesoknadRepository.save(
-                    it.copy(inntektskilderDataFraInntektskomponenten = andreKjenteArbeidsforhold.serialisertTilString()),
-                )
-            }
+        sykepengesoknadRepository.findBySykepengesoknadUuid(id)?.let {
+            sykepengesoknadRepository.save(
+                it.copy(
+                    inntektskilderDataFraInntektskomponenten =
+                        sporsmalOgAndreKjenteArbeidsforhold
+                            .andreKjenteArbeidsforhold
+                            ?.serialisertTilString(),
+                    arbeidsforholdFraAareg =
+                        sporsmalOgAndreKjenteArbeidsforhold
+                            .arbeidsforholdFraAAreg
+                            ?.serialisertTilString(),
+                ),
+            )
         }
     }
 
@@ -163,6 +171,7 @@ class SporsmalGenerator(
                 SporsmalOgAndreKjenteArbeidsforhold(
                     sporsmal = arbeidstakerSporsmal,
                     andreKjenteArbeidsforhold = andreKjenteArbeidsforhold,
+                    arbeidsforholdFraAAreg = soknadOptions.arbeidsforholdoversiktResponse,
                 )
             }
 

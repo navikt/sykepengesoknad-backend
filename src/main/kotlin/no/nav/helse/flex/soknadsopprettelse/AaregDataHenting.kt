@@ -43,7 +43,7 @@ class AaregDataHenting(
             return ArbeidsforholdFraAAreg(
                 arbeidsstedOrgnummer = arbeidstedOrgnummer,
                 arbeidsstedNavn = hentBedrift.navn.navnelinje1.prettyOrgnavn(),
-                arbeidsforholdsoversikt = this,
+                startdato = startdato,
                 opplysningspliktigOrgnummer = opplysningspliktigOrgnummer,
             )
         }
@@ -53,7 +53,7 @@ class AaregDataHenting(
             .filter { it.erOrganisasjonArbeidsforhold() }
             .filter { arbeidsforhold -> !arbeidsforhold.arbeidssted.identer.any { it.ident == arbeidsgiverOrgnummer } }
             .map { it.tilArbeidsforholdFraAAreg() }
-            .sortedBy { it.arbeidsforholdsoversikt.startdato }
+            .sortedBy { it.startdato }
     }
 }
 
@@ -65,5 +65,5 @@ data class ArbeidsforholdFraAAreg(
     val opplysningspliktigOrgnummer: String,
     val arbeidsstedOrgnummer: String,
     val arbeidsstedNavn: String,
-    val arbeidsforholdsoversikt: ArbeidsforholdOversikt,
+    val startdato: LocalDate,
 )
