@@ -6,6 +6,7 @@ import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.Visningskriterie
+import no.nav.helse.flex.service.SykepengegrunnlagNaeringsdrivende
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.util.DatoUtil
 import java.time.LocalDate
@@ -15,7 +16,10 @@ private fun beregnDatoForVarigEndringEtter(startSykeforlop: LocalDate): LocalDat
     return startSykeforlop.minusYears(5)
 }
 
-fun lagSporsmalOmInntektsopplyninger(soknad: Sykepengesoknad): Sporsmal {
+fun lagSporsmalOmInntektsopplyninger(
+    soknad: Sykepengesoknad,
+    sykepengegrunnlagNaeringsdrivende: SykepengegrunnlagNaeringsdrivende?,
+): Sporsmal {
     val datoForVarigEndringEtter = beregnDatoForVarigEndringEtter(soknad.startSykeforlop!!)
 
     return Sporsmal(
@@ -113,6 +117,7 @@ fun lagSporsmalOmInntektsopplyninger(soknad: Sykepengesoknad): Sporsmal {
                                                                     sporsmalstekst = "Har du hatt mer enn 25 prosent endring i årsinntekten din som følge av den varige endringen?",
                                                                     svartype = Svartype.JA_NEI,
                                                                     kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
+                                                                    metadata = sykepengegrunnlagNaeringsdrivende?.toJsonNode(),
                                                                     undersporsmal =
                                                                         listOf(
                                                                             Sporsmal(

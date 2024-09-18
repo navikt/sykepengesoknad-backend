@@ -18,6 +18,7 @@ import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.repository.SykepengesoknadRepository
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.service.IdentService
+import no.nav.helse.flex.service.SykepengegrunnlagForNaeringsdrivende
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.unleash.UnleashToggles
 import no.nav.helse.flex.util.serialisertTilString
@@ -30,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional
 class SporsmalGenerator(
     private val identService: IdentService,
     private val arbeidsforholdFraInntektskomponentenHenting: ArbeidsforholdFraInntektskomponentenHenting,
+    private val sykepengegrunnlagForNaeringsdrivende: SykepengegrunnlagForNaeringsdrivende,
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val sykepengesoknadRepository: SykepengesoknadRepository,
     private val yrkesskadeIndikatorer: YrkesskadeIndikatorer,
@@ -181,7 +183,17 @@ class SporsmalGenerator(
                     Arbeidssituasjon.JORDBRUKER,
                     Arbeidssituasjon.NAERINGSDRIVENDE,
                     Arbeidssituasjon.FRILANSER,
-                    -> settOppSoknadSelvstendigOgFrilanser(soknadOptions)
+                    -> {
+                        val sykepengegrunnlag =
+                            if (unleashToggles.sigrunEnabled(soknad.fnr)) {
+                                log.info("Sigrun toggle enabled")
+                                sykepengegrunnlagForNaeringsdrivende.sykepengegrunnlagNaeringsdrivende(soknad)
+                            } else {
+                                null
+                            }
+
+                        settOppSoknadSelvstendigOgFrilanser(soknadOptions, sykepengegrunnlag)
+                    }
 
                     Arbeidssituasjon.ARBEIDSLEDIG -> settOppSoknadArbeidsledig(soknadOptions)
                     Arbeidssituasjon.ANNET -> settOppSoknadAnnetArbeidsforhold(soknadOptions)

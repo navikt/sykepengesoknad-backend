@@ -20,6 +20,11 @@ fun startMockWebServere(): MockWebServere {
             System.setProperty("INNTEKTSKOMPONENTEN_URL", "http://localhost:$port")
             dispatcher = InntektskomponentenMockDispatcher
         }
+    val pensjonsgivendeInntektMockWebServer =
+        MockWebServer().apply {
+            System.setProperty("SIGRUN_URL", "http://localhost:$port")
+            dispatcher = SigrunMockDispatcher
+        }
     val eregMockWebServer =
         MockWebServer().apply {
             System.setProperty("EREG_URL", "http://localhost:$port")
@@ -38,7 +43,7 @@ fun startMockWebServere(): MockWebServere {
     val grunnbeloepApiMockWebServer =
         MockWebServer().apply {
             System.setProperty("GRUNNBELOEP_API_URL", "http://localhost:$port")
-            dispatcher = GrunnbeloepApoMockDispatcher
+            dispatcher = GrunnbeloepApiMockDispatcher
         }
     val aaregMockWebServer =
         MockWebServer().apply {
@@ -53,6 +58,7 @@ fun startMockWebServere(): MockWebServere {
         eregMockWebServer = eregMockWebServer,
         yrkesskadeMockWebServer = yrkesskadeMockWebServer,
         innsendingApiMockWebServer = innsendingApiMockWebServer,
+        pensjonsgivendeInntektMockWebServer = pensjonsgivendeInntektMockWebServer,
         grunnbeloepApiMockWebServer = grunnbeloepApiMockWebServer,
         aaregMockWebServer = aaregMockWebServer,
     )
@@ -65,6 +71,7 @@ data class MockWebServere(
     val eregMockWebServer: MockWebServer,
     val yrkesskadeMockWebServer: MockWebServer,
     val innsendingApiMockWebServer: MockWebServer,
+    val pensjonsgivendeInntektMockWebServer: MockWebServer,
     val grunnbeloepApiMockWebServer: MockWebServer,
     val aaregMockWebServer: MockWebServer,
 )

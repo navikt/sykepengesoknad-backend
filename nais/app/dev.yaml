@@ -15,6 +15,7 @@ external-host:
   - team-inntekt-proxy.dev-fss-pub.nais.io
   - flex-unleash-api.nav.cloud.nais.io
   - aareg-services-q1.dev-fss-pub.nais.io
+  - g.nav.no
 flex-openapi-docs-ui: true
 env:
   SPRING_PROFILES_ACTIVE: default,testdatareset,sykmeldinger
@@ -40,6 +41,8 @@ env:
   MEDLEMSKAP_VURDERING_AAD_CLIENT_ID: dev-gcp.medlemskap.medlemskap-sykepenger-listener
   INNTEKTSKOMPONENTEN_URL: https://team-inntekt-proxy.dev-fss-pub.nais.io/proxy/inntektskomponenten-q1/rs
   INNTEKTSKOMPONENTEN_AAD_CLIENT_ID: dev-fss.team-inntekt.inntektskomponenten
+  SIGRUN_URL: https://team-inntekt-proxy.dev-fss-pub.nais.io/proxy/sigrun-q1
+  SIGRUN_AAD_CLIENT_ID: dev-fss.team-inntekt.sigrun-q1
   INNSENDING_API_TOKENX_CLIENT_ID: dev-gcp:team-soknad:innsending-api
   INNSENDING_API_URL: http://innsending-api.team-soknad
   GRUNNBELOEP_API_URL: https://g.nav.no/api/v1

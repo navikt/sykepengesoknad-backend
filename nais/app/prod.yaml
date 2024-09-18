@@ -15,6 +15,7 @@ external-host:
   - team-inntekt-proxy.prod-fss-pub.nais.io
   - flex-unleash-api.nav.cloud.nais.io
   - aareg-services.prod-fss-pub.nais.io
+  - g.nav.no
 env:
   SPRING_PROFILES_ACTIVE: default,sykmeldinger
   PDL_BASE_URL: https://pdl-api.prod-fss-pub.nais.io
@@ -38,6 +39,8 @@ env:
   MEDLEMSKAP_VURDERING_AAD_CLIENT_ID: prod-gcp.medlemskap.medlemskap-sykepenger-listener
   INNTEKTSKOMPONENTEN_URL: https://team-inntekt-proxy.prod-fss-pub.nais.io/proxy/inntektskomponenten/rs
   INNTEKTSKOMPONENTEN_AAD_CLIENT_ID: prod-fss.team-inntekt.inntektskomponenten
+  SIGRUN_URL: https://team-inntekt-proxy.prod-fss-pub.nais.io/proxy/sigrun
+  SIGRUN_CLIENT_ID: prod-fss.team-inntekt.sigrun
   INNSENDING_API_TOKENX_CLIENT_ID: prod-gcp:team-soknad:innsending-api
   INNSENDING_API_URL: http://innsending-api.team-soknad
   GRUNNBELOEP_API_URL: https://g.nav.no/api/v1
