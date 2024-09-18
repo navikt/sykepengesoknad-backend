@@ -1,5 +1,6 @@
 package no.nav.helse.flex.soknadsopprettelse.sporsmal
 
+import com.fasterxml.jackson.databind.JsonNode
 import no.nav.helse.flex.domain.*
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.util.DatoUtil
@@ -8,10 +9,36 @@ import no.nav.helse.flex.util.toJsonNode
 fun nyttArbeidsforholdSporsmal(
     nyeArbeidsforhold: List<ArbeidsforholdFraAAreg>?,
     denneSoknaden: Sykepengesoknad,
+    oppdatertTom: LocalDate? = null,
     eksisterendeSoknader: () -> List<Sykepengesoknad>,
 ): List<Sporsmal> {
     if (nyeArbeidsforhold.isNullOrEmpty()) {
         return emptyList()
+    }
+
+    val eksisterendeNyttArbeidsforhold =
+        denneSoknaden
+            .sporsmal
+            .filter { it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG || it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS_PAFOLGENDE }
+    if (eksisterendeNyttArbeidsforhold.isNotEmpty()) {
+        return eksisterendeNyttArbeidsforhold.map { eksisterendeSpm ->
+            if (eksisterendeSpm.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG) {
+                forstegangSporsmal(
+                    nyeArbeidsforhold.first { it.arbeidsstedOrgnummer == eksisterendeSpm.metadata!!["arbeidsstedOrgnummer"].asText() },
+                    metadata = eksisterendeSpm.metadata!!.toStringStringMap(),
+                    tom = oppdatertTom ?: denneSoknaden.tom!!,
+                    periodeTekst = DatoUtil.formatterPeriode(denneSoknaden.fom!!, oppdatertTom ?: denneSoknaden.tom!!),
+                )
+            }
+            if (eksisterendeSpm.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS_PAFOLGENDE) {
+                paafolgendeSporsmal(
+                    nyeArbeidsforhold.first { it.arbeidsstedOrgnummer == eksisterendeSpm.metadata!!["arbeidsstedOrgnummer"].asText() },
+                    metadata = eksisterendeSpm.metadata!!.toStringStringMap(),
+                    periodeTekst = DatoUtil.formatterPeriode(denneSoknaden.fom!!, denneSoknaden.tom!!),
+                )
+            }
+            throw RuntimeException("Uventet tag ${eksisterendeSpm.tag}")
+        }
     }
 
     val hentedeEksisterendeSoknader = eksisterendeSoknader()
@@ -61,4 +88,8 @@ fun nyttArbeidsforholdSporsmal(
 
 private fun Sykepengesoknad.tilPeriode(): Periode {
     return Periode(fom!!, tom!!)
+}
+
+fun JsonNode.toStringStringMap(): Map<String, String> {
+    return this.fields().asSequence().associate { it.key to it.value.asText() }
 }
