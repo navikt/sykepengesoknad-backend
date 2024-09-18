@@ -10,7 +10,6 @@ import java.time.LocalDate
 @Service
 @CacheConfig
 class GrunnbeloepService(private val grunnbeloepClient: GrunnbeloepClient) {
-
     fun getHistorikk(fra: LocalDate?): Mono<List<GrunnbeloepResponse>> {
         return grunnbeloepClient.getHistorikk(fra)
     }
