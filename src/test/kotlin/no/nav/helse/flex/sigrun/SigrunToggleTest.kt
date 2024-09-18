@@ -70,10 +70,10 @@ class SigrunToggleTest : FellesTestOppsett() {
                     arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
                     fnr = "87654321234",
                     sykmeldingsperioder =
-                    heltSykmeldt(
-                        fom = LocalDate.now().minusDays(30),
-                        tom = LocalDate.now().minusDays(1),
-                    ),
+                        heltSykmeldt(
+                            fom = LocalDate.now().minusDays(30),
+                            tom = LocalDate.now().minusDays(1),
+                        ),
                 ),
             )
 
