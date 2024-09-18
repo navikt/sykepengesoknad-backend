@@ -184,7 +184,14 @@ class SporsmalGenerator(
                     Arbeidssituasjon.NAERINGSDRIVENDE,
                     Arbeidssituasjon.FRILANSER,
                     -> {
-                        val sykepengegrunnlag = sykepengegrunnlagService.sykepengegrunnlagNaeringsdrivende(soknad)
+                        val sykepengegrunnlag =
+                            if (unleashToggles.sigrunEnabled(soknad.fnr)) {
+                                log.info("Sigrun toggle enabled")
+                                sykepengegrunnlagForNaeringsdrivende.sykepengegrunnlagNaeringsdrivende(soknad)
+                            } else {
+                                null
+                            }
+
                         settOppSoknadSelvstendigOgFrilanser(soknadOptions, sykepengegrunnlag)
                     }
 
