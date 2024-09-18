@@ -1,4 +1,4 @@
-package no.nav.helse.flex.service
+package no.nav.helse.flex.sigrun
 
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknad
@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 import java.time.Instant
 import java.time.LocalDate
 
-class SykepengegrunnlagServiceTest : FellesTestOppsett() {
+class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
     @Test
     fun `sjekker utregning av sykepengegrunnlag`() {
         val soknad =
@@ -20,7 +20,7 @@ class SykepengegrunnlagServiceTest : FellesTestOppsett() {
                 sykmeldingSkrevet = Instant.now(),
                 aktivertDato = LocalDate.now().minusDays(30),
             )
-        val grunnlagVerdier = sykepengegrunnlagService.sykepengegrunnlagNaeringsdrivende(soknad)
+        val grunnlagVerdier = sykepengegrunnlagForNaeringsdrivende.sykepengegrunnlagNaeringsdrivende(soknad)
 
         grunnlagVerdier `should not be` null
         grunnlagVerdier!!.let { grunnlag ->
@@ -48,7 +48,7 @@ class SykepengegrunnlagServiceTest : FellesTestOppsett() {
                 aktivertDato = LocalDate.now().minusDays(30),
             )
 
-        val grunnlagVerdier = sykepengegrunnlagService.sykepengegrunnlagNaeringsdrivende(soknad)
+        val grunnlagVerdier = sykepengegrunnlagForNaeringsdrivende.sykepengegrunnlagNaeringsdrivende(soknad)
 
         grunnlagVerdier `should not be` null
         grunnlagVerdier!!.let {
@@ -71,7 +71,7 @@ class SykepengegrunnlagServiceTest : FellesTestOppsett() {
                 aktivertDato = LocalDate.now().minusDays(30),
             )
 
-        val grunnlagVerdier = sykepengegrunnlagService.sykepengegrunnlagNaeringsdrivende(soknad)
+        val grunnlagVerdier = sykepengegrunnlagForNaeringsdrivende.sykepengegrunnlagNaeringsdrivende(soknad)
 
         grunnlagVerdier `should not be` null
         grunnlagVerdier!!.toJsonNode().toString() `should be equal to`

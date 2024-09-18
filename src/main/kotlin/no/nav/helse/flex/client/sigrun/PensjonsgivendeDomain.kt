@@ -1,4 +1,4 @@
-package no.nav.helse.flex.client.inntektskomponenten
+package no.nav.helse.flex.client.sigrun
 
 import java.util.UUID
 

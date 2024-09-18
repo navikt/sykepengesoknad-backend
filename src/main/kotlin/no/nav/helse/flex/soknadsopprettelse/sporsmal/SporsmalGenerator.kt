@@ -19,7 +19,7 @@ import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.repository.SykepengesoknadRepository
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.service.IdentService
-import no.nav.helse.flex.service.SykepengegrunnlagService
+import no.nav.helse.flex.service.SykepengegrunnlagForNaeringsdrivende
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.unleash.UnleashToggles
 import no.nav.helse.flex.yrkesskade.YrkesskadeIndikatorer
@@ -31,7 +31,7 @@ import org.springframework.transaction.annotation.Transactional
 class SporsmalGenerator(
     private val identService: IdentService,
     private val arbeidsforholdFraInntektskomponentenHenting: ArbeidsforholdFraInntektskomponentenHenting,
-    private val sykepengegrunnlagService: SykepengegrunnlagService,
+    private val sykepengegrunnlagForNaeringsdrivende: SykepengegrunnlagForNaeringsdrivende,
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val sykepengesoknadRepository: SykepengesoknadRepository,
     private val yrkesskadeIndikatorer: YrkesskadeIndikatorer,

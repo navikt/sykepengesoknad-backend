@@ -9,7 +9,7 @@ import no.nav.helse.flex.kafka.producer.AivenKafkaProducer
 import no.nav.helse.flex.kafka.producer.RebehandlingSykmeldingSendtProducer
 import no.nav.helse.flex.personhendelse.AutomatiskInnsendingVedDodsfall
 import no.nav.helse.flex.repository.SykepengesoknadRepository
-import no.nav.helse.flex.service.SykepengegrunnlagService
+import no.nav.helse.flex.service.SykepengegrunnlagForNaeringsdrivende
 import no.nav.helse.flex.soknadsopprettelse.BehandleSykmeldingOgBestillAktivering
 import no.nav.helse.flex.testdata.DatabaseReset
 import no.nav.helse.flex.testoppsett.startAlleContainere
@@ -124,7 +124,7 @@ abstract class FellesTestOppsett {
     lateinit var sykepengesoknadRepository: SykepengesoknadRepository
 
     @Autowired
-    lateinit var sykepengegrunnlagService: SykepengegrunnlagService
+    lateinit var sykepengegrunnlagForNaeringsdrivende: SykepengegrunnlagForNaeringsdrivende
 
     @BeforeAll
     @AfterAll

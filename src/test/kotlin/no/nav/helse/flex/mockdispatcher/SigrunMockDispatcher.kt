@@ -1,8 +1,8 @@
 package no.nav.helse.flex.mockdispatcher
 
-import no.nav.helse.flex.client.inntektskomponenten.HentPensjonsgivendeInntektResponse
-import no.nav.helse.flex.client.inntektskomponenten.PensjonsgivendeInntekt
-import no.nav.helse.flex.client.inntektskomponenten.Skatteordning
+import no.nav.helse.flex.client.sigrun.HentPensjonsgivendeInntektResponse
+import no.nav.helse.flex.client.sigrun.PensjonsgivendeInntekt
+import no.nav.helse.flex.client.sigrun.Skatteordning
 import no.nav.helse.flex.util.serialisertTilString
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse

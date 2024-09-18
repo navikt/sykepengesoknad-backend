@@ -1,9 +1,9 @@
-package no.nav.helse.flex.service
+package no.nav.helse.flex.sigrun
 
 import no.nav.helse.flex.FellesTestOppsett
-import no.nav.helse.flex.client.inntektskomponenten.HentPensjonsgivendeInntektResponse
-import no.nav.helse.flex.client.inntektskomponenten.PensjonsgivendeInntekt
-import no.nav.helse.flex.client.inntektskomponenten.Skatteordning
+import no.nav.helse.flex.client.sigrun.HentPensjonsgivendeInntektResponse
+import no.nav.helse.flex.client.sigrun.PensjonsgivendeInntekt
+import no.nav.helse.flex.client.sigrun.Skatteordning
 import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknad
 import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.Test
@@ -22,7 +22,11 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
                 sykmeldingSkrevet = Instant.now(),
                 aktivertDato = LocalDate.now().minusDays(30),
             )
-        val result = sykepengegrunnlagService.hentPensjonsgivendeInntektForTreSisteArene(soknad.fnr, soknad.startSykeforlop!!.year)
+        val result =
+            sykepengegrunnlagForNaeringsdrivende.hentPensjonsgivendeInntektForTreSisteArene(
+                soknad.fnr,
+                soknad.startSykeforlop!!.year,
+            )
 
         result!!.size `should be equal to` 3
         result `should be equal to`
@@ -83,7 +87,11 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
                 sykmeldingSkrevet = Instant.now(),
                 aktivertDato = LocalDate.now().minusDays(30),
             )
-        val result = sykepengegrunnlagService.hentPensjonsgivendeInntektForTreSisteArene(soknad.fnr, soknad.startSykeforlop!!.year)
+        val result =
+            sykepengegrunnlagForNaeringsdrivende.hentPensjonsgivendeInntektForTreSisteArene(
+                soknad.fnr,
+                soknad.startSykeforlop!!.year,
+            )
 
         result!!.size `should be equal to` 3
         result `should be equal to`
@@ -144,7 +152,11 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
                 sykmeldingSkrevet = Instant.now(),
                 aktivertDato = LocalDate.now().minusDays(30),
             )
-        val result = sykepengegrunnlagService.hentPensjonsgivendeInntektForTreSisteArene(soknad.fnr, soknad.startSykeforlop!!.year)
+        val result =
+            sykepengegrunnlagForNaeringsdrivende.hentPensjonsgivendeInntektForTreSisteArene(
+                soknad.fnr,
+                soknad.startSykeforlop!!.year,
+            )
 
         result `should be equal to` null
     } // personUtenInntektSiste3Aar
@@ -160,7 +172,11 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
                 sykmeldingSkrevet = Instant.now(),
                 aktivertDato = LocalDate.now().minusDays(30),
             )
-        val result = sykepengegrunnlagService.hentPensjonsgivendeInntektForTreSisteArene(soknad.fnr, soknad.startSykeforlop!!.year)
+        val result =
+            sykepengegrunnlagForNaeringsdrivende.hentPensjonsgivendeInntektForTreSisteArene(
+                soknad.fnr,
+                soknad.startSykeforlop!!.year,
+            )
 
         result `should be equal to` null
     } // personMedInntekt1Av3Aar
@@ -176,7 +192,11 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
                 sykmeldingSkrevet = Instant.now(),
                 aktivertDato = LocalDate.now().minusDays(30),
             )
-        val result = sykepengegrunnlagService.hentPensjonsgivendeInntektForTreSisteArene(soknad.fnr, soknad.startSykeforlop!!.year)
+        val result =
+            sykepengegrunnlagForNaeringsdrivende.hentPensjonsgivendeInntektForTreSisteArene(
+                soknad.fnr,
+                soknad.startSykeforlop!!.year,
+            )
 
         result `should be equal to` null
     } // personMedInntekt2Av3Aar
@@ -192,7 +212,11 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
                 sykmeldingSkrevet = Instant.now(),
                 aktivertDato = LocalDate.now().minusDays(30),
             )
-        val result = sykepengegrunnlagService.hentPensjonsgivendeInntektForTreSisteArene(soknad.fnr, soknad.startSykeforlop!!.year)
+        val result =
+            sykepengegrunnlagForNaeringsdrivende.hentPensjonsgivendeInntektForTreSisteArene(
+                soknad.fnr,
+                soknad.startSykeforlop!!.year,
+            )
 
         result!!.size `should be equal to` 3
         result `should be equal to`
@@ -253,7 +277,11 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
                 sykmeldingSkrevet = Instant.now(),
                 aktivertDato = LocalDate.now().minusDays(30),
             )
-        val result = sykepengegrunnlagService.hentPensjonsgivendeInntektForTreSisteArene(soknad.fnr, soknad.startSykeforlop!!.year)
+        val result =
+            sykepengegrunnlagForNaeringsdrivende.hentPensjonsgivendeInntektForTreSisteArene(
+                soknad.fnr,
+                soknad.startSykeforlop!!.year,
+            )
 
         result!!.size `should be equal to` 3
         result `should be equal to`

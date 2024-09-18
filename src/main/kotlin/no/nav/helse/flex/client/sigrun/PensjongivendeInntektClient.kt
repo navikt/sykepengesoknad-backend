@@ -1,4 +1,4 @@
-package no.nav.helse.flex.client.inntektskomponenten
+package no.nav.helse.flex.client.sigrun
 
 import no.nav.helse.flex.logger
 import org.springframework.beans.factory.annotation.Value

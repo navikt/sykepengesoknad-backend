@@ -3,10 +3,10 @@ package no.nav.helse.flex.service
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import no.nav.helse.flex.client.grunnbeloep.GrunnbeloepResponse
-import no.nav.helse.flex.client.inntektskomponenten.HentPensjonsgivendeInntektResponse
-import no.nav.helse.flex.client.inntektskomponenten.IngenPensjonsgivendeInntektFunnetException
-import no.nav.helse.flex.client.inntektskomponenten.PensjongivendeInntektClient
-import no.nav.helse.flex.client.inntektskomponenten.PensjonsgivendeInntekt
+import no.nav.helse.flex.client.sigrun.HentPensjonsgivendeInntektResponse
+import no.nav.helse.flex.client.sigrun.IngenPensjonsgivendeInntektFunnetException
+import no.nav.helse.flex.client.sigrun.PensjongivendeInntektClient
+import no.nav.helse.flex.client.sigrun.PensjonsgivendeInntekt
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.util.*
@@ -46,7 +46,7 @@ data class SykepengegrunnlagNaeringsdrivende(
 }
 
 @Service
-class SykepengegrunnlagService(
+class SykepengegrunnlagForNaeringsdrivende(
     private val pensjongivendeInntektClient: PensjongivendeInntektClient,
     private val grunnbeloepService: GrunnbeloepService,
 ) {
