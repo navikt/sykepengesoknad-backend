@@ -16,7 +16,7 @@ class GrunnbeloepService(private val grunnbeloepClient: GrunnbeloepClient) {
 
     // TODO: Cache
     fun hentHistorikkSisteFemAar(): Mono<List<GrunnbeloepResponse>> {
-        val femAarSiden = LocalDate.now().minusYears(5)
+        val femAarSiden = LocalDate.of(LocalDate.now().year, 1, 1).minusYears(5)
         return getHistorikk(femAarSiden)
     }
 }
