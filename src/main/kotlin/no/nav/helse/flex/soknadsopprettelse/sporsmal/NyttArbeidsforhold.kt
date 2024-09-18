@@ -9,10 +9,15 @@ import java.time.format.DateTimeFormatter
 fun nyttArbeidsforholdSporsmal(
     nyeArbeidsforhold: List<ArbeidsforholdFraAAreg>,
     denneSoknaden: Sykepengesoknad,
-    eksisterendeSoknader: List<Sykepengesoknad>,
+    eksisterendeSoknader: () -> List<Sykepengesoknad>,
 ): List<Sporsmal> {
+    if (nyeArbeidsforhold.isEmpty()) {
+        return emptyList()
+    }
+
+    val hentedeEksisterendeSoknader = eksisterendeSoknader()
     val overlapperMedAndreArbeidsgivereEllerArbeidssituasjoner =
-        eksisterendeSoknader
+        hentedeEksisterendeSoknader
             .filter { it.fom != null && it.tom != null }
             .filter { it.arbeidsgiverOrgnummer != denneSoknaden.arbeidsgiverOrgnummer }
             .any { it.tilPeriode().overlapper(denneSoknaden.tilPeriode()) }
@@ -26,9 +31,11 @@ fun nyttArbeidsforholdSporsmal(
     return nyeArbeidsforhold.map { arbeidsforhold ->
 
         val harAlleredeStartet =
-            eksisterendeSoknader
+            hentedeEksisterendeSoknader
                 .filter { it.startSykeforlop == denneSoknaden.startSykeforlop }
                 .filter { it.status == Soknadstatus.SENDT }
+                .filter { it.soknadstype == Soknadstype.ARBEIDSTAKERE }
+                .filter { it.fom!!.isBefore(denneSoknaden.fom) }
                 .flatMap { it.sporsmal }
                 .filter { it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG }
                 .filter { it.metadata!!["arbeidsstedOrgnummer"].asText() == arbeidsforhold.arbeidsstedOrgnummer }
