@@ -83,10 +83,10 @@ no.nav.security.jwt:
           client-id: client-id
           client-secret: secretzz
           client-auth-method: client_secret_basic
-      pensjonsgivende-inntekt-client-credentials:
+      sigrun-client-credentials:
         token-endpoint-url: http://localhost:${mock-oauth2-server.port}/azureator/token
         grant-type: client_credentials
-        scope: pensjonsgivende-inntekt-client
+        scope: sigrun-client
         authentication:
           client-id: client-id
           client-secret: secretzz

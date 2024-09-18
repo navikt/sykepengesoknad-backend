@@ -181,7 +181,7 @@ class AadRestTemplateConfiguration {
         oAuth2AccessTokenService: OAuth2AccessTokenService,
     ): RestTemplate =
         downstreamRestTemplate(
-            registrationName = "pensjonsgivende-inntekt-client-credentials",
+            registrationName = "sigrun-client-credentials",
             restTemplateBuilder = restTemplateBuilder,
             clientConfigurationProperties = clientConfigurationProperties,
             oAuth2AccessTokenService = oAuth2AccessTokenService,
