@@ -5,26 +5,10 @@ import no.nav.helse.flex.domain.Soknadstype.*
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.oppdatersporsmal.soknad.erIkkeAvType
 import no.nav.helse.flex.oppdatersporsmal.soknad.leggTilSporsmaal
-import no.nav.helse.flex.soknadsopprettelse.ARBEID_UNDERVEIS_100_PROSENT
-import no.nav.helse.flex.soknadsopprettelse.FERIE_V2
-import no.nav.helse.flex.soknadsopprettelse.JOBBET_DU_100_PROSENT
-import no.nav.helse.flex.soknadsopprettelse.JOBBET_DU_GRADERT
-import no.nav.helse.flex.soknadsopprettelse.OPPHOLD_UTENFOR_EOS
-import no.nav.helse.flex.soknadsopprettelse.PERMISJON_V2
-import no.nav.helse.flex.soknadsopprettelse.TILBAKE_I_ARBEID
-import no.nav.helse.flex.soknadsopprettelse.TILBAKE_NAR
-import no.nav.helse.flex.soknadsopprettelse.UTDANNING
-import no.nav.helse.flex.soknadsopprettelse.UTLAND
-import no.nav.helse.flex.soknadsopprettelse.UTLAND_V2
-import no.nav.helse.flex.soknadsopprettelse.jobbetDuIPeriodenSporsmal
-import no.nav.helse.flex.soknadsopprettelse.jobbetDuIPeriodenSporsmalSelvstendigFrilanser
+import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.soknadsopprettelse.oppdateringhelpers.finnGyldigDatoSvar
 import no.nav.helse.flex.soknadsopprettelse.oppdateringhelpers.skapOppdaterteSoknadsperioder
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.ferieSporsmal
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.gammeltUtenlandsoppholdArbeidstakerSporsmal
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.gammeltUtenlandsoppholdSelvstendigSporsmal
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.oppholdUtenforEOSSporsmal
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.permisjonSporsmal
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.*
 
 fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
     if (erIkkeAvType(SELVSTENDIGE_OG_FRILANSERE, ARBEIDSTAKERE, GRADERT_REISETILSKUDD)) {
@@ -53,6 +37,8 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
                         .filterNot { (_, tag) -> tag == UTLAND }
                         .filterNot { (_, tag) -> tag == OPPHOLD_UTENFOR_EOS }
                         .filterNot { (_, tag) -> tag == UTDANNING }
+                        .filterNot { (_, tag) -> tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG }
+                        .filterNot { (_, tag) -> tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS_PAFOLGENDE }
                         .toMutableList(),
             )
         }
@@ -82,14 +68,14 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
             ).toMutableList()
         }
 
-    val basertPaToggleForArbeidstakere =
+    val utlandArbeidstaker =
         if (this.sporsmal.any { it.tag == UTLAND_V2 }) {
             gammeltUtenlandsoppholdArbeidstakerSporsmal(this.fom!!, oppdatertTom)
         } else {
             oppholdUtenforEOSSporsmal(this.fom!!, oppdatertTom)
         }
 
-    val basertPaToggleForNaringsdrivendeOgFrilansere =
+    val utlandNaringsdrivende =
         if (this.sporsmal.any { it.tag == UTLAND }) {
             gammeltUtenlandsoppholdSelvstendigSporsmal(this.fom, oppdatertTom)
         } else {
@@ -99,10 +85,10 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
     if (this.arbeidssituasjon == ARBEIDSTAKER) {
         oppdaterteSporsmal.add(ferieSporsmal(this.fom, oppdatertTom))
         oppdaterteSporsmal.add(permisjonSporsmal(this.fom, oppdatertTom))
-        oppdaterteSporsmal.add(basertPaToggleForArbeidstakere)
+        oppdaterteSporsmal.add(utlandArbeidstaker)
     }
     if (this.arbeidssituasjon == NAERINGSDRIVENDE || this.arbeidssituasjon == FRILANSER) {
-        oppdaterteSporsmal.add(basertPaToggleForNaringsdrivendeOgFrilansere)
+        oppdaterteSporsmal.add(utlandNaringsdrivende)
     }
 
     return this.leggTilSporsmaal(oppdaterteSporsmal)

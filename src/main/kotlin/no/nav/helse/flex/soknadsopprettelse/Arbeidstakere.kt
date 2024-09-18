@@ -59,7 +59,7 @@ fun settOppSoknadArbeidstaker(
                 nyttArbeidsforholdSporsmal(
                     soknadOptions.arbeidsforholdoversiktResponse,
                     denneSoknaden = sykepengesoknad,
-                    eksisterendeSoknader = soknadOptions.eksisterendeSoknader,
+                    eksisterendeSoknader = { soknadOptions.eksisterendeSoknader },
                 ),
             )
         }
