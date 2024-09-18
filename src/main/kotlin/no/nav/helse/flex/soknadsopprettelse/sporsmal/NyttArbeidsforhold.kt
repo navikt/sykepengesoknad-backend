@@ -4,14 +4,15 @@ import no.nav.helse.flex.domain.*
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.util.DatoUtil
 import no.nav.helse.flex.util.toJsonNode
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 fun nyttArbeidsforholdSporsmal(
-    nyeArbeidsforhold: List<ArbeidsforholdFraAAreg>,
+    nyeArbeidsforhold: List<ArbeidsforholdFraAAreg>?,
     denneSoknaden: Sykepengesoknad,
     eksisterendeSoknader: () -> List<Sykepengesoknad>,
 ): List<Sporsmal> {
-    if (nyeArbeidsforhold.isEmpty()) {
+    if (nyeArbeidsforhold.isNullOrEmpty()) {
         return emptyList()
     }
 
@@ -25,8 +26,6 @@ fun nyttArbeidsforholdSporsmal(
     if (overlapperMedAndreArbeidsgivereEllerArbeidssituasjoner) {
         return emptyList()
     }
-
-    val periodeTekst = DatoUtil.formatterPeriode(denneSoknaden.fom!!, denneSoknaden.tom!!)
 
     return nyeArbeidsforhold.map { arbeidsforhold ->
 
@@ -47,52 +46,74 @@ fun nyttArbeidsforholdSporsmal(
                 "arbeidsstedNavn" to arbeidsforhold.arbeidsstedNavn,
                 "opplysningspliktigOrgnummer" to arbeidsforhold.opplysningspliktigOrgnummer,
             )
+        val periodeTekst = DatoUtil.formatterPeriode(denneSoknaden.fom!!, denneSoknaden.tom!!)
+
         if (harAlleredeStartet != null) {
-            return@map Sporsmal(
-                tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_PAFOLGENDE,
-                sporsmalstekst = "Har du jobbet noe hos ${arbeidsforhold.arbeidsstedNavn} i perioden $periodeTekst?",
-                undertekst = null,
-                svartype = Svartype.JA_NEI,
-                min = null,
-                max = null,
-                metadata =
-                    metadata.toMutableMap().also { metadata ->
-                        metadata["forsteArbeidsdag"] =
-                            harAlleredeStartet
-                                .undersporsmal
-                                .first { it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG_FORSTE_ARBEIDSDAG }
-                                .forsteSvar!!
-                    }.toJsonNode(),
-                kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
-                undersporsmal =
-                    listOf(
-                        bruttoInntektSporsmal(periodeTekst),
-                    ),
+            return@map paafolgendeSporsmal(
+                arbeidsforhold,
+                periodeTekst,
+                metadata.toMutableMap().also { metadata ->
+                    metadata["forsteArbeidsdag"] =
+                        harAlleredeStartet
+                            .undersporsmal
+                            .first { it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG_FORSTE_ARBEIDSDAG }
+                            .forsteSvar!!
+                },
             )
         }
-
-        return@map Sporsmal(
-            tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG,
-            sporsmalstekst = "Har du startet å jobbe hos ${arbeidsforhold.arbeidsstedNavn}?",
-            undertekst = null,
-            svartype = Svartype.JA_NEI,
-            min = null,
-            max = null,
-            metadata = metadata.toJsonNode(),
-            kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
-            undersporsmal =
-                listOf(
-                    Sporsmal(
-                        tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG_FORSTE_ARBEIDSDAG,
-                        sporsmalstekst = "Når hadde du din første arbeidsdag?",
-                        undertekst = null,
-                        svartype = Svartype.DATO,
-                        max = denneSoknaden.tom.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                    ),
-                    bruttoInntektSporsmal(periodeTekst),
-                ),
-        )
+        return@map forstegangSporsmal(arbeidsforhold, metadata, denneSoknaden.tom, periodeTekst)
     }
+}
+
+private fun paafolgendeSporsmal(
+    arbeidsforhold: ArbeidsforholdFraAAreg,
+    periodeTekst: String,
+    metadata: Map<String, String>,
+): Sporsmal {
+    return Sporsmal(
+        tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_PAFOLGENDE,
+        sporsmalstekst = "Har du jobbet noe hos ${arbeidsforhold.arbeidsstedNavn} i perioden $periodeTekst?",
+        undertekst = null,
+        svartype = Svartype.JA_NEI,
+        min = null,
+        max = null,
+        metadata =
+            metadata.toJsonNode(),
+        kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
+        undersporsmal =
+            listOf(
+                bruttoInntektSporsmal(periodeTekst),
+            ),
+    )
+}
+
+private fun forstegangSporsmal(
+    arbeidsforhold: ArbeidsforholdFraAAreg,
+    metadata: Map<String, String>,
+    tom: LocalDate,
+    periodeTekst: String,
+): Sporsmal {
+    return Sporsmal(
+        tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG,
+        sporsmalstekst = "Har du startet å jobbe hos ${arbeidsforhold.arbeidsstedNavn}?",
+        undertekst = null,
+        svartype = Svartype.JA_NEI,
+        min = null,
+        max = null,
+        metadata = metadata.toJsonNode(),
+        kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
+        undersporsmal =
+            listOf(
+                Sporsmal(
+                    tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG_FORSTE_ARBEIDSDAG,
+                    sporsmalstekst = "Når hadde du din første arbeidsdag?",
+                    undertekst = null,
+                    svartype = Svartype.DATO,
+                    max = tom.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                ),
+                bruttoInntektSporsmal(periodeTekst),
+            ),
+    )
 }
 
 private fun bruttoInntektSporsmal(periodeTekst: String) =

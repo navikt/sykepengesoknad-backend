@@ -86,6 +86,13 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
         oppdaterteSporsmal.add(ferieSporsmal(this.fom, oppdatertTom))
         oppdaterteSporsmal.add(permisjonSporsmal(this.fom, oppdatertTom))
         oppdaterteSporsmal.add(utlandArbeidstaker)
+        oppdaterteSporsmal.addAll(
+            nyttArbeidsforholdSporsmal(
+                nyeArbeidsforhold = this.arbeidsforholdFraAareg,
+                denneSoknaden = this,
+                eksisterendeSoknader = { emptyList() },
+            ),
+        )
     }
     if (this.arbeidssituasjon == NAERINGSDRIVENDE || this.arbeidssituasjon == FRILANSER) {
         oppdaterteSporsmal.add(utlandNaringsdrivende)
@@ -97,8 +104,7 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
             oppdatertSoknad.copy(
                 sporsmal =
                     oppdatertSoknad.sporsmal
-                        .filterNot {
-                                spm ->
+                        .filterNot { spm ->
                             spm.tag.startsWith(ARBEID_UNDERVEIS_100_PROSENT) && oppdaterteSporsmal.none { it.tag == spm.tag }
                         }
                         .filterNot { spm -> spm.tag.startsWith(JOBBET_DU_GRADERT) && oppdaterteSporsmal.none { it.tag == spm.tag } },

@@ -2,6 +2,7 @@ package no.nav.helse.flex.domain
 
 import no.nav.helse.flex.inntektsopplysninger.InntektsopplysningerDokumentType
 import no.nav.helse.flex.medlemskap.KjentOppholdstillatelse
+import no.nav.helse.flex.soknadsopprettelse.ArbeidsforholdFraAAreg
 import no.nav.helse.flex.soknadsopprettelse.ArbeidsforholdFraInntektskomponenten
 import java.io.Serializable
 import java.time.Instant
@@ -48,6 +49,7 @@ data class Sykepengesoknad(
     val inntektsopplysningerInnsendingDokumenter: List<InntektsopplysningerDokumentType>? = null,
     val fiskerBlad: FiskerBlad? = null,
     val kjentOppholdstillatelse: KjentOppholdstillatelse? = null,
+    val arbeidsforholdFraAareg: List<ArbeidsforholdFraAAreg>? = null,
 ) : Serializable {
     fun alleSporsmalOgUndersporsmal(): List<Sporsmal> {
         return sporsmal.flatten()
