@@ -8,6 +8,7 @@ import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Visningskriterie
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.util.DatoUtil
+import no.nav.helse.flex.util.toJsonNode
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -41,12 +42,29 @@ fun andreInntektskilderArbeidstaker(arbeidsgiver: String?): Sporsmal {
     )
 }
 
+data class AndreInntektskilderMetadata(
+    val kjenteInntektskilder: List<KjentInntektskilde>,
+)
+
+enum class Kilde {
+    INNTEKTSKOMPONENTEN,
+    AAAREG,
+    SYKMELDING,
+}
+
+data class KjentInntektskilde(
+    val navn: String,
+    val kilde: Kilde,
+    val orgnummer: String,
+)
+
 fun andreInntektskilderArbeidstakerV2(
     sykmeldingOrgnavn: String,
-    andreKjenteArbeidsforhold: List<String>,
+    sykmeldingOrgnr: String,
+    andreKjenteArbeidsforhold: List<ArbeidsforholdFraInntektskomponenten>,
 ): Sporsmal {
     fun skapSporsmal(): String {
-        val listen = mutableListOf(sykmeldingOrgnavn).also { it.addAll(andreKjenteArbeidsforhold) }
+        val listen = mutableListOf(sykmeldingOrgnavn).also { it.addAll(andreKjenteArbeidsforhold.map { it.navn }) }
 
         fun virksomheterTekst(): String {
             if (listen.size < 3) {
@@ -63,6 +81,22 @@ fun andreInntektskilderArbeidstakerV2(
         sporsmalstekst = skapSporsmal(),
         svartype = Svartype.JA_NEI,
         kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
+        metadata =
+            AndreInntektskilderMetadata(
+                kjenteInntektskilder =
+                    listOf(KjentInntektskilde(sykmeldingOrgnavn, Kilde.SYKMELDING, sykmeldingOrgnr))
+                        .toMutableList().also { listen ->
+                            listen.addAll(
+                                andreKjenteArbeidsforhold.map {
+                                    KjentInntektskilde(
+                                        navn = it.navn,
+                                        kilde = Kilde.INNTEKTSKOMPONENTEN,
+                                        orgnummer = it.orgnummer,
+                                    )
+                                },
+                            )
+                        },
+            ).toJsonNode(),
         undersporsmal =
             listOf(
                 Sporsmal(
