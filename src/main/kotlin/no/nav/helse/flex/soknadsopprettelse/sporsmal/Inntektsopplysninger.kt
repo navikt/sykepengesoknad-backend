@@ -24,7 +24,7 @@ fun lagSporsmalOmInntektsopplyninger(
 
     return Sporsmal(
         tag = INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET,
-        sporsmalstekst = "Har du registrert virksomheten din som avviklet og slettet i Altinn før du ble sykmeldt?",
+        sporsmalstekst = "Har du avviklet virksomheten din før du ble sykmeldt?",
         svartype = Svartype.RADIO_GRUPPE,
         undersporsmal =
             listOf(
@@ -37,7 +37,7 @@ fun lagSporsmalOmInntektsopplyninger(
                         listOf(
                             Sporsmal(
                                 tag = INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET,
-                                sporsmalstekst = "Er du ny i arbeidslivet etter ${
+                                sporsmalstekst = "Utenom virksomheten din, har du hatt andre jobber før ${
                                     DatoUtil.formatterDato(
                                         datoForVarigEndringEtter,
                                     )
