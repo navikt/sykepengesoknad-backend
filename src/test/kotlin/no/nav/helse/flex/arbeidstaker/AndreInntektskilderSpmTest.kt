@@ -12,6 +12,7 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
+import no.nav.helse.flex.util.serialisertTilString
 import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldHaveSize
@@ -63,9 +64,12 @@ class AndreInntektskilderSpmTest : FellesTestOppsett() {
         frilanser.orgnummer `should be equal to` "999333667"
         frilanser.arbeidsforholdstype `should be equal to` Arbeidsforholdstype.FRILANSER
 
-        soknaden.sporsmal!!.find {
-            it.tag == "ANDRE_INNTEKTSKILDER_V2"
-        }!!.sporsmalstekst `should be equal to` "Har du andre inntektskilder enn Matbutikken AS, Bensinstasjonen AS og Frilanseransetter AS?"
+        val andreInntektskilderSpm =
+            soknaden.sporsmal!!.find {
+                it.tag == "ANDRE_INNTEKTSKILDER_V2"
+            }!!
+        andreInntektskilderSpm.sporsmalstekst `should be equal to` "Har du andre inntektskilder enn Matbutikken AS, Bensinstasjonen AS og Frilanseransetter AS?"
+        andreInntektskilderSpm.metadata!!.serialisertTilString() `should be equal to` """{"kjenteInntektskilder":[{"navn":"Matbutikken AS","kilde":"SYKMELDING","orgnummer":"123454543"},{"navn":"Bensinstasjonen AS","kilde":"INNTEKTSKOMPONENTEN","orgnummer":"999333666"},{"navn":"Frilanseransetter AS","kilde":"INNTEKTSKOMPONENTEN","orgnummer":"999333667"}]}"""
     }
 
     @Test

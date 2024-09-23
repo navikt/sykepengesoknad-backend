@@ -66,8 +66,9 @@ fun settOppSoknadArbeidstaker(
 
         add(
             andreInntektskilderArbeidstakerV2(
-                sykepengesoknad.arbeidsgiverNavn!!,
-                andreKjenteArbeidsforholdFraInntektskomponenten.map { it.navn },
+                sykmeldingOrgnavn = sykepengesoknad.arbeidsgiverNavn!!,
+                sykmeldingOrgnr = sykepengesoknad.arbeidsgiverOrgnummer!!,
+                andreKjenteArbeidsforhold = andreKjenteArbeidsforholdFraInntektskomponenten,
             ),
         )
         addAll(jobbetDuIPeriodenSporsmal(sykepengesoknad.soknadPerioder!!, sykepengesoknad.arbeidsgiverNavn))
