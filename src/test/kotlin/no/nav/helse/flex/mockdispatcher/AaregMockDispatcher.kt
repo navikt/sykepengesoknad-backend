@@ -12,10 +12,10 @@ import java.time.LocalDate
 object AaregMockDispatcher : QueueDispatcher() {
     override fun dispatch(request: RecordedRequest): MockResponse {
         val req: ArbeidsforholdRequest = objectMapper.readValue(request.body.readUtf8())
-        val fnr = req.arbeidstakerId
-        if (fnr == "22222220001") {
-            return ArbeidsforholdoversiktResponse(
-                arbeidsforholdoversikter =
+        when (val fnr = req.arbeidstakerId) {
+            "22222220001" -> {
+                return ArbeidsforholdoversiktResponse(
+                    arbeidsforholdoversikter =
                     listOf(
                         skapArbeidsforholdOversikt(
                             fnr = fnr,
@@ -28,13 +28,32 @@ object AaregMockDispatcher : QueueDispatcher() {
                             arbeidssted = "999888777",
                         ),
                     ),
-            ).tilMockResponse()
+                ).tilMockResponse()
+            }
+            "44444444999" -> {
+                return ArbeidsforholdoversiktResponse(
+                    arbeidsforholdoversikter =
+                    listOf(
+                        skapArbeidsforholdOversikt(
+                            fnr = fnr,
+                            startdato = LocalDate.of(2024, 9, 15).minusDays(40),
+                            arbeidssted = "999333666",
+                            opplysningspliktigOrganisasjonsnummer = "11224455441"
+                        ),
+                        skapArbeidsforholdOversikt(
+                            fnr = fnr,
+                            startdato = LocalDate.of(2024, 9, 15).minusDays(10),
+                            arbeidssted = "999888777",
+                            opplysningspliktigOrganisasjonsnummer = "11224455441"
+                        ),
+                    ),
+                ).tilMockResponse()
+            }
+            else -> return ArbeidsforholdoversiktResponse(arbeidsforholdoversikter = emptyList()).tilMockResponse()
         }
-
-        return ArbeidsforholdoversiktResponse(arbeidsforholdoversikter = emptyList()).tilMockResponse()
     }
 
-    fun ArbeidsforholdoversiktResponse.tilMockResponse(): MockResponse {
+    private fun ArbeidsforholdoversiktResponse.tilMockResponse(): MockResponse {
         return MockResponse().setBody(this.serialisertTilString()).addHeader("Content-Type", "application/json")
     }
 }
@@ -44,12 +63,17 @@ fun skapArbeidsforholdOversikt(
     sluttdato: LocalDate? = null,
     arbeidssted: String,
     fnr: String,
+    opplysningspliktigOrganisasjonsnummer: String? = null,
 ): ArbeidsforholdOversikt {
     return ArbeidsforholdOversikt(
         type = Kodeverksentitet("ordinaertArbeidsforhold", "Ordinært arbeidsforhold"),
         arbeidstaker = Arbeidstaker(listOf(Ident("FOLKEREGISTERIDENT", fnr, true))),
         arbeidssted = Arbeidssted("Underenhet", listOf(Ident("ORGANISASJONSNUMMER", arbeidssted))),
-        opplysningspliktig = Opplysningspliktig("Hovedenhet", listOf(Ident("ORGANISASJONSNUMMER", "11224455441"))),
+        opplysningspliktig =
+            Opplysningspliktig(
+                "Hovedenhet",
+                listOf(Ident("ORGANISASJONSNUMMER", opplysningspliktigOrganisasjonsnummer ?: tilfeldigOrgNummer())),
+            ),
         startdato = startdato,
         sluttdato = sluttdato,
         yrke = Kodeverksentitet("1231119", "KONTORLEDER"),
@@ -57,4 +81,10 @@ fun skapArbeidsforholdOversikt(
         permisjonsprosent = 0,
         permitteringsprosent = 0,
     )
+}
+
+fun tilfeldigOrgNummer(): String {
+    var orgNummer = ""
+    repeat(9) { orgNummer += (1..10).random().toString() }
+    return orgNummer
 }
