@@ -61,16 +61,33 @@ data class KjentInntektskilde(
 fun andreInntektskilderArbeidstakerV2(
     sykmeldingOrgnavn: String,
     sykmeldingOrgnr: String,
-    andreKjenteArbeidsforhold: List<ArbeidsforholdFraInntektskomponenten>,
+    andreKjenteArbeidsforholdFraInntektskomponenten: List<ArbeidsforholdFraInntektskomponenten>,
+    nyeArbeidsforholdFraAareg: List<ArbeidsforholdFraAAreg>?,
 ): Sporsmal {
+    val alleArbeidsforhold = mutableListOf(KjentInntektskilde(sykmeldingOrgnavn, Kilde.SYKMELDING, sykmeldingOrgnr))
+    alleArbeidsforhold.addAll(
+        andreKjenteArbeidsforholdFraInntektskomponenten.map {
+            KjentInntektskilde(
+                it.navn,
+                Kilde.INNTEKTSKOMPONENTEN,
+                it.orgnummer,
+            )
+        },
+    )
+    nyeArbeidsforholdFraAareg?.filter { arbeidsforhold ->
+        !alleArbeidsforhold.map { it.orgnummer }.contains(arbeidsforhold.arbeidsstedOrgnummer)
+    }?.forEach {
+        alleArbeidsforhold.add(KjentInntektskilde(it.arbeidsstedNavn, Kilde.AAAREG, it.arbeidsstedOrgnummer))
+    }
+
     fun skapSporsmal(): String {
-        val listen = mutableListOf(sykmeldingOrgnavn).also { it.addAll(andreKjenteArbeidsforhold.map { it.navn }) }
+        val alleNavn = alleArbeidsforhold.map { it.navn }
 
         fun virksomheterTekst(): String {
-            if (listen.size < 3) {
-                return listen.joinToString(" og ")
+            if (alleNavn.size < 3) {
+                return alleNavn.joinToString(" og ")
             }
-            return "${listen.subList(0, listen.size - 1).joinToString(", ")} og ${listen.last()}"
+            return "${alleNavn.subList(0, alleNavn.size - 1).joinToString(", ")} og ${alleNavn.last()}"
         }
 
         return "Har du andre inntektskilder enn ${virksomheterTekst()}?"
@@ -83,19 +100,7 @@ fun andreInntektskilderArbeidstakerV2(
         kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
         metadata =
             AndreInntektskilderMetadata(
-                kjenteInntektskilder =
-                    listOf(KjentInntektskilde(sykmeldingOrgnavn, Kilde.SYKMELDING, sykmeldingOrgnr))
-                        .toMutableList().also { listen ->
-                            listen.addAll(
-                                andreKjenteArbeidsforhold.map {
-                                    KjentInntektskilde(
-                                        navn = it.navn,
-                                        kilde = Kilde.INNTEKTSKOMPONENTEN,
-                                        orgnummer = it.orgnummer,
-                                    )
-                                },
-                            )
-                        },
+                kjenteInntektskilder = alleArbeidsforhold,
             ).toJsonNode(),
         undersporsmal =
             listOf(

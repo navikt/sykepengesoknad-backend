@@ -68,7 +68,8 @@ fun settOppSoknadArbeidstaker(
             andreInntektskilderArbeidstakerV2(
                 sykmeldingOrgnavn = sykepengesoknad.arbeidsgiverNavn!!,
                 sykmeldingOrgnr = sykepengesoknad.arbeidsgiverOrgnummer!!,
-                andreKjenteArbeidsforhold = andreKjenteArbeidsforholdFraInntektskomponenten,
+                andreKjenteArbeidsforholdFraInntektskomponenten = andreKjenteArbeidsforholdFraInntektskomponenten,
+                nyeArbeidsforholdFraAareg = soknadOptions.arbeidsforholdoversiktResponse,
             ),
         )
         addAll(jobbetDuIPeriodenSporsmal(sykepengesoknad.soknadPerioder!!, sykepengesoknad.arbeidsgiverNavn))
