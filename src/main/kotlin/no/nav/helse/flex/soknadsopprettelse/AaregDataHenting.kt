@@ -47,11 +47,19 @@ class AaregDataHenting(
                 opplysningspliktigOrgnummer = opplysningspliktigOrgnummer,
             )
         }
+
+        val arbeidsforholdSoknad =
+            arbeidsforholOversikt.find { arbeidsforholdOversikt ->
+                arbeidsforholdOversikt.arbeidssted.identer.firstOrNull { it.ident == arbeidsgiverOrgnummer } != null
+            }
+        val opplysningspliktigOrgnummer =
+            arbeidsforholdSoknad?.opplysningspliktig?.identer?.firstOrNull { it.type == "ORGANISASJONSNUMMER" }?.ident
+
         return arbeidsforholOversikt
             .filter { it.startdato.isAfter(startSykeforlop) }
             .filter { it.startdato.isBeforeOrEqual(soknadTom) }
             .filter { it.erOrganisasjonArbeidsforhold() }
-            .filter { arbeidsforhold -> !arbeidsforhold.arbeidssted.identer.any { it.ident == arbeidsgiverOrgnummer } }
+            .filterInterneOrgnummer(opplysningspliktigOrgnummer)
             .map { it.tilArbeidsforholdFraAAreg() }
             .sortedBy { it.startdato }
     }
@@ -59,6 +67,13 @@ class AaregDataHenting(
 
 private fun ArbeidsforholdOversikt.erOrganisasjonArbeidsforhold(): Boolean {
     return this.opplysningspliktig.type == "Hovedenhet"
+}
+
+private fun List<ArbeidsforholdOversikt>.filterInterneOrgnummer(opplysningspliktigOrgnummer: String?): List<ArbeidsforholdOversikt> {
+    opplysningspliktigOrgnummer ?: return this
+    return this.filter { arbeidsforhold ->
+        arbeidsforhold.opplysningspliktig.identer.none { it.ident == opplysningspliktigOrgnummer }
+    }
 }
 
 data class ArbeidsforholdFraAAreg(

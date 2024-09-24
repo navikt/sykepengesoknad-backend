@@ -16,37 +16,44 @@ object AaregMockDispatcher : QueueDispatcher() {
             "22222220001" -> {
                 return ArbeidsforholdoversiktResponse(
                     arbeidsforholdoversikter =
-                    listOf(
-                        skapArbeidsforholdOversikt(
-                            fnr = fnr,
-                            startdato = LocalDate.of(2024, 9, 15).minusDays(40),
-                            arbeidssted = "999333666",
+                        listOf(
+                            skapArbeidsforholdOversikt(
+                                fnr = fnr,
+                                startdato = LocalDate.of(2024, 9, 15).minusDays(40),
+                                arbeidssted = "999333666",
+                                opplysningspliktigOrganisasjonsnummer = "11224455441",
+                            ),
+                            skapArbeidsforholdOversikt(
+                                fnr = fnr,
+                                startdato = LocalDate.of(2024, 9, 15).minusDays(10),
+                                arbeidssted = "999888777",
+                                opplysningspliktigOrganisasjonsnummer = "11224455441",
+                            ),
                         ),
-                        skapArbeidsforholdOversikt(
-                            fnr = fnr,
-                            startdato = LocalDate.of(2024, 9, 15).minusDays(10),
-                            arbeidssted = "999888777",
-                        ),
-                    ),
                 ).tilMockResponse()
             }
             "44444444999" -> {
                 return ArbeidsforholdoversiktResponse(
                     arbeidsforholdoversikter =
-                    listOf(
-                        skapArbeidsforholdOversikt(
-                            fnr = fnr,
-                            startdato = LocalDate.of(2024, 9, 15).minusDays(40),
-                            arbeidssted = "999333666",
-                            opplysningspliktigOrganisasjonsnummer = "11224455441"
+                        listOf(
+                            skapArbeidsforholdOversikt(
+                                fnr = fnr,
+                                startdato = LocalDate.of(2024, 9, 15).minusDays(40),
+                                arbeidssted = "999333666",
+                                opplysningspliktigOrganisasjonsnummer = "1984108765",
+                            ),
+                            skapArbeidsforholdOversikt(
+                                fnr = fnr,
+                                startdato = LocalDate.of(2024, 9, 15).minusDays(10),
+                                arbeidssted = "999888777",
+                                opplysningspliktigOrganisasjonsnummer = "1984108765",
+                            ),
+                            skapArbeidsforholdOversikt(
+                                fnr = fnr,
+                                startdato = LocalDate.of(2024, 9, 15).minusDays(10),
+                                arbeidssted = "999333667",
+                            ),
                         ),
-                        skapArbeidsforholdOversikt(
-                            fnr = fnr,
-                            startdato = LocalDate.of(2024, 9, 15).minusDays(10),
-                            arbeidssted = "999888777",
-                            opplysningspliktigOrganisasjonsnummer = "11224455441"
-                        ),
-                    ),
                 ).tilMockResponse()
             }
             else -> return ArbeidsforholdoversiktResponse(arbeidsforholdoversikter = emptyList()).tilMockResponse()

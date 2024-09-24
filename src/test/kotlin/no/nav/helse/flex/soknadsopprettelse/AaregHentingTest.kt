@@ -52,4 +52,18 @@ class AaregHentingTest : FellesTestOppsett() {
             )
         nyeArbeidsforhold.shouldBeEmpty()
     }
+
+    @Test
+    fun `filtrerer ut arbeidsforhold med interne orgnummer bytte (samme opplysningspliktig orgnummer)`() {
+        val nyeArbeidsforhold =
+            aaregDataHenting.hentNyeArbeidsforhold(
+                fnr = "44444444999",
+                arbeidsgiverOrgnummer = "999333666",
+                startSykeforlop = LocalDate.of(2024, 9, 15).minusDays(50),
+                sykepengesoknadId = UUID.randomUUID().toString(),
+                soknadTom = LocalDate.of(2024, 9, 15),
+            )
+        nyeArbeidsforhold.shouldHaveSize(1)
+        nyeArbeidsforhold[0].arbeidsstedNavn `should be equal to` "Frilanseransetter AS"
+    }
 }
