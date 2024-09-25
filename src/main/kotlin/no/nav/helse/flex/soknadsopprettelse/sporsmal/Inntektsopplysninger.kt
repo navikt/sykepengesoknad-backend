@@ -37,7 +37,7 @@ fun lagSporsmalOmInntektsopplyninger(
                         listOf(
                             Sporsmal(
                                 tag = INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET,
-                                sporsmalstekst = "Utenom virksomheten din, har du hatt andre jobber før ${
+                                sporsmalstekst = "Er du ny i arbeidslivet etter ${
                                     DatoUtil.formatterDato(
                                         datoForVarigEndringEtter,
                                     )
