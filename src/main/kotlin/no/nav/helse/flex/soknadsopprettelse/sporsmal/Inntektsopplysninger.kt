@@ -39,7 +39,7 @@ fun lagSporsmalOmInntektsopplyninger(
                                 tag = INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET,
                                 sporsmalstekst = "Utenom virksomheten din, har du hatt andre jobber før ${
                                     DatoUtil.formatterDato(
-                                        datoForVarigEndringEtter,
+                                        LocalDate.of(datoForVarigEndringEtter.year, 1, 1),
                                     )
                                 }?",
                                 svartype = Svartype.RADIO_GRUPPE,
