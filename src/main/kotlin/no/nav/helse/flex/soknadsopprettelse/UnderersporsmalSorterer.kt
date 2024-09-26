@@ -38,19 +38,10 @@ private fun Sporsmal.sorterUndersporsmal(): Sporsmal {
                     KJENTE_INNTEKTSKILDER_ARSAK_IKKE_JOBBET -> it.sorteringKjenteInntektskilderArsak()
                     INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE -> it.sorteringVarigEndringBegrunnelse()
                     INNTEKTSOPPLYSNINGER_VARIG_ENDRING -> it.sorteringVarigEndringJa()
-                    NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG -> it.sorteringNyttArbeidsforholdUnderveis()
                     else -> it.tag
                 }
             }
     return this.copy(undersporsmal = sorterteUndersporsmal)
-}
-
-private fun Sporsmal.sorteringNyttArbeidsforholdUnderveis(): String? {
-    return when (tag) {
-        NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG_FORSTE_ARBEIDSDAG -> "0"
-        NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO -> "1"
-        else -> throw RuntimeException("Ukjent underspørsmål for nytt arbeidsforhold underveid: $tag")
-    }
 }
 
 private fun Sporsmal.sorteringVarigEndringBegrunnelse(): String {

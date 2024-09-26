@@ -37,8 +37,7 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
                         .filterNot { (_, tag) -> tag == UTLAND }
                         .filterNot { (_, tag) -> tag == OPPHOLD_UTENFOR_EOS }
                         .filterNot { (_, tag) -> tag == UTDANNING }
-                        .filterNot { (_, tag) -> tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG }
-                        .filterNot { (_, tag) -> tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS_PAFOLGENDE }
+                        .filterNot { (_, tag) -> tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS }
                         .toMutableList(),
             )
         }

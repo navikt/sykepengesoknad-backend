@@ -21,12 +21,7 @@ class VirkedagsBeregningTest : NyttArbeidsforholdFellesOppsett() {
         val sendtSoknad =
             SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
                 .standardSvar()
-                .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG, svar = "JA", ferdigBesvart = false)
-                .besvarSporsmal(
-                    tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG_FORSTE_ARBEIDSDAG,
-                    svar = basisdato.minusDays(20).toString(),
-                    ferdigBesvart = false,
-                )
+                .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS, svar = "JA", ferdigBesvart = false)
                 .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO, svar = "400000", ferdigBesvart = true)
                 .medFerie(fom = soknaden.fom!!, tom = soknaden.tom!!)
                 .sendSoknad()
@@ -42,7 +37,6 @@ class VirkedagsBeregningTest : NyttArbeidsforholdFellesOppsett() {
         inntektFraNyttArbeidsforhold.fom `should be equal to` basisdato.minusDays(20)
         inntektFraNyttArbeidsforhold.tom `should be equal to` basisdato
         inntektFraNyttArbeidsforhold.belopPerDag `should be equal to` 0
-        inntektFraNyttArbeidsforhold.forsteArbeidsdag `should be equal to` basisdato.minusDays(20)
         inntektFraNyttArbeidsforhold.virkedager `should be equal to` 0
 
         juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
@@ -59,12 +53,7 @@ class VirkedagsBeregningTest : NyttArbeidsforholdFellesOppsett() {
         val sendtSoknad =
             SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
                 .standardSvar()
-                .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG, svar = "JA", ferdigBesvart = false)
-                .besvarSporsmal(
-                    tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG_FORSTE_ARBEIDSDAG,
-                    svar = basisdato.minusDays(20).toString(),
-                    ferdigBesvart = false,
-                )
+                .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS, svar = "JA", ferdigBesvart = false)
                 .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO, svar = "400000", ferdigBesvart = true)
                 .medFerie(fom = soknaden.fom!!, tom = soknaden.tom!!.minusDays(2))
                 .sendSoknad()
@@ -80,7 +69,6 @@ class VirkedagsBeregningTest : NyttArbeidsforholdFellesOppsett() {
         inntektFraNyttArbeidsforhold.fom `should be equal to` basisdato.minusDays(20)
         inntektFraNyttArbeidsforhold.tom `should be equal to` basisdato
         inntektFraNyttArbeidsforhold.belopPerDag `should be equal to` 0
-        inntektFraNyttArbeidsforhold.forsteArbeidsdag `should be equal to` basisdato.minusDays(20)
         inntektFraNyttArbeidsforhold.virkedager `should be equal to` 0
 
         juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
@@ -97,12 +85,7 @@ class VirkedagsBeregningTest : NyttArbeidsforholdFellesOppsett() {
         val sendtSoknad =
             SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
                 .standardSvar()
-                .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG, svar = "JA", ferdigBesvart = false)
-                .besvarSporsmal(
-                    tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG_FORSTE_ARBEIDSDAG,
-                    svar = basisdato.minusDays(20).toString(),
-                    ferdigBesvart = false,
-                )
+                .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS, svar = "JA", ferdigBesvart = false)
                 .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO, svar = "400000", ferdigBesvart = true)
                 .medFerie(fom = soknaden.fom!!, tom = soknaden.tom!!.minusDays(3))
                 .sendSoknad()
@@ -118,7 +101,6 @@ class VirkedagsBeregningTest : NyttArbeidsforholdFellesOppsett() {
         inntektFraNyttArbeidsforhold.fom `should be equal to` basisdato.minusDays(20)
         inntektFraNyttArbeidsforhold.tom `should be equal to` basisdato
         inntektFraNyttArbeidsforhold.belopPerDag `should be equal to` 4000
-        inntektFraNyttArbeidsforhold.forsteArbeidsdag `should be equal to` basisdato.minusDays(20)
         inntektFraNyttArbeidsforhold.virkedager `should be equal to` 1
 
         juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
