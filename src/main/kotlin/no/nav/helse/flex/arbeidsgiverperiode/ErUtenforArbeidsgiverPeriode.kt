@@ -29,6 +29,5 @@ private fun Sykepengesoknad.tilSyketilfelleBiter(): List<Syketilfellebit> {
             soknadsperioder = hentSoknadsPerioderMedFaktiskGrad(this).first,
         )
 
-    // TODO mapper vi faktisk egenmeldingsdager fra sykmelding?
     return sykepengesoknadDTO.mapSoknadTilBiter()
 }

@@ -72,6 +72,42 @@ class ErUtenforArbeidsgiverPeriodeKtTest {
 
         kortSoknad.erUtenforArbeidsgiverPeriode(emptyList()).`should be true`()
     }
+
+    @Test
+    fun `to 10 dagere er utafor agp`() {
+        val soknad =
+            opprettSendtSoknad(
+                fom = LocalDate.of(2022, 7, 11),
+                tom = LocalDate.of(2022, 7, 20),
+            )
+
+        soknad.erUtenforArbeidsgiverPeriode(
+            listOf(
+                opprettSendtSoknad(
+                    fom = LocalDate.of(2022, 7, 1),
+                    tom = LocalDate.of(2022, 7, 10),
+                ),
+            ),
+        ).`should be true`()
+    }
+
+    @Test
+    fun `5 og 10 er innenfor agp`() {
+        val soknad =
+            opprettSendtSoknad(
+                fom = LocalDate.of(2022, 7, 11),
+                tom = LocalDate.of(2022, 7, 20),
+            )
+
+        soknad.erUtenforArbeidsgiverPeriode(
+            listOf(
+                opprettSendtSoknad(
+                    fom = LocalDate.of(2022, 7, 6),
+                    tom = LocalDate.of(2022, 7, 10),
+                ),
+            ),
+        ).`should be false`()
+    }
 }
 
 fun opprettSendtSoknad(
