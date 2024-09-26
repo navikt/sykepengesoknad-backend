@@ -2,6 +2,7 @@ package no.nav.helse.flex.arbeidsgiverperiode
 
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.mock.opprettNySoknad
+import no.nav.helse.flex.util.serialisertTilString
 import org.amshove.kluent.`should be false`
 import org.amshove.kluent.`should be true`
 import org.junit.jupiter.api.Test
@@ -50,6 +51,26 @@ class ErUtenforArbeidsgiverPeriodeKtTest {
             )
 
         soknad.erUtenforArbeidsgiverPeriode(emptyList()).`should be true`()
+    }
+
+    @Test
+    fun `tolv dager med 5 egenmeldingsdager er utenfor agp`() {
+        val kortSoknad =
+            opprettSendtSoknad(
+                fom = LocalDate.of(2022, 7, 11),
+                tom = LocalDate.of(2022, 7, 22),
+            ).copy(
+                egenmeldingsdagerFraSykmelding =
+                    listOf(
+                        LocalDate.of(2022, 7, 6),
+                        LocalDate.of(2022, 7, 7),
+                        LocalDate.of(2022, 7, 8),
+                        LocalDate.of(2022, 7, 9),
+                        LocalDate.of(2022, 7, 10),
+                    ).serialisertTilString(),
+            )
+
+        kortSoknad.erUtenforArbeidsgiverPeriode(emptyList()).`should be true`()
     }
 }
 

@@ -19,7 +19,7 @@ private fun SykepengesoknadDTO.inntruffet(): OffsetDateTime {
 }
 
 private fun SykepengesoknadDTO.statustag() =
-    if (status == SoknadsstatusDTO.SENDT) {
+    if (status == SoknadsstatusDTO.SENDT || status == SoknadsstatusDTO.NY || status == SoknadsstatusDTO.FREMTIDIG) {
         Tag.SENDT
     } else {
         Tag.KORRIGERT
@@ -55,6 +55,7 @@ fun SykepengesoknadDTO.mapSoknadTilBiter(): List<Syketilfellebit> {
     fravarForSykmelding(opprettet)?.let { list += it }
     papirsykmelding(opprettet)?.let { list += it }
     behandingsdagBiter(opprettet)?.let { list += it }
+    egenmeldingsdagerFraSykmelding(opprettet)?.let { list += it }
 
     return list
 }
@@ -77,6 +78,7 @@ private fun SykepengesoknadDTO.fravar(opprettet: OffsetDateTime) =
                                 Tag.UTDANNING,
                                 Tag.DELTID,
                             )
+
                         FravarstypeDTO.UTDANNING_FULLTID ->
                             listOf(
                                 Tag.SYKEPENGESOKNAD,
@@ -84,6 +86,7 @@ private fun SykepengesoknadDTO.fravar(opprettet: OffsetDateTime) =
                                 Tag.UTDANNING,
                                 Tag.FULLTID,
                             )
+
                         else -> listOf(Tag.SYKEPENGESOKNAD, statustag(), Tag.FERIE)
                     }.toSet(),
                 ressursId = id,
@@ -104,6 +107,21 @@ private fun SykepengesoknadDTO.arbeidGjenopptatt(opprettet: OffsetDateTime) =
                 ressursId = id,
                 fom = it,
                 tom = tom!!,
+                fnr = fnr,
+            )
+        }
+
+private fun SykepengesoknadDTO.egenmeldingsdagerFraSykmelding(opprettet: OffsetDateTime) =
+    egenmeldingsdagerFraSykmelding
+        ?.map {
+            Syketilfellebit(
+                orgnummer = arbeidsgiver?.orgnummer,
+                opprettet = opprettet,
+                inntruffet = inntruffet(),
+                tags = setOf(Tag.SYKMELDING, statustag(), Tag.EGENMELDING),
+                ressursId = id,
+                fom = it,
+                tom = it,
                 fnr = fnr,
             )
         }
@@ -148,6 +166,7 @@ private fun SoknadsperiodeDTO.tagsForKorrigertArbeidstid(statustag: Tag): Set<Ta
                 Tag.KORRIGERT_ARBEIDSTID,
                 Tag.BEHANDLINGSDAGER,
             )
+
         faktiskGrad!! <= 0 -> listOf(Tag.SYKEPENGESOKNAD, statustag, Tag.KORRIGERT_ARBEIDSTID, Tag.FULL_AKTIVITET)
         faktiskGrad!! in 1..99 ->
             listOf(
@@ -156,6 +175,7 @@ private fun SoknadsperiodeDTO.tagsForKorrigertArbeidstid(statustag: Tag): Set<Ta
                 Tag.KORRIGERT_ARBEIDSTID,
                 Tag.GRADERT_AKTIVITET,
             )
+
         else -> listOf(Tag.SYKEPENGESOKNAD, statustag, Tag.KORRIGERT_ARBEIDSTID, Tag.INGEN_AKTIVITET)
     }.toSet()
 
