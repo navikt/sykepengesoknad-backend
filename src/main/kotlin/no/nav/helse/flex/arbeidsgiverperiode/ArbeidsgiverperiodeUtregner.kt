@@ -11,11 +11,13 @@ fun beregnArbeidsgiverperiode(
     biter: List<Syketilfellebit>,
     soknad: Sykepengesoknad,
 ): Arbeidsgiverperiode? {
-    return genererOppfolgingstilfelle(
-        biter = biter,
-        grense = soknad.tom!!.atStartOfDay(),
-        startSyketilfelle = soknad.startSykeforlop,
-    )
+    val genererOppfolgingstilfelle =
+        genererOppfolgingstilfelle(
+            biter = biter,
+            grense = soknad.tom!!.atStartOfDay(),
+            startSyketilfelle = soknad.startSykeforlop,
+        )
+    return genererOppfolgingstilfelle
         ?.lastOrNull {
             if (it.sisteSykedagEllerFeriedag == null) {
                 return@lastOrNull it.oppbruktArbeidsgvierperiode()
