@@ -21,7 +21,7 @@ class NyttArbeidsforholdNeiFørsteTest : NyttArbeidsforholdFellesOppsett() {
         val sendtSoknad =
             SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
                 .standardSvar()
-                .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG, svar = "NEI").sendSoknad()
+                .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS, svar = "NEI").sendSoknad()
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
 
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()

@@ -3,15 +3,13 @@ package no.nav.helse.flex.nyttarbeidsforhold
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.hentSoknader
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
+import no.nav.helse.flex.soknadsopprettelse.NYTT_ARBEIDSFORHOLD_UNDERVEIS
 import no.nav.helse.flex.soknadsopprettelse.NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO
-import no.nav.helse.flex.soknadsopprettelse.NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG
-import no.nav.helse.flex.soknadsopprettelse.NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG_FORSTE_ARBEIDSDAG
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.ventPåRecords
 import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should be true`
 import org.amshove.kluent.shouldHaveSize
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.MethodOrderer
@@ -31,12 +29,7 @@ class NyttArbeidsforhold0SvarTest : NyttArbeidsforholdFellesOppsett() {
         val sendtSoknad =
             SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
                 .standardSvar()
-                .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG, svar = "JA", ferdigBesvart = false)
-                .besvarSporsmal(
-                    tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_FORSTEGANG_FORSTE_ARBEIDSDAG,
-                    svar = basisdato.minusDays(4).toString(),
-                    ferdigBesvart = false,
-                )
+                .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS, svar = "JA", ferdigBesvart = false)
                 .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO, svar = "0", ferdigBesvart = true)
                 .sendSoknad()
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
@@ -48,9 +41,8 @@ class NyttArbeidsforhold0SvarTest : NyttArbeidsforholdFellesOppsett() {
         kafkaSoknader[0].inntektFraNyttArbeidsforhold!!.shouldHaveSize(1)
 
         val inntektFraNyttArbeidsforhold = kafkaSoknader[0].inntektFraNyttArbeidsforhold!!.first()
-        inntektFraNyttArbeidsforhold.fom `should be equal to` basisdato.minusDays(4)
+        inntektFraNyttArbeidsforhold.fom `should be equal to` basisdato.minusDays(20)
         inntektFraNyttArbeidsforhold.tom `should be equal to` basisdato
-        inntektFraNyttArbeidsforhold.forstegangssporsmal.`should be true`()
         inntektFraNyttArbeidsforhold.belopPerDag `should be equal to` 0
 
         juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
