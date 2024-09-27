@@ -10,7 +10,7 @@ import no.nav.helse.flex.soknadsopprettelse.oppdateringhelpers.finnGyldigDatoSva
 import no.nav.helse.flex.soknadsopprettelse.oppdateringhelpers.skapOppdaterteSoknadsperioder
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.*
 
-fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
+fun Sykepengesoknad.arbeidGjenopptattMutering(eksisterendeSoknader: () -> List<Sykepengesoknad>): Sykepengesoknad {
     if (erIkkeAvType(SELVSTENDIGE_OG_FRILANSERE, ARBEIDSTAKERE, GRADERT_REISETILSKUDD)) {
         return this
     }
@@ -89,7 +89,7 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
             nyttArbeidsforholdSporsmal(
                 nyeArbeidsforhold = this.arbeidsforholdFraAareg,
                 denneSoknaden = this,
-                eksisterendeSoknader = { emptyList() },
+                eksisterendeSoknader = eksisterendeSoknader,
             ),
         )
     }

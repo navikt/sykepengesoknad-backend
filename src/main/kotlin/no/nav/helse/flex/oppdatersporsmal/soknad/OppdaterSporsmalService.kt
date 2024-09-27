@@ -14,6 +14,7 @@ import no.nav.helse.flex.oppdatersporsmal.soknad.muteringer.oppdaterMedSvarPaUtl
 import no.nav.helse.flex.oppdatersporsmal.soknad.muteringer.utlandssoknadMuteringer
 import no.nav.helse.flex.repository.SvarDAO
 import no.nav.helse.flex.repository.SykepengesoknadDAO
+import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.soknadsopprettelse.KVITTERINGER
 import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLD_UTENFOR_EOS
 import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE
@@ -43,6 +44,7 @@ class OppdaterSporsmalService(
     fun oppdaterSporsmal(
         soknadFraBasenForOppdatering: Sykepengesoknad,
         sporsmal: Sporsmal,
+        identer: FolkeregisterIdenter,
     ): OppdaterSporsmalResultat {
         val sporsmaletFraBasen =
             soknadFraBasenForOppdatering.sporsmal.find { it.id == sporsmal.id }
@@ -64,7 +66,7 @@ class OppdaterSporsmalService(
                 .friskmeldtMuteringer()
                 .brukteDuReisetilskuddetMutering()
                 .utlandssoknadMuteringer()
-                .arbeidGjenopptattMutering()
+                .arbeidGjenopptattMutering { sykepengesoknadDAO.finnSykepengesoknader(identer) }
                 .oppdaterMedSvarPaUtlandsopphold() // TODO: denne kan fjernes helt etterhvert
 
         val soknadenErMutert = soknadFraBasenForOppdatering.sporsmal.erUlikUtenomSvar(oppdatertSoknad.sporsmal)
@@ -89,7 +91,9 @@ class OppdaterSporsmalService(
         lagretSoknad: Sykepengesoknad,
         sporsmalId: String,
         svar: Svar,
-    ): OppdaterSporsmalResultat {
+        identer: FolkeregisterIdenter,
+
+        ): OppdaterSporsmalResultat {
         val soknadId = lagretSoknad.id
 
         val sporsmal = (
@@ -100,14 +104,16 @@ class OppdaterSporsmalService(
 
         val oppdatertSporsmal = sporsmal.copy(svar = sporsmal.svar.toMutableList().also { it.add(svar) })
 
-        return oppdaterSporsmal(lagretSoknad, oppdatertSporsmal)
+        return oppdaterSporsmal(lagretSoknad, oppdatertSporsmal, identer)
     }
 
     fun slettSvar(
         lagretSoknad: Sykepengesoknad,
         sporsmalId: String,
         svarId: String,
-    ) {
+        identer: FolkeregisterIdenter,
+
+        ) {
         val soknadId = lagretSoknad.id
         val sporsmal =
             lagretSoknad.sporsmal
@@ -127,7 +133,7 @@ class OppdaterSporsmalService(
             log.info("Slettet kvittering med svarId $svarId fra spørsmål $sporsmalId tilhørende søknad $soknadId.")
         } else {
             val oppdatertSporsmal = sporsmal.copy(svar = sporsmal.svar - svarSomSkalFjernes)
-            oppdaterSporsmal(lagretSoknad, oppdatertSporsmal)
+            oppdaterSporsmal(lagretSoknad, oppdatertSporsmal, identer)
         }
         log.info("Slettet svar $svarId for spørsmål $sporsmalId og søknad $soknadId.")
     }

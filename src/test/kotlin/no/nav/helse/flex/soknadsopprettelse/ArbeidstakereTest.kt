@@ -117,7 +117,7 @@ class ArbeidstakereTest {
                     svar = listOf(Svar(null, fom.format(DateTimeFormatter.ISO_LOCAL_DATE))),
                 ),
             )
-        val oppdatertSoknad: Sykepengesoknad = sykepengesoknad.arbeidGjenopptattMutering()
+        val oppdatertSoknad: Sykepengesoknad = sykepengesoknad.arbeidGjenopptattMutering { emptyList() }
 
         assertThat(oppdatertSoknad.getSporsmalMedTagOrNull(FERIE_V2)).isNull()
     }
@@ -141,9 +141,9 @@ class ArbeidstakereTest {
                 ),
             )
         val oppdatertMin =
-            sykepengesoknad.arbeidGjenopptattMutering().getSporsmalMedTag(FERIE_NAR_V2).min
+            sykepengesoknad.arbeidGjenopptattMutering { emptyList() }.getSporsmalMedTag(FERIE_NAR_V2).min
         val oppdatertMax =
-            sykepengesoknad.arbeidGjenopptattMutering().getSporsmalMedTag(FERIE_NAR_V2).max
+            sykepengesoknad.arbeidGjenopptattMutering { emptyList() }.getSporsmalMedTag(FERIE_NAR_V2).max
 
         assertThat(oppdatertMin).isEqualTo(oppdatertMax)
         assertThat(oppdatertMax).isEqualTo(fom.format(DateTimeFormatter.ISO_LOCAL_DATE))
@@ -167,7 +167,7 @@ class ArbeidstakereTest {
                     svar = listOf(Svar(null, fom.format(DateTimeFormatter.ISO_LOCAL_DATE))),
                 ),
             )
-        val oppdatertSoknad: Sykepengesoknad = sykepengesoknad.arbeidGjenopptattMutering()
+        val oppdatertSoknad: Sykepengesoknad = sykepengesoknad.arbeidGjenopptattMutering { emptyList() }
 
         assertThat(oppdatertSoknad.getSporsmalMedTagOrNull(UTDANNING)).isNull()
     }
@@ -185,7 +185,7 @@ class ArbeidstakereTest {
             )
         val max = sykepengesoknad.getSporsmalMedTag(FERIE_NAR_V2).max
         val oppdatertMax =
-            sykepengesoknad.arbeidGjenopptattMutering().getSporsmalMedTag(FERIE_NAR_V2).max
+            sykepengesoknad.arbeidGjenopptattMutering { emptyList() }.getSporsmalMedTag(FERIE_NAR_V2).max
 
         assertThat(max).isEqualTo(oppdatertMax)
     }
@@ -210,7 +210,7 @@ class ArbeidstakereTest {
                 ),
             )
         val oppdatertMax =
-            sykepengesoknad.arbeidGjenopptattMutering().getSporsmalMedTag(FERIE_NAR_V2).max
+            sykepengesoknad.arbeidGjenopptattMutering { emptyList() }.getSporsmalMedTag(FERIE_NAR_V2).max
 
         assertThat(oppdatertMax).isEqualTo(arbeidGjenopptattDato.minusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE))
     }

@@ -245,7 +245,7 @@ class SoknadBrukerController(
             throw ReadOnlyException()
         }
         val sporsmal = rsSporsmal.mapSporsmal()
-        val (soknad, _) = hentOgSjekkTilgangTilSoknad(soknadId)
+        val (soknad, identer) = hentOgSjekkTilgangTilSoknad(soknadId)
 
         if (sporsmalId != sporsmal.id) {
             throw IllegalArgumentException("$sporsmalId != ${sporsmal.id} SporsmalId i body ikke lik sporsmalId i URL ")
@@ -253,7 +253,7 @@ class SoknadBrukerController(
 
         validerStatusOgHovedsporsmal(soknad = soknad, soknadId = soknadId, sporsmalId = sporsmalId)
 
-        val oppdaterSporsmalResultat = oppdaterSporsmalService.oppdaterSporsmal(soknad, sporsmal)
+        val oppdaterSporsmalResultat = oppdaterSporsmalService.oppdaterSporsmal(soknad, sporsmal, identer)
         return skapOppdaterSpmResponse(oppdaterSporsmalResultat, sporsmal.tag)
     }
 
@@ -272,11 +272,11 @@ class SoknadBrukerController(
         if (environmentToggles.isReadOnly()) {
             throw ReadOnlyException()
         }
-        val (soknad, _) = hentOgSjekkTilgangTilSoknad(soknadId)
+        val (soknad, identer) = hentOgSjekkTilgangTilSoknad(soknadId)
 
         val sporsmal = validerStatusOgHovedsporsmal(soknad = soknad, soknadId = soknadId, sporsmalId = sporsmalId)
 
-        val oppdaterSporsmalResultat = oppdaterSporsmalService.lagreNyttSvar(soknad, sporsmalId, svar.mapSvar())
+        val oppdaterSporsmalResultat = oppdaterSporsmalService.lagreNyttSvar(soknad, sporsmalId, svar.mapSvar(), identer)
         return skapOppdaterSpmResponse(oppdaterSporsmalResultat, sporsmal.tag)
     }
 
@@ -291,12 +291,13 @@ class SoknadBrukerController(
         if (environmentToggles.isReadOnly()) {
             throw ReadOnlyException()
         }
-        val (soknad, _) = hentOgSjekkTilgangTilSoknad(soknadId)
+        val (soknad, identer) = hentOgSjekkTilgangTilSoknad(soknadId)
         validerStatusOgHovedsporsmal(soknad = soknad, soknadId = soknadId, sporsmalId = sporsmalId)
         oppdaterSporsmalService.slettSvar(
             lagretSoknad = soknad,
             sporsmalId = sporsmalId,
             svarId = svarId,
+            identer = identer,
         )
     }
 
