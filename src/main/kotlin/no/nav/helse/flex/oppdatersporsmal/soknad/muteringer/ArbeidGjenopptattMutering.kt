@@ -89,7 +89,6 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
             nyttArbeidsforholdSporsmal(
                 nyeArbeidsforhold = this.arbeidsforholdFraAareg,
                 denneSoknaden = this,
-                eksisterendeSoknader = { emptyList() },
             ),
         )
     }
