@@ -89,6 +89,7 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
             nyttArbeidsforholdSporsmal(
                 nyeArbeidsforhold = this.arbeidsforholdFraAareg,
                 denneSoknaden = this,
+                oppdatertTom = oppdatertTom,
             ),
         )
     }
@@ -107,5 +108,14 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
                         }
                         .filterNot { spm -> spm.tag.startsWith(JOBBET_DU_GRADERT) && oppdaterteSporsmal.none { it.tag == spm.tag } },
             )
+        }
+        .let {
+            if (oppdaterteSporsmal.none { oppdatertSoknad -> oppdatertSoknad.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS }) {
+                // Må eksplisitt fjerne spørsmålet om nytt arbeidsforhold hvis det ikke er med i oppdaterteSporsmal
+                // Det er fordi det kan forsvinne hvis tom er før startdato
+                it.copy(sporsmal = it.sporsmal.filterNot { spm -> spm.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS })
+            } else {
+                it
+            }
         }
 }

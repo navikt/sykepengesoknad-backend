@@ -11,6 +11,7 @@ import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.medIndex
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
 fun RSSporsmal.byttSvar(
     tag: String? = null,
@@ -83,6 +84,23 @@ class SoknadBesvarer(
     ): SoknadBesvarer {
         return this.besvarSporsmal(tag = "FERIE_V2", svar = "JA", ferdigBesvart = false)
             .besvarSporsmal(tag = "FERIE_NAR_V2", svar = """{"fom":"$fom","tom":"$tom"}""")
+    }
+
+    fun tilbakeIArbeid(
+        dato: LocalDate?,
+        mutert: Boolean = true,
+    ): SoknadBesvarer {
+        if (dato == null) {
+            return this.besvarSporsmal(
+                tag = "TILBAKE_I_ARBEID",
+                svar = "NEI",
+                ferdigBesvart = true,
+                mutert = mutert,
+            )
+        }
+
+        return this.besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "JA", ferdigBesvart = false)
+            .besvarSporsmal(tag = "TILBAKE_NAR", svar = dato.format(ISO_LOCAL_DATE), mutert = mutert)
     }
 
     fun besvarSporsmal(

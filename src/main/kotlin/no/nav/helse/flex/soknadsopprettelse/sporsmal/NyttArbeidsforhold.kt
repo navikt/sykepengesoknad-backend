@@ -3,6 +3,7 @@ package no.nav.helse.flex.soknadsopprettelse.sporsmal
 import no.nav.helse.flex.domain.*
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.util.DatoUtil
+import no.nav.helse.flex.util.isBeforeOrEqual
 import no.nav.helse.flex.util.toJsonNode
 import java.time.LocalDate
 
@@ -11,41 +12,44 @@ fun nyttArbeidsforholdSporsmal(
     denneSoknaden: Sykepengesoknad,
     oppdatertTom: LocalDate? = null,
 ): List<Sporsmal> {
-    return nyeArbeidsforhold?.map { arbeidsforhold ->
+    return nyeArbeidsforhold
+        ?.filter { it.startdato.isBeforeOrEqual(oppdatertTom ?: denneSoknaden.tom!!) }
+        ?.map { arbeidsforhold ->
 
-        val fom = denneSoknaden.fom!!
-        val tom = oppdatertTom ?: denneSoknaden.tom!!
+            val fom = denneSoknaden.fom!!
+            val tom = oppdatertTom ?: denneSoknaden.tom!!
 
-        val periodeTekst = DatoUtil.formatterPeriode(fom, tom)
-        val metadata =
-            mapOf(
-                "arbeidsstedOrgnummer" to arbeidsforhold.arbeidsstedOrgnummer,
-                "arbeidsstedNavn" to arbeidsforhold.arbeidsstedNavn,
-                "opplysningspliktigOrgnummer" to arbeidsforhold.opplysningspliktigOrgnummer,
-                "fom" to fom.toString(),
-                "tom" to tom.toString(),
-            )
-        return@map Sporsmal(
-            tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS,
-            sporsmalstekst = "Har du jobbet noe hos ${arbeidsforhold.arbeidsstedNavn} i perioden $periodeTekst?",
-            undertekst = null,
-            svartype = Svartype.JA_NEI,
-            min = null,
-            max = null,
-            metadata =
-                metadata.toJsonNode(),
-            kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
-            undersporsmal =
-                listOf(
-                    Sporsmal(
-                        tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO,
-                        sporsmalstekst = "Hvor mye har du tjent i perioden $periodeTekst?",
-                        undertekst =
-                            "Oppgi det du har tjent før skatt. " +
-                                "Se på lønnslippen eller kontrakten hvor mye du har tjent eller skal tjene.",
-                        svartype = Svartype.BELOP,
+            val periodeTekst = DatoUtil.formatterPeriode(fom, tom)
+            val metadata =
+                mapOf(
+                    "arbeidsstedOrgnummer" to arbeidsforhold.arbeidsstedOrgnummer,
+                    "arbeidsstedNavn" to arbeidsforhold.arbeidsstedNavn,
+                    "opplysningspliktigOrgnummer" to arbeidsforhold.opplysningspliktigOrgnummer,
+                    "startdatoAareg" to arbeidsforhold.startdato.toString(),
+                    "fom" to fom.toString(),
+                    "tom" to tom.toString(),
+                )
+            return@map Sporsmal(
+                tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS,
+                sporsmalstekst = "Har du jobbet noe hos ${arbeidsforhold.arbeidsstedNavn} i perioden $periodeTekst?",
+                undertekst = null,
+                svartype = Svartype.JA_NEI,
+                min = null,
+                max = null,
+                metadata =
+                    metadata.toJsonNode(),
+                kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
+                undersporsmal =
+                    listOf(
+                        Sporsmal(
+                            tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO,
+                            sporsmalstekst = "Hvor mye har du tjent i perioden $periodeTekst?",
+                            undertekst =
+                                "Oppgi det du har tjent før skatt. " +
+                                    "Se på lønnslippen eller kontrakten hvor mye du har tjent eller skal tjene.",
+                            svartype = Svartype.BELOP,
+                        ),
                     ),
-                ),
-        )
-    } ?: emptyList()
+            )
+        } ?: emptyList()
 }
