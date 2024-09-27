@@ -113,10 +113,8 @@ class SporsmalGenerator(
 
                 return aaregDataHenting.hentNyeArbeidsforhold(
                     fnr = soknad.fnr,
-                    arbeidsgiverOrgnummer = soknad.arbeidsgiverOrgnummer!!,
-                    startSykeforlop = soknad.startSykeforlop!!,
-                    sykepengesoknadId = soknad.id,
-                    soknadTom = soknad.tom!!,
+                    sykepengesoknad = soknad,
+                    eksisterendeSoknader = eksisterendeSoknader,
                 )
             }
             return null

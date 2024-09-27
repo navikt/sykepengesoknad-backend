@@ -4,36 +4,27 @@ import no.nav.helse.flex.domain.*
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.util.DatoUtil
 import no.nav.helse.flex.util.toJsonNode
+import java.time.LocalDate
 
 fun nyttArbeidsforholdSporsmal(
     nyeArbeidsforhold: List<ArbeidsforholdFraAAreg>?,
     denneSoknaden: Sykepengesoknad,
-    eksisterendeSoknader: () -> List<Sykepengesoknad>,
+    oppdatertTom: LocalDate? = null,
 ): List<Sporsmal> {
-    if (nyeArbeidsforhold.isNullOrEmpty()) {
-        return emptyList()
-    }
+    return nyeArbeidsforhold?.map { arbeidsforhold ->
 
-    val hentedeEksisterendeSoknader = eksisterendeSoknader()
-    val overlapperMedAndreArbeidsgivereEllerArbeidssituasjoner =
-        hentedeEksisterendeSoknader
-            .filter { it.fom != null && it.tom != null }
-            .filter { it.arbeidsgiverOrgnummer != denneSoknaden.arbeidsgiverOrgnummer }
-            .any { it.tilPeriode().overlapper(denneSoknaden.tilPeriode()) }
+        val fom = denneSoknaden.fom!!
+        val tom = oppdatertTom ?: denneSoknaden.tom!!
 
-    if (overlapperMedAndreArbeidsgivereEllerArbeidssituasjoner) {
-        return emptyList()
-    }
-
-    return nyeArbeidsforhold.map { arbeidsforhold ->
-
+        val periodeTekst = DatoUtil.formatterPeriode(fom, tom)
         val metadata =
             mapOf(
                 "arbeidsstedOrgnummer" to arbeidsforhold.arbeidsstedOrgnummer,
                 "arbeidsstedNavn" to arbeidsforhold.arbeidsstedNavn,
                 "opplysningspliktigOrgnummer" to arbeidsforhold.opplysningspliktigOrgnummer,
+                "fom" to fom.toString(),
+                "tom" to tom.toString(),
             )
-        val periodeTekst = DatoUtil.formatterPeriode(denneSoknaden.fom!!, denneSoknaden.tom!!)
         return@map Sporsmal(
             tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS,
             sporsmalstekst = "Har du jobbet noe hos ${arbeidsforhold.arbeidsstedNavn} i perioden $periodeTekst?",
@@ -56,9 +47,5 @@ fun nyttArbeidsforholdSporsmal(
                     ),
                 ),
         )
-    }
-}
-
-private fun Sykepengesoknad.tilPeriode(): Periode {
-    return Periode(fom!!, tom!!)
+    } ?: emptyList()
 }
