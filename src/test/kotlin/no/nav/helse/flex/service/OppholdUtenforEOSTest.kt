@@ -29,8 +29,11 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
     private lateinit var oppholdUtenforEOSService: OppholdUtenforEOSService
 
     private val fnr = "12345678900"
-    private val fom = LocalDate.now().minusWeeks(3)
-    private val tom = LocalDate.now().minusDays(2)
+
+    // Testen feiler hvis den kjøres på en lørdag.
+    private val fredag = LocalDate.of(2024, 9, 27)
+    private val fom = fredag.minusWeeks(3)
+    private val tom = fredag.minusDays(2)
 
     @BeforeEach
     fun beforeEach() {
@@ -39,11 +42,11 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
     }
 
     private fun forsteLordagEtter(dato: LocalDate): LocalDate {
-        var helg = dato
-        while (helg.dayOfWeek != DayOfWeek.SATURDAY) {
-            helg = helg.plusDays(1)
+        var dag = dato
+        while (dag.dayOfWeek != DayOfWeek.SATURDAY) {
+            dag = dag.plusDays(1)
         }
-        return helg
+        return dag
     }
 
     private fun soknadBesvarer(
