@@ -17,7 +17,6 @@ import no.nav.helse.flex.soknadsopprettelse.splitt.delOppISoknadsperioder
 import no.nav.helse.flex.soknadsopprettelse.splitt.splittMellomTyper
 import no.nav.helse.flex.soknadsopprettelse.splitt.splittSykmeldingiSoknadsPerioder
 import no.nav.helse.flex.util.EnumUtil
-import no.nav.helse.flex.util.Metrikk
 import no.nav.helse.flex.util.osloZone
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
@@ -36,7 +35,6 @@ import no.nav.syfo.model.Merknad as SmMerknad
 @Transactional(rollbackFor = [Throwable::class])
 class OpprettSoknadService(
     private val sykepengesoknadDAO: SykepengesoknadDAO,
-    private val metrikk: Metrikk,
     private val klippMetrikk: KlippMetrikk,
     private val soknadProducer: SoknadProducer,
     private val lagreJulesoknadKandidater: LagreJulesoknadKandidater,
@@ -94,8 +92,7 @@ class OpprettSoknadService(
                         sporsmal = emptyList(),
                         utenlandskSykmelding = sykmeldingKafkaMessage.sykmelding.utenlandskSykmelding != null,
                         egenmeldingsdagerFraSykmelding =
-                            sykmeldingKafkaMessage.event.sporsmals?.firstOrNull {
-                                    spm ->
+                            sykmeldingKafkaMessage.event.sporsmals?.firstOrNull { spm ->
                                 spm.shortName == ShortNameKafkaDTO.EGENMELDINGSDAGER
                             }?.svar,
                         forstegangssoknad = null,
@@ -141,11 +138,7 @@ class OpprettSoknadService(
 
     fun Sykepengesoknad.lagreSøknad(): Sykepengesoknad {
         log.info("Oppretter ${this.soknadstype} søknad ${this.id} for sykmelding: ${this.sykmeldingId} med status ${this.status}")
-
         val lagretSoknad = sykepengesoknadDAO.lagreSykepengesoknad(this)
-
-        metrikk.tellSoknadOpprettet(lagretSoknad.soknadstype)
-
         return lagretSoknad
     }
 
@@ -168,7 +161,6 @@ class OpprettSoknadService(
     private fun opprettNySoknadUtland(fnr: String): Sykepengesoknad {
         val oppholdUtlandSoknad = settOppSoknadOppholdUtland(fnr)
         sykepengesoknadDAO.lagreSykepengesoknad(oppholdUtlandSoknad)
-        metrikk.tellSoknadOpprettet(Soknadstype.OPPHOLD_UTLAND)
 
         log.info("Oppretter søknad for utenlandsopphold: {}", oppholdUtlandSoknad.id)
         val sykepengesoknad = sykepengesoknadDAO.finnSykepengesoknad(oppholdUtlandSoknad.id)

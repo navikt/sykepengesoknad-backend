@@ -42,8 +42,6 @@ import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE
 import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE
 import no.nav.helse.flex.soknadsopprettelse.OpprettSoknadService
 import no.nav.helse.flex.svarvalidering.validerSvarPaSoknad
-import no.nav.helse.flex.unleash.UnleashToggles
-import no.nav.helse.flex.util.Metrikk
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.security.token.support.core.jwt.JwtTokenClaims
@@ -61,7 +59,6 @@ class SoknadBrukerController(
     private val gjenapneSoknadService: GjenapneSoknadService,
     private val soknadSender: SoknadSender,
     private val hentSoknadService: HentSoknadService,
-    private val metrikk: Metrikk,
     private val opprettSoknadService: OpprettSoknadService,
     private val korrigerSoknadService: KorrigerSoknadService,
     private val mottakerAvSoknadService: MottakerAvSoknadService,
@@ -75,7 +72,6 @@ class SoknadBrukerController(
     val dittSykefravaerFrontendClientId: String,
     @Value("\${SYKEPENGESOKNAD_FRONTEND_CLIENT_ID}")
     val sykepengesoknadFrontendClientId: String,
-    private val unleashToggles: UnleashToggles,
 ) {
     private val log = logger()
 
@@ -139,7 +135,6 @@ class SoknadBrukerController(
                 }
             } catch (e: Exception) {
                 log.error("Innsending av søknad ${soknadFraBase.id} feilet")
-                metrikk.tellInnsendingFeilet(soknadFraBase.soknadstype.name)
                 throw e
             }
         oppholdUtenforEOSService.skalOppretteSoknadForOppholdUtenforEOS(sendtSoknad, identer)

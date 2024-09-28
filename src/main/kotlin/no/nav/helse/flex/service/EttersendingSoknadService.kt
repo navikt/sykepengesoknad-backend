@@ -8,7 +8,6 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.kafka.producer.SoknadProducer
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadDAO
-import no.nav.helse.flex.util.Metrikk
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
@@ -18,7 +17,6 @@ import java.time.LocalDateTime
 class EttersendingSoknadService(
     val sykepengesoknadDAO: SykepengesoknadDAO,
     val soknadProducer: SoknadProducer,
-    val metrikk: Metrikk,
 ) {
     val log = logger()
 
@@ -116,16 +114,14 @@ class EttersendingSoknadService(
             Mottaker.ARBEIDSGIVER_OG_NAV,
             true,
         )
-        metrikk.ettersending(Mottaker.NAV.name)
     }
 
     private fun Sykepengesoknad.ettersendArbeidsgiver() {
         sykepengesoknadDAO.settSendtAg(id, LocalDateTime.now())
         soknadProducer.soknadEvent(
             sykepengesoknadDAO.finnSykepengesoknad(id),
-            no.nav.helse.flex.domain.Mottaker.ARBEIDSGIVER,
+            Mottaker.ARBEIDSGIVER,
             true,
         )
-        metrikk.ettersending(no.nav.helse.flex.domain.Mottaker.ARBEIDSGIVER.name)
     }
 }

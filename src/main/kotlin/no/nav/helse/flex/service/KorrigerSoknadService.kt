@@ -16,7 +16,6 @@ import no.nav.helse.flex.soknadsopprettelse.TIL_SLUTT
 import no.nav.helse.flex.soknadsopprettelse.VAER_KLAR_OVER_AT
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.tilSlutt
 import no.nav.helse.flex.svarvalidering.ValideringException
-import no.nav.helse.flex.util.Metrikk
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -29,7 +28,6 @@ import java.util.*
 @Transactional(rollbackFor = [Throwable::class])
 class KorrigerSoknadService(
     val sykepengesoknadDAO: SykepengesoknadDAO,
-    val metrikk: Metrikk,
     val identService: IdentService,
     val sykepengesoknadRepository: SykepengesoknadRepository,
     val medlemskapVurderingRepository: MedlemskapVurderingRepository,
@@ -103,7 +101,6 @@ class KorrigerSoknadService(
             )
 
         sykepengesoknadDAO.lagreSykepengesoknad(korrigering)
-        metrikk.tellUtkastTilKorrigeringOpprettet(korrigering.soknadstype)
         return sykepengesoknadDAO.finnSykepengesoknad(korrigering.id)
     }
 

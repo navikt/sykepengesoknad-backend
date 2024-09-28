@@ -10,7 +10,6 @@ import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknad
 import no.nav.helse.flex.mock.opprettNySoknad
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.soknadsopprettelse.settOppSoknadOppholdUtland
-import no.nav.helse.flex.util.Metrikk
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -25,9 +24,6 @@ class AvbrytSoknadServiceTest {
 
     @Mock
     private lateinit var soknadProducer: SoknadProducer
-
-    @Mock
-    private lateinit var metrikk: Metrikk
 
     @InjectMocks
     private lateinit var avbrytSoknadService: AvbrytSoknadService

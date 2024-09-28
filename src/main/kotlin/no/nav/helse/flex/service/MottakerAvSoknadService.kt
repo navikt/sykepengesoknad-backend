@@ -21,7 +21,6 @@ import no.nav.helse.flex.juridiskvurdering.SporingType.SYKMELDING
 import no.nav.helse.flex.juridiskvurdering.Utfall
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadDAO
-import no.nav.helse.flex.util.Metrikk
 import no.nav.helse.flex.util.isBeforeOrEqual
 import org.apache.commons.lang3.StringUtils
 import org.springframework.stereotype.Service
@@ -34,7 +33,6 @@ class MottakerAvSoknadService(
     val sykepengesoknadDAO: SykepengesoknadDAO,
     val flexSyketilfelleClient: FlexSyketilfelleClient,
     val identService: IdentService,
-    val metrikk: Metrikk,
     val juridiskVurderingKafkaProducer: JuridiskVurderingKafkaProducer,
     val forskutteringRepository: ForskutteringRepository,
 ) {

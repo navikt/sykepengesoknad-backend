@@ -8,7 +8,6 @@ import no.nav.helse.flex.domain.ErUtenforVentetidRequest
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.service.FolkeregisterIdenter
-import no.nav.helse.flex.util.Metrikk
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO.AVVENTENDE
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO.REISETILSKUDD
 import org.springframework.stereotype.Service
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Service
 @Service
 class SkalOppretteSoknader(
     private val flexSyketilfelleClient: FlexSyketilfelleClient,
-    private val metrikk: Metrikk,
 ) {
     private val log = logger()
 
@@ -30,7 +28,6 @@ class SkalOppretteSoknader(
 
         val perioder = sykmelding.sykmeldingsperioder
         if (perioder.any { it.type == AVVENTENDE }) {
-            metrikk.utelattSykmeldingFraSoknadOpprettelse("avventende")
             log.info("Sykmelding ${sykmelding.id} har periodetype AVVENTENDE vi ennå ikke oppretter søknader for")
             return false
         }
@@ -40,13 +37,11 @@ class SkalOppretteSoknader(
                 "Sykmelding ${sykmelding.id} har periodetype REISETILSKUDD og reisetilskudd flagg false. " +
                     "Veldig rart. Oppretter ikke søknad.",
             )
-            metrikk.utelattSykmeldingFraSoknadOpprettelse("flagg_false_periodetype_reisetilskudd")
             return false
         }
 
         if (perioder.any { it.reisetilskudd && it.type != REISETILSKUDD }) {
             val periodetyper = perioder.map { it.type.name }
-            metrikk.utelattSykmeldingFraSoknadOpprettelse("flagg_true_periodetype_ikke_reisetilskudd")
             log.info(
                 "Sykmelding ${sykmelding.id} har reisetilskudd flagg true og type ikke reisetilskudd. Type: " +
                     "$periodetyper.  Veldig rart. Oppretter ikke søknad.",
