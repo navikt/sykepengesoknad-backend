@@ -77,7 +77,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
         grunnlagVerdier!!.toJsonNode().toString() `should be equal to`
             objectMapper.readTree(
                 """
-                {"inntekter":[{"aar":"2023","verdi":1067008},{"aar":"2022","verdi":1129745},{"aar":"2021","verdi":1184422}],"g-verdier":[{"aar":"2021","verdi":104716},{"aar":"2022","verdi":109784},{"aar":"2023","verdi":116239}],"g-sykmelding":124028,"beregnet":{"snitt":871798,"p25":930210,"m25":558126}}
+                {"sigrunInntekt":{"inntekter":[{"aar":"2023","verdi":1067008},{"aar":"2022","verdi":1129745},{"aar":"2021","verdi":1184422}],"g-verdier":[{"aar":"2021","verdi":104716},{"aar":"2022","verdi":109784},{"aar":"2023","verdi":116239}],"g-sykmelding":124028,"beregnet":{"snitt":871798,"p25":930210,"m25":558126}}}
                 """.trimIndent(),
             ).toString()
     }

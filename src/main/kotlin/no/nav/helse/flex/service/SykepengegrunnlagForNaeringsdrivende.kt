@@ -11,7 +11,10 @@ import no.nav.helse.flex.client.sigrun.PensjongivendeInntektClient
 import no.nav.helse.flex.client.sigrun.PensjonsgivendeInntekt
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.logger
-import no.nav.helse.flex.util.*
+import no.nav.helse.flex.util.beregnEndring25Prosent
+import no.nav.helse.flex.util.beregnGjennomsnittligInntekt
+import no.nav.helse.flex.util.roundToBigInteger
+import no.nav.helse.flex.util.sykepengegrunnlagUtregner
 import org.springframework.stereotype.Service
 import java.math.BigInteger
 import java.time.LocalDate
@@ -26,6 +29,7 @@ data class SykepengegrunnlagNaeringsdrivende(
 ) {
     @Override
     fun toJsonNode(): JsonNode {
+        val rootObject: ObjectNode = JsonNodeFactory.instance.objectNode()
         val objectNode: ObjectNode = JsonNodeFactory.instance.objectNode()
 
         val inntekterArray: ArrayNode = objectNode.putArray("inntekter")
@@ -53,7 +57,8 @@ data class SykepengegrunnlagNaeringsdrivende(
 
         objectNode.set<ObjectNode>("beregnet", beregnetNode)
 
-        return objectNode
+        rootObject.set<ObjectNode>("sigrunInntekt", objectNode)
+        return rootObject
     }
 }
 
