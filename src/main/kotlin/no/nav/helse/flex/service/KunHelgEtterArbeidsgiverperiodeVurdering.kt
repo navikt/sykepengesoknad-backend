@@ -71,7 +71,6 @@ fun MottakerAvSoknadService.kunHelgEtterArbeidsgiverperiodeVurdering(
         }
 
         if (kunHelgEtterArbeidsgiverperiode) {
-            metrikk.arbeidsgiverperiodeMedHelg(true)
             return Mottaker.ARBEIDSGIVER
         }
     }

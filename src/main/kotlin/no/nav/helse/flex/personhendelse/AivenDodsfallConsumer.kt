@@ -7,7 +7,6 @@ import no.nav.helse.flex.repository.DodsmeldingDAO
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.service.IdentService
-import no.nav.helse.flex.util.Metrikk
 import no.nav.helse.flex.util.tilOsloZone
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -19,7 +18,6 @@ import java.time.Instant
 @Component
 class AivenDodsfallConsumer(
     private val sykepengesoknadDAO: SykepengesoknadDAO,
-    private val metrikk: Metrikk,
     private val dodsmeldingDAO: DodsmeldingDAO,
     private val identService: IdentService,
 ) {
@@ -48,11 +46,7 @@ class AivenDodsfallConsumer(
         personhendelse: GenericRecord,
         timestamp: Long,
     ) {
-        metrikk.personHendelseMottatt()
-
         if (personhendelse.erDodsfall) {
-            metrikk.dodsfallMottatt()
-
             val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(personhendelse.fnr)
 
             if (harUutfylteSoknader(identer)) {
@@ -65,9 +59,14 @@ class AivenDodsfallConsumer(
                             dodsmeldingDAO.oppdaterDodsdato(identer, dodsdato)
                         } else {
                             log.info("Lagrer ny dodsmelding")
-                            dodsmeldingDAO.lagreDodsmelding(identer, dodsdato, Instant.ofEpochMilli(timestamp).tilOsloZone())
+                            dodsmeldingDAO.lagreDodsmelding(
+                                identer,
+                                dodsdato,
+                                Instant.ofEpochMilli(timestamp).tilOsloZone(),
+                            )
                         }
                     }
+
                     ANNULLERT, OPPHOERT -> {
                         log.info("Sletter dodsmelding")
                         dodsmeldingDAO.slettDodsmelding(identer)

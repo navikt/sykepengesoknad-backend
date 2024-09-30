@@ -12,7 +12,6 @@ import no.nav.helse.flex.repository.LockRepository
 import no.nav.helse.flex.service.GjenapneSykmeldingService
 import no.nav.helse.flex.service.IdentService
 import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.KlippOgOpprett
-import no.nav.helse.flex.util.Metrikk
 import no.nav.syfo.sykmelding.kafka.model.STATUS_BEKREFTET
 import no.nav.syfo.sykmelding.kafka.model.STATUS_SENDT
 import no.nav.syfo.sykmelding.kafka.model.ShortNameKafkaDTO
@@ -26,7 +25,6 @@ class BehandleSendtBekreftetSykmelding(
     private val rebehandlingSykmeldingSendtProducer: RebehandlingSykmeldingSendtProducer,
     private val identService: IdentService,
     private val flexSyketilfelleClient: FlexSyketilfelleClient,
-    private val metrikk: Metrikk,
     private val sykmeldingStatusService: GjenapneSykmeldingService,
     private val klippOgOpprett: KlippOgOpprett,
     private val skalOppretteSoknader: SkalOppretteSoknader,
@@ -60,7 +58,6 @@ class BehandleSendtBekreftetSykmelding(
     }
 
     fun prosseserKafkaMessage(sykmeldingKafkaMessage: SykmeldingKafkaMessage): List<AktiveringBestilling> {
-        metrikk.mottattSykmelding.increment()
         return when (sykmeldingKafkaMessage.event.statusEvent) {
             STATUS_BEKREFTET -> handterBekreftetSykmelding(sykmeldingKafkaMessage)
             STATUS_SENDT -> handterSendtSykmelding(sykmeldingKafkaMessage)

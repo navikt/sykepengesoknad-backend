@@ -15,7 +15,6 @@ import no.nav.helse.flex.forskuttering.ForskutteringRepository
 import no.nav.helse.flex.forskuttering.domain.Forskuttering
 import no.nav.helse.flex.juridiskvurdering.JuridiskVurderingKafkaProducer
 import no.nav.helse.flex.repository.SykepengesoknadDAO
-import no.nav.helse.flex.util.Metrikk
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
@@ -43,9 +42,6 @@ class MottakerAvSoknadServiceTest {
 
     @Mock
     private lateinit var forskutteringRepository: ForskutteringRepository
-
-    @Mock
-    private lateinit var metrikk: Metrikk
 
     private val fnr = "11111111111"
     private val folkeregisterIdenter = FolkeregisterIdenter(fnr, emptyList())

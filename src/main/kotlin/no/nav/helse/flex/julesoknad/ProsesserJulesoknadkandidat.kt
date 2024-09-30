@@ -12,14 +12,11 @@ import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.repository.SykepengesoknadDbRecord
 import no.nav.helse.flex.repository.SykepengesoknadRepository
 import no.nav.helse.flex.service.IdentService
-import no.nav.helse.flex.util.Metrikk
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.OffsetDateTime
 
 @Service
 class ProsesserJulesoknadkandidat(
-    private val metrikk: Metrikk,
     private val julesoknadkandidatDAO: JulesoknadkandidatDAO,
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val sykepengesoknadRepository: SykepengesoknadRepository,
@@ -64,12 +61,6 @@ class ProsesserJulesoknadkandidat(
                 log.info("Arbeidsgiver forskutterer ikke julesøknadkandidat $julesoknadkandidat, aktiverer søknad og sletter kandidat")
 
                 aktiveringProducer.leggPaAktiveringTopic(AktiveringBestilling(soknad.fnr, soknad.sykepengesoknadUuid))
-                if (soknad.opprettet!!.isBefore(OffsetDateTime.now().minusHours(1).toInstant())) {
-                    metrikk.julesoknadAktivertNlEndret()
-                } else {
-                    metrikk.julesoknadOpprettet()
-                }
-
                 julesoknadkandidatDAO.slettJulesoknadkandidat(julesoknadkandidat.julesoknadkandidatId)
                 return
             }

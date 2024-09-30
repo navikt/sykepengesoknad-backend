@@ -14,7 +14,6 @@ import no.nav.helse.flex.soknadsopprettelse.SettOppSoknadOptions
 import no.nav.helse.flex.soknadsopprettelse.settOppSoknadArbeidstaker
 import no.nav.helse.flex.soknadsopprettelse.settOppSykepengesoknadBehandlingsdager
 import no.nav.helse.flex.soknadsopprettelse.tilSoknadsperioder
-import no.nav.helse.flex.util.Metrikk
 import no.nav.helse.flex.util.tilOsloInstant
 import no.nav.helse.flex.yrkesskade.YrkesskadeSporsmalGrunnlag
 import no.nav.syfo.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO
@@ -42,9 +41,6 @@ class EttersendingSoknadServiceTest {
 
     @Mock
     private lateinit var soknadProducer: SoknadProducer
-
-    @Mock
-    private lateinit var metrikk: Metrikk
 
     @InjectMocks
     private lateinit var ettersendingSoknadService: EttersendingSoknadService
