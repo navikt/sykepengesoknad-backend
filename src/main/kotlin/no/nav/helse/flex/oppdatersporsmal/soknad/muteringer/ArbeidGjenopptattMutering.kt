@@ -81,16 +81,24 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
             oppholdUtenforEOSSporsmal(this.fom, oppdatertTom)
         }
 
+    val sporsmalSomSkalFjernes = mutableListOf<String>()
+
     if (this.arbeidssituasjon == ARBEIDSTAKER) {
         oppdaterteSporsmal.add(ferieSporsmal(this.fom, oppdatertTom))
         oppdaterteSporsmal.add(permisjonSporsmal(this.fom, oppdatertTom))
         oppdaterteSporsmal.add(utlandArbeidstaker)
-        oppdaterteSporsmal.addAll(
+        val arbeidsforholdSporsmal =
             nyttArbeidsforholdSporsmal(
                 nyeArbeidsforhold = this.arbeidsforholdFraAareg,
                 denneSoknaden = this,
-            ),
+                oppdatertTom = oppdatertTom,
+            )
+        oppdaterteSporsmal.addAll(
+            arbeidsforholdSporsmal,
         )
+        if (arbeidsforholdSporsmal.isEmpty()) {
+            sporsmalSomSkalFjernes.add(NYTT_ARBEIDSFORHOLD_UNDERVEIS)
+        }
     }
     if (this.arbeidssituasjon == NAERINGSDRIVENDE || this.arbeidssituasjon == FRILANSER) {
         oppdaterteSporsmal.add(utlandNaringsdrivende)
@@ -108,4 +116,5 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
                         .filterNot { spm -> spm.tag.startsWith(JOBBET_DU_GRADERT) && oppdaterteSporsmal.none { it.tag == spm.tag } },
             )
         }
+        .let { it.copy(sporsmal = it.sporsmal.filter { spm -> spm.tag !in sporsmalSomSkalFjernes }) }
 }

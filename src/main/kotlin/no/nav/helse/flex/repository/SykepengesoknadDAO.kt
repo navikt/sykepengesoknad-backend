@@ -625,6 +625,10 @@ class SykepengesoknadDAO(
                     fiskerBlad =
                         Optional.ofNullable(resultSet.getString("fisker_blad"))
                             .map { FiskerBlad.valueOf(it) }.orElse(null),
+                    arbeidsforholdFraAareg =
+                        resultSet.getNullableString("arbeidsforhold_fra_aareg")?.let {
+                            objectMapper.readValue(it)
+                        },
                 ),
             )
         }

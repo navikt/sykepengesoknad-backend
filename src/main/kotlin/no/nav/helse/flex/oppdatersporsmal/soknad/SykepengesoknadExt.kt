@@ -50,7 +50,7 @@ fun List<Sporsmal>.erUlikUtenomSvar(sammenlign: List<Sporsmal>): Boolean {
 
 fun List<Sporsmal>.erUlikUtenomSvarTekstOgId(sammenlign: List<Sporsmal>): Boolean {
     fun List<Sporsmal>.flattenOgFjernSvarOgId(): Set<Sporsmal> {
-        return this.flatten().map { it.copy(svar = emptyList(), undersporsmal = emptyList(), sporsmalstekst = null) }
+        return this.flatten().map { it.copy(svar = emptyList(), undersporsmal = emptyList(), sporsmalstekst = null, metadata = null) }
             .map { it.copy(id = null) }.toSet()
     }
 
