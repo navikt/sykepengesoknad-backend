@@ -51,6 +51,7 @@ fun Sykepengesoknad.normaliser(): NormalisertSoknad {
             tidligereArbeidsgiverOrgnummer = tidligereArbeidsgiverOrgnummer,
             aktivertDato = aktivertDato,
             fiskerBlad = fiskerBlad,
+            arbeidsforholdFraAareg = arbeidsforholdFraAareg?.serialisertTilString(),
         )
     val perioder =
         this.soknadPerioder

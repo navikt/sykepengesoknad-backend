@@ -138,7 +138,7 @@ class NyttArbeidsforholdTest : NyttArbeidsforholdFellesOppsett() {
 
         val nyttArbeidsforholdSpm =
             soknaden.sporsmal!!.find {
-                it.tag == "NYTT_ARBEIDSFORHOLD_UNDERVEIS_PAFOLGENDE"
+                it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS
             }!!
         nyttArbeidsforholdSpm.sporsmalstekst!!.shouldContain("Har du jobbet noe hos Kiosken, avd Oslo AS i perioden")
         nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedOrgnummer").textValue() `should be equal to` "999888777"
