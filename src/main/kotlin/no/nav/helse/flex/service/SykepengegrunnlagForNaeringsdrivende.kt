@@ -1,6 +1,8 @@
 package no.nav.helse.flex.service
 
 import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.node.ArrayNode
+import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.fasterxml.jackson.databind.node.ObjectNode
 import no.nav.helse.flex.client.grunnbeloep.GrunnbeloepResponse
 import no.nav.helse.flex.client.sigrun.HentPensjonsgivendeInntektResponse
@@ -9,7 +11,10 @@ import no.nav.helse.flex.client.sigrun.PensjongivendeInntektClient
 import no.nav.helse.flex.client.sigrun.PensjonsgivendeInntekt
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.logger
-import no.nav.helse.flex.util.*
+import no.nav.helse.flex.util.beregnEndring25Prosent
+import no.nav.helse.flex.util.beregnGjennomsnittligInntekt
+import no.nav.helse.flex.util.roundToBigInteger
+import no.nav.helse.flex.util.sykepengegrunnlagUtregner
 import org.springframework.stereotype.Service
 import java.math.BigInteger
 import java.time.LocalDate
@@ -24,24 +29,36 @@ data class SykepengegrunnlagNaeringsdrivende(
 ) {
     @Override
     fun toJsonNode(): JsonNode {
-        val inntektNode: ObjectNode = objectMapper.createObjectNode()
+        val rootObject: ObjectNode = JsonNodeFactory.instance.objectNode()
+        val objectNode: ObjectNode = JsonNodeFactory.instance.objectNode()
 
+        val inntekterArray: ArrayNode = objectNode.putArray("inntekter")
         gjennomsnittPerAar.forEach { (year, amount) ->
-            inntektNode.put("inntekt-$year", amount)
+            val inntektNode: ObjectNode = JsonNodeFactory.instance.objectNode()
+            inntektNode.put("aar", year)
+            inntektNode.put("verdi", amount)
+            inntekterArray.add(inntektNode)
         }
+
+        val gVerdierArray: ArrayNode = objectNode.putArray("g-verdier")
         grunnbeloepPerAar.forEach { (year, amount) ->
-            inntektNode.put("g-$year", amount)
+            val gVerdiNode: ObjectNode = JsonNodeFactory.instance.objectNode()
+            gVerdiNode.put("aar", year)
+            gVerdiNode.put("verdi", amount)
+            gVerdierArray.add(gVerdiNode)
         }
 
-        inntektNode.put("g-sykmelding", grunnbeloepPaaSykmeldingstidspunkt)
-        inntektNode.put("beregnet-snitt", gjennomsnittTotal)
-        inntektNode.put("fastsatt-sykepengegrunnlag", fastsattSykepengegrunnlag)
+        objectNode.put("g-sykmelding", grunnbeloepPaaSykmeldingstidspunkt)
 
-        // p25 = pluss 25%, m25 = minus 25%
-        inntektNode.put("beregnet-p25", endring25Prosent.getOrNull(0))
-        inntektNode.put("beregnet-m25", endring25Prosent.getOrNull(1))
+        val beregnetNode: ObjectNode = JsonNodeFactory.instance.objectNode()
+        beregnetNode.put("snitt", gjennomsnittTotal)
+        beregnetNode.put("p25", endring25Prosent.getOrNull(0))
+        beregnetNode.put("m25", endring25Prosent.getOrNull(1))
 
-        return inntektNode
+        objectNode.set<ObjectNode>("beregnet", beregnetNode)
+
+        rootObject.set<ObjectNode>("sigrunInntekt", objectNode)
+        return rootObject
     }
 }
 
