@@ -177,33 +177,7 @@ class ErUtenforArbeidsgiverPeriodeKtTest {
             ),
         ).`should be true`()
     }
-    // om den 17 dagen er en helg er vi innenfor agp
 
-    /*
-
-
-
-1: 2024-07-12 (Friday)
-2: 2024-07-13 (Saturday)
-3: 2024-07-14 (Sunday)
-4: 2024-07-15 (Monday)
-5: 2024-07-16 (Tuesday)
-6: 2024-07-17 (Wednesday)
-7: 2024-07-18 (Thursday)
-8: 2024-07-19 (Friday)
-9: 2024-07-20 (Saturday)
-10: 2024-07-21 (Sunday)
-11: 2024-07-22 (Monday)
-12: 2024-07-23 (Tuesday)
-13: 2024-07-24 (Wednesday)
-14: 2024-07-25 (Thursday)
-15: 2024-07-26 (Friday)
-16: 2024-07-27 (Saturday)
-17: 2024-07-28 (Sunday)
-
-
-
-     */
     @Test
     fun `12 til 28 juli 2024 er innenfor agp`() {
         val soknad =

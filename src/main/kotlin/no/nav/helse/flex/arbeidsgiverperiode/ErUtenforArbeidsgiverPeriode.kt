@@ -25,7 +25,7 @@ fun Sykepengesoknad.harDagerNAVSkalBetaleFor(andreSoknader: List<Sykepengesoknad
     if (arbeidsgiverperiode.oppbruktArbeidsgiverperiode && arbeidsgiverperiode.arbeidsgiverPeriode.tom.isBefore(this.tom!!)) {
         // det finnes overskytende dager, sjekk om det er en hverdag blant disse som nav skal betale for
         val range = datoListe(arbeidsgiverperiode.arbeidsgiverPeriode.tom.plusDays(1), sykepengesoknadTom!!)
-        val hverdagBlantOverskytendeDager = range.any { it.erHverdag() } //  && range.isNotEmpty()
+        val hverdagBlantOverskytendeDager = range.any { it.erHverdag() }
         return hverdagBlantOverskytendeDager
     } else {
         return false
