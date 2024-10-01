@@ -1,6 +1,6 @@
 package no.nav.helse.flex.soknadsopprettelse.sporsmal
 
-import no.nav.helse.flex.arbeidsgiverperiode.erUtenforArbeidsgiverPeriode
+import no.nav.helse.flex.arbeidsgiverperiode.harDagerNAVSkalBetaleFor
 import no.nav.helse.flex.config.EnvironmentToggles
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstype
@@ -106,7 +106,7 @@ class SporsmalGenerator(
             if (unleashToggles.tilkommenInntektEnabled(soknad.fnr)) {
                 log.info("Tilkommen inntekt toggle enabled")
 
-                val erUtenforAGP = soknad.erUtenforArbeidsgiverPeriode(eksisterendeSoknader)
+                val erUtenforAGP = soknad.harDagerNAVSkalBetaleFor(eksisterendeSoknader)
                 if (!erUtenforAGP) {
                     return null
                 }
