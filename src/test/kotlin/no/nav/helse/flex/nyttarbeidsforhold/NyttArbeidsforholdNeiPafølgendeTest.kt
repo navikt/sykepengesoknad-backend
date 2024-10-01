@@ -38,7 +38,6 @@ class NyttArbeidsforholdNeiPafølgendeTest : NyttArbeidsforholdFellesOppsett() {
         val inntektFraNyttArbeidsforhold = kafkaSoknader[0].inntektFraNyttArbeidsforhold!!.first()
         inntektFraNyttArbeidsforhold.fom `should be equal to` basisdato.minusDays(20)
         inntektFraNyttArbeidsforhold.tom `should be equal to` basisdato
-        inntektFraNyttArbeidsforhold.belopPerDag `should be equal to` 266
         inntektFraNyttArbeidsforhold.arbeidsstedOrgnummer `should be equal to` "999888777"
         inntektFraNyttArbeidsforhold.opplysningspliktigOrgnummer `should be equal to` "11224455441"
 
@@ -95,7 +94,9 @@ class NyttArbeidsforholdNeiPafølgendeTest : NyttArbeidsforholdFellesOppsett() {
 
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
 
-        kafkaSoknader[0].inntektFraNyttArbeidsforhold!!.shouldBeEmpty()
+        kafkaSoknader[0].inntektFraNyttArbeidsforhold!!.shouldHaveSize(1)
+        kafkaSoknader[0].inntektFraNyttArbeidsforhold!!.first().harJobbet.`should be false`()
+        kafkaSoknader[0].inntektFraNyttArbeidsforhold!!.first().belop.`should be null`()
 
         juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
     }

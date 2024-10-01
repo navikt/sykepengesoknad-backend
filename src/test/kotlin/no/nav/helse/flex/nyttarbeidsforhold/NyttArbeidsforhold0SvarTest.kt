@@ -43,7 +43,6 @@ class NyttArbeidsforhold0SvarTest : NyttArbeidsforholdFellesOppsett() {
         val inntektFraNyttArbeidsforhold = kafkaSoknader[0].inntektFraNyttArbeidsforhold!!.first()
         inntektFraNyttArbeidsforhold.fom `should be equal to` basisdato.minusDays(20)
         inntektFraNyttArbeidsforhold.tom `should be equal to` basisdato
-        inntektFraNyttArbeidsforhold.belopPerDag `should be equal to` 0
 
         juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
     }

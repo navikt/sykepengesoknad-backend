@@ -28,7 +28,9 @@ class NyttArbeidsforholdNeiFørsteTest : NyttArbeidsforholdFellesOppsett() {
         kafkaSoknader.shouldHaveSize(1)
 
         kafkaSoknader[0].status `should be equal to` SoknadsstatusDTO.SENDT
-        kafkaSoknader[0].inntektFraNyttArbeidsforhold!!.shouldBeEmpty()
+        kafkaSoknader[0].inntektFraNyttArbeidsforhold!!.shouldHaveSize(1)
+        kafkaSoknader[0].inntektFraNyttArbeidsforhold!!.first().harJobbet.`should be false`()
+        kafkaSoknader[0].inntektFraNyttArbeidsforhold!!.first().belop.`should be null`()
 
         juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
     }
