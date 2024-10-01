@@ -34,7 +34,8 @@ fun Mottaker.tilMottakerDTO(): MottakerDTO {
     }
 }
 
-fun List<Merknad>?.tilMerknadDTO(): List<MerknadDTO>? = this?.map { MerknadDTO(type = it.type, beskrivelse = it.beskrivelse) }
+fun List<Merknad>?.tilMerknadDTO(): List<MerknadDTO>? =
+    this?.map { MerknadDTO(type = it.type, beskrivelse = it.beskrivelse) }
 
 fun Visningskriterie.tilVisningskriteriumDTO(): VisningskriteriumDTO {
     return when (this) {
@@ -112,6 +113,7 @@ fun Sporsmal.tilSporsmalDTO(): SporsmalDTO {
         kriterieForVisningAvUndersporsmal = this.kriterieForVisningAvUndersporsmal?.tilVisningskriteriumDTO(),
         svar = this.svar.map { it.tilSvarDTO() },
         undersporsmal = this.undersporsmal.map { it.tilSporsmalDTO() },
+        metadata = this.metadata,
     )
 }
 

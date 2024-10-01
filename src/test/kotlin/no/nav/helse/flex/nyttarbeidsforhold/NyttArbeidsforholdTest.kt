@@ -100,6 +100,8 @@ class NyttArbeidsforholdTest : NyttArbeidsforholdFellesOppsett() {
 
         kafkaSoknader[0].status `should be equal to` SoknadsstatusDTO.SENDT
         kafkaSoknader[0].inntektFraNyttArbeidsforhold!!.shouldHaveSize(1)
+        kafkaSoknader[0].sporsmal!!.first { it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS }.metadata!!.get("startdatoAareg")
+            .textValue() `should be equal to` "2024-09-05"
 
         val inntektFraNyttArbeidsforhold = kafkaSoknader[0].inntektFraNyttArbeidsforhold!!.first()
         inntektFraNyttArbeidsforhold.fom `should be equal to` basisdato.minusDays(20)
@@ -118,10 +120,10 @@ class NyttArbeidsforholdTest : NyttArbeidsforholdFellesOppsett() {
                 sykmeldingKafkaMessage(
                     fnr = fnr,
                     sykmeldingsperioder =
-                        heltSykmeldt(
-                            fom = basisdato.plusDays(1),
-                            tom = basisdato.plusDays(21),
-                        ),
+                    heltSykmeldt(
+                        fom = basisdato.plusDays(1),
+                        tom = basisdato.plusDays(21),
+                    ),
                     arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = "123454543", orgNavn = "MATBUTIKKEN AS"),
                 ),
                 oppfolgingsdato = basisdato.minusDays(20),
@@ -196,10 +198,10 @@ class NyttArbeidsforholdTest : NyttArbeidsforholdFellesOppsett() {
             sykmeldingKafkaMessage(
                 fnr = fnr,
                 sykmeldingsperioder =
-                    heltSykmeldt(
-                        fom = basisdato.minusDays(20),
-                        tom = basisdato,
-                    ),
+                heltSykmeldt(
+                    fom = basisdato.minusDays(20),
+                    tom = basisdato,
+                ),
                 arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = "999888777", orgNavn = "Kiosken, avd Oslo AS"),
             ),
         )
@@ -207,10 +209,10 @@ class NyttArbeidsforholdTest : NyttArbeidsforholdFellesOppsett() {
             sykmeldingKafkaMessage(
                 fnr = fnr,
                 sykmeldingsperioder =
-                    heltSykmeldt(
-                        fom = basisdato.minusDays(20),
-                        tom = basisdato,
-                    ),
+                heltSykmeldt(
+                    fom = basisdato.minusDays(20),
+                    tom = basisdato,
+                ),
                 arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = "123454543", orgNavn = "MATBUTIKKEN AS"),
             ),
         )
@@ -227,10 +229,10 @@ class NyttArbeidsforholdTest : NyttArbeidsforholdFellesOppsett() {
             sykmeldingKafkaMessage(
                 fnr = fnr,
                 sykmeldingsperioder =
-                    heltSykmeldt(
-                        fom = basisdato.minusDays(20),
-                        tom = basisdato,
-                    ),
+                heltSykmeldt(
+                    fom = basisdato.minusDays(20),
+                    tom = basisdato,
+                ),
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
                 arbeidsgiver = null,
             ),
@@ -239,10 +241,10 @@ class NyttArbeidsforholdTest : NyttArbeidsforholdFellesOppsett() {
             sykmeldingKafkaMessage(
                 fnr = fnr,
                 sykmeldingsperioder =
-                    heltSykmeldt(
-                        fom = basisdato.minusDays(20),
-                        tom = basisdato,
-                    ),
+                heltSykmeldt(
+                    fom = basisdato.minusDays(20),
+                    tom = basisdato,
+                ),
                 arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = "123454543", orgNavn = "MATBUTIKKEN AS"),
             ),
         )
