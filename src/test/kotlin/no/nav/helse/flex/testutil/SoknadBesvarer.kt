@@ -58,23 +58,45 @@ class SoknadBesvarer(
     val fnr: String,
     val muterteSoknaden: Boolean = false,
 ) {
-    fun standardSvar(): SoknadBesvarer {
-        return besvarSporsmal(tag = ANSVARSERKLARING, svar = "CHECKED", aksepterManglendeSporsmal = true)
-            .besvarSporsmal(tag = TILBAKE_I_ARBEID, svar = "NEI", aksepterManglendeSporsmal = true)
-            .besvarSporsmal(tag = FERIE_V2, svar = "NEI", aksepterManglendeSporsmal = true)
-            .besvarSporsmal(tag = PERMISJON_V2, svar = "NEI", aksepterManglendeSporsmal = true)
-            .besvarSporsmal(tag = OPPHOLD_UTENFOR_EOS, svar = "NEI", aksepterManglendeSporsmal = true)
+    fun standardSvar(ekskludert: List<String> = emptyList()): SoknadBesvarer {
+        return besvarSporsmal(
+            tag = ANSVARSERKLARING,
+            svar = "CHECKED",
+            aksepterManglendeSporsmal = true,
+            ekskludert = ekskludert,
+        )
+            .besvarSporsmal(
+                tag = TILBAKE_I_ARBEID,
+                svar = "NEI",
+                aksepterManglendeSporsmal = true,
+                ekskludert = ekskludert,
+            )
+            .besvarSporsmal(tag = FERIE_V2, svar = "NEI", aksepterManglendeSporsmal = true, ekskludert = ekskludert)
+            .besvarSporsmal(tag = PERMISJON_V2, svar = "NEI", aksepterManglendeSporsmal = true, ekskludert = ekskludert)
+            .besvarSporsmal(
+                tag = OPPHOLD_UTENFOR_EOS,
+                svar = "NEI",
+                aksepterManglendeSporsmal = true,
+                ekskludert = ekskludert,
+            )
             .besvarSporsmal(
                 tag = medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0),
                 svar = "NEI",
                 aksepterManglendeSporsmal = true,
+                ekskludert = ekskludert,
             )
             .besvarSporsmal(
                 tag = medIndex(ARBEID_UNDERVEIS_100_PROSENT, 1),
                 svar = "NEI",
                 aksepterManglendeSporsmal = true,
+                ekskludert = ekskludert,
             )
-            .besvarSporsmal(tag = ANDRE_INNTEKTSKILDER_V2, svar = "NEI", aksepterManglendeSporsmal = true)
+            .besvarSporsmal(
+                tag = ANDRE_INNTEKTSKILDER_V2,
+                svar = "NEI",
+                aksepterManglendeSporsmal = true,
+                ekskludert = ekskludert,
+            )
             .oppsummering()
     }
 
@@ -109,7 +131,11 @@ class SoknadBesvarer(
         ferdigBesvart: Boolean = true,
         mutert: Boolean = false,
         aksepterManglendeSporsmal: Boolean = false,
+        ekskludert: List<String> = emptyList(),
     ): SoknadBesvarer {
+        if (ekskludert.contains(tag)) {
+            return this
+        }
         val svarListe =
             if (svar == null) {
                 emptyList()

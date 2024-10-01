@@ -5,6 +5,7 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.soknadsopprettelse.NYTT_ARBEIDSFORHOLD_UNDERVEIS
 import no.nav.helse.flex.soknadsopprettelse.NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO
 import no.nav.helse.flex.sykepengesoknad.kafka.InntektFraNyttArbeidsforholdDTO
+import java.time.LocalDate
 
 fun Sykepengesoknad.hentInntektFraNyttArbeidsforhold(): List<InntektFraNyttArbeidsforholdDTO> {
     val soknad = this
@@ -15,21 +16,21 @@ fun Sykepengesoknad.hentInntektFraNyttArbeidsforhold(): List<InntektFraNyttArbei
                 val belopSvar = undersporsmal.firstOrNull { it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO }?.forsteSvar
                 val belop = (belopSvar?.toDouble()!! / 100).toInt()
                 return InntektFraNyttArbeidsforholdDTO(
-                    fom = soknad.fom!!,
-                    tom = soknad.tom!!,
+                    fom = metadata!!.get("fom")?.asText()!!.tilLocalDate(),
+                    tom = metadata.get("tom")?.asText()!!.tilLocalDate(),
                     belop = belop,
-                    arbeidsstedOrgnummer = metadata!!.get("arbeidsstedOrgnummer")?.asText()!!,
-                    opplysningspliktigOrgnummer = metadata!!.get("opplysningspliktigOrgnummer")?.asText()!!,
+                    arbeidsstedOrgnummer = metadata.get("arbeidsstedOrgnummer")?.asText()!!,
+                    opplysningspliktigOrgnummer = metadata.get("opplysningspliktigOrgnummer")?.asText()!!,
                     harJobbet = true,
                 )
             }
             if (forsteSvar == "NEI") {
                 return InntektFraNyttArbeidsforholdDTO(
-                    fom = soknad.fom!!,
-                    tom = soknad.tom!!,
+                    fom = metadata!!.get("fom")?.asText()!!.tilLocalDate(),
+                    tom = metadata.get("tom")?.asText()!!.tilLocalDate(),
                     belop = null,
-                    arbeidsstedOrgnummer = metadata!!.get("arbeidsstedOrgnummer")?.asText()!!,
-                    opplysningspliktigOrgnummer = metadata!!.get("opplysningspliktigOrgnummer")?.asText()!!,
+                    arbeidsstedOrgnummer = metadata.get("arbeidsstedOrgnummer")?.asText()!!,
+                    opplysningspliktigOrgnummer = metadata.get("opplysningspliktigOrgnummer")?.asText()!!,
                     harJobbet = false,
                 )
             }
@@ -38,4 +39,8 @@ fun Sykepengesoknad.hentInntektFraNyttArbeidsforhold(): List<InntektFraNyttArbei
     }
 
     return this.sporsmal.mapNotNull { it.hentInntektFraNyttArbeidsforhold() }
+}
+
+private fun String.tilLocalDate(): LocalDate {
+    return LocalDate.parse(this)
 }
