@@ -5,8 +5,10 @@ import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.mapper.konverterTilSykepengesoknadDTO
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentSoknadsPerioderMedFaktiskGrad
+import java.time.DayOfWeek
+import java.time.LocalDate
 
-fun Sykepengesoknad.erUtenforArbeidsgiverPeriode(andreSoknader: List<Sykepengesoknad>): Boolean {
+fun Sykepengesoknad.harDagerNAVSkalBetaleFor(andreSoknader: List<Sykepengesoknad>): Boolean {
     val andreBiter =
         andreSoknader
             .filter { it.arbeidsgiverOrgnummer == this.arbeidsgiverOrgnummer }
@@ -17,7 +19,17 @@ fun Sykepengesoknad.erUtenforArbeidsgiverPeriode(andreSoknader: List<Sykepengeso
 
     val beregnArbeidsgiverperiode = beregnArbeidsgiverperiode(andreBiter, this)
     val arbeidsgiverperiode = beregnArbeidsgiverperiode ?: return false
-    return arbeidsgiverperiode.oppbruktArbeidsgiverperiode && arbeidsgiverperiode.arbeidsgiverPeriode.tom.isBefore(this.tom!!)
+
+    val sykepengesoknadTom = this.tom
+
+    if (arbeidsgiverperiode.oppbruktArbeidsgiverperiode && arbeidsgiverperiode.arbeidsgiverPeriode.tom.isBefore(this.tom!!)) {
+        // det finnes overskytende dager, sjekk om det er en hverdag blant disse som nav skal betale for
+        val range = datoListe(arbeidsgiverperiode.arbeidsgiverPeriode.tom.plusDays(1), sykepengesoknadTom!!)
+        val hverdagBlantOverskytendeDager = range.any { it.erHverdag() }
+        return hverdagBlantOverskytendeDager
+    } else {
+        return false
+    }
 }
 
 private fun Sykepengesoknad.tilSyketilfelleBiter(): List<Syketilfellebit> {
@@ -30,4 +42,15 @@ private fun Sykepengesoknad.tilSyketilfelleBiter(): List<Syketilfellebit> {
         )
 
     return sykepengesoknadDTO.mapSoknadTilBiter()
+}
+
+private fun LocalDate.erHverdag(): Boolean = this.dayOfWeek in DayOfWeek.MONDAY..DayOfWeek.FRIDAY
+
+private fun datoListe(
+    start: LocalDate,
+    end: LocalDate,
+): List<LocalDate> {
+    return generateSequence(start) { date ->
+        date.plusDays(1).takeIf { it <= end }
+    }.toList()
 }

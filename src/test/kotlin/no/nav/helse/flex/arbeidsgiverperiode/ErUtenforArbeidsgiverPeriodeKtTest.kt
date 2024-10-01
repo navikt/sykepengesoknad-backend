@@ -17,7 +17,7 @@ class ErUtenforArbeidsgiverPeriodeKtTest {
                 tom = LocalDate.of(2022, 7, 12),
             )
 
-        kortSoknad.erUtenforArbeidsgiverPeriode(emptyList()).`should be false`()
+        kortSoknad.harDagerNAVSkalBetaleFor(emptyList()).`should be false`()
     }
 
     @Test
@@ -28,18 +28,51 @@ class ErUtenforArbeidsgiverPeriodeKtTest {
                 tom = LocalDate.of(2022, 7, 16),
             )
 
-        kortSoknad.erUtenforArbeidsgiverPeriode(emptyList()).`should be false`()
+        kortSoknad.harDagerNAVSkalBetaleFor(emptyList()).`should be false`()
     }
 
     @Test
-    fun `sytten dager er utenfor agp`() {
+    fun `sytten dager er utenfor agp, siste dag er en søndag`() {
         val soknad =
             opprettSendtSoknad(
                 fom = LocalDate.of(2022, 7, 1),
                 tom = LocalDate.of(2022, 7, 17),
             )
 
-        soknad.erUtenforArbeidsgiverPeriode(emptyList()).`should be true`()
+        soknad.harDagerNAVSkalBetaleFor(emptyList()).`should be false`()
+    }
+
+    @Test
+    fun `sytten dager er utenfor agp, siste dag er en lørdag`() {
+        val soknad =
+            opprettSendtSoknad(
+                fom = LocalDate.of(2022, 6, 30),
+                tom = LocalDate.of(2022, 7, 16),
+            )
+
+        soknad.harDagerNAVSkalBetaleFor(emptyList()).`should be false`()
+    }
+
+    @Test
+    fun `sytten dager er utenfor agp, siste dag er en fredag`() {
+        val soknad =
+            opprettSendtSoknad(
+                fom = LocalDate.of(2022, 6, 29),
+                tom = LocalDate.of(2022, 7, 15),
+            )
+
+        soknad.harDagerNAVSkalBetaleFor(emptyList()).`should be true`()
+    }
+
+    @Test
+    fun `sytten dager er utenfor agp, siste dag er en torsdag`() {
+        val soknad =
+            opprettSendtSoknad(
+                fom = LocalDate.of(2022, 6, 28),
+                tom = LocalDate.of(2022, 7, 14),
+            )
+
+        soknad.harDagerNAVSkalBetaleFor(emptyList()).`should be true`()
     }
 
     @Test
@@ -50,7 +83,7 @@ class ErUtenforArbeidsgiverPeriodeKtTest {
                 tom = LocalDate.of(2022, 7, 20),
             )
 
-        soknad.erUtenforArbeidsgiverPeriode(emptyList()).`should be true`()
+        soknad.harDagerNAVSkalBetaleFor(emptyList()).`should be true`()
     }
 
     @Test
@@ -70,7 +103,7 @@ class ErUtenforArbeidsgiverPeriodeKtTest {
                     ).serialisertTilString(),
             )
 
-        kortSoknad.erUtenforArbeidsgiverPeriode(emptyList()).`should be true`()
+        kortSoknad.harDagerNAVSkalBetaleFor(emptyList()).`should be true`()
     }
 
     @Test
@@ -81,7 +114,7 @@ class ErUtenforArbeidsgiverPeriodeKtTest {
                 tom = LocalDate.of(2022, 7, 20),
             )
 
-        soknad.erUtenforArbeidsgiverPeriode(
+        soknad.harDagerNAVSkalBetaleFor(
             listOf(
                 opprettSendtSoknad(
                     fom = LocalDate.of(2022, 7, 1),
@@ -99,11 +132,65 @@ class ErUtenforArbeidsgiverPeriodeKtTest {
                 tom = LocalDate.of(2022, 7, 20),
             )
 
-        soknad.erUtenforArbeidsgiverPeriode(
+        soknad.harDagerNAVSkalBetaleFor(
             listOf(
                 opprettSendtSoknad(
                     fom = LocalDate.of(2022, 7, 6),
                     tom = LocalDate.of(2022, 7, 10),
+                ),
+            ),
+        ).`should be false`()
+    }
+
+    @Test
+    fun `6 til 21 juli 2024 er innenfor agp`() {
+        val soknad =
+            opprettSendtSoknad(
+                fom = LocalDate.of(2024, 7, 16),
+                tom = LocalDate.of(2024, 7, 21),
+            )
+
+        soknad.harDagerNAVSkalBetaleFor(
+            listOf(
+                opprettSendtSoknad(
+                    fom = LocalDate.of(2024, 7, 6),
+                    tom = LocalDate.of(2024, 7, 15),
+                ),
+            ),
+        ).`should be false`()
+    }
+
+    @Test
+    fun `6 til 22 juli 2024 er utenfor agp`() {
+        val soknad =
+            opprettSendtSoknad(
+                fom = LocalDate.of(2024, 7, 16),
+                tom = LocalDate.of(2024, 7, 22),
+            )
+
+        soknad.harDagerNAVSkalBetaleFor(
+            listOf(
+                opprettSendtSoknad(
+                    fom = LocalDate.of(2024, 7, 6),
+                    tom = LocalDate.of(2024, 7, 15),
+                ),
+            ),
+        ).`should be true`()
+    }
+
+    @Test
+    fun `12 til 28 juli 2024 er innenfor agp`() {
+        val soknad =
+            opprettSendtSoknad(
+                fom = LocalDate.of(2024, 7, 19),
+                tom = LocalDate.of(2024, 7, 28),
+            )
+
+        soknad.harDagerNAVSkalBetaleFor(
+            listOf(
+                opprettSendtSoknad(
+                    fom = LocalDate.of(2024, 7, 12),
+                    tom = LocalDate.of(2024, 7, 18),
                 ),
             ),
         ).`should be false`()
