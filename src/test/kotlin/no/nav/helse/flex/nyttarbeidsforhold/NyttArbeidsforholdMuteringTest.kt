@@ -1,9 +1,12 @@
 package no.nav.helse.flex.nyttarbeidsforhold
 
 import no.nav.helse.flex.*
+import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.soknadsopprettelse.*
+import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import org.amshove.kluent.*
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
 import java.time.LocalDate
 
@@ -132,5 +135,52 @@ class NyttArbeidsforholdMuteringTest : NyttArbeidsforholdFellesOppsett() {
         nyttArbeidsforholdSpm.metadata!!.get("startdatoAareg").textValue() `should be equal to` "2024-09-05"
         nyttArbeidsforholdSpm.metadata!!.get("fom").textValue() `should be equal to` "2024-08-26"
         nyttArbeidsforholdSpm.metadata!!.get("tom").textValue() `should be equal to` "2024-09-15"
+    }
+
+    @Test
+    @Order(13)
+    fun `Svarer tilbake i arbeid dagen etter startdatoen før innsending`() {
+        System.setProperty("debugger", "true")
+        val soknaden = hentSoknader(fnr = fnr).first()
+        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+            .tilbakeIArbeid(LocalDate.of(2024, 9, 6))
+
+        hentSoknader(fnr = fnr).first()?.let {
+            val nyttArbeidsforholdSpm =
+                it.sporsmal!!.find {
+                    it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS
+                }!!
+            println()
+        }
+    }
+
+    @Test
+    @Order(14)
+    fun `Sender søknaden, tom på kafka er blitt forkortet`() {
+        flexSyketilfelleMockRestServiceServer.reset()
+        mockFlexSyketilfelleArbeidsgiverperiode()
+        val soknaden = hentSoknader(fnr = fnr).first()
+
+        val sendtSoknad =
+            SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+                .standardSvar(ekskludert = listOf(TILBAKE_I_ARBEID))
+                .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS, svar = "JA", ferdigBesvart = false)
+                .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO, svar = "400000", ferdigBesvart = true)
+                .sendSoknad()
+        assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
+
+        val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
+        kafkaSoknader.shouldHaveSize(1)
+
+        kafkaSoknader[0].status `should be equal to` SoknadsstatusDTO.SENDT
+        kafkaSoknader[0].inntektFraNyttArbeidsforhold!!.shouldHaveSize(1)
+
+        val inntektFraNyttArbeidsforhold = kafkaSoknader[0].inntektFraNyttArbeidsforhold!!.first()
+        inntektFraNyttArbeidsforhold.fom.toString() `should be equal to` "2024-08-26"
+        inntektFraNyttArbeidsforhold.tom.toString() `should be equal to` "2024-09-05"
+        inntektFraNyttArbeidsforhold.arbeidsstedOrgnummer `should be equal to` "999888777"
+        inntektFraNyttArbeidsforhold.opplysningspliktigOrgnummer `should be equal to` "11224455441"
+
+        juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
     }
 }

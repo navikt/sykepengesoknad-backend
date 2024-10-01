@@ -34,8 +34,8 @@ fun nyttArbeidsforholdSporsmal(
                 sporsmalstekst = "Har du jobbet noe hos ${arbeidsforhold.arbeidsstedNavn} i perioden $periodeTekst?",
                 undertekst = null,
                 svartype = Svartype.JA_NEI,
-                min = null,
-                max = null,
+                min = fom.toString(),
+                max = tom.toString(),
                 metadata =
                     metadata.toJsonNode(),
                 kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
