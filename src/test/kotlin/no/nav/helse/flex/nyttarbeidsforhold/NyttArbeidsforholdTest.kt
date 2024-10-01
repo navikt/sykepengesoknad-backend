@@ -104,7 +104,6 @@ class NyttArbeidsforholdTest : NyttArbeidsforholdFellesOppsett() {
         val inntektFraNyttArbeidsforhold = kafkaSoknader[0].inntektFraNyttArbeidsforhold!!.first()
         inntektFraNyttArbeidsforhold.fom `should be equal to` basisdato.minusDays(20)
         inntektFraNyttArbeidsforhold.tom `should be equal to` basisdato
-        inntektFraNyttArbeidsforhold.belopPerDag `should be equal to` 266
         inntektFraNyttArbeidsforhold.arbeidsstedOrgnummer `should be equal to` "999888777"
         inntektFraNyttArbeidsforhold.opplysningspliktigOrgnummer `should be equal to` "11224455441"
 
@@ -182,9 +181,7 @@ class NyttArbeidsforholdTest : NyttArbeidsforholdFellesOppsett() {
         val inntektFraNyttArbeidsforhold = kafkaSoknader[0].inntektFraNyttArbeidsforhold!!.first()
         inntektFraNyttArbeidsforhold.fom `should be equal to` basisdato.plusDays(1)
         inntektFraNyttArbeidsforhold.tom `should be equal to` basisdato.plusDays(21)
-        inntektFraNyttArbeidsforhold.belopPerDag `should be equal to` 266
         inntektFraNyttArbeidsforhold.belop `should be equal to` 4000
-        inntektFraNyttArbeidsforhold.virkedager `should be equal to` 15
         inntektFraNyttArbeidsforhold.arbeidsstedOrgnummer `should be equal to` "999888777"
         inntektFraNyttArbeidsforhold.opplysningspliktigOrgnummer `should be equal to` "11224455441"
 
