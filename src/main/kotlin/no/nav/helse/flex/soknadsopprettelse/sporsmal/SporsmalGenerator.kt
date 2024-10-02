@@ -104,18 +104,22 @@ class SporsmalGenerator(
                 return null
             }
             if (unleashToggles.tilkommenInntektEnabled(soknad.fnr)) {
-                log.info("Tilkommen inntekt toggle enabled")
+                log.info("Tilkommen inntekt toggle enabled for soknad ${soknad.id}")
 
-                val erUtenforAGP = soknad.harDagerNAVSkalBetaleFor(eksisterendeSoknader)
-                if (!erUtenforAGP) {
-                    return null
+                return if (soknad.harDagerNAVSkalBetaleFor(eksisterendeSoknader)) {
+                    log.info("Leter etter nye arbeidsforhold for soknad ${soknad.id} siden søknaden er estimert utenfor agp")
+                    aaregDataHenting.hentNyeArbeidsforhold(
+                        fnr = soknad.fnr,
+                        sykepengesoknad = soknad,
+                        eksisterendeSoknader = eksisterendeSoknader,
+                    )
+                } else {
+                    log.info(
+                        "Leter ikke etter nye arbeidsforhold for person med soknad ${soknad.id} siden søknaden " +
+                            "er estimert helt innenfor agp",
+                    )
+                    null
                 }
-
-                return aaregDataHenting.hentNyeArbeidsforhold(
-                    fnr = soknad.fnr,
-                    sykepengesoknad = soknad,
-                    eksisterendeSoknader = eksisterendeSoknader,
-                )
             }
             return null
         }
