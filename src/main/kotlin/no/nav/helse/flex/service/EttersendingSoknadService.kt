@@ -59,63 +59,6 @@ class EttersendingSoknadService(
         }
     }
 
-    fun ettersendTilNav(sykepengesoknad: Sykepengesoknad) {
-        if (sykepengesoknad.status != SENDT) {
-            log.error(
-                "Kan ikke ettersende søknad ${sykepengesoknad.id} med status: ${sykepengesoknad.status} til NAV " +
-                    "fordi den ikke er sendt",
-            )
-            throw IllegalArgumentException("Kan ikke ettersende søknad med status: ${sykepengesoknad.status} til NAV")
-        }
-
-        if (sykepengesoknad.sendtNav != null) {
-            log.info("Søknad ${sykepengesoknad.id} er allerede sendt til NAV, ettersender ikke")
-            return
-        }
-
-        fun kastFeil() {
-            log.error(
-                "${sykepengesoknad.soknadstype} søknad: ${sykepengesoknad.id}  har ikke arbeidsgiver, og er " +
-                    "ikke sendt til NAV.",
-            )
-            throw IllegalArgumentException(
-                "Søknad med id: ${sykepengesoknad.id} er ikke arbeidstakersøknad og skal allerede ha blitt sendt " +
-                    "til NAV, men har ikke blitt det",
-            )
-        }
-
-        when (sykepengesoknad.soknadstype) {
-            Soknadstype.ARBEIDSTAKERE -> {
-                sykepengesoknad.ettersendNav()
-            }
-
-            Soknadstype.BEHANDLINGSDAGER, Soknadstype.GRADERT_REISETILSKUDD -> {
-                if (sykepengesoknad.arbeidssituasjon == Arbeidssituasjon.ARBEIDSTAKER) {
-                    sykepengesoknad.ettersendNav()
-                } else {
-                    kastFeil()
-                }
-            }
-
-            else -> {
-                kastFeil()
-            }
-        }
-    }
-
-    private fun Sykepengesoknad.ettersendNav() {
-        if (sendtArbeidsgiver == null) {
-            log.error("Søknad $id må være sendt til arbeidsgiver før den kan ettersendes til NAV")
-            throw IllegalArgumentException("Søknad med id: $id må være sendt til arbeidsgiver før den kan ettersendes til NAV")
-        }
-        sykepengesoknadDAO.settSendtNav(id, LocalDateTime.now())
-        soknadProducer.soknadEvent(
-            sykepengesoknadDAO.finnSykepengesoknad(id),
-            Mottaker.ARBEIDSGIVER_OG_NAV,
-            true,
-        )
-    }
-
     private fun Sykepengesoknad.ettersendArbeidsgiver() {
         sykepengesoknadDAO.settSendtAg(id, LocalDateTime.now())
         soknadProducer.soknadEvent(

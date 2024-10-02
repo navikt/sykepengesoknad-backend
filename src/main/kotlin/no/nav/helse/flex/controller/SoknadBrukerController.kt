@@ -147,20 +147,6 @@ class SoknadBrukerController(
     }
 
     @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
-    @PostMapping(value = ["/soknader/{id}/ettersendTilNav"])
-    fun ettersendTilNav(
-        @PathVariable id: String,
-    ) {
-        if (environmentToggles.isReadOnly()) {
-            throw ReadOnlyException()
-        }
-        val (soknadFraBase, _) = hentOgSjekkTilgangTilSoknad(id)
-
-        log.info("Ettersender søknad: $id til NAV")
-        ettersendingSoknadService.ettersendTilNav(soknadFraBase)
-    }
-
-    @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
     @PostMapping(value = ["/soknader/{id}/ettersendTilArbeidsgiver"])
     fun ettersendTilArbeidsgiver(
         @PathVariable id: String,
