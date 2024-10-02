@@ -3,10 +3,12 @@ package no.nav.helse.flex.soknadsopprettelse
 import no.nav.helse.flex.client.aareg.AaregClient
 import no.nav.helse.flex.client.aareg.ArbeidsforholdOversikt
 import no.nav.helse.flex.client.ereg.EregClient
+import no.nav.helse.flex.config.EnvironmentToggles
 import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.util.isBeforeOrEqual
+import no.nav.helse.flex.util.serialisertTilString
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 
@@ -14,6 +16,7 @@ import java.time.LocalDate
 class AaregDataHenting(
     val aaregClient: AaregClient,
     val eregClient: EregClient,
+    val environmentToggles: EnvironmentToggles,
 ) {
     val log = logger()
 
@@ -29,10 +32,18 @@ class AaregDataHenting(
                 .any { it.tilPeriode().overlapper(sykepengesoknad.tilPeriode()) }
 
         if (overlapperMedAndreArbeidsgivereEllerArbeidssituasjoner) {
+            log.info(
+                "Fant overlapp med andre arbeidsgivere eller arbeidssituasjoner for søknad ${sykepengesoknad.id}. " +
+                    "Ser ikke etter nye arbeidsforhold",
+            )
             return emptyList()
         }
 
         val arbeidsforholOversikt = aaregClient.hentArbeidsforholdoversikt(fnr).arbeidsforholdoversikter
+
+        if (environmentToggles.isQ()) {
+            log.info("Hentet aaregdata for søknad ${sykepengesoknad.id} \n${arbeidsforholOversikt.serialisertTilString()}")
+        }
 
         fun ArbeidsforholdOversikt.tilArbeidsforholdFraAAreg(): ArbeidsforholdFraAAreg {
             val arbeidstedOrgnummer =
