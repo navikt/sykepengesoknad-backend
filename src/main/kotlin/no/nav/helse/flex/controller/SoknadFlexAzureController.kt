@@ -14,6 +14,7 @@ import no.nav.helse.flex.repository.KlippetSykepengesoknadDbRecord
 import no.nav.helse.flex.repository.KlippetSykepengesoknadRepository
 import no.nav.helse.flex.service.HentSoknadService
 import no.nav.helse.flex.service.IdentService
+import no.nav.helse.flex.soknadsopprettelse.ArbeidsforholdFraAAreg
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.web.bind.annotation.*
@@ -26,6 +27,7 @@ data class FlexInternalResponse(
 data class FlexInternalSoknadResponse(
     val sykepengesoknad: RSSykepengesoknad,
     val fnr: String,
+    val arbeidsforholdFraAareg: List<ArbeidsforholdFraAAreg>?,
 )
 
 @RestController
@@ -86,6 +88,10 @@ class SoknadFlexAzureController(
     ): FlexInternalSoknadResponse {
         clientIdValidation.validateClientId(NamespaceAndApp(namespace = "flex", app = "flex-internal-frontend"))
         val soknad = hentSoknadService.finnSykepengesoknad(id)
-        return FlexInternalSoknadResponse(sykepengesoknad = soknad.tilRSSykepengesoknad(), fnr = soknad.fnr)
+        return FlexInternalSoknadResponse(
+            sykepengesoknad = soknad.tilRSSykepengesoknad(),
+            fnr = soknad.fnr,
+            arbeidsforholdFraAareg = soknad.arbeidsforholdFraAareg,
+        )
     }
 }
