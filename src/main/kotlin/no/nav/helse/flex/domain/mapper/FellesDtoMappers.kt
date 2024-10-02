@@ -112,6 +112,7 @@ fun Sporsmal.tilSporsmalDTO(): SporsmalDTO {
         kriterieForVisningAvUndersporsmal = this.kriterieForVisningAvUndersporsmal?.tilVisningskriteriumDTO(),
         svar = this.svar.map { it.tilSvarDTO() },
         undersporsmal = this.undersporsmal.map { it.tilSporsmalDTO() },
+        metadata = this.metadata,
     )
 }
 
