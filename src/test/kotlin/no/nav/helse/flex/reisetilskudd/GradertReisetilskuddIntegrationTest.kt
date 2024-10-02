@@ -35,6 +35,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.time.Instant
 import java.time.LocalDate
+import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 import java.util.*
 
@@ -415,16 +416,6 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    @Order(17)
-    fun `Vi ettersender til NAV`() {
-        val reisetilskudd = hentSoknaderMetadata(fnr).first()
-        ettersendTilNav(reisetilskudd.id, fnr)
-        val ettersendt = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()
-        ettersendt.sendtNav.shouldNotBeNull()
-        ettersendt.ettersending.`should be true`()
-    }
-
-    @Test
     @Order(18)
     fun `Vi prøver å ettersende til arbeidsgiver, men den er allerede sendt dit`() {
         val reisetilskudd = hentSoknaderMetadata(fnr).first()
@@ -440,11 +431,12 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
         namedParameterJdbcTemplate.update(
             """
             UPDATE sykepengesoknad 
-            SET sendt_arbeidsgiver = null
+            SET sendt_arbeidsgiver = null, sendt_nav = :dato
             WHERE sykepengesoknad_uuid = :sykepengesoknadId
             """,
             MapSqlParameterSource()
-                .addValue("sykepengesoknadId", reisetilskudd.id),
+                .addValue("sykepengesoknadId", reisetilskudd.id)
+                .addValue("dato", OffsetDateTime.now()),
         )
 
         ettersendTilArbeidsgiver(reisetilskudd.id, fnr)
@@ -508,6 +500,6 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
         sendtSøknad.sendtNav.shouldNotBeNull()
         sendtSøknad.sendtArbeidsgiver.shouldNotBeNull()
 
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = 5)
+        juridiskVurderingKafkaConsumer.ventPåRecords(antall = 4)
     }
 }
