@@ -12,15 +12,17 @@ import no.nav.helse.flex.util.DatoUtil
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-private fun beregnDatoForVarigEndringEtter(startSykeforlop: LocalDate): LocalDate {
-    return startSykeforlop.minusYears(5)
-}
-
 fun lagSporsmalOmInntektsopplyninger(
     soknad: Sykepengesoknad,
     sykepengegrunnlagNaeringsdrivende: SykepengegrunnlagNaeringsdrivende?,
 ): Sporsmal {
-    val datoForVarigEndringEtter = beregnDatoForVarigEndringEtter(soknad.startSykeforlop!!)
+    val forsteFerdiglignetAar = sykepengegrunnlagNaeringsdrivende?.grunnbeloepPerAar?.keys?.min()
+    val tidligstDato =
+        if (forsteFerdiglignetAar != null) {
+            LocalDate.of(forsteFerdiglignetAar.toInt(), 1, 1)
+        } else {
+            LocalDate.of(soknad.startSykeforlop?.minusYears(5)?.year ?: LocalDate.now().year, 1, 1)
+        }
 
     return Sporsmal(
         tag = INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET,
@@ -38,9 +40,7 @@ fun lagSporsmalOmInntektsopplyninger(
                             Sporsmal(
                                 tag = INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET,
                                 sporsmalstekst = "Er du ny i arbeidslivet etter ${
-                                    DatoUtil.formatterDato(
-                                        LocalDate.of(datoForVarigEndringEtter.year, 1, 1),
-                                    )
+                                    DatoUtil.formatterDato(tidligstDato)
                                 }?",
                                 svartype = Svartype.RADIO_GRUPPE,
                                 undersporsmal =
@@ -56,7 +56,7 @@ fun lagSporsmalOmInntektsopplyninger(
                                                         tag = INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET_DATO,
                                                         sporsmalstekst = "Når begynte du i arbeidslivet?",
                                                         svartype = Svartype.DATO,
-                                                        min = datoForVarigEndringEtter.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                                                        min = tidligstDato.format(DateTimeFormatter.ISO_LOCAL_DATE),
                                                         max = soknad.fom!!.minusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE),
                                                     ),
                                                 ),
@@ -72,7 +72,7 @@ fun lagSporsmalOmInntektsopplyninger(
                                                         tag = INNTEKTSOPPLYSNINGER_VARIG_ENDRING,
                                                         sporsmalstekst =
                                                             "Har det skjedd en varig endring i arbeidssituasjonen eller virksomheten din " +
-                                                                "i mellom ${DatoUtil.formatterDato(datoForVarigEndringEtter)} og frem til" +
+                                                                "i mellom ${DatoUtil.formatterDato(tidligstDato)} og frem til" +
                                                                 "sykmeldingstidspunktet?",
                                                         svartype = Svartype.JA_NEI,
                                                         kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
@@ -125,7 +125,7 @@ fun lagSporsmalOmInntektsopplyninger(
                                                                                 sporsmalstekst = "Når skjedde den siste varige endringen?",
                                                                                 svartype = Svartype.DATO,
                                                                                 min =
-                                                                                    datoForVarigEndringEtter.format(
+                                                                                    tidligstDato.format(
                                                                                         DateTimeFormatter.ISO_LOCAL_DATE,
                                                                                     ),
                                                                                 max =
