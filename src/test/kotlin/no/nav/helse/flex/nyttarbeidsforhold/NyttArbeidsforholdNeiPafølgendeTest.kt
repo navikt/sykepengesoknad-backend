@@ -47,21 +47,18 @@ class NyttArbeidsforholdNeiPafølgendeTest : NyttArbeidsforholdFellesOppsett() {
     @Test
     @Order(3)
     fun `Sykmeldingen forlenges`() {
-        val soknad =
-            sendSykmelding(
-                sykmeldingKafkaMessage(
-                    fnr = fnr,
-                    sykmeldingsperioder =
-                        heltSykmeldt(
-                            fom = basisdato.plusDays(1),
-                            tom = basisdato.plusDays(21),
-                        ),
-                    arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = "123454543", orgNavn = "MATBUTIKKEN AS"),
-                ),
-                oppfolgingsdato = basisdato.minusDays(20),
-            )
-        soknadAktivering.aktiverSoknad(soknad.first().id)
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = basisdato.plusDays(1),
+                        tom = basisdato.plusDays(21),
+                    ),
+                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = "123454543", orgNavn = "MATBUTIKKEN AS"),
+            ),
+            oppfolgingsdato = basisdato.minusDays(20),
+        )
     }
 
     @Test

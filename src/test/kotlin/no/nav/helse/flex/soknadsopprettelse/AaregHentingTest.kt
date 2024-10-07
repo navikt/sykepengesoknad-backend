@@ -19,8 +19,8 @@ class AaregHentingTest : FellesTestOppsett() {
         val soknad =
             opprettNySoknad().copy(
                 arbeidsgiverOrgnummer = "999333666",
-                startSykeforlop = LocalDate.of(2024, 9, 15),
-                tom = LocalDate.of(2024, 9, 15),
+                startSykeforlop = LocalDate.of(2022, 9, 15),
+                tom = LocalDate.of(2022, 9, 15),
             )
         aaregDataHenting.hentNyeArbeidsforhold(
             fnr = "11111234565",
@@ -34,8 +34,8 @@ class AaregHentingTest : FellesTestOppsett() {
         val soknad =
             opprettNySoknad().copy(
                 arbeidsgiverOrgnummer = "112233445",
-                startSykeforlop = LocalDate.of(2024, 9, 15).minusDays(50),
-                tom = LocalDate.of(2024, 9, 15),
+                startSykeforlop = LocalDate.of(2022, 9, 15).minusDays(50),
+                tom = LocalDate.of(2022, 9, 15),
             )
         val nyeArbeidsforhold =
             aaregDataHenting.hentNyeArbeidsforhold(
@@ -53,8 +53,8 @@ class AaregHentingTest : FellesTestOppsett() {
         val soknad =
             opprettNySoknad().copy(
                 arbeidsgiverOrgnummer = "112233445",
-                startSykeforlop = LocalDate.of(2024, 9, 15).minusDays(50),
-                tom = LocalDate.of(2024, 9, 15).minusDays(42),
+                startSykeforlop = LocalDate.of(2022, 9, 15).minusDays(50),
+                tom = LocalDate.of(2022, 9, 15).minusDays(42),
             )
         val nyeArbeidsforhold =
             aaregDataHenting.hentNyeArbeidsforhold(
@@ -70,8 +70,8 @@ class AaregHentingTest : FellesTestOppsett() {
         val soknad =
             opprettNySoknad().copy(
                 arbeidsgiverOrgnummer = "999333666",
-                startSykeforlop = LocalDate.of(2024, 9, 15).minusDays(50),
-                tom = LocalDate.of(2024, 9, 15),
+                startSykeforlop = LocalDate.of(2022, 9, 15).minusDays(50),
+                tom = LocalDate.of(2022, 9, 15),
             )
         val nyeArbeidsforhold =
             aaregDataHenting.hentNyeArbeidsforhold(
