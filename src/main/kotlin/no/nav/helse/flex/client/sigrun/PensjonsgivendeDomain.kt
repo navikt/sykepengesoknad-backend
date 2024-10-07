@@ -15,7 +15,14 @@ data class PensjonsgivendeInntekt(
     val pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel: Int?,
     val pensjonsgivendeInntektAvNaeringsinntekt: Int?,
     val pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage: Int?,
-)
+) {
+    fun sumAvAlleInntekter(): Int {
+        return (pensjonsgivendeInntektAvLoennsinntekt ?: 0) +
+            (pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel ?: 0) +
+            (pensjonsgivendeInntektAvNaeringsinntekt ?: 0) +
+            (pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage ?: 0)
+    }
+}
 
 enum class Skatteordning {
     FASTLAND,

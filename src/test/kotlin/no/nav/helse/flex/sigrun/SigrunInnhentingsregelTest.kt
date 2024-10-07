@@ -77,6 +77,71 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
     } // personMedInntektOver1GSiste3Aar
 
     @Test
+    fun `skal returnere 3 år med gyldige inntekter fra alle inntektskilder`() {
+        val soknad =
+            opprettNyNaeringsdrivendeSoknad().copy(
+                fnr = "86543214356",
+                startSykeforlop = LocalDate.now(),
+                fom = LocalDate.now().minusDays(30),
+                tom = LocalDate.now().minusDays(1),
+                sykmeldingSkrevet = Instant.now(),
+                aktivertDato = LocalDate.now().minusDays(30),
+            )
+        val result =
+            sykepengegrunnlagForNaeringsdrivende.hentPensjonsgivendeInntektForTreSisteArene(
+                soknad.fnr,
+                soknad.startSykeforlop!!.year,
+            )
+
+        result!!.size `should be equal to` 3
+        result `should be equal to`
+            listOf(
+                HentPensjonsgivendeInntektResponse(
+                    "86543214356",
+                    "2023",
+                    listOf(
+                        PensjonsgivendeInntekt(
+                            datoForFastsetting = "2023-07-17",
+                            skatteordning = Skatteordning.FASTLAND,
+                            pensjonsgivendeInntektAvLoennsinntekt = 1000000,
+                            pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = 0,
+                            pensjonsgivendeInntektAvNaeringsinntekt = 0,
+                            pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage = 0,
+                        ),
+                    ),
+                ),
+                HentPensjonsgivendeInntektResponse(
+                    "86543214356",
+                    "2022",
+                    listOf(
+                        PensjonsgivendeInntekt(
+                            datoForFastsetting = "2022-07-17",
+                            skatteordning = Skatteordning.FASTLAND,
+                            pensjonsgivendeInntektAvLoennsinntekt = 0,
+                            pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = 0,
+                            pensjonsgivendeInntektAvNaeringsinntekt = 1000000,
+                            pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage = 0,
+                        ),
+                    ),
+                ),
+                HentPensjonsgivendeInntektResponse(
+                    "86543214356",
+                    "2021",
+                    listOf(
+                        PensjonsgivendeInntekt(
+                            datoForFastsetting = "2021-07-17",
+                            skatteordning = Skatteordning.SVALBARD,
+                            pensjonsgivendeInntektAvLoennsinntekt = 0,
+                            pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = 0,
+                            pensjonsgivendeInntektAvNaeringsinntekt = 0,
+                            pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage = 1000000,
+                        ),
+                    ),
+                ),
+            )
+    } // personMedInntektOver1GSiste3Aar
+
+    @Test
     fun `skal returnere 3 år med gyldige inntekter under 1G`() {
         val soknad =
             opprettNyNaeringsdrivendeSoknad().copy(

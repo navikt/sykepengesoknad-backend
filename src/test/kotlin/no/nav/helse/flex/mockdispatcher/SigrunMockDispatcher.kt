@@ -17,6 +17,7 @@ object SigrunMockDispatcher : Dispatcher() {
         val under1G = 100000
 
         val personMedInntektOver1GSiste3Aar = "87654321234"
+        val personMedFlereTyperInntekt = "86543214356"
         val personMedInntektUnder1GSiste3Aar = "24859597781"
         val personMedInntektOver1G2Av3Aar = "11929798688"
         val personMedInntektOver1G1Av3Aar = "07830099810"
@@ -27,6 +28,7 @@ object SigrunMockDispatcher : Dispatcher() {
         val naeringsinntekt =
             when (fnr) {
                 personMedInntektOver1GSiste3Aar -> inntektForAar(inntektsAar, over1G, over1G, over1G, under1G) //
+                personMedFlereTyperInntekt -> inntektForAar(inntektsAar, inntekt2022 = over1G)
                 personMedInntektUnder1GSiste3Aar -> inntektForAar(inntektsAar, under1G, under1G, under1G, under1G) //
                 personMedInntektOver1G2Av3Aar -> inntektForAar(inntektsAar, over1G, under1G, over1G, under1G)
                 personMedInntektOver1G1Av3Aar -> inntektForAar(inntektsAar, over1G, under1G, under1G, under1G)
@@ -34,6 +36,18 @@ object SigrunMockDispatcher : Dispatcher() {
                 personUtenInntektSiste3Aar -> inntektForAar(inntektsAar, null, null, null, under1G) //
                 personMedInntekt1Av3Aar -> inntektForAar(inntektsAar, under1G, null, null, under1G) //
                 else -> inntektForAar(inntektsAar, 400000, 350000, 300000, under1G) // Default inntekt hvis personen ikke er i listen
+            }
+
+        val lonnsinntekt =
+            when (fnr) {
+                personMedFlereTyperInntekt -> inntektForAar(inntektsAar, inntekt2023 = over1G)
+                else -> inntektForAar(inntektsAar)
+            }
+
+        val naeringsinntektFraFiskeFangstEllerFamiliebarnehage =
+            when (fnr) {
+                personMedFlereTyperInntekt -> inntektForAar(inntektsAar, inntekt2021 = over1G)
+                else -> inntektForAar(inntektsAar)
             }
 
         // Sjekk om inntekt er null og kast feilen
@@ -50,6 +64,8 @@ object SigrunMockDispatcher : Dispatcher() {
                     fnr = fnr,
                     inntektsAar = inntektsAar,
                     naeringsinntekt = naeringsinntekt,
+                    lonnsinntekt = lonnsinntekt,
+                    naeringsinntektFraFiskeFangstEllerFamiliebarnehage = naeringsinntektFraFiskeFangstEllerFamiliebarnehage,
                 )
             else -> MockResponse().setResponseCode(404)
         }
@@ -57,10 +73,10 @@ object SigrunMockDispatcher : Dispatcher() {
 
     private fun inntektForAar(
         inntektsAar: String,
-        inntekt2023: Int?,
-        inntekt2022: Int?,
-        inntekt2021: Int?,
-        inntekt2020: Int?,
+        inntekt2023: Int? = 0,
+        inntekt2022: Int? = 0,
+        inntekt2021: Int? = 0,
+        inntekt2020: Int? = 0,
     ): Int? {
         return when (inntektsAar) {
             "2023" -> inntekt2023
@@ -74,25 +90,37 @@ object SigrunMockDispatcher : Dispatcher() {
     private fun pensjonsgivendeInntekt(
         fnr: String,
         inntektsAar: String,
-        lonnsinntekt: Int = 0,
+        lonnsinntekt: Int? = 0,
         loennsinntektBarePensjonsdel: Int = 0,
-        naeringsinntekt: Int? = null,
-        naeringsinntektFraFiskeFangstEllerFamiliebarnehage: Int = 0,
+        naeringsinntekt: Int? = 0,
+        naeringsinntektFraFiskeFangstEllerFamiliebarnehage: Int? = 0,
     ): MockResponse {
         return HentPensjonsgivendeInntektResponse(
             norskPersonidentifikator = fnr,
             inntektsaar = inntektsAar,
             pensjonsgivendeInntekt =
                 listOf(
-                    PensjonsgivendeInntekt(
-                        datoForFastsetting = "$inntektsAar-07-17",
-                        skatteordning = Skatteordning.FASTLAND,
-                        pensjonsgivendeInntektAvLoennsinntekt = lonnsinntekt,
-                        pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = loennsinntektBarePensjonsdel,
-                        pensjonsgivendeInntektAvNaeringsinntekt = naeringsinntekt,
-                        pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage =
-                        naeringsinntektFraFiskeFangstEllerFamiliebarnehage,
-                    ),
+                    // for å gjøre testing enklere legges all fiske/familiebhg på Svalbard
+                    if (naeringsinntektFraFiskeFangstEllerFamiliebarnehage == 0) {
+                        PensjonsgivendeInntekt(
+                            datoForFastsetting = "$inntektsAar-07-17",
+                            skatteordning = Skatteordning.FASTLAND,
+                            pensjonsgivendeInntektAvLoennsinntekt = lonnsinntekt,
+                            pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = loennsinntektBarePensjonsdel,
+                            pensjonsgivendeInntektAvNaeringsinntekt = naeringsinntekt,
+                            pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage = 0,
+                        )
+                    } else {
+                        PensjonsgivendeInntekt(
+                            datoForFastsetting = "$inntektsAar-07-17",
+                            skatteordning = Skatteordning.SVALBARD,
+                            pensjonsgivendeInntektAvLoennsinntekt = 0,
+                            pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = 0,
+                            pensjonsgivendeInntektAvNaeringsinntekt = 0,
+                            pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage =
+                            naeringsinntektFraFiskeFangstEllerFamiliebarnehage,
+                        )
+                    },
                 ),
         ).tilMockResponse()
     }
