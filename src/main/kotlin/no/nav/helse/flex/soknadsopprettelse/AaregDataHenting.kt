@@ -5,8 +5,12 @@ import no.nav.helse.flex.client.aareg.ArbeidsforholdOversikt
 import no.nav.helse.flex.client.ereg.EregClient
 import no.nav.helse.flex.config.EnvironmentToggles
 import no.nav.helse.flex.domain.Periode
+import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Sykepengesoknad
+import no.nav.helse.flex.domain.mapper.parseEgenmeldingsdagerFraSykmelding
+import no.nav.helse.flex.domain.mapper.sporsmalprossesering.arbeidGjenopptattDato
 import no.nav.helse.flex.logger
+import no.nav.helse.flex.util.erHelg
 import no.nav.helse.flex.util.isBeforeOrEqual
 import no.nav.helse.flex.util.serialisertTilString
 import org.springframework.stereotype.Component
@@ -80,6 +84,13 @@ class AaregDataHenting(
             .filter { it.startdato.isAfter(sykepengesoknad.startSykeforlop) }
             .filter { it.startdato.isBeforeOrEqual(sykepengesoknad.tom!!) }
             .filter { it.erOrganisasjonArbeidsforhold() }
+            .filter {
+                ingenArbeidsdagerMellomStartdatoOgEtterStartsyketilfelle(
+                    it,
+                    eksisterendeSoknader,
+                    sykepengesoknad,
+                )
+            }
             .filterInterneOrgnummer(opplysningspliktigOrgnummer)
             .map { it.tilArbeidsforholdFraAAreg() }
             .sortedBy { it.startdato }
@@ -107,3 +118,41 @@ data class ArbeidsforholdFraAAreg(
     val arbeidsstedNavn: String,
     val startdato: LocalDate,
 )
+
+private fun ingenArbeidsdagerMellomStartdatoOgEtterStartsyketilfelle(
+    it: ArbeidsforholdOversikt,
+    eksisterendeSoknader: List<Sykepengesoknad>,
+    sykepengesoknad: Sykepengesoknad,
+): Boolean {
+    val eksisterendeDenneAg =
+        eksisterendeSoknader.filter { it.arbeidsgiverOrgnummer != sykepengesoknad.arbeidsgiverOrgnummer }
+
+    val startdato = it.startdato
+    val startSykeforlop = sykepengesoknad.startSykeforlop!!
+
+    val alledagerMellomStartdatoOgEtterStartsyketilfelle =
+        startSykeforlop.datesUntil(startdato.plusDays(1)).toList().toSet()
+
+    val alleHelgedagerMellomStartdatoOgEtterStartsyketilfelle =
+        alledagerMellomStartdatoOgEtterStartsyketilfelle.filter { it.erHelg() }.toSet()
+
+    val sykedager =
+        eksisterendeDenneAg
+            .asSequence()
+            .filter { it.status == Soknadstatus.SENDT }
+            .map { Periode(fom = it.fom!!, tom = arbeidGjenopptattDato(it)?.minusDays(1) ?: it.tom!!) }
+            .map { it.fom.datesUntil(it.tom.plusDays(1)).toList() }
+            .flatten()
+            .toSet()
+
+    val egenmeldingsdager =
+        eksisterendeDenneAg
+            .map { it.egenmeldingsdagerFraSykmelding.parseEgenmeldingsdagerFraSykmelding() }
+            .flatMap { it ?: emptyList() }
+
+    return alleHelgedagerMellomStartdatoOgEtterStartsyketilfelle
+        .minus(alleHelgedagerMellomStartdatoOgEtterStartsyketilfelle)
+        .minus(sykedager)
+        .minus(egenmeldingsdager)
+        .isEmpty()
+}
