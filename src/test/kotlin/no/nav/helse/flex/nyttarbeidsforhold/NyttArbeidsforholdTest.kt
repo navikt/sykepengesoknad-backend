@@ -27,12 +27,12 @@ class NyttArbeidsforholdTest : NyttArbeidsforholdFellesOppsett() {
                 it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS
             }!!
         @Suppress("ktlint:standard:max-line-length")
-        nyttArbeidsforholdSpm.sporsmalstekst `should be equal to` "Har du jobbet noe hos Kiosken, avd Oslo AS i perioden 26. august - 15. september 2024?"
+        nyttArbeidsforholdSpm.sporsmalstekst `should be equal to` "Har du jobbet noe hos Kiosken, avd Oslo AS i perioden 26. august - 15. september 2022?"
         nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedOrgnummer").textValue() `should be equal to` "999888777"
         nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedNavn").textValue() `should be equal to` "Kiosken, avd Oslo AS"
-        nyttArbeidsforholdSpm.metadata!!.get("startdatoAareg").textValue() `should be equal to` "2024-09-05"
-        nyttArbeidsforholdSpm.metadata!!.get("fom").textValue() `should be equal to` "2024-08-26"
-        nyttArbeidsforholdSpm.metadata!!.get("tom").textValue() `should be equal to` "2024-09-15"
+        nyttArbeidsforholdSpm.metadata!!.get("startdatoAareg").textValue() `should be equal to` "2022-09-05"
+        nyttArbeidsforholdSpm.metadata!!.get("fom").textValue() `should be equal to` "2022-08-26"
+        nyttArbeidsforholdSpm.metadata!!.get("tom").textValue() `should be equal to` "2022-09-15"
         nyttArbeidsforholdSpm.undersporsmal.map { it.tag } `should be equal to`
             listOf(
                 NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO,
@@ -58,7 +58,7 @@ class NyttArbeidsforholdTest : NyttArbeidsforholdFellesOppsett() {
 
         val sykepengesoknadDbRecord = sykepengesoknadRepository.findBySykepengesoknadUuid(soknaden.id)!!
         @Suppress("ktlint:standard:max-line-length")
-        sykepengesoknadDbRecord.arbeidsforholdFraAareg `should be equal to` """[{"opplysningspliktigOrgnummer":"11224455441","arbeidsstedOrgnummer":"999888777","arbeidsstedNavn":"Kiosken, avd Oslo AS","startdato":"2024-09-05"}]"""
+        sykepengesoknadDbRecord.arbeidsforholdFraAareg `should be equal to` """[{"opplysningspliktigOrgnummer":"11224455441","arbeidsstedOrgnummer":"999888777","arbeidsstedNavn":"Kiosken, avd Oslo AS","startdato":"2022-09-05"}]"""
     }
 
     @Test
@@ -113,21 +113,18 @@ class NyttArbeidsforholdTest : NyttArbeidsforholdFellesOppsett() {
     @Test
     @Order(4)
     fun `Sykmeldingen forlenges`() {
-        val soknad =
-            sendSykmelding(
-                sykmeldingKafkaMessage(
-                    fnr = fnr,
-                    sykmeldingsperioder =
-                        heltSykmeldt(
-                            fom = basisdato.plusDays(1),
-                            tom = basisdato.plusDays(21),
-                        ),
-                    arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = "123454543", orgNavn = "MATBUTIKKEN AS"),
-                ),
-                oppfolgingsdato = basisdato.minusDays(20),
-            )
-        soknadAktivering.aktiverSoknad(soknad.first().id)
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = basisdato.plusDays(1),
+                        tom = basisdato.plusDays(21),
+                    ),
+                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = "123454543", orgNavn = "MATBUTIKKEN AS"),
+            ),
+            oppfolgingsdato = basisdato.minusDays(20),
+        )
     }
 
     @Test

@@ -12,7 +12,7 @@ import java.time.LocalDate
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class NyttArbeidsforholdInnenforAgpTest : FellesTestOppsett() {
     val fnr = "22222220001"
-    final val basisdato = LocalDate.of(2024, 9, 15)
+    final val basisdato = LocalDate.of(2022, 9, 15)
 
     @BeforeAll
     fun konfigurerUnleash() {

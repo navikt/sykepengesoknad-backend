@@ -19,13 +19,13 @@ object AaregMockDispatcher : QueueDispatcher() {
                         listOf(
                             skapArbeidsforholdOversikt(
                                 fnr = fnr,
-                                startdato = LocalDate.of(2024, 9, 15).minusDays(40),
+                                startdato = LocalDate.of(2022, 9, 15).minusDays(40),
                                 arbeidssted = "999333666",
                                 opplysningspliktigOrganisasjonsnummer = "11224455441",
                             ),
                             skapArbeidsforholdOversikt(
                                 fnr = fnr,
-                                startdato = LocalDate.of(2024, 9, 15).minusDays(10),
+                                startdato = LocalDate.of(2022, 9, 15).minusDays(10),
                                 arbeidssted = "999888777",
                                 opplysningspliktigOrganisasjonsnummer = "11224455441",
                             ),
@@ -38,19 +38,19 @@ object AaregMockDispatcher : QueueDispatcher() {
                         listOf(
                             skapArbeidsforholdOversikt(
                                 fnr = fnr,
-                                startdato = LocalDate.of(2024, 9, 15).minusDays(40),
+                                startdato = LocalDate.of(2022, 9, 15).minusDays(40),
                                 arbeidssted = "999333666",
                                 opplysningspliktigOrganisasjonsnummer = "1984108765",
                             ),
                             skapArbeidsforholdOversikt(
                                 fnr = fnr,
-                                startdato = LocalDate.of(2024, 9, 15).minusDays(10),
+                                startdato = LocalDate.of(2022, 9, 15).minusDays(10),
                                 arbeidssted = "999888777",
                                 opplysningspliktigOrganisasjonsnummer = "1984108765",
                             ),
                             skapArbeidsforholdOversikt(
                                 fnr = fnr,
-                                startdato = LocalDate.of(2024, 9, 15).minusDays(10),
+                                startdato = LocalDate.of(2022, 9, 15).minusDays(10),
                                 arbeidssted = "999333667",
                             ),
                         ),
@@ -66,7 +66,7 @@ object AaregMockDispatcher : QueueDispatcher() {
 }
 
 fun skapArbeidsforholdOversikt(
-    startdato: LocalDate = LocalDate.of(2024, 9, 15).minusDays(10),
+    startdato: LocalDate = LocalDate.of(2022, 9, 15).minusDays(10),
     sluttdato: LocalDate? = null,
     arbeidssted: String,
     fnr: String,
