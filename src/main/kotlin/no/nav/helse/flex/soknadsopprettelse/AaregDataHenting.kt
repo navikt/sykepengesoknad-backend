@@ -136,7 +136,7 @@ fun ingenArbeidsdagerMellomStartdatoOgEtterStartsyketilfelle(
         alledagerMellomStartdatoOgEtterStartsyketilfelle.filter { it.erHelg() }.toSet()
 
     val sykedager =
-        eksisterendeDenneAg
+        listOf(*eksisterendeDenneAg.toTypedArray(), sykepengesoknad)
             .asSequence()
             .filter { it.status == Soknadstatus.SENDT }
             .map { Periode(fom = it.fom!!, tom = arbeidGjenopptattDato(it)?.minusDays(1) ?: it.tom!!) }
@@ -145,9 +145,11 @@ fun ingenArbeidsdagerMellomStartdatoOgEtterStartsyketilfelle(
             .toSet()
 
     val egenmeldingsdager =
-        eksisterendeDenneAg
+        listOf(*eksisterendeDenneAg.toTypedArray(), sykepengesoknad)
             .map { it.egenmeldingsdagerFraSykmelding.parseEgenmeldingsdagerFraSykmelding() }
             .flatMap { it ?: emptyList() }
+
+
 
     return alledagerMellomStartdatoOgEtterStartsyketilfelle
         .minus(alleHelgedagerMellomStartdatoOgEtterStartsyketilfelle)

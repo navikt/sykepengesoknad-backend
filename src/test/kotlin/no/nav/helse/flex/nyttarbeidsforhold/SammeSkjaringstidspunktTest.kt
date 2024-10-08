@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
 class SammeSkjaringstidspunktTest {
-
     // 9. september 2022 er en fredag
 
     @Test
@@ -23,7 +22,7 @@ class SammeSkjaringstidspunktTest {
             soknad(
                 startSykeforlop = LocalDate.of(2022, 9, 10),
                 fom = LocalDate.of(2022, 9, 10),
-                tom = LocalDate.of(2022, 9, 15)
+                tom = LocalDate.of(2022, 9, 15),
             ),
         ).`should be true`()
     }
@@ -47,15 +46,24 @@ class SammeSkjaringstidspunktTest {
     }
 
     @Test
-    fun `en tidligere søknad med gap til startdato har samme skjæringstidspunkt`() {
+    fun `En tidligere søknad med gap kun i helg har samme skjæringstidspunkt`() {
         ingenArbeidsdagerMellomStartdatoOgEtterStartsyketilfelle(
-            arbeidsforholdOversikt = arbeidsforholdoversikt(startdato = LocalDate.of(2022, 9, 15)),
-            eksisterendeSoknader = emptyList(),
-            soknad(startSykeforlop = LocalDate.of(2022, 9, 15)),
-        ).`should be true`()
+            arbeidsforholdOversikt = arbeidsforholdoversikt(startdato = LocalDate.of(2022, 9, 14)),
+            eksisterendeSoknader =
+            listOf(
+                soknad(
+                    fom = LocalDate.of(2022, 9, 5),
+                    tom = LocalDate.of(2022, 9, 9),
+                ),
+            ),
+            soknad(
+                startSykeforlop = LocalDate.of(2022, 9, 5),
+                fom = LocalDate.of(2022, 9, 13),
+                tom = LocalDate.of(2022, 9, 15),
+            ),
+        ).`should be false`()
     }
 }
-
 
 fun arbeidsforholdoversikt(startdato: LocalDate): ArbeidsforholdOversikt {
     return skapArbeidsforholdOversikt(
@@ -70,8 +78,7 @@ fun soknad(
     arbeidsgiverOrgnummer: String = "333333333",
     fom: LocalDate = LocalDate.of(2022, 9, 15),
     tom: LocalDate = LocalDate.of(2022, 9, 15),
-
-    ): Sykepengesoknad {
+): Sykepengesoknad {
     return opprettNySoknad().copy(
         startSykeforlop = startSykeforlop,
         arbeidsgiverOrgnummer = arbeidsgiverOrgnummer,
