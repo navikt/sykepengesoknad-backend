@@ -8,10 +8,7 @@ import no.nav.helse.flex.client.grunnbeloep.GrunnbeloepResponse
 import no.nav.helse.flex.client.sigrun.*
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.logger
-import no.nav.helse.flex.util.beregnEndring25Prosent
-import no.nav.helse.flex.util.beregnGjennomsnittligInntekt
-import no.nav.helse.flex.util.roundToBigInteger
-import no.nav.helse.flex.util.sykepengegrunnlagUtregner
+import no.nav.helse.flex.util.*
 import org.springframework.stereotype.Service
 import java.math.BigInteger
 import java.time.LocalDate
@@ -90,14 +87,14 @@ class SykepengegrunnlagForNaeringsdrivende(
                     grunnbeloepPaaSykmeldingstidspunkt,
                 )
 
-            val gjennomsnittligInntektAlleAar = beregnGjennomsnittligInntekt(beregnetInntektPerAar, grunnbeloepPaaSykmeldingstidspunkt)
+            val justerteInntekter = inntektJustertFor6Gog12G(grunnbeloepPaaSykmeldingstidspunkt, beregnetInntektPerAar)
+            val gjennomsnittligInntektAlleAar = beregnGjennomsnittligInntekt(justerteInntekter)
 
-            val grunnbeloepForRelevanteTreAar =
-                finnGrunnbeloepForTreRelevanteAar(grunnbeloepSisteFemAar, beregnetInntektPerAar)
+            val grunnbeloepForRelevanteTreAar = finnGrunnbeloepForTreRelevanteAar(grunnbeloepSisteFemAar, beregnetInntektPerAar)
 
             return SykepengegrunnlagNaeringsdrivende(
                 gjennomsnittTotal = gjennomsnittligInntektAlleAar.roundToBigInteger(),
-                gjennomsnittPerAar = beregnetInntektPerAar,
+                gjennomsnittPerAar = justerteInntekter.map { it.key to it.value.roundToBigInteger() }.toMap(),
                 grunnbeloepPerAar = grunnbeloepForRelevanteTreAar,
                 grunnbeloepPaaSykmeldingstidspunkt = grunnbeloepPaaSykmeldingstidspunkt,
                 endring25Prosent = beregnEndring25Prosent(gjennomsnittligInntektAlleAar),
@@ -172,7 +169,7 @@ class SykepengegrunnlagForNaeringsdrivende(
         grunnbeloepSykmldTidspunkt: Int,
         grunnbeloepForAaret: GrunnbeloepResponse,
     ): BigInteger {
-        return sykepengegrunnlagUtregner(
+        return inntektJustertForGrunnbeloep(
             pensjonsgivendeInntektIKalenderAaret = inntekt.pensjonsgivendeInntekt.sumOf { it.sumAvAlleInntekter() }.toBigInteger(),
             gPaaSykmeldingstidspunktet = grunnbeloepSykmldTidspunkt.toBigInteger(),
             gjennomsnittligGIKalenderaaret = grunnbeloepForAaret.gjennomsnittPerÅr.toBigInteger(),
