@@ -80,22 +80,25 @@ class SykepengegrunnlagForNaeringsdrivende(
                 hentPensjonsgivendeInntektForTreSisteArene(soknad.fnr, sykmeldingstidspunkt)
                     ?: throw Exception("Fant ikke 3 år med pensjonsgivende inntekter for person med soknad ${soknad.id}")
 
-            val beregnetInntektPerAar =
-                finnBeregnetInntektPerAar(
+            val grunnbeloepRelevanteAar = finnGrunnbeloepForTreRelevanteAar(grunnbeloepSisteFemAar, pensjonsgivendeInntekter)
+            val inntekterJustertForGrunnbeloep =
+                finnInntekterJustertForGrunnbeloep(
                     pensjonsgivendeInntekter,
-                    grunnbeloepSisteFemAar,
+                    grunnbeloepRelevanteAar,
                     grunnbeloepPaaSykmeldingstidspunkt,
                 )
 
-            val justerteInntekter = inntektJustertFor6Gog12G(grunnbeloepPaaSykmeldingstidspunkt, beregnetInntektPerAar)
+            val justerteInntekter =
+                finnInntekterJustertFor6Gog12G(
+                    inntekterJustertForGrunnbeloep,
+                    grunnbeloepPaaSykmeldingstidspunkt,
+                )
             val gjennomsnittligInntektAlleAar = beregnGjennomsnittligInntekt(justerteInntekter)
-
-            val grunnbeloepForRelevanteTreAar = finnGrunnbeloepForTreRelevanteAar(grunnbeloepSisteFemAar, beregnetInntektPerAar)
 
             return SykepengegrunnlagNaeringsdrivende(
                 gjennomsnittTotal = gjennomsnittligInntektAlleAar.roundToBigInteger(),
                 gjennomsnittPerAar = justerteInntekter.map { it.key to it.value.roundToBigInteger() }.toMap(),
-                grunnbeloepPerAar = grunnbeloepForRelevanteTreAar,
+                grunnbeloepPerAar = grunnbeloepRelevanteAar,
                 grunnbeloepPaaSykmeldingstidspunkt = grunnbeloepPaaSykmeldingstidspunkt,
                 endring25Prosent = beregnEndring25Prosent(gjennomsnittligInntektAlleAar),
             )
@@ -142,38 +145,34 @@ class SykepengegrunnlagForNaeringsdrivende(
 
     private fun finnGrunnbeloepForTreRelevanteAar(
         grunnbeloepSisteFemAar: List<GrunnbeloepResponse>,
-        beregnetInntektPerAar: Map<String, BigInteger>,
-    ) = grunnbeloepSisteFemAar.filter { grunnbeloepResponse ->
-        grunnbeloepResponse.dato.tilAar() in beregnetInntektPerAar.keys.map { it.toInt() }
-    }.associate { grunnbeloepResponse ->
-        grunnbeloepResponse.dato.tilAar().toString() to grunnbeloepResponse.gjennomsnittPerÅr.toBigInteger()
+        inntektPerAar: List<HentPensjonsgivendeInntektResponse>,
+    ): Map<String, BigInteger> {
+        val relevanteInntektsAar = inntektPerAar.map { it.inntektsaar.toInt() }
+
+        return grunnbeloepSisteFemAar
+            .filter { it.dato.tilAar() in relevanteInntektsAar }
+            .associate { it.dato.tilAar().toString() to it.gjennomsnittPerÅr.toBigInteger() }
     }
 
-    private fun finnBeregnetInntektPerAar(
+    private fun finnInntekterJustertForGrunnbeloep(
         pensjonsgivendeInntekter: List<HentPensjonsgivendeInntektResponse>,
-        grunnbeloepSisteFemAar: List<GrunnbeloepResponse>,
+        grunnbeloepRelevanteAar: Map<String, BigInteger>,
         grunnbeloepSykmldTidspunkt: Int,
     ): Map<String, BigInteger> {
-        return pensjonsgivendeInntekter.mapNotNull { inntekt ->
-            val aar = inntekt.inntektsaar
+        return pensjonsgivendeInntekter.associate { inntekt ->
             val grunnbeloepForAaret =
-                grunnbeloepSisteFemAar.find { it.dato.tilAar() == aar.toInt() }
-                    ?: return@mapNotNull null
+                grunnbeloepRelevanteAar[inntekt.inntektsaar]
+                    ?: throw Exception("Finner ikke grunnbeløp for inntektsår ${inntekt.inntektsaar}")
 
-            aar to finnInntektForAaret(inntekt, grunnbeloepSykmldTidspunkt, grunnbeloepForAaret)
-        }.toMap()
-    }
-
-    private fun finnInntektForAaret(
-        inntekt: HentPensjonsgivendeInntektResponse,
-        grunnbeloepSykmldTidspunkt: Int,
-        grunnbeloepForAaret: GrunnbeloepResponse,
-    ): BigInteger {
-        return inntektJustertForGrunnbeloep(
-            pensjonsgivendeInntektIKalenderAaret = inntekt.pensjonsgivendeInntekt.sumOf { it.sumAvAlleInntekter() }.toBigInteger(),
-            gPaaSykmeldingstidspunktet = grunnbeloepSykmldTidspunkt.toBigInteger(),
-            gjennomsnittligGIKalenderaaret = grunnbeloepForAaret.gjennomsnittPerÅr.toBigInteger(),
-        )
+            inntekt.inntektsaar to
+                inntektJustertForGrunnbeloep(
+                    pensjonsgivendeInntektIKalenderAaret =
+                        inntekt.pensjonsgivendeInntekt.sumOf { it.sumAvAlleInntekter() }
+                            .toBigInteger(),
+                    gPaaSykmeldingstidspunktet = grunnbeloepSykmldTidspunkt.toBigInteger(),
+                    gjennomsnittligGIKalenderaaret = grunnbeloepForAaret,
+                )
+        }
     }
 
     fun String.tilAar() = LocalDate.parse(this).year

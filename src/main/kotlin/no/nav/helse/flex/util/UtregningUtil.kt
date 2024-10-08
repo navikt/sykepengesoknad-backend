@@ -19,9 +19,9 @@ fun inntektJustertForGrunnbeloep(
  * Justerer inntekter basert på formel der inntekt mellom 6G og 12G reduseres til 1/3,
  * og inntekt over 12G blir trukket fra
  */
-fun inntektJustertFor6Gog12G(
-    grunnbeloepSykmldTidspunkt: Int,
+fun finnInntekterJustertFor6Gog12G(
     justertInntektForGPerAar: Map<String, BigInteger>,
+    grunnbeloepSykmldTidspunkt: Int,
 ): MutableMap<String, BigDecimal> {
     val g12 = BigDecimal(grunnbeloepSykmldTidspunkt * 12)
     val g6 = BigDecimal(grunnbeloepSykmldTidspunkt * 6)

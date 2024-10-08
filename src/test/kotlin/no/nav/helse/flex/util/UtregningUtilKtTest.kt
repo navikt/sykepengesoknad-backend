@@ -16,13 +16,13 @@ class UtregningUtilKtTest {
 
     @Test
     fun justerFor6Gog12G() {
-        inntektJustertFor6Gog12G(
-            grunnbeloepSykmldTidspunkt = 96883,
+        finnInntekterJustertFor6Gog12G(
             mapOf(
                 "2016" to 707561.toBigInteger(),
                 "2015" to 638656.toBigInteger(),
                 "2014" to 543613.toBigInteger(),
             ),
+            grunnbeloepSykmldTidspunkt = 96883,
         ) `should be equal to`
             mapOf(
                 "2016" to "623385.67".toBigDecimal(),
