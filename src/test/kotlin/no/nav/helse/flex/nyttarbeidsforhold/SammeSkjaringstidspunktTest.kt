@@ -31,16 +31,17 @@ class SammeSkjaringstidspunktTest {
     fun `En tidligere søknad med gap har ikke samme skjæringstidspunkt`() {
         ingenArbeidsdagerMellomStartdatoOgEtterStartsyketilfelle(
             arbeidsforholdOversikt = arbeidsforholdoversikt(startdato = LocalDate.of(2022, 9, 12)),
-            eksisterendeSoknader = listOf(
-                soknad(
-                    fom = LocalDate.of(2022, 9, 5),
-                    tom = LocalDate.of(2022, 9, 8)
-                )
-            ),
+            eksisterendeSoknader =
+                listOf(
+                    soknad(
+                        fom = LocalDate.of(2022, 9, 5),
+                        tom = LocalDate.of(2022, 9, 8),
+                    ),
+                ),
             soknad(
                 startSykeforlop = LocalDate.of(2022, 9, 5),
                 fom = LocalDate.of(2022, 9, 10),
-                tom = LocalDate.of(2022, 9, 15)
+                tom = LocalDate.of(2022, 9, 15),
             ),
         ).`should be false`()
     }
@@ -50,12 +51,12 @@ class SammeSkjaringstidspunktTest {
         ingenArbeidsdagerMellomStartdatoOgEtterStartsyketilfelle(
             arbeidsforholdOversikt = arbeidsforholdoversikt(startdato = LocalDate.of(2022, 9, 14)),
             eksisterendeSoknader =
-            listOf(
-                soknad(
-                    fom = LocalDate.of(2022, 9, 5),
-                    tom = LocalDate.of(2022, 9, 9),
+                listOf(
+                    soknad(
+                        fom = LocalDate.of(2022, 9, 5),
+                        tom = LocalDate.of(2022, 9, 9),
+                    ),
                 ),
-            ),
             soknad(
                 startSykeforlop = LocalDate.of(2022, 9, 5),
                 fom = LocalDate.of(2022, 9, 13),

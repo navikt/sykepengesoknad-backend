@@ -149,8 +149,6 @@ fun ingenArbeidsdagerMellomStartdatoOgEtterStartsyketilfelle(
             .map { it.egenmeldingsdagerFraSykmelding.parseEgenmeldingsdagerFraSykmelding() }
             .flatMap { it ?: emptyList() }
 
-
-
     return alledagerMellomStartdatoOgEtterStartsyketilfelle
         .minus(alleHelgedagerMellomStartdatoOgEtterStartsyketilfelle)
         .minus(sykedager)
