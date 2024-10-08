@@ -128,17 +128,18 @@ fun ingenArbeidsdagerMellomStartdatoOgEtterStartsyketilfelle(
         eksisterendeSoknader.filter { it.arbeidsgiverOrgnummer == sykepengesoknad.arbeidsgiverOrgnummer }
 
     val startdato = arbeidsforholdOversikt.startdato
-    val startSykeforlop = sykepengesoknad.startSykeforlop
-    val alledagerMellomStartdatoOgEtterStartsyketilfelle =
-        startSykeforlop!!.datesUntil(startdato).toList().toSet()
+    if (sykepengesoknad.fom!! < startdato)
+        {
+            return true
+        }
+    val alleDagerMellomStartdatoOgFom = startdato.datesUntil(sykepengesoknad.fom).toList().toSet()
 
-    val alleHelgedagerMellomStartdatoOgEtterStartsyketilfelle =
-        alledagerMellomStartdatoOgEtterStartsyketilfelle.filter { it.erHelg() }.toSet()
+    val alleHelgedagerMellomStartdatoOgEtterStartsyketilfelle = alleDagerMellomStartdatoOgFom.filter { it.erHelg() }.toSet()
 
     val sykedager =
         listOf(*eksisterendeDenneAg.toTypedArray(), sykepengesoknad)
             .asSequence()
-            .filter { it.status == Soknadstatus.SENDT }
+            .filter { it.status != Soknadstatus.KORRIGERT }
             .map { Periode(fom = it.fom!!, tom = arbeidGjenopptattDato(it)?.minusDays(1) ?: it.tom!!) }
             .map { it.fom.datesUntil(it.tom.plusDays(1)).toList() }
             .flatten()
@@ -149,9 +150,16 @@ fun ingenArbeidsdagerMellomStartdatoOgEtterStartsyketilfelle(
             .map { it.egenmeldingsdagerFraSykmelding.parseEgenmeldingsdagerFraSykmelding() }
             .flatMap { it ?: emptyList() }
 
-    return alledagerMellomStartdatoOgEtterStartsyketilfelle
-        .minus(alleHelgedagerMellomStartdatoOgEtterStartsyketilfelle)
-        .minus(sykedager)
-        .minus(egenmeldingsdager)
-        .isEmpty()
+    val minus =
+        alleDagerMellomStartdatoOgFom
+            .minus(alleHelgedagerMellomStartdatoOgEtterStartsyketilfelle)
+            .minus(sykedager)
+            .minus(egenmeldingsdager)
+    val empty =
+        minus
+            .isEmpty()
+    if (!empty) {
+        println("Fant arbeidsdager mellom startdato og etter startsyketilfelle for søknad ${sykepengesoknad.id}")
+    }
+    return empty
 }
