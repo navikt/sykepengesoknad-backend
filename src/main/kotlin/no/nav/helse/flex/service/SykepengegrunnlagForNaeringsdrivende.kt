@@ -17,7 +17,6 @@ import java.math.BigInteger
 import java.time.LocalDate
 
 data class SykepengegrunnlagNaeringsdrivende(
-    val fastsattSykepengegrunnlag: BigInteger,
     val gjennomsnittTotal: BigInteger,
     val gjennomsnittPerAar: Map<String, BigInteger>,
     val grunnbeloepPerAar: Map<String, BigInteger>,
@@ -91,19 +90,17 @@ class SykepengegrunnlagForNaeringsdrivende(
                     grunnbeloepPaaSykmeldingstidspunkt,
                 )
 
-            val (gjennomsnittligInntektAlleAar, fastsattSykepengegrunnlag) =
-                beregnGjennomsnittligInntekt(beregnetInntektPerAar, grunnbeloepPaaSykmeldingstidspunkt)
+            val gjennomsnittligInntektAlleAar = beregnGjennomsnittligInntekt(beregnetInntektPerAar, grunnbeloepPaaSykmeldingstidspunkt)
 
             val grunnbeloepForRelevanteTreAar =
                 finnGrunnbeloepForTreRelevanteAar(grunnbeloepSisteFemAar, beregnetInntektPerAar)
 
             return SykepengegrunnlagNaeringsdrivende(
-                fastsattSykepengegrunnlag = fastsattSykepengegrunnlag.roundToBigInteger(),
                 gjennomsnittTotal = gjennomsnittligInntektAlleAar.roundToBigInteger(),
                 gjennomsnittPerAar = beregnetInntektPerAar,
                 grunnbeloepPerAar = grunnbeloepForRelevanteTreAar,
                 grunnbeloepPaaSykmeldingstidspunkt = grunnbeloepPaaSykmeldingstidspunkt,
-                endring25Prosent = beregnEndring25Prosent(fastsattSykepengegrunnlag),
+                endring25Prosent = beregnEndring25Prosent(gjennomsnittligInntektAlleAar),
             )
         } catch (e: Exception) {
             log.error(e.message, e)

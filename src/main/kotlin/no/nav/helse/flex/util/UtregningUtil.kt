@@ -17,13 +17,12 @@ fun sykepengegrunnlagUtregner(
 
 /**
  * Finner gennomsnittlig inntekt og justerer basert på regler i rundskriv.
- * Dersom snittet er over 6G fastsettes sykepengegrunnlaget til 6G
- * @return gjennomsnittlig inntekt, fastsatt sykepengegrunnlag
+ * @return gjennomsnittlig inntekt
  */
 fun beregnGjennomsnittligInntekt(
     beregnetInntektPerAar: Map<String, BigInteger>,
     grunnbeloepSykmldTidspunkt: Int,
-): Pair<BigDecimal, BigDecimal> {
+): BigDecimal {
     val g12 = BigDecimal(grunnbeloepSykmldTidspunkt * 12)
     val g6 = BigDecimal(grunnbeloepSykmldTidspunkt * 6)
 
@@ -42,12 +41,8 @@ fun beregnGjennomsnittligInntekt(
     justerteInntekter.putAll(reduserteVerdierMellom6og12G)
 
     val snittVerdi = justerteInntekter.values.sumOf { it }.divide(BigDecimal(3), 2, RoundingMode.HALF_UP)
-    val fastsattSykepengegrunnlag = if (snittVerdi > g6) g6 else snittVerdi
 
-    return Pair(
-        snittVerdi.setScale(2, RoundingMode.HALF_UP),
-        fastsattSykepengegrunnlag.setScale(2, RoundingMode.HALF_UP),
-    )
+    return snittVerdi.setScale(2, RoundingMode.HALF_UP)
 }
 
 fun beregnEndring25Prosent(snittPGI: BigDecimal): List<BigInteger> {

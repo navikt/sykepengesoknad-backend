@@ -25,10 +25,7 @@ class UtregningUtilKtTest {
         beregnGjennomsnittligInntekt(
             beregnetInntektPerAar,
             grunnbeloepSykmldTidspunkt = 96883,
-        ).let {
-            it.first.toDouble().roundToInt().toBigInteger() `should be equal to` 589139.toBigInteger()
-            it.second.toDouble().roundToInt().toBigInteger() `should be equal to` 581298.toBigInteger()
-        }
+        ).toDouble().roundToInt().toBigInteger() `should be equal to` 589139.toBigInteger()
     }
 
     @Test
