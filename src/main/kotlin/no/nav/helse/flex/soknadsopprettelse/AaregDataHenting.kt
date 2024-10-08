@@ -86,9 +86,9 @@ class AaregDataHenting(
             .filter { it.erOrganisasjonArbeidsforhold() }
             .filter {
                 ingenArbeidsdagerMellomStartdatoOgEtterStartsyketilfelle(
-                    it,
-                    eksisterendeSoknader,
-                    sykepengesoknad,
+                    arbeidsforholdOversikt = it,
+                    eksisterendeSoknader = eksisterendeSoknader,
+                    sykepengesoknad = sykepengesoknad,
                 )
             }
             .filterInterneOrgnummer(opplysningspliktigOrgnummer)
@@ -119,19 +119,18 @@ data class ArbeidsforholdFraAAreg(
     val startdato: LocalDate,
 )
 
-private fun ingenArbeidsdagerMellomStartdatoOgEtterStartsyketilfelle(
-    it: ArbeidsforholdOversikt,
+fun ingenArbeidsdagerMellomStartdatoOgEtterStartsyketilfelle(
+    arbeidsforholdOversikt: ArbeidsforholdOversikt,
     eksisterendeSoknader: List<Sykepengesoknad>,
     sykepengesoknad: Sykepengesoknad,
 ): Boolean {
     val eksisterendeDenneAg =
-        eksisterendeSoknader.filter { it.arbeidsgiverOrgnummer != sykepengesoknad.arbeidsgiverOrgnummer }
+        eksisterendeSoknader.filter { it.arbeidsgiverOrgnummer == sykepengesoknad.arbeidsgiverOrgnummer }
 
-    val startdato = it.startdato
-    val startSykeforlop = sykepengesoknad.startSykeforlop!!
-
+    val startdato = arbeidsforholdOversikt.startdato
+    val startSykeforlop = sykepengesoknad.startSykeforlop
     val alledagerMellomStartdatoOgEtterStartsyketilfelle =
-        startSykeforlop.datesUntil(startdato.plusDays(1)).toList().toSet()
+        startSykeforlop!!.datesUntil(startdato).toList().toSet()
 
     val alleHelgedagerMellomStartdatoOgEtterStartsyketilfelle =
         alledagerMellomStartdatoOgEtterStartsyketilfelle.filter { it.erHelg() }.toSet()
@@ -150,7 +149,7 @@ private fun ingenArbeidsdagerMellomStartdatoOgEtterStartsyketilfelle(
             .map { it.egenmeldingsdagerFraSykmelding.parseEgenmeldingsdagerFraSykmelding() }
             .flatMap { it ?: emptyList() }
 
-    return alleHelgedagerMellomStartdatoOgEtterStartsyketilfelle
+    return alledagerMellomStartdatoOgEtterStartsyketilfelle
         .minus(alleHelgedagerMellomStartdatoOgEtterStartsyketilfelle)
         .minus(sykedager)
         .minus(egenmeldingsdager)
