@@ -12,6 +12,7 @@ import no.nav.helse.flex.soknadsopprettelse.TILBAKE_NAR
 import no.nav.helse.flex.soknadsopprettelse.ingenArbeidsdagerMellomStartdatoOgEtterStartsyketilfelle
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.tilbakeIFulltArbeidSporsmal
 import no.nav.helse.flex.testutil.byttSvar
+import no.nav.helse.flex.util.serialisertTilString
 import org.amshove.kluent.`should be false`
 import org.amshove.kluent.`should be true`
 import org.junit.jupiter.api.Test
@@ -53,6 +54,26 @@ class SammeSkjaringstidspunktTest {
     }
 
     @Test
+    fun `En tidligere søknad med gap dekket av egenmelding har samme skjæringstidspunkt`() {
+        ingenArbeidsdagerMellomStartdatoOgEtterStartsyketilfelle(
+            arbeidsforholdOversikt = arbeidsforholdoversikt(startdato = LocalDate.of(2022, 9, 12)),
+            eksisterendeSoknader =
+                listOf(
+                    soknad(
+                        fom = LocalDate.of(2022, 9, 5),
+                        tom = LocalDate.of(2022, 9, 8),
+                    ),
+                ),
+            soknad(
+                startSykeforlop = LocalDate.of(2022, 9, 5),
+                fom = LocalDate.of(2022, 9, 10),
+                tom = LocalDate.of(2022, 9, 15),
+                egenmeldingsdager = listOf(LocalDate.of(2022, 9, 9)),
+            ),
+        ).`should be true`()
+    }
+
+    @Test
     fun `En tidligere søknad med gap kun i helg har samme skjæringstidspunkt`() {
         ingenArbeidsdagerMellomStartdatoOgEtterStartsyketilfelle(
             arbeidsforholdOversikt = arbeidsforholdoversikt(startdato = LocalDate.of(2022, 9, 14)),
@@ -91,7 +112,7 @@ class SammeSkjaringstidspunktTest {
     }
 
     @Test
-    fun `En tidligere søknad helt inntil med arbeid gjenolpptatt har ikke samme skjæringstidspunkt`() {
+    fun `En tidligere søknad helt inntil med arbeid gjenopptatt har ikke samme skjæringstidspunkt`() {
         ingenArbeidsdagerMellomStartdatoOgEtterStartsyketilfelle(
             arbeidsforholdOversikt = arbeidsforholdoversikt(startdato = LocalDate.of(2022, 9, 12)),
             eksisterendeSoknader =
@@ -125,6 +146,7 @@ fun soknad(
     fom: LocalDate = LocalDate.of(2022, 9, 15),
     tom: LocalDate = LocalDate.of(2022, 9, 15),
     arbeidGjenopptatt: LocalDate? = null,
+    egenmeldingsdager: List<LocalDate>? = null,
 ): Sykepengesoknad {
     fun sporsmal(): List<Sporsmal> {
         if (arbeidGjenopptatt != null) {
@@ -148,6 +170,7 @@ fun soknad(
         startSykeforlop = startSykeforlop,
         arbeidsgiverOrgnummer = arbeidsgiverOrgnummer,
         fom = fom,
+        egenmeldingsdagerFraSykmelding = egenmeldingsdager?.serialisertTilString(),
         tom = tom,
         sporsmal = sporsmal(),
         status = Soknadstatus.SENDT,
