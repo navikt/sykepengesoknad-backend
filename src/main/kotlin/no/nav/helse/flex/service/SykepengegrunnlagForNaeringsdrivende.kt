@@ -5,10 +5,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.fasterxml.jackson.databind.node.ObjectNode
 import no.nav.helse.flex.client.grunnbeloep.GrunnbeloepResponse
-import no.nav.helse.flex.client.sigrun.HentPensjonsgivendeInntektResponse
-import no.nav.helse.flex.client.sigrun.IngenPensjonsgivendeInntektFunnetException
-import no.nav.helse.flex.client.sigrun.PensjongivendeInntektClient
-import no.nav.helse.flex.client.sigrun.PensjonsgivendeInntekt
+import no.nav.helse.flex.client.sigrun.*
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.util.beregnEndring25Prosent
@@ -179,10 +176,7 @@ class SykepengegrunnlagForNaeringsdrivende(
         grunnbeloepForAaret: GrunnbeloepResponse,
     ): BigInteger {
         return sykepengegrunnlagUtregner(
-            pensjonsgivendeInntektIKalenderAaret =
-                inntekt.pensjonsgivendeInntekt.firstNotNullOf(
-                    PensjonsgivendeInntekt::pensjonsgivendeInntektAvNaeringsinntekt,
-                ).toBigInteger(),
+            pensjonsgivendeInntektIKalenderAaret = inntekt.pensjonsgivendeInntekt.sumOf { it.sumAvAlleInntekter() }.toBigInteger(),
             gPaaSykmeldingstidspunktet = grunnbeloepSykmldTidspunkt.toBigInteger(),
             gjennomsnittligGIKalenderaaret = grunnbeloepForAaret.gjennomsnittPerÅr.toBigInteger(),
         )
