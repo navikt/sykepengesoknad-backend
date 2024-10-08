@@ -64,6 +64,25 @@ class SammeSkjaringstidspunktTest {
             ),
         ).`should be false`()
     }
+
+    @Test
+    fun `En tidligere søknad helt inntil har samme skjæringstidspunkt`() {
+        ingenArbeidsdagerMellomStartdatoOgEtterStartsyketilfelle(
+            arbeidsforholdOversikt = arbeidsforholdoversikt(startdato = LocalDate.of(2022, 9, 12)),
+            eksisterendeSoknader =
+                listOf(
+                    soknad(
+                        fom = LocalDate.of(2022, 9, 5),
+                        tom = LocalDate.of(2022, 9, 9),
+                    ),
+                ),
+            soknad(
+                startSykeforlop = LocalDate.of(2022, 9, 5),
+                fom = LocalDate.of(2022, 9, 10),
+                tom = LocalDate.of(2022, 9, 15),
+            ),
+        ).`should be true`()
+    }
 }
 
 fun arbeidsforholdoversikt(startdato: LocalDate): ArbeidsforholdOversikt {
