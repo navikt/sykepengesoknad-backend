@@ -13,7 +13,7 @@ fun Sporsmal.byttSvar(
     svar: List<String>,
 ): Sporsmal = listOf(this).byttSvar(tag ?: this.tag, svar.toList().map { Svar(null, verdi = it) }).first()
 
-private fun List<Sporsmal>.byttSvar(
+fun List<Sporsmal>.byttSvar(
     tag: String,
     svar: List<Svar>,
 ): List<Sporsmal> {

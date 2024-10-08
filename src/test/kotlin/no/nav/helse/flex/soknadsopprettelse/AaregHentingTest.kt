@@ -36,6 +36,7 @@ class AaregHentingTest : FellesTestOppsett() {
                 arbeidsgiverOrgnummer = "112233445",
                 startSykeforlop = LocalDate.of(2022, 9, 15).minusDays(50),
                 tom = LocalDate.of(2022, 9, 15),
+                fom = LocalDate.of(2022, 9, 15).minusDays(50),
             )
         val nyeArbeidsforhold =
             aaregDataHenting.hentNyeArbeidsforhold(
@@ -71,6 +72,7 @@ class AaregHentingTest : FellesTestOppsett() {
             opprettNySoknad().copy(
                 arbeidsgiverOrgnummer = "999333666",
                 startSykeforlop = LocalDate.of(2022, 9, 15).minusDays(50),
+                fom = LocalDate.of(2022, 9, 15).minusDays(50),
                 tom = LocalDate.of(2022, 9, 15),
             )
         val nyeArbeidsforhold =
