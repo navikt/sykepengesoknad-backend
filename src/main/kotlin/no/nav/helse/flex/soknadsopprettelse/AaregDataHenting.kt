@@ -128,10 +128,9 @@ fun ingenArbeidsdagerMellomStartdatoOgEtterStartsyketilfelle(
         eksisterendeSoknader.filter { it.arbeidsgiverOrgnummer == sykepengesoknad.arbeidsgiverOrgnummer }
 
     val startdato = arbeidsforholdOversikt.startdato
-    if (sykepengesoknad.fom!! < startdato)
-        {
-            return true
-        }
+    if (sykepengesoknad.fom!! < startdato) {
+        return true
+    }
     val alleDagerMellomStartdatoOgFom = startdato.datesUntil(sykepengesoknad.fom).toList().toSet()
 
     val alleHelgedagerMellomStartdatoOgEtterStartsyketilfelle = alleDagerMellomStartdatoOgFom.filter { it.erHelg() }.toSet()
@@ -150,16 +149,9 @@ fun ingenArbeidsdagerMellomStartdatoOgEtterStartsyketilfelle(
             .map { it.egenmeldingsdagerFraSykmelding.parseEgenmeldingsdagerFraSykmelding() }
             .flatMap { it ?: emptyList() }
 
-    val minus =
-        alleDagerMellomStartdatoOgFom
-            .minus(alleHelgedagerMellomStartdatoOgEtterStartsyketilfelle)
-            .minus(sykedager)
-            .minus(egenmeldingsdager)
-    val empty =
-        minus
-            .isEmpty()
-    if (!empty) {
-        println("Fant arbeidsdager mellom startdato og etter startsyketilfelle for søknad ${sykepengesoknad.id}")
-    }
-    return empty
+    return alleDagerMellomStartdatoOgFom
+        .minus(alleHelgedagerMellomStartdatoOgEtterStartsyketilfelle)
+        .minus(sykedager)
+        .minus(egenmeldingsdager)
+        .isEmpty()
 }

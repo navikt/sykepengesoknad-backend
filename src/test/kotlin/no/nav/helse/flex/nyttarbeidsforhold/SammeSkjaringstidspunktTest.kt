@@ -27,7 +27,6 @@ class SammeSkjaringstidspunktTest {
             arbeidsforholdOversikt = arbeidsforholdoversikt(startdato = LocalDate.of(2022, 9, 12)),
             eksisterendeSoknader = emptyList(),
             soknad(
-                startSykeforlop = LocalDate.of(2022, 9, 10),
                 fom = LocalDate.of(2022, 9, 10),
                 tom = LocalDate.of(2022, 9, 15),
             ),
@@ -37,7 +36,7 @@ class SammeSkjaringstidspunktTest {
     @Test
     fun `En tidligere søknad med gap har ikke samme skjæringstidspunkt`() {
         ingenArbeidsdagerMellomStartdatoOgEtterStartsyketilfelle(
-            arbeidsforholdOversikt = arbeidsforholdoversikt(startdato = LocalDate.of(2022, 9, 12)),
+            arbeidsforholdOversikt = arbeidsforholdoversikt(startdato = LocalDate.of(2022, 9, 7)),
             eksisterendeSoknader =
                 listOf(
                     soknad(
@@ -46,7 +45,6 @@ class SammeSkjaringstidspunktTest {
                     ),
                 ),
             soknad(
-                startSykeforlop = LocalDate.of(2022, 9, 5),
                 fom = LocalDate.of(2022, 9, 10),
                 tom = LocalDate.of(2022, 9, 15),
             ),
@@ -56,7 +54,7 @@ class SammeSkjaringstidspunktTest {
     @Test
     fun `En tidligere søknad med gap dekket av egenmelding har samme skjæringstidspunkt`() {
         ingenArbeidsdagerMellomStartdatoOgEtterStartsyketilfelle(
-            arbeidsforholdOversikt = arbeidsforholdoversikt(startdato = LocalDate.of(2022, 9, 12)),
+            arbeidsforholdOversikt = arbeidsforholdoversikt(startdato = LocalDate.of(2022, 9, 7)),
             eksisterendeSoknader =
                 listOf(
                     soknad(
@@ -65,7 +63,6 @@ class SammeSkjaringstidspunktTest {
                     ),
                 ),
             soknad(
-                startSykeforlop = LocalDate.of(2022, 9, 5),
                 fom = LocalDate.of(2022, 9, 10),
                 tom = LocalDate.of(2022, 9, 15),
                 egenmeldingsdager = listOf(LocalDate.of(2022, 9, 9)),
@@ -76,7 +73,7 @@ class SammeSkjaringstidspunktTest {
     @Test
     fun `En tidligere søknad med gap kun i helg har samme skjæringstidspunkt`() {
         ingenArbeidsdagerMellomStartdatoOgEtterStartsyketilfelle(
-            arbeidsforholdOversikt = arbeidsforholdoversikt(startdato = LocalDate.of(2022, 9, 14)),
+            arbeidsforholdOversikt = arbeidsforholdoversikt(startdato = LocalDate.of(2022, 9, 7)),
             eksisterendeSoknader =
                 listOf(
                     soknad(
@@ -85,7 +82,6 @@ class SammeSkjaringstidspunktTest {
                     ),
                 ),
             soknad(
-                startSykeforlop = LocalDate.of(2022, 9, 5),
                 fom = LocalDate.of(2022, 9, 13),
                 tom = LocalDate.of(2022, 9, 15),
             ),
@@ -95,7 +91,7 @@ class SammeSkjaringstidspunktTest {
     @Test
     fun `En tidligere søknad helt inntil har samme skjæringstidspunkt`() {
         ingenArbeidsdagerMellomStartdatoOgEtterStartsyketilfelle(
-            arbeidsforholdOversikt = arbeidsforholdoversikt(startdato = LocalDate.of(2022, 9, 12)),
+            arbeidsforholdOversikt = arbeidsforholdoversikt(startdato = LocalDate.of(2022, 9, 7)),
             eksisterendeSoknader =
                 listOf(
                     soknad(
@@ -104,7 +100,6 @@ class SammeSkjaringstidspunktTest {
                     ),
                 ),
             soknad(
-                startSykeforlop = LocalDate.of(2022, 9, 5),
                 fom = LocalDate.of(2022, 9, 10),
                 tom = LocalDate.of(2022, 9, 15),
             ),
@@ -114,7 +109,7 @@ class SammeSkjaringstidspunktTest {
     @Test
     fun `En tidligere søknad helt inntil med arbeid gjenopptatt har ikke samme skjæringstidspunkt`() {
         ingenArbeidsdagerMellomStartdatoOgEtterStartsyketilfelle(
-            arbeidsforholdOversikt = arbeidsforholdoversikt(startdato = LocalDate.of(2022, 9, 12)),
+            arbeidsforholdOversikt = arbeidsforholdoversikt(startdato = LocalDate.of(2022, 9, 7)),
             eksisterendeSoknader =
                 listOf(
                     soknad(
@@ -124,7 +119,6 @@ class SammeSkjaringstidspunktTest {
                     ),
                 ),
             soknad(
-                startSykeforlop = LocalDate.of(2022, 9, 5),
                 fom = LocalDate.of(2022, 9, 10),
                 tom = LocalDate.of(2022, 9, 15),
             ),
@@ -141,7 +135,6 @@ fun arbeidsforholdoversikt(startdato: LocalDate): ArbeidsforholdOversikt {
 }
 
 fun soknad(
-    startSykeforlop: LocalDate? = null,
     arbeidsgiverOrgnummer: String = "333333333",
     fom: LocalDate = LocalDate.of(2022, 9, 15),
     tom: LocalDate = LocalDate.of(2022, 9, 15),
@@ -167,7 +160,6 @@ fun soknad(
     }
 
     return opprettNySoknad().copy(
-        startSykeforlop = startSykeforlop,
         arbeidsgiverOrgnummer = arbeidsgiverOrgnummer,
         fom = fom,
         egenmeldingsdagerFraSykmelding = egenmeldingsdager?.serialisertTilString(),
