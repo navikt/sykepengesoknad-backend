@@ -7,7 +7,7 @@ import kotlin.math.roundToInt
 class UtregningUtilKtTest {
     @Test
     fun sykepengegrunnlagUtregner() {
-        sykepengegrunnlagUtregner(
+        inntektJustertForGrunnbeloep(
             pensjonsgivendeInntektIKalenderAaret = 600000.toBigInteger(),
             gPaaSykmeldingstidspunktet = 124028.toBigInteger(),
             gjennomsnittligGIKalenderaaret = 116239.toBigInteger(),
@@ -15,17 +15,32 @@ class UtregningUtilKtTest {
     }
 
     @Test
-    fun beregnGjennomsnittligInntekt() {
-        val beregnetInntektPerAar =
+    fun justerFor6Gog12G() {
+        finnInntekterJustertFor6Gog12G(
             mapOf(
                 "2016" to 707561.toBigInteger(),
                 "2015" to 638656.toBigInteger(),
                 "2014" to 543613.toBigInteger(),
-            )
-        beregnGjennomsnittligInntekt(
-            beregnetInntektPerAar,
+            ),
             grunnbeloepSykmldTidspunkt = 96883,
-        ).toDouble().roundToInt().toBigInteger() `should be equal to` 589139.toBigInteger()
+        ) `should be equal to`
+            mapOf(
+                "2016" to "623385.67".toBigDecimal(),
+                "2015" to "600417.33".toBigDecimal(),
+                "2014" to "543613.00".toBigDecimal(),
+            )
+    }
+
+    @Test
+    fun beregnGjennomsnittligInntekt() {
+        val justerteInntekter =
+            mapOf(
+                "2016" to "623385.67".toBigDecimal(),
+                "2015" to "600417.33".toBigDecimal(),
+                "2014" to "543613.00".toBigDecimal(),
+            )
+        beregnGjennomsnittligInntekt(justerteInntekter).toDouble().roundToInt()
+            .toBigInteger() `should be equal to` 589139.toBigInteger()
     }
 
     @Test
