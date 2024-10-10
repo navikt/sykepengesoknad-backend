@@ -1,9 +1,8 @@
 package no.nav.helse.flex.service
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
-import com.fasterxml.jackson.databind.node.ObjectNode
 import no.nav.helse.flex.client.grunnbeloep.GrunnbeloepResponse
 import no.nav.helse.flex.client.sigrun.*
 import no.nav.helse.flex.domain.Sykepengesoknad
@@ -13,45 +12,33 @@ import org.springframework.stereotype.Service
 import java.math.BigInteger
 import java.time.LocalDate
 
+data class AarVerdi(
+    val aar: String,
+    val verdi: BigInteger,
+)
+
+data class Beregnet(
+    val snitt: BigInteger,
+    val p25: BigInteger,
+    val m25: BigInteger,
+)
+
 data class SykepengegrunnlagNaeringsdrivende(
-    val gjennomsnittTotal: BigInteger,
-    val gjennomsnittPerAar: Map<String, BigInteger>,
-    val grunnbeloepPerAar: Map<String, BigInteger>,
+    @JsonProperty("inntekter")
+    val gjennomsnittPerAar: List<AarVerdi>,
+    @JsonProperty("g-verdier")
+    val grunnbeloepPerAar: List<AarVerdi>,
+    @JsonProperty("g-sykmelding")
     val grunnbeloepPaaSykmeldingstidspunkt: Int,
     val endring25Prosent: List<BigInteger>,
+    @JsonProperty("beregnet")
+    val beregnetSnittOgEndring25: Beregnet,
 ) {
     @Override
     fun toJsonNode(): JsonNode {
-        val rootObject: ObjectNode = JsonNodeFactory.instance.objectNode()
-        val objectNode: ObjectNode = JsonNodeFactory.instance.objectNode()
-
-        val inntekterArray: ArrayNode = objectNode.putArray("inntekter")
-        gjennomsnittPerAar.forEach { (year, amount) ->
-            val inntektNode: ObjectNode = JsonNodeFactory.instance.objectNode()
-            inntektNode.put("aar", year)
-            inntektNode.put("verdi", amount)
-            inntekterArray.add(inntektNode)
-        }
-
-        val gVerdierArray: ArrayNode = objectNode.putArray("g-verdier")
-        grunnbeloepPerAar.forEach { (year, amount) ->
-            val gVerdiNode: ObjectNode = JsonNodeFactory.instance.objectNode()
-            gVerdiNode.put("aar", year)
-            gVerdiNode.put("verdi", amount)
-            gVerdierArray.add(gVerdiNode)
-        }
-
-        objectNode.put("g-sykmelding", grunnbeloepPaaSykmeldingstidspunkt)
-
-        val beregnetNode: ObjectNode = JsonNodeFactory.instance.objectNode()
-        beregnetNode.put("snitt", gjennomsnittTotal)
-        beregnetNode.put("p25", endring25Prosent.getOrNull(0))
-        beregnetNode.put("m25", endring25Prosent.getOrNull(1))
-
-        objectNode.set<ObjectNode>("beregnet", beregnetNode)
-
-        rootObject.set<ObjectNode>("sigrunInntekt", objectNode)
-        return rootObject
+        val jsonNode = JsonNodeFactory.instance.objectNode()
+        jsonNode.set<JsonNode>("sigrunInntekt", objectMapper.readTree(serialisertTilString()))
+        return jsonNode
     }
 }
 
@@ -96,11 +83,11 @@ class SykepengegrunnlagForNaeringsdrivende(
             val gjennomsnittligInntektAlleAar = beregnGjennomsnittligInntekt(justerteInntekter)
 
             return SykepengegrunnlagNaeringsdrivende(
-                gjennomsnittTotal = gjennomsnittligInntektAlleAar.roundToBigInteger(),
-                gjennomsnittPerAar = justerteInntekter.map { it.key to it.value.roundToBigInteger() }.toMap(),
-                grunnbeloepPerAar = grunnbeloepRelevanteAar,
+                gjennomsnittPerAar = justerteInntekter.map { AarVerdi(it.key, it.value.roundToBigInteger()) },
+                grunnbeloepPerAar = grunnbeloepRelevanteAar.map { AarVerdi(it.key, it.value) },
                 grunnbeloepPaaSykmeldingstidspunkt = grunnbeloepPaaSykmeldingstidspunkt,
                 endring25Prosent = beregnEndring25Prosent(gjennomsnittligInntektAlleAar),
+                beregnetSnittOgEndring25 = beregnEndring25Prosent(gjennomsnittligInntektAlleAar),
             )
         } catch (e: Exception) {
             log.error(e.message, e)

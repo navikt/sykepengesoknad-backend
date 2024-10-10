@@ -1,5 +1,6 @@
 package no.nav.helse.flex.util
 
+import no.nav.helse.flex.service.Beregnet
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.math.RoundingMode
@@ -50,10 +51,11 @@ fun beregnGjennomsnittligInntekt(justerteInntekter: Map<String, BigDecimal>): Bi
     return snittVerdi.setScale(2, RoundingMode.HALF_UP)
 }
 
-fun beregnEndring25Prosent(snittPGI: BigDecimal): List<BigInteger> {
-    return listOf(
-        (snittPGI * BigDecimal("1.25")).roundToBigInteger(),
-        (snittPGI * BigDecimal("0.75")).roundToBigInteger(),
+fun beregnEndring25Prosent(snittPGI: BigDecimal): Beregnet {
+    return Beregnet(
+        snitt = snittPGI.roundToBigInteger(),
+        p25 = (snittPGI * BigDecimal("1.25")).roundToBigInteger(),
+        m25 = (snittPGI * BigDecimal("0.75")).roundToBigInteger(),
     )
 }
 

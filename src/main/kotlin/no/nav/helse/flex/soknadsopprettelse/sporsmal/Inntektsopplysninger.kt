@@ -16,7 +16,7 @@ fun lagSporsmalOmInntektsopplyninger(
     soknad: Sykepengesoknad,
     sykepengegrunnlagNaeringsdrivende: SykepengegrunnlagNaeringsdrivende?,
 ): Sporsmal {
-    val forsteFerdiglignetAar = sykepengegrunnlagNaeringsdrivende?.grunnbeloepPerAar?.keys?.min()
+    val forsteFerdiglignetAar = sykepengegrunnlagNaeringsdrivende?.grunnbeloepPerAar?.minBy { it.aar }?.aar
     val tidligstDato =
         if (forsteFerdiglignetAar != null) {
             LocalDate.of(forsteFerdiglignetAar.toInt(), 1, 1)

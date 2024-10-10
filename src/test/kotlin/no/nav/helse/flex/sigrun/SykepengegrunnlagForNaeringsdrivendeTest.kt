@@ -24,13 +24,12 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
 
         grunnlagVerdier `should not be` null
         grunnlagVerdier!!.let { grunnlag ->
-            grunnlag.gjennomsnittTotal `should be equal to` 392513.toBigInteger()
             grunnlag.grunnbeloepPerAar.size `should be equal to` 3
             grunnlag.gjennomsnittPerAar.size `should be equal to` 3
-            grunnlag.endring25Prosent.let {
-                it.size `should be equal to` 2
-                it[0] `should be equal to` 490641.toBigInteger()
-                it[1] `should be equal to` 294385.toBigInteger()
+            grunnlag.beregnetSnittOgEndring25.let {
+                it.snitt `should be equal to` 392513.toBigInteger()
+                it.p25 `should be equal to` 490641.toBigInteger()
+                it.m25 `should be equal to` 294385.toBigInteger()
             }
         }
     }
@@ -51,7 +50,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
 
         grunnlagVerdier `should not be` null
         grunnlagVerdier!!.let {
-            it.gjennomsnittTotal `should be equal to` 871798.toBigInteger()
+            it.beregnetSnittOgEndring25.snitt `should be equal to` 871798.toBigInteger()
             it.grunnbeloepPerAar.size `should be equal to` 3
             it.gjennomsnittPerAar.size `should be equal to` 3
         }
