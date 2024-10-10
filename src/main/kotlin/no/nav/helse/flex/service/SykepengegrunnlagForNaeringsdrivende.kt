@@ -30,9 +30,10 @@ data class SykepengegrunnlagNaeringsdrivende(
     val grunnbeloepPerAar: List<AarVerdi>,
     @JsonProperty("g-sykmelding")
     val grunnbeloepPaaSykmeldingstidspunkt: Int,
-    val endring25Prosent: List<BigInteger>,
     @JsonProperty("beregnet")
     val beregnetSnittOgEndring25: Beregnet,
+    @JsonProperty("original-inntekt")
+    val inntekter: List<HentPensjonsgivendeInntektResponse>,
 ) {
     @Override
     fun toJsonNode(): JsonNode {
@@ -86,8 +87,8 @@ class SykepengegrunnlagForNaeringsdrivende(
                 gjennomsnittPerAar = justerteInntekter.map { AarVerdi(it.key, it.value.roundToBigInteger()) },
                 grunnbeloepPerAar = grunnbeloepRelevanteAar.map { AarVerdi(it.key, it.value) },
                 grunnbeloepPaaSykmeldingstidspunkt = grunnbeloepPaaSykmeldingstidspunkt,
-                endring25Prosent = beregnEndring25Prosent(gjennomsnittligInntektAlleAar),
                 beregnetSnittOgEndring25 = beregnEndring25Prosent(gjennomsnittligInntektAlleAar),
+                inntekter = pensjonsgivendeInntekter,
             )
         } catch (e: Exception) {
             log.error(e.message, e)
