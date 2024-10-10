@@ -1,9 +1,11 @@
 package no.nav.helse.flex.client.sigrun
 
-import java.util.UUID
+import com.fasterxml.jackson.annotation.JsonProperty
+import java.util.*
 
 data class HentPensjonsgivendeInntektResponse(
     val norskPersonidentifikator: String,
+    @JsonProperty("aar")
     val inntektsaar: String,
     val pensjonsgivendeInntekt: List<PensjonsgivendeInntekt>,
 )
@@ -11,9 +13,13 @@ data class HentPensjonsgivendeInntektResponse(
 data class PensjonsgivendeInntekt(
     val datoForFastsetting: String,
     val skatteordning: Skatteordning,
+    @JsonProperty("loenn")
     val pensjonsgivendeInntektAvLoennsinntekt: Int?,
+    @JsonProperty("loenn-bare-pensjon")
     val pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel: Int?,
+    @JsonProperty("naering")
     val pensjonsgivendeInntektAvNaeringsinntekt: Int?,
+    @JsonProperty("fiske-fangst-familiebarnehage")
     val pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage: Int?,
 ) {
     fun sumAvAlleInntekter(): Int {
