@@ -1,10 +1,10 @@
 package no.nav.helse.flex.service
 
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import no.nav.helse.flex.client.grunnbeloep.GrunnbeloepResponse
-import no.nav.helse.flex.client.sigrun.*
+import no.nav.helse.flex.client.sigrun.HentPensjonsgivendeInntektResponse
+import no.nav.helse.flex.client.sigrun.IngenPensjonsgivendeInntektFunnetException
+import no.nav.helse.flex.client.sigrun.PensjongivendeInntektClient
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.util.*
@@ -24,22 +24,26 @@ data class Beregnet(
 )
 
 data class SykepengegrunnlagNaeringsdrivende(
-    @JsonProperty("inntekter")
     val gjennomsnittPerAar: List<AarVerdi>,
-    @JsonProperty("g-verdier")
     val grunnbeloepPerAar: List<AarVerdi>,
-    @JsonProperty("g-sykmelding")
     val grunnbeloepPaaSykmeldingstidspunkt: Int,
-    @JsonProperty("beregnet")
     val beregnetSnittOgEndring25: Beregnet,
-    @JsonProperty("original-inntekt")
     val inntekter: List<HentPensjonsgivendeInntektResponse>,
 ) {
     @Override
     fun toJsonNode(): JsonNode {
-        val jsonNode = JsonNodeFactory.instance.objectNode()
-        jsonNode.set<JsonNode>("sigrunInntekt", objectMapper.readTree(serialisertTilString()))
-        return jsonNode
+        return objectMapper.createObjectNode().apply {
+            set<JsonNode>(
+                "sigrunInntekt",
+                objectMapper.createObjectNode().apply {
+                    set<JsonNode>("inntekter", gjennomsnittPerAar.map { it.toJsonNode() }.toJsonNode())
+                    set<JsonNode>("g-verdier", grunnbeloepPerAar.map { it.toJsonNode() }.toJsonNode())
+                    put("g-sykmelding", grunnbeloepPaaSykmeldingstidspunkt)
+                    set<JsonNode>("beregnet", beregnetSnittOgEndring25.toJsonNode())
+                    set<JsonNode>("original-inntekt", inntekter.map { it.toJsonNode() }.toJsonNode())
+                },
+            )
+        }
     }
 }
 
