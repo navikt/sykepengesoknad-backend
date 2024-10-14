@@ -24,13 +24,12 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
 
         grunnlagVerdier `should not be` null
         grunnlagVerdier!!.let { grunnlag ->
-            grunnlag.gjennomsnittTotal `should be equal to` 392513.toBigInteger()
             grunnlag.grunnbeloepPerAar.size `should be equal to` 3
             grunnlag.gjennomsnittPerAar.size `should be equal to` 3
-            grunnlag.endring25Prosent.let {
-                it.size `should be equal to` 2
-                it[0] `should be equal to` 490641.toBigInteger()
-                it[1] `should be equal to` 294385.toBigInteger()
+            grunnlag.beregnetSnittOgEndring25.let {
+                it.snitt `should be equal to` 392513.toBigInteger()
+                it.p25 `should be equal to` 490641.toBigInteger()
+                it.m25 `should be equal to` 294385.toBigInteger()
             }
         }
     }
@@ -51,7 +50,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
 
         grunnlagVerdier `should not be` null
         grunnlagVerdier!!.let {
-            it.gjennomsnittTotal `should be equal to` 871798.toBigInteger()
+            it.beregnetSnittOgEndring25.snitt `should be equal to` 871798.toBigInteger()
             it.grunnbeloepPerAar.size `should be equal to` 3
             it.gjennomsnittPerAar.size `should be equal to` 3
         }
@@ -75,7 +74,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
         grunnlagVerdier!!.toJsonNode().toString() `should be equal to`
             objectMapper.readTree(
                 """
-                {"sigrunInntekt":{"inntekter":[{"aar":"2023","verdi":851781},{"aar":"2022","verdi":872694},{"aar":"2021","verdi":890919}],"g-verdier":[{"aar":"2021","verdi":104716},{"aar":"2022","verdi":109784},{"aar":"2023","verdi":116239}],"g-sykmelding":124028,"beregnet":{"snitt":871798,"p25":1089748,"m25":653849}}}
+                {"sigrunInntekt":{"inntekter":[{"aar":"2023","verdi":851781},{"aar":"2022","verdi":872694},{"aar":"2021","verdi":890919}],"g-verdier":[{"aar":"2021","verdi":104716},{"aar":"2022","verdi":109784},{"aar":"2023","verdi":116239}],"g-sykmelding":124028,"beregnet":{"snitt":871798,"p25":1089748,"m25":653849},"original-inntekt":[{"inntektsaar":"2023","pensjonsgivendeInntekt":[{"datoForFastsetting":"2023-07-17","skatteordning":"FASTLAND","loenn":0,"loenn-bare-pensjon":0,"naering":1000000,"fiske-fangst-familiebarnehage":0}]},{"inntektsaar":"2022","pensjonsgivendeInntekt":[{"datoForFastsetting":"2022-07-17","skatteordning":"FASTLAND","loenn":0,"loenn-bare-pensjon":0,"naering":1000000,"fiske-fangst-familiebarnehage":0}]},{"inntektsaar":"2021","pensjonsgivendeInntekt":[{"datoForFastsetting":"2021-07-17","skatteordning":"FASTLAND","loenn":0,"loenn-bare-pensjon":0,"naering":1000000,"fiske-fangst-familiebarnehage":0}]}]}}
                 """.trimIndent(),
             ).toString()
     }

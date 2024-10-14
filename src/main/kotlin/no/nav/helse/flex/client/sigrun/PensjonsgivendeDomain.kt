@@ -1,12 +1,23 @@
 package no.nav.helse.flex.client.sigrun
 
-import java.util.UUID
+import com.fasterxml.jackson.databind.JsonNode
+import no.nav.helse.flex.util.objectMapper
+import no.nav.helse.flex.util.toJsonNode
+import java.util.*
 
 data class HentPensjonsgivendeInntektResponse(
     val norskPersonidentifikator: String,
     val inntektsaar: String,
     val pensjonsgivendeInntekt: List<PensjonsgivendeInntekt>,
-)
+) {
+    @Override
+    fun toJsonNode(): JsonNode {
+        return objectMapper.createObjectNode().apply {
+            put("inntektsaar", inntektsaar)
+            set<JsonNode>("pensjonsgivendeInntekt", pensjonsgivendeInntekt.map { it.toJsonNode() }.toJsonNode())
+        }
+    }
+}
 
 data class PensjonsgivendeInntekt(
     val datoForFastsetting: String,
@@ -21,6 +32,18 @@ data class PensjonsgivendeInntekt(
             (pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel ?: 0) +
             (pensjonsgivendeInntektAvNaeringsinntekt ?: 0) +
             (pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage ?: 0)
+    }
+
+    @Override
+    fun toJsonNode(): JsonNode {
+        return objectMapper.createObjectNode().apply {
+            put("datoForFastsetting", datoForFastsetting)
+            put("skatteordning", skatteordning.name)
+            put("loenn", pensjonsgivendeInntektAvLoennsinntekt)
+            put("loenn-bare-pensjon", pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel)
+            put("naering", pensjonsgivendeInntektAvNaeringsinntekt)
+            put("fiske-fangst-familiebarnehage", pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage)
+        }
     }
 }
 
