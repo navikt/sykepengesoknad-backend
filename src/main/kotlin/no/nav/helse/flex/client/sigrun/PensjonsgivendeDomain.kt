@@ -15,6 +15,7 @@ data class HentPensjonsgivendeInntektResponse(
         return objectMapper.createObjectNode().apply {
             put("inntektsaar", inntektsaar)
             set<JsonNode>("pensjonsgivendeInntekt", pensjonsgivendeInntekt.map { it.toJsonNode() }.toJsonNode())
+            put("totalInntekt", pensjonsgivendeInntekt.sumOf { it.sumAvAlleInntekter() })
         }
     }
 }
