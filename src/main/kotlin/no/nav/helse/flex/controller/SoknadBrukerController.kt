@@ -359,7 +359,10 @@ class SoknadBrukerController(
         sporsmalId: String,
     ): Sporsmal {
         if (!listOf(Soknadstatus.NY, Soknadstatus.UTKAST_TIL_KORRIGERING).contains(soknad.status)) {
-            throw FeilStatusForOppdaterSporsmalException("Søknad $soknadId har status ${soknad.status}. Da kan man ikke besvare spørsmål.")
+            val spm = soknad.sporsmal.find { it.id == sporsmalId }
+            throw FeilStatusForOppdaterSporsmalException(
+                "Søknad $soknadId har status ${soknad.status}. Da kan man ikke besvare spørsmål ${spm?.tag}",
+            )
         }
 
         if (!soknad.alleSporsmalOgUndersporsmal().mapNotNull { it.id }.contains(sporsmalId)) {
