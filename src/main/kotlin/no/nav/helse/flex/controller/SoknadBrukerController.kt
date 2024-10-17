@@ -189,7 +189,7 @@ class SoknadBrukerController(
         val (soknadFraBase, _) = hentOgSjekkTilgangTilSoknad(id)
 
         if (soknadFraBase.status !== Soknadstatus.AVBRUTT) {
-            log.info("Kan ikke gjenåpne søknad som ikke er avbrutt: $id")
+            log.info("Kan ikke gjenåpne søknad som ikke er avbrutt: ${soknadFraBase.id}")
             throw IllegalArgumentException("Kan ikke gjenåpne søknad som ikke er avbrutt")
         }
         log.info("Gjenåpner søknad: ${soknadFraBase.id}")

@@ -144,14 +144,6 @@ class NyttArbeidsforholdMuteringTest : NyttArbeidsforholdFellesOppsett() {
         val soknaden = hentSoknader(fnr = fnr).first()
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
             .tilbakeIArbeid(LocalDate.of(2022, 9, 6))
-
-        hentSoknader(fnr = fnr).first()?.let {
-            val nyttArbeidsforholdSpm =
-                it.sporsmal!!.find {
-                    it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS
-                }!!
-            println()
-        }
     }
 
     @Test

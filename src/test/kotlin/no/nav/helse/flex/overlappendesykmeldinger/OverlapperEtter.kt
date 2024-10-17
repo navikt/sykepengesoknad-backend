@@ -379,7 +379,7 @@ class OverlapperEtter : FellesTestOppsett() {
 
     @Test
     @Order(22)
-    fun `DB tømmes`() {
+    fun `DB tømmes første gang`() {
         databaseReset.resetDatabase()
     }
 
@@ -459,7 +459,7 @@ class OverlapperEtter : FellesTestOppsett() {
 
     @Test
     @Order(32)
-    fun `Db tømmes`() {
+    fun `DB tømmes andre gang`() {
         databaseReset.resetDatabase()
     }
 
@@ -552,7 +552,7 @@ class OverlapperEtter : FellesTestOppsett() {
 
     @Test
     @Order(43)
-    fun `db tømmes`() {
+    fun `DB tømmes tredje gang`() {
         databaseReset.resetDatabase()
     }
 
