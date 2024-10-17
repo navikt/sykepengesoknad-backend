@@ -8,8 +8,6 @@ import no.nav.helse.flex.sykepengesoknad.kafka.InntektFraNyttArbeidsforholdDTO
 import java.time.LocalDate
 
 fun Sykepengesoknad.hentInntektFraNyttArbeidsforhold(): List<InntektFraNyttArbeidsforholdDTO> {
-    val soknad = this
-
     fun Sporsmal.hentInntektFraNyttArbeidsforhold(): InntektFraNyttArbeidsforholdDTO? {
         if (tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS) {
             if (forsteSvar == "JA") {
