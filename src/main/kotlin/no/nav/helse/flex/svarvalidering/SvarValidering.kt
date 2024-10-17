@@ -215,7 +215,7 @@ private fun Sporsmal.validerGrenserPaSvar(svar: Svar) {
             -> validerGrenserPaPeriode(svar)
         }
     if (!predikat()) {
-        throw ValideringException("Spørsmål $id med tag $tag har svarverdi utenfor grenseverdi ${svar.verdi}")
+        throw ValideringException("Spørsmål $id med tag $tag har svarverdi utenfor grenseverdi ${svar.verdi}, min: $min max: $max")
     }
 }
 
