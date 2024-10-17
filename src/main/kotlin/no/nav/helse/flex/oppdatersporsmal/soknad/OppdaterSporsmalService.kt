@@ -47,7 +47,9 @@ class OppdaterSporsmalService(
                 ?: throw IllegalArgumentException("Soknad fra basen skal ha spørsmålet")
 
         if (listOf(sporsmal).erUlikUtenomSvar(listOf(sporsmaletFraBasen))) {
-            throw IllegalArgumentException("Spørsmål i databasen er ulikt spørsmål som er besvart")
+            throw IllegalArgumentException(
+                "Spørsmål i databasen er ulikt spørsmål som er besvart ${sporsmal.tag}-${sporsmaletFraBasen.tag}",
+            )
         }
 
         val validerteSporsmal =
