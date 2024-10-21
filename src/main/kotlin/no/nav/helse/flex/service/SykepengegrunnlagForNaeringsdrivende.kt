@@ -69,10 +69,15 @@ class SykepengegrunnlagForNaeringsdrivende(
                     ?: throw Exception("Fant ikke g på sykmeldingstidspunkt for soknad ${soknad.id}")
 
             val pensjonsgivendeInntekter =
-                hentPensjonsgivendeInntektForTreSisteArene(soknad.fnr, sykmeldingstidspunkt)
-                    ?: throw Exception("Fant ikke 3 år med pensjonsgivende inntekter for person med soknad ${soknad.id}")
+                hentPensjonsgivendeInntektForTreSisteArene(soknad.fnr, sykmeldingstidspunkt).takeIf { pensjonsgivendeInntektResponses ->
+                    pensjonsgivendeInntektResponses?.none { it.pensjonsgivendeInntekt.isEmpty() } == true
+                }
 
-            val grunnbeloepRelevanteAar = finnGrunnbeloepForTreRelevanteAar(grunnbeloepSisteFemAar, pensjonsgivendeInntekter)
+            if (pensjonsgivendeInntekter != null && pensjonsgivendeInntekter.isEmpty()) {
+                return null
+            }
+
+            val grunnbeloepRelevanteAar = finnGrunnbeloepForTreRelevanteAar(grunnbeloepSisteFemAar, pensjonsgivendeInntekter!!)
             val inntekterJustertForGrunnbeloep =
                 finnInntekterJustertForGrunnbeloep(
                     pensjonsgivendeInntekter,
@@ -105,34 +110,28 @@ class SykepengegrunnlagForNaeringsdrivende(
         sykmeldingstidspunkt: Int,
     ): List<HentPensjonsgivendeInntektResponse>? {
         val ferdigliknetInntekter = mutableListOf<HentPensjonsgivendeInntektResponse>()
+        val forsteAar = LocalDate.now().year - 1
+        val aarViHenterFor = forsteAar downTo forsteAar - 2
 
-        for (yearOffset in 0 until 3) {
-            val arViHenterFor =
-                if (sykmeldingstidspunkt == LocalDate.now().year) {
-                    sykmeldingstidspunkt - yearOffset - 1
-                } else {
-                    sykmeldingstidspunkt - yearOffset
-                }
-
+        aarViHenterFor.forEach { aar ->
             val svar =
                 try {
-                    pensjongivendeInntektClient.hentPensjonsgivendeInntekt(fnr, arViHenterFor)
+                    pensjongivendeInntektClient.hentPensjonsgivendeInntekt(fnr, aar)
                 } catch (e: IngenPensjonsgivendeInntektFunnetException) {
-                    return null
+                    HentPensjonsgivendeInntektResponse(
+                        norskPersonidentifikator = fnr,
+                        inntektsaar = aar.toString(),
+                        pensjonsgivendeInntekt = emptyList(),
+                    )
                 }
 
-            if (svar.pensjonsgivendeInntekt.isNotEmpty()) {
-                ferdigliknetInntekter.add(svar)
-            } else {
-                return null
-            }
+            ferdigliknetInntekter.add(svar)
+        }
+        if (ferdigliknetInntekter.find { it.inntektsaar == forsteAar.toString() }?.pensjonsgivendeInntekt!!.isEmpty()) {
+            return ferdigliknetInntekter.slice(1..2) + listOf(pensjongivendeInntektClient.hentPensjonsgivendeInntekt(fnr, forsteAar - 3))
         }
 
-        return if (ferdigliknetInntekter.size == 3) {
-            ferdigliknetInntekter
-        } else {
-            null
-        }
+        return ferdigliknetInntekter
     }
 
     private fun finnGrunnbeloepForTreRelevanteAar(

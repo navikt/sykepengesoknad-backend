@@ -23,7 +23,7 @@ object SigrunMockDispatcher : Dispatcher() {
         val personMedInntektOver1G1Av3Aar = "07830099810"
         val personMedInntekt2Av3Aar = "56909901141"
         val personUtenInntektSiste3Aar = "56830375185"
-        val personMedInntekt1Av3Aar = "12899497862"
+        val personMedInntektAar4 = "12899497862"
 
         val naeringsinntekt =
             when (fnr) {
@@ -34,7 +34,7 @@ object SigrunMockDispatcher : Dispatcher() {
                 personMedInntektOver1G1Av3Aar -> inntektForAar(inntektsAar, over1G, under1G, under1G, under1G)
                 personMedInntekt2Av3Aar -> inntektForAar(inntektsAar, under1G, null, under1G, over1G) //
                 personUtenInntektSiste3Aar -> inntektForAar(inntektsAar, null, null, null, under1G) //
-                personMedInntekt1Av3Aar -> inntektForAar(inntektsAar, under1G, null, null, under1G) //
+                personMedInntektAar4 -> inntektForAar(inntektsAar, null, null, null, under1G) //
                 else -> inntektForAar(inntektsAar, 400000, 350000, 300000, under1G) // Default inntekt hvis personen ikke er i listen
             }
 
