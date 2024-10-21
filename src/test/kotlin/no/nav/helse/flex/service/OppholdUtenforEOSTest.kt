@@ -170,6 +170,8 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
             )
             .besvarSporsmal(LAND, svarListe = listOf("Kina"))
             .besvarSporsmal(ARBEIDSGIVER, svar = "NEI")
+            .besvarSporsmal(AVKLART_MED_ARBEIDSGIVER_ELLER_NAV, svar = "NEI", ferdigBesvart = false)
+            .besvarSporsmal(AVKLART_MED_SYKMELDER, svar = "NEI")
             .oppsummering()
             .sendSoknad()
 

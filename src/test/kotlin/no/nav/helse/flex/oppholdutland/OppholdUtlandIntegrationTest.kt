@@ -5,11 +5,13 @@ import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.testutil.SoknadBesvarer
+import no.nav.helse.flex.testutil.byttSvar
 import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -55,6 +57,7 @@ class OppholdUtlandIntegrationTest : FellesTestOppsett() {
                 LAND,
                 PERIODEUTLAND,
                 ARBEIDSGIVER,
+                AVKLARING_I_FORBINDELSE_MED_REISE,
                 TIL_SLUTT,
             )
     }
@@ -64,6 +67,24 @@ class OppholdUtlandIntegrationTest : FellesTestOppsett() {
         val soknader = hentSoknaderMetadata(fnr)
 
         sendSoknadMedResult(fnr, soknader[0].id).andExpect((MockMvcResultMatchers.status().isBadRequest))
+    }
+
+    @Test
+    fun `04 - Vi validerer at svar på gruppe av underspørsmål må være komplett`() {
+        val soknaden = hentSoknader(fnr).first()
+        val originalSpm = soknaden.sporsmal!!.first { it.tag == AVKLARING_I_FORBINDELSE_MED_REISE }
+
+        oppdaterSporsmalMedResult(fnr, originalSpm, soknaden.id)
+            .andExpect(status().isBadRequest)
+            .andReturn().response.contentAsString `should be equal to` """{"reason":"SPORSMALETS_SVAR_VALIDERER_IKKE"}"""
+
+        oppdaterSporsmalMedResult(fnr, originalSpm.byttSvar(AVKLART_MED_SYKMELDER, "JA"), soknaden.id)
+            .andExpect(status().isBadRequest)
+            .andReturn().response.contentAsString `should be equal to` """{"reason":"SPORSMALETS_SVAR_VALIDERER_IKKE"}"""
+
+        oppdaterSporsmalMedResult(fnr, originalSpm.byttSvar(AVKLART_MED_ARBEIDSGIVER_ELLER_NAV, "JA"), soknaden.id)
+            .andExpect(status().isBadRequest)
+            .andReturn().response.contentAsString `should be equal to` """{"reason":"SPORSMALETS_SVAR_VALIDERER_IKKE"}"""
     }
 
     @Test
@@ -118,6 +139,8 @@ class OppholdUtlandIntegrationTest : FellesTestOppsett() {
             .besvarSporsmal(ARBEIDSGIVER, svar = "JA", ferdigBesvart = false)
             .besvarSporsmal(SYKMELDINGSGRAD, "JA", ferdigBesvart = false)
             .besvarSporsmal(FERIE, "JA", mutert = true, ferdigBesvart = false)
+            .besvarSporsmal(AVKLART_MED_ARBEIDSGIVER_ELLER_NAV, svar = "NEI", ferdigBesvart = false)
+            .besvarSporsmal(AVKLART_MED_SYKMELDER, svar = "JA")
             .oppsummering()
 
         val soknadEtter =
