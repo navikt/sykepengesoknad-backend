@@ -151,4 +151,3 @@ aiven-kafka:
   auto-offset-reset: earliest
 
 SKRIVEMODUS: READWRITE
-AVKLARING_ENABLED: true

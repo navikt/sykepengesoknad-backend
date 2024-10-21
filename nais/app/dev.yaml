@@ -48,4 +48,3 @@ env:
   GRUNNBELOEP_API_URL: https://g.nav.no/api/v1
   AAREG_URL: https://aareg-services-q1.dev-fss-pub.nais.io
   AAREG_AAD_CLIENT_ID: dev-fss.arbeidsforhold.aareg-services-nais-q1
-  AVKLARING_ENABLED: true
