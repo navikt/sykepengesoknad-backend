@@ -20,19 +20,26 @@ fun Sporsmal.plasseringSporsmalUtland(): Int {
         LAND -> -10
         PERIODEUTLAND -> -9
         ARBEIDSGIVER -> -8
-        BEKREFT_OPPLYSNINGER_UTLAND_INFO -> -7
+        AVKLARING_I_FORBINDELSE_MED_REISE -> -7
+        BEKREFT_OPPLYSNINGER_UTLAND_INFO -> -6
         TIL_SLUTT -> 10
         else -> 0
     }
 }
 
-fun settOppSoknadOppholdUtland(fnr: String): Sykepengesoknad {
+fun settOppSoknadOppholdUtland(
+    fnr: String,
+    avklaringEnabled: Boolean = false,
+): Sykepengesoknad {
     val sporsmal =
         mutableListOf<Sporsmal>().apply {
             add(periodeSporsmal())
             add(landSporsmal())
             add(arbeidsgiverSporsmal())
             add(tilSlutt())
+            if (avklaringEnabled) {
+                add(avklaringIfbmReise())
+            }
         }
 
     return Sykepengesoknad(
@@ -57,6 +64,29 @@ fun settOppSoknadOppholdUtland(fnr: String): Sykepengesoknad {
         forstegangssoknad = null,
         tidligereArbeidsgiverOrgnummer = null,
         aktivertDato = null,
+    )
+}
+
+fun avklaringIfbmReise(): Sporsmal {
+    return Sporsmal(
+        tag = AVKLARING_I_FORBINDELSE_MED_REISE,
+        svartype = Svartype.GRUPPE_AV_UNDERSPORSMAL,
+        undersporsmal =
+            listOf(
+                Sporsmal(
+                    tag = AVKLART_MED_SYKMELDER,
+                    sporsmalstekst = "Har du avklart utenlandsoppholdet med den som sykmeldte deg?",
+                    undertekst = "Utenlandsoppholdet må ikke forverre helsen din, forlenge sykefraværet eller hindre oppfølging.",
+                    svartype = JA_NEI,
+                ),
+                @Suppress("ktlint:standard:max-line-length")
+                Sporsmal(
+                    tag = AVKLART_MED_ARBEIDSGIVER_ELLER_NAV,
+                    sporsmalstekst = "Har du avklart utenlandsoppholdet med arbeidsgiveren/NAV?",
+                    undertekst = "Utenlandsoppholdet må avklares med arbeidsgiveren din, eller NAV om du ikke har en arbeidsgiver, før du reiser. Utenlandsoppholdet kan ikke hindre planlagt aktivitet pả arbeidsplassen eller NAV.",
+                    svartype = JA_NEI,
+                ),
+            ),
     )
 }
 

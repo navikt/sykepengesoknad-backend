@@ -55,6 +55,7 @@ class OppholdUtlandIntegrationTest : FellesTestOppsett() {
                 LAND,
                 PERIODEUTLAND,
                 ARBEIDSGIVER,
+                AVKLARING_I_FORBINDELSE_MED_REISE,
                 TIL_SLUTT,
             )
     }
@@ -118,6 +119,8 @@ class OppholdUtlandIntegrationTest : FellesTestOppsett() {
             .besvarSporsmal(ARBEIDSGIVER, svar = "JA", ferdigBesvart = false)
             .besvarSporsmal(SYKMELDINGSGRAD, "JA", ferdigBesvart = false)
             .besvarSporsmal(FERIE, "JA", mutert = true, ferdigBesvart = false)
+            .besvarSporsmal(AVKLART_MED_ARBEIDSGIVER_ELLER_NAV, svar = "NEI", ferdigBesvart = false)
+            .besvarSporsmal(AVKLART_MED_SYKMELDER, svar = "JA")
             .oppsummering()
 
         val soknadEtter =
