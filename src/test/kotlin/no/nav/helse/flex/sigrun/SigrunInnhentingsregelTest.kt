@@ -5,7 +5,9 @@ import no.nav.helse.flex.client.sigrun.HentPensjonsgivendeInntektResponse
 import no.nav.helse.flex.client.sigrun.PensjonsgivendeInntekt
 import no.nav.helse.flex.client.sigrun.Skatteordning
 import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknad
+import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.`should not be`
 import org.junit.jupiter.api.Test
 import java.time.Instant
 import java.time.LocalDate
@@ -207,7 +209,7 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
     } // personMedInntektUnder1GSiste3Aar
 
     @Test
-    fun `skal returnere null når ingen inntekter finnes for tre første år`() {
+    fun `skal returnere respons som har nullverdier per år når ingen inntekter finnes for tre første år`() {
         val soknad =
             opprettNyNaeringsdrivendeSoknad().copy(
                 fnr = "56830375185",
@@ -223,11 +225,12 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
                 soknad.startSykeforlop!!.year,
             )
 
-        result `should be equal to` null
+        result?.size `should be equal to` 3
+        result?.all { it.pensjonsgivendeInntekt.isEmpty() }
     } // personUtenInntektSiste3Aar
 
     @Test
-    fun `skal returnere null når første år har inntekt og de to neste har ikke`() {
+    fun `skal hoppe over forrige år når det ikke er ferdiglignet, og returnere 2 år med null og 1 med verdier`() {
         val soknad =
             opprettNyNaeringsdrivendeSoknad().copy(
                 fnr = "12899497862",
@@ -243,8 +246,16 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
                 soknad.startSykeforlop!!.year,
             )
 
-        result `should be equal to` null
-    } // personMedInntekt1Av3Aar
+        result?.size `should be equal to` 3
+        result?.let {
+            it[0].pensjonsgivendeInntekt `should be` emptyList()
+            it[0].inntektsaar `should be equal to` "2022"
+            it[1].pensjonsgivendeInntekt `should be` emptyList()
+            it[1].inntektsaar `should be equal to` "2021"
+            it[2].pensjonsgivendeInntekt `should not be` emptyList<PensjonsgivendeInntekt>()
+            it[2].inntektsaar `should be equal to` "2020"
+        }
+    } // personMedInntektAar4
 
     @Test
     fun `skal ikke hente et fjerde år når 1 av 3 år ikke returnerer inntekt`() {
@@ -263,7 +274,15 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
                 soknad.startSykeforlop!!.year,
             )
 
-        result `should be equal to` null
+        result?.size `should be equal to` 3
+        result?.let {
+            it[0].pensjonsgivendeInntekt `should not be` emptyList<PensjonsgivendeInntekt>()
+            it[0].inntektsaar `should be equal to` "2023"
+            it[1].pensjonsgivendeInntekt `should be` emptyList()
+            it[1].inntektsaar `should be equal to` "2022"
+            it[2].pensjonsgivendeInntekt `should not be` emptyList<PensjonsgivendeInntekt>()
+            it[2].inntektsaar `should be equal to` "2021"
+        }
     } // personMedInntekt2Av3Aar
 
     @Test
