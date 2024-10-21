@@ -23,7 +23,6 @@ import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO.*
 import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
 import no.nav.syfo.sykmelding.kafka.model.ShortNameKafkaDTO
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
@@ -40,8 +39,6 @@ class OpprettSoknadService(
     private val soknadProducer: SoknadProducer,
     private val lagreJulesoknadKandidater: LagreJulesoknadKandidater,
     private val slettSoknaderTilKorrigertSykmeldingService: SlettSoknaderTilKorrigertSykmeldingService,
-    @Value("\${AVKLARING_ENABLED:false}")
-    private val avklaringEnabled: Boolean,
 ) {
     private val log = logger()
 
@@ -162,7 +159,7 @@ class OpprettSoknadService(
     }
 
     private fun opprettNySoknadUtland(fnr: String): Sykepengesoknad {
-        val oppholdUtlandSoknad = settOppSoknadOppholdUtland(fnr = fnr, avklaringEnabled = avklaringEnabled)
+        val oppholdUtlandSoknad = settOppSoknadOppholdUtland(fnr = fnr)
         sykepengesoknadDAO.lagreSykepengesoknad(oppholdUtlandSoknad)
 
         log.info("Oppretter søknad for utenlandsopphold: {}", oppholdUtlandSoknad.id)

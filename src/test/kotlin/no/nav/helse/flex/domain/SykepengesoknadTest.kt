@@ -6,7 +6,9 @@ import org.junit.jupiter.api.Test
 
 class SykepengesoknadTest {
     private val sykepengesoknad: Sykepengesoknad
-        get() = settOppSoknadOppholdUtland("fnr")
+        get() =
+            settOppSoknadOppholdUtland("fnr")
+                .copy(sporsmal = settOppSoknadOppholdUtland("fnr").sporsmal.filter { it.svartype != Svartype.GRUPPE_AV_UNDERSPORSMAL })
 
     @Test
     fun alleSporsmalOgUndersporsmalHarKorrektSvartype() {
@@ -56,8 +58,7 @@ class SykepengesoknadTest {
 
         val sporsmalOgUndersporsmal = sykepengesoknad.alleSporsmalOgUndersporsmal()
         assertThat(
-            sporsmalOgUndersporsmal.mapNotNull { it.sporsmalstekst }.map {
-                    i ->
+            sporsmalOgUndersporsmal.mapNotNull { it.sporsmalstekst }.map { i ->
                 i.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0]
             }.joinToString(","),
         ).isEqualTo("Når,Hvilke(t),HEISANN,Er,Har")
