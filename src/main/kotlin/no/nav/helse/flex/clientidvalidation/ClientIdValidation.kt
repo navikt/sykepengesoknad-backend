@@ -36,9 +36,18 @@ class ClientIdValidation(
         }
     }
 
+    fun hentNavIdent(): String {
+        return tokenValidationContextHolder.hentNavIdent()
+    }
+
     private fun TokenValidationContextHolder.hentAzpClaim(): String {
         return this.getTokenValidationContext().getJwtToken(AZUREATOR)?.jwtTokenClaims?.getStringClaim("azp")
             ?: throw UkjentClientException("Fant ikke azp claim!")
+    }
+
+    private fun TokenValidationContextHolder.hentNavIdent(): String {
+        return this.getTokenValidationContext().getJwtToken(AZUREATOR)?.jwtTokenClaims?.getStringClaim("NAVIdent")
+            ?: throw UkjentClientException("Fant ikke NAVIdent claim!")
     }
 
     private fun List<String>.ikkeInneholder(s: String): Boolean {

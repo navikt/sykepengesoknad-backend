@@ -8,19 +8,23 @@ fun FellesTestOppsett.buildAzureClaimSet(
     subject: String,
     issuer: String = "azureator",
     audience: String = "syfosoknad-client-id",
-): String {
-    val claims = HashMap<String, String>()
-
-    return server.token(
+    claims: HashMap<String, String> = hashMapOf(),
+): String =
+    server.token(
         subject = "Vi sjekker azp",
         issuerId = issuer,
         clientId = subject,
         audience = audience,
         claims = claims,
     )
-}
 
-fun FellesTestOppsett.skapAzureJwt(subject: String = "sykepengesoknad-arkivering-oppgave-client-id") = buildAzureClaimSet(subject = subject)
+fun FellesTestOppsett.skapAzureJwt(
+    subject: String = "sykepengesoknad-arkivering-oppgave-client-id",
+    navIdent: String = "10987654321",
+) = buildAzureClaimSet(
+    subject = subject,
+    claims = hashMapOf("NAVIdent" to navIdent),
+)
 
 fun MockOAuth2Server.token(
     subject: String,
