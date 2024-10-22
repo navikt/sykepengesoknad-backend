@@ -102,6 +102,23 @@ class SoknadFlexAzureController(
         @RequestBody req: HentIdenterRequest,
     ): List<PdlIdent> {
         clientIdValidation.validateClientId(NamespaceAndApp(namespace = "flex", app = "flex-internal-frontend"))
+        val navIdent = clientIdValidation.hentNavIdent()
+
+        auditLogProducer.lagAuditLog(
+            AuditEntry(
+                fagsystem = "flex-internal",
+                appNavn = "flex-internal-frontend",
+                utførtAv = navIdent,
+                oppslagPå = req.ident,
+                eventType = EventType.READ,
+                forespørselTillatt = true,
+                oppslagUtførtTid = LocalDateTime.now().tilOsloInstant(),
+                beskrivelse = "Henter alle identer for ident",
+                requestUrl = URI.create("/api/v1/flex/identer"),
+                requestMethod = "POST",
+            ),
+        )
+
         return pdlClient.hentIdenterMedHistorikk(req.ident)
     }
 
