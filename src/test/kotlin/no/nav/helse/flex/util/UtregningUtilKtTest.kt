@@ -6,12 +6,23 @@ import kotlin.math.roundToInt
 
 class UtregningUtilKtTest {
     @Test
-    fun sykepengegrunnlagUtregner() {
+    fun `Inntekt justert for grunnbeløp rundes riktig ned`() {
+        // 640205,09
         inntektJustertForGrunnbeloep(
             pensjonsgivendeInntektIKalenderAaret = 600000.toBigInteger(),
             gPaaSykmeldingstidspunktet = 124028.toBigInteger(),
             gjennomsnittligGIKalenderaaret = 116239.toBigInteger(),
         ) `should be equal to` 640205.toBigInteger()
+    }
+
+    @Test
+    fun `Inntekt justert for grunnbeløp rundes riktig opp`() {
+        // 296105,65
+        inntektJustertForGrunnbeloep(
+            pensjonsgivendeInntektIKalenderAaret = 250000.toBigInteger(),
+            gPaaSykmeldingstidspunktet = 124028.toBigInteger(),
+            gjennomsnittligGIKalenderaaret = 104716.toBigInteger(),
+        ) `should be equal to` 296106.toBigInteger()
     }
 
     @Test

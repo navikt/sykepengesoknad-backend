@@ -14,7 +14,17 @@ fun inntektJustertForGrunnbeloep(
     pensjonsgivendeInntektIKalenderAaret: BigInteger,
     gPaaSykmeldingstidspunktet: BigInteger,
     gjennomsnittligGIKalenderaaret: BigInteger,
-) = (pensjonsgivendeInntektIKalenderAaret * gPaaSykmeldingstidspunktet) / gjennomsnittligGIKalenderaaret
+): BigInteger {
+    return BigDecimal(pensjonsgivendeInntektIKalenderAaret)
+        .times(BigDecimal(gPaaSykmeldingstidspunktet))
+        // Bruker divide() siden div() bruker RoundingMode.HALF_EVEN.
+        .divide(
+            // Runder til 0 med BigDecimal og HALF_UP siden toBigInteger() alltid runder ned.
+            BigDecimal(gjennomsnittligGIKalenderaaret),
+            0,
+            RoundingMode.HALF_UP,
+        ).toBigInteger()
+}
 
 /**
  * Justerer inntekter basert på formel der inntekt mellom 6G og 12G reduseres til 1/3,
