@@ -23,7 +23,7 @@ fun FellesTestOppsett.skapAzureJwt(
     navIdent: String = "10987654321",
 ) = buildAzureClaimSet(
     subject = subject,
-    claims = hashMapOf("NAVIdent" to navIdent),
+    claims = hashMapOf("NAVident" to navIdent),
 )
 
 fun MockOAuth2Server.token(

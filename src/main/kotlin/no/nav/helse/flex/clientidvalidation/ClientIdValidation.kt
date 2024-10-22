@@ -46,8 +46,8 @@ class ClientIdValidation(
     }
 
     private fun TokenValidationContextHolder.hentNavIdent(): String {
-        return this.getTokenValidationContext().getJwtToken(AZUREATOR)?.jwtTokenClaims?.getStringClaim("NAVIdent")
-            ?: throw UkjentClientException("Fant ikke NAVIdent claim!")
+        return this.getTokenValidationContext().getJwtToken(AZUREATOR)?.jwtTokenClaims?.getStringClaim("NAVident")
+            ?: throw UkjentClientException("Fant ikke NAVident claim!")
     }
 
     private fun List<String>.ikkeInneholder(s: String): Boolean {
