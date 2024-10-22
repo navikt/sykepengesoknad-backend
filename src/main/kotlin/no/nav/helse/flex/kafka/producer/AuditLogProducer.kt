@@ -20,6 +20,7 @@ class AuditLogProducer(val producer: KafkaProducer<String, String>) {
                     auditEntry.serialisertTilString(),
                 ),
             ).get()
+            log.info("Sendte data til auditlogging: ${auditEntry.serialisertTilString()}")
         } catch (e: Exception) {
             log.error("Klarte ikke publisere AuditEntry på kafka")
             throw AivenKafkaException(e)
