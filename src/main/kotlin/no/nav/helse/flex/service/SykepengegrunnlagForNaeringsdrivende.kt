@@ -56,10 +56,9 @@ class SykepengegrunnlagForNaeringsdrivende(
 
     fun sykepengegrunnlagNaeringsdrivende(soknad: Sykepengesoknad): SykepengegrunnlagNaeringsdrivende? {
         try {
-
             // TODO: Returner HashMap
             val grunnbeloepSisteFemAar =
-                grunnbeloepService.hentHistorikkSisteFemAar().block()?.takeIf { it.isNotEmpty() }
+                grunnbeloepService.hentHistorikk(soknad.startSykeforlop!!).block()?.takeIf { it.isNotEmpty() }
                     ?: throw Exception("finner ikke historikk for g fra siste fem år")
 
             val sykmeldingstidspunkt =
@@ -69,10 +68,13 @@ class SykepengegrunnlagForNaeringsdrivende(
             val grunnbeloepPaaSykmeldingstidspunkt =
                 grunnbeloepSisteFemAar.find { it.dato.tilAar() == sykmeldingstidspunkt }!!.grunnbeløp
 
-            val pensjonsgivendeInntekter = hentPensjonsgivendeInntektForTreSisteArene(
-                soknad.fnr,
-                sykmeldingstidspunkt
-            )?.filter { it.pensjonsgivendeInntekt.isNotEmpty() }
+            val res =
+                hentPensjonsgivendeInntektForTreSisteArene(
+                    soknad.fnr,
+                    sykmeldingstidspunkt,
+                )
+
+            val pensjonsgivendeInntekter = res?.filter { it.pensjonsgivendeInntekt.isNotEmpty() }
 
             if (pensjonsgivendeInntekter.isNullOrEmpty()) {
                 return null
@@ -112,7 +114,7 @@ class SykepengegrunnlagForNaeringsdrivende(
         sykmeldingstidspunkt: Int,
     ): List<HentPensjonsgivendeInntektResponse>? {
         val ferdigliknetInntekter = mutableListOf<HentPensjonsgivendeInntektResponse>()
-        val forsteAar = LocalDate.now().year - 1
+        val forsteAar = sykmeldingstidspunkt - 1
         val aarViHenterFor = forsteAar downTo forsteAar - 2
 
         aarViHenterFor.forEach { aar ->
@@ -130,12 +132,13 @@ class SykepengegrunnlagForNaeringsdrivende(
             ferdigliknetInntekter.add(svar)
         }
         if (ferdigliknetInntekter.find { it.inntektsaar == forsteAar.toString() }?.pensjonsgivendeInntekt!!.isEmpty()) {
-            return ferdigliknetInntekter.slice(1..2) + listOf(
-                pensjongivendeInntektClient.hentPensjonsgivendeInntekt(
-                    fnr,
-                    forsteAar - 3
+            return ferdigliknetInntekter.slice(1..2) +
+                listOf(
+                    pensjongivendeInntektClient.hentPensjonsgivendeInntekt(
+                        fnr,
+                        forsteAar - 3,
+                    ),
                 )
-            )
         }
 
         return ferdigliknetInntekter
@@ -165,8 +168,8 @@ class SykepengegrunnlagForNaeringsdrivende(
             inntekt.inntektsaar to
                 inntektJustertForGrunnbeloep(
                     pensjonsgivendeInntektIKalenderAaret =
-                    inntekt.pensjonsgivendeInntekt.sumOf { it.sumAvAlleInntekter() }
-                        .toBigInteger(),
+                        inntekt.pensjonsgivendeInntekt.sumOf { it.sumAvAlleInntekter() }
+                            .toBigInteger(),
                     gPaaSykmeldingstidspunktet = grunnbeloepSykmldTidspunkt.toBigInteger(),
                     gjennomsnittligGIKalenderaaret = grunnbeloepForAaret,
                 )

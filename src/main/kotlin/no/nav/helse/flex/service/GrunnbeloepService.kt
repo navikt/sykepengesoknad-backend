@@ -19,4 +19,9 @@ class GrunnbeloepService(private val grunnbeloepClient: GrunnbeloepClient) {
         val femAarSiden = LocalDate.of(LocalDate.now().year, 1, 1).minusYears(5)
         return getHistorikk(femAarSiden)
     }
+
+    fun hentHistorikk(from: LocalDate): Mono<List<GrunnbeloepResponse>> {
+        val hentForDato = LocalDate.of(from.year, 1, 1).minusYears(5)
+        return getHistorikk(hentForDato)
+    }
 }

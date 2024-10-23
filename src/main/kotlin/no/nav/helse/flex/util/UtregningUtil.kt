@@ -25,6 +25,7 @@ fun inntektJustertForGrunnbeloep(
             RoundingMode.HALF_UP,
         ).toBigInteger()
 }
+// ) = (pensjonsgivendeInntektIKalenderAaret * gPaaSykmeldingstidspunktet) / gjennomsnittligGIKalenderaaret
 
 /**
  * Justerer inntekter basert på formel der inntekt mellom 6G og 12G reduseres til 1/3,
