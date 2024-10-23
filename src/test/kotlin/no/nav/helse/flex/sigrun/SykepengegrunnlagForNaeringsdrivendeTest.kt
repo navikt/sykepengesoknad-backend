@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test
 import java.time.Instant
 import java.time.LocalDate
 
+// TODO: År må enten hardkodes, eller testår må beregnes sånn at testen ikke feiler etter årsskifte.
 class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
     @Disabled
     @Test
@@ -59,6 +60,50 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
     }
 
     @Disabled
+    @Test
+    fun `beregn snitt av 2 år med inntekt over 1 g og ett år under 1 g`() {
+        val soknad =
+            opprettNyNaeringsdrivendeSoknad().copy(
+                fnr = "56909901141",
+                startSykeforlop = LocalDate.now(),
+                fom = LocalDate.now().minusDays(30),
+                tom = LocalDate.now().minusDays(1),
+                sykmeldingSkrevet = Instant.now(),
+                aktivertDato = LocalDate.now().minusDays(30),
+            )
+
+        val grunnlagVerdier = sykepengegrunnlagForNaeringsdrivende.sykepengegrunnlagNaeringsdrivende(soknad)
+
+        grunnlagVerdier `should not be` null
+        grunnlagVerdier!!.let {
+            it.beregnetSnittOgEndring25.snitt `should be equal to` 75048.toBigInteger()
+            it.grunnbeloepPerAar.size `should be equal to` 2
+            it.gjennomsnittPerAar.size `should be equal to` 2
+        }
+    }
+
+    @Test
+    fun `hopp over ett år`() {
+        val soknad =
+            opprettNyNaeringsdrivendeSoknad().copy(
+                fnr = "21127575934",
+                startSykeforlop = LocalDate.now(),
+                fom = LocalDate.now().minusDays(30),
+                tom = LocalDate.now().minusDays(1),
+                sykmeldingSkrevet = Instant.now(),
+                aktivertDato = LocalDate.now().minusDays(30),
+            )
+
+        val grunnlagVerdier = sykepengegrunnlagForNaeringsdrivende.sykepengegrunnlagNaeringsdrivende(soknad)
+
+        grunnlagVerdier `should not be` null
+        grunnlagVerdier!!.let {
+            it.beregnetSnittOgEndring25.snitt `should be equal to` 375625.toBigInteger()
+            it.grunnbeloepPerAar.size `should be equal to` 3
+            it.gjennomsnittPerAar.size `should be equal to` 3
+        }
+    }
+
     @Test
     fun `sjekker json for frontend`() {
         val soknad =

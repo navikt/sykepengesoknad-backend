@@ -58,24 +58,26 @@ class SykepengegrunnlagForNaeringsdrivende(
         try {
             val sykmeldingstidspunkt = soknad.startSykeforlop!!.year
 
+            // TODO: Returner HashMap
             val grunnbeloepSisteFemAar =
                 grunnbeloepService.hentHistorikk(soknad.startSykeforlop).takeIf { it.isNotEmpty() }
                     ?: throw Exception("finner ikke historikk for g fra siste fem år")
 
             val grunnbeloepPaaSykmeldingstidspunkt =
-                grunnbeloepSisteFemAar.find { it.dato.tilAar() == sykmeldingstidspunkt }?.grunnbeløp?.takeIf { it > 0 }
-                    ?: throw Exception("Fant ikke g på sykmeldingstidspunkt for soknad ${soknad.id}")
+                grunnbeloepSisteFemAar.find { it.dato.tilAar() == sykmeldingstidspunkt }!!.grunnbeløp
 
             val pensjonsgivendeInntekter =
-                hentPensjonsgivendeInntektForTreSisteArene(soknad.fnr, sykmeldingstidspunkt).takeIf { pensjonsgivendeInntektResponses ->
-                    pensjonsgivendeInntektResponses?.none { it.pensjonsgivendeInntekt.isEmpty() } == true
-                }
+                hentPensjonsgivendeInntektForTreSisteArene(
+                    soknad.fnr,
+                    sykmeldingstidspunkt,
+                )?.filter { it.pensjonsgivendeInntekt.isNotEmpty() }
 
-            if (pensjonsgivendeInntekter != null && pensjonsgivendeInntekter.isEmpty()) {
+            if (pensjonsgivendeInntekter.isNullOrEmpty()) {
                 return null
             }
 
-            val grunnbeloepRelevanteAar = finnGrunnbeloepForTreRelevanteAar(grunnbeloepSisteFemAar, pensjonsgivendeInntekter!!)
+            val grunnbeloepRelevanteAar =
+                finnGrunnbeloepForTreRelevanteAar(grunnbeloepSisteFemAar, pensjonsgivendeInntekter)
             val inntekterJustertForGrunnbeloep =
                 finnInntekterJustertForGrunnbeloep(
                     pensjonsgivendeInntekter,
@@ -126,7 +128,13 @@ class SykepengegrunnlagForNaeringsdrivende(
             ferdigliknetInntekter.add(svar)
         }
         if (ferdigliknetInntekter.find { it.inntektsaar == forsteAar.toString() }?.pensjonsgivendeInntekt!!.isEmpty()) {
-            return ferdigliknetInntekter.slice(1..2) + listOf(pensjongivendeInntektClient.hentPensjonsgivendeInntekt(fnr, forsteAar - 3))
+            return ferdigliknetInntekter.slice(1..2) +
+                listOf(
+                    pensjongivendeInntektClient.hentPensjonsgivendeInntekt(
+                        fnr,
+                        forsteAar - 3,
+                    ),
+                )
         }
 
         return ferdigliknetInntekter
