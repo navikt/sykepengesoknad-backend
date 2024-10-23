@@ -74,8 +74,7 @@ class SoknadFlexAzureController(
 
         auditLogProducer.lagAuditLog(
             AuditEntry(
-                fagsystem = "flex-internal",
-                appNavn = "flex-internal-frontend",
+                appNavn = "flex-internal",
                 utførtAv = navIdent,
                 oppslagPå = req.fnr,
                 eventType = EventType.READ,
@@ -106,8 +105,7 @@ class SoknadFlexAzureController(
 
         auditLogProducer.lagAuditLog(
             AuditEntry(
-                fagsystem = "flex-internal",
-                appNavn = "flex-internal-frontend",
+                appNavn = "flex-internal",
                 utførtAv = navIdent,
                 oppslagPå = req.ident,
                 eventType = EventType.READ,
@@ -132,8 +130,7 @@ class SoknadFlexAzureController(
 
         auditLogProducer.lagAuditLog(
             AuditEntry(
-                fagsystem = "flex-internal",
-                appNavn = "flex-internal-frontend",
+                appNavn = "flex-internal",
                 utførtAv = navIdent,
                 oppslagPå = soknad.fnr,
                 eventType = EventType.READ,

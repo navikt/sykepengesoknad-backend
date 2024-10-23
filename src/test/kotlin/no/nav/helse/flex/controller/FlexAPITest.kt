@@ -59,8 +59,7 @@ class FlexAPITest : FellesTestOppsett() {
         auditlogKafkaConsumer.ventPåRecords(1).first().let {
             val auditEntry: AuditEntry = objectMapper.readValue(it.value())
             with(auditEntry) {
-                fagsystem `should be equal to` "flex-internal"
-                appNavn `should be equal to` "flex-internal-frontend"
+                appNavn `should be equal to` "flex-internal"
                 utførtAv `should be equal to` fnrFlexer
                 oppslagPå `should be equal to` fnr
                 eventType `should be equal to` EventType.READ
@@ -86,8 +85,7 @@ class FlexAPITest : FellesTestOppsett() {
         auditlogKafkaConsumer.ventPåRecords(1).first().let {
             val auditEntry: AuditEntry = objectMapper.readValue(it.value())
             with(auditEntry) {
-                fagsystem `should be equal to` "flex-internal"
-                appNavn `should be equal to` "flex-internal-frontend"
+                appNavn `should be equal to` "flex-internal"
                 utførtAv `should be equal to` fnrFlexer
                 oppslagPå `should be equal to` fnr
                 eventType `should be equal to` EventType.READ
@@ -121,8 +119,7 @@ class FlexAPITest : FellesTestOppsett() {
         auditlogKafkaConsumer.ventPåRecords(1).first().let {
             val auditEntry: AuditEntry = objectMapper.readValue(it.value())
             with(auditEntry) {
-                fagsystem `should be equal to` "flex-internal"
-                appNavn `should be equal to` "flex-internal-frontend"
+                appNavn `should be equal to` "flex-internal"
                 utførtAv `should be equal to` fnrFlexer
                 oppslagPå `should be equal to` fnr
                 eventType `should be equal to` EventType.READ
@@ -182,8 +179,7 @@ class FlexAPITest : FellesTestOppsett() {
         auditlogKafkaConsumer.ventPåRecords(1).first().let {
             val auditEntry: AuditEntry = objectMapper.readValue(it.value())
             with(auditEntry) {
-                fagsystem `should be equal to` "flex-internal"
-                appNavn `should be equal to` "flex-internal-frontend"
+                appNavn `should be equal to` "flex-internal"
                 utførtAv `should be equal to` fnrFlexer
                 oppslagPå `should be equal to` "211111111111"
                 eventType `should be equal to` EventType.READ

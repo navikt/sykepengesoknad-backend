@@ -9,7 +9,6 @@ import java.time.Instant
  * @param beskrivelse Beskrivelse av hva som er gjort, bør være "menneskelig lesbar"
  */
 data class AuditEntry(
-    val fagsystem: String,
     val appNavn: String,
     val utførtAv: String,
     val oppslagPå: String,
