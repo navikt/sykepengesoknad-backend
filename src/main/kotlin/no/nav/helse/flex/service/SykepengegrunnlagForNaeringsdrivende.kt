@@ -66,11 +66,13 @@ class SykepengegrunnlagForNaeringsdrivende(
             val grunnbeloepPaaSykmeldingstidspunkt =
                 grunnbeloepSisteFemAar.find { it.dato.tilAar() == sykmeldingstidspunkt }!!.grunnbeløp
 
-            val pensjonsgivendeInntekter =
+            val res =
                 hentPensjonsgivendeInntektForTreSisteArene(
                     soknad.fnr,
                     sykmeldingstidspunkt,
-                )?.filter { it.pensjonsgivendeInntekt.isNotEmpty() }
+                )
+
+            val pensjonsgivendeInntekter = res?.filter { it.pensjonsgivendeInntekt.isNotEmpty() }
 
             if (pensjonsgivendeInntekter.isNullOrEmpty()) {
                 return null
@@ -110,7 +112,7 @@ class SykepengegrunnlagForNaeringsdrivende(
         sykmeldingstidspunkt: Int,
     ): List<HentPensjonsgivendeInntektResponse>? {
         val ferdigliknetInntekter = mutableListOf<HentPensjonsgivendeInntektResponse>()
-        val forsteAar = LocalDate.now().year - 1
+        val forsteAar = sykmeldingstidspunkt - 1
         val aarViHenterFor = forsteAar downTo forsteAar - 2
 
         aarViHenterFor.forEach { aar ->
