@@ -65,7 +65,7 @@ class FlexAPITest : FellesTestOppsett() {
                 eventType `should be equal to` EventType.READ
                 forespørselTillatt `should be` true
                 beskrivelse `should be equal to` "Henter alle sykepengesoknader"
-                requestUrl `should be equal to` URI.create("/api/v1/flex/sykepengesoknader")
+                requestUrl `should be equal to` URI.create("http://localhost/api/v1/flex/sykepengesoknader")
                 requestMethod `should be equal to` "POST"
             }
         }
@@ -125,7 +125,7 @@ class FlexAPITest : FellesTestOppsett() {
                 eventType `should be equal to` EventType.READ
                 forespørselTillatt `should be` true
                 beskrivelse `should be equal to` "Henter alle sykepengesoknader"
-                requestUrl `should be equal to` URI.create("/api/v1/flex/sykepengesoknader")
+                requestUrl `should be equal to` URI.create("http://localhost/api/v1/flex/sykepengesoknader")
                 requestMethod `should be equal to` "POST"
             }
         }
@@ -185,7 +185,7 @@ class FlexAPITest : FellesTestOppsett() {
                 eventType `should be equal to` EventType.READ
                 forespørselTillatt `should be` true
                 beskrivelse `should be equal to` "Henter alle identer for ident"
-                requestUrl `should be equal to` URI.create("/api/v1/flex/identer")
+                requestUrl `should be equal to` URI.create("http://localhost/api/v1/flex/identer")
                 requestMethod `should be equal to` "POST"
             }
         }

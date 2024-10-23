@@ -1,6 +1,7 @@
 package no.nav.helse.flex.controller
 
 import io.swagger.v3.oas.annotations.Hidden
+import jakarta.servlet.http.HttpServletRequest
 import no.nav.helse.flex.client.pdl.PdlClient
 import no.nav.helse.flex.client.pdl.PdlIdent
 import no.nav.helse.flex.clientidvalidation.ClientIdValidation
@@ -58,6 +59,7 @@ class SoknadFlexAzureController(
     )
     fun hentSykepengesoknader(
         @RequestBody req: HentSykepengesoknaderRequest,
+        request: HttpServletRequest,
     ): FlexInternalResponse {
         clientIdValidation.validateClientId(NamespaceAndApp(namespace = "flex", app = "flex-internal-frontend"))
         val navIdent = clientIdValidation.hentNavIdent()
@@ -81,7 +83,7 @@ class SoknadFlexAzureController(
                 forespørselTillatt = true,
                 oppslagUtførtTid = LocalDateTime.now().tilOsloInstant(),
                 beskrivelse = "Henter alle sykepengesoknader",
-                requestUrl = URI.create("/api/v1/flex/sykepengesoknader"),
+                requestUrl = URI.create(request.requestURL.toString()),
                 requestMethod = "POST",
             ),
         )
@@ -99,6 +101,7 @@ class SoknadFlexAzureController(
     @PostMapping("/api/v1/flex/identer", consumes = [APPLICATION_JSON_VALUE], produces = [APPLICATION_JSON_VALUE])
     fun hentIdenter(
         @RequestBody req: HentIdenterRequest,
+        request: HttpServletRequest,
     ): List<PdlIdent> {
         clientIdValidation.validateClientId(NamespaceAndApp(namespace = "flex", app = "flex-internal-frontend"))
         val navIdent = clientIdValidation.hentNavIdent()
@@ -112,7 +115,7 @@ class SoknadFlexAzureController(
                 forespørselTillatt = true,
                 oppslagUtførtTid = LocalDateTime.now().tilOsloInstant(),
                 beskrivelse = "Henter alle identer for ident",
-                requestUrl = URI.create("/api/v1/flex/identer"),
+                requestUrl = URI.create(request.requestURL.toString()),
                 requestMethod = "POST",
             ),
         )
