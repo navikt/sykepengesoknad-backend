@@ -4,6 +4,7 @@ import io.getunleash.FakeUnleash
 import jakarta.annotation.PostConstruct
 import no.nav.helse.flex.client.kvitteringer.SykepengesoknadKvitteringerClient
 import no.nav.helse.flex.juridiskvurdering.juridiskVurderingTopic
+import no.nav.helse.flex.kafka.AUDIT_TOPIC
 import no.nav.helse.flex.kafka.SYKEPENGESOKNAD_TOPIC
 import no.nav.helse.flex.kafka.producer.AivenKafkaProducer
 import no.nav.helse.flex.kafka.producer.RebehandlingSykmeldingSendtProducer
@@ -126,6 +127,9 @@ abstract class FellesTestOppsett {
     @Autowired
     lateinit var sykepengegrunnlagForNaeringsdrivende: SykepengegrunnlagForNaeringsdrivende
 
+    @Autowired
+    lateinit var auditlogKafkaConsumer: Consumer<String, String>
+
     @BeforeAll
     @AfterAll
     fun `Vi leser sykepengesoknad topicet og feiler hvis noe finnes og slik at subklassetestene leser alt`() {
@@ -157,5 +161,11 @@ abstract class FellesTestOppsett {
     fun `Vi leser juridiskvurdering kafka topicet og feiler om noe eksisterer`() {
         juridiskVurderingKafkaConsumer.subscribeHvisIkkeSubscribed(juridiskVurderingTopic)
         juridiskVurderingKafkaConsumer.hentProduserteRecords().shouldBeEmpty()
+    }
+
+    @BeforeAll
+    fun `Vi leser auditlog kafka topicet og feiler om noe eksisterer`() {
+        auditlogKafkaConsumer.subscribeHvisIkkeSubscribed(AUDIT_TOPIC)
+        auditlogKafkaConsumer.hentProduserteRecords().shouldBeEmpty()
     }
 }

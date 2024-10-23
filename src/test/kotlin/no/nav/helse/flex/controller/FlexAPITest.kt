@@ -1,16 +1,17 @@
 package no.nav.helse.flex.controller
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import no.nav.helse.flex.FellesTestOppsett
+import no.nav.helse.flex.*
 import no.nav.helse.flex.client.pdl.PdlIdent
-import no.nav.helse.flex.jwt
-import no.nav.helse.flex.sendSykmelding
-import no.nav.helse.flex.skapAzureJwt
+import no.nav.helse.flex.domain.AuditEntry
+import no.nav.helse.flex.domain.EventType
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.util.serialisertTilString
+import org.amshove.kluent.`should be`
+import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.BeforeAll
@@ -18,9 +19,11 @@ import org.junit.jupiter.api.Test
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import java.net.URI
 
 class FlexAPITest : FellesTestOppsett() {
     val fnr = "12345678901"
+    val fnrFlexer = "10987654321"
     lateinit var kafkaMelding: SykepengesoknadDTO
 
     @BeforeAll
@@ -41,7 +44,7 @@ class FlexAPITest : FellesTestOppsett() {
                 .perform(
                     MockMvcRequestBuilders
                         .post("/api/v1/flex/sykepengesoknader")
-                        .header("Authorization", "Bearer ${skapAzureJwt("flex-internal-frontend-client-id")}")
+                        .header("Authorization", "Bearer ${skapAzureJwt("flex-internal-frontend-client-id", fnrFlexer)}")
                         .content(SoknadFlexAzureController.HentSykepengesoknaderRequest(fnr).serialisertTilString())
                         .contentType(MediaType.APPLICATION_JSON),
                 )
@@ -53,17 +56,45 @@ class FlexAPITest : FellesTestOppsett() {
         fraRest.sykepengesoknadListe[0].id.shouldBeEqualTo(kafkaMelding.id)
         fraRest.sykepengesoknadListe[0].sykmeldingId.shouldBeEqualTo(kafkaMelding.sykmeldingId)
 
+        auditlogKafkaConsumer.ventPåRecords(1).first().let {
+            val auditEntry: AuditEntry = objectMapper.readValue(it.value())
+            with(auditEntry) {
+                appNavn `should be equal to` "flex-internal"
+                utførtAv `should be equal to` fnrFlexer
+                oppslagPå `should be equal to` fnr
+                eventType `should be equal to` EventType.READ
+                forespørselTillatt `should be` true
+                beskrivelse `should be equal to` "Henter alle sykepengesoknader"
+                requestUrl `should be equal to` URI.create("http://localhost/api/v1/flex/sykepengesoknader")
+                requestMethod `should be equal to` "POST"
+            }
+        }
+
         mockMvc
             .perform(
                 MockMvcRequestBuilders
                     .get("/api/v1/flex/sykepengesoknader/" + kafkaMelding.id)
-                    .header("Authorization", "Bearer ${skapAzureJwt("flex-internal-frontend-client-id")}")
+                    .header("Authorization", "Bearer ${skapAzureJwt("flex-internal-frontend-client-id", fnrFlexer)}")
                     .contentType(MediaType.APPLICATION_JSON),
             )
             .andExpect(MockMvcResultMatchers.status().isOk).andReturn().let {
                 val res: FlexInternalSoknadResponse = objectMapper.readValue(it.response.contentAsString)
                 res.sykepengesoknad.id.shouldBeEqualTo(kafkaMelding.id)
             }
+
+        auditlogKafkaConsumer.ventPåRecords(1).first().let {
+            val auditEntry: AuditEntry = objectMapper.readValue(it.value())
+            with(auditEntry) {
+                appNavn `should be equal to` "flex-internal"
+                utførtAv `should be equal to` fnrFlexer
+                oppslagPå `should be equal to` fnr
+                eventType `should be equal to` EventType.READ
+                forespørselTillatt `should be` true
+                beskrivelse `should be equal to` "Henter en sykepengesoknad"
+                requestUrl `should be equal to` URI.create("/api/v1/flex/sykepengesoknader/${fraRest.sykepengesoknadListe[0].id}")
+                requestMethod `should be equal to` "GET"
+            }
+        }
     }
 
     @Test
@@ -73,7 +104,7 @@ class FlexAPITest : FellesTestOppsett() {
                 .perform(
                     MockMvcRequestBuilders
                         .post("/api/v1/flex/sykepengesoknader")
-                        .header("Authorization", "Bearer ${skapAzureJwt("flex-internal-frontend-client-id")}")
+                        .header("Authorization", "Bearer ${skapAzureJwt("flex-internal-frontend-client-id", fnrFlexer)}")
                         .content(SoknadFlexAzureController.HentSykepengesoknaderRequest(fnr).serialisertTilString())
                         .contentType(MediaType.APPLICATION_JSON),
                 )
@@ -84,6 +115,20 @@ class FlexAPITest : FellesTestOppsett() {
         fraRest.klippetSykepengesoknadRecord.shouldHaveSize(0)
         fraRest.sykepengesoknadListe[0].id.shouldBeEqualTo(kafkaMelding.id)
         fraRest.sykepengesoknadListe[0].sykmeldingId.shouldBeEqualTo(kafkaMelding.sykmeldingId)
+
+        auditlogKafkaConsumer.ventPåRecords(1).first().let {
+            val auditEntry: AuditEntry = objectMapper.readValue(it.value())
+            with(auditEntry) {
+                appNavn `should be equal to` "flex-internal"
+                utførtAv `should be equal to` fnrFlexer
+                oppslagPå `should be equal to` fnr
+                eventType `should be equal to` EventType.READ
+                forespørselTillatt `should be` true
+                beskrivelse `should be equal to` "Henter alle sykepengesoknader"
+                requestUrl `should be equal to` URI.create("http://localhost/api/v1/flex/sykepengesoknader")
+                requestMethod `should be equal to` "POST"
+            }
+        }
     }
 
     @Test
@@ -119,7 +164,7 @@ class FlexAPITest : FellesTestOppsett() {
                 .perform(
                     MockMvcRequestBuilders
                         .post("/api/v1/flex/identer")
-                        .header("Authorization", "Bearer ${skapAzureJwt("flex-internal-frontend-client-id")}")
+                        .header("Authorization", "Bearer ${skapAzureJwt("flex-internal-frontend-client-id", fnrFlexer)}")
                         .content(SoknadFlexAzureController.HentIdenterRequest("211111111111").serialisertTilString())
                         .contentType(MediaType.APPLICATION_JSON),
                 )
@@ -130,6 +175,20 @@ class FlexAPITest : FellesTestOppsett() {
         fraRest[0] shouldBeEqualTo PdlIdent("FOLKEREGISTERIDENT", "211111111111")
         fraRest[1] shouldBeEqualTo PdlIdent("FOLKEREGISTERIDENT", "111111111111")
         fraRest[2] shouldBeEqualTo PdlIdent("AKTORID", "21111111111100")
+
+        auditlogKafkaConsumer.ventPåRecords(1).first().let {
+            val auditEntry: AuditEntry = objectMapper.readValue(it.value())
+            with(auditEntry) {
+                appNavn `should be equal to` "flex-internal"
+                utførtAv `should be equal to` fnrFlexer
+                oppslagPå `should be equal to` "211111111111"
+                eventType `should be equal to` EventType.READ
+                forespørselTillatt `should be` true
+                beskrivelse `should be equal to` "Henter alle identer for ident"
+                requestUrl `should be equal to` URI.create("http://localhost/api/v1/flex/identer")
+                requestMethod `should be equal to` "POST"
+            }
+        }
     }
 
     @Test
