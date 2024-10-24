@@ -16,8 +16,6 @@ object SigrunMockDispatcher : Dispatcher() {
         val fnr = request.headers["Nav-Personident"]!!
         val inntektsAar = request.headers["inntektsaar"]!!
 
-        log.info("NJM: Request for fnr $fnr for aar $inntektsAar")
-
         // TODO: Reduser til 90_000 og 250_000
         val over1G = 1_000_000
         val under1G = 100_000
@@ -70,7 +68,6 @@ object SigrunMockDispatcher : Dispatcher() {
 
         // Sjekk om inntekt er null og kast feilen
         if (naeringsinntekt == null) {
-            log.info("NJM: Næringinntekt er null for aar $inntektsAar, returnerer 404.")
             return MockResponse()
                 .setResponseCode(404)
                 .setBody("{\"errorCode\": \"PGIF-008\", \"errorMessage\": \"Ingen pensjonsgivende inntekt funnet.\"}")
@@ -90,7 +87,6 @@ object SigrunMockDispatcher : Dispatcher() {
                 else -> MockResponse().setResponseCode(404)
             }
 
-        log.info("NJM: Returnerer response: ${ret.status} for aar $inntektsAar")
         return ret
     }
 
