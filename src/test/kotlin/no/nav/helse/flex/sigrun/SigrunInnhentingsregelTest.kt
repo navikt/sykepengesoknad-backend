@@ -1,15 +1,23 @@
 package no.nav.helse.flex.sigrun
 
 import no.nav.helse.flex.FellesTestOppsett
+import no.nav.helse.flex.hentProduserteRecords
 import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknad
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should not be`
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 import java.time.Instant
 import java.time.LocalDate
 
 class SigrunInnhentingsregelTest : FellesTestOppsett() {
+
+    @AfterAll
+    fun hentAlleKafkaMeldinger() {
+        juridiskVurderingKafkaConsumer.hentProduserteRecords()
+    }
+
     @Test
     fun `skal returnere 3 år med gyldige inntekter`() {
         val soknad =

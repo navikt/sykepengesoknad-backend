@@ -12,6 +12,7 @@ import java.time.Instant
 import java.time.LocalDate
 
 class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
+
     @AfterAll
     fun hentAlleKafkaMeldinger() {
         juridiskVurderingKafkaConsumer.hentProduserteRecords()
