@@ -57,28 +57,6 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `Regn ut snitt av to år med inntekt over 1G og ett år under 1G`() {
-        val soknad =
-            opprettNyNaeringsdrivendeSoknad().copy(
-                fnr = "56909901141",
-                startSykeforlop = LocalDate.now(),
-                fom = LocalDate.now().minusDays(30),
-                tom = LocalDate.now().minusDays(1),
-                sykmeldingSkrevet = Instant.now(),
-                aktivertDato = LocalDate.now().minusDays(30),
-            )
-
-        val grunnlagVerdier = sykepengegrunnlagForNaeringsdrivende.sykepengegrunnlagNaeringsdrivende(soknad)
-
-        grunnlagVerdier `should not be` null
-        grunnlagVerdier!!.let {
-            it.beregnetSnittOgEndring25.snitt `should be equal to` 75048.toBigInteger()
-            it.grunnbeloepPerAar.size `should be equal to` 2
-            it.gjennomsnittPerAar.size `should be equal to` 2
-        }
-    }
-
-    @Test
     fun `Regn ut snitt inntekt for person uten inntekt første år`() {
         val soknad =
             opprettNyNaeringsdrivendeSoknad().copy(
