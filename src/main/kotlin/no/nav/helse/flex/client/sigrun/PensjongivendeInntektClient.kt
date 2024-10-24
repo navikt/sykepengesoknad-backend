@@ -3,6 +3,7 @@ package no.nav.helse.flex.client.sigrun
 import no.nav.helse.flex.logger
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.*
+import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
@@ -20,14 +21,12 @@ class PensjongivendeInntektClient(
 ) {
     val log = logger()
 
-//    @Retryable
+    @Retryable
     fun hentPensjonsgivendeInntekt(
         fnr: String,
         arViHenterFor: Int,
     ): HentPensjonsgivendeInntektResponse {
-        val uriBuilder =
-            UriComponentsBuilder.fromHttpUrl("$url/api/v1/pensjonsgivendeinntektforfolketrygden")
-
+        val uriBuilder = UriComponentsBuilder.fromHttpUrl("$url/api/v1/pensjonsgivendeinntektforfolketrygden")
         val headers =
             HttpHeaders().apply {
                 this["Nav-Consumer-Id"] = "sykepengesoknad-backend"

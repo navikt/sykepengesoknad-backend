@@ -9,6 +9,7 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.util.*
 import org.springframework.stereotype.Service
+import java.math.BigDecimal
 import java.math.BigInteger
 import java.time.LocalDate
 
@@ -80,6 +81,7 @@ class SykepengegrunnlagForNaeringsdrivende(
 
             val grunnbeloepRelevanteAar =
                 finnGrunnbeloepForTreRelevanteAar(grunnbeloepSisteFemAar, pensjonsgivendeInntekter)
+
             val inntekterJustertForGrunnbeloep =
                 finnInntekterJustertForGrunnbeloep(
                     pensjonsgivendeInntekter,
@@ -157,7 +159,7 @@ class SykepengegrunnlagForNaeringsdrivende(
         pensjonsgivendeInntekter: List<HentPensjonsgivendeInntektResponse>,
         grunnbeloepRelevanteAar: Map<String, BigInteger>,
         grunnbeloepSykmldTidspunkt: Int,
-    ): Map<String, BigInteger> {
+    ): Map<String, BigDecimal> {
         return pensjonsgivendeInntekter.associate { inntekt ->
             val grunnbeloepForAaret =
                 grunnbeloepRelevanteAar[inntekt.inntektsaar]
