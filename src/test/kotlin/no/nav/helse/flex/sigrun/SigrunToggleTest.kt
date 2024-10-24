@@ -13,6 +13,7 @@ import no.nav.helse.flex.util.flatten
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should not be`
 import org.amshove.kluent.shouldHaveSize
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -22,6 +23,11 @@ class SigrunToggleTest : FellesTestOppsett() {
     fun konfigurerUnleash() {
         databaseReset.resetDatabase()
         fakeUnleash.resetAll()
+    }
+
+    @AfterAll
+    fun hentAlleKafkaMeldinger() {
+        juridiskVurderingKafkaConsumer.hentProduserteRecords()
     }
 
     @Test

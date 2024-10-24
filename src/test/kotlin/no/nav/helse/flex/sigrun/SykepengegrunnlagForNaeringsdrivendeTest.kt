@@ -1,15 +1,22 @@
 package no.nav.helse.flex.sigrun
 
 import no.nav.helse.flex.FellesTestOppsett
+import no.nav.helse.flex.hentProduserteRecords
 import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknad
 import no.nav.helse.flex.util.objectMapper
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should not be`
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 import java.time.Instant
 import java.time.LocalDate
 
 class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
+    @AfterAll
+    fun hentAlleKafkaMeldinger() {
+        juridiskVurderingKafkaConsumer.hentProduserteRecords()
+    }
+
     @Test
     fun `Regn ut sykepengegrunnlag for inntekter under 6G`() {
         val soknad =
