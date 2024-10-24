@@ -132,16 +132,26 @@ class SykepengegrunnlagForNaeringsdrivende(
             ferdigliknetInntekter.add(svar)
         }
         if (ferdigliknetInntekter.find { it.inntektsaar == forsteAar.toString() }?.pensjonsgivendeInntekt!!.isEmpty()) {
-            return ferdigliknetInntekter.slice(1..2) +
-                listOf(
-                    pensjongivendeInntektClient.hentPensjonsgivendeInntekt(
-                        fnr,
-                        forsteAar - 3,
-                    ),
-                )
+            return (
+                ferdigliknetInntekter.slice(1..2) +
+                    listOf(
+                        pensjongivendeInntektClient.hentPensjonsgivendeInntekt(
+                            fnr,
+                            forsteAar - 3,
+                        ),
+                    )
+            ).innholdEllerNullHvisTom()
         }
+        return ferdigliknetInntekter.innholdEllerNullHvisTom()
+    }
 
-        return ferdigliknetInntekter
+    private fun List<HentPensjonsgivendeInntektResponse>.innholdEllerNullHvisTom(): List<HentPensjonsgivendeInntektResponse>?  {
+        return if (this.any { it.pensjonsgivendeInntekt.isEmpty() })
+            {
+                null
+            } else {
+            this
+        }
     }
 
     private fun finnGrunnbeloepForTreRelevanteAar(
