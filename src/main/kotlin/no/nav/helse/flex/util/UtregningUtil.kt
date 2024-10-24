@@ -14,16 +14,10 @@ fun inntektJustertForGrunnbeloep(
     pensjonsgivendeInntektIKalenderAaret: BigInteger,
     gPaaSykmeldingstidspunktet: BigInteger,
     gjennomsnittligGIKalenderaaret: BigInteger,
-): BigInteger {
+): BigDecimal {
     return BigDecimal(pensjonsgivendeInntektIKalenderAaret)
         .times(BigDecimal(gPaaSykmeldingstidspunktet))
-        // Bruker divide() siden div() bruker RoundingMode.HALF_EVEN.
-        .divide(
-            // Runder til 0 med BigDecimal og HALF_UP siden toBigInteger() alltid runder ned.
-            BigDecimal(gjennomsnittligGIKalenderaaret),
-            0,
-            RoundingMode.HALF_UP,
-        ).toBigInteger()
+        .divide(BigDecimal(gjennomsnittligGIKalenderaaret), 2, RoundingMode.HALF_UP)
 }
 // ) = (pensjonsgivendeInntektIKalenderAaret * gPaaSykmeldingstidspunktet) / gjennomsnittligGIKalenderaaret
 
@@ -32,16 +26,14 @@ fun inntektJustertForGrunnbeloep(
  * og inntekt over 12G blir trukket fra
  */
 fun finnInntekterJustertFor6Gog12G(
-    justertInntektForGPerAar: Map<String, BigInteger>,
+    justertInntektForGPerAar: Map<String, BigDecimal>,
     grunnbeloepSykmldTidspunkt: Int,
 ): MutableMap<String, BigDecimal> {
     val g12 = BigDecimal(grunnbeloepSykmldTidspunkt * 12)
     val g6 = BigDecimal(grunnbeloepSykmldTidspunkt * 6)
 
     val justerteInntekter =
-        justertInntektForGPerAar.mapValues {
-            it.value.toBigDecimal().setScale(2, RoundingMode.HALF_UP)
-        }.toMutableMap()
+        justertInntektForGPerAar.mapValues { it.value }.toMutableMap()
 
     val verdierPaa12G =
         justerteInntekter.filterValues { it >= g12 }.map {
@@ -51,15 +43,14 @@ fun finnInntekterJustertFor6Gog12G(
 
     val reduserteVerdierMellom6og12G =
         justerteInntekter.filterValues { it in g6..g12 }.map {
-            it.key to (g6 + (it.value - g6) / BigDecimal(3)).setScale(2, RoundingMode.HALF_UP)
+            it.key to (g6 + (it.value - g6).div(BigDecimal(3)))
         }.toMap()
     justerteInntekter.putAll(reduserteVerdierMellom6og12G)
     return justerteInntekter
 }
 
 fun beregnGjennomsnittligInntekt(justerteInntekter: Map<String, BigDecimal>): BigDecimal {
-    val snittVerdi = justerteInntekter.values.sumOf { it }.divide(BigDecimal(3), 2, RoundingMode.HALF_UP)
-    return snittVerdi.setScale(2, RoundingMode.HALF_UP)
+    return justerteInntekter.values.sumOf { it }.div(BigDecimal(3))
 }
 
 fun beregnEndring25Prosent(snittPGI: BigDecimal): Beregnet {
