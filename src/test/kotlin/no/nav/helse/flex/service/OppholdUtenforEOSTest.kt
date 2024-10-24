@@ -18,15 +18,12 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.DayOfWeek
 import java.time.LocalDate
-import java.time.OffsetDateTime
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 class OppholdUtenforEOSTest : FellesTestOppsett() {
     @Autowired
     private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
-
-    @Autowired
-    private lateinit var oppholdUtenforEOSService: OppholdUtenforEOSService
 
     private val fnr = "12345678900"
 
@@ -119,7 +116,7 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
             sykmeldingKafkaMessage(
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(sykmeldingsperiodeStart, sykmeldingsperiodeSlutt),
-                timestamp = OffsetDateTime.now().minusWeeks(3),
+                timestamp = fredag.atStartOfDay().atOffset(ZoneOffset.UTC).minusWeeks(3),
             ),
         )
 
@@ -150,8 +147,8 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
 
         mockFlexSyketilfelleArbeidsgiverperiode()
 
-        val tidligereOppholdUtenforEOSStarterNoenDagerForSykmeldingStart = LocalDate.now().minusWeeks(4)
-        val tidligereOppholdUtenforEOSSlutterNoenDagerEtterSykmeldingStart = LocalDate.now().minusWeeks(2)
+        val tidligereOppholdUtenforEOSStarterNoenDagerForSykmeldingStart = fredag.minusWeeks(4)
+        val tidligereOppholdUtenforEOSSlutterNoenDagerEtterSykmeldingStart = fredag.minusWeeks(2)
 
         val soknadOppholdUtenforEOS =
             hentSoknad(
