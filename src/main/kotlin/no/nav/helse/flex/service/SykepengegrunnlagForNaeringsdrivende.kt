@@ -147,11 +147,10 @@ class SykepengegrunnlagForNaeringsdrivende(
         return ferdigliknetInntekter.innholdEllerNullHvisTom()
     }
 
-    private fun List<HentPensjonsgivendeInntektResponse>.innholdEllerNullHvisTom(): List<HentPensjonsgivendeInntektResponse>?  {
-        return if (this.any { it.pensjonsgivendeInntekt.isEmpty() })
-            {
-                null
-            } else {
+    private fun List<HentPensjonsgivendeInntektResponse>.innholdEllerNullHvisTom(): List<HentPensjonsgivendeInntektResponse>? {
+        return if (this.any { it.pensjonsgivendeInntekt.isEmpty() }) {
+            null
+        } else {
             this
         }
     }
