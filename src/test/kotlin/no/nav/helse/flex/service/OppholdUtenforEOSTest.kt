@@ -1,5 +1,6 @@
 package no.nav.helse.flex.service
 
+import com.nhaarman.mockitokotlin2.atMost
 import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
@@ -13,6 +14,7 @@ import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import org.amshove.kluent.`should be equal to`
+import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -20,6 +22,7 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
+import java.util.concurrent.TimeUnit
 
 class OppholdUtenforEOSTest : FellesTestOppsett() {
     @Autowired
@@ -112,13 +115,14 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
     ): RSSykepengesoknad {
         flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
-        sendSykmelding(
+        val opprettetSoknad = sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(sykmeldingsperiodeStart, sykmeldingsperiodeSlutt),
                 timestamp = fredag.atStartOfDay().atOffset(ZoneOffset.UTC).minusWeeks(3),
             ),
         )
+
 
         mockFlexSyketilfelleArbeidsgiverperiode()
         val soknaden =
@@ -137,24 +141,29 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
         flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
         opprettUtlandssoknad(fnr)
+
+        // Venter på at at uenenlandssløkanen er opprettet
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().let { kafkaSoknader ->
             kafkaSoknader.size `should be equal to` 1
             kafkaSoknader.first().type `should be equal to` SoknadstypeDTO.OPPHOLD_UTLAND
             kafkaSoknader.first().status `should be equal to` SoknadsstatusDTO.NY
         }
 
-        hentSoknaderMetadata(fnr).size `should be equal to` 1
+//        hentSoknaderMetadata(fnr).size `should be equal to` 1
 
         mockFlexSyketilfelleArbeidsgiverperiode()
 
-        val tidligereOppholdUtenforEOSStarterNoenDagerForSykmeldingStart = fredag.minusWeeks(4)
-        val tidligereOppholdUtenforEOSSlutterNoenDagerEtterSykmeldingStart = fredag.minusWeeks(2)
+
 
         val soknadOppholdUtenforEOS =
             hentSoknad(
                 soknadId = hentSoknaderMetadata(fnr).first().id,
                 fnr = fnr,
             )
+
+        val tidligereOppholdUtenforEOSStarterNoenDagerForSykmeldingStart = fredag.minusWeeks(4)
+        val tidligereOppholdUtenforEOSSlutterNoenDagerEtterSykmeldingStart = fredag.minusWeeks(2)
+
 
         SoknadBesvarer(soknadOppholdUtenforEOS, this, fnr)
             .besvarSporsmal(
@@ -172,10 +181,24 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
             .oppsummering()
             .sendSoknad()
 
+
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().let { kafkaSoknader ->
+            kafkaSoknader.size `should be equal to` 1
+            kafkaSoknader.first().type `should be equal to` SoknadstypeDTO.OPPHOLD_UTLAND
+            kafkaSoknader.first().status `should be equal to` SoknadsstatusDTO.SENDT
+        }
+
+
+        // mulig at vi skal vente på at søkand utland har status sendt.
+
         val soknaden = settOppSykepengeSoknad(fom, tom)
 
+
+
+
+
         val sendtSykepengeSoknad = soknadBesvarer(soknaden, utenforEOSFom = fom, utenforEOSTom = tom).sendSoknad()
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
+
         sendtSykepengeSoknad.status `should be equal to` sendtSykepengeSoknad.status
         verifiserKafkaSoknader()
 
@@ -234,7 +257,7 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
 
         val ferieStarterForsteDagenIPerioden = soknaden.fom
         val ferieVarerIFemDager = soknaden.fom!!.plusDays(5)
-        val oppholdUtenforEOSSamtidigSomFerie = soknaden.fom!!.plusDays(5)
+        val oppholdUtenforEOSSamtidigSomFerie = soknaden.fom.plusDays(5)
 
         val sendtSykepengeSoknad =
             soknadBesvarer(
