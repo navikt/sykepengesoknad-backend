@@ -11,8 +11,12 @@ import org.springframework.data.redis.connection.RedisPassword
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration
 import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer
+import org.springframework.data.redis.serializer.RedisSerializationContext
 import java.net.URI
 import java.time.Duration
+import java.time.LocalDateTime
+import java.time.Month
 
 @Configuration
 class CacheConfig(
@@ -46,6 +50,21 @@ class CacheConfig(
             RedisCacheConfiguration
                 .defaultCacheConfig()
                 .entryTtl(Duration.ofHours(1))
+
+        val grunnbeloepTtl =
+            when (LocalDateTime.now().month) {
+                Month.MAY -> Duration.ofHours(1)
+                else -> Duration.ofDays(30)
+            }
+        cacheConfigurations["grunnbeloep"] =
+            RedisCacheConfiguration
+                .defaultCacheConfig()
+                .entryTtl(grunnbeloepTtl)
+                .serializeValuesWith(
+                    RedisSerializationContext.SerializationPair.fromSerializer(
+                        Jackson2JsonRedisSerializer(Any::class.java),
+                    ),
+                )
 
         return RedisCacheManager.builder(redisConnectionFactory)
             .cacheDefaults(RedisCacheConfiguration.defaultCacheConfig())

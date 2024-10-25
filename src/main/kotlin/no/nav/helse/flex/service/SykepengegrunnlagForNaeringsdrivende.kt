@@ -57,7 +57,7 @@ class SykepengegrunnlagForNaeringsdrivende(
     fun sykepengegrunnlagNaeringsdrivende(soknad: Sykepengesoknad): SykepengegrunnlagNaeringsdrivende? {
         try {
             val grunnbeloepSisteFemAar =
-                grunnbeloepService.hentHistorikkSisteFemAar().block()?.takeIf { it.isNotEmpty() }
+                grunnbeloepService.hentHistorikk(soknad.startSykeforlop!!).takeIf { it.isNotEmpty() }
                     ?: throw Exception("finner ikke historikk for g fra siste fem år")
 
             val sykmeldingstidspunkt =
