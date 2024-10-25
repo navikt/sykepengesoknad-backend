@@ -1,5 +1,8 @@
 package no.nav.helse.flex.config
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator
+import no.nav.helse.flex.util.objectMapper
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.CacheManager
 import org.springframework.context.annotation.Bean
@@ -56,13 +59,20 @@ class CacheConfig(
                 Month.MAY -> Duration.ofHours(1)
                 else -> Duration.ofDays(30)
             }
+        val gMapper =
+            objectMapper.copy().activateDefaultTyping(
+                BasicPolymorphicTypeValidator.builder()
+                    .allowIfBaseType(Any::class.java)
+                    .build(),
+                ObjectMapper.DefaultTyping.NON_FINAL,
+            )
         cacheConfigurations["grunnbeloep"] =
             RedisCacheConfiguration
                 .defaultCacheConfig()
                 .entryTtl(grunnbeloepTtl)
                 .serializeValuesWith(
                     RedisSerializationContext.SerializationPair.fromSerializer(
-                        Jackson2JsonRedisSerializer(Any::class.java),
+                        Jackson2JsonRedisSerializer(gMapper, Any::class.java),
                     ),
                 )
 
