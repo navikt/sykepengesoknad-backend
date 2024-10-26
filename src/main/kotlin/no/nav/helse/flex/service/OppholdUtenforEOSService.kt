@@ -32,6 +32,9 @@ class OppholdUtenforEOSService(
         val gyldigePermisjonperioder = sykepengesoknad.hentGyldigePerioder(PERMISJON_V2, PERMISJON_NAR_V2)
         val gyldigeUtlandsperioder = sykepengesoknad.hentGyldigePerioder(OPPHOLD_UTENFOR_EOS, OPPHOLD_UTENFOR_EOS_NAR)
 
+
+        val t = gyldigeUtlandsperioder.first().hentUkedager()
+
         val dagerUtenforFeriePermisjonOgHelg =
             gyldigeUtlandsperioder
                 .flatMap { it.hentUkedager() }
@@ -45,9 +48,11 @@ class OppholdUtenforEOSService(
             sykepengesoknad.getSporsmalMedTagOrNull(OPPHOLD_UTENFOR_EOS)
                 ?.svar?.firstOrNull()?.verdi == "JA"
 
+        // skal opprette eossokan
         val skalOppretteSoknad =
             dagerUtenforFeriePermisjonOgHelg.isNotEmpty() &&
                 harOppholdtSegUtenforEOS &&
+                // eossoknad
                 !finnesTidligereSoknad(sykepengesoknad, gyldigeUtlandsperioder, identer)
 
         if (skalOppretteSoknad) {
