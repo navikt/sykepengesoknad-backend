@@ -21,6 +21,7 @@ import no.nav.helse.flex.service.IdentService
 import no.nav.helse.flex.service.SykepengegrunnlagForNaeringsdrivende
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.unleash.UnleashToggles
+import no.nav.helse.flex.util.isBeforeOrEqual
 import no.nav.helse.flex.util.serialisertTilString
 import no.nav.helse.flex.yrkesskade.YrkesskadeIndikatorer
 import org.springframework.stereotype.Service
@@ -121,6 +122,23 @@ class SporsmalGenerator(
                     null
                 }
             }
+            try {
+                if (soknad.harDagerNAVSkalBetaleFor(eksisterendeSoknader)) {
+                    val tilkomneArbeidsforhold =
+                        aaregDataHenting.hentNyeArbeidsforhold(
+                            fnr = soknad.fnr,
+                            sykepengesoknad = soknad,
+                            eksisterendeSoknader = eksisterendeSoknader,
+                        ).filter { it.startdato.isBeforeOrEqual(soknad.tom!!) }
+                    log.info(
+                        "Dry run sjekk etter nye arbeidsforhold for soknad ${soknad.id} utenfor agp" +
+                            " fant ${tilkomneArbeidsforhold.size} nye arbeidsforhold",
+                    )
+                }
+            } catch (e: Exception) {
+                log.error("Feil ved dry run sjekk for tilkommen inntekt på søknad ${soknad.id}")
+            }
+
             return null
         }
 
