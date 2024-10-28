@@ -51,6 +51,7 @@ class SykepengegrunnlagForNaeringsdrivende(
     private val pensjongivendeInntektClient: PensjongivendeInntektClient,
     private val grunnbeloepService: GrunnbeloepService,
 ) {
+    // TODO: Bruk enten RuntimeException eller custom exception.
     fun sykepengegrunnlagNaeringsdrivende(soknad: Sykepengesoknad): SykepengegrunnlagNaeringsdrivende? {
         val sykmeldingstidspunkt =
             soknad.startSykeforlop?.year

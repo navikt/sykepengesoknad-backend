@@ -8,7 +8,8 @@ import java.time.LocalDate
 
 @Service
 class GrunnbeloepService(private val grunnbeloepClient: GrunnbeloepClient) {
-    @Cacheable("grunnbeloep")
+    // TODO: Trenger vi en egen service?
+    @Cacheable("grunnbelop-historikk")
     fun hentHistorikk(from: LocalDate): List<GrunnbeloepResponse> {
         val hentForDato = LocalDate.of(from.year, 1, 1).minusYears(5)
         return grunnbeloepClient.getHistorikk(hentForDato).block() ?: emptyList()

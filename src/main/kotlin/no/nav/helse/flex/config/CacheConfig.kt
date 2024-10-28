@@ -1,8 +1,6 @@
 package no.nav.helse.flex.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator
-import no.nav.helse.flex.util.objectMapper
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.CacheManager
 import org.springframework.context.annotation.Bean
@@ -14,12 +12,10 @@ import org.springframework.data.redis.connection.RedisPassword
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration
 import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
-import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer
-import org.springframework.data.redis.serializer.RedisSerializationContext
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer
+import org.springframework.data.redis.serializer.RedisSerializationContext.SerializationPair.fromSerializer
 import java.net.URI
 import java.time.Duration
-import java.time.LocalDateTime
-import java.time.Month
 
 @Configuration
 class CacheConfig(
@@ -46,7 +42,10 @@ class CacheConfig(
     }
 
     @Bean
-    fun cacheManager(redisConnectionFactory: RedisConnectionFactory): CacheManager {
+    fun cacheManager(
+        redisConnectionFactory: RedisConnectionFactory,
+        objectMapper: ObjectMapper,
+    ): CacheManager {
         val cacheConfigurations: MutableMap<String, RedisCacheConfiguration> = HashMap()
 
         cacheConfigurations["flex-folkeregister-identer-med-historikk"] =
@@ -54,25 +53,12 @@ class CacheConfig(
                 .defaultCacheConfig()
                 .entryTtl(Duration.ofHours(1))
 
-        val grunnbeloepTtl =
-            when (LocalDateTime.now().month) {
-                Month.MAY -> Duration.ofHours(1)
-                else -> Duration.ofDays(30)
-            }
-        val gMapper =
-            objectMapper.copy().activateDefaultTyping(
-                BasicPolymorphicTypeValidator.builder()
-                    .allowIfBaseType(Any::class.java)
-                    .build(),
-                ObjectMapper.DefaultTyping.NON_FINAL,
-            )
-        cacheConfigurations["grunnbeloep"] =
-            RedisCacheConfiguration
-                .defaultCacheConfig()
-                .entryTtl(grunnbeloepTtl)
+        cacheConfigurations["grunnbelop-historikk"] =
+            RedisCacheConfiguration.defaultCacheConfig()
+                .entryTtl(Duration.ofDays(7))
                 .serializeValuesWith(
-                    RedisSerializationContext.SerializationPair.fromSerializer(
-                        Jackson2JsonRedisSerializer(gMapper, Any::class.java),
+                    fromSerializer(
+                        GenericJackson2JsonRedisSerializer(objectMapper),
                     ),
                 )
 
