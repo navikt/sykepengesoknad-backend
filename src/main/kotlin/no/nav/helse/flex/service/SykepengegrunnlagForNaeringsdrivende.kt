@@ -6,7 +6,6 @@ import no.nav.helse.flex.client.sigrun.HentPensjonsgivendeInntektResponse
 import no.nav.helse.flex.client.sigrun.IngenPensjonsgivendeInntektFunnetException
 import no.nav.helse.flex.client.sigrun.PensjongivendeInntektClient
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.logger
 import no.nav.helse.flex.util.*
 import org.springframework.stereotype.Service
 import java.math.BigInteger
@@ -52,52 +51,46 @@ class SykepengegrunnlagForNaeringsdrivende(
     private val pensjongivendeInntektClient: PensjongivendeInntektClient,
     private val grunnbeloepService: GrunnbeloepService,
 ) {
-    private val log = logger()
-
+    // TODO: Bruk enten RuntimeException eller custom exception.
     fun sykepengegrunnlagNaeringsdrivende(soknad: Sykepengesoknad): SykepengegrunnlagNaeringsdrivende? {
-        try {
-            val grunnbeloepSisteFemAar =
-                grunnbeloepService.hentHistorikkSisteFemAar().block()?.takeIf { it.isNotEmpty() }
-                    ?: throw Exception("finner ikke historikk for g fra siste fem år")
+        val sykmeldingstidspunkt =
+            soknad.startSykeforlop?.year
+                ?: throw Exception("Fant ikke sykmeldingstidspunkt for soknad ${soknad.id}")
 
-            val sykmeldingstidspunkt =
-                soknad.startSykeforlop?.year
-                    ?: throw Exception("Fant ikke sykmeldingstidspunkt for soknad ${soknad.id}")
+        val grunnbeloepSisteFemAar =
+            grunnbeloepService.hentHistorikk(soknad.startSykeforlop).takeIf { it.isNotEmpty() }
+                ?: throw Exception("finner ikke historikk for g fra siste fem år")
 
-            val grunnbeloepPaaSykmeldingstidspunkt =
-                grunnbeloepSisteFemAar.find { it.dato.tilAar() == sykmeldingstidspunkt }?.grunnbeløp?.takeIf { it > 0 }
-                    ?: throw Exception("Fant ikke g på sykmeldingstidspunkt for soknad ${soknad.id}")
+        val grunnbeloepPaaSykmeldingstidspunkt =
+            grunnbeloepSisteFemAar.find { it.dato.tilAar() == sykmeldingstidspunkt }?.grunnbeløp?.takeIf { it > 0 }
+                ?: throw Exception("Fant ikke g på sykmeldingstidspunkt for soknad ${soknad.id}")
 
-            val pensjonsgivendeInntekter =
-                hentPensjonsgivendeInntektForTreSisteArene(soknad.fnr, sykmeldingstidspunkt)
-                    ?: throw Exception("Fant ikke 3 år med pensjonsgivende inntekter for person med soknad ${soknad.id}")
+        val pensjonsgivendeInntekter =
+            hentPensjonsgivendeInntektForTreSisteArene(soknad.fnr, sykmeldingstidspunkt)
+                ?: throw Exception("Fant ikke 3 år med pensjonsgivende inntekter for person med soknad ${soknad.id}")
 
-            val grunnbeloepRelevanteAar = finnGrunnbeloepForTreRelevanteAar(grunnbeloepSisteFemAar, pensjonsgivendeInntekter)
-            val inntekterJustertForGrunnbeloep =
-                finnInntekterJustertForGrunnbeloep(
-                    pensjonsgivendeInntekter,
-                    grunnbeloepRelevanteAar,
-                    grunnbeloepPaaSykmeldingstidspunkt,
-                )
-
-            val justerteInntekter =
-                finnInntekterJustertFor6Gog12G(
-                    inntekterJustertForGrunnbeloep,
-                    grunnbeloepPaaSykmeldingstidspunkt,
-                )
-            val gjennomsnittligInntektAlleAar = beregnGjennomsnittligInntekt(justerteInntekter)
-
-            return SykepengegrunnlagNaeringsdrivende(
-                gjennomsnittPerAar = justerteInntekter.map { AarVerdi(it.key, it.value.roundToBigInteger()) },
-                grunnbeloepPerAar = grunnbeloepRelevanteAar.map { AarVerdi(it.key, it.value) },
-                grunnbeloepPaaSykmeldingstidspunkt = grunnbeloepPaaSykmeldingstidspunkt,
-                beregnetSnittOgEndring25 = beregnEndring25Prosent(gjennomsnittligInntektAlleAar),
-                inntekter = pensjonsgivendeInntekter,
+        val grunnbeloepRelevanteAar = finnGrunnbeloepForTreRelevanteAar(grunnbeloepSisteFemAar, pensjonsgivendeInntekter)
+        val inntekterJustertForGrunnbeloep =
+            finnInntekterJustertForGrunnbeloep(
+                pensjonsgivendeInntekter,
+                grunnbeloepRelevanteAar,
+                grunnbeloepPaaSykmeldingstidspunkt,
             )
-        } catch (e: Exception) {
-            log.error(e.message, e)
-            return null
-        }
+
+        val justerteInntekter =
+            finnInntekterJustertFor6Gog12G(
+                inntekterJustertForGrunnbeloep,
+                grunnbeloepPaaSykmeldingstidspunkt,
+            )
+        val gjennomsnittligInntektAlleAar = beregnGjennomsnittligInntekt(justerteInntekter)
+
+        return SykepengegrunnlagNaeringsdrivende(
+            gjennomsnittPerAar = justerteInntekter.map { AarVerdi(it.key, it.value.roundToBigInteger()) },
+            grunnbeloepPerAar = grunnbeloepRelevanteAar.map { AarVerdi(it.key, it.value) },
+            grunnbeloepPaaSykmeldingstidspunkt = grunnbeloepPaaSykmeldingstidspunkt,
+            beregnetSnittOgEndring25 = beregnEndring25Prosent(gjennomsnittligInntektAlleAar),
+            inntekter = pensjonsgivendeInntekter,
+        )
     }
 
     fun hentPensjonsgivendeInntektForTreSisteArene(

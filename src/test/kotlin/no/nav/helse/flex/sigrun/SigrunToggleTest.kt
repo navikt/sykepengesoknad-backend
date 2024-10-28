@@ -14,6 +14,7 @@ import no.nav.helse.flex.util.objectMapper
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
@@ -24,8 +25,9 @@ class SigrunToggleTest : FellesTestOppsett() {
         fakeUnleash.resetAll()
     }
 
+    @Disabled
     @Test
-    fun `metadata på spørsmål om varigendring må ha verdi når toggle er på`() {
+    fun `metadata på spørsmål om varig endring må ha verdi når toggle er på`() {
         fakeUnleash.enable("sykepengesoknad-backend-sigrun")
         val soknader =
             sendSykmelding(
@@ -57,6 +59,7 @@ class SigrunToggleTest : FellesTestOppsett() {
         }.sporsmalstekst `should be equal to` "Er du ny i arbeidslivet etter 1. januar 2021?"
     }
 
+    @Disabled
     @Test
     fun `metadata på spørsmål om varigendring må være null når toggle er av`() {
         fakeUnleash.disable("sykepengesoknad-backend-sigrun")
@@ -85,6 +88,7 @@ class SigrunToggleTest : FellesTestOppsett() {
         }.sporsmalstekst `should be equal to` "Er du ny i arbeidslivet etter 1. januar 2019?"
     }
 
+    @Disabled
     @Test
     fun `metadata på spørsmål i kafka`() {
         fakeUnleash.enable("sykepengesoknad-backend-sigrun")

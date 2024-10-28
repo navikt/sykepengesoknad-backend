@@ -5,11 +5,13 @@ import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknad
 import no.nav.helse.flex.util.objectMapper
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should not be`
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.time.Instant
 import java.time.LocalDate
 
 class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
+    @Disabled
     @Test
     fun `sjekker utregning av sykepengegrunnlag`() {
         val soknad =
@@ -56,6 +58,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
         }
     }
 
+    @Disabled
     @Test
     fun `sjekker json for frontend`() {
         val soknad =

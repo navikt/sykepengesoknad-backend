@@ -2,6 +2,7 @@ package no.nav.helse.flex
 
 import io.getunleash.FakeUnleash
 import jakarta.annotation.PostConstruct
+import no.nav.helse.flex.client.grunnbeloep.GrunnbeloepClient
 import no.nav.helse.flex.client.kvitteringer.SykepengesoknadKvitteringerClient
 import no.nav.helse.flex.juridiskvurdering.juridiskVurderingTopic
 import no.nav.helse.flex.kafka.AUDIT_TOPIC
@@ -10,6 +11,7 @@ import no.nav.helse.flex.kafka.producer.AivenKafkaProducer
 import no.nav.helse.flex.kafka.producer.RebehandlingSykmeldingSendtProducer
 import no.nav.helse.flex.personhendelse.AutomatiskInnsendingVedDodsfall
 import no.nav.helse.flex.repository.SykepengesoknadRepository
+import no.nav.helse.flex.service.GrunnbeloepService
 import no.nav.helse.flex.service.SykepengegrunnlagForNaeringsdrivende
 import no.nav.helse.flex.soknadsopprettelse.BehandleSykmeldingOgBestillAktivering
 import no.nav.helse.flex.testdata.DatabaseReset
@@ -95,6 +97,12 @@ abstract class FellesTestOppsett {
 
     @MockBean
     lateinit var sykepengesoknadKvitteringerClient: SykepengesoknadKvitteringerClient
+
+    @Autowired
+    lateinit var grunnbeloepService: GrunnbeloepService
+
+    @SpyBean
+    lateinit var grunnbeloepClient: GrunnbeloepClient
 
     @SpyBean
     lateinit var automatiskInnsendingVedDodsfall: AutomatiskInnsendingVedDodsfall

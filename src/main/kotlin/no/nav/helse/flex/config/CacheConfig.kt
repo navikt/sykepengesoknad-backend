@@ -1,5 +1,6 @@
 package no.nav.helse.flex.config
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.CacheManager
 import org.springframework.context.annotation.Bean
@@ -11,6 +12,8 @@ import org.springframework.data.redis.connection.RedisPassword
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration
 import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer
+import org.springframework.data.redis.serializer.RedisSerializationContext.SerializationPair.fromSerializer
 import java.net.URI
 import java.time.Duration
 
@@ -39,13 +42,25 @@ class CacheConfig(
     }
 
     @Bean
-    fun cacheManager(redisConnectionFactory: RedisConnectionFactory): CacheManager {
+    fun cacheManager(
+        redisConnectionFactory: RedisConnectionFactory,
+        objectMapper: ObjectMapper,
+    ): CacheManager {
         val cacheConfigurations: MutableMap<String, RedisCacheConfiguration> = HashMap()
 
         cacheConfigurations["flex-folkeregister-identer-med-historikk"] =
             RedisCacheConfiguration
                 .defaultCacheConfig()
                 .entryTtl(Duration.ofHours(1))
+
+        cacheConfigurations["grunnbelop-historikk"] =
+            RedisCacheConfiguration.defaultCacheConfig()
+                .entryTtl(Duration.ofDays(7))
+                .serializeValuesWith(
+                    fromSerializer(
+                        GenericJackson2JsonRedisSerializer(objectMapper),
+                    ),
+                )
 
         return RedisCacheManager.builder(redisConnectionFactory)
             .cacheDefaults(RedisCacheConfiguration.defaultCacheConfig())
