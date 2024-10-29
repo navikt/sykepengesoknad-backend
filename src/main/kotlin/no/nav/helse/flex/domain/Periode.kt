@@ -1,5 +1,6 @@
 package no.nav.helse.flex.domain
 
+import no.nav.helse.flex.util.isBeforeOrEqual
 import java.time.DayOfWeek
 import java.time.LocalDate
 
@@ -12,15 +13,10 @@ data class Periode(
     }
 
     fun hentUkedager(): List<LocalDate> {
-        val ukedager = mutableListOf<LocalDate>()
-        var current = fom
-        while (!current.isAfter(tom)) {
-            if (current.dayOfWeek != DayOfWeek.SATURDAY && current.dayOfWeek != DayOfWeek.SUNDAY) {
-                ukedager.add(current)
-            }
-            current = current.plusDays(1)
-        }
-        return ukedager
+        return generateSequence(fom) { it.plusDays(1) }
+            .takeWhile { it.isBeforeOrEqual(tom) }
+            .filter { it.dayOfWeek != DayOfWeek.SATURDAY && it.dayOfWeek != DayOfWeek.SUNDAY }
+            .toList()
     }
 
     fun overlapper(andre: Periode) =
