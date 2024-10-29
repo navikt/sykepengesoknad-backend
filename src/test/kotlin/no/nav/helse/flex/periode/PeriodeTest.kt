@@ -60,7 +60,6 @@ class PeriodeTest {
 
     @Test
     fun testerOverlapp() {
-
         val periode1 = Periode(of(2024, 10, 21), of(2024, 10, 27))
         val periode2 = Periode(of(2024, 10, 24), of(2024, 10, 30))
 
