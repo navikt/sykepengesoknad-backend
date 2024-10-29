@@ -32,7 +32,6 @@ class OppholdUtenforEOSService(
         val gyldigePermisjonperioder = sykepengesoknad.hentGyldigePerioder(PERMISJON_V2, PERMISJON_NAR_V2)
         val gyldigeUtlandsperioder = sykepengesoknad.hentGyldigePerioder(OPPHOLD_UTENFOR_EOS, OPPHOLD_UTENFOR_EOS_NAR)
 
-
         val t = gyldigeUtlandsperioder.first().hentUkedager()
 
         val dagerUtenforFeriePermisjonOgHelg =

@@ -36,7 +36,6 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
 
     @Test
     fun `lager ikke søknad hvis opphold utenfor EØS dekker hele perioden med helg, ferie og permisjon`() {
-
         val soknaden = settOppSykepengeSoknad(fom, tom)
 
         val ferieFom = LocalDate.of(2024, 9, 5)
@@ -46,7 +45,6 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
         val permisjonStart = LocalDate.of(2024, 9, 11)
         val permisjonVarer = LocalDate.of(2024, 9, 17)
 
-
         val sendtSykepengeSoknad =
             soknadBesvarer(
                 soknaden,
@@ -55,7 +53,7 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
                 permisjonFom = permisjonStart,
                 permisjonTom = permisjonVarer,
                 utenforEOSFom = LocalDate.of(2024, 9, 6),
-                utenforEOSTom = LocalDate.of(2024, 9, 16)
+                utenforEOSTom = LocalDate.of(2024, 9, 16),
             ).sendSoknad()
 
         sendtSykepengeSoknad.status `should be equal to` sendtSykepengeSoknad.status
@@ -91,7 +89,7 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
                         "OPPHOLD_UTENFOR_EOS",
                         "OPPHOLD_UTENFOR_EOS_NAR",
                         utenforEOSFom,
-                        utenforEOSTom
+                        utenforEOSTom,
                     )
                     besvarPeriodeSporsmal("FERIE_V2", "FERIE_NAR_V2", ferieFom, ferieTom)
                     besvarPeriodeSporsmal("PERMISJON_V2", "PERMISJON_NAR_V2", permisjonFom, permisjonTom)
@@ -156,9 +154,9 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
         val soknaden =
             hentSoknad(
                 soknadId =
-                hentSoknaderMetadata(
-                    fnr,
-                ).first { it.soknadstype == RSSoknadstype.ARBEIDSTAKERE && it.status == RSSoknadstatus.NY }.id,
+                    hentSoknaderMetadata(
+                        fnr,
+                    ).first { it.soknadstype == RSSoknadstype.ARBEIDSTAKERE && it.status == RSSoknadstatus.NY }.id,
                 fnr = fnr,
             )
         return soknaden
