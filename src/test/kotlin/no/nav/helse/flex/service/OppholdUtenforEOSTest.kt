@@ -130,6 +130,8 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
             kafkaSoknader.first().status `should be equal to` SoknadsstatusDTO.NY
         }
 
+        mockFlexSyketilfelleArbeidsgiverperiode()
+
         val soknadOppholdUtenforEOS =
             hentSoknad(
                 soknadId = hentSoknaderMetadata(fnr).first().id,
@@ -157,8 +159,6 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
             kafkaSoknader.first().type `should be equal to` SoknadstypeDTO.OPPHOLD_UTLAND
             kafkaSoknader.first().status `should be equal to` SoknadsstatusDTO.SENDT
         }
-
-        mockFlexSyketilfelleArbeidsgiverperiode()
 
         val soknaden =
             settOppSykepengeSoknad(
