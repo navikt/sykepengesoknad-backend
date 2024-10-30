@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
 import reactor.util.retry.Retry
+import java.io.Serializable
 import java.time.Duration
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -59,4 +60,4 @@ data class GrunnbeloepResponse(
     val gjennomsnittPerÅr: Int,
     val omregningsfaktor: Float,
     val virkningstidspunktForMinsteinntekt: String,
-)
+) : Serializable
