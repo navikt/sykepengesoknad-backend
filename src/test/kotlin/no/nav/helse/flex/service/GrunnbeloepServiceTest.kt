@@ -7,7 +7,6 @@ import org.mockito.Mockito.*
 import java.time.LocalDate
 
 class GrunnbeloepServiceTest : FellesTestOppsett() {
-
     @Test
     fun `Historikk hentes fra cache etter første kall`() {
         val fraDato = LocalDate.of(2024, 1, 1)
