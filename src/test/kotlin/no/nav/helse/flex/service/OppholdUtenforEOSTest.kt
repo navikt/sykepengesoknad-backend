@@ -32,7 +32,7 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
         fakeUnleash.resetAll()
     }
 
-    private fun soknadBesvarer(
+    private fun besvarSoknad(
         soknaden: RSSykepengesoknad,
         ferieFom: LocalDate?,
         ferieTom: LocalDate?,
@@ -102,7 +102,7 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
             sykmeldingKafkaMessage(
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(sykmeldingsperiodeStart, sykmeldingsperiodeSlutt),
-                timestamp = LocalDate.of(2024, 9, 27).atStartOfDay().atOffset(ZoneOffset.UTC).minusWeeks(3),
+                timestamp = sykmeldingsperiodeStart.atStartOfDay(ZoneOffset.UTC).toOffsetDateTime(),
             ),
         )
 
@@ -167,7 +167,7 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
             )
 
         val sendtSykepengeSoknad =
-            soknadBesvarer(
+            besvarSoknad(
                 soknaden,
                 utenforEOSFom = LocalDate.of(2024, 9, 6),
                 utenforEOSTom = LocalDate.of(2024, 9, 25),
@@ -198,7 +198,7 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
             )
 
         val sendtSykepengeSoknad =
-            soknadBesvarer(
+            besvarSoknad(
                 soknaden,
                 utenforEOSFom = LocalDate.of(2024, 9, 14),
                 utenforEOSTom = LocalDate.of(2024, 9, 15),
@@ -235,7 +235,7 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
             )
 
         val sendtSykepengeSoknad =
-            soknadBesvarer(
+            besvarSoknad(
                 soknaden,
                 utenforEOSFom = LocalDate.of(2024, 9, 9),
                 utenforEOSTom = LocalDate.of(2024, 9, 13),
@@ -273,7 +273,7 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
             )
 
         val sendtSykepengeSoknad =
-            soknadBesvarer(
+            besvarSoknad(
                 soknaden,
                 utenforEOSFom = LocalDate.of(2024, 9, 6),
                 utenforEOSTom = LocalDate.of(2024, 9, 25),
@@ -315,7 +315,7 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
             )
 
         val sendtSykepengeSoknad =
-            soknadBesvarer(
+            besvarSoknad(
                 soknaden,
                 utenforEOSFom = LocalDate.of(2024, 9, 6),
                 utenforEOSTom = LocalDate.of(2024, 9, 25),
@@ -357,7 +357,7 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
             )
 
         val sendtSykepengeSoknad =
-            soknadBesvarer(
+            besvarSoknad(
                 soknaden,
                 utenforEOSFom = LocalDate.of(2024, 9, 6),
                 utenforEOSTom = LocalDate.of(2024, 9, 25),
@@ -399,7 +399,7 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
             )
 
         val sendtSykepengeSoknad =
-            soknadBesvarer(
+            besvarSoknad(
                 soknaden,
                 ferieFom = LocalDate.of(2024, 9, 6),
                 ferieTom = LocalDate.of(2024, 9, 11),
@@ -442,7 +442,7 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
             )
 
         val sendtSykepengeSoknad =
-            soknadBesvarer(
+            besvarSoknad(
                 soknaden,
                 utenforEOSFom = LocalDate.of(2024, 9, 6),
                 utenforEOSTom = LocalDate.of(2024, 9, 25),
@@ -484,7 +484,7 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
             )
 
         val sendtSykepengeSoknad =
-            soknadBesvarer(
+            besvarSoknad(
                 soknaden,
                 utenforEOSFom = LocalDate.of(2024, 9, 6),
                 utenforEOSTom = LocalDate.of(2024, 9, 18),
