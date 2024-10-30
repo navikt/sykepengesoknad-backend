@@ -89,7 +89,7 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
                 kafkaSoknader[1].type `should be equal to` SoknadstypeDTO.OPPHOLD_UTLAND
             }
         }
-        juridiskVurderingKafkaConsumer.hentProduserteRecords()
+        juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
     }
 
     private fun settOppSykepengeSoknad(
