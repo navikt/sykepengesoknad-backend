@@ -16,7 +16,6 @@ import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
@@ -27,33 +26,20 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
 
     private val fnr = "12345678900"
 
-    // Testen feiler hvis den kjøres på en lørdag.
-    private val fredag = LocalDate.of(2024, 9, 27)
-    private val fom = fredag.minusWeeks(3)
-    private val tom = fredag.minusDays(2)
-
     @BeforeEach
     fun beforeEach() {
         databaseReset.resetDatabase()
         fakeUnleash.resetAll()
     }
 
-    private fun forsteLordagEtter(dato: LocalDate): LocalDate {
-        var dag = dato
-        while (dag.dayOfWeek != DayOfWeek.SATURDAY) {
-            dag = dag.plusDays(1)
-        }
-        return dag
-    }
-
-    private fun soknadBesvarer(
+    private fun besvarSoknad(
         soknaden: RSSykepengesoknad,
-        ferieFom: LocalDate? = null,
-        ferieTom: LocalDate? = null,
-        permisjonFom: LocalDate? = null,
-        permisjonTom: LocalDate? = null,
-        utenforEOSFom: LocalDate? = fom,
-        utenforEOSTom: LocalDate? = tom,
+        ferieFom: LocalDate?,
+        ferieTom: LocalDate?,
+        permisjonFom: LocalDate?,
+        permisjonTom: LocalDate?,
+        utenforEOSFom: LocalDate?,
+        utenforEOSTom: LocalDate?,
     ): SoknadBesvarer {
         val soknadBesvarer =
             SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
@@ -116,7 +102,7 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
             sykmeldingKafkaMessage(
                 fnr = fnr,
                 sykmeldingsperioder = heltSykmeldt(sykmeldingsperiodeStart, sykmeldingsperiodeSlutt),
-                timestamp = fredag.atStartOfDay().atOffset(ZoneOffset.UTC).minusWeeks(3),
+                timestamp = sykmeldingsperiodeStart.atStartOfDay(ZoneOffset.UTC).toOffsetDateTime(),
             ),
         )
 
@@ -137,18 +123,14 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
         flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
         opprettUtlandssoknad(fnr)
+
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().let { kafkaSoknader ->
             kafkaSoknader.size `should be equal to` 1
             kafkaSoknader.first().type `should be equal to` SoknadstypeDTO.OPPHOLD_UTLAND
             kafkaSoknader.first().status `should be equal to` SoknadsstatusDTO.NY
         }
 
-        hentSoknaderMetadata(fnr).size `should be equal to` 1
-
         mockFlexSyketilfelleArbeidsgiverperiode()
-
-        val tidligereOppholdUtenforEOSStarterNoenDagerForSykmeldingStart = fredag.minusWeeks(4)
-        val tidligereOppholdUtenforEOSSlutterNoenDagerEtterSykmeldingStart = fredag.minusWeeks(2)
 
         val soknadOppholdUtenforEOS =
             hentSoknad(
@@ -159,9 +141,9 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
         SoknadBesvarer(soknadOppholdUtenforEOS, this, fnr)
             .besvarSporsmal(
                 tag = PERIODEUTLAND,
-                svar = "{\"fom\":\"${tidligereOppholdUtenforEOSStarterNoenDagerForSykmeldingStart.format(
+                svar = "{\"fom\":\"${LocalDate.of(2024, 9, 27).minusWeeks(4).format(
                     DateTimeFormatter.ISO_LOCAL_DATE,
-                )}\",\"tom\":\"${tidligereOppholdUtenforEOSSlutterNoenDagerEtterSykmeldingStart.format(
+                )}\",\"tom\":\"${LocalDate.of(2024, 9, 27).minusWeeks(2).format(
                     DateTimeFormatter.ISO_LOCAL_DATE,
                 )}\"}",
             )
@@ -172,10 +154,29 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
             .oppsummering()
             .sendSoknad()
 
-        val soknaden = settOppSykepengeSoknad(fom, tom)
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().let { kafkaSoknader ->
+            kafkaSoknader.size `should be equal to` 1
+            kafkaSoknader.first().type `should be equal to` SoknadstypeDTO.OPPHOLD_UTLAND
+            kafkaSoknader.first().status `should be equal to` SoknadsstatusDTO.SENDT
+        }
 
-        val sendtSykepengeSoknad = soknadBesvarer(soknaden, utenforEOSFom = fom, utenforEOSTom = tom).sendSoknad()
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
+        val soknaden =
+            settOppSykepengeSoknad(
+                LocalDate.of(2024, 9, 6),
+                LocalDate.of(2024, 9, 25),
+            )
+
+        val sendtSykepengeSoknad =
+            besvarSoknad(
+                soknaden,
+                utenforEOSFom = LocalDate.of(2024, 9, 6),
+                utenforEOSTom = LocalDate.of(2024, 9, 25),
+                ferieFom = null,
+                ferieTom = null,
+                permisjonFom = null,
+                permisjonTom = null,
+            ).sendSoknad()
+
         sendtSykepengeSoknad.status `should be equal to` sendtSykepengeSoknad.status
         verifiserKafkaSoknader()
 
@@ -190,32 +191,29 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
 
     @Test
     fun `lager ikke søknad hvis opphold utenfor EØS kun er i helg`() {
-        val soknaden = settOppSykepengeSoknad(fom, tom)
+        val soknaden =
+            settOppSykepengeSoknad(
+                LocalDate.of(2024, 9, 6),
+                LocalDate.of(2024, 9, 25),
+            )
 
-        var oppholdUtenforEOSIStartePaLordag = soknaden.fom
-
-        if (oppholdUtenforEOSIStartePaLordag != null) {
-            var dato = oppholdUtenforEOSIStartePaLordag
-            var fantLordag: LocalDate? = null
-
-            for (i in 0..7) {
-                if (dato?.dayOfWeek == DayOfWeek.SATURDAY) {
-                    fantLordag = dato
-                    break
-                }
-                dato = dato?.plusDays(1)
-            }
-
-            oppholdUtenforEOSIStartePaLordag = fantLordag ?: throw RuntimeException("Fant ikke en lørdag innenfor en 8 dagers periode!")
-        }
-
-        val oppholdUtenforEOSVarerUtHelgen = oppholdUtenforEOSIStartePaLordag?.plusDays(1)
         val sendtSykepengeSoknad =
-            soknadBesvarer(
+            besvarSoknad(
                 soknaden,
-                utenforEOSFom = oppholdUtenforEOSIStartePaLordag,
-                utenforEOSTom = oppholdUtenforEOSVarerUtHelgen,
+                utenforEOSFom = LocalDate.of(2024, 9, 14),
+                utenforEOSTom = LocalDate.of(2024, 9, 15),
+                ferieFom = null,
+                ferieTom = null,
+                permisjonFom = null,
+                permisjonTom = null,
             ).sendSoknad()
+
+        // September 2024
+        // Mandag   Tirsdag   Onsdag    Torsdag   Fredag   Lørdag   Søndag
+        // 2        3         4         5         6        7        8
+        // ---      ---       ---       ---       ---      Helg     Helg
+        // 9        10        11        12        13       14       15
+        // ---      ---       ---       ---       ---      Helg(OU) Helg(OU)
 
         sendtSykepengeSoknad.status `should be equal to` sendtSykepengeSoknad.status
         verifiserKafkaSoknader()
@@ -230,20 +228,30 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
 
     @Test
     fun `lager ikke søknad hvis opphold utenfor EØS er kun i ferie`() {
-        val soknaden = settOppSykepengeSoknad(fom, tom)
-
-        val ferieStarterForsteDagenIPerioden = soknaden.fom
-        val ferieVarerIFemDager = soknaden.fom!!.plusDays(5)
-        val oppholdUtenforEOSSamtidigSomFerie = soknaden.fom!!.plusDays(5)
+        val soknaden =
+            settOppSykepengeSoknad(
+                LocalDate.of(2024, 9, 6),
+                LocalDate.of(2024, 9, 25),
+            )
 
         val sendtSykepengeSoknad =
-            soknadBesvarer(
+            besvarSoknad(
                 soknaden,
-                ferieFom = ferieStarterForsteDagenIPerioden,
-                ferieTom = ferieVarerIFemDager,
-                utenforEOSTom = oppholdUtenforEOSSamtidigSomFerie,
+                utenforEOSFom = LocalDate.of(2024, 9, 9),
+                utenforEOSTom = LocalDate.of(2024, 9, 13),
+                ferieFom = LocalDate.of(2024, 9, 9),
+                ferieTom = LocalDate.of(2024, 9, 13),
+                permisjonFom = null,
+                permisjonTom = null,
             )
                 .sendSoknad()
+
+        // September 2024
+        // Mandag   Tirsdag   Onsdag    Torsdag   Fredag   Lørdag   Søndag
+        // 2        3         4         5         6        7        8
+        // ---      ---       ---       ---       ---      Helg     Helg
+        // 9        10        11        12        13       14       15
+        // Ferie    Ferie     Ferie     Ferie     Ferie    Helg     Helg
 
         sendtSykepengeSoknad.status `should be equal to` sendtSykepengeSoknad.status
         verifiserKafkaSoknader()
@@ -258,20 +266,34 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
 
     @Test
     fun `lager ikke søknad hvis opphold utenfor EØS dekker hele perioden med permisjon`() {
-        val soknaden = settOppSykepengeSoknad(fom, tom)
-
-        val permisjonStarterForsteDagenIPerioden = soknaden.fom
-        val permisjonVarerIHelePerioden = soknaden.tom
-        val oppholdUtenforEOSSamtidigSomPermisjon = soknaden.tom
+        val soknaden =
+            settOppSykepengeSoknad(
+                LocalDate.of(2024, 9, 6),
+                LocalDate.of(2024, 9, 25),
+            )
 
         val sendtSykepengeSoknad =
-            soknadBesvarer(
+            besvarSoknad(
                 soknaden,
-                permisjonFom = permisjonStarterForsteDagenIPerioden,
-                permisjonTom = permisjonVarerIHelePerioden,
-                utenforEOSTom = oppholdUtenforEOSSamtidigSomPermisjon,
+                utenforEOSFom = LocalDate.of(2024, 9, 6),
+                utenforEOSTom = LocalDate.of(2024, 9, 25),
+                ferieFom = null,
+                ferieTom = null,
+                permisjonFom = LocalDate.of(2024, 9, 6),
+                permisjonTom = LocalDate.of(2024, 9, 25),
             )
                 .sendSoknad()
+
+        // September 2024
+        // Mandag   Tirsdag   Onsdag    Torsdag   Fredag   Lørdag   Søndag
+        // 2        3         4         5         6        7        8
+        // ---      ---       ---       ---       Perm     Helg     Helg
+        // 9        10        11        12        13       14       15
+        // Perm     Perm      Perm      Perm      Perm     Helg     Helg
+        // 16       17        18        19        20       21       22
+        // Perm     Perm      Perm      Perm      Perm     Helg     Helg
+        // 23       24        25        26        27       28       29
+        // Perm     Perm      Perm      ---       ---      ---      ---
 
         sendtSykepengeSoknad.status `should be equal to` sendtSykepengeSoknad.status
         verifiserKafkaSoknader()
@@ -286,20 +308,34 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
 
     @Test
     fun `lager ikke søknad hvis opphold utenfor EØS dekker hele perioden med helg og ferie`() {
-        val soknaden = settOppSykepengeSoknad(fom, tom)
-
-        val ferieStarterForsteDagenIPerioden = soknaden.fom
-        val ferieVarerIHelePerioden = soknaden.tom
-        val oppholdUtenforEOSSamtidigSomFerie = soknaden.tom
+        val soknaden =
+            settOppSykepengeSoknad(
+                LocalDate.of(2024, 9, 6),
+                LocalDate.of(2024, 9, 25),
+            )
 
         val sendtSykepengeSoknad =
-            soknadBesvarer(
+            besvarSoknad(
                 soknaden,
-                ferieFom = ferieStarterForsteDagenIPerioden,
-                ferieTom = ferieVarerIHelePerioden,
-                utenforEOSTom = oppholdUtenforEOSSamtidigSomFerie,
+                utenforEOSFom = LocalDate.of(2024, 9, 6),
+                utenforEOSTom = LocalDate.of(2024, 9, 25),
+                ferieFom = LocalDate.of(2024, 9, 6),
+                ferieTom = LocalDate.of(2024, 9, 25),
+                permisjonFom = null,
+                permisjonTom = null,
             )
                 .sendSoknad()
+
+        // September 2024
+        // Mandag   Tirsdag   Onsdag    Torsdag   Fredag   Lørdag   Søndag
+        // 2        3         4         5         6        7        8
+        // ---      ---       ---       ---       Ferie    Helg     Helg
+        // 9        10        11        12        13       14       15
+        // Ferie    Ferie     Ferie     Ferie     Ferie    Helg     Helg
+        // 16       17        18        19        20       21       22
+        // Ferie    Ferie     Ferie     Ferie     Ferie    Helg     Helg
+        // 23       24        25        26        27       28       29
+        // Ferie    Ferie    Ferie      ---       ---      ---      ---
 
         sendtSykepengeSoknad.status `should be equal to` sendtSykepengeSoknad.status
         verifiserKafkaSoknader()
@@ -314,19 +350,34 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
 
     @Test
     fun `lager søknad hvis opphold utenfor EØS ikke dekker hele perioden med helg og ferie`() {
-        val soknaden = settOppSykepengeSoknad(fom, tom)
-
-        val ferieStarterForsteDagenIPerioden = soknaden.fom
-        val ferieVarerTilForsteHelg = forsteLordagEtter(fom).plusDays(2)
-        val oppholdUtenforEOSIHelePerioden = soknaden.tom
+        val soknaden =
+            settOppSykepengeSoknad(
+                LocalDate.of(2024, 9, 6),
+                LocalDate.of(2024, 9, 25),
+            )
 
         val sendtSykepengeSoknad =
-            soknadBesvarer(
+            besvarSoknad(
                 soknaden,
-                ferieFom = ferieStarterForsteDagenIPerioden,
-                ferieTom = ferieVarerTilForsteHelg,
-                utenforEOSTom = oppholdUtenforEOSIHelePerioden,
+                utenforEOSFom = LocalDate.of(2024, 9, 6),
+                utenforEOSTom = LocalDate.of(2024, 9, 25),
+                ferieFom = LocalDate.of(2024, 9, 9),
+                ferieTom = LocalDate.of(2024, 9, 25),
+                permisjonFom = null,
+                permisjonTom = null,
             ).sendSoknad()
+
+        // September 2024
+        // Mandag   Tirsdag   Onsdag    Torsdag   Fredag   Lørdag   Søndag
+        // 2        3         4         5         6        7        8
+        // ---      ---       ---       ---       ---      Helg     Helg
+        // 9        10        11        12        13       14       15
+        // Ferie    Ferie     Ferie     Ferie     Ferie    Helg     Helg
+        // 16       17        18        19        20       21       22
+        // Ferie    Ferie     Ferie     Ferie     Ferie    Helg     Helg
+        // 23       24        25        26        27       28       29
+        // Ferie    Ferie    Ferie      ---       ---      ---      ---
+
         sendtSykepengeSoknad.status `should be equal to` sendtSykepengeSoknad.status
         verifiserKafkaSoknader(2)
 
@@ -341,14 +392,35 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
 
     @Test
     fun `oppretter utland søknad hvis utlandsopphold er utenfor helg eller ferie`() {
-        val soknaden = settOppSykepengeSoknad(fom, tom)
-
-        val ferieStarterForsteDagenIPerioden = soknaden.fom
-        val ferieVarerIFemDager = soknaden.fom!!.plusDays(5)
+        val soknaden =
+            settOppSykepengeSoknad(
+                LocalDate.of(2024, 9, 6),
+                LocalDate.of(2024, 9, 25),
+            )
 
         val sendtSykepengeSoknad =
-            soknadBesvarer(soknaden, ferieFom = ferieStarterForsteDagenIPerioden, ferieTom = ferieVarerIFemDager)
+            besvarSoknad(
+                soknaden,
+                ferieFom = LocalDate.of(2024, 9, 6),
+                ferieTom = LocalDate.of(2024, 9, 11),
+                utenforEOSFom = LocalDate.of(2024, 9, 6),
+                utenforEOSTom = LocalDate.of(2024, 9, 25),
+                permisjonFom = null,
+                permisjonTom = null,
+            )
                 .sendSoknad()
+
+        // September 2024
+        // Mandag   Tirsdag   Onsdag    Torsdag   Fredag   Lørdag   Søndag
+        // 2        3         4         5         6        7        8
+        // ---      ---       ---       ---       Ferie    Helg     Helg
+        // 9        10        11        12        13       14       15
+        // Ferie    Ferie     Ferie     ---       ---      Helg     Helg
+        // 16       17        18        19        20       21       22
+        // ---      ---       ---       ---       ---      Helg     Helg
+        // 23       24        25
+        // ---      ---       ---
+
         sendtSykepengeSoknad.status `should be equal to` sendtSykepengeSoknad.status
         verifiserKafkaSoknader(2)
 
@@ -363,25 +435,34 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
 
     @Test
     fun `lager ikke søknad hvis opphold utenfor EØS dekker hele perioden med helg, ferie og permisjon`() {
-        val soknaden = settOppSykepengeSoknad(fom, tom)
-
-        val starterMedFerie = soknaden.fom
-
-        val ferieVarerTilForsteHelg = forsteLordagEtter(fom).minusDays(1)
-        val permisjonStarterEtterHelg = ferieVarerTilForsteHelg.plusDays(3)
-        val permisjonVarerUtHelePerioden = soknaden.tom
-        val oppholdUtenforEOSSamtidigSomPermisjon = soknaden.tom
+        val soknaden =
+            settOppSykepengeSoknad(
+                LocalDate.of(2024, 9, 6),
+                LocalDate.of(2024, 9, 25),
+            )
 
         val sendtSykepengeSoknad =
-            soknadBesvarer(
+            besvarSoknad(
                 soknaden,
-                ferieFom = starterMedFerie,
-                ferieTom = ferieVarerTilForsteHelg,
-                permisjonFom = permisjonStarterEtterHelg,
-                permisjonTom = permisjonVarerUtHelePerioden,
-                utenforEOSTom = oppholdUtenforEOSSamtidigSomPermisjon,
+                utenforEOSFom = LocalDate.of(2024, 9, 6),
+                utenforEOSTom = LocalDate.of(2024, 9, 25),
+                ferieFom = LocalDate.of(2024, 9, 6),
+                ferieTom = LocalDate.of(2024, 9, 6),
+                permisjonFom = LocalDate.of(2024, 9, 9),
+                permisjonTom = LocalDate.of(2024, 9, 25),
             )
                 .sendSoknad()
+
+        // September 2024
+        // Mandag   Tirsdag   Onsdag    Torsdag   Fredag   Lørdag   Søndag
+        // 2        3         4         5         6        7        8
+        // ---      ---       ---       ---       Ferie    Helg     Helg
+        // 9        10        11        12        13       14       15
+        // Perm     Perm      Perm      Perm      Perm     Helg     Helg
+        // 16       17        18        19        20       21       22
+        // Perm     Perm      Perm      Perm      Perm     Helg     Helg
+        // 23       24        25        26        27       28       29
+        // Perm     Perm      Perm      ---       ---      ---      ---
 
         sendtSykepengeSoknad.status `should be equal to` sendtSykepengeSoknad.status
         verifiserKafkaSoknader()
@@ -395,25 +476,35 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `lager søknad hvis opphold utenfor EØS har noen dager utenfor perioder med ferie og permisjon`() {
-        val soknaden = settOppSykepengeSoknad(fom, tom)
-
-        val ferieBegynnerIMidtenAvForsteUke = soknaden.fom?.plusDays(4)
-        val ferieVarerTilSluttenAvForsteUke = soknaden.fom?.plusDays(6)
-        val permisjonStarterIMidtenAvAndreUke = soknaden.fom?.plusDays(11)
-        val permisjonVarerTilTorsdagIAndreUke = soknaden.fom?.plusDays(12)
-        val oppholdUtenforEOSTilTorsdagAndreUke = soknaden.fom?.plusDays(12)
+    fun `oppretter søknad hvis opphold utenfor EØS har noen dager utenfor perioder med ferie og permisjon`() {
+        val soknaden =
+            settOppSykepengeSoknad(
+                LocalDate.of(2024, 9, 6),
+                LocalDate.of(2024, 9, 25),
+            )
 
         val sendtSykepengeSoknad =
-            soknadBesvarer(
+            besvarSoknad(
                 soknaden,
-                ferieFom = ferieBegynnerIMidtenAvForsteUke,
-                ferieTom = ferieVarerTilSluttenAvForsteUke,
-                permisjonFom = permisjonStarterIMidtenAvAndreUke,
-                permisjonTom = permisjonVarerTilTorsdagIAndreUke,
-                utenforEOSTom = oppholdUtenforEOSTilTorsdagAndreUke,
+                utenforEOSFom = LocalDate.of(2024, 9, 6),
+                utenforEOSTom = LocalDate.of(2024, 9, 18),
+                ferieFom = LocalDate.of(2024, 9, 10),
+                ferieTom = LocalDate.of(2024, 9, 12),
+                permisjonFom = LocalDate.of(2024, 9, 17),
+                permisjonTom = LocalDate.of(2024, 9, 18),
             )
                 .sendSoknad()
+
+        // September 2024
+        // Mandag   Tirsdag   Onsdag    Torsdag   Fredag   Lørdag   Søndag
+        // 2        3         4         5         6        7        8
+        // ---      ---       ---       ---       ---      Helg     Helg
+        // 9        10        11        12        13       14       15
+        // ---      Ferie     Ferie     Ferie     ---      Helg     Helg
+        // 16       17        18        19        20       21       22
+        // ---      Perm      Perm      ---       ---      Helg     Helg
+        // 23       24        25        26        27       28       29
+        // ---      ---       ---       ---       ---      Helg     Helg
 
         sendtSykepengeSoknad.status `should be equal to` sendtSykepengeSoknad.status
         verifiserKafkaSoknader(2)

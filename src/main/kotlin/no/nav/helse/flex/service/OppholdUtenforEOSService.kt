@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service
 @Service
 class OppholdUtenforEOSService(
     private val sykepengesoknadDAO: SykepengesoknadDAO,
-    private val identService: IdentService,
     private val opprettSoknadService: OpprettSoknadService,
 ) {
     fun skalOppretteSoknadForOppholdUtenforEOS(
