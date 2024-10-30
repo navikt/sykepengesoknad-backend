@@ -5,7 +5,7 @@ import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.soknadsopprettelse.ANSVARSERKLARING
 
 fun ansvarserklaringSporsmal(): Sporsmal {
-    val sporsmalstekst = "Jeg vil svare så godt jeg kan på spørsmålene i søknaden."
+    val sporsmalstekst = "Jeg bekrefter at jeg vil svare så riktig som jeg kan."
     return Sporsmal(
         tag = ANSVARSERKLARING,
         sporsmalstekst = sporsmalstekst,

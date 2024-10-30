@@ -113,7 +113,7 @@ class ArbeidstakerIntegrationTest : FellesTestOppsett() {
             soknad1.sporsmal!!.first {
                 it.tag == ANSVARSERKLARING
             }.sporsmalstekst,
-        ).isEqualTo("Jeg vil svare så godt jeg kan på spørsmålene i søknaden.")
+        ).isEqualTo("Jeg bekrefter at jeg vil svare så riktig som jeg kan.")
 
         val soknad2 = hentSoknad(soknader[1].id, fnr)
         assertThat(soknad2.sporsmal!!.map { it.tag }).isEqualTo(

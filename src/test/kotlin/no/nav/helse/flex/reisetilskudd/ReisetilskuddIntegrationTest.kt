@@ -125,7 +125,7 @@ class ReisetilskuddIntegrationTest : FellesTestOppsett() {
             soknaden.sporsmal!!.first {
                 it.tag == ANSVARSERKLARING
             }.sporsmalstekst,
-        ).isEqualTo("Jeg vil svare så godt jeg kan på spørsmålene i søknaden.")
+        ).isEqualTo("Jeg bekrefter at jeg vil svare så riktig som jeg kan.")
         assertThat(soknaden.sporsmal!!.first { it.tag == TIL_SLUTT }.sporsmalstekst).isEqualTo(
             tilSlutt().sporsmalstekst,
         )
