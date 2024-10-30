@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service
 @Service
 class OppholdUtenforEOSService(
     private val sykepengesoknadDAO: SykepengesoknadDAO,
-    private val identService: IdentService,
     private val opprettSoknadService: OpprettSoknadService,
 ) {
     fun skalOppretteSoknadForOppholdUtenforEOS(
@@ -31,8 +30,6 @@ class OppholdUtenforEOSService(
         val gyldigeFerieperioder = sykepengesoknad.hentGyldigePerioder(FERIE_V2, FERIE_NAR_V2)
         val gyldigePermisjonperioder = sykepengesoknad.hentGyldigePerioder(PERMISJON_V2, PERMISJON_NAR_V2)
         val gyldigeUtlandsperioder = sykepengesoknad.hentGyldigePerioder(OPPHOLD_UTENFOR_EOS, OPPHOLD_UTENFOR_EOS_NAR)
-
-        val t = gyldigeUtlandsperioder.first().hentUkedager()
 
         val dagerUtenforFeriePermisjonOgHelg =
             gyldigeUtlandsperioder
@@ -47,11 +44,9 @@ class OppholdUtenforEOSService(
             sykepengesoknad.getSporsmalMedTagOrNull(OPPHOLD_UTENFOR_EOS)
                 ?.svar?.firstOrNull()?.verdi == "JA"
 
-        // skal opprette eossokan
         val skalOppretteSoknad =
             dagerUtenforFeriePermisjonOgHelg.isNotEmpty() &&
                 harOppholdtSegUtenforEOS &&
-                // eossoknad
                 !finnesTidligereSoknad(sykepengesoknad, gyldigeUtlandsperioder, identer)
 
         if (skalOppretteSoknad) {
