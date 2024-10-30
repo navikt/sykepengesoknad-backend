@@ -91,8 +91,8 @@ class SykepengegrunnlagForNaeringsdrivende(
 
             val justerteInntekter =
                 finnInntekterJustertFor6Gog12G(
-                    inntekterJustertForGrunnbeloep,
                     grunnbeloepPaaSykmeldingstidspunkt,
+                    inntekterJustertForGrunnbeloep,
                 )
             val gjennomsnittligInntektAlleAar = beregnGjennomsnittligInntekt(justerteInntekter)
 

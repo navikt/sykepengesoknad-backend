@@ -19,16 +19,15 @@ fun inntektJustertForGrunnbeloep(
         .times(BigDecimal(gPaaSykmeldingstidspunktet))
         .divide(BigDecimal(gjennomsnittligGIKalenderaaret), 2, RoundingMode.HALF_UP)
 }
-// ) = (pensjonsgivendeInntektIKalenderAaret * gPaaSykmeldingstidspunktet) / gjennomsnittligGIKalenderaaret
 
 /**
- * Justerer inntekter basert på formel der inntekt mellom 6G og 12G reduseres til 1/3,
- * og inntekt over 12G blir trukket fra
+ * Justerer inntekter basert på formel hvor inntekt mellom 6G og 12G reduseres til 1/3,
+ * og inntekt over 12G blir trukket fra.
  */
 fun finnInntekterJustertFor6Gog12G(
-    justertInntektForGPerAar: Map<String, BigDecimal>,
     grunnbeloepSykmldTidspunkt: Int,
-): MutableMap<String, BigDecimal> {
+    justertInntektForGPerAar: Map<String, BigDecimal>,
+): Map<String, BigDecimal> {
     val g12 = BigDecimal(grunnbeloepSykmldTidspunkt * 12)
     val g6 = BigDecimal(grunnbeloepSykmldTidspunkt * 6)
 
@@ -46,18 +45,18 @@ fun finnInntekterJustertFor6Gog12G(
             it.key to (g6 + (it.value - g6).div(BigDecimal(3)))
         }.toMap()
     justerteInntekter.putAll(reduserteVerdierMellom6og12G)
-    return justerteInntekter
+    return justerteInntekter.toMap()
 }
 
 fun beregnGjennomsnittligInntekt(justerteInntekter: Map<String, BigDecimal>): BigDecimal {
     return justerteInntekter.values.sumOf { it }.div(BigDecimal(3))
 }
 
-fun beregnEndring25Prosent(snittPGI: BigDecimal): Beregnet {
+fun beregnEndring25Prosent(beregnGjennomsnittligInntekt: BigDecimal): Beregnet {
     return Beregnet(
-        snitt = snittPGI.roundToBigInteger(),
-        p25 = (snittPGI * BigDecimal("1.25")).roundToBigInteger(),
-        m25 = (snittPGI * BigDecimal("0.75")).roundToBigInteger(),
+        snitt = beregnGjennomsnittligInntekt.roundToBigInteger(),
+        p25 = (beregnGjennomsnittligInntekt * BigDecimal("1.25")).roundToBigInteger(),
+        m25 = (beregnGjennomsnittligInntekt * BigDecimal("0.75")).roundToBigInteger(),
     )
 }
 
