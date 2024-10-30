@@ -12,8 +12,6 @@ import org.springframework.data.redis.connection.RedisPassword
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration
 import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
-import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer
-import org.springframework.data.redis.serializer.RedisSerializationContext.SerializationPair.fromSerializer
 import java.net.URI
 import java.time.Duration
 
@@ -54,13 +52,9 @@ class CacheConfig(
                 .entryTtl(Duration.ofHours(1))
 
         cacheConfigurations["grunnbelop-historikk"] =
-            RedisCacheConfiguration.defaultCacheConfig()
+            RedisCacheConfiguration
+                .defaultCacheConfig()
                 .entryTtl(Duration.ofDays(7))
-                .serializeValuesWith(
-                    fromSerializer(
-                        GenericJackson2JsonRedisSerializer(objectMapper),
-                    ),
-                )
 
         return RedisCacheManager.builder(redisConnectionFactory)
             .cacheDefaults(RedisCacheConfiguration.defaultCacheConfig())
