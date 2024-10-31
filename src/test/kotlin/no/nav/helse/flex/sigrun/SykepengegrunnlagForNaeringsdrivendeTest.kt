@@ -10,6 +10,8 @@ import java.time.Instant
 import java.time.LocalDate
 
 class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
+    // TODO: Fikser datoer for fom og tom.
+
     @Test
     fun `Regn ut sykepengegrunnlag for inntekter under 6G`() {
         val soknad =
@@ -38,6 +40,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
     fun `Regn ut sykepengegrunnlag for inntekter mellom 6G og 12G`() {
         val soknad =
             opprettNyNaeringsdrivendeSoknad().copy(
+                // TODO: Bruk variabler fra SigrunMockDispatcher.
                 fnr = "87654321234",
                 startSykeforlop = LocalDate.now(),
                 fom = LocalDate.now().minusDays(30),

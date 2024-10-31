@@ -5,6 +5,8 @@ import java.math.BigDecimal
 import java.math.BigInteger
 import java.math.RoundingMode
 
+// TODO: Rename til SigrunUtregning og flytt til en egnet pakke.
+
 /**
  * (Pensjonsgivende inntekt i kalenderåret * G på sykmeldingstidspunktet)
  * --------------------------------------------------------------- = Inntekt beregnet for kalenderåret

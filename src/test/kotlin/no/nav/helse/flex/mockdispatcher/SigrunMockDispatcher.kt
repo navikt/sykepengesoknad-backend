@@ -10,13 +10,14 @@ import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.RecordedRequest
 
 object SigrunMockDispatcher : Dispatcher() {
+    // TODO: Trenger ikke logger.
     private val log = logger()
 
     override fun dispatch(request: RecordedRequest): MockResponse {
         val fnr = request.headers["Nav-Personident"]!!
         val inntektsAar = request.headers["inntektsaar"]!!
 
-        // TODO: Reduser til 90_000 og 250_000
+        // TODO: Reduser til 90_000 og 250_000 for å gjenspeile virkelige verdier.
         val over1G = 1_000_000
         val under1G = 100_000
 
@@ -90,6 +91,7 @@ object SigrunMockDispatcher : Dispatcher() {
         return ret
     }
 
+    // TODO: Gjør dynamisk.
     private fun inntektForAar(
         inntektsAar: String,
         inntekt2023: Int? = 0,

@@ -20,7 +20,7 @@ class GrunnbeloepClient(
 ) {
     val log = logger()
 
-    // TODO: Bytt ut med RestTemplate
+    // TODO: Bytt ut med RestTemplate (eventuelt RestClient) og fjern bruk av WebFlux.
     private val webClient = webClientBuilder.baseUrl(url).build()
 
     fun getHistorikk(fra: LocalDate?): Mono<List<GrunnbeloepResponse>> {

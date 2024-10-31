@@ -10,6 +10,7 @@ import java.nio.charset.StandardCharsets
 
 object GrunnbeloepApiMockDispatcher : QueueDispatcher() {
     override fun dispatch(request: RecordedRequest): MockResponse {
+        // TODO: Hvorfor trengs denne?
         val decodePathÆØÅ = URLDecoder.decode(request.path, StandardCharsets.UTF_8.name())
         return when (decodePathÆØÅ) {
             "/grunnbeløp?dato=2022-01-01" -> {
@@ -27,6 +28,7 @@ object GrunnbeloepApiMockDispatcher : QueueDispatcher() {
                     .setBody(response.serialisertTilString())
             }
 
+            // TODO: Populer resultat dynamisk basert på dato (år) fra en fiksert liste.
             "/historikk/grunnbeløp?fra=2013-01-01" -> {
                 val responses =
                     listOf(

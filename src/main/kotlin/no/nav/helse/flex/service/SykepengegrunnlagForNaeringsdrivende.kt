@@ -13,6 +13,7 @@ import java.math.BigDecimal
 import java.math.BigInteger
 import java.time.LocalDate
 
+// TODO: Flytt dataklasser nederst og gi klassene en mer beskrivende navn.
 data class AarVerdi(
     val aar: String,
     val verdi: BigInteger,
@@ -55,11 +56,13 @@ class SykepengegrunnlagForNaeringsdrivende(
 ) {
     private val log = logger()
 
+    // TODO: Rename metodenavn sånn at det beskriver hva som skjer.
     fun sykepengegrunnlagNaeringsdrivende(soknad: Sykepengesoknad): SykepengegrunnlagNaeringsdrivende? {
+        // TODO: Rydd i exceptionhåndtering.
         try {
             val sykmeldingstidspunkt = soknad.startSykeforlop!!.year
 
-            // TODO: Returner HashMap
+            // TODO: Returner HashMap sånn at vi slipper å lete etter riktig år.
             val grunnbeloepSisteFemAar =
                 grunnbeloepService.hentHistorikk(soknad.startSykeforlop).takeIf { it.isNotEmpty() }
                     ?: throw Exception("finner ikke historikk for g fra siste fem år")
@@ -67,6 +70,7 @@ class SykepengegrunnlagForNaeringsdrivende(
             val grunnbeloepPaaSykmeldingstidspunkt =
                 grunnbeloepSisteFemAar.find { it.dato.tilAar() == sykmeldingstidspunkt }!!.grunnbeløp
 
+            // TODO:: Rydd i variabelbruk etter testing.
             val res =
                 hentPensjonsgivendeInntektForTreSisteArene(
                     soknad.fnr,
