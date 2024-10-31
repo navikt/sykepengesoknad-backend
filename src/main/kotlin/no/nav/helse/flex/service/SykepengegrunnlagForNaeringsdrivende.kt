@@ -58,59 +58,54 @@ class SykepengegrunnlagForNaeringsdrivende(
 
     // TODO: Rename metodenavn sånn at det beskriver hva som skjer.
     fun sykepengegrunnlagNaeringsdrivende(soknad: Sykepengesoknad): SykepengegrunnlagNaeringsdrivende? {
-        // TODO: Rydd i exceptionhåndtering.
-        try {
-            val sykmeldingstidspunkt = soknad.startSykeforlop!!.year
+        val sykmeldingstidspunkt = soknad.startSykeforlop!!.year
 
-            // TODO: Returner HashMap sånn at vi slipper å lete etter riktig år.
-            val grunnbeloepSisteFemAar =
-                grunnbeloepService.hentHistorikk(soknad.startSykeforlop).takeIf { it.isNotEmpty() }
-                    ?: throw Exception("finner ikke historikk for g fra siste fem år")
+        // TODO: Returner HashMap sånn at vi slipper å lete etter riktig år for grunnbeloepPaaSykmeldingstidspunkt.
+        val grunnbeloepSisteFemAar =
+            // TODO: Flytt Kasting av exceoption til grunnbeloepService.
+            grunnbeloepService.hentHistorikk(soknad.startSykeforlop).takeIf { it.isNotEmpty() }
+                ?: throw RuntimeException("Fant ikke grunnbeløp for de siste fem årene for startSykeforlop ${soknad.startSykeforlop}.")
 
-            val grunnbeloepPaaSykmeldingstidspunkt =
-                grunnbeloepSisteFemAar.find { it.dato.tilAar() == sykmeldingstidspunkt }!!.grunnbeløp
+        val grunnbeloepPaaSykmeldingstidspunkt =
+            grunnbeloepSisteFemAar.find { it.dato.tilAar() == sykmeldingstidspunkt }!!.grunnbeløp
 
-            // TODO:: Rydd i variabelbruk etter testing.
-            val res =
-                hentPensjonsgivendeInntektForTreSisteArene(
-                    soknad.fnr,
-                    sykmeldingstidspunkt,
-                )
-
-            val pensjonsgivendeInntekter = res?.filter { it.pensjonsgivendeInntekt.isNotEmpty() }
-
-            if (pensjonsgivendeInntekter.isNullOrEmpty()) {
-                return null
-            }
-
-            val grunnbeloepRelevanteAar =
-                finnGrunnbeloepForTreRelevanteAar(grunnbeloepSisteFemAar, pensjonsgivendeInntekter)
-
-            val inntekterJustertForGrunnbeloep =
-                finnInntekterJustertForGrunnbeloep(
-                    pensjonsgivendeInntekter,
-                    grunnbeloepRelevanteAar,
-                    grunnbeloepPaaSykmeldingstidspunkt,
-                )
-
-            val justerteInntekter =
-                finnInntekterJustertFor6Gog12G(
-                    grunnbeloepPaaSykmeldingstidspunkt,
-                    inntekterJustertForGrunnbeloep,
-                )
-            val gjennomsnittligInntektAlleAar = beregnGjennomsnittligInntekt(justerteInntekter)
-
-            return SykepengegrunnlagNaeringsdrivende(
-                gjennomsnittPerAar = justerteInntekter.map { AarVerdi(it.key, it.value.roundToBigInteger()) },
-                grunnbeloepPerAar = grunnbeloepRelevanteAar.map { AarVerdi(it.key, it.value) },
-                grunnbeloepPaaSykmeldingstidspunkt = grunnbeloepPaaSykmeldingstidspunkt,
-                beregnetSnittOgEndring25 = beregnEndring25Prosent(gjennomsnittligInntektAlleAar),
-                inntekter = pensjonsgivendeInntekter,
+        // TODO:: Rydd i variabelbruk.
+        val res =
+            hentPensjonsgivendeInntektForTreSisteArene(
+                soknad.fnr,
+                sykmeldingstidspunkt,
             )
-        } catch (e: Exception) {
-            log.error(e.message, e)
+
+        val pensjonsgivendeInntekter = res?.filter { it.pensjonsgivendeInntekt.isNotEmpty() }
+
+        if (pensjonsgivendeInntekter.isNullOrEmpty()) {
             return null
         }
+
+        val grunnbeloepRelevanteAar =
+            finnGrunnbeloepForTreRelevanteAar(grunnbeloepSisteFemAar, pensjonsgivendeInntekter)
+
+        val inntekterJustertForGrunnbeloep =
+            finnInntekterJustertForGrunnbeloep(
+                pensjonsgivendeInntekter,
+                grunnbeloepRelevanteAar,
+                grunnbeloepPaaSykmeldingstidspunkt,
+            )
+
+        val justerteInntekter =
+            finnInntekterJustertFor6Gog12G(
+                grunnbeloepPaaSykmeldingstidspunkt,
+                inntekterJustertForGrunnbeloep,
+            )
+        val gjennomsnittligInntektAlleAar = beregnGjennomsnittligInntekt(justerteInntekter)
+
+        return SykepengegrunnlagNaeringsdrivende(
+            gjennomsnittPerAar = justerteInntekter.map { AarVerdi(it.key, it.value.roundToBigInteger()) },
+            grunnbeloepPerAar = grunnbeloepRelevanteAar.map { AarVerdi(it.key, it.value) },
+            grunnbeloepPaaSykmeldingstidspunkt = grunnbeloepPaaSykmeldingstidspunkt,
+            beregnetSnittOgEndring25 = beregnEndring25Prosent(gjennomsnittligInntektAlleAar),
+            inntekter = pensjonsgivendeInntekter,
+        )
     }
 
     fun hentPensjonsgivendeInntektForTreSisteArene(
@@ -125,7 +120,9 @@ class SykepengegrunnlagForNaeringsdrivende(
             val svar =
                 try {
                     pensjongivendeInntektClient.hentPensjonsgivendeInntekt(fnr, aar)
-                } catch (e: IngenPensjonsgivendeInntektFunnetException) {
+                    // TODO: Flytt opprettelse av tom HentPensjonsgivendeInntektResponse til klient i stedet for å bruke Excetions til logisk håndtering.
+                } catch (_: IngenPensjonsgivendeInntektFunnetException) {
+                    // At ingen inntekt er funnet for det aktuelle årdet betyr ikke at noe faktisk er feil.
                     HentPensjonsgivendeInntektResponse(
                         norskPersonidentifikator = fnr,
                         inntektsaar = aar.toString(),
