@@ -188,7 +188,7 @@ class SporsmalGenerator(
                     -> {
                         val sykepengegrunnlag =
                             if (unleashToggles.sigrunEnabled(soknad.fnr)) {
-                                log.info("Sigrun toggle enabled")
+                                log.info("Unleash-toggle for Sigrun er på. Henter inntektfor soknad: ${soknad.id}.")
                                 sykepengegrunnlagForNaeringsdrivende.sykepengegrunnlagNaeringsdrivende(soknad)
                             } else {
                                 null

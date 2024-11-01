@@ -3,18 +3,23 @@ package no.nav.helse.flex.mockdispatcher
 import no.nav.helse.flex.client.sigrun.HentPensjonsgivendeInntektResponse
 import no.nav.helse.flex.client.sigrun.PensjonsgivendeInntekt
 import no.nav.helse.flex.client.sigrun.Skatteordning
+import no.nav.helse.flex.logger
 import no.nav.helse.flex.util.serialisertTilString
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.RecordedRequest
 
 object SigrunMockDispatcher : Dispatcher() {
+    // TODO: Trenger ikke logger.
+    private val log = logger()
+
     override fun dispatch(request: RecordedRequest): MockResponse {
         val fnr = request.headers["Nav-Personident"]!!
         val inntektsAar = request.headers["inntektsaar"]!!
 
-        val over1G = 1000000
-        val under1G = 100000
+        // TODO: Reduser til 90_000 og 250_000 for å gjenspeile virkelige verdier.
+        val over1G = 1_000_000
+        val under1G = 100_000
 
         val personMedInntektOver1GSiste3Aar = "87654321234"
         val personMedFlereTyperInntekt = "86543214356"
@@ -23,19 +28,31 @@ object SigrunMockDispatcher : Dispatcher() {
         val personMedInntektOver1G1Av3Aar = "07830099810"
         val personMedInntekt2Av3Aar = "56909901141"
         val personUtenInntektSiste3Aar = "56830375185"
-        val personMedInntekt1Av3Aar = "12899497862"
+        val personUtenInntektForsteAar = "21127575934"
+        val personMedInntektAar4 = "12899497862"
+        val personLangTilbakeITid = "06028033456"
 
         val naeringsinntekt =
             when (fnr) {
-                personMedInntektOver1GSiste3Aar -> inntektForAar(inntektsAar, over1G, over1G, over1G, under1G) //
+                personMedInntektOver1GSiste3Aar -> inntektForAar(inntektsAar, over1G, over1G, over1G, under1G)
                 personMedFlereTyperInntekt -> inntektForAar(inntektsAar, inntekt2022 = over1G)
-                personMedInntektUnder1GSiste3Aar -> inntektForAar(inntektsAar, under1G, under1G, under1G, under1G) //
+                personMedInntektUnder1GSiste3Aar -> inntektForAar(inntektsAar, under1G, under1G, under1G, under1G)
                 personMedInntektOver1G2Av3Aar -> inntektForAar(inntektsAar, over1G, under1G, over1G, under1G)
                 personMedInntektOver1G1Av3Aar -> inntektForAar(inntektsAar, over1G, under1G, under1G, under1G)
-                personMedInntekt2Av3Aar -> inntektForAar(inntektsAar, under1G, null, under1G, over1G) //
-                personUtenInntektSiste3Aar -> inntektForAar(inntektsAar, null, null, null, under1G) //
-                personMedInntekt1Av3Aar -> inntektForAar(inntektsAar, under1G, null, null, under1G) //
-                else -> inntektForAar(inntektsAar, 400000, 350000, 300000, under1G) // Default inntekt hvis personen ikke er i listen
+                personMedInntekt2Av3Aar -> inntektForAar(inntektsAar, under1G, null, under1G, over1G)
+                personUtenInntektSiste3Aar -> inntektForAar(inntektsAar, null, null, null, under1G)
+                personUtenInntektForsteAar -> inntektForAar(inntektsAar, null, under1G, over1G, under1G)
+                personMedInntektAar4 -> inntektForAar(inntektsAar, null, null, null, under1G)
+                // Excel Scenario 2 - inntektsAar 2018
+                personLangTilbakeITid ->
+                    inntektForAar(
+                        inntektsAar,
+                        inntekt2017 = null,
+                        inntekt2016 = 670_000,
+                        inntekt2015 = 590_000,
+                        inntekt2014 = 490_000,
+                    )
+                else -> inntektForAar(inntektsAar, 400000, 350000, 300000, under1G)
             }
 
         val lonnsinntekt =
@@ -58,31 +75,47 @@ object SigrunMockDispatcher : Dispatcher() {
                 .addHeader("Content-Type", "application/json")
         }
 
-        return when (inntektsAar) {
-            "2023", "2022", "2021", "2020" ->
-                pensjonsgivendeInntekt(
-                    fnr = fnr,
-                    inntektsAar = inntektsAar,
-                    naeringsinntekt = naeringsinntekt,
-                    lonnsinntekt = lonnsinntekt,
-                    naeringsinntektFraFiskeFangstEllerFamiliebarnehage = naeringsinntektFraFiskeFangstEllerFamiliebarnehage,
-                )
-            else -> MockResponse().setResponseCode(404)
-        }
+        val ret =
+            when (inntektsAar) {
+                "2023", "2022", "2021", "2020", "2019", "2018", "2017", "2016", "2015", "2014" ->
+                    pensjonsgivendeInntekt(
+                        fnr = fnr,
+                        inntektsAar = inntektsAar,
+                        naeringsinntekt = naeringsinntekt,
+                        lonnsinntekt = lonnsinntekt,
+                        naeringsinntektFraFiskeFangstEllerFamiliebarnehage = naeringsinntektFraFiskeFangstEllerFamiliebarnehage,
+                    )
+                else -> MockResponse().setResponseCode(404)
+            }
+
+        return ret
     }
 
+    // TODO: Gjør dynamisk.
     private fun inntektForAar(
         inntektsAar: String,
         inntekt2023: Int? = 0,
         inntekt2022: Int? = 0,
         inntekt2021: Int? = 0,
         inntekt2020: Int? = 0,
+        inntekt2019: Int? = 0,
+        inntekt2018: Int? = 0,
+        inntekt2017: Int? = 0,
+        inntekt2016: Int? = 0,
+        inntekt2015: Int? = 0,
+        inntekt2014: Int? = 0,
     ): Int? {
         return when (inntektsAar) {
             "2023" -> inntekt2023
             "2022" -> inntekt2022
             "2021" -> inntekt2021
             "2020" -> inntekt2020
+            "2019" -> inntekt2019
+            "2018" -> inntekt2018
+            "2017" -> inntekt2017
+            "2016" -> inntekt2016
+            "2015" -> inntekt2015
+            "2014" -> inntekt2014
             else -> null
         }
     }

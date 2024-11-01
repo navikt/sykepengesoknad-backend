@@ -26,9 +26,7 @@ class PensjongivendeInntektClient(
         fnr: String,
         arViHenterFor: Int,
     ): HentPensjonsgivendeInntektResponse {
-        val uriBuilder =
-            UriComponentsBuilder.fromHttpUrl("$url/api/v1/pensjonsgivendeinntektforfolketrygden")
-
+        val uriBuilder = UriComponentsBuilder.fromHttpUrl("$url/api/v1/pensjonsgivendeinntektforfolketrygden")
         val headers =
             HttpHeaders().apply {
                 this["Nav-Consumer-Id"] = "sykepengesoknad-backend"
@@ -50,14 +48,16 @@ class PensjongivendeInntektClient(
                 )
 
             return result.body
-                ?: throw RuntimeException("Uventet feil: responsen er null selv om den ikke skulle være det.")
+                ?: throw RuntimeException("Responsen er null uten feilmelding fra server.")
         } catch (e: HttpClientErrorException) {
             if (e.statusCode == HttpStatus.NOT_FOUND && e.responseBodyAsString.contains("PGIF-008")) {
+                // TODO: Returner HentPensjonsgivendeInntektResponse med tom liste i stedet for å kaste exception
                 throw IngenPensjonsgivendeInntektFunnetException(
                     "Ingen pensjonsgivende inntekt funnet på oppgitt personidentifikator og inntektsår.",
                     e,
                 )
             }
+            // TODO: Skill ut mapping av feilmelding til egen metode.
             val feilmelding =
                 when (e.statusCode) {
                     HttpStatus.NOT_FOUND ->
@@ -104,12 +104,9 @@ class PensjongivendeInntektClient(
 
                     else -> "Klientfeil ved kall mot Sigrun: ${e.statusCode} - ${e.message}"
                 }
-            log.error(feilmelding, e)
             throw RuntimeException(feilmelding, e)
         } catch (e: Exception) {
-            val message = "Feil ved kall mot Sigrun: ${e.message}"
-            log.error(message, e)
-            throw RuntimeException(message, e)
+            throw RuntimeException("Feil ved kall mot Sigrun: ${e.message}", e)
         }
     }
 }
