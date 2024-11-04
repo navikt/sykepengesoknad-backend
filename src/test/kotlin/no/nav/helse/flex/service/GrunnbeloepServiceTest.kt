@@ -2,26 +2,62 @@ package no.nav.helse.flex.service
 
 import no.nav.helse.flex.FellesTestOppsett
 import org.amshove.kluent.`should be equal to`
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.mockito.Mockito.*
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.cache.CacheManager
 import java.time.LocalDate
 
 class GrunnbeloepServiceTest : FellesTestOppsett() {
+    @Autowired
+    private lateinit var cacheManager: CacheManager
+
+    @BeforeEach
+    fun clearCache() {
+        cacheManager.getCache("grunnbeloep-historikk")?.clear()
+    }
+
     @Test
-    fun `Historikk hentes fra cache etter første kall`() {
-        val fraDato = LocalDate.of(2024, 1, 1)
+    fun `Historikk hentes fra cache etter første kall med samme år`() {
+        val hentForDato = LocalDate.of(2024, 1, 1)
 
-        val forste = grunnbeloepService.hentHistorikk(fraDato)
-        val andre = grunnbeloepService.hentHistorikk(fraDato)
+        val forste = grunnbeloepService.hentGrunnbeloepHistorikk(hentForDato.year)
+        val andre = grunnbeloepService.hentGrunnbeloepHistorikk(hentForDato.year)
 
-        verify(grunnbeloepClient, times(1))
-            .getHistorikk(LocalDate.of(fraDato.year, 1, 1).minusYears(5))
+        verify(grunnbeloepClient, times(1)).hentGrunnbeloepHistorikk(hentForDato.minusYears(5))
 
         forste.size `should be equal to` 6
         andre.size `should be equal to` 6
 
-        // Sikrer at deserialisering har fungert.
+        // Sikrer at deserialisering av cache-verdi fungerer.
         forste.first().grunnbeløp `should be equal to` 99858
         andre.first().grunnbeløp `should be equal to` 99858
+    }
+
+    @Test
+    fun `Historikk hentes ikke fra cache for to forskjellige år`() {
+        val forsteDato = LocalDate.of(2024, 1, 1)
+        val andreDato = LocalDate.of(2018, 1, 1)
+
+        val forste = grunnbeloepService.hentGrunnbeloepHistorikk(forsteDato.year)
+        val andre = grunnbeloepService.hentGrunnbeloepHistorikk(andreDato.year)
+
+        verify(grunnbeloepClient, times(1)).hentGrunnbeloepHistorikk(forsteDato.minusYears(5))
+        verify(grunnbeloepClient, times(1)).hentGrunnbeloepHistorikk(andreDato.minusYears(5))
+
+        forste.size `should be equal to` 6
+        andre.size `should be equal to` 12
+
+        forste.first().grunnbeløp `should be equal to` 99858
+        andre.first().grunnbeløp `should be equal to` 85245
+    }
+
+    @Test
+    fun `Kaster exception hvis det ikke returneres noe resultat`() {
+        // Mock har ikke verdier for 2023.
+        val forsteDato = LocalDate.of(2023, 1, 1)
+        assertThrows<RuntimeException> { grunnbeloepService.hentGrunnbeloepHistorikk(forsteDato.year) }
     }
 }

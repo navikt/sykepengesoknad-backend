@@ -98,12 +98,6 @@ abstract class FellesTestOppsett {
     @MockBean
     lateinit var sykepengesoknadKvitteringerClient: SykepengesoknadKvitteringerClient
 
-    @Autowired
-    lateinit var grunnbeloepService: GrunnbeloepService
-
-    @SpyBean
-    lateinit var grunnbeloepClient: GrunnbeloepClient
-
     @SpyBean
     lateinit var automatiskInnsendingVedDodsfall: AutomatiskInnsendingVedDodsfall
 
@@ -118,6 +112,12 @@ abstract class FellesTestOppsett {
 
     @Autowired
     lateinit var server: MockOAuth2Server
+
+    @Autowired
+    lateinit var grunnbeloepService: GrunnbeloepService
+
+    @SpyBean
+    lateinit var grunnbeloepClient: GrunnbeloepClient
 
     @Autowired
     lateinit var sykepengesoknadKafkaConsumer: Consumer<String, String>

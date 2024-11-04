@@ -14,13 +14,19 @@ import org.amshove.kluent.`should not be`
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.cache.CacheManager
 import java.time.LocalDate
 
 class SigrunToggleTest : FellesTestOppsett() {
+    @Autowired
+    private lateinit var cacheManager: CacheManager
+
     @BeforeEach
     fun konfigurerUnleash() {
         databaseReset.resetDatabase()
         fakeUnleash.resetAll()
+        cacheManager.getCache("grunnbeloep-historikk")?.clear()
     }
 
     @Test

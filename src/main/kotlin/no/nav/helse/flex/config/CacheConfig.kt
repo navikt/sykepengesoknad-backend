@@ -1,6 +1,5 @@
 package no.nav.helse.flex.config
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.CacheManager
 import org.springframework.context.annotation.Bean
@@ -40,10 +39,7 @@ class CacheConfig(
     }
 
     @Bean
-    fun cacheManager(
-        redisConnectionFactory: RedisConnectionFactory,
-        objectMapper: ObjectMapper,
-    ): CacheManager {
+    fun cacheManager(redisConnectionFactory: RedisConnectionFactory): CacheManager {
         val cacheConfigurations: MutableMap<String, RedisCacheConfiguration> = HashMap()
 
         cacheConfigurations["flex-folkeregister-identer-med-historikk"] =
@@ -51,7 +47,7 @@ class CacheConfig(
                 .defaultCacheConfig()
                 .entryTtl(Duration.ofHours(1))
 
-        cacheConfigurations["grunnbelop-historikk"] =
+        cacheConfigurations["grunnbeloep-historikk"] =
             RedisCacheConfiguration
                 .defaultCacheConfig()
                 .entryTtl(Duration.ofDays(7))
