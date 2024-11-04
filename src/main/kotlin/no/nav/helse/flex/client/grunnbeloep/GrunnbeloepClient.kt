@@ -23,7 +23,7 @@ class GrunnbeloepClient(
     // TODO: Bytt ut med RestTemplate (eventuelt RestClient) og fjern bruk av WebFlux.
     private val webClient = webClientBuilder.baseUrl(url).build()
 
-    fun getHistorikk(fra: LocalDate?): Mono<List<GrunnbeloepResponse>> {
+    fun hentGrunnbeloepHistorikk(fra: LocalDate?): Mono<List<GrunnbeloepResponse>> {
         val historikk =
             webClient.get()
                 .uri { uriBuilder ->

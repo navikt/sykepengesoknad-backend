@@ -27,10 +27,10 @@ class GrunnbeloepServiceTest : FellesTestOppsett() {
     fun `Historikk hentes fra cache etter første kall med samme år`() {
         val hentForDato = LocalDate.of(2024, 1, 1)
 
-        val forste = grunnbeloepService.hentHistorikk(hentForDato.year)
-        val andre = grunnbeloepService.hentHistorikk(hentForDato.year)
+        val forste = grunnbeloepService.hentGrunnbeloepHistorikk(hentForDato.year)
+        val andre = grunnbeloepService.hentGrunnbeloepHistorikk(hentForDato.year)
 
-        verify(grunnbeloepClient, times(1)).getHistorikk(hentForDato.minusYears(5))
+        verify(grunnbeloepClient, times(1)).hentGrunnbeloepHistorikk(hentForDato.minusYears(5))
 
         forste.size `should be equal to` 6
         andre.size `should be equal to` 6
@@ -45,11 +45,11 @@ class GrunnbeloepServiceTest : FellesTestOppsett() {
         val forsteDato = LocalDate.of(2024, 1, 1)
         val andreDato = LocalDate.of(2018, 1, 1)
 
-        val forste = grunnbeloepService.hentHistorikk(forsteDato.year)
-        val andre = grunnbeloepService.hentHistorikk(andreDato.year)
+        val forste = grunnbeloepService.hentGrunnbeloepHistorikk(forsteDato.year)
+        val andre = grunnbeloepService.hentGrunnbeloepHistorikk(andreDato.year)
 
-        verify(grunnbeloepClient, times(1)).getHistorikk(forsteDato.minusYears(5))
-        verify(grunnbeloepClient, times(1)).getHistorikk(andreDato.minusYears(5))
+        verify(grunnbeloepClient, times(1)).hentGrunnbeloepHistorikk(forsteDato.minusYears(5))
+        verify(grunnbeloepClient, times(1)).hentGrunnbeloepHistorikk(andreDato.minusYears(5))
 
         forste.size `should be equal to` 6
         andre.size `should be equal to` 12

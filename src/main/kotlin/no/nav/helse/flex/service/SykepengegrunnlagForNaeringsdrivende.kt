@@ -62,7 +62,7 @@ class SykepengegrunnlagForNaeringsdrivende(
 
         val grunnbeloepSisteFemAar =
             grunnbeloepService
-                .hentHistorikk(soknad.startSykeforlop.year).takeIf { it.isNotEmpty() }
+                .hentGrunnbeloepHistorikk(soknad.startSykeforlop.year).takeIf { it.isNotEmpty() }
                 ?: throw RuntimeException("Fant ikke grunnbeløp for de siste fem årene for startSykeforlop ${soknad.startSykeforlop}.")
 
         val grunnbeloepPaaSykmeldingstidspunkt =
