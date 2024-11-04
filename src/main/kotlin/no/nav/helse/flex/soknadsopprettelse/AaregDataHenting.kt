@@ -43,10 +43,10 @@ class AaregDataHenting(
             return emptyList()
         }
 
-        val arbeidsforholOversikt = aaregClient.hentArbeidsforholdoversikt(fnr).arbeidsforholdoversikter
+        val arbeidsforholdOversikt = aaregClient.hentArbeidsforholdoversikt(fnr).arbeidsforholdoversikter
 
         if (environmentToggles.isQ()) {
-            log.info("Hentet aaregdata for søknad ${sykepengesoknad.id} \n${arbeidsforholOversikt.serialisertTilString()}")
+            log.info("Hentet aaregdata for søknad ${sykepengesoknad.id} \n${arbeidsforholdOversikt.serialisertTilString()}")
         }
 
         fun ArbeidsforholdOversikt.tilArbeidsforholdFraAAreg(): ArbeidsforholdFraAAreg {
@@ -73,14 +73,19 @@ class AaregDataHenting(
             )
         }
 
+        if (arbeidsforholdOversikt.harMerEnnEttAnnetAktivtArbeidsforhold(sykepengesoknad)) {
+            log.info("Fant mer enn ett annet aktivt arbeidsforhold for søknad ${sykepengesoknad.id}. Ser ikke etter nye arbeidsforhold")
+            return emptyList()
+        }
+
         val arbeidsforholdSoknad =
-            arbeidsforholOversikt.find { arbeidsforholdOversikt ->
+            arbeidsforholdOversikt.find { arbeidsforholdOversikt ->
                 arbeidsforholdOversikt.arbeidssted.identer.firstOrNull { it.ident == sykepengesoknad.arbeidsgiverOrgnummer } != null
             }
         val opplysningspliktigOrgnummer =
             arbeidsforholdSoknad?.opplysningspliktig?.identer?.firstOrNull { it.type == "ORGANISASJONSNUMMER" }?.ident
 
-        return arbeidsforholOversikt
+        return arbeidsforholdOversikt
             .filter { it.startdato.isAfter(sykepengesoknad.startSykeforlop) }
             .filter { it.startdato.isBeforeOrEqual(sykepengesoknad.tom!!) }
             .filter { it.erOrganisasjonArbeidsforhold() }
@@ -95,6 +100,15 @@ class AaregDataHenting(
             .map { it.tilArbeidsforholdFraAAreg() }
             .sortedBy { it.startdato }
     }
+}
+
+private fun List<ArbeidsforholdOversikt>.harMerEnnEttAnnetAktivtArbeidsforhold(sykepengesoknad: Sykepengesoknad): Boolean {
+    val andreAktiveArbeidsforhold =
+        this
+            .filter { a -> a.opplysningspliktig.identer.none { it.ident == sykepengesoknad.arbeidsgiverOrgnummer } }
+            .filter { it.sluttdato == null }
+    return andreAktiveArbeidsforhold
+        .size > 1
 }
 
 private fun Sykepengesoknad.tilPeriode(): Periode {
@@ -133,7 +147,8 @@ fun ingenArbeidsdagerMellomStartdatoOgEtterStartsyketilfelle(
     }
     val alleDagerMellomStartdatoOgFom = startdato.datesUntil(sykepengesoknad.fom).toList().toSet()
 
-    val alleHelgedagerMellomStartdatoOgEtterStartsyketilfelle = alleDagerMellomStartdatoOgFom.filter { it.erHelg() }.toSet()
+    val alleHelgedagerMellomStartdatoOgEtterStartsyketilfelle =
+        alleDagerMellomStartdatoOgFom.filter { it.erHelg() }.toSet()
 
     val sykedager =
         listOf(*eksisterendeDenneAg.toTypedArray(), sykepengesoknad)

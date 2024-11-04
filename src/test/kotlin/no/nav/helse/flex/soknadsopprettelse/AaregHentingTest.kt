@@ -81,7 +81,6 @@ class AaregHentingTest : FellesTestOppsett() {
                 eksisterendeSoknader = emptyList(),
                 sykepengesoknad = soknad,
             )
-        nyeArbeidsforhold.shouldHaveSize(1)
-        nyeArbeidsforhold[0].arbeidsstedNavn `should be equal to` "Frilanseransetter AS"
+        nyeArbeidsforhold.shouldHaveSize(0)
     }
 }
