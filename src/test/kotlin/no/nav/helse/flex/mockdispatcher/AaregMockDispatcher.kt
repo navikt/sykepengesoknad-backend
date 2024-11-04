@@ -22,6 +22,7 @@ object AaregMockDispatcher : QueueDispatcher() {
                                 startdato = LocalDate.of(2022, 9, 15).minusDays(40),
                                 arbeidssted = "999333666",
                                 opplysningspliktigOrganisasjonsnummer = "11224455441",
+                                sluttdato = LocalDate.of(2022, 9, 15).minusDays(30),
                             ),
                             skapArbeidsforholdOversikt(
                                 fnr = fnr,
@@ -41,17 +42,13 @@ object AaregMockDispatcher : QueueDispatcher() {
                                 startdato = LocalDate.of(2022, 9, 15).minusDays(40),
                                 arbeidssted = "999333666",
                                 opplysningspliktigOrganisasjonsnummer = "1984108765",
+                                sluttdato = null,
                             ),
                             skapArbeidsforholdOversikt(
                                 fnr = fnr,
                                 startdato = LocalDate.of(2022, 9, 15).minusDays(10),
                                 arbeidssted = "999888777",
                                 opplysningspliktigOrganisasjonsnummer = "1984108765",
-                            ),
-                            skapArbeidsforholdOversikt(
-                                fnr = fnr,
-                                startdato = LocalDate.of(2022, 9, 15).minusDays(10),
-                                arbeidssted = "999333667",
                             ),
                         ),
                 ).tilMockResponse()
