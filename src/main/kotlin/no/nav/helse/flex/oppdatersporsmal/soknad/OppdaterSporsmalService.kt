@@ -46,7 +46,7 @@ class OppdaterSporsmalService(
             soknadFraBasenForOppdatering.sporsmal.find { it.id == sporsmal.id }
                 ?: throw IllegalArgumentException("Soknad fra basen skal ha spørsmålet")
 
-        if (listOf(sporsmal).erUlikUtenomSvar(listOf(sporsmaletFraBasen))) {
+        if (listOf(sporsmal).erUlikUtenomSvar(listOf(sporsmaletFraBasen), log)) {
             throw IllegalArgumentException(
                 "Spørsmål i databasen er ulikt spørsmål som er besvart ${sporsmal.tag}-${sporsmaletFraBasen.tag}",
             )

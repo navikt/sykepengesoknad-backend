@@ -4,8 +4,8 @@ import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.flatten
-import no.nav.helse.flex.logger
 import no.nav.helse.flex.util.serialisertTilString
+import org.slf4j.Logger
 import kotlin.reflect.full.memberProperties
 
 fun Sykepengesoknad.erAvType(vararg typer: Soknadstype): Boolean {
@@ -43,14 +43,19 @@ fun Sykepengesoknad.leggTilSporsmaal(sporsmal: List<Sporsmal>): Sykepengesoknad 
     return soknad
 }
 
-fun List<Sporsmal>.erUlikUtenomSvar(sammenlign: List<Sporsmal>): Boolean {
+fun List<Sporsmal>.erUlikUtenomSvar(
+    sammenlign: List<Sporsmal>,
+    log: Logger? = null,
+): Boolean {
     fun List<Sporsmal>.flattenOgFjernSvar(): List<Sporsmal> {
         return this.flatten().map { it.copy(svar = emptyList(), undersporsmal = emptyList(), metadata = null) }.sortedBy { it.id }
     }
 
-    val forskjeller = finnForskjellerIListerMedTag(this.flattenOgFjernSvar(), sammenlign.flattenOgFjernSvar())
-    val forskjellerAnonymt = forskjeller.map { it.key to it.value?.keys }.toMap().serialisertTilString()
-    logger().info("Forskjeller mellom spørsmal i databasen og spørsmål som er besvart: $forskjellerAnonymt")
+    if (log != null) {
+        val forskjeller = finnForskjellerIListerMedTag(this.flattenOgFjernSvar(), sammenlign.flattenOgFjernSvar())
+        val forskjellerAnonymt = forskjeller.map { it.key to it.value?.keys }.toMap().serialisertTilString()
+        log.info("Forskjeller mellom spørsmal i databasen og spørsmål som er besvart: $forskjellerAnonymt")
+    }
 
     return this.flattenOgFjernSvar() != sammenlign.flattenOgFjernSvar()
 }
@@ -92,7 +97,8 @@ fun <T : Any> finnForskjellerIListerMedTag(
 
 fun List<Sporsmal>.erUlikUtenomSvarTekstOgId(sammenlign: List<Sporsmal>): Boolean {
     fun List<Sporsmal>.flattenOgFjernSvarOgId(): Set<Sporsmal> {
-        return this.flatten().map { it.copy(svar = emptyList(), undersporsmal = emptyList(), sporsmalstekst = null, metadata = null) }
+        return this.flatten()
+            .map { it.copy(svar = emptyList(), undersporsmal = emptyList(), sporsmalstekst = null, metadata = null) }
             .map { it.copy(id = null) }.toSet()
     }
 
