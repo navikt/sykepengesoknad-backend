@@ -53,8 +53,10 @@ fun List<Sporsmal>.erUlikUtenomSvar(
 
     if (log != null) {
         val forskjeller = finnForskjellerIListerMedTag(this.flattenOgFjernSvar(), sammenlign.flattenOgFjernSvar())
-        val forskjellerAnonymt = forskjeller.map { it.key to it.value?.keys }.toMap().serialisertTilString()
-        log.info("Forskjeller mellom spørsmal i databasen og spørsmål som er besvart: $forskjellerAnonymt")
+        if (forskjeller.isNotEmpty()) {
+            val forskjellerAnonymt = forskjeller.map { it.key to it.value?.keys }.toMap().serialisertTilString()
+            log.info("Forskjeller mellom spørsmal i databasen og spørsmål som er besvart: $forskjellerAnonymt")
+        }
     }
 
     return this.flattenOgFjernSvar() != sammenlign.flattenOgFjernSvar()
