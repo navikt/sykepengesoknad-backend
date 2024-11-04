@@ -2,7 +2,6 @@ package no.nav.helse.flex
 
 import io.getunleash.FakeUnleash
 import jakarta.annotation.PostConstruct
-import no.nav.helse.flex.client.grunnbeloep.GrunnbeloepClient
 import no.nav.helse.flex.client.kvitteringer.SykepengesoknadKvitteringerClient
 import no.nav.helse.flex.juridiskvurdering.juridiskVurderingTopic
 import no.nav.helse.flex.kafka.AUDIT_TOPIC
@@ -100,9 +99,6 @@ abstract class FellesTestOppsett {
 
     @Autowired
     lateinit var grunnbeloepService: GrunnbeloepService
-
-    @SpyBean
-    lateinit var grunnbeloepClient: GrunnbeloepClient
 
     @SpyBean
     lateinit var automatiskInnsendingVedDodsfall: AutomatiskInnsendingVedDodsfall
