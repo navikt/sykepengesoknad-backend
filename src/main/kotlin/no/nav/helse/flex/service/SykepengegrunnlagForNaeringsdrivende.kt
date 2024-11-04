@@ -60,11 +60,9 @@ class SykepengegrunnlagForNaeringsdrivende(
     fun sykepengegrunnlagNaeringsdrivende(soknad: Sykepengesoknad): SykepengegrunnlagNaeringsdrivende? {
         val sykmeldingstidspunkt = soknad.startSykeforlop!!.year
 
-        val grunnbeloepSisteFemAar =
-            grunnbeloepService
-                .hentGrunnbeloepHistorikk(soknad.startSykeforlop.year).takeIf { it.isNotEmpty() }
-                ?: throw RuntimeException("Fant ikke grunnbeløp for de siste fem årene for startSykeforlop ${soknad.startSykeforlop}.")
+        val grunnbeloepSisteFemAar = grunnbeloepService.hentGrunnbeloepHistorikk(sykmeldingstidspunkt)
 
+        // TODO: Bruk Hashmap
         val grunnbeloepPaaSykmeldingstidspunkt =
             grunnbeloepSisteFemAar.find { it.dato.tilAar() == sykmeldingstidspunkt }!!.grunnbeløp
 

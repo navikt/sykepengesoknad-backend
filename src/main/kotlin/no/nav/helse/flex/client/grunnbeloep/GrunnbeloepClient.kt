@@ -23,16 +23,14 @@ class GrunnbeloepClient(
     // TODO: Bytt ut med RestTemplate (eventuelt RestClient) og fjern bruk av WebFlux.
     private val webClient = webClientBuilder.baseUrl(url).build()
 
-    fun hentGrunnbeloepHistorikk(fra: LocalDate?): Mono<List<GrunnbeloepResponse>> {
+    fun hentGrunnbeloepHistorikk(hentForDato: LocalDate): Mono<List<GrunnbeloepResponse>> {
         val historikk =
             webClient.get()
                 .uri { uriBuilder ->
-                    val builder = uriBuilder.path("/historikk/grunnbeløp")
-                    if (fra != null) {
-                        val formatertDato = fra.format(DateTimeFormatter.ISO_DATE)
-                        builder.queryParam("fra", formatertDato)
-                    }
-                    builder.build()
+                    val formatertDato = hentForDato.format(DateTimeFormatter.ISO_DATE)
+                    uriBuilder.path("/historikk/grunnbeløp")
+                        .queryParam("fra", formatertDato)
+                        .build()
                 }
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .retrieve()
@@ -44,11 +42,11 @@ class GrunnbeloepClient(
                 .collectList()
                 .retryWhen(Retry.backoff(3, Duration.ofSeconds(2)))
                 .onErrorResume { error ->
-                    log.error("Feil ved henting av grunnbeløphistorikk fra $fra til i dag", error)
+                    log.error("Feil ved henting av grunnbeløphistorikk fra $hentForDato til i dag", error)
                     Mono.just(emptyList<GrunnbeloepResponse>())
                 }
 
-        log.info("Hentet grunnbeløphistorikk fra $fra til i dag.")
+        log.info("Hentet grunnbeløphistorikk fra $hentForDato til i dag.")
         return historikk
     }
 }

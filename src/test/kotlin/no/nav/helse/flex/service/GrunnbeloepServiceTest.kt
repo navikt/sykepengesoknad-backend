@@ -5,6 +5,7 @@ import no.nav.helse.flex.client.grunnbeloep.GrunnbeloepClient
 import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.mockito.Mockito.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.mock.mockito.SpyBean
@@ -56,5 +57,12 @@ class GrunnbeloepServiceTest : FellesTestOppsett() {
 
         forste.first().grunnbeløp `should be equal to` 99858
         andre.first().grunnbeløp `should be equal to` 85245
+    }
+
+    @Test
+    fun `Kaster exception hvis det ikke returneres noe resultat`() {
+        // Mock har ikke verdier for 2023.
+        val forsteDato = LocalDate.of(2023, 1, 1)
+        assertThrows<RuntimeException> { grunnbeloepService.hentGrunnbeloepHistorikk(forsteDato.year) }
     }
 }

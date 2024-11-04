@@ -9,10 +9,10 @@ import java.time.LocalDate
 @Service
 class GrunnbeloepService(private val grunnbeloepClient: GrunnbeloepClient) {
     // TODO: Returner HashMap sånn at vi slipper å lete etter riktig år for grunnbeloepPaaSykmeldingstidspunkt.
-    // TODO: Flytt Kasting av exceoption til grunnbeloepService.
     @Cacheable("grunnbelop-historikk")
     fun hentGrunnbeloepHistorikk(year: Int): List<GrunnbeloepResponse> {
         val hentForDato = LocalDate.of(year, 1, 1).minusYears(5)
-        return grunnbeloepClient.hentGrunnbeloepHistorikk(hentForDato).block() ?: emptyList()
+        return grunnbeloepClient.hentGrunnbeloepHistorikk(hentForDato).block().takeIf { !it.isNullOrEmpty() }
+            ?: throw RuntimeException("Fant ikke grunnbeløphistorikk for $hentForDato.")
     }
 }
