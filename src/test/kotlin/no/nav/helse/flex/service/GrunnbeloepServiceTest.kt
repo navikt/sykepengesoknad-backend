@@ -1,14 +1,12 @@
 package no.nav.helse.flex.service
 
 import no.nav.helse.flex.FellesTestOppsett
-import no.nav.helse.flex.client.grunnbeloep.GrunnbeloepClient
 import org.amshove.kluent.`should be equal to`
-import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.mockito.Mockito.*
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.cache.CacheManager
 import java.time.LocalDate
 
@@ -16,10 +14,7 @@ class GrunnbeloepServiceTest : FellesTestOppsett() {
     @Autowired
     private lateinit var cacheManager: CacheManager
 
-    @SpyBean
-    lateinit var grunnbeloepClient: GrunnbeloepClient
-
-    @AfterEach
+    @BeforeEach
     fun clearCache() {
         cacheManager.getCache("grunnbeloep-historikk")?.clear()
     }
