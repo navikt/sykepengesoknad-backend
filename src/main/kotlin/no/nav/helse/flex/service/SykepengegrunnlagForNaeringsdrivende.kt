@@ -58,13 +58,12 @@ class SykepengegrunnlagForNaeringsdrivende(
 
     // TODO: Rename metodenavn sånn at det beskriver hva som skjer.
     fun sykepengegrunnlagNaeringsdrivende(soknad: Sykepengesoknad): SykepengegrunnlagNaeringsdrivende? {
+        // TODO: Rename eller bruk faktisk startSyketilfelle.
         val sykmeldingstidspunkt = soknad.startSykeforlop!!.year
 
         val grunnbeloepSisteFemAar = grunnbeloepService.hentGrunnbeloepHistorikk(sykmeldingstidspunkt)
 
-        // TODO: Bruk Hashmap
-        val grunnbeloepPaaSykmeldingstidspunkt =
-            grunnbeloepSisteFemAar.find { it.dato.tilAar() == sykmeldingstidspunkt }!!.grunnbeløp
+        val grunnbeloepPaaSykmeldingstidspunkt = grunnbeloepSisteFemAar[sykmeldingstidspunkt]!!.grunnbeløp
 
         // TODO:: Rydd i variabelbruk.
         val res =
@@ -152,14 +151,15 @@ class SykepengegrunnlagForNaeringsdrivende(
     }
 
     private fun finnGrunnbeloepForTreRelevanteAar(
-        grunnbeloepSisteFemAar: List<GrunnbeloepResponse>,
+        grunnbeloepSisteFemAar: Map<Int, GrunnbeloepResponse>,
         inntektPerAar: List<HentPensjonsgivendeInntektResponse>,
     ): Map<String, BigInteger> {
         val relevanteInntektsAar = inntektPerAar.map { it.inntektsaar.toInt() }
 
         return grunnbeloepSisteFemAar
-            .filter { it.dato.tilAar() in relevanteInntektsAar }
-            .associate { it.dato.tilAar().toString() to it.gjennomsnittPerÅr.toBigInteger() }
+            .filterKeys { it in relevanteInntektsAar }
+            .mapKeys { it.key.toString() }
+            .mapValues { it.value.gjennomsnittPerÅr.toBigInteger() }
     }
 
     private fun finnInntekterJustertForGrunnbeloep(

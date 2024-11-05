@@ -47,7 +47,7 @@ class CacheConfig(
                 .defaultCacheConfig()
                 .entryTtl(Duration.ofHours(1))
 
-        cacheConfigurations["grunnbeloep-historikk"] =
+        cacheConfigurations["grunnbeloep-historikk-v2"] =
             RedisCacheConfiguration
                 .defaultCacheConfig()
                 .entryTtl(Duration.ofDays(7))

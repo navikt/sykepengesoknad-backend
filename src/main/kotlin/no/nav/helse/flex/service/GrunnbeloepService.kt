@@ -8,11 +8,14 @@ import java.time.LocalDate
 
 @Service
 class GrunnbeloepService(private val grunnbeloepClient: GrunnbeloepClient) {
-    // TODO: Returner HashMap sånn at vi slipper å lete etter riktig år for grunnbeloepPaaSykmeldingstidspunkt.
-    @Cacheable("grunnbeloep-historikk")
-    fun hentGrunnbeloepHistorikk(year: Int): List<GrunnbeloepResponse> {
+    // v2 for å unngå deserialiseringsfeil da List<GrunnbeloepResponse> ble endret til Map<GrunnbeloepResponse>.
+    // TODO: Endre tilbake når TTL på 7 dager har gått ut (13.11.2024).
+    @Cacheable("grunnbeloep-historikk-v2")
+    fun hentGrunnbeloepHistorikk(year: Int): Map<Int, GrunnbeloepResponse> {
         val hentForDato = LocalDate.of(year, 1, 1).minusYears(5)
-        return grunnbeloepClient.hentGrunnbeloepHistorikk(hentForDato).block().takeIf { !it.isNullOrEmpty() }
-            ?: throw RuntimeException("Fant ikke grunnbeløphistorikk for $hentForDato.")
+        val hentGrunnbeloepHistorikk =
+            grunnbeloepClient.hentGrunnbeloepHistorikk(hentForDato).block().takeIf { !it.isNullOrEmpty() }
+                ?: throw RuntimeException("Fant ikke grunnbeløphistorikk for $hentForDato.")
+        return hentGrunnbeloepHistorikk.associateBy { LocalDate.parse(it.dato).year }
     }
 }
