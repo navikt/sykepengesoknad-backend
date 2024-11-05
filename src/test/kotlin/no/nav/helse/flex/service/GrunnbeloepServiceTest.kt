@@ -16,24 +16,24 @@ class GrunnbeloepServiceTest : FellesTestOppsett() {
 
     @BeforeEach
     fun clearCache() {
-        cacheManager.getCache("grunnbeloep-historikk")?.clear()
+        cacheManager.getCache("grunnbeloep-historikk-v2")?.clear()
     }
 
     @Test
     fun `Historikk hentes fra cache etter første kall med samme år`() {
         val hentForDato = LocalDate.of(2024, 1, 1)
 
-        val forste = grunnbeloepService.hentGrunnbeloepHistorikk(hentForDato.year)
-        val andre = grunnbeloepService.hentGrunnbeloepHistorikk(hentForDato.year)
+        val forsteReponse = grunnbeloepService.hentGrunnbeloepHistorikk(hentForDato.year)
+        val andreResponse = grunnbeloepService.hentGrunnbeloepHistorikk(hentForDato.year)
 
         verify(grunnbeloepClient, times(1)).hentGrunnbeloepHistorikk(hentForDato.minusYears(5))
 
-        forste.size `should be equal to` 6
-        andre.size `should be equal to` 6
+        forsteReponse.size `should be equal to` 6
+        andreResponse.size `should be equal to` 6
 
         // Sikrer at deserialisering av cache-verdi fungerer.
-        forste.first().grunnbeløp `should be equal to` 99858
-        andre.first().grunnbeløp `should be equal to` 99858
+        forsteReponse[2019]?.grunnbeløp `should be equal to` 99858
+        andreResponse[2019]?.grunnbeløp `should be equal to` 99858
     }
 
     @Test
@@ -41,17 +41,17 @@ class GrunnbeloepServiceTest : FellesTestOppsett() {
         val forsteDato = LocalDate.of(2024, 1, 1)
         val andreDato = LocalDate.of(2018, 1, 1)
 
-        val forste = grunnbeloepService.hentGrunnbeloepHistorikk(forsteDato.year)
-        val andre = grunnbeloepService.hentGrunnbeloepHistorikk(andreDato.year)
+        val forsteResponse = grunnbeloepService.hentGrunnbeloepHistorikk(forsteDato.year)
+        val andreResponse = grunnbeloepService.hentGrunnbeloepHistorikk(andreDato.year)
 
         verify(grunnbeloepClient, times(1)).hentGrunnbeloepHistorikk(forsteDato.minusYears(5))
         verify(grunnbeloepClient, times(1)).hentGrunnbeloepHistorikk(andreDato.minusYears(5))
 
-        forste.size `should be equal to` 6
-        andre.size `should be equal to` 12
+        forsteResponse.size `should be equal to` 6
+        andreResponse.size `should be equal to` 12
 
-        forste.first().grunnbeløp `should be equal to` 99858
-        andre.first().grunnbeløp `should be equal to` 85245
+        forsteResponse[2019]?.grunnbeløp `should be equal to` 99858
+        andreResponse[2013]?.grunnbeløp `should be equal to` 85245
     }
 
     @Test
