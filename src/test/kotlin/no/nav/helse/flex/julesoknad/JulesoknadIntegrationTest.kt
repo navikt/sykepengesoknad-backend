@@ -13,9 +13,11 @@ import no.nav.helse.flex.repository.JulesoknadkandidatDAO
 import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
-import no.nav.helse.flex.ventPåRecords
 import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
+import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEmpty
+import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldHaveSize
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -24,10 +26,10 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
 import org.testcontainers.shaded.org.awaitility.Awaitility.await
+import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
 import java.util.*
-import java.util.concurrent.TimeUnit
 
 @TestMethodOrder(MethodOrderer.MethodName::class)
 class JulesoknadIntegrationTest : FellesTestOppsett() {
@@ -78,14 +80,18 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
                     ),
             ),
         )
+
+        julesoknadkandidatDAO.hentJulesoknadkandidater() shouldHaveSize 1
         prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
 
-        await().atMost(5, TimeUnit.SECONDS).untilAsserted {
-            val soknader = hentSoknaderMetadata(fnr)
-            assertThat(soknader).hasSize(1)
-            val soknaden = soknader.first()
-            assertThat(soknaden.status).isEqualTo(NY)
-        }
+        val soknader =
+            await().atMost(Duration.ofSeconds(5)).until(
+                { hentSoknaderMetadata(fnr) },
+                { (it.size == 1 && it.first().status == NY) },
+            )
+
+        julesoknadkandidatDAO.hentJulesoknadkandidater().shouldBeEmpty()
+        sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.first().id) shouldBeEqualTo true
     }
 
     @Test
@@ -101,18 +107,22 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
                     ),
             ),
         )
+
+        julesoknadkandidatDAO.hentJulesoknadkandidater() shouldHaveSize 1
         prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
 
-        await().atMost(5, TimeUnit.SECONDS).untilAsserted {
-            val soknader = hentSoknaderMetadata(fnr)
-            assertThat(soknader).hasSize(1)
-            val soknaden = soknader.first()
-            assertThat(soknaden.status).isEqualTo(NY)
-        }
+        val soknader =
+            await().atMost(Duration.ofSeconds(5)).until(
+                { hentSoknaderMetadata(fnr) },
+                { (it.size == 1 && it.first().status == NY) },
+            )
+
+        julesoknadkandidatDAO.hentJulesoknadkandidater().shouldBeEmpty()
+        sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.first().id) shouldBeEqualTo true
     }
 
     @Test
-    fun `14 dagers arbeidsledig søknad i riktig periode aktiveres ikke`() {
+    fun `14 dagers arbeidsledigsøknad er ikke julesoknadkandidat og aktiveres ikke`() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
@@ -124,18 +134,21 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
                     ),
             ),
         )
+
+        val soknader =
+            await().atMost(Duration.ofSeconds(5)).until(
+                { hentSoknaderMetadata(fnr) },
+                { (it.size == 1 && it.first().status == FREMTIDIG) },
+            )
+
+        julesoknadkandidatDAO.hentJulesoknadkandidater().shouldBeEmpty()
         prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
 
-        await().atMost(5, TimeUnit.SECONDS).untilAsserted {
-            val soknader = hentSoknaderMetadata(fnr)
-            assertThat(soknader).hasSize(1)
-            val soknaden = soknader.first()
-            assertThat(soknaden.status).isEqualTo(FREMTIDIG)
-        }
+        sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.first().id) shouldBe null
     }
 
     @Test
-    fun `15 dagers arbeidsledig søknad i med for sen fom aktiveres ikke`() {
+    fun `15 dagers arbeidsledigsøknad i med for sen FOM aktiveres ikke`() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
@@ -147,25 +160,28 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
                     ),
             ),
         )
+
+        val soknader =
+            await().atMost(Duration.ofSeconds(5)).until(
+                { hentSoknaderMetadata(fnr) },
+                { (it.size == 1 && it.first().status == FREMTIDIG) },
+            )
+
+        julesoknadkandidatDAO.hentJulesoknadkandidater().shouldBeEmpty()
         prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
 
-        await().atMost(5, TimeUnit.SECONDS).untilAsserted {
-            val soknader = hentSoknaderMetadata(fnr)
-            assertThat(soknader).hasSize(1)
-            val soknaden = soknader.first()
-            assertThat(soknaden.status).isEqualTo(FREMTIDIG)
-        }
+        sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.first().id) shouldBe null
     }
 
     @Test
-    fun `15 dagers arbeidstaker søknad i riktig periode uten forskuttering aktiveres når cron job kjøres`() {
+    fun `15 dagers arbeidstakersøknad i riktig periode uten forskuttering aktiveres`() {
         val orgnummer = "999999999"
         lagreForskuttering(false, orgnummer)
 
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = orgnummer, orgNavn = "Kebab"),
+                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = orgnummer, orgNavn = "Arbeidsgiver"),
                 sykmeldingsperioder =
                     heltSykmeldt(
                         fom = LocalDate.of(nesteÅr, 12, 1),
@@ -173,50 +189,28 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
                     ),
             ),
         )
+
+        julesoknadkandidatDAO.hentJulesoknadkandidater() shouldHaveSize 1
         prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
 
-        await().atMost(5, TimeUnit.SECONDS).untilAsserted {
-            val soknader = hentSoknaderMetadata(fnr)
-            assertThat(soknader).hasSize(1)
-            val soknaden = soknader.first()
-            assertThat(soknaden.status).isEqualTo(NY)
-        }
+        val soknader =
+            await().atMost(Duration.ofSeconds(5)).until(
+                { hentSoknaderMetadata(fnr) },
+                { (it.size == 1 && it.first().status == NY) },
+            )
+
+        sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.first().id) shouldBeEqualTo true
     }
 
     @Test
-    fun `15 dagers arbeidstaker søknad i riktig periode med ukjent forskuttering aktiveres når cron job kjøres`() {
-        val orgnummer = "999999999"
-
-        sendSykmelding(
-            sykmeldingKafkaMessage(
-                fnr = fnr,
-                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = orgnummer, orgNavn = "Kebab"),
-                sykmeldingsperioder =
-                    heltSykmeldt(
-                        fom = LocalDate.of(nesteÅr, 12, 1),
-                        tom = LocalDate.of(nesteÅr, 12, 15),
-                    ),
-            ),
-        )
-        prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
-        await().atMost(5, TimeUnit.SECONDS).untilAsserted {
-            val soknader = hentSoknaderMetadata(fnr)
-            assertThat(soknader).hasSize(1)
-            val soknaden = soknader.first()
-            assertThat(soknaden.status).isEqualTo(NY)
-            assertThat(julesoknadkandidatDAO.hentJulesoknadkandidater()).isEmpty()
-        }
-    }
-
-    @Test
-    fun `15 dagers arbeidstaker søknad i riktig periode med forskuttering aktiveres ikke når cron job kjøres`() {
+    fun `15 dagers arbeidstakersøknad i riktig periode hvor forskuttering fjernes forskuttering aktiveres`() {
         val orgnummer = "999999999"
         lagreForskuttering(true, orgnummer)
 
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = orgnummer, orgNavn = "Kebab"),
+                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = orgnummer, orgNavn = "Arbeidsgiver"),
                 sykmeldingsperioder =
                     heltSykmeldt(
                         fom = LocalDate.of(nesteÅr, 12, 1),
@@ -224,41 +218,102 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
                     ),
             ),
         )
+
         val soknader = hentSoknaderMetadata(fnr)
         assertThat(soknader).hasSize(1)
 
         val soknaden = soknader.first()
         assertThat(soknaden.status).isEqualTo(FREMTIDIG)
-        val kandidater = julesoknadkandidatDAO.hentJulesoknadkandidater()
-        assertThat(kandidater).hasSize(1)
-        assertThat(kandidater.first().sykepengesoknadUuid).isEqualTo(soknaden.id)
 
-        // Vi endrer nærmestelederskjema og kjører cronjobben
+        julesoknadkandidatDAO.hentJulesoknadkandidater().run {
+            this shouldHaveSize 1
+            this.first().sykepengesoknadUuid shouldBeEqualTo soknaden.id
+        }
+
+        // Lagre at arbeidsgiver ikke forskutterer.
         forskutteringRepository.deleteAll()
-
         lagreForskuttering(false, orgnummer)
 
         prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
 
-        val soknaderEtterCronjob = hentSoknaderMetadata(fnr)
-        assertThat(soknaderEtterCronjob).hasSize(1)
+        val prosesserteSoknader =
+            await().atMost(Duration.ofSeconds(5)).until(
+                { hentSoknaderMetadata(fnr) },
+                { (it.size == 1 && it.first().status == NY) },
+            )
 
-        val soknadenEtterCronjob = soknaderEtterCronjob.first()
-        assertThat(soknadenEtterCronjob.status).isEqualTo(NY)
-
-        assertThat(julesoknadkandidatDAO.hentJulesoknadkandidater()).isEmpty()
+        julesoknadkandidatDAO.hentJulesoknadkandidater().shouldBeEmpty()
+        sykepengesoknadRepository.erAktivertJulesoknadKandidat(prosesserteSoknader.first().id) shouldBeEqualTo true
     }
 
     @Test
-    fun `Lang sykmelding som treffer over julesøknad perioden får først aktiver julesøknaden når foranliggende er aktivert`() {
+    fun `15 dagers arbeidstakersøknad i riktig periode med ukjent forskuttering aktiveres`() {
+        val orgnummer = "999999999"
+
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = orgnummer, orgNavn = "Arbeidsgiver"),
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = LocalDate.of(nesteÅr, 12, 1),
+                        tom = LocalDate.of(nesteÅr, 12, 15),
+                    ),
+            ),
+        )
+
+        julesoknadkandidatDAO.hentJulesoknadkandidater() shouldHaveSize 1
+        prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
+
+        val soknader =
+            await().atMost(Duration.ofSeconds(5)).until(
+                { hentSoknaderMetadata(fnr) },
+                { (it.size == 1 && it.first().status == NY) },
+            )
+
+        julesoknadkandidatDAO.hentJulesoknadkandidater().shouldBeEmpty()
+        sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.first().id) shouldBeEqualTo true
+    }
+
+    @Test
+    fun `15 dagers arbeidstakersøknad i riktig periode med forskuttering aktiveres ikke`() {
+        val orgnummer = "999999999"
+        lagreForskuttering(true, orgnummer)
+
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = orgnummer, orgNavn = "Arbeidsgiver"),
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = LocalDate.of(nesteÅr, 12, 1),
+                        tom = LocalDate.of(nesteÅr, 12, 15),
+                    ),
+            ),
+        )
+
+        julesoknadkandidatDAO.hentJulesoknadkandidater() shouldHaveSize 1
+        prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
+
+        val soknader =
+            await().atMost(Duration.ofSeconds(5)).until(
+                { hentSoknaderMetadata(fnr) },
+                { (it.size == 1 && it.first().status == FREMTIDIG) },
+            )
+
+        julesoknadkandidatDAO.hentJulesoknadkandidater() shouldHaveSize 1
+        sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.first().id) shouldBe null
+    }
+
+    @Test
+    fun `Lang sykmelding som treffer over julesøknadperioden får aktivert julesøknaden når foranliggende er aktivert`() {
         val orgnummer = "999999999"
         lagreForskuttering(false, orgnummer)
 
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = orgnummer, orgNavn = "Kebab"),
+                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = orgnummer, orgNavn = "Arbeidsgiver"),
                 sykmeldingsperioder =
                     heltSykmeldt(
                         fom = LocalDate.of(nesteÅr, 10, 1),
@@ -267,44 +322,51 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
             ),
             forventaSoknader = 3,
         )
+
+        julesoknadkandidatDAO.hentJulesoknadkandidater() shouldHaveSize 1
         prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
-        assertThat(julesoknadkandidatDAO.hentJulesoknadkandidater()).hasSize(1)
 
         val soknaderEtterForsteProsessering = hentSoknaderMetadata(fnr).sortedBy { it.fom }
-        await().atMost(5, TimeUnit.SECONDS).untilAsserted {
-            assertThat(soknaderEtterForsteProsessering).hasSize(3)
-            assertThat(soknaderEtterForsteProsessering[0].status).isEqualTo(FREMTIDIG)
-            assertThat(soknaderEtterForsteProsessering[1].status).isEqualTo(FREMTIDIG)
-            assertThat(soknaderEtterForsteProsessering[2].status).isEqualTo(FREMTIDIG)
-        }
+        await().atMost(Duration.ofSeconds(5)).until(
+            { hentSoknaderMetadata(fnr).sortedBy { it.fom } },
+            { (it.size == 3 && it.all { it.status == FREMTIDIG }) },
+        )
 
         aktiveringJob.bestillAktivering(soknaderEtterForsteProsessering[2].fom!!)
-        await().atMost(5, TimeUnit.SECONDS).untilAsserted {
-            val soknaderEtterAktivering = hentSoknaderMetadata(fnr).sortedBy { it.fom }
-            assertThat(soknaderEtterAktivering[0].status).isEqualTo(NY)
-            assertThat(soknaderEtterAktivering[1].status).isEqualTo(NY)
-            assertThat(soknaderEtterAktivering[2].status).isEqualTo(FREMTIDIG)
-        }
+        await().atMost(Duration.ofSeconds(5)).until(
+            { hentSoknaderMetadata(fnr).sortedBy { it.fom } },
+            {
+                (
+                    it.size == 3 &&
+                        it[0].status == NY &&
+                        it[1].status == NY &&
+                        it[2].status == FREMTIDIG
+                )
+            },
+        )
 
+        julesoknadkandidatDAO.hentJulesoknadkandidater() shouldHaveSize 1
         prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
 
-        await().atMost(5, TimeUnit.SECONDS).untilAsserted {
-            val soknaderEtterAndreProsessering = hentSoknaderMetadata(fnr).sortedBy { it.fom }
-            assertThat(soknaderEtterAndreProsessering[0].status).isEqualTo(NY)
-            assertThat(soknaderEtterAndreProsessering[1].status).isEqualTo(NY)
-            assertThat(soknaderEtterAndreProsessering[2].status).isEqualTo(NY)
-        }
+        val soknader =
+            await().atMost(Duration.ofSeconds(5)).until(
+                { hentSoknaderMetadata(fnr).sortedBy { it.fom } },
+                { (it.size == 3 && it.all { it.status == NY }) },
+            )
+
+        julesoknadkandidatDAO.hentJulesoknadkandidater().shouldBeEmpty()
+        sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.last().id) shouldBeEqualTo true
     }
 
     @Test
-    fun `Aktivert julesøknade når tidligere søknad fra annen sykmelding blir aktivert`() {
+    fun `Aktiverer julesøknad når tidligere søknad fra annen sykmelding blir aktivert`() {
         val orgnummer = "999999999"
         lagreForskuttering(false, orgnummer)
 
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = orgnummer, orgNavn = "Kebab"),
+                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = orgnummer, orgNavn = "Arbeidsgiver"),
                 sykmeldingsperioder =
                     heltSykmeldt(
                         fom = LocalDate.of(nesteÅr, 12, 1),
@@ -315,7 +377,7 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = orgnummer, orgNavn = "Kebab"),
+                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = orgnummer, orgNavn = "Arbeidsgiver"),
                 sykmeldingsperioder =
                     heltSykmeldt(
                         fom = LocalDate.of(nesteÅr, 11, 15),
@@ -323,42 +385,50 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
                     ),
             ),
         )
-        assertThat(julesoknadkandidatDAO.hentJulesoknadkandidater()).hasSize(1)
+        julesoknadkandidatDAO.hentJulesoknadkandidater() shouldHaveSize 1
         prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
-        assertThat(julesoknadkandidatDAO.hentJulesoknadkandidater()).hasSize(1)
+        julesoknadkandidatDAO.hentJulesoknadkandidater() shouldHaveSize 1
 
-        val soknaderEtterForsteProsessering = hentSoknaderMetadata(fnr).sortedBy { it.fom }
-        await().atMost(5, TimeUnit.SECONDS).untilAsserted {
-            assertThat(soknaderEtterForsteProsessering).hasSize(2)
-            assertThat(soknaderEtterForsteProsessering[0].status).isEqualTo(FREMTIDIG)
-            assertThat(soknaderEtterForsteProsessering[1].status).isEqualTo(FREMTIDIG)
-        }
+        val soknaderEtterForsteProsessering =
+            await().atMost(Duration.ofSeconds(5)).until(
+                { hentSoknaderMetadata(fnr).sortedBy { it.fom } },
+                { (it.size == 2 && it.all { it.status == FREMTIDIG }) },
+            )
 
         aktiveringJob.bestillAktivering(soknaderEtterForsteProsessering[1].fom!!)
-        await().atMost(5, TimeUnit.SECONDS).untilAsserted {
-            val soknaderEtterAktivering = hentSoknaderMetadata(fnr).sortedBy { it.fom }
-            assertThat(soknaderEtterAktivering[0].status).isEqualTo(NY)
-            assertThat(soknaderEtterAktivering[1].status).isEqualTo(FREMTIDIG)
-        }
+
+        await().atMost(Duration.ofSeconds(5)).until(
+            { hentSoknaderMetadata(fnr).sortedBy { it.fom } },
+            {
+                (
+                    it.size == 2 &&
+                        it[0].status == NY &&
+                        it[1].status == FREMTIDIG
+                )
+            },
+        )
 
         prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
 
-        await().atMost(5, TimeUnit.SECONDS).untilAsserted {
-            val soknaderEtterAndreProsessering = hentSoknaderMetadata(fnr).sortedBy { it.fom }
-            assertThat(soknaderEtterAndreProsessering[0].status).isEqualTo(NY)
-            assertThat(soknaderEtterAndreProsessering[1].status).isEqualTo(NY)
-        }
+        val soknader =
+            await().atMost(Duration.ofSeconds(5)).until(
+                { hentSoknaderMetadata(fnr).sortedBy { it.fom } },
+                { (it.size == 2 && it.all { it.status == NY }) },
+            )
+
+        julesoknadkandidatDAO.hentJulesoknadkandidater().shouldBeEmpty()
+        sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.last().id) shouldBeEqualTo true
     }
 
     @Test
-    fun `Fjerner julesøknad kandidat hvis søknaden er borte`() {
-        assertThat(julesoknadkandidatDAO.hentJulesoknadkandidater()).hasSize(0)
+    fun `Fjerner julesøknadkandidat når søknaden er borte`() {
+        julesoknadkandidatDAO.hentJulesoknadkandidater().shouldBeEmpty()
         julesoknadkandidatDAO.lagreJulesoknadkandidat(UUID.randomUUID().toString())
-        assertThat(julesoknadkandidatDAO.hentJulesoknadkandidater()).hasSize(1)
+        julesoknadkandidatDAO.hentJulesoknadkandidater() shouldHaveSize 1
 
         prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
 
-        assertThat(julesoknadkandidatDAO.hentJulesoknadkandidater()).hasSize(0)
+        julesoknadkandidatDAO.hentJulesoknadkandidater().shouldBeEmpty()
     }
 
     private fun lagreForskuttering(
