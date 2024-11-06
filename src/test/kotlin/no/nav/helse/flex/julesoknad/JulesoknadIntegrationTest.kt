@@ -91,7 +91,7 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
             )
 
         julesoknadkandidatDAO.hentJulesoknadkandidater().shouldBeEmpty()
-        sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.first().id) shouldBeEqualTo true
+        sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.first().id) shouldBe true
     }
 
     @Test
@@ -118,7 +118,7 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
             )
 
         julesoknadkandidatDAO.hentJulesoknadkandidater().shouldBeEmpty()
-        sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.first().id) shouldBeEqualTo true
+        sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.first().id) shouldBe true
     }
 
     @Test
@@ -144,7 +144,7 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
         julesoknadkandidatDAO.hentJulesoknadkandidater().shouldBeEmpty()
         prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
 
-        sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.first().id) shouldBe null
+        sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.first().id) shouldBe false
     }
 
     @Test
@@ -170,7 +170,7 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
         julesoknadkandidatDAO.hentJulesoknadkandidater().shouldBeEmpty()
         prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
 
-        sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.first().id) shouldBe null
+        sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.first().id) shouldBe false
     }
 
     @Test
@@ -199,7 +199,7 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
                 { (it.size == 1 && it.first().status == NY) },
             )
 
-        sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.first().id) shouldBeEqualTo true
+        sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.first().id) shouldBe true
     }
 
     @Test
@@ -243,7 +243,7 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
             )
 
         julesoknadkandidatDAO.hentJulesoknadkandidater().shouldBeEmpty()
-        sykepengesoknadRepository.erAktivertJulesoknadKandidat(prosesserteSoknader.first().id) shouldBeEqualTo true
+        sykepengesoknadRepository.erAktivertJulesoknadKandidat(prosesserteSoknader.first().id) shouldBe true
     }
 
     @Test
@@ -272,7 +272,7 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
             )
 
         julesoknadkandidatDAO.hentJulesoknadkandidater().shouldBeEmpty()
-        sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.first().id) shouldBeEqualTo true
+        sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.first().id) shouldBe true
     }
 
     @Test
@@ -302,7 +302,7 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
             )
 
         julesoknadkandidatDAO.hentJulesoknadkandidater() shouldHaveSize 1
-        sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.first().id) shouldBe null
+        sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.first().id) shouldBe false
     }
 
     @Test
@@ -355,7 +355,7 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
             )
 
         julesoknadkandidatDAO.hentJulesoknadkandidater().shouldBeEmpty()
-        sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.last().id) shouldBeEqualTo true
+        sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.last().id) shouldBe true
     }
 
     @Test
@@ -417,7 +417,7 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
             )
 
         julesoknadkandidatDAO.hentJulesoknadkandidater().shouldBeEmpty()
-        sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.last().id) shouldBeEqualTo true
+        sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.last().id) shouldBe true
     }
 
     @Test

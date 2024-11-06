@@ -629,7 +629,7 @@ class SykepengesoknadDAO(
                         resultSet.getNullableString("arbeidsforhold_fra_aareg")?.let {
                             objectMapper.readValue(it)
                         },
-                    julesoknad = resultSet.getNullableBoolean("aktivert_julesoknad_kandidat"),
+                    julesoknad = resultSet.getNullableBoolean("aktivert_julesoknad_kandidat") ?: false,
                 ),
             )
         }

@@ -36,7 +36,7 @@ data class RSSykepengesoknad(
     val korrigeringsfristUtlopt: Boolean?,
     val forstegangssoknad: Boolean?,
     val kjentOppholdstillatelse: KjentOppholdstillatelse? = null,
-    val julesoknad: Boolean?,
+    val julesoknad: Boolean? = false,
 ) {
     fun alleSporsmalOgUndersporsmal(): List<RSSporsmal> {
         return sporsmal?.flatten()?.toList() ?: emptyList()

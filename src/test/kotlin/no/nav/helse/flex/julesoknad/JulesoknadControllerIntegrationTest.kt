@@ -10,6 +10,7 @@ import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
+import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -55,7 +56,7 @@ class JulesoknadControllerIntegrationTest : FellesTestOppsett() {
         hentSoknad(
             soknadId = hentSoknaderMetadata(fnr).first().id,
             fnr = fnr,
-        ).julesoknad shouldBeEqualTo null
+        ).julesoknad shouldBe false
 
         prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
 
@@ -67,7 +68,7 @@ class JulesoknadControllerIntegrationTest : FellesTestOppsett() {
         hentSoknad(
             soknadId = hentSoknaderMetadata(fnr).first().id,
             fnr = fnr,
-        ).julesoknad shouldBeEqualTo true
+        ).julesoknad shouldBe true
     }
 
     @Test
@@ -87,7 +88,7 @@ class JulesoknadControllerIntegrationTest : FellesTestOppsett() {
         hentSoknad(
             soknadId = hentSoknaderMetadata(fnr).first().id,
             fnr = fnr,
-        ).julesoknad shouldBeEqualTo null
+        ).julesoknad shouldBe false
 
         prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
 
@@ -96,7 +97,7 @@ class JulesoknadControllerIntegrationTest : FellesTestOppsett() {
                 soknadId = hentSoknaderMetadata(fnr).first().id,
                 fnr = fnr,
             )
-        soknad.julesoknad shouldBeEqualTo null
+        soknad.julesoknad shouldBe false
         soknad.status shouldBeEqualTo FREMTIDIG
     }
 }
