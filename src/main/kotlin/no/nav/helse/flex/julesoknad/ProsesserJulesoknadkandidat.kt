@@ -60,6 +60,9 @@ class ProsesserJulesoknadkandidat(
                 }
                 log.info("Arbeidsgiver forskutterer ikke julesøknadkandidat $julesoknadkandidat, aktiverer søknad og sletter kandidat")
 
+                // Gjør at vi kan identifisere søknaden som en julesøknad i sykepengesoknad-frontend.
+                sykepengesoknadRepository.settErAktivertJulesoknadKandidat(soknad.id!!)
+
                 aktiveringProducer.leggPaAktiveringTopic(AktiveringBestilling(soknad.fnr, soknad.sykepengesoknadUuid))
                 julesoknadkandidatDAO.slettJulesoknadkandidat(julesoknadkandidat.julesoknadkandidatId)
                 return

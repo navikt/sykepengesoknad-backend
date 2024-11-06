@@ -16,12 +16,13 @@ class JulesoknadkandidatDAO(
     fun hentJulesoknadkandidater(): List<Julesoknadkandidat> {
         return namedParameterJdbcTemplate.query(
             """
-                    SELECT ID, SYKEPENGESOKNAD_UUID FROM JULESOKNADKANDIDAT
-                    """,
+            SELECT id, sykepengesoknad_uuid 
+            FROM julesoknadkandidat
+            """,
         ) { resultSet, _ ->
             Julesoknadkandidat(
-                julesoknadkandidatId = resultSet.getString("ID"),
-                sykepengesoknadUuid = resultSet.getString("SYKEPENGESOKNAD_UUID"),
+                julesoknadkandidatId = resultSet.getString("id"),
+                sykepengesoknadUuid = resultSet.getString("sykepengesoknad_uuid"),
             )
         }
     }
