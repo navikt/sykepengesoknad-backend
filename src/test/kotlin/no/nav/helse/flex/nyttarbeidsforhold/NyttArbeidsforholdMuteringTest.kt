@@ -22,11 +22,11 @@ class NyttArbeidsforholdMuteringTest : NyttArbeidsforholdFellesOppsett() {
                 it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS
             }!!
         @Suppress("ktlint:standard:max-line-length")
-        nyttArbeidsforholdSpm.sporsmalstekst `should be equal to` "Har du jobbet noe hos Kiosken, avd Oslo AS i perioden 26. august - 15. september 2022?"
+        nyttArbeidsforholdSpm.sporsmalstekst `should be equal to` "Har du jobbet noe hos Kiosken, avd Oslo AS i perioden 5. - 15. september 2022?"
         nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedOrgnummer").textValue() `should be equal to` "999888777"
         nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedNavn").textValue() `should be equal to` "Kiosken, avd Oslo AS"
         nyttArbeidsforholdSpm.metadata!!.get("startdatoAareg").textValue() `should be equal to` "2022-09-05"
-        nyttArbeidsforholdSpm.metadata!!.get("fom").textValue() `should be equal to` "2022-08-26"
+        nyttArbeidsforholdSpm.metadata!!.get("fom").textValue() `should be equal to` "2022-09-05"
         nyttArbeidsforholdSpm.metadata!!.get("tom").textValue() `should be equal to` "2022-09-15"
     }
 
@@ -86,11 +86,11 @@ class NyttArbeidsforholdMuteringTest : NyttArbeidsforholdFellesOppsett() {
                 it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS
             }!!
         @Suppress("ktlint:standard:max-line-length")
-        nyttArbeidsforholdSpm.sporsmalstekst `should be equal to` "Har du jobbet noe hos Kiosken, avd Oslo AS i perioden 26. august - 5. september 2022?"
+        nyttArbeidsforholdSpm.sporsmalstekst `should be equal to` "Har du jobbet noe hos Kiosken, avd Oslo AS i perioden 5. - 5. september 2022?"
         nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedOrgnummer").textValue() `should be equal to` "999888777"
         nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedNavn").textValue() `should be equal to` "Kiosken, avd Oslo AS"
         nyttArbeidsforholdSpm.metadata!!.get("startdatoAareg").textValue() `should be equal to` "2022-09-05"
-        nyttArbeidsforholdSpm.metadata!!.get("fom").textValue() `should be equal to` "2022-08-26"
+        nyttArbeidsforholdSpm.metadata!!.get("fom").textValue() `should be equal to` "2022-09-05"
         nyttArbeidsforholdSpm.metadata!!.get("tom").textValue() `should be equal to` "2022-09-05"
     }
 
@@ -129,18 +129,17 @@ class NyttArbeidsforholdMuteringTest : NyttArbeidsforholdFellesOppsett() {
                 it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS
             }!!
         @Suppress("ktlint:standard:max-line-length")
-        nyttArbeidsforholdSpm.sporsmalstekst `should be equal to` "Har du jobbet noe hos Kiosken, avd Oslo AS i perioden 26. august - 15. september 2022?"
+        nyttArbeidsforholdSpm.sporsmalstekst `should be equal to` "Har du jobbet noe hos Kiosken, avd Oslo AS i perioden 5. - 15. september 2022?"
         nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedOrgnummer").textValue() `should be equal to` "999888777"
         nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedNavn").textValue() `should be equal to` "Kiosken, avd Oslo AS"
         nyttArbeidsforholdSpm.metadata!!.get("startdatoAareg").textValue() `should be equal to` "2022-09-05"
-        nyttArbeidsforholdSpm.metadata!!.get("fom").textValue() `should be equal to` "2022-08-26"
+        nyttArbeidsforholdSpm.metadata!!.get("fom").textValue() `should be equal to` "2022-09-05"
         nyttArbeidsforholdSpm.metadata!!.get("tom").textValue() `should be equal to` "2022-09-15"
     }
 
     @Test
     @Order(13)
     fun `Svarer tilbake i arbeid dagen etter startdatoen før innsending`() {
-        System.setProperty("debugger", "true")
         val soknaden = hentSoknader(fnr = fnr).first()
         SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
             .tilbakeIArbeid(LocalDate.of(2022, 9, 6))
@@ -168,7 +167,7 @@ class NyttArbeidsforholdMuteringTest : NyttArbeidsforholdFellesOppsett() {
         kafkaSoknader[0].inntektFraNyttArbeidsforhold!!.shouldHaveSize(1)
 
         val inntektFraNyttArbeidsforhold = kafkaSoknader[0].inntektFraNyttArbeidsforhold!!.first()
-        inntektFraNyttArbeidsforhold.fom.toString() `should be equal to` "2022-08-26"
+        inntektFraNyttArbeidsforhold.fom.toString() `should be equal to` "2022-09-05"
         inntektFraNyttArbeidsforhold.tom.toString() `should be equal to` "2022-09-05"
         inntektFraNyttArbeidsforhold.arbeidsstedOrgnummer `should be equal to` "999888777"
         inntektFraNyttArbeidsforhold.opplysningspliktigOrgnummer `should be equal to` "11224455441"
