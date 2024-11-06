@@ -29,12 +29,12 @@ interface SykepengesoknadRepository : CrudRepository<SykepengesoknadDbRecord, St
 
     @Query(
         """
-        SELECT aktivert_julesoknad_kandidat
+        SELECT COALESCE(aktivert_julesoknad_kandidat, FALSE)
         FROM sykepengesoknad
         WHERE sykepengesoknad_uuid = :id
         """,
     )
-    fun erAktivertJulesoknadKandidat(id: String): Boolean?
+    fun erAktivertJulesoknadKandidat(id: String): Boolean
 
     @Query(
         """
