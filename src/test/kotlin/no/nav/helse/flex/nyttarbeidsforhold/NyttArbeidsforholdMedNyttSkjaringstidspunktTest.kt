@@ -38,7 +38,7 @@ class NyttArbeidsforholdMedNyttSkjaringstidspunktTest : NyttArbeidsforholdFelles
         kafkaSoknader[0].inntektFraNyttArbeidsforhold!!.shouldHaveSize(1)
 
         val inntektFraNyttArbeidsforhold = kafkaSoknader[0].inntektFraNyttArbeidsforhold!!.first()
-        inntektFraNyttArbeidsforhold.fom `should be equal to` basisdato.minusDays(20)
+        inntektFraNyttArbeidsforhold.fom `should be equal to` LocalDate.of(2022, 9, 5)
         inntektFraNyttArbeidsforhold.tom `should be equal to` basisdato.minusDays(4)
         inntektFraNyttArbeidsforhold.arbeidsstedOrgnummer `should be equal to` "999888777"
         inntektFraNyttArbeidsforhold.opplysningspliktigOrgnummer `should be equal to` "11224455441"

@@ -4,6 +4,7 @@ import no.nav.helse.flex.domain.*
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.util.DatoUtil
 import no.nav.helse.flex.util.isBeforeOrEqual
+import no.nav.helse.flex.util.max
 import no.nav.helse.flex.util.toJsonNode
 import java.time.LocalDate
 
@@ -16,7 +17,7 @@ fun nyttArbeidsforholdSporsmal(
         ?.filter { it.startdato.isBeforeOrEqual(oppdatertTom ?: denneSoknaden.tom!!) }
         ?.map { arbeidsforhold ->
 
-            val fom = denneSoknaden.fom!!
+            val fom = max(denneSoknaden.fom!!, arbeidsforhold.startdato)
             val tom = oppdatertTom ?: denneSoknaden.tom!!
 
             val periodeTekst = DatoUtil.formatterPeriode(fom, tom)

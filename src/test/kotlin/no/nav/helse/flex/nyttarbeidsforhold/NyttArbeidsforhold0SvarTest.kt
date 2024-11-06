@@ -16,6 +16,7 @@ import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
+import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class NyttArbeidsforhold0SvarTest : NyttArbeidsforholdFellesOppsett() {
@@ -41,7 +42,7 @@ class NyttArbeidsforhold0SvarTest : NyttArbeidsforholdFellesOppsett() {
         kafkaSoknader[0].inntektFraNyttArbeidsforhold!!.shouldHaveSize(1)
 
         val inntektFraNyttArbeidsforhold = kafkaSoknader[0].inntektFraNyttArbeidsforhold!!.first()
-        inntektFraNyttArbeidsforhold.fom `should be equal to` basisdato.minusDays(20)
+        inntektFraNyttArbeidsforhold.fom `should be equal to` LocalDate.of(2022, 9, 5)
         inntektFraNyttArbeidsforhold.tom `should be equal to` basisdato
 
         juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)

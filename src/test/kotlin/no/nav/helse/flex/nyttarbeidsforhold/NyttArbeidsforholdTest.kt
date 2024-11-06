@@ -14,6 +14,7 @@ import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
 import org.amshove.kluent.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
+import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class NyttArbeidsforholdTest : NyttArbeidsforholdFellesOppsett() {
@@ -27,11 +28,11 @@ class NyttArbeidsforholdTest : NyttArbeidsforholdFellesOppsett() {
                 it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS
             }!!
         @Suppress("ktlint:standard:max-line-length")
-        nyttArbeidsforholdSpm.sporsmalstekst `should be equal to` "Har du jobbet noe hos Kiosken, avd Oslo AS i perioden 26. august - 15. september 2022?"
+        nyttArbeidsforholdSpm.sporsmalstekst `should be equal to` "Har du jobbet noe hos Kiosken, avd Oslo AS i perioden 5. - 15. september 2022?"
         nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedOrgnummer").textValue() `should be equal to` "999888777"
         nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedNavn").textValue() `should be equal to` "Kiosken, avd Oslo AS"
         nyttArbeidsforholdSpm.metadata!!.get("startdatoAareg").textValue() `should be equal to` "2022-09-05"
-        nyttArbeidsforholdSpm.metadata!!.get("fom").textValue() `should be equal to` "2022-08-26"
+        nyttArbeidsforholdSpm.metadata!!.get("fom").textValue() `should be equal to` "2022-09-05"
         nyttArbeidsforholdSpm.metadata!!.get("tom").textValue() `should be equal to` "2022-09-15"
         nyttArbeidsforholdSpm.undersporsmal.map { it.tag } `should be equal to`
             listOf(
@@ -102,7 +103,7 @@ class NyttArbeidsforholdTest : NyttArbeidsforholdFellesOppsett() {
         kafkaSoknader[0].inntektFraNyttArbeidsforhold!!.shouldHaveSize(1)
 
         val inntektFraNyttArbeidsforhold = kafkaSoknader[0].inntektFraNyttArbeidsforhold!!.first()
-        inntektFraNyttArbeidsforhold.fom `should be equal to` basisdato.minusDays(20)
+        inntektFraNyttArbeidsforhold.fom `should be equal to` LocalDate.of(2022, 9, 5)
         inntektFraNyttArbeidsforhold.tom `should be equal to` basisdato
         inntektFraNyttArbeidsforhold.arbeidsstedOrgnummer `should be equal to` "999888777"
         inntektFraNyttArbeidsforhold.opplysningspliktigOrgnummer `should be equal to` "11224455441"
