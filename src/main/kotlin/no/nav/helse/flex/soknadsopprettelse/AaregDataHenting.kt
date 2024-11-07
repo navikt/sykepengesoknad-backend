@@ -106,6 +106,7 @@ private fun List<ArbeidsforholdOversikt>.harMerEnnEttAnnetAktivtArbeidsforhold(s
     val andreAktiveArbeidsforhold =
         this
             .filter { a -> a.opplysningspliktig.identer.none { it.ident == sykepengesoknad.arbeidsgiverOrgnummer } }
+            .filter { a -> a.arbeidssted.identer.none { it.ident == sykepengesoknad.arbeidsgiverOrgnummer } }
             .filter { it.sluttdato == null }
     return andreAktiveArbeidsforhold
         .size > 1
