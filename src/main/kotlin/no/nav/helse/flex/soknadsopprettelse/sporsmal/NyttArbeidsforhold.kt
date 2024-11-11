@@ -15,6 +15,7 @@ fun nyttArbeidsforholdSporsmal(
 ): List<Sporsmal> {
     return nyeArbeidsforhold
         ?.filter { it.startdato.isBeforeOrEqual(oppdatertTom ?: denneSoknaden.tom!!) }
+        ?.toSet()
         ?.map { arbeidsforhold ->
 
             val fom = max(denneSoknaden.fom!!, arbeidsforhold.startdato)
