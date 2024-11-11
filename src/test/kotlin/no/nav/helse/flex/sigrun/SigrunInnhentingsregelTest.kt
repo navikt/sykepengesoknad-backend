@@ -11,7 +11,7 @@ import java.time.LocalDate
 
 class SigrunInnhentingsregelTest : FellesTestOppsett() {
     @Test
-    fun `skal returnere 3 år med gyldige inntekter`() {
+    fun `Returnere 3 sammenhengende år med ferdiglignet inntekter`() {
         val soknad =
             opprettNyNaeringsdrivendeSoknad().copy(
                 fnr = "87654321234",
@@ -39,7 +39,7 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
     } // personMedInntektOver1GSiste3Aar
 
     @Test
-    fun `skal returnere null når 2 første år ikke ikke finnes`() {
+    fun `Returnerer null når 2 første år ikke ikke finnes`() {
         val soknad =
             opprettNyNaeringsdrivendeSoknad().copy(
                 fnr = "12899497862",
@@ -79,7 +79,7 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `skal ikke returnere når det ikke er inntekt siste 3 år`() {
+    fun `Returnerer null det ikke finnes ferdiglignet inntekt 3 sammenhengende år`() {
         val soknad =
             opprettNyNaeringsdrivendeSoknad().copy(
                 fnr = "56830375185",
@@ -99,7 +99,7 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `skal hoppe over første år som ikke er ferdiglignet`() {
+    fun `Hopper over første år som ikke er ferdiglignet`() {
         val soknad =
             opprettNyNaeringsdrivendeSoknad().copy(
                 fnr = "21127575934",

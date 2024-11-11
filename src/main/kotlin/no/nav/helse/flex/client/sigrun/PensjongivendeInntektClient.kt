@@ -1,6 +1,5 @@
 package no.nav.helse.flex.client.sigrun
 
-import no.nav.helse.flex.logger
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.*
 import org.springframework.retry.annotation.Retryable
@@ -19,8 +18,6 @@ class PensjongivendeInntektClient(
     @Value("\${SIGRUN_URL}")
     private val url: String,
 ) {
-    val log = logger()
-
     @Retryable
     fun hentPensjonsgivendeInntekt(
         fnr: String,
