@@ -56,8 +56,8 @@ class GrunnbeloepServiceTest : FellesTestOppsett() {
 
     @Test
     fun `Kaster exception hvis det ikke returneres noe resultat`() {
-        // Mock har ikke verdier for 2023.
-        val forsteDato = LocalDate.of(2023, 1, 1)
+        // Mock har ikke verdier for 2017, som er 5 år tilbake i tid for 2022.
+        val forsteDato = LocalDate.of(2022, 1, 1)
         assertThrows<RuntimeException> { grunnbeloepService.hentGrunnbeloepHistorikk(forsteDato.year) }
     }
 }

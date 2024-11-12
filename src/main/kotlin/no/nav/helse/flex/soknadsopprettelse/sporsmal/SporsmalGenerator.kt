@@ -164,7 +164,7 @@ class SporsmalGenerator(
                                 kjentOppholdstillatelse =
                                     medlemskapVurderingRepository.findBySykepengesoknadIdAndFomAndTom(
                                         sykepengesoknadId = soknad.id,
-                                        // fom og tom vil ikke være tomme for Arbeidssiduasjon.ARBEIDSTAKER.
+                                        // fom og tom vil ikke være tomme for Arbeidssituasjon.ARBEIDSTAKER.
                                         fom = soknad.fom!!,
                                         tom = soknad.tom!!,
                                     )?.hentKjentOppholdstillatelse(),
@@ -186,15 +186,10 @@ class SporsmalGenerator(
                     Arbeidssituasjon.NAERINGSDRIVENDE,
                     Arbeidssituasjon.FRILANSER,
                     -> {
-                        val sykepengegrunnlag =
-                            if (unleashToggles.sigrunEnabled(soknad.fnr)) {
-                                log.info("Unleash-toggle for Sigrun er på. Henter inntektfor soknad: ${soknad.id}.")
-                                sykepengegrunnlagForNaeringsdrivende.sykepengegrunnlagNaeringsdrivende(soknad)
-                            } else {
-                                null
-                            }
-
-                        settOppSoknadSelvstendigOgFrilanser(soknadOptions, sykepengegrunnlag)
+                        settOppSoknadSelvstendigOgFrilanser(
+                            soknadOptions,
+                            sykepengegrunnlagForNaeringsdrivende.sykepengegrunnlagNaeringsdrivende(soknad),
+                        )
                     }
 
                     Arbeidssituasjon.ARBEIDSLEDIG -> settOppSoknadArbeidsledig(soknadOptions)

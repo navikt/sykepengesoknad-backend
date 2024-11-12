@@ -6,7 +6,6 @@ import no.nav.helse.flex.client.sigrun.HentPensjonsgivendeInntektResponse
 import no.nav.helse.flex.client.sigrun.IngenPensjonsgivendeInntektFunnetException
 import no.nav.helse.flex.client.sigrun.PensjongivendeInntektClient
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.logger
 import no.nav.helse.flex.util.*
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
@@ -54,8 +53,6 @@ class SykepengegrunnlagForNaeringsdrivende(
     private val pensjongivendeInntektClient: PensjongivendeInntektClient,
     private val grunnbeloepService: GrunnbeloepService,
 ) {
-    private val log = logger()
-
     // TODO: Rename metodenavn sånn at det beskriver hva som skjer.
     fun sykepengegrunnlagNaeringsdrivende(soknad: Sykepengesoknad): SykepengegrunnlagNaeringsdrivende? {
         // TODO: Rename eller bruk faktisk startSyketilfelle.
