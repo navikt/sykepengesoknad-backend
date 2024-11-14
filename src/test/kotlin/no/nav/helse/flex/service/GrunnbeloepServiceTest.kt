@@ -16,7 +16,7 @@ class GrunnbeloepServiceTest : FellesTestOppsett() {
 
     @BeforeEach
     fun clearCache() {
-        cacheManager.getCache("grunnbeloep-historikk-v2")?.clear()
+        cacheManager.getCache("grunnbeloep-historikk")?.clear()
     }
 
     @Test
