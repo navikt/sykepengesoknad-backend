@@ -41,6 +41,8 @@ class LagreJulesoknadKandidater(
             !this.soknadPerioder.any { it.sykmeldingstype === no.nav.helse.flex.domain.Sykmeldingstype.REISETILSKUDD } &&
             this.soknadstype != Soknadstype.GRADERT_REISETILSKUDD
 
+    // DAYS.between er inclusive for fom, men exclusive på tom og vil derfor svare med 14 dager for en søknad
+    // med fom 01. til tom 15. (som er en 15 dager lang søknad).
     private fun Sykepengesoknad.erLengreEnn14Dager(): Boolean = DAYS.between(this.fom, this.tom) >= 14
 
     private fun Sykepengesoknad.fomDatoMellom15novemberOg7desember(): Boolean =

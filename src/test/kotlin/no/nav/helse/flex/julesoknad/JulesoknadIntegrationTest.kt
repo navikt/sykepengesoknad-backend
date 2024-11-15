@@ -19,17 +19,15 @@ import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.MethodOrderer
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestMethodOrder
+import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.testcontainers.shaded.org.awaitility.Awaitility.await
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
 import java.util.*
+
+const val ORG_NUMMER = "999999999"
 
 @TestMethodOrder(MethodOrderer.MethodName::class)
 class JulesoknadIntegrationTest : FellesTestOppsett() {
@@ -68,7 +66,7 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `15 dagers arbeidsledig søknad i riktig periode aktiveres når cron job kjøres`() {
+    fun `15 dager lang arbeidsledigsøknad i riktig periode aktiveres når cron job kjøres`() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
@@ -95,7 +93,7 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `15 dagers arbeidsledig søknad i riktig periode med tom ut i januar aktiveres når cron job kjøres`() {
+    fun `15 dager lang arbeidsledigsøknad i riktig periode med tom i neste år aktiveres når cron job kjøres`() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
@@ -122,7 +120,7 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `14 dagers arbeidsledigsøknad er ikke julesoknadkandidat og aktiveres ikke`() {
+    fun `14 dager lang arbeidsledigsøknad er ikke julesoknadkandidat og aktiveres ikke`() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
@@ -148,15 +146,15 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `15 dagers arbeidsledigsøknad i med for sen FOM aktiveres ikke`() {
+    fun `14 dager lang arbeidstakersøknad er ikke julesoknadkandidat og aktiveres ikke`() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
+                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
                 sykmeldingsperioder =
                     heltSykmeldt(
-                        fom = LocalDate.of(nesteÅr, 12, 8),
-                        tom = LocalDate.of(nesteÅr, 12, 22),
+                        fom = LocalDate.of(nesteÅr, 12, 1),
+                        tom = LocalDate.of(nesteÅr, 12, 14),
                     ),
             ),
         )
@@ -174,14 +172,40 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `15 dagers arbeidstakersøknad i riktig periode uten forskuttering aktiveres`() {
-        val orgnummer = "999999999"
-        lagreForskuttering(false, orgnummer)
+    fun `15 dager lang arbeidsledigsøknad i med for sen fom aktiveres ikke`() {
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        // 7. desember er siste gyldige tom.
+                        fom = LocalDate.of(nesteÅr, 12, 8),
+                        tom = LocalDate.of(nesteÅr, 12, 31),
+                    ),
+            ),
+        )
+
+        val soknader =
+            await().atMost(Duration.ofSeconds(5)).until(
+                { hentSoknaderMetadata(fnr) },
+                { (it.size == 1 && it.first().status == FREMTIDIG) },
+            )
+
+        julesoknadkandidatDAO.hentJulesoknadkandidater().shouldBeEmpty()
+        prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
+
+        sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.first().id) shouldBe false
+    }
+
+    @Test
+    fun `15 dager lang arbeidstakersøknad i riktig periode uten forskuttering aktiveres`() {
+        lagreForskuttering(false)
 
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = orgnummer, orgNavn = "Arbeidsgiver"),
+                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = ORG_NUMMER, orgNavn = "Arbeidsgiver"),
                 sykmeldingsperioder =
                     heltSykmeldt(
                         fom = LocalDate.of(nesteÅr, 12, 1),
@@ -203,14 +227,13 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `15 dagers arbeidstakersøknad i riktig periode hvor forskuttering fjernes forskuttering aktiveres`() {
-        val orgnummer = "999999999"
-        lagreForskuttering(true, orgnummer)
+    fun `15 dager lang arbeidstakersøknad i riktig periode hvor forskuttering fjernes forskuttering aktiveres`() {
+        lagreForskuttering(true)
 
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = orgnummer, orgNavn = "Arbeidsgiver"),
+                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = ORG_NUMMER, orgNavn = "Arbeidsgiver"),
                 sykmeldingsperioder =
                     heltSykmeldt(
                         fom = LocalDate.of(nesteÅr, 12, 1),
@@ -232,7 +255,7 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
 
         // Lagre at arbeidsgiver ikke forskutterer.
         forskutteringRepository.deleteAll()
-        lagreForskuttering(false, orgnummer)
+        lagreForskuttering(false)
 
         prosesserJulesoknadkandidat.prosseserJulesoknadKandidater()
 
@@ -247,7 +270,7 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `15 dagers arbeidstakersøknad i riktig periode med ukjent forskuttering aktiveres`() {
+    fun `15 dager lang arbeidstakersøknad i riktig periode med ukjent forskuttering aktiveres`() {
         val orgnummer = "999999999"
 
         sendSykmelding(
@@ -276,14 +299,13 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `15 dagers arbeidstakersøknad i riktig periode med forskuttering aktiveres ikke`() {
-        val orgnummer = "999999999"
-        lagreForskuttering(true, orgnummer)
+    fun `15 dager lang arbeidstakersøknad i riktig periode med forskuttering aktiveres ikke`() {
+        lagreForskuttering(true)
 
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = orgnummer, orgNavn = "Arbeidsgiver"),
+                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = ORG_NUMMER, orgNavn = "Arbeidsgiver"),
                 sykmeldingsperioder =
                     heltSykmeldt(
                         fom = LocalDate.of(nesteÅr, 12, 1),
@@ -307,13 +329,12 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
 
     @Test
     fun `Lang sykmelding som treffer over julesøknadperioden får aktivert julesøknaden når foranliggende er aktivert`() {
-        val orgnummer = "999999999"
-        lagreForskuttering(false, orgnummer)
+        lagreForskuttering(false)
 
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = orgnummer, orgNavn = "Arbeidsgiver"),
+                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = ORG_NUMMER, orgNavn = "Arbeidsgiver"),
                 sykmeldingsperioder =
                     heltSykmeldt(
                         fom = LocalDate.of(nesteÅr, 10, 1),
@@ -360,13 +381,12 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
 
     @Test
     fun `Aktiverer julesøknad når tidligere søknad fra annen sykmelding blir aktivert`() {
-        val orgnummer = "999999999"
-        lagreForskuttering(false, orgnummer)
+        lagreForskuttering(false)
 
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = orgnummer, orgNavn = "Arbeidsgiver"),
+                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = ORG_NUMMER, orgNavn = "Arbeidsgiver"),
                 sykmeldingsperioder =
                     heltSykmeldt(
                         fom = LocalDate.of(nesteÅr, 12, 1),
@@ -377,7 +397,7 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
-                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = orgnummer, orgNavn = "Arbeidsgiver"),
+                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = ORG_NUMMER, orgNavn = "Arbeidsgiver"),
                 sykmeldingsperioder =
                     heltSykmeldt(
                         fom = LocalDate.of(nesteÅr, 11, 15),
@@ -433,14 +453,14 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
 
     private fun lagreForskuttering(
         forskutterer: Boolean,
-        orgnummer: String,
+        orgNummer: String = ORG_NUMMER,
     ) {
         forskutteringRepository.save(
             Forskuttering(
                 id = null,
                 narmesteLederId = UUID.randomUUID(),
                 brukerFnr = fnr,
-                orgnummer = orgnummer,
+                orgnummer = orgNummer,
                 aktivFom = LocalDate.now(),
                 aktivTom = null,
                 arbeidsgiverForskutterer = forskutterer,
