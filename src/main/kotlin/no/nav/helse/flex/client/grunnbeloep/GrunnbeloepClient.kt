@@ -51,11 +51,12 @@ class GrunnbeloepClient(
     }
 }
 
+// TODO: Trenger ikke grunnbeløpPerMaaned, omregningsfaktor og virkningstidspunktForMinsteinntekt når vi bruker egen objectMapper.
 data class GrunnbeloepResponse(
     val dato: String,
     val grunnbeløp: Int,
     val grunnbeløpPerMaaned: Int,
     val gjennomsnittPerÅr: Int,
     val omregningsfaktor: Float,
-    val virkningstidspunktForMinsteinntekt: String,
+    val virkningstidspunktForMinsteinntekt: String? = null,
 ) : Serializable

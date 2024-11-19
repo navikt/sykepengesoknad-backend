@@ -124,6 +124,13 @@ object GrunnbeloepApiMockDispatcher : QueueDispatcher() {
                 val responses =
                     listOf(
                         GrunnbeloepResponse(
+                            dato = "2012-05-01",
+                            grunnbeløp = 82122,
+                            grunnbeløpPerMaaned = 6844,
+                            gjennomsnittPerÅr = 81153,
+                            omregningsfaktor = 1.036685f,
+                        ),
+                        GrunnbeloepResponse(
                             dato = "2013-05-01",
                             grunnbeløp = 85245,
                             grunnbeløpPerMaaned = 7104,
