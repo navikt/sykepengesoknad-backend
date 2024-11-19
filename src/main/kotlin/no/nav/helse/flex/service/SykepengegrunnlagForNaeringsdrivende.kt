@@ -6,6 +6,7 @@ import no.nav.helse.flex.client.sigrun.HentPensjonsgivendeInntektResponse
 import no.nav.helse.flex.client.sigrun.IngenPensjonsgivendeInntektFunnetException
 import no.nav.helse.flex.client.sigrun.PensjongivendeInntektClient
 import no.nav.helse.flex.domain.Sykepengesoknad
+import no.nav.helse.flex.logger
 import no.nav.helse.flex.util.*
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
@@ -67,6 +68,7 @@ class SykepengegrunnlagForNaeringsdrivende(
             hentPensjonsgivendeInntektForTreSisteArene(
                 soknad.fnr,
                 sykmeldingstidspunkt,
+                soknad.sykmeldingId,
             )
 
         val pensjonsgivendeInntekter = res?.filter { it.pensjonsgivendeInntekt.isNotEmpty() }
@@ -101,13 +103,20 @@ class SykepengegrunnlagForNaeringsdrivende(
         )
     }
 
+    private val log = logger()
+
     fun hentPensjonsgivendeInntektForTreSisteArene(
         fnr: String,
         sykmeldingstidspunkt: Int,
+        sykepengesoknadId: String? = null,
     ): List<HentPensjonsgivendeInntektResponse>? {
         val ferdigliknetInntekter = mutableListOf<HentPensjonsgivendeInntektResponse>()
         val forsteAar = sykmeldingstidspunkt - 1
         val aarViHenterFor = forsteAar downTo forsteAar - 2
+
+        if (sykepengesoknadId == "ea417973-9a79-3972-afd0-13496955d7cf") {
+            log.info("Henter for aar: $aarViHenterFor for sykepengesoknadId: $sykepengesoknadId")
+        }
 
         aarViHenterFor.forEach { aar ->
             val svar =
