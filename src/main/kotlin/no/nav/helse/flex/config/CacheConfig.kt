@@ -50,7 +50,7 @@ class CacheConfig(
         cacheConfigurations["grunnbeloep-historikk"] =
             RedisCacheConfiguration
                 .defaultCacheConfig()
-                .entryTtl(Duration.ofDays(7))
+                .entryTtl(Duration.ofMinutes(10))
 
         return RedisCacheManager.builder(redisConnectionFactory)
             .cacheDefaults(RedisCacheConfiguration.defaultCacheConfig())
