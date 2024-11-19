@@ -48,7 +48,7 @@ class GrunnbeloepServiceTest : FellesTestOppsett() {
         verify(grunnbeloepClient, times(1)).hentGrunnbeloepHistorikk(andreDato.minusYears(5))
 
         forsteResponse.size `should be equal to` 6
-        andreResponse.size `should be equal to` 12
+        andreResponse.size `should be equal to` 13
 
         forsteResponse[2019]?.grunnbeløp `should be equal to` 99858
         andreResponse[2013]?.grunnbeløp `should be equal to` 85245
