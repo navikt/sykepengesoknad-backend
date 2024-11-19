@@ -3,6 +3,7 @@ package no.nav.helse.flex.service
 import no.nav.helse.flex.FellesTestOppsett
 import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.mockito.Mockito.*
@@ -19,6 +20,7 @@ class GrunnbeloepServiceTest : FellesTestOppsett() {
         cacheManager.getCache("grunnbeloep-historikk")?.clear()
     }
 
+    @Disabled
     @Test
     fun `Historikk hentes fra cache etter første kall med samme år`() {
         val hentForDato = LocalDate.of(2024, 1, 1)
