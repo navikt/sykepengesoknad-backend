@@ -15,8 +15,9 @@ spec:
     minimumInSyncReplicas: 1
     partitions: 3
     replication: 3
-    retentionBytes: -1    # Messages will never get deleted because of disk space
-    retentionHours: 6576  # Messages are stored for 6 months
+    retentionBytes: -1      # Messages will never get deleted because of disk space
+    retentionHours: 6576    # 274 dagers retention
+    localRetentionHours: 24 # 1 dag lagring på rask disk
   acl:
     - team: flex
       application: sykepengesoknad-backend
