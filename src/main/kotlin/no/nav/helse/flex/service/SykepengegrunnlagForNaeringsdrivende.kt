@@ -68,7 +68,7 @@ class SykepengegrunnlagForNaeringsdrivende(
             hentPensjonsgivendeInntektForTreSisteArene(
                 soknad.fnr,
                 sykmeldingstidspunkt,
-                soknad.sykmeldingId,
+                soknad.id,
             )
 
         val pensjonsgivendeInntekter = res?.filter { it.pensjonsgivendeInntekt.isNotEmpty() }
