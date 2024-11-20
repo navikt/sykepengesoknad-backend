@@ -1,6 +1,5 @@
 package no.nav.helse.flex.client.sigrun
 
-import no.nav.helse.flex.logger
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.*
 import org.springframework.retry.annotation.Retryable
@@ -9,7 +8,6 @@ import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
 import java.util.*
-import kotlin.math.log
 
 class IngenPensjonsgivendeInntektFunnetException(message: String, cause: Throwable? = null) :
     RuntimeException(message, cause)
@@ -20,13 +18,10 @@ class PensjongivendeInntektClient(
     @Value("\${SIGRUN_URL}")
     private val url: String,
 ) {
-    private val log = logger()
-
     @Retryable
     fun hentPensjonsgivendeInntekt(
         fnr: String,
         inntektsAar: Int,
-        sykepengesoknadId: String? = null,
     ): HentPensjonsgivendeInntektResponse {
         val uriBuilder = UriComponentsBuilder.fromHttpUrl("$url/api/v1/pensjonsgivendeinntektforfolketrygden")
         val headers =
@@ -54,12 +49,6 @@ class PensjongivendeInntektClient(
         } catch (e: HttpClientErrorException) {
             if (e.statusCode == HttpStatus.NOT_FOUND && e.responseBodyAsString.contains("PGIF-008")) {
                 // TODO: Returner HentPensjonsgivendeInntektResponse med tom liste i stedet for å kaste exception
-                if (sykepengesoknadId != null) {
-                    log.info(
-                        "Kaster IngenPensjonsgivendeInntektFunnetException for " +
-                            "sykepengesoknad $sykepengesoknadId og inntektsAar $inntektsAar",
-                    )
-                }
                 throw IngenPensjonsgivendeInntektFunnetException(
                     "Ingen pensjonsgivende inntekt funnet på oppgitt personidentifikator og inntektsår $inntektsAar.",
                     e,
