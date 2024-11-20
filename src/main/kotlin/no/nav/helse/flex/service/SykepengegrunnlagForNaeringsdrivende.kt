@@ -6,7 +6,6 @@ import no.nav.helse.flex.client.sigrun.HentPensjonsgivendeInntektResponse
 import no.nav.helse.flex.client.sigrun.IngenPensjonsgivendeInntektFunnetException
 import no.nav.helse.flex.client.sigrun.PensjongivendeInntektClient
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.logger
 import no.nav.helse.flex.util.*
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
@@ -67,7 +66,6 @@ class SykepengegrunnlagForNaeringsdrivende(
             hentPensjonsgivendeInntektForTreSisteArene(
                 soknad.fnr,
                 sykmeldingstidspunkt,
-                soknad.id,
             )?.filter { it.pensjonsgivendeInntekt.isNotEmpty() }
 
         if (pensjonsgivendeInntekter.isNullOrEmpty()) {
@@ -100,21 +98,10 @@ class SykepengegrunnlagForNaeringsdrivende(
         )
     }
 
-    private val log = logger()
-
     fun hentPensjonsgivendeInntektForTreSisteArene(
         fnr: String,
         sykmeldingstidspunkt: Int,
-        sykepengesoknadId: String? = null,
     ): List<HentPensjonsgivendeInntektResponse>? {
-        // Sørger for at søkander som ikke vil få Sigrun-data blir aktivert:
-        // TODO: Fjern etter aktivering
-        val debugSoknader = listOf("ea417973-9a79-3972-afd0-13496955d7cf", "b1577e6d-4993-3f9d-afe1-07cc150c90d2")
-        if (debugSoknader.contains(sykepengesoknadId)) {
-            log.info("Returnerer null for sykepengesoknadId=$sykepengesoknadId sånn at den blir aktivert")
-            return null
-        }
-
         val ferdigliknetInntekter = mutableListOf<HentPensjonsgivendeInntektResponse>()
         val forsteAar = sykmeldingstidspunkt - 1
         val aarViHenterFor = forsteAar downTo forsteAar - 2
