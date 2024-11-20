@@ -63,15 +63,12 @@ class SykepengegrunnlagForNaeringsdrivende(
 
         val grunnbeloepPaaSykmeldingstidspunkt = grunnbeloepSisteFemAar[sykmeldingstidspunkt]!!.grunnbeløp
 
-        // TODO:: Rydd i variabelbruk.
-        val res =
+        val pensjonsgivendeInntekter =
             hentPensjonsgivendeInntektForTreSisteArene(
                 soknad.fnr,
                 sykmeldingstidspunkt,
                 soknad.id,
-            )
-
-        val pensjonsgivendeInntekter = res?.filter { it.pensjonsgivendeInntekt.isNotEmpty() }
+            )?.filter { it.pensjonsgivendeInntekt.isNotEmpty() }
 
         if (pensjonsgivendeInntekter.isNullOrEmpty()) {
             return null
@@ -114,26 +111,42 @@ class SykepengegrunnlagForNaeringsdrivende(
         val forsteAar = sykmeldingstidspunkt - 1
         val aarViHenterFor = forsteAar downTo forsteAar - 2
 
-        if (sykepengesoknadId == "ea417973-9a79-3972-afd0-13496955d7cf") {
+        val debugSoknader = listOf("ea417973-9a79-3972-afd0-13496955d7cf", "b1577e6d-4993-3f9d-afe1-07cc150c90d2")
+
+        if (debugSoknader.contains(sykepengesoknadId)) {
             log.info("Henter for aar: $aarViHenterFor for sykepengesoknadId: $sykepengesoknadId")
         }
 
         aarViHenterFor.forEach { aar ->
-            val svar =
+            if (debugSoknader.contains(sykepengesoknadId)) {
+                log.info("Henter inntekt for aar: $aar for sykepengesoknadId: $sykepengesoknadId")
+            }
+            val pensjonsgivendeInntektResponse =
                 try {
-                    pensjongivendeInntektClient.hentPensjonsgivendeInntekt(fnr, aar)
-                    // TODO: Flytt opprettelse av tom HentPensjonsgivendeInntektResponse til klient i stedet for å bruke Excetions til logisk håndtering.
+                    pensjongivendeInntektClient.hentPensjonsgivendeInntekt(fnr, aar, sykepengesoknadId)
+                    // TODO: Flytt opprettelse av tom HentPensjonsgivendeInntektResponse til klient i stedet for å bruke Exceptions til logisk håndtering.
+                    // TODO: Metoden vi kaller kaster en RuntimeException hvis ingen inntekt er funnet på grunn av ulovlig år (2017). Det bobler opp.
+                    // TODO: Hvorfor catcher vi ikke IngenPensjonsgivendeInntektFunnetException her for b1577e6d-4993-3f9d-afe1-07cc150c90d2?
                 } catch (_: IngenPensjonsgivendeInntektFunnetException) {
-                    // At ingen inntekt er funnet for det aktuelle årdet betyr ikke at noe faktisk er feil.
+                    // At ingen inntekt er funnet for det aktuelle året det betyr ikke at noe faktisk er feil.
                     HentPensjonsgivendeInntektResponse(
                         norskPersonidentifikator = fnr,
                         inntektsaar = aar.toString(),
                         pensjonsgivendeInntekt = emptyList(),
                     )
+                } catch (e: Exception) {
+                    if (debugSoknader.contains(sykepengesoknadId)) {
+                        log.info(
+                            "Catchet ikke IngenPensjonsgivendeInntektFunnetException for " +
+                                "sykepengesoknadId: $sykepengesoknadId, men en exception av type ${e::class.simpleName}",
+                        )
+                    }
+                    throw e
                 }
 
-            ferdigliknetInntekter.add(svar)
+            ferdigliknetInntekter.add(pensjonsgivendeInntektResponse)
         }
+        // Hvis det første året vi hentet er tomt henter vi for ett år ekstra for å ha tre sammenhengende år med inntekt.
         if (ferdigliknetInntekter.find { it.inntektsaar == forsteAar.toString() }?.pensjonsgivendeInntekt!!.isEmpty()) {
             return (
                 ferdigliknetInntekter.slice(1..2) +
