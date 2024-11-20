@@ -18,13 +18,10 @@ class AktiveringJob(
 ) {
     val log = logger()
 
-    @Scheduled(initialDelay = 5, fixedDelay = 30, timeUnit = TimeUnit.MINUTES)
+    @Scheduled(initialDelay = 5, fixedDelay = 2, timeUnit = TimeUnit.HOURS)
     fun startBestillAktivering() {
         if (leaderElection.isLeader()) {
-            log.info("Kjører startBestillAktivering siden pod er leader.")
             bestillAktivering()
-        } else {
-            log.info("Kjører ikke startBestillAktivering siden pod ikke er leader.")
         }
     }
 
