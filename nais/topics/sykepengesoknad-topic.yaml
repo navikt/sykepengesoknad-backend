@@ -25,6 +25,9 @@ spec:
     - team: tbd
       application: spedisjon
       access: read
+    - team: tbd
+      application: spedisjon-async
+      access: read
     - team: flex
       application: sykepengesoknad-narmesteleder-varsler
       access: read
