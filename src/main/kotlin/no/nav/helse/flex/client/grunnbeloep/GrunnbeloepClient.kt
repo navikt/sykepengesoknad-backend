@@ -46,6 +46,7 @@ class GrunnbeloepClient(
                     Mono.just(emptyList<GrunnbeloepResponse>())
                 }
 
+        // TODO: Fjern når vi har kontroll på hvor mange kall vi gjør per dag.
         log.info("Hentet grunnbeløphistorikk fra $hentForDato til i dag.")
         return historikk
     }
