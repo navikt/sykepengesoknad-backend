@@ -16,12 +16,15 @@ class AktiveringJob(
     val leaderElection: LeaderElection,
     val sykepengesoknadRepository: SykepengesoknadRepository,
 ) {
-    val log = logger()
+    private val log = logger()
 
-    @Scheduled(initialDelay = 5, fixedDelay = 2, timeUnit = TimeUnit.HOURS)
+    @Scheduled(initialDelay = 5, fixedDelay = 1, timeUnit = TimeUnit.HOURS)
     fun startBestillAktivering() {
         if (leaderElection.isLeader()) {
+            log.info("Er leader, kjører startBestillAktivering.")
             bestillAktivering()
+        } else {
+            log.info("Er ikke leader, kjører ikke startBestillAktivering.")
         }
     }
 
