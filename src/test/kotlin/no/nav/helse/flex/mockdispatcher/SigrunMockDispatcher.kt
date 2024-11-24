@@ -3,21 +3,16 @@ package no.nav.helse.flex.mockdispatcher
 import no.nav.helse.flex.client.sigrun.HentPensjonsgivendeInntektResponse
 import no.nav.helse.flex.client.sigrun.PensjonsgivendeInntekt
 import no.nav.helse.flex.client.sigrun.Skatteordning
-import no.nav.helse.flex.logger
 import no.nav.helse.flex.util.serialisertTilString
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.RecordedRequest
 
 object SigrunMockDispatcher : Dispatcher() {
-    // TODO: Trenger ikke logger.
-    private val log = logger()
-
     override fun dispatch(request: RecordedRequest): MockResponse {
         val fnr = request.headers["Nav-Personident"]!!
         val inntektsAar = request.headers["inntektsaar"]!!
 
-        // TODO: Reduser til 90_000 og 250_000 for å gjenspeile virkelige verdier.
         val over1G = 1_000_000
         val under1G = 100_000
 
@@ -31,6 +26,7 @@ object SigrunMockDispatcher : Dispatcher() {
         val personUtenInntektForsteAar = "21127575934"
         val personMedInntektAar4 = "12899497862"
         val personLangTilbakeITid = "06028033456"
+        val personUtenPensjonsgivendeInntektAlleAar = "27654767992"
 
         val naeringsinntekt =
             when (fnr) {
@@ -43,6 +39,7 @@ object SigrunMockDispatcher : Dispatcher() {
                 personUtenInntektSiste3Aar -> inntektForAar(inntektsAar, null, null, null, under1G)
                 personUtenInntektForsteAar -> inntektForAar(inntektsAar, null, under1G, over1G, under1G)
                 personMedInntektAar4 -> inntektForAar(inntektsAar, null, null, null, under1G)
+                personUtenPensjonsgivendeInntektAlleAar -> inntektForAar(inntektsAar, null, null, null, null)
                 // Excel Scenario 2 - inntektsAar 2018
                 personLangTilbakeITid ->
                     inntektForAar(
@@ -52,6 +49,7 @@ object SigrunMockDispatcher : Dispatcher() {
                         inntekt2015 = 590_000,
                         inntekt2014 = 490_000,
                     )
+
                 else -> inntektForAar(inntektsAar, 400000, 350000, 300000, under1G)
             }
 
@@ -85,13 +83,13 @@ object SigrunMockDispatcher : Dispatcher() {
                         lonnsinntekt = lonnsinntekt,
                         naeringsinntektFraFiskeFangstEllerFamiliebarnehage = naeringsinntektFraFiskeFangstEllerFamiliebarnehage,
                     )
+
                 else -> MockResponse().setResponseCode(404)
             }
 
         return ret
     }
 
-    // TODO: Gjør dynamisk.
     private fun inntektForAar(
         inntektsAar: String,
         inntekt2023: Int? = 0,

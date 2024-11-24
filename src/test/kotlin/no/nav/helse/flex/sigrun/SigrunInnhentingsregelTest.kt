@@ -125,4 +125,24 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
             it[2].inntektsaar `should be equal to` "2020"
         }
     }
+
+    @Test
+    fun `Hopper over første år, men ekstra år er også uten inntekt`() {
+        val soknad =
+            opprettNyNaeringsdrivendeSoknad().copy(
+                fnr = "27654767992",
+                startSykeforlop = LocalDate.now(),
+                fom = LocalDate.now().minusDays(30),
+                tom = LocalDate.now().minusDays(1),
+                sykmeldingSkrevet = Instant.now(),
+                aktivertDato = LocalDate.now().minusDays(30),
+            )
+        val result =
+            sykepengegrunnlagForNaeringsdrivende.hentPensjonsgivendeInntektForTreSisteArene(
+                soknad.fnr,
+                soknad.startSykeforlop!!.year,
+            )
+
+        result `should be` null
+    } // personUtenPensjonsgivendeInntektAlleÅr
 }
