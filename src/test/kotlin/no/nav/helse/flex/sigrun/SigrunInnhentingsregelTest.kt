@@ -127,7 +127,7 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `Hopper over første år, men ekstra år er også uten inntekt`() {
+    fun `Hopper over første år, men ekstra som hentes år er også uten inntekt`() {
         val soknad =
             opprettNyNaeringsdrivendeSoknad().copy(
                 fnr = "27654767992",

@@ -3,14 +3,12 @@ package no.nav.helse.flex.service
 import com.fasterxml.jackson.databind.JsonNode
 import no.nav.helse.flex.client.grunnbeloep.GrunnbeloepResponse
 import no.nav.helse.flex.client.sigrun.HentPensjonsgivendeInntektResponse
-import no.nav.helse.flex.client.sigrun.IngenPensjonsgivendeInntektFunnetException
 import no.nav.helse.flex.client.sigrun.PensjongivendeInntektClient
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.util.*
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import java.math.BigInteger
-import java.time.LocalDate
 
 // TODO: Flytt dataklasser nederst og gi klassene en mer beskrivende navn.
 data class AarVerdi(
@@ -53,9 +51,8 @@ class SykepengegrunnlagForNaeringsdrivende(
     private val pensjongivendeInntektClient: PensjongivendeInntektClient,
     private val grunnbeloepService: GrunnbeloepService,
 ) {
-    // TODO: Rename metodenavn sånn at det beskriver hva som skjer.
-    fun sykepengegrunnlagNaeringsdrivende(soknad: Sykepengesoknad): SykepengegrunnlagNaeringsdrivende? {
-        // TODO: Rename eller bruk faktisk startSyketilfelle.
+    fun hentSykepengegrunnlagForNaeringsdrivende(soknad: Sykepengesoknad): SykepengegrunnlagNaeringsdrivende? {
+        // TODO: Bruk faktisk startSyketilfelle.
         val sykmeldingstidspunkt = soknad.startSykeforlop!!.year
 
         val grunnbeloepSisteFemAar = grunnbeloepService.hentGrunnbeloepHistorikk(sykmeldingstidspunkt)
@@ -107,27 +104,14 @@ class SykepengegrunnlagForNaeringsdrivende(
         val aarViHenterFor = forsteAar downTo forsteAar - 2
 
         aarViHenterFor.forEach { aar ->
-            val pensjonsgivendeInntektResponse =
-                try {
-                    pensjongivendeInntektClient.hentPensjonsgivendeInntekt(fnr, aar)
-                    // TODO: Flytt opprettelse av tom HentPensjonsgivendeInntektResponse til klient i stedet for å bruke Exceptions til logisk håndtering.
-                    // TODO: Metoden vi kaller kaster en RuntimeException hvis ingen inntekt er funnet på grunn av ulovlig år (<2017). Det bobler opp.
-                } catch (_: IngenPensjonsgivendeInntektFunnetException) {
-                    // At ingen inntekt er funnet for det aktuelle året det betyr ikke at noe faktisk er feil.
-                    HentPensjonsgivendeInntektResponse(
-                        norskPersonidentifikator = fnr,
-                        inntektsaar = aar.toString(),
-                        pensjonsgivendeInntekt = emptyList(),
-                    )
-                }
-            ferdigliknetInntekter.add(pensjonsgivendeInntektResponse)
+            ferdigliknetInntekter.add(pensjongivendeInntektClient.hentPensjonsgivendeInntekt(fnr, aar))
         }
-        // Hvis det første året vi hentet er tomt henter vi for ett år ekstra for å ha tre sammenhengende år med inntekt.
+
+        // Hvis det første året vi hentet ikke har inntekt hentes ett år ekstra for å ha tre sammenhengende år med inntekt.
         if (ferdigliknetInntekter.find { it.inntektsaar == forsteAar.toString() }?.pensjonsgivendeInntekt!!.isEmpty()) {
             return (
                 ferdigliknetInntekter.slice(1..2) +
                     listOf(
-                        // TODO: Håndter IngenPensjonsgivendeInntektFunnetException her også.
                         pensjongivendeInntektClient.hentPensjonsgivendeInntekt(
                             fnr,
                             forsteAar - 3,
@@ -178,6 +162,4 @@ class SykepengegrunnlagForNaeringsdrivende(
                 )
         }
     }
-
-    fun String.tilAar() = LocalDate.parse(this).year
 }
