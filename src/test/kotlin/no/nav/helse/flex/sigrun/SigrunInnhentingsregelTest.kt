@@ -22,7 +22,7 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
                 aktivertDato = LocalDate.now().minusDays(30),
             )
         val result =
-            sykepengegrunnlagForNaeringsdrivende.hentPensjonsgivendeInntektForTreSisteArene(
+            sykepengegrunnlagForNaeringsdrivende.hentPensjonsgivendeInntektForTreSisteAar(
                 soknad.fnr,
                 soknad.startSykeforlop!!.year,
             )
@@ -50,7 +50,7 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
                 aktivertDato = LocalDate.now().minusDays(30),
             )
         val result =
-            sykepengegrunnlagForNaeringsdrivende.hentPensjonsgivendeInntektForTreSisteArene(
+            sykepengegrunnlagForNaeringsdrivende.hentPensjonsgivendeInntektForTreSisteAar(
                 soknad.fnr,
                 soknad.startSykeforlop!!.year,
             )
@@ -70,7 +70,7 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
                 aktivertDato = LocalDate.now().minusDays(30),
             )
         val result =
-            sykepengegrunnlagForNaeringsdrivende.hentPensjonsgivendeInntektForTreSisteArene(
+            sykepengegrunnlagForNaeringsdrivende.hentPensjonsgivendeInntektForTreSisteAar(
                 soknad.fnr,
                 soknad.startSykeforlop!!.year,
             )
@@ -90,7 +90,7 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
                 aktivertDato = LocalDate.now().minusDays(30),
             )
         val result =
-            sykepengegrunnlagForNaeringsdrivende.hentPensjonsgivendeInntektForTreSisteArene(
+            sykepengegrunnlagForNaeringsdrivende.hentPensjonsgivendeInntektForTreSisteAar(
                 soknad.fnr,
                 soknad.startSykeforlop!!.year,
             )
@@ -110,7 +110,7 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
                 aktivertDato = LocalDate.now().minusDays(30),
             )
         val result =
-            sykepengegrunnlagForNaeringsdrivende.hentPensjonsgivendeInntektForTreSisteArene(
+            sykepengegrunnlagForNaeringsdrivende.hentPensjonsgivendeInntektForTreSisteAar(
                 soknad.fnr,
                 soknad.startSykeforlop!!.year,
             )
@@ -138,7 +138,7 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
                 aktivertDato = LocalDate.now().minusDays(30),
             )
         val result =
-            sykepengegrunnlagForNaeringsdrivende.hentPensjonsgivendeInntektForTreSisteArene(
+            sykepengegrunnlagForNaeringsdrivende.hentPensjonsgivendeInntektForTreSisteAar(
                 soknad.fnr,
                 soknad.startSykeforlop!!.year,
             )

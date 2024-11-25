@@ -9,6 +9,9 @@ import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
 import java.util.*
 
+class PensjongivendeInntektClientException(message: String, cause: Throwable? = null) :
+    RuntimeException(message, cause)
+
 @Component
 class PensjongivendeInntektClient(
     private val persongivendeInntektRestTemplate: RestTemplate,
@@ -99,9 +102,7 @@ class PensjongivendeInntektClient(
 
                     else -> "Klientfeil ved kall mot Sigrun: ${e.statusCode} - ${e.message}"
                 }
-            throw RuntimeException(feilmelding, e)
-        } catch (e: Exception) {
-            throw RuntimeException("Feil ved kall mot Sigrun: ${e.message}", e)
+            throw PensjongivendeInntektClientException(feilmelding, e)
         }
     }
 }
