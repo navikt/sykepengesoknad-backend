@@ -9,9 +9,6 @@ import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
 import java.util.*
 
-class IngenPensjonsgivendeInntektFunnetException(message: String, cause: Throwable? = null) :
-    RuntimeException(message, cause)
-
 @Component
 class PensjongivendeInntektClient(
     private val persongivendeInntektRestTemplate: RestTemplate,
@@ -36,25 +33,26 @@ class PensjongivendeInntektClient(
             }
 
         try {
-            val result =
+            val response =
                 persongivendeInntektRestTemplate.exchange(
                     uriBuilder.toUriString(),
                     HttpMethod.GET,
                     HttpEntity<Any>(headers),
                     HentPensjonsgivendeInntektResponse::class.java,
                 )
-
-            return result.body
+            return response.body
                 ?: throw RuntimeException("Responsen er null uten feilmelding fra server.")
         } catch (e: HttpClientErrorException) {
             if (e.statusCode == HttpStatus.NOT_FOUND && e.responseBodyAsString.contains("PGIF-008")) {
-                // TODO: Returner HentPensjonsgivendeInntektResponse med tom liste i stedet for å kaste exception
-                throw IngenPensjonsgivendeInntektFunnetException(
-                    "Ingen pensjonsgivende inntekt funnet på oppgitt personidentifikator og inntektsår $inntektsAar.",
-                    e,
+                // 404 med tilhørende beskrivelse er ikke en feilsituasjon, men angir at det faktisk ikke finnes
+                // pensjonsgivende inntekt for det forespurte året.
+                return HentPensjonsgivendeInntektResponse(
+                    norskPersonidentifikator = fnr,
+                    inntektsaar = inntektsAar.toString(),
+                    pensjonsgivendeInntekt = emptyList(),
                 )
             }
-            // TODO: Skill ut mapping av feilmelding til egen metode.
+
             val feilmelding =
                 when (e.statusCode) {
                     HttpStatus.NOT_FOUND ->

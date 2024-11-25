@@ -22,7 +22,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 sykmeldingSkrevet = Instant.now(),
                 aktivertDato = LocalDate.now().minusDays(30),
             )
-        val grunnlagVerdier = sykepengegrunnlagForNaeringsdrivende.sykepengegrunnlagNaeringsdrivende(soknad)
+        val grunnlagVerdier = sykepengegrunnlagForNaeringsdrivende.hentSykepengegrunnlagForNaeringsdrivende(soknad)
 
         grunnlagVerdier `should not be` null
         grunnlagVerdier!!.let { grunnlag ->
@@ -40,7 +40,6 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
     fun `Regn ut sykepengegrunnlag for inntekter mellom 6G og 12G`() {
         val soknad =
             opprettNyNaeringsdrivendeSoknad().copy(
-                // TODO: Bruk variabler fra SigrunMockDispatcher.
                 fnr = "87654321234",
                 startSykeforlop = LocalDate.now(),
                 fom = LocalDate.now().minusDays(30),
@@ -49,7 +48,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 aktivertDato = LocalDate.now().minusDays(30),
             )
 
-        val grunnlagVerdier = sykepengegrunnlagForNaeringsdrivende.sykepengegrunnlagNaeringsdrivende(soknad)
+        val grunnlagVerdier = sykepengegrunnlagForNaeringsdrivende.hentSykepengegrunnlagForNaeringsdrivende(soknad)
 
         grunnlagVerdier `should not be` null
         grunnlagVerdier!!.let {
@@ -71,7 +70,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 aktivertDato = LocalDate.now().minusDays(30),
             )
 
-        val grunnlagVerdier = sykepengegrunnlagForNaeringsdrivende.sykepengegrunnlagNaeringsdrivende(soknad)
+        val grunnlagVerdier = sykepengegrunnlagForNaeringsdrivende.hentSykepengegrunnlagForNaeringsdrivende(soknad)
 
         grunnlagVerdier `should not be` null
         grunnlagVerdier!!.let {
@@ -94,7 +93,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 aktivertDato = LocalDate.now().minusDays(30),
             )
 
-        val grunnlagVerdier = sykepengegrunnlagForNaeringsdrivende.sykepengegrunnlagNaeringsdrivende(soknad)
+        val grunnlagVerdier = sykepengegrunnlagForNaeringsdrivende.hentSykepengegrunnlagForNaeringsdrivende(soknad)
 
         grunnlagVerdier `should not be` null
         grunnlagVerdier!!.let {
@@ -116,7 +115,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 aktivertDato = LocalDate.now().minusDays(30),
             )
 
-        val grunnlagVerdier = sykepengegrunnlagForNaeringsdrivende.sykepengegrunnlagNaeringsdrivende(soknad)
+        val grunnlagVerdier = sykepengegrunnlagForNaeringsdrivende.hentSykepengegrunnlagForNaeringsdrivende(soknad)
 
         grunnlagVerdier `should not be` null
         grunnlagVerdier!!.toJsonNode().toString() `should be equal to`
