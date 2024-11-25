@@ -1,11 +1,14 @@
 package no.nav.helse.flex.sigrun
 
 import no.nav.helse.flex.FellesTestOppsett
+import no.nav.helse.flex.client.sigrun.PensjongivendeInntektClientException
 import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknad
+import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should not be`
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import java.time.Instant
 import java.time.LocalDate
 
@@ -145,4 +148,53 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
 
         result `should be` null
     } // personUtenPensjonsgivendeInntektAlleÅr
+
+    @Test
+    fun `Det gjøres ikke retry for exceptions kastet på grunn av feil med semantikk`() {
+        SigrunMockDispatcher.nullstillAntallKall()
+
+        val soknad =
+            opprettNyNaeringsdrivendeSoknad().copy(
+                fnr = "01017011111",
+                startSykeforlop = LocalDate.now(),
+                fom = LocalDate.now().minusDays(30),
+                tom = LocalDate.now().minusDays(1),
+                sykmeldingSkrevet = Instant.now(),
+                aktivertDato = LocalDate.now().minusDays(30),
+            )
+
+        assertThrows<PensjongivendeInntektClientException> {
+            sykepengegrunnlagForNaeringsdrivende.hentPensjonsgivendeInntektForTreSisteAar(
+                soknad.fnr,
+                soknad.startSykeforlop!!.year,
+            )
+        }
+
+        SigrunMockDispatcher.hentAntallKall() `should be` 1
+    }
+
+    @Test
+    fun `Det gjøres retry når det kastes exception som ikke er på grunn av feil med semantikk`() {
+        SigrunMockDispatcher.nullstillAntallKall()
+
+        val soknad =
+            opprettNyNaeringsdrivendeSoknad().copy(
+                fnr = "01017022222",
+                startSykeforlop = LocalDate.now(),
+                fom = LocalDate.now().minusDays(30),
+                tom = LocalDate.now().minusDays(1),
+                sykmeldingSkrevet = Instant.now(),
+                aktivertDato = LocalDate.now().minusDays(30),
+            )
+
+        assertThrows<RuntimeException> {
+            sykepengegrunnlagForNaeringsdrivende.hentPensjonsgivendeInntektForTreSisteAar(
+                soknad.fnr,
+                soknad.startSykeforlop!!.year,
+            )
+        }
+
+        // @Retryable(maxAttempts = 3)
+        SigrunMockDispatcher.hentAntallKall() `should be` 3
+    }
 }

@@ -47,11 +47,12 @@ abstract class FellesTestOppsett {
     companion object {
         val pdlMockWebserver: MockWebServer
         val medlemskapMockWebServer: MockWebServer
+        val pensjonsgivendeInntektMockWebServer: MockWebServer
         private val inntektskomponentenMockWebServer: MockWebServer
         private val eregMockWebServer: MockWebServer
         private val yrkesskadeMockWebServer: MockWebServer
         private val innsendingApiMockWebServer: MockWebServer
-        private val pensjonsgivendeInntektMockWebServer: MockWebServer
+
         private val grunnbeloepApiMockWebServer: MockWebServer
 
         init {

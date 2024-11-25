@@ -7,11 +7,36 @@ import no.nav.helse.flex.util.serialisertTilString
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.RecordedRequest
+import java.util.concurrent.atomic.AtomicInteger
 
 object SigrunMockDispatcher : Dispatcher() {
+    private val antallKall = AtomicInteger(0)
+
+    fun nullstillAntallKall() {
+        antallKall.set(0)
+    }
+
+    fun hentAntallKall() = antallKall.get()
+
     override fun dispatch(request: RecordedRequest): MockResponse {
         val fnr = request.headers["Nav-Personident"]!!
         val inntektsAar = request.headers["inntektsaar"]!!
+        antallKall.incrementAndGet()
+
+        // Brukt til testing av at det ikke gjøres retries når det kastes en PensjonsgivendeInntektClientException.
+        if (fnr == "01017011111") {
+            return MockResponse()
+                .setResponseCode(404)
+                .setBody("{\"errorCode\": \"PGIF-007\", \"errorMessage\": \"Ikke treff på oppgitt personidentifikator.\"}")
+                .addHeader("Content-Type", "application/json")
+        }
+
+        // Bruk til testing av at det skal gjøres retries når det kastes en exception fordi body er null.
+        if (fnr == "01017022222") {
+            return MockResponse()
+                .setResponseCode(200)
+                .addHeader("Content-Type", "application/json")
+        }
 
         val over1G = 1_000_000
         val under1G = 100_000
