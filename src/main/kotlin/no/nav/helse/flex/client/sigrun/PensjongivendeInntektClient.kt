@@ -9,13 +9,16 @@ import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
 import java.util.*
 
+class PensjongivendeInntektClientException(message: String, cause: Throwable? = null) :
+    RuntimeException(message, cause)
+
 @Component
 class PensjongivendeInntektClient(
     private val persongivendeInntektRestTemplate: RestTemplate,
     @Value("\${SIGRUN_URL}")
     private val url: String,
 ) {
-    @Retryable
+    @Retryable(noRetryFor = [PensjongivendeInntektClientException::class], maxAttempts = 3)
     fun hentPensjonsgivendeInntekt(
         fnr: String,
         inntektsAar: Int,
@@ -99,9 +102,7 @@ class PensjongivendeInntektClient(
 
                     else -> "Klientfeil ved kall mot Sigrun: ${e.statusCode} - ${e.message}"
                 }
-            throw RuntimeException(feilmelding, e)
-        } catch (e: Exception) {
-            throw RuntimeException("Feil ved kall mot Sigrun: ${e.message}", e)
+            throw PensjongivendeInntektClientException(feilmelding, e)
         }
     }
 }
