@@ -6,7 +6,7 @@ db_size: 250
 db_highAvailability: true
 db_pointInTimeRecovery: true
 cpu: 1000m
-memory: 2048Mi
+memory: 1792Mi
 replicas_min: 3
 replicas_max: 5
 external-host:
