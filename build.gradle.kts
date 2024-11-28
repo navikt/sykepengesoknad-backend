@@ -33,10 +33,10 @@ val sykepengesoknadKafkaVersion = "2024.10.21-14.49-932f4f94"
 val mockitoKotlinVersion = "2.2.0"
 val avroVersion = "1.12.0"
 val logstashLogbackEncoderVersion = "8.0"
-val testContainersVersion = "1.20.3"
+val testContainersVersion = "1.20.4"
 val kluentVersion = "1.73"
 val jsonSchemaValidatorVersion = "1.5.3"
-val unleashVersion = "9.2.4"
+val unleashVersion = "9.2.5"
 
 dependencies {
     implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
