@@ -314,6 +314,9 @@ class SykepengesoknadDAO(
     fun slettAlleSvar(sykepengesoknad: Sykepengesoknad) {
         svarDAO.slettSvar(sykepengesoknad.id)
     }
+    fun slettAlleSvar(soknadUuid: String) {
+        svarDAO.slettSvar(soknadUuid)
+    }
 
     fun nullstillSoknader(fnr: String): Int {
         val soknadsIder =
@@ -666,6 +669,20 @@ class SykepengesoknadDAO(
             MapSqlParameterSource()
                 .addValue("dato", LocalDate.now(osloZone).minusMonths(4)),
         )
+    }
+
+    fun finnSoknaderSomSkalDeaktiveres(): List<String> {
+        return namedParameterJdbcTemplate.query(
+            """
+            SELECT sykepengesoknad_uuid
+            FROM sykepengesoknad 
+            WHERE status IN ('NY', 'AVBRUTT')
+            AND opprettet < :dato
+            AND ((tom < :dato) OR (soknadstype = 'OPPHOLD_UTLAND'))
+            """.trimIndent(),
+            MapSqlParameterSource()
+                .addValue("dato", LocalDate.now(osloZone).minusMonths(4)),
+        ){resultSet, _ -> resultSet.getString("SYKEPENGESOKNAD_UUID")}
     }
 
     fun finnUpubliserteUtlopteSoknader(): List<String> {

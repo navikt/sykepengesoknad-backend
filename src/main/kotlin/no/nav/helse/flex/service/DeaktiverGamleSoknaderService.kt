@@ -15,6 +15,12 @@ class DeaktiverGamleSoknaderService(
     fun deaktiverSoknader(): Int {
         log.info("Leter etter soknader som skal deaktiveres")
 
+        val soknaderSomSkalDeaktiveres = sykepengesoknadDAO.finnSoknaderSomSkalDeaktiveres()
+        soknaderSomSkalDeaktiveres.forEach {
+            sykepengesoknadDAO.slettAlleSvar(it)
+        }
+        log.info("Slettet ${soknaderSomSkalDeaktiveres.size} fra avbrutte søknader som skal deaktiveres")
+
         val antall = sykepengesoknadDAO.deaktiverSoknader()
         log.info("Deaktivert $antall søknader")
 
