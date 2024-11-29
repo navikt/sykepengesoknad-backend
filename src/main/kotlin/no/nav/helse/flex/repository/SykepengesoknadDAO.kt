@@ -677,7 +677,7 @@ class SykepengesoknadDAO(
             AND fnr IS NOT NULL
             AND status = 'UTGATT'
             AND opprinnelse != 'SYFOSERVICE'
-            FETCH FIRST 1000 ROWS ONLY
+            LIMIT 1000
             """.trimIndent(),
             MapSqlParameterSource(),
         ) { resultSet, _ -> resultSet.getString("SYKEPENGESOKNAD_UUID") }
