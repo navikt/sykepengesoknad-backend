@@ -25,12 +25,12 @@ class PubliserUtgaatteSoknader(
     fun publiserUtgatteSoknader(): Int {
         val soknaderTilPublisering = sykepengesoknadDAO.finnUpubliserteUtlopteSoknader()
         soknaderTilPublisering.forEach {
-            val soknadUtenSporsmal = sykepengesoknadDAO.finnSykepengesoknad(it).copy(sporsmal = emptyList())
-            soknadProducer.soknadEvent(soknadUtenSporsmal)
+            val soknad = sykepengesoknadDAO.finnSykepengesoknad(it)
+            soknadProducer.soknadEvent(soknad)
             sykepengesoknadDAO.settUtloptPublisert(it, LocalDateTime.now())
         }
         if (soknaderTilPublisering.isNotEmpty()) {
-            log.info("Publiserte ${soknaderTilPublisering.size} utgåtte søknader på kafka")
+            log.info("Publiserte ${soknaderTilPublisering.size} utgåtte søknader på Kafka.")
         }
         return soknaderTilPublisering.size
     }
