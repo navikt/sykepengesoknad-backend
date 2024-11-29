@@ -107,6 +107,10 @@ management:
     livenessstate.enabled: true
     readinessState.enabled: true
   metrics.export.prometheus.enabled: true
+  metrics:
+    web:
+      client:
+        max-uri-tags: 1000
 
 server:
   shutdown: graceful
