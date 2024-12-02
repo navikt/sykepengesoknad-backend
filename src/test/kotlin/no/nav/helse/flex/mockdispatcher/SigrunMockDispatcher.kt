@@ -10,13 +10,7 @@ import okhttp3.mockwebserver.RecordedRequest
 import java.util.concurrent.atomic.AtomicInteger
 
 object SigrunMockDispatcher : Dispatcher() {
-    private val antallKall = AtomicInteger(0)
-
-    fun nullstillAntallKall() {
-        antallKall.set(0)
-    }
-
-    fun hentAntallKall() = antallKall.get()
+    val antallKall = AtomicInteger(0)
 
     override fun dispatch(request: RecordedRequest): MockResponse {
         val fnr = request.headers["Nav-Personident"]!!

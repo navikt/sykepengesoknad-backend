@@ -7,12 +7,18 @@ import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should not be`
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.time.Instant
 import java.time.LocalDate
 
 class SigrunInnhentingsregelTest : FellesTestOppsett() {
+    @BeforeEach
+    fun nullstillSigrunMockDispatcher() {
+        SigrunMockDispatcher.antallKall.set(0)
+    }
+
     @Test
     fun `Returnere 3 sammenhengende år med ferdiglignet inntekter`() {
         val soknad =
@@ -151,8 +157,6 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
 
     @Test
     fun `Det gjøres ikke retry for exceptions kastet på grunn av feil med semantikk`() {
-        SigrunMockDispatcher.nullstillAntallKall()
-
         val soknad =
             opprettNyNaeringsdrivendeSoknad().copy(
                 fnr = "01017011111",
@@ -170,13 +174,11 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
             )
         }
 
-        SigrunMockDispatcher.hentAntallKall() `should be` 1
+        SigrunMockDispatcher.antallKall.get() `should be equal to` 1
     }
 
     @Test
     fun `Det gjøres retry når det kastes exception som ikke er på grunn av feil med semantikk`() {
-        SigrunMockDispatcher.nullstillAntallKall()
-
         val soknad =
             opprettNyNaeringsdrivendeSoknad().copy(
                 fnr = "01017022222",
@@ -195,6 +197,6 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
         }
 
         // @Retryable(maxAttempts = 3)
-        SigrunMockDispatcher.hentAntallKall() `should be` 3
+        SigrunMockDispatcher.antallKall.get() `should be equal to` 3
     }
 }
