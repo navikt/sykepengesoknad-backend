@@ -141,9 +141,9 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
         SoknadBesvarer(soknadOppholdUtenforEOS, this, fnr)
             .besvarSporsmal(
                 tag = PERIODEUTLAND,
-                svar = "{\"fom\":\"${LocalDate.of(2024, 9, 27).minusWeeks(4).format(
+                svar = "{\"fom\":\"${LocalDate.now().minusWeeks(4).format(
                     DateTimeFormatter.ISO_LOCAL_DATE,
-                )}\",\"tom\":\"${LocalDate.of(2024, 9, 27).minusWeeks(2).format(
+                )}\",\"tom\":\"${LocalDate.now().minusWeeks(2).format(
                     DateTimeFormatter.ISO_LOCAL_DATE,
                 )}\"}",
             )
@@ -162,15 +162,15 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
 
         val soknaden =
             settOppSykepengeSoknad(
-                LocalDate.of(2024, 9, 6),
-                LocalDate.of(2024, 9, 25),
+                LocalDate.now().minusWeeks(4),
+                LocalDate.now().minusWeeks(2),
             )
 
         val sendtSykepengeSoknad =
             besvarSoknad(
                 soknaden,
-                utenforEOSFom = LocalDate.of(2024, 9, 6),
-                utenforEOSTom = LocalDate.of(2024, 9, 25),
+                utenforEOSFom = LocalDate.now().minusWeeks(4),
+                utenforEOSTom = LocalDate.now().minusWeeks(2),
                 ferieFom = null,
                 ferieTom = null,
                 permisjonFom = null,
