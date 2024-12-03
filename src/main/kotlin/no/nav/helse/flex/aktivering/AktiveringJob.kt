@@ -20,11 +20,12 @@ class AktiveringJob(
 
     @Scheduled(initialDelay = 5, fixedDelay = 20, timeUnit = TimeUnit.MINUTES)
     fun startBestillAktivering() {
+        log.info("Kjører scheduled jobb startBestillAktivering.")
         if (leaderElection.isLeader()) {
-            log.info("Er leader, kjører startBestillAktivering.")
+            log.info("Er leader, bestiller aktivering.")
             bestillAktivering()
         } else {
-            log.info("Er ikke leader, kjører ikke startBestillAktivering.")
+            log.info("Er ikke leader, bestiller ikke aktivering.")
         }
     }
 
