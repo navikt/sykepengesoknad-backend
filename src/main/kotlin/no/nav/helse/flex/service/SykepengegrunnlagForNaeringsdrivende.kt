@@ -5,6 +5,7 @@ import no.nav.helse.flex.client.grunnbeloep.GrunnbeloepResponse
 import no.nav.helse.flex.client.sigrun.HentPensjonsgivendeInntektResponse
 import no.nav.helse.flex.client.sigrun.PensjongivendeInntektClient
 import no.nav.helse.flex.domain.Sykepengesoknad
+import no.nav.helse.flex.logger
 import no.nav.helse.flex.util.*
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
@@ -51,6 +52,8 @@ class SykepengegrunnlagForNaeringsdrivende(
     private val pensjongivendeInntektClient: PensjongivendeInntektClient,
     private val grunnbeloepService: GrunnbeloepService,
 ) {
+    private val log = logger()
+
     fun hentSykepengegrunnlagForNaeringsdrivende(soknad: Sykepengesoknad): SykepengegrunnlagNaeringsdrivende? {
         // TODO: Bruk faktisk startSyketilfelle.
         val sykmeldingstidspunkt = soknad.startSykeforlop!!.year
@@ -63,6 +66,7 @@ class SykepengegrunnlagForNaeringsdrivende(
             hentPensjonsgivendeInntektForTreSisteAar(
                 soknad.fnr,
                 sykmeldingstidspunkt,
+                if (soknad.id == "e1ea11ef-2b2d-390c-bca3-44af49b1c52e") soknad.id else null,
             )?.filter { it.pensjonsgivendeInntekt.isNotEmpty() }
 
         if (pensjonsgivendeInntekter.isNullOrEmpty()) {
@@ -98,17 +102,28 @@ class SykepengegrunnlagForNaeringsdrivende(
     fun hentPensjonsgivendeInntektForTreSisteAar(
         fnr: String,
         sykmeldingstidspunkt: Int,
+        id: String? = null,
     ): List<HentPensjonsgivendeInntektResponse>? {
         val ferdigliknetInntekter = mutableListOf<HentPensjonsgivendeInntektResponse>()
         val forsteAar = sykmeldingstidspunkt - 1
         val aarViHenterFor = forsteAar downTo forsteAar - 2
 
+        id?.let {
+            log.info("Debug $id: aaViHenterFor: $aarViHenterFor")
+        }
+
         aarViHenterFor.forEach { aar ->
+            id?.let {
+                log.info("Debug $id: her henter vi inntekt for aar: $aar")
+            }
             ferdigliknetInntekter.add(pensjongivendeInntektClient.hentPensjonsgivendeInntekt(fnr, aar))
         }
 
         // Hvis det første året vi hentet ikke har inntekt hentes ett år ekstra for å ha tre sammenhengende år med inntekt.
         if (ferdigliknetInntekter.find { it.inntektsaar == forsteAar.toString() }?.pensjonsgivendeInntekt!!.isEmpty()) {
+            id?.let {
+                log.info("Debug $id: henter for et ekstra år fordi første år var tomt: ${forsteAar - 3}")
+            }
             return (
                 ferdigliknetInntekter.slice(1..2) +
                     listOf(
