@@ -5,6 +5,8 @@ metadata:
   namespace: flex
   labels:
     team: flex
+  annotations:  
+    config.linkerd.io/proxy-outbound-connect-timeout: 10s
 spec:
   image: {{image}}
   replicas:
