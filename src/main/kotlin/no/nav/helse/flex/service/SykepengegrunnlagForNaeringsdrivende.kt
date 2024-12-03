@@ -55,7 +55,11 @@ class SykepengegrunnlagForNaeringsdrivende(
     private val log = logger()
 
     fun hentSykepengegrunnlagForNaeringsdrivende(soknad: Sykepengesoknad): SykepengegrunnlagNaeringsdrivende? {
-        // TODO: Bruk faktisk startSyketilfelle.
+        if (soknad.id == "e1ea11ef-2b2d-390c-bca3-44af49b1c52e") {
+            log.info("Henter ikke sykepengegrunnlag for e1ea11ef-2b2d-390c-bca3-44af49b1c52e siden startSyketilfelle er i 2020.")
+            return null
+        }
+        // TODO: Bruk sykmeldingstidspunkt i stedet for startSykeforlop.
         val sykmeldingstidspunkt = soknad.startSykeforlop!!.year
 
         val grunnbeloepSisteFemAar = grunnbeloepService.hentGrunnbeloepHistorikk(sykmeldingstidspunkt)
@@ -66,7 +70,6 @@ class SykepengegrunnlagForNaeringsdrivende(
             hentPensjonsgivendeInntektForTreSisteAar(
                 soknad.fnr,
                 sykmeldingstidspunkt,
-                if (soknad.id == "e1ea11ef-2b2d-390c-bca3-44af49b1c52e") soknad.id else null,
             )?.filter { it.pensjonsgivendeInntekt.isNotEmpty() }
 
         if (pensjonsgivendeInntekter.isNullOrEmpty()) {
@@ -102,28 +105,17 @@ class SykepengegrunnlagForNaeringsdrivende(
     fun hentPensjonsgivendeInntektForTreSisteAar(
         fnr: String,
         sykmeldingstidspunkt: Int,
-        id: String? = null,
     ): List<HentPensjonsgivendeInntektResponse>? {
         val ferdigliknetInntekter = mutableListOf<HentPensjonsgivendeInntektResponse>()
         val forsteAar = sykmeldingstidspunkt - 1
         val aarViHenterFor = forsteAar downTo forsteAar - 2
 
-        id?.let {
-            log.info("Debug $id: aaViHenterFor: $aarViHenterFor")
-        }
-
         aarViHenterFor.forEach { aar ->
-            id?.let {
-                log.info("Debug $id: her henter vi inntekt for aar: $aar")
-            }
             ferdigliknetInntekter.add(pensjongivendeInntektClient.hentPensjonsgivendeInntekt(fnr, aar))
         }
 
         // Hvis det første året vi hentet ikke har inntekt hentes ett år ekstra for å ha tre sammenhengende år med inntekt.
         if (ferdigliknetInntekter.find { it.inntektsaar == forsteAar.toString() }?.pensjonsgivendeInntekt!!.isEmpty()) {
-            id?.let {
-                log.info("Debug $id: henter for et ekstra år fordi første år var tomt: ${forsteAar - 3}")
-            }
             return (
                 ferdigliknetInntekter.slice(1..2) +
                     listOf(
