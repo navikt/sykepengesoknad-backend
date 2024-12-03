@@ -13,7 +13,9 @@ import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLDSTILLATELSE_V2
 import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLD_UTENFOR_EOS
 import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE
 import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE
-import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO.*
+import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO.FREMTIDIG
+import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO.NY
+import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO.SLETTET
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
@@ -32,6 +34,7 @@ import org.amshove.kluent.`should not contain`
 import org.amshove.kluent.`should not contain any`
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
@@ -51,6 +54,11 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
 
     @Autowired
     private lateinit var aktiveringJob: AktiveringJob
+
+    @BeforeEach
+    fun nullstillMedlemskapMockDispatcher() {
+        MedlemskapMockDispatcher.antallKall.set(0)
+    }
 
     @AfterEach
     fun slettFraDatabase() {
@@ -106,6 +114,8 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
         // Skal ikke ha medlemskapspørsmål siden det ikke er en førstegangssøknad.
         andreSoknad.medlemskapVurdering `should be` null
         andreSoknad.forstegangssoknad `should be` false
+
+        MedlemskapMockDispatcher.antallKall.get() `should be equal to` 1
     }
 
     @Test
@@ -162,6 +172,8 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
         overlappendeSoknad.medlemskapVurdering `should be equal to` "UAVKLART"
         overlappendeSoknad.status `should be equal to` NY
         overlappendeSoknad.forstegangssoknad `should be` true
+
+        MedlemskapMockDispatcher.antallKall.get() `should be equal to` 2
     }
 
     @Test
@@ -220,6 +232,8 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
 
         andreSoknad.medlemskapVurdering `should be` null
         andreSoknad.forstegangssoknad `should be` false
+
+        MedlemskapMockDispatcher.antallKall.get() `should be equal to` 2
     }
 
     @Test
@@ -261,6 +275,8 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
         reisetilskuddSoknad.type `should be equal to` SoknadstypeDTO.REISETILSKUDD
         reisetilskuddSoknad.medlemskapVurdering `should be` null
         reisetilskuddSoknad.forstegangssoknad `should be` false
+
+        MedlemskapMockDispatcher.antallKall.get() `should be equal to` 1
     }
 
     @Test
@@ -308,13 +324,17 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
         // Påfølgende søknad ikke ha medlemskapspørsmål siden det ikke er en førstegangssøknad.
         andreSoknad.medlemskapVurdering `should be` null
         andreSoknad.forstegangssoknad `should be` false
+
+        MedlemskapMockDispatcher.antallKall.get() `should be equal to` 1
     }
 
     @Test
     fun `Tilbakedatert søknad med tidligere startSyketilfelle får medlemskapspørsmål`() {
-        medlemskapMockWebServer.enqueue(
-            lagUavklartMockResponse(),
-        )
+        repeat(2) {
+            medlemskapMockWebServer.enqueue(
+                lagUavklartMockResponse(),
+            )
+        }
 
         val forsteSoknad =
             sendSykmelding(
@@ -349,8 +369,10 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
         forsteSoknad.forstegangssoknad `should be` true
 
         // En tilbakedatert søknad vil få medlemskapspørsmål siden den vil ha en annen dato for startSykeforløp.
-        forsteSoknad.medlemskapVurdering `should be equal to` "UAVKLART"
+        andreSoknad.medlemskapVurdering `should be equal to` "UAVKLART"
         andreSoknad.forstegangssoknad `should be` true
+
+        MedlemskapMockDispatcher.antallKall.get() `should be equal to` 2
     }
 
     @Test
@@ -420,6 +442,8 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
                 MEDLEMSKAP_OPPHOLDSTILLATELSE,
                 ARBEID_UTENFOR_NORGE,
             )
+
+        MedlemskapMockDispatcher.antallKall.get() `should be equal to` 1
     }
 
     @Test
@@ -503,6 +527,8 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
                 MEDLEMSKAP_OPPHOLDSTILLATELSE,
                 ARBEID_UTENFOR_NORGE,
             )
+
+        MedlemskapMockDispatcher.antallKall.get() `should be equal to` 1
     }
 
     private fun lagUavklartMockResponse() =

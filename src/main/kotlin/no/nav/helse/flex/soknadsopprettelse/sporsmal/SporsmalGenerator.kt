@@ -7,13 +7,13 @@ import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.logger
+import no.nav.helse.flex.medlemskap.KjentOppholdstillatelse
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingClient
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingRepository
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingRequest
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingResponse
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingSporsmal
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingSvarType
-import no.nav.helse.flex.medlemskap.hentKjentOppholdstillatelse
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.repository.SykepengesoknadRepository
 import no.nav.helse.flex.service.FolkeregisterIdenter
@@ -153,21 +153,13 @@ class SporsmalGenerator(
                         startSykeforlop = soknad.startSykeforlop!!,
                     )
 
+                val medlemskapSporsmalResultat = lagMedlemsskapSporsmalResultat(eksisterendeSoknader, soknad)
                 val arbeidstakerSporsmal =
                     settOppSoknadArbeidstaker(
                         soknadOptions =
                             soknadOptions.copy(
-                                medlemskapSporsmalTags = lagMedlemsskapSporsmalTags(eksisterendeSoknader, soknad),
-                                // TODO: Refaktorer hentOppholdstillatelse() ut av lagMedlemsskapSporsmalTags()
-                                //  sånn at vi slipper å gå til databasen rett etter vi har hentet
-                                //  og lagret medlemskapsvurdering.
-                                kjentOppholdstillatelse =
-                                    medlemskapVurderingRepository.findBySykepengesoknadIdAndFomAndTom(
-                                        sykepengesoknadId = soknad.id,
-                                        // fom og tom vil ikke være tomme for Arbeidssituasjon.ARBEIDSTAKER.
-                                        fom = soknad.fom!!,
-                                        tom = soknad.tom!!,
-                                    )?.hentKjentOppholdstillatelse(),
+                                medlemskapSporsmalTags = medlemskapSporsmalResultat?.medlemskapSporsmalTags,
+                                kjentOppholdstillatelse = medlemskapSporsmalResultat?.kjentOppholdstillatelse,
                             ),
                         andreKjenteArbeidsforholdFraInntektskomponenten = andreKjenteArbeidsforhold,
                     )
@@ -206,52 +198,58 @@ class SporsmalGenerator(
         }
     }
 
-    private fun lagMedlemsskapSporsmalTags(
+    private fun lagMedlemsskapSporsmalResultat(
         eksisterendeSoknader: List<Sykepengesoknad>,
         soknad: Sykepengesoknad,
-    ): List<MedlemskapSporsmalTag> {
-        // Medlemskapspørsmal skal kun stilles i én første søknad i et sykeforløp, uavhengig av arbeidsgiver.
+    ): MedlemskapSporsmalResultat? {
+        // Medlemskapspørsmål skal kun stilles i én første søknad i et sykeforløp, uavhengig av arbeidsgiver.
         if (!skalHaSporsmalOmMedlemskap(eksisterendeSoknader, soknad)) {
-            return emptyList()
+            return MedlemskapSporsmalResultat(medlemskapSporsmalTags = emptyList())
         }
 
         // Stiller spørsmål om ARBEID_UTENFOR_NORGE hvis det ikke blir returnert en medlemskapvurdering fra LovMe.
-        val medlemskapVurdering =
+        val medlemskapVurderingResponse =
             hentMedlemskapVurdering(soknad)
-                ?: return listOf(SykepengesoknadSporsmalTag.ARBEID_UTENFOR_NORGE)
+                ?: return MedlemskapSporsmalResultat(medlemskapSporsmalTags = listOf(SykepengesoknadSporsmalTag.ARBEID_UTENFOR_NORGE))
 
-        val (svar, sporsmal) = medlemskapVurdering
+        val (svar, sporsmal, kjentOppholdstillatelse) = medlemskapVurderingResponse
 
-        return when {
-            // Det skal ikke stilles medlemskapspørsmål hvis det er et avklart medlemskapsforhold.
-            svar in
-                listOf(
-                    MedlemskapVurderingSvarType.JA,
-                    MedlemskapVurderingSvarType.NEI,
-                )
-            -> emptyList()
+        val medlemskapSporsmalTags =
+            when {
+                // Det skal ikke stilles medlemskapspørsmål hvis det er et avklart medlemskapsforhold.
+                svar in
+                    listOf(
+                        MedlemskapVurderingSvarType.JA,
+                        MedlemskapVurderingSvarType.NEI,
+                    )
+                -> emptyList()
 
-            // LovMe kan returnerer UAVKLART uten tilhørende spørsmål når det ikke er et scenario de har implementert
-            // på sin side. Blir også brukt hvis LovMe anser tidligere svar (på spørsmål i søkand) som fortsatt gyldige.
-            // I disse tilfellene stiller vi det "gamle" spørsmålet om Arbeid Utenfor Norge.
-            svar == MedlemskapVurderingSvarType.UAVKLART && sporsmal.isEmpty() -> {
-                log.info("Medlemskapvurdering er UAVKLART for søknad ${soknad.id}, men LovMe returnerte ingen spørsmål.")
-                listOf(SykepengesoknadSporsmalTag.ARBEID_UTENFOR_NORGE)
-            }
+                // LovMe kan returnerer UAVKLART uten tilhørende spørsmål når det ikke er et scenario de har implementert
+                // på sin side. Blir også brukt hvis LovMe anser tidligere svar (på spørsmål i søkand) som fortsatt gyldige.
+                // I disse tilfellene stiller vi det "gamle" spørsmålet om Arbeid Utenfor Norge.
+                svar == MedlemskapVurderingSvarType.UAVKLART && sporsmal.isEmpty() -> {
+                    log.info("Medlemskapvurdering er UAVKLART for søknad ${soknad.id}, men LovMe returnerte ingen spørsmål.")
+                    listOf(SykepengesoknadSporsmalTag.ARBEID_UTENFOR_NORGE)
+                }
 
-            //  LovMe kan returnerer UAVKLART med tilhørende spørsmål.
-            else -> {
-                log.info("Medlemskapvurdering er UAVKLART med spørsmål for søknad ${soknad.id}.")
-                sporsmal.map {
-                    when (it) {
-                        MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE -> LovMeSporsmalTag.OPPHOLDSTILATELSE
-                        MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE -> LovMeSporsmalTag.ARBEID_UTENFOR_NORGE
-                        MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE -> LovMeSporsmalTag.OPPHOLD_UTENFOR_NORGE
-                        MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE -> LovMeSporsmalTag.OPPHOLD_UTENFOR_EØS_OMRÅDE
+                //  LovMe kan returnerer UAVKLART med tilhørende spørsmål.
+                else -> {
+                    log.info("Medlemskapvurdering er UAVKLART med spørsmål for søknad ${soknad.id}.")
+                    sporsmal.map {
+                        when (it) {
+                            MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE -> LovMeSporsmalTag.OPPHOLDSTILATELSE
+                            MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE -> LovMeSporsmalTag.ARBEID_UTENFOR_NORGE
+                            MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE -> LovMeSporsmalTag.OPPHOLD_UTENFOR_NORGE
+                            MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE -> LovMeSporsmalTag.OPPHOLD_UTENFOR_EØS_OMRÅDE
+                        }
                     }
                 }
             }
-        }
+
+        return MedlemskapSporsmalResultat(
+            medlemskapSporsmalTags = medlemskapSporsmalTags,
+            kjentOppholdstillatelse = kjentOppholdstillatelse,
+        )
     }
 
     private fun hentMedlemskapVurdering(soknad: Sykepengesoknad): MedlemskapVurderingResponse? {
@@ -280,3 +278,8 @@ class SporsmalGenerator(
         }.getOrNull()
     }
 }
+
+data class MedlemskapSporsmalResultat(
+    val medlemskapSporsmalTags: List<MedlemskapSporsmalTag>,
+    val kjentOppholdstillatelse: KjentOppholdstillatelse? = null,
+)

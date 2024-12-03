@@ -5,9 +5,13 @@ import no.nav.helse.flex.util.serialisertTilString
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.QueueDispatcher
 import okhttp3.mockwebserver.RecordedRequest
+import java.util.concurrent.atomic.AtomicInteger
 
 object MedlemskapMockDispatcher : QueueDispatcher() {
+    val antallKall = AtomicInteger(0)
+
     override fun dispatch(request: RecordedRequest): MockResponse {
+        antallKall.incrementAndGet()
         if (responseQueue.peek() != null) {
             return withContentTypeApplicationJson { responseQueue.take() }
         }
