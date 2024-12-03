@@ -55,10 +55,6 @@ class SykepengegrunnlagForNaeringsdrivende(
     private val log = logger()
 
     fun hentSykepengegrunnlagForNaeringsdrivende(soknad: Sykepengesoknad): SykepengegrunnlagNaeringsdrivende? {
-        if (soknad.id == "e1ea11ef-2b2d-390c-bca3-44af49b1c52e") {
-            log.info("Henter ikke sykepengegrunnlag for e1ea11ef-2b2d-390c-bca3-44af49b1c52e siden startSyketilfelle er i 2020.")
-            return null
-        }
         // TODO: Bruk sykmeldingstidspunkt i stedet for startSykeforlop.
         val sykmeldingstidspunkt = soknad.startSykeforlop!!.year
 
