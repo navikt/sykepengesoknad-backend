@@ -45,7 +45,7 @@ class LeaderElection(
         val hostname: String = InetAddress.getLocalHost().hostName
 
         val uriString =
-            UriComponentsBuilder.fromHttpUrl(getHttpPath(electorPath))
+            UriComponentsBuilder.fromUriString(getHttpPath(electorPath))
                 .toUriString()
         val result =
             plainTextUtf8RestTemplate

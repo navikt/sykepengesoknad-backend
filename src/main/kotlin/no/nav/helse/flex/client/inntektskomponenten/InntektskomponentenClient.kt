@@ -24,7 +24,7 @@ class InntektskomponentenClient(
         tom: YearMonth,
     ): HentInntekterResponse {
         val uriBuilder =
-            UriComponentsBuilder.fromHttpUrl("$url/api/v1/hentinntektliste")
+            UriComponentsBuilder.fromUriString("$url/api/v1/hentinntektliste")
 
         val headers = HttpHeaders()
         headers["Nav-Consumer-Id"] = "sykepengesoknad-backend"

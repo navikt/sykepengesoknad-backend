@@ -22,7 +22,7 @@ class YrkesskadeClient(
     fun hentSaker(harYsSakerRequest: HarYsSakerRequest): SakerResponse {
         try {
             val uriBuilder =
-                UriComponentsBuilder.fromHttpUrl("$url/api/v1/saker/")
+                UriComponentsBuilder.fromUriString("$url/api/v1/saker/")
 
             val headers = HttpHeaders()
             headers.contentType = MediaType.APPLICATION_JSON

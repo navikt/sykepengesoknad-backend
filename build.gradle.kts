@@ -2,7 +2,7 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    id("org.springframework.boot") version "3.3.5"
+    id("org.springframework.boot") version "3.4.0"
     id("io.spring.dependency-management") version "1.1.6"
     id("org.jlleitschuh.gradle.ktlint") version "12.1.2"
     kotlin("jvm") version "2.0.21"
@@ -46,6 +46,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("org.hibernate.validator:hibernate-validator")
     implementation("org.springframework.kafka:spring-kafka")
@@ -66,7 +67,6 @@ dependencies {
     implementation("no.nav.syfo.kafka:serialisering:$syfoKafkaVersion")
     implementation("org.apache.avro:avro:$avroVersion")
     implementation("io.getunleash:unleash-client-java:$unleashVersion")
-    implementation("org.springframework.boot:spring-boot-starter-webflux:3.3.5")
 
     testImplementation(platform("org.testcontainers:testcontainers-bom:$testContainersVersion"))
     testImplementation("org.springframework.boot:spring-boot-starter-test")

@@ -23,7 +23,7 @@ class PensjongivendeInntektClient(
         fnr: String,
         inntektsAar: Int,
     ): HentPensjonsgivendeInntektResponse {
-        val uriBuilder = UriComponentsBuilder.fromHttpUrl("$url/api/v1/pensjonsgivendeinntektforfolketrygden")
+        val uriBuilder = UriComponentsBuilder.fromUriString("$url/api/v1/pensjonsgivendeinntektforfolketrygden")
         val headers =
             HttpHeaders().apply {
                 this["Nav-Consumer-Id"] = "sykepengesoknad-backend"

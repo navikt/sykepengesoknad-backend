@@ -44,7 +44,7 @@ class FlexSyketilfelleClient(
 
         val queryBuilder =
             UriComponentsBuilder
-                .fromHttpUrl(url)
+                .fromUriString(url)
                 .pathSegment("api", "v1", "sykeforloep")
                 .queryParam("hentAndreIdenter", "false")
 
@@ -82,7 +82,7 @@ class FlexSyketilfelleClient(
 
         val queryBuilder =
             UriComponentsBuilder
-                .fromHttpUrl(url)
+                .fromUriString(url)
                 .pathSegment("api", "v1", "ventetid", sykmeldingId, "erUtenforVentetid")
                 .queryParam("hentAndreIdenter", "false")
 
@@ -127,7 +127,7 @@ class FlexSyketilfelleClient(
 
         val queryBuilder =
             UriComponentsBuilder
-                .fromHttpUrl(url)
+                .fromUriString(url)
                 .pathSegment("api", "v2", "arbeidsgiverperiode")
                 .queryParam("hentAndreIdenter", "false")
 
