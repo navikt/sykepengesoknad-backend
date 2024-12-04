@@ -42,7 +42,7 @@ class MedlemskapVurderingClient(
 
         val queryBuilder =
             UriComponentsBuilder
-                .fromHttpUrl(url)
+                .fromUriString(url)
                 .pathSegment(MEDLEMSKAP_VURDERING_PATH)
                 .queryParam("fom", medlemskapVurderingRequest.fom)
                 .queryParam("tom", medlemskapVurderingRequest.tom)

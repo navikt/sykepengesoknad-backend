@@ -20,8 +20,8 @@ class RestTemplateConfig {
     @Bean(name = ["consumerRestTemplate"])
     fun consumerRestTemplate(interceptor: CallIdInterceptor): RestTemplate {
         return RestTemplateBuilder()
-            .setConnectTimeout(Duration.ofSeconds(5L))
-            .setReadTimeout(Duration.ofSeconds(10L))
+            .connectTimeout(Duration.ofSeconds(5L))
+            .readTimeout(Duration.ofSeconds(10L))
             .additionalInterceptors(interceptor)
             .build()
     }
@@ -37,6 +37,6 @@ class RestTemplateConfig {
     @Bean
     fun plainRestTemplate(restTemplateBuilder: RestTemplateBuilder): RestTemplate =
         restTemplateBuilder
-            .setConnectTimeout(Duration.ofSeconds(5L))
-            .setReadTimeout(Duration.ofSeconds(10L)).build()
+            .connectTimeout(Duration.ofSeconds(5L))
+            .readTimeout(Duration.ofSeconds(10L)).build()
 }

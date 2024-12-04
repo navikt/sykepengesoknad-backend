@@ -18,7 +18,7 @@ class InnsendingApiClient(
 
     fun opprettEttersending(request: EttersendingRequest): EttersendingResponse {
         val uriBuilder =
-            UriComponentsBuilder.fromHttpUrl("$url/ekstern/v1/ettersending")
+            UriComponentsBuilder.fromUriString("$url/ekstern/v1/ettersending")
 
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
@@ -50,7 +50,7 @@ class InnsendingApiClient(
 
     fun slett(innsendingsId: String) {
         val uriBuilder =
-            UriComponentsBuilder.fromHttpUrl("$url/ekstern/v1/ettersending/$innsendingsId")
+            UriComponentsBuilder.fromUriString("$url/ekstern/v1/ettersending/$innsendingsId")
 
         try {
             innsendingApiRestTemplate
