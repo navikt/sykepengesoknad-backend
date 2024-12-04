@@ -55,6 +55,11 @@ class SykepengegrunnlagForNaeringsdrivende(
     private val log = logger()
 
     fun hentSykepengegrunnlagForNaeringsdrivende(soknad: Sykepengesoknad): SykepengegrunnlagNaeringsdrivende? {
+        if (soknad.id == "6a1723e3-7df4-38bb-bfa6-9a416289725c") {
+            log.info("Søknad ${soknad.id} har ikke Sigrun-data. Returnerer null sånn at den blir aktivert")
+            return null
+        }
+
         // TODO: Bruk sykmeldingstidspunkt i stedet for startSykeforlop.
         val sykmeldingstidspunkt = soknad.startSykeforlop!!.year
 
