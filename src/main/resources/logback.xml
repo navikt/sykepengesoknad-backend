@@ -18,5 +18,8 @@
     <logger name="org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolver" level="ERROR"/>
     <logger name="org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver"
             level="ERROR"/>
-    <logger name="org.springframework" level="INFO"/>
+
+    <logger name="org.springframework.scheduling" level="INFO" additivity="false">
+        <appender-ref ref="stdout_json"/>
+    </logger>
 </configuration>
