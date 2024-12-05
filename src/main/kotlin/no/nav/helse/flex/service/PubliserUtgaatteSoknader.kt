@@ -1,6 +1,5 @@
 package no.nav.helse.flex.service
 
-import io.micrometer.core.instrument.MeterRegistry
 import no.nav.helse.flex.config.EnvironmentToggles
 import no.nav.helse.flex.cronjob.LeaderElection
 import no.nav.helse.flex.kafka.producer.SoknadProducer
@@ -20,10 +19,8 @@ class PubliserUtgaatteSoknader(
     val toggle: EnvironmentToggles,
     val leaderElection: LeaderElection,
     val sykepengesoknadDAO: SykepengesoknadDAO,
-    registry: MeterRegistry,
 ) {
     val log = logger()
-    val counter = registry.counter("publisert_utgatt_soknad_pa_kafka")
 
     fun publiserUtgatteSoknader(): Int {
         val soknaderTilPublisering = sykepengesoknadDAO.finnUpubliserteUtlopteSoknader()
@@ -31,7 +28,6 @@ class PubliserUtgaatteSoknader(
             val soknadUtenSporsmal = sykepengesoknadDAO.finnSykepengesoknad(it).copy(sporsmal = emptyList())
             soknadProducer.soknadEvent(soknadUtenSporsmal)
             sykepengesoknadDAO.settUtloptPublisert(it, LocalDateTime.now())
-            counter.increment()
         }
         if (soknaderTilPublisering.isNotEmpty()) {
             log.info("Publiserte ${soknaderTilPublisering.size} utgåtte søknader på kafka")
