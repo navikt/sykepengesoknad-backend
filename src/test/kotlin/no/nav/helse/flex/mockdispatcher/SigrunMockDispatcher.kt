@@ -10,6 +10,19 @@ import okhttp3.mockwebserver.RecordedRequest
 import java.util.concurrent.atomic.AtomicInteger
 
 object SigrunMockDispatcher : Dispatcher() {
+    const val PERSON_MED_INNTEKT_OVER_1G_SISTE_3_AAR = "87654321234"
+    const val PERSON_MED_INNTEKT_UNDER_1G_ALLE_4_AAR = "24859597781"
+    const val PERSON_MED_FLERE_TYPER_INNTEKT = "86543214356"
+    const val PERSON_MED_INNTEKT_OVER_1G_2_AV_3_AAR = "11929798688"
+    const val PERSON_MED_INNTEKT_OVER_1G_1_AV_3_AAR = "07830099810"
+    const val PERSON_MED_INNTEKT_2_AV3_AAR = "56909901141"
+    const val PERSON_UTEN_INNTEKT_FORSTE_AAR = "21127575934"
+    const val PERSON_MED_KUN_INNTEKT_I_AAR_4 = "12899497862"
+    const val PERSON_LANG_TILBAKE_I_TID = "06028033456"
+    const val PERSON_UTEN_PENSJONSGIVENDE_INNTEKT_ALLE_AAR = "27654767992"
+    const val PERSON_SOM_IKKE_FINNES_I_SIGRUN = "01017011111"
+    const val PERSON_SOM_TRIGGER_RETUR_AV_TOM_BODY_FRA_SIGRUN = "01017022222"
+
     val antallKall = AtomicInteger(0)
 
     override fun dispatch(request: RecordedRequest): MockResponse {
@@ -17,16 +30,14 @@ object SigrunMockDispatcher : Dispatcher() {
         val inntektsAar = request.headers["inntektsaar"]!!
         antallKall.incrementAndGet()
 
-        // Brukt til testing av at det ikke gjøres retries når det kastes en PensjonsgivendeInntektClientException.
-        if (fnr == "01017011111") {
+        if (fnr == PERSON_SOM_IKKE_FINNES_I_SIGRUN) {
             return MockResponse()
                 .setResponseCode(404)
                 .setBody("{\"errorCode\": \"PGIF-007\", \"errorMessage\": \"Ikke treff på oppgitt personidentifikator.\"}")
                 .addHeader("Content-Type", "application/json")
         }
 
-        // Bruk til testing av at det skal gjøres retries når det kastes en exception fordi body er null.
-        if (fnr == "01017022222") {
+        if (fnr == PERSON_SOM_TRIGGER_RETUR_AV_TOM_BODY_FRA_SIGRUN) {
             return MockResponse()
                 .setResponseCode(200)
                 .addHeader("Content-Type", "application/json")
@@ -35,32 +46,18 @@ object SigrunMockDispatcher : Dispatcher() {
         val over1G = 1_000_000
         val under1G = 100_000
 
-        val personMedInntektOver1GSiste3Aar = "87654321234"
-        val personMedFlereTyperInntekt = "86543214356"
-        val personMedInntektUnder1GSiste3Aar = "24859597781"
-        val personMedInntektOver1G2Av3Aar = "11929798688"
-        val personMedInntektOver1G1Av3Aar = "07830099810"
-        val personMedInntekt2Av3Aar = "56909901141"
-        val personUtenInntektSiste3Aar = "56830375185"
-        val personUtenInntektForsteAar = "21127575934"
-        val personMedInntektAar4 = "12899497862"
-        val personLangTilbakeITid = "06028033456"
-        val personUtenPensjonsgivendeInntektAlleAar = "27654767992"
-
         val naeringsinntekt =
             when (fnr) {
-                personMedInntektOver1GSiste3Aar -> inntektForAar(inntektsAar, over1G, over1G, over1G, under1G)
-                personMedFlereTyperInntekt -> inntektForAar(inntektsAar, inntekt2022 = over1G)
-                personMedInntektUnder1GSiste3Aar -> inntektForAar(inntektsAar, under1G, under1G, under1G, under1G)
-                personMedInntektOver1G2Av3Aar -> inntektForAar(inntektsAar, over1G, under1G, over1G, under1G)
-                personMedInntektOver1G1Av3Aar -> inntektForAar(inntektsAar, over1G, under1G, under1G, under1G)
-                personMedInntekt2Av3Aar -> inntektForAar(inntektsAar, under1G, null, under1G, over1G)
-                personUtenInntektSiste3Aar -> inntektForAar(inntektsAar, null, null, null, under1G)
-                personUtenInntektForsteAar -> inntektForAar(inntektsAar, null, under1G, over1G, under1G)
-                personMedInntektAar4 -> inntektForAar(inntektsAar, null, null, null, under1G)
-                personUtenPensjonsgivendeInntektAlleAar -> inntektForAar(inntektsAar, null, null, null, null)
-                // Excel Scenario 2 - inntektsAar 2018
-                personLangTilbakeITid ->
+                PERSON_MED_INNTEKT_OVER_1G_SISTE_3_AAR -> inntektForAar(inntektsAar, over1G, over1G, over1G, under1G)
+                PERSON_MED_INNTEKT_UNDER_1G_ALLE_4_AAR -> inntektForAar(inntektsAar, under1G, under1G, under1G, under1G)
+                PERSON_MED_FLERE_TYPER_INNTEKT -> inntektForAar(inntektsAar, inntekt2022 = over1G)
+                PERSON_MED_INNTEKT_OVER_1G_2_AV_3_AAR -> inntektForAar(inntektsAar, over1G, under1G, over1G, under1G)
+                PERSON_MED_INNTEKT_OVER_1G_1_AV_3_AAR -> inntektForAar(inntektsAar, over1G, under1G, under1G, under1G)
+                PERSON_MED_INNTEKT_2_AV3_AAR -> inntektForAar(inntektsAar, under1G, null, under1G, over1G)
+                PERSON_UTEN_INNTEKT_FORSTE_AAR -> inntektForAar(inntektsAar, null, under1G, over1G, under1G)
+                PERSON_MED_KUN_INNTEKT_I_AAR_4 -> inntektForAar(inntektsAar, null, null, null, under1G)
+                PERSON_UTEN_PENSJONSGIVENDE_INNTEKT_ALLE_AAR -> inntektForAar(inntektsAar, null, null, null, null)
+                PERSON_LANG_TILBAKE_I_TID ->
                     inntektForAar(
                         inntektsAar,
                         inntekt2017 = null,
@@ -74,17 +71,16 @@ object SigrunMockDispatcher : Dispatcher() {
 
         val lonnsinntekt =
             when (fnr) {
-                personMedFlereTyperInntekt -> inntektForAar(inntektsAar, inntekt2023 = over1G)
+                PERSON_MED_FLERE_TYPER_INNTEKT -> inntektForAar(inntektsAar, inntekt2023 = over1G)
                 else -> inntektForAar(inntektsAar)
             }
 
         val naeringsinntektFraFiskeFangstEllerFamiliebarnehage =
             when (fnr) {
-                personMedFlereTyperInntekt -> inntektForAar(inntektsAar, inntekt2021 = over1G)
+                PERSON_MED_FLERE_TYPER_INNTEKT -> inntektForAar(inntektsAar, inntekt2021 = over1G)
                 else -> inntektForAar(inntektsAar)
             }
 
-        // Sjekk om inntekt er null og kast feilen
         if (naeringsinntekt == null) {
             return MockResponse()
                 .setResponseCode(404)
@@ -92,7 +88,7 @@ object SigrunMockDispatcher : Dispatcher() {
                 .addHeader("Content-Type", "application/json")
         }
 
-        val ret =
+        val response =
             when (inntektsAar) {
                 "2023", "2022", "2021", "2020", "2019", "2018", "2017", "2016", "2015", "2014" ->
                     pensjonsgivendeInntekt(
@@ -106,7 +102,7 @@ object SigrunMockDispatcher : Dispatcher() {
                 else -> MockResponse().setResponseCode(404)
             }
 
-        return ret
+        return response
     }
 
     private fun inntektForAar(
