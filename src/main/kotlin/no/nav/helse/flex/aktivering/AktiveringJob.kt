@@ -18,7 +18,7 @@ class AktiveringJob(
 ) {
     private val log = logger()
 
-    @Scheduled(initialDelay = 10, fixedDelay = 2, timeUnit = TimeUnit.HOURS)
+    @Scheduled(initialDelay = 10, fixedDelay = 60, timeUnit = TimeUnit.MINUTES)
     fun startBestillAktivering() {
         log.info("Kjører scheduled jobb startBestillAktivering.")
         if (leaderElection.isLeader()) {
