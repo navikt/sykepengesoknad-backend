@@ -63,7 +63,7 @@ class SykepengegrunnlagForNaeringsdrivende(
         val grunnbeloepPaaSykmeldingstidspunkt = grunnbeloepSisteFemAar[sykmeldingstidspunkt]!!.grunnbeløp
 
         val pensjonsgivendeInntekter =
-            hentPensjonsgivendeInntektForTreSisteAar(
+            hentRelevantPensjonsgivendeInntekt(
                 soknad.fnr,
                 sykmeldingstidspunkt,
             )?.filter { it.pensjonsgivendeInntekt.isNotEmpty() }
@@ -98,12 +98,12 @@ class SykepengegrunnlagForNaeringsdrivende(
         )
     }
 
-    fun hentPensjonsgivendeInntektForTreSisteAar(
+    fun hentRelevantPensjonsgivendeInntekt(
         fnr: String,
-        sykmeldingstidspunkt: Int,
+        sykmeldtAar: Int,
     ): List<HentPensjonsgivendeInntektResponse>? {
         val ferdigliknetInntekter = mutableListOf<HentPensjonsgivendeInntektResponse>()
-        val forsteAar = sykmeldingstidspunkt - 1
+        val forsteAar = sykmeldtAar - 1
         val aarViHenterFor = forsteAar downTo forsteAar - 2
 
         aarViHenterFor.forEach { aar ->

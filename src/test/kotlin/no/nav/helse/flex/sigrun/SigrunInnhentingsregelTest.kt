@@ -2,16 +2,21 @@ package no.nav.helse.flex.sigrun
 
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.client.sigrun.PensjongivendeInntektClientException
-import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknad
 import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher
+import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher.PERSON_MED_FLERE_TYPER_INNTEKT
+import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher.PERSON_MED_INNTEKT_2_AV3_AAR
+import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher.PERSON_MED_INNTEKT_OVER_1G_SISTE_3_AAR
+import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher.PERSON_MED_KUN_INNTEKT_I_AAR_4
+import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher.PERSON_SOM_IKKE_FINNES_I_SIGRUN
+import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher.PERSON_SOM_TRIGGER_RETUR_AV_TOM_BODY_FRA_SIGRUN
+import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher.PERSON_UTEN_INNTEKT_FORSTE_AAR
+import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher.PERSON_UTEN_PENSJONSGIVENDE_INNTEKT_ALLE_AAR
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should not be`
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import java.time.Instant
-import java.time.LocalDate
 
 class SigrunInnhentingsregelTest : FellesTestOppsett() {
     @BeforeEach
@@ -20,24 +25,15 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `Returnere 3 sammenhengende år med ferdiglignet inntekter`() {
-        val soknad =
-            opprettNyNaeringsdrivendeSoknad().copy(
-                fnr = "87654321234",
-                startSykeforlop = LocalDate.now(),
-                fom = LocalDate.now().minusDays(30),
-                tom = LocalDate.now().minusDays(1),
-                sykmeldingSkrevet = Instant.now(),
-                aktivertDato = LocalDate.now().minusDays(30),
-            )
-        val result =
-            sykepengegrunnlagForNaeringsdrivende.hentPensjonsgivendeInntektForTreSisteAar(
-                soknad.fnr,
-                soknad.startSykeforlop!!.year,
+    fun `Returnerer 3 sammenhengende år med ferdiglignet inntekter`() {
+        val response =
+            sykepengegrunnlagForNaeringsdrivende.hentRelevantPensjonsgivendeInntekt(
+                fnr = PERSON_MED_INNTEKT_OVER_1G_SISTE_3_AAR,
+                sykmeldtAar = 2024,
             )
 
-        result?.size `should be equal to` 3
-        result?.let {
+        response?.size `should be equal to` 3
+        response?.let {
             it[0].pensjonsgivendeInntekt `should not be` null
             it[0].inntektsaar `should be equal to` "2023"
             it[1].pensjonsgivendeInntekt `should not be` null
@@ -45,87 +41,59 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
             it[2].pensjonsgivendeInntekt `should not be` null
             it[2].inntektsaar `should be equal to` "2021"
         }
-    } // personMedInntektOver1GSiste3Aar
-
-    @Test
-    fun `Returnerer null når 2 første år ikke ikke finnes`() {
-        val soknad =
-            opprettNyNaeringsdrivendeSoknad().copy(
-                fnr = "12899497862",
-                startSykeforlop = LocalDate.now(),
-                fom = LocalDate.now().minusDays(30),
-                tom = LocalDate.now().minusDays(1),
-                sykmeldingSkrevet = Instant.now(),
-                aktivertDato = LocalDate.now().minusDays(30),
-            )
-        val result =
-            sykepengegrunnlagForNaeringsdrivende.hentPensjonsgivendeInntektForTreSisteAar(
-                soknad.fnr,
-                soknad.startSykeforlop!!.year,
-            )
-
-        result `should be` null
-    } // personMedInntektAar4
-
-    @Test
-    fun `skal ikke hente et fjerde år når 1 av 3 år ikke returnerer inntekt`() {
-        val soknad =
-            opprettNyNaeringsdrivendeSoknad().copy(
-                fnr = "56909901141",
-                startSykeforlop = LocalDate.now(),
-                fom = LocalDate.now().minusDays(30),
-                tom = LocalDate.now().minusDays(1),
-                sykmeldingSkrevet = Instant.now(),
-                aktivertDato = LocalDate.now().minusDays(30),
-            )
-        val result =
-            sykepengegrunnlagForNaeringsdrivende.hentPensjonsgivendeInntektForTreSisteAar(
-                soknad.fnr,
-                soknad.startSykeforlop!!.year,
-            )
-
-        result `should be` null
     }
 
     @Test
-    fun `Returnerer null det ikke finnes ferdiglignet inntekt 3 sammenhengende år`() {
-        val soknad =
-            opprettNyNaeringsdrivendeSoknad().copy(
-                fnr = "56830375185",
-                startSykeforlop = LocalDate.now(),
-                fom = LocalDate.now().minusDays(30),
-                tom = LocalDate.now().minusDays(1),
-                sykmeldingSkrevet = Instant.now(),
-                aktivertDato = LocalDate.now().minusDays(30),
-            )
-        val result =
-            sykepengegrunnlagForNaeringsdrivende.hentPensjonsgivendeInntektForTreSisteAar(
-                soknad.fnr,
-                soknad.startSykeforlop!!.year,
+    fun `Returnerer 3 sammenhengende år for person med forskjellige type inntekt`() {
+        val response =
+            sykepengegrunnlagForNaeringsdrivende.hentRelevantPensjonsgivendeInntekt(
+                fnr = PERSON_MED_FLERE_TYPER_INNTEKT,
+                sykmeldtAar = 2024,
             )
 
-        result `should be` null
+        response?.size `should be equal to` 3
+        response?.let {
+            it[0].pensjonsgivendeInntekt `should not be` null
+            it[0].inntektsaar `should be equal to` "2023"
+            it[1].pensjonsgivendeInntekt `should not be` null
+            it[1].inntektsaar `should be equal to` "2022"
+            it[2].pensjonsgivendeInntekt `should not be` null
+            it[2].inntektsaar `should be equal to` "2021"
+        }
     }
 
     @Test
-    fun `Hopper over første år som ikke er ferdiglignet`() {
-        val soknad =
-            opprettNyNaeringsdrivendeSoknad().copy(
-                fnr = "21127575934",
-                startSykeforlop = LocalDate.now(),
-                fom = LocalDate.now().minusDays(30),
-                tom = LocalDate.now().minusDays(1),
-                sykmeldingSkrevet = Instant.now(),
-                aktivertDato = LocalDate.now().minusDays(30),
-            )
-        val result =
-            sykepengegrunnlagForNaeringsdrivende.hentPensjonsgivendeInntektForTreSisteAar(
-                soknad.fnr,
-                soknad.startSykeforlop!!.year,
+    fun `Returnerer null når det ikke finnes ferdigligent inntekt for første tre år`() {
+        val response =
+            sykepengegrunnlagForNaeringsdrivende.hentRelevantPensjonsgivendeInntekt(
+                fnr = PERSON_MED_KUN_INNTEKT_I_AAR_4,
+                sykmeldtAar = 2024,
             )
 
-        result?.size `should be equal to` 3
-        result?.let {
+        response `should be` null
+    }
+
+    @Test
+    fun `Henter ikke inntekt for fjerde år når to av tre første tre har ferdiglignet inntekt`() {
+        val response =
+            sykepengegrunnlagForNaeringsdrivende.hentRelevantPensjonsgivendeInntekt(
+                fnr = PERSON_MED_INNTEKT_2_AV3_AAR,
+                sykmeldtAar = 2024,
+            )
+
+        response `should be` null
+    }
+
+    @Test
+    fun `Henter inntekt for fjerde år når første år ikke er ferdiglignet`() {
+        val response =
+            sykepengegrunnlagForNaeringsdrivende.hentRelevantPensjonsgivendeInntekt(
+                fnr = PERSON_UTEN_INNTEKT_FORSTE_AAR,
+                sykmeldtAar = 2024,
+            )
+
+        response?.size `should be equal to` 3
+        response?.let {
             it[0].pensjonsgivendeInntekt `should not be` null
             it[0].inntektsaar `should be equal to` "2022"
             it[1].pensjonsgivendeInntekt `should not be` null
@@ -137,40 +105,21 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
 
     @Test
     fun `Hopper over første år, men ekstra som hentes år er også uten inntekt`() {
-        val soknad =
-            opprettNyNaeringsdrivendeSoknad().copy(
-                fnr = "27654767992",
-                startSykeforlop = LocalDate.now(),
-                fom = LocalDate.now().minusDays(30),
-                tom = LocalDate.now().minusDays(1),
-                sykmeldingSkrevet = Instant.now(),
-                aktivertDato = LocalDate.now().minusDays(30),
-            )
-        val result =
-            sykepengegrunnlagForNaeringsdrivende.hentPensjonsgivendeInntektForTreSisteAar(
-                soknad.fnr,
-                soknad.startSykeforlop!!.year,
+        val response =
+            sykepengegrunnlagForNaeringsdrivende.hentRelevantPensjonsgivendeInntekt(
+                fnr = PERSON_UTEN_PENSJONSGIVENDE_INNTEKT_ALLE_AAR,
+                sykmeldtAar = 2024,
             )
 
-        result `should be` null
-    } // personUtenPensjonsgivendeInntektAlleÅr
+        response `should be` null
+    }
 
     @Test
-    fun `Det gjøres ikke retry for exceptions kastet på grunn av feil med semantikk`() {
-        val soknad =
-            opprettNyNaeringsdrivendeSoknad().copy(
-                fnr = "01017011111",
-                startSykeforlop = LocalDate.now(),
-                fom = LocalDate.now().minusDays(30),
-                tom = LocalDate.now().minusDays(1),
-                sykmeldingSkrevet = Instant.now(),
-                aktivertDato = LocalDate.now().minusDays(30),
-            )
-
+    fun `Det gjøres ikke retry for PensjongivendeInntektClientException`() {
         assertThrows<PensjongivendeInntektClientException> {
-            sykepengegrunnlagForNaeringsdrivende.hentPensjonsgivendeInntektForTreSisteAar(
-                soknad.fnr,
-                soknad.startSykeforlop!!.year,
+            sykepengegrunnlagForNaeringsdrivende.hentRelevantPensjonsgivendeInntekt(
+                fnr = PERSON_SOM_IKKE_FINNES_I_SIGRUN,
+                sykmeldtAar = 2024,
             )
         }
 
@@ -178,21 +127,11 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `Det gjøres retry når det kastes exception som ikke er på grunn av feil med semantikk`() {
-        val soknad =
-            opprettNyNaeringsdrivendeSoknad().copy(
-                fnr = "01017022222",
-                startSykeforlop = LocalDate.now(),
-                fom = LocalDate.now().minusDays(30),
-                tom = LocalDate.now().minusDays(1),
-                sykmeldingSkrevet = Instant.now(),
-                aktivertDato = LocalDate.now().minusDays(30),
-            )
-
+    fun `Det gjøres retry når det kastes en annen exception enn PensjongivendeInntektClientException`() {
         assertThrows<RuntimeException> {
-            sykepengegrunnlagForNaeringsdrivende.hentPensjonsgivendeInntektForTreSisteAar(
-                soknad.fnr,
-                soknad.startSykeforlop!!.year,
+            sykepengegrunnlagForNaeringsdrivende.hentRelevantPensjonsgivendeInntekt(
+                fnr = PERSON_SOM_TRIGGER_RETUR_AV_TOM_BODY_FRA_SIGRUN,
+                sykmeldtAar = 2024,
             )
         }
 
