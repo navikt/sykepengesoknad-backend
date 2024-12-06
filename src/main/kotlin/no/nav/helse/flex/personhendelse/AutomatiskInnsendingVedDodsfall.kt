@@ -1,6 +1,5 @@
 package no.nav.helse.flex.personhendelse
 
-import io.micrometer.core.instrument.MeterRegistry
 import no.nav.helse.flex.aktivering.SoknadAktivering
 import no.nav.helse.flex.domain.Avsendertype
 import no.nav.helse.flex.domain.Mottaker
@@ -23,7 +22,6 @@ import java.time.LocalDate
 @Transactional(rollbackFor = [Throwable::class])
 class AutomatiskInnsendingVedDodsfall(
     private val dodsmeldingDAO: DodsmeldingDAO,
-    private val registry: MeterRegistry,
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val mottakerAvSoknadService: MottakerAvSoknadService,
     private val avbrytSoknadService: AvbrytSoknadService,
@@ -34,18 +32,12 @@ class AutomatiskInnsendingVedDodsfall(
     private val log = logger()
 
     fun sendSoknaderForDode(): Int {
-        val aktorerMed2UkerGammelDodsmelding = dodsmeldingDAO.fnrMedToUkerGammelDodsmelding()
-
+        val dodsmeldinger = dodsmeldingDAO.fnrMedToUkerGammelDodsmelding()
         var antall = 0
-
-        aktorerMed2UkerGammelDodsmelding.forEach { (fnr, dodsDato) ->
+        dodsmeldinger.forEach { (fnr, dodsDato) ->
             try {
                 val identer = automatiskInnsending(fnr, dodsDato)
-
                 dodsmeldingDAO.slettDodsmelding(identer)
-
-                registry.counter("dodsmeldinger_prossesert").increment()
-
                 antall++
             } catch (e: Exception) {
                 log.error("Feil ved prossering av dødsmelding for aktor $fnr", e)

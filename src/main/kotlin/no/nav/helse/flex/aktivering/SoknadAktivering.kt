@@ -1,6 +1,5 @@
 package no.nav.helse.flex.aktivering
 
-import io.micrometer.core.instrument.MeterRegistry
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.kafka.producer.SoknadProducer
@@ -21,7 +20,6 @@ class SoknadAktivering(
     private val sykepengesoknadRepository: SykepengesoknadRepository,
     private val soknadsperiodeDAO: SoknadsperiodeDAO,
     private val sporsmalGenerator: SporsmalGenerator,
-    private val registry: MeterRegistry,
 ) {
     private final val log = logger()
 
@@ -77,6 +75,5 @@ class SoknadAktivering(
         log.info(
             "Aktiverte søknad med id $id. Tid brukt på aktivering: $aktiverTid, spørsmålsgenerering: $lagSpm, publisering: $publiserSoknad",
         )
-        registry.counter("aktiverte_sykepengesoknader").increment()
     }
 }
