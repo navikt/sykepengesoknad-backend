@@ -10,6 +10,9 @@ import java.time.LocalDate
 fun Sykepengesoknad.hentInntektFraNyttArbeidsforhold(): List<InntektFraNyttArbeidsforholdDTO> {
     fun Sporsmal.hentInntektFraNyttArbeidsforhold(): InntektFraNyttArbeidsforholdDTO? {
         if (tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS) {
+            if (metadata == null) {
+                return null
+            }
             if (forsteSvar == "JA") {
                 val belopSvar = undersporsmal.firstOrNull { it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO }?.forsteSvar
                 val belop = (belopSvar?.toDouble()!! / 100).toInt()
