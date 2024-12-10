@@ -5,7 +5,7 @@ db_tier: db-f1-micro
 db_size: 10
 db_highAvailability: false
 db_pointInTimeRecovery: false
-cpu: 300m
+cpu: 100m
 memory: 1000Mi
 replicas_min: 1
 replicas_max: 2
