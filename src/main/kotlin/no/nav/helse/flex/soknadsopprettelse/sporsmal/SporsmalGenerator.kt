@@ -180,7 +180,7 @@ class SporsmalGenerator(
                     -> {
                         settOppSoknadSelvstendigOgFrilanser(
                             soknadOptions,
-                            sykepengegrunnlagForNaeringsdrivende.hentSykepengegrunnlagForNaeringsdrivende(soknad),
+                            sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(soknad),
                         )
                     }
 

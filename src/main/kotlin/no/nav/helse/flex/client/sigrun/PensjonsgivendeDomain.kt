@@ -23,16 +23,16 @@ data class HentPensjonsgivendeInntektResponse(
 data class PensjonsgivendeInntekt(
     val datoForFastsetting: String,
     val skatteordning: Skatteordning,
-    val pensjonsgivendeInntektAvLoennsinntekt: Int?,
-    val pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel: Int?,
-    val pensjonsgivendeInntektAvNaeringsinntekt: Int?,
-    val pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage: Int?,
+    val pensjonsgivendeInntektAvLoennsinntekt: Int = 0,
+    val pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel: Int = 0,
+    val pensjonsgivendeInntektAvNaeringsinntekt: Int = 0,
+    val pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage: Int = 0,
 ) {
     fun sumAvAlleInntekter(): Int {
-        return (pensjonsgivendeInntektAvLoennsinntekt ?: 0) +
-            (pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel ?: 0) +
-            (pensjonsgivendeInntektAvNaeringsinntekt ?: 0) +
-            (pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage ?: 0)
+        return pensjonsgivendeInntektAvLoennsinntekt +
+            pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel +
+            pensjonsgivendeInntektAvNaeringsinntekt +
+            pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage
     }
 
     @Override
@@ -43,7 +43,10 @@ data class PensjonsgivendeInntekt(
             put("loenn", pensjonsgivendeInntektAvLoennsinntekt)
             put("loenn-bare-pensjon", pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel)
             put("naering", pensjonsgivendeInntektAvNaeringsinntekt)
-            put("fiske-fangst-familiebarnehage", pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage)
+            put(
+                "fiske-fangst-familiebarnehage",
+                pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage,
+            )
         }
     }
 }
