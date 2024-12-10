@@ -5,7 +5,7 @@ db_tier: db-custom-4-15360
 db_size: 250
 db_highAvailability: true
 db_pointInTimeRecovery: true
-cpu: 1000m
+cpu: 400m
 memory: 1792Mi
 replicas_min: 3
 replicas_max: 5
