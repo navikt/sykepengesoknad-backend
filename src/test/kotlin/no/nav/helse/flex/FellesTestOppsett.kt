@@ -47,13 +47,12 @@ abstract class FellesTestOppsett {
     companion object {
         val pdlMockWebserver: MockWebServer
         val medlemskapMockWebServer: MockWebServer
-        val pensjonsgivendeInntektMockWebServer: MockWebServer
+        val sigrunMockWebServer: MockWebServer
+        private val grunnbeloepApiMockWebServer: MockWebServer
         private val inntektskomponentenMockWebServer: MockWebServer
         private val eregMockWebServer: MockWebServer
         private val yrkesskadeMockWebServer: MockWebServer
         private val innsendingApiMockWebServer: MockWebServer
-
-        private val grunnbeloepApiMockWebServer: MockWebServer
 
         init {
             startAlleContainere()
@@ -64,7 +63,7 @@ abstract class FellesTestOppsett {
                 eregMockWebServer = it.eregMockWebServer
                 yrkesskadeMockWebServer = it.yrkesskadeMockWebServer
                 innsendingApiMockWebServer = it.innsendingApiMockWebServer
-                pensjonsgivendeInntektMockWebServer = it.pensjonsgivendeInntektMockWebServer
+                sigrunMockWebServer = it.pensjonsgivendeInntektMockWebServer
                 grunnbeloepApiMockWebServer = it.grunnbeloepApiMockWebServer
             }
         }

@@ -151,9 +151,9 @@ object SigrunMockDispatcher : Dispatcher() {
                         PensjonsgivendeInntekt(
                             datoForFastsetting = "$inntektsAar-07-17",
                             skatteordning = Skatteordning.FASTLAND,
-                            pensjonsgivendeInntektAvLoennsinntekt = lonnsinntekt,
+                            pensjonsgivendeInntektAvLoennsinntekt = lonnsinntekt!!,
                             pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = loennsinntektBarePensjonsdel,
-                            pensjonsgivendeInntektAvNaeringsinntekt = naeringsinntekt,
+                            pensjonsgivendeInntektAvNaeringsinntekt = naeringsinntekt!!,
                             pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage = 0,
                         )
                     } else {
@@ -164,7 +164,7 @@ object SigrunMockDispatcher : Dispatcher() {
                             pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = 0,
                             pensjonsgivendeInntektAvNaeringsinntekt = 0,
                             pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage =
-                            naeringsinntektFraFiskeFangstEllerFamiliebarnehage,
+                                naeringsinntektFraFiskeFangstEllerFamiliebarnehage!!,
                         )
                     },
                 ),

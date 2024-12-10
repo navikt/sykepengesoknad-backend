@@ -16,8 +16,9 @@ object MedlemskapMockDispatcher : QueueDispatcher() {
             return withContentTypeApplicationJson { responseQueue.take() }
         }
 
-        // Svarer med status JA med mindre testene har lagt til andre svar i responseQueueu. Det gjør at tester som
-        // ikke eksplisitt angir et svar hverken vil få medlemskapspørsmål eller spørsmålet om ARBEID_UTENFOR_NORGE.
+        // Default response når tester ikke har lag til andre responser i responseQueue.
+        // Svarer med vurdering av medlemskap: JA. Det gjør at tester som ikke eksplisitt angir et svar hverken vil
+        // få medlemskapspørsmål eller spørsmålet om ARBEID_UTENFOR_NORGE.
         return withContentTypeApplicationJson {
             MockResponse().setResponseCode(200).setBody(
                 MedlemskapVurderingResponse(
