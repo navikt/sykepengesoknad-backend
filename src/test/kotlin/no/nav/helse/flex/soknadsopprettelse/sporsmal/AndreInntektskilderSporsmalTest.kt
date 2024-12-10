@@ -62,12 +62,14 @@ class AndreInntektskilderSporsmalTest {
                             arbeidsstedOrgnummer = "222",
                             startdato = LocalDate.now(),
                             opplysningspliktigOrgnummer = "333",
+                            sluttdato = null,
                         ),
                         ArbeidsforholdFraAAreg(
                             arbeidsstedNavn = "Sykebilen",
                             arbeidsstedOrgnummer = "876",
                             startdato = LocalDate.now(),
                             opplysningspliktigOrgnummer = "232",
+                            sluttdato = null,
                         ),
                     ),
             )

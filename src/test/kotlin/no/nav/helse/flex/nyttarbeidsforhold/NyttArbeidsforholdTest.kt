@@ -59,7 +59,7 @@ class NyttArbeidsforholdTest : NyttArbeidsforholdFellesOppsett() {
 
         val sykepengesoknadDbRecord = sykepengesoknadRepository.findBySykepengesoknadUuid(soknaden.id)!!
         @Suppress("ktlint:standard:max-line-length")
-        sykepengesoknadDbRecord.arbeidsforholdFraAareg `should be equal to` """[{"opplysningspliktigOrgnummer":"11224455441","arbeidsstedOrgnummer":"999888777","arbeidsstedNavn":"Kiosken, avd Oslo AS","startdato":"2022-09-05"}]"""
+        sykepengesoknadDbRecord.arbeidsforholdFraAareg `should be equal to` """[{"opplysningspliktigOrgnummer":"11224455441","arbeidsstedOrgnummer":"999888777","arbeidsstedNavn":"Kiosken, avd Oslo AS","startdato":"2022-09-05","sluttdato":null}]"""
     }
 
     @Test
