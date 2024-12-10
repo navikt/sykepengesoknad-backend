@@ -5,8 +5,13 @@ import no.nav.helse.flex.client.grunnbeloep.GrunnbeloepResponse
 import no.nav.helse.flex.client.sigrun.HentPensjonsgivendeInntektResponse
 import no.nav.helse.flex.client.sigrun.PensjongivendeInntektClient
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.logger
-import no.nav.helse.flex.util.*
+import no.nav.helse.flex.util.beregnEndring25Prosent
+import no.nav.helse.flex.util.beregnGjennomsnittligInntekt
+import no.nav.helse.flex.util.finnInntekterJustertFor6Gog12G
+import no.nav.helse.flex.util.inntektJustertForGrunnbeloep
+import no.nav.helse.flex.util.objectMapper
+import no.nav.helse.flex.util.roundToBigInteger
+import no.nav.helse.flex.util.toJsonNode
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import java.math.BigInteger
@@ -52,14 +57,10 @@ class SykepengegrunnlagForNaeringsdrivende(
     private val pensjongivendeInntektClient: PensjongivendeInntektClient,
     private val grunnbeloepService: GrunnbeloepService,
 ) {
-    private val log = logger()
-
     fun hentSykepengegrunnlagForNaeringsdrivende(soknad: Sykepengesoknad): SykepengegrunnlagNaeringsdrivende? {
         // TODO: Bruk sykmeldingstidspunkt i stedet for startSykeforlop.
         val sykmeldingstidspunkt = soknad.startSykeforlop!!.year
-
         val grunnbeloepSisteFemAar = grunnbeloepService.hentGrunnbeloepHistorikk(sykmeldingstidspunkt)
-
         val grunnbeloepPaaSykmeldingstidspunkt = grunnbeloepSisteFemAar[sykmeldingstidspunkt]!!.grunnbeløp
 
         val pensjonsgivendeInntekter =

@@ -25,43 +25,43 @@ object SigrunMockDispatcher : QueueDispatcher() {
             lag404MockResponse()
         }
     }
-}
 
-fun MockWebServer.enqueueMockResponse(
-    fnr: String,
-    inntektsaar: String,
-    inntekt: List<PensjonsgivendeInntekt>,
-) = enqueue(lagSigrunMockResponse(fnr, inntektsaar, inntekt))
+    fun MockWebServer.enqueueMockResponse(
+        fnr: String,
+        inntektsaar: String,
+        inntekt: List<PensjonsgivendeInntekt>,
+    ) = enqueue(lagMockResponse(fnr, inntektsaar, inntekt))
 
-fun lagSigrunMockResponse(
-    fnr: String,
-    inntektsaar: String,
-    skatteordning: Skatteordning = Skatteordning.FASTLAND,
-) = lagSigrunMockResponse(
-    fnr,
-    inntektsaar,
-    listOf(
-        PensjonsgivendeInntekt(
-            datoForFastsetting = "$inntektsaar-07-17",
-            skatteordning = skatteordning,
-            pensjonsgivendeInntektAvNaeringsinntekt = 500_000,
+    fun lagMockResponse(
+        fnr: String,
+        inntektsaar: String,
+        skatteordning: Skatteordning = Skatteordning.FASTLAND,
+    ) = lagMockResponse(
+        fnr,
+        inntektsaar,
+        listOf(
+            PensjonsgivendeInntekt(
+                datoForFastsetting = "$inntektsaar-07-17",
+                skatteordning = skatteordning,
+                pensjonsgivendeInntektAvNaeringsinntekt = 500_000,
+            ),
         ),
-    ),
-)
+    )
 
-fun lagSigrunMockResponse(
-    fnr: String,
-    inntektsaar: String,
-    inntekter: List<PensjonsgivendeInntekt>,
-) = MockResponse().setResponseCode(200).setBody(
-    HentPensjonsgivendeInntektResponse(
-        norskPersonidentifikator = fnr,
-        inntektsaar = inntektsaar,
-        pensjonsgivendeInntekt = inntekter,
-    ).serialisertTilString(),
-)
+    fun lagMockResponse(
+        fnr: String,
+        inntektsaar: String,
+        inntekter: List<PensjonsgivendeInntekt>,
+    ) = MockResponse().setResponseCode(200).setBody(
+        HentPensjonsgivendeInntektResponse(
+            norskPersonidentifikator = fnr,
+            inntektsaar = inntektsaar,
+            pensjonsgivendeInntekt = inntekter,
+        ).serialisertTilString(),
+    )
 
-fun lag404MockResponse(): MockResponse =
-    MockResponse()
-        .setResponseCode(404)
-        .setBody("{\"errorCode\": \"PGIF-008\", \"errorMessage\": \"Ingen pensjonsgivende inntekt funnet.\"}")
+    fun lag404MockResponse(): MockResponse =
+        MockResponse()
+            .setResponseCode(404)
+            .setBody("{\"errorCode\": \"PGIF-008\", \"errorMessage\": \"Ingen pensjonsgivende inntekt funnet.\"}")
+}

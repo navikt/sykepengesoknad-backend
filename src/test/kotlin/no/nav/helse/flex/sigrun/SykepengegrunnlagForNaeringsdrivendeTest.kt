@@ -6,7 +6,7 @@ import no.nav.helse.flex.client.sigrun.Skatteordning
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknad
 import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher
-import no.nav.helse.flex.mockdispatcher.enqueueMockResponse
+import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher.enqueueMockResponse
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should not be`
 import org.junit.jupiter.api.BeforeEach
