@@ -295,6 +295,9 @@ fun FellesTestOppsett.oppdaterSporsmal(
     if (mutert) {
         response.mutertSoknad.`should not be null`()
     } else {
+        if(response.mutertSoknad != null){
+            println("Mutert soknad: ${response.mutertSoknad}")
+        }
         response.mutertSoknad.`should be null`()
     }
     return response

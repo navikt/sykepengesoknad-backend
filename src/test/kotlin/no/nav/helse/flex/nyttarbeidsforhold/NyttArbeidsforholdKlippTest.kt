@@ -108,6 +108,13 @@ class NyttArbeidsforholdKlippTest : FellesTestOppsett() {
                                 arbeidssted = "999888777",
                                 opplysningspliktigOrganisasjonsnummer = "123456789",
                             ),
+                            skapArbeidsforholdOversikt(
+                                fnr = fnr,
+                                startdato = LocalDate.of(2022, 8, 17),
+                                sluttdato = LocalDate.of(2022, 8, 17),
+                                arbeidssted = "999888777",
+                                opplysningspliktigOrganisasjonsnummer = "123456789",
+                            ),
                         ),
                 ),
             )
@@ -135,10 +142,15 @@ class NyttArbeidsforholdKlippTest : FellesTestOppsett() {
         val eldsteSoknaden = soknader.sortedBy { it.fom }.first()
         eldsteSoknaden.fom `should be equal to` LocalDate.of(2022, 8, 26)
         eldsteSoknaden.tom `should be equal to` LocalDate.of(2022, 9, 12)
+
+        eldsteSoknaden.sporsmal!!.filter {
+            it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS
+        }.shouldHaveSize(2)
+
         val nyttArbeidsforholdSpm =
-            eldsteSoknaden.sporsmal!!.find {
+            eldsteSoknaden.sporsmal!!.filter {
                 it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS
-            }!!
+            }.sortedBy { it.metadata!!.get("fom").textValue() }.first()
         @Suppress("ktlint:standard:max-line-length")
         nyttArbeidsforholdSpm.sporsmalstekst `should be equal to` "Har du jobbet noe hos Kiosken, avd Oslo AS i perioden 26. august - 12. september 2022?"
         nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedOrgnummer").textValue() `should be equal to` "999888777"
@@ -157,6 +169,7 @@ class NyttArbeidsforholdKlippTest : FellesTestOppsett() {
                 FERIE_V2,
                 PERMISJON_V2,
                 "ARBEID_UNDERVEIS_100_PROSENT_0",
+                NYTT_ARBEIDSFORHOLD_UNDERVEIS,
                 NYTT_ARBEIDSFORHOLD_UNDERVEIS,
                 ANDRE_INNTEKTSKILDER_V2,
                 OPPHOLD_UTENFOR_EOS,
