@@ -10,7 +10,7 @@ import okhttp3.mockwebserver.RecordedRequest
 import java.time.LocalDate
 
 object AaregMockDispatcher : Dispatcher() {
-    val queuedArbeidsforholdOversikt = mutableListOf<ArbeidsforholdOversikt>()
+    val queuedArbeidsforholdOversikt = mutableListOf<ArbeidsforholdoversiktResponse>()
 
     override fun dispatch(request: RecordedRequest): MockResponse {
         if (queuedArbeidsforholdOversikt.isEmpty()) {
@@ -66,12 +66,7 @@ object AaregMockDispatcher : Dispatcher() {
         return MockResponse()
             .setResponseCode(200)
             .setBody(
-                ArbeidsforholdoversiktResponse(
-                    arbeidsforholdoversikter =
-                        listOf(
-                            poppedElement,
-                        ),
-                ).serialisertTilString(),
+                poppedElement.serialisertTilString(),
             )
             .addHeader("Content-Type", "application/json")
     }
