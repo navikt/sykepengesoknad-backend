@@ -2,10 +2,7 @@ package no.nav.helse.flex.soknadsopprettelse.sporsmal
 
 import no.nav.helse.flex.domain.*
 import no.nav.helse.flex.soknadsopprettelse.*
-import no.nav.helse.flex.util.DatoUtil
-import no.nav.helse.flex.util.isBeforeOrEqual
-import no.nav.helse.flex.util.max
-import no.nav.helse.flex.util.toJsonNode
+import no.nav.helse.flex.util.*
 import java.time.LocalDate
 
 fun nyttArbeidsforholdSporsmal(
@@ -15,6 +12,13 @@ fun nyttArbeidsforholdSporsmal(
 ): List<Sporsmal> {
     return nyeArbeidsforhold
         ?.filter { it.startdato.isBeforeOrEqual(oppdatertTom ?: denneSoknaden.tom!!) }
+        ?.filter {
+            if (it.sluttdato == null) {
+                return@filter true
+            }
+            val afterOrEqual = it.sluttdato.isAfterOrEqual(denneSoknaden.fom!!)
+            return@filter afterOrEqual
+        }
         ?.toSet()
         ?.map { arbeidsforhold ->
 

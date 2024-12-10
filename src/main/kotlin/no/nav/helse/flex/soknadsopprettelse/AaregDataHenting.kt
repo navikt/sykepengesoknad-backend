@@ -70,6 +70,7 @@ class AaregDataHenting(
                 arbeidsstedNavn = hentBedrift.navn.navnelinje1.prettyOrgnavn(),
                 startdato = startdato,
                 opplysningspliktigOrgnummer = opplysningspliktigOrgnummer,
+                sluttdato = sluttdato,
             )
         }
 
@@ -133,6 +134,7 @@ data class ArbeidsforholdFraAAreg(
     val arbeidsstedOrgnummer: String,
     val arbeidsstedNavn: String,
     val startdato: LocalDate,
+    val sluttdato: LocalDate?,
 )
 
 fun ingenArbeidsdagerMellomStartdatoOgEtterStartsyketilfelle(
