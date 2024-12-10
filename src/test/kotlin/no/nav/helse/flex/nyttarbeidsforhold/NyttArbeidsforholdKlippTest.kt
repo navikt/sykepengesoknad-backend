@@ -1,6 +1,7 @@
 package no.nav.helse.flex.nyttarbeidsforhold
 
 import no.nav.helse.flex.*
+import no.nav.helse.flex.client.aareg.ArbeidsforholdoversiktResponse
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.mockdispatcher.AaregMockDispatcher
 import no.nav.helse.flex.mockdispatcher.skapArbeidsforholdOversikt
@@ -97,12 +98,17 @@ class NyttArbeidsforholdKlippTest : FellesTestOppsett() {
         fakeUnleash.enable("sykepengesoknad-backend-tilkommen-inntekt")
         repeat(2) {
             AaregMockDispatcher.queuedArbeidsforholdOversikt.add(
-                skapArbeidsforholdOversikt(
-                    fnr = fnr,
-                    startdato = LocalDate.of(2022, 8, 15),
-                    sluttdato = LocalDate.of(2022, 8, 15),
-                    arbeidssted = "999888777",
-                    opplysningspliktigOrganisasjonsnummer = "123456789",
+                ArbeidsforholdoversiktResponse(
+                    arbeidsforholdoversikter =
+                        listOf(
+                            skapArbeidsforholdOversikt(
+                                fnr = fnr,
+                                startdato = LocalDate.of(2022, 8, 15),
+                                sluttdato = LocalDate.of(2022, 8, 15),
+                                arbeidssted = "999888777",
+                                opplysningspliktigOrganisasjonsnummer = "123456789",
+                            ),
+                        ),
                 ),
             )
         }
