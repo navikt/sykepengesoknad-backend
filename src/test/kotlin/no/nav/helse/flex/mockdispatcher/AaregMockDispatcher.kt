@@ -61,11 +61,18 @@ object AaregMockDispatcher : Dispatcher() {
                 else -> return ArbeidsforholdoversiktResponse(arbeidsforholdoversikter = emptyList()).tilMockResponse()
             }
         }
-        val poppedElement = queuedArbeidsforholdOversikt.removeAt(YrkesskadeMockDispatcher.queuedSakerRespons.size - 1)
+        val poppedElement = queuedArbeidsforholdOversikt.removeAt(YrkesskadeMockDispatcher.queuedSakerRespons.size)
 
         return MockResponse()
             .setResponseCode(200)
-            .setBody(poppedElement.serialisertTilString())
+            .setBody(
+                ArbeidsforholdoversiktResponse(
+                    arbeidsforholdoversikter =
+                        listOf(
+                            poppedElement,
+                        ),
+                ).serialisertTilString(),
+            )
             .addHeader("Content-Type", "application/json")
     }
 
