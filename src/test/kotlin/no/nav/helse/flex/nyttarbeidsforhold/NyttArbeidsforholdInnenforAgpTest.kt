@@ -42,7 +42,7 @@ class NyttArbeidsforholdInnenforAgpTest : FellesTestOppsett() {
         val soknaden = hentSoknader(fnr = fnr).first()
 
         soknaden.sporsmal!!.find {
-            it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS
+            it.tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS)
         }.shouldBeNull()
 
         soknaden.sporsmal!!.map { it.tag } `should be equal to`

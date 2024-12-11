@@ -87,6 +87,8 @@ private fun Sporsmal.plasseringAvSporsmalSomKanRepeteresFlereGanger(): Int {
         Integer.parseInt(tag.replace(JOBBET_DU_100_PROSENT, ""))
     } else if (tag.startsWith(ARBEID_UNDERVEIS_100_PROSENT)) {
         Integer.parseInt(tag.replace(ARBEID_UNDERVEIS_100_PROSENT, ""))
+    } else if (tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS)) {
+        Integer.parseInt(tag.replace(NYTT_ARBEIDSFORHOLD_UNDERVEIS, "")) + 82
     } else {
         0
     }

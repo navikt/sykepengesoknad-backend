@@ -31,13 +31,13 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
                         .filterNot { (_, tag) -> tag.startsWith(JOBBET_DU_GRADERT) }
                         .filterNot { (_, tag) -> tag.startsWith(JOBBET_DU_100_PROSENT) }
                         .filterNot { (_, tag) -> tag.startsWith(ARBEID_UNDERVEIS_100_PROSENT) }
+                        .filterNot { (_, tag) -> tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS) }
                         .filterNot { (_, tag) -> tag == FERIE_V2 }
                         .filterNot { (_, tag) -> tag == PERMISJON_V2 }
                         .filterNot { (_, tag) -> tag == UTLAND_V2 }
                         .filterNot { (_, tag) -> tag == UTLAND }
                         .filterNot { (_, tag) -> tag == OPPHOLD_UTENFOR_EOS }
                         .filterNot { (_, tag) -> tag == UTDANNING }
-                        .filterNot { (_, tag) -> tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS }
                         .toMutableList(),
             )
         }
@@ -116,5 +116,5 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
                         .filterNot { spm -> spm.tag.startsWith(JOBBET_DU_GRADERT) && oppdaterteSporsmal.none { it.tag == spm.tag } },
             )
         }
-        .let { it.copy(sporsmal = it.sporsmal.filter { spm -> spm.tag !in sporsmalSomSkalFjernes }) }
+        .let { it.copy(sporsmal = it.sporsmal.filter { spm -> fjernIndexFraTag(spm.tag) !in sporsmalSomSkalFjernes }) }
 }
