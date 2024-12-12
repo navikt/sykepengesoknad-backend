@@ -105,7 +105,7 @@ class NyttArbeidsforholdMedToUlikeNyeArbeidsforholdTest : FellesTestOppsett() {
     fun `Har ikke forventa nytt arbeidsforhold førstegangsspørsmål`() {
         val soknaden = hentSoknader(fnr = fnr).filter { it.status == RSSoknadstatus.NY }.first()
         soknaden.sporsmal!!.find {
-            it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS
+            it.tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS)
         }.shouldBeNull()
     }
 }
