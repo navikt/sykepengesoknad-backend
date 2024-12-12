@@ -95,7 +95,7 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `Returnerer null og henter ikke fjerde år to første år mangler inntekt`() {
+    fun `Returnerer null og henter ikke fjerde år når andre år mangler inntekt`() {
         with(sigrunMockWebServer) {
             enqueue(lagMockResponse(FNR, "2023"))
             enqueue(lag404MockResponse())
@@ -107,7 +107,7 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `Returnerer null og hener ikke fjerde år når tredje år mangler inntekt`() {
+    fun `Returnerer null og henter ikke fjerde år når tredje år mangler inntekt`() {
         with(sigrunMockWebServer) {
             enqueue(lagMockResponse(FNR, "2023"))
             enqueue(lagMockResponse(FNR, "2022"))

@@ -17,42 +17,6 @@ import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import java.math.BigInteger
 
-// TODO: Flytt dataklasser nederst og gi klassene en mer beskrivende navn.
-data class AarVerdi(
-    val aar: String,
-    val verdi: BigInteger,
-)
-
-data class Beregnet(
-    val snitt: BigInteger,
-    val p25: BigInteger,
-    val m25: BigInteger,
-)
-
-data class SykepengegrunnlagNaeringsdrivende(
-    val gjennomsnittPerAar: List<AarVerdi>,
-    val grunnbeloepPerAar: List<AarVerdi>,
-    val grunnbeloepPaaSykmeldingstidspunkt: Int,
-    val beregnetSnittOgEndring25: Beregnet,
-    val inntekter: List<HentPensjonsgivendeInntektResponse>,
-) {
-    @Override
-    fun toJsonNode(): JsonNode {
-        return objectMapper.createObjectNode().apply {
-            set<JsonNode>(
-                "sigrunInntekt",
-                objectMapper.createObjectNode().apply {
-                    set<JsonNode>("inntekter", gjennomsnittPerAar.map { it.toJsonNode() }.toJsonNode())
-                    set<JsonNode>("g-verdier", grunnbeloepPerAar.map { it.toJsonNode() }.toJsonNode())
-                    put("g-sykmelding", grunnbeloepPaaSykmeldingstidspunkt)
-                    set<JsonNode>("beregnet", beregnetSnittOgEndring25.toJsonNode())
-                    set<JsonNode>("original-inntekt", inntekter.map { it.toJsonNode() }.toJsonNode())
-                },
-            )
-        }
-    }
-}
-
 @Service
 class SykepengegrunnlagForNaeringsdrivende(
     private val pensjongivendeInntektClient: PensjongivendeInntektClient,
@@ -127,7 +91,7 @@ class SykepengegrunnlagForNaeringsdrivende(
 
         // Hvis det første året vi hentet ikke har inntekt hentes ett år ekstra for å ha tre sammenhengende år med inntekt.
         if (ferdigliknetInntekter.find { it.inntektsaar == forsteAar.toString() }?.pensjonsgivendeInntekt!!.isEmpty()) {
-            // Sikrer at vi ikke henter inntekt tidliger enn 2017 også når vi hopper over først år siden det var null.
+            // Sikrer at vi ikke henter inntekt tidliger enn 2017 også når vi hopper over først.
             if (forsteAar - 3 < 2017) {
                 log.info(
                     "Henter ikke pensjonsgivende inntekt for søknad $sykepengesoknadId da tidligste år er ${aarViHenterFor.last}.",
@@ -186,6 +150,41 @@ class SykepengegrunnlagForNaeringsdrivende(
                     gPaaSykmeldingstidspunktet = grunnbeloepSykmldTidspunkt.toBigInteger(),
                     gjennomsnittligGIKalenderaaret = grunnbeloepForAaret,
                 )
+        }
+    }
+}
+
+data class AarVerdi(
+    val aar: String,
+    val verdi: BigInteger,
+)
+
+data class Beregnet(
+    val snitt: BigInteger,
+    val p25: BigInteger,
+    val m25: BigInteger,
+)
+
+data class SykepengegrunnlagNaeringsdrivende(
+    val gjennomsnittPerAar: List<AarVerdi>,
+    val grunnbeloepPerAar: List<AarVerdi>,
+    val grunnbeloepPaaSykmeldingstidspunkt: Int,
+    val beregnetSnittOgEndring25: Beregnet,
+    val inntekter: List<HentPensjonsgivendeInntektResponse>,
+) {
+    @Override
+    fun toJsonNode(): JsonNode {
+        return objectMapper.createObjectNode().apply {
+            set<JsonNode>(
+                "sigrunInntekt",
+                objectMapper.createObjectNode().apply {
+                    set<JsonNode>("inntekter", gjennomsnittPerAar.map { it.toJsonNode() }.toJsonNode())
+                    set<JsonNode>("g-verdier", grunnbeloepPerAar.map { it.toJsonNode() }.toJsonNode())
+                    put("g-sykmelding", grunnbeloepPaaSykmeldingstidspunkt)
+                    set<JsonNode>("beregnet", beregnetSnittOgEndring25.toJsonNode())
+                    set<JsonNode>("original-inntekt", inntekter.map { it.toJsonNode() }.toJsonNode())
+                },
+            )
         }
     }
 }
