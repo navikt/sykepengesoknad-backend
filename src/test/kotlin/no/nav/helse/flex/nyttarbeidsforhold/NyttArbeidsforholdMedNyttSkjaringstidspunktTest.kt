@@ -26,8 +26,8 @@ class NyttArbeidsforholdMedNyttSkjaringstidspunktTest : NyttArbeidsforholdFelles
             SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
                 .tilbakeIArbeid(dato = basisdato.minusDays(3))
                 .standardSvar(ekskludert = listOf(TILBAKE_I_ARBEID))
-                .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS, svar = "JA", ferdigBesvart = false)
-                .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO, svar = "400000", ferdigBesvart = true)
+                .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS + "0", svar = "JA", ferdigBesvart = false)
+                .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO + "0", svar = "400000", ferdigBesvart = true)
                 .sendSoknad()
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
 
@@ -69,7 +69,7 @@ class NyttArbeidsforholdMedNyttSkjaringstidspunktTest : NyttArbeidsforholdFelles
         val soknaden = hentSoknader(fnr = fnr).first { it.status == RSSoknadstatus.NY }
 
         soknaden.sporsmal!!.find {
-            it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS
+            it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS + "0"
         }.shouldBeNull()
     }
 }

@@ -20,7 +20,7 @@ fun nyttArbeidsforholdSporsmal(
             return@filter afterOrEqual
         }
         ?.toSet()
-        ?.map { arbeidsforhold ->
+        ?.mapIndexed { idx, arbeidsforhold ->
 
             val fom = max(denneSoknaden.fom!!, arbeidsforhold.startdato)
             val tom = oppdatertTom ?: denneSoknaden.tom!!
@@ -35,8 +35,8 @@ fun nyttArbeidsforholdSporsmal(
                     "fom" to fom.toString(),
                     "tom" to tom.toString(),
                 )
-            return@map Sporsmal(
-                tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS,
+            return@mapIndexed Sporsmal(
+                tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS + "$idx",
                 sporsmalstekst = "Har du jobbet noe hos ${arbeidsforhold.arbeidsstedNavn} i perioden $periodeTekst?",
                 undertekst = null,
                 svartype = Svartype.JA_NEI,
@@ -48,7 +48,7 @@ fun nyttArbeidsforholdSporsmal(
                 undersporsmal =
                     listOf(
                         Sporsmal(
-                            tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO,
+                            tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO + "$idx",
                             sporsmalstekst = "Hvor mye har du tjent i perioden $periodeTekst?",
                             undertekst =
                                 "Oppgi det du har tjent før skatt. " +

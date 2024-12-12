@@ -16,7 +16,7 @@ import org.junit.jupiter.api.*
 import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class NyttArbeidsforholdMedSluttdatoTest : FellesTestOppsett() {
+class NyttArbeidsforholdMedToUlikeNyeArbeidsforholdTest : FellesTestOppsett() {
     val fnr = "22222220001"
 
     @Test
@@ -36,6 +36,13 @@ class NyttArbeidsforholdMedSluttdatoTest : FellesTestOppsett() {
                                 sluttdato = LocalDate.of(2022, 8, 25),
                                 arbeidssted = "999888777",
                                 opplysningspliktigOrganisasjonsnummer = "123456789",
+                            ),
+                            skapArbeidsforholdOversikt(
+                                fnr = fnr,
+                                startdato = LocalDate.of(2022, 8, 24),
+                                sluttdato = LocalDate.of(2022, 8, 25),
+                                arbeidssted = "999888755",
+                                opplysningspliktigOrganisasjonsnummer = "123456755",
                             ),
                         ),
                 ),
@@ -67,6 +74,7 @@ class NyttArbeidsforholdMedSluttdatoTest : FellesTestOppsett() {
             SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
                 .standardSvar()
                 .besvarSporsmal(NYTT_ARBEIDSFORHOLD_UNDERVEIS + "0", "NEI")
+                .besvarSporsmal(NYTT_ARBEIDSFORHOLD_UNDERVEIS + "1", "NEI")
                 .sendSoknad()
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
 
@@ -97,7 +105,7 @@ class NyttArbeidsforholdMedSluttdatoTest : FellesTestOppsett() {
     fun `Har ikke forventa nytt arbeidsforhold førstegangsspørsmål`() {
         val soknaden = hentSoknader(fnr = fnr).filter { it.status == RSSoknadstatus.NY }.first()
         soknaden.sporsmal!!.find {
-            it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS + "0"
+            it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS
         }.shouldBeNull()
     }
 }

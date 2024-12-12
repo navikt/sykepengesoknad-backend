@@ -19,7 +19,7 @@ class NyttArbeidsforholdMuteringTest : NyttArbeidsforholdFellesOppsett() {
 
         val nyttArbeidsforholdSpm =
             soknaden.sporsmal!!.find {
-                it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS
+                it.tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS)
             }!!
         @Suppress("ktlint:standard:max-line-length")
         nyttArbeidsforholdSpm.sporsmalstekst `should be equal to` "Har du jobbet noe hos Kiosken, avd Oslo AS i perioden 5. - 15. september 2022?"
@@ -45,7 +45,7 @@ class NyttArbeidsforholdMuteringTest : NyttArbeidsforholdFellesOppsett() {
         val soknaden = hentSoknader(fnr = fnr).first()
 
         soknaden.sporsmal!!.find {
-            it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS
+            it.tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS)
         }.shouldBeNull()
     }
 
@@ -64,7 +64,7 @@ class NyttArbeidsforholdMuteringTest : NyttArbeidsforholdFellesOppsett() {
         val soknaden = hentSoknader(fnr = fnr).first()
 
         soknaden.sporsmal!!.find {
-            it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS
+            it.tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS)
         }.shouldBeNull()
     }
 
@@ -83,7 +83,7 @@ class NyttArbeidsforholdMuteringTest : NyttArbeidsforholdFellesOppsett() {
 
         val nyttArbeidsforholdSpm =
             soknaden.sporsmal!!.find {
-                it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS
+                it.tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS)
             }!!
         @Suppress("ktlint:standard:max-line-length")
         nyttArbeidsforholdSpm.sporsmalstekst `should be equal to` "Har du jobbet noe hos Kiosken, avd Oslo AS i perioden 5. - 5. september 2022?"
@@ -107,7 +107,7 @@ class NyttArbeidsforholdMuteringTest : NyttArbeidsforholdFellesOppsett() {
     fun `Spørsmålet er ikke der på startdatoen`() {
         val soknaden = hentSoknader(fnr = fnr).first()
         soknaden.sporsmal!!.find {
-            it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS
+            it.tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS)
         }.shouldBeNull()
     }
 
@@ -126,7 +126,7 @@ class NyttArbeidsforholdMuteringTest : NyttArbeidsforholdFellesOppsett() {
 
         val nyttArbeidsforholdSpm =
             soknaden.sporsmal!!.find {
-                it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS
+                it.tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS)
             }!!
         @Suppress("ktlint:standard:max-line-length")
         nyttArbeidsforholdSpm.sporsmalstekst `should be equal to` "Har du jobbet noe hos Kiosken, avd Oslo AS i perioden 5. - 15. september 2022?"
@@ -155,8 +155,12 @@ class NyttArbeidsforholdMuteringTest : NyttArbeidsforholdFellesOppsett() {
         val sendtSoknad =
             SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
                 .standardSvar(ekskludert = listOf(TILBAKE_I_ARBEID))
-                .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS, svar = "JA", ferdigBesvart = false)
-                .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO, svar = "400000", ferdigBesvart = true)
+                .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS + "0", svar = "JA", ferdigBesvart = false)
+                .besvarSporsmal(
+                    tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO + "0",
+                    svar = "400000",
+                    ferdigBesvart = true,
+                )
                 .sendSoknad()
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
 
