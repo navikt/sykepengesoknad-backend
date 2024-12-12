@@ -2,6 +2,7 @@ package no.nav.helse.flex.controller
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.*
+import no.nav.helse.flex.client.aareg.ArbeidsforholdoversiktResponse
 import no.nav.helse.flex.client.pdl.PdlIdent
 import no.nav.helse.flex.domain.AuditEntry
 import no.nav.helse.flex.domain.EventType
@@ -186,6 +187,37 @@ class FlexAPITest : FellesTestOppsett() {
                 forespørselTillatt `should be` true
                 beskrivelse `should be equal to` "Henter alle identer for ident"
                 requestUrl `should be equal to` URI.create("http://localhost/api/v1/flex/identer")
+                requestMethod `should be equal to` "POST"
+            }
+        }
+    }
+
+    @Test
+    fun `Kan hente aaregdata fra flex-internal-frontend`() {
+        val result =
+            mockMvc
+                .perform(
+                    MockMvcRequestBuilders
+                        .post("/api/v1/flex/aareg")
+                        .header("Authorization", "Bearer ${skapAzureJwt("flex-internal-frontend-client-id", fnrFlexer)}")
+                        .content(SoknadFlexAzureController.HentAaregdataRequest("22222220001").serialisertTilString())
+                        .contentType(MediaType.APPLICATION_JSON),
+                )
+                .andExpect(MockMvcResultMatchers.status().isOk).andReturn()
+
+        val fraRest: ArbeidsforholdoversiktResponse = objectMapper.readValue(result.response.contentAsString)
+        fraRest.arbeidsforholdoversikter.shouldHaveSize(2)
+
+        auditlogKafkaConsumer.ventPåRecords(1).first().let {
+            val auditEntry: AuditEntry = objectMapper.readValue(it.value())
+            with(auditEntry) {
+                appNavn `should be equal to` "flex-internal"
+                utførtAv `should be equal to` fnrFlexer
+                oppslagPå `should be equal to` "22222220001"
+                eventType `should be equal to` EventType.READ
+                forespørselTillatt `should be` true
+                beskrivelse `should be equal to` "Henter aareg data"
+                requestUrl `should be equal to` URI.create("http://localhost/api/v1/flex/aareg")
                 requestMethod `should be equal to` "POST"
             }
         }

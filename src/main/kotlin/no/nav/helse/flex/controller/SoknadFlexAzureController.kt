@@ -2,6 +2,8 @@ package no.nav.helse.flex.controller
 
 import io.swagger.v3.oas.annotations.Hidden
 import jakarta.servlet.http.HttpServletRequest
+import no.nav.helse.flex.client.aareg.AaregClient
+import no.nav.helse.flex.client.aareg.ArbeidsforholdoversiktResponse
 import no.nav.helse.flex.client.pdl.PdlClient
 import no.nav.helse.flex.client.pdl.PdlIdent
 import no.nav.helse.flex.clientidvalidation.ClientIdValidation
@@ -42,6 +44,7 @@ data class FlexInternalSoknadResponse(
 @Hidden
 class SoknadFlexAzureController(
     private val clientIdValidation: ClientIdValidation,
+    private val aaregClient: AaregClient,
     private val identService: IdentService,
     private val pdlClient: PdlClient,
     private val hentSoknadService: HentSoknadService,
@@ -150,5 +153,34 @@ class SoknadFlexAzureController(
             fnr = soknad.fnr,
             arbeidsforholdFraAareg = soknad.arbeidsforholdFraAareg,
         )
+    }
+
+    data class HentAaregdataRequest(
+        val fnr: String,
+    )
+
+    @PostMapping("/api/v1/flex/aareg", consumes = [APPLICATION_JSON_VALUE], produces = [APPLICATION_JSON_VALUE])
+    fun hentAaregdata(
+        @RequestBody req: HentAaregdataRequest,
+        request: HttpServletRequest,
+    ): ArbeidsforholdoversiktResponse {
+        clientIdValidation.validateClientId(NamespaceAndApp(namespace = "flex", app = "flex-internal-frontend"))
+        val navIdent = clientIdValidation.hentNavIdent()
+
+        auditLogProducer.lagAuditLog(
+            AuditEntry(
+                appNavn = "flex-internal",
+                utførtAv = navIdent,
+                oppslagPå = req.fnr,
+                eventType = EventType.READ,
+                forespørselTillatt = true,
+                oppslagUtførtTid = LocalDateTime.now().tilOsloInstant(),
+                beskrivelse = "Henter aareg data",
+                requestUrl = URI.create(request.requestURL.toString()),
+                requestMethod = "POST",
+            ),
+        )
+
+        return aaregClient.hentArbeidsforholdoversikt(req.fnr)
     }
 }
