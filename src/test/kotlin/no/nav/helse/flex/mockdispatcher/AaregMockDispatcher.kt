@@ -86,7 +86,7 @@ fun skapArbeidsforholdOversikt(
     return ArbeidsforholdOversikt(
         type = Kodeverksentitet("ordinaertArbeidsforhold", "Ordinært arbeidsforhold"),
         arbeidstaker = Arbeidstaker(listOf(Ident("FOLKEREGISTERIDENT", fnr, true))),
-        arbeidssted = Arbeidssted("Underenhet", listOf(Ident("ANNENTYPE", "123123123"),Ident("ORGANISASJONSNUMMER", arbeidssted))),
+        arbeidssted = Arbeidssted("Underenhet", listOf(Ident("ORGANISASJONSNUMMER", arbeidssted))),
         opplysningspliktig =
             Opplysningspliktig(
                 "Hovedenhet",

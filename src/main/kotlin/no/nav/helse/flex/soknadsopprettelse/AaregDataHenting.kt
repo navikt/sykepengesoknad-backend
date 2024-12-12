@@ -97,6 +97,10 @@ class AaregDataHenting(
                     sykepengesoknad = sykepengesoknad,
                 )
             }
+            .filter { arbeidsforhold ->
+                arbeidsforhold.arbeidssted.identer
+                    .firstOrNull { it.type == "ORGANISASJONSNUMMER" }?.ident != sykepengesoknad.arbeidsgiverOrgnummer
+            }
             .filterInterneOrgnummer(opplysningspliktigOrgnummer)
             .map { it.tilArbeidsforholdFraAAreg() }
             .sortedBy { it.startdato }

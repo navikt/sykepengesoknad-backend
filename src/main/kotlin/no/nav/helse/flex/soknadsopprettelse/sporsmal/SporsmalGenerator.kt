@@ -163,7 +163,9 @@ class SporsmalGenerator(
                             ),
                         andreKjenteArbeidsforholdFraInntektskomponenten = andreKjenteArbeidsforhold,
                     )
-
+                if (arbeidstakerSporsmal.any { it.tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS) }) {
+                    log.info("Skapte tilkommen inntekt spørsmål for søknad ${soknad.id}")
+                }
                 SporsmalOgAndreKjenteArbeidsforhold(
                     sporsmal = arbeidstakerSporsmal,
                     andreKjenteArbeidsforhold = andreKjenteArbeidsforhold,
