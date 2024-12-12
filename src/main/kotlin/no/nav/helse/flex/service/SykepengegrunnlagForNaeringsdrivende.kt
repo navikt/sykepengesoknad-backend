@@ -91,8 +91,10 @@ class SykepengegrunnlagForNaeringsdrivende(
 
         // Hvis det første året vi hentet ikke har inntekt hentes ett år ekstra for å ha tre sammenhengende år med inntekt.
         if (ferdigliknetInntekter.find { it.inntektsaar == forsteAar.toString() }?.pensjonsgivendeInntekt!!.isEmpty()) {
+            val nyttForsteAar = forsteAar - 3
+
             // Sikrer at vi ikke henter inntekt tidliger enn 2017 også når vi hopper over først.
-            if (forsteAar - 3 < 2017) {
+            if (nyttForsteAar < 2017) {
                 log.info(
                     "Henter ikke pensjonsgivende inntekt for søknad $sykepengesoknadId da tidligste år er ${aarViHenterFor.last}.",
                 )
@@ -104,7 +106,7 @@ class SykepengegrunnlagForNaeringsdrivende(
                     listOf(
                         pensjongivendeInntektClient.hentPensjonsgivendeInntekt(
                             fnr,
-                            forsteAar - 3,
+                            nyttForsteAar,
                         ),
                     )
             ).innholdEllerNullHvisTom()
