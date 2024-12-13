@@ -24,7 +24,7 @@ class EregClient(
     fun hentBedrift(virksomhetsnummer: String): Nokkelinfo {
         try {
             val uriBuilder =
-                UriComponentsBuilder.fromUriString("$eregUrl/v1/organisasjon/$virksomhetsnummer/noekkelinfo")
+                UriComponentsBuilder.fromUriString("$eregUrl/v2/organisasjon/$virksomhetsnummer/noekkelinfo")
 
             val headers = HttpHeaders()
             headers.contentType = MediaType.APPLICATION_JSON

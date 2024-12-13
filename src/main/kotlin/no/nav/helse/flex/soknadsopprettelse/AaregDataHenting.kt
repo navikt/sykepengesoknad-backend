@@ -67,7 +67,7 @@ class AaregDataHenting(
             val hentBedrift = eregClient.hentBedrift(arbeidstedOrgnummer)
             return ArbeidsforholdFraAAreg(
                 arbeidsstedOrgnummer = arbeidstedOrgnummer,
-                arbeidsstedNavn = hentBedrift.navn.navnelinje1.prettyOrgnavn(),
+                arbeidsstedNavn = hentBedrift.navn.sammensattnavn.prettyOrgnavn(),
                 startdato = startdato,
                 opplysningspliktigOrgnummer = opplysningspliktigOrgnummer,
                 sluttdato = sluttdato,
