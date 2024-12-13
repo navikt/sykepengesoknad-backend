@@ -66,7 +66,7 @@ class ArbeidsforholdFraInntektskomponentenHenting(
             val hentBedrift = eregClient.hentBedrift(orgnr)
             return ArbeidsforholdFraInntektskomponenten(
                 orgnummer = orgnr,
-                navn = hentBedrift.navn.navnelinje1.prettyOrgnavn(),
+                navn = hentBedrift.navn.sammensattnavn.prettyOrgnavn(),
                 arbeidsforholdstype =
                     if (frilansOrgnummer.contains(
                             orgnr,
