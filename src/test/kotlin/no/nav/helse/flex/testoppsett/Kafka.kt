@@ -1,10 +1,10 @@
 package no.nav.helse.flex.testoppsett
 
+import org.testcontainers.kafka.KafkaContainer
 import org.testcontainers.utility.DockerImageName
 
-@Suppress("DEPRECATION")
 fun startKafkaContainer() {
-    org.testcontainers.containers.KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.6.1")).apply {
+    KafkaContainer(DockerImageName.parse("apache/kafka-native:3.8.1")).apply {
         start()
         System.setProperty("KAFKA_BROKERS", bootstrapServers)
     }
