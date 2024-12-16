@@ -6,6 +6,8 @@ import no.nav.helse.flex.client.aareg.AaregClient
 import no.nav.helse.flex.client.aareg.ArbeidsforholdoversiktResponse
 import no.nav.helse.flex.client.pdl.PdlClient
 import no.nav.helse.flex.client.pdl.PdlIdent
+import no.nav.helse.flex.client.sigrun.HentPensjonsgivendeInntektResponse
+import no.nav.helse.flex.client.sigrun.PensjongivendeInntektClient
 import no.nav.helse.flex.clientidvalidation.ClientIdValidation
 import no.nav.helse.flex.clientidvalidation.ClientIdValidation.NamespaceAndApp
 import no.nav.helse.flex.config.OIDCIssuer.AZUREATOR
@@ -45,6 +47,7 @@ data class FlexInternalSoknadResponse(
 class SoknadFlexAzureController(
     private val clientIdValidation: ClientIdValidation,
     private val aaregClient: AaregClient,
+    private val pensjongivendeInntektClient: PensjongivendeInntektClient,
     private val identService: IdentService,
     private val pdlClient: PdlClient,
     private val hentSoknadService: HentSoknadService,
@@ -182,5 +185,35 @@ class SoknadFlexAzureController(
         )
 
         return aaregClient.hentArbeidsforholdoversikt(req.fnr)
+    }
+
+    data class HentPensjonsgivendeInntektRequest(
+        val fnr: String,
+        val inntektsaar: String,
+    )
+
+    @PostMapping("/api/v1/flex/sigrun", consumes = [APPLICATION_JSON_VALUE], produces = [APPLICATION_JSON_VALUE])
+    fun hentPensjonsgivendeInntekt(
+        @RequestBody req: HentPensjonsgivendeInntektRequest,
+        request: HttpServletRequest,
+    ): HentPensjonsgivendeInntektResponse {
+        clientIdValidation.validateClientId(NamespaceAndApp(namespace = "flex", app = "flex-internal-frontend"))
+        val navIdent = clientIdValidation.hentNavIdent()
+
+        auditLogProducer.lagAuditLog(
+            AuditEntry(
+                appNavn = "flex-internal",
+                utførtAv = navIdent,
+                oppslagPå = req.fnr,
+                eventType = EventType.READ,
+                forespørselTillatt = true,
+                oppslagUtførtTid = LocalDateTime.now().tilOsloInstant(),
+                beskrivelse = "Henter pensjonsgivende inntekt",
+                requestUrl = URI.create(request.requestURL.toString()),
+                requestMethod = "POST",
+            ),
+        )
+
+        return pensjongivendeInntektClient.hentPensjonsgivendeInntekt(req.fnr, req.inntektsaar.toInt())
     }
 }
