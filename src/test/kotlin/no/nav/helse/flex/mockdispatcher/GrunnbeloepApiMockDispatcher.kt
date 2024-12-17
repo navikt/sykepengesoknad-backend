@@ -309,7 +309,9 @@ object GrunnbeloepApiMockDispatcher : QueueDispatcher() {
                     .addHeader("Content-Type", "application/json")
             }
 
-            "/historikk/grunnbeløp?fra=2019-01-01" -> {
+            "/historikk/grunnbeløp?fra=2020-01-01",
+            "/historikk/grunnbeløp?fra=2019-01-01",
+            -> {
                 val responses =
                     listOf(
                         GrunnbeloepResponse(
