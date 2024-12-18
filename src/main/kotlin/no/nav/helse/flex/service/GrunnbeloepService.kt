@@ -12,6 +12,7 @@ class GrunnbeloepService(private val grunnbeloepClient: GrunnbeloepClient) {
         // datoen vi gjør spørringen er før 5. mai (datoen nytt grunnbeløp settes). Det vil si at når vi henter
         // grunnbeløpet for 2024 spør vi etter grunnbeløpet fra og med 2019, men vil også
         // få med grunnbeløpet for 2018. Etter 5. mai 2024 vil vi får fra og med 2019.
+        // TODO: Bruk sykmeldingstidspunkt i stedet for 1. januar inneværende år.
         val hentForDato = LocalDate.of(year, 1, 1).minusYears(5)
         val hentGrunnbeloepHistorikk =
             grunnbeloepClient.hentGrunnbeloepHistorikk(hentForDato).block().takeIf { !it.isNullOrEmpty() }

@@ -396,6 +396,62 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
     }
 
     @Test
+    fun `Bruker grunnbeløp fra 2024 når ggrunnbeløp for 2025 ikke finnes enda`() {
+        with(sigrunMockWebServer) {
+            enqueueMockResponse(
+                fnr = FNR,
+                inntektsaar = "2024",
+                inntekt =
+                    listOf(
+                        PensjonsgivendeInntekt(
+                            datoForFastsetting = "2024-07-17",
+                            skatteordning = Skatteordning.FASTLAND,
+                            pensjonsgivendeInntektAvNaeringsinntekt = 250_000,
+                        ),
+                    ),
+            )
+            enqueueMockResponse(
+                fnr = FNR,
+                inntektsaar = "2023",
+                inntekt =
+                    listOf(
+                        PensjonsgivendeInntekt(
+                            datoForFastsetting = "2023-07-17",
+                            skatteordning = Skatteordning.FASTLAND,
+                            pensjonsgivendeInntektAvNaeringsinntekt = 250_000,
+                        ),
+                    ),
+            )
+            enqueueMockResponse(
+                fnr = FNR,
+                inntektsaar = "2022",
+                inntekt =
+                    listOf(
+                        PensjonsgivendeInntekt(
+                            datoForFastsetting = "2022-07-17",
+                            skatteordning = Skatteordning.FASTLAND,
+                            pensjonsgivendeInntektAvNaeringsinntekt = 250_000,
+                        ),
+                    ),
+            )
+        }
+
+        val sykepengegrunnlag = sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(lagSykepengesoknad(LocalDate.of(2025, 3, 1)))
+        SigrunMockDispatcher.antallKall.get() `should be equal to` 3
+
+        sykepengegrunnlag `should not be` null
+        sykepengegrunnlag!!.let {
+            it.grunnbeloepPerAar.size `should be equal to` 3
+            it.gjennomsnittPerAar.size `should be equal to` 3
+            it.beregnetSnittOgEndring25.let {
+                it.snitt `should be equal to` 267625.toBigInteger()
+                it.p25 `should be equal to` 334532.toBigInteger()
+                it.m25 `should be equal to` 200719.toBigInteger()
+            }
+        }
+    }
+
+    @Test
     fun `Verifiser at JSON sendt til frontend har riktige heltallsverdier`() {
         with(sigrunMockWebServer) {
             enqueueMockResponse(
@@ -448,8 +504,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
             ).toString()
     }
 
-    private fun lagSykepengesoknad(): Sykepengesoknad {
-        val dato = LocalDate.of(2024, 10, 1)
+    private fun lagSykepengesoknad(dato: LocalDate = LocalDate.of(2024, 10, 1)): Sykepengesoknad {
         return opprettNyNaeringsdrivendeSoknad().copy(
             fnr = FNR,
             startSykeforlop = dato,

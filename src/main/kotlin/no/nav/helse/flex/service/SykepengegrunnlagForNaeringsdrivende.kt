@@ -26,29 +26,32 @@ class SykepengegrunnlagForNaeringsdrivende(
 
     fun beregnSykepengegrunnlag(soknad: Sykepengesoknad): SykepengegrunnlagNaeringsdrivende? {
         // TODO: Bruk sykmeldingstidspunkt i stedet for startSykeforlop.
+        val sykmeldingsAar = soknad.startSykeforlop!!.year
+        val grunnbeloepHistorikk = grunnbeloepService.hentGrunnbeloepHistorikk(sykmeldingsAar)
 
-        val sykmeldingstidspunkt = soknad.startSykeforlop!!.year
-        val grunnbeloepSisteFemAar = grunnbeloepService.hentGrunnbeloepHistorikk(sykmeldingstidspunkt)
-        val grunnbeloepPaaSykmeldingstidspunkt = grunnbeloepSisteFemAar[sykmeldingstidspunkt]!!.grunnbeløp
+        val hentForAar =
+            grunnbeloepHistorikk[sykmeldingsAar]?.let { sykmeldingsAar } ?: (sykmeldingsAar - 1).also {
+                log.info("Bruker grunnbeløp for $it i stedet for $sykmeldingsAar for søknad: ${soknad.id}")
+            }
+        val grunnbeloepPaaSykmeldingstidspunkt = grunnbeloepHistorikk[hentForAar]!!.grunnbeløp
 
-        val pensjonsgivendeInntekter =
+        val pensjonsgivendeInntekt =
             hentRelevantPensjonsgivendeInntekt(
                 soknad.fnr,
                 soknad.id,
-                sykmeldingstidspunkt,
+                sykmeldingsAar,
             )?.filter { it.pensjonsgivendeInntekt.isNotEmpty() }
-
-        if (pensjonsgivendeInntekter.isNullOrEmpty()) {
+        if (pensjonsgivendeInntekt.isNullOrEmpty()) {
             return null
         }
 
-        val grunnbeloepRelevanteAar =
-            finnGrunnbeloepForTreRelevanteAar(grunnbeloepSisteFemAar, pensjonsgivendeInntekter)
+        val grunnbeloepForAarMedInntekt =
+            finnGrunnbeloepForAarMedInntekt(grunnbeloepHistorikk, pensjonsgivendeInntekt)
 
         val inntekterJustertForGrunnbeloep =
             finnInntekterJustertForGrunnbeloep(
-                pensjonsgivendeInntekter,
-                grunnbeloepRelevanteAar,
+                pensjonsgivendeInntekt,
+                grunnbeloepForAarMedInntekt,
                 grunnbeloepPaaSykmeldingstidspunkt,
             )
 
@@ -61,10 +64,10 @@ class SykepengegrunnlagForNaeringsdrivende(
 
         return SykepengegrunnlagNaeringsdrivende(
             gjennomsnittPerAar = justerteInntekter.map { AarVerdi(it.key, it.value.roundToBigInteger()) },
-            grunnbeloepPerAar = grunnbeloepRelevanteAar.map { AarVerdi(it.key, it.value) },
+            grunnbeloepPerAar = grunnbeloepForAarMedInntekt.map { AarVerdi(it.key, it.value) },
             grunnbeloepPaaSykmeldingstidspunkt = grunnbeloepPaaSykmeldingstidspunkt,
             beregnetSnittOgEndring25 = beregnEndring25Prosent(gjennomsnittligInntektAlleAar),
-            inntekter = pensjonsgivendeInntekter,
+            inntekter = pensjonsgivendeInntekt,
         )
     }
 
@@ -122,7 +125,7 @@ class SykepengegrunnlagForNaeringsdrivende(
         }
     }
 
-    private fun finnGrunnbeloepForTreRelevanteAar(
+    private fun finnGrunnbeloepForAarMedInntekt(
         grunnbeloepSisteFemAar: Map<Int, GrunnbeloepResponse>,
         inntektPerAar: List<HentPensjonsgivendeInntektResponse>,
     ): Map<String, BigInteger> {
