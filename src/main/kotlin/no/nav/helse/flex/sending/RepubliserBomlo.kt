@@ -8,7 +8,6 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import java.util.concurrent.TimeUnit
 
-
 @Component
 class RepubliserBomlo(
     private val sykepengesoknadDAO: SykepengesoknadDAO,
@@ -18,11 +17,11 @@ class RepubliserBomlo(
 ) {
     private val tilBomlo =
         listOf(
-            "052504a7-3fbc-3832-8f34-e8334a84fc0d"
+            "052504a7-3fbc-3832-8f34-e8334a84fc0d",
         )
     private val log = logger()
 
-    @Scheduled(initialDelay = 3, fixedDelay = 60*30, timeUnit = TimeUnit.SECONDS)
+    @Scheduled(initialDelay = 3, fixedDelay = 60 * 30, timeUnit = TimeUnit.SECONDS)
     fun republiserBomlo() {
         if (!leaderElection.isLeader()) {
             return
