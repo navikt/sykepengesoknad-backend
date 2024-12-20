@@ -22,7 +22,7 @@ import no.nav.helse.flex.repository.KlippetSykepengesoknadDbRecord
 import no.nav.helse.flex.repository.KlippetSykepengesoknadRepository
 import no.nav.helse.flex.service.HentSoknadService
 import no.nav.helse.flex.service.IdentService
-import no.nav.helse.flex.soknadsopprettelse.ArbeidsforholdFraAAreg
+import no.nav.helse.flex.soknadsopprettelse.aaregdata.ArbeidsforholdFraAAreg
 import no.nav.helse.flex.util.tilOsloInstant
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE

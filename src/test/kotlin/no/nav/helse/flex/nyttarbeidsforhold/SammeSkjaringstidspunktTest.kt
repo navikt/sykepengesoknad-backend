@@ -9,7 +9,7 @@ import no.nav.helse.flex.mock.opprettNySoknad
 import no.nav.helse.flex.mockdispatcher.skapArbeidsforholdOversikt
 import no.nav.helse.flex.soknadsopprettelse.TILBAKE_I_ARBEID
 import no.nav.helse.flex.soknadsopprettelse.TILBAKE_NAR
-import no.nav.helse.flex.soknadsopprettelse.ingenArbeidsdagerMellomStartdatoOgEtterStartsyketilfelle
+import no.nav.helse.flex.soknadsopprettelse.aaregdata.ingenArbeidsdagerMellomStartdatoOgEtterStartsyketilfelle
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.tilbakeIFulltArbeidSporsmal
 import no.nav.helse.flex.testutil.byttSvar
 import no.nav.helse.flex.util.serialisertTilString
