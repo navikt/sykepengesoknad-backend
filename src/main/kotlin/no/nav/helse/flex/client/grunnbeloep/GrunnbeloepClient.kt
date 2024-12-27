@@ -16,8 +16,10 @@ import java.time.LocalDate
 class GrunnbeloepClient(
     @Value("\${GRUNNBELOEP_API_URL}")
     private val url: String,
-    private val restClient: RestClient,
+    restClientBuilder: RestClient.Builder,
 ) {
+    val restClient = restClientBuilder.baseUrl(url).build()
+
     @Retryable(
         value = [HttpServerErrorException::class, HttpClientErrorException::class],
         maxAttempts = 3,
@@ -25,7 +27,11 @@ class GrunnbeloepClient(
     )
     fun hentGrunnbeloepHistorikk(hentForDato: LocalDate): List<GrunnbeloepResponse> {
         return restClient.get()
-            .uri("$url/historikk/grunnbeløp?fra=$hentForDato")
+            .uri { uriBuilder ->
+                uriBuilder.path("/historikk/grunnbeløp")
+                    .queryParam("fra", hentForDato)
+                    .build()
+            }
             .retrieve()
             .body(String::class.java)!!.tilGrunnbeloepHistorikk()
     }
