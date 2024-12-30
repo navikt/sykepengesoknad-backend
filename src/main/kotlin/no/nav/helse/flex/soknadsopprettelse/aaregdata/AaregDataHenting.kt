@@ -1,4 +1,4 @@
-package no.nav.helse.flex.soknadsopprettelse
+package no.nav.helse.flex.soknadsopprettelse.aaregdata
 
 import no.nav.helse.flex.client.aareg.AaregClient
 import no.nav.helse.flex.client.aareg.ArbeidsforholdOversikt
@@ -10,6 +10,7 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.mapper.parseEgenmeldingsdagerFraSykmelding
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.arbeidGjenopptattDato
 import no.nav.helse.flex.logger
+import no.nav.helse.flex.soknadsopprettelse.prettyOrgnavn
 import no.nav.helse.flex.util.erHelg
 import no.nav.helse.flex.util.isBeforeOrEqual
 import no.nav.helse.flex.util.serialisertTilString
@@ -43,7 +44,7 @@ class AaregDataHenting(
             return emptyList()
         }
 
-        val arbeidsforholdOversikt = aaregClient.hentArbeidsforholdoversikt(fnr).arbeidsforholdoversikter
+        val arbeidsforholdOversikt = aaregClient.hentArbeidsforholdoversikt(fnr).arbeidsforholdoversikter.mergeKantIKant()
 
         if (environmentToggles.isQ()) {
             log.info("Hentet aaregdata for søknad ${sykepengesoknad.id} \n${arbeidsforholdOversikt.serialisertTilString()}")

@@ -1,9 +1,9 @@
 package no.nav.helse.flex.soknadsopprettelse.sporsmal
 
 import no.nav.helse.flex.nyttarbeidsforhold.tilAndreInntektskilderMetadata
-import no.nav.helse.flex.soknadsopprettelse.ArbeidsforholdFraAAreg
 import no.nav.helse.flex.soknadsopprettelse.ArbeidsforholdFraInntektskomponenten
 import no.nav.helse.flex.soknadsopprettelse.Arbeidsforholdstype
+import no.nav.helse.flex.soknadsopprettelse.aaregdata.ArbeidsforholdFraAAreg
 import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.Test
 import java.time.LocalDate

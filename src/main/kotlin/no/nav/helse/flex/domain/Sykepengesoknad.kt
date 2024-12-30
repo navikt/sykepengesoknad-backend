@@ -2,8 +2,8 @@ package no.nav.helse.flex.domain
 
 import no.nav.helse.flex.inntektsopplysninger.InntektsopplysningerDokumentType
 import no.nav.helse.flex.medlemskap.KjentOppholdstillatelse
-import no.nav.helse.flex.soknadsopprettelse.ArbeidsforholdFraAAreg
 import no.nav.helse.flex.soknadsopprettelse.ArbeidsforholdFraInntektskomponenten
+import no.nav.helse.flex.soknadsopprettelse.aaregdata.ArbeidsforholdFraAAreg
 import java.io.Serializable
 import java.time.Instant
 import java.time.LocalDate

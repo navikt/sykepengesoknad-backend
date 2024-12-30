@@ -2,6 +2,7 @@ package no.nav.helse.flex.soknadsopprettelse
 
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.mock.opprettNySoknad
+import no.nav.helse.flex.soknadsopprettelse.aaregdata.AaregDataHenting
 import org.amshove.kluent.`should be empty`
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldBeEmpty
