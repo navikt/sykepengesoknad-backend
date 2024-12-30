@@ -1,19 +1,17 @@
 package no.nav.helse.flex.soknadsopprettelse.aaregdata
 
 import no.nav.helse.flex.client.aareg.*
+import java.time.Period
 
 fun List<ArbeidsforholdOversikt>.mergeKantIKant(): List<ArbeidsforholdOversikt> {
     if (this.isEmpty()) return emptyList()
 
-    // Gruppér etter (arbeidssted, opplysningspliktig)
     val grupper = this.groupBy { Pair(it.arbeidssted, it.opplysningspliktig) }
 
     val mergedResult =
         grupper.flatMap { (_, gruppe) ->
-            // Sortér hver gruppe etter startdato
             val sorted = gruppe.sortedBy { it.startdato }
 
-            // Merge periodevis
             val mergedGroup = mutableListOf<ArbeidsforholdOversikt>()
             var current = sorted.first()
 
@@ -54,7 +52,7 @@ private fun canMergeArbeidsforhold(
     // a må ha en sluttdato for å kunne sjekke om b kommer kant i kant
     a.sluttdato ?: return false
 
-    val diffDays = java.time.Period.between(a.sluttdato, b.startdato).days
+    val diffDays = Period.between(a.sluttdato, b.startdato).days
     return diffDays >= 0 && diffDays <= 1
 }
 
