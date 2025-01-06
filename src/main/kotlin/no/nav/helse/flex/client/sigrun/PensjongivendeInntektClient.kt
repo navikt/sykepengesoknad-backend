@@ -9,6 +9,7 @@ import org.springframework.http.MediaType
 import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
 import org.springframework.web.client.HttpClientErrorException
+import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
 import java.util.*
@@ -50,6 +51,16 @@ class PensjongivendeInntektClient(
 
             return response.body
                 ?: throw RuntimeException("Responsen er null uten feilmelding fra server.")
+        } catch (e: HttpServerErrorException) {
+            if (e.statusCode == HttpStatus.INTERNAL_SERVER_ERROR && e.responseBodyAsString.contains("PGIF-006")) {
+                // 500 med tilhørende beskrivelse er ikke en feilsituasjon, men angir at det faktisk ikke finnes
+                // pensjonsgivende inntekt for det forespurte året ennå.
+                return HentPensjonsgivendeInntektResponse(
+                    norskPersonidentifikator = fnr,
+                    inntektsaar = inntektsAar.toString(),
+                    pensjonsgivendeInntekt = emptyList(),
+                )
+            }
         } catch (e: HttpClientErrorException) {
             if (e.statusCode == HttpStatus.NOT_FOUND && e.responseBodyAsString.contains("PGIF-008")) {
                 // 404 med tilhørende beskrivelse er ikke en feilsituasjon, men angir at det faktisk ikke finnes
