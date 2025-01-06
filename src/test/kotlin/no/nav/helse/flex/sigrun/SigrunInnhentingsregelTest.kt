@@ -4,6 +4,7 @@ import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.client.sigrun.PensjongivendeInntektClientException
 import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher
 import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher.lag404MockResponse
+import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher.lag500MockResponse
 import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher.lagMockResponse
 import okhttp3.mockwebserver.MockResponse
 import org.amshove.kluent.`should be`
@@ -45,7 +46,7 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `Første har har ikke inntekt så hopper over det og henter de 3 neste`() {
+    fun `Første år har har ikke inntekt så hopper over det og henter de 3 neste`() {
         with(sigrunMockWebServer) {
             enqueue(lag404MockResponse())
             enqueue(lagMockResponse(FNR, "2022"))
@@ -64,6 +65,29 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
             it[1].inntektsaar `should be equal to` "2021"
             it[2].pensjonsgivendeInntekt `should not be` null
             it[2].inntektsaar `should be equal to` "2020"
+        }
+    }
+
+    @Test
+    fun `Første år er ugyldig så hopper over det og henter de 3 neste`() {
+        with(sigrunMockWebServer) {
+            enqueue(lag500MockResponse())
+            enqueue(lagMockResponse(FNR, "2023"))
+            enqueue(lagMockResponse(FNR, "2022"))
+            enqueue(lagMockResponse(FNR, "2021"))
+        }
+
+        val response = sykepengegrunnlagForNaeringsdrivende.hentRelevantPensjonsgivendeInntekt(FNR, SOKNAD_ID, 2025)
+        SigrunMockDispatcher.antallKall.get() `should be equal to` 4
+
+        response?.size `should be equal to` 3
+        response?.let {
+            it[0].pensjonsgivendeInntekt `should not be` null
+            it[0].inntektsaar `should be equal to` "2023"
+            it[1].pensjonsgivendeInntekt `should not be` null
+            it[1].inntektsaar `should be equal to` "2022"
+            it[2].pensjonsgivendeInntekt `should not be` null
+            it[2].inntektsaar `should be equal to` "2021"
         }
     }
 

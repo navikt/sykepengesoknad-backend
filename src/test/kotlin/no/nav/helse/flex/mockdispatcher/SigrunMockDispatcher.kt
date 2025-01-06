@@ -64,4 +64,9 @@ object SigrunMockDispatcher : QueueDispatcher() {
         MockResponse()
             .setResponseCode(404)
             .setBody("{\"errorCode\": \"PGIF-008\", \"errorMessage\": \"Ingen pensjonsgivende inntekt funnet.\"}")
+
+    fun lag500MockResponse(): MockResponse =
+        MockResponse()
+            .setResponseCode(500)
+            .setBody("{\"errorCode\": \"PGIF-006\", \"errorMessage\": \"Oppgitt inntektsår er ikke støttet.\"}")
 }

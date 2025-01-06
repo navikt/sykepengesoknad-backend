@@ -48,19 +48,22 @@ class PensjongivendeInntektClient(
                     HttpEntity<Any>(headers),
                     HentPensjonsgivendeInntektResponse::class.java,
                 )
-
             return response.body
                 ?: throw RuntimeException("Responsen er null uten feilmelding fra server.")
         } catch (e: HttpServerErrorException) {
             if (e.statusCode == HttpStatus.INTERNAL_SERVER_ERROR && e.responseBodyAsString.contains("PGIF-006")) {
-                // 500 med tilhørende beskrivelse er ikke en feilsituasjon, men angir at det faktisk ikke finnes
-                // pensjonsgivende inntekt for det forespurte året ennå.
+                // 500 med tilhørende beskrivelse er ikke en feilsituasjon, men angir at det ikke finnes
+                // pensjonsgivende inntekt for det forespurte året enda.
                 return HentPensjonsgivendeInntektResponse(
                     norskPersonidentifikator = fnr,
                     inntektsaar = inntektsAar.toString(),
                     pensjonsgivendeInntekt = emptyList(),
                 )
             }
+            throw PensjongivendeInntektClientException(
+                "Serverfeil ved kall mot Sigrun: ${e.statusCode} - ${e.message}",
+                e,
+            )
         } catch (e: HttpClientErrorException) {
             if (e.statusCode == HttpStatus.NOT_FOUND && e.responseBodyAsString.contains("PGIF-008")) {
                 // 404 med tilhørende beskrivelse er ikke en feilsituasjon, men angir at det faktisk ikke finnes
