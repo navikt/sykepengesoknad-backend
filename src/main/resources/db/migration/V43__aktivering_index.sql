@@ -1,1 +1,1 @@
-CREATE INDEX sykepengesoknad_status_tom_idx ON sykepengesoknad (status, tom);
+CREATE INDEX IF NOT EXISTS sykepengesoknad_status_tom_idx ON sykepengesoknad (status, tom);
