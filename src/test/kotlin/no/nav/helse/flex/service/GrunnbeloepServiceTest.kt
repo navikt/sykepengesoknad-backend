@@ -5,9 +5,11 @@ import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.mockito.Mockito.*
+import org.mockito.Mockito.times
+import org.mockito.Mockito.verify
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cache.CacheManager
+import org.springframework.web.client.HttpServerErrorException
 import java.time.LocalDate
 
 class GrunnbeloepServiceTest : FellesTestOppsett() {
@@ -26,7 +28,7 @@ class GrunnbeloepServiceTest : FellesTestOppsett() {
         val response = grunnbeloepService.hentGrunnbeloepHistorikk(hentForDato.year)
 
         verify(grunnbeloepClient, times(1)).hentGrunnbeloepHistorikk(hentForDato.minusYears(5))
-        response.size `should be equal to` 6
+        response.size `should be equal to` 7
         response[2019]?.grunnbeløp `should be equal to` 99858
     }
 
@@ -45,8 +47,7 @@ class GrunnbeloepServiceTest : FellesTestOppsett() {
 
     @Test
     fun `Kaster exception hvis det ikke returneres noe resultat`() {
-        // Mock har ikke verdier for 2017, som er 5 år tilbake i tid for 2022.
-        val forsteDato = LocalDate.of(2022, 1, 1)
-        assertThrows<RuntimeException> { grunnbeloepService.hentGrunnbeloepHistorikk(forsteDato.year) }
+        val forsteDato = LocalDate.of(1970, 1, 1)
+        assertThrows<HttpServerErrorException> { grunnbeloepService.hentGrunnbeloepHistorikk(forsteDato.year) }
     }
 }
