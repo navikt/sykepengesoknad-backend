@@ -18,7 +18,7 @@ import java.nio.charset.StandardCharsets
 import java.time.LocalDate
 
 object GrunnbeloepApiMockDispatcher : QueueDispatcher() {
-    val grunnbelopHistorikk2 =
+    val grunnbelopHistorikk =
         mapOf(
             2015 to
                 """
@@ -144,8 +144,8 @@ object GrunnbeloepApiMockDispatcher : QueueDispatcher() {
 
         val response =
             when {
-                path.startsWith("/grunnbeløp") -> dispatchGrunnbeloep2(dato)
-                path.startsWith("/historikk") -> dispatchGrunnbeloepHistorikk2(dato)
+                path.startsWith("/grunnbeløp") -> dispatchGrunnbeloep(dato)
+                path.startsWith("/historikk") -> dispatchGrunnbeloepHistorikk(dato)
                 else -> return MockResponse().setResponseCode(500).setBody("Ukjent path: $path")
             }
 
@@ -155,14 +155,14 @@ object GrunnbeloepApiMockDispatcher : QueueDispatcher() {
             .setBody(response!!)
     }
 
-    private fun dispatchGrunnbeloep2(dato: LocalDate): String? {
+    private fun dispatchGrunnbeloep(dato: LocalDate): String? {
         val year = if (erFoerForsteMai(dato)) dato.year - 1 else dato.year
-        return grunnbelopHistorikk2[year] ?: grunnbelopHistorikk2[year - 1]
+        return grunnbelopHistorikk[year] ?: grunnbelopHistorikk[year - 1]
     }
 
-    private fun dispatchGrunnbeloepHistorikk2(dato: LocalDate): String {
+    private fun dispatchGrunnbeloepHistorikk(dato: LocalDate): String {
         val year = if (erFoerForsteMai(dato)) dato.year - 1 else dato.year
-        return grunnbelopHistorikk2.filterKeys { it >= year }.values.joinToString(prefix = "[", postfix = "]")
+        return grunnbelopHistorikk.filterKeys { it >= year }.values.joinToString(prefix = "[", postfix = "]")
     }
 
     private fun erFoerForsteMai(date: LocalDate): Boolean {
