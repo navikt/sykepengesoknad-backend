@@ -25,7 +25,6 @@ class SykepengegrunnlagForNaeringsdrivende(
     private val log = logger()
 
     fun beregnSykepengegrunnlag(soknad: Sykepengesoknad): SykepengegrunnlagNaeringsdrivende? {
-        // TODO: Bruk sykmeldingstidspunkt i stedet for startSykeforlop.
         val sykmeldingsAar = soknad.startSykeforlop!!.year
         val grunnbeloepHistorikk = grunnbeloepService.hentGrunnbeloepHistorikk(sykmeldingsAar)
 

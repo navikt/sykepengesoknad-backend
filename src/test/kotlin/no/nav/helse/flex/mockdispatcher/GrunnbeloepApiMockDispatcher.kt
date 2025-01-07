@@ -8,6 +8,7 @@ import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.QueueDispatcher
 import okhttp3.mockwebserver.RecordedRequest
 import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.shouldStartWith
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
@@ -20,6 +21,38 @@ import java.time.LocalDate
 object GrunnbeloepApiMockDispatcher : QueueDispatcher() {
     val grunnbelopHistorikk =
         mapOf(
+            2012 to
+                """
+                {
+                  "dato": "2012-05-01",
+                  "grunnbeløp": 82122,
+                  "grunnbeløpPerMåned": 6844,
+                  "gjennomsnittPerÅr": 81153,
+                  "omregningsfaktor": 1.036685
+                }
+                """.trimIndent(),
+            2013 to
+                """
+                {
+                  "dato": "2013-05-01",
+                  "grunnbeløp": 85245,
+                  "grunnbeløpPerMåned": 7104,
+                  "gjennomsnittPerÅr": 84204,
+                  "omregningsfaktor": 1.038029,
+                  "virkningstidspunktForMinsteinntekt": "2013-06-24"
+                }
+                """.trimIndent(),
+            2014 to
+                """
+                {
+                  "dato": "2014-05-01",
+                  "grunnbeløp": 88370,
+                  "grunnbeløpPerMåned": 7364,
+                  "gjennomsnittPerÅr": 87328,
+                  "omregningsfaktor": 1.036659,
+                  "virkningstidspunktForMinsteinntekt": "2014-06-30"
+                }
+                """.trimIndent(),
             2015 to
                 """
                 {
@@ -137,9 +170,9 @@ object GrunnbeloepApiMockDispatcher : QueueDispatcher() {
         val path = URLDecoder.decode(request.path, StandardCharsets.UTF_8.name())
         val dato = LocalDate.parse(path.split("=").last())
 
-        // Simulerer at API returnerer 500 hvis man spør om et for tidlig år til at det finnes lignet inntekt.
-        if (dato.year < 2015) {
-            return MockResponse().setResponseCode(500).setBody("Ukjent år: ${dato.year}")
+        // g.api.nav.no har ikke data fra før 1967.
+        if (dato.year < 1967) {
+            return MockResponse().setResponseCode(500)
         }
 
         val response =
@@ -239,7 +272,7 @@ class GrunnbeloepApiMockDispatcherTest {
             .runCatching {
                 retrieve().toEntity(String::class.java)
             }.onFailure {
-                it.message `should be equal to` "500 Server Error: \"Ukjent år: 1960\""
+                it.message?.shouldStartWith("500 Server Error")
             }
     }
 
