@@ -13,6 +13,7 @@ import no.nav.helse.flex.soknadsopprettelse.settOppSoknadOppholdUtland
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.util.flattenSporsmal
+import no.nav.helse.flex.util.serialisertTilString
 import no.nav.helse.flex.util.tilOsloInstant
 import no.nav.helse.flex.ventPåRecords
 import org.amshove.kluent.`should be equal to`
@@ -21,6 +22,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -54,7 +56,7 @@ class DeaktiverGamleSoknaderServiceTest : FellesTestOppsett() {
         assertThat(antall).isEqualTo(0)
 
         publiserUtgaatteSoknader.publiserUtgatteSoknader() `should be equal to` 0
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 0, duration = java.time.Duration.ofSeconds(1))
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 0, duration = Duration.ofSeconds(1))
     }
 
     @Test
@@ -81,6 +83,7 @@ class DeaktiverGamleSoknaderServiceTest : FellesTestOppsett() {
 
         val soknadPaKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()
         soknadPaKafka.status `should be equal to` SoknadsstatusDTO.UTGAATT
+        soknadPaKafka.sporsmal `should be equal to` emptyList()
 
         publiserUtgaatteSoknader.publiserUtgatteSoknader() `should be equal to` 0
     }
@@ -109,6 +112,7 @@ class DeaktiverGamleSoknaderServiceTest : FellesTestOppsett() {
 
         val soknadPaKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()
         soknadPaKafka.status `should be equal to` SoknadsstatusDTO.UTGAATT
+        soknadPaKafka.sporsmal `should be equal to` emptyList()
 
         publiserUtgaatteSoknader.publiserUtgatteSoknader() `should be equal to` 0
     }
@@ -134,8 +138,10 @@ class DeaktiverGamleSoknaderServiceTest : FellesTestOppsett() {
 
         publiserUtgaatteSoknader.publiserUtgatteSoknader() `should be equal to` 1
 
-        val soknadPaKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()
-        soknadPaKafka.status `should be equal to` SoknadsstatusDTO.UTGAATT
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first().let {
+            it.status `should be equal to` SoknadsstatusDTO.UTGAATT
+            it.sporsmal `should be equal to` emptyList()
+        }
 
         publiserUtgaatteSoknader.publiserUtgatteSoknader() `should be equal to` 0
     }
@@ -158,6 +164,7 @@ class DeaktiverGamleSoknaderServiceTest : FellesTestOppsett() {
 
         val soknadPaKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()
         soknadPaKafka.status `should be equal to` SoknadsstatusDTO.UTGAATT
+        soknadPaKafka.sporsmal `should be equal to` emptyList()
 
         soknadPaKafka.sporsmal?.size `should be equal to` 0
     }
@@ -197,7 +204,7 @@ class DeaktiverGamleSoknaderServiceTest : FellesTestOppsett() {
 
         svarDao.lagreSvar(
             alleSporsmal.find { it.tag == "OPPHOLD_UTENFOR_EOS_NAR" }?.id!!,
-            Svar(null, Periode(LocalDate.now(), LocalDate.now()).toString()),
+            Svar(null, Periode(LocalDate.now(), LocalDate.now()).serialisertTilString()),
         )
 
         val idPaaAlleSporsmal = alleSporsmal.mapNotNull { it.id }
@@ -205,8 +212,17 @@ class DeaktiverGamleSoknaderServiceTest : FellesTestOppsett() {
         val antall = deaktiverGamleSoknaderService.deaktiverSoknader()
         assertThat(antall).isEqualTo(1)
 
+        publiserUtgaatteSoknader.publiserUtgatteSoknader() `should be equal to` 1
+
         sykepengesoknadDAO.finnSykepengesoknad(avbruttSoknad.id).sporsmal.size `should be equal to` 0
         svarDao.finnSvar(idPaaAlleSporsmal.toSet()).size `should be equal to` 0
+//
+
+        val soknadPaKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()
+        soknadPaKafka.status `should be equal to` SoknadsstatusDTO.UTGAATT
+        soknadPaKafka.sporsmal `should be equal to` emptyList()
+
+        // TODO: Trenger både ID og UUID, så returner et klasse wrapper et pair
     }
 
     @Test

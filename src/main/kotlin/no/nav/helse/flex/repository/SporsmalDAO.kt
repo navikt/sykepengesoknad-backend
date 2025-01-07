@@ -93,6 +93,7 @@ class SporsmalDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemp
         svarFraBasen.forEach { (key, value) -> svarMap[key]!!.addAll(value) }
     }
 
+    // TODO: Renanme til slettSporsmalOgSvar
     fun slettSporsmal(soknadsIder: List<String>) {
         if (soknadsIder.isEmpty()) {
             return

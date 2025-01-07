@@ -356,7 +356,7 @@ class SykepengesoknadDAO(
 
     fun slettSoknad(sykepengesoknadUuid: String) {
         try {
-            val id = sykepengesoknadId(sykepengesoknadUuid)
+            val id = this@SykepengesoknadDAO.sykepengesoknadId(sykepengesoknadUuid)
 
             sporsmalDAO.slettSporsmal(listOf(id))
             soknadsperiodeDAO.slettSoknadPerioder(id)
@@ -383,7 +383,7 @@ class SykepengesoknadDAO(
     }
 
     fun byttUtSporsmal(oppdatertSoknad: Sykepengesoknad) {
-        val sykepengesoknadId = sykepengesoknadId(oppdatertSoknad.id)
+        val sykepengesoknadId = this@SykepengesoknadDAO.sykepengesoknadId(oppdatertSoknad.id)
         sporsmalDAO.slettSporsmal(listOf(sykepengesoknadId))
         soknadLagrer.lagreSporsmalOgSvarFraSoknad(oppdatertSoknad)
     }
@@ -403,7 +403,7 @@ class SykepengesoknadDAO(
         tom: LocalDate,
         fom: LocalDate,
     ): List<Soknadsperiode> {
-        val sykepengesoknadId = sykepengesoknadId(sykepengesoknadUuid)
+        val sykepengesoknadId = this@SykepengesoknadDAO.sykepengesoknadId(sykepengesoknadUuid)
 
         val soknadPerioder = soknadsperiodeDAO.finnSoknadPerioder(setOf(sykepengesoknadId))[sykepengesoknadId]!!
         val nyePerioder =
@@ -443,7 +443,7 @@ class SykepengesoknadDAO(
         fom: LocalDate,
         tom: LocalDate,
     ): List<Soknadsperiode> {
-        val sykepengesoknadId = sykepengesoknadId(sykepengesoknadUuid)
+        val sykepengesoknadId = this@SykepengesoknadDAO.sykepengesoknadId(sykepengesoknadUuid)
 
         val soknadPerioder = soknadsperiodeDAO.finnSoknadPerioder(setOf(sykepengesoknadId))[sykepengesoknadId]!!
         val nyePerioder =
@@ -650,6 +650,29 @@ class SykepengesoknadDAO(
         ) { resultSet, _ ->
             GammeltUtkast(
                 sykepengesoknadUuid = resultSet.getString("SYKEPENGESOKNAD_UUID"),
+            )
+        }
+    }
+
+    data class SoknadSomSkalDeaktiveres(
+        val sykepengesoknadId: String,
+        val sykepengesoknadUuid: String,
+    )
+
+    fun soknaderSomSkalDeaktiveres(): List<SoknadSomSkalDeaktiveres> {
+        return namedParameterJdbcTemplate.query(
+            """
+            SELECT id, sykepengesoknad_uuid
+            FROM sykepengesoknad
+            WHERE status IN ('NY', 'AVBRUTT')
+            AND opprettet < :dato
+            AND ((tom < :dato) OR (soknadstype = 'OPPHOLD_UTLAND'))
+            """.trimIndent(),
+            MapSqlParameterSource().addValue("dato", LocalDate.now(osloZone).minusMonths(4)),
+        ) { rs, _ ->
+            SoknadSomSkalDeaktiveres(
+                sykepengesoknadId = rs.getString("id"),
+                sykepengesoknadUuid = rs.getString("sykepengesoknad_uuid"),
             )
         }
     }
