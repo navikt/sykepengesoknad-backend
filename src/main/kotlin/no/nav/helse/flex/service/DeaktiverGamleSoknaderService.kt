@@ -5,6 +5,7 @@ import no.nav.helse.flex.medlemskap.MedlemskapVurderingRepository
 import no.nav.helse.flex.repository.SporsmalDAO
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class DeaktiverGamleSoknaderService(
@@ -14,18 +15,17 @@ class DeaktiverGamleSoknaderService(
 ) {
     private val log = logger()
 
+    @Transactional
     fun deaktiverSoknader(): Int {
-        val soknaderSomSkalDeaktiveres = sykepengesoknadDAO.soknaderSomSkalDeaktiveres()
-        log.info("Skal deaktiverer ${soknaderSomSkalDeaktiveres.size} søknader.")
+        val deaktiverteSoknader = sykepengesoknadDAO.deaktiverSoknader()
 
-        sporsmalDao.slettSporsmalOgSvar(soknaderSomSkalDeaktiveres.map { it.sykepengesoknadId })
+        sporsmalDao.slettSporsmalOgSvar(deaktiverteSoknader.map { it.sykepengesoknadId })
 
-        soknaderSomSkalDeaktiveres.forEach { soknadSomSkalDeaktiveres ->
+        deaktiverteSoknader.forEach { soknadSomSkalDeaktiveres ->
             medlemskapVurderingRepository.deleteBySykepengesoknadId(soknadSomSkalDeaktiveres.sykepengesoknadUuid)
         }
 
-        val antall = sykepengesoknadDAO.deaktiverSoknader()
-        log.info("Deaktiverte $antall søknader.")
-        return antall
+        log.info("Deaktiverte ${deaktiverteSoknader.size} søknader.")
+        return deaktiverteSoknader.size
     }
 }

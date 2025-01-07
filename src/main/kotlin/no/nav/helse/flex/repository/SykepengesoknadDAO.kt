@@ -654,19 +654,15 @@ class SykepengesoknadDAO(
         }
     }
 
-    data class SoknadSomSkalDeaktiveres(
-        val sykepengesoknadId: String,
-        val sykepengesoknadUuid: String,
-    )
-
-    fun soknaderSomSkalDeaktiveres(): List<SoknadSomSkalDeaktiveres> {
+    fun deaktiverSoknader(): List<SoknadSomSkalDeaktiveres> {
         return namedParameterJdbcTemplate.query(
             """
-            SELECT id, sykepengesoknad_uuid
-            FROM sykepengesoknad
+            UPDATE sykepengesoknad 
+            SET status = 'UTGATT'
             WHERE status IN ('NY', 'AVBRUTT')
             AND opprettet < :dato
             AND ((tom < :dato) OR (soknadstype = 'OPPHOLD_UTLAND'))
+            RETURNING id, sykepengesoknad_uuid
             """.trimIndent(),
             MapSqlParameterSource().addValue("dato", LocalDate.now(osloZone).minusMonths(4)),
         ) { rs, _ ->
@@ -675,20 +671,6 @@ class SykepengesoknadDAO(
                 sykepengesoknadUuid = rs.getString("sykepengesoknad_uuid"),
             )
         }
-    }
-
-    fun deaktiverSoknader(): Int {
-        return namedParameterJdbcTemplate.update(
-            """
-            UPDATE sykepengesoknad 
-            SET status = 'UTGATT'
-            WHERE status IN ('NY', 'AVBRUTT')
-            AND opprettet < :dato
-            AND ((tom < :dato) OR (soknadstype = 'OPPHOLD_UTLAND'))
-            """.trimIndent(),
-            MapSqlParameterSource()
-                .addValue("dato", LocalDate.now(osloZone).minusMonths(4)),
-        )
     }
 
     fun finnUpubliserteUtlopteSoknader(): List<String> {
@@ -723,6 +705,11 @@ class SykepengesoknadDAO(
         )
     }
 }
+
+data class SoknadSomSkalDeaktiveres(
+    val sykepengesoknadId: String,
+    val sykepengesoknadUuid: String,
+)
 
 fun String?.tilMerknader(): List<Merknad>? {
     this?.let {
