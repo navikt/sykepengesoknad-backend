@@ -44,8 +44,5 @@ class GrunnbeloepClient(
 data class GrunnbeloepResponse(
     val dato: String,
     val grunnbeløp: Int,
-    val grunnbeløpPerMaaned: Int,
     val gjennomsnittPerÅr: Int,
-    val omregningsfaktor: Float,
-    val virkningstidspunktForMinsteinntekt: String? = null,
 ) : Serializable

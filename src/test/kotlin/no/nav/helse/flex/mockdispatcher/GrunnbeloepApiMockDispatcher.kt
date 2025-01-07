@@ -3,13 +3,14 @@ package no.nav.helse.flex.mockdispatcher
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.client.grunnbeloep.GrunnbeloepResponse
 import no.nav.helse.flex.util.objectMapper
-import no.nav.helse.flex.util.serialisertTilString
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.QueueDispatcher
 import okhttp3.mockwebserver.RecordedRequest
 import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.Test
+import org.springframework.http.HttpHeaders
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.client.RestClient
 import java.net.URLDecoder
@@ -17,88 +18,118 @@ import java.nio.charset.StandardCharsets
 import java.time.LocalDate
 
 object GrunnbeloepApiMockDispatcher : QueueDispatcher() {
-    val grunnbelopHistorikk =
-        listOf(
-            GrunnbeloepResponse(
-                dato = "2015-05-01",
-                grunnbeløp = 90068,
-                grunnbeløpPerMaaned = 7506,
-                gjennomsnittPerÅr = 89502,
-                omregningsfaktor = 1.019214f,
-                virkningstidspunktForMinsteinntekt = "2015-06-01",
-            ),
-            GrunnbeloepResponse(
-                dato = "2016-05-01",
-                grunnbeløp = 92576,
-                grunnbeløpPerMaaned = 7715,
-                gjennomsnittPerÅr = 91740,
-                omregningsfaktor = 1.027846f,
-                virkningstidspunktForMinsteinntekt = "2016-05-30",
-            ),
-            GrunnbeloepResponse(
-                dato = "2017-05-01",
-                grunnbeløp = 93634,
-                grunnbeløpPerMaaned = 7803,
-                gjennomsnittPerÅr = 93281,
-                omregningsfaktor = 1.011428f,
-                virkningstidspunktForMinsteinntekt = "2017-05-29",
-            ),
-            GrunnbeloepResponse(
-                dato = "2018-05-01",
-                grunnbeløp = 96883,
-                grunnbeløpPerMaaned = 8074,
-                gjennomsnittPerÅr = 95800,
-                omregningsfaktor = 1.034699f,
-                virkningstidspunktForMinsteinntekt = "2018-06-04",
-            ),
-            GrunnbeloepResponse(
-                dato = "2019-05-01",
-                grunnbeløp = 99858,
-                grunnbeløpPerMaaned = 8322,
-                gjennomsnittPerÅr = 98866,
-                omregningsfaktor = 1.030707f,
-                virkningstidspunktForMinsteinntekt = "2019-05-27",
-            ),
-            GrunnbeloepResponse(
-                dato = "2020-05-01",
-                grunnbeløp = 101351,
-                grunnbeløpPerMaaned = 8446,
-                gjennomsnittPerÅr = 100853,
-                omregningsfaktor = 1.014951f,
-                virkningstidspunktForMinsteinntekt = "2020-09-21",
-            ),
-            GrunnbeloepResponse(
-                dato = "2021-05-01",
-                grunnbeløp = 106399,
-                grunnbeløpPerMaaned = 8867,
-                gjennomsnittPerÅr = 104716,
-                omregningsfaktor = 1.049807f,
-                virkningstidspunktForMinsteinntekt = "2021-05-24",
-            ),
-            GrunnbeloepResponse(
-                dato = "2022-05-01",
-                grunnbeløp = 111477,
-                grunnbeløpPerMaaned = 9290,
-                gjennomsnittPerÅr = 109784,
-                omregningsfaktor = 1.047726f,
-                virkningstidspunktForMinsteinntekt = "2022-05-23",
-            ),
-            GrunnbeloepResponse(
-                dato = "2023-05-01",
-                grunnbeløp = 118620,
-                grunnbeløpPerMaaned = 9885,
-                gjennomsnittPerÅr = 116239,
-                omregningsfaktor = 1.064076f,
-                virkningstidspunktForMinsteinntekt = "2023-05-26",
-            ),
-            GrunnbeloepResponse(
-                dato = "2024-05-01",
-                grunnbeløp = 124028,
-                grunnbeløpPerMaaned = 10336,
-                gjennomsnittPerÅr = 122225,
-                omregningsfaktor = 1.045591f,
-                virkningstidspunktForMinsteinntekt = "2024-06-03",
-            ),
+    val grunnbelopHistorikk2 =
+        mapOf(
+            2015 to
+                """
+                {
+                  "dato": "2015-05-01",
+                  "grunnbeløp": 90068,
+                  "grunnbeløpPerMaaned": 7506,
+                  "gjennomsnittPerÅr": 89502,
+                  "omregningsfaktor": 1.019214,
+                  "virkningstidspunktForMinsteinntekt": "2015-06-01"
+                }
+                """.trimIndent(),
+            2016 to
+                """
+                {
+                  "dato": "2016-05-01",
+                  "grunnbeløp": 92576,
+                  "grunnbeløpPerMaaned": 7715,
+                  "gjennomsnittPerÅr": 91740,
+                  "omregningsfaktor": 1.027846,
+                  "virkningstidspunktForMinsteinntekt": "2016-05-30"
+                }
+                """.trimIndent(),
+            2017 to
+                """
+                {
+                  "dato": "2017-05-01",
+                  "grunnbeløp": 93634,
+                  "grunnbeløpPerMaaned": 7803,
+                  "gjennomsnittPerÅr": 93281,
+                  "omregningsfaktor": 1.011428,
+                  "virkningstidspunktForMinsteinntekt": "2017-05-29"
+                }
+                """.trimIndent(),
+            2018 to
+                """
+                {
+                  "dato": "2018-05-01",
+                  "grunnbeløp": 96883,
+                  "grunnbeløpPerMaaned": 8074,
+                  "gjennomsnittPerÅr": 95800,
+                  "omregningsfaktor": 1.034699,
+                  "virkningstidspunktForMinsteinntekt": "2018-06-04"
+                }
+                """.trimIndent(),
+            2019 to
+                """
+                {
+                  "dato": "2019-05-01",
+                  "grunnbeløp": 99858,
+                  "grunnbeløpPerMaaned": 8322,
+                  "gjennomsnittPerÅr": 98866,
+                  "omregningsfaktor": 1.030707,
+                  "virkningstidspunktForMinsteinntekt": "2019-05-27"
+                }
+                """.trimIndent(),
+            2020 to
+                """
+                {
+                  "dato": "2020-05-01",
+                  "grunnbeløp": 101351,
+                  "grunnbeløpPerMaaned": 8446,
+                  "gjennomsnittPerÅr": 100853,
+                  "omregningsfaktor": 1.014951,
+                  "virkningstidspunktForMinsteinntekt": "2020-09-21"
+                }
+                """.trimIndent(),
+            2021 to
+                """
+                {
+                  "dato":"2021-05-01",
+                  "grunnbeløp":106399,
+                  "grunnbeløpPerMaaned":8867,
+                  "gjennomsnittPerÅr":104716,
+                  "omregningsfaktor":1.049807,
+                  "virkningstidspunktForMinsteinntekt":"2021-05-24"
+                }
+                """.trimIndent(),
+            2022 to
+                """
+                {
+                  "dato": "2022-05-01",
+                  "grunnbeløp": 111477,
+                  "grunnbeløpPerMaaned": 9290,
+                  "gjennomsnittPerÅr": 109784,
+                  "omregningsfaktor": 1.047726,
+                  "virkningstidspunktForMinsteinntekt": "2022-05-23"
+                }
+                """.trimIndent(),
+            2023 to
+                """
+                {
+                  "dato": "2023-05-01",
+                  "grunnbeløp": 118620,
+                  "grunnbeløpPerMaaned": 9885,
+                  "gjennomsnittPerÅr": 116239,
+                  "omregningsfaktor": 1.064076,
+                  "virkningstidspunktForMinsteinntekt": "2023-05-26"
+                }
+                """.trimIndent(),
+            2024 to
+                """
+                {
+                  "dato": "2024-05-01",
+                  "grunnbeløp": 124028,
+                  "grunnbeløpPerMaaned": 10336,
+                  "gjennomsnittPerÅr": 122225,
+                  "omregningsfaktor": 1.045591,
+                  "virkningstidspunktForMinsteinntekt": "2024-06-03"
+                }
+                """.trimIndent(),
         )
 
     override fun dispatch(request: RecordedRequest): MockResponse {
@@ -113,23 +144,25 @@ object GrunnbeloepApiMockDispatcher : QueueDispatcher() {
 
         val response =
             when {
-                path.startsWith("/grunnbeløp") -> dispatchGrunnbeloep(dato)
-                path.startsWith("/historikk") -> dispatchGrunnbeloepHistorikk(dato)
+                path.startsWith("/grunnbeløp") -> dispatchGrunnbeloep2(dato)
+                path.startsWith("/historikk") -> dispatchGrunnbeloepHistorikk2(dato)
                 else -> return MockResponse().setResponseCode(500).setBody("Ukjent path: $path")
             }
 
-        return MockResponse().setResponseCode(200).setBody(response.serialisertTilString())
+        return MockResponse()
+            .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .setResponseCode(200)
+            .setBody(response!!)
     }
 
-    private fun dispatchGrunnbeloep(dato: LocalDate): GrunnbeloepResponse {
+    private fun dispatchGrunnbeloep2(dato: LocalDate): String? {
         val year = if (erFoerForsteMai(dato)) dato.year - 1 else dato.year
-        return grunnbelopHistorikk.reversed().first { it.dato <= "$year-05-01" }
+        return grunnbelopHistorikk2[year] ?: grunnbelopHistorikk2[year - 1]
     }
 
-    private fun dispatchGrunnbeloepHistorikk(dato: LocalDate): List<GrunnbeloepResponse> {
+    private fun dispatchGrunnbeloepHistorikk2(dato: LocalDate): String {
         val year = if (erFoerForsteMai(dato)) dato.year - 1 else dato.year
-
-        return grunnbelopHistorikk.filter { it.dato >= "$year-05-01" }
+        return grunnbelopHistorikk2.filterKeys { it >= year }.values.joinToString(prefix = "[", postfix = "]")
     }
 
     private fun erFoerForsteMai(date: LocalDate): Boolean {
