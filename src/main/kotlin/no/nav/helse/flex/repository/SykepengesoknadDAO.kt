@@ -322,7 +322,7 @@ class SykepengesoknadDAO(
                 MapSqlParameterSource().addValue("fnr", fnr),
             ) { row, _ -> row.getString("id") }
 
-        sporsmalDAO.slettSporsmal(soknadsIder)
+        sporsmalDAO.slettSporsmalOgSvar(soknadsIder)
         medlemskapVurderingRepository.deleteByFnr(fnr)
 
         soknadsIder.forEach {
@@ -358,7 +358,7 @@ class SykepengesoknadDAO(
         try {
             val id = this@SykepengesoknadDAO.sykepengesoknadId(sykepengesoknadUuid)
 
-            sporsmalDAO.slettSporsmal(listOf(id))
+            sporsmalDAO.slettSporsmalOgSvar(listOf(id))
             soknadsperiodeDAO.slettSoknadPerioder(id)
             medlemskapVurderingRepository.deleteBySykepengesoknadId(sykepengesoknadUuid)
 
@@ -384,7 +384,7 @@ class SykepengesoknadDAO(
 
     fun byttUtSporsmal(oppdatertSoknad: Sykepengesoknad) {
         val sykepengesoknadId = this@SykepengesoknadDAO.sykepengesoknadId(oppdatertSoknad.id)
-        sporsmalDAO.slettSporsmal(listOf(sykepengesoknadId))
+        sporsmalDAO.slettSporsmalOgSvar(listOf(sykepengesoknadId))
         soknadLagrer.lagreSporsmalOgSvarFraSoknad(oppdatertSoknad)
     }
 

@@ -18,7 +18,7 @@ class DeaktiverGamleSoknaderService(
         val soknaderSomSkalDeaktiveres = sykepengesoknadDAO.soknaderSomSkalDeaktiveres()
         log.info("Skal deaktiverer ${soknaderSomSkalDeaktiveres.size} søknader.")
 
-        sporsmalDao.slettSporsmal(soknaderSomSkalDeaktiveres.map { it.sykepengesoknadId })
+        sporsmalDao.slettSporsmalOgSvar(soknaderSomSkalDeaktiveres.map { it.sykepengesoknadId })
 
         soknaderSomSkalDeaktiveres.forEach { soknadSomSkalDeaktiveres ->
             medlemskapVurderingRepository.deleteBySykepengesoknadId(soknadSomSkalDeaktiveres.sykepengesoknadUuid)
