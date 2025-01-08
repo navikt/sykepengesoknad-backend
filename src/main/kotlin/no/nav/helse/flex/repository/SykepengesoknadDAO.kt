@@ -356,7 +356,7 @@ class SykepengesoknadDAO(
 
     fun slettSoknad(sykepengesoknadUuid: String) {
         try {
-            val id = this@SykepengesoknadDAO.sykepengesoknadId(sykepengesoknadUuid)
+            val id = sykepengesoknadId(sykepengesoknadUuid)
 
             sporsmalDAO.slettSporsmalOgSvar(listOf(id))
             soknadsperiodeDAO.slettSoknadPerioder(id)
@@ -383,7 +383,7 @@ class SykepengesoknadDAO(
     }
 
     fun byttUtSporsmal(oppdatertSoknad: Sykepengesoknad) {
-        val sykepengesoknadId = this@SykepengesoknadDAO.sykepengesoknadId(oppdatertSoknad.id)
+        val sykepengesoknadId = sykepengesoknadId(oppdatertSoknad.id)
         sporsmalDAO.slettSporsmalOgSvar(listOf(sykepengesoknadId))
         soknadLagrer.lagreSporsmalOgSvarFraSoknad(oppdatertSoknad)
     }
@@ -403,7 +403,7 @@ class SykepengesoknadDAO(
         tom: LocalDate,
         fom: LocalDate,
     ): List<Soknadsperiode> {
-        val sykepengesoknadId = this@SykepengesoknadDAO.sykepengesoknadId(sykepengesoknadUuid)
+        val sykepengesoknadId = sykepengesoknadId(sykepengesoknadUuid)
 
         val soknadPerioder = soknadsperiodeDAO.finnSoknadPerioder(setOf(sykepengesoknadId))[sykepengesoknadId]!!
         val nyePerioder =
@@ -443,7 +443,7 @@ class SykepengesoknadDAO(
         fom: LocalDate,
         tom: LocalDate,
     ): List<Soknadsperiode> {
-        val sykepengesoknadId = this@SykepengesoknadDAO.sykepengesoknadId(sykepengesoknadUuid)
+        val sykepengesoknadId = sykepengesoknadId(sykepengesoknadUuid)
 
         val soknadPerioder = soknadsperiodeDAO.finnSoknadPerioder(setOf(sykepengesoknadId))[sykepengesoknadId]!!
         val nyePerioder =

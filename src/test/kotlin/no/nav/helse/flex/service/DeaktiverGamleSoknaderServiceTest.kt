@@ -3,7 +3,9 @@ package no.nav.helse.flex.service
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.Soknadstatus
+import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svar
+import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingDbRecord
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingRepository
 import no.nav.helse.flex.mock.opprettNySoknad
@@ -17,7 +19,6 @@ import no.nav.helse.flex.util.serialisertTilString
 import no.nav.helse.flex.util.tilOsloInstant
 import no.nav.helse.flex.ventPåRecords
 import org.amshove.kluent.`should be equal to`
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -27,6 +28,8 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
+
+private const val FNR = "12345784312"
 
 class DeaktiverGamleSoknaderServiceTest : FellesTestOppsett() {
     @Autowired
@@ -47,96 +50,31 @@ class DeaktiverGamleSoknaderServiceTest : FellesTestOppsett() {
     @BeforeEach
     @AfterEach
     fun nullstillDatabase() {
-        sykepengesoknadDAO.nullstillSoknader("12345784312")
+        sykepengesoknadDAO.nullstillSoknader(FNR)
     }
 
     @Test
     fun `Tom database inkluderer ingen søknader å deaktivere`() {
-        val antall = deaktiverGamleSoknaderService.deaktiverSoknader()
-        assertThat(antall).isEqualTo(0)
-
+        deaktiverGamleSoknaderService.deaktiverSoknader() `should be equal to` 0
         publiserUtgaatteSoknader.publiserUtgatteSoknader() `should be equal to` 0
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 0, duration = Duration.ofSeconds(1))
     }
 
     @Test
-    fun `En gammel arbeidstakersøknad blir deaktivert`() {
+    fun `En ny arbeidstakersøknad blir deaktivert`() {
         val nySoknad =
-            opprettNySoknad().copy(
-                status = Soknadstatus.NY,
-                fnr = "12345784312",
-                tom = LocalDate.now().minusMonths(4).minusDays(1),
-                opprettet = LocalDate.now().minusMonths(4).minusDays(1).atStartOfDay().tilOsloInstant(),
-            )
-        sykepengesoknadDAO.lagreSykepengesoknad(nySoknad)
+            opprettSoknad(Soknadstatus.NY)
+                .also { sykepengesoknadDAO.lagreSykepengesoknad(it) }
 
-        val sendtSoknad = nySoknad.copy(status = Soknadstatus.SENDT, id = UUID.randomUUID().toString())
-        sykepengesoknadDAO.lagreSykepengesoknad(sendtSoknad)
+        val sendtSoknad =
+            nySoknad.copy(status = Soknadstatus.SENDT, id = UUID.randomUUID().toString())
+                .also { sykepengesoknadDAO.lagreSykepengesoknad(it) }
 
-        val antall = deaktiverGamleSoknaderService.deaktiverSoknader()
-        assertThat(antall).isEqualTo(1)
-
-        assertThat(sykepengesoknadDAO.finnSykepengesoknad(nySoknad.id).status).isEqualTo(Soknadstatus.UTGATT)
-        assertThat(sykepengesoknadDAO.finnSykepengesoknad(sendtSoknad.id).status).isEqualTo(Soknadstatus.SENDT)
-
+        deaktiverGamleSoknaderService.deaktiverSoknader() `should be equal to` 1
         publiserUtgaatteSoknader.publiserUtgatteSoknader() `should be equal to` 1
 
-        val soknadPaKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()
-        soknadPaKafka.status `should be equal to` SoknadsstatusDTO.UTGAATT
-        soknadPaKafka.sporsmal `should be equal to` emptyList()
-
-        publiserUtgaatteSoknader.publiserUtgatteSoknader() `should be equal to` 0
-    }
-
-    @Test
-    fun `En avbrutt søknad blir deaktivert`() {
-        val avbruttSoknad =
-            opprettNySoknad().copy(
-                status = Soknadstatus.AVBRUTT,
-                fnr = "12345784312",
-                tom = LocalDate.now().minusMonths(4).minusDays(1),
-                opprettet = LocalDate.now().minusMonths(4).minusDays(1).atStartOfDay().tilOsloInstant(),
-            )
-        sykepengesoknadDAO.lagreSykepengesoknad(avbruttSoknad)
-
-        val sendtSoknad = avbruttSoknad.copy(status = Soknadstatus.SENDT, id = UUID.randomUUID().toString())
-        sykepengesoknadDAO.lagreSykepengesoknad(sendtSoknad)
-
-        val antall = deaktiverGamleSoknaderService.deaktiverSoknader()
-        assertThat(antall).isEqualTo(1)
-
-        assertThat(sykepengesoknadDAO.finnSykepengesoknad(avbruttSoknad.id).status).isEqualTo(Soknadstatus.UTGATT)
-        assertThat(sykepengesoknadDAO.finnSykepengesoknad(sendtSoknad.id).status).isEqualTo(Soknadstatus.SENDT)
-
-        publiserUtgaatteSoknader.publiserUtgatteSoknader() `should be equal to` 1
-
-        val soknadPaKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()
-        soknadPaKafka.status `should be equal to` SoknadsstatusDTO.UTGAATT
-        soknadPaKafka.sporsmal `should be equal to` emptyList()
-
-        publiserUtgaatteSoknader.publiserUtgatteSoknader() `should be equal to` 0
-    }
-
-    @Test
-    fun `En gammel utenlandssoknad blir deaktivert`() {
-        val nySoknad =
-            settOppSoknadOppholdUtland("12345784312")
-                .copy(
-                    opprettet = LocalDateTime.now().minusMonths(4).minusDays(1).tilOsloInstant(),
-                    status = Soknadstatus.NY,
-                )
-        sykepengesoknadDAO.lagreSykepengesoknad(nySoknad)
-
-        val sendtSoknad = nySoknad.copy(status = Soknadstatus.SENDT, id = UUID.randomUUID().toString())
-        sykepengesoknadDAO.lagreSykepengesoknad(sendtSoknad)
-
-        val antall = deaktiverGamleSoknaderService.deaktiverSoknader()
-        assertThat(antall).isEqualTo(1)
-
-        assertThat(sykepengesoknadDAO.finnSykepengesoknad(nySoknad.id).status).isEqualTo(Soknadstatus.UTGATT)
-        assertThat(sykepengesoknadDAO.finnSykepengesoknad(sendtSoknad.id).status).isEqualTo(Soknadstatus.SENDT)
-
-        publiserUtgaatteSoknader.publiserUtgatteSoknader() `should be equal to` 1
+        sykepengesoknadDAO.finnSykepengesoknad(nySoknad.id).status `should be equal to` Soknadstatus.UTGATT
+        sykepengesoknadDAO.finnSykepengesoknad(sendtSoknad.id).status `should be equal to` Soknadstatus.SENDT
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first().let {
             it.status `should be equal to` SoknadsstatusDTO.UTGAATT
@@ -147,94 +85,86 @@ class DeaktiverGamleSoknaderServiceTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `Utgåtte søknader blir publisert uten spørsmål`() {
-        val nySoknad =
-            opprettNySoknad().copy(
-                status = Soknadstatus.NY,
-                tom = LocalDate.now().minusMonths(4).minusDays(1),
-                opprettet = LocalDate.now().minusMonths(4).minusDays(1).atStartOfDay().tilOsloInstant(),
-            )
-        sykepengesoknadDAO.lagreSykepengesoknad(nySoknad)
+    fun `En avbrutt arbeidstaker blir deaktivert`() {
+        val nySoknad = opprettSoknad(Soknadstatus.AVBRUTT).also { sykepengesoknadDAO.lagreSykepengesoknad(it) }
 
-        val antall = deaktiverGamleSoknaderService.deaktiverSoknader()
-        assertThat(antall).isEqualTo(1)
+        val sendtSoknad =
+            nySoknad.copy(status = Soknadstatus.SENDT, id = UUID.randomUUID().toString())
+                .also { sykepengesoknadDAO.lagreSykepengesoknad(it) }
 
-        assertThat(sykepengesoknadDAO.finnSykepengesoknad(nySoknad.id).status).isEqualTo(Soknadstatus.UTGATT)
+        deaktiverGamleSoknaderService.deaktiverSoknader() `should be equal to` 1
         publiserUtgaatteSoknader.publiserUtgatteSoknader() `should be equal to` 1
 
-        val soknadPaKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()
-        soknadPaKafka.status `should be equal to` SoknadsstatusDTO.UTGAATT
-        soknadPaKafka.sporsmal `should be equal to` emptyList()
+        sykepengesoknadDAO.finnSykepengesoknad(nySoknad.id).status `should be equal to` Soknadstatus.UTGATT
+        sykepengesoknadDAO.finnSykepengesoknad(sendtSoknad.id).status `should be equal to` Soknadstatus.SENDT
 
-        soknadPaKafka.sporsmal?.size `should be equal to` 0
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first().let {
+            it.status `should be equal to` SoknadsstatusDTO.UTGAATT
+            it.sporsmal `should be equal to` emptyList()
+        }
+
+        publiserUtgaatteSoknader.publiserUtgatteSoknader() `should be equal to` 0
     }
 
     @Test
-    fun `Svar blir slettet fra en delvis besvart utgått søknad`() {
-        val avbruttSoknad =
-            opprettNySoknad().copy(
-                status = Soknadstatus.AVBRUTT,
-                fnr = "12345784312",
-                tom = LocalDate.now().minusMonths(4).minusDays(1),
-                opprettet = LocalDate.now().minusMonths(4).minusDays(1).atStartOfDay().tilOsloInstant(),
-            )
-        sykepengesoknadDAO.lagreSykepengesoknad(avbruttSoknad)
+    fun `En ny soknad om opphold utland blir deaktivert`() {
+        val soknadUtland =
+            settOppSoknadOppholdUtland(FNR).copy(
+                opprettet = LocalDateTime.now().minusMonths(4).minusDays(1).tilOsloInstant(),
+                status = Soknadstatus.NY,
+            ).also { sykepengesoknadDAO.lagreSykepengesoknad(it) }
 
-        val alleSporsmal = sykepengesoknadDAO.finnSykepengesoknad(avbruttSoknad.id).sporsmal.flattenSporsmal()
+        val sendtSoknad = soknadUtland.copy(status = Soknadstatus.SENDT, id = UUID.randomUUID().toString())
+        sykepengesoknadDAO.lagreSykepengesoknad(sendtSoknad)
 
-        svarDao.lagreSvar(
-            alleSporsmal.find { it.tag == "ANSVARSERKLARING" }?.id!!,
-            Svar(null, "JA"),
-        )
+        deaktiverGamleSoknaderService.deaktiverSoknader() `should be equal to` 1
+        publiserUtgaatteSoknader.publiserUtgatteSoknader() `should be equal to` 1
 
-        svarDao.lagreSvar(
-            alleSporsmal.find { it.tag == "FRISKMELDT" }?.id!!,
-            Svar(null, "JA"),
-        )
+        sykepengesoknadDAO.finnSykepengesoknad(soknadUtland.id).status `should be equal to` Soknadstatus.UTGATT
+        sykepengesoknadDAO.finnSykepengesoknad(sendtSoknad.id).status `should be equal to` Soknadstatus.SENDT
 
-        svarDao.lagreSvar(
-            alleSporsmal.find { it.tag == "ANDRE_INNTEKTSKILDER" }?.id!!,
-            Svar(null, "NEI"),
-        )
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first().let {
+            it.status `should be equal to` SoknadsstatusDTO.UTGAATT
+            it.sporsmal `should be equal to` emptyList()
+        }
 
-        svarDao.lagreSvar(
-            alleSporsmal.find { it.tag == "OPPHOLD_UTENFOR_EOS" }?.id!!,
-            Svar(null, "JA"),
-        )
+        publiserUtgaatteSoknader.publiserUtgatteSoknader() `should be equal to` 0
+    }
 
-        svarDao.lagreSvar(
-            alleSporsmal.find { it.tag == "OPPHOLD_UTENFOR_EOS_NAR" }?.id!!,
-            Svar(null, Periode(LocalDate.now(), LocalDate.now()).serialisertTilString()),
-        )
+    @Test
+    fun `Spørsmål og Svar blir slettet fra en besvart søknad som deaktiveres`() {
+        val avbruttSoknad = opprettSoknad(Soknadstatus.AVBRUTT).also { sykepengesoknadDAO.lagreSykepengesoknad(it) }
 
-        val idPaaAlleSporsmal = alleSporsmal.mapNotNull { it.id }
+        val idPaaSporsmal =
+            sykepengesoknadDAO.finnSykepengesoknad(avbruttSoknad.id).sporsmal.flattenSporsmal().also {
+                lagreSvar(it, "ANSVARSERKLARING", "JA")
+                lagreSvar(it, "FRISKMELDT", "JA")
+                lagreSvar(it, "ANDRE_INNTEKTSKILDER", "NEI")
+                lagreSvar(it, "OPPHOLD_UTENFOR_EOS", "JA")
+                lagreSvar(
+                    it,
+                    "OPPHOLD_UTENFOR_EOS_NAR",
+                    Periode(LocalDate.now(), LocalDate.now()).serialisertTilString(),
+                )
+            }.mapNotNull { it.id }
 
-        val antall = deaktiverGamleSoknaderService.deaktiverSoknader()
-        assertThat(antall).isEqualTo(1)
-
+        deaktiverGamleSoknaderService.deaktiverSoknader() `should be equal to` 1
         publiserUtgaatteSoknader.publiserUtgatteSoknader() `should be equal to` 1
 
         sykepengesoknadDAO.finnSykepengesoknad(avbruttSoknad.id).sporsmal.size `should be equal to` 0
-        svarDao.finnSvar(idPaaAlleSporsmal.toSet()).size `should be equal to` 0
-//
+        svarDao.finnSvar(idPaaSporsmal.toSet()).size `should be equal to` 0
 
-        val soknadPaKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()
-        soknadPaKafka.status `should be equal to` SoknadsstatusDTO.UTGAATT
-        soknadPaKafka.sporsmal `should be equal to` emptyList()
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first().let {
+            it.status `should be equal to` SoknadsstatusDTO.UTGAATT
+            it.sporsmal `should be equal to` emptyList()
+        }
 
-        // TODO: Trenger både ID og UUID, så returner et klasse wrapper et pair
+        publiserUtgaatteSoknader.publiserUtgatteSoknader() `should be equal to` 0
     }
 
     @Test
-    fun `Medlemskapsvurdering blir slettet fra en utgått søknad`() {
-        val avbruttSoknad =
-            opprettNySoknad().copy(
-                status = Soknadstatus.AVBRUTT,
-                fnr = "12345784312",
-                tom = LocalDate.now().minusMonths(4).minusDays(1),
-                opprettet = LocalDate.now().minusMonths(4).minusDays(1).atStartOfDay().tilOsloInstant(),
-            )
-        sykepengesoknadDAO.lagreSykepengesoknad(avbruttSoknad)
+    fun `Vurdering av medlemskap fra LovMe blir slettet når søknad deaktiveres`() {
+        val avbruttSoknad = opprettSoknad(Soknadstatus.AVBRUTT).also { sykepengesoknadDAO.lagreSykepengesoknad(it) }
 
         medlemskapVurderingRepository.save(
             MedlemskapVurderingDbRecord(
@@ -248,13 +178,25 @@ class DeaktiverGamleSoknaderServiceTest : FellesTestOppsett() {
             ),
         )
 
-        val antall = deaktiverGamleSoknaderService.deaktiverSoknader()
-        assertThat(antall).isEqualTo(1)
-
+        deaktiverGamleSoknaderService.deaktiverSoknader() `should be equal to` 1
         medlemskapVurderingRepository.findBySykepengesoknadIdAndFomAndTom(
             avbruttSoknad.id,
             avbruttSoknad.fom,
             avbruttSoknad.tom,
         ) `should be equal to` null
     }
+
+    private fun opprettSoknad(soknadStatus: Soknadstatus): Sykepengesoknad =
+        opprettNySoknad().copy(
+            status = soknadStatus,
+            fnr = FNR,
+            tom = LocalDate.now().minusMonths(4).minusDays(1),
+            opprettet = LocalDate.now().minusMonths(4).minusDays(1).atStartOfDay().tilOsloInstant(),
+        )
+
+    private fun lagreSvar(
+        alleSporsmal: List<Sporsmal>,
+        tag: String,
+        svar: String,
+    ) = svarDao.lagreSvar(alleSporsmal.find { it.tag == tag }?.id!!, Svar(null, svar))
 }

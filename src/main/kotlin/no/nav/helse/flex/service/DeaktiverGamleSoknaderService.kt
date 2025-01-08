@@ -25,7 +25,9 @@ class DeaktiverGamleSoknaderService(
             medlemskapVurderingRepository.deleteBySykepengesoknadId(soknadSomSkalDeaktiveres.sykepengesoknadUuid)
         }
 
-        log.info("Deaktiverte ${deaktiverteSoknader.size} søknader.")
+        log.info(
+            "Deaktiverte ${deaktiverteSoknader.size} søknader med tilhørende spørsmål, svar og medlemskapsvurderinger.",
+        )
         return deaktiverteSoknader.size
     }
 }
