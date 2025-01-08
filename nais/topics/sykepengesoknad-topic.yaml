@@ -52,6 +52,9 @@ spec:
     - team: teamsykmelding
       application: dinesykmeldte-kafka
       access: read
+    - team: teamsykmelding
+      application: dinesykmeldte-backend
+      access: read
     - team: medlemskap
       application: medlemskap-sykepenger-listener
       access: read
