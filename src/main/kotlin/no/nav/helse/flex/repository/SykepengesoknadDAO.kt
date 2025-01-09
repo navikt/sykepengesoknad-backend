@@ -322,7 +322,7 @@ class SykepengesoknadDAO(
                 MapSqlParameterSource().addValue("fnr", fnr),
             ) { row, _ -> row.getString("id") }
 
-        sporsmalDAO.slettSporsmal(soknadsIder)
+        sporsmalDAO.slettSporsmalOgSvar(soknadsIder)
         medlemskapVurderingRepository.deleteByFnr(fnr)
 
         soknadsIder.forEach {
@@ -358,7 +358,7 @@ class SykepengesoknadDAO(
         try {
             val id = sykepengesoknadId(sykepengesoknadUuid)
 
-            sporsmalDAO.slettSporsmal(listOf(id))
+            sporsmalDAO.slettSporsmalOgSvar(listOf(id))
             soknadsperiodeDAO.slettSoknadPerioder(id)
             medlemskapVurderingRepository.deleteBySykepengesoknadId(sykepengesoknadUuid)
 
@@ -384,7 +384,7 @@ class SykepengesoknadDAO(
 
     fun byttUtSporsmal(oppdatertSoknad: Sykepengesoknad) {
         val sykepengesoknadId = sykepengesoknadId(oppdatertSoknad.id)
-        sporsmalDAO.slettSporsmal(listOf(sykepengesoknadId))
+        sporsmalDAO.slettSporsmalOgSvar(listOf(sykepengesoknadId))
         soknadLagrer.lagreSporsmalOgSvarFraSoknad(oppdatertSoknad)
     }
 
@@ -654,18 +654,23 @@ class SykepengesoknadDAO(
         }
     }
 
-    fun deaktiverSoknader(): Int {
-        return namedParameterJdbcTemplate.update(
+    fun deaktiverSoknader(): List<SoknadSomSkalDeaktiveres> {
+        return namedParameterJdbcTemplate.query(
             """
             UPDATE sykepengesoknad 
             SET status = 'UTGATT'
             WHERE status IN ('NY', 'AVBRUTT')
             AND opprettet < :dato
             AND ((tom < :dato) OR (soknadstype = 'OPPHOLD_UTLAND'))
+            RETURNING id, sykepengesoknad_uuid
             """.trimIndent(),
-            MapSqlParameterSource()
-                .addValue("dato", LocalDate.now(osloZone).minusMonths(4)),
-        )
+            MapSqlParameterSource().addValue("dato", LocalDate.now(osloZone).minusMonths(4)),
+        ) { rs, _ ->
+            SoknadSomSkalDeaktiveres(
+                sykepengesoknadId = rs.getString("id"),
+                sykepengesoknadUuid = rs.getString("sykepengesoknad_uuid"),
+            )
+        }
     }
 
     fun finnUpubliserteUtlopteSoknader(): List<String> {
@@ -677,7 +682,7 @@ class SykepengesoknadDAO(
             AND fnr IS NOT NULL
             AND status = 'UTGATT'
             AND opprinnelse != 'SYFOSERVICE'
-            FETCH FIRST 1000 ROWS ONLY
+            LIMIT 1000
             """.trimIndent(),
             MapSqlParameterSource(),
         ) { resultSet, _ -> resultSet.getString("SYKEPENGESOKNAD_UUID") }
@@ -700,6 +705,11 @@ class SykepengesoknadDAO(
         )
     }
 }
+
+data class SoknadSomSkalDeaktiveres(
+    val sykepengesoknadId: String,
+    val sykepengesoknadUuid: String,
+)
 
 fun String?.tilMerknader(): List<Merknad>? {
     this?.let {

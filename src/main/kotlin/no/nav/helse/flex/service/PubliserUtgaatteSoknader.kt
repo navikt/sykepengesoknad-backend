@@ -22,19 +22,6 @@ class PubliserUtgaatteSoknader(
 ) {
     val log = logger()
 
-    fun publiserUtgatteSoknader(): Int {
-        val soknaderTilPublisering = sykepengesoknadDAO.finnUpubliserteUtlopteSoknader()
-        soknaderTilPublisering.forEach {
-            val soknadUtenSporsmal = sykepengesoknadDAO.finnSykepengesoknad(it).copy(sporsmal = emptyList())
-            soknadProducer.soknadEvent(soknadUtenSporsmal)
-            sykepengesoknadDAO.settUtloptPublisert(it, LocalDateTime.now())
-        }
-        if (soknaderTilPublisering.isNotEmpty()) {
-            log.info("Publiserte ${soknaderTilPublisering.size} utgåtte søknader på kafka")
-        }
-        return soknaderTilPublisering.size
-    }
-
     @Scheduled(fixedDelay = 1, initialDelay = 5, timeUnit = TimeUnit.MINUTES)
     fun run() {
         if (toggle.isNotProduction() || erPåNatta()) {
@@ -42,6 +29,18 @@ class PubliserUtgaatteSoknader(
                 publiserUtgatteSoknader()
             }
         }
+    }
+
+    fun publiserUtgatteSoknader(): Int {
+        val soknaderTilPublisering = sykepengesoknadDAO.finnUpubliserteUtlopteSoknader()
+        soknaderTilPublisering.forEach {
+            soknadProducer.soknadEvent(sykepengesoknadDAO.finnSykepengesoknad(it))
+            sykepengesoknadDAO.settUtloptPublisert(it, LocalDateTime.now())
+        }
+        if (soknaderTilPublisering.isNotEmpty()) {
+            log.info("Publiserte ${soknaderTilPublisering.size} utgåtte søknader på Kafka.")
+        }
+        return soknaderTilPublisering.size
     }
 
     fun erPåNatta(): Boolean {
