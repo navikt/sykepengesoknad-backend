@@ -195,7 +195,14 @@ class DeaktiverGamleSoknaderServiceTest : FellesTestOppsett() {
                 lagreMedlemskapsVurdering(it)
             }
 
-        tellAntallSvarIDatabasen() `should be equal to` 20
+        val sendtSoknad =
+            opprettSoknad(Soknadstatus.SENDT).also {
+                sykepengesoknadDAO.lagreSykepengesoknad(it)
+                besvarStandardSporsmal(it)
+                lagreMedlemskapsVurdering(it)
+            }
+
+        tellAntallSvarIDatabasen() `should be equal to` 25
 
         deaktiverGamleSoknaderService.slettSporsmalOgSvarFraDeaktiverteSoknader(2) `should be equal to` 2
 
@@ -209,12 +216,21 @@ class DeaktiverGamleSoknaderServiceTest : FellesTestOppsett() {
         sykepengesoknadDAO.finnSykepengesoknad(soknad3.id).sporsmal.size `should be equal to` 0
         sykepengesoknadDAO.finnSykepengesoknad(soknad4.id).sporsmal.size `should be equal to` 0
 
-        tellAntallSvarIDatabasen() `should be equal to` 0
+        tellAntallSvarIDatabasen() `should be equal to` 5
 
         finnMedlemskapsVurdering(soknad1) `should be equal to` null
         finnMedlemskapsVurdering(soknad2) `should be equal to` null
         finnMedlemskapsVurdering(soknad3) `should be equal to` null
         finnMedlemskapsVurdering(soknad4) `should be equal to` null
+
+        // Verifiserer at søknad med status SENDT ikke har fått slettet spørsmål, svar eller medlemskapsvurdering.
+        val sporsmal = sykepengesoknadDAO.finnSykepengesoknad(sendtSoknad.id).sporsmal
+        sporsmal.size `should be equal to` 5
+
+        val idPaaSporsmal = sporsmal.flattenSporsmal().map { it.id!! }.toSet()
+        svarDao.finnSvar(idPaaSporsmal).size `should be equal to` 5
+
+        finnMedlemskapsVurdering(sendtSoknad)!!.sykepengesoknadId `should be equal to` sendtSoknad.id
     }
 
     private fun opprettSoknad(soknadStatus: Soknadstatus): Sykepengesoknad =
