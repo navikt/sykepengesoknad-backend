@@ -2,6 +2,7 @@ package no.nav.helse.flex.service
 
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingRepository
+import no.nav.helse.flex.repository.SoknadSomSkalDeaktiveres
 import no.nav.helse.flex.repository.SporsmalDAO
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import org.springframework.stereotype.Service
@@ -18,16 +19,28 @@ class DeaktiverGamleSoknaderService(
     @Transactional
     fun deaktiverSoknader(): Int {
         val deaktiverteSoknader = sykepengesoknadDAO.deaktiverSoknader()
+        slettDataFraAndreTabeller(deaktiverteSoknader)
+        log.info(
+            "Deaktiverte ${deaktiverteSoknader.size} søknader med tilhørende spørsmål, svar og medlemskapsvurderinger.",
+        )
+        return deaktiverteSoknader.size
+    }
 
+    @Transactional
+    fun slettSporsmalOgSvarFraDeaktiverteSoknader(antallSoknader: Int): Int {
+        val deaktiverteSoknader = sykepengesoknadDAO.finnDeaktiverteSoknaderMedSporsmal(antallSoknader)
+        slettDataFraAndreTabeller(deaktiverteSoknader)
+        log.info(
+            "Slettet sporsmal, svar fra og medlemskapsvurderinger fra ${deaktiverteSoknader.size} allerede deaktiverte søknader.",
+        )
+        return deaktiverteSoknader.size
+    }
+
+    private fun slettDataFraAndreTabeller(deaktiverteSoknader: List<SoknadSomSkalDeaktiveres>) {
         sporsmalDao.slettSporsmalOgSvar(deaktiverteSoknader.map { it.sykepengesoknadId })
 
         deaktiverteSoknader.forEach { soknadSomSkalDeaktiveres ->
             medlemskapVurderingRepository.deleteBySykepengesoknadId(soknadSomSkalDeaktiveres.sykepengesoknadUuid)
         }
-
-        log.info(
-            "Deaktiverte ${deaktiverteSoknader.size} søknader med tilhørende spørsmål, svar og medlemskapsvurderinger.",
-        )
-        return deaktiverteSoknader.size
     }
 }

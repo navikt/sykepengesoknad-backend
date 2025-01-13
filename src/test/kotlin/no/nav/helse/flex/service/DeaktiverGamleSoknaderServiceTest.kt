@@ -23,6 +23,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
@@ -46,6 +47,9 @@ class DeaktiverGamleSoknaderServiceTest : FellesTestOppsett() {
 
     @Autowired
     private lateinit var deaktiverGamleSoknaderService: DeaktiverGamleSoknaderService
+
+    @Autowired
+    private lateinit var namedParameterJdbcTemplate: NamedParameterJdbcTemplate
 
     @BeforeEach
     @AfterEach
@@ -136,17 +140,7 @@ class DeaktiverGamleSoknaderServiceTest : FellesTestOppsett() {
         val avbruttSoknad = opprettSoknad(Soknadstatus.AVBRUTT).also { sykepengesoknadDAO.lagreSykepengesoknad(it) }
 
         val idPaaSporsmal =
-            sykepengesoknadDAO.finnSykepengesoknad(avbruttSoknad.id).sporsmal.flattenSporsmal().also {
-                lagreSvar(it, "ANSVARSERKLARING", "JA")
-                lagreSvar(it, "FRISKMELDT", "JA")
-                lagreSvar(it, "ANDRE_INNTEKTSKILDER", "NEI")
-                lagreSvar(it, "OPPHOLD_UTENFOR_EOS", "JA")
-                lagreSvar(
-                    it,
-                    "OPPHOLD_UTENFOR_EOS_NAR",
-                    Periode(LocalDate.now(), LocalDate.now()).serialisertTilString(),
-                )
-            }.mapNotNull { it.id }
+            besvarStandardSporsmal(avbruttSoknad)
 
         deaktiverGamleSoknaderService.deaktiverSoknader() `should be equal to` 1
         publiserUtgaatteSoknader.publiserUtgatteSoknader() `should be equal to` 1
@@ -164,8 +158,112 @@ class DeaktiverGamleSoknaderServiceTest : FellesTestOppsett() {
 
     @Test
     fun `Vurdering av medlemskap fra LovMe blir slettet når søknad deaktiveres`() {
-        val avbruttSoknad = opprettSoknad(Soknadstatus.AVBRUTT).also { sykepengesoknadDAO.lagreSykepengesoknad(it) }
+        val avbruttSoknad =
+            opprettSoknad(Soknadstatus.AVBRUTT).also {
+                sykepengesoknadDAO.lagreSykepengesoknad(it)
+                lagreMedlemskapsVurdering(it)
+            }
 
+        deaktiverGamleSoknaderService.deaktiverSoknader() `should be equal to` 1
+        finnMedlemskapsVurdering(avbruttSoknad) `should be equal to` null
+    }
+
+    @Test
+    fun `Slett sporsmal og svar fra soknader som allerede deaktiverte søknader`() {
+        val soknad1 =
+            opprettSoknad(Soknadstatus.UTGATT).also {
+                sykepengesoknadDAO.lagreSykepengesoknad(it)
+                besvarStandardSporsmal(it)
+                lagreMedlemskapsVurdering(it)
+            }
+        val soknad2 =
+            opprettSoknad(Soknadstatus.UTGATT).also {
+                sykepengesoknadDAO.lagreSykepengesoknad(it)
+                besvarStandardSporsmal(it)
+                lagreMedlemskapsVurdering(it)
+            }
+        val soknad3 =
+            opprettSoknad(Soknadstatus.UTGATT).also {
+                sykepengesoknadDAO.lagreSykepengesoknad(it)
+                besvarStandardSporsmal(it)
+                lagreMedlemskapsVurdering(it)
+            }
+        val soknad4 =
+            opprettSoknad(Soknadstatus.UTGATT).also {
+                sykepengesoknadDAO.lagreSykepengesoknad(it)
+                besvarStandardSporsmal(it)
+                lagreMedlemskapsVurdering(it)
+            }
+
+        val sendtSoknad =
+            opprettSoknad(Soknadstatus.SENDT).also {
+                sykepengesoknadDAO.lagreSykepengesoknad(it)
+                besvarStandardSporsmal(it)
+                lagreMedlemskapsVurdering(it)
+            }
+
+        tellAntallSvarIDatabasen() `should be equal to` 25
+
+        deaktiverGamleSoknaderService.slettSporsmalOgSvarFraDeaktiverteSoknader(2) `should be equal to` 2
+
+        sykepengesoknadDAO.finnSykepengesoknad(soknad1.id).sporsmal.size `should be equal to` 0
+        sykepengesoknadDAO.finnSykepengesoknad(soknad2.id).sporsmal.size `should be equal to` 0
+        sykepengesoknadDAO.finnSykepengesoknad(soknad3.id).sporsmal.size `should be equal to` 5
+        sykepengesoknadDAO.finnSykepengesoknad(soknad4.id).sporsmal.size `should be equal to` 5
+
+        deaktiverGamleSoknaderService.slettSporsmalOgSvarFraDeaktiverteSoknader(2) `should be equal to` 2
+
+        sykepengesoknadDAO.finnSykepengesoknad(soknad3.id).sporsmal.size `should be equal to` 0
+        sykepengesoknadDAO.finnSykepengesoknad(soknad4.id).sporsmal.size `should be equal to` 0
+
+        tellAntallSvarIDatabasen() `should be equal to` 5
+
+        finnMedlemskapsVurdering(soknad1) `should be equal to` null
+        finnMedlemskapsVurdering(soknad2) `should be equal to` null
+        finnMedlemskapsVurdering(soknad3) `should be equal to` null
+        finnMedlemskapsVurdering(soknad4) `should be equal to` null
+
+        // Verifiserer at søknad med status SENDT ikke har fått slettet spørsmål, svar eller medlemskapsvurdering.
+        val sporsmal = sykepengesoknadDAO.finnSykepengesoknad(sendtSoknad.id).sporsmal
+        sporsmal.size `should be equal to` 5
+
+        val idPaaSporsmal = sporsmal.flattenSporsmal().map { it.id!! }.toSet()
+        svarDao.finnSvar(idPaaSporsmal).size `should be equal to` 5
+
+        finnMedlemskapsVurdering(sendtSoknad)!!.sykepengesoknadId `should be equal to` sendtSoknad.id
+    }
+
+    private fun opprettSoknad(soknadStatus: Soknadstatus): Sykepengesoknad =
+        opprettNySoknad().copy(
+            status = soknadStatus,
+            fnr = FNR,
+            tom = LocalDate.now().minusMonths(4).minusDays(1),
+            opprettet = LocalDate.now().minusMonths(4).minusDays(1).atStartOfDay().tilOsloInstant(),
+        )
+
+    private fun besvarStandardSporsmal(soknad: Sykepengesoknad): List<String> {
+        val idPaaSporsmal =
+            sykepengesoknadDAO.finnSykepengesoknad(soknad.id).sporsmal.flattenSporsmal().also {
+                lagreSvar(it, "ANSVARSERKLARING", "JA")
+                lagreSvar(it, "FRISKMELDT", "JA")
+                lagreSvar(it, "ANDRE_INNTEKTSKILDER", "NEI")
+                lagreSvar(it, "OPPHOLD_UTENFOR_EOS", "JA")
+                lagreSvar(
+                    it,
+                    "OPPHOLD_UTENFOR_EOS_NAR",
+                    Periode(LocalDate.now(), LocalDate.now()).serialisertTilString(),
+                )
+            }.mapNotNull { it.id }
+        return idPaaSporsmal
+    }
+
+    private fun lagreSvar(
+        alleSporsmal: List<Sporsmal>,
+        tag: String,
+        svar: String,
+    ) = svarDao.lagreSvar(alleSporsmal.find { it.tag == tag }?.id!!, Svar(null, svar))
+
+    private fun lagreMedlemskapsVurdering(avbruttSoknad: Sykepengesoknad) {
         medlemskapVurderingRepository.save(
             MedlemskapVurderingDbRecord(
                 timestamp = Instant.now(),
@@ -177,26 +275,20 @@ class DeaktiverGamleSoknaderServiceTest : FellesTestOppsett() {
                 sykepengesoknadId = avbruttSoknad.id,
             ),
         )
-
-        deaktiverGamleSoknaderService.deaktiverSoknader() `should be equal to` 1
-        medlemskapVurderingRepository.findBySykepengesoknadIdAndFomAndTom(
-            avbruttSoknad.id,
-            avbruttSoknad.fom,
-            avbruttSoknad.tom,
-        ) `should be equal to` null
     }
 
-    private fun opprettSoknad(soknadStatus: Soknadstatus): Sykepengesoknad =
-        opprettNySoknad().copy(
-            status = soknadStatus,
-            fnr = FNR,
-            tom = LocalDate.now().minusMonths(4).minusDays(1),
-            opprettet = LocalDate.now().minusMonths(4).minusDays(1).atStartOfDay().tilOsloInstant(),
+    private fun finnMedlemskapsVurdering(avbruttSoknad: Sykepengesoknad): MedlemskapVurderingDbRecord? =
+        medlemskapVurderingRepository.findBySykepengesoknadIdAndFomAndTom(
+            avbruttSoknad.id,
+            avbruttSoknad.fom!!,
+            avbruttSoknad.tom!!,
         )
 
-    private fun lagreSvar(
-        alleSporsmal: List<Sporsmal>,
-        tag: String,
-        svar: String,
-    ) = svarDao.lagreSvar(alleSporsmal.find { it.tag == tag }?.id!!, Svar(null, svar))
+    fun tellAntallSvarIDatabasen(): Int {
+        return namedParameterJdbcTemplate.query(
+            """
+            SELECT count(*) AS antall FROM svar
+            """.trimIndent(),
+        ) { rs, _ -> rs.getInt("antall") }.firstOrNull() ?: 0
+    }
 }
