@@ -1,7 +1,7 @@
 package no.nav.helse.flex.soknadsopprettelse.aaregdata
 
 import no.nav.helse.flex.client.aareg.AaregClient
-import no.nav.helse.flex.client.aareg.ArbeidsforholdOversikt
+import no.nav.helse.flex.client.aareg.Arbeidsforhold
 import no.nav.helse.flex.client.ereg.EregClient
 import no.nav.helse.flex.config.EnvironmentToggles
 import no.nav.helse.flex.domain.Periode
@@ -44,13 +44,13 @@ class AaregDataHenting(
             return emptyList()
         }
 
-        val arbeidsforholdOversikt = aaregClient.hentArbeidsforholdoversikt(fnr).arbeidsforholdoversikter.mergeKantIKant()
+        val arbeidsforholdOversikt = aaregClient.hentArbeidsforhold(fnr).mergeKantIKant()
 
         if (environmentToggles.isQ()) {
             log.info("Hentet aaregdata for søknad ${sykepengesoknad.id} \n${arbeidsforholdOversikt.serialisertTilString()}")
         }
 
-        fun ArbeidsforholdOversikt.tilArbeidsforholdFraAAreg(): ArbeidsforholdFraAAreg {
+        fun Arbeidsforhold.tilArbeidsforholdFraAAreg(): ArbeidsforholdFraAAreg {
             val arbeidstedOrgnummer =
                 this.arbeidssted.identer.firstOrNull { it.type == "ORGANISASJONSNUMMER" }?.ident
                     ?: throw RuntimeException(
@@ -69,9 +69,9 @@ class AaregDataHenting(
             return ArbeidsforholdFraAAreg(
                 arbeidsstedOrgnummer = arbeidstedOrgnummer,
                 arbeidsstedNavn = hentBedrift.navn.sammensattnavn.prettyOrgnavn(),
-                startdato = startdato,
+                startdato = ansettelsesperiode.startdato,
                 opplysningspliktigOrgnummer = opplysningspliktigOrgnummer,
-                sluttdato = sluttdato,
+                sluttdato = ansettelsesperiode.sluttdato,
             )
         }
 
@@ -88,12 +88,12 @@ class AaregDataHenting(
             arbeidsforholdSoknad?.opplysningspliktig?.identer?.firstOrNull { it.type == "ORGANISASJONSNUMMER" }?.ident
 
         return arbeidsforholdOversikt
-            .filter { it.startdato.isAfter(sykepengesoknad.startSykeforlop) }
-            .filter { it.startdato.isBeforeOrEqual(sykepengesoknad.tom!!) }
+            .filter { it.ansettelsesperiode.startdato.isAfter(sykepengesoknad.startSykeforlop) }
+            .filter { it.ansettelsesperiode.startdato.isBeforeOrEqual(sykepengesoknad.tom!!) }
             .filter { it.erOrganisasjonArbeidsforhold() }
             .filter {
                 ingenArbeidsdagerMellomStartdatoOgEtterStartsyketilfelle(
-                    arbeidsforholdOversikt = it,
+                    arbeidsforhold = it,
                     eksisterendeSoknader = eksisterendeSoknader,
                     sykepengesoknad = sykepengesoknad,
                 )
@@ -108,12 +108,12 @@ class AaregDataHenting(
     }
 }
 
-private fun List<ArbeidsforholdOversikt>.harMerEnnEttAnnetAktivtArbeidsforhold(sykepengesoknad: Sykepengesoknad): Boolean {
+private fun List<Arbeidsforhold>.harMerEnnEttAnnetAktivtArbeidsforhold(sykepengesoknad: Sykepengesoknad): Boolean {
     val andreAktiveArbeidsforhold =
         this
             .filter { a -> a.opplysningspliktig.identer.none { it.ident == sykepengesoknad.arbeidsgiverOrgnummer } }
             .filter { a -> a.arbeidssted.identer.none { it.ident == sykepengesoknad.arbeidsgiverOrgnummer } }
-            .filter { it.sluttdato == null }
+            .filter { it.ansettelsesperiode.sluttdato == null }
             .toSet()
     return andreAktiveArbeidsforhold
         .size > 1
@@ -123,11 +123,11 @@ private fun Sykepengesoknad.tilPeriode(): Periode {
     return Periode(fom!!, tom!!)
 }
 
-private fun ArbeidsforholdOversikt.erOrganisasjonArbeidsforhold(): Boolean {
+private fun Arbeidsforhold.erOrganisasjonArbeidsforhold(): Boolean {
     return this.opplysningspliktig.type == "Hovedenhet"
 }
 
-private fun List<ArbeidsforholdOversikt>.filterInterneOrgnummer(opplysningspliktigOrgnummer: String?): List<ArbeidsforholdOversikt> {
+private fun List<Arbeidsforhold>.filterInterneOrgnummer(opplysningspliktigOrgnummer: String?): List<Arbeidsforhold> {
     opplysningspliktigOrgnummer ?: return this
     return this.filter { arbeidsforhold ->
         arbeidsforhold.opplysningspliktig.identer.none { it.ident == opplysningspliktigOrgnummer }
@@ -143,14 +143,14 @@ data class ArbeidsforholdFraAAreg(
 )
 
 fun ingenArbeidsdagerMellomStartdatoOgEtterStartsyketilfelle(
-    arbeidsforholdOversikt: ArbeidsforholdOversikt,
+    arbeidsforhold: Arbeidsforhold,
     eksisterendeSoknader: List<Sykepengesoknad>,
     sykepengesoknad: Sykepengesoknad,
 ): Boolean {
     val eksisterendeDenneAg =
         eksisterendeSoknader.filter { it.arbeidsgiverOrgnummer == sykepengesoknad.arbeidsgiverOrgnummer }
 
-    val startdato = arbeidsforholdOversikt.startdato
+    val startdato = arbeidsforhold.ansettelsesperiode.startdato
     if (sykepengesoknad.fom!! < startdato) {
         return true
     }

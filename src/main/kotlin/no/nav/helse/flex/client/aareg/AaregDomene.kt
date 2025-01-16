@@ -8,21 +8,17 @@ data class ArbeidsforholdRequest(
     val arbeidsforholdstatuser: List<String>,
 )
 
-data class ArbeidsforholdoversiktResponse(
-    val arbeidsforholdoversikter: List<ArbeidsforholdOversikt>,
-)
-
-data class ArbeidsforholdOversikt(
+data class Arbeidsforhold(
     val type: Kodeverksentitet,
     val arbeidstaker: Arbeidstaker,
     val arbeidssted: Arbeidssted,
     val opplysningspliktig: Opplysningspliktig,
+    val ansettelsesperiode: Ansettelsesperiode,
+)
+
+data class Ansettelsesperiode(
     val startdato: LocalDate,
     val sluttdato: LocalDate? = null,
-    val yrke: Kodeverksentitet,
-    val avtaltStillingsprosent: Int,
-    val permisjonsprosent: Int? = null,
-    val permitteringsprosent: Int? = null,
 )
 
 data class Kodeverksentitet(

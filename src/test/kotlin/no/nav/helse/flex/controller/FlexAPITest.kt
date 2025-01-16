@@ -2,7 +2,7 @@ package no.nav.helse.flex.controller
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.*
-import no.nav.helse.flex.client.aareg.ArbeidsforholdoversiktResponse
+import no.nav.helse.flex.client.aareg.Arbeidsforhold
 import no.nav.helse.flex.client.pdl.PdlIdent
 import no.nav.helse.flex.client.sigrun.HentPensjonsgivendeInntektResponse
 import no.nav.helse.flex.domain.AuditEntry
@@ -206,8 +206,8 @@ class FlexAPITest : FellesTestOppsett() {
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk).andReturn()
 
-        val fraRest: ArbeidsforholdoversiktResponse = objectMapper.readValue(result.response.contentAsString)
-        fraRest.arbeidsforholdoversikter.shouldHaveSize(2)
+        val fraRest: List<Arbeidsforhold> = objectMapper.readValue(result.response.contentAsString)
+        fraRest.shouldHaveSize(2)
 
         auditlogKafkaConsumer.ventPåRecords(1).first().let {
             val auditEntry: AuditEntry = objectMapper.readValue(it.value())

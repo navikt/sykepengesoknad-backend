@@ -3,7 +3,7 @@ package no.nav.helse.flex.controller
 import io.swagger.v3.oas.annotations.Hidden
 import jakarta.servlet.http.HttpServletRequest
 import no.nav.helse.flex.client.aareg.AaregClient
-import no.nav.helse.flex.client.aareg.ArbeidsforholdoversiktResponse
+import no.nav.helse.flex.client.aareg.Arbeidsforhold
 import no.nav.helse.flex.client.pdl.PdlClient
 import no.nav.helse.flex.client.pdl.PdlIdent
 import no.nav.helse.flex.client.sigrun.HentPensjonsgivendeInntektResponse
@@ -166,7 +166,7 @@ class SoknadFlexAzureController(
     fun hentAaregdata(
         @RequestBody req: HentAaregdataRequest,
         request: HttpServletRequest,
-    ): ArbeidsforholdoversiktResponse {
+    ): List<Arbeidsforhold> {
         clientIdValidation.validateClientId(NamespaceAndApp(namespace = "flex", app = "flex-internal-frontend"))
         val navIdent = clientIdValidation.hentNavIdent()
 
@@ -184,7 +184,7 @@ class SoknadFlexAzureController(
             ),
         )
 
-        return aaregClient.hentArbeidsforholdoversikt(req.fnr)
+        return aaregClient.hentArbeidsforhold(req.fnr)
     }
 
     data class HentPensjonsgivendeInntektRequest(
