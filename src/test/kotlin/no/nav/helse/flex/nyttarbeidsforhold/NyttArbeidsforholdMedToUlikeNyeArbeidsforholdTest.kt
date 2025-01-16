@@ -1,7 +1,6 @@
 package no.nav.helse.flex.nyttarbeidsforhold
 
 import no.nav.helse.flex.*
-import no.nav.helse.flex.client.aareg.ArbeidsforholdoversiktResponse
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.mockdispatcher.AaregMockDispatcher
 import no.nav.helse.flex.mockdispatcher.skapArbeidsforholdOversikt
@@ -27,24 +26,21 @@ class NyttArbeidsforholdMedToUlikeNyeArbeidsforholdTest : FellesTestOppsett() {
 
         repeat(2) {
             AaregMockDispatcher.queuedArbeidsforholdOversikt.add(
-                ArbeidsforholdoversiktResponse(
-                    arbeidsforholdoversikter =
-                        listOf(
-                            skapArbeidsforholdOversikt(
-                                fnr = fnr,
-                                startdato = LocalDate.of(2022, 8, 24),
-                                sluttdato = LocalDate.of(2022, 8, 25),
-                                arbeidssted = "999888777",
-                                opplysningspliktigOrganisasjonsnummer = "123456789",
-                            ),
-                            skapArbeidsforholdOversikt(
-                                fnr = fnr,
-                                startdato = LocalDate.of(2022, 8, 24),
-                                sluttdato = LocalDate.of(2022, 8, 25),
-                                arbeidssted = "999888755",
-                                opplysningspliktigOrganisasjonsnummer = "123456755",
-                            ),
-                        ),
+                listOf(
+                    skapArbeidsforholdOversikt(
+                        fnr = fnr,
+                        startdato = LocalDate.of(2022, 8, 24),
+                        sluttdato = LocalDate.of(2022, 8, 25),
+                        arbeidssted = "999888777",
+                        opplysningspliktigOrganisasjonsnummer = "123456789",
+                    ),
+                    skapArbeidsforholdOversikt(
+                        fnr = fnr,
+                        startdato = LocalDate.of(2022, 8, 24),
+                        sluttdato = LocalDate.of(2022, 8, 25),
+                        arbeidssted = "999888755",
+                        opplysningspliktigOrganisasjonsnummer = "123456755",
+                    ),
                 ),
             )
         }

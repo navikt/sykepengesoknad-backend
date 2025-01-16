@@ -10,55 +10,49 @@ import okhttp3.mockwebserver.RecordedRequest
 import java.time.LocalDate
 
 object AaregMockDispatcher : Dispatcher() {
-    val queuedArbeidsforholdOversikt = mutableListOf<ArbeidsforholdoversiktResponse>()
+    val queuedArbeidsforholdOversikt = mutableListOf<List<Arbeidsforhold>>()
 
     override fun dispatch(request: RecordedRequest): MockResponse {
         if (queuedArbeidsforholdOversikt.isEmpty()) {
             val req: ArbeidsforholdRequest = objectMapper.readValue(request.body.readUtf8())
             when (val fnr = req.arbeidstakerId) {
                 "22222220001" -> {
-                    return ArbeidsforholdoversiktResponse(
-                        arbeidsforholdoversikter =
-                            listOf(
-                                skapArbeidsforholdOversikt(
-                                    fnr = fnr,
-                                    startdato = LocalDate.of(2022, 9, 15).minusDays(40),
-                                    arbeidssted = "999333666",
-                                    opplysningspliktigOrganisasjonsnummer = "11224455441",
-                                    sluttdato = LocalDate.of(2022, 9, 15).minusDays(30),
-                                ),
-                                skapArbeidsforholdOversikt(
-                                    fnr = fnr,
-                                    startdato = LocalDate.of(2022, 9, 15).minusDays(10),
-                                    arbeidssted = "999888777",
-                                    opplysningspliktigOrganisasjonsnummer = "11224455441",
-                                ),
-                            ),
+                    return listOf(
+                        skapArbeidsforholdOversikt(
+                            fnr = fnr,
+                            startdato = LocalDate.of(2022, 9, 15).minusDays(40),
+                            arbeidssted = "999333666",
+                            opplysningspliktigOrganisasjonsnummer = "11224455441",
+                            sluttdato = LocalDate.of(2022, 9, 15).minusDays(30),
+                        ),
+                        skapArbeidsforholdOversikt(
+                            fnr = fnr,
+                            startdato = LocalDate.of(2022, 9, 15).minusDays(10),
+                            arbeidssted = "999888777",
+                            opplysningspliktigOrganisasjonsnummer = "11224455441",
+                        ),
                     ).tilMockResponse()
                 }
 
                 "44444444999" -> {
-                    return ArbeidsforholdoversiktResponse(
-                        arbeidsforholdoversikter =
-                            listOf(
-                                skapArbeidsforholdOversikt(
-                                    fnr = fnr,
-                                    startdato = LocalDate.of(2022, 9, 15).minusDays(40),
-                                    arbeidssted = "999333666",
-                                    opplysningspliktigOrganisasjonsnummer = "1984108765",
-                                    sluttdato = null,
-                                ),
-                                skapArbeidsforholdOversikt(
-                                    fnr = fnr,
-                                    startdato = LocalDate.of(2022, 9, 15).minusDays(10),
-                                    arbeidssted = "999888777",
-                                    opplysningspliktigOrganisasjonsnummer = "1984108765",
-                                ),
-                            ),
+                    return listOf(
+                        skapArbeidsforholdOversikt(
+                            fnr = fnr,
+                            startdato = LocalDate.of(2022, 9, 15).minusDays(40),
+                            arbeidssted = "999333666",
+                            opplysningspliktigOrganisasjonsnummer = "1984108765",
+                            sluttdato = null,
+                        ),
+                        skapArbeidsforholdOversikt(
+                            fnr = fnr,
+                            startdato = LocalDate.of(2022, 9, 15).minusDays(10),
+                            arbeidssted = "999888777",
+                            opplysningspliktigOrganisasjonsnummer = "1984108765",
+                        ),
                     ).tilMockResponse()
                 }
 
-                else -> return ArbeidsforholdoversiktResponse(arbeidsforholdoversikter = emptyList()).tilMockResponse()
+                else -> return emptyList<Arbeidsforhold>().tilMockResponse()
             }
         }
         val poppedElement = queuedArbeidsforholdOversikt.removeAt(YrkesskadeMockDispatcher.queuedSakerRespons.size)
@@ -71,7 +65,7 @@ object AaregMockDispatcher : Dispatcher() {
             .addHeader("Content-Type", "application/json")
     }
 
-    private fun ArbeidsforholdoversiktResponse.tilMockResponse(): MockResponse {
+    private fun List<Arbeidsforhold>.tilMockResponse(): MockResponse {
         return MockResponse().setBody(this.serialisertTilString()).addHeader("Content-Type", "application/json")
     }
 }
@@ -82,8 +76,8 @@ fun skapArbeidsforholdOversikt(
     arbeidssted: String,
     fnr: String,
     opplysningspliktigOrganisasjonsnummer: String? = null,
-): ArbeidsforholdOversikt {
-    return ArbeidsforholdOversikt(
+): Arbeidsforhold {
+    return Arbeidsforhold(
         type = Kodeverksentitet("ordinaertArbeidsforhold", "Ordinært arbeidsforhold"),
         arbeidstaker = Arbeidstaker(listOf(Ident("FOLKEREGISTERIDENT", fnr, true))),
         arbeidssted = Arbeidssted("Underenhet", listOf(Ident("ORGANISASJONSNUMMER", arbeidssted))),
@@ -92,12 +86,11 @@ fun skapArbeidsforholdOversikt(
                 "Hovedenhet",
                 listOf(Ident("ORGANISASJONSNUMMER", opplysningspliktigOrganisasjonsnummer ?: tilfeldigOrgNummer())),
             ),
-        startdato = startdato,
-        sluttdato = sluttdato,
-        yrke = Kodeverksentitet("1231119", "KONTORLEDER"),
-        avtaltStillingsprosent = 100,
-        permisjonsprosent = 0,
-        permitteringsprosent = 0,
+        ansettelsesperiode =
+            Ansettelsesperiode(
+                startdato = startdato,
+                sluttdato = sluttdato,
+            ),
     )
 }
 

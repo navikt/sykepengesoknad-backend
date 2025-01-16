@@ -1,6 +1,6 @@
 package no.nav.helse.flex.nyttarbeidsforhold
 
-import no.nav.helse.flex.client.aareg.ArbeidsforholdOversikt
+import no.nav.helse.flex.client.aareg.Arbeidsforhold
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svar
@@ -24,7 +24,7 @@ class SammeSkjaringstidspunktTest {
     @Test
     fun `Ingen tidligere søknader har samme skjæringstidspunkt`() {
         ingenArbeidsdagerMellomStartdatoOgEtterStartsyketilfelle(
-            arbeidsforholdOversikt = arbeidsforholdoversikt(startdato = LocalDate.of(2022, 9, 12)),
+            arbeidsforhold = arbeidsforholdoversikt(startdato = LocalDate.of(2022, 9, 12)),
             eksisterendeSoknader = emptyList(),
             soknad(
                 fom = LocalDate.of(2022, 9, 10),
@@ -36,7 +36,7 @@ class SammeSkjaringstidspunktTest {
     @Test
     fun `En tidligere søknad med gap har ikke samme skjæringstidspunkt`() {
         ingenArbeidsdagerMellomStartdatoOgEtterStartsyketilfelle(
-            arbeidsforholdOversikt = arbeidsforholdoversikt(startdato = LocalDate.of(2022, 9, 7)),
+            arbeidsforhold = arbeidsforholdoversikt(startdato = LocalDate.of(2022, 9, 7)),
             eksisterendeSoknader =
                 listOf(
                     soknad(
@@ -54,7 +54,7 @@ class SammeSkjaringstidspunktTest {
     @Test
     fun `En tidligere søknad med gap dekket av egenmelding har samme skjæringstidspunkt`() {
         ingenArbeidsdagerMellomStartdatoOgEtterStartsyketilfelle(
-            arbeidsforholdOversikt = arbeidsforholdoversikt(startdato = LocalDate.of(2022, 9, 7)),
+            arbeidsforhold = arbeidsforholdoversikt(startdato = LocalDate.of(2022, 9, 7)),
             eksisterendeSoknader =
                 listOf(
                     soknad(
@@ -73,7 +73,7 @@ class SammeSkjaringstidspunktTest {
     @Test
     fun `En tidligere søknad med gap kun i helg har samme skjæringstidspunkt`() {
         ingenArbeidsdagerMellomStartdatoOgEtterStartsyketilfelle(
-            arbeidsforholdOversikt = arbeidsforholdoversikt(startdato = LocalDate.of(2022, 9, 7)),
+            arbeidsforhold = arbeidsforholdoversikt(startdato = LocalDate.of(2022, 9, 7)),
             eksisterendeSoknader =
                 listOf(
                     soknad(
@@ -91,7 +91,7 @@ class SammeSkjaringstidspunktTest {
     @Test
     fun `En tidligere søknad helt inntil har samme skjæringstidspunkt`() {
         ingenArbeidsdagerMellomStartdatoOgEtterStartsyketilfelle(
-            arbeidsforholdOversikt = arbeidsforholdoversikt(startdato = LocalDate.of(2022, 9, 7)),
+            arbeidsforhold = arbeidsforholdoversikt(startdato = LocalDate.of(2022, 9, 7)),
             eksisterendeSoknader =
                 listOf(
                     soknad(
@@ -109,7 +109,7 @@ class SammeSkjaringstidspunktTest {
     @Test
     fun `En tidligere søknad helt inntil med arbeid gjenopptatt har ikke samme skjæringstidspunkt`() {
         ingenArbeidsdagerMellomStartdatoOgEtterStartsyketilfelle(
-            arbeidsforholdOversikt = arbeidsforholdoversikt(startdato = LocalDate.of(2022, 9, 7)),
+            arbeidsforhold = arbeidsforholdoversikt(startdato = LocalDate.of(2022, 9, 7)),
             eksisterendeSoknader =
                 listOf(
                     soknad(
@@ -126,7 +126,7 @@ class SammeSkjaringstidspunktTest {
     }
 }
 
-fun arbeidsforholdoversikt(startdato: LocalDate): ArbeidsforholdOversikt {
+fun arbeidsforholdoversikt(startdato: LocalDate): Arbeidsforhold {
     return skapArbeidsforholdOversikt(
         fnr = "1234",
         startdato = startdato,

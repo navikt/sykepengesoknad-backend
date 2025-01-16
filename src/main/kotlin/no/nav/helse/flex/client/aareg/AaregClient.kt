@@ -15,14 +15,14 @@ class AaregClient(
 ) {
     val log = logger()
 
-    fun hentArbeidsforholdoversikt(fnr: String): ArbeidsforholdoversiktResponse {
+    fun hentArbeidsforhold(fnr: String): List<Arbeidsforhold> {
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
 
         val result =
             aaregRestTemplate
                 .exchange(
-                    "$url/api/v2/arbeidstaker/arbeidsforholdoversikt",
+                    "$url/api/v2/arbeidstaker/arbeidsforhold",
                     HttpMethod.POST,
                     HttpEntity(
                         ArbeidsforholdRequest(
@@ -32,7 +32,7 @@ class AaregClient(
                         ).serialisertTilString(),
                         headers,
                     ),
-                    ArbeidsforholdoversiktResponse::class.java,
+                    Array<Arbeidsforhold>::class.java,
                 )
 
         if (result.statusCode != HttpStatus.OK) {
@@ -41,7 +41,7 @@ class AaregClient(
             throw RuntimeException(message)
         }
 
-        result.body?.let { return it }
+        result.body?.let { return it.toList() }
 
         val message = "Kall mot aareg returnerer ikke data"
         log.error(message)
