@@ -44,10 +44,10 @@ class AaregDataHenting(
             return emptyList()
         }
 
-        val arbeidsforholdOversikt = aaregClient.hentArbeidsforhold(fnr).mergeKantIKant()
+        val alleArbeidsforhold = aaregClient.hentArbeidsforhold(fnr).mergeKantIKant()
 
         if (environmentToggles.isQ()) {
-            log.info("Hentet aaregdata for søknad ${sykepengesoknad.id} \n${arbeidsforholdOversikt.serialisertTilString()}")
+            log.info("Hentet aaregdata for søknad ${sykepengesoknad.id} \n${alleArbeidsforhold.serialisertTilString()}")
         }
 
         fun Arbeidsforhold.tilArbeidsforholdFraAAreg(): ArbeidsforholdFraAAreg {
@@ -75,19 +75,19 @@ class AaregDataHenting(
             )
         }
 
-        if (arbeidsforholdOversikt.harMerEnnEttAnnetAktivtArbeidsforhold(sykepengesoknad)) {
+        if (alleArbeidsforhold.harMerEnnEttAnnetAktivtArbeidsforhold(sykepengesoknad)) {
             log.info("Fant mer enn ett annet aktivt arbeidsforhold for søknad ${sykepengesoknad.id}. Ser ikke etter nye arbeidsforhold")
             return emptyList()
         }
 
         val arbeidsforholdSoknad =
-            arbeidsforholdOversikt.find { arbeidsforholdOversikt ->
+            alleArbeidsforhold.find { arbeidsforholdOversikt ->
                 arbeidsforholdOversikt.arbeidssted.identer.firstOrNull { it.ident == sykepengesoknad.arbeidsgiverOrgnummer } != null
             }
         val opplysningspliktigOrgnummer =
             arbeidsforholdSoknad?.opplysningspliktig?.identer?.firstOrNull { it.type == "ORGANISASJONSNUMMER" }?.ident
 
-        return arbeidsforholdOversikt
+        return alleArbeidsforhold
             .filter { it.ansettelsesperiode.startdato.isAfter(sykepengesoknad.startSykeforlop) }
             .filter { it.ansettelsesperiode.startdato.isBeforeOrEqual(sykepengesoknad.tom!!) }
             .filter { it.erOrganisasjonArbeidsforhold() }
