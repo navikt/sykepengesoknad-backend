@@ -5,8 +5,6 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import java.util.concurrent.TimeUnit
 
-private const val ANTALL_SOKNADER = 100
-
 @Component
 class DeaktiveringJob(
     val deaktiverGamleSoknaderService: DeaktiverGamleSoknaderService,
@@ -16,13 +14,6 @@ class DeaktiveringJob(
     fun deaktiveringJob() {
         if (leaderElection.isLeader()) {
             deaktiverGamleSoknaderService.deaktiverSoknader()
-        }
-    }
-
-    @Scheduled(initialDelay = 180, fixedDelay = 10, timeUnit = TimeUnit.SECONDS)
-    fun slettFraDeaktiverteSoknaderJob() {
-        if (leaderElection.isLeader()) {
-            deaktiverGamleSoknaderService.slettSporsmalOgSvarFraDeaktiverteSoknader(ANTALL_SOKNADER)
         }
     }
 }

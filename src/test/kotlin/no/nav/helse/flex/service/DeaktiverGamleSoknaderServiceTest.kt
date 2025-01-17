@@ -23,7 +23,6 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
@@ -47,9 +46,6 @@ class DeaktiverGamleSoknaderServiceTest : FellesTestOppsett() {
 
     @Autowired
     private lateinit var deaktiverGamleSoknaderService: DeaktiverGamleSoknaderService
-
-    @Autowired
-    private lateinit var namedParameterJdbcTemplate: NamedParameterJdbcTemplate
 
     @BeforeEach
     @AfterEach
@@ -139,8 +135,7 @@ class DeaktiverGamleSoknaderServiceTest : FellesTestOppsett() {
     fun `Spørsmål og Svar blir slettet fra en besvart søknad som deaktiveres`() {
         val avbruttSoknad = opprettSoknad(Soknadstatus.AVBRUTT).also { sykepengesoknadDAO.lagreSykepengesoknad(it) }
 
-        val idPaaSporsmal =
-            besvarStandardSporsmal(avbruttSoknad)
+        val idPaaSporsmal = besvarStandardSporsmal(avbruttSoknad)
 
         deaktiverGamleSoknaderService.deaktiverSoknader() `should be equal to` 1
         publiserUtgaatteSoknader.publiserUtgatteSoknader() `should be equal to` 1
@@ -165,72 +160,11 @@ class DeaktiverGamleSoknaderServiceTest : FellesTestOppsett() {
             }
 
         deaktiverGamleSoknaderService.deaktiverSoknader() `should be equal to` 1
-        finnMedlemskapsVurdering(avbruttSoknad) `should be equal to` null
-    }
-
-    @Test
-    fun `Slett sporsmal og svar fra soknader som allerede deaktiverte søknader`() {
-        val soknad1 =
-            opprettSoknad(Soknadstatus.UTGATT).also {
-                sykepengesoknadDAO.lagreSykepengesoknad(it)
-                besvarStandardSporsmal(it)
-                lagreMedlemskapsVurdering(it)
-            }
-        val soknad2 =
-            opprettSoknad(Soknadstatus.UTGATT).also {
-                sykepengesoknadDAO.lagreSykepengesoknad(it)
-                besvarStandardSporsmal(it)
-                lagreMedlemskapsVurdering(it)
-            }
-        val soknad3 =
-            opprettSoknad(Soknadstatus.UTGATT).also {
-                sykepengesoknadDAO.lagreSykepengesoknad(it)
-                besvarStandardSporsmal(it)
-                lagreMedlemskapsVurdering(it)
-            }
-        val soknad4 =
-            opprettSoknad(Soknadstatus.UTGATT).also {
-                sykepengesoknadDAO.lagreSykepengesoknad(it)
-                besvarStandardSporsmal(it)
-                lagreMedlemskapsVurdering(it)
-            }
-
-        val sendtSoknad =
-            opprettSoknad(Soknadstatus.SENDT).also {
-                sykepengesoknadDAO.lagreSykepengesoknad(it)
-                besvarStandardSporsmal(it)
-                lagreMedlemskapsVurdering(it)
-            }
-
-        tellAntallSvarIDatabasen() `should be equal to` 25
-
-        deaktiverGamleSoknaderService.slettSporsmalOgSvarFraDeaktiverteSoknader(2) `should be equal to` 2
-
-        sykepengesoknadDAO.finnSykepengesoknad(soknad1.id).sporsmal.size `should be equal to` 0
-        sykepengesoknadDAO.finnSykepengesoknad(soknad2.id).sporsmal.size `should be equal to` 0
-        sykepengesoknadDAO.finnSykepengesoknad(soknad3.id).sporsmal.size `should be equal to` 5
-        sykepengesoknadDAO.finnSykepengesoknad(soknad4.id).sporsmal.size `should be equal to` 5
-
-        deaktiverGamleSoknaderService.slettSporsmalOgSvarFraDeaktiverteSoknader(2) `should be equal to` 2
-
-        sykepengesoknadDAO.finnSykepengesoknad(soknad3.id).sporsmal.size `should be equal to` 0
-        sykepengesoknadDAO.finnSykepengesoknad(soknad4.id).sporsmal.size `should be equal to` 0
-
-        tellAntallSvarIDatabasen() `should be equal to` 5
-
-        finnMedlemskapsVurdering(soknad1) `should be equal to` null
-        finnMedlemskapsVurdering(soknad2) `should be equal to` null
-        finnMedlemskapsVurdering(soknad3) `should be equal to` null
-        finnMedlemskapsVurdering(soknad4) `should be equal to` null
-
-        // Verifiserer at søknad med status SENDT ikke har fått slettet spørsmål, svar eller medlemskapsvurdering.
-        val sporsmal = sykepengesoknadDAO.finnSykepengesoknad(sendtSoknad.id).sporsmal
-        sporsmal.size `should be equal to` 5
-
-        val idPaaSporsmal = sporsmal.flattenSporsmal().map { it.id!! }.toSet()
-        svarDao.finnSvar(idPaaSporsmal).size `should be equal to` 5
-
-        finnMedlemskapsVurdering(sendtSoknad)!!.sykepengesoknadId `should be equal to` sendtSoknad.id
+        medlemskapVurderingRepository.findBySykepengesoknadIdAndFomAndTom(
+            avbruttSoknad.id,
+            avbruttSoknad.fom!!,
+            avbruttSoknad.tom!!,
+        ) `should be equal to` null
     }
 
     private fun opprettSoknad(soknadStatus: Soknadstatus): Sykepengesoknad =
@@ -283,12 +217,4 @@ class DeaktiverGamleSoknaderServiceTest : FellesTestOppsett() {
             avbruttSoknad.fom!!,
             avbruttSoknad.tom!!,
         )
-
-    fun tellAntallSvarIDatabasen(): Int {
-        return namedParameterJdbcTemplate.query(
-            """
-            SELECT count(*) AS antall FROM svar
-            """.trimIndent(),
-        ) { rs, _ -> rs.getInt("antall") }.firstOrNull() ?: 0
-    }
 }

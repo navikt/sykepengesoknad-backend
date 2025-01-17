@@ -673,28 +673,6 @@ class SykepengesoknadDAO(
         }
     }
 
-    fun finnDeaktiverteSoknaderMedSporsmal(antallSoknader: Int): List<SoknadSomSkalDeaktiveres> {
-        return namedParameterJdbcTemplate.query(
-            """
-            SELECT id, sykepengesoknad_uuid
-            FROM sykepengesoknad
-            WHERE EXISTS (
-              SELECT 1
-              FROM sporsmal
-              WHERE sporsmal.sykepengesoknad_id = sykepengesoknad.id
-            )
-              AND status = 'UTGATT'
-            LIMIT :antall_soknader    
-            """.trimIndent(),
-            MapSqlParameterSource().addValue("antall_soknader", antallSoknader),
-        ) { rs, _ ->
-            SoknadSomSkalDeaktiveres(
-                sykepengesoknadId = rs.getString("id"),
-                sykepengesoknadUuid = rs.getString("sykepengesoknad_uuid"),
-            )
-        }
-    }
-
     fun finnUpubliserteUtlopteSoknader(): List<String> {
         return namedParameterJdbcTemplate.query(
             """
