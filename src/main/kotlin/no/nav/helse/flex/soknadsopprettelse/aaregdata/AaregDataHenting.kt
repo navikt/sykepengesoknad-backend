@@ -90,6 +90,7 @@ class AaregDataHenting(
         return alleArbeidsforhold
             .filter { it.ansettelsesperiode.startdato.isAfter(sykepengesoknad.startSykeforlop) }
             .filter { it.ansettelsesperiode.startdato.isBeforeOrEqual(sykepengesoknad.tom!!) }
+            .filter { it.erIkkeVidereforingAvAnnetArbeidsforhold(alleArbeidsforhold) }
             .filter { it.erOrganisasjonArbeidsforhold() }
             .filter {
                 ingenArbeidsdagerMellomStartdatoOgEtterStartsyketilfelle(

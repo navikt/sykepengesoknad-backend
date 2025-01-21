@@ -76,6 +76,7 @@ fun skapArbeidsforholdOversikt(
     arbeidssted: String,
     fnr: String,
     opplysningspliktigOrganisasjonsnummer: String? = null,
+    ansettelsesdetaljer: List<Ansettelsesdetaljer> = emptyList(),
 ): Arbeidsforhold {
     return Arbeidsforhold(
         type = Kodeverksentitet("ordinaertArbeidsforhold", "Ordinært arbeidsforhold"),
@@ -86,6 +87,7 @@ fun skapArbeidsforholdOversikt(
                 "Hovedenhet",
                 listOf(Ident("ORGANISASJONSNUMMER", opplysningspliktigOrganisasjonsnummer ?: tilfeldigOrgNummer())),
             ),
+        ansettelsesdetaljer = ansettelsesdetaljer,
         ansettelsesperiode =
             Ansettelsesperiode(
                 startdato = startdato,
