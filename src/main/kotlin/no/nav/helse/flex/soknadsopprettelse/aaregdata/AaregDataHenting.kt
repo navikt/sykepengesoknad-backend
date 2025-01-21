@@ -44,7 +44,7 @@ class AaregDataHenting(
             return emptyList()
         }
 
-        val alleArbeidsforhold = aaregClient.hentArbeidsforhold(fnr).mergeKantIKant()
+        val alleArbeidsforhold = aaregClient.hentArbeidsforhold(fnr)
 
         if (environmentToggles.isQ()) {
             log.info("Hentet aaregdata for søknad ${sykepengesoknad.id} \n${alleArbeidsforhold.serialisertTilString()}")
@@ -90,6 +90,7 @@ class AaregDataHenting(
         return alleArbeidsforhold
             .filter { it.ansettelsesperiode.startdato.isAfter(sykepengesoknad.startSykeforlop) }
             .filter { it.ansettelsesperiode.startdato.isBeforeOrEqual(sykepengesoknad.tom!!) }
+            .filter { it.erIkkeVidereforingAvAnnetArbeidsforhold(alleArbeidsforhold) }
             .filter { it.erOrganisasjonArbeidsforhold() }
             .filter {
                 ingenArbeidsdagerMellomStartdatoOgEtterStartsyketilfelle(

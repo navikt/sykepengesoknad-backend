@@ -194,12 +194,14 @@ class MergeKantIKantArbeidsforholdTest {
         slutt: LocalDate? = null,
         arbeidssted: Arbeidssted = Arbeidssted("ORG", listOf(Ident("ORG", "123"))),
         opplysningspliktig: Opplysningspliktig = Opplysningspliktig("ORG", listOf(Ident("ORG", "999"))),
+        ansettelsesdetaljer: List<Ansettelsesdetaljer> = emptyList()
     ): Arbeidsforhold {
         return Arbeidsforhold(
             type = Kodeverksentitet("TYPE", "ArbForhold"),
             arbeidstaker = Arbeidstaker(listOf(Ident("fnr", "12345678910"))),
             arbeidssted = arbeidssted,
             opplysningspliktig = opplysningspliktig,
+            ansettelsesdetaljer = ansettelsesdetaljer,
             ansettelsesperiode =
                 Ansettelsesperiode(
                     startdato = start,
