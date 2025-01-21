@@ -18,7 +18,7 @@ external-host:
   - g.nav.no
 flex-openapi-docs-ui: true
 env:
-  SPRING_PROFILES_ACTIVE: default,testdatareset,sykmeldinger
+  SPRING_PROFILES_ACTIVE: default,testdatareset,sykmeldinger,frisktilarbeid
   PDL_BASE_URL: https://pdl-api.dev-fss-pub.nais.io
   PDL_API_AAD_CLIENT_ID: dev-fss.pdl.pdl-api
   FASIT_ENVIRONMENT_NAME: q1
