@@ -19,14 +19,14 @@ data class Arbeidsforhold(
 )
 
 data class Ansettelsesdetaljer(
-    val type: String, // "Ordinaer,Maritim,Forenklet,Frilanser"
+    val type: String,
     val arbeidstidsordning: Kodeverksentitet? = null,
-    val ansettelsesform :Kodeverksentitet? = null,
+    val ansettelsesform: Kodeverksentitet? = null,
     val yrke: Kodeverksentitet,
     val antallTimerPrUke: Double? = null,
     val avtaltStillingsprosent: Double? = null,
-    val sisteStillingsprosentendring: String? = null, // LocalDate
-    val sisteLoennsendring: String? = null, // LocalDate
+    val sisteStillingsprosentendring: String? = null,
+    val sisteLoennsendring: String? = null,
 )
 
 data class Ansettelsesperiode(
