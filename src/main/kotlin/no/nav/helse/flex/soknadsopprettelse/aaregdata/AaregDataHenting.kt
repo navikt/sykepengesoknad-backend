@@ -44,7 +44,7 @@ class AaregDataHenting(
             return emptyList()
         }
 
-        val alleArbeidsforhold = aaregClient.hentArbeidsforhold(fnr)
+        val alleArbeidsforhold = aaregClient.hentArbeidsforhold(fnr).mergeKantIKant()
 
         if (environmentToggles.isQ()) {
             log.info("Hentet aaregdata for søknad ${sykepengesoknad.id} \n${alleArbeidsforhold.serialisertTilString()}")
