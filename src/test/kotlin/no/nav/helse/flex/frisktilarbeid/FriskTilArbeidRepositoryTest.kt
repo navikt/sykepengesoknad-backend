@@ -2,6 +2,7 @@ package no.nav.helse.flex.frisktilarbeid
 
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.medlemskap.tilPostgresJson
+import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.util.serialisertTilString
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldHaveSize
@@ -67,6 +68,9 @@ class FriskTilArbeidRepositoryTest : FellesTestOppsett() {
         dbRecord.fom `should be equal to` fom
         dbRecord.tom `should be equal to` tom
         dbRecord.begrunnelse `should be equal to` "Begrunnelse"
-        dbRecord.vedtakStatus!!.value `should be equal to` friskTilArbeidVedtakStatus.serialisertTilString()
+
+        val lagretJson = objectMapper.readTree(dbRecord.vedtakStatus!!.value)
+        val vedtakStatusJson = objectMapper.readTree(friskTilArbeidVedtakStatus.serialisertTilString())
+        lagretJson `should be equal to` vedtakStatusJson
     }
 }

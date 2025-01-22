@@ -23,7 +23,7 @@ class FriskTilArbeidConsumer(
 
     @KafkaListener(
         topics = [FRISKTILARBEID_TOPIC],
-        id = "flex-frisktilarbeid-dev-1",
+        id = "flex-frisktilarbeid-dev-2",
         containerFactory = "aivenKafkaListenerContainerFactory",
         properties = ["auto.offset.reset = earliest"],
     )

@@ -6,7 +6,7 @@ CREATE TABLE frisk_til_arbeid
     fom           DATE                     NOT NULL,
     tom           DATE                     NOT NULL,
     begrunnelse   VARCHAR                  NOT NULL,
-    vedtak_status JSON
+    vedtak_status JSONB
 );
 
 CREATE INDEX frisk_til_arbeid_fnr_fom_tom_idx ON frisk_til_arbeid (fnr, fom, tom);
