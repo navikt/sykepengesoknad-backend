@@ -7,5 +7,8 @@ fun Arbeidsforhold.erIkkeVidereforingAvAnnetArbeidsforhold(alleArbeidsforhold: L
 }
 
 private fun Arbeidsforhold.erVidereforingAvAnnetArbeidsforhold(alleArbeidsforhold: List<Arbeidsforhold>): Boolean {
-    return false
+    return alleArbeidsforhold
+        .filter { it !== this }
+        .filter { it != this }
+        .any { it.erMestSannsynligEllerKanskjeVidereføringAv(this) }
 }

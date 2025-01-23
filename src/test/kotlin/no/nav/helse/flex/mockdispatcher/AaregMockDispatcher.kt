@@ -8,6 +8,7 @@ import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.RecordedRequest
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 object AaregMockDispatcher : Dispatcher() {
     val queuedArbeidsforholdOversikt = mutableListOf<List<Arbeidsforhold>>()
@@ -75,6 +76,7 @@ fun skapArbeidsforholdOversikt(
     sluttdato: LocalDate? = null,
     arbeidssted: String,
     fnr: String,
+    opprettet: LocalDateTime = LocalDateTime.now(),
     opplysningspliktigOrganisasjonsnummer: String? = null,
     ansettelsesdetaljer: List<Ansettelsesdetaljer> = emptyList(),
 ): Arbeidsforhold {
@@ -88,6 +90,7 @@ fun skapArbeidsforholdOversikt(
                 listOf(Ident("ORGANISASJONSNUMMER", opplysningspliktigOrganisasjonsnummer ?: tilfeldigOrgNummer())),
             ),
         ansettelsesdetaljer = ansettelsesdetaljer,
+        opprettet = opprettet,
         ansettelsesperiode =
             Ansettelsesperiode(
                 startdato = startdato,
