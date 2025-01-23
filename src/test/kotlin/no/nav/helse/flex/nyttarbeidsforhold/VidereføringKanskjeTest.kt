@@ -45,10 +45,10 @@ class VidereføringKanskjeTest : FellesTestOppsett() {
                                     avtaltStillingsprosent = 100.0,
                                     yrke = Kodeverksentitet("SJEF", "Boss"),
                                     rapporteringsmaaneder =
-                                                                            Rapporteringsmaaneder(
-                                                                                fra = YearMonth.of(2022, 8),
-                                                                                til = YearMonth.of(2022, 8),
-                                                                            ),
+                                        Rapporteringsmaaneder(
+                                            fra = YearMonth.of(2022, 8),
+                                            til = YearMonth.of(2022, 8),
+                                        ),
                                 ),
                             ),
                         opplysningspliktigOrganisasjonsnummer = "888888888",

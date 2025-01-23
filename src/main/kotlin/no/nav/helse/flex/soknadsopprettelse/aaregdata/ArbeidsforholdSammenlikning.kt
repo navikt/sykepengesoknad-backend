@@ -69,7 +69,7 @@ fun List<Ansettelsesdetaljer>.sortertKronologiskPåGyldighet(): List<Ansettelses
     }
 
 fun Ansettelsesdetaljer.erGanskeLik(annen: Ansettelsesdetaljer): Boolean =
-    (this.yrke == annen.yrke) && (this.type == annen.type) && (this.avtaltStillingsprosent == annen.avtaltStillingsprosent)
+    (this.yrke == annen.yrke) && (this.type == annen.type) && (this.avtaltStillingsprosent?.equals(annen.avtaltStillingsprosent) == true)
 
 internal fun Arbeidsforhold.kanKanskjeVæreVidereføringAv(forrige: Arbeidsforhold): Boolean {
     if (this.ansettelsesdetaljer.isEmpty() || forrige.ansettelsesdetaljer.isEmpty()) return false
