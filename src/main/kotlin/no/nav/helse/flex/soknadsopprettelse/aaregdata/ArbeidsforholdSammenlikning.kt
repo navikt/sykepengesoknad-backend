@@ -8,7 +8,7 @@ import kotlin.math.absoluteValue
 
 fun Arbeidsforhold.erIkkeVidereforingAvAnnetArbeidsforhold(alleArbeidsforhold: List<Arbeidsforhold>): Boolean {
     return !alleArbeidsforhold
-        .filter { it !== this } // Ikke sammenlikn med seg selv
+        .filter { it !== this }
         .any { this.erMestSannsynligEllerKanskjeVidereføringAv(it) }
 }
 
@@ -24,17 +24,17 @@ internal fun Arbeidsforhold.erMestSannsynligEllerKanskjeVidereføringAv(forrige:
 
 internal fun Arbeidsforhold.erMestSannsynligVidereføringAv(forrige: Arbeidsforhold): Boolean {
     if (this.opplysningspliktig.sammenliknbar() != forrige.opplysningspliktig.sammenliknbar()) return false
-    if ((forrige to this).erGanskeRettEtterHverandre() && (
+    if ((forrige to this).erGanskeRettEtterHverandre() && forrige.ansettelsesperiode.sluttaarsak != null && (
             listOf(
                 "endringIOrganisasjonsstrukturEllerByttetJobbInternt",
                 "kontraktEngasjementEllerVikariatErUtloept",
-            ).contains(forrige.ansettelsesperiode.sluttaarsak?.kode)
+            ).contains(forrige.ansettelsesperiode.sluttaarsak.kode)
         ) ||
         (
-            (this.arbeidssted.sammenliknbar() == forrige.arbeidssted.sammenliknbar()) &&
+            (this.arbeidssted.sammenliknbar() == forrige.arbeidssted.sammenliknbar()) && forrige.ansettelsesperiode.sluttaarsak != null &&
                 listOf(
                     "byttetLoenssystemEllerRegnskapsfoerer",
-                ).contains(forrige.ansettelsesperiode.sluttaarsak?.kode)
+                ).contains(forrige.ansettelsesperiode.sluttaarsak.kode)
         )
     ) {
         return true
@@ -73,8 +73,8 @@ fun Ansettelsesdetaljer.erGanskeLik(annen: Ansettelsesdetaljer): Boolean =
 
 internal fun Arbeidsforhold.kanKanskjeVæreVidereføringAv(forrige: Arbeidsforhold): Boolean {
     if (this.ansettelsesdetaljer.isEmpty() || forrige.ansettelsesdetaljer.isEmpty()) return false
-    if ((forrige to this).erGanskeRettEtterHverandre() &&
-        (forrige.ansettelsesperiode.sluttaarsak?.kode == "endringIOrganisasjonsstrukturEllerByttetJobbInternt") &&
+    if ((forrige to this).erGanskeRettEtterHverandre() && forrige.ansettelsesperiode.sluttaarsak != null &&
+        (forrige.ansettelsesperiode.sluttaarsak.kode == "endringIOrganisasjonsstrukturEllerByttetJobbInternt") &&
         (
             forrige.ansettelsesdetaljer.sortertKronologiskPåGyldighet().last()
                 .erGanskeLik(this.ansettelsesdetaljer.sortertKronologiskPåGyldighet().first())

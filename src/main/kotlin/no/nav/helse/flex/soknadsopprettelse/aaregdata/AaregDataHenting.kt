@@ -80,13 +80,6 @@ class AaregDataHenting(
             return emptyList()
         }
 
-        val arbeidsforholdSoknad =
-            alleArbeidsforhold.find { arbeidsforholdOversikt ->
-                arbeidsforholdOversikt.arbeidssted.identer.firstOrNull { it.ident == sykepengesoknad.arbeidsgiverOrgnummer } != null
-            }
-        val opplysningspliktigOrgnummer =
-            arbeidsforholdSoknad?.opplysningspliktig?.identer?.firstOrNull { it.type == "ORGANISASJONSNUMMER" }?.ident
-
         return alleArbeidsforhold
             .filter { it.ansettelsesperiode.startdato.isAfter(sykepengesoknad.startSykeforlop) }
             .filter { it.ansettelsesperiode.startdato.isBeforeOrEqual(sykepengesoknad.tom!!) }
@@ -103,7 +96,6 @@ class AaregDataHenting(
                 arbeidsforhold.arbeidssted.identer
                     .firstOrNull { it.type == "ORGANISASJONSNUMMER" }?.ident != sykepengesoknad.arbeidsgiverOrgnummer
             }
-            .filterInterneOrgnummer(opplysningspliktigOrgnummer)
             .map { it.tilArbeidsforholdFraAAreg() }
             .sortedBy { it.startdato }
     }
@@ -126,13 +118,6 @@ private fun Sykepengesoknad.tilPeriode(): Periode {
 
 private fun Arbeidsforhold.erOrganisasjonArbeidsforhold(): Boolean {
     return this.opplysningspliktig.type == "Hovedenhet"
-}
-
-private fun List<Arbeidsforhold>.filterInterneOrgnummer(opplysningspliktigOrgnummer: String?): List<Arbeidsforhold> {
-    opplysningspliktigOrgnummer ?: return this
-    return this.filter { arbeidsforhold ->
-        arbeidsforhold.opplysningspliktig.identer.none { it.ident == opplysningspliktigOrgnummer }
-    }
 }
 
 data class ArbeidsforholdFraAAreg(

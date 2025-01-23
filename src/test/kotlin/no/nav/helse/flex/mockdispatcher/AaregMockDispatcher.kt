@@ -74,6 +74,7 @@ object AaregMockDispatcher : Dispatcher() {
 fun skapArbeidsforholdOversikt(
     startdato: LocalDate = LocalDate.of(2022, 9, 15).minusDays(10),
     sluttdato: LocalDate? = null,
+    sluttaarsak: Kodeverksentitet? = null,
     arbeidssted: String,
     fnr: String,
     opprettet: LocalDateTime = LocalDateTime.now(),
@@ -95,6 +96,7 @@ fun skapArbeidsforholdOversikt(
             Ansettelsesperiode(
                 startdato = startdato,
                 sluttdato = sluttdato,
+                sluttaarsak = sluttaarsak,
             ),
     )
 }
