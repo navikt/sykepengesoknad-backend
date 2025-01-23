@@ -6,20 +6,13 @@ import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 import kotlin.math.absoluteValue
 
-internal fun List<Arbeidsforhold>.sortertKronologisk(): List<Arbeidsforhold> =
-    this.sortedWith { a, b ->
-        a.ansattFom().compareTo(b.ansattFom()).let { ansattFomForskjell ->
-            if (ansattFomForskjell == 0) {
-                a.opprettet.compareTo(b.opprettet)
-            } else {
-                ansattFomForskjell
-            }
-        }
-    }
+fun Arbeidsforhold.erIkkeVidereforingAvAnnetArbeidsforhold(alleArbeidsforhold: List<Arbeidsforhold>): Boolean {
+    return !alleArbeidsforhold
+        .filter { it !== this } // Ikke sammenlikn med seg selv
+        .any { this.erMestSannsynligEllerKanskjeVidereføringAv(it) }
+}
 
 fun Arbeidsforhold.ansattFom(): LocalDate = this.ansettelsesperiode.startdato
-
-fun Arbeidsforhold.ansattTom(): LocalDate? = this.ansettelsesperiode.sluttdato
 
 fun Arbeidsforhold.ansattTomEllerTidensEnde(): LocalDate = this.ansettelsesperiode.sluttdato ?: LocalDate.MAX
 
