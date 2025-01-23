@@ -1,7 +1,9 @@
 package no.nav.helse.flex.nyttarbeidsforhold
 
 import no.nav.helse.flex.*
+import no.nav.helse.flex.client.aareg.Ansettelsesdetaljer
 import no.nav.helse.flex.client.aareg.Kodeverksentitet
+import no.nav.helse.flex.client.aareg.Rapporteringsmaaneder
 import no.nav.helse.flex.mockdispatcher.AaregMockDispatcher
 import no.nav.helse.flex.mockdispatcher.skapArbeidsforholdOversikt
 import no.nav.helse.flex.soknadsopprettelse.*
@@ -11,14 +13,15 @@ import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
 import org.amshove.kluent.*
 import org.junit.jupiter.api.*
 import java.time.LocalDate
+import java.time.YearMonth
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class VidereføringMestSannsynligTest : FellesTestOppsett() {
+class VidereføringKanskjeTest : FellesTestOppsett() {
     val fnr = "22222220001"
 
     @Test
     @Order(1)
-    fun `Videreføring med mest sannsynlig kravene tilfredsstilt`() {
+    fun `Videreføring med kanskje kravene tilfredsstilt`() {
         fakeUnleash.resetAll()
         fakeUnleash.enable("sykepengesoknad-backend-tilkommen-inntekt")
 
@@ -35,6 +38,19 @@ class VidereføringMestSannsynligTest : FellesTestOppsett() {
                                 "Endring i organisasjonsstruktur eller byttet jobb internt",
                             ),
                         arbeidssted = "999888777",
+                        ansettelsesdetaljer =
+                            listOf(
+                                Ansettelsesdetaljer(
+                                    type = "ordinaertArbeidsforhold",
+                                    avtaltStillingsprosent = 100.0,
+                                    yrke = Kodeverksentitet("SJEF", "Boss"),
+                                    rapporteringsmaaneder =
+                                                                            Rapporteringsmaaneder(
+                                                                                fra = YearMonth.of(2022, 8),
+                                                                                til = YearMonth.of(2022, 8),
+                                                                            ),
+                                ),
+                            ),
                         opplysningspliktigOrganisasjonsnummer = "888888888",
                     ),
                     skapArbeidsforholdOversikt(
@@ -42,7 +58,20 @@ class VidereføringMestSannsynligTest : FellesTestOppsett() {
                         startdato = LocalDate.of(2022, 8, 24),
                         sluttdato = LocalDate.of(2022, 8, 25),
                         arbeidssted = "999888722",
-                        opplysningspliktigOrganisasjonsnummer = "888888888",
+                        ansettelsesdetaljer =
+                            listOf(
+                                Ansettelsesdetaljer(
+                                    type = "ordinaertArbeidsforhold",
+                                    avtaltStillingsprosent = 100.0,
+                                    yrke = Kodeverksentitet("SJEF", "Boss"),
+                                    rapporteringsmaaneder =
+                                        Rapporteringsmaaneder(
+                                            fra = YearMonth.of(2022, 8),
+                                            til = YearMonth.of(2022, 8),
+                                        ),
+                                ),
+                            ),
+                        opplysningspliktigOrganisasjonsnummer = "888888882",
                     ),
                 ),
             )
