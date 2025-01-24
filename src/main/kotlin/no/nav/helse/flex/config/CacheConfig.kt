@@ -16,7 +16,7 @@ import java.net.URI
 import java.time.Duration
 
 @Configuration
-@Profile("default")
+@Profile("!fakes")
 class CacheConfig(
     @Value("\${REDIS_URI_SESSIONS}") val redisUriString: String,
     @Value("\${REDIS_USERNAME_SESSIONS}") val redisUsername: String,
