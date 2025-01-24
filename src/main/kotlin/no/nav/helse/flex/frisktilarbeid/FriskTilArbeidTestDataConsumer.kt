@@ -1,7 +1,5 @@
 package no.nav.helse.flex.frisktilarbeid
 
-import com.fasterxml.jackson.core.JacksonException
-import no.nav.helse.flex.kafka.FRISKTILARBEID_TOPIC
 import no.nav.helse.flex.logger
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.context.annotation.Profile
@@ -11,14 +9,14 @@ import org.springframework.stereotype.Component
 
 @Profile("frisktilarbeid")
 @Component
-class FriskTilArbeidConsumer(
+class FriskTilArbeidTestDataConsumer(
     private val friskTilArbeidService: FriskTilArbeidService,
 ) {
     val log = logger()
 
     @KafkaListener(
-        topics = [FRISKTILARBEID_TOPIC],
-        id = "flex-frisktilarbeid-dev-2",
+        topics = [FRISKTILARBEID_TESTDATA_TOPIC],
+        id = "flex-frisktilarbeid-testdata-1",
         containerFactory = "aivenKafkaListenerContainerFactory",
         properties = ["auto.offset.reset = latest"],
     )
@@ -26,7 +24,7 @@ class FriskTilArbeidConsumer(
         cr: ConsumerRecord<String, String>,
         acknowledgment: Acknowledgment,
     ) {
-        log.info("Mottok FriskTilArbeidVedtakStatus med key: ${cr.key()}.")
+        log.info("Mottok FriskTilArbeidVedtakStatus på testdata-topic med key: ${cr.key()}.")
 
         try {
             friskTilArbeidService.lagreFriskTilArbeidVedtakStatus(
@@ -35,13 +33,12 @@ class FriskTilArbeidConsumer(
                     cr.value().tilFriskTilArbeidVedtakStatus(),
                 ),
             )
-            acknowledgment.acknowledge()
-        } catch (e: JacksonException) {
-            log.error("Klarte ikke å deserialisere FriskTilArbeidVedtakStatus", e)
-            throw e
         } catch (e: Exception) {
             log.error("Feilet ved mottak av FriskTilArbeidVedtakStatus", e)
-            throw e
+        } finally {
+            acknowledgment.acknowledge()
         }
     }
 }
+
+const val FRISKTILARBEID_TESTDATA_TOPIC = "flex.test-isfrisktilarbeid-vedtak-status"

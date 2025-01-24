@@ -42,18 +42,7 @@ class FriskTilArbeidIntegrationTest() : FellesTestOppsett() {
     @Test
     fun `Mottar og lagrer VedtakStatusRecord med status FATTET`() {
         val key = fnr.asProducerRecordKey()
-
-        val friskTilArbeidVedtakStatus =
-            FriskTilArbeidVedtakStatus(
-                uuid = uuid,
-                personident = fnr,
-                begrunnelse = "Begrunnelse",
-                fom = LocalDate.now(),
-                tom = LocalDate.now(),
-                status = Status.FATTET,
-                statusAt = OffsetDateTime.now(),
-                statusBy = "Test",
-            )
+        val friskTilArbeidVedtakStatus = lagFriskTilArbeidVedtakStatus(fnr, Status.FATTET)
 
         kafkaProducer.send(
             ProducerRecord(
@@ -78,18 +67,7 @@ class FriskTilArbeidIntegrationTest() : FellesTestOppsett() {
     @Test
     fun `Mottar men lagrer ikke VedtakStatusRecord med status FERDIG_BEHANDLET`() {
         val key = fnr.asProducerRecordKey()
-
-        val friskTilArbeidVedtakStatus =
-            FriskTilArbeidVedtakStatus(
-                uuid = uuid,
-                personident = fnr,
-                begrunnelse = "Begrunnelse",
-                fom = LocalDate.now(),
-                tom = LocalDate.now(),
-                status = Status.FERDIG_BEHANDLET,
-                statusAt = OffsetDateTime.now(),
-                statusBy = "Test",
-            )
+        val friskTilArbeidVedtakStatus = lagFriskTilArbeidVedtakStatus(fnr, Status.FERDIG_BEHANDLET)
 
         kafkaProducer.send(
             ProducerRecord(
@@ -105,6 +83,21 @@ class FriskTilArbeidIntegrationTest() : FellesTestOppsett() {
 
         await().during(100, TimeUnit.MILLISECONDS).until { friskTilArbeidRepository.findAll().toList().isEmpty() }
     }
-
-    fun String.asProducerRecordKey(): String = UUID.nameUUIDFromBytes(this.toByteArray()).toString()
 }
+
+fun String.asProducerRecordKey(): String = UUID.nameUUIDFromBytes(this.toByteArray()).toString()
+
+fun lagFriskTilArbeidVedtakStatus(
+    fnr: String,
+    status: Status,
+): FriskTilArbeidVedtakStatus =
+    FriskTilArbeidVedtakStatus(
+        uuid = UUID.randomUUID().toString(),
+        personident = fnr,
+        begrunnelse = "Begrunnelse",
+        fom = LocalDate.now(),
+        tom = LocalDate.now(),
+        status = status,
+        statusAt = OffsetDateTime.now(),
+        statusBy = "Test",
+    )
