@@ -1,6 +1,8 @@
 package no.nav.helse.flex.client.aareg
 
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.YearMonth
 
 data class ArbeidsforholdRequest(
     val arbeidstakerId: String,
@@ -16,6 +18,7 @@ data class Arbeidsforhold(
     val opplysningspliktig: Opplysningspliktig,
     val ansettelsesperiode: Ansettelsesperiode,
     val ansettelsesdetaljer: List<Ansettelsesdetaljer>,
+    val opprettet: LocalDateTime,
 )
 
 data class Ansettelsesdetaljer(
@@ -27,6 +30,12 @@ data class Ansettelsesdetaljer(
     val avtaltStillingsprosent: Double? = null,
     val sisteStillingsprosentendring: String? = null,
     val sisteLoennsendring: String? = null,
+    val rapporteringsmaaneder: Rapporteringsmaaneder,
+)
+
+data class Rapporteringsmaaneder(
+    val fra: YearMonth,
+    val til: YearMonth? = null,
 )
 
 data class Ansettelsesperiode(
