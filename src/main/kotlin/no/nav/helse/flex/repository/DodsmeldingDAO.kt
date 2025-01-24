@@ -3,6 +3,7 @@ package no.nav.helse.flex.repository
 import no.nav.helse.flex.config.EnvironmentToggles
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.util.osloZone
+import org.springframework.context.annotation.Profile
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
@@ -12,16 +13,36 @@ import java.time.LocalDate
 import java.time.LocalDate.now
 import java.time.OffsetDateTime
 
+interface DodsmeldingDAO {
+    data class Dodsfall(val fnr: String, val dodsdato: LocalDate)
+
+    fun fnrMedToUkerGammelDodsmelding(): List<DodsmeldingDAO.Dodsfall>
+
+    fun harDodsmelding(identer: FolkeregisterIdenter): Boolean
+
+    fun oppdaterDodsdato(
+        identer: FolkeregisterIdenter,
+        dodsdato: LocalDate,
+    )
+
+    fun lagreDodsmelding(
+        identer: FolkeregisterIdenter,
+        dodsdato: LocalDate,
+        meldingMottattDato: OffsetDateTime = OffsetDateTime.now(),
+    )
+
+    fun slettDodsmelding(identer: FolkeregisterIdenter)
+}
+
 @Service
 @Transactional
 @Repository
-class DodsmeldingDAO(
+@Profile("default")
+class DodsmeldingDAOImpl(
     private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
     private val toggle: EnvironmentToggles,
-) {
-    data class Dodsfall(val fnr: String, val dodsdato: LocalDate)
-
-    fun fnrMedToUkerGammelDodsmelding(): List<Dodsfall> {
+) : DodsmeldingDAO {
+    override fun fnrMedToUkerGammelDodsmelding(): List<DodsmeldingDAO.Dodsfall> {
         val mottattFør =
             if (toggle.isProduction()) {
                 now(osloZone).minusWeeks(2)
@@ -37,14 +58,14 @@ class DodsmeldingDAO(
             MapSqlParameterSource()
                 .addValue("mottattFor", mottattFør),
         ) { resultSet, _ ->
-            Dodsfall(
+            DodsmeldingDAO.Dodsfall(
                 fnr = resultSet.getString("FNR"),
                 dodsdato = resultSet.getDate("DODSDATO").toLocalDate(),
             )
         }
     }
 
-    fun harDodsmelding(identer: FolkeregisterIdenter): Boolean {
+    override fun harDodsmelding(identer: FolkeregisterIdenter): Boolean {
         return namedParameterJdbcTemplate.queryForObject(
             """
                 SELECT COUNT(1) FROM DODSMELDING 
@@ -56,7 +77,7 @@ class DodsmeldingDAO(
         )?.toInt() == 1
     }
 
-    fun oppdaterDodsdato(
+    override fun oppdaterDodsdato(
         identer: FolkeregisterIdenter,
         dodsdato: LocalDate,
     ) {
@@ -70,10 +91,10 @@ class DodsmeldingDAO(
         )
     }
 
-    fun lagreDodsmelding(
+    override fun lagreDodsmelding(
         identer: FolkeregisterIdenter,
         dodsdato: LocalDate,
-        meldingMottattDato: OffsetDateTime = OffsetDateTime.now(),
+        meldingMottattDato: OffsetDateTime,
     ) {
         namedParameterJdbcTemplate.update(
             """INSERT INTO DODSMELDING (
@@ -87,7 +108,7 @@ class DodsmeldingDAO(
         )
     }
 
-    fun slettDodsmelding(identer: FolkeregisterIdenter) {
+    override fun slettDodsmelding(identer: FolkeregisterIdenter) {
         namedParameterJdbcTemplate.update(
             "DELETE FROM DODSMELDING WHERE FNR IN (:identer)",
             MapSqlParameterSource()

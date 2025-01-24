@@ -12,6 +12,7 @@ import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.soknadsopprettelse.ArbeidsforholdFraInntektskomponenten
 import no.nav.helse.flex.soknadsopprettelse.sorterSporsmal
 import no.nav.helse.flex.util.*
+import org.springframework.context.annotation.Profile
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.dao.IncorrectResultSizeDataAccessException
 import org.springframework.jdbc.core.RowMapper
@@ -27,7 +28,8 @@ import java.util.*
 
 @Transactional
 @Repository
-class SykepengesoknadDAO(
+@Profile("default")
+class SykepengesoknadDAOImpl(
     private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
     private val soknadsperiodeDAO: SoknadsperiodeDAO,
     private val sporsmalDAO: SporsmalDAO,
@@ -35,16 +37,14 @@ class SykepengesoknadDAO(
     private val soknadLagrer: SoknadLagrer,
     private val klippetSykepengesoknadRepository: KlippetSykepengesoknadRepository,
     private val medlemskapVurderingRepository: MedlemskapVurderingRepository,
-) {
+) : SykepengesoknadDAO {
     val log = logger()
 
-    class SoknadIkkeFunnetException : RuntimeException()
+    override fun finnSykepengesoknader(identer: FolkeregisterIdenter): List<Sykepengesoknad> = finnSykepengesoknader(identer.alle())
 
-    fun finnSykepengesoknader(identer: FolkeregisterIdenter): List<Sykepengesoknad> = finnSykepengesoknader(identer.alle())
-
-    fun finnSykepengesoknader(
+    override fun finnSykepengesoknader(
         identer: List<String>,
-        soknadstype: Soknadstype? = null,
+        soknadstype: Soknadstype?,
     ): List<Sykepengesoknad> {
         val sql =
             "SELECT * FROM sykepengesoknad WHERE fnr IN (:identer)" +
@@ -66,7 +66,7 @@ class SykepengesoknadDAO(
         return populerSoknadMedDataFraAndreTabeller(soknader)
     }
 
-    fun finnSykepengesoknad(sykepengesoknadId: String): Sykepengesoknad {
+    override fun finnSykepengesoknad(sykepengesoknadId: String): Sykepengesoknad {
         val soknader =
             namedParameterJdbcTemplate.query(
                 "SELECT * FROM sykepengesoknad WHERE sykepengesoknad_uuid = :id",
@@ -74,10 +74,10 @@ class SykepengesoknadDAO(
                 sykepengesoknadRowMapper(),
             )
 
-        return populerSoknadMedDataFraAndreTabeller(soknader).firstOrNull() ?: throw SoknadIkkeFunnetException()
+        return populerSoknadMedDataFraAndreTabeller(soknader).firstOrNull() ?: throw SykepengesoknadDAO.SoknadIkkeFunnetException()
     }
 
-    fun finnSykepengesoknaderForSykmelding(sykmeldingId: String): List<Sykepengesoknad> {
+    override fun finnSykepengesoknaderForSykmelding(sykmeldingId: String): List<Sykepengesoknad> {
         val soknader =
             namedParameterJdbcTemplate.query(
                 "SELECT * FROM sykepengesoknad WHERE sykmelding_uuid = :sykmeldingId",
@@ -88,7 +88,7 @@ class SykepengesoknadDAO(
         return populerSoknadMedDataFraAndreTabeller(soknader)
     }
 
-    private fun populerSoknadMedDataFraAndreTabeller(soknader: MutableList<Pair<String, Sykepengesoknad>>): List<Sykepengesoknad> {
+    override fun populerSoknadMedDataFraAndreTabeller(soknader: MutableList<Pair<String, Sykepengesoknad>>): List<Sykepengesoknad> {
         val soknadsIder = soknader.map { it.first }.toSet()
         val soknadsUUIDer = soknader.map { it.second.id }
 
@@ -128,7 +128,7 @@ class SykepengesoknadDAO(
             .sortedBy { it.opprettet }
     }
 
-    fun finnSykepengesoknaderUtenSporsmal(identer: List<String>): List<Sykepengesoknad> {
+    override fun finnSykepengesoknaderUtenSporsmal(identer: List<String>): List<Sykepengesoknad> {
         val soknader =
             namedParameterJdbcTemplate.query(
                 "SELECT * FROM sykepengesoknad WHERE fnr IN (:identer)",
@@ -148,7 +148,7 @@ class SykepengesoknadDAO(
             .sortedBy { it.opprettet }
     }
 
-    fun finnMottakerAvSoknad(soknadUuid: String): Mottaker? {
+    override fun finnMottakerAvSoknad(soknadUuid: String): Mottaker? {
         val mottaker =
             namedParameterJdbcTemplate.queryForObject(
                 """
@@ -167,12 +167,12 @@ class SykepengesoknadDAO(
         return mottaker
     }
 
-    fun lagreSykepengesoknad(sykepengesoknad: Sykepengesoknad): Sykepengesoknad {
+    override fun lagreSykepengesoknad(sykepengesoknad: Sykepengesoknad): Sykepengesoknad {
         soknadLagrer.lagreSoknad(sykepengesoknad)
         return finnSykepengesoknad(sykepengesoknad.id)
     }
 
-    fun oppdaterKorrigertAv(sykepengesoknad: Sykepengesoknad) {
+    override fun oppdaterKorrigertAv(sykepengesoknad: Sykepengesoknad) {
         val raderOppdatert =
             namedParameterJdbcTemplate.update(
                 """
@@ -192,7 +192,7 @@ class SykepengesoknadDAO(
         }
     }
 
-    fun oppdaterStatus(sykepengesoknad: Sykepengesoknad) {
+    override fun oppdaterStatus(sykepengesoknad: Sykepengesoknad) {
         val raderOppdatert =
             namedParameterJdbcTemplate.update(
                 """
@@ -210,7 +210,7 @@ class SykepengesoknadDAO(
         }
     }
 
-    fun settSendtNav(
+    override fun settSendtNav(
         sykepengesoknadId: String,
         sendtNav: LocalDateTime,
     ) {
@@ -229,7 +229,7 @@ class SykepengesoknadDAO(
         )
     }
 
-    fun settSendtAg(
+    override fun settSendtAg(
         sykepengesoknadId: String,
         sendtAg: LocalDateTime,
     ) {
@@ -246,7 +246,7 @@ class SykepengesoknadDAO(
         )
     }
 
-    fun aktiverSoknad(uuid: String) {
+    override fun aktiverSoknad(uuid: String) {
         val raderOppdatert =
             namedParameterJdbcTemplate.update(
                 """
@@ -267,7 +267,7 @@ class SykepengesoknadDAO(
         }
     }
 
-    fun avbrytSoknad(
+    override fun avbrytSoknad(
         sykepengesoknad: Sykepengesoknad,
         dato: LocalDate,
     ) {
@@ -291,7 +291,7 @@ class SykepengesoknadDAO(
         slettAlleSvar(sykepengesoknad)
     }
 
-    fun gjenapneSoknad(sykepengesoknad: Sykepengesoknad) {
+    override fun gjenapneSoknad(sykepengesoknad: Sykepengesoknad) {
         val raderOppdatert =
             namedParameterJdbcTemplate.update(
                 """
@@ -311,11 +311,11 @@ class SykepengesoknadDAO(
         }
     }
 
-    fun slettAlleSvar(sykepengesoknad: Sykepengesoknad) {
+    override fun slettAlleSvar(sykepengesoknad: Sykepengesoknad) {
         svarDAO.slettSvar(sykepengesoknad.id)
     }
 
-    fun nullstillSoknader(fnr: String): Int {
+    override fun nullstillSoknader(fnr: String): Int {
         val soknadsIder =
             namedParameterJdbcTemplate.query(
                 "SELECT id FROM sykepengesoknad WHERE (fnr = :fnr)",
@@ -345,7 +345,7 @@ class SykepengesoknadDAO(
         return antallSoknaderSlettet
     }
 
-    fun slettSoknad(sykepengesoknad: Sykepengesoknad) {
+    override fun slettSoknad(sykepengesoknad: Sykepengesoknad) {
         log.info(
             "Sletter ${sykepengesoknad.status.name} søknad av typen: ${sykepengesoknad.soknadstype} med " +
                 "id: ${sykepengesoknad.id} tilhørende sykmelding: ${sykepengesoknad.sykmeldingId}",
@@ -354,7 +354,7 @@ class SykepengesoknadDAO(
         slettSoknad(sykepengesoknad.id)
     }
 
-    fun slettSoknad(sykepengesoknadUuid: String) {
+    override fun slettSoknad(sykepengesoknadUuid: String) {
         try {
             val id = sykepengesoknadId(sykepengesoknadUuid)
 
@@ -377,18 +377,18 @@ class SykepengesoknadDAO(
         }
     }
 
-    fun finnAlleredeOpprettetSoknad(identer: FolkeregisterIdenter): Sykepengesoknad? {
+    override fun finnAlleredeOpprettetSoknad(identer: FolkeregisterIdenter): Sykepengesoknad? {
         return finnSykepengesoknader(identer)
             .firstOrNull { s -> Soknadstatus.NY == s.status && Soknadstype.OPPHOLD_UTLAND == s.soknadstype }
     }
 
-    fun byttUtSporsmal(oppdatertSoknad: Sykepengesoknad) {
+    override fun byttUtSporsmal(oppdatertSoknad: Sykepengesoknad) {
         val sykepengesoknadId = sykepengesoknadId(oppdatertSoknad.id)
         sporsmalDAO.slettSporsmalOgSvar(listOf(sykepengesoknadId))
         soknadLagrer.lagreSporsmalOgSvarFraSoknad(oppdatertSoknad)
     }
 
-    fun sykepengesoknadId(uuid: String): String {
+    override fun sykepengesoknadId(uuid: String): String {
         return namedParameterJdbcTemplate.queryForObject(
             "SELECT id FROM sykepengesoknad WHERE sykepengesoknad_uuid =:uuid",
             MapSqlParameterSource()
@@ -397,7 +397,7 @@ class SykepengesoknadDAO(
         )!!
     }
 
-    fun klippSoknadTom(
+    override fun klippSoknadTom(
         sykepengesoknadUuid: String,
         nyTom: LocalDate,
         tom: LocalDate,
@@ -437,7 +437,7 @@ class SykepengesoknadDAO(
         return nyePerioder
     }
 
-    fun klippSoknadFom(
+    override fun klippSoknadFom(
         sykepengesoknadUuid: String,
         nyFom: LocalDate,
         fom: LocalDate,
@@ -477,7 +477,7 @@ class SykepengesoknadDAO(
         return nyePerioder
     }
 
-    private fun oppdaterTom(
+    override fun oppdaterTom(
         sykepengesoknadId: String,
         nyTom: LocalDate,
         tom: LocalDate,
@@ -504,7 +504,7 @@ class SykepengesoknadDAO(
         }
     }
 
-    private fun oppdaterFom(
+    override fun oppdaterFom(
         sykepengesoknadId: String,
         nyFom: LocalDate,
         fom: LocalDate,
@@ -531,7 +531,7 @@ class SykepengesoknadDAO(
         }
     }
 
-    fun sendSoknad(
+    override fun sendSoknad(
         sykepengesoknad: Sykepengesoknad,
         mottaker: Mottaker,
         avsendertype: Avsendertype,
@@ -566,7 +566,7 @@ class SykepengesoknadDAO(
         )
     }
 
-    private fun sykepengesoknadRowMapper(): RowMapper<Pair<String, Sykepengesoknad>> {
+    override fun sykepengesoknadRowMapper(): RowMapper<Pair<String, Sykepengesoknad>> {
         return RowMapper { resultSet, _ ->
             Pair(
                 resultSet.getString("id"),
@@ -637,7 +637,7 @@ class SykepengesoknadDAO(
 
     data class GammeltUtkast(val sykepengesoknadUuid: String)
 
-    fun finnGamleUtkastForSletting(): List<GammeltUtkast> {
+    override fun finnGamleUtkastForSletting(): List<GammeltUtkast> {
         return namedParameterJdbcTemplate.query(
             """
             SELECT sykepengesoknad_uuid 
@@ -654,7 +654,7 @@ class SykepengesoknadDAO(
         }
     }
 
-    fun deaktiverSoknader(): List<SoknadSomSkalDeaktiveres> {
+    override fun deaktiverSoknader(): List<SoknadSomSkalDeaktiveres> {
         return namedParameterJdbcTemplate.query(
             """
             UPDATE sykepengesoknad 
@@ -673,7 +673,7 @@ class SykepengesoknadDAO(
         }
     }
 
-    fun finnUpubliserteUtlopteSoknader(): List<String> {
+    override fun finnUpubliserteUtlopteSoknader(): List<String> {
         return namedParameterJdbcTemplate.query(
             """
             SELECT sykepengesoknad_uuid 
@@ -688,7 +688,7 @@ class SykepengesoknadDAO(
         ) { resultSet, _ -> resultSet.getString("SYKEPENGESOKNAD_UUID") }
     }
 
-    fun settUtloptPublisert(
+    override fun settUtloptPublisert(
         sykepengesoknadId: String,
         publisert: LocalDateTime,
     ) {
@@ -723,4 +723,111 @@ private fun String?.tilArbeidsforholdFraInntektskomponenten(): List<Arbeidsforho
         return objectMapper.readValue(this)
     }
     return null
+}
+
+interface SykepengesoknadDAO {
+    fun finnSykepengesoknader(identer: FolkeregisterIdenter): List<Sykepengesoknad>
+
+    fun finnSykepengesoknader(
+        identer: List<String>,
+        soknadstype: Soknadstype? = null,
+    ): List<Sykepengesoknad>
+
+    fun finnSykepengesoknad(sykepengesoknadId: String): Sykepengesoknad
+
+    fun finnSykepengesoknaderForSykmelding(sykmeldingId: String): List<Sykepengesoknad>
+
+    fun populerSoknadMedDataFraAndreTabeller(soknader: MutableList<Pair<String, Sykepengesoknad>>): List<Sykepengesoknad>
+
+    fun finnSykepengesoknaderUtenSporsmal(identer: List<String>): List<Sykepengesoknad>
+
+    fun finnMottakerAvSoknad(soknadUuid: String): Mottaker?
+
+    fun lagreSykepengesoknad(sykepengesoknad: Sykepengesoknad): Sykepengesoknad
+
+    fun oppdaterKorrigertAv(sykepengesoknad: Sykepengesoknad)
+
+    fun oppdaterStatus(sykepengesoknad: Sykepengesoknad)
+
+    fun settSendtNav(
+        sykepengesoknadId: String,
+        sendtNav: LocalDateTime,
+    )
+
+    fun settSendtAg(
+        sykepengesoknadId: String,
+        sendtAg: LocalDateTime,
+    )
+
+    fun aktiverSoknad(uuid: String)
+
+    fun avbrytSoknad(
+        sykepengesoknad: Sykepengesoknad,
+        dato: LocalDate,
+    )
+
+    fun gjenapneSoknad(sykepengesoknad: Sykepengesoknad)
+
+    fun slettAlleSvar(sykepengesoknad: Sykepengesoknad)
+
+    fun nullstillSoknader(fnr: String): Int
+
+    fun slettSoknad(sykepengesoknad: Sykepengesoknad)
+
+    fun slettSoknad(sykepengesoknadUuid: String)
+
+    fun finnAlleredeOpprettetSoknad(identer: FolkeregisterIdenter): Sykepengesoknad?
+
+    fun byttUtSporsmal(oppdatertSoknad: Sykepengesoknad)
+
+    fun sykepengesoknadId(uuid: String): String
+
+    fun klippSoknadTom(
+        sykepengesoknadUuid: String,
+        nyTom: LocalDate,
+        tom: LocalDate,
+        fom: LocalDate,
+    ): List<Soknadsperiode>
+
+    fun klippSoknadFom(
+        sykepengesoknadUuid: String,
+        nyFom: LocalDate,
+        fom: LocalDate,
+        tom: LocalDate,
+    ): List<Soknadsperiode>
+
+    fun oppdaterTom(
+        sykepengesoknadId: String,
+        nyTom: LocalDate,
+        tom: LocalDate,
+        fom: LocalDate,
+    )
+
+    fun oppdaterFom(
+        sykepengesoknadId: String,
+        nyFom: LocalDate,
+        fom: LocalDate,
+        tom: LocalDate,
+    )
+
+    fun sendSoknad(
+        sykepengesoknad: Sykepengesoknad,
+        mottaker: Mottaker,
+        avsendertype: Avsendertype,
+    ): Sykepengesoknad
+
+    fun sykepengesoknadRowMapper(): RowMapper<Pair<String, Sykepengesoknad>>
+
+    fun finnGamleUtkastForSletting(): List<SykepengesoknadDAOImpl.GammeltUtkast>
+
+    fun deaktiverSoknader(): List<SoknadSomSkalDeaktiveres>
+
+    fun finnUpubliserteUtlopteSoknader(): List<String>
+
+    fun settUtloptPublisert(
+        sykepengesoknadId: String,
+        publisert: LocalDateTime,
+    )
+
+    class SoknadIkkeFunnetException : RuntimeException()
 }

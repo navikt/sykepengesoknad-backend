@@ -2,17 +2,33 @@ package no.nav.helse.flex.repository
 
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.util.tilOsloZone
+import org.springframework.context.annotation.Profile
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
 
+interface SoknadLagrer {
+    fun lagreSoknad(soknad: Sykepengesoknad)
+
+    fun lagreSporsmalOgSvarFraSoknad(soknad: Sykepengesoknad)
+
+    fun List<SykepengesoknadDbRecord>.lagre()
+
+    fun List<SoknadsperiodeDbRecord>.lagrePerioder()
+
+    fun List<SporsmalDbRecord>.lagreSporsmal()
+
+    fun List<SvarDbRecord>.lagreSvar()
+}
+
 @Transactional
 @Repository
-class SoknadLagrer(
+@Profile("default")
+class SoknadLagrerImpl(
     private val jdbcTemplate: NamedParameterJdbcTemplate,
-) {
-    fun lagreSoknad(soknad: Sykepengesoknad) {
+) : SoknadLagrer {
+    override fun lagreSoknad(soknad: Sykepengesoknad) {
         val normalisertSoknad = soknad.normaliser()
         listOf(normalisertSoknad.soknad).lagre()
         normalisertSoknad.perioder.lagrePerioder()
@@ -20,13 +36,13 @@ class SoknadLagrer(
         normalisertSoknad.svar.lagreSvar()
     }
 
-    fun lagreSporsmalOgSvarFraSoknad(soknad: Sykepengesoknad) {
+    override fun lagreSporsmalOgSvarFraSoknad(soknad: Sykepengesoknad) {
         val normalisertSoknad = soknad.normaliser()
         normalisertSoknad.sporsmal.lagreSporsmal()
         normalisertSoknad.svar.lagreSvar()
     }
 
-    fun List<SykepengesoknadDbRecord>.lagre() {
+    override fun List<SykepengesoknadDbRecord>.lagre() {
         if (this.isEmpty()) {
             return
         }
@@ -77,7 +93,7 @@ ON CONFLICT ON CONSTRAINT sykepengesoknad_pkey DO NOTHING
         )
     }
 
-    private fun List<SoknadsperiodeDbRecord>.lagrePerioder() {
+    override fun List<SoknadsperiodeDbRecord>.lagrePerioder() {
         if (this.isEmpty()) {
             return
         }
@@ -101,7 +117,7 @@ ON CONFLICT ON CONSTRAINT soknadperiode_pkey DO NOTHING
         )
     }
 
-    private fun List<SporsmalDbRecord>.lagreSporsmal() {
+    override fun List<SporsmalDbRecord>.lagreSporsmal() {
         if (this.isEmpty()) {
             return
         }
@@ -130,7 +146,7 @@ ON CONFLICT ON CONSTRAINT sporsmal_pkey DO NOTHING"""
         )
     }
 
-    private fun List<SvarDbRecord>.lagreSvar() {
+    override fun List<SvarDbRecord>.lagreSvar() {
         if (this.isEmpty()) {
             return
         }
