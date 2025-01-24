@@ -5,6 +5,7 @@ import no.nav.helse.flex.repository.SoknadSomSkalDeaktiveres
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.repository.SykepengesoknadDAOImpl
 import no.nav.helse.flex.service.FolkeregisterIdenter
+import org.springframework.context.annotation.Primary
 import org.springframework.context.annotation.Profile
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Repository
@@ -14,6 +15,7 @@ import java.util.*
 
 @Repository
 @Profile("fakes")
+@Primary
 class SykepengesoknadDAOFake : SykepengesoknadDAO {
     override fun finnSykepengesoknader(identer: FolkeregisterIdenter): List<Sykepengesoknad> {
         TODO("Not yet implemented")

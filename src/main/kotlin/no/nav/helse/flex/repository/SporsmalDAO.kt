@@ -5,7 +5,6 @@ import no.nav.helse.flex.domain.Svar
 import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Visningskriterie
 import no.nav.helse.flex.util.objectMapper
-import org.springframework.context.annotation.Profile
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
@@ -27,7 +26,6 @@ interface SporsmalDAO {
 @Service
 @Transactional
 @Repository
-@Profile("default")
 class SporsmalDAOImpl(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate, private val svarDAO: SvarDAO) :
     SporsmalDAO {
     override fun finnSporsmal(sykepengesoknadIds: Set<String>): HashMap<String, MutableList<Sporsmal>> {

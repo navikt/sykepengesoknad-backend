@@ -3,11 +3,9 @@ package no.nav.helse.flex.repository
 import no.nav.helse.flex.config.EnvironmentToggles
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.util.osloZone
-import org.springframework.context.annotation.Profile
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
-import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 import java.time.LocalDate.now
@@ -34,10 +32,8 @@ interface DodsmeldingDAO {
     fun slettDodsmelding(identer: FolkeregisterIdenter)
 }
 
-@Service
 @Transactional
 @Repository
-@Profile("default")
 class DodsmeldingDAOImpl(
     private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
     private val toggle: EnvironmentToggles,

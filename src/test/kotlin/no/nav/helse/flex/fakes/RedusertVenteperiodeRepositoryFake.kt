@@ -2,12 +2,14 @@ package no.nav.helse.flex.fakes
 
 import no.nav.helse.flex.repository.RedusertVenteperiodeDbRecord
 import no.nav.helse.flex.repository.RedusertVenteperiodeRepository
+import org.springframework.context.annotation.Primary
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Repository
 import java.util.*
 
 @Repository
 @Profile("fakes")
+@Primary
 class RedusertVenteperiodeRepositoryFake : RedusertVenteperiodeRepository {
     override fun insert(sykmeldingId: String) {
         TODO("Not yet implemented")

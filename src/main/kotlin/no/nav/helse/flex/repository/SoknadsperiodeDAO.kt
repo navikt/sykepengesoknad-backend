@@ -2,7 +2,6 @@ package no.nav.helse.flex.repository
 
 import no.nav.helse.flex.domain.Soknadsperiode
 import no.nav.helse.flex.domain.Sykmeldingstype
-import org.springframework.context.annotation.Profile
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
@@ -25,7 +24,6 @@ interface SoknadsperiodeDAO {
 @Service
 @Transactional
 @Repository
-@Profile("default")
 class SoknadsperiodeDAOImpl(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate) : SoknadsperiodeDAO {
     override fun lagreSoknadperioder(
         sykepengesoknadId: String,

@@ -11,7 +11,12 @@ import no.nav.helse.flex.frisktilarbeid.FriskTilArbeidDbRecord
 import no.nav.helse.flex.frisktilarbeid.FriskTilArbeidRepository
 import no.nav.helse.flex.repository.*
 import no.nav.helse.flex.service.FolkeregisterIdenter
+import org.mockito.Mockito
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Primary
 import org.springframework.context.annotation.Profile
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
 import java.time.Instant
 import java.time.LocalDate
@@ -19,6 +24,7 @@ import java.time.OffsetDateTime
 import java.util.*
 
 @Repository
+@Primary
 @Profile("fakes")
 class JulesoknadkandidatDAOFake : JulesoknadkandidatDAO {
     override fun hentJulesoknadkandidater(): List<JulesoknadkandidatDAO.Julesoknadkandidat> {
@@ -35,6 +41,7 @@ class JulesoknadkandidatDAOFake : JulesoknadkandidatDAO {
 }
 
 @Repository
+@Primary
 @Profile("fakes")
 class OppsamlingAvRepositoryFakes : RetryRepository {
     override fun inkrementerRetries(
@@ -94,6 +101,7 @@ class OppsamlingAvRepositoryFakes : RetryRepository {
 }
 
 @Repository
+@Primary
 @Profile("fakes")
 class ForskutteringRepositoryFake : ForskutteringRepository {
     override fun findByNarmesteLederId(narmesteLederId: UUID): Forskuttering? {
@@ -157,6 +165,7 @@ class ForskutteringRepositoryFake : ForskutteringRepository {
 }
 
 @Repository
+@Primary
 @Profile("fakes")
 class KlippMetrikkRepositoryFake : KlippMetrikkRepository {
     override fun <S : KlippMetrikkDbRecord?> save(entity: S & Any): S & Any {
@@ -209,6 +218,7 @@ class KlippMetrikkRepositoryFake : KlippMetrikkRepository {
 }
 
 @Repository
+@Primary
 @Profile("fakes")
 class SporsmalDAOFake : SporsmalDAO {
     override fun finnSporsmal(sykepengesoknadIds: Set<String>): HashMap<String, MutableList<Sporsmal>> {
@@ -229,6 +239,7 @@ class SporsmalDAOFake : SporsmalDAO {
 }
 
 @Repository
+@Primary
 @Profile("fakes")
 class KlippetSykepengesoknadRepositoryFake : KlippetSykepengesoknadRepository {
     override fun findBySykmeldingUuid(sykmeldingUuid: String): KlippetSykepengesoknadDbRecord? {
@@ -293,6 +304,7 @@ class KlippetSykepengesoknadRepositoryFake : KlippetSykepengesoknadRepository {
 }
 
 @Repository
+@Primary
 @Profile("fakes")
 class FriskTilArbeidRepositoryFake : FriskTilArbeidRepository {
     override fun <S : FriskTilArbeidDbRecord?> save(entity: S & Any): S & Any {
@@ -346,6 +358,7 @@ class FriskTilArbeidRepositoryFake : FriskTilArbeidRepository {
 
 @Repository
 @Profile("fakes")
+@Primary
 class DodsmeldingDAOFake : DodsmeldingDAO {
     override fun fnrMedToUkerGammelDodsmelding(): List<DodsmeldingDAO.Dodsfall> {
         TODO("Not yet implemented")
@@ -376,6 +389,7 @@ class DodsmeldingDAOFake : DodsmeldingDAO {
 }
 
 @Repository
+@Primary
 @Profile("fakes")
 class LockRepositoryFake : LockRepository {
     override fun settAdvisoryLock(vararg keys: Long): Boolean {
@@ -388,6 +402,7 @@ class LockRepositoryFake : LockRepository {
 }
 
 @Repository
+@Primary
 @Profile("fakes")
 class SoknadLagrerFake : SoknadLagrer {
     override fun lagreSoknad(soknad: Sykepengesoknad) {
@@ -412,5 +427,18 @@ class SoknadLagrerFake : SoknadLagrer {
 
     override fun List<SvarDbRecord>.lagreSvar() {
         TODO("Not yet implemented")
+    }
+}
+
+@Configuration
+@Profile("fakes")
+class TestDataSourceConfig {
+    @Bean
+    @Primary // Sørger for at denne bean-en prioriteres framfor en "ekte" DataSource
+    fun mockDataSource(): NamedParameterJdbcTemplate {
+        val dataSource: NamedParameterJdbcTemplate =
+            Mockito.mock<NamedParameterJdbcTemplate>(NamedParameterJdbcTemplate::class.java)
+        // Evt. konfigurer mocken til å gjøre akkurat det du trenger
+        return dataSource
     }
 }

@@ -2,6 +2,7 @@ package no.nav.helse.flex.fakes
 
 import no.nav.helse.flex.repository.SykepengesoknadDbRecord
 import no.nav.helse.flex.repository.SykepengesoknadRepository
+import org.springframework.context.annotation.Primary
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Repository
 import java.time.LocalDate
@@ -9,6 +10,7 @@ import java.util.*
 
 @Repository
 @Profile("fakes")
+@Primary
 class SykepengesoknadRepositoryFake : SykepengesoknadRepository {
     override fun findBySykepengesoknadUuid(sykepengesoknadUuid: String): SykepengesoknadDbRecord? {
         TODO("Not yet implemented")

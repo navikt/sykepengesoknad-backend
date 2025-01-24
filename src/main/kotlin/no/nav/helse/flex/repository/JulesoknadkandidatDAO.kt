@@ -1,6 +1,5 @@
 package no.nav.helse.flex.repository
 
-import org.springframework.context.annotation.Profile
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
@@ -19,7 +18,6 @@ interface JulesoknadkandidatDAO {
 
 @Transactional
 @Repository
-@Profile("default")
 class JulesoknadkandidatDAOImpl(
     private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
 ) : JulesoknadkandidatDAO {

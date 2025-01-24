@@ -3,7 +3,6 @@ package no.nav.helse.flex.repository
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svar
 import no.nav.helse.flex.domain.Sykepengesoknad
-import org.springframework.context.annotation.Profile
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
@@ -35,7 +34,6 @@ interface SvarDAO {
 @Service
 @Transactional
 @Repository
-@Profile("default")
 class SvarDAOImpl(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate) : SvarDAO {
     override fun finnSvar(sporsmalIder: Set<String>): HashMap<String, MutableList<Svar>> {
         val svarMap = HashMap<String, MutableList<Svar>>()

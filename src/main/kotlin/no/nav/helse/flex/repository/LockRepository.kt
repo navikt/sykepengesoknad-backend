@@ -1,6 +1,5 @@
 package no.nav.helse.flex.repository
 
-import org.springframework.context.annotation.Profile
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
@@ -17,7 +16,6 @@ interface LockRepository {
 }
 
 @Repository
-@Profile("default")
 class LockRepositoryImpl(
     private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
 ) : LockRepository {

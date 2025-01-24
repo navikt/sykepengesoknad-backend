@@ -1,12 +1,14 @@
 package no.nav.helse.flex.fakes
 
 import no.nav.helse.flex.vedtaksperiodebehandling.*
+import org.springframework.context.annotation.Primary
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Repository
 import java.util.*
 
 @Repository
 @Profile("fakes")
+@Primary
 class VedtaksperiodeBehandlingRepositoryFake : VedtaksperiodeBehandlingRepository {
     override fun findByVedtaksperiodeIdAndBehandlingId(
         vedtaksperiodeId: String,
@@ -70,6 +72,7 @@ class VedtaksperiodeBehandlingRepositoryFake : VedtaksperiodeBehandlingRepositor
 
 @Repository
 @Profile("fakes")
+@Primary
 class VedtaksperiodeBehandlingSykepengesoknadRepositoryFake : VedtaksperiodeBehandlingSykepengesoknadRepository {
     override fun findByVedtaksperiodeBehandlingIdIn(ider: List<String>): List<VedtaksperiodeBehandlingSykepengesoknadDbRecord> {
         TODO("Not yet implemented")
@@ -130,6 +133,7 @@ class VedtaksperiodeBehandlingSykepengesoknadRepositoryFake : VedtaksperiodeBeha
 
 @Repository
 @Profile("fakes")
+@Primary
 class VedtaksperiodeBehandlingStatusRepositoryFake : VedtaksperiodeBehandlingStatusRepository {
     override fun <S : VedtaksperiodeBehandlingStatusDbRecord?> save(entity: S & Any): S & Any {
         TODO("Not yet implemented")

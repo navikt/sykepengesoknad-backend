@@ -2,6 +2,7 @@ package no.nav.helse.flex.fakes
 
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingDbRecord
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingRepository
+import org.springframework.context.annotation.Primary
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Repository
 import java.time.LocalDate
@@ -9,6 +10,7 @@ import java.util.*
 
 @Repository
 @Profile("fakes")
+@Primary
 class MedlemskapsrepositoryFake : MedlemskapVurderingRepository {
     override fun findBySykepengesoknadIdAndFomAndTom(
         sykepengesoknadId: String,

@@ -12,7 +12,6 @@ import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.soknadsopprettelse.ArbeidsforholdFraInntektskomponenten
 import no.nav.helse.flex.soknadsopprettelse.sorterSporsmal
 import no.nav.helse.flex.util.*
-import org.springframework.context.annotation.Profile
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.dao.IncorrectResultSizeDataAccessException
 import org.springframework.jdbc.core.RowMapper
@@ -28,7 +27,6 @@ import java.util.*
 
 @Transactional
 @Repository
-@Profile("default")
 class SykepengesoknadDAOImpl(
     private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
     private val soknadsperiodeDAO: SoknadsperiodeDAO,
