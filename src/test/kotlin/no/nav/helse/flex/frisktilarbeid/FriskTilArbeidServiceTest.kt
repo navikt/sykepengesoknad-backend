@@ -4,11 +4,11 @@ import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
-import java.util.Optional
-import java.util.UUID
+import java.util.*
 
 @SpringBootTest(classes = [FriskTilArbeidService::class, FriskTilArbeidTestConfig::class])
 class FriskTilArbeidServiceTest {
@@ -16,13 +16,13 @@ class FriskTilArbeidServiceTest {
     private lateinit var friskTilArbeidService: FriskTilArbeidService
 
     @Autowired
-    private lateinit var friskTilArbeidRepository: FriskTilArbeidRepository
+    private lateinit var fakeFriskTilArbeidRepository: FriskTilArbeidRepository
 
     private val fnr = "11111111111"
 
     @BeforeEach
     fun slettFraDatabase() {
-        friskTilArbeidRepository.deleteAll()
+        fakeFriskTilArbeidRepository.deleteAll()
     }
 
     @Test
@@ -36,7 +36,7 @@ class FriskTilArbeidServiceTest {
             ),
         )
 
-        friskTilArbeidRepository.findAll().toList() shouldHaveSize 1
+        fakeFriskTilArbeidRepository.findAll().toList() shouldHaveSize 1
     }
 
     @Test
@@ -50,7 +50,7 @@ class FriskTilArbeidServiceTest {
             ),
         )
 
-        friskTilArbeidRepository.findAll().toList() shouldHaveSize 0
+        fakeFriskTilArbeidRepository.findAll().toList() shouldHaveSize 0
     }
 }
 
@@ -58,6 +58,7 @@ class FriskTilArbeidServiceTest {
 @TestConfiguration
 class FriskTilArbeidTestConfig {
     @Bean
+    @Qualifier("fakeFriskTilArbeidRepository")
     fun fakeFriskTilArbeidRepository(): FriskTilArbeidRepository {
         return object : FriskTilArbeidRepository {
             private val dbRecords = mutableMapOf<String, FriskTilArbeidDbRecord>()
