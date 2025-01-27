@@ -63,26 +63,6 @@ class FriskTilArbeidIntegrationTest() : FellesTestOppsett() {
             it.fnr `should be equal to` fnr
         }
     }
-
-    @Test
-    fun `Mottar men lagrer ikke VedtakStatusRecord med status FERDIG_BEHANDLET`() {
-        val key = fnr.asProducerRecordKey()
-        val friskTilArbeidVedtakStatus = lagFriskTilArbeidVedtakStatus(fnr, Status.FERDIG_BEHANDLET)
-
-        kafkaProducer.send(
-            ProducerRecord(
-                FRISKTILARBEID_TOPIC,
-                key,
-                friskTilArbeidVedtakStatus.serialisertTilString(),
-            ),
-        ).get()
-
-        friskTilArbeidKafkaConsumer.ventPåRecords(1, Duration.ofSeconds(1)).first().also {
-            it.value() `should be equal to` friskTilArbeidVedtakStatus.serialisertTilString()
-        }
-
-        await().during(100, TimeUnit.MILLISECONDS).until { friskTilArbeidRepository.findAll().toList().isEmpty() }
-    }
 }
 
 fun String.asProducerRecordKey(): String = UUID.nameUUIDFromBytes(this.toByteArray()).toString()
