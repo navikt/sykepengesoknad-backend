@@ -21,4 +21,10 @@ data class FriskTilArbeidDbRecord(
     val tom: LocalDate,
     val begrunnelse: String,
     val vedtakStatus: PGobject? = null,
+    val status: BehandletStatus,
 )
+
+enum class BehandletStatus {
+    NY,
+    BEHANDLET,
+}
