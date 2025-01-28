@@ -49,6 +49,7 @@ class MottakerAvSoknadService(
             ARBEIDSLEDIG,
             ANNET_ARBEIDSFORHOLD,
             REISETILSKUDD,
+            FRISKMELDT_TIL_ARBEIDSFORMIDLING,
             -> NAV
 
             BEHANDLINGSDAGER,
