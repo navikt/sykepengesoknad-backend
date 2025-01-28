@@ -27,6 +27,7 @@ class FriskTilArbeidService(
                     tom = friskTilArbeidVedtakStatus.tom,
                     begrunnelse = friskTilArbeidVedtakStatus.begrunnelse,
                     vedtakStatus = friskTilArbeidVedtakStatus.tilPostgresJson(),
+                    status = BehandletStatus.NY,
                 ),
             )
         }

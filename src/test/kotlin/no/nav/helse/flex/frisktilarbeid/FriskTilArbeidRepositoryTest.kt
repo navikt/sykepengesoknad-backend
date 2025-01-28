@@ -57,6 +57,7 @@ class FriskTilArbeidRepositoryTest : FellesTestOppsett() {
                 tom = friskTilArbeidVedtakStatus.tom,
                 begrunnelse = friskTilArbeidVedtakStatus.begrunnelse,
                 vedtakStatus = friskTilArbeidVedtakStatus.tilPostgresJson(),
+                status = BehandletStatus.NY,
             ),
         )
 
@@ -68,6 +69,7 @@ class FriskTilArbeidRepositoryTest : FellesTestOppsett() {
         dbRecord.fom `should be equal to` fom
         dbRecord.tom `should be equal to` tom
         dbRecord.begrunnelse `should be equal to` "Begrunnelse"
+        dbRecord.status `should be equal to` BehandletStatus.NY
 
         val lagretJson = objectMapper.readTree(dbRecord.vedtakStatus!!.value)
         val vedtakStatusJson = objectMapper.readTree(friskTilArbeidVedtakStatus.serialisertTilString())
