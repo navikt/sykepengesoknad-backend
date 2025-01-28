@@ -36,8 +36,11 @@ class FriskTilArbeidService(
     }
 
     fun behandleFriskTilArbeidVedtakStatus(antallSomSkalBehandles: Int) {
-        log.info("Behandler $antallSomSkalBehandles FriskTilArbeidVedtakStatus.")
-        val dbRecords = friskTilArbeidRepository.finnVedtakSomSkalBehandles(antallSomSkalBehandles)
+        val dbRecords =
+            friskTilArbeidRepository.finnVedtakSomSkalBehandles(antallSomSkalBehandles)
+                .also { if (it.isEmpty()) return }
+
+        log.info("Hentet $dbRecords FriskTilArbeidVedtakStatus for behandling.")
 
         dbRecords.forEach {
             // TODO: Kall til @Transactional-metode som opprettet én og én FriskTilArbeid-søknad.
