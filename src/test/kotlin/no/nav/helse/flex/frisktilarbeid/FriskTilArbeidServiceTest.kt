@@ -104,8 +104,8 @@ class FriskTilArbeidTestConfig {
                 return dbRecords.values
             }
 
-            override fun finnVedtakSomSkalBehandles(antallSomSkalBehandles: Int): List<FriskTilArbeidDbRecord> {
-                return dbRecords.values.filter { it.status == BehandletStatus.NY }.take(antallSomSkalBehandles)
+            override fun finnVedtakSomSkalBehandles(antallVedtak: Int): List<FriskTilArbeidDbRecord> {
+                return dbRecords.values.filter { it.status == BehandletStatus.NY }.take(antallVedtak)
             }
 
             override fun <S : FriskTilArbeidDbRecord?> saveAll(entities: Iterable<S?>): Iterable<S?> {

@@ -9,4 +9,5 @@ enum class Soknadstype(val visesPåDineSykmeldte: Boolean) {
     ANNET_ARBEIDSFORHOLD(visesPåDineSykmeldte = false),
     REISETILSKUDD(visesPåDineSykmeldte = false),
     GRADERT_REISETILSKUDD(visesPåDineSykmeldte = true),
+    FRISKMELDT_TIL_ARBEIDSFORMIDLING(visesPåDineSykmeldte = false),
 }

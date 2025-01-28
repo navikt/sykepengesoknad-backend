@@ -17,10 +17,10 @@ interface FriskTilArbeidRepository : CrudRepository<FriskTilArbeidDbRecord, Stri
         FROM frisk_til_arbeid 
         WHERE status = 'NY' 
         ORDER BY timestamp ASC 
-        LIMIT :antallSomSkalBehandles
+        LIMIT :antallVedtak
         """,
     )
-    fun finnVedtakSomSkalBehandles(antallSomSkalBehandles: Int): List<FriskTilArbeidDbRecord>
+    fun finnVedtakSomSkalBehandles(antallVedtak: Int): List<FriskTilArbeidDbRecord>
 }
 
 @Table("frisk_til_arbeid")

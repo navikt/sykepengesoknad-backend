@@ -130,6 +130,7 @@ fun Soknadstype.tilSoknadstypeDTO(): SoknadstypeDTO {
         Soknadstype.BEHANDLINGSDAGER -> SoknadstypeDTO.BEHANDLINGSDAGER
         Soknadstype.ARBEIDSLEDIG -> SoknadstypeDTO.ARBEIDSLEDIG
         Soknadstype.GRADERT_REISETILSKUDD -> SoknadstypeDTO.GRADERT_REISETILSKUDD
+        Soknadstype.FRISKMELDT_TIL_ARBEIDSFORMIDLING -> SoknadstypeDTO.GRADERT_REISETILSKUDD
     }
 }
 

@@ -17,6 +17,7 @@ fun Sykepengesoknad.sorterSporsmal(): Sykepengesoknad {
             Soknadstype.OPPHOLD_UTLAND -> plasseringSporsmalUtland()
             Soknadstype.REISETILSKUDD -> fellesPlasseringSporsmal()
             Soknadstype.GRADERT_REISETILSKUDD -> fellesPlasseringSporsmal()
+            Soknadstype.FRISKMELDT_TIL_ARBEIDSFORMIDLING -> fellesPlasseringSporsmal()
         }
     }
 

@@ -36,9 +36,9 @@ class FriskTilArbeidService(
         log.info("Lagret FriskTilArbeidVedtakStatus med key: ${friskTilArbeidVedtakStatusMelding.key}.")
     }
 
-    fun behandleFriskTilArbeidVedtakStatus(antallSomSkalBehandles: Int) {
+    fun behandleFriskTilArbeidVedtakStatus(antallVedtak: Int) {
         val dbRecords =
-            friskTilArbeidRepository.finnVedtakSomSkalBehandles(antallSomSkalBehandles)
+            friskTilArbeidRepository.finnVedtakSomSkalBehandles(antallVedtak)
                 .also { if (it.isEmpty()) return }
 
         log.info("Hentet $dbRecords FriskTilArbeidVedtakStatus for behandling.")
