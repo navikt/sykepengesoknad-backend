@@ -34,6 +34,17 @@ class FriskTilArbeidService(
 
         log.info("Lagret FriskTilArbeidVedtakStatus med key: ${friskTilArbeidVedtakStatusMelding.key}.")
     }
+
+    fun behandleFriskTilArbeidVedtakStatus(antallSomSkalBehandles: Int) {
+        log.info("Behandler $antallSomSkalBehandles FriskTilArbeidVedtakStatus.")
+        val dbRecords = friskTilArbeidRepository.finnVedtakSomSkalBehandles(antallSomSkalBehandles)
+
+        dbRecords.forEach {
+            // TODO: Kall til @Transactional-metode som opprettet én og én FriskTilArbeid-søknad.
+            friskTilArbeidRepository.save(it.copy(status = BehandletStatus.BEHANDLET))
+            log.info("Behandlet FriskTilArbeidVedtakStatus med id: ${it.id}.")
+        }
+    }
 }
 
 fun String.tilFriskTilArbeidVedtakStatus(): FriskTilArbeidVedtakStatus = objectMapper.readValue(this)

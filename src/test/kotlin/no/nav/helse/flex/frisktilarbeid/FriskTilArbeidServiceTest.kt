@@ -1,5 +1,6 @@
 package no.nav.helse.flex.frisktilarbeid
 
+import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -52,6 +53,30 @@ class FriskTilArbeidServiceTest {
 
         fakeFriskTilArbeidRepository.findAll().toList() shouldHaveSize 0
     }
+
+    @Test
+    fun `Behandler ett av to vedtak`() {
+        friskTilArbeidService.lagreFriskTilArbeidVedtakStatus(
+            FriskTilArbeidVedtakStatusMelding(
+                key = "11111111111".asProducerRecordKey(),
+                friskTilArbeidVedtakStatus = lagFriskTilArbeidVedtakStatus("11111111111", Status.FATTET),
+            ),
+        )
+
+        friskTilArbeidService.lagreFriskTilArbeidVedtakStatus(
+            FriskTilArbeidVedtakStatusMelding(
+                key = "22222222222".asProducerRecordKey(),
+                friskTilArbeidVedtakStatus = lagFriskTilArbeidVedtakStatus("22222222222", Status.FATTET),
+            ),
+        )
+
+        friskTilArbeidService.behandleFriskTilArbeidVedtakStatus(1)
+
+        fakeFriskTilArbeidRepository.findAll().toList().also {
+            it.find { it.fnr == "11111111111" }?.status `should be equal to` BehandletStatus.BEHANDLET
+            it.find { it.fnr == "22222222222" }?.status `should be equal to` BehandletStatus.NY
+        }
+    }
 }
 
 @Suppress("UNCHECKED_CAST")
@@ -64,7 +89,8 @@ class FriskTilArbeidTestConfig {
             private val dbRecords = mutableMapOf<String, FriskTilArbeidDbRecord>()
 
             override fun <S : FriskTilArbeidDbRecord?> save(friskTilArbeidDbRecord: S & Any): S & Any {
-                val id = UUID.randomUUID().toString()
+                // Bruker eksisterende id for UPDATE eller genererer for INSERT.
+                val id = friskTilArbeidDbRecord.id ?: UUID.randomUUID().toString()
                 val lagretDbRecord = friskTilArbeidDbRecord.copy(id = id)
                 dbRecords[id] = lagretDbRecord
                 return lagretDbRecord as (S & Any)
@@ -78,12 +104,16 @@ class FriskTilArbeidTestConfig {
                 return dbRecords.values
             }
 
+            override fun finnVedtakSomSkalBehandles(antallSomSkalBehandles: Int): List<FriskTilArbeidDbRecord> {
+                return dbRecords.values.filter { it.status == BehandletStatus.NY }.take(antallSomSkalBehandles)
+            }
+
             override fun <S : FriskTilArbeidDbRecord?> saveAll(entities: Iterable<S?>): Iterable<S?> {
                 TODO("Not yet implemented")
             }
 
-            override fun findById(id: String): Optional<FriskTilArbeidDbRecord?> {
-                TODO("Not yet implemented")
+            override fun findById(id: String): Optional<FriskTilArbeidDbRecord> {
+                return Optional.ofNullable(dbRecords[id])
             }
 
             override fun existsById(id: String): Boolean {
