@@ -43,7 +43,7 @@ const val IGNORED_KAFKA_BROKERS = "localhost:1"
     ],
 )
 @AutoConfigureMockMvc(print = MockMvcPrint.NONE, printOnlyOnFailure = false)
-abstract class FakesTestOppsett {
+abstract class FakesTestOppsett : TestOppsettInterfaces {
     @Autowired
     lateinit var mockMvc: MockMvc
 
@@ -62,5 +62,13 @@ abstract class FakesTestOppsett {
     }
 
     fun slettDatabase() {
+    }
+
+    override fun server(): MockOAuth2Server {
+        return server
+    }
+
+    override fun mockMvc(): MockMvc {
+        return mockMvc
     }
 }
