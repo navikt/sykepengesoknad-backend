@@ -12,6 +12,7 @@ import java.time.OffsetDateTime
 @Service
 class FriskTilArbeidService(
     private val friskTilArbeidRepository: FriskTilArbeidRepository,
+    private val frisktilArbeidSoknadService: FrisktilArbeidSoknadService,
 ) {
     private val log = logger()
 
@@ -43,9 +44,7 @@ class FriskTilArbeidService(
         log.info("Hentet $dbRecords FriskTilArbeidVedtakStatus for behandling.")
 
         dbRecords.forEach {
-            // TODO: Kall til @Transactional-metode som opprettet én og én FriskTilArbeid-søknad.
-            friskTilArbeidRepository.save(it.copy(status = BehandletStatus.BEHANDLET))
-            log.info("Behandlet FriskTilArbeidVedtakStatus med id: ${it.id}.")
+            frisktilArbeidSoknadService.opprettSoknad(it)
         }
     }
 }
