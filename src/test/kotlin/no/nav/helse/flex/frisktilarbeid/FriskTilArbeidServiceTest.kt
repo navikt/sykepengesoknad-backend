@@ -11,7 +11,7 @@ import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import java.util.*
 
-@SpringBootTest(classes = [FriskTilArbeidService::class, FriskTilArbeidTestConfig::class])
+@SpringBootTest(classes = [FriskTilArbeidServiceTestConfiguration::class])
 class FriskTilArbeidServiceTest {
     @Autowired
     private lateinit var friskTilArbeidService: FriskTilArbeidService
