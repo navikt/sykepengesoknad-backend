@@ -27,47 +27,21 @@ class FriskTilArbeidRepositoryTest : FellesTestOppsett() {
         friskTilArbeidRepository.deleteAll()
     }
 
-    private val uuid = UUID.randomUUID().toString()
-    private val fnr = "11111111111"
-
     @Test
-    fun `Lagrer og henter`() {
-        val timestamp = Instant.now()
-        val fom = LocalDate.now()
-        val tom = LocalDate.now()
-        val statusAt = OffsetDateTime.now()
-
-        val friskTilArbeidVedtakStatus =
-            FriskTilArbeidVedtakStatus(
-                uuid = uuid,
-                personident = fnr,
-                begrunnelse = "Begrunnelse",
-                fom = fom,
-                tom = tom,
-                status = Status.FATTET,
-                statusAt = statusAt,
-                statusBy = "Test",
-            )
+    fun `Lagrer og henter vedtak`() {
+        val friskTilArbeidVedtakStatus = lagFriskTilArbeidVedtakStatus("11111111111")
 
         friskTilArbeidRepository.save(
-            FriskTilArbeidDbRecord(
-                timestamp = timestamp,
-                fnr = friskTilArbeidVedtakStatus.personident,
-                fom = friskTilArbeidVedtakStatus.fom,
-                tom = friskTilArbeidVedtakStatus.tom,
-                begrunnelse = friskTilArbeidVedtakStatus.begrunnelse,
-                vedtakStatus = friskTilArbeidVedtakStatus.tilPostgresJson(),
-                status = BehandletStatus.NY,
-            ),
+            friskTilArbeidVedtakStatus.tilDbRecord(Instant.now()),
         )
 
         val dbRecords = friskTilArbeidRepository.findAll() shouldHaveSize 1
         val dbRecord = dbRecords.first()
 
         dbRecord.id shouldNotBe null
-        dbRecord.fnr `should be equal to` fnr
-        dbRecord.fom `should be equal to` fom
-        dbRecord.tom `should be equal to` tom
+        dbRecord.fnr `should be equal to` friskTilArbeidVedtakStatus.personident
+        dbRecord.fom `should be equal to` friskTilArbeidVedtakStatus.fom
+        dbRecord.tom `should be equal to` friskTilArbeidVedtakStatus.tom
         dbRecord.begrunnelse `should be equal to` "Begrunnelse"
         dbRecord.status `should be equal to` BehandletStatus.NY
 
@@ -75,4 +49,48 @@ class FriskTilArbeidRepositoryTest : FellesTestOppsett() {
         val vedtakStatusJson = objectMapper.readTree(friskTilArbeidVedtakStatus.serialisertTilString())
         lagretJson `should be equal to` vedtakStatusJson
     }
+
+    @Test
+    fun `Finner vedtak som skal behandles`() {
+        friskTilArbeidRepository.save(lagFriskTilArbeidVedtakStatus("11111111111").tilDbRecord(Instant.now()))
+        friskTilArbeidRepository.save(lagFriskTilArbeidVedtakStatus("22222222222").tilDbRecord(Instant.now()))
+
+        val ettVedtak = friskTilArbeidRepository.finnVedtakSomSkalBehandles(1)
+        ettVedtak.size `should be equal to` 1
+        ettVedtak.first().fnr `should be equal to` "11111111111"
+
+        friskTilArbeidRepository.finnVedtakSomSkalBehandles(1).also {
+            it.size `should be equal to` 1
+            it[0].fnr `should be equal to` "11111111111"
+        }
+
+        friskTilArbeidRepository.finnVedtakSomSkalBehandles(2).also {
+            it.size `should be equal to` 2
+            it[0].fnr `should be equal to` "11111111111"
+            it[1].fnr `should be equal to` "22222222222"
+        }
+    }
+
+    private fun lagFriskTilArbeidVedtakStatus(fnr: String): FriskTilArbeidVedtakStatus =
+        FriskTilArbeidVedtakStatus(
+            uuid = UUID.randomUUID().toString(),
+            personident = fnr,
+            begrunnelse = "Begrunnelse",
+            fom = LocalDate.now(),
+            tom = LocalDate.now(),
+            status = Status.FATTET,
+            statusAt = OffsetDateTime.now(),
+            statusBy = "Test",
+        )
+
+    private fun FriskTilArbeidVedtakStatus.tilDbRecord(timestamp: Instant): FriskTilArbeidDbRecord =
+        FriskTilArbeidDbRecord(
+            timestamp = timestamp,
+            fnr = this.personident,
+            fom = this.fom,
+            tom = this.tom,
+            begrunnelse = this.begrunnelse,
+            vedtakStatus = this.tilPostgresJson(),
+            status = BehandletStatus.NY,
+        )
 }
