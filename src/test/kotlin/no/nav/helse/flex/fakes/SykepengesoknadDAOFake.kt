@@ -3,7 +3,7 @@ package no.nav.helse.flex.fakes
 import no.nav.helse.flex.domain.*
 import no.nav.helse.flex.repository.SoknadSomSkalDeaktiveres
 import no.nav.helse.flex.repository.SykepengesoknadDAO
-import no.nav.helse.flex.repository.SykepengesoknadDAOImpl
+import no.nav.helse.flex.repository.SykepengesoknadDAOPostgres
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import org.springframework.context.annotation.Primary
 import org.springframework.context.annotation.Profile
@@ -11,7 +11,6 @@ import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Repository
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.*
 
 @Repository
 @Profile("fakes")
@@ -165,7 +164,7 @@ class SykepengesoknadDAOFake : SykepengesoknadDAO {
         TODO("Not yet implemented")
     }
 
-    override fun finnGamleUtkastForSletting(): List<SykepengesoknadDAOImpl.GammeltUtkast> {
+    override fun finnGamleUtkastForSletting(): List<SykepengesoknadDAOPostgres.GammeltUtkast> {
         TODO("Not yet implemented")
     }
 

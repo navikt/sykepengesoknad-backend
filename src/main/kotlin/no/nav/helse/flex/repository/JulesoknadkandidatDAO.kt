@@ -18,7 +18,7 @@ interface JulesoknadkandidatDAO {
 
 @Transactional
 @Repository
-class JulesoknadkandidatDAOImpl(
+class JulesoknadkandidatDAOPostgres(
     private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
 ) : JulesoknadkandidatDAO {
     override fun hentJulesoknadkandidater(): List<JulesoknadkandidatDAO.Julesoknadkandidat> {

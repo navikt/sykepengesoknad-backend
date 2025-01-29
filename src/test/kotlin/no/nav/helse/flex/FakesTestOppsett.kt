@@ -1,6 +1,6 @@
 package no.nav.helse.flex
 
-import no.nav.helse.flex.repository.SykepengesoknadDAOImpl
+import no.nav.helse.flex.repository.SykepengesoknadDAOPostgres
 import no.nav.helse.flex.testoppsett.startMockWebServere
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
@@ -38,7 +38,7 @@ const val IGNORED_KAFKA_BROKERS = "localhost:1"
     excludeFilters = [
         ComponentScan.Filter(
             type = FilterType.ASSIGNABLE_TYPE,
-            classes = [SykepengesoknadDAOImpl::class],
+            classes = [SykepengesoknadDAOPostgres::class],
         ),
     ],
 )

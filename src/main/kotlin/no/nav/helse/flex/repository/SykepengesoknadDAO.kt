@@ -27,7 +27,7 @@ import java.util.*
 
 @Transactional
 @Repository
-class SykepengesoknadDAOImpl(
+class SykepengesoknadDAOPostgres(
     private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
     private val soknadsperiodeDAO: SoknadsperiodeDAO,
     private val sporsmalDAO: SporsmalDAO,
@@ -816,7 +816,7 @@ interface SykepengesoknadDAO {
 
     fun sykepengesoknadRowMapper(): RowMapper<Pair<String, Sykepengesoknad>>
 
-    fun finnGamleUtkastForSletting(): List<SykepengesoknadDAOImpl.GammeltUtkast>
+    fun finnGamleUtkastForSletting(): List<SykepengesoknadDAOPostgres.GammeltUtkast>
 
     fun deaktiverSoknader(): List<SoknadSomSkalDeaktiveres>
 

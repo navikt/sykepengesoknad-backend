@@ -26,7 +26,7 @@ interface SporsmalDAO {
 @Service
 @Transactional
 @Repository
-class SporsmalDAOImpl(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate, private val svarDAO: SvarDAO) :
+class SporsmalDAOPostgres(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate, private val svarDAO: SvarDAO) :
     SporsmalDAO {
     override fun finnSporsmal(sykepengesoknadIds: Set<String>): HashMap<String, MutableList<Sporsmal>> {
         val unMapped =

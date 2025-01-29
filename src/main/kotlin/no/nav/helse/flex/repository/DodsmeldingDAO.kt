@@ -34,7 +34,7 @@ interface DodsmeldingDAO {
 
 @Transactional
 @Repository
-class DodsmeldingDAOImpl(
+class DodsmeldingDAOPostgres(
     private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
     private val toggle: EnvironmentToggles,
 ) : DodsmeldingDAO {

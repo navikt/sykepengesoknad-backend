@@ -34,7 +34,7 @@ interface SvarDAO {
 @Service
 @Transactional
 @Repository
-class SvarDAOImpl(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate) : SvarDAO {
+class SvarDAOPostgres(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate) : SvarDAO {
     override fun finnSvar(sporsmalIder: Set<String>): HashMap<String, MutableList<Svar>> {
         val svarMap = HashMap<String, MutableList<Svar>>()
         sporsmalIder.chunked(1000).forEach {

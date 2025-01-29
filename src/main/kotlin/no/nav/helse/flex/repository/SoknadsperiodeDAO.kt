@@ -24,7 +24,7 @@ interface SoknadsperiodeDAO {
 @Service
 @Transactional
 @Repository
-class SoknadsperiodeDAOImpl(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate) : SoknadsperiodeDAO {
+class SoknadsperiodeDAOPostgres(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate) : SoknadsperiodeDAO {
     override fun lagreSoknadperioder(
         sykepengesoknadId: String,
         soknadPerioder: List<Soknadsperiode>,
