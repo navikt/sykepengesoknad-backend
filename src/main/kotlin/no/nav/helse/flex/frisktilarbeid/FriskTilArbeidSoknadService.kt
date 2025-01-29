@@ -39,6 +39,10 @@ class FriskTilArbeidSoknadService(
         // TODO: expecting (JSON String, Number, Array, Object or token 'null', 'true' or 'false')
         val egenmeldingsDagerFraSykmelding = null
 
+        // TODO: Sett ny avsendertype
+        // TODO: Sett egenmeldt_sykmelding til false
+        // TODO: Sett signaturdato
+
         // TODO: Del opp vedtaksperioden i flere søknader.
         val sykepengesoknad =
             Sykepengesoknad(
