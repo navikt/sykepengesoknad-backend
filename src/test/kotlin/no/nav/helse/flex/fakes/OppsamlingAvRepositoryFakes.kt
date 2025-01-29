@@ -307,6 +307,10 @@ class KlippetSykepengesoknadRepositoryFake : KlippetSykepengesoknadRepository {
 @Primary
 @Profile("fakes")
 class FriskTilArbeidRepositoryFake : FriskTilArbeidRepository {
+    override fun finnVedtakSomSkalBehandles(antallVedtak: Int): List<FriskTilArbeidDbRecord> {
+        return TODO("Not yet implemented")
+    }
+
     override fun <S : FriskTilArbeidDbRecord?> save(entity: S & Any): S & Any {
         TODO("Not yet implemented")
     }
