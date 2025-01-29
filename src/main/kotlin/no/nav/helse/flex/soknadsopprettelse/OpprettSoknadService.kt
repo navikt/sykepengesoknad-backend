@@ -147,7 +147,7 @@ class OpprettSoknadService(
         if (skalAktiveres) {
             return AktiveringBestilling(this.fnr, this.id)
         }
-        // publiser fremtidig søknad. denne aktiveres av kronjobb senere
+        // Publiser søknad med status FREMTIDIG som aktiveres av Cron-jobb senere.
         soknadProducer.soknadEvent(this)
 
         return null
