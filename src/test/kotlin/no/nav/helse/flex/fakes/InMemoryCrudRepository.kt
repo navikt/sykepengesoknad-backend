@@ -1,16 +1,18 @@
 package no.nav.helse.flex.fakes
 
 import org.springframework.data.repository.CrudRepository
-import java.util.Optional
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
 /**
  * @param T  Entitetstypen
  * @param ID Typen til entitetens ID
- * @param idExtractor  En lambda for å hente ut ID fra en gitt entitet (f.eks. { it.id })
+ * @param getId  En lambda for å hente ut ID fra en gitt entitet (f.eks. { it.id })
  */
 open class InMemoryCrudRepository<T : Any, ID : Any>(
-    private val idExtractor: (T) -> ID,
+    private val getId: (T) -> ID?,
+    private val copyWithId: (T, ID) -> T,
+    private val generateId: () -> ID,
 ) : CrudRepository<T, ID> {
     private val store = ConcurrentHashMap<ID, T>()
 
@@ -20,9 +22,21 @@ open class InMemoryCrudRepository<T : Any, ID : Any>(
     }
 
     override fun <S : T> save(entity: S): S {
-        val id = idExtractor(entity)
-        store[id] = entity
-        return entity
+        val currentId = getId(entity)
+
+        // Dersom entiteten ikke har ID => generer en, og lag kopi med ny ID
+        val finalEntity =
+            if (currentId == null) {
+                val newId = generateId()
+                copyWithId(entity, newId) as S
+            } else {
+                entity
+            }
+
+        store[getId(finalEntity)!!] = finalEntity
+
+        // Returnerer entiteten (med ID satt)
+        return finalEntity
     }
 
     override fun existsById(id: ID): Boolean {
@@ -58,7 +72,7 @@ open class InMemoryCrudRepository<T : Any, ID : Any>(
     }
 
     override fun delete(entity: T) {
-        val id = idExtractor(entity)
+        val id = getId(entity)
         store.remove(id, entity)
     }
 
