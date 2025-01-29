@@ -6,19 +6,25 @@ import org.springframework.context.annotation.Primary
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Repository
 import java.time.LocalDate
+import java.util.*
 
 @Repository
 @Profile("fakes")
 @Primary
 class MedlemskapsrepositoryFake :
-    InMemoryCrudRepository<MedlemskapVurderingDbRecord, String>({ it.sykepengesoknadId }),
+    InMemoryCrudRepository<MedlemskapVurderingDbRecord, String>(
+        getId = { it.id },
+        copyWithId = { record, newId ->
+            record.copy(id = newId)
+        },
+        generateId = { UUID.randomUUID().toString() },
+    ),
     MedlemskapVurderingRepository {
     override fun findBySykepengesoknadIdAndFomAndTom(
         sykepengesoknadId: String,
         fom: LocalDate,
         tom: LocalDate,
     ): MedlemskapVurderingDbRecord? {
-        // Eksempel: Søk i `store` (eller bare finn alt) og filtrer
         return findAll()
             .firstOrNull {
                 it.sykepengesoknadId == sykepengesoknadId &&
