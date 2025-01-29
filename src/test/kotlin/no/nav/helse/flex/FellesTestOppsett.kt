@@ -43,7 +43,7 @@ import org.springframework.web.client.RestTemplate
 @SpringBootTest(classes = [Application::class])
 @AutoConfigureMockMvc(print = MockMvcPrint.NONE, printOnlyOnFailure = false)
 @AutoConfigureObservability
-abstract class FellesTestOppsett {
+abstract class FellesTestOppsett : TestOppsettInterfaces {
     companion object {
         val pdlMockWebserver: MockWebServer
         val medlemskapMockWebServer: MockWebServer
@@ -67,6 +67,14 @@ abstract class FellesTestOppsett {
                 grunnbeloepApiMockWebServer = it.grunnbeloepApiMockWebServer
             }
         }
+    }
+
+    override fun server(): MockOAuth2Server {
+        return server
+    }
+
+    override fun mockMvc(): MockMvc {
+        return mockMvc
     }
 
     @MockitoBean

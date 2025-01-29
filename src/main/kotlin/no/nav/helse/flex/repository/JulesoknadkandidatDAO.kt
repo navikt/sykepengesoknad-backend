@@ -6,28 +6,36 @@ import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
 import java.time.OffsetDateTime
 
-@Transactional
-@Repository
-class JulesoknadkandidatDAO(
-    private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
-) {
+interface JulesoknadkandidatDAO {
     data class Julesoknadkandidat(val julesoknadkandidatId: String, val sykepengesoknadUuid: String)
 
-    fun hentJulesoknadkandidater(): List<Julesoknadkandidat> {
+    fun hentJulesoknadkandidater(): List<JulesoknadkandidatDAO.Julesoknadkandidat>
+
+    fun lagreJulesoknadkandidat(sykepengesoknadUuid: String)
+
+    fun slettJulesoknadkandidat(julesoknadkandidatId: String)
+}
+
+@Transactional
+@Repository
+class JulesoknadkandidatDAOPostgres(
+    private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
+) : JulesoknadkandidatDAO {
+    override fun hentJulesoknadkandidater(): List<JulesoknadkandidatDAO.Julesoknadkandidat> {
         return namedParameterJdbcTemplate.query(
             """
             SELECT id, sykepengesoknad_uuid 
             FROM julesoknadkandidat
             """,
         ) { resultSet, _ ->
-            Julesoknadkandidat(
+            JulesoknadkandidatDAO.Julesoknadkandidat(
                 julesoknadkandidatId = resultSet.getString("id"),
                 sykepengesoknadUuid = resultSet.getString("sykepengesoknad_uuid"),
             )
         }
     }
 
-    fun lagreJulesoknadkandidat(sykepengesoknadUuid: String) {
+    override fun lagreJulesoknadkandidat(sykepengesoknadUuid: String) {
         namedParameterJdbcTemplate.update(
             """
                     INSERT INTO JULESOKNADKANDIDAT (SYKEPENGESOKNAD_UUID, OPPRETTET)
@@ -40,7 +48,7 @@ class JulesoknadkandidatDAO(
         )
     }
 
-    fun slettJulesoknadkandidat(julesoknadkandidatId: String) {
+    override fun slettJulesoknadkandidat(julesoknadkandidatId: String) {
         namedParameterJdbcTemplate.update(
             "DELETE FROM JULESOKNADKANDIDAT WHERE ID = :julesoknadkandidatId",
             MapSqlParameterSource()

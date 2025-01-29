@@ -21,10 +21,10 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.util.*
 
-fun FellesTestOppsett.jwt(
+fun TestOppsettInterfaces.jwt(
     fnr: String,
     acrClaim: String = "idporten-loa-high",
-) = server.tokenxToken(fnr = fnr, acrClaim = acrClaim)
+) = server().tokenxToken(fnr = fnr, acrClaim = acrClaim)
 
 fun MockOAuth2Server.jwt(
     fnr: String,

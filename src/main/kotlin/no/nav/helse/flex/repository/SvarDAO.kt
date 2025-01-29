@@ -9,11 +9,33 @@ import org.springframework.stereotype.Repository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
+interface SvarDAO {
+    fun finnSvar(sporsmalIder: Set<String>): HashMap<String, MutableList<Svar>>
+
+    fun lagreSvar(
+        sporsmalId: String,
+        svar: Svar?,
+    )
+
+    fun slettSvar(sykepengesoknadUUID: String)
+
+    fun slettSvar(sporsmalIder: List<String>)
+
+    fun slettSvar(
+        sporsmalId: String,
+        svarId: String,
+    )
+
+    fun overskrivSvar(sykepengesoknad: Sykepengesoknad)
+
+    fun overskrivSvar(sporsmal: List<Sporsmal>)
+}
+
 @Service
 @Transactional
 @Repository
-class SvarDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate) {
-    fun finnSvar(sporsmalIder: Set<String>): HashMap<String, MutableList<Svar>> {
+class SvarDAOPostgres(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate) : SvarDAO {
+    override fun finnSvar(sporsmalIder: Set<String>): HashMap<String, MutableList<Svar>> {
         val svarMap = HashMap<String, MutableList<Svar>>()
         sporsmalIder.chunked(1000).forEach {
             namedParameterJdbcTemplate.query(
@@ -37,7 +59,7 @@ class SvarDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate
         return svarMap
     }
 
-    fun lagreSvar(
+    override fun lagreSvar(
         sporsmalId: String,
         svar: Svar?,
     ) {
@@ -58,7 +80,7 @@ class SvarDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate
         )
     }
 
-    fun slettSvar(sykepengesoknadUUID: String) {
+    override fun slettSvar(sykepengesoknadUUID: String) {
         namedParameterJdbcTemplate.update(
             """
             DELETE FROM svar
@@ -75,7 +97,7 @@ class SvarDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate
         )
     }
 
-    fun slettSvar(sporsmalIder: List<String>) {
+    override fun slettSvar(sporsmalIder: List<String>) {
         if (sporsmalIder.isEmpty()) {
             return
         }
@@ -89,7 +111,7 @@ class SvarDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate
         }
     }
 
-    fun slettSvar(
+    override fun slettSvar(
         sporsmalId: String,
         svarId: String,
     ) {
@@ -101,7 +123,7 @@ class SvarDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate
         )
     }
 
-    fun overskrivSvar(sykepengesoknad: Sykepengesoknad) {
+    override fun overskrivSvar(sykepengesoknad: Sykepengesoknad) {
         val alleSporsmalOgUndersporsmal = sykepengesoknad.alleSporsmalOgUndersporsmal()
         slettSvar(alleSporsmalOgUndersporsmal.mapNotNull { it.id })
 
@@ -112,7 +134,7 @@ class SvarDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate
             }
     }
 
-    fun overskrivSvar(sporsmal: List<Sporsmal>) {
+    override fun overskrivSvar(sporsmal: List<Sporsmal>) {
         slettSvar(sporsmal.mapNotNull { it.id })
 
         sporsmal.forEach {
