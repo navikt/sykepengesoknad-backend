@@ -7,15 +7,23 @@ import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import java.security.MessageDigest
 
+interface LockRepository {
+    @Transactional(propagation = Propagation.REQUIRED)
+    fun settAdvisoryLock(vararg keys: Long): Boolean
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    fun settAdvisoryTransactionLock(key: String)
+}
+
 @Repository
-class LockRepository(
+class LockRepositoryImpl(
     private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
-) {
+) : LockRepository {
     // Må loope gjennom alle keys fordi fnr er større enn en int
     // pg_try_advisory_xact_lock(key bigint)
     // pg_try_advisory_xact_lock(key1 int, key2 int)
     @Transactional(propagation = Propagation.REQUIRED)
-    fun settAdvisoryLock(vararg keys: Long): Boolean {
+    override fun settAdvisoryLock(vararg keys: Long): Boolean {
         var locked = true
         keys.forEach {
             val lock =
@@ -32,7 +40,7 @@ class LockRepository(
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    fun settAdvisoryTransactionLock(key: String) {
+    override fun settAdvisoryTransactionLock(key: String) {
         val hash = key.stringToLongHashSHA256()
         namedParameterJdbcTemplate.queryForObject(
             "SELECT pg_try_advisory_xact_lock(:key)",

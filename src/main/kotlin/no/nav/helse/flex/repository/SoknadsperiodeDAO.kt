@@ -10,11 +10,22 @@ import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 import java.util.Optional
 
+interface SoknadsperiodeDAO {
+    fun lagreSoknadperioder(
+        sykepengesoknadId: String,
+        soknadPerioder: List<Soknadsperiode>,
+    )
+
+    fun finnSoknadPerioder(sykepengesoknadIds: Set<String>): HashMap<String, MutableList<Soknadsperiode>>
+
+    fun slettSoknadPerioder(sykepengesoknadId: String)
+}
+
 @Service
 @Transactional
 @Repository
-class SoknadsperiodeDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate) {
-    fun lagreSoknadperioder(
+class SoknadsperiodeDAOPostgres(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate) : SoknadsperiodeDAO {
+    override fun lagreSoknadperioder(
         sykepengesoknadId: String,
         soknadPerioder: List<Soknadsperiode>,
     ) {
@@ -37,7 +48,7 @@ class SoknadsperiodeDAO(private val namedParameterJdbcTemplate: NamedParameterJd
         }
     }
 
-    fun finnSoknadPerioder(sykepengesoknadIds: Set<String>): HashMap<String, MutableList<Soknadsperiode>> {
+    override fun finnSoknadPerioder(sykepengesoknadIds: Set<String>): HashMap<String, MutableList<Soknadsperiode>> {
         val unMapped =
             sykepengesoknadIds.chunked(1000).map {
                 namedParameterJdbcTemplate.query(
@@ -75,7 +86,7 @@ class SoknadsperiodeDAO(private val namedParameterJdbcTemplate: NamedParameterJd
         return ret
     }
 
-    fun slettSoknadPerioder(sykepengesoknadId: String) {
+    override fun slettSoknadPerioder(sykepengesoknadId: String) {
         namedParameterJdbcTemplate.update(
             """
             DELETE FROM soknadperiode

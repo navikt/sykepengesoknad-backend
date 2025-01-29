@@ -122,7 +122,7 @@ management:
     readinessState.enabled: true
 
 spring:
-  profiles.active: test,cronjobber,sykmeldinger,frisktilarbeid
+  profiles.active: test,cronjobber,sykmeldinger,frisktilarbeid,fakeunleash
   main.banner-mode: 'off'
   kafka:
     consumer:

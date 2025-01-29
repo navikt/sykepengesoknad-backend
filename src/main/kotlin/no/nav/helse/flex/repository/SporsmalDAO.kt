@@ -13,11 +13,22 @@ import org.springframework.transaction.annotation.Transactional
 import java.util.*
 import kotlin.collections.ArrayList
 
+interface SporsmalDAO {
+    fun finnSporsmal(sykepengesoknadIds: Set<String>): HashMap<String, MutableList<Sporsmal>>
+
+    fun populerMedSvar(svarMap: HashMap<String, MutableList<Svar>>)
+
+    fun slettSporsmalOgSvar(soknadsIder: List<String>)
+
+    fun slettEnkeltSporsmal(sporsmalsIder: List<String>)
+}
+
 @Service
 @Transactional
 @Repository
-class SporsmalDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate, private val svarDAO: SvarDAO) {
-    fun finnSporsmal(sykepengesoknadIds: Set<String>): HashMap<String, MutableList<Sporsmal>> {
+class SporsmalDAOPostgres(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate, private val svarDAO: SvarDAO) :
+    SporsmalDAO {
+    override fun finnSporsmal(sykepengesoknadIds: Set<String>): HashMap<String, MutableList<Sporsmal>> {
         val unMapped =
             sykepengesoknadIds.chunked(1000).map { id ->
                 namedParameterJdbcTemplate.query<List<Pair<String, Sporsmal>>>(
@@ -88,12 +99,12 @@ class SporsmalDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemp
         return ret
     }
 
-    private fun populerMedSvar(svarMap: HashMap<String, MutableList<Svar>>) {
+    override fun populerMedSvar(svarMap: HashMap<String, MutableList<Svar>>) {
         val svarFraBasen = svarDAO.finnSvar(svarMap.keys)
         svarFraBasen.forEach { (key, value) -> svarMap[key]!!.addAll(value) }
     }
 
-    fun slettSporsmalOgSvar(soknadsIder: List<String>) {
+    override fun slettSporsmalOgSvar(soknadsIder: List<String>) {
         if (soknadsIder.isEmpty()) {
             return
         }
@@ -120,7 +131,7 @@ class SporsmalDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemp
         )
     }
 
-    fun slettEnkeltSporsmal(sporsmalsIder: List<String>) {
+    override fun slettEnkeltSporsmal(sporsmalsIder: List<String>) {
         if (sporsmalsIder.isEmpty()) {
             return
         }
