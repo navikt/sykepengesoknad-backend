@@ -31,7 +31,7 @@ class FriskTilArbeidServiceTest {
         val key = fnr.asProducerRecordKey()
 
         friskTilArbeidService.lagreFriskTilArbeidVedtakStatus(
-            FriskTilArbeidVedtakStatusMelding(
+            FriskTilArbeidVedtakStatusKafkaMelding(
                 key = key,
                 friskTilArbeidVedtakStatus = lagFriskTilArbeidVedtakStatus(fnr, Status.FATTET),
             ),
@@ -45,7 +45,7 @@ class FriskTilArbeidServiceTest {
         val key = fnr.asProducerRecordKey()
 
         friskTilArbeidService.lagreFriskTilArbeidVedtakStatus(
-            FriskTilArbeidVedtakStatusMelding(
+            FriskTilArbeidVedtakStatusKafkaMelding(
                 key = key,
                 friskTilArbeidVedtakStatus = lagFriskTilArbeidVedtakStatus(fnr, Status.FERDIG_BEHANDLET),
             ),
@@ -57,14 +57,14 @@ class FriskTilArbeidServiceTest {
     @Test
     fun `Behandler ett av to vedtak`() {
         friskTilArbeidService.lagreFriskTilArbeidVedtakStatus(
-            FriskTilArbeidVedtakStatusMelding(
+            FriskTilArbeidVedtakStatusKafkaMelding(
                 key = "11111111111".asProducerRecordKey(),
                 friskTilArbeidVedtakStatus = lagFriskTilArbeidVedtakStatus("11111111111", Status.FATTET),
             ),
         )
 
         friskTilArbeidService.lagreFriskTilArbeidVedtakStatus(
-            FriskTilArbeidVedtakStatusMelding(
+            FriskTilArbeidVedtakStatusKafkaMelding(
                 key = "22222222222".asProducerRecordKey(),
                 friskTilArbeidVedtakStatus = lagFriskTilArbeidVedtakStatus("22222222222", Status.FATTET),
             ),
@@ -73,8 +73,8 @@ class FriskTilArbeidServiceTest {
         friskTilArbeidService.behandleFriskTilArbeidVedtakStatus(1)
 
         fakeFriskTilArbeidRepository.findAll().toList().also {
-            it.find { it.fnr == "11111111111" }?.status `should be equal to` BehandletStatus.BEHANDLET
-            it.find { it.fnr == "22222222222" }?.status `should be equal to` BehandletStatus.NY
+            it.find { it.fnr == "11111111111" }?.behandletStatus `should be equal to` BehandletStatus.BEHANDLET
+            it.find { it.fnr == "22222222222" }?.behandletStatus `should be equal to` BehandletStatus.NY
         }
     }
 }
@@ -86,9 +86,9 @@ class FriskTilArbeidTestConfig {
     @Qualifier("fakeFriskTilArbeidRepository")
     fun fakeFriskTilArbeidRepository(): FriskTilArbeidRepository {
         return object : FriskTilArbeidRepository {
-            private val dbRecords = mutableMapOf<String, FriskTilArbeidDbRecord>()
+            private val dbRecords = mutableMapOf<String, FriskTilArbeidVedtakDbRecord>()
 
-            override fun <S : FriskTilArbeidDbRecord?> save(friskTilArbeidDbRecord: S & Any): S & Any {
+            override fun <S : FriskTilArbeidVedtakDbRecord?> save(friskTilArbeidDbRecord: S & Any): S & Any {
                 // Bruker eksisterende id for UPDATE eller genererer for INSERT.
                 val id = friskTilArbeidDbRecord.id ?: UUID.randomUUID().toString()
                 val lagretDbRecord = friskTilArbeidDbRecord.copy(id = id)
@@ -100,19 +100,19 @@ class FriskTilArbeidTestConfig {
                 dbRecords.clear()
             }
 
-            override fun findAll(): Iterable<FriskTilArbeidDbRecord?> {
+            override fun findAll(): Iterable<FriskTilArbeidVedtakDbRecord?> {
                 return dbRecords.values
             }
 
-            override fun finnVedtakSomSkalBehandles(antallVedtak: Int): List<FriskTilArbeidDbRecord> {
-                return dbRecords.values.filter { it.status == BehandletStatus.NY }.take(antallVedtak)
+            override fun finnVedtakSomSkalBehandles(antallVedtak: Int): List<FriskTilArbeidVedtakDbRecord> {
+                return dbRecords.values.filter { it.behandletStatus == BehandletStatus.NY }.take(antallVedtak)
             }
 
-            override fun <S : FriskTilArbeidDbRecord?> saveAll(entities: Iterable<S?>): Iterable<S?> {
+            override fun <S : FriskTilArbeidVedtakDbRecord?> saveAll(entities: Iterable<S?>): Iterable<S?> {
                 TODO("Not yet implemented")
             }
 
-            override fun findById(id: String): Optional<FriskTilArbeidDbRecord> {
+            override fun findById(id: String): Optional<FriskTilArbeidVedtakDbRecord> {
                 return Optional.ofNullable(dbRecords[id])
             }
 
@@ -120,7 +120,7 @@ class FriskTilArbeidTestConfig {
                 TODO("Not yet implemented")
             }
 
-            override fun findAllById(ids: Iterable<String?>): Iterable<FriskTilArbeidDbRecord?> {
+            override fun findAllById(ids: Iterable<String?>): Iterable<FriskTilArbeidVedtakDbRecord?> {
                 TODO("Not yet implemented")
             }
 
@@ -132,7 +132,7 @@ class FriskTilArbeidTestConfig {
                 TODO("Not yet implemented")
             }
 
-            override fun delete(entity: FriskTilArbeidDbRecord) {
+            override fun delete(entity: FriskTilArbeidVedtakDbRecord) {
                 TODO("Not yet implemented")
             }
 
@@ -140,7 +140,7 @@ class FriskTilArbeidTestConfig {
                 TODO("Not yet implemented")
             }
 
-            override fun deleteAll(entities: Iterable<FriskTilArbeidDbRecord?>) {
+            override fun deleteAll(entities: Iterable<FriskTilArbeidVedtakDbRecord?>) {
                 TODO("Not yet implemented")
             }
         }

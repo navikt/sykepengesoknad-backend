@@ -30,7 +30,7 @@ class FriskTilArbeidConsumer(
 
         try {
             friskTilArbeidService.lagreFriskTilArbeidVedtakStatus(
-                FriskTilArbeidVedtakStatusMelding(
+                FriskTilArbeidVedtakStatusKafkaMelding(
                     cr.key(),
                     cr.value().tilFriskTilArbeidVedtakStatus(),
                 ),

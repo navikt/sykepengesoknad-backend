@@ -5,9 +5,9 @@ import no.nav.helse.flex.logger
 import no.nav.helse.flex.medlemskap.tilPostgresJson
 import no.nav.helse.flex.util.objectMapper
 import org.springframework.stereotype.Service
-import java.time.Instant
 import java.time.LocalDate
 import java.time.OffsetDateTime
+import java.util.*
 
 @Service
 class FriskTilArbeidService(
@@ -16,24 +16,27 @@ class FriskTilArbeidService(
 ) {
     private val log = logger()
 
-    fun lagreFriskTilArbeidVedtakStatus(friskTilArbeidVedtakStatusMelding: FriskTilArbeidVedtakStatusMelding) {
-        val friskTilArbeidVedtakStatus = friskTilArbeidVedtakStatusMelding.friskTilArbeidVedtakStatus
+    fun lagreFriskTilArbeidVedtakStatus(kafkaMelding: FriskTilArbeidVedtakStatusKafkaMelding) {
+        val friskTilArbeidVedtakStatus = kafkaMelding.friskTilArbeidVedtakStatus
 
         if (friskTilArbeidVedtakStatus.status == Status.FATTET) {
             friskTilArbeidRepository.save(
-                FriskTilArbeidDbRecord(
-                    timestamp = Instant.now(),
+                FriskTilArbeidVedtakDbRecord(
+                    vedtakUuid = UUID.randomUUID().toString(),
+                    key = kafkaMelding.key,
+                    opprettet = OffsetDateTime.now(),
                     fnr = friskTilArbeidVedtakStatus.personident,
                     fom = friskTilArbeidVedtakStatus.fom,
                     tom = friskTilArbeidVedtakStatus.tom,
-                    begrunnelse = friskTilArbeidVedtakStatus.begrunnelse,
-                    vedtakStatus = friskTilArbeidVedtakStatus.tilPostgresJson(),
-                    status = BehandletStatus.NY,
+                    vedtak = friskTilArbeidVedtakStatus.tilPostgresJson(),
+                    behandletStatus = BehandletStatus.NY,
                 ),
-            )
+            ).also {
+                log.info(
+                    "Lagret FriskTilArbeidVedtakStatus med id: ${it.id}, vedtak_uuid: ${it.vedtakUuid} og key: ${it.key}.",
+                )
+            }
         }
-
-        log.info("Lagret FriskTilArbeidVedtakStatus med key: ${friskTilArbeidVedtakStatusMelding.key}.")
     }
 
     fun behandleFriskTilArbeidVedtakStatus(antallVedtak: Int) {
@@ -51,7 +54,7 @@ class FriskTilArbeidService(
 
 fun String.tilFriskTilArbeidVedtakStatus(): FriskTilArbeidVedtakStatus = objectMapper.readValue(this)
 
-data class FriskTilArbeidVedtakStatusMelding(
+data class FriskTilArbeidVedtakStatusKafkaMelding(
     val key: String,
     val friskTilArbeidVedtakStatus: FriskTilArbeidVedtakStatus,
 )

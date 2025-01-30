@@ -14,9 +14,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.Duration
-import java.time.LocalDate
-import java.time.OffsetDateTime
-import java.util.*
 import java.util.concurrent.TimeUnit
 
 class FriskTilArbeidIntegrationTest() : FellesTestOppsett() {
@@ -36,11 +33,9 @@ class FriskTilArbeidIntegrationTest() : FellesTestOppsett() {
         friskTilArbeidRepository.deleteAll()
     }
 
-    private val uuid = UUID.randomUUID().toString()
-    private val fnr = "11111111111"
-
     @Test
     fun `Mottar og lagrer VedtakStatusRecord med status FATTET`() {
+        val fnr = "11111111111"
         val key = fnr.asProducerRecordKey()
         val friskTilArbeidVedtakStatus = lagFriskTilArbeidVedtakStatus(fnr, Status.FATTET)
 
@@ -61,24 +56,7 @@ class FriskTilArbeidIntegrationTest() : FellesTestOppsett() {
 
         dbRecords.first().also {
             it.fnr `should be equal to` fnr
-            it.status `should be equal to` BehandletStatus.NY
+            it.behandletStatus `should be equal to` BehandletStatus.NY
         }
     }
 }
-
-fun String.asProducerRecordKey(): String = UUID.nameUUIDFromBytes(this.toByteArray()).toString()
-
-fun lagFriskTilArbeidVedtakStatus(
-    fnr: String,
-    status: Status,
-): FriskTilArbeidVedtakStatus =
-    FriskTilArbeidVedtakStatus(
-        uuid = UUID.randomUUID().toString(),
-        personident = fnr,
-        begrunnelse = "Begrunnelse",
-        fom = LocalDate.now(),
-        tom = LocalDate.now(),
-        status = status,
-        statusAt = OffsetDateTime.now(),
-        statusBy = "Test",
-    )

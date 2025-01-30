@@ -7,8 +7,8 @@ import no.nav.helse.flex.domain.Svar
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.forskuttering.ForskutteringRepository
 import no.nav.helse.flex.forskuttering.domain.Forskuttering
-import no.nav.helse.flex.frisktilarbeid.FriskTilArbeidDbRecord
 import no.nav.helse.flex.frisktilarbeid.FriskTilArbeidRepository
+import no.nav.helse.flex.frisktilarbeid.FriskTilArbeidVedtakDbRecord
 import no.nav.helse.flex.repository.*
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import org.mockito.Mockito
@@ -307,19 +307,19 @@ class KlippetSykepengesoknadRepositoryFake : KlippetSykepengesoknadRepository {
 @Primary
 @Profile("fakes")
 class FriskTilArbeidRepositoryFake : FriskTilArbeidRepository {
-    override fun finnVedtakSomSkalBehandles(antallVedtak: Int): List<FriskTilArbeidDbRecord> {
+    override fun finnVedtakSomSkalBehandles(antallVedtak: Int): List<FriskTilArbeidVedtakDbRecord> {
         return TODO("Not yet implemented")
     }
 
-    override fun <S : FriskTilArbeidDbRecord?> save(entity: S & Any): S & Any {
+    override fun <S : FriskTilArbeidVedtakDbRecord?> save(entity: S & Any): S & Any {
         TODO("Not yet implemented")
     }
 
-    override fun <S : FriskTilArbeidDbRecord?> saveAll(entities: MutableIterable<S>): MutableIterable<S> {
+    override fun <S : FriskTilArbeidVedtakDbRecord?> saveAll(entities: MutableIterable<S>): MutableIterable<S> {
         TODO("Not yet implemented")
     }
 
-    override fun findById(id: String): Optional<FriskTilArbeidDbRecord> {
+    override fun findById(id: String): Optional<FriskTilArbeidVedtakDbRecord> {
         TODO("Not yet implemented")
     }
 
@@ -327,11 +327,11 @@ class FriskTilArbeidRepositoryFake : FriskTilArbeidRepository {
         TODO("Not yet implemented")
     }
 
-    override fun findAll(): MutableIterable<FriskTilArbeidDbRecord> {
+    override fun findAll(): MutableIterable<FriskTilArbeidVedtakDbRecord> {
         TODO("Not yet implemented")
     }
 
-    override fun findAllById(ids: MutableIterable<String>): MutableIterable<FriskTilArbeidDbRecord> {
+    override fun findAllById(ids: MutableIterable<String>): MutableIterable<FriskTilArbeidVedtakDbRecord> {
         TODO("Not yet implemented")
     }
 
@@ -343,7 +343,7 @@ class FriskTilArbeidRepositoryFake : FriskTilArbeidRepository {
         TODO("Not yet implemented")
     }
 
-    override fun delete(entity: FriskTilArbeidDbRecord) {
+    override fun delete(entity: FriskTilArbeidVedtakDbRecord) {
         TODO("Not yet implemented")
     }
 
@@ -351,7 +351,7 @@ class FriskTilArbeidRepositoryFake : FriskTilArbeidRepository {
         TODO("Not yet implemented")
     }
 
-    override fun deleteAll(entities: MutableIterable<FriskTilArbeidDbRecord>) {
+    override fun deleteAll(entities: MutableIterable<FriskTilArbeidVedtakDbRecord>) {
         TODO("Not yet implemented")
     }
 

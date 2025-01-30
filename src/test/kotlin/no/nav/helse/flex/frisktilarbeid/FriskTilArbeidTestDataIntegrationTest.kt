@@ -41,7 +41,7 @@ class FriskTilArbeidTestDataIntegrationTest() : FellesTestOppsett() {
 
         dbRecords.first().also {
             it.fnr `should be equal to` fnr
-            it.status `should be equal to` BehandletStatus.NY
+            it.behandletStatus `should be equal to` BehandletStatus.NY
         }
     }
 }
