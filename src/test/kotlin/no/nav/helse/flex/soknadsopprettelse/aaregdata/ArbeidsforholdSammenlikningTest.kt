@@ -320,4 +320,41 @@ class ArbeidsforholdSammenlikningTest {
         // f2 er mest sannsynlig en videreføring av f1
         f2.erIkkeVidereforingAvAnnetArbeidsforhold(alle).shouldBeFalse()
     }
+
+    @Test
+    fun `erMestSannsynligVidereføringAv - skal vaere true ved vikariat som avsluttes overlappende`() {
+        val forrige =
+            lagArbeidsforhold(
+                opplysningspliktig = defaultOpplysningspliktig(),
+                arbeidssted = defaultArbeidssted(),
+                start = LocalDate.of(2024, 6, 1),
+                slutt = LocalDate.of(2025, 1, 31),
+                sluttaarsak = defaultKodeverk("kontraktEngasjementEllerVikariatErUtloept"),
+                ansettelsesdetaljer =
+                    listOf(
+                        defaultAnsettelsesdetaljer(
+                            fra = YearMonth.of(2024, 1),
+                            til = null,
+                        ),
+                    ),
+            )
+
+        val nytt =
+            lagArbeidsforhold(
+                opplysningspliktig = defaultOpplysningspliktig(),
+                arbeidssted = defaultArbeidssted(),
+                start = LocalDate.of(2025, 1, 1),
+                slutt = LocalDate.of(2025, 9, 30),
+                sluttaarsak = defaultKodeverk("kontraktEngasjementEllerVikariatErUtloept"),
+                ansettelsesdetaljer =
+                    listOf(
+                        defaultAnsettelsesdetaljer(
+                            fra = YearMonth.of(2021, 4),
+                            til = null,
+                        ),
+                    ),
+            )
+
+        nytt.erMestSannsynligVidereføringAv(forrige).shouldBeTrue()
+    }
 }

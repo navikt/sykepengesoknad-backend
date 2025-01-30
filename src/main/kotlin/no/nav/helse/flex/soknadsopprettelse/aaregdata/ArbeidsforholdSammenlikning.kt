@@ -1,6 +1,7 @@
 package no.nav.helse.flex.soknadsopprettelse.aaregdata
 
 import no.nav.helse.flex.client.aareg.*
+import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.soknadsopprettelse.yearMonth
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
@@ -16,8 +17,19 @@ fun Arbeidsforhold.ansattFom(): LocalDate = this.ansettelsesperiode.startdato
 
 fun Arbeidsforhold.ansattTomEllerTidensEnde(): LocalDate = this.ansettelsesperiode.sluttdato ?: LocalDate.MAX
 
-internal fun Pair<Arbeidsforhold, Arbeidsforhold>.erGanskeRettEtterHverandre(): Boolean =
+internal fun Pair<Arbeidsforhold, Arbeidsforhold>.erInnenFireDager(): Boolean =
     first.ansattTomEllerTidensEnde().until(second.ansattFom(), ChronoUnit.DAYS).absoluteValue <= 4
+
+internal fun Pair<Arbeidsforhold, Arbeidsforhold>.overlapper(): Boolean = first.tilPeriode().overlapper(second.tilPeriode())
+
+private fun Arbeidsforhold.tilPeriode(): Periode {
+    return Periode(
+        fom = this.ansattFom(),
+        tom = this.ansattTomEllerTidensEnde(),
+    )
+}
+
+internal fun Pair<Arbeidsforhold, Arbeidsforhold>.erGanskeRettEtterHverandre(): Boolean = overlapper() || erInnenFireDager()
 
 internal fun Arbeidsforhold.erMestSannsynligEllerKanskjeVidereføringAv(forrige: Arbeidsforhold): Boolean =
     erMestSannsynligVidereføringAv(forrige) || kanKanskjeVæreVidereføringAv(forrige)
