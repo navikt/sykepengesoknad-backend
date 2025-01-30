@@ -11,8 +11,8 @@ class FrisktilArbeidSoknadService(
     private val log = logger()
 
     @Transactional
-    fun opprettSoknad(dbRecord: FriskTilArbeidDbRecord) {
-        friskTilArbeidRepository.save(dbRecord.copy(status = BehandletStatus.BEHANDLET))
+    fun opprettSoknad(dbRecord: FriskTilArbeidVedtakDbRecord) {
+        friskTilArbeidRepository.save(dbRecord.copy(behandletStatus = BehandletStatus.BEHANDLET))
         log.info("Behandlet FriskTilArbeidVedtakStatus med id: ${dbRecord.id}.")
     }
 }

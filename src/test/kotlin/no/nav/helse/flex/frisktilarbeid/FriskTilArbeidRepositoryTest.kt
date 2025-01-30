@@ -5,13 +5,12 @@ import no.nav.helse.flex.medlemskap.tilPostgresJson
 import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.util.serialisertTilString
 import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBe
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import java.time.Instant
-import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.*
 
@@ -29,35 +28,43 @@ class FriskTilArbeidRepositoryTest : FellesTestOppsett() {
 
     @Test
     fun `Lagrer og henter vedtak`() {
-        val friskTilArbeidVedtakStatus = lagFriskTilArbeidVedtakStatus("11111111111")
-
-        friskTilArbeidRepository.save(
-            friskTilArbeidVedtakStatus.tilDbRecord(Instant.now()),
-        )
+        val verdierForLagring =
+            lagVerdierForLagring("11111111111").also {
+                friskTilArbeidRepository.save(
+                    it.vedtakStatus.tilDbRecord(it.uuid, it.key),
+                )
+            }
 
         val dbRecords = friskTilArbeidRepository.findAll() shouldHaveSize 1
         val dbRecord = dbRecords.first()
 
         dbRecord.id shouldNotBe null
-        dbRecord.fnr `should be equal to` friskTilArbeidVedtakStatus.personident
-        dbRecord.fom `should be equal to` friskTilArbeidVedtakStatus.fom
-        dbRecord.tom `should be equal to` friskTilArbeidVedtakStatus.tom
-        dbRecord.begrunnelse `should be equal to` "Begrunnelse"
-        dbRecord.status `should be equal to` BehandletStatus.NY
+        dbRecord.vedtakUuid `should be equal to` verdierForLagring.uuid
+        dbRecord.key `should be equal to` verdierForLagring.key
+        dbRecord.fnr `should be equal to` verdierForLagring.vedtakStatus.personident
+        dbRecord.fom `should be equal to` verdierForLagring.vedtakStatus.fom
+        dbRecord.tom `should be equal to` verdierForLagring.vedtakStatus.tom
+        dbRecord.behandletStatus `should be equal to` BehandletStatus.NY
+        dbRecord.behandletTidspunkt shouldBe null
 
-        val lagretJson = objectMapper.readTree(dbRecord.vedtakStatus!!.value)
-        val vedtakStatusJson = objectMapper.readTree(friskTilArbeidVedtakStatus.serialisertTilString())
+        val lagretJson = objectMapper.readTree(dbRecord.vedtak!!.value)
+        val vedtakStatusJson = objectMapper.readTree(verdierForLagring.vedtakStatus.serialisertTilString())
         lagretJson `should be equal to` vedtakStatusJson
     }
 
     @Test
     fun `Finner vedtak som skal behandles`() {
-        friskTilArbeidRepository.save(lagFriskTilArbeidVedtakStatus("11111111111").tilDbRecord(Instant.now()))
-        friskTilArbeidRepository.save(lagFriskTilArbeidVedtakStatus("22222222222").tilDbRecord(Instant.now()))
+        lagVerdierForLagring("11111111111").also {
+            friskTilArbeidRepository.save(
+                it.vedtakStatus.tilDbRecord(it.uuid, it.key),
+            )
+        }
 
-        val ettVedtak = friskTilArbeidRepository.finnVedtakSomSkalBehandles(1)
-        ettVedtak.size `should be equal to` 1
-        ettVedtak.first().fnr `should be equal to` "11111111111"
+        lagVerdierForLagring("22222222222").also {
+            friskTilArbeidRepository.save(
+                it.vedtakStatus.tilDbRecord(it.uuid, it.key),
+            )
+        }
 
         friskTilArbeidRepository.finnVedtakSomSkalBehandles(1).also {
             it.size `should be equal to` 1
@@ -71,26 +78,31 @@ class FriskTilArbeidRepositoryTest : FellesTestOppsett() {
         }
     }
 
-    private fun lagFriskTilArbeidVedtakStatus(fnr: String): FriskTilArbeidVedtakStatus =
-        FriskTilArbeidVedtakStatus(
-            uuid = UUID.randomUUID().toString(),
-            personident = fnr,
-            begrunnelse = "Begrunnelse",
-            fom = LocalDate.now(),
-            tom = LocalDate.now(),
-            status = Status.FATTET,
-            statusAt = OffsetDateTime.now(),
-            statusBy = "Test",
-        )
+    private fun lagVerdierForLagring(fnr: String): VerdierForLagring {
+        val uuid = UUID.randomUUID().toString()
+        val key = fnr.asProducerRecordKey()
+        val vedtakStatus = lagFriskTilArbeidVedtakStatus(fnr, Status.FATTET)
+        return VerdierForLagring(uuid, key, vedtakStatus)
+    }
 
-    private fun FriskTilArbeidVedtakStatus.tilDbRecord(timestamp: Instant): FriskTilArbeidDbRecord =
-        FriskTilArbeidDbRecord(
-            timestamp = timestamp,
+    private fun FriskTilArbeidVedtakStatus.tilDbRecord(
+        vedtakUuid: String,
+        key: String,
+    ): FriskTilArbeidVedtakDbRecord =
+        FriskTilArbeidVedtakDbRecord(
+            vedtakUuid = vedtakUuid,
+            key = key,
+            opprettet = OffsetDateTime.now(),
             fnr = this.personident,
             fom = this.fom,
             tom = this.tom,
-            begrunnelse = this.begrunnelse,
-            vedtakStatus = this.tilPostgresJson(),
-            status = BehandletStatus.NY,
+            vedtak = this.tilPostgresJson(),
+            behandletStatus = BehandletStatus.NY,
         )
+
+    private data class VerdierForLagring(
+        val uuid: String,
+        val key: String,
+        val vedtakStatus: FriskTilArbeidVedtakStatus,
+    )
 }

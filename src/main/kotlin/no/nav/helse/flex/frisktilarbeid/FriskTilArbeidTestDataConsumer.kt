@@ -24,11 +24,9 @@ class FriskTilArbeidTestDataConsumer(
         cr: ConsumerRecord<String, String>,
         acknowledgment: Acknowledgment,
     ) {
-        log.info("Mottok FriskTilArbeidVedtakStatus på testdata-topic med key: ${cr.key()}.")
-
         try {
             friskTilArbeidService.lagreFriskTilArbeidVedtakStatus(
-                FriskTilArbeidVedtakStatusMelding(
+                FriskTilArbeidVedtakStatusKafkaMelding(
                     cr.key(),
                     cr.value().tilFriskTilArbeidVedtakStatus(),
                 ),
