@@ -21,7 +21,7 @@ fun konverterTilSykepengesoknadDTO(
         status = sykepengesoknad.status.tilSoknadstatusDTO(),
         fnr = sykepengesoknad.fnr,
         sykmeldingId = sykepengesoknad.sykmeldingId,
-        arbeidssituasjon = sykepengesoknad.arbeidssituasjon!!.tilArbeidssituasjonDTO(),
+        arbeidssituasjon = sykepengesoknad.arbeidssituasjon?.tilArbeidssituasjonDTO(),
         korrigerer = sykepengesoknad.korrigerer,
         korrigertAv = sykepengesoknad.korrigertAv,
         soktUtenlandsopphold = harSoktSykepengerUnderUtlandsopphold(sykepengesoknad),
@@ -65,5 +65,6 @@ fun konverterTilSykepengesoknadDTO(
         tidligereArbeidsgiverOrgnummer = sykepengesoknad.tidligereArbeidsgiverOrgnummer,
         fiskerBlad = EnumUtil.konverter(FiskerBladDTO::class.java, sykepengesoknad.fiskerBlad),
         inntektFraNyttArbeidsforhold = sykepengesoknad.hentInntektFraNyttArbeidsforhold(),
+        friskTilArbeidVedtakId = sykepengesoknad.friskTilArbeidVedtakId,
     )
 }

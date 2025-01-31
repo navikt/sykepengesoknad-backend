@@ -119,6 +119,7 @@ fun Sykepengesoknad.tilRSSykepengesoknad() =
         forstegangssoknad = this.forstegangssoknad,
         kjentOppholdstillatelse = this.kjentOppholdstillatelse,
         julesoknad = this.julesoknad,
+        friskTilArbeidVedtakId = this.friskTilArbeidVedtakId,
     )
 
 fun Sykepengesoknad.tilRSSykepengesoknadMetadata() =
@@ -144,6 +145,7 @@ fun Sykepengesoknad.tilRSSykepengesoknadMetadata() =
         merknaderFraSykmelding = this.merknaderFraSykmelding?.map { it.mapMerknad() },
         opprettetAvInntektsmelding = this.opprettetAvInntektsmelding,
         forstegangssoknad = this.forstegangssoknad,
+        friskTilArbeidVedtakId = this.friskTilArbeidVedtakId,
     )
 
 fun Sykepengesoknad.tilRSSykepengesoknadFlexInternal() =
