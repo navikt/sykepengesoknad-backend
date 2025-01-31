@@ -2,10 +2,11 @@ package no.nav.helse.flex.kafka.producer
 
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Mottaker
-import no.nav.helse.flex.domain.Soknadstype.*
+import no.nav.helse.flex.domain.Soknadstype.ARBEIDSTAKERE
+import no.nav.helse.flex.domain.Soknadstype.GRADERT_REISETILSKUDD
+import no.nav.helse.flex.domain.Soknadstype.SELVSTENDIGE_OG_FRILANSERE
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.mapper.SykepengesoknadTilSykepengesoknadDTOMapper
-import no.nav.helse.flex.logger
 import no.nav.helse.flex.util.tilOsloLocalDateTime
 import org.springframework.stereotype.Component
 import java.time.Instant
@@ -16,8 +17,6 @@ class SoknadProducer(
     private val kafkaProducer: AivenKafkaProducer,
     private val sykepengesoknadTilSykepengesoknadDTOMapper: SykepengesoknadTilSykepengesoknadDTOMapper,
 ) {
-    private val log = logger()
-
     fun soknadEvent(
         sykepengesoknad: Sykepengesoknad,
         mottaker: Mottaker? = null,
