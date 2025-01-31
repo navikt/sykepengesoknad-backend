@@ -28,11 +28,11 @@ data class Sykepengesoknad(
     val startSykeforlop: LocalDate?,
     val sykmeldingSkrevet: Instant?,
     val sykmeldingSignaturDato: Instant? = null,
-    val soknadPerioder: List<Soknadsperiode>?,
+    val soknadPerioder: List<Soknadsperiode>? = emptyList(),
     val sendtArbeidsgiver: Instant? = null,
     val arbeidsgiverOrgnummer: String? = null,
     val arbeidsgiverNavn: String? = null,
-    val arbeidssituasjon: Arbeidssituasjon?,
+    val arbeidssituasjon: Arbeidssituasjon? = null,
     val egenmeldtSykmelding: Boolean? = null,
     val merknaderFraSykmelding: List<Merknad>? = null,
     val opprettetAvInntektsmelding: Boolean = false,
@@ -51,6 +51,7 @@ data class Sykepengesoknad(
     val kjentOppholdstillatelse: KjentOppholdstillatelse? = null,
     val arbeidsforholdFraAareg: List<ArbeidsforholdFraAAreg>? = null,
     val julesoknad: Boolean? = false,
+    val friskTilArbeidVedtakId: String? = null,
 ) : Serializable {
     fun alleSporsmalOgUndersporsmal(): List<Sporsmal> {
         return sporsmal.flatten()

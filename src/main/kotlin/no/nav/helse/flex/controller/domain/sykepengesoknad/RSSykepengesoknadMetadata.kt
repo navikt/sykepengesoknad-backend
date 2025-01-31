@@ -25,4 +25,5 @@ data class RSSykepengesoknadMetadata(
     val merknaderFraSykmelding: List<RSMerknad>?,
     val opprettetAvInntektsmelding: Boolean,
     val forstegangssoknad: Boolean?,
+    val friskTilArbeidVedtakId: String? = null,
 )
