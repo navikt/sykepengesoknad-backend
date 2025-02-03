@@ -8,7 +8,7 @@ import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBe
-import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.OffsetDateTime
@@ -21,7 +21,7 @@ class FriskTilArbeidRepositoryTest : FellesTestOppsett() {
     @Autowired
     private lateinit var friskTilArbeidRepository: FriskTilArbeidRepository
 
-    @AfterEach
+    @BeforeEach
     fun slettFraDatabase() {
         friskTilArbeidRepository.deleteAll()
     }

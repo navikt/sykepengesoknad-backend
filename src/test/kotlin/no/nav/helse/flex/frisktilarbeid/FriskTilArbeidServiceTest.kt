@@ -14,10 +14,18 @@ import java.util.*
 @SpringBootTest(classes = [FriskTilArbeidServiceTestConfiguration::class])
 class FriskTilArbeidServiceTest {
     @Autowired
-    private lateinit var friskTilArbeidService: FriskTilArbeidService
+    private lateinit var fakeFriskTilArbeidSoknadService: FriskTilArbeidSoknadService
 
     @Autowired
     private lateinit var fakeFriskTilArbeidRepository: FriskTilArbeidRepository
+
+    lateinit var friskTilArbeidService: FriskTilArbeidService
+
+    @BeforeEach
+    fun setup() {
+        fakeFriskTilArbeidRepository.deleteAll()
+        friskTilArbeidService = FriskTilArbeidService(fakeFriskTilArbeidRepository, fakeFriskTilArbeidSoknadService)
+    }
 
     private val fnr = "11111111111"
 
@@ -79,9 +87,25 @@ class FriskTilArbeidServiceTest {
     }
 }
 
+// Må være top-level for å kunne brukes i @TestConfiguration siden Spring sliter med å generere CGLIB
+// subclass av anonym klasse (object).
+class FakeFriskTilArbeidSoknadService(
+    private val friskTilArbeidRepository: FriskTilArbeidRepository,
+) : FriskTilArbeidSoknadService(friskTilArbeidRepository, null, null) {
+    override fun opprettSoknad(friskTilArbeidDbRecord: FriskTilArbeidVedtakDbRecord) {
+        friskTilArbeidRepository.save(friskTilArbeidDbRecord.copy(behandletStatus = BehandletStatus.BEHANDLET))
+    }
+}
+
 @Suppress("UNCHECKED_CAST")
 @TestConfiguration
 class FriskTilArbeidTestConfig {
+    @Bean
+    @Qualifier("fakeFriskTilArbeidSoknadService")
+    fun fakeFriskTilArbeidSoknadService(friskTilArbeidRepository: FriskTilArbeidRepository): FriskTilArbeidSoknadService {
+        return FakeFriskTilArbeidSoknadService(friskTilArbeidRepository)
+    }
+
     @Bean
     @Qualifier("fakeFriskTilArbeidRepository")
     fun fakeFriskTilArbeidRepository(): FriskTilArbeidRepository {
