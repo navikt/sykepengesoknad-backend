@@ -11,7 +11,6 @@ import org.amshove.kluent.`should be equal to`
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.awaitility.Awaitility.await
-import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
@@ -38,7 +37,6 @@ class FriskTilArbeidIntegrationTest() : FellesTestOppsett() {
     }
 
     @BeforeAll
-    @AfterAll
     fun slettFraDatabase() {
         friskTilArbeidRepository.deleteAll()
     }
@@ -48,7 +46,7 @@ class FriskTilArbeidIntegrationTest() : FellesTestOppsett() {
     @Test
     @Order(1)
     fun `Mottar og lagrer VedtakStatusRecord med status FATTET`() {
-        val fnr = "11111111111"
+        val fnr = fnr
         val key = fnr.asProducerRecordKey()
         val friskTilArbeidVedtakStatus = lagFriskTilArbeidVedtakStatus(fnr, Status.FATTET)
 

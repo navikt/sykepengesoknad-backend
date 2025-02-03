@@ -1,7 +1,5 @@
 package no.nav.helse.flex.frisktilarbeid
 
-import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.domain.Soknadsperiode
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
@@ -15,7 +13,7 @@ import java.util.*
 
 @Service
 class FriskTilArbeidSoknadService(
-    private val friskTilArbeidRepository: FriskTilArbeidRepository?,
+    private val friskTilArbeidRepository: FriskTilArbeidRepository,
     private val sykepengesoknadDAO: SykepengesoknadDAO?,
     private val soknadProducer: SoknadProducer?,
 ) {
@@ -23,27 +21,11 @@ class FriskTilArbeidSoknadService(
 
     @Transactional
     fun opprettSoknad(friskTilArbeidDbRecord: FriskTilArbeidVedtakDbRecord) {
-        // TODO: Lag en semantisk ID for hver søknad med bruk av fom og tom.
-        val soknadId = UUID.randomUUID().toString()
+        val fom = friskTilArbeidDbRecord.fom
+        val tom = friskTilArbeidDbRecord.fom.plusWeeks(2L)
+        val seed = "${friskTilArbeidDbRecord.id}$fom$tom${friskTilArbeidDbRecord.opprettet}"
+        val soknadId = UUID.nameUUIDFromBytes(seed.toByteArray()).toString()
 
-        // TODO: Deserialiser det faktiske vedtaket og hent reelle verdier.
-        val sykmeldingId = friskTilArbeidDbRecord.id
-        val sykmeldingSkrevet = Instant.now()
-
-        // TODO: Samme som hver søknads fom og tom.
-        val soknadPerioder = listOf<Soknadsperiode>()
-
-        // TODO: Trenger vi en egen Arbeidssituasjon?
-        val arbeidssituasjon = Arbeidssituasjon.ANNET
-
-        // TODO: expecting (JSON String, Number, Array, Object or token 'null', 'true' or 'false')
-        val egenmeldingsDagerFraSykmelding = null
-
-        // TODO: Sett ny avsendertype
-        // TODO: Sett egenmeldt_sykmelding til false
-        // TODO: Sett signaturdato
-
-        // TODO: Del opp vedtaksperioden i flere søknader.
         val sykepengesoknad =
             Sykepengesoknad(
                 id = soknadId,
@@ -55,17 +37,12 @@ class FriskTilArbeidSoknadService(
                 status = Soknadstatus.FREMTIDIG,
                 opprettet = Instant.now(),
                 sporsmal = emptyList(),
-                forstegangssoknad = true,
-                sykmeldingId = sykmeldingId,
-                sykmeldingSkrevet = sykmeldingSkrevet,
-                soknadPerioder = soknadPerioder,
-                arbeidssituasjon = arbeidssituasjon,
                 utenlandskSykmelding = false,
-                egenmeldingsdagerFraSykmelding = egenmeldingsDagerFraSykmelding,
+                friskTilArbeidVedtakId = friskTilArbeidDbRecord.id,
             )
 
         sykepengesoknadDAO!!.lagreSykepengesoknad(sykepengesoknad)
-        friskTilArbeidRepository!!.save(friskTilArbeidDbRecord.copy(behandletStatus = BehandletStatus.BEHANDLET))
+        friskTilArbeidRepository.save(friskTilArbeidDbRecord.copy(behandletStatus = BehandletStatus.BEHANDLET))
         soknadProducer!!.soknadEvent(sykepengesoknad)
 
         log.info(
