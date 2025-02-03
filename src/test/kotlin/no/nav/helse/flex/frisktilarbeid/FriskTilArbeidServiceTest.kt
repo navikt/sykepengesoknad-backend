@@ -100,14 +100,14 @@ class FakeFriskTilArbeidSoknadService(
 @Suppress("UNCHECKED_CAST")
 @TestConfiguration
 class FriskTilArbeidTestConfig {
-    // TODO: Bytt ut med fakes av FriskTilArbeidSoknadService.
+    // TODO: Fake avhengigheter i stedet for FriskTilArbeidSoknadService.
     @Bean
     @Qualifier("fakeFriskTilArbeidSoknadService")
     fun fakeFriskTilArbeidSoknadService(friskTilArbeidRepository: FriskTilArbeidRepository): FriskTilArbeidSoknadService {
         return FakeFriskTilArbeidSoknadService(friskTilArbeidRepository)
     }
 
-    // TODO: Bytt ut med utvidelse av InMemoryCrudRepository.
+    // TODO: Bytt ut med en Fake som arver InMemoryCrudRepository.
     @Bean
     @Qualifier("fakeFriskTilArbeidRepository")
     fun fakeFriskTilArbeidRepository(): FriskTilArbeidRepository {

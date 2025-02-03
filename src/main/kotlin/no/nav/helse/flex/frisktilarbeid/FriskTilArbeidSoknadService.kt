@@ -23,14 +23,13 @@ class FriskTilArbeidSoknadService(
     fun opprettSoknad(friskTilArbeidDbRecord: FriskTilArbeidVedtakDbRecord) {
         val fom = friskTilArbeidDbRecord.fom
         val tom = friskTilArbeidDbRecord.fom.plusWeeks(2L)
-        val seed = "${friskTilArbeidDbRecord.id}$fom$tom${friskTilArbeidDbRecord.opprettet}"
-        val soknadId = UUID.nameUUIDFromBytes(seed.toByteArray()).toString()
+        val grunnlagForSoknadId = "${friskTilArbeidDbRecord.id}$fom$tom${friskTilArbeidDbRecord.opprettet}"
+        val soknadId = UUID.nameUUIDFromBytes(grunnlagForSoknadId.toByteArray()).toString()
 
         val sykepengesoknad =
             Sykepengesoknad(
                 id = soknadId,
                 fnr = friskTilArbeidDbRecord.fnr,
-                startSykeforlop = friskTilArbeidDbRecord.fom,
                 fom = friskTilArbeidDbRecord.fom,
                 tom = friskTilArbeidDbRecord.fom.plusWeeks(2L),
                 soknadstype = Soknadstype.FRISKMELDT_TIL_ARBEIDSFORMIDLING,
