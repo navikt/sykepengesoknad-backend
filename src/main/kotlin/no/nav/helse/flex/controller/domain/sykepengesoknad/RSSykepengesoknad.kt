@@ -37,6 +37,7 @@ data class RSSykepengesoknad(
     val forstegangssoknad: Boolean?,
     val kjentOppholdstillatelse: KjentOppholdstillatelse? = null,
     val julesoknad: Boolean? = false,
+    val friskTilArbeidVedtakId: String? = null,
 ) {
     fun alleSporsmalOgUndersporsmal(): List<RSSporsmal> {
         return sporsmal?.flatten()?.toList() ?: emptyList()
