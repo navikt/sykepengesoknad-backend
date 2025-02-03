@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Import
 @Configuration
 @Import(
     FriskTilArbeidService::class,
-    FrisktilArbeidSoknadService::class,
+    FriskTilArbeidSoknadService::class,
     FriskTilArbeidTestConfig::class,
 )
 class FriskTilArbeidServiceTestConfiguration

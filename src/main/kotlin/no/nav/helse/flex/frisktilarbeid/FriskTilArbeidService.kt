@@ -12,7 +12,7 @@ import java.util.*
 @Service
 class FriskTilArbeidService(
     private val friskTilArbeidRepository: FriskTilArbeidRepository,
-    private val frisktilArbeidSoknadService: FrisktilArbeidSoknadService,
+    private val friskTilArbeidSoknadService: FriskTilArbeidSoknadService,
 ) {
     private val log = logger()
 
@@ -47,7 +47,7 @@ class FriskTilArbeidService(
         log.info("Hentet $dbRecords FriskTilArbeidVedtakStatus for behandling.")
 
         dbRecords.forEach {
-            frisktilArbeidSoknadService.opprettSoknad(it)
+            friskTilArbeidSoknadService.opprettSoknad(it)
         }
     }
 }

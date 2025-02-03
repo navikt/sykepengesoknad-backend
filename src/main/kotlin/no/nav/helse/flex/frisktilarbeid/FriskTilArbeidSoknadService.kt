@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
-class FrisktilArbeidSoknadService(
+class FriskTilArbeidSoknadService(
     private val friskTilArbeidRepository: FriskTilArbeidRepository,
 ) {
     private val log = logger()
