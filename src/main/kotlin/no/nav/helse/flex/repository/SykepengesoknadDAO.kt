@@ -3,6 +3,7 @@ package no.nav.helse.flex.repository
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.domain.*
 import no.nav.helse.flex.domain.exception.SlettSoknadException
+import no.nav.helse.flex.frisktilarbeid.FriskTilArbeidRepository
 import no.nav.helse.flex.inntektsopplysninger.InntektsopplysningerDokumentType
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.medlemskap.KjentOppholdstillatelse
@@ -35,6 +36,7 @@ class SykepengesoknadDAOPostgres(
     private val soknadLagrer: SoknadLagrer,
     private val klippetSykepengesoknadRepository: KlippetSykepengesoknadRepository,
     private val medlemskapVurderingRepository: MedlemskapVurderingRepository,
+    private val friskTilArbeidRepository: FriskTilArbeidRepository,
 ) : SykepengesoknadDAO {
     val log = logger()
 
@@ -337,7 +339,7 @@ class SykepengesoknadDAOPostgres(
                         .addValue("soknadsIder", soknadsIder),
                 )
             }
-
+        friskTilArbeidRepository.deleteByFnr(fnr)
         log.info("Slettet $antallSoknaderSlettet søknader tilhørende fnr: $fnr")
 
         return antallSoknaderSlettet

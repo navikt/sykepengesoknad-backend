@@ -311,6 +311,10 @@ class FriskTilArbeidRepositoryFake : FriskTilArbeidRepository {
         return TODO("Not yet implemented")
     }
 
+    override fun deleteByFnr(fnr: String): Long {
+        TODO("Not yet implemented")
+    }
+
     override fun <S : FriskTilArbeidVedtakDbRecord?> save(entity: S & Any): S & Any {
         TODO("Not yet implemented")
     }
