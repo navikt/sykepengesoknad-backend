@@ -34,7 +34,6 @@ class SoknadProducer(
                 dodsdato = dodsdato,
                 opprinneligSendt = opprinneligSendt?.tilOsloLocalDateTime(),
             )
-
         kafkaProducer.produserMelding(sykepengesoknadDTO)
     }
 

@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.Duration
+import java.time.LocalDate
 import java.util.concurrent.TimeUnit
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
@@ -43,12 +44,15 @@ class FriskTilArbeidIntegrationTest() : FellesTestOppsett() {
 
     private val fnr = "11111111111"
 
+    // 2 perioder på 2 hele uker (14 dager) og en periode på én uke (7 dager).
+    val vedtaksperiode = LocalDate.of(2025, 2, 3) to LocalDate.of(2025, 3, 9)
+
     @Test
     @Order(1)
     fun `Mottar og lagrer VedtakStatusRecord med status FATTET`() {
         val fnr = fnr
         val key = fnr.asProducerRecordKey()
-        val friskTilArbeidVedtakStatus = lagFriskTilArbeidVedtakStatus(fnr, Status.FATTET)
+        val friskTilArbeidVedtakStatus = lagFriskTilArbeidVedtakStatus(fnr, Status.FATTET, vedtaksperiode)
 
         kafkaProducer.send(
             ProducerRecord(
@@ -76,14 +80,19 @@ class FriskTilArbeidIntegrationTest() : FellesTestOppsett() {
 
     @Test
     @Order(2)
-    fun `Oppretter søknad med status FREMTIDIG`() {
+    fun `Oppretter søknad fra med status FREMTIDIG`() {
         friskTilArbeidService.behandleFriskTilArbeidVedtakStatus(1)
 
         friskTilArbeidRepository.finnVedtakSomSkalBehandles(1).size `should be equal to` 0
 
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1, Duration.ofSeconds(1)).tilSoknader().first().also {
-            it.fnr `should be equal to` fnr
-            it.status `should be equal to` SoknadsstatusDTO.FREMTIDIG
+        // TODO: Verifiser at søknadene er opprettet med riktig fom og tom i databasen.
+
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 3, Duration.ofSeconds(1)).tilSoknader().also { soknader ->
+            soknader.size `should be equal to` 3
+            soknader.forEach {
+                it.fnr `should be equal to` fnr
+                it.status `should be equal to` SoknadsstatusDTO.FREMTIDIG
+            }
         }
     }
 }
