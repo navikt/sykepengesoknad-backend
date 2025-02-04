@@ -1,5 +1,6 @@
 package no.nav.helse.flex.testdata
 
+import no.nav.helse.flex.frisktilarbeid.FriskTilArbeidRepository
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingRepository
 import no.nav.helse.flex.repository.KlippMetrikkRepository
 import no.nav.helse.flex.repository.SykepengesoknadDAO
@@ -17,6 +18,7 @@ class DatabaseReset(
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val klippMetrikkRepository: KlippMetrikkRepository,
     private val medlemskapVurderingRepository: MedlemskapVurderingRepository,
+    private val friskTilArbeidRepository: FriskTilArbeidRepository,
 ) {
     fun resetDatabase() {
         val aktorIder =
@@ -37,5 +39,6 @@ class DatabaseReset(
         namedParameterJdbcTemplate.update("DELETE FROM julesoknadkandidat", MapSqlParameterSource())
         klippMetrikkRepository.deleteAll()
         medlemskapVurderingRepository.deleteAll()
+        friskTilArbeidRepository.deleteAll()
     }
 }
