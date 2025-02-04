@@ -2,6 +2,7 @@ package no.nav.helse.flex.frisktilarbeid
 
 import org.postgresql.util.PGobject
 import org.springframework.data.annotation.Id
+import org.springframework.data.jdbc.repository.query.Modifying
 import org.springframework.data.jdbc.repository.query.Query
 import org.springframework.data.relational.core.mapping.Table
 import org.springframework.data.repository.CrudRepository
@@ -21,6 +22,10 @@ interface FriskTilArbeidRepository : CrudRepository<FriskTilArbeidVedtakDbRecord
         """,
     )
     fun finnVedtakSomSkalBehandles(antallVedtak: Int): List<FriskTilArbeidVedtakDbRecord>
+
+    @Modifying
+    @Query("DELETE FROM frisk_til_arbeid_vedtak WHERE fnr = :fnr")
+    fun deleteByFnr(fnr: String): Long
 }
 
 @Table("frisk_til_arbeid_vedtak")

@@ -130,6 +130,11 @@ class FriskTilArbeidTestConfig {
                 return dbRecords.values
             }
 
+            override fun deleteByFnr(fnr: String): Long {
+                dbRecords.values.removeIf { it.fnr == fnr }
+                return 1
+            }
+
             override fun finnVedtakSomSkalBehandles(antallVedtak: Int): List<FriskTilArbeidVedtakDbRecord> {
                 return dbRecords.values.filter { it.behandletStatus == BehandletStatus.NY }.take(antallVedtak)
             }

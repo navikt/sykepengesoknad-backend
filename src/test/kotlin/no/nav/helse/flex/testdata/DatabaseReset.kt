@@ -23,10 +23,10 @@ class DatabaseReset(
     fun resetDatabase() {
         val aktorIder =
             namedParameterJdbcTemplate.query(
-                "SELECT distinct(FNR) FROM sykepengesoknad",
+                "SELECT distinct(fnr) FROM sykepengesoknad",
                 MapSqlParameterSource(),
             ) { resultSet, _ ->
-                resultSet.getString("FNR")
+                resultSet.getString("fnr")
             }
 
         if (aktorIder.size > 10) {
