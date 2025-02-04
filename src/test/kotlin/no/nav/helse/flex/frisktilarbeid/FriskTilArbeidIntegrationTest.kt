@@ -76,7 +76,7 @@ class FriskTilArbeidIntegrationTest() : FellesTestOppsett() {
 
     @Test
     @Order(2)
-    fun `Oppretter søknad fra med status FREMTIDIG`() {
+    fun `Oppretter søknad med status FREMTIDIG`() {
         friskTilArbeidService.behandleFriskTilArbeidVedtakStatus(1)
 
         friskTilArbeidRepository.finnVedtakSomSkalBehandles(1).size `should be equal to` 0
