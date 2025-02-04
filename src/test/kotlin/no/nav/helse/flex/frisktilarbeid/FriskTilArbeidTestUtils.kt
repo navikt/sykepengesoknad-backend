@@ -9,13 +9,14 @@ internal fun String.asProducerRecordKey(): String = UUID.nameUUIDFromBytes(this.
 internal fun lagFriskTilArbeidVedtakStatus(
     fnr: String,
     status: Status,
+    vedtaksperiode: Pair<LocalDate, LocalDate>? = LocalDate.now() to LocalDate.now(),
 ): FriskTilArbeidVedtakStatus =
     FriskTilArbeidVedtakStatus(
         uuid = UUID.randomUUID().toString(),
         personident = fnr,
         begrunnelse = "Begrunnelse",
-        fom = LocalDate.now(),
-        tom = LocalDate.now(),
+        fom = vedtaksperiode!!.first,
+        tom = vedtaksperiode.second,
         status = status,
         statusAt = OffsetDateTime.now(),
         statusBy = "Test",
