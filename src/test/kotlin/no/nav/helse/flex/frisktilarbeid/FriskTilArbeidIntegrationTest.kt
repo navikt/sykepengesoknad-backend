@@ -44,12 +44,15 @@ class FriskTilArbeidIntegrationTest() : FellesTestOppsett() {
 
     private val fnr = "11111111111"
 
-    // 2 perioder på 2 hele uker (14 dager) og en periode på én uke (7 dager).
-    val vedtaksperiode = LocalDate.of(2025, 2, 3) to LocalDate.of(2025, 3, 9)
-
     @Test
     @Order(1)
     fun `Mottar og lagrer VedtakStatusRecord med status FATTET`() {
+        // To 14-dagersperioder og én 7-dagersperiode.
+        val vedtaksperiode =
+            Vedtaksperiode(
+                periodeStart = LocalDate.of(2025, 2, 3),
+                periodeSlutt = LocalDate.of(2025, 3, 9),
+            )
         val fnr = fnr
         val key = fnr.asProducerRecordKey()
         val friskTilArbeidVedtakStatus = lagFriskTilArbeidVedtakStatus(fnr, Status.FATTET, vedtaksperiode)
