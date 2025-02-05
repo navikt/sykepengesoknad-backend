@@ -151,3 +151,5 @@ aiven-kafka:
   auto-offset-reset: earliest
 
 SKRIVEMODUS: READWRITE
+
+BRREG_API_URL: url
