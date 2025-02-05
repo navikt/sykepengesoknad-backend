@@ -10,9 +10,9 @@ import java.time.temporal.ChronoUnit
 class FriskTilArbeidSoknadServiceTest {
     @Test
     fun `Generer perioder for en måned med default periodelengde`() {
-        defaultSoknadPeriodeGenerator(
-            fom = LocalDate.of(2025, 1, 1),
-            tom = LocalDate.of(2025, 1, 31),
+        defaultPeriodeGenerator(
+            periodeStart = LocalDate.of(2025, 1, 1),
+            periodeSlutt = LocalDate.of(2025, 1, 31),
         ).also { perioder ->
             assertEquals(3, perioder.size)
 
@@ -28,9 +28,9 @@ class FriskTilArbeidSoknadServiceTest {
 
     @Test
     fun `Generer perioder for en måned med angitt periodelengde`() {
-        defaultSoknadPeriodeGenerator(
-            fom = LocalDate.of(2025, 1, 1),
-            tom = LocalDate.of(2025, 1, 31),
+        defaultPeriodeGenerator(
+            periodeStart = LocalDate.of(2025, 1, 1),
+            periodeSlutt = LocalDate.of(2025, 1, 31),
             periodeLengde = 7,
         ).also {
             assertEquals(5, it.size)
@@ -49,9 +49,9 @@ class FriskTilArbeidSoknadServiceTest {
 
     @Test
     fun `Generer perioder for en enkelt dag`() {
-        defaultSoknadPeriodeGenerator(
-            fom = LocalDate.of(2025, 1, 1),
-            tom = LocalDate.of(2025, 1, 1),
+        defaultPeriodeGenerator(
+            periodeStart = LocalDate.of(2025, 1, 1),
+            periodeSlutt = LocalDate.of(2025, 1, 1),
         ).also { perioder ->
             assertEquals(1, perioder.size)
 
@@ -67,9 +67,9 @@ class FriskTilArbeidSoknadServiceTest {
     @Test
     fun `Generering av perioder feiler når tom er før tom`() {
         assertThrows<IllegalArgumentException> {
-            defaultSoknadPeriodeGenerator(
-                fom = LocalDate.of(2025, 2, 1),
-                tom = LocalDate.of(2025, 1, 1),
+            defaultPeriodeGenerator(
+                periodeStart = LocalDate.of(2025, 2, 1),
+                periodeSlutt = LocalDate.of(2025, 1, 1),
             )
         }
     }

@@ -25,9 +25,9 @@ class FriskTilArbeidSoknadService(
     @Transactional
     fun opprettSoknader(
         vedtakDbRecord: FriskTilArbeidVedtakDbRecord,
-        periodGenerator: (LocalDate, LocalDate, Long) -> List<Pair<LocalDate, LocalDate>>,
+        periodeGenerator: (LocalDate, LocalDate, Long) -> List<Pair<LocalDate, LocalDate>> = ::defaultPeriodeGenerator,
     ) {
-        periodGenerator(vedtakDbRecord.fom, vedtakDbRecord.tom, SOKNAD_PERIODELENGDE).forEach { (fom, tom) ->
+        periodeGenerator(vedtakDbRecord.fom, vedtakDbRecord.tom, SOKNAD_PERIODELENGDE).forEach { (fom, tom) ->
             lagSoknad(vedtakDbRecord, Soknadsperiode(fom, tom)).also { soknad ->
                 sykepengesoknadDAO!!.lagreSykepengesoknad(soknad)
                 soknadProducer!!.soknadEvent(soknad)
@@ -66,17 +66,17 @@ class FriskTilArbeidSoknadService(
     private data class Soknadsperiode(val fom: LocalDate, val tom: LocalDate)
 }
 
-fun defaultSoknadPeriodeGenerator(
-    fom: LocalDate,
-    tom: LocalDate,
+fun defaultPeriodeGenerator(
+    periodeStart: LocalDate,
+    periodeSlutt: LocalDate,
     periodeLengde: Long = SOKNAD_PERIODELENGDE,
 ): List<Pair<LocalDate, LocalDate>> {
-    if (tom.isBefore(fom)) {
+    if (periodeSlutt.isBefore(periodeStart)) {
         throw IllegalArgumentException("Til-dato kan ikke være før fra-dato.")
     }
-    return generateSequence(fom) {
-        it.plusDays(periodeLengde).takeIf { next -> next.isBefore(tom) }
+    return generateSequence(periodeStart) {
+        it.plusDays(periodeLengde).takeIf { it.isBefore(periodeSlutt) }
     }
-        .map { fom -> fom to minOf(fom.plusDays(periodeLengde - 1), tom) }
+        .map { fom -> fom to minOf(fom.plusDays(periodeLengde - 1), periodeSlutt) }
         .toList()
 }
