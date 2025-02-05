@@ -11,7 +11,6 @@ import org.amshove.kluent.shouldNotBe
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.*
 
@@ -79,15 +78,12 @@ class FriskTilArbeidRepositoryTest : FellesTestOppsett() {
         }
     }
 
-    private fun lagVerdierForLagring(
-        fnr: String,
-        fom: LocalDate? = LocalDate.now(),
-        tom: LocalDate? = LocalDate.now(),
-    ): VerdierForLagring {
-        val uuid = UUID.randomUUID().toString()
-        val key = fnr.asProducerRecordKey()
-        val vedtakStatus = lagFriskTilArbeidVedtakStatus(fnr, Status.FATTET, fom!! to tom!!)
-        return VerdierForLagring(uuid, key, vedtakStatus)
+    private fun lagVerdierForLagring(fnr: String): VerdierForLagring {
+        return VerdierForLagring(
+            uuid = UUID.randomUUID().toString(),
+            key = fnr.asProducerRecordKey(),
+            vedtakStatus = lagFriskTilArbeidVedtakStatus(fnr, Status.FATTET),
+        )
     }
 
     private fun FriskTilArbeidVedtakStatus.tilDbRecord(
