@@ -17,7 +17,7 @@ open class InMemoryCrudRepository<T : Any, ID : Any>(
     private val store = ConcurrentHashMap<ID, T>()
 
     override fun findById(id: ID): Optional<T> {
-        val t = store[id]!! as T
+        val t = store[id]!!
         return Optional.ofNullable(t)
     }
 
