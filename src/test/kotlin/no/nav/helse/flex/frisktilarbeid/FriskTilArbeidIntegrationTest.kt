@@ -1,6 +1,7 @@
 package no.nav.helse.flex.frisktilarbeid
 
 import no.nav.helse.flex.FellesTestOppsett
+import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.kafka.FRISKTILARBEID_TOPIC
 import no.nav.helse.flex.subscribeHvisIkkeSubscribed
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
@@ -78,6 +79,8 @@ class FriskTilArbeidIntegrationTest() : FellesTestOppsett() {
         vedtakSomSkalBehandles.first().also {
             it.fnr `should be equal to` fnr
             it.behandletStatus `should be equal to` BehandletStatus.NY
+            it.fom `should be equal to` vedtaksperiode.periodeStart
+            it.tom `should be equal to` vedtaksperiode.periodeSlutt
         }
     }
 
@@ -88,7 +91,18 @@ class FriskTilArbeidIntegrationTest() : FellesTestOppsett() {
 
         friskTilArbeidRepository.finnVedtakSomSkalBehandles(1).size `should be equal to` 0
 
-        // TODO: Verifiser at søknadene er opprettet med riktig fom og tom i databasen.
+        val friskTilArbeidDbRecord =
+            friskTilArbeidRepository.findAll().first().also {
+                it.behandletStatus `should be equal to` BehandletStatus.BEHANDLET
+            }
+
+        sykepengesoknadRepository.findByFriskTilArbeidVedtakId(friskTilArbeidDbRecord.id!!).also {
+            it.size `should be equal to` 3
+            it.forEach {
+                it.status `should be equal to` Soknadstatus.FREMTIDIG
+                it.friskTilArbeidVedtakId `should be equal to` friskTilArbeidDbRecord.id
+            }
+        }
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 3, Duration.ofSeconds(1)).tilSoknader().also { soknader ->
             soknader.size `should be equal to` 3
