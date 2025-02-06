@@ -22,11 +22,11 @@ class FriskTilArbeidService(
         if (friskTilArbeidVedtakStatus.status == Status.FATTET) {
             val eksisterendeVedtak = friskTilArbeidRepository.findByFnr(friskTilArbeidVedtakStatus.personident)
 
-            eksisterendeVedtak.find { vedtakOverlapper(it, friskTilArbeidVedtakStatus) }?.also {
+            eksisterendeVedtak.firstOrNull { vedtakOverlapper(it, friskTilArbeidVedtakStatus) }?.apply {
                 val feilmelding =
                     "Vedtak med key: ${kafkaMelding.key} og " +
                         "periode: [${friskTilArbeidVedtakStatus.fom} - ${friskTilArbeidVedtakStatus.tom}] " +
-                        "overlapper med vedtak med periode: [${it.fom} - ${it.tom}]."
+                        "overlapper med vedtak med periode: [$fom - $tom]."
                 log.error(feilmelding)
                 throw FriskTilArbeidVedtakStatusException(feilmelding)
             }

@@ -59,34 +59,20 @@ class FriskTilArbeidServiceTest {
 
     @Test
     fun `Lagrer to perioder som ikke overlapper`() {
-        friskTilArbeidService.lagreFriskTilArbeidVedtakStatus(
-            FriskTilArbeidVedtakStatusKafkaMelding(
-                key = key,
-                friskTilArbeidVedtakStatus =
-                    lagFriskTilArbeidVedtakStatus(
-                        fnr,
-                        Status.FATTET,
-                        Vedtaksperiode(
-                            periodeStart = LocalDate.of(2024, 1, 1),
-                            periodeSlutt = LocalDate.of(2024, 1, 7),
-                        ),
-                    ),
+        lagFriskTilArbeidVedtakStatus(
+            Vedtaksperiode(
+                periodeStart = LocalDate.of(2024, 1, 1),
+                periodeSlutt = LocalDate.of(2024, 1, 7),
             ),
         )
-        friskTilArbeidService.lagreFriskTilArbeidVedtakStatus(
-            FriskTilArbeidVedtakStatusKafkaMelding(
-                key = key,
-                friskTilArbeidVedtakStatus =
-                    lagFriskTilArbeidVedtakStatus(
-                        fnr,
-                        Status.FATTET,
-                        Vedtaksperiode(
-                            periodeStart = LocalDate.of(2024, 1, 8),
-                            periodeSlutt = LocalDate.of(2024, 1, 15),
-                        ),
-                    ),
+
+        lagFriskTilArbeidVedtakStatus(
+            Vedtaksperiode(
+                periodeStart = LocalDate.of(2024, 1, 8),
+                periodeSlutt = LocalDate.of(2024, 1, 15),
             ),
         )
+
         fakeFriskTilArbeidRepository.findAll().toList() shouldHaveSize 2
     }
 
