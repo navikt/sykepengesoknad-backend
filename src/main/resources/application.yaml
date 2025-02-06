@@ -90,6 +90,15 @@ no.nav.security.jwt:
           client-auth-method: private_key_jwt
         token-exchange:
           audience: ${INNSENDING_API_TOKENX_CLIENT_ID}
+      flex-brreg-proxy-tokenx:
+        token-endpoint-url: ${TOKEN_X_TOKEN_ENDPOINT}
+        grant-type: urn:ietf:params:oauth:grant-type:token-exchange
+        authentication:
+          client-id: ${TOKEN_X_CLIENT_ID}
+          client-jwk: ${TOKEN_X_PRIVATE_JWK}
+          client-auth-method: private_key_jwt
+        token-exchange:
+          audience: ${FLEX_BRREG_PROXY_TOKENX_CLIENT_ID}
 
 logging.config: classpath:logback.xml
 
