@@ -16,6 +16,10 @@ class SykepengesoknadRepositoryFake : SykepengesoknadRepository {
         TODO("Not yet implemented")
     }
 
+    override fun findByFriskTilArbeidVedtakId(vedtakId: String): List<SykepengesoknadDbRecord> {
+        TODO("Not yet implemented")
+    }
+
     override fun findBySykepengesoknadUuidIn(sykepengesoknadUuid: List<String>): List<SykepengesoknadDbRecord> {
         TODO("Not yet implemented")
     }

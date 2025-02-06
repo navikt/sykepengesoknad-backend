@@ -10,6 +10,8 @@ import java.time.LocalDate
 interface SykepengesoknadRepository : CrudRepository<SykepengesoknadDbRecord, String> {
     fun findBySykepengesoknadUuid(sykepengesoknadUuid: String): SykepengesoknadDbRecord?
 
+    fun findByFriskTilArbeidVedtakId(vedtakId: String): List<SykepengesoknadDbRecord>
+
     fun findBySykepengesoknadUuidIn(sykepengesoknadUuid: List<String>): List<SykepengesoknadDbRecord>
 
     fun findByFnrIn(fnrs: List<String>): List<SykepengesoknadDbRecord>
