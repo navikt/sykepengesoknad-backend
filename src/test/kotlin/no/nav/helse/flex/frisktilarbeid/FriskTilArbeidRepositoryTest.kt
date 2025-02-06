@@ -79,10 +79,11 @@ class FriskTilArbeidRepositoryTest : FellesTestOppsett() {
     }
 
     private fun lagVerdierForLagring(fnr: String): VerdierForLagring {
-        val uuid = UUID.randomUUID().toString()
-        val key = fnr.asProducerRecordKey()
-        val vedtakStatus = lagFriskTilArbeidVedtakStatus(fnr, Status.FATTET)
-        return VerdierForLagring(uuid, key, vedtakStatus)
+        return VerdierForLagring(
+            uuid = UUID.randomUUID().toString(),
+            key = fnr.asProducerRecordKey(),
+            vedtakStatus = lagFriskTilArbeidVedtakStatus(fnr, Status.FATTET),
+        )
     }
 
     private fun FriskTilArbeidVedtakStatus.tilDbRecord(

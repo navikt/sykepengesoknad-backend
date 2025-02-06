@@ -47,7 +47,7 @@ class FriskTilArbeidService(
         log.info("Hentet ${dbRecords.size} FriskTilArbeidVedtakStatus for med status NY.")
 
         dbRecords.forEach {
-            friskTilArbeidSoknadService.opprettSoknad(it)
+            friskTilArbeidSoknadService.opprettSoknader(it)
         }
     }
 }
