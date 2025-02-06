@@ -1,6 +1,7 @@
 package no.nav.helse.flex.frisktilarbeid
 
 import com.fasterxml.jackson.core.JacksonException
+import no.nav.helse.flex.config.EnvironmentToggles
 import no.nav.helse.flex.kafka.FRISKTILARBEID_TOPIC
 import no.nav.helse.flex.logger
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component
 @Component
 class FriskTilArbeidConsumer(
     private val friskTilArbeidService: FriskTilArbeidService,
+    private val environmentToggles: EnvironmentToggles,
 ) {
     val log = logger()
 
@@ -40,8 +42,16 @@ class FriskTilArbeidConsumer(
             log.error("Klarte ikke å deserialisere FriskTilArbeidVedtakStatus", e)
             throw e
         } catch (e: Exception) {
-            log.error("Feilet ved mottak av FriskTilArbeidVedtakStatus", e)
-            throw e
+            if (environmentToggles.isNotProduction()) {
+                log.error(
+                    "Feilet ved mottak av FriskTilArbeidVedtakStatus men ACKer Kafka-melding siden vi er i Dev.",
+                    e,
+                )
+                acknowledgment.acknowledge()
+            } else {
+                log.error("Feilet ved mottak av FriskTilArbeidVedtakStatus", e)
+                throw e
+            }
         }
     }
 }

@@ -20,6 +20,17 @@ class FriskTilArbeidService(
         val friskTilArbeidVedtakStatus = kafkaMelding.friskTilArbeidVedtakStatus
 
         if (friskTilArbeidVedtakStatus.status == Status.FATTET) {
+            val eksisterendeVedtak = friskTilArbeidRepository.findByFnr(friskTilArbeidVedtakStatus.personident)
+
+            eksisterendeVedtak.find { vedtakOverlapper(it, friskTilArbeidVedtakStatus) }?.also {
+                val feilmelding =
+                    "Vedtak med key: ${kafkaMelding.key} og " +
+                        "periode: [${friskTilArbeidVedtakStatus.fom} - ${friskTilArbeidVedtakStatus.tom}] " +
+                        "overlapper med vedtak med periode: [${it.fom} - ${it.tom}]."
+                log.error(feilmelding)
+                throw FriskTilArbeidVedtakStatusException(feilmelding)
+            }
+
             friskTilArbeidRepository.save(
                 FriskTilArbeidVedtakDbRecord(
                     vedtakUuid = UUID.randomUUID().toString(),
@@ -50,6 +61,15 @@ class FriskTilArbeidService(
             friskTilArbeidSoknadService.opprettSoknader(it)
         }
     }
+
+    private fun vedtakOverlapper(
+        eksisterendeVedtak: FriskTilArbeidVedtakDbRecord,
+        nyttVedtak: FriskTilArbeidVedtakStatus,
+    ): Boolean {
+        return eksisterendeVedtak.fnr == nyttVedtak.personident &&
+            eksisterendeVedtak.fom <= nyttVedtak.tom &&
+            eksisterendeVedtak.tom >= nyttVedtak.fom
+    }
 }
 
 fun String.tilFriskTilArbeidVedtakStatus(): FriskTilArbeidVedtakStatus = objectMapper.readValue(this)
@@ -74,3 +94,5 @@ enum class Status {
     FATTET,
     FERDIG_BEHANDLET,
 }
+
+class FriskTilArbeidVedtakStatusException(message: String) : RuntimeException()
