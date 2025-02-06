@@ -8,6 +8,7 @@ import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 
 class RolleutskriftServiceTest : FakesTestOppsett() {
@@ -40,5 +41,20 @@ class RolleutskriftServiceTest : FakesTestOppsett() {
                 it.rolleType `should be equal to` RolleType.INNH
                 it.organisasjonsnummer `should be equal to` "orgnummer"
             }
+    }
+
+    @Test
+    fun `burde kaste feil fra brreg api`() {
+        brregServer.enqueue(
+            MockResponse()
+                .setResponseCode(500)
+                .setBody("Feil i api"),
+        )
+
+        assertThrows<Exception> {
+            rolleutskriftService
+                .hentSelvstendigNaringsdrivendeRoller("fnr")
+                .isEmpty() `should be equal to` true
+        }
     }
 }
