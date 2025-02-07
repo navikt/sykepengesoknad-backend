@@ -1,6 +1,7 @@
 package no.nav.helse.flex.frisktilarbeid
 
 import no.nav.helse.flex.FellesTestOppsett
+import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.kafka.FRISKTILARBEID_TOPIC
 import no.nav.helse.flex.subscribeHvisIkkeSubscribed
@@ -51,9 +52,9 @@ class FriskTilArbeidIntegrationTest() : FellesTestOppsett() {
     fun `Mottar og lagrer VedtakStatusRecord med status FATTET`() {
         // To 14-dagersperioder og én 7-dagersperiode.
         val vedtaksperiode =
-            Vedtaksperiode(
-                periodeStart = LocalDate.of(2025, 2, 3),
-                periodeSlutt = LocalDate.of(2025, 3, 9),
+            Periode(
+                fom = LocalDate.of(2025, 2, 3),
+                tom = LocalDate.of(2025, 3, 9),
             )
         val fnr = fnr
         val key = fnr.asProducerRecordKey()
@@ -80,8 +81,8 @@ class FriskTilArbeidIntegrationTest() : FellesTestOppsett() {
         vedtakSomSkalBehandles.first().also {
             it.fnr `should be equal to` fnr
             it.behandletStatus `should be equal to` BehandletStatus.NY
-            it.fom `should be equal to` vedtaksperiode.periodeStart
-            it.tom `should be equal to` vedtaksperiode.periodeSlutt
+            it.fom `should be equal to` vedtaksperiode.fom
+            it.tom `should be equal to` vedtaksperiode.tom
         }
     }
 
@@ -111,6 +112,13 @@ class FriskTilArbeidIntegrationTest() : FellesTestOppsett() {
                 it.fnr `should be equal to` fnr
                 it.status `should be equal to` SoknadsstatusDTO.FREMTIDIG
                 it.type `should be equal to` SoknadstypeDTO.FRISKMELDT_TIL_ARBEIDSFORMIDLING
+
+                it.friskTilArbeidVedtakId `should be equal to` friskTilArbeidDbRecord.id
+                it.friskTilArbeidVedtakPeriode `should be equal to`
+                    Periode(
+                        fom = friskTilArbeidDbRecord.fom,
+                        tom = friskTilArbeidDbRecord.tom,
+                    ).serialisertTilString()
             }
         }
     }

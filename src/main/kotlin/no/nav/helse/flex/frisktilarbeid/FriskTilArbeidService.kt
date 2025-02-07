@@ -95,4 +95,4 @@ enum class Status {
     FERDIG_BEHANDLET,
 }
 
-class FriskTilArbeidVedtakStatusException(message: String) : RuntimeException()
+class FriskTilArbeidVedtakStatusException(message: String) : RuntimeException(message)
