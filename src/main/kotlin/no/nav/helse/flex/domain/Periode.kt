@@ -19,7 +19,5 @@ data class Periode(
             .toList()
     }
 
-    fun overlapper(andre: Periode) =
-        (this.fom >= andre.fom && this.fom <= andre.tom) ||
-            (this.tom <= andre.tom && this.tom >= andre.fom)
+    fun overlapper(andre: Periode) = this.fom <= andre.tom && this.tom >= andre.fom
 }
