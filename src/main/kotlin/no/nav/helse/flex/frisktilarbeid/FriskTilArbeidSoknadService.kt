@@ -1,5 +1,6 @@
 package no.nav.helse.flex.frisktilarbeid
 
+import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
@@ -28,10 +29,10 @@ class FriskTilArbeidSoknadService(
         periodeGenerator: (LocalDate, LocalDate, Long) -> List<Pair<LocalDate, LocalDate>> = ::defaultPeriodeGenerator,
     ) {
         periodeGenerator(vedtakDbRecord.fom, vedtakDbRecord.tom, SOKNAD_PERIODELENGDE).forEach { (fom, tom) ->
-            lagSoknad(vedtakDbRecord, Soknadsperiode(fom, tom)).also { soknad ->
-                sykepengesoknadDAO!!.lagreSykepengesoknad(soknad)
-                soknadProducer!!.soknadEvent(soknad)
-                log.info("Opprettet soknad med status: FREMTIDIG og id: ${soknad.id}")
+            lagSoknad(vedtakDbRecord, Periode(fom, tom)).also {
+                val lagretSoknad = sykepengesoknadDAO!!.lagreSykepengesoknad(it)
+                soknadProducer!!.soknadEvent(lagretSoknad)
+                log.info("Opprettet soknad: ${it.id} for FriskTilArbeidVedtakStatus med id: ${vedtakDbRecord.id}.")
             }
         }
         friskTilArbeidRepository.save(vedtakDbRecord.copy(behandletStatus = BehandletStatus.BEHANDLET))
@@ -39,7 +40,7 @@ class FriskTilArbeidSoknadService(
 
     private fun lagSoknad(
         vedtakDbRecord: FriskTilArbeidVedtakDbRecord,
-        soknadsperiode: Soknadsperiode,
+        soknadsperiode: Periode,
     ): Sykepengesoknad {
         val grunnlagForId =
             "${vedtakDbRecord.id}${soknadsperiode.fom}${soknadsperiode.tom}${vedtakDbRecord.opprettet}"
@@ -62,8 +63,6 @@ class FriskTilArbeidSoknadService(
 
         return sykepengesoknad
     }
-
-    private data class Soknadsperiode(val fom: LocalDate, val tom: LocalDate)
 }
 
 fun defaultPeriodeGenerator(

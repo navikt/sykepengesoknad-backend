@@ -1,9 +1,11 @@
 package no.nav.helse.flex.domain.mapper
 
 import no.nav.helse.flex.domain.Mottaker
+import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentSoknadsPerioderMedFaktiskGrad
+import no.nav.helse.flex.frisktilarbeid.FriskTilArbeidRepository
 import no.nav.helse.flex.juridiskvurdering.JuridiskVurderingKafkaProducer
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingRepository
 import no.nav.helse.flex.repository.RedusertVenteperiodeRepository
@@ -15,6 +17,7 @@ import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsperiodeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
+import no.nav.helse.flex.util.serialisertTilString
 import org.springframework.stereotype.Component
 
 @Component
@@ -22,6 +25,7 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
     private val juridiskVurderingKafkaProducer: JuridiskVurderingKafkaProducer,
     private val redusertVenteperiodeRepository: RedusertVenteperiodeRepository,
     private val medlemskapVurderingRepository: MedlemskapVurderingRepository,
+    private val friskTilArbeidRepository: FriskTilArbeidRepository,
 ) {
     fun mapTilSykepengesoknadDTO(
         sykepengesoknad: Sykepengesoknad,
@@ -50,6 +54,7 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
         }
             .merkSelvstendigOgFrilanserMedRedusertVenteperiode()
             .merkMedMedlemskapStatus()
+            .merkMedFriskTilArbeidVedtakPeriode()
     }
 
     private fun Sykepengesoknad.hentSoknadsperioder(endeligVurdering: Boolean): List<SoknadsperiodeDTO> {
@@ -82,6 +87,23 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
             copy(harRedusertVenteperiode = redusertVenteperiodeRepository.existsBySykmeldingId(sykmeldingId!!))
         } else {
             this
+        }
+    }
+
+    private fun SykepengesoknadDTO.merkMedFriskTilArbeidVedtakPeriode(): SykepengesoknadDTO {
+        if (type != SoknadstypeDTO.FRISKMELDT_TIL_ARBEIDSFORMIDLING) {
+            return this
+        }
+
+        friskTilArbeidRepository.findById(friskTilArbeidVedtakId!!).let {
+            val friskTilArbeidDbRecord = it.get()
+            return copy(
+                friskTilArbeidVedtakPeriode =
+                    Periode(
+                        friskTilArbeidDbRecord.fom,
+                        friskTilArbeidDbRecord.tom,
+                    ).serialisertTilString(),
+            )
         }
     }
 

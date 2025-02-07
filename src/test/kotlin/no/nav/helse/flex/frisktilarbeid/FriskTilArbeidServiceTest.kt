@@ -1,5 +1,6 @@
 package no.nav.helse.flex.frisktilarbeid
 
+import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.fakes.InMemoryCrudRepository
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldHaveSize
@@ -60,16 +61,16 @@ class FriskTilArbeidServiceTest {
     @Test
     fun `Lagrer to perioder som ikke overlapper`() {
         lagFriskTilArbeidVedtakStatus(
-            Vedtaksperiode(
-                periodeStart = LocalDate.of(2024, 1, 1),
-                periodeSlutt = LocalDate.of(2024, 1, 7),
+            Periode(
+                fom = LocalDate.of(2024, 1, 1),
+                tom = LocalDate.of(2024, 1, 7),
             ),
         )
 
         lagFriskTilArbeidVedtakStatus(
-            Vedtaksperiode(
-                periodeStart = LocalDate.of(2024, 1, 8),
-                periodeSlutt = LocalDate.of(2024, 1, 15),
+            Periode(
+                fom = LocalDate.of(2024, 1, 8),
+                tom = LocalDate.of(2024, 1, 15),
             ),
         )
 
@@ -79,16 +80,16 @@ class FriskTilArbeidServiceTest {
     @Test
     fun `Lagrer to overlappende perioder for to forskjellige brukere`() {
         lagFriskTilArbeidVedtakStatus(
-            Vedtaksperiode(
-                periodeStart = LocalDate.of(2024, 1, 1),
-                periodeSlutt = LocalDate.of(2024, 1, 7),
+            Periode(
+                fom = LocalDate.of(2024, 1, 1),
+                tom = LocalDate.of(2024, 1, 7),
             ),
         )
 
         lagFriskTilArbeidVedtakStatus(
-            Vedtaksperiode(
-                periodeStart = LocalDate.of(2024, 1, 5),
-                periodeSlutt = LocalDate.of(2024, 1, 13),
+            Periode(
+                fom = LocalDate.of(2024, 1, 5),
+                tom = LocalDate.of(2024, 1, 13),
             ),
             personident = "22222222222",
         )
@@ -99,17 +100,17 @@ class FriskTilArbeidServiceTest {
     @Test
     fun `Feiler ved lagring av to vedtak med samme fom og tom`() {
         lagFriskTilArbeidVedtakStatus(
-            Vedtaksperiode(
-                periodeStart = LocalDate.of(2024, 1, 1),
-                periodeSlutt = LocalDate.of(2024, 1, 7),
+            Periode(
+                fom = LocalDate.of(2024, 1, 1),
+                tom = LocalDate.of(2024, 1, 7),
             ),
         )
 
         assertThrows<FriskTilArbeidVedtakStatusException> {
             lagFriskTilArbeidVedtakStatus(
-                Vedtaksperiode(
-                    periodeStart = LocalDate.of(2024, 1, 1),
-                    periodeSlutt = LocalDate.of(2024, 1, 7),
+                Periode(
+                    fom = LocalDate.of(2024, 1, 1),
+                    tom = LocalDate.of(2024, 1, 7),
                 ),
             )
         }
@@ -118,17 +119,17 @@ class FriskTilArbeidServiceTest {
     @Test
     fun `Feiler ved lagring av nytt vedtak med fom før eksisterende vedtaks tom`() {
         lagFriskTilArbeidVedtakStatus(
-            Vedtaksperiode(
-                periodeStart = LocalDate.of(2024, 1, 1),
-                periodeSlutt = LocalDate.of(2024, 1, 7),
+            Periode(
+                fom = LocalDate.of(2024, 1, 1),
+                tom = LocalDate.of(2024, 1, 7),
             ),
         )
 
         assertThrows<FriskTilArbeidVedtakStatusException> {
             lagFriskTilArbeidVedtakStatus(
-                Vedtaksperiode(
-                    periodeStart = LocalDate.of(2024, 1, 5),
-                    periodeSlutt = LocalDate.of(2024, 1, 13),
+                Periode(
+                    fom = LocalDate.of(2024, 1, 5),
+                    tom = LocalDate.of(2024, 1, 13),
                 ),
             )
         }
@@ -137,17 +138,17 @@ class FriskTilArbeidServiceTest {
     @Test
     fun `Feiler ved lagring av nytt vedtak med tom etter eksisterende vedtaks fom`() {
         lagFriskTilArbeidVedtakStatus(
-            Vedtaksperiode(
-                periodeStart = LocalDate.of(2024, 1, 5),
-                periodeSlutt = LocalDate.of(2024, 1, 13),
+            Periode(
+                fom = LocalDate.of(2024, 1, 5),
+                tom = LocalDate.of(2024, 1, 13),
             ),
         )
 
         assertThrows<FriskTilArbeidVedtakStatusException> {
             lagFriskTilArbeidVedtakStatus(
-                Vedtaksperiode(
-                    periodeStart = LocalDate.of(2024, 1, 1),
-                    periodeSlutt = LocalDate.of(2024, 1, 7),
+                Periode(
+                    fom = LocalDate.of(2024, 1, 1),
+                    tom = LocalDate.of(2024, 1, 7),
                 ),
             )
         }
@@ -156,17 +157,17 @@ class FriskTilArbeidServiceTest {
     @Test
     fun `Feiler ved lagring av nytt vedtak med fom lik eksisterende vedtaks tom`() {
         lagFriskTilArbeidVedtakStatus(
-            Vedtaksperiode(
-                periodeStart = LocalDate.of(2024, 1, 1),
-                periodeSlutt = LocalDate.of(2024, 1, 7),
+            Periode(
+                fom = LocalDate.of(2024, 1, 1),
+                tom = LocalDate.of(2024, 1, 7),
             ),
         )
 
         assertThrows<FriskTilArbeidVedtakStatusException> {
             lagFriskTilArbeidVedtakStatus(
-                Vedtaksperiode(
-                    periodeStart = LocalDate.of(2024, 1, 7),
-                    periodeSlutt = LocalDate.of(2024, 1, 14),
+                Periode(
+                    fom = LocalDate.of(2024, 1, 7),
+                    tom = LocalDate.of(2024, 1, 14),
                 ),
             )
         }
@@ -175,17 +176,17 @@ class FriskTilArbeidServiceTest {
     @Test
     fun `Feiler ved lagring av nytt vedtak med tom lik eksisterende vedtaks fom`() {
         lagFriskTilArbeidVedtakStatus(
-            Vedtaksperiode(
-                periodeStart = LocalDate.of(2024, 1, 7),
-                periodeSlutt = LocalDate.of(2024, 1, 14),
+            Periode(
+                fom = LocalDate.of(2024, 1, 7),
+                tom = LocalDate.of(2024, 1, 14),
             ),
         )
 
         assertThrows<FriskTilArbeidVedtakStatusException> {
             lagFriskTilArbeidVedtakStatus(
-                Vedtaksperiode(
-                    periodeStart = LocalDate.of(2024, 1, 1),
-                    periodeSlutt = LocalDate.of(2024, 1, 7),
+                Periode(
+                    fom = LocalDate.of(2024, 1, 1),
+                    tom = LocalDate.of(2024, 1, 7),
                 ),
             )
         }
@@ -216,7 +217,7 @@ class FriskTilArbeidServiceTest {
     }
 
     private fun lagFriskTilArbeidVedtakStatus(
-        vedtaksperiode: Vedtaksperiode,
+        vedtaksperiode: Periode,
         personident: String = fnr,
     ) {
         friskTilArbeidService.lagreFriskTilArbeidVedtakStatus(
