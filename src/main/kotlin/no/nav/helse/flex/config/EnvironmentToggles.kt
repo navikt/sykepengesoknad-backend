@@ -17,4 +17,6 @@ class EnvironmentToggles(
     fun isProductionOrQ() = isProduction() || isQ()
 
     fun isReadOnly() = "READONLY" == skrivemodus
+
+    fun environment(): String = fasitEnvironmentName
 }

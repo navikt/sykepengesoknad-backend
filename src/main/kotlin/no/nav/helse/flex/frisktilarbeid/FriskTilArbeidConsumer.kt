@@ -1,6 +1,5 @@
 package no.nav.helse.flex.frisktilarbeid
 
-import com.fasterxml.jackson.core.JacksonException
 import no.nav.helse.flex.config.EnvironmentToggles
 import no.nav.helse.flex.kafka.FRISKTILARBEID_TOPIC
 import no.nav.helse.flex.logger
@@ -38,18 +37,16 @@ class FriskTilArbeidConsumer(
                 ),
             )
             acknowledgment.acknowledge()
-        } catch (e: JacksonException) {
-            log.error("Klarte ikke å deserialisere FriskTilArbeidVedtakStatus", e)
-            throw e
         } catch (e: Exception) {
             if (environmentToggles.isNotProduction()) {
                 log.error(
-                    "Feilet ved mottak av FriskTilArbeidVedtakStatus men ACKer Kafka-melding siden vi er i Dev.",
+                    "Feilet ved mottak av FriskTilArbeidVedtakStatus men Ack-er melding siden " +
+                        "environment er ${environmentToggles.environment()}.",
                     e,
                 )
                 acknowledgment.acknowledge()
             } else {
-                log.error("Feilet ved mottak av FriskTilArbeidVedtakStatus", e)
+                log.error("Feilet ved mottak av FriskTilArbeidVedtakStatus.", e)
                 throw e
             }
         }
