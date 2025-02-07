@@ -3,6 +3,7 @@ package no.nav.helse.flex.client.brreg
 class Rolle(
     val rolleType: RolleType,
     val organisasjonsnummer: String,
+    val organisasjonsnavn: String,
 )
 
 enum class RolleType(

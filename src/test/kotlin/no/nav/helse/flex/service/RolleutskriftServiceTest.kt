@@ -19,12 +19,41 @@ class RolleutskriftServiceTest : FakesTestOppsett() {
     lateinit var rolleutskriftService: RolleutskriftService
 
     @Test
+    fun `burde hente selvstendig næringsdrivende`() {
+        val forventetRolleListe =
+            listOf(
+                Rolle(
+                    rolleType = RolleType.INNH,
+                    organisasjonsnummer = "orgnummer",
+                    organisasjonsnavn = "orgnavn",
+                ),
+            )
+
+        brregServer.enqueue(
+            MockResponse()
+                .setHeader("Content-Type", "application/json")
+                .setBody(forventetRolleListe.serialisertTilString()),
+        )
+
+        rolleutskriftService
+            .hentSelvstendigNaringsdrivende("fnr")
+            .organisasjoner
+            .first()
+            .also {
+                it.orgnavn `should be equal to` "orgnavn"
+                it.orgnummer `should be equal to` "orgnummer"
+                it.organisasjonsform `should be equal to` "ENK"
+            }
+    }
+
+    @Test
     fun `burde hente selvstendig næringsdrivende roller`() {
         val forventetRolleListe =
             listOf(
                 Rolle(
                     rolleType = RolleType.INNH,
                     organisasjonsnummer = "orgnummer",
+                    organisasjonsnavn = "orgnavn",
                 ),
             )
 
@@ -40,6 +69,7 @@ class RolleutskriftServiceTest : FakesTestOppsett() {
             .also {
                 it.rolleType `should be equal to` RolleType.INNH
                 it.organisasjonsnummer `should be equal to` "orgnummer"
+                it.organisasjonsnavn `should be equal to` "orgnavn"
             }
     }
 
