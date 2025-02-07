@@ -315,6 +315,10 @@ class FriskTilArbeidRepositoryFake : FriskTilArbeidRepository {
         TODO("Not yet implemented")
     }
 
+    override fun findByFnr(fnr: String): List<FriskTilArbeidVedtakDbRecord> {
+        TODO("Not yet implemented")
+    }
+
     override fun <S : FriskTilArbeidVedtakDbRecord?> save(entity: S & Any): S & Any {
         TODO("Not yet implemented")
     }

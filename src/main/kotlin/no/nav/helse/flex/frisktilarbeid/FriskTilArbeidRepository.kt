@@ -26,6 +26,8 @@ interface FriskTilArbeidRepository : CrudRepository<FriskTilArbeidVedtakDbRecord
     @Modifying
     @Query("DELETE FROM frisk_til_arbeid_vedtak WHERE fnr = :fnr")
     fun deleteByFnr(fnr: String): Long
+
+    fun findByFnr(fnr: String): List<FriskTilArbeidVedtakDbRecord>
 }
 
 @Table("frisk_til_arbeid_vedtak")

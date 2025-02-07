@@ -32,7 +32,7 @@ class FriskTilArbeidTestDataConsumer(
                 ),
             )
         } catch (e: Exception) {
-            log.error("Feilet ved mottak av FriskTilArbeidVedtakStatus", e)
+            log.error("Feilet ved mottak av FriskTilArbeidVedtakStatus.", e)
         } finally {
             acknowledgment.acknowledge()
         }
