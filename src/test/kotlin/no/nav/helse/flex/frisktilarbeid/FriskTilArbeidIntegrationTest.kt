@@ -5,6 +5,7 @@ import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.kafka.FRISKTILARBEID_TOPIC
 import no.nav.helse.flex.subscribeHvisIkkeSubscribed
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
+import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.util.serialisertTilString
 import no.nav.helse.flex.ventPåRecords
@@ -109,6 +110,7 @@ class FriskTilArbeidIntegrationTest() : FellesTestOppsett() {
             soknader.forEach {
                 it.fnr `should be equal to` fnr
                 it.status `should be equal to` SoknadsstatusDTO.FREMTIDIG
+                it.type `should be equal to` SoknadstypeDTO.FRISKMELDT_TIL_ARBEIDSFORMIDLING
             }
         }
     }
