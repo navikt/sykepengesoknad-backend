@@ -47,3 +47,4 @@ env:
   AAREG_URL: https://aareg-services.prod-fss-pub.nais.io
   AAREG_AAD_CLIENT_ID: prod-fss.arbeidsforhold.aareg-services-nais
   BRREG_API_URL: http://flex-brreg-proxy
+  BRREG_AAD_CLIENT_ID: prod-gcp.flex.flex-brreg-proxy
