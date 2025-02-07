@@ -46,5 +46,4 @@ env:
   GRUNNBELOEP_API_URL: https://g.nav.no/api/v1
   AAREG_URL: https://aareg-services.prod-fss-pub.nais.io
   AAREG_AAD_CLIENT_ID: prod-fss.arbeidsforhold.aareg-services-nais
-  FLEX_BRREG_PROXY_TOKENX_CLIENT_ID: prod-gcp:flex:flex-brreg-proxy
   BRREG_API_URL: http://flex-brreg-proxy
