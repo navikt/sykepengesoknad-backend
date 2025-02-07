@@ -84,6 +84,7 @@ spec:
       rules:
         - application: sykepengesoknad-kvitteringer
         - application: flex-syketilfelle
+        - application: flex-brreg-proxy
         - application: yrkesskade-saker
           namespace: yrkesskade
         - application: istilgangskontroll

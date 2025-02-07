@@ -21,7 +21,7 @@ const val IGNORED_KAFKA_BROKERS = "localhost:1"
 @AutoConfigureObservability
 @EnableMockOAuth2Server
 @SpringBootTest(
-    classes = [Application::class],
+    classes = [Application::class, MockWebServereConfig::class],
     properties = [
         "spring.main.allow-bean-definition-overriding=true",
         "spring.data.jdbc.repositories.enabled=false",
@@ -64,11 +64,7 @@ abstract class FakesTestOppsett : TestOppsettInterfaces {
     fun slettDatabase() {
     }
 
-    override fun server(): MockOAuth2Server {
-        return server
-    }
+    override fun server(): MockOAuth2Server = server
 
-    override fun mockMvc(): MockMvc {
-        return mockMvc
-    }
+    override fun mockMvc(): MockMvc = mockMvc
 }
