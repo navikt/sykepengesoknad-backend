@@ -1,5 +1,6 @@
 package no.nav.helse.flex.frisktilarbeid
 
+import no.nav.helse.flex.domain.Periode
 import org.postgresql.util.PGobject
 import org.springframework.data.annotation.Id
 import org.springframework.data.jdbc.repository.query.Modifying
@@ -44,6 +45,8 @@ data class FriskTilArbeidVedtakDbRecord(
     val behandletStatus: BehandletStatus,
     val behandletTidspunkt: OffsetDateTime? = null,
 )
+
+fun FriskTilArbeidVedtakDbRecord.tilPeriode() = Periode(fom, tom)
 
 enum class BehandletStatus {
     NY,
