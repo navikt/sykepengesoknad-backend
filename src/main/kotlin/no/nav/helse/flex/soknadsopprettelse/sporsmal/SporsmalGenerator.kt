@@ -22,6 +22,7 @@ import no.nav.helse.flex.service.SykepengegrunnlagForNaeringsdrivende
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.soknadsopprettelse.aaregdata.AaregDataHenting
 import no.nav.helse.flex.soknadsopprettelse.aaregdata.ArbeidsforholdFraAAreg
+import no.nav.helse.flex.soknadsopprettelse.frisktilarbeid.settOppSykepengesoknadFriskmeldtTilArbeidsformidling
 import no.nav.helse.flex.unleash.UnleashToggles
 import no.nav.helse.flex.util.serialisertTilString
 import no.nav.helse.flex.yrkesskade.YrkesskadeIndikatorer
@@ -142,6 +143,11 @@ class SporsmalGenerator(
 
         if (soknad.soknadstype == Soknadstype.REISETILSKUDD) {
             return skapReisetilskuddsoknad(
+                soknadOptions,
+            ).tilSporsmalOgAndreKjenteArbeidsforhold()
+        }
+        if (soknad.soknadstype == Soknadstype.FRISKMELDT_TIL_ARBEIDSFORMIDLING) {
+            return settOppSykepengesoknadFriskmeldtTilArbeidsformidling(
                 soknadOptions,
             ).tilSporsmalOgAndreKjenteArbeidsforhold()
         }
