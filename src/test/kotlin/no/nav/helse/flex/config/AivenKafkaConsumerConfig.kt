@@ -20,6 +20,9 @@ class AivenKafkaConsumerConfig(
     @Bean
     fun auditlogKafkaConsumer() = KafkaConsumer<String, String>(consumerConfig("auditlog-group-id"))
 
+    @Bean
+    fun arbeidssokerRegisterStoppConsumer() = KafkaConsumer<String, String>(consumerConfig("aarbeidssoker-group-id"))
+
     private fun consumerConfig(groupId: String) =
         mapOf(
             ConsumerConfig.GROUP_ID_CONFIG to groupId,

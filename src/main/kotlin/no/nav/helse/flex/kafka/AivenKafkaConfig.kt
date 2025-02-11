@@ -188,3 +188,4 @@ const val SYKEPENGESOKNAD_AKTIVERING_TOPIC = "flex." + "sykepengesoknad-aktiveri
 const val PERSONHENDELSE_TOPIC = "pdl." + "leesah-v1"
 const val AUDIT_TOPIC = "flex.auditlogging"
 const val FRISKTILARBEID_TOPIC = "teamsykefravr.isfrisktilarbeid-vedtak-status"
+const val ARBEIDSSOKERREGISTER_STOPP_TOPIC = "flex.arbeidssokerregister-stopp-topic"
