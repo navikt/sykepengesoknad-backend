@@ -27,15 +27,19 @@ class FriskTilArbeidSoknadService(
     fun opprettSoknader(
         vedtakDbRecord: FriskTilArbeidVedtakDbRecord,
         periodeGenerator: (LocalDate, LocalDate, Long) -> List<Pair<LocalDate, LocalDate>> = ::defaultPeriodeGenerator,
-    ) {
-        periodeGenerator(vedtakDbRecord.fom, vedtakDbRecord.tom, SOKNAD_PERIODELENGDE).forEach { (fom, tom) ->
-            lagSoknad(vedtakDbRecord, Periode(fom, tom)).also {
-                val lagretSoknad = sykepengesoknadDAO!!.lagreSykepengesoknad(it)
-                soknadProducer!!.soknadEvent(lagretSoknad)
-                log.info("Opprettet soknad: ${it.id} for FriskTilArbeidVedtakStatus med id: ${vedtakDbRecord.id}.")
+    ): List<Sykepengesoknad> {
+        val soknader =
+            periodeGenerator(vedtakDbRecord.fom, vedtakDbRecord.tom, SOKNAD_PERIODELENGDE).map { (fom, tom) ->
+                lagSoknad(vedtakDbRecord, Periode(fom, tom))
             }
+        soknader.forEach {
+            val lagretSoknad = sykepengesoknadDAO!!.lagreSykepengesoknad(it)
+            soknadProducer!!.soknadEvent(lagretSoknad)
+            log.info("Opprettet soknad: ${it.id} for FriskTilArbeidVedtakStatus med id: ${vedtakDbRecord.id}.")
         }
+
         friskTilArbeidRepository.save(vedtakDbRecord.copy(behandletStatus = BehandletStatus.BEHANDLET))
+        return soknader
     }
 
     private fun lagSoknad(

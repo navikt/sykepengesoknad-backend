@@ -1,6 +1,7 @@
 package no.nav.helse.flex.frisktilarbeid
 
 import no.nav.helse.flex.domain.Periode
+import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.fakes.InMemoryCrudRepository
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldHaveSize
@@ -255,8 +256,9 @@ class FriskTilArbeidTestConfig {
         override fun opprettSoknader(
             friskTilArbeidDbRecord: FriskTilArbeidVedtakDbRecord,
             periodGenerator: (LocalDate, LocalDate, Long) -> List<Pair<LocalDate, LocalDate>>,
-        ) {
+        ): List<Sykepengesoknad> {
             friskTilArbeidRepository.save(friskTilArbeidDbRecord.copy(behandletStatus = BehandletStatus.BEHANDLET))
+            return emptyList()
         }
     }
 

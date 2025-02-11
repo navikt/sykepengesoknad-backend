@@ -2,6 +2,7 @@ package no.nav.helse.flex.frisktilarbeid
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.domain.Periode
+import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.medlemskap.tilPostgresJson
 import no.nav.helse.flex.util.objectMapper
@@ -53,16 +54,16 @@ class FriskTilArbeidService(
         }
     }
 
-    fun behandleFriskTilArbeidVedtakStatus(antallVedtak: Int) {
+    fun behandleFriskTilArbeidVedtakStatus(antallVedtak: Int): List<Sykepengesoknad> {
         val dbRecords =
             friskTilArbeidRepository.finnVedtakSomSkalBehandles(antallVedtak)
-                .also { if (it.isEmpty()) return }
+                .also { if (it.isEmpty()) return emptyList() }
 
         log.info("Hentet ${dbRecords.size} FriskTilArbeidVedtakStatus for med status NY.")
 
-        dbRecords.forEach {
+        return dbRecords.map {
             friskTilArbeidSoknadService.opprettSoknader(it)
-        }
+        }.flatten()
     }
 }
 
