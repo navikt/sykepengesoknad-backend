@@ -5,6 +5,7 @@ import jakarta.annotation.PostConstruct
 import no.nav.helse.flex.client.grunnbeloep.GrunnbeloepClient
 import no.nav.helse.flex.client.kvitteringer.SykepengesoknadKvitteringerClient
 import no.nav.helse.flex.juridiskvurdering.juridiskVurderingTopic
+import no.nav.helse.flex.kafka.ARBEIDSSOKERREGISTER_STOPP_TOPIC
 import no.nav.helse.flex.kafka.AUDIT_TOPIC
 import no.nav.helse.flex.kafka.SYKEPENGESOKNAD_TOPIC
 import no.nav.helse.flex.kafka.producer.AivenKafkaProducer
@@ -146,6 +147,9 @@ abstract class FellesTestOppsett : TestOppsettInterfaces {
     @Autowired
     lateinit var auditlogKafkaConsumer: Consumer<String, String>
 
+    @Autowired
+    lateinit var arbeidssokerRegisterStoppConsumer: Consumer<String, String>
+
     @BeforeAll
     @AfterAll
     fun `Vi leser sykepengesoknad topicet og feiler hvis noe finnes og slik at subklassetestene leser alt`() {
@@ -183,5 +187,11 @@ abstract class FellesTestOppsett : TestOppsettInterfaces {
     fun `Vi leser auditlog kafka topicet og feiler om noe eksisterer`() {
         auditlogKafkaConsumer.subscribeHvisIkkeSubscribed(AUDIT_TOPIC)
         auditlogKafkaConsumer.hentProduserteRecords().shouldBeEmpty()
+    }
+
+    @BeforeAll
+    fun `Vi leser arbeidssokerregisterstopp kafka topicet og feiler om noe eksisterer`() {
+        arbeidssokerRegisterStoppConsumer.subscribeHvisIkkeSubscribed(ARBEIDSSOKERREGISTER_STOPP_TOPIC)
+        arbeidssokerRegisterStoppConsumer.hentProduserteRecords().shouldBeEmpty()
     }
 }
