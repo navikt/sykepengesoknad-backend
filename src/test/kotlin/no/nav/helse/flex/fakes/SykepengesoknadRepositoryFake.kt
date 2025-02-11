@@ -1,5 +1,6 @@
 package no.nav.helse.flex.fakes
 
+import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.repository.SykepengesoknadDbRecord
 import no.nav.helse.flex.repository.SykepengesoknadRepository
 import org.springframework.context.annotation.Primary
@@ -56,7 +57,13 @@ class SykepengesoknadRepositoryFake :
         identer: List<String>,
         fom: LocalDate?,
     ): String? {
-        TODO("Not yet implemented")
+        return findAll()
+            .filter { it.fnr in identer }
+            .filter { it.status == Soknadstatus.NY || it.status == Soknadstatus.UTKAST_TIL_KORRIGERING }
+            .filter { it.fom != null && it.fom!! < fom }
+            .sortedBy { it.fom }
+            .firstOrNull()
+            ?.sykepengesoknadUuid
     }
 
     override fun finnSoknaderSomSkalAktiveres(now: LocalDate): List<SykepengesoknadDbRecord> {

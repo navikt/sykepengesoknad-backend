@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Primary
 import org.springframework.context.annotation.Profile
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Repository
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -217,7 +218,23 @@ class SykepengesoknadDAOFake : SykepengesoknadDAO {
         mottaker: Mottaker,
         avsendertype: Avsendertype,
     ): Sykepengesoknad {
-        TODO("Not yet implemented")
+        val sendt = Instant.now()
+        val sendtNav = if (Mottaker.NAV == mottaker || Mottaker.ARBEIDSGIVER_OG_NAV == mottaker) sendt else null
+        val sendtArbeidsgiver =
+            if (Mottaker.ARBEIDSGIVER == mottaker || Mottaker.ARBEIDSGIVER_OG_NAV == mottaker) sendt else null
+
+        sykepengesoknadRepository.findBySykepengesoknadUuid(sykepengesoknad.id)?.also { sykepengesoknadDbRecord ->
+            sykepengesoknadDbRecord.copy(
+                status = Soknadstatus.SENDT,
+                avsendertype = avsendertype,
+                sendtNav = sendtNav,
+                sendtArbeidsgiver = sendtArbeidsgiver,
+                sendt = sendt,
+            )
+                .also { sykepengesoknadRepository.save(it) }
+        }
+
+        return finnSykepengesoknad(sykepengesoknad.id)
     }
 
     override fun sykepengesoknadRowMapper(): RowMapper<Pair<String, Sykepengesoknad>> {

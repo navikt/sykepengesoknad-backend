@@ -129,20 +129,12 @@ class FriskTilArbeidIntegrationMedSporsmalTest() : FakesTestOppsett() {
             .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
             .besvarSporsmal(FTA_JOBBSITUASJONEN_DIN_NEI, "CHECKED", false)
             .besvarSporsmal(FTA_JOBBSITUASJONEN_DIN_FORTSATT_ARBEIDSSOKER, "JA", true)
+            .besvarSporsmal(FTA_INNTEKT_UNDERVEIS, "NEI")
+            .besvarSporsmal(FTA_REISE_TIL_UTLANDET, "NEI")
+            .oppsummering()
             .also {
                 assertThat(it.muterteSoknaden).isFalse()
             }
             .sendSoknad()
-    }
-
-    @Test
-    @Order(6)
-    fun `Har besvart`() {
-        val soknad = hentSoknader(fnr).first { it.status == RSSoknadstatus.NY }
-        SoknadBesvarer(rSSykepengesoknad = soknad, testOppsettInterfaces = this, fnr = fnr)
-            .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
-            .also {
-                assertThat(it.muterteSoknaden).isFalse()
-            }
     }
 }

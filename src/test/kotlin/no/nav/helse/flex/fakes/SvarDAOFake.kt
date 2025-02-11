@@ -54,7 +54,13 @@ class SvarDAOFake : SvarDAO {
     }
 
     override fun overskrivSvar(sykepengesoknad: Sykepengesoknad) {
-        TODO("Not yet implemented")
+        val alleSporsmalOgUndersporsmal = sykepengesoknad.alleSporsmalOgUndersporsmal()
+        slettSvar(alleSporsmalOgUndersporsmal.mapNotNull { it.id })
+        alleSporsmalOgUndersporsmal
+            .forEach { sporsmal ->
+                sporsmal.svar
+                    .forEach { svar -> lagreSvar(sporsmal.id!!, svar) }
+            }
     }
 
     override fun overskrivSvar(sporsmal: List<Sporsmal>) {
