@@ -64,3 +64,6 @@ spec:
     - team: flex
       application: ditt-sykefravaer-backend
       access: read
+    - team: flex
+      application: flex-arbeidssokerregister-oppdatering
+      access: read
