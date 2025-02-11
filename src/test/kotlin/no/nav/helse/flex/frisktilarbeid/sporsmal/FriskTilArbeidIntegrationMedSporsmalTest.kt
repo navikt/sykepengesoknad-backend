@@ -32,7 +32,7 @@ class FriskTilArbeidIntegrationMedSporsmalTest() : FakesTestOppsett() {
     lateinit var friskTilArbeidRepository: FriskTilArbeidRepository
 
     @Autowired
-    lateinit var friskTilArbeidService: FriskTilArbeidService
+    lateinit var friskTilArbeidCronJob: FriskTilArbeidCronJob
 
     @Autowired
     lateinit var sykepengesoknadRepository: SykepengesoknadRepository
@@ -48,8 +48,8 @@ class FriskTilArbeidIntegrationMedSporsmalTest() : FakesTestOppsett() {
         // To 14-dagersperioder og én 7-dagersperiode.
         val vedtaksperiode =
             Periode(
-                fom = LocalDate.of(2025, 2, 3),
-                tom = LocalDate.of(2025, 3, 9),
+                fom = LocalDate.now().minusDays(15),
+                tom = LocalDate.now().plusDays(15),
             )
         val fnr = fnr
         val key = fnr.asProducerRecordKey()
@@ -79,7 +79,7 @@ class FriskTilArbeidIntegrationMedSporsmalTest() : FakesTestOppsett() {
     @Test
     @Order(2)
     fun `Oppretter søknad fra med status FREMTIDIG`() {
-        friskTilArbeidService.behandleFriskTilArbeidVedtakStatus(1)
+        friskTilArbeidCronJob.startBehandlingAvFriskTilArbeidVedtakStatus()
 
         friskTilArbeidRepository.finnVedtakSomSkalBehandles(1).size `should be equal to` 0
 
@@ -88,10 +88,15 @@ class FriskTilArbeidIntegrationMedSporsmalTest() : FakesTestOppsett() {
                 it.behandletStatus `should be equal to` BehandletStatus.BEHANDLET
             }
 
-        sykepengesoknadRepository.findByFriskTilArbeidVedtakId(friskTilArbeidDbRecord.id!!).also {
+        sykepengesoknadRepository.findByFriskTilArbeidVedtakId(friskTilArbeidDbRecord.id!!).sortedBy { it.fom }.also {
             it.size `should be equal to` 3
+            it.map { it.status } `should be equal to`
+                listOf(
+                    Soknadstatus.NY,
+                    Soknadstatus.FREMTIDIG,
+                    Soknadstatus.FREMTIDIG,
+                )
             it.forEach {
-                it.status `should be equal to` Soknadstatus.FREMTIDIG
                 it.friskTilArbeidVedtakId `should be equal to` friskTilArbeidDbRecord.id
             }
         }
@@ -99,16 +104,6 @@ class FriskTilArbeidIntegrationMedSporsmalTest() : FakesTestOppsett() {
 
     @Test
     @Order(3)
-    fun `Aktiver den første søknaden`() {
-        val eldsteSoknad = sykepengesoknadRepository.findAll().minByOrNull { it.fom!! }!!
-        aktivering.aktiverSoknad(eldsteSoknad.sykepengesoknadUuid)
-
-        val soknader = hentSoknader(fnr)
-        soknader.size `should be equal to` 3
-    }
-
-    @Test
-    @Order(4)
     fun `Sortering av tags er riktig`() {
         val soknad = hentSoknader(fnr).first { it.status == RSSoknadstatus.NY }
         soknad.sporsmal!!.map { it.tag } `should be equal to`
@@ -122,7 +117,7 @@ class FriskTilArbeidIntegrationMedSporsmalTest() : FakesTestOppsett() {
     }
 
     @Test
-    @Order(5)
+    @Order(4)
     fun `Besvar alt`() {
         val soknad = hentSoknader(fnr).first { it.status == RSSoknadstatus.NY }
         SoknadBesvarer(rSSykepengesoknad = soknad, testOppsettInterfaces = this, fnr = fnr)

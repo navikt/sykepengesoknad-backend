@@ -2,12 +2,12 @@ package no.nav.helse.flex.aktivering
 
 import no.nav.helse.flex.kafka.SYKEPENGESOKNAD_AKTIVERING_TOPIC
 import no.nav.helse.flex.logger
-import org.apache.kafka.clients.producer.KafkaProducer
+import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.springframework.stereotype.Component
 
 @Component
-class AktiveringProducer(private val aktiveringKafkaProducer: KafkaProducer<String, AktiveringBestilling>) {
+class AktiveringProducer(private val aktiveringKafkaProducer: Producer<String, AktiveringBestilling>) {
     val log = logger()
 
     fun leggPaAktiveringTopic(aktiveringBestilling: AktiveringBestilling) {
