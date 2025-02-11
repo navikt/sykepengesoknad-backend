@@ -48,7 +48,7 @@ class TransaksjonshandteringTest : FellesTestOppsett() {
                 fnr = fnr,
             )
 
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(FRISKMELDT, "JA")
             .oppsummering()
             .besvarSporsmal(ANSVARSERKLARING, "CHECKED")

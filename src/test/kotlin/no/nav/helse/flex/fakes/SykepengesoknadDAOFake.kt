@@ -1,14 +1,15 @@
 package no.nav.helse.flex.fakes
 
 import no.nav.helse.flex.domain.*
-import no.nav.helse.flex.repository.SoknadSomSkalDeaktiveres
-import no.nav.helse.flex.repository.SykepengesoknadDAO
-import no.nav.helse.flex.repository.SykepengesoknadDAOPostgres
+import no.nav.helse.flex.repository.*
 import no.nav.helse.flex.service.FolkeregisterIdenter
+import no.nav.helse.flex.soknadsopprettelse.sorterSporsmal
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Primary
 import org.springframework.context.annotation.Profile
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Repository
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -16,19 +17,66 @@ import java.time.LocalDateTime
 @Profile("fakes")
 @Primary
 class SykepengesoknadDAOFake : SykepengesoknadDAO {
+    @Autowired
+    private lateinit var svarRepositoryFake: SvarRepositoryFake
+
+    @Autowired
+    lateinit var soknadLagrer: SoknadLagrer
+
+    @Autowired
+    lateinit var sykepengesoknadRepository: SykepengesoknadRepositoryFake
+
+    @Autowired
+    lateinit var sporsmalRepositoryFake: SporsmalRepositoryFake
+
+    @Autowired
+    lateinit var soknadsperiodeRepositoryFake: SoknadsperiodeRepositoryFake
+
     override fun finnSykepengesoknader(identer: FolkeregisterIdenter): List<Sykepengesoknad> {
-        TODO("Not yet implemented")
+        return sykepengesoknadRepository.findAll()
+            .filter { it.fnr in identer.alle() }
+            .map { it.hentOgDenormaliserSykepengesoknad() }
+            .map { it.sorterSporsmal() }
+            .sortedBy { it.opprettet }
     }
 
     override fun finnSykepengesoknader(
         identer: List<String>,
         soknadstype: Soknadstype?,
     ): List<Sykepengesoknad> {
-        TODO("Not yet implemented")
+        return finnSykepengesoknader(
+            FolkeregisterIdenter(
+                identer.first(),
+                identer,
+            ),
+        ).filter {
+            if (soknadstype == null) {
+                true
+            } else {
+                it.soknadstype == soknadstype
+            }
+        }
+    }
+
+    fun SykepengesoknadDbRecord.hentOgDenormaliserSykepengesoknad(): Sykepengesoknad {
+        val sporsmal = sporsmalRepositoryFake.findAll().filter { it.sykepengesoknadId == this.id }
+        val spormalIDer = sporsmal.map { it.id }
+        val svar = svarRepositoryFake.findAll().filter { it.sporsmalId in spormalIDer }
+        val perioder = soknadsperiodeRepositoryFake.findAll().filter { it.sykepengesoknadId == this.id }
+        return NormalisertSoknad(
+            soknad = this,
+            sporsmal = sporsmal,
+            svar = svar,
+            perioder = perioder,
+        ).denormaliser().sorterSporsmal()
     }
 
     override fun finnSykepengesoknad(sykepengesoknadId: String): Sykepengesoknad {
-        TODO("Not yet implemented")
+        val sykepengesoknad =
+            sykepengesoknadRepository.findAll().firstOrNull { it.sykepengesoknadUuid == sykepengesoknadId }
+                ?.hentOgDenormaliserSykepengesoknad()
+
+        return sykepengesoknad ?: throw SykepengesoknadDAO.SoknadIkkeFunnetException()
     }
 
     override fun finnSykepengesoknaderForSykmelding(sykmeldingId: String): List<Sykepengesoknad> {
@@ -40,7 +88,9 @@ class SykepengesoknadDAOFake : SykepengesoknadDAO {
     }
 
     override fun finnSykepengesoknaderUtenSporsmal(identer: List<String>): List<Sykepengesoknad> {
-        TODO("Not yet implemented")
+        return sykepengesoknadRepository.findAll()
+            .filter { it.fnr in identer }
+            .map { it.hentOgDenormaliserSykepengesoknad() }
     }
 
     override fun finnMottakerAvSoknad(soknadUuid: String): Mottaker? {
@@ -48,7 +98,8 @@ class SykepengesoknadDAOFake : SykepengesoknadDAO {
     }
 
     override fun lagreSykepengesoknad(sykepengesoknad: Sykepengesoknad): Sykepengesoknad {
-        TODO("Not yet implemented")
+        soknadLagrer.lagreSoknad(sykepengesoknad)
+        return finnSykepengesoknad(sykepengesoknad.id)
     }
 
     override fun oppdaterKorrigertAv(sykepengesoknad: Sykepengesoknad) {
@@ -74,7 +125,13 @@ class SykepengesoknadDAOFake : SykepengesoknadDAO {
     }
 
     override fun aktiverSoknad(uuid: String) {
-        TODO("Not yet implemented")
+        sykepengesoknadRepository.findBySykepengesoknadUuid(uuid)?.also {
+            it.copy(
+                status = Soknadstatus.NY,
+                aktivertDato = LocalDate.now(),
+            )
+                .also { sykepengesoknadRepository.save(it) }
+        }
     }
 
     override fun avbrytSoknad(
@@ -109,11 +166,15 @@ class SykepengesoknadDAOFake : SykepengesoknadDAO {
     }
 
     override fun byttUtSporsmal(oppdatertSoknad: Sykepengesoknad) {
-        TODO("Not yet implemented")
+        val sykepengesoknadId = sykepengesoknadId(oppdatertSoknad.id)
+        sporsmalRepositoryFake.slettSporsmalOgSvar(listOf(sykepengesoknadId))
+        soknadLagrer.lagreSporsmalOgSvarFraSoknad(oppdatertSoknad)
     }
 
     override fun sykepengesoknadId(uuid: String): String {
-        TODO("Not yet implemented")
+        return sykepengesoknadRepository.findAll().first {
+            it.sykepengesoknadUuid == uuid
+        }.id ?: throw RuntimeException("Fant ikke sykepengesoknad med uuid $uuid")
     }
 
     override fun klippSoknadTom(
@@ -157,7 +218,23 @@ class SykepengesoknadDAOFake : SykepengesoknadDAO {
         mottaker: Mottaker,
         avsendertype: Avsendertype,
     ): Sykepengesoknad {
-        TODO("Not yet implemented")
+        val sendt = Instant.now()
+        val sendtNav = if (Mottaker.NAV == mottaker || Mottaker.ARBEIDSGIVER_OG_NAV == mottaker) sendt else null
+        val sendtArbeidsgiver =
+            if (Mottaker.ARBEIDSGIVER == mottaker || Mottaker.ARBEIDSGIVER_OG_NAV == mottaker) sendt else null
+
+        sykepengesoknadRepository.findBySykepengesoknadUuid(sykepengesoknad.id)?.also { sykepengesoknadDbRecord ->
+            sykepengesoknadDbRecord.copy(
+                status = Soknadstatus.SENDT,
+                avsendertype = avsendertype,
+                sendtNav = sendtNav,
+                sendtArbeidsgiver = sendtArbeidsgiver,
+                sendt = sendt,
+            )
+                .also { sykepengesoknadRepository.save(it) }
+        }
+
+        return finnSykepengesoknad(sykepengesoknad.id)
     }
 
     override fun sykepengesoknadRowMapper(): RowMapper<Pair<String, Sykepengesoknad>> {

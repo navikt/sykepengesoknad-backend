@@ -67,7 +67,7 @@ class NullstillUndersporsmalSvarTest : FellesTestOppsett() {
     fun `Kan svare på ANSVARSERKLARING`() {
         val svar = "CHECKED"
 
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(ANSVARSERKLARING, svar)
 
         soknaden.getSporsmalMedTag(ANSVARSERKLARING).forsteSvar shouldBeEqualTo svar
@@ -78,13 +78,13 @@ class NullstillUndersporsmalSvarTest : FellesTestOppsett() {
     fun `Kan svare på TILBAKE_I_ARBEID`() {
         val svar = basisdato.format(ISO_LOCAL_DATE)
 
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(TILBAKE_I_ARBEID, "JA", ferdigBesvart = false)
             .besvarSporsmal(TILBAKE_NAR, svar, mutert = true)
 
         soknaden.getSporsmalMedTag(TILBAKE_NAR).forsteSvar shouldBeEqualTo svar
 
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(TILBAKE_I_ARBEID, "NEI", mutert = true)
 
         soknaden.getSporsmalMedTag(TILBAKE_NAR).forsteSvar shouldBeEqualTo null
@@ -95,13 +95,13 @@ class NullstillUndersporsmalSvarTest : FellesTestOppsett() {
     fun `Kan svare på FERIE_V2`() {
         val svar = DatoUtil.periodeTilJson(basisdato, basisdato.plusDays(2))
 
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(FERIE_V2, "JA", ferdigBesvart = false)
             .besvarSporsmal(FERIE_NAR_V2, svar)
 
         soknaden.getSporsmalMedTag(FERIE_NAR_V2).forsteSvar shouldBeEqualTo svar
 
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(FERIE_V2, "NEI")
 
         soknaden.getSporsmalMedTag(FERIE_NAR_V2).forsteSvar shouldBeEqualTo null
@@ -112,13 +112,13 @@ class NullstillUndersporsmalSvarTest : FellesTestOppsett() {
     fun `Kan svare på PERMISJON_V2`() {
         val svar = DatoUtil.periodeTilJson(basisdato, basisdato.plusDays(2))
 
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(PERMISJON_V2, "JA", ferdigBesvart = false)
             .besvarSporsmal(PERMISJON_NAR_V2, svar)
 
         soknaden.getSporsmalMedTag(PERMISJON_NAR_V2).forsteSvar shouldBeEqualTo svar
 
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(PERMISJON_V2, "NEI")
 
         soknaden.getSporsmalMedTag(PERMISJON_NAR_V2).forsteSvar shouldBeEqualTo null
@@ -128,7 +128,7 @@ class NullstillUndersporsmalSvarTest : FellesTestOppsett() {
     @Order(5)
     fun `Kan svare på ARBEID_UNDERVEIS_100_PROSENT`() {
         // Har ikke vanlig arbeidsuke og arbeid i prosent
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0), "JA", ferdigBesvart = false)
             .besvarSporsmal(medIndex(JOBBER_DU_NORMAL_ARBEIDSUKE, 0), "NEI", ferdigBesvart = false)
             .besvarSporsmal(medIndex(HVOR_MANGE_TIMER_PER_UKE, 0), "37,5", ferdigBesvart = false)
@@ -140,7 +140,7 @@ class NullstillUndersporsmalSvarTest : FellesTestOppsett() {
         soknaden.getSporsmalMedTag(medIndex(HVOR_MYE_PROSENT_VERDI, 0)).forsteSvar shouldBeEqualTo "79"
 
         // Har vanlig arbeidsuke og arbeid i prosent
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(medIndex(JOBBER_DU_NORMAL_ARBEIDSUKE, 0), svar = "JA")
         soknaden.getSporsmalMedTag(medIndex(JOBBER_DU_NORMAL_ARBEIDSUKE, 0)).forsteSvar shouldBeEqualTo "JA"
         soknaden.getSporsmalMedTag(medIndex(HVOR_MANGE_TIMER_PER_UKE, 0)).forsteSvar shouldBeEqualTo null
@@ -148,7 +148,7 @@ class NullstillUndersporsmalSvarTest : FellesTestOppsett() {
         soknaden.getSporsmalMedTag(medIndex(HVOR_MYE_PROSENT_VERDI, 0)).forsteSvar shouldBeEqualTo "79"
 
         // Har vanlig arbeidsuke og arbeid i timer
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(medIndex(HVOR_MYE_PROSENT, 0), svar = null, ferdigBesvart = false)
             .besvarSporsmal(medIndex(HVOR_MYE_TIMER, 0), svar = "CHECKED", ferdigBesvart = false)
             .besvarSporsmal(medIndex(HVOR_MYE_TIMER_VERDI, 0), svar = "120")
@@ -158,7 +158,7 @@ class NullstillUndersporsmalSvarTest : FellesTestOppsett() {
         soknaden.getSporsmalMedTag(medIndex(HVOR_MYE_TIMER_VERDI, 0)).forsteSvar shouldBeEqualTo "120"
 
         // Svarer nei på hovedspørsmål
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0), svar = "NEI")
         soknaden.getSporsmalMedTag(medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0)).forsteSvar shouldBeEqualTo "NEI"
         soknaden.getSporsmalMedTag(medIndex(JOBBER_DU_NORMAL_ARBEIDSUKE, 0)).forsteSvar shouldBeEqualTo null
@@ -173,7 +173,7 @@ class NullstillUndersporsmalSvarTest : FellesTestOppsett() {
     @Order(6)
     fun `Kan svare på ANDRE_INNTEKTSKILDER_V2`() {
         // styreverv og andre arbeidsforhold uten jobbing
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, svar = "JA", ferdigBesvart = false)
             .besvarSporsmal(INNTEKTSKILDE_STYREVERV, svar = "CHECKED", ferdigBesvart = false)
             .besvarSporsmal(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD, svar = "CHECKED", ferdigBesvart = false)
@@ -184,7 +184,7 @@ class NullstillUndersporsmalSvarTest : FellesTestOppsett() {
         soknaden.getSporsmalMedTag(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD_JOBBET_I_DET_SISTE).forsteSvar shouldBeEqualTo "NEI"
 
         // velger bort andre arbeidsforhold
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD, svar = null)
         soknaden.getSporsmalMedTag(ANDRE_INNTEKTSKILDER_V2).forsteSvar shouldBeEqualTo "JA"
         soknaden.getSporsmalMedTag(INNTEKTSKILDE_STYREVERV).forsteSvar shouldBeEqualTo "CHECKED"
@@ -192,7 +192,7 @@ class NullstillUndersporsmalSvarTest : FellesTestOppsett() {
         soknaden.getSporsmalMedTag(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD_JOBBET_I_DET_SISTE).forsteSvar shouldBeEqualTo null
 
         // velger andre arbeidsforhold med jobbing
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD, svar = "CHECKED", ferdigBesvart = false)
             .besvarSporsmal(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD_JOBBET_I_DET_SISTE, svar = "JA")
         soknaden.getSporsmalMedTag(ANDRE_INNTEKTSKILDER_V2).forsteSvar shouldBeEqualTo "JA"
@@ -201,7 +201,7 @@ class NullstillUndersporsmalSvarTest : FellesTestOppsett() {
         soknaden.getSporsmalMedTag(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD_JOBBET_I_DET_SISTE).forsteSvar shouldBeEqualTo "JA"
 
         // Nei på hovedspørsmål nullstiller underspørsmål
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, svar = "NEI")
         soknaden.getSporsmalMedTag(ANDRE_INNTEKTSKILDER_V2).forsteSvar shouldBeEqualTo "NEI"
         soknaden.getSporsmalMedTag(INNTEKTSKILDE_STYREVERV).forsteSvar shouldBeEqualTo null
@@ -212,7 +212,7 @@ class NullstillUndersporsmalSvarTest : FellesTestOppsett() {
     @Test
     @Order(7)
     fun `Kan svare på OPPHOLD_UTENFOR_EOS`() {
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(OPPHOLD_UTENFOR_EOS, "NEI")
 
         soknaden.getSporsmalMedTag(OPPHOLD_UTENFOR_EOS).forsteSvar shouldBeEqualTo "NEI"
@@ -222,7 +222,7 @@ class NullstillUndersporsmalSvarTest : FellesTestOppsett() {
     @Test
     @Order(8)
     fun `Kan svare på TIL_SLUTT`() {
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .oppsummering()
 
         soknaden.getSporsmalMedTag(TIL_SLUTT).forsteSvar shouldBeEqualTo "true"
@@ -234,7 +234,7 @@ class NullstillUndersporsmalSvarTest : FellesTestOppsett() {
         flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
 
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .sendSoknad()
 
         soknaden.status shouldBeEqualTo RSSoknadstatus.SENDT

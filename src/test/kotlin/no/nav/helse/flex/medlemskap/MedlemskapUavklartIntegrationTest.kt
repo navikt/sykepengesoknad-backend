@@ -133,7 +133,7 @@ class MedlemskapUavklartIntegrationTest : FellesTestOppsett() {
 
     private fun hentSoknadSomKanBesvares(fnr: String): Pair<RSSykepengesoknad, SoknadBesvarer> {
         val soknad = hentSoknadMedStatusNy(fnr)
-        val soknadBesvarer = SoknadBesvarer(rSSykepengesoknad = soknad, mockMvc = this, fnr = fnr)
+        val soknadBesvarer = SoknadBesvarer(rSSykepengesoknad = soknad, testOppsettInterfaces = this, fnr = fnr)
         return Pair(soknad, soknadBesvarer)
     }
 

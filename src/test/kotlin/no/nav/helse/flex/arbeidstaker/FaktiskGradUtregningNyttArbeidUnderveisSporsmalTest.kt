@@ -221,7 +221,7 @@ class FaktiskGradUtregningNyttArbeidUnderveisSporsmalTest : FellesTestOppsett() 
         val hentetViaRest = hentSoknader(fnr)
         mockFlexSyketilfelleArbeidsgiverperiode()
         val soknad = hentetViaRest.first { it.status == RSSoknadstatus.NY }
-        SoknadBesvarer(rSSykepengesoknad = soknad, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = soknad, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
             .besvarSporsmal(TILBAKE_I_ARBEID, "NEI")
             .besvarSporsmal(FERIE_V2, "NEI")

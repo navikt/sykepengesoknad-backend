@@ -42,7 +42,7 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
         utenforEOSTom: LocalDate?,
     ): SoknadBesvarer {
         val soknadBesvarer =
-            SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+            SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
                 .apply {
                     besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
                     besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")

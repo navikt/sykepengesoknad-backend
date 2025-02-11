@@ -70,7 +70,7 @@ class NyttArbeidsforholdTest : NyttArbeidsforholdFellesOppsett() {
         val soknaden = hentSoknader(fnr = fnr).first()
 
         val sendtSoknad =
-            SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+            SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
                 .standardSvar()
                 .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS + "0", svar = "JA", ferdigBesvart = false)
                 .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO + "0", svar = "400000", ferdigBesvart = true)
@@ -163,7 +163,7 @@ class NyttArbeidsforholdTest : NyttArbeidsforholdFellesOppsett() {
         val soknaden = hentSoknader(fnr = fnr).first { it.status == RSSoknadstatus.NY }
 
         val sendtSoknad =
-            SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+            SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
                 .standardSvar()
                 .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS + "0", svar = "JA", ferdigBesvart = false)
                 .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO + "0", svar = "400000", ferdigBesvart = true)

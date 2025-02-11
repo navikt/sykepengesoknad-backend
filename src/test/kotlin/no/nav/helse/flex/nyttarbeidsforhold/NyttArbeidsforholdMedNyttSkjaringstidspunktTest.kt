@@ -23,7 +23,7 @@ class NyttArbeidsforholdMedNyttSkjaringstidspunktTest : NyttArbeidsforholdFelles
         val soknaden = hentSoknader(fnr = fnr).first()
 
         val sendtSoknad =
-            SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+            SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
                 .tilbakeIArbeid(dato = basisdato.minusDays(3))
                 .standardSvar(ekskludert = listOf(TILBAKE_I_ARBEID))
                 .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS + "0", svar = "JA", ferdigBesvart = false)

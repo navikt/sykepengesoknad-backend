@@ -74,7 +74,7 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
                 fnr = FNR,
             )
 
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = FNR)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = FNR)
             .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
             .also {
                 assertThat(it.muterteSoknaden).isFalse()
@@ -94,7 +94,7 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
         soknaden.getSporsmalMedTag(OPPHOLD_UTENFOR_EOS).sporsmalstekst `should be equal to`
             "Var du på reise utenfor EU/EØS mens du var sykmeldt 1. - 15. februar 2020?"
 
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = FNR)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = FNR)
             .besvarSporsmal(FRISKMELDT, "NEI", false)
             .besvarSporsmal(
                 FRISKMELDT_START,
@@ -120,7 +120,7 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
                 fnr = FNR,
             )
 
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = FNR)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = FNR)
             .besvarSporsmal(
                 FRISKMELDT_START,
                 LocalDate.of(2020, 2, 1).format(DateTimeFormatter.ISO_LOCAL_DATE),
@@ -145,7 +145,7 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
                 fnr = FNR,
             )
 
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = FNR)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = FNR)
             .besvarSporsmal(
                 FRISKMELDT_START,
                 LocalDate.of(2020, 2, 4).format(DateTimeFormatter.ISO_LOCAL_DATE),
@@ -182,7 +182,7 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
                 fnr = FNR,
             )
 
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = FNR)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = FNR)
             .besvarSporsmal(ARBEID_UTENFOR_NORGE, "JA")
             .besvarSporsmal(ANDRE_INNTEKTSKILDER, "NEI")
             .besvarSporsmal(OPPHOLD_UTENFOR_EOS, "JA", ferdigBesvart = false)

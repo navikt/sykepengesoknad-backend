@@ -87,7 +87,7 @@ class AutomatiskPapirsykmeldingOpprydningTest : FellesTestOppsett() {
             )
 
         val sendtSoknad =
-            SoknadBesvarer(rSSykepengesoknad = førsteSøknad, mockMvc = this, fnr = fnr)
+            SoknadBesvarer(rSSykepengesoknad = førsteSøknad, testOppsettInterfaces = this, fnr = fnr)
                 .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
                 .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
                 .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")

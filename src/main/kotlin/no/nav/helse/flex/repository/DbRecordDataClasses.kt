@@ -73,7 +73,7 @@ data class SoknadsperiodeDbRecord(
 )
 
 data class SvarDbRecord(
-    val id: String,
+    val id: String?,
     val sporsmalId: String,
     val verdi: String,
 )

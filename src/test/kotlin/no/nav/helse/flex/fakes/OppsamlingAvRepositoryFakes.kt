@@ -7,11 +7,10 @@ import no.nav.helse.flex.domain.Svar
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.forskuttering.ForskutteringRepository
 import no.nav.helse.flex.forskuttering.domain.Forskuttering
-import no.nav.helse.flex.frisktilarbeid.FriskTilArbeidRepository
-import no.nav.helse.flex.frisktilarbeid.FriskTilArbeidVedtakDbRecord
 import no.nav.helse.flex.repository.*
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import org.mockito.Mockito
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
@@ -304,71 +303,6 @@ class KlippetSykepengesoknadRepositoryFake : KlippetSykepengesoknadRepository {
 }
 
 @Repository
-@Primary
-@Profile("fakes")
-class FriskTilArbeidRepositoryFake : FriskTilArbeidRepository {
-    override fun finnVedtakSomSkalBehandles(antallVedtak: Int): List<FriskTilArbeidVedtakDbRecord> {
-        return TODO("Not yet implemented")
-    }
-
-    override fun deleteByFnr(fnr: String): Long {
-        TODO("Not yet implemented")
-    }
-
-    override fun findByFnr(fnr: String): List<FriskTilArbeidVedtakDbRecord> {
-        TODO("Not yet implemented")
-    }
-
-    override fun <S : FriskTilArbeidVedtakDbRecord?> save(entity: S & Any): S & Any {
-        TODO("Not yet implemented")
-    }
-
-    override fun <S : FriskTilArbeidVedtakDbRecord?> saveAll(entities: MutableIterable<S>): MutableIterable<S> {
-        TODO("Not yet implemented")
-    }
-
-    override fun findById(id: String): Optional<FriskTilArbeidVedtakDbRecord> {
-        TODO("Not yet implemented")
-    }
-
-    override fun existsById(id: String): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    override fun findAll(): MutableIterable<FriskTilArbeidVedtakDbRecord> {
-        TODO("Not yet implemented")
-    }
-
-    override fun findAllById(ids: MutableIterable<String>): MutableIterable<FriskTilArbeidVedtakDbRecord> {
-        TODO("Not yet implemented")
-    }
-
-    override fun count(): Long {
-        TODO("Not yet implemented")
-    }
-
-    override fun deleteById(id: String) {
-        TODO("Not yet implemented")
-    }
-
-    override fun delete(entity: FriskTilArbeidVedtakDbRecord) {
-        TODO("Not yet implemented")
-    }
-
-    override fun deleteAllById(ids: MutableIterable<String>) {
-        TODO("Not yet implemented")
-    }
-
-    override fun deleteAll(entities: MutableIterable<FriskTilArbeidVedtakDbRecord>) {
-        TODO("Not yet implemented")
-    }
-
-    override fun deleteAll() {
-        TODO("Not yet implemented")
-    }
-}
-
-@Repository
 @Profile("fakes")
 @Primary
 class DodsmeldingDAOFake : DodsmeldingDAO {
@@ -417,12 +351,24 @@ class LockRepositoryFake : LockRepository {
 @Primary
 @Profile("fakes")
 class SoknadLagrerFake : SoknadLagrer {
+    @Autowired
+    lateinit var sykepengesoknadRepository: SykepengesoknadRepositoryFake
+
+    @Autowired
+    lateinit var sporsmalRepositoryFake: SporsmalRepositoryFake
+
+    @Autowired
+    lateinit var svarRepositoryFake: SvarRepositoryFake
+
     override fun lagreSoknad(soknad: Sykepengesoknad) {
-        TODO("Not yet implemented")
+        val normalisertSoknad = soknad.normaliser()
+        sykepengesoknadRepository.lagreSoknad(normalisertSoknad.soknad)
     }
 
     override fun lagreSporsmalOgSvarFraSoknad(soknad: Sykepengesoknad) {
-        TODO("Not yet implemented")
+        val normalisertSoknad = soknad.normaliser()
+        normalisertSoknad.sporsmal.lagreSporsmal()
+        normalisertSoknad.svar.lagreSvar()
     }
 
     override fun List<SykepengesoknadDbRecord>.lagre() {
@@ -434,11 +380,11 @@ class SoknadLagrerFake : SoknadLagrer {
     }
 
     override fun List<SporsmalDbRecord>.lagreSporsmal() {
-        TODO("Not yet implemented")
+        sporsmalRepositoryFake.lagreSporsmal(this)
     }
 
     override fun List<SvarDbRecord>.lagreSvar() {
-        TODO("Not yet implemented")
+        svarRepositoryFake.lagreSvar(this)
     }
 }
 

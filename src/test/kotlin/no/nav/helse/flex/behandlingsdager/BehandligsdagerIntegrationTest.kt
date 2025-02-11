@@ -84,7 +84,7 @@ class BehandligsdagerIntegrationTest : FellesTestOppsett() {
                 fnr = fnr,
             )
 
-        SoknadBesvarer(rSSykepengesoknad = rsSykepengesoknad, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = rsSykepengesoknad, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
             .besvarSporsmal(tag = "ARBEID_UTENFOR_NORGE", svar = "NEI")
             .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
@@ -138,7 +138,7 @@ class BehandligsdagerIntegrationTest : FellesTestOppsett() {
         assertThat(korrigerSoknad.sporsmal!!.find { it.tag == ANSVARSERKLARING }!!.svar.size).isEqualTo(0)
         assertThat(korrigerSoknad.korrigerer).isEqualTo(soknaden.id)
 
-        SoknadBesvarer(rSSykepengesoknad = korrigerSoknad, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = korrigerSoknad, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
             .oppsummering()
             .sendSoknad()
@@ -166,7 +166,7 @@ class BehandligsdagerIntegrationTest : FellesTestOppsett() {
                 soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
                 fnr = fnr,
             )
-        SoknadBesvarer(rSSykepengesoknad = soknad, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = soknad, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
 
         // Avbryt søknad

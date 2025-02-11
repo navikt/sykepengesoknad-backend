@@ -71,7 +71,7 @@ class GjenapneSykmeldingIntegrationMedTombstoneTest : FellesTestOppsett() {
                 soknadId = hentSoknaderMetadata(fnr).first().id,
                 fnr = fnr,
             )
-        SoknadBesvarer(rSSykepengesoknad = rsSykepengesoknad, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = rsSykepengesoknad, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
             .besvarSporsmal(tag = "FRISKMELDT", svar = "JA")
             .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER", svar = "NEI")

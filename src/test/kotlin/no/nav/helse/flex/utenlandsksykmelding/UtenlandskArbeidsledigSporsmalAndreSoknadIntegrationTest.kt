@@ -49,7 +49,7 @@ class UtenlandskArbeidsledigSporsmalAndreSoknadIntegrationTest : FellesTestOppse
     fun `Besvarer og sender inn søknad 1`() {
         val soknaden = hentSoknader(fnr).first()
 
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
             .besvarSporsmal(tag = "FRISKMELDT", svar = "JA")
             .besvarSporsmal(tag = "ARBEID_UTENFOR_NORGE", svar = "NEI")
@@ -90,7 +90,7 @@ class UtenlandskArbeidsledigSporsmalAndreSoknadIntegrationTest : FellesTestOppse
     fun `Besvarer og sender inn søknad 2 som nå har utenlandsk sm sporsmål`() {
         val soknaden = hentSoknader(fnr).first { it.status == RSSoknadstatus.NY }
 
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
             .besvarSporsmal(tag = "FRISKMELDT", svar = "JA")
             .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER", svar = "NEI")

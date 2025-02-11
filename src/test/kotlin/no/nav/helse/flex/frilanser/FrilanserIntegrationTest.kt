@@ -70,7 +70,7 @@ class FrilanserIntegrationTest : FellesTestOppsett() {
     @Order(3)
     fun `03 - vi svarer på ansvarserklæringa som ikke muterer søknaden`() {
         val soknaden = hentSoknader(fnr).first()
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(ANSVARSERKLARING, "CHECKED", mutert = false)
             .also {
                 assertThat(it.muterteSoknaden).isFalse()
@@ -99,7 +99,7 @@ class FrilanserIntegrationTest : FellesTestOppsett() {
     fun `Unødvendige spørsmål forsvinner når man blir friskmeldt første dag i søknadsperioden`() {
         val soknaden = hentSoknader(fnr).first()
 
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(
                 TILBAKE_I_ARBEID,
                 "JA",
@@ -128,7 +128,7 @@ class FrilanserIntegrationTest : FellesTestOppsett() {
     fun `Vi svarer nei på at vi ble friskmeldt - underspørsmål nullstilles`() {
         val soknaden = hentSoknader(fnr).first()
 
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(
                 TILBAKE_I_ARBEID,
                 "NEI",
@@ -158,7 +158,7 @@ class FrilanserIntegrationTest : FellesTestOppsett() {
     fun `Vi svarer at vi ble friskmeldt midt i søknadsperioden - Det muterer søknaden`() {
         val soknaden = hentSoknader(fnr).first()
 
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(
                 TILBAKE_I_ARBEID,
                 "JA",
@@ -187,7 +187,7 @@ class FrilanserIntegrationTest : FellesTestOppsett() {
     @Order(8)
     fun `vi svarer på resten som ikke muterer søknaden`() {
         val soknaden = hentSoknader(fnr).first()
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal("ARBEID_UNDERVEIS_100_PROSENT_0", "NEI", mutert = false)
             .besvarSporsmal(ARBEID_UTENFOR_NORGE, "NEI", mutert = false)
             .besvarSporsmal(ANDRE_INNTEKTSKILDER, "NEI", mutert = false)
@@ -202,7 +202,7 @@ class FrilanserIntegrationTest : FellesTestOppsett() {
     @Order(9)
     fun `utland muterer ikke søknaden på frilansersøknad`() {
         val soknaden = hentSoknader(fnr).first()
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(OPPHOLD_UTENFOR_EOS, "JA", mutert = false, ferdigBesvart = false)
             .besvarSporsmal(
                 OPPHOLD_UTENFOR_EOS_NAR,

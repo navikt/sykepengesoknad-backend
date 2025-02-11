@@ -83,7 +83,7 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : FellesTestOppsett() {
                 fnr = fnr,
             )
 
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
             .besvarSporsmal(TILBAKE_I_ARBEID, "NEI")
             .besvarSporsmal(FERIE_V2, "NEI")
@@ -209,7 +209,7 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : FellesTestOppsett() {
 
         val korrigerendeSoknad = korrigerSoknad(soknaden.id, fnr)
 
-        SoknadBesvarer(rSSykepengesoknad = korrigerendeSoknad, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = korrigerendeSoknad, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
             .besvarSporsmal("JOBBET_DU_GRADERT_1", "JA", false)
             .besvarSporsmal("HVOR_MANGE_TIMER_PER_UKE_1", "37", false)
@@ -239,7 +239,7 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : FellesTestOppsett() {
 
         val korrigerendeSoknad = korrigerSoknad(soknaden.id, fnr)
 
-        SoknadBesvarer(rSSykepengesoknad = korrigerendeSoknad, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = korrigerendeSoknad, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
             .besvarSporsmal("JOBBET_DU_GRADERT_1", "JA", false)
             .besvarSporsmal("HVOR_MANGE_TIMER_PER_UKE_1", "37", false)
@@ -269,7 +269,7 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : FellesTestOppsett() {
 
         val korrigerendeSoknad = korrigerSoknad(soknaden.id, fnr)
 
-        SoknadBesvarer(rSSykepengesoknad = korrigerendeSoknad, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = korrigerendeSoknad, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
             .besvarSporsmal("JOBBET_DU_GRADERT_1", "JA", false)
             .besvarSporsmal("HVOR_MANGE_TIMER_PER_UKE_1", "37", false)
@@ -300,7 +300,7 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : FellesTestOppsett() {
         val korrigerendeSoknad = korrigerSoknad(soknaden.id, fnr)
 
         val besvarer =
-            SoknadBesvarer(rSSykepengesoknad = korrigerendeSoknad, mockMvc = this, fnr = fnr)
+            SoknadBesvarer(rSSykepengesoknad = korrigerendeSoknad, testOppsettInterfaces = this, fnr = fnr)
                 .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
                 .besvarSporsmal("JOBBET_DU_GRADERT_1", "JA", false)
                 .besvarSporsmal("HVOR_MANGE_TIMER_PER_UKE_1", "37", false)
