@@ -67,7 +67,7 @@ class NyttArbeidsforholdMedToUlikeNyeArbeidsforholdTest : FellesTestOppsett() {
         val soknaden = hentSoknader(fnr = fnr).sortedBy { it.fom }.first()
 
         val sendtSoknad =
-            SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+            SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
                 .standardSvar()
                 .besvarSporsmal(NYTT_ARBEIDSFORHOLD_UNDERVEIS + "0", "NEI")
                 .besvarSporsmal(NYTT_ARBEIDSFORHOLD_UNDERVEIS + "1", "NEI")

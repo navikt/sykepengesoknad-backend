@@ -33,6 +33,7 @@ fun NormalisertSoknad.denormaliser(): Sykepengesoknad {
         this.sporsmal.associate { spmDb ->
             spmDb.id to
                 Sporsmal(
+                    id = spmDb.id,
                     tag = spmDb.tag,
                     sporsmalstekst = spmDb.sporsmalstekst,
                     undertekst = spmDb.undertekst,
@@ -98,7 +99,6 @@ fun NormalisertSoknad.denormaliser(): Sykepengesoknad {
         egenmeldtSykmelding = dbSoknad.egenmeldtSykmelding,
         // Husk å deserialisere feltene dersom de er lagret som serialiserte strenger:
         // TODO Her må du implementere deserialiseringen etter eget behov:
-
         merknaderFraSykmelding = emptyList(),
         opprettetAvInntektsmelding = dbSoknad.opprettetAvInntektsmelding,
         utenlandskSykmelding = dbSoknad.utenlandskSykmelding,
@@ -109,7 +109,6 @@ fun NormalisertSoknad.denormaliser(): Sykepengesoknad {
         aktivertDato = dbSoknad.aktivertDato,
         fiskerBlad = dbSoknad.fiskerBlad,
         // TODO Her må du implementere deserialiseringen etter eget behov:
-
         arbeidsforholdFraAareg = emptyList(),
         friskTilArbeidVedtakId = dbSoknad.friskTilArbeidVedtakId,
         soknadPerioder = perioder,

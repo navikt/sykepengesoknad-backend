@@ -3,6 +3,7 @@ package no.nav.helse.flex.fakes
 import no.nav.helse.flex.domain.*
 import no.nav.helse.flex.repository.*
 import no.nav.helse.flex.service.FolkeregisterIdenter
+import no.nav.helse.flex.soknadsopprettelse.sorterSporsmal
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Primary
 import org.springframework.context.annotation.Profile
@@ -16,6 +17,9 @@ import java.time.LocalDateTime
 @Primary
 class SykepengesoknadDAOFake : SykepengesoknadDAO {
     @Autowired
+    private lateinit var svarRepositoryFake: SvarRepositoryFake
+
+    @Autowired
     lateinit var soknadLagrer: SoknadLagrer
 
     @Autowired
@@ -24,26 +28,46 @@ class SykepengesoknadDAOFake : SykepengesoknadDAO {
     @Autowired
     lateinit var sporsmalRepositoryFake: SporsmalRepositoryFake
 
+    @Autowired
+    lateinit var soknadsperiodeRepositoryFake: SoknadsperiodeRepositoryFake
+
     override fun finnSykepengesoknader(identer: FolkeregisterIdenter): List<Sykepengesoknad> {
         return sykepengesoknadRepository.findAll()
             .filter { it.fnr in identer.alle() }
             .map { it.hentOgDenormaliserSykepengesoknad() }
+            .map { it.sorterSporsmal() }
+            .sortedBy { it.opprettet }
     }
 
     override fun finnSykepengesoknader(
         identer: List<String>,
         soknadstype: Soknadstype?,
     ): List<Sykepengesoknad> {
-        TODO("Not yet implemented")
+        return finnSykepengesoknader(
+            FolkeregisterIdenter(
+                identer.first(),
+                identer,
+            ),
+        ).filter {
+            if (soknadstype == null) {
+                true
+            } else {
+                it.soknadstype == soknadstype
+            }
+        }
     }
 
     fun SykepengesoknadDbRecord.hentOgDenormaliserSykepengesoknad(): Sykepengesoknad {
+        val sporsmal = sporsmalRepositoryFake.findAll().filter { it.sykepengesoknadId == this.id }
+        val spormalIDer = sporsmal.map { it.id }
+        val svar = svarRepositoryFake.findAll().filter { it.sporsmalId in spormalIDer }
+        val perioder = soknadsperiodeRepositoryFake.findAll().filter { it.sykepengesoknadId == this.id }
         return NormalisertSoknad(
             soknad = this,
-            sporsmal = emptyList(),
-            svar = emptyList(),
-            perioder = emptyList(),
-        ).denormaliser()
+            sporsmal = sporsmal,
+            svar = svar,
+            perioder = perioder,
+        ).denormaliser().sorterSporsmal()
     }
 
     override fun finnSykepengesoknad(sykepengesoknadId: String): Sykepengesoknad {
@@ -63,7 +87,9 @@ class SykepengesoknadDAOFake : SykepengesoknadDAO {
     }
 
     override fun finnSykepengesoknaderUtenSporsmal(identer: List<String>): List<Sykepengesoknad> {
-        TODO("Not yet implemented")
+        return sykepengesoknadRepository.findAll()
+            .filter { it.fnr in identer }
+            .map { it.hentOgDenormaliserSykepengesoknad() }
     }
 
     override fun finnMottakerAvSoknad(soknadUuid: String): Mottaker? {

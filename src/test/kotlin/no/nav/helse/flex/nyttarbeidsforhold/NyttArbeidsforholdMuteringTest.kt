@@ -35,7 +35,7 @@ class NyttArbeidsforholdMuteringTest : NyttArbeidsforholdFellesOppsett() {
     fun `Svarer tilbake i arbeid dag 1`() {
         val soknaden = hentSoknader(fnr = fnr).first()
 
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .tilbakeIArbeid(soknaden.fom!!)
     }
 
@@ -54,7 +54,7 @@ class NyttArbeidsforholdMuteringTest : NyttArbeidsforholdFellesOppsett() {
     fun `Svarer tilbake i arbeid dag 2`() {
         val soknaden = hentSoknader(fnr = fnr).first()
 
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .tilbakeIArbeid(soknaden.fom!!.plusDays(1))
     }
 
@@ -72,7 +72,7 @@ class NyttArbeidsforholdMuteringTest : NyttArbeidsforholdFellesOppsett() {
     @Order(7)
     fun `Svarer tilbake i arbeid dagen etter startdatoen`() {
         val soknaden = hentSoknader(fnr = fnr).first()
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .tilbakeIArbeid(LocalDate.of(2022, 9, 6))
     }
 
@@ -98,7 +98,7 @@ class NyttArbeidsforholdMuteringTest : NyttArbeidsforholdFellesOppsett() {
     @Order(9)
     fun `Svarer tilbake i arbeid på startdatoen`() {
         val soknaden = hentSoknader(fnr = fnr).first()
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .tilbakeIArbeid(LocalDate.of(2022, 9, 5))
     }
 
@@ -115,7 +115,7 @@ class NyttArbeidsforholdMuteringTest : NyttArbeidsforholdFellesOppsett() {
     @Order(11)
     fun `Svarer ikke tilbake i arbeid`() {
         val soknaden = hentSoknader(fnr = fnr).first()
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .tilbakeIArbeid(dato = null)
     }
 
@@ -141,7 +141,7 @@ class NyttArbeidsforholdMuteringTest : NyttArbeidsforholdFellesOppsett() {
     @Order(13)
     fun `Svarer tilbake i arbeid dagen etter startdatoen før innsending`() {
         val soknaden = hentSoknader(fnr = fnr).first()
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .tilbakeIArbeid(LocalDate.of(2022, 9, 6))
     }
 
@@ -153,7 +153,7 @@ class NyttArbeidsforholdMuteringTest : NyttArbeidsforholdFellesOppsett() {
         val soknaden = hentSoknader(fnr = fnr).first()
 
         val sendtSoknad =
-            SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+            SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
                 .standardSvar(ekskludert = listOf(TILBAKE_I_ARBEID))
                 .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS + "0", svar = "JA", ferdigBesvart = false)
                 .besvarSporsmal(

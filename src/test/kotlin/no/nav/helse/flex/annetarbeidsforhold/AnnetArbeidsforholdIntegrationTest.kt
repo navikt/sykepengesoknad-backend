@@ -86,7 +86,7 @@ class AnnetArbeidsforholdIntegrationTest : FellesTestOppsett() {
             .isEqualTo(
                 "Tok du permisjon mens du var sykmeldt 1. - 10. januar 2018?",
             )
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(FRISKMELDT, "NEI", false)
             .besvarSporsmal(
                 FRISKMELDT_START,
@@ -121,7 +121,7 @@ class AnnetArbeidsforholdIntegrationTest : FellesTestOppsett() {
                 fnr = fnr,
             )
 
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(
                 FRISKMELDT_START,
                 LocalDate.of(2018, 1, 1).format(DateTimeFormatter.ISO_LOCAL_DATE),
@@ -157,7 +157,7 @@ class AnnetArbeidsforholdIntegrationTest : FellesTestOppsett() {
             ),
         )
 
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(FRISKMELDT, "JA", mutert = true)
             .also {
                 assertThat(it.rSSykepengesoknad.sporsmal!!.map { it.tag }).isEqualTo(
@@ -184,7 +184,7 @@ class AnnetArbeidsforholdIntegrationTest : FellesTestOppsett() {
             )
 
         val sendtSoknad =
-            SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+            SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
                 .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
                 .besvarSporsmal(FRISKMELDT, "JA")
                 .besvarSporsmal(PERMISJON_V2, "NEI")

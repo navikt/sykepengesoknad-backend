@@ -80,7 +80,7 @@ class TilbakedatertSykmeldingIntegrationTest : FellesTestOppsett() {
     fun `sender inn søknaden`() {
         val soknaden = hentSoknader(fnr = fnr).first()
 
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
             .besvarSporsmal(tag = "FRISKMELDT", svar = "JA")
             .besvarSporsmal(tag = "ARBEID_UTENFOR_NORGE", svar = "NEI")

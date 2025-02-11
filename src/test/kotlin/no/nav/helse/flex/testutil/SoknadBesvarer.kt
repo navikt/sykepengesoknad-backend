@@ -1,12 +1,9 @@
 package no.nav.helse.flex.testutil
 
-import no.nav.helse.flex.FellesTestOppsett
+import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSporsmal
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSvar
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknad
-import no.nav.helse.flex.hentSoknad
-import no.nav.helse.flex.oppdaterSporsmal
-import no.nav.helse.flex.sendSoknadMedResult
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.medIndex
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
@@ -54,7 +51,7 @@ private fun RSSporsmal.erSporsmalMedIdEllerHarUndersporsmalMedId(id: String): Bo
 
 class SoknadBesvarer(
     var rSSykepengesoknad: RSSykepengesoknad,
-    val mockMvc: FellesTestOppsett,
+    val testOppsettInterfaces: TestOppsettInterfaces,
     val fnr: String,
     val muterteSoknaden: Boolean = false,
 ) {
@@ -174,11 +171,11 @@ class SoknadBesvarer(
         mutert: Boolean,
     ): SoknadBesvarer {
         val hovedsporsmal = finnHovedsporsmal(tag)
-        val (mutertSoknad, _) = mockMvc.oppdaterSporsmal(fnr, hovedsporsmal, rSSykepengesoknad.id, mutert)
+        val (mutertSoknad, _) = testOppsettInterfaces.oppdaterSporsmal(fnr, hovedsporsmal, rSSykepengesoknad.id, mutert)
 
         return SoknadBesvarer(
             rSSykepengesoknad = mutertSoknad ?: this.rSSykepengesoknad,
-            mockMvc = mockMvc,
+            testOppsettInterfaces = testOppsettInterfaces,
             fnr = fnr,
             muterteSoknaden = mutertSoknad != null,
         )
@@ -192,8 +189,8 @@ class SoknadBesvarer(
     }
 
     fun sendSoknad(): RSSykepengesoknad {
-        mockMvc.sendSoknadMedResult(fnr, rSSykepengesoknad.id).andExpect(((MockMvcResultMatchers.status().isOk)))
-        return mockMvc.hentSoknad(
+        testOppsettInterfaces.sendSoknadMedResult(fnr, rSSykepengesoknad.id).andExpect(((MockMvcResultMatchers.status().isOk)))
+        return testOppsettInterfaces.hentSoknad(
             soknadId = rSSykepengesoknad.id,
             fnr = fnr,
         )

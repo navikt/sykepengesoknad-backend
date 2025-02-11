@@ -161,7 +161,7 @@ class InntektsopplysningerIntegrasjonsTest : FellesTestOppsett() {
         mockFlexSyketilfelleArbeidsgiverperiode(andreKorrigerteRessurser = soknad.id)
 
         val sendtSoknad =
-            SoknadBesvarer(rSSykepengesoknad = korrigerendeSoknad, mockMvc = this, fnr = fnr)
+            SoknadBesvarer(rSSykepengesoknad = korrigerendeSoknad, testOppsettInterfaces = this, fnr = fnr)
                 .besvarSporsmal(tag = ANSVARSERKLARING, svar = "CHECKED")
                 // Nullstiller det andre alternative i Checkbox-gruppen, sånn at gruppen ikke validerer på grunn av to svar.
                 .besvarSporsmal(
@@ -197,7 +197,7 @@ class InntektsopplysningerIntegrasjonsTest : FellesTestOppsett() {
         mockFlexSyketilfelleArbeidsgiverperiode(andreKorrigerteRessurser = soknad.id)
 
         val sendtSoknad =
-            SoknadBesvarer(rSSykepengesoknad = korrigerendeSoknad, mockMvc = this, fnr = fnr)
+            SoknadBesvarer(rSSykepengesoknad = korrigerendeSoknad, testOppsettInterfaces = this, fnr = fnr)
                 .besvarSporsmal(tag = ANSVARSERKLARING, svar = "CHECKED")
                 // Nullstiller det andre alternative i Checkbox-gruppen, sånn at gruppen ikke validerer på grunn av to svar.
                 .besvarSporsmal(
@@ -259,7 +259,7 @@ class InntektsopplysningerIntegrasjonsTest : FellesTestOppsett() {
         mockFlexSyketilfelleArbeidsgiverperiode(andreKorrigerteRessurser = soknad.id)
 
         val sendtSoknad =
-            SoknadBesvarer(rSSykepengesoknad = korrigerendeSoknad, mockMvc = this, fnr = fnr)
+            SoknadBesvarer(rSSykepengesoknad = korrigerendeSoknad, testOppsettInterfaces = this, fnr = fnr)
                 .besvarSporsmal(tag = ANSVARSERKLARING, svar = "CHECKED")
                 .besvarSporsmal(
                     tag = INNTEKTSOPPLYSNINGER_VARIG_ENDRING_25_PROSENT,
@@ -290,7 +290,7 @@ class InntektsopplysningerIntegrasjonsTest : FellesTestOppsett() {
 
     private fun hentSoknadSomKanBesvares(fnr: String): Pair<RSSykepengesoknad, SoknadBesvarer> {
         val soknad = hentSoknadMedStatusNy(fnr)
-        val soknadBesvarer = SoknadBesvarer(rSSykepengesoknad = soknad, mockMvc = this, fnr = fnr)
+        val soknadBesvarer = SoknadBesvarer(rSSykepengesoknad = soknad, testOppsettInterfaces = this, fnr = fnr)
         return Pair(soknad, soknadBesvarer)
     }
 

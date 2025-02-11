@@ -24,7 +24,7 @@ import java.util.*
 fun TestOppsettInterfaces.jwt(
     fnr: String,
     acrClaim: String = "idporten-loa-high",
-) = server().tokenxToken(fnr = fnr, acrClaim = acrClaim)
+) = server().jwt(fnr = fnr, acrClaim = acrClaim)
 
 fun MockOAuth2Server.jwt(
     fnr: String,
@@ -45,9 +45,9 @@ fun FellesTestOppsett.hentSoknaderMetadataCustomAcr(
     return responsKode
 }
 
-fun FellesTestOppsett.hentSoknaderMetadata(fnr: String): List<RSSykepengesoknadMetadata> {
+fun TestOppsettInterfaces.hentSoknaderMetadata(fnr: String): List<RSSykepengesoknadMetadata> {
     val json =
-        mockMvc.perform(
+        mockMvc().perform(
             MockMvcRequestBuilders.get("/api/v2/soknader/metadata")
                 .header("Authorization", "Bearer ${jwt(fnr)}")
                 .contentType(MediaType.APPLICATION_JSON),
@@ -71,12 +71,12 @@ fun FellesTestOppsett.hentSomArbeidsgiver(req: HentSoknaderRequest): List<HentSo
     return objectMapper.readValue(json)
 }
 
-fun FellesTestOppsett.hentSoknad(
+fun TestOppsettInterfaces.hentSoknad(
     soknadId: String,
     fnr: String,
 ): RSSykepengesoknad {
     val json =
-        mockMvc.perform(
+        mockMvc().perform(
             MockMvcRequestBuilders.get("/api/v2/soknad/$soknadId")
                 .header("Authorization", "Bearer ${jwt(fnr)}")
                 .contentType(MediaType.APPLICATION_JSON),
@@ -85,7 +85,7 @@ fun FellesTestOppsett.hentSoknad(
     return objectMapper.readValue(json)
 }
 
-fun FellesTestOppsett.hentSoknader(fnr: String): List<RSSykepengesoknad> =
+fun TestOppsettInterfaces.hentSoknader(fnr: String): List<RSSykepengesoknad> =
     hentSoknaderMetadata(fnr).map {
         hentSoknad(it.id, fnr)
     }
@@ -207,74 +207,63 @@ fun FellesTestOppsett.finnMottakerAvSoknad(
     return objectMapper.readValue(json)
 }
 
-fun FellesTestOppsett.gjenapneSoknad(
+fun TestOppsettInterfaces.gjenapneSoknad(
     soknadId: String,
     fnr: String,
 ) {
-    mockMvc.perform(
+    mockMvc().perform(
         MockMvcRequestBuilders.post("/api/v2/soknader/$soknadId/gjenapne")
             .header("Authorization", "Bearer ${jwt(fnr)}")
             .contentType(MediaType.APPLICATION_JSON),
     ).andExpect(MockMvcResultMatchers.status().isOk).andReturn().response.contentAsString
 }
 
-fun FellesTestOppsett.avbrytSoknad(
+fun TestOppsettInterfaces.avbrytSoknad(
     soknadId: String,
     fnr: String,
 ) {
-    mockMvc.perform(
+    mockMvc().perform(
         MockMvcRequestBuilders.post("/api/v2/soknader/$soknadId/avbryt")
             .header("Authorization", "Bearer ${jwt(fnr)}")
             .contentType(MediaType.APPLICATION_JSON),
     ).andExpect(MockMvcResultMatchers.status().isOk).andReturn().response.contentAsString
 }
 
-fun FellesTestOppsett.ettersendTilNav(
+fun TestOppsettInterfaces.ettersendTilArbeidsgiver(
     soknadId: String,
     fnr: String,
 ) {
-    mockMvc.perform(
-        MockMvcRequestBuilders.post("/api/v2/soknader/$soknadId/ettersendTilNav")
-            .header("Authorization", "Bearer ${jwt(fnr)}")
-            .contentType(MediaType.APPLICATION_JSON),
-    ).andExpect(MockMvcResultMatchers.status().isOk).andReturn().response.contentAsString
-}
-
-fun FellesTestOppsett.ettersendTilArbeidsgiver(
-    soknadId: String,
-    fnr: String,
-) {
-    mockMvc.perform(
+    mockMvc().perform(
         MockMvcRequestBuilders.post("/api/v2/soknader/$soknadId/ettersendTilArbeidsgiver")
             .header("Authorization", "Bearer ${jwt(fnr)}")
             .contentType(MediaType.APPLICATION_JSON),
     ).andExpect(MockMvcResultMatchers.status().isOk).andReturn().response.contentAsString
 }
 
-fun FellesTestOppsett.sendSoknadMedResult(
+fun TestOppsettInterfaces.sendSoknadMedResult(
     fnr: String,
     soknadId: String,
 ): ResultActions {
-    return mockMvc.perform(
+    return mockMvc().perform(
         MockMvcRequestBuilders.post("/api/v2/soknader/$soknadId/send")
             .header("Authorization", "Bearer ${jwt(fnr)}")
             .contentType(MediaType.APPLICATION_JSON),
     )
 }
 
-fun FellesTestOppsett.sendSoknad(
+fun TestOppsettInterfaces.sendSoknad(
     fnr: String,
     soknadId: String,
 ): ResultActions {
     return this.sendSoknadMedResult(fnr, soknadId).andExpect(((MockMvcResultMatchers.status().isOk)))
 }
 
-fun FellesTestOppsett.oppdaterSporsmalMedResult(
+fun TestOppsettInterfaces.oppdaterSporsmalMedResult(
     fnr: String,
     rsSporsmal: RSSporsmal,
     soknadsId: String,
 ): ResultActions {
-    return mockMvc.perform(
+    return mockMvc().perform(
         MockMvcRequestBuilders.put("/api/v2/soknader/$soknadsId/sporsmal/${rsSporsmal.id}")
             .header("Authorization", "Bearer ${jwt(fnr)}")
             .content(objectMapper.writeValueAsString(rsSporsmal))
@@ -282,7 +271,7 @@ fun FellesTestOppsett.oppdaterSporsmalMedResult(
     )
 }
 
-fun FellesTestOppsett.oppdaterSporsmal(
+fun TestOppsettInterfaces.oppdaterSporsmal(
     fnr: String,
     rsSporsmal: RSSporsmal,
     soknadsId: String,

@@ -2,6 +2,7 @@ package no.nav.helse.flex.frisktilarbeid.sporsmal
 
 import no.nav.helse.flex.*
 import no.nav.helse.flex.aktivering.SoknadAktivering
+import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.frisktilarbeid.*
@@ -9,9 +10,12 @@ import no.nav.helse.flex.frisktilarbeid.asProducerRecordKey
 import no.nav.helse.flex.frisktilarbeid.lagFriskTilArbeidVedtakStatus
 import no.nav.helse.flex.kafka.FRISKTILARBEID_TOPIC
 import no.nav.helse.flex.repository.SykepengesoknadRepository
+import no.nav.helse.flex.soknadsopprettelse.*
+import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.util.serialisertTilString
 import org.amshove.kluent.`should be equal to`
 import org.apache.kafka.clients.consumer.ConsumerRecord
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -98,5 +102,47 @@ class FriskTilArbeidIntegrationMedSporsmalTest() : FakesTestOppsett() {
     fun `Aktiver den første søknaden`() {
         val eldsteSoknad = sykepengesoknadRepository.findAll().minByOrNull { it.fom!! }!!
         aktivering.aktiverSoknad(eldsteSoknad.sykepengesoknadUuid)
+
+        val soknader = hentSoknader(fnr)
+        soknader.size `should be equal to` 3
+    }
+
+    @Test
+    @Order(4)
+    fun `Sortering av tags er riktig`() {
+        val soknad = hentSoknader(fnr).first { it.status == RSSoknadstatus.NY }
+        soknad.sporsmal!!.map { it.tag } `should be equal to`
+            listOf(
+                ANSVARSERKLARING,
+                FTA_JOBBSITUASJONEN_DIN,
+                FTA_INNTEKT_UNDERVEIS,
+                FTA_REISE_TIL_UTLANDET,
+                TIL_SLUTT,
+            )
+    }
+
+    @Test
+    @Order(5)
+    fun `Besvar alt`() {
+        val soknad = hentSoknader(fnr).first { it.status == RSSoknadstatus.NY }
+        SoknadBesvarer(rSSykepengesoknad = soknad, testOppsettInterfaces = this, fnr = fnr)
+            .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
+            .besvarSporsmal(FTA_JOBBSITUASJONEN_DIN_NEI, "CHECKED", false)
+            .besvarSporsmal(FTA_JOBBSITUASJONEN_DIN_FORTSATT_ARBEIDSSOKER, "JA", true)
+            .also {
+                assertThat(it.muterteSoknaden).isFalse()
+            }
+            .sendSoknad()
+    }
+
+    @Test
+    @Order(6)
+    fun `Har besvart`() {
+        val soknad = hentSoknader(fnr).first { it.status == RSSoknadstatus.NY }
+        SoknadBesvarer(rSSykepengesoknad = soknad, testOppsettInterfaces = this, fnr = fnr)
+            .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
+            .also {
+                assertThat(it.muterteSoknaden).isFalse()
+            }
     }
 }

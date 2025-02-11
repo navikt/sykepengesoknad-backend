@@ -143,13 +143,13 @@ class ArbeidstakerIntegrationTest : FellesTestOppsett() {
                 fnr = fnr,
             )
 
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(tag = "TIL_SLUTT", svar = null, ferdigBesvart = false)
             .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
 
         val besvartSporsmal = hentAnsvarserklering(soknaden.id)
 
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
 
         val besvartSporsmalEtterAnnetSvar = hentAnsvarserklering(soknaden.id)
@@ -166,7 +166,7 @@ class ArbeidstakerIntegrationTest : FellesTestOppsett() {
                 fnr = fnr,
             )
 
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
             .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
             .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
@@ -192,7 +192,7 @@ class ArbeidstakerIntegrationTest : FellesTestOppsett() {
             )
 
         val sendtSoknad =
-            SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+            SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
                 .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
                 .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
                 .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
@@ -230,7 +230,7 @@ class ArbeidstakerIntegrationTest : FellesTestOppsett() {
                 fnr = fnr,
             )
         val sendtSoknad =
-            SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+            SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
                 .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
                 .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
                 .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
@@ -281,7 +281,7 @@ class ArbeidstakerIntegrationTest : FellesTestOppsett() {
         val korrigerendeSoknad = korrigerSoknad(soknaden.id, fnr)
 
         val sendtSoknad =
-            SoknadBesvarer(rSSykepengesoknad = korrigerendeSoknad, mockMvc = this, fnr = fnr)
+            SoknadBesvarer(rSSykepengesoknad = korrigerendeSoknad, testOppsettInterfaces = this, fnr = fnr)
                 .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
                 .oppsummering()
                 .sendSoknad()

@@ -3,6 +3,7 @@ package no.nav.helse.flex.soknadsopprettelse.frisktilarbeid
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Visningskriterie
+import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.util.DatoUtil
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
@@ -12,7 +13,7 @@ fun fortsattArbeidssokerDato(
     tom: LocalDate,
 ): Sporsmal {
     return Sporsmal(
-        tag = "FTA_JOBBSITUASJONEN_DIN_FORTSATT_ARBEIDSSOKER_AVREGISTRERT_NAR",
+        tag = FTA_JOBBSITUASJONEN_DIN_FORTSATT_ARBEIDSSOKER_AVREGISTRERT_NAR,
         sporsmalstekst = "Fra og med når?",
         undertekst = "Du vil ikke være friskmeldt til arbeidsformidling fra og med denne datoen",
         svartype = Svartype.DATO,
@@ -29,9 +30,10 @@ fun fortsattArbeidssoker(
     fom: LocalDate,
     tom: LocalDate,
 ): Sporsmal {
-    val tagSuffix = if (nyJobbUndersporsmal) "_NY_JOBB" else ""
+    val tag =
+        if (nyJobbUndersporsmal) FTA_JOBBSITUASJONEN_DIN_FORTSATT_ARBEIDSSOKER_NY_JOBB else FTA_JOBBSITUASJONEN_DIN_FORTSATT_ARBEIDSSOKER
     return Sporsmal(
-        tag = "FTA_JOBBSITUASJONEN_DIN_FORTSATT_ARBEIDSSOKER$tagSuffix",
+        tag = tag,
         sporsmalstekst = "Vil du fortsatt være registrert som arbeidssøker hos Nav?",
         undertekst =
             if (nyJobbUndersporsmal) {
@@ -53,7 +55,7 @@ fun jobbsituasjonenDin(
 ): Sporsmal {
     val periodeTekst = DatoUtil.formatterPeriode(fom, tom)
     return Sporsmal(
-        tag = "FTA_JOBBSITUASJONEN_DIN",
+        tag = FTA_JOBBSITUASJONEN_DIN,
         sporsmalstekst = "Begynte du i ny jobb i perioden $periodeTekst?",
         undertekst = null,
         svartype = Svartype.RADIO_GRUPPE,
@@ -63,7 +65,7 @@ fun jobbsituasjonenDin(
         undersporsmal =
             listOf(
                 Sporsmal(
-                    tag = "FTA_JOBBSITUASJONEN_DIN_JA",
+                    tag = FTA_JOBBSITUASJONEN_DIN_JA,
                     sporsmalstekst = "Ja",
                     undertekst = null,
                     svartype = Svartype.RADIO,
@@ -73,7 +75,7 @@ fun jobbsituasjonenDin(
                     undersporsmal =
                         listOf(
                             Sporsmal(
-                                tag = "FTA_JOBBSITUASJONEN_DIN_NAR",
+                                tag = FTA_JOBBSITUASJONEN_DIN_NAR,
                                 sporsmalstekst = "Når begynte du i ny jobb?",
                                 undertekst = null,
                                 svartype = Svartype.DATO,
@@ -91,7 +93,7 @@ fun jobbsituasjonenDin(
                         ),
                 ),
                 Sporsmal(
-                    tag = "FTA_JOBBSITUASJONEN_DIN_NEI",
+                    tag = FTA_JOBBSITUASJONEN_DIN_NEI,
                     sporsmalstekst = "Nei",
                     undertekst = null,
                     svartype = Svartype.RADIO,

@@ -19,7 +19,7 @@ class NyttArbeidsforholdNeiFørsteTest : NyttArbeidsforholdFellesOppsett() {
         val soknaden = hentSoknader(fnr = fnr).first()
 
         val sendtSoknad =
-            SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+            SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
                 .standardSvar()
                 .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS + "0", svar = "NEI").sendSoknad()
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)

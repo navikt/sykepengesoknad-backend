@@ -55,7 +55,7 @@ class BrukerIkkeTimerForFaktiskGradHvisIkkeChecked : FellesTestOppsett() {
                 fnr = fnr,
             )
 
-        SoknadBesvarer(rSSykepengesoknad = soknaden, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
             .besvarSporsmal(TILBAKE_I_ARBEID, "NEI")
             .besvarSporsmal(FERIE_V2, "NEI")

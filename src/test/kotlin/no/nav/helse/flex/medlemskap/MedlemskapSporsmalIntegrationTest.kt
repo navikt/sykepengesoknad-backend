@@ -187,7 +187,7 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
     fun `Besvar medlemskapspørsmål om oppholdstillatelse`() {
         val soknad = hentSoknadMedStatusNy()
 
-        SoknadBesvarer(rSSykepengesoknad = soknad, mockMvc = this, fnr = fnr)
+        SoknadBesvarer(rSSykepengesoknad = soknad, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(
                 tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_V2,
                 svar = "JA",
@@ -458,7 +458,7 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
         mockFlexSyketilfelleArbeidsgiverperiode(andreKorrigerteRessurser = soknad.id)
 
         val sendtSoknad =
-            SoknadBesvarer(rSSykepengesoknad = korrigerendeSoknad, mockMvc = this, fnr = fnr)
+            SoknadBesvarer(rSSykepengesoknad = korrigerendeSoknad, testOppsettInterfaces = this, fnr = fnr)
                 .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
                 .oppsummering()
                 .sendSoknad()
@@ -504,7 +504,7 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
 
     private fun hentSoknadSomKanBesvares(): Pair<RSSykepengesoknad, SoknadBesvarer> {
         val soknad = hentSoknadMedStatusNy()
-        val soknadBesvarer = SoknadBesvarer(rSSykepengesoknad = soknad, mockMvc = this, fnr = fnr)
+        val soknadBesvarer = SoknadBesvarer(rSSykepengesoknad = soknad, testOppsettInterfaces = this, fnr = fnr)
         return Pair(soknad, soknadBesvarer)
     }
 
