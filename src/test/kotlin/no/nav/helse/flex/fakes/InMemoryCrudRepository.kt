@@ -14,7 +14,7 @@ open class InMemoryCrudRepository<T : Any, ID : Any>(
     private val copyWithId: (T, ID) -> T,
     private val generateId: () -> ID,
 ) : CrudRepository<T, ID> {
-    private val store = ConcurrentHashMap<ID, T>()
+    val store = ConcurrentHashMap<ID, T>()
 
     override fun findById(id: ID): Optional<T> {
         val t = store[id]!!

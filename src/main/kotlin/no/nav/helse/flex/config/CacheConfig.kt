@@ -2,6 +2,7 @@ package no.nav.helse.flex.config
 
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.CacheManager
+import org.springframework.cache.annotation.EnableCaching
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
@@ -17,6 +18,7 @@ import java.time.Duration
 
 @Configuration
 @Profile("!fakes")
+@EnableCaching
 class CacheConfig(
     @Value("\${REDIS_URI_SESSIONS}") val redisUriString: String,
     @Value("\${REDIS_USERNAME_SESSIONS}") val redisUsername: String,

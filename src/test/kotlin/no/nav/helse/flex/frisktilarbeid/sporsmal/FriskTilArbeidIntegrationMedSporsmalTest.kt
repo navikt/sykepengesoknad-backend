@@ -1,41 +1,40 @@
 package no.nav.helse.flex.frisktilarbeid.sporsmal
 
 import no.nav.helse.flex.*
+import no.nav.helse.flex.aktivering.SoknadAktivering
 import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.frisktilarbeid.*
 import no.nav.helse.flex.frisktilarbeid.asProducerRecordKey
 import no.nav.helse.flex.frisktilarbeid.lagFriskTilArbeidVedtakStatus
 import no.nav.helse.flex.kafka.FRISKTILARBEID_TOPIC
-import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
-import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
+import no.nav.helse.flex.repository.SykepengesoknadRepository
 import no.nav.helse.flex.util.serialisertTilString
 import org.amshove.kluent.`should be equal to`
-import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerRecord
-import org.apache.kafka.clients.producer.ProducerRecord
-import org.awaitility.Awaitility.await
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.kafka.support.Acknowledgment
-import java.time.Duration
 import java.time.LocalDate
-import java.util.concurrent.TimeUnit
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class FriskTilArbeidIntegrationMedSporsmalTest() : FakesTestOppsett() {
-
-
     @Autowired
     lateinit var friskTilArbeidConsumer: FriskTilArbeidConsumer
 
     @Autowired
     lateinit var friskTilArbeidRepository: FriskTilArbeidRepository
 
+    @Autowired
+    lateinit var friskTilArbeidService: FriskTilArbeidService
+
+    @Autowired
+    lateinit var sykepengesoknadRepository: SykepengesoknadRepository
+
+    @Autowired
+    lateinit var aktivering: SoknadAktivering
 
     private val fnr = "11111111111"
 
@@ -58,10 +57,9 @@ class FriskTilArbeidIntegrationMedSporsmalTest() : FakesTestOppsett() {
                 0,
                 0,
                 key,
-                friskTilArbeidVedtakStatus.serialisertTilString()
-            )
+                friskTilArbeidVedtakStatus.serialisertTilString(),
+            ),
         ) { }
-
 
         val vedtakSomSkalBehandles = friskTilArbeidRepository.finnVedtakSomSkalBehandles(10)
 
@@ -74,4 +72,31 @@ class FriskTilArbeidIntegrationMedSporsmalTest() : FakesTestOppsett() {
         }
     }
 
+    @Test
+    @Order(2)
+    fun `Oppretter søknad fra med status FREMTIDIG`() {
+        friskTilArbeidService.behandleFriskTilArbeidVedtakStatus(1)
+
+        friskTilArbeidRepository.finnVedtakSomSkalBehandles(1).size `should be equal to` 0
+
+        val friskTilArbeidDbRecord =
+            friskTilArbeidRepository.findAll().first().also {
+                it.behandletStatus `should be equal to` BehandletStatus.BEHANDLET
+            }
+
+        sykepengesoknadRepository.findByFriskTilArbeidVedtakId(friskTilArbeidDbRecord.id!!).also {
+            it.size `should be equal to` 3
+            it.forEach {
+                it.status `should be equal to` Soknadstatus.FREMTIDIG
+                it.friskTilArbeidVedtakId `should be equal to` friskTilArbeidDbRecord.id
+            }
+        }
+    }
+
+    @Test
+    @Order(3)
+    fun `Aktiver den første søknaden`() {
+        val eldsteSoknad = sykepengesoknadRepository.findAll().minByOrNull { it.fom!! }!!
+        aktivering.aktiverSoknad(eldsteSoknad.sykepengesoknadUuid)
+    }
 }

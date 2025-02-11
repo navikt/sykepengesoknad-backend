@@ -3,12 +3,9 @@ package no.nav.helse.flex.fakes
 import no.nav.helse.flex.frisktilarbeid.BehandletStatus
 import no.nav.helse.flex.frisktilarbeid.FriskTilArbeidRepository
 import no.nav.helse.flex.frisktilarbeid.FriskTilArbeidVedtakDbRecord
-import no.nav.helse.flex.medlemskap.MedlemskapVurderingDbRecord
-import no.nav.helse.flex.medlemskap.MedlemskapVurderingRepository
 import org.springframework.context.annotation.Primary
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Repository
-import java.time.LocalDate
 import java.util.*
 
 @Repository
@@ -37,5 +34,4 @@ class FriskTilArbeidRepositoryFake :
     override fun findByFnr(fnr: String): List<FriskTilArbeidVedtakDbRecord> {
         return findAll().filter { it.fnr == fnr }
     }
-
 }

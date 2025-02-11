@@ -7,11 +7,10 @@ import no.nav.helse.flex.domain.Svar
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.forskuttering.ForskutteringRepository
 import no.nav.helse.flex.forskuttering.domain.Forskuttering
-import no.nav.helse.flex.frisktilarbeid.FriskTilArbeidRepository
-import no.nav.helse.flex.frisktilarbeid.FriskTilArbeidVedtakDbRecord
 import no.nav.helse.flex.repository.*
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import org.mockito.Mockito
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
@@ -303,7 +302,6 @@ class KlippetSykepengesoknadRepositoryFake : KlippetSykepengesoknadRepository {
     }
 }
 
-
 @Repository
 @Profile("fakes")
 @Primary
@@ -353,12 +351,24 @@ class LockRepositoryFake : LockRepository {
 @Primary
 @Profile("fakes")
 class SoknadLagrerFake : SoknadLagrer {
+    @Autowired
+    lateinit var sykepengesoknadRepository: SykepengesoknadRepositoryFake
+
+    @Autowired
+    lateinit var sporsmalRepositoryFake: SporsmalRepositoryFake
+
+    @Autowired
+    lateinit var svarRepositoryFake: SvarRepositoryFake
+
     override fun lagreSoknad(soknad: Sykepengesoknad) {
-        TODO("Not yet implemented")
+        val normalisertSoknad = soknad.normaliser()
+        sykepengesoknadRepository.lagreSoknad(normalisertSoknad.soknad)
     }
 
     override fun lagreSporsmalOgSvarFraSoknad(soknad: Sykepengesoknad) {
-        TODO("Not yet implemented")
+        val normalisertSoknad = soknad.normaliser()
+        normalisertSoknad.sporsmal.lagreSporsmal()
+        normalisertSoknad.svar.lagreSvar()
     }
 
     override fun List<SykepengesoknadDbRecord>.lagre() {
@@ -370,11 +380,11 @@ class SoknadLagrerFake : SoknadLagrer {
     }
 
     override fun List<SporsmalDbRecord>.lagreSporsmal() {
-        TODO("Not yet implemented")
+        sporsmalRepositoryFake.lagreSporsmal(this)
     }
 
     override fun List<SvarDbRecord>.lagreSvar() {
-        TODO("Not yet implemented")
+        svarRepositoryFake.lagreSvar(this)
     }
 }
 

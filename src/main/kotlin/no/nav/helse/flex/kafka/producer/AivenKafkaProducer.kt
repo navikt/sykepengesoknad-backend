@@ -5,14 +5,14 @@ import no.nav.helse.flex.kafka.SYKEPENGESOKNAD_TOPIC
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.helse.flex.util.serialisertTilString
-import org.apache.kafka.clients.producer.KafkaProducer
+import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.clients.producer.RecordMetadata
 import org.springframework.stereotype.Component
 
 @Component
 class AivenKafkaProducer(
-    private val producer: KafkaProducer<String, SykepengesoknadDTO>,
+    private val producer: Producer<String, SykepengesoknadDTO>,
     private val environmentToggles: EnvironmentToggles,
 ) {
     val log = logger()
