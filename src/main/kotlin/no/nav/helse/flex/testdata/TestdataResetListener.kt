@@ -9,7 +9,7 @@ import org.springframework.kafka.support.Acknowledgment
 import org.springframework.stereotype.Component
 
 @Component
-@Profile("testdatareset")
+@Profile("testdata")
 class TestdataResetListener(val sykepengesoknadDAO: SykepengesoknadDAO) {
     val log = logger()
 
