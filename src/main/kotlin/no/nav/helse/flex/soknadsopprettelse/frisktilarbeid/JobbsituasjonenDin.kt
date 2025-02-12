@@ -8,7 +8,7 @@ import no.nav.helse.flex.util.DatoUtil
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
-fun fortsattArbeidssokerDato(
+private fun fortsattArbeidssokerDato(
     fom: LocalDate,
     tom: LocalDate,
 ): Sporsmal {
@@ -24,7 +24,7 @@ fun fortsattArbeidssokerDato(
     )
 }
 
-fun fortsattArbeidssoker(
+private fun fortsattArbeidssoker(
     nyJobbUndersporsmal: Boolean,
     medDatoSporsmal: Boolean,
     fom: LocalDate,
@@ -52,6 +52,7 @@ fun fortsattArbeidssoker(
 fun jobbsituasjonenDin(
     fom: LocalDate,
     tom: LocalDate,
+    sisteSoknad: Boolean = false,
 ): Sporsmal {
     val periodeTekst = DatoUtil.formatterPeriode(fom, tom)
     return Sporsmal(
@@ -73,7 +74,7 @@ fun jobbsituasjonenDin(
                     max = null,
                     kriterieForVisningAvUndersporsmal = Visningskriterie.CHECKED,
                     undersporsmal =
-                        listOf(
+                        mutableListOf(
                             Sporsmal(
                                 tag = FTA_JOBBSITUASJONEN_DIN_NAR,
                                 sporsmalstekst = "Når begynte du i ny jobb?",
@@ -84,13 +85,18 @@ fun jobbsituasjonenDin(
                                 kriterieForVisningAvUndersporsmal = null,
                                 undersporsmal = emptyList(),
                             ),
-                            fortsattArbeidssoker(
-                                nyJobbUndersporsmal = true,
-                                medDatoSporsmal = false,
-                                fom = fom,
-                                tom = tom,
-                            ),
-                        ),
+                        ).also {
+                            if (!sisteSoknad) {
+                                it.add(
+                                    fortsattArbeidssoker(
+                                        nyJobbUndersporsmal = true,
+                                        medDatoSporsmal = false,
+                                        fom = fom,
+                                        tom = tom,
+                                    ),
+                                )
+                            }
+                        },
                 ),
                 Sporsmal(
                     tag = FTA_JOBBSITUASJONEN_DIN_NEI,
@@ -101,14 +107,18 @@ fun jobbsituasjonenDin(
                     max = null,
                     kriterieForVisningAvUndersporsmal = Visningskriterie.CHECKED,
                     undersporsmal =
-                        listOf(
-                            fortsattArbeidssoker(
-                                nyJobbUndersporsmal = false,
-                                medDatoSporsmal = true,
-                                fom = fom,
-                                tom = tom,
-                            ),
-                        ),
+                        mutableListOf<Sporsmal>().also {
+                            if (!sisteSoknad) {
+                                it.add(
+                                    fortsattArbeidssoker(
+                                        nyJobbUndersporsmal = false,
+                                        medDatoSporsmal = true,
+                                        fom = fom,
+                                        tom = tom,
+                                    ),
+                                )
+                            }
+                        },
                 ),
             ),
     )

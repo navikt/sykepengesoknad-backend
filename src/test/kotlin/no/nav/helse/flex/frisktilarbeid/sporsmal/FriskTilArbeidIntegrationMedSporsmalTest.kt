@@ -5,6 +5,7 @@ import no.nav.helse.flex.aktivering.SoknadAktivering
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.Soknadstatus
+import no.nav.helse.flex.fakes.SoknadKafkaProducerFake
 import no.nav.helse.flex.frisktilarbeid.*
 import no.nav.helse.flex.frisktilarbeid.asProducerRecordKey
 import no.nav.helse.flex.frisktilarbeid.lagFriskTilArbeidVedtakStatus
@@ -131,5 +132,15 @@ class FriskTilArbeidIntegrationMedSporsmalTest() : FakesTestOppsett() {
                 assertThat(it.muterteSoknaden).isFalse()
             }
             .sendSoknad()
+    }
+
+    @Test
+    @Order(5)
+    fun `Sendt søknad har riktig data`() {
+        val soknad = hentSoknader(fnr).first { it.status == RSSoknadstatus.SENDT }
+        val sendtSoknad = SoknadKafkaProducerFake.records.last().value()
+        sendtSoknad.id `should be equal to` soknad.id
+
+        sendtSoknad.fortsattArbeidssoker `should be equal to` true
     }
 }
