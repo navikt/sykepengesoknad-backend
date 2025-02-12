@@ -7,10 +7,11 @@ import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.support.Acknowledgment
 import org.springframework.stereotype.Component
 
-@Profile("frisktilarbeid")
+@Profile("frisktilarbeid,testdata")
 @Component
 class FriskTilArbeidTestDataConsumer(
     private val friskTilArbeidService: FriskTilArbeidService,
+    private val friskTilArbeidCronJob: FriskTilArbeidCronJob,
 ) {
     val log = logger()
 
@@ -35,6 +36,7 @@ class FriskTilArbeidTestDataConsumer(
             log.error("Feilet ved mottak av FriskTilArbeidVedtakStatus.", e)
         } finally {
             acknowledgment.acknowledge()
+            friskTilArbeidCronJob.startBehandlingAvFriskTilArbeidVedtakStatus()
         }
     }
 }
