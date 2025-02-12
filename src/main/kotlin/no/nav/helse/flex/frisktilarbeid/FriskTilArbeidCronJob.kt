@@ -22,16 +22,20 @@ class FriskTilArbeidCronJob(
     private val log = logger()
 
     @Scheduled(initialDelay = 2, fixedDelay = 5, timeUnit = TimeUnit.MINUTES)
-    fun startBehandlingAvFriskTilArbeidVedtakStatus() {
+    fun schedulertStartBehandlingAvFriskTilArbeidVedtakStatus() {
         if (leaderElection.isLeader()) {
             log.info("Er leder, starter behandling av FriskTilArbeidVedtakStatus.")
-            friskTilArbeidService.behandleFriskTilArbeidVedtakStatus(BEHANDLE_ANTALL_FRISK_TIL_ARBEID_VEDTAK)
-                .filter { it.tom!!.isBefore(LocalDate.now()) }
-                .forEach {
-                    aktiveringProducer.leggPaAktiveringTopic(AktiveringBestilling(it.fnr, it.id))
-                }
+            startBehandlingAvFriskTilArbeidVedtakStatus()
         } else {
             log.info("Er ikke leder, kjører ikke behandling av FriskTilArbeidVedtakStatus.")
         }
+    }
+
+    fun startBehandlingAvFriskTilArbeidVedtakStatus() {
+        friskTilArbeidService.behandleFriskTilArbeidVedtakStatus(BEHANDLE_ANTALL_FRISK_TIL_ARBEID_VEDTAK)
+            .filter { it.tom!!.isBefore(LocalDate.now()) }
+            .forEach {
+                aktiveringProducer.leggPaAktiveringTopic(AktiveringBestilling(it.fnr, it.id))
+            }
     }
 }

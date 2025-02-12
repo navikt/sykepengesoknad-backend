@@ -33,6 +33,7 @@ class CommanndListener(val sykepengesoknadDAO: SykepengesoknadDAO) {
 
         val req: Command = cr.value().let { objectMapper.readValue(it) }
 
+        log.info("Mottok kommando ${req.command}")
         when (req.command) {
             "fta-cronjob" -> friskTilArbeidCronJob.startBehandlingAvFriskTilArbeidVedtakStatus()
             else -> log.warn("Ukjent kommando ${req.command}")
