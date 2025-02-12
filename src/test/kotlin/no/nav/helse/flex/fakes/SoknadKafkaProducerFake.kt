@@ -18,6 +18,10 @@ import java.util.concurrent.TimeUnit
 @Profile("fakes")
 @Primary
 class SoknadKafkaProducerFake : Producer<String, SykepengesoknadDTO> {
+    companion object {
+        val records = mutableListOf<ProducerRecord<String, SykepengesoknadDTO>>()
+    }
+
     override fun close() {
         TODO("Not yet implemented")
     }
@@ -80,7 +84,8 @@ class SoknadKafkaProducerFake : Producer<String, SykepengesoknadDTO> {
         TODO("Not yet implemented")
     }
 
-    override fun send(p0: ProducerRecord<String, SykepengesoknadDTO>?): Future<RecordMetadata> {
+    override fun send(p0: ProducerRecord<String, SykepengesoknadDTO>): Future<RecordMetadata> {
+        records.add(p0)
         return object : Future<RecordMetadata> {
             override fun cancel(p0: Boolean): Boolean {
                 return false
