@@ -1,12 +1,12 @@
 package no.nav.helse.flex.client.brreg
 
 class Rolle(
-    val rolleType: RolleType,
+    val rolletype: Rolletype,
     val organisasjonsnummer: String,
     val organisasjonsnavn: String,
 )
 
-enum class RolleType(
+enum class Rolletype(
     val beskrivelse: List<String>,
 ) {
     ADOS(listOf("Administrativ enhet - offentlig sektor")),
@@ -50,5 +50,5 @@ enum class RolleType(
 
 data class HentRollerRequest(
     val fnr: String,
-    val rolleTyper: List<RolleType>? = null,
+    val rolleTyper: List<Rolletype>? = null,
 )

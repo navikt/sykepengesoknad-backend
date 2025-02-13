@@ -47,6 +47,7 @@ data class SykepengesoknadDbRecord(
     val inntektskilderDataFraInntektskomponenten: String? = null,
     val arbeidsforholdFraAareg: String? = null,
     val friskTilArbeidVedtakId: String? = null,
+    val selvstendigNaringsdrivende: String? = null,
 )
 
 data class SporsmalDbRecord(

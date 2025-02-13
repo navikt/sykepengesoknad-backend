@@ -640,6 +640,10 @@ class SykepengesoknadDAOPostgres(
                         },
                     julesoknad = resultSet.getNullableBoolean("aktivert_julesoknad_kandidat") ?: false,
                     friskTilArbeidVedtakId = resultSet.getNullableString("frisk_til_arbeid_vedtak_id"),
+                    selvstendigNaringsdrivende =
+                        resultSet.getNullableString("selvstendig_naringsdrivende")?.let {
+                            objectMapper.readValue(it)
+                        },
                 ),
             )
         }

@@ -2,7 +2,7 @@ package no.nav.helse.flex.service
 
 import no.nav.helse.flex.FakesTestOppsett
 import no.nav.helse.flex.client.brreg.Rolle
-import no.nav.helse.flex.client.brreg.RolleType
+import no.nav.helse.flex.client.brreg.Rolletype
 import no.nav.helse.flex.util.serialisertTilString
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -23,7 +23,7 @@ class RolleutskriftServiceTest : FakesTestOppsett() {
         val forventetRolleListe =
             listOf(
                 Rolle(
-                    rolleType = RolleType.INNH,
+                    rolletype = Rolletype.INNH,
                     organisasjonsnummer = "orgnummer",
                     organisasjonsnavn = "orgnavn",
                 ),
@@ -42,7 +42,7 @@ class RolleutskriftServiceTest : FakesTestOppsett() {
             .also {
                 it.orgnavn `should be equal to` "orgnavn"
                 it.orgnummer `should be equal to` "orgnummer"
-                it.organisasjonsform `should be equal to` "ENK"
+                it.rolletype `should be equal to` "ENK"
             }
     }
 
@@ -51,7 +51,7 @@ class RolleutskriftServiceTest : FakesTestOppsett() {
         val forventetRolleListe =
             listOf(
                 Rolle(
-                    rolleType = RolleType.INNH,
+                    rolletype = Rolletype.INNH,
                     organisasjonsnummer = "orgnummer",
                     organisasjonsnavn = "orgnavn",
                 ),
@@ -67,7 +67,7 @@ class RolleutskriftServiceTest : FakesTestOppsett() {
             .hentSelvstendigNaringsdrivendeRoller("fnr")
             .first()
             .also {
-                it.rolleType `should be equal to` RolleType.INNH
+                it.rolletype `should be equal to` Rolletype.INNH
                 it.organisasjonsnummer `should be equal to` "orgnummer"
                 it.organisasjonsnavn `should be equal to` "orgnavn"
             }

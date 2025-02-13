@@ -15,7 +15,7 @@ class BrregClient(
 
     fun hentRoller(
         fnr: String,
-        rolleTyper: List<RolleType>? = null,
+        rolleTyper: List<Rolletype>? = null,
     ): List<Rolle> {
         val uri = restClient.post().uri { uriBuilder -> uriBuilder.path("/roller").build() }
         val hentRollerRequest = HentRollerRequest(fnr = fnr, rolleTyper = rolleTyper)
