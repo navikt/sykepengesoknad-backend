@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component
 
 @Profile("frisktilarbeid")
 @Component
-class ArbeidssokerRegisterStoppListener() {
+class ArbeidssokerregisterStoppListener() {
     val log = logger()
 
     @KafkaListener(
@@ -25,16 +25,16 @@ class ArbeidssokerRegisterStoppListener() {
         cr: ConsumerRecord<String, String>,
         acknowledgment: Acknowledgment,
     ) {
-        val arbeidssokerRegisterStopp = cr.value().tilArbeidssokerRegisterStopp()
+        val stoppMelding = cr.value().tilArbeidssokerregisterStoppMelding()
 
-        log.info("Mottok ArbeidssokerRegisterStopp med key: ${cr.key()} og id: ${arbeidssokerRegisterStopp.id}.")
+        log.info("Mottok ArbeidssokerregisterStoppMelding med key: ${cr.key()} og id: ${stoppMelding.id}.")
         acknowledgment.acknowledge()
     }
 }
 
-internal fun String.tilArbeidssokerRegisterStopp(): ArbeidssokerRegisterStopp = objectMapper.readValue(this)
+internal fun String.tilArbeidssokerregisterStoppMelding(): ArbeidssokerregisterStoppMelding = objectMapper.readValue(this)
 
-data class ArbeidssokerRegisterStopp(
+data class ArbeidssokerregisterStoppMelding(
     val id: String,
     val fnr: String,
 )

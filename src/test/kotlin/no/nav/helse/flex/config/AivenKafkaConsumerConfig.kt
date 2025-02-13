@@ -21,7 +21,7 @@ class AivenKafkaConsumerConfig(
     fun auditlogKafkaConsumer() = KafkaConsumer<String, String>(consumerConfig("auditlog-group-id"))
 
     @Bean
-    fun arbeidssokerRegisterStoppConsumer() = KafkaConsumer<String, String>(consumerConfig("aarbeidssoker-group-id"))
+    fun arbeidssokerregisterStoppConsumer() = KafkaConsumer<String, String>(consumerConfig("arbeidssokerregister-group-id"))
 
     private fun consumerConfig(groupId: String) =
         mapOf(
