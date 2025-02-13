@@ -91,6 +91,7 @@ class SykepengesoknadDAOFake : SykepengesoknadDAO {
         return sykepengesoknadRepository.findAll()
             .filter { it.fnr in identer }
             .map { it.hentOgDenormaliserSykepengesoknad() }
+            .sortedBy { it.opprettet }
     }
 
     override fun finnMottakerAvSoknad(soknadUuid: String): Mottaker? {

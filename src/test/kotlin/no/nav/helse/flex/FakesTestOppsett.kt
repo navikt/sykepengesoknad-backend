@@ -1,5 +1,7 @@
 package no.nav.helse.flex
 
+import no.nav.helse.flex.frisktilarbeid.FriskTilArbeidConsumer
+import no.nav.helse.flex.frisktilarbeid.FriskTilArbeidRepository
 import no.nav.helse.flex.repository.SykepengesoknadDAOPostgres
 import no.nav.helse.flex.testoppsett.startMockWebServere
 import no.nav.security.mock.oauth2.MockOAuth2Server
@@ -49,6 +51,12 @@ abstract class FakesTestOppsett : TestOppsettInterfaces {
 
     @Autowired
     lateinit var server: MockOAuth2Server
+
+    @Autowired
+    lateinit var friskTilArbeidConsumer: FriskTilArbeidConsumer
+
+    @Autowired
+    lateinit var friskTilArbeidRepository: FriskTilArbeidRepository
 
     companion object {
         init {
