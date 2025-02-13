@@ -148,7 +148,7 @@ abstract class FellesTestOppsett : TestOppsettInterfaces {
     lateinit var auditlogKafkaConsumer: Consumer<String, String>
 
     @Autowired
-    lateinit var arbeidssokerRegisterStoppConsumer: Consumer<String, String>
+    lateinit var arbeidssokerregisterStoppConsumer: Consumer<String, String>
 
     @BeforeAll
     @AfterAll
@@ -191,7 +191,7 @@ abstract class FellesTestOppsett : TestOppsettInterfaces {
 
     @BeforeAll
     fun `Vi leser arbeidssokerregisterstopp kafka topicet og feiler om noe eksisterer`() {
-        arbeidssokerRegisterStoppConsumer.subscribeHvisIkkeSubscribed(ARBEIDSSOKERREGISTER_STOPP_TOPIC)
-        arbeidssokerRegisterStoppConsumer.hentProduserteRecords().shouldBeEmpty()
+        arbeidssokerregisterStoppConsumer.subscribeHvisIkkeSubscribed(ARBEIDSSOKERREGISTER_STOPP_TOPIC)
+        arbeidssokerregisterStoppConsumer.hentProduserteRecords().shouldBeEmpty()
     }
 }
