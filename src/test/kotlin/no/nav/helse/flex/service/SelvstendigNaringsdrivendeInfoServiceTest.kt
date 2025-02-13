@@ -1,28 +1,29 @@
 package no.nav.helse.flex.service
 
 import no.nav.helse.flex.FakesTestOppsett
-import no.nav.helse.flex.client.brreg.Rolle
+import no.nav.helse.flex.client.brreg.RolleDto
 import no.nav.helse.flex.client.brreg.Rolletype
 import no.nav.helse.flex.util.serialisertTilString
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
+import org.amshove.kluent.invoking
 import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.`should throw`
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 
-class RolleutskriftServiceTest : FakesTestOppsett() {
+class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
     @Autowired
     lateinit var brregServer: MockWebServer
 
     @Autowired
-    lateinit var rolleutskriftService: RolleutskriftService
+    lateinit var selvstendigNaringsdrivendeInfoService: SelvstendigNaringsdrivendeInfoService
 
     @Test
     fun `burde hente selvstendig næringsdrivende`() {
-        val forventetRolleListe =
+        val rolleListe =
             listOf(
-                Rolle(
+                RolleDto(
                     rolletype = Rolletype.INNH,
                     organisasjonsnummer = "orgnummer",
                     organisasjonsnavn = "orgnavn",
@@ -32,26 +33,26 @@ class RolleutskriftServiceTest : FakesTestOppsett() {
         brregServer.enqueue(
             MockResponse()
                 .setHeader("Content-Type", "application/json")
-                .setBody(forventetRolleListe.serialisertTilString()),
+                .setBody(rolleListe.serialisertTilString()),
         )
 
-        rolleutskriftService
-            .hentSelvstendigNaringsdrivende("fnr")
-            .organisasjoner
+        selvstendigNaringsdrivendeInfoService
+            .hentSelvstendigNaringsdrivendeInfo(FolkeregisterIdenter("fnr", andreIdenter = emptyList()))
+            .roller
             .first()
             .also {
                 it.orgnavn `should be equal to` "orgnavn"
                 it.orgnummer `should be equal to` "orgnummer"
-                it.rolletype `should be equal to` "ENK"
+                it.rolletype `should be equal to` "INNH"
             }
     }
 
     @Test
-    fun `burde hente selvstendig næringsdrivende roller`() {
-        val forventetRolleListe =
+    fun `burde hente kun selvstendig næringsdrivende roller`() {
+        val rolleListe =
             listOf(
-                Rolle(
-                    rolletype = Rolletype.INNH,
+                RolleDto(
+                    rolletype = Rolletype.DAGL,
                     organisasjonsnummer = "orgnummer",
                     organisasjonsnavn = "orgnavn",
                 ),
@@ -60,17 +61,13 @@ class RolleutskriftServiceTest : FakesTestOppsett() {
         brregServer.enqueue(
             MockResponse()
                 .setHeader("Content-Type", "application/json")
-                .setBody(forventetRolleListe.serialisertTilString()),
+                .setBody(rolleListe.serialisertTilString()),
         )
 
-        rolleutskriftService
-            .hentSelvstendigNaringsdrivendeRoller("fnr")
-            .first()
-            .also {
-                it.rolletype `should be equal to` Rolletype.INNH
-                it.organisasjonsnummer `should be equal to` "orgnummer"
-                it.organisasjonsnavn `should be equal to` "orgnavn"
-            }
+        selvstendigNaringsdrivendeInfoService
+            .hentSelvstendigNaringsdrivendeInfo(FolkeregisterIdenter("fnr", andreIdenter = emptyList()))
+            .roller
+            .size `should be equal to` 0
     }
 
     @Test
@@ -81,10 +78,9 @@ class RolleutskriftServiceTest : FakesTestOppsett() {
                 .setBody("Feil i api"),
         )
 
-        assertThrows<Exception> {
-            rolleutskriftService
-                .hentSelvstendigNaringsdrivendeRoller("fnr")
-                .isEmpty() `should be equal to` true
-        }
+        invoking {
+            selvstendigNaringsdrivendeInfoService
+                .hentSelvstendigNaringsdrivendeInfo(FolkeregisterIdenter("fnr", andreIdenter = emptyList()))
+        } `should throw` Exception::class
     }
 }

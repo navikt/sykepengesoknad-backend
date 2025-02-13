@@ -1,6 +1,10 @@
 package no.nav.helse.flex.client.brreg
 
-class Rolle(
+class RollerDto(
+    val roller: List<RolleDto>,
+)
+
+class RolleDto(
     val rolletype: Rolletype,
     val organisasjonsnummer: String,
     val organisasjonsnavn: String,
@@ -43,9 +47,6 @@ enum class Rolletype(
     SIGN(listOf("Signatur")),
     VARA(listOf("Varamedlem")),
     UKJENT(listOf("Ukjent rolle")),
-    ;
-
-    fun erSelvstendigNaringdrivende() = this == INNH || this == DTPR || this == DTSO || this == KOMP
 }
 
 data class HentRollerRequest(

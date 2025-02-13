@@ -52,7 +52,7 @@ data class Sykepengesoknad(
     val arbeidsforholdFraAareg: List<ArbeidsforholdFraAAreg>? = null,
     val julesoknad: Boolean? = false,
     val friskTilArbeidVedtakId: String? = null,
-    val selvstendigNaringsdrivende: SelvstendigNaringsdrivende? = null,
+    val selvstendigNaringsdrivende: SelvstendigNaringsdrivendeInfo? = null,
 ) : Serializable {
     fun alleSporsmalOgUndersporsmal(): List<Sporsmal> = sporsmal.flatten()
 

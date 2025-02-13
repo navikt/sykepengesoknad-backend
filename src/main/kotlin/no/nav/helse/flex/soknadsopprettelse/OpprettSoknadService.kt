@@ -11,7 +11,7 @@ import no.nav.helse.flex.kafka.producer.SoknadProducer
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.service.FolkeregisterIdenter
-import no.nav.helse.flex.service.RolleutskriftService
+import no.nav.helse.flex.service.SelvstendigNaringsdrivendeInfoService
 import no.nav.helse.flex.service.SlettSoknaderTilKorrigertSykmeldingService
 import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.KlippMetrikk
 import no.nav.helse.flex.soknadsopprettelse.splitt.delOppISoknadsperioder
@@ -40,7 +40,7 @@ class OpprettSoknadService(
     private val soknadProducer: SoknadProducer,
     private val lagreJulesoknadKandidater: LagreJulesoknadKandidater,
     private val slettSoknaderTilKorrigertSykmeldingService: SlettSoknaderTilKorrigertSykmeldingService,
-    private val rolleutskriftService: RolleutskriftService,
+    private val selvstendigNaringsdrivendeInfoService: SelvstendigNaringsdrivendeInfoService,
 ) {
     private val log = logger()
 
@@ -115,8 +115,8 @@ class OpprettSoknadService(
                                 selvstendigNaringsdrivende =
                                     when (arbeidssituasjon) {
                                         Arbeidssituasjon.NAERINGSDRIVENDE ->
-                                            rolleutskriftService.hentSelvstendigNaringsdrivende(
-                                                fnr = identer.originalIdent,
+                                            selvstendigNaringsdrivendeInfoService.hentSelvstendigNaringsdrivendeInfo(
+                                                identer = identer,
                                             )
                                         else -> null
                                     },
