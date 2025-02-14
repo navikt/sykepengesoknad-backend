@@ -13,9 +13,9 @@ private fun fortsattArbeidssokerDato(
     tom: LocalDate,
 ): Sporsmal {
     return Sporsmal(
-        tag = FTA_JOBBSITUASJONEN_DIN_FORTSATT_ARBEIDSSOKER_AVREGISTRERT_NAR,
+        tag = FTA_JOBBSITUASJONEN_DIN_FORTSATT_FRISKMELDT_AVREGISTRERT_NAR,
         sporsmalstekst = "Fra og med når?",
-        undertekst = "Du vil ikke være friskmeldt til arbeidsformidling fra og med denne datoen",
+        undertekst = "Du vil ikke få utbetalt sykepenger fra og med denne datoen",
         svartype = Svartype.DATO,
         min = fom.format(ISO_LOCAL_DATE),
         max = tom.format(ISO_LOCAL_DATE),
@@ -31,10 +31,10 @@ private fun fortsattArbeidssoker(
     tom: LocalDate,
 ): Sporsmal {
     val tag =
-        if (nyJobbUndersporsmal) FTA_JOBBSITUASJONEN_DIN_FORTSATT_ARBEIDSSOKER_NY_JOBB else FTA_JOBBSITUASJONEN_DIN_FORTSATT_ARBEIDSSOKER
+        if (nyJobbUndersporsmal) FTA_JOBBSITUASJONEN_DIN_FORTSATT_FRISKMELDT_NY_JOBB else FTA_JOBBSITUASJONEN_DIN_FORTSATT_FRISKMELDT
     return Sporsmal(
         tag = tag,
-        sporsmalstekst = "Vil du fortsatt være registrert som arbeidssøker hos Nav?",
+        sporsmalstekst = "Vil du fortsatt være friskmeldt til arbeidsformidling?",
         undertekst =
             if (nyJobbUndersporsmal) {
                 "Svar ja hvis du har begynt i en midlertidig jobb og fortsatt søker andre jobber"

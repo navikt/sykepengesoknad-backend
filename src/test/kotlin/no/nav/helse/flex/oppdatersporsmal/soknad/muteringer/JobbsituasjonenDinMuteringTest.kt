@@ -95,12 +95,12 @@ class JobbsituasjonenDinMuteringTest {
 
         // Simuler at brukeren har svart:
         // - FTA_JOBBSITUASJONEN_DIN_JA: CHECKED
-        // - FTA_JOBBSITUASJONEN_DIN_FORTSATT_ARBEIDSSOKER_NY_JOBB: NEI
+        // - FTA_JOBBSITUASJONEN_DIN_FORTSATT_FRISKMELDT_NY_JOBB: NEI
         // - FTA_JOBBSITUASJONEN_DIN_NAR: en dato som er etter fom (f.eks. fom + 5 dager)
         val soknadMedSvar =
             soknad
                 .besvarsporsmal(FTA_JOBBSITUASJONEN_DIN_JA, "CHECKED")
-                .besvarsporsmal(FTA_JOBBSITUASJONEN_DIN_FORTSATT_ARBEIDSSOKER_NY_JOBB, "NEI")
+                .besvarsporsmal(FTA_JOBBSITUASJONEN_DIN_FORTSATT_FRISKMELDT_NY_JOBB, "NEI")
                 .besvarsporsmal(FTA_JOBBSITUASJONEN_DIN_NAR, fom.plusDays(5).format(ISO_LOCAL_DATE))
         // Forventet: siden begrensende dato (fom+5) ≠ fom, skal de to spm legges til.
 
@@ -133,7 +133,7 @@ class JobbsituasjonenDinMuteringTest {
         val soknadMedSvar =
             soknad
                 .besvarsporsmal(FTA_JOBBSITUASJONEN_DIN_JA, "CHECKED")
-                .besvarsporsmal(FTA_JOBBSITUASJONEN_DIN_FORTSATT_ARBEIDSSOKER_NY_JOBB, "NEI")
+                .besvarsporsmal(FTA_JOBBSITUASJONEN_DIN_FORTSATT_FRISKMELDT_NY_JOBB, "NEI")
                 .besvarsporsmal(FTA_JOBBSITUASJONEN_DIN_NAR, fom.format(ISO_LOCAL_DATE))
         // I oppsettet fra settOppSykepengesoknadFriskmeldtTilArbeidsformidling finnes allerede spm for inntekt og reise.
         // Muteringen fjerner disse, men siden dato er lik fom, legges ingen nye inn.
@@ -155,13 +155,13 @@ class JobbsituasjonenDinMuteringTest {
 
         // Simuler NEI-grenen:
         // - FTA_JOBBSITUASJONEN_DIN_NEI: CHECKED
-        // - FTA_JOBBSITUASJONEN_DIN_FORTSATT_ARBEIDSSOKER: NEI
-        // - FTA_JOBBSITUASJONEN_DIN_FORTSATT_ARBEIDSSOKER_AVREGISTRERT_NAR: en dato etter fom
+        // - FTA_JOBBSITUASJONEN_DIN_FORTSATT_FRISKMELDT: NEI
+        // - FTA_JOBBSITUASJONEN_DIN_FORTSATT_FRISKMELDT_AVREGISTRERT_NAR: en dato etter fom
         val soknadMedSvar =
             soknad
                 .besvarsporsmal(FTA_JOBBSITUASJONEN_DIN_NEI, "CHECKED")
-                .besvarsporsmal(FTA_JOBBSITUASJONEN_DIN_FORTSATT_ARBEIDSSOKER, "NEI")
-                .besvarsporsmal(FTA_JOBBSITUASJONEN_DIN_FORTSATT_ARBEIDSSOKER_AVREGISTRERT_NAR, fom.plusDays(7).format(ISO_LOCAL_DATE))
+                .besvarsporsmal(FTA_JOBBSITUASJONEN_DIN_FORTSATT_FRISKMELDT, "NEI")
+                .besvarsporsmal(FTA_JOBBSITUASJONEN_DIN_FORTSATT_FRISKMELDT_AVREGISTRERT_NAR, fom.plusDays(7).format(ISO_LOCAL_DATE))
         // Forventet: siden dato (fom+7) ≠ fom, skal de to nye spørsmålene legges til
 
         // Før mutering finnes spm for inntekt og reise (fra oppsettet)
