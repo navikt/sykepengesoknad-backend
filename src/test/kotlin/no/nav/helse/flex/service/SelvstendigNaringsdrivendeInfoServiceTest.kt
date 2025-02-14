@@ -1,7 +1,9 @@
 package no.nav.helse.flex.service
 
 import no.nav.helse.flex.FakesTestOppsett
+import no.nav.helse.flex.client.brreg.HentRollerRequest
 import no.nav.helse.flex.client.brreg.RolleDto
+import no.nav.helse.flex.client.brreg.RollerDto
 import no.nav.helse.flex.client.brreg.Rolletype
 import no.nav.helse.flex.util.serialisertTilString
 import okhttp3.mockwebserver.MockResponse
@@ -21,19 +23,22 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
 
     @Test
     fun `burde hente selvstendig næringsdrivende`() {
-        val rolleListe =
-            listOf(
-                RolleDto(
-                    rolletype = Rolletype.INNH,
-                    organisasjonsnummer = "orgnummer",
-                    organisasjonsnavn = "orgnavn",
-                ),
+        val rollerDto =
+            RollerDto(
+                roller =
+                    listOf(
+                        RolleDto(
+                            rolletype = Rolletype.INNH,
+                            organisasjonsnummer = "orgnummer",
+                            organisasjonsnavn = "orgnavn",
+                        ),
+                    ),
             )
 
         brregServer.enqueue(
             MockResponse()
                 .setHeader("Content-Type", "application/json")
-                .setBody(rolleListe.serialisertTilString()),
+                .setBody(rollerDto.serialisertTilString()),
         )
 
         selvstendigNaringsdrivendeInfoService
@@ -48,26 +53,39 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
     }
 
     @Test
-    fun `burde hente kun selvstendig næringsdrivende roller`() {
-        val rolleListe =
-            listOf(
-                RolleDto(
-                    rolletype = Rolletype.DAGL,
-                    organisasjonsnummer = "orgnummer",
-                    organisasjonsnavn = "orgnavn",
-                ),
+    fun `burde ha riktig payload i request`() {
+        val rollerDto =
+            RollerDto(
+                roller =
+                    listOf(
+                        RolleDto(
+                            rolletype = Rolletype.DAGL,
+                            organisasjonsnummer = "orgnummer",
+                            organisasjonsnavn = "orgnavn",
+                        ),
+                    ),
             )
 
         brregServer.enqueue(
             MockResponse()
                 .setHeader("Content-Type", "application/json")
-                .setBody(rolleListe.serialisertTilString()),
+                .setBody(rollerDto.serialisertTilString()),
         )
 
         selvstendigNaringsdrivendeInfoService
             .hentSelvstendigNaringsdrivendeInfo(FolkeregisterIdenter("fnr", andreIdenter = emptyList()))
-            .roller
-            .size `should be equal to` 0
+
+        brregServer.takeRequest().body.readUtf8() `should be equal to`
+            HentRollerRequest(
+                fnr = "fnr",
+                rolleTyper =
+                    listOf(
+                        Rolletype.INNH,
+                        Rolletype.DTPR,
+                        Rolletype.DTSO,
+                        Rolletype.KOMP,
+                    ),
+            ).serialisertTilString()
     }
 
     @Test
