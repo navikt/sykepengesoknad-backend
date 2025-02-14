@@ -3,6 +3,7 @@ package no.nav.helse.flex.frisktilarbeid.sporsmal
 import no.nav.helse.flex.*
 import no.nav.helse.flex.aktivering.SoknadAktivering
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
+import no.nav.helse.flex.controller.domain.sykepengesoknad.flatten
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.fakes.SoknadKafkaProducerFake
 import no.nav.helse.flex.frisktilarbeid.*
@@ -75,6 +76,13 @@ class FriskTilArbeidIntegrationMedSporsmalTest() : FakesTestOppsett() {
                 FTA_REISE_TIL_UTLANDET,
                 TIL_SLUTT,
             )
+        val jaSpørsmål = soknad.sporsmal!!.flatten().first { it.tag == FTA_JOBBSITUASJONEN_DIN_JA }
+        jaSpørsmål.undersporsmal.map { it.tag }.`should be equal to`(
+            listOf(
+                FTA_JOBBSITUASJONEN_DIN_NAR,
+                FTA_JOBBSITUASJONEN_DIN_FORTSATT_FRISKMELDT_NY_JOBB,
+            ),
+        )
     }
 
     @Test
