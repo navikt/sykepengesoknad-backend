@@ -84,7 +84,7 @@ class FriskTilArbeidIntegrationMedSporsmalTest() : FakesTestOppsett() {
         SoknadBesvarer(rSSykepengesoknad = soknad, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
             .besvarSporsmal(FTA_JOBBSITUASJONEN_DIN_NEI, "CHECKED", false)
-            .besvarSporsmal(FTA_JOBBSITUASJONEN_DIN_FORTSATT_ARBEIDSSOKER, "JA", true)
+            .besvarSporsmal(FTA_JOBBSITUASJONEN_DIN_FORTSATT_FRISKMELDT, "JA", true)
             .besvarSporsmal(FTA_INNTEKT_UNDERVEIS, "NEI")
             .besvarSporsmal(FTA_REISE_TIL_UTLANDET, "NEI")
             .oppsummering()

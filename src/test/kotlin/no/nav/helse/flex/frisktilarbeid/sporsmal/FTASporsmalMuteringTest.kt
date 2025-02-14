@@ -47,7 +47,7 @@ class FTASporsmalMuteringTest() : FakesTestOppsett() {
         SoknadBesvarer(rSSykepengesoknad = soknad, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
             .besvarSporsmal(FTA_JOBBSITUASJONEN_DIN_JA, "CHECKED", false)
-            .besvarSporsmal(FTA_JOBBSITUASJONEN_DIN_FORTSATT_ARBEIDSSOKER_NY_JOBB, "NEI", false)
+            .besvarSporsmal(FTA_JOBBSITUASJONEN_DIN_FORTSATT_FRISKMELDT_NY_JOBB, "NEI", false)
             .besvarSporsmal(FTA_JOBBSITUASJONEN_DIN_NAR, "2020-01-01", true, mutert = true)
             .also {
                 assertThat(it.muterteSoknaden).isTrue()
@@ -76,8 +76,8 @@ class FTASporsmalMuteringTest() : FakesTestOppsett() {
             .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
             .besvarSporsmal(FTA_JOBBSITUASJONEN_DIN_JA, null, false)
             .besvarSporsmal(FTA_JOBBSITUASJONEN_DIN_NEI, "CHECKED", false)
-            .besvarSporsmal(FTA_JOBBSITUASJONEN_DIN_FORTSATT_ARBEIDSSOKER, "NEI", false)
-            .besvarSporsmal(FTA_JOBBSITUASJONEN_DIN_FORTSATT_ARBEIDSSOKER_AVREGISTRERT_NAR, "2020-01-02", true, mutert = true)
+            .besvarSporsmal(FTA_JOBBSITUASJONEN_DIN_FORTSATT_FRISKMELDT, "NEI", false)
+            .besvarSporsmal(FTA_JOBBSITUASJONEN_DIN_FORTSATT_FRISKMELDT_AVREGISTRERT_NAR, "2020-01-02", true, mutert = true)
             .also {
                 assertThat(it.muterteSoknaden).isTrue()
             }

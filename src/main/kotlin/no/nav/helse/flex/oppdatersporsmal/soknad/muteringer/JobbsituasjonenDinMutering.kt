@@ -28,7 +28,7 @@ fun Sykepengesoknad.jobbsituasjonenDinMutering(): Sykepengesoknad {
     fun finnBegrensendeDato(): String? {
         return when {
             tagHarSvar(FTA_JOBBSITUASJONEN_DIN_JA, "CHECKED") -> {
-                if (tagHarSvar(FTA_JOBBSITUASJONEN_DIN_FORTSATT_ARBEIDSSOKER_NY_JOBB, "NEI")) {
+                if (tagHarSvar(FTA_JOBBSITUASJONEN_DIN_FORTSATT_FRISKMELDT_NY_JOBB, "NEI")) {
                     underspm.find { it.tag == FTA_JOBBSITUASJONEN_DIN_NAR }?.svar?.firstOrNull()?.verdi
                 } else {
                     null
@@ -36,8 +36,8 @@ fun Sykepengesoknad.jobbsituasjonenDinMutering(): Sykepengesoknad {
             }
 
             tagHarSvar(FTA_JOBBSITUASJONEN_DIN_NEI, "CHECKED") -> {
-                if (tagHarSvar(FTA_JOBBSITUASJONEN_DIN_FORTSATT_ARBEIDSSOKER, "NEI")) {
-                    underspm.find { it.tag == FTA_JOBBSITUASJONEN_DIN_FORTSATT_ARBEIDSSOKER_AVREGISTRERT_NAR }?.svar?.firstOrNull()?.verdi
+                if (tagHarSvar(FTA_JOBBSITUASJONEN_DIN_FORTSATT_FRISKMELDT, "NEI")) {
+                    underspm.find { it.tag == FTA_JOBBSITUASJONEN_DIN_FORTSATT_FRISKMELDT_AVREGISTRERT_NAR }?.svar?.firstOrNull()?.verdi
                 } else {
                     null
                 }
