@@ -49,8 +49,8 @@ spec:
     - team: flex
       application: spinnsyn-backend
       access: read
-    - team: teamsykmelding
-      application: dinesykmeldte-kafka
+    - team: team-esyfo
+      application: dinesykmeldte-backend
       access: read
     - team: teamsykmelding
       application: dinesykmeldte-backend
