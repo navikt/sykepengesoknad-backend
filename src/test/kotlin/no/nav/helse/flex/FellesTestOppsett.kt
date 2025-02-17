@@ -54,6 +54,7 @@ abstract class FellesTestOppsett : TestOppsettInterfaces {
         private val eregMockWebServer: MockWebServer
         private val yrkesskadeMockWebServer: MockWebServer
         private val innsendingApiMockWebServer: MockWebServer
+        val brregMockWebServer: MockWebServer
 
         init {
             startAlleContainere()
@@ -66,17 +67,14 @@ abstract class FellesTestOppsett : TestOppsettInterfaces {
                 innsendingApiMockWebServer = it.innsendingApiMockWebServer
                 sigrunMockWebServer = it.pensjonsgivendeInntektMockWebServer
                 grunnbeloepApiMockWebServer = it.grunnbeloepApiMockWebServer
+                brregMockWebServer = it.brregMockWebServer
             }
         }
     }
 
-    override fun server(): MockOAuth2Server {
-        return server
-    }
+    override fun server(): MockOAuth2Server = server
 
-    override fun mockMvc(): MockMvc {
-        return mockMvc
-    }
+    override fun mockMvc(): MockMvc = mockMvc
 
     @MockitoBean
     lateinit var rebehandlingsSykmeldingSendtProducer: RebehandlingSykmeldingSendtProducer

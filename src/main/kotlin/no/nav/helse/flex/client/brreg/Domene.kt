@@ -1,10 +1,10 @@
 package no.nav.helse.flex.client.brreg
 
-class RollerDto(
+data class RollerDto(
     val roller: List<RolleDto>,
 )
 
-class RolleDto(
+data class RolleDto(
     val rolletype: Rolletype,
     val organisasjonsnummer: String,
     val organisasjonsnavn: String,

@@ -13,32 +13,29 @@ import no.nav.helse.flex.util.tilLocalDate
 import no.nav.helse.flex.util.tilOsloLocalDateTime
 import java.util.Optional.ofNullable
 
-private fun mapSvarTilRSSvar(svar: Svar): RSSvar {
-    return RSSvar(
+private fun mapSvarTilRSSvar(svar: Svar): RSSvar =
+    RSSvar(
         id = svar.id,
         verdi = svar.verdi,
     )
-}
 
-private fun mapSoknadsperiode(soknadsperiode: Soknadsperiode): RSSoknadsperiode {
-    return RSSoknadsperiode(
+private fun mapSoknadsperiode(soknadsperiode: Soknadsperiode): RSSoknadsperiode =
+    RSSoknadsperiode(
         fom = soknadsperiode.fom,
         tom = soknadsperiode.tom,
         grad = soknadsperiode.grad,
         sykmeldingstype = mapSykmeldingstype(soknadsperiode.sykmeldingstype),
     )
-}
 
-private fun mapSykmeldingstype(sykmeldingstype: Sykmeldingstype?): RSSykmeldingstype? {
-    return if (sykmeldingstype == null) {
+private fun mapSykmeldingstype(sykmeldingstype: Sykmeldingstype?): RSSykmeldingstype? =
+    if (sykmeldingstype == null) {
         null
     } else {
         RSSykmeldingstype.valueOf(sykmeldingstype.name)
     }
-}
 
-fun Sporsmal.mapSporsmalTilRs(): RSSporsmal {
-    return RSSporsmal(
+fun Sporsmal.mapSporsmalTilRs(): RSSporsmal =
+    RSSporsmal(
         id = this.id,
         tag = this.tag,
         sporsmalstekst = this.sporsmalstekst,
@@ -55,13 +52,12 @@ fun Sporsmal.mapSporsmalTilRs(): RSSporsmal {
         undersporsmal = this.undersporsmal.map { it.mapSporsmalTilRs() },
         metadata = this.metadata,
     )
-}
 
 private fun map(
     arbeidsgiverNavn: String?,
     arbeidsgiverOrgnummer: String?,
-): RSArbeidsgiver? {
-    return if (arbeidsgiverNavn == null || arbeidsgiverOrgnummer == null) {
+): RSArbeidsgiver? =
+    if (arbeidsgiverNavn == null || arbeidsgiverOrgnummer == null) {
         null
     } else {
         RSArbeidsgiver(
@@ -69,22 +65,19 @@ private fun map(
             orgnummer = arbeidsgiverOrgnummer,
         )
     }
-}
 
-fun konverterSoknadstatus(soknadstatus: Soknadstatus): RSSoknadstatus {
-    return if (soknadstatus === Soknadstatus.UTGATT) {
+fun konverterSoknadstatus(soknadstatus: Soknadstatus): RSSoknadstatus =
+    if (soknadstatus === Soknadstatus.UTGATT) {
         RSSoknadstatus.UTGAATT
     } else {
         EnumUtil.konverter(RSSoknadstatus::class.java, soknadstatus)
     }
-}
 
-private fun Merknad.mapMerknad(): RSMerknad {
-    return RSMerknad(
+private fun Merknad.mapMerknad(): RSMerknad =
+    RSMerknad(
         type = this.type,
         beskrivelse = this.beskrivelse,
     )
-}
 
 fun Sykepengesoknad.tilRSSykepengesoknad() =
     RSSykepengesoknad(
@@ -120,6 +113,7 @@ fun Sykepengesoknad.tilRSSykepengesoknad() =
         kjentOppholdstillatelse = this.kjentOppholdstillatelse,
         julesoknad = this.julesoknad,
         friskTilArbeidVedtakId = this.friskTilArbeidVedtakId,
+        selvstendigNaringsdrivendeInfo = this.selvstendigNaringsdrivende,
     )
 
 fun Sykepengesoknad.tilRSSykepengesoknadMetadata() =

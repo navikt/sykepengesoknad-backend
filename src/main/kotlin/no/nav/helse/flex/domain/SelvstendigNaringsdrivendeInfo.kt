@@ -1,6 +1,6 @@
 package no.nav.helse.flex.domain
 
-class SelvstendigNaringsdrivendeInfo(
+data class SelvstendigNaringsdrivendeInfo(
     val roller: List<BrregRolle>,
 )
 

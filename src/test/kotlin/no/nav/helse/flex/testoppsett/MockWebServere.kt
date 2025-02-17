@@ -56,10 +56,7 @@ fun startMockWebServere(): MockWebServere {
     val brregMockWebServer =
         MockWebServer().apply {
             System.setProperty("BRREG_API_URL", "http://localhost:$port")
-            dispatcher =
-                object : Dispatcher() {
-                    override fun dispatch(request: RecordedRequest): MockResponse = MockResponse().setResponseCode(200)
-                }
+            dispatcher = simpleDispatcher { MockResponse().setResponseCode(200) }
         }
 
     return MockWebServere(
@@ -88,3 +85,8 @@ data class MockWebServere(
     val aaregMockWebServer: MockWebServer,
     val brregMockWebServer: MockWebServer,
 )
+
+fun simpleDispatcher(dispatcherFunc: (RecordedRequest) -> MockResponse): Dispatcher =
+    object : Dispatcher() {
+        override fun dispatch(request: RecordedRequest): MockResponse = dispatcherFunc(request)
+    }

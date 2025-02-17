@@ -7,7 +7,9 @@ import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.random.Random
 
-class UUIDProducer(seed: String) {
+class UUIDProducer(
+    seed: String,
+) {
     private val random = Random(UUID.fromString(seed).mostSignificantBits)
 
     fun next(): String = UUID.nameUUIDFromBytes(random.nextBytes(16)).toString()
@@ -53,6 +55,7 @@ fun Sykepengesoknad.normaliser(): NormalisertSoknad {
             fiskerBlad = fiskerBlad,
             arbeidsforholdFraAareg = arbeidsforholdFraAareg?.serialisertTilString(),
             friskTilArbeidVedtakId = friskTilArbeidVedtakId,
+            selvstendigNaringsdrivende = selvstendigNaringsdrivende?.serialisertTilString(),
         )
     val perioder =
         this.soknadPerioder
