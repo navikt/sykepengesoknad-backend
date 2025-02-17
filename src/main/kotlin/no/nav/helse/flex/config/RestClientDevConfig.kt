@@ -36,22 +36,10 @@ class RestClientConfig {
             registrationName = "flex-brreg-proxy-client-credentials",
         ).baseUrl(url).build()
 
-    @Bean
-    fun grunnbeloepRestClient(
-        @Value("\${GRUNNBELOEP_API_URL}")
-        url: String,
-        oAuth2AccessTokenService: OAuth2AccessTokenService,
-        clientConfigurationProperties: ClientConfigurationProperties,
-    ): RestClient =
-        restClientBuilder(
-            oAuth2AccessTokenService = oAuth2AccessTokenService,
-            clientConfigurationProperties = clientConfigurationProperties,
-        ).baseUrl(url).build()
-
     fun restClientBuilder(
         oAuth2AccessTokenService: OAuth2AccessTokenService,
         clientConfigurationProperties: ClientConfigurationProperties,
-        registrationName: String? = null,
+        registrationName: String,
     ): RestClient.Builder {
         val connectionManager =
             PoolingHttpClientConnectionManager().apply {
@@ -70,10 +58,6 @@ class RestClientConfig {
                 setConnectTimeout(Duration.ofSeconds(API_CONNECT_TIMEOUT))
                 setReadTimeout(Duration.ofSeconds(API_READ_TIMEOUT))
             }
-
-        if (registrationName == null) {
-            return RestClient.builder().requestFactory(requestFactory)
-        }
 
         val clientProperties =
             clientConfigurationProperties.registration[registrationName]
