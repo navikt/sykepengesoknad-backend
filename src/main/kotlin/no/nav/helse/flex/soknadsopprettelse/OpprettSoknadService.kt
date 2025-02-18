@@ -17,6 +17,7 @@ import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.KlippMetrik
 import no.nav.helse.flex.soknadsopprettelse.splitt.delOppISoknadsperioder
 import no.nav.helse.flex.soknadsopprettelse.splitt.splittMellomTyper
 import no.nav.helse.flex.soknadsopprettelse.splitt.splittSykmeldingiSoknadsPerioder
+import no.nav.helse.flex.unleash.UnleashToggles
 import no.nav.helse.flex.util.EnumUtil
 import no.nav.helse.flex.util.osloZone
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
@@ -41,6 +42,7 @@ class OpprettSoknadService(
     private val lagreJulesoknadKandidater: LagreJulesoknadKandidater,
     private val slettSoknaderTilKorrigertSykmeldingService: SlettSoknaderTilKorrigertSykmeldingService,
     private val selvstendigNaringsdrivendeInfoService: SelvstendigNaringsdrivendeInfoService,
+    private val unleashToggles: UnleashToggles,
 ) {
     private val log = logger()
 
@@ -113,12 +115,16 @@ class OpprettSoknadService(
                                             ?.name,
                                     ),
                                 selvstendigNaringsdrivende =
-                                    when (arbeidssituasjon) {
-                                        Arbeidssituasjon.NAERINGSDRIVENDE ->
-                                            selvstendigNaringsdrivendeInfoService.hentSelvstendigNaringsdrivendeInfo(
-                                                identer = identer,
-                                            )
-                                        else -> null
+                                    if (unleashToggles.brregEnabled(identer.originalIdent)) {
+                                        when (arbeidssituasjon) {
+                                            Arbeidssituasjon.NAERINGSDRIVENDE ->
+                                                selvstendigNaringsdrivendeInfoService.hentSelvstendigNaringsdrivendeInfo(
+                                                    identer = identer,
+                                                )
+                                            else -> null
+                                        }
+                                    } else {
+                                        null
                                     },
                             )
                         }.filter { it.soknadPerioder?.isNotEmpty() ?: true }

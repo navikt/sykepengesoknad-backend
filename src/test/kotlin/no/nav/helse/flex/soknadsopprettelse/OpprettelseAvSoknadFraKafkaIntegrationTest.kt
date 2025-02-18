@@ -36,13 +36,10 @@ import no.nav.syfo.sykmelding.kafka.model.SvartypeKafkaDTO
 import no.nav.syfo.sykmelding.kafka.model.SykmeldingStatusKafkaMessageDTO
 import okhttp3.mockwebserver.MockResponse
 import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.`should be null`
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertThrows
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.MethodOrderer
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestMethodOrder
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
@@ -98,6 +95,9 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
 
     @Test
     fun `oppretter kort søknad for næringsdrivende med data fra brreg`() {
+        fakeUnleash.resetAll()
+        fakeUnleash.enable("sykepengesoknad-backend-brreg")
+
         brregMockWebServer.dispatcher =
             simpleDispatcher {
                 MockResponse()
@@ -145,6 +145,55 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
                         rolletype = "INNH",
                     ),
                 )
+        }
+
+        verify(aivenKafkaProducer, times(1)).produserMelding(any())
+    }
+
+    @Test
+    fun `oppretter kort søknad for næringsdrivende uten fra brreg`() {
+        fakeUnleash.resetAll()
+
+        brregMockWebServer.dispatcher =
+            simpleDispatcher {
+                MockResponse()
+                    .setHeader("Content-Type", "application/json")
+                    .setBody(
+                        RollerDto(
+                            roller =
+                                listOf(
+                                    RolleDto(
+                                        rolletype = Rolletype.INNH,
+                                        organisasjonsnummer = "orgnummer",
+                                        organisasjonsnavn = "orgnavn",
+                                    ),
+                                ),
+                        ).serialisertTilString(),
+                    )
+            }
+
+        val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
+        val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
+        val sykmelding =
+            skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId)
+                .copy(harRedusertArbeidsgiverperiode = true)
+
+        mockFlexSyketilfelleErUtaforVentetid(sykmelding.id, true)
+        mockFlexSyketilfelleSykeforloep(sykmeldingId)
+
+        val sykmeldingKafkaMessage =
+            SykmeldingKafkaMessage(
+                sykmelding = sykmelding,
+                event = sykmeldingStatusKafkaMessageDTO.event,
+                kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
+            )
+
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
+
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
+
+        hentSoknader(fnr).sortedBy { it.fom }.first().apply {
+            this.selvstendigNaringsdrivendeInfo?.roller.`should be null`()
         }
 
         verify(aivenKafkaProducer, times(1)).produserMelding(any())
