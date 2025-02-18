@@ -14,8 +14,8 @@ fun konverterTilSykepengesoknadDTO(
     mottaker: Mottaker?,
     erEttersending: Boolean,
     soknadsperioder: List<SoknadsperiodeDTO>,
-): SykepengesoknadDTO {
-    return SykepengesoknadDTO(
+): SykepengesoknadDTO =
+    SykepengesoknadDTO(
         id = sykepengesoknad.id,
         type = sykepengesoknad.soknadstype.tilSoknadstypeDTO(),
         status = sykepengesoknad.status.tilSoknadstatusDTO(),
@@ -67,5 +67,5 @@ fun konverterTilSykepengesoknadDTO(
         inntektFraNyttArbeidsforhold = sykepengesoknad.hentInntektFraNyttArbeidsforhold(),
         friskTilArbeidVedtakId = sykepengesoknad.friskTilArbeidVedtakId,
         fortsattArbeidssoker = sykepengesoknad.hentFortsattArbeidssoker(),
+        selvstendigNaringsdrivende = sykepengesoknad.selvstendigNaringsdrivende?.tilDto(),
     )
-}
