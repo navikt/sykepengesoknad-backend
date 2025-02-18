@@ -116,13 +116,12 @@ class SykepengegrunnlagForNaeringsdrivende(
         return ferdigliknetInntekter.innholdEllerNullHvisTom()
     }
 
-    private fun List<HentPensjonsgivendeInntektResponse>.innholdEllerNullHvisTom(): List<HentPensjonsgivendeInntektResponse>? {
-        return if (this.any { it.pensjonsgivendeInntekt.isEmpty() }) {
+    private fun List<HentPensjonsgivendeInntektResponse>.innholdEllerNullHvisTom(): List<HentPensjonsgivendeInntektResponse>? =
+        if (this.any { it.pensjonsgivendeInntekt.isEmpty() }) {
             null
         } else {
             this
         }
-    }
 
     private fun finnGrunnbeloepForAarMedInntekt(
         grunnbeloepSisteFemAar: Map<Int, GrunnbeloepResponse>,
@@ -140,8 +139,8 @@ class SykepengegrunnlagForNaeringsdrivende(
         pensjonsgivendeInntekter: List<HentPensjonsgivendeInntektResponse>,
         grunnbeloepRelevanteAar: Map<String, BigInteger>,
         grunnbeloepSykmldTidspunkt: Int,
-    ): Map<String, BigDecimal> {
-        return pensjonsgivendeInntekter.associate { inntekt ->
+    ): Map<String, BigDecimal> =
+        pensjonsgivendeInntekter.associate { inntekt ->
             val grunnbeloepForAaret =
                 grunnbeloepRelevanteAar[inntekt.inntektsaar]
                     ?: throw Exception("Finner ikke grunnbeløp for inntektsår ${inntekt.inntektsaar}")
@@ -149,13 +148,13 @@ class SykepengegrunnlagForNaeringsdrivende(
             inntekt.inntektsaar to
                 inntektJustertForGrunnbeloep(
                     pensjonsgivendeInntektIKalenderAaret =
-                        inntekt.pensjonsgivendeInntekt.sumOf { it.sumAvAlleInntekter() }
+                        inntekt.pensjonsgivendeInntekt
+                            .sumOf { it.sumAvAlleInntekter() }
                             .toBigInteger(),
                     gPaaSykmeldingstidspunktet = grunnbeloepSykmldTidspunkt.toBigInteger(),
                     gjennomsnittligGIKalenderaaret = grunnbeloepForAaret,
                 )
         }
-    }
 }
 
 data class AarVerdi(
@@ -177,8 +176,8 @@ data class SykepengegrunnlagNaeringsdrivende(
     val inntekter: List<HentPensjonsgivendeInntektResponse>,
 ) {
     @Override
-    fun toJsonNode(): JsonNode {
-        return objectMapper.createObjectNode().apply {
+    fun toJsonNode(): JsonNode =
+        objectMapper.createObjectNode().apply {
             set<JsonNode>(
                 "sigrunInntekt",
                 objectMapper.createObjectNode().apply {
@@ -190,5 +189,4 @@ data class SykepengegrunnlagNaeringsdrivende(
                 },
             )
         }
-    }
 }

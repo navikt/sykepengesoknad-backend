@@ -1,11 +1,16 @@
 package no.nav.helse.flex.client.brreg
 
-class Rolle(
-    val rolleType: RolleType,
-    val organisasjonsnummer: String,
+data class RollerDto(
+    val roller: List<RolleDto>,
 )
 
-enum class RolleType(
+data class RolleDto(
+    val rolletype: Rolletype,
+    val organisasjonsnummer: String,
+    val organisasjonsnavn: String,
+)
+
+enum class Rolletype(
     val beskrivelse: List<String>,
 ) {
     ADOS(listOf("Administrativ enhet - offentlig sektor")),
@@ -42,12 +47,9 @@ enum class RolleType(
     SIGN(listOf("Signatur")),
     VARA(listOf("Varamedlem")),
     UKJENT(listOf("Ukjent rolle")),
-    ;
-
-    fun erSelvstendigNaringdrivende() = this == INNH || this == DTPR || this == DTSO || this == KOMP
 }
 
 data class HentRollerRequest(
     val fnr: String,
-    val rolleTyper: List<RolleType>? = null,
+    val rolleTyper: List<Rolletype>? = null,
 )

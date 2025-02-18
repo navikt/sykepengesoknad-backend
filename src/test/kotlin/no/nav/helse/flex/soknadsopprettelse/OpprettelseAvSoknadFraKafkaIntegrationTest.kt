@@ -5,10 +5,14 @@ import com.nhaarman.mockitokotlin2.argWhere
 import com.nhaarman.mockitokotlin2.doThrow
 import com.nhaarman.mockitokotlin2.whenever
 import no.nav.helse.flex.*
+import no.nav.helse.flex.client.brreg.RolleDto
+import no.nav.helse.flex.client.brreg.RollerDto
+import no.nav.helse.flex.client.brreg.Rolletype
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadsperiode
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykmeldingstype
 import no.nav.helse.flex.domain.Arbeidssituasjon
+import no.nav.helse.flex.domain.BrregRolle
 import no.nav.helse.flex.domain.FiskerBlad
 import no.nav.helse.flex.domain.exception.ManglerSykmeldingException
 import no.nav.helse.flex.domain.exception.ProduserKafkaMeldingException
@@ -19,6 +23,8 @@ import no.nav.helse.flex.sykepengesoknad.kafka.FiskerBladDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
+import no.nav.helse.flex.testoppsett.simpleDispatcher
+import no.nav.helse.flex.util.serialisertTilString
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.GradertDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
@@ -28,13 +34,12 @@ import no.nav.syfo.sykmelding.kafka.model.ShortNameKafkaDTO
 import no.nav.syfo.sykmelding.kafka.model.SporsmalOgSvarKafkaDTO
 import no.nav.syfo.sykmelding.kafka.model.SvartypeKafkaDTO
 import no.nav.syfo.sykmelding.kafka.model.SykmeldingStatusKafkaMessageDTO
+import okhttp3.mockwebserver.MockResponse
+import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.`should be null`
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertThrows
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.MethodOrderer
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestMethodOrder
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
@@ -84,6 +89,112 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
         val hentetViaRest = hentSoknaderMetadata(fnr).sortedBy { it.fom }
         assertThat(hentetViaRest).hasSize(1)
         assertThat(hentetViaRest[0].soknadstype).isEqualTo(RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE)
+
+        verify(aivenKafkaProducer, times(1)).produserMelding(any())
+    }
+
+    @Test
+    fun `oppretter kort søknad for næringsdrivende med data fra brreg`() {
+        fakeUnleash.resetAll()
+        fakeUnleash.enable("sykepengesoknad-backend-brreg")
+
+        brregMockWebServer.dispatcher =
+            simpleDispatcher {
+                MockResponse()
+                    .setHeader("Content-Type", "application/json")
+                    .setBody(
+                        RollerDto(
+                            roller =
+                                listOf(
+                                    RolleDto(
+                                        rolletype = Rolletype.INNH,
+                                        organisasjonsnummer = "orgnummer",
+                                        organisasjonsnavn = "orgnavn",
+                                    ),
+                                ),
+                        ).serialisertTilString(),
+                    )
+            }
+
+        val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
+        val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
+        val sykmelding =
+            skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId)
+                .copy(harRedusertArbeidsgiverperiode = true)
+
+        mockFlexSyketilfelleErUtaforVentetid(sykmelding.id, true)
+        mockFlexSyketilfelleSykeforloep(sykmeldingId)
+
+        val sykmeldingKafkaMessage =
+            SykmeldingKafkaMessage(
+                sykmelding = sykmelding,
+                event = sykmeldingStatusKafkaMessageDTO.event,
+                kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
+            )
+
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
+
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
+
+        hentSoknader(fnr).sortedBy { it.fom }.first().apply {
+            this.selvstendigNaringsdrivendeInfo?.roller `should be equal to`
+                listOf(
+                    BrregRolle(
+                        orgnummer = "orgnummer",
+                        orgnavn = "orgnavn",
+                        rolletype = "INNH",
+                    ),
+                )
+        }
+
+        verify(aivenKafkaProducer, times(1)).produserMelding(any())
+    }
+
+    @Test
+    fun `oppretter kort søknad for næringsdrivende uten fra brreg`() {
+        fakeUnleash.resetAll()
+
+        brregMockWebServer.dispatcher =
+            simpleDispatcher {
+                MockResponse()
+                    .setHeader("Content-Type", "application/json")
+                    .setBody(
+                        RollerDto(
+                            roller =
+                                listOf(
+                                    RolleDto(
+                                        rolletype = Rolletype.INNH,
+                                        organisasjonsnummer = "orgnummer",
+                                        organisasjonsnavn = "orgnavn",
+                                    ),
+                                ),
+                        ).serialisertTilString(),
+                    )
+            }
+
+        val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
+        val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
+        val sykmelding =
+            skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId)
+                .copy(harRedusertArbeidsgiverperiode = true)
+
+        mockFlexSyketilfelleErUtaforVentetid(sykmelding.id, true)
+        mockFlexSyketilfelleSykeforloep(sykmeldingId)
+
+        val sykmeldingKafkaMessage =
+            SykmeldingKafkaMessage(
+                sykmelding = sykmelding,
+                event = sykmeldingStatusKafkaMessageDTO.event,
+                kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
+            )
+
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
+
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
+
+        hentSoknader(fnr).sortedBy { it.fom }.first().apply {
+            this.selvstendigNaringsdrivendeInfo?.roller.`should be null`()
+        }
 
         verify(aivenKafkaProducer, times(1)).produserMelding(any())
     }
@@ -234,8 +345,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
                 sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId,
                 fom = LocalDate.of(2020, 2, 1),
                 tom = LocalDate.of(2020, 3, 15),
-            )
-                .copy(harRedusertArbeidsgiverperiode = true)
+            ).copy(harRedusertArbeidsgiverperiode = true)
 
         mockFlexSyketilfelleErUtaforVentetid(sykmelding.id, true)
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
@@ -283,8 +393,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
                 sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId,
                 fom = LocalDate.of(2020, 2, 1),
                 tom = LocalDate.of(2020, 3, 15),
-            )
-                .copy(sykmeldingsperioder = emptyList())
+            ).copy(sykmeldingsperioder = emptyList())
 
         val sykmeldingKafkaMessage =
             SykmeldingKafkaMessage(
@@ -307,32 +416,31 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
         val sykmelding =
             skapArbeidsgiverSykmelding(
                 sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId,
-            )
-                .copy(
-                    sykmeldingsperioder =
-                        listOf(
-                            SykmeldingsperiodeAGDTO(
-                                fom = LocalDate.of(2020, 5, 4),
-                                tom = LocalDate.of(2020, 5, 18),
-                                type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
-                                reisetilskudd = false,
-                                aktivitetIkkeMulig = null,
-                                behandlingsdager = null,
-                                gradert = null,
-                                innspillTilArbeidsgiver = null,
-                            ),
-                            SykmeldingsperiodeAGDTO(
-                                fom = LocalDate.of(2019, 3, 28),
-                                tom = LocalDate.of(2020, 1, 6),
-                                type = PeriodetypeDTO.BEHANDLINGSDAGER,
-                                reisetilskudd = false,
-                                aktivitetIkkeMulig = null,
-                                behandlingsdager = 4,
-                                gradert = null,
-                                innspillTilArbeidsgiver = null,
-                            ),
+            ).copy(
+                sykmeldingsperioder =
+                    listOf(
+                        SykmeldingsperiodeAGDTO(
+                            fom = LocalDate.of(2020, 5, 4),
+                            tom = LocalDate.of(2020, 5, 18),
+                            type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+                            reisetilskudd = false,
+                            aktivitetIkkeMulig = null,
+                            behandlingsdager = null,
+                            gradert = null,
+                            innspillTilArbeidsgiver = null,
                         ),
-                )
+                        SykmeldingsperiodeAGDTO(
+                            fom = LocalDate.of(2019, 3, 28),
+                            tom = LocalDate.of(2020, 1, 6),
+                            type = PeriodetypeDTO.BEHANDLINGSDAGER,
+                            reisetilskudd = false,
+                            aktivitetIkkeMulig = null,
+                            behandlingsdager = 4,
+                            gradert = null,
+                            innspillTilArbeidsgiver = null,
+                        ),
+                    ),
+            )
 
         val sykmeldingKafkaMessage =
             SykmeldingKafkaMessage(
@@ -357,32 +465,31 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
         val sykmelding =
             skapArbeidsgiverSykmelding(
                 sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId,
-            )
-                .copy(
-                    sykmeldingsperioder =
-                        listOf(
-                            SykmeldingsperiodeAGDTO(
-                                fom = LocalDate.of(2020, 5, 1),
-                                tom = LocalDate.of(2020, 5, 1),
-                                type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
-                                reisetilskudd = false,
-                                aktivitetIkkeMulig = null,
-                                behandlingsdager = null,
-                                gradert = null,
-                                innspillTilArbeidsgiver = null,
-                            ),
-                            SykmeldingsperiodeAGDTO(
-                                fom = LocalDate.of(2019, 1, 1),
-                                tom = LocalDate.of(2019, 1, 1),
-                                type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
-                                reisetilskudd = false,
-                                aktivitetIkkeMulig = null,
-                                behandlingsdager = null,
-                                gradert = null,
-                                innspillTilArbeidsgiver = null,
-                            ),
+            ).copy(
+                sykmeldingsperioder =
+                    listOf(
+                        SykmeldingsperiodeAGDTO(
+                            fom = LocalDate.of(2020, 5, 1),
+                            tom = LocalDate.of(2020, 5, 1),
+                            type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+                            reisetilskudd = false,
+                            aktivitetIkkeMulig = null,
+                            behandlingsdager = null,
+                            gradert = null,
+                            innspillTilArbeidsgiver = null,
                         ),
-                )
+                        SykmeldingsperiodeAGDTO(
+                            fom = LocalDate.of(2019, 1, 1),
+                            tom = LocalDate.of(2019, 1, 1),
+                            type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+                            reisetilskudd = false,
+                            aktivitetIkkeMulig = null,
+                            behandlingsdager = null,
+                            gradert = null,
+                            innspillTilArbeidsgiver = null,
+                        ),
+                    ),
+            )
 
         val sykmeldingKafkaMessage =
             SykmeldingKafkaMessage(
@@ -408,23 +515,22 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
         val sykmelding =
             skapArbeidsgiverSykmelding(
                 sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId,
-            )
-                .copy(
-                    harRedusertArbeidsgiverperiode = true,
-                    sykmeldingsperioder =
-                        listOf(
-                            SykmeldingsperiodeAGDTO(
-                                fom = LocalDate.of(2020, 2, 1),
-                                tom = LocalDate.of(2020, 3, 15),
-                                type = PeriodetypeDTO.GRADERT,
-                                gradert = GradertDTO(42, true),
-                                reisetilskudd = false,
-                                aktivitetIkkeMulig = null,
-                                behandlingsdager = null,
-                                innspillTilArbeidsgiver = null,
-                            ),
+            ).copy(
+                harRedusertArbeidsgiverperiode = true,
+                sykmeldingsperioder =
+                    listOf(
+                        SykmeldingsperiodeAGDTO(
+                            fom = LocalDate.of(2020, 2, 1),
+                            tom = LocalDate.of(2020, 3, 15),
+                            type = PeriodetypeDTO.GRADERT,
+                            gradert = GradertDTO(42, true),
+                            reisetilskudd = false,
+                            aktivitetIkkeMulig = null,
+                            behandlingsdager = null,
+                            innspillTilArbeidsgiver = null,
                         ),
-                )
+                    ),
+            )
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
         val sykmeldingKafkaMessage =
@@ -449,23 +555,22 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
         val sykmelding =
             skapArbeidsgiverSykmelding(
                 sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId,
-            )
-                .copy(
-                    harRedusertArbeidsgiverperiode = true,
-                    sykmeldingsperioder =
-                        listOf(
-                            SykmeldingsperiodeAGDTO(
-                                fom = LocalDate.of(2020, 2, 1),
-                                tom = LocalDate.of(2020, 3, 15),
-                                type = PeriodetypeDTO.AVVENTENDE,
-                                reisetilskudd = false,
-                                aktivitetIkkeMulig = null,
-                                behandlingsdager = null,
-                                gradert = null,
-                                innspillTilArbeidsgiver = null,
-                            ),
+            ).copy(
+                harRedusertArbeidsgiverperiode = true,
+                sykmeldingsperioder =
+                    listOf(
+                        SykmeldingsperiodeAGDTO(
+                            fom = LocalDate.of(2020, 2, 1),
+                            tom = LocalDate.of(2020, 3, 15),
+                            type = PeriodetypeDTO.AVVENTENDE,
+                            reisetilskudd = false,
+                            aktivitetIkkeMulig = null,
+                            behandlingsdager = null,
+                            gradert = null,
+                            innspillTilArbeidsgiver = null,
                         ),
-                )
+                    ),
+            )
 
         val sykmeldingKafkaMessage =
             SykmeldingKafkaMessage(
@@ -836,9 +941,8 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
             ),
     ) = skapArbeidsgiverSykmelding(
         sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId,
+    ).copy(
+        sykmeldingsperioder = sykmeldingsperioder,
+        syketilfelleStartDato = syketilfelleStartDato,
     )
-        .copy(
-            sykmeldingsperioder = sykmeldingsperioder,
-            syketilfelleStartDato = syketilfelleStartDato,
-        )
 }

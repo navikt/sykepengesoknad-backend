@@ -1,5 +1,6 @@
 package no.nav.helse.flex.controller.domain.sykepengesoknad
 
+import no.nav.helse.flex.domain.SelvstendigNaringsdrivendeInfo
 import no.nav.helse.flex.medlemskap.KjentOppholdstillatelse
 import no.nav.helse.flex.soknadsopprettelse.ArbeidsforholdFraInntektskomponenten
 import java.time.LocalDate
@@ -38,19 +39,15 @@ data class RSSykepengesoknad(
     val kjentOppholdstillatelse: KjentOppholdstillatelse? = null,
     val julesoknad: Boolean? = false,
     val friskTilArbeidVedtakId: String? = null,
+    val selvstendigNaringsdrivendeInfo: SelvstendigNaringsdrivendeInfo? = null,
 ) {
-    fun alleSporsmalOgUndersporsmal(): List<RSSporsmal> {
-        return sporsmal?.flatten()?.toList() ?: emptyList()
-    }
+    fun alleSporsmalOgUndersporsmal(): List<RSSporsmal> = sporsmal?.flatten()?.toList() ?: emptyList()
 
-    fun getSporsmalMedTag(tag: String): RSSporsmal {
-        return getSporsmalMedTagOrNull(tag)
+    fun getSporsmalMedTag(tag: String): RSSporsmal =
+        getSporsmalMedTagOrNull(tag)
             ?: throw RuntimeException("Søknaden inneholder ikke spørsmål med tag: $tag")
-    }
 
-    fun getSporsmalMedTagOrNull(tag: String): RSSporsmal? {
-        return sporsmal?.flatten()?.firstOrNull { s -> s.tag == tag }
-    }
+    fun getSporsmalMedTagOrNull(tag: String): RSSporsmal? = sporsmal?.flatten()?.firstOrNull { s -> s.tag == tag }
 }
 
 fun List<RSSporsmal>.flatten(): List<RSSporsmal> =

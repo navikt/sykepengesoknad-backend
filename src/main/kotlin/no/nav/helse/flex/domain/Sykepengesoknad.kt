@@ -52,19 +52,15 @@ data class Sykepengesoknad(
     val arbeidsforholdFraAareg: List<ArbeidsforholdFraAAreg>? = null,
     val julesoknad: Boolean? = false,
     val friskTilArbeidVedtakId: String? = null,
+    val selvstendigNaringsdrivende: SelvstendigNaringsdrivendeInfo? = null,
 ) : Serializable {
-    fun alleSporsmalOgUndersporsmal(): List<Sporsmal> {
-        return sporsmal.flatten()
-    }
+    fun alleSporsmalOgUndersporsmal(): List<Sporsmal> = sporsmal.flatten()
 
-    fun getSporsmalMedTag(tag: String): Sporsmal {
-        return getSporsmalMedTagOrNull(tag)
+    fun getSporsmalMedTag(tag: String): Sporsmal =
+        getSporsmalMedTagOrNull(tag)
             ?: throw RuntimeException("Søknaden inneholder ikke spørsmål med tag: $tag")
-    }
 
-    fun getSporsmalMedTagOrNull(tag: String): Sporsmal? {
-        return sporsmal.flatten().firstOrNull { s -> s.tag == tag }
-    }
+    fun getSporsmalMedTagOrNull(tag: String): Sporsmal? = sporsmal.flatten().firstOrNull { s -> s.tag == tag }
 
     private fun addHovedsporsmalHjelper(
         nyttSporsmal: Sporsmal,
@@ -80,8 +76,7 @@ data class Sykepengesoknad(
                         }
                     }
                     return@let null
-                }
-                ?.also { spm.add(it + 1, nyttSporsmal) }
+                }?.also { spm.add(it + 1, nyttSporsmal) }
                 ?: spm.add(nyttSporsmal)
             spm.toList()
         } else {

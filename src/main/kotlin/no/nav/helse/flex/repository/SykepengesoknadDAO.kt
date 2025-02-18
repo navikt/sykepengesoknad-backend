@@ -103,15 +103,17 @@ class SykepengesoknadDAOPostgres(
 
         val kjenteOppholdstillatelser: Map<String, KjentOppholdstillatelse?> =
             // Vi henter kun medlemskapsvurdering for arbeidstakersøknader.
-            soknader.filter { it.second.soknadstype == Soknadstype.ARBEIDSTAKERE }
+            soknader
+                .filter { it.second.soknadstype == Soknadstype.ARBEIDSTAKERE }
                 .associateBy(
                     { it.second.id },
                     {
-                        medlemskapVurderingRepository.findBySykepengesoknadIdAndFomAndTom(
-                            sykepengesoknadId = it.second.id,
-                            fom = it.second.fom!!,
-                            tom = it.second.tom!!,
-                        )?.hentKjentOppholdstillatelse()
+                        medlemskapVurderingRepository
+                            .findBySykepengesoknadIdAndFomAndTom(
+                                sykepengesoknadId = it.second.id,
+                                fom = it.second.fom!!,
+                                tom = it.second.tom!!,
+                            )?.hentKjentOppholdstillatelse()
                     },
                 )
 
@@ -123,8 +125,7 @@ class SykepengesoknadDAOPostgres(
                     klippet = klipp.containsKey(it.second.id),
                     kjentOppholdstillatelse = kjenteOppholdstillatelser[it.second.id],
                 )
-            }
-            .map { it.sorterSporsmal() }
+            }.map { it.sorterSporsmal() }
             .sortedBy { it.opprettet }
     }
 
@@ -144,8 +145,7 @@ class SykepengesoknadDAOPostgres(
                 it.second.copy(
                     soknadPerioder = soknadsPerioder[it.first] ?: emptyList(),
                 )
-            }
-            .sortedBy { it.opprettet }
+            }.sortedBy { it.opprettet }
     }
 
     override fun finnMottakerAvSoknad(soknadUuid: String): Mottaker? {
@@ -377,10 +377,9 @@ class SykepengesoknadDAOPostgres(
         }
     }
 
-    override fun finnAlleredeOpprettetSoknad(identer: FolkeregisterIdenter): Sykepengesoknad? {
-        return finnSykepengesoknader(identer)
+    override fun finnAlleredeOpprettetSoknad(identer: FolkeregisterIdenter): Sykepengesoknad? =
+        finnSykepengesoknader(identer)
             .firstOrNull { s -> Soknadstatus.NY == s.status && Soknadstype.OPPHOLD_UTLAND == s.soknadstype }
-    }
 
     override fun byttUtSporsmal(oppdatertSoknad: Sykepengesoknad) {
         val sykepengesoknadId = sykepengesoknadId(oppdatertSoknad.id)
@@ -388,14 +387,13 @@ class SykepengesoknadDAOPostgres(
         soknadLagrer.lagreSporsmalOgSvarFraSoknad(oppdatertSoknad)
     }
 
-    override fun sykepengesoknadId(uuid: String): String {
-        return namedParameterJdbcTemplate.queryForObject(
+    override fun sykepengesoknadId(uuid: String): String =
+        namedParameterJdbcTemplate.queryForObject(
             "SELECT id FROM sykepengesoknad WHERE sykepengesoknad_uuid =:uuid",
             MapSqlParameterSource()
                 .addValue("uuid", uuid),
             String::class.java,
         )!!
-    }
 
     override fun klippSoknadTom(
         sykepengesoknadUuid: String,
@@ -566,8 +564,8 @@ class SykepengesoknadDAOPostgres(
         )
     }
 
-    override fun sykepengesoknadRowMapper(): RowMapper<Pair<String, Sykepengesoknad>> {
-        return RowMapper { resultSet, _ ->
+    override fun sykepengesoknadRowMapper(): RowMapper<Pair<String, Sykepengesoknad>> =
+        RowMapper { resultSet, _ ->
             Pair(
                 resultSet.getString("id"),
                 Sykepengesoknad(
@@ -582,17 +580,22 @@ class SykepengesoknadDAOPostgres(
                     avbruttDato = resultSet.getObject("avbrutt_dato", LocalDate::class.java),
                     startSykeforlop = resultSet.getObject("start_sykeforlop", LocalDate::class.java),
                     sykmeldingSkrevet =
-                        resultSet.getObject("sykmelding_skrevet", OffsetDateTime::class.java)
+                        resultSet
+                            .getObject("sykmelding_skrevet", OffsetDateTime::class.java)
                             ?.toInstant(),
                     sykmeldingSignaturDato =
-                        resultSet.getObject("sykmelding_signatur_dato", OffsetDateTime::class.java)
+                        resultSet
+                            .getObject("sykmelding_signatur_dato", OffsetDateTime::class.java)
                             ?.toInstant(),
                     sendtNav = resultSet.getObject("sendt_nav", OffsetDateTime::class.java)?.toInstant(),
                     arbeidssituasjon =
-                        Optional.ofNullable(resultSet.getString("arbeidssituasjon"))
-                            .map { Arbeidssituasjon.valueOf(it) }.orElse(null),
+                        Optional
+                            .ofNullable(resultSet.getString("arbeidssituasjon"))
+                            .map { Arbeidssituasjon.valueOf(it) }
+                            .orElse(null),
                     sendtArbeidsgiver =
-                        resultSet.getObject("sendt_arbeidsgiver", OffsetDateTime::class.java)
+                        resultSet
+                            .getObject("sendt_arbeidsgiver", OffsetDateTime::class.java)
                             ?.toInstant(),
                     sendt = resultSet.getObject("sendt", OffsetDateTime::class.java)?.toInstant(),
                     arbeidsgiverOrgnummer = resultSet.getString("arbeidsgiver_orgnummer"),
@@ -603,15 +606,18 @@ class SykepengesoknadDAOPostgres(
                     sporsmal = emptyList(),
                     opprinnelse = Opprinnelse.valueOf(resultSet.getString("opprinnelse")),
                     avsendertype =
-                        Optional.ofNullable(resultSet.getString("avsendertype"))
-                            .map { Avsendertype.valueOf(it) }.orElse(null),
+                        Optional
+                            .ofNullable(resultSet.getString("avsendertype"))
+                            .map { Avsendertype.valueOf(it) }
+                            .orElse(null),
                     egenmeldtSykmelding = resultSet.getNullableBoolean("egenmeldt_sykmelding"),
                     merknaderFraSykmelding = resultSet.getNullableString("merknader_fra_sykmelding").tilMerknader(),
                     opprettetAvInntektsmelding = resultSet.getBoolean("opprettet_av_inntektsmelding"),
                     utenlandskSykmelding = resultSet.getBoolean("utenlandsk_sykmelding"),
                     egenmeldingsdagerFraSykmelding = resultSet.getString("egenmeldingsdager_fra_sykmelding"),
                     inntektskilderDataFraInntektskomponenten =
-                        resultSet.getNullableString("inntektskilder_data_fra_inntektskomponenten")
+                        resultSet
+                            .getNullableString("inntektskilder_data_fra_inntektskomponenten")
                             ?.tilArbeidsforholdFraInntektskomponenten(),
                     forstegangssoknad = resultSet.getNullableBoolean("forstegangssoknad"),
                     tidligereArbeidsgiverOrgnummer = resultSet.getNullableString("tidligere_arbeidsgiver_orgnummer"),
@@ -619,27 +625,35 @@ class SykepengesoknadDAOPostgres(
                     inntektsopplysningerNyKvittering = resultSet.getNullableBoolean("inntektsopplysninger_ny_kvittering"),
                     inntektsopplysningerInnsendingId = resultSet.getNullableString("inntektsopplysninger_innsending_id"),
                     inntektsopplysningerInnsendingDokumenter =
-                        resultSet.getNullableString("inntektsopplysninger_innsending_dokumenter")
+                        resultSet
+                            .getNullableString("inntektsopplysninger_innsending_dokumenter")
                             ?.split(",")
                             ?.map { InntektsopplysningerDokumentType.valueOf(it) },
                     fiskerBlad =
-                        Optional.ofNullable(resultSet.getString("fisker_blad"))
-                            .map { FiskerBlad.valueOf(it) }.orElse(null),
+                        Optional
+                            .ofNullable(resultSet.getString("fisker_blad"))
+                            .map { FiskerBlad.valueOf(it) }
+                            .orElse(null),
                     arbeidsforholdFraAareg =
                         resultSet.getNullableString("arbeidsforhold_fra_aareg")?.let {
                             objectMapper.readValue(it)
                         },
                     julesoknad = resultSet.getNullableBoolean("aktivert_julesoknad_kandidat") ?: false,
                     friskTilArbeidVedtakId = resultSet.getNullableString("frisk_til_arbeid_vedtak_id"),
+                    selvstendigNaringsdrivende =
+                        resultSet.getNullableString("selvstendig_naringsdrivende")?.let {
+                            objectMapper.readValue(it)
+                        },
                 ),
             )
         }
-    }
 
-    data class GammeltUtkast(val sykepengesoknadUuid: String)
+    data class GammeltUtkast(
+        val sykepengesoknadUuid: String,
+    )
 
-    override fun finnGamleUtkastForSletting(): List<GammeltUtkast> {
-        return namedParameterJdbcTemplate.query(
+    override fun finnGamleUtkastForSletting(): List<GammeltUtkast> =
+        namedParameterJdbcTemplate.query(
             """
             SELECT sykepengesoknad_uuid 
             FROM sykepengesoknad 
@@ -653,10 +667,9 @@ class SykepengesoknadDAOPostgres(
                 sykepengesoknadUuid = resultSet.getString("SYKEPENGESOKNAD_UUID"),
             )
         }
-    }
 
-    override fun deaktiverSoknader(): List<SoknadSomSkalDeaktiveres> {
-        return namedParameterJdbcTemplate.query(
+    override fun deaktiverSoknader(): List<SoknadSomSkalDeaktiveres> =
+        namedParameterJdbcTemplate.query(
             """
             UPDATE sykepengesoknad 
             SET status = 'UTGATT'
@@ -672,10 +685,9 @@ class SykepengesoknadDAOPostgres(
                 sykepengesoknadUuid = rs.getString("sykepengesoknad_uuid"),
             )
         }
-    }
 
-    override fun finnUpubliserteUtlopteSoknader(): List<String> {
-        return namedParameterJdbcTemplate.query(
+    override fun finnUpubliserteUtlopteSoknader(): List<String> =
+        namedParameterJdbcTemplate.query(
             """
             SELECT sykepengesoknad_uuid 
             FROM sykepengesoknad 
@@ -687,7 +699,6 @@ class SykepengesoknadDAOPostgres(
             """.trimIndent(),
             MapSqlParameterSource(),
         ) { resultSet, _ -> resultSet.getString("SYKEPENGESOKNAD_UUID") }
-    }
 
     override fun settUtloptPublisert(
         sykepengesoknadId: String,

@@ -14,8 +14,10 @@ import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
 import java.util.*
 
-class PensjongivendeInntektClientException(message: String, cause: Throwable? = null) :
-    RuntimeException(message, cause)
+class PensjongivendeInntektClientException(
+    message: String,
+    cause: Throwable? = null,
+) : RuntimeException(message, cause)
 
 @Component
 class PensjongivendeInntektClient(

@@ -1,0 +1,1 @@
+ALTER TABLE sykepengesoknad ADD COLUMN selvstendig_naringsdrivende TEXT NULL;

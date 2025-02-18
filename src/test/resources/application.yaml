@@ -99,6 +99,14 @@ no.nav.security.jwt:
           client-id: client-id
           client-secret: secretzz
           client-auth-method: client_secret_basic
+      flex-brreg-proxy-client-credentials:
+        token-endpoint-url: http://localhost:${mock-oauth2-server.port}/tokenx/token
+        grant-type: client_credentials
+        scope: flex-brreg-proxy
+        authentication:
+          client-id: client-id
+          client-secret: secretzz
+          client-auth-method: client_secret_basic
 
 EREG_URL: "http://ereg"
 

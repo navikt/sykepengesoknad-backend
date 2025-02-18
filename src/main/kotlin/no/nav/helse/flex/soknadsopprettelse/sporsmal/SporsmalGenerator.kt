@@ -262,8 +262,8 @@ class SporsmalGenerator(
         )
     }
 
-    private fun hentMedlemskapVurdering(soknad: Sykepengesoknad): MedlemskapVurderingResponse? {
-        return runCatching {
+    private fun hentMedlemskapVurdering(soknad: Sykepengesoknad): MedlemskapVurderingResponse? =
+        runCatching {
             medlemskapVurderingClient.hentMedlemskapVurdering(
                 MedlemskapVurderingRequest(
                     // Bruker 'fnr' fra sykepengesøknaden, ikke liste over identer siden det ikke støttes av LovMe.
@@ -286,7 +286,6 @@ class SporsmalGenerator(
                 )
             }
         }.getOrNull()
-    }
 }
 
 data class MedlemskapSporsmalResultat(

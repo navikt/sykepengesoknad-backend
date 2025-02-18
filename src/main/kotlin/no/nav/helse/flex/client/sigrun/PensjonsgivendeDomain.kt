@@ -11,13 +11,12 @@ data class HentPensjonsgivendeInntektResponse(
     val pensjonsgivendeInntekt: List<PensjonsgivendeInntekt>,
 ) {
     @Override
-    fun toJsonNode(): JsonNode {
-        return objectMapper.createObjectNode().apply {
+    fun toJsonNode(): JsonNode =
+        objectMapper.createObjectNode().apply {
             put("inntektsaar", inntektsaar)
             set<JsonNode>("pensjonsgivendeInntekt", pensjonsgivendeInntekt.map { it.toJsonNode() }.toJsonNode())
             put("totalInntekt", pensjonsgivendeInntekt.sumOf { it.sumAvAlleInntekter() })
         }
-    }
 }
 
 data class PensjonsgivendeInntekt(
@@ -28,16 +27,15 @@ data class PensjonsgivendeInntekt(
     val pensjonsgivendeInntektAvNaeringsinntekt: Int = 0,
     val pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage: Int = 0,
 ) {
-    fun sumAvAlleInntekter(): Int {
-        return pensjonsgivendeInntektAvLoennsinntekt +
+    fun sumAvAlleInntekter(): Int =
+        pensjonsgivendeInntektAvLoennsinntekt +
             pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel +
             pensjonsgivendeInntektAvNaeringsinntekt +
             pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage
-    }
 
     @Override
-    fun toJsonNode(): JsonNode {
-        return objectMapper.createObjectNode().apply {
+    fun toJsonNode(): JsonNode =
+        objectMapper.createObjectNode().apply {
             put("datoForFastsetting", datoForFastsetting)
             put("skatteordning", skatteordning.name)
             put("loenn", pensjonsgivendeInntektAvLoennsinntekt)
@@ -48,7 +46,6 @@ data class PensjonsgivendeInntekt(
                 pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage,
             )
         }
-    }
 }
 
 enum class Skatteordning {

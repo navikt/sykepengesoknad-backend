@@ -2,7 +2,10 @@ package no.nav.helse.flex.testoppsett
 
 import no.nav.helse.flex.medlemskap.MedlemskapMockDispatcher
 import no.nav.helse.flex.mockdispatcher.*
+import okhttp3.mockwebserver.Dispatcher
+import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
+import okhttp3.mockwebserver.RecordedRequest
 
 fun startMockWebServere(): MockWebServere {
     val pdlMockWebserver =
@@ -50,6 +53,11 @@ fun startMockWebServere(): MockWebServere {
             System.setProperty("AAREG_URL", "http://localhost:$port")
             dispatcher = AaregMockDispatcher
         }
+    val brregMockWebServer =
+        MockWebServer().apply {
+            System.setProperty("BRREG_API_URL", "http://localhost:$port")
+            dispatcher = simpleDispatcher { MockResponse().setResponseCode(200) }
+        }
 
     return MockWebServere(
         pdlMockWebserver = pdlMockWebserver,
@@ -61,6 +69,7 @@ fun startMockWebServere(): MockWebServere {
         pensjonsgivendeInntektMockWebServer = pensjonsgivendeInntektMockWebServer,
         grunnbeloepApiMockWebServer = grunnbeloepApiMockWebServer,
         aaregMockWebServer = aaregMockWebServer,
+        brregMockWebServer = brregMockWebServer,
     )
 }
 
@@ -74,4 +83,10 @@ data class MockWebServere(
     val pensjonsgivendeInntektMockWebServer: MockWebServer,
     val grunnbeloepApiMockWebServer: MockWebServer,
     val aaregMockWebServer: MockWebServer,
+    val brregMockWebServer: MockWebServer,
 )
+
+fun simpleDispatcher(dispatcherFunc: (RecordedRequest) -> MockResponse): Dispatcher =
+    object : Dispatcher() {
+        override fun dispatch(request: RecordedRequest): MockResponse = dispatcherFunc(request)
+    }
