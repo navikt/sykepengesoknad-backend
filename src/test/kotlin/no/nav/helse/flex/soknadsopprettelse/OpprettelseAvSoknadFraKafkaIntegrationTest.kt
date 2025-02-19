@@ -8,6 +8,9 @@ import no.nav.helse.flex.*
 import no.nav.helse.flex.client.brreg.RolleDto
 import no.nav.helse.flex.client.brreg.RollerDto
 import no.nav.helse.flex.client.brreg.Rolletype
+import no.nav.helse.flex.client.sigrun.HentPensjonsgivendeInntektResponse
+import no.nav.helse.flex.client.sigrun.PensjonsgivendeInntekt
+import no.nav.helse.flex.client.sigrun.Skatteordning
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadsperiode
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykmeldingstype
@@ -18,7 +21,11 @@ import no.nav.helse.flex.domain.exception.ManglerSykmeldingException
 import no.nav.helse.flex.domain.exception.ProduserKafkaMeldingException
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
+import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher.enqueueMockResponse
 import no.nav.helse.flex.repository.SykepengesoknadDAO
+import no.nav.helse.flex.service.AarVerdi
+import no.nav.helse.flex.service.Beregnet
+import no.nav.helse.flex.service.SykepengegrunnlagNaeringsdrivende
 import no.nav.helse.flex.sykepengesoknad.kafka.FiskerBladDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
@@ -44,6 +51,7 @@ import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
 import org.springframework.beans.factory.annotation.Autowired
+import java.math.BigInteger
 import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.MethodName::class)
@@ -116,6 +124,8 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
                     )
             }
 
+        settOppSigrunMockResponser()
+
         val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
         val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
         val sykmelding =
@@ -145,6 +155,9 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
                         rolletype = "INNH",
                     ),
                 )
+
+            this.selvstendigNaringsdrivendeInfo?.sykepengegrunnlagNaeringsdrivende `should be equal to`
+                sykepengegrunnlagNaeringsdrivende
         }
 
         verify(aivenKafkaProducer, times(1)).produserMelding(any())
@@ -945,4 +958,122 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
         sykmeldingsperioder = sykmeldingsperioder,
         syketilfelleStartDato = syketilfelleStartDato,
     )
+
+    private fun settOppSigrunMockResponser() {
+        with(sigrunMockWebServer) {
+            enqueueMockResponse(
+                fnr = fnr,
+                inntektsaar = "2024",
+                inntekt =
+                    emptyList(),
+            )
+            enqueueMockResponse(
+                fnr = fnr,
+                inntektsaar = "2023",
+                inntekt =
+                    listOf(
+                        PensjonsgivendeInntekt(
+                            datoForFastsetting = "2023-07-17",
+                            skatteordning = Skatteordning.FASTLAND,
+                            pensjonsgivendeInntektAvNaeringsinntekt = 1_000_000,
+                        ),
+                    ),
+            )
+            enqueueMockResponse(
+                fnr = fnr,
+                inntektsaar = "2022",
+                inntekt =
+                    listOf(
+                        PensjonsgivendeInntekt(
+                            datoForFastsetting = "2022-07-17",
+                            skatteordning = Skatteordning.FASTLAND,
+                            pensjonsgivendeInntektAvNaeringsinntekt = 1_000_000,
+                        ),
+                    ),
+            )
+            enqueueMockResponse(
+                fnr = fnr,
+                inntektsaar = "2021",
+                inntekt =
+                    listOf(
+                        PensjonsgivendeInntekt(
+                            datoForFastsetting = "2021-07-17",
+                            skatteordning = Skatteordning.FASTLAND,
+                            pensjonsgivendeInntektAvNaeringsinntekt = 1_000_000,
+                        ),
+                    ),
+            )
+        }
+    }
+
+    private val sykepengegrunnlagNaeringsdrivende =
+        SykepengegrunnlagNaeringsdrivende(
+            gjennomsnittPerAar =
+                listOf(
+                    AarVerdi(aar = "2023", verdi = BigInteger("851782")),
+                    AarVerdi(aar = "2022", verdi = BigInteger("872694")),
+                    AarVerdi(aar = "2021", verdi = BigInteger("890920")),
+                ),
+            grunnbeloepPerAar =
+                listOf(
+                    AarVerdi(aar = "2021", verdi = BigInteger("104716")),
+                    AarVerdi(aar = "2022", verdi = BigInteger("109784")),
+                    AarVerdi(aar = "2023", verdi = BigInteger("116239")),
+                ),
+            grunnbeloepPaaSykmeldingstidspunkt = 124028,
+            beregnetSnittOgEndring25 =
+                Beregnet(
+                    snitt = BigInteger("871798"),
+                    p25 = BigInteger("1089748"),
+                    m25 = BigInteger("653849"),
+                ),
+            inntekter =
+                listOf(
+                    HentPensjonsgivendeInntektResponse(
+                        norskPersonidentifikator = "123456789",
+                        inntektsaar = "2023",
+                        pensjonsgivendeInntekt =
+                            listOf(
+                                PensjonsgivendeInntekt(
+                                    datoForFastsetting = LocalDate.parse("2023-07-17").toString(),
+                                    skatteordning = Skatteordning.FASTLAND,
+                                    pensjonsgivendeInntektAvLoennsinntekt = 0,
+                                    pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = 0,
+                                    pensjonsgivendeInntektAvNaeringsinntekt = 1_000_000,
+                                    pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage = 0,
+                                ),
+                            ),
+                    ),
+                    HentPensjonsgivendeInntektResponse(
+                        norskPersonidentifikator = "123456789",
+                        inntektsaar = "2022",
+                        pensjonsgivendeInntekt =
+                            listOf(
+                                PensjonsgivendeInntekt(
+                                    datoForFastsetting = LocalDate.parse("2022-07-17").toString(),
+                                    skatteordning = Skatteordning.FASTLAND,
+                                    pensjonsgivendeInntektAvLoennsinntekt = 0,
+                                    pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = 0,
+                                    pensjonsgivendeInntektAvNaeringsinntekt = 1_000_000,
+                                    pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage = 0,
+                                ),
+                            ),
+                    ),
+                    HentPensjonsgivendeInntektResponse(
+                        norskPersonidentifikator = "123456789",
+                        inntektsaar = "2021",
+                        pensjonsgivendeInntekt =
+                            listOf(
+                                PensjonsgivendeInntekt(
+                                    datoForFastsetting = LocalDate.parse("2021-07-17").toString(),
+                                    skatteordning = Skatteordning.FASTLAND,
+                                    pensjonsgivendeInntektAvLoennsinntekt = 0,
+                                    pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = 0,
+                                    pensjonsgivendeInntektAvNaeringsinntekt = 1_000_000,
+                                    pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage = 0,
+                                ),
+                            ),
+                    ),
+                ),
+        )
 }

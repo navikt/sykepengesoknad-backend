@@ -1,5 +1,6 @@
 package no.nav.helse.flex.soknadsopprettelse.sporsmal
 
+import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.arbeidsgiverperiode.harDagerNAVSkalBetaleFor
 import no.nav.helse.flex.config.EnvironmentToggles
 import no.nav.helse.flex.domain.Arbeidssituasjon
@@ -8,6 +9,7 @@ import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.frisktilarbeid.FriskTilArbeidRepository
 import no.nav.helse.flex.frisktilarbeid.tilPeriode
+import no.nav.helse.flex.domain.*
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.medlemskap.KjentOppholdstillatelse
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingClient
@@ -20,11 +22,13 @@ import no.nav.helse.flex.repository.SykepengesoknadRepository
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.service.IdentService
 import no.nav.helse.flex.service.SykepengegrunnlagForNaeringsdrivende
+import no.nav.helse.flex.service.SykepengegrunnlagNaeringsdrivende
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.soknadsopprettelse.aaregdata.AaregDataHenting
 import no.nav.helse.flex.soknadsopprettelse.aaregdata.ArbeidsforholdFraAAreg
 import no.nav.helse.flex.soknadsopprettelse.frisktilarbeid.settOppSykepengesoknadFriskmeldtTilArbeidsformidling
 import no.nav.helse.flex.unleash.UnleashToggles
+import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.util.serialisertTilString
 import no.nav.helse.flex.yrkesskade.YrkesskadeIndikatorer
 import org.springframework.stereotype.Service
@@ -58,16 +62,22 @@ class SporsmalGenerator(
         val soknad = sykepengesoknadDAO.finnSykepengesoknad(id)
         val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(soknad.fnr)
         val eksisterendeSoknader = sykepengesoknadDAO.finnSykepengesoknader(identer).filterNot { it.id == soknad.id }
+        val sykepengegrunnlag = sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(soknad)
 
         val sporsmalOgAndreKjenteArbeidsforhold =
             lagSykepengesoknadSporsmal(
                 soknad = soknad,
                 eksisterendeSoknader = eksisterendeSoknader,
                 identer = identer,
+                sykepengegrunnlag = sykepengegrunnlag,
             )
         sykepengesoknadDAO.byttUtSporsmal(soknad.copy(sporsmal = sporsmalOgAndreKjenteArbeidsforhold.sporsmal))
 
         sykepengesoknadRepository.findBySykepengesoknadUuid(id)?.let {
+            val selvstendigNaringsdrivendeInfo: SelvstendigNaringsdrivendeInfo =
+                objectMapper.readValue(
+                    it.selvstendigNaringsdrivende ?: "{}",
+                )
             sykepengesoknadRepository.save(
                 it.copy(
                     inntektskilderDataFraInntektskomponenten =
@@ -78,6 +88,11 @@ class SporsmalGenerator(
                         sporsmalOgAndreKjenteArbeidsforhold
                             .arbeidsforholdFraAAreg
                             ?.serialisertTilString(),
+                    selvstendigNaringsdrivende =
+                        selvstendigNaringsdrivendeInfo
+                            .copy(
+                                sykepengegrunnlagNaeringsdrivende = sykepengegrunnlag,
+                            ).serialisertTilString(),
                 ),
             )
         }
@@ -93,6 +108,7 @@ class SporsmalGenerator(
         soknad: Sykepengesoknad,
         eksisterendeSoknader: List<Sykepengesoknad>,
         identer: FolkeregisterIdenter,
+        sykepengegrunnlag: SykepengegrunnlagNaeringsdrivende? = null,
     ): SporsmalOgAndreKjenteArbeidsforhold {
         val erForsteSoknadISykeforlop = erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad)
         val erEnkeltstaendeBehandlingsdagSoknad = soknad.soknadstype == Soknadstype.BEHANDLINGSDAGER
@@ -197,10 +213,7 @@ class SporsmalGenerator(
                     Arbeidssituasjon.NAERINGSDRIVENDE,
                     Arbeidssituasjon.FRILANSER,
                     -> {
-                        settOppSoknadSelvstendigOgFrilanser(
-                            soknadOptions,
-                            sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(soknad),
-                        )
+                        settOppSoknadSelvstendigOgFrilanser(soknadOptions, sykepengegrunnlag)
                     }
 
                     Arbeidssituasjon.ARBEIDSLEDIG -> settOppSoknadArbeidsledig(soknadOptions)
