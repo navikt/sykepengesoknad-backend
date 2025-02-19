@@ -27,17 +27,17 @@ class ArbeidssokerregisterStoppListener(
         cr: ConsumerRecord<String, String>,
         acknowledgment: Acknowledgment,
     ) {
-        val stoppMelding = cr.value().tilArbeidssokerregisterStoppMelding()
+        val stoppMelding = cr.value().tilArbeidssokerperiodeStoppMelding()
 
-        log.info("Mottok ArbeidssokerregisterStoppMelding med key: ${cr.key()} og id: ${stoppMelding.id}.")
+        log.info("Mottok ArbeidssokerregisterStoppMelding med key: ${cr.key()} og id: ${stoppMelding.vedtaksperiodeId}.")
         arbeidssokerregisterStoppService.prosseserStoppMelding(stoppMelding)
         acknowledgment.acknowledge()
     }
 }
 
-internal fun String.tilArbeidssokerregisterStoppMelding(): ArbeidssokerregisterStoppMelding = objectMapper.readValue(this)
+internal fun String.tilArbeidssokerperiodeStoppMelding(): ArbeidssokerperiodeStoppMelding = objectMapper.readValue(this)
 
-data class ArbeidssokerregisterStoppMelding(
-    val id: String,
+data class ArbeidssokerperiodeStoppMelding(
+    val vedtaksperiodeId: String,
     val fnr: String,
 )

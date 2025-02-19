@@ -16,10 +16,10 @@ class ArbeidssokerregisterStoppConsumerTest : FellesTestOppsett() {
         arbeidssokerregisterStoppConsumer.ventPåRecords(1).also {
             it.first().key() `should be equal to` fnr.asProducerRecordKey()
 
-            val arbeidssokerRegisterStopp = it.first().value().tilArbeidssokerregisterStoppMelding()
+            val stoppMelding = it.first().value().tilArbeidssokerperiodeStoppMelding()
 
-            arbeidssokerRegisterStopp.id `should be equal to` id
-            arbeidssokerRegisterStopp.fnr `should be equal to` fnr
+            stoppMelding.vedtaksperiodeId `should be equal to` id
+            stoppMelding.fnr `should be equal to` fnr
         }
     }
 }
