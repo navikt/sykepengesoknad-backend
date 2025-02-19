@@ -12,6 +12,8 @@ import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.`should be false`
+import org.amshove.kluent.`should be true`
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
@@ -108,8 +110,8 @@ class FriskTilArbeidIntegrationMedSporsmalTest() : FakesTestOppsett() {
         val soknad = hentSoknader(fnr).first { it.status == RSSoknadstatus.SENDT }
         val sendtSoknad = SoknadKafkaProducerFake.records.last().value()
         sendtSoknad.id `should be equal to` soknad.id
-
-        sendtSoknad.fortsattArbeidssoker `should be equal to` true
+        sendtSoknad.inntektUnderveis!!.`should be false`()
+        sendtSoknad.fortsattArbeidssoker!!.`should be true`()
     }
 
     @Test
@@ -142,11 +144,11 @@ class FriskTilArbeidIntegrationMedSporsmalTest() : FakesTestOppsett() {
     @Order(8)
     fun `Besvar siste søknaden`() {
         val soknad = hentSoknader(fnr).first { it.status == RSSoknadstatus.NY }
-
         SoknadBesvarer(rSSykepengesoknad = soknad, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
             .besvarSporsmal(FTA_JOBBSITUASJONEN_DIN_NEI, "CHECKED", true)
-            .besvarSporsmal(FTA_INNTEKT_UNDERVEIS, "NEI")
+            .besvarSporsmal(FTA_INNTEKT_UNDERVEIS, "JA", ferdigBesvart = false)
+            .besvarSporsmal(FTA_INNTEKT_UNDERVEIS_MER_ENN_PLEIER, "NEI", ferdigBesvart = true)
             .besvarSporsmal(FTA_REISE_TIL_UTLANDET, "NEI")
             .oppsummering()
             .also {
@@ -158,5 +160,6 @@ class FriskTilArbeidIntegrationMedSporsmalTest() : FakesTestOppsett() {
         kafkaSoknad.id `should be equal to` soknad.id
         kafkaSoknad.status `should be equal to` SoknadsstatusDTO.SENDT
         kafkaSoknad.fortsattArbeidssoker `should be equal to` null
+        kafkaSoknad.inntektUnderveis!!.`should be true`()
     }
 }

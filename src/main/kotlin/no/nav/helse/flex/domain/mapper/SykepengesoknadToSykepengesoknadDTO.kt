@@ -67,5 +67,6 @@ fun konverterTilSykepengesoknadDTO(
         inntektFraNyttArbeidsforhold = sykepengesoknad.hentInntektFraNyttArbeidsforhold(),
         friskTilArbeidVedtakId = sykepengesoknad.friskTilArbeidVedtakId,
         fortsattArbeidssoker = sykepengesoknad.hentFortsattArbeidssoker(),
+        inntektUnderveis = sykepengesoknad.hentInntektUnderveis(),
         selvstendigNaringsdrivende = sykepengesoknad.selvstendigNaringsdrivende?.tilDto(),
     )
