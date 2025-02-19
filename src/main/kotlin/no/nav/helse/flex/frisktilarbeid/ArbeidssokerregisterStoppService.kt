@@ -20,7 +20,7 @@ class ArbeidssokerregisterStoppService(
     val log = logger()
 
     @Transactional
-    fun prosseserStoppMelding(melding: ArbeidssokerregisterStoppMelding) {
+    fun prosseserStoppMelding(melding: ArbeidssokerperiodeStoppMelding) {
         val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(melding.fnr)
         val alleSoknader = hentSoknadService.hentSoknader(identer)
 
@@ -28,12 +28,12 @@ class ArbeidssokerregisterStoppService(
             alleSoknader
                 .filter {
                     it.soknadstype == Soknadstype.FRISKMELDT_TIL_ARBEIDSFORMIDLING &&
-                        it.friskTilArbeidVedtakId == melding.id &&
+                        it.friskTilArbeidVedtakId == melding.vedtaksperiodeId &&
                         it.status == Soknadstatus.FREMTIDIG
                 }
 
         if (fremtidigeFriskmeldtMedSammeVedtaksid.isNotEmpty()) {
-            log.info("Sletter ${fremtidigeFriskmeldtMedSammeVedtaksid.size} fremtidige søknader med vedtaksid ${melding.id}")
+            log.info("Sletter ${fremtidigeFriskmeldtMedSammeVedtaksid.size} fremtidige søknader med vedtaksid ${melding.vedtaksperiodeId}")
 
             fremtidigeFriskmeldtMedSammeVedtaksid.forEach {
                 log.info("Sletter søknad med sykepengesoknad uuid ${it.id} grunnet stoppmelding mottatt fra arbeidssokerregisteret")
