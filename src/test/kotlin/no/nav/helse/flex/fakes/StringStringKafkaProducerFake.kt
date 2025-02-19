@@ -1,23 +1,34 @@
 package no.nav.helse.flex.fakes
-
-import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
+import no.nav.helse.flex.frisktilarbeid.ArbeidssokerregisterStoppListener
+import no.nav.helse.flex.kafka.ARBEIDSSOKERREGISTER_STOPP_TOPIC
 import org.apache.kafka.clients.consumer.ConsumerGroupMetadata
+import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.OffsetAndMetadata
 import org.apache.kafka.clients.producer.*
 import org.apache.kafka.common.*
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Primary
 import org.springframework.context.annotation.Profile
-import org.springframework.stereotype.Repository
+import org.springframework.stereotype.Component
 import java.time.Duration
 import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
 
-@Repository
+@Component
 @Profile("fakes")
 @Primary
-class SoknadKafkaProducerFake : Producer<String, SykepengesoknadDTO> {
+class StringStringKafkaProducerFake : Producer<String, String> {
     companion object {
-        val records = mutableListOf<ProducerRecord<String, SykepengesoknadDTO>>()
+        val records = mutableListOf<ProducerRecord<String, String>>()
+    }
+
+    @Autowired
+    lateinit var arbeidssokerregisterStoppListener: ArbeidssokerregisterStoppListener
+
+    fun rutMeldingTilListener(record: ProducerRecord<String, String>) {
+        if (record.topic() == ARBEIDSSOKERREGISTER_STOPP_TOPIC) {
+            arbeidssokerregisterStoppListener.listen(record.tilConsumerRecord(), { })
+        }
     }
 
     override fun close() {
@@ -76,14 +87,15 @@ class SoknadKafkaProducerFake : Producer<String, SykepengesoknadDTO> {
     }
 
     override fun send(
-        p0: ProducerRecord<String, SykepengesoknadDTO>?,
+        p0: ProducerRecord<String, String>?,
         p1: Callback?,
     ): Future<RecordMetadata> {
         TODO("Not yet implemented")
     }
 
-    override fun send(p0: ProducerRecord<String, SykepengesoknadDTO>): Future<RecordMetadata> {
+    override fun send(p0: ProducerRecord<String, String>): Future<RecordMetadata> {
         records.add(p0)
+        rutMeldingTilListener(p0)
         return object : Future<RecordMetadata> {
             override fun cancel(p0: Boolean): Boolean {
                 return false
@@ -127,4 +139,14 @@ class SoknadKafkaProducerFake : Producer<String, SykepengesoknadDTO> {
             }
         }
     }
+}
+
+private fun <K, V> ProducerRecord<K, V>.tilConsumerRecord(): ConsumerRecord<K, V> {
+    return ConsumerRecord(
+        topic(),
+        1,
+        1,
+        key(),
+        value(),
+    )
 }

@@ -6,6 +6,7 @@ import no.nav.helse.flex.repository.SykepengesoknadDAOPostgres
 import no.nav.helse.flex.testoppsett.startMockWebServere
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
+import org.apache.kafka.clients.producer.Producer
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
@@ -58,6 +59,9 @@ abstract class FakesTestOppsett : TestOppsettInterfaces {
     @Autowired
     lateinit var friskTilArbeidRepository: FriskTilArbeidRepository
 
+    @Autowired
+    lateinit var kafkaProducer: Producer<String, String>
+
     companion object {
         init {
             startMockWebServere()
@@ -75,4 +79,6 @@ abstract class FakesTestOppsett : TestOppsettInterfaces {
     override fun server(): MockOAuth2Server = server
 
     override fun mockMvc(): MockMvc = mockMvc
+
+    override fun kafkaProducer(): Producer<String, String> = kafkaProducer
 }

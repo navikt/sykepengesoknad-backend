@@ -1,6 +1,7 @@
 package no.nav.helse.flex.fakes
 
 import no.nav.helse.flex.domain.*
+import no.nav.helse.flex.medlemskap.MedlemskapVurderingRepository
 import no.nav.helse.flex.repository.*
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.soknadsopprettelse.sorterSporsmal
@@ -31,6 +32,9 @@ class SykepengesoknadDAOFake : SykepengesoknadDAO {
 
     @Autowired
     lateinit var soknadsperiodeRepositoryFake: SoknadsperiodeRepositoryFake
+
+    @Autowired
+    lateinit var medlemskapVurderingRepository: MedlemskapVurderingRepository
 
     override fun finnSykepengesoknader(identer: FolkeregisterIdenter): List<Sykepengesoknad> {
         return sykepengesoknadRepository.findAll()
@@ -155,11 +159,16 @@ class SykepengesoknadDAOFake : SykepengesoknadDAO {
     }
 
     override fun slettSoknad(sykepengesoknad: Sykepengesoknad) {
-        TODO("Not yet implemented")
+        return slettSoknad(sykepengesoknad.id)
     }
 
     override fun slettSoknad(sykepengesoknadUuid: String) {
-        TODO("Not yet implemented")
+        val sykepengesoknadId = sykepengesoknadId(sykepengesoknadUuid)
+        sporsmalRepositoryFake.slettSporsmalOgSvar(listOf(sykepengesoknadId))
+        soknadsperiodeRepositoryFake.slettPerioder(listOf(sykepengesoknadId))
+
+        medlemskapVurderingRepository.deleteBySykepengesoknadId(sykepengesoknadUuid)
+        sykepengesoknadRepository.deleteById(sykepengesoknadId)
     }
 
     override fun finnAlleredeOpprettetSoknad(identer: FolkeregisterIdenter): Sykepengesoknad? {
