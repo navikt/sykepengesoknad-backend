@@ -239,7 +239,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
 
         hentSoknader(fnr).sortedBy { it.fom }.first().apply {
             this.selvstendigNaringsdrivendeInfo?.sykepengegrunnlagNaeringsdrivende `should be equal to`
-                sykepengegrunnlagNaeringsdrivende
+                lagSykepengegrunnlagNaeringsdrivende()
         }
         verify(aivenKafkaProducer, times(1)).produserMelding(any())
     }
@@ -1071,75 +1071,75 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
             )
         }
     }
-
-    private val sykepengegrunnlagNaeringsdrivende =
-        SykepengegrunnlagNaeringsdrivende(
-            gjennomsnittPerAar =
-                listOf(
-                    AarVerdi(aar = "2023", verdi = BigInteger("851782")),
-                    AarVerdi(aar = "2022", verdi = BigInteger("872694")),
-                    AarVerdi(aar = "2021", verdi = BigInteger("890920")),
-                ),
-            grunnbeloepPerAar =
-                listOf(
-                    AarVerdi(aar = "2021", verdi = BigInteger("104716")),
-                    AarVerdi(aar = "2022", verdi = BigInteger("109784")),
-                    AarVerdi(aar = "2023", verdi = BigInteger("116239")),
-                ),
-            grunnbeloepPaaSykmeldingstidspunkt = 124028,
-            beregnetSnittOgEndring25 =
-                Beregnet(
-                    snitt = BigInteger("871798"),
-                    p25 = BigInteger("1089748"),
-                    m25 = BigInteger("653849"),
-                ),
-            inntekter =
-                listOf(
-                    HentPensjonsgivendeInntektResponse(
-                        norskPersonidentifikator = "123456789",
-                        inntektsaar = "2023",
-                        pensjonsgivendeInntekt =
-                            listOf(
-                                PensjonsgivendeInntekt(
-                                    datoForFastsetting = LocalDate.parse("2023-07-17").toString(),
-                                    skatteordning = Skatteordning.FASTLAND,
-                                    pensjonsgivendeInntektAvLoennsinntekt = 0,
-                                    pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = 0,
-                                    pensjonsgivendeInntektAvNaeringsinntekt = 1_000_000,
-                                    pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage = 0,
-                                ),
-                            ),
-                    ),
-                    HentPensjonsgivendeInntektResponse(
-                        norskPersonidentifikator = "123456789",
-                        inntektsaar = "2022",
-                        pensjonsgivendeInntekt =
-                            listOf(
-                                PensjonsgivendeInntekt(
-                                    datoForFastsetting = LocalDate.parse("2022-07-17").toString(),
-                                    skatteordning = Skatteordning.FASTLAND,
-                                    pensjonsgivendeInntektAvLoennsinntekt = 0,
-                                    pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = 0,
-                                    pensjonsgivendeInntektAvNaeringsinntekt = 1_000_000,
-                                    pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage = 0,
-                                ),
-                            ),
-                    ),
-                    HentPensjonsgivendeInntektResponse(
-                        norskPersonidentifikator = "123456789",
-                        inntektsaar = "2021",
-                        pensjonsgivendeInntekt =
-                            listOf(
-                                PensjonsgivendeInntekt(
-                                    datoForFastsetting = LocalDate.parse("2021-07-17").toString(),
-                                    skatteordning = Skatteordning.FASTLAND,
-                                    pensjonsgivendeInntektAvLoennsinntekt = 0,
-                                    pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = 0,
-                                    pensjonsgivendeInntektAvNaeringsinntekt = 1_000_000,
-                                    pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage = 0,
-                                ),
-                            ),
-                    ),
-                ),
-        )
 }
+
+fun lagSykepengegrunnlagNaeringsdrivende() =
+    SykepengegrunnlagNaeringsdrivende(
+        gjennomsnittPerAar =
+            listOf(
+                AarVerdi(aar = "2023", verdi = BigInteger("851782")),
+                AarVerdi(aar = "2022", verdi = BigInteger("872694")),
+                AarVerdi(aar = "2021", verdi = BigInteger("890920")),
+            ),
+        grunnbeloepPerAar =
+            listOf(
+                AarVerdi(aar = "2021", verdi = BigInteger("104716")),
+                AarVerdi(aar = "2022", verdi = BigInteger("109784")),
+                AarVerdi(aar = "2023", verdi = BigInteger("116239")),
+            ),
+        grunnbeloepPaaSykmeldingstidspunkt = 124028,
+        beregnetSnittOgEndring25 =
+            Beregnet(
+                snitt = BigInteger("871798"),
+                p25 = BigInteger("1089748"),
+                m25 = BigInteger("653849"),
+            ),
+        inntekter =
+            listOf(
+                HentPensjonsgivendeInntektResponse(
+                    norskPersonidentifikator = "123456789",
+                    inntektsaar = "2023",
+                    pensjonsgivendeInntekt =
+                        listOf(
+                            PensjonsgivendeInntekt(
+                                datoForFastsetting = LocalDate.parse("2023-07-17").toString(),
+                                skatteordning = Skatteordning.FASTLAND,
+                                pensjonsgivendeInntektAvLoennsinntekt = 0,
+                                pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = 0,
+                                pensjonsgivendeInntektAvNaeringsinntekt = 1_000_000,
+                                pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage = 0,
+                            ),
+                        ),
+                ),
+                HentPensjonsgivendeInntektResponse(
+                    norskPersonidentifikator = "123456789",
+                    inntektsaar = "2022",
+                    pensjonsgivendeInntekt =
+                        listOf(
+                            PensjonsgivendeInntekt(
+                                datoForFastsetting = LocalDate.parse("2022-07-17").toString(),
+                                skatteordning = Skatteordning.FASTLAND,
+                                pensjonsgivendeInntektAvLoennsinntekt = 0,
+                                pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = 0,
+                                pensjonsgivendeInntektAvNaeringsinntekt = 1_000_000,
+                                pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage = 0,
+                            ),
+                        ),
+                ),
+                HentPensjonsgivendeInntektResponse(
+                    norskPersonidentifikator = "123456789",
+                    inntektsaar = "2021",
+                    pensjonsgivendeInntekt =
+                        listOf(
+                            PensjonsgivendeInntekt(
+                                datoForFastsetting = LocalDate.parse("2021-07-17").toString(),
+                                skatteordning = Skatteordning.FASTLAND,
+                                pensjonsgivendeInntektAvLoennsinntekt = 0,
+                                pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = 0,
+                                pensjonsgivendeInntektAvNaeringsinntekt = 1_000_000,
+                                pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage = 0,
+                            ),
+                        ),
+                ),
+            ),
+    )
