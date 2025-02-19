@@ -76,6 +76,8 @@ abstract class FellesTestOppsett : TestOppsettInterfaces {
 
     override fun mockMvc(): MockMvc = mockMvc
 
+    override fun kafkaProducer(): KafkaProducer<String, String> = kafkaProducer
+
     @MockitoBean
     lateinit var rebehandlingsSykmeldingSendtProducer: RebehandlingSykmeldingSendtProducer
 

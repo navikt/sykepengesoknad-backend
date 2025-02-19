@@ -12,7 +12,9 @@ import org.springframework.stereotype.Component
 
 @Profile("frisktilarbeid")
 @Component
-class ArbeidssokerregisterStoppListener() {
+class ArbeidssokerregisterStoppListener(
+    val arbeidssokerregisterStoppService: ArbeidssokerregisterStoppService,
+) {
     val log = logger()
 
     @KafkaListener(
@@ -28,6 +30,7 @@ class ArbeidssokerregisterStoppListener() {
         val stoppMelding = cr.value().tilArbeidssokerregisterStoppMelding()
 
         log.info("Mottok ArbeidssokerregisterStoppMelding med key: ${cr.key()} og id: ${stoppMelding.id}.")
+        arbeidssokerregisterStoppService.prosseserStoppMelding(stoppMelding)
         acknowledgment.acknowledge()
     }
 }

@@ -22,4 +22,8 @@ class SoknadsperiodeRepositoryFake :
     fun lagreSoknadsperioder(sporsmal: List<SoknadsperiodeDbRecord>) {
         sporsmal.forEach { store[it.id] = it }
     }
+
+    fun slettPerioder(sykepengesoknadIder: List<String>) {
+        store.values.removeIf { it.sykepengesoknadId in sykepengesoknadIder }
+    }
 }
