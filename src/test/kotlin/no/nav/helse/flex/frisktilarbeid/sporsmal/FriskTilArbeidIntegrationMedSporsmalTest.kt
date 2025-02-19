@@ -1,7 +1,7 @@
 package no.nav.helse.flex.frisktilarbeid.sporsmal
 
 import no.nav.helse.flex.*
-import no.nav.helse.flex.aktivering.SoknadAktivering
+import no.nav.helse.flex.aktivering.AktiveringJob
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.flatten
 import no.nav.helse.flex.domain.Soknadstatus
@@ -9,6 +9,7 @@ import no.nav.helse.flex.fakes.SoknadKafkaProducerFake
 import no.nav.helse.flex.frisktilarbeid.*
 import no.nav.helse.flex.repository.SykepengesoknadRepository
 import no.nav.helse.flex.soknadsopprettelse.*
+import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import org.amshove.kluent.`should be equal to`
 import org.assertj.core.api.Assertions.assertThat
@@ -28,19 +29,19 @@ class FriskTilArbeidIntegrationMedSporsmalTest() : FakesTestOppsett() {
     lateinit var sykepengesoknadRepository: SykepengesoknadRepository
 
     @Autowired
-    lateinit var aktivering: SoknadAktivering
+    lateinit var aktiveringJob: AktiveringJob
 
     private val fnr = "11111111111"
 
     @Test
     @Order(1)
     fun `Mottar og lagrer VedtakStatusRecord med status FATTET`() {
-        sendFtaVedtak(fnr, LocalDate.now().minusDays(15), LocalDate.now().plusDays(15))
+        sendFtaVedtak(fnr, LocalDate.now().minusDays(15), LocalDate.now())
     }
 
     @Test
     @Order(2)
-    fun `Oppretter søknad fra med status FREMTIDIG`() {
+    fun `Oppretter søknader med status FREMTIDIG`() {
         friskTilArbeidCronJob.startBehandlingAvFriskTilArbeidVedtakStatus()
 
         friskTilArbeidRepository.finnVedtakSomSkalBehandles(1).size `should be equal to` 0
@@ -51,11 +52,10 @@ class FriskTilArbeidIntegrationMedSporsmalTest() : FakesTestOppsett() {
             }
 
         sykepengesoknadRepository.findByFriskTilArbeidVedtakId(friskTilArbeidDbRecord.id!!).sortedBy { it.fom }.also {
-            it.size `should be equal to` 3
+            it.size `should be equal to` 2
             it.map { it.status } `should be equal to`
                 listOf(
                     Soknadstatus.NY,
-                    Soknadstatus.FREMTIDIG,
                     Soknadstatus.FREMTIDIG,
                 )
             it.forEach {
@@ -110,5 +110,53 @@ class FriskTilArbeidIntegrationMedSporsmalTest() : FakesTestOppsett() {
         sendtSoknad.id `should be equal to` soknad.id
 
         sendtSoknad.fortsattArbeidssoker `should be equal to` true
+    }
+
+    @Test
+    @Order(6)
+    fun `Vi aktiverer den siste søknaden i perioden`() {
+        aktiveringJob.bestillAktivering(LocalDate.now().plusDays(1))
+        val soknad = hentSoknader(fnr).first { it.status == RSSoknadstatus.NY }
+        val kafkaSoknad = SoknadKafkaProducerFake.records.last().value()
+        kafkaSoknad.id `should be equal to` soknad.id
+        kafkaSoknad.status `should be equal to` SoknadsstatusDTO.NY
+    }
+
+    @Test
+    @Order(7)
+    fun `Siste søknad har eget spørsmål`() {
+        val soknad = hentSoknader(fnr).first { it.status == RSSoknadstatus.NY }
+
+        val jobbsitasjonenDin = soknad.sporsmal!!.find { it.tag == FTA_JOBBSITUASJONEN_DIN }!!
+        val tags = listOf(jobbsitasjonenDin).flatten().map { it.tag }
+        tags `should be equal to`
+            listOf(
+                FTA_JOBBSITUASJONEN_DIN,
+                FTA_JOBBSITUASJONEN_DIN_JA,
+                FTA_JOBBSITUASJONEN_DIN_NAR,
+                FTA_JOBBSITUASJONEN_DIN_NEI,
+            )
+    }
+
+    @Test
+    @Order(8)
+    fun `Besvar siste søknaden`() {
+        val soknad = hentSoknader(fnr).first { it.status == RSSoknadstatus.NY }
+
+        SoknadBesvarer(rSSykepengesoknad = soknad, testOppsettInterfaces = this, fnr = fnr)
+            .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
+            .besvarSporsmal(FTA_JOBBSITUASJONEN_DIN_NEI, "CHECKED", true)
+            .besvarSporsmal(FTA_INNTEKT_UNDERVEIS, "NEI")
+            .besvarSporsmal(FTA_REISE_TIL_UTLANDET, "NEI")
+            .oppsummering()
+            .also {
+                assertThat(it.muterteSoknaden).isFalse()
+            }
+            .sendSoknad()
+
+        val kafkaSoknad = SoknadKafkaProducerFake.records.last().value()
+        kafkaSoknad.id `should be equal to` soknad.id
+        kafkaSoknad.status `should be equal to` SoknadsstatusDTO.SENDT
+        kafkaSoknad.fortsattArbeidssoker `should be equal to` null
     }
 }

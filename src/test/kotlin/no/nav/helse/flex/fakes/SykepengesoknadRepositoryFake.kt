@@ -67,6 +67,8 @@ class SykepengesoknadRepositoryFake :
     }
 
     override fun finnSoknaderSomSkalAktiveres(now: LocalDate): List<SykepengesoknadDbRecord> {
-        TODO("Not yet implemented")
+        return findAll()
+            .filter { it.status == Soknadstatus.FREMTIDIG }
+            .filter { it.tom != null && it.tom!! < now }
     }
 }
