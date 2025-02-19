@@ -74,10 +74,10 @@ class SporsmalGenerator(
         sykepengesoknadDAO.byttUtSporsmal(soknad.copy(sporsmal = sporsmalOgAndreKjenteArbeidsforhold.sporsmal))
 
         sykepengesoknadRepository.findBySykepengesoknadUuid(id)?.let {
-            val selvstendigNaringsdrivendeInfo: SelvstendigNaringsdrivendeInfo =
-                objectMapper.readValue(
-                    it.selvstendigNaringsdrivende ?: "{}",
-                )
+            val selvstendigNaringsdrivendeInfo: SelvstendigNaringsdrivendeInfo? =
+                it.selvstendigNaringsdrivende?.let { naringsdrivendeString ->
+                    objectMapper.readValue(naringsdrivendeString)
+                }
             sykepengesoknadRepository.save(
                 it.copy(
                     inntektskilderDataFraInntektskomponenten =
@@ -90,9 +90,9 @@ class SporsmalGenerator(
                             ?.serialisertTilString(),
                     selvstendigNaringsdrivende =
                         selvstendigNaringsdrivendeInfo
-                            .copy(
+                            ?.copy(
                                 sykepengegrunnlagNaeringsdrivende = sykepengegrunnlag,
-                            ).serialisertTilString(),
+                            )?.serialisertTilString(),
                 ),
             )
         }

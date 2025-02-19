@@ -11,6 +11,7 @@ import no.nav.helse.flex.client.brreg.Rolletype
 import no.nav.helse.flex.client.sigrun.HentPensjonsgivendeInntektResponse
 import no.nav.helse.flex.client.sigrun.PensjonsgivendeInntekt
 import no.nav.helse.flex.client.sigrun.Skatteordning
+import no.nav.helse.flex.controller.domain.sykepengesoknad.RSArbeidssituasjon
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadsperiode
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykmeldingstype
@@ -43,7 +44,8 @@ import no.nav.syfo.sykmelding.kafka.model.SvartypeKafkaDTO
 import no.nav.syfo.sykmelding.kafka.model.SykmeldingStatusKafkaMessageDTO
 import okhttp3.mockwebserver.MockResponse
 import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should be null`
+import org.amshove.kluent.shouldBeEmpty
+import org.amshove.kluent.shouldNotBeNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertThrows
@@ -97,6 +99,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
         val hentetViaRest = hentSoknaderMetadata(fnr).sortedBy { it.fom }
         assertThat(hentetViaRest).hasSize(1)
         assertThat(hentetViaRest[0].soknadstype).isEqualTo(RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE)
+        assertThat(hentetViaRest[0].arbeidssituasjon).isEqualTo(RSArbeidssituasjon.NAERINGSDRIVENDE)
 
         verify(aivenKafkaProducer, times(1)).produserMelding(any())
     }
@@ -123,8 +126,6 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
                         ).serialisertTilString(),
                     )
             }
-
-        settOppSigrunMockResponser()
 
         val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
         val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
@@ -155,16 +156,13 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
                         rolletype = "INNH",
                     ),
                 )
-
-            this.selvstendigNaringsdrivendeInfo?.sykepengegrunnlagNaeringsdrivende `should be equal to`
-                sykepengegrunnlagNaeringsdrivende
         }
 
         verify(aivenKafkaProducer, times(1)).produserMelding(any())
     }
 
     @Test
-    fun `oppretter kort søknad for næringsdrivende uten fra brreg`() {
+    fun `oppretter kort søknad for næringsdrivende uten data fra brreg nar feature toggle er av`() {
         fakeUnleash.resetAll()
 
         brregMockWebServer.dispatcher =
@@ -206,9 +204,43 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
 
         hentSoknader(fnr).sortedBy { it.fom }.first().apply {
-            this.selvstendigNaringsdrivendeInfo?.roller.`should be null`()
+            this.selvstendigNaringsdrivendeInfo
+                .shouldNotBeNull()
+                .roller
+                .shouldBeEmpty()
         }
 
+        verify(aivenKafkaProducer, times(1)).produserMelding(any())
+    }
+
+    @Test
+    fun `oppretter kort søknad for næringsdrivende med sigrun data`() {
+        settOppSigrunMockResponser()
+
+        val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
+        val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
+        val sykmelding =
+            skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId)
+                .copy(harRedusertArbeidsgiverperiode = true)
+
+        mockFlexSyketilfelleErUtaforVentetid(sykmelding.id, true)
+        mockFlexSyketilfelleSykeforloep(sykmeldingId)
+
+        val sykmeldingKafkaMessage =
+            SykmeldingKafkaMessage(
+                sykmelding = sykmelding,
+                event = sykmeldingStatusKafkaMessageDTO.event,
+                kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
+            )
+
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
+
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
+
+        hentSoknader(fnr).sortedBy { it.fom }.first().apply {
+            this.selvstendigNaringsdrivendeInfo?.sykepengegrunnlagNaeringsdrivende `should be equal to`
+                sykepengegrunnlagNaeringsdrivende
+        }
         verify(aivenKafkaProducer, times(1)).produserMelding(any())
     }
 

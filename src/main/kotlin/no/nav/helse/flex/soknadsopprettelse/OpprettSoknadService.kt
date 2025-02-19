@@ -115,16 +115,16 @@ class OpprettSoknadService(
                                             ?.name,
                                     ),
                                 selvstendigNaringsdrivende =
-                                    if (unleashToggles.brregEnabled(identer.originalIdent)) {
-                                        when (arbeidssituasjon) {
-                                            Arbeidssituasjon.NAERINGSDRIVENDE ->
+                                    when (arbeidssituasjon) {
+                                        Arbeidssituasjon.NAERINGSDRIVENDE ->
+                                            if (unleashToggles.brregEnabled(identer.originalIdent)) {
                                                 selvstendigNaringsdrivendeInfoService.hentSelvstendigNaringsdrivendeInfo(
                                                     identer = identer,
                                                 )
-                                            else -> null
-                                        }
-                                    } else {
-                                        null
+                                            } else {
+                                                SelvstendigNaringsdrivendeInfo(roller = emptyList())
+                                            }
+                                        else -> null
                                     },
                             )
                         }.filter { it.soknadPerioder?.isNotEmpty() ?: true }
