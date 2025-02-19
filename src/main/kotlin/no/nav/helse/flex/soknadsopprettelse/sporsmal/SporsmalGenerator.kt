@@ -63,7 +63,15 @@ class SporsmalGenerator(
         val soknad = sykepengesoknadDAO.finnSykepengesoknad(id)
         val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(soknad.fnr)
         val eksisterendeSoknader = sykepengesoknadDAO.finnSykepengesoknader(identer).filterNot { it.id == soknad.id }
-        val sykepengegrunnlag = sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(soknad)
+        val sykepengegrunnlag =
+            when (soknad.arbeidssituasjon) {
+                Arbeidssituasjon.NAERINGSDRIVENDE -> {
+                    sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(soknad)
+                }
+                else -> {
+                    null
+                }
+            }
 
         val sporsmalOgAndreKjenteArbeidsforhold =
             lagSykepengesoknadSporsmal(
