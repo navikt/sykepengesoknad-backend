@@ -16,7 +16,6 @@ fun FakesTestOppsett.sendFtaVedtak(
     fom: LocalDate,
     tom: LocalDate,
 ): String {
-    // To 14-dagersperioder og én 7-dagersperiode.
     val vedtaksperiode =
         Periode(
             fom = fom,

@@ -6,10 +6,11 @@ import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Sykepengesoknad
+import no.nav.helse.flex.frisktilarbeid.FriskTilArbeidRepository
+import no.nav.helse.flex.frisktilarbeid.tilPeriode
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.medlemskap.KjentOppholdstillatelse
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingClient
-import no.nav.helse.flex.medlemskap.MedlemskapVurderingRepository
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingRequest
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingResponse
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingSporsmal
@@ -28,6 +29,7 @@ import no.nav.helse.flex.util.serialisertTilString
 import no.nav.helse.flex.yrkesskade.YrkesskadeIndikatorer
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import kotlin.jvm.optionals.getOrElse
 
 @Service
 @Transactional
@@ -41,7 +43,7 @@ class SporsmalGenerator(
     private val medlemskapVurderingClient: MedlemskapVurderingClient,
     private val environmentToggles: EnvironmentToggles,
     private val unleashToggles: UnleashToggles,
-    private val medlemskapVurderingRepository: MedlemskapVurderingRepository,
+    private val friskTilArbeidRepository: FriskTilArbeidRepository,
     private val aaregDataHenting: AaregDataHenting,
 ) {
     private val log = logger()
@@ -147,8 +149,15 @@ class SporsmalGenerator(
             ).tilSporsmalOgAndreKjenteArbeidsforhold()
         }
         if (soknad.soknadstype == Soknadstype.FRISKMELDT_TIL_ARBEIDSFORMIDLING) {
+            val vedtakId =
+                soknad.friskTilArbeidVedtakId
+                    ?: throw RuntimeException("Frisk til arbeid vedtak id mangler for søknad ${soknad.id}")
+            val friskTilArbeidVedtak =
+                friskTilArbeidRepository.findById(vedtakId)
+                    .getOrElse { throw RuntimeException("Fant ikke frisk til arbeid vedtak med id $vedtakId") }
             return settOppSykepengesoknadFriskmeldtTilArbeidsformidling(
                 soknadOptions,
+                friskTilArbeidVedtak.tilPeriode(),
             ).tilSporsmalOgAndreKjenteArbeidsforhold()
         }
 
