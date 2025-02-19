@@ -18,6 +18,7 @@ import no.nav.helse.flex.medlemskap.MedlemskapVurderingResponse
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingSporsmal
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingSvarType
 import no.nav.helse.flex.repository.SykepengesoknadDAO
+import no.nav.helse.flex.repository.SykepengesoknadDbRecord
 import no.nav.helse.flex.repository.SykepengesoknadRepository
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.service.IdentService
@@ -74,28 +75,40 @@ class SporsmalGenerator(
         sykepengesoknadDAO.byttUtSporsmal(soknad.copy(sporsmal = sporsmalOgAndreKjenteArbeidsforhold.sporsmal))
 
         sykepengesoknadRepository.findBySykepengesoknadUuid(id)?.let {
-            val selvstendigNaringsdrivendeInfo: SelvstendigNaringsdrivendeInfo? =
-                it.selvstendigNaringsdrivende?.let { naringsdrivendeString ->
-                    objectMapper.readValue(naringsdrivendeString)
-                }
             sykepengesoknadRepository.save(
-                it.copy(
-                    inntektskilderDataFraInntektskomponenten =
-                        sporsmalOgAndreKjenteArbeidsforhold
-                            .andreKjenteArbeidsforhold
-                            ?.serialisertTilString(),
-                    arbeidsforholdFraAareg =
-                        sporsmalOgAndreKjenteArbeidsforhold
-                            .arbeidsforholdFraAAreg
-                            ?.serialisertTilString(),
-                    selvstendigNaringsdrivende =
-                        selvstendigNaringsdrivendeInfo
-                            ?.copy(
-                                sykepengegrunnlagNaeringsdrivende = sykepengegrunnlag,
-                            )?.serialisertTilString(),
-                ),
+                it
+                    .leggTilSykepengegrunnlagNaringsdrivende(sykepengegrunnlag)
+                    .copy(
+                        inntektskilderDataFraInntektskomponenten =
+                            sporsmalOgAndreKjenteArbeidsforhold
+                                .andreKjenteArbeidsforhold
+                                ?.serialisertTilString(),
+                        arbeidsforholdFraAareg =
+                            sporsmalOgAndreKjenteArbeidsforhold
+                                .arbeidsforholdFraAAreg
+                                ?.serialisertTilString(),
+                    ),
             )
         }
+    }
+
+    private fun SykepengesoknadDbRecord.leggTilSykepengegrunnlagNaringsdrivende(
+        sykepengegrunnlag: SykepengegrunnlagNaeringsdrivende? = null,
+    ): SykepengesoknadDbRecord {
+        if (!unleashToggles.sigrunPaaKafkaEnabled(this.fnr)) {
+            return this
+        }
+        val selvstendigNaringsdrivendeInfo: SelvstendigNaringsdrivendeInfo? =
+            this.selvstendigNaringsdrivende?.let { naringsdrivendeString ->
+                objectMapper.readValue(naringsdrivendeString)
+            }
+        return this.copy(
+            selvstendigNaringsdrivende =
+                selvstendigNaringsdrivendeInfo
+                    ?.copy(
+                        sykepengegrunnlagNaeringsdrivende = sykepengegrunnlag,
+                    )?.serialisertTilString(),
+        )
     }
 
     private fun List<Sporsmal>.tilSporsmalOgAndreKjenteArbeidsforhold(): SporsmalOgAndreKjenteArbeidsforhold =

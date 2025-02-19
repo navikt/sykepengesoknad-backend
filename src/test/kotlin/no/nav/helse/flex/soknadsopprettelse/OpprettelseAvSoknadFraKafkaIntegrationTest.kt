@@ -43,9 +43,7 @@ import no.nav.syfo.sykmelding.kafka.model.SporsmalOgSvarKafkaDTO
 import no.nav.syfo.sykmelding.kafka.model.SvartypeKafkaDTO
 import no.nav.syfo.sykmelding.kafka.model.SykmeldingStatusKafkaMessageDTO
 import okhttp3.mockwebserver.MockResponse
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.shouldBeEmpty
-import org.amshove.kluent.shouldNotBeNull
+import org.amshove.kluent.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertThrows
@@ -215,6 +213,8 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
 
     @Test
     fun `oppretter kort søknad for næringsdrivende med sigrun data`() {
+        fakeUnleash.resetAll()
+        fakeUnleash.enable("sykepengesoknad-backend-sigrun-paa-kafka")
         settOppSigrunMockResponser()
 
         val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
@@ -240,6 +240,40 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
         hentSoknader(fnr).sortedBy { it.fom }.first().apply {
             this.selvstendigNaringsdrivendeInfo?.sykepengegrunnlagNaeringsdrivende `should be equal to`
                 sykepengegrunnlagNaeringsdrivende
+        }
+        verify(aivenKafkaProducer, times(1)).produserMelding(any())
+    }
+
+    @Test
+    fun `oppretter kort søknad for næringsdrivende uten sigrun data når feature toggle er av`() {
+        fakeUnleash.resetAll()
+        settOppSigrunMockResponser()
+
+        val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
+        val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
+        val sykmelding =
+            skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId)
+                .copy(harRedusertArbeidsgiverperiode = true)
+
+        mockFlexSyketilfelleErUtaforVentetid(sykmelding.id, true)
+        mockFlexSyketilfelleSykeforloep(sykmeldingId)
+
+        val sykmeldingKafkaMessage =
+            SykmeldingKafkaMessage(
+                sykmelding = sykmelding,
+                event = sykmeldingStatusKafkaMessageDTO.event,
+                kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
+            )
+
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
+
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
+
+        hentSoknader(fnr).sortedBy { it.fom }.first().apply {
+            this.selvstendigNaringsdrivendeInfo
+                .`should not be null`()
+                .sykepengegrunnlagNaeringsdrivende
+                .`should be null`()
         }
         verify(aivenKafkaProducer, times(1)).produserMelding(any())
     }
