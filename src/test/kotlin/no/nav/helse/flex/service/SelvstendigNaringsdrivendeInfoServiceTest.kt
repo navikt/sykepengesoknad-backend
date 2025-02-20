@@ -53,6 +53,32 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
     }
 
     @Test
+    fun `burde hente selvstendig næringsdrivende for flere identer`() {
+        val rollerDto =
+            RollerDto(
+                roller =
+                    listOf(
+                        RolleDto(
+                            rolletype = Rolletype.INNH,
+                            organisasjonsnummer = "orgnummer",
+                            organisasjonsnavn = "orgnavn",
+                        ),
+                    ),
+            )
+        repeat(2) {
+            brregServer.enqueue(
+                MockResponse()
+                    .setHeader("Content-Type", "application/json")
+                    .setBody(rollerDto.serialisertTilString()),
+            )
+        }
+
+        selvstendigNaringsdrivendeInfoService
+            .hentSelvstendigNaringsdrivendeInfo(FolkeregisterIdenter("fnr", andreIdenter = listOf("fnr2")))
+            .roller.size `should be equal to` 2
+    }
+
+    @Test
     fun `burde ha riktig payload i request`() {
         val rollerDto =
             RollerDto(

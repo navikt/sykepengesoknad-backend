@@ -12,9 +12,7 @@ class SelvstendigNaringsdrivendeInfoService(
     private val brregClient: BrregClient,
 ) {
     fun hentSelvstendigNaringsdrivendeInfo(identer: FolkeregisterIdenter): SelvstendigNaringsdrivendeInfo {
-        // TODO: Hent roller for alle identer?
-        val fnr = identer.originalIdent
-        val rolleDtoer = hentSelvstendigNaringsdrivendeRoller(fnr)
+        val rolleDtoer = identer.alle().flatMap { hentSelvstendigNaringsdrivendeRoller(it) }
         val roller = rolleDtoer.map(::mapFraRolleDto)
         return SelvstendigNaringsdrivendeInfo(roller = roller)
     }
