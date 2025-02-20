@@ -3,13 +3,13 @@ package no.nav.helse.flex.soknadsopprettelse.sporsmal
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.arbeidsgiverperiode.harDagerNAVSkalBetaleFor
 import no.nav.helse.flex.config.EnvironmentToggles
+import no.nav.helse.flex.domain.*
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.frisktilarbeid.FriskTilArbeidRepository
 import no.nav.helse.flex.frisktilarbeid.tilPeriode
-import no.nav.helse.flex.domain.*
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.medlemskap.KjentOppholdstillatelse
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingClient
