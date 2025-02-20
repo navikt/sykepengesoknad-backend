@@ -12,12 +12,7 @@ data class SelvstendigNaringsdrivendeInfo(
 
     fun tilDto(): SelvstendigNaringsdrivendeDTO {
         val grunnlag = sykepengegrunnlagNaeringsdrivende
-        if (grunnlag == null ||
-            grunnlag.gjennomsnittPerAar.isEmpty() ||
-            grunnlag.grunnbeloepPerAar.isEmpty() ||
-            grunnlag.grunnbeloepPaaSykmeldingstidspunkt == 0 ||
-            grunnlag.inntekter.isEmpty()
-        ) {
+        if (grunnlag == null) {
             log.warn("Mangler verdier i sykepengegrunnlag for selvstendig næringsdrivende")
             return SelvstendigNaringsdrivendeDTO(
                 roller = roller.map { RolleDTO(it.orgnummer, it.rolletype) },
