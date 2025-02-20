@@ -8,6 +8,10 @@ import no.nav.helse.flex.*
 import no.nav.helse.flex.client.brreg.RolleDto
 import no.nav.helse.flex.client.brreg.RollerDto
 import no.nav.helse.flex.client.brreg.Rolletype
+import no.nav.helse.flex.client.sigrun.HentPensjonsgivendeInntektResponse
+import no.nav.helse.flex.client.sigrun.PensjonsgivendeInntekt
+import no.nav.helse.flex.client.sigrun.Skatteordning
+import no.nav.helse.flex.controller.domain.sykepengesoknad.RSArbeidssituasjon
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadsperiode
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykmeldingstype
@@ -18,7 +22,11 @@ import no.nav.helse.flex.domain.exception.ManglerSykmeldingException
 import no.nav.helse.flex.domain.exception.ProduserKafkaMeldingException
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
+import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher.enqueueMockResponse
 import no.nav.helse.flex.repository.SykepengesoknadDAO
+import no.nav.helse.flex.service.AarVerdi
+import no.nav.helse.flex.service.Beregnet
+import no.nav.helse.flex.service.SykepengegrunnlagNaeringsdrivende
 import no.nav.helse.flex.sykepengesoknad.kafka.FiskerBladDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
@@ -35,8 +43,7 @@ import no.nav.syfo.sykmelding.kafka.model.SporsmalOgSvarKafkaDTO
 import no.nav.syfo.sykmelding.kafka.model.SvartypeKafkaDTO
 import no.nav.syfo.sykmelding.kafka.model.SykmeldingStatusKafkaMessageDTO
 import okhttp3.mockwebserver.MockResponse
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should be null`
+import org.amshove.kluent.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertThrows
@@ -44,6 +51,7 @@ import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
 import org.springframework.beans.factory.annotation.Autowired
+import java.math.BigInteger
 import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.MethodName::class)
@@ -89,6 +97,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
         val hentetViaRest = hentSoknaderMetadata(fnr).sortedBy { it.fom }
         assertThat(hentetViaRest).hasSize(1)
         assertThat(hentetViaRest[0].soknadstype).isEqualTo(RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE)
+        assertThat(hentetViaRest[0].arbeidssituasjon).isEqualTo(RSArbeidssituasjon.NAERINGSDRIVENDE)
 
         verify(aivenKafkaProducer, times(1)).produserMelding(any())
     }
@@ -151,7 +160,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `oppretter kort søknad for næringsdrivende uten fra brreg`() {
+    fun `oppretter kort søknad for næringsdrivende uten data fra brreg nar feature toggle er av`() {
         fakeUnleash.resetAll()
 
         brregMockWebServer.dispatcher =
@@ -193,9 +202,79 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
 
         hentSoknader(fnr).sortedBy { it.fom }.first().apply {
-            this.selvstendigNaringsdrivendeInfo?.roller.`should be null`()
+            this.selvstendigNaringsdrivendeInfo
+                .shouldNotBeNull()
+                .roller
+                .shouldBeEmpty()
         }
 
+        verify(aivenKafkaProducer, times(1)).produserMelding(any())
+    }
+
+    @Test
+    fun `oppretter kort søknad for næringsdrivende med sigrun data`() {
+        fakeUnleash.resetAll()
+        fakeUnleash.enable("sykepengesoknad-backend-sigrun-paa-kafka")
+        settOppSigrunMockResponser()
+
+        val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
+        val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
+        val sykmelding =
+            skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId)
+                .copy(harRedusertArbeidsgiverperiode = true)
+
+        mockFlexSyketilfelleErUtaforVentetid(sykmelding.id, true)
+        mockFlexSyketilfelleSykeforloep(sykmeldingId)
+
+        val sykmeldingKafkaMessage =
+            SykmeldingKafkaMessage(
+                sykmelding = sykmelding,
+                event = sykmeldingStatusKafkaMessageDTO.event,
+                kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
+            )
+
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
+
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
+
+        hentSoknader(fnr).sortedBy { it.fom }.first().apply {
+            this.selvstendigNaringsdrivendeInfo?.sykepengegrunnlagNaeringsdrivende `should be equal to`
+                lagSykepengegrunnlagNaeringsdrivende()
+        }
+        verify(aivenKafkaProducer, times(1)).produserMelding(any())
+    }
+
+    @Test
+    fun `oppretter kort søknad for næringsdrivende uten sigrun data når feature toggle er av`() {
+        fakeUnleash.resetAll()
+        settOppSigrunMockResponser()
+
+        val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
+        val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
+        val sykmelding =
+            skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId)
+                .copy(harRedusertArbeidsgiverperiode = true)
+
+        mockFlexSyketilfelleErUtaforVentetid(sykmelding.id, true)
+        mockFlexSyketilfelleSykeforloep(sykmeldingId)
+
+        val sykmeldingKafkaMessage =
+            SykmeldingKafkaMessage(
+                sykmelding = sykmelding,
+                event = sykmeldingStatusKafkaMessageDTO.event,
+                kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
+            )
+
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
+
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
+
+        hentSoknader(fnr).sortedBy { it.fom }.first().apply {
+            this.selvstendigNaringsdrivendeInfo
+                .`should not be null`()
+                .sykepengegrunnlagNaeringsdrivende
+                .`should be null`()
+        }
         verify(aivenKafkaProducer, times(1)).produserMelding(any())
     }
 
@@ -945,4 +1024,122 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
         sykmeldingsperioder = sykmeldingsperioder,
         syketilfelleStartDato = syketilfelleStartDato,
     )
+
+    private fun settOppSigrunMockResponser() {
+        with(sigrunMockWebServer) {
+            enqueueMockResponse(
+                fnr = fnr,
+                inntektsaar = "2024",
+                inntekt =
+                    emptyList(),
+            )
+            enqueueMockResponse(
+                fnr = fnr,
+                inntektsaar = "2023",
+                inntekt =
+                    listOf(
+                        PensjonsgivendeInntekt(
+                            datoForFastsetting = "2023-07-17",
+                            skatteordning = Skatteordning.FASTLAND,
+                            pensjonsgivendeInntektAvNaeringsinntekt = 1_000_000,
+                        ),
+                    ),
+            )
+            enqueueMockResponse(
+                fnr = fnr,
+                inntektsaar = "2022",
+                inntekt =
+                    listOf(
+                        PensjonsgivendeInntekt(
+                            datoForFastsetting = "2022-07-17",
+                            skatteordning = Skatteordning.FASTLAND,
+                            pensjonsgivendeInntektAvNaeringsinntekt = 1_000_000,
+                        ),
+                    ),
+            )
+            enqueueMockResponse(
+                fnr = fnr,
+                inntektsaar = "2021",
+                inntekt =
+                    listOf(
+                        PensjonsgivendeInntekt(
+                            datoForFastsetting = "2021-07-17",
+                            skatteordning = Skatteordning.FASTLAND,
+                            pensjonsgivendeInntektAvNaeringsinntekt = 1_000_000,
+                        ),
+                    ),
+            )
+        }
+    }
 }
+
+fun lagSykepengegrunnlagNaeringsdrivende() =
+    SykepengegrunnlagNaeringsdrivende(
+        gjennomsnittPerAar =
+            listOf(
+                AarVerdi(aar = "2023", verdi = BigInteger("851782")),
+                AarVerdi(aar = "2022", verdi = BigInteger("872694")),
+                AarVerdi(aar = "2021", verdi = BigInteger("890920")),
+            ),
+        grunnbeloepPerAar =
+            listOf(
+                AarVerdi(aar = "2021", verdi = BigInteger("104716")),
+                AarVerdi(aar = "2022", verdi = BigInteger("109784")),
+                AarVerdi(aar = "2023", verdi = BigInteger("116239")),
+            ),
+        grunnbeloepPaaSykmeldingstidspunkt = 124028,
+        beregnetSnittOgEndring25 =
+            Beregnet(
+                snitt = BigInteger("871798"),
+                p25 = BigInteger("1089748"),
+                m25 = BigInteger("653849"),
+            ),
+        inntekter =
+            listOf(
+                HentPensjonsgivendeInntektResponse(
+                    norskPersonidentifikator = "123456789",
+                    inntektsaar = "2023",
+                    pensjonsgivendeInntekt =
+                        listOf(
+                            PensjonsgivendeInntekt(
+                                datoForFastsetting = LocalDate.parse("2023-07-17").toString(),
+                                skatteordning = Skatteordning.FASTLAND,
+                                pensjonsgivendeInntektAvLoennsinntekt = 0,
+                                pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = 0,
+                                pensjonsgivendeInntektAvNaeringsinntekt = 1_000_000,
+                                pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage = 0,
+                            ),
+                        ),
+                ),
+                HentPensjonsgivendeInntektResponse(
+                    norskPersonidentifikator = "123456789",
+                    inntektsaar = "2022",
+                    pensjonsgivendeInntekt =
+                        listOf(
+                            PensjonsgivendeInntekt(
+                                datoForFastsetting = LocalDate.parse("2022-07-17").toString(),
+                                skatteordning = Skatteordning.FASTLAND,
+                                pensjonsgivendeInntektAvLoennsinntekt = 0,
+                                pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = 0,
+                                pensjonsgivendeInntektAvNaeringsinntekt = 1_000_000,
+                                pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage = 0,
+                            ),
+                        ),
+                ),
+                HentPensjonsgivendeInntektResponse(
+                    norskPersonidentifikator = "123456789",
+                    inntektsaar = "2021",
+                    pensjonsgivendeInntekt =
+                        listOf(
+                            PensjonsgivendeInntekt(
+                                datoForFastsetting = LocalDate.parse("2021-07-17").toString(),
+                                skatteordning = Skatteordning.FASTLAND,
+                                pensjonsgivendeInntektAvLoennsinntekt = 0,
+                                pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = 0,
+                                pensjonsgivendeInntektAvNaeringsinntekt = 1_000_000,
+                                pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage = 0,
+                            ),
+                        ),
+                ),
+            ),
+    )
