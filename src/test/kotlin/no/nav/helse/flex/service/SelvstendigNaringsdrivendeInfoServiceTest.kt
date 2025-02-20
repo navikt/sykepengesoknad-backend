@@ -13,7 +13,9 @@ import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should throw`
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.test.context.TestPropertySource
 
+@TestPropertySource(properties = ["BRREG_RETRY_ATTEMPTS=1"])
 class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
     @Autowired
     lateinit var brregServer: MockWebServer
