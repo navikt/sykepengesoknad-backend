@@ -1,6 +1,8 @@
 package no.nav.helse.flex.client.brreg
 
+import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
+import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestClient
 import org.springframework.web.client.toEntity
 
@@ -8,6 +10,7 @@ import org.springframework.web.client.toEntity
 class BrregClient(
     private val brregRestClient: RestClient,
 ) {
+    @Retryable(include = [HttpServerErrorException::class], maxAttemptsExpression = "\${BRREG_RETRY_ATTEMPTS:3}")
     fun hentRoller(
         fnr: String,
         rolleTyper: List<Rolletype>? = null,

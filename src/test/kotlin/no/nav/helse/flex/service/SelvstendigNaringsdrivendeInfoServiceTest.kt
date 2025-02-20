@@ -13,7 +13,9 @@ import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should throw`
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.test.context.TestPropertySource
 
+@TestPropertySource(properties = ["BRREG_RETRY_ATTEMPTS=1"])
 class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
     @Autowired
     lateinit var brregServer: MockWebServer
@@ -50,6 +52,32 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
                 it.orgnummer `should be equal to` "orgnummer"
                 it.rolletype `should be equal to` "INNH"
             }
+    }
+
+    @Test
+    fun `burde hente selvstendig næringsdrivende for flere identer`() {
+        val rollerDto =
+            RollerDto(
+                roller =
+                    listOf(
+                        RolleDto(
+                            rolletype = Rolletype.INNH,
+                            organisasjonsnummer = "orgnummer",
+                            organisasjonsnavn = "orgnavn",
+                        ),
+                    ),
+            )
+        repeat(2) {
+            brregServer.enqueue(
+                MockResponse()
+                    .setHeader("Content-Type", "application/json")
+                    .setBody(rollerDto.serialisertTilString()),
+            )
+        }
+
+        selvstendigNaringsdrivendeInfoService
+            .hentSelvstendigNaringsdrivendeInfo(FolkeregisterIdenter("fnr", andreIdenter = listOf("fnr2")))
+            .roller.size `should be equal to` 2
     }
 
     @Test
