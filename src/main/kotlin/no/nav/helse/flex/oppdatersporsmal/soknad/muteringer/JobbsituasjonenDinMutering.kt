@@ -73,6 +73,6 @@ fun Sykepengesoknad.jobbsituasjonenDinMutering(): Sykepengesoknad {
     val dagForBegrensende = finnDagForBegrensende()
 
     return this
+        .leggTilSporsmaal(ftaReiseTilUtlandet(this.fom!!, dagForBegrensende))
         .leggTilSporsmaal(inntektUnderveis(this.fom!!, dagForBegrensende))
-        .leggTilSporsmaal(ftaReiseTilUtlandet(this.fom, dagForBegrensende))
 }

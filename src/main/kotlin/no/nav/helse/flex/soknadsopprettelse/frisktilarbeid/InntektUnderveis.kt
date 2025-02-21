@@ -8,6 +8,7 @@ import no.nav.helse.flex.soknadsopprettelse.FTA_INNTEKT_UNDERVEIS_MER_ENN_PLEIER
 import no.nav.helse.flex.soknadsopprettelse.FTA_INNTEKT_UNDERVEIS_MER_ENN_PLEIER_BELOP
 import no.nav.helse.flex.util.DatoUtil
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 fun inntektUnderveis(
     fom: LocalDate,
@@ -19,8 +20,9 @@ fun inntektUnderveis(
         sporsmalstekst = "Hadde du  inntekt i perioden $periodeTekst?",
         undertekst = "Dette kan for eksempel være inntekt fra en annen jobb du ikke er sykmeldt fra.",
         svartype = Svartype.JA_NEI,
-        min = null,
-        max = null,
+        // Disse er med for å få muteringen til å fungere
+        min = fom.format(DateTimeFormatter.ISO_LOCAL_DATE),
+        max = tom.format(DateTimeFormatter.ISO_LOCAL_DATE),
         kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
         svar = emptyList(),
         undersporsmal =
