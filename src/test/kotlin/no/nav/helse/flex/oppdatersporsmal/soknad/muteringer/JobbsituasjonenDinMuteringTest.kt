@@ -106,23 +106,49 @@ class JobbsituasjonenDinMuteringTest {
                 .besvarsporsmal(FTA_JOBBSITUASJONEN_DIN_NAR, fom.plusDays(5).format(ISO_LOCAL_DATE))
         // Forventet: siden begrensende dato (fom+5) ≠ fom, skal de to spm legges til.
 
-        // Før mutering skal vi forvente at spm med tagene for inntekt og reise finnes (fra oppsett-funksjonen)
-        soknadMedSvar.sporsmal.filter { it.tag.contains(FTA_INNTEKT_UNDERVEIS) }
+        // Før mutering finnes spm for inntekt og reise (fra oppsettet)
+        soknadMedSvar.sporsmal
+            .filter { it.tag.contains(FTA_INNTEKT_UNDERVEIS) }
             .shouldHaveSize(1)
-        soknadMedSvar.sporsmal.filter { it.tag.contains(FTA_REISE_TIL_UTLANDET) }
+            .map { it.sporsmalstekst }.first() `should be equal to` "Hadde du  inntekt i perioden 1. - 11. februar 2025?"
+        soknadMedSvar.sporsmal
+            .filter { it.tag.contains(FTA_REISE_TIL_UTLANDET) }
             .shouldHaveSize(1)
+            .map { it.sporsmalstekst }.first() `should be equal to` "Var du på reise utenfor EU/EØS i perioden 1. - 11. februar 2025?"
 
         // Muter søknaden
         val mutertSoknad = soknadMedSvar.jobbsituasjonenDinMutering()
-        mutertSoknad.sporsmal.filter { it.tag.contains(FTA_INNTEKT_UNDERVEIS) }
+        // Etter mutering skal de to gamle spm være fjernet og erstattet med nye med andre datoer
+        mutertSoknad.sporsmal
+            .filter { it.tag.contains(FTA_INNTEKT_UNDERVEIS) }
             .shouldHaveSize(1)
-        mutertSoknad.sporsmal.filter { it.tag.contains(FTA_REISE_TIL_UTLANDET) }
+            .map { it.sporsmalstekst }.first() `should be equal to` "Hadde du  inntekt i perioden 1. - 5. februar 2025?"
+        mutertSoknad.sporsmal
+            .filter { it.tag.contains(FTA_REISE_TIL_UTLANDET) }
             .shouldHaveSize(1)
+            .map { it.sporsmalstekst }.first() `should be equal to` "Var du på reise utenfor EU/EØS i perioden 1. - 5. februar 2025?"
         mutertSoknad.sporsmal.shouldHaveSize(5)
 
         mutertSoknad.sporsmal.map { it.tag }
             .filter { it.contains(FTA_INNTEKT_UNDERVEIS) || it.contains(FTA_REISE_TIL_UTLANDET) }
             .shouldHaveSize(2)
+
+        // spørsmål muteres tilbake
+        val remutert =
+            mutertSoknad
+                .besvarsporsmal(FTA_JOBBSITUASJONEN_DIN_JA, "CHECKED")
+                .besvarsporsmal(FTA_JOBBSITUASJONEN_DIN_FORTSATT_FRISKMELDT_NY_JOBB, "JA")
+                .besvarsporsmal(FTA_JOBBSITUASJONEN_DIN_NAR, fom.plusDays(5).format(ISO_LOCAL_DATE))
+                .jobbsituasjonenDinMutering()
+
+        remutert.sporsmal
+            .filter { it.tag.contains(FTA_INNTEKT_UNDERVEIS) }
+            .shouldHaveSize(1)
+            .map { it.sporsmalstekst }.first() `should be equal to` "Hadde du  inntekt i perioden 1. - 11. februar 2025?"
+        remutert.sporsmal
+            .filter { it.tag.contains(FTA_REISE_TIL_UTLANDET) }
+            .shouldHaveSize(1)
+            .map { it.sporsmalstekst }.first() `should be equal to` "Var du på reise utenfor EU/EØS i perioden 1. - 11. februar 2025?"
     }
 
     @Test
@@ -147,6 +173,23 @@ class JobbsituasjonenDinMuteringTest {
 
         // Siden de to spm fjernes, skal totalt antall spørsmål være 3 (forutsatt at oppsettet opprinnelig hadde 5 spm)
         mutertSoknad.sporsmal.shouldHaveSize(3)
+
+        // spørsmål muteres tilbake
+        val remutert =
+            mutertSoknad
+                .besvarsporsmal(FTA_JOBBSITUASJONEN_DIN_JA, "CHECKED")
+                .besvarsporsmal(FTA_JOBBSITUASJONEN_DIN_FORTSATT_FRISKMELDT_NY_JOBB, "JA")
+                .besvarsporsmal(FTA_JOBBSITUASJONEN_DIN_NAR, fom.plusDays(5).format(ISO_LOCAL_DATE))
+                .jobbsituasjonenDinMutering()
+
+        remutert.sporsmal
+            .filter { it.tag.contains(FTA_INNTEKT_UNDERVEIS) }
+            .shouldHaveSize(1)
+            .map { it.sporsmalstekst }.first() `should be equal to` "Hadde du  inntekt i perioden 1. - 11. februar 2025?"
+        remutert.sporsmal
+            .filter { it.tag.contains(FTA_REISE_TIL_UTLANDET) }
+            .shouldHaveSize(1)
+            .map { it.sporsmalstekst }.first() `should be equal to` "Var du på reise utenfor EU/EØS i perioden 1. - 11. februar 2025?"
     }
 
     @Test
@@ -167,18 +210,29 @@ class JobbsituasjonenDinMuteringTest {
         // Forventet: siden dato (fom+7) ≠ fom, skal de to nye spørsmålene legges til
 
         // Før mutering finnes spm for inntekt og reise (fra oppsettet)
-        soknadMedSvar.sporsmal.filter { it.tag.contains(FTA_INNTEKT_UNDERVEIS) }
+        soknadMedSvar.sporsmal
+            .filter { it.tag.contains(FTA_INNTEKT_UNDERVEIS) }
             .shouldHaveSize(1)
-        soknadMedSvar.sporsmal.filter { it.tag.contains(FTA_REISE_TIL_UTLANDET) }
+            .map { it.sporsmalstekst }
+            .first() `should be equal to` "Hadde du  inntekt i perioden 1. - 11. februar 2025?"
+        soknadMedSvar.sporsmal
+            .filter { it.tag.contains(FTA_REISE_TIL_UTLANDET) }
             .shouldHaveSize(1)
+            .map { it.sporsmalstekst }
+            .first() `should be equal to` "Var du på reise utenfor EU/EØS i perioden 1. - 11. februar 2025?"
 
         val mutertSoknad = soknadMedSvar.jobbsituasjonenDinMutering()
 
-        // Etter mutering skal de to gamle spm være fjernet og erstattet med nye
-        mutertSoknad.sporsmal.filter { it.tag.contains(FTA_INNTEKT_UNDERVEIS) }
+        // Etter mutering skal de to gamle spm være fjernet og erstattet med nye men de er like
+        mutertSoknad.sporsmal
+            .filter { it.tag.contains(FTA_INNTEKT_UNDERVEIS) }
             .shouldHaveSize(1)
-        mutertSoknad.sporsmal.filter { it.tag.contains(FTA_REISE_TIL_UTLANDET) }
+            .map { it.sporsmalstekst }
+            .first() `should be equal to` "Hadde du  inntekt i perioden 1. - 7. februar 2025?"
+        mutertSoknad.sporsmal
+            .filter { it.tag.contains(FTA_REISE_TIL_UTLANDET) }
             .shouldHaveSize(1)
+            .map { it.sporsmalstekst }.first() `should be equal to` "Var du på reise utenfor EU/EØS i perioden 1. - 7. februar 2025?"
         mutertSoknad.sporsmal.shouldHaveSize(5)
     }
 }
