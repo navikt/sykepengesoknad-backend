@@ -26,7 +26,7 @@ fun Sykepengesoknad.jobbsituasjonenDinMutering(): Sykepengesoknad {
         return underspm.find { it.tag == tag }?.svar?.firstOrNull()?.verdi == svar
     }
 
-    fun finnBegrensendeDato(): String? {
+    fun finnBesvartDato(): String? {
         return when {
             tagHarSvar(FTA_JOBBSITUASJONEN_DIN_JA, "CHECKED") -> {
                 if (tagHarSvar(FTA_JOBBSITUASJONEN_DIN_FORTSATT_FRISKMELDT_NY_JOBB, "NEI")) {
@@ -48,26 +48,31 @@ fun Sykepengesoknad.jobbsituasjonenDinMutering(): Sykepengesoknad {
         }
     }
 
-    val begrensendeDato = finnBegrensendeDato()
+    val besvartDato = finnBesvartDato()
 
-    if (begrensendeDato != null) {
-        if (begrensendeDato == this.fom.toString()) {
-            // Fjerner spørsmål som forsvinner og returnerer
-            return this.copy(
-                sporsmal =
-                    sporsmal
-                        .asSequence()
-                        .filterNot { (_, tag) -> tag == FTA_INNTEKT_UNDERVEIS }
-                        .filterNot { (_, tag) -> tag == FTA_REISE_TIL_UTLANDET }
-                        .toMutableList(),
-            )
-        }
-
-        val dagForBegrensende = LocalDate.parse(begrensendeDato).minusDays(1).toString()
-
-        return this
-            .leggTilSporsmaal(inntektUnderveis(this.fom!!, LocalDate.parse(dagForBegrensende)))
-            .leggTilSporsmaal(ftaReiseTilUtlandet(this.fom, LocalDate.parse(dagForBegrensende)))
+    if (besvartDato == this.fom.toString()) {
+        // Fjerner spørsmål som forsvinner og returnerer
+        return this.copy(
+            sporsmal =
+                sporsmal
+                    .asSequence()
+                    .filterNot { (_, tag) -> tag == FTA_INNTEKT_UNDERVEIS }
+                    .filterNot { (_, tag) -> tag == FTA_REISE_TIL_UTLANDET }
+                    .toMutableList(),
+        )
     }
+
+    fun finnDagForBegrensende(): LocalDate {
+        if (besvartDato != null) {
+            return LocalDate.parse(besvartDato).minusDays(1)
+        } else {
+            return this.tom!!
+        }
+    }
+
+    val dagForBegrensende = finnDagForBegrensende()
+
     return this
+        .leggTilSporsmaal(inntektUnderveis(this.fom!!, dagForBegrensende))
+        .leggTilSporsmaal(ftaReiseTilUtlandet(this.fom, dagForBegrensende))
 }
