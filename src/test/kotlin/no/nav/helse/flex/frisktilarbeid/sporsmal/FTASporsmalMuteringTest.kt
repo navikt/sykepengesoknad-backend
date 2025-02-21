@@ -107,4 +107,15 @@ class FTASporsmalMuteringTest() : FakesTestOppsett() {
             it.tag == FTA_REISE_TIL_UTLANDET
         }.sporsmalstekst `should be equal to` "Var du på reise utenfor EU/EØS i perioden 1. - 1. januar 2020?"
     }
+
+    @Test
+    @Order(6)
+    fun `Svaret på neste spørsmål muterer ikke`() {
+        val soknad = hentSoknader(fnr).first { it.status == RSSoknadstatus.NY }
+        SoknadBesvarer(rSSykepengesoknad = soknad, testOppsettInterfaces = this, fnr = fnr)
+            .besvarSporsmal(FTA_INNTEKT_UNDERVEIS, "NEI", false)
+            .also {
+                assertThat(it.muterteSoknaden).isFalse()
+            }
+    }
 }

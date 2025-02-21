@@ -4,6 +4,7 @@ import no.nav.helse.flex.domain.Soknadstype.FRISKMELDT_TIL_ARBEIDSFORMIDLING
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.flatten
 import no.nav.helse.flex.oppdatersporsmal.soknad.erIkkeAvType
+import no.nav.helse.flex.oppdatersporsmal.soknad.leggTilSporsmaal
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.soknadsopprettelse.frisktilarbeid.ftaReiseTilUtlandet
 import no.nav.helse.flex.soknadsopprettelse.frisktilarbeid.inntektUnderveis
@@ -50,26 +51,23 @@ fun Sykepengesoknad.jobbsituasjonenDinMutering(): Sykepengesoknad {
     val begrensendeDato = finnBegrensendeDato()
 
     if (begrensendeDato != null) {
-        val dagForBegrensende = LocalDate.parse(begrensendeDato).minusDays(1).toString()
-
-        var oppdaterteSporsmal =
-            sporsmal.filter { spm ->
-                listOf(FTA_INNTEKT_UNDERVEIS, FTA_REISE_TIL_UTLANDET)
-                    .none { tag -> spm.tag.contains(tag) }
-            }
-
-        // Dersom den begrensende datoen ikke er lik søknadens fom, legg til nye spørsmål
-        if (begrensendeDato != this.fom.toString()) {
-            val inntekt = inntektUnderveis(this.fom!!, LocalDate.parse(dagForBegrensende))
-            val reiste = ftaReiseTilUtlandet(this.fom, LocalDate.parse(dagForBegrensende))
-            val mutableSporsmal = oppdaterteSporsmal.toMutableList()
-
-            mutableSporsmal.add(inntekt)
-            mutableSporsmal.add(reiste)
-            oppdaterteSporsmal = mutableSporsmal
+        if (begrensendeDato == this.fom.toString()) {
+            // Fjerner spørsmål som forsvinner og returnerer
+            return this.copy(
+                sporsmal =
+                    sporsmal
+                        .asSequence()
+                        .filterNot { (_, tag) -> tag == FTA_INNTEKT_UNDERVEIS }
+                        .filterNot { (_, tag) -> tag == FTA_REISE_TIL_UTLANDET }
+                        .toMutableList(),
+            )
         }
 
-        return this.copy(sporsmal = oppdaterteSporsmal)
+        val dagForBegrensende = LocalDate.parse(begrensendeDato).minusDays(1).toString()
+
+        return this
+            .leggTilSporsmaal(inntektUnderveis(this.fom!!, LocalDate.parse(dagForBegrensende)))
+            .leggTilSporsmaal(ftaReiseTilUtlandet(this.fom, LocalDate.parse(dagForBegrensende)))
     }
     return this
 }
