@@ -148,7 +148,7 @@ class FriskTilArbeidIntegrationMedSporsmalTest() : FakesTestOppsett() {
             .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
             .besvarSporsmal(FTA_JOBBSITUASJONEN_DIN_NEI, "CHECKED", true)
             .besvarSporsmal(FTA_INNTEKT_UNDERVEIS, "JA", ferdigBesvart = false)
-            .besvarSporsmal(FTA_INNTEKT_UNDERVEIS_MER_ENN_PLEIER, "NEI", ferdigBesvart = true)
+            .besvarSporsmal(FTA_INNTEKT_UNDERVEIS_BELOP, "4000", ferdigBesvart = true)
             .besvarSporsmal(FTA_REISE_TIL_UTLANDET, "NEI")
             .oppsummering()
             .also {

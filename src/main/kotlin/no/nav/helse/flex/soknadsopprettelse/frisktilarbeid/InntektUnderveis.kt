@@ -4,8 +4,7 @@ import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Visningskriterie
 import no.nav.helse.flex.soknadsopprettelse.FTA_INNTEKT_UNDERVEIS
-import no.nav.helse.flex.soknadsopprettelse.FTA_INNTEKT_UNDERVEIS_MER_ENN_PLEIER
-import no.nav.helse.flex.soknadsopprettelse.FTA_INNTEKT_UNDERVEIS_MER_ENN_PLEIER_BELOP
+import no.nav.helse.flex.soknadsopprettelse.FTA_INNTEKT_UNDERVEIS_BELOP
 import no.nav.helse.flex.util.DatoUtil
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -28,28 +27,15 @@ fun inntektUnderveis(
         undersporsmal =
             listOf(
                 Sporsmal(
-                    tag = FTA_INNTEKT_UNDERVEIS_MER_ENN_PLEIER,
-                    sporsmalstekst = "Tjente du mer enn du pleier i perioden $periodeTekst?",
-                    undertekst = null,
-                    svartype = Svartype.JA_NEI,
+                    tag = FTA_INNTEKT_UNDERVEIS_BELOP,
+                    sporsmalstekst = "Hvor mye tjente du i perioden $periodeTekst?",
+                    undertekst = "Oppgi beløp før skatt. Har du hatt inntekt i flere jobber skal du oppgi samlet beløp.",
+                    svartype = Svartype.BELOP,
                     min = null,
                     max = null,
-                    kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
+                    kriterieForVisningAvUndersporsmal = null,
                     svar = emptyList(),
-                    undersporsmal =
-                        listOf(
-                            Sporsmal(
-                                tag = FTA_INNTEKT_UNDERVEIS_MER_ENN_PLEIER_BELOP,
-                                sporsmalstekst = "Hvor mye tjente du, utover det du pleier?",
-                                undertekst = "Har du tjent mer i flere jobber skal du oppgi samlet beløp, før skatt",
-                                svartype = Svartype.BELOP,
-                                min = null,
-                                max = null,
-                                kriterieForVisningAvUndersporsmal = null,
-                                svar = emptyList(),
-                                undersporsmal = emptyList(),
-                            ),
-                        ),
+                    undersporsmal = emptyList(),
                 ),
             ),
     )
