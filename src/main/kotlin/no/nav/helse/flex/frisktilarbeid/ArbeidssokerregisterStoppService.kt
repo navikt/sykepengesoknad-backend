@@ -17,29 +17,35 @@ class ArbeidssokerregisterStoppService(
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val soknadProducer: SoknadProducer,
 ) {
-    val log = logger()
+    private val log = logger()
 
     @Transactional
-    fun prosseserStoppMelding(melding: ArbeidssokerperiodeStoppMelding) {
-        val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(melding.fnr)
+    fun prosseserStoppMelding(stoppMelding: ArbeidssokerperiodeStoppMelding) {
+        val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(stoppMelding.fnr)
         val alleSoknader = hentSoknadService.hentSoknader(identer)
 
         val fremtidigeFriskmeldtMedSammeVedtaksid =
             alleSoknader
                 .filter {
                     it.soknadstype == Soknadstype.FRISKMELDT_TIL_ARBEIDSFORMIDLING &&
-                        it.friskTilArbeidVedtakId == melding.vedtaksperiodeId &&
+                        it.friskTilArbeidVedtakId == stoppMelding.vedtaksperiodeId &&
                         it.status == Soknadstatus.FREMTIDIG
                 }
 
         if (fremtidigeFriskmeldtMedSammeVedtaksid.isNotEmpty()) {
-            log.info("Sletter ${fremtidigeFriskmeldtMedSammeVedtaksid.size} fremtidige søknader med vedtaksid ${melding.vedtaksperiodeId}")
+            log.info(
+                "Sletter ${fremtidigeFriskmeldtMedSammeVedtaksid.size} fremtidige søknader " +
+                    "med vedtaksperiodeId: ${stoppMelding.vedtaksperiodeId}.",
+            )
 
             fremtidigeFriskmeldtMedSammeVedtaksid.forEach {
-                log.info("Sletter søknad med sykepengesoknad uuid ${it.id} grunnet stoppmelding mottatt fra arbeidssokerregisteret")
                 val soknadSomSlettes = it.copy(status = Soknadstatus.SLETTET)
                 sykepengesoknadDAO.slettSoknad(soknadSomSlettes)
                 soknadProducer.soknadEvent(soknadSomSlettes, null, false)
+                log.info(
+                    "Sletter søknad med sykepengesoknadUuid: ${it.id} på grunn av stoppmelding med " +
+                        "avsluttetTidspunkt ${stoppMelding.avsluttetTidspunkt} mottatt fra arbeidssokerregisteret.",
+                )
             }
         }
     }

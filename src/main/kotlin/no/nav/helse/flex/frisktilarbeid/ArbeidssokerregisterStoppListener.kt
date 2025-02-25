@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Profile
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.support.Acknowledgment
 import org.springframework.stereotype.Component
+import java.time.Instant
 
 @Profile("frisktilarbeid")
 @Component
@@ -40,4 +41,5 @@ internal fun String.tilArbeidssokerperiodeStoppMelding(): ArbeidssokerperiodeSto
 data class ArbeidssokerperiodeStoppMelding(
     val vedtaksperiodeId: String,
     val fnr: String,
+    val avsluttetTidspunkt: Instant,
 )
