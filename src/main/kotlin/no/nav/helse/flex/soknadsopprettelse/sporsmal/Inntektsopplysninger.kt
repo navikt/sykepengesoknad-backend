@@ -81,7 +81,7 @@ fun lagSporsmalOmInntektsopplyninger(
                                                                 Sporsmal(
                                                                     tag = INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE,
                                                                     sporsmalstekst = "Hvilken endring har skjedd i din arbeidssituasjon eller virksomhet?",
-                                                                    undertekst = "Du kan velge en eller flere alternativer",
+                                                                    undertekst = "Du kan velge ett eller flere alternativer",
                                                                     svartype = Svartype.CHECKBOX_GRUPPE,
                                                                     undersporsmal =
                                                                         listOf(
