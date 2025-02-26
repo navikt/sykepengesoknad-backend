@@ -5,12 +5,13 @@ import no.nav.helse.flex.frisktilarbeid.asProducerRecordKey
 import no.nav.helse.flex.kafka.ARBEIDSSOKERREGISTER_STOPP_TOPIC
 import no.nav.helse.flex.util.serialisertTilString
 import org.apache.kafka.clients.producer.ProducerRecord
+import java.time.Instant
 
 fun TestOppsettInterfaces.sendStoppMelding(
     vedtaksperiodeId: String,
     fnr: String,
 ) {
-    val stoppMelding = ArbeidssokerperiodeStoppMelding(vedtaksperiodeId, fnr)
+    val stoppMelding = ArbeidssokerperiodeStoppMelding(vedtaksperiodeId, fnr, Instant.now())
 
     kafkaProducer().send(
         ProducerRecord(
