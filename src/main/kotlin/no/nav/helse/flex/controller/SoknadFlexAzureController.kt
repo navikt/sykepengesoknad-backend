@@ -243,7 +243,7 @@ class SoknadFlexAzureController(
         req.forEach {
             try {
                 friskTilArbeidService.lagreFriskTilArbeidVedtakStatus(it)
-                antallOk
+                antallOk++
             } catch (e: Exception) {
                 logger().error("Feilet ved mottak av FriskTilArbeidVedtakStatus.", e)
                 antallFeil++
