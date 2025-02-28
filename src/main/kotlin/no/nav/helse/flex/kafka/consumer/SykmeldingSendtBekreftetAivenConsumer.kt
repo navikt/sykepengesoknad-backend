@@ -46,6 +46,7 @@ class SykmeldingSendtBekreftetAivenConsumer(
             }
             acknowledgment.acknowledge()
         } finally {
+            acknowledgment.acknowledge()
             MDC.remove(NAV_CALLID)
         }
     }
