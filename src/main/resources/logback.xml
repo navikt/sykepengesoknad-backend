@@ -3,23 +3,19 @@
     <appender name="stdout_json" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
             <includeMdcKeyName>x_request_id</includeMdcKeyName>
+            <includeMdcKeyName>trace_id</includeMdcKeyName>
+            <includeMdcKeyName>span_id</includeMdcKeyName>
         </encoder>
-
     </appender>
 
     <root level="WARN">
         <appender-ref ref="stdout_json"/>
     </root>
 
-    <logger name="no.nav.helse.flex" level="INFO" additivity="false">
-        <appender-ref ref="stdout_json"/>
-    </logger>
+    <logger name="no.nav.helse.flex" level="INFO"/>
 
     <logger name="org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolver" level="ERROR"/>
     <logger name="org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver"
             level="ERROR"/>
 
-    <logger name="org.springframework.scheduling" level="INFO" additivity="false">
-        <appender-ref ref="stdout_json"/>
-    </logger>
 </configuration>
