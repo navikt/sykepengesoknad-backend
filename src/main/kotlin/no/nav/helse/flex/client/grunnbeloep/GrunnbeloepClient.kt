@@ -3,6 +3,7 @@ package no.nav.helse.flex.client.grunnbeloep
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.util.objectMapper
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
 import org.springframework.retry.annotation.Backoff
 import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
@@ -10,7 +11,9 @@ import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestClient
 import java.io.Serializable
+import java.time.Duration
 import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 
 @Component
 class GrunnbeloepClient(
@@ -18,7 +21,12 @@ class GrunnbeloepClient(
     private val url: String,
     restClientBuilder: RestClient.Builder,
 ) {
-    val restClient = restClientBuilder.baseUrl(url).build()
+    val restClient =
+        restClientBuilder.baseUrl(url).requestFactory(
+            HttpComponentsClientHttpRequestFactory().also {
+                it.setReadTimeout(Duration.of(10, ChronoUnit.SECONDS))
+            },
+        ).build()
 
     @Retryable(
         value = [HttpServerErrorException::class, HttpClientErrorException::class],
