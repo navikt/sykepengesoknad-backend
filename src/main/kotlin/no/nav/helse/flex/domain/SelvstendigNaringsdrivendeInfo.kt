@@ -1,6 +1,5 @@
 package no.nav.helse.flex.domain
 
-import no.nav.helse.flex.logger
 import no.nav.helse.flex.service.SykepengegrunnlagNaeringsdrivende
 import no.nav.helse.flex.sykepengesoknad.kafka.*
 
@@ -8,12 +7,9 @@ data class SelvstendigNaringsdrivendeInfo(
     val roller: List<BrregRolle>,
     val sykepengegrunnlagNaeringsdrivende: SykepengegrunnlagNaeringsdrivende? = null,
 ) {
-    private val log = logger()
-
     fun tilDto(): SelvstendigNaringsdrivendeDTO {
         val grunnlag = sykepengegrunnlagNaeringsdrivende
         if (grunnlag == null) {
-            log.warn("Mangler verdier i sykepengegrunnlag for selvstendig næringsdrivende")
             return SelvstendigNaringsdrivendeDTO(
                 roller = roller.map { RolleDTO(it.orgnummer, it.rolletype) },
                 sykepengegrunnlagNaeringsdrivende = null,
