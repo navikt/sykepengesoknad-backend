@@ -2,6 +2,8 @@ package no.nav.helse.flex.yrkesskade
 
 import no.nav.helse.flex.client.yrkesskade.HarYsSakerRequest
 import no.nav.helse.flex.client.yrkesskade.YrkesskadeClient
+import no.nav.helse.flex.domain.Soknadstype
+import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import org.springframework.stereotype.Component
 import java.time.LocalDate
@@ -14,10 +16,11 @@ class YrkesskadeIndikatorer(
 
     fun hentYrkesskadeSporsmalGrunnlag(
         identer: FolkeregisterIdenter,
+        soknad: Sykepengesoknad,
         sykmeldingId: String?,
         erForsteSoknadISykeforlop: Boolean,
     ): YrkesskadeSporsmalGrunnlag {
-        if (!erForsteSoknadISykeforlop) {
+        if (!erForsteSoknadISykeforlop || soknad.soknadstype == Soknadstype.FRISKMELDT_TIL_ARBEIDSFORMIDLING) {
             return YrkesskadeSporsmalGrunnlag(
                 godkjenteSaker = emptyList(),
             )

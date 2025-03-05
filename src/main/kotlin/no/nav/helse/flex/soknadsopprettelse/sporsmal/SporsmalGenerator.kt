@@ -136,6 +136,7 @@ class SporsmalGenerator(
         val harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad)
         val yrkesskadeSporsmalGrunnlag =
             yrkesskadeIndikatorer.hentYrkesskadeSporsmalGrunnlag(
+                soknad = soknad,
                 identer = identer,
                 sykmeldingId = soknad.sykmeldingId,
                 erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
