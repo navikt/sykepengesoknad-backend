@@ -3,6 +3,7 @@ package no.nav.helse.flex.frisktilarbeid
 import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.fakes.FriskTilArbeidRepositoryFake
+import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.service.IdentService
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldHaveSize
@@ -252,6 +253,16 @@ class FriskTilArbeidTestConfig {
     @Qualifier("fakeFriskTilArbeidRepository")
     fun fakeFriskTilArbeidRepository(): FriskTilArbeidRepository {
         return FriskTilArbeidRepositoryFake()
+    }
+
+    @Bean
+    @Qualifier("identService")
+    fun identService(): IdentService {
+        return object : IdentService {
+            override fun hentFolkeregisterIdenterMedHistorikkForFnr(fnr: String): FolkeregisterIdenter {
+                return FolkeregisterIdenter(fnr, listOf(fnr))
+            }
+        }
     }
 
     class FakeFriskTilArbeidSoknadService(
