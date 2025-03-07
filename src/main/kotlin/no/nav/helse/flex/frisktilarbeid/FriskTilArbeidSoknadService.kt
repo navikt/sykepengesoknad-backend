@@ -38,7 +38,12 @@ class FriskTilArbeidSoknadService(
             log.info("Opprettet soknad: ${it.id} for FriskTilArbeidVedtakStatus med id: ${vedtakDbRecord.id}.")
         }
 
-        friskTilArbeidRepository.save(vedtakDbRecord.copy(behandletStatus = BehandletStatus.BEHANDLET))
+        friskTilArbeidRepository.save(
+            vedtakDbRecord.copy(
+                behandletStatus = BehandletStatus.BEHANDLET,
+                behandletTidspunkt = Instant.now(),
+            ),
+        )
         return soknader
     }
 

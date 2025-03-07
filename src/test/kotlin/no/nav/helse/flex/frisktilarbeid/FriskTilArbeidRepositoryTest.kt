@@ -11,7 +11,7 @@ import org.amshove.kluent.shouldNotBe
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import java.time.OffsetDateTime
+import java.time.Instant
 import java.util.*
 
 /**
@@ -93,7 +93,7 @@ class FriskTilArbeidRepositoryTest : FellesTestOppsett() {
         FriskTilArbeidVedtakDbRecord(
             vedtakUuid = vedtakUuid,
             key = key,
-            opprettet = OffsetDateTime.now(),
+            opprettet = Instant.now(),
             fnr = this.personident,
             fom = this.fom,
             tom = this.tom,

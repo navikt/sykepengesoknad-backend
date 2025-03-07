@@ -21,6 +21,7 @@ import no.nav.helse.flex.testoppsett.startMockWebServere
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
 import okhttp3.mockwebserver.MockWebServer
+import org.amshove.kluent.should
 import org.amshove.kluent.shouldBeEmpty
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.producer.KafkaProducer
@@ -38,6 +39,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
 import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.web.client.RestTemplate
+import java.time.Instant
+import kotlin.math.abs
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @EnableMockOAuth2Server
@@ -194,4 +197,12 @@ abstract class FellesTestOppsett : TestOppsettInterfaces {
         arbeidssokerregisterStoppConsumer.subscribeHvisIkkeSubscribed(ARBEIDSSOKERREGISTER_STOPP_TOPIC)
         arbeidssokerregisterStoppConsumer.hentProduserteRecords().shouldBeEmpty()
     }
+}
+
+infix fun Instant.`should be within seconds of`(pair: Pair<Int, Instant>) = this.shouldBeWithinSecondsOf(pair.first.toInt() to pair.second)
+
+infix fun Instant.shouldBeWithinSecondsOf(pair: Pair<Int, Instant>) {
+    val (seconds, other) = pair
+    val difference = abs(this.epochSecond - other.epochSecond)
+    this.should { difference <= seconds }
 }

@@ -7,6 +7,7 @@ import no.nav.helse.flex.logger
 import no.nav.helse.flex.medlemskap.tilPostgresJson
 import no.nav.helse.flex.util.objectMapper
 import org.springframework.stereotype.Service
+import java.time.Instant
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.*
@@ -39,7 +40,7 @@ class FriskTilArbeidService(
                 FriskTilArbeidVedtakDbRecord(
                     vedtakUuid = UUID.randomUUID().toString(),
                     key = kafkaMelding.key,
-                    opprettet = OffsetDateTime.now(),
+                    opprettet = Instant.now(),
                     fnr = friskTilArbeidVedtakStatus.personident,
                     fom = friskTilArbeidVedtakStatus.fom,
                     tom = friskTilArbeidVedtakStatus.tom,

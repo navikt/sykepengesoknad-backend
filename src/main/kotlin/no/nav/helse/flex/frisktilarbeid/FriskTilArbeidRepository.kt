@@ -8,8 +8,8 @@ import org.springframework.data.jdbc.repository.query.Query
 import org.springframework.data.relational.core.mapping.Table
 import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Component
+import java.time.Instant
 import java.time.LocalDate
-import java.time.OffsetDateTime
 
 @Component
 interface FriskTilArbeidRepository : CrudRepository<FriskTilArbeidVedtakDbRecord, String> {
@@ -37,13 +37,13 @@ data class FriskTilArbeidVedtakDbRecord(
     val id: String? = null,
     val vedtakUuid: String,
     val key: String,
-    val opprettet: OffsetDateTime,
+    val opprettet: Instant,
     val fnr: String,
     val fom: LocalDate,
     val tom: LocalDate,
     val vedtak: PGobject? = null,
     val behandletStatus: BehandletStatus,
-    val behandletTidspunkt: OffsetDateTime? = null,
+    val behandletTidspunkt: Instant? = null,
 )
 
 fun FriskTilArbeidVedtakDbRecord.tilPeriode() = Periode(fom, tom)

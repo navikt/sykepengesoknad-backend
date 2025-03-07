@@ -4,6 +4,7 @@ import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.kafka.FRISKTILARBEID_TOPIC
+import no.nav.helse.flex.`should be within seconds of`
 import no.nav.helse.flex.subscribeHvisIkkeSubscribed
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
@@ -21,6 +22,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.Duration
+import java.time.Instant
 import java.time.LocalDate
 import java.util.concurrent.TimeUnit
 
@@ -41,8 +43,9 @@ class FriskTilArbeidIntegrationTest() : FellesTestOppsett() {
     }
 
     @BeforeAll
-    fun slettFraDatabase() {
+    fun slettDatabase() {
         friskTilArbeidRepository.deleteAll()
+        sykepengesoknadRepository.deleteAll()
     }
 
     private val fnr = "11111111111"
@@ -81,6 +84,7 @@ class FriskTilArbeidIntegrationTest() : FellesTestOppsett() {
         vedtakSomSkalBehandles.first().also {
             it.fnr `should be equal to` fnr
             it.behandletStatus `should be equal to` BehandletStatus.NY
+            it.behandletTidspunkt `should be equal to` null
             it.fom `should be equal to` vedtaksperiode.fom
             it.tom `should be equal to` vedtaksperiode.tom
         }
@@ -96,6 +100,7 @@ class FriskTilArbeidIntegrationTest() : FellesTestOppsett() {
         val friskTilArbeidDbRecord =
             friskTilArbeidRepository.findAll().first().also {
                 it.behandletStatus `should be equal to` BehandletStatus.BEHANDLET
+                it.behandletTidspunkt!! `should be within seconds of` (1 to Instant.now())
             }
 
         sykepengesoknadRepository.findByFriskTilArbeidVedtakId(friskTilArbeidDbRecord.id!!).also {
