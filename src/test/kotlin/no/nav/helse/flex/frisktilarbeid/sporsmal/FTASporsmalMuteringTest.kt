@@ -10,6 +10,7 @@ import no.nav.helse.flex.testutil.SoknadBesvarer
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldHaveSize
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -30,9 +31,17 @@ class FTASporsmalMuteringTest() : FakesTestOppsett() {
 
     private val fnr = "11111111111"
 
+    @BeforeAll
+    override fun slettDatabase() {
+        friskTilArbeidRepository.deleteAll()
+        sykepengesoknadRepository.deleteAll()
+    }
+
     @Test
     @Order(1)
     fun `Oppretter en ny friskmeldt søknad`() {
+        friskTilArbeidRepository.findAll().shouldHaveSize(0)
+
         val key = sendFtaVedtak(fnr, LocalDate.of(2020, 1, 1), LocalDate.of(2020, 1, 28))
         friskTilArbeidCronJob.startBehandlingAvFriskTilArbeidVedtakStatus()
         val friskTilArbeidDbRecord =

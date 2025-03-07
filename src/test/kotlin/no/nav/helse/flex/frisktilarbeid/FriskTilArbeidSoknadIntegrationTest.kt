@@ -16,7 +16,6 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.Instant
 import java.time.LocalDate
-import java.time.OffsetDateTime
 import java.util.*
 
 class FriskTilArbeidSoknadIntegrationTest : FellesTestOppsett() {
@@ -38,7 +37,7 @@ class FriskTilArbeidSoknadIntegrationTest : FellesTestOppsett() {
                 FriskTilArbeidVedtakDbRecord(
                     vedtakUuid = UUID.randomUUID().toString(),
                     key = fnr.asProducerRecordKey(),
-                    opprettet = OffsetDateTime.now(),
+                    opprettet = Instant.now(),
                     fnr = fnr,
                     fom = LocalDate.now(),
                     tom = LocalDate.now().plusWeeks(2),
