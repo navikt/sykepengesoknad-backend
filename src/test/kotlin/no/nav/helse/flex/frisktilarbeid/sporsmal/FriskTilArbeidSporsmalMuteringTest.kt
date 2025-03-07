@@ -19,7 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class FTASporsmalMuteringTest() : FakesTestOppsett() {
+class FriskTilArbeidSporsmalMuteringTest() : FakesTestOppsett() {
     @Autowired
     lateinit var friskTilArbeidCronJob: FriskTilArbeidCronJob
 
