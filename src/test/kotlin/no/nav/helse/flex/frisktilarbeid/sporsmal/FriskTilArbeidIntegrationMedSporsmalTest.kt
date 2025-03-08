@@ -38,20 +38,20 @@ class FriskTilArbeidIntegrationMedSporsmalTest() : FakesTestOppsett() {
 
     @BeforeAll
     override fun slettDatabase() {
-        friskTilArbeidRepository.deleteAll()
         sykepengesoknadRepository.deleteAll()
+        friskTilArbeidRepository.deleteAll()
     }
 
     @Test
     @Order(1)
     fun `Mottar og lagrer VedtakStatusRecord med status FATTET`() {
-        sendFtaVedtak(fnr, LocalDate.now().minusDays(15), LocalDate.now())
+        sendFriskTilArbeidVedtak(fnr, LocalDate.now().minusDays(15), LocalDate.now())
     }
 
     @Test
     @Order(2)
     fun `Oppretter søknader med status FREMTIDIG`() {
-        friskTilArbeidCronJob.startBehandlingAvFriskTilArbeidVedtakStatus()
+        friskTilArbeidCronJob.behandleFriskTilArbeidVedtak()
 
         friskTilArbeidRepository.finnVedtakSomSkalBehandles(1).size `should be equal to` 0
 

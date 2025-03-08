@@ -30,7 +30,7 @@ class ArbeidssokerregisterStoppListener(
     ) {
         val stoppMelding = cr.value().tilArbeidssokerperiodeStoppMelding()
 
-        log.info("Mottok ArbeidssokerregisterStoppMelding med key: ${cr.key()} og id: ${stoppMelding.vedtaksperiodeId}.")
+        log.info("Mottok ArbeidssokerregisterStoppMelding for vedtaksperiodeId: ${stoppMelding.vedtaksperiodeId}.")
         arbeidssokerregisterStoppService.prosseserStoppMelding(stoppMelding)
         acknowledgment.acknowledge()
     }

@@ -11,7 +11,7 @@ import org.amshove.kluent.`should be equal to`
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import java.time.LocalDate
 
-fun FakesTestOppsett.sendFtaVedtak(
+fun FakesTestOppsett.sendFriskTilArbeidVedtak(
     fnr: String,
     fom: LocalDate,
     tom: LocalDate,

@@ -25,13 +25,13 @@ class FriskTilArbeidCronJob(
     fun schedulertStartBehandlingAvFriskTilArbeidVedtakStatus() {
         if (leaderElection.isLeader()) {
             log.info("Er leder, starter behandling av FriskTilArbeidVedtakStatus.")
-            startBehandlingAvFriskTilArbeidVedtakStatus()
+            behandleFriskTilArbeidVedtak()
         } else {
             log.info("Er ikke leder, kjører ikke behandling av FriskTilArbeidVedtakStatus.")
         }
     }
 
-    fun startBehandlingAvFriskTilArbeidVedtakStatus() {
+    fun behandleFriskTilArbeidVedtak() {
         friskTilArbeidService.behandleFriskTilArbeidVedtakStatus(BEHANDLE_ANTALL_FRISK_TIL_ARBEID_VEDTAK)
             .filter { it.tom!!.isBefore(LocalDate.now()) }
             .forEach {

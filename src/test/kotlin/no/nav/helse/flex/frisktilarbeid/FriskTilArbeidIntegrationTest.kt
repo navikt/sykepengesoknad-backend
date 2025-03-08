@@ -15,6 +15,7 @@ import org.amshove.kluent.`should be equal to`
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.awaitility.Awaitility.await
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
@@ -43,9 +44,10 @@ class FriskTilArbeidIntegrationTest() : FellesTestOppsett() {
     }
 
     @BeforeAll
+    @AfterAll
     fun slettDatabase() {
-        friskTilArbeidRepository.deleteAll()
         sykepengesoknadRepository.deleteAll()
+        friskTilArbeidRepository.deleteAll()
     }
 
     private val fnr = "11111111111"

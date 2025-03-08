@@ -33,8 +33,8 @@ class FriskTilArbeidSporsmalMuteringTest() : FakesTestOppsett() {
 
     @BeforeAll
     override fun slettDatabase() {
-        friskTilArbeidRepository.deleteAll()
         sykepengesoknadRepository.deleteAll()
+        friskTilArbeidRepository.deleteAll()
     }
 
     @Test
@@ -42,8 +42,8 @@ class FriskTilArbeidSporsmalMuteringTest() : FakesTestOppsett() {
     fun `Oppretter en ny friskmeldt søknad`() {
         friskTilArbeidRepository.findAll().shouldHaveSize(0)
 
-        val key = sendFtaVedtak(fnr, LocalDate.of(2020, 1, 1), LocalDate.of(2020, 1, 28))
-        friskTilArbeidCronJob.startBehandlingAvFriskTilArbeidVedtakStatus()
+        val key = sendFriskTilArbeidVedtak(fnr, LocalDate.of(2020, 1, 1), LocalDate.of(2020, 1, 28))
+        friskTilArbeidCronJob.behandleFriskTilArbeidVedtak()
         val friskTilArbeidDbRecord =
             friskTilArbeidRepository.findAll().first { it.key == key }
         sykepengesoknadRepository.findByFriskTilArbeidVedtakId(friskTilArbeidDbRecord.id!!).shouldHaveSize(2)
