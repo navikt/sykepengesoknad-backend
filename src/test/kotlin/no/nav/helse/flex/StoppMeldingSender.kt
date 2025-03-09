@@ -10,8 +10,9 @@ import java.time.Instant
 fun TestOppsettInterfaces.sendStoppMelding(
     vedtaksperiodeId: String,
     fnr: String,
+    avsluttetTidspunkt: Instant,
 ) {
-    val stoppMelding = ArbeidssokerperiodeStoppMelding(vedtaksperiodeId, fnr, Instant.now())
+    val stoppMelding = ArbeidssokerperiodeStoppMelding(vedtaksperiodeId, fnr, avsluttetTidspunkt)
 
     kafkaProducer().send(
         ProducerRecord(

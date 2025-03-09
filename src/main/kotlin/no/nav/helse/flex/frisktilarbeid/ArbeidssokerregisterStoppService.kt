@@ -9,6 +9,7 @@ import no.nav.helse.flex.service.HentSoknadService
 import no.nav.helse.flex.service.IdentService
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
+import kotlin.jvm.optionals.getOrNull
 
 @Component
 class ArbeidssokerregisterStoppService(
@@ -16,6 +17,7 @@ class ArbeidssokerregisterStoppService(
     private val hentSoknadService: HentSoknadService,
     private val sykepengesoknadDAO: SykepengesoknadDAO,
     private val soknadProducer: SoknadProducer,
+    private val friskTilArbeidRepository: FriskTilArbeidRepository,
 ) {
     private val log = logger()
 
@@ -32,21 +34,18 @@ class ArbeidssokerregisterStoppService(
                         it.status == Soknadstatus.FREMTIDIG
                 }
 
-        if (fremtidigeFriskmeldtMedSammeVedtaksid.isNotEmpty()) {
-            log.info(
-                "Sletter ${fremtidigeFriskmeldtMedSammeVedtaksid.size} fremtidige søknader " +
-                    "med vedtaksperiodeId: ${stoppMelding.vedtaksperiodeId}.",
-            )
+        friskTilArbeidRepository.findById(stoppMelding.vedtaksperiodeId).getOrNull()?.let {
+            friskTilArbeidRepository.save(it.copy(avsluttetTidspunkt = stoppMelding.avsluttetTidspunkt))
+        }
 
-            fremtidigeFriskmeldtMedSammeVedtaksid.forEach {
-                val soknadSomSlettes = it.copy(status = Soknadstatus.SLETTET)
-                sykepengesoknadDAO.slettSoknad(soknadSomSlettes)
-                soknadProducer.soknadEvent(soknadSomSlettes, null, false)
-                log.info(
-                    "Sletter søknad med sykepengesoknadUuid: ${it.id} på grunn av stoppmelding med " +
-                        "avsluttetTidspunkt ${stoppMelding.avsluttetTidspunkt} mottatt fra arbeidssokerregisteret.",
-                )
-            }
+        fremtidigeFriskmeldtMedSammeVedtaksid.forEach {
+            val soknadSomSlettes = it.copy(status = Soknadstatus.SLETTET)
+            sykepengesoknadDAO.slettSoknad(soknadSomSlettes)
+            soknadProducer.soknadEvent(soknadSomSlettes, null, false)
+            log.info(
+                "Slettet søknad: ${it.id} på grunn av FriskTilArbeidStoppMelding med avsluttetTidspunkt:" +
+                    " ${stoppMelding.avsluttetTidspunkt} for vedtaksperiode: ${stoppMelding.vedtaksperiodeId}.",
+            )
         }
     }
 }

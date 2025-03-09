@@ -35,7 +35,7 @@ class CommanndListener(val sykepengesoknadDAO: SykepengesoknadDAO) {
 
         log.info("Mottok kommando ${req.command}")
         when (req.command) {
-            "fta-cronjob" -> friskTilArbeidCronJob.startBehandlingAvFriskTilArbeidVedtakStatus()
+            "fta-cronjob" -> friskTilArbeidCronJob.behandleFriskTilArbeidVedtak()
             else -> log.warn("Ukjent kommando ${req.command}")
         }
 

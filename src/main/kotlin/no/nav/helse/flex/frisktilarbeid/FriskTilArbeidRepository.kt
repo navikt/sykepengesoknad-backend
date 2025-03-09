@@ -44,6 +44,7 @@ data class FriskTilArbeidVedtakDbRecord(
     val vedtak: PGobject? = null,
     val behandletStatus: BehandletStatus,
     val behandletTidspunkt: Instant? = null,
+    val avsluttetTidspunkt: Instant? = null,
 )
 
 fun FriskTilArbeidVedtakDbRecord.tilPeriode() = Periode(fom, tom)

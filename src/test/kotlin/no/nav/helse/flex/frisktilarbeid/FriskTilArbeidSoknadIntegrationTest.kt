@@ -12,6 +12,8 @@ import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.ventPåRecords
 import org.amshove.kluent.`should be equal to`
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.Instant
@@ -27,6 +29,13 @@ class FriskTilArbeidSoknadIntegrationTest : FellesTestOppsett() {
 
     @Autowired
     lateinit var soknadProducer: SoknadProducer
+
+    @BeforeAll
+    @AfterAll
+    fun slettDatabase() {
+        sykepengesoknadRepository.deleteAll()
+        friskTilArbeidRepository.deleteAll()
+    }
 
     @Test
     fun `Lagre og les`() {

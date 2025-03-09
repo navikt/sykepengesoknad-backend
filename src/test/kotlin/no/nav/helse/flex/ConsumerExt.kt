@@ -50,8 +50,12 @@ fun <K, V> Consumer<K, V>.ventPåRecords(
 
 fun List<ConsumerRecord<String, String>>.tilSoknader(): List<SykepengesoknadDTO> {
     return this.map {
-        it.value().tilTilSykepengesoknad()
+        it.value().tilSykepengesoknadDTO()
     }
+}
+
+fun String.tilSykepengesoknadDTO(): SykepengesoknadDTO {
+    return objectMapper.readValue(this)
 }
 
 fun List<ConsumerRecord<String, String>>.tilJuridiskVurdering(): List<JuridiskVurderingKafkaDto> {
@@ -61,8 +65,4 @@ fun List<ConsumerRecord<String, String>>.tilJuridiskVurdering(): List<JuridiskVu
             it.value()
         }
         .map { objectMapper.readValue(it) }
-}
-
-private fun String.tilTilSykepengesoknad(): SykepengesoknadDTO {
-    return objectMapper.readValue(this)
 }
