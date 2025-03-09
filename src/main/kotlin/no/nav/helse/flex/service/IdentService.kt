@@ -9,14 +9,18 @@ import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Component
 import java.io.Serializable
 
+interface IdentService {
+    fun hentFolkeregisterIdenterMedHistorikkForFnr(fnr: String): FolkeregisterIdenter
+}
+
 @Component
-class IdentService(private val pdlClient: PdlClient) {
+class CachedIdentService(private val pdlClient: PdlClient) : IdentService {
     private fun List<PdlIdent>.folkeregisteridenter(): List<String> {
         return this.filter { it.gruppe == FOLKEREGISTERIDENT }.map { it.ident }
     }
 
     @Cacheable("flex-folkeregister-identer-med-historikk")
-    fun hentFolkeregisterIdenterMedHistorikkForFnr(fnr: String): FolkeregisterIdenter {
+    override fun hentFolkeregisterIdenterMedHistorikkForFnr(fnr: String): FolkeregisterIdenter {
         val identer = pdlClient.hentIdenterMedHistorikk(fnr)
         return FolkeregisterIdenter(
             originalIdent = fnr,

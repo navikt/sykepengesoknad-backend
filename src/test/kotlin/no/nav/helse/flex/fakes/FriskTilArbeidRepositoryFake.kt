@@ -31,7 +31,7 @@ class FriskTilArbeidRepositoryFake :
         return toDelete.size.toLong()
     }
 
-    override fun findByFnr(fnr: String): List<FriskTilArbeidVedtakDbRecord> {
-        return findAll().filter { it.fnr == fnr }
+    override fun findByFnrIn(fnrList: List<String>): List<FriskTilArbeidVedtakDbRecord> {
+        return findAll().filter { it.fnr in fnrList }
     }
 }

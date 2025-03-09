@@ -2,7 +2,9 @@ package no.nav.helse.flex.frisktilarbeid
 
 import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.fakes.InMemoryCrudRepository
+import no.nav.helse.flex.fakes.FriskTilArbeidRepositoryFake
+import no.nav.helse.flex.service.FolkeregisterIdenter
+import no.nav.helse.flex.service.IdentService
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.BeforeEach
@@ -24,12 +26,15 @@ class FriskTilArbeidServiceTest {
     @Autowired
     private lateinit var fakeFriskTilArbeidRepository: FriskTilArbeidRepository
 
+    @Autowired
+    private lateinit var identService: IdentService
+
     lateinit var friskTilArbeidService: FriskTilArbeidService
 
     @BeforeEach
     fun setup() {
         fakeFriskTilArbeidRepository.deleteAll()
-        friskTilArbeidService = FriskTilArbeidService(fakeFriskTilArbeidRepository, fakeFriskTilArbeidSoknadService)
+        friskTilArbeidService = FriskTilArbeidService(fakeFriskTilArbeidRepository, fakeFriskTilArbeidSoknadService, identService)
     }
 
     private val fnr = "11111111111"
@@ -250,6 +255,16 @@ class FriskTilArbeidTestConfig {
         return FriskTilArbeidRepositoryFake()
     }
 
+    @Bean
+    @Qualifier("identService")
+    fun identService(): IdentService {
+        return object : IdentService {
+            override fun hentFolkeregisterIdenterMedHistorikkForFnr(fnr: String): FolkeregisterIdenter {
+                return FolkeregisterIdenter(fnr, listOf(fnr))
+            }
+        }
+    }
+
     class FakeFriskTilArbeidSoknadService(
         private val friskTilArbeidRepository: FriskTilArbeidRepository,
     ) : FriskTilArbeidSoknadService(friskTilArbeidRepository, null, null) {
@@ -260,29 +275,5 @@ class FriskTilArbeidTestConfig {
             friskTilArbeidRepository.save(friskTilArbeidDbRecord.copy(behandletStatus = BehandletStatus.BEHANDLET))
             return emptyList()
         }
-    }
-
-    class FriskTilArbeidRepositoryFake :
-        InMemoryCrudRepository<FriskTilArbeidVedtakDbRecord, String>(
-            getId = { it.id },
-            copyWithId = { record, newId ->
-                record.copy(id = newId)
-            },
-            generateId = { UUID.randomUUID().toString() },
-        ),
-        FriskTilArbeidRepository {
-        override fun finnVedtakSomSkalBehandles(antallVedtak: Int): List<FriskTilArbeidVedtakDbRecord> {
-            return findAll().filter { it.behandletStatus == BehandletStatus.NY }
-                .sortedBy { it.opprettet }
-                .take(antallVedtak)
-        }
-
-        override fun deleteByFnr(fnr: String): Long {
-            val toDelete = findAll().filter { it.fnr == fnr }
-            toDelete.forEach { delete(it) }
-            return toDelete.size.toLong()
-        }
-
-        override fun findByFnr(fnr: String): List<FriskTilArbeidVedtakDbRecord> = findAll().filter { it.fnr == fnr }
     }
 }
