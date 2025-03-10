@@ -29,7 +29,7 @@ fun <K, V> Consumer<K, V>.ventPåRecords(
     val factory =
         if (antall == 0) {
             // Må vente fullt ut, ikke opp til en tid siden vi vil se at ingen blir produsert
-            await().during(duration)
+            await().during(Duration.ofSeconds(1))
         } else {
             await().atMost(duration)
         }
