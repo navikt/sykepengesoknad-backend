@@ -1,5 +1,6 @@
 package no.nav.helse.flex
 
+import no.nav.helse.flex.fakes.SoknadKafkaProducerFake
 import no.nav.helse.flex.frisktilarbeid.FriskTilArbeidConsumer
 import no.nav.helse.flex.frisktilarbeid.FriskTilArbeidRepository
 import no.nav.helse.flex.repository.SykepengesoknadDAOPostgres
@@ -75,6 +76,11 @@ abstract class FakesTestOppsett : TestOppsettInterfaces {
     @AfterAll
     fun `Vi resetter databasen`() {
         databaseReset.resetDatabase()
+    }
+
+    @AfterAll
+    fun `Reset kafka`() {
+        SoknadKafkaProducerFake.records.clear()
     }
 
     override fun server(): MockOAuth2Server = server

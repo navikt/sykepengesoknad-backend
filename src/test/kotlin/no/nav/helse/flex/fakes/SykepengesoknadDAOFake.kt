@@ -155,7 +155,12 @@ class SykepengesoknadDAOFake : SykepengesoknadDAO {
     }
 
     override fun nullstillSoknader(fnr: String): Int {
-        TODO("Not yet implemented")
+        var antall = 0
+        finnSykepengesoknader(listOf(fnr)).forEach {
+            slettSoknad(it)
+            antall++
+        }
+        return antall
     }
 
     override fun slettSoknad(sykepengesoknad: Sykepengesoknad) {
