@@ -28,6 +28,8 @@ class StoppmeldingProsseseringTest : FakesTestOppsett() {
     private val fnr = "11111111111"
     private val avsluttetTidspunkt = Instant.now()
 
+    private var vedtaksId: String? = null
+
     @Test
     @Order(1)
     fun `Mottar og lagrer VedtakStatusRecord med status FATTET`() {
@@ -56,6 +58,7 @@ class StoppmeldingProsseseringTest : FakesTestOppsett() {
                     Soknadstatus.FREMTIDIG,
                 )
         }
+        vedtaksId = friskTilArbeidDbRecord.id
     }
 
     @Test
@@ -70,17 +73,17 @@ class StoppmeldingProsseseringTest : FakesTestOppsett() {
 
     @Test
     @Order(4)
-    fun `3 søknader er slettet og produsert på kafka`() {
-        val soknader = hentSoknader(fnr) shouldHaveSize 1
+    fun `4 søknader er slettet og produsert på kafka`() {
+        hentSoknader(fnr) shouldHaveSize 0
 
         SoknadKafkaProducerFake.records
             .filter { it.value().status == SoknadsstatusDTO.SLETTET }
-            .filter { it.value().friskTilArbeidVedtakId == soknader.first().friskTilArbeidVedtakId }.shouldHaveSize(3)
+            .filter { it.value().friskTilArbeidVedtakId == vedtaksId }.shouldHaveSize(4)
     }
 
     @Test
     @Order(5)
     fun `FriskTilArbeidVedtak er oppdatert med avsluttetTidspunkt`() {
-        friskTilArbeidRepository.findByFnr(fnr).single().avsluttetTidspunkt == avsluttetTidspunkt
+        friskTilArbeidRepository.findByFnr(fnr).single().avsluttetTidspunkt `should be equal to` avsluttetTidspunkt
     }
 }

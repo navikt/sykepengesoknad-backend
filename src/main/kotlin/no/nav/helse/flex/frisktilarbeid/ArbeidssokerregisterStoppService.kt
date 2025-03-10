@@ -31,7 +31,7 @@ class ArbeidssokerregisterStoppService(
                 .filter {
                     it.soknadstype == Soknadstype.FRISKMELDT_TIL_ARBEIDSFORMIDLING &&
                         it.friskTilArbeidVedtakId == stoppMelding.vedtaksperiodeId &&
-                        it.status == Soknadstatus.FREMTIDIG
+                        (it.status == Soknadstatus.FREMTIDIG || it.status == Soknadstatus.NY)
                 }
 
         friskTilArbeidRepository.findById(stoppMelding.vedtaksperiodeId).getOrNull()?.let {
