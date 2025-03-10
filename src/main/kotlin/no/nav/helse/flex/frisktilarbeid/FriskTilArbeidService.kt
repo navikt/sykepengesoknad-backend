@@ -5,6 +5,7 @@ import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.medlemskap.tilPostgresJson
+import no.nav.helse.flex.service.IdentService
 import no.nav.helse.flex.util.objectMapper
 import org.springframework.stereotype.Service
 import java.time.Instant
@@ -16,6 +17,7 @@ import java.util.*
 class FriskTilArbeidService(
     private val friskTilArbeidRepository: FriskTilArbeidRepository,
     private val friskTilArbeidSoknadService: FriskTilArbeidSoknadService,
+    private val identService: IdentService,
 ) {
     private val log = logger()
 
@@ -23,7 +25,8 @@ class FriskTilArbeidService(
         val friskTilArbeidVedtakStatus = kafkaMelding.friskTilArbeidVedtakStatus
 
         if (friskTilArbeidVedtakStatus.status == Status.FATTET) {
-            val eksisterendeVedtak = friskTilArbeidRepository.findByFnr(friskTilArbeidVedtakStatus.personident)
+            val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(friskTilArbeidVedtakStatus.personident)
+            val eksisterendeVedtak = friskTilArbeidRepository.findByFnrIn(identer.alle())
 
             eksisterendeVedtak.firstOrNull {
                 friskTilArbeidVedtakStatus.tilPeriode().overlapper(it.tilPeriode())

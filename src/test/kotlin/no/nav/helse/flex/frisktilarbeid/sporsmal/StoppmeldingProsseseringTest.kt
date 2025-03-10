@@ -25,7 +25,7 @@ class StoppmeldingProsseseringTest : FakesTestOppsett() {
     @Autowired
     lateinit var sykepengesoknadRepository: SykepengesoknadRepository
 
-    private val fnr = "11111111111"
+    private val fnr = "11111111122"
     private val avsluttetTidspunkt = Instant.now()
 
     private var vedtaksId: String? = null
@@ -84,6 +84,6 @@ class StoppmeldingProsseseringTest : FakesTestOppsett() {
     @Test
     @Order(5)
     fun `FriskTilArbeidVedtak er oppdatert med avsluttetTidspunkt`() {
-        friskTilArbeidRepository.findByFnr(fnr).single().avsluttetTidspunkt `should be equal to` avsluttetTidspunkt
+        friskTilArbeidRepository.findByFnrIn(listOf(fnr)).single().avsluttetTidspunkt `should be equal to` avsluttetTidspunkt
     }
 }

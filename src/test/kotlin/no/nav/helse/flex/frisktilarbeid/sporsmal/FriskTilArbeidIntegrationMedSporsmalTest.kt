@@ -15,7 +15,6 @@ import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should be false`
 import org.amshove.kluent.`should be true`
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -35,12 +34,6 @@ class FriskTilArbeidIntegrationMedSporsmalTest() : FakesTestOppsett() {
     lateinit var aktiveringJob: AktiveringJob
 
     private val fnr = "11111111111"
-
-    @BeforeAll
-    override fun slettDatabase() {
-        sykepengesoknadRepository.deleteAll()
-        friskTilArbeidRepository.deleteAll()
-    }
 
     @Test
     @Order(1)

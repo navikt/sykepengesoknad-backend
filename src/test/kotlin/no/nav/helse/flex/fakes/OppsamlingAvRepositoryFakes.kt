@@ -164,57 +164,17 @@ class ForskutteringRepositoryFake : ForskutteringRepository {
 }
 
 @Repository
-@Primary
 @Profile("fakes")
-class KlippMetrikkRepositoryFake : KlippMetrikkRepository {
-    override fun <S : KlippMetrikkDbRecord?> save(entity: S & Any): S & Any {
-        TODO("Not yet implemented")
-    }
-
-    override fun <S : KlippMetrikkDbRecord?> saveAll(entities: MutableIterable<S>): MutableIterable<S> {
-        TODO("Not yet implemented")
-    }
-
-    override fun findById(id: String): Optional<KlippMetrikkDbRecord> {
-        TODO("Not yet implemented")
-    }
-
-    override fun existsById(id: String): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    override fun findAll(): MutableIterable<KlippMetrikkDbRecord> {
-        TODO("Not yet implemented")
-    }
-
-    override fun findAllById(ids: MutableIterable<String>): MutableIterable<KlippMetrikkDbRecord> {
-        TODO("Not yet implemented")
-    }
-
-    override fun count(): Long {
-        TODO("Not yet implemented")
-    }
-
-    override fun deleteById(id: String) {
-        TODO("Not yet implemented")
-    }
-
-    override fun delete(entity: KlippMetrikkDbRecord) {
-        TODO("Not yet implemented")
-    }
-
-    override fun deleteAllById(ids: MutableIterable<String>) {
-        TODO("Not yet implemented")
-    }
-
-    override fun deleteAll(entities: MutableIterable<KlippMetrikkDbRecord>) {
-        TODO("Not yet implemented")
-    }
-
-    override fun deleteAll() {
-        TODO("Not yet implemented")
-    }
-}
+@Primary
+class KlippMetrikkRepositoryFake :
+    InMemoryCrudRepository<KlippMetrikkDbRecord, String>(
+        getId = { it.id },
+        copyWithId = { record, newId ->
+            record.copy(id = newId)
+        },
+        generateId = { UUID.randomUUID().toString() },
+    ),
+    KlippMetrikkRepository
 
 @Repository
 @Primary
