@@ -1,35 +1,26 @@
 package no.nav.helse.flex.frisktilarbeid
 
+import no.nav.helse.flex.FakesTestOppsett
 import no.nav.helse.flex.domain.Periode
-import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.fakes.InMemoryCrudRepository
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.context.TestConfiguration
-import org.springframework.context.annotation.Bean
 import java.time.LocalDate
 import java.util.*
 
-@SpringBootTest(classes = [FriskTilArbeidServiceTestConfiguration::class])
-class FriskTilArbeidServiceTest {
-    @Autowired
-    private lateinit var fakeFriskTilArbeidSoknadService: FriskTilArbeidSoknadService
-
+class FriskTilArbeidServiceTest : FakesTestOppsett() {
     @Autowired
     private lateinit var fakeFriskTilArbeidRepository: FriskTilArbeidRepository
 
+    @Autowired
     lateinit var friskTilArbeidService: FriskTilArbeidService
 
     @BeforeEach
     fun setup() {
         fakeFriskTilArbeidRepository.deleteAll()
-        friskTilArbeidService = FriskTilArbeidService(fakeFriskTilArbeidRepository, fakeFriskTilArbeidSoknadService)
     }
 
     private val fnr = "11111111111"
@@ -232,57 +223,5 @@ class FriskTilArbeidServiceTest {
                     ),
             ),
         )
-    }
-}
-
-@Suppress("UNCHECKED_CAST")
-@TestConfiguration
-class FriskTilArbeidTestConfig {
-    @Bean
-    @Qualifier("fakeFriskTilArbeidSoknadService")
-    fun fakeFriskTilArbeidSoknadService(friskTilArbeidRepository: FriskTilArbeidRepository): FriskTilArbeidSoknadService {
-        return FakeFriskTilArbeidSoknadService(friskTilArbeidRepository)
-    }
-
-    @Bean
-    @Qualifier("fakeFriskTilArbeidRepository")
-    fun fakeFriskTilArbeidRepository(): FriskTilArbeidRepository {
-        return FriskTilArbeidRepositoryFake()
-    }
-
-    class FakeFriskTilArbeidSoknadService(
-        private val friskTilArbeidRepository: FriskTilArbeidRepository,
-    ) : FriskTilArbeidSoknadService(friskTilArbeidRepository, null, null) {
-        override fun opprettSoknader(
-            friskTilArbeidDbRecord: FriskTilArbeidVedtakDbRecord,
-            periodGenerator: (LocalDate, LocalDate, Long) -> List<Pair<LocalDate, LocalDate>>,
-        ): List<Sykepengesoknad> {
-            friskTilArbeidRepository.save(friskTilArbeidDbRecord.copy(behandletStatus = BehandletStatus.BEHANDLET))
-            return emptyList()
-        }
-    }
-
-    class FriskTilArbeidRepositoryFake :
-        InMemoryCrudRepository<FriskTilArbeidVedtakDbRecord, String>(
-            getId = { it.id },
-            copyWithId = { record, newId ->
-                record.copy(id = newId)
-            },
-            generateId = { UUID.randomUUID().toString() },
-        ),
-        FriskTilArbeidRepository {
-        override fun finnVedtakSomSkalBehandles(antallVedtak: Int): List<FriskTilArbeidVedtakDbRecord> {
-            return findAll().filter { it.behandletStatus == BehandletStatus.NY }
-                .sortedBy { it.opprettet }
-                .take(antallVedtak)
-        }
-
-        override fun deleteByFnr(fnr: String): Long {
-            val toDelete = findAll().filter { it.fnr == fnr }
-            toDelete.forEach { delete(it) }
-            return toDelete.size.toLong()
-        }
-
-        override fun findByFnr(fnr: String): List<FriskTilArbeidVedtakDbRecord> = findAll().filter { it.fnr == fnr }
     }
 }

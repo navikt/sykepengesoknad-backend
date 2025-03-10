@@ -3,6 +3,7 @@ package no.nav.helse.flex
 import no.nav.helse.flex.frisktilarbeid.FriskTilArbeidConsumer
 import no.nav.helse.flex.frisktilarbeid.FriskTilArbeidRepository
 import no.nav.helse.flex.repository.SykepengesoknadDAOPostgres
+import no.nav.helse.flex.testdata.DatabaseReset
 import no.nav.helse.flex.testoppsett.startMockWebServere
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
@@ -62,6 +63,9 @@ abstract class FakesTestOppsett : TestOppsettInterfaces {
     @Autowired
     lateinit var kafkaProducer: Producer<String, String>
 
+    @Autowired
+    lateinit var databaseReset: DatabaseReset
+
     companion object {
         init {
             startMockWebServere()
@@ -70,10 +74,7 @@ abstract class FakesTestOppsett : TestOppsettInterfaces {
 
     @AfterAll
     fun `Vi resetter databasen`() {
-        slettDatabase()
-    }
-
-    fun slettDatabase() {
+        databaseReset.resetDatabase()
     }
 
     override fun server(): MockOAuth2Server = server

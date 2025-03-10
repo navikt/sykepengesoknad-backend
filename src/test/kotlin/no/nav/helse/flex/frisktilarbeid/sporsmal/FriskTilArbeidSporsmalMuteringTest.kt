@@ -10,7 +10,6 @@ import no.nav.helse.flex.testutil.SoknadBesvarer
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldHaveSize
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -19,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class FriskTilArbeidSporsmalMuteringTest() : FakesTestOppsett() {
+class FriskTilArbeidSporsmalMuteringTest : FakesTestOppsett() {
     @Autowired
     lateinit var friskTilArbeidCronJob: FriskTilArbeidCronJob
 
@@ -30,12 +29,6 @@ class FriskTilArbeidSporsmalMuteringTest() : FakesTestOppsett() {
     lateinit var aktivering: SoknadAktivering
 
     private val fnr = "11111111111"
-
-    @BeforeAll
-    override fun slettDatabase() {
-        sykepengesoknadRepository.deleteAll()
-        friskTilArbeidRepository.deleteAll()
-    }
 
     @Test
     @Order(1)
