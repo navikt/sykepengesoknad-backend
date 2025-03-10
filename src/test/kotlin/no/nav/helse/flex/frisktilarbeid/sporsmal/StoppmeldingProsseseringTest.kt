@@ -38,7 +38,7 @@ class StoppmeldingProsseseringTest : FakesTestOppsett() {
 
     @Test
     @Order(2)
-    fun `Oppretter søknader med status FREMTIDIG`() {
+    fun `Oppretter søknader med status NY og FREMTIDIG`() {
         friskTilArbeidCronJob.behandleFriskTilArbeidVedtak()
 
         friskTilArbeidRepository.finnVedtakSomSkalBehandles(1).size `should be equal to` 0
@@ -85,5 +85,34 @@ class StoppmeldingProsseseringTest : FakesTestOppsett() {
     @Order(5)
     fun `FriskTilArbeidVedtak er oppdatert med avsluttetTidspunkt`() {
         friskTilArbeidRepository.findByFnrIn(listOf(fnr)).single().avsluttetTidspunkt `should be equal to` avsluttetTidspunkt
+    }
+
+    @Test
+    @Order(6)
+    fun `Tillatter nytt vedtak fom neste dag etter stopp tidspunktet`() {
+        sendFriskTilArbeidVedtak(fnr, LocalDate.now().plusDays(1), LocalDate.now().plusDays(35))
+    }
+
+    @Test
+    @Order(7)
+    fun `Oppretter nye søknader med status FREMTIDIG`() {
+        friskTilArbeidCronJob.behandleFriskTilArbeidVedtak()
+
+        friskTilArbeidRepository.finnVedtakSomSkalBehandles(1).size `should be equal to` 0
+
+        val friskTilArbeidDbRecord =
+            friskTilArbeidRepository.findAll().last().also {
+                it.behandletStatus `should be equal to` BehandletStatus.BEHANDLET
+            }
+
+        sykepengesoknadRepository.findByFriskTilArbeidVedtakId(friskTilArbeidDbRecord.id!!).sortedBy { it.fom }.also {
+            it.size `should be equal to` 3
+            it.map { it.status } `should be equal to`
+                listOf(
+                    Soknadstatus.FREMTIDIG,
+                    Soknadstatus.FREMTIDIG,
+                    Soknadstatus.FREMTIDIG,
+                )
+        }
     }
 }
