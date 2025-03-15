@@ -1,11 +1,14 @@
 package no.nav.helse.flex.frisktilarbeid.sporsmal
 
-import no.nav.helse.flex.*
+import no.nav.helse.flex.FakesTestOppsett
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.fakes.SoknadKafkaProducerFake
-import no.nav.helse.flex.frisktilarbeid.*
+import no.nav.helse.flex.frisktilarbeid.BehandletStatus
+import no.nav.helse.flex.frisktilarbeid.FriskTilArbeidCronJob
+import no.nav.helse.flex.hentSoknader
 import no.nav.helse.flex.repository.SykepengesoknadRepository
+import no.nav.helse.flex.sendStoppMelding
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldHaveSize
@@ -84,13 +87,16 @@ class StoppmeldingProsseseringTest : FakesTestOppsett() {
     @Test
     @Order(5)
     fun `FriskTilArbeidVedtak er oppdatert med avsluttetTidspunkt`() {
-        friskTilArbeidRepository.findByFnrIn(listOf(fnr)).single().avsluttetTidspunkt `should be equal to` avsluttetTidspunkt
+        friskTilArbeidRepository.findByFnrIn(listOf(fnr))
+            .single().avsluttetTidspunkt `should be equal to` avsluttetTidspunkt
     }
 
     @Test
     @Order(6)
     fun `Tillatter nytt vedtak fom neste dag etter stopp tidspunktet`() {
         sendFriskTilArbeidVedtak(fnr, LocalDate.now().plusDays(1), LocalDate.now().plusDays(35))
+
+        friskTilArbeidRepository.finnVedtakSomSkalBehandles(1).size `should be equal to` 1
     }
 
     @Test
@@ -101,7 +107,7 @@ class StoppmeldingProsseseringTest : FakesTestOppsett() {
         friskTilArbeidRepository.finnVedtakSomSkalBehandles(1).size `should be equal to` 0
 
         val friskTilArbeidDbRecord =
-            friskTilArbeidRepository.findAll().last().also {
+            friskTilArbeidRepository.findAll().maxByOrNull { it.opprettet }!!.also {
                 it.behandletStatus `should be equal to` BehandletStatus.BEHANDLET
             }
 
