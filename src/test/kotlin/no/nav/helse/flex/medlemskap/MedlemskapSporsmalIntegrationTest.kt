@@ -6,6 +6,7 @@ import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSporsmal
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknad
 import no.nav.helse.flex.controller.domain.sykepengesoknad.flatten
 import no.nav.helse.flex.domain.Arbeidssituasjon
+import no.nav.helse.flex.nyttarbeidsforhold.soknad
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.medIndex
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
@@ -19,7 +20,6 @@ import okhttp3.mockwebserver.MockResponse
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
-import org.amshove.kluent.shouldNotBe
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
+import java.time.Instant
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
@@ -93,10 +94,11 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
                 ),
             )
 
-        assertThat(soknader).hasSize(1)
-        assertThat(soknader.last().type).isEqualTo(SoknadstypeDTO.ARBEIDSTAKERE)
-        assertThat(soknader.last().status).isEqualTo(SoknadsstatusDTO.NY)
-        assertThat(soknader.last().medlemskapVurdering).isEqualTo("UAVKLART")
+        soknader.single().also {
+            it.type `should be equal to` SoknadstypeDTO.ARBEIDSTAKERE
+            it.status `should be equal to` SoknadsstatusDTO.NY
+            it.medlemskapVurdering `should be equal to` "UAVKLART"
+        }
     }
 
     @Test
@@ -104,7 +106,7 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
     fun `Verifiser at søknaden har spørsmål som forventet`() {
         val soknad =
             hentSoknad(
-                soknadId = hentSoknaderMetadata(fnr).first().id,
+                soknadId = hentSoknaderMetadata(fnr).single().id,
                 fnr = fnr,
             )
 
@@ -129,61 +131,101 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
     @Test
     @Order(2)
     fun `Response fra LovMe medlemskapvurdering er lagret i databasen`() {
-        val medlemskapVurderingDbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
-        val medlemskapVurdering = medlemskapVurderingDbRecords.first()
-
-        medlemskapVurdering.fnr `should be equal to` fnr
-        medlemskapVurdering.svartype `should be equal to` MedlemskapVurderingSvarType.UAVKLART.toString()
-        medlemskapVurdering.sporsmal!!.value `should be equal to`
-            listOf(
-                MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
-                MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
-                MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
-                MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE,
-            ).serialisertTilString()
-        medlemskapVurdering.hentKjentOppholdstillatelse() shouldNotBe null
-    }
-
-    @Test
-    @Order(2)
-    fun `Soknad returneres med kjentOppholdstillatelse`() {
         val soknad =
             hentSoknad(
                 soknadId = hentSoknaderMetadata(fnr).first().id,
                 fnr = fnr,
             )
 
-        soknad.kjentOppholdstillatelse!!.fom shouldBeEqualTo fom.minusMonths(2)
-        soknad.kjentOppholdstillatelse!!.tom shouldBeEqualTo tom.plusMonths(2)
+        // Lagrer en ekstra medlemskapsvurdering for samme søknad men annen tom for å simulere klipp.
+        medlemskapVurderingRepository.save(
+            MedlemskapVurderingDbRecord(
+                timestamp = Instant.now(),
+                svartid = 1000L,
+                fnr = fnr,
+                fom = fom,
+                tom = tom.minusDays(2),
+                svartype = "UAVKLART",
+                sykepengesoknadId = soknad.id,
+                // Bruker annen fom og tom for oppholdstillatelsen for å kunne skille periodene i tester.
+                kjentOppholdstillatelse =
+                    KjentOppholdstillatelse(
+                        fom.minusMonths(1),
+                        tom.plusMonths(1),
+                    ).tilPostgresJson(),
+            ),
+        )
+
+        val medlemskapVurderingDbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 2
+
+        medlemskapVurderingDbRecords.first().also {
+            it.fnr `should be equal to` fnr
+            it.svartype `should be equal to` MedlemskapVurderingSvarType.UAVKLART.toString()
+            it.sporsmal!!.value `should be equal to`
+                listOf(
+                    MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
+                    MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
+                    MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
+                    MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE,
+                ).serialisertTilString()
+
+            it.tilKjentOppholdstillatelse()!!.also {
+                it.fom `should be equal to` fom.minusMonths(2)
+                it.tom `should be equal to` tom.plusMonths(2)
+            }
+        }
+
+        medlemskapVurderingDbRecords.drop(1).first().also {
+            it.fnr `should be equal to` fnr
+            it.tilKjentOppholdstillatelse()!!.also {
+                it.fom `should be equal to` fom.minusMonths(1)
+                it.tom `should be equal to` tom.plusMonths(1)
+            }
+        }
     }
 
     @Test
-    @Order(2)
+    @Order(3)
+    fun `Soknad returneres med kjentOppholdstillatelse`() {
+        val soknad =
+            hentSoknad(
+                soknadId = hentSoknaderMetadata(fnr).single().id,
+                fnr = fnr,
+            )
+
+        soknad.kjentOppholdstillatelse!!.also {
+            it.fom `should be equal to` fom.minusMonths(2)
+            it.tom `should be equal to` tom.plusMonths(2)
+        }
+    }
+
+    @Test
+    @Order(3)
     fun `Spørsmål er riktig sortert`() {
         val soknad = hentSoknadMedStatusNy()
 
         val index = soknad.sporsmal!!.indexOfFirst { it.tag == ANDRE_INNTEKTSKILDER_V2 }
         index shouldBeEqualTo 5
 
-        soknad.sporsmal!![index].tag shouldBeEqualTo ANDRE_INNTEKTSKILDER_V2
-        soknad.sporsmal!![index + 1].tag shouldBeEqualTo MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE
-        soknad.sporsmal!![index + 2].tag shouldBeEqualTo MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE
-        soknad.sporsmal!![index + 3].tag shouldBeEqualTo MEDLEMSKAP_OPPHOLD_UTENFOR_EOS
-        soknad.sporsmal!![index + 4].tag shouldBeEqualTo OPPHOLD_UTENFOR_EOS
-        soknad.sporsmal!![index + 5].tag shouldBeEqualTo MEDLEMSKAP_OPPHOLDSTILLATELSE_V2
-        soknad.sporsmal!![index + 6].tag shouldBeEqualTo TIL_SLUTT
-    }
-
-    @Test
-    @Order(2)
-    fun `Spørsmål om oppholdstillatelse har riktig informasjon om kjent oppholdstillatelse fra UDI`() {
-        val soknad = hentSoknadMedStatusNy()
-        soknad.sporsmal!!.find { it.tag == MEDLEMSKAP_OPPHOLDSTILLATELSE_V2 }!!.sporsmalstekst shouldBeEqualTo
-            "Har Utlendingsdirektoratet gitt deg en oppholdstillatelse før 1. november 2022?"
+        soknad.sporsmal[index].tag shouldBeEqualTo ANDRE_INNTEKTSKILDER_V2
+        soknad.sporsmal[index + 1].tag shouldBeEqualTo MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE
+        soknad.sporsmal[index + 2].tag shouldBeEqualTo MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE
+        soknad.sporsmal[index + 3].tag shouldBeEqualTo MEDLEMSKAP_OPPHOLD_UTENFOR_EOS
+        soknad.sporsmal[index + 4].tag shouldBeEqualTo OPPHOLD_UTENFOR_EOS
+        soknad.sporsmal[index + 5].tag shouldBeEqualTo MEDLEMSKAP_OPPHOLDSTILLATELSE_V2
+        soknad.sporsmal[index + 6].tag shouldBeEqualTo TIL_SLUTT
     }
 
     @Test
     @Order(3)
+    fun `Spørsmål om oppholdstillatelse har riktig informasjon om kjent oppholdstillatelse fra UDI`() {
+        val soknad = hentSoknadMedStatusNy()
+        soknad.sporsmal!!.single { it.tag == MEDLEMSKAP_OPPHOLDSTILLATELSE_V2 }.sporsmalstekst shouldBeEqualTo
+            "Har Utlendingsdirektoratet gitt deg en oppholdstillatelse før 1. november 2022?"
+    }
+
+    @Test
+    @Order(4)
     fun `Besvar medlemskapspørsmål om oppholdstillatelse`() {
         val soknad = hentSoknadMedStatusNy()
 
@@ -209,7 +251,7 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    @Order(3)
+    @Order(4)
     fun `Besvar medlemskapspørsmål om Arbeid Utenfor Norge med to perioder`() {
         val soknadId = hentSoknadMedStatusNy().id
 
@@ -238,13 +280,13 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
                 soknadId = soknadId,
                 fnr = fnr,
             )
-        lagretSoknad.sporsmal!!.first {
+        lagretSoknad.sporsmal!!.single {
             it.tag == MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE
         }.undersporsmal shouldHaveSize 2
     }
 
     @Test
-    @Order(3)
+    @Order(4)
     fun `Besvar medlemskapspørsmål om opphold utenfor Norge med to perioder`() {
         val soknadId = hentSoknadMedStatusNy().id
 
@@ -273,13 +315,13 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
                 soknadId = soknadId,
                 fnr = fnr,
             )
-        lagretSoknad.sporsmal!!.first {
+        lagretSoknad.sporsmal!!.single {
             it.tag == MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE
         }.undersporsmal shouldHaveSize 2
     }
 
     @Test
-    @Order(3)
+    @Order(4)
     fun `Besvar medlemskapspørsmål om opphold utenfor EØS med to perioder`() {
         val soknadId = hentSoknadMedStatusNy().id
 
@@ -308,21 +350,21 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
                 soknadId = soknadId,
                 fnr = fnr,
             )
-        lagretSoknad.sporsmal!!.first {
+        lagretSoknad.sporsmal!!.single {
             it.tag == MEDLEMSKAP_OPPHOLD_UTENFOR_EOS
         }.undersporsmal shouldHaveSize 2
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     fun `Grenseverdier på spørsmål følger perioden til søknaden`() {
         val soknad = hentSoknadMedStatusNy()
 
-        soknad.getSporsmalMedTag("MEDLEMSKAP_OPPHOLDSTILLATELSE_VEDTAKSDATO").let {
+        soknad.getSporsmalMedTag("MEDLEMSKAP_OPPHOLDSTILLATELSE_VEDTAKSDATO").also {
             it.min shouldBeEqualTo tom.minusYears(10).format(ISO_LOCAL_DATE)
             it.max shouldBeEqualTo tom.format(ISO_LOCAL_DATE)
         }
-        soknad.getSporsmalMedTag("MEDLEMSKAP_OPPHOLDSTILLATELSE_PERIODE").let {
+        soknad.getSporsmalMedTag("MEDLEMSKAP_OPPHOLDSTILLATELSE_PERIODE").also {
             it.min shouldBeEqualTo tom.minusYears(10).format(ISO_LOCAL_DATE)
             it.max shouldBeEqualTo tom.plusYears(10).format(ISO_LOCAL_DATE)
         }
@@ -350,11 +392,11 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    @Order(5)
+    @Order(6)
     fun `Slett underspørsmål på medlemskapspørsmål om arbeid utenfor Norge`() {
         val soknadId = hentSoknadMedStatusNy().id
         val hovedsporsmalFor =
-            hentSoknad(soknadId, fnr).sporsmal!!.first { it.tag == MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE }
+            hentSoknad(soknadId, fnr).sporsmal!!.single { it.tag == MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE }
 
         slettUndersporsmal(
             fnr = fnr,
@@ -364,53 +406,7 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
         )
 
         val hovedsporsmalEtter =
-            hentSoknad(soknadId, fnr).sporsmal!!.first { it.tag == MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE }
-        hovedsporsmalEtter.undersporsmal shouldHaveSize 1
-        hovedsporsmalEtter.undersporsmal[0].tag shouldBeEqualTo hovedsporsmalFor.undersporsmal[0].tag
-
-        val (utenIdFor, utenIdEtter) = fjernIdFraHovedsporsmal(hovedsporsmalEtter, hovedsporsmalFor)
-        utenIdEtter shouldBeEqualTo utenIdFor
-    }
-
-    @Test
-    @Order(5)
-    fun `Slett underspørsmål på medlemskapspørsmål om opphold utenfor Norge`() {
-        val soknadId = hentSoknadMedStatusNy().id
-        val hovedsporsmalFor =
-            hentSoknad(soknadId, fnr).sporsmal!!.first { it.tag == MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE }
-
-        slettUndersporsmal(
-            fnr = fnr,
-            soknadId = soknadId,
-            sporsmalId = hovedsporsmalFor.id!!,
-            undersporsmalId = hovedsporsmalFor.undersporsmal[1].id!!,
-        )
-
-        val hovedsporsmalEtter =
-            hentSoknad(soknadId, fnr).sporsmal!!.first { it.tag == MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE }
-        hovedsporsmalEtter.undersporsmal shouldHaveSize 1
-        hovedsporsmalEtter.undersporsmal[0].tag shouldBeEqualTo hovedsporsmalFor.undersporsmal[0].tag
-
-        val (utenIdFor, utenIdEtter) = fjernIdFraHovedsporsmal(hovedsporsmalEtter, hovedsporsmalFor)
-        utenIdEtter shouldBeEqualTo utenIdFor
-    }
-
-    @Test
-    @Order(5)
-    fun `Slett underspørsmål på medlemskapspørsmål om opphold utenfor EØS`() {
-        val soknadId = hentSoknadMedStatusNy().id
-        val hovedsporsmalFor =
-            hentSoknad(soknadId, fnr).sporsmal!!.first { it.tag == MEDLEMSKAP_OPPHOLD_UTENFOR_EOS }
-
-        slettUndersporsmal(
-            fnr = fnr,
-            soknadId = soknadId,
-            sporsmalId = hovedsporsmalFor.id!!,
-            undersporsmalId = hovedsporsmalFor.undersporsmal[1].id!!,
-        )
-
-        val hovedsporsmalEtter =
-            hentSoknad(soknadId, fnr).sporsmal!!.first { it.tag == MEDLEMSKAP_OPPHOLD_UTENFOR_EOS }
+            hentSoknad(soknadId, fnr).sporsmal!!.single { it.tag == MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE }
         hovedsporsmalEtter.undersporsmal shouldHaveSize 1
         hovedsporsmalEtter.undersporsmal[0].tag shouldBeEqualTo hovedsporsmalFor.undersporsmal[0].tag
 
@@ -420,11 +416,57 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
 
     @Test
     @Order(6)
+    fun `Slett underspørsmål på medlemskapspørsmål om opphold utenfor Norge`() {
+        val soknadId = hentSoknadMedStatusNy().id
+        val hovedsporsmalFor =
+            hentSoknad(soknadId, fnr).sporsmal!!.single { it.tag == MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE }
+
+        slettUndersporsmal(
+            fnr = fnr,
+            soknadId = soknadId,
+            sporsmalId = hovedsporsmalFor.id!!,
+            undersporsmalId = hovedsporsmalFor.undersporsmal[1].id!!,
+        )
+
+        val hovedsporsmalEtter =
+            hentSoknad(soknadId, fnr).sporsmal!!.single { it.tag == MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE }
+        hovedsporsmalEtter.undersporsmal shouldHaveSize 1
+        hovedsporsmalEtter.undersporsmal[0].tag shouldBeEqualTo hovedsporsmalFor.undersporsmal[0].tag
+
+        val (utenIdFor, utenIdEtter) = fjernIdFraHovedsporsmal(hovedsporsmalEtter, hovedsporsmalFor)
+        utenIdEtter shouldBeEqualTo utenIdFor
+    }
+
+    @Test
+    @Order(6)
+    fun `Slett underspørsmål på medlemskapspørsmål om opphold utenfor EØS`() {
+        val soknadId = hentSoknadMedStatusNy().id
+        val hovedsporsmalFor =
+            hentSoknad(soknadId, fnr).sporsmal!!.single { it.tag == MEDLEMSKAP_OPPHOLD_UTENFOR_EOS }
+
+        slettUndersporsmal(
+            fnr = fnr,
+            soknadId = soknadId,
+            sporsmalId = hovedsporsmalFor.id!!,
+            undersporsmalId = hovedsporsmalFor.undersporsmal[1].id!!,
+        )
+
+        val hovedsporsmalEtter =
+            hentSoknad(soknadId, fnr).sporsmal!!.single { it.tag == MEDLEMSKAP_OPPHOLD_UTENFOR_EOS }
+        hovedsporsmalEtter.undersporsmal shouldHaveSize 1
+        hovedsporsmalEtter.undersporsmal[0].tag shouldBeEqualTo hovedsporsmalFor.undersporsmal[0].tag
+
+        val (utenIdFor, utenIdEtter) = fjernIdFraHovedsporsmal(hovedsporsmalEtter, hovedsporsmalFor)
+        utenIdEtter shouldBeEqualTo utenIdFor
+    }
+
+    @Test
+    @Order(7)
     fun `Besvar arbeidstakerspørsmål og send søknaden`() {
         flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
 
-        hentSoknadSomKanBesvares().let {
+        hentSoknadSomKanBesvares().also {
             val (_, soknadBesvarer) = it
             besvarArbeidstakerSporsmal(soknadBesvarer)
             val sendtSoknad =
@@ -436,7 +478,7 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
 
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
         kafkaSoknader shouldHaveSize 1
-        val kafkaSoknad = kafkaSoknader.first()
+        val kafkaSoknad = kafkaSoknader.single()
         kafkaSoknad.status shouldBeEqualTo SoknadsstatusDTO.SENDT
 
         // Spørsmålene som omhandler medlemskap blir ikke mappet om til eget felt i SykepengesoknadDTO så vi trenger
@@ -450,9 +492,9 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    @Order(7)
+    @Order(8)
     fun `Korrigert søknad har duplisert medlemskapVurdering`() {
-        val soknad = hentSoknader(fnr).first()
+        val soknad = hentSoknader(fnr).single()
         val korrigerendeSoknad = korrigerSoknad(soknad.id, fnr)
 
         mockFlexSyketilfelleArbeidsgiverperiode(andreKorrigerteRessurser = soknad.id)
@@ -464,9 +506,11 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
                 .sendSoknad()
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
 
-        val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
-        kafkaSoknader shouldHaveSize 1
-        val kafkaSoknad = kafkaSoknader.first()
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().single().also {
+            it.id shouldBeEqualTo sendtSoknad.id
+            it.status shouldBeEqualTo SoknadsstatusDTO.SENDT
+            it.medlemskapVurdering shouldBeEqualTo "UAVKLART"
+        }
 
         assertThat(
             medlemskapVurderingRepository.findBySykepengesoknadIdAndFomAndTom(
@@ -475,15 +519,11 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
                 sendtSoknad.tom!!,
             ),
         ).isNotNull
-
-        kafkaSoknad.id shouldBeEqualTo sendtSoknad.id
-        kafkaSoknad.status shouldBeEqualTo SoknadsstatusDTO.SENDT
-        kafkaSoknad.medlemskapVurdering shouldBeEqualTo "UAVKLART"
     }
 
     private fun hentSoknadMedStatusNy(): RSSykepengesoknad {
         return hentSoknad(
-            soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
+            soknadId = hentSoknaderMetadata(fnr).single { it.status == RSSoknadstatus.NY }.id,
             fnr = fnr,
         )
     }
@@ -498,7 +538,7 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
                 fnr = fnr,
             )
 
-        val hovedsporsmal = lagretSoknad.sporsmal!!.first { it.tag == tag }
+        val hovedsporsmal = lagretSoknad.sporsmal!!.single { it.tag == tag }
         leggTilUndersporsmal(fnr, soknadId, hovedsporsmal.id!!)
     }
 

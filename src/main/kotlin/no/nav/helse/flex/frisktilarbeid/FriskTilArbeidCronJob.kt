@@ -32,6 +32,7 @@ class FriskTilArbeidCronJob(
     }
 
     fun behandleFriskTilArbeidVedtak() {
+        log.info("CALLED.")
         friskTilArbeidService.behandleFriskTilArbeidVedtakStatus(BEHANDLE_ANTALL_FRISK_TIL_ARBEID_VEDTAK)
             .filter { it.tom!!.isBefore(LocalDate.now()) }
             .forEach {
