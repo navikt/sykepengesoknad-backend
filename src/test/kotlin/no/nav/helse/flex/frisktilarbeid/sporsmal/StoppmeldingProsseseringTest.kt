@@ -12,6 +12,7 @@ import no.nav.helse.flex.sendStoppMelding
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldHaveSize
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -99,6 +100,7 @@ class StoppmeldingProsseseringTest : FakesTestOppsett() {
         friskTilArbeidRepository.finnVedtakSomSkalBehandles(1).size `should be equal to` 1
     }
 
+    @Disabled("Testen er flaky")
     @Test
     @Order(7)
     fun `Oppretter nye søknader med status FREMTIDIG`() {

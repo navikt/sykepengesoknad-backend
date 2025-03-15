@@ -44,4 +44,8 @@ class MedlemskapsrepositoryFake :
         toDelete.forEach { delete(it) }
         return toDelete.size.toLong()
     }
+
+    override fun findAllBySykepengesoknadId(ids: List<String>): List<MedlemskapVurderingDbRecord> {
+        return findAll().filter { it.id in ids }
+    }
 }

@@ -30,6 +30,9 @@ interface MedlemskapVurderingRepository : CrudRepository<MedlemskapVurderingDbRe
     @Modifying
     @Query("DELETE FROM medlemskap_vurdering WHERE fnr = :fnr")
     fun deleteByFnr(fnr: String): Long
+
+    @Query("SELECT * FROM medlemskap_vurdering WHERE sykepengesoknad_id IN (:ids)")
+    fun findAllBySykepengesoknadId(ids: List<String>): List<MedlemskapVurderingDbRecord>
 }
 
 @Table("medlemskap_vurdering")
@@ -47,7 +50,7 @@ data class MedlemskapVurderingDbRecord(
     val kjentOppholdstillatelse: PGobject? = null,
 )
 
-fun MedlemskapVurderingDbRecord.hentKjentOppholdstillatelse(): KjentOppholdstillatelse? =
+fun MedlemskapVurderingDbRecord.tilKjentOppholdstillatelse(): KjentOppholdstillatelse? =
     kjentOppholdstillatelse?.value?.let { objectMapper.readValue(it) }
 
 fun Any.tilPostgresJson(): PGobject =
