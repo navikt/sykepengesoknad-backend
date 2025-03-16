@@ -110,10 +110,8 @@ class StringStringKafkaProducerFake : Producer<String, String> {
             }
 
             override fun get(): RecordMetadata {
-                @Suppress("DEPRECATION")
                 return RecordMetadata(
                     TopicPartition("topic", 0),
-                    0,
                     0,
                     0,
                     0,
@@ -126,10 +124,8 @@ class StringStringKafkaProducerFake : Producer<String, String> {
                 p0: Long,
                 p1: TimeUnit,
             ): RecordMetadata {
-                @Suppress("DEPRECATION")
                 return RecordMetadata(
                     TopicPartition("topic", 0),
-                    0,
                     0,
                     0,
                     0,
@@ -142,11 +138,5 @@ class StringStringKafkaProducerFake : Producer<String, String> {
 }
 
 private fun <K, V> ProducerRecord<K, V>.tilConsumerRecord(): ConsumerRecord<K, V> {
-    return ConsumerRecord(
-        topic(),
-        1,
-        1,
-        key(),
-        value(),
-    )
+    return ConsumerRecord(topic(), 1, 1, key(), value())
 }
