@@ -45,6 +45,9 @@ spec:
   redis:
     - instance: sessions
       access: readwrite
+  valkey:
+    - instance: identer
+      access: readwrite
   observability:
     autoInstrumentation:
       enabled: true
