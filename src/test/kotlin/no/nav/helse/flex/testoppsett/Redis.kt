@@ -2,16 +2,16 @@ package no.nav.helse.flex.testoppsett
 
 import org.testcontainers.containers.GenericContainer
 
-private class RedisContainer : GenericContainer<RedisContainer>("bitnami/redis:6.2")
+private class ValkeyContainer : GenericContainer<ValkeyContainer>("bitnami/valkey:8.0.2")
 
-fun startRedisContainer() {
-    RedisContainer().apply {
+fun startValkeyContainer() {
+    ValkeyContainer().apply {
         withEnv("ALLOW_EMPTY_PASSWORD", "yes")
         withExposedPorts(6379)
         start()
 
-        System.setProperty("REDIS_URI_SESSIONS", "rediss://$host:$firstMappedPort")
-        System.setProperty("REDIS_USERNAME_SESSIONS", "default")
-        System.setProperty("REDIS_PASSWORD_SESSIONS", "")
+        System.setProperty("VALKEY_URI_IDENTER", "valkeys://$host:$firstMappedPort")
+        System.setProperty("VALKEY_USERNAME_IDENTER", "default")
+        System.setProperty("VALKEY_PASSWORD_IDENTER", "")
     }
 }

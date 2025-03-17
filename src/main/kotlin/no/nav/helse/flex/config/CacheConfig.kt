@@ -20,21 +20,21 @@ import java.time.Duration
 @Profile("!fakes")
 @EnableCaching
 class CacheConfig(
-    @Value("\${REDIS_URI_SESSIONS}") val redisUriString: String,
-    @Value("\${REDIS_USERNAME_SESSIONS}") val redisUsername: String,
-    @Value("\${REDIS_PASSWORD_SESSIONS}") val redisPassword: String,
+    @Value("\${VALKEY_URI_IDENTER}") val valkeyUriString: String,
+    @Value("\${VALKEY_USERNAME_IDENTER}") val valkeyUsername: String,
+    @Value("\${VALKEY_PASSWORD_IDENTER}") val valkeyPassword: String,
 ) {
     @Bean
     fun redisConnectionFactory(): LettuceConnectionFactory {
-        val redisUri = URI.create(redisUriString)
+        val redisUri = URI.create(valkeyUriString)
         val redisConnection = RedisStandaloneConfiguration(redisUri.host, redisUri.port)
 
-        redisConnection.username = redisUsername
-        redisConnection.password = RedisPassword.of(redisPassword)
+        redisConnection.username = valkeyUsername
+        redisConnection.password = RedisPassword.of(valkeyPassword)
 
         val clientConfiguration =
             LettuceClientConfiguration.builder().apply {
-                if ("default" != redisUsername) {
+                if ("default" != valkeyUsername) {
                     useSsl()
                 }
             }.build()
