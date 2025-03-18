@@ -1,5 +1,6 @@
 package no.nav.helse.flex.repository
 
+import io.opentelemetry.api.trace.Tracer
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svar
 import no.nav.helse.flex.domain.Sykepengesoknad
@@ -34,7 +35,10 @@ interface SvarDAO {
 @Service
 @Transactional
 @Repository
-class SvarDAOPostgres(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate) : SvarDAO {
+class SvarDAOPostgres(
+    private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
+    private val tracer: Tracer,
+) : SvarDAO {
     override fun finnSvar(sporsmalIder: Set<String>): HashMap<String, MutableList<Svar>> {
         val svarMap = HashMap<String, MutableList<Svar>>()
         sporsmalIder.chunked(1000).forEach {
@@ -69,15 +73,21 @@ class SvarDAOPostgres(private val namedParameterJdbcTemplate: NamedParameterJdbc
         if (svar == null || isEmpty(svar.verdi)) {
             return
         }
-        namedParameterJdbcTemplate.update(
-            """
-            INSERT INTO svar (sporsmal_id, verdi) 
-            VALUES (:sporsmalId, :verdi)
-            """.trimIndent(),
-            MapSqlParameterSource()
-                .addValue("sporsmalId", sporsmalId)
-                .addValue("verdi", svar.verdi),
-        )
+
+        val span = tracer.spanBuilder("SvarDAO.lagreSvar").startSpan()
+        try {
+            namedParameterJdbcTemplate.update(
+                """
+                INSERT INTO svar (sporsmal_id, verdi) 
+                VALUES (:sporsmalId, :verdi)
+                """.trimIndent(),
+                MapSqlParameterSource()
+                    .addValue("sporsmalId", sporsmalId)
+                    .addValue("verdi", svar.verdi),
+            )
+        } finally {
+            span.end()
+        }
     }
 
     override fun slettSvar(sykepengesoknadUUID: String) {

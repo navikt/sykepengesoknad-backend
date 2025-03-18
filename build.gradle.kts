@@ -37,6 +37,7 @@ val testContainersVersion = "1.20.6"
 val kluentVersion = "1.73"
 val jsonSchemaValidatorVersion = "1.5.6"
 val unleashVersion = "10.2.0"
+val otelApiVersion = "1.48.0"
 
 dependencies {
     implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
@@ -67,6 +68,7 @@ dependencies {
     implementation("no.nav.syfo.kafka:serialisering:$syfoKafkaVersion")
     implementation("org.apache.avro:avro:$avroVersion")
     implementation("io.getunleash:unleash-client-java:$unleashVersion")
+    implementation("io.opentelemetry:opentelemetry-api:$otelApiVersion")
 
     testImplementation(platform("org.testcontainers:testcontainers-bom:$testContainersVersion"))
     testImplementation("org.springframework.boot:spring-boot-starter-test")
