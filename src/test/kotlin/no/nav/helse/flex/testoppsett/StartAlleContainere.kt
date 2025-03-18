@@ -1,7 +1,7 @@
 package no.nav.helse.flex.testoppsett
 
 fun startAlleContainere() {
-    startRedisContainer()
+    startValkeyContainer()
     startKafkaContainer()
     startPostgresContainer()
 }
