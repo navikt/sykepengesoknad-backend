@@ -1,6 +1,7 @@
 package no.nav.helse.flex.repository
 
 import io.opentelemetry.api.trace.Tracer
+import io.opentelemetry.context.Scope
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svar
 import no.nav.helse.flex.domain.Sykepengesoknad
@@ -75,6 +76,8 @@ class SvarDAOPostgres(
         }
 
         val span = tracer.spanBuilder("SvarDAO.lagreSvar").startSpan()
+        val scope: Scope = span.makeCurrent()
+
         try {
             namedParameterJdbcTemplate.update(
                 """
@@ -86,6 +89,7 @@ class SvarDAOPostgres(
                     .addValue("verdi", svar.verdi),
             )
         } finally {
+            scope.close()
             span.end()
         }
     }
