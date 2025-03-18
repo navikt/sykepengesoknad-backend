@@ -105,16 +105,20 @@ pdl.api.url: ${PDL_BASE_URL}
 
 management:
   endpoint:
-    prometheus.enabled: true
     health.probes.enabled: true
     health.show-details: always
+    prometheus:
+      access:
   endpoints.web:
     base-path: "/internal"
     exposure.include: health, prometheus
   health:
     livenessstate.enabled: true
     readinessState.enabled: true
-  metrics.export.prometheus.enabled: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
 
 server:
   shutdown: graceful
