@@ -42,9 +42,6 @@ spec:
     pool: {{kafkaPool}}
   tokenx:
     enabled: true
-  redis:
-    - instance: sessions
-      access: readwrite
   valkey:
     - instance: identer
       access: readwrite
