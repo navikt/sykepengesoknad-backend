@@ -98,10 +98,8 @@ class SoknadKafkaProducerFake : Producer<String, SykepengesoknadDTO> {
             }
 
             override fun get(): RecordMetadata {
-                @Suppress("DEPRECATION")
                 return RecordMetadata(
                     TopicPartition("topic", 0),
-                    0,
                     0,
                     0,
                     0,
@@ -114,10 +112,8 @@ class SoknadKafkaProducerFake : Producer<String, SykepengesoknadDTO> {
                 p0: Long,
                 p1: TimeUnit,
             ): RecordMetadata {
-                @Suppress("DEPRECATION")
                 return RecordMetadata(
                     TopicPartition("topic", 0),
-                    0,
                     0,
                     0,
                     0,

@@ -8,7 +8,7 @@ import no.nav.helse.flex.inntektsopplysninger.InntektsopplysningerDokumentType
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.medlemskap.KjentOppholdstillatelse
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingRepository
-import no.nav.helse.flex.medlemskap.hentKjentOppholdstillatelse
+import no.nav.helse.flex.medlemskap.tilKjentOppholdstillatelse
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.soknadsopprettelse.ArbeidsforholdFraInntektskomponenten
 import no.nav.helse.flex.soknadsopprettelse.sorterSporsmal
@@ -74,7 +74,8 @@ class SykepengesoknadDAOPostgres(
                 sykepengesoknadRowMapper(),
             )
 
-        return populerSoknadMedDataFraAndreTabeller(soknader).firstOrNull() ?: throw SykepengesoknadDAO.SoknadIkkeFunnetException()
+        return populerSoknadMedDataFraAndreTabeller(soknader).firstOrNull()
+            ?: throw SykepengesoknadDAO.SoknadIkkeFunnetException()
     }
 
     override fun finnSykepengesoknaderForSykmelding(sykmeldingId: String): List<Sykepengesoknad> {
@@ -101,21 +102,7 @@ class SykepengesoknadDAOPostgres(
                 .filter { it.klippVariant.toString().startsWith("SOKNAD") }
                 .groupBy { it.sykepengesoknadUuid }
 
-        val kjenteOppholdstillatelser: Map<String, KjentOppholdstillatelse?> =
-            // Vi henter kun medlemskapsvurdering for arbeidstakersøknader.
-            soknader
-                .filter { it.second.soknadstype == Soknadstype.ARBEIDSTAKERE }
-                .associateBy(
-                    { it.second.id },
-                    {
-                        medlemskapVurderingRepository
-                            .findBySykepengesoknadIdAndFomAndTom(
-                                sykepengesoknadId = it.second.id,
-                                fom = it.second.fom!!,
-                                tom = it.second.tom!!,
-                            )?.hentKjentOppholdstillatelse()
-                    },
-                )
+        val oppholdstillatelser = finnOppholdstillatelser(soknader)
 
         return soknader
             .map {
@@ -123,7 +110,7 @@ class SykepengesoknadDAOPostgres(
                     soknadPerioder = soknadsPerioder[it.first] ?: emptyList(),
                     sporsmal = sporsmal[it.first] ?: emptyList(),
                     klippet = klipp.containsKey(it.second.id),
-                    kjentOppholdstillatelse = kjenteOppholdstillatelser[it.second.id],
+                    kjentOppholdstillatelse = oppholdstillatelser[it.second.id],
                 )
             }.map { it.sorterSporsmal() }
             .sortedBy { it.opprettet }
@@ -715,6 +702,26 @@ class SykepengesoknadDAOPostgres(
                 .addValue("publisert", publisert)
                 .addValue("sykepengesoknadId", sykepengesoknadId),
         )
+    }
+
+    private fun finnOppholdstillatelser(soknader: MutableList<Pair<String, Sykepengesoknad>>): Map<String, KjentOppholdstillatelse?> {
+        val arbeidstakersoknader = soknader.filter { it.second.soknadstype == Soknadstype.ARBEIDSTAKERE }
+
+        if (arbeidstakersoknader.isEmpty()) {
+            return emptyMap()
+        }
+
+        val medlemskapsVurderinger =
+            medlemskapVurderingRepository.findAllBySykepengesoknadId(arbeidstakersoknader.map { it.second.id })
+
+        return arbeidstakersoknader.associate { (_, soknad) ->
+            soknad.id to
+                // Mapper soknadId til kjentOppholdstillatelse med samme id, fom og tom siden "klipp" av
+                // søknaden gjør at det kan bli hentet ny medlemskapsvurdering en eller flere ganger.
+                medlemskapsVurderinger.find {
+                    it.sykepengesoknadId == soknad.id && it.fom == soknad.fom && it.tom == soknad.tom
+                }?.tilKjentOppholdstillatelse()
+        }
     }
 }
 

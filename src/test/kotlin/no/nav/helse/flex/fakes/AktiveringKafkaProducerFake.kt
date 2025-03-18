@@ -104,32 +104,14 @@ class AktiveringKafkaProducerFake : Producer<String, AktiveringBestilling> {
             }
 
             override fun get(): RecordMetadata {
-                @Suppress("DEPRECATION")
-                return RecordMetadata(
-                    TopicPartition("topic", 0),
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                )
+                return RecordMetadata(TopicPartition("topic", 0), 0, 0, 0, 0, 0)
             }
 
             override fun get(
                 p0: Long,
                 p1: TimeUnit,
             ): RecordMetadata {
-                @Suppress("DEPRECATION")
-                return RecordMetadata(
-                    TopicPartition("topic", 0),
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                )
+                return RecordMetadata(TopicPartition("topic", 0), 0, 0, 0, 0, 0)
             }
         }
     }
