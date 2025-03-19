@@ -1,5 +1,6 @@
 package no.nav.helse.flex.kafka.producer
 
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Mottaker
 import no.nav.helse.flex.domain.Soknadstype.ARBEIDSTAKERE
@@ -17,6 +18,7 @@ class SoknadProducer(
     private val kafkaProducer: AivenKafkaProducer,
     private val sykepengesoknadTilSykepengesoknadDTOMapper: SykepengesoknadTilSykepengesoknadDTOMapper,
 ) {
+    @WithSpan
     fun soknadEvent(
         sykepengesoknad: Sykepengesoknad,
         mottaker: Mottaker? = null,

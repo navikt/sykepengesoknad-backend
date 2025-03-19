@@ -1,5 +1,6 @@
 package no.nav.helse.flex.kafka.producer
 
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.helse.flex.config.EnvironmentToggles
 import no.nav.helse.flex.kafka.SYKEPENGESOKNAD_TOPIC
 import no.nav.helse.flex.logger
@@ -17,6 +18,7 @@ class AivenKafkaProducer(
 ) {
     val log = logger()
 
+    @WithSpan
     fun produserMelding(soknad: SykepengesoknadDTO): RecordMetadata {
         try {
             if (environmentToggles.isQ()) {

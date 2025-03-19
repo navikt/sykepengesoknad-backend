@@ -1,5 +1,6 @@
 package no.nav.helse.flex.kafka.producer
 
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.kafka.SYKMELDING_SENDT_RETRY_TOPIC
 import no.nav.helse.flex.logger
@@ -15,6 +16,7 @@ const val BEHANDLINGSTIDSPUNKT = "behandlingstidspunkt"
 class RebehandlingSykmeldingSendtProducer(private val producer: KafkaProducer<String, String>) {
     val log = logger()
 
+    @WithSpan
     fun leggPaRebehandlingTopic(
         sykmeldingKafkaMessage: SykmeldingKafkaMessage,
         behandlingstidspunkt: OffsetDateTime,
