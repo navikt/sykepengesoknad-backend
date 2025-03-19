@@ -1,6 +1,7 @@
 package no.nav.helse.flex.frisktilarbeid
 
 import com.fasterxml.jackson.module.kotlin.readValue
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.helse.flex.kafka.ARBEIDSSOKERREGISTER_STOPP_TOPIC
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.util.objectMapper
@@ -18,6 +19,7 @@ class ArbeidssokerregisterStoppListener(
 ) {
     val log = logger()
 
+    @WithSpan
     @KafkaListener(
         topics = [ARBEIDSSOKERREGISTER_STOPP_TOPIC],
         id = "arbeidssokerregister-stopp-dev-1",

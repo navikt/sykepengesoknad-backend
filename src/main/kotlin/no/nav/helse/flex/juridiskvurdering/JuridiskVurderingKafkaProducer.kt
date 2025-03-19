@@ -1,5 +1,6 @@
 package no.nav.helse.flex.juridiskvurdering
 
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.helse.flex.logger
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -18,6 +19,7 @@ class JuridiskVurderingKafkaProducer(
 ) {
     val log = logger()
 
+    @WithSpan
     fun produserMelding(juridiskVurdering: JuridiskVurdering) {
         val dto = juridiskVurdering.tilDto()
         try {

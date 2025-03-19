@@ -1,5 +1,6 @@
 package no.nav.helse.flex.repository
 
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.helse.flex.config.EnvironmentToggles
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.util.osloZone
@@ -38,6 +39,7 @@ class DodsmeldingDAOPostgres(
     private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
     private val toggle: EnvironmentToggles,
 ) : DodsmeldingDAO {
+    @WithSpan
     override fun fnrMedToUkerGammelDodsmelding(): List<DodsmeldingDAO.Dodsfall> {
         val mottattFør =
             if (toggle.isProduction()) {
@@ -61,6 +63,7 @@ class DodsmeldingDAOPostgres(
         }
     }
 
+    @WithSpan
     override fun harDodsmelding(identer: FolkeregisterIdenter): Boolean {
         return namedParameterJdbcTemplate.queryForObject(
             """
@@ -73,6 +76,7 @@ class DodsmeldingDAOPostgres(
         )?.toInt() == 1
     }
 
+    @WithSpan
     override fun oppdaterDodsdato(
         identer: FolkeregisterIdenter,
         dodsdato: LocalDate,
@@ -87,6 +91,7 @@ class DodsmeldingDAOPostgres(
         )
     }
 
+    @WithSpan
     override fun lagreDodsmelding(
         identer: FolkeregisterIdenter,
         dodsdato: LocalDate,
@@ -104,6 +109,7 @@ class DodsmeldingDAOPostgres(
         )
     }
 
+    @WithSpan
     override fun slettDodsmelding(identer: FolkeregisterIdenter) {
         namedParameterJdbcTemplate.update(
             "DELETE FROM DODSMELDING WHERE FNR IN (:identer)",

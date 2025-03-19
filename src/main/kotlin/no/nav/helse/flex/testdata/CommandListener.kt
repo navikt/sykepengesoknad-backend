@@ -1,6 +1,7 @@
 package no.nav.helse.flex.testdata
 
 import com.fasterxml.jackson.module.kotlin.readValue
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.helse.flex.frisktilarbeid.FriskTilArbeidCronJob
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadDAO
@@ -14,12 +15,13 @@ import org.springframework.stereotype.Component
 
 @Component
 @Profile("testdata")
-class CommanndListener(val sykepengesoknadDAO: SykepengesoknadDAO) {
+class CommandListener(val sykepengesoknadDAO: SykepengesoknadDAO) {
     val log = logger()
 
     @Autowired
     lateinit var friskTilArbeidCronJob: FriskTilArbeidCronJob
 
+    @WithSpan
     @KafkaListener(
         topics = [COMMAND_TOPIC],
         containerFactory = "aivenKafkaListenerContainerFactory",

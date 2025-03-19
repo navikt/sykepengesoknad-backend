@@ -1,5 +1,7 @@
 package no.nav.helse.flex.repository
 
+import io.opentelemetry.api.trace.Tracer
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svar
 import no.nav.helse.flex.domain.Sykepengesoknad
@@ -34,7 +36,11 @@ interface SvarDAO {
 @Service
 @Transactional
 @Repository
-class SvarDAOPostgres(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate) : SvarDAO {
+class SvarDAOPostgres(
+    private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
+    private val tracer: Tracer,
+) : SvarDAO {
+    @WithSpan
     override fun finnSvar(sporsmalIder: Set<String>): HashMap<String, MutableList<Svar>> {
         val svarMap = HashMap<String, MutableList<Svar>>()
         sporsmalIder.chunked(1000).forEach {
@@ -59,6 +65,7 @@ class SvarDAOPostgres(private val namedParameterJdbcTemplate: NamedParameterJdbc
         return svarMap
     }
 
+    @WithSpan
     override fun lagreSvar(
         sporsmalId: String,
         svar: Svar?,
@@ -80,6 +87,7 @@ class SvarDAOPostgres(private val namedParameterJdbcTemplate: NamedParameterJdbc
         )
     }
 
+    @WithSpan
     override fun slettSvar(sykepengesoknadUUID: String) {
         namedParameterJdbcTemplate.update(
             """
@@ -97,6 +105,7 @@ class SvarDAOPostgres(private val namedParameterJdbcTemplate: NamedParameterJdbc
         )
     }
 
+    @WithSpan
     override fun slettSvar(sporsmalIder: List<String>) {
         if (sporsmalIder.isEmpty()) {
             return
@@ -111,6 +120,7 @@ class SvarDAOPostgres(private val namedParameterJdbcTemplate: NamedParameterJdbc
         }
     }
 
+    @WithSpan
     override fun slettSvar(
         sporsmalId: String,
         svarId: String,
@@ -123,6 +133,7 @@ class SvarDAOPostgres(private val namedParameterJdbcTemplate: NamedParameterJdbc
         )
     }
 
+    @WithSpan
     override fun overskrivSvar(sykepengesoknad: Sykepengesoknad) {
         val alleSporsmalOgUndersporsmal = sykepengesoknad.alleSporsmalOgUndersporsmal()
         slettSvar(alleSporsmalOgUndersporsmal.mapNotNull { it.id })
@@ -134,6 +145,7 @@ class SvarDAOPostgres(private val namedParameterJdbcTemplate: NamedParameterJdbc
             }
     }
 
+    @WithSpan
     override fun overskrivSvar(sporsmal: List<Sporsmal>) {
         slettSvar(sporsmal.mapNotNull { it.id })
 

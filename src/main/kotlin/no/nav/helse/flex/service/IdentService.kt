@@ -1,5 +1,6 @@
 package no.nav.helse.flex.service
 
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.helse.flex.client.pdl.AKTORID
 import no.nav.helse.flex.client.pdl.FOLKEREGISTERIDENT
 import no.nav.helse.flex.client.pdl.PdlClient
@@ -15,6 +16,7 @@ class IdentService(private val pdlClient: PdlClient) {
         return this.filter { it.gruppe == FOLKEREGISTERIDENT }.map { it.ident }
     }
 
+    @WithSpan
     @Cacheable("flex-folkeregister-identer-med-historikk")
     fun hentFolkeregisterIdenterMedHistorikkForFnr(fnr: String): FolkeregisterIdenter {
         val identer = pdlClient.hentIdenterMedHistorikk(fnr)

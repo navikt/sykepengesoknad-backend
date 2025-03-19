@@ -2,6 +2,7 @@ package no.nav.helse.flex.client.pdl
 
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.module.kotlin.readValue
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.helse.flex.util.objectMapper
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.*
@@ -32,6 +33,7 @@ query(${"$"}ident: ID!){
 }
 """
 
+    @WithSpan
     @Retryable(exclude = [FunctionalPdlError::class])
     fun hentIdenterMedHistorikk(ident: String): List<PdlIdent> {
         val graphQLRequest =

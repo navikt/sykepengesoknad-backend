@@ -1,5 +1,6 @@
 package no.nav.helse.flex.repository
 
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svar
 import no.nav.helse.flex.domain.Svartype
@@ -28,6 +29,7 @@ interface SporsmalDAO {
 @Repository
 class SporsmalDAOPostgres(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate, private val svarDAO: SvarDAO) :
     SporsmalDAO {
+    @WithSpan
     override fun finnSporsmal(sykepengesoknadIds: Set<String>): HashMap<String, MutableList<Sporsmal>> {
         val unMapped =
             sykepengesoknadIds.chunked(1000).map { id ->
@@ -99,11 +101,13 @@ class SporsmalDAOPostgres(private val namedParameterJdbcTemplate: NamedParameter
         return ret
     }
 
+    @WithSpan
     override fun populerMedSvar(svarMap: HashMap<String, MutableList<Svar>>) {
         val svarFraBasen = svarDAO.finnSvar(svarMap.keys)
         svarFraBasen.forEach { (key, value) -> svarMap[key]!!.addAll(value) }
     }
 
+    @WithSpan
     override fun slettSporsmalOgSvar(soknadsIder: List<String>) {
         if (soknadsIder.isEmpty()) {
             return
@@ -131,6 +135,7 @@ class SporsmalDAOPostgres(private val namedParameterJdbcTemplate: NamedParameter
         )
     }
 
+    @WithSpan
     override fun slettEnkeltSporsmal(sporsmalsIder: List<String>) {
         if (sporsmalsIder.isEmpty()) {
             return

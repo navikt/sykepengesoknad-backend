@@ -1,5 +1,6 @@
 package no.nav.helse.flex.frisktilarbeid
 
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.helse.flex.config.EnvironmentToggles
 import no.nav.helse.flex.kafka.FRISKTILARBEID_TOPIC
 import no.nav.helse.flex.logger
@@ -17,6 +18,7 @@ class FriskTilArbeidConsumer(
 ) {
     val log = logger()
 
+    @WithSpan
     @KafkaListener(
         topics = [FRISKTILARBEID_TOPIC],
         id = "flex-frisktilarbeid-dev-2",
