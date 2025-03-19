@@ -133,6 +133,7 @@ class SvarDAOPostgres(
         )
     }
 
+    @WithSpan
     override fun overskrivSvar(sykepengesoknad: Sykepengesoknad) {
         val alleSporsmalOgUndersporsmal = sykepengesoknad.alleSporsmalOgUndersporsmal()
         slettSvar(alleSporsmalOgUndersporsmal.mapNotNull { it.id })
@@ -144,6 +145,7 @@ class SvarDAOPostgres(
             }
     }
 
+    @WithSpan
     override fun overskrivSvar(sporsmal: List<Sporsmal>) {
         slettSvar(sporsmal.mapNotNull { it.id })
 

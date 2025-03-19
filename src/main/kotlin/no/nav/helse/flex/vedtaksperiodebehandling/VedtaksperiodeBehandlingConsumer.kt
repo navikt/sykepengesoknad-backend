@@ -1,6 +1,7 @@
 package no.nav.helse.flex.vedtaksperiodebehandling
 
 import com.fasterxml.jackson.module.kotlin.readValue
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.helse.flex.kafka.SIS_TOPIC
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.util.objectMapper
@@ -15,6 +16,7 @@ class VedtaksperiodeBehandlingConsumer(
 ) {
     val log = logger()
 
+    @WithSpan
     @KafkaListener(
         topics = [SIS_TOPIC],
         containerFactory = "aivenKafkaListenerContainerFactory",

@@ -1,6 +1,7 @@
 package no.nav.helse.flex.kafka.consumer
 
 import com.fasterxml.jackson.module.kotlin.readValue
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.soknadsopprettelse.BehandleSykmeldingOgBestillAktivering
@@ -25,6 +26,7 @@ class SykmeldingSendtBekreftetAivenConsumer(
 ) {
     val log = logger()
 
+    @WithSpan
     @KafkaListener(
         topics = [SYKMELDINGSENDT_TOPIC, SYKMELDINGBEKREFTET_TOPIC],
         id = "sykmelding-sendt-bekreftet",

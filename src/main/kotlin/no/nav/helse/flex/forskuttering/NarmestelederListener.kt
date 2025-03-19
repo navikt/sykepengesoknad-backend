@@ -1,5 +1,6 @@
 package no.nav.helse.flex.forskuttering
 
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.support.Acknowledgment
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Component
 class NarmestelederListener(
     private val oppdateringAvForskuttering: OppdateringAvForskuttering,
 ) {
+    @WithSpan
     @KafkaListener(
         topics = [NARMESTELEDER_LEESAH_TOPIC],
         containerFactory = "aivenKafkaListenerContainerFactory",

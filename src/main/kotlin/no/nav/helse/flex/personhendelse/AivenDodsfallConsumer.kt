@@ -1,5 +1,6 @@
 package no.nav.helse.flex.personhendelse
 
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.kafka.PERSONHENDELSE_TOPIC
 import no.nav.helse.flex.logger
@@ -23,6 +24,7 @@ class AivenDodsfallConsumer(
 ) {
     val log = logger()
 
+    @WithSpan
     @KafkaListener(
         topics = [PERSONHENDELSE_TOPIC],
         id = "sykepengesoknad-personhendelse",

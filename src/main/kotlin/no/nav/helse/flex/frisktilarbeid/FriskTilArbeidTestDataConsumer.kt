@@ -1,5 +1,6 @@
 package no.nav.helse.flex.frisktilarbeid
 
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.helse.flex.logger
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.context.annotation.Profile
@@ -14,6 +15,7 @@ class FriskTilArbeidTestDataConsumer(
 ) {
     val log = logger()
 
+    @WithSpan
     @KafkaListener(
         topics = [FRISKTILARBEID_TESTDATA_TOPIC],
         id = "flex-frisktilarbeid-testdata-1",

@@ -101,6 +101,7 @@ class SporsmalDAOPostgres(private val namedParameterJdbcTemplate: NamedParameter
         return ret
     }
 
+    @WithSpan
     override fun populerMedSvar(svarMap: HashMap<String, MutableList<Svar>>) {
         val svarFraBasen = svarDAO.finnSvar(svarMap.keys)
         svarFraBasen.forEach { (key, value) -> svarMap[key]!!.addAll(value) }

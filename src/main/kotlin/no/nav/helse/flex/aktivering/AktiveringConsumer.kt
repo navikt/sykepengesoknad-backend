@@ -1,5 +1,6 @@
 package no.nav.helse.flex.aktivering
 
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.helse.flex.kafka.SYKEPENGESOKNAD_AKTIVERING_TOPIC
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.kafka.annotation.KafkaListener
@@ -11,6 +12,7 @@ class AktiveringConsumer(
     private val soknadAktivering: SoknadAktivering,
     private val retryLogger: RetryLogger,
 ) {
+    @WithSpan
     @KafkaListener(
         topics = [SYKEPENGESOKNAD_AKTIVERING_TOPIC],
         containerFactory = "aivenKafkaListenerContainerFactory",

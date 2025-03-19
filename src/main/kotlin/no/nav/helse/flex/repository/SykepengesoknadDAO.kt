@@ -93,6 +93,7 @@ class SykepengesoknadDAOPostgres(
         return populerSoknadMedDataFraAndreTabeller(soknader)
     }
 
+    @WithSpan
     override fun populerSoknadMedDataFraAndreTabeller(soknader: MutableList<Pair<String, Sykepengesoknad>>): List<Sykepengesoknad> {
         val soknadsIder = soknader.map { it.first }.toSet()
         val soknadsUUIDer = soknader.map { it.second.id }
@@ -160,6 +161,7 @@ class SykepengesoknadDAOPostgres(
         return mottaker
     }
 
+    @WithSpan
     override fun lagreSykepengesoknad(sykepengesoknad: Sykepengesoknad): Sykepengesoknad {
         soknadLagrer.lagreSoknad(sykepengesoknad)
         return finnSykepengesoknad(sykepengesoknad.id)
@@ -347,6 +349,7 @@ class SykepengesoknadDAOPostgres(
         return antallSoknaderSlettet
     }
 
+    @WithSpan
     override fun slettSoknad(sykepengesoknad: Sykepengesoknad) {
         log.info(
             "Sletter ${sykepengesoknad.status.name} søknad av typen: ${sykepengesoknad.soknadstype} med " +
@@ -380,10 +383,12 @@ class SykepengesoknadDAOPostgres(
         }
     }
 
+    @WithSpan
     override fun finnAlleredeOpprettetSoknad(identer: FolkeregisterIdenter): Sykepengesoknad? =
         finnSykepengesoknader(identer)
             .firstOrNull { s -> Soknadstatus.NY == s.status && Soknadstype.OPPHOLD_UTLAND == s.soknadstype }
 
+    @WithSpan
     override fun byttUtSporsmal(oppdatertSoknad: Sykepengesoknad) {
         val sykepengesoknadId = sykepengesoknadId(oppdatertSoknad.id)
         sporsmalDAO.slettSporsmalOgSvar(listOf(sykepengesoknadId))
@@ -399,6 +404,7 @@ class SykepengesoknadDAOPostgres(
             String::class.java,
         )!!
 
+    @WithSpan
     override fun klippSoknadTom(
         sykepengesoknadUuid: String,
         nyTom: LocalDate,
@@ -439,6 +445,7 @@ class SykepengesoknadDAOPostgres(
         return nyePerioder
     }
 
+    @WithSpan
     override fun klippSoknadFom(
         sykepengesoknadUuid: String,
         nyFom: LocalDate,
