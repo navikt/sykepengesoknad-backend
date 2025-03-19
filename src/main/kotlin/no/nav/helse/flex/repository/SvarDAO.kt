@@ -1,7 +1,7 @@
 package no.nav.helse.flex.repository
 
 import io.opentelemetry.api.trace.Tracer
-import io.opentelemetry.context.Scope
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svar
 import no.nav.helse.flex.domain.Sykepengesoknad
@@ -40,6 +40,7 @@ class SvarDAOPostgres(
     private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
     private val tracer: Tracer,
 ) : SvarDAO {
+    @WithSpan
     override fun finnSvar(sporsmalIder: Set<String>): HashMap<String, MutableList<Svar>> {
         val svarMap = HashMap<String, MutableList<Svar>>()
         sporsmalIder.chunked(1000).forEach {
@@ -64,6 +65,7 @@ class SvarDAOPostgres(
         return svarMap
     }
 
+    @WithSpan
     override fun lagreSvar(
         sporsmalId: String,
         svar: Svar?,
@@ -74,26 +76,18 @@ class SvarDAOPostgres(
         if (svar == null || isEmpty(svar.verdi)) {
             return
         }
-
-        val span = tracer.spanBuilder("SvarDAO.lagreSvar").startSpan()
-        val scope: Scope = span.makeCurrent()
-
-        try {
-            namedParameterJdbcTemplate.update(
-                """
-                INSERT INTO svar (sporsmal_id, verdi) 
-                VALUES (:sporsmalId, :verdi)
-                """.trimIndent(),
-                MapSqlParameterSource()
-                    .addValue("sporsmalId", sporsmalId)
-                    .addValue("verdi", svar.verdi),
-            )
-        } finally {
-            scope.close()
-            span.end()
-        }
+        namedParameterJdbcTemplate.update(
+            """
+            INSERT INTO svar (sporsmal_id, verdi) 
+            VALUES (:sporsmalId, :verdi)
+            """.trimIndent(),
+            MapSqlParameterSource()
+                .addValue("sporsmalId", sporsmalId)
+                .addValue("verdi", svar.verdi),
+        )
     }
 
+    @WithSpan
     override fun slettSvar(sykepengesoknadUUID: String) {
         namedParameterJdbcTemplate.update(
             """
@@ -111,6 +105,7 @@ class SvarDAOPostgres(
         )
     }
 
+    @WithSpan
     override fun slettSvar(sporsmalIder: List<String>) {
         if (sporsmalIder.isEmpty()) {
             return
@@ -125,6 +120,7 @@ class SvarDAOPostgres(
         }
     }
 
+    @WithSpan
     override fun slettSvar(
         sporsmalId: String,
         svarId: String,
@@ -137,6 +133,7 @@ class SvarDAOPostgres(
         )
     }
 
+    @WithSpan
     override fun overskrivSvar(sykepengesoknad: Sykepengesoknad) {
         val alleSporsmalOgUndersporsmal = sykepengesoknad.alleSporsmalOgUndersporsmal()
         slettSvar(alleSporsmalOgUndersporsmal.mapNotNull { it.id })
@@ -148,6 +145,7 @@ class SvarDAOPostgres(
             }
     }
 
+    @WithSpan
     override fun overskrivSvar(sporsmal: List<Sporsmal>) {
         slettSvar(sporsmal.mapNotNull { it.id })
 

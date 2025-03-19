@@ -1,5 +1,6 @@
 package no.nav.helse.flex.repository
 
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.helse.flex.domain.Soknadsperiode
 import no.nav.helse.flex.domain.Sykmeldingstype
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
@@ -25,6 +26,7 @@ interface SoknadsperiodeDAO {
 @Transactional
 @Repository
 class SoknadsperiodeDAOPostgres(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate) : SoknadsperiodeDAO {
+    @WithSpan
     override fun lagreSoknadperioder(
         sykepengesoknadId: String,
         soknadPerioder: List<Soknadsperiode>,
@@ -48,6 +50,7 @@ class SoknadsperiodeDAOPostgres(private val namedParameterJdbcTemplate: NamedPar
         }
     }
 
+    @WithSpan
     override fun finnSoknadPerioder(sykepengesoknadIds: Set<String>): HashMap<String, MutableList<Soknadsperiode>> {
         val unMapped =
             sykepengesoknadIds.chunked(1000).map {
@@ -86,6 +89,7 @@ class SoknadsperiodeDAOPostgres(private val namedParameterJdbcTemplate: NamedPar
         return ret
     }
 
+    @WithSpan
     override fun slettSoknadPerioder(sykepengesoknadId: String) {
         namedParameterJdbcTemplate.update(
             """

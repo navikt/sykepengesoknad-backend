@@ -1,6 +1,7 @@
 package no.nav.helse.flex.repository
 
 import com.fasterxml.jackson.module.kotlin.readValue
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.helse.flex.domain.*
 import no.nav.helse.flex.domain.exception.SlettSoknadException
 import no.nav.helse.flex.frisktilarbeid.FriskTilArbeidRepository
@@ -42,6 +43,7 @@ class SykepengesoknadDAOPostgres(
 
     override fun finnSykepengesoknader(identer: FolkeregisterIdenter): List<Sykepengesoknad> = finnSykepengesoknader(identer.alle())
 
+    @WithSpan
     override fun finnSykepengesoknader(
         identer: List<String>,
         soknadstype: Soknadstype?,
@@ -66,6 +68,7 @@ class SykepengesoknadDAOPostgres(
         return populerSoknadMedDataFraAndreTabeller(soknader)
     }
 
+    @WithSpan
     override fun finnSykepengesoknad(sykepengesoknadId: String): Sykepengesoknad {
         val soknader =
             namedParameterJdbcTemplate.query(
@@ -78,6 +81,7 @@ class SykepengesoknadDAOPostgres(
             ?: throw SykepengesoknadDAO.SoknadIkkeFunnetException()
     }
 
+    @WithSpan
     override fun finnSykepengesoknaderForSykmelding(sykmeldingId: String): List<Sykepengesoknad> {
         val soknader =
             namedParameterJdbcTemplate.query(
@@ -116,6 +120,7 @@ class SykepengesoknadDAOPostgres(
             .sortedBy { it.opprettet }
     }
 
+    @WithSpan
     override fun finnSykepengesoknaderUtenSporsmal(identer: List<String>): List<Sykepengesoknad> {
         val soknader =
             namedParameterJdbcTemplate.query(
@@ -135,6 +140,7 @@ class SykepengesoknadDAOPostgres(
             }.sortedBy { it.opprettet }
     }
 
+    @WithSpan
     override fun finnMottakerAvSoknad(soknadUuid: String): Mottaker? {
         val mottaker =
             namedParameterJdbcTemplate.queryForObject(
@@ -159,6 +165,7 @@ class SykepengesoknadDAOPostgres(
         return finnSykepengesoknad(sykepengesoknad.id)
     }
 
+    @WithSpan
     override fun oppdaterKorrigertAv(sykepengesoknad: Sykepengesoknad) {
         val raderOppdatert =
             namedParameterJdbcTemplate.update(
@@ -179,6 +186,7 @@ class SykepengesoknadDAOPostgres(
         }
     }
 
+    @WithSpan
     override fun oppdaterStatus(sykepengesoknad: Sykepengesoknad) {
         val raderOppdatert =
             namedParameterJdbcTemplate.update(
@@ -197,6 +205,7 @@ class SykepengesoknadDAOPostgres(
         }
     }
 
+    @WithSpan
     override fun settSendtNav(
         sykepengesoknadId: String,
         sendtNav: LocalDateTime,
@@ -216,6 +225,7 @@ class SykepengesoknadDAOPostgres(
         )
     }
 
+    @WithSpan
     override fun settSendtAg(
         sykepengesoknadId: String,
         sendtAg: LocalDateTime,
@@ -233,6 +243,7 @@ class SykepengesoknadDAOPostgres(
         )
     }
 
+    @WithSpan
     override fun aktiverSoknad(uuid: String) {
         val raderOppdatert =
             namedParameterJdbcTemplate.update(
@@ -254,6 +265,7 @@ class SykepengesoknadDAOPostgres(
         }
     }
 
+    @WithSpan
     override fun avbrytSoknad(
         sykepengesoknad: Sykepengesoknad,
         dato: LocalDate,
@@ -278,6 +290,7 @@ class SykepengesoknadDAOPostgres(
         slettAlleSvar(sykepengesoknad)
     }
 
+    @WithSpan
     override fun gjenapneSoknad(sykepengesoknad: Sykepengesoknad) {
         val raderOppdatert =
             namedParameterJdbcTemplate.update(
@@ -298,10 +311,12 @@ class SykepengesoknadDAOPostgres(
         }
     }
 
+    @WithSpan
     override fun slettAlleSvar(sykepengesoknad: Sykepengesoknad) {
         svarDAO.slettSvar(sykepengesoknad.id)
     }
 
+    @WithSpan
     override fun nullstillSoknader(fnr: String): Int {
         val soknadsIder =
             namedParameterJdbcTemplate.query(
@@ -341,6 +356,7 @@ class SykepengesoknadDAOPostgres(
         slettSoknad(sykepengesoknad.id)
     }
 
+    @WithSpan
     override fun slettSoknad(sykepengesoknadUuid: String) {
         try {
             val id = sykepengesoknadId(sykepengesoknadUuid)
@@ -374,6 +390,7 @@ class SykepengesoknadDAOPostgres(
         soknadLagrer.lagreSporsmalOgSvarFraSoknad(oppdatertSoknad)
     }
 
+    @WithSpan
     override fun sykepengesoknadId(uuid: String): String =
         namedParameterJdbcTemplate.queryForObject(
             "SELECT id FROM sykepengesoknad WHERE sykepengesoknad_uuid =:uuid",
@@ -462,6 +479,7 @@ class SykepengesoknadDAOPostgres(
         return nyePerioder
     }
 
+    @WithSpan
     override fun oppdaterTom(
         sykepengesoknadId: String,
         nyTom: LocalDate,
@@ -489,6 +507,7 @@ class SykepengesoknadDAOPostgres(
         }
     }
 
+    @WithSpan
     override fun oppdaterFom(
         sykepengesoknadId: String,
         nyFom: LocalDate,
@@ -516,6 +535,7 @@ class SykepengesoknadDAOPostgres(
         }
     }
 
+    @WithSpan
     override fun sendSoknad(
         sykepengesoknad: Sykepengesoknad,
         mottaker: Mottaker,
