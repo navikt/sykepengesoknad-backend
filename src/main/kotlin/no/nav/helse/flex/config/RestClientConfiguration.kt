@@ -16,8 +16,8 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
 import org.springframework.web.client.RestClient
 import java.time.Duration
 
-const val REST_CLIENT_CONNECT_TIMEOUT = 3L
-const val REST_CLIENT_READ_TIMEOUT = 3L
+const val REST_CLIENT_CONNECT_TIMEOUT = 5L
+const val REST_CLIENT_READ_TIMEOUT = 10L
 
 @EnableOAuth2Client(cacheEnabled = true)
 @Configuration
