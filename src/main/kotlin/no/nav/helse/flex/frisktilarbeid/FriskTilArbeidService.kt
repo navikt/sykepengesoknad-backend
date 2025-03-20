@@ -34,7 +34,7 @@ class FriskTilArbeidService(
                 val feilmelding =
                     "Vedtak med key: ${kafkaMelding.key} og " +
                         "periode: [${friskTilArbeidVedtakStatus.fom} - ${friskTilArbeidVedtakStatus.tom}] " +
-                        "overlapper med vedtak med periode: [$fom - $tom]."
+                        "overlapper med vedtak med key: $key periode: [$fom - $tom]."
                 log.error(feilmelding)
                 throw FriskTilArbeidVedtakStatusException(feilmelding)
             }
