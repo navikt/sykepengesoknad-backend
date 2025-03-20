@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.util.concurrent.TimeUnit
 
-const val BEHANDLE_ANTALL_FRISK_TIL_ARBEID_VEDTAK = 10
+const val BEHANDLE_ANTALL_FRISK_TIL_ARBEID_VEDTAK = 50
 
 @Component
 class FriskTilArbeidCronJob(
@@ -19,7 +19,7 @@ class FriskTilArbeidCronJob(
 ) {
     private val log = logger()
 
-    @Scheduled(initialDelay = 2, fixedDelay = 5, timeUnit = TimeUnit.MINUTES)
+    @Scheduled(initialDelay = 1, fixedDelay = 2, timeUnit = TimeUnit.MINUTES)
     fun schedulertStartBehandlingAvFriskTilArbeidVedtakStatus() {
         if (leaderElection.isLeader()) {
             log.info("Er leder, starter behandling av FriskTilArbeidVedtakStatus.")
