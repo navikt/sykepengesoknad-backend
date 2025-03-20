@@ -7,9 +7,11 @@ import no.nav.helse.flex.logger
 import no.nav.helse.flex.medlemskap.tilPostgresJson
 import no.nav.helse.flex.service.IdentService
 import no.nav.helse.flex.util.objectMapper
+import no.nav.helse.flex.util.osloZone
 import org.springframework.stereotype.Service
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.util.*
 
@@ -21,8 +23,15 @@ class FriskTilArbeidService(
 ) {
     private val log = logger()
 
+    private val tidspunktForOvertakelse = LocalDateTime.of(2025, 3, 10, 0, 0, 0).atZone(osloZone).toOffsetDateTime()
+
     fun lagreFriskTilArbeidVedtakStatus(kafkaMelding: FriskTilArbeidVedtakStatusKafkaMelding) {
         val friskTilArbeidVedtakStatus = kafkaMelding.friskTilArbeidVedtakStatus
+
+        // Vi skal bare prosessere vedtak som er fattet etter 10. mars 2025 00:00 norsk tid.
+        if (friskTilArbeidVedtakStatus.statusAt.isBefore(tidspunktForOvertakelse)) {
+            return
+        }
 
         if (friskTilArbeidVedtakStatus.status == Status.FATTET) {
             val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(friskTilArbeidVedtakStatus.personident)

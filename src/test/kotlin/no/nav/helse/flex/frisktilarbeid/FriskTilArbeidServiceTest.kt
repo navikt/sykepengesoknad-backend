@@ -9,7 +9,9 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
-import java.util.*
+import java.time.LocalDateTime
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
 
 class FriskTilArbeidServiceTest : FakesTestOppsett() {
     @Autowired
@@ -48,6 +50,42 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
         )
 
         fakeFriskTilArbeidRepository.findAll().toList() shouldHaveSize 0
+    }
+
+    @Test
+    fun `Lagrer ikke vedtak med statusAt før tidspunktForOvertakelse norsk tid`() {
+        val statusAt = OffsetDateTime.of(LocalDateTime.of(2025, 3, 9, 22, 59, 0), ZoneOffset.UTC)
+
+        friskTilArbeidService.lagreFriskTilArbeidVedtakStatus(
+            FriskTilArbeidVedtakStatusKafkaMelding(
+                key = key,
+                friskTilArbeidVedtakStatus =
+                    lagFriskTilArbeidVedtakStatus(
+                        fnr,
+                        Status.FATTET,
+                    ).copy(statusAt = statusAt),
+            ),
+        )
+
+        fakeFriskTilArbeidRepository.findAll().toList() shouldHaveSize 0
+    }
+
+    @Test
+    fun `Lagrer ikke vedtak med statusAt etter tidspunktForOvertakelse norsk tid`() {
+        val statusAt = OffsetDateTime.of(LocalDateTime.of(2025, 3, 9, 23, 1, 0), ZoneOffset.UTC)
+
+        friskTilArbeidService.lagreFriskTilArbeidVedtakStatus(
+            FriskTilArbeidVedtakStatusKafkaMelding(
+                key = key,
+                friskTilArbeidVedtakStatus =
+                    lagFriskTilArbeidVedtakStatus(
+                        fnr,
+                        Status.FATTET,
+                    ).copy(statusAt = statusAt),
+            ),
+        )
+
+        fakeFriskTilArbeidRepository.findAll().toList() shouldHaveSize 1
     }
 
     @Test
