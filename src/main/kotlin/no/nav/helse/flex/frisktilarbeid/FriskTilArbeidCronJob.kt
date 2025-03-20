@@ -4,7 +4,6 @@ import no.nav.helse.flex.aktivering.AktiveringBestilling
 import no.nav.helse.flex.aktivering.AktiveringProducer
 import no.nav.helse.flex.cronjob.LeaderElection
 import no.nav.helse.flex.logger
-import org.springframework.context.annotation.Profile
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import java.time.LocalDate
@@ -12,7 +11,6 @@ import java.util.concurrent.TimeUnit
 
 const val BEHANDLE_ANTALL_FRISK_TIL_ARBEID_VEDTAK = 10
 
-@Profile("frisktilarbeid")
 @Component
 class FriskTilArbeidCronJob(
     private val leaderElection: LeaderElection,
