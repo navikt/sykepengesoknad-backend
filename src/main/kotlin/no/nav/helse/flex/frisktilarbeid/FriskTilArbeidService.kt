@@ -45,7 +45,19 @@ class FriskTilArbeidService(
                         "periode: [${friskTilArbeidVedtakStatus.fom} - ${friskTilArbeidVedtakStatus.tom}] " +
                         "overlapper med vedtak med key: $key periode: [$fom - $tom]."
                 log.error(feilmelding)
-                throw FriskTilArbeidVedtakStatusException(feilmelding)
+                friskTilArbeidRepository.save(
+                    FriskTilArbeidVedtakDbRecord(
+                        vedtakUuid = UUID.randomUUID().toString(),
+                        key = kafkaMelding.key,
+                        opprettet = Instant.now(),
+                        fnr = friskTilArbeidVedtakStatus.personident,
+                        fom = friskTilArbeidVedtakStatus.fom,
+                        tom = friskTilArbeidVedtakStatus.tom,
+                        vedtak = friskTilArbeidVedtakStatus.tilPostgresJson(),
+                        behandletStatus = BehandletStatus.OVERLAPP,
+                    ),
+                )
+                return
             }
 
             friskTilArbeidRepository.save(
@@ -104,5 +116,3 @@ enum class Status {
     FATTET,
     FERDIG_BEHANDLET,
 }
-
-class FriskTilArbeidVedtakStatusException(message: String) : RuntimeException(message)

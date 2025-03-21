@@ -61,4 +61,5 @@ fun FriskTilArbeidVedtakDbRecord.tilPeriode(): Periode {
 enum class BehandletStatus {
     NY,
     BEHANDLET,
+    OVERLAPP,
 }

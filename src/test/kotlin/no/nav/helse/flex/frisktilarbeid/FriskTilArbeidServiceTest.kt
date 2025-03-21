@@ -2,11 +2,12 @@ package no.nav.helse.flex.frisktilarbeid
 
 import no.nav.helse.flex.FakesTestOppsett
 import no.nav.helse.flex.domain.Periode
+import no.nav.helse.flex.frisktilarbeid.BehandletStatus.NY
+import no.nav.helse.flex.frisktilarbeid.BehandletStatus.OVERLAPP
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -128,7 +129,7 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
     }
 
     @Test
-    fun `Feiler ved lagring av to vedtak med samme fom og tom`() {
+    fun `Overlapp ved lagring av to vedtak med samme fom og tom`() {
         lagFriskTilArbeidVedtakStatus(
             Periode(
                 fom = LocalDate.of(2024, 1, 1),
@@ -136,18 +137,19 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
             ),
         )
 
-        assertThrows<FriskTilArbeidVedtakStatusException> {
-            lagFriskTilArbeidVedtakStatus(
-                Periode(
-                    fom = LocalDate.of(2024, 1, 1),
-                    tom = LocalDate.of(2024, 1, 7),
-                ),
-            )
-        }
+        lagFriskTilArbeidVedtakStatus(
+            Periode(
+                fom = LocalDate.of(2024, 1, 1),
+                tom = LocalDate.of(2024, 1, 7),
+            ),
+        )
+        val vedtakFraDb = fakeFriskTilArbeidRepository.findAll().toList()
+        vedtakFraDb shouldHaveSize 2
+        vedtakFraDb.map { it.behandletStatus }.toSet() `should be equal to` setOf(NY, OVERLAPP)
     }
 
     @Test
-    fun `Feiler ved lagring av nytt vedtak med fom før eksisterende vedtaks tom`() {
+    fun `Overlapp ved lagring av nytt vedtak med fom før eksisterende vedtaks tom`() {
         lagFriskTilArbeidVedtakStatus(
             Periode(
                 fom = LocalDate.of(2024, 1, 1),
@@ -155,18 +157,19 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
             ),
         )
 
-        assertThrows<FriskTilArbeidVedtakStatusException> {
-            lagFriskTilArbeidVedtakStatus(
-                Periode(
-                    fom = LocalDate.of(2024, 1, 5),
-                    tom = LocalDate.of(2024, 1, 13),
-                ),
-            )
-        }
+        lagFriskTilArbeidVedtakStatus(
+            Periode(
+                fom = LocalDate.of(2024, 1, 5),
+                tom = LocalDate.of(2024, 1, 13),
+            ),
+        )
+        val vedtakFraDb = fakeFriskTilArbeidRepository.findAll().toList()
+        vedtakFraDb shouldHaveSize 2
+        vedtakFraDb.map { it.behandletStatus }.toSet() `should be equal to` setOf(NY, OVERLAPP)
     }
 
     @Test
-    fun `Feiler ved lagring av nytt vedtak med tom etter eksisterende vedtaks fom`() {
+    fun `Overlapp ved lagring av nytt vedtak med tom etter eksisterende vedtaks fom`() {
         lagFriskTilArbeidVedtakStatus(
             Periode(
                 fom = LocalDate.of(2024, 1, 5),
@@ -174,18 +177,19 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
             ),
         )
 
-        assertThrows<FriskTilArbeidVedtakStatusException> {
-            lagFriskTilArbeidVedtakStatus(
-                Periode(
-                    fom = LocalDate.of(2024, 1, 1),
-                    tom = LocalDate.of(2024, 1, 7),
-                ),
-            )
-        }
+        lagFriskTilArbeidVedtakStatus(
+            Periode(
+                fom = LocalDate.of(2024, 1, 1),
+                tom = LocalDate.of(2024, 1, 7),
+            ),
+        )
+        val vedtakFraDb = fakeFriskTilArbeidRepository.findAll().toList()
+        vedtakFraDb shouldHaveSize 2
+        vedtakFraDb.map { it.behandletStatus }.toSet() `should be equal to` setOf(NY, OVERLAPP)
     }
 
     @Test
-    fun `Feiler ved lagring av nytt vedtak med fom lik eksisterende vedtaks tom`() {
+    fun `Overlapp ved lagring av nytt vedtak med fom lik eksisterende vedtaks tom`() {
         lagFriskTilArbeidVedtakStatus(
             Periode(
                 fom = LocalDate.of(2024, 1, 1),
@@ -193,18 +197,19 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
             ),
         )
 
-        assertThrows<FriskTilArbeidVedtakStatusException> {
-            lagFriskTilArbeidVedtakStatus(
-                Periode(
-                    fom = LocalDate.of(2024, 1, 7),
-                    tom = LocalDate.of(2024, 1, 14),
-                ),
-            )
-        }
+        lagFriskTilArbeidVedtakStatus(
+            Periode(
+                fom = LocalDate.of(2024, 1, 7),
+                tom = LocalDate.of(2024, 1, 14),
+            ),
+        )
+        val vedtakFraDb = fakeFriskTilArbeidRepository.findAll().toList()
+        vedtakFraDb shouldHaveSize 2
+        vedtakFraDb.map { it.behandletStatus }.toSet() `should be equal to` setOf(NY, OVERLAPP)
     }
 
     @Test
-    fun `Feiler ved lagring av nytt vedtak med tom lik eksisterende vedtaks fom`() {
+    fun `Overlapp ved lagring av nytt vedtak med tom lik eksisterende vedtaks fom`() {
         lagFriskTilArbeidVedtakStatus(
             Periode(
                 fom = LocalDate.of(2024, 1, 7),
@@ -212,14 +217,15 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
             ),
         )
 
-        assertThrows<FriskTilArbeidVedtakStatusException> {
-            lagFriskTilArbeidVedtakStatus(
-                Periode(
-                    fom = LocalDate.of(2024, 1, 1),
-                    tom = LocalDate.of(2024, 1, 7),
-                ),
-            )
-        }
+        lagFriskTilArbeidVedtakStatus(
+            Periode(
+                fom = LocalDate.of(2024, 1, 1),
+                tom = LocalDate.of(2024, 1, 7),
+            ),
+        )
+        val vedtakFraDb = fakeFriskTilArbeidRepository.findAll().toList()
+        vedtakFraDb shouldHaveSize 2
+        vedtakFraDb.map { it.behandletStatus }.toSet() `should be equal to` setOf(NY, OVERLAPP)
     }
 
     @Test
@@ -242,7 +248,7 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
 
         fakeFriskTilArbeidRepository.findAll().toList().also {
             it.find { it.fnr == "11111111111" }?.behandletStatus `should be equal to` BehandletStatus.BEHANDLET
-            it.find { it.fnr == "22222222222" }?.behandletStatus `should be equal to` BehandletStatus.NY
+            it.find { it.fnr == "22222222222" }?.behandletStatus `should be equal to` NY
         }
     }
 
