@@ -1,0 +1,1 @@
+CREATE INDEX sykepengesoknad_frisk_til_arbeid_vedtak_idx ON sykepengesoknad (frisk_til_arbeid_vedtak_id);
