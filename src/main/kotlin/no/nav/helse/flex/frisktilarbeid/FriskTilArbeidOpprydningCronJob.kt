@@ -32,7 +32,12 @@ class FriskTilArbeidOpprydningCronJob(
     }
 
     fun opprydning() {
-        val ftaVedtakIder = listOf("TODO", "TODO")
+        val ftaVedtakIder =
+            listOf(
+                "4fe42342-7102-44d8-acd9-dc6a4f226f5a",
+                "e4504199-f052-469a-9e0d-bffd1bad6bef",
+                "688142df-92d9-4f44-b176-fd74d0c5da1d",
+            )
 
         ftaVedtakIder.forEach { id ->
             log.info("Rydder for vedtakId: $id")
