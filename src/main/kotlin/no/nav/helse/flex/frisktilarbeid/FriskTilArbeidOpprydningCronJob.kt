@@ -21,7 +21,7 @@ class FriskTilArbeidOpprydningCronJob(
 ) {
     private val log = logger()
 
-    @Scheduled(initialDelay = 1, fixedDelay = 50000, timeUnit = TimeUnit.MINUTES)
+    @Scheduled(initialDelay = 1, fixedDelay = 5, timeUnit = TimeUnit.MINUTES)
     fun run() {
         if (leaderElection.isLeader()) {
             log.info("Er leder, starter opprydning av frisk til arbeid data som var feilregistrert.")
