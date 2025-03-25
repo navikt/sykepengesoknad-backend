@@ -6,13 +6,11 @@ import no.nav.helse.flex.kafka.ARBEIDSSOKERREGISTER_STOPP_TOPIC
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.util.objectMapper
 import org.apache.kafka.clients.consumer.ConsumerRecord
-import org.springframework.context.annotation.Profile
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.support.Acknowledgment
 import org.springframework.stereotype.Component
 import java.time.Instant
 
-@Profile("frisktilarbeid")
 @Component
 class ArbeidssokerregisterStoppListener(
     val arbeidssokerregisterStoppService: ArbeidssokerregisterStoppService,
@@ -22,9 +20,9 @@ class ArbeidssokerregisterStoppListener(
     @WithSpan
     @KafkaListener(
         topics = [ARBEIDSSOKERREGISTER_STOPP_TOPIC],
-        id = "arbeidssokerregister-stopp-dev-1",
+        id = "arbeidssokerregister-stopp-v1",
         containerFactory = "aivenKafkaListenerContainerFactory",
-        properties = ["auto.offset.reset = latest"],
+        properties = ["auto.offset.reset = earliest"],
     )
     fun listen(
         cr: ConsumerRecord<String, String>,
