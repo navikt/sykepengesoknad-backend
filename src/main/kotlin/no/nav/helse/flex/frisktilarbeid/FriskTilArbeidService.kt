@@ -1,6 +1,8 @@
 package no.nav.helse.flex.frisktilarbeid
 
 import com.fasterxml.jackson.module.kotlin.readValue
+import no.nav.helse.flex.client.arbeidssokerregister.ArbeidssokerperiodeRequest
+import no.nav.helse.flex.client.arbeidssokerregister.ArbeidssokerregisterClient
 import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.logger
@@ -19,6 +21,7 @@ import java.util.*
 class FriskTilArbeidService(
     private val friskTilArbeidRepository: FriskTilArbeidRepository,
     private val friskTilArbeidSoknadService: FriskTilArbeidSoknadService,
+    private val arbeidssokerregisterClient: ArbeidssokerregisterClient,
     private val identService: IdentService,
 ) {
     private val log = logger()
@@ -34,7 +37,8 @@ class FriskTilArbeidService(
         }
 
         if (friskTilArbeidVedtakStatus.status == Status.FATTET) {
-            val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(friskTilArbeidVedtakStatus.personident)
+            val identer =
+                identService.hentFolkeregisterIdenterMedHistorikkForFnr(friskTilArbeidVedtakStatus.personident)
             val eksisterendeVedtak = friskTilArbeidRepository.findByFnrIn(identer.alle())
 
             eksisterendeVedtak.firstOrNull {
@@ -55,6 +59,43 @@ class FriskTilArbeidService(
                         tom = friskTilArbeidVedtakStatus.tom,
                         vedtak = friskTilArbeidVedtakStatus.tilPostgresJson(),
                         behandletStatus = BehandletStatus.OVERLAPP,
+                    ),
+                )
+                return
+            }
+
+            val sisteArbeidssokerperiode =
+                arbeidssokerregisterClient.hentSisteArbeidssokerperiode(
+                    ArbeidssokerperiodeRequest(
+                        friskTilArbeidVedtakStatus.personident,
+                    ),
+                ).singleOrNull()
+            if (sisteArbeidssokerperiode == null) {
+                friskTilArbeidRepository.save(
+                    FriskTilArbeidVedtakDbRecord(
+                        vedtakUuid = UUID.randomUUID().toString(),
+                        key = kafkaMelding.key,
+                        opprettet = Instant.now(),
+                        fnr = friskTilArbeidVedtakStatus.personident,
+                        fom = friskTilArbeidVedtakStatus.fom,
+                        tom = friskTilArbeidVedtakStatus.tom,
+                        vedtak = friskTilArbeidVedtakStatus.tilPostgresJson(),
+                        behandletStatus = BehandletStatus.INGEN_ARBEIDSSOKERPERIODE,
+                    ),
+                )
+                return
+            }
+            if (sisteArbeidssokerperiode.avsluttet != null) {
+                friskTilArbeidRepository.save(
+                    FriskTilArbeidVedtakDbRecord(
+                        vedtakUuid = UUID.randomUUID().toString(),
+                        key = kafkaMelding.key,
+                        opprettet = Instant.now(),
+                        fnr = friskTilArbeidVedtakStatus.personident,
+                        fom = friskTilArbeidVedtakStatus.fom,
+                        tom = friskTilArbeidVedtakStatus.tom,
+                        vedtak = friskTilArbeidVedtakStatus.tilPostgresJson(),
+                        behandletStatus = BehandletStatus.SISTE_ARBEIDSSOKERPERIODE_AVSLUTTET,
                     ),
                 )
                 return
