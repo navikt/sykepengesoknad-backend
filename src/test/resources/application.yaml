@@ -117,7 +117,6 @@ no.nav.security.jwt:
           client-auth-method: client_secret_basic
 
 EREG_URL: "http://ereg"
-ARBEIDSSOEKERREGISTERET_API_URL: "http://arbs"
 
 kafka-schema-registry.url: http://schema.url
 pdl.api.url: "http://pdl-api.pdl"

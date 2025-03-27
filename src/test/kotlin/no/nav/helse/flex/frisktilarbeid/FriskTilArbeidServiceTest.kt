@@ -1,9 +1,12 @@
 package no.nav.helse.flex.frisktilarbeid
 
 import no.nav.helse.flex.FakesTestOppsett
+import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.domain.Periode
-import no.nav.helse.flex.frisktilarbeid.BehandletStatus.NY
-import no.nav.helse.flex.frisktilarbeid.BehandletStatus.OVERLAPP
+import no.nav.helse.flex.frisktilarbeid.BehandletStatus.*
+import no.nav.helse.flex.mockdispatcher.skapArbeidssokerperiodeResponse
+import no.nav.helse.flex.util.serialisertTilString
+import okhttp3.mockwebserver.MockResponse
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.BeforeEach
@@ -226,6 +229,40 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
         val vedtakFraDb = fakeFriskTilArbeidRepository.findAll().toList()
         vedtakFraDb shouldHaveSize 2
         vedtakFraDb.map { it.behandletStatus }.toSet() `should be equal to` setOf(NY, OVERLAPP)
+    }
+
+    @Test
+    fun `Person er ikke i arbeidssøker registeret`() {
+        FellesTestOppsett.arbeidssokerregisterMockDispatcher.enqueue(
+            MockResponse().setBody("[]").setResponseCode(200),
+        )
+        lagFriskTilArbeidVedtakStatus(
+            Periode(
+                fom = LocalDate.of(2024, 1, 1),
+                tom = LocalDate.of(2024, 1, 7),
+            ),
+        )
+
+        val vedtakFraDb = fakeFriskTilArbeidRepository.findAll().toList()
+        vedtakFraDb shouldHaveSize 1
+        vedtakFraDb.map { it.behandletStatus }.toSet() `should be equal to` setOf(INGEN_ARBEIDSSOKERPERIODE)
+    }
+
+    @Test
+    fun `Person er avsluttet i arbeidssøker registeret`() {
+        FellesTestOppsett.arbeidssokerregisterMockDispatcher.enqueue(
+            MockResponse().setBody(listOf(skapArbeidssokerperiodeResponse(avsluttet = true)).serialisertTilString()).setResponseCode(200),
+        )
+        lagFriskTilArbeidVedtakStatus(
+            Periode(
+                fom = LocalDate.of(2024, 1, 1),
+                tom = LocalDate.of(2024, 1, 7),
+            ),
+        )
+
+        val vedtakFraDb = fakeFriskTilArbeidRepository.findAll().toList()
+        vedtakFraDb shouldHaveSize 1
+        vedtakFraDb.map { it.behandletStatus }.toSet() `should be equal to` setOf(SISTE_ARBEIDSSOKERPERIODE_AVSLUTTET)
     }
 
     @Test
