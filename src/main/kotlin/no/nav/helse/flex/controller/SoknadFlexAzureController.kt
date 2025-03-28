@@ -4,6 +4,9 @@ import io.swagger.v3.oas.annotations.Hidden
 import jakarta.servlet.http.HttpServletRequest
 import no.nav.helse.flex.client.aareg.AaregClient
 import no.nav.helse.flex.client.aareg.Arbeidsforhold
+import no.nav.helse.flex.client.arbeidssokerregister.ArbeidssokerperiodeRequest
+import no.nav.helse.flex.client.arbeidssokerregister.ArbeidssokerperiodeResponse
+import no.nav.helse.flex.client.arbeidssokerregister.ArbeidssokerregisterClient
 import no.nav.helse.flex.client.pdl.PdlClient
 import no.nav.helse.flex.client.pdl.PdlIdent
 import no.nav.helse.flex.client.sigrun.HentPensjonsgivendeInntektResponse
@@ -57,6 +60,7 @@ class SoknadFlexAzureController(
     private val hentSoknadService: HentSoknadService,
     private val klippetSykepengesoknadRepository: KlippetSykepengesoknadRepository,
     private val auditLogProducer: AuditLogProducer,
+    private val arbeidssokerregisterClient: ArbeidssokerregisterClient,
 ) {
     data class HentSykepengesoknaderRequest(
         val fnr: String,
@@ -250,5 +254,38 @@ class SoknadFlexAzureController(
             }
         }
         return FtaOpprettResponse(antallOk, antallFeil)
+    }
+
+    data class HentSisteArbeidssokerperiode(
+        val fnr: String,
+    )
+
+    @PostMapping(
+        "/api/v1/flex/arbeidssokerregister",
+        consumes = [APPLICATION_JSON_VALUE],
+        produces = [APPLICATION_JSON_VALUE],
+    )
+    fun hentSisteArbeidssokerperiode(
+        @RequestBody req: HentSisteArbeidssokerperiode,
+        request: HttpServletRequest,
+    ): List<ArbeidssokerperiodeResponse> {
+        clientIdValidation.validateClientId(NamespaceAndApp(namespace = "flex", app = "flex-internal-frontend"))
+        val navIdent = clientIdValidation.hentNavIdent()
+
+        auditLogProducer.lagAuditLog(
+            AuditEntry(
+                appNavn = "flex-internal",
+                utførtAv = navIdent,
+                oppslagPå = req.fnr,
+                eventType = EventType.READ,
+                forespørselTillatt = true,
+                oppslagUtførtTid = LocalDateTime.now().tilOsloInstant(),
+                beskrivelse = "Henter arbeidssøkerregister status",
+                requestUrl = URI.create(request.requestURL.toString()),
+                requestMethod = "POST",
+            ),
+        )
+
+        return arbeidssokerregisterClient.hentSisteArbeidssokerperiode(ArbeidssokerperiodeRequest(req.fnr))
     }
 }
