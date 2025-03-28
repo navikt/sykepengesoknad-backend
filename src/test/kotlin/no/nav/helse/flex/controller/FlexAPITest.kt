@@ -3,6 +3,7 @@ package no.nav.helse.flex.controller
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.*
 import no.nav.helse.flex.client.aareg.Arbeidsforhold
+import no.nav.helse.flex.client.arbeidssokerregister.ArbeidssokerperiodeResponse
 import no.nav.helse.flex.client.pdl.PdlIdent
 import no.nav.helse.flex.client.sigrun.HentPensjonsgivendeInntektResponse
 import no.nav.helse.flex.domain.AuditEntry
@@ -250,6 +251,38 @@ class FlexAPITest : FellesTestOppsett() {
                 forespørselTillatt `should be` true
                 beskrivelse `should be equal to` "Henter pensjonsgivende inntekt"
                 requestUrl `should be equal to` URI.create("http://localhost/api/v1/flex/sigrun")
+                requestMethod `should be equal to` "POST"
+            }
+        }
+    }
+
+    @Test
+    fun `Kan hente arbeidsøkerregisterdata fra flex-internal-frontend`() {
+        val result =
+            mockMvc
+                .perform(
+                    MockMvcRequestBuilders
+                        .post("/api/v1/flex/arbeidssokerregister")
+                        .header("Authorization", "Bearer ${skapAzureJwt("flex-internal-frontend-client-id", fnrFlexer)}")
+                        .content(SoknadFlexAzureController.HentSisteArbeidssokerperiode("22222220001").serialisertTilString())
+                        .contentType(MediaType.APPLICATION_JSON),
+                )
+                .andExpect(MockMvcResultMatchers.status().isOk).andReturn()
+
+        val fraRest: List<ArbeidssokerperiodeResponse> = objectMapper.readValue(result.response.contentAsString)
+        fraRest.shouldHaveSize(1)
+        fraRest.first().startet.kilde shouldBeEqualTo "VEILEDER"
+
+        auditlogKafkaConsumer.ventPåRecords(1).first().let {
+            val auditEntry: AuditEntry = objectMapper.readValue(it.value())
+            with(auditEntry) {
+                appNavn `should be equal to` "flex-internal"
+                utførtAv `should be equal to` fnrFlexer
+                oppslagPå `should be equal to` "22222220001"
+                eventType `should be equal to` EventType.READ
+                forespørselTillatt `should be` true
+                beskrivelse `should be equal to` "Henter arbeidssøkerregister status"
+                requestUrl `should be equal to` URI.create("http://localhost/api/v1/flex/arbeidssokerregister")
                 requestMethod `should be equal to` "POST"
             }
         }
