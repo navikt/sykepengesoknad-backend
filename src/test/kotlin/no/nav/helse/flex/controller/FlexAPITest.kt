@@ -264,7 +264,7 @@ class FlexAPITest : FellesTestOppsett() {
                     MockMvcRequestBuilders
                         .post("/api/v1/flex/arbeidssokerregister")
                         .header("Authorization", "Bearer ${skapAzureJwt("flex-internal-frontend-client-id", fnrFlexer)}")
-                        .content(SoknadFlexAzureController.HentSisteArbeidssokerperiode("22222220001").serialisertTilString())
+                        .content(SoknadFlexAzureController.FnrRequest("22222220001").serialisertTilString())
                         .contentType(MediaType.APPLICATION_JSON),
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk).andReturn()
@@ -283,6 +283,36 @@ class FlexAPITest : FellesTestOppsett() {
                 forespørselTillatt `should be` true
                 beskrivelse `should be equal to` "Henter arbeidssøkerregister status"
                 requestUrl `should be equal to` URI.create("http://localhost/api/v1/flex/arbeidssokerregister")
+                requestMethod `should be equal to` "POST"
+            }
+        }
+    }
+
+    @Test
+    fun `Kan hente friskmeldt vedtak fra flex-internal-frontend`() {
+        val result =
+            mockMvc
+                .perform(
+                    MockMvcRequestBuilders
+                        .post("/api/v1/flex/fta-vedtak-for-person")
+                        .header("Authorization", "Bearer ${skapAzureJwt("flex-internal-frontend-client-id", fnrFlexer)}")
+                        .content(SoknadFlexAzureController.FnrRequest("22222220001").serialisertTilString())
+                        .contentType(MediaType.APPLICATION_JSON),
+                )
+                .andExpect(MockMvcResultMatchers.status().isOk).andReturn()
+
+        result.response.contentAsString shouldBeEqualTo "[]"
+
+        auditlogKafkaConsumer.ventPåRecords(1).first().let {
+            val auditEntry: AuditEntry = objectMapper.readValue(it.value())
+            with(auditEntry) {
+                appNavn `should be equal to` "flex-internal"
+                utførtAv `should be equal to` fnrFlexer
+                oppslagPå `should be equal to` "22222220001"
+                eventType `should be equal to` EventType.READ
+                forespørselTillatt `should be` true
+                beskrivelse `should be equal to` "Henter friskmeldt til arbeidsformidling vedtak"
+                requestUrl `should be equal to` URI.create("http://localhost/api/v1/flex/fta-vedtak-for-person")
                 requestMethod `should be equal to` "POST"
             }
         }
