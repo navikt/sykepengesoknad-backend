@@ -20,7 +20,9 @@ import no.nav.helse.flex.controller.mapper.tilRSSykepengesoknad
 import no.nav.helse.flex.controller.mapper.tilRSSykepengesoknadFlexInternal
 import no.nav.helse.flex.domain.AuditEntry
 import no.nav.helse.flex.domain.EventType
+import no.nav.helse.flex.frisktilarbeid.FriskTilArbeidRepository
 import no.nav.helse.flex.frisktilarbeid.FriskTilArbeidService
+import no.nav.helse.flex.frisktilarbeid.FriskTilArbeidVedtakDbRecord
 import no.nav.helse.flex.frisktilarbeid.FriskTilArbeidVedtakStatusKafkaMelding
 import no.nav.helse.flex.kafka.producer.AuditLogProducer
 import no.nav.helse.flex.logger
@@ -59,6 +61,7 @@ class SoknadFlexAzureController(
     private val pdlClient: PdlClient,
     private val hentSoknadService: HentSoknadService,
     private val klippetSykepengesoknadRepository: KlippetSykepengesoknadRepository,
+    private val friskTilArbeidRepository: FriskTilArbeidRepository,
     private val auditLogProducer: AuditLogProducer,
     private val arbeidssokerregisterClient: ArbeidssokerregisterClient,
 ) {
@@ -256,7 +259,7 @@ class SoknadFlexAzureController(
         return FtaOpprettResponse(antallOk, antallFeil)
     }
 
-    data class HentSisteArbeidssokerperiode(
+    data class FnrRequest(
         val fnr: String,
     )
 
@@ -266,7 +269,7 @@ class SoknadFlexAzureController(
         produces = [APPLICATION_JSON_VALUE],
     )
     fun hentSisteArbeidssokerperiode(
-        @RequestBody req: HentSisteArbeidssokerperiode,
+        @RequestBody req: FnrRequest,
         request: HttpServletRequest,
     ): List<ArbeidssokerperiodeResponse> {
         clientIdValidation.validateClientId(NamespaceAndApp(namespace = "flex", app = "flex-internal-frontend"))
@@ -287,5 +290,36 @@ class SoknadFlexAzureController(
         )
 
         return arbeidssokerregisterClient.hentSisteArbeidssokerperiode(ArbeidssokerperiodeRequest(req.fnr))
+    }
+
+    @PostMapping(
+        "/api/v1/flex/fta-vedtak-for-person",
+        consumes = [APPLICATION_JSON_VALUE],
+        produces = [APPLICATION_JSON_VALUE],
+    )
+    fun hentFriskmeldtVedtak(
+        @RequestBody req: FnrRequest,
+        request: HttpServletRequest,
+    ): List<FriskTilArbeidVedtakDbRecord> {
+        clientIdValidation.validateClientId(NamespaceAndApp(namespace = "flex", app = "flex-internal-frontend"))
+        val navIdent = clientIdValidation.hentNavIdent()
+
+        auditLogProducer.lagAuditLog(
+            AuditEntry(
+                appNavn = "flex-internal",
+                utførtAv = navIdent,
+                oppslagPå = req.fnr,
+                eventType = EventType.READ,
+                forespørselTillatt = true,
+                oppslagUtførtTid = LocalDateTime.now().tilOsloInstant(),
+                beskrivelse = "Henter friskmeldt til arbeidsformidling vedtak",
+                requestUrl = URI.create(request.requestURL.toString()),
+                requestMethod = "POST",
+            ),
+        )
+
+        return friskTilArbeidRepository.findByFnrIn(
+            identService.hentFolkeregisterIdenterMedHistorikkForFnr(req.fnr).alle(),
+        )
     }
 }
