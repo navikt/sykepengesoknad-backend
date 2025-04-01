@@ -20,10 +20,7 @@ import no.nav.helse.flex.controller.mapper.tilRSSykepengesoknad
 import no.nav.helse.flex.controller.mapper.tilRSSykepengesoknadFlexInternal
 import no.nav.helse.flex.domain.AuditEntry
 import no.nav.helse.flex.domain.EventType
-import no.nav.helse.flex.frisktilarbeid.FriskTilArbeidRepository
-import no.nav.helse.flex.frisktilarbeid.FriskTilArbeidService
-import no.nav.helse.flex.frisktilarbeid.FriskTilArbeidVedtakDbRecord
-import no.nav.helse.flex.frisktilarbeid.FriskTilArbeidVedtakStatusKafkaMelding
+import no.nav.helse.flex.frisktilarbeid.*
 import no.nav.helse.flex.kafka.producer.AuditLogProducer
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.KlippetSykepengesoknadDbRecord
@@ -36,7 +33,10 @@ import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.web.bind.annotation.*
 import java.net.URI
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.OffsetDateTime
+import java.util.UUID
 
 data class FlexInternalResponse(
     val sykepengesoknadListe: List<RSSykepengesoknadFlexInternal>,
@@ -321,5 +321,69 @@ class SoknadFlexAzureController(
         return friskTilArbeidRepository.findByFnrIn(
             identService.hentFolkeregisterIdenterMedHistorikkForFnr(req.fnr).alle(),
         )
+    }
+
+    data class OpprettRequest(
+        val fnr: String,
+        val fom: LocalDate,
+        val tom: LocalDate,
+    )
+
+    @PostMapping(
+        "/api/v1/flex/fta-vedtak-for-person/opprett",
+        consumes = [APPLICATION_JSON_VALUE],
+        produces = [APPLICATION_JSON_VALUE],
+    )
+    fun opprettFriskmeldtVedtak(
+        @RequestBody req: OpprettRequest,
+        request: HttpServletRequest,
+    ): FriskTilArbeidVedtakStatusKafkaMelding {
+        clientIdValidation.validateClientId(NamespaceAndApp(namespace = "flex", app = "flex-internal-frontend"))
+        val navIdent = clientIdValidation.hentNavIdent()
+
+        if (req.fom.isAfter(req.tom)) {
+            throw IllegalArgumentException("Fom kan ikke være etter tom")
+        }
+
+        val melding =
+            FriskTilArbeidVedtakStatusKafkaMelding(
+                key = UUID.randomUUID().toString(),
+                friskTilArbeidVedtakStatus =
+                    FriskTilArbeidVedtakStatus(
+                        personident = req.fnr,
+                        fom = req.fom,
+                        tom = req.tom,
+                        begrunnelse = "flex-internal-frontend manuelt opprettet",
+                        statusAt = OffsetDateTime.now(),
+                        status = Status.FATTET,
+                        uuid = UUID.randomUUID().toString(),
+                        statusBy = navIdent,
+                    ),
+            )
+
+        friskTilArbeidService.lagreFriskTilArbeidVedtakStatus(melding)
+
+        return melding
+    }
+
+    @GetMapping(
+        "/api/v1/flex/fta-vedtak/ubehandlede",
+        produces = [APPLICATION_JSON_VALUE],
+    )
+    fun ubehandledeFtaVedtak(
+        @RequestBody req: OpprettRequest,
+        request: HttpServletRequest,
+    ): List<FriskTilArbeidVedtakDbRecord> {
+        clientIdValidation.validateClientId(NamespaceAndApp(namespace = "flex", app = "flex-internal-frontend"))
+
+        return friskTilArbeidRepository.findAll()
+            .filter {
+                it.behandletStatus !in
+                    listOf(
+                        BehandletStatus.NY,
+                        BehandletStatus.BEHANDLET,
+                        BehandletStatus.OVERLAPP_OK,
+                    )
+            }
     }
 }
