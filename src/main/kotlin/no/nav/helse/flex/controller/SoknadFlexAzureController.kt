@@ -344,6 +344,10 @@ class SoknadFlexAzureController(
         if (req.fom.isAfter(req.tom)) {
             throw IllegalArgumentException("Fom kan ikke være etter tom")
         }
+        // Kast feil hvis mer enn 15 uker
+        if (req.fom.plusWeeks(15) < req.tom) {
+            throw IllegalArgumentException("Kan ikke være mer enn 15 uker")
+        }
 
         val melding =
             FriskTilArbeidVedtakStatusKafkaMelding(
