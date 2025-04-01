@@ -387,4 +387,36 @@ class SoknadFlexAzureController(
                     )
             }.sortedBy { it.opprettet }
     }
+
+    data class EndreStatusRequest(
+        val id: String,
+        val status: BehandletStatus,
+    )
+
+    @PostMapping(
+        "/api/v1/flex/fta-vedtak/endre-status",
+        produces = [APPLICATION_JSON_VALUE],
+        consumes = [APPLICATION_JSON_VALUE],
+    )
+    fun endreStatus(
+        @RequestBody req: EndreStatusRequest,
+    ): FriskTilArbeidVedtakDbRecord {
+        clientIdValidation.validateClientId(NamespaceAndApp(namespace = "flex", app = "flex-internal-frontend"))
+
+        val eksisterende =
+            friskTilArbeidRepository.findById(req.id).orElseThrow { IllegalArgumentException("Fant ikke vedtak") }
+
+        if (eksisterende.behandletStatus !in
+            listOf(
+                BehandletStatus.NY,
+                BehandletStatus.BEHANDLET,
+                BehandletStatus.OVERLAPP_OK,
+            )
+        ) {
+            throw IllegalArgumentException("Kan ikke endre status på vedtak som ikke er nytt eller behandlet")
+        }
+        val ny = eksisterende.copy(behandletStatus = req.status)
+
+        return friskTilArbeidRepository.save(ny)
+    }
 }
