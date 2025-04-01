@@ -1,5 +1,7 @@
 package no.nav.helse.flex.frisktilarbeid
 
+import no.nav.helse.flex.client.arbeidssokerregister.ArbeidssokerperiodeRequest
+import no.nav.helse.flex.client.arbeidssokerregister.ArbeidssokerregisterClient
 import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
@@ -7,6 +9,7 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.kafka.producer.SoknadProducer
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadDAO
+import no.nav.helse.flex.service.IdentService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
@@ -20,6 +23,8 @@ class FriskTilArbeidSoknadService(
     private val friskTilArbeidRepository: FriskTilArbeidRepository,
     private val sykepengesoknadDAO: SykepengesoknadDAO?,
     private val soknadProducer: SoknadProducer?,
+    private val identService: IdentService,
+    private val arbeidssokerregisterClient: ArbeidssokerregisterClient,
 ) {
     private val log = logger()
 
@@ -28,6 +33,53 @@ class FriskTilArbeidSoknadService(
         vedtakDbRecord: FriskTilArbeidVedtakDbRecord,
         periodeGenerator: (LocalDate, LocalDate, Long) -> List<Pair<LocalDate, LocalDate>> = ::defaultPeriodeGenerator,
     ): List<Sykepengesoknad> {
+        val identer =
+            identService.hentFolkeregisterIdenterMedHistorikkForFnr(vedtakDbRecord.fnr)
+        val eksisterendeAndreVedtak = friskTilArbeidRepository.findByFnrIn(identer.alle()).filter { it.id != vedtakDbRecord.id }
+
+        eksisterendeAndreVedtak.firstOrNull {
+            vedtakDbRecord.tilPeriode().overlapper(it.tilPeriode())
+        }?.apply {
+            val feilmelding =
+                "Vedtak med key: ${vedtakDbRecord.key} og " +
+                    "periode: [${vedtakDbRecord.fom} - ${vedtakDbRecord.tom}] " +
+                    "overlapper med vedtak med key: $key periode: [$fom - $tom]."
+            log.error(feilmelding)
+
+            friskTilArbeidRepository.save(
+                vedtakDbRecord.copy(
+                    behandletStatus = BehandletStatus.OVERLAPP,
+                    behandletTidspunkt = Instant.now(),
+                ),
+            )
+            return emptyList()
+        }
+
+        val sisteArbeidssokerperiode =
+            arbeidssokerregisterClient.hentSisteArbeidssokerperiode(
+                ArbeidssokerperiodeRequest(
+                    vedtakDbRecord.fnr,
+                ),
+            ).singleOrNull()
+        if (sisteArbeidssokerperiode == null) {
+            friskTilArbeidRepository.save(
+                vedtakDbRecord.copy(
+                    behandletStatus = BehandletStatus.INGEN_ARBEIDSSOKERPERIODE,
+                    behandletTidspunkt = Instant.now(),
+                ),
+            )
+            return emptyList()
+        }
+        if (sisteArbeidssokerperiode.avsluttet != null) {
+            friskTilArbeidRepository.save(
+                vedtakDbRecord.copy(
+                    behandletStatus = BehandletStatus.SISTE_ARBEIDSSOKERPERIODE_AVSLUTTET,
+                    behandletTidspunkt = Instant.now(),
+                ),
+            )
+            return emptyList()
+        }
+
         val soknader =
             periodeGenerator(vedtakDbRecord.fom, vedtakDbRecord.tom, SOKNAD_PERIODELENGDE).map { (fom, tom) ->
                 lagSoknad(vedtakDbRecord, Periode(fom, tom))
