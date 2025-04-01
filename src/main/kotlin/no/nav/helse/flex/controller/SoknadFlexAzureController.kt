@@ -374,10 +374,7 @@ class SoknadFlexAzureController(
         "/api/v1/flex/fta-vedtak/ubehandlede",
         produces = [APPLICATION_JSON_VALUE],
     )
-    fun ubehandledeFtaVedtak(
-        @RequestBody req: OpprettRequest,
-        request: HttpServletRequest,
-    ): List<FriskTilArbeidVedtakDbRecord> {
+    fun ubehandledeFtaVedtak(): List<FriskTilArbeidVedtakDbRecord> {
         clientIdValidation.validateClientId(NamespaceAndApp(namespace = "flex", app = "flex-internal-frontend"))
 
         return friskTilArbeidRepository.findAll()
@@ -388,6 +385,6 @@ class SoknadFlexAzureController(
                         BehandletStatus.BEHANDLET,
                         BehandletStatus.OVERLAPP_OK,
                     )
-            }
+            }.sortedBy { it.opprettet }
     }
 }
