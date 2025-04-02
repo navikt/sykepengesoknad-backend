@@ -22,7 +22,6 @@ class ArbeidssokerregisterStoppListener(
         topics = [ARBEIDSSOKERREGISTER_STOPP_TOPIC],
         id = "arbeidssokerregister-stopp-v1",
         containerFactory = "aivenKafkaListenerContainerFactory",
-        properties = ["auto.offset.reset = earliest"],
     )
     fun listen(
         cr: ConsumerRecord<String, String>,
