@@ -21,7 +21,6 @@ class FriskTilArbeidConsumer(
         topics = [FRISKTILARBEID_TOPIC],
         id = "flex-frisktilarbeid-v1",
         containerFactory = "aivenKafkaListenerContainerFactory",
-        properties = ["auto.offset.reset = earliest"],
     )
     fun listen(
         cr: ConsumerRecord<String, String>,
