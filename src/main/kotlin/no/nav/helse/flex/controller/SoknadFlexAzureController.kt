@@ -406,17 +406,23 @@ class SoknadFlexAzureController(
         val eksisterende =
             friskTilArbeidRepository.findById(req.id).orElseThrow { IllegalArgumentException("Fant ikke vedtak") }
 
-        if (eksisterende.behandletStatus !in
+        if (req.status !in listOf(BehandletStatus.NY, BehandletStatus.OVERLAPP_OK)) {
+            throw IllegalArgumentException("Kan ikke endre status til ${req.status}")
+        }
+        if (req.status == BehandletStatus.OVERLAPP_OK && eksisterende.behandletStatus != BehandletStatus.OVERLAPP) {
+            throw IllegalArgumentException("Kan ikke endre status til OVERLAPP_OK på vedtak som ikke er overlapp")
+        }
+        if (req.status == BehandletStatus.NY && eksisterende.behandletStatus !in
             listOf(
-                BehandletStatus.NY,
-                BehandletStatus.BEHANDLET,
-                BehandletStatus.OVERLAPP_OK,
+                BehandletStatus.SISTE_ARBEIDSSOKERPERIODE_AVSLUTTET,
+                BehandletStatus.INGEN_ARBEIDSSOKERPERIODE,
             )
         ) {
-            throw IllegalArgumentException("Kan ikke endre status på vedtak som ikke er nytt eller behandlet")
+            throw IllegalArgumentException(
+                "Kan ikke endre status til NY på vedtak som ikke SISTE_ARBEIDSSOKERPERIODE_AVSLUTTET eller INGEN_ARBEIDSSOKERPERIODE",
+            )
         }
         val ny = eksisterende.copy(behandletStatus = req.status)
-
         return friskTilArbeidRepository.save(ny)
     }
 }
