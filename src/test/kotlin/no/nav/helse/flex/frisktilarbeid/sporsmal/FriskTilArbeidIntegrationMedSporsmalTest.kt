@@ -33,7 +33,7 @@ class FriskTilArbeidIntegrationMedSporsmalTest() : FakesTestOppsett() {
     @Autowired
     lateinit var aktiveringJob: AktiveringJob
 
-    private val fnr = "11111111111"
+    private val fnr = "11111111132"
 
     @Test
     @Order(1)

@@ -24,6 +24,9 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
     @Autowired
     lateinit var friskTilArbeidService: FriskTilArbeidService
 
+    @Autowired
+    lateinit var friskTilArbeidCronJob: FriskTilArbeidCronJob
+
     @BeforeEach
     fun setup() {
         fakeFriskTilArbeidRepository.deleteAll()
@@ -139,6 +142,7 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
                 tom = LocalDate.of(2024, 1, 7),
             ),
         )
+        friskTilArbeidCronJob.schedulertStartBehandlingAvFriskTilArbeidVedtakStatus()
 
         lagFriskTilArbeidVedtakStatus(
             Periode(
@@ -146,9 +150,11 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
                 tom = LocalDate.of(2024, 1, 7),
             ),
         )
+        friskTilArbeidCronJob.schedulertStartBehandlingAvFriskTilArbeidVedtakStatus()
+
         val vedtakFraDb = fakeFriskTilArbeidRepository.findAll().toList()
         vedtakFraDb shouldHaveSize 2
-        vedtakFraDb.map { it.behandletStatus }.toSet() `should be equal to` setOf(NY, OVERLAPP)
+        vedtakFraDb.map { it.behandletStatus }.toSet() `should be equal to` setOf(BEHANDLET, OVERLAPP)
     }
 
     @Test
@@ -159,6 +165,7 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
                 tom = LocalDate.of(2024, 1, 7),
             ),
         )
+        friskTilArbeidCronJob.schedulertStartBehandlingAvFriskTilArbeidVedtakStatus()
 
         lagFriskTilArbeidVedtakStatus(
             Periode(
@@ -166,9 +173,11 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
                 tom = LocalDate.of(2024, 1, 13),
             ),
         )
+        friskTilArbeidCronJob.schedulertStartBehandlingAvFriskTilArbeidVedtakStatus()
+
         val vedtakFraDb = fakeFriskTilArbeidRepository.findAll().toList()
         vedtakFraDb shouldHaveSize 2
-        vedtakFraDb.map { it.behandletStatus }.toSet() `should be equal to` setOf(NY, OVERLAPP)
+        vedtakFraDb.map { it.behandletStatus }.toSet() `should be equal to` setOf(BEHANDLET, OVERLAPP)
     }
 
     @Test
@@ -179,6 +188,7 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
                 tom = LocalDate.of(2024, 1, 13),
             ),
         )
+        friskTilArbeidCronJob.schedulertStartBehandlingAvFriskTilArbeidVedtakStatus()
 
         lagFriskTilArbeidVedtakStatus(
             Periode(
@@ -186,9 +196,11 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
                 tom = LocalDate.of(2024, 1, 7),
             ),
         )
+        friskTilArbeidCronJob.schedulertStartBehandlingAvFriskTilArbeidVedtakStatus()
+
         val vedtakFraDb = fakeFriskTilArbeidRepository.findAll().toList()
         vedtakFraDb shouldHaveSize 2
-        vedtakFraDb.map { it.behandletStatus }.toSet() `should be equal to` setOf(NY, OVERLAPP)
+        vedtakFraDb.map { it.behandletStatus }.toSet() `should be equal to` setOf(BEHANDLET, OVERLAPP)
     }
 
     @Test
@@ -199,6 +211,7 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
                 tom = LocalDate.of(2024, 1, 7),
             ),
         )
+        friskTilArbeidCronJob.schedulertStartBehandlingAvFriskTilArbeidVedtakStatus()
 
         lagFriskTilArbeidVedtakStatus(
             Periode(
@@ -206,9 +219,11 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
                 tom = LocalDate.of(2024, 1, 14),
             ),
         )
+        friskTilArbeidCronJob.schedulertStartBehandlingAvFriskTilArbeidVedtakStatus()
+
         val vedtakFraDb = fakeFriskTilArbeidRepository.findAll().toList()
         vedtakFraDb shouldHaveSize 2
-        vedtakFraDb.map { it.behandletStatus }.toSet() `should be equal to` setOf(NY, OVERLAPP)
+        vedtakFraDb.map { it.behandletStatus }.toSet() `should be equal to` setOf(BEHANDLET, OVERLAPP)
     }
 
     @Test
@@ -219,6 +234,7 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
                 tom = LocalDate.of(2024, 1, 14),
             ),
         )
+        friskTilArbeidCronJob.schedulertStartBehandlingAvFriskTilArbeidVedtakStatus()
 
         lagFriskTilArbeidVedtakStatus(
             Periode(
@@ -226,9 +242,11 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
                 tom = LocalDate.of(2024, 1, 7),
             ),
         )
+        friskTilArbeidCronJob.schedulertStartBehandlingAvFriskTilArbeidVedtakStatus()
+
         val vedtakFraDb = fakeFriskTilArbeidRepository.findAll().toList()
         vedtakFraDb shouldHaveSize 2
-        vedtakFraDb.map { it.behandletStatus }.toSet() `should be equal to` setOf(NY, OVERLAPP)
+        vedtakFraDb.map { it.behandletStatus }.toSet() `should be equal to` setOf(BEHANDLET, OVERLAPP)
     }
 
     @Test
@@ -242,6 +260,7 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
                 tom = LocalDate.of(2024, 1, 7),
             ),
         )
+        friskTilArbeidCronJob.schedulertStartBehandlingAvFriskTilArbeidVedtakStatus()
 
         val vedtakFraDb = fakeFriskTilArbeidRepository.findAll().toList()
         vedtakFraDb shouldHaveSize 1
@@ -259,7 +278,7 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
                 tom = LocalDate.of(2024, 1, 7),
             ),
         )
-
+        friskTilArbeidCronJob.schedulertStartBehandlingAvFriskTilArbeidVedtakStatus()
         val vedtakFraDb = fakeFriskTilArbeidRepository.findAll().toList()
         vedtakFraDb shouldHaveSize 1
         vedtakFraDb.map { it.behandletStatus }.toSet() `should be equal to` setOf(SISTE_ARBEIDSSOKERPERIODE_AVSLUTTET)

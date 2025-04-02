@@ -1,13 +1,9 @@
 package no.nav.helse.flex.frisktilarbeid
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import no.nav.helse.flex.client.arbeidssokerregister.ArbeidssokerperiodeRequest
-import no.nav.helse.flex.client.arbeidssokerregister.ArbeidssokerregisterClient
-import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.medlemskap.tilPostgresJson
-import no.nav.helse.flex.service.IdentService
 import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.util.osloZone
 import org.springframework.stereotype.Service
@@ -21,8 +17,6 @@ import java.util.*
 class FriskTilArbeidService(
     private val friskTilArbeidRepository: FriskTilArbeidRepository,
     private val friskTilArbeidSoknadService: FriskTilArbeidSoknadService,
-    private val arbeidssokerregisterClient: ArbeidssokerregisterClient,
-    private val identService: IdentService,
 ) {
     private val log = logger()
 
@@ -37,70 +31,6 @@ class FriskTilArbeidService(
         }
 
         if (friskTilArbeidVedtakStatus.status == Status.FATTET) {
-            val identer =
-                identService.hentFolkeregisterIdenterMedHistorikkForFnr(friskTilArbeidVedtakStatus.personident)
-            val eksisterendeVedtak = friskTilArbeidRepository.findByFnrIn(identer.alle())
-
-            eksisterendeVedtak.firstOrNull {
-                friskTilArbeidVedtakStatus.tilPeriode().overlapper(it.tilPeriode())
-            }?.apply {
-                val feilmelding =
-                    "Vedtak med key: ${kafkaMelding.key} og " +
-                        "periode: [${friskTilArbeidVedtakStatus.fom} - ${friskTilArbeidVedtakStatus.tom}] " +
-                        "overlapper med vedtak med key: $key periode: [$fom - $tom]."
-                log.error(feilmelding)
-                friskTilArbeidRepository.save(
-                    FriskTilArbeidVedtakDbRecord(
-                        vedtakUuid = UUID.randomUUID().toString(),
-                        key = kafkaMelding.key,
-                        opprettet = Instant.now(),
-                        fnr = friskTilArbeidVedtakStatus.personident,
-                        fom = friskTilArbeidVedtakStatus.fom,
-                        tom = friskTilArbeidVedtakStatus.tom,
-                        vedtak = friskTilArbeidVedtakStatus.tilPostgresJson(),
-                        behandletStatus = BehandletStatus.OVERLAPP,
-                    ),
-                )
-                return
-            }
-
-            val sisteArbeidssokerperiode =
-                arbeidssokerregisterClient.hentSisteArbeidssokerperiode(
-                    ArbeidssokerperiodeRequest(
-                        friskTilArbeidVedtakStatus.personident,
-                    ),
-                ).singleOrNull()
-            if (sisteArbeidssokerperiode == null) {
-                friskTilArbeidRepository.save(
-                    FriskTilArbeidVedtakDbRecord(
-                        vedtakUuid = UUID.randomUUID().toString(),
-                        key = kafkaMelding.key,
-                        opprettet = Instant.now(),
-                        fnr = friskTilArbeidVedtakStatus.personident,
-                        fom = friskTilArbeidVedtakStatus.fom,
-                        tom = friskTilArbeidVedtakStatus.tom,
-                        vedtak = friskTilArbeidVedtakStatus.tilPostgresJson(),
-                        behandletStatus = BehandletStatus.INGEN_ARBEIDSSOKERPERIODE,
-                    ),
-                )
-                return
-            }
-            if (sisteArbeidssokerperiode.avsluttet != null) {
-                friskTilArbeidRepository.save(
-                    FriskTilArbeidVedtakDbRecord(
-                        vedtakUuid = UUID.randomUUID().toString(),
-                        key = kafkaMelding.key,
-                        opprettet = Instant.now(),
-                        fnr = friskTilArbeidVedtakStatus.personident,
-                        fom = friskTilArbeidVedtakStatus.fom,
-                        tom = friskTilArbeidVedtakStatus.tom,
-                        vedtak = friskTilArbeidVedtakStatus.tilPostgresJson(),
-                        behandletStatus = BehandletStatus.SISTE_ARBEIDSSOKERPERIODE_AVSLUTTET,
-                    ),
-                )
-                return
-            }
-
             friskTilArbeidRepository.save(
                 FriskTilArbeidVedtakDbRecord(
                     vedtakUuid = UUID.randomUUID().toString(),
@@ -150,8 +80,6 @@ data class FriskTilArbeidVedtakStatus(
     val statusAt: OffsetDateTime,
     val statusBy: String,
 )
-
-fun FriskTilArbeidVedtakStatus.tilPeriode() = Periode(fom, tom)
 
 enum class Status {
     FATTET,
