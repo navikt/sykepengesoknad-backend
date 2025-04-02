@@ -28,7 +28,7 @@ class FriskTilArbeidSporsmalMuteringTest : FakesTestOppsett() {
     @Autowired
     lateinit var aktivering: SoknadAktivering
 
-    private val fnr = "11111111111"
+    private val fnr = "11111111177"
 
     @Test
     @Order(1)
