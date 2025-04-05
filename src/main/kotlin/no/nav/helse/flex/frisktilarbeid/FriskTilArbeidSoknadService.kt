@@ -10,6 +10,7 @@ import no.nav.helse.flex.kafka.producer.SoknadProducer
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.service.IdentService
+import no.nav.helse.flex.util.isBeforeOrEqual
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
@@ -135,7 +136,7 @@ fun defaultPeriodeGenerator(
         throw IllegalArgumentException("Til-dato kan ikke være før fra-dato.")
     }
     return generateSequence(periodeStart) {
-        it.plusDays(periodeLengde).takeIf { it.isBefore(periodeSlutt) }
+        it.plusDays(periodeLengde).takeIf { it.isBeforeOrEqual(periodeSlutt) }
     }
         .map { fom -> fom to minOf(fom.plusDays(periodeLengde - 1), periodeSlutt) }
         .toList()

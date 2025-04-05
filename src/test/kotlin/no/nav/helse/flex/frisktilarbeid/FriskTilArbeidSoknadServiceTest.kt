@@ -9,7 +9,77 @@ import java.time.temporal.ChronoUnit
 
 class FriskTilArbeidSoknadServiceTest {
     @Test
-    fun `Generer perioder for en måned med default periodelengde`() {
+    fun `Generer to perioder på 14 dager for vedtaksperiode på 28 dager`() {
+        defaultPeriodeGenerator(
+            periodeStart = LocalDate.of(2025, 4, 7),
+            periodeSlutt = LocalDate.of(2025, 5, 4),
+        ).also { perioder ->
+            assertEquals(2, perioder.size)
+
+            val forventedePerioder =
+                listOf(
+                    ForventetPeriode("2025-04-07", "2025-04-20", 14L),
+                    ForventetPeriode("2025-04-21", "2025-05-04", 14L),
+                )
+            sammenlignPerioder(forventedePerioder, perioder)
+        }
+    }
+
+    @Test
+    fun `Generer to perioder på 14 dager og 13 dager for vedtaksperiode på 27 dager`() {
+        defaultPeriodeGenerator(
+            periodeStart = LocalDate.of(2025, 4, 7),
+            periodeSlutt = LocalDate.of(2025, 5, 3),
+        ).also { perioder ->
+            assertEquals(2, perioder.size)
+
+            val forventedePerioder =
+                listOf(
+                    ForventetPeriode("2025-04-07", "2025-04-20", 14L),
+                    ForventetPeriode("2025-04-21", "2025-05-03", 13L),
+                )
+            sammenlignPerioder(forventedePerioder, perioder)
+        }
+    }
+
+    @Test
+    fun `Generer 2 periode på 14 dager og én periode på 1 dag for vedtaksperiode på 29 dager`() {
+        defaultPeriodeGenerator(
+            periodeStart = LocalDate.of(2025, 4, 7),
+            periodeSlutt = LocalDate.of(2025, 5, 5),
+        ).also { perioder ->
+            assertEquals(3, perioder.size)
+
+            val forventedePerioder =
+                listOf(
+                    ForventetPeriode("2025-04-07", "2025-04-20", 14L),
+                    ForventetPeriode("2025-04-21", "2025-05-04", 14L),
+                    ForventetPeriode("2025-05-05", "2025-05-05", 1L),
+                )
+            sammenlignPerioder(forventedePerioder, perioder)
+        }
+    }
+
+    @Test
+    fun `Generer 2 periode på 14 dager og én periode på 2 dager for vedtaksperiode på 30 dager`() {
+        defaultPeriodeGenerator(
+            periodeStart = LocalDate.of(2025, 4, 7),
+            periodeSlutt = LocalDate.of(2025, 5, 6),
+        ).also { perioder ->
+            assertEquals(3, perioder.size)
+
+            val forventedePerioder =
+                listOf(
+                    ForventetPeriode("2025-04-07", "2025-04-20", 14L),
+                    ForventetPeriode("2025-04-21", "2025-05-04", 14L),
+                    ForventetPeriode("2025-05-05", "2025-05-06", 2L),
+                )
+            sammenlignPerioder(forventedePerioder, perioder)
+        }
+    }
+
+    @Test
+    fun `Generer perioder for en vedtaksperiode på en måned med default periodelengde`() {
         defaultPeriodeGenerator(
             periodeStart = LocalDate.of(2025, 1, 1),
             periodeSlutt = LocalDate.of(2025, 1, 31),
@@ -27,7 +97,30 @@ class FriskTilArbeidSoknadServiceTest {
     }
 
     @Test
-    fun `Generer perioder for en måned med angitt periodelengde`() {
+    fun `Generer perioder for vedtaksperiode som går fra onsdag til onsdag`() {
+        defaultPeriodeGenerator(
+            periodeStart = LocalDate.of(2025, 3, 26),
+            periodeSlutt = LocalDate.of(2025, 6, 18),
+        ).also { perioder ->
+            assertEquals(7, perioder.size)
+
+            val forventedePerioder =
+                listOf(
+                    ForventetPeriode("2025-03-26", "2025-04-08", 14L),
+                    ForventetPeriode("2025-04-09", "2025-04-22", 14L),
+                    ForventetPeriode("2025-04-23", "2025-05-06", 14L),
+                    ForventetPeriode("2025-05-07", "2025-05-20", 14L),
+                    ForventetPeriode("2025-05-21", "2025-06-03", 14L),
+                    ForventetPeriode("2025-06-04", "2025-06-17", 14L),
+                    // Perioden er 12 uker + 1 dag lang.
+                    ForventetPeriode("2025-06-18", "2025-06-18", 1L),
+                )
+            sammenlignPerioder(forventedePerioder, perioder)
+        }
+    }
+
+    @Test
+    fun `Generer perioder for en vedtaksperiode på en måned med angitt periodelengde`() {
         defaultPeriodeGenerator(
             periodeStart = LocalDate.of(2025, 1, 1),
             periodeSlutt = LocalDate.of(2025, 1, 31),
@@ -48,7 +141,7 @@ class FriskTilArbeidSoknadServiceTest {
     }
 
     @Test
-    fun `Generer perioder for en enkelt dag`() {
+    fun `Generer periode for en vedtaksperiode på én dag dag`() {
         defaultPeriodeGenerator(
             periodeStart = LocalDate.of(2025, 1, 1),
             periodeSlutt = LocalDate.of(2025, 1, 1),
