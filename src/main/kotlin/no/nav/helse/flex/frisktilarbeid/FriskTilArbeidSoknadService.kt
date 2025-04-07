@@ -69,11 +69,7 @@ class FriskTilArbeidSoknadService(
                 "9f26cee2-19ca-4676-a31c-a7452968a152",
             ).forEach {
                 friskTilArbeidRepository.findById(it).get().copy(behandletStatus = BehandletStatus.NY).also {
-//                    friskTilArbeidRepository.save(it)
-                    log.info(
-                        "Dry-run: Skulle endret behandletStatus på FriskTilArbeid vedtak: ${it.id} " +
-                            "fra $${it.behandletStatus} til ${BehandletStatus.NY}.",
-                    )
+                    friskTilArbeidRepository.save(it)
                 }
             }
         }
