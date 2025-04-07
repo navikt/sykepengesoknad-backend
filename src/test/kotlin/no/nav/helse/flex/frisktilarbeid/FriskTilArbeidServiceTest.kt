@@ -181,7 +181,7 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
     }
 
     @Test
-    fun `Overlapp ved lagring av nytt vedtak med tom etter eksisterende vedtaks fom`() {
+    fun `Overlapp ved lagring av nytt vedtak med tom etter eksisterende vedtak fom`() {
         lagFriskTilArbeidVedtakStatus(
             Periode(
                 fom = LocalDate.of(2024, 1, 5),
@@ -271,7 +271,8 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
     @Test
     fun `Person er avsluttet i arbeidssøker registeret`() {
         FellesTestOppsett.arbeidssokerregisterMockDispatcher.enqueue(
-            MockResponse().setBody(listOf(skapArbeidssokerperiodeResponse(avsluttet = true)).serialisertTilString()).setResponseCode(200),
+            MockResponse().setBody(listOf(skapArbeidssokerperiodeResponse(avsluttet = true)).serialisertTilString())
+                .setResponseCode(200),
         )
 
         lagFriskTilArbeidVedtakStatus(
@@ -313,12 +314,15 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
 
     @Test
     fun `Behandler et vedtak andre gang for å generer søknad for dag som mangler`() {
-        val periode = Periode(fom = LocalDate.of(2025, 4, 7), tom = LocalDate.of(2025, 5, 4))
-
         friskTilArbeidService.lagreFriskTilArbeidVedtakStatus(
             FriskTilArbeidVedtakStatusKafkaMelding(
                 key = "33333333333".asProducerRecordKey(),
-                friskTilArbeidVedtakStatus = lagFriskTilArbeidVedtakStatus("33333333333", Status.FATTET, periode),
+                friskTilArbeidVedtakStatus =
+                    lagFriskTilArbeidVedtakStatus(
+                        "33333333333",
+                        Status.FATTET,
+                        Periode(fom = LocalDate.of(2025, 4, 7), tom = LocalDate.of(2025, 5, 4)),
+                    ),
             ),
         )
 
@@ -339,6 +343,51 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
         result.size `should be equal to` 1
         result.first().fom `should be equal to` LocalDate.of(2025, 5, 5)
         result.first().tom `should be equal to` LocalDate.of(2025, 5, 5)
+    }
+
+    @Test
+    fun `Filtrerer bort eksisterende vedtak med status OVERLAPP_OK`() {
+        friskTilArbeidService.lagreFriskTilArbeidVedtakStatus(
+            FriskTilArbeidVedtakStatusKafkaMelding(
+                key = "44444444444".asProducerRecordKey(),
+                friskTilArbeidVedtakStatus =
+                    lagFriskTilArbeidVedtakStatus(
+                        "44444444444",
+                        Status.FATTET,
+                        Periode(fom = LocalDate.of(2025, 3, 10), tom = LocalDate.of(2025, 6, 1)),
+                    ),
+            ),
+        )
+
+        friskTilArbeidService.behandleFriskTilArbeidVedtakStatus(1) shouldHaveSize 6
+
+        // Utvider vedtaket med én dag og setter status tilbake til NY for å få generert søknaden som mangler.
+        friskTilArbeidRepository.findByFnrIn(listOf("44444444444")).single().also {
+            friskTilArbeidRepository.save(it.copy(tom = LocalDate.of(2025, 6, 2), behandletStatus = NY))
+        }
+
+        friskTilArbeidService.lagreFriskTilArbeidVedtakStatus(
+            FriskTilArbeidVedtakStatusKafkaMelding(
+                key = "44444444444".asProducerRecordKey(),
+                friskTilArbeidVedtakStatus =
+                    lagFriskTilArbeidVedtakStatus(
+                        "44444444444",
+                        Status.FATTET,
+                        Periode(fom = LocalDate.of(2025, 3, 11), tom = LocalDate.of(2025, 6, 2)),
+                    ),
+            ),
+        )
+
+        fakeFriskTilArbeidRepository.findByFnrIn(listOf("44444444444")).also {
+            it.find { it.fom == LocalDate.of(2025, 3, 11) }.also {
+                friskTilArbeidRepository.save(it!!.copy(behandletStatus = OVERLAPP_OK))
+            }
+        }
+
+        val result = friskTilArbeidService.behandleFriskTilArbeidVedtakStatus(1)
+        result.size `should be equal to` 1
+        result.first().fom `should be equal to` LocalDate.of(2025, 6, 2)
+        result.first().tom `should be equal to` LocalDate.of(2025, 6, 2)
     }
 
     private fun lagFriskTilArbeidVedtakStatus(
