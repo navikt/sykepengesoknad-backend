@@ -28,7 +28,7 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
     lateinit var friskTilArbeidCronJob: FriskTilArbeidCronJob
 
     @BeforeEach
-    fun setup() {
+    fun slettFraDatabase() {
         fakeFriskTilArbeidRepository.deleteAll()
     }
 
@@ -254,6 +254,7 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
         FellesTestOppsett.arbeidssokerregisterMockDispatcher.enqueue(
             MockResponse().setBody("[]").setResponseCode(200),
         )
+
         lagFriskTilArbeidVedtakStatus(
             Periode(
                 fom = LocalDate.of(2024, 1, 1),
@@ -272,6 +273,7 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
         FellesTestOppsett.arbeidssokerregisterMockDispatcher.enqueue(
             MockResponse().setBody(listOf(skapArbeidssokerperiodeResponse(avsluttet = true)).serialisertTilString()).setResponseCode(200),
         )
+
         lagFriskTilArbeidVedtakStatus(
             Periode(
                 fom = LocalDate.of(2024, 1, 1),
@@ -279,6 +281,7 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
             ),
         )
         friskTilArbeidCronJob.schedulertStartBehandlingAvFriskTilArbeidVedtakStatus()
+
         val vedtakFraDb = fakeFriskTilArbeidRepository.findAll().toList()
         vedtakFraDb shouldHaveSize 1
         vedtakFraDb.map { it.behandletStatus }.toSet() `should be equal to` setOf(SISTE_ARBEIDSSOKERPERIODE_AVSLUTTET)
@@ -303,9 +306,39 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
         friskTilArbeidService.behandleFriskTilArbeidVedtakStatus(1)
 
         fakeFriskTilArbeidRepository.findAll().toList().also {
-            it.find { it.fnr == "11111111111" }?.behandletStatus `should be equal to` BehandletStatus.BEHANDLET
+            it.find { it.fnr == "11111111111" }?.behandletStatus `should be equal to` BEHANDLET
             it.find { it.fnr == "22222222222" }?.behandletStatus `should be equal to` NY
         }
+    }
+
+    @Test
+    fun `Behandler et vedtak andre gang for å generer søknad for dag som mangler`() {
+        val periode = Periode(fom = LocalDate.of(2025, 4, 7), tom = LocalDate.of(2025, 5, 4))
+
+        friskTilArbeidService.lagreFriskTilArbeidVedtakStatus(
+            FriskTilArbeidVedtakStatusKafkaMelding(
+                key = "33333333333".asProducerRecordKey(),
+                friskTilArbeidVedtakStatus = lagFriskTilArbeidVedtakStatus("33333333333", Status.FATTET, periode),
+            ),
+        )
+
+        val soknader = friskTilArbeidService.behandleFriskTilArbeidVedtakStatus(1).sortedBy { it.fom }
+
+        soknader shouldHaveSize 2
+        soknader[0].fom `should be equal to` LocalDate.of(2025, 4, 7)
+        soknader[0].tom `should be equal to` LocalDate.of(2025, 4, 20)
+        soknader[1].fom `should be equal to` LocalDate.of(2025, 4, 21)
+        soknader[1].tom `should be equal to` LocalDate.of(2025, 5, 4)
+
+        // Utvider vedtaket med én dag og setter status tilbake til NY for å få generert søknaden som mangler.
+        friskTilArbeidRepository.findByFnrIn(listOf("33333333333")).single().also {
+            friskTilArbeidRepository.save(it.copy(tom = LocalDate.of(2025, 5, 5), behandletStatus = NY))
+        }
+
+        val result = friskTilArbeidService.behandleFriskTilArbeidVedtakStatus(1)
+        result.size `should be equal to` 1
+        result.first().fom `should be equal to` LocalDate.of(2025, 5, 5)
+        result.first().tom `should be equal to` LocalDate.of(2025, 5, 5)
     }
 
     private fun lagFriskTilArbeidVedtakStatus(
