@@ -22,7 +22,6 @@ import no.nav.helse.flex.domain.AuditEntry
 import no.nav.helse.flex.domain.EventType
 import no.nav.helse.flex.frisktilarbeid.*
 import no.nav.helse.flex.kafka.producer.AuditLogProducer
-import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.KlippetSykepengesoknadDbRecord
 import no.nav.helse.flex.repository.KlippetSykepengesoknadRepository
 import no.nav.helse.flex.service.HentSoknadService
@@ -226,37 +225,6 @@ class SoknadFlexAzureController(
         )
 
         return pensjongivendeInntektClient.hentPensjonsgivendeInntekt(req.fnr, req.inntektsaar.toInt())
-    }
-
-    data class FtaOpprettResponse(
-        val opprettet: Int,
-        val feilet: Int,
-    )
-
-    @PostMapping(
-        "/api/v1/flex/fta-vedtak",
-        consumes = [APPLICATION_JSON_VALUE],
-        produces = [APPLICATION_JSON_VALUE],
-    )
-    fun lagreFriskmeldtVedtak(
-        @RequestBody req: List<FriskTilArbeidVedtakStatusKafkaMelding>,
-        request: HttpServletRequest,
-    ): FtaOpprettResponse {
-        clientIdValidation.validateClientId(NamespaceAndApp(namespace = "flex", app = "flex-internal-frontend"))
-
-        var antallOk = 0
-        var antallFeil = 0
-
-        req.forEach {
-            try {
-                friskTilArbeidService.lagreFriskTilArbeidVedtakStatus(it)
-                antallOk++
-            } catch (e: Exception) {
-                logger().error("Feilet ved mottak av FriskTilArbeidVedtakStatus.", e)
-                antallFeil++
-            }
-        }
-        return FtaOpprettResponse(antallOk, antallFeil)
     }
 
     data class FnrRequest(
