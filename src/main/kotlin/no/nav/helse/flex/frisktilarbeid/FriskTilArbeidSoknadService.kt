@@ -2,6 +2,8 @@ package no.nav.helse.flex.frisktilarbeid
 
 import no.nav.helse.flex.client.arbeidssokerregister.ArbeidssokerperiodeRequest
 import no.nav.helse.flex.client.arbeidssokerregister.ArbeidssokerregisterClient
+import no.nav.helse.flex.config.EnvironmentToggles
+import no.nav.helse.flex.cronjob.LeaderElection
 import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
@@ -11,11 +13,13 @@ import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.service.IdentService
 import no.nav.helse.flex.util.isBeforeOrEqual
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 import java.time.LocalDate
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 const val SOKNAD_PERIODELENGDE = 14L
 
@@ -26,8 +30,41 @@ class FriskTilArbeidSoknadService(
     private val soknadProducer: SoknadProducer,
     private val identService: IdentService,
     private val arbeidssokerregisterClient: ArbeidssokerregisterClient,
+    private val leaderElection: LeaderElection,
+    private val environmentToggles: EnvironmentToggles,
 ) {
     private val log = logger()
+
+    @Scheduled(initialDelay = 3, fixedDelay = 3600, timeUnit = TimeUnit.MINUTES)
+    fun resetVedtaksPeriode() {
+        if (leaderElection.isLeader() && environmentToggles.isProduction()) {
+            friskTilArbeidRepository.findById("8b3d31eb-22e6-4541-a916-8e0c07251e1f").get().also { vedtak ->
+                val oppdatertVedtak =
+                    vedtak.copy(
+                        behandletStatus = BehandletStatus.NY,
+                        tom = LocalDate.of(2025, 5, 28),
+                    )
+                friskTilArbeidRepository.save(oppdatertVedtak)
+                log.info(
+                    "Oppdatert vedtak: ${vedtak.id} med status: ${vedtak.behandletStatus} til status: ${oppdatertVedtak.behandletStatus}" +
+                        " og fra tom: ${vedtak.tom} til tom: ${oppdatertVedtak.tom}",
+                )
+            }
+
+            friskTilArbeidRepository.findById("8a8ad333-15a7-4860-a635-c3db950ff398").get().also { vedtak ->
+                val oppdatertVedtak =
+                    vedtak.copy(
+                        behandletStatus = BehandletStatus.NY,
+                        tom = LocalDate.of(2025, 6, 23),
+                    )
+                friskTilArbeidRepository.save(oppdatertVedtak)
+                log.info(
+                    "Oppdatert vedtak: ${vedtak.id} med status: ${vedtak.behandletStatus} til status: ${oppdatertVedtak.behandletStatus}" +
+                        " og fra tom: ${vedtak.tom} til tom: ${oppdatertVedtak.tom}",
+                )
+            }
+        }
+    }
 
     @Transactional
     fun opprettSoknader(
