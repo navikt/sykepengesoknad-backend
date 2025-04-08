@@ -257,7 +257,7 @@ class SoknadFlexAzureController(
             ),
         )
 
-        return arbeidssokerregisterClient.hentSisteArbeidssokerperiode(ArbeidssokerperiodeRequest(req.fnr))
+        return arbeidssokerregisterClient.hentSisteArbeidssokerperiode(ArbeidssokerperiodeRequest(req.fnr, siste = false))
     }
 
     @PostMapping(

@@ -19,7 +19,7 @@ class ArbeidssokerregisterClient(
             .uri { uriBuilder ->
                 uriBuilder
                     .path("/api/v1/veileder/arbeidssoekerperioder")
-                    .queryParam("siste", true)
+                    .queryParam("siste", request.siste)
                     .build()
             }.contentType(APPLICATION_JSON)
             .body(request)
@@ -32,6 +32,7 @@ class ArbeidssokerregisterClient(
 
 data class ArbeidssokerperiodeRequest(
     val identitetsnummer: String,
+    val siste: Boolean = true,
 )
 
 data class ArbeidssokerperiodeResponse(
