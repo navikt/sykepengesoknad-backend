@@ -40,9 +40,11 @@ class ArbeidssokerregisterStoppService(
                 .filter { it.status == Soknadstatus.FREMTIDIG || it.status == Soknadstatus.NY }
                 .filter {
                     if (harSvartVilIkkeVæreArbeidssoker) {
-                        it.fom!!.isAfter(stoppMelding.avsluttetTidspunkt.tilLocalDate())
-                    } else {
+                        // Vi sletter alle fremtidige siden vi vet at personen ikke vil være arbeidssøker
                         true
+                    } else {
+                        // Stoppmeldingen må komme fra et eksternt system. Må tillatte at nåværende periode kan sendes inn
+                        it.fom!!.isAfter(stoppMelding.avsluttetTidspunkt.tilLocalDate())
                     }
                 }
 
