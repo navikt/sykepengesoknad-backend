@@ -25,6 +25,9 @@ import org.springframework.beans.factory.annotation.Autowired
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
 import java.util.concurrent.TimeUnit
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
@@ -50,8 +53,6 @@ class FriskTilArbeidIntegrationTest() : FellesTestOppsett() {
         friskTilArbeidRepository.deleteAll()
     }
 
-    private val fnr = "11111111111"
-
     @Test
     @Order(1)
     fun `Mottar og lagrer VedtakStatusRecord med status FATTET`() {
@@ -61,7 +62,7 @@ class FriskTilArbeidIntegrationTest() : FellesTestOppsett() {
                 fom = LocalDate.of(2025, 2, 3),
                 tom = LocalDate.of(2025, 3, 9),
             )
-        val fnr = fnr
+        val fnr = "11111111111"
         val key = fnr.asProducerRecordKey()
         val friskTilArbeidVedtakStatus = lagFriskTilArbeidVedtakStatus(fnr, Status.FATTET, vedtaksperiode)
 
@@ -89,6 +90,7 @@ class FriskTilArbeidIntegrationTest() : FellesTestOppsett() {
             it.behandletTidspunkt `should be equal to` null
             it.fom `should be equal to` vedtaksperiode.fom
             it.tom `should be equal to` vedtaksperiode.tom
+            it.ignorerArbeidssokerregister `should be equal to` null
         }
     }
 
@@ -116,7 +118,7 @@ class FriskTilArbeidIntegrationTest() : FellesTestOppsett() {
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 3, Duration.ofSeconds(1)).tilSoknader().also { soknader ->
             soknader.size `should be equal to` 3
             soknader.forEach {
-                it.fnr `should be equal to` fnr
+                it.fnr `should be equal to` "11111111111"
                 it.status `should be equal to` SoknadsstatusDTO.FREMTIDIG
                 it.type `should be equal to` SoknadstypeDTO.FRISKMELDT_TIL_ARBEIDSFORMIDLING
 
@@ -126,6 +128,41 @@ class FriskTilArbeidIntegrationTest() : FellesTestOppsett() {
                         fom = friskTilArbeidDbRecord.fom,
                         tom = friskTilArbeidDbRecord.tom,
                     ).serialisertTilString()
+                it.ignorerArbeidssokerregister `should be equal to` null
+            }
+        }
+    }
+
+    @Test
+    @Order(3)
+    fun `Mottar og lagrer VedtakStatusRecord med status FATTET som ikke skal sjekkes mot Arbeidssøkerregisteret`() {
+        val fnr = "22222222222"
+        friskTilArbeidService.lagreFriskTilArbeidVedtakStatus(
+            FriskTilArbeidVedtakStatusKafkaMelding(
+                key = fnr.asProducerRecordKey(),
+                friskTilArbeidVedtakStatus =
+                    lagFriskTilArbeidVedtakStatus(
+                        fnr,
+                        Status.FATTET,
+                    ).copy(statusAt = OffsetDateTime.of(LocalDateTime.of(2025, 3, 9, 23, 1, 0), ZoneOffset.UTC)),
+                ignorerArbeidssokerregister = true,
+            ),
+        )
+        friskTilArbeidService.behandleFriskTilArbeidVedtakStatus(1)
+
+        friskTilArbeidRepository.finnVedtakSomSkalBehandles(1).size `should be equal to` 0
+
+        friskTilArbeidRepository.findAll().first { it -> it.fnr == fnr }.also {
+            it.behandletStatus `should be equal to` BehandletStatus.BEHANDLET
+        }
+
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1, Duration.ofSeconds(1)).tilSoknader().also { soknader ->
+            soknader.size `should be equal to` 1
+            soknader.forEach {
+                it.fnr `should be equal to` fnr
+                it.status `should be equal to` SoknadsstatusDTO.FREMTIDIG
+                it.type `should be equal to` SoknadstypeDTO.FRISKMELDT_TIL_ARBEIDSFORMIDLING
+                it.ignorerArbeidssokerregister `should be equal to` true
             }
         }
     }

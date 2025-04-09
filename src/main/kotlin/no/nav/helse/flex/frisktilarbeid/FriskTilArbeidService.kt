@@ -41,6 +41,7 @@ class FriskTilArbeidService(
                     tom = friskTilArbeidVedtakStatus.tom,
                     vedtak = friskTilArbeidVedtakStatus.tilPostgresJson(),
                     behandletStatus = BehandletStatus.NY,
+                    ignorerArbeidssokerregister = kafkaMelding.ignorerArbeidssokerregister,
                 ),
             ).also {
                 log.info(
@@ -68,6 +69,7 @@ fun String.tilFriskTilArbeidVedtakStatus(): FriskTilArbeidVedtakStatus = objectM
 data class FriskTilArbeidVedtakStatusKafkaMelding(
     val key: String,
     val friskTilArbeidVedtakStatus: FriskTilArbeidVedtakStatus,
+    val ignorerArbeidssokerregister: Boolean? = null,
 )
 
 data class FriskTilArbeidVedtakStatus(
