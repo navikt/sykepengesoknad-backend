@@ -390,13 +390,40 @@ class SoknadFlexAzureController(
             listOf(
                 BehandletStatus.SISTE_ARBEIDSSOKERPERIODE_AVSLUTTET,
                 BehandletStatus.INGEN_ARBEIDSSOKERPERIODE,
+                BehandletStatus.BEHANDLET,
             )
         ) {
             throw IllegalArgumentException(
-                "Kan ikke endre status til NY på vedtak som ikke SISTE_ARBEIDSSOKERPERIODE_AVSLUTTET eller INGEN_ARBEIDSSOKERPERIODE",
+                "Kan ikke endre status til NY på vedtak som ikke SISTE_ARBEIDSSOKERPERIODE_AVSLUTTET, " +
+                    "INGEN_ARBEIDSSOKERPERIODE eller BEHANDLET",
             )
         }
         val ny = eksisterende.copy(behandletStatus = req.status)
+        return friskTilArbeidRepository.save(ny)
+    }
+
+    data class IgnorerArbsRequest(
+        val id: String,
+        val ignorerArbeidssokerregister: Boolean,
+    )
+
+    @PostMapping(
+        "/api/v1/flex/fta-vedtak/ignorer-arbs",
+        produces = [APPLICATION_JSON_VALUE],
+        consumes = [APPLICATION_JSON_VALUE],
+    )
+    fun ignorerArbs(
+        @RequestBody req: IgnorerArbsRequest,
+    ): FriskTilArbeidVedtakDbRecord {
+        clientIdValidation.validateClientId(NamespaceAndApp(namespace = "flex", app = "flex-internal-frontend"))
+
+        val eksisterende =
+            friskTilArbeidRepository.findById(req.id).orElseThrow { IllegalArgumentException("Fant ikke vedtak") }
+
+        val ny =
+            eksisterende.copy(
+                ignorerArbeidssokerregister = req.ignorerArbeidssokerregister,
+            )
         return friskTilArbeidRepository.save(ny)
     }
 }
