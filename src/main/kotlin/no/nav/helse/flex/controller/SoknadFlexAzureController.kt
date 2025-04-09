@@ -391,6 +391,7 @@ class SoknadFlexAzureController(
                 BehandletStatus.SISTE_ARBEIDSSOKERPERIODE_AVSLUTTET,
                 BehandletStatus.INGEN_ARBEIDSSOKERPERIODE,
                 BehandletStatus.BEHANDLET,
+                BehandletStatus.OVERLAPP,
             )
         ) {
             throw IllegalArgumentException(
