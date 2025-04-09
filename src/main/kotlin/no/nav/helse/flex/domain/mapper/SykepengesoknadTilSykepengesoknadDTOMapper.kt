@@ -54,7 +54,7 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
         }
             .merkSelvstendigOgFrilanserMedRedusertVenteperiode()
             .merkMedMedlemskapStatus()
-            .merkMedFriskTilArbeidVedtakPeriode()
+            .fyllMedDataFraFriskTilArbeidTabell()
     }
 
     private fun Sykepengesoknad.hentSoknadsperioder(endeligVurdering: Boolean): List<SoknadsperiodeDTO> {
@@ -90,7 +90,7 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
         }
     }
 
-    private fun SykepengesoknadDTO.merkMedFriskTilArbeidVedtakPeriode(): SykepengesoknadDTO {
+    private fun SykepengesoknadDTO.fyllMedDataFraFriskTilArbeidTabell(): SykepengesoknadDTO {
         if (type != SoknadstypeDTO.FRISKMELDT_TIL_ARBEIDSFORMIDLING) {
             return this
         }
@@ -103,6 +103,7 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
                         friskTilArbeidDbRecord.fom,
                         friskTilArbeidDbRecord.tom,
                     ).serialisertTilString(),
+                ignorerArbeidssokerregister = friskTilArbeidDbRecord.ignorerArbeidssokerregister,
             )
         }
     }

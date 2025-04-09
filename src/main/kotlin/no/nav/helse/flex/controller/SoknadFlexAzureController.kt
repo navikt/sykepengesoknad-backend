@@ -257,7 +257,12 @@ class SoknadFlexAzureController(
             ),
         )
 
-        return arbeidssokerregisterClient.hentSisteArbeidssokerperiode(ArbeidssokerperiodeRequest(req.fnr, siste = false))
+        return arbeidssokerregisterClient.hentSisteArbeidssokerperiode(
+            ArbeidssokerperiodeRequest(
+                req.fnr,
+                siste = false,
+            ),
+        )
     }
 
     @PostMapping(
@@ -295,6 +300,7 @@ class SoknadFlexAzureController(
         val fnr: String,
         val fom: LocalDate,
         val tom: LocalDate,
+        val ignorerArbeidssokerregister: Boolean,
     )
 
     @PostMapping(
@@ -304,7 +310,6 @@ class SoknadFlexAzureController(
     )
     fun opprettFriskmeldtVedtak(
         @RequestBody req: OpprettRequest,
-        request: HttpServletRequest,
     ): FriskTilArbeidVedtakStatusKafkaMelding {
         clientIdValidation.validateClientId(NamespaceAndApp(namespace = "flex", app = "flex-internal-frontend"))
         val navIdent = clientIdValidation.hentNavIdent()
@@ -331,6 +336,7 @@ class SoknadFlexAzureController(
                         uuid = UUID.randomUUID().toString(),
                         statusBy = navIdent,
                     ),
+                ignorerArbeidssokerregister = req.ignorerArbeidssokerregister,
             )
 
         friskTilArbeidService.lagreFriskTilArbeidVedtakStatus(melding)

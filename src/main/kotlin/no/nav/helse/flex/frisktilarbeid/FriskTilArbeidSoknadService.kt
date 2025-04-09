@@ -59,32 +59,30 @@ class FriskTilArbeidSoknadService(
             return emptyList()
         }
 
-        val sisteArbeidssokerperiode =
-            arbeidssokerregisterClient.hentSisteArbeidssokerperiode(
-                ArbeidssokerperiodeRequest(
-                    vedtakDbRecord.fnr,
-                ),
-            ).singleOrNull()
+        if (vedtakDbRecord.sjekkArbeidssokerregisteret()) {
+            val sisteArbeidssokerperiode =
+                arbeidssokerregisterClient
+                    .hentSisteArbeidssokerperiode(ArbeidssokerperiodeRequest(vedtakDbRecord.fnr))
+                    .singleOrNull()
 
-        if (sisteArbeidssokerperiode == null) {
-            friskTilArbeidRepository.save(
-                vedtakDbRecord.copy(
-                    behandletStatus = BehandletStatus.INGEN_ARBEIDSSOKERPERIODE,
-                    behandletTidspunkt = Instant.now(),
-                ),
-            )
-            return emptyList()
+            val status =
+                when {
+                    sisteArbeidssokerperiode == null -> BehandletStatus.INGEN_ARBEIDSSOKERPERIODE
+                    sisteArbeidssokerperiode.avsluttet != null -> BehandletStatus.SISTE_ARBEIDSSOKERPERIODE_AVSLUTTET
+                    else -> null
+                }
+
+            if (status != null) {
+                friskTilArbeidRepository.save(
+                    vedtakDbRecord.copy(
+                        behandletStatus = status,
+                        behandletTidspunkt = Instant.now(),
+                    ),
+                )
+                return emptyList()
+            }
         }
 
-        if (sisteArbeidssokerperiode.avsluttet != null) {
-            friskTilArbeidRepository.save(
-                vedtakDbRecord.copy(
-                    behandletStatus = BehandletStatus.SISTE_ARBEIDSSOKERPERIODE_AVSLUTTET,
-                    behandletTidspunkt = Instant.now(),
-                ),
-            )
-            return emptyList()
-        }
         val eksisterendeSoknader =
             sykepengesoknadDAO.finnSykepengesoknader(
                 listOf(vedtakDbRecord.fnr),

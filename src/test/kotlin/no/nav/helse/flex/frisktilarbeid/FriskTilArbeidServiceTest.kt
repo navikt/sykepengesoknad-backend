@@ -44,7 +44,24 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
             ),
         )
 
-        fakeFriskTilArbeidRepository.findAll().toList() shouldHaveSize 1
+        fakeFriskTilArbeidRepository.findAll().toList().single().also {
+            it.ignorerArbeidssokerregister `should be equal to` null
+        }
+    }
+
+    @Test
+    fun `Lagrer vedtak med status FATTET som ikke skal sjekkes mot Arbeidssøkerregisteret`() {
+        friskTilArbeidService.lagreFriskTilArbeidVedtakStatus(
+            FriskTilArbeidVedtakStatusKafkaMelding(
+                key = key,
+                friskTilArbeidVedtakStatus = lagFriskTilArbeidVedtakStatus(fnr, Status.FATTET),
+                ignorerArbeidssokerregister = true,
+            ),
+        )
+
+        fakeFriskTilArbeidRepository.findAll().toList().single().also {
+            it.ignorerArbeidssokerregister `should be equal to` true
+        }
     }
 
     @Test
@@ -326,23 +343,24 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
             ),
         )
 
-        val soknader = friskTilArbeidService.behandleFriskTilArbeidVedtakStatus(1).sortedBy { it.fom }
-
-        soknader shouldHaveSize 2
-        soknader[0].fom `should be equal to` LocalDate.of(2025, 4, 7)
-        soknader[0].tom `should be equal to` LocalDate.of(2025, 4, 20)
-        soknader[1].fom `should be equal to` LocalDate.of(2025, 4, 21)
-        soknader[1].tom `should be equal to` LocalDate.of(2025, 5, 4)
+        friskTilArbeidService.behandleFriskTilArbeidVedtakStatus(1).sortedBy { it.fom }.also {
+            it shouldHaveSize 2
+            it[0].fom `should be equal to` LocalDate.of(2025, 4, 7)
+            it[0].tom `should be equal to` LocalDate.of(2025, 4, 20)
+            it[1].fom `should be equal to` LocalDate.of(2025, 4, 21)
+            it[1].tom `should be equal to` LocalDate.of(2025, 5, 4)
+        }
 
         // Utvider vedtaket med én dag og setter status tilbake til NY for å få generert søknaden som mangler.
         friskTilArbeidRepository.findByFnrIn(listOf("33333333333")).single().also {
             friskTilArbeidRepository.save(it.copy(tom = LocalDate.of(2025, 5, 5), behandletStatus = NY))
         }
 
-        val result = friskTilArbeidService.behandleFriskTilArbeidVedtakStatus(1)
-        result.size `should be equal to` 1
-        result.first().fom `should be equal to` LocalDate.of(2025, 5, 5)
-        result.first().tom `should be equal to` LocalDate.of(2025, 5, 5)
+        friskTilArbeidService.behandleFriskTilArbeidVedtakStatus(1).also {
+            it.size `should be equal to` 1
+            it.first().fom `should be equal to` LocalDate.of(2025, 5, 5)
+            it.first().tom `should be equal to` LocalDate.of(2025, 5, 5)
+        }
     }
 
     @Test
@@ -384,10 +402,11 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
             }
         }
 
-        val result = friskTilArbeidService.behandleFriskTilArbeidVedtakStatus(1)
-        result.size `should be equal to` 1
-        result.first().fom `should be equal to` LocalDate.of(2025, 6, 2)
-        result.first().tom `should be equal to` LocalDate.of(2025, 6, 2)
+        friskTilArbeidService.behandleFriskTilArbeidVedtakStatus(1).also {
+            it.size `should be equal to` 1
+            it.first().fom `should be equal to` LocalDate.of(2025, 6, 2)
+            it.first().tom `should be equal to` LocalDate.of(2025, 6, 2)
+        }
     }
 
     private fun lagFriskTilArbeidVedtakStatus(
