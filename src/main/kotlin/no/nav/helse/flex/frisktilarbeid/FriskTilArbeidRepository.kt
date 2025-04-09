@@ -46,6 +46,7 @@ data class FriskTilArbeidVedtakDbRecord(
     val behandletStatus: BehandletStatus,
     val behandletTidspunkt: Instant? = null,
     val avsluttetTidspunkt: Instant? = null,
+    val ignorerArbeidssokerregister: Boolean? = null,
 )
 
 fun FriskTilArbeidVedtakDbRecord.tilPeriode(): Periode {
