@@ -1,17 +1,19 @@
-package no.nav.helse.flex.frisktilarbeid.sporsmal
+package no.nav.helse.flex.frisktilarbeid
 
 import no.nav.helse.flex.FakesTestOppsett
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.fakes.SoknadKafkaProducerFake
-import no.nav.helse.flex.frisktilarbeid.BehandletStatus
-import no.nav.helse.flex.frisktilarbeid.FriskTilArbeidCronJob
+import no.nav.helse.flex.frisktilarbeid.sporsmal.sendFriskTilArbeidVedtak
 import no.nav.helse.flex.hentSoknader
 import no.nav.helse.flex.repository.SykepengesoknadRepository
 import no.nav.helse.flex.sendStoppMelding
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
+import no.nav.helse.flex.util.tilLocalDate
 import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.shouldBeLessThan
 import org.amshove.kluent.shouldHaveSize
+import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -21,7 +23,7 @@ import java.time.Instant
 import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class StoppmeldingProsseseringTest : FakesTestOppsett() {
+class EksternStoppmeldingTest : FakesTestOppsett() {
     @Autowired
     lateinit var friskTilArbeidCronJob: FriskTilArbeidCronJob
 
@@ -33,10 +35,13 @@ class StoppmeldingProsseseringTest : FakesTestOppsett() {
 
     private var vedtaksId: String? = null
 
+    val vedtakFom = LocalDate.now().minusDays(15)
+    val vedtakTom = LocalDate.now().plusDays(35)
+
     @Test
     @Order(1)
     fun `Mottar og lagrer VedtakStatusRecord med status FATTET`() {
-        sendFriskTilArbeidVedtak(fnr, LocalDate.now().minusDays(15), LocalDate.now().plusDays(35))
+        sendFriskTilArbeidVedtak(fnr, vedtakFom, vedtakTom)
     }
 
     @Test
@@ -50,6 +55,17 @@ class StoppmeldingProsseseringTest : FakesTestOppsett() {
             friskTilArbeidRepository.findAll().first().also {
                 it.behandletStatus `should be equal to` BehandletStatus.BEHANDLET
             }
+
+        await().until {
+            sykepengesoknadRepository.findByFriskTilArbeidVedtakId(friskTilArbeidDbRecord.id!!).map { it.status }
+                .sorted() ==
+                listOf(
+                    Soknadstatus.NY,
+                    Soknadstatus.FREMTIDIG,
+                    Soknadstatus.FREMTIDIG,
+                    Soknadstatus.FREMTIDIG,
+                )
+        }
 
         sykepengesoknadRepository.findByFriskTilArbeidVedtakId(friskTilArbeidDbRecord.id!!).sortedBy { it.fom }.also {
             it.size `should be equal to` 4
@@ -76,12 +92,20 @@ class StoppmeldingProsseseringTest : FakesTestOppsett() {
 
     @Test
     @Order(4)
-    fun `4 søknader er slettet og produsert på kafka`() {
-        hentSoknader(fnr) shouldHaveSize 0
-
+    fun `2 søknader er slettet og produsert på kafka`() {
         SoknadKafkaProducerFake.records
             .filter { it.value().status == SoknadsstatusDTO.SLETTET }
-            .filter { it.value().friskTilArbeidVedtakId == vedtaksId }.shouldHaveSize(4)
+            .filter { it.value().friskTilArbeidVedtakId == vedtaksId }.shouldHaveSize(2)
+    }
+
+    @Test
+    @Order(4)
+    fun `resterende 2 søknader er de to første og fom er alltid før avsluttet tidsunkt`() {
+        val soknader = hentSoknader(fnr).sortedBy { it.fom } shouldHaveSize 2
+        soknader[0].fom!! shouldBeLessThan avsluttetTidspunkt.tilLocalDate()
+        soknader[0].fom!! `should be equal to` vedtakFom
+        soknader[1].fom!! shouldBeLessThan avsluttetTidspunkt.tilLocalDate()
+        soknader[1].fom!! `should be equal to` vedtakFom.plusDays(14)
     }
 
     @Test

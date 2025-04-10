@@ -10,6 +10,7 @@ import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
 import org.apache.kafka.clients.producer.Producer
 import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.actuate.observability.AutoConfigureObservability
@@ -74,6 +75,7 @@ abstract class FakesTestOppsett : TestOppsettInterfaces {
     }
 
     @AfterAll
+    @BeforeAll
     fun `Vi resetter databasen`() {
         databaseReset.resetDatabase()
     }

@@ -2,6 +2,7 @@ package no.nav.helse.flex.aktivering
 
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.helse.flex.kafka.SYKEPENGESOKNAD_AKTIVERING_TOPIC
+import no.nav.helse.flex.logger
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.support.Acknowledgment
@@ -28,6 +29,7 @@ class AktiveringConsumer(
         try {
             soknadAktivering.aktiverSoknad(cr.key())
         } catch (e: Exception) {
+            logger().error("sedfsdf", e)
             val warnEllerErrorLogger = retryLogger.inkrementerRetriesOgReturnerLogger(cr.key())
             warnEllerErrorLogger.log(
                 "Feilet ved aktivering av søknad ${cr.key()}.",
