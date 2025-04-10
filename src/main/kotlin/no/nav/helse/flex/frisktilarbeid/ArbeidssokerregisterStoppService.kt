@@ -33,7 +33,7 @@ class ArbeidssokerregisterStoppService(
                 .filter { it.friskTilArbeidVedtakId == stoppMelding.vedtaksperiodeId }
 
         val harSvartVilIkkeVæreArbeidssoker =
-            alleFtaSoknaderSammeVedtaksid.any { it.hentFortsattArbeidssoker() == false }
+            alleFtaSoknaderSammeVedtaksid.filter { it.status == Soknadstatus.SENDT }.any { it.hentFortsattArbeidssoker() == false }
 
         val soknaderSomSkalSlettes =
             alleFtaSoknaderSammeVedtaksid
