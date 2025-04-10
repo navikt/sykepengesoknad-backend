@@ -15,6 +15,7 @@ import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should be false`
 import org.amshove.kluent.`should be true`
 import org.assertj.core.api.Assertions.assertThat
+import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -23,7 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class FriskTilArbeidIntegrationMedSporsmalTest() : FakesTestOppsett() {
+class FriskTilArbeidIntegrationMedSporsmalTest : FakesTestOppsett() {
     @Autowired
     lateinit var friskTilArbeidCronJob: FriskTilArbeidCronJob
 
@@ -52,6 +53,15 @@ class FriskTilArbeidIntegrationMedSporsmalTest() : FakesTestOppsett() {
             friskTilArbeidRepository.findAll().first().also {
                 it.behandletStatus `should be equal to` BehandletStatus.BEHANDLET
             }
+
+        await().until {
+            sykepengesoknadRepository.findByFriskTilArbeidVedtakId(friskTilArbeidDbRecord.id!!).map { it.status }
+                .sorted() ==
+                listOf(
+                    Soknadstatus.NY,
+                    Soknadstatus.FREMTIDIG,
+                )
+        }
 
         sykepengesoknadRepository.findByFriskTilArbeidVedtakId(friskTilArbeidDbRecord.id!!).sortedBy { it.fom }.also {
             it.size `should be equal to` 2

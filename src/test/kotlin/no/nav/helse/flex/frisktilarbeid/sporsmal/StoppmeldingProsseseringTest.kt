@@ -12,6 +12,7 @@ import no.nav.helse.flex.sendStoppMelding
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldHaveSize
+import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -50,6 +51,17 @@ class StoppmeldingProsseseringTest : FakesTestOppsett() {
             friskTilArbeidRepository.findAll().first().also {
                 it.behandletStatus `should be equal to` BehandletStatus.BEHANDLET
             }
+
+        await().until {
+            sykepengesoknadRepository.findByFriskTilArbeidVedtakId(friskTilArbeidDbRecord.id!!).map { it.status }
+                .sorted() ==
+                listOf(
+                    Soknadstatus.NY,
+                    Soknadstatus.FREMTIDIG,
+                    Soknadstatus.FREMTIDIG,
+                    Soknadstatus.FREMTIDIG,
+                )
+        }
 
         sykepengesoknadRepository.findByFriskTilArbeidVedtakId(friskTilArbeidDbRecord.id!!).sortedBy { it.fom }.also {
             it.size `should be equal to` 4

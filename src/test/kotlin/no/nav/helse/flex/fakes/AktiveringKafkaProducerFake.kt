@@ -2,8 +2,6 @@ package no.nav.helse.flex.fakes
 
 import no.nav.helse.flex.aktivering.AktiveringBestilling
 import no.nav.helse.flex.aktivering.AktiveringConsumer
-import no.nav.helse.flex.domain.*
-import no.nav.helse.flex.repository.*
 import no.nav.helse.flex.util.serialisertTilString
 import org.apache.kafka.clients.consumer.ConsumerGroupMetadata
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -89,7 +87,12 @@ class AktiveringKafkaProducerFake : Producer<String, AktiveringBestilling> {
 
     override fun send(p0: ProducerRecord<String, AktiveringBestilling>): Future<RecordMetadata> {
         val cr = ConsumerRecord("topic", 0, 0, p0.key(), p0.value().serialisertTilString())
-        aktiveringConsumer.listen(cr, { })
+        // Starter en ny tråd for å kalle aktiveringConsumer.listen asynkront
+        Thread({
+            aktiveringConsumer.listen(cr) {
+                // Håndter callback her dersom nødvendig
+            }
+        }).start()
         return object : Future<RecordMetadata> {
             override fun cancel(p0: Boolean): Boolean {
                 return false
