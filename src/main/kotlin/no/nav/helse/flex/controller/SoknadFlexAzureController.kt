@@ -22,6 +22,7 @@ import no.nav.helse.flex.domain.AuditEntry
 import no.nav.helse.flex.domain.EventType
 import no.nav.helse.flex.frisktilarbeid.*
 import no.nav.helse.flex.kafka.producer.AuditLogProducer
+import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.KlippetSykepengesoknadDbRecord
 import no.nav.helse.flex.repository.KlippetSykepengesoknadRepository
 import no.nav.helse.flex.service.HentSoknadService
@@ -64,6 +65,8 @@ class SoknadFlexAzureController(
     private val auditLogProducer: AuditLogProducer,
     private val arbeidssokerregisterClient: ArbeidssokerregisterClient,
 ) {
+    val log = logger()
+
     data class HentSykepengesoknaderRequest(
         val fnr: String,
     )
@@ -425,6 +428,33 @@ class SoknadFlexAzureController(
             eksisterende.copy(
                 ignorerArbeidssokerregister = req.ignorerArbeidssokerregister,
             )
+        return friskTilArbeidRepository.save(ny)
+    }
+
+    data class EndreTomRequest(
+        val id: String,
+        val tom: LocalDate,
+    )
+
+    @PostMapping(
+        "/api/v1/flex/fta-vedtak/endre-tom",
+        produces = [APPLICATION_JSON_VALUE],
+        consumes = [APPLICATION_JSON_VALUE],
+    )
+    fun endreStatus(
+        @RequestBody req: EndreTomRequest,
+    ): FriskTilArbeidVedtakDbRecord {
+        clientIdValidation.validateClientId(NamespaceAndApp(namespace = "flex", app = "flex-internal-frontend"))
+
+        val eksisterende =
+            friskTilArbeidRepository.findById(req.id).orElseThrow { IllegalArgumentException("Fant ikke vedtak") }
+
+        if (eksisterende.behandletStatus != BehandletStatus.BEHANDLET) {
+            throw IllegalArgumentException("Kan ikke endre tom på vedtak som ikke er behandlet")
+        }
+        log.info("Endrer tom fra ${eksisterende.tom} til ${req.tom} for vedtak ${eksisterende.id}")
+
+        val ny = eksisterende.copy(tom = req.tom)
         return friskTilArbeidRepository.save(ny)
     }
 }
