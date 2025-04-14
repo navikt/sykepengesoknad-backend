@@ -14,7 +14,7 @@ private fun fortsattArbeidssokerDato(
 ): Sporsmal {
     return Sporsmal(
         tag = FTA_JOBBSITUASJONEN_DIN_FORTSATT_FRISKMELDT_AVREGISTRERT_NAR,
-        sporsmalstekst = "Fra og med når?",
+        sporsmalstekst = "Fra hvilken dato vil du ikke lenger være friskmeldt til arbeidsformidling?",
         undertekst = "Du vil ikke få utbetalt sykepenger fra og med denne datoen",
         svartype = Svartype.DATO,
         min = fom.format(ISO_LOCAL_DATE),
