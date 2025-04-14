@@ -24,6 +24,7 @@ import no.nav.helse.flex.exception.ForsokPaSendingAvNyereSoknadException
 import no.nav.helse.flex.exception.IkkeTilgangException
 import no.nav.helse.flex.exception.ReadOnlyException
 import no.nav.helse.flex.exception.SporsmalFinnesIkkeISoknadException
+import no.nav.helse.flex.frisktilarbeid.FjernFremtidigeFtaSoknaderService
 import no.nav.helse.flex.inntektsopplysninger.InntektsopplysningForNaringsdrivende
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.oppdatersporsmal.soknad.OppdaterSporsmalService
@@ -68,6 +69,7 @@ class SoknadBrukerController(
     private val environmentToggles: EnvironmentToggles,
     private val inntektsopplysningForNaringsdrivende: InntektsopplysningForNaringsdrivende,
     private val oppholdUtenforEOSService: OppholdUtenforEOSService,
+    private val fjernFremtidigeFtaSoknaderService: FjernFremtidigeFtaSoknaderService,
     @Value("\${DITT_SYKEFRAVAER_FRONTEND_CLIENT_ID}")
     val dittSykefravaerFrontendClientId: String,
     @Value("\${SYKEPENGESOKNAD_FRONTEND_CLIENT_ID}")
@@ -138,6 +140,7 @@ class SoknadBrukerController(
                 throw e
             }
         oppholdUtenforEOSService.skalOppretteSoknadForOppholdUtenforEOS(sendtSoknad, identer)
+        fjernFremtidigeFtaSoknaderService.fjernFremtidigeFriskmeldtSoknaderHvisFerdig(sendtSoknad)
 
         try {
             inntektsopplysningForNaringsdrivende.lagreOpplysningerOmDokumentasjonAvInntektsopplysninger(sendtSoknad)

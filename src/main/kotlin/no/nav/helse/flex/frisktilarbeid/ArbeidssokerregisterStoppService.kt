@@ -2,7 +2,6 @@ package no.nav.helse.flex.frisktilarbeid
 
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
-import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentFortsattArbeidssoker
 import no.nav.helse.flex.kafka.producer.SoknadProducer
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadDAO
@@ -32,24 +31,18 @@ class ArbeidssokerregisterStoppService(
                 .filter { it.soknadstype == Soknadstype.FRISKMELDT_TIL_ARBEIDSFORMIDLING }
                 .filter { it.friskTilArbeidVedtakId == stoppMelding.vedtaksperiodeId }
 
-        val harSvartVilIkkeVæreArbeidssoker =
-            alleFtaSoknaderSammeVedtaksid.filter { it.status == Soknadstatus.SENDT }.any { it.hentFortsattArbeidssoker() == false }
-
         val soknaderSomSkalSlettes =
             alleFtaSoknaderSammeVedtaksid
                 .filter { it.status == Soknadstatus.FREMTIDIG || it.status == Soknadstatus.NY }
                 .filter {
-                    if (harSvartVilIkkeVæreArbeidssoker) {
-                        // Vi sletter alle fremtidige siden vi vet at personen ikke vil være arbeidssøker
-                        true
-                    } else {
-                        // Stoppmeldingen må komme fra et eksternt system. Må tillatte at nåværende periode kan sendes inn
-                        it.fom!!.isAfter(stoppMelding.avsluttetTidspunkt.tilLocalDate())
-                    }
+                    // Stoppmeldingen må komme fra et eksternt system. Må tillatte at nåværende periode kan sendes inn
+                    it.fom!!.isAfter(stoppMelding.avsluttetTidspunkt.tilLocalDate())
                 }
 
         friskTilArbeidRepository.findById(stoppMelding.vedtaksperiodeId).getOrNull()?.let {
-            friskTilArbeidRepository.save(it.copy(avsluttetTidspunkt = stoppMelding.avsluttetTidspunkt))
+            if (it.avsluttetTidspunkt == null) {
+                friskTilArbeidRepository.save(it.copy(avsluttetTidspunkt = stoppMelding.avsluttetTidspunkt))
+            }
         }
 
         soknaderSomSkalSlettes.forEach {
