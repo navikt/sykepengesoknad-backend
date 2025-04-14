@@ -19,7 +19,7 @@ import java.time.LocalDate
 class FortsattArbeidssokerTest {
     @Test
     fun `Retunerer null ved ingen spørsmål`() {
-        soknadMedSporsmal(emptyList()).hentFortsattArbeidssoker() shouldBeEqualTo null
+        soknadMedSporsmal(emptyList()).fortsattFriskmeldtTilArbeidsformidling() shouldBeEqualTo null
     }
 
     @Test
@@ -29,7 +29,7 @@ class FortsattArbeidssokerTest {
                 .byttSvar(FTA_JOBBSITUASJONEN_DIN_JA, "CHECKED")
                 .byttSvar(FTA_JOBBSITUASJONEN_DIN_FORTSATT_FRISKMELDT_NY_JOBB, "JA")
 
-        soknadMedSporsmal(listOf(jobbsituasjonenDinSpm)).hentFortsattArbeidssoker()!!.shouldBeTrue()
+        soknadMedSporsmal(listOf(jobbsituasjonenDinSpm)).fortsattFriskmeldtTilArbeidsformidling()!!.shouldBeTrue()
     }
 
     @Test
@@ -39,7 +39,7 @@ class FortsattArbeidssokerTest {
                 .byttSvar(FTA_JOBBSITUASJONEN_DIN_JA, "CHECKED")
                 .byttSvar(FTA_JOBBSITUASJONEN_DIN_FORTSATT_FRISKMELDT_NY_JOBB, "NEI")
 
-        soknadMedSporsmal(listOf(jobbsituasjonenDinSpm)).hentFortsattArbeidssoker()!!.shouldBeFalse()
+        soknadMedSporsmal(listOf(jobbsituasjonenDinSpm)).fortsattFriskmeldtTilArbeidsformidling()!!.shouldBeFalse()
     }
 
     @Test
@@ -49,7 +49,7 @@ class FortsattArbeidssokerTest {
                 .byttSvar(FTA_JOBBSITUASJONEN_DIN_NEI, "CHECKED")
                 .byttSvar(FTA_JOBBSITUASJONEN_DIN_FORTSATT_FRISKMELDT, "JA")
 
-        soknadMedSporsmal(listOf(jobbsituasjonenDinSpm)).hentFortsattArbeidssoker()!!.shouldBeTrue()
+        soknadMedSporsmal(listOf(jobbsituasjonenDinSpm)).fortsattFriskmeldtTilArbeidsformidling()!!.shouldBeTrue()
     }
 
     @Test
@@ -59,7 +59,7 @@ class FortsattArbeidssokerTest {
                 .byttSvar(FTA_JOBBSITUASJONEN_DIN_NEI, "CHECKED")
                 .byttSvar(FTA_JOBBSITUASJONEN_DIN_FORTSATT_FRISKMELDT, "NEI")
 
-        soknadMedSporsmal(listOf(jobbsituasjonenDinSpm)).hentFortsattArbeidssoker()!!.shouldBeFalse()
+        soknadMedSporsmal(listOf(jobbsituasjonenDinSpm)).fortsattFriskmeldtTilArbeidsformidling()!!.shouldBeFalse()
     }
 
     @Test
@@ -68,7 +68,7 @@ class FortsattArbeidssokerTest {
             jobbsituasjonenDin(LocalDate.now(), LocalDate.now(), true)
                 .byttSvar(FTA_JOBBSITUASJONEN_DIN_NEI, "CHECKED")
 
-        soknadMedSporsmal(listOf(jobbsituasjonenDinSpm)).hentFortsattArbeidssoker().shouldBeNull()
+        soknadMedSporsmal(listOf(jobbsituasjonenDinSpm)).fortsattFriskmeldtTilArbeidsformidling().shouldBeNull()
     }
 
     @Test
@@ -77,7 +77,7 @@ class FortsattArbeidssokerTest {
             jobbsituasjonenDin(LocalDate.now(), LocalDate.now(), true)
                 .byttSvar(FTA_JOBBSITUASJONEN_DIN_JA, "CHECKED")
 
-        soknadMedSporsmal(listOf(jobbsituasjonenDinSpm)).hentFortsattArbeidssoker().shouldBeNull()
+        soknadMedSporsmal(listOf(jobbsituasjonenDinSpm)).fortsattFriskmeldtTilArbeidsformidling().shouldBeNull()
     }
 
     fun soknadMedSporsmal(sporsmal: List<Sporsmal>): Sykepengesoknad {

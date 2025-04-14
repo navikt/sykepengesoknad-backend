@@ -7,7 +7,7 @@ import no.nav.helse.flex.soknadsopprettelse.FTA_JOBBSITUASJONEN_DIN_FORTSATT_FRI
 import no.nav.helse.flex.soknadsopprettelse.FTA_JOBBSITUASJONEN_DIN_JA
 import no.nav.helse.flex.soknadsopprettelse.FTA_JOBBSITUASJONEN_DIN_NEI
 
-fun Sykepengesoknad.hentFortsattArbeidssoker(): Boolean? {
+fun Sykepengesoknad.fortsattFriskmeldtTilArbeidsformidling(): Boolean? {
     val alleSpm = this.sporsmal.flatten()
     val begyntINyJobb = alleSpm.firstOrNull { it.tag == FTA_JOBBSITUASJONEN_DIN_JA }?.forsteSvar == "CHECKED"
     val fortsattArbeidssokerSporsmal =

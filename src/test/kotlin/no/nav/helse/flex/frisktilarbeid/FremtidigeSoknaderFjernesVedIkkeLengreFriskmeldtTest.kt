@@ -7,12 +7,13 @@ import no.nav.helse.flex.fakes.SoknadKafkaProducerFake
 import no.nav.helse.flex.frisktilarbeid.sporsmal.sendFriskTilArbeidVedtak
 import no.nav.helse.flex.hentSoknader
 import no.nav.helse.flex.repository.SykepengesoknadRepository
-import no.nav.helse.flex.sendStoppMelding
+import no.nav.helse.flex.`should be within seconds of`
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldHaveSize
+import org.amshove.kluent.shouldNotBeNull
 import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
@@ -24,7 +25,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class StoppmeldingBesvartIkkeArbeidssokerTest : FakesTestOppsett() {
+class FremtidigeSoknaderFjernesVedIkkeLengreFriskmeldtTest : FakesTestOppsett() {
     @Autowired
     lateinit var friskTilArbeidCronJob: FriskTilArbeidCronJob
 
@@ -32,7 +33,6 @@ class StoppmeldingBesvartIkkeArbeidssokerTest : FakesTestOppsett() {
     lateinit var sykepengesoknadRepository: SykepengesoknadRepository
 
     private val fnr = "11111111122"
-    private val avsluttetTidspunkt = Instant.now()
 
     private var vedtaksId: String? = null
 
@@ -102,15 +102,6 @@ class StoppmeldingBesvartIkkeArbeidssokerTest : FakesTestOppsett() {
     }
 
     @Test
-    @Order(4)
-    fun `Send ArbeidssokerperiodeStoppMelding`() {
-        val soknader = hentSoknader(fnr)
-        val soknad = soknader.first { it.status == RSSoknadstatus.SENDT }
-
-        sendStoppMelding(soknad.friskTilArbeidVedtakId!!, fnr, avsluttetTidspunkt)
-    }
-
-    @Test
     @Order(5)
     fun `3 søknader er slettet og produsert på kafka`() {
         SoknadKafkaProducerFake.records
@@ -129,7 +120,10 @@ class StoppmeldingBesvartIkkeArbeidssokerTest : FakesTestOppsett() {
     @Test
     @Order(7)
     fun `FriskTilArbeidVedtak er oppdatert med avsluttetTidspunkt`() {
-        friskTilArbeidRepository.findByFnrIn(listOf(fnr))
-            .single().avsluttetTidspunkt `should be equal to` avsluttetTidspunkt
+        val avsluttetTidspunkt =
+            friskTilArbeidRepository.findByFnrIn(listOf(fnr))
+                .single().avsluttetTidspunkt.shouldNotBeNull()
+
+        avsluttetTidspunkt `should be within seconds of` Pair(1, Instant.now())
     }
 }
