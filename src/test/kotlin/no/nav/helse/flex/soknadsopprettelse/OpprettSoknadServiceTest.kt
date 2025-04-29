@@ -39,7 +39,6 @@ class OpprettSoknadServiceTest : FellesTestOppsett() {
                     originalIdent = "fnr",
                     andreIdenter = emptyList(),
                 ),
-                soknadsId = "1",
             )
 
         selvstendigNaringsdrivendeInfo.`should not be null`().roller.`should be empty`()
@@ -69,7 +68,6 @@ class OpprettSoknadServiceTest : FellesTestOppsett() {
                     originalIdent = "fnr",
                     andreIdenter = emptyList(),
                 ),
-                soknadsId = "1",
             )
 
         selvstendigNaringsdrivendeInfo.`should not be null`().roller.`should be empty`()
@@ -104,7 +102,6 @@ class OpprettSoknadServiceTest : FellesTestOppsett() {
                     originalIdent = "fnr",
                     andreIdenter = emptyList(),
                 ),
-                soknadsId = "1",
             )
 
         selvstendigNaringsdrivendeInfo.`should not be null`()

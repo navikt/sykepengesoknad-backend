@@ -148,7 +148,7 @@ class OpprettSoknadService(
     internal fun hentSelvstendigNaringsdrivendeInfo(
         arbeidssituasjon: Arbeidssituasjon,
         identer: FolkeregisterIdenter,
-        soknadsId: String,
+        soknadsId: String? = null,
     ): SelvstendigNaringsdrivendeInfo? {
         return when (arbeidssituasjon) {
             Arbeidssituasjon.NAERINGSDRIVENDE ->
