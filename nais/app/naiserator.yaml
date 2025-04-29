@@ -111,6 +111,8 @@ spec:
           namespace: tbd
         - application: spinntektsmelding-frontend
           namespace: helsearbeidsgiver
+        - application: bakrommet
+          namespace: speilvendt
   envFrom:
     - secret: sykepengesoknad-backend-unleash-api-token
   env:
