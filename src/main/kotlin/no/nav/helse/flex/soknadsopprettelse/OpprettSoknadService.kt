@@ -27,6 +27,7 @@ import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
 import no.nav.syfo.sykmelding.kafka.model.ShortNameKafkaDTO
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.client.HttpClientErrorException
 import java.time.Instant
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
@@ -77,8 +78,9 @@ class OpprettSoknadService(
                             klippMetrikk,
                         ).map {
                             val perioderFraSykmeldingen = it.delOppISoknadsperioder(sm)
+                            val soknadsId = sykmeldingKafkaMessage.skapSoknadsId(it.fom, it.tom)
                             Sykepengesoknad(
-                                id = sykmeldingKafkaMessage.skapSoknadsId(it.fom, it.tom),
+                                id = soknadsId,
                                 fnr = identer.originalIdent,
                                 startSykeforlop = startSykeforlop,
                                 fom = it.fom,
@@ -114,18 +116,7 @@ class OpprettSoknadService(
                                             ?.svar
                                             ?.name,
                                     ),
-                                selvstendigNaringsdrivende =
-                                    when (arbeidssituasjon) {
-                                        Arbeidssituasjon.NAERINGSDRIVENDE ->
-                                            if (unleashToggles.brregEnabled(identer.originalIdent)) {
-                                                selvstendigNaringsdrivendeInfoService.hentSelvstendigNaringsdrivendeInfo(
-                                                    identer = identer,
-                                                )
-                                            } else {
-                                                SelvstendigNaringsdrivendeInfo(roller = emptyList())
-                                            }
-                                        else -> null
-                                    },
+                                selvstendigNaringsdrivende = hentSelvstendigNaringsdrivendeInfo(arbeidssituasjon, identer, soknadsId),
                             )
                         }.filter { it.soknadPerioder?.isNotEmpty() ?: true }
                         .also { it.lagreJulesoknadKandidater() }
@@ -152,6 +143,29 @@ class OpprettSoknadService(
             .map { it.markerForsteganssoknad(eksisterendeSoknader, soknaderTilOppretting) }
             .map { it.lagreSøknad() }
             .mapNotNull { it.publiserEllerReturnerAktiveringBestilling() }
+    }
+
+    internal fun hentSelvstendigNaringsdrivendeInfo(
+        arbeidssituasjon: Arbeidssituasjon,
+        identer: FolkeregisterIdenter,
+        soknadsId: String? = null,
+    ): SelvstendigNaringsdrivendeInfo? {
+        return when (arbeidssituasjon) {
+            Arbeidssituasjon.NAERINGSDRIVENDE ->
+                if (unleashToggles.brregEnabled(identer.originalIdent)) {
+                    try {
+                        selvstendigNaringsdrivendeInfoService.hentSelvstendigNaringsdrivendeInfo(
+                            identer = identer,
+                        )
+                    } catch (_: HttpClientErrorException.NotFound) {
+                        log.warn("Fant ikke roller for person i brreg for søknad med id $soknadsId")
+                        SelvstendigNaringsdrivendeInfo(roller = emptyList())
+                    }
+                } else {
+                    SelvstendigNaringsdrivendeInfo(roller = emptyList())
+                }
+            else -> null
+        }
     }
 
     private fun List<Sykepengesoknad>.lagreJulesoknadKandidater() = lagreJulesoknadKandidater.lagreJulesoknadKandidater(this)

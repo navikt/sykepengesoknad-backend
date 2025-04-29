@@ -3,7 +3,6 @@ package no.nav.helse.flex.client.brreg
 import org.springframework.http.MediaType
 import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
-import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestClient
 import org.springframework.web.client.toEntity
@@ -20,18 +19,14 @@ class BrregClient(
         val uri = brregRestClient.post().uri { uriBuilder -> uriBuilder.path("/api/v1/roller").build() }
         val hentRollerRequest = HentRollerRequest(fnr = fnr, rolleTyper = rolleTyper)
 
-        return try {
-            uri
-                .headers {
-                    it.contentType = MediaType.APPLICATION_JSON
-                }
-                .body(hentRollerRequest)
-                .retrieve()
-                .toEntity<RollerDto>()
-                .body
-                ?.roller ?: emptyList()
-        } catch (_: HttpClientErrorException.NotFound) {
-            emptyList()
-        }
+        return uri
+            .headers {
+                it.contentType = MediaType.APPLICATION_JSON
+            }
+            .body(hentRollerRequest)
+            .retrieve()
+            .toEntity<RollerDto>()
+            .body
+            ?.roller ?: emptyList()
     }
 }
