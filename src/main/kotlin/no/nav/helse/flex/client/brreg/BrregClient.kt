@@ -1,6 +1,5 @@
 package no.nav.helse.flex.client.brreg
 
-import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
