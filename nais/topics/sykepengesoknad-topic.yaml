@@ -64,3 +64,6 @@ spec:
     - team: flex
       application: flex-arbeidssokerregister-oppdatering
       access: read
+    - team: helsearbeidsgiver
+      application: sykepenger-im-lps-api
+      access: read
