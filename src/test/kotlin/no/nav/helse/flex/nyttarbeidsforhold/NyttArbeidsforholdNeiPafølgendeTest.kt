@@ -93,8 +93,16 @@ class NyttArbeidsforholdNeiPafølgendeTest : NyttArbeidsforholdFellesOppsett() {
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
 
         kafkaSoknader[0].inntektFraNyttArbeidsforhold!!.shouldHaveSize(1)
-        kafkaSoknader[0].inntektFraNyttArbeidsforhold!!.first().harJobbet.`should be false`()
-        kafkaSoknader[0].inntektFraNyttArbeidsforhold!!.first().belop.`should be null`()
+        kafkaSoknader[0]
+            .inntektFraNyttArbeidsforhold!!
+            .first()
+            .harJobbet
+            .`should be false`()
+        kafkaSoknader[0]
+            .inntektFraNyttArbeidsforhold!!
+            .first()
+            .belop
+            .`should be null`()
 
         juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
     }

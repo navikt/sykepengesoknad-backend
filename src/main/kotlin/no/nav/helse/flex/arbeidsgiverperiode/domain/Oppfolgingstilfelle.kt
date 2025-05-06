@@ -14,7 +14,12 @@ class Oppfolgingstilfelle(
 ) {
     fun antallDager() =
         tidslinje.count { syketilfelledag ->
-            (syketilfelledag.prioritertSyketilfellebit?.tags?.containsAll(listOf(Tag.SYKEPENGESOKNAD, Tag.FERIE))?.not())
+            (
+                syketilfelledag.prioritertSyketilfellebit
+                    ?.tags
+                    ?.containsAll(listOf(Tag.SYKEPENGESOKNAD, Tag.FERIE))
+                    ?.not()
+            )
                 ?: true
         }
 

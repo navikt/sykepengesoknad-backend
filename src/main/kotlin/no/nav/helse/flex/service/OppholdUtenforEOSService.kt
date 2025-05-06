@@ -37,12 +37,16 @@ class OppholdUtenforEOSService(
                 .filter { dag ->
                     !gyldigeFerieperioder.any {
                         it.erIPeriode(dag)
-                    } && !gyldigePermisjonperioder.any { it.erIPeriode(dag) }
+                    } &&
+                        !gyldigePermisjonperioder.any { it.erIPeriode(dag) }
                 }
 
         val harOppholdtSegUtenforEOS =
-            sykepengesoknad.getSporsmalMedTagOrNull(OPPHOLD_UTENFOR_EOS)
-                ?.svar?.firstOrNull()?.verdi == "JA"
+            sykepengesoknad
+                .getSporsmalMedTagOrNull(OPPHOLD_UTENFOR_EOS)
+                ?.svar
+                ?.firstOrNull()
+                ?.verdi == "JA"
 
         val skalOppretteSoknad =
             dagerUtenforFeriePermisjonOgHelg.isNotEmpty() &&
@@ -66,12 +70,12 @@ class OppholdUtenforEOSService(
         }
     }
 
-    private fun getGyldigePeriodesvar(sporsmal: Sporsmal): List<Periode> {
-        return sporsmal.svar.asSequence()
+    private fun getGyldigePeriodesvar(sporsmal: Sporsmal): List<Periode> =
+        sporsmal.svar
+            .asSequence()
             .mapNotNull { PeriodeMapper.jsonTilOptionalPeriode(it.verdi).orElse(null) }
             .filter { DatoUtil.periodeErInnenforMinMax(it, sporsmal.min, sporsmal.max) }
             .toList()
-    }
 
     fun finnesTidligereSoknad(
         sykepengesoknad: Sykepengesoknad,
@@ -85,9 +89,11 @@ class OppholdUtenforEOSService(
         return alleOppholdUtlandSoknader
             .filter { it.status == Soknadstatus.SENDT }
             .any {
-                it.sporsmal.filter { it.tag == PERIODEUTLAND }
+                it.sporsmal
+                    .filter { it.tag == PERIODEUTLAND }
                     .any {
-                        it.svar.mapNotNull { PeriodeMapper.jsonTilOptionalPeriode(it.verdi).orElse(null) }
+                        it.svar
+                            .mapNotNull { PeriodeMapper.jsonTilOptionalPeriode(it.verdi).orElse(null) }
                             .flatMap { it.hentUkedager() }
                             .any { dag -> perioderTilOppholdUtland.any { it.erIPeriode(dag) } }
                     }

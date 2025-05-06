@@ -42,6 +42,4 @@ fun Sykepengesoknad.hentInntektFraNyttArbeidsforhold(): List<InntektFraNyttArbei
     return this.sporsmal.mapNotNull { it.hentInntektFraNyttArbeidsforhold() }
 }
 
-private fun String.tilLocalDate(): LocalDate {
-    return LocalDate.parse(this)
-}
+private fun String.tilLocalDate(): LocalDate = LocalDate.parse(this)

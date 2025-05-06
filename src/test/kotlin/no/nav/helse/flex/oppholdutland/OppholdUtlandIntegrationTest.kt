@@ -76,15 +76,18 @@ class OppholdUtlandIntegrationTest : FellesTestOppsett() {
 
         oppdaterSporsmalMedResult(fnr, originalSpm, soknaden.id)
             .andExpect(status().isBadRequest)
-            .andReturn().response.contentAsString `should be equal to` """{"reason":"SPORSMALETS_SVAR_VALIDERER_IKKE"}"""
+            .andReturn()
+            .response.contentAsString `should be equal to` """{"reason":"SPORSMALETS_SVAR_VALIDERER_IKKE"}"""
 
         oppdaterSporsmalMedResult(fnr, originalSpm.byttSvar(AVKLART_MED_SYKMELDER, "JA"), soknaden.id)
             .andExpect(status().isBadRequest)
-            .andReturn().response.contentAsString `should be equal to` """{"reason":"SPORSMALETS_SVAR_VALIDERER_IKKE"}"""
+            .andReturn()
+            .response.contentAsString `should be equal to` """{"reason":"SPORSMALETS_SVAR_VALIDERER_IKKE"}"""
 
         oppdaterSporsmalMedResult(fnr, originalSpm.byttSvar(AVKLART_MED_ARBEIDSGIVER_ELLER_NAV, "JA"), soknaden.id)
             .andExpect(status().isBadRequest)
-            .andReturn().response.contentAsString `should be equal to` """{"reason":"SPORSMALETS_SVAR_VALIDERER_IKKE"}"""
+            .andReturn()
+            .response.contentAsString `should be equal to` """{"reason":"SPORSMALETS_SVAR_VALIDERER_IKKE"}"""
     }
 
     @Test
@@ -123,8 +126,7 @@ class OppholdUtlandIntegrationTest : FellesTestOppsett() {
                 svar = "{\"fom\":\"${
                     LocalDate.now().minusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE)
                 }\",\"tom\":\"${LocalDate.now().minusWeeks(1).format(DateTimeFormatter.ISO_LOCAL_DATE)}\"}",
-            )
-            .besvarSporsmal(ARBEIDSGIVER, svar = "NEI")
+            ).besvarSporsmal(ARBEIDSGIVER, svar = "NEI")
     }
 
     @Test
@@ -177,7 +179,8 @@ class OppholdUtlandIntegrationTest : FellesTestOppsett() {
                 soknadId = hentSoknaderMetadata(fnr).first().id,
                 fnr = fnr,
             )
-        korrigerSoknadMedResult(soknaden.id, fnr).andExpect(MockMvcResultMatchers.status().isBadRequest)
+        korrigerSoknadMedResult(soknaden.id, fnr)
+            .andExpect(MockMvcResultMatchers.status().isBadRequest)
             .andReturn()
     }
 

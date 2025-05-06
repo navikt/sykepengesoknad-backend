@@ -1,6 +1,8 @@
 package no.nav.helse.flex.controller.domain.sykepengesoknad
 
-enum class RSArbeidssituasjon(val navn: String) {
+enum class RSArbeidssituasjon(
+    val navn: String,
+) {
     NAERINGSDRIVENDE("selvstendig næringsdrivende"),
     FISKER("selvstendig næringsdrivende"),
     JORDBRUKER("selvstendig næringsdrivende"),
@@ -10,7 +12,5 @@ enum class RSArbeidssituasjon(val navn: String) {
     ANNET("annet"),
     ;
 
-    override fun toString(): String {
-        return navn
-    }
+    override fun toString(): String = navn
 }

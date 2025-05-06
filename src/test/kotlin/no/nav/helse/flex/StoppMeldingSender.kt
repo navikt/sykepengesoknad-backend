@@ -14,11 +14,12 @@ fun TestOppsettInterfaces.sendStoppMelding(
 ) {
     val stoppMelding = ArbeidssokerperiodeStoppMelding(vedtaksperiodeId, fnr, avsluttetTidspunkt)
 
-    kafkaProducer().send(
-        ProducerRecord(
-            ARBEIDSSOKERREGISTER_STOPP_TOPIC,
-            stoppMelding.fnr.asProducerRecordKey(),
-            stoppMelding.serialisertTilString(),
-        ),
-    ).get()
+    kafkaProducer()
+        .send(
+            ProducerRecord(
+                ARBEIDSSOKERREGISTER_STOPP_TOPIC,
+                stoppMelding.fnr.asProducerRecordKey(),
+                stoppMelding.serialisertTilString(),
+            ),
+        ).get()
 }

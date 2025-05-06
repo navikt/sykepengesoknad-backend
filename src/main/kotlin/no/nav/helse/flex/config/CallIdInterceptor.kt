@@ -22,7 +22,8 @@ class CallIdInterceptor : ClientHttpRequestInterceptor {
         bytes: ByteArray,
         clientHttpRequestExecution: ClientHttpRequestExecution,
     ): ClientHttpResponse {
-        Optional.ofNullable(MDC.get(NAV_CALLID))
+        Optional
+            .ofNullable(MDC.get(NAV_CALLID))
             .ifPresent { callid ->
                 httpRequest.headers.add(NAV_CALLID, callid)
                 httpRequest.headers.add(REGISTER_CALL_ID, callid)

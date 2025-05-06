@@ -47,7 +47,5 @@ class IstilgangskontrollClient(
         }
     }
 
-    fun accessToUserV2Url(): String {
-        return "$url$ACCESS_TO_USER_WITH_AZURE_V2_PATH"
-    }
+    fun accessToUserV2Url(): String = "$url$ACCESS_TO_USER_WITH_AZURE_V2_PATH"
 }

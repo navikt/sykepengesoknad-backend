@@ -15,8 +15,8 @@ import java.time.LocalDate.now
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 import java.util.UUID.randomUUID
 
-fun Sporsmal.plasseringSporsmalUtland(): Int {
-    return when (this.tag) {
+fun Sporsmal.plasseringSporsmalUtland(): Int =
+    when (this.tag) {
         LAND -> -10
         PERIODEUTLAND -> -9
         ARBEIDSGIVER -> -8
@@ -25,7 +25,6 @@ fun Sporsmal.plasseringSporsmalUtland(): Int {
         TIL_SLUTT -> 10
         else -> 0
     }
-}
 
 fun settOppSoknadOppholdUtland(fnr: String): Sykepengesoknad {
     val sporsmal =
@@ -62,8 +61,8 @@ fun settOppSoknadOppholdUtland(fnr: String): Sykepengesoknad {
     )
 }
 
-fun avklaringIfbmReise(): Sporsmal {
-    return Sporsmal(
+fun avklaringIfbmReise(): Sporsmal =
+    Sporsmal(
         tag = AVKLARING_I_FORBINDELSE_MED_REISE,
         svartype = Svartype.GRUPPE_AV_UNDERSPORSMAL,
         undersporsmal =
@@ -83,10 +82,9 @@ fun avklaringIfbmReise(): Sporsmal {
                 ),
             ),
     )
-}
 
-private fun arbeidsgiverSporsmal(): Sporsmal {
-    return Sporsmal(
+private fun arbeidsgiverSporsmal(): Sporsmal =
+    Sporsmal(
         tag = ARBEIDSGIVER,
         sporsmalstekst = "Har du arbeidsgiver?",
         svartype = JA_NEI,
@@ -105,30 +103,27 @@ private fun arbeidsgiverSporsmal(): Sporsmal {
                 ),
             ),
     )
-}
 
-fun periodeSporsmal(): Sporsmal {
-    return Sporsmal(
+fun periodeSporsmal(): Sporsmal =
+    Sporsmal(
         tag = PERIODEUTLAND,
         sporsmalstekst = "Når skal du reise?",
         svartype = Svartype.PERIODER,
         min = now().minusMonths(3).format(ISO_LOCAL_DATE),
         max = now().plusMonths(6).format(ISO_LOCAL_DATE),
     )
-}
 
-fun landSporsmal(): Sporsmal {
-    return Sporsmal(
+fun landSporsmal(): Sporsmal =
+    Sporsmal(
         tag = LAND,
         sporsmalstekst = "Hvilke(t) land skal du reise til?",
         undertekst = "Du kan velge flere.",
         svartype = Svartype.LAND,
         max = "50",
     )
-}
 
-fun bekreftSporsmal(harArbeidsgiver: Boolean): Sporsmal {
-    return Sporsmal(
+fun bekreftSporsmal(harArbeidsgiver: Boolean): Sporsmal =
+    Sporsmal(
         tag = BEKREFT_OPPLYSNINGER_UTLAND_INFO,
         sporsmalstekst = "Før du reiser ber vi deg bekrefte:",
         svartype = IKKE_RELEVANT,
@@ -152,4 +147,3 @@ fun bekreftSporsmal(harArbeidsgiver: Boolean): Sporsmal {
                 (if (harArbeidsgiver) "<li>Reisen er avklart med arbeidsgiveren min</li>" else "") +
                 "</ul>",
     )
-}

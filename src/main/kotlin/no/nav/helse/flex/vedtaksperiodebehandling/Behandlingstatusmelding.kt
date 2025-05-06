@@ -24,8 +24,8 @@ enum class Behandlingstatustype {
     BEHANDLES_UTENFOR_SPEIL,
 }
 
-fun Behandlingstatustype.tilStatusVerdi(): StatusVerdi {
-    return when (this) {
+fun Behandlingstatustype.tilStatusVerdi(): StatusVerdi =
+    when (this) {
         Behandlingstatustype.OPPRETTET -> StatusVerdi.OPPRETTET
         Behandlingstatustype.VENTER_PÅ_ARBEIDSGIVER -> StatusVerdi.VENTER_PÅ_ARBEIDSGIVER
         Behandlingstatustype.VENTER_PÅ_SAKSBEHANDLER -> StatusVerdi.VENTER_PÅ_SAKSBEHANDLER
@@ -33,4 +33,3 @@ fun Behandlingstatustype.tilStatusVerdi(): StatusVerdi {
         Behandlingstatustype.BEHANDLES_UTENFOR_SPEIL -> StatusVerdi.BEHANDLES_UTENFOR_SPEIL
         Behandlingstatustype.VENTER_PÅ_ANNEN_PERIODE -> StatusVerdi.VENTER_PÅ_ANNEN_PERIODE
     }
-}

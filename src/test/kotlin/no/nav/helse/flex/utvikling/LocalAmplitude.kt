@@ -29,8 +29,8 @@ class LocalAmplitude {
     @GetMapping(value = ["/api/amplitude"], produces = [MediaType.APPLICATION_JSON_VALUE])
     @CrossOrigin
     @Unprotected
-    fun amplitudeGet(): Response {
-        return Response(
+    fun amplitudeGet(): Response =
+        Response(
             requests,
             AmplitudeUserdata(
                 userId = "123",
@@ -45,7 +45,6 @@ class LocalAmplitude {
                     ),
             ),
         )
-    }
 
     data class AmplitudeUserdata(
         @JsonProperty("user_id") val userId: String,
@@ -61,5 +60,8 @@ class LocalAmplitude {
         @JsonProperty("vindusbredde") val vindusBredde: Int,
     )
 
-    data class Response(val events: List<JsonNode>, val userData: AmplitudeUserdata)
+    data class Response(
+        val events: List<JsonNode>,
+        val userData: AmplitudeUserdata,
+    )
 }

@@ -339,9 +339,8 @@ class ArbeidstakereTest {
         assertThat(gyldigArbeidGjenopptattsvar).isNull()
     }
 
-    private fun getGyldigArbeidGjenopptattsvar(sykepengesoknad: Sykepengesoknad): LocalDate? {
-        return sykepengesoknad.finnGyldigDatoSvar(TILBAKE_I_ARBEID, TILBAKE_NAR)
-    }
+    private fun getGyldigArbeidGjenopptattsvar(sykepengesoknad: Sykepengesoknad): LocalDate? =
+        sykepengesoknad.finnGyldigDatoSvar(TILBAKE_I_ARBEID, TILBAKE_NAR)
 
     private fun getOppdaterteSoknadsperioder(sykepengesoknad: Sykepengesoknad): List<Soknadsperiode> {
         val arbeidGjenopptattDato = getGyldigArbeidGjenopptattsvar(sykepengesoknad)

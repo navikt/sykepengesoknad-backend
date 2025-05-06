@@ -61,13 +61,12 @@ class OverlapperEtter : FellesTestOppsett() {
         fakeUnleash.resetAll()
     }
 
-    fun String?.tilSoknadsperioder(): List<Soknadsperiode>? {
-        return if (this == null) {
+    fun String?.tilSoknadsperioder(): List<Soknadsperiode>? =
+        if (this == null) {
             null
         } else {
             objectMapper.readValue(this)
         }
-    }
 
     private final val basisdato = LocalDate.now()
 

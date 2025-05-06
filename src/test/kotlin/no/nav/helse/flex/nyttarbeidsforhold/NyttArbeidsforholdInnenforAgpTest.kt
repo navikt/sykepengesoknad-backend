@@ -41,9 +41,10 @@ class NyttArbeidsforholdInnenforAgpTest : FellesTestOppsett() {
     fun `Har ikke nytt arbeidsforhold spørsmål`() {
         val soknaden = hentSoknader(fnr = fnr).first()
 
-        soknaden.sporsmal!!.find {
-            it.tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS)
-        }.shouldBeNull()
+        soknaden.sporsmal!!
+            .find {
+                it.tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS)
+            }.shouldBeNull()
 
         soknaden.sporsmal!!.map { it.tag } `should be equal to`
             listOf(

@@ -191,7 +191,8 @@ class SporsmalGenerator(
                 soknad.friskTilArbeidVedtakId
                     ?: throw RuntimeException("Frisk til arbeid vedtak id mangler for søknad ${soknad.id}")
             val friskTilArbeidVedtak =
-                friskTilArbeidRepository.findById(vedtakId)
+                friskTilArbeidRepository
+                    .findById(vedtakId)
                     .getOrElse { throw RuntimeException("Fant ikke frisk til arbeid vedtak med id $vedtakId") }
             return settOppSykepengesoknadFriskmeldtTilArbeidsformidling(
                 soknadOptions,

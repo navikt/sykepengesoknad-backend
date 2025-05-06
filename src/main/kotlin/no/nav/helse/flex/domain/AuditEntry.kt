@@ -20,7 +20,9 @@ data class AuditEntry(
     val requestMethod: String,
 )
 
-enum class EventType(val logString: String) {
+enum class EventType(
+    val logString: String,
+) {
     CREATE("audit:create"),
     READ("audit:access"),
     UPDATE("audit:update"),

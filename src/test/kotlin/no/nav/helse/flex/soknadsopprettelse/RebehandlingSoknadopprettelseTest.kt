@@ -126,23 +126,22 @@ class RebehandlingSoknadopprettelseTest : FellesTestOppsett() {
         val sykmelding =
             skapArbeidsgiverSykmelding(
                 sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId,
-            )
-                .copy(
-                    sykmeldingsperioder =
-                        listOf(
-                            SykmeldingsperiodeAGDTO(
-                                fom = LocalDate.of(2020, 2, 1),
-                                tom = LocalDate.of(2020, 2, 5),
-                                type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
-                                reisetilskudd = false,
-                                aktivitetIkkeMulig = null,
-                                behandlingsdager = null,
-                                gradert = null,
-                                innspillTilArbeidsgiver = null,
-                            ),
+            ).copy(
+                sykmeldingsperioder =
+                    listOf(
+                        SykmeldingsperiodeAGDTO(
+                            fom = LocalDate.of(2020, 2, 1),
+                            tom = LocalDate.of(2020, 2, 5),
+                            type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+                            reisetilskudd = false,
+                            aktivitetIkkeMulig = null,
+                            behandlingsdager = null,
+                            gradert = null,
+                            innspillTilArbeidsgiver = null,
                         ),
-                    syketilfelleStartDato = LocalDate.of(2020, 2, 1),
-                )
+                    ),
+                syketilfelleStartDato = LocalDate.of(2020, 2, 1),
+            )
         val sykmeldingKafkaMessage =
             SykmeldingKafkaMessage(
                 sykmelding = sykmelding,

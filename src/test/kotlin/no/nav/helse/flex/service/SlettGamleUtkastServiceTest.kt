@@ -39,7 +39,12 @@ class SlettGamleUtkastServiceTest : FellesTestOppsett() {
             opprettNySoknad().copy(
                 status = Soknadstatus.UTKAST_TIL_KORRIGERING,
                 tom = LocalDate.now().minusDays(7),
-                opprettet = LocalDate.now().minusDays(7).atStartOfDay().tilOsloInstant(),
+                opprettet =
+                    LocalDate
+                        .now()
+                        .minusDays(7)
+                        .atStartOfDay()
+                        .tilOsloInstant(),
             )
         sykepengesoknadDAO.lagreSykepengesoknad(soknad)
 
@@ -70,7 +75,12 @@ class SlettGamleUtkastServiceTest : FellesTestOppsett() {
             opprettNyArbeidstakerSoknad().copy(
                 status = Soknadstatus.UTKAST_TIL_KORRIGERING,
                 tom = LocalDate.now().minusDays(6),
-                opprettet = LocalDate.now().minusDays(6).atStartOfDay().tilOsloInstant(),
+                opprettet =
+                    LocalDate
+                        .now()
+                        .minusDays(6)
+                        .atStartOfDay()
+                        .tilOsloInstant(),
             )
         sykepengesoknadDAO.lagreSykepengesoknad(soknad)
 

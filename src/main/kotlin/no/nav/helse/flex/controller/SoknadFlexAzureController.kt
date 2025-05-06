@@ -354,7 +354,8 @@ class SoknadFlexAzureController(
     fun ubehandledeFtaVedtak(): List<FriskTilArbeidVedtakDbRecord> {
         clientIdValidation.validateClientId(NamespaceAndApp(namespace = "flex", app = "flex-internal-frontend"))
 
-        return friskTilArbeidRepository.findAll()
+        return friskTilArbeidRepository
+            .findAll()
             .filter {
                 it.behandletStatus !in
                     listOf(
@@ -389,7 +390,8 @@ class SoknadFlexAzureController(
         if (req.status == BehandletStatus.OVERLAPP_OK && eksisterende.behandletStatus != BehandletStatus.OVERLAPP) {
             throw IllegalArgumentException("Kan ikke endre status til OVERLAPP_OK på vedtak som ikke er overlapp")
         }
-        if (req.status == BehandletStatus.NY && eksisterende.behandletStatus !in
+        if (req.status == BehandletStatus.NY &&
+            eksisterende.behandletStatus !in
             listOf(
                 BehandletStatus.SISTE_ARBEIDSSOKERPERIODE_AVSLUTTET,
                 BehandletStatus.INGEN_ARBEIDSSOKERPERIODE,

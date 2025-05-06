@@ -8,13 +8,15 @@ fun List<SykepengesoknadDbRecord>.finnOpprinneligSendt(soknad: SykepengesoknadDb
     if (soknad.fom == null || soknad.tom == null) {
         return null
     }
-    return this.asSequence()
+    return this
+        .asSequence()
         .filter { it.sykepengesoknadUuid != soknad.sykepengesoknadUuid }
         .filter { it.fom != null && it.tom != null }
         .filter { it.sendt != null }
         .filter { it.soknadstype == soknad.soknadstype }
         .filter { it.arbeidssituasjon == soknad.arbeidssituasjon }
-        .filter { it.arbeidsgiverOrgnummer == soknad.arbeidsgiverOrgnummer }.toList()
+        .filter { it.arbeidsgiverOrgnummer == soknad.arbeidsgiverOrgnummer }
+        .toList()
         .filter { (it.fom!!..it.tom!!).overlap(soknad.fom..soknad.tom) }
         .sortedBy { it.sendt }
         .map { it.sendt }

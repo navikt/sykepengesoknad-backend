@@ -57,8 +57,7 @@ class OpprettSoknadServiceTest : FellesTestOppsett() {
                             "Message" to "Feil fra Brreg API ved henting av roller. Status: hovedStatus: 1, " +
                                 "underStatuser: 180: Personen XXXXXXXXXXX finnes ikke i vår database",
                         ).serialisertTilString(),
-                    )
-                    .setResponseCode(404)
+                    ).setResponseCode(404)
             }
 
         val selvstendigNaringsdrivendeInfo =
@@ -104,7 +103,8 @@ class OpprettSoknadServiceTest : FellesTestOppsett() {
                 ),
             )
 
-        selvstendigNaringsdrivendeInfo.`should not be null`()
+        selvstendigNaringsdrivendeInfo
+            .`should not be null`()
             .roller `should be equal to`
             listOf(
                 BrregRolle(

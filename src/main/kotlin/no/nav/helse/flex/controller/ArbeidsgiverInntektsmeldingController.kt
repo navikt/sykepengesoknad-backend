@@ -38,7 +38,8 @@ class ArbeidsgiverInntektsmeldingController(
 
         val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(request.fnr)
         val soknader =
-            hentSoknadService.hentSoknader(identer)
+            hentSoknadService
+                .hentSoknader(identer)
                 .filter { it.fom != null }
                 .filter { it.fom?.isAfter(request.eldsteFom.minusDays(1)) ?: false }
                 .filter { it.arbeidsgiverOrgnummer == request.orgnummer }
@@ -51,7 +52,8 @@ class ArbeidsgiverInntektsmeldingController(
             return emptyList()
         }
         val vedtaksperiodeMap = mutableMapOf<String, String>()
-        vedtaksperiodeBehandlingRepository.finnVedtaksperiodeiderForSoknad(soknader.map { it.sykepengesoknadUuid })
+        vedtaksperiodeBehandlingRepository
+            .finnVedtaksperiodeiderForSoknad(soknader.map { it.sykepengesoknadUuid })
             .forEach { vedtaksperiodeMap[it.sykepengesoknadUuid] = it.vedtaksperiodeId }
 
         return soknader.map {
@@ -79,8 +81,8 @@ data class HentSoknaderResponse(
     val vedtaksperiodeId: String?,
 )
 
-private fun Sykepengesoknad.tilHentSoknaderResponse(): HentSoknaderResponse {
-    return HentSoknaderResponse(
+private fun Sykepengesoknad.tilHentSoknaderResponse(): HentSoknaderResponse =
+    HentSoknaderResponse(
         status = this.status,
         sykepengesoknadUuid = this.id,
         fom = this.fom ?: throw RuntimeException("Fom kan ikke være null for arbeidstaker søknad"),
@@ -96,4 +98,3 @@ private fun Sykepengesoknad.tilHentSoknaderResponse(): HentSoknaderResponse {
                 ?: emptyList(),
         vedtaksperiodeId = null,
     )
-}

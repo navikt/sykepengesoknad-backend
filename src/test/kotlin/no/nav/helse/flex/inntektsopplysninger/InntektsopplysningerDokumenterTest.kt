@@ -89,8 +89,8 @@ class InntektsopplysningerDokumenterTest {
         soknad.inntektsopplysningerMaaDokumenteres() shouldBeEqualTo false
     }
 
-    private fun lagSoknad(sporsmalOgSvar: Map<String, String>): Sykepengesoknad {
-        return lagSoknadMedSporsmal(
+    private fun lagSoknad(sporsmalOgSvar: Map<String, String>): Sykepengesoknad =
+        lagSoknadMedSporsmal(
             sporsmalOgSvar.map { (tag, svar) ->
                 Sporsmal(
                     tag = tag,
@@ -100,10 +100,9 @@ class InntektsopplysningerDokumenterTest {
                 )
             },
         )
-    }
 
-    private fun lagSoknadMedSporsmal(sporsmal: List<Sporsmal>): Sykepengesoknad {
-        return Sykepengesoknad(
+    private fun lagSoknadMedSporsmal(sporsmal: List<Sporsmal>): Sykepengesoknad =
+        Sykepengesoknad(
             fnr = "11111111111",
             id = UUID.randomUUID().toString(),
             sykmeldingId = UUID.randomUUID().toString(),
@@ -122,5 +121,4 @@ class InntektsopplysningerDokumenterTest {
             sykmeldingSkrevet = Instant.now(),
             forstegangssoknad = true,
         )
-    }
 }

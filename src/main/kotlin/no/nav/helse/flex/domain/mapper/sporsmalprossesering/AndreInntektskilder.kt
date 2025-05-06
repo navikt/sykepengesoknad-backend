@@ -12,10 +12,15 @@ fun hentInntektListe(soknad: Sykepengesoknad): List<InntektskildeDTO> {
         soknad.getSporsmalMedTagOrNull(ANDRE_INNTEKTSKILDER) ?: soknad.getSporsmalMedTagOrNull(ANDRE_INNTEKTSKILDER_V2)
 
     return if ("JA" == andreinntektsporsmal?.forsteSvar) {
-        andreinntektsporsmal.undersporsmal[0].undersporsmal
+        andreinntektsporsmal.undersporsmal[0]
+            .undersporsmal
             .filter { it.svar.isNotEmpty() }
             .map { sporsmal ->
-                if (sporsmal.undersporsmal.firstOrNull()?.tag?.endsWith(ER_DU_SYKMELDT) == true) {
+                if (sporsmal.undersporsmal
+                        .firstOrNull()
+                        ?.tag
+                        ?.endsWith(ER_DU_SYKMELDT) == true
+                ) {
                     InntektskildeDTO(
                         type = mapSporsmalTilInntektskildetype(sporsmal),
                         sykmeldt =
@@ -37,8 +42,8 @@ fun hentInntektListe(soknad: Sykepengesoknad): List<InntektskildeDTO> {
     }
 }
 
-private fun mapSporsmalTilInntektskildetype(sporsmal: Sporsmal): InntektskildetypeDTO {
-    return when (sporsmal.tag) {
+private fun mapSporsmalTilInntektskildetype(sporsmal: Sporsmal): InntektskildetypeDTO =
+    when (sporsmal.tag) {
         INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD -> InntektskildetypeDTO.ANDRE_ARBEIDSFORHOLD
         INNTEKTSKILDE_SELVSTENDIG -> InntektskildetypeDTO.SELVSTENDIG_NARINGSDRIVENDE
         INNTEKTSKILDE_SELVSTENDIG_DAGMAMMA -> InntektskildetypeDTO.SELVSTENDIG_NARINGSDRIVENDE_DAGMAMMA
@@ -52,4 +57,3 @@ private fun mapSporsmalTilInntektskildetype(sporsmal: Sporsmal): Inntektskildety
         INNTEKTSKILDE_FRILANSER_SELVSTENDIG -> InntektskildetypeDTO.FRILANSER_SELVSTENDIG
         else -> throw RuntimeException("Inntektskildetype " + sporsmal.tag + " finnes ikke i DTO")
     }
-}

@@ -9,17 +9,20 @@ import org.apache.kafka.clients.producer.ProducerRecord
 import org.springframework.stereotype.Component
 
 @Component
-class AuditLogProducer(val producer: KafkaProducer<String, String>) {
+class AuditLogProducer(
+    val producer: KafkaProducer<String, String>,
+) {
     val log = logger()
 
     fun lagAuditLog(auditEntry: AuditEntry) {
         try {
-            producer.send(
-                ProducerRecord(
-                    AUDIT_TOPIC,
-                    auditEntry.serialisertTilString(),
-                ),
-            ).get()
+            producer
+                .send(
+                    ProducerRecord(
+                        AUDIT_TOPIC,
+                        auditEntry.serialisertTilString(),
+                    ),
+                ).get()
         } catch (e: Exception) {
             log.error("Klarte ikke publisere AuditEntry på kafka")
             throw AivenKafkaException(e)

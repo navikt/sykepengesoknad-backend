@@ -25,8 +25,7 @@ class BrregClientTest : FellesTestOppsett() {
                         mapOf(
                             "Message" to "Feil med client",
                         ).serialisertTilString(),
-                    )
-                    .setResponseCode(400)
+                    ).setResponseCode(400)
             }
 
         invoking { brregClient.hentRoller("fnr", listOf(Rolletype.INNH)) }
@@ -43,8 +42,7 @@ class BrregClientTest : FellesTestOppsett() {
                         mapOf(
                             "Message" to "Feil på server",
                         ).serialisertTilString(),
-                    )
-                    .setResponseCode(500)
+                    ).setResponseCode(500)
             }
 
         invoking { brregClient.hentRoller("fnr", listOf(Rolletype.INNH)) }

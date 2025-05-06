@@ -46,7 +46,8 @@ class GjenapneSykmeldingService(
     }
 
     private fun List<Sykepengesoknad>.slettSoknader() {
-        this.map { it.copy(status = Soknadstatus.SLETTET) }
+        this
+            .map { it.copy(status = Soknadstatus.SLETTET) }
             .forEach {
                 soknadProducer.soknadEvent(it, null, false)
                 sykepengesoknadDAO.slettSoknad(it)

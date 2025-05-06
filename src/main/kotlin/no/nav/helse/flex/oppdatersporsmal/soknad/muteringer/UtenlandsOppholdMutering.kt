@@ -58,16 +58,16 @@ fun Sykepengesoknad.oppdaterMedSvarPaUtlandsopphold(): Sykepengesoknad {
 private fun Sykepengesoknad.hentGyldigePerioder(
     hva: String,
     nar: String,
-): List<Periode> {
-    return if (this.getSporsmalMedTagOrNull(hva)?.forsteSvar == "JA") {
+): List<Periode> =
+    if (this.getSporsmalMedTagOrNull(hva)?.forsteSvar == "JA") {
         getGyldigePeriodesvar(this.getSporsmalMedTag(nar))
     } else {
         Collections.emptyList()
     }
-}
 
-private fun getGyldigePeriodesvar(sporsmal: Sporsmal): List<Periode> {
-    return sporsmal.svar.asSequence()
+private fun getGyldigePeriodesvar(sporsmal: Sporsmal): List<Periode> =
+    sporsmal.svar
+        .asSequence()
         .map { it.verdi }
         .map { PeriodeMapper.jsonTilOptionalPeriode(it) } // TODO: Kan enders?
         .filter { it.isPresent }
@@ -75,4 +75,3 @@ private fun getGyldigePeriodesvar(sporsmal: Sporsmal): List<Periode> {
         .filter { periode -> DatoUtil.periodeErInnenforMinMax(periode, sporsmal.min, sporsmal.max) }
         .toList()
         .toList()
-}

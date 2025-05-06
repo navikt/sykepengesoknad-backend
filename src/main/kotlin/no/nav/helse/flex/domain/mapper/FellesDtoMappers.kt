@@ -7,15 +7,14 @@ import java.io.IOException
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-fun Avsendertype.tilAvsendertypeDTO(): AvsendertypeDTO {
-    return when (this) {
+fun Avsendertype.tilAvsendertypeDTO(): AvsendertypeDTO =
+    when (this) {
         Avsendertype.SYSTEM -> AvsendertypeDTO.SYSTEM
         Avsendertype.BRUKER -> AvsendertypeDTO.BRUKER
     }
-}
 
-fun Arbeidssituasjon.tilArbeidssituasjonDTO(): ArbeidssituasjonDTO {
-    return when (this) {
+fun Arbeidssituasjon.tilArbeidssituasjonDTO(): ArbeidssituasjonDTO =
+    when (this) {
         Arbeidssituasjon.ARBEIDSTAKER -> ArbeidssituasjonDTO.ARBEIDSTAKER
         Arbeidssituasjon.FRILANSER -> ArbeidssituasjonDTO.FRILANSER
         Arbeidssituasjon.NAERINGSDRIVENDE -> ArbeidssituasjonDTO.SELVSTENDIG_NARINGSDRIVENDE
@@ -24,28 +23,25 @@ fun Arbeidssituasjon.tilArbeidssituasjonDTO(): ArbeidssituasjonDTO {
         Arbeidssituasjon.ARBEIDSLEDIG -> ArbeidssituasjonDTO.ARBEIDSLEDIG
         Arbeidssituasjon.ANNET -> ArbeidssituasjonDTO.ANNET
     }
-}
 
-fun Mottaker.tilMottakerDTO(): MottakerDTO {
-    return when (this) {
+fun Mottaker.tilMottakerDTO(): MottakerDTO =
+    when (this) {
         Mottaker.ARBEIDSGIVER_OG_NAV -> MottakerDTO.ARBEIDSGIVER_OG_NAV
         Mottaker.ARBEIDSGIVER -> MottakerDTO.ARBEIDSGIVER
         Mottaker.NAV -> MottakerDTO.NAV
     }
-}
 
 fun List<Merknad>?.tilMerknadDTO(): List<MerknadDTO>? = this?.map { MerknadDTO(type = it.type, beskrivelse = it.beskrivelse) }
 
-fun Visningskriterie.tilVisningskriteriumDTO(): VisningskriteriumDTO {
-    return when (this) {
+fun Visningskriterie.tilVisningskriteriumDTO(): VisningskriteriumDTO =
+    when (this) {
         Visningskriterie.JA -> VisningskriteriumDTO.JA
         Visningskriterie.NEI -> VisningskriteriumDTO.NEI
         Visningskriterie.CHECKED -> VisningskriteriumDTO.CHECKED
     }
-}
 
-fun Soknadstatus.tilSoknadstatusDTO(): SoknadsstatusDTO {
-    return when (this) {
+fun Soknadstatus.tilSoknadstatusDTO(): SoknadsstatusDTO =
+    when (this) {
         Soknadstatus.NY -> SoknadsstatusDTO.NY
         Soknadstatus.UTKAST_TIL_KORRIGERING -> SoknadsstatusDTO.NY
         Soknadstatus.SENDT -> SoknadsstatusDTO.SENDT
@@ -55,10 +51,9 @@ fun Soknadstatus.tilSoknadstatusDTO(): SoknadsstatusDTO {
         Soknadstatus.SLETTET -> SoknadsstatusDTO.SLETTET
         Soknadstatus.UTGATT -> SoknadsstatusDTO.UTGAATT
     }
-}
 
-fun Svartype.tilSvartypeDTO(): SvartypeDTO {
-    return when (this) {
+fun Svartype.tilSvartypeDTO(): SvartypeDTO =
+    when (this) {
         Svartype.JA_NEI -> SvartypeDTO.JA_NEI
         Svartype.CHECKBOX -> SvartypeDTO.CHECKBOX
         Svartype.CHECKBOX_GRUPPE -> SvartypeDTO.CHECKBOX_GRUPPE
@@ -87,10 +82,9 @@ fun Svartype.tilSvartypeDTO(): SvartypeDTO {
         Svartype.BELOP -> SvartypeDTO.BELOP
         Svartype.KILOMETER -> SvartypeDTO.KILOMETER
     }
-}
 
-fun Sykmeldingstype.tilSykmeldingstypeDTO(): SykmeldingstypeDTO {
-    return when (this) {
+fun Sykmeldingstype.tilSykmeldingstypeDTO(): SykmeldingstypeDTO =
+    when (this) {
         Sykmeldingstype.AKTIVITET_IKKE_MULIG -> SykmeldingstypeDTO.AKTIVITET_IKKE_MULIG
         Sykmeldingstype.GRADERT -> SykmeldingstypeDTO.GRADERT
         Sykmeldingstype.BEHANDLINGSDAGER -> SykmeldingstypeDTO.BEHANDLINGSDAGER
@@ -98,10 +92,9 @@ fun Sykmeldingstype.tilSykmeldingstypeDTO(): SykmeldingstypeDTO {
         Sykmeldingstype.REISETILSKUDD -> SykmeldingstypeDTO.REISETILSKUDD
         Sykmeldingstype.UKJENT -> throw IllegalArgumentException("Ugyldig sykmeldingtype")
     }
-}
 
-fun Sporsmal.tilSporsmalDTO(): SporsmalDTO {
-    return SporsmalDTO(
+fun Sporsmal.tilSporsmalDTO(): SporsmalDTO =
+    SporsmalDTO(
         id = this.id,
         tag = this.tag,
         sporsmalstekst = this.sporsmalstekst,
@@ -114,14 +107,11 @@ fun Sporsmal.tilSporsmalDTO(): SporsmalDTO {
         undersporsmal = this.undersporsmal.map { it.tilSporsmalDTO() },
         metadata = this.metadata,
     )
-}
 
-fun Svar.tilSvarDTO(): SvarDTO {
-    return SvarDTO(this.verdi)
-}
+fun Svar.tilSvarDTO(): SvarDTO = SvarDTO(this.verdi)
 
-fun Soknadstype.tilSoknadstypeDTO(): SoknadstypeDTO {
-    return when (this) {
+fun Soknadstype.tilSoknadstypeDTO(): SoknadstypeDTO =
+    when (this) {
         Soknadstype.ARBEIDSTAKERE -> SoknadstypeDTO.ARBEIDSTAKERE
         Soknadstype.OPPHOLD_UTLAND -> SoknadstypeDTO.OPPHOLD_UTLAND
         Soknadstype.SELVSTENDIGE_OG_FRILANSERE -> SoknadstypeDTO.SELVSTENDIGE_OG_FRILANSERE
@@ -132,18 +122,19 @@ fun Soknadstype.tilSoknadstypeDTO(): SoknadstypeDTO {
         Soknadstype.GRADERT_REISETILSKUDD -> SoknadstypeDTO.GRADERT_REISETILSKUDD
         Soknadstype.FRISKMELDT_TIL_ARBEIDSFORMIDLING -> SoknadstypeDTO.FRISKMELDT_TIL_ARBEIDSFORMIDLING
     }
-}
 
-fun String.getJsonPeriode(): PeriodeDTO {
-    return try {
+fun String.getJsonPeriode(): PeriodeDTO =
+    try {
         objectMapper.readValue(this, PeriodeDTO::class.java)
     } catch (e: IOException) {
         this.getJsonPeriodeFraGammeltFormat()
     }
-}
 
 fun String.getJsonPeriodeFraGammeltFormat(): PeriodeDTO {
-    data class FomTom(val fom: String? = null, val tom: String? = null)
+    data class FomTom(
+        val fom: String? = null,
+        val tom: String? = null,
+    )
 
     fun String?.gammeltFormatTilLocalDate(): LocalDate? {
         this?.let {

@@ -5,8 +5,8 @@ import no.nav.helse.flex.util.min
 import no.nav.syfo.model.sykmelding.arbeidsgiver.ArbeidsgiverSykmelding
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 
-fun Tidsenhet.delOppISoknadsperioder(sykmeldingDokument: ArbeidsgiverSykmelding): List<SykmeldingsperiodeAGDTO> {
-    return sykmeldingDokument
+fun Tidsenhet.delOppISoknadsperioder(sykmeldingDokument: ArbeidsgiverSykmelding): List<SykmeldingsperiodeAGDTO> =
+    sykmeldingDokument
         .sykmeldingsperioder
         .filter { periode -> periodeTrefferInnenforTidsenhet(periode, this) }
         .map {
@@ -14,13 +14,9 @@ fun Tidsenhet.delOppISoknadsperioder(sykmeldingDokument: ArbeidsgiverSykmelding)
                 fom = max(it.fom, this.fom),
                 tom = min(it.tom, this.tom),
             )
-        }
-        .sortedBy { it.fom }
-}
+        }.sortedBy { it.fom }
 
 private fun periodeTrefferInnenforTidsenhet(
     periode: SykmeldingsperiodeAGDTO,
     tidsenhet: Tidsenhet,
-): Boolean {
-    return !periode.fom.isAfter(tidsenhet.tom) && !periode.tom.isBefore(tidsenhet.fom)
-}
+): Boolean = !periode.fom.isAfter(tidsenhet.tom) && !periode.tom.isBefore(tidsenhet.fom)

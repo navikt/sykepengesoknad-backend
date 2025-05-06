@@ -32,19 +32,15 @@ object PeriodeMapper {
             .registerModule(javaTimeModuleSporsmalstektsFormat)
             .registerKotlinModule()
 
-    fun jsonISOFormatTilPeriode(json: String): Periode {
-        return getPeriode(json, objectMapperISOFormat)
-    }
+    fun jsonISOFormatTilPeriode(json: String): Periode = getPeriode(json, objectMapperISOFormat)
 
-    fun jsonSporsmalstektsFormatTilPeriode(json: String): Periode {
-        return getPeriode(json, objectMapperSporsmalstekstFormat)
-    }
+    fun jsonSporsmalstektsFormatTilPeriode(json: String): Periode = getPeriode(json, objectMapperSporsmalstekstFormat)
 
     private fun getPeriode(
         json: String,
         objectMapper: ObjectMapper?,
-    ): Periode {
-        return try {
+    ): Periode =
+        try {
             val periode = objectMapper!!.readValue(json, Periode::class.java)
             require(!periode.fom.isAfter(periode.tom))
             periode
@@ -55,10 +51,9 @@ object PeriodeMapper {
         } catch (iOException: IOException) {
             throw RuntimeException(iOException)
         }
-    }
 
-    fun jsonTilOptionalPeriode(json: String): Optional<Periode> {
-        return try {
+    fun jsonTilOptionalPeriode(json: String): Optional<Periode> =
+        try {
             Optional.of(getPeriode(json, objectMapperISOFormat))
         } catch (illegalArgumentException: IllegalArgumentException) {
             try {
@@ -67,5 +62,4 @@ object PeriodeMapper {
                 Optional.empty()
             }
         }
-    }
 }

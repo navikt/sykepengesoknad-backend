@@ -66,13 +66,11 @@ fun ArbeidsgiverSykmelding.splittSykmeldingiSoknadsPerioder(
     return sykmeldingTidsenheter.ferdigsplittet.sortedBy { it.fom }
 }
 
-private fun ArbeidsgiverSykmelding.harBehandlingsdager(arbeidssituasjon: Arbeidssituasjon): Boolean {
-    return finnSoknadsType(arbeidssituasjon, sykmeldingsperioder) == Soknadstype.BEHANDLINGSDAGER
-}
+private fun ArbeidsgiverSykmelding.harBehandlingsdager(arbeidssituasjon: Arbeidssituasjon): Boolean =
+    finnSoknadsType(arbeidssituasjon, sykmeldingsperioder) == Soknadstype.BEHANDLINGSDAGER
 
-private fun ArbeidsgiverSykmelding.erArbeidstakerSoknad(arbeidssituasjon: Arbeidssituasjon): Boolean {
-    return finnSoknadsType(arbeidssituasjon, sykmeldingsperioder) == Soknadstype.ARBEIDSTAKERE
-}
+private fun ArbeidsgiverSykmelding.erArbeidstakerSoknad(arbeidssituasjon: Arbeidssituasjon): Boolean =
+    finnSoknadsType(arbeidssituasjon, sykmeldingsperioder) == Soknadstype.ARBEIDSTAKERE
 
 private fun SykmeldingTidsenheter.splittLangeSykmeldingperioderMedBehandlingsdager(): SykmeldingTidsenheter {
     while (splittbar.isNotEmpty()) {
@@ -93,8 +91,10 @@ private fun SykmeldingTidsenheter.splittPeriodenSomOverlapperSendtSoknad(
     splittbar.clear()
 
     val soknadskandidater =
-        eksisterendeSoknader.asSequence()
-            .filterNot { it.sykmeldingId == sykmeldingId } // Korrigerte sykmeldinger håndteres her SlettSoknaderTilKorrigertSykmeldingService
+        eksisterendeSoknader
+            .asSequence()
+            // Korrigerte sykmeldinger håndteres her SlettSoknaderTilKorrigertSykmeldingService.
+            .filterNot { it.sykmeldingId == sykmeldingId }
             .filter { it.soknadstype == Soknadstype.ARBEIDSTAKERE }
             .filter { it.status == Soknadstatus.SENDT }
             .filter { it.sykmeldingSkrevet!!.isBefore(behandletTidspunkt) }
@@ -108,8 +108,7 @@ private fun SykmeldingTidsenheter.splittPeriodenSomOverlapperSendtSoknad(
                     }
                 }
                 return@filter false
-            }
-            .toList()
+            }.toList()
 
     while (splittbareTidsenheter.isNotEmpty()) {
         var tidsenhet = splittbareTidsenheter.removeFirst()

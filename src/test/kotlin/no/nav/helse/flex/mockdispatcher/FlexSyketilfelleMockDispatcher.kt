@@ -14,19 +14,28 @@ import okhttp3.mockwebserver.RecordedRequest
 import java.time.LocalDate
 
 object FlexSyketilfelleMockDispatcher : Dispatcher() {
-    override fun dispatch(request: RecordedRequest): MockResponse {
-        return when (request.requestLine) {
+    override fun dispatch(request: RecordedRequest): MockResponse =
+        when (request.requestLine) {
             "POST /api/v1/sykeforloep?hentAndreIdenter=false HTTP/1.1" -> {
                 val requestBody: SykmeldingRequest = objectMapper.readValue(request.body.readUtf8())
                 val sykeforloep =
                     Sykeforloep(
-                        oppfolgingsdato = requestBody.sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder.first().fom,
+                        oppfolgingsdato =
+                            requestBody.sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder
+                                .first()
+                                .fom,
                         sykmeldinger =
                             listOf(
                                 SimpleSykmelding(
                                     id = requestBody.sykmeldingKafkaMessage.sykmelding.id,
-                                    fom = requestBody.sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder.first().fom,
-                                    tom = requestBody.sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder.first().tom,
+                                    fom =
+                                        requestBody.sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder
+                                            .first()
+                                            .fom,
+                                    tom =
+                                        requestBody.sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder
+                                            .first()
+                                            .tom,
                                 ),
                             ),
                     )
@@ -59,5 +68,4 @@ object FlexSyketilfelleMockDispatcher : Dispatcher() {
                 MockResponse().setResponseCode(404)
             }
         }
-    }
 }

@@ -12,8 +12,8 @@ import java.time.format.DateTimeFormatter
 fun permisjonSporsmal(
     fom: LocalDate,
     tom: LocalDate,
-): Sporsmal {
-    return Sporsmal(
+): Sporsmal =
+    Sporsmal(
         tag = PERMISJON_V2,
         sporsmalstekst = "Tok du permisjon mens du var sykmeldt ${DatoUtil.formatterPeriode(fom, tom)}?",
         svartype = Svartype.JA_NEI,
@@ -29,4 +29,3 @@ fun permisjonSporsmal(
                 ),
             ),
     )
-}

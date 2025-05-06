@@ -23,11 +23,12 @@ class AaregHentingTest : FellesTestOppsett() {
                 startSykeforlop = LocalDate.of(2022, 9, 15),
                 tom = LocalDate.of(2022, 9, 15),
             )
-        aaregDataHenting.hentNyeArbeidsforhold(
-            fnr = "11111234565",
-            eksisterendeSoknader = emptyList(),
-            sykepengesoknad = soknad,
-        ).`should be empty`()
+        aaregDataHenting
+            .hentNyeArbeidsforhold(
+                fnr = "11111234565",
+                eksisterendeSoknader = emptyList(),
+                sykepengesoknad = soknad,
+            ).`should be empty`()
     }
 
     @Test

@@ -66,8 +66,9 @@ class VidereføringMestSannsynligTest : FellesTestOppsett() {
     @Order(2)
     fun `Skal ikke ha tilkommen inntekt spørsmål`() {
         val soknaden = hentSoknader(fnr = fnr).sortedBy { it.fom }.first()
-        soknaden.sporsmal!!.find {
-            it.tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS)
-        }.shouldBeNull()
+        soknaden.sporsmal!!
+            .find {
+                it.tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS)
+            }.shouldBeNull()
     }
 }

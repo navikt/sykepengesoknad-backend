@@ -22,8 +22,7 @@ class BrregClient(
         return uri
             .headers {
                 it.contentType = MediaType.APPLICATION_JSON
-            }
-            .body(hentRollerRequest)
+            }.body(hentRollerRequest)
             .retrieve()
             .toEntity<RollerDto>()
             .body

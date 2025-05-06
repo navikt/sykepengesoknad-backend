@@ -40,9 +40,11 @@ class AuthenticationHeaderFilter : Filter {
     }
 }
 
-internal class MutableHttpServletRequest(private val original: HttpServletRequest) : HttpServletRequestWrapper(
-    original,
-) {
+internal class MutableHttpServletRequest(
+    private val original: HttpServletRequest,
+) : HttpServletRequestWrapper(
+        original,
+    ) {
     private val customHeaders: MutableMap<String, String> = HashMap()
 
     fun putHeader(

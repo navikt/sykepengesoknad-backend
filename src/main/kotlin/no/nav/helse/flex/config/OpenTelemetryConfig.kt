@@ -8,7 +8,5 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 class OpenTelemetryConfig {
     @Bean
-    fun tracer(): Tracer {
-        return GlobalOpenTelemetry.getTracer("sykepengesoknad-backend")
-    }
+    fun tracer(): Tracer = GlobalOpenTelemetry.getTracer("sykepengesoknad-backend")
 }

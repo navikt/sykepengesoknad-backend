@@ -43,7 +43,8 @@ private fun SykepengesoknadDAO.alleSomOverlapper(
 ): List<Sykepengesoknad> {
     val sykmeldingId = sykmeldingKafkaMessage.sykmelding.id
     val sykmeldingPeriode = sykmeldingKafkaMessage.periode()
-    return this.finnSykepengesoknader(identer)
+    return this
+        .finnSykepengesoknader(identer)
         .asSequence()
         .filterNot { it.sykmeldingId == sykmeldingId } // Korrigerte sykmeldinger håndteres her SlettSoknaderTilKorrigertSykmeldingService
         .filter { it.soknadstype == Soknadstype.ARBEIDSTAKERE }
@@ -51,27 +52,24 @@ private fun SykepengesoknadDAO.alleSomOverlapper(
         .filter { sok ->
             val soknadPeriode = sok.fom!!..sok.tom!!
             sykmeldingPeriode.overlap(soknadPeriode)
-        }
-        .toList()
+        }.toList()
 }
 
-private fun Sykepengesoknad.signaturDatoIsBefore(sykmelding: ArbeidsgiverSykmelding): Boolean {
-    return when {
+private fun Sykepengesoknad.signaturDatoIsBefore(sykmelding: ArbeidsgiverSykmelding): Boolean =
+    when {
         this.sykmeldingSkrevet != sykmelding.behandletTidspunkt.toInstant() -> false
         this.sykmeldingSignaturDato == null || sykmelding.signaturDato == null -> false
         this.sykmeldingSignaturDato.isBefore(sykmelding.signaturDato.toInstant()) -> true
         else -> false
     }
-}
 
-private fun Sykepengesoknad.signaturDatoIsAfter(sykmelding: ArbeidsgiverSykmelding): Boolean {
-    return when {
+private fun Sykepengesoknad.signaturDatoIsAfter(sykmelding: ArbeidsgiverSykmelding): Boolean =
+    when {
         this.sykmeldingSkrevet != sykmelding.behandletTidspunkt.toInstant() -> false
         this.sykmeldingSignaturDato == null || sykmelding.signaturDato == null -> false
         this.sykmeldingSignaturDato.isAfter(sykmelding.signaturDato.toInstant()) -> true
         else -> false
     }
-}
 
 internal fun finnEndringIUforegrad(
     tidligerePerioder: List<Soknadsperiode>?,
@@ -111,6 +109,5 @@ internal fun SykmeldingKafkaMessage.erstattPerioder(nyePerioder: List<Sykmelding
 /**
  * Så lenge de har minst en dato til felles
  */
-fun ClosedRange<LocalDate>.overlap(other: ClosedRange<LocalDate>): Boolean {
-    return this.start in other || this.endInclusive in other || other.start in this || other.endInclusive in this
-}
+fun ClosedRange<LocalDate>.overlap(other: ClosedRange<LocalDate>): Boolean =
+    this.start in other || this.endInclusive in other || other.start in this || other.endInclusive in this

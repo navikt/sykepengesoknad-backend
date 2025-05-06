@@ -40,8 +40,8 @@ fun String.prettyOrgnavn(): String {
         .split(",")
         .map { it.trim() }
         .map {
-            it.split(" ")
+            it
+                .split(" ")
                 .joinToString(" ") { it.mapEnkeltNavn() }
-        }
-        .joinToString(", ")
+        }.joinToString(", ")
 }

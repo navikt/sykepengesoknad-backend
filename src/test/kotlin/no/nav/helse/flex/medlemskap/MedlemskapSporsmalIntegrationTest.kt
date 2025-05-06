@@ -234,13 +234,11 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
                 tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_V2,
                 svar = "JA",
                 ferdigBesvart = false,
-            )
-            .besvarSporsmal(
+            ).besvarSporsmal(
                 tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_VEDTAKSDATO,
                 svar = soknad.fom.toString(),
                 ferdigBesvart = false,
-            )
-            .besvarSporsmal(
+            ).besvarSporsmal(
                 tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_PERIODE,
                 svar =
                     DatoUtil.periodeTilJson(
@@ -280,9 +278,10 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
                 soknadId = soknadId,
                 fnr = fnr,
             )
-        lagretSoknad.sporsmal!!.single {
-            it.tag == MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE
-        }.undersporsmal shouldHaveSize 2
+        lagretSoknad.sporsmal!!
+            .single {
+                it.tag == MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE
+            }.undersporsmal shouldHaveSize 2
     }
 
     @Test
@@ -315,9 +314,10 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
                 soknadId = soknadId,
                 fnr = fnr,
             )
-        lagretSoknad.sporsmal!!.single {
-            it.tag == MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE
-        }.undersporsmal shouldHaveSize 2
+        lagretSoknad.sporsmal!!
+            .single {
+                it.tag == MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE
+            }.undersporsmal shouldHaveSize 2
     }
 
     @Test
@@ -350,9 +350,10 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
                 soknadId = soknadId,
                 fnr = fnr,
             )
-        lagretSoknad.sporsmal!!.single {
-            it.tag == MEDLEMSKAP_OPPHOLD_UTENFOR_EOS
-        }.undersporsmal shouldHaveSize 2
+        lagretSoknad.sporsmal!!
+            .single {
+                it.tag == MEDLEMSKAP_OPPHOLD_UTENFOR_EOS
+            }.undersporsmal shouldHaveSize 2
     }
 
     @Test
@@ -521,12 +522,11 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
         ).isNotNull
     }
 
-    private fun hentSoknadMedStatusNy(): RSSykepengesoknad {
-        return hentSoknad(
+    private fun hentSoknadMedStatusNy(): RSSykepengesoknad =
+        hentSoknad(
             soknadId = hentSoknaderMetadata(fnr).single { it.status == RSSoknadstatus.NY }.id,
             fnr = fnr,
         )
-    }
 
     private fun leggTilUndersporsmal(
         soknadId: String,
@@ -581,18 +581,15 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
                 tag = MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
                 svar = "JA",
                 ferdigBesvart = false,
-            )
-            .besvarSporsmal(
+            ).besvarSporsmal(
                 tag = medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_ARBEIDSGIVER, index),
                 svar = medIndex("Arbeidsgiver", index),
                 ferdigBesvart = false,
-            )
-            .besvarSporsmal(
+            ).besvarSporsmal(
                 tag = medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_HVOR, index),
                 svar = medIndex("Land", index),
                 ferdigBesvart = false,
-            )
-            .besvarSporsmal(
+            ).besvarSporsmal(
                 tag = medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR, index),
                 svar =
                     DatoUtil.periodeTilJson(
@@ -613,13 +610,11 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
                 tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_HVOR, index),
                 svar = "Land",
                 ferdigBesvart = false,
-            )
-            .besvarSporsmal(
+            ).besvarSporsmal(
                 tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE_FERIE, index),
                 svar = "CHECKED",
                 ferdigBesvart = false,
-            )
-            .besvarSporsmal(
+            ).besvarSporsmal(
                 tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_NAAR, index),
                 svar =
                     DatoUtil.periodeTilJson(
@@ -640,18 +635,15 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
                 tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_HVOR, index),
                 svar = "Land",
                 ferdigBesvart = false,
-            )
-            .besvarSporsmal(
+            ).besvarSporsmal(
                 tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_ANNET, index),
                 svar = "CHECKED",
                 ferdigBesvart = false,
-            )
-            .besvarSporsmal(
+            ).besvarSporsmal(
                 tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_ANNET_FRITEKST, index),
                 svar = "Handletur",
                 ferdigBesvart = false,
-            )
-            .besvarSporsmal(
+            ).besvarSporsmal(
                 tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_NAAR, index),
                 svar =
                     DatoUtil.periodeTilJson(
@@ -661,13 +653,12 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
             )
     }
 
-    private fun List<RSSporsmal>.utenId(): List<RSSporsmal> {
-        return this.map { sporsmal ->
+    private fun List<RSSporsmal>.utenId(): List<RSSporsmal> =
+        this.map { sporsmal ->
             sporsmal.copy(
                 id = "",
                 undersporsmal = sporsmal.undersporsmal.utenId(),
                 svar = sporsmal.svar.map { it.copy(id = "") },
             )
         }
-    }
 }

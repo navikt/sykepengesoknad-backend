@@ -14,7 +14,10 @@ data class HarYsSakerResponse(
     val kildeperiode: Kildeperiode? = null,
 )
 
-data class Kildeperiode(val fomDato: LocalDate, val tomDato: LocalDate)
+data class Kildeperiode(
+    val fomDato: LocalDate,
+    val tomDato: LocalDate,
+)
 
 enum class HarYsSak {
     JA,
@@ -22,7 +25,9 @@ enum class HarYsSak {
     MAA_SJEKKES_MANUELT,
 }
 
-data class SakerResponse(val saker: List<SakDto>)
+data class SakerResponse(
+    val saker: List<SakDto>,
+)
 
 data class SakDto(
     val kommunenr: String,

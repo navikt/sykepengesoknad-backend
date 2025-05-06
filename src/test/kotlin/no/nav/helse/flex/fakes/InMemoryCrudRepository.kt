@@ -39,21 +39,15 @@ open class InMemoryCrudRepository<T : Any, ID : Any>(
         return finalEntity
     }
 
-    override fun existsById(id: ID): Boolean {
-        return store.containsKey(id)
-    }
+    override fun existsById(id: ID): Boolean = store.containsKey(id)
 
     override fun <S : T> saveAll(entities: MutableIterable<S>): MutableIterable<S> {
         TODO("Not yet implemented")
     }
 
-    override fun findAll(): MutableIterable<T> {
-        return store.values.toMutableList()
-    }
+    override fun findAll(): MutableIterable<T> = store.values.toMutableList()
 
-    override fun count(): Long {
-        return store.size.toLong()
-    }
+    override fun count(): Long = store.size.toLong()
 
     override fun deleteAll() {
         store.clear()

@@ -345,7 +345,10 @@ class SoknadBrukerController(
         }
     }
 
-    data class SoknadOgIdenter(val sykepengesoknad: Sykepengesoknad, val identer: FolkeregisterIdenter)
+    data class SoknadOgIdenter(
+        val sykepengesoknad: Sykepengesoknad,
+        val identer: FolkeregisterIdenter,
+    )
 
     private fun hentOgSjekkTilgangTilSoknad(soknadId: String): SoknadOgIdenter {
         val identer = contextHolder.validerTokenXClaims(sykepengesoknadFrontendClientId).hentIdenter()
@@ -376,13 +379,11 @@ class SoknadBrukerController(
             ?: throw IllegalArgumentException("$sporsmalId er ikke et hovedspørsmål i søknad $soknadId.")
     }
 
-    private fun Sykepengesoknad.utvidSoknadMedKorrigeringsfristUtlopt(identer: FolkeregisterIdenter): Sykepengesoknad {
-        return korrigerSoknadService.utvidSoknadMedKorrigeringsfristUtlopt(this, identer)
-    }
+    private fun Sykepengesoknad.utvidSoknadMedKorrigeringsfristUtlopt(identer: FolkeregisterIdenter): Sykepengesoknad =
+        korrigerSoknadService.utvidSoknadMedKorrigeringsfristUtlopt(this, identer)
 
-    private fun JwtTokenClaims.hentIdenter(): FolkeregisterIdenter {
-        return identService.hentFolkeregisterIdenterMedHistorikkForFnr(this.getStringClaim("pid"))
-    }
+    private fun JwtTokenClaims.hentIdenter(): FolkeregisterIdenter =
+        identService.hentFolkeregisterIdenterMedHistorikkForFnr(this.getStringClaim("pid"))
 
     private fun skapOppdaterSpmResponse(
         oppdaterSporsmalResultat: OppdaterSporsmalService.OppdaterSporsmalResultat,

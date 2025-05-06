@@ -25,7 +25,9 @@ interface SoknadsperiodeDAO {
 @Service
 @Transactional
 @Repository
-class SoknadsperiodeDAOPostgres(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate) : SoknadsperiodeDAO {
+class SoknadsperiodeDAOPostgres(
+    private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
+) : SoknadsperiodeDAO {
     @WithSpan
     override fun lagreSoknadperioder(
         sykepengesoknadId: String,
@@ -53,29 +55,32 @@ class SoknadsperiodeDAOPostgres(private val namedParameterJdbcTemplate: NamedPar
     @WithSpan
     override fun finnSoknadPerioder(sykepengesoknadIds: Set<String>): HashMap<String, MutableList<Soknadsperiode>> {
         val unMapped =
-            sykepengesoknadIds.chunked(1000).map {
-                namedParameterJdbcTemplate.query(
-                    """
-                    SELECT * FROM soknadperiode
-                    WHERE sykepengesoknad_id IN (:sykepengesoknadId)
-                    ORDER BY fom
-                    """.trimIndent(),
-                    MapSqlParameterSource()
-                        .addValue("sykepengesoknadId", it),
-                ) { resultSet, _ ->
-                    Pair(
-                        resultSet.getString("SYKEPENGESOKNAD_ID"),
-                        Soknadsperiode(
-                            resultSet.getObject("fom", LocalDate::class.java),
-                            resultSet.getObject("tom", LocalDate::class.java),
-                            resultSet.getInt("grad"),
-                            Optional.ofNullable(resultSet.getString("sykmeldingstype"))
-                                .map { Sykmeldingstype.valueOf(it) }.orElse(null),
-                        ),
-                    )
-                }
-            }
-                .flatten()
+            sykepengesoknadIds
+                .chunked(1000)
+                .map {
+                    namedParameterJdbcTemplate.query(
+                        """
+                        SELECT * FROM soknadperiode
+                        WHERE sykepengesoknad_id IN (:sykepengesoknadId)
+                        ORDER BY fom
+                        """.trimIndent(),
+                        MapSqlParameterSource()
+                            .addValue("sykepengesoknadId", it),
+                    ) { resultSet, _ ->
+                        Pair(
+                            resultSet.getString("SYKEPENGESOKNAD_ID"),
+                            Soknadsperiode(
+                                resultSet.getObject("fom", LocalDate::class.java),
+                                resultSet.getObject("tom", LocalDate::class.java),
+                                resultSet.getInt("grad"),
+                                Optional
+                                    .ofNullable(resultSet.getString("sykmeldingstype"))
+                                    .map { Sykmeldingstype.valueOf(it) }
+                                    .orElse(null),
+                            ),
+                        )
+                    }
+                }.flatten()
                 .sortedBy { it.second.fom }
         val ret = HashMap<String, MutableList<Soknadsperiode>>()
         unMapped.forEach {

@@ -16,7 +16,8 @@ class FnrPartitionerTest {
 
         repeat(REPETER_TEST_ANTALL_GANGER) {
             syntetiskeFnr.forEach {
-                FnrPartitioner.kalkulerPartisjon(it.toByteArray(), ANTALL_PARTISJONER)
+                FnrPartitioner
+                    .kalkulerPartisjon(it.toByteArray(), ANTALL_PARTISJONER)
                     .also { partisjon ->
                         partisjoneringsResultat.getOrPut(it) { mutableListOf() }?.add(partisjon)
                     }
@@ -30,11 +31,16 @@ class FnrPartitionerTest {
         }
 
         // Alle partisjoner skal ha blitt brukt.
-        partisjoneringsResultat.flatMap { listOf(it.value!!.first()) }
+        partisjoneringsResultat
+            .flatMap { listOf(it.value!!.first()) }
             .groupBy { it }
             .mapValues { it.value.size }
             .shouldHaveSize(ANTALL_PARTISJONER)
     }
 
-    private fun hentSyntetiskeFnr() = this.javaClass.classLoader.getResourceAsStream("syntetiske-fnr.txt")!!.bufferedReader().readLines()
+    private fun hentSyntetiskeFnr() =
+        this.javaClass.classLoader
+            .getResourceAsStream("syntetiske-fnr.txt")!!
+            .bufferedReader()
+            .readLines()
 }

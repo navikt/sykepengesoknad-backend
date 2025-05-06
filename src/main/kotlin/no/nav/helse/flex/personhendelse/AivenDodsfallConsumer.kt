@@ -81,6 +81,7 @@ class AivenDodsfallConsumer(
     }
 
     private fun harUutfylteSoknader(identer: FolkeregisterIdenter) =
-        sykepengesoknadDAO.finnSykepengesoknader(identer)
+        sykepengesoknadDAO
+            .finnSykepengesoknader(identer)
             .any { listOf(Soknadstatus.NY, Soknadstatus.FREMTIDIG).contains(it.status) }
 }

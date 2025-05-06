@@ -1,6 +1,8 @@
 package no.nav.helse.flex.arbeidsgiverperiode
 
-class ListContainsPredicate<T> private constructor(private val predicate: (List<T>) -> Boolean) {
+class ListContainsPredicate<T> private constructor(
+    private val predicate: (List<T>) -> Boolean,
+) {
     companion object {
         fun <T> of(t: T) = ListContainsPredicate<T> { t in it }
 

@@ -93,17 +93,14 @@ class BehandligsdagerIntegrationTest : FellesTestOppsett() {
                 tag = "ENKELTSTAENDE_BEHANDLINGSDAGER_UKE_0",
                 svar = "${rsSykepengesoknad.fom}",
                 ferdigBesvart = false,
-            )
-            .besvarSporsmal(
+            ).besvarSporsmal(
                 tag = "ENKELTSTAENDE_BEHANDLINGSDAGER_UKE_1",
                 svarListe = emptyList(),
                 ferdigBesvart = false,
-            )
-            .also {
+            ).also {
                 sendSoknadMedResult(fnr, rsSykepengesoknad.id)
                     .andExpect(((MockMvcResultMatchers.status().isBadRequest)))
-            }
-            .besvarSporsmal(tag = "ENKELTSTAENDE_BEHANDLINGSDAGER_UKE_1", svar = "${rsSykepengesoknad.tom}")
+            }.besvarSporsmal(tag = "ENKELTSTAENDE_BEHANDLINGSDAGER_UKE_1", svar = "${rsSykepengesoknad.tom}")
             .oppsummering()
             .sendSoknad()
 
@@ -119,7 +116,12 @@ class BehandligsdagerIntegrationTest : FellesTestOppsett() {
                 fnr = fnr,
             )
         assertThat(refreshedSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
-        assertThat(refreshedSoknad.sporsmal!!.find { it.tag == ANSVARSERKLARING }!!.svar[0].verdi).isEqualTo("CHECKED")
+        assertThat(
+            refreshedSoknad.sporsmal!!
+                .find { it.tag == ANSVARSERKLARING }!!
+                .svar[0]
+                .verdi,
+        ).isEqualTo("CHECKED")
 
         juridiskVurderingKafkaConsumer.ventPåRecords(antall = 1)
     }
@@ -135,7 +137,11 @@ class BehandligsdagerIntegrationTest : FellesTestOppsett() {
         // Korriger søknad
         val korrigerSoknad = korrigerSoknad(soknadId = soknaden.id, fnr = fnr)
         assertThat(korrigerSoknad.status).isEqualTo(RSSoknadstatus.UTKAST_TIL_KORRIGERING)
-        assertThat(korrigerSoknad.sporsmal!!.find { it.tag == ANSVARSERKLARING }!!.svar.size).isEqualTo(0)
+        assertThat(
+            korrigerSoknad.sporsmal!!
+                .find { it.tag == ANSVARSERKLARING }!!
+                .svar.size,
+        ).isEqualTo(0)
         assertThat(korrigerSoknad.korrigerer).isEqualTo(soknaden.id)
 
         SoknadBesvarer(rSSykepengesoknad = korrigerSoknad, testOppsettInterfaces = this, fnr = fnr)

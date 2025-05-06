@@ -32,8 +32,8 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
         mottaker: Mottaker? = null,
         erEttersending: Boolean = false,
         endeligVurdering: Boolean = true,
-    ): SykepengesoknadDTO {
-        return when (sykepengesoknad.soknadstype) {
+    ): SykepengesoknadDTO =
+        when (sykepengesoknad.soknadstype) {
             Soknadstype.OPPHOLD_UTLAND -> konverterOppholdUtlandTilSoknadDTO(sykepengesoknad)
 
             Soknadstype.ARBEIDSTAKERE,
@@ -51,11 +51,9 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
                     erEttersending,
                     sykepengesoknad.hentSoknadsperioder(endeligVurdering),
                 )
-        }
-            .merkSelvstendigOgFrilanserMedRedusertVenteperiode()
+        }.merkSelvstendigOgFrilanserMedRedusertVenteperiode()
             .merkMedMedlemskapStatus()
             .fyllMedDataFraFriskTilArbeidTabell()
-    }
 
     private fun Sykepengesoknad.hentSoknadsperioder(endeligVurdering: Boolean): List<SoknadsperiodeDTO> {
         if (soknadstype in listOf(Soknadstype.BEHANDLINGSDAGER, Soknadstype.ARBEIDSLEDIG)) {
@@ -79,8 +77,8 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
         }
     }
 
-    private fun SykepengesoknadDTO.merkSelvstendigOgFrilanserMedRedusertVenteperiode(): SykepengesoknadDTO {
-        return if (
+    private fun SykepengesoknadDTO.merkSelvstendigOgFrilanserMedRedusertVenteperiode(): SykepengesoknadDTO =
+        if (
             arbeidssituasjon == ArbeidssituasjonDTO.FRILANSER ||
             arbeidssituasjon == ArbeidssituasjonDTO.SELVSTENDIG_NARINGSDRIVENDE
         ) {
@@ -88,7 +86,6 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
         } else {
             this
         }
-    }
 
     private fun SykepengesoknadDTO.fyllMedDataFraFriskTilArbeidTabell(): SykepengesoknadDTO {
         if (type != SoknadstypeDTO.FRISKMELDT_TIL_ARBEIDSFORMIDLING) {
@@ -123,17 +120,18 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
         when (medlemskapVurdering?.svartype) {
             "JA", "NEI" -> return copy(medlemskapVurdering = medlemskapVurdering.svartype)
             "UAVKLART" -> {
-                sporsmal?.firstOrNull {
-                    it.tag in
-                        listOf(
-                            MEDLEMSKAP_OPPHOLDSTILLATELSE,
-                            MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
-                            MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
-                            MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
-                        )
-                }?.let {
-                    return copy(medlemskapVurdering = medlemskapVurdering.svartype)
-                }
+                sporsmal
+                    ?.firstOrNull {
+                        it.tag in
+                            listOf(
+                                MEDLEMSKAP_OPPHOLDSTILLATELSE,
+                                MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
+                                MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
+                                MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
+                            )
+                    }?.let {
+                        return copy(medlemskapVurdering = medlemskapVurdering.svartype)
+                    }
             }
         }
         return this

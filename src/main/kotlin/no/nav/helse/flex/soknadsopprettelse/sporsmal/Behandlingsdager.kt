@@ -16,11 +16,12 @@ import no.nav.helse.flex.util.isAfterOrEqual
 import no.nav.helse.flex.util.min
 import java.time.LocalDate
 
-fun behandlingsdagerSporsmal(soknadMetadata: Sykepengesoknad): List<Sporsmal> {
-    return soknadMetadata.soknadPerioder!!
+fun behandlingsdagerSporsmal(soknadMetadata: Sykepengesoknad): List<Sporsmal> =
+    soknadMetadata.soknadPerioder!!
         .filter { it.sykmeldingstype == Sykmeldingstype.BEHANDLINGSDAGER }
         .sortedBy { it.fom }
-        .lastIndex.downTo(0)
+        .lastIndex
+        .downTo(0)
         .reversed()
         .map { index ->
             val periode = soknadMetadata.soknadPerioder[index]
@@ -46,12 +47,12 @@ fun behandlingsdagerSporsmal(soknadMetadata: Sykepengesoknad): List<Sporsmal> {
                 undersporsmal = skapUndersporsmalUke(uker),
             )
         }
-}
 
-private fun skapUndersporsmalUke(uker: List<Uke>): List<Sporsmal> {
-    return uker
+private fun skapUndersporsmalUke(uker: List<Uke>): List<Sporsmal> =
+    uker
         .sortedBy { it.ukestart }
-        .lastIndex.downTo(0)
+        .lastIndex
+        .downTo(0)
         .reversed()
         .map { ukeIndex ->
             val uke = uker[ukeIndex]
@@ -69,7 +70,6 @@ private fun skapUndersporsmalUke(uker: List<Uke>): List<Sporsmal> {
                 max = "${uke.ukeslutt}",
             )
         }
-}
 
 internal fun splittPeriodeIUker(periode: Soknadsperiode): List<Uke> {
     if (periode.fom.isAfter(periode.tom)) {
@@ -86,4 +86,7 @@ internal fun splittPeriodeIUker(periode: Soknadsperiode): List<Uke> {
     return uker
 }
 
-data class Uke(val ukestart: LocalDate, val ukeslutt: LocalDate)
+data class Uke(
+    val ukestart: LocalDate,
+    val ukeslutt: LocalDate,
+)

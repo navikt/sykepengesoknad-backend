@@ -6,8 +6,8 @@ import no.nav.helse.flex.sykepengesoknad.kafka.*
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
 
-private fun SykepengesoknadDTO.inntruffet(): OffsetDateTime {
-    return (
+private fun SykepengesoknadDTO.inntruffet(): OffsetDateTime =
+    (
         when {
             sendtArbeidsgiver == null && sendtNav == null -> LocalDateTime.now()
             sendtArbeidsgiver == null -> sendtNav
@@ -16,7 +16,6 @@ private fun SykepengesoknadDTO.inntruffet(): OffsetDateTime {
             else -> sendtNav
         }
     )!!.tilOsloZone()
-}
 
 private fun SykepengesoknadDTO.statustag() =
     if (status == SoknadsstatusDTO.SENDT || status == SoknadsstatusDTO.NY || status == SoknadsstatusDTO.FREMTIDIG) {
@@ -28,11 +27,12 @@ private fun SykepengesoknadDTO.statustag() =
 fun SykepengesoknadDTO.mapSoknadTilBiter(): List<Syketilfellebit> {
     val opprettet = OffsetDateTime.now().tilOsloZone()
     val tags =
-        mutableListOf(Tag.SYKEPENGESOKNAD, statustag()).also {
-            if (type == SoknadstypeDTO.BEHANDLINGSDAGER) {
-                it.add(Tag.BEHANDLINGSDAGER)
-            }
-        }.toSet()
+        mutableListOf(Tag.SYKEPENGESOKNAD, statustag())
+            .also {
+                if (type == SoknadstypeDTO.BEHANDLINGSDAGER) {
+                    it.add(Tag.BEHANDLINGSDAGER)
+                }
+            }.toSet()
     val list =
         mutableListOf(
             Syketilfellebit(

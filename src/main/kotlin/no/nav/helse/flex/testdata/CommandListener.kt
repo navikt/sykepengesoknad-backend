@@ -15,7 +15,9 @@ import org.springframework.stereotype.Component
 
 @Component
 @Profile("testdata")
-class CommandListener(val sykepengesoknadDAO: SykepengesoknadDAO) {
+class CommandListener(
+    val sykepengesoknadDAO: SykepengesoknadDAO,
+) {
     val log = logger()
 
     @Autowired
@@ -31,7 +33,9 @@ class CommandListener(val sykepengesoknadDAO: SykepengesoknadDAO) {
         cr: ConsumerRecord<String, String>,
         acknowledgment: Acknowledgment,
     ) {
-        data class Command(val command: String)
+        data class Command(
+            val command: String,
+        )
 
         val req: Command = cr.value().let { objectMapper.readValue(it) }
 

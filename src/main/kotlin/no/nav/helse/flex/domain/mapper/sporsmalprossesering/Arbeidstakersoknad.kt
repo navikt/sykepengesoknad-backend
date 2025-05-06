@@ -53,9 +53,7 @@ private fun antallVirkedagerIPeriode(
     return virkedager
 }
 
-private fun erIkkeHelgedag(dag: LocalDate): Boolean {
-    return dag.dayOfWeek != DayOfWeek.SATURDAY && dag.dayOfWeek != DayOfWeek.SUNDAY
-}
+private fun erIkkeHelgedag(dag: LocalDate): Boolean = dag.dayOfWeek != DayOfWeek.SATURDAY && dag.dayOfWeek != DayOfWeek.SUNDAY
 
 private fun antallVirkedagerIPerioder(
     ferieOgPermisjonPerioder: List<FravarDTO>,
@@ -89,9 +87,7 @@ internal fun arbeidGjenopptattDato(sykepengesoknad: Sykepengesoknad): LocalDate?
     return null
 }
 
-fun samleFravaerListe(soknad: Sykepengesoknad): List<FravarDTO> {
-    return hentFeriePermUtlandListe(soknad)
-}
+fun samleFravaerListe(soknad: Sykepengesoknad): List<FravarDTO> = hentFeriePermUtlandListe(soknad)
 
 fun hentFeriePermUtlandListe(sykepengesoknad: Sykepengesoknad): List<FravarDTO> {
     val fravarliste = ArrayList<FravarDTO>()

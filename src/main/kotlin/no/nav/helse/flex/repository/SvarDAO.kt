@@ -70,9 +70,7 @@ class SvarDAOPostgres(
         sporsmalId: String,
         svar: Svar?,
     ) {
-        fun isEmpty(str: String?): Boolean {
-            return str == null || "" == str
-        }
+        fun isEmpty(str: String?): Boolean = str == null || "" == str
         if (svar == null || isEmpty(svar.verdi)) {
             return
         }

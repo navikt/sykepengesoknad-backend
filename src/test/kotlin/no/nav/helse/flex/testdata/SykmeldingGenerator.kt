@@ -27,8 +27,8 @@ fun skapArbeidsgiverSykmelding(
     gradert: GradertDTO? = null,
     merknader: List<Merknad>? = null,
     behandlingsdager: Int? = null,
-): ArbeidsgiverSykmelding {
-    return ArbeidsgiverSykmelding(
+): ArbeidsgiverSykmelding =
+    ArbeidsgiverSykmelding(
         id = sykmeldingId,
         sykmeldingsperioder =
             listOf(
@@ -74,7 +74,6 @@ fun skapArbeidsgiverSykmelding(
         merknader = merknader,
         utenlandskSykmelding = null,
     )
-}
 
 fun skapSykmeldingStatusKafkaMessageDTO(
     arbeidssituasjon: Arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
@@ -84,8 +83,8 @@ fun skapSykmeldingStatusKafkaMessageDTO(
     arbeidsgiver: ArbeidsgiverStatusKafkaDTO? = null,
     sykmeldingId: String = UUID.randomUUID().toString(),
     tidligereArbeidsgiverOrgnummer: String? = null,
-): SykmeldingStatusKafkaMessageDTO {
-    return SykmeldingStatusKafkaMessageDTO(
+): SykmeldingStatusKafkaMessageDTO =
+    SykmeldingStatusKafkaMessageDTO(
         event =
             SykmeldingStatusKafkaEventDTO(
                 statusEvent = statusEvent,
@@ -129,19 +128,19 @@ fun skapSykmeldingStatusKafkaMessageDTO(
                 fnr = fnr,
             ),
     )
-}
 
 fun lagKomplettInnsendtSkjemaSvar(
     arbeidssituasjon: Arbeidssituasjon,
     fiskerSvar: FiskereSvarKafkaDTO? = null,
-): KomplettInnsendtSkjemaSvar {
-    return KomplettInnsendtSkjemaSvar(
+): KomplettInnsendtSkjemaSvar =
+    KomplettInnsendtSkjemaSvar(
         erOpplysningeneRiktige = SporsmalSvar("Sporsmal", JaEllerNei.JA),
         uriktigeOpplysninger = null,
         arbeidssituasjon =
             SporsmalSvar(
                 "Arbeidssituasjon",
-                no.nav.syfo.sykmelding.kafka.model.Arbeidssituasjon.valueOf(arbeidssituasjon.name),
+                no.nav.syfo.sykmelding.kafka.model.Arbeidssituasjon
+                    .valueOf(arbeidssituasjon.name),
             ),
         arbeidsgiverOrgnummer = null,
         riktigNarmesteLeder = null,
@@ -152,7 +151,6 @@ fun lagKomplettInnsendtSkjemaSvar(
         harBruktEgenmeldingsdager = null,
         fisker = fiskerSvar,
     )
-}
 
 fun lagFiskerInnsendtSkjemaSvar(arbeidssituasjon: Arbeidssituasjon): KomplettInnsendtSkjemaSvar {
     val fiskerSvar =
@@ -183,8 +181,8 @@ fun skapArbeidsgiverSykmelding(
     utenlandskSykemelding: UtenlandskSykmeldingAGDTO? = null,
     sykmeldingSkrevet: OffsetDateTime = OffsetDateTime.now(ZoneOffset.UTC),
     signaturDato: OffsetDateTime = sykmeldingSkrevet,
-): ArbeidsgiverSykmelding {
-    return ArbeidsgiverSykmelding(
+): ArbeidsgiverSykmelding =
+    ArbeidsgiverSykmelding(
         id = sykmeldingId,
         sykmeldingsperioder = sykmeldingsperioder,
         behandletTidspunkt = sykmeldingSkrevet,
@@ -218,14 +216,13 @@ fun skapArbeidsgiverSykmelding(
         merknader = merknader,
         utenlandskSykmelding = utenlandskSykemelding,
     )
-}
 
 fun gradertSykmeldt(
     fom: LocalDate = LocalDate.of(2020, 2, 1),
     tom: LocalDate = LocalDate.of(2020, 2, 15),
     grad: Int = 50,
-): List<SykmeldingsperiodeAGDTO> {
-    return listOf(
+): List<SykmeldingsperiodeAGDTO> =
+    listOf(
         SykmeldingsperiodeAGDTO(
             fom = fom,
             tom = tom,
@@ -237,13 +234,12 @@ fun gradertSykmeldt(
             innspillTilArbeidsgiver = null,
         ),
     )
-}
 
 fun heltSykmeldt(
     fom: LocalDate = LocalDate.of(2020, 2, 1),
     tom: LocalDate = LocalDate.of(2020, 2, 15),
-): List<SykmeldingsperiodeAGDTO> {
-    return listOf(
+): List<SykmeldingsperiodeAGDTO> =
+    listOf(
         SykmeldingsperiodeAGDTO(
             fom = fom,
             tom = tom,
@@ -255,13 +251,12 @@ fun heltSykmeldt(
             innspillTilArbeidsgiver = null,
         ),
     )
-}
 
 fun reisetilskudd(
     fom: LocalDate = LocalDate.of(2020, 2, 1),
     tom: LocalDate = LocalDate.of(2020, 2, 15),
-): List<SykmeldingsperiodeAGDTO> {
-    return listOf(
+): List<SykmeldingsperiodeAGDTO> =
+    listOf(
         SykmeldingsperiodeAGDTO(
             fom = fom,
             tom = tom,
@@ -273,13 +268,12 @@ fun reisetilskudd(
             innspillTilArbeidsgiver = null,
         ),
     )
-}
 
 fun gradertReisetilskudd(
     fom: LocalDate = LocalDate.of(2020, 2, 1),
     tom: LocalDate = LocalDate.of(2020, 2, 15),
-): List<SykmeldingsperiodeAGDTO> {
-    return listOf(
+): List<SykmeldingsperiodeAGDTO> =
+    listOf(
         SykmeldingsperiodeAGDTO(
             fom = fom,
             tom = tom,
@@ -291,14 +285,13 @@ fun gradertReisetilskudd(
             innspillTilArbeidsgiver = null,
         ),
     )
-}
 
 fun behandingsdager(
     fom: LocalDate = LocalDate.of(2018, 1, 1),
     tom: LocalDate = LocalDate.of(2018, 1, 10),
     behandlingsdager: Int = 1,
-): List<SykmeldingsperiodeAGDTO> {
-    return listOf(
+): List<SykmeldingsperiodeAGDTO> =
+    listOf(
         SykmeldingsperiodeAGDTO(
             fom = fom,
             tom = tom,
@@ -310,7 +303,6 @@ fun behandingsdager(
             innspillTilArbeidsgiver = null,
         ),
     )
-}
 
 fun sykmeldingKafkaMessage(
     arbeidssituasjon: Arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,

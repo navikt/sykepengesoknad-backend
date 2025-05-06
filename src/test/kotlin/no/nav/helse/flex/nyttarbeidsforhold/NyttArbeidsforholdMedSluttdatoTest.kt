@@ -92,8 +92,9 @@ class NyttArbeidsforholdMedSluttdatoTest : FellesTestOppsett() {
     @Order(4)
     fun `Har ikke forventa nytt arbeidsforhold førstegangsspørsmål`() {
         val soknaden = hentSoknader(fnr = fnr).filter { it.status == RSSoknadstatus.NY }.first()
-        soknaden.sporsmal!!.find {
-            it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS + "0"
-        }.shouldBeNull()
+        soknaden.sporsmal!!
+            .find {
+                it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS + "0"
+            }.shouldBeNull()
     }
 }

@@ -52,14 +52,18 @@ class AaregDataHenting(
 
         fun Arbeidsforhold.tilArbeidsforholdFraAAreg(): ArbeidsforholdFraAAreg {
             val arbeidstedOrgnummer =
-                this.arbeidssted.identer.firstOrNull { it.type == "ORGANISASJONSNUMMER" }?.ident
+                this.arbeidssted.identer
+                    .firstOrNull { it.type == "ORGANISASJONSNUMMER" }
+                    ?.ident
                     ?: throw RuntimeException(
                         "Fant ikke orgnummer for arbeidsforhold " +
                             "ved henting av nye arbeidsforhold for søknad ${sykepengesoknad.id}",
                     )
 
             val opplysningspliktigOrgnummer =
-                this.opplysningspliktig.identer.firstOrNull { it.type == "ORGANISASJONSNUMMER" }?.ident
+                this.opplysningspliktig.identer
+                    .firstOrNull { it.type == "ORGANISASJONSNUMMER" }
+                    ?.ident
                     ?: throw RuntimeException(
                         "Fant ikke opplysningspliktig orgnummer for arbeidsforhold " +
                             "ved henting av nye arbeidsforhold for søknad ${sykepengesoknad.id}",
@@ -91,12 +95,11 @@ class AaregDataHenting(
                     eksisterendeSoknader = eksisterendeSoknader,
                     sykepengesoknad = sykepengesoknad,
                 )
-            }
-            .filter { arbeidsforhold ->
+            }.filter { arbeidsforhold ->
                 arbeidsforhold.arbeidssted.identer
-                    .firstOrNull { it.type == "ORGANISASJONSNUMMER" }?.ident != sykepengesoknad.arbeidsgiverOrgnummer
-            }
-            .map { it.tilArbeidsforholdFraAAreg() }
+                    .firstOrNull { it.type == "ORGANISASJONSNUMMER" }
+                    ?.ident != sykepengesoknad.arbeidsgiverOrgnummer
+            }.map { it.tilArbeidsforholdFraAAreg() }
             .sortedBy { it.startdato }
     }
 }
@@ -112,13 +115,9 @@ private fun List<Arbeidsforhold>.harMerEnnEttAnnetAktivtArbeidsforhold(sykepenge
         .size > 1
 }
 
-private fun Sykepengesoknad.tilPeriode(): Periode {
-    return Periode(fom!!, tom!!)
-}
+private fun Sykepengesoknad.tilPeriode(): Periode = Periode(fom!!, tom!!)
 
-private fun Arbeidsforhold.erOrganisasjonArbeidsforhold(): Boolean {
-    return this.opplysningspliktig.type == "Hovedenhet"
-}
+private fun Arbeidsforhold.erOrganisasjonArbeidsforhold(): Boolean = this.opplysningspliktig.type == "Hovedenhet"
 
 data class ArbeidsforholdFraAAreg(
     val opplysningspliktigOrgnummer: String,

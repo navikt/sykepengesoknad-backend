@@ -104,13 +104,11 @@ class FrilanserIntegrationTest : FellesTestOppsett() {
                 TILBAKE_I_ARBEID,
                 "JA",
                 ferdigBesvart = false,
-            )
-            .besvarSporsmal(
+            ).besvarSporsmal(
                 TILBAKE_NAR,
                 LocalDate.of(2020, 2, 1).format(DateTimeFormatter.ISO_LOCAL_DATE),
                 mutert = true,
-            )
-            .also {
+            ).also {
                 assertThat(it.rSSykepengesoknad.sporsmal!!.map { it.tag }).isEqualTo(
                     listOf(
                         ANSVARSERKLARING,
@@ -133,8 +131,7 @@ class FrilanserIntegrationTest : FellesTestOppsett() {
                 TILBAKE_I_ARBEID,
                 "NEI",
                 mutert = true,
-            )
-            .also {
+            ).also {
                 assertThat(it.rSSykepengesoknad.sporsmal!!.map { it.tag }).isEqualTo(
                     listOf(
                         ANSVARSERKLARING,
@@ -147,7 +144,13 @@ class FrilanserIntegrationTest : FellesTestOppsett() {
                     ),
                 )
 
-                assertThat(it.rSSykepengesoknad.sporsmal!!.first { it.tag == TILBAKE_I_ARBEID }.undersporsmal.first().svar).isEqualTo(
+                assertThat(
+                    it.rSSykepengesoknad.sporsmal!!
+                        .first { it.tag == TILBAKE_I_ARBEID }
+                        .undersporsmal
+                        .first()
+                        .svar,
+                ).isEqualTo(
                     emptyList<RSSvar>(),
                 )
             }
@@ -163,23 +166,27 @@ class FrilanserIntegrationTest : FellesTestOppsett() {
                 TILBAKE_I_ARBEID,
                 "JA",
                 ferdigBesvart = false,
-            )
-            .besvarSporsmal(
+            ).besvarSporsmal(
                 TILBAKE_NAR,
                 LocalDate.of(2020, 2, 4).format(DateTimeFormatter.ISO_LOCAL_DATE),
                 mutert = true,
-            )
-            .also {
+            ).also {
                 assertThat(it.muterteSoknaden).isTrue()
 
-                assertThat(it.rSSykepengesoknad.sporsmal!!.first { it.tag == "ARBEID_UNDERVEIS_100_PROSENT_0" }.sporsmalstekst)
-                    .isEqualTo(
-                        "I perioden 1. - 3. februar 2020 var du 100% sykmeldt som frilanser. Jobbet du noe i denne perioden?",
-                    )
-                assertThat(it.rSSykepengesoknad.sporsmal!!.first { it.tag == OPPHOLD_UTENFOR_EOS }.sporsmalstekst)
-                    .isEqualTo(
-                        "Var du på reise utenfor EU/EØS mens du var sykmeldt 1. - 3. februar 2020?",
-                    )
+                assertThat(
+                    it.rSSykepengesoknad.sporsmal!!
+                        .first { it.tag == "ARBEID_UNDERVEIS_100_PROSENT_0" }
+                        .sporsmalstekst,
+                ).isEqualTo(
+                    "I perioden 1. - 3. februar 2020 var du 100% sykmeldt som frilanser. Jobbet du noe i denne perioden?",
+                )
+                assertThat(
+                    it.rSSykepengesoknad.sporsmal!!
+                        .first { it.tag == OPPHOLD_UTENFOR_EOS }
+                        .sporsmalstekst,
+                ).isEqualTo(
+                    "Var du på reise utenfor EU/EØS mens du var sykmeldt 1. - 3. februar 2020?",
+                )
             }
     }
 
@@ -209,8 +216,7 @@ class FrilanserIntegrationTest : FellesTestOppsett() {
                 svar = """{"fom":"${soknaden.fom!!}","tom":"${soknaden.fom!!.plusDays(1)}"}""",
                 mutert = false,
                 ferdigBesvart = false,
-            )
-            .also {
+            ).also {
                 assertThat(it.muterteSoknaden).isFalse()
             }
     }

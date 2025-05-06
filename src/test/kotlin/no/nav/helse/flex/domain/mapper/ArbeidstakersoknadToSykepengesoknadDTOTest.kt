@@ -240,7 +240,8 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
             )
 
         val (fom1, tom1, type) =
-            hentFeriePermUtlandListe(sykepengesoknad).stream()
+            hentFeriePermUtlandListe(sykepengesoknad)
+                .stream()
                 .filter { (_, _, type) -> FravarstypeDTO.FERIE == type }
                 .findFirst()
                 .get()
@@ -277,7 +278,8 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
             )
 
         val (fom1, tom1, type) =
-            hentFeriePermUtlandListe(sykepengesoknad).stream()
+            hentFeriePermUtlandListe(sykepengesoknad)
+                .stream()
                 .filter { (_, _, type) -> FravarstypeDTO.UTLANDSOPPHOLD == type }
                 .findFirst()
                 .get()
@@ -376,18 +378,15 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
                     sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
                         svar = (emptyList()),
                     ),
-                )
-                .replaceSporsmal(
+                ).replaceSporsmal(
                     sykepengesoknad.getSporsmalMedTag(FERIE_V2).copy(
                         svar = (listOf(Svar(null, "JA"))),
                     ),
-                )
-                .replaceSporsmal(
+                ).replaceSporsmal(
                     sykepengesoknad.getSporsmalMedTag(OPPHOLD_UTENFOR_EOS).copy(
                         svar = (emptyList()),
                     ),
-                )
-                .replaceSporsmal(
+                ).replaceSporsmal(
                     sykepengesoknad.getSporsmalMedTag(FERIE_NAR_V2).copy(
                         svar = (
                             listOf(

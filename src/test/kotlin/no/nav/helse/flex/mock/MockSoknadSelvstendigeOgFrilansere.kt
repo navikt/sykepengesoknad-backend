@@ -23,10 +23,10 @@ import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 import java.util.*
 
 @Component
-class MockSoknadSelvstendigeOgFrilansere(private val sykepengesoknadDAO: SykepengesoknadDAO?) {
-    fun opprettOgLagreNySoknad(): Sykepengesoknad {
-        return sykepengesoknadDAO!!.lagreSykepengesoknad(opprettNyNaeringsdrivendeSoknad())
-    }
+class MockSoknadSelvstendigeOgFrilansere(
+    private val sykepengesoknadDAO: SykepengesoknadDAO?,
+) {
+    fun opprettOgLagreNySoknad(): Sykepengesoknad = sykepengesoknadDAO!!.lagreSykepengesoknad(opprettNyNaeringsdrivendeSoknad())
 }
 
 fun opprettNyNaeringsdrivendeSoknad(): Sykepengesoknad {
@@ -40,7 +40,9 @@ fun opprettNyNaeringsdrivendeSoknad(): Sykepengesoknad {
             startSykeforlop = of(2018, 6, 1),
             fom = of(2018, 6, 1),
             tom = of(2018, 6, 10),
-            arbeidssituasjon = NAERINGSDRIVENDE, arbeidsgiverOrgnummer = null, arbeidsgiverNavn = null,
+            arbeidssituasjon = NAERINGSDRIVENDE,
+            arbeidsgiverOrgnummer = null,
+            arbeidsgiverNavn = null,
             sykmeldingId = "289148ba-4c3c-4b3f-b7a3-385b7e7c927d",
             sykmeldingSkrevet = of(2018, 6, 1).atStartOfDay().tilOsloInstant(),
             soknadPerioder =
@@ -73,19 +75,20 @@ fun opprettNyNaeringsdrivendeSoknad(): Sykepengesoknad {
             forstegangssoknad = false,
         )
 
-    return (soknadMetadata).copy(
-        sporsmal =
-            settOppSoknadSelvstendigOgFrilanser(
-                SettOppSoknadOptions(
-                    soknadMetadata,
-                    false,
-                    false,
-                    YrkesskadeSporsmalGrunnlag(),
-                    eksisterendeSoknader = emptyList(),
+    return (soknadMetadata)
+        .copy(
+            sporsmal =
+                settOppSoknadSelvstendigOgFrilanser(
+                    SettOppSoknadOptions(
+                        soknadMetadata,
+                        false,
+                        false,
+                        YrkesskadeSporsmalGrunnlag(),
+                        eksisterendeSoknader = emptyList(),
+                    ),
                 ),
-            ),
-        status = Soknadstatus.NY,
-    ).leggSvarPaSoknad()
+            status = Soknadstatus.NY,
+        ).leggSvarPaSoknad()
 }
 
 fun opprettSendtFrilanserSoknad(): Sykepengesoknad {
@@ -99,7 +102,9 @@ fun opprettSendtFrilanserSoknad(): Sykepengesoknad {
             startSykeforlop = of(2018, 5, 20),
             fom = of(2018, 5, 20),
             tom = of(2018, 5, 28),
-            arbeidssituasjon = FRILANSER, arbeidsgiverOrgnummer = null, arbeidsgiverNavn = null,
+            arbeidssituasjon = FRILANSER,
+            arbeidsgiverOrgnummer = null,
+            arbeidsgiverNavn = null,
             sykmeldingId = "14e78e84-50a5-45bb-9919-191c54f99691",
             sykmeldingSkrevet = of(2018, 5, 20).atStartOfDay().tilOsloInstant(),
             soknadPerioder =
@@ -131,24 +136,25 @@ fun opprettSendtFrilanserSoknad(): Sykepengesoknad {
             egenmeldingsdagerFraSykmelding = null,
             forstegangssoknad = false,
         )
-    return (soknadMetadata).copy(
-        sporsmal =
-            settOppSoknadSelvstendigOgFrilanser(
-                SettOppSoknadOptions(
-                    soknadMetadata,
-                    false,
-                    false,
-                    YrkesskadeSporsmalGrunnlag(),
-                    eksisterendeSoknader = emptyList(),
+    return (soknadMetadata)
+        .copy(
+            sporsmal =
+                settOppSoknadSelvstendigOgFrilanser(
+                    SettOppSoknadOptions(
+                        soknadMetadata,
+                        false,
+                        false,
+                        YrkesskadeSporsmalGrunnlag(),
+                        eksisterendeSoknader = emptyList(),
+                    ),
                 ),
-            ),
-        status = Soknadstatus.SENDT,
-        sendtNav = Instant.now(),
-    ).leggSvarPaSoknad()
+            status = Soknadstatus.SENDT,
+            sendtNav = Instant.now(),
+        ).leggSvarPaSoknad()
 }
 
-private fun Sykepengesoknad.leggSvarPaSoknad(): Sykepengesoknad {
-    return this
+private fun Sykepengesoknad.leggSvarPaSoknad(): Sykepengesoknad =
+    this
         .oppsummering()
         .besvarsporsmal(ARBEID_UNDERVEIS_100_PROSENT + "0", "NEI")
         .besvarsporsmal(JOBBET_DU_GRADERT + "1", "NEI")
@@ -156,15 +162,13 @@ private fun Sykepengesoknad.leggSvarPaSoknad(): Sykepengesoknad {
         .andreInntektskilder()
         .tilbakeIArbeid()
         .besvarsporsmal(ANSVARSERKLARING, "CHECKED")
-}
 
-private fun Sykepengesoknad.harDuOppholdtDegIUtlandet(): Sykepengesoknad {
-    return besvarsporsmal(OPPHOLD_UTENFOR_EOS, "JA")
+private fun Sykepengesoknad.harDuOppholdtDegIUtlandet(): Sykepengesoknad =
+    besvarsporsmal(OPPHOLD_UTENFOR_EOS, "JA")
         .besvarsporsmal(OPPHOLD_UTENFOR_EOS_NAR, periodeTilJson(fom!!.plusDays(2), fom!!.plusDays(4)))
-}
 
-private fun Sykepengesoknad.andreInntektskilder(): Sykepengesoknad {
-    return besvarsporsmal(ANDRE_INNTEKTSKILDER, "JA")
+private fun Sykepengesoknad.andreInntektskilder(): Sykepengesoknad =
+    besvarsporsmal(ANDRE_INNTEKTSKILDER, "JA")
         .besvarsporsmal(INNTEKTSKILDE_ARBEIDSFORHOLD, "CHECKED")
         .besvarsporsmal(INNTEKTSKILDE_ARBEIDSFORHOLD + ER_DU_SYKMELDT, "NEI")
         .besvarsporsmal(INNTEKTSKILDE_JORDBRUKER, "CHECKED")
@@ -172,9 +176,7 @@ private fun Sykepengesoknad.andreInntektskilder(): Sykepengesoknad {
         .besvarsporsmal(INNTEKTSKILDE_FRILANSER_SELVSTENDIG, "CHECKED")
         .besvarsporsmal(INNTEKTSKILDE_FRILANSER_SELVSTENDIG + ER_DU_SYKMELDT, "JA")
         .besvarsporsmal(INNTEKTSKILDE_ANNET, "CHECKED")
-}
 
-private fun Sykepengesoknad.tilbakeIArbeid(): Sykepengesoknad {
-    return besvarsporsmal(TILBAKE_I_ARBEID, "JA")
+private fun Sykepengesoknad.tilbakeIArbeid(): Sykepengesoknad =
+    besvarsporsmal(TILBAKE_I_ARBEID, "JA")
         .besvarsporsmal(TILBAKE_NAR, fom!!.plusDays(7).format(ISO_LOCAL_DATE))
-}

@@ -124,12 +124,11 @@ class MedlemskapUavklartIntegrationTest : FellesTestOppsett() {
         assertThat(kafkaSoknad.medlemskapVurdering).isNull()
     }
 
-    private fun hentSoknadMedStatusNy(fnr: String): RSSykepengesoknad {
-        return hentSoknad(
+    private fun hentSoknadMedStatusNy(fnr: String): RSSykepengesoknad =
+        hentSoknad(
             soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
             fnr = fnr,
         )
-    }
 
     private fun hentSoknadSomKanBesvares(fnr: String): Pair<RSSykepengesoknad, SoknadBesvarer> {
         val soknad = hentSoknadMedStatusNy(fnr)

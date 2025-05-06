@@ -149,8 +149,8 @@ class OpprettSoknadService(
         arbeidssituasjon: Arbeidssituasjon,
         identer: FolkeregisterIdenter,
         soknadsId: String? = null,
-    ): SelvstendigNaringsdrivendeInfo? {
-        return when (arbeidssituasjon) {
+    ): SelvstendigNaringsdrivendeInfo? =
+        when (arbeidssituasjon) {
             Arbeidssituasjon.NAERINGSDRIVENDE ->
                 if (unleashToggles.brregEnabled(identer.originalIdent)) {
                     try {
@@ -166,7 +166,6 @@ class OpprettSoknadService(
                 }
             else -> null
         }
-    }
 
     private fun List<Sykepengesoknad>.lagreJulesoknadKandidater() = lagreJulesoknadKandidater.lagreJulesoknadKandidater(this)
 

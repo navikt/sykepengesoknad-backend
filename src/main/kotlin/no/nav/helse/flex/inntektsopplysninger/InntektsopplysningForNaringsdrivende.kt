@@ -39,9 +39,10 @@ class InntektsopplysningForNaringsdrivende(
         }
 
         val visNyKvittering =
-            soknad.getSporsmalMedTagOrNull(INNTEKTSOPPLYSNINGER_DRIFT_VIRKSOMHETEN) != null || soknad.getSporsmalMedTagOrNull(
-                INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET,
-            ) != null
+            soknad.getSporsmalMedTagOrNull(INNTEKTSOPPLYSNINGER_DRIFT_VIRKSOMHETEN) != null ||
+                soknad.getSporsmalMedTagOrNull(
+                    INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET,
+                ) != null
         val sykepengesoknadDbRecord =
             sykepengesoknadRepository.findBySykepengesoknadUuid(soknad.id)
                 ?: throw IllegalStateException("Fant ikke søknad")

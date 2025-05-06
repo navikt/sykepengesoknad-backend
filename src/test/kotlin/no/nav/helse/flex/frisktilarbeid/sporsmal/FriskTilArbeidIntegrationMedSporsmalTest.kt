@@ -55,7 +55,9 @@ class FriskTilArbeidIntegrationMedSporsmalTest : FakesTestOppsett() {
             }
 
         await().until {
-            sykepengesoknadRepository.findByFriskTilArbeidVedtakId(friskTilArbeidDbRecord.id!!).map { it.status }
+            sykepengesoknadRepository
+                .findByFriskTilArbeidVedtakId(friskTilArbeidDbRecord.id!!)
+                .map { it.status }
                 .sorted() ==
                 listOf(
                     Soknadstatus.NY,
@@ -110,8 +112,7 @@ class FriskTilArbeidIntegrationMedSporsmalTest : FakesTestOppsett() {
             .oppsummering()
             .also {
                 assertThat(it.muterteSoknaden).isFalse()
-            }
-            .sendSoknad()
+            }.sendSoknad()
     }
 
     @Test
@@ -163,8 +164,7 @@ class FriskTilArbeidIntegrationMedSporsmalTest : FakesTestOppsett() {
             .oppsummering()
             .also {
                 assertThat(it.muterteSoknaden).isFalse()
-            }
-            .sendSoknad()
+            }.sendSoknad()
 
         val kafkaSoknad = SoknadKafkaProducerFake.records.last().value()
         kafkaSoknad.id `should be equal to` soknad.id

@@ -10,8 +10,8 @@ import no.nav.helse.flex.soknadsopprettelse.TILBAKE_NAR
 import no.nav.helse.flex.util.DatoUtil.formatterPeriode
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
-fun tilbakeIFulltArbeidSporsmal(sykepengesoknad: Sykepengesoknad): Sporsmal {
-    return Sporsmal(
+fun tilbakeIFulltArbeidSporsmal(sykepengesoknad: Sykepengesoknad): Sporsmal =
+    Sporsmal(
         tag = TILBAKE_I_ARBEID,
         sporsmalstekst = "Var du tilbake i fullt arbeid hos ${sykepengesoknad.arbeidsgiverNavn} i løpet av perioden ${
             formatterPeriode(
@@ -32,4 +32,3 @@ fun tilbakeIFulltArbeidSporsmal(sykepengesoknad: Sykepengesoknad): Sporsmal {
                 ),
             ),
     )
-}

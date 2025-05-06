@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.util.concurrent.TimeUnit
 
-class FriskTilArbeidTestDataIntegrationTest() : FellesTestOppsett() {
+class FriskTilArbeidTestDataIntegrationTest : FellesTestOppsett() {
     @Autowired
     private lateinit var friskTilArbeidRepository: FriskTilArbeidRepository
 
@@ -25,13 +25,14 @@ class FriskTilArbeidTestDataIntegrationTest() : FellesTestOppsett() {
     fun `Mottar og lagrer VedtakStatusRecord med status FATTET på testdata-topic`() {
         val key = fnr.asProducerRecordKey()
 
-        kafkaProducer.send(
-            ProducerRecord(
-                FRISKTILARBEID_TESTDATA_TOPIC,
-                key,
-                lagFriskTilArbeidVedtakStatus(fnr, Status.FATTET).serialisertTilString(),
-            ),
-        ).get()
+        kafkaProducer
+            .send(
+                ProducerRecord(
+                    FRISKTILARBEID_TESTDATA_TOPIC,
+                    key,
+                    lagFriskTilArbeidVedtakStatus(fnr, Status.FATTET).serialisertTilString(),
+                ),
+            ).get()
 
         val dbRecords =
             await().atMost(1, TimeUnit.SECONDS).until({ friskTilArbeidRepository.findAll().toList() }, { it.size == 1 })

@@ -22,7 +22,8 @@ class ApplicationHealthTest : FellesTestOppsett() {
     fun liveness() {
         // App UP
         applicationAvailability.livenessState shouldBeEqualTo LivenessState.CORRECT
-        mockMvc.perform(MockMvcRequestBuilders.get("/internal/health/liveness"))
+        mockMvc
+            .perform(MockMvcRequestBuilders.get("/internal/health/liveness"))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("UP"))
 
@@ -35,7 +36,8 @@ class ApplicationHealthTest : FellesTestOppsett() {
 
         // App DOWN
         applicationAvailability.livenessState shouldBeEqualTo LivenessState.BROKEN
-        mockMvc.perform(MockMvcRequestBuilders.get("/internal/health/liveness"))
+        mockMvc
+            .perform(MockMvcRequestBuilders.get("/internal/health/liveness"))
             .andExpect(MockMvcResultMatchers.status().isServiceUnavailable)
             .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("DOWN"))
 
@@ -51,7 +53,8 @@ class ApplicationHealthTest : FellesTestOppsett() {
     fun readiness() {
         // App UP
         applicationAvailability.readinessState shouldBeEqualTo ReadinessState.ACCEPTING_TRAFFIC
-        mockMvc.perform(MockMvcRequestBuilders.get("/internal/health/readiness"))
+        mockMvc
+            .perform(MockMvcRequestBuilders.get("/internal/health/readiness"))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("UP"))
 
@@ -64,7 +67,8 @@ class ApplicationHealthTest : FellesTestOppsett() {
 
         // App OUT_OF_SERVICE
         applicationAvailability.readinessState shouldBeEqualTo ReadinessState.REFUSING_TRAFFIC
-        mockMvc.perform(MockMvcRequestBuilders.get("/internal/health/readiness"))
+        mockMvc
+            .perform(MockMvcRequestBuilders.get("/internal/health/readiness"))
             .andExpect(MockMvcResultMatchers.status().isServiceUnavailable)
             .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("OUT_OF_SERVICE"))
 

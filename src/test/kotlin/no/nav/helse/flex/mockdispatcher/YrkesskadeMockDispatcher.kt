@@ -11,8 +11,8 @@ object YrkesskadeMockDispatcher : Dispatcher() {
     val log = logger()
     val queuedSakerRespons = mutableListOf<SakerResponse>()
 
-    override fun dispatch(request: RecordedRequest): MockResponse {
-        return when (request.requestLine) {
+    override fun dispatch(request: RecordedRequest): MockResponse =
+        when (request.requestLine) {
             "POST /api/v1/saker/ HTTP/1.1" -> {
                 sakerMock()
             }
@@ -22,7 +22,6 @@ object YrkesskadeMockDispatcher : Dispatcher() {
                 MockResponse().setResponseCode(404)
             }
         }
-    }
 
     fun sakerMock(): MockResponse {
         if (queuedSakerRespons.isEmpty()) {

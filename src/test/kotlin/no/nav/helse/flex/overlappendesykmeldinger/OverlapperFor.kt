@@ -45,13 +45,12 @@ class OverlapperFor : FellesTestOppsett() {
     @Autowired
     private lateinit var klippMetrikkRepository: KlippMetrikkRepository
 
-    fun String?.tilSoknadsperioder(): List<Soknadsperiode>? {
-        return if (this == null) {
+    fun String?.tilSoknadsperioder(): List<Soknadsperiode>? =
+        if (this == null) {
             null
         } else {
             objectMapper.readValue(this)
         }
-    }
 
     private final val basisdato = LocalDate.now()
 
@@ -97,7 +96,8 @@ class OverlapperFor : FellesTestOppsett() {
         nyesteSoknad.fom shouldBeEqualTo basisdato
         nyesteSoknad.tom shouldBeEqualTo basisdato.plusDays(7)
 
-        Awaitility.await()
+        Awaitility
+            .await()
             .until { klippetSykepengesoknadRepository.findBySykmeldingUuid(nyesteSoknad.sykmeldingId!!) != null }
 
         val klipp = klippetSykepengesoknadRepository.findBySykmeldingUuid(nyesteSoknad.sykmeldingId!!)!!

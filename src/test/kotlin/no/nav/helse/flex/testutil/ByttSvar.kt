@@ -16,8 +16,8 @@ fun Sporsmal.byttSvar(
 fun List<Sporsmal>.byttSvar(
     tag: String,
     svar: List<Svar>,
-): List<Sporsmal> {
-    return map { spm ->
+): List<Sporsmal> =
+    map { spm ->
         when {
             spm.tag == tag -> spm.copy(svar = svar)
             spm.undersporsmal.isNotEmpty() ->
@@ -31,4 +31,3 @@ fun List<Sporsmal>.byttSvar(
             else -> spm
         }
     }
-}

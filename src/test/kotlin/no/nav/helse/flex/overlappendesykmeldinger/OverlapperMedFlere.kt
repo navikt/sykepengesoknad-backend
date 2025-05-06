@@ -792,7 +792,8 @@ class OverlapperMedFlere : FellesTestOppsett() {
         }
 
         private fun riktigStatusUtIfraDagensDato(dagensDato: LocalDate) {
-            sykepengesoknadDAO.finnSykepengesoknader(listOf(FNR))
+            sykepengesoknadDAO
+                .finnSykepengesoknader(listOf(FNR))
                 .forEach {
                     if (it.status !in listOf(Soknadstatus.FREMTIDIG, Soknadstatus.NY)) return@forEach
 
@@ -809,7 +810,8 @@ class OverlapperMedFlere : FellesTestOppsett() {
             val forventetResultat = forventet.sortedBy { it.soknadPerioder.minOf { p -> p.fom } }
 
             val faktiskResultat =
-                sykepengesoknadDAO.finnSykepengesoknader(listOf(FNR))
+                sykepengesoknadDAO
+                    .finnSykepengesoknader(listOf(FNR))
                     .sortedBy { it.fom }
                     .map {
                         Soknad(

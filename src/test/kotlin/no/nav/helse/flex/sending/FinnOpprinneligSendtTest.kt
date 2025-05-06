@@ -50,8 +50,8 @@ class FinnOpprinneligSendtTest {
         sykepengesoknadUuid: String = UUID.randomUUID().toString(),
         fom: LocalDate = LocalDate.now().minusDays(4),
         tom: LocalDate = LocalDate.now(),
-    ): SykepengesoknadDbRecord {
-        return SykepengesoknadDbRecord(
+    ): SykepengesoknadDbRecord =
+        SykepengesoknadDbRecord(
             id = UUID.randomUUID().toString(),
             sykepengesoknadUuid = sykepengesoknadUuid,
             fnr = "bla",
@@ -82,5 +82,4 @@ class FinnOpprinneligSendtTest {
             forstegangssoknad = false,
             aktivertDato = null,
         )
-    }
 }

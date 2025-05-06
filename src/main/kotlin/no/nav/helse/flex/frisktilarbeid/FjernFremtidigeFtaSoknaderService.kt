@@ -40,7 +40,8 @@ class FjernFremtidigeFtaSoknaderService(
 
             val friskTilArbeidVedtakId = soknad.friskTilArbeidVedtakId ?: return
             val soknaderSomSkalSlettes =
-                hentSoknadService.hentSoknader(identer)
+                hentSoknadService
+                    .hentSoknader(identer)
                     .filter { it.soknadstype == Soknadstype.FRISKMELDT_TIL_ARBEIDSFORMIDLING }
                     .filter { it.friskTilArbeidVedtakId == friskTilArbeidVedtakId }
                     .filter { it.status == Soknadstatus.FREMTIDIG || it.status == Soknadstatus.NY }

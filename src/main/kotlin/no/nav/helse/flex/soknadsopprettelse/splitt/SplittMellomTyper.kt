@@ -30,21 +30,16 @@ fun ArbeidsgiverSykmelding.splittMellomTyper(): List<ArbeidsgiverSykmelding> {
     return ret
 }
 
-private fun ArbeidsgiverSykmelding.erKompatibel(nestePeriode: SykmeldingsperiodeAGDTO): Boolean {
-    return sykmeldingsperioder.last().erGradertEller100Prosent() &&
+private fun ArbeidsgiverSykmelding.erKompatibel(nestePeriode: SykmeldingsperiodeAGDTO): Boolean =
+    sykmeldingsperioder.last().erGradertEller100Prosent() &&
         nestePeriode.erGradertEller100Prosent() &&
         sykmeldingsperioder.last().tom.plusDays(1) == nestePeriode.fom
-}
 
-private fun SykmeldingsperiodeAGDTO.erAktivitetIkkeMulig(): Boolean {
-    return type == PeriodetypeDTO.AKTIVITET_IKKE_MULIG
-}
+private fun SykmeldingsperiodeAGDTO.erAktivitetIkkeMulig(): Boolean = type == PeriodetypeDTO.AKTIVITET_IKKE_MULIG
 
 private fun SykmeldingsperiodeAGDTO.erGradertUtenReisetilskudd(): Boolean {
     val gradertRt = this.gradert?.reisetilskudd ?: false
     return this.type == PeriodetypeDTO.GRADERT && !this.reisetilskudd && !gradertRt
 }
 
-private fun SykmeldingsperiodeAGDTO.erGradertEller100Prosent(): Boolean {
-    return erAktivitetIkkeMulig() || erGradertUtenReisetilskudd()
-}
+private fun SykmeldingsperiodeAGDTO.erGradertEller100Prosent(): Boolean = erAktivitetIkkeMulig() || erGradertUtenReisetilskudd()

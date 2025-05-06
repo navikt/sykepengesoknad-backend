@@ -87,7 +87,8 @@ class ArbeidstakerIntegrationTest : FellesTestOppsett() {
     @Order(2)
     fun `Vi kan ikke korrigere en soknad som ikke er sendt`() {
         val soknaden = hentSoknaderMetadata(fnr)[0]
-        korrigerSoknadMedResult(soknaden.id, fnr).andExpect(status().isBadRequest)
+        korrigerSoknadMedResult(soknaden.id, fnr)
+            .andExpect(status().isBadRequest)
             .andReturn()
     }
 
@@ -110,9 +111,10 @@ class ArbeidstakerIntegrationTest : FellesTestOppsett() {
             ),
         )
         assertThat(
-            soknad1.sporsmal!!.first {
-                it.tag == ANSVARSERKLARING
-            }.sporsmalstekst,
+            soknad1.sporsmal!!
+                .first {
+                    it.tag == ANSVARSERKLARING
+                }.sporsmalstekst,
         ).isEqualTo("Jeg bekrefter at jeg vil svare så riktig som jeg kan.")
 
         val soknad2 = hentSoknad(soknader[1].id, fnr)
@@ -133,9 +135,7 @@ class ArbeidstakerIntegrationTest : FellesTestOppsett() {
     @Test
     @Order(4)
     fun `Id på et allerede besvart spørsmål endres ikke når vi svarer på et annet spørsmål`() {
-        fun hentAnsvarserklering(id: String): RSSporsmal {
-            return hentSoknad(id, fnr).sporsmal!!.first { it.tag == "ANSVARSERKLARING" }
-        }
+        fun hentAnsvarserklering(id: String): RSSporsmal = hentSoknad(id, fnr).sporsmal!!.first { it.tag == "ANSVARSERKLARING" }
 
         val soknaden =
             hentSoknad(
@@ -162,7 +162,12 @@ class ArbeidstakerIntegrationTest : FellesTestOppsett() {
     fun `Den nyeste søknaden kan ikke sendes først`() {
         val soknaden =
             hentSoknad(
-                soknadId = hentSoknaderMetadata(fnr).filter { it.status == RSSoknadstatus.NY }.sortedBy { it.fom }.last().id,
+                soknadId =
+                    hentSoknaderMetadata(fnr)
+                        .filter { it.status == RSSoknadstatus.NY }
+                        .sortedBy { it.fom }
+                        .last()
+                        .id,
                 fnr = fnr,
             )
 
@@ -176,7 +181,11 @@ class ArbeidstakerIntegrationTest : FellesTestOppsett() {
             .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
             .oppsummering()
 
-        val res = sendSoknadMedResult(fnr, soknaden.id).andExpect(status().isBadRequest).andReturn().response.contentAsString
+        val res =
+            sendSoknadMedResult(fnr, soknaden.id)
+                .andExpect(status().isBadRequest)
+                .andReturn()
+                .response.contentAsString
         res `should be equal to` "{\"reason\":\"FORSOK_PA_SENDING_AV_NYERE_SOKNAD\"}"
     }
 

@@ -112,14 +112,31 @@ class YrkesskadeIntegrationTest : FellesTestOppsett() {
                 forventaSoknader = 2,
             )
 
-        kafkaSoknader.first().sporsmal!!.any { it.tag == "YRKESSKADE_V2" }.`should be true`()
-        kafkaSoknader.first().sporsmal!!.any { it.tag == "YRKESSKADE" }.`should be false`()
-        kafkaSoknader.last().sporsmal!!.any { it.tag == "YRKESSKADE_V2" }.`should be false`()
+        kafkaSoknader
+            .first()
+            .sporsmal!!
+            .any { it.tag == "YRKESSKADE_V2" }
+            .`should be true`()
+        kafkaSoknader
+            .first()
+            .sporsmal!!
+            .any { it.tag == "YRKESSKADE" }
+            .`should be false`()
+        kafkaSoknader
+            .last()
+            .sporsmal!!
+            .any { it.tag == "YRKESSKADE_V2" }
+            .`should be false`()
 
         val spmTekster =
-            kafkaSoknader.first().sporsmal.flatten().filter {
-                it.tag == "YRKESSKADE_V2_DATO"
-            }.map { it.sporsmalstekst }.toList()
+            kafkaSoknader
+                .first()
+                .sporsmal
+                .flatten()
+                .filter {
+                    it.tag == "YRKESSKADE_V2_DATO"
+                }.map { it.sporsmalstekst }
+                .toList()
 
         spmTekster[0] `should be equal to` "Skadedato 2. januar 1982 (Vedtaksdato 2. januar 1989)"
         spmTekster[1] `should be equal to` "Vedtaksdato 9. mai 1987"
@@ -152,8 +169,16 @@ class YrkesskadeIntegrationTest : FellesTestOppsett() {
                 forventaSoknader = 1,
             )
 
-        kafkaSoknader.first().sporsmal!!.any { it.tag == "YRKESSKADE_V2" }.`should be false`()
-        kafkaSoknader.first().sporsmal!!.any { it.tag == "YRKESSKADE" }.`should be false`()
+        kafkaSoknader
+            .first()
+            .sporsmal!!
+            .any { it.tag == "YRKESSKADE_V2" }
+            .`should be false`()
+        kafkaSoknader
+            .first()
+            .sporsmal!!
+            .any { it.tag == "YRKESSKADE" }
+            .`should be false`()
     }
 
     @Test

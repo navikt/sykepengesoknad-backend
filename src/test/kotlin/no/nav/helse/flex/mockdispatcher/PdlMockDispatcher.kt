@@ -31,7 +31,8 @@ object PdlMockDispatcher : Dispatcher() {
     fun skapResponse(identer: List<String>): MockResponse {
         val pdlIdenter =
             identer
-                .map { PdlIdent(gruppe = FOLKEREGISTERIDENT, ident = it) }.toMutableList()
+                .map { PdlIdent(gruppe = FOLKEREGISTERIDENT, ident = it) }
+                .toMutableList()
                 .also { it.add(PdlIdent(gruppe = AKTORID, ident = identer.first() + "00")) }
 
         return MockResponse().setBody(

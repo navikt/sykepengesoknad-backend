@@ -59,12 +59,14 @@ fun hentSoknadsPerioderMedFaktiskGrad(sykepengesoknad: Sykepengesoknad): Pair<Li
         sporsmal?.let { inputSpm.add(it) }
         if (sporsmal?.forsteSvar == "JA") {
             avtaltTimer =
-                sykepengesoknad.getSporsmalMedTagOrNull(HVOR_MANGE_TIMER_PER_UKE + i)
+                sykepengesoknad
+                    .getSporsmalMedTagOrNull(HVOR_MANGE_TIMER_PER_UKE + i)
                     ?.forsteSvar
                     ?.replace(',', '.')
                     ?.let { java.lang.Double.parseDouble(it) }
 
-            sykepengesoknad.getSporsmalMedTagOrNull(JOBBER_DU_NORMAL_ARBEIDSUKE + i)
+            sykepengesoknad
+                .getSporsmalMedTagOrNull(JOBBER_DU_NORMAL_ARBEIDSUKE + i)
                 ?.forsteSvar
                 ?.let {
                     if (it == "JA") {
@@ -99,7 +101,10 @@ fun hentSoknadsPerioderMedFaktiskGrad(sykepengesoknad: Sykepengesoknad): Pair<Li
                     if (gradSporsmal?.forsteSvar == null) {
                         null
                     } else {
-                        gradSporsmal.forsteSvar!!.replace(',', '.').toDouble().roundToInt()
+                        gradSporsmal.forsteSvar!!
+                            .replace(',', '.')
+                            .toDouble()
+                            .roundToInt()
                     }
             }
         }

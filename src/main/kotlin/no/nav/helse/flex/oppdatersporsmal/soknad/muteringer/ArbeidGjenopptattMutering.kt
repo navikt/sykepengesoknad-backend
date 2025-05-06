@@ -104,7 +104,8 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
         oppdaterteSporsmal.add(utlandNaringsdrivende)
     }
 
-    return this.leggTilSporsmaal(oppdaterteSporsmal)
+    return this
+        .leggTilSporsmaal(oppdaterteSporsmal)
         .let { oppdatertSoknad ->
             // periode spørsmål som ikke er med i oppdaterteSporsmal fjernes
             oppdatertSoknad.copy(
@@ -112,9 +113,7 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
                     oppdatertSoknad.sporsmal
                         .filterNot { spm ->
                             spm.tag.startsWith(ARBEID_UNDERVEIS_100_PROSENT) && oppdaterteSporsmal.none { it.tag == spm.tag }
-                        }
-                        .filterNot { spm -> spm.tag.startsWith(JOBBET_DU_GRADERT) && oppdaterteSporsmal.none { it.tag == spm.tag } },
+                        }.filterNot { spm -> spm.tag.startsWith(JOBBET_DU_GRADERT) && oppdaterteSporsmal.none { it.tag == spm.tag } },
             )
-        }
-        .let { it.copy(sporsmal = it.sporsmal.filter { spm -> fjernIndexFraTag(spm.tag) !in sporsmalSomSkalFjernes }) }
+        }.let { it.copy(sporsmal = it.sporsmal.filter { spm -> fjernIndexFraTag(spm.tag) !in sporsmalSomSkalFjernes }) }
 }

@@ -20,7 +20,10 @@ class ClientIdValidation(
     private val log = logger()
     private val allowedClientIds: List<PreAuthorizedClient> = objectMapper.readValue(azureAppPreAuthorizedApps)
 
-    data class NamespaceAndApp(val namespace: String, val app: String)
+    data class NamespaceAndApp(
+        val namespace: String,
+        val app: String,
+    )
 
     fun validateClientId(app: NamespaceAndApp) = validateClientId(listOf(app))
 
@@ -36,36 +39,44 @@ class ClientIdValidation(
         }
     }
 
-    fun hentNavIdent(): String {
-        return tokenValidationContextHolder.hentNavIdent()
-    }
+    fun hentNavIdent(): String = tokenValidationContextHolder.hentNavIdent()
 
-    private fun TokenValidationContextHolder.hentAzpClaim(): String {
-        return this.getTokenValidationContext().getJwtToken(AZUREATOR)?.jwtTokenClaims?.getStringClaim("azp")
+    private fun TokenValidationContextHolder.hentAzpClaim(): String =
+        this
+            .getTokenValidationContext()
+            .getJwtToken(AZUREATOR)
+            ?.jwtTokenClaims
+            ?.getStringClaim("azp")
             ?: throw UkjentClientException("Fant ikke azp claim!")
-    }
 
-    private fun TokenValidationContextHolder.hentNavIdent(): String {
-        return this.getTokenValidationContext().getJwtToken(AZUREATOR)?.jwtTokenClaims?.getStringClaim("NAVident")
+    private fun TokenValidationContextHolder.hentNavIdent(): String =
+        this
+            .getTokenValidationContext()
+            .getJwtToken(AZUREATOR)
+            ?.jwtTokenClaims
+            ?.getStringClaim("NAVident")
             ?: throw UkjentClientException("Fant ikke NAVident claim!")
-    }
 
-    private fun List<String>.ikkeInneholder(s: String): Boolean {
-        return !this.contains(s)
-    }
+    private fun List<String>.ikkeInneholder(s: String): Boolean = !this.contains(s)
 }
 
-class UkjentClientException(message: String, grunn: Throwable? = null) : AbstractApiError(
-    message = message,
-    httpStatus = HttpStatus.FORBIDDEN,
-    reason = "UKJENT_CLIENT",
-    loglevel = LogLevel.WARN,
-    grunn = grunn,
-)
+class UkjentClientException(
+    message: String,
+    grunn: Throwable? = null,
+) : AbstractApiError(
+        message = message,
+        httpStatus = HttpStatus.FORBIDDEN,
+        reason = "UKJENT_CLIENT",
+        loglevel = LogLevel.WARN,
+        grunn = grunn,
+    )
 
 private fun PreAuthorizedClient.tilNamespaceAndApp(): NamespaceAndApp {
     val splitt = name.split(":")
     return NamespaceAndApp(namespace = splitt[1], app = splitt[2])
 }
 
-data class PreAuthorizedClient(val name: String, val clientId: String)
+data class PreAuthorizedClient(
+    val name: String,
+    val clientId: String,
+)

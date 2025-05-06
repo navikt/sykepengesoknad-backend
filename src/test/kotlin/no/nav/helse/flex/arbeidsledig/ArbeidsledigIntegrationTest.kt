@@ -100,8 +100,7 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
                 FRISKMELDT_START,
                 LocalDate.of(2020, 2, 5).format(DateTimeFormatter.ISO_LOCAL_DATE),
                 mutert = true,
-            )
-            .also { soknadBesvarer ->
+            ).also { soknadBesvarer ->
                 soknadBesvarer.muterteSoknaden `should be` true
 
                 soknadBesvarer.rSSykepengesoknad.getSporsmalMedTag(ANDRE_INNTEKTSKILDER).sporsmalstekst `should be equal to`
@@ -125,8 +124,7 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
                 FRISKMELDT_START,
                 LocalDate.of(2020, 2, 1).format(DateTimeFormatter.ISO_LOCAL_DATE),
                 mutert = true,
-            )
-            .also { soknadBesvarer ->
+            ).also { soknadBesvarer ->
                 soknadBesvarer.rSSykepengesoknad.sporsmal!!.map { it.tag } `should be equal to`
                     listOf(
                         ANSVARSERKLARING,
@@ -150,8 +148,7 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
                 FRISKMELDT_START,
                 LocalDate.of(2020, 2, 4).format(DateTimeFormatter.ISO_LOCAL_DATE),
                 mutert = true,
-            )
-            .also { soknadBesvarer ->
+            ).also { soknadBesvarer ->
                 soknadBesvarer.rSSykepengesoknad.sporsmal!!.map { it.tag } `should be equal to`
                     listOf(
                         ANSVARSERKLARING,
@@ -192,8 +189,7 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
                     "{\"fom\":\"${
                         LocalDate.of(2020, 2, 1).format(DateTimeFormatter.ISO_LOCAL_DATE)}\"," +
                         "\"tom\":\"${LocalDate.of(2020, 2, 3).format(DateTimeFormatter.ISO_LOCAL_DATE)}\"}",
-            )
-            .oppsummering()
+            ).oppsummering()
     }
 
     @Test
@@ -205,7 +201,9 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
             )
 
         oppdaterSporsmalMedResult(FNR, soknaden.sporsmal!![0].copy(id = "FEILID"), soknadsId = soknaden.id)
-            .andExpect(MockMvcResultMatchers.status().isBadRequest).andReturn().response.contentAsString
+            .andExpect(MockMvcResultMatchers.status().isBadRequest)
+            .andReturn()
+            .response.contentAsString
             .also {
                 it `should be equal to` """{"reason":"SPORSMAL_FINNES_IKKE_I_SOKNAD"}"""
             }
@@ -247,7 +245,9 @@ class ArbeidsledigIntegrationTest : FellesTestOppsett() {
         soknaden.status `should be equal to` RSSoknadstatus.SENDT
 
         oppdaterSporsmalMedResult(FNR, soknaden.sporsmal!![0], soknadsId = soknaden.id)
-            .andExpect(MockMvcResultMatchers.status().isBadRequest).andReturn().response.contentAsString
+            .andExpect(MockMvcResultMatchers.status().isBadRequest)
+            .andReturn()
+            .response.contentAsString
             .also {
                 it `should be equal to` """{"reason":"FEIL_STATUS_FOR_OPPDATER_SPORSMAL"}"""
             }

@@ -23,8 +23,7 @@ fun beregnArbeidsgiverperiode(
                 return@lastOrNull it.oppbruktArbeidsgvierperiode()
             }
             it.sisteSykedagEllerFeriedag.plusDays(16).isEqualOrAfter(soknad.forsteDagISoknad())
-        }
-        ?.let {
+        }?.let {
             Arbeidsgiverperiode(
                 it.dagerAvArbeidsgiverperiode,
                 it.oppbruktArbeidsgvierperiode(),
@@ -33,7 +32,6 @@ fun beregnArbeidsgiverperiode(
         }
 }
 
-private fun Sykepengesoknad.forsteDagISoknad(): LocalDate {
-    return egenmeldingsdagerFraSykmelding.parseEgenmeldingsdagerFraSykmelding()?.minOrNull()
+private fun Sykepengesoknad.forsteDagISoknad(): LocalDate =
+    egenmeldingsdagerFraSykmelding.parseEgenmeldingsdagerFraSykmelding()?.minOrNull()
         ?: fom!!
-}

@@ -8,7 +8,10 @@ import no.nav.helse.flex.inntektsopplysninger.InntektsopplysningerDokumentType.R
 import no.nav.helse.flex.soknadsopprettelse.*
 import java.time.LocalDate
 
-enum class InntektsopplysningerDokumentType(val vedleggsnr: String, val tittel: String) {
+enum class InntektsopplysningerDokumentType(
+    val vedleggsnr: String,
+    val tittel: String,
+) {
     NARINGSSPESIFIKASJON("L1", "Skattemelding/Næringsspesifikasjon"),
     NARINGSSPESIFIKASJON_OPTIONAL("N6", "Skattemelding/Næringsspesifikasjon hvis den er klar"),
     REGNSKAP_FORRIGE_AAR("L3", "Regnskap for siste år"),

@@ -114,14 +114,15 @@ class ErUtenforArbeidsgiverPeriodeKtTest {
                 tom = LocalDate.of(2022, 7, 20),
             )
 
-        soknad.harDagerNAVSkalBetaleFor(
-            listOf(
-                opprettSendtSoknad(
-                    fom = LocalDate.of(2022, 7, 1),
-                    tom = LocalDate.of(2022, 7, 10),
+        soknad
+            .harDagerNAVSkalBetaleFor(
+                listOf(
+                    opprettSendtSoknad(
+                        fom = LocalDate.of(2022, 7, 1),
+                        tom = LocalDate.of(2022, 7, 10),
+                    ),
                 ),
-            ),
-        ).`should be true`()
+            ).`should be true`()
     }
 
     @Test
@@ -132,14 +133,15 @@ class ErUtenforArbeidsgiverPeriodeKtTest {
                 tom = LocalDate.of(2022, 7, 20),
             )
 
-        soknad.harDagerNAVSkalBetaleFor(
-            listOf(
-                opprettSendtSoknad(
-                    fom = LocalDate.of(2022, 7, 6),
-                    tom = LocalDate.of(2022, 7, 10),
+        soknad
+            .harDagerNAVSkalBetaleFor(
+                listOf(
+                    opprettSendtSoknad(
+                        fom = LocalDate.of(2022, 7, 6),
+                        tom = LocalDate.of(2022, 7, 10),
+                    ),
                 ),
-            ),
-        ).`should be false`()
+            ).`should be false`()
     }
 
     @Test
@@ -150,14 +152,15 @@ class ErUtenforArbeidsgiverPeriodeKtTest {
                 tom = LocalDate.of(2024, 7, 21),
             )
 
-        soknad.harDagerNAVSkalBetaleFor(
-            listOf(
-                opprettSendtSoknad(
-                    fom = LocalDate.of(2024, 7, 6),
-                    tom = LocalDate.of(2024, 7, 15),
+        soknad
+            .harDagerNAVSkalBetaleFor(
+                listOf(
+                    opprettSendtSoknad(
+                        fom = LocalDate.of(2024, 7, 6),
+                        tom = LocalDate.of(2024, 7, 15),
+                    ),
                 ),
-            ),
-        ).`should be false`()
+            ).`should be false`()
     }
 
     @Test
@@ -168,14 +171,15 @@ class ErUtenforArbeidsgiverPeriodeKtTest {
                 tom = LocalDate.of(2024, 7, 22),
             )
 
-        soknad.harDagerNAVSkalBetaleFor(
-            listOf(
-                opprettSendtSoknad(
-                    fom = LocalDate.of(2024, 7, 6),
-                    tom = LocalDate.of(2024, 7, 15),
+        soknad
+            .harDagerNAVSkalBetaleFor(
+                listOf(
+                    opprettSendtSoknad(
+                        fom = LocalDate.of(2024, 7, 6),
+                        tom = LocalDate.of(2024, 7, 15),
+                    ),
                 ),
-            ),
-        ).`should be true`()
+            ).`should be true`()
     }
 
     @Test
@@ -186,14 +190,15 @@ class ErUtenforArbeidsgiverPeriodeKtTest {
                 tom = LocalDate.of(2024, 7, 28),
             )
 
-        soknad.harDagerNAVSkalBetaleFor(
-            listOf(
-                opprettSendtSoknad(
-                    fom = LocalDate.of(2024, 7, 12),
-                    tom = LocalDate.of(2024, 7, 18),
+        soknad
+            .harDagerNAVSkalBetaleFor(
+                listOf(
+                    opprettSendtSoknad(
+                        fom = LocalDate.of(2024, 7, 12),
+                        tom = LocalDate.of(2024, 7, 18),
+                    ),
                 ),
-            ),
-        ).`should be false`()
+            ).`should be false`()
     }
 }
 

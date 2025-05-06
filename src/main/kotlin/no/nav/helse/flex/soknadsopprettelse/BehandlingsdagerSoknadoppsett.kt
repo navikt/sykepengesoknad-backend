@@ -11,8 +11,8 @@ import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.*
 
-fun Sporsmal.plasseringSporsmalBehandlingsdager(): Int {
-    return when (this.tag) {
+fun Sporsmal.plasseringSporsmalBehandlingsdager(): Int =
+    when (this.tag) {
         ANSVARSERKLARING -> -10
         FRAVER_FOR_BEHANDLING -> -9
         FERIE_V2 -> 103
@@ -23,10 +23,9 @@ fun Sporsmal.plasseringSporsmalBehandlingsdager(): Int {
         TIL_SLUTT -> 110
         else -> plasseringAvSporsmalSomKanRepeteresFlereGanger()
     }
-}
 
-fun andreInntekstkilder(soknadMetadata: Sykepengesoknad): Sporsmal {
-    return when (soknadMetadata.arbeidssituasjon) {
+fun andreInntekstkilder(soknadMetadata: Sykepengesoknad): Sporsmal =
+    when (soknadMetadata.arbeidssituasjon) {
         FISKER,
         JORDBRUKER,
         NAERINGSDRIVENDE,
@@ -38,15 +37,13 @@ fun andreInntekstkilder(soknadMetadata: Sykepengesoknad): Sporsmal {
         ANNET -> andreInntektskilderArbeidsledig(soknadMetadata.fom!!, soknadMetadata.tom!!)
         null -> throw RuntimeException("Skal ikke skje")
     }
-}
 
-private fun Sporsmal.plasseringAvSporsmalSomKanRepeteresFlereGanger(): Int {
-    return if (tag.startsWith(ENKELTSTAENDE_BEHANDLINGSDAGER)) {
+private fun Sporsmal.plasseringAvSporsmalSomKanRepeteresFlereGanger(): Int =
+    if (tag.startsWith(ENKELTSTAENDE_BEHANDLINGSDAGER)) {
         Integer.parseInt(tag.replace(ENKELTSTAENDE_BEHANDLINGSDAGER, ""))
     } else {
         0
     }
-}
 
 fun settOppSykepengesoknadBehandlingsdager(opts: SettOppSoknadOptions): List<Sporsmal> {
     val (sykepengesoknad, erForsteSoknadISykeforlop, _, _) = opts
@@ -54,15 +51,14 @@ fun settOppSykepengesoknadBehandlingsdager(opts: SettOppSoknadOptions): List<Spo
     return mutableListOf(
         ansvarserklaringSporsmal(),
         andreInntekstkilder(sykepengesoknad),
-    )
-        .also {
-            if (erForsteSoknadISykeforlop) {
-                it.add(arbeidUtenforNorge())
-            }
-            if (sykepengesoknad.arbeidssituasjon == ARBEIDSTAKER) {
-                it.add(ferieSporsmal(sykepengesoknad.fom!!, sykepengesoknad.tom!!))
-            }
-            it.addAll(behandlingsdagerSporsmal(sykepengesoknad))
-            it.add(tilSlutt())
-        }.toList()
+    ).also {
+        if (erForsteSoknadISykeforlop) {
+            it.add(arbeidUtenforNorge())
+        }
+        if (sykepengesoknad.arbeidssituasjon == ARBEIDSTAKER) {
+            it.add(ferieSporsmal(sykepengesoknad.fom!!, sykepengesoknad.tom!!))
+        }
+        it.addAll(behandlingsdagerSporsmal(sykepengesoknad))
+        it.add(tilSlutt())
+    }.toList()
 }

@@ -23,8 +23,8 @@ fun RSSporsmal.byttSvar(
 private fun List<RSSporsmal>.byttSvar(
     tag: String,
     svar: List<RSSvar>,
-): List<RSSporsmal> {
-    return map { spm ->
+): List<RSSporsmal> =
+    map { spm ->
         when {
             spm.tag == tag -> spm.copy(svar = svar)
             spm.undersporsmal.isNotEmpty() ->
@@ -39,7 +39,6 @@ private fun List<RSSporsmal>.byttSvar(
             else -> spm
         }
     }
-}
 
 private fun RSSykepengesoknad.byttSvar(
     tag: String,
@@ -55,55 +54,48 @@ class SoknadBesvarer(
     val fnr: String,
     val muterteSoknaden: Boolean = false,
 ) {
-    fun standardSvar(ekskludert: List<String> = emptyList()): SoknadBesvarer {
-        return besvarSporsmal(
+    fun standardSvar(ekskludert: List<String> = emptyList()): SoknadBesvarer =
+        besvarSporsmal(
             tag = ANSVARSERKLARING,
             svar = "CHECKED",
             aksepterManglendeSporsmal = true,
             ekskludert = ekskludert,
-        )
-            .besvarSporsmal(
-                tag = TILBAKE_I_ARBEID,
-                svar = "NEI",
-                aksepterManglendeSporsmal = true,
-                ekskludert = ekskludert,
-            )
-            .besvarSporsmal(tag = FERIE_V2, svar = "NEI", aksepterManglendeSporsmal = true, ekskludert = ekskludert)
+        ).besvarSporsmal(
+            tag = TILBAKE_I_ARBEID,
+            svar = "NEI",
+            aksepterManglendeSporsmal = true,
+            ekskludert = ekskludert,
+        ).besvarSporsmal(tag = FERIE_V2, svar = "NEI", aksepterManglendeSporsmal = true, ekskludert = ekskludert)
             .besvarSporsmal(tag = PERMISJON_V2, svar = "NEI", aksepterManglendeSporsmal = true, ekskludert = ekskludert)
             .besvarSporsmal(
                 tag = OPPHOLD_UTENFOR_EOS,
                 svar = "NEI",
                 aksepterManglendeSporsmal = true,
                 ekskludert = ekskludert,
-            )
-            .besvarSporsmal(
+            ).besvarSporsmal(
                 tag = medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0),
                 svar = "NEI",
                 aksepterManglendeSporsmal = true,
                 ekskludert = ekskludert,
-            )
-            .besvarSporsmal(
+            ).besvarSporsmal(
                 tag = medIndex(ARBEID_UNDERVEIS_100_PROSENT, 1),
                 svar = "NEI",
                 aksepterManglendeSporsmal = true,
                 ekskludert = ekskludert,
-            )
-            .besvarSporsmal(
+            ).besvarSporsmal(
                 tag = ANDRE_INNTEKTSKILDER_V2,
                 svar = "NEI",
                 aksepterManglendeSporsmal = true,
                 ekskludert = ekskludert,
-            )
-            .oppsummering()
-    }
+            ).oppsummering()
 
     fun medFerie(
         fom: LocalDate,
         tom: LocalDate,
-    ): SoknadBesvarer {
-        return this.besvarSporsmal(tag = "FERIE_V2", svar = "JA", ferdigBesvart = false)
+    ): SoknadBesvarer =
+        this
+            .besvarSporsmal(tag = "FERIE_V2", svar = "JA", ferdigBesvart = false)
             .besvarSporsmal(tag = "FERIE_NAR_V2", svar = """{"fom":"$fom","tom":"$tom"}""")
-    }
 
     fun tilbakeIArbeid(
         dato: LocalDate?,
@@ -118,7 +110,8 @@ class SoknadBesvarer(
             )
         }
 
-        return this.besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "JA", ferdigBesvart = false)
+        return this
+            .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "JA", ferdigBesvart = false)
             .besvarSporsmal(tag = "TILBAKE_NAR", svar = dato.format(ISO_LOCAL_DATE), mutert = mutert)
     }
 
@@ -196,7 +189,5 @@ class SoknadBesvarer(
         )
     }
 
-    fun oppsummering(): SoknadBesvarer {
-        return this.besvarSporsmal(TIL_SLUTT, "true")
-    }
+    fun oppsummering(): SoknadBesvarer = this.besvarSporsmal(TIL_SLUTT, "true")
 }

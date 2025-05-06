@@ -45,7 +45,8 @@ class KorrigeringTest : FellesTestOppsett() {
     @Order(2)
     fun `Vi kan ikke korrigere en soknad som ikke er sendt`() {
         val soknaden = hentSoknaderMetadata(fnr)[0]
-        korrigerSoknadMedResult(soknaden.id, fnr).andExpect(status().isBadRequest)
+        korrigerSoknadMedResult(soknaden.id, fnr)
+            .andExpect(status().isBadRequest)
             .andReturn()
     }
 
@@ -141,8 +142,10 @@ class KorrigeringTest : FellesTestOppsett() {
         soknaden.korrigeringsfristUtlopt `should be` true
 
         val contentAsString =
-            korrigerSoknadMedResult(soknaden.id, fnr).andExpect(status().isBadRequest)
-                .andReturn().response.contentAsString
+            korrigerSoknadMedResult(soknaden.id, fnr)
+                .andExpect(status().isBadRequest)
+                .andReturn()
+                .response.contentAsString
 
         contentAsString `should be equal to` "{\"reason\":\"KORRIGERINGSFRIST_UTLOPT\"}"
     }

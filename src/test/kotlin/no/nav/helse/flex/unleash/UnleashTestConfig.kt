@@ -7,11 +7,9 @@ import org.springframework.context.annotation.Profile
 
 @Configuration
 @Profile("fakeunleash")
-class UnleashTestConfig() {
+class UnleashTestConfig {
     private val fakeUnleash = FakeUnleash()
 
     @Bean
-    fun unleash(): FakeUnleash {
-        return fakeUnleash
-    }
+    fun unleash(): FakeUnleash = fakeUnleash
 }

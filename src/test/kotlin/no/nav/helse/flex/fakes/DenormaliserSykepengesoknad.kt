@@ -30,23 +30,24 @@ fun NormalisertSoknad.denormaliser(): Sykepengesoknad {
     // tag, sporsmalstekst, undertekst, svartype, max, min, kriterieForVisningAvUndersporsmal, metadata,
     // svar (liste over Svar) og undersporsmal (liste over Sporsmal).
     val sporsmalMap: MutableMap<String, Sporsmal> =
-        this.sporsmal.associate { spmDb ->
-            spmDb.id to
-                Sporsmal(
-                    id = spmDb.id,
-                    tag = spmDb.tag,
-                    sporsmalstekst = spmDb.sporsmalstekst,
-                    undertekst = spmDb.undertekst,
-                    svartype = spmDb.svartype,
-                    max = spmDb.max,
-                    min = spmDb.min,
-                    kriterieForVisningAvUndersporsmal = spmDb.kriterieForVisningAvUndersporsmal,
-                    // TODO Her må du implementere deserialiseringen etter eget behov:
-                    metadata = null,
-                    svar = mutableListOf(),
-                    undersporsmal = mutableListOf(),
-                )
-        }.toMutableMap()
+        this.sporsmal
+            .associate { spmDb ->
+                spmDb.id to
+                    Sporsmal(
+                        id = spmDb.id,
+                        tag = spmDb.tag,
+                        sporsmalstekst = spmDb.sporsmalstekst,
+                        undertekst = spmDb.undertekst,
+                        svartype = spmDb.svartype,
+                        max = spmDb.max,
+                        min = spmDb.min,
+                        kriterieForVisningAvUndersporsmal = spmDb.kriterieForVisningAvUndersporsmal,
+                        // TODO Her må du implementere deserialiseringen etter eget behov:
+                        metadata = null,
+                        svar = mutableListOf(),
+                        undersporsmal = mutableListOf(),
+                    )
+            }.toMutableMap()
 
     // Legg til svar for hvert sporsmal.
 // Vi går gjennom alle svar‑poster og kobler dem til riktig sporsmal.

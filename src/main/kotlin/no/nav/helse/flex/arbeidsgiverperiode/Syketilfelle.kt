@@ -50,8 +50,7 @@ fun genererOppfolgingstilfelle(
             .apply {
                 addAll(tilleggsbiter)
                 addAll(korrigerteBiter)
-            }
-            .filtrerBortKorrigerteBiter()
+            }.filtrerBortKorrigerteBiter()
 
     if (merge.isEmpty()) {
         return null
@@ -109,10 +108,11 @@ fun Set<Tag>.erstattTag(
     fra: Tag,
     til: Tag,
 ): Set<Tag> =
-    ArrayList(this).apply {
-        add(this.indexOf(fra), til)
-        remove(fra)
-    }.toSet()
+    ArrayList(this)
+        .apply {
+            add(this.indexOf(fra), til)
+            remove(fra)
+        }.toSet()
 
 private fun List<Syketilfellebit>.filtrerBortKorrigerteBiter(): List<Syketilfellebit> =
     filterNot { muligSendtBit ->

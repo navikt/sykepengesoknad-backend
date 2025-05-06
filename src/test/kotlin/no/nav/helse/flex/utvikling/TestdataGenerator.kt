@@ -44,8 +44,8 @@ class TestdataGenerator {
     @GetMapping(value = ["/sykmeldinger"], produces = [MediaType.APPLICATION_JSON_VALUE])
     @ResponseBody
     @Unprotected
-    fun sykmeldingerGetApi(): List<SykmeldingApiResponse> {
-        return sykmeldinger.map {
+    fun sykmeldingerGetApi(): List<SykmeldingApiResponse> =
+        sykmeldinger.map {
             SykmeldingApiResponse(
                 id = it.sykmelding.id,
                 mottattTidspunkt = it.sykmelding.mottattTidspunkt,
@@ -56,7 +56,6 @@ class TestdataGenerator {
                 sykmeldingStatus = it.event,
             )
         }
-    }
 
     val sykmeldinger = mutableListOf<SykmeldingKafkaMessage>()
 

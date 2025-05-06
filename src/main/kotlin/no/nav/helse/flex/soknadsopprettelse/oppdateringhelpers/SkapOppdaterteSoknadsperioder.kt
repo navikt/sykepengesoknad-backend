@@ -4,8 +4,8 @@ import no.nav.helse.flex.domain.Soknadsperiode
 import no.nav.helse.flex.domain.Sykepengesoknad
 import java.time.LocalDate
 
-fun Sykepengesoknad.skapOppdaterteSoknadsperioder(oppdatertFomDato: LocalDate?): List<Soknadsperiode> {
-    return if (oppdatertFomDato == null) {
+fun Sykepengesoknad.skapOppdaterteSoknadsperioder(oppdatertFomDato: LocalDate?): List<Soknadsperiode> =
+    if (oppdatertFomDato == null) {
         this.soknadPerioder!!
     } else {
         this.soknadPerioder!!
@@ -23,4 +23,3 @@ fun Sykepengesoknad.skapOppdaterteSoknadsperioder(oppdatertFomDato: LocalDate?):
                 }
             }
     }
-}

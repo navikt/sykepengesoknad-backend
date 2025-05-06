@@ -19,8 +19,7 @@ fun nyttArbeidsforholdSporsmal(
             }
             val afterOrEqual = it.sluttdato.isAfterOrEqual(denneSoknaden.fom!!)
             return@filter afterOrEqual
-        }
-        ?.toSet()
+        }?.toSet()
         ?.mapIndexed { idx, arbeidsforhold ->
 
             val fom = max(denneSoknaden.fom!!, arbeidsforhold.startdato)

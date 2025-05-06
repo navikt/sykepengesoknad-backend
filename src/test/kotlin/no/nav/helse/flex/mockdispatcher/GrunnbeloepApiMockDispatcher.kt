@@ -198,9 +198,7 @@ object GrunnbeloepApiMockDispatcher : QueueDispatcher() {
         return grunnbelopHistorikk.filterKeys { it >= year }.values.joinToString(prefix = "[", postfix = "]")
     }
 
-    private fun erFoerForsteMai(date: LocalDate): Boolean {
-        return date.isBefore(LocalDate.of(date.year, 5, 1))
-    }
+    private fun erFoerForsteMai(date: LocalDate): Boolean = date.isBefore(LocalDate.of(date.year, 5, 1))
 }
 
 class GrunnbeloepApiMockDispatcherTest {
@@ -267,7 +265,8 @@ class GrunnbeloepApiMockDispatcherTest {
 
     @Test
     fun `Får 500 feil når spør om grunnbeløp fra et for tidlig år`() {
-        restClient.get()
+        restClient
+            .get()
             .uri(mockWebServer.url("/grunnbeløp?dato=1960-01-01").toUri())
             .runCatching {
                 retrieve().toEntity(String::class.java)
@@ -278,7 +277,8 @@ class GrunnbeloepApiMockDispatcherTest {
 
     @Test
     fun `Får 500 feil ved feil i URL`() {
-        restClient.get()
+        restClient
+            .get()
             .uri(mockWebServer.url("/feil?dato=2024-01-01").toUri())
             .runCatching {
                 retrieve().toEntity(String::class.java)
@@ -289,18 +289,15 @@ class GrunnbeloepApiMockDispatcherTest {
 
     private fun callDispatch(path: String): ResponseEntity<String?> {
         val response =
-            restClient.get()
+            restClient
+                .get()
                 .uri(mockWebServer.url(path).toUri())
                 .retrieve()
                 .toEntity(String::class.java)
         return response
     }
 
-    fun String.toGrunnbeloepResponse(): GrunnbeloepResponse {
-        return objectMapper.readValue(this)
-    }
+    fun String.toGrunnbeloepResponse(): GrunnbeloepResponse = objectMapper.readValue(this)
 
-    fun String.toGrunnbeloepResponseListe(): List<GrunnbeloepResponse> {
-        return objectMapper.readValue(this)
-    }
+    fun String.toGrunnbeloepResponseListe(): List<GrunnbeloepResponse> = objectMapper.readValue(this)
 }

@@ -25,7 +25,8 @@ object ArbeidssokerregisterMockDispatcher : QueueDispatcher() {
             return MockResponse().setResponseCode(404)
         }
 
-        return MockResponse().setResponseCode(200)
+        return MockResponse()
+            .setResponseCode(200)
             .setBody(listOf(skapArbeidssokerperiodeResponse()).serialisertTilString())
     }
 }
@@ -33,8 +34,8 @@ object ArbeidssokerregisterMockDispatcher : QueueDispatcher() {
 fun skapArbeidssokerperiodeResponse(
     avsluttet: Boolean = false,
     periodeId: String = UUID.randomUUID().toString(),
-): ArbeidssokerperiodeResponse {
-    return ArbeidssokerperiodeResponse(
+): ArbeidssokerperiodeResponse =
+    ArbeidssokerperiodeResponse(
         startet =
             MetadataResponse(
                 tidspunkt = LocalDateTime.now().toInstant(java.time.ZoneOffset.UTC),
@@ -65,4 +66,3 @@ fun skapArbeidssokerperiodeResponse(
             },
         periodeId = periodeId,
     )
-}

@@ -9,8 +9,8 @@ import no.nav.helse.flex.soknadsopprettelse.TILBAKE_NAR
 import no.nav.helse.flex.util.DatoUtil
 import java.time.format.DateTimeFormatter
 
-fun tilbakeIFulltArbeidGradertReisetilskuddSporsmal(soknadMetadata: Sykepengesoknad): Sporsmal {
-    return Sporsmal(
+fun tilbakeIFulltArbeidGradertReisetilskuddSporsmal(soknadMetadata: Sykepengesoknad): Sporsmal =
+    Sporsmal(
         tag = TILBAKE_I_ARBEID,
         sporsmalstekst = "Var du tilbake i ditt vanlige arbeid uten ekstra reiseutgifter før ${
             DatoUtil.formatterDatoUtenÅr(
@@ -30,4 +30,3 @@ fun tilbakeIFulltArbeidGradertReisetilskuddSporsmal(soknadMetadata: Sykepengesok
                 ),
             ),
     )
-}

@@ -50,7 +50,12 @@ class EgenmeldingsdagerVideresendingTest : FellesTestOppsett() {
                                     tekst = "Brukte du egenmeldingsdager før sykmeldinga?",
                                     shortName = ShortNameKafkaDTO.EGENMELDINGSDAGER,
                                     svartype = SvartypeKafkaDTO.DAGER,
-                                    svar = basisdato.minusDays(3).datesUntil(basisdato).toList().serialisertTilString(),
+                                    svar =
+                                        basisdato
+                                            .minusDays(3)
+                                            .datesUntil(basisdato)
+                                            .toList()
+                                            .serialisertTilString(),
                                 ),
                             ),
                     ),

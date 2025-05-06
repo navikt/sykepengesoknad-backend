@@ -27,7 +27,8 @@ class ArbeidssokerregisterStoppService(
         val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(stoppMelding.fnr)
 
         val alleFtaSoknaderSammeVedtaksid =
-            hentSoknadService.hentSoknader(identer)
+            hentSoknadService
+                .hentSoknader(identer)
                 .filter { it.soknadstype == Soknadstype.FRISKMELDT_TIL_ARBEIDSFORMIDLING }
                 .filter { it.friskTilArbeidVedtakId == stoppMelding.vedtaksperiodeId }
 

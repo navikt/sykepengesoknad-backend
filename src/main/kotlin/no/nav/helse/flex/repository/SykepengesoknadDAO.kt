@@ -745,9 +745,10 @@ class SykepengesoknadDAOPostgres(
             soknad.id to
                 // Mapper soknadId til kjentOppholdstillatelse med samme id, fom og tom siden "klipp" av
                 // søknaden gjør at det kan bli hentet ny medlemskapsvurdering en eller flere ganger.
-                medlemskapsVurderinger.find {
-                    it.sykepengesoknadId == soknad.id && it.fom == soknad.fom && it.tom == soknad.tom
-                }?.tilKjentOppholdstillatelse()
+                medlemskapsVurderinger
+                    .find {
+                        it.sykepengesoknadId == soknad.id && it.fom == soknad.fom && it.tom == soknad.tom
+                    }?.tilKjentOppholdstillatelse()
         }
     }
 }

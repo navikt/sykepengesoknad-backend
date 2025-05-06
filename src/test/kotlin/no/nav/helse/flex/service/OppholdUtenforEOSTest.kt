@@ -146,8 +146,7 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
                 )}\",\"tom\":\"${LocalDate.now().minusWeeks(2).format(
                     DateTimeFormatter.ISO_LOCAL_DATE,
                 )}\"}",
-            )
-            .besvarSporsmal(LAND, svarListe = listOf("Kina"))
+            ).besvarSporsmal(LAND, svarListe = listOf("Kina"))
             .besvarSporsmal(ARBEIDSGIVER, svar = "NEI")
             .besvarSporsmal(AVKLART_MED_ARBEIDSGIVER_ELLER_NAV, svar = "NEI", ferdigBesvart = false)
             .besvarSporsmal(AVKLART_MED_SYKMELDER, svar = "NEI")
@@ -243,8 +242,7 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
                 ferieTom = LocalDate.of(2024, 9, 13),
                 permisjonFom = null,
                 permisjonTom = null,
-            )
-                .sendSoknad()
+            ).sendSoknad()
 
         // September 2024
         // Mandag   Tirsdag   Onsdag    Torsdag   Fredag   Lørdag   Søndag
@@ -281,8 +279,7 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
                 ferieTom = null,
                 permisjonFom = LocalDate.of(2024, 9, 6),
                 permisjonTom = LocalDate.of(2024, 9, 25),
-            )
-                .sendSoknad()
+            ).sendSoknad()
 
         // September 2024
         // Mandag   Tirsdag   Onsdag    Torsdag   Fredag   Lørdag   Søndag
@@ -323,8 +320,7 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
                 ferieTom = LocalDate.of(2024, 9, 25),
                 permisjonFom = null,
                 permisjonTom = null,
-            )
-                .sendSoknad()
+            ).sendSoknad()
 
         // September 2024
         // Mandag   Tirsdag   Onsdag    Torsdag   Fredag   Lørdag   Søndag
@@ -407,8 +403,7 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
                 utenforEOSTom = LocalDate.of(2024, 9, 25),
                 permisjonFom = null,
                 permisjonTom = null,
-            )
-                .sendSoknad()
+            ).sendSoknad()
 
         // September 2024
         // Mandag   Tirsdag   Onsdag    Torsdag   Fredag   Lørdag   Søndag
@@ -450,8 +445,7 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
                 ferieTom = LocalDate.of(2024, 9, 6),
                 permisjonFom = LocalDate.of(2024, 9, 9),
                 permisjonTom = LocalDate.of(2024, 9, 25),
-            )
-                .sendSoknad()
+            ).sendSoknad()
 
         // September 2024
         // Mandag   Tirsdag   Onsdag    Torsdag   Fredag   Lørdag   Søndag
@@ -492,8 +486,7 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
                 ferieTom = LocalDate.of(2024, 9, 12),
                 permisjonFom = LocalDate.of(2024, 9, 17),
                 permisjonTom = LocalDate.of(2024, 9, 18),
-            )
-                .sendSoknad()
+            ).sendSoknad()
 
         // September 2024
         // Mandag   Tirsdag   Onsdag    Torsdag   Fredag   Lørdag   Søndag

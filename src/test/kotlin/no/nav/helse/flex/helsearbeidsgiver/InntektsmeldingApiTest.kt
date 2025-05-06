@@ -168,9 +168,11 @@ class InntektsmeldingApiTest : FellesTestOppsett() {
 
         sendBehandlingsstatusMelding(behandlingstatusmelding)
         await().atMost(5, TimeUnit.SECONDS).until {
-            vedtaksperiodeBehandlingSykepengesoknadRepository.findBySykepengesoknadUuidIn(
-                listOf(soknader.first().sykepengesoknadUuid),
-            ).firstOrNull()?.vedtaksperiodeBehandlingId != null
+            vedtaksperiodeBehandlingSykepengesoknadRepository
+                .findBySykepengesoknadUuidIn(
+                    listOf(soknader.first().sykepengesoknadUuid),
+                ).firstOrNull()
+                ?.vedtaksperiodeBehandlingId != null
         }
 
         hentSomArbeidsgiver(

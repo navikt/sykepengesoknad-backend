@@ -20,8 +20,8 @@ object EregMockDispatcher : Dispatcher() {
         return skapResponse(orgnavn)
     }
 
-    fun skapResponse(orgnavn: String): MockResponse {
-        return MockResponse().setBody(Nokkelinfo(Navn(orgnavn)).serialisertTilString())
+    fun skapResponse(orgnavn: String): MockResponse =
+        MockResponse()
+            .setBody(Nokkelinfo(Navn(orgnavn)).serialisertTilString())
             .addHeader("Content-Type", "application/json")
-    }
 }

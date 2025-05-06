@@ -124,19 +124,22 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
         )
 
         assertThat(
-            soknaden.sporsmal!!.first {
-                it.tag == ANSVARSERKLARING
-            }.sporsmalstekst,
+            soknaden.sporsmal!!
+                .first {
+                    it.tag == ANSVARSERKLARING
+                }.sporsmalstekst,
         ).isEqualTo("Jeg bekrefter at jeg vil svare så riktig som jeg kan.")
         assertThat(
-            soknaden.sporsmal!!.first {
-                it.tag == TILBAKE_I_ARBEID
-            }.sporsmalstekst,
+            soknaden.sporsmal!!
+                .first {
+                    it.tag == TILBAKE_I_ARBEID
+                }.sporsmalstekst,
         ).isEqualTo("Var du tilbake i ditt vanlige arbeid uten ekstra reiseutgifter før 7. september?")
         assertThat(
-            soknaden.sporsmal!!.first {
-                it.tag == "JOBBET_DU_GRADERT_0"
-            }.sporsmalstekst,
+            soknaden.sporsmal!!
+                .first {
+                    it.tag == "JOBBET_DU_GRADERT_0"
+                }.sporsmalstekst,
         ).isEqualTo("Sykmeldingen sier du kunne jobbe 50 % i jobben din hos Gatekjøkkenet. Jobbet du mer enn det?")
     }
 
@@ -235,7 +238,9 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
         reisetilskuddEtterSvar
             .sporsmal!!
             .find { it.tag == BRUKTE_REISETILSKUDDET }!!
-            .svar.first().verdi shouldBeEqualTo "JA"
+            .svar
+            .first()
+            .verdi shouldBeEqualTo "JA"
 
         assertThat(reisetilskuddEtterSvar.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
@@ -460,7 +465,9 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
         utkastMedSvar
             .sporsmal!!
             .find { it.tag == BRUKTE_REISETILSKUDDET }!!
-            .svar.first().verdi shouldBeEqualTo "NEI"
+            .svar
+            .first()
+            .verdi shouldBeEqualTo "NEI"
         assertThat(utkastMedSvar.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
                 ANSVARSERKLARING,

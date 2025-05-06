@@ -25,8 +25,8 @@ class GlobalExceptionHandler {
     fun handleException(
         ex: Exception,
         request: HttpServletRequest,
-    ): ResponseEntity<Any> {
-        return when (ex) {
+    ): ResponseEntity<Any> =
+        when (ex) {
             is AbstractApiError -> {
                 when (ex.loglevel) {
                     LogLevel.WARN -> log.warn(ex.message, ex)
@@ -56,9 +56,10 @@ class GlobalExceptionHandler {
                 skapResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
             }
         }
-    }
 }
 
 private fun skapResponseEntity(status: HttpStatus): ResponseEntity<Any> = ResponseEntity(ApiError(status.reasonPhrase), status)
 
-private data class ApiError(val reason: String)
+private data class ApiError(
+    val reason: String,
+)

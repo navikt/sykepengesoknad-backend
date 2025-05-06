@@ -25,50 +25,52 @@ fun settOppSoknadSelvstendigOgFrilanser(
     val (sykepengesoknad, erForsteSoknadISykeforlop, harTidligereUtenlandskSpm, yrkesskade) = opts
     val erGradertReisetilskudd = sykepengesoknad.soknadstype == Soknadstype.GRADERT_REISETILSKUDD
 
-    return mutableListOf<Sporsmal>().apply {
-        add(ansvarserklaringSporsmal())
-        add(
-            if (erGradertReisetilskudd) {
-                tilbakeIFulltArbeidGradertReisetilskuddSporsmal(sykepengesoknad)
-            } else {
-                tilbakeIFulltArbeidSporsmal(sykepengesoknad)
-            },
-        )
-        add(andreInntektskilderSelvstendigOgFrilanser(sykepengesoknad.arbeidssituasjon!!))
-        add(oppholdUtenforEOSSporsmal(sykepengesoknad.fom!!, sykepengesoknad.tom!!))
-        add(tilSlutt())
-        addAll(
-            jobbetDuIPeriodenSporsmalSelvstendigFrilanser(
-                sykepengesoknad.soknadPerioder!!,
-                sykepengesoknad.arbeidssituasjon,
-            ),
-        )
+    return mutableListOf<Sporsmal>()
+        .apply {
+            add(ansvarserklaringSporsmal())
+            add(
+                if (erGradertReisetilskudd) {
+                    tilbakeIFulltArbeidGradertReisetilskuddSporsmal(sykepengesoknad)
+                } else {
+                    tilbakeIFulltArbeidSporsmal(sykepengesoknad)
+                },
+            )
+            add(andreInntektskilderSelvstendigOgFrilanser(sykepengesoknad.arbeidssituasjon!!))
+            add(oppholdUtenforEOSSporsmal(sykepengesoknad.fom!!, sykepengesoknad.tom!!))
+            add(tilSlutt())
+            addAll(
+                jobbetDuIPeriodenSporsmalSelvstendigFrilanser(
+                    sykepengesoknad.soknadPerioder!!,
+                    sykepengesoknad.arbeidssituasjon,
+                ),
+            )
 
-        if (erForsteSoknadISykeforlop) {
-            add(arbeidUtenforNorge())
+            if (erForsteSoknadISykeforlop) {
+                add(arbeidUtenforNorge())
 
-            if (listOf(NAERINGSDRIVENDE, FISKER, JORDBRUKER).contains(sykepengesoknad.arbeidssituasjon)) {
-                add(lagSporsmalOmInntektsopplyninger(sykepengesoknad, sykepengegrunnlagNaeringsdrivende))
+                if (listOf(NAERINGSDRIVENDE, FISKER, JORDBRUKER).contains(sykepengesoknad.arbeidssituasjon)) {
+                    add(lagSporsmalOmInntektsopplyninger(sykepengesoknad, sykepengegrunnlagNaeringsdrivende))
+                }
             }
-        }
-        addAll(yrkesskade.yrkeskadeSporsmal())
+            addAll(yrkesskade.yrkeskadeSporsmal())
 
-        if (sykepengesoknad.utenlandskSykmelding && (erForsteSoknadISykeforlop || !harTidligereUtenlandskSpm)) {
-            addAll(utenlandskSykmeldingSporsmal(sykepengesoknad))
-        }
-        if (erGradertReisetilskudd) {
-            add(brukteReisetilskuddetSpørsmål())
-        }
-    }.toList()
+            if (sykepengesoknad.utenlandskSykmelding && (erForsteSoknadISykeforlop || !harTidligereUtenlandskSpm)) {
+                addAll(utenlandskSykmeldingSporsmal(sykepengesoknad))
+            }
+            if (erGradertReisetilskudd) {
+                add(brukteReisetilskuddetSpørsmål())
+            }
+        }.toList()
 }
 
 fun jobbetDuIPeriodenSporsmalSelvstendigFrilanser(
     soknadsperioder: List<Soknadsperiode>,
     arbeidssituasjon: Arbeidssituasjon,
-): List<Sporsmal> {
-    return soknadsperioder
+): List<Sporsmal> =
+    soknadsperioder
         .filter { it.sykmeldingstype == Sykmeldingstype.GRADERT || it.sykmeldingstype == Sykmeldingstype.AKTIVITET_IKKE_MULIG }
-        .lastIndex.downTo(0)
+        .lastIndex
+        .downTo(0)
         .reversed()
         .map { index ->
             val periode = soknadsperioder[index]
@@ -78,14 +80,13 @@ fun jobbetDuIPeriodenSporsmalSelvstendigFrilanser(
                 jobbetDuGradert(periode, arbeidssituasjon, index)
             }
         }
-}
 
 private fun jobbetDu100Prosent(
     periode: Soknadsperiode,
     arbeidssituasjon: Arbeidssituasjon,
     index: Int,
-): Sporsmal {
-    return Sporsmal(
+): Sporsmal =
+    Sporsmal(
         tag = ARBEID_UNDERVEIS_100_PROSENT + index,
         sporsmalstekst = "I perioden ${
             formatterPeriode(
@@ -97,24 +98,22 @@ private fun jobbetDu100Prosent(
         kriterieForVisningAvUndersporsmal = JA,
         undersporsmal = jobbetDuUndersporsmal(periode, 1, index),
     )
-}
 
 fun jobbetDuGradert(
     periode: Soknadsperiode,
     arbeidssituasjon: Arbeidssituasjon,
     index: Int,
-): Sporsmal {
-    return Sporsmal(
+): Sporsmal =
+    Sporsmal(
         tag = JOBBET_DU_GRADERT + index,
         sporsmalstekst = "Sykmeldingen sier du kunne jobbe ${100 - periode.grad} % som $arbeidssituasjon. Jobbet du mer enn det?",
         svartype = JA_NEI,
         kriterieForVisningAvUndersporsmal = JA,
         undersporsmal = jobbetDuGradertUndersporsmal(periode, 100 + 1 - periode.grad, index),
     )
-}
 
-private fun tilbakeIFulltArbeidSporsmal(soknadMetadata: Sykepengesoknad): Sporsmal {
-    return Sporsmal(
+private fun tilbakeIFulltArbeidSporsmal(soknadMetadata: Sykepengesoknad): Sporsmal =
+    Sporsmal(
         tag = TILBAKE_I_ARBEID,
         sporsmalstekst = "Var du tilbake i fullt arbeid som ${soknadMetadata.arbeidssituasjon} før sykmeldingsperioden utløp ${
             formatterDato(
@@ -134,4 +133,3 @@ private fun tilbakeIFulltArbeidSporsmal(soknadMetadata: Sykepengesoknad): Sporsm
                 ),
             ),
     )
-}

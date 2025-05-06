@@ -25,15 +25,16 @@ class CallIdFilter : Filter {
     ) {
         try {
             val navCallid =
-                Optional.of(servletRequest)
+                Optional
+                    .of(servletRequest)
                     .filter { obj: ServletRequest? -> HttpServletRequest::class.java.isInstance(obj) }
                     .map { obj: ServletRequest? -> HttpServletRequest::class.java.cast(obj) }
                     .filter { request: HttpServletRequest -> !request.requestURI.contains("/internal/") }
                     .map { request: HttpServletRequest ->
-                        Optional.ofNullable(request.getHeader(NAV_CALLID))
+                        Optional
+                            .ofNullable(request.getHeader(NAV_CALLID))
                             .orElseGet { null }
-                    }
-                    .orElseGet { UUID.randomUUID().toString() }
+                    }.orElseGet { UUID.randomUUID().toString() }
             MDC.put(NAV_CALLID, navCallid)
             filterChain.doFilter(servletRequest, servletResponse)
         } finally {

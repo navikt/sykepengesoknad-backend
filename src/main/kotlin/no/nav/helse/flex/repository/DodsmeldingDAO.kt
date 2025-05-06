@@ -13,7 +13,10 @@ import java.time.LocalDate.now
 import java.time.OffsetDateTime
 
 interface DodsmeldingDAO {
-    data class Dodsfall(val fnr: String, val dodsdato: LocalDate)
+    data class Dodsfall(
+        val fnr: String,
+        val dodsdato: LocalDate,
+    )
 
     fun fnrMedToUkerGammelDodsmelding(): List<DodsmeldingDAO.Dodsfall>
 
@@ -64,17 +67,17 @@ class DodsmeldingDAOPostgres(
     }
 
     @WithSpan
-    override fun harDodsmelding(identer: FolkeregisterIdenter): Boolean {
-        return namedParameterJdbcTemplate.queryForObject(
-            """
+    override fun harDodsmelding(identer: FolkeregisterIdenter): Boolean =
+        namedParameterJdbcTemplate
+            .queryForObject(
+                """
                 SELECT COUNT(1) FROM DODSMELDING 
                 WHERE FNR IN (:identer)
             """,
-            MapSqlParameterSource()
-                .addValue("identer", identer.alle()),
-            Integer::class.java,
-        )?.toInt() == 1
-    }
+                MapSqlParameterSource()
+                    .addValue("identer", identer.alle()),
+                Integer::class.java,
+            )?.toInt() == 1
 
     @WithSpan
     override fun oppdaterDodsdato(

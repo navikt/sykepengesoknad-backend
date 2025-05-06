@@ -7,15 +7,14 @@ class SyketilfelleIntradag(
     private val biter: List<Syketilfellebit>,
     private val prioriteringsliste: List<ListContainsPredicate<Tag>>,
 ) {
-    fun velgSyketilfelledag(): Syketilfelledag {
-        return biter
+    fun velgSyketilfelledag(): Syketilfelledag =
+        biter
             .groupBy { it.inntruffet.toLocalDate() }
             .toSortedMap()
             .mapValues(this::finnPresedens)
             .mapNotNull(Map.Entry<LocalDate, Syketilfellebit?>::value)
             .map { it.toSyketilfelledag() }
             .lastOrNull() ?: Syketilfelledag(dag, null, biter)
-    }
 
     private fun finnPresedens(entry: Map.Entry<LocalDate, List<Syketilfellebit>>): Syketilfellebit? {
         val (_, syketilfeller) = entry

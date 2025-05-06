@@ -75,24 +75,32 @@ class InntektsopplysningerIntegrasjonsTest : FellesTestOppsett() {
                 TIL_SLUTT,
             ),
         )
-        soknad.sporsmal.flatten().first { it.tag == INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE }
-            .undersporsmal!!.map { it.tag }.shouldBeEqualTo(
-            listOf(
-                INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE_OPPRETTELSE_NEDLEGGELSE,
-                INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE_ENDRET_INNSATS,
-                INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE_OMLEGGING_AV_VIRKSOMHETEN,
-                INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE_ENDRET_MARKEDSSITUASJON,
-                INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE_ANNET,
-            ),
-        )
+        soknad.sporsmal
+            .flatten()
+            .first { it.tag == INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE }
+            .undersporsmal!!
+            .map { it.tag }
+            .shouldBeEqualTo(
+                listOf(
+                    INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE_OPPRETTELSE_NEDLEGGELSE,
+                    INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE_ENDRET_INNSATS,
+                    INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE_OMLEGGING_AV_VIRKSOMHETEN,
+                    INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE_ENDRET_MARKEDSSITUASJON,
+                    INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE_ANNET,
+                ),
+            )
 
-        soknad.sporsmal.flatten().first { it.tag == INNTEKTSOPPLYSNINGER_VARIG_ENDRING }
-            .undersporsmal!!.map { it.tag }.shouldBeEqualTo(
-            listOf(
-                INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE,
-                INNTEKTSOPPLYSNINGER_VARIG_ENDRING_25_PROSENT,
-            ),
-        )
+        soknad.sporsmal
+            .flatten()
+            .first { it.tag == INNTEKTSOPPLYSNINGER_VARIG_ENDRING }
+            .undersporsmal!!
+            .map { it.tag }
+            .shouldBeEqualTo(
+                listOf(
+                    INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE,
+                    INNTEKTSOPPLYSNINGER_VARIG_ENDRING_25_PROSENT,
+                ),
+            )
     }
 
     @Test
@@ -116,17 +124,14 @@ class InntektsopplysningerIntegrasjonsTest : FellesTestOppsett() {
                         tag = INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET_NEI,
                         svar = "CHECKED",
                         ferdigBesvart = false,
-                    )
-                    .besvarSporsmal(
+                    ).besvarSporsmal(
                         tag = INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET_JA,
                         svar = "CHECKED",
                         ferdigBesvart = false,
-                    )
-                    .besvarSporsmal(
+                    ).besvarSporsmal(
                         tag = INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET_DATO,
                         svar = lagretSoknad.fom!!.minusDays(1).toString(),
-                    )
-                    .oppsummering()
+                    ).oppsummering()
                     .sendSoknad()
             sendtSoknad.status shouldBeEqualTo RSSoknadstatus.SENDT
 
@@ -167,8 +172,7 @@ class InntektsopplysningerIntegrasjonsTest : FellesTestOppsett() {
                 .besvarSporsmal(
                     tag = INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET_DATO,
                     svar = korrigerendeSoknad.fom!!.minusDays(2).toString(),
-                )
-                .oppsummering()
+                ).oppsummering()
                 .sendSoknad()
 
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
@@ -204,8 +208,7 @@ class InntektsopplysningerIntegrasjonsTest : FellesTestOppsett() {
                     tag = INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET_JA,
                     svar = null,
                     ferdigBesvart = false,
-                )
-                .besvarSporsmal(
+                ).besvarSporsmal(
                     tag = INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET_NEI,
                     svar = "CHECKED",
                     ferdigBesvart = false,
@@ -224,8 +227,7 @@ class InntektsopplysningerIntegrasjonsTest : FellesTestOppsett() {
                 ).besvarSporsmal(
                     tag = INNTEKTSOPPLYSNINGER_VARIG_ENDRING_25_PROSENT,
                     svar = "NEI",
-                )
-                .oppsummering()
+                ).oppsummering()
                 .sendSoknad()
 
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
@@ -268,8 +270,7 @@ class InntektsopplysningerIntegrasjonsTest : FellesTestOppsett() {
                 ).besvarSporsmal(
                     tag = INNTEKTSOPPLYSNINGER_VARIG_ENDRING_DATO,
                     svar = soknad.fom!!.minusYears(3).toString(),
-                )
-                .oppsummering()
+                ).oppsummering()
                 .sendSoknad()
 
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
@@ -294,12 +295,11 @@ class InntektsopplysningerIntegrasjonsTest : FellesTestOppsett() {
         return Pair(soknad, soknadBesvarer)
     }
 
-    private fun hentSoknadMedStatusNy(fnr: String): RSSykepengesoknad {
-        return hentSoknad(
+    private fun hentSoknadMedStatusNy(fnr: String): RSSykepengesoknad =
+        hentSoknad(
             soknadId = hentSoknaderMetadata(fnr).first { it.status == RSSoknadstatus.NY }.id,
             fnr = fnr,
         )
-    }
 
     private fun besvarStandardsporsmalSporsmal(soknadBesvarer: SoknadBesvarer) =
         soknadBesvarer
