@@ -6,11 +6,12 @@ import no.nav.helse.flex.vedtaksperiodebehandling.Behandlingstatusmelding
 import org.apache.kafka.clients.producer.ProducerRecord
 
 fun FellesTestOppsett.sendBehandlingsstatusMelding(behandlingstatusmelding: Behandlingstatusmelding) {
-    kafkaProducer.send(
-        ProducerRecord(
-            SIS_TOPIC,
-            behandlingstatusmelding.vedtaksperiodeId,
-            behandlingstatusmelding.serialisertTilString(),
-        ),
-    ).get()
+    kafkaProducer
+        .send(
+            ProducerRecord(
+                SIS_TOPIC,
+                behandlingstatusmelding.vedtaksperiodeId,
+                behandlingstatusmelding.serialisertTilString(),
+            ),
+        ).get()
 }

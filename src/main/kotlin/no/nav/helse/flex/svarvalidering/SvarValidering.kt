@@ -109,13 +109,9 @@ fun Sporsmal.validerUndersporsmal() {
     }
 }
 
-private fun String.tilLocalDate(): LocalDate {
-    return LocalDate.parse(this)
-}
+private fun String.tilLocalDate(): LocalDate = LocalDate.parse(this)
 
-fun String.tilKvittering(): Kvittering {
-    return objectMapper.readValue(this)
-}
+fun String.tilKvittering(): Kvittering = objectMapper.readValue(this)
 
 private fun Sporsmal.validerGrenserPaDato(svar: Svar): () -> Boolean {
     val dato = LocalDate.parse(svar.verdi)
@@ -165,9 +161,7 @@ private fun Sporsmal.validerGrenserPaaTekst(svar: Svar): () -> Boolean {
     return { validerer }
 }
 
-private fun validerGrenserPaKvittering(svar: Svar): () -> Boolean {
-    return { svar.verdi.length <= 200 }
-}
+private fun validerGrenserPaKvittering(svar: Svar): () -> Boolean = { svar.verdi.length <= 200 }
 
 private fun Sporsmal.validerGrenserPaSvar(svar: Svar) {
     val predikat: () -> Boolean =
@@ -233,53 +227,46 @@ private fun validerKvittering(verdi: String): () -> Boolean {
     return { kvittering.blobId.erUUID() && kvittering.belop >= 0 }
 }
 
-fun String.erUUID(): Boolean {
-    return try {
+fun String.erUUID(): Boolean =
+    try {
         UUID.fromString(this)
         this.length == 36
     } catch (e: Exception) {
         false
     }
-}
 
-fun String.erHeltall(): Boolean {
-    return try {
+fun String.erHeltall(): Boolean =
+    try {
         this.toInt()
         true
     } catch (e: Exception) {
         false
     }
-}
 
-fun String.erFlyttall(): Boolean {
-    return try {
+fun String.erFlyttall(): Boolean =
+    try {
         !isNaN(this.tilDoubleOgGodtaKomma())
     } catch (e: Exception) {
         false
     }
-}
 
-fun String.tilDoubleOgGodtaKomma(): Double {
-    return this.replace(',', '.').toDouble()
-}
+fun String.tilDoubleOgGodtaKomma(): Double = this.replace(',', '.').toDouble()
 
-fun String.erPeriode(): Boolean {
-    return try {
+fun String.erPeriode(): Boolean =
+    try {
         PeriodeMapper.jsonISOFormatTilPeriode(this)
         true
     } catch (e: Exception) {
         false
     }
-}
 
-fun String.erDato(): Boolean {
-    return try {
+fun String.erDato(): Boolean =
+    try {
         LocalDate.parse(this)
         true
     } catch (e: Exception) {
         false
     }
-}
 
 fun String.erDoubleMedMaxEnDesimal(): Boolean {
     return try {
@@ -449,9 +436,11 @@ fun Sporsmal.validerAntallSvar() {
     }
 }
 
-class ValideringException(message: String) : AbstractApiError(
-    message = message,
-    httpStatus = BAD_REQUEST,
-    reason = "SPORSMALETS_SVAR_VALIDERER_IKKE",
-    loglevel = LogLevel.WARN,
-)
+class ValideringException(
+    message: String,
+) : AbstractApiError(
+        message = message,
+        httpStatus = BAD_REQUEST,
+        reason = "SPORSMALETS_SVAR_VALIDERER_IKKE",
+        loglevel = LogLevel.WARN,
+    )

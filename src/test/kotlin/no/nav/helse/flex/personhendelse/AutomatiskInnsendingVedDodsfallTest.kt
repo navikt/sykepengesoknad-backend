@@ -125,7 +125,12 @@ class AutomatiskInnsendingVedDodsfallTest : FellesTestOppsett() {
         dodsmeldingDAO.lagreDodsmelding(
             identer = FolkeregisterIdenter("aktor1", emptyList()),
             dodsdato = soknad.tom!!.minusDays(1),
-            meldingMottattDato = soknad.tom!!.minusDays(1).atStartOfDay().tilOsloInstant().tilOsloZone(),
+            meldingMottattDato =
+                soknad.tom!!
+                    .minusDays(1)
+                    .atStartOfDay()
+                    .tilOsloInstant()
+                    .tilOsloZone(),
         )
 
         antallDodsmeldingerIDb().shouldBeEqualTo(1)
@@ -141,15 +146,16 @@ class AutomatiskInnsendingVedDodsfallTest : FellesTestOppsett() {
         antallDodsmeldingerIDb().shouldBeEqualTo(0)
     }
 
-    fun antallDodsmeldingerIDb(): Int {
-        return namedParameterJdbcTemplate.queryForObject(
-            """
+    fun antallDodsmeldingerIDb(): Int =
+        namedParameterJdbcTemplate
+            .queryForObject(
+                """
                 SELECT COUNT(1) FROM DODSMELDING 
             """,
-            MapSqlParameterSource(),
-            Integer::class.java,
-        )!!.toInt()
-    }
+                MapSqlParameterSource(),
+                Integer::class.java,
+            )!!
+            .toInt()
 
     fun slettDodsmeldinger() {
         namedParameterJdbcTemplate.update(

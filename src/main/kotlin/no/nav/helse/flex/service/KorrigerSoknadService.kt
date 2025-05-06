@@ -47,7 +47,8 @@ class KorrigerSoknadService(
             throw KorrigeringsfristUtloptException(soknadSomKorrigeres)
         }
 
-        return sykepengesoknadDAO.finnSykepengesoknader(identer)
+        return sykepengesoknadDAO
+            .finnSykepengesoknader(identer)
             .firstOrNull { soknad -> soknadSomKorrigeres.id == soknad.korrigerer }
             ?: opprettUtkast(soknadSomKorrigeres).also { korrigerendeSoknad: Sykepengesoknad ->
                 dupliserMedlemskapVurdering(soknadSomKorrigeres, korrigerendeSoknad)
@@ -112,15 +113,16 @@ class KorrigerSoknadService(
         soknadSomKorrigeres: Sykepengesoknad,
         korrigering: Sykepengesoknad,
     ) {
-        medlemskapVurderingRepository.findBySykepengesoknadIdAndFomAndTom(
-            soknadSomKorrigeres.id,
-            soknadSomKorrigeres.fom!!,
-            soknadSomKorrigeres.tom!!,
-        )?.let {
-            medlemskapVurderingRepository.save(
-                it.copy(id = null, sykepengesoknadId = korrigering.id),
-            )
-        }
+        medlemskapVurderingRepository
+            .findBySykepengesoknadIdAndFomAndTom(
+                soknadSomKorrigeres.id,
+                soknadSomKorrigeres.fom!!,
+                soknadSomKorrigeres.tom!!,
+            )?.let {
+                medlemskapVurderingRepository.save(
+                    it.copy(id = null, sykepengesoknadId = korrigering.id),
+                )
+            }
     }
 
     fun utvidSoknadMedKorrigeringsfristUtlopt(
@@ -163,9 +165,11 @@ fun List<SykepengesoknadDbRecord>.finnOpprinneligSendt(korrigerer: String): Inst
     return opprinnelig.sendt
 }
 
-class KorrigeringsfristUtloptException(soknad: Sykepengesoknad) : AbstractApiError(
-    message = "Kan ikke korrigere søknad: ${soknad.id} som har korrigeringsfrist utløpt",
-    httpStatus = HttpStatus.BAD_REQUEST,
-    reason = "KORRIGERINGSFRIST_UTLOPT",
-    loglevel = LogLevel.ERROR,
-)
+class KorrigeringsfristUtloptException(
+    soknad: Sykepengesoknad,
+) : AbstractApiError(
+        message = "Kan ikke korrigere søknad: ${soknad.id} som har korrigeringsfrist utløpt",
+        httpStatus = HttpStatus.BAD_REQUEST,
+        reason = "KORRIGERINGSFRIST_UTLOPT",
+        loglevel = LogLevel.ERROR,
+    )

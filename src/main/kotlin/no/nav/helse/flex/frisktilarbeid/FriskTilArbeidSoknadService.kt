@@ -37,27 +37,29 @@ class FriskTilArbeidSoknadService(
         val identer =
             identService.hentFolkeregisterIdenterMedHistorikkForFnr(vedtakDbRecord.fnr)
         val eksisterendeAndreVedtak =
-            friskTilArbeidRepository.findByFnrIn(identer.alle())
+            friskTilArbeidRepository
+                .findByFnrIn(identer.alle())
                 .filter { it.id != vedtakDbRecord.id }
                 .filter { it.behandletStatus != BehandletStatus.OVERLAPP_OK }
 
-        eksisterendeAndreVedtak.firstOrNull {
-            vedtakDbRecord.tilPeriode().overlapper(it.tilPeriode())
-        }?.apply {
-            val feilmelding =
-                "Vedtak med key: ${vedtakDbRecord.key} og " +
-                    "periode: [${vedtakDbRecord.fom} - ${vedtakDbRecord.tom}] " +
-                    "overlapper med vedtak med key: $key periode: [$fom - $tom]."
-            log.error(feilmelding)
+        eksisterendeAndreVedtak
+            .firstOrNull {
+                vedtakDbRecord.tilPeriode().overlapper(it.tilPeriode())
+            }?.apply {
+                val feilmelding =
+                    "Vedtak med key: ${vedtakDbRecord.key} og " +
+                        "periode: [${vedtakDbRecord.fom} - ${vedtakDbRecord.tom}] " +
+                        "overlapper med vedtak med key: $key periode: [$fom - $tom]."
+                log.error(feilmelding)
 
-            friskTilArbeidRepository.save(
-                vedtakDbRecord.copy(
-                    behandletStatus = BehandletStatus.OVERLAPP,
-                    behandletTidspunkt = Instant.now(),
-                ),
-            )
-            return emptyList()
-        }
+                friskTilArbeidRepository.save(
+                    vedtakDbRecord.copy(
+                        behandletStatus = BehandletStatus.OVERLAPP,
+                        behandletTidspunkt = Instant.now(),
+                    ),
+                )
+                return emptyList()
+            }
 
         if (vedtakDbRecord.sjekkArbeidssokerregisteret()) {
             val sisteArbeidssokerperiode =
@@ -95,23 +97,25 @@ class FriskTilArbeidSoknadService(
             }
 
         val lagredeSoknader =
-            soknader.filterNot { soknad ->
-                eksisterendeSoknader.any {
-                    soknad.fom == it.fom && soknad.tom == it.tom
-                }.also {
-                    if (it) {
-                        log.info(
-                            "Søknad ${soknad.id} med fom: ${soknad.fom} og tom: ${soknad.tom} for " +
-                                "friskTilArbeidVedtakId: ${soknad.friskTilArbeidVedtakId} eksisterer allerede.",
-                        )
-                    }
+            soknader
+                .filterNot { soknad ->
+                    eksisterendeSoknader
+                        .any {
+                            soknad.fom == it.fom && soknad.tom == it.tom
+                        }.also {
+                            if (it) {
+                                log.info(
+                                    "Søknad ${soknad.id} med fom: ${soknad.fom} og tom: ${soknad.tom} for " +
+                                        "friskTilArbeidVedtakId: ${soknad.friskTilArbeidVedtakId} eksisterer allerede.",
+                                )
+                            }
+                        }
+                }.map { soknad ->
+                    val lagretSoknad = sykepengesoknadDAO.lagreSykepengesoknad(soknad)
+                    soknadProducer.soknadEvent(lagretSoknad)
+                    log.info("Opprettet søknad: ${soknad.id} for friskTilArbeidVedtakId: ${vedtakDbRecord.id}.")
+                    lagretSoknad
                 }
-            }.map { soknad ->
-                val lagretSoknad = sykepengesoknadDAO.lagreSykepengesoknad(soknad)
-                soknadProducer.soknadEvent(lagretSoknad)
-                log.info("Opprettet søknad: ${soknad.id} for friskTilArbeidVedtakId: ${vedtakDbRecord.id}.")
-                lagretSoknad
-            }
 
         friskTilArbeidRepository.save(
             vedtakDbRecord.copy(
@@ -159,7 +163,6 @@ fun defaultPeriodeGenerator(
     }
     return generateSequence(periodeStart) {
         it.plusDays(periodeLengde).takeIf { it.isBeforeOrEqual(periodeSlutt) }
-    }
-        .map { fom -> fom to minOf(fom.plusDays(periodeLengde - 1), periodeSlutt) }
+    }.map { fom -> fom to minOf(fom.plusDays(periodeLengde - 1), periodeSlutt) }
         .toList()
 }

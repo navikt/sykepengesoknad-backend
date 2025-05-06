@@ -14,8 +14,8 @@ fun lagSporsmalOmOppholdstillatelse(
     // kjentOppholdstillatelse skal aldri være null siden vi kaster exception hvis vi ikke mottar den sammen med
     // spørsmål om medlemskap OPPHOLDSTILLATELSE fra LovMe.
     kjentOppholdstillatelse: KjentOppholdstillatelse?,
-): Sporsmal {
-    return Sporsmal(
+): Sporsmal =
+    Sporsmal(
         tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_V2,
         sporsmalstekst = "Har Utlendingsdirektoratet gitt deg en oppholdstillatelse før ${DatoUtil.formatterDato(
             kjentOppholdstillatelse?.fom!!,
@@ -43,10 +43,9 @@ fun lagSporsmalOmOppholdstillatelse(
                 ),
             ),
     )
-}
 
-fun lagSporsmalOmArbeidUtenforNorge(tom: LocalDate): Sporsmal {
-    return Sporsmal(
+fun lagSporsmalOmArbeidUtenforNorge(tom: LocalDate): Sporsmal =
+    Sporsmal(
         tag = MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
         sporsmalstekst = "Har du arbeidet utenfor Norge i løpet av de siste 12 månedene før du ble syk?",
         svartype = Svartype.JA_NEI,
@@ -56,20 +55,17 @@ fun lagSporsmalOmArbeidUtenforNorge(tom: LocalDate): Sporsmal {
                 lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(0, tom),
             ),
     )
-}
 
 fun medIndex(
     tekst: String,
     index: Int,
-): String {
-    return "$tekst$index"
-}
+): String = "$tekst$index"
 
 fun lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(
     index: Int,
     tom: LocalDate,
-): Sporsmal {
-    return Sporsmal(
+): Sporsmal =
+    Sporsmal(
         tag = medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_GRUPPERING, index),
         svartype = Svartype.GRUPPE_AV_UNDERSPORSMAL,
         undersporsmal =
@@ -97,10 +93,9 @@ fun lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(
                 ),
             ),
     )
-}
 
-fun lagSporsmalOmOppholdUtenforNorge(tom: LocalDate): Sporsmal {
-    return Sporsmal(
+fun lagSporsmalOmOppholdUtenforNorge(tom: LocalDate): Sporsmal =
+    Sporsmal(
         tag = MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
         sporsmalstekst = "Har du oppholdt deg i utlandet i løpet av de siste 12 månedene før du ble syk?",
         svartype = Svartype.JA_NEI,
@@ -110,13 +105,12 @@ fun lagSporsmalOmOppholdUtenforNorge(tom: LocalDate): Sporsmal {
                 lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforNorge(0, tom),
             ),
     )
-}
 
 fun lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforNorge(
     index: Int,
     tom: LocalDate,
-): Sporsmal {
-    return Sporsmal(
+): Sporsmal =
+    Sporsmal(
         tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_GRUPPERING, index),
         svartype = Svartype.GRUPPE_AV_UNDERSPORSMAL,
         undersporsmal =
@@ -180,10 +174,9 @@ fun lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforNorge(
                 ),
             ),
     )
-}
 
-fun lagSporsmalOmOppholdUtenforEos(tom: LocalDate): Sporsmal {
-    return Sporsmal(
+fun lagSporsmalOmOppholdUtenforEos(tom: LocalDate): Sporsmal =
+    Sporsmal(
         tag = MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
         sporsmalstekst = "Har du oppholdt deg utenfor EU/EØS eller Sveits i løpet av de siste 12 månedene før du ble syk?",
         svartype = Svartype.JA_NEI,
@@ -193,13 +186,12 @@ fun lagSporsmalOmOppholdUtenforEos(tom: LocalDate): Sporsmal {
                 lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforEos(0, tom),
             ),
     )
-}
 
 fun lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforEos(
     index: Int,
     tom: LocalDate,
-): Sporsmal {
-    return Sporsmal(
+): Sporsmal =
+    Sporsmal(
         tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_GRUPPERING, index),
         svartype = Svartype.GRUPPE_AV_UNDERSPORSMAL,
         undersporsmal =
@@ -263,4 +255,3 @@ fun lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforEos(
                 ),
             ),
     )
-}

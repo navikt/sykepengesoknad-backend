@@ -62,13 +62,11 @@ object AaregMockDispatcher : Dispatcher() {
             .setResponseCode(200)
             .setBody(
                 poppedElement.serialisertTilString(),
-            )
-            .addHeader("Content-Type", "application/json")
+            ).addHeader("Content-Type", "application/json")
     }
 
-    private fun List<Arbeidsforhold>.tilMockResponse(): MockResponse {
-        return MockResponse().setBody(this.serialisertTilString()).addHeader("Content-Type", "application/json")
-    }
+    private fun List<Arbeidsforhold>.tilMockResponse(): MockResponse =
+        MockResponse().setBody(this.serialisertTilString()).addHeader("Content-Type", "application/json")
 }
 
 fun skapArbeidsforholdOversikt(
@@ -80,8 +78,8 @@ fun skapArbeidsforholdOversikt(
     opprettet: LocalDateTime = LocalDateTime.now(),
     opplysningspliktigOrganisasjonsnummer: String? = null,
     ansettelsesdetaljer: List<Ansettelsesdetaljer> = emptyList(),
-): Arbeidsforhold {
-    return Arbeidsforhold(
+): Arbeidsforhold =
+    Arbeidsforhold(
         type = Kodeverksentitet("ordinaertArbeidsforhold", "Ordinært arbeidsforhold"),
         arbeidstaker = Arbeidstaker(listOf(Ident("FOLKEREGISTERIDENT", fnr, true))),
         arbeidssted = Arbeidssted("Underenhet", listOf(Ident("ORGANISASJONSNUMMER", arbeidssted))),
@@ -99,7 +97,6 @@ fun skapArbeidsforholdOversikt(
                 sluttaarsak = sluttaarsak,
             ),
     )
-}
 
 fun tilfeldigOrgNummer(): String {
     var orgNummer = ""

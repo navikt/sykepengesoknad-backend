@@ -96,7 +96,8 @@ class Overlapp(
     private fun List<Sykepengesoknad>.soknaderSomOverlapperEtter(sykmeldingKafkaMessage: SykmeldingKafkaMessage) {
         val sykmeldingId = sykmeldingKafkaMessage.sykmelding.id
         val sykmeldingPeriode = sykmeldingKafkaMessage.periode()
-        this.filter { it.fom!!.isBefore(sykmeldingPeriode.start) }
+        this
+            .filter { it.fom!!.isBefore(sykmeldingPeriode.start) }
             .filter { it.tom!!.isBeforeOrEqual(sykmeldingPeriode.endInclusive) }
             .forEach { sok ->
                 val klipper =
@@ -127,9 +128,10 @@ class Overlapp(
                                         sykmeldingPeriode.overlap(it.fom..it.tom)
                                     },
                                 nyePerioder =
-                                    sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder.filter {
-                                        (sok.fom!!..sok.tom!!).overlap(it.fom..it.tom)
-                                    }.tilSoknadsperioder(),
+                                    sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder
+                                        .filter {
+                                            (sok.fom!!..sok.tom!!).overlap(it.fom..it.tom)
+                                        }.tilSoknadsperioder(),
                             ),
                         eksisterendeSykepengesoknadId = sok.id,
                     )
@@ -140,7 +142,8 @@ class Overlapp(
     private fun List<Sykepengesoknad>.soknaderSomOverlapperFullstendig(sykmeldingKafkaMessage: SykmeldingKafkaMessage) {
         val sykmeldingId = sykmeldingKafkaMessage.sykmelding.id
         val sykmeldingPeriode = sykmeldingKafkaMessage.periode()
-        this.filter { it.fom!!.isAfterOrEqual(sykmeldingPeriode.start) }
+        this
+            .filter { it.fom!!.isAfterOrEqual(sykmeldingPeriode.start) }
             .filter { it.tom!!.isBeforeOrEqual(sykmeldingPeriode.endInclusive) }
             .forEach { sok ->
                 val klipper =
@@ -170,9 +173,10 @@ class Overlapp(
                                         sykmeldingPeriode.overlap(it.fom..it.tom)
                                     },
                                 nyePerioder =
-                                    sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder.filter {
-                                        (sok.fom!!..sok.tom!!).overlap(it.fom..it.tom)
-                                    }.tilSoknadsperioder(),
+                                    sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder
+                                        .filter {
+                                            (sok.fom!!..sok.tom!!).overlap(it.fom..it.tom)
+                                        }.tilSoknadsperioder(),
                             ),
                         eksisterendeSykepengesoknadId = sok.id,
                     )
@@ -183,7 +187,8 @@ class Overlapp(
     private fun List<Sykepengesoknad>.soknaderSomOverlapperFor(sykmeldingKafkaMessage: SykmeldingKafkaMessage) {
         val sykmeldingId = sykmeldingKafkaMessage.sykmelding.id
         val sykmeldingPeriode = sykmeldingKafkaMessage.periode()
-        this.filter { it.fom!!.isAfterOrEqual(sykmeldingPeriode.start) }
+        this
+            .filter { it.fom!!.isAfterOrEqual(sykmeldingPeriode.start) }
             .filter { it.tom!!.isAfter(sykmeldingPeriode.endInclusive) }
             .forEach { sok ->
                 val klipper =
@@ -215,9 +220,10 @@ class Overlapp(
                                         sykmeldingPeriode.overlap(it.fom..it.tom)
                                     },
                                 nyePerioder =
-                                    sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder.filter {
-                                        (sok.fom!!..sok.tom!!).overlap(it.fom..it.tom)
-                                    }.tilSoknadsperioder(),
+                                    sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder
+                                        .filter {
+                                            (sok.fom!!..sok.tom!!).overlap(it.fom..it.tom)
+                                        }.tilSoknadsperioder(),
                             ),
                     )
                 }
@@ -227,7 +233,8 @@ class Overlapp(
     private fun List<Sykepengesoknad>.soknaderSomOverlapperInni(sykmeldingKafkaMessage: SykmeldingKafkaMessage) {
         val sykmeldingId = sykmeldingKafkaMessage.sykmelding.id
         val sykmeldingPeriode = sykmeldingKafkaMessage.periode()
-        this.filter { it.fom!!.isBefore(sykmeldingPeriode.start) }
+        this
+            .filter { it.fom!!.isBefore(sykmeldingPeriode.start) }
             .filter { it.tom!!.isAfter(sykmeldingPeriode.endInclusive) }
             .forEach { sok ->
                 val klipper =
@@ -259,9 +266,10 @@ class Overlapp(
                                         sykmeldingPeriode.overlap(it.fom..it.tom)
                                     },
                                 nyePerioder =
-                                    sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder.filter {
-                                        (sok.fom!!..sok.tom!!).overlap(it.fom..it.tom)
-                                    }.tilSoknadsperioder(),
+                                    sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder
+                                        .filter {
+                                            (sok.fom!!..sok.tom!!).overlap(it.fom..it.tom)
+                                        }.tilSoknadsperioder(),
                             ),
                     )
                 }
@@ -274,7 +282,8 @@ class Overlapp(
         val sykmeldingId = sykmeldingKafkaMessage.sykmelding.id
         var sykmeldingPerioder = sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder
 
-        this.sortedBy { it.tom }
+        this
+            .sortedBy { it.tom }
             .forEach { sok ->
                 val sykPeriode = sykmeldingPerioder.periode()
                 val sokPeriode = sok.fom!!..sok.tom!!
@@ -291,9 +300,10 @@ class Overlapp(
                                     sykPeriode.overlap(it.fom..it.tom)
                                 },
                             nyePerioder =
-                                sykmeldingPerioder.filter {
-                                    sokPeriode.overlap(it.fom..it.tom)
-                                }.tilSoknadsperioder(),
+                                sykmeldingPerioder
+                                    .filter {
+                                        sokPeriode.overlap(it.fom..it.tom)
+                                    }.tilSoknadsperioder(),
                         )
 
                     val klipper = endringIUforegrad == EndringIUforegrad.SAMME_UFØREGRAD
@@ -335,7 +345,8 @@ class Overlapp(
         val sykmeldingId = sykmeldingKafkaMessage.sykmelding.id
         var sykmeldingPerioder = sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder
 
-        this.sortedBy { it.fom }
+        this
+            .sortedBy { it.fom }
             .forEach { sok ->
                 val sykPeriode = sykmeldingPerioder.periode()
                 val sokPeriode = sok.fom!!..sok.tom!!
@@ -352,9 +363,10 @@ class Overlapp(
                                     sykPeriode.overlap(it.fom..it.tom)
                                 },
                             nyePerioder =
-                                sykmeldingPerioder.filter {
-                                    sokPeriode.overlap(it.fom..it.tom)
-                                }.tilSoknadsperioder(),
+                                sykmeldingPerioder
+                                    .filter {
+                                        sokPeriode.overlap(it.fom..it.tom)
+                                    }.tilSoknadsperioder(),
                         )
 
                     val klipper = endringIUforegrad == EndringIUforegrad.SAMME_UFØREGRAD
@@ -396,7 +408,8 @@ class Overlapp(
         val sykmeldingId = sykmeldingKafkaMessage.sykmelding.id
         var sykmeldingPerioder = sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder
 
-        this.sortedBy { it.fom }
+        this
+            .sortedBy { it.fom }
             .filter {
                 it.status in
                     listOf(
@@ -405,8 +418,7 @@ class Overlapp(
                         Soknadstatus.AVBRUTT,
                         Soknadstatus.SENDT,
                     )
-            }
-            .run {
+            }.run {
                 forEach { sok ->
                     val sykPeriode = sykmeldingPerioder.periode()
                     val sokPeriode = sok.fom!!..sok.tom!!
@@ -433,9 +445,10 @@ class Overlapp(
                                             sykPeriode.overlap(it.fom..it.tom)
                                         },
                                     nyePerioder =
-                                        sykmeldingPerioder.filter {
-                                            sokPeriode.overlap(it.fom..it.tom)
-                                        }.tilSoknadsperioder(),
+                                        sykmeldingPerioder
+                                            .filter {
+                                                sokPeriode.overlap(it.fom..it.tom)
+                                            }.tilSoknadsperioder(),
                                 ),
                         )
                         sykmeldingPerioder =
@@ -472,9 +485,10 @@ class Overlapp(
                                             sykPeriode.overlap(it.fom..it.tom)
                                         },
                                     nyePerioder =
-                                        sykmeldingPerioder.filter {
-                                            sokPeriode.overlap(it.fom..it.tom)
-                                        }.tilSoknadsperioder(),
+                                        sykmeldingPerioder
+                                            .filter {
+                                                sokPeriode.overlap(it.fom..it.tom)
+                                            }.tilSoknadsperioder(),
                                 ),
                         )
                         sykmeldingPerioder =
@@ -511,9 +525,10 @@ class Overlapp(
                                             sykPeriode.overlap(it.fom..it.tom)
                                         },
                                     nyePerioder =
-                                        sykmeldingPerioder.filter {
-                                            sokPeriode.overlap(it.fom..it.tom)
-                                        }.tilSoknadsperioder(),
+                                        sykmeldingPerioder
+                                            .filter {
+                                                sokPeriode.overlap(it.fom..it.tom)
+                                            }.tilSoknadsperioder(),
                                 ),
                         )
                         sykmeldingPerioder =
@@ -553,9 +568,10 @@ class Overlapp(
                                             sykPeriode.overlap(it.fom..it.tom)
                                         },
                                     nyePerioder =
-                                        sykmeldingPerioder.filter {
-                                            sokPeriode.overlap(it.fom..it.tom)
-                                        }.tilSoknadsperioder(),
+                                        sykmeldingPerioder
+                                            .filter {
+                                                sokPeriode.overlap(it.fom..it.tom)
+                                            }.tilSoknadsperioder(),
                                 ),
                         )
                         sykmeldingPerioder =

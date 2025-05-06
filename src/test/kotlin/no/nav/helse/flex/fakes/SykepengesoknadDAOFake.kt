@@ -36,19 +36,19 @@ class SykepengesoknadDAOFake : SykepengesoknadDAO {
     @Autowired
     lateinit var medlemskapVurderingRepository: MedlemskapVurderingRepository
 
-    override fun finnSykepengesoknader(identer: FolkeregisterIdenter): List<Sykepengesoknad> {
-        return sykepengesoknadRepository.findAll()
+    override fun finnSykepengesoknader(identer: FolkeregisterIdenter): List<Sykepengesoknad> =
+        sykepengesoknadRepository
+            .findAll()
             .filter { it.fnr in identer.alle() }
             .map { it.hentOgDenormaliserSykepengesoknad() }
             .map { it.sorterSporsmal() }
             .sortedBy { it.opprettet }
-    }
 
     override fun finnSykepengesoknader(
         identer: List<String>,
         soknadstype: Soknadstype?,
-    ): List<Sykepengesoknad> {
-        return finnSykepengesoknader(
+    ): List<Sykepengesoknad> =
+        finnSykepengesoknader(
             FolkeregisterIdenter(
                 identer.first(),
                 identer,
@@ -60,7 +60,6 @@ class SykepengesoknadDAOFake : SykepengesoknadDAO {
                 it.soknadstype == soknadstype
             }
         }
-    }
 
     fun SykepengesoknadDbRecord.hentOgDenormaliserSykepengesoknad(): Sykepengesoknad {
         val sporsmal = sporsmalRepositoryFake.findAll().filter { it.sykepengesoknadId == this.id }
@@ -77,7 +76,9 @@ class SykepengesoknadDAOFake : SykepengesoknadDAO {
 
     override fun finnSykepengesoknad(sykepengesoknadId: String): Sykepengesoknad {
         val sykepengesoknad =
-            sykepengesoknadRepository.findAll().firstOrNull { it.sykepengesoknadUuid == sykepengesoknadId }
+            sykepengesoknadRepository
+                .findAll()
+                .firstOrNull { it.sykepengesoknadUuid == sykepengesoknadId }
                 ?.hentOgDenormaliserSykepengesoknad()
 
         return sykepengesoknad ?: throw SykepengesoknadDAO.SoknadIkkeFunnetException()
@@ -91,12 +92,12 @@ class SykepengesoknadDAOFake : SykepengesoknadDAO {
         TODO("Not yet implemented")
     }
 
-    override fun finnSykepengesoknaderUtenSporsmal(identer: List<String>): List<Sykepengesoknad> {
-        return sykepengesoknadRepository.findAll()
+    override fun finnSykepengesoknaderUtenSporsmal(identer: List<String>): List<Sykepengesoknad> =
+        sykepengesoknadRepository
+            .findAll()
             .filter { it.fnr in identer }
             .map { it.hentOgDenormaliserSykepengesoknad() }
             .sortedBy { it.opprettet }
-    }
 
     override fun finnMottakerAvSoknad(soknadUuid: String): Mottaker? {
         TODO("Not yet implemented")
@@ -131,11 +132,11 @@ class SykepengesoknadDAOFake : SykepengesoknadDAO {
 
     override fun aktiverSoknad(uuid: String) {
         sykepengesoknadRepository.findBySykepengesoknadUuid(uuid)?.also {
-            it.copy(
-                status = Soknadstatus.NY,
-                aktivertDato = LocalDate.now(),
-            )
-                .also { sykepengesoknadRepository.save(it) }
+            it
+                .copy(
+                    status = Soknadstatus.NY,
+                    aktivertDato = LocalDate.now(),
+                ).also { sykepengesoknadRepository.save(it) }
         }
     }
 
@@ -163,9 +164,7 @@ class SykepengesoknadDAOFake : SykepengesoknadDAO {
         return antall
     }
 
-    override fun slettSoknad(sykepengesoknad: Sykepengesoknad) {
-        return slettSoknad(sykepengesoknad.id)
-    }
+    override fun slettSoknad(sykepengesoknad: Sykepengesoknad) = slettSoknad(sykepengesoknad.id)
 
     override fun slettSoknad(sykepengesoknadUuid: String) {
         val sykepengesoknadId = sykepengesoknadId(sykepengesoknadUuid)
@@ -186,11 +185,12 @@ class SykepengesoknadDAOFake : SykepengesoknadDAO {
         soknadLagrer.lagreSporsmalOgSvarFraSoknad(oppdatertSoknad)
     }
 
-    override fun sykepengesoknadId(uuid: String): String {
-        return sykepengesoknadRepository.findAll().first {
-            it.sykepengesoknadUuid == uuid
-        }.id ?: throw RuntimeException("Fant ikke sykepengesoknad med uuid $uuid")
-    }
+    override fun sykepengesoknadId(uuid: String): String =
+        sykepengesoknadRepository
+            .findAll()
+            .first {
+                it.sykepengesoknadUuid == uuid
+            }.id ?: throw RuntimeException("Fant ikke sykepengesoknad med uuid $uuid")
 
     override fun klippSoknadTom(
         sykepengesoknadUuid: String,
@@ -239,14 +239,14 @@ class SykepengesoknadDAOFake : SykepengesoknadDAO {
             if (Mottaker.ARBEIDSGIVER == mottaker || Mottaker.ARBEIDSGIVER_OG_NAV == mottaker) sendt else null
 
         sykepengesoknadRepository.findBySykepengesoknadUuid(sykepengesoknad.id)?.also { sykepengesoknadDbRecord ->
-            sykepengesoknadDbRecord.copy(
-                status = Soknadstatus.SENDT,
-                avsendertype = avsendertype,
-                sendtNav = sendtNav,
-                sendtArbeidsgiver = sendtArbeidsgiver,
-                sendt = sendt,
-            )
-                .also { sykepengesoknadRepository.save(it) }
+            sykepengesoknadDbRecord
+                .copy(
+                    status = Soknadstatus.SENDT,
+                    avsendertype = avsendertype,
+                    sendtNav = sendtNav,
+                    sendtArbeidsgiver = sendtArbeidsgiver,
+                    sendt = sendt,
+                ).also { sykepengesoknadRepository.save(it) }
         }
 
         return finnSykepengesoknad(sykepengesoknad.id)

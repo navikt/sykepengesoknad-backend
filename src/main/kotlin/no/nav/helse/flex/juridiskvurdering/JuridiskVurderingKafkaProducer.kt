@@ -23,13 +23,14 @@ class JuridiskVurderingKafkaProducer(
     fun produserMelding(juridiskVurdering: JuridiskVurdering) {
         val dto = juridiskVurdering.tilDto()
         try {
-            producer.send(
-                ProducerRecord(
-                    juridiskVurderingTopic,
-                    dto.fodselsnummer,
-                    dto,
-                ),
-            ).get()
+            producer
+                .send(
+                    ProducerRecord(
+                        juridiskVurderingTopic,
+                        dto.fodselsnummer,
+                        dto,
+                    ),
+                ).get()
         } catch (e: Throwable) {
             log.warn(
                 "Uventet exception ved publisering av juridiskvurdering ${dto.id} på topic $juridiskVurderingTopic",

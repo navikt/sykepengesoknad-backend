@@ -12,8 +12,8 @@ import java.time.format.DateTimeFormatter
 fun ferieSporsmal(
     fom: LocalDate,
     tom: LocalDate,
-): Sporsmal {
-    return Sporsmal(
+): Sporsmal =
+    Sporsmal(
         tag = FERIE_V2,
         sporsmalstekst = "Tok du ut feriedager i tidsrommet ${DatoUtil.formatterPeriode(fom, tom)}?",
         svartype = Svartype.JA_NEI,
@@ -29,4 +29,3 @@ fun ferieSporsmal(
                 ),
             ),
     )
-}

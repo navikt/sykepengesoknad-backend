@@ -25,21 +25,21 @@ class SykepengesoknadRepositoryFake :
         store[soknad.id ?: throw RuntimeException("Mangler id")] = soknad
     }
 
-    override fun findBySykepengesoknadUuid(sykepengesoknadUuid: String): SykepengesoknadDbRecord? {
-        return findAll().firstOrNull { it.sykepengesoknadUuid == sykepengesoknadUuid }
-    }
+    override fun findBySykepengesoknadUuid(sykepengesoknadUuid: String): SykepengesoknadDbRecord? =
+        findAll().firstOrNull {
+            it.sykepengesoknadUuid == sykepengesoknadUuid
+        }
 
-    override fun findByFriskTilArbeidVedtakId(vedtakId: String): List<SykepengesoknadDbRecord> {
-        return findAll().filter { it.friskTilArbeidVedtakId == vedtakId }
-    }
+    override fun findByFriskTilArbeidVedtakId(vedtakId: String): List<SykepengesoknadDbRecord> =
+        findAll().filter {
+            it.friskTilArbeidVedtakId == vedtakId
+        }
 
     override fun findBySykepengesoknadUuidIn(sykepengesoknadUuid: List<String>): List<SykepengesoknadDbRecord> {
         TODO("Not yet implemented")
     }
 
-    override fun findByFnrIn(fnrs: List<String>): List<SykepengesoknadDbRecord> {
-        return findAll().filter { it.fnr in fnrs }
-    }
+    override fun findByFnrIn(fnrs: List<String>): List<SykepengesoknadDbRecord> = findAll().filter { it.fnr in fnrs }
 
     override fun findBySykmeldingUuid(sykmeldingUuid: String): List<SykepengesoknadDbRecord> {
         TODO("Not yet implemented")
@@ -56,19 +56,17 @@ class SykepengesoknadRepositoryFake :
     override fun findEldsteSoknaden(
         identer: List<String>,
         fom: LocalDate?,
-    ): String? {
-        return findAll()
+    ): String? =
+        findAll()
             .filter { it.fnr in identer }
             .filter { it.status == Soknadstatus.NY || it.status == Soknadstatus.UTKAST_TIL_KORRIGERING }
             .filter { it.fom != null && it.fom!! < fom }
             .sortedBy { it.fom }
             .firstOrNull()
             ?.sykepengesoknadUuid
-    }
 
-    override fun finnSoknaderSomSkalAktiveres(now: LocalDate): List<SykepengesoknadDbRecord> {
-        return findAll()
+    override fun finnSoknaderSomSkalAktiveres(now: LocalDate): List<SykepengesoknadDbRecord> =
+        findAll()
             .filter { it.status == Soknadstatus.FREMTIDIG }
             .filter { it.tom != null && it.tom!! < now }
-    }
 }

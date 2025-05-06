@@ -13,13 +13,12 @@ class TestKafkaConfig(
     private val aivenKafkaConfig: AivenKafkaConfig,
 ) {
     @Bean
-    fun friskTilArbeidKafkaConsumer(): Consumer<String, String> {
-        return DefaultKafkaConsumerFactory(
+    fun friskTilArbeidKafkaConsumer(): Consumer<String, String> =
+        DefaultKafkaConsumerFactory(
             testConsumerProps("frisktilarbeid-consumer"),
             StringDeserializer(),
             StringDeserializer(),
         ).createConsumer()
-    }
 
     fun testConsumerProps(groupId: String) =
         mapOf(

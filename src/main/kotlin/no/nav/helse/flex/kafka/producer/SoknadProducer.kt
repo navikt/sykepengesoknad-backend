@@ -27,20 +27,21 @@ class SoknadProducer(
         opprinneligSendt: Instant? = null,
     ) {
         val sykepengesoknadDTO =
-            sykepengesoknadTilSykepengesoknadDTOMapper.mapTilSykepengesoknadDTO(
-                sykepengesoknad,
-                mottaker,
-                erEttersending,
-                sykepengesoknad.skalLeggeJuridiskVurderingPaKafka(),
-            ).copy(
-                dodsdato = dodsdato,
-                opprinneligSendt = opprinneligSendt?.tilOsloLocalDateTime(),
-            )
+            sykepengesoknadTilSykepengesoknadDTOMapper
+                .mapTilSykepengesoknadDTO(
+                    sykepengesoknad,
+                    mottaker,
+                    erEttersending,
+                    sykepengesoknad.skalLeggeJuridiskVurderingPaKafka(),
+                ).copy(
+                    dodsdato = dodsdato,
+                    opprinneligSendt = opprinneligSendt?.tilOsloLocalDateTime(),
+                )
         kafkaProducer.produserMelding(sykepengesoknadDTO)
     }
 
-    private fun Sykepengesoknad.skalLeggeJuridiskVurderingPaKafka(): Boolean {
-        return when (soknadstype) {
+    private fun Sykepengesoknad.skalLeggeJuridiskVurderingPaKafka(): Boolean =
+        when (soknadstype) {
             ARBEIDSTAKERE, SELVSTENDIGE_OG_FRILANSERE -> {
                 true
             }
@@ -54,5 +55,4 @@ class SoknadProducer(
 
             else -> false
         }
-    }
 }

@@ -7,4 +7,7 @@ data class Tilleggsopplysninger(
     val egenmeldingsperioder: List<Datospenn>?,
 )
 
-data class Datospenn(val fom: LocalDate, val tom: LocalDate)
+data class Datospenn(
+    val fom: LocalDate,
+    val tom: LocalDate,
+)

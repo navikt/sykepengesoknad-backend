@@ -8,7 +8,10 @@ import org.springframework.transaction.annotation.Transactional
 import java.time.OffsetDateTime
 
 interface JulesoknadkandidatDAO {
-    data class Julesoknadkandidat(val julesoknadkandidatId: String, val sykepengesoknadUuid: String)
+    data class Julesoknadkandidat(
+        val julesoknadkandidatId: String,
+        val sykepengesoknadUuid: String,
+    )
 
     fun hentJulesoknadkandidater(): List<JulesoknadkandidatDAO.Julesoknadkandidat>
 
@@ -23,8 +26,8 @@ class JulesoknadkandidatDAOPostgres(
     private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
 ) : JulesoknadkandidatDAO {
     @WithSpan
-    override fun hentJulesoknadkandidater(): List<JulesoknadkandidatDAO.Julesoknadkandidat> {
-        return namedParameterJdbcTemplate.query(
+    override fun hentJulesoknadkandidater(): List<JulesoknadkandidatDAO.Julesoknadkandidat> =
+        namedParameterJdbcTemplate.query(
             """
             SELECT id, sykepengesoknad_uuid 
             FROM julesoknadkandidat
@@ -35,7 +38,6 @@ class JulesoknadkandidatDAOPostgres(
                 sykepengesoknadUuid = resultSet.getString("sykepengesoknad_uuid"),
             )
         }
-    }
 
     @WithSpan
     override fun lagreJulesoknadkandidat(sykepengesoknadUuid: String) {

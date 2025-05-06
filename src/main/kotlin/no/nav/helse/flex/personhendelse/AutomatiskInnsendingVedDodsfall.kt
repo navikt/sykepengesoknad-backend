@@ -54,7 +54,8 @@ class AutomatiskInnsendingVedDodsfall(
         val treMndSiden = LocalDate.now(osloZone).minusMonths(3)
         val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(fnr)
 
-        sykepengesoknadDAO.finnSykepengesoknader(identer)
+        sykepengesoknadDAO
+            .finnSykepengesoknader(identer)
             .filter { it.sykmeldingId != null }
             .filter { Soknadstatus.NY == it.status || Soknadstatus.FREMTIDIG == it.status }
             .forEach {

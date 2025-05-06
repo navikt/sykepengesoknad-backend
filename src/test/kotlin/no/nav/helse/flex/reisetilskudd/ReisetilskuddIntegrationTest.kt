@@ -122,9 +122,10 @@ class ReisetilskuddIntegrationTest : FellesTestOppsett() {
         )
 
         assertThat(
-            soknaden.sporsmal!!.first {
-                it.tag == ANSVARSERKLARING
-            }.sporsmalstekst,
+            soknaden.sporsmal!!
+                .first {
+                    it.tag == ANSVARSERKLARING
+                }.sporsmalstekst,
         ).isEqualTo("Jeg bekrefter at jeg vil svare så riktig som jeg kan.")
         assertThat(soknaden.sporsmal!!.first { it.tag == TIL_SLUTT }.sporsmalstekst).isEqualTo(
             tilSlutt().sporsmalstekst,
@@ -286,7 +287,8 @@ class ReisetilskuddIntegrationTest : FellesTestOppsett() {
         val json =
             oppdaterSporsmalMedResult(fnr, utbetaling, reisetilskudd.id)
                 .andExpect(MockMvcResultMatchers.status().isBadRequest)
-                .andReturn().response.contentAsString
+                .andReturn()
+                .response.contentAsString
         json shouldBeEqualTo "{\"reason\":\"SPORSMALETS_SVAR_VALIDERER_IKKE\"}"
     }
 

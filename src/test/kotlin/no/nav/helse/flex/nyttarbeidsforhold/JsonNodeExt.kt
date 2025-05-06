@@ -6,6 +6,4 @@ import no.nav.helse.flex.soknadsopprettelse.sporsmal.AndreInntektskilderMetadata
 import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.util.serialisertTilString
 
-fun JsonNode.tilAndreInntektskilderMetadata(): AndreInntektskilderMetadata {
-    return objectMapper.readValue(this.serialisertTilString())
-}
+fun JsonNode.tilAndreInntektskilderMetadata(): AndreInntektskilderMetadata = objectMapper.readValue(this.serialisertTilString())

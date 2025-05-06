@@ -68,8 +68,9 @@ class NyttArbeidsforholdMedNyttSkjaringstidspunktTest : NyttArbeidsforholdFelles
     fun `Har ikke nytt arbeidsforhold spørsmål etter nytt skjæringstidspunkt`() {
         val soknaden = hentSoknader(fnr = fnr).first { it.status == RSSoknadstatus.NY }
 
-        soknaden.sporsmal!!.find {
-            it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS + "0"
-        }.shouldBeNull()
+        soknaden.sporsmal!!
+            .find {
+                it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS + "0"
+            }.shouldBeNull()
     }
 }

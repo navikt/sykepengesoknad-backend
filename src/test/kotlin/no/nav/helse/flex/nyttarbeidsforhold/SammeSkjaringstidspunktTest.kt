@@ -126,13 +126,12 @@ class SammeSkjaringstidspunktTest {
     }
 }
 
-fun arbeidsforholdoversikt(startdato: LocalDate): Arbeidsforhold {
-    return skapArbeidsforholdOversikt(
+fun arbeidsforholdoversikt(startdato: LocalDate): Arbeidsforhold =
+    skapArbeidsforholdOversikt(
         fnr = "1234",
         startdato = startdato,
         arbeidssted = "999333667",
     )
-}
 
 fun soknad(
     arbeidsgiverOrgnummer: String = "333333333",

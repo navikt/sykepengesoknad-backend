@@ -97,20 +97,14 @@ class StringStringKafkaProducerFake : Producer<String, String> {
         records.add(p0)
         rutMeldingTilListener(p0)
         return object : Future<RecordMetadata> {
-            override fun cancel(p0: Boolean): Boolean {
-                return false
-            }
+            override fun cancel(p0: Boolean): Boolean = false
 
-            override fun isCancelled(): Boolean {
-                return false
-            }
+            override fun isCancelled(): Boolean = false
 
-            override fun isDone(): Boolean {
-                return true
-            }
+            override fun isDone(): Boolean = true
 
-            override fun get(): RecordMetadata {
-                return RecordMetadata(
+            override fun get(): RecordMetadata =
+                RecordMetadata(
                     TopicPartition("topic", 0),
                     0,
                     0,
@@ -118,13 +112,12 @@ class StringStringKafkaProducerFake : Producer<String, String> {
                     0,
                     0,
                 )
-            }
 
             override fun get(
                 p0: Long,
                 p1: TimeUnit,
-            ): RecordMetadata {
-                return RecordMetadata(
+            ): RecordMetadata =
+                RecordMetadata(
                     TopicPartition("topic", 0),
                     0,
                     0,
@@ -132,11 +125,8 @@ class StringStringKafkaProducerFake : Producer<String, String> {
                     0,
                     0,
                 )
-            }
         }
     }
 }
 
-private fun <K, V> ProducerRecord<K, V>.tilConsumerRecord(): ConsumerRecord<K, V> {
-    return ConsumerRecord(topic(), 1, 1, key(), value())
-}
+private fun <K, V> ProducerRecord<K, V>.tilConsumerRecord(): ConsumerRecord<K, V> = ConsumerRecord(topic(), 1, 1, key(), value())

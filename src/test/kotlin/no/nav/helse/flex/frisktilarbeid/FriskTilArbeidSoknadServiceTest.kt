@@ -184,11 +184,13 @@ class FriskTilArbeidSoknadServiceTest {
     private fun tellAntallDager(
         fom: LocalDate,
         tom: LocalDate,
-    ): Long {
-        return ChronoUnit.DAYS.between(fom, tom) + 1
-    }
+    ): Long = ChronoUnit.DAYS.between(fom, tom) + 1
 
-    private data class ForventetPeriode(val fomString: String, val tomString: String, val antallDager: Long) {
+    private data class ForventetPeriode(
+        val fomString: String,
+        val tomString: String,
+        val antallDager: Long,
+    ) {
         val fom: LocalDate = LocalDate.parse(fomString)
         val tom: LocalDate = LocalDate.parse(tomString)
     }

@@ -23,7 +23,10 @@ data class HentIdenter(
     val identer: List<PdlIdent>,
 )
 
-data class PdlIdent(val gruppe: String, val ident: String)
+data class PdlIdent(
+    val gruppe: String,
+    val ident: String,
+)
 
 data class ErrorLocation(
     val line: String?,

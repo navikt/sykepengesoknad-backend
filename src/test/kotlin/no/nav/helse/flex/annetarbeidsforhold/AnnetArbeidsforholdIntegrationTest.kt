@@ -92,8 +92,7 @@ class AnnetArbeidsforholdIntegrationTest : FellesTestOppsett() {
                 FRISKMELDT_START,
                 LocalDate.of(2018, 1, 5).format(DateTimeFormatter.ISO_LOCAL_DATE),
                 mutert = true,
-            )
-            .also {
+            ).also {
                 val oppdatertSoknad = it.rSSykepengesoknad
 
                 assertThat(oppdatertSoknad.sporsmal!!.first { it.tag == ANDRE_INNTEKTSKILDER }.sporsmalstekst)
@@ -126,8 +125,7 @@ class AnnetArbeidsforholdIntegrationTest : FellesTestOppsett() {
                 FRISKMELDT_START,
                 LocalDate.of(2018, 1, 1).format(DateTimeFormatter.ISO_LOCAL_DATE),
                 mutert = true,
-            )
-            .also {
+            ).also {
                 assertThat(it.rSSykepengesoknad.sporsmal!!.map { it.tag }).isEqualTo(
                     listOf(
                         ANSVARSERKLARING,

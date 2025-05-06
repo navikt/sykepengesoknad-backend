@@ -62,8 +62,10 @@ class UnderersporsmalSortererTest {
                 INNTEKTSKILDE_FRILANSER_SELVSTENDIG,
                 INNTEKTSKILDE_ANNET,
             )
-        soknadSortert.getSporsmalMedTag(HVILKE_ANDRE_INNTEKTSKILDER)
-            .undersporsmal.map { it.tag } `should be equal to` forventetSortering
+        soknadSortert
+            .getSporsmalMedTag(HVILKE_ANDRE_INNTEKTSKILDER)
+            .undersporsmal
+            .map { it.tag } `should be equal to` forventetSortering
     }
 
     @Test
@@ -83,8 +85,10 @@ class UnderersporsmalSortererTest {
                 INNTEKTSKILDE_FRILANSER,
                 INNTEKTSKILDE_ANNET,
             )
-        soknadSortert.getSporsmalMedTag(HVILKE_ANDRE_INNTEKTSKILDER)
-            .undersporsmal.map { it.tag } `should be equal to` forventetSortering
+        soknadSortert
+            .getSporsmalMedTag(HVILKE_ANDRE_INNTEKTSKILDER)
+            .undersporsmal
+            .map { it.tag } `should be equal to` forventetSortering
     }
 
     @Test
@@ -115,8 +119,10 @@ class UnderersporsmalSortererTest {
                 BIL_BOMPENGER,
                 KM_HJEM_JOBB,
             )
-        soknadSortert.getSporsmalMedTag(REISE_MED_BIL)
-            .undersporsmal.map { it.tag } `should be equal to` forventetSortering
+        soknadSortert
+            .getSporsmalMedTag(REISE_MED_BIL)
+            .undersporsmal
+            .map { it.tag } `should be equal to` forventetSortering
     }
 
     @Test
@@ -134,8 +140,10 @@ class UnderersporsmalSortererTest {
                 MEDLEMSKAP_OPPHOLDSTILLATELSE_PERIODE,
             )
 
-        soknadSortert.getSporsmalMedTag(MEDLEMSKAP_OPPHOLDSTILLATELSE_V2)
-            .undersporsmal.map { it.tag } `should be equal to` forventetSortering
+        soknadSortert
+            .getSporsmalMedTag(MEDLEMSKAP_OPPHOLDSTILLATELSE_V2)
+            .undersporsmal
+            .map { it.tag } `should be equal to` forventetSortering
     }
 
     // Tester sortering av opprinnelig spørsmål om oppholdstillatelse siden det fortsatt finnes i søknader som
@@ -161,11 +169,15 @@ class UnderersporsmalSortererTest {
                 MEDLEMSKAP_OPPHOLDSTILLATELSE_PERMANENT,
             )
 
-        soknadSortert.getSporsmalMedTag(MEDLEMSKAP_OPPHOLDSTILLATELSE)
-            .undersporsmal.map { it.tag } `should be equal to` forventetSortering
+        soknadSortert
+            .getSporsmalMedTag(MEDLEMSKAP_OPPHOLDSTILLATELSE)
+            .undersporsmal
+            .map { it.tag } `should be equal to` forventetSortering
 
-        soknadSortert.getSporsmalMedTag(MEDLEMSKAP_OPPHOLDSTILLATELSE_GRUPPE)
-            .undersporsmal.map { it.tag } `should be equal to` forventetSorteringGruppe
+        soknadSortert
+            .getSporsmalMedTag(MEDLEMSKAP_OPPHOLDSTILLATELSE_GRUPPE)
+            .undersporsmal
+            .map { it.tag } `should be equal to` forventetSorteringGruppe
     }
 
     @Test
@@ -183,8 +195,10 @@ class UnderersporsmalSortererTest {
                 medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR, 0),
             )
 
-        soknadSortert.getSporsmalMedTag(medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_GRUPPERING, 0))
-            .undersporsmal.map { it.tag } `should be equal to` forventetSortering
+        soknadSortert
+            .getSporsmalMedTag(medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_GRUPPERING, 0))
+            .undersporsmal
+            .map { it.tag } `should be equal to` forventetSortering
     }
 
     @Test
@@ -223,14 +237,20 @@ class UnderersporsmalSortererTest {
                 medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR, 1),
             )
 
-        soknadSortert.getSporsmalMedTag(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE)
-            .undersporsmal.map { it.tag } `should be equal to` forventetSortering
+        soknadSortert
+            .getSporsmalMedTag(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE)
+            .undersporsmal
+            .map { it.tag } `should be equal to` forventetSortering
 
-        soknadSortert.getSporsmalMedTag(medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_GRUPPERING, 0))
-            .undersporsmal.map { it.tag } `should be equal to` forventetSorteringForstePeriode
+        soknadSortert
+            .getSporsmalMedTag(medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_GRUPPERING, 0))
+            .undersporsmal
+            .map { it.tag } `should be equal to` forventetSorteringForstePeriode
 
-        soknadSortert.getSporsmalMedTag(medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_GRUPPERING, 1))
-            .undersporsmal.map { it.tag } `should be equal to` forventetSorteringAndrePeriode
+        soknadSortert
+            .getSporsmalMedTag(medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_GRUPPERING, 1))
+            .undersporsmal
+            .map { it.tag } `should be equal to` forventetSorteringAndrePeriode
     }
 
     @Test
@@ -248,9 +268,11 @@ class UnderersporsmalSortererTest {
                 medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_NAAR, 0),
             )
 
-        soknadSortert.getSporsmalMedTag(
-            medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_GRUPPERING, 0),
-        ).undersporsmal.map { it.tag } `should be equal to` forventetSortering
+        soknadSortert
+            .getSporsmalMedTag(
+                medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_GRUPPERING, 0),
+            ).undersporsmal
+            .map { it.tag } `should be equal to` forventetSortering
 
         val forventetSorteringBegrunnelse =
             listOf(
@@ -261,9 +283,11 @@ class UnderersporsmalSortererTest {
                 medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE_ANNET, 0),
             )
 
-        soknadSortert.getSporsmalMedTag(
-            medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE, 0),
-        ).undersporsmal.map { it.tag } `should be equal to` forventetSorteringBegrunnelse
+        soknadSortert
+            .getSporsmalMedTag(
+                medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE, 0),
+            ).undersporsmal
+            .map { it.tag } `should be equal to` forventetSorteringBegrunnelse
     }
 
     @Test
@@ -281,9 +305,11 @@ class UnderersporsmalSortererTest {
                 medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_NAAR, 0),
             )
 
-        soknadSortert.getSporsmalMedTag(
-            medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_GRUPPERING, 0),
-        ).undersporsmal.map { it.tag } `should be equal to` forventetSortering
+        soknadSortert
+            .getSporsmalMedTag(
+                medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_GRUPPERING, 0),
+            ).undersporsmal
+            .map { it.tag } `should be equal to` forventetSortering
 
         val forventetSorteringBegrunnelse =
             listOf(
@@ -294,9 +320,11 @@ class UnderersporsmalSortererTest {
                 medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_ANNET, 0),
             )
 
-        soknadSortert.getSporsmalMedTag(
-            medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE, 0),
-        ).undersporsmal.map { it.tag } `should be equal to` forventetSorteringBegrunnelse
+        soknadSortert
+            .getSporsmalMedTag(
+                medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE, 0),
+            ).undersporsmal
+            .map { it.tag } `should be equal to` forventetSorteringBegrunnelse
     }
 
     @Test
@@ -330,22 +358,19 @@ class UnderersporsmalSortererTest {
         ) `should be equal to` 111
     }
 
-    private fun Sykepengesoknad.shuffleSporsmalRekursivt(): Sykepengesoknad {
-        return this.copy(sporsmal = shuffleRekursivt(sporsmal))
-    }
+    private fun Sykepengesoknad.shuffleSporsmalRekursivt(): Sykepengesoknad = this.copy(sporsmal = shuffleRekursivt(sporsmal))
 
-    private fun shuffleRekursivt(undersporsmal: List<Sporsmal>): List<Sporsmal> {
-        return undersporsmal.shuffled().map {
+    private fun shuffleRekursivt(undersporsmal: List<Sporsmal>): List<Sporsmal> =
+        undersporsmal.shuffled().map {
             if (it.undersporsmal.isNotEmpty()) {
                 it.copy(undersporsmal = shuffleRekursivt(it.undersporsmal))
             } else {
                 it
             }
         }
-    }
 
-    private fun lagOpprinneligSporsmalOmOppholdstillatelse(tom: LocalDate): Sporsmal {
-        return Sporsmal(
+    private fun lagOpprinneligSporsmalOmOppholdstillatelse(tom: LocalDate): Sporsmal =
+        Sporsmal(
             tag = MEDLEMSKAP_OPPHOLDSTILLATELSE,
             sporsmalstekst = "Har du oppholdstillatelse fra Utlendingsdirektoratet?",
             svartype = Svartype.JA_NEI,
@@ -401,11 +426,10 @@ class UnderersporsmalSortererTest {
                     ),
                 ),
         )
-    }
 }
 
-fun Sporsmal.tilSoknad(): Sykepengesoknad {
-    return Sykepengesoknad(
+fun Sporsmal.tilSoknad(): Sykepengesoknad =
+    Sykepengesoknad(
         id = UUID.randomUUID().toString(),
         fnr = "123",
         status = Soknadstatus.NY,
@@ -425,4 +449,3 @@ fun Sporsmal.tilSoknad(): Sykepengesoknad {
         egenmeldingsdagerFraSykmelding = null,
         forstegangssoknad = false,
     )
-}

@@ -8,19 +8,22 @@ import org.apache.kafka.clients.producer.ProducerRecord
 import org.springframework.stereotype.Component
 
 @Component
-class AktiveringProducer(private val aktiveringKafkaProducer: Producer<String, AktiveringBestilling>) {
+class AktiveringProducer(
+    private val aktiveringKafkaProducer: Producer<String, AktiveringBestilling>,
+) {
     val log = logger()
 
     @WithSpan
     fun leggPaAktiveringTopic(aktiveringBestilling: AktiveringBestilling) {
         try {
-            aktiveringKafkaProducer.send(
-                ProducerRecord(
-                    SYKEPENGESOKNAD_AKTIVERING_TOPIC,
-                    aktiveringBestilling.soknadId,
-                    aktiveringBestilling,
-                ),
-            ).get()
+            aktiveringKafkaProducer
+                .send(
+                    ProducerRecord(
+                        SYKEPENGESOKNAD_AKTIVERING_TOPIC,
+                        aktiveringBestilling.soknadId,
+                        aktiveringBestilling,
+                    ),
+                ).get()
         } catch (exception: Exception) {
             log.error(
                 "Det feiler når aktivering bestilling ${aktiveringBestilling.soknadId} skal legges på $SYKEPENGESOKNAD_AKTIVERING_TOPIC",

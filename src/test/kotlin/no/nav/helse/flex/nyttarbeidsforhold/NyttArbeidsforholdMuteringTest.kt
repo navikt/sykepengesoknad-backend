@@ -22,7 +22,8 @@ class NyttArbeidsforholdMuteringTest : NyttArbeidsforholdFellesOppsett() {
                 it.tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS)
             }!!
         @Suppress("ktlint:standard:max-line-length")
-        nyttArbeidsforholdSpm.sporsmalstekst `should be equal to` "Har du jobbet noe hos Kiosken, avd Oslo AS i perioden 5. - 15. september 2022?"
+        nyttArbeidsforholdSpm.sporsmalstekst `should be equal to`
+            "Har du jobbet noe hos Kiosken, avd Oslo AS i perioden 5. - 15. september 2022?"
         nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedOrgnummer").textValue() `should be equal to` "999888777"
         nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedNavn").textValue() `should be equal to` "Kiosken, avd Oslo AS"
         nyttArbeidsforholdSpm.metadata!!.get("startdatoAareg").textValue() `should be equal to` "2022-09-05"
@@ -44,9 +45,10 @@ class NyttArbeidsforholdMuteringTest : NyttArbeidsforholdFellesOppsett() {
     fun `Spørsmålet er mutert bort`() {
         val soknaden = hentSoknader(fnr = fnr).first()
 
-        soknaden.sporsmal!!.find {
-            it.tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS)
-        }.shouldBeNull()
+        soknaden.sporsmal!!
+            .find {
+                it.tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS)
+            }.shouldBeNull()
     }
 
     @Test
@@ -63,9 +65,10 @@ class NyttArbeidsforholdMuteringTest : NyttArbeidsforholdFellesOppsett() {
     fun `Spørsmålet er fortsatt mutert bort fordi det var før startdatoen`() {
         val soknaden = hentSoknader(fnr = fnr).first()
 
-        soknaden.sporsmal!!.find {
-            it.tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS)
-        }.shouldBeNull()
+        soknaden.sporsmal!!
+            .find {
+                it.tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS)
+            }.shouldBeNull()
     }
 
     @Test
@@ -86,7 +89,8 @@ class NyttArbeidsforholdMuteringTest : NyttArbeidsforholdFellesOppsett() {
                 it.tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS)
             }!!
         @Suppress("ktlint:standard:max-line-length")
-        nyttArbeidsforholdSpm.sporsmalstekst `should be equal to` "Har du jobbet noe hos Kiosken, avd Oslo AS i perioden 5. - 5. september 2022?"
+        nyttArbeidsforholdSpm.sporsmalstekst `should be equal to`
+            "Har du jobbet noe hos Kiosken, avd Oslo AS i perioden 5. - 5. september 2022?"
         nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedOrgnummer").textValue() `should be equal to` "999888777"
         nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedNavn").textValue() `should be equal to` "Kiosken, avd Oslo AS"
         nyttArbeidsforholdSpm.metadata!!.get("startdatoAareg").textValue() `should be equal to` "2022-09-05"
@@ -106,9 +110,10 @@ class NyttArbeidsforholdMuteringTest : NyttArbeidsforholdFellesOppsett() {
     @Order(10)
     fun `Spørsmålet er ikke der på startdatoen`() {
         val soknaden = hentSoknader(fnr = fnr).first()
-        soknaden.sporsmal!!.find {
-            it.tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS)
-        }.shouldBeNull()
+        soknaden.sporsmal!!
+            .find {
+                it.tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS)
+            }.shouldBeNull()
     }
 
     @Test
@@ -129,7 +134,8 @@ class NyttArbeidsforholdMuteringTest : NyttArbeidsforholdFellesOppsett() {
                 it.tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS)
             }!!
         @Suppress("ktlint:standard:max-line-length")
-        nyttArbeidsforholdSpm.sporsmalstekst `should be equal to` "Har du jobbet noe hos Kiosken, avd Oslo AS i perioden 5. - 15. september 2022?"
+        nyttArbeidsforholdSpm.sporsmalstekst `should be equal to`
+            "Har du jobbet noe hos Kiosken, avd Oslo AS i perioden 5. - 15. september 2022?"
         nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedOrgnummer").textValue() `should be equal to` "999888777"
         nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedNavn").textValue() `should be equal to` "Kiosken, avd Oslo AS"
         nyttArbeidsforholdSpm.metadata!!.get("startdatoAareg").textValue() `should be equal to` "2022-09-05"
@@ -160,8 +166,7 @@ class NyttArbeidsforholdMuteringTest : NyttArbeidsforholdFellesOppsett() {
                     tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO + "0",
                     svar = "400000",
                     ferdigBesvart = true,
-                )
-                .sendSoknad()
+                ).sendSoknad()
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
 
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()

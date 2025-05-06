@@ -7,8 +7,8 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 fun Sykepengesoknad.sorterSporsmal(): Sykepengesoknad {
     val soknad = this
 
-    fun Sporsmal.plasseringSporsmal(): Int {
-        return when (soknad.soknadstype) {
+    fun Sporsmal.plasseringSporsmal(): Int =
+        when (soknad.soknadstype) {
             Soknadstype.SELVSTENDIGE_OG_FRILANSERE -> fellesPlasseringSporsmal()
             Soknadstype.ARBEIDSTAKERE -> fellesPlasseringSporsmal()
             Soknadstype.ARBEIDSLEDIG -> fellesPlasseringSporsmal()
@@ -19,13 +19,12 @@ fun Sykepengesoknad.sorterSporsmal(): Sykepengesoknad {
             Soknadstype.GRADERT_REISETILSKUDD -> fellesPlasseringSporsmal()
             Soknadstype.FRISKMELDT_TIL_ARBEIDSFORMIDLING -> fellesPlasseringSporsmal()
         }
-    }
 
     return this.copy(sporsmal = this.sporsmal.sortedBy { it.plasseringSporsmal() }).sorterUndersporsmal()
 }
 
-fun Sporsmal.fellesPlasseringSporsmal(): Int {
-    return when (tag) {
+fun Sporsmal.fellesPlasseringSporsmal(): Int =
+    when (tag) {
         ANSVARSERKLARING -> -1000
         UTENLANDSK_SYKMELDING_BOSTED -> -900
         UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE -> -899
@@ -82,10 +81,9 @@ fun Sporsmal.fellesPlasseringSporsmal(): Int {
         TIL_SLUTT -> 1001
         else -> plasseringAvSporsmalSomKanRepeteresFlereGanger()
     }
-}
 
-private fun Sporsmal.plasseringAvSporsmalSomKanRepeteresFlereGanger(): Int {
-    return if (tag.startsWith(JOBBET_DU_GRADERT)) {
+private fun Sporsmal.plasseringAvSporsmalSomKanRepeteresFlereGanger(): Int =
+    if (tag.startsWith(JOBBET_DU_GRADERT)) {
         Integer.parseInt(tag.replace(JOBBET_DU_GRADERT, ""))
     } else if (tag.startsWith(JOBBET_DU_100_PROSENT)) {
         Integer.parseInt(tag.replace(JOBBET_DU_100_PROSENT, ""))
@@ -96,4 +94,3 @@ private fun Sporsmal.plasseringAvSporsmalSomKanRepeteresFlereGanger(): Int {
     } else {
         0
     }
-}

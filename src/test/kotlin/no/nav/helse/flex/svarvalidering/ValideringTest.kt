@@ -614,37 +614,32 @@ class ValideringTest {
         return sporsmal
     }
 
-    private fun getSporsmal(svartype: Svartype): Sporsmal {
-        return getSporsmalMedGrenser(svartype, null, null)
-    }
+    private fun getSporsmal(svartype: Svartype): Sporsmal = getSporsmalMedGrenser(svartype, null, null)
 
     private fun getSporsmal(
         svartype: Svartype,
         svar: List<Svar>,
-    ): Sporsmal {
-        return getSporsmalMedGrenser(svartype, null, null, svar)
-    }
+    ): Sporsmal = getSporsmalMedGrenser(svartype, null, null, svar)
 
     private fun getSporsmalMedGrenser(
         svartype: Svartype,
         min: String?,
         max: String?,
         svar: List<Svar> = emptyList(),
-    ): Sporsmal {
-        return Sporsmal(
+    ): Sporsmal =
+        Sporsmal(
             tag = ("ANY"),
             svartype = (svartype),
             min = (min),
             max = (max),
             svar = (svar),
         )
-    }
 
     private fun getSporsmalMedTomtUndersporsmal(
         svartype: Svartype,
         svar: List<Svar>,
-    ): Sporsmal {
-        return Sporsmal(
+    ): Sporsmal =
+        Sporsmal(
             tag = ("ANY"),
             svartype = (svartype),
             min = (null),
@@ -652,7 +647,6 @@ class ValideringTest {
             svar = (svar),
             undersporsmal = (emptyList()),
         )
-    }
 
     @Test
     fun landSvarErInnenforGrenseneSomErSatt() {
@@ -702,8 +696,8 @@ class ValideringTest {
     private fun validerSvarverdi(
         sporsmal: Sporsmal,
         verdi: String,
-    ): Boolean {
-        return try {
+    ): Boolean =
+        try {
             sporsmal.copy(svar = listOf(Svar(null, verdi = verdi))).validerSvarverdier()
             true
         } catch (e: ValideringException) {
@@ -711,13 +705,12 @@ class ValideringTest {
         } catch (e: IllegalStateException) {
             false
         }
-    }
 
     private fun validerGrenser(
         sporsmal: Sporsmal,
         verdi: String,
-    ): Boolean {
-        return try {
+    ): Boolean =
+        try {
             sporsmal.copy(svar = listOf(Svar(null, verdi = verdi))).validerGrenserPaSvar()
             true
         } catch (e: ValideringException) {
@@ -725,10 +718,9 @@ class ValideringTest {
         } catch (e: IllegalStateException) {
             false
         }
-    }
 
-    private fun validerUndersporsmal(sporsmal: Sporsmal): Boolean {
-        return try {
+    private fun validerUndersporsmal(sporsmal: Sporsmal): Boolean =
+        try {
             sporsmal.validerUndersporsmal()
             true
         } catch (e: ValideringException) {
@@ -736,14 +728,12 @@ class ValideringTest {
         } catch (e: IllegalStateException) {
             false
         }
-    }
 
-    private fun validerSvarPaSoknad(soknad: Sykepengesoknad): Boolean {
-        return try {
+    private fun validerSvarPaSoknad(soknad: Sykepengesoknad): Boolean =
+        try {
             soknad.validerSvarPaSoknad()
             true
         } catch (e: ValideringException) {
             false
         }
-    }
 }

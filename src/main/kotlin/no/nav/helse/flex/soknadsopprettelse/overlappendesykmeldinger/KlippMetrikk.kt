@@ -7,7 +7,9 @@ import org.springframework.stereotype.Component
 import java.time.Instant
 
 @Component
-class KlippMetrikk(private val klippMetrikkRepository: KlippMetrikkRepository) {
+class KlippMetrikk(
+    private val klippMetrikkRepository: KlippMetrikkRepository,
+) {
     fun klippMetrikk(
         klippMetrikkVariant: KlippVariant,
         soknadstatus: String,

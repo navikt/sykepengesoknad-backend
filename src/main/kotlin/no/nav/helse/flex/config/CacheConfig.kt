@@ -33,11 +33,13 @@ class CacheConfig(
         redisConnection.password = RedisPassword.of(valkeyPassword)
 
         val clientConfiguration =
-            LettuceClientConfiguration.builder().apply {
-                if ("default" != valkeyUsername) {
-                    useSsl()
-                }
-            }.build()
+            LettuceClientConfiguration
+                .builder()
+                .apply {
+                    if ("default" != valkeyUsername) {
+                        useSsl()
+                    }
+                }.build()
 
         return LettuceConnectionFactory(redisConnection, clientConfiguration)
     }
@@ -51,7 +53,8 @@ class CacheConfig(
                 .defaultCacheConfig()
                 .entryTtl(Duration.ofHours(1))
 
-        return RedisCacheManager.builder(redisConnectionFactory)
+        return RedisCacheManager
+            .builder(redisConnectionFactory)
             .cacheDefaults(RedisCacheConfiguration.defaultCacheConfig())
             .withInitialCacheConfigurations(cacheConfigurations)
             .enableStatistics()

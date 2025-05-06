@@ -35,7 +35,11 @@ class TilbakedatertSykmeldingIntegrationTest : FellesTestOppsett() {
         val hentetViaRest = hentSoknaderMetadata(fnr)
         assertThat(hentetViaRest).hasSize(1)
         hentetViaRest.first().merknaderFraSykmelding!!.shouldHaveSize(1)
-        hentetViaRest.first().merknaderFraSykmelding!!.first().type `should be equal to` "UNDER_BEHANDLING"
+        hentetViaRest
+            .first()
+            .merknaderFraSykmelding!!
+            .first()
+            .type `should be equal to` "UNDER_BEHANDLING"
     }
 
     @Test
@@ -48,7 +52,11 @@ class TilbakedatertSykmeldingIntegrationTest : FellesTestOppsett() {
         val hentetViaRest = hentSoknaderMetadata(fnr)
         assertThat(hentetViaRest).hasSize(1)
         hentetViaRest.first().merknaderFraSykmelding!!.shouldHaveSize(1)
-        hentetViaRest.first().merknaderFraSykmelding!!.first().type `should be equal to` "UGYLDIG_TILBAKEDATERING"
+        hentetViaRest
+            .first()
+            .merknaderFraSykmelding!!
+            .first()
+            .type `should be equal to` "UGYLDIG_TILBAKEDATERING"
     }
 
     @Test
@@ -72,7 +80,11 @@ class TilbakedatertSykmeldingIntegrationTest : FellesTestOppsett() {
         val hentetViaRest = hentSoknaderMetadata(fnr)
         assertThat(hentetViaRest).hasSize(1)
         hentetViaRest.first().merknaderFraSykmelding!!.shouldHaveSize(1)
-        hentetViaRest.first().merknaderFraSykmelding!!.first().type `should be equal to` "UNDER_BEHANDLING"
+        hentetViaRest
+            .first()
+            .merknaderFraSykmelding!!
+            .first()
+            .type `should be equal to` "UNDER_BEHANDLING"
     }
 
     @Test

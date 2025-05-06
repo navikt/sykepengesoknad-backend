@@ -24,14 +24,13 @@ class MedlemskapsrepositoryFake :
         sykepengesoknadId: String,
         fom: LocalDate,
         tom: LocalDate,
-    ): MedlemskapVurderingDbRecord? {
-        return findAll()
+    ): MedlemskapVurderingDbRecord? =
+        findAll()
             .firstOrNull {
                 it.sykepengesoknadId == sykepengesoknadId &&
                     it.fom == fom &&
                     it.tom == tom
             }
-    }
 
     override fun deleteBySykepengesoknadId(sykepengesoknadId: String): Long {
         val toDelete = findAll().filter { it.sykepengesoknadId == sykepengesoknadId }
@@ -45,7 +44,5 @@ class MedlemskapsrepositoryFake :
         return toDelete.size.toLong()
     }
 
-    override fun findAllBySykepengesoknadId(ids: List<String>): List<MedlemskapVurderingDbRecord> {
-        return findAll().filter { it.id in ids }
-    }
+    override fun findAllBySykepengesoknadId(ids: List<String>): List<MedlemskapVurderingDbRecord> = findAll().filter { it.id in ids }
 }

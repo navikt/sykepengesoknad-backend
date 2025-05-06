@@ -35,13 +35,16 @@ class SykepengesoknadTest {
         val sporsmalOgUndersporsmal = sykepengesoknad.alleSporsmalOgUndersporsmal()
 
         assertThat(
-            sporsmalOgUndersporsmal.mapNotNull {
-                it.sporsmalstekst
-            }.map { i ->
-                i.split(" ".toRegex()).dropLastWhile {
-                    it.isEmpty()
-                }.toTypedArray()[0]
-            }.joinToString(","),
+            sporsmalOgUndersporsmal
+                .mapNotNull {
+                    it.sporsmalstekst
+                }.map { i ->
+                    i
+                        .split(" ".toRegex())
+                        .dropLastWhile {
+                            it.isEmpty()
+                        }.toTypedArray()[0]
+                }.joinToString(","),
         ).isEqualTo("Når,Hvilke(t),Har,Er,Har")
     }
 
@@ -58,9 +61,11 @@ class SykepengesoknadTest {
 
         val sporsmalOgUndersporsmal = sykepengesoknad.alleSporsmalOgUndersporsmal()
         assertThat(
-            sporsmalOgUndersporsmal.mapNotNull { it.sporsmalstekst }.map { i ->
-                i.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0]
-            }.joinToString(","),
+            sporsmalOgUndersporsmal
+                .mapNotNull { it.sporsmalstekst }
+                .map { i ->
+                    i.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0]
+                }.joinToString(","),
         ).isEqualTo("Når,Hvilke(t),HEISANN,Er,Har")
     }
 

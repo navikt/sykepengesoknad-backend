@@ -49,10 +49,8 @@ class RollbackOnCheckedExceptionsTest : FellesTestOppsett() {
 }
 
 @Component
-class MockKafkaProducer() {
-    fun mockSendMelding(): RecordMetadata {
-        throw ExecutionException("ExecutionException", RuntimeException("RuntimeException"))
-    }
+class MockKafkaProducer {
+    fun mockSendMelding(): RecordMetadata = throw ExecutionException("ExecutionException", RuntimeException("RuntimeException"))
 }
 
 @Service

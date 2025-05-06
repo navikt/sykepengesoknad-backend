@@ -418,7 +418,9 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
 
         // Første søknad skal inneholde spørsmål om medlemskap, men ikke ARBEID_UTENFOR_NORGE.
         forsteSoknad.medlemskapVurdering `should be equal to` "UAVKLART"
-        forsteSoknad.sporsmal.flatten().map { it.tag }
+        forsteSoknad.sporsmal
+            .flatten()
+            .map { it.tag }
             .apply {
                 this `should contain all`
                     listOf(
@@ -503,7 +505,9 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
 
         // Første søknad skal inneholde spørsmål om medlemskap, men ikke ARBEID_UTENFOR_NORGE.
         forsteKafkaSoknad.medlemskapVurdering `should be equal to` "UAVKLART"
-        forsteKafkaSoknad.sporsmal.flatten().map { it.tag }
+        forsteKafkaSoknad.sporsmal
+            .flatten()
+            .map { it.tag }
             .apply {
                 this `should contain all`
                     listOf(

@@ -94,28 +94,18 @@ class AktiveringKafkaProducerFake : Producer<String, AktiveringBestilling> {
             }
         }).start()
         return object : Future<RecordMetadata> {
-            override fun cancel(p0: Boolean): Boolean {
-                return false
-            }
+            override fun cancel(p0: Boolean): Boolean = false
 
-            override fun isCancelled(): Boolean {
-                return false
-            }
+            override fun isCancelled(): Boolean = false
 
-            override fun isDone(): Boolean {
-                return true
-            }
+            override fun isDone(): Boolean = true
 
-            override fun get(): RecordMetadata {
-                return RecordMetadata(TopicPartition("topic", 0), 0, 0, 0, 0, 0)
-            }
+            override fun get(): RecordMetadata = RecordMetadata(TopicPartition("topic", 0), 0, 0, 0, 0, 0)
 
             override fun get(
                 p0: Long,
                 p1: TimeUnit,
-            ): RecordMetadata {
-                return RecordMetadata(TopicPartition("topic", 0), 0, 0, 0, 0, 0)
-            }
+            ): RecordMetadata = RecordMetadata(TopicPartition("topic", 0), 0, 0, 0, 0, 0)
         }
     }
 }

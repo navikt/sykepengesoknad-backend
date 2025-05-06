@@ -11,8 +11,8 @@ import no.nav.helse.flex.util.DatoUtil.formatterPeriode
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
-fun skapReisetilskuddsoknad(opts: SettOppSoknadOptions): List<Sporsmal> {
-    return mutableListOf(
+fun skapReisetilskuddsoknad(opts: SettOppSoknadOptions): List<Sporsmal> =
+    mutableListOf(
         ansvarserklaringSporsmal(),
     ).also {
         it.addAll(
@@ -25,7 +25,6 @@ fun skapReisetilskuddsoknad(opts: SettOppSoknadOptions): List<Sporsmal> {
         it.addAll(opts.yrkesskade.yrkeskadeSporsmal())
         it.add(tilSlutt())
     }.toList()
-}
 
 fun reisetilskuddSporsmal(
     fom: LocalDate,

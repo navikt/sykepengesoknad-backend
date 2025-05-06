@@ -37,7 +37,9 @@ interface LoggerFunction {
     )
 }
 
-class WarnLogger(private val log: Logger) : LoggerFunction {
+class WarnLogger(
+    private val log: Logger,
+) : LoggerFunction {
     override fun log(
         message: String,
         throwable: Throwable,
@@ -46,7 +48,9 @@ class WarnLogger(private val log: Logger) : LoggerFunction {
     }
 }
 
-class ErrorLogger(private val log: Logger) : LoggerFunction {
+class ErrorLogger(
+    private val log: Logger,
+) : LoggerFunction {
     override fun log(
         message: String,
         throwable: Throwable,

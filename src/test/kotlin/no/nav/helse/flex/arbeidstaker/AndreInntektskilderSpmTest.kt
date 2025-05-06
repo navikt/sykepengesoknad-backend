@@ -68,8 +68,10 @@ class AndreInntektskilderSpmTest : FellesTestOppsett() {
             soknaden.sporsmal!!.find {
                 it.tag == "ANDRE_INNTEKTSKILDER_V2"
             }!!
-        andreInntektskilderSpm.sporsmalstekst `should be equal to` "Har du andre inntektskilder enn Matbutikken AS, Bensinstasjonen AS og Frilanseransetter AS?"
-        andreInntektskilderSpm.metadata!!.serialisertTilString() `should be equal to` """{"kjenteInntektskilder":[{"navn":"Matbutikken AS","kilde":"SYKMELDING","orgnummer":"123454543"},{"navn":"Bensinstasjonen AS","kilde":"INNTEKTSKOMPONENTEN","orgnummer":"999333666"},{"navn":"Frilanseransetter AS","kilde":"INNTEKTSKOMPONENTEN","orgnummer":"999333667"}]}"""
+        andreInntektskilderSpm.sporsmalstekst `should be equal to`
+            "Har du andre inntektskilder enn Matbutikken AS, Bensinstasjonen AS og Frilanseransetter AS?"
+        andreInntektskilderSpm.metadata!!.serialisertTilString() `should be equal to`
+            """{"kjenteInntektskilder":[{"navn":"Matbutikken AS","kilde":"SYKMELDING","orgnummer":"123454543"},{"navn":"Bensinstasjonen AS","kilde":"INNTEKTSKOMPONENTEN","orgnummer":"999333666"},{"navn":"Frilanseransetter AS","kilde":"INNTEKTSKOMPONENTEN","orgnummer":"999333667"}]}"""
     }
 
     @Test

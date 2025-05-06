@@ -36,16 +36,17 @@ class AadRestTemplateConfiguration {
         connectionManager.maxTotal = 50
         // Erstatter deprecated HttpComponentsClientHttpRequestFactory.setReadTimeout()
         connectionManager.defaultSocketConfig =
-            SocketConfig.custom()
+            SocketConfig
+                .custom()
                 .setSoTimeout(
                     Timeout.of(
                         MEDLEMSKAP_VURDERING_REST_TEMPLATE_READ_TIMEOUT,
                         java.util.concurrent.TimeUnit.SECONDS,
                     ),
-                )
-                .build()
+                ).build()
 
-        return HttpClientBuilder.create()
+        return HttpClientBuilder
+            .create()
             .setConnectionManager(connectionManager)
             .build()
     }
@@ -210,11 +211,10 @@ class AadRestTemplateConfiguration {
     private fun bearerTokenInterceptor(
         clientProperties: ClientProperties,
         oAuth2AccessTokenService: OAuth2AccessTokenService,
-    ): ClientHttpRequestInterceptor {
-        return ClientHttpRequestInterceptor { request: HttpRequest, body: ByteArray, execution: ClientHttpRequestExecution ->
+    ): ClientHttpRequestInterceptor =
+        ClientHttpRequestInterceptor { request: HttpRequest, body: ByteArray, execution: ClientHttpRequestExecution ->
             val response = oAuth2AccessTokenService.getAccessToken(clientProperties)
             response.access_token?.let { request.headers.setBearerAuth(it) }
             execution.execute(request, body)
         }
-    }
 }

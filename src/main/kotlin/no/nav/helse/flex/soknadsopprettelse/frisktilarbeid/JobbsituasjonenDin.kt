@@ -11,8 +11,8 @@ import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 private fun fortsattArbeidssokerDato(
     fom: LocalDate,
     tom: LocalDate,
-): Sporsmal {
-    return Sporsmal(
+): Sporsmal =
+    Sporsmal(
         tag = FTA_JOBBSITUASJONEN_DIN_FORTSATT_FRISKMELDT_AVREGISTRERT_NAR,
         sporsmalstekst = "Fra hvilken dato vil du ikke lenger være friskmeldt til arbeidsformidling?",
         undertekst = "Du vil ikke få utbetalt sykepenger fra og med denne datoen",
@@ -22,7 +22,6 @@ private fun fortsattArbeidssokerDato(
         kriterieForVisningAvUndersporsmal = null,
         undersporsmal = emptyList(),
     )
-}
 
 private fun fortsattArbeidssoker(
     nyJobbUndersporsmal: Boolean,

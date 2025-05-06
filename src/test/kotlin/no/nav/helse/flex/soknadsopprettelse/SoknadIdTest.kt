@@ -57,12 +57,13 @@ class SoknadIdTest {
         val soknadIdEn = sykmeldingKafkaMessage.skapSoknadsId(LocalDate.now(), LocalDate.now())
 
         val soknadIdTo =
-            sykmeldingKafkaMessage.copy(
-                event =
-                    sykmeldingKafkaMessage.event.copy(
-                        timestamp = OffsetDateTime.now().plusDays(1),
-                    ),
-            ).skapSoknadsId(LocalDate.now(), LocalDate.now())
+            sykmeldingKafkaMessage
+                .copy(
+                    event =
+                        sykmeldingKafkaMessage.event.copy(
+                            timestamp = OffsetDateTime.now().plusDays(1),
+                        ),
+                ).skapSoknadsId(LocalDate.now(), LocalDate.now())
 
         soknadIdEn `should not be equal to` soknadIdTo
     }

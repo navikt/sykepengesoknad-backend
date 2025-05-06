@@ -20,11 +20,12 @@ class ArbeidsforholdFraInntektskomponentenHenting(
         val sykmeldingOrgnummer = arbeidsgiverOrgnummer
 
         val hentedeInntekter =
-            inntektskomponentenClient.hentInntekter(
-                fnr,
-                fom = startSykeforlop.yearMonth().minusMonths(3),
-                tom = startSykeforlop.yearMonth(),
-            ).arbeidsInntektMaaned
+            inntektskomponentenClient
+                .hentInntekter(
+                    fnr,
+                    fom = startSykeforlop.yearMonth().minusMonths(3),
+                    tom = startSykeforlop.yearMonth(),
+                ).arbeidsInntektMaaned
 
         fun ArbeidsInntektMaaned.orgnumreForManed(): Set<String> {
             val inntekterOrgnummer =

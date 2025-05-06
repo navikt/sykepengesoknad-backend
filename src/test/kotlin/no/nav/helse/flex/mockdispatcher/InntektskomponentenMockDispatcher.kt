@@ -118,7 +118,6 @@ object InntektskomponentenMockDispatcher : Dispatcher() {
         return HentInntekterResponse(arbeidsInntektMaaned = emptyList(), ident = req.ident).tilMockResponse()
     }
 
-    fun HentInntekterResponse.tilMockResponse(): MockResponse {
-        return MockResponse().setBody(this.serialisertTilString()).addHeader("Content-Type", "application/json")
-    }
+    fun HentInntekterResponse.tilMockResponse(): MockResponse =
+        MockResponse().setBody(this.serialisertTilString()).addHeader("Content-Type", "application/json")
 }

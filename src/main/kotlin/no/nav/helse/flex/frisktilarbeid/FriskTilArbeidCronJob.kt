@@ -30,7 +30,8 @@ class FriskTilArbeidCronJob(
     }
 
     fun behandleFriskTilArbeidVedtak() {
-        friskTilArbeidService.behandleFriskTilArbeidVedtakStatus(BEHANDLE_ANTALL_FRISK_TIL_ARBEID_VEDTAK)
+        friskTilArbeidService
+            .behandleFriskTilArbeidVedtakStatus(BEHANDLE_ANTALL_FRISK_TIL_ARBEID_VEDTAK)
             .filter { it.tom!!.isBefore(LocalDate.now()) }
             .forEach {
                 aktiveringProducer.leggPaAktiveringTopic(AktiveringBestilling(it.fnr, it.id))

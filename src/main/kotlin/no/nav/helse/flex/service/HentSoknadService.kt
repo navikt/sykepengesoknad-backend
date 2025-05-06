@@ -21,13 +21,10 @@ class HentSoknadService(
 ) {
     val log = logger()
 
-    fun hentSoknader(identer: FolkeregisterIdenter): List<Sykepengesoknad> {
-        return sykepengesoknadDAO.finnSykepengesoknader(identer)
-    }
+    fun hentSoknader(identer: FolkeregisterIdenter): List<Sykepengesoknad> = sykepengesoknadDAO.finnSykepengesoknader(identer)
 
-    fun hentSoknaderUtenSporsmal(identer: FolkeregisterIdenter): List<Sykepengesoknad> {
-        return sykepengesoknadDAO.finnSykepengesoknaderUtenSporsmal(identer.alle())
-    }
+    fun hentSoknaderUtenSporsmal(identer: FolkeregisterIdenter): List<Sykepengesoknad> =
+        sykepengesoknadDAO.finnSykepengesoknaderUtenSporsmal(identer.alle())
 
     fun finnSykepengesoknad(uuid: String): Sykepengesoknad {
         val soknad = sykepengesoknadDAO.finnSykepengesoknad(uuid)
@@ -39,7 +36,8 @@ class HentSoknadService(
 
     private fun patchSoknad(soknad: Sykepengesoknad): Boolean {
         val patchetSoknad =
-            soknad.handterUtland(log)
+            soknad
+                .handterUtland(log)
                 .patchSvartypeOppsummering(log)
                 .fjernBekreftOpplysninger(log)
         if (soknad != patchetSoknad) {
@@ -52,9 +50,7 @@ class HentSoknadService(
     fun hentEldsteSoknaden(
         identer: FolkeregisterIdenter,
         fom: LocalDate?,
-    ): String? {
-        return sykepengesoknadRepository.findEldsteSoknaden(identer.alle(), fom)
-    }
+    ): String? = sykepengesoknadRepository.findEldsteSoknaden(identer.alle(), fom)
 }
 
 private fun Sykepengesoknad.handterUtland(log: Logger): Sykepengesoknad {

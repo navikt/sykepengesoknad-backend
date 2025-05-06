@@ -3,15 +3,14 @@ package no.nav.helse.flex.soknadsopprettelse
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Sykepengesoknad
 
-fun Sykepengesoknad.sorterUndersporsmal(): Sykepengesoknad {
-    return this
+fun Sykepengesoknad.sorterUndersporsmal(): Sykepengesoknad =
+    this
         .copy(
             sporsmal =
                 this.sporsmal.map {
                     it.sorterUndersporsmal()
                 },
         )
-}
 
 private fun Sporsmal.sorterUndersporsmal(): Sporsmal {
     val sorterteUndersporsmal =
@@ -45,16 +44,15 @@ private fun Sporsmal.sorterUndersporsmal(): Sporsmal {
     return this.copy(undersporsmal = sorterteUndersporsmal)
 }
 
-private fun Sporsmal.sorteringFtaJobbsituasjonenDinJa(): String {
-    return when (tag) {
+private fun Sporsmal.sorteringFtaJobbsituasjonenDinJa(): String =
+    when (tag) {
         FTA_JOBBSITUASJONEN_DIN_NAR -> "0"
         FTA_JOBBSITUASJONEN_DIN_FORTSATT_FRISKMELDT_NY_JOBB -> "1"
         else -> throw RuntimeException("Ukjent underspørsmålfor FTA_JOBBSITUASJONEN_DIN_JA: $tag")
     }
-}
 
-private fun Sporsmal.sorteringVarigEndringBegrunnelse(): String {
-    return when (tag) {
+private fun Sporsmal.sorteringVarigEndringBegrunnelse(): String =
+    when (tag) {
         INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE_OPPRETTELSE_NEDLEGGELSE -> "0"
         INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE_ENDRET_INNSATS -> "1"
         INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE_OMLEGGING_AV_VIRKSOMHETEN -> "2"
@@ -62,33 +60,29 @@ private fun Sporsmal.sorteringVarigEndringBegrunnelse(): String {
         INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE_ANNET -> "4"
         else -> throw RuntimeException("Ukjent underspørsmål for varig endring begrunnelse: $tag")
     }
-}
 
-private fun Sporsmal.sorteringVarigEndringJa(): String {
-    return when (tag) {
+private fun Sporsmal.sorteringVarigEndringJa(): String =
+    when (tag) {
         INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE -> "0"
         INNTEKTSOPPLYSNINGER_VARIG_ENDRING_25_PROSENT -> "1"
         else -> throw RuntimeException("Ukjent underspørsmål for varig endring begrunnelse: $tag")
     }
-}
 
-private fun Sporsmal.sorteringMedlemskapOppholdstillatelse(): String {
-    return when (tag) {
+private fun Sporsmal.sorteringMedlemskapOppholdstillatelse(): String =
+    when (tag) {
         MEDLEMSKAP_OPPHOLDSTILLATELSE_VEDTAKSDATO -> "0"
         MEDLEMSKAP_OPPHOLDSTILLATELSE_PERIODE,
         MEDLEMSKAP_OPPHOLDSTILLATELSE_GRUPPE,
         -> "1"
         else -> throw RuntimeException("Ukjent underspørsmål for medlemskap oppholdstillatelse: $tag")
     }
-}
 
-private fun Sporsmal.sorteringMedlemskapOppholdstillatelseGruppering(): String {
-    return when (tag) {
+private fun Sporsmal.sorteringMedlemskapOppholdstillatelseGruppering(): String =
+    when (tag) {
         MEDLEMSKAP_OPPHOLDSTILLATELSE_MIDLERTIDIG -> "0"
         MEDLEMSKAP_OPPHOLDSTILLATELSE_PERMANENT -> "1"
         else -> throw RuntimeException("Ukjent underspørsmål for medlemskap oppholdstillatelse: $tag")
     }
-}
 
 private fun Sporsmal.sorteringMedlemskapArbeidUtenforNorgeGruppering(): String {
     val tagUtenIndex = fjernIndexFraTag(this.tag)
@@ -159,8 +153,8 @@ private fun Sporsmal.sorteringKjenteInntektskilderArsak(): String {
     }
 }
 
-private fun Sporsmal.sorteringAndreInntektskilder(): String {
-    return when (tag) {
+private fun Sporsmal.sorteringAndreInntektskilder(): String =
+    when (tag) {
         INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD -> "0"
         INNTEKTSKILDE_ARBEIDSFORHOLD -> "1"
         INNTEKTSKILDE_SELVSTENDIG -> "2"
@@ -174,36 +168,32 @@ private fun Sporsmal.sorteringAndreInntektskilder(): String {
         INNTEKTSKILDE_ANNET -> "9"
         else -> throw RuntimeException("Ukjent underspørsmål for andre inntektskilder: $tag")
     }
-}
 
-private fun Sporsmal.sorteringVarigEndring(): String {
-    return when (tag) {
+private fun Sporsmal.sorteringVarigEndring(): String =
+    when (tag) {
         INNTEKTSKILDE_SELVSTENDIG_VARIG_ENDRING_JA -> "0"
         INNTEKTSKILDE_SELVSTENDIG_VARIG_ENDRING_NEI -> "1"
         INNTEKTSKILDE_SELVSTENDIG_VARIG_ENDRING_VET_IKKE -> "2"
         else -> throw RuntimeException("Ukjent underspørsmål for INNTEKTSKILDE_SELVSTENDIG_VARIG_ENDRING_GRUPPE: $tag")
     }
-}
 
-private fun Sporsmal.sorteringArbeidsgiver(): String {
-    return when (tag) {
+private fun Sporsmal.sorteringArbeidsgiver(): String =
+    when (tag) {
         SYKMELDINGSGRAD -> "0"
         FERIE -> "1"
         else -> throw RuntimeException("Ukjent underspørsmål for arbeidsgiver: $tag")
     }
-}
 
-private fun Sporsmal.sorteringReiseMedBil(): String {
-    return when (tag) {
+private fun Sporsmal.sorteringReiseMedBil(): String =
+    when (tag) {
         BIL_DATOER -> "0"
         BIL_BOMPENGER -> "1"
         KM_HJEM_JOBB -> "2"
         else -> throw RuntimeException("Ukjent underspørsmål for reise med bil: $tag")
     }
-}
 
-private fun Sporsmal.sorteringBosted(): String {
-    return when (tag) {
+private fun Sporsmal.sorteringBosted(): String =
+    when (tag) {
         UTENLANDSK_SYKMELDING_CO -> "0"
         UTENLANDSK_SYKMELDING_VEGNAVN -> "1"
         UTENLANDSK_SYKMELDING_BYGNING -> "2"
@@ -214,11 +204,8 @@ private fun Sporsmal.sorteringBosted(): String {
         UTENLANDSK_SYKMELDING_GYLDIGHET_ADRESSE -> "7"
         else -> throw RuntimeException("Ukjent underspørsmål for reise med bil: $tag")
     }
-}
 
-private fun Sporsmal.sorteringYrkesskader(): String {
-    return undertekst ?: "Z"
-}
+private fun Sporsmal.sorteringYrkesskader(): String = undertekst ?: "Z"
 
 /**
  * Fjerner siste del av en tekst(index) fra tag hvis siste del av tag er et tall. Antar at underscore er brukt som
@@ -238,8 +225,8 @@ fun fjernIndexFraTag(input: String): String {
 /**
  * Returnerer høyeste index til et spørsmål. Antar at underscore er brukt som separator.
  */
-fun finnHoyesteIndex(sporsmal: List<Sporsmal>): Int {
-    return sporsmal.map { it.tag }
+fun finnHoyesteIndex(sporsmal: List<Sporsmal>): Int =
+    sporsmal
+        .map { it.tag }
         .map { it.substring(it.lastIndexOf("_") + 1) }
         .maxOfOrNull { it.toIntOrNull() ?: 0 } ?: 0
-}

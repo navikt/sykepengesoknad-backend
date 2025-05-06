@@ -19,15 +19,14 @@ fun jobbetDuGradert(
     periode: Soknadsperiode,
     arbeidsgiver: String,
     index: Int,
-): Sporsmal {
-    return Sporsmal(
+): Sporsmal =
+    Sporsmal(
         tag = JOBBET_DU_GRADERT + index,
         sporsmalstekst = "Sykmeldingen sier du kunne jobbe ${100 - periode.grad} % i jobben din hos $arbeidsgiver. Jobbet du mer enn det?",
         svartype = Svartype.JA_NEI,
         kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
         undersporsmal = jobbetDuGradertUndersporsmal(periode, 100 + 1 - periode.grad, index),
     )
-}
 
 fun jobbetDuGradertUndersporsmal(
     periode: Soknadsperiode,
@@ -66,7 +65,8 @@ fun jobbetDuGradertUndersporsmal(
                                     svartype = Svartype.TIMER,
                                     min = "1",
                                     max =
-                                        (150 * ((ChronoUnit.DAYS.between(periode.fom, periode.tom) + 1) / 7.0)).roundToInt()
+                                        (150 * ((ChronoUnit.DAYS.between(periode.fom, periode.tom) + 1) / 7.0))
+                                            .roundToInt()
                                             .toString(),
                                 ),
                             ),

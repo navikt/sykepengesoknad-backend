@@ -68,14 +68,17 @@ class VeilederOboIntegrationTest : FellesTestOppsett() {
         val veilederToken = skapAzureJwt("syfomodiaperson-client-id")
         mockIstilgangskontroll(false, fnr)
 
-        mockMvc.perform(
-            MockMvcRequestBuilders.post("/api/veileder/soknader")
-                .content(
-                    SoknadVeilederAzureController.HentVeilederSoknaderRequest(fnr).serialisertTilString(),
-                )
-                .header("Authorization", "Bearer $veilederToken")
-                .contentType(MediaType.APPLICATION_JSON),
-        ).andExpect(MockMvcResultMatchers.status().is4xxClientError).andReturn().response.contentAsString
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .post("/api/veileder/soknader")
+                    .content(
+                        SoknadVeilederAzureController.HentVeilederSoknaderRequest(fnr).serialisertTilString(),
+                    ).header("Authorization", "Bearer $veilederToken")
+                    .contentType(MediaType.APPLICATION_JSON),
+            ).andExpect(MockMvcResultMatchers.status().is4xxClientError)
+            .andReturn()
+            .response.contentAsString
         istilgangskontrollMockRestServiceServer.verify()
         istilgangskontrollMockRestServiceServer.reset()
     }
@@ -84,11 +87,15 @@ class VeilederOboIntegrationTest : FellesTestOppsett() {
     fun `04 - api krever body`() {
         val veilederToken = skapAzureJwt("syfomodiaperson-client-id")
 
-        mockMvc.perform(
-            MockMvcRequestBuilders.post("/api/veileder/soknader")
-                .header("Authorization", "Bearer $veilederToken")
-                .contentType(MediaType.APPLICATION_JSON),
-        ).andExpect(MockMvcResultMatchers.status().isInternalServerError).andReturn().response.contentAsString
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .post("/api/veileder/soknader")
+                    .header("Authorization", "Bearer $veilederToken")
+                    .contentType(MediaType.APPLICATION_JSON),
+            ).andExpect(MockMvcResultMatchers.status().isInternalServerError)
+            .andReturn()
+            .response.contentAsString
     }
 
     fun FellesTestOppsett.hentSoknaderSomVeileder(
@@ -96,14 +103,17 @@ class VeilederOboIntegrationTest : FellesTestOppsett() {
         token: String,
     ): List<RSSykepengesoknad> {
         val json =
-            mockMvc.perform(
-                MockMvcRequestBuilders.post("/api/veileder/soknader")
-                    .header("Authorization", "Bearer $token")
-                    .content(
-                        SoknadVeilederAzureController.HentVeilederSoknaderRequest(fnr).serialisertTilString(),
-                    )
-                    .contentType(MediaType.APPLICATION_JSON),
-            ).andExpect(MockMvcResultMatchers.status().isOk).andReturn().response.contentAsString
+            mockMvc
+                .perform(
+                    MockMvcRequestBuilders
+                        .post("/api/veileder/soknader")
+                        .header("Authorization", "Bearer $token")
+                        .content(
+                            SoknadVeilederAzureController.HentVeilederSoknaderRequest(fnr).serialisertTilString(),
+                        ).contentType(MediaType.APPLICATION_JSON),
+                ).andExpect(MockMvcResultMatchers.status().isOk)
+                .andReturn()
+                .response.contentAsString
 
         return objectMapper.readValue(json)
     }

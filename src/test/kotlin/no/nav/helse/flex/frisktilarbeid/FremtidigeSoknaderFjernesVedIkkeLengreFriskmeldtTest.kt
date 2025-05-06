@@ -58,7 +58,9 @@ class FremtidigeSoknaderFjernesVedIkkeLengreFriskmeldtTest : FakesTestOppsett() 
             }
 
         await().until {
-            sykepengesoknadRepository.findByFriskTilArbeidVedtakId(friskTilArbeidDbRecord.id!!).map { it.status }
+            sykepengesoknadRepository
+                .findByFriskTilArbeidVedtakId(friskTilArbeidDbRecord.id!!)
+                .map { it.status }
                 .sorted() ==
                 listOf(
                     Soknadstatus.NY,
@@ -93,8 +95,7 @@ class FremtidigeSoknaderFjernesVedIkkeLengreFriskmeldtTest : FakesTestOppsett() 
                 soknad.fom!!.plusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE),
                 true,
                 mutert = true,
-            )
-            .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
+            ).besvarSporsmal(ANSVARSERKLARING, "CHECKED")
             .besvarSporsmal(FTA_INNTEKT_UNDERVEIS, "NEI")
             .besvarSporsmal(FTA_REISE_TIL_UTLANDET, "NEI")
             .oppsummering()
@@ -106,7 +107,8 @@ class FremtidigeSoknaderFjernesVedIkkeLengreFriskmeldtTest : FakesTestOppsett() 
     fun `3 søknader er slettet og produsert på kafka`() {
         SoknadKafkaProducerFake.records
             .filter { it.value().status == SoknadsstatusDTO.SLETTET }
-            .filter { it.value().friskTilArbeidVedtakId == vedtaksId }.shouldHaveSize(3)
+            .filter { it.value().friskTilArbeidVedtakId == vedtaksId }
+            .shouldHaveSize(3)
     }
 
     @Test
@@ -121,8 +123,11 @@ class FremtidigeSoknaderFjernesVedIkkeLengreFriskmeldtTest : FakesTestOppsett() 
     @Order(7)
     fun `FriskTilArbeidVedtak er oppdatert med avsluttetTidspunkt`() {
         val avsluttetTidspunkt =
-            friskTilArbeidRepository.findByFnrIn(listOf(fnr))
-                .single().avsluttetTidspunkt.shouldNotBeNull()
+            friskTilArbeidRepository
+                .findByFnrIn(listOf(fnr))
+                .single()
+                .avsluttetTidspunkt
+                .shouldNotBeNull()
 
         avsluttetTidspunkt `should be within seconds of` Pair(1, Instant.now())
     }

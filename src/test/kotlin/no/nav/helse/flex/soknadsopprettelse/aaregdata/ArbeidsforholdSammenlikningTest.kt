@@ -62,8 +62,8 @@ class ArbeidsforholdSammenlikningTest {
             listOf(
                 defaultAnsettelsesdetaljer(YearMonth.of(2021, 1), YearMonth.of(2021, 12)),
             ),
-    ): Arbeidsforhold {
-        return Arbeidsforhold(
+    ): Arbeidsforhold =
+        Arbeidsforhold(
             id = null,
             type = defaultKodeverk("type", "Arbeidsforholdstype"),
             arbeidstaker = Arbeidstaker(identer = listOf(defaultIdent("12345678901"))),
@@ -73,7 +73,6 @@ class ArbeidsforholdSammenlikningTest {
             ansettelsesdetaljer = ansettelsesdetaljer,
             opprettet = LocalDateTime.now(),
         )
-    }
 
     @Test
     fun `erGanskeRettEtterHverandre - skal vaere true naar differanse er mindre eller lik 4 dager`() {

@@ -8,25 +8,25 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 fun erForsteSoknadTilArbeidsgiverIForlop(
     eksisterendeSoknader: List<Sykepengesoknad>,
     sykepengesoknad: Sykepengesoknad,
-): Boolean {
-    return eksisterendeSoknader.asSequence()
+): Boolean =
+    eksisterendeSoknader
+        .asSequence()
         .finnTidligereSoknaderMedSammeArbeidssituasjon(sykepengesoknad)
         .harSammeArbeidsgiver(sykepengesoknad)
         // Sjekker om det finnes en tidligere søknad med samme startdato for sykeforløp.
         .none { it.startSykeforlop == sykepengesoknad.startSykeforlop }
-}
 
 fun harBlittStiltUtlandsSporsmal(
     eksisterendeSoknader: List<Sykepengesoknad>,
     sykepengesoknad: Sykepengesoknad,
-): Boolean {
-    return eksisterendeSoknader.asSequence()
+): Boolean =
+    eksisterendeSoknader
+        .asSequence()
         .finnTidligereSoknaderMedSammeArbeidssituasjon(sykepengesoknad)
         .harSammeArbeidsgiver(sykepengesoknad)
         // Finn søknader med samme startdato for sykeforløp og sjekk om de har stilt spørsmål om utenlandsopphold.
         .filter { it.startSykeforlop == sykepengesoknad.startSykeforlop }
         .any { it -> it.sporsmal.any { it.tag == UTENLANDSK_SYKMELDING_BOSTED } }
-}
 
 fun skalHaSporsmalOmMedlemskap(
     eksisterendeSoknader: List<Sykepengesoknad>,
@@ -35,15 +35,15 @@ fun skalHaSporsmalOmMedlemskap(
     // Returnerer 'true' hvis det er første søknad til arbeidsgiver i sykeforlløpet og andre aktive søknader i samme
     // sykeforløp ikke allerede har medlemskapsspørsmål.
     erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, sykepengesoknad) &&
-        eksisterendeSoknader.asSequence()
+        eksisterendeSoknader
+            .asSequence()
             .filterNot {
                 listOf(
                     Soknadstatus.AVBRUTT,
                     Soknadstatus.UTGATT,
                     Soknadstatus.SLETTET,
                 ).contains(it.status)
-            }
-            .filter { it.startSykeforlop == sykepengesoknad.startSykeforlop }
+            }.filter { it.startSykeforlop == sykepengesoknad.startSykeforlop }
             .none { soknad ->
                 soknad.sporsmal.any {
                     it.tag in
@@ -61,7 +61,8 @@ fun skalHaSporsmalOmMedlemskap(
 private fun Sequence<Sykepengesoknad>.finnTidligereSoknaderMedSammeArbeidssituasjon(
     sykepengesoknad: Sykepengesoknad,
 ): Sequence<Sykepengesoknad> =
-    this.filter { it.fom != null && it.fom.isBefore(sykepengesoknad.fom) }
+    this
+        .filter { it.fom != null && it.fom.isBefore(sykepengesoknad.fom) }
         .filter { it.sykmeldingId != null && it.startSykeforlop != null }
         .filter { it.arbeidssituasjon == sykepengesoknad.arbeidssituasjon }
 

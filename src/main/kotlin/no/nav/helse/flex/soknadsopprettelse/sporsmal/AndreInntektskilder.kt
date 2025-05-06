@@ -13,8 +13,8 @@ import no.nav.helse.flex.util.toJsonNode
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-fun andreInntektskilderArbeidstaker(arbeidsgiver: String?): Sporsmal {
-    return Sporsmal(
+fun andreInntektskilderArbeidstaker(arbeidsgiver: String?): Sporsmal =
+    Sporsmal(
         tag = ANDRE_INNTEKTSKILDER,
         sporsmalstekst = "Har du andre inntektskilder enn $arbeidsgiver?",
         svartype = Svartype.JA_NEI,
@@ -41,7 +41,6 @@ fun andreInntektskilderArbeidstaker(arbeidsgiver: String?): Sporsmal {
                 ),
             ),
     )
-}
 
 data class AndreInntektskilderMetadata(
     val kjenteInntektskilder: List<KjentInntektskilde>,
@@ -75,11 +74,12 @@ fun andreInntektskilderArbeidstakerV2(
             )
         },
     )
-    nyeArbeidsforholdFraAareg?.filter { arbeidsforhold ->
-        !alleArbeidsforhold.map { it.orgnummer }.contains(arbeidsforhold.arbeidsstedOrgnummer)
-    }?.forEach {
-        alleArbeidsforhold.add(KjentInntektskilde(it.arbeidsstedNavn, Kilde.AAAREG, it.arbeidsstedOrgnummer))
-    }
+    nyeArbeidsforholdFraAareg
+        ?.filter { arbeidsforhold ->
+            !alleArbeidsforhold.map { it.orgnummer }.contains(arbeidsforhold.arbeidsstedOrgnummer)
+        }?.forEach {
+            alleArbeidsforhold.add(KjentInntektskilde(it.arbeidsstedNavn, Kilde.AAAREG, it.arbeidsstedOrgnummer))
+        }
 
     fun skapSporsmal(): String {
         val alleNavn = alleArbeidsforhold.map { it.navn }
@@ -167,8 +167,8 @@ fun andreInntektskilderArbeidstakerV2(
     )
 }
 
-fun andreInntektskilderSelvstendigOgFrilanser(arbeidssituasjon: Arbeidssituasjon): Sporsmal {
-    return Sporsmal(
+fun andreInntektskilderSelvstendigOgFrilanser(arbeidssituasjon: Arbeidssituasjon): Sporsmal =
+    Sporsmal(
         tag = ANDRE_INNTEKTSKILDER,
         sporsmalstekst =
             if (Arbeidssituasjon.FRILANSER == arbeidssituasjon) {
@@ -206,7 +206,6 @@ fun andreInntektskilderSelvstendigOgFrilanser(arbeidssituasjon: Arbeidssituasjon
             )
         ),
     )
-}
 
 fun andreInntektskilderArbeidsledig(
     fom: LocalDate,
@@ -274,8 +273,8 @@ fun andreInntektskilderArbeidsledig(
 private fun andreInntektskilderCheckboxSporsmal(
     inntektskildeTag: String,
     inntektskildeTekst: String,
-): Sporsmal {
-    return Sporsmal(
+): Sporsmal =
+    Sporsmal(
         tag = inntektskildeTag,
         sporsmalstekst = inntektskildeTekst,
         svartype = Svartype.CHECKBOX,
@@ -289,4 +288,3 @@ private fun andreInntektskilderCheckboxSporsmal(
                 ),
             ),
     )
-}

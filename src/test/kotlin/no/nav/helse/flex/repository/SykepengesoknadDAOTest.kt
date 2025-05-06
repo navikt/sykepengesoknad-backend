@@ -114,9 +114,10 @@ class SykepengesoknadDAOTest : FellesTestOppsett() {
     @Test
     fun finnMottakerAvSoknad_mottakerErAgOgNav() {
         val soknadId =
-            sykepengesoknadDAO.lagreSykepengesoknad(
-                opprettNyArbeidstakerSoknad(),
-            ).id
+            sykepengesoknadDAO
+                .lagreSykepengesoknad(
+                    opprettNyArbeidstakerSoknad(),
+                ).id
 
         val now = LocalDateTime.now()
         settSendt(soknadId, now, now)
@@ -129,9 +130,10 @@ class SykepengesoknadDAOTest : FellesTestOppsett() {
     @Test
     fun finnMottakerAvSoknad_mottakerErAg() {
         val soknadId =
-            sykepengesoknadDAO.lagreSykepengesoknad(
-                opprettNyArbeidstakerSoknad(),
-            ).id
+            sykepengesoknadDAO
+                .lagreSykepengesoknad(
+                    opprettNyArbeidstakerSoknad(),
+                ).id
 
         settSendt(soknadId, null, LocalDateTime.now())
 
@@ -143,9 +145,10 @@ class SykepengesoknadDAOTest : FellesTestOppsett() {
     @Test
     fun finnMottakerAvSoknad_mottakerErNav() {
         val soknadId =
-            sykepengesoknadDAO.lagreSykepengesoknad(
-                opprettNyArbeidstakerSoknad(),
-            ).id
+            sykepengesoknadDAO
+                .lagreSykepengesoknad(
+                    opprettNyArbeidstakerSoknad(),
+                ).id
 
         settSendt(soknadId, LocalDateTime.now(), null)
 
@@ -157,9 +160,10 @@ class SykepengesoknadDAOTest : FellesTestOppsett() {
     @Test
     fun finnMottakerAvSoknad_soknadIkkeSendt() {
         val soknadId =
-            sykepengesoknadDAO.lagreSykepengesoknad(
-                opprettNyArbeidstakerSoknad(),
-            ).id
+            sykepengesoknadDAO
+                .lagreSykepengesoknad(
+                    opprettNyArbeidstakerSoknad(),
+                ).id
 
         settSendt(soknadId, null, null)
 
@@ -280,7 +284,8 @@ class SykepengesoknadDAOTest : FellesTestOppsett() {
 
         val soknadFraBasenEtterSlettingAvSvar = sykepengesoknadDAO.finnSykepengesoknad(uuid)
 
-        soknadFraBasenEtterSlettingAvSvar.alleSporsmalOgUndersporsmal()
+        soknadFraBasenEtterSlettingAvSvar
+            .alleSporsmalOgUndersporsmal()
             .forEach { sporsmal -> sporsmal.svar.forEach { svar -> assertThat(svar.verdi).isNull() } }
     }
 

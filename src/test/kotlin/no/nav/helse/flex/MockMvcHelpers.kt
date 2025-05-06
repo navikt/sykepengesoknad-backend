@@ -32,16 +32,16 @@ fun MockOAuth2Server.token(
     clientId: String = UUID.randomUUID().toString(),
     audience: String = "loginservice-client-id",
     claims: Map<String, Any> = mapOf("acr" to "Level4"),
-): String {
-    return this.issueToken(
-        issuerId,
-        clientId,
-        DefaultOAuth2TokenCallback(
-            issuerId = issuerId,
-            subject = subject,
-            audience = listOf(audience),
-            claims = claims,
-            expiry = 3600,
-        ),
-    ).serialize()
-}
+): String =
+    this
+        .issueToken(
+            issuerId,
+            clientId,
+            DefaultOAuth2TokenCallback(
+                issuerId = issuerId,
+                subject = subject,
+                audience = listOf(audience),
+                claims = claims,
+                expiry = 3600,
+            ),
+        ).serialize()

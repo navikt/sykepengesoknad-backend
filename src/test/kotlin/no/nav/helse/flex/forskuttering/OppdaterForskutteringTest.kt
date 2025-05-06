@@ -30,10 +30,12 @@ class OppdaterForskutteringTest : FellesTestOppsett() {
 
         val narmesteLederLeesah = getNarmesteLederLeesah(narmesteLederId)
 
-        forskutteringRepository.finnForskuttering(
-            narmesteLederLeesah.fnr,
-            narmesteLederLeesah.orgnummer,
-        )?.arbeidsgiverForskutterer.shouldBeNull()
+        forskutteringRepository
+            .finnForskuttering(
+                narmesteLederLeesah.fnr,
+                narmesteLederLeesah.orgnummer,
+            )?.arbeidsgiverForskutterer
+            .shouldBeNull()
 
         sendNarmesteLederLeesah(narmesteLederLeesah)
 
@@ -45,10 +47,12 @@ class OppdaterForskutteringTest : FellesTestOppsett() {
         narmesteLeder.shouldNotBeNull()
         narmesteLeder.aktivTom.shouldBeNull()
 
-        forskutteringRepository.finnForskuttering(
-            narmesteLederLeesah.fnr,
-            narmesteLederLeesah.orgnummer,
-        )?.arbeidsgiverForskutterer!!.shouldBeTrue()
+        forskutteringRepository
+            .finnForskuttering(
+                narmesteLederLeesah.fnr,
+                narmesteLederLeesah.orgnummer,
+            )?.arbeidsgiverForskutterer!!
+            .shouldBeTrue()
     }
 
     @Test
@@ -56,10 +60,12 @@ class OppdaterForskutteringTest : FellesTestOppsett() {
         forskutteringRepository.deleteAll()
         val narmesteLederId = UUID.randomUUID()
         val narmesteLederLeesah = getNarmesteLederLeesah(narmesteLederId, arbeidsgiverForskutterer = true)
-        forskutteringRepository.finnForskuttering(
-            narmesteLederLeesah.fnr,
-            narmesteLederLeesah.orgnummer,
-        )?.arbeidsgiverForskutterer.shouldBeNull()
+        forskutteringRepository
+            .finnForskuttering(
+                narmesteLederLeesah.fnr,
+                narmesteLederLeesah.orgnummer,
+            )?.arbeidsgiverForskutterer
+            .shouldBeNull()
 
         sendNarmesteLederLeesah(narmesteLederLeesah)
         await().atMost(10, TimeUnit.SECONDS).until {
@@ -68,10 +74,12 @@ class OppdaterForskutteringTest : FellesTestOppsett() {
 
         val narmesteLeder = forskutteringRepository.findByNarmesteLederId(narmesteLederId)!!
         narmesteLeder.arbeidsgiverForskutterer!!.shouldBeTrue()
-        forskutteringRepository.finnForskuttering(
-            narmesteLederLeesah.fnr,
-            narmesteLederLeesah.orgnummer,
-        )?.arbeidsgiverForskutterer!!.shouldBeTrue()
+        forskutteringRepository
+            .finnForskuttering(
+                narmesteLederLeesah.fnr,
+                narmesteLederLeesah.orgnummer,
+            )?.arbeidsgiverForskutterer!!
+            .shouldBeTrue()
 
         sendNarmesteLederLeesah(
             getNarmesteLederLeesah(
@@ -87,24 +95,27 @@ class OppdaterForskutteringTest : FellesTestOppsett() {
             forskutteringRepository.findByNarmesteLederId(narmesteLederId)!!.arbeidsgiverForskutterer == false
         }
 
-        forskutteringRepository.finnForskuttering(
-            narmesteLederLeesah.fnr,
-            narmesteLederLeesah.orgnummer,
-        )?.arbeidsgiverForskutterer!!.shouldBeFalse()
+        forskutteringRepository
+            .finnForskuttering(
+                narmesteLederLeesah.fnr,
+                narmesteLederLeesah.orgnummer,
+            )?.arbeidsgiverForskutterer!!
+            .shouldBeFalse()
 
         val oppdaterNl = forskutteringRepository.findByNarmesteLederId(narmesteLederId)!!
         oppdaterNl.aktivTom `should be equal to` LocalDate.now()
     }
 
     fun sendNarmesteLederLeesah(nl: NarmesteLederLeesah) {
-        kafkaProducer.send(
-            ProducerRecord(
-                NARMESTELEDER_LEESAH_TOPIC,
-                null,
-                nl.narmesteLederId.toString(),
-                nl.serialisertTilString(),
-            ),
-        ).get()
+        kafkaProducer
+            .send(
+                ProducerRecord(
+                    NARMESTELEDER_LEESAH_TOPIC,
+                    null,
+                    nl.narmesteLederId.toString(),
+                    nl.serialisertTilString(),
+                ),
+            ).get()
     }
 }
 

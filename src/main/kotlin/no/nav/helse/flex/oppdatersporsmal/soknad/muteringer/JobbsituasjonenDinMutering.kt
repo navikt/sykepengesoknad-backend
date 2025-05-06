@@ -22,15 +22,22 @@ fun Sykepengesoknad.jobbsituasjonenDinMutering(): Sykepengesoknad {
     fun tagHarSvar(
         tag: String,
         svar: String,
-    ): Boolean {
-        return underspm.find { it.tag == tag }?.svar?.firstOrNull()?.verdi == svar
-    }
+    ): Boolean =
+        underspm
+            .find { it.tag == tag }
+            ?.svar
+            ?.firstOrNull()
+            ?.verdi == svar
 
-    fun finnBesvartDato(): String? {
-        return when {
+    fun finnBesvartDato(): String? =
+        when {
             tagHarSvar(FTA_JOBBSITUASJONEN_DIN_JA, "CHECKED") -> {
                 if (tagHarSvar(FTA_JOBBSITUASJONEN_DIN_FORTSATT_FRISKMELDT_NY_JOBB, "NEI")) {
-                    underspm.find { it.tag == FTA_JOBBSITUASJONEN_DIN_NAR }?.svar?.firstOrNull()?.verdi
+                    underspm
+                        .find { it.tag == FTA_JOBBSITUASJONEN_DIN_NAR }
+                        ?.svar
+                        ?.firstOrNull()
+                        ?.verdi
                 } else {
                     null
                 }
@@ -38,7 +45,11 @@ fun Sykepengesoknad.jobbsituasjonenDinMutering(): Sykepengesoknad {
 
             tagHarSvar(FTA_JOBBSITUASJONEN_DIN_NEI, "CHECKED") -> {
                 if (tagHarSvar(FTA_JOBBSITUASJONEN_DIN_FORTSATT_FRISKMELDT, "NEI")) {
-                    underspm.find { it.tag == FTA_JOBBSITUASJONEN_DIN_FORTSATT_FRISKMELDT_AVREGISTRERT_NAR }?.svar?.firstOrNull()?.verdi
+                    underspm
+                        .find { it.tag == FTA_JOBBSITUASJONEN_DIN_FORTSATT_FRISKMELDT_AVREGISTRERT_NAR }
+                        ?.svar
+                        ?.firstOrNull()
+                        ?.verdi
                 } else {
                     null
                 }
@@ -46,7 +57,6 @@ fun Sykepengesoknad.jobbsituasjonenDinMutering(): Sykepengesoknad {
 
             else -> null
         }
-    }
 
     val besvartDato = finnBesvartDato()
 

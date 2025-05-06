@@ -51,7 +51,5 @@ object InnsendingApiMockDispatcher : QueueDispatcher() {
 
     fun getSlettEttersendingRequests(): List<RecordedRequest> = slettEttersendingRequests.toList()
 
-    fun getOpprettEttersendingLastRequest(): EttersendingRequest {
-        return objectMapper.readValue(opprettEttersendRequests.last().body.readUtf8())
-    }
+    fun getOpprettEttersendingLastRequest(): EttersendingRequest = objectMapper.readValue(opprettEttersendRequests.last().body.readUtf8())
 }

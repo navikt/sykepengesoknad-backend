@@ -99,7 +99,8 @@ class MedlemskapVurderingClient(
         if (listOf(
                 MedlemskapVurderingSvarType.JA,
                 MedlemskapVurderingSvarType.NEI,
-            ).contains(medlemskapVurderingResponse.svar) && medlemskapVurderingResponse.sporsmal.isNotEmpty()
+            ).contains(medlemskapVurderingResponse.svar) &&
+            medlemskapVurderingResponse.sporsmal.isNotEmpty()
         ) {
             throw MedlemskapVurderingResponseException(
                 "MedlemskapVurdering med Nav-Call-Id: $navCallId returnerte spørsmål selv om svar var " +
@@ -133,12 +134,17 @@ class MedlemskapVurderingClient(
 /**
  * Kastes når det oppstår en teknisk feil ved kall til LovMe.
  */
-class MedlemskapVurderingClientException(message: String?, cause: Throwable?) : RuntimeException(message, cause)
+class MedlemskapVurderingClientException(
+    message: String?,
+    cause: Throwable?,
+) : RuntimeException(message, cause)
 
 /**
  * Kastes når LovMe returnerer en feilmelding / statuskode som ikke er 2xx som følge av en logisk feil.
  */
-class MedlemskapVurderingResponseException(message: String?) : RuntimeException(message)
+class MedlemskapVurderingResponseException(
+    message: String?,
+) : RuntimeException(message)
 
 data class MedlemskapVurderingRequest(
     var fnr: String,

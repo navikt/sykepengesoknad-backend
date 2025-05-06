@@ -99,9 +99,10 @@ fun settOppSoknadArbeidstaker(
 fun jobbetDuIPeriodenSporsmal(
     soknadsperioder: List<Soknadsperiode>,
     arbeidsgiverNavn: String,
-): List<Sporsmal> {
-    return soknadsperioder
-        .lastIndex.downTo(0)
+): List<Sporsmal> =
+    soknadsperioder
+        .lastIndex
+        .downTo(0)
         .reversed()
         .map { index ->
             val periode = soknadsperioder[index]
@@ -111,14 +112,13 @@ fun jobbetDuIPeriodenSporsmal(
                 jobbetDuGradert(periode, arbeidsgiverNavn, index)
             }
         }
-}
 
 private fun jobbetDu100Prosent(
     periode: Soknadsperiode,
     arbeidsgiver: String,
     index: Int,
-): Sporsmal {
-    return Sporsmal(
+): Sporsmal =
+    Sporsmal(
         tag = ARBEID_UNDERVEIS_100_PROSENT + index,
         sporsmalstekst = "I perioden ${
             formatterPeriode(
@@ -136,4 +136,3 @@ private fun jobbetDu100Prosent(
                 arbeidsgiverNavn = arbeidsgiver,
             ),
     )
-}

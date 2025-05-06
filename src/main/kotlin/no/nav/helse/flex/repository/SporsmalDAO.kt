@@ -27,67 +27,70 @@ interface SporsmalDAO {
 @Service
 @Transactional
 @Repository
-class SporsmalDAOPostgres(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate, private val svarDAO: SvarDAO) :
-    SporsmalDAO {
+class SporsmalDAOPostgres(
+    private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
+    private val svarDAO: SvarDAO,
+) : SporsmalDAO {
     @WithSpan
     override fun finnSporsmal(sykepengesoknadIds: Set<String>): HashMap<String, MutableList<Sporsmal>> {
         val unMapped =
-            sykepengesoknadIds.chunked(1000).map { id ->
-                namedParameterJdbcTemplate.query<List<Pair<String, Sporsmal>>>(
-                    """
-                    SELECT * FROM sporsmal
-                    WHERE sykepengesoknad_id IN (:sykepengesoknadIds)
-                    """.trimIndent(),
-                    MapSqlParameterSource().addValue("sykepengesoknadIds", id),
-                ) { resultSet ->
-                    val svarMap = HashMap<String, MutableList<Svar>>()
-                    val sporsmalList = ArrayList<Pair<String, Sporsmal>>()
+            sykepengesoknadIds
+                .chunked(1000)
+                .map { id ->
+                    namedParameterJdbcTemplate.query<List<Pair<String, Sporsmal>>>(
+                        """
+                        SELECT * FROM sporsmal
+                        WHERE sykepengesoknad_id IN (:sykepengesoknadIds)
+                        """.trimIndent(),
+                        MapSqlParameterSource().addValue("sykepengesoknadIds", id),
+                    ) { resultSet ->
+                        val svarMap = HashMap<String, MutableList<Svar>>()
+                        val sporsmalList = ArrayList<Pair<String, Sporsmal>>()
 
-                    data class SporsmalHelper(
-                        val sporsmal: Sporsmal,
-                        val sykepengesoknadId: String,
-                        val underSporsmalId: String?,
-                        val undersporsmal: ArrayList<Sporsmal>,
-                    )
+                        data class SporsmalHelper(
+                            val sporsmal: Sporsmal,
+                            val sykepengesoknadId: String,
+                            val underSporsmalId: String?,
+                            val undersporsmal: ArrayList<Sporsmal>,
+                        )
 
-                    val sporsmalMap = HashMap<String, SporsmalHelper>()
+                        val sporsmalMap = HashMap<String, SporsmalHelper>()
 
-                    while (resultSet.next()) {
-                        val sporsmalId = resultSet.getString("id")
-                        val kriterie = resultSet.getString("kriterie_for_visning")
-                        svarMap[sporsmalId] = ArrayList()
-                        val sykepengesoknadId = resultSet.getString("sykepengesoknad_id")
+                        while (resultSet.next()) {
+                            val sporsmalId = resultSet.getString("id")
+                            val kriterie = resultSet.getString("kriterie_for_visning")
+                            svarMap[sporsmalId] = ArrayList()
+                            val sykepengesoknadId = resultSet.getString("sykepengesoknad_id")
 
-                        val undersporsmal = ArrayList<Sporsmal>()
-                        val sporsmal =
-                            Sporsmal(
-                                id = sporsmalId,
-                                tag = resultSet.getString("tag"),
-                                sporsmalstekst = resultSet.getString("tekst"),
-                                undertekst = resultSet.getString("undertekst"),
-                                svartype = Svartype.valueOf(resultSet.getString("svartype")),
-                                min = resultSet.getString("min"),
-                                max = resultSet.getString("max"),
-                                metadata = resultSet.getString("metadata")?.let { objectMapper.readTree(it) },
-                                kriterieForVisningAvUndersporsmal = if (kriterie == null) null else Visningskriterie.valueOf(kriterie),
-                                svar = svarMap[sporsmalId]!!,
-                                undersporsmal = undersporsmal,
-                            )
-                        val underSporsmalId = resultSet.getNullableString("under_sporsmal_id")
-                        sporsmalMap[sporsmalId] = SporsmalHelper(sporsmal, sykepengesoknadId, underSporsmalId, undersporsmal)
-                    }
-                    sporsmalMap.values.forEach { spm ->
-                        if (spm.underSporsmalId == null) {
-                            sporsmalList.add(Pair(spm.sykepengesoknadId, spm.sporsmal))
-                        } else {
-                            sporsmalMap[spm.underSporsmalId]!!.undersporsmal.add(spm.sporsmal)
+                            val undersporsmal = ArrayList<Sporsmal>()
+                            val sporsmal =
+                                Sporsmal(
+                                    id = sporsmalId,
+                                    tag = resultSet.getString("tag"),
+                                    sporsmalstekst = resultSet.getString("tekst"),
+                                    undertekst = resultSet.getString("undertekst"),
+                                    svartype = Svartype.valueOf(resultSet.getString("svartype")),
+                                    min = resultSet.getString("min"),
+                                    max = resultSet.getString("max"),
+                                    metadata = resultSet.getString("metadata")?.let { objectMapper.readTree(it) },
+                                    kriterieForVisningAvUndersporsmal = if (kriterie == null) null else Visningskriterie.valueOf(kriterie),
+                                    svar = svarMap[sporsmalId]!!,
+                                    undersporsmal = undersporsmal,
+                                )
+                            val underSporsmalId = resultSet.getNullableString("under_sporsmal_id")
+                            sporsmalMap[sporsmalId] = SporsmalHelper(sporsmal, sykepengesoknadId, underSporsmalId, undersporsmal)
                         }
-                    }
-                    populerMedSvar(svarMap)
-                    sporsmalList
-                } ?: emptyList()
-            }
-                .flatten()
+                        sporsmalMap.values.forEach { spm ->
+                            if (spm.underSporsmalId == null) {
+                                sporsmalList.add(Pair(spm.sykepengesoknadId, spm.sporsmal))
+                            } else {
+                                sporsmalMap[spm.underSporsmalId]!!.undersporsmal.add(spm.sporsmal)
+                            }
+                        }
+                        populerMedSvar(svarMap)
+                        sporsmalList
+                    } ?: emptyList()
+                }.flatten()
                 .sortedBy { it.second.id }
         val ret = HashMap<String, MutableList<Sporsmal>>()
         unMapped.forEach {

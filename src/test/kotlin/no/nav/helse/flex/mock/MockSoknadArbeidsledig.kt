@@ -60,7 +60,8 @@ fun opprettNySoknad(): Sykepengesoknad {
                     ),
                 ).tilSoknadsperioder(),
             utenlandskSykmelding = false,
-            egenmeldingsdagerFraSykmelding = null, forstegangssoknad = false,
+            egenmeldingsdagerFraSykmelding = null,
+            forstegangssoknad = false,
         )
 
     return sykepengesoknad.copy(

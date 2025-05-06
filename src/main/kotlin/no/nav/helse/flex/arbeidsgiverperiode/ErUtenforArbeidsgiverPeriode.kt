@@ -49,8 +49,7 @@ private fun LocalDate.erHverdag(): Boolean = this.dayOfWeek in DayOfWeek.MONDAY.
 private fun datoListe(
     start: LocalDate,
     end: LocalDate,
-): List<LocalDate> {
-    return generateSequence(start) { date ->
+): List<LocalDate> =
+    generateSequence(start) { date ->
         date.plusDays(1).takeIf { it <= end }
     }.toList()
-}

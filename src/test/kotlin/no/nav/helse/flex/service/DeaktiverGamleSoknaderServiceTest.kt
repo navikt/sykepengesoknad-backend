@@ -67,7 +67,8 @@ class DeaktiverGamleSoknaderServiceTest : FellesTestOppsett() {
                 .also { sykepengesoknadDAO.lagreSykepengesoknad(it) }
 
         val sendtSoknad =
-            nySoknad.copy(status = Soknadstatus.SENDT, id = UUID.randomUUID().toString())
+            nySoknad
+                .copy(status = Soknadstatus.SENDT, id = UUID.randomUUID().toString())
                 .also { sykepengesoknadDAO.lagreSykepengesoknad(it) }
 
         deaktiverGamleSoknaderService.deaktiverSoknader() `should be equal to` 1
@@ -89,7 +90,8 @@ class DeaktiverGamleSoknaderServiceTest : FellesTestOppsett() {
         val nySoknad = opprettSoknad(Soknadstatus.AVBRUTT).also { sykepengesoknadDAO.lagreSykepengesoknad(it) }
 
         val sendtSoknad =
-            nySoknad.copy(status = Soknadstatus.SENDT, id = UUID.randomUUID().toString())
+            nySoknad
+                .copy(status = Soknadstatus.SENDT, id = UUID.randomUUID().toString())
                 .also { sykepengesoknadDAO.lagreSykepengesoknad(it) }
 
         deaktiverGamleSoknaderService.deaktiverSoknader() `should be equal to` 1
@@ -109,10 +111,16 @@ class DeaktiverGamleSoknaderServiceTest : FellesTestOppsett() {
     @Test
     fun `En ny soknad om opphold utland blir deaktivert`() {
         val soknadUtland =
-            settOppSoknadOppholdUtland(FNR).copy(
-                opprettet = LocalDateTime.now().minusMonths(4).minusDays(1).tilOsloInstant(),
-                status = Soknadstatus.NY,
-            ).also { sykepengesoknadDAO.lagreSykepengesoknad(it) }
+            settOppSoknadOppholdUtland(FNR)
+                .copy(
+                    opprettet =
+                        LocalDateTime
+                            .now()
+                            .minusMonths(4)
+                            .minusDays(1)
+                            .tilOsloInstant(),
+                    status = Soknadstatus.NY,
+                ).also { sykepengesoknadDAO.lagreSykepengesoknad(it) }
 
         val sendtSoknad = soknadUtland.copy(status = Soknadstatus.SENDT, id = UUID.randomUUID().toString())
         sykepengesoknadDAO.lagreSykepengesoknad(sendtSoknad)
@@ -172,22 +180,32 @@ class DeaktiverGamleSoknaderServiceTest : FellesTestOppsett() {
             status = soknadStatus,
             fnr = FNR,
             tom = LocalDate.now().minusMonths(4).minusDays(1),
-            opprettet = LocalDate.now().minusMonths(4).minusDays(1).atStartOfDay().tilOsloInstant(),
+            opprettet =
+                LocalDate
+                    .now()
+                    .minusMonths(4)
+                    .minusDays(1)
+                    .atStartOfDay()
+                    .tilOsloInstant(),
         )
 
     private fun besvarStandardSporsmal(soknad: Sykepengesoknad): List<String> {
         val idPaaSporsmal =
-            sykepengesoknadDAO.finnSykepengesoknad(soknad.id).sporsmal.flattenSporsmal().also {
-                lagreSvar(it, "ANSVARSERKLARING", "JA")
-                lagreSvar(it, "FRISKMELDT", "JA")
-                lagreSvar(it, "ANDRE_INNTEKTSKILDER", "NEI")
-                lagreSvar(it, "OPPHOLD_UTENFOR_EOS", "JA")
-                lagreSvar(
-                    it,
-                    "OPPHOLD_UTENFOR_EOS_NAR",
-                    Periode(LocalDate.now(), LocalDate.now()).serialisertTilString(),
-                )
-            }.mapNotNull { it.id }
+            sykepengesoknadDAO
+                .finnSykepengesoknad(soknad.id)
+                .sporsmal
+                .flattenSporsmal()
+                .also {
+                    lagreSvar(it, "ANSVARSERKLARING", "JA")
+                    lagreSvar(it, "FRISKMELDT", "JA")
+                    lagreSvar(it, "ANDRE_INNTEKTSKILDER", "NEI")
+                    lagreSvar(it, "OPPHOLD_UTENFOR_EOS", "JA")
+                    lagreSvar(
+                        it,
+                        "OPPHOLD_UTENFOR_EOS_NAR",
+                        Periode(LocalDate.now(), LocalDate.now()).serialisertTilString(),
+                    )
+                }.mapNotNull { it.id }
         return idPaaSporsmal
     }
 

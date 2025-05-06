@@ -92,14 +92,15 @@ class SoknadKafkaFormatController(
             .map { it.mapBortSporsmal() }
     }
 
-    private fun Sykepengesoknad.tilSykepengesoknadDto(): SykepengesoknadDTO {
-        return sykepengesoknadTilSykepengesoknadDTOMapper.mapTilSykepengesoknadDTO(
+    private fun Sykepengesoknad.tilSykepengesoknadDto(): SykepengesoknadDTO =
+        sykepengesoknadTilSykepengesoknadDTOMapper.mapTilSykepengesoknadDTO(
             sykepengesoknad = this,
             mottaker = null,
             erEttersending = false,
             endeligVurdering = false,
         )
-    }
 }
 
-class IngenTilgangException(s: String) : RuntimeException(s)
+class IngenTilgangException(
+    s: String,
+) : RuntimeException(s)

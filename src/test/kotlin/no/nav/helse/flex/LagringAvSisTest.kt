@@ -60,7 +60,8 @@ class LagringAvSisTest : FellesTestOppsett() {
             behandlingstatusmelding.copy(
                 status = Behandlingstatustype.VENTER_PÅ_SAKSBEHANDLER,
                 eksterneSøknadIder =
-                    behandlingstatusmelding.eksterneSøknadIder.toMutableList()
+                    behandlingstatusmelding.eksterneSøknadIder
+                        .toMutableList()
                         .also { it.add(UUID.randomUUID().toString()) },
             )
         sendBehandlingsstatusMelding(
@@ -74,9 +75,11 @@ class LagringAvSisTest : FellesTestOppsett() {
             )
 
         val soknadRelasjoner =
-            vedtaksperiodeBehandlingSykepengesoknadRepository.findByVedtaksperiodeBehandlingIdIn(listOf(dbRecord.id!!)).map {
-                it.sykepengesoknadUuid
-            }.toSet()
+            vedtaksperiodeBehandlingSykepengesoknadRepository
+                .findByVedtaksperiodeBehandlingIdIn(listOf(dbRecord.id!!))
+                .map {
+                    it.sykepengesoknadUuid
+                }.toSet()
         soknadRelasjoner shouldHaveSize 2
 
         soknadRelasjoner shouldBeEqualTo opppdatertBehandlingstatusMelding.eksterneSøknadIder.toSet()

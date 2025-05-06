@@ -1,6 +1,8 @@
 package no.nav.helse.flex.domain
 
-enum class Arbeidssituasjon(val navn: String) {
+enum class Arbeidssituasjon(
+    val navn: String,
+) {
     NAERINGSDRIVENDE("selvstendig næringsdrivende"),
     FRILANSER("frilanser"),
     ARBEIDSTAKER("arbeidstaker"),
@@ -10,7 +12,5 @@ enum class Arbeidssituasjon(val navn: String) {
     ANNET("annet"),
     ;
 
-    override fun toString(): String {
-        return navn
-    }
+    override fun toString(): String = navn
 }

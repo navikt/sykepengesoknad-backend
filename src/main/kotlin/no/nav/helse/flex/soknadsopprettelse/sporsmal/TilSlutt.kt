@@ -5,16 +5,15 @@ import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
 import no.nav.helse.flex.soknadsopprettelse.TIL_SLUTT
 
-fun tilSlutt(): Sporsmal {
-    return Sporsmal(
+fun tilSlutt(): Sporsmal =
+    Sporsmal(
         tag = TIL_SLUTT,
         svartype = Svartype.OPPSUMMERING,
         undersporsmal = listOf(),
     )
-}
 
-fun tilSluttGammel(): Sporsmal {
-    return Sporsmal(
+fun tilSluttGammel(): Sporsmal =
+    Sporsmal(
         tag = TIL_SLUTT,
         svartype = Svartype.BEKREFTELSESPUNKTER,
         undersporsmal =
@@ -28,4 +27,3 @@ fun tilSluttGammel(): Sporsmal {
                 ),
             ),
     )
-}

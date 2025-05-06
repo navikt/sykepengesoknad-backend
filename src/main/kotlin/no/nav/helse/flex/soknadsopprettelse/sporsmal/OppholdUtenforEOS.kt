@@ -19,8 +19,8 @@ import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 fun oppholdUtenforEOSSporsmal(
     fom: LocalDate,
     tom: LocalDate,
-): Sporsmal {
-    return Sporsmal(
+): Sporsmal =
+    Sporsmal(
         tag = OPPHOLD_UTENFOR_EOS,
         sporsmalstekst = "Var du på reise utenfor EU/EØS mens du var sykmeldt ${formatterPeriode(fom, tom)}?",
         svartype = Svartype.JA_NEI,
@@ -36,13 +36,12 @@ fun oppholdUtenforEOSSporsmal(
                 ),
             ),
     )
-}
 
 fun gammeltUtenlandsoppholdArbeidsledigAnnetSporsmal(
     fom: LocalDate,
     tom: LocalDate,
-): Sporsmal {
-    return Sporsmal(
+): Sporsmal =
+    Sporsmal(
         tag = ARBEIDSLEDIG_UTLAND,
         sporsmalstekst = "Var du på reise utenfor EU/EØS mens du var sykmeldt ${formatterPeriode(fom, tom)}?",
         svartype = Svartype.JA_NEI,
@@ -64,13 +63,12 @@ fun gammeltUtenlandsoppholdArbeidsledigAnnetSporsmal(
                 ),
             ),
     )
-}
 
 fun gammeltUtenlandsoppholdSelvstendigSporsmal(
     fom: LocalDate,
     tom: LocalDate,
-): Sporsmal {
-    return Sporsmal(
+): Sporsmal =
+    Sporsmal(
         tag = UTLAND,
         sporsmalstekst = "Har du vært utenfor EU/EØS mens du var sykmeldt " + formatterPeriode(fom, tom) + "?",
         svartype = Svartype.JA_NEI,
@@ -92,13 +90,12 @@ fun gammeltUtenlandsoppholdSelvstendigSporsmal(
                 ),
             ),
     )
-}
 
 fun gammeltUtenlandsoppholdArbeidstakerSporsmal(
     fom: LocalDate,
     tom: LocalDate,
-): Sporsmal {
-    return Sporsmal(
+): Sporsmal =
+    Sporsmal(
         tag = UTLAND_V2,
         sporsmalstekst = "Var du på reise utenfor EU/EØS mens du var sykmeldt ${formatterPeriode(fom, tom)}?",
         svartype = Svartype.JA_NEI,
@@ -114,4 +111,3 @@ fun gammeltUtenlandsoppholdArbeidstakerSporsmal(
                 ),
             ),
     )
-}

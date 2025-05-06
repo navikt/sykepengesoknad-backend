@@ -31,7 +31,7 @@ import java.time.ZoneOffset
 import java.util.concurrent.TimeUnit
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class FriskTilArbeidIntegrationTest() : FellesTestOppsett() {
+class FriskTilArbeidIntegrationTest : FellesTestOppsett() {
     @Autowired
     lateinit var friskTilArbeidKafkaConsumer: Consumer<String, String>
 
@@ -66,13 +66,14 @@ class FriskTilArbeidIntegrationTest() : FellesTestOppsett() {
         val key = fnr.asProducerRecordKey()
         val friskTilArbeidVedtakStatus = lagFriskTilArbeidVedtakStatus(fnr, Status.FATTET, vedtaksperiode)
 
-        kafkaProducer.send(
-            ProducerRecord(
-                FRISKTILARBEID_TOPIC,
-                key,
-                friskTilArbeidVedtakStatus.serialisertTilString(),
-            ),
-        ).get()
+        kafkaProducer
+            .send(
+                ProducerRecord(
+                    FRISKTILARBEID_TOPIC,
+                    key,
+                    friskTilArbeidVedtakStatus.serialisertTilString(),
+                ),
+            ).get()
 
         friskTilArbeidKafkaConsumer.ventPåRecords(1, Duration.ofSeconds(1)).first().also {
             it.value() `should be equal to` friskTilArbeidVedtakStatus.serialisertTilString()

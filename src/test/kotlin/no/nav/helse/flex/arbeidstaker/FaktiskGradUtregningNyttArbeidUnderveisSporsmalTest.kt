@@ -233,8 +233,7 @@ class FaktiskGradUtregningNyttArbeidUnderveisSporsmalTest : FellesTestOppsett() 
                 svar.forEachIndexed { index, pair ->
                     it.besvarSporsmal(pair.first, pair.second, index == svar.size - 1)
                 }
-            }
-            .sendSoknad()
+            }.sendSoknad()
         juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
         val soknadPaKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()
         return soknadPaKafka.soknadsperioder!!.map {

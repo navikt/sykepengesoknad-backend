@@ -17,7 +17,8 @@ class UnleashConfig(
     @Value("\${NAIS_APP_NAME}") val appName: String,
 ) : DisposableBean {
     private val config: UnleashConfig =
-        UnleashConfig.builder()
+        UnleashConfig
+            .builder()
             .appName(appName)
             .unleashAPI("$apiUrl/api")
             .apiKey(apiToken)
@@ -26,9 +27,7 @@ class UnleashConfig(
     private val defaultUnleash = DefaultUnleash(config)
 
     @Bean
-    fun unleash(): Unleash {
-        return defaultUnleash
-    }
+    fun unleash(): Unleash = defaultUnleash
 
     override fun destroy() {
         // Spring trigger denne ved shutdown. Gjøres for å unngå at unleash fortsetter å gjøre kall ut

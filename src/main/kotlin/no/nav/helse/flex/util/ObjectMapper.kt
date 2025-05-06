@@ -17,6 +17,4 @@ val objectMapper: ObjectMapper =
 
 fun Any.serialisertTilString(): String = objectMapper.writeValueAsString(this)
 
-fun Any.toJsonNode(): JsonNode {
-    return objectMapper.readTree(objectMapper.writeValueAsString(this))
-}
+fun Any.toJsonNode(): JsonNode = objectMapper.readTree(objectMapper.writeValueAsString(this))

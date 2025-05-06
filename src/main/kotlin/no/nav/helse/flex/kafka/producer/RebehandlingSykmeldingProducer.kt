@@ -13,7 +13,9 @@ import java.time.OffsetDateTime
 const val BEHANDLINGSTIDSPUNKT = "behandlingstidspunkt"
 
 @Component
-class RebehandlingSykmeldingSendtProducer(private val producer: KafkaProducer<String, String>) {
+class RebehandlingSykmeldingSendtProducer(
+    private val producer: KafkaProducer<String, String>,
+) {
     val log = logger()
 
     @WithSpan
@@ -22,19 +24,20 @@ class RebehandlingSykmeldingSendtProducer(private val producer: KafkaProducer<St
         behandlingstidspunkt: OffsetDateTime,
     ) {
         try {
-            producer.send(
-                SyfoProducerRecord<String, String>(
-                    SYKMELDING_SENDT_RETRY_TOPIC,
-                    sykmeldingKafkaMessage.event.sykmeldingId,
-                    sykmeldingKafkaMessage.serialisertTilString(),
-                    mapOf(
-                        Pair(
-                            BEHANDLINGSTIDSPUNKT,
-                            behandlingstidspunkt.toInstant().toEpochMilli(),
+            producer
+                .send(
+                    SyfoProducerRecord<String, String>(
+                        SYKMELDING_SENDT_RETRY_TOPIC,
+                        sykmeldingKafkaMessage.event.sykmeldingId,
+                        sykmeldingKafkaMessage.serialisertTilString(),
+                        mapOf(
+                            Pair(
+                                BEHANDLINGSTIDSPUNKT,
+                                behandlingstidspunkt.toInstant().toEpochMilli(),
+                            ),
                         ),
                     ),
-                ),
-            ).get()
+                ).get()
         } catch (exception: Exception) {
             log.error("Det feiler når sykmelding ${sykmeldingKafkaMessage.sykmelding} skal legges på rebehandling-topic", exception)
             throw RuntimeException(exception)

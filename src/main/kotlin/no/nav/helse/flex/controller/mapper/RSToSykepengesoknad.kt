@@ -8,15 +8,14 @@ import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Visningskriterie
 import no.nav.helse.flex.util.EnumUtil.konverter
 
-fun RSSvar.mapSvar(): Svar {
-    return Svar(
+fun RSSvar.mapSvar(): Svar =
+    Svar(
         id = id,
         verdi = verdi,
     )
-}
 
-fun RSSporsmal.mapSporsmal(): Sporsmal {
-    return Sporsmal(
+fun RSSporsmal.mapSporsmal(): Sporsmal =
+    Sporsmal(
         id = this.id,
         tag = this.tag,
         sporsmalstekst = this.sporsmalstekst,
@@ -35,4 +34,3 @@ fun RSSporsmal.mapSporsmal(): Sporsmal {
                 .map { it.mapSvar() },
         undersporsmal = this.undersporsmal.map { it.mapSporsmal() },
     )
-}

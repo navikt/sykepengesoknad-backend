@@ -103,38 +103,35 @@ private fun leggSvarPaSoknad(sykepengesoknad: Sykepengesoknad): Sykepengesoknad 
             .andreInntektskilder()
             .oppsummering()
 
-    return s.besvarsporsmal(PERMISJON_V2, "NEI")
+    return s
+        .besvarsporsmal(PERMISJON_V2, "NEI")
         .utenlandsopphold()
         .ferie()
 }
 
-private fun Sykepengesoknad.tilbakeIFulltArbeid(): Sykepengesoknad {
-    return besvarsporsmal(TILBAKE_I_ARBEID, "JA")
+private fun Sykepengesoknad.tilbakeIFulltArbeid(): Sykepengesoknad =
+    besvarsporsmal(TILBAKE_I_ARBEID, "JA")
         .besvarsporsmal(TILBAKE_NAR, fom!!.plusDays(7).format(ISO_LOCAL_DATE))
-}
 
-private fun Sykepengesoknad.jobbetDu100Prosent(): Sykepengesoknad {
-    return besvarsporsmal(ARBEID_UNDERVEIS_100_PROSENT + "0", "JA")
+private fun Sykepengesoknad.jobbetDu100Prosent(): Sykepengesoknad =
+    besvarsporsmal(ARBEID_UNDERVEIS_100_PROSENT + "0", "JA")
         .besvarsporsmal(JOBBER_DU_NORMAL_ARBEIDSUKE + "0", "NEI")
         .besvarsporsmal(HVOR_MANGE_TIMER_PER_UKE + "0", "37,5")
         .besvarsporsmal(HVOR_MYE_PROSENT + "0", "CHECKED")
         .besvarsporsmal(HVOR_MYE_PROSENT_VERDI + "0", "79")
-}
 
-private fun Sykepengesoknad.jobbetDuGradert(): Sykepengesoknad {
-    return besvarsporsmal(JOBBET_DU_GRADERT + "1", "JA")
+private fun Sykepengesoknad.jobbetDuGradert(): Sykepengesoknad =
+    besvarsporsmal(JOBBET_DU_GRADERT + "1", "JA")
         .besvarsporsmal(HVOR_MANGE_TIMER_PER_UKE + "1", "37.5")
         .besvarsporsmal(HVOR_MYE_TIMER + "1", "CHECKED")
         .besvarsporsmal(HVOR_MYE_TIMER_VERDI + "1", "66")
-}
 
-private fun Sykepengesoknad.ferie(): Sykepengesoknad {
-    return besvarsporsmal(FERIE_V2, "JA")
+private fun Sykepengesoknad.ferie(): Sykepengesoknad =
+    besvarsporsmal(FERIE_V2, "JA")
         .besvarsporsmal(FERIE_NAR_V2, periodeTilJson(fom!!.plusDays(1), fom!!.plusDays(2)))
-}
 
-private fun Sykepengesoknad.utenlandsopphold(): Sykepengesoknad {
-    return besvarsporsmal(OPPHOLD_UTENFOR_EOS, "JA")
+private fun Sykepengesoknad.utenlandsopphold(): Sykepengesoknad =
+    besvarsporsmal(OPPHOLD_UTENFOR_EOS, "JA")
         .besvarsporsmal(
             tag = OPPHOLD_UTENFOR_EOS_NAR,
             svarListe =
@@ -143,12 +140,10 @@ private fun Sykepengesoknad.utenlandsopphold(): Sykepengesoknad {
                     periodeTilJson(fom!!.plusDays(4), fom!!.plusDays(6)),
                 ),
         )
-}
 
-private fun Sykepengesoknad.andreInntektskilder(): Sykepengesoknad {
-    return besvarsporsmal(ANDRE_INNTEKTSKILDER_V2, "JA")
+private fun Sykepengesoknad.andreInntektskilder(): Sykepengesoknad =
+    besvarsporsmal(ANDRE_INNTEKTSKILDER_V2, "JA")
         .besvarsporsmal(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD, "CHECKED")
         .besvarsporsmal(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD_JOBBET_I_DET_SISTE, "JA")
         .besvarsporsmal(INNTEKTSKILDE_SELVSTENDIG, "CHECKED")
         .besvarsporsmal(INNTEKTSKILDE_SELVSTENDIG_DAGMAMMA, "CHECKED")
-}

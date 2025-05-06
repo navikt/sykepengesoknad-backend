@@ -33,6 +33,10 @@ class SporsmalMedMetadataTest : FellesTestOppsett() {
 
         val soknadHentetFraFrontend = hentSoknader("12345678900").first()
         soknadHentetFraFrontend.sporsmal!!.shouldHaveSize(1)
-        soknadHentetFraFrontend.getSporsmalMedTag("TULLETAG").metadata!!.get("land").asText() `should be equal to` "Sverige"
+        soknadHentetFraFrontend
+            .getSporsmalMedTag("TULLETAG")
+            .metadata!!
+            .get("land")
+            .asText() `should be equal to` "Sverige"
     }
 }

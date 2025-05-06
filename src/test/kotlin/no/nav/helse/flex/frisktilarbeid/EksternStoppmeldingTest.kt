@@ -57,7 +57,9 @@ class EksternStoppmeldingTest : FakesTestOppsett() {
             }
 
         await().until {
-            sykepengesoknadRepository.findByFriskTilArbeidVedtakId(friskTilArbeidDbRecord.id!!).map { it.status }
+            sykepengesoknadRepository
+                .findByFriskTilArbeidVedtakId(friskTilArbeidDbRecord.id!!)
+                .map { it.status }
                 .sorted() ==
                 listOf(
                     Soknadstatus.NY,
@@ -95,7 +97,8 @@ class EksternStoppmeldingTest : FakesTestOppsett() {
     fun `2 søknader er slettet og produsert på kafka`() {
         SoknadKafkaProducerFake.records
             .filter { it.value().status == SoknadsstatusDTO.SLETTET }
-            .filter { it.value().friskTilArbeidVedtakId == vedtaksId }.shouldHaveSize(2)
+            .filter { it.value().friskTilArbeidVedtakId == vedtaksId }
+            .shouldHaveSize(2)
     }
 
     @Test
@@ -111,8 +114,10 @@ class EksternStoppmeldingTest : FakesTestOppsett() {
     @Test
     @Order(5)
     fun `FriskTilArbeidVedtak er oppdatert med avsluttetTidspunkt`() {
-        friskTilArbeidRepository.findByFnrIn(listOf(fnr))
-            .single().avsluttetTidspunkt `should be equal to` avsluttetTidspunkt
+        friskTilArbeidRepository
+            .findByFnrIn(listOf(fnr))
+            .single()
+            .avsluttetTidspunkt `should be equal to` avsluttetTidspunkt
     }
 
     @Test

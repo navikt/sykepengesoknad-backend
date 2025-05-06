@@ -47,9 +47,10 @@ class ProsesserJulesoknadkandidat(
             if (soknad.arbeidsgiverForskuttererIkke()) {
                 val folkeregisterIdenter = identService.hentFolkeregisterIdenterMedHistorikkForFnr(soknad.fnr)
                 val tidligereFremtidigeSoknader =
-                    sykepengesoknadDAO.finnSykepengesoknader(
-                        folkeregisterIdenter,
-                    ).filter { it.soknadstype != Soknadstype.OPPHOLD_UTLAND }
+                    sykepengesoknadDAO
+                        .finnSykepengesoknader(
+                            folkeregisterIdenter,
+                        ).filter { it.soknadstype != Soknadstype.OPPHOLD_UTLAND }
                         .filter { it.fom != null }
                         .filter { it.fom!!.isBefore(soknad.fom) }
                         .filter { it.status == Soknadstatus.FREMTIDIG }
@@ -77,10 +78,11 @@ class ProsesserJulesoknadkandidat(
             val orgnummer = this.arbeidsgiverOrgnummer ?: throw RuntimeException("Forventer orgnummer")
 
             val forskuttering =
-                forskutteringRepository.finnForskuttering(
-                    brukerFnr = this.fnr,
-                    orgnummer = orgnummer,
-                )?.arbeidsgiverForskutterer
+                forskutteringRepository
+                    .finnForskuttering(
+                        brukerFnr = this.fnr,
+                        orgnummer = orgnummer,
+                    )?.arbeidsgiverForskutterer
             if (forskuttering == true) {
                 return false
             }

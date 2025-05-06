@@ -288,7 +288,8 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
     @Test
     fun `Person er avsluttet i arbeidssøker registeret`() {
         FellesTestOppsett.arbeidssokerregisterMockDispatcher.enqueue(
-            MockResponse().setBody(listOf(skapArbeidssokerperiodeResponse(avsluttet = true)).serialisertTilString())
+            MockResponse()
+                .setBody(listOf(skapArbeidssokerperiodeResponse(avsluttet = true)).serialisertTilString())
                 .setResponseCode(200),
         )
 

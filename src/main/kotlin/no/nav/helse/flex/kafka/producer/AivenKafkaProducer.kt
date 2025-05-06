@@ -24,13 +24,14 @@ class AivenKafkaProducer(
             if (environmentToggles.isQ()) {
                 log.info("Publiserer søknad ${soknad.id} på topic $SYKEPENGESOKNAD_TOPIC\n${soknad.serialisertTilString()}")
             }
-            return producer.send(
-                ProducerRecord(
-                    SYKEPENGESOKNAD_TOPIC,
-                    soknad.id,
-                    soknad,
-                ),
-            ).get()
+            return producer
+                .send(
+                    ProducerRecord(
+                        SYKEPENGESOKNAD_TOPIC,
+                        soknad.id,
+                        soknad,
+                    ),
+                ).get()
         } catch (e: Throwable) {
             log.error("Uventet exception ved publisering av søknad ${soknad.id} på topic $SYKEPENGESOKNAD_TOPIC", e)
             // get() kaster InterruptedException eller ExecutionException. Begge er checked, så pakker  de den inn i
@@ -40,4 +41,6 @@ class AivenKafkaProducer(
     }
 }
 
-class AivenKafkaException(e: Throwable) : RuntimeException(e)
+class AivenKafkaException(
+    e: Throwable,
+) : RuntimeException(e)

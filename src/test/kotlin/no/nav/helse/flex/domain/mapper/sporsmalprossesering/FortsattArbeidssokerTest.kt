@@ -80,7 +80,5 @@ class FortsattArbeidssokerTest {
         soknadMedSporsmal(listOf(jobbsituasjonenDinSpm)).fortsattFriskmeldtTilArbeidsformidling().shouldBeNull()
     }
 
-    fun soknadMedSporsmal(sporsmal: List<Sporsmal>): Sykepengesoknad {
-        return opprettNySoknad().copy(sporsmal = sporsmal)
-    }
+    fun soknadMedSporsmal(sporsmal: List<Sporsmal>): Sykepengesoknad = opprettNySoknad().copy(sporsmal = sporsmal)
 }

@@ -56,7 +56,11 @@ data class Arbeidsgiver(
     val stillingsprosent: Int?,
 )
 
-enum class HarArbeidsgiver(val codeValue: String, val text: String, val oid: String = "2.16.578.1.12.4.1.1.8130") {
+enum class HarArbeidsgiver(
+    val codeValue: String,
+    val text: String,
+    val oid: String = "2.16.578.1.12.4.1.1.8130",
+) {
     EN_ARBEIDSGIVER("1", "Én arbeidsgiver"),
     FLERE_ARBEIDSGIVERE("2", "Flere arbeidsgivere"),
     INGEN_ARBEIDSGIVER("3", "Ingen arbeidsgiver"),
@@ -87,12 +91,20 @@ data class MedisinskArsak(
     val arsak: List<MedisinskArsakType>,
 )
 
-enum class ArbeidsrelatertArsakType(val codeValue: String, val text: String, val oid: String = "2.16.578.1.12.4.1.1.8132") {
+enum class ArbeidsrelatertArsakType(
+    val codeValue: String,
+    val text: String,
+    val oid: String = "2.16.578.1.12.4.1.1.8132",
+) {
     MANGLENDE_TILRETTELEGGING("1", "Manglende tilrettelegging på arbeidsplassen"),
     ANNET("9", "Annet"),
 }
 
-enum class MedisinskArsakType(val codeValue: String, val text: String, val oid: String = "2.16.578.1.12.4.1.1.8133") {
+enum class MedisinskArsakType(
+    val codeValue: String,
+    val text: String,
+    val oid: String = "2.16.578.1.12.4.1.1.8133",
+) {
     TILSTAND_HINDRER_AKTIVITET("1", "Helsetilstanden hindrer pasienten i å være i aktivitet"),
     AKTIVITET_FORVERRER_TILSTAND("2", "Aktivitet vil forverre helsetilstanden"),
     AKTIVITET_FORHINDRER_BEDRING("3", "Aktivitet vil hindre/forsinke bedring av helsetilstanden"),
@@ -165,13 +177,21 @@ data class SporsmalSvar(
     val restriksjoner: List<SvarRestriksjon>,
 )
 
-enum class SvarRestriksjon(val codeValue: String, val text: String, val oid: String = "2.16.578.1.12.4.1.1.8134") {
+enum class SvarRestriksjon(
+    val codeValue: String,
+    val text: String,
+    val oid: String = "2.16.578.1.12.4.1.1.8134",
+) {
     SKJERMET_FOR_ARBEIDSGIVER("A", "Informasjonen skal ikke vises arbeidsgiver"),
     SKJERMET_FOR_PASIENT("P", "Informasjonen skal ikke vises pasient"),
     SKJERMET_FOR_NAV("N", "Informasjonen skal ikke vises NAV"),
 }
 
-enum class AnnenFraverGrunn(val codeValue: String, val text: String, val oid: String = "2.16.578.1.12.4.1.1.8131") {
+enum class AnnenFraverGrunn(
+    val codeValue: String,
+    val text: String,
+    val oid: String = "2.16.578.1.12.4.1.1.8131",
+) {
     GODKJENT_HELSEINSTITUSJON("1", "Når vedkommende er innlagt i en godkjent helseinstitusjon"),
     BEHANDLING_FORHINDRER_ARBEID(
         "2",

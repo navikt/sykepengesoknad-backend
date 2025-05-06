@@ -42,8 +42,8 @@ class MottakerAvSoknadService(
         sykepengesoknad: Sykepengesoknad,
         identer: FolkeregisterIdenter,
         sykmelding: SykmeldingKafkaMessage? = null,
-    ): Mottaker {
-        return when (sykepengesoknad.soknadstype) {
+    ): Mottaker =
+        when (sykepengesoknad.soknadstype) {
             SELVSTENDIGE_OG_FRILANSERE,
             OPPHOLD_UTLAND,
             ARBEIDSLEDIG,
@@ -62,7 +62,6 @@ class MottakerAvSoknadService(
 
             ARBEIDSTAKERE -> mottakerAvSoknadForArbeidstaker(sykepengesoknad, identer, sykmelding)
         }
-    }
 
     private fun mottakerAvSoknadForArbeidstaker(
         sykepengesoknad: Sykepengesoknad,
@@ -101,10 +100,11 @@ class MottakerAvSoknadService(
         }
 
         val forskuttering =
-            forskutteringRepository.finnForskuttering(
-                brukerFnr = sykepengesoknad.fnr,
-                orgnummer = sykepengesoknad.arbeidsgiverOrgnummer,
-            )?.arbeidsgiverForskutterer
+            forskutteringRepository
+                .finnForskuttering(
+                    brukerFnr = sykepengesoknad.fnr,
+                    orgnummer = sykepengesoknad.arbeidsgiverOrgnummer,
+                )?.arbeidsgiverForskutterer
 
         if (forskuttering == null) {
             // Ukjent telles som forskuttering
@@ -251,12 +251,11 @@ class MottakerAvSoknadService(
         )
     }
 
-    private fun mottakerAvKorrigertSoknad(sykepengesoknad: Sykepengesoknad): Mottaker? {
-        return sykepengesoknad.korrigerer?.let { korrigertSoknadUuid ->
+    private fun mottakerAvKorrigertSoknad(sykepengesoknad: Sykepengesoknad): Mottaker? =
+        sykepengesoknad.korrigerer?.let { korrigertSoknadUuid ->
             sykepengesoknadDAO.finnMottakerAvSoknad(korrigertSoknadUuid) ?: run {
                 log.error("Finner ikke mottaker for en korrigert søknad")
                 throw RuntimeException("Finner ikke mottaker for en korrigert søknad")
             }
         }
-    }
 }

@@ -97,14 +97,13 @@ class FriskTilArbeidRepositoryTest : FellesTestOppsett() {
     private fun lagVerdierForLagring(
         fnr: String,
         ignorerArbeidssokerregister: Boolean = false,
-    ): VerdierForLagring {
-        return VerdierForLagring(
+    ): VerdierForLagring =
+        VerdierForLagring(
             uuid = UUID.randomUUID().toString(),
             key = fnr.asProducerRecordKey(),
             vedtakStatus = lagFriskTilArbeidVedtakStatus(fnr, Status.FATTET),
             ignorerArbeidssokerregister = ignorerArbeidssokerregister,
         )
-    }
 
     private fun FriskTilArbeidVedtakStatus.tilDbRecord(
         vedtakUuid: String,

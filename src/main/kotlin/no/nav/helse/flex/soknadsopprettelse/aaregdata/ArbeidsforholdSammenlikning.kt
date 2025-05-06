@@ -7,11 +7,10 @@ import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 import kotlin.math.absoluteValue
 
-fun Arbeidsforhold.erIkkeVidereforingAvAnnetArbeidsforhold(alleArbeidsforhold: List<Arbeidsforhold>): Boolean {
-    return !alleArbeidsforhold
+fun Arbeidsforhold.erIkkeVidereforingAvAnnetArbeidsforhold(alleArbeidsforhold: List<Arbeidsforhold>): Boolean =
+    !alleArbeidsforhold
         .filter { it !== this }
         .any { this.erMestSannsynligEllerKanskjeVidereføringAv(it) }
-}
 
 fun Arbeidsforhold.ansattFom(): LocalDate = this.ansettelsesperiode.startdato
 
@@ -22,12 +21,11 @@ internal fun Pair<Arbeidsforhold, Arbeidsforhold>.erInnenFireDager(): Boolean =
 
 internal fun Pair<Arbeidsforhold, Arbeidsforhold>.overlapper(): Boolean = first.tilPeriode().overlapper(second.tilPeriode())
 
-private fun Arbeidsforhold.tilPeriode(): Periode {
-    return Periode(
+private fun Arbeidsforhold.tilPeriode(): Periode =
+    Periode(
         fom = this.ansattFom(),
         tom = this.ansattTomEllerTidensEnde(),
     )
-}
 
 internal fun Pair<Arbeidsforhold, Arbeidsforhold>.erGanskeRettEtterHverandre(): Boolean = overlapper() || erInnenFireDager()
 
@@ -36,14 +34,17 @@ internal fun Arbeidsforhold.erMestSannsynligEllerKanskjeVidereføringAv(forrige:
 
 internal fun Arbeidsforhold.erMestSannsynligVidereføringAv(forrige: Arbeidsforhold): Boolean {
     if (this.opplysningspliktig.sammenliknbar() != forrige.opplysningspliktig.sammenliknbar()) return false
-    if ((forrige to this).erGanskeRettEtterHverandre() && forrige.ansettelsesperiode.sluttaarsak != null && (
+    if ((forrige to this).erGanskeRettEtterHverandre() &&
+        forrige.ansettelsesperiode.sluttaarsak != null &&
+        (
             listOf(
                 "endringIOrganisasjonsstrukturEllerByttetJobbInternt",
                 "kontraktEngasjementEllerVikariatErUtloept",
             ).contains(forrige.ansettelsesperiode.sluttaarsak.kode)
         ) ||
         (
-            (this.arbeidssted.sammenliknbar() == forrige.arbeidssted.sammenliknbar()) && forrige.ansettelsesperiode.sluttaarsak != null &&
+            (this.arbeidssted.sammenliknbar() == forrige.arbeidssted.sammenliknbar()) &&
+                forrige.ansettelsesperiode.sluttaarsak != null &&
                 listOf(
                     "byttetLoenssystemEllerRegnskapsfoerer",
                 ).contains(forrige.ansettelsesperiode.sluttaarsak.kode)
@@ -59,13 +60,9 @@ data class Sammenlikbar(
     val identer: Set<Ident>,
 )
 
-private fun Opplysningspliktig.sammenliknbar(): Sammenlikbar {
-    return Sammenlikbar(this.type, this.identer.toSet())
-}
+private fun Opplysningspliktig.sammenliknbar(): Sammenlikbar = Sammenlikbar(this.type, this.identer.toSet())
 
-private fun Arbeidssted.sammenliknbar(): Sammenlikbar {
-    return Sammenlikbar(this.type, this.identer.toSet())
-}
+private fun Arbeidssted.sammenliknbar(): Sammenlikbar = Sammenlikbar(this.type, this.identer.toSet())
 
 fun List<Ansettelsesdetaljer>.sortertKronologiskPåGyldighet(): List<Ansettelsesdetaljer> =
     this.sortedWith { a, b ->
@@ -85,10 +82,13 @@ fun Ansettelsesdetaljer.erGanskeLik(annen: Ansettelsesdetaljer): Boolean =
 
 internal fun Arbeidsforhold.kanKanskjeVæreVidereføringAv(forrige: Arbeidsforhold): Boolean {
     if (this.ansettelsesdetaljer.isEmpty() || forrige.ansettelsesdetaljer.isEmpty()) return false
-    if ((forrige to this).erGanskeRettEtterHverandre() && forrige.ansettelsesperiode.sluttaarsak != null &&
+    if ((forrige to this).erGanskeRettEtterHverandre() &&
+        forrige.ansettelsesperiode.sluttaarsak != null &&
         (forrige.ansettelsesperiode.sluttaarsak.kode == "endringIOrganisasjonsstrukturEllerByttetJobbInternt") &&
         (
-            forrige.ansettelsesdetaljer.sortertKronologiskPåGyldighet().last()
+            forrige.ansettelsesdetaljer
+                .sortertKronologiskPåGyldighet()
+                .last()
                 .erGanskeLik(this.ansettelsesdetaljer.sortertKronologiskPåGyldighet().first())
         )
     ) {

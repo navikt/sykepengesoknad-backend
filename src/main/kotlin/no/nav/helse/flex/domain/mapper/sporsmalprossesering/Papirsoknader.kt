@@ -11,7 +11,9 @@ fun hentPapirsykmeldinger(sykepengesoknad: Sykepengesoknad): List<PeriodeDTO> {
     val sporsmal = sykepengesoknad.getSporsmalMedTagOrNull(TIDLIGERE_PAPIRSYKMELDING)
     if (null != sporsmal) {
         if ("CHECKED" == sporsmal.forsteSvar) {
-            return sykepengesoknad.getSporsmalMedTag(PAPIRSYKMELDING_NAR).svar
+            return sykepengesoknad
+                .getSporsmalMedTag(PAPIRSYKMELDING_NAR)
+                .svar
                 .map { svar -> svar.verdi.getJsonPeriode() }
         }
     }

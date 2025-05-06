@@ -48,7 +48,8 @@ fun jobbetDuUndersporsmal(
                                     svartype = Svartype.TIMER,
                                     min = "1",
                                     max =
-                                        (150 * ((ChronoUnit.DAYS.between(periode.fom, periode.tom) + 1) / 7.0)).roundToInt()
+                                        (150 * ((ChronoUnit.DAYS.between(periode.fom, periode.tom) + 1) / 7.0))
+                                            .roundToInt()
                                             .toString(),
                                 ),
                             ),

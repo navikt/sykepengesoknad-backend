@@ -34,20 +34,17 @@ fun copyByttSvar(
 fun Sykepengesoknad.byttSvar(
     sporsmal: Sporsmal,
     svar: List<Svar>,
-): Sykepengesoknad {
-    return copyByttSvar(this, sporsmal, svar)
-}
+): Sykepengesoknad = copyByttSvar(this, sporsmal, svar)
 
 private fun byttSvar(
     alleSporsmal: List<Sporsmal>,
     sporsmal: Sporsmal,
     svar: List<Svar>,
-): List<Sporsmal> {
-    return alleSporsmal.map { spm ->
+): List<Sporsmal> =
+    alleSporsmal.map { spm ->
         when {
             spm.tag == sporsmal.tag -> sporsmal.copy(svar = svar)
             spm.undersporsmal.isNotEmpty() -> spm.copy(undersporsmal = byttSvar(spm.undersporsmal, sporsmal, svar))
             else -> spm
         }
     }
-}

@@ -739,8 +739,8 @@ class SoknadGenereringTest {
         arbeidsSituasjon: Arbeidssituasjon,
         soknadsType: Soknadstype,
         status: Soknadstatus? = Soknadstatus.SENDT,
-    ): Sykepengesoknad {
-        return Sykepengesoknad(
+    ): Sykepengesoknad =
+        Sykepengesoknad(
             fnr = "11111111111",
             id = UUID.randomUUID().toString(),
             sykmeldingId = "uuid-$arbeidsgiver",
@@ -759,5 +759,4 @@ class SoknadGenereringTest {
             sykmeldingSkrevet = Instant.now(),
             forstegangssoknad = false,
         )
-    }
 }

@@ -6,8 +6,9 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 
-fun Sykepengesoknad.hentBehandlingsdager(): List<LocalDate> {
-    return this.alleSporsmalOgUndersporsmal()
+fun Sykepengesoknad.hentBehandlingsdager(): List<LocalDate> =
+    this
+        .alleSporsmalOgUndersporsmal()
         .filter { it.tag.startsWith(ENKELTSTAENDE_BEHANDLINGSDAGER_UKE) }
         .filter { it.svar.size == 1 }
         .mapNotNull {
@@ -17,4 +18,3 @@ fun Sykepengesoknad.hentBehandlingsdager(): List<LocalDate> {
                 null
             }
         }
-}

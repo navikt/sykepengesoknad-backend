@@ -115,7 +115,8 @@ class UtregningUtilKtTest {
         }
     }
 
-    private fun Map<String, BigDecimal>.avrundetTilToDesimaler(): Map<String, BigDecimal> {
-        return this.mapValues { it.value.setScale(2, RoundingMode.HALF_UP) }
-    }
+    private fun Map<String, BigDecimal>.avrundetTilToDesimaler(): Map<String, BigDecimal> =
+        this.mapValues {
+            it.value.setScale(2, RoundingMode.HALF_UP)
+        }
 }

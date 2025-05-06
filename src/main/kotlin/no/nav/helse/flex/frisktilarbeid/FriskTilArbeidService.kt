@@ -31,36 +31,39 @@ class FriskTilArbeidService(
         }
 
         if (friskTilArbeidVedtakStatus.status == Status.FATTET) {
-            friskTilArbeidRepository.save(
-                FriskTilArbeidVedtakDbRecord(
-                    vedtakUuid = UUID.randomUUID().toString(),
-                    key = kafkaMelding.key,
-                    opprettet = Instant.now(),
-                    fnr = friskTilArbeidVedtakStatus.personident,
-                    fom = friskTilArbeidVedtakStatus.fom,
-                    tom = friskTilArbeidVedtakStatus.tom,
-                    vedtak = friskTilArbeidVedtakStatus.tilPostgresJson(),
-                    behandletStatus = BehandletStatus.NY,
-                    ignorerArbeidssokerregister = kafkaMelding.ignorerArbeidssokerregister,
-                ),
-            ).also {
-                log.info(
-                    "Lagret FriskTilArbeidVedtakStatus med id: ${it.id}, vedtak_uuid: ${it.vedtakUuid} og key: ${it.key}.",
-                )
-            }
+            friskTilArbeidRepository
+                .save(
+                    FriskTilArbeidVedtakDbRecord(
+                        vedtakUuid = UUID.randomUUID().toString(),
+                        key = kafkaMelding.key,
+                        opprettet = Instant.now(),
+                        fnr = friskTilArbeidVedtakStatus.personident,
+                        fom = friskTilArbeidVedtakStatus.fom,
+                        tom = friskTilArbeidVedtakStatus.tom,
+                        vedtak = friskTilArbeidVedtakStatus.tilPostgresJson(),
+                        behandletStatus = BehandletStatus.NY,
+                        ignorerArbeidssokerregister = kafkaMelding.ignorerArbeidssokerregister,
+                    ),
+                ).also {
+                    log.info(
+                        "Lagret FriskTilArbeidVedtakStatus med id: ${it.id}, vedtak_uuid: ${it.vedtakUuid} og key: ${it.key}.",
+                    )
+                }
         }
     }
 
     fun behandleFriskTilArbeidVedtakStatus(antallVedtak: Int): List<Sykepengesoknad> {
         val dbRecords =
-            friskTilArbeidRepository.finnVedtakSomSkalBehandles(antallVedtak)
+            friskTilArbeidRepository
+                .finnVedtakSomSkalBehandles(antallVedtak)
                 .also { if (it.isEmpty()) return emptyList() }
 
         log.info("Hentet ${dbRecords.size} FriskTilArbeidVedtakStatus for med status NY.")
 
-        return dbRecords.map {
-            friskTilArbeidSoknadService.opprettSoknader(it)
-        }.flatten()
+        return dbRecords
+            .map {
+                friskTilArbeidSoknadService.opprettSoknader(it)
+            }.flatten()
     }
 }
 

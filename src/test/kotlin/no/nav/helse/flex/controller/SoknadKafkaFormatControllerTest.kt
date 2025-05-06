@@ -40,8 +40,8 @@ class SoknadKafkaFormatControllerTest : FellesTestOppsett() {
                         .header("Authorization", "Bearer ${skapAzureJwt()}")
                         .header(NAV_CALLID, UUID.randomUUID().toString())
                         .contentType(MediaType.APPLICATION_JSON),
-                )
-                .andExpect(MockMvcResultMatchers.status().isOk).andReturn()
+                ).andExpect(MockMvcResultMatchers.status().isOk)
+                .andReturn()
                 .let { objectMapper.readValue<SykepengesoknadDTO>(it.response.contentAsString) }
 
         val listeFraRest =
@@ -56,12 +56,11 @@ class SoknadKafkaFormatControllerTest : FellesTestOppsett() {
                                 tom = LocalDate.of(2020, 2, 15),
                                 medSporsmal = true,
                             ).serialisertTilString(),
-                        )
-                        .header("Authorization", "Bearer ${skapAzureJwt(subject = "bakrommet-client-id")}")
+                        ).header("Authorization", "Bearer ${skapAzureJwt(subject = "bakrommet-client-id")}")
                         .header(NAV_CALLID, UUID.randomUUID().toString())
                         .contentType(MediaType.APPLICATION_JSON),
-                )
-                .andExpect(MockMvcResultMatchers.status().isOk).andReturn()
+                ).andExpect(MockMvcResultMatchers.status().isOk)
+                .andReturn()
                 .let { objectMapper.readValue<List<SykepengesoknadDTO>>(it.response.contentAsString) }
 
         assertThat(fraRest.fnr).isEqualTo(kafkaSoknad.fnr)
@@ -84,8 +83,8 @@ class SoknadKafkaFormatControllerTest : FellesTestOppsett() {
                     .get("/api/v3/soknader/whatever/kafkaformat")
                     .header(NAV_CALLID, UUID.randomUUID().toString())
                     .contentType(MediaType.APPLICATION_JSON),
-            )
-            .andExpect(MockMvcResultMatchers.status().isUnauthorized).andReturn()
+            ).andExpect(MockMvcResultMatchers.status().isUnauthorized)
+            .andReturn()
     }
 
     @Test
@@ -97,8 +96,8 @@ class SoknadKafkaFormatControllerTest : FellesTestOppsett() {
                     .header("Authorization", "Bearer sdafsdaf")
                     .header(NAV_CALLID, UUID.randomUUID().toString())
                     .contentType(MediaType.APPLICATION_JSON),
-            )
-            .andExpect(MockMvcResultMatchers.status().isUnauthorized).andReturn()
+            ).andExpect(MockMvcResultMatchers.status().isUnauthorized)
+            .andReturn()
 
         mockMvc
             .perform(
@@ -107,8 +106,8 @@ class SoknadKafkaFormatControllerTest : FellesTestOppsett() {
                     .header("Authorization", "dsgfdgdfgf")
                     .header(NAV_CALLID, UUID.randomUUID().toString())
                     .contentType(MediaType.APPLICATION_JSON),
-            )
-            .andExpect(MockMvcResultMatchers.status().isUnauthorized).andReturn()
+            ).andExpect(MockMvcResultMatchers.status().isUnauthorized)
+            .andReturn()
     }
 
     @Test
@@ -120,8 +119,8 @@ class SoknadKafkaFormatControllerTest : FellesTestOppsett() {
                     .header("Authorization", "Bearer ${skapAzureJwt("facebook")}")
                     .header(NAV_CALLID, UUID.randomUUID().toString())
                     .contentType(MediaType.APPLICATION_JSON),
-            )
-            .andExpect(MockMvcResultMatchers.status().isForbidden).andReturn()
+            ).andExpect(MockMvcResultMatchers.status().isForbidden)
+            .andReturn()
     }
 
     @Test
@@ -133,7 +132,7 @@ class SoknadKafkaFormatControllerTest : FellesTestOppsett() {
                     .header("Authorization", "Bearer ${skapAzureJwt()}")
                     .header(NAV_CALLID, UUID.randomUUID().toString())
                     .contentType(MediaType.APPLICATION_JSON),
-            )
-            .andExpect(MockMvcResultMatchers.status().isNotFound).andReturn()
+            ).andExpect(MockMvcResultMatchers.status().isNotFound)
+            .andReturn()
     }
 }

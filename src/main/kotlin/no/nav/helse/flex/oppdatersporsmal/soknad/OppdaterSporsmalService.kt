@@ -31,7 +31,10 @@ class OppdaterSporsmalService(
 ) {
     val log = logger()
 
-    class OppdaterSporsmalResultat(val oppdatertSoknad: Sykepengesoknad, val mutert: Boolean)
+    class OppdaterSporsmalResultat(
+        val oppdatertSoknad: Sykepengesoknad,
+        val mutert: Boolean,
+    )
 
     fun oppdaterSporsmal(
         soknadFraBasenForOppdatering: Sykepengesoknad,
@@ -89,7 +92,8 @@ class OppdaterSporsmalService(
         val soknadId = lagretSoknad.id
 
         val sporsmal = (
-            lagretSoknad.sporsmal.flatten()
+            lagretSoknad.sporsmal
+                .flatten()
                 .find { it.id == sporsmalId }
                 ?: throw IllegalArgumentException("$sporsmalId finnes ikke i søknad $soknadId")
         )

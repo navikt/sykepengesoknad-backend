@@ -47,9 +47,12 @@ fun List<Sporsmal>.erUlikUtenomSvar(
     sammenlign: List<Sporsmal>,
     log: Logger? = null,
 ): Boolean {
-    fun List<Sporsmal>.flattenOgFjernSvar(): List<Sporsmal> {
-        return this.flatten().map { it.copy(svar = emptyList(), undersporsmal = emptyList(), metadata = null) }.sortedBy { it.id }
-    }
+    fun List<Sporsmal>.flattenOgFjernSvar(): List<Sporsmal> =
+        this
+            .flatten()
+            .map {
+                it.copy(svar = emptyList(), undersporsmal = emptyList(), metadata = null)
+            }.sortedBy { it.id }
 
     if (log != null) {
         val forskjeller = finnForskjellerIListerMedTag(this.flattenOgFjernSvar(), sammenlign.flattenOgFjernSvar())
@@ -68,7 +71,8 @@ fun <T : Any> finnForskjellIObjekter(
 ): Map<String, Pair<Any?, Any?>> {
     require(obj1::class == obj2::class) { "Objects must be of the same class" }
 
-    return obj1::class.memberProperties
+    return obj1::class
+        .memberProperties
         .filter { it.name != "tag" } // Exclude the 'tag' property from comparison
         .mapNotNull { property ->
             val value1 = property.getter.call(obj1)
@@ -78,8 +82,7 @@ fun <T : Any> finnForskjellIObjekter(
             } else {
                 null
             }
-        }
-        .toMap()
+        }.toMap()
 }
 
 fun <T : Any> finnForskjellerIListerMedTag(
@@ -87,22 +90,36 @@ fun <T : Any> finnForskjellerIListerMedTag(
     list2: List<T>,
 ): Map<String, Map<String, Pair<Any?, Any?>>?> {
     // Create maps based on the 'tag' property for quick lookup
-    val map2 = list2.associateBy { it::class.memberProperties.first { it.name == "tag" }.getter.call(it) as String }
+    val map2 =
+        list2.associateBy {
+            it::class
+                .memberProperties
+                .first { it.name == "tag" }
+                .getter
+                .call(it) as String
+        }
 
     // Compare objects with matching tags from list1 to corresponding items in list2
-    return list1.associate { item1 ->
-        val tag = item1::class.memberProperties.first { it.name == "tag" }.getter.call(item1) as String
-        val item2 = map2[tag]
-        tag to if (item2 != null) finnForskjellIObjekter(item1, item2).takeIf { it.isNotEmpty() } else null
-    }.filterValues { it != null } // Remove entries with no differences
+    return list1
+        .associate { item1 ->
+            val tag =
+                item1::class
+                    .memberProperties
+                    .first { it.name == "tag" }
+                    .getter
+                    .call(item1) as String
+            val item2 = map2[tag]
+            tag to if (item2 != null) finnForskjellIObjekter(item1, item2).takeIf { it.isNotEmpty() } else null
+        }.filterValues { it != null } // Remove entries with no differences
 }
 
 fun List<Sporsmal>.erUlikUtenomSvarTekstOgId(sammenlign: List<Sporsmal>): Boolean {
-    fun List<Sporsmal>.flattenOgFjernSvarOgId(): Set<Sporsmal> {
-        return this.flatten()
+    fun List<Sporsmal>.flattenOgFjernSvarOgId(): Set<Sporsmal> =
+        this
+            .flatten()
             .map { it.copy(svar = emptyList(), undersporsmal = emptyList(), sporsmalstekst = null, metadata = null) }
-            .map { it.copy(id = null) }.toSet()
-    }
+            .map { it.copy(id = null) }
+            .toSet()
 
     val a = this.flattenOgFjernSvarOgId()
     val b = sammenlign.flattenOgFjernSvarOgId()

@@ -20,10 +20,11 @@ class FriskTilArbeidRepositoryFake :
         generateId = { UUID.randomUUID().toString() },
     ),
     FriskTilArbeidRepository {
-    override fun finnVedtakSomSkalBehandles(antallVedtak: Int): List<FriskTilArbeidVedtakDbRecord> {
-        return findAll().filter { it.behandletStatus == BehandletStatus.NY }.sortedBy { it.opprettet }
+    override fun finnVedtakSomSkalBehandles(antallVedtak: Int): List<FriskTilArbeidVedtakDbRecord> =
+        findAll()
+            .filter { it.behandletStatus == BehandletStatus.NY }
+            .sortedBy { it.opprettet }
             .take(antallVedtak)
-    }
 
     override fun deleteByFnr(fnr: String): Long {
         val toDelete = findAll().filter { it.fnr == fnr }
@@ -31,7 +32,5 @@ class FriskTilArbeidRepositoryFake :
         return toDelete.size.toLong()
     }
 
-    override fun findByFnrIn(fnrs: List<String>): List<FriskTilArbeidVedtakDbRecord> {
-        return findAll().filter { it.fnr in fnrs }
-    }
+    override fun findByFnrIn(fnrs: List<String>): List<FriskTilArbeidVedtakDbRecord> = findAll().filter { it.fnr in fnrs }
 }

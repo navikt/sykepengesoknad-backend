@@ -40,16 +40,14 @@ fun FellesTestOppsett.mockIstilgangskontroll(
 fun FellesTestOppsett.mockFlexSyketilfelleSykeforloep(
     sykmeldingId: String,
     oppfolgingsdato: LocalDate = LocalDate.now(),
-) {
-    return mockFlexSyketilfelleSykeforloep(
-        listOf(
-            Sykeforloep(
-                oppfolgingsdato = oppfolgingsdato,
-                sykmeldinger = listOf(SimpleSykmelding(id = sykmeldingId, fom = oppfolgingsdato, tom = oppfolgingsdato)),
-            ),
+) = mockFlexSyketilfelleSykeforloep(
+    listOf(
+        Sykeforloep(
+            oppfolgingsdato = oppfolgingsdato,
+            sykmeldinger = listOf(SimpleSykmelding(id = sykmeldingId, fom = oppfolgingsdato, tom = oppfolgingsdato)),
         ),
-    )
-}
+    ),
+)
 
 fun FellesTestOppsett.mockFlexSyketilfelleSykeforloep(sykeforloep: List<Sykeforloep>) {
     flexSyketilfelleMockRestServiceServer

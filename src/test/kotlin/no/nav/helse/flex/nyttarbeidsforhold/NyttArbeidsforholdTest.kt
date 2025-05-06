@@ -28,7 +28,8 @@ class NyttArbeidsforholdTest : NyttArbeidsforholdFellesOppsett() {
                 it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS + "0"
             }!!
         @Suppress("ktlint:standard:max-line-length")
-        nyttArbeidsforholdSpm.sporsmalstekst `should be equal to` "Har du jobbet noe hos Kiosken, avd Oslo AS i perioden 5. - 15. september 2022?"
+        nyttArbeidsforholdSpm.sporsmalstekst `should be equal to`
+            "Har du jobbet noe hos Kiosken, avd Oslo AS i perioden 5. - 15. september 2022?"
         nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedOrgnummer").textValue() `should be equal to` "999888777"
         nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedNavn").textValue() `should be equal to` "Kiosken, avd Oslo AS"
         nyttArbeidsforholdSpm.metadata!!.get("startdatoAareg").textValue() `should be equal to` "2022-09-05"
@@ -59,7 +60,8 @@ class NyttArbeidsforholdTest : NyttArbeidsforholdFellesOppsett() {
 
         val sykepengesoknadDbRecord = sykepengesoknadRepository.findBySykepengesoknadUuid(soknaden.id)!!
         @Suppress("ktlint:standard:max-line-length")
-        sykepengesoknadDbRecord.arbeidsforholdFraAareg `should be equal to` """[{"opplysningspliktigOrgnummer":"11224455441","arbeidsstedOrgnummer":"999888777","arbeidsstedNavn":"Kiosken, avd Oslo AS","startdato":"2022-09-05","sluttdato":null}]"""
+        sykepengesoknadDbRecord.arbeidsforholdFraAareg `should be equal to`
+            """[{"opplysningspliktigOrgnummer":"11224455441","arbeidsstedOrgnummer":"999888777","arbeidsstedNavn":"Kiosken, avd Oslo AS","startdato":"2022-09-05","sluttdato":null}]"""
     }
 
     @Test
@@ -213,7 +215,9 @@ class NyttArbeidsforholdTest : NyttArbeidsforholdFellesOppsett() {
             ),
         )
 
-        hentSoknader(fnr = fnr).flatMap { it.sporsmal!! }.filter { it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS }
+        hentSoknader(fnr = fnr)
+            .flatMap { it.sporsmal!! }
+            .filter { it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS }
             .`should be empty`()
     }
 
@@ -245,7 +249,9 @@ class NyttArbeidsforholdTest : NyttArbeidsforholdFellesOppsett() {
             ),
         )
 
-        hentSoknader(fnr = fnr).flatMap { it.sporsmal!! }.filter { it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS }
+        hentSoknader(fnr = fnr)
+            .flatMap { it.sporsmal!! }
+            .filter { it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS }
             .`should be empty`()
     }
 }

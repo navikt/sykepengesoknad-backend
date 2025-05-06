@@ -310,7 +310,9 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : FellesTestOppsett() {
 
         val json =
             oppdaterSporsmalMedResult(fnr, besvarer.finnHovedsporsmal("JOBBET_DU_GRADERT_1"), soknadsId = korrigerendeSoknad.id)
-                .andExpect(MockMvcResultMatchers.status().isBadRequest).andReturn().response.contentAsString
+                .andExpect(MockMvcResultMatchers.status().isBadRequest)
+                .andReturn()
+                .response.contentAsString
         assertThat(json).isEqualTo("""{"reason":"SPORSMALETS_SVAR_VALIDERER_IKKE"}""")
     }
 }

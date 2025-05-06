@@ -5,8 +5,8 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.helse.flex.util.tilOsloLocalDateTime
 
-fun konverterOppholdUtlandTilSoknadDTO(sykepengesoknad: Sykepengesoknad): SykepengesoknadDTO {
-    return SykepengesoknadDTO(
+fun konverterOppholdUtlandTilSoknadDTO(sykepengesoknad: Sykepengesoknad): SykepengesoknadDTO =
+    SykepengesoknadDTO(
         id = sykepengesoknad.id,
         fnr = sykepengesoknad.fnr,
         sykmeldingId = null,
@@ -25,4 +25,3 @@ fun konverterOppholdUtlandTilSoknadDTO(sykepengesoknad: Sykepengesoknad): Sykepe
         merknaderFraSykmelding = sykepengesoknad.merknaderFraSykmelding.tilMerknadDTO(),
         egenmeldingsdagerFraSykmelding = sykepengesoknad.egenmeldingsdagerFraSykmelding.parseEgenmeldingsdagerFraSykmelding(),
     )
-}

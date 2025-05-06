@@ -113,7 +113,9 @@ class SlettKvitteringerIntegrasjonsTest : FellesTestOppsett() {
         reisetilskuddEtterSvar
             .sporsmal!!
             .find { it.tag == BRUKTE_REISETILSKUDDET }!!
-            .svar.first().verdi shouldBeEqualTo "JA"
+            .svar
+            .first()
+            .verdi shouldBeEqualTo "JA"
 
         Assertions.assertThat(reisetilskuddEtterSvar.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
@@ -164,10 +166,14 @@ class SlettKvitteringerIntegrasjonsTest : FellesTestOppsett() {
             )
 
         val lagretForsteSvar = lagreSvar(fnr, soknadId, kvitteringSpm.id!!, forsteSvar)
-        lagretForsteSvar.oppdatertSporsmal.svar.first().id `should not be` null
+        lagretForsteSvar.oppdatertSporsmal.svar
+            .first()
+            .id `should not be` null
 
         val lagretAndreSvar = lagreSvar(fnr, soknadId, kvitteringSpm.id!!, andreSvar)
-        lagretAndreSvar.oppdatertSporsmal.svar.first().id `should not be` null
+        lagretAndreSvar.oppdatertSporsmal.svar
+            .first()
+            .id `should not be` null
 
         val (_, lagretSpm) = hentKvitteringSpm()
         lagretSpm.svar.size `should be` 2
