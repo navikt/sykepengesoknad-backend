@@ -4,7 +4,7 @@ import org.testcontainers.kafka.KafkaContainer
 import org.testcontainers.utility.DockerImageName
 
 fun startKafkaContainer() {
-    KafkaContainer(DockerImageName.parse("apache/kafka-native:3.8.1")).apply {
+    KafkaContainer(DockerImageName.parse("apache/kafka-native:4.0.0")).apply {
         start()
         System.setProperty("KAFKA_BROKERS", bootstrapServers)
     }
