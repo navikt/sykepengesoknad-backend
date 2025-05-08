@@ -1,13 +1,12 @@
 package no.nav.helse.flex.controller
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import no.nav.helse.flex.FellesTestOppsett
+import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.SoknadKafkaFormatController.HentSoknaderRequest
-import no.nav.helse.flex.sendSykmelding
-import no.nav.helse.flex.skapAzureJwt
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
+import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.util.serialisertTilString
 import no.nav.syfo.kafka.NAV_CALLID
@@ -24,14 +23,21 @@ import java.util.*
 class SoknadKafkaFormatControllerTest : FellesTestOppsett() {
     @Test
     fun `Vi kan hente en søknad på samme format som kafka topicet med version 2 token`() {
-        val kafkaSoknad =
-            sendSykmelding(
-                sykmeldingKafkaMessage(
-                    fnr = "1234",
-                    sykmeldingsperioder = heltSykmeldt(),
-                ),
-            ).first()
+        val fnr = "1234"
 
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                sykmeldingsperioder = heltSykmeldt(),
+            ),
+        ).first()
+        val soknaden = hentSoknader(fnr).first()
+
+        mockFlexSyketilfelleArbeidsgiverperiode()
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
+            .standardSvar()
+            .sendSoknad()
+        val kafkaSoknad = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()
         val fraRest =
             mockMvc
                 .perform(
@@ -69,10 +75,14 @@ class SoknadKafkaFormatControllerTest : FellesTestOppsett() {
             this.copy(
                 opprettet = opprettet?.truncatedTo(SECONDS),
                 sykmeldingSkrevet = sykmeldingSkrevet?.truncatedTo(SECONDS),
+                sendtNav = sendtNav?.truncatedTo(SECONDS),
+                sendtArbeidsgiver = sendtArbeidsgiver?.truncatedTo(SECONDS),
+                mottaker = null,
             )
 
         fraRest.fjernMs().shouldBeEqualTo(kafkaSoknad.fjernMs())
         fraRest.fjernMs().shouldBeEqualTo(listeFraRest[0].fjernMs())
+        juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
     }
 
     @Test

@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Hidden
 import no.nav.helse.flex.clientidvalidation.ClientIdValidation
 import no.nav.helse.flex.clientidvalidation.ClientIdValidation.*
 import no.nav.helse.flex.config.OIDCIssuer.AZUREATOR
+import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.mapper.SykepengesoknadTilSykepengesoknadDTOMapper
@@ -86,6 +87,7 @@ class SoknadKafkaFormatController(
 
         return hentSoknadService
             .hentSoknader(identService.hentFolkeregisterIdenterMedHistorikkForFnr(req.fnr))
+            .filter { it.status == Soknadstatus.SENDT }
             .filter { it.soknadstype != Soknadstype.OPPHOLD_UTLAND }
             .filter { it.filterMedDato() }
             .map { it.tilSykepengesoknadDto() }
