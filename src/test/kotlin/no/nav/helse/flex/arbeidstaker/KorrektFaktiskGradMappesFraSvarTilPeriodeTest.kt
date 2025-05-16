@@ -22,6 +22,8 @@ import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.GradertDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.`should be null`
+import org.amshove.kluent.shouldBe
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer
@@ -122,6 +124,9 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : FellesTestOppsett() {
                 .ventPåRecords(antall = 2)
                 .tilJuridiskVurdering()
                 .first { it.paragraf == "8-13" }
+        vurdering.ledd `should be equal to` 1
+        vurdering.bokstav.`should be null`()
+        vurdering.punktum shouldBe 2
         vurdering.eventName `should be equal to` "subsumsjon"
         vurdering.utfall `should be equal to` Utfall.VILKAR_BEREGNET
         vurdering.input `should be equal to`
