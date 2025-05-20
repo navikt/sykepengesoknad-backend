@@ -13,6 +13,7 @@ external-host:
   - pdl-api.dev-fss-pub.nais.io
   - ereg-services.dev-fss-pub.nais.io
   - team-inntekt-proxy.dev-fss-pub.nais.io
+  - ikomp-q1.intern.dev.nav.no
   - flex-unleash-api.nav.cloud.nais.io
   - aareg-services-q1.dev-fss-pub.nais.io
   - g.nav.no
@@ -39,8 +40,8 @@ env:
   YRKESSKADE_AAD_CLIENT_ID: dev-gcp.yrkesskade.yrkesskade-saker
   MEDLEMSKAP_VURDERING_URL: http://medlemskap-sykepenger-listener.medlemskap
   MEDLEMSKAP_VURDERING_AAD_CLIENT_ID: dev-gcp.medlemskap.medlemskap-sykepenger-listener
-  INNTEKTSKOMPONENTEN_URL: https://team-inntekt-proxy.dev-fss-pub.nais.io/proxy/inntektskomponenten-q1/rs
-  INNTEKTSKOMPONENTEN_AAD_CLIENT_ID: dev-fss.team-inntekt.inntektskomponenten
+  INNTEKTSKOMPONENTEN_URL: https://ikomp-q1.dev-fss-pub.nais.io/rs
+  INNTEKTSKOMPONENTEN_AAD_CLIENT_ID: dev-fss.team-inntekt.ikomp-q1
   SIGRUN_URL: https://team-inntekt-proxy.dev-fss-pub.nais.io/proxy/sigrun-q1
   SIGRUN_AAD_CLIENT_ID: dev-fss.team-inntekt.sigrun-q1
   INNSENDING_API_TOKENX_CLIENT_ID: dev-gcp:team-soknad:innsending-api
