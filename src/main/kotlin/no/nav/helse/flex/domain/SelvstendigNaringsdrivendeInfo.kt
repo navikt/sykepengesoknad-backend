@@ -1,5 +1,6 @@
 package no.nav.helse.flex.domain
 
+import no.nav.helse.flex.client.sigrun.PensjonsgivendeInntekt
 import no.nav.helse.flex.service.SykepengegrunnlagNaeringsdrivende
 import no.nav.helse.flex.sykepengesoknad.kafka.*
 
@@ -13,6 +14,7 @@ data class SelvstendigNaringsdrivendeInfo(
             return SelvstendigNaringsdrivendeDTO(
                 roller = roller.map { RolleDTO(it.orgnummer, it.rolletype) },
                 sykepengegrunnlagNaeringsdrivende = null,
+                naringsdrivendeInntekt = null,
             )
         }
 
@@ -50,8 +52,85 @@ data class SelvstendigNaringsdrivendeInfo(
                             )
                         },
                 ),
+            naringsdrivendeInntekt =
+                NaringsdrivendeInntektDTO(
+                    norskPersonidentifikator = sykepengegrunnlagNaeringsdrivende.inntekter.first().norskPersonidentifikator,
+                    inntekt = mapToNaringsdrivendeInntektsAarDTO(),
+                ),
         )
     }
+
+    fun mapToNaringsdrivendeInntektsAarDTO(): List<NaringsdrivendeInntektsAarDTO> =
+        sykepengegrunnlagNaeringsdrivende!!.inntekter.map { response ->
+            val pensjonsgivendeInntekt =
+                response.pensjonsgivendeInntekt.fold(
+                    SummertPensjonsgivendeInntektDTO(),
+                ) { summertPensjonsgivendeInntektDTO, pensjonsgivendeInntekt ->
+                    SummertPensjonsgivendeInntektDTO(
+                        pensjonsgivendeInntektAvLoennsinntekt =
+                            summerLoensinntekt(
+                                summertPensjonsgivendeInntektDTO,
+                                pensjonsgivendeInntekt,
+                            ),
+                        pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel =
+                            summerPensjonsdel(
+                                summertPensjonsgivendeInntektDTO,
+                                pensjonsgivendeInntekt,
+                            ),
+                        pensjonsgivendeInntektAvNaeringsinntekt =
+                            summerNaringsinntekt(
+                                summertPensjonsgivendeInntektDTO,
+                                pensjonsgivendeInntekt,
+                            ),
+                        pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage =
+                            summerFangstinntekt(
+                                summertPensjonsgivendeInntektDTO,
+                                pensjonsgivendeInntekt,
+                            ),
+                    )
+                }
+
+            NaringsdrivendeInntektsAarDTO(
+                inntektsaar = response.inntektsaar,
+                pensjonsgivendeInntekt = pensjonsgivendeInntekt,
+            )
+        }
+
+    private fun summerFangstinntekt(
+        summertPensjonsgivendeInntektDTO: SummertPensjonsgivendeInntektDTO,
+        pensjonsgivendeInntekt: PensjonsgivendeInntekt,
+    ): Int =
+        (
+            summertPensjonsgivendeInntektDTO.pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage
+                ?: 0
+        ) + pensjonsgivendeInntekt.pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage
+
+    private fun summerNaringsinntekt(
+        summertPensjonsgivendeInntektDTO: SummertPensjonsgivendeInntektDTO,
+        pensjonsgivendeInntekt: PensjonsgivendeInntekt,
+    ): Int =
+        (
+            summertPensjonsgivendeInntektDTO.pensjonsgivendeInntektAvNaeringsinntekt
+                ?: 0
+        ) + pensjonsgivendeInntekt.pensjonsgivendeInntektAvNaeringsinntekt
+
+    private fun summerPensjonsdel(
+        summertPensjonsgivendeInntektDTO: SummertPensjonsgivendeInntektDTO,
+        pensjonsgivendeInntekt: PensjonsgivendeInntekt,
+    ): Int =
+        (
+            summertPensjonsgivendeInntektDTO.pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel
+                ?: 0
+        ) + pensjonsgivendeInntekt.pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel
+
+    private fun summerLoensinntekt(
+        summertPensjonsgivendeInntektDTO: SummertPensjonsgivendeInntektDTO,
+        pensjonsgivendeInntekt: PensjonsgivendeInntekt,
+    ): Int =
+        (
+            summertPensjonsgivendeInntektDTO.pensjonsgivendeInntektAvLoennsinntekt
+                ?: 0
+        ) + pensjonsgivendeInntekt.pensjonsgivendeInntektAvLoennsinntekt
 }
 
 data class BrregRolle(
