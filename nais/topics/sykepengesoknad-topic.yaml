@@ -12,7 +12,7 @@ spec:
   pool: {{kafkaPool}}
   config:
     cleanupPolicy: delete
-    minimumInSyncReplicas: 1
+    minimumInSyncReplicas: 2
     partitions: 3
     replication: 3
     retentionBytes: -1      # Messages will never get deleted because of disk space
