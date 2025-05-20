@@ -123,7 +123,9 @@ class BehandligsdagerIntegrationTest : FellesTestOppsett() {
                 .verdi,
         ).isEqualTo("CHECKED")
 
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = 1)
+        val antallVurderingerFraSoknader = 1
+        val antallVurderingerFraSyketilfelle = 1
+        juridiskVurderingKafkaConsumer.ventPåRecords(antall = antallVurderingerFraSyketilfelle + antallVurderingerFraSoknader)
     }
 
     @Test
@@ -153,7 +155,9 @@ class BehandligsdagerIntegrationTest : FellesTestOppsett() {
 
         val soknadPaKafka = kafkaSoknader.last()
         assertThat(soknadPaKafka.status).isEqualTo(SoknadsstatusDTO.SENDT)
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = 1)
+        val antallVurderingerFraSoknader = 2
+        val antallVurderingerFraSyketilfelle = 1
+        juridiskVurderingKafkaConsumer.ventPåRecords(antall = antallVurderingerFraSyketilfelle + antallVurderingerFraSoknader)
     }
 
     @Test

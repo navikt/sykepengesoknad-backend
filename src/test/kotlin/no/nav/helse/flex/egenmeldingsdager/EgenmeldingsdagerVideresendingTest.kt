@@ -127,7 +127,9 @@ class EgenmeldingsdagerVideresendingTest : FellesTestOppsett() {
             .oppsummering()
             .sendSoknad()
 
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
+        val antallVurderingerFraSoknader = 2
+        val antallVurderingerFraSyketilfelle = 1
+        juridiskVurderingKafkaConsumer.ventPåRecords(antall = antallVurderingerFraSyketilfelle + antallVurderingerFraSoknader)
         val kafkaSoknad = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()
         kafkaSoknad.status shouldBeEqualTo SoknadsstatusDTO.SENDT
         kafkaSoknad.egenmeldingsdagerFraSykmelding shouldBeEqualTo

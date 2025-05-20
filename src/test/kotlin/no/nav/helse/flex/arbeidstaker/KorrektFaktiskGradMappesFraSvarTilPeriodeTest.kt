@@ -119,9 +119,12 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : FellesTestOppsett() {
 
     @Test
     fun `5 - vi sjekker at faktisk grad er riktig på jurdisk vurdering på kafka`() {
+        val antallVurderingerFraSoknader = 1
+        val antallVurderingerFraSyketilfelle = 1
+        val antallVurderingerFraHelg = 1
         val vurdering =
             juridiskVurderingKafkaConsumer
-                .ventPåRecords(antall = 2)
+                .ventPåRecords(antall = antallVurderingerFraSyketilfelle + antallVurderingerFraHelg + antallVurderingerFraSoknader)
                 .tilJuridiskVurdering()
                 .first { it.paragraf == "8-13" }
         vurdering.ledd `should be equal to` 1
@@ -226,7 +229,9 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : FellesTestOppsett() {
             .oppsummering()
             .sendSoknad()
 
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
+        val antallVurderingerFraSoknader = 2
+        val antallVurderingerFraSyketilfelle = 1
+        juridiskVurderingKafkaConsumer.ventPåRecords(antall = antallVurderingerFraSyketilfelle + antallVurderingerFraSoknader)
         val soknadPaKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()
         assertThat(soknadPaKafka.soknadsperioder!!.map { Pair(it.faktiskGrad, it.sykmeldingsgrad) }).isEqualTo(
             listOf(
@@ -256,7 +261,9 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : FellesTestOppsett() {
             .oppsummering()
             .sendSoknad()
 
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
+        val antallVurderingerFraSoknader = 2
+        val antallVurderingerFraSyketilfelle = 1
+        juridiskVurderingKafkaConsumer.ventPåRecords(antall = antallVurderingerFraSyketilfelle + antallVurderingerFraSoknader)
         val soknadPaKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()
         assertThat(soknadPaKafka.soknadsperioder!!.map { Pair(it.faktiskGrad, it.sykmeldingsgrad) }).isEqualTo(
             listOf(
@@ -286,7 +293,9 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : FellesTestOppsett() {
             .oppsummering()
             .sendSoknad()
 
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
+        val antallVurderingerFraSoknader = 2
+        val antallVurderingerFraSyketilfelle = 1
+        juridiskVurderingKafkaConsumer.ventPåRecords(antall = antallVurderingerFraSyketilfelle + antallVurderingerFraSoknader)
         val soknadPaKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()
         assertThat(soknadPaKafka.soknadsperioder!!.map { Pair(it.faktiskGrad, it.sykmeldingsgrad) }).isEqualTo(
             listOf(

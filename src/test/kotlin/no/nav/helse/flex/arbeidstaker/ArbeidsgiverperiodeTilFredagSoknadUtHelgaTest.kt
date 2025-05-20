@@ -88,15 +88,18 @@ class ArbeidsgiverperiodeTilFredagSoknadUtHelgaTest : FellesTestOppsett() {
         assertThat(kafkaSoknader[0].status).isEqualTo(SoknadsstatusDTO.SENDT)
         assertThat(kafkaSoknader[0].mottaker).isEqualTo(MottakerDTO.ARBEIDSGIVER)
 
-        val vurdering =
+        val antallVurderingerFraSoknader = 4
+        val antallVurderingerFraSyketilfelle = 1
+        val vurderinger =
             juridiskVurderingKafkaConsumer
-                .ventPåRecords(antall = 4)
+                .ventPåRecords(antall = antallVurderingerFraSoknader + antallVurderingerFraSyketilfelle + 1)
                 .tilJuridiskVurdering()
-                .first { it.paragraf == "8-11" }
 
-        vurdering.paragraf `should be equal to` "8-11"
-        vurdering.utfall `should be equal to` Utfall.VILKAR_IKKE_OPPFYLT
-        vurdering.input `should be equal to`
+        val vurderingOmHelg = vurderinger.first { it.paragraf == "8-11" }
+
+        vurderingOmHelg.paragraf `should be equal to` "8-11"
+        vurderingOmHelg.utfall `should be equal to` Utfall.VILKAR_IKKE_OPPFYLT
+        vurderingOmHelg.input `should be equal to`
             mapOf(
                 "versjon" to "2022-02-01",
                 "sykepengesoknadTom" to "2021-12-19",
@@ -106,7 +109,7 @@ class ArbeidsgiverperiodeTilFredagSoknadUtHelgaTest : FellesTestOppsett() {
                         "tom" to "2021-12-17",
                     ),
             )
-        vurdering.output `should be equal to`
+        vurderingOmHelg.output `should be equal to`
             mapOf(
                 "versjon" to "2022-02-01",
                 "kunHelgEtterArbeidsgiverperiode" to true,
@@ -163,7 +166,14 @@ class ArbeidsgiverperiodeTilFredagSoknadUtHelgaTest : FellesTestOppsett() {
         assertThat(kafkaSoknader[0].status).isEqualTo(SoknadsstatusDTO.SENDT)
         assertThat(kafkaSoknader[0].mottaker).isEqualTo(MottakerDTO.ARBEIDSGIVER_OG_NAV)
 
-        val vurderinger = juridiskVurderingKafkaConsumer.ventPåRecords(antall = 3).tilJuridiskVurdering()
+        val antallVurderingerFraSyketilfelle = 1
+        val antallVurderingerFraSoknader = 4
+        val vurderinger =
+            juridiskVurderingKafkaConsumer
+                .ventPåRecords(
+                    antall =
+                        antallVurderingerFraSoknader + antallVurderingerFraSyketilfelle,
+                ).tilJuridiskVurdering()
 
         vurderinger.find { it.paragraf == "8-11" }.`should be null`()
     }

@@ -219,7 +219,9 @@ class ArbeidstakerIntegrationTest : FellesTestOppsett() {
         assertThat(kafkaSoknader[0].status).isEqualTo(SoknadsstatusDTO.SENDT)
         kafkaSoknader[0].arbeidUtenforNorge.shouldBeNull()
 
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
+        val antallVurderingerFraSoknader = 2
+        val antallVurderingerFraSyketilfelle = 1
+        juridiskVurderingKafkaConsumer.ventPåRecords(antall = antallVurderingerFraSyketilfelle + antallVurderingerFraSoknader)
 
         val soknadFraDatabase = sykepengesoknadDAO.finnSykepengesoknad(sendtSoknad.id)
         soknadFraDatabase.sendtArbeidsgiver `should not be` null
@@ -264,7 +266,9 @@ class ArbeidstakerIntegrationTest : FellesTestOppsett() {
                 beskrivelse = "Hey",
             ),
         )
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
+        val antallVurderingerFraSoknader = 2
+        val antallVurderingerFraSyketilfelle = 1
+        juridiskVurderingKafkaConsumer.ventPåRecords(antall = antallVurderingerFraSyketilfelle + antallVurderingerFraSoknader)
 
         val soknadFraDatabase = sykepengesoknadDAO.finnSykepengesoknad(sendtSoknad.id)
         soknadFraDatabase.sendtArbeidsgiver `should not be` null
@@ -301,7 +305,9 @@ class ArbeidstakerIntegrationTest : FellesTestOppsett() {
         assertThat(kafkaSoknader[0].opprinneligSendt).isNotNull()
         assertThat(kafkaSoknader[0].opprinneligSendt).isEqualToIgnoringNanos(sendtTidspunkt.toInstant().tilOsloLocalDateTime())
 
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
+        val antallVurderingerFraSoknader = 2
+        val antallVurderingerFraSyketilfelle = 1
+        juridiskVurderingKafkaConsumer.ventPåRecords(antall = antallVurderingerFraSyketilfelle + antallVurderingerFraSoknader)
     }
 
     @Test

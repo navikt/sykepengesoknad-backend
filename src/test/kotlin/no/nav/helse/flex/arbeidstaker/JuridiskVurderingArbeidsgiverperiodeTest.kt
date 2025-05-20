@@ -2,6 +2,7 @@ package no.nav.helse.flex.arbeidstaker
 
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
+import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknad
 import no.nav.helse.flex.domain.Arbeidsgiverperiode
 import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.hentSoknad
@@ -16,7 +17,6 @@ import no.nav.helse.flex.tilJuridiskVurdering
 import no.nav.helse.flex.ventPåRecords
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should be null`
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
 import java.time.LocalDate
 
@@ -33,45 +33,55 @@ class JuridiskVurderingArbeidsgiverperiodeTest : FellesTestOppsett() {
 
     @Test
     fun `søknaden er helt innafor arbeidsgiverperioden`() {
+        val sykmeldingFom = fredagen.minusDays(2)
+        val sykmeldingTom = fredagen
+
         `send sykmelding og besvar søknad`(
-            sykmeldingFom = fredagen.minusDays(2),
-            sykmeldingTom = fredagen,
+            sykmeldingFom = sykmeldingFom,
+            sykmeldingTom = sykmeldingTom,
             oppbruktAgPeriode = false,
-            arbeidsgiverperiodeFom = fredagen.minusDays(2),
-            arbeidsgiverperiodeTom = fredagen,
+            arbeidsgiverperiodeFom = sykmeldingFom,
+            arbeidsgiverperiodeTom = sykmeldingTom,
         )
 
-        val vurdering =
-            juridiskVurderingKafkaConsumer
-                .ventPåRecords(antall = 2)
-                .tilJuridiskVurdering()
-                .first { it.paragraf == "8-17" }
+        val vurderinger = hentJuridiskeVurderinger(3)
 
-        vurdering.utfall `should be equal to` Utfall.VILKAR_IKKE_OPPFYLT
-        vurdering.ledd `should be equal to` 1
-        vurdering.bokstav `should be equal to` "a"
-        vurdering.punktum.`should be null`()
-        vurdering.input `should be equal to`
-            mapOf(
-                "arbeidsgiverperiode" to
-                    mapOf(
-                        "fom" to "2021-12-15",
-                        "tom" to "2021-12-17",
-                    ),
-                "sykepengesoknadTom" to "2021-12-17",
-                "sykepengesoknadFom" to "2021-12-15",
-                "oppbruktArbeidsgiverperiode" to false,
-                "versjon" to "2022-02-01",
-            )
-        vurdering.output `should be equal to`
-            mapOf(
-                "periode" to
-                    mapOf(
-                        "fom" to "2021-12-15",
-                        "tom" to "2021-12-17",
-                    ),
-                "versjon" to "2022-02-01",
-            )
+        vurderinger.filter { it.paragraf == "8-17" }.let { vurderinger817 ->
+            vurderinger817.size `should be equal to` 2
+
+            val forventetInput =
+                mapOf(
+                    "arbeidsgiverperiode" to
+                        mapOf(
+                            "fom" to "2021-12-15",
+                            "tom" to "2021-12-17",
+                        ),
+                    "sykepengesoknadTom" to "2021-12-17",
+                    "sykepengesoknadFom" to "2021-12-15",
+                    "oppbruktArbeidsgiverperiode" to false,
+                    "versjon" to "2022-02-01",
+                )
+
+            val forventetOutput =
+                mapOf(
+                    "periode" to
+                        mapOf(
+                            "fom" to "2021-12-15",
+                            "tom" to "2021-12-17",
+                        ),
+                    "versjon" to "2022-02-01",
+                )
+
+            vurderinger817.forEach { vurdering ->
+                vurdering.ledd `should be equal to` 1
+                vurdering.punktum.`should be null`()
+                vurdering.input `should be equal to` forventetInput
+                vurdering.output `should be equal to` forventetOutput
+            }
+
+            vurderinger817.first { it.bokstav == "a" }.utfall `should be equal to` Utfall.VILKAR_IKKE_OPPFYLT
+            vurderinger817.first { it.bokstav == "b" }.utfall `should be equal to` Utfall.VILKAR_OPPFYLT
+        }
     }
 
     @Test
@@ -85,9 +95,7 @@ class JuridiskVurderingArbeidsgiverperiodeTest : FellesTestOppsett() {
         )
 
         val vurdering =
-            juridiskVurderingKafkaConsumer
-                .ventPåRecords(antall = 2)
-                .tilJuridiskVurdering()
+            hentJuridiskeVurderinger(3)
                 .first { it.paragraf == "8-17" }
 
         vurdering.ledd `should be equal to` 1
@@ -127,10 +135,8 @@ class JuridiskVurderingArbeidsgiverperiodeTest : FellesTestOppsett() {
             arbeidsgiverperiodeTom = fredagen.minusDays(1),
         )
 
-        val vurderinger =
-            juridiskVurderingKafkaConsumer
-                .ventPåRecords(antall = 3)
-                .tilJuridiskVurdering()
+        val vurderinger = hentJuridiskeVurderinger(5)
+
         val vurderingInnenfor =
             vurderinger
                 .filter { it.utfall == Utfall.VILKAR_IKKE_OPPFYLT }
@@ -139,11 +145,10 @@ class JuridiskVurderingArbeidsgiverperiodeTest : FellesTestOppsett() {
         vurderingInnenfor.ledd `should be equal to` 1
         vurderingInnenfor.bokstav `should be equal to` "a"
         vurderingInnenfor.punktum.`should be null`()
-
         vurderingInnenfor.kilde `should be equal to` "sykepengesoknad-backend"
         vurderingInnenfor.versjonAvKode `should be equal to` "sykepengesoknad-backend-test-12432536"
-
         vurderingInnenfor.utfall `should be equal to` Utfall.VILKAR_IKKE_OPPFYLT
+
         vurderingInnenfor.input `should be equal to`
             mapOf(
                 "arbeidsgiverperiode" to
@@ -156,6 +161,7 @@ class JuridiskVurderingArbeidsgiverperiodeTest : FellesTestOppsett() {
                 "oppbruktArbeidsgiverperiode" to true,
                 "versjon" to "2022-02-01",
             )
+
         vurderingInnenfor.output `should be equal to`
             mapOf(
                 "periode" to
@@ -169,7 +175,7 @@ class JuridiskVurderingArbeidsgiverperiodeTest : FellesTestOppsett() {
         val vurderingUtafor =
             vurderinger
                 .filter { it.utfall == Utfall.VILKAR_OPPFYLT }
-                .first { it.paragraf == "8-17" }
+                .first { it.paragraf == "8-17" && it.bokstav == "a" }
 
         vurderingUtafor `should be equal to`
             vurderingInnenfor.copy(
@@ -190,7 +196,12 @@ class JuridiskVurderingArbeidsgiverperiodeTest : FellesTestOppsett() {
             )
     }
 
-    fun `send sykmelding og besvar søknad`(
+    private fun hentJuridiskeVurderinger(antall: Int) =
+        juridiskVurderingKafkaConsumer
+            .ventPåRecords(antall = antall)
+            .tilJuridiskVurdering()
+
+    private fun `send sykmelding og besvar søknad`(
         sykmeldingFom: LocalDate,
         sykmeldingTom: LocalDate,
         oppbruktAgPeriode: Boolean,
@@ -226,19 +237,21 @@ class JuridiskVurderingArbeidsgiverperiodeTest : FellesTestOppsett() {
                 fnr = fnr,
             )
 
-        val sendtSoknad =
-            SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
-                .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
-                .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
-                .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
-                .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
-                .besvarSporsmal(tag = "OPPHOLD_UTENFOR_EOS", svar = "NEI")
-                .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
-                .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
-                .oppsummering()
-                .sendSoknad()
-        assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
+        val sendtSoknad = besvarOgSendSoknad(soknaden)
+        sendtSoknad.status `should be equal to` RSSoknadstatus.SENDT
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
     }
+
+    private fun besvarOgSendSoknad(soknaden: RSSykepengesoknad) =
+        SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
+            .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
+            .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
+            .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
+            .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
+            .besvarSporsmal(tag = "OPPHOLD_UTENFOR_EOS", svar = "NEI")
+            .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
+            .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
+            .oppsummering()
+            .sendSoknad()
 }

@@ -111,6 +111,8 @@ class AndreInntektskilderSpmTest : FellesTestOppsett() {
                 ),
             )
 
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
+        val antallVurderingerFraSoknader = 2
+        val antallVurderingerFraSyketilfelle = 1
+        juridiskVurderingKafkaConsumer.ventPåRecords(antall = antallVurderingerFraSyketilfelle + antallVurderingerFraSoknader)
     }
 }

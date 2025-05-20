@@ -45,6 +45,8 @@ class NyttArbeidsforhold0SvarTest : NyttArbeidsforholdFellesOppsett() {
         inntektFraNyttArbeidsforhold.fom `should be equal to` LocalDate.of(2022, 9, 5)
         inntektFraNyttArbeidsforhold.tom `should be equal to` basisdato
 
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
+        val antallVurderingerFraSoknader = 2
+        val antallVurderingerFraSyketilfelle = 1
+        juridiskVurderingKafkaConsumer.ventPåRecords(antall = antallVurderingerFraSyketilfelle + antallVurderingerFraSoknader)
     }
 }

@@ -155,6 +155,9 @@ class ArbeidstakerFremtidigOgAktiveringTest : FellesTestOppsett() {
 
         assertThat(kafkaSoknader).hasSize(1)
         assertThat(kafkaSoknader[0].status).isEqualTo(SoknadsstatusDTO.SENDT)
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
+
+        val antallVurderingerFraSoknader = 2
+        val antallVurderingerFraSyketilfelle = 1
+        juridiskVurderingKafkaConsumer.ventPåRecords(antall = antallVurderingerFraSyketilfelle + antallVurderingerFraSoknader)
     }
 }

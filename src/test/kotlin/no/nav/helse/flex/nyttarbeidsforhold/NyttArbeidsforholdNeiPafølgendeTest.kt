@@ -42,7 +42,9 @@ class NyttArbeidsforholdNeiPafølgendeTest : NyttArbeidsforholdFellesOppsett() {
         inntektFraNyttArbeidsforhold.arbeidsstedOrgnummer `should be equal to` "999888777"
         inntektFraNyttArbeidsforhold.opplysningspliktigOrgnummer `should be equal to` "11224455441"
 
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
+        val antallVurderingerFraSoknader = 2
+        val antallVurderingerFraSyketilfelle = 1
+        juridiskVurderingKafkaConsumer.ventPåRecords(antall = antallVurderingerFraSyketilfelle + antallVurderingerFraSoknader)
     }
 
     @Test
@@ -104,6 +106,8 @@ class NyttArbeidsforholdNeiPafølgendeTest : NyttArbeidsforholdFellesOppsett() {
             .belop
             .`should be null`()
 
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
+        val antallVurderingerFraSoknader = 2
+        val antallVurderingerFraSyketilfelle = 1
+        juridiskVurderingKafkaConsumer.ventPåRecords(antall = antallVurderingerFraSyketilfelle + antallVurderingerFraSoknader)
     }
 }

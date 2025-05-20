@@ -233,6 +233,8 @@ class FrilanserIntegrationTest : FellesTestOppsett() {
         assertThat(soknader).hasSize(1)
         assertThat(soknader.last().type).isEqualTo(SoknadstypeDTO.SELVSTENDIGE_OG_FRILANSERE)
         assertThat(soknader.last().status).isEqualTo(SoknadsstatusDTO.SENDT)
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = 1)
+        val antallVurderingerFraSoknader = 2
+        val antallVurderingerFraSyketilfelle = 1
+        juridiskVurderingKafkaConsumer.ventPåRecords(antall = antallVurderingerFraSyketilfelle + antallVurderingerFraSoknader)
     }
 }

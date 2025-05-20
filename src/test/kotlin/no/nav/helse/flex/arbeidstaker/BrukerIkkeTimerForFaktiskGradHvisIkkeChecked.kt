@@ -69,7 +69,9 @@ class BrukerIkkeTimerForFaktiskGradHvisIkkeChecked : FellesTestOppsett() {
             .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
             .oppsummering()
             .sendSoknad()
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
+        val antallVurderingerFraSoknader = 2
+        val antallVurderingerFraSyketilfelle = 1
+        juridiskVurderingKafkaConsumer.ventPåRecords(antall = antallVurderingerFraSyketilfelle + antallVurderingerFraSoknader)
     }
 
     @Test

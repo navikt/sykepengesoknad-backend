@@ -239,6 +239,8 @@ class NullstillUndersporsmalSvarTest : FellesTestOppsett() {
 
         soknaden.status shouldBeEqualTo RSSoknadstatus.SENDT
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
+        val antallVurderingerFraSoknader = 2
+        val antallVurderingerFraSyketilfelle = 1
+        juridiskVurderingKafkaConsumer.ventPåRecords(antall = antallVurderingerFraSyketilfelle + antallVurderingerFraSoknader)
     }
 }

@@ -102,7 +102,9 @@ class AutomatiskPapirsykmeldingOpprydningTest : FellesTestOppsett() {
 
         assertThat(soknader).hasSize(1)
         assertThat(soknader[0].status).isEqualTo(SENDT)
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
+        val antallVurderingerFraSoknader = 2
+        val antallVurderingerFraSyketilfelle = 1
+        juridiskVurderingKafkaConsumer.ventPåRecords(antall = antallVurderingerFraSyketilfelle + antallVurderingerFraSoknader)
     }
 
     @Test
