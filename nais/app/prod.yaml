@@ -13,7 +13,7 @@ external-host:
   - pdl-api.prod-fss-pub.nais.io
   - ereg-services.prod-fss-pub.nais.io
   - team-inntekt-proxy.dev-fss-pub.nais.io
-  - https://ikomp.intern.nav.no
+  - ikomp.intern.nav.no
   - flex-unleash-api.nav.cloud.nais.io
   - aareg-services.prod-fss-pub.nais.io
   - g.nav.no
