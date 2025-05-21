@@ -48,11 +48,10 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : FellesTestOppsett() {
     @AfterAll
     fun hentAlleKafkaMeldinger() {
         await()
-            .atMost(5, TimeUnit.SECONDS) // Wait for a maximum of 5 seconds
-            .pollInterval(100, TimeUnit.MILLISECONDS) // Check every 100 milliseconds
+            .atMost(5, TimeUnit.SECONDS)
+            .pollInterval(100, TimeUnit.MILLISECONDS)
             .until { juridiskVurderingKafkaConsumer.hentProduserteRecords().isEmpty() }
 
-        // Now that we've waited for the records to be empty, assert it
         juridiskVurderingKafkaConsumer.hentProduserteRecords().size `should be equal to` 0
     }
 
