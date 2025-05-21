@@ -13,7 +13,6 @@ import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
-import no.nav.helse.flex.tilJuridiskVurdering
 import no.nav.helse.flex.ventPåRecords
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should be null`
@@ -223,11 +222,6 @@ class JuridiskVurderingArbeidsgiverperiodeTest : FellesTestOppsett() {
             }
         }
     }
-
-    private fun hentJuridiskeVurderinger(antall: Int) =
-        juridiskVurderingKafkaConsumer
-            .ventPåRecords(antall = antall)
-            .tilJuridiskVurdering()
 
     private fun `send sykmelding og besvar søknad`(
         sykmeldingFom: LocalDate,
