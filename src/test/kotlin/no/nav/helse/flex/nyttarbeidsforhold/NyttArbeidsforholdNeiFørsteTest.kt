@@ -11,6 +11,11 @@ import org.junit.jupiter.api.*
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class NyttArbeidsforholdNeiFørsteTest : NyttArbeidsforholdFellesOppsett() {
+    @AfterAll
+    fun hentAlleKafkaMeldinger() {
+        juridiskVurderingKafkaConsumer.hentProduserteRecords()
+    }
+
     @Test
     @Order(3)
     fun `Vi besvarer og sender inn søknaden med nei`() {
@@ -40,7 +45,5 @@ class NyttArbeidsforholdNeiFørsteTest : NyttArbeidsforholdFellesOppsett() {
             .first()
             .belop
             .`should be null`()
-
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
     }
 }

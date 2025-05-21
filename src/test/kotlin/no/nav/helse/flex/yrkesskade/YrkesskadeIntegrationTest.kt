@@ -95,6 +95,11 @@ class YrkesskadeIntegrationTest : FellesTestOppsett() {
         )
     }
 
+    @AfterAll
+    fun hentAlleKafkaMeldinger() {
+        juridiskVurderingKafkaConsumer.hentProduserteRecords()
+    }
+
     @Test
     @Order(2)
     fun `Arbeidstakersøknad for sykmelding med yrkesskade opprettes med yrkesskadespørsmål i seg i førstegangssoknaden`() {
@@ -203,11 +208,5 @@ class YrkesskadeIntegrationTest : FellesTestOppsett() {
 
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
         kafkaSoknader.first().yrkesskade!!.`should be true`()
-    }
-
-    @Test
-    @Order(4)
-    fun `4 juridiske vurderinger`() {
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
     }
 }

@@ -35,6 +35,11 @@ class ArbeidstakerIntegrationTest : FellesTestOppsett() {
         fakeUnleash.resetAll()
     }
 
+    @AfterAll
+    fun hentAlleKafkaMeldinger() {
+        juridiskVurderingKafkaConsumer.hentProduserteRecords()
+    }
+
     @Test
     @Order(1)
     fun `Arbeidstakersøknader opprettes for en lang sykmelding`() {
@@ -219,8 +224,6 @@ class ArbeidstakerIntegrationTest : FellesTestOppsett() {
         assertThat(kafkaSoknader[0].status).isEqualTo(SoknadsstatusDTO.SENDT)
         kafkaSoknader[0].arbeidUtenforNorge.shouldBeNull()
 
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
-
         val soknadFraDatabase = sykepengesoknadDAO.finnSykepengesoknad(sendtSoknad.id)
         soknadFraDatabase.sendtArbeidsgiver `should not be` null
         soknadFraDatabase.sendtNav `should be` null
@@ -264,7 +267,6 @@ class ArbeidstakerIntegrationTest : FellesTestOppsett() {
                 beskrivelse = "Hey",
             ),
         )
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
 
         val soknadFraDatabase = sykepengesoknadDAO.finnSykepengesoknad(sendtSoknad.id)
         soknadFraDatabase.sendtArbeidsgiver `should not be` null
@@ -300,8 +302,6 @@ class ArbeidstakerIntegrationTest : FellesTestOppsett() {
 
         assertThat(kafkaSoknader[0].opprinneligSendt).isNotNull()
         assertThat(kafkaSoknader[0].opprinneligSendt).isEqualToIgnoringNanos(sendtTidspunkt.toInstant().tilOsloLocalDateTime())
-
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
     }
 
     @Test

@@ -30,6 +30,11 @@ class AndreInntektskilderSpmTest : FellesTestOppsett() {
         fakeUnleash.resetAll()
     }
 
+    @AfterAll
+    fun hentAlleKafkaMeldinger() {
+        juridiskVurderingKafkaConsumer.hentProduserteRecords()
+    }
+
     @Test
     @Order(1)
     fun `Arbeidstakersøknader opprettes for en lang sykmelding`() {
@@ -110,7 +115,5 @@ class AndreInntektskilderSpmTest : FellesTestOppsett() {
                     sykmeldt = null,
                 ),
             )
-
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
     }
 }

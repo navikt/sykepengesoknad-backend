@@ -199,6 +199,11 @@ abstract class FellesTestOppsett : TestOppsettInterfaces {
         arbeidssokerregisterStoppConsumer.subscribeHvisIkkeSubscribed(ARBEIDSSOKERREGISTER_STOPP_TOPIC)
         arbeidssokerregisterStoppConsumer.hentProduserteRecords().shouldBeEmpty()
     }
+
+    fun hentJuridiskeVurderinger(antall: Int) =
+        juridiskVurderingKafkaConsumer
+            .ventPåRecords(antall = antall)
+            .tilJuridiskVurdering()
 }
 
 infix fun Instant.`should be within seconds of`(pair: Pair<Int, Instant>) = this.shouldBeWithinSecondsOf(pair.first.toInt() to pair.second)

@@ -15,6 +15,11 @@ import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class NyttArbeidsforholdMedNyttSkjaringstidspunktTest : NyttArbeidsforholdFellesOppsett() {
+    @AfterAll
+    fun hentAlleKafkaMeldinger() {
+        juridiskVurderingKafkaConsumer.hentProduserteRecords()
+    }
+
     @Test
     @Order(2)
     fun `Vi besvarer og sender inn søknade med ja på første`() {
@@ -42,8 +47,6 @@ class NyttArbeidsforholdMedNyttSkjaringstidspunktTest : NyttArbeidsforholdFelles
         inntektFraNyttArbeidsforhold.tom `should be equal to` basisdato.minusDays(4)
         inntektFraNyttArbeidsforhold.arbeidsstedOrgnummer `should be equal to` "999888777"
         inntektFraNyttArbeidsforhold.opplysningspliktigOrgnummer `should be equal to` "11224455441"
-
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = 2)
     }
 
     @Test

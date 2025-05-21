@@ -135,9 +135,19 @@ class MottakerAvSoknadService(
         if (arbeidsgiverperiode == null) {
             // Innenfor ag perioden
             return MottakerOgVurdering(
-                ARBEIDSGIVER,
-                null,
-                listOfNotNull(skapJuridiskVurdering(Utfall.VILKAR_OPPFYLT, sykepengesoknad)),
+                mottaker = ARBEIDSGIVER,
+                arbeidsgiverperiode = null,
+                vurdering =
+                    listOfNotNull(
+                        skapJuridiskVurderingDagerArbeidsgiver(
+                            utfall = Utfall.VILKAR_OPPFYLT,
+                            sykepengesoknad = sykepengesoknad,
+                        ),
+                        skapJuridiskVurderingNavBetaler(
+                            utfall = Utfall.VILKAR_IKKE_OPPFYLT,
+                            sykepengesoknad = sykepengesoknad,
+                        ),
+                    ),
             )
         }
 
@@ -149,9 +159,21 @@ class MottakerAvSoknadService(
         if (!oppbruktArbeidsgiverperiode || sykepengesoknadTom!!.isBeforeOrEqual(arbeidsgiverperiodeTom)) {
             // Ikke oppbrukt agperiode / innenfor ag perioden
             return MottakerOgVurdering(
-                ARBEIDSGIVER,
-                arbeidsgiverperiode,
-                listOfNotNull(skapJuridiskVurdering(Utfall.VILKAR_IKKE_OPPFYLT, sykepengesoknad, arbeidsgiverperiode)),
+                mottaker = ARBEIDSGIVER,
+                arbeidsgiverperiode = arbeidsgiverperiode,
+                vurdering =
+                    listOfNotNull(
+                        skapJuridiskVurderingDagerArbeidsgiver(
+                            utfall = Utfall.VILKAR_IKKE_OPPFYLT,
+                            sykepengesoknad = sykepengesoknad,
+                            arbeidsgiverperiode = arbeidsgiverperiode,
+                        ),
+                        skapJuridiskVurderingNavBetaler(
+                            utfall = Utfall.VILKAR_OPPFYLT,
+                            sykepengesoknad = sykepengesoknad,
+                            arbeidsgiverperiode = arbeidsgiverperiode,
+                        ),
+                    ),
             )
         }
 
@@ -160,22 +182,35 @@ class MottakerAvSoknadService(
         if (sykepengesoknadFom!!.isBeforeOrEqual(arbeidsgiverperiodeTom)) {
             // Både innenfor og utafor
             return MottakerOgVurdering(
-                ARBEIDSGIVER_OG_NAV,
-                arbeidsgiverperiode,
-                listOfNotNull(
-                    skapJuridiskVurdering(
-                        Utfall.VILKAR_IKKE_OPPFYLT,
-                        sykepengesoknad,
-                        arbeidsgiverperiode,
-                        Periode(fom = sykepengesoknadFom, tom = arbeidsgiverperiodeTom),
+                mottaker = ARBEIDSGIVER_OG_NAV,
+                arbeidsgiverperiode = arbeidsgiverperiode,
+                vurdering =
+                    listOfNotNull(
+                        skapJuridiskVurderingNavBetaler(
+                            utfall = Utfall.VILKAR_OPPFYLT,
+                            sykepengesoknad = sykepengesoknad,
+                            arbeidsgiverperiode = arbeidsgiverperiode,
+                            periode = Periode(fom = sykepengesoknadFom, tom = arbeidsgiverperiodeTom),
+                        ),
+                        skapJuridiskVurderingDagerArbeidsgiver(
+                            utfall = Utfall.VILKAR_IKKE_OPPFYLT,
+                            sykepengesoknad = sykepengesoknad,
+                            arbeidsgiverperiode = arbeidsgiverperiode,
+                            periode = Periode(fom = sykepengesoknadFom, tom = arbeidsgiverperiodeTom),
+                        ),
+                        skapJuridiskVurderingNavBetaler(
+                            utfall = Utfall.VILKAR_IKKE_OPPFYLT,
+                            sykepengesoknad = sykepengesoknad,
+                            arbeidsgiverperiode = arbeidsgiverperiode,
+                            periode = Periode(fom = arbeidsgiverperiodeTom.plusDays(1), tom = sykepengesoknadTom),
+                        ),
+                        skapJuridiskVurderingDagerArbeidsgiver(
+                            utfall = Utfall.VILKAR_OPPFYLT,
+                            sykepengesoknad = sykepengesoknad,
+                            arbeidsgiverperiode = arbeidsgiverperiode,
+                            periode = Periode(fom = arbeidsgiverperiodeTom.plusDays(1), tom = sykepengesoknadTom),
+                        ),
                     ),
-                    skapJuridiskVurdering(
-                        Utfall.VILKAR_OPPFYLT,
-                        sykepengesoknad,
-                        arbeidsgiverperiode,
-                        Periode(fom = arbeidsgiverperiodeTom.plusDays(1), tom = sykepengesoknadTom),
-                    ),
-                ),
             )
         }
 
@@ -185,25 +220,87 @@ class MottakerAvSoknadService(
         ) {
             // Utenfor arbeidgiverperiode og arbeidsgiver forskutter
             return MottakerOgVurdering(
-                ARBEIDSGIVER_OG_NAV,
-                arbeidsgiverperiode,
-                listOfNotNull(skapJuridiskVurdering(Utfall.VILKAR_OPPFYLT, sykepengesoknad, arbeidsgiverperiode)),
+                mottaker = ARBEIDSGIVER_OG_NAV,
+                arbeidsgiverperiode = arbeidsgiverperiode,
+                vurdering =
+                    listOfNotNull(
+                        skapJuridiskVurderingDagerArbeidsgiver(
+                            utfall = Utfall.VILKAR_OPPFYLT,
+                            sykepengesoknad = sykepengesoknad,
+                            arbeidsgiverperiode = arbeidsgiverperiode,
+                        ),
+                        skapJuridiskVurderingNavBetaler(
+                            utfall = Utfall.VILKAR_IKKE_OPPFYLT,
+                            sykepengesoknad = sykepengesoknad,
+                            arbeidsgiverperiode = arbeidsgiverperiode,
+                        ),
+                    ),
             )
         }
 
         // Utenfor arbeidgiverperiode
         return MottakerOgVurdering(
-            NAV,
-            arbeidsgiverperiode,
-            listOfNotNull(skapJuridiskVurdering(Utfall.VILKAR_OPPFYLT, sykepengesoknad, arbeidsgiverperiode)),
+            mottaker = NAV,
+            arbeidsgiverperiode = arbeidsgiverperiode,
+            vurdering =
+                listOfNotNull(
+                    skapJuridiskVurderingNavBetaler(
+                        utfall = Utfall.VILKAR_OPPFYLT,
+                        sykepengesoknad = sykepengesoknad,
+                        arbeidsgiverperiode = arbeidsgiverperiode,
+                    ),
+                    skapJuridiskVurderingDagerArbeidsgiver(
+                        utfall = Utfall.VILKAR_IKKE_OPPFYLT,
+                        sykepengesoknad = sykepengesoknad,
+                        arbeidsgiverperiode = arbeidsgiverperiode,
+                    ),
+                ),
         )
     }
 
-    fun skapJuridiskVurdering(
+    fun skapJuridiskVurderingDagerArbeidsgiver(
         utfall: Utfall,
         sykepengesoknad: Sykepengesoknad,
         arbeidsgiverperiode: Arbeidsgiverperiode = Arbeidsgiverperiode(),
         periode: Periode? = null,
+    ): JuridiskVurdering? =
+        skapJuridiskVurdering(
+            utfall = utfall,
+            sykepengesoknad = sykepengesoknad,
+            arbeidsgiverperiode = arbeidsgiverperiode,
+            periode = periode,
+            paragraf = "8-17",
+            ledd = 1,
+            bokstav = "a",
+            punktum = null,
+        )
+
+    fun skapJuridiskVurderingNavBetaler(
+        utfall: Utfall,
+        sykepengesoknad: Sykepengesoknad,
+        arbeidsgiverperiode: Arbeidsgiverperiode = Arbeidsgiverperiode(),
+        periode: Periode? = null,
+    ): JuridiskVurdering? =
+        skapJuridiskVurdering(
+            utfall = utfall,
+            sykepengesoknad = sykepengesoknad,
+            arbeidsgiverperiode = arbeidsgiverperiode,
+            periode = periode,
+            paragraf = "8-17",
+            ledd = 1,
+            bokstav = "b",
+            punktum = null,
+        )
+
+    fun skapJuridiskVurdering(
+        utfall: Utfall,
+        sykepengesoknad: Sykepengesoknad,
+        arbeidsgiverperiode: Arbeidsgiverperiode,
+        paragraf: String,
+        periode: Periode? = null,
+        ledd: Int? = null,
+        bokstav: String? = null,
+        punktum: Int? = null,
     ): JuridiskVurdering? {
         if (sykepengesoknad.status != Soknadstatus.SENDT) {
             return null
@@ -242,10 +339,10 @@ class MottakerAvSoknadService(
                     "versjon" to LocalDate.of(2022, 2, 1),
                 ),
             lovverk = "folketrygdloven",
-            paragraf = "8-17",
-            ledd = 1,
-            bokstav = "a",
-            punktum = null,
+            paragraf = paragraf,
+            ledd = ledd,
+            bokstav = bokstav,
+            punktum = punktum,
             lovverksversjon = LocalDate.of(2018, 1, 1),
             utfall = utfall,
         )
