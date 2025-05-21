@@ -72,9 +72,7 @@ class KorrigeringTest : FellesTestOppsett() {
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
 
-        val antallVurderingerFraSoknader = 2
-        val antallVurderingerFraSyketilfelle = 1
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = antallVurderingerFraSyketilfelle + antallVurderingerFraSoknader)
+        hentJuridiskeVurderinger(3)
 
         val soknadenEtter = hentSoknader(fnr).first()
         soknadenEtter.korrigeringsfristUtlopt `should be` false
@@ -112,9 +110,7 @@ class KorrigeringTest : FellesTestOppsett() {
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
-        val antallVurderingerFraSoknader = 2
-        val antallVurderingerFraSyketilfelle = 1
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = antallVurderingerFraSyketilfelle + antallVurderingerFraSoknader)
+        hentJuridiskeVurderinger(3)
     }
 
     @Test

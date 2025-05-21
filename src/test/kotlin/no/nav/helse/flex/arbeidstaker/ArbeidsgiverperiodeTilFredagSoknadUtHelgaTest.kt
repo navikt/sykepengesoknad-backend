@@ -14,11 +14,9 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
-import no.nav.helse.flex.tilJuridiskVurdering
 import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.ventPåRecords
 import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should be null`
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.MethodOrderer
@@ -88,32 +86,29 @@ class ArbeidsgiverperiodeTilFredagSoknadUtHelgaTest : FellesTestOppsett() {
         assertThat(kafkaSoknader[0].status).isEqualTo(SoknadsstatusDTO.SENDT)
         assertThat(kafkaSoknader[0].mottaker).isEqualTo(MottakerDTO.ARBEIDSGIVER)
 
-        val antallVurderingerFraSoknader = 4
-        val antallVurderingerFraSyketilfelle = 1
-        val vurderinger =
-            juridiskVurderingKafkaConsumer
-                .ventPåRecords(antall = antallVurderingerFraSoknader + antallVurderingerFraSyketilfelle + 1)
-                .tilJuridiskVurdering()
+        val alleJuridiskeVurderinger = hentJuridiskeVurderinger(6)
+        val vurderinger811 = alleJuridiskeVurderinger.filter { it.paragraf == "8-11" }
+        vurderinger811.size `should be equal to` 1
 
-        val vurderingOmHelg = vurderinger.first { it.paragraf == "8-11" }
-
-        vurderingOmHelg.paragraf `should be equal to` "8-11"
-        vurderingOmHelg.utfall `should be equal to` Utfall.VILKAR_IKKE_OPPFYLT
-        vurderingOmHelg.input `should be equal to`
-            mapOf(
-                "versjon" to "2022-02-01",
-                "sykepengesoknadTom" to "2021-12-19",
-                "arbeidsgiverperiode" to
-                    mapOf(
-                        "fom" to "2021-12-03",
-                        "tom" to "2021-12-17",
-                    ),
-            )
-        vurderingOmHelg.output `should be equal to`
-            mapOf(
-                "versjon" to "2022-02-01",
-                "kunHelgEtterArbeidsgiverperiode" to true,
-            )
+        vurderinger811.first().let {
+            it.paragraf `should be equal to` "8-11"
+            it.utfall `should be equal to` Utfall.VILKAR_IKKE_OPPFYLT
+            it.input `should be equal to`
+                mapOf(
+                    "versjon" to "2022-02-01",
+                    "sykepengesoknadTom" to "2021-12-19",
+                    "arbeidsgiverperiode" to
+                        mapOf(
+                            "fom" to "2021-12-03",
+                            "tom" to "2021-12-17",
+                        ),
+                )
+            it.output `should be equal to`
+                mapOf(
+                    "versjon" to "2022-02-01",
+                    "kunHelgEtterArbeidsgiverperiode" to true,
+                )
+        }
     }
 
     @Test
@@ -166,15 +161,8 @@ class ArbeidsgiverperiodeTilFredagSoknadUtHelgaTest : FellesTestOppsett() {
         assertThat(kafkaSoknader[0].status).isEqualTo(SoknadsstatusDTO.SENDT)
         assertThat(kafkaSoknader[0].mottaker).isEqualTo(MottakerDTO.ARBEIDSGIVER_OG_NAV)
 
-        val antallVurderingerFraSyketilfelle = 1
-        val antallVurderingerFraSoknader = 4
-        val vurderinger =
-            juridiskVurderingKafkaConsumer
-                .ventPåRecords(
-                    antall =
-                        antallVurderingerFraSoknader + antallVurderingerFraSyketilfelle,
-                ).tilJuridiskVurdering()
-
-        vurderinger.find { it.paragraf == "8-11" }.`should be null`()
+        val alleJuridiskeVurderinger = hentJuridiskeVurderinger(5)
+        val vurderinger811 = alleJuridiskeVurderinger.filter { it.paragraf == "8-11" }
+        vurderinger811.size `should be equal to` 0
     }
 }

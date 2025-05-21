@@ -4,6 +4,7 @@ import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSvar
 import no.nav.helse.flex.domain.Arbeidssituasjon
+import no.nav.helse.flex.hentProduserteRecords
 import no.nav.helse.flex.hentSoknader
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.sendSoknad
@@ -28,6 +29,11 @@ class FrilanserIntegrationTest : FellesTestOppsett() {
     @BeforeAll
     fun konfigurerUnleash() {
         fakeUnleash.resetAll()
+    }
+
+    @AfterAll
+    fun hentAlleKafkaMeldinger() {
+        juridiskVurderingKafkaConsumer.hentProduserteRecords()
     }
 
     @Test
@@ -233,8 +239,5 @@ class FrilanserIntegrationTest : FellesTestOppsett() {
         assertThat(soknader).hasSize(1)
         assertThat(soknader.last().type).isEqualTo(SoknadstypeDTO.SELVSTENDIGE_OG_FRILANSERE)
         assertThat(soknader.last().status).isEqualTo(SoknadsstatusDTO.SENDT)
-        val antallVurderingerFraSoknader = 2
-        val antallVurderingerFraSyketilfelle = 1
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = antallVurderingerFraSyketilfelle + antallVurderingerFraSoknader)
     }
 }

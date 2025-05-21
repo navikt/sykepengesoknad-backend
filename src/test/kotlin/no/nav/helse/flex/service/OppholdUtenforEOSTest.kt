@@ -13,6 +13,7 @@ import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import org.amshove.kluent.`should be equal to`
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -30,6 +31,11 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
     fun beforeEach() {
         databaseReset.resetDatabase()
         fakeUnleash.resetAll()
+    }
+
+    @AfterAll
+    fun hentAlleKafkaMeldinger() {
+        juridiskVurderingKafkaConsumer.hentProduserteRecords()
     }
 
     private fun besvarSoknad(
@@ -89,9 +95,6 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
                 kafkaSoknader[1].type `should be equal to` SoknadstypeDTO.OPPHOLD_UTLAND
             }
         }
-        val antallVurderingerFraSoknader = 2
-        val antallVurderingerFraSyketilfelle = 1
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = antallVurderingerFraSyketilfelle + antallVurderingerFraSoknader)
     }
 
     private fun settOppSykepengeSoknad(

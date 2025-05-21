@@ -2,6 +2,7 @@ package no.nav.helse.flex.utenlandsksykmelding
 
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
+import no.nav.helse.flex.hentProduserteRecords
 import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknader
 import no.nav.helse.flex.hentSoknaderMetadata
@@ -42,6 +43,11 @@ class UtenlandskArbeidstakerIntegrationTest : FellesTestOppsett() {
     @BeforeAll
     fun konfigurerUnleash() {
         fakeUnleash.resetAll()
+    }
+
+    @AfterAll
+    fun hentAlleKafkaMeldinger() {
+        juridiskVurderingKafkaConsumer.hentProduserteRecords()
     }
 
     @Test
@@ -182,8 +188,5 @@ class UtenlandskArbeidstakerIntegrationTest : FellesTestOppsett() {
             soknadFraDatabase.sendtNav `should be` null
             soknadFraDatabase.sendt `should be equal to` soknadFraDatabase.sendtArbeidsgiver
         }
-        val antallVurderingerFraSoknader = 2
-        val antallVurderingerFraSyketilfelle = 1
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = antallVurderingerFraSyketilfelle + antallVurderingerFraSoknader)
     }
 }

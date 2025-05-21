@@ -3,6 +3,7 @@ package no.nav.helse.flex.egenmeldingsdager
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.aktivering.AktiveringJob
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
+import no.nav.helse.flex.hentProduserteRecords
 import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
@@ -67,6 +68,11 @@ class EgenmeldingsdagerVideresendingTest : FellesTestOppsett() {
         fakeUnleash.resetAll()
     }
 
+    @AfterAll
+    fun hentAlleKafkaMeldinger() {
+        juridiskVurderingKafkaConsumer.hentProduserteRecords()
+    }
+
     @Test
     @Order(1)
     fun `Arbeidstakersøknad opprettes`() {
@@ -127,9 +133,6 @@ class EgenmeldingsdagerVideresendingTest : FellesTestOppsett() {
             .oppsummering()
             .sendSoknad()
 
-        val antallVurderingerFraSoknader = 2
-        val antallVurderingerFraSyketilfelle = 1
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = antallVurderingerFraSyketilfelle + antallVurderingerFraSoknader)
         val kafkaSoknad = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()
         kafkaSoknad.status shouldBeEqualTo SoknadsstatusDTO.SENDT
         kafkaSoknad.egenmeldingsdagerFraSykmelding shouldBeEqualTo

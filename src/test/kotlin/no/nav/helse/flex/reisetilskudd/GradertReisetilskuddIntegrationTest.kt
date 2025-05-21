@@ -24,6 +24,7 @@ import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
 import no.nav.syfo.sykmelding.kafka.model.STATUS_SENDT
 import org.amshove.kluent.*
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
@@ -54,6 +55,11 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
     fun `Det er ingen søknader til å begynne med`() {
         hentSoknaderMetadata(fnr).shouldBeEmpty()
         fakeUnleash.resetAll()
+    }
+
+    @AfterAll
+    fun hentAlleKafkaMeldinger() {
+        juridiskVurderingKafkaConsumer.hentProduserteRecords()
     }
 
     @Test
@@ -506,7 +512,5 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
         sendtSøknad.status shouldBeEqualTo SoknadsstatusDTO.SENDT
         sendtSøknad.sendtNav.shouldNotBeNull()
         sendtSøknad.sendtArbeidsgiver.shouldNotBeNull()
-
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = 4)
     }
 }

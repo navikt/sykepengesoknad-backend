@@ -14,7 +14,6 @@ import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.testutil.jsonTilHashMap
-import no.nav.helse.flex.tilJuridiskVurdering
 import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.ventPåRecords
 import no.nav.syfo.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO
@@ -119,94 +118,92 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : FellesTestOppsett() {
 
     @Test
     fun `5 - vi sjekker at faktisk grad er riktig på jurdisk vurdering på kafka`() {
-        val antallVurderingerFraSoknader = 1
-        val antallVurderingerFraSyketilfelle = 1
-        val antallVurderingerFraHelg = 1
-        val vurdering =
-            juridiskVurderingKafkaConsumer
-                .ventPåRecords(antall = antallVurderingerFraSyketilfelle + antallVurderingerFraHelg + antallVurderingerFraSoknader)
-                .tilJuridiskVurdering()
-                .first { it.paragraf == "8-13" }
-        vurdering.ledd `should be equal to` 1
-        vurdering.bokstav.`should be null`()
-        vurdering.punktum shouldBe 2
-        vurdering.eventName `should be equal to` "subsumsjon"
-        vurdering.utfall `should be equal to` Utfall.VILKAR_BEREGNET
-        vurdering.input `should be equal to`
-            """
-            {
-              "fravar": [],
-              "versjon": "2022-02-01",
-              "arbeidUnderveis": [
+        val alleJuridiskeVurderinger = hentJuridiskeVurderinger(3)
+        val vurderinger813 = alleJuridiskeVurderinger.filter { it.paragraf == "8-13" }
+        vurderinger813.size `should be equal to` 1
+        vurderinger813.first().let {
+            it.ledd `should be equal to` 1
+            it.bokstav.`should be null`()
+            it.punktum shouldBe 2
+            it.eventName `should be equal to` "subsumsjon"
+            it.utfall `should be equal to` Utfall.VILKAR_BEREGNET
+            it.input `should be equal to`
+                """
                 {
-                  "tag": "ARBEID_UNDERVEIS_100_PROSENT_0",
-                  "svar": [
-                    "NEI"
-                  ],
-                  "undersporsmal": []
-                },
-                {
-                  "tag": "JOBBET_DU_GRADERT_1",
-                  "svar": [
-                    "JA"
-                  ],
-                  "undersporsmal": [
+                  "fravar": [],
+                  "versjon": "2022-02-01",
+                  "arbeidUnderveis": [
                     {
-                      "tag": "HVOR_MANGE_TIMER_PER_UKE_1",
+                      "tag": "ARBEID_UNDERVEIS_100_PROSENT_0",
                       "svar": [
-                        "37,5"
+                        "NEI"
                       ],
                       "undersporsmal": []
                     },
                     {
-                      "tag": "HVOR_MYE_HAR_DU_JOBBET_1",
-                      "svar": [],
+                      "tag": "JOBBET_DU_GRADERT_1",
+                      "svar": [
+                        "JA"
+                      ],
                       "undersporsmal": [
                         {
-                          "tag": "HVOR_MYE_PROSENT_1",
+                          "tag": "HVOR_MANGE_TIMER_PER_UKE_1",
                           "svar": [
-                            "CHECKED"
+                            "37,5"
                           ],
+                          "undersporsmal": []
+                        },
+                        {
+                          "tag": "HVOR_MYE_HAR_DU_JOBBET_1",
+                          "svar": [],
                           "undersporsmal": [
                             {
-                              "tag": "HVOR_MYE_PROSENT_VERDI_1",
+                              "tag": "HVOR_MYE_PROSENT_1",
                               "svar": [
-                                "49"
+                                "CHECKED"
                               ],
+                              "undersporsmal": [
+                                {
+                                  "tag": "HVOR_MYE_PROSENT_VERDI_1",
+                                  "svar": [
+                                    "49"
+                                  ],
+                                  "undersporsmal": []
+                                }
+                              ]
+                            },
+                            {
+                              "tag": "HVOR_MYE_TIMER_1",
+                              "svar": [],
                               "undersporsmal": []
                             }
                           ]
-                        },
-                        {
-                          "tag": "HVOR_MYE_TIMER_1",
-                          "svar": [],
-                          "undersporsmal": []
                         }
                       ]
                     }
                   ]
                 }
-              ]
-            }
-            """.trimIndent().jsonTilHashMap()
-        vurdering.output `should be equal to`
-            """
-{
-  "perioder": [
-    {
-      "fom": "2018-01-13",
-      "tom": "2018-01-14",
-      "faktiskGrad": null
-    },
-    {
-      "fom": "2018-01-15",
-      "tom": "2018-01-29",
-      "faktiskGrad": 49
-    }
-  ],
-  "versjon": "2022-02-01"
-}            
-        """.jsonTilHashMap()
+                """.trimIndent().jsonTilHashMap()
+
+            it.output `should be equal to`
+                """
+                    {
+                      "perioder": [
+                        {
+                          "fom": "2018-01-13",
+                          "tom": "2018-01-14",
+                          "faktiskGrad": null
+                        },
+                        {
+                          "fom": "2018-01-15",
+                          "tom": "2018-01-29",
+                          "faktiskGrad": 49
+                        }
+                      ],
+                      "versjon": "2022-02-01"
+                    }            
+                """.jsonTilHashMap()
+        }
     }
 
     @Test
@@ -229,9 +226,8 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : FellesTestOppsett() {
             .oppsummering()
             .sendSoknad()
 
-        val antallVurderingerFraSoknader = 2
-        val antallVurderingerFraSyketilfelle = 1
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = antallVurderingerFraSyketilfelle + antallVurderingerFraSoknader)
+        hentJuridiskeVurderinger(3)
+
         val soknadPaKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()
         assertThat(soknadPaKafka.soknadsperioder!!.map { Pair(it.faktiskGrad, it.sykmeldingsgrad) }).isEqualTo(
             listOf(
@@ -261,9 +257,8 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : FellesTestOppsett() {
             .oppsummering()
             .sendSoknad()
 
-        val antallVurderingerFraSoknader = 2
-        val antallVurderingerFraSyketilfelle = 1
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = antallVurderingerFraSyketilfelle + antallVurderingerFraSoknader)
+        hentJuridiskeVurderinger(3)
+
         val soknadPaKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()
         assertThat(soknadPaKafka.soknadsperioder!!.map { Pair(it.faktiskGrad, it.sykmeldingsgrad) }).isEqualTo(
             listOf(
@@ -293,9 +288,8 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : FellesTestOppsett() {
             .oppsummering()
             .sendSoknad()
 
-        val antallVurderingerFraSoknader = 2
-        val antallVurderingerFraSyketilfelle = 1
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = antallVurderingerFraSyketilfelle + antallVurderingerFraSoknader)
+        hentJuridiskeVurderinger(3)
+
         val soknadPaKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()
         assertThat(soknadPaKafka.soknadsperioder!!.map { Pair(it.faktiskGrad, it.sykmeldingsgrad) }).isEqualTo(
             listOf(

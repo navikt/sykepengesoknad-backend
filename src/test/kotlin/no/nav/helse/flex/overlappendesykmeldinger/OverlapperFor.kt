@@ -8,6 +8,7 @@ import no.nav.helse.flex.domain.Arbeidsgiverperiode
 import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.Soknadsperiode
 import no.nav.helse.flex.domain.Sykmeldingstype
+import no.nav.helse.flex.hentProduserteRecords
 import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
@@ -25,9 +26,11 @@ import no.nav.helse.flex.util.DatoUtil
 import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.ventPåRecords
 import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.`should not be null`
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.awaitility.Awaitility
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
@@ -58,6 +61,11 @@ class OverlapperFor : FellesTestOppsett() {
     fun opprydding() {
         databaseReset.resetDatabase()
         fakeUnleash.resetAll()
+    }
+
+    @AfterAll
+    fun hentAlleKafkaMeldinger() {
+        juridiskVurderingKafkaConsumer.hentProduserteRecords()
     }
 
     @Test
@@ -384,9 +392,6 @@ class OverlapperFor : FellesTestOppsett() {
             .sendSoknad()
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
-        val antallVurderingerFraSoknader = 2
-        val antallVurderingerFraSyketilfelle = 1
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = antallVurderingerFraSyketilfelle + antallVurderingerFraSoknader)
 
         sendSykmelding(
             sykmeldingKafkaMessage =
@@ -466,15 +471,15 @@ class OverlapperFor : FellesTestOppsett() {
         val klippetSoknad = hentetViaRest[0]
         klippetSoknad.fom shouldBeEqualTo basisdato.plusDays(8)
         klippetSoknad.tom shouldBeEqualTo basisdato.plusDays(10)
-        klippetSoknad.soknadPerioder!! shouldHaveSize 1
-        klippetSoknad.soknadPerioder!![0].fom shouldBeEqualTo basisdato.plusDays(8)
-        klippetSoknad.soknadPerioder!![0].tom shouldBeEqualTo basisdato.plusDays(10)
+        klippetSoknad.soknadPerioder.`should not be null`().size `should be equal to` 1
+        klippetSoknad.soknadPerioder.first().fom shouldBeEqualTo basisdato.plusDays(8)
+        klippetSoknad.soknadPerioder.first().tom shouldBeEqualTo basisdato.plusDays(10)
 
         val nyesteSoknad = hentetViaRest[1]
         nyesteSoknad.fom shouldBeEqualTo basisdato
         nyesteSoknad.tom shouldBeEqualTo basisdato.plusDays(7)
-        nyesteSoknad.soknadPerioder!! shouldHaveSize 1
-        nyesteSoknad.soknadPerioder!![0].fom shouldBeEqualTo basisdato
-        nyesteSoknad.soknadPerioder!![0].tom shouldBeEqualTo basisdato.plusDays(7)
+        nyesteSoknad.soknadPerioder.`should not be null`().size `should be equal to` 1
+        nyesteSoknad.soknadPerioder.first().fom shouldBeEqualTo basisdato
+        nyesteSoknad.soknadPerioder.first().tom shouldBeEqualTo basisdato.plusDays(7)
     }
 }

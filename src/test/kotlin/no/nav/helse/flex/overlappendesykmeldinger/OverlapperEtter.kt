@@ -267,9 +267,7 @@ class OverlapperEtter : FellesTestOppsett() {
             .sendSoknad()
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
-        val antallVurderingerFraSoknader = 2
-        val antallVurderingerFraSyketilfelle = 1
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = antallVurderingerFraSyketilfelle + antallVurderingerFraSoknader)
+        hentJuridiskeVurderinger(3)
     }
 
     @Test
@@ -509,9 +507,7 @@ class OverlapperEtter : FellesTestOppsett() {
             .sendSoknad()
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
-        val antallVurderingerFraSoknader = 2
-        val antallVurderingerFraSyketilfelle = 1
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = antallVurderingerFraSyketilfelle + antallVurderingerFraSoknader)
+        hentJuridiskeVurderinger(3)
 
         val identiskSoknad =
             sykepengesoknadDAO
@@ -769,9 +765,7 @@ class OverlapperEtter : FellesTestOppsett() {
             .sendSoknad()
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
-        val antallVurderingerFraSoknader = 2
-        val antallVurderingerFraSyketilfelle = 1
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = antallVurderingerFraSyketilfelle + antallVurderingerFraSoknader)
+        hentJuridiskeVurderinger(3)
     }
 
     @Test
@@ -866,9 +860,7 @@ class OverlapperEtter : FellesTestOppsett() {
             .sendSoknad()
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
-        val antallVurderingerFraSoknader = 2
-        val antallVurderingerFraSyketilfelle = 1
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = antallVurderingerFraSyketilfelle + antallVurderingerFraSoknader)
+        hentJuridiskeVurderinger(3)
     }
 
     @Test

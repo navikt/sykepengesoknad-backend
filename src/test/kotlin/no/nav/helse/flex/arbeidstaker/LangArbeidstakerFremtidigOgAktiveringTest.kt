@@ -147,7 +147,7 @@ class LangArbeidstakerFremtidigOgAktiveringTest : FellesTestOppsett() {
         assertThat(kafkaSoknader).hasSize(1)
         assertThat(kafkaSoknader[0].status).isEqualTo(SoknadsstatusDTO.SENDT)
 
-        juridiskVurderingKafkaConsumer.ventPåRecords(2)
+        hentJuridiskeVurderinger(3)
     }
 
     @Test
@@ -191,6 +191,6 @@ class LangArbeidstakerFremtidigOgAktiveringTest : FellesTestOppsett() {
         assertThat(kafkaSoknader).hasSize(1)
         assertThat(kafkaSoknader[0].status).isEqualTo(SoknadsstatusDTO.SENDT)
 
-        juridiskVurderingKafkaConsumer.ventPåRecords(2)
+        hentJuridiskeVurderinger(3)
     }
 }

@@ -18,6 +18,11 @@ import java.time.LocalDate
 class NyttArbeidsforholdMedSluttdatoTest : FellesTestOppsett() {
     val fnr = "22222220001"
 
+    @AfterAll
+    fun hentAlleKafkaMeldinger() {
+        juridiskVurderingKafkaConsumer.hentProduserteRecords()
+    }
+
     @Test
     @Order(1)
     fun `første sykm opprettes for en lang sykmelding`() {
@@ -68,9 +73,6 @@ class NyttArbeidsforholdMedSluttdatoTest : FellesTestOppsett() {
 
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
         kafkaSoknader.shouldHaveSize(1)
-        val antallVurderingerFraSoknader = 2
-        val antallVurderingerFraSyketilfelle = 1
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = antallVurderingerFraSyketilfelle + antallVurderingerFraSoknader)
     }
 
     @Test
@@ -93,7 +95,7 @@ class NyttArbeidsforholdMedSluttdatoTest : FellesTestOppsett() {
     @Test
     @Order(4)
     fun `Har ikke forventa nytt arbeidsforhold førstegangsspørsmål`() {
-        val soknaden = hentSoknader(fnr = fnr).filter { it.status == RSSoknadstatus.NY }.first()
+        val soknaden = hentSoknader(fnr = fnr).first { it.status == RSSoknadstatus.NY }
         soknaden.sporsmal!!
             .find {
                 it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS + "0"

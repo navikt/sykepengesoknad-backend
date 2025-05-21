@@ -34,7 +34,7 @@ import java.util.*
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class BehandligsdagerIntegrationTest : FellesTestOppsett() {
-    final val fnr = "123456789"
+    final val fnr = "12345678910"
 
     @Test
     @Order(1)
@@ -107,7 +107,7 @@ class BehandligsdagerIntegrationTest : FellesTestOppsett() {
         val soknadPaKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()
 
         assertThat(soknadPaKafka.status).isEqualTo(SoknadsstatusDTO.SENDT)
-        assertThat(soknadPaKafka.fnr).isEqualTo("123456789")
+        assertThat(soknadPaKafka.fnr).isEqualTo("12345678910")
         assertThat(soknadPaKafka.behandlingsdager).isEqualTo(listOf(rsSykepengesoknad.fom, rsSykepengesoknad.tom))
 
         val refreshedSoknad =
@@ -123,9 +123,7 @@ class BehandligsdagerIntegrationTest : FellesTestOppsett() {
                 .verdi,
         ).isEqualTo("CHECKED")
 
-        val antallVurderingerFraSoknader = 1
-        val antallVurderingerFraSyketilfelle = 1
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = antallVurderingerFraSyketilfelle + antallVurderingerFraSoknader)
+        hentJuridiskeVurderinger(2)
     }
 
     @Test
@@ -155,9 +153,8 @@ class BehandligsdagerIntegrationTest : FellesTestOppsett() {
 
         val soknadPaKafka = kafkaSoknader.last()
         assertThat(soknadPaKafka.status).isEqualTo(SoknadsstatusDTO.SENDT)
-        val antallVurderingerFraSoknader = 2
-        val antallVurderingerFraSyketilfelle = 1
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = antallVurderingerFraSyketilfelle + antallVurderingerFraSoknader)
+
+        hentJuridiskeVurderinger(2)
     }
 
     @Test
