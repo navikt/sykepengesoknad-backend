@@ -44,9 +44,13 @@ class JuridiskVurderingArbeidsgiverperiodeTest : FellesTestOppsett() {
             arbeidsgiverperiodeTom = sykmeldingTom,
         )
 
-        val vurderinger = hentJuridiskeVurderinger(3)
+        val alleJuridiskeVurderinger = hentJuridiskeVurderinger(3)
+        val vurderinger817 = alleJuridiskeVurderinger.filter { it.paragraf == "8-17" }
 
-        vurderinger.filter { it.paragraf == "8-17" }.let { vurderinger817 ->
+        vurderinger817.first { it.bokstav == "a" }.utfall `should be equal to` Utfall.VILKAR_IKKE_OPPFYLT
+        vurderinger817.first { it.bokstav == "b" }.utfall `should be equal to` Utfall.VILKAR_OPPFYLT
+
+        vurderinger817.let { vurderinger817 ->
             vurderinger817.size `should be equal to` 2
 
             val forventetInput =
@@ -78,9 +82,6 @@ class JuridiskVurderingArbeidsgiverperiodeTest : FellesTestOppsett() {
                 vurdering.input `should be equal to` forventetInput
                 vurdering.output `should be equal to` forventetOutput
             }
-
-            vurderinger817.first { it.bokstav == "a" }.utfall `should be equal to` Utfall.VILKAR_IKKE_OPPFYLT
-            vurderinger817.first { it.bokstav == "b" }.utfall `should be equal to` Utfall.VILKAR_OPPFYLT
         }
     }
 
@@ -94,35 +95,43 @@ class JuridiskVurderingArbeidsgiverperiodeTest : FellesTestOppsett() {
             arbeidsgiverperiodeTom = fredagen.minusDays(4),
         )
 
-        val vurdering =
-            hentJuridiskeVurderinger(3)
-                .first { it.paragraf == "8-17" }
+        val alleJuridiskeVurderinger = hentJuridiskeVurderinger(3)
+        val vurderinger817 = alleJuridiskeVurderinger.filter { it.paragraf == "8-17" }
 
-        vurdering.ledd `should be equal to` 1
-        vurdering.bokstav `should be equal to` "a"
-        vurdering.punktum.`should be null`()
-        vurdering.utfall `should be equal to` Utfall.VILKAR_OPPFYLT
-        vurdering.input `should be equal to`
-            mapOf(
-                "arbeidsgiverperiode" to
-                    mapOf(
-                        "fom" to "2021-12-12",
-                        "tom" to "2021-12-13",
-                    ),
-                "sykepengesoknadTom" to "2021-12-17",
-                "sykepengesoknadFom" to "2021-12-15",
-                "oppbruktArbeidsgiverperiode" to true,
-                "versjon" to "2022-02-01",
-            )
-        vurdering.output `should be equal to`
-            mapOf(
-                "periode" to
-                    mapOf(
-                        "fom" to "2021-12-15",
-                        "tom" to "2021-12-17",
-                    ),
-                "versjon" to "2022-02-01",
-            )
+        vurderinger817
+            .filter { it.paragraf == "8-17" }
+            .let { vurderinger817 ->
+                vurderinger817.size `should be equal to` 2
+
+                vurderinger817.first { it.bokstav == "a" }.utfall `should be equal to` Utfall.VILKAR_OPPFYLT
+                vurderinger817.first { it.bokstav == "b" }.utfall `should be equal to` Utfall.VILKAR_IKKE_OPPFYLT
+
+                vurderinger817.forEach { vurdering ->
+                    vurdering.ledd `should be equal to` 1
+                    vurdering.punktum.`should be null`()
+                    vurdering.input `should be equal to`
+                        mapOf(
+                            "arbeidsgiverperiode" to
+                                mapOf(
+                                    "fom" to "2021-12-12",
+                                    "tom" to "2021-12-13",
+                                ),
+                            "sykepengesoknadTom" to "2021-12-17",
+                            "sykepengesoknadFom" to "2021-12-15",
+                            "oppbruktArbeidsgiverperiode" to true,
+                            "versjon" to "2022-02-01",
+                        )
+                    vurdering.output `should be equal to`
+                        mapOf(
+                            "periode" to
+                                mapOf(
+                                    "fom" to "2021-12-15",
+                                    "tom" to "2021-12-17",
+                                ),
+                            "versjon" to "2022-02-01",
+                        )
+                }
+            }
     }
 
     @Test
@@ -135,65 +144,84 @@ class JuridiskVurderingArbeidsgiverperiodeTest : FellesTestOppsett() {
             arbeidsgiverperiodeTom = fredagen.minusDays(1),
         )
 
-        val vurderinger = hentJuridiskeVurderinger(5)
+        val alleJuridiskeVurderinger = hentJuridiskeVurderinger(5)
+        val vurderinger817 = alleJuridiskeVurderinger.filter { it.paragraf == "8-17" }
+        val vurderinger817Innafor = vurderinger817.take(2)
+        val vurderinger817Utafor = vurderinger817.drop(2)
 
-        val vurderingInnenfor =
-            vurderinger
-                .filter { it.utfall == Utfall.VILKAR_IKKE_OPPFYLT }
-                .first { it.paragraf == "8-17" }
+        vurderinger817Innafor.let { vurderinger ->
+            vurderinger.size `should be equal to` 2
 
-        vurderingInnenfor.ledd `should be equal to` 1
-        vurderingInnenfor.bokstav `should be equal to` "a"
-        vurderingInnenfor.punktum.`should be null`()
-        vurderingInnenfor.kilde `should be equal to` "sykepengesoknad-backend"
-        vurderingInnenfor.versjonAvKode `should be equal to` "sykepengesoknad-backend-test-12432536"
-        vurderingInnenfor.utfall `should be equal to` Utfall.VILKAR_IKKE_OPPFYLT
+            vurderinger.first { it.bokstav == "a" }.utfall `should be equal to` Utfall.VILKAR_IKKE_OPPFYLT
+            vurderinger.first { it.bokstav == "b" }.utfall `should be equal to` Utfall.VILKAR_OPPFYLT
 
-        vurderingInnenfor.input `should be equal to`
-            mapOf(
-                "arbeidsgiverperiode" to
+            vurderinger.forEach { vurdering ->
+                vurdering.ledd `should be equal to` 1
+                vurdering.punktum.`should be null`()
+                vurdering.kilde `should be equal to` "sykepengesoknad-backend"
+                vurdering.versjonAvKode `should be equal to` "sykepengesoknad-backend-test-12432536"
+
+                vurdering.input `should be equal to`
                     mapOf(
-                        "fom" to "2021-12-12",
-                        "tom" to "2021-12-16",
-                    ),
-                "sykepengesoknadTom" to "2021-12-17",
-                "sykepengesoknadFom" to "2021-12-15",
-                "oppbruktArbeidsgiverperiode" to true,
-                "versjon" to "2022-02-01",
-            )
+                        "arbeidsgiverperiode" to
+                            mapOf(
+                                "fom" to "2021-12-12",
+                                "tom" to "2021-12-16",
+                            ),
+                        "sykepengesoknadTom" to "2021-12-17",
+                        "sykepengesoknadFom" to "2021-12-15",
+                        "oppbruktArbeidsgiverperiode" to true,
+                        "versjon" to "2022-02-01",
+                    )
 
-        vurderingInnenfor.output `should be equal to`
-            mapOf(
-                "periode" to
+                vurdering.output `should be equal to`
                     mapOf(
-                        "fom" to "2021-12-15",
-                        "tom" to "2021-12-16",
-                    ),
-                "versjon" to "2022-02-01",
-            )
+                        "periode" to
+                            mapOf(
+                                "fom" to "2021-12-15",
+                                "tom" to "2021-12-16",
+                            ),
+                        "versjon" to "2022-02-01",
+                    )
+            }
+        }
 
-        val vurderingUtafor =
-            vurderinger
-                .filter { it.utfall == Utfall.VILKAR_OPPFYLT }
-                .first { it.paragraf == "8-17" && it.bokstav == "a" }
+        vurderinger817Utafor.let { vurderinger ->
+            vurderinger.size `should be equal to` 2
 
-        vurderingUtafor `should be equal to`
-            vurderingInnenfor.copy(
-                utfall = vurderingUtafor.utfall,
-                output = vurderingUtafor.output,
-                tidsstempel = vurderingUtafor.tidsstempel,
-                id = vurderingUtafor.id,
-            )
+            vurderinger.first { it.bokstav == "a" }.utfall `should be equal to` Utfall.VILKAR_OPPFYLT
+            vurderinger.first { it.bokstav == "b" }.utfall `should be equal to` Utfall.VILKAR_IKKE_OPPFYLT
 
-        vurderingUtafor.output `should be equal to`
-            mapOf(
-                "periode" to
+            vurderinger.forEach { vurdering ->
+                vurdering.ledd `should be equal to` 1
+                vurdering.punktum.`should be null`()
+                vurdering.kilde `should be equal to` "sykepengesoknad-backend"
+                vurdering.versjonAvKode `should be equal to` "sykepengesoknad-backend-test-12432536"
+
+                vurdering.input `should be equal to`
                     mapOf(
-                        "fom" to "2021-12-17",
-                        "tom" to "2021-12-17",
-                    ),
-                "versjon" to "2022-02-01",
-            )
+                        "arbeidsgiverperiode" to
+                            mapOf(
+                                "fom" to "2021-12-12",
+                                "tom" to "2021-12-16",
+                            ),
+                        "sykepengesoknadTom" to "2021-12-17",
+                        "sykepengesoknadFom" to "2021-12-15",
+                        "oppbruktArbeidsgiverperiode" to true,
+                        "versjon" to "2022-02-01",
+                    )
+
+                vurdering.output `should be equal to`
+                    mapOf(
+                        "periode" to
+                            mapOf(
+                                "fom" to "2021-12-17",
+                                "tom" to "2021-12-17",
+                            ),
+                        "versjon" to "2022-02-01",
+                    )
+            }
+        }
     }
 
     private fun hentJuridiskeVurderinger(antall: Int) =
