@@ -23,6 +23,11 @@ class KorrigeringTest : FellesTestOppsett() {
         fakeUnleash.resetAll()
     }
 
+    @AfterAll
+    fun hentAlleKafkaMeldinger() {
+        juridiskVurderingKafkaConsumer.hentProduserteRecords()
+    }
+
     @Test
     @Order(1)
     fun `Arbeidstakersøknad opprettes`() {
@@ -72,8 +77,6 @@ class KorrigeringTest : FellesTestOppsett() {
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
 
-        hentJuridiskeVurderinger(3)
-
         val soknadenEtter = hentSoknader(fnr).first()
         soknadenEtter.korrigeringsfristUtlopt `should be` false
     }
@@ -110,7 +113,6 @@ class KorrigeringTest : FellesTestOppsett() {
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
-        hentJuridiskeVurderinger(3)
     }
 
     @Test

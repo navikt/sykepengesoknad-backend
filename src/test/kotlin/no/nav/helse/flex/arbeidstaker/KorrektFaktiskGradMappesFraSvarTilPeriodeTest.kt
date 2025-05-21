@@ -2,6 +2,7 @@ package no.nav.helse.flex.arbeidstaker
 
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
+import no.nav.helse.flex.hentProduserteRecords
 import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknader
 import no.nav.helse.flex.hentSoknaderMetadata
@@ -24,14 +25,18 @@ import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should be null`
 import org.amshove.kluent.shouldBe
 import org.assertj.core.api.Assertions.assertThat
+import org.awaitility.Awaitility.await
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer
+import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.time.LocalDate
+import java.util.concurrent.TimeUnit
 
-@TestMethodOrder(MethodOrderer.MethodName::class)
+@TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : FellesTestOppsett() {
     private val fnr = "12345678900"
 
@@ -40,9 +45,20 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : FellesTestOppsett() {
         fakeUnleash.resetAll()
     }
 
+    @AfterAll
+    fun hentAlleKafkaMeldinger() {
+        await()
+            .atMost(5, TimeUnit.SECONDS) // Wait for a maximum of 5 seconds
+            .pollInterval(100, TimeUnit.MILLISECONDS) // Check every 100 milliseconds
+            .until { juridiskVurderingKafkaConsumer.hentProduserteRecords().isEmpty() }
+
+        // Now that we've waited for the records to be empty, assert it
+        juridiskVurderingKafkaConsumer.hentProduserteRecords().size `should be equal to` 0
+    }
+
     @Test
+    @Order(1)
     fun `1 - vi oppretter en arbeidstakersoknad`() {
-        // Opprett søknad
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
@@ -75,7 +91,8 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `3 - vi svarer på sporsmalene og sender den inn`() {
+    @Order(2)
+    fun `2 - vi svarer på sporsmalene og sender den inn`() {
         flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
         val soknaden =
@@ -102,7 +119,8 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `4 - vi sjekker at faktisk grad er hentet ut korrekt`() {
+    @Order(3)
+    fun `3 - vi sjekker at faktisk grad er hentet ut korrekt`() {
         val soknaden = hentSoknaderMetadata(fnr).first()
 
         assertThat(soknaden.status).isEqualTo(RSSoknadstatus.SENDT)
@@ -117,7 +135,8 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `5 - vi sjekker at faktisk grad er riktig på jurdisk vurdering på kafka`() {
+    @Order(4)
+    fun `4 - vi sjekker at faktisk grad er riktig på jurdisk vurdering på kafka`() {
         val alleJuridiskeVurderinger = hentJuridiskeVurderinger(3)
         val vurderinger813 = alleJuridiskeVurderinger.filter { it.paragraf == "8-13" }
         vurderinger813.size `should be equal to` 1
@@ -207,7 +226,8 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `6 - vi svarer at vi ar sykmeldt mer enn 70 prosent med timer i frontend, men det beregnes til max 70`() {
+    @Order(5)
+    fun `5 - vi svarer at vi ar sykmeldt mer enn 70 prosent med timer i frontend, men det beregnes til max 70`() {
         flexSyketilfelleMockRestServiceServer.reset()
         val soknaden = hentSoknader(fnr = fnr).first { it.status == RSSoknadstatus.SENDT }
         mockFlexSyketilfelleArbeidsgiverperiode(andreKorrigerteRessurser = soknaden.id)
@@ -226,8 +246,6 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : FellesTestOppsett() {
             .oppsummering()
             .sendSoknad()
 
-        hentJuridiskeVurderinger(3)
-
         val soknadPaKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()
         assertThat(soknadPaKafka.soknadsperioder!!.map { Pair(it.faktiskGrad, it.sykmeldingsgrad) }).isEqualTo(
             listOf(
@@ -238,7 +256,8 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `7 - vi svarer at vi var sykmeldt mindre enn 70 prosent med timer i frontend`() {
+    @Order(6)
+    fun `6 - vi svarer at vi var sykmeldt mindre enn 70 prosent med timer i frontend`() {
         flexSyketilfelleMockRestServiceServer.reset()
         val soknaden = hentSoknader(fnr = fnr).first { it.status == RSSoknadstatus.SENDT }
         mockFlexSyketilfelleArbeidsgiverperiode(andreKorrigerteRessurser = soknaden.id)
@@ -257,8 +276,6 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : FellesTestOppsett() {
             .oppsummering()
             .sendSoknad()
 
-        hentJuridiskeVurderinger(3)
-
         val soknadPaKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()
         assertThat(soknadPaKafka.soknadsperioder!!.map { Pair(it.faktiskGrad, it.sykmeldingsgrad) }).isEqualTo(
             listOf(
@@ -269,7 +286,8 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `8 - vi svarer at vi var sykmeldt mindre enn 70 prosent med prosent i frontend`() {
+    @Order(7)
+    fun `7 - vi svarer at vi var sykmeldt mindre enn 70 prosent med prosent i frontend`() {
         flexSyketilfelleMockRestServiceServer.reset()
         val soknaden = hentSoknader(fnr = fnr).first { it.status == RSSoknadstatus.SENDT }
         mockFlexSyketilfelleArbeidsgiverperiode(andreKorrigerteRessurser = soknaden.id)
@@ -288,8 +306,6 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : FellesTestOppsett() {
             .oppsummering()
             .sendSoknad()
 
-        hentJuridiskeVurderinger(3)
-
         val soknadPaKafka = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()
         assertThat(soknadPaKafka.soknadsperioder!!.map { Pair(it.faktiskGrad, it.sykmeldingsgrad) }).isEqualTo(
             listOf(
@@ -300,7 +316,8 @@ class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `9 - vi kan ikke svare at vi var sykmeldt mer enn 70 prosent med prosent i frontend`() {
+    @Order(8)
+    fun `8 - vi kan ikke svare at vi var sykmeldt mer enn 70 prosent med prosent i frontend`() {
         flexSyketilfelleMockRestServiceServer.reset()
         val soknaden = hentSoknader(fnr = fnr).first { it.status == RSSoknadstatus.SENDT }
         mockFlexSyketilfelleArbeidsgiverperiode(andreKorrigerteRessurser = soknaden.id)

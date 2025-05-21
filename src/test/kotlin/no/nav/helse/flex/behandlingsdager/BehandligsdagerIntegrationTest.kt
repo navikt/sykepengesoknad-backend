@@ -5,6 +5,7 @@ import no.nav.helse.flex.avbrytSoknad
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
 import no.nav.helse.flex.gjenapneSoknad
+import no.nav.helse.flex.hentProduserteRecords
 import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.korrigerSoknad
@@ -24,6 +25,7 @@ import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import org.amshove.kluent.`should be equal to`
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -35,6 +37,11 @@ import java.util.*
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class BehandligsdagerIntegrationTest : FellesTestOppsett() {
     final val fnr = "12345678910"
+
+    @AfterAll
+    fun hentAlleKafkaMeldinger() {
+        juridiskVurderingKafkaConsumer.hentProduserteRecords()
+    }
 
     @Test
     @Order(1)
@@ -122,8 +129,6 @@ class BehandligsdagerIntegrationTest : FellesTestOppsett() {
                 .svar[0]
                 .verdi,
         ).isEqualTo("CHECKED")
-
-        hentJuridiskeVurderinger(2)
     }
 
     @Test
@@ -153,8 +158,6 @@ class BehandligsdagerIntegrationTest : FellesTestOppsett() {
 
         val soknadPaKafka = kafkaSoknader.last()
         assertThat(soknadPaKafka.status).isEqualTo(SoknadsstatusDTO.SENDT)
-
-        hentJuridiskeVurderinger(2)
     }
 
     @Test

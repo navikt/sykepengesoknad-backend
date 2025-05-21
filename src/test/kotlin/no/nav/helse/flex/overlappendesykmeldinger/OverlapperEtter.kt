@@ -11,6 +11,7 @@ import no.nav.helse.flex.domain.Soknadsperiode
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykmeldingstype
+import no.nav.helse.flex.hentProduserteRecords
 import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
@@ -59,6 +60,11 @@ class OverlapperEtter : FellesTestOppsett() {
     @BeforeAll
     fun konfigurerUnleash() {
         fakeUnleash.resetAll()
+    }
+
+    @AfterAll
+    fun hentAlleKafkaMeldinger() {
+        juridiskVurderingKafkaConsumer.hentProduserteRecords()
     }
 
     fun String?.tilSoknadsperioder(): List<Soknadsperiode>? =
@@ -267,7 +273,6 @@ class OverlapperEtter : FellesTestOppsett() {
             .sendSoknad()
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
-        hentJuridiskeVurderinger(3)
     }
 
     @Test
@@ -507,7 +512,6 @@ class OverlapperEtter : FellesTestOppsett() {
             .sendSoknad()
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
-        hentJuridiskeVurderinger(3)
 
         val identiskSoknad =
             sykepengesoknadDAO
@@ -765,7 +769,6 @@ class OverlapperEtter : FellesTestOppsett() {
             .sendSoknad()
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
-        hentJuridiskeVurderinger(3)
     }
 
     @Test
@@ -860,7 +863,6 @@ class OverlapperEtter : FellesTestOppsett() {
             .sendSoknad()
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
-        hentJuridiskeVurderinger(3)
     }
 
     @Test
