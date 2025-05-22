@@ -61,76 +61,51 @@ data class SelvstendigNaringsdrivendeInfo(
     }
 
     fun mapToNaringsdrivendeInntektsAarDTO(): List<NaringsdrivendeInntektsAarDTO> =
-        sykepengegrunnlagNaeringsdrivende!!.inntekter.map { response ->
-            val pensjonsgivendeInntekt =
-                response.pensjonsgivendeInntekt.fold(
-                    SummertPensjonsgivendeInntektDTO(),
-                ) { summertPensjonsgivendeInntektDTO, pensjonsgivendeInntekt ->
-                    SummertPensjonsgivendeInntektDTO(
-                        pensjonsgivendeInntektAvLoennsinntekt =
-                            summerLoensinntekt(
-                                summertPensjonsgivendeInntektDTO,
-                                pensjonsgivendeInntekt,
-                            ),
-                        pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel =
-                            summerPensjonsdel(
-                                summertPensjonsgivendeInntektDTO,
-                                pensjonsgivendeInntekt,
-                            ),
-                        pensjonsgivendeInntektAvNaeringsinntekt =
-                            summerNaringsinntekt(
-                                summertPensjonsgivendeInntektDTO,
-                                pensjonsgivendeInntekt,
-                            ),
-                        pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage =
-                            summerFangstinntekt(
-                                summertPensjonsgivendeInntektDTO,
-                                pensjonsgivendeInntekt,
-                            ),
-                    )
-                }
-
+        sykepengegrunnlagNaeringsdrivende!!.inntekter.map { inntekt ->
             NaringsdrivendeInntektsAarDTO(
-                inntektsaar = response.inntektsaar,
-                pensjonsgivendeInntekt = pensjonsgivendeInntekt,
+                inntektsaar = inntekt.inntektsaar,
+                // Summerer pensjonsgivende inntekt fra FASTLAND og SVALBARD.
+                pensjonsgivendeInntekt = summerPensjonsgivendeInntekt(inntekt.pensjonsgivendeInntekt),
             )
         }
 
-    private fun summerFangstinntekt(
-        summertPensjonsgivendeInntektDTO: SummertPensjonsgivendeInntektDTO,
-        pensjonsgivendeInntekt: PensjonsgivendeInntekt,
-    ): Int =
-        (
-            summertPensjonsgivendeInntektDTO.pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage
-                ?: 0
-        ) + pensjonsgivendeInntekt.pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage
+    private fun summerPensjonsgivendeInntekt(inntekter: List<PensjonsgivendeInntekt>): SummertPensjonsgivendeInntektDTO =
+        inntekter.fold(SummertPensjonsgivendeInntektDTO()) { summert, inntekt ->
+            SummertPensjonsgivendeInntektDTO(
+                pensjonsgivendeInntektAvLoennsinntekt = sumLoensinntekt(summert, inntekt),
+                pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = sumPensjonsdel(summert, inntekt),
+                pensjonsgivendeInntektAvNaeringsinntekt = sumNaringsinntekt(summert, inntekt),
+                pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage = sumFangstinntekt(summert, inntekt),
+            )
+        }
 
-    private fun summerNaringsinntekt(
-        summertPensjonsgivendeInntektDTO: SummertPensjonsgivendeInntektDTO,
-        pensjonsgivendeInntekt: PensjonsgivendeInntekt,
+    private fun sumFangstinntekt(
+        summert: SummertPensjonsgivendeInntektDTO,
+        inntekt: PensjonsgivendeInntekt,
     ): Int =
-        (
-            summertPensjonsgivendeInntektDTO.pensjonsgivendeInntektAvNaeringsinntekt
-                ?: 0
-        ) + pensjonsgivendeInntekt.pensjonsgivendeInntektAvNaeringsinntekt
+        (summert.pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage ?: 0) +
+            inntekt.pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage
 
-    private fun summerPensjonsdel(
-        summertPensjonsgivendeInntektDTO: SummertPensjonsgivendeInntektDTO,
-        pensjonsgivendeInntekt: PensjonsgivendeInntekt,
+    private fun sumNaringsinntekt(
+        summert: SummertPensjonsgivendeInntektDTO,
+        inntekt: PensjonsgivendeInntekt,
     ): Int =
-        (
-            summertPensjonsgivendeInntektDTO.pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel
-                ?: 0
-        ) + pensjonsgivendeInntekt.pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel
+        (summert.pensjonsgivendeInntektAvNaeringsinntekt ?: 0) +
+            inntekt.pensjonsgivendeInntektAvNaeringsinntekt
 
-    private fun summerLoensinntekt(
-        summertPensjonsgivendeInntektDTO: SummertPensjonsgivendeInntektDTO,
-        pensjonsgivendeInntekt: PensjonsgivendeInntekt,
+    private fun sumPensjonsdel(
+        summert: SummertPensjonsgivendeInntektDTO,
+        inntekt: PensjonsgivendeInntekt,
     ): Int =
-        (
-            summertPensjonsgivendeInntektDTO.pensjonsgivendeInntektAvLoennsinntekt
-                ?: 0
-        ) + pensjonsgivendeInntekt.pensjonsgivendeInntektAvLoennsinntekt
+        (summert.pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel ?: 0) +
+            inntekt.pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel
+
+    private fun sumLoensinntekt(
+        summert: SummertPensjonsgivendeInntektDTO,
+        inntekt: PensjonsgivendeInntekt,
+    ): Int =
+        (summert.pensjonsgivendeInntektAvLoennsinntekt ?: 0) +
+            inntekt.pensjonsgivendeInntektAvLoennsinntekt
 }
 
 data class BrregRolle(

@@ -79,7 +79,7 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
     }
 
     @Test
-    fun `Inneholder summert inntektsinformasjon i selvstedigNaringsdrivende`() {
+    fun `Inneholder summert inntektsinformasjon i selvstendigNaringsdrivende`() {
         val soknad =
             opprettNyNaeringsdrivendeSoknad().copy(
                 soknadPerioder = soknadPerioder,

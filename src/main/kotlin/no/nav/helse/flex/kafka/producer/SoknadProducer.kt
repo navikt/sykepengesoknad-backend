@@ -41,9 +41,6 @@ class SoknadProducer(
                     opprinneligSendt = opprinneligSendt?.tilOsloLocalDateTime(),
                 )
 
-        // TODO: Fjern.
-        log.info("naringsdrivendeInntekt.size er: ${sykepengesoknadDTO.selvstendigNaringsdrivende?.naringsdrivendeInntekt?.inntekt?.size}")
-
         kafkaProducer.produserMelding(sykepengesoknadDTO)
     }
 
