@@ -13,45 +13,12 @@ data class SelvstendigNaringsdrivendeInfo(
         if (grunnlag == null) {
             return SelvstendigNaringsdrivendeDTO(
                 roller = roller.map { RolleDTO(it.orgnummer, it.rolletype) },
-                sykepengegrunnlagNaeringsdrivende = null,
                 naringsdrivendeInntekt = null,
             )
         }
 
         return SelvstendigNaringsdrivendeDTO(
             roller = roller.map { RolleDTO(it.orgnummer, it.rolletype) },
-            sykepengegrunnlagNaeringsdrivende =
-                SykepengegrunnlagNaeringsdrivendeDTO(
-                    gjennomsnittPerAar = grunnlag.gjennomsnittPerAar.map { AarVerdiDTO(it.aar, it.verdi) },
-                    grunnbeloepPerAar = grunnlag.grunnbeloepPerAar.map { AarVerdiDTO(it.aar, it.verdi) },
-                    grunnbeloepPaaSykmeldingstidspunkt = grunnlag.grunnbeloepPaaSykmeldingstidspunkt,
-                    beregnetSnittOgEndring25 =
-                        BeregnetDTO(
-                            snitt = grunnlag.beregnetSnittOgEndring25.snitt,
-                            p25 = grunnlag.beregnetSnittOgEndring25.p25,
-                            m25 = grunnlag.beregnetSnittOgEndring25.m25,
-                        ),
-                    inntekter =
-                        grunnlag.inntekter.map { hentPensjonsgivendeInntektResponse ->
-                            HentPensjonsgivendeInntektResponseDTO(
-                                norskPersonidentifikator = hentPensjonsgivendeInntektResponse.norskPersonidentifikator,
-                                inntektsaar = hentPensjonsgivendeInntektResponse.inntektsaar,
-                                pensjonsgivendeInntekt =
-                                    hentPensjonsgivendeInntektResponse.pensjonsgivendeInntekt.map {
-                                        PensjonsgivendeInntektDTO(
-                                            datoForFastsetting = it.datoForFastsetting,
-                                            skatteordning = SkatteordningDTO.valueOf(it.skatteordning.name),
-                                            pensjonsgivendeInntektAvLoennsinntekt = it.pensjonsgivendeInntektAvLoennsinntekt,
-                                            pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel =
-                                                it.pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel,
-                                            pensjonsgivendeInntektAvNaeringsinntekt = it.pensjonsgivendeInntektAvNaeringsinntekt,
-                                            pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage =
-                                                it.pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage,
-                                        )
-                                    },
-                            )
-                        },
-                ),
             naringsdrivendeInntekt =
                 NaringsdrivendeInntektDTO(
                     norskPersonidentifikator = sykepengegrunnlagNaeringsdrivende.inntekter.first().norskPersonidentifikator,
@@ -60,7 +27,7 @@ data class SelvstendigNaringsdrivendeInfo(
         )
     }
 
-    fun mapToNaringsdrivendeInntektsAarDTO(): List<NaringsdrivendeInntektsAarDTO> =
+    private fun mapToNaringsdrivendeInntektsAarDTO(): List<NaringsdrivendeInntektsAarDTO> =
         sykepengegrunnlagNaeringsdrivende!!.inntekter.map { inntekt ->
             NaringsdrivendeInntektsAarDTO(
                 inntektsaar = inntekt.inntektsaar,
