@@ -980,7 +980,6 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
             )
 
         // Kaster exception for søknad nr 2
-
         doThrow(ProduserKafkaMeldingException()).`when`(aivenKafkaProducer).produserMelding(
             argWhere { it.fom == dato.plusDays(21) && it.tom == dato.plusDays(40) },
         )
@@ -1041,7 +1040,18 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
                         PensjonsgivendeInntekt(
                             datoForFastsetting = "2023-07-17",
                             skatteordning = Skatteordning.FASTLAND,
-                            pensjonsgivendeInntektAvNaeringsinntekt = 1_000_000,
+                            pensjonsgivendeInntektAvLoennsinntekt = 100_000,
+                            pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = 50_000,
+                            pensjonsgivendeInntektAvNaeringsinntekt = 300_000,
+                            pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage = 50_000,
+                        ),
+                        PensjonsgivendeInntekt(
+                            datoForFastsetting = "2023-07-17",
+                            skatteordning = Skatteordning.SVALBARD,
+                            pensjonsgivendeInntektAvLoennsinntekt = 100_000,
+                            pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = 50_000,
+                            pensjonsgivendeInntektAvNaeringsinntekt = 300_000,
+                            pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage = 50_000,
                         ),
                     ),
             )
@@ -1053,7 +1063,18 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
                         PensjonsgivendeInntekt(
                             datoForFastsetting = "2022-07-17",
                             skatteordning = Skatteordning.FASTLAND,
-                            pensjonsgivendeInntektAvNaeringsinntekt = 1_000_000,
+                            pensjonsgivendeInntektAvLoennsinntekt = 50_000,
+                            pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = 50_000,
+                            pensjonsgivendeInntektAvNaeringsinntekt = 350_000,
+                            pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage = 50_000,
+                        ),
+                        PensjonsgivendeInntekt(
+                            datoForFastsetting = "2022-07-17",
+                            skatteordning = Skatteordning.SVALBARD,
+                            pensjonsgivendeInntektAvLoennsinntekt = 50_000,
+                            pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = 50_000,
+                            pensjonsgivendeInntektAvNaeringsinntekt = 350_000,
+                            pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage = 50_000,
                         ),
                     ),
             )
@@ -1065,7 +1086,10 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
                         PensjonsgivendeInntekt(
                             datoForFastsetting = "2021-07-17",
                             skatteordning = Skatteordning.FASTLAND,
-                            pensjonsgivendeInntektAvNaeringsinntekt = 1_000_000,
+                            pensjonsgivendeInntektAvLoennsinntekt = 10_000,
+                            pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = 190_000,
+                            pensjonsgivendeInntektAvNaeringsinntekt = 500_000,
+                            pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage = 300_000,
                         ),
                     ),
             )
@@ -1104,10 +1128,18 @@ fun lagSykepengegrunnlagNaeringsdrivende() =
                             PensjonsgivendeInntekt(
                                 datoForFastsetting = LocalDate.parse("2023-07-17").toString(),
                                 skatteordning = Skatteordning.FASTLAND,
-                                pensjonsgivendeInntektAvLoennsinntekt = 0,
-                                pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = 0,
-                                pensjonsgivendeInntektAvNaeringsinntekt = 1_000_000,
-                                pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage = 0,
+                                pensjonsgivendeInntektAvLoennsinntekt = 100_000,
+                                pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = 50_000,
+                                pensjonsgivendeInntektAvNaeringsinntekt = 300_000,
+                                pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage = 50_000,
+                            ),
+                            PensjonsgivendeInntekt(
+                                datoForFastsetting = LocalDate.parse("2023-07-17").toString(),
+                                skatteordning = Skatteordning.SVALBARD,
+                                pensjonsgivendeInntektAvLoennsinntekt = 100_000,
+                                pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = 50_000,
+                                pensjonsgivendeInntektAvNaeringsinntekt = 300_000,
+                                pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage = 50_000,
                             ),
                         ),
                 ),
@@ -1119,10 +1151,18 @@ fun lagSykepengegrunnlagNaeringsdrivende() =
                             PensjonsgivendeInntekt(
                                 datoForFastsetting = LocalDate.parse("2022-07-17").toString(),
                                 skatteordning = Skatteordning.FASTLAND,
-                                pensjonsgivendeInntektAvLoennsinntekt = 0,
-                                pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = 0,
-                                pensjonsgivendeInntektAvNaeringsinntekt = 1_000_000,
-                                pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage = 0,
+                                pensjonsgivendeInntektAvLoennsinntekt = 50_000,
+                                pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = 50_000,
+                                pensjonsgivendeInntektAvNaeringsinntekt = 350_000,
+                                pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage = 50_000,
+                            ),
+                            PensjonsgivendeInntekt(
+                                datoForFastsetting = LocalDate.parse("2022-07-17").toString(),
+                                skatteordning = Skatteordning.SVALBARD,
+                                pensjonsgivendeInntektAvLoennsinntekt = 50_000,
+                                pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = 50_000,
+                                pensjonsgivendeInntektAvNaeringsinntekt = 350_000,
+                                pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage = 50_000,
                             ),
                         ),
                 ),
@@ -1134,10 +1174,10 @@ fun lagSykepengegrunnlagNaeringsdrivende() =
                             PensjonsgivendeInntekt(
                                 datoForFastsetting = LocalDate.parse("2021-07-17").toString(),
                                 skatteordning = Skatteordning.FASTLAND,
-                                pensjonsgivendeInntektAvLoennsinntekt = 0,
-                                pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = 0,
-                                pensjonsgivendeInntektAvNaeringsinntekt = 1_000_000,
-                                pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage = 0,
+                                pensjonsgivendeInntektAvLoennsinntekt = 10_000,
+                                pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = 190_000,
+                                pensjonsgivendeInntektAvNaeringsinntekt = 500_000,
+                                pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage = 300_000,
                             ),
                         ),
                 ),
