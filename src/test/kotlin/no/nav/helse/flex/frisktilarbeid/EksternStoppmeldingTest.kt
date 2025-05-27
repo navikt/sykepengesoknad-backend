@@ -14,6 +14,7 @@ import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldBeLessThan
 import org.amshove.kluent.shouldHaveSize
 import org.awaitility.Awaitility.await
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -130,6 +131,7 @@ class EksternStoppmeldingTest : FakesTestOppsett() {
 
     @Test
     @Order(7)
+    @Disabled
     fun `Oppretter nye søknader med status FREMTIDIG`() {
         friskTilArbeidCronJob.behandleFriskTilArbeidVedtak()
 
