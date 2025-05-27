@@ -11,13 +11,11 @@ import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.service.IdentService
 import no.nav.helse.flex.util.isBeforeOrEqual
-import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 import java.time.LocalDate
 import java.util.*
-import java.util.concurrent.TimeUnit
 
 const val SOKNAD_PERIODELENGDE = 14L
 
@@ -30,30 +28,6 @@ class FriskTilArbeidSoknadService(
     private val arbeidssokerregisterClient: ArbeidssokerregisterClient,
 ) {
     private val log = logger()
-
-    @Scheduled(initialDelay = 3, fixedDelay = 3600, timeUnit = TimeUnit.MINUTES)
-    fun slettVedtak() {
-        val copy =
-            friskTilArbeidRepository
-                .findById("931d1db7-753d-460e-9155-67fe1d75d92f")
-                .get()
-                .copy(
-                    fom = LocalDate.of(2025, 3, 17),
-                    tom = LocalDate.of(2025, 3, 25),
-                    ignorerArbeidssokerregister = false,
-                )
-        friskTilArbeidRepository.save(copy)
-        log.info("Oppdatert vedtak med id: ${copy.id}.")
-    }
-
-    private fun slettSoknadHvisStatusErNy(sykepengesoknad: Sykepengesoknad) {
-        if (sykepengesoknad.status == Soknadstatus.NY) {
-            sykepengesoknadDAO.slettSoknad(sykepengesoknad.id)
-            log.info("Sletter søknad med id: ${sykepengesoknad.id}.")
-        } else {
-            log.info("Slettet ikke søknad med id ${sykepengesoknad.id} da den har status: ${sykepengesoknad.status}.")
-        }
-    }
 
     @Transactional
     fun opprettSoknader(
