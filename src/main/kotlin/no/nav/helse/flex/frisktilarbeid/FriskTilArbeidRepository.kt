@@ -1,6 +1,7 @@
 package no.nav.helse.flex.frisktilarbeid
 
 import no.nav.helse.flex.domain.Periode
+import no.nav.helse.flex.util.tilOsloLocalDateTime
 import org.postgresql.util.PGobject
 import org.springframework.data.annotation.Id
 import org.springframework.data.jdbc.repository.query.Modifying
@@ -52,9 +53,9 @@ fun FriskTilArbeidVedtakDbRecord.sjekkArbeidssokerregisteret() = ignorerArbeidss
 
 fun FriskTilArbeidVedtakDbRecord.tilPeriode(): Periode {
     fun avsluttetEllerTom(): LocalDate {
-//        if (avsluttetTidspunkt != null) {
-//            return avsluttetTidspunkt.tilOsloLocalDateTime().toLocalDate()
-//        }
+        if (avsluttetTidspunkt != null) {
+            return avsluttetTidspunkt.tilOsloLocalDateTime().toLocalDate()
+        }
         return tom
     }
     return Periode(fom, avsluttetEllerTom())
