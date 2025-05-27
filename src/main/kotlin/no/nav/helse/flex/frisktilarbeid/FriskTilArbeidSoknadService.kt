@@ -11,13 +11,11 @@ import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.service.IdentService
 import no.nav.helse.flex.util.isBeforeOrEqual
-import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 import java.time.LocalDate
 import java.util.*
-import java.util.concurrent.TimeUnit
 
 const val SOKNAD_PERIODELENGDE = 14L
 
@@ -30,46 +28,6 @@ class FriskTilArbeidSoknadService(
     private val arbeidssokerregisterClient: ArbeidssokerregisterClient,
 ) {
     private val log = logger()
-
-    @Scheduled(initialDelay = 3, fixedDelay = 3600, timeUnit = TimeUnit.MINUTES)
-    fun slettVedtak() {
-        friskTilArbeidRepository.deleteById("2324c2f5-fa8e-447f-802e-41453114aa6b")
-        log.info("Slettet FriskTilArbeid vedtak med id: 2324c2f5-fa8e-447f-802e-41453114aa6b")
-
-        sykepengesoknadDAO.finnSykepengesoknad("3491cbd6-95eb-357d-bfdd-8ca292580d00").also {
-            slettSoknadHvisStatusErNy(it)
-        }
-
-        sykepengesoknadDAO.finnSykepengesoknad("92e79c7d-391e-386a-9c96-05af9e9bbb6a").also {
-            slettSoknadHvisStatusErNy(it)
-        }
-
-        sykepengesoknadDAO.finnSykepengesoknad("788c8c3e-3e3b-31ad-9160-7e0fd26cbadf").also {
-            slettSoknadHvisStatusErNy(it)
-        }
-        sykepengesoknadDAO.finnSykepengesoknad("3bb0523e-c4a0-373d-b596-95d2dbeffa8d").also {
-            slettSoknadHvisStatusErNy(it)
-        }
-        sykepengesoknadDAO.finnSykepengesoknad("500f80b2-00a7-346f-b594-a249fa679646").also {
-            slettSoknadHvisStatusErNy(it)
-        }
-
-        friskTilArbeidRepository
-            .findById("931d1db7-753d-460e-9155-67fe1d75d92f")
-            .get()
-            .copy(fom = LocalDate.of(2025, 3, 25), ignorerArbeidssokerregister = false)
-            .also { friskTilArbeidRepository.save(it) }
-        log.info("Oppdatert vedtak med id: 931d1db7-753d-460e-9155-67fe1d75d92f til tom dato: 2025-03-25.")
-    }
-
-    private fun slettSoknadHvisStatusErNy(sykepengesoknad: Sykepengesoknad) {
-        if (sykepengesoknad.status == Soknadstatus.NY) {
-            sykepengesoknadDAO.slettSoknad(sykepengesoknad.id)
-            log.info("Sletter søknad med id: ${sykepengesoknad.id}.")
-        } else {
-            log.info("Slettet ikke søknad med id ${sykepengesoknad.id} da den har status: ${sykepengesoknad.status}.")
-        }
-    }
 
     @Transactional
     fun opprettSoknader(
