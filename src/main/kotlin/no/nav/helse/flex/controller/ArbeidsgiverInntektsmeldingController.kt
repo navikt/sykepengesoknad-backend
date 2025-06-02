@@ -43,7 +43,7 @@ class ArbeidsgiverInntektsmeldingController(
                 .filter { it.fom != null }
                 .filter { it.fom?.isAfter(request.eldsteFom.minusDays(1)) ?: false }
                 .filter { it.arbeidsgiverOrgnummer == request.orgnummer }
-                .filter { it.soknadstype == Soknadstype.ARBEIDSTAKERE }
+                .filter { listOf(Soknadstype.ARBEIDSTAKERE, Soknadstype.BEHANDLINGSDAGER).contains(it.soknadstype) }
                 .filter { it.status == Soknadstatus.SENDT }
                 .map { it.tilHentSoknaderResponse() }
                 .sortedBy { it.fom }
@@ -79,6 +79,7 @@ data class HentSoknaderResponse(
     val startSykeforlop: LocalDate,
     val egenmeldingsdagerFraSykmelding: List<LocalDate> = emptyList(),
     val vedtaksperiodeId: String?,
+    val soknadstype: Soknadstype,
 )
 
 private fun Sykepengesoknad.tilHentSoknaderResponse(): HentSoknaderResponse =
@@ -97,4 +98,5 @@ private fun Sykepengesoknad.tilHentSoknaderResponse(): HentSoknaderResponse =
             this.egenmeldingsdagerFraSykmelding.parseEgenmeldingsdagerFraSykmelding()
                 ?: emptyList(),
         vedtaksperiodeId = null,
+        soknadstype = this.soknadstype,
     )

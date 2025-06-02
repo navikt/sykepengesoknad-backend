@@ -3,6 +3,8 @@ package no.nav.helse.flex.helsearbeidsgiver
 import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.HentSoknaderRequest
 import no.nav.helse.flex.domain.Soknadstatus
+import no.nav.helse.flex.domain.Soknadstype
+import no.nav.helse.flex.testdata.behandingsdager
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.vedtaksperiodebehandling.Behandlingstatusmelding
@@ -19,8 +21,10 @@ import java.util.concurrent.TimeUnit
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class InntektsmeldingApiTest : FellesTestOppsett() {
-    private val fnr = "12345678900"
+    private val fnr1 = "12345678900"
     private val fnr2 = "11111111111"
+    private val fnr3 = "22222222222"
+
     private val basisdato = LocalDate.of(2021, 9, 1)
 
     @Autowired
@@ -28,17 +32,30 @@ class InntektsmeldingApiTest : FellesTestOppsett() {
 
     @Test
     @Order(1)
-    fun `Vi sender inn en del sykmeldinger`() {
+    fun `Det finnes ingen søknader`() {
         hentSomArbeidsgiver(
             HentSoknaderRequest(
-                fnr = fnr,
+                fnr = fnr1,
                 eldsteFom = LocalDate.now(),
                 orgnummer = "1234",
             ),
         ) shouldHaveSize 0
+    }
+
+    @Test
+    @Order(2)
+    fun `Send inn sykmeldinger`() {
+        hentSomArbeidsgiver(
+            HentSoknaderRequest(
+                fnr = fnr1,
+                eldsteFom = LocalDate.now(),
+                orgnummer = "1234",
+            ),
+        ) shouldHaveSize 0
+
         sendSykmelding(
             sykmeldingKafkaMessage(
-                fnr = fnr,
+                fnr = fnr1,
                 sykmeldingsperioder =
                     heltSykmeldt(
                         fom = basisdato.minusDays(45),
@@ -47,9 +64,10 @@ class InntektsmeldingApiTest : FellesTestOppsett() {
             ),
             forventaSoknader = 2,
         )
+
         sendSykmelding(
             sykmeldingKafkaMessage(
-                fnr = fnr,
+                fnr = fnr1,
                 sykmeldingsperioder =
                     heltSykmeldt(
                         fom = basisdato.minusDays(90),
@@ -58,6 +76,7 @@ class InntektsmeldingApiTest : FellesTestOppsett() {
             ),
             forventaSoknader = 2,
         )
+
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr2,
@@ -70,16 +89,29 @@ class InntektsmeldingApiTest : FellesTestOppsett() {
             forventaSoknader = 2,
         )
 
-        hentSoknaderMetadata(fnr) shouldHaveSize 4
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                fnr = fnr3,
+                sykmeldingsperioder =
+                    behandingsdager(
+                        fom = basisdato.minusDays(25),
+                        tom = basisdato.minusDays(10),
+                    ),
+            ),
+            forventaSoknader = 1,
+        )
+
+        hentSoknaderMetadata(fnr1) shouldHaveSize 4
         hentSoknaderMetadata(fnr2) shouldHaveSize 2
+        hentSoknaderMetadata(fnr3) shouldHaveSize 1
     }
 
     @Test
-    @Order(2)
+    @Order(3)
     fun `Vi finner ingen søknader før de er sendt`() {
         hentSomArbeidsgiver(
             HentSoknaderRequest(
-                fnr = fnr,
+                fnr = fnr1,
                 eldsteFom = basisdato.minusDays(90),
                 orgnummer = "123454543",
             ),
@@ -87,43 +119,49 @@ class InntektsmeldingApiTest : FellesTestOppsett() {
     }
 
     @Test
-    @Order(3)
-    fun `Hacker til alle som sendt i databasen`() {
+    @Order(4)
+    fun `Sett alle søknader til SENDT i databasen`() {
         sykepengesoknadRepository.findAll().toList().forEach {
             sykepengesoknadRepository.save(it.copy(status = Soknadstatus.SENDT))
         }
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     fun `Vi finner 4 søknader med riktig orgnummer og eldsteFom langt tilbake`() {
         hentSomArbeidsgiver(
             HentSoknaderRequest(
-                fnr = fnr,
+                fnr = fnr1,
                 eldsteFom = basisdato.minusDays(90),
                 orgnummer = "123454543",
             ),
-        ) shouldHaveSize 4
+        ).also {
+            it.size `should be equal to` 4
+            it.first().soknadstype `should be equal to` Soknadstype.ARBEIDSTAKERE
+        }
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     fun `Vi finner 3 søknader med riktig orgnummer og eldsteFom dagen etter første sykmelding fom`() {
         hentSomArbeidsgiver(
             HentSoknaderRequest(
-                fnr = fnr,
+                fnr = fnr1,
                 eldsteFom = basisdato.minusDays(89),
                 orgnummer = "123454543",
             ),
-        ) shouldHaveSize 3
+        ).also {
+            it.size `should be equal to` 3
+            it.first().soknadstype `should be equal to` Soknadstype.ARBEIDSTAKERE
+        }
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     fun `Vi finner 0 søknader med feil orgnummer og eldsteFom dagen etter første sykmelding fom`() {
         hentSomArbeidsgiver(
             HentSoknaderRequest(
-                fnr = fnr,
+                fnr = fnr1,
                 eldsteFom = basisdato.minusDays(89),
                 orgnummer = "feil-org",
             ),
@@ -131,8 +169,8 @@ class InntektsmeldingApiTest : FellesTestOppsett() {
     }
 
     @Test
-    @Order(4)
-    fun `Vi finner 2 søknader med riktig orgnummer for det andre fødselsnummeret`() {
+    @Order(5)
+    fun `Vi finner 2 søknader med riktig orgnummer for andre fødselsnummer`() {
         hentSomArbeidsgiver(
             HentSoknaderRequest(
                 fnr = fnr2,
@@ -144,7 +182,22 @@ class InntektsmeldingApiTest : FellesTestOppsett() {
 
     @Test
     @Order(5)
-    fun `Vi returnerer vedtaksperiode id på en søknad hvis vi kjenner den`() {
+    fun `Vi finner 1 søknader med type BEHANDLINGSDAGER for tredje fødselsnummer`() {
+        hentSomArbeidsgiver(
+            HentSoknaderRequest(
+                fnr = fnr3,
+                eldsteFom = basisdato.minusDays(360),
+                orgnummer = "123454543",
+            ),
+        ).also {
+            it shouldHaveSize 1
+            it.single().soknadstype `should be equal to` Soknadstype.BEHANDLINGSDAGER
+        }
+    }
+
+    @Test
+    @Order(6)
+    fun `Vi returnerer vedtaksperiodeId til kjent søknad`() {
         val soknader =
             hentSomArbeidsgiver(
                 HentSoknaderRequest(
