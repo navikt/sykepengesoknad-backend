@@ -4,6 +4,7 @@ import no.nav.helse.flex.config.OIDCIssuer.TOKENX
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
+import no.nav.helse.flex.domain.flatten
 import no.nav.helse.flex.domain.mapper.parseEgenmeldingsdagerFraSykmelding
 import no.nav.helse.flex.service.HentSoknadService
 import no.nav.helse.flex.service.IdentService
@@ -37,6 +38,7 @@ class ArbeidsgiverInntektsmeldingController(
         contextHolder.validerTokenXClaims(spinntektsmeldingFrontendClientId)
 
         val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(request.fnr)
+
         val soknader =
             hentSoknadService
                 .hentSoknader(identer)
@@ -80,6 +82,7 @@ data class HentSoknaderResponse(
     val egenmeldingsdagerFraSykmelding: List<LocalDate> = emptyList(),
     val vedtaksperiodeId: String?,
     val soknadstype: Soknadstype,
+    val behandlingsdager: List<LocalDate> = emptyList(),
 )
 
 private fun Sykepengesoknad.tilHentSoknaderResponse(): HentSoknaderResponse =
@@ -99,4 +102,14 @@ private fun Sykepengesoknad.tilHentSoknaderResponse(): HentSoknaderResponse =
                 ?: emptyList(),
         vedtaksperiodeId = null,
         soknadstype = this.soknadstype,
+        behandlingsdager =
+            if (this.soknadstype == Soknadstype.BEHANDLINGSDAGER) {
+                this.sporsmal
+                    .flatten()
+                    .filter { it.tag.startsWith("ENKELTSTAENDE_BEHANDLINGSDAGER_UKE_") }
+                    .flatMap { it.svar }
+                    .mapNotNull { LocalDate.parse(it.verdi) }
+            } else {
+                emptyList()
+            },
     )
