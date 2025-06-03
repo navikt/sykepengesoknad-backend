@@ -4,9 +4,13 @@ import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.HentSoknaderRequest
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
+import no.nav.helse.flex.domain.Svar
+import no.nav.helse.flex.repository.SvarDAO
+import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.testdata.behandingsdager
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
+import no.nav.helse.flex.util.flattenSporsmal
 import no.nav.helse.flex.vedtaksperiodebehandling.Behandlingstatusmelding
 import no.nav.helse.flex.vedtaksperiodebehandling.Behandlingstatustype
 import no.nav.helse.flex.vedtaksperiodebehandling.VedtaksperiodeBehandlingSykepengesoknadRepository
@@ -29,6 +33,12 @@ class InntektsmeldingApiTest : FellesTestOppsett() {
 
     @Autowired
     lateinit var vedtaksperiodeBehandlingSykepengesoknadRepository: VedtaksperiodeBehandlingSykepengesoknadRepository
+
+    @Autowired
+    private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
+
+    @Autowired
+    private lateinit var svarDAO: SvarDAO
 
     @Test
     @Order(1)
@@ -138,6 +148,7 @@ class InntektsmeldingApiTest : FellesTestOppsett() {
         ).also {
             it.size `should be equal to` 4
             it.first().soknadstype `should be equal to` Soknadstype.ARBEIDSTAKERE
+            it.first().behandlingsdager.shouldBeEmpty()
         }
     }
 
@@ -153,6 +164,7 @@ class InntektsmeldingApiTest : FellesTestOppsett() {
         ).also {
             it.size `should be equal to` 3
             it.first().soknadstype `should be equal to` Soknadstype.ARBEIDSTAKERE
+            it.first().behandlingsdager.shouldBeEmpty()
         }
     }
 
@@ -183,6 +195,23 @@ class InntektsmeldingApiTest : FellesTestOppsett() {
     @Test
     @Order(5)
     fun `Vi finner 1 søknader med type BEHANDLINGSDAGER for tredje fødselsnummer`() {
+        val sporsmal =
+            sykepengesoknadDAO
+                .finnSykepengesoknader(listOf(fnr3))
+                .single()
+                .sporsmal
+                .flattenSporsmal()
+
+        // Lagrer svar på spørsmål om behandlingsdager sånn at vi kan testet at HentSoknaderResponse blir pupulert.
+        listOf(
+            "ENKELTSTAENDE_BEHANDLINGSDAGER_UKE_0" to "2025-01-01",
+            "ENKELTSTAENDE_BEHANDLINGSDAGER_UKE_1" to "2025-03-31",
+        ).forEach { (tag, verdi) ->
+            sporsmal.find { it.tag == tag }!!.id?.let {
+                svarDAO.lagreSvar(it, Svar(id = null, verdi = verdi))
+            }
+        }
+
         hentSomArbeidsgiver(
             HentSoknaderRequest(
                 fnr = fnr3,
@@ -190,8 +219,14 @@ class InntektsmeldingApiTest : FellesTestOppsett() {
                 orgnummer = "123454543",
             ),
         ).also {
-            it shouldHaveSize 1
-            it.single().soknadstype `should be equal to` Soknadstype.BEHANDLINGSDAGER
+            it.single().also { soknad ->
+                soknad.soknadstype `should be equal to` Soknadstype.BEHANDLINGSDAGER
+                soknad.behandlingsdager shouldContainAll
+                    listOf(
+                        LocalDate.parse("2025-01-01"),
+                        LocalDate.parse("2025-03-31"),
+                    )
+            }
         }
     }
 
