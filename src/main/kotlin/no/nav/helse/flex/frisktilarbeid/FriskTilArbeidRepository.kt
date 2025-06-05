@@ -54,7 +54,10 @@ fun FriskTilArbeidVedtakDbRecord.sjekkArbeidssokerregisteret() = ignorerArbeidss
 fun FriskTilArbeidVedtakDbRecord.tilPeriode(): Periode {
     fun avsluttetEllerTom(): LocalDate {
         if (avsluttetTidspunkt != null) {
-            return avsluttetTidspunkt.tilOsloLocalDateTime().toLocalDate()
+            val avsluttetDato = avsluttetTidspunkt.tilOsloLocalDateTime().toLocalDate()
+            if (avsluttetDato.isBefore(tom)) {
+                return avsluttetDato
+            }
         }
         return tom
     }
