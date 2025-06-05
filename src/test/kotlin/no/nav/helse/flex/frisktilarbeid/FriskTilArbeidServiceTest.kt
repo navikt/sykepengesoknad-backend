@@ -6,6 +6,7 @@ import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.frisktilarbeid.BehandletStatus.*
 import no.nav.helse.flex.mockdispatcher.skapArbeidssokerperiodeResponse
 import no.nav.helse.flex.util.serialisertTilString
+import no.nav.helse.flex.util.tilOsloInstant
 import okhttp3.mockwebserver.MockResponse
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldHaveSize
@@ -267,7 +268,7 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
     }
 
     @Test
-    fun `Person er ikke i arbeidssøker registeret`() {
+    fun `Person er ikke i arbeidssøkerregisteret`() {
         FellesTestOppsett.arbeidssokerregisterMockDispatcher.enqueue(
             MockResponse().setBody("[]").setResponseCode(200),
         )
@@ -397,8 +398,8 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
             ),
         )
 
-        fakeFriskTilArbeidRepository.findByFnrIn(listOf("44444444444")).also {
-            it.find { it.fom == LocalDate.of(2025, 3, 11) }.also {
+        fakeFriskTilArbeidRepository.findByFnrIn(listOf("44444444444")).also { vedtak ->
+            vedtak.find { it.fom == LocalDate.of(2025, 3, 11) }.also {
                 friskTilArbeidRepository.save(it!!.copy(behandletStatus = OVERLAPP_OK))
             }
         }
@@ -425,5 +426,104 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
                     ),
             ),
         )
+    }
+
+    @Test
+    fun `Vedtak overlapper ikke når tom er før avsluttetTidspunkt, men etter første vedtaks tom`() {
+        lagFriskTilArbeidVedtakStatus(
+            Periode(
+                fom = LocalDate.of(2024, 1, 1),
+                tom = LocalDate.of(2024, 1, 7),
+            ),
+        )
+        friskTilArbeidCronJob.behandleFriskTilArbeidVedtak()
+
+        fakeFriskTilArbeidRepository.findAll().single().also {
+            fakeFriskTilArbeidRepository.save(
+                it.copy(
+                    avsluttetTidspunkt = LocalDate.of(2024, 1, 9).atStartOfDay().tilOsloInstant(),
+                ),
+            )
+        }
+
+        lagFriskTilArbeidVedtakStatus(
+            Periode(
+                fom = LocalDate.of(2024, 1, 8),
+                tom = LocalDate.of(2024, 1, 14),
+            ),
+        )
+        friskTilArbeidCronJob.behandleFriskTilArbeidVedtak()
+
+        fakeFriskTilArbeidRepository.findAll().toList().sortedBy { it.fom }.also {
+            it shouldHaveSize 2
+            it.first().behandletStatus `should be equal to` BEHANDLET
+            it.drop(1).first().behandletStatus `should be equal to` BEHANDLET
+        }
+    }
+
+    @Test
+    fun `Vedtak overlapper ikke når fom er før første vedtaks tom, men etter avsluttetTidspunkt`() {
+        lagFriskTilArbeidVedtakStatus(
+            Periode(
+                fom = LocalDate.of(2024, 1, 1),
+                tom = LocalDate.of(2024, 1, 7),
+            ),
+        )
+        friskTilArbeidCronJob.behandleFriskTilArbeidVedtak()
+
+        fakeFriskTilArbeidRepository.findAll().single().also {
+            fakeFriskTilArbeidRepository.save(
+                it.copy(
+                    avsluttetTidspunkt = LocalDate.of(2024, 1, 6).atStartOfDay().tilOsloInstant(),
+                ),
+            )
+        }
+
+        lagFriskTilArbeidVedtakStatus(
+            Periode(
+                fom = LocalDate.of(2024, 1, 7),
+                tom = LocalDate.of(2024, 1, 14),
+            ),
+        )
+        friskTilArbeidCronJob.behandleFriskTilArbeidVedtak()
+
+        fakeFriskTilArbeidRepository.findAll().toList().sortedBy { it.fom }.also {
+            it shouldHaveSize 2
+            it.first().behandletStatus `should be equal to` BEHANDLET
+            it.drop(1).first().behandletStatus `should be equal to` BEHANDLET
+        }
+    }
+
+    @Test
+    fun `Vedtak overlapper når fom er før avsluttetTidspunkt`() {
+        lagFriskTilArbeidVedtakStatus(
+            Periode(
+                fom = LocalDate.of(2024, 1, 1),
+                tom = LocalDate.of(2024, 1, 7),
+            ),
+        )
+        friskTilArbeidCronJob.behandleFriskTilArbeidVedtak()
+
+        fakeFriskTilArbeidRepository.findAll().single().also {
+            fakeFriskTilArbeidRepository.save(
+                it.copy(
+                    avsluttetTidspunkt = LocalDate.of(2024, 1, 6).atStartOfDay().tilOsloInstant(),
+                ),
+            )
+        }
+
+        lagFriskTilArbeidVedtakStatus(
+            Periode(
+                fom = LocalDate.of(2024, 1, 6),
+                tom = LocalDate.of(2024, 1, 14),
+            ),
+        )
+        friskTilArbeidCronJob.behandleFriskTilArbeidVedtak()
+
+        fakeFriskTilArbeidRepository.findAll().toList().sortedBy { it.fom }.also {
+            it shouldHaveSize 2
+            it.first().behandletStatus `should be equal to` BEHANDLET
+            it.drop(1).first().behandletStatus `should be equal to` OVERLAPP
+        }
     }
 }
