@@ -32,7 +32,7 @@ class FremtidigeSoknaderFjernesVedIkkeLengreFriskmeldtTest : FakesTestOppsett() 
     @Autowired
     lateinit var sykepengesoknadRepository: SykepengesoknadRepository
 
-    private val fnr = "11111111122"
+    private val fnr = "11111111199"
 
     private var vedtaksId: String? = null
 
