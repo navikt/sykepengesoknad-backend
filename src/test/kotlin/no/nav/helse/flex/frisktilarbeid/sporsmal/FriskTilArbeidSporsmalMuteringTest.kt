@@ -10,12 +10,14 @@ import no.nav.helse.flex.testutil.SoknadBesvarer
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldHaveSize
 import org.assertj.core.api.Assertions.assertThat
+import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
+import java.util.concurrent.TimeUnit
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class FriskTilArbeidSporsmalMuteringTest : FakesTestOppsett() {
@@ -40,6 +42,11 @@ class FriskTilArbeidSporsmalMuteringTest : FakesTestOppsett() {
         val friskTilArbeidDbRecord =
             friskTilArbeidRepository.findAll().first { it.key == key }
         sykepengesoknadRepository.findByFriskTilArbeidVedtakId(friskTilArbeidDbRecord.id!!).shouldHaveSize(2)
+
+        // Med Fakes kan søknader hentes i neste test før sporsmal er generert på en rask CPU, selv om status er NY.
+        await().atMost(1, TimeUnit.SECONDS).until {
+            hentSoknader(fnr).all { it.sporsmal != null }
+        }
     }
 
     @Test
@@ -79,8 +86,12 @@ class FriskTilArbeidSporsmalMuteringTest : FakesTestOppsett() {
             .besvarSporsmal(FTA_JOBBSITUASJONEN_DIN_JA, null, false)
             .besvarSporsmal(FTA_JOBBSITUASJONEN_DIN_NEI, "CHECKED", false)
             .besvarSporsmal(FTA_JOBBSITUASJONEN_DIN_FORTSATT_FRISKMELDT, "NEI", false)
-            .besvarSporsmal(FTA_JOBBSITUASJONEN_DIN_FORTSATT_FRISKMELDT_AVREGISTRERT_NAR, "2020-01-02", true, mutert = true)
-            .also {
+            .besvarSporsmal(
+                FTA_JOBBSITUASJONEN_DIN_FORTSATT_FRISKMELDT_AVREGISTRERT_NAR,
+                "2020-01-02",
+                true,
+                mutert = true,
+            ).also {
                 assertThat(it.muterteSoknaden).isTrue()
             }
     }
