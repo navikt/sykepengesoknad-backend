@@ -2,6 +2,7 @@ package no.nav.helse.flex.frisktilarbeid
 
 import no.nav.helse.flex.client.arbeidssokerregister.ArbeidssokerperiodeRequest
 import no.nav.helse.flex.client.arbeidssokerregister.ArbeidssokerregisterClient
+import no.nav.helse.flex.cronjob.LeaderElection
 import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
@@ -11,11 +12,13 @@ import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.service.IdentService
 import no.nav.helse.flex.util.isBeforeOrEqual
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 import java.time.LocalDate
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 const val SOKNAD_PERIODELENGDE = 14L
 
@@ -26,8 +29,37 @@ class FriskTilArbeidSoknadService(
     private val soknadProducer: SoknadProducer,
     private val identService: IdentService,
     private val arbeidssokerregisterClient: ArbeidssokerregisterClient,
+    private val leaderElection: LeaderElection,
 ) {
     private val log = logger()
+
+    @Transactional
+    @Scheduled(initialDelay = 3, fixedDelay = 3600, timeUnit = TimeUnit.MINUTES)
+    fun scheduledTask() {
+        if (leaderElection.isLeader()) {
+            try {
+                performScheduledWork()
+            } catch (e: Exception) {
+                log.error("Error executing scheduled task:", e)
+            }
+        }
+    }
+
+    private fun performScheduledWork() {
+        val friskTilArbeidVedtak = friskTilArbeidRepository.findById("8cdf8df9-7a07-479d-8500-53f8495cb7af").get()
+        val fnr = friskTilArbeidVedtak.fnr
+
+        sykepengesoknadDAO
+            .finnSykepengesoknader(listOf(fnr), Soknadstype.FRISKMELDT_TIL_ARBEIDSFORMIDLING)
+            .filter { it.status == Soknadstatus.FREMTIDIG }
+            .forEach { soknad ->
+//                sykepengesoknadDAO.slettSoknad(soknad)
+//                soknadProducer.soknadEvent(soknad, null, false)
+                log.info(
+                    "Vil slettet søknad: ${soknad.id} av type: ${soknad.soknadstype} med status: ${soknad.status} for FriskTilArbeidVedtakId: ${soknad.friskTilArbeidVedtakId}.",
+                )
+            }
+    }
 
     @Transactional
     fun opprettSoknader(
