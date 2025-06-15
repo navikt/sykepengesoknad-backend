@@ -53,10 +53,10 @@ class FriskTilArbeidSoknadService(
             .finnSykepengesoknader(listOf(fnr), Soknadstype.FRISKMELDT_TIL_ARBEIDSFORMIDLING)
             .filter { it.status == Soknadstatus.FREMTIDIG }
             .forEach { soknad ->
-                sykepengesoknadDAO.slettSoknad(soknad)
-                soknadProducer.soknadEvent(soknad, null, false)
+//                sykepengesoknadDAO.slettSoknad(soknad)
+//                soknadProducer.soknadEvent(soknad, null, false)
                 log.info(
-                    "Slettet søknad: ${soknad.id} av type: ${soknad.soknadstype} med status: ${soknad.status} for FriskTilArbeidVedtakId: ${soknad.friskTilArbeidVedtakId}.",
+                    "Vil slettet søknad: ${soknad.id} av type: ${soknad.soknadstype} med status: ${soknad.status} for FriskTilArbeidVedtakId: ${soknad.friskTilArbeidVedtakId}.",
                 )
             }
     }
