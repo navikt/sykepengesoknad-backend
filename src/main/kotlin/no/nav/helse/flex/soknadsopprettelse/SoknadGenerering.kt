@@ -32,11 +32,12 @@ fun skalHaSporsmalOmMedlemskap(
     eksisterendeSoknader: List<Sykepengesoknad>,
     sykepengesoknad: Sykepengesoknad,
 ): Boolean =
-    // Returnerer 'true' hvis det er første søknad til arbeidsgiver i sykeforlløpet og andre aktive søknader i samme
-    // sykeforløp ikke allerede har medlemskapsspørsmål.
+    // Returnerer 'true' hvis det er første søknad til arbeidsgiver i sykeforløpet og andre aktive søknader med
+    // samme arbeidssituasjon i samme sykeforløp ikke allerede har medlemskapsspørsmål.
     erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, sykepengesoknad) &&
         eksisterendeSoknader
             .asSequence()
+            .filter { it.arbeidssituasjon == Arbeidssituasjon.ARBEIDSTAKER }
             .filterNot {
                 listOf(
                     Soknadstatus.AVBRUTT,

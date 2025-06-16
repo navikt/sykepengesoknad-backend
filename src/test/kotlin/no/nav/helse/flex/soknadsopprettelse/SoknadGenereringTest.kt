@@ -696,6 +696,47 @@ class SoknadGenereringTest {
     }
 
     @Test
+    fun `Søknad skal ha medlemskapspørsmål selv om annen søknadstype har spørsmål om ARBEID_UTENFOR_NORGE`() {
+        val startSykeforlop = LocalDate.of(2025, 5, 14)
+        val eksisterendeSoknader =
+            listOf(
+                lagSoknad(
+                    arbeidsgiver = 1,
+                    fom = LocalDate.of(2025, 5, 14),
+                    tom = LocalDate.of(2025, 6, 2),
+                    startSykeforlop = startSykeforlop,
+                    arbeidsSituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
+                    soknadsType = Soknadstype.SELVSTENDIGE_OG_FRILANSERE,
+                ).copy(
+                    arbeidsgiverOrgnummer = null,
+                    arbeidsgiverNavn = null,
+                    status = Soknadstatus.SENDT,
+                    sporsmal =
+                        listOf(
+                            Sporsmal(
+                                id = ("1"),
+                                tag = (ARBEID_UTENFOR_NORGE),
+                                svartype = (Svartype.JA_NEI),
+                            ),
+                        ),
+                ),
+            )
+
+        val soknad =
+            lagSoknad(
+                arbeidsgiver = 1,
+                fom = LocalDate.of(2025, 5, 14),
+                tom = LocalDate.of(2025, 6, 2),
+                startSykeforlop = startSykeforlop,
+                arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadsType = Soknadstype.ARBEIDSTAKERE,
+                Soknadstatus.NY,
+            )
+
+        skalHaSporsmalOmMedlemskap(eksisterendeSoknader, soknad) `should be` true
+    }
+
+    @Test
     fun `Førstegangssøknad skal ha medlemskapspørsmål siden annen søknad med spørsmål tilhører et annet syketilfelle`() {
         val eksisterendeSoknader =
             listOf(
