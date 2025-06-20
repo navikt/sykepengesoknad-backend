@@ -36,7 +36,7 @@ val logstashLogbackEncoderVersion = "8.1"
 val testContainersVersion = "1.21.1"
 val kluentVersion = "1.73"
 val jsonSchemaValidatorVersion = "1.5.7"
-val unleashVersion = "10.2.2"
+val unleashVersion = "11.0.0"
 val opentelemetryApiVersion = "1.51.0"
 val opentelemetryInstrumentationVersion = "2.16.0"
 
