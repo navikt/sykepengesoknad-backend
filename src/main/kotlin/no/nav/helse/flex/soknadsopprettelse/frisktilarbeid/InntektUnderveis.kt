@@ -17,7 +17,7 @@ fun inntektUnderveis(
     return Sporsmal(
         tag = FTA_INNTEKT_UNDERVEIS,
         sporsmalstekst = "Hadde du  inntekt i perioden $periodeTekst?",
-        undertekst = "Dette kan for eksempel være inntekt fra en annen jobb du ikke er sykmeldt fra.",
+        undertekst = "Dette kan for eksempel være inntekt fra en annen jobb du ikke har vært sykmeldt fra.",
         svartype = Svartype.JA_NEI,
         // Disse er med for å få muteringen til å fungere
         min = fom.format(DateTimeFormatter.ISO_LOCAL_DATE),
