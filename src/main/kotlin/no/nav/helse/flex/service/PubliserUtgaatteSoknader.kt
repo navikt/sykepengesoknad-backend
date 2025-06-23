@@ -1,5 +1,6 @@
 package no.nav.helse.flex.service
 
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.helse.flex.config.EnvironmentToggles
 import no.nav.helse.flex.cronjob.LeaderElection
 import no.nav.helse.flex.kafka.producer.SoknadProducer
@@ -22,6 +23,7 @@ class PubliserUtgaatteSoknader(
 ) {
     val log = logger()
 
+    @WithSpan(value = "publiserUtgatteSoknader")
     @Scheduled(fixedDelay = 1, initialDelay = 5, timeUnit = TimeUnit.MINUTES)
     fun run() {
         if (toggle.isNotProduction() || erPåNatta()) {
