@@ -1,7 +1,9 @@
 package no.nav.helse.flex.aktivering
 
 import io.opentelemetry.instrumentation.annotations.WithSpan
+import no.nav.helse.flex.config.EnvironmentToggles
 import no.nav.helse.flex.kafka.SYKEPENGESOKNAD_AKTIVERING_TOPIC
+import no.nav.helse.flex.logger
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.support.Acknowledgment
@@ -11,7 +13,10 @@ import org.springframework.stereotype.Component
 class AktiveringConsumer(
     private val soknadAktivering: SoknadAktivering,
     private val retryLogger: RetryLogger,
+    private val environmentToggles: EnvironmentToggles,
 ) {
+    val log = logger()
+
     @WithSpan
     @KafkaListener(
         topics = [SYKEPENGESOKNAD_AKTIVERING_TOPIC],
@@ -28,6 +33,11 @@ class AktiveringConsumer(
         try {
             soknadAktivering.aktiverSoknad(cr.key())
         } catch (e: Exception) {
+            if (environmentToggles.isNotProduction()) {
+                log.info("feiler i dev, acker uansett")
+                acknowledgment.acknowledge()
+                return
+            }
             val warnEllerErrorLogger = retryLogger.inkrementerRetriesOgReturnerLogger(cr.key())
             warnEllerErrorLogger.log(
                 "Feilet ved aktivering av søknad ${cr.key()}.",
