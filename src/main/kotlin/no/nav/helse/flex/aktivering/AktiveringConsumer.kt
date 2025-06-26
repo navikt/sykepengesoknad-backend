@@ -34,7 +34,7 @@ class AktiveringConsumer(
             soknadAktivering.aktiverSoknad(cr.key())
         } catch (e: Exception) {
             if (environmentToggles.isNotProduction()) {
-                log.info("feiler i dev, acker uansett")
+                log.warn("feiler i dev, acker uansett", e)
                 acknowledgment.acknowledge()
                 return
             }
