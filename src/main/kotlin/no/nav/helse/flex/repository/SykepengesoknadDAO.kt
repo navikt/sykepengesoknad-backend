@@ -351,12 +351,18 @@ class SykepengesoknadDAOPostgres(
 
     @WithSpan
     override fun slettSoknad(sykepengesoknad: Sykepengesoknad) {
-        log.info(
-            "Sletter ${sykepengesoknad.status.name} søknad av typen: ${sykepengesoknad.soknadstype} med " +
-                "id: ${sykepengesoknad.id} tilhørende sykmelding: ${sykepengesoknad.sykmeldingId}",
-        )
-
         slettSoknad(sykepengesoknad.id)
+
+        when (sykepengesoknad.soknadstype) {
+            Soknadstype.FRISKMELDT_TIL_ARBEIDSFORMIDLING ->
+                log.info(
+                    "Slettet ${sykepengesoknad.status.name} søknad av typen: ${sykepengesoknad.soknadstype} med id: ${sykepengesoknad.id} tilhørende friskTilArbeidVedtakId: ${sykepengesoknad.friskTilArbeidVedtakId}.",
+                )
+            else ->
+                log.info(
+                    "Slettet ${sykepengesoknad.status.name} søknad av typen: ${sykepengesoknad.soknadstype} med id: ${sykepengesoknad.id} tilhørende sykmelding: ${sykepengesoknad.sykmeldingId}.",
+                )
+        }
     }
 
     @WithSpan
