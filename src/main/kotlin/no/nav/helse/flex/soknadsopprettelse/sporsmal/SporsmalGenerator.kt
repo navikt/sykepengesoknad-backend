@@ -34,7 +34,6 @@ import no.nav.helse.flex.util.serialisertTilString
 import no.nav.helse.flex.yrkesskade.YrkesskadeIndikatorer
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.LocalDate
 import kotlin.jvm.optionals.getOrElse
 
 @Service
@@ -203,26 +202,11 @@ class SporsmalGenerator(
 
         return when (soknad.arbeidssituasjon) {
             Arbeidssituasjon.ARBEIDSTAKER -> {
-                val startSykeforlop =
-                    when (soknad.id) {
-                        "609bbf0e-62f3-33f1-940a-90ef5e0184fa" -> {
-                            log.info("Overstyrer startSykeforlop til 2025-01-18 for søknad: ${soknad.id}.")
-                            LocalDate.of(2025, 1, 18)
-                        }
-                        "62be49c6-f8b5-31bb-b76a-1b98edc1c261",
-                        "f7197ac5-4356-3d34-aeaa-8b3eb511e770",
-                        -> {
-                            log.info("Overstyrer startSykeforlop til 2025-07-16 for søknad: ${soknad.id}.")
-                            LocalDate.of(2025, 7, 16)
-                        }
-                        else -> soknad.startSykeforlop!!
-                    }
-
                 val andreKjenteArbeidsforhold =
                     arbeidsforholdFraInntektskomponentenHenting.hentArbeidsforhold(
                         fnr = soknad.fnr,
                         arbeidsgiverOrgnummer = soknad.arbeidsgiverOrgnummer!!,
-                        startSykeforlop = startSykeforlop,
+                        startSykeforlop = soknad.startSykeforlop!!,
                     )
 
                 val medlemskapSporsmalResultat = lagMedlemsskapSporsmalResultat(eksisterendeSoknader, soknad)
