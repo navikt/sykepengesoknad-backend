@@ -73,14 +73,14 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `oppretter kort søknad for næringsdrivende`() {
+    fun `Oppretter kort søknad for næringsdrivende`() {
         val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
         val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
         val sykmelding =
             skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId)
                 .copy(harRedusertArbeidsgiverperiode = true)
 
-        mockFlexSyketilfelleErUtaforVentetid(sykmelding.id, true)
+        mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
         mockFlexSyketilfelleSykeforloep(sykmeldingId)
 
         val sykmeldingKafkaMessage =
@@ -103,7 +103,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `oppretter kort søknad for næringsdrivende med data fra brreg`() {
+    fun `Oppretter kort søknad for næringsdrivende med data fra brreg`() {
         fakeUnleash.resetAll()
         fakeUnleash.enable("sykepengesoknad-backend-brreg")
 
@@ -131,7 +131,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
             skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId)
                 .copy(harRedusertArbeidsgiverperiode = true)
 
-        mockFlexSyketilfelleErUtaforVentetid(sykmelding.id, true)
+        mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
         mockFlexSyketilfelleSykeforloep(sykmeldingId)
 
         val sykmeldingKafkaMessage =
@@ -160,7 +160,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `oppretter kort søknad for næringsdrivende uten data fra brreg nar feature toggle er av`() {
+    fun `Oppretter kort søknad for næringsdrivende uten data fra brreg når feature toggle er av`() {
         fakeUnleash.resetAll()
 
         brregMockWebServer.dispatcher =
@@ -187,7 +187,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
             skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId)
                 .copy(harRedusertArbeidsgiverperiode = true)
 
-        mockFlexSyketilfelleErUtaforVentetid(sykmelding.id, true)
+        mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
         mockFlexSyketilfelleSykeforloep(sykmeldingId)
 
         val sykmeldingKafkaMessage =
@@ -212,7 +212,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `oppretter kort søknad for næringsdrivende med sigrun data`() {
+    fun `Oppretter kort søknad for næringsdrivende med Sigrun-data`() {
         fakeUnleash.resetAll()
         fakeUnleash.enable("sykepengesoknad-backend-sigrun-paa-kafka")
         settOppSigrunMockResponser()
@@ -223,7 +223,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
             skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId)
                 .copy(harRedusertArbeidsgiverperiode = true)
 
-        mockFlexSyketilfelleErUtaforVentetid(sykmelding.id, true)
+        mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
         mockFlexSyketilfelleSykeforloep(sykmeldingId)
 
         val sykmeldingKafkaMessage =
@@ -245,7 +245,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `oppretter kort søknad for næringsdrivende uten sigrun data når feature toggle er av`() {
+    fun `Oppretter kort søknad for næringsdrivende uten Sigrun-data når feature toggle er av`() {
         fakeUnleash.resetAll()
         settOppSigrunMockResponser()
 
@@ -255,7 +255,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
             skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId)
                 .copy(harRedusertArbeidsgiverperiode = true)
 
-        mockFlexSyketilfelleErUtaforVentetid(sykmelding.id, true)
+        mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
         mockFlexSyketilfelleSykeforloep(sykmeldingId)
 
         val sykmeldingKafkaMessage =
@@ -279,14 +279,14 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `oppretter kort søknad for fisker`() {
+    fun `Oppretter kort søknad for fisker`() {
         val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr, arbeidssituasjon = Arbeidssituasjon.FISKER)
         val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
         val sykmelding =
             skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId)
                 .copy(harRedusertArbeidsgiverperiode = true)
 
-        mockFlexSyketilfelleErUtaforVentetid(sykmelding.id, true)
+        mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
         mockFlexSyketilfelleSykeforloep(sykmeldingId)
 
         val sykmeldingKafkaMessage =
@@ -311,14 +311,14 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `oppretter ikke søknad for næringsdrivende når sykmeldingen er innenfor ventetiden`() {
+    fun `Oppretter ikke søknad for næringsdrivende når sykmeldingen er innenfor ventetiden`() {
         val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
         val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
         val sykmelding =
             skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId)
                 .copy(harRedusertArbeidsgiverperiode = true)
 
-        mockFlexSyketilfelleErUtaforVentetid(sykmelding.id, false)
+        mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, false)
         mockFlexSyketilfelleSykeforloep(sykmeldingId)
 
         val sykmeldingKafkaMessage =
@@ -337,7 +337,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `oppretter søknad for næringsdrivende når sykmeldingen er innenfor ventetiden MEN brukeren har forsikring`() {
+    fun `Oppretter søknad for næringsdrivende når sykmeldingen er innenfor ventetiden MEN brukeren har forsikring`() {
         val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
         val event =
             sykmeldingStatusKafkaMessageDTO.event.copy(
@@ -357,6 +357,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
             skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId)
                 .copy(harRedusertArbeidsgiverperiode = true)
 
+        mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, false)
         mockFlexSyketilfelleSykeforloep(sykmeldingId)
 
         val sykmeldingKafkaMessage =
@@ -378,7 +379,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `oppretter ikke søknad for næringsdrivende når sykmeldingen er innenfor ventetiden og brukeren ikke har forsikring`() {
+    fun `Oppretter ikke søknad for næringsdrivende når sykmeldingen er innenfor ventetiden og brukeren ikke har forsikring`() {
         val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
         val event =
             sykmeldingStatusKafkaMessageDTO.event.copy(
@@ -398,7 +399,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
             skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId)
                 .copy(harRedusertArbeidsgiverperiode = true)
 
-        mockFlexSyketilfelleErUtaforVentetid(sykmelding.id, false)
+        mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, false)
         mockFlexSyketilfelleSykeforloep(sykmeldingId)
 
         val sykmeldingKafkaMessage =
@@ -416,7 +417,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `oppretter 2 søknader for næringsdrivende når sykmeldigna er lengre enn 31 dager`() {
+    fun `Oppretter 2 søknader for næringsdrivende når sykmeldigen er lengre enn 31 dager`() {
         val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
 
         val sykmelding =
@@ -426,7 +427,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
                 tom = LocalDate.of(2020, 3, 15),
             ).copy(harRedusertArbeidsgiverperiode = true)
 
-        mockFlexSyketilfelleErUtaforVentetid(sykmelding.id, true)
+        mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
         val sykmeldingKafkaMessage =
@@ -464,7 +465,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `oppretter ingen søknader når sykmeldinga ikke har perioder`() {
+    fun `Oppretter ingen søknader når sykmeldingen ikke har perioder`() {
         val sykmeldingStatusKafkaMessageDTO =
             skapSykmeldingStatusKafkaMessageDTO(fnr = fnr, arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG)
         val sykmelding =
@@ -489,7 +490,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `oppretter ikke søknader for hull i sykmeldingens perioder mellom vanlig og behandlingsdager`() {
+    fun `Oppretter ikke søknader for hull i sykmeldingens perioder mellom vanlig og behandlingsdager`() {
         val sykmeldingStatusKafkaMessageDTO =
             skapSykmeldingStatusKafkaMessageDTO(fnr = fnr, arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG)
         val sykmelding =
@@ -538,7 +539,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `oppretter ikke søknader for hull i sykmeldingens perioder mellom vanlige søknader`() {
+    fun `Oppretter ikke søknader for hull i sykmeldingens perioder mellom vanlige søknader`() {
         val sykmeldingStatusKafkaMessageDTO =
             skapSykmeldingStatusKafkaMessageDTO(fnr = fnr, arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG)
         val sykmelding =
@@ -588,7 +589,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `oppretter søknad for gradert reisetilskudd`() {
+    fun `Oppretter søknad for gradert reisetilskudd`() {
         val sykmeldingStatusKafkaMessageDTO =
             skapSykmeldingStatusKafkaMessageDTO(fnr = fnr, arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG)
         val sykmelding =
@@ -628,7 +629,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `oppretter ikke søknad for avventende sykmelding`() {
+    fun `Oppretter ikke søknad for avventende sykmelding`() {
         val sykmeldingStatusKafkaMessageDTO =
             skapSykmeldingStatusKafkaMessageDTO(fnr = fnr, arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG)
         val sykmelding =
@@ -665,7 +666,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `oppretter 2 søknader for næringsdrivende hvor gradering endres midt i når sykmeldigna er lengre enn 31 dager`() {
+    fun `Oppretter 2 søknader for næringsdrivende hvor gradering endres midt i når sykmeldigna er lengre enn 31 dager`() {
         val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
         val sykmelding =
             skapArbeidsgiverSykmelding(
@@ -703,7 +704,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
                 event = sykmeldingStatusKafkaMessageDTO.event,
                 kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
             )
-        mockFlexSyketilfelleErUtaforVentetid(sykmelding.id, true)
+        mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
@@ -760,7 +761,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `legger til rebehandling UventetArbeidssituasjonException`() {
+    fun `Legger til rebehandling UventetArbeidssituasjonException`() {
         val sykmeldingStatusKafkaMessageDTO = skapKafkaMelding(arbeidssituasjon = Arbeidssituasjon.FRILANSER)
         val sykmelding = skapSykmeldingDTO(sykmeldingStatusKafkaMessageDTO)
 
@@ -776,7 +777,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `legger til rebehandling ManglerArbeidsgiverException`() {
+    fun `Legger til rebehandling ManglerArbeidsgiverException`() {
         val sykmeldingStatusKafkaMessageDTO = skapKafkaMelding()
         val sykmelding = skapSykmeldingDTO(sykmeldingStatusKafkaMessageDTO)
 
@@ -793,7 +794,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `legger til rebehandling RestFeilerException`() {
+    fun `Legger til rebehandling RestFeilerException`() {
         val sykmeldingStatusKafkaMessageDTO = skapKafkaMelding()
         val sykmelding = skapSykmeldingDTO(sykmeldingStatusKafkaMessageDTO)
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
@@ -810,7 +811,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `legger til rebehandling SykmeldingManglerPeriodeException`() {
+    fun `Legger til rebehandling SykmeldingManglerPeriodeException`() {
         val sykmeldingStatusKafkaMessageDTO = skapKafkaMelding()
         val sykmelding =
             skapSykmeldingDTO(
@@ -832,7 +833,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `legger til rebehandling ManglerSykmeldingException`() {
+    fun `Legger til rebehandling ManglerSykmeldingException`() {
         val sykmeldingStatusKafkaMessageDTO = skapKafkaMelding()
         val sykmelding = skapSykmeldingDTO(sykmeldingStatusKafkaMessageDTO)
 
@@ -856,7 +857,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `legger til rebehandling ProduserKafkaMeldingException`() {
+    fun `Legger til rebehandling ProduserKafkaMeldingException`() {
         val sykmeldingStatusKafkaMessageDTO = skapKafkaMelding()
         val sykmelding = skapSykmeldingDTO(sykmeldingStatusKafkaMessageDTO)
 
@@ -934,7 +935,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
                 event = sykmeldingStatusKafkaMessageDTO.event,
                 kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
             )
-        mockFlexSyketilfelleErUtaforVentetid(sykmelding.id, true)
+        mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
@@ -969,7 +970,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
                         ),
                     ),
             )
-        mockFlexSyketilfelleErUtaforVentetid(sykmelding.id, true)
+        mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
         val sykmeldingKafkaMessage =
@@ -981,7 +982,10 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
 
         // Kaster exception for søknad nr 2
         doThrow(ProduserKafkaMeldingException()).`when`(aivenKafkaProducer).produserMelding(
-            argWhere { it.fom == dato.plusDays(21) && it.tom == dato.plusDays(40) },
+            argWhere { it ->
+                it.fom?.isEqual(dato.plusDays(21)) == true &&
+                    it.tom?.isEqual(dato.plusDays(40)) == true
+            },
         )
 
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)

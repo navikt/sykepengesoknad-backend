@@ -49,22 +49,38 @@ class SkalOppretteSoknader(
             return false
         }
 
-        if ((arbeidssituasjon == FRILANSER || arbeidssituasjon == NAERINGSDRIVENDE) && !sykmeldingKafkaMessage.harForsikring()) {
-            val erUtenforVentetid =
-                flexSyketilfelleClient.erUtenforVentetid(
-                    identer = identer,
-                    sykmeldingId = sykmeldingId,
-                    erUtenforVentetidRequest =
-                        ErUtenforVentetidRequest(
-                            sykmeldingKafkaMessage = sykmeldingKafkaMessage,
-                        ),
-                )
-            if (!erUtenforVentetid) {
-                log.info("Sykmelding $sykmeldingId er beregnet til å være innenfor ventetiden. Oppretter ikke søknad")
-                return false
-            }
+        if (!listOf(FRILANSER, NAERINGSDRIVENDE).contains(arbeidssituasjon)) {
+            return true
         }
 
+        val harForsikring = sykmeldingKafkaMessage.harForsikring()
+        val erUtenforVentetid =
+            flexSyketilfelleClient.erUtenforVentetid(
+                identer = identer,
+                sykmeldingId = sykmeldingId,
+                erUtenforVentetidRequest =
+                    ErUtenforVentetidRequest(
+                        sykmeldingKafkaMessage = sykmeldingKafkaMessage,
+                    ),
+            )
+        when {
+            !erUtenforVentetid && !harForsikring -> {
+                log.info(
+                    "Sykmelding: $sykmeldingId for næringsdrivende er innenfor ventetiden og bruker har ikke forsikring. Oppretter ikke søknad.",
+                )
+                return false
+            }
+
+            !erUtenforVentetid && harForsikring -> {
+                log.info(
+                    "Sykmelding: $sykmeldingId for næringsdrivende er innenfor ventetiden men bruker ikke forsikring. Oppretter søknad.",
+                )
+            }
+
+            else -> {
+                log.info("Sykmelding: $sykmeldingId for næringsdrivende er utenfor ventetiden. Oppretter søknad.")
+            }
+        }
         return true
     }
 }

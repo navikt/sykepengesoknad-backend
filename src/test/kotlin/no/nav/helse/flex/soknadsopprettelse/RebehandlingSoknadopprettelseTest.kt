@@ -10,7 +10,7 @@ import no.nav.helse.flex.domain.Arbeidssituasjon.FRILANSER
 import no.nav.helse.flex.domain.Soknadstatus.NY
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.kafka.consumer.RebehandlingSykmeldingSendt
-import no.nav.helse.flex.mockFlexSyketilfelleErUtaforVentetid
+import no.nav.helse.flex.mockFlexSyketilfelleErUtenforVentetid
 import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
@@ -82,7 +82,7 @@ class RebehandlingSoknadopprettelseTest : FellesTestOppsett() {
                 arbeidssituasjon = FRILANSER,
             )
 
-        mockFlexSyketilfelleErUtaforVentetid(sykmeldingId, true)
+        mockFlexSyketilfelleErUtenforVentetid(sykmeldingId, true)
         mockFlexSyketilfelleSykeforloep(sykmeldingId)
 
         rebehandlingSykmeldingSendt.listen(cr, acknowledgment)
