@@ -27,7 +27,7 @@ fun FellesTestOppsett.sendSykmelding(
             Arbeidssituasjon.NAERINGSDRIVENDE,
         )
     ) {
-        mockFlexSyketilfelleErUtaforVentetid(sykmeldingKafkaMessage.sykmelding.id, true)
+        mockFlexSyketilfelleErUtenforVentetid(sykmeldingKafkaMessage.sykmelding.id, true)
     }
 
     mockFlexSyketilfelleSykeforloep(

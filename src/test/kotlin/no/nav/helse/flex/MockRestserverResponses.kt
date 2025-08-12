@@ -63,9 +63,9 @@ fun FellesTestOppsett.mockFlexSyketilfelleSykeforloep(sykeforloep: List<Sykeforl
         )
 }
 
-fun FellesTestOppsett.mockFlexSyketilfelleErUtaforVentetid(
+fun FellesTestOppsett.mockFlexSyketilfelleErUtenforVentetid(
     sykmeldingId: String,
-    utafor: Boolean,
+    erUtenforVentetid: Boolean,
 ) {
     flexSyketilfelleMockRestServiceServer
         .expect(requestTo("http://flex-syketilfelle/api/v1/ventetid/$sykmeldingId/erUtenforVentetid?hentAndreIdenter=false"))
@@ -73,7 +73,7 @@ fun FellesTestOppsett.mockFlexSyketilfelleErUtaforVentetid(
         .andRespond(
             withSuccess(
                 objectMapper.writeValueAsBytes(
-                    utafor,
+                    erUtenforVentetid,
                 ),
                 MediaType.APPLICATION_JSON,
             ),

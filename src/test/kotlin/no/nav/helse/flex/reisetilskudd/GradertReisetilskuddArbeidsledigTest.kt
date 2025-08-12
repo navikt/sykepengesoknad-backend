@@ -66,7 +66,7 @@ class GradertReisetilskuddArbeidsledigTest : FellesTestOppsett() {
                 kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
             )
 
-        mockFlexSyketilfelleErUtaforVentetid(sykmeldingId, true)
+        mockFlexSyketilfelleErUtenforVentetid(sykmeldingId, true)
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
