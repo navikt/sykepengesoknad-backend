@@ -66,19 +66,19 @@ class SkalOppretteSoknader(
         when {
             !erUtenforVentetid && !harForsikring -> {
                 log.info(
-                    "Sykmelding: $sykmeldingId for næringsdrivende er innenfor ventetiden og bruker har ikke forsikring. Oppretter ikke søknad.",
+                    "Sykmelding: $sykmeldingId for: $arbeidssituasjon er innenfor ventetiden. Bruker har IKKE forsikring. Oppretter ikke søknad.",
                 )
                 return false
             }
 
             !erUtenforVentetid && harForsikring -> {
                 log.info(
-                    "Sykmelding: $sykmeldingId for næringsdrivende er innenfor ventetiden men bruker ikke forsikring. Oppretter søknad.",
+                    "Sykmelding: $sykmeldingId for: $arbeidssituasjon er innenfor ventetiden men bruker HAR forsikring. Oppretter søknad.",
                 )
             }
 
             else -> {
-                log.info("Sykmelding: $sykmeldingId for næringsdrivende er utenfor ventetiden. Oppretter søknad.")
+                log.info("Sykmelding: $sykmeldingId for: $arbeidssituasjon er utenfor ventetiden. Oppretter søknad.")
             }
         }
         return true
