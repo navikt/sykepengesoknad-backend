@@ -33,4 +33,8 @@ class FriskTilArbeidRepositoryFake :
     }
 
     override fun findByFnrIn(fnrs: List<String>): List<FriskTilArbeidVedtakDbRecord> = findAll().filter { it.fnr in fnrs }
+
+    override fun oppdaterStatusTilNyForId(id: String): Int {
+        TODO("Not yet implemented")
+    }
 }
