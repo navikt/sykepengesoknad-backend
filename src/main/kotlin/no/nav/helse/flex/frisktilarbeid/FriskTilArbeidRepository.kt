@@ -30,10 +30,6 @@ interface FriskTilArbeidRepository : CrudRepository<FriskTilArbeidVedtakDbRecord
     fun deleteByFnr(fnr: String): Long
 
     fun findByFnrIn(fnrs: List<String>): List<FriskTilArbeidVedtakDbRecord>
-
-    @Modifying
-    @Query("UPDATE frisk_til_arbeid_vedtak SET behandlet_status = 'NY' WHERE id = :id")
-    fun oppdaterStatusTilNyForId(id: String): Int
 }
 
 @Table("frisk_til_arbeid_vedtak")
