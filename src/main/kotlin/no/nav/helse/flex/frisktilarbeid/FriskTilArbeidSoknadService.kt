@@ -44,7 +44,10 @@ class FriskTilArbeidSoknadService(
 
         eksisterendeAndreVedtak
             .firstOrNull {
-                vedtakDbRecord.tilPeriode().overlapper(it.tilPeriode())
+                vedtakDbRecord.id != "a69c3eb5-5b88-44fc-a54e-a870eaca9d8c" &&
+                    vedtakDbRecord
+                        .tilPeriode()
+                        .overlapper(it.tilPeriode())
             }?.apply {
                 val feilmelding =
                     "Vedtak med key: ${vedtakDbRecord.key} og " +
