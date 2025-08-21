@@ -20,6 +20,7 @@ const val REST_CLIENT_CONNECT_TIMEOUT = 5L
 const val REST_CLIENT_READ_TIMEOUT = 10L
 
 @EnableOAuth2Client(cacheEnabled = true)
+// breg url:   BRREG_API_URL: http://flex-brreg-proxy
 @Configuration
 class RestClientConfiguration {
     @Bean
