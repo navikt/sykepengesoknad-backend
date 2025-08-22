@@ -1,5 +1,6 @@
 package no.nav.helse.flex.client.bregDirect
 
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
@@ -8,12 +9,27 @@ import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestClient
 import org.springframework.web.client.body
 
+enum class DagmammaStatus {
+    YES,
+    NO,
+    NOT_FOUND,
+    SERVER_ERROR,
+}
+
+sealed class HentEnhetResult {
+    data class Success(val enhet: EnhetDto) : HentEnhetResult()
+    data object NotFound : HentEnhetResult()
+    data object ServerError : HentEnhetResult()
+}
+
 @Component
 class EnhetsregisterClient(
     restClientBuilder: RestClient.Builder,
     @Value("\${ENHETSREGISTER_BASE_URL:https://data.brreg.no/enhetsregisteret}")
     baseUrl: String,
 ) {
+    private val logger = LoggerFactory.getLogger(javaClass)
+
     private val restClient: RestClient =
         restClientBuilder
             .baseUrl(baseUrl)
@@ -23,11 +39,10 @@ class EnhetsregisterClient(
         include = [HttpServerErrorException::class],
         maxAttemptsExpression = "\${BRREG_RETRY_ATTEMPTS:3}",
     )
-    fun erDagmamma(orgnr: String): Boolean {
+    fun erDagmamma(orgnr: String): DagmammaStatus {
         val dagmammaKode = "88.912"
 
         try {
-            // Deserialize the response body directly into a Map.
             val responseMap =
                 restClient
                     .get()
@@ -35,22 +50,25 @@ class EnhetsregisterClient(
                     .retrieve()
                     .body<Map<String, Any>>()
 
-            if (responseMap == null) return false
+            if (responseMap == null) {
+                logger.warn("Mottok null body for orgnr $orgnr, behandler dette som  NOT_FOUND.")
+                return DagmammaStatus.NOT_FOUND
+            }
 
-            return responseMap
-                // 1. Get all key-value pairs from the map.
-                .entries
-                // 2. Filter to find keys that start with "naeringskode".
-                .filter { (key, _) -> key.startsWith("naeringskode") }
-                // 3. Extract the actual code value (e.g., "88.912").
-                .mapNotNull { (_, value) ->
-                    // The value is a Map like {"kode": "...", ...}, so we cast and extract.
-                    (value as? Map<*, *>)?.get("kode") as? String
-                }
-                // 4. Check if any of the found codes match our target.
-                .any { it == dagmammaKode }
+            val isDagmamma =
+                responseMap
+                    .entries
+                    .filter { (key, _) -> key.startsWith("naeringskode") }
+                    .mapNotNull { (_, value) -> (value as? Map<*, *>)?.get("kode") as? String }
+                    .any { it == dagmammaKode }
+
+            return if (isDagmamma) DagmammaStatus.YES else DagmammaStatus.NO
         } catch (e: HttpClientErrorException.NotFound) {
-            return false
+            logger.warn("Orgnr $orgnr ikke funnet i Enhetsregisteret.")
+            return DagmammaStatus.NOT_FOUND
+        } catch (e: HttpServerErrorException) {
+            logger.error("Serverfeil etter retries for orgnr $orgnr.", e)
+            return DagmammaStatus.SERVER_ERROR
         }
     }
 
@@ -58,18 +76,28 @@ class EnhetsregisterClient(
         include = [HttpServerErrorException::class],
         maxAttemptsExpression = "\${BRREG_RETRY_ATTEMPTS:3}",
     )
-    fun hentEnhet(orgnr: String): EnhetDto? { // Return nullable DTO for clarity
+    fun hentEnhet(orgnr: String): HentEnhetResult {
         return try {
-            restClient
-                .get()
-                // Use URI templates for safety and clarity
-                .uri("/api/enheter/{orgnr}", orgnr)
-                .retrieve()
-                // Let RestClient handle JSON deserialization directly
-                .body<EnhetDto>()
+            val enhetDto =
+                restClient
+                    .get()
+                    .uri("/api/enheter/{orgnr}", orgnr)
+                    .retrieve()
+                    .body<EnhetDto>()
+
+            if (enhetDto == null) {
+                logger.warn("Received null body for orgnr $orgnr when fetching enhet.")
+                HentEnhetResult.NotFound
+            } else {
+                HentEnhetResult.Success(enhetDto)
+            }
+
         } catch (e: HttpClientErrorException.NotFound) {
-            // Gracefully handle 404 errors by returning null
-            null
+            logger.warn("Orgnr $orgnr not found when fetching enhet.")
+            HentEnhetResult.NotFound
+        } catch (e: HttpServerErrorException) {
+            logger.error("Server error after retries for orgnr $orgnr when fetching enhet.", e)
+            HentEnhetResult.ServerError
         }
     }
 }
