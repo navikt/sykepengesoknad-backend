@@ -10,46 +10,66 @@ import org.springframework.web.client.body
 
 @Component
 class EnhetsregisterClient(
-    // Injects RestClient.Builder to configure the client locally.
     restClientBuilder: RestClient.Builder,
     @Value("\${ENHETSREGISTER_BASE_URL:https://data.brreg.no/enhetsregisteret}")
     baseUrl: String,
 ) {
-    private val restClient: RestClient = restClientBuilder
-        .baseUrl(baseUrl)
-        .build()
+    private val restClient: RestClient =
+        restClientBuilder
+            .baseUrl(baseUrl)
+            .build()
 
-    /**
-     * Fetches unit information from the Brønnøysund Register Centre.
-     * It first attempts to find a main unit ('enhet') and, if not found (HTTP 404),
-     * falls back to searching for a subunit ('underenhet').
-     *
-     * @param orgnummer The organization number to look up.
-     * @return The raw JSON response as a String.
-     * @throws HttpClientErrorException.NotFound if the organization number is not found as either a main unit or a subunit.
-     */
-    fun hentEnhet(orgnummer: String): String {
-        return try {
-            // First, try fetching as a main unit.
-            hentEnhetFraEndpoint("/api/enheter/$orgnummer")
+    @Retryable(
+        include = [HttpServerErrorException::class],
+        maxAttemptsExpression = "\${BRREG_RETRY_ATTEMPTS:3}",
+    )
+    fun erDagmamma(orgnr: String): Boolean {
+        val dagmammaKode = "88.912"
+
+        try {
+            // Deserialize the response body directly into a Map.
+            val responseMap =
+                restClient
+                    .get()
+                    .uri("/api/enheter/{orgnr}", orgnr)
+                    .retrieve()
+                    .body<Map<String, Any>>()
+
+            if (responseMap == null) return false
+
+            return responseMap
+                // 1. Get all key-value pairs from the map.
+                .entries
+                // 2. Filter to find keys that start with "naeringskode".
+                .filter { (key, _) -> key.startsWith("naeringskode") }
+                // 3. Extract the actual code value (e.g., "88.912").
+                .mapNotNull { (_, value) ->
+                    // The value is a Map like {"kode": "...", ...}, so we cast and extract.
+                    (value as? Map<*, *>)?.get("kode") as? String
+                }
+                // 4. Check if any of the found codes match our target.
+                .any { it == dagmammaKode }
         } catch (e: HttpClientErrorException.NotFound) {
-            // If not found, fall back to fetching as a subunit.
-            hentEnhetFraEndpoint("/api/underenheter/$orgnummer")
+            return false
         }
     }
 
-    /**
-     * Performs the actual GET request to a specific path and is retryable on server errors.
-     */
     @Retryable(
         include = [HttpServerErrorException::class],
-        maxAttemptsExpression = "\${BRREG_RETRY_ATTEMPTS:3}"
+        maxAttemptsExpression = "\${BRREG_RETRY_ATTEMPTS:3}",
     )
-    private fun hentEnhetFraEndpoint(path: String): String {
-        return restClient.get()
-            .uri(path)
-            .retrieve()
-            .body<String>()
-            ?: throw IllegalStateException("Received an empty body from Brønnøysundregistrene for path: $path")
+    fun hentEnhet(orgnr: String): EnhetDto? { // Return nullable DTO for clarity
+        return try {
+            restClient
+                .get()
+                // Use URI templates for safety and clarity
+                .uri("/api/enheter/{orgnr}", orgnr)
+                .retrieve()
+                // Let RestClient handle JSON deserialization directly
+                .body<EnhetDto>()
+        } catch (e: HttpClientErrorException.NotFound) {
+            // Gracefully handle 404 errors by returning null
+            null
+        }
     }
 }
