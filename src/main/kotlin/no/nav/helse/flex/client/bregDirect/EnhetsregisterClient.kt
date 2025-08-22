@@ -17,8 +17,12 @@ enum class DagmammaStatus {
 }
 
 sealed class HentEnhetResult {
-    data class Success(val enhet: EnhetDto) : HentEnhetResult()
+    data class Success(
+        val enhet: EnhetDto,
+    ) : HentEnhetResult()
+
     data object NotFound : HentEnhetResult()
+
     data object ServerError : HentEnhetResult()
 }
 
@@ -76,8 +80,8 @@ class EnhetsregisterClient(
         include = [HttpServerErrorException::class],
         maxAttemptsExpression = "\${BRREG_RETRY_ATTEMPTS:3}",
     )
-    fun hentEnhet(orgnr: String): HentEnhetResult {
-        return try {
+    fun hentEnhet(orgnr: String): HentEnhetResult =
+        try {
             val enhetDto =
                 restClient
                     .get()
@@ -91,7 +95,6 @@ class EnhetsregisterClient(
             } else {
                 HentEnhetResult.Success(enhetDto)
             }
-
         } catch (e: HttpClientErrorException.NotFound) {
             logger.warn("Orgnr $orgnr not found when fetching enhet.")
             HentEnhetResult.NotFound
@@ -99,5 +102,4 @@ class EnhetsregisterClient(
             logger.error("Server error after retries for orgnr $orgnr when fetching enhet.", e)
             HentEnhetResult.ServerError
         }
-    }
 }

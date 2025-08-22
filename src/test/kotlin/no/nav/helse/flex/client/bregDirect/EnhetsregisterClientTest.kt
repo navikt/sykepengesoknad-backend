@@ -4,7 +4,6 @@ import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.web.client.RestClient
@@ -63,5 +62,4 @@ class EnhetsregisterClientTest {
         val status = client.erDagmamma("123456789")
         assertEquals(DagmammaStatus.SERVER_ERROR, status)
     }
-
 }
