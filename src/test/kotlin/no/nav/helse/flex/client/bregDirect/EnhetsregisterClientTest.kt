@@ -1,9 +1,10 @@
-import no.nav.helse.flex.client.bregDirect.EnhetsregisterClient
+package no.nav.helse.flex.client.bregDirect
+
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.web.client.RestClient
@@ -16,15 +17,10 @@ class EnhetsregisterClientTest {
     fun setUp() {
         mockWebServer = MockWebServer()
         mockWebServer.start()
-        val restClient =
-            RestClient
-                .builder()
-                .baseUrl(mockWebServer.url("/").toString().removeSuffix("/"))
-                .build()
         client =
             EnhetsregisterClient(
                 restClientBuilder = RestClient.builder(),
-                baseUrl = mockWebServer.url("/").toString().removeSuffix("/"),
+                baseUrl = mockWebServer.url("/").toString(),
             )
     }
 
@@ -34,91 +30,38 @@ class EnhetsregisterClientTest {
     }
 
     @Test
-    fun `erDagmamma returns false for non-dagmamma org`() {
-        val json =
-            """
-            {
-              "respons_klasse": "Enhet",
-              "organisasjonsnummer": "509100675",
-              "navn": "Sesam stasjon",
-              "naeringskode1": {
-                "kode": "41.109",
-                "beskrivelse": "Utvikling og salg av egen fast eiendom ellers"
-              },
-              "naeringskode2": {
-                "kode": "41.109",
-                "beskrivelse": "Utvikling og salg av egen fast eiendom ellers"
-              },
-              "naeringskode3": {
-                "kode": "41.109",
-                "beskrivelse": "Utvikling og salg av egen fast eiendom ellers"
-              }
-            }
-            """.trimIndent()
+    fun `erDagmamma returns NO for non-dagmamma org`() {
+        val json = """{"naeringskode1": {"kode": "41.109"}}"""
         mockWebServer.enqueue(MockResponse().setBody(json).setHeader("Content-Type", "application/json"))
-        assertFalse(client.erDagmamma("509100675"))
+
+        val status = client.erDagmamma("509100675")
+        assertEquals(DagmammaStatus.NO, status)
     }
 
     @Test
-    fun `erDagmamma returns true for dagmamma org`() {
-        val json =
-            """
-{
-  "organisasjonsnummer": "922720262",
-  "navn": "DAGMAMMA MARIE JOHANSEN",
-  "organisasjonsform": {
-    "kode": "ENK",
-    "beskrivelse": "Enkeltpersonforetak",
-    "_links": {
-      "self": {
-        "href": "https://data.brreg.no/enhetsregisteret/api/organisasjonsformer/ENK"
-      }
-    }
-  },
-  "registreringsdatoEnhetsregisteret": "2019-06-19",
-  "registrertIMvaregisteret": false,
-  "naeringskode1": {
-    "kode": "88.912",
-    "beskrivelse": "Barneparker og dagmammaer"
-  },
-  "harRegistrertAntallAnsatte": false,
-  "forretningsadresse": {
-    "land": "Norge",
-    "landkode": "NO",
-    "postnummer": "0190",
-    "poststed": "OSLO",
-    "adresse": [
-      "H0207",
-      "Ingenstedsgaten 17"
-    ],
-    "kommune": "OSLO",
-    "kommunenummer": "0301"
-  },
-  "institusjonellSektorkode": {
-    "kode": "8200",
-    "beskrivelse": "Personlig næringsdrivende"
-  },
-  "registrertIForetaksregisteret": false,
-  "registrertIStiftelsesregisteret": false,
-  "registrertIFrivillighetsregisteret": false,
-  "konkurs": false,
-  "underAvvikling": false,
-  "underTvangsavviklingEllerTvangsopplosning": false,
-  "maalform": "Bokmål",
-  "aktivitet": [
-    "Dagmamma og barnepass tjeneste i privat hjemme."
-  ],
-  "registrertIPartiregisteret": false,
-  "paategninger": [],
-  "_links": {
-    "self": {
-      "href": "https://data.brreg.no/enhetsregisteret/api/enheter/922720193"
-    }
-  },
-  "respons_klasse": "Enhet"
-}
-            """.trimIndent()
+    fun `erDagmamma returns YES for dagmamma org`() {
+        val json = """{"naeringskode1": {"kode": "88.912"}}"""
         mockWebServer.enqueue(MockResponse().setBody(json).setHeader("Content-Type", "application/json"))
-        assertTrue(client.erDagmamma("922720193"))
+
+        val status = client.erDagmamma("922720193")
+        assertEquals(DagmammaStatus.YES, status)
     }
+
+    @Test
+    fun `erDagmamma returns NOT_FOUND for 404 response`() {
+        mockWebServer.enqueue(MockResponse().setResponseCode(404))
+
+        val status = client.erDagmamma("123456789")
+        assertEquals(DagmammaStatus.NOT_FOUND, status)
+    }
+
+    @Test
+    fun `erDagmamma returns SERVER_ERROR for 500 response`() {
+        // The retry mechanism is mocked to fail on the first attempt in a test context.
+        mockWebServer.enqueue(MockResponse().setResponseCode(500))
+
+        val status = client.erDagmamma("123456789")
+        assertEquals(DagmammaStatus.SERVER_ERROR, status)
+    }
+
 }
