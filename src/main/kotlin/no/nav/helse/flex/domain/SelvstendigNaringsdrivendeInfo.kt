@@ -13,62 +13,66 @@ data class SelvstendigNaringsdrivendeInfo(
         if (grunnlag == null) {
             return SelvstendigNaringsdrivendeDTO(
                 roller = roller.map { RolleDTO(it.orgnummer, it.rolletype) },
-                naringsdrivendeInntekt = null,
+                inntekt = null,
             )
         }
 
         return SelvstendigNaringsdrivendeDTO(
             roller = roller.map { RolleDTO(it.orgnummer, it.rolletype) },
-            naringsdrivendeInntekt =
-                NaringsdrivendeInntektDTO(
+            inntekt =
+                InntektDTO(
                     norskPersonidentifikator = sykepengegrunnlagNaeringsdrivende.inntekter.first().norskPersonidentifikator,
-                    inntekt = mapToNaringsdrivendeInntektsAarDTO(),
+                    inntektsAar = mapToNaringsdrivendeInntektsAarDTO(),
                 ),
         )
     }
 
-    private fun mapToNaringsdrivendeInntektsAarDTO(): List<NaringsdrivendeInntektsAarDTO> =
+    private fun mapToNaringsdrivendeInntektsAarDTO(): List<InntektsAarDTO> =
         sykepengegrunnlagNaeringsdrivende!!.inntekter.map { inntekt ->
-            NaringsdrivendeInntektsAarDTO(
-                inntektsaar = inntekt.inntektsaar,
+            InntektsAarDTO(
+                aar = inntekt.inntektsaar,
                 // Summerer pensjonsgivende inntekt fra FASTLAND og SVALBARD.
                 pensjonsgivendeInntekt = summerPensjonsgivendeInntekt(inntekt.pensjonsgivendeInntekt),
             )
         }
 
-    private fun summerPensjonsgivendeInntekt(inntekter: List<PensjonsgivendeInntekt>): SummertPensjonsgivendeInntektDTO =
-        inntekter.fold(SummertPensjonsgivendeInntektDTO()) { summert, inntekt ->
-            SummertPensjonsgivendeInntektDTO(
+    private fun summerPensjonsgivendeInntekt(inntekter: List<PensjonsgivendeInntekt>): PensjonsgivendeInntektDTO =
+        inntekter.fold(PensjonsgivendeInntektDTO()) { summert, inntekt ->
+            PensjonsgivendeInntektDTO(
                 pensjonsgivendeInntektAvLoennsinntekt = sumLoensinntekt(summert, inntekt),
                 pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = sumPensjonsdel(summert, inntekt),
                 pensjonsgivendeInntektAvNaeringsinntekt = sumNaringsinntekt(summert, inntekt),
-                pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage = sumFangstinntekt(summert, inntekt),
+                pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage =
+                    sumFangstinntekt(
+                        summert,
+                        inntekt,
+                    ),
             )
         }
 
     private fun sumFangstinntekt(
-        summert: SummertPensjonsgivendeInntektDTO,
+        summert: PensjonsgivendeInntektDTO,
         inntekt: PensjonsgivendeInntekt,
     ): Int =
         (summert.pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage ?: 0) +
             inntekt.pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage
 
     private fun sumNaringsinntekt(
-        summert: SummertPensjonsgivendeInntektDTO,
+        summert: PensjonsgivendeInntektDTO,
         inntekt: PensjonsgivendeInntekt,
     ): Int =
         (summert.pensjonsgivendeInntektAvNaeringsinntekt ?: 0) +
             inntekt.pensjonsgivendeInntektAvNaeringsinntekt
 
     private fun sumPensjonsdel(
-        summert: SummertPensjonsgivendeInntektDTO,
+        summert: PensjonsgivendeInntektDTO,
         inntekt: PensjonsgivendeInntekt,
     ): Int =
         (summert.pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel ?: 0) +
             inntekt.pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel
 
     private fun sumLoensinntekt(
-        summert: SummertPensjonsgivendeInntektDTO,
+        summert: PensjonsgivendeInntektDTO,
         inntekt: PensjonsgivendeInntekt,
     ): Int =
         (summert.pensjonsgivendeInntektAvLoennsinntekt ?: 0) +
