@@ -9,7 +9,7 @@ import org.springframework.web.client.RestTemplate
 
 @Component
 class AaregClient(
-    @Value("\${AAREG_URL}")
+    @param:Value("\${AAREG_URL}")
     private val url: String,
     private val aaregRestTemplate: RestTemplate,
 ) {

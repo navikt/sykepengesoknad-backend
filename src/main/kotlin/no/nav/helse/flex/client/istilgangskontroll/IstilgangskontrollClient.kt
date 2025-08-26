@@ -14,7 +14,7 @@ import org.springframework.web.client.RestTemplate
 
 @Component
 class IstilgangskontrollClient(
-    @Value("\${istilgangskontroll.url}") private val url: String,
+    @param:Value("\${istilgangskontroll.url}") private val url: String,
     private val istilgangskontrollRestTemplate: RestTemplate,
 ) {
     companion object {

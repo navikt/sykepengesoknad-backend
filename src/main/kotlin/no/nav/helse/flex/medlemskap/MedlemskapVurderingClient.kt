@@ -20,7 +20,7 @@ const val MEDLEMSKAP_VURDERING_PATH = "brukersporsmal"
 class MedlemskapVurderingClient(
     private val medlemskapVurderingRepository: MedlemskapVurderingRepository,
     private val medlemskapVurderingRestTemplate: RestTemplate,
-    @Value("\${MEDLEMSKAP_VURDERING_URL}")
+    @param:Value("\${MEDLEMSKAP_VURDERING_URL}")
     private val url: String,
 ) {
     val log = logger()

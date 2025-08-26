@@ -13,7 +13,7 @@ import java.util.*
 @Component
 class InntektskomponentenClient(
     private val inntektskomponentenRestTemplate: RestTemplate,
-    @Value("\${INNTEKTSKOMPONENTEN_URL}")
+    @param:Value("\${INNTEKTSKOMPONENTEN_URL}")
     private val url: String,
 ) {
     val log = logger()

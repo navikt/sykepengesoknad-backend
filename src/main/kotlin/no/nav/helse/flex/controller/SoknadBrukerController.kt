@@ -70,9 +70,9 @@ class SoknadBrukerController(
     private val inntektsopplysningForNaringsdrivende: InntektsopplysningForNaringsdrivende,
     private val oppholdUtenforEOSService: OppholdUtenforEOSService,
     private val fjernFremtidigeFtaSoknaderService: FjernFremtidigeFtaSoknaderService,
-    @Value("\${DITT_SYKEFRAVAER_FRONTEND_CLIENT_ID}")
+    @param:Value("\${DITT_SYKEFRAVAER_FRONTEND_CLIENT_ID}")
     val dittSykefravaerFrontendClientId: String,
-    @Value("\${SYKEPENGESOKNAD_FRONTEND_CLIENT_ID}")
+    @param:Value("\${SYKEPENGESOKNAD_FRONTEND_CLIENT_ID}")
     val sykepengesoknadFrontendClientId: String,
 ) {
     private val log = logger()

@@ -12,9 +12,9 @@ import java.util.*
 @Component
 class JuridiskVurderingKafkaProducer(
     private val producer: KafkaProducer<String, JuridiskVurderingKafkaDto>,
-    @Value("\${nais.app.name}")
+    @param:Value("\${nais.app.name}")
     private val naisAppName: String,
-    @Value("\${nais.app.image}")
+    @param:Value("\${nais.app.image}")
     private val naisAppImage: String,
 ) {
     val log = logger()

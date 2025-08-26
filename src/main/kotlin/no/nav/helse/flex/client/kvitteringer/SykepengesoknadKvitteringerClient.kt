@@ -6,7 +6,7 @@ import org.springframework.web.client.RestTemplate
 
 @Component
 class SykepengesoknadKvitteringerClient(
-    @Value("\${sykepengesoknad.kvitteringer.url}")
+    @param:Value("\${sykepengesoknad.kvitteringer.url}")
     private val sykepengesoknadKvitteringerUrl: String,
     private val sykepengesoknadKvitteringerRestTemplate: RestTemplate,
 ) {

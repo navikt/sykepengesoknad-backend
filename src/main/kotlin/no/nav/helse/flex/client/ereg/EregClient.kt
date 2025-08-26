@@ -17,7 +17,7 @@ import org.springframework.web.util.UriComponentsBuilder
 class EregClient(
     private val plainRestTemplate: RestTemplate,
     private val environmentToggles: EnvironmentToggles,
-    @Value("\${EREG_URL}") private val eregUrl: String,
+    @param:Value("\${EREG_URL}") private val eregUrl: String,
 ) {
     val log = logger()
 
