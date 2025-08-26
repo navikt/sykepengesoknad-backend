@@ -10,10 +10,10 @@ import org.springframework.web.client.RestClient
 import org.springframework.web.client.body
 
 enum class DagmammaStatus {
-    YES,
-    NO,
-    NOT_FOUND,
-    SERVER_ERROR,
+    JA,
+    NEI,
+    IKKE_FUNNET,
+    SERVER_FEIL,
 }
 
 sealed class HentEnhetResult {
@@ -56,7 +56,7 @@ class EnhetsregisterClient(
 
             if (responseMap == null) {
                 logger.warn("Mottok null body for orgnr $orgnr, behandler dette som  NOT_FOUND.")
-                return DagmammaStatus.NOT_FOUND
+                return DagmammaStatus.IKKE_FUNNET
             }
 
             val isDagmamma =
@@ -66,13 +66,13 @@ class EnhetsregisterClient(
                     .mapNotNull { (_, value) -> (value as? Map<*, *>)?.get("kode") as? String }
                     .any { it == dagmammaKode }
 
-            return if (isDagmamma) DagmammaStatus.YES else DagmammaStatus.NO
+            return if (isDagmamma) DagmammaStatus.JA else DagmammaStatus.NEI
         } catch (e: HttpClientErrorException.NotFound) {
             logger.warn("Orgnr $orgnr ikke funnet i Enhetsregisteret.")
-            return DagmammaStatus.NOT_FOUND
+            return DagmammaStatus.IKKE_FUNNET
         } catch (e: HttpServerErrorException) {
             logger.error("Serverfeil etter retries for orgnr $orgnr.", e)
-            return DagmammaStatus.SERVER_ERROR
+            return DagmammaStatus.SERVER_FEIL
         }
     }
 
