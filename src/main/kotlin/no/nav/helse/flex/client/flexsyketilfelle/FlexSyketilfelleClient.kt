@@ -1,9 +1,9 @@
 package no.nav.helse.flex.client.flexsyketilfelle
 
 import no.nav.helse.flex.domain.Arbeidsgiverperiode
-import no.nav.helse.flex.domain.ErUtenforVentetidRequest
 import no.nav.helse.flex.domain.Sykeforloep
 import no.nav.helse.flex.domain.Sykepengesoknad
+import no.nav.helse.flex.domain.VentetidRequest
 import no.nav.helse.flex.domain.mapper.SykepengesoknadTilSykepengesoknadDTOMapper
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.domain.sykmelding.SykmeldingRequest
@@ -20,7 +20,6 @@ import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
-import java.util.*
 
 @Component
 class FlexSyketilfelleClient(
@@ -74,7 +73,7 @@ class FlexSyketilfelleClient(
     fun erUtenforVentetid(
         identer: FolkeregisterIdenter,
         sykmeldingId: String,
-        erUtenforVentetidRequest: ErUtenforVentetidRequest,
+        ventetidRequest: VentetidRequest,
     ): Boolean {
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
@@ -91,7 +90,7 @@ class FlexSyketilfelleClient(
                 .exchange(
                     queryBuilder.toUriString(),
                     POST,
-                    HttpEntity(erUtenforVentetidRequest, headers),
+                    HttpEntity(ventetidRequest, headers),
                     Boolean::class.java,
                 )
 
