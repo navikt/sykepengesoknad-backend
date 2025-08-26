@@ -1,5 +1,7 @@
 package no.nav.helse.flex
 
+import no.nav.helse.flex.client.bregDirect.DagmammaStatus
+import no.nav.helse.flex.client.bregDirect.EnhetsregisterClient
 import no.nav.helse.flex.fakes.SoknadKafkaProducerFake
 import no.nav.helse.flex.frisktilarbeid.FriskTilArbeidConsumer
 import no.nav.helse.flex.frisktilarbeid.FriskTilArbeidRepository
@@ -12,6 +14,8 @@ import org.apache.kafka.clients.producer.Producer
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.TestInstance
+import org.mockito.ArgumentMatchers.anyString
+import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.actuate.observability.AutoConfigureObservability
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -21,14 +25,10 @@ import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.FilterType
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.web.client.RestClient
-import no.nav.helse.flex.client.bregDirect.EnhetsregisterClient
-import no.nav.helse.flex.client.bregDirect.DagmammaStatus
-import org.springframework.test.context.bean.override.mockito.MockitoBean
-import org.mockito.Mockito
-import org.mockito.ArgumentMatchers.anyString
 
 const val IGNORED_KAFKA_BROKERS = "localhost:1"
 
@@ -117,16 +117,17 @@ abstract class FakesTestOppsett : TestOppsettInterfaces {
             val server = MockRestServiceServer.bindTo(restClientBuilder).build()
             // Accept any orgnr in the path and return a generic non-dagmamma response many times
             server
-                .expect(org.springframework.test.web.client.ExpectedCount.manyTimes(),
+                .expect(
+                    org.springframework.test.web.client.ExpectedCount
+                        .manyTimes(),
                     org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo(
-                        org.hamcrest.Matchers.containsString("/api/enheter/")
-                    )
-                )
-                .andRespond(
+                        org.hamcrest.Matchers.containsString("/api/enheter/"),
+                    ),
+                ).andRespond(
                     org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess(
                         """{"naeringskode1":{"kode":"41.109"}}""",
-                        org.springframework.http.MediaType.APPLICATION_JSON
-                    )
+                        org.springframework.http.MediaType.APPLICATION_JSON,
+                    ),
                 )
             return server
         }
