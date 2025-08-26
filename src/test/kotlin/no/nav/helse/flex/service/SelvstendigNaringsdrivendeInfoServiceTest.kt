@@ -42,13 +42,14 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
 
     @Test
     fun `burde hente selvstendig næringsdrivende`() {
+        val validOrgnr = "922720193"
         val rollerDto =
             RollerDto(
                 roller =
                     listOf(
                         RolleDto(
                             rolletype = Rolletype.INNH,
-                            organisasjonsnummer = "orgnummer",
+                            organisasjonsnummer = validOrgnr,
                             organisasjonsnavn = "orgnavn",
                         ),
                     ),
@@ -60,7 +61,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
                 .setBody(rollerDto.serialisertTilString()),
         )
 
-        mockEnhetsregisterErDagmamma("orgnummer", false)
+        mockEnhetsregisterErDagmamma(validOrgnr, false)
 
         selvstendigNaringsdrivendeInfoService
             .hentSelvstendigNaringsdrivendeInfo(FolkeregisterIdenter("fnr", andreIdenter = emptyList()))
@@ -68,20 +69,21 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
             .first()
             .also {
                 it.orgnavn `should be equal to` "orgnavn"
-                it.orgnummer `should be equal to` "orgnummer"
+                it.orgnummer `should be equal to` validOrgnr
                 it.rolletype `should be equal to` "INNH"
             }
     }
 
     @Test
     fun `burde hente selvstendig næringsdrivende for flere identer`() {
+        val validOrgnr = "922720193"
         val rollerDto =
             RollerDto(
                 roller =
                     listOf(
                         RolleDto(
                             rolletype = Rolletype.INNH,
-                            organisasjonsnummer = "orgnummer",
+                            organisasjonsnummer = validOrgnr,
                             organisasjonsnavn = "orgnavn",
                         ),
                     ),
@@ -93,6 +95,8 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
                     .setBody(rollerDto.serialisertTilString()),
             )
         }
+        // If you call erDagmamma for each orgnr, mock it for each
+        mockEnhetsregisterErDagmamma(validOrgnr, false)
 
         selvstendigNaringsdrivendeInfoService
             .hentSelvstendigNaringsdrivendeInfo(FolkeregisterIdenter("fnr", andreIdenter = listOf("fnr2")))
