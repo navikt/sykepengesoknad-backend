@@ -2,6 +2,8 @@ package no.nav.helse.flex
 
 import io.getunleash.FakeUnleash
 import jakarta.annotation.PostConstruct
+import no.nav.helse.flex.client.bregDirect.DagmammaStatus
+import no.nav.helse.flex.client.bregDirect.EnhetsregisterClient
 import no.nav.helse.flex.client.grunnbeloep.GrunnbeloepClient
 import no.nav.helse.flex.client.kvitteringer.SykepengesoknadKvitteringerClient
 import no.nav.helse.flex.juridiskvurdering.juridiskVurderingTopic
@@ -28,6 +30,8 @@ import org.apache.kafka.clients.producer.KafkaProducer
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.TestInstance
+import org.mockito.ArgumentMatchers.anyString
+import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.autoconfigure.actuate.observability.AutoConfigureObservability
@@ -41,10 +45,6 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.web.client.RestTemplate
 import java.time.Instant
 import kotlin.math.abs
-import no.nav.helse.flex.client.bregDirect.EnhetsregisterClient
-import no.nav.helse.flex.client.bregDirect.DagmammaStatus
-import org.mockito.Mockito
-import org.mockito.ArgumentMatchers.anyString
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @EnableMockOAuth2Server

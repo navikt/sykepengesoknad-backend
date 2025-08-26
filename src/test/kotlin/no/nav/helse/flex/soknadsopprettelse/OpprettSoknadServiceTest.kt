@@ -17,14 +17,6 @@ import org.amshove.kluent.`should not be null`
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.TestConfiguration
-import org.springframework.context.annotation.Bean
-import org.springframework.http.MediaType
-import org.springframework.test.web.client.ExpectedCount
-import org.springframework.test.web.client.MockRestServiceServer
-import org.springframework.test.web.client.match.MockRestRequestMatchers
-import org.springframework.test.web.client.response.MockRestResponseCreators
-import org.springframework.web.client.RestClient
 
 class OpprettSoknadServiceTest : FellesTestOppsett() {
     @Autowired
