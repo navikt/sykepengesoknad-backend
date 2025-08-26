@@ -105,13 +105,14 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
 
     @Test
     fun `burde ha riktig payload i request`() {
+        val validOrgnr = "922720193"
         val rollerDto =
             RollerDto(
                 roller =
                     listOf(
                         RolleDto(
                             rolletype = Rolletype.DAGL,
-                            organisasjonsnummer = "orgnummer",
+                            organisasjonsnummer = validOrgnr,
                             organisasjonsnavn = "orgnavn",
                         ),
                     ),

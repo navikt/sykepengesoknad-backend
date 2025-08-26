@@ -86,7 +86,7 @@ class OpprettSoknadServiceTest : FellesTestOppsett() {
                                 listOf(
                                     RolleDto(
                                         rolletype = Rolletype.INNH,
-                                        organisasjonsnummer = "orgnummer",
+                                        organisasjonsnummer = "922720193",
                                         organisasjonsnavn = "orgnavn",
                                     ),
                                 ),
@@ -108,7 +108,7 @@ class OpprettSoknadServiceTest : FellesTestOppsett() {
             .roller `should be equal to`
             listOf(
                 BrregRolle(
-                    orgnummer = "orgnummer",
+                    orgnummer = "922720193",
                     orgnavn = "orgnavn",
                     rolletype = Rolletype.INNH.name,
                 ),

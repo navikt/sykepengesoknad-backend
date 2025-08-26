@@ -117,7 +117,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
                                 listOf(
                                     RolleDto(
                                         rolletype = Rolletype.INNH,
-                                        organisasjonsnummer = "orgnummer",
+                                        organisasjonsnummer = "922720193",
                                         organisasjonsnavn = "orgnavn",
                                     ),
                                 ),
@@ -149,7 +149,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
             this.selvstendigNaringsdrivendeInfo?.roller `should be equal to`
                 listOf(
                     BrregRolle(
-                        orgnummer = "orgnummer",
+                        orgnummer = "922720193",
                         orgnavn = "orgnavn",
                         rolletype = "INNH",
                     ),

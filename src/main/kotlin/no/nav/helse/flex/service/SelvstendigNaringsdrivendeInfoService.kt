@@ -22,7 +22,7 @@ class SelvstendigNaringsdrivendeInfoService(
 
         if (brukersOrgnr != null) {
             // enhetsregisterClient.erDagmamma("057767855")
-            enhetsregisterClient.erDagmamma("059420771")
+            enhetsregisterClient.erDagmamma(brukersOrgnr)
             logger().info("Bruker er dagmamma med orgnr $brukersOrgnr")
         } else {
             logger().info("Bruker er ikke dagmamma")
