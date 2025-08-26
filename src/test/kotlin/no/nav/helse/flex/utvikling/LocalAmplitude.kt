@@ -47,17 +47,17 @@ class LocalAmplitude {
         )
 
     data class AmplitudeUserdata(
-        @JsonProperty("user_id") val userId: String,
-        @JsonProperty("first_used") val firstUsed: String,
-        @JsonProperty("last_used") val lastUsed: String,
+        @param:JsonProperty("user_id") val userId: String,
+        @param:JsonProperty("first_used") val firstUsed: String,
+        @param:JsonProperty("last_used") val lastUsed: String,
         val device: String,
         val os: String,
         val properties: Properties,
     )
 
     data class Properties(
-        @JsonProperty("vindushoyde") val vindusHoyde: Int,
-        @JsonProperty("vindusbredde") val vindusBredde: Int,
+        @param:JsonProperty("vindushoyde") val vindusHoyde: Int,
+        @param:JsonProperty("vindusbredde") val vindusBredde: Int,
     )
 
     data class Response(

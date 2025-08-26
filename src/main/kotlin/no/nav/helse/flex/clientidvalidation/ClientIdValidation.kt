@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component
 @Component
 class ClientIdValidation(
     private val tokenValidationContextHolder: TokenValidationContextHolder,
-    @Value("\${AZURE_APP_PRE_AUTHORIZED_APPS}") private val azureAppPreAuthorizedApps: String,
+    @param:Value("\${AZURE_APP_PRE_AUTHORIZED_APPS}") private val azureAppPreAuthorizedApps: String,
 ) {
     private val log = logger()
     private val allowedClientIds: List<PreAuthorizedClient> = objectMapper.readValue(azureAppPreAuthorizedApps)

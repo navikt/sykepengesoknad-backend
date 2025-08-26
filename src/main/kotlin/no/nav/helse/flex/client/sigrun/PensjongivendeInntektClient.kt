@@ -22,7 +22,7 @@ class PensjongivendeInntektClientException(
 @Component
 class PensjongivendeInntektClient(
     private val persongivendeInntektRestTemplate: RestTemplate,
-    @Value("\${SIGRUN_URL}")
+    @param:Value("\${SIGRUN_URL}")
     private val url: String,
 ) {
     @Retryable(noRetryFor = [PensjongivendeInntektClientException::class], maxAttempts = 3)

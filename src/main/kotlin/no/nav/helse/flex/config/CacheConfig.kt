@@ -20,9 +20,9 @@ import java.time.Duration
 @Profile("!fakes")
 @EnableCaching
 class CacheConfig(
-    @Value("\${VALKEY_URI_IDENTER}") val valkeyUriString: String,
-    @Value("\${VALKEY_USERNAME_IDENTER}") val valkeyUsername: String,
-    @Value("\${VALKEY_PASSWORD_IDENTER}") val valkeyPassword: String,
+    @param:Value("\${VALKEY_URI_IDENTER}") val valkeyUriString: String,
+    @param:Value("\${VALKEY_USERNAME_IDENTER}") val valkeyUsername: String,
+    @param:Value("\${VALKEY_PASSWORD_IDENTER}") val valkeyPassword: String,
 ) {
     @Bean
     fun redisConnectionFactory(): LettuceConnectionFactory {

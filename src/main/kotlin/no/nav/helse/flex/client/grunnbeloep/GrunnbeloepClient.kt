@@ -15,9 +15,9 @@ import java.time.LocalDate
 
 @Component
 class GrunnbeloepClient(
-    @Value("\${GRUNNBELOEP_API_URL}")
+    @param:Value("\${GRUNNBELOEP_API_URL}")
     private val url: String,
-    @Qualifier("grunnbelopRestClient")
+    @param:Qualifier("grunnbelopRestClient")
     private val restClient: RestClient,
 ) {
     @Retryable(

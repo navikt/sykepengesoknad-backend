@@ -10,7 +10,7 @@ import org.springframework.web.util.UriComponentsBuilder
 
 @Component
 class InnsendingApiClient(
-    @Value("\${INNSENDING_API_URL}")
+    @param:Value("\${INNSENDING_API_URL}")
     private val url: String,
     private val innsendingApiRestTemplate: RestTemplate,
 ) {

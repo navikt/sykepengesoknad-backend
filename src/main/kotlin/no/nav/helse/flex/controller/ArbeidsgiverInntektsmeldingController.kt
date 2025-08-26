@@ -23,7 +23,7 @@ class ArbeidsgiverInntektsmeldingController(
     private val identService: IdentService,
     private val hentSoknadService: HentSoknadService,
     private val vedtaksperiodeBehandlingRepository: VedtaksperiodeBehandlingRepository,
-    @Value("\${SPINNTEKTSMELDING_FRONTEND_CLIENT_ID}")
+    @param:Value("\${SPINNTEKTSMELDING_FRONTEND_CLIENT_ID}")
     val spinntektsmeldingFrontendClientId: String,
 ) {
     @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])

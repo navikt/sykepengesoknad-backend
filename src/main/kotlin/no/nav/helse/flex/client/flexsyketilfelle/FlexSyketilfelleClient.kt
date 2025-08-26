@@ -26,7 +26,7 @@ import java.util.*
 class FlexSyketilfelleClient(
     private val flexSyketilfelleRestTemplate: RestTemplate,
     private val sykepengesoknadTilSykepengesoknadDTOMapper: SykepengesoknadTilSykepengesoknadDTOMapper,
-    @Value("\${flex.syketilfelle.url}")
+    @param:Value("\${flex.syketilfelle.url}")
     private val url: String,
 ) {
     val log = logger()

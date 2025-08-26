@@ -12,7 +12,7 @@ import org.springframework.web.util.UriComponentsBuilder
 
 @Component
 class YrkesskadeClient(
-    @Value("\${YRKESSKADE_URL}")
+    @param:Value("\${YRKESSKADE_URL}")
     private val url: String,
     private val yrkesskadeRestTemplate: RestTemplate,
     private val environmentToggles: EnvironmentToggles,

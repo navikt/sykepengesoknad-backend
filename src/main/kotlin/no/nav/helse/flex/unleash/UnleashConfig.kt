@@ -12,9 +12,9 @@ import org.springframework.context.annotation.Profile
 @Configuration
 @Profile("default")
 class UnleashConfig(
-    @Value("\${UNLEASH_SERVER_API_URL}") val apiUrl: String,
-    @Value("\${UNLEASH_SERVER_API_TOKEN}") val apiToken: String,
-    @Value("\${NAIS_APP_NAME}") val appName: String,
+    @param:Value("\${UNLEASH_SERVER_API_URL}") val apiUrl: String,
+    @param:Value("\${UNLEASH_SERVER_API_TOKEN}") val apiToken: String,
+    @param:Value("\${NAIS_APP_NAME}") val appName: String,
 ) : DisposableBean {
     private val config: UnleashConfig =
         UnleashConfig
