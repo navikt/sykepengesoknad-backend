@@ -11,9 +11,13 @@ import okhttp3.mockwebserver.MockWebServer
 import org.amshove.kluent.invoking
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should throw`
+import org.hamcrest.Matchers.containsString
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.TestPropertySource
+import org.springframework.test.web.client.MockRestServiceServer
+import org.springframework.test.web.client.match.MockRestRequestMatchers.*
+import org.springframework.test.web.client.response.MockRestResponseCreators.*
 
 @TestPropertySource(properties = ["BRREG_RETRY_ATTEMPTS=1"])
 class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
@@ -22,6 +26,19 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
 
     @Autowired
     lateinit var selvstendigNaringsdrivendeInfoService: SelvstendigNaringsdrivendeInfoService
+
+    @Autowired
+    lateinit var enhetsregisterMockServer: MockRestServiceServer
+
+    private fun mockEnhetsregisterErDagmamma(
+        orgnr: String,
+        erDagmamma: Boolean,
+    ) {
+        val json = """{\"naeringskode1\": {\"kode\": \"${if (erDagmamma) "88.912" else "41.109"}\"}}"""
+        enhetsregisterMockServer
+            .expect(requestTo(containsString("/api/enheter/$orgnr")))
+            .andRespond(withSuccess(json, org.springframework.http.MediaType.APPLICATION_JSON))
+    }
 
     @Test
     fun `burde hente selvstendig næringsdrivende`() {

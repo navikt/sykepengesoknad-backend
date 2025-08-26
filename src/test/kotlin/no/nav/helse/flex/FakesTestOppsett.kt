@@ -17,9 +17,13 @@ import org.springframework.boot.test.autoconfigure.actuate.observability.AutoCon
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.MockMvcPrint
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.context.TestConfiguration
+import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.FilterType
+import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.web.client.RestClient
 
 const val IGNORED_KAFKA_BROKERS = "localhost:1"
 
@@ -90,4 +94,12 @@ abstract class FakesTestOppsett : TestOppsettInterfaces {
     override fun mockMvc(): MockMvc = mockMvc
 
     override fun kafkaProducer(): Producer<String, String> = kafkaProducer
+
+    @TestConfiguration
+    class EnhetsregisterMockConfig {
+        @Bean
+        fun enhetsregisterMockServer(
+            @Autowired restClientBuilder: RestClient.Builder,
+        ): MockRestServiceServer = MockRestServiceServer.bindTo(restClientBuilder).build()
+    }
 }
