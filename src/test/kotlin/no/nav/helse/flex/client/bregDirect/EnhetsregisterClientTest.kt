@@ -29,37 +29,37 @@ class EnhetsregisterClientTest {
     }
 
     @Test
-    fun `erDagmamma returns NO for non-dagmamma org`() {
+    fun `erDagmamma returnerer NEI for ikke-dagmamma org`() {
         val json = """{"naeringskode1": {"kode": "41.109"}}"""
         mockWebServer.enqueue(MockResponse().setBody(json).setHeader("Content-Type", "application/json"))
 
         val status = client.erDagmamma("509100675")
-        assertEquals(DagmammaStatus.NO, status)
+        assertEquals(DagmammaStatus.NEI, status)
     }
 
     @Test
-    fun `erDagmamma returns YES for dagmamma org`() {
+    fun `erDagmamma returnerer JA for dagmamma org`() {
         val json = """{"naeringskode1": {"kode": "88.912"}}"""
         mockWebServer.enqueue(MockResponse().setBody(json).setHeader("Content-Type", "application/json"))
 
         val status = client.erDagmamma("922720193")
-        assertEquals(DagmammaStatus.YES, status)
+        assertEquals(DagmammaStatus.JA, status)
     }
 
     @Test
-    fun `erDagmamma returns NOT_FOUND for 404 response`() {
+    fun `erDagmamma returnerer IKKE_FUNNET for 404 respons`() {
         mockWebServer.enqueue(MockResponse().setResponseCode(404))
 
         val status = client.erDagmamma("123456789")
-        assertEquals(DagmammaStatus.NOT_FOUND, status)
+        assertEquals(DagmammaStatus.IKKE_FUNNET, status)
     }
 
     @Test
-    fun `erDagmamma returns SERVER_ERROR for 500 response`() {
+    fun `erDagmamma returnerer SERVER_ERROR for 500 response`() {
         // The retry mechanism is mocked to fail on the first attempt in a test context.
         mockWebServer.enqueue(MockResponse().setResponseCode(500))
 
         val status = client.erDagmamma("123456789")
-        assertEquals(DagmammaStatus.SERVER_ERROR, status)
+        assertEquals(DagmammaStatus.SERVER_FEIL, status)
     }
 }
