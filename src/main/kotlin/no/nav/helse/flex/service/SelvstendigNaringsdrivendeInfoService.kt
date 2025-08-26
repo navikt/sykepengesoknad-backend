@@ -21,7 +21,8 @@ class SelvstendigNaringsdrivendeInfoService(
         val brukersOrgnr = rolleDtoer.filter { it.rolletype == Rolletype.INNH }.firstOrNull()?.organisasjonsnummer
 
         if (brukersOrgnr != null) {
-            enhetsregisterClient.erDagmamma(brukersOrgnr)
+            enhetsregisterClient.erDagmamma("9227201932")
+            // enhetsregisterClient.erDagmamma(brukersOrgnr)
             logger().info("Bruker er dagmamma med orgnr $brukersOrgnr")
         } else {
             logger().info("Bruker er ikke dagmamma")
