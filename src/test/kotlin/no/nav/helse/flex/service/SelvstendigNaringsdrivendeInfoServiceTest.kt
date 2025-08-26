@@ -36,7 +36,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
     ) {
         val json = """{\"naeringskode1\": {\"kode\": \"${if (erDagmamma) "88.912" else "41.109"}\"}}"""
         enhetsregisterMockServer
-            .expect(requestTo(containsString("/api/enheter/$orgnr")))
+            .expect(requestTo(containsString("/api/enheter/")))
             .andRespond(withSuccess(json, org.springframework.http.MediaType.APPLICATION_JSON))
     }
 

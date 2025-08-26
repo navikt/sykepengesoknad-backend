@@ -41,6 +41,10 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.web.client.RestTemplate
 import java.time.Instant
 import kotlin.math.abs
+import no.nav.helse.flex.client.bregDirect.EnhetsregisterClient
+import no.nav.helse.flex.client.bregDirect.DagmammaStatus
+import org.mockito.Mockito
+import org.mockito.ArgumentMatchers.anyString
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @EnableMockOAuth2Server
@@ -204,6 +208,14 @@ abstract class FellesTestOppsett : TestOppsettInterfaces {
         juridiskVurderingKafkaConsumer
             .ventPåRecords(antall = antall)
             .tilJuridiskVurdering()
+
+    @MockitoBean
+    lateinit var enhetsregisterClient: EnhetsregisterClient
+
+    @BeforeAll
+    fun stubEnhetsregisterClient() {
+        Mockito.`when`(enhetsregisterClient.erDagmamma(anyString())).thenReturn(DagmammaStatus.NEI)
+    }
 }
 
 infix fun Instant.`should be within seconds of`(pair: Pair<Int, Instant>) = this.shouldBeWithinSecondsOf(pair.first.toInt() to pair.second)
