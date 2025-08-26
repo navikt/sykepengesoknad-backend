@@ -1,6 +1,5 @@
 package no.nav.helse.flex
 
-import no.nav.helse.flex.client.bregDirect.DagmammaStatus
 import no.nav.helse.flex.client.bregDirect.EnhetsregisterClient
 import no.nav.helse.flex.fakes.SoknadKafkaProducerFake
 import no.nav.helse.flex.frisktilarbeid.FriskTilArbeidConsumer
@@ -82,7 +81,7 @@ abstract class FakesTestOppsett : TestOppsettInterfaces {
 
     @BeforeAll
     fun stubEnhetsregisterClient() {
-        Mockito.`when`(enhetsregisterClient.erDagmamma(anyString())).thenReturn(DagmammaStatus.NEI)
+        Mockito.`when`(enhetsregisterClient.erDagmamma(anyString())).thenReturn(false)
     }
 
     companion object {
@@ -115,7 +114,7 @@ abstract class FakesTestOppsett : TestOppsettInterfaces {
             @Autowired restClientBuilder: RestClient.Builder,
         ): MockRestServiceServer {
             val server = MockRestServiceServer.bindTo(restClientBuilder).build()
-            // Accept any orgnr in the path and return a generic non-dagmamma response many times
+            // aksepter alle orgnr
             server
                 .expect(
                     org.springframework.test.web.client.ExpectedCount
