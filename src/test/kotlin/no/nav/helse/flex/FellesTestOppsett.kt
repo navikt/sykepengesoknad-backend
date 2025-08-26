@@ -2,7 +2,6 @@ package no.nav.helse.flex
 
 import io.getunleash.FakeUnleash
 import jakarta.annotation.PostConstruct
-import no.nav.helse.flex.client.bregDirect.DagmammaStatus
 import no.nav.helse.flex.client.bregDirect.EnhetsregisterClient
 import no.nav.helse.flex.client.grunnbeloep.GrunnbeloepClient
 import no.nav.helse.flex.client.kvitteringer.SykepengesoknadKvitteringerClient
@@ -214,7 +213,7 @@ abstract class FellesTestOppsett : TestOppsettInterfaces {
 
     @BeforeAll
     fun stubEnhetsregisterClient() {
-        Mockito.`when`(enhetsregisterClient.erDagmamma(anyString())).thenReturn(DagmammaStatus.NEI)
+        Mockito.`when`(enhetsregisterClient.erDagmamma(anyString())).thenReturn(false)
     }
 }
 
