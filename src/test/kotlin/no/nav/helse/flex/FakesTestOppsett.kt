@@ -24,6 +24,11 @@ import org.springframework.context.annotation.FilterType
 import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.web.client.RestClient
+import no.nav.helse.flex.client.bregDirect.EnhetsregisterClient
+import no.nav.helse.flex.client.bregDirect.DagmammaStatus
+import org.springframework.test.context.bean.override.mockito.MockitoBean
+import org.mockito.Mockito
+import org.mockito.ArgumentMatchers.anyString
 
 const val IGNORED_KAFKA_BROKERS = "localhost:1"
 
@@ -72,6 +77,14 @@ abstract class FakesTestOppsett : TestOppsettInterfaces {
     @Autowired
     lateinit var databaseReset: DatabaseReset
 
+    @MockitoBean
+    lateinit var enhetsregisterClient: EnhetsregisterClient
+
+    @BeforeAll
+    fun stubEnhetsregisterClient() {
+        Mockito.`when`(enhetsregisterClient.erDagmamma(anyString())).thenReturn(DagmammaStatus.NEI)
+    }
+
     companion object {
         init {
             startMockWebServere()
@@ -100,6 +113,22 @@ abstract class FakesTestOppsett : TestOppsettInterfaces {
         @Bean
         fun enhetsregisterMockServer(
             @Autowired restClientBuilder: RestClient.Builder,
-        ): MockRestServiceServer = MockRestServiceServer.bindTo(restClientBuilder).build()
+        ): MockRestServiceServer {
+            val server = MockRestServiceServer.bindTo(restClientBuilder).build()
+            // Accept any orgnr in the path and return a generic non-dagmamma response many times
+            server
+                .expect(org.springframework.test.web.client.ExpectedCount.manyTimes(),
+                    org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo(
+                        org.hamcrest.Matchers.containsString("/api/enheter/")
+                    )
+                )
+                .andRespond(
+                    org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess(
+                        """{"naeringskode1":{"kode":"41.109"}}""",
+                        org.springframework.http.MediaType.APPLICATION_JSON
+                    )
+                )
+            return server
+        }
     }
 }
