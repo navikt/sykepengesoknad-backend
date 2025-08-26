@@ -3,6 +3,8 @@ package no.nav.helse.flex.client.flexsyketilfelle
 import no.nav.helse.flex.domain.Arbeidsgiverperiode
 import no.nav.helse.flex.domain.Sykeforloep
 import no.nav.helse.flex.domain.Sykepengesoknad
+import no.nav.helse.flex.domain.VenteperiodeRequest
+import no.nav.helse.flex.domain.VenteperiodeResponse
 import no.nav.helse.flex.domain.VentetidRequest
 import no.nav.helse.flex.domain.mapper.SykepengesoknadTilSykepengesoknadDTOMapper
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
@@ -95,13 +97,44 @@ class FlexSyketilfelleClient(
                 )
 
         if (!result.statusCode.is2xxSuccessful) {
-            val message = "Kall mot flex-syketilfelle feiler med HTTP-${result.statusCode}"
-            log.error(message)
-            throw RuntimeException(message)
+            throw RuntimeException("Kall mot flex-syketilfelle/erUtenforVentetid feiler med HTTP-${result.statusCode}")
         }
 
         return result.body
-            ?: throw RuntimeException("Ingen data returnert fra flex-syketilfelle i erUtenforVentetid")
+            ?: throw RuntimeException("Ingen data returnert fra flex-syketilfelle/erUtenforVentetid")
+    }
+
+    @Retryable
+    fun hentVenteperiode(
+        identer: FolkeregisterIdenter,
+        sykmeldingId: String,
+        venteperiodeRequest: VenteperiodeRequest,
+    ): VenteperiodeResponse {
+        val headers = HttpHeaders()
+        headers.contentType = MediaType.APPLICATION_JSON
+        headers.set("fnr", identer.tilFnrHeader())
+
+        val queryBuilder =
+            UriComponentsBuilder
+                .fromUriString(url)
+                .pathSegment("api", "v1", "ventetid", sykmeldingId, "venteperiode")
+                .queryParam("hentAndreIdenter", "false")
+
+        val venteperiodeResponse =
+            flexSyketilfelleRestTemplate
+                .exchange(
+                    queryBuilder.toUriString(),
+                    POST,
+                    HttpEntity(venteperiodeRequest, headers),
+                    VenteperiodeResponse::class.java,
+                )
+
+        if (!venteperiodeResponse.statusCode.is2xxSuccessful) {
+            throw RuntimeException("Kall mot flex-syketilfelle/venteperiode feiler med HTTP-${venteperiodeResponse.statusCode}")
+        }
+
+        return venteperiodeResponse.body
+            ?: throw RuntimeException("Ingen data returnert fra flex-syketilfelle/venteperiode")
     }
 
     @Retryable
