@@ -30,9 +30,13 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
     @Autowired
     lateinit var enhetsregisterMockServer: MockRestServiceServer
 
-    private fun mockEnhetsregisterErDagmamma(orgnr: String, erDagmamma: Boolean) {
+    private fun mockEnhetsregisterErDagmamma(
+        orgnr: String,
+        erDagmamma: Boolean,
+    ) {
         val json = """{\"naeringskode1\": {\"kode\": \"${if (erDagmamma) "88.912" else "41.109"}\"}}"""
-        enhetsregisterMockServer.expect(requestTo(containsString("/api/enheter/$orgnr")))
+        enhetsregisterMockServer
+            .expect(requestTo(containsString("/api/enheter/$orgnr")))
             .andRespond(withSuccess(json, org.springframework.http.MediaType.APPLICATION_JSON))
     }
 
