@@ -158,7 +158,6 @@ class OpprettSoknadService(
                         selvstendigNaringsdrivendeInfoService.hentSelvstendigNaringsdrivendeInfo(
                             identer = identer,
                         )
-
                     } catch (_: HttpClientErrorException.NotFound) {
                         log.warn("Fant ikke roller for person i brreg for søknad med id $soknadsId")
                         SelvstendigNaringsdrivendeInfo(roller = emptyList())

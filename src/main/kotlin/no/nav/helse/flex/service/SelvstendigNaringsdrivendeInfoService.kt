@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service
 @Service
 class SelvstendigNaringsdrivendeInfoService(
     private val brregClient: BrregClient,
-    private val enhetsregisterClient: EnhetsregisterClient
+    private val enhetsregisterClient: EnhetsregisterClient,
 ) {
     fun hentSelvstendigNaringsdrivendeInfo(identer: FolkeregisterIdenter): SelvstendigNaringsdrivendeInfo {
         val rolleDtoer = identer.alle().flatMap { hentSelvstendigNaringsdrivendeRoller(it) }
