@@ -17,6 +17,7 @@ external-host:
   - flex-unleash-api.nav.cloud.nais.io
   - aareg-services-q1.dev-fss-pub.nais.io
   - g.nav.no
+  - data.brreg.no
 flex-openapi-docs-ui: true
 env:
   SPRING_PROFILES_ACTIVE: default,testdata,sykmeldinger,frisktilarbeid

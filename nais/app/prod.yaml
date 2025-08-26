@@ -17,6 +17,8 @@ external-host:
   - flex-unleash-api.nav.cloud.nais.io
   - aareg-services.prod-fss-pub.nais.io
   - g.nav.no
+  - data.brreg.no
+
 env:
   SPRING_PROFILES_ACTIVE: default,sykmeldinger
   PDL_BASE_URL: https://pdl-api.prod-fss-pub.nais.io
