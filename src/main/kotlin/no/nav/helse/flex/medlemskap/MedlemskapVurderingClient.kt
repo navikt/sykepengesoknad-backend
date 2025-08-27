@@ -35,10 +35,10 @@ class MedlemskapVurderingClient(
      */
     fun hentMedlemskapVurdering(medlemskapVurderingRequest: MedlemskapVurderingRequest): MedlemskapVurderingResponse {
         val headers = HttpHeaders()
-        val navCallId = medlemskapVurderingRequest.sykepengesoknadId
+        val soknadId = medlemskapVurderingRequest.sykepengesoknadId
         headers.accept = listOf(MediaType.APPLICATION_JSON)
         headers.set("fnr", medlemskapVurderingRequest.fnr)
-        headers.set("Nav-Call-Id", navCallId)
+        headers.set("Nav-Call-Id", soknadId)
 
         val queryBuilder =
             UriComponentsBuilder
@@ -62,7 +62,7 @@ class MedlemskapVurderingClient(
                 }
             } catch (e: Exception) {
                 throw MedlemskapVurderingClientException(
-                    "MedlemskapVurdering med Nav-Call-Id: $navCallId feilet.",
+                    "MedlemskapVurdering med Nav-Call-Id: $soknadId feilet.",
                     e,
                 )
             }
@@ -80,7 +80,7 @@ class MedlemskapVurderingClient(
             !medlemskapVurderingResponse.sporsmal.contains(MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE)
         ) {
             throw MedlemskapVurderingResponseException(
-                "MedlemskapVurdering med Nav-Call-Id: $navCallId returnerte kjentOppholdstillatelse når spørsmål " +
+                "MedlemskapVurdering med Nav-Call-Id: $soknadId returnerte kjentOppholdstillatelse når spørsmål " +
                     "${MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE} mangler.",
             )
         }
@@ -89,10 +89,27 @@ class MedlemskapVurderingClient(
         if (medlemskapVurderingResponse.kjentOppholdstillatelse == null &&
             medlemskapVurderingResponse.sporsmal.contains(MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE)
         ) {
-            throw MedlemskapVurderingResponseException(
-                "MedlemskapVurdering med Nav-Call-Id: $navCallId mangler kjentOppholdstillatelse når spørsmål " +
-                    "${MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE} stilles.",
-            )
+            val idListe =
+                listOf(
+                    "5e5dc803-f599-3f16-8c7a-e802db6e3b86",
+                    "1df2bc5b-f7f9-3c32-988a-660565d9a03d",
+                    "a8021cff-5aa3-37ae-bdeb-2d29bf0236e7",
+                    "3b33fe80-1b97-37a2-9c92-106dea8783be",
+                )
+            if (idListe.contains(medlemskapVurderingRequest.sykepengesoknadId)) {
+                log.info(
+                    "Fjerner medlemskapsspørsmål om ${MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE} for " +
+                        "søknad: ${medlemskapVurderingRequest.sykepengesoknadId} da spørsmålet mangler kjentOppholdstillatelse.",
+                )
+                val filtrertListe =
+                    medlemskapVurderingResponse.sporsmal.filter { it != MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE }
+                return medlemskapVurderingResponse.copy(sporsmal = filtrertListe)
+            } else {
+                throw MedlemskapVurderingResponseException(
+                    "MedlemskapVurdering med Nav-Call-Id: $soknadId mangler kjentOppholdstillatelse når spørsmål " +
+                        "${MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE} stilles.",
+                )
+            }
         }
 
         // Mottar vi en avklart situasjon (svar.JA eller svar.NEI) skal vi ikke få spørsmål å stille brukeren.
@@ -103,7 +120,7 @@ class MedlemskapVurderingClient(
             medlemskapVurderingResponse.sporsmal.isNotEmpty()
         ) {
             throw MedlemskapVurderingResponseException(
-                "MedlemskapVurdering med Nav-Call-Id: $navCallId returnerte spørsmål selv om svar var " +
+                "MedlemskapVurdering med Nav-Call-Id: $soknadId returnerte spørsmål selv om svar var " +
                     "svar.${medlemskapVurderingResponse.svar}.",
             )
         }
