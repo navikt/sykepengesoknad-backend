@@ -30,7 +30,7 @@ class MedlemskapVurderingClientTest {
 
     @Test
     fun `Fjerner spørsmål om OPPHOLDSTILLATELSE hvis kjentOppholdstillatelse mangler for angitt søknad`() {
-        val sykepengesoknadId = "b9b435b8-8c58-3595-980b-63a6d7c2465f"
+        val sykepengesoknadId = "3b33fe80-1b97-37a2-9c92-106dea8783be"
         val request =
             MedlemskapVurderingRequest(
                 fnr = "12345678901",
