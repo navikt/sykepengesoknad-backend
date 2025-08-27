@@ -91,8 +91,10 @@ class MedlemskapVurderingClient(
         ) {
             val idListe =
                 listOf(
-                    "f5d45c8f-879c-3fb4-9d4f-afc455e71345",
-                    "b9b435b8-8c58-3595-980b-63a6d7c2465f",
+                    "5e5dc803-f599-3f16-8c7a-e802db6e3b86",
+                    "1df2bc5b-f7f9-3c32-988a-660565d9a03d",
+                    "a8021cff-5aa3-37ae-bdeb-2d29bf0236e7",
+                    "3b33fe80-1b97-37a2-9c92-106dea8783be",
                 )
             if (idListe.contains(medlemskapVurderingRequest.sykepengesoknadId)) {
                 log.info(
