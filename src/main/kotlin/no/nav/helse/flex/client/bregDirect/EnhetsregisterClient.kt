@@ -1,18 +1,16 @@
 package no.nav.helse.flex.client.bregDirect
 
 import no.nav.helse.flex.logger
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
 import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestClient
 import org.springframework.web.client.body
-import org.springframework.http.HttpStatus
-import org.springframework.http.HttpHeaders
 import kotlin.text.get
-
 
 @Component
 class EnhetsregisterClient(
@@ -46,7 +44,7 @@ class EnhetsregisterClient(
                         "Not Found",
                         HttpHeaders(),
                         ByteArray(0),
-                        null
+                        null,
                     )
 
             responseMap.entries
