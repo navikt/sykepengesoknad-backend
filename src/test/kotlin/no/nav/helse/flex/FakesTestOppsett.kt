@@ -13,8 +13,6 @@ import org.apache.kafka.clients.producer.Producer
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.TestInstance
-import org.mockito.ArgumentMatchers.anyString
-import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.actuate.observability.AutoConfigureObservability
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -76,13 +74,6 @@ abstract class FakesTestOppsett : TestOppsettInterfaces {
     @Autowired
     lateinit var databaseReset: DatabaseReset
 
-    @MockitoBean
-    lateinit var enhetsregisterClient: EnhetsregisterClient
-
-    @BeforeAll
-    fun stubEnhetsregisterClient() {
-        Mockito.`when`(enhetsregisterClient.erDagmamma(anyString())).thenReturn(false)
-    }
 
     companion object {
         init {
@@ -107,28 +98,5 @@ abstract class FakesTestOppsett : TestOppsettInterfaces {
 
     override fun kafkaProducer(): Producer<String, String> = kafkaProducer
 
-    @TestConfiguration
-    class EnhetsregisterMockConfig {
-        @Bean
-        fun enhetsregisterMockServer(
-            @Autowired restClientBuilder: RestClient.Builder,
-        ): MockRestServiceServer {
-            val server = MockRestServiceServer.bindTo(restClientBuilder).build()
-            // aksepter alle orgnr
-            server
-                .expect(
-                    org.springframework.test.web.client.ExpectedCount
-                        .manyTimes(),
-                    org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo(
-                        org.hamcrest.Matchers.containsString("/api/enheter/"),
-                    ),
-                ).andRespond(
-                    org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess(
-                        """{"naeringskode1":{"kode":"41.109"}}""",
-                        org.springframework.http.MediaType.APPLICATION_JSON,
-                    ),
-                )
-            return server
-        }
-    }
+
 }
