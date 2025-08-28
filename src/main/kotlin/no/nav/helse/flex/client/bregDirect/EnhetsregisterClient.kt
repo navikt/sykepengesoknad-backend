@@ -15,8 +15,9 @@ import kotlin.text.get
 @Component
 class EnhetsregisterClient(
     restClientBuilder: RestClient.Builder,
-    @Value("\${ENHETSREGISTER_BASE_URL:https://data.brreg.no/enhetsregisteret}")
-    baseUrl: String,
+    // The default value is now removed and will be picked up from your application.yaml
+    @Value("\${ENHETSREGISTER_BASE_URL}")
+    private val baseUrl: String,
 ) {
     private val log = logger()
 

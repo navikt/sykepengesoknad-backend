@@ -64,11 +64,10 @@ fun startMockWebServere(): MockWebServere {
             dispatcher = ArbeidssokerregisterMockDispatcher
         }
 
+    // i need to add somethnig h ere?
     val enhetsregisterMockWebServer =
         MockWebServer().apply {
-            // The property name "ENHETSREGISTER_URL" must match what the client configuration expects
             System.setProperty("ENHETSREGISTER_URL", "http://localhost:$port")
-            // No default dispatcher is needed, as tests will .enqueue() specific responses.
         }
 
     return MockWebServere(

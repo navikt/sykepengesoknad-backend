@@ -111,6 +111,9 @@ logging.config: classpath:logback.xml
 
 pdl.api.url: ${PDL_BASE_URL}
 
+# Added the new property here for consistency
+ENHETSREGISTER_BASE_URL: https://data.brreg.no/enhetsregisteret
+
 management:
   endpoint:
     health.probes.enabled: true
