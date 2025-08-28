@@ -9,16 +9,10 @@ import org.junit.jupiter.api.Test
 import org.springframework.web.client.RestClient
 
 class EnhetsregisterClientTest {
-    // private lateinit var mockWebServer: MockWebServer
     private lateinit var client: EnhetsregisterClient
 
     private val mockWebServer: MockWebServer =
         MockWebServer().apply {}
-
-//  {
-//            dispatcher = simpleDispatcher { MockResponse().setResponseCode(200) }
-//        }
-    private val restClient = RestClient.create()
 
     @BeforeEach
     fun setUp() {
