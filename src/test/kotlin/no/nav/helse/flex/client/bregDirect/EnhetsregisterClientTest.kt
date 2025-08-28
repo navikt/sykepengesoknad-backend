@@ -1,7 +1,5 @@
 package no.nav.helse.flex.client.bregDirect
 
-import no.nav.helse.flex.mockdispatcher.GrunnbeloepApiMockDispatcher
-import no.nav.helse.flex.testoppsett.simpleDispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.jupiter.api.AfterEach
@@ -16,6 +14,7 @@ class EnhetsregisterClientTest {
 
     private val mockWebServer: MockWebServer =
         MockWebServer().apply {}
+
 //  {
 //            dispatcher = simpleDispatcher { MockResponse().setResponseCode(200) }
 //        }
@@ -25,12 +24,13 @@ class EnhetsregisterClientTest {
     fun setUp() {
         mockWebServer.start()
         val baseUrl = mockWebServer.url("/").toString().removeSuffix("/")
-        val rc = RestClient.builder()
-            .baseUrl(baseUrl)
-            .build()
+        val rc =
+            RestClient
+                .builder()
+                .baseUrl(baseUrl)
+                .build()
         client = EnhetsregisterClient(enhetsregisterRestClient = rc)
     }
-
 
     @AfterEach
     fun tearDown() {
