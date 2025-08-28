@@ -11,11 +11,9 @@ import okhttp3.mockwebserver.MockWebServer
 import org.amshove.kluent.invoking
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should throw`
-import org.hamcrest.Matchers.containsString
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.TestPropertySource
-import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.test.web.client.match.MockRestRequestMatchers.*
 import org.springframework.test.web.client.response.MockRestResponseCreators.*
 
@@ -39,16 +37,16 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
                 .setHeader("Content-Type", "application/json")
                 .setBody(
                     """
-                {
-                  "organisasjonsnummer": "$orgnr",
-                  "navn": "DAGMAMMAEN AS",
-                  "naeringskode1": {
-                    "kode": "${if (erDagmamma) "88991" else "12345"}",
-                    "beskrivelse": "${if (erDagmamma) "Barnehager og andre dagmammaer" else "Annen næring"}"
-                  }
-                }
-                """.trimIndent()
-                )
+                    {
+                      "organisasjonsnummer": "$orgnr",
+                      "navn": "DAGMAMMAEN AS",
+                      "naeringskode1": {
+                        "kode": "${if (erDagmamma) "88.912" else "12345"}",
+                        "beskrivelse": "${if (erDagmamma) "Barnehager og andre dagmammaer" else "Annen næring"}"
+                      }
+                    }
+                    """.trimIndent(),
+                ),
         )
     }
 
@@ -72,7 +70,30 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
                 .setBody(rollerDto.serialisertTilString()),
         )
 
-        mockEnhetsregisterErDagmamma("orgnummer", false)
+        //
+        //
+        // mockEnhetsregisterErDagmamma("orgnummer", false)
+
+
+        enhetsregisterClient.enqueue(
+            MockResponse()
+                .setHeader("Content-Type", "application/json")
+                .setBody(
+                    """
+            {
+              "organisasjonsnummer": "orgnummer",
+              "navn": "DAGMAMMAEN AS",
+              "naeringskode1": {
+                "kode": "12345",
+                "beskrivelse": "Annen næring"
+              }
+            }
+            """.trimIndent(),
+                ),
+        )
+
+
+        // mockEnhetsregisterErDagmamma("orgnummer", false)
 
         selvstendigNaringsdrivendeInfoService
             .hentSelvstendigNaringsdrivendeInfo(FolkeregisterIdenter("fnr", andreIdenter = emptyList()))
