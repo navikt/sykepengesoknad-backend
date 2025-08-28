@@ -64,6 +64,13 @@ fun startMockWebServere(): MockWebServere {
             dispatcher = ArbeidssokerregisterMockDispatcher
         }
 
+    val enhetsregisterMockWebServer =
+        MockWebServer().apply {
+            // The property name "ENHETSREGISTER_URL" must match what the client configuration expects
+            System.setProperty("ENHETSREGISTER_URL", "http://localhost:$port")
+            // No default dispatcher is needed, as tests will .enqueue() specific responses.
+        }
+
     return MockWebServere(
         pdlMockWebserver = pdlMockWebserver,
         medlemskapMockWebServer = medlemskapMockWebServer,
@@ -76,6 +83,7 @@ fun startMockWebServere(): MockWebServere {
         aaregMockWebServer = aaregMockWebServer,
         brregMockWebServer = brregMockWebServer,
         arbeidssokerregisterMockDispatcher = arbeidssokerregisterMockDispatcher,
+        enhetsregisterMockWebServer = enhetsregisterMockWebServer,
     )
 }
 
@@ -91,6 +99,7 @@ data class MockWebServere(
     val aaregMockWebServer: MockWebServer,
     val brregMockWebServer: MockWebServer,
     val arbeidssokerregisterMockDispatcher: MockWebServer,
+    val enhetsregisterMockWebServer: MockWebServer,
 )
 
 fun simpleDispatcher(dispatcherFunc: (RecordedRequest) -> MockResponse): Dispatcher =
