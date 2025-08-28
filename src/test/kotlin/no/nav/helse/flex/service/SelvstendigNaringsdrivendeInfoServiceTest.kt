@@ -28,16 +28,28 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
     lateinit var selvstendigNaringsdrivendeInfoService: SelvstendigNaringsdrivendeInfoService
 
     @Autowired
-    lateinit var enhetsregisterMockServer: MockRestServiceServer
+    lateinit var enhetsregisterClient: MockWebServer
 
     private fun mockEnhetsregisterErDagmamma(
         orgnr: String,
         erDagmamma: Boolean,
     ) {
-        val json = """{\"naeringskode1\": {\"kode\": \"${if (erDagmamma) "88.912" else "41.109"}\"}}"""
-        enhetsregisterMockServer
-            .expect(requestTo(containsString("/api/enheter/")))
-            .andRespond(withSuccess(json, org.springframework.http.MediaType.APPLICATION_JSON))
+        enhetsregisterClient.enqueue(
+            MockResponse()
+                .setHeader("Content-Type", "application/json")
+                .setBody(
+                    """
+                {
+                  "organisasjonsnummer": "$orgnr",
+                  "navn": "DAGMAMMAEN AS",
+                  "naeringskode1": {
+                    "kode": "${if (erDagmamma) "88991" else "12345"}",
+                    "beskrivelse": "${if (erDagmamma) "Barnehager og andre dagmammaer" else "Annen næring"}"
+                  }
+                }
+                """.trimIndent()
+                )
+        )
     }
 
     @Test
@@ -59,6 +71,8 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
                 .setHeader("Content-Type", "application/json")
                 .setBody(rollerDto.serialisertTilString()),
         )
+
+        mockEnhetsregisterErDagmamma("orgnummer", false)
 
         selvstendigNaringsdrivendeInfoService
             .hentSelvstendigNaringsdrivendeInfo(FolkeregisterIdenter("fnr", andreIdenter = emptyList()))
