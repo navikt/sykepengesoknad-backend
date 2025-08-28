@@ -74,24 +74,22 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
         //
         // mockEnhetsregisterErDagmamma("orgnummer", false)
 
-
         enhetsregisterClient.enqueue(
             MockResponse()
                 .setHeader("Content-Type", "application/json")
                 .setBody(
                     """
-            {
-              "organisasjonsnummer": "orgnummer",
-              "navn": "DAGMAMMAEN AS",
-              "naeringskode1": {
-                "kode": "12345",
-                "beskrivelse": "Annen næring"
-              }
-            }
-            """.trimIndent(),
+                    {
+                      "organisasjonsnummer": "orgnummer",
+                      "navn": "DAGMAMMAEN AS",
+                      "naeringskode1": {
+                        "kode": "12345",
+                        "beskrivelse": "Annen næring"
+                      }
+                    }
+                    """.trimIndent(),
                 ),
         )
-
 
         // mockEnhetsregisterErDagmamma("orgnummer", false)
 
