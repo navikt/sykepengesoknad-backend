@@ -2,7 +2,6 @@ package no.nav.helse.flex
 
 import io.getunleash.FakeUnleash
 import jakarta.annotation.PostConstruct
-import no.nav.helse.flex.client.bregDirect.EnhetsregisterClient
 import no.nav.helse.flex.client.grunnbeloep.GrunnbeloepClient
 import no.nav.helse.flex.client.kvitteringer.SykepengesoknadKvitteringerClient
 import no.nav.helse.flex.juridiskvurdering.juridiskVurderingTopic
@@ -29,15 +28,12 @@ import org.apache.kafka.clients.producer.KafkaProducer
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.TestInstance
-import org.mockito.ArgumentMatchers.anyString
-import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.autoconfigure.actuate.observability.AutoConfigureObservability
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.MockMvcPrint
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
 import org.springframework.test.web.client.MockRestServiceServer
@@ -211,20 +207,7 @@ abstract class FellesTestOppsett : TestOppsettInterfaces {
             .ventPåRecords(antall = antall)
             .tilJuridiskVurdering()
 
-    @JvmStatic
-    @DynamicPropertySource
-    fun properties(registry: DynamicPropertyRegistry) {
-        // NOTE: The property name "ENHETSREGISTER_URL" must match your application configuration
-        registry.add("ENHETSREGISTER_URL") { enhetsregisterMockWebServer.url("/").toString() }
-    }
-
-//    @MockitoBean
-//    lateinit var enhetsregisterClient: EnhetsregisterClient
-//
-//    @BeforeAll
-//    fun stubEnhetsregisterClient() {
-//        Mockito.`when`(enhetsregisterClient.erDagmamma(anyString())).thenReturn(false)
-//    }
+    // The @DynamicPropertySource block is now removed.
 }
 
 infix fun Instant.`should be within seconds of`(pair: Pair<Int, Instant>) = this.shouldBeWithinSecondsOf(pair.first.toInt() to pair.second)
