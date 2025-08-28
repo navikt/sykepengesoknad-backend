@@ -9,6 +9,9 @@ SYKEPENGESOKNAD_FRONTEND_CLIENT_ID: sykepengesoknad-frontend-client-id
 SPINNTEKTSMELDING_FRONTEND_CLIENT_ID: spinntekstmelding-frontend-client-id
 TOKENX_IDPORTEN_IDP: idporten
 
+ENHETSREGISTER_BASE_URL: https://data.brreg.no/enhetsregisteret
+
+
 no.nav.security.jwt:
   issuer:
     azureator:

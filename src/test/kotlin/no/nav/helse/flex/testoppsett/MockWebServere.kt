@@ -7,6 +7,71 @@ import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
 
+object SimpleEnhetsregisterMockDispatcher : Dispatcher() {
+    // This JSON will be returned for every request to this mock server.
+    private val responseBody =
+        """
+        {
+          "organisasjonsnummer": "976967631",
+          "navn": "TELENOR NORGE AS",
+          "organisasjonsform": {
+            "kode": "AS",
+            "beskrivelse": "Aksjeselskap",
+            "_links": {
+              "self": {
+                "href": "https://data.brreg.no/enhetsregisteret/api/organisasjonsformer/AS"
+              }
+            }
+          },
+          "postadresse": {
+            "land": "Norge",
+            "landkode": "NO",
+            "postnummer": "1331",
+            "poststed": "FORNEBU",
+            "adresse": [
+              "Postboks 800"
+            ],
+            "kommune": "BÆRUM",
+            "kommunenummer": "3201"
+          },
+          "naeringskode1": {
+            "kode": "61.200",
+            "beskrivelse": "Trådløs telekommunikasjon"
+          },
+          "naeringskode2": {
+            "kode": "61.100",
+            "beskrivelse": "Kabelbasert telekommunikasjon"
+          },
+          "antallAnsatte": 2868,
+          "forretningsadresse": {
+            "land": "Norge",
+            "landkode": "NO",
+            "postnummer": "1360",
+            "poststed": "FORNEBU",
+            "adresse": [
+              "Snarøyveien 30"
+            ],
+            "kommune": "BÆRUM",
+            "kommunenummer": "3201"
+          },
+          "maalform": "Bokmål",
+          "_links": {
+            "self": {
+              "href": "https://data.brreg.no/enhetsregisteret/api/enheter/976967631"
+            }
+          }
+        }
+        """.trimIndent()
+
+    override fun dispatch(request: RecordedRequest): MockResponse {
+        return MockResponse()
+            .setResponseCode(200)
+            .setHeader("Content-Type", "application/json")
+            .setBody(responseBody)
+    }
+}
+
+
 fun startMockWebServere(): MockWebServere {
     val pdlMockWebserver =
         MockWebServer().apply {
@@ -64,10 +129,11 @@ fun startMockWebServere(): MockWebServere {
             dispatcher = ArbeidssokerregisterMockDispatcher
         }
 
-    // i need to add somethnig h ere?
+    // i need to add something here?
     val enhetsregisterMockWebServer =
         MockWebServer().apply {
             System.setProperty("ENHETSREGISTER_URL", "http://localhost:$port")
+            dispatcher = simpleDispatcher { MockResponse().setResponseCode(200) }
         }
 
     return MockWebServere(
