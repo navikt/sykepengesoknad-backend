@@ -39,6 +39,15 @@ class RestClientConfiguration {
             ).build()
 
     @Bean
+    fun enhetsregisterRestClient(
+        @Value("\${BRREG_API_URL}")
+        url: String,
+    ): RestClient =
+        lagRestClientBuilder()
+            .baseUrl(url)
+            .build()
+
+    @Bean
     fun grunnbelopRestClient(
         @Value("\${GRUNNBELOEP_API_URL}")
         url: String,

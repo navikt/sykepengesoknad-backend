@@ -1,5 +1,7 @@
 package no.nav.helse.flex.client.bregDirect
 
+import no.nav.helse.flex.mockdispatcher.GrunnbeloepApiMockDispatcher
+import no.nav.helse.flex.testoppsett.simpleDispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.jupiter.api.AfterEach
@@ -9,19 +11,26 @@ import org.junit.jupiter.api.Test
 import org.springframework.web.client.RestClient
 
 class EnhetsregisterClientTest {
-    private lateinit var mockWebServer: MockWebServer
+    // private lateinit var mockWebServer: MockWebServer
     private lateinit var client: EnhetsregisterClient
+
+    private val mockWebServer: MockWebServer =
+        MockWebServer().apply {}
+//  {
+//            dispatcher = simpleDispatcher { MockResponse().setResponseCode(200) }
+//        }
+    private val restClient = RestClient.create()
 
     @BeforeEach
     fun setUp() {
-        mockWebServer = MockWebServer()
         mockWebServer.start()
-        client =
-            EnhetsregisterClient(
-                restClientBuilder = RestClient.builder(),
-                baseUrl = mockWebServer.url("/").toString(),
-            )
+        val baseUrl = mockWebServer.url("/").toString().removeSuffix("/")
+        val rc = RestClient.builder()
+            .baseUrl(baseUrl)
+            .build()
+        client = EnhetsregisterClient(enhetsregisterRestClient = rc)
     }
+
 
     @AfterEach
     fun tearDown() {
