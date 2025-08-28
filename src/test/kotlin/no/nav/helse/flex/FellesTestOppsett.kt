@@ -37,6 +37,7 @@ import org.springframework.boot.test.autoconfigure.actuate.observability.AutoCon
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.MockMvcPrint
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
 import org.springframework.test.web.client.MockRestServiceServer
@@ -62,6 +63,7 @@ abstract class FellesTestOppsett : TestOppsettInterfaces {
         private val innsendingApiMockWebServer: MockWebServer
         val arbeidssokerregisterMockDispatcher: MockWebServer
         val brregMockWebServer: MockWebServer
+        val enhetsregisterMockWebServer: MockWebServer
 
         init {
             startAlleContainere()
@@ -76,6 +78,7 @@ abstract class FellesTestOppsett : TestOppsettInterfaces {
                 grunnbeloepApiMockWebServer = it.grunnbeloepApiMockWebServer
                 brregMockWebServer = it.brregMockWebServer
                 arbeidssokerregisterMockDispatcher = it.arbeidssokerregisterMockDispatcher
+                enhetsregisterMockWebServer = it.enhetsregisterMockWebServer
             }
         }
     }
@@ -208,13 +211,20 @@ abstract class FellesTestOppsett : TestOppsettInterfaces {
             .ventPåRecords(antall = antall)
             .tilJuridiskVurdering()
 
-    @MockitoBean
-    lateinit var enhetsregisterClient: EnhetsregisterClient
-
-    @BeforeAll
-    fun stubEnhetsregisterClient() {
-        Mockito.`when`(enhetsregisterClient.erDagmamma(anyString())).thenReturn(false)
+    @JvmStatic
+    @DynamicPropertySource
+    fun properties(registry: DynamicPropertyRegistry) {
+        // NOTE: The property name "ENHETSREGISTER_URL" must match your application configuration
+        registry.add("ENHETSREGISTER_URL") { enhetsregisterMockWebServer.url("/").toString() }
     }
+
+//    @MockitoBean
+//    lateinit var enhetsregisterClient: EnhetsregisterClient
+//
+//    @BeforeAll
+//    fun stubEnhetsregisterClient() {
+//        Mockito.`when`(enhetsregisterClient.erDagmamma(anyString())).thenReturn(false)
+//    }
 }
 
 infix fun Instant.`should be within seconds of`(pair: Pair<Int, Instant>) = this.shouldBeWithinSecondsOf(pair.first.toInt() to pair.second)

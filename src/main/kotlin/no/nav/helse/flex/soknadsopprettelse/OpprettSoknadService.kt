@@ -154,7 +154,7 @@ class OpprettSoknadService(
             Arbeidssituasjon.NAERINGSDRIVENDE ->
                 if (unleashToggles.brregEnabled(identer.originalIdent)) {
                     try {
-                        selvstendigNaringsdrivendeInfoService.hentSelvstendigNaringsdrivendeInfo(
+                        selvstendigNaringsdrivendeInfoService.  hentSelvstendigNaringsdrivendeInfo(
                             identer = identer,
                         )
                     } catch (_: HttpClientErrorException.NotFound) {
