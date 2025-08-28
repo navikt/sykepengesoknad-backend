@@ -63,14 +63,12 @@ object SimpleEnhetsregisterMockDispatcher : Dispatcher() {
         }
         """.trimIndent()
 
-    override fun dispatch(request: RecordedRequest): MockResponse {
-        return MockResponse()
+    override fun dispatch(request: RecordedRequest): MockResponse =
+        MockResponse()
             .setResponseCode(200)
             .setHeader("Content-Type", "application/json")
             .setBody(responseBody)
-    }
 }
-
 
 fun startMockWebServere(): MockWebServere {
     val pdlMockWebserver =

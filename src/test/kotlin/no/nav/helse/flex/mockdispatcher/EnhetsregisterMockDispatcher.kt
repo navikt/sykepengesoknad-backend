@@ -32,8 +32,8 @@ object EnhetsregisterMockDispatcher : QueueDispatcher() {
  * Creates the default JSON response body for the mock dispatcher.
  * It dynamically inserts the requested organization number if available.
  */
-private fun createEnhetsregisterResponse(orgnr: String? = "976967631"): String {
-    return """
+private fun createEnhetsregisterResponse(orgnr: String? = "976967631"): String =
+    """
     {
       "organisasjonsnummer": "$orgnr",
       "navn": "TELENOR NORGE AS",
@@ -81,4 +81,3 @@ private fun createEnhetsregisterResponse(orgnr: String? = "976967631"): String {
       }
     }
     """.trimIndent()
-}
