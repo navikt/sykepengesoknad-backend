@@ -1,30 +1,18 @@
 package no.nav.helse.flex.client.bregDirect
 
 import no.nav.helse.flex.logger
-import org.springframework.beans.factory.annotation.Value
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpStatus
 import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestClient
 import org.springframework.web.client.body
-import kotlin.text.get
 
 @Component
 class EnhetsregisterClient(
-    restClientBuilder: RestClient.Builder,
-    // The default value is now removed and will be picked up from your application.yaml
-    @Value("\${ENHETSREGISTER_BASE_URL}")
-    private val baseUrl: String,
+    private val enhetsregisterRestClient: RestClient,
 ) {
     private val log = logger()
-
-    private val restClient: RestClient =
-        restClientBuilder
-            .baseUrl(baseUrl)
-            .build()
 
     @Retryable(
         include = [HttpServerErrorException::class],
@@ -35,15 +23,15 @@ class EnhetsregisterClient(
 
         return try {
             val responseMap =
-                restClient
+                enhetsregisterRestClient
                     .get()
                     .uri("/api/enheter/{orgnr}", orgnr)
                     .retrieve()
                     .body<Map<String, Any>>()
                     ?: throw HttpClientErrorException.NotFound.create(
-                        HttpStatus.NOT_FOUND,
+                        org.springframework.http.HttpStatus.NOT_FOUND,
                         "Not Found",
-                        HttpHeaders(),
+                        org.springframework.http.HttpHeaders(),
                         ByteArray(0),
                         null,
                     )

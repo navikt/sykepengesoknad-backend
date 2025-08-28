@@ -125,6 +125,8 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
             )
         }
 
+        mockEnhetsregisterErDagmamma("orgnummer", false)
+
         selvstendigNaringsdrivendeInfoService
             .hentSelvstendigNaringsdrivendeInfo(FolkeregisterIdenter("fnr", andreIdenter = listOf("fnr2")))
             .roller.size `should be equal to` 2
