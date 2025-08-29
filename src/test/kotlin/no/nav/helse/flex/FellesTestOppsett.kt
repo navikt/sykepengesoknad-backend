@@ -207,7 +207,6 @@ abstract class FellesTestOppsett : TestOppsettInterfaces {
             .ventPåRecords(antall = antall)
             .tilJuridiskVurdering()
 
-    // The @DynamicPropertySource block is now removed.
 }
 
 infix fun Instant.`should be within seconds of`(pair: Pair<Int, Instant>) = this.shouldBeWithinSecondsOf(pair.first.toInt() to pair.second)
