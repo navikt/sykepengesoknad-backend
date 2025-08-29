@@ -8,7 +8,6 @@ import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
 
 object SimpleEnhetsregisterMockDispatcher : Dispatcher() {
-    // This JSON will be returned for every request to this mock server.
     private val responseBody =
         """
         {
@@ -127,7 +126,6 @@ fun startMockWebServere(): MockWebServere {
             dispatcher = ArbeidssokerregisterMockDispatcher
         }
 
-    // Enhetsregister (direct to source)
     val enhetsregisterMockWebServer =
         MockWebServer().apply {
             System.setProperty("ENHETSREGISTER_BASE_URL", "http://localhost:$port")
