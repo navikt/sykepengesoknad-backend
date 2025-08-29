@@ -127,11 +127,11 @@ fun startMockWebServere(): MockWebServere {
             dispatcher = ArbeidssokerregisterMockDispatcher
         }
 
-    // i need to add something here?
+    // Enhetsregister (direct to source)
     val enhetsregisterMockWebServer =
         MockWebServer().apply {
-            System.setProperty("ENHETSREGISTER_URL", "http://localhost:$port")
-            dispatcher = simpleDispatcher { MockResponse().setResponseCode(200) }
+            System.setProperty("ENHETSREGISTER_BASE_URL", "http://localhost:$port")
+            dispatcher = SimpleEnhetsregisterMockDispatcher
         }
 
     return MockWebServere(
