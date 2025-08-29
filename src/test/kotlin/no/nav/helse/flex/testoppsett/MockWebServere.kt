@@ -7,6 +7,7 @@ import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
 
+// enkel mock, brukes ikke lenger, bør fjerne om den andre er bedre
 object SimpleEnhetsregisterMockDispatcher : Dispatcher() {
     private val responseBody =
         """
