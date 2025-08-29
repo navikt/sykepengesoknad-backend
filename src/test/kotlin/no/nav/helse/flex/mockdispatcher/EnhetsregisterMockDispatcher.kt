@@ -4,6 +4,8 @@ import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.QueueDispatcher
 import okhttp3.mockwebserver.RecordedRequest
 
+
+// brukes ikke nå, bør den fjernes? - eller brukes istedenfor den som virker?
 object EnhetsregisterMockDispatcher : QueueDispatcher() {
     override fun dispatch(request: RecordedRequest): MockResponse {
         if (responseQueue.peek() != null) {

@@ -129,7 +129,8 @@ fun startMockWebServere(): MockWebServere {
     val enhetsregisterMockWebServer =
         MockWebServer().apply {
             System.setProperty("ENHETSREGISTER_BASE_URL", "http://localhost:$port")
-            dispatcher = SimpleEnhetsregisterMockDispatcher
+            // dispatcher = SimpleEnhetsregisterMockDispatcher
+            dispatcher = EnhetsregisterMockDispatcher
         }
 
     return MockWebServere(
