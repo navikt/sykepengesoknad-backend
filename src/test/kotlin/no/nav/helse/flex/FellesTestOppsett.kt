@@ -206,7 +206,6 @@ abstract class FellesTestOppsett : TestOppsettInterfaces {
         juridiskVurderingKafkaConsumer
             .ventPåRecords(antall = antall)
             .tilJuridiskVurdering()
-
 }
 
 infix fun Instant.`should be within seconds of`(pair: Pair<Int, Instant>) = this.shouldBeWithinSecondsOf(pair.first.toInt() to pair.second)
