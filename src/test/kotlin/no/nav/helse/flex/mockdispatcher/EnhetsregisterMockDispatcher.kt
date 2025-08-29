@@ -6,18 +6,14 @@ import okhttp3.mockwebserver.RecordedRequest
 
 object EnhetsregisterMockDispatcher : QueueDispatcher() {
     override fun dispatch(request: RecordedRequest): MockResponse {
-        // If a specific response is queued for a test, return that first.
         if (responseQueue.peek() != null) {
             return responseQueue.take()
         }
 
-        // Default behavior when no response is queued.
         val orgnr = request.path?.substringAfterLast("/")
 
         return when (orgnr) {
-            // Return 404 for a specific organization number for testing failure cases.
             "404404404" -> MockResponse().setResponseCode(404)
-            // Return a successful response for any other request.
             else -> {
                 MockResponse()
                     .setResponseCode(200)
@@ -28,10 +24,6 @@ object EnhetsregisterMockDispatcher : QueueDispatcher() {
     }
 }
 
-/**
- * Creates the default JSON response body for the mock dispatcher.
- * It dynamically inserts the requested organization number if available.
- */
 private fun createEnhetsregisterResponse(orgnr: String? = "976967631"): String =
     """
     {
