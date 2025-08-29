@@ -16,7 +16,7 @@ class EnhetsregisterClient(
 
     @Retryable(
         include = [HttpServerErrorException::class],
-        maxAttemptsExpression = "\${BRREG_RETRY_ATTEMPTS:3}",
+        maxAttemptsExpression = "\${BRREG_RETRY_ATTEMPTS:3}", // hva bør vi ha her?
     )
     fun erDagmamma(orgnr: String): Boolean {
         val dagmammaKode = "88.912"
