@@ -4,7 +4,7 @@ import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.QueueDispatcher
 import okhttp3.mockwebserver.RecordedRequest
 
-// brukes nå, bedre enn den enkle? 
+// brukes nå, bedre enn den enkle?
 object EnhetsregisterMockDispatcher : QueueDispatcher() {
     override fun dispatch(request: RecordedRequest): MockResponse {
         if (responseQueue.peek() != null) {
