@@ -26,8 +26,6 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
     @Autowired
     lateinit var selvstendigNaringsdrivendeInfoService: SelvstendigNaringsdrivendeInfoService
 
-
-
     @Test
     fun `burde hente selvstendig næringsdrivende`() {
         val rollerDto =
