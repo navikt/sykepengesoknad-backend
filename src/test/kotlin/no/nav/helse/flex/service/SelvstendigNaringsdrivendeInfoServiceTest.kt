@@ -5,6 +5,7 @@ import no.nav.helse.flex.client.brreg.HentRollerRequest
 import no.nav.helse.flex.client.brreg.RolleDto
 import no.nav.helse.flex.client.brreg.RollerDto
 import no.nav.helse.flex.client.brreg.Rolletype
+import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.util.serialisertTilString
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -25,30 +26,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
     @Autowired
     lateinit var selvstendigNaringsdrivendeInfoService: SelvstendigNaringsdrivendeInfoService
 
-    @Autowired
-    lateinit var enhetsregisterClient: MockWebServer
 
-    private fun mockEnhetsregisterErDagmamma(
-        orgnr: String,
-        erDagmamma: Boolean,
-    ) {
-        enhetsregisterClient.enqueue(
-            MockResponse()
-                .setHeader("Content-Type", "application/json")
-                .setBody(
-                    """
-                    {
-                      "organisasjonsnummer": "$orgnr",
-                      "navn": "DAGMAMMAEN AS",
-                      "naeringskode1": {
-                        "kode": "${if (erDagmamma) "88.912" else "12345"}",
-                        "beskrivelse": "${if (erDagmamma) "Barnehager og andre dagmammaer" else "Annen næring"}"
-                      }
-                    }
-                    """.trimIndent(),
-                ),
-        )
-    }
 
     @Test
     fun `burde hente selvstendig næringsdrivende`() {
@@ -69,29 +47,6 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
                 .setHeader("Content-Type", "application/json")
                 .setBody(rollerDto.serialisertTilString()),
         )
-
-        //
-        //
-        // mockEnhetsregisterErDagmamma("orgnummer", false)
-
-        enhetsregisterClient.enqueue(
-            MockResponse()
-                .setHeader("Content-Type", "application/json")
-                .setBody(
-                    """
-                    {
-                      "organisasjonsnummer": "orgnummer",
-                      "navn": "DAGMAMMAEN AS",
-                      "naeringskode1": {
-                        "kode": "12345",
-                        "beskrivelse": "Annen næring"
-                      }
-                    }
-                    """.trimIndent(),
-                ),
-        )
-
-        // mockEnhetsregisterErDagmamma("orgnummer", false)
 
         selvstendigNaringsdrivendeInfoService
             .hentSelvstendigNaringsdrivendeInfo(FolkeregisterIdenter("fnr", andreIdenter = emptyList()))
@@ -124,8 +79,6 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
                     .setBody(rollerDto.serialisertTilString()),
             )
         }
-
-        mockEnhetsregisterErDagmamma("orgnummer", false)
 
         selvstendigNaringsdrivendeInfoService
             .hentSelvstendigNaringsdrivendeInfo(FolkeregisterIdenter("fnr", andreIdenter = listOf("fnr2")))
@@ -179,6 +132,6 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
         invoking {
             selvstendigNaringsdrivendeInfoService
                 .hentSelvstendigNaringsdrivendeInfo(FolkeregisterIdenter("fnr", andreIdenter = emptyList()))
-        } `should throw` Exception::class
+        } `should throw` RuntimeException::class
     }
 }
