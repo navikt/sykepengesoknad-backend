@@ -40,7 +40,7 @@ class RestClientConfiguration {
 
     @Bean
     fun enhetsregisterRestClient(
-        @Value("\${BRREG_API_URL}")
+        @Value("\${ENHETSREGISTER_BASE_URL}")
         url: String,
     ): RestClient =
         lagRestClientBuilder()
