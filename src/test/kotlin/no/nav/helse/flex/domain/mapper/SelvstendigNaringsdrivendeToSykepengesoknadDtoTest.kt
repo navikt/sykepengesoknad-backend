@@ -4,6 +4,7 @@ import no.nav.helse.flex.domain.Mottaker
 import no.nav.helse.flex.domain.SelvstendigNaringsdrivendeInfo
 import no.nav.helse.flex.domain.Soknadsperiode
 import no.nav.helse.flex.domain.Sykepengesoknad
+import no.nav.helse.flex.domain.Ventetid
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentSoknadsPerioderMedFaktiskGrad
 import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknad
 import no.nav.helse.flex.soknadsopprettelse.lagSykepengegrunnlagNaeringsdrivende
@@ -27,17 +28,32 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
 
     @Test
     fun `Inneholder summert inntektsinformasjon i selvstendigNaringsdrivende`() {
-        val soknad =
-            opprettNyNaeringsdrivendeSoknad().copy(
-                soknadPerioder = soknadPerioder,
-                selvstendigNaringsdrivende =
-                    SelvstendigNaringsdrivendeInfo(
-                        roller = emptyList(),
-                        sykepengegrunnlagNaeringsdrivende = lagSykepengegrunnlagNaeringsdrivende(),
-                    ),
-            )
+        val (soknad, fom, tom) =
+            opprettNyNaeringsdrivendeSoknad().run {
+                Triple(this, requireNotNull(fom), requireNotNull(tom))
+            }
+
         val soknadDTO =
-            lagSykepengesoknadDTO(soknad)
+            lagSykepengesoknadDTO(
+                soknad.copy(
+                    soknadPerioder = soknadPerioder,
+                    selvstendigNaringsdrivende =
+                        SelvstendigNaringsdrivendeInfo(
+                            roller = emptyList(),
+                            sykepengegrunnlagNaeringsdrivende = lagSykepengegrunnlagNaeringsdrivende(),
+                            ventetid =
+                                Ventetid(
+                                    fom = fom,
+                                    tom = tom,
+                                ),
+                        ),
+                ),
+            )
+
+        soknadDTO.selvstendigNaringsdrivende!!.ventetid!!.also {
+            fom `should be equal to` fom
+            tom `should be equal to` tom
+        }
 
         soknadDTO.selvstendigNaringsdrivende!!.inntekt!!.also { naringsdrivendeInntektDTO ->
             naringsdrivendeInntektDTO.norskPersonidentifikator `should be equal to` "123456789"
