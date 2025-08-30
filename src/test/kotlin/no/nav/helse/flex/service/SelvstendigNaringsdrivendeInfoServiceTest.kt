@@ -18,13 +18,13 @@ import org.springframework.test.context.TestPropertySource
 @TestPropertySource(properties = ["BRREG_RETRY_ATTEMPTS=1"])
 class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
     @Autowired
-    lateinit var brregServer: MockWebServer
+    lateinit var brregMockWebServer: MockWebServer
 
     @Autowired
     lateinit var selvstendigNaringsdrivendeInfoService: SelvstendigNaringsdrivendeInfoService
 
     @Test
-    fun `burde hente selvstendig næringsdrivende`() {
+    fun `Hent lagret SelvstendigNaringsdrivendeInfo`() {
         val rollerDto =
             RollerDto(
                 roller =
@@ -37,14 +37,14 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
                     ),
             )
 
-        brregServer.enqueue(
+        brregMockWebServer.enqueue(
             MockResponse()
                 .setHeader("Content-Type", "application/json")
                 .setBody(rollerDto.serialisertTilString()),
         )
 
         selvstendigNaringsdrivendeInfoService
-            .hentSelvstendigNaringsdrivendeInfo(FolkeregisterIdenter("fnr", andreIdenter = emptyList()))
+            .hentSelvstendigNaringsdrivendeInfo(FolkeregisterIdenter("11111111111", andreIdenter = emptyList()))
             .roller
             .first()
             .also {
@@ -55,7 +55,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
     }
 
     @Test
-    fun `burde hente selvstendig næringsdrivende for flere identer`() {
+    fun `Hent lagret SelvstendigNaringsdrivendeInfo med flere identer`() {
         val rollerDto =
             RollerDto(
                 roller =
@@ -68,7 +68,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
                     ),
             )
         repeat(2) {
-            brregServer.enqueue(
+            brregMockWebServer.enqueue(
                 MockResponse()
                     .setHeader("Content-Type", "application/json")
                     .setBody(rollerDto.serialisertTilString()),
@@ -76,12 +76,16 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
         }
 
         selvstendigNaringsdrivendeInfoService
-            .hentSelvstendigNaringsdrivendeInfo(FolkeregisterIdenter("fnr", andreIdenter = listOf("fnr2")))
-            .roller.size `should be equal to` 2
+            .hentSelvstendigNaringsdrivendeInfo(
+                FolkeregisterIdenter(
+                    "11111111111",
+                    andreIdenter = listOf("22222222222"),
+                ),
+            ).roller.size `should be equal to` 2
     }
 
     @Test
-    fun `burde ha riktig payload i request`() {
+    fun `Har riktig payload i request til Brreg`() {
         val rollerDto =
             RollerDto(
                 roller =
@@ -94,18 +98,18 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
                     ),
             )
 
-        brregServer.enqueue(
+        brregMockWebServer.enqueue(
             MockResponse()
                 .setHeader("Content-Type", "application/json")
                 .setBody(rollerDto.serialisertTilString()),
         )
 
         selvstendigNaringsdrivendeInfoService
-            .hentSelvstendigNaringsdrivendeInfo(FolkeregisterIdenter("fnr", andreIdenter = emptyList()))
+            .hentSelvstendigNaringsdrivendeInfo(FolkeregisterIdenter("11111111111", andreIdenter = emptyList()))
 
-        brregServer.takeRequest().body.readUtf8() `should be equal to`
+        brregMockWebServer.takeRequest().body.readUtf8() `should be equal to`
             HentRollerRequest(
-                fnr = "fnr",
+                fnr = "11111111111",
                 rolleTyper =
                     listOf(
                         Rolletype.INNH,
@@ -117,8 +121,8 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
     }
 
     @Test
-    fun `burde kaste feil fra brreg api`() {
-        brregServer.enqueue(
+    fun `Kaster exception ved feil fra Brreg`() {
+        brregMockWebServer.enqueue(
             MockResponse()
                 .setResponseCode(500)
                 .setBody("Feil i api"),
@@ -126,7 +130,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
 
         invoking {
             selvstendigNaringsdrivendeInfoService
-                .hentSelvstendigNaringsdrivendeInfo(FolkeregisterIdenter("fnr", andreIdenter = emptyList()))
+                .hentSelvstendigNaringsdrivendeInfo(FolkeregisterIdenter("11111111111", andreIdenter = emptyList()))
         } `should throw` Exception::class
     }
 }

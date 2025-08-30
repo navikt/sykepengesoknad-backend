@@ -12,12 +12,11 @@ class SelvstendigNaringsdrivendeInfoService(
     private val brregClient: BrregClient,
 ) {
     fun hentSelvstendigNaringsdrivendeInfo(identer: FolkeregisterIdenter): SelvstendigNaringsdrivendeInfo {
-        val rolleDtoer = identer.alle().flatMap { hentSelvstendigNaringsdrivendeRoller(it) }
-        val roller = rolleDtoer.map(::mapFraRolleDto)
+        val roller = identer.alle().flatMap { hentSelvstendigNaringsdrivendeRoller(it) }.map(::tilBrregRolle)
         return SelvstendigNaringsdrivendeInfo(roller = roller)
     }
 
-    internal fun hentSelvstendigNaringsdrivendeRoller(fnr: String): List<RolleDto> {
+    private fun hentSelvstendigNaringsdrivendeRoller(fnr: String): List<RolleDto> {
         val selvstendigNaringsdrivendeRoller =
             listOf(
                 Rolletype.INNH,
@@ -28,12 +27,10 @@ class SelvstendigNaringsdrivendeInfoService(
         return brregClient.hentRoller(fnr, selvstendigNaringsdrivendeRoller)
     }
 
-    companion object {
-        fun mapFraRolleDto(rolle: RolleDto) =
-            BrregRolle(
-                orgnummer = rolle.organisasjonsnummer,
-                orgnavn = rolle.organisasjonsnavn,
-                rolletype = rolle.rolletype.name,
-            )
-    }
+    private fun tilBrregRolle(rolle: RolleDto) =
+        BrregRolle(
+            orgnummer = rolle.organisasjonsnummer,
+            orgnavn = rolle.organisasjonsnavn,
+            rolletype = rolle.rolletype.name,
+        )
 }
