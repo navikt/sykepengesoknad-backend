@@ -7,16 +7,16 @@ import org.springframework.context.annotation.Bean
 @TestConfiguration
 class MockWebServereConfig {
     @Bean
-    fun brregServer() = brregServer
+    fun brregMockWebServer() = brregMocWebkServer
 
     companion object {
-        private val logger = logger()
+        private val log = logger()
 
         init {
-            logger.info("[TEST] Starter mock webservere")
+            log.info("Starter brregMocWebkServer")
         }
 
-        val brregServer =
+        val brregMocWebkServer =
             MockWebServer()
                 .also {
                     System.setProperty("BRREG_API_URL", "http://localhost:${it.port}")
