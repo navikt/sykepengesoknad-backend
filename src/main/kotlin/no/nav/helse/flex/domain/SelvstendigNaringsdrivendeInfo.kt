@@ -3,10 +3,12 @@ package no.nav.helse.flex.domain
 import no.nav.helse.flex.client.sigrun.PensjonsgivendeInntekt
 import no.nav.helse.flex.service.SykepengegrunnlagNaeringsdrivende
 import no.nav.helse.flex.sykepengesoknad.kafka.*
+import java.time.LocalDate
 
 data class SelvstendigNaringsdrivendeInfo(
     val roller: List<BrregRolle>,
     val sykepengegrunnlagNaeringsdrivende: SykepengegrunnlagNaeringsdrivende? = null,
+    val ventetid: Ventetid? = null,
 ) {
     fun tilDto(): SelvstendigNaringsdrivendeDTO {
         val grunnlag = sykepengegrunnlagNaeringsdrivende
@@ -24,8 +26,15 @@ data class SelvstendigNaringsdrivendeInfo(
                     norskPersonidentifikator = sykepengegrunnlagNaeringsdrivende.inntekter.first().norskPersonidentifikator,
                     inntektsAar = mapToNaringsdrivendeInntektsAarDTO(),
                 ),
+            ventetid = ventetid?.let { toVentetidDTO() },
         )
     }
+
+    private fun toVentetidDTO(): VentetidDTO =
+        VentetidDTO(
+            fom = ventetid!!.fom,
+            tom = ventetid.tom,
+        )
 
     private fun mapToNaringsdrivendeInntektsAarDTO(): List<InntektsAarDTO> =
         sykepengegrunnlagNaeringsdrivende!!.inntekter.map { inntekt ->
@@ -83,4 +92,9 @@ data class BrregRolle(
     val orgnummer: String,
     val orgnavn: String,
     val rolletype: String,
+)
+
+data class Ventetid(
+    val fom: LocalDate,
+    val tom: LocalDate,
 )
