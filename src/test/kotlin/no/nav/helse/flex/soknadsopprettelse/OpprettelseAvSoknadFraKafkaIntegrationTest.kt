@@ -82,6 +82,10 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
                 .copy(harRedusertArbeidsgiverperiode = true)
 
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
+        mockFlexSyketilfelleVenteperiode(
+            sykmelding.id,
+            VenteperiodeResponse(Venteperiode(fom = LocalDate.now(), tom = LocalDate.now().plusDays(16))),
+        )
         mockFlexSyketilfelleSykeforloep(sykmeldingId)
 
         val sykmeldingKafkaMessage =
@@ -193,6 +197,10 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
                 .copy(harRedusertArbeidsgiverperiode = true)
 
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
+        mockFlexSyketilfelleVenteperiode(
+            sykmelding.id,
+            VenteperiodeResponse(Venteperiode(fom = LocalDate.now(), tom = LocalDate.now().plusDays(16))),
+        )
         mockFlexSyketilfelleSykeforloep(sykmeldingId)
 
         val sykmeldingKafkaMessage =
@@ -229,6 +237,10 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
                 .copy(harRedusertArbeidsgiverperiode = true)
 
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
+        mockFlexSyketilfelleVenteperiode(
+            sykmelding.id,
+            VenteperiodeResponse(Venteperiode(fom = LocalDate.now(), tom = LocalDate.now().plusDays(16))),
+        )
         mockFlexSyketilfelleSykeforloep(sykmeldingId)
 
         val sykmeldingKafkaMessage =
@@ -261,6 +273,10 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
                 .copy(harRedusertArbeidsgiverperiode = true)
 
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
+        mockFlexSyketilfelleVenteperiode(
+            sykmelding.id,
+            VenteperiodeResponse(Venteperiode(fom = LocalDate.now(), tom = LocalDate.now().plusDays(16))),
+        )
         mockFlexSyketilfelleSykeforloep(sykmeldingId)
 
         val sykmeldingKafkaMessage =
@@ -437,6 +453,14 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
             ).copy(harRedusertArbeidsgiverperiode = true)
 
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
+        mockFlexSyketilfelleVenteperiode(
+            sykmelding.id,
+            VenteperiodeResponse(Venteperiode(fom = LocalDate.now(), tom = LocalDate.now().plusDays(16))),
+        )
+        mockFlexSyketilfelleVenteperiode(
+            sykmelding.id,
+            VenteperiodeResponse(Venteperiode(fom = LocalDate.now(), tom = LocalDate.now().plusDays(16))),
+        )
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
         val sykmeldingKafkaMessage =
@@ -714,6 +738,14 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
                 kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
             )
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
+        mockFlexSyketilfelleVenteperiode(
+            sykmelding.id,
+            VenteperiodeResponse(Venteperiode(fom = LocalDate.now(), tom = LocalDate.now().plusDays(16))),
+        )
+        mockFlexSyketilfelleVenteperiode(
+            sykmelding.id,
+            VenteperiodeResponse(Venteperiode(fom = LocalDate.now(), tom = LocalDate.now().plusDays(16))),
+        )
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
@@ -945,6 +977,14 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
                 kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
             )
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
+        mockFlexSyketilfelleVenteperiode(
+            sykmelding.id,
+            VenteperiodeResponse(Venteperiode(fom = LocalDate.now(), tom = LocalDate.now().plusDays(16))),
+        )
+        mockFlexSyketilfelleVenteperiode(
+            sykmelding.id,
+            VenteperiodeResponse(Venteperiode(fom = LocalDate.now(), tom = LocalDate.now().plusDays(16))),
+        )
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
@@ -980,6 +1020,14 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
                     ),
             )
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
+        mockFlexSyketilfelleVenteperiode(
+            sykmelding.id,
+            VenteperiodeResponse(Venteperiode(fom = LocalDate.now(), tom = LocalDate.now().plusDays(16))),
+        )
+        mockFlexSyketilfelleVenteperiode(
+            sykmelding.id,
+            VenteperiodeResponse(Venteperiode(fom = LocalDate.now(), tom = LocalDate.now().plusDays(16))),
+        )
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
         val sykmeldingKafkaMessage =

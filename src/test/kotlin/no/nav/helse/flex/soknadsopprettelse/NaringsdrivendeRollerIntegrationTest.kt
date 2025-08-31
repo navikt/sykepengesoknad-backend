@@ -18,7 +18,6 @@ import no.nav.helse.flex.util.serialisertTilString
 import okhttp3.mockwebserver.MockResponse
 import org.amshove.kluent.`should be empty`
 import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should not be null`
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -43,22 +42,33 @@ class NaringsdrivendeRollerIntegrationTest : FellesTestOppsett() {
     fun `Returnerer tom liste med roller når kall til Brreg ikke er enabled`() {
         fakeUnleash.disable(UNLEASH_CONTEXT_BRREG)
 
-        val selvstendigNaringsdrivendeInfo =
-            opprettSoknadService.hentSelvstendigNaringsdrivendeInfo(
+        mockFlexSyketilfelleVenteperiode(
+            "sykmelding-id",
+            VenteperiodeResponse(Venteperiode(LocalDate.now(), LocalDate.now().plusDays(1))),
+        )
+
+        opprettSoknadService
+            .hentSelvstendigNaringsdrivendeInfo(
                 Arbeidssituasjon.NAERINGSDRIVENDE,
                 FolkeregisterIdenter(
                     originalIdent = "11111111111",
                     andreIdenter = emptyList(),
                 ),
                 "sykmelding-id",
-            )
-
-        selvstendigNaringsdrivendeInfo.`should not be null`().roller.`should be empty`()
+            ).also {
+                it!!.roller.`should be empty`()
+                it.ventetid `should be equal to` Ventetid(LocalDate.now(), LocalDate.now().plusDays(1))
+            }
     }
 
     @Test
     fun `Returnerer tom liste med roller når Brreg svarer med NOT_FOUND`() {
         fakeUnleash.enable(UNLEASH_CONTEXT_BRREG)
+
+        mockFlexSyketilfelleVenteperiode(
+            "sykmelding-id",
+            VenteperiodeResponse(Venteperiode(LocalDate.now(), LocalDate.now().plusDays(1))),
+        )
 
         brregMockWebServer.dispatcher =
             simpleDispatcher {
@@ -73,17 +83,18 @@ class NaringsdrivendeRollerIntegrationTest : FellesTestOppsett() {
                 }
             }
 
-        val selvstendigNaringsdrivendeInfo =
-            opprettSoknadService.hentSelvstendigNaringsdrivendeInfo(
+        opprettSoknadService
+            .hentSelvstendigNaringsdrivendeInfo(
                 Arbeidssituasjon.NAERINGSDRIVENDE,
                 FolkeregisterIdenter(
                     originalIdent = "11111111111",
                     andreIdenter = emptyList(),
                 ),
                 "sykmelding-id",
-            )
-
-        selvstendigNaringsdrivendeInfo.`should not be null`().roller.`should be empty`()
+            ).also {
+                it!!.roller.`should be empty`()
+                it.ventetid `should be equal to` Ventetid(LocalDate.now(), LocalDate.now().plusDays(1))
+            }
     }
 
     @Test

@@ -5,9 +5,6 @@ import no.nav.helse.flex.client.brreg.HentRollerRequest
 import no.nav.helse.flex.client.brreg.RolleDto
 import no.nav.helse.flex.client.brreg.RollerDto
 import no.nav.helse.flex.client.brreg.Rolletype
-import no.nav.helse.flex.domain.Venteperiode
-import no.nav.helse.flex.domain.VenteperiodeRequest
-import no.nav.helse.flex.domain.VenteperiodeResponse
 import no.nav.helse.flex.mockdispatcher.withContentTypeApplicationJson
 import no.nav.helse.flex.util.serialisertTilString
 import okhttp3.mockwebserver.MockResponse
@@ -19,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.test.context.TestPropertySource
 import org.springframework.web.client.HttpServerErrorException
-import java.time.LocalDate
 
 @TestPropertySource(properties = ["BRREG_RETRY_ATTEMPTS=1", "VENTETID_RETRY_ATTEMPTS=1"])
 class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
@@ -34,19 +30,11 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
     @Autowired
     lateinit var selvstendigNaringsdrivendeInfoService: SelvstendigNaringsdrivendeInfoService
 
-    val venteperiodeResponse = VenteperiodeResponse(Venteperiode(LocalDate.now(), LocalDate.now().plusDays(1)))
-
     @Test
-    fun `SelvstendigNaringsdrivendeInfo returnerer roller og venteperiode`() {
+    fun `SelvstendigNaringsdrivendeInfo returnerer roller`() {
         brregMockWebServer.enqueue(
             withContentTypeApplicationJson {
                 MockResponse().setBody(lagRollerDto(Rolletype.INNH).serialisertTilString())
-            },
-        )
-
-        ventetidMockWebServer.enqueue(
-            withContentTypeApplicationJson {
-                MockResponse().setBody(venteperiodeResponse.serialisertTilString())
             },
         )
 
@@ -54,7 +42,6 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
             selvstendigNaringsdrivendeInfoService
                 .hentSelvstendigNaringsdrivendeInfo(
                     FolkeregisterIdenter("11111111111", andreIdenter = emptyList()),
-                    "test-sykmelding-id",
                 )
 
         selvstendigNaringsdrivendeInfo.roller.single().also {
@@ -62,15 +49,10 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
             it.orgnummer `should be equal to` "orgnummer"
             it.rolletype `should be equal to` "INNH"
         }
-
-        selvstendigNaringsdrivendeInfo.ventetid.also {
-            it!!.fom `should be equal to` LocalDate.now()
-            it.tom `should be equal to` LocalDate.now().plusDays(1)
-        }
     }
 
     @Test
-    fun `SelvstendigNaringsdrivendeInfo returnerer roller og venteperiode for flere identer`() {
+    fun `SelvstendigNaringsdrivendeInfo returnerer roller for flere identer`() {
         repeat(2) {
             brregMockWebServer.enqueue(
                 withContentTypeApplicationJson {
@@ -79,23 +61,6 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
             )
         }
 
-        ventetidMockWebServer.enqueue(
-            withContentTypeApplicationJson {
-                MockResponse().setBody(venteperiodeResponse.serialisertTilString())
-            },
-        )
-
-        ventetidMockWebServer.enqueue(
-            MockResponse().setBody(
-                VenteperiodeResponse(
-                    Venteperiode(
-                        LocalDate.now(),
-                        LocalDate.now().plusDays(1),
-                    ),
-                ).serialisertTilString(),
-            ),
-        )
-
         val selvstendigNaringsdrivendeInfo =
             selvstendigNaringsdrivendeInfoService
                 .hentSelvstendigNaringsdrivendeInfo(
@@ -103,15 +68,9 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
                         "11111111111",
                         andreIdenter = listOf("22222222222"),
                     ),
-                    "test-sykmelding-id",
                 )
 
         selvstendigNaringsdrivendeInfo.roller.size `should be equal to` 2
-
-        selvstendigNaringsdrivendeInfo.ventetid.also {
-            it!!.fom `should be equal to` LocalDate.now()
-            it.tom `should be equal to` LocalDate.now().plusDays(1)
-        }
     }
 
     @Test
@@ -122,16 +81,9 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
             },
         )
 
-        ventetidMockWebServer.enqueue(
-            withContentTypeApplicationJson {
-                MockResponse().setBody(venteperiodeResponse.serialisertTilString())
-            },
-        )
-
         selvstendigNaringsdrivendeInfoService
             .hentSelvstendigNaringsdrivendeInfo(
                 FolkeregisterIdenter("11111111111", andreIdenter = emptyList()),
-                "test-sykmelding-id",
             )
 
         brregMockWebServer.takeRequest().body.readUtf8() `should be equal to`
@@ -145,9 +97,6 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
                         Rolletype.KOMP,
                     ),
             ).serialisertTilString()
-
-        ventetidMockWebServer.takeRequest().body.readUtf8() `should be equal to`
-            VenteperiodeRequest(returnerPerioderInneforVentetid = true).serialisertTilString()
     }
 
     @Test
@@ -161,7 +110,6 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
         assertThrows<RuntimeException> {
             selvstendigNaringsdrivendeInfoService.hentSelvstendigNaringsdrivendeInfo(
                 FolkeregisterIdenter("11111111111", andreIdenter = emptyList()),
-                "test-sykmelding-id",
             )
         }.also {
             it.message `should be equal to` "500 Server Error: \"Feil i api\""
@@ -169,19 +117,30 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
     }
 
     @Test
-    fun `Kaster exception ved feil ved kall til flex-syketilfelle`() {
+    fun `Kaster exception når det ikke blir funnet roller i Brreg`() {
         brregMockWebServer.enqueue(
-            withContentTypeApplicationJson {
-                MockResponse().setBody(lagRollerDto(Rolletype.DAGL).serialisertTilString())
-            },
+            MockResponse()
+                .setResponseCode(404)
+                .setBody("Fant ingen roller"),
         )
 
+        assertThrows<RuntimeException> {
+            selvstendigNaringsdrivendeInfoService.hentSelvstendigNaringsdrivendeInfo(
+                FolkeregisterIdenter("11111111111", andreIdenter = emptyList()),
+            )
+        }.also {
+            it.message `should be equal to` "404 Client Error: \"Fant ingen roller\""
+        }
+    }
+
+    @Test
+    fun `Kaster exception ved feil ved kall til flex-syketilfelle`() {
         ventetidMockWebServer.enqueue(MockResponse().setResponseCode(500))
 
         assertThrows<HttpServerErrorException> {
-            selvstendigNaringsdrivendeInfoService.hentSelvstendigNaringsdrivendeInfo(
+            selvstendigNaringsdrivendeInfoService.hentVentetid(
                 FolkeregisterIdenter("11111111111", andreIdenter = emptyList()),
-                "test-sykmelding-id",
+                sykmeldingId = "sykmeldingId",
             )
         }.also {
             it.message!!.startsWith("500 Server Error") `should be equal to` true

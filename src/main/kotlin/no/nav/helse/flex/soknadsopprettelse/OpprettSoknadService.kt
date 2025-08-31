@@ -138,7 +138,7 @@ class OpprettSoknadService(
                     .map { it.tilSoknadSammenlikner() }
                     .toHashSet()
             if (sammenliknbartSettAvEksisterendeSoknaderForSm == sammenliknbartSettAvNyeSoknader) {
-                log.info("Oppretter ikke søknader for sykmelding ${sykmelding.id} siden eksisterende identiske søknader finnes")
+                log.info("Oppretter ikke søknader for sykmelding: ${sykmelding.id} siden eksisterende identiske søknader finnes.")
                 return emptyList()
             } else {
                 slettSoknaderTilKorrigertSykmeldingService.slettSoknader(eksisterendeSoknaderForSm)
@@ -147,7 +147,7 @@ class OpprettSoknadService(
 
         return soknaderTilOppretting
             .map { it.markerForsteganssoknad(eksisterendeSoknader, soknaderTilOppretting) }
-            .map { it.lagreSøknad() }
+            .map { it.lagreSykepengesoknad() }
             .mapNotNull { it.publiserEllerReturnerAktiveringBestilling() }
     }
 
@@ -155,30 +155,33 @@ class OpprettSoknadService(
         arbeidssituasjon: Arbeidssituasjon,
         identer: FolkeregisterIdenter,
         sykmeldingId: String,
-        soknadsId: String? = null,
-    ): SelvstendigNaringsdrivendeInfo? =
-        when (arbeidssituasjon) {
-            Arbeidssituasjon.NAERINGSDRIVENDE ->
-                if (unleashToggles.brregEnabled(identer.originalIdent)) {
-                    try {
-                        selvstendigNaringsdrivendeInfoService.hentSelvstendigNaringsdrivendeInfo(
-                            identer = identer,
-                            sykmeldingId = sykmeldingId,
-                        )
-                    } catch (_: HttpClientErrorException.NotFound) {
-                        log.warn("Fant ikke roller for person i brreg for søknad med id $soknadsId")
-                        SelvstendigNaringsdrivendeInfo(roller = emptyList())
-                    }
-                } else {
+        sykepengesoknadId: String? = null,
+    ): SelvstendigNaringsdrivendeInfo? {
+        if (arbeidssituasjon != Arbeidssituasjon.NAERINGSDRIVENDE) {
+            return null
+        }
+
+        val roller =
+            if (unleashToggles.brregEnabled(identer.originalIdent)) {
+                try {
+                    selvstendigNaringsdrivendeInfoService.hentSelvstendigNaringsdrivendeInfo(identer = identer)
+                } catch (_: HttpClientErrorException.NotFound) {
+                    log.warn("Fant ikke roller tilhørende sykmeldt i søknad: $sykepengesoknadId i Brreg.")
                     SelvstendigNaringsdrivendeInfo(roller = emptyList())
                 }
-            else -> null
-        }
+            } else {
+                SelvstendigNaringsdrivendeInfo(roller = emptyList())
+            }
+
+        val ventetid =
+            selvstendigNaringsdrivendeInfoService.hentVentetid(identer = identer, sykmeldingId = sykmeldingId)
+        return roller.copy(ventetid = ventetid)
+    }
 
     private fun List<Sykepengesoknad>.lagreJulesoknadKandidater() = lagreJulesoknadKandidater.lagreJulesoknadKandidater(this)
 
-    fun Sykepengesoknad.lagreSøknad(): Sykepengesoknad {
-        log.info("Oppretter ${this.soknadstype} søknad ${this.id} for sykmelding: ${this.sykmeldingId} med status ${this.status}")
+    fun Sykepengesoknad.lagreSykepengesoknad(): Sykepengesoknad {
+        log.info("Oppretter ${this.soknadstype} søknad: ${this.id} for sykmelding: ${this.sykmeldingId} med status ${this.status}")
         val lagretSoknad = sykepengesoknadDAO.lagreSykepengesoknad(this)
         return lagretSoknad
     }
@@ -255,14 +258,13 @@ fun antallDager(
     tom: LocalDate,
 ): Long = ChronoUnit.DAYS.between(fom, tom) + 1
 
-fun eldstePeriodeFOM(perioder: List<SykmeldingsperiodeAGDTO>): LocalDate =
+fun eldstePeriodeFom(perioder: List<SykmeldingsperiodeAGDTO>): LocalDate =
     perioder
-        .sortedBy {
+        .minByOrNull {
             it.fom
-        }.firstOrNull()
-        ?.fom ?: throw SykeforloepManglerSykemeldingException()
+        }?.fom ?: throw SykeforloepManglerSykemeldingException()
 
-fun hentSenesteTOMFraPerioder(perioder: List<SykmeldingsperiodeAGDTO>): LocalDate = perioder.sortedByDescending { it.fom }.first().tom
+fun sistePeriodeTom(perioder: List<SykmeldingsperiodeAGDTO>): LocalDate = perioder.maxByOrNull { it.fom }!!.tom
 
 private fun PeriodetypeDTO.tilSykmeldingstype(): Sykmeldingstype =
     when (this) {
