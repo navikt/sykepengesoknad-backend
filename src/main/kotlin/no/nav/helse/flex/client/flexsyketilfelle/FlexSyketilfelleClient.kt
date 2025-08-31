@@ -20,6 +20,7 @@ import org.springframework.http.HttpMethod.POST
 import org.springframework.http.MediaType
 import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
+import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
 
@@ -104,7 +105,7 @@ class FlexSyketilfelleClient(
             ?: throw RuntimeException("Ingen data returnert fra flex-syketilfelle/erUtenforVentetid")
     }
 
-    @Retryable
+    @Retryable(include = [HttpServerErrorException::class], maxAttemptsExpression = "\${VENTETID_RETRY_ATTEMPTS:3}")
     fun hentVenteperiode(
         identer: FolkeregisterIdenter,
         sykmeldingId: String,
@@ -126,15 +127,18 @@ class FlexSyketilfelleClient(
                     queryBuilder.toUriString(),
                     POST,
                     HttpEntity(venteperiodeRequest, headers),
-                    VenteperiodeResponse::class.java,
+                    String::class.java,
                 )
 
         if (!venteperiodeResponse.statusCode.is2xxSuccessful) {
             throw RuntimeException("Kall mot flex-syketilfelle/venteperiode feiler med HTTP-${venteperiodeResponse.statusCode}")
         }
 
-        return venteperiodeResponse.body
-            ?: throw RuntimeException("Ingen data returnert fra flex-syketilfelle/venteperiode")
+        if (venteperiodeResponse.body == null) {
+            throw RuntimeException("Ingen data returnert fra flex-syketilfelle/venteperiode")
+        }
+
+        return objectMapper.readValue(venteperiodeResponse.body, VenteperiodeResponse::class.java)
     }
 
     @Retryable

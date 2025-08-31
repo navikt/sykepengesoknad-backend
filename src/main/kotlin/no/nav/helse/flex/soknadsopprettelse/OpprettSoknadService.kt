@@ -67,17 +67,17 @@ class OpprettSoknadService(
         val sykmeldingSplittetMellomTyper = sykmelding.splittMellomTyper()
         val soknaderTilOppretting =
             sykmeldingSplittetMellomTyper
-                .map { sm ->
-                    sm
+                .map { sykmelding ->
+                    sykmelding
                         .splittSykmeldingiSoknadsPerioder(
                             arbeidssituasjon,
                             eksisterendeSoknader,
-                            sm.id,
-                            sm.behandletTidspunkt.toInstant(),
+                            sykmelding.id,
+                            sykmelding.behandletTidspunkt.toInstant(),
                             arbeidsgiverStatusDTO?.orgnummer,
                             klippMetrikk,
                         ).map {
-                            val perioderFraSykmeldingen = it.delOppISoknadsperioder(sm)
+                            val perioderFraSykmeldingen = it.delOppISoknadsperioder(sykmelding)
                             val soknadsId = sykmeldingKafkaMessage.skapSoknadsId(it.fom, it.tom)
                             Sykepengesoknad(
                                 id = soknadsId,
@@ -88,12 +88,12 @@ class OpprettSoknadService(
                                 arbeidssituasjon = arbeidssituasjon,
                                 arbeidsgiverOrgnummer = arbeidsgiverStatusDTO?.orgnummer,
                                 arbeidsgiverNavn = arbeidsgiverStatusDTO?.orgNavn?.prettyOrgnavn(),
-                                sykmeldingId = sm.id,
-                                sykmeldingSkrevet = sm.behandletTidspunkt.toInstant(),
-                                sykmeldingSignaturDato = sm.signaturDato?.toInstant(),
+                                sykmeldingId = sykmelding.id,
+                                sykmeldingSkrevet = sykmelding.behandletTidspunkt.toInstant(),
+                                sykmeldingSignaturDato = sykmelding.signaturDato?.toInstant(),
                                 soknadPerioder = perioderFraSykmeldingen.tilSoknadsperioder(),
-                                egenmeldtSykmelding = sm.egenmeldt,
-                                merknaderFraSykmelding = sm.merknader.tilMerknader(),
+                                egenmeldtSykmelding = sykmelding.egenmeldt,
+                                merknaderFraSykmelding = sykmelding.merknader.tilMerknader(),
                                 soknadstype = finnSoknadsType(arbeidssituasjon, perioderFraSykmeldingen),
                                 status = Soknadstatus.FREMTIDIG,
                                 opprettet = Instant.now(),
@@ -116,7 +116,13 @@ class OpprettSoknadService(
                                             ?.svar
                                             ?.name,
                                     ),
-                                selvstendigNaringsdrivende = hentSelvstendigNaringsdrivendeInfo(arbeidssituasjon, identer, soknadsId),
+                                selvstendigNaringsdrivende =
+                                    hentSelvstendigNaringsdrivendeInfo(
+                                        arbeidssituasjon,
+                                        identer,
+                                        sykmelding.id,
+                                        soknadsId,
+                                    ),
                             )
                         }.filter { it.soknadPerioder?.isNotEmpty() ?: true }
                         .also { it.lagreJulesoknadKandidater() }
@@ -148,6 +154,7 @@ class OpprettSoknadService(
     internal fun hentSelvstendigNaringsdrivendeInfo(
         arbeidssituasjon: Arbeidssituasjon,
         identer: FolkeregisterIdenter,
+        sykmeldingId: String,
         soknadsId: String? = null,
     ): SelvstendigNaringsdrivendeInfo? =
         when (arbeidssituasjon) {
@@ -156,6 +163,7 @@ class OpprettSoknadService(
                     try {
                         selvstendigNaringsdrivendeInfoService.hentSelvstendigNaringsdrivendeInfo(
                             identer = identer,
+                            sykmeldingId = sykmeldingId,
                         )
                     } catch (_: HttpClientErrorException.NotFound) {
                         log.warn("Fant ikke roller for person i brreg for søknad med id $soknadsId")
