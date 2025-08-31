@@ -15,17 +15,12 @@ class SelvstendigNaringsdrivendeInfoService(
     private val brregClient: BrregClient,
     private val flexSyketilfelleClient: FlexSyketilfelleClient,
 ) {
-    fun hentSelvstendigNaringsdrivendeInfo(
-        identer: FolkeregisterIdenter,
-        sykmeldingId: String,
-    ): SelvstendigNaringsdrivendeInfo {
+    fun hentSelvstendigNaringsdrivendeInfo(identer: FolkeregisterIdenter): SelvstendigNaringsdrivendeInfo {
         val roller = identer.alle().flatMap { hentRoller(it) }.map(::tilBrregRolle)
-        val ventetid = hentVentetid(identer, sykmeldingId)
-
-        return SelvstendigNaringsdrivendeInfo(roller = roller, ventetid = ventetid)
+        return SelvstendigNaringsdrivendeInfo(roller = roller)
     }
 
-    private fun hentVentetid(
+    fun hentVentetid(
         identer: FolkeregisterIdenter,
         sykmeldingId: String,
     ): Ventetid {

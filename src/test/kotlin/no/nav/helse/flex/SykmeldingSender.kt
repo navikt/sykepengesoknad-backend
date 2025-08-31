@@ -1,6 +1,8 @@
 package no.nav.helse.flex
 
 import no.nav.helse.flex.domain.Arbeidssituasjon
+import no.nav.helse.flex.domain.Venteperiode
+import no.nav.helse.flex.domain.VenteperiodeResponse
 import no.nav.helse.flex.domain.mapper.tilSoknadstatusDTO
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.kafka.consumer.SYKMELDINGBEKREFTET_TOPIC
@@ -28,6 +30,10 @@ fun FellesTestOppsett.sendSykmelding(
         )
     ) {
         mockFlexSyketilfelleErUtenforVentetid(sykmeldingKafkaMessage.sykmelding.id, true)
+        mockFlexSyketilfelleVenteperiode(
+            sykmeldingKafkaMessage.sykmelding.id,
+            VenteperiodeResponse(Venteperiode(fom = LocalDate.now(), tom = LocalDate.now().plusDays(16))),
+        )
     }
 
     mockFlexSyketilfelleSykeforloep(
