@@ -147,7 +147,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
             ).serialisertTilString()
 
         ventetidMockWebServer.takeRequest().body.readUtf8() `should be equal to`
-            VenteperiodeRequest(harForsikring = true).serialisertTilString()
+            VenteperiodeRequest(returnerPerioderInneforVentetid = true).serialisertTilString()
     }
 
     @Test
