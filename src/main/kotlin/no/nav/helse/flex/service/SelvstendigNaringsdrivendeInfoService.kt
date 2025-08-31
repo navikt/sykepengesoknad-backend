@@ -31,7 +31,7 @@ class SelvstendigNaringsdrivendeInfoService(
     ): Ventetid {
         val ventetid =
             flexSyketilfelleClient
-                .hentVenteperiode(identer, sykmeldingId, VenteperiodeRequest(harForsikring = true))
+                .hentVenteperiode(identer, sykmeldingId, VenteperiodeRequest(returnerPerioderInneforVentetid = true))
                 .let {
                     Ventetid(fom = it.venteperiode!!.fom, tom = it.venteperiode.tom)
                 }
