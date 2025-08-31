@@ -269,7 +269,7 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
 
     @Test
     fun `Person er ikke i arbeidssøkerregisteret`() {
-        FellesTestOppsett.arbeidssokerregisterMockDispatcher.enqueue(
+        FellesTestOppsett.arbeidssokerregisterMockWebServer.enqueue(
             MockResponse().setBody("[]").setResponseCode(200),
         )
 
@@ -288,7 +288,7 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
 
     @Test
     fun `Person er avsluttet i arbeidssøker registeret`() {
-        FellesTestOppsett.arbeidssokerregisterMockDispatcher.enqueue(
+        FellesTestOppsett.arbeidssokerregisterMockWebServer.enqueue(
             MockResponse()
                 .setBody(listOf(skapArbeidssokerperiodeResponse(avsluttet = true)).serialisertTilString())
                 .setResponseCode(200),
