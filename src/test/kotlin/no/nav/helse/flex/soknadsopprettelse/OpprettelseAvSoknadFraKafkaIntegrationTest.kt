@@ -18,6 +18,8 @@ import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykmeldingstype
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.BrregRolle
 import no.nav.helse.flex.domain.FiskerBlad
+import no.nav.helse.flex.domain.Venteperiode
+import no.nav.helse.flex.domain.VenteperiodeResponse
 import no.nav.helse.flex.domain.exception.ManglerSykmeldingException
 import no.nav.helse.flex.domain.exception.ProduserKafkaMeldingException
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
@@ -54,7 +56,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import java.math.BigInteger
 import java.time.LocalDate
 
-@TestMethodOrder(MethodOrderer.MethodName::class)
 class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
     private val fnr = "123456789"
 
@@ -132,6 +133,10 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
                 .copy(harRedusertArbeidsgiverperiode = true)
 
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
+        mockFlexSyketilfelleVenteperiode(
+            sykmelding.id,
+            VenteperiodeResponse(Venteperiode(fom = LocalDate.now(), tom = LocalDate.now().plusDays(16))),
+        )
         mockFlexSyketilfelleSykeforloep(sykmeldingId)
 
         val sykmeldingKafkaMessage =
@@ -358,6 +363,10 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
                 .copy(harRedusertArbeidsgiverperiode = true)
 
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, false)
+        mockFlexSyketilfelleVenteperiode(
+            sykmelding.id,
+            VenteperiodeResponse(Venteperiode(fom = LocalDate.now(), tom = LocalDate.now().plusDays(16))),
+        )
         mockFlexSyketilfelleSykeforloep(sykmeldingId)
 
         val sykmeldingKafkaMessage =

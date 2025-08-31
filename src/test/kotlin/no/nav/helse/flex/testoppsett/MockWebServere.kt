@@ -1,7 +1,15 @@
 package no.nav.helse.flex.testoppsett
 
 import no.nav.helse.flex.medlemskap.MedlemskapMockDispatcher
-import no.nav.helse.flex.mockdispatcher.*
+import no.nav.helse.flex.mockdispatcher.AaregMockDispatcher
+import no.nav.helse.flex.mockdispatcher.ArbeidssokerregisterMockDispatcher
+import no.nav.helse.flex.mockdispatcher.EregMockDispatcher
+import no.nav.helse.flex.mockdispatcher.GrunnbeloepApiMockDispatcher
+import no.nav.helse.flex.mockdispatcher.InnsendingApiMockDispatcher
+import no.nav.helse.flex.mockdispatcher.InntektskomponentenMockDispatcher
+import no.nav.helse.flex.mockdispatcher.PdlMockDispatcher
+import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher
+import no.nav.helse.flex.mockdispatcher.YrkesskadeMockDispatcher
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer

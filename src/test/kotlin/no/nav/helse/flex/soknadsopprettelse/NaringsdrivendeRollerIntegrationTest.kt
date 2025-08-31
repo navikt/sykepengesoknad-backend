@@ -6,6 +6,10 @@ import no.nav.helse.flex.client.brreg.RollerDto
 import no.nav.helse.flex.client.brreg.Rolletype
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.BrregRolle
+import no.nav.helse.flex.domain.Venteperiode
+import no.nav.helse.flex.domain.VenteperiodeResponse
+import no.nav.helse.flex.domain.Ventetid
+import no.nav.helse.flex.mockFlexSyketilfelleVenteperiode
 import no.nav.helse.flex.mockdispatcher.withContentTypeApplicationJson
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.testoppsett.simpleDispatcher
@@ -18,6 +22,7 @@ import org.amshove.kluent.`should not be null`
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import java.time.LocalDate
 
 class NaringsdrivendeRollerIntegrationTest : FellesTestOppsett() {
     @Autowired
@@ -27,6 +32,11 @@ class NaringsdrivendeRollerIntegrationTest : FellesTestOppsett() {
     fun setup() {
         brregMockWebServer.dispatcher = simpleDispatcher { MockResponse().setResponseCode(200) }
         fakeUnleash.resetAll()
+    }
+
+    @BeforeEach
+    fun setUp() {
+        flexSyketilfelleMockRestServiceServer.reset()
     }
 
     @Test
@@ -40,6 +50,7 @@ class NaringsdrivendeRollerIntegrationTest : FellesTestOppsett() {
                     originalIdent = "11111111111",
                     andreIdenter = emptyList(),
                 ),
+                "sykmelding-id",
             )
 
         selvstendigNaringsdrivendeInfo.`should not be null`().roller.`should be empty`()
@@ -69,6 +80,7 @@ class NaringsdrivendeRollerIntegrationTest : FellesTestOppsett() {
                     originalIdent = "11111111111",
                     andreIdenter = emptyList(),
                 ),
+                "sykmelding-id",
             )
 
         selvstendigNaringsdrivendeInfo.`should not be null`().roller.`should be empty`()
@@ -77,6 +89,11 @@ class NaringsdrivendeRollerIntegrationTest : FellesTestOppsett() {
     @Test
     fun `Returnerer liste med roller når kall til Brreg er enabled`() {
         fakeUnleash.enable(UNLEASH_CONTEXT_BRREG)
+
+        mockFlexSyketilfelleVenteperiode(
+            "sykmelding-id",
+            VenteperiodeResponse(Venteperiode(LocalDate.now(), LocalDate.now().plusDays(1))),
+        )
 
         brregMockWebServer.dispatcher =
             simpleDispatcher {
@@ -103,6 +120,7 @@ class NaringsdrivendeRollerIntegrationTest : FellesTestOppsett() {
                     originalIdent = "11111111111",
                     andreIdenter = emptyList(),
                 ),
+                "sykmelding-id",
             ).also {
                 it!!.roller `should be equal to`
                     listOf(
@@ -112,7 +130,7 @@ class NaringsdrivendeRollerIntegrationTest : FellesTestOppsett() {
                             rolletype = Rolletype.INNH.name,
                         ),
                     )
-                it.ventetid `should be equal to` null
+                it.ventetid `should be equal to` Ventetid(LocalDate.now(), LocalDate.now().plusDays(1))
             }
     }
 }
