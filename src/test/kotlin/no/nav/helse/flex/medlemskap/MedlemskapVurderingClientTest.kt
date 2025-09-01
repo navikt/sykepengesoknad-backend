@@ -8,7 +8,6 @@ import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should contain same`
 import org.amshove.kluent.shouldNotContain
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
@@ -29,8 +28,8 @@ class MedlemskapVurderingClientTest {
         )
 
     @Test
-    fun `Fjerner spørsmål om OPPHOLDSTILLATELSE hvis kjentOppholdstillatelse mangler for angitt søknad`() {
-        val sykepengesoknadId = "3b33fe80-1b97-37a2-9c92-106dea8783be"
+    fun `Fjerner spørsmål om OPPHOLDSTILLATELSE hvis kjentOppholdstillatelse mangler`() {
+        val sykepengesoknadId = UUID.randomUUID().toString()
         val request =
             MedlemskapVurderingRequest(
                 fnr = "12345678901",
@@ -70,7 +69,7 @@ class MedlemskapVurderingClientTest {
     }
 
     @Test
-    fun `Kaster exception når spørsmål om OPPHOLDSTILLATELSE mangler kjentOppholdstillatelse`() {
+    fun `Returnerer spørsmål om OPPHOLDSTILLATELSE hvis kjentOppholdstillatelse blir returnert`() {
         val sykepengesoknadId = UUID.randomUUID().toString()
         val request =
             MedlemskapVurderingRequest(
@@ -88,7 +87,11 @@ class MedlemskapVurderingClientTest {
                         MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
                         MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
                     ),
-                kjentOppholdstillatelse = null,
+                kjentOppholdstillatelse =
+                    KjentOppholdstillatelse(
+                        fom = LocalDate.of(2023, 1, 1),
+                        tom = LocalDate.of(2023, 1, 31),
+                    ),
             )
 
         whenever(
@@ -100,8 +103,18 @@ class MedlemskapVurderingClientTest {
             ),
         ).thenReturn(ResponseEntity.ok(mockResponse))
 
-        assertThrows<MedlemskapVurderingResponseException> {
-            medlemskapVurderingClient.hentMedlemskapVurdering(request)
+        medlemskapVurderingClient.hentMedlemskapVurdering(request).also {
+            it.svar `should be equal to` MedlemskapVurderingSvarType.UAVKLART
+            it.sporsmal `should contain same`
+                listOf(
+                    MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
+                    MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
+                )
+            it.kjentOppholdstillatelse `should be equal to`
+                KjentOppholdstillatelse(
+                    fom = LocalDate.of(2023, 1, 1),
+                    tom = LocalDate.of(2023, 1, 31),
+                )
         }
 
         verify(medlemskapVurderingRepository).save(any())

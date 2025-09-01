@@ -86,30 +86,18 @@ class MedlemskapVurderingClient(
         }
 
         // Periode for kjent oppholdstillatelse skal alltid returneres når spørsmål om oppholdstillatelse stilles.
+        // Fjerner spørsmålet hvis det ikke er tilfelle.
         if (medlemskapVurderingResponse.kjentOppholdstillatelse == null &&
             medlemskapVurderingResponse.sporsmal.contains(MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE)
         ) {
-            val idListe =
-                listOf(
-                    "5e5dc803-f599-3f16-8c7a-e802db6e3b86",
-                    "1df2bc5b-f7f9-3c32-988a-660565d9a03d",
-                    "a8021cff-5aa3-37ae-bdeb-2d29bf0236e7",
-                    "3b33fe80-1b97-37a2-9c92-106dea8783be",
-                )
-            if (idListe.contains(medlemskapVurderingRequest.sykepengesoknadId)) {
-                log.info(
-                    "Fjerner medlemskapsspørsmål om ${MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE} for " +
-                        "søknad: ${medlemskapVurderingRequest.sykepengesoknadId} da spørsmålet mangler kjentOppholdstillatelse.",
-                )
-                val filtrertListe =
-                    medlemskapVurderingResponse.sporsmal.filter { it != MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE }
-                return medlemskapVurderingResponse.copy(sporsmal = filtrertListe)
-            } else {
-                throw MedlemskapVurderingResponseException(
-                    "MedlemskapVurdering med Nav-Call-Id: $soknadId mangler kjentOppholdstillatelse når spørsmål " +
-                        "${MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE} stilles.",
-                )
-            }
+            log.info(
+                "Fjerner medlemskapsspørsmål om ${MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE} for " +
+                    "søknad: ${medlemskapVurderingRequest.sykepengesoknadId} da spørsmålet mangler kjentOppholdstillatelse.",
+            )
+
+            val sporsmalUtenOppholdstilatelse =
+                medlemskapVurderingResponse.sporsmal.filter { it != MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE }
+            return medlemskapVurderingResponse.copy(sporsmal = sporsmalUtenOppholdstilatelse)
         }
 
         // Mottar vi en avklart situasjon (svar.JA eller svar.NEI) skal vi ikke få spørsmål å stille brukeren.

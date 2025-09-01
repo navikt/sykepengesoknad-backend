@@ -287,40 +287,6 @@ class MedlemskapVurderingIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `hentMedlemskapVurdering kaster exception når vi får OPPHOLDSTILLATELSE uten kjentOppholdstillatelse`() {
-        val fnr = "31111111117"
-        medlemskapMockWebServer.enqueue(
-            MockResponse().setResponseCode(200).setBody(
-                MedlemskapVurderingResponse(
-                    svar = MedlemskapVurderingSvarType.UAVKLART,
-                    sporsmal =
-                        listOf(
-                            MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
-                        ),
-                ).serialisertTilString(),
-            ),
-        )
-
-        val exception =
-            assertThrows<MedlemskapVurderingResponseException> {
-                medlemskapVurderingClient.hentMedlemskapVurdering(
-                    request.copy(fnr = fnr),
-                )
-            }
-
-        exception.message?.shouldStartWith("MedlemskapVurdering med Nav-Call-Id:")
-        exception.message?.shouldContain(
-            "mangler kjentOppholdstillatelse når spørsmål ${MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE} stilles.",
-        )
-
-        medlemskapVurderingRepository.findAll() shouldHaveSize 1
-
-        // Verdier blir lagret før vi validerer responsen sånn at vi kan feilsøke.
-        val dbRecords = medlemskapVurderingRepository.findAll() shouldHaveSize 1
-        dbRecords.first().sporsmal `should not be` null
-    }
-
-    @Test
     fun `hentMedlemskapVurdering kaster exception når vi får kjentOppholdstillatelse uten OPPHOLDSTILLATELSE`() {
         val fnr = "31111111117"
         medlemskapMockWebServer.enqueue(
