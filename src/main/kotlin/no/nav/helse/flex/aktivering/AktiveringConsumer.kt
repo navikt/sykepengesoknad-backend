@@ -3,6 +3,7 @@ package no.nav.helse.flex.aktivering
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.helse.flex.config.EnvironmentToggles
 import no.nav.helse.flex.domain.Soknadstatus
+import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.kafka.SYKEPENGESOKNAD_AKTIVERING_TOPIC
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadDAO
@@ -37,13 +38,24 @@ class AktiveringConsumer(
             soknadAktivering.aktiverSoknad(cr.key())
         } catch (e: Exception) {
             if (environmentToggles.isNotProduction()) {
-                sykepengesoknadDAO.finnSykepengesoknad(cr.key()).also {
-                    sykepengesoknadDAO.slettSoknad(it.id)
+                val soknad = sykepengesoknadDAO.finnSykepengesoknad(cr.key())
+
+                when (soknad.soknadstype) {
+                    Soknadstype.SELVSTENDIGE_OG_FRILANSERE -> {
+                        sykepengesoknadDAO.slettSoknad(soknad.id)
+                        log.warn(
+                            "Feilet ved aktivering av ${soknad.soknadstype} søknad: ${soknad.id} i DEV. Setter søknaden til ${Soknadstatus.SLETTET}.",
+                            e,
+                        )
+                    }
+                    else -> {
+                        log.warn(
+                            "Feilet ved aktivering av ${soknad.soknadstype} søknad: ${soknad.id} i DEV.",
+                            e,
+                        )
+                    }
                 }
-                log.warn(
-                    "Feil ved aktivering i dev. Setter søknad ${cr.key()} til ${Soknadstatus.SLETTET} og acker.",
-                    e,
-                )
+
                 acknowledgment.acknowledge()
                 return
             }
