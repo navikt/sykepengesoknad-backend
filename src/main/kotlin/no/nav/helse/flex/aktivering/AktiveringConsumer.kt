@@ -2,8 +2,11 @@ package no.nav.helse.flex.aktivering
 
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.helse.flex.config.EnvironmentToggles
+import no.nav.helse.flex.domain.Soknadstatus
+import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.kafka.SYKEPENGESOKNAD_AKTIVERING_TOPIC
 import no.nav.helse.flex.logger
+import no.nav.helse.flex.repository.SykepengesoknadDAO
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.support.Acknowledgment
@@ -14,6 +17,7 @@ class AktiveringConsumer(
     private val soknadAktivering: SoknadAktivering,
     private val retryLogger: RetryLogger,
     private val environmentToggles: EnvironmentToggles,
+    private val sykepengesoknadDAO: SykepengesoknadDAO,
 ) {
     val log = logger()
 
@@ -34,7 +38,24 @@ class AktiveringConsumer(
             soknadAktivering.aktiverSoknad(cr.key())
         } catch (e: Exception) {
             if (environmentToggles.isNotProduction()) {
-                log.warn("feiler i dev, acker uansett", e)
+                val soknad = sykepengesoknadDAO.finnSykepengesoknad(cr.key())
+
+                when (soknad.soknadstype) {
+                    Soknadstype.SELVSTENDIGE_OG_FRILANSERE -> {
+                        sykepengesoknadDAO.slettSoknad(soknad.id)
+                        log.warn(
+                            "Feilet ved aktivering av ${soknad.soknadstype} søknad: ${soknad.id} i DEV. Setter søknaden til ${Soknadstatus.SLETTET}.",
+                            e,
+                        )
+                    }
+                    else -> {
+                        log.warn(
+                            "Feilet ved aktivering av ${soknad.soknadstype} søknad: ${soknad.id} i DEV.",
+                            e,
+                        )
+                    }
+                }
+
                 acknowledgment.acknowledge()
                 return
             }
