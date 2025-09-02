@@ -49,5 +49,5 @@ env:
   AAREG_AAD_CLIENT_ID: prod-fss.arbeidsforhold.aareg-services-nais
   BRREG_API_URL: http://flex-brreg-proxy
   BRREG_AAD_CLIENT_ID: prod-gcp.flex.flex-brreg-proxy
-  ARBEIDSSOEKERREGISTERET_API_AAD_CLIENT_ID: prod-gcp.paw.paw-arbeidssoekerregisteret-api-oppslag
-  ARBEIDSSOEKERREGISTERET_API_URL: http://paw-arbeidssoekerregisteret-api-oppslag.paw
+  ARBEIDSSOEKERREGISTERET_API_AAD_CLIENT_ID: prod-gcp.paw.paw-arbeidssoekerregisteret-api-oppslag-v2
+  ARBEIDSSOEKERREGISTERET_API_URL: http://paw-arbeidssoekerregisteret-api-oppslag-v2.paw
