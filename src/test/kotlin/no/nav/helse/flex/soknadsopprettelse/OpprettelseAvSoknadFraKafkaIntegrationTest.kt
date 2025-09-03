@@ -169,62 +169,6 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `Oppretter kort søknad for næringsdrivende uten data fra brreg når feature toggle er av`() {
-        fakeUnleash.resetAll()
-
-        brregMockWebServer.dispatcher =
-            simpleDispatcher {
-                MockResponse()
-                    .setHeader("Content-Type", "application/json")
-                    .setBody(
-                        RollerDto(
-                            roller =
-                                listOf(
-                                    RolleDto(
-                                        rolletype = Rolletype.INNH,
-                                        organisasjonsnummer = "orgnummer",
-                                        organisasjonsnavn = "orgnavn",
-                                    ),
-                                ),
-                        ).serialisertTilString(),
-                    )
-            }
-
-        val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
-        val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
-        val sykmelding =
-            skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId)
-                .copy(harRedusertArbeidsgiverperiode = true)
-
-        mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
-        mockFlexSyketilfelleVenteperiode(
-            sykmelding.id,
-            VenteperiodeResponse(Venteperiode(fom = LocalDate.now(), tom = LocalDate.now().plusDays(16))),
-        )
-        mockFlexSyketilfelleSykeforloep(sykmeldingId)
-
-        val sykmeldingKafkaMessage =
-            SykmeldingKafkaMessage(
-                sykmelding = sykmelding,
-                event = sykmeldingStatusKafkaMessageDTO.event,
-                kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
-            )
-
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
-
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
-
-        hentSoknader(fnr).sortedBy { it.fom }.first().apply {
-            this.selvstendigNaringsdrivendeInfo
-                .shouldNotBeNull()
-                .roller
-                .shouldBeEmpty()
-        }
-
-        verify(aivenKafkaProducer, times(1)).produserMelding(any())
-    }
-
-    @Test
     fun `Oppretter kort søknad for næringsdrivende med Sigrun-data`() {
         fakeUnleash.resetAll()
         fakeUnleash.enable("sykepengesoknad-backend-sigrun-paa-kafka")
