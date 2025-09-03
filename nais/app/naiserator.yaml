@@ -93,7 +93,7 @@ spec:
           namespace: medlemskap
         - application: innsending-api
           namespace: team-soknad
-        - application: paw-arbeidssoekerregisteret-api-oppslag
+        - application: paw-arbeidssoekerregisteret-api-oppslag-v2
           namespace: paw
       external:
   {{#each external-host}}
