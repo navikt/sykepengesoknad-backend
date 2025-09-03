@@ -2,7 +2,6 @@ package no.nav.helse.flex.soknadsopprettelse
 
 import no.nav.helse.flex.aktivering.AktiveringBestilling
 import no.nav.helse.flex.domain.*
-import no.nav.helse.flex.domain.Merknad
 import no.nav.helse.flex.domain.exception.SykeforloepManglerSykemeldingException
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.domain.sykmelding.finnSoknadsType
@@ -22,7 +21,11 @@ import no.nav.helse.flex.util.EnumUtil
 import no.nav.helse.flex.util.osloZone
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
-import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO.*
+import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO.AKTIVITET_IKKE_MULIG
+import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO.AVVENTENDE
+import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO.BEHANDLINGSDAGER
+import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO.GRADERT
+import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO.REISETILSKUDD
 import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
 import no.nav.syfo.sykmelding.kafka.model.ShortNameKafkaDTO
 import org.springframework.stereotype.Service
@@ -121,7 +124,6 @@ class OpprettSoknadService(
                                         arbeidssituasjon,
                                         identer,
                                         sykmelding.id,
-                                        soknadsId,
                                     ),
                             )
                         }.filter { it.soknadPerioder?.isNotEmpty() ?: true }
@@ -155,27 +157,21 @@ class OpprettSoknadService(
         arbeidssituasjon: Arbeidssituasjon,
         identer: FolkeregisterIdenter,
         sykmeldingId: String,
-        sykepengesoknadId: String? = null,
     ): SelvstendigNaringsdrivendeInfo? {
         if (arbeidssituasjon != Arbeidssituasjon.NAERINGSDRIVENDE) {
             return null
         }
 
-        val roller =
-            if (unleashToggles.brregEnabled(identer.originalIdent)) {
-                try {
-                    selvstendigNaringsdrivendeInfoService.hentSelvstendigNaringsdrivendeInfo(identer = identer)
-                } catch (_: HttpClientErrorException.NotFound) {
-                    log.warn("Fant ikke roller tilhørende sykmeldt i søknad: $sykepengesoknadId i Brreg.")
-                    SelvstendigNaringsdrivendeInfo(roller = emptyList())
-                }
-            } else {
+        // TODO: Flytt logikk til SelvstendigNaringsdrivendeInfoService
+        val selvstendigNaringsdrivendeInfo =
+            try {
+                selvstendigNaringsdrivendeInfoService.hentSelvstendigNaringsdrivendeInfo(identer = identer)
+            } catch (_: HttpClientErrorException.NotFound) {
                 SelvstendigNaringsdrivendeInfo(roller = emptyList())
             }
-
         val ventetid =
             selvstendigNaringsdrivendeInfoService.hentVentetid(identer = identer, sykmeldingId = sykmeldingId)
-        return roller.copy(ventetid = ventetid)
+        return selvstendigNaringsdrivendeInfo.copy(ventetid = ventetid)
     }
 
     private fun List<Sykepengesoknad>.lagreJulesoknadKandidater() = lagreJulesoknadKandidater.lagreJulesoknadKandidater(this)
