@@ -137,7 +137,7 @@ private fun tilbakeIFulltArbeidSporsmal(soknadMetadata: Sykepengesoknad): Sporsm
 
 private fun fravaerForSykmeldingSporsmal(soknadMetadata: Sykepengesoknad): Sporsmal =
     Sporsmal(
-        tag = FRAVAR_FOR_SYKMELDINGEN,
+        tag = FRAVAR_FOR_SYKMELDINGEN_SELVSTENDIG_NARINGSDRIVENDE,
         sporsmalstekst = "Var du borte fra jobb i fire uker eller mer rett før du ble sykmeldt ${soknadMetadata.fom}?",
         svartype = JA_NEI,
         undertekst = "Gjelder sammenhengende ferie eller annet fravær gjennom alle fire ukene. Har du jobbet underveis, kan du svare nei. ",

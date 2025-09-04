@@ -89,6 +89,7 @@ fun opprettNyNaeringsdrivendeSoknad(): Sykepengesoknad {
                 ),
             status = Soknadstatus.NY,
         ).leggSvarPaSoknad()
+        .besvarsporsmal(FRAVAR_FOR_SYKMELDINGEN_SELVSTENDIG_NARINGSDRIVENDE, "JA")
 }
 
 fun opprettSendtFrilanserSoknad(): Sykepengesoknad {
@@ -161,7 +162,6 @@ private fun Sykepengesoknad.leggSvarPaSoknad(): Sykepengesoknad =
         .harDuOppholdtDegIUtlandet()
         .andreInntektskilder()
         .tilbakeIArbeid()
-        .besvarsporsmal(FRAVAR_FOR_SYKMELDINGEN, "JA")
         .besvarsporsmal(ANSVARSERKLARING, "CHECKED")
 
 private fun Sykepengesoknad.harDuOppholdtDegIUtlandet(): Sykepengesoknad =
