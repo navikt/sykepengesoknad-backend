@@ -141,6 +141,8 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
 
         soknadDTO.sporsmal!!.find { it.tag == "FRAVAR_FOR_SYKMELDINGEN_V2" }.also { fravaerSpm ->
             fravaerSpm?.svar.`should not be null`()
+            fravaerSpm.sporsmalstekst `should be equal to`
+                "Var du borte fra jobb i fire uker eller mer rett før du ble sykmeldt 1. juni 2018?"
             fravaerSpm.svar!!.size `should be equal to` 1
             fravaerSpm.svar!!.first().verdi `should be equal to` "JA"
         }
