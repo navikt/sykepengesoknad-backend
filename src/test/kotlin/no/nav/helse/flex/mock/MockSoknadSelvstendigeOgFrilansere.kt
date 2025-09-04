@@ -80,15 +80,16 @@ fun opprettNyNaeringsdrivendeSoknad(): Sykepengesoknad {
             sporsmal =
                 settOppSoknadSelvstendigOgFrilanser(
                     SettOppSoknadOptions(
-                        soknadMetadata,
-                        false,
-                        false,
-                        YrkesskadeSporsmalGrunnlag(),
+                        sykepengesoknad = soknadMetadata,
+                        erForsteSoknadISykeforlop = true,
+                        harTidligereUtenlandskSpm = false,
+                        yrkesskade = YrkesskadeSporsmalGrunnlag(),
                         eksisterendeSoknader = emptyList(),
                     ),
                 ),
             status = Soknadstatus.NY,
         ).leggSvarPaSoknad()
+        .besvarsporsmal(FRAVAR_FOR_SYKMELDINGEN_V2, "JA")
 }
 
 fun opprettSendtFrilanserSoknad(): Sykepengesoknad {
