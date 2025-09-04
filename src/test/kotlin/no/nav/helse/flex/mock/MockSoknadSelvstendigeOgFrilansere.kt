@@ -89,7 +89,7 @@ fun opprettNyNaeringsdrivendeSoknad(): Sykepengesoknad {
                 ),
             status = Soknadstatus.NY,
         ).leggSvarPaSoknad()
-        .besvarsporsmal(FRAVAR_FOR_SYKMELDINGEN_SELVSTENDIG_NARINGSDRIVENDE, "JA")
+        .besvarsporsmal(FRAVAR_FOR_SYKMELDINGEN_V2, "JA")
 }
 
 fun opprettSendtFrilanserSoknad(): Sykepengesoknad {
