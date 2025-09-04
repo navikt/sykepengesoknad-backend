@@ -71,6 +71,7 @@ class InntektsopplysningerIntegrasjonsTest : FellesTestOppsett() {
                 ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER,
                 OPPHOLD_UTENFOR_EOS,
+                FRAVAR_FOR_SYKMELDINGEN,
                 INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET,
                 TIL_SLUTT,
             ),
@@ -309,4 +310,5 @@ class InntektsopplysningerIntegrasjonsTest : FellesTestOppsett() {
             .besvarSporsmal(tag = ARBEID_UTENFOR_NORGE, svar = "NEI")
             .besvarSporsmal(tag = ANDRE_INNTEKTSKILDER, svar = "NEI")
             .besvarSporsmal(tag = OPPHOLD_UTENFOR_EOS, svar = "NEI")
+            .besvarSporsmal(tag = FRAVAR_FOR_SYKMELDINGEN, svar = "NEI")
 }

@@ -32,7 +32,7 @@ fun Sporsmal.fellesPlasseringSporsmal(): Int =
         FRISKMELDT -> -10
 
         EGENMELDINGER -> -9
-        FRAVAR_FOR_SYKMELDINGEN -> -9
+        FRAVAR_FOR_SYKMELDINGEN -> 850
         TILBAKE_I_ARBEID -> -8
         FERIE_V2 -> -7
         PERMISJON_V2 -> -6

@@ -9,6 +9,7 @@ import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknad
 import no.nav.helse.flex.soknadsopprettelse.lagSykepengegrunnlagNaeringsdrivende
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.`should not be null`
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
@@ -66,10 +67,23 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
         }
     }
 
+    @Test
+    fun `Inneholder spørsmål om fravær for sykmeldingen`() {
+        val soknad =
+            opprettNyNaeringsdrivendeSoknad()
+        val soknadDTO = lagSykepengesoknadDTO(soknad)
+
+        soknadDTO.sporsmal!!.find { it.tag == "FRAVAR_FOR_SYKMELDINGEN" }.also { fravaerSpm ->
+            fravaerSpm?.svar.`should not be null`()
+            fravaerSpm.svar!!.size `should be equal to` 1
+            fravaerSpm.svar!!.first().verdi `should be equal to` "JA"
+        }
+    }
+
     private fun lagSykepengesoknadDTO(soknad: Sykepengesoknad): SykepengesoknadDTO =
         konverterTilSykepengesoknadDTO(
             sykepengesoknad = soknad,
-            mottaker = Mottaker.ARBEIDSGIVER_OG_NAV,
+            mottaker = Mottaker.NAV,
             erEttersending = false,
             soknadsperioder = hentSoknadsPerioderMedFaktiskGrad(soknad).first,
         )

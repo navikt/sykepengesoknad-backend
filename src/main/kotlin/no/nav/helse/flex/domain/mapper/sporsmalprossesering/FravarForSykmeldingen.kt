@@ -1,5 +1,6 @@
 package no.nav.helse.flex.domain.mapper.sporsmalprossesering
 
+import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.mapper.getJsonPeriode
 import no.nav.helse.flex.soknadsopprettelse.FRAVAR_FOR_SYKMELDINGEN
@@ -9,7 +10,7 @@ import java.util.*
 
 fun hentFravarForSykmeldingen(sykepengesoknad: Sykepengesoknad): List<PeriodeDTO> {
     val sporsmal = sykepengesoknad.getSporsmalMedTagOrNull(FRAVAR_FOR_SYKMELDINGEN)
-    if (null != sporsmal) {
+    if (null != sporsmal && sykepengesoknad.arbeidssituasjon != Arbeidssituasjon.NAERINGSDRIVENDE) {
         if ("JA" == sporsmal.forsteSvar) {
             val sporsmalMedTag = sykepengesoknad.getSporsmalMedTag(FRAVAR_FOR_SYKMELDINGEN_NAR)
             val map =
