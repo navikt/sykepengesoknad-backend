@@ -80,10 +80,10 @@ fun opprettNyNaeringsdrivendeSoknad(): Sykepengesoknad {
             sporsmal =
                 settOppSoknadSelvstendigOgFrilanser(
                     SettOppSoknadOptions(
-                        soknadMetadata,
-                        false,
-                        false,
-                        YrkesskadeSporsmalGrunnlag(),
+                        sykepengesoknad = soknadMetadata,
+                        erForsteSoknadISykeforlop = true,
+                        harTidligereUtenlandskSpm = false,
+                        yrkesskade = YrkesskadeSporsmalGrunnlag(),
                         eksisterendeSoknader = emptyList(),
                     ),
                 ),
@@ -161,6 +161,7 @@ private fun Sykepengesoknad.leggSvarPaSoknad(): Sykepengesoknad =
         .harDuOppholdtDegIUtlandet()
         .andreInntektskilder()
         .tilbakeIArbeid()
+        .besvarsporsmal(FRAVAR_FOR_SYKMELDINGEN, "JA")
         .besvarsporsmal(ANSVARSERKLARING, "CHECKED")
 
 private fun Sykepengesoknad.harDuOppholdtDegIUtlandet(): Sykepengesoknad =
