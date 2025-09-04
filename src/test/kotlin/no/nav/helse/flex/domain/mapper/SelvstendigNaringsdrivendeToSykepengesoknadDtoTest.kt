@@ -73,7 +73,7 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
             opprettNyNaeringsdrivendeSoknad()
         val soknadDTO = lagSykepengesoknadDTO(soknad)
 
-        soknadDTO.sporsmal!!.find { it.tag == "FRAVAR_FOR_SYKMELDINGEN_SELVSTENDIG_NARINGSDRIVENDE" }.also { fravaerSpm ->
+        soknadDTO.sporsmal!!.find { it.tag == "FRAVAR_FOR_SYKMELDINGEN_V2" }.also { fravaerSpm ->
             fravaerSpm?.svar.`should not be null`()
             fravaerSpm.svar!!.size `should be equal to` 1
             fravaerSpm.svar!!.first().verdi `should be equal to` "JA"
