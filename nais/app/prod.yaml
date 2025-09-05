@@ -53,3 +53,4 @@ env:
   BRREG_AAD_CLIENT_ID: prod-gcp.flex.flex-brreg-proxy
   ARBEIDSSOEKERREGISTERET_API_AAD_CLIENT_ID: prod-gcp.paw.paw-arbeidssoekerregisteret-api-oppslag
   ARBEIDSSOEKERREGISTERET_API_URL: http://paw-arbeidssoekerregisteret-api-oppslag.paw
+  ENHETSREGISTER_API_URL: https://data.brreg.no/enhetsregisteret
