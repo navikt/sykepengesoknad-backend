@@ -111,8 +111,9 @@ logging.config: classpath:logback.xml
 
 pdl.api.url: ${PDL_BASE_URL}
 
-
-ENHETSREGISTER_BASE_URL: https://data.brreg.no/enhetsregisteret
+enhetsregister:
+  api:
+    url: ${ENHETSREGISTER_API_URL:https://data.brreg.no/enhetsregisteret}
 
 management:
   endpoint:
