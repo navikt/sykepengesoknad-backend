@@ -5,6 +5,7 @@ import no.nav.helse.flex.client.brreg.HentRollerRequest
 import no.nav.helse.flex.client.brreg.RolleDto
 import no.nav.helse.flex.client.brreg.RollerDto
 import no.nav.helse.flex.client.brreg.Rolletype
+import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.util.serialisertTilString
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -14,6 +15,8 @@ import org.amshove.kluent.`should throw`
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.TestPropertySource
+import org.springframework.test.web.client.match.MockRestRequestMatchers.*
+import org.springframework.test.web.client.response.MockRestResponseCreators.*
 
 @TestPropertySource(properties = ["BRREG_RETRY_ATTEMPTS=1"])
 class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
@@ -127,6 +130,6 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
         invoking {
             selvstendigNaringsdrivendeInfoService
                 .hentSelvstendigNaringsdrivendeInfo(FolkeregisterIdenter("fnr", andreIdenter = emptyList()))
-        } `should throw` Exception::class
+        } `should throw` RuntimeException::class
     }
 }

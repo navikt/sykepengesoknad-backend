@@ -64,6 +64,12 @@ fun startMockWebServere(): MockWebServere {
             dispatcher = ArbeidssokerregisterMockDispatcher
         }
 
+    val enhetsregisterMockWebServer =
+        MockWebServer().apply {
+            System.setProperty("ENHETSREGISTER_BASE_URL", "http://localhost:$port")
+            dispatcher = EnhetsregisterMockDispatcher
+        }
+
     return MockWebServere(
         pdlMockWebserver = pdlMockWebserver,
         medlemskapMockWebServer = medlemskapMockWebServer,
@@ -76,6 +82,7 @@ fun startMockWebServere(): MockWebServere {
         aaregMockWebServer = aaregMockWebServer,
         brregMockWebServer = brregMockWebServer,
         arbeidssokerregisterMockDispatcher = arbeidssokerregisterMockDispatcher,
+        enhetsregisterMockWebServer = enhetsregisterMockWebServer,
     )
 }
 
@@ -91,6 +98,7 @@ data class MockWebServere(
     val aaregMockWebServer: MockWebServer,
     val brregMockWebServer: MockWebServer,
     val arbeidssokerregisterMockDispatcher: MockWebServer,
+    val enhetsregisterMockWebServer: MockWebServer,
 )
 
 fun simpleDispatcher(dispatcherFunc: (RecordedRequest) -> MockResponse): Dispatcher =
