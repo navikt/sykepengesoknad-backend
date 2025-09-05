@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.web.client.RestClient
+import kotlin.test.assertTrue
+
 
 class EnhetsregisterClientTest {
     private lateinit var client: EnhetsregisterClient
@@ -36,8 +38,9 @@ class EnhetsregisterClientTest {
         val json = """{"naeringskode1": {"kode": "41.109"}}"""
         mockWebServer.enqueue(MockResponse().setBody(json).setHeader("Content-Type", "application/json"))
 
-        val status = client.erDagmamma("509100675")
-        assertEquals(false, status)
+        val erDagmamma = client.erDagmamma("509100675")
+        assertTrue(erDagmamma)
+
     }
 
     @Test
