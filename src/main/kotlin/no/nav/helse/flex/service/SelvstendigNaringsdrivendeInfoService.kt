@@ -31,7 +31,7 @@ class SelvstendigNaringsdrivendeInfoService(
         val rolleDtoer = identer.alle().flatMap { hentSelvstendigNaringsdrivendeRoller(it) }
         val roller = rolleDtoer.map(::mapFraRolleDto)
 
-        val brukersOrgnr = rolleDtoer.filter { it.rolletype == Rolletype.INNH }.firstOrNull()?.organisasjonsnummer
+        rolleDtoer.filter { it.rolletype == Rolletype.INNH }.firstOrNull()?.organisasjonsnummer
 
         loggOmBrukerErDagmamma(rolleDtoer)
         return SelvstendigNaringsdrivendeInfo(roller = roller)
