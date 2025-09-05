@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test
 import org.springframework.web.client.RestClient
 import kotlin.test.assertTrue
 
-
 class EnhetsregisterClientTest {
     private lateinit var client: EnhetsregisterClient
 
@@ -40,7 +39,6 @@ class EnhetsregisterClientTest {
 
         val erDagmamma = client.erDagmamma("509100675")
         assertTrue(erDagmamma)
-
     }
 
     @Test
