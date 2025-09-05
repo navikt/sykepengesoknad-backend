@@ -14,18 +14,26 @@ class SelvstendigNaringsdrivendeInfoService(
     private val brregClient: BrregClient,
     private val enhetsregisterClient: EnhetsregisterClient,
 ) {
+
+    private val log = logger()
+
+    private fun loggOmBrukerErDagmamma(rolleDtoer: List<RolleDto>) {
+        val brukersOrgnr = rolleDtoer.firstOrNull { it.rolletype == Rolletype.INNH }?.organisasjonsnummer
+
+        if (brukersOrgnr != null && enhetsregisterClient.erDagmamma(brukersOrgnr)) {
+            log.info("Hentet roller fra Brreg: sykmeldt har arbeidssituasjon BARNEPASSER.")
+        } else {
+            log.info("Hentet roller fra Brreg: sykmeldt har IKKE arbeidssituasjon BARNEPASSER.")
+        }
+    }
+
     fun hentSelvstendigNaringsdrivendeInfo(identer: FolkeregisterIdenter): SelvstendigNaringsdrivendeInfo {
         val rolleDtoer = identer.alle().flatMap { hentSelvstendigNaringsdrivendeRoller(it) }
         val roller = rolleDtoer.map(::mapFraRolleDto)
 
         val brukersOrgnr = rolleDtoer.filter { it.rolletype == Rolletype.INNH }.firstOrNull()?.organisasjonsnummer
 
-        if (brukersOrgnr != null && enhetsregisterClient.erDagmamma(brukersOrgnr)) {
-            logger().info("Bruker er dagmamma med orgnr")
-        } else {
-            logger().info("Bruker er ikke dagmamma")
-        }
-
+        loggOmBrukerErDagmamma(rolleDtoer)
         return SelvstendigNaringsdrivendeInfo(roller = roller)
     }
 
