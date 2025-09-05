@@ -14,7 +14,6 @@ class SelvstendigNaringsdrivendeInfoService(
     private val brregClient: BrregClient,
     private val enhetsregisterClient: EnhetsregisterClient,
 ) {
-
     private val log = logger()
 
     private fun loggOmBrukerErDagmamma(rolleDtoer: List<RolleDto>) {
