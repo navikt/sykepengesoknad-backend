@@ -90,6 +90,9 @@ data class BrregRolle(
     val rolletype: String,
 )
 
+// Ventetid er brukt i stedet for Venteperiode, som returneres fra flex-syketilfelle, da klassen mapper til VentetidDTO
+// som bruker i Spleis. Venteperiode i flex-syketilfelle beskrive perioden som er brukt til utregning av om en
+// sykmelding er innefor eller utenfor ventetiden.
 data class Ventetid(
     val fom: LocalDate,
     val tom: LocalDate,

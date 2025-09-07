@@ -30,7 +30,6 @@ import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
 import no.nav.syfo.sykmelding.kafka.model.ShortNameKafkaDTO
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.web.client.HttpClientErrorException
 import java.time.Instant
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
@@ -161,17 +160,10 @@ class OpprettSoknadService(
         if (arbeidssituasjon != Arbeidssituasjon.NAERINGSDRIVENDE) {
             return null
         }
-
-        // TODO: Flytt logikk til SelvstendigNaringsdrivendeInfoService
-        val selvstendigNaringsdrivendeInfo =
-            try {
-                selvstendigNaringsdrivendeInfoService.hentSelvstendigNaringsdrivendeInfo(identer = identer)
-            } catch (_: HttpClientErrorException.NotFound) {
-                SelvstendigNaringsdrivendeInfo(roller = emptyList())
-            }
-        val ventetid =
-            selvstendigNaringsdrivendeInfoService.hentVentetid(identer = identer, sykmeldingId = sykmeldingId)
-        return selvstendigNaringsdrivendeInfo.copy(ventetid = ventetid)
+        return selvstendigNaringsdrivendeInfoService.hentSelvstendigNaringsdrivendeInfo(
+            identer = identer,
+            sykmeldingId = sykmeldingId,
+        )
     }
 
     private fun List<Sykepengesoknad>.lagreJulesoknadKandidater() = lagreJulesoknadKandidater.lagreJulesoknadKandidater(this)

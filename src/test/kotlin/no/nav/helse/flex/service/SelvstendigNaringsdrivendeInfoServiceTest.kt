@@ -1,21 +1,30 @@
 package no.nav.helse.flex.service
 
 import no.nav.helse.flex.FakesTestOppsett
-import no.nav.helse.flex.client.brreg.HentRollerRequest
 import no.nav.helse.flex.client.brreg.RolleDto
 import no.nav.helse.flex.client.brreg.RollerDto
 import no.nav.helse.flex.client.brreg.Rolletype
+import no.nav.helse.flex.domain.Venteperiode
+import no.nav.helse.flex.domain.VenteperiodeResponse
+import no.nav.helse.flex.domain.Ventetid
 import no.nav.helse.flex.mockdispatcher.withContentTypeApplicationJson
 import no.nav.helse.flex.util.serialisertTilString
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
+import org.amshove.kluent.invoking
+import org.amshove.kluent.`should be empty`
 import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.shouldThrow
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.test.context.TestPropertySource
 import org.springframework.web.client.HttpServerErrorException
+import java.time.LocalDate
+
+private const val ORGNAVN = "orgnavn"
+private const val ORGNUMMER = "orgnummer"
 
 @TestPropertySource(properties = ["BRREG_RETRY_ATTEMPTS=1", "VENTETID_RETRY_ATTEMPTS=1"])
 class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
@@ -30,132 +39,260 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
     @Autowired
     lateinit var selvstendigNaringsdrivendeInfoService: SelvstendigNaringsdrivendeInfoService
 
+    private val fom = LocalDate.now()
+    private val tom = LocalDate.now().plusDays(1)
+
     @Test
-    fun `SelvstendigNaringsdrivendeInfo returnerer roller`() {
+    fun `Returnerer venteperiode og roller for én ident`() {
         brregMockWebServer.enqueue(
             withContentTypeApplicationJson {
-                MockResponse().setBody(lagRollerDto(Rolletype.INNH).serialisertTilString())
+                MockResponse().setBody((Rolletype.INNH).tilRollerDto().serialisertTilString())
+            },
+        )
+
+        ventetidMockWebServer.enqueue(
+            withContentTypeApplicationJson {
+                MockResponse().setBody(lagVenteperiodeResponse(fom, tom).serialisertTilString())
             },
         )
 
         val selvstendigNaringsdrivendeInfo =
             selvstendigNaringsdrivendeInfoService
                 .hentSelvstendigNaringsdrivendeInfo(
-                    FolkeregisterIdenter("11111111111", andreIdenter = emptyList()),
+                    identer = FolkeregisterIdenter("11111111111", andreIdenter = emptyList()),
+                    sykmeldingId = "sykmelding-id",
                 )
 
         selvstendigNaringsdrivendeInfo.roller.single().also {
-            it.orgnavn `should be equal to` "orgnavn"
-            it.orgnummer `should be equal to` "orgnummer"
+            it.orgnavn `should be equal to` ORGNAVN
+            it.orgnummer `should be equal to` ORGNUMMER
             it.rolletype `should be equal to` "INNH"
         }
+
+        selvstendigNaringsdrivendeInfo.ventetid `should be equal to` Ventetid(fom, tom)
     }
 
     @Test
-    fun `SelvstendigNaringsdrivendeInfo returnerer roller for flere identer`() {
+    fun `Returnerer venteperiode og roller for flere identer`() {
+        brregMockWebServer.enqueue(
+            withContentTypeApplicationJson {
+                MockResponse().setBody((Rolletype.INNH).tilRollerDto().serialisertTilString())
+            },
+        )
+        brregMockWebServer.enqueue(
+            withContentTypeApplicationJson {
+                MockResponse().setBody((Rolletype.DAGL).tilRollerDto().serialisertTilString())
+            },
+        )
+        ventetidMockWebServer.enqueue(
+            withContentTypeApplicationJson {
+                MockResponse().setBody(lagVenteperiodeResponse(fom, tom).serialisertTilString())
+            },
+        )
+
+        val selvstendigNaringsdrivendeInfo =
+            selvstendigNaringsdrivendeInfoService
+                .hentSelvstendigNaringsdrivendeInfo(
+                    identer = FolkeregisterIdenter("11111111111", andreIdenter = listOf("22222222222")),
+                    sykmeldingId = "sykmelding-id",
+                )
+
+        selvstendigNaringsdrivendeInfo.roller.also {
+            it.size `should be equal to` 2
+
+            it.first().also { rolle ->
+                rolle.orgnavn `should be equal to` ORGNAVN
+                rolle.orgnummer `should be equal to` ORGNUMMER
+                rolle.rolletype `should be equal to` "INNH"
+            }
+
+            it.last().also { rolle ->
+                rolle.orgnavn `should be equal to` ORGNAVN
+                rolle.orgnummer `should be equal to` ORGNUMMER
+                rolle.rolletype `should be equal to` "DAGL"
+            }
+        }
+
+        selvstendigNaringsdrivendeInfo.ventetid `should be equal to` Ventetid(fom, tom)
+    }
+
+    @Test
+    fun `Returnerer venteperiode og roller når roller mangler for én ident`() {
+        brregMockWebServer.enqueue(
+            withContentTypeApplicationJson {
+                MockResponse().setBody((Rolletype.INNH).tilRollerDto().serialisertTilString())
+            },
+        )
+
+        brregMockWebServer.enqueue(
+            withContentTypeApplicationJson {
+                MockResponse().setResponseCode(404)
+            },
+        )
+
+        ventetidMockWebServer.enqueue(
+            withContentTypeApplicationJson {
+                MockResponse().setBody(lagVenteperiodeResponse(fom, tom).serialisertTilString())
+            },
+        )
+
+        val selvstendigNaringsdrivendeInfo =
+            selvstendigNaringsdrivendeInfoService
+                .hentSelvstendigNaringsdrivendeInfo(
+                    identer = FolkeregisterIdenter("11111111111", andreIdenter = listOf("22222222222")),
+                    sykmeldingId = "sykmelding-id",
+                )
+
+        selvstendigNaringsdrivendeInfo.roller.single().also {
+            it.orgnavn `should be equal to` ORGNAVN
+            it.orgnummer `should be equal to` ORGNUMMER
+            it.rolletype `should be equal to` "INNH"
+        }
+
+        selvstendigNaringsdrivendeInfo.ventetid `should be equal to` Ventetid(fom, tom)
+    }
+
+    @Test
+    fun `Returnerer venteperiode og tom liste med roller når én ident mangler roller`() {
+        brregMockWebServer.enqueue(
+            withContentTypeApplicationJson {
+                MockResponse().setResponseCode(404)
+            },
+        )
+
+        ventetidMockWebServer.enqueue(
+            withContentTypeApplicationJson {
+                MockResponse().setBody(lagVenteperiodeResponse(fom, tom).serialisertTilString())
+            },
+        )
+
+        val selvstendigNaringsdrivendeInfo =
+            selvstendigNaringsdrivendeInfoService
+                .hentSelvstendigNaringsdrivendeInfo(
+                    identer = FolkeregisterIdenter("11111111111", emptyList()),
+                    sykmeldingId = "sykmelding-id",
+                )
+
+        selvstendigNaringsdrivendeInfo.roller.`should be empty`()
+
+        selvstendigNaringsdrivendeInfo.ventetid `should be equal to` Ventetid(fom, tom)
+    }
+
+    @Test
+    fun `Returnerer venteperiode og tom liste med roller når alle identer mangler roller`() {
         repeat(2) {
             brregMockWebServer.enqueue(
                 withContentTypeApplicationJson {
-                    MockResponse().setBody(lagRollerDto(Rolletype.INNH).serialisertTilString())
+                    MockResponse().setResponseCode(404)
                 },
             )
         }
 
-        val selvstendigNaringsdrivendeInfo =
-            selvstendigNaringsdrivendeInfoService
-                .hentSelvstendigNaringsdrivendeInfo(
-                    FolkeregisterIdenter(
-                        "11111111111",
-                        andreIdenter = listOf("22222222222"),
-                    ),
-                )
-
-        selvstendigNaringsdrivendeInfo.roller.size `should be equal to` 2
-    }
-
-    @Test
-    fun `Har riktig payload i request`() {
-        brregMockWebServer.enqueue(
+        ventetidMockWebServer.enqueue(
             withContentTypeApplicationJson {
-                MockResponse().setBody(lagRollerDto(Rolletype.DAGL).serialisertTilString())
+                MockResponse().setBody(lagVenteperiodeResponse(fom, tom).serialisertTilString())
             },
         )
 
-        selvstendigNaringsdrivendeInfoService
-            .hentSelvstendigNaringsdrivendeInfo(
-                FolkeregisterIdenter("11111111111", andreIdenter = emptyList()),
-            )
+        val selvstendigNaringsdrivendeInfo =
+            selvstendigNaringsdrivendeInfoService
+                .hentSelvstendigNaringsdrivendeInfo(
+                    identer = FolkeregisterIdenter("11111111111", listOf("22222222222")),
+                    sykmeldingId = "sykmelding-id",
+                )
 
-        brregMockWebServer.takeRequest().body.readUtf8() `should be equal to`
-            HentRollerRequest(
-                fnr = "11111111111",
-                rolleTyper =
-                    listOf(
-                        Rolletype.INNH,
-                        Rolletype.DTPR,
-                        Rolletype.DTSO,
-                        Rolletype.KOMP,
-                    ),
-            ).serialisertTilString()
+        selvstendigNaringsdrivendeInfo.roller.`should be empty`()
+
+        selvstendigNaringsdrivendeInfo.ventetid `should be equal to` Ventetid(fom, tom)
     }
 
     @Test
-    fun `Kaster exception ved feil fra Brreg`() {
+    fun `Det kastes VenteperiodeException når det ikke returneres venteperiode`() {
         brregMockWebServer.enqueue(
-            MockResponse()
-                .setResponseCode(500)
-                .setBody("Feil i api"),
+            withContentTypeApplicationJson {
+                MockResponse().setBody((Rolletype.INNH).tilRollerDto().serialisertTilString())
+            },
         )
 
-        assertThrows<RuntimeException> {
-            selvstendigNaringsdrivendeInfoService.hentSelvstendigNaringsdrivendeInfo(
-                FolkeregisterIdenter("11111111111", andreIdenter = emptyList()),
-            )
-        }.also {
-            it.message `should be equal to` "500 Server Error: \"Feil i api\""
-        }
-    }
-
-    @Test
-    fun `Kaster exception når det ikke blir funnet roller i Brreg`() {
-        brregMockWebServer.enqueue(
-            MockResponse()
-                .setResponseCode(404)
-                .setBody("Fant ingen roller"),
+        ventetidMockWebServer.enqueue(
+            withContentTypeApplicationJson {
+                MockResponse().setBody(
+                    lagVenteperiodeResponse(fom, tom).copy(venteperiode = null).serialisertTilString(),
+                )
+            },
         )
 
-        assertThrows<RuntimeException> {
+        assertThrows<VenteperiodeException> {
             selvstendigNaringsdrivendeInfoService.hentSelvstendigNaringsdrivendeInfo(
-                FolkeregisterIdenter("11111111111", andreIdenter = emptyList()),
-            )
-        }.also {
-            it.message `should be equal to` "404 Client Error: \"Fant ingen roller\""
-        }
-    }
-
-    @Test
-    fun `Kaster exception ved feil ved kall til flex-syketilfelle`() {
-        ventetidMockWebServer.enqueue(MockResponse().setResponseCode(500))
-
-        assertThrows<HttpServerErrorException> {
-            selvstendigNaringsdrivendeInfoService.hentVentetid(
                 FolkeregisterIdenter("11111111111", andreIdenter = emptyList()),
                 sykmeldingId = "sykmeldingId",
             )
         }.also {
-            it.message!!.startsWith("500 Server Error") `should be equal to` true
+            it.message!! `should be equal to` "Det ble ikke returnert venteperiode for sykmeldingId: sykmeldingId."
         }
     }
 
-    private fun lagRollerDto(rolletype: Rolletype) =
-        RollerDto(
-            roller =
-                listOf(
-                    RolleDto(
-                        rolletype = rolletype,
-                        organisasjonsnummer = "orgnummer",
-                        organisasjonsnavn = "orgnavn",
-                    ),
-                ),
+    @Test
+    fun `ServerError propagerer ved henting av venteperiode`() {
+        brregMockWebServer.enqueue(
+            withContentTypeApplicationJson {
+                MockResponse().setBody((Rolletype.INNH).tilRollerDto().serialisertTilString())
+            },
         )
+
+        ventetidMockWebServer.enqueue(
+            withContentTypeApplicationJson {
+                MockResponse().setResponseCode(500)
+            },
+        )
+
+        invoking {
+            selvstendigNaringsdrivendeInfoService.hentSelvstendigNaringsdrivendeInfo(
+                FolkeregisterIdenter("11111111111", andreIdenter = emptyList()),
+                sykmeldingId = "sykmeldingId",
+            )
+        }.shouldThrow(HttpServerErrorException::class)
+    }
+
+    @Test
+    fun `ServerError propagerer ikke ved henting av roller`() {
+        brregMockWebServer.enqueue(
+            withContentTypeApplicationJson {
+                MockResponse().setResponseCode(500)
+            },
+        )
+
+        ventetidMockWebServer.enqueue(
+            withContentTypeApplicationJson {
+                MockResponse().setBody(lagVenteperiodeResponse(fom, tom).serialisertTilString())
+            },
+        )
+        val selvstendigNaringsdrivendeInfo =
+            selvstendigNaringsdrivendeInfoService
+                .hentSelvstendigNaringsdrivendeInfo(
+                    identer = FolkeregisterIdenter("11111111111", andreIdenter = emptyList()),
+                    sykmeldingId = "sykmelding-id",
+                )
+
+        selvstendigNaringsdrivendeInfo.roller.`should be empty`()
+
+        selvstendigNaringsdrivendeInfo.ventetid `should be equal to` Ventetid(fom, tom)
+    }
 }
+
+private fun lagVenteperiodeResponse(
+    fom: LocalDate,
+    tom: LocalDate,
+): VenteperiodeResponse = VenteperiodeResponse(Venteperiode(fom = fom, tom = tom))
+
+private fun Rolletype.tilRollerDto() =
+    RollerDto(
+        roller =
+            listOf(
+                RolleDto(
+                    rolletype = this,
+                    organisasjonsnummer = ORGNUMMER,
+                    organisasjonsnavn = ORGNAVN,
+                ),
+            ),
+    )

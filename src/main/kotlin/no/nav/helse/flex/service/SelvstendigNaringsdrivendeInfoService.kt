@@ -15,22 +15,44 @@ class SelvstendigNaringsdrivendeInfoService(
     private val brregClient: BrregClient,
     private val flexSyketilfelleClient: FlexSyketilfelleClient,
 ) {
-    fun hentSelvstendigNaringsdrivendeInfo(identer: FolkeregisterIdenter): SelvstendigNaringsdrivendeInfo {
-        val roller = identer.alle().flatMap { hentRoller(it) }.map(::tilBrregRolle)
-        return SelvstendigNaringsdrivendeInfo(roller = roller)
-    }
+    fun hentSelvstendigNaringsdrivendeInfo(
+        identer: FolkeregisterIdenter,
+        sykmeldingId: String,
+    ): SelvstendigNaringsdrivendeInfo =
+        SelvstendigNaringsdrivendeInfo(
+            roller = hentRoller(identer),
+            ventetid = hentVentetid(identer, sykmeldingId),
+        )
 
-    fun hentVentetid(
+    private fun hentRoller(identer: FolkeregisterIdenter): List<BrregRolle> =
+        identer
+            .alle()
+            .flatMap { fnr ->
+                // BrregClient kaster exception når den mottar en tom liste med roller.
+                try {
+                    hentRoller(fnr)
+                } catch (_: Exception) {
+                    emptyList()
+                }
+            }.map(::tilBrregRolle)
+
+    private fun hentVentetid(
         identer: FolkeregisterIdenter,
         sykmeldingId: String,
     ): Ventetid {
-        val ventetid =
-            flexSyketilfelleClient
-                .hentVenteperiode(identer, sykmeldingId, VenteperiodeRequest(returnerPerioderInnenforVentetid = true))
-                .let {
-                    Ventetid(fom = it.venteperiode!!.fom, tom = it.venteperiode.tom)
-                }
-        return ventetid
+        val venteperiodeResponse =
+            flexSyketilfelleClient.hentVenteperiode(
+                identer,
+                sykmeldingId,
+                VenteperiodeRequest(returnerPerioderInnenforVentetid = true),
+            )
+
+        val venteperiode =
+            venteperiodeResponse.venteperiode
+                // Det skal alltid kunne beregnes en venteperiode for en sykmlding hvis flex-syketilfelle har mottat bitene.
+                ?: throw VenteperiodeException("Det ble ikke returnert venteperiode for sykmeldingId: $sykmeldingId.")
+
+        return Ventetid(fom = venteperiode.fom, tom = venteperiode.tom)
     }
 
     private fun hentRoller(fnr: String): List<RolleDto> {
@@ -51,3 +73,11 @@ class SelvstendigNaringsdrivendeInfoService(
             rolletype = rolle.rolletype.name,
         )
 }
+
+class VenteperiodeException(
+    string: String,
+) : RuntimeException(string)
+
+class BrregRollerException(
+    string: String,
+) : RuntimeException(string)

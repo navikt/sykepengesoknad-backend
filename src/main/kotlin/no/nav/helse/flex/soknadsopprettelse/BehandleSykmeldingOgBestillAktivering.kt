@@ -19,14 +19,14 @@ class BehandleSykmeldingOgBestillAktivering(
         sykmeldingKafkaMessage: SykmeldingKafkaMessage?,
         topic: String,
     ) {
-        val prosesserSykmelding =
+        val skalAktiveres =
             behandleSendtBekreftetSykmelding.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage, topic)
 
         sykmeldingKafkaMessage?.let {
             oppdateringAvMerknader.oppdaterMerknader(it)
         }
 
-        return prosesserSykmelding
+        return skalAktiveres
             .forEach { aktiveringProducer.leggPaAktiveringTopic(it) }
     }
 }

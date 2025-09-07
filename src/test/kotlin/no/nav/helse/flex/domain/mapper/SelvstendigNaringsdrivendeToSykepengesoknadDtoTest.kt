@@ -25,6 +25,8 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
             ),
         )
 
+    // Returnerer roller og ventetid selv om inntektsgrunnlag er null
+
     @Test
     fun `Inneholder roller og ventetid selv om inntektsinformasjon mangler`() {
         val (soknad, fom, tom) =
