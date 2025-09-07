@@ -6,8 +6,8 @@ import no.nav.helse.flex.client.brreg.Rolletype
 import no.nav.helse.flex.client.flexsyketilfelle.FlexSyketilfelleClient
 import no.nav.helse.flex.domain.BrregRolle
 import no.nav.helse.flex.domain.SelvstendigNaringsdrivendeInfo
-import no.nav.helse.flex.domain.VenteperiodeRequest
 import no.nav.helse.flex.domain.Ventetid
+import no.nav.helse.flex.domain.VentetidRequest
 import org.springframework.stereotype.Service
 
 @Service
@@ -40,19 +40,19 @@ class SelvstendigNaringsdrivendeInfoService(
         identer: FolkeregisterIdenter,
         sykmeldingId: String,
     ): Ventetid {
-        val venteperiodeResponse =
-            flexSyketilfelleClient.hentVenteperiode(
+        val ventetidResponse =
+            flexSyketilfelleClient.hentVentetid(
                 identer,
                 sykmeldingId,
-                VenteperiodeRequest(returnerPerioderInnenforVentetid = true),
+                VentetidRequest(returnerPerioderInnenforVentetid = true),
             )
 
-        val venteperiode =
-            venteperiodeResponse.venteperiode
-                // Det skal alltid kunne beregnes en venteperiode for en sykmlding hvis flex-syketilfelle har mottat bitene.
-                ?: throw VenteperiodeException("Det ble ikke returnert venteperiode for sykmeldingId: $sykmeldingId.")
+        val ventetid =
+            ventetidResponse.ventetid
+                // Det skal alltid kunne beregnes en ventetid for en sykmlding hvis flex-syketilfelle har mottatt bitene.
+                ?: throw VentetidException("Det ble ikke returnert ventetid for sykmeldingId: $sykmeldingId.")
 
-        return Ventetid(fom = venteperiode.fom, tom = venteperiode.tom)
+        return Ventetid(fom = ventetid.fom, tom = ventetid.tom)
     }
 
     private fun hentRoller(fnr: String): List<RolleDto> {
@@ -74,10 +74,6 @@ class SelvstendigNaringsdrivendeInfoService(
         )
 }
 
-class VenteperiodeException(
-    string: String,
-) : RuntimeException(string)
-
-class BrregRollerException(
+class VentetidException(
     string: String,
 ) : RuntimeException(string)

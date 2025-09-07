@@ -4,7 +4,7 @@ import no.nav.helse.flex.client.istilgangskontroll.IstilgangskontrollClient.Comp
 import no.nav.helse.flex.domain.Arbeidsgiverperiode
 import no.nav.helse.flex.domain.SimpleSykmelding
 import no.nav.helse.flex.domain.Sykeforloep
-import no.nav.helse.flex.domain.VenteperiodeResponse
+import no.nav.helse.flex.domain.VentetidResponse
 import no.nav.helse.flex.util.objectMapper
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
@@ -81,17 +81,17 @@ fun FellesTestOppsett.mockFlexSyketilfelleErUtenforVentetid(
         )
 }
 
-fun FellesTestOppsett.mockFlexSyketilfelleVenteperiode(
+fun FellesTestOppsett.mockFlexSyketilfelleVentetid(
     sykmeldingId: String,
-    venteperiodeResponse: VenteperiodeResponse,
+    ventetidResponse: VentetidResponse,
 ) {
     flexSyketilfelleMockRestServiceServer
-        .expect(requestTo("http://flex-syketilfelle/api/v1/ventetid/$sykmeldingId/venteperiode?hentAndreIdenter=false"))
+        .expect(requestTo("http://flex-syketilfelle/api/v1/ventetid/$sykmeldingId/ventetid?hentAndreIdenter=false"))
         .andExpect(method(HttpMethod.POST))
         .andRespond(
             withSuccess(
                 objectMapper.writeValueAsBytes(
-                    venteperiodeResponse,
+                    ventetidResponse,
                 ),
                 MediaType.APPLICATION_JSON,
             ),

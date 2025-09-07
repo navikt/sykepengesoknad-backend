@@ -12,7 +12,6 @@ import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
-@Suppress("DEPRECATION")
 class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
     private val dagensDato = LocalDate.parse("2025-01-01")
     private val soknadPerioder =
@@ -24,8 +23,6 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
                 sykmeldingstype = null,
             ),
         )
-
-    // Returnerer roller og ventetid selv om inntektsgrunnlag er null
 
     @Test
     fun `Inneholder roller og ventetid selv om inntektsinformasjon mangler`() {

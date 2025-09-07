@@ -17,8 +17,8 @@ import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykmeldingstype
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.FiskerBlad
-import no.nav.helse.flex.domain.Venteperiode
-import no.nav.helse.flex.domain.VenteperiodeResponse
+import no.nav.helse.flex.domain.FomTomPeriode
+import no.nav.helse.flex.domain.VentetidResponse
 import no.nav.helse.flex.domain.exception.ManglerSykmeldingException
 import no.nav.helse.flex.domain.exception.ProduserKafkaMeldingException
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
@@ -28,7 +28,7 @@ import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
 import no.nav.helse.flex.mockFlexSyketilfelleErUtenforVentetid
 import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
-import no.nav.helse.flex.mockFlexSyketilfelleVenteperiode
+import no.nav.helse.flex.mockFlexSyketilfelleVentetid
 import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher.enqueueMockResponse
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.service.AarVerdi
@@ -118,9 +118,9 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
 
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
         val (fom, tom) = sykmelding.sykmeldingsperioder.first()
-        mockFlexSyketilfelleVenteperiode(
+        mockFlexSyketilfelleVentetid(
             sykmelding.id,
-            VenteperiodeResponse(Venteperiode(fom = fom, tom = tom)),
+            VentetidResponse(FomTomPeriode(fom = fom, tom = tom)),
         )
         mockFlexSyketilfelleSykeforloep(sykmeldingId)
 
@@ -189,9 +189,9 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
 
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
         val (fom, tom) = sykmelding.sykmeldingsperioder.first()
-        mockFlexSyketilfelleVenteperiode(
+        mockFlexSyketilfelleVentetid(
             sykmelding.id,
-            VenteperiodeResponse(Venteperiode(fom = fom, tom = tom)),
+            VentetidResponse(FomTomPeriode(fom = fom, tom = tom)),
         )
         mockFlexSyketilfelleSykeforloep(sykmeldingId)
 
@@ -321,9 +321,9 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
 
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, false)
         val (fom, tom) = sykmelding.sykmeldingsperioder.first()
-        mockFlexSyketilfelleVenteperiode(
+        mockFlexSyketilfelleVentetid(
             sykmelding.id,
-            VenteperiodeResponse(Venteperiode(fom = fom, tom = tom)),
+            VentetidResponse(FomTomPeriode(fom = fom, tom = tom)),
         )
         mockFlexSyketilfelleSykeforloep(sykmeldingId)
 
@@ -373,9 +373,9 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
         val (fom, tom) = sykmelding.sykmeldingsperioder.first()
         repeat(2) {
-            mockFlexSyketilfelleVenteperiode(
+            mockFlexSyketilfelleVentetid(
                 sykmelding.id,
-                VenteperiodeResponse(Venteperiode(fom = fom, tom = tom)),
+                VentetidResponse(FomTomPeriode(fom = fom, tom = tom)),
             )
         }
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
@@ -682,9 +682,9 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
         val (fom, tom) = sykmelding.sykmeldingsperioder.first()
         repeat(2) {
-            mockFlexSyketilfelleVenteperiode(
+            mockFlexSyketilfelleVentetid(
                 sykmelding.id,
-                VenteperiodeResponse(Venteperiode(fom = fom, tom = tom)),
+                VentetidResponse(FomTomPeriode(fom = fom, tom = tom)),
             )
         }
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
@@ -946,9 +946,9 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
         val (fom, tom) = sykmelding.sykmeldingsperioder.first()
         repeat(2) {
-            mockFlexSyketilfelleVenteperiode(
+            mockFlexSyketilfelleVentetid(
                 sykmelding.id,
-                VenteperiodeResponse(Venteperiode(fom = fom, tom = tom)),
+                VentetidResponse(FomTomPeriode(fom = fom, tom = tom)),
             )
         }
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
@@ -992,9 +992,9 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
         val (fom, tom) = sykmelding.sykmeldingsperioder.first()
         repeat(2) {
-            mockFlexSyketilfelleVenteperiode(
+            mockFlexSyketilfelleVentetid(
                 sykmelding.id,
-                VenteperiodeResponse(Venteperiode(fom = fom, tom = tom)),
+                VentetidResponse(FomTomPeriode(fom = fom, tom = tom)),
             )
         }
         mockFlexSyketilfelleSykeforloep(sykmelding.id)

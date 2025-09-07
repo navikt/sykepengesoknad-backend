@@ -1,11 +1,11 @@
 package no.nav.helse.flex.client.flexsyketilfelle
 
 import no.nav.helse.flex.domain.Arbeidsgiverperiode
+import no.nav.helse.flex.domain.ErUtenforVentetidRequest
 import no.nav.helse.flex.domain.Sykeforloep
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.domain.VenteperiodeRequest
-import no.nav.helse.flex.domain.VenteperiodeResponse
 import no.nav.helse.flex.domain.VentetidRequest
+import no.nav.helse.flex.domain.VentetidResponse
 import no.nav.helse.flex.domain.mapper.SykepengesoknadTilSykepengesoknadDTOMapper
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.domain.sykmelding.SykmeldingRequest
@@ -53,7 +53,7 @@ class FlexSyketilfelleClient(
         val sykmeldingRequest = SykmeldingRequest(sykmeldingKafkaMessage)
         val entity = HttpEntity(objectMapper.writeValueAsString(sykmeldingRequest), headers)
 
-        val result =
+        val response =
             flexSyketilfelleRestTemplate
                 .exchange(
                     queryBuilder.toUriString(),
@@ -62,13 +62,13 @@ class FlexSyketilfelleClient(
                     Array<Sykeforloep>::class.java,
                 )
 
-        if (!result.statusCode.is2xxSuccessful) {
-            val message = "Kall mot flex-syketilfelle feiler med HTTP-${result.statusCode}"
+        if (!response.statusCode.is2xxSuccessful) {
+            val message = "Kall til hent hentSykeforloep feilet med HTTP-${response.statusCode}"
             log.error(message)
             throw RuntimeException(message)
         }
 
-        return result.body?.toList()
+        return response.body?.toList()
             ?: throw RuntimeException("Ingen data returnert fra flex-syketilfelle i hentSykeforloep")
     }
 
@@ -76,7 +76,7 @@ class FlexSyketilfelleClient(
     fun erUtenforVentetid(
         identer: FolkeregisterIdenter,
         sykmeldingId: String,
-        ventetidRequest: VentetidRequest,
+        erUtenforVentetidRequest: ErUtenforVentetidRequest,
     ): Boolean {
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
@@ -88,29 +88,29 @@ class FlexSyketilfelleClient(
                 .pathSegment("api", "v1", "ventetid", sykmeldingId, "erUtenforVentetid")
                 .queryParam("hentAndreIdenter", "false")
 
-        val result =
+        val response =
             flexSyketilfelleRestTemplate
                 .exchange(
                     queryBuilder.toUriString(),
                     POST,
-                    HttpEntity(ventetidRequest, headers),
+                    HttpEntity(erUtenforVentetidRequest, headers),
                     Boolean::class.java,
                 )
 
-        if (!result.statusCode.is2xxSuccessful) {
-            throw RuntimeException("Kall mot flex-syketilfelle/erUtenforVentetid feiler med HTTP-${result.statusCode}")
+        if (!response.statusCode.is2xxSuccessful) {
+            throw RuntimeException("Kall til erUtenforVentetid feilet med HTTP-${response.statusCode}")
         }
 
-        return result.body
-            ?: throw RuntimeException("Ingen data returnert fra flex-syketilfelle/erUtenforVentetid")
+        return response.body
+            ?: throw RuntimeException("Ingen data returnert fra flex-syketilfelle ved kall til erUtenforVentetid")
     }
 
     @Retryable(include = [HttpServerErrorException::class], maxAttemptsExpression = "\${VENTETID_RETRY_ATTEMPTS:3}")
-    fun hentVenteperiode(
+    fun hentVentetid(
         identer: FolkeregisterIdenter,
         sykmeldingId: String,
-        venteperiodeRequest: VenteperiodeRequest,
-    ): VenteperiodeResponse {
+        ventetidRequest: VentetidRequest,
+    ): VentetidResponse {
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
         headers.set("fnr", identer.tilFnrHeader())
@@ -118,27 +118,27 @@ class FlexSyketilfelleClient(
         val queryBuilder =
             UriComponentsBuilder
                 .fromUriString(url)
-                .pathSegment("api", "v1", "ventetid", sykmeldingId, "venteperiode")
+                .pathSegment("api", "v1", "ventetid", sykmeldingId, "ventetid")
                 .queryParam("hentAndreIdenter", "false")
 
-        val venteperiodeResponse =
+        val response =
             flexSyketilfelleRestTemplate
                 .exchange(
                     queryBuilder.toUriString(),
                     POST,
-                    HttpEntity(venteperiodeRequest, headers),
+                    HttpEntity(ventetidRequest, headers),
                     String::class.java,
                 )
 
-        if (!venteperiodeResponse.statusCode.is2xxSuccessful) {
-            throw RuntimeException("Kall mot flex-syketilfelle/venteperiode feiler med HTTP-${venteperiodeResponse.statusCode}")
+        if (!response.statusCode.is2xxSuccessful) {
+            throw RuntimeException("Henting av ventetid feilet med HTTP-${response.statusCode}")
         }
 
-        if (venteperiodeResponse.body == null) {
-            throw RuntimeException("Ingen data returnert fra flex-syketilfelle/venteperiode")
+        if (response.body == null) {
+            throw RuntimeException("Ingen data returnert fra flex-syketilfelle ved henting av ventetid")
         }
 
-        return objectMapper.readValue(venteperiodeResponse.body, VenteperiodeResponse::class.java)
+        return objectMapper.readValue(response.body, VentetidResponse::class.java)
     }
 
     @Retryable
@@ -171,7 +171,7 @@ class FlexSyketilfelleClient(
             queryBuilder.queryParam("andreKorrigerteRessurser", soknadDto.korrigerer)
         }
 
-        val result =
+        val response =
             flexSyketilfelleRestTemplate
                 .exchange(
                     queryBuilder.toUriString(),
@@ -180,16 +180,16 @@ class FlexSyketilfelleClient(
                     Arbeidsgiverperiode::class.java,
                 )
 
-        if (!result.statusCode.is2xxSuccessful) {
-            val message = "Kall mot flex-syketilfelle feiler med HTTP-${result.statusCode}"
+        if (!response.statusCode.is2xxSuccessful) {
+            val message = "Kall til beregnArbeidsgiverperiode feilet med HTTP-${response.statusCode}"
             log.error(message)
             throw RuntimeException(message)
         }
 
         try {
-            return result.body
+            return response.body
         } catch (exception: Exception) {
-            val message = "Uventet feil ved beregning av arbeidsgiverperiode"
+            val message = "Feil ved beregning av arbeidsgiverperiode"
             log.error(message)
             throw RuntimeException(message, exception)
         }

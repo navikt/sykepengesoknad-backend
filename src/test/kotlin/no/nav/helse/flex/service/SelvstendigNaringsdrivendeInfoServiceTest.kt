@@ -4,9 +4,9 @@ import no.nav.helse.flex.FakesTestOppsett
 import no.nav.helse.flex.client.brreg.RolleDto
 import no.nav.helse.flex.client.brreg.RollerDto
 import no.nav.helse.flex.client.brreg.Rolletype
-import no.nav.helse.flex.domain.Venteperiode
-import no.nav.helse.flex.domain.VenteperiodeResponse
+import no.nav.helse.flex.domain.FomTomPeriode
 import no.nav.helse.flex.domain.Ventetid
+import no.nav.helse.flex.domain.VentetidResponse
 import no.nav.helse.flex.mockdispatcher.withContentTypeApplicationJson
 import no.nav.helse.flex.util.serialisertTilString
 import okhttp3.mockwebserver.MockResponse
@@ -43,7 +43,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
     private val tom = LocalDate.now().plusDays(1)
 
     @Test
-    fun `Returnerer venteperiode og roller for én ident`() {
+    fun `Returnerer ventetid og roller for én ident`() {
         brregMockWebServer.enqueue(
             withContentTypeApplicationJson {
                 MockResponse().setBody((Rolletype.INNH).tilRollerDto().serialisertTilString())
@@ -52,7 +52,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
 
         ventetidMockWebServer.enqueue(
             withContentTypeApplicationJson {
-                MockResponse().setBody(lagVenteperiodeResponse(fom, tom).serialisertTilString())
+                MockResponse().setBody(lagventetidResponse(fom, tom).serialisertTilString())
             },
         )
 
@@ -73,7 +73,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
     }
 
     @Test
-    fun `Returnerer venteperiode og roller for flere identer`() {
+    fun `Returnerer ventetid og roller for flere identer`() {
         brregMockWebServer.enqueue(
             withContentTypeApplicationJson {
                 MockResponse().setBody((Rolletype.INNH).tilRollerDto().serialisertTilString())
@@ -86,7 +86,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
         )
         ventetidMockWebServer.enqueue(
             withContentTypeApplicationJson {
-                MockResponse().setBody(lagVenteperiodeResponse(fom, tom).serialisertTilString())
+                MockResponse().setBody(lagventetidResponse(fom, tom).serialisertTilString())
             },
         )
 
@@ -117,7 +117,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
     }
 
     @Test
-    fun `Returnerer venteperiode og roller når roller mangler for én ident`() {
+    fun `Returnerer ventetid og roller når roller mangler for én ident`() {
         brregMockWebServer.enqueue(
             withContentTypeApplicationJson {
                 MockResponse().setBody((Rolletype.INNH).tilRollerDto().serialisertTilString())
@@ -132,7 +132,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
 
         ventetidMockWebServer.enqueue(
             withContentTypeApplicationJson {
-                MockResponse().setBody(lagVenteperiodeResponse(fom, tom).serialisertTilString())
+                MockResponse().setBody(lagventetidResponse(fom, tom).serialisertTilString())
             },
         )
 
@@ -153,7 +153,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
     }
 
     @Test
-    fun `Returnerer venteperiode og tom liste med roller når én ident mangler roller`() {
+    fun `Returnerer ventetid og tom liste med roller når én ident mangler roller`() {
         brregMockWebServer.enqueue(
             withContentTypeApplicationJson {
                 MockResponse().setResponseCode(404)
@@ -162,7 +162,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
 
         ventetidMockWebServer.enqueue(
             withContentTypeApplicationJson {
-                MockResponse().setBody(lagVenteperiodeResponse(fom, tom).serialisertTilString())
+                MockResponse().setBody(lagventetidResponse(fom, tom).serialisertTilString())
             },
         )
 
@@ -179,7 +179,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
     }
 
     @Test
-    fun `Returnerer venteperiode og tom liste med roller når alle identer mangler roller`() {
+    fun `Returnerer ventetid og tom liste med roller når alle identer mangler roller`() {
         repeat(2) {
             brregMockWebServer.enqueue(
                 withContentTypeApplicationJson {
@@ -190,7 +190,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
 
         ventetidMockWebServer.enqueue(
             withContentTypeApplicationJson {
-                MockResponse().setBody(lagVenteperiodeResponse(fom, tom).serialisertTilString())
+                MockResponse().setBody(lagventetidResponse(fom, tom).serialisertTilString())
             },
         )
 
@@ -207,7 +207,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
     }
 
     @Test
-    fun `Det kastes VenteperiodeException når det ikke returneres venteperiode`() {
+    fun `Det kastes ventetidException når det ikke returneres ventetid`() {
         brregMockWebServer.enqueue(
             withContentTypeApplicationJson {
                 MockResponse().setBody((Rolletype.INNH).tilRollerDto().serialisertTilString())
@@ -217,23 +217,23 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
         ventetidMockWebServer.enqueue(
             withContentTypeApplicationJson {
                 MockResponse().setBody(
-                    lagVenteperiodeResponse(fom, tom).copy(venteperiode = null).serialisertTilString(),
+                    lagventetidResponse(fom, tom).copy(ventetid = null).serialisertTilString(),
                 )
             },
         )
 
-        assertThrows<VenteperiodeException> {
+        assertThrows<VentetidException> {
             selvstendigNaringsdrivendeInfoService.hentSelvstendigNaringsdrivendeInfo(
                 FolkeregisterIdenter("11111111111", andreIdenter = emptyList()),
                 sykmeldingId = "sykmeldingId",
             )
         }.also {
-            it.message!! `should be equal to` "Det ble ikke returnert venteperiode for sykmeldingId: sykmeldingId."
+            it.message!! `should be equal to` "Det ble ikke returnert ventetid for sykmeldingId: sykmeldingId."
         }
     }
 
     @Test
-    fun `ServerError propagerer ved henting av venteperiode`() {
+    fun `ServerError propagerer ved henting av ventetid`() {
         brregMockWebServer.enqueue(
             withContentTypeApplicationJson {
                 MockResponse().setBody((Rolletype.INNH).tilRollerDto().serialisertTilString())
@@ -264,7 +264,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
 
         ventetidMockWebServer.enqueue(
             withContentTypeApplicationJson {
-                MockResponse().setBody(lagVenteperiodeResponse(fom, tom).serialisertTilString())
+                MockResponse().setBody(lagventetidResponse(fom, tom).serialisertTilString())
             },
         )
         val selvstendigNaringsdrivendeInfo =
@@ -280,10 +280,10 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
     }
 }
 
-private fun lagVenteperiodeResponse(
+private fun lagventetidResponse(
     fom: LocalDate,
     tom: LocalDate,
-): VenteperiodeResponse = VenteperiodeResponse(Venteperiode(fom = fom, tom = tom))
+): VentetidResponse = VentetidResponse(FomTomPeriode(fom = fom, tom = tom))
 
 private fun Rolletype.tilRollerDto() =
     RollerDto(
