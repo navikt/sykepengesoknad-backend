@@ -1,14 +1,13 @@
 package no.nav.helse.flex.domain.mapper
 
+import no.nav.helse.flex.domain.BrregRolle
 import no.nav.helse.flex.domain.Mottaker
 import no.nav.helse.flex.domain.SelvstendigNaringsdrivendeInfo
 import no.nav.helse.flex.domain.Soknadsperiode
-import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.Ventetid
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentSoknadsPerioderMedFaktiskGrad
 import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknad
 import no.nav.helse.flex.soknadsopprettelse.lagSykepengegrunnlagNaeringsdrivende
-import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -27,6 +26,54 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
         )
 
     @Test
+    fun `Inneholder roller og ventetid selv om inntektsinformasjon mangler`() {
+        val (soknad, fom, tom) =
+            opprettNyNaeringsdrivendeSoknad().run {
+                Triple(this, requireNotNull(fom), requireNotNull(tom))
+            }
+
+        val soknadDTO =
+            konverterTilSykepengesoknadDTO(
+                sykepengesoknad =
+                    soknad.copy(
+                        soknadPerioder = soknadPerioder,
+                        selvstendigNaringsdrivende =
+                            SelvstendigNaringsdrivendeInfo(
+                                roller =
+                                    listOf(
+                                        BrregRolle(
+                                            orgnummer = "orgnummer",
+                                            orgnavn = "orgnavn",
+                                            rolletype = "INNH",
+                                        ),
+                                    ),
+                                ventetid =
+                                    Ventetid(
+                                        fom = fom,
+                                        tom = tom,
+                                    ),
+                            ),
+                    ),
+                mottaker = Mottaker.ARBEIDSGIVER_OG_NAV,
+                erEttersending = false,
+                soknadsperioder = hentSoknadsPerioderMedFaktiskGrad(soknad).first,
+            )
+
+        soknadDTO.selvstendigNaringsdrivende!!.also {
+            it.ventetid!!.also { ventetid ->
+                ventetid.fom `should be equal to` fom
+                ventetid.tom `should be equal to` tom
+            }
+            it.roller.also { roller ->
+                roller.single().also { rolleDTO ->
+                    rolleDTO.orgnummer `should be equal to` "orgnummer"
+                    rolleDTO.rolletype `should be equal to` "INNH"
+                }
+            }
+        }
+    }
+
+    @Test
     fun `Inneholder summert inntektsinformasjon i selvstendigNaringsdrivende`() {
         val (soknad, fom, tom) =
             opprettNyNaeringsdrivendeSoknad().run {
@@ -34,20 +81,24 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
             }
 
         val soknadDTO =
-            lagSykepengesoknadDTO(
-                soknad.copy(
-                    soknadPerioder = soknadPerioder,
-                    selvstendigNaringsdrivende =
-                        SelvstendigNaringsdrivendeInfo(
-                            roller = emptyList(),
-                            sykepengegrunnlagNaeringsdrivende = lagSykepengegrunnlagNaeringsdrivende(),
-                            ventetid =
-                                Ventetid(
-                                    fom = fom,
-                                    tom = tom,
-                                ),
-                        ),
-                ),
+            konverterTilSykepengesoknadDTO(
+                sykepengesoknad =
+                    soknad.copy(
+                        soknadPerioder = soknadPerioder,
+                        selvstendigNaringsdrivende =
+                            SelvstendigNaringsdrivendeInfo(
+                                roller = emptyList(),
+                                sykepengegrunnlagNaeringsdrivende = lagSykepengegrunnlagNaeringsdrivende(),
+                                ventetid =
+                                    Ventetid(
+                                        fom = fom,
+                                        tom = tom,
+                                    ),
+                            ),
+                    ),
+                mottaker = Mottaker.ARBEIDSGIVER_OG_NAV,
+                erEttersending = false,
+                soknadsperioder = hentSoknadsPerioderMedFaktiskGrad(soknad).first,
             )
 
         soknadDTO.selvstendigNaringsdrivende!!.ventetid!!.also {
@@ -81,12 +132,4 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
             }
         }
     }
-
-    private fun lagSykepengesoknadDTO(soknad: Sykepengesoknad): SykepengesoknadDTO =
-        konverterTilSykepengesoknadDTO(
-            sykepengesoknad = soknad,
-            mottaker = Mottaker.ARBEIDSGIVER_OG_NAV,
-            erEttersending = false,
-            soknadsperioder = hentSoknadsPerioderMedFaktiskGrad(soknad).first,
-        )
 }

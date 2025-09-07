@@ -11,21 +11,17 @@ data class SelvstendigNaringsdrivendeInfo(
     val ventetid: Ventetid? = null,
 ) {
     fun tilDto(): SelvstendigNaringsdrivendeDTO {
-        val grunnlag = sykepengegrunnlagNaeringsdrivende
-        if (grunnlag == null) {
-            return SelvstendigNaringsdrivendeDTO(
-                roller = roller.map { RolleDTO(it.orgnummer, it.rolletype) },
-                inntekt = null,
-            )
-        }
+        val inntekt =
+            sykepengegrunnlagNaeringsdrivende?.let {
+                InntektDTO(
+                    norskPersonidentifikator = it.inntekter.first().norskPersonidentifikator,
+                    inntektsAar = mapToNaringsdrivendeInntektsAarDTO(),
+                )
+            }
 
         return SelvstendigNaringsdrivendeDTO(
             roller = roller.map { RolleDTO(it.orgnummer, it.rolletype) },
-            inntekt =
-                InntektDTO(
-                    norskPersonidentifikator = sykepengegrunnlagNaeringsdrivende.inntekter.first().norskPersonidentifikator,
-                    inntektsAar = mapToNaringsdrivendeInntektsAarDTO(),
-                ),
+            inntekt = inntekt,
             ventetid = ventetid?.let { toVentetidDTO() },
         )
     }
