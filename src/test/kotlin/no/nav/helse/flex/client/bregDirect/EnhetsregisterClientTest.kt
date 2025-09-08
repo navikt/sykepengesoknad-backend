@@ -50,20 +50,4 @@ class EnhetsregisterClientTest {
         assertTrue(status)
     }
 
-//    @Test
-//    fun `erDagmamma returnerer IKKE_FUNNET for 404 respons`() {
-//        mockWebServer.enqueue(MockResponse().setResponseCode(404))
-//
-//        val status = client.erDagmamma("123456789")
-//        assertEquals(DagmammaStatus.IKKE_FUNNET, status)
-//    }
-
-//    @Test
-//    fun `erDagmamma returnerer SERVER_ERROR for 500 response`() {
-//        // The retry mechanism is mocked to fail on the first attempt in a test context.
-//        mockWebServer.enqueue(MockResponse().setResponseCode(500))
-//
-//        val status = client.erDagmamma("123456789")
-//        assertEquals(DagmammaStatus.SERVER_FEIL, status)
-//    }
 }
