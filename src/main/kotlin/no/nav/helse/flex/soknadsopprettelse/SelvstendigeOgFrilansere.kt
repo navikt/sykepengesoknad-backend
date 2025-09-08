@@ -146,3 +146,10 @@ private fun fravaerForSykmeldingSporsmal(soknadMetadata: Sykepengesoknad): Spors
         svartype = JA_NEI,
         undertekst = "Gjelder sammenhengende ferie eller annet fravær gjennom alle fire ukene. Har du jobbet underveis, kan du svare nei. ",
     )
+
+fun Sporsmal.plasseringSporsmalSelvstendigOgFrilansere(): Int =
+    when (this.tag) {
+        FRAVAR_FOR_SYKMELDINGEN_V2 -> -9
+
+        else -> fellesPlasseringSporsmal()
+    }

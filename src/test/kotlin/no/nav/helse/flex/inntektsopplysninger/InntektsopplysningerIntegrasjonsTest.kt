@@ -66,12 +66,12 @@ class InntektsopplysningerIntegrasjonsTest : FellesTestOppsett() {
         assertThat(soknad.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
                 ANSVARSERKLARING,
+                FRAVAR_FOR_SYKMELDINGEN_V2,
                 TILBAKE_I_ARBEID,
                 medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0),
                 ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER,
                 OPPHOLD_UTENFOR_EOS,
-                FRAVAR_FOR_SYKMELDINGEN_V2,
                 INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET,
                 TIL_SLUTT,
             ),

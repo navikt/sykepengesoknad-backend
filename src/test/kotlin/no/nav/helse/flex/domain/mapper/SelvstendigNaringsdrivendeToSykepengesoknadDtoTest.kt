@@ -4,10 +4,12 @@ import no.nav.helse.flex.domain.BrregRolle
 import no.nav.helse.flex.domain.Mottaker
 import no.nav.helse.flex.domain.SelvstendigNaringsdrivendeInfo
 import no.nav.helse.flex.domain.Soknadsperiode
+import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.Ventetid
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentSoknadsPerioderMedFaktiskGrad
 import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknad
 import no.nav.helse.flex.soknadsopprettelse.lagSykepengegrunnlagNaeringsdrivende
+import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should not be null`
 import org.junit.jupiter.api.Test
