@@ -9,7 +9,7 @@ fun Sykepengesoknad.sorterSporsmal(): Sykepengesoknad {
 
     fun Sporsmal.plasseringSporsmal(): Int =
         when (soknad.soknadstype) {
-            Soknadstype.SELVSTENDIGE_OG_FRILANSERE -> fellesPlasseringSporsmal()
+            Soknadstype.SELVSTENDIGE_OG_FRILANSERE -> plasseringSporsmalSelvstendigOgFrilansere()
             Soknadstype.ARBEIDSTAKERE -> fellesPlasseringSporsmal()
             Soknadstype.ARBEIDSLEDIG -> fellesPlasseringSporsmal()
             Soknadstype.ANNET_ARBEIDSFORHOLD -> fellesPlasseringSporsmal()
@@ -32,7 +32,7 @@ fun Sporsmal.fellesPlasseringSporsmal(): Int =
         FRISKMELDT -> -10
 
         EGENMELDINGER -> -9
-        FRAVAR_FOR_SYKMELDINGEN -> 9
+        FRAVAR_FOR_SYKMELDINGEN -> -9
         TILBAKE_I_ARBEID -> -8
         FERIE_V2 -> -7
         PERMISJON_V2 -> -6
@@ -73,8 +73,6 @@ fun Sporsmal.fellesPlasseringSporsmal(): Int =
         FTA_JOBBSITUASJONEN_DIN -> 805
         FTA_INNTEKT_UNDERVEIS -> 806
         FTA_REISE_TIL_UTLANDET -> 807
-
-        FRAVAR_FOR_SYKMELDINGEN_V2 -> 820
 
         INNTEKTSOPPLYSNINGER_DRIFT_VIRKSOMHETEN -> 900
         INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET -> 900
