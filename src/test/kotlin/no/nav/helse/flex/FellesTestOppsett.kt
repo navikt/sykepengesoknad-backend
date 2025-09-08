@@ -59,6 +59,7 @@ abstract class FellesTestOppsett : TestOppsettInterfaces {
         private val innsendingApiMockWebServer: MockWebServer
         val arbeidssokerregisterMockDispatcher: MockWebServer
         val brregMockWebServer: MockWebServer
+        val enhetsregisterMockWebServer: MockWebServer
 
         init {
             startAlleContainere()
@@ -73,6 +74,7 @@ abstract class FellesTestOppsett : TestOppsettInterfaces {
                 grunnbeloepApiMockWebServer = it.grunnbeloepApiMockWebServer
                 brregMockWebServer = it.brregMockWebServer
                 arbeidssokerregisterMockDispatcher = it.arbeidssokerregisterMockDispatcher
+                enhetsregisterMockWebServer = it.enhetsregisterMockWebServer
             }
         }
     }
