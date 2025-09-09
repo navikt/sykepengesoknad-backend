@@ -207,7 +207,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
     }
 
     @Test
-    fun `Det kastes ventetidException når det ikke returneres ventetid`() {
+    fun `Det kastes VentetidException når det ikke returneres ventetid`() {
         brregMockWebServer.enqueue(
             withContentTypeApplicationJson {
                 MockResponse().setBody((Rolletype.INNH).tilRollerDto().serialisertTilString())
@@ -255,28 +255,19 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
     }
 
     @Test
-    fun `ServerError propagerer ikke ved henting av roller`() {
+    fun `ServerError propagerer ved henting av roller`() {
         brregMockWebServer.enqueue(
             withContentTypeApplicationJson {
                 MockResponse().setResponseCode(500)
             },
         )
 
-        ventetidMockWebServer.enqueue(
-            withContentTypeApplicationJson {
-                MockResponse().setBody(lagventetidResponse(fom, tom).serialisertTilString())
-            },
-        )
-        val selvstendigNaringsdrivendeInfo =
-            selvstendigNaringsdrivendeInfoService
-                .hentSelvstendigNaringsdrivendeInfo(
-                    identer = FolkeregisterIdenter("11111111111", andreIdenter = emptyList()),
-                    sykmeldingId = "sykmelding-id",
-                )
-
-        selvstendigNaringsdrivendeInfo.roller.`should be empty`()
-
-        selvstendigNaringsdrivendeInfo.ventetid `should be equal to` Ventetid(fom, tom)
+        invoking {
+            selvstendigNaringsdrivendeInfoService.hentSelvstendigNaringsdrivendeInfo(
+                FolkeregisterIdenter("11111111111", andreIdenter = emptyList()),
+                sykmeldingId = "sykmeldingId",
+            )
+        }.shouldThrow(HttpServerErrorException::class)
     }
 }
 

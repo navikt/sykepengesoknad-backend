@@ -8,13 +8,17 @@ import no.nav.helse.flex.domain.BrregRolle
 import no.nav.helse.flex.domain.SelvstendigNaringsdrivendeInfo
 import no.nav.helse.flex.domain.Ventetid
 import no.nav.helse.flex.domain.VentetidRequest
+import no.nav.helse.flex.logger
 import org.springframework.stereotype.Service
+import org.springframework.web.client.HttpClientErrorException
 
 @Service
 class SelvstendigNaringsdrivendeInfoService(
     private val brregClient: BrregClient,
     private val flexSyketilfelleClient: FlexSyketilfelleClient,
 ) {
+    private val log = logger()
+
     fun hentSelvstendigNaringsdrivendeInfo(
         identer: FolkeregisterIdenter,
         sykmeldingId: String,
@@ -31,7 +35,7 @@ class SelvstendigNaringsdrivendeInfoService(
                 // BrregClient kaster exception når den mottar en tom liste med roller.
                 try {
                     hentRoller(fnr)
-                } catch (_: Exception) {
+                } catch (_: HttpClientErrorException.NotFound) {
                     emptyList()
                 }
             }.map(::tilBrregRolle)
