@@ -8,6 +8,7 @@ import no.nav.helse.flex.client.flexsyketilfelle.VentetidRequest
 import no.nav.helse.flex.domain.BrregRolle
 import no.nav.helse.flex.domain.SelvstendigNaringsdrivendeInfo
 import no.nav.helse.flex.domain.Ventetid
+import no.nav.helse.flex.logger
 import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpClientErrorException
 
@@ -16,6 +17,8 @@ class SelvstendigNaringsdrivendeInfoService(
     private val brregClient: BrregClient,
     private val flexSyketilfelleClient: FlexSyketilfelleClient,
 ) {
+    private val log = logger()
+
     fun hentSelvstendigNaringsdrivendeInfo(
         identer: FolkeregisterIdenter,
         sykmeldingId: String,
@@ -41,7 +44,12 @@ class SelvstendigNaringsdrivendeInfoService(
     private fun hentVentetid(
         identer: FolkeregisterIdenter,
         sykmeldingId: String,
-    ): Ventetid {
+    ): Ventetid? {
+        if (sykmeldingId == "1c760261-8edc-4bd1-b33a-720804845514") {
+            log.info("Henter ikke ventetid for sykmelding: $sykmeldingId da flex-syketilfelle ikke returnerer ventetid for sykmeldingen.")
+            return null
+        }
+
         val ventetidResponse =
             flexSyketilfelleClient.hentVentetid(
                 identer,
