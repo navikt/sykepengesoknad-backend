@@ -8,7 +8,6 @@ import no.nav.helse.flex.client.flexsyketilfelle.VentetidRequest
 import no.nav.helse.flex.domain.BrregRolle
 import no.nav.helse.flex.domain.SelvstendigNaringsdrivendeInfo
 import no.nav.helse.flex.domain.Ventetid
-import no.nav.helse.flex.logger
 import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpClientErrorException
 
@@ -17,8 +16,6 @@ class SelvstendigNaringsdrivendeInfoService(
     private val brregClient: BrregClient,
     private val flexSyketilfelleClient: FlexSyketilfelleClient,
 ) {
-    private val log = logger()
-
     fun hentSelvstendigNaringsdrivendeInfo(
         identer: FolkeregisterIdenter,
         sykmeldingId: String,
@@ -32,7 +29,8 @@ class SelvstendigNaringsdrivendeInfoService(
         identer
             .alle()
             .flatMap { fnr ->
-                // BrregClient kaster exception når den mottar en tom liste med roller.
+                // BrregClient kaster HttpClientErrorException når den mottar en tom liste med roller.
+                // Returnerer en tom liste siden det ikke er en en feilsituasjon
                 try {
                     hentRoller(fnr)
                 } catch (_: HttpClientErrorException.NotFound) {
@@ -51,12 +49,11 @@ class SelvstendigNaringsdrivendeInfoService(
                 VentetidRequest(returnerPerioderInnenforVentetid = true),
             )
 
-        val ventetid =
-            ventetidResponse.ventetid
-                // Det skal alltid kunne beregnes en ventetid for en sykmlding hvis flex-syketilfelle har mottatt bitene.
-                ?: throw VentetidException("Det ble ikke returnert ventetid for sykmeldingId: $sykmeldingId.")
-
-        return Ventetid(fom = ventetid.fom, tom = ventetid.tom)
+        // Det skal alltid kunne beregnes en ventetid for en periode hvis flex-syketilfelle har mottatt bitene fra
+        // sykmeldingen.
+        return ventetidResponse.ventetid?.let {
+            Ventetid(fom = it.fom, tom = it.tom)
+        } ?: throw VentetidException("Det ble ikke returnert ventetid for sykmelding: $sykmeldingId")
     }
 
     private fun hentRoller(fnr: String): List<RolleDto> {

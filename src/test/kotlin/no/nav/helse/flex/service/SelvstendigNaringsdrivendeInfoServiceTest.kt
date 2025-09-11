@@ -225,10 +225,10 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
         assertThrows<VentetidException> {
             selvstendigNaringsdrivendeInfoService.hentSelvstendigNaringsdrivendeInfo(
                 FolkeregisterIdenter("11111111111", andreIdenter = emptyList()),
-                sykmeldingId = "sykmeldingId",
+                sykmeldingId = "sykmelding-id",
             )
         }.also {
-            it.message!! `should be equal to` "Det ble ikke returnert ventetid for sykmeldingId: sykmeldingId."
+            it.message!! `should be equal to` "Det ble ikke returnert ventetid for sykmelding: sykmelding-id"
         }
     }
 
@@ -249,7 +249,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
         invoking {
             selvstendigNaringsdrivendeInfoService.hentSelvstendigNaringsdrivendeInfo(
                 FolkeregisterIdenter("11111111111", andreIdenter = emptyList()),
-                sykmeldingId = "sykmeldingId",
+                sykmeldingId = "sykmelding-id",
             )
         }.shouldThrow(HttpServerErrorException::class)
     }
@@ -265,7 +265,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
         invoking {
             selvstendigNaringsdrivendeInfoService.hentSelvstendigNaringsdrivendeInfo(
                 FolkeregisterIdenter("11111111111", andreIdenter = emptyList()),
-                sykmeldingId = "sykmeldingId",
+                sykmeldingId = "sykmelding-id",
             )
         }.shouldThrow(HttpServerErrorException::class)
     }
