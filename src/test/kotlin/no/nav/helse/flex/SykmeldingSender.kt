@@ -1,8 +1,8 @@
 package no.nav.helse.flex
 
+import no.nav.helse.flex.client.flexsyketilfelle.FomTomPeriode
+import no.nav.helse.flex.client.flexsyketilfelle.VentetidResponse
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.domain.FomTomPeriode
-import no.nav.helse.flex.domain.VentetidResponse
 import no.nav.helse.flex.domain.mapper.tilSoknadstatusDTO
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.kafka.consumer.SYKMELDINGBEKREFTET_TOPIC

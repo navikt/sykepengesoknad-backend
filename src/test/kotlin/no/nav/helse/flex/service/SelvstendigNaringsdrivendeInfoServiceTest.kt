@@ -4,9 +4,9 @@ import no.nav.helse.flex.FakesTestOppsett
 import no.nav.helse.flex.client.brreg.RolleDto
 import no.nav.helse.flex.client.brreg.RollerDto
 import no.nav.helse.flex.client.brreg.Rolletype
-import no.nav.helse.flex.domain.FomTomPeriode
+import no.nav.helse.flex.client.flexsyketilfelle.FomTomPeriode
+import no.nav.helse.flex.client.flexsyketilfelle.VentetidResponse
 import no.nav.helse.flex.domain.Ventetid
-import no.nav.helse.flex.domain.VentetidResponse
 import no.nav.helse.flex.mockdispatcher.withContentTypeApplicationJson
 import no.nav.helse.flex.util.serialisertTilString
 import okhttp3.mockwebserver.MockResponse

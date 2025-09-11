@@ -4,10 +4,10 @@ import no.nav.helse.flex.client.brreg.BrregClient
 import no.nav.helse.flex.client.brreg.RolleDto
 import no.nav.helse.flex.client.brreg.Rolletype
 import no.nav.helse.flex.client.flexsyketilfelle.FlexSyketilfelleClient
+import no.nav.helse.flex.client.flexsyketilfelle.VentetidRequest
 import no.nav.helse.flex.domain.BrregRolle
 import no.nav.helse.flex.domain.SelvstendigNaringsdrivendeInfo
 import no.nav.helse.flex.domain.Ventetid
-import no.nav.helse.flex.domain.VentetidRequest
 import no.nav.helse.flex.logger
 import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpClientErrorException

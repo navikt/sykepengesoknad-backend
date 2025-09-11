@@ -1,11 +1,9 @@
 package no.nav.helse.flex.client.flexsyketilfelle
 
+import no.nav.helse.flex.controller.domain.sykmelding.Tilleggsopplysninger
 import no.nav.helse.flex.domain.Arbeidsgiverperiode
-import no.nav.helse.flex.domain.ErUtenforVentetidRequest
 import no.nav.helse.flex.domain.Sykeforloep
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.domain.VentetidRequest
-import no.nav.helse.flex.domain.VentetidResponse
 import no.nav.helse.flex.domain.mapper.SykepengesoknadTilSykepengesoknadDTOMapper
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.domain.sykmelding.SykmeldingRequest
@@ -23,6 +21,7 @@ import org.springframework.stereotype.Component
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
+import java.time.LocalDate
 
 @Component
 class FlexSyketilfelleClient(
@@ -200,3 +199,23 @@ class FlexSyketilfelleClient(
         val sykmelding: SykmeldingKafkaMessage?,
     )
 }
+
+data class ErUtenforVentetidRequest(
+    val tilleggsopplysninger: Tilleggsopplysninger? = null,
+    val sykmeldingKafkaMessage: SykmeldingKafkaMessage? = null,
+)
+
+data class VentetidRequest(
+    val tilleggsopplysninger: Tilleggsopplysninger? = null,
+    val sykmeldingKafkaMessage: SykmeldingKafkaMessage? = null,
+    val returnerPerioderInnenforVentetid: Boolean = false,
+)
+
+data class VentetidResponse(
+    val ventetid: FomTomPeriode?,
+)
+
+data class FomTomPeriode(
+    val fom: LocalDate,
+    val tom: LocalDate,
+)

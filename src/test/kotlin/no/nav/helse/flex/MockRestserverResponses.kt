@@ -1,10 +1,10 @@
 package no.nav.helse.flex
 
+import no.nav.helse.flex.client.flexsyketilfelle.VentetidResponse
 import no.nav.helse.flex.client.istilgangskontroll.IstilgangskontrollClient.Companion.NAV_PERSONIDENT_HEADER
 import no.nav.helse.flex.domain.Arbeidsgiverperiode
 import no.nav.helse.flex.domain.SimpleSykmelding
 import no.nav.helse.flex.domain.Sykeforloep
-import no.nav.helse.flex.domain.VentetidResponse
 import no.nav.helse.flex.util.objectMapper
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
