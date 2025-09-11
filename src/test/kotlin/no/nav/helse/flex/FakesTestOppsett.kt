@@ -27,7 +27,7 @@ const val IGNORED_KAFKA_BROKERS = "localhost:1"
 @AutoConfigureObservability
 @EnableMockOAuth2Server
 @SpringBootTest(
-    classes = [Application::class, MockWebServereConfig::class],
+    classes = [Application::class, FakesMockWebServerConfig::class],
     properties = [
         "spring.main.allow-bean-definition-overriding=true",
         "spring.data.jdbc.repositories.enabled=false",
@@ -68,12 +68,6 @@ abstract class FakesTestOppsett : TestOppsettInterfaces {
     @Autowired
     lateinit var databaseReset: DatabaseReset
 
-    companion object {
-        init {
-            startMockWebServere()
-        }
-    }
-
     @AfterAll
     @BeforeAll
     fun `Vi resetter databasen`() {
@@ -83,6 +77,12 @@ abstract class FakesTestOppsett : TestOppsettInterfaces {
     @AfterAll
     fun `Reset kafka`() {
         SoknadKafkaProducerFake.records.clear()
+    }
+
+    companion object {
+        init {
+            startMockWebServere()
+        }
     }
 
     override fun server(): MockOAuth2Server = server

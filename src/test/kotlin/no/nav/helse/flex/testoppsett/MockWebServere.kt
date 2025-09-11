@@ -1,7 +1,15 @@
 package no.nav.helse.flex.testoppsett
 
 import no.nav.helse.flex.medlemskap.MedlemskapMockDispatcher
-import no.nav.helse.flex.mockdispatcher.*
+import no.nav.helse.flex.mockdispatcher.AaregMockDispatcher
+import no.nav.helse.flex.mockdispatcher.ArbeidssokerregisterMockDispatcher
+import no.nav.helse.flex.mockdispatcher.EregMockDispatcher
+import no.nav.helse.flex.mockdispatcher.GrunnbeloepApiMockDispatcher
+import no.nav.helse.flex.mockdispatcher.InnsendingApiMockDispatcher
+import no.nav.helse.flex.mockdispatcher.InntektskomponentenMockDispatcher
+import no.nav.helse.flex.mockdispatcher.PdlMockDispatcher
+import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher
+import no.nav.helse.flex.mockdispatcher.YrkesskadeMockDispatcher
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -58,7 +66,7 @@ fun startMockWebServere(): MockWebServere {
             System.setProperty("BRREG_API_URL", "http://localhost:$port")
             dispatcher = simpleDispatcher { MockResponse().setResponseCode(200) }
         }
-    val arbeidssokerregisterMockDispatcher =
+    val arbeidssokerregisterMockWebServer =
         MockWebServer().apply {
             System.setProperty("ARBEIDSSOEKERREGISTERET_API_URL", "http://localhost:$port")
             dispatcher = ArbeidssokerregisterMockDispatcher
@@ -75,7 +83,7 @@ fun startMockWebServere(): MockWebServere {
         grunnbeloepApiMockWebServer = grunnbeloepApiMockWebServer,
         aaregMockWebServer = aaregMockWebServer,
         brregMockWebServer = brregMockWebServer,
-        arbeidssokerregisterMockDispatcher = arbeidssokerregisterMockDispatcher,
+        arbeidssokerregisterMockWebServer = arbeidssokerregisterMockWebServer,
     )
 }
 
@@ -90,7 +98,7 @@ data class MockWebServere(
     val grunnbeloepApiMockWebServer: MockWebServer,
     val aaregMockWebServer: MockWebServer,
     val brregMockWebServer: MockWebServer,
-    val arbeidssokerregisterMockDispatcher: MockWebServer,
+    val arbeidssokerregisterMockWebServer: MockWebServer,
 )
 
 fun simpleDispatcher(dispatcherFunc: (RecordedRequest) -> MockResponse): Dispatcher =

@@ -1,5 +1,7 @@
 package no.nav.helse.flex
 
+import no.nav.helse.flex.client.flexsyketilfelle.FomTomPeriode
+import no.nav.helse.flex.client.flexsyketilfelle.VentetidResponse
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.mapper.tilSoknadstatusDTO
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
@@ -28,6 +30,10 @@ fun FellesTestOppsett.sendSykmelding(
         )
     ) {
         mockFlexSyketilfelleErUtenforVentetid(sykmeldingKafkaMessage.sykmelding.id, true)
+        mockFlexSyketilfelleVentetid(
+            sykmeldingKafkaMessage.sykmelding.id,
+            VentetidResponse(FomTomPeriode(fom = LocalDate.now(), tom = LocalDate.now().plusDays(16))),
+        )
     }
 
     mockFlexSyketilfelleSykeforloep(

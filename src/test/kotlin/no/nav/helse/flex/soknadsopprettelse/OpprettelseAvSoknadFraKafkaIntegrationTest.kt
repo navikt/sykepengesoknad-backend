@@ -4,10 +4,12 @@ import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argWhere
 import com.nhaarman.mockitokotlin2.doThrow
 import com.nhaarman.mockitokotlin2.whenever
-import no.nav.helse.flex.*
+import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.client.brreg.RolleDto
 import no.nav.helse.flex.client.brreg.RollerDto
 import no.nav.helse.flex.client.brreg.Rolletype
+import no.nav.helse.flex.client.flexsyketilfelle.FomTomPeriode
+import no.nav.helse.flex.client.flexsyketilfelle.VentetidResponse
 import no.nav.helse.flex.client.sigrun.HentPensjonsgivendeInntektResponse
 import no.nav.helse.flex.client.sigrun.PensjonsgivendeInntekt
 import no.nav.helse.flex.client.sigrun.Skatteordning
@@ -16,12 +18,17 @@ import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadsperiode
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykmeldingstype
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.domain.BrregRolle
 import no.nav.helse.flex.domain.FiskerBlad
 import no.nav.helse.flex.domain.exception.ManglerSykmeldingException
 import no.nav.helse.flex.domain.exception.ProduserKafkaMeldingException
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
+import no.nav.helse.flex.hentSoknad
+import no.nav.helse.flex.hentSoknader
+import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
+import no.nav.helse.flex.mockFlexSyketilfelleErUtenforVentetid
+import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
+import no.nav.helse.flex.mockFlexSyketilfelleVentetid
 import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher.enqueueMockResponse
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.service.AarVerdi
@@ -29,10 +36,13 @@ import no.nav.helse.flex.service.Beregnet
 import no.nav.helse.flex.service.SykepengegrunnlagNaeringsdrivende
 import no.nav.helse.flex.sykepengesoknad.kafka.FiskerBladDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
+import no.nav.helse.flex.sykepengesoknad.kafka.VentetidDTO
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.helse.flex.testoppsett.simpleDispatcher
+import no.nav.helse.flex.tilSykepengesoknadDTO
 import no.nav.helse.flex.util.serialisertTilString
+import no.nav.helse.flex.ventPåRecords
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.GradertDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
@@ -43,10 +53,16 @@ import no.nav.syfo.sykmelding.kafka.model.SporsmalOgSvarKafkaDTO
 import no.nav.syfo.sykmelding.kafka.model.SvartypeKafkaDTO
 import no.nav.syfo.sykmelding.kafka.model.SykmeldingStatusKafkaMessageDTO
 import okhttp3.mockwebserver.MockResponse
-import org.amshove.kluent.*
+import org.amshove.kluent.`should be empty`
+import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.`should be false`
+import org.amshove.kluent.`should be true`
+import org.amshove.kluent.shouldHaveSize
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.*
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertThrows
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
@@ -54,7 +70,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import java.math.BigInteger
 import java.time.LocalDate
 
-@TestMethodOrder(MethodOrderer.MethodName::class)
 class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
     private val fnr = "123456789"
 
@@ -73,157 +88,40 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `Oppretter kort søknad for næringsdrivende`() {
+    fun `Oppretter søknad for næringsdrivende som er utenfor ventetiden`() {
         val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
         val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
         val sykmelding =
-            skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId)
-                .copy(harRedusertArbeidsgiverperiode = true)
+            skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId).copy(harRedusertArbeidsgiverperiode = true)
 
-        mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
-        mockFlexSyketilfelleSykeforloep(sykmeldingId)
-
-        val sykmeldingKafkaMessage =
-            SykmeldingKafkaMessage(
-                sykmelding = sykmelding,
-                event = sykmeldingStatusKafkaMessageDTO.event,
-                kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
-            )
-
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
-
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
-
-        val hentetViaRest = hentSoknaderMetadata(fnr).sortedBy { it.fom }
-        assertThat(hentetViaRest).hasSize(1)
-        assertThat(hentetViaRest[0].soknadstype).isEqualTo(RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE)
-        assertThat(hentetViaRest[0].arbeidssituasjon).isEqualTo(RSArbeidssituasjon.NAERINGSDRIVENDE)
-
-        verify(aivenKafkaProducer, times(1)).produserMelding(any())
-    }
-
-    @Test
-    fun `Oppretter kort søknad for næringsdrivende med data fra brreg`() {
-        fakeUnleash.resetAll()
-        fakeUnleash.enable("sykepengesoknad-backend-brreg")
-
-        brregMockWebServer.dispatcher =
-            simpleDispatcher {
-                MockResponse()
-                    .setHeader("Content-Type", "application/json")
-                    .setBody(
-                        RollerDto(
-                            roller =
-                                listOf(
-                                    RolleDto(
-                                        rolletype = Rolletype.INNH,
-                                        organisasjonsnummer = "orgnummer",
-                                        organisasjonsnavn = "orgnavn",
-                                    ),
-                                ),
-                        ).serialisertTilString(),
-                    )
-            }
-
-        val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
-        val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
-        val sykmelding =
-            skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId)
-                .copy(harRedusertArbeidsgiverperiode = true)
-
-        mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
-        mockFlexSyketilfelleSykeforloep(sykmeldingId)
-
-        val sykmeldingKafkaMessage =
-            SykmeldingKafkaMessage(
-                sykmelding = sykmelding,
-                event = sykmeldingStatusKafkaMessageDTO.event,
-                kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
-            )
-
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
-
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
-
-        hentSoknader(fnr).sortedBy { it.fom }.first().apply {
-            this.selvstendigNaringsdrivendeInfo?.roller `should be equal to`
-                listOf(
-                    BrregRolle(
-                        orgnummer = "orgnummer",
-                        orgnavn = "orgnavn",
-                        rolletype = "INNH",
-                    ),
-                )
-        }
-
-        verify(aivenKafkaProducer, times(1)).produserMelding(any())
-    }
-
-    @Test
-    fun `Oppretter kort søknad for næringsdrivende uten data fra brreg når feature toggle er av`() {
-        fakeUnleash.resetAll()
-
-        brregMockWebServer.dispatcher =
-            simpleDispatcher {
-                MockResponse()
-                    .setHeader("Content-Type", "application/json")
-                    .setBody(
-                        RollerDto(
-                            roller =
-                                listOf(
-                                    RolleDto(
-                                        rolletype = Rolletype.INNH,
-                                        organisasjonsnummer = "orgnummer",
-                                        organisasjonsnavn = "orgnavn",
-                                    ),
-                                ),
-                        ).serialisertTilString(),
-                    )
-            }
-
-        val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
-        val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
-        val sykmelding =
-            skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId)
-                .copy(harRedusertArbeidsgiverperiode = true)
-
-        mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
-        mockFlexSyketilfelleSykeforloep(sykmeldingId)
-
-        val sykmeldingKafkaMessage =
-            SykmeldingKafkaMessage(
-                sykmelding = sykmelding,
-                event = sykmeldingStatusKafkaMessageDTO.event,
-                kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
-            )
-
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
-
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
-
-        hentSoknader(fnr).sortedBy { it.fom }.first().apply {
-            this.selvstendigNaringsdrivendeInfo
-                .shouldNotBeNull()
-                .roller
-                .shouldBeEmpty()
-        }
-
-        verify(aivenKafkaProducer, times(1)).produserMelding(any())
-    }
-
-    @Test
-    fun `Oppretter kort søknad for næringsdrivende med Sigrun-data`() {
         fakeUnleash.resetAll()
         fakeUnleash.enable("sykepengesoknad-backend-sigrun-paa-kafka")
         settOppSigrunMockResponser()
 
-        val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
-        val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
-        val sykmelding =
-            skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId)
-                .copy(harRedusertArbeidsgiverperiode = true)
+        brregMockWebServer.dispatcher =
+            simpleDispatcher {
+                MockResponse()
+                    .setHeader("Content-Type", "application/json")
+                    .setBody(
+                        RollerDto(
+                            roller =
+                                listOf(
+                                    RolleDto(
+                                        rolletype = Rolletype.INNH,
+                                        organisasjonsnummer = "orgnummer",
+                                        organisasjonsnavn = "orgnavn",
+                                    ),
+                                ),
+                        ).serialisertTilString(),
+                    )
+            }
 
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
+        val (fom, tom) = sykmelding.sykmeldingsperioder.first()
+        mockFlexSyketilfelleVentetid(
+            sykmelding.id,
+            VentetidResponse(FomTomPeriode(fom = fom, tom = tom)),
+        )
         mockFlexSyketilfelleSykeforloep(sykmeldingId)
 
         val sykmeldingKafkaMessage =
@@ -233,29 +131,68 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
                 kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
             )
 
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
+            sykmeldingId,
+            sykmeldingKafkaMessage,
+            SYKMELDINGSENDT_TOPIC,
+        )
 
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).single().value().also {
+            it.tilSykepengesoknadDTO().also { sykepengesoknadDTO ->
+                sykepengesoknadDTO.selvstendigNaringsdrivende!!.also { selvstendigNaringsdrivendeDTO ->
+                    selvstendigNaringsdrivendeDTO.roller.single().also { rolleDTO ->
+                        rolleDTO.orgnummer `should be equal to` "orgnummer"
+                        rolleDTO.rolletype `should be equal to` "INNH"
+                    }
+                    selvstendigNaringsdrivendeDTO.ventetid!! `should be equal to` VentetidDTO(fom, tom)
+                    selvstendigNaringsdrivendeDTO.inntekt!!.inntektsAar.size `should be equal to` 3
+                }
+            }
+        }
 
-        hentSoknader(fnr).sortedBy { it.fom }.first().apply {
-            this.selvstendigNaringsdrivendeInfo?.sykepengegrunnlagNaeringsdrivende `should be equal to`
+        hentSoknader(fnr).sortedBy { it.fom }.single().also {
+            it.soknadstype `should be equal to` RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE
+            it.arbeidssituasjon `should be equal to` RSArbeidssituasjon.NAERINGSDRIVENDE
+            it.selvstendigNaringsdrivendeInfo?.sykepengegrunnlagNaeringsdrivende `should be equal to`
                 lagSykepengegrunnlagNaeringsdrivende()
         }
+
         verify(aivenKafkaProducer, times(1)).produserMelding(any())
     }
 
     @Test
-    fun `Oppretter kort søknad for næringsdrivende uten Sigrun-data når feature toggle er av`() {
-        fakeUnleash.resetAll()
-        settOppSigrunMockResponser()
-
+    fun `Oppretter søknad for næringsdrivende som er utenfor ventetiden når Sigrun feature toggle er av`() {
         val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
         val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
         val sykmelding =
-            skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId)
-                .copy(harRedusertArbeidsgiverperiode = true)
+            skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId).copy(harRedusertArbeidsgiverperiode = true)
+
+        fakeUnleash.resetAll()
+
+        brregMockWebServer.dispatcher =
+            simpleDispatcher {
+                MockResponse()
+                    .setHeader("Content-Type", "application/json")
+                    .setBody(
+                        RollerDto(
+                            roller =
+                                listOf(
+                                    RolleDto(
+                                        rolletype = Rolletype.INNH,
+                                        organisasjonsnummer = "orgnummer",
+                                        organisasjonsnavn = "orgnavn",
+                                    ),
+                                ),
+                        ).serialisertTilString(),
+                    )
+            }
 
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
+        val (fom, tom) = sykmelding.sykmeldingsperioder.first()
+        mockFlexSyketilfelleVentetid(
+            sykmelding.id,
+            VentetidResponse(FomTomPeriode(fom = fom, tom = tom)),
+        )
         mockFlexSyketilfelleSykeforloep(sykmeldingId)
 
         val sykmeldingKafkaMessage =
@@ -265,26 +202,44 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
                 kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
             )
 
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
+            sykmeldingId,
+            sykmeldingKafkaMessage,
+            SYKMELDINGSENDT_TOPIC,
+        )
 
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
-
-        hentSoknader(fnr).sortedBy { it.fom }.first().apply {
-            this.selvstendigNaringsdrivendeInfo
-                .`should not be null`()
-                .sykepengegrunnlagNaeringsdrivende
-                .`should be null`()
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).single().value().also {
+            it.tilSykepengesoknadDTO().also { sykepengesoknadDTO ->
+                sykepengesoknadDTO.selvstendigNaringsdrivende!!.also { selvstendigNaringsdrivendeDTO ->
+                    selvstendigNaringsdrivendeDTO.roller.single().also { rolleDTO ->
+                        rolleDTO.orgnummer `should be equal to` "orgnummer"
+                        rolleDTO.rolletype `should be equal to` "INNH"
+                    }
+                    selvstendigNaringsdrivendeDTO.ventetid!! `should be equal to` VentetidDTO(fom, tom)
+                    selvstendigNaringsdrivendeDTO.inntekt `should be equal to` null
+                }
+            }
         }
+
+        hentSoknader(fnr).sortedBy { it.fom }.single().also {
+            it.soknadstype `should be equal to` RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE
+            it.arbeidssituasjon `should be equal to` RSArbeidssituasjon.NAERINGSDRIVENDE
+            it.selvstendigNaringsdrivendeInfo?.sykepengegrunnlagNaeringsdrivende `should be equal to` null
+        }
+
         verify(aivenKafkaProducer, times(1)).produserMelding(any())
     }
 
     @Test
-    fun `Oppretter kort søknad for fisker`() {
-        val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr, arbeidssituasjon = Arbeidssituasjon.FISKER)
+    fun `Oppretter søknad for fisker`() {
+        val sykmeldingStatusKafkaMessageDTO =
+            skapSykmeldingStatusKafkaMessageDTO(
+                fnr = fnr,
+                arbeidssituasjon = Arbeidssituasjon.FISKER,
+            )
         val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
         val sykmelding =
-            skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId)
-                .copy(harRedusertArbeidsgiverperiode = true)
+            skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId).copy(harRedusertArbeidsgiverperiode = true)
 
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
         mockFlexSyketilfelleSykeforloep(sykmeldingId)
@@ -296,16 +251,20 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
                 kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
             )
 
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
+            sykmeldingId,
+            sykmeldingKafkaMessage,
+            SYKMELDINGSENDT_TOPIC,
+        )
 
-        val soknad = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
-        assertThat(soknad).hasSize(1)
-        assertThat(soknad.first().fiskerBlad).isEqualTo(FiskerBladDTO.A)
-        assertThat(soknad.first().type).isEqualTo(SoknadstypeDTO.SELVSTENDIGE_OG_FRILANSERE)
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).single().value().tilSykepengesoknadDTO().also {
+            it.fiskerBlad `should be equal to` FiskerBladDTO.A
+            it.type `should be equal to` SoknadstypeDTO.SELVSTENDIGE_OG_FRILANSERE
+        }
 
-        val hentetSoknad = sykepengesoknadDAO.finnSykepengesoknad(soknad.first().id)
-        assertThat(hentetSoknad.fiskerBlad).isNotNull
-        assertThat(hentetSoknad.fiskerBlad).isEqualTo(FiskerBlad.A)
+        hentSoknaderMetadata(fnr).single().also {
+            sykepengesoknadDAO.finnSykepengesoknad(it.id).fiskerBlad `should be equal to` FiskerBlad.A
+        }
 
         verify(aivenKafkaProducer, times(1)).produserMelding(any())
     }
@@ -328,10 +287,13 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
                 kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
             )
 
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
+            sykmeldingId,
+            sykmeldingKafkaMessage,
+            SYKMELDINGSENDT_TOPIC,
+        )
 
-        val hentetViaRest = hentSoknaderMetadata(fnr)
-        assertThat(hentetViaRest).hasSize(0)
+        hentSoknaderMetadata(fnr).`should be empty`()
 
         verifyNoMoreInteractions(aivenKafkaProducer)
     }
@@ -344,7 +306,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
                 sporsmals =
                     listOf(
                         SporsmalOgSvarKafkaDTO(
-                            tekst = "Harru forsikring?",
+                            tekst = "Har du forsikring for sykmeldingsperioden?",
                             svartype = SvartypeKafkaDTO.JA_NEI,
                             shortName = ShortNameKafkaDTO.FORSIKRING,
                             svar = "JA",
@@ -358,6 +320,11 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
                 .copy(harRedusertArbeidsgiverperiode = true)
 
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, false)
+        val (fom, tom) = sykmelding.sykmeldingsperioder.first()
+        mockFlexSyketilfelleVentetid(
+            sykmelding.id,
+            VentetidResponse(FomTomPeriode(fom = fom, tom = tom)),
+        )
         mockFlexSyketilfelleSykeforloep(sykmeldingId)
 
         val sykmeldingKafkaMessage =
@@ -367,53 +334,29 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
                 kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
             )
 
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
+            sykmeldingId,
+            sykmeldingKafkaMessage,
+            SYKMELDINGSENDT_TOPIC,
+        )
 
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).single().value().also {
+            it.tilSykepengesoknadDTO().also { sykepengesoknadDTO ->
+                sykepengesoknadDTO.selvstendigNaringsdrivende!!.also { selvstendigNaringsdrivendeDTO ->
+                    selvstendigNaringsdrivendeDTO.roller.`should be empty`()
+                    selvstendigNaringsdrivendeDTO.ventetid!! `should be equal to` VentetidDTO(fom, tom)
+                    selvstendigNaringsdrivendeDTO.inntekt `should be equal to` null
+                }
+            }
+        }
 
-        val hentetViaRest = hentSoknaderMetadata(fnr)
-        assertThat(hentetViaRest).hasSize(1)
-        assertThat(hentetViaRest[0].soknadstype).isEqualTo(RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE)
+        hentSoknader(fnr).sortedBy { it.fom }.single().also {
+            it.soknadstype `should be equal to` RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE
+            it.arbeidssituasjon `should be equal to` RSArbeidssituasjon.NAERINGSDRIVENDE
+            it.selvstendigNaringsdrivendeInfo?.sykepengegrunnlagNaeringsdrivende `should be equal to` null
+        }
 
         verify(aivenKafkaProducer, times(1)).produserMelding(any())
-    }
-
-    @Test
-    fun `Oppretter ikke søknad for næringsdrivende når sykmeldingen er innenfor ventetiden og brukeren ikke har forsikring`() {
-        val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
-        val event =
-            sykmeldingStatusKafkaMessageDTO.event.copy(
-                sporsmals =
-                    listOf(
-                        SporsmalOgSvarKafkaDTO(
-                            tekst = "Harru forsikring?",
-                            svartype = SvartypeKafkaDTO.JA_NEI,
-                            shortName = ShortNameKafkaDTO.FORSIKRING,
-                            svar = "NEI",
-                        ),
-                        sykmeldingStatusKafkaMessageDTO.event.sporsmals!![0],
-                    ),
-            )
-        val sykmeldingId = event.sykmeldingId
-        val sykmelding =
-            skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId)
-                .copy(harRedusertArbeidsgiverperiode = true)
-
-        mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, false)
-        mockFlexSyketilfelleSykeforloep(sykmeldingId)
-
-        val sykmeldingKafkaMessage =
-            SykmeldingKafkaMessage(
-                sykmelding = sykmelding,
-                event = event,
-                kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
-            )
-
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
-
-        val hentetViaRest = hentSoknaderMetadata(fnr)
-        assertThat(hentetViaRest).hasSize(0)
-        verifyNoMoreInteractions(aivenKafkaProducer)
     }
 
     @Test
@@ -428,6 +371,13 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
             ).copy(harRedusertArbeidsgiverperiode = true)
 
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
+        val (fom, tom) = sykmelding.sykmeldingsperioder.first()
+        repeat(2) {
+            mockFlexSyketilfelleVentetid(
+                sykmelding.id,
+                VentetidResponse(FomTomPeriode(fom = fom, tom = tom)),
+            )
+        }
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
         val sykmeldingKafkaMessage =
@@ -437,31 +387,43 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
                 kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
             )
 
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
+            sykmelding.id,
+            sykmeldingKafkaMessage,
+            SYKMELDINGSENDT_TOPIC,
+        )
 
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2).also {
+            it.first().value().tilSykepengesoknadDTO().also { sykepengesoknadDTO ->
+                sykepengesoknadDTO.selvstendigNaringsdrivende!!.also { selvstendigNaringsdrivendeDTO ->
+                    selvstendigNaringsdrivendeDTO.ventetid!! `should be equal to` VentetidDTO(fom, tom)
+                }
+            }
 
-        val soknaderMetadata = hentSoknaderMetadata(fnr).sortedBy { it.fom }
-        assertThat(soknaderMetadata).hasSize(2)
+            it.last().value().tilSykepengesoknadDTO().also { sykepengesoknadDTO ->
+                sykepengesoknadDTO.selvstendigNaringsdrivende!!.also { selvstendigNaringsdrivendeDTO ->
+                    selvstendigNaringsdrivendeDTO.ventetid!! `should be equal to` VentetidDTO(fom, tom)
+                }
+            }
+        }
 
-        val forsteSoknad =
-            hentSoknad(
-                soknadId = soknaderMetadata.first().id,
-                fnr = fnr,
-            )
-        assertThat(forsteSoknad.soknadstype).isEqualTo(RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE)
-        assertThat(forsteSoknad.fom).isEqualTo(LocalDate.of(2020, 2, 1))
-        assertThat(forsteSoknad.tom).isEqualTo(LocalDate.of(2020, 2, 22))
-        assertThat(forsteSoknad.sporsmal!!.any { it.tag == ARBEID_UTENFOR_NORGE }).isTrue()
+        hentSoknaderMetadata(fnr).sortedBy { it.fom }.also {
+            it.size `should be equal to` 2
 
-        val andreSoknad =
-            hentSoknad(
-                soknadId = soknaderMetadata.last().id,
-                fnr = fnr,
-            )
-        assertThat(andreSoknad.fom).isEqualTo(LocalDate.of(2020, 2, 23))
-        assertThat(andreSoknad.tom).isEqualTo(LocalDate.of(2020, 3, 15))
-        assertThat(andreSoknad.sporsmal!!.any { it.tag == ARBEID_UTENFOR_NORGE }).isFalse()
+            hentSoknad(soknadId = it.first().id, fnr = fnr).also { soknad ->
+                soknad.soknadstype `should be equal to` RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE
+                soknad.fom `should be equal to` LocalDate.of(2020, 2, 1)
+                soknad.tom `should be equal to` LocalDate.of(2020, 2, 22)
+                soknad.sporsmal!!.any { it.tag == ARBEID_UTENFOR_NORGE }.`should be true`()
+            }
+
+            hentSoknad(soknadId = it.last().id, fnr = fnr).also { soknad ->
+                soknad.soknadstype `should be equal to` RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE
+                soknad.fom `should be equal to` LocalDate.of(2020, 2, 23)
+                soknad.tom `should be equal to` LocalDate.of(2020, 3, 15)
+                soknad.sporsmal!!.any { it.tag == ARBEID_UTENFOR_NORGE }.`should be false`()
+            }
+        }
     }
 
     @Test
@@ -483,10 +445,13 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
             )
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
+            sykmelding.id,
+            sykmeldingKafkaMessage,
+            SYKMELDINGSENDT_TOPIC,
+        )
 
-        val hentetViaRest = hentSoknaderMetadata(fnr)
-        assertThat(hentetViaRest).hasSize(0)
+        hentSoknaderMetadata(fnr).`should be empty`()
     }
 
     @Test
@@ -531,10 +496,13 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
 
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
+            sykmelding.id,
+            sykmeldingKafkaMessage,
+            SYKMELDINGSENDT_TOPIC,
+        )
 
-        val hentetViaRest = hentSoknaderMetadata(fnr)
-        assertThat(hentetViaRest).hasSize(12)
+        hentSoknaderMetadata(fnr).shouldHaveSize(12)
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 12)
     }
 
@@ -580,12 +548,14 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
 
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
+            sykmelding.id,
+            sykmeldingKafkaMessage,
+            SYKMELDINGSENDT_TOPIC,
+        )
 
+        hentSoknaderMetadata(fnr).shouldHaveSize(2)
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
-
-        val hentetViaRest = hentSoknaderMetadata(fnr)
-        assertThat(hentetViaRest).hasSize(2)
     }
 
     @Test
@@ -620,12 +590,14 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
                 kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
             )
 
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
+            sykmelding.id,
+            sykmeldingKafkaMessage,
+            SYKMELDINGSENDT_TOPIC,
+        )
 
+        hentSoknaderMetadata(fnr).shouldHaveSize(2)
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
-
-        val hentetViaRest = hentSoknaderMetadata(fnr)
-        assertThat(hentetViaRest).hasSize(2)
     }
 
     @Test
@@ -659,14 +631,17 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
                 kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
             )
 
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
+            sykmelding.id,
+            sykmeldingKafkaMessage,
+            SYKMELDINGSENDT_TOPIC,
+        )
 
-        val hentetViaRest = hentSoknaderMetadata(fnr)
-        assertThat(hentetViaRest).hasSize(0)
+        hentSoknaderMetadata(fnr).`should be empty`()
     }
 
     @Test
-    fun `Oppretter 2 søknader for næringsdrivende hvor gradering endres midt i når sykmeldigna er lengre enn 31 dager`() {
+    fun `Oppretter 2 søknader for næringsdrivende hvor gradering endres midt i for sykmeldingen lengre enn 31 dager`() {
         val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
         val sykmelding =
             skapArbeidsgiverSykmelding(
@@ -705,59 +680,64 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
                 kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
             )
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
+        val (fom, tom) = sykmelding.sykmeldingsperioder.first()
+        repeat(2) {
+            mockFlexSyketilfelleVentetid(
+                sykmelding.id,
+                VentetidResponse(FomTomPeriode(fom = fom, tom = tom)),
+            )
+        }
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
+            sykmelding.id,
+            sykmeldingKafkaMessage,
+            SYKMELDINGSENDT_TOPIC,
+        )
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
 
-        val soknaderMetadata = hentSoknaderMetadata(fnr).sortedBy { it.fom }
-        assertThat(soknaderMetadata).hasSize(2)
+        hentSoknaderMetadata(fnr).sortedBy { it.fom }.also {
+            it.size `should be equal to` 2
 
-        val forsteSoknad =
-            hentSoknad(
-                soknadId = soknaderMetadata.first().id,
-                fnr = fnr,
-            )
-        assertThat(forsteSoknad.soknadstype).isEqualTo(RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE)
-        assertThat(forsteSoknad.fom).isEqualTo(LocalDate.of(2020, 2, 1))
-        assertThat(forsteSoknad.tom).isEqualTo(LocalDate.of(2020, 2, 22))
-        assertThat(forsteSoknad.sporsmal!!.any { it.tag == ARBEID_UTENFOR_NORGE }).isTrue()
-        assertThat(forsteSoknad.soknadPerioder).isEqualTo(
-            listOf(
-                RSSoknadsperiode(
-                    fom = LocalDate.of(2020, 2, 1),
-                    tom = LocalDate.of(2020, 2, 5),
-                    grad = 100,
-                    sykmeldingstype = RSSykmeldingstype.AKTIVITET_IKKE_MULIG,
-                ),
-                RSSoknadsperiode(
-                    fom = LocalDate.of(2020, 2, 6),
-                    tom = LocalDate.of(2020, 2, 22),
-                    grad = 30,
-                    sykmeldingstype = RSSykmeldingstype.GRADERT,
-                ),
-            ),
-        )
+            hentSoknad(soknadId = it.first().id, fnr = fnr).also { soknad ->
+                soknad.soknadstype `should be equal to` RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE
+                soknad.fom `should be equal to` LocalDate.of(2020, 2, 1)
+                soknad.tom `should be equal to` LocalDate.of(2020, 2, 22)
+                soknad.sporsmal!!.any { it.tag == ARBEID_UTENFOR_NORGE }.`should be true`()
+                soknad.soknadPerioder `should be equal to`
+                    listOf(
+                        RSSoknadsperiode(
+                            fom = LocalDate.of(2020, 2, 1),
+                            tom = LocalDate.of(2020, 2, 5),
+                            grad = 100,
+                            sykmeldingstype = RSSykmeldingstype.AKTIVITET_IKKE_MULIG,
+                        ),
+                        RSSoknadsperiode(
+                            fom = LocalDate.of(2020, 2, 6),
+                            tom = LocalDate.of(2020, 2, 22),
+                            grad = 30,
+                            sykmeldingstype = RSSykmeldingstype.GRADERT,
+                        ),
+                    )
+            }
 
-        val andreSoknad =
-            hentSoknad(
-                soknadId = soknaderMetadata.last().id,
-                fnr = fnr,
-            )
-        assertThat(andreSoknad.fom).isEqualTo(LocalDate.of(2020, 2, 23))
-        assertThat(andreSoknad.tom).isEqualTo(LocalDate.of(2020, 3, 15))
-        assertThat(andreSoknad.sporsmal!!.any { it.tag == ARBEID_UTENFOR_NORGE }).isFalse()
-        assertThat(andreSoknad.soknadPerioder).isEqualTo(
-            listOf(
-                RSSoknadsperiode(
-                    fom = LocalDate.of(2020, 2, 23),
-                    tom = LocalDate.of(2020, 3, 15),
-                    grad = 30,
-                    sykmeldingstype = RSSykmeldingstype.GRADERT,
-                ),
-            ),
-        )
+            hentSoknad(soknadId = it.last().id, fnr = fnr).also { soknad ->
+                soknad.soknadstype `should be equal to` RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE
+                soknad.fom `should be equal to` LocalDate.of(2020, 2, 23)
+                soknad.tom `should be equal to` LocalDate.of(2020, 3, 15)
+                soknad.sporsmal!!.any { it.tag == ARBEID_UTENFOR_NORGE }.`should be false`()
+                soknad.soknadPerioder `should be equal to`
+                    listOf(
+                        RSSoknadsperiode(
+                            fom = LocalDate.of(2020, 2, 23),
+                            tom = LocalDate.of(2020, 3, 15),
+                            grad = 30,
+                            sykmeldingstype = RSSykmeldingstype.GRADERT,
+                        ),
+                    )
+            }
+        }
     }
 
     @Test
@@ -772,7 +752,11 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
                 kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
             )
 
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
+            sykmelding.id,
+            sykmeldingKafkaMessage,
+            SYKMELDINGSENDT_TOPIC,
+        )
         verify(rebehandlingsSykmeldingSendtProducer, times(1)).leggPaRebehandlingTopic(any(), any())
     }
 
@@ -789,7 +773,11 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
             )
         mockFlexSyketilfelleSykeforloep(sykmeldingStatusKafkaMessageDTO.event.sykmeldingId)
 
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
+            sykmelding.id,
+            sykmeldingKafkaMessage,
+            SYKMELDINGSENDT_TOPIC,
+        )
         verify(rebehandlingsSykmeldingSendtProducer, times(1)).leggPaRebehandlingTopic(any(), any())
     }
 
@@ -806,7 +794,11 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
                 kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
             )
 
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
+            sykmelding.id,
+            sykmeldingKafkaMessage,
+            SYKMELDINGSENDT_TOPIC,
+        )
         verify(rebehandlingsSykmeldingSendtProducer, times(1)).leggPaRebehandlingTopic(any(), any())
     }
 
@@ -828,7 +820,11 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
             )
         mockFlexSyketilfelleSykeforloep(sykmeldingStatusKafkaMessageDTO.event.sykmeldingId)
 
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
+            sykmelding.id,
+            sykmeldingKafkaMessage,
+            SYKMELDINGSENDT_TOPIC,
+        )
         verify(rebehandlingsSykmeldingSendtProducer, times(1)).leggPaRebehandlingTopic(any(), any())
     }
 
@@ -851,7 +847,11 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
             )
         mockFlexSyketilfelleSykeforloep(sykmeldingStatusKafkaMessageDTO.event.sykmeldingId)
 
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
+            sykmelding.id,
+            sykmeldingKafkaMessage,
+            SYKMELDINGSENDT_TOPIC,
+        )
 
         verify(rebehandlingsSykmeldingSendtProducer, times(1)).leggPaRebehandlingTopic(any(), any())
     }
@@ -875,7 +875,11 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
             )
         mockFlexSyketilfelleSykeforloep(sykmeldingStatusKafkaMessageDTO.event.sykmeldingId)
 
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
+            sykmelding.id,
+            sykmeldingKafkaMessage,
+            SYKMELDINGSENDT_TOPIC,
+        )
         verify(rebehandlingsSykmeldingSendtProducer, times(1)).leggPaRebehandlingTopic(any(), any())
     }
 
@@ -898,7 +902,11 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
                     kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
                 )
 
-            behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
+            behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
+                sykmelding.id,
+                sykmeldingKafkaMessage,
+                SYKMELDINGSENDT_TOPIC,
+            )
         }
     }
 
@@ -936,9 +944,20 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
                 kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
             )
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
+        val (fom, tom) = sykmelding.sykmeldingsperioder.first()
+        repeat(2) {
+            mockFlexSyketilfelleVentetid(
+                sykmelding.id,
+                VentetidResponse(FomTomPeriode(fom = fom, tom = tom)),
+            )
+        }
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
+            sykmelding.id,
+            sykmeldingKafkaMessage,
+            SYKMELDINGSENDT_TOPIC,
+        )
 
         assertThat(sykepengesoknadDAO.finnSykepengesoknader(listOf(fnr)).size).isEqualTo(2)
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
@@ -971,6 +990,13 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
                     ),
             )
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
+        val (fom, tom) = sykmelding.sykmeldingsperioder.first()
+        repeat(2) {
+            mockFlexSyketilfelleVentetid(
+                sykmelding.id,
+                VentetidResponse(FomTomPeriode(fom = fom, tom = tom)),
+            )
+        }
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
         val sykmeldingKafkaMessage =
@@ -988,7 +1014,11 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
             },
         )
 
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmelding.id, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
+            sykmelding.id,
+            sykmeldingKafkaMessage,
+            SYKMELDINGSENDT_TOPIC,
+        )
 
         assertThat(sykepengesoknadDAO.finnSykepengesoknader(listOf(fnr)).size).isEqualTo(0)
         verify(rebehandlingsSykmeldingSendtProducer, times(1)).leggPaRebehandlingTopic(any(), any())

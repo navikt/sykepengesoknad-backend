@@ -57,7 +57,7 @@ abstract class FellesTestOppsett : TestOppsettInterfaces {
         private val eregMockWebServer: MockWebServer
         private val yrkesskadeMockWebServer: MockWebServer
         private val innsendingApiMockWebServer: MockWebServer
-        val arbeidssokerregisterMockDispatcher: MockWebServer
+        val arbeidssokerregisterMockWebServer: MockWebServer
         val brregMockWebServer: MockWebServer
 
         init {
@@ -72,7 +72,7 @@ abstract class FellesTestOppsett : TestOppsettInterfaces {
                 sigrunMockWebServer = it.pensjonsgivendeInntektMockWebServer
                 grunnbeloepApiMockWebServer = it.grunnbeloepApiMockWebServer
                 brregMockWebServer = it.brregMockWebServer
-                arbeidssokerregisterMockDispatcher = it.arbeidssokerregisterMockDispatcher
+                arbeidssokerregisterMockWebServer = it.arbeidssokerregisterMockWebServer
             }
         }
     }

@@ -26,28 +26,28 @@ class SoknadAktivering(
     fun aktiverSoknad(id: String) {
         log.info("Forsøker å aktivere soknad $id.")
 
-        val sok = sykepengesoknadRepository.findBySykepengesoknadUuid(id)
+        val soknad = sykepengesoknadRepository.findBySykepengesoknadUuid(id)
 
-        if (sok == null) {
+        if (soknad == null) {
             log.warn("Søknad $id mangler fra databasen. Kan ha blitt klippet.")
             return
         }
 
-        if (sok.status != Soknadstatus.FREMTIDIG) {
+        if (soknad.status != Soknadstatus.FREMTIDIG) {
             log.warn("Søknad $id er allerede aktivert.")
             return
         }
 
-        if (sok.soknadstype == Soknadstype.ARBEIDSTAKERE) {
-            val perioder = soknadsperiodeDAO.finnSoknadPerioder(setOf(sok.id!!))[sok.id]!!
+        if (soknad.soknadstype == Soknadstype.ARBEIDSTAKERE) {
+            val perioder = soknadsperiodeDAO.finnSoknadPerioder(setOf(soknad.id!!))[soknad.id]!!
             val forventetFom = perioder.minOf { it.fom }
             val forventetTom = perioder.maxOf { it.tom }
 
             // TODO: Skriv noe mer om hvorfor det bare er greit å logge her.
-            if (sok.fom != forventetFom || sok.tom != forventetTom) {
+            if (soknad.fom != forventetFom || soknad.tom != forventetTom) {
                 log.warn(
                     "Søknad $id har perioder som starter på $forventetFom og slutter på $forventetTom, dette stemmer " +
-                        "ikke med søknaden sin fom ${sok.fom} og tom ${sok.tom}. Aktiverer ikke søknaden.",
+                        "ikke med søknaden sin fom ${soknad.fom} og tom ${soknad.tom}. Aktiverer ikke søknaden.",
                 )
                 return
             }

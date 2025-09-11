@@ -8,7 +8,6 @@ import no.nav.helse.flex.domain.Soknadstype.GRADERT_REISETILSKUDD
 import no.nav.helse.flex.domain.Soknadstype.SELVSTENDIGE_OG_FRILANSERE
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.mapper.SykepengesoknadTilSykepengesoknadDTOMapper
-import no.nav.helse.flex.logger
 import no.nav.helse.flex.util.tilOsloLocalDateTime
 import org.springframework.stereotype.Component
 import java.time.Instant
@@ -19,8 +18,6 @@ class SoknadProducer(
     private val kafkaProducer: AivenKafkaProducer,
     private val sykepengesoknadTilSykepengesoknadDTOMapper: SykepengesoknadTilSykepengesoknadDTOMapper,
 ) {
-    private val log = logger()
-
     @WithSpan
     fun soknadEvent(
         sykepengesoknad: Sykepengesoknad,

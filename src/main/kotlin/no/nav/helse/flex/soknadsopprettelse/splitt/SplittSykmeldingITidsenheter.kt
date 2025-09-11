@@ -7,11 +7,11 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.sykmelding.finnSoknadsType
 import no.nav.helse.flex.repository.KlippVariant
 import no.nav.helse.flex.soknadsopprettelse.antallDager
-import no.nav.helse.flex.soknadsopprettelse.eldstePeriodeFOM
-import no.nav.helse.flex.soknadsopprettelse.hentSenesteTOMFraPerioder
+import no.nav.helse.flex.soknadsopprettelse.eldstePeriodeFom
 import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.EndringIUforegrad
 import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.KlippMetrikk
 import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.overlap
+import no.nav.helse.flex.soknadsopprettelse.sistePeriodeTom
 import no.nav.helse.flex.util.isAfterOrEqual
 import no.nav.helse.flex.util.isBeforeOrEqual
 import no.nav.helse.flex.util.min
@@ -37,8 +37,8 @@ fun ArbeidsgiverSykmelding.splittSykmeldingiSoknadsPerioder(
             mutableListOf(),
             mutableListOf(
                 Tidsenhet(
-                    fom = eldstePeriodeFOM(perioder = sykmeldingsperioder),
-                    tom = hentSenesteTOMFraPerioder(perioder = sykmeldingsperioder),
+                    fom = eldstePeriodeFom(perioder = sykmeldingsperioder),
+                    tom = sistePeriodeTom(perioder = sykmeldingsperioder),
                 ),
             ),
         )
