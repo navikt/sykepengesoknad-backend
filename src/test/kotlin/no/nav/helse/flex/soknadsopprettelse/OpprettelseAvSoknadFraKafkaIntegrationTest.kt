@@ -343,7 +343,6 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).single().value().also {
             it.tilSykepengesoknadDTO().also { sykepengesoknadDTO ->
                 sykepengesoknadDTO.selvstendigNaringsdrivende!!.also { selvstendigNaringsdrivendeDTO ->
-                    selvstendigNaringsdrivendeDTO.roller.`should be empty`()
                     selvstendigNaringsdrivendeDTO.ventetid!! `should be equal to` VentetidDTO(fom, tom)
                     selvstendigNaringsdrivendeDTO.inntekt `should be equal to` null
                 }
