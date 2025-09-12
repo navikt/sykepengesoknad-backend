@@ -3,6 +3,7 @@ package no.nav.helse.flex.testoppsett
 import no.nav.helse.flex.medlemskap.MedlemskapMockDispatcher
 import no.nav.helse.flex.mockdispatcher.AaregMockDispatcher
 import no.nav.helse.flex.mockdispatcher.ArbeidssokerregisterMockDispatcher
+import no.nav.helse.flex.mockdispatcher.BrregMockDispatcher
 import no.nav.helse.flex.mockdispatcher.EregMockDispatcher
 import no.nav.helse.flex.mockdispatcher.GrunnbeloepApiMockDispatcher
 import no.nav.helse.flex.mockdispatcher.InnsendingApiMockDispatcher
@@ -64,7 +65,7 @@ fun startMockWebServere(): MockWebServere {
     val brregMockWebServer =
         MockWebServer().apply {
             System.setProperty("BRREG_API_URL", "http://localhost:$port")
-            dispatcher = simpleDispatcher { MockResponse().setResponseCode(200) }
+            dispatcher = BrregMockDispatcher
         }
     val arbeidssokerregisterMockWebServer =
         MockWebServer().apply {

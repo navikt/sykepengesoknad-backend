@@ -300,15 +300,6 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
 
     @Test
     fun `Oppretter søknad for næringsdrivende når sykmeldingen er innenfor ventetiden MEN brukeren har forsikring`() {
-        brregMockWebServer.dispatcher =
-            simpleDispatcher {
-                MockResponse()
-                    .setHeader("Content-Type", "application/json")
-                    .setBody(
-                        RollerDto(roller = emptyList()).serialisertTilString(),
-                    )
-            }
-
         val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
         val event =
             sykmeldingStatusKafkaMessageDTO.event.copy(
@@ -352,7 +343,6 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).single().value().also {
             it.tilSykepengesoknadDTO().also { sykepengesoknadDTO ->
                 sykepengesoknadDTO.selvstendigNaringsdrivende!!.also { selvstendigNaringsdrivendeDTO ->
-                    selvstendigNaringsdrivendeDTO.roller.`should be empty`()
                     selvstendigNaringsdrivendeDTO.ventetid!! `should be equal to` VentetidDTO(fom, tom)
                     selvstendigNaringsdrivendeDTO.inntekt `should be equal to` null
                 }
@@ -651,24 +641,6 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
 
     @Test
     fun `Oppretter 2 søknader for næringsdrivende hvor gradering endres midt i for sykmeldingen lengre enn 31 dager`() {
-        brregMockWebServer.dispatcher =
-            simpleDispatcher {
-                MockResponse()
-                    .setHeader("Content-Type", "application/json")
-                    .setBody(
-                        RollerDto(
-                            roller =
-                                listOf(
-                                    RolleDto(
-                                        rolletype = Rolletype.INNH,
-                                        organisasjonsnummer = "orgnummer",
-                                        organisasjonsnavn = "orgnavn",
-                                    ),
-                                ),
-                        ).serialisertTilString(),
-                    )
-            }
-
         val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
         val sykmelding =
             skapArbeidsgiverSykmelding(
