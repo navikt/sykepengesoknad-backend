@@ -2,6 +2,9 @@ package no.nav.helse.flex.selvstendignaringsdrivende
 
 import no.nav.helse.flex.*
 import no.nav.helse.flex.aktivering.AktiveringJob
+import no.nav.helse.flex.client.brreg.RolleDto
+import no.nav.helse.flex.client.brreg.RollerDto
+import no.nav.helse.flex.client.brreg.Rolletype
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
 import no.nav.helse.flex.domain.Arbeidssituasjon
@@ -10,8 +13,11 @@ import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
+import no.nav.helse.flex.testoppsett.simpleDispatcher
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.util.DatoUtil
+import no.nav.helse.flex.util.serialisertTilString
+import okhttp3.mockwebserver.MockResponse
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldHaveSize
@@ -19,6 +25,7 @@ import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 
+// @Disabled
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class SelvstendignaringsdrivendeFremtidigOgAktiveringTest : FellesTestOppsett() {
     @Autowired
@@ -30,6 +37,27 @@ class SelvstendignaringsdrivendeFremtidigOgAktiveringTest : FellesTestOppsett() 
     @AfterAll
     fun hentAlleKafkaMeldinger() {
         juridiskVurderingKafkaConsumer.hentProduserteRecords()
+    }
+
+    @BeforeEach
+    fun brregSetup() {
+        brregMockWebServer.dispatcher =
+            simpleDispatcher {
+                MockResponse()
+                    .setHeader("Content-Type", "application/json")
+                    .setBody(
+                        RollerDto(
+                            roller =
+                                listOf(
+                                    RolleDto(
+                                        rolletype = Rolletype.INNH,
+                                        organisasjonsnummer = "orgnummer",
+                                        organisasjonsnavn = "orgnavn",
+                                    ),
+                                ),
+                        ).serialisertTilString(),
+                    )
+            }
     }
 
     @Test
