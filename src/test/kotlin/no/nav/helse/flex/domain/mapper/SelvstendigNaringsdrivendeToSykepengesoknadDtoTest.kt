@@ -4,11 +4,14 @@ import no.nav.helse.flex.domain.BrregRolle
 import no.nav.helse.flex.domain.Mottaker
 import no.nav.helse.flex.domain.SelvstendigNaringsdrivendeInfo
 import no.nav.helse.flex.domain.Soknadsperiode
+import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.Ventetid
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentSoknadsPerioderMedFaktiskGrad
 import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknad
 import no.nav.helse.flex.soknadsopprettelse.lagSykepengegrunnlagNaeringsdrivende
+import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.`should not be null`
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
@@ -131,4 +134,27 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
             }
         }
     }
+
+    @Test
+    fun `Inneholder spørsmål om fravær for sykmeldingen`() {
+        val soknad =
+            opprettNyNaeringsdrivendeSoknad()
+        val soknadDTO = lagSykepengesoknadDTO(soknad)
+
+        soknadDTO.sporsmal!!.find { it.tag == "FRAVAR_FOR_SYKMELDINGEN_V2" }.also { fravaerSpm ->
+            fravaerSpm?.svar.`should not be null`()
+            fravaerSpm.sporsmalstekst `should be equal to`
+                "Var du borte fra jobb i fire uker eller mer rett før du ble sykmeldt 1. juni 2018?"
+            fravaerSpm.svar!!.size `should be equal to` 1
+            fravaerSpm.svar!!.first().verdi `should be equal to` "JA"
+        }
+    }
+
+    private fun lagSykepengesoknadDTO(soknad: Sykepengesoknad): SykepengesoknadDTO =
+        konverterTilSykepengesoknadDTO(
+            sykepengesoknad = soknad,
+            mottaker = Mottaker.NAV,
+            erEttersending = false,
+            soknadsperioder = hentSoknadsPerioderMedFaktiskGrad(soknad).first,
+        )
 }

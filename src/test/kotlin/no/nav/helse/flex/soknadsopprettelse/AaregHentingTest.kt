@@ -11,6 +11,8 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 
+private const val FNR_MED_2_ARBEIDSFORHOLD = "22222220001"
+
 class AaregHentingTest : FellesTestOppsett() {
     @Autowired
     lateinit var aaregDataHenting: AaregDataHenting
@@ -42,7 +44,7 @@ class AaregHentingTest : FellesTestOppsett() {
             )
         val nyeArbeidsforhold =
             aaregDataHenting.hentNyeArbeidsforhold(
-                fnr = "22222220001",
+                fnr = FNR_MED_2_ARBEIDSFORHOLD,
                 eksisterendeSoknader = emptyList(),
                 sykepengesoknad = soknad,
             )
@@ -61,7 +63,7 @@ class AaregHentingTest : FellesTestOppsett() {
             )
         val nyeArbeidsforhold =
             aaregDataHenting.hentNyeArbeidsforhold(
-                fnr = "22222220001",
+                fnr = FNR_MED_2_ARBEIDSFORHOLD,
                 eksisterendeSoknader = emptyList(),
                 sykepengesoknad = soknad,
             )
