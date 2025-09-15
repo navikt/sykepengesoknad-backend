@@ -16,6 +16,8 @@ import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
 
+lateinit var mockWebServere: MockWebServere
+
 fun startMockWebServere(): MockWebServere {
     val pdlMockWebserver =
         MockWebServer().apply {
@@ -73,19 +75,22 @@ fun startMockWebServere(): MockWebServere {
             dispatcher = ArbeidssokerregisterMockDispatcher
         }
 
-    return MockWebServere(
-        pdlMockWebserver = pdlMockWebserver,
-        medlemskapMockWebServer = medlemskapMockWebServer,
-        inntektskomponentenMockWebServer = inntektskomponentenMockWebServer,
-        eregMockWebServer = eregMockWebServer,
-        yrkesskadeMockWebServer = yrkesskadeMockWebServer,
-        innsendingApiMockWebServer = innsendingApiMockWebServer,
-        pensjonsgivendeInntektMockWebServer = pensjonsgivendeInntektMockWebServer,
-        grunnbeloepApiMockWebServer = grunnbeloepApiMockWebServer,
-        aaregMockWebServer = aaregMockWebServer,
-        brregMockWebServer = brregMockWebServer,
-        arbeidssokerregisterMockWebServer = arbeidssokerregisterMockWebServer,
-    )
+    val instance =
+        MockWebServere(
+            pdlMockWebserver = pdlMockWebserver,
+            medlemskapMockWebServer = medlemskapMockWebServer,
+            inntektskomponentenMockWebServer = inntektskomponentenMockWebServer,
+            eregMockWebServer = eregMockWebServer,
+            yrkesskadeMockWebServer = yrkesskadeMockWebServer,
+            innsendingApiMockWebServer = innsendingApiMockWebServer,
+            pensjonsgivendeInntektMockWebServer = pensjonsgivendeInntektMockWebServer,
+            grunnbeloepApiMockWebServer = grunnbeloepApiMockWebServer,
+            aaregMockWebServer = aaregMockWebServer,
+            brregMockWebServer = brregMockWebServer,
+            arbeidssokerregisterMockWebServer = arbeidssokerregisterMockWebServer,
+        )
+    mockWebServere = instance
+    return instance
 }
 
 data class MockWebServere(
@@ -106,3 +111,17 @@ fun simpleDispatcher(dispatcherFunc: (RecordedRequest) -> MockResponse): Dispatc
     object : Dispatcher() {
         override fun dispatch(request: RecordedRequest): MockResponse = dispatcherFunc(request)
     }
+
+fun resetAlleDispatchers() {
+    mockWebServere.pdlMockWebserver.dispatcher = PdlMockDispatcher
+    mockWebServere.medlemskapMockWebServer.dispatcher = MedlemskapMockDispatcher
+    mockWebServere.inntektskomponentenMockWebServer.dispatcher = InntektskomponentenMockDispatcher
+    mockWebServere.pensjonsgivendeInntektMockWebServer.dispatcher = SigrunMockDispatcher
+    mockWebServere.eregMockWebServer.dispatcher = EregMockDispatcher
+    mockWebServere.yrkesskadeMockWebServer.dispatcher = YrkesskadeMockDispatcher
+    mockWebServere.innsendingApiMockWebServer.dispatcher = InnsendingApiMockDispatcher
+    mockWebServere.grunnbeloepApiMockWebServer.dispatcher = GrunnbeloepApiMockDispatcher
+    mockWebServere.aaregMockWebServer.dispatcher = AaregMockDispatcher
+    mockWebServere.brregMockWebServer.dispatcher = BrregMockDispatcher
+    mockWebServere.arbeidssokerregisterMockWebServer.dispatcher = ArbeidssokerregisterMockDispatcher
+}

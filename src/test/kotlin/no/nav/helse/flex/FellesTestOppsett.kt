@@ -10,12 +10,14 @@ import no.nav.helse.flex.kafka.AUDIT_TOPIC
 import no.nav.helse.flex.kafka.SYKEPENGESOKNAD_TOPIC
 import no.nav.helse.flex.kafka.producer.AivenKafkaProducer
 import no.nav.helse.flex.kafka.producer.RebehandlingSykmeldingSendtProducer
+import no.nav.helse.flex.mockdispatcher.BrregMockDispatcher
 import no.nav.helse.flex.personhendelse.AutomatiskInnsendingVedDodsfall
 import no.nav.helse.flex.repository.SykepengesoknadRepository
 import no.nav.helse.flex.service.GrunnbeloepService
 import no.nav.helse.flex.service.SykepengegrunnlagForNaeringsdrivende
 import no.nav.helse.flex.soknadsopprettelse.BehandleSykmeldingOgBestillAktivering
 import no.nav.helse.flex.testdata.DatabaseReset
+import no.nav.helse.flex.testoppsett.resetAlleDispatchers
 import no.nav.helse.flex.testoppsett.startAlleContainere
 import no.nav.helse.flex.testoppsett.startMockWebServere
 import no.nav.security.mock.oauth2.MockOAuth2Server
@@ -26,6 +28,7 @@ import org.amshove.kluent.shouldBeEmpty
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
@@ -198,6 +201,12 @@ abstract class FellesTestOppsett : TestOppsettInterfaces {
     fun `Vi leser arbeidssokerregisterstopp kafka topicet og feiler om noe eksisterer`() {
         arbeidssokerregisterStoppConsumer.subscribeHvisIkkeSubscribed(ARBEIDSSOKERREGISTER_STOPP_TOPIC)
         arbeidssokerregisterStoppConsumer.hentProduserteRecords().shouldBeEmpty()
+    }
+
+    @AfterEach
+    fun `Vi tilbakestiller mockservere`() {
+        BrregMockDispatcher.clear()
+        resetAlleDispatchers()
     }
 
     fun hentJuridiskeVurderinger(antall: Int) =
