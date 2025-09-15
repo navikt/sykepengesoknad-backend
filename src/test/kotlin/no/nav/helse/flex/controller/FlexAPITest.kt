@@ -1,7 +1,7 @@
 package no.nav.helse.flex.controller
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import no.nav.helse.flex.FellesTestOppsett
+import no.nav.helse.flex.*
 import no.nav.helse.flex.client.aareg.Arbeidsforhold
 import no.nav.helse.flex.client.arbeidssokerregister.ArbeidssokerperiodeResponse
 import no.nav.helse.flex.client.pdl.PdlIdent
@@ -10,22 +10,13 @@ import no.nav.helse.flex.domain.AuditEntry
 import no.nav.helse.flex.domain.EventType
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.frisktilarbeid.FriskTilArbeidRepository
-import no.nav.helse.flex.frisktilarbeid.FriskTilArbeidVedtakStatus
-import no.nav.helse.flex.frisktilarbeid.Status
-import no.nav.helse.flex.frisktilarbeid.lagFriskTilArbeidSoknad
-import no.nav.helse.flex.frisktilarbeid.lagFriskTilArbeidVedtakDbRecord
-import no.nav.helse.flex.frisktilarbeid.lagFriskTilArbeidVedtakStatus
-import no.nav.helse.flex.jwt
+import no.nav.helse.flex.frisktilarbeid.*
 import no.nav.helse.flex.repository.SykepengesoknadDAO
-import no.nav.helse.flex.sendSykmelding
-import no.nav.helse.flex.skapAzureJwt
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.util.serialisertTilString
-import no.nav.helse.flex.ventPåRecords
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldBeEqualTo
@@ -83,19 +74,13 @@ class FlexAPITest : FellesTestOppsett() {
         fraRest.sykepengesoknadListe[0].id.shouldBeEqualTo(kafkaMelding.id)
         fraRest.sykepengesoknadListe[0].sykmeldingId.shouldBeEqualTo(kafkaMelding.sykmeldingId)
 
-        auditlogKafkaConsumer.ventPåRecords(1).first().let {
-            val auditEntry: AuditEntry = objectMapper.readValue(it.value())
-            with(auditEntry) {
-                appNavn `should be equal to` "flex-internal"
-                utførtAv `should be equal to` fnrFlexer
-                oppslagPå `should be equal to` fnr
-                eventType `should be equal to` EventType.READ
-                forespørselTillatt `should be` true
-                beskrivelse `should be equal to` "Henter alle sykepengesoknader"
-                requestUrl `should be equal to` URI.create("http://localhost/api/v1/flex/sykepengesoknader")
-                requestMethod `should be equal to` "POST"
-            }
-        }
+        verifiserAuditLog(
+            fnr = fnr,
+            eventType = EventType.READ,
+            beskrivelse = "Henter alle sykepengesoknader",
+            requestUrl = URI.create("http://localhost/api/v1/flex/sykepengesoknader"),
+            requestMethod = "POST",
+        )
 
         mockMvc
             .perform(
@@ -110,19 +95,13 @@ class FlexAPITest : FellesTestOppsett() {
                 res.sykepengesoknad.id.shouldBeEqualTo(kafkaMelding.id)
             }
 
-        auditlogKafkaConsumer.ventPåRecords(1).first().let {
-            val auditEntry: AuditEntry = objectMapper.readValue(it.value())
-            with(auditEntry) {
-                appNavn `should be equal to` "flex-internal"
-                utførtAv `should be equal to` fnrFlexer
-                oppslagPå `should be equal to` fnr
-                eventType `should be equal to` EventType.READ
-                forespørselTillatt `should be` true
-                beskrivelse `should be equal to` "Henter en sykepengesoknad"
-                requestUrl `should be equal to` URI.create("/api/v1/flex/sykepengesoknader/${fraRest.sykepengesoknadListe[0].id}")
-                requestMethod `should be equal to` "GET"
-            }
-        }
+        verifiserAuditLog(
+            fnr = fnr,
+            eventType = EventType.READ,
+            beskrivelse = "Henter en sykepengesoknad",
+            requestUrl = URI.create("/api/v1/flex/sykepengesoknader/${fraRest.sykepengesoknadListe[0].id}"),
+            requestMethod = "GET",
+        )
     }
 
     @Test
@@ -146,19 +125,13 @@ class FlexAPITest : FellesTestOppsett() {
         fraRest.sykepengesoknadListe[0].id.shouldBeEqualTo(kafkaMelding.id)
         fraRest.sykepengesoknadListe[0].sykmeldingId.shouldBeEqualTo(kafkaMelding.sykmeldingId)
 
-        auditlogKafkaConsumer.ventPåRecords(1).first().let {
-            val auditEntry: AuditEntry = objectMapper.readValue(it.value())
-            with(auditEntry) {
-                appNavn `should be equal to` "flex-internal"
-                utførtAv `should be equal to` fnrFlexer
-                oppslagPå `should be equal to` fnr
-                eventType `should be equal to` EventType.READ
-                forespørselTillatt `should be` true
-                beskrivelse `should be equal to` "Henter alle sykepengesoknader"
-                requestUrl `should be equal to` URI.create("http://localhost/api/v1/flex/sykepengesoknader")
-                requestMethod `should be equal to` "POST"
-            }
-        }
+        verifiserAuditLog(
+            fnr = fnr,
+            eventType = EventType.READ,
+            beskrivelse = "Henter alle sykepengesoknader",
+            requestUrl = URI.create("http://localhost/api/v1/flex/sykepengesoknader"),
+            requestMethod = "POST",
+        )
     }
 
     @Test
@@ -206,19 +179,13 @@ class FlexAPITest : FellesTestOppsett() {
         fraRest[1] shouldBeEqualTo PdlIdent("FOLKEREGISTERIDENT", "111111111111")
         fraRest[2] shouldBeEqualTo PdlIdent("AKTORID", "21111111111100")
 
-        auditlogKafkaConsumer.ventPåRecords(1).first().let {
-            val auditEntry: AuditEntry = objectMapper.readValue(it.value())
-            with(auditEntry) {
-                appNavn `should be equal to` "flex-internal"
-                utførtAv `should be equal to` fnrFlexer
-                oppslagPå `should be equal to` "211111111111"
-                eventType `should be equal to` EventType.READ
-                forespørselTillatt `should be` true
-                beskrivelse `should be equal to` "Henter alle identer for ident"
-                requestUrl `should be equal to` URI.create("http://localhost/api/v1/flex/identer")
-                requestMethod `should be equal to` "POST"
-            }
-        }
+        verifiserAuditLog(
+            fnr = "211111111111",
+            eventType = EventType.READ,
+            beskrivelse = "Henter alle identer for ident",
+            requestUrl = URI.create("http://localhost/api/v1/flex/identer"),
+            requestMethod = "POST",
+        )
     }
 
     @Test
@@ -239,19 +206,13 @@ class FlexAPITest : FellesTestOppsett() {
         val fraRest: List<Arbeidsforhold> = objectMapper.readValue(result.response.contentAsString)
         fraRest.shouldHaveSize(2)
 
-        auditlogKafkaConsumer.ventPåRecords(1).first().let {
-            val auditEntry: AuditEntry = objectMapper.readValue(it.value())
-            with(auditEntry) {
-                appNavn `should be equal to` "flex-internal"
-                utførtAv `should be equal to` fnrFlexer
-                oppslagPå `should be equal to` "22222220001"
-                eventType `should be equal to` EventType.READ
-                forespørselTillatt `should be` true
-                beskrivelse `should be equal to` "Henter aareg data"
-                requestUrl `should be equal to` URI.create("http://localhost/api/v1/flex/aareg")
-                requestMethod `should be equal to` "POST"
-            }
-        }
+        verifiserAuditLog(
+            fnr = "22222220001",
+            eventType = EventType.READ,
+            beskrivelse = "Henter aareg data",
+            requestUrl = URI.create("http://localhost/api/v1/flex/aareg"),
+            requestMethod = "POST",
+        )
     }
 
     @Test
@@ -275,19 +236,13 @@ class FlexAPITest : FellesTestOppsett() {
         val fraRest: HentPensjonsgivendeInntektResponse = objectMapper.readValue(result.response.contentAsString)
         fraRest.inntektsaar shouldBeEqualTo "2024"
 
-        auditlogKafkaConsumer.ventPåRecords(1).first().let {
-            val auditEntry: AuditEntry = objectMapper.readValue(it.value())
-            with(auditEntry) {
-                appNavn `should be equal to` "flex-internal"
-                utførtAv `should be equal to` fnrFlexer
-                oppslagPå `should be equal to` "22222220001"
-                eventType `should be equal to` EventType.READ
-                forespørselTillatt `should be` true
-                beskrivelse `should be equal to` "Henter pensjonsgivende inntekt"
-                requestUrl `should be equal to` URI.create("http://localhost/api/v1/flex/sigrun")
-                requestMethod `should be equal to` "POST"
-            }
-        }
+        verifiserAuditLog(
+            fnr = "22222220001",
+            eventType = EventType.READ,
+            beskrivelse = "Henter pensjonsgivende inntekt",
+            requestUrl = URI.create("http://localhost/api/v1/flex/sigrun"),
+            requestMethod = "POST",
+        )
     }
 
     @Test
@@ -309,19 +264,13 @@ class FlexAPITest : FellesTestOppsett() {
         fraRest.shouldHaveSize(1)
         fraRest.first().startet.kilde shouldBeEqualTo "VEILEDER"
 
-        auditlogKafkaConsumer.ventPåRecords(1).first().let {
-            val auditEntry: AuditEntry = objectMapper.readValue(it.value())
-            with(auditEntry) {
-                appNavn `should be equal to` "flex-internal"
-                utførtAv `should be equal to` fnrFlexer
-                oppslagPå `should be equal to` "22222220001"
-                eventType `should be equal to` EventType.READ
-                forespørselTillatt `should be` true
-                beskrivelse `should be equal to` "Henter arbeidssøkerregister status"
-                requestUrl `should be equal to` URI.create("http://localhost/api/v1/flex/arbeidssokerregister")
-                requestMethod `should be equal to` "POST"
-            }
-        }
+        verifiserAuditLog(
+            fnr = "22222220001",
+            eventType = EventType.READ,
+            beskrivelse = "Henter arbeidssøkerregister status",
+            requestUrl = URI.create("http://localhost/api/v1/flex/arbeidssokerregister"),
+            requestMethod = "POST",
+        )
     }
 
     @Test
@@ -341,19 +290,13 @@ class FlexAPITest : FellesTestOppsett() {
 
         result.response.contentAsString shouldBeEqualTo "[]"
 
-        auditlogKafkaConsumer.ventPåRecords(1).first().let {
-            val auditEntry: AuditEntry = objectMapper.readValue(it.value())
-            with(auditEntry) {
-                appNavn `should be equal to` "flex-internal"
-                utførtAv `should be equal to` fnrFlexer
-                oppslagPå `should be equal to` "22222220001"
-                eventType `should be equal to` EventType.READ
-                forespørselTillatt `should be` true
-                beskrivelse `should be equal to` "Henter friskmeldt til arbeidsformidling vedtak"
-                requestUrl `should be equal to` URI.create("http://localhost/api/v1/flex/fta-vedtak-for-person")
-                requestMethod `should be equal to` "POST"
-            }
-        }
+        verifiserAuditLog(
+            fnr = "22222220001",
+            eventType = EventType.READ,
+            beskrivelse = "Henter friskmeldt til arbeidsformidling vedtak",
+            requestUrl = URI.create("http://localhost/api/v1/flex/fta-vedtak-for-person"),
+            requestMethod = "POST",
+        )
     }
 
     @Test
@@ -399,7 +342,13 @@ class FlexAPITest : FellesTestOppsett() {
             it.single().id `should be equal to` sendtSoknad.id
         }
 
-        verifiserAuditLog(fnr, nySoknad)
+        verifiserAuditLog(
+            fnr = fnr,
+            eventType = EventType.DELETE,
+            beskrivelse = "Sletter sykepengesoknad av type FRISKMELDT_TIL_ARBEIDSFORMIDLING med id: ${nySoknad.id}.",
+            requestUrl = URI.create("http://localhost/api/v1/flex/fta-soknad"),
+            requestMethod = "DELETE",
+        )
     }
 
     @Test
@@ -433,7 +382,13 @@ class FlexAPITest : FellesTestOppsett() {
             it.single().id `should be equal to` sendtSoknad.id
         }
 
-        verifiserAuditLog(fnr, fremtidigSoknad)
+        verifiserAuditLog(
+            fnr = fnr,
+            eventType = EventType.DELETE,
+            beskrivelse = "Sletter sykepengesoknad av type FRISKMELDT_TIL_ARBEIDSFORMIDLING med id: ${fremtidigSoknad.id}.",
+            requestUrl = URI.create("http://localhost/api/v1/flex/fta-soknad"),
+            requestMethod = "DELETE",
+        )
     }
 
     @Test
@@ -502,19 +457,23 @@ class FlexAPITest : FellesTestOppsett() {
 
     private fun verifiserAuditLog(
         fnr: String,
-        nySoknad: Sykepengesoknad,
+        utfortAv: String = fnrFlexer,
+        eventType: EventType,
+        beskrivelse: String,
+        requestUrl: URI,
+        requestMethod: String,
     ) {
         auditlogKafkaConsumer.ventPåRecords(1).first().let {
             val auditEntry: AuditEntry = objectMapper.readValue(it.value())
             with(auditEntry) {
                 appNavn `should be equal to` "flex-internal"
-                utførtAv `should be equal to` fnrFlexer
+                this.utførtAv `should be equal to` utfortAv
                 oppslagPå `should be equal to` fnr
-                eventType `should be equal to` EventType.DELETE
+                this.eventType `should be equal to` eventType
                 forespørselTillatt `should be` true
-                beskrivelse `should be equal to` "Sletter sykepengesoknad av type FRISKMELDT_TIL_ARBEIDSFORMIDLING med id: ${nySoknad.id}."
-                requestUrl `should be equal to` URI.create("http://localhost/api/v1/flex/fta-soknad")
-                requestMethod `should be equal to` "DELETE"
+                this.beskrivelse `should be equal to` beskrivelse
+                this.requestUrl `should be equal to` requestUrl
+                this.requestMethod `should be equal to` requestMethod
             }
         }
     }
