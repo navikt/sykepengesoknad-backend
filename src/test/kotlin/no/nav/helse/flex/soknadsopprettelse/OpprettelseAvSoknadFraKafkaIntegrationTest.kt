@@ -269,6 +269,15 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
 
     @Test
     fun `Oppretter søknad for næringsdrivende når sykmeldingen er innenfor ventetiden MEN brukeren har forsikring`() {
+        brregMockWebServer.dispatcher =
+            simpleDispatcher {
+                MockResponse()
+                    .setHeader("Content-Type", "application/json")
+                    .setBody(
+                        RollerDto(roller = emptyList()).serialisertTilString(),
+                    )
+            }
+
         val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
         val event =
             sykmeldingStatusKafkaMessageDTO.event.copy(
@@ -610,6 +619,24 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
 
     @Test
     fun `Oppretter 2 søknader for næringsdrivende hvor gradering endres midt i for sykmeldingen lengre enn 31 dager`() {
+        brregMockWebServer.dispatcher =
+            simpleDispatcher {
+                MockResponse()
+                    .setHeader("Content-Type", "application/json")
+                    .setBody(
+                        RollerDto(
+                            roller =
+                                listOf(
+                                    RolleDto(
+                                        rolletype = Rolletype.INNH,
+                                        organisasjonsnummer = "orgnummer",
+                                        organisasjonsnavn = "orgnavn",
+                                    ),
+                                ),
+                        ).serialisertTilString(),
+                    )
+            }
+
         val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
         val sykmelding =
             skapArbeidsgiverSykmelding(
