@@ -18,20 +18,17 @@ import no.nav.helse.flex.service.GrunnbeloepService
 import no.nav.helse.flex.service.SykepengegrunnlagForNaeringsdrivende
 import no.nav.helse.flex.soknadsopprettelse.BehandleSykmeldingOgBestillAktivering
 import no.nav.helse.flex.testdata.DatabaseReset
+import no.nav.helse.flex.testoppsett.MockWebServere
 import no.nav.helse.flex.testoppsett.resetAlleDispatchers
 import no.nav.helse.flex.testoppsett.startAlleContainere
 import no.nav.helse.flex.testoppsett.startMockWebServere
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
-import okhttp3.mockwebserver.MockWebServer
 import org.amshove.kluent.should
 import org.amshove.kluent.shouldBeEmpty
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.producer.KafkaProducer
-import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.autoconfigure.actuate.observability.AutoConfigureObservability
@@ -53,33 +50,21 @@ import kotlin.math.abs
 @AutoConfigureObservability
 abstract class FellesTestOppsett : TestOppsettInterfaces {
     companion object {
-        val pdlMockWebserver: MockWebServer
-        val medlemskapMockWebServer: MockWebServer
-        val sigrunMockWebServer: MockWebServer
-        private val grunnbeloepApiMockWebServer: MockWebServer
-        private val inntektskomponentenMockWebServer: MockWebServer
-        private val eregMockWebServer: MockWebServer
-        private val yrkesskadeMockWebServer: MockWebServer
-        private val innsendingApiMockWebServer: MockWebServer
-        val arbeidssokerregisterMockWebServer: MockWebServer
-        val brregMockWebServer: MockWebServer
-        val aaregMockWebServer: MockWebServer
+        val mockWebServere: MockWebServere = startMockWebServere()
+        private val eregMockWebServer get() = mockWebServere.eregMockWebServer
+        private val grunnbeloepApiMockWebServer get() = mockWebServere.grunnbeloepApiMockWebServer
+        private val innsendingApiMockWebServer get() = mockWebServere.innsendingApiMockWebServer
+        private val inntektskomponentenMockWebServer get() = mockWebServere.inntektskomponentenMockWebServer
+        private val yrkesskadeMockWebServer get() = mockWebServere.yrkesskadeMockWebServer
+        val aaregMockWebServer get() = mockWebServere.aaregMockWebServer
+        val arbeidssokerregisterMockWebServer get() = mockWebServere.arbeidssokerregisterMockWebServer
+        val brregMockWebServer get() = mockWebServere.brregMockWebServer
+        val medlemskapMockWebServer get() = mockWebServere.medlemskapMockWebServer
+        val pdlMockWebserver get() = mockWebServere.pdlMockWebserver
+        val sigrunMockWebServer get() = mockWebServere.pensjonsgivendeInntektMockWebServer
 
         init {
             startAlleContainere()
-            startMockWebServere().also {
-                pdlMockWebserver = it.pdlMockWebserver
-                medlemskapMockWebServer = it.medlemskapMockWebServer
-                inntektskomponentenMockWebServer = it.inntektskomponentenMockWebServer
-                eregMockWebServer = it.eregMockWebServer
-                yrkesskadeMockWebServer = it.yrkesskadeMockWebServer
-                innsendingApiMockWebServer = it.innsendingApiMockWebServer
-                sigrunMockWebServer = it.pensjonsgivendeInntektMockWebServer
-                grunnbeloepApiMockWebServer = it.grunnbeloepApiMockWebServer
-                brregMockWebServer = it.brregMockWebServer
-                arbeidssokerregisterMockWebServer = it.arbeidssokerregisterMockWebServer
-                aaregMockWebServer = it.aaregMockWebServer
-            }
         }
     }
 
@@ -211,7 +196,7 @@ abstract class FellesTestOppsett : TestOppsettInterfaces {
     fun `Vi tilbakestiller mockservere`() {
         AaregMockDispatcher.clear()
         BrregMockDispatcher.clear()
-        resetAlleDispatchers()
+        resetAlleDispatchers(mockWebServere)
     }
 
     fun hentJuridiskeVurderinger(antall: Int) =
