@@ -113,10 +113,12 @@ tasks {
         reports.html.required.set(false)
         reports.junitXml.required.set(false)
         maxParallelForks =
-            if (System.getenv("CI") == "true") {
-                (Runtime.getRuntime().availableProcessors() - 1).coerceAtLeast(1).coerceAtMost(4)
-            } else {
-                2
+            run {
+                val maxParallelForksRangeCI = 1..4
+                val maxParallelForksRangeLocal = 1..8
+                (Runtime.getRuntime().availableProcessors() - 1).coerceIn(
+                    if (System.getenv("CI") == "true") maxParallelForksRangeCI else maxParallelForksRangeLocal,
+                )
             }
     }
 }
