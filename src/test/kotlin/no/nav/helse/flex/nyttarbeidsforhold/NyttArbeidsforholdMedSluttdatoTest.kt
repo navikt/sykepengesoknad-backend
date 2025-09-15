@@ -29,7 +29,7 @@ class NyttArbeidsforholdMedSluttdatoTest : FellesTestOppsett() {
         fakeUnleash.resetAll()
         fakeUnleash.enable("sykepengesoknad-backend-tilkommen-inntekt")
 
-        AaregMockDispatcher.queuedArbeidsforholdOversikt.add(
+        AaregMockDispatcher.enqueue(
             listOf(
                 skapArbeidsforholdOversikt(
                     fnr = fnr,
@@ -76,7 +76,7 @@ class NyttArbeidsforholdMedSluttdatoTest : FellesTestOppsett() {
     @Test
     @Order(3)
     fun `Arbeidstakersøknader opprettes for en lang sykmelding med enablet tilkommen`() {
-        AaregMockDispatcher.queuedArbeidsforholdOversikt.add(
+        AaregMockDispatcher.enqueue(
             listOf(
                 skapArbeidsforholdOversikt(
                     fnr = fnr,

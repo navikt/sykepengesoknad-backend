@@ -3,75 +3,54 @@ package no.nav.helse.flex.mockdispatcher
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.client.aareg.*
 import no.nav.helse.flex.util.objectMapper
-import no.nav.helse.flex.util.serialisertTilString
-import okhttp3.mockwebserver.Dispatcher
-import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.RecordedRequest
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-object AaregMockDispatcher : Dispatcher() {
-    val queuedArbeidsforholdOversikt = mutableListOf<List<Arbeidsforhold>>()
-
-    fun clear() {
-        queuedArbeidsforholdOversikt.clear()
-    }
-
-    override fun dispatch(request: RecordedRequest): MockResponse {
-        if (queuedArbeidsforholdOversikt.isEmpty()) {
-            val req: ArbeidsforholdRequest = objectMapper.readValue(request.body.readUtf8())
-            when (val fnr = req.arbeidstakerId) {
-                "22222220001" -> {
-                    return listOf(
-                        skapArbeidsforholdOversikt(
-                            fnr = fnr,
-                            startdato = LocalDate.of(2022, 9, 15).minusDays(40),
-                            arbeidssted = "999333666",
-                            opplysningspliktigOrganisasjonsnummer = "11224455441",
-                            sluttdato = LocalDate.of(2022, 9, 15).minusDays(30),
-                        ),
-                        skapArbeidsforholdOversikt(
-                            fnr = fnr,
-                            startdato = LocalDate.of(2022, 9, 15).minusDays(10),
-                            arbeidssted = "999888777",
-                            opplysningspliktigOrganisasjonsnummer = "11224455441",
-                        ),
-                    ).tilMockResponse()
-                }
-
-                "44444444999" -> {
-                    return listOf(
-                        skapArbeidsforholdOversikt(
-                            fnr = fnr,
-                            startdato = LocalDate.of(2022, 9, 15).minusDays(40),
-                            arbeidssted = "999333666",
-                            opplysningspliktigOrganisasjonsnummer = "1984108765",
-                            sluttdato = null,
-                        ),
-                        skapArbeidsforholdOversikt(
-                            fnr = fnr,
-                            startdato = LocalDate.of(2022, 9, 15).minusDays(10),
-                            arbeidssted = "999888777",
-                            opplysningspliktigOrganisasjonsnummer = "1984108765",
-                        ),
-                    ).tilMockResponse()
-                }
-
-                else -> return emptyList<Arbeidsforhold>().tilMockResponse()
+object AaregMockDispatcher : FellesQueueDispatcher<List<Arbeidsforhold>>(
+    defaultFactory = { request: RecordedRequest ->
+        val req: ArbeidsforholdRequest = objectMapper.readValue(request.body.readUtf8())
+        when (val fnr = req.arbeidstakerId) {
+            "22222220001" -> {
+                listOf(
+                    skapArbeidsforholdOversikt(
+                        fnr = fnr,
+                        startdato = LocalDate.of(2022, 9, 15).minusDays(40),
+                        arbeidssted = "999333666",
+                        opplysningspliktigOrganisasjonsnummer = "11224455441",
+                        sluttdato = LocalDate.of(2022, 9, 15).minusDays(30),
+                    ),
+                    skapArbeidsforholdOversikt(
+                        fnr = fnr,
+                        startdato = LocalDate.of(2022, 9, 15).minusDays(10),
+                        arbeidssted = "999888777",
+                        opplysningspliktigOrganisasjonsnummer = "11224455441",
+                    ),
+                )
             }
+
+            "44444444999" -> {
+                listOf(
+                    skapArbeidsforholdOversikt(
+                        fnr = fnr,
+                        startdato = LocalDate.of(2022, 9, 15).minusDays(40),
+                        arbeidssted = "999333666",
+                        opplysningspliktigOrganisasjonsnummer = "1984108765",
+                        sluttdato = null,
+                    ),
+                    skapArbeidsforholdOversikt(
+                        fnr = fnr,
+                        startdato = LocalDate.of(2022, 9, 15).minusDays(10),
+                        arbeidssted = "999888777",
+                        opplysningspliktigOrganisasjonsnummer = "1984108765",
+                    ),
+                )
+            }
+
+            else -> emptyList()
         }
-        val poppedElement = queuedArbeidsforholdOversikt.removeAt(YrkesskadeMockDispatcher.queuedSakerRespons.size)
-
-        return MockResponse()
-            .setResponseCode(200)
-            .setBody(
-                poppedElement.serialisertTilString(),
-            ).addHeader("Content-Type", "application/json")
-    }
-
-    private fun List<Arbeidsforhold>.tilMockResponse(): MockResponse =
-        MockResponse().setBody(this.serialisertTilString()).addHeader("Content-Type", "application/json")
-}
+    },
+)
 
 fun skapArbeidsforholdOversikt(
     startdato: LocalDate = LocalDate.of(2022, 9, 15).minusDays(10),

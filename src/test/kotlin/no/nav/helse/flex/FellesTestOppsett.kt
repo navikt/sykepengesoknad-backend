@@ -19,7 +19,6 @@ import no.nav.helse.flex.service.SykepengegrunnlagForNaeringsdrivende
 import no.nav.helse.flex.soknadsopprettelse.BehandleSykmeldingOgBestillAktivering
 import no.nav.helse.flex.testdata.DatabaseReset
 import no.nav.helse.flex.testoppsett.MockWebServere
-import no.nav.helse.flex.testoppsett.resetAlleDispatchers
 import no.nav.helse.flex.testoppsett.startAlleContainere
 import no.nav.helse.flex.testoppsett.startMockWebServere
 import no.nav.security.mock.oauth2.MockOAuth2Server
@@ -50,18 +49,29 @@ import kotlin.math.abs
 @AutoConfigureObservability
 abstract class FellesTestOppsett : TestOppsettInterfaces {
     companion object {
-        val mockWebServere: MockWebServere = startMockWebServere()
-        private val eregMockWebServer get() = mockWebServere.eregMockWebServer
-        private val grunnbeloepApiMockWebServer get() = mockWebServere.grunnbeloepApiMockWebServer
-        private val innsendingApiMockWebServer get() = mockWebServere.innsendingApiMockWebServer
-        private val inntektskomponentenMockWebServer get() = mockWebServere.inntektskomponentenMockWebServer
-        private val yrkesskadeMockWebServer get() = mockWebServere.yrkesskadeMockWebServer
-        val aaregMockWebServer get() = mockWebServere.aaregMockWebServer
-        val arbeidssokerregisterMockWebServer get() = mockWebServere.arbeidssokerregisterMockWebServer
-        val brregMockWebServer get() = mockWebServere.brregMockWebServer
-        val medlemskapMockWebServer get() = mockWebServere.medlemskapMockWebServer
-        val pdlMockWebserver get() = mockWebServere.pdlMockWebserver
-        val sigrunMockWebServer get() = mockWebServere.pensjonsgivendeInntektMockWebServer
+        private val mockWebServere: MockWebServere = startMockWebServere()
+        private val eregMockWebServer
+            get() = mockWebServere.eregMockWebServer
+        private val grunnbeloepApiMockWebServer
+            get() = mockWebServere.grunnbeloepApiMockWebServer
+        private val innsendingApiMockWebServer
+            get() = mockWebServere.innsendingApiMockWebServer
+        private val inntektskomponentenMockWebServer
+            get() = mockWebServere.inntektskomponentenMockWebServer
+        private val yrkesskadeMockWebServer
+            get() = mockWebServere.yrkesskadeMockWebServer
+        val aaregMockWebServer
+            get() = mockWebServere.aaregMockWebServer
+        val arbeidssokerregisterMockWebServer
+            get() = mockWebServere.arbeidssokerregisterMockWebServer
+        val brregMockWebServer
+            get() = mockWebServere.brregMockWebServer
+        val medlemskapMockWebServer
+            get() = mockWebServere.medlemskapMockWebServer
+        val pdlMockWebserver
+            get() = mockWebServere.pdlMockWebserver
+        val sigrunMockWebServer
+            get() = mockWebServere.pensjonsgivendeInntektMockWebServer
 
         init {
             startAlleContainere()
@@ -191,12 +201,15 @@ abstract class FellesTestOppsett : TestOppsettInterfaces {
         arbeidssokerregisterStoppConsumer.hentProduserteRecords().shouldBeEmpty()
     }
 
-    @BeforeEach
-    @AfterEach
-    fun `Vi tilbakestiller mockservere`() {
-        AaregMockDispatcher.clear()
-        BrregMockDispatcher.clear()
-        resetAlleDispatchers(mockWebServere)
+    @AfterAll
+    fun `Vi sjekker om det er noen responser igjen i rest service serverne`() {
+        val mockViSjekker = listOf(AaregMockDispatcher, BrregMockDispatcher)
+        mockViSjekker.forEach {
+            if (it.harRequestsIgjen()) {
+                it.clearQueue()
+                throw RuntimeException("${it::class.simpleName} har uleste requests igjen")
+            }
+        }
     }
 
     fun hentJuridiskeVurderinger(antall: Int) =
