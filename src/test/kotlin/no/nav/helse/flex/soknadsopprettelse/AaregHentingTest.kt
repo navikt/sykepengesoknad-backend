@@ -19,6 +19,11 @@ class AaregHentingTest : FellesTestOppsett() {
     @Autowired
     lateinit var aaregDataHenting: AaregDataHenting
 
+    @BeforeAll
+    fun setup() {
+        AaregMockDispatcher.clear()
+    }
+
     @Test
     fun `finner ingen nye arbeidsforhold`() {
         val soknad =
