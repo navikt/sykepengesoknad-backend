@@ -25,30 +25,28 @@ class NyttArbeidsforholdMedToUlikeNyeArbeidsforholdTest : FellesTestOppsett() {
 
     @Test
     @Order(1)
-    fun `første sykm opprettes for en lang sykmelding`() {
+    fun `første sykmelding opprettes for en lang sykmelding`() {
         fakeUnleash.resetAll()
         fakeUnleash.enable("sykepengesoknad-backend-tilkommen-inntekt")
 
-        repeat(2) {
-            AaregMockDispatcher.queuedArbeidsforholdOversikt.add(
-                listOf(
-                    skapArbeidsforholdOversikt(
-                        fnr = fnr,
-                        startdato = LocalDate.of(2022, 8, 24),
-                        sluttdato = LocalDate.of(2022, 8, 25),
-                        arbeidssted = "999888777",
-                        opplysningspliktigOrganisasjonsnummer = "123456789",
-                    ),
-                    skapArbeidsforholdOversikt(
-                        fnr = fnr,
-                        startdato = LocalDate.of(2022, 8, 24),
-                        sluttdato = LocalDate.of(2022, 8, 25),
-                        arbeidssted = "999888755",
-                        opplysningspliktigOrganisasjonsnummer = "123456755",
-                    ),
+        AaregMockDispatcher.queuedArbeidsforholdOversikt.add(
+            listOf(
+                skapArbeidsforholdOversikt(
+                    fnr = fnr,
+                    startdato = LocalDate.of(2022, 8, 24),
+                    sluttdato = LocalDate.of(2022, 8, 25),
+                    arbeidssted = "999888777",
+                    opplysningspliktigOrganisasjonsnummer = "123456789",
                 ),
-            )
-        }
+                skapArbeidsforholdOversikt(
+                    fnr = fnr,
+                    startdato = LocalDate.of(2022, 8, 24),
+                    sluttdato = LocalDate.of(2022, 8, 25),
+                    arbeidssted = "999888755",
+                    opplysningspliktigOrganisasjonsnummer = "123456755",
+                ),
+            ),
+        )
 
         sendSykmelding(
             sykmeldingKafkaMessage(
@@ -86,6 +84,25 @@ class NyttArbeidsforholdMedToUlikeNyeArbeidsforholdTest : FellesTestOppsett() {
     @Test
     @Order(3)
     fun `Arbeidstakersøknader opprettes for en lang sykmelding med enablet tilkommen`() {
+        AaregMockDispatcher.queuedArbeidsforholdOversikt.add(
+            listOf(
+                skapArbeidsforholdOversikt(
+                    fnr = fnr,
+                    startdato = LocalDate.of(2022, 8, 24),
+                    sluttdato = LocalDate.of(2022, 8, 25),
+                    arbeidssted = "999888777",
+                    opplysningspliktigOrganisasjonsnummer = "123456789",
+                ),
+                skapArbeidsforholdOversikt(
+                    fnr = fnr,
+                    startdato = LocalDate.of(2022, 8, 24),
+                    sluttdato = LocalDate.of(2022, 8, 25),
+                    arbeidssted = "999888755",
+                    opplysningspliktigOrganisasjonsnummer = "123456755",
+                ),
+            ),
+        )
+
         sendSykmelding(
             sykmeldingKafkaMessage(
                 fnr = fnr,
@@ -103,7 +120,7 @@ class NyttArbeidsforholdMedToUlikeNyeArbeidsforholdTest : FellesTestOppsett() {
     @Test
     @Order(4)
     fun `Har ikke forventa nytt arbeidsforhold førstegangsspørsmål`() {
-        val soknaden = hentSoknader(fnr = fnr).filter { it.status == RSSoknadstatus.NY }.first()
+        val soknaden = hentSoknader(fnr = fnr).first { it.status == RSSoknadstatus.NY }
         soknaden.sporsmal!!
             .find {
                 it.tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS)
