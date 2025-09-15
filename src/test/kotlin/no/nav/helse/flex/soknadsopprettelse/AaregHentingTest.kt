@@ -2,11 +2,13 @@ package no.nav.helse.flex.soknadsopprettelse
 
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.mock.opprettNySoknad
+import no.nav.helse.flex.mockdispatcher.AaregMockDispatcher
 import no.nav.helse.flex.soknadsopprettelse.aaregdata.AaregDataHenting
 import org.amshove.kluent.`should be empty`
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldHaveSize
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
@@ -16,6 +18,11 @@ private const val FNR_MED_2_ARBEIDSFORHOLD = "22222220001"
 class AaregHentingTest : FellesTestOppsett() {
     @Autowired
     lateinit var aaregDataHenting: AaregDataHenting
+
+    @BeforeAll
+    fun setup() {
+        AaregMockDispatcher.clear()
+    }
 
     @Test
     fun `finner ingen nye arbeidsforhold`() {

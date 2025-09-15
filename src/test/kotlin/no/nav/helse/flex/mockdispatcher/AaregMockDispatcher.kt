@@ -13,6 +13,10 @@ import java.time.LocalDateTime
 object AaregMockDispatcher : Dispatcher() {
     val queuedArbeidsforholdOversikt = mutableListOf<List<Arbeidsforhold>>()
 
+    fun clear() {
+        queuedArbeidsforholdOversikt.clear()
+    }
+
     override fun dispatch(request: RecordedRequest): MockResponse {
         if (queuedArbeidsforholdOversikt.isEmpty()) {
             val req: ArbeidsforholdRequest = objectMapper.readValue(request.body.readUtf8())
