@@ -45,7 +45,14 @@ class SelvstendigNaringsdrivendeInfoService(
         identer: FolkeregisterIdenter,
         sykmeldingId: String,
     ): Ventetid? {
-        if (sykmeldingId == "1c760261-8edc-4bd1-b33a-720804845514") {
+        val ikkeHentFor =
+            listOf(
+                "a81b046f-0274-456e-b3c6-ae64a0c2848d",
+                "07441f9c-e86d-471f-86b9-84945b9d4b38",
+                "3336a26e-a6cd-4be9-92eb-8d0acde57ba9",
+            )
+
+        if (ikkeHentFor.contains(sykmeldingId)) {
             log.info("Henter ikke ventetid for sykmelding: $sykmeldingId da flex-syketilfelle ikke returnerer ventetid for sykmeldingen.")
             return null
         }
