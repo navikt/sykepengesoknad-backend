@@ -114,10 +114,10 @@ tasks {
         reports.junitXml.required.set(false)
         maxParallelForks =
             run {
-                val maxParallelForksRangeCI = 1..4
-                val maxParallelForksRangeLocal = 1..8
+                val parallellerICI = 1..4
+                val parallellerILokal = 1..8
                 (Runtime.getRuntime().availableProcessors() - 1).coerceIn(
-                    if (System.getenv("CI") == "true") maxParallelForksRangeCI else maxParallelForksRangeLocal,
+                    if (System.getenv("CI") == "true") parallellerICI else parallellerILokal,
                 )
             }
     }
