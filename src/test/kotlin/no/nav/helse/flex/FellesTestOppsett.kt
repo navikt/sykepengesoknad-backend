@@ -158,16 +158,6 @@ abstract class FellesTestOppsett : TestOppsettInterfaces {
 
     @BeforeAll
     @AfterAll
-    fun `Vi leser sykepengesoknad topicet og feiler hvis noe finnes og slik at subklassetestene leser alt`() {
-        sykepengesoknadKafkaConsumer.hentProduserteRecords().shouldBeEmpty()
-    }
-
-    @AfterAll
-    fun `Vi leser juridisk vurdering topicet og feiler hvis noe finnes og slik at subklassetestene leser alt`() {
-        juridiskVurderingKafkaConsumer.hentProduserteRecords().shouldBeEmpty()
-    }
-
-    @AfterAll
     fun `Vi resetter databasen`() {
         databaseReset.resetDatabase()
     }
@@ -178,26 +168,18 @@ abstract class FellesTestOppsett : TestOppsettInterfaces {
     }
 
     @BeforeAll
-    fun `Vi leser sykepengesoknad kafka topicet og feiler om noe eksisterer`() {
+    fun abonnerPåKafkaTopicene() {
         sykepengesoknadKafkaConsumer.subscribeHvisIkkeSubscribed(SYKEPENGESOKNAD_TOPIC)
-        sykepengesoknadKafkaConsumer.hentProduserteRecords().shouldBeEmpty()
-    }
-
-    @BeforeAll
-    fun `Vi leser juridiskvurdering kafka topicet og feiler om noe eksisterer`() {
         juridiskVurderingKafkaConsumer.subscribeHvisIkkeSubscribed(juridiskVurderingTopic)
-        juridiskVurderingKafkaConsumer.hentProduserteRecords().shouldBeEmpty()
-    }
-
-    @BeforeAll
-    fun `Vi leser auditlog kafka topicet og feiler om noe eksisterer`() {
         auditlogKafkaConsumer.subscribeHvisIkkeSubscribed(AUDIT_TOPIC)
-        auditlogKafkaConsumer.hentProduserteRecords().shouldBeEmpty()
+        arbeidssokerregisterStoppConsumer.subscribeHvisIkkeSubscribed(ARBEIDSSOKERREGISTER_STOPP_TOPIC)
     }
 
-    @BeforeAll
-    fun `Vi leser arbeidssokerregisterstopp kafka topicet og feiler om noe eksisterer`() {
-        arbeidssokerregisterStoppConsumer.subscribeHvisIkkeSubscribed(ARBEIDSSOKERREGISTER_STOPP_TOPIC)
+    @AfterAll
+    fun `Vi leser alle topics og feiler hvis noe finnes og slik at subklassetestene leser alt`() {
+        sykepengesoknadKafkaConsumer.hentProduserteRecords().shouldBeEmpty()
+        juridiskVurderingKafkaConsumer.hentProduserteRecords().shouldBeEmpty()
+        auditlogKafkaConsumer.hentProduserteRecords().shouldBeEmpty()
         arbeidssokerregisterStoppConsumer.hentProduserteRecords().shouldBeEmpty()
     }
 
