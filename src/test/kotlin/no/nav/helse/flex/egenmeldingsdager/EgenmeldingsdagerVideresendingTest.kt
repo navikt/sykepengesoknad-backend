@@ -80,13 +80,14 @@ class EgenmeldingsdagerVideresendingTest : FellesTestOppsett() {
             sykmeldingKafkaMessage.sykmelding.id,
             sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder.minOf { it.fom },
         )
-        kafkaProducer.send(
-            ProducerRecord(
-                SYKMELDINGSENDT_TOPIC,
-                sykmeldingKafkaMessage.sykmelding.id,
-                sykmeldingKafkaMessage.serialisertTilString(),
-            ),
-        )
+        kafkaProducer
+            .send(
+                ProducerRecord(
+                    SYKMELDINGSENDT_TOPIC,
+                    sykmeldingKafkaMessage.sykmelding.id,
+                    sykmeldingKafkaMessage.serialisertTilString(),
+                ),
+            ).get()
         val kafkaSoknad = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader().first()
         kafkaSoknad.status shouldBeEqualTo SoknadsstatusDTO.FREMTIDIG
         kafkaSoknad.egenmeldingsdagerFraSykmelding shouldBeEqualTo
