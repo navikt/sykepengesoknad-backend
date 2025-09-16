@@ -4,7 +4,7 @@ import io.getunleash.FakeUnleash
 import jakarta.annotation.PostConstruct
 import no.nav.helse.flex.client.grunnbeloep.GrunnbeloepClient
 import no.nav.helse.flex.client.kvitteringer.SykepengesoknadKvitteringerClient
-import no.nav.helse.flex.juridiskvurdering.juridiskVurderingTopic
+import no.nav.helse.flex.juridiskvurdering.JURIDISK_VURDERING_TOPIC
 import no.nav.helse.flex.kafka.ARBEIDSSOKERREGISTER_STOPP_TOPIC
 import no.nav.helse.flex.kafka.AUDIT_TOPIC
 import no.nav.helse.flex.kafka.SYKEPENGESOKNAD_TOPIC
@@ -170,7 +170,7 @@ abstract class FellesTestOppsett : TestOppsettInterfaces {
     @BeforeAll
     fun abonnerPåKafkaTopicene() {
         sykepengesoknadKafkaConsumer.subscribeHvisIkkeSubscribed(SYKEPENGESOKNAD_TOPIC)
-        juridiskVurderingKafkaConsumer.subscribeHvisIkkeSubscribed(juridiskVurderingTopic)
+        juridiskVurderingKafkaConsumer.subscribeHvisIkkeSubscribed(JURIDISK_VURDERING_TOPIC)
         auditlogKafkaConsumer.subscribeHvisIkkeSubscribed(AUDIT_TOPIC)
         arbeidssokerregisterStoppConsumer.subscribeHvisIkkeSubscribed(ARBEIDSSOKERREGISTER_STOPP_TOPIC)
     }

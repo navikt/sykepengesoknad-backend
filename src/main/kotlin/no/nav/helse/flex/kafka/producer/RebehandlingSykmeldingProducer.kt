@@ -14,7 +14,7 @@ const val BEHANDLINGSTIDSPUNKT = "behandlingstidspunkt"
 
 @Component
 class RebehandlingSykmeldingSendtProducer(
-    private val producer: KafkaProducer<String, String>,
+    private val sykmeldingRetryProducer: KafkaProducer<String, String>,
 ) {
     val log = logger()
 
@@ -24,7 +24,7 @@ class RebehandlingSykmeldingSendtProducer(
         behandlingstidspunkt: OffsetDateTime,
     ) {
         try {
-            producer
+            sykmeldingRetryProducer
                 .send(
                     SyfoProducerRecord<String, String>(
                         SYKMELDING_SENDT_RETRY_TOPIC,
