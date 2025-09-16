@@ -21,6 +21,7 @@ class AuditLogProducer(
                 .send(
                     ProducerRecord(
                         AUDIT_TOPIC,
+                        UUID.randomUUID().toString(),
                         auditEntry.serialisertTilString(),
                     ),
                 ).get()
