@@ -2,7 +2,8 @@ package no.nav.helse.flex.testoppsett
 
 import org.testcontainers.containers.GenericContainer
 
-private class ValkeyContainer : GenericContainer<ValkeyContainer>("bitnami/valkey:8.0.2")
+// TODO: Bytt fra latest til en konkret versjon når det er tilgjengelig i dockerhub
+private class ValkeyContainer : GenericContainer<ValkeyContainer>("bitnamisecure/valkey:latest")
 
 fun startValkeyContainer() {
     ValkeyContainer().apply {
