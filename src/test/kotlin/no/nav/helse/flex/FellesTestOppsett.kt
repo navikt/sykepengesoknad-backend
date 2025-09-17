@@ -4,31 +4,30 @@ import io.getunleash.FakeUnleash
 import jakarta.annotation.PostConstruct
 import no.nav.helse.flex.client.grunnbeloep.GrunnbeloepClient
 import no.nav.helse.flex.client.kvitteringer.SykepengesoknadKvitteringerClient
-import no.nav.helse.flex.juridiskvurdering.JURIDISK_VURDERING_TOPIC
+import no.nav.helse.flex.juridiskvurdering.juridiskVurderingTopic
 import no.nav.helse.flex.kafka.ARBEIDSSOKERREGISTER_STOPP_TOPIC
 import no.nav.helse.flex.kafka.AUDIT_TOPIC
 import no.nav.helse.flex.kafka.SYKEPENGESOKNAD_TOPIC
 import no.nav.helse.flex.kafka.producer.AivenKafkaProducer
 import no.nav.helse.flex.kafka.producer.RebehandlingSykmeldingSendtProducer
-import no.nav.helse.flex.mockdispatcher.AaregMockDispatcher
-import no.nav.helse.flex.mockdispatcher.BrregMockDispatcher
 import no.nav.helse.flex.personhendelse.AutomatiskInnsendingVedDodsfall
 import no.nav.helse.flex.repository.SykepengesoknadRepository
 import no.nav.helse.flex.service.GrunnbeloepService
 import no.nav.helse.flex.service.SykepengegrunnlagForNaeringsdrivende
 import no.nav.helse.flex.soknadsopprettelse.BehandleSykmeldingOgBestillAktivering
 import no.nav.helse.flex.testdata.DatabaseReset
-import no.nav.helse.flex.testoppsett.MockWebServere
 import no.nav.helse.flex.testoppsett.startAlleContainere
 import no.nav.helse.flex.testoppsett.startMockWebServere
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
+import okhttp3.mockwebserver.MockWebServer
 import org.amshove.kluent.should
-import org.amshove.kluent.`should be false`
 import org.amshove.kluent.shouldBeEmpty
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.producer.KafkaProducer
-import org.junit.jupiter.api.*
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.autoconfigure.actuate.observability.AutoConfigureObservability
@@ -50,32 +49,31 @@ import kotlin.math.abs
 @AutoConfigureObservability
 abstract class FellesTestOppsett : TestOppsettInterfaces {
     companion object {
-        private val mockWebServere: MockWebServere = startMockWebServere()
-        private val eregMockWebServer
-            get() = mockWebServere.eregMockWebServer
-        private val grunnbeloepApiMockWebServer
-            get() = mockWebServere.grunnbeloepApiMockWebServer
-        private val innsendingApiMockWebServer
-            get() = mockWebServere.innsendingApiMockWebServer
-        private val inntektskomponentenMockWebServer
-            get() = mockWebServere.inntektskomponentenMockWebServer
-        private val yrkesskadeMockWebServer
-            get() = mockWebServere.yrkesskadeMockWebServer
-        val aaregMockWebServer
-            get() = mockWebServere.aaregMockWebServer
-        val arbeidssokerregisterMockWebServer
-            get() = mockWebServere.arbeidssokerregisterMockWebServer
-        val brregMockWebServer
-            get() = mockWebServere.brregMockWebServer
-        val medlemskapMockWebServer
-            get() = mockWebServere.medlemskapMockWebServer
-        val pdlMockWebserver
-            get() = mockWebServere.pdlMockWebserver
-        val sigrunMockWebServer
-            get() = mockWebServere.pensjonsgivendeInntektMockWebServer
+        val pdlMockWebserver: MockWebServer
+        val medlemskapMockWebServer: MockWebServer
+        val sigrunMockWebServer: MockWebServer
+        private val grunnbeloepApiMockWebServer: MockWebServer
+        private val inntektskomponentenMockWebServer: MockWebServer
+        private val eregMockWebServer: MockWebServer
+        private val yrkesskadeMockWebServer: MockWebServer
+        private val innsendingApiMockWebServer: MockWebServer
+        val arbeidssokerregisterMockWebServer: MockWebServer
+        val brregMockWebServer: MockWebServer
 
         init {
             startAlleContainere()
+            startMockWebServere().also {
+                pdlMockWebserver = it.pdlMockWebserver
+                medlemskapMockWebServer = it.medlemskapMockWebServer
+                inntektskomponentenMockWebServer = it.inntektskomponentenMockWebServer
+                eregMockWebServer = it.eregMockWebServer
+                yrkesskadeMockWebServer = it.yrkesskadeMockWebServer
+                innsendingApiMockWebServer = it.innsendingApiMockWebServer
+                sigrunMockWebServer = it.pensjonsgivendeInntektMockWebServer
+                grunnbeloepApiMockWebServer = it.grunnbeloepApiMockWebServer
+                brregMockWebServer = it.brregMockWebServer
+                arbeidssokerregisterMockWebServer = it.arbeidssokerregisterMockWebServer
+            }
         }
     }
 
@@ -159,6 +157,16 @@ abstract class FellesTestOppsett : TestOppsettInterfaces {
 
     @BeforeAll
     @AfterAll
+    fun `Vi leser sykepengesoknad topicet og feiler hvis noe finnes og slik at subklassetestene leser alt`() {
+        sykepengesoknadKafkaConsumer.hentProduserteRecords().shouldBeEmpty()
+    }
+
+    @AfterAll
+    fun `Vi leser juridisk vurdering topicet og feiler hvis noe finnes og slik at subklassetestene leser alt`() {
+        juridiskVurderingKafkaConsumer.hentProduserteRecords().shouldBeEmpty()
+    }
+
+    @AfterAll
     fun `Vi resetter databasen`() {
         databaseReset.resetDatabase()
     }
@@ -169,27 +177,27 @@ abstract class FellesTestOppsett : TestOppsettInterfaces {
     }
 
     @BeforeAll
-    fun abonnerPåKafkaTopicene() {
+    fun `Vi leser sykepengesoknad kafka topicet og feiler om noe eksisterer`() {
         sykepengesoknadKafkaConsumer.subscribeHvisIkkeSubscribed(SYKEPENGESOKNAD_TOPIC)
-        juridiskVurderingKafkaConsumer.subscribeHvisIkkeSubscribed(JURIDISK_VURDERING_TOPIC)
-        auditlogKafkaConsumer.subscribeHvisIkkeSubscribed(AUDIT_TOPIC)
-        arbeidssokerregisterStoppConsumer.subscribeHvisIkkeSubscribed(ARBEIDSSOKERREGISTER_STOPP_TOPIC)
-    }
-
-    @AfterAll
-    fun `Vi leser alle topics og feiler hvis noe finnes og slik at subklassetestene leser alt`() {
         sykepengesoknadKafkaConsumer.hentProduserteRecords().shouldBeEmpty()
-        juridiskVurderingKafkaConsumer.hentProduserteRecords().shouldBeEmpty()
-        auditlogKafkaConsumer.hentProduserteRecords().shouldBeEmpty()
-        arbeidssokerregisterStoppConsumer.hentProduserteRecords().shouldBeEmpty()
     }
 
-    @AfterAll
-    fun `Vi sjekker om det er noen responser igjen i rest service serverne`() {
-        listOf(AaregMockDispatcher, BrregMockDispatcher).forEach {
-            it.harRequestsIgjen().`should be false`()
-            it.clearQueue()
-        }
+    @BeforeAll
+    fun `Vi leser juridiskvurdering kafka topicet og feiler om noe eksisterer`() {
+        juridiskVurderingKafkaConsumer.subscribeHvisIkkeSubscribed(juridiskVurderingTopic)
+        juridiskVurderingKafkaConsumer.hentProduserteRecords().shouldBeEmpty()
+    }
+
+    @BeforeAll
+    fun `Vi leser auditlog kafka topicet og feiler om noe eksisterer`() {
+        auditlogKafkaConsumer.subscribeHvisIkkeSubscribed(AUDIT_TOPIC)
+        auditlogKafkaConsumer.hentProduserteRecords().shouldBeEmpty()
+    }
+
+    @BeforeAll
+    fun `Vi leser arbeidssokerregisterstopp kafka topicet og feiler om noe eksisterer`() {
+        arbeidssokerregisterStoppConsumer.subscribeHvisIkkeSubscribed(ARBEIDSSOKERREGISTER_STOPP_TOPIC)
+        arbeidssokerregisterStoppConsumer.hentProduserteRecords().shouldBeEmpty()
     }
 
     fun hentJuridiskeVurderinger(antall: Int) =

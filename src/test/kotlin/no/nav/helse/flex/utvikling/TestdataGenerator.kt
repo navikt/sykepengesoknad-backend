@@ -74,14 +74,13 @@ class TestdataGenerator {
                 SYKMELDINGBEKREFTET_TOPIC
             }
 
-        kafkaProducer
-            .send(
-                ProducerRecord(
-                    topic,
-                    sykmeldingKafkaMessage.sykmelding.id,
-                    sykmeldingKafkaMessage.serialisertTilString(),
-                ),
-            ).get()
+        kafkaProducer.send(
+            ProducerRecord(
+                topic,
+                sykmeldingKafkaMessage.sykmelding.id,
+                sykmeldingKafkaMessage.serialisertTilString(),
+            ),
+        )
     }
 
     @PostConstruct

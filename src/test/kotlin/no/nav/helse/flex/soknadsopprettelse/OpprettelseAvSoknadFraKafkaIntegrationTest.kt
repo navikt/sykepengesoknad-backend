@@ -29,7 +29,6 @@ import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
 import no.nav.helse.flex.mockFlexSyketilfelleErUtenforVentetid
 import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
 import no.nav.helse.flex.mockFlexSyketilfelleVentetid
-import no.nav.helse.flex.mockdispatcher.BrregMockDispatcher
 import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher.enqueueMockResponse
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.service.AarVerdi
@@ -40,7 +39,9 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.VentetidDTO
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
+import no.nav.helse.flex.testoppsett.simpleDispatcher
 import no.nav.helse.flex.tilSykepengesoknadDTO
+import no.nav.helse.flex.util.serialisertTilString
 import no.nav.helse.flex.ventPåRecords
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.GradertDTO
@@ -51,6 +52,7 @@ import no.nav.syfo.sykmelding.kafka.model.ShortNameKafkaDTO
 import no.nav.syfo.sykmelding.kafka.model.SporsmalOgSvarKafkaDTO
 import no.nav.syfo.sykmelding.kafka.model.SvartypeKafkaDTO
 import no.nav.syfo.sykmelding.kafka.model.SykmeldingStatusKafkaMessageDTO
+import okhttp3.mockwebserver.MockResponse
 import org.amshove.kluent.`should be empty`
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should be false`
@@ -96,18 +98,23 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
         fakeUnleash.enable("sykepengesoknad-backend-sigrun-paa-kafka")
         settOppSigrunMockResponser()
 
-        BrregMockDispatcher.enqueue(
-            RollerDto(
-                roller =
-                    listOf(
-                        RolleDto(
-                            rolletype = Rolletype.INNH,
-                            organisasjonsnummer = "orgnummer",
-                            organisasjonsnavn = "orgnavn",
-                        ),
-                    ),
-            ),
-        )
+        brregMockWebServer.dispatcher =
+            simpleDispatcher {
+                MockResponse()
+                    .setHeader("Content-Type", "application/json")
+                    .setBody(
+                        RollerDto(
+                            roller =
+                                listOf(
+                                    RolleDto(
+                                        rolletype = Rolletype.INNH,
+                                        organisasjonsnummer = "orgnummer",
+                                        organisasjonsnavn = "orgnavn",
+                                    ),
+                                ),
+                        ).serialisertTilString(),
+                    )
+            }
 
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
         val (fom, tom) = sykmelding.sykmeldingsperioder.first()
@@ -162,18 +169,23 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
 
         fakeUnleash.resetAll()
 
-        BrregMockDispatcher.enqueue(
-            RollerDto(
-                roller =
-                    listOf(
-                        RolleDto(
-                            rolletype = Rolletype.INNH,
-                            organisasjonsnummer = "orgnummer",
-                            organisasjonsnavn = "orgnavn",
-                        ),
-                    ),
-            ),
-        )
+        brregMockWebServer.dispatcher =
+            simpleDispatcher {
+                MockResponse()
+                    .setHeader("Content-Type", "application/json")
+                    .setBody(
+                        RollerDto(
+                            roller =
+                                listOf(
+                                    RolleDto(
+                                        rolletype = Rolletype.INNH,
+                                        organisasjonsnummer = "orgnummer",
+                                        organisasjonsnavn = "orgnavn",
+                                    ),
+                                ),
+                        ).serialisertTilString(),
+                    )
+            }
 
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
         val (fom, tom) = sykmelding.sykmeldingsperioder.first()
