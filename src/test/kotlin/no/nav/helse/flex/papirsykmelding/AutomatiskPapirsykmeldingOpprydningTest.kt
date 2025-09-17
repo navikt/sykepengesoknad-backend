@@ -1,4 +1,3 @@
-// file: src/test/kotlin/no/nav/helse/flex/papirsykmelding/AutomatiskPapirsykmeldingOpprydningTest.kt
 package no.nav.helse.flex.papirsykmelding
 
 import no.nav.helse.flex.FellesTestOppsett
@@ -22,65 +21,42 @@ import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
 import no.nav.syfo.sykmelding.kafka.model.STATUS_SENDT
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.*
-import java.time.Duration
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.MethodOrderer
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestMethodOrder
 import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.MethodName::class)
 class AutomatiskPapirsykmeldingOpprydningTest : FellesTestOppsett() {
-    private val fnr = "12345678900"
-
-    private val sykmeldingStatusKafkaMessageDTO =
-        skapSykmeldingStatusKafkaMessageDTO(
-            fnr = fnr,
-            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-            statusEvent = STATUS_SENDT,
-            arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = "123454543", orgNavn = "Gatekjøkkenet"),
-        )
-
-    private val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
-
-    private val sykmelding =
-        skapArbeidsgiverSykmelding(
-            sykmeldingId = sykmeldingId,
-            fom = LocalDate.of(2020, 1, 1),
-            tom = LocalDate.of(2020, 3, 15),
-        )
-
     @BeforeEach
     fun setUp() {
         flexSyketilfelleMockRestServiceServer.reset()
         fakeUnleash.resetAll()
-        clearAllKafkaMessages()
     }
 
-    @AfterEach
-    fun tearDown() {
-        clearAllKafkaMessages()
+    @AfterAll
+    fun hentAlleKafkaMeldinger() {
+        juridiskVurderingKafkaConsumer.hentProduserteRecords()
     }
 
-    private fun clearAllKafkaMessages() {
-        try {
-            // Clear all relevant kafka consumers
-            sykepengesoknadKafkaConsumer.hentProduserteRecords()
-            juridiskVurderingKafkaConsumer.hentProduserteRecords()
-
-            // Add any other kafka consumers that might have messages
-            try {
-                auditlogKafkaConsumer.hentProduserteRecords()
-            } catch (e: Exception) {
-                // Ignore if this consumer doesn't exist or fails
-            }
-
-            // Small delay to ensure all messages are processed
-            Thread.sleep(100)
-
-            // Try once more to clear any remaining messages
-            sykepengesoknadKafkaConsumer.hentProduserteRecords()
-            juridiskVurderingKafkaConsumer.hentProduserteRecords()
-        } catch (e: Exception) {
-            println("Warning: Failed to clear kafka messages: ${e.message}")
-        }
+    companion object {
+        private val fnr = "12345678900"
+        val sykmeldingStatusKafkaMessageDTO =
+            skapSykmeldingStatusKafkaMessageDTO(
+                fnr = fnr,
+                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                statusEvent = STATUS_SENDT,
+                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = "123454543", orgNavn = "Gatekjøkkenet"),
+            )
+        val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
+        val sykmelding =
+            skapArbeidsgiverSykmelding(
+                sykmeldingId = sykmeldingId,
+                fom = LocalDate.of(2020, 1, 1),
+                tom = LocalDate.of(2020, 3, 15),
+            )
     }
 
     @Test
@@ -96,7 +72,7 @@ class AutomatiskPapirsykmeldingOpprydningTest : FellesTestOppsett() {
 
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
 
-        val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(3, Duration.ofSeconds(10)).tilSoknader()
+        val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 3).tilSoknader()
 
         assertThat(soknader).hasSize(3)
         assertThat(soknader[0].status).isEqualTo(NY)
@@ -129,8 +105,8 @@ class AutomatiskPapirsykmeldingOpprydningTest : FellesTestOppsett() {
                 .oppsummering()
                 .sendSoknad()
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
+        val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
 
-        val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(1, Duration.ofSeconds(10)).tilSoknader()
         assertThat(soknader).hasSize(1)
         assertThat(soknader[0].status).isEqualTo(SENDT)
     }
@@ -148,10 +124,7 @@ class AutomatiskPapirsykmeldingOpprydningTest : FellesTestOppsett() {
 
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
 
-        // Wait briefly and verify no messages are produced
-        Thread.sleep(1000)
-        val messages = sykepengesoknadKafkaConsumer.hentProduserteRecords()
-        assertThat(messages).hasSize(0)
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 0)
 
         val hentetViaRest = hentSoknaderMetadata(fnr)
         assertThat(hentetViaRest).hasSize(3)
@@ -164,7 +137,7 @@ class AutomatiskPapirsykmeldingOpprydningTest : FellesTestOppsett() {
     fun `4 - vi mottar en korrigert sykmelding med litt lengre periode, sendt blir korreigert og søknadene opprettes på nytt`() {
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
-        val korrigertSykmelding =
+        val sykmelding =
             skapArbeidsgiverSykmelding(
                 sykmeldingId = sykmeldingId,
                 fom = LocalDate.of(2020, 1, 1),
@@ -173,14 +146,14 @@ class AutomatiskPapirsykmeldingOpprydningTest : FellesTestOppsett() {
 
         val sykmeldingKafkaMessage =
             SykmeldingKafkaMessage(
-                sykmelding = korrigertSykmelding,
+                sykmelding = sykmelding,
                 event = sykmeldingStatusKafkaMessageDTO.event,
                 kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
             )
 
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
 
-        val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(6, Duration.ofSeconds(15)).tilSoknader()
+        val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 6).tilSoknader()
 
         assertThat(soknader[0].status).isEqualTo(SLETTET)
         assertThat(soknader[1].status).isEqualTo(SLETTET)
@@ -202,7 +175,7 @@ class AutomatiskPapirsykmeldingOpprydningTest : FellesTestOppsett() {
     fun `5 - vi mottar den korrigerte sykmeldingen igjen, ingenting endres`() {
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
-        val korrigertSykmelding =
+        val sykmelding =
             skapArbeidsgiverSykmelding(
                 sykmeldingId = sykmeldingId,
                 fom = LocalDate.of(2020, 1, 1),
@@ -211,17 +184,14 @@ class AutomatiskPapirsykmeldingOpprydningTest : FellesTestOppsett() {
 
         val sykmeldingKafkaMessage =
             SykmeldingKafkaMessage(
-                sykmelding = korrigertSykmelding,
+                sykmelding = sykmelding,
                 event = sykmeldingStatusKafkaMessageDTO.event,
                 kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
             )
 
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
 
-        // Wait briefly and verify no messages are produced
-        Thread.sleep(1000)
-        val messages = sykepengesoknadKafkaConsumer.hentProduserteRecords()
-        assertThat(messages).hasSize(0)
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 0)
 
         val hentetViaRest = hentSoknaderMetadata(fnr)
         assertThat(hentetViaRest).hasSize(5)
@@ -236,7 +206,7 @@ class AutomatiskPapirsykmeldingOpprydningTest : FellesTestOppsett() {
     fun `6 - sykmeldingen korrigeres igjen, men må med annen sykmeldingsgrad`() {
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
-        val gradertSykmelding =
+        val sykmelding =
             skapArbeidsgiverSykmelding(
                 sykmeldingId = sykmeldingId,
                 fom = LocalDate.of(2020, 1, 1),
@@ -247,14 +217,14 @@ class AutomatiskPapirsykmeldingOpprydningTest : FellesTestOppsett() {
 
         val sykmeldingKafkaMessage =
             SykmeldingKafkaMessage(
-                sykmelding = gradertSykmelding,
+                sykmelding = sykmelding,
                 event = sykmeldingStatusKafkaMessageDTO.event,
                 kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
             )
 
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
 
-        val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(8, Duration.ofSeconds(15)).tilSoknader()
+        val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 8).tilSoknader()
 
         assertThat(soknader[0].status).isEqualTo(SLETTET)
         assertThat(soknader[1].status).isEqualTo(SLETTET)
