@@ -48,14 +48,13 @@ fun FellesTestOppsett.sendSykmelding(
             SYKMELDINGBEKREFTET_TOPIC
         }
 
-    kafkaProducer
-        .send(
-            ProducerRecord(
-                topic,
-                sykmeldingKafkaMessage.sykmelding.id,
-                sykmeldingKafkaMessage.serialisertTilString(),
-            ),
-        ).get()
+    kafkaProducer.send(
+        ProducerRecord(
+            topic,
+            sykmeldingKafkaMessage.sykmelding.id,
+            sykmeldingKafkaMessage.serialisertTilString(),
+        ),
+    )
 
     val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = forventaSoknader).tilSoknader()
 

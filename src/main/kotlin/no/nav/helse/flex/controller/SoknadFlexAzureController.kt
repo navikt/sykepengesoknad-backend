@@ -99,24 +99,24 @@ class SoknadFlexAzureController(
         val sykUuider = soknader.filter { it.sykmeldingId != null }.map { it.sykmeldingId!! }
         val klippetSykmelding = klippetSykepengesoknadRepository.findAllBySykmeldingUuidIn(sykUuider)
 
+        auditLogProducer.lagAuditLog(
+            AuditEntry(
+                appNavn = "flex-internal",
+                utførtAv = navIdent,
+                oppslagPå = requestBody.fnr,
+                eventType = EventType.READ,
+                forespørselTillatt = true,
+                oppslagUtførtTid = LocalDateTime.now().tilOsloInstant(),
+                beskrivelse = "Henter alle sykepengesoknader",
+                requestUrl = URI.create(request.requestURL.toString()),
+                requestMethod = "POST",
+            ),
+        )
+
         return FlexInternalResponse(
             sykepengesoknadListe = soknader,
             klippetSykepengesoknadRecord = (klippetSoknad + klippetSykmelding).toSet(),
-        ).also {
-            auditLogProducer.lagAuditLog(
-                AuditEntry(
-                    appNavn = "flex-internal",
-                    utførtAv = navIdent,
-                    oppslagPå = requestBody.fnr,
-                    eventType = EventType.READ,
-                    forespørselTillatt = true,
-                    oppslagUtførtTid = LocalDateTime.now().tilOsloInstant(),
-                    beskrivelse = "Henter alle sykepengesoknader",
-                    requestUrl = URI.create(request.requestURL.toString()),
-                    requestMethod = "POST",
-                ),
-            )
-        }
+        )
     }
 
     data class HentIdenterRequest(
@@ -131,21 +131,21 @@ class SoknadFlexAzureController(
         clientIdValidation.validateClientId(NamespaceAndApp(namespace = "flex", app = "flex-internal-frontend"))
         val navIdent = clientIdValidation.hentNavIdent()
 
-        return pdlClient.hentIdenterMedHistorikk(requestBody.ident).also {
-            auditLogProducer.lagAuditLog(
-                AuditEntry(
-                    appNavn = "flex-internal",
-                    utførtAv = navIdent,
-                    oppslagPå = requestBody.ident,
-                    eventType = EventType.READ,
-                    forespørselTillatt = true,
-                    oppslagUtførtTid = LocalDateTime.now().tilOsloInstant(),
-                    beskrivelse = "Henter alle identer for ident",
-                    requestUrl = URI.create(request.requestURL.toString()),
-                    requestMethod = "POST",
-                ),
-            )
-        }
+        auditLogProducer.lagAuditLog(
+            AuditEntry(
+                appNavn = "flex-internal",
+                utførtAv = navIdent,
+                oppslagPå = requestBody.ident,
+                eventType = EventType.READ,
+                forespørselTillatt = true,
+                oppslagUtførtTid = LocalDateTime.now().tilOsloInstant(),
+                beskrivelse = "Henter alle identer for ident",
+                requestUrl = URI.create(request.requestURL.toString()),
+                requestMethod = "POST",
+            ),
+        )
+
+        return pdlClient.hentIdenterMedHistorikk(requestBody.ident)
     }
 
     @GetMapping("/api/v1/flex/sykepengesoknader/{id}")
@@ -156,25 +156,25 @@ class SoknadFlexAzureController(
         val navIdent = clientIdValidation.hentNavIdent()
         val soknad = hentSoknadService.finnSykepengesoknad(id)
 
+        auditLogProducer.lagAuditLog(
+            AuditEntry(
+                appNavn = "flex-internal",
+                utførtAv = navIdent,
+                oppslagPå = soknad.fnr,
+                eventType = EventType.READ,
+                forespørselTillatt = true,
+                oppslagUtførtTid = LocalDateTime.now().tilOsloInstant(),
+                beskrivelse = "Henter en sykepengesoknad",
+                requestUrl = URI.create("/api/v1/flex/sykepengesoknader/${soknad.id}"),
+                requestMethod = "GET",
+            ),
+        )
+
         return FlexInternalSoknadResponse(
             sykepengesoknad = soknad.tilRSSykepengesoknad(),
             fnr = soknad.fnr,
             arbeidsforholdFraAareg = soknad.arbeidsforholdFraAareg,
-        ).also {
-            auditLogProducer.lagAuditLog(
-                AuditEntry(
-                    appNavn = "flex-internal",
-                    utførtAv = navIdent,
-                    oppslagPå = soknad.fnr,
-                    eventType = EventType.READ,
-                    forespørselTillatt = true,
-                    oppslagUtførtTid = LocalDateTime.now().tilOsloInstant(),
-                    beskrivelse = "Henter en sykepengesoknad",
-                    requestUrl = URI.create("/api/v1/flex/sykepengesoknader/${soknad.id}"),
-                    requestMethod = "GET",
-                ),
-            )
-        }
+        )
     }
 
     data class HentAaregdataRequest(
@@ -189,21 +189,21 @@ class SoknadFlexAzureController(
         clientIdValidation.validateClientId(NamespaceAndApp(namespace = "flex", app = "flex-internal-frontend"))
         val navIdent = clientIdValidation.hentNavIdent()
 
-        return aaregClient.hentArbeidsforhold(requestBody.fnr).also {
-            auditLogProducer.lagAuditLog(
-                AuditEntry(
-                    appNavn = "flex-internal",
-                    utførtAv = navIdent,
-                    oppslagPå = requestBody.fnr,
-                    eventType = EventType.READ,
-                    forespørselTillatt = true,
-                    oppslagUtførtTid = LocalDateTime.now().tilOsloInstant(),
-                    beskrivelse = "Henter aareg data",
-                    requestUrl = URI.create(request.requestURL.toString()),
-                    requestMethod = "POST",
-                ),
-            )
-        }
+        auditLogProducer.lagAuditLog(
+            AuditEntry(
+                appNavn = "flex-internal",
+                utførtAv = navIdent,
+                oppslagPå = requestBody.fnr,
+                eventType = EventType.READ,
+                forespørselTillatt = true,
+                oppslagUtførtTid = LocalDateTime.now().tilOsloInstant(),
+                beskrivelse = "Henter aareg data",
+                requestUrl = URI.create(request.requestURL.toString()),
+                requestMethod = "POST",
+            ),
+        )
+
+        return aaregClient.hentArbeidsforhold(requestBody.fnr)
     }
 
     data class HentPensjonsgivendeInntektRequest(
@@ -219,21 +219,21 @@ class SoknadFlexAzureController(
         clientIdValidation.validateClientId(NamespaceAndApp(namespace = "flex", app = "flex-internal-frontend"))
         val navIdent = clientIdValidation.hentNavIdent()
 
-        return pensjongivendeInntektClient.hentPensjonsgivendeInntekt(requestBody.fnr, requestBody.inntektsaar.toInt()).also {
-            auditLogProducer.lagAuditLog(
-                AuditEntry(
-                    appNavn = "flex-internal",
-                    utførtAv = navIdent,
-                    oppslagPå = requestBody.fnr,
-                    eventType = EventType.READ,
-                    forespørselTillatt = true,
-                    oppslagUtførtTid = LocalDateTime.now().tilOsloInstant(),
-                    beskrivelse = "Henter pensjonsgivende inntekt",
-                    requestUrl = URI.create(request.requestURL.toString()),
-                    requestMethod = "POST",
-                ),
-            )
-        }
+        auditLogProducer.lagAuditLog(
+            AuditEntry(
+                appNavn = "flex-internal",
+                utførtAv = navIdent,
+                oppslagPå = requestBody.fnr,
+                eventType = EventType.READ,
+                forespørselTillatt = true,
+                oppslagUtførtTid = LocalDateTime.now().tilOsloInstant(),
+                beskrivelse = "Henter pensjonsgivende inntekt",
+                requestUrl = URI.create(request.requestURL.toString()),
+                requestMethod = "POST",
+            ),
+        )
+
+        return pensjongivendeInntektClient.hentPensjonsgivendeInntekt(requestBody.fnr, requestBody.inntektsaar.toInt())
     }
 
     data class FnrRequest(
@@ -252,27 +252,26 @@ class SoknadFlexAzureController(
         clientIdValidation.validateClientId(NamespaceAndApp(namespace = "flex", app = "flex-internal-frontend"))
         val navIdent = clientIdValidation.hentNavIdent()
 
-        return arbeidssokerregisterClient
-            .hentSisteArbeidssokerperiode(
-                ArbeidssokerperiodeRequest(
-                    requestBody.fnr,
-                    siste = false,
-                ),
-            ).also {
-                auditLogProducer.lagAuditLog(
-                    AuditEntry(
-                        appNavn = "flex-internal",
-                        utførtAv = navIdent,
-                        oppslagPå = requestBody.fnr,
-                        eventType = EventType.READ,
-                        forespørselTillatt = true,
-                        oppslagUtførtTid = LocalDateTime.now().tilOsloInstant(),
-                        beskrivelse = "Henter arbeidssøkerregister status",
-                        requestUrl = URI.create(request.requestURL.toString()),
-                        requestMethod = "POST",
-                    ),
-                )
-            }
+        auditLogProducer.lagAuditLog(
+            AuditEntry(
+                appNavn = "flex-internal",
+                utførtAv = navIdent,
+                oppslagPå = requestBody.fnr,
+                eventType = EventType.READ,
+                forespørselTillatt = true,
+                oppslagUtførtTid = LocalDateTime.now().tilOsloInstant(),
+                beskrivelse = "Henter arbeidssøkerregister status",
+                requestUrl = URI.create(request.requestURL.toString()),
+                requestMethod = "POST",
+            ),
+        )
+
+        return arbeidssokerregisterClient.hentSisteArbeidssokerperiode(
+            ArbeidssokerperiodeRequest(
+                requestBody.fnr,
+                siste = false,
+            ),
+        )
     }
 
     @PostMapping(
@@ -287,24 +286,23 @@ class SoknadFlexAzureController(
         clientIdValidation.validateClientId(NamespaceAndApp(namespace = "flex", app = "flex-internal-frontend"))
         val navIdent = clientIdValidation.hentNavIdent()
 
-        return friskTilArbeidRepository
-            .findByFnrIn(
-                identService.hentFolkeregisterIdenterMedHistorikkForFnr(requestBody.fnr).alle(),
-            ).also {
-                auditLogProducer.lagAuditLog(
-                    AuditEntry(
-                        appNavn = "flex-internal",
-                        utførtAv = navIdent,
-                        oppslagPå = requestBody.fnr,
-                        eventType = EventType.READ,
-                        forespørselTillatt = true,
-                        oppslagUtførtTid = LocalDateTime.now().tilOsloInstant(),
-                        beskrivelse = "Henter friskmeldt til arbeidsformidling vedtak",
-                        requestUrl = URI.create(request.requestURL.toString()),
-                        requestMethod = "POST",
-                    ),
-                )
-            }
+        auditLogProducer.lagAuditLog(
+            AuditEntry(
+                appNavn = "flex-internal",
+                utførtAv = navIdent,
+                oppslagPå = requestBody.fnr,
+                eventType = EventType.READ,
+                forespørselTillatt = true,
+                oppslagUtførtTid = LocalDateTime.now().tilOsloInstant(),
+                beskrivelse = "Henter friskmeldt til arbeidsformidling vedtak",
+                requestUrl = URI.create(request.requestURL.toString()),
+                requestMethod = "POST",
+            ),
+        )
+
+        return friskTilArbeidRepository.findByFnrIn(
+            identService.hentFolkeregisterIdenterMedHistorikkForFnr(requestBody.fnr).alle(),
+        )
     }
 
     data class OpprettRequest(
