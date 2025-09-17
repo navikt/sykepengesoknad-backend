@@ -47,9 +47,7 @@ class SelvstendigNaringsdrivendeInfoService(
     ): Ventetid? {
         val ikkeHentFor =
             listOf(
-                "a81b046f-0274-456e-b3c6-ae64a0c2848d",
-                "07441f9c-e86d-471f-86b9-84945b9d4b38",
-                "3336a26e-a6cd-4be9-92eb-8d0acde57ba9",
+                "a9d5ac93-0c06-4472-8fdb-88f5da6cd0f9",
             )
 
         if (ikkeHentFor.contains(sykmeldingId)) {
