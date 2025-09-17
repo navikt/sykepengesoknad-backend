@@ -2,6 +2,7 @@ package no.nav.helse.flex.client.brreg
 
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.mockdispatcher.BrregMockDispatcher
+import no.nav.helse.flex.mockdispatcher.withContentTypeApplicationJson
 import no.nav.helse.flex.util.serialisertTilString
 import okhttp3.mockwebserver.MockResponse
 import org.amshove.kluent.invoking
@@ -36,13 +37,14 @@ class BrregClientTest : FellesTestOppsett() {
     @Test
     fun `burde kaste server feil fra brreg`() {
         BrregMockDispatcher.enqueueResponse(
-            MockResponse()
-                .setHeader("Content-Type", "application/json")
-                .setBody(
-                    mapOf(
-                        "Message" to "Feil på server",
-                    ).serialisertTilString(),
-                ).setResponseCode(500),
+            withContentTypeApplicationJson {
+                MockResponse()
+                    .setBody(
+                        mapOf(
+                            "Message" to "Feil på server",
+                        ).serialisertTilString(),
+                    ).setResponseCode(500)
+            },
         )
 
         invoking { brregClient.hentRoller("fnr", listOf(Rolletype.INNH)) }

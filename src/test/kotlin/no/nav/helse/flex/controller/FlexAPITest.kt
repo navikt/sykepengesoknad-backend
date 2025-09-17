@@ -1,4 +1,3 @@
-// file: src/test/kotlin/no/nav/helse/flex/controller/FlexAPITest.kt
 package no.nav.helse.flex.controller
 
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -32,8 +31,6 @@ import java.time.Duration
 import java.time.LocalDate
 import java.util.concurrent.ThreadLocalRandom
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@TestMethodOrder(MethodOrderer.Random::class)
 class FlexAPITest : FellesTestOppsett() {
     private val fnrFlexer = genererTestFnr()
 

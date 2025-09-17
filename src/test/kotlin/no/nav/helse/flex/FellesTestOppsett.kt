@@ -24,6 +24,7 @@ import no.nav.helse.flex.testoppsett.startMockWebServere
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
 import org.amshove.kluent.should
+import org.amshove.kluent.`should be false`
 import org.amshove.kluent.shouldBeEmpty
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.producer.KafkaProducer
@@ -185,12 +186,9 @@ abstract class FellesTestOppsett : TestOppsettInterfaces {
 
     @AfterAll
     fun `Vi sjekker om det er noen responser igjen i rest service serverne`() {
-        val mockViSjekker = listOf(AaregMockDispatcher, BrregMockDispatcher)
-        mockViSjekker.forEach {
-            if (it.harRequestsIgjen()) {
-                it.clearQueue()
-                throw RuntimeException("${it::class.simpleName} har uleste requests igjen")
-            }
+        listOf(AaregMockDispatcher, BrregMockDispatcher).forEach {
+            it.harRequestsIgjen().`should be false`()
+            it.clearQueue()
         }
     }
 
