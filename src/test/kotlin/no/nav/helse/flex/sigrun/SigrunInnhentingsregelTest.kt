@@ -3,9 +3,6 @@ package no.nav.helse.flex.sigrun
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.client.sigrun.PensjongivendeInntektClientException
 import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher
-import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher.lag404MockResponse
-import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher.lag500MockResponse
-import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher.lagMockResponse
 import okhttp3.mockwebserver.MockResponse
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should be equal to`
@@ -20,15 +17,18 @@ private const val SOKNAD_ID = "ca3f2ca6-7095-4124-855a-d4bafbbfe156"
 class SigrunInnhentingsregelTest : FellesTestOppsett() {
     @BeforeEach
     fun resetMockWebServer() {
-        SigrunMockDispatcher.antallKall.set(0)
+        with(SigrunMockDispatcher) {
+            antallKall.set(0)
+            clearQueue()
+        }
     }
 
     @Test
     fun `Returnerer 3 siste år med inntekt`() {
-        with(sigrunMockWebServer) {
-            enqueue(lagMockResponse(FNR, "2023"))
-            enqueue(lagMockResponse(FNR, "2022"))
-            enqueue(lagMockResponse(FNR, "2021"))
+        with(SigrunMockDispatcher) {
+            enqueueMockResponse(FNR, "2023")
+            enqueueMockResponse(FNR, "2022")
+            enqueueMockResponse(FNR, "2021")
         }
 
         val response = sykepengegrunnlagForNaeringsdrivende.hentRelevantPensjonsgivendeInntekt(FNR, SOKNAD_ID, 2024)
@@ -47,11 +47,11 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
 
     @Test
     fun `Første år har har ikke inntekt så hopper over det og henter de 3 neste`() {
-        with(sigrunMockWebServer) {
-            enqueue(lag404MockResponse())
-            enqueue(lagMockResponse(FNR, "2022"))
-            enqueue(lagMockResponse(FNR, "2021"))
-            enqueue(lagMockResponse(FNR, "2020"))
+        with(SigrunMockDispatcher) {
+            enqueueResponse(sigrun404Feil())
+            enqueueMockResponse(FNR, "2022")
+            enqueueMockResponse(FNR, "2021")
+            enqueueMockResponse(FNR, "2020")
         }
 
         val response = sykepengegrunnlagForNaeringsdrivende.hentRelevantPensjonsgivendeInntekt(FNR, SOKNAD_ID, 2024)
@@ -70,11 +70,11 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
 
     @Test
     fun `Første år er ugyldig så hopper over det og henter de 3 neste`() {
-        with(sigrunMockWebServer) {
-            enqueue(lag500MockResponse())
-            enqueue(lagMockResponse(FNR, "2023"))
-            enqueue(lagMockResponse(FNR, "2022"))
-            enqueue(lagMockResponse(FNR, "2021"))
+        with(SigrunMockDispatcher) {
+            enqueueResponse(sigrun500Feil())
+            enqueueMockResponse(FNR, "2023")
+            enqueueMockResponse(FNR, "2022")
+            enqueueMockResponse(FNR, "2021")
         }
 
         val response = sykepengegrunnlagForNaeringsdrivende.hentRelevantPensjonsgivendeInntekt(FNR, SOKNAD_ID, 2025)
@@ -93,12 +93,12 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
 
     @Test
     fun `Returnerer null når to første år ikke har inntekt`() {
-        with(sigrunMockWebServer) {
+        with(SigrunMockDispatcher) {
             repeat(2) {
-                enqueue(lag404MockResponse())
+                enqueueResponse(sigrun404Feil())
             }
-            enqueue(lagMockResponse(FNR, "2021"))
-            enqueue(lagMockResponse(FNR, "2020"))
+            enqueueMockResponse(FNR, "2021")
+            enqueueMockResponse(FNR, "2020")
         }
 
         sykepengegrunnlagForNaeringsdrivende.hentRelevantPensjonsgivendeInntekt(FNR, SOKNAD_ID, 2024) `should be` null
@@ -107,11 +107,11 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
 
     @Test
     fun `Returnerer null når kun fjerde år har inntekt`() {
-        with(sigrunMockWebServer) {
+        with(SigrunMockDispatcher) {
             repeat(3) {
-                enqueue(lag404MockResponse())
+                enqueueResponse(sigrun404Feil())
             }
-            enqueue(lagMockResponse(FNR, "2020"))
+            enqueueMockResponse(FNR, "2020")
         }
 
         sykepengegrunnlagForNaeringsdrivende.hentRelevantPensjonsgivendeInntekt(FNR, SOKNAD_ID, 2024) `should be` null
@@ -120,10 +120,10 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
 
     @Test
     fun `Returnerer null og henter ikke fjerde år når andre år mangler inntekt`() {
-        with(sigrunMockWebServer) {
-            enqueue(lagMockResponse(FNR, "2023"))
-            enqueue(lag404MockResponse())
-            enqueue(lagMockResponse(FNR, "2021"))
+        with(SigrunMockDispatcher) {
+            enqueueMockResponse(FNR, "2023")
+            enqueueResponse(sigrun404Feil())
+            enqueueMockResponse(FNR, "2021")
         }
 
         sykepengegrunnlagForNaeringsdrivende.hentRelevantPensjonsgivendeInntekt(FNR, SOKNAD_ID, 2024) `should be` null
@@ -132,10 +132,10 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
 
     @Test
     fun `Returnerer null og henter ikke fjerde år når tredje år mangler inntekt`() {
-        with(sigrunMockWebServer) {
-            enqueue(lagMockResponse(FNR, "2023"))
-            enqueue(lagMockResponse(FNR, "2022"))
-            enqueue(lag404MockResponse())
+        with(SigrunMockDispatcher) {
+            enqueueMockResponse(FNR, "2023")
+            enqueueMockResponse(FNR, "2022")
+            enqueueResponse(sigrun404Feil())
         }
 
         sykepengegrunnlagForNaeringsdrivende.hentRelevantPensjonsgivendeInntekt(FNR, SOKNAD_ID, 2024) `should be` null
@@ -144,11 +144,11 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
 
     @Test
     fun `Returnerer null når første og fjerde år mangler inntekt`() {
-        with(sigrunMockWebServer) {
-            enqueue(lag404MockResponse())
-            enqueue(lagMockResponse(FNR, "2022"))
-            enqueue(lagMockResponse(FNR, "2021"))
-            enqueue(lag404MockResponse())
+        with(SigrunMockDispatcher) {
+            enqueueResponse(sigrun404Feil())
+            enqueueMockResponse(FNR, "2022")
+            enqueueMockResponse(FNR, "2021")
+            enqueueResponse(sigrun404Feil())
         }
 
         sykepengegrunnlagForNaeringsdrivende.hentRelevantPensjonsgivendeInntekt(FNR, SOKNAD_ID, 2024) `should be` null
@@ -163,10 +163,10 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
 
     @Test
     fun `Avbryter henting og returnerer null når første år hoppes over og tidligste år etter det blir før 2017`() {
-        with(sigrunMockWebServer) {
-            enqueue(lag404MockResponse())
-            enqueue(lagMockResponse(FNR, "2019"))
-            enqueue(lagMockResponse(FNR, "2018"))
+        with(SigrunMockDispatcher) {
+            enqueueResponse(sigrun404Feil())
+            enqueueMockResponse(FNR, "2019")
+            enqueueMockResponse(FNR, "2018")
         }
 
         sykepengegrunnlagForNaeringsdrivende.hentRelevantPensjonsgivendeInntekt(FNR, SOKNAD_ID, 2020) `should be` null

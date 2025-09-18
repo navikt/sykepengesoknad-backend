@@ -4,7 +4,7 @@ import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argWhere
 import com.nhaarman.mockitokotlin2.doThrow
 import com.nhaarman.mockitokotlin2.whenever
-import no.nav.helse.flex.FellesTestOppsett
+import no.nav.helse.flex.*
 import no.nav.helse.flex.client.brreg.RolleDto
 import no.nav.helse.flex.client.brreg.RollerDto
 import no.nav.helse.flex.client.brreg.Rolletype
@@ -22,15 +22,9 @@ import no.nav.helse.flex.domain.FiskerBlad
 import no.nav.helse.flex.domain.exception.ManglerSykmeldingException
 import no.nav.helse.flex.domain.exception.ProduserKafkaMeldingException
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
-import no.nav.helse.flex.hentSoknad
-import no.nav.helse.flex.hentSoknader
-import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
-import no.nav.helse.flex.mockFlexSyketilfelleErUtenforVentetid
-import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
-import no.nav.helse.flex.mockFlexSyketilfelleVentetid
 import no.nav.helse.flex.mockdispatcher.BrregMockDispatcher
-import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher.enqueueMockResponse
+import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.service.AarVerdi
 import no.nav.helse.flex.service.Beregnet
@@ -40,30 +34,17 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.VentetidDTO
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
-import no.nav.helse.flex.tilSykepengesoknadDTO
-import no.nav.helse.flex.ventPåRecords
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.GradertDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
-import no.nav.syfo.sykmelding.kafka.model.STATUS_BEKREFTET
-import no.nav.syfo.sykmelding.kafka.model.STATUS_SENDT
-import no.nav.syfo.sykmelding.kafka.model.ShortNameKafkaDTO
-import no.nav.syfo.sykmelding.kafka.model.SporsmalOgSvarKafkaDTO
-import no.nav.syfo.sykmelding.kafka.model.SvartypeKafkaDTO
-import no.nav.syfo.sykmelding.kafka.model.SykmeldingStatusKafkaMessageDTO
-import org.amshove.kluent.`should be empty`
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should be false`
-import org.amshove.kluent.`should be true`
-import org.amshove.kluent.shouldHaveSize
+import no.nav.syfo.sykmelding.kafka.model.*
+import org.amshove.kluent.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito.times
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.verifyNoMoreInteractions
+import org.mockito.Mockito.*
 import org.springframework.beans.factory.annotation.Autowired
 import java.math.BigInteger
 import java.time.LocalDate
@@ -1046,7 +1027,7 @@ class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
     )
 
     private fun settOppSigrunMockResponser() {
-        with(sigrunMockWebServer) {
+        with(SigrunMockDispatcher) {
             enqueueMockResponse(
                 fnr = fnr,
                 inntektsaar = "2024",
