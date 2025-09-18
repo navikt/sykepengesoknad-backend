@@ -6,15 +6,16 @@ import no.nav.helse.flex.client.aareg.Arbeidsforhold
 import no.nav.helse.flex.client.arbeidssokerregister.ArbeidssokerperiodeResponse
 import no.nav.helse.flex.client.pdl.PdlIdent
 import no.nav.helse.flex.client.sigrun.HentPensjonsgivendeInntektResponse
+import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.AuditEntry
 import no.nav.helse.flex.domain.EventType
 import no.nav.helse.flex.domain.Soknadstatus
+import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.frisktilarbeid.*
+import no.nav.helse.flex.repository.SoknadLagrerImpl
 import no.nav.helse.flex.repository.SykepengesoknadDAO
-import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
-import no.nav.helse.flex.testdata.heltSykmeldt
-import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
+import no.nav.helse.flex.testutil.lagSoknad
 import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.util.serialisertTilString
 import org.amshove.kluent.*
@@ -29,13 +30,14 @@ import org.springframework.transaction.annotation.Transactional
 import java.net.URI
 import java.time.Duration
 import java.time.LocalDate
+import java.util.UUID
 import java.util.concurrent.ThreadLocalRandom
 
 class FlexAPITest : FellesTestOppsett() {
     private val fnrFlexer = genererTestFnr()
 
-    private lateinit var deltFnr: String
-    private lateinit var deltKafkamelding: SykepengesoknadDTO
+    @Autowired
+    lateinit var soknadLagrer: SoknadLagrerImpl
 
     @Autowired
     private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
@@ -43,22 +45,10 @@ class FlexAPITest : FellesTestOppsett() {
     @Autowired
     private lateinit var friskTilArbeidRepository: FriskTilArbeidRepository
 
-    @BeforeAll
-    fun initDeltData() {
-        databaseReset.resetDatabase()
-        mockFlexSyketilfelleSykeforloep(emptyList())
-
-        deltFnr = genererTestFnr()
-        deltKafkamelding =
-            sendSykmelding(
-                sykmeldingKafkaMessage(fnr = deltFnr, sykmeldingsperioder = heltSykmeldt()),
-                forventaSoknader = 1,
-            ).first()
-    }
-
     @BeforeEach
     fun setupEach() {
         mockFlexSyketilfelleSykeforloep(emptyList())
+        databaseReset.resetDatabase()
     }
 
     private fun genererTestFnr(): String = (10000000000L + ThreadLocalRandom.current().nextLong(9_000_000_000L)).toString()
@@ -67,21 +57,37 @@ class FlexAPITest : FellesTestOppsett() {
 
     @Test
     fun `Kan hente flere søknader fra flex-internal-frontend`() {
+        val fnr = genererTestFnr()
+
+        soknadLagrer.lagreSoknad(
+            lagSoknad(
+                fnr = fnr,
+                arbeidsgiver = 1,
+                fom = LocalDate.parse("2025-01-01"),
+                tom = LocalDate.parse("2025-01-30"),
+                startSykeforlop = LocalDate.parse("2025-01-01"),
+                arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadsType = Soknadstype.ARBEIDSTAKERE,
+                status = Soknadstatus.NY,
+            ),
+        )
+
+        val soknader = sykepengesoknadRepository.findAll()
+
         val result =
             performOkRequest(
                 MockMvcRequestBuilders
                     .post("/api/v1/flex/sykepengesoknader")
                     .header("Authorization", "Bearer ${skapAzureJwt("flex-internal-frontend-client-id", fnrFlexer)}")
-                    .content(SoknadFlexAzureController.HentSykepengesoknaderRequest(deltFnr).serialisertTilString())
+                    .content(SoknadFlexAzureController.HentSykepengesoknaderRequest(fnr).serialisertTilString())
                     .contentType(MediaType.APPLICATION_JSON),
             )
 
         val fraRest: FlexInternalResponse = objectMapper.readValue(result.response.contentAsString)
         fraRest.sykepengesoknadListe.shouldHaveSize(1)
-        fraRest.sykepengesoknadListe[0].id.shouldBeEqualTo(deltKafkamelding.id)
 
         verifiserAuditLog(
-            fnr = deltFnr,
+            fnr = fnr,
             eventType = EventType.READ,
             beskrivelse = "Henter alle sykepengesoknader",
             requestUrl = URI.create("/api/v1/flex/sykepengesoknader"),
@@ -91,19 +97,36 @@ class FlexAPITest : FellesTestOppsett() {
 
     @Test
     fun `Kan hente enkelt søknad med GET`() {
+        val fnr = genererTestFnr()
+        val id = UUID.randomUUID().toString()
+
+        soknadLagrer.lagreSoknad(
+            lagSoknad(
+                fnr = fnr,
+                id = id,
+                arbeidsgiver = 1,
+                fom = LocalDate.parse("2025-01-01"),
+                tom = LocalDate.parse("2025-01-30"),
+                startSykeforlop = LocalDate.parse("2025-01-01"),
+                arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                soknadsType = Soknadstype.ARBEIDSTAKERE,
+                status = Soknadstatus.NY,
+            ),
+        )
+
         val result =
             performOkRequest(
                 MockMvcRequestBuilders
-                    .get("/api/v1/flex/sykepengesoknader/${deltKafkamelding.id}")
+                    .get("/api/v1/flex/sykepengesoknader/$id")
                     .header("Authorization", "Bearer ${skapAzureJwt("flex-internal-frontend-client-id", fnrFlexer)}")
                     .contentType(MediaType.APPLICATION_JSON),
             )
 
         val fraRest: FlexInternalSoknadResponse = objectMapper.readValue(result.response.contentAsString)
-        fraRest.sykepengesoknad.id.shouldBeEqualTo(deltKafkamelding.id)
+        fraRest.sykepengesoknad.id.shouldBeEqualTo(id)
 
         verifiserAuditLog(
-            fnr = deltFnr,
+            fnr = fnr,
             eventType = EventType.READ,
             beskrivelse = "Henter en sykepengesoknad",
             requestUrl = URI.create("/api/v1/flex/sykepengesoknader/${fraRest.sykepengesoknad.id}"),
@@ -113,24 +136,27 @@ class FlexAPITest : FellesTestOppsett() {
 
     @Test
     fun `Andre apper kan ikke hente søknader`() {
+        val fnr = genererTestFnr()
         mockMvc
             .perform(
                 MockMvcRequestBuilders
                     .post("/api/v1/flex/sykepengesoknader")
                     .header("Authorization", "Bearer ${skapAzureJwt("en-annen-client-id")}")
-                    .content(SoknadFlexAzureController.HentSykepengesoknaderRequest(deltFnr).serialisertTilString())
+                    .content(SoknadFlexAzureController.HentSykepengesoknaderRequest(fnr).serialisertTilString())
                     .contentType(MediaType.APPLICATION_JSON),
             ).andExpect(MockMvcResultMatchers.status().is4xxClientError)
     }
 
     @Test
     fun `Kan ikke hente søknader som bruker`() {
+        val fnr = genererTestFnr()
+
         mockMvc
             .perform(
                 MockMvcRequestBuilders
                     .post("/api/v1/flex/sykepengesoknader")
-                    .header("Authorization", "Bearer ${jwt(deltFnr)}")
-                    .content(SoknadFlexAzureController.HentSykepengesoknaderRequest(deltFnr).serialisertTilString())
+                    .header("Authorization", "Bearer ${jwt(fnr)}")
+                    .content(SoknadFlexAzureController.HentSykepengesoknaderRequest(fnr).serialisertTilString())
                     .contentType(MediaType.APPLICATION_JSON),
             ).andExpect(MockMvcResultMatchers.status().is4xxClientError)
     }
@@ -261,11 +287,12 @@ class FlexAPITest : FellesTestOppsett() {
 
     @Test
     fun `Kan ikke hente identer som bruker`() {
+        val fnr = genererTestFnr()
         mockMvc
             .perform(
                 MockMvcRequestBuilders
                     .post("/api/v1/flex/identer")
-                    .header("Authorization", "Bearer ${jwt(deltFnr)}")
+                    .header("Authorization", "Bearer ${jwt(fnr)}")
                     .content(SoknadFlexAzureController.HentIdenterRequest("211111111111").serialisertTilString())
                     .contentType(MediaType.APPLICATION_JSON),
             ).andExpect(MockMvcResultMatchers.status().is4xxClientError)

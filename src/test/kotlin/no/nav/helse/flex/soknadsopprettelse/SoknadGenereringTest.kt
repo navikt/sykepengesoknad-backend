@@ -1,12 +1,10 @@
 package no.nav.helse.flex.soknadsopprettelse
 
 import no.nav.helse.flex.domain.*
+import no.nav.helse.flex.testutil.lagSoknad
 import org.amshove.kluent.`should be`
 import org.junit.jupiter.api.Test
-import java.time.Instant
 import java.time.LocalDate
-import java.time.ZoneOffset
-import java.util.*
 
 class SoknadGenereringTest {
     @Test
@@ -336,7 +334,7 @@ class SoknadGenereringTest {
                     tom = LocalDate.of(2023, 2, 1),
                     startSykeforlop = startSykeforloep,
                     arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                    Soknadstype.BEHANDLINGSDAGER,
+                    soknadsType = Soknadstype.BEHANDLINGSDAGER,
                 ),
             )
 
@@ -730,7 +728,7 @@ class SoknadGenereringTest {
                 startSykeforlop = startSykeforlop,
                 arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
                 soknadsType = Soknadstype.ARBEIDSTAKERE,
-                Soknadstatus.NY,
+                status = Soknadstatus.NY,
             )
 
         skalHaSporsmalOmMedlemskap(eksisterendeSoknader, soknad) `should be` true
@@ -771,33 +769,4 @@ class SoknadGenereringTest {
 
         skalHaSporsmalOmMedlemskap(eksisterendeSoknader, soknad) `should be` true
     }
-
-    private fun lagSoknad(
-        arbeidsgiver: Int,
-        fom: LocalDate,
-        tom: LocalDate,
-        startSykeforlop: LocalDate,
-        arbeidsSituasjon: Arbeidssituasjon,
-        soknadsType: Soknadstype,
-        status: Soknadstatus? = Soknadstatus.SENDT,
-    ): Sykepengesoknad =
-        Sykepengesoknad(
-            fnr = "11111111111",
-            id = UUID.randomUUID().toString(),
-            sykmeldingId = "uuid-$arbeidsgiver",
-            arbeidssituasjon = arbeidsSituasjon,
-            arbeidsgiverOrgnummer = "org-$arbeidsgiver",
-            startSykeforlop = startSykeforlop,
-            fom = fom,
-            tom = tom,
-            soknadstype = soknadsType,
-            status = status!!,
-            egenmeldingsdagerFraSykmelding = null,
-            utenlandskSykmelding = false,
-            opprettet = fom.atStartOfDay().toInstant(ZoneOffset.UTC),
-            soknadPerioder = emptyList(),
-            sporsmal = emptyList(),
-            sykmeldingSkrevet = Instant.now(),
-            forstegangssoknad = false,
-        )
 }
