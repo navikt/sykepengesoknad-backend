@@ -70,10 +70,10 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
         SigrunMockDispatcher.antallKall.get() `should be equal to` 3
 
         sykepengegrunnlag `should not be` null
-        sykepengegrunnlag!!.let {
-            it.grunnbeloepPerAar.size `should be equal to` 3
-            it.gjennomsnittPerAar.size `should be equal to` 3
-            it.beregnetSnittOgEndring25.let {
+        sykepengegrunnlag!!.let { spg ->
+            spg.grunnbeloepPerAar.size `should be equal to` 3
+            spg.gjennomsnittPerAar.size `should be equal to` 3
+            spg.beregnetSnittOgEndring25.let {
                 it.snitt `should be equal to` 392514.toBigInteger()
                 it.p25 `should be equal to` 490642.toBigInteger()
                 it.m25 `should be equal to` 294385.toBigInteger()
@@ -126,10 +126,10 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
         SigrunMockDispatcher.antallKall.get() `should be equal to` 3
 
         sykepengegrunnlag `should not be` null
-        sykepengegrunnlag!!.let {
-            it.grunnbeloepPerAar.size `should be equal to` 3
-            it.gjennomsnittPerAar.size `should be equal to` 3
-            it.beregnetSnittOgEndring25.let {
+        sykepengegrunnlag!!.let { spg ->
+            spg.grunnbeloepPerAar.size `should be equal to` 3
+            spg.gjennomsnittPerAar.size `should be equal to` 3
+            spg.beregnetSnittOgEndring25.let {
                 it.snitt `should be equal to` 871798.toBigInteger()
                 it.p25 `should be equal to` 1089748.toBigInteger()
                 it.m25 `should be equal to` 653849.toBigInteger()
@@ -182,10 +182,10 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
         SigrunMockDispatcher.antallKall.get() `should be equal to` 3
 
         sykepengegrunnlag `should not be` null
-        sykepengegrunnlag!!.let {
-            it.grunnbeloepPerAar.size `should be equal to` 3
-            it.gjennomsnittPerAar.size `should be equal to` 3
-            it.beregnetSnittOgEndring25.let {
+        sykepengegrunnlag!!.let { spg ->
+            spg.grunnbeloepPerAar.size `should be equal to` 3
+            spg.gjennomsnittPerAar.size `should be equal to` 3
+            spg.beregnetSnittOgEndring25.let {
                 it.snitt `should be equal to` 992224.toBigInteger()
                 it.p25 `should be equal to` 1240280.toBigInteger()
                 it.m25 `should be equal to` 744168.toBigInteger()
@@ -238,10 +238,10 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
         SigrunMockDispatcher.antallKall.get() `should be equal to` 3
 
         sykepengegrunnlag `should not be` null
-        sykepengegrunnlag!!.let {
-            it.grunnbeloepPerAar.size `should be equal to` 3
-            it.gjennomsnittPerAar.size `should be equal to` 3
-            it.beregnetSnittOgEndring25.let {
+        sykepengegrunnlag!!.let { spg ->
+            spg.grunnbeloepPerAar.size `should be equal to` 3
+            spg.gjennomsnittPerAar.size `should be equal to` 3
+            spg.beregnetSnittOgEndring25.let {
                 it.snitt `should be equal to` 720341.toBigInteger()
                 it.p25 `should be equal to` 900426.toBigInteger()
                 it.m25 `should be equal to` 540256.toBigInteger()
@@ -314,10 +314,10 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
         SigrunMockDispatcher.antallKall.get() `should be equal to` 3
 
         sykepengegrunnlag `should not be` null
-        sykepengegrunnlag!!.let {
-            it.grunnbeloepPerAar.size `should be equal to` 3
-            it.gjennomsnittPerAar.size `should be equal to` 3
-            it.beregnetSnittOgEndring25.let {
+        sykepengegrunnlag!!.let { spg ->
+            spg.grunnbeloepPerAar.size `should be equal to` 3
+            spg.gjennomsnittPerAar.size `should be equal to` 3
+            spg.beregnetSnittOgEndring25.let {
                 it.snitt `should be equal to` 518361.toBigInteger()
                 it.p25 `should be equal to` 647951.toBigInteger()
                 it.m25 `should be equal to` 388770.toBigInteger()
@@ -371,10 +371,10 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
         SigrunMockDispatcher.antallKall.get() `should be equal to` 4
 
         sykepengegrunnlag `should not be` null
-        sykepengegrunnlag!!.let {
-            it.grunnbeloepPerAar.size `should be equal to` 3
-            it.gjennomsnittPerAar.size `should be equal to` 3
-            it.beregnetSnittOgEndring25.let {
+        sykepengegrunnlag!!.let { spg ->
+            spg.grunnbeloepPerAar.size `should be equal to` 3
+            spg.gjennomsnittPerAar.size `should be equal to` 3
+            spg.beregnetSnittOgEndring25.let {
                 it.snitt `should be equal to` 295330.toBigInteger()
                 it.p25 `should be equal to` 369162.toBigInteger()
                 it.m25 `should be equal to` 221497.toBigInteger()
@@ -383,7 +383,92 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `Det blir ikke beregnet sykepengegrunnlag når det returneres null fordi det mangler år`() {
+    fun `Beregner sykepengegrunnlag når fjerde år hentes siden første år mangler inntekt og det mangler inntekt ett år`() {
+        with(sigrunMockWebServer) {
+            enqueue(lag404MockResponse())
+            enqueueMockResponse(
+                fnr = FNR,
+                inntektsaar = "2022",
+                inntekt =
+                    listOf(
+                        PensjonsgivendeInntekt(
+                            datoForFastsetting = "2023-07-17",
+                            skatteordning = Skatteordning.FASTLAND,
+                            pensjonsgivendeInntektAvNaeringsinntekt = 250_000,
+                        ),
+                    ),
+            )
+            enqueue(lag404MockResponse())
+            enqueueMockResponse(
+                fnr = FNR,
+                inntektsaar = "2020",
+                inntekt =
+                    listOf(
+                        PensjonsgivendeInntekt(
+                            datoForFastsetting = "2021-07-17",
+                            skatteordning = Skatteordning.FASTLAND,
+                            pensjonsgivendeInntektAvNaeringsinntekt = 250_000,
+                        ),
+                    ),
+            )
+        }
+
+        val sykepengegrunnlag = sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(lagSykepengesoknad())
+        SigrunMockDispatcher.antallKall.get() `should be equal to` 4
+
+        sykepengegrunnlag `should not be` null
+        sykepengegrunnlag!!.let { spg ->
+            spg.inntekter.size `should be equal to` 3
+            spg.grunnbeloepPerAar.size `should be equal to` 3
+            spg.gjennomsnittPerAar.size `should be equal to` 3
+            spg.beregnetSnittOgEndring25.let {
+                it.snitt `should be equal to` 196628.toBigInteger()
+                it.p25 `should be equal to` 245785.toBigInteger()
+                it.m25 `should be equal to` 147471.toBigInteger()
+            }
+        }
+    }
+
+    @Test
+    fun `Beregner sykepengegrunnlag selv om det mangler inntekt to år`() {
+        with(sigrunMockWebServer) {
+            enqueueMockResponse(
+                fnr = FNR,
+                inntektsaar = "2022",
+                inntekt =
+                    listOf(
+                        PensjonsgivendeInntekt(
+                            datoForFastsetting = "2023-07-17",
+                            skatteordning = Skatteordning.FASTLAND,
+                            pensjonsgivendeInntektAvNaeringsinntekt = 250_000,
+                        ),
+                    ),
+            )
+            enqueue(lag404MockResponse())
+            enqueue(lag404MockResponse())
+        }
+
+        val sykepengegrunnlag =
+            sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(
+                lagSykepengesoknad(dato = LocalDate.of(2023, 10, 1)),
+            )
+        SigrunMockDispatcher.antallKall.get() `should be equal to` 3
+
+        sykepengegrunnlag `should not be` null
+        sykepengegrunnlag!!.let { spg ->
+            spg.inntekter.size `should be equal to` 3
+            spg.grunnbeloepPerAar.size `should be equal to` 3
+            spg.gjennomsnittPerAar.size `should be equal to` 3
+            spg.beregnetSnittOgEndring25.let {
+                it.snitt `should be equal to` 90040.toBigInteger()
+                it.p25 `should be equal to` 112551.toBigInteger()
+                it.m25 `should be equal to` 67530.toBigInteger()
+            }
+        }
+    }
+
+    @Test
+    fun `Det blir beregnet sykepengegrunnlag selv om alle år mangler inntekter`() {
         with(sigrunMockWebServer) {
             repeat(3) {
                 enqueue(lag404MockResponse())
@@ -392,7 +477,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
         val sykepengegrunnlag = sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(lagSykepengesoknad())
         SigrunMockDispatcher.antallKall.get() `should be equal to` 4
 
-        sykepengegrunnlag `should be` null
+        sykepengegrunnlag!!.inntekter.size `should be` 3
     }
 
     @Test
@@ -440,10 +525,10 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
         SigrunMockDispatcher.antallKall.get() `should be equal to` 3
 
         sykepengegrunnlag `should not be` null
-        sykepengegrunnlag!!.let {
-            it.grunnbeloepPerAar.size `should be equal to` 3
-            it.gjennomsnittPerAar.size `should be equal to` 3
-            it.beregnetSnittOgEndring25.let {
+        sykepengegrunnlag!!.let { spg ->
+            spg.grunnbeloepPerAar.size `should be equal to` 3
+            spg.gjennomsnittPerAar.size `should be equal to` 3
+            spg.beregnetSnittOgEndring25.let {
                 it.snitt `should be equal to` 267625.toBigInteger()
                 it.p25 `should be equal to` 334532.toBigInteger()
                 it.m25 `should be equal to` 200719.toBigInteger()
