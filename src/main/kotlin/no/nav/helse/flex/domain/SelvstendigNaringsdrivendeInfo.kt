@@ -37,7 +37,8 @@ data class SelvstendigNaringsdrivendeInfo(
             InntektsAarDTO(
                 aar = inntekt.inntektsaar,
                 // Summerer pensjonsgivende inntekt fra FASTLAND og SVALBARD.
-                pensjonsgivendeInntekt = summerPensjonsgivendeInntekt(inntekt.pensjonsgivendeInntekt),
+                pensjonsgivendeInntekt =
+                    if (inntekt.pensjonsgivendeInntekt.isNotEmpty()) summerPensjonsgivendeInntekt(inntekt.pensjonsgivendeInntekt) else null,
             )
         }
 
