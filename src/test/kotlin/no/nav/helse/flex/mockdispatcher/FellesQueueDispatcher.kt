@@ -6,10 +6,13 @@ import okhttp3.mockwebserver.QueueDispatcher
 import okhttp3.mockwebserver.RecordedRequest
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
+import java.util.concurrent.atomic.AtomicInteger
 
 abstract class FellesQueueDispatcher<T : Any>(
     private val defaultFactory: (RecordedRequest) -> T,
 ) : QueueDispatcher() {
+    val antallKall = AtomicInteger(0)
+
     fun clearQueue() {
         responseQueue.clear()
     }
@@ -25,10 +28,16 @@ abstract class FellesQueueDispatcher<T : Any>(
     }
 
     override fun dispatch(request: RecordedRequest): MockResponse {
+        antallKall.incrementAndGet()
         if (!harRequestsIgjen()) {
             enqueue(defaultFactory(request))
         }
         return super.dispatch(request)
+    }
+
+    override fun setFailFast(failFastResponse: MockResponse?) {
+        antallKall.incrementAndGet()
+        super.setFailFast(failFastResponse)
     }
 }
 
