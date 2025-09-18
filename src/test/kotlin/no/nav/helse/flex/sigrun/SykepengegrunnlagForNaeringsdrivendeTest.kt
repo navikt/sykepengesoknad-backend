@@ -6,8 +6,6 @@ import no.nav.helse.flex.client.sigrun.Skatteordning
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknad
 import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher
-import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher.enqueueMockResponse
-import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher.lag404MockResponse
 import no.nav.helse.flex.util.objectMapper
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should be equal to`
@@ -22,12 +20,15 @@ private const val FNR = "12345678910"
 class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
     @BeforeEach
     fun resetMockWebServer() {
-        SigrunMockDispatcher.antallKall.set(0)
+        with(SigrunMockDispatcher) {
+            antallKall.set(0)
+            clearQueue()
+        }
     }
 
     @Test
     fun `Beregner sykepengegrunnlag for tre år med inntekt under 6G`() {
-        with(sigrunMockWebServer) {
+        with(SigrunMockDispatcher) {
             enqueueMockResponse(
                 fnr = FNR,
                 inntektsaar = "2023",
@@ -83,7 +84,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
 
     @Test
     fun `Beregner sykepengegrunnlag for tre år med inntekt mellom 6G og 12G`() {
-        with(sigrunMockWebServer) {
+        with(SigrunMockDispatcher) {
             enqueueMockResponse(
                 fnr = FNR,
                 inntektsaar = "2023",
@@ -139,7 +140,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
 
     @Test
     fun `Beregner sykepengegrunnlag for tre år med inntekt over 12G`() {
-        with(sigrunMockWebServer) {
+        with(SigrunMockDispatcher) {
             enqueueMockResponse(
                 fnr = FNR,
                 inntektsaar = "2023",
@@ -195,7 +196,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
 
     @Test
     fun `Beregner sykepengegrunnlag for tre år med inntekt under og over 6G og over 12G`() {
-        with(sigrunMockWebServer) {
+        with(SigrunMockDispatcher) {
             enqueueMockResponse(
                 fnr = FNR,
                 inntektsaar = "2023",
@@ -251,7 +252,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
 
     @Test
     fun `Beregner sykepengegrunnlag med forskjellige opptjeningssted og inntektstype`() {
-        with(sigrunMockWebServer) {
+        with(SigrunMockDispatcher) {
             enqueueMockResponse(
                 fnr = FNR,
                 inntektsaar = "2023",
@@ -327,8 +328,8 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
 
     @Test
     fun `Beregner sykepengegrunnlag når fjerde år hentes siden første år mangler inntekt`() {
-        with(sigrunMockWebServer) {
-            enqueue(lag404MockResponse())
+        with(SigrunMockDispatcher) {
+            enqueueResponse(sigrun404Feil())
             enqueueMockResponse(
                 fnr = FNR,
                 inntektsaar = "2022",
@@ -384,10 +385,8 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
 
     @Test
     fun `Det blir ikke beregnet sykepengegrunnlag når det returneres null fordi det mangler år`() {
-        with(sigrunMockWebServer) {
-            repeat(3) {
-                enqueue(lag404MockResponse())
-            }
+        with(SigrunMockDispatcher) {
+            repeat(3) { enqueueResponse(sigrun404Feil()) }
         }
         val sykepengegrunnlag = sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(lagSykepengesoknad())
         SigrunMockDispatcher.antallKall.get() `should be equal to` 4
@@ -397,7 +396,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
 
     @Test
     fun `Bruker grunnbeløp fra 2024 når ggrunnbeløp for 2025 ikke finnes enda`() {
-        with(sigrunMockWebServer) {
+        with(SigrunMockDispatcher) {
             enqueueMockResponse(
                 fnr = FNR,
                 inntektsaar = "2024",
@@ -453,7 +452,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
 
     @Test
     fun `Verifiser at JSON sendt til frontend har riktige heltallsverdier`() {
-        with(sigrunMockWebServer) {
+        with(SigrunMockDispatcher) {
             enqueueMockResponse(
                 fnr = FNR,
                 inntektsaar = "2023",
