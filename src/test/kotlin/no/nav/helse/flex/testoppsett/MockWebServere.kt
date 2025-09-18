@@ -11,10 +11,7 @@ import no.nav.helse.flex.mockdispatcher.InntektskomponentenMockDispatcher
 import no.nav.helse.flex.mockdispatcher.PdlMockDispatcher
 import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher
 import no.nav.helse.flex.mockdispatcher.YrkesskadeMockDispatcher
-import okhttp3.mockwebserver.Dispatcher
-import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
-import okhttp3.mockwebserver.RecordedRequest
 
 fun startMockWebServere(): MockWebServere {
     val pdlMockWebserver =
@@ -101,8 +98,3 @@ data class MockWebServere(
     val brregMockWebServer: MockWebServer,
     val arbeidssokerregisterMockWebServer: MockWebServer,
 )
-
-fun simpleDispatcher(dispatcherFunc: (RecordedRequest) -> MockResponse): Dispatcher =
-    object : Dispatcher() {
-        override fun dispatch(request: RecordedRequest): MockResponse = dispatcherFunc(request)
-    }

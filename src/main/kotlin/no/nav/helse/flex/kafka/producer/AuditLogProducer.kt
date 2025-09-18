@@ -7,19 +7,21 @@ import no.nav.helse.flex.util.serialisertTilString
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.springframework.stereotype.Component
+import java.util.*
 
 @Component
 class AuditLogProducer(
-    val producer: KafkaProducer<String, String>,
+    val auditlogKafkaProducer: KafkaProducer<String, String>,
 ) {
     val log = logger()
 
     fun lagAuditLog(auditEntry: AuditEntry) {
         try {
-            producer
+            auditlogKafkaProducer
                 .send(
                     ProducerRecord(
                         AUDIT_TOPIC,
+                        UUID.randomUUID().toString(),
                         auditEntry.serialisertTilString(),
                     ),
                 ).get()

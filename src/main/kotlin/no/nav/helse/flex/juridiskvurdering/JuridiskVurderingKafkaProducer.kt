@@ -26,14 +26,14 @@ class JuridiskVurderingKafkaProducer(
             producer
                 .send(
                     ProducerRecord(
-                        juridiskVurderingTopic,
+                        JURIDISK_VURDERING_TOPIC,
                         dto.fodselsnummer,
                         dto,
                     ),
                 ).get()
         } catch (e: Throwable) {
             log.warn(
-                "Uventet exception ved publisering av juridiskvurdering ${dto.id} på topic $juridiskVurderingTopic",
+                "Uventet exception ved publisering av juridiskvurdering ${dto.id} på topic $JURIDISK_VURDERING_TOPIC",
                 e,
             )
             // get() kaster InterruptedException eller ExecutionException. Begge er checked, så pakker  de den inn i
@@ -64,4 +64,4 @@ class JuridiskVurderingKafkaProducer(
         )
 }
 
-val juridiskVurderingTopic = "flex.omrade-helse-etterlevelse"
+const val JURIDISK_VURDERING_TOPIC = "flex.omrade-helse-etterlevelse"
