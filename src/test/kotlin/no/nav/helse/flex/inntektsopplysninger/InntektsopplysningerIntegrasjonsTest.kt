@@ -66,6 +66,7 @@ class InntektsopplysningerIntegrasjonsTest : FellesTestOppsett() {
         assertThat(soknad.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
                 ANSVARSERKLARING,
+                FRAVAR_FOR_SYKMELDINGEN_V2,
                 TILBAKE_I_ARBEID,
                 medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0),
                 ARBEID_UTENFOR_NORGE,
@@ -309,4 +310,5 @@ class InntektsopplysningerIntegrasjonsTest : FellesTestOppsett() {
             .besvarSporsmal(tag = ARBEID_UTENFOR_NORGE, svar = "NEI")
             .besvarSporsmal(tag = ANDRE_INNTEKTSKILDER, svar = "NEI")
             .besvarSporsmal(tag = OPPHOLD_UTENFOR_EOS, svar = "NEI")
+            .besvarSporsmal(tag = FRAVAR_FOR_SYKMELDINGEN_V2, svar = "NEI")
 }

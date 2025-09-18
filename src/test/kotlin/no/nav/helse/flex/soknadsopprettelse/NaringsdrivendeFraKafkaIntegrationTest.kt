@@ -68,7 +68,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import java.math.BigInteger
 import java.time.LocalDate
 
-class OpprettelseAvSoknadFraKafkaIntegrationTest : FellesTestOppsett() {
+class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
     private val fnr = "123456789"
 
     @Autowired
