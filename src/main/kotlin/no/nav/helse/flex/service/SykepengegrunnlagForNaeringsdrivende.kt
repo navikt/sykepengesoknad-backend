@@ -34,22 +34,22 @@ class SykepengegrunnlagForNaeringsdrivende(
             }
         val grunnbeloepPaaSykmeldingstidspunkt = grunnbeloepHistorikk[hentForAar]!!.grunnbeløp
 
-        val pensjonsgivendeInntekt =
+        val pensjonsgivendeInntekter =
             hentRelevantPensjonsgivendeInntekt(
                 soknad.fnr,
                 soknad.id,
                 sykmeldingsAar,
-            )?.filter { it.pensjonsgivendeInntekt.isNotEmpty() }
-        if (pensjonsgivendeInntekt.isNullOrEmpty()) {
+            )
+        if (pensjonsgivendeInntekter == null) {
             return null
         }
 
         val grunnbeloepForAarMedInntekt =
-            finnGrunnbeloepForAarMedInntekt(grunnbeloepHistorikk, pensjonsgivendeInntekt)
+            finnGrunnbeloepForAarMedInntekt(grunnbeloepHistorikk, pensjonsgivendeInntekter)
 
         val inntekterJustertForGrunnbeloep =
             finnInntekterJustertForGrunnbeloep(
-                pensjonsgivendeInntekt,
+                pensjonsgivendeInntekter,
                 grunnbeloepForAarMedInntekt,
                 grunnbeloepPaaSykmeldingstidspunkt,
             )
@@ -66,7 +66,7 @@ class SykepengegrunnlagForNaeringsdrivende(
             grunnbeloepPerAar = grunnbeloepForAarMedInntekt.map { AarVerdi(it.key, it.value) },
             grunnbeloepPaaSykmeldingstidspunkt = grunnbeloepPaaSykmeldingstidspunkt,
             beregnetSnittOgEndring25 = beregnEndring25Prosent(gjennomsnittligInntektAlleAar),
-            inntekter = pensjonsgivendeInntekt,
+            inntekter = pensjonsgivendeInntekter,
         )
     }
 
@@ -111,17 +111,10 @@ class SykepengegrunnlagForNaeringsdrivende(
                             nyttForsteAar,
                         ),
                     )
-            ).innholdEllerNullHvisTom()
+            )
         }
-        return ferdigliknetInntekter.innholdEllerNullHvisTom()
+        return ferdigliknetInntekter
     }
-
-    private fun List<HentPensjonsgivendeInntektResponse>.innholdEllerNullHvisTom(): List<HentPensjonsgivendeInntektResponse>? =
-        if (this.any { it.pensjonsgivendeInntekt.isEmpty() }) {
-            null
-        } else {
-            this
-        }
 
     private fun finnGrunnbeloepForAarMedInntekt(
         grunnbeloepSisteFemAar: Map<Int, GrunnbeloepResponse>,

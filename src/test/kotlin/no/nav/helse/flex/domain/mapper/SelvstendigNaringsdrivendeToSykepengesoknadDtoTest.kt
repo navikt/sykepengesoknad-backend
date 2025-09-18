@@ -113,21 +113,21 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
             naringsdrivendeInntektDTO.inntektsAar.size `should be equal to` 3
 
             naringsdrivendeInntektDTO.inntektsAar.find { it.aar == "2021" }!!.pensjonsgivendeInntekt.also {
-                it.pensjonsgivendeInntektAvLoennsinntekt `should be equal to` 10_000
+                it!!.pensjonsgivendeInntektAvLoennsinntekt `should be equal to` 10_000
                 it.pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel `should be equal to` 190_000
                 it.pensjonsgivendeInntektAvNaeringsinntekt `should be equal to` 500_000
                 it.pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage `should be equal to` 300_000
             }
 
             naringsdrivendeInntektDTO.inntektsAar.find { it.aar == "2022" }!!.pensjonsgivendeInntekt.also {
-                it.pensjonsgivendeInntektAvLoennsinntekt `should be equal to` 100_000
+                it!!.pensjonsgivendeInntektAvLoennsinntekt `should be equal to` 100_000
                 it.pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel `should be equal to` 100_000
                 it.pensjonsgivendeInntektAvNaeringsinntekt `should be equal to` 700_000
                 it.pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage `should be equal to` 100_000
             }
 
             naringsdrivendeInntektDTO.inntektsAar.find { it.aar == "2023" }!!.pensjonsgivendeInntekt.also {
-                it.pensjonsgivendeInntektAvLoennsinntekt `should be equal to` 200_000
+                it!!.pensjonsgivendeInntektAvLoennsinntekt `should be equal to` 200_000
                 it.pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel `should be equal to` 100_000
                 it.pensjonsgivendeInntektAvNaeringsinntekt `should be equal to` 600_000
                 it.pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage `should be equal to` 100_000

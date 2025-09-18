@@ -7,6 +7,7 @@ import okhttp3.mockwebserver.MockResponse
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should not be`
+import org.amshove.kluent.`should not be equal to`
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -34,13 +35,14 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
         val response = sykepengegrunnlagForNaeringsdrivende.hentRelevantPensjonsgivendeInntekt(FNR, SOKNAD_ID, 2024)
         SigrunMockDispatcher.antallKall.get() `should be equal to` 3
 
-        response?.size `should be equal to` 3
-        response?.let {
-            it[0].pensjonsgivendeInntekt `should not be` null
+        response `should not be equal to` null
+        response!!.size `should be equal to` 3
+        response.let {
+            it[0].pensjonsgivendeInntekt.first() `should not be` null
             it[0].inntektsaar `should be equal to` "2023"
-            it[1].pensjonsgivendeInntekt `should not be` null
+            it[1].pensjonsgivendeInntekt.first() `should not be` null
             it[1].inntektsaar `should be equal to` "2022"
-            it[2].pensjonsgivendeInntekt `should not be` null
+            it[2].pensjonsgivendeInntekt.first() `should not be` null
             it[2].inntektsaar `should be equal to` "2021"
         }
     }
@@ -57,13 +59,14 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
         val response = sykepengegrunnlagForNaeringsdrivende.hentRelevantPensjonsgivendeInntekt(FNR, SOKNAD_ID, 2024)
         SigrunMockDispatcher.antallKall.get() `should be equal to` 4
 
-        response?.size `should be equal to` 3
-        response?.let {
-            it[0].pensjonsgivendeInntekt `should not be` null
+        response `should not be equal to` null
+        response!!.size `should be equal to` 3
+        response.let {
+            it[0].pensjonsgivendeInntekt.first() `should not be` null
             it[0].inntektsaar `should be equal to` "2022"
-            it[1].pensjonsgivendeInntekt `should not be` null
+            it[1].pensjonsgivendeInntekt.first() `should not be` null
             it[1].inntektsaar `should be equal to` "2021"
-            it[2].pensjonsgivendeInntekt `should not be` null
+            it[2].pensjonsgivendeInntekt.first() `should not be` null
             it[2].inntektsaar `should be equal to` "2020"
         }
     }
@@ -80,19 +83,20 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
         val response = sykepengegrunnlagForNaeringsdrivende.hentRelevantPensjonsgivendeInntekt(FNR, SOKNAD_ID, 2025)
         SigrunMockDispatcher.antallKall.get() `should be equal to` 4
 
-        response?.size `should be equal to` 3
-        response?.let {
-            it[0].pensjonsgivendeInntekt `should not be` null
+        response `should not be equal to` null
+        response!!.size `should be equal to` 3
+        response.let {
+            it[0].pensjonsgivendeInntekt.first() `should not be` null
             it[0].inntektsaar `should be equal to` "2023"
-            it[1].pensjonsgivendeInntekt `should not be` null
+            it[1].pensjonsgivendeInntekt.first() `should not be` null
             it[1].inntektsaar `should be equal to` "2022"
-            it[2].pensjonsgivendeInntekt `should not be` null
+            it[2].pensjonsgivendeInntekt.first() `should not be` null
             it[2].inntektsaar `should be equal to` "2021"
         }
     }
 
     @Test
-    fun `Returnerer null når to første år ikke har inntekt`() {
+    fun `Første år har ikke inntekt så hopper over det og henter de 3 neste, inkludert et år uten inntekt`() {
         with(SigrunMockDispatcher) {
             repeat(2) {
                 enqueueResponse(sigrun404Feil())
@@ -101,12 +105,23 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
             enqueueMockResponse(FNR, "2020")
         }
 
-        sykepengegrunnlagForNaeringsdrivende.hentRelevantPensjonsgivendeInntekt(FNR, SOKNAD_ID, 2024) `should be` null
+        val response = sykepengegrunnlagForNaeringsdrivende.hentRelevantPensjonsgivendeInntekt(FNR, SOKNAD_ID, 2024)
         SigrunMockDispatcher.antallKall.get() `should be equal to` 4
+
+        response `should not be equal to` null
+        response!!.size `should be equal to` 3
+        response.let {
+            it[0].pensjonsgivendeInntekt `should be` emptyList()
+            it[0].inntektsaar `should be equal to` "2022"
+            it[1].pensjonsgivendeInntekt.first() `should not be` null
+            it[1].inntektsaar `should be equal to` "2021"
+            it[2].pensjonsgivendeInntekt.first() `should not be` null
+            it[2].inntektsaar `should be equal to` "2020"
+        }
     }
 
     @Test
-    fun `Returnerer null når kun fjerde år har inntekt`() {
+    fun `Returnerer fjerde års inntekt hvis kun det finnes`() {
         with(SigrunMockDispatcher) {
             repeat(3) {
                 enqueueResponse(sigrun404Feil())
@@ -114,45 +129,42 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
             enqueueMockResponse(FNR, "2020")
         }
 
-        sykepengegrunnlagForNaeringsdrivende.hentRelevantPensjonsgivendeInntekt(FNR, SOKNAD_ID, 2024) `should be` null
+        val response = sykepengegrunnlagForNaeringsdrivende.hentRelevantPensjonsgivendeInntekt(FNR, SOKNAD_ID, 2024)
         SigrunMockDispatcher.antallKall.get() `should be equal to` 4
-    }
 
-    @Test
-    fun `Returnerer null og henter ikke fjerde år når andre år mangler inntekt`() {
-        with(SigrunMockDispatcher) {
-            enqueueMockResponse(FNR, "2023")
-            enqueueResponse(sigrun404Feil())
-            enqueueMockResponse(FNR, "2021")
+        response `should not be equal to` null
+        response!!.size `should be equal to` 3
+        response.let {
+            it[0].pensjonsgivendeInntekt `should be` emptyList()
+            it[0].inntektsaar `should be equal to` "2022"
+            it[1].pensjonsgivendeInntekt `should be` emptyList()
+            it[1].inntektsaar `should be equal to` "2021"
+            it[2].pensjonsgivendeInntekt.first() `should not be` null
+            it[2].inntektsaar `should be equal to` "2020"
         }
-
-        sykepengegrunnlagForNaeringsdrivende.hentRelevantPensjonsgivendeInntekt(FNR, SOKNAD_ID, 2024) `should be` null
-        SigrunMockDispatcher.antallKall.get() `should be equal to` 3
     }
 
     @Test
-    fun `Returnerer null og henter ikke fjerde år når tredje år mangler inntekt`() {
+    fun `Returnerer siste 3 år med inntekt selv om det mangler inntekt for det tredje`() {
         with(SigrunMockDispatcher) {
             enqueueMockResponse(FNR, "2023")
             enqueueMockResponse(FNR, "2022")
             enqueueResponse(sigrun404Feil())
         }
 
-        sykepengegrunnlagForNaeringsdrivende.hentRelevantPensjonsgivendeInntekt(FNR, SOKNAD_ID, 2024) `should be` null
+        val response = sykepengegrunnlagForNaeringsdrivende.hentRelevantPensjonsgivendeInntekt(FNR, SOKNAD_ID, 2024)
         SigrunMockDispatcher.antallKall.get() `should be equal to` 3
-    }
 
-    @Test
-    fun `Returnerer null når første og fjerde år mangler inntekt`() {
-        with(SigrunMockDispatcher) {
-            enqueueResponse(sigrun404Feil())
-            enqueueMockResponse(FNR, "2022")
-            enqueueMockResponse(FNR, "2021")
-            enqueueResponse(sigrun404Feil())
+        response `should not be equal to` null
+        response!!.size `should be equal to` 3
+        response.let {
+            it[0].pensjonsgivendeInntekt.first() `should not be` null
+            it[0].inntektsaar `should be equal to` "2023"
+            it[1].pensjonsgivendeInntekt.first() `should not be` null
+            it[1].inntektsaar `should be equal to` "2022"
+            it[2].pensjonsgivendeInntekt `should be` emptyList()
+            it[2].inntektsaar `should be equal to` "2021"
         }
-
-        sykepengegrunnlagForNaeringsdrivende.hentRelevantPensjonsgivendeInntekt(FNR, SOKNAD_ID, 2024) `should be` null
-        SigrunMockDispatcher.antallKall.get() `should be equal to` 4
     }
 
     @Test
