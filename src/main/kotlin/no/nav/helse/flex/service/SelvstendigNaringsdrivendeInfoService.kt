@@ -24,12 +24,19 @@ class SelvstendigNaringsdrivendeInfoService(
         sykmeldingId: String,
     ): SelvstendigNaringsdrivendeInfo =
         SelvstendigNaringsdrivendeInfo(
-            roller = hentRoller(identer),
+            roller = hentRoller(identer, sykmeldingId),
             ventetid = hentVentetid(identer, sykmeldingId),
         )
 
-    private fun hentRoller(identer: FolkeregisterIdenter): List<BrregRolle> =
-        identer
+    private fun hentRoller(
+        identer: FolkeregisterIdenter,
+        sykmeldingId: String,
+    ): List<BrregRolle> {
+        if (sykmeldingId == "d225f05b-6d70-49f8-b473-898b03f6e47d") {
+            log.info("Henter ikke roller for sykmelding: $sykmeldingId da Brreg returnerer feil.")
+            return emptyList()
+        }
+        return identer
             .alle()
             .flatMap { fnr ->
                 // BrregClient kaster HttpClientErrorException når den mottar en tom liste med roller.
@@ -40,6 +47,7 @@ class SelvstendigNaringsdrivendeInfoService(
                     emptyList()
                 }
             }.map(::tilBrregRolle)
+    }
 
     private fun hentVentetid(
         identer: FolkeregisterIdenter,
