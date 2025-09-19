@@ -3,7 +3,6 @@ package no.nav.helse.flex.client.grunnbeloep
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.util.objectMapper
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.retry.annotation.Backoff
 import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
@@ -15,14 +14,12 @@ import java.time.LocalDate
 
 @Component
 class GrunnbeloepClient(
-    @param:Value("\${GRUNNBELOEP_API_URL}")
-    private val url: String,
     @param:Qualifier("grunnbelopRestClient")
     private val restClient: RestClient,
 ) {
     @Retryable(
         value = [HttpServerErrorException::class, HttpClientErrorException::class],
-        maxAttempts = 3,
+        maxAttemptsExpression = $$"${GRUNNBELOEP_RETRY_ATTEMPTS:3}",
         backoff = Backoff(delay = 1000),
     )
     fun hentGrunnbeloepHistorikk(hentForDato: LocalDate): List<GrunnbeloepResponse> =
