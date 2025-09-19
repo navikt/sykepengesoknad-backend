@@ -16,7 +16,6 @@ import org.amshove.kluent.`should be empty`
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldThrow
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.test.context.TestPropertySource
@@ -207,7 +206,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
     }
 
     @Test
-    fun `Det kastes VentetidException når det ikke returneres ventetid`() {
+    fun `Det returneres null når flex-syketilfelle ikke returneres ventetid`() {
         brregMockWebServer.enqueue(
             withContentTypeApplicationJson {
                 MockResponse().setBody((Rolletype.INNH).tilRollerDto().serialisertTilString())
@@ -222,14 +221,11 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
             },
         )
 
-        assertThrows<VentetidException> {
-            selvstendigNaringsdrivendeInfoService.hentSelvstendigNaringsdrivendeInfo(
+        selvstendigNaringsdrivendeInfoService
+            .hentSelvstendigNaringsdrivendeInfo(
                 FolkeregisterIdenter("11111111111", andreIdenter = emptyList()),
                 sykmeldingId = "sykmelding-id",
-            )
-        }.also {
-            it.message!! `should be equal to` "Det ble ikke returnert ventetid for sykmelding: sykmelding-id"
-        }
+            ).ventetid `should be equal to` null
     }
 
     @Test
