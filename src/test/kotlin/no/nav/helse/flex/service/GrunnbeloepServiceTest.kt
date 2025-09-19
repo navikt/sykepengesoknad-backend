@@ -1,24 +1,31 @@
 package no.nav.helse.flex.service
 
 import no.nav.helse.flex.FellesTestOppsett
+import no.nav.helse.flex.mockdispatcher.grunnbeloep.GrunnbeloepApiMockDispatcher
+import okhttp3.mockwebserver.MockResponse
+import org.amshove.kluent.invoking
 import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.shouldThrow
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cache.CacheManager
+import org.springframework.test.context.TestPropertySource
+import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpServerErrorException
 import java.time.LocalDate
 
+@TestPropertySource(properties = ["GRUNNBELOEP_RETRY_ATTEMPTS=1"])
 class GrunnbeloepServiceTest : FellesTestOppsett() {
     @Autowired
     private lateinit var cacheManager: CacheManager
 
     @BeforeEach
-    fun clearCache() {
+    fun reset() {
         cacheManager.getCache("grunnbeloep-historikk")?.clear()
+        GrunnbeloepApiMockDispatcher.clearQueue()
     }
 
     @Test
@@ -47,7 +54,19 @@ class GrunnbeloepServiceTest : FellesTestOppsett() {
 
     @Test
     fun `Kaster exception hvis det ikke returneres noe resultat`() {
+        GrunnbeloepApiMockDispatcher.enqueueResponse(MockResponse().setResponseCode(404))
+
         val forsteDato = LocalDate.of(1970, 1, 1)
-        assertThrows<HttpServerErrorException> { grunnbeloepService.hentGrunnbeloepHistorikk(forsteDato.year) }
+        invoking { grunnbeloepService.hentGrunnbeloepHistorikk(forsteDato.year) }
+            .shouldThrow(HttpClientErrorException.NotFound::class)
+    }
+
+    @Test
+    fun `Kaster før 1967`() {
+        GrunnbeloepApiMockDispatcher.enqueueResponse(MockResponse().setResponseCode(500))
+
+        val forsteDato = LocalDate.of(1966, 1, 1)
+        invoking { grunnbeloepService.hentGrunnbeloepHistorikk(forsteDato.year) }
+            .shouldThrow(HttpServerErrorException.InternalServerError::class)
     }
 }

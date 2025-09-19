@@ -53,7 +53,7 @@ abstract class FellesTestOppsett : TestOppsettInterfaces {
         private val mockWebServere: MockWebServere = startMockWebServere()
         private val eregMockWebServer
             get() = mockWebServere.eregMockWebServer
-        private val grunnbeloepApiMockWebServer
+        val grunnbeloepApiMockWebServer
             get() = mockWebServere.grunnbeloepApiMockWebServer
         private val innsendingApiMockWebServer
             get() = mockWebServere.innsendingApiMockWebServer
