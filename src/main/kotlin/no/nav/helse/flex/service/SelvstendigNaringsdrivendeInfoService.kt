@@ -45,28 +45,17 @@ class SelvstendigNaringsdrivendeInfoService(
         identer: FolkeregisterIdenter,
         sykmeldingId: String,
     ): Ventetid? {
-        val ikkeHentFor =
-            listOf(
-                "a9d5ac93-0c06-4472-8fdb-88f5da6cd0f9",
-            )
-
-        if (ikkeHentFor.contains(sykmeldingId)) {
-            log.info("Henter ikke ventetid for sykmelding: $sykmeldingId da flex-syketilfelle ikke returnerer ventetid for sykmeldingen.")
-            return null
-        }
-
         val ventetidResponse =
             flexSyketilfelleClient.hentVentetid(
                 identer,
                 sykmeldingId,
                 VentetidRequest(returnerPerioderInnenforVentetid = true),
             )
-
-        // Det skal alltid kunne beregnes en ventetid for en periode hvis flex-syketilfelle har mottatt bitene fra
-        // sykmeldingen.
+        // TODO: Kast exception når vi flex-syketilfelle skal returnere ventetid for alle tilfeller.
         return ventetidResponse.ventetid?.let {
+            log.error("Det ble ikke returnert ventetid for sykmelding: $sykmeldingId")
             Ventetid(fom = it.fom, tom = it.tom)
-        } ?: throw VentetidException("Det ble ikke returnert ventetid for sykmelding: $sykmeldingId")
+        }
     }
 
     private fun hentRoller(fnr: String): List<RolleDto> {
