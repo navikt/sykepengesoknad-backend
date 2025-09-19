@@ -51,10 +51,13 @@ class SelvstendigNaringsdrivendeInfoService(
                 sykmeldingId,
                 VentetidRequest(returnerPerioderInnenforVentetid = true),
             )
+
         // TODO: Kast exception når vi flex-syketilfelle skal returnere ventetid for alle tilfeller.
         return ventetidResponse.ventetid?.let {
-            log.error("Det ble ikke returnert ventetid for sykmelding: $sykmeldingId")
             Ventetid(fom = it.fom, tom = it.tom)
+        } ?: run {
+            log.error("Det ble ikke returnert ventetid for sykmelding: $sykmeldingId")
+            null
         }
     }
 
