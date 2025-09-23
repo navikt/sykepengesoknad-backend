@@ -49,5 +49,4 @@ class EnhetsregisterClientTest {
         val status = client.erDagmamma("922720193")
         assertTrue(status)
     }
-
 }
