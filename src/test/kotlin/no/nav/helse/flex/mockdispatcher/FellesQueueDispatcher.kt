@@ -13,6 +13,10 @@ abstract class FellesQueueDispatcher<T : Any>(
 ) : QueueDispatcher() {
     val antallKall = AtomicInteger(0)
 
+    init {
+        registrer(this)
+    }
+
     fun clearQueue() {
         responseQueue.clear()
     }
@@ -38,6 +42,16 @@ abstract class FellesQueueDispatcher<T : Any>(
     override fun setFailFast(failFastResponse: MockResponse?) {
         antallKall.incrementAndGet()
         super.setFailFast(failFastResponse)
+    }
+
+    companion object {
+        private val registrerte = mutableSetOf<FellesQueueDispatcher<*>>()
+
+        internal fun registrer(dispatcher: FellesQueueDispatcher<*>) {
+            registrerte.add(dispatcher)
+        }
+
+        fun alle(): List<FellesQueueDispatcher<*>> = registrerte.toList()
     }
 }
 
