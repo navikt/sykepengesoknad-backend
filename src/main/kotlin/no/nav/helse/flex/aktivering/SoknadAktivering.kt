@@ -1,3 +1,5 @@
+@file:Suppress("IDENTITY_SENSITIVE_OPERATIONS_WITH_VALUE_TYPE")
+
 package no.nav.helse.flex.aktivering
 
 import no.nav.helse.flex.domain.Soknadstatus
@@ -43,13 +45,11 @@ class SoknadAktivering(
             val forventetFom = perioder.minOf { it.fom }
             val forventetTom = perioder.maxOf { it.tom }
 
-            // TODO: Skriv noe mer om hvorfor det bare er greit å logge her.
             if (soknad.fom != forventetFom || soknad.tom != forventetTom) {
-                log.warn(
-                    "Søknad $id har perioder som starter på $forventetFom og slutter på $forventetTom, dette stemmer " +
-                        "ikke med søknaden sin fom ${soknad.fom} og tom ${soknad.tom}. Aktiverer ikke søknaden.",
+                throw IllegalStateException(
+                    "Søknad $id har perioder som starter: $forventetFom og slutter: $forventetTom. Det stemmer " +
+                        "ikke med søknadens fom: ${soknad.fom} og tom: ${soknad.tom}.",
                 )
-                return
             }
         }
 
@@ -57,7 +57,7 @@ class SoknadAktivering(
             measureTimeMillis {
                 sykepengesoknadDAO.aktiverSoknad(id)
             }
-        val lagSpm =
+        val lagSporsmalTid =
             measureTimeMillis {
                 sporsmalGenerator.lagSporsmalPaSoknad(id)
             }
@@ -69,11 +69,13 @@ class SoknadAktivering(
                     Soknadstype.OPPHOLD_UTLAND -> throw IllegalArgumentException(
                         "Søknad med type ${soknad.soknadstype.name} kan ikke aktiveres",
                     )
+
                     else -> soknadProducer.soknadEvent(soknad)
                 }
             }
         log.info(
-            "Aktiverte søknad med id $id. Tid brukt på aktivering: $aktiverTid, spørsmålsgenerering: $lagSpm, publisering: $publiserSoknad",
+            "Aktiverte søknad med id $id. Tid brukt på aktivering: $aktiverTid, " +
+                "spørsmålsgenerering: $lagSporsmalTid, publisering: $publiserSoknad",
         )
     }
 }
