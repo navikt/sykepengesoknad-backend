@@ -17,6 +17,8 @@ external-host:
   - flex-unleash-api.nav.cloud.nais.io
   - aareg-services.prod-fss-pub.nais.io
   - g.nav.no
+  - data.brreg.no
+
 env:
   SPRING_PROFILES_ACTIVE: default,sykmeldinger
   PDL_BASE_URL: https://pdl-api.prod-fss-pub.nais.io
@@ -49,5 +51,6 @@ env:
   AAREG_AAD_CLIENT_ID: prod-fss.arbeidsforhold.aareg-services-nais
   BRREG_API_URL: http://flex-brreg-proxy
   BRREG_AAD_CLIENT_ID: prod-gcp.flex.flex-brreg-proxy
+  ENHETSREGISTER_API_URL: https://data.brreg.no/enhetsregisteret
   ARBEIDSSOEKERREGISTERET_API_AAD_CLIENT_ID: prod-gcp.paw.paw-arbeidssoekerregisteret-api-oppslag-v2
   ARBEIDSSOEKERREGISTERET_API_URL: http://paw-arbeidssoekerregisteret-api-oppslag-v2.paw

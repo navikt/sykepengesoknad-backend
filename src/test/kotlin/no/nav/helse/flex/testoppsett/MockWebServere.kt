@@ -4,6 +4,7 @@ import no.nav.helse.flex.medlemskap.MedlemskapMockDispatcher
 import no.nav.helse.flex.mockdispatcher.AaregMockDispatcher
 import no.nav.helse.flex.mockdispatcher.ArbeidssokerregisterMockDispatcher
 import no.nav.helse.flex.mockdispatcher.BrregMockDispatcher
+import no.nav.helse.flex.mockdispatcher.EnhetsregisterMockDispatcher
 import no.nav.helse.flex.mockdispatcher.EregMockDispatcher
 import no.nav.helse.flex.mockdispatcher.InnsendingApiMockDispatcher
 import no.nav.helse.flex.mockdispatcher.InntektskomponentenMockDispatcher
@@ -70,6 +71,12 @@ fun startMockWebServere(): MockWebServere {
             dispatcher = ArbeidssokerregisterMockDispatcher
         }
 
+    val enhetsregisterMockWebServer =
+        MockWebServer().apply {
+            System.setProperty("enhetsregister.api.url", "http://localhost:$port")
+            dispatcher = EnhetsregisterMockDispatcher
+        }
+
     return MockWebServere(
         pdlMockWebserver = pdlMockWebserver,
         medlemskapMockWebServer = medlemskapMockWebServer,
@@ -82,6 +89,7 @@ fun startMockWebServere(): MockWebServere {
         aaregMockWebServer = aaregMockWebServer,
         brregMockWebServer = brregMockWebServer,
         arbeidssokerregisterMockWebServer = arbeidssokerregisterMockWebServer,
+        enhetsregisterMockWebServer = enhetsregisterMockWebServer,
     )
 }
 
@@ -97,4 +105,5 @@ data class MockWebServere(
     val aaregMockWebServer: MockWebServer,
     val brregMockWebServer: MockWebServer,
     val arbeidssokerregisterMockWebServer: MockWebServer,
+    val enhetsregisterMockWebServer: MockWebServer,
 )
