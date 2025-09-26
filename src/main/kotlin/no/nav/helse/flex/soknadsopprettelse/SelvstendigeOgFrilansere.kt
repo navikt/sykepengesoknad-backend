@@ -49,6 +49,7 @@ fun settOppSoknadSelvstendigOgFrilanser(
                 add(arbeidUtenforNorge())
 
                 if (listOf(NAERINGSDRIVENDE, FISKER, JORDBRUKER).contains(sykepengesoknad.arbeidssituasjon)) {
+                    add(fravaerForSykmeldingSporsmal(sykepengesoknad))
                     add(lagSporsmalOmInntektsopplyninger(sykepengesoknad, sykepengegrunnlagNaeringsdrivende))
                 }
             }
@@ -133,3 +134,22 @@ private fun tilbakeIFulltArbeidSporsmal(soknadMetadata: Sykepengesoknad): Sporsm
                 ),
             ),
     )
+
+private fun fravaerForSykmeldingSporsmal(soknadMetadata: Sykepengesoknad): Sporsmal =
+    Sporsmal(
+        tag = FRAVAR_FOR_SYKMELDINGEN_V2,
+        sporsmalstekst = "Var du borte fra jobb i fire uker eller mer rett før du ble sykmeldt ${soknadMetadata.fom?.let {
+            formatterDato(
+                it,
+            )
+        }}?",
+        svartype = JA_NEI,
+        undertekst = "Gjelder sammenhengende ferie eller annet fravær gjennom alle fire ukene. Har du jobbet underveis, kan du svare nei. ",
+    )
+
+fun Sporsmal.plasseringSporsmalSelvstendigOgFrilansere(): Int =
+    when (this.tag) {
+        FRAVAR_FOR_SYKMELDINGEN_V2 -> -9
+
+        else -> fellesPlasseringSporsmal()
+    }

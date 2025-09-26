@@ -10,8 +10,7 @@ import no.nav.helse.flex.kafka.AUDIT_TOPIC
 import no.nav.helse.flex.kafka.SYKEPENGESOKNAD_TOPIC
 import no.nav.helse.flex.kafka.producer.AivenKafkaProducer
 import no.nav.helse.flex.kafka.producer.RebehandlingSykmeldingSendtProducer
-import no.nav.helse.flex.mockdispatcher.AaregMockDispatcher
-import no.nav.helse.flex.mockdispatcher.BrregMockDispatcher
+import no.nav.helse.flex.mockdispatcher.FellesQueueDispatcher
 import no.nav.helse.flex.personhendelse.AutomatiskInnsendingVedDodsfall
 import no.nav.helse.flex.repository.SykepengesoknadRepository
 import no.nav.helse.flex.service.GrunnbeloepService
@@ -24,7 +23,6 @@ import no.nav.helse.flex.testoppsett.startMockWebServere
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
 import org.amshove.kluent.should
-import org.amshove.kluent.`should be false`
 import org.amshove.kluent.shouldBeEmpty
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.producer.KafkaProducer
@@ -186,9 +184,12 @@ abstract class FellesTestOppsett : TestOppsettInterfaces {
 
     @AfterAll
     fun `Vi sjekker om det er noen responser igjen i rest service serverne`() {
-        listOf(AaregMockDispatcher, BrregMockDispatcher).forEach {
-            it.harRequestsIgjen().`should be false`()
-            it.clearQueue()
+        FellesQueueDispatcher.alle().forEach { dispatcher ->
+            check(!dispatcher.harRequestsIgjen()) {
+                "Det er noen requests igjen i dispatcher ${dispatcher::class.simpleName}"
+            }.also {
+                dispatcher.clearQueue()
+            }
         }
     }
 

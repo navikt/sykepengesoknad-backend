@@ -29,17 +29,21 @@ fun FellesTestOppsett.sendSykmelding(
             Arbeidssituasjon.NAERINGSDRIVENDE,
         )
     ) {
-        mockFlexSyketilfelleErUtenforVentetid(sykmeldingKafkaMessage.sykmelding.id, true)
-        mockFlexSyketilfelleVentetid(
-            sykmeldingKafkaMessage.sykmelding.id,
-            VentetidResponse(FomTomPeriode(fom = LocalDate.now(), tom = LocalDate.now().plusDays(16))),
-        )
+        repeat(forventaSoknader) {
+            mockFlexSyketilfelleErUtenforVentetid(sykmeldingKafkaMessage.sykmelding.id, true)
+            mockFlexSyketilfelleVentetid(
+                sykmeldingKafkaMessage.sykmelding.id,
+                VentetidResponse(FomTomPeriode(fom = LocalDate.now(), tom = LocalDate.now().plusDays(16))),
+            )
+        }
     }
 
-    mockFlexSyketilfelleSykeforloep(
-        sykmeldingKafkaMessage.sykmelding.id,
-        oppfolgingsdato,
-    )
+    repeat(if (forventaSoknader == 0) 1 else forventaSoknader) {
+        mockFlexSyketilfelleSykeforloep(
+            sykmeldingKafkaMessage.sykmelding.id,
+            oppfolgingsdato,
+        )
+    }
 
     val topic =
         if (sykmeldingKafkaMessage.event.statusEvent == STATUS_SENDT) {
