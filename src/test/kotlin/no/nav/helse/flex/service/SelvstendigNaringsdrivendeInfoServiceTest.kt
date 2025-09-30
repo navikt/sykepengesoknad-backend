@@ -1,6 +1,7 @@
 package no.nav.helse.flex.service
 
 import no.nav.helse.flex.FakesTestOppsett
+import no.nav.helse.flex.FellesTestOppsett.Companion.enhetsregisterMockWebServer
 import no.nav.helse.flex.client.brreg.RolleDto
 import no.nav.helse.flex.client.brreg.RollerDto
 import no.nav.helse.flex.client.brreg.Rolletype
@@ -19,6 +20,8 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.test.context.TestPropertySource
+import org.springframework.test.web.client.match.MockRestRequestMatchers.*
+import org.springframework.test.web.client.response.MockRestResponseCreators.*
 import org.springframework.web.client.HttpServerErrorException
 import java.time.LocalDate
 
@@ -264,6 +267,38 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
                 sykmeldingId = "sykmelding-id",
             )
         }.shouldThrow(HttpServerErrorException::class)
+    }
+
+    @Test
+    fun `ServerError propagerer ikke ved henting av næringskoder fra enhetsregisteret`() {
+        brregMockWebServer.enqueue(
+            withContentTypeApplicationJson {
+                MockResponse().setBody((Rolletype.INNH).tilRollerDto().serialisertTilString())
+            },
+        )
+
+        enhetsregisterMockWebServer.enqueue(withContentTypeApplicationJson { MockResponse().setResponseCode(500) })
+
+        ventetidMockWebServer.enqueue(
+            withContentTypeApplicationJson {
+                MockResponse().setBody(lagventetidResponse(fom, tom).serialisertTilString())
+            },
+        )
+
+        val selvstendigNaringsdrivendeInfo =
+            selvstendigNaringsdrivendeInfoService
+                .hentSelvstendigNaringsdrivendeInfo(
+                    identer = FolkeregisterIdenter("11111111111", andreIdenter = emptyList()),
+                    sykmeldingId = "sykmelding-id",
+                )
+
+        selvstendigNaringsdrivendeInfo.roller.single().also {
+            it.orgnavn `should be equal to` ORGNAVN
+            it.orgnummer `should be equal to` ORGNUMMER
+            it.rolletype `should be equal to` "INNH"
+        }
+
+        selvstendigNaringsdrivendeInfo.ventetid `should be equal to` Ventetid(fom, tom)
     }
 }
 

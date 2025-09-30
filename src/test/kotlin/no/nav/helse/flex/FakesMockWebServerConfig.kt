@@ -1,5 +1,6 @@
 package no.nav.helse.flex
 
+import no.nav.helse.flex.mockdispatcher.EnhetsregisterMockDispatcher
 import no.nav.helse.flex.mockdispatcher.VentetidMockDispatcher
 import okhttp3.mockwebserver.MockWebServer
 import org.springframework.boot.test.context.TestConfiguration
@@ -13,6 +14,9 @@ class FakesMockWebServerConfig {
     @Bean("ventetidMockWebServer")
     fun lagVentetidMockWebServer() = ventetidMockWebServer
 
+    @Bean("enhetsregisterMockWebServer")
+    fun lagEnhetsregisterMockWebServer() = enhetsregisterMockWebServer
+
     companion object {
         val brregMockWebServer =
             MockWebServer()
@@ -24,6 +28,12 @@ class FakesMockWebServerConfig {
             MockWebServer().apply {
                 System.setProperty("flex.syketilfelle.url", "http://localhost:$port")
                 dispatcher = VentetidMockDispatcher
+            }
+
+        val enhetsregisterMockWebServer =
+            MockWebServer().apply {
+                System.setProperty("ENHETSREGISTER_API_URL", "http://localhost:$port")
+                dispatcher = EnhetsregisterMockDispatcher
             }
     }
 }
