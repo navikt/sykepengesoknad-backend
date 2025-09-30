@@ -2,6 +2,7 @@
 
 package no.nav.helse.flex.soknadsopprettelse.sporsmal
 
+import no.nav.helse.flex.client.sigrun.HentPensjonsgivendeInntektResponse
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Sykepengesoknad
@@ -22,6 +23,13 @@ fun lagSporsmalOmInntektsopplyninger(
             LocalDate.of(forsteFerdiglignetAar.toInt(), 1, 1)
         } else {
             LocalDate.of(soknad.startSykeforlop?.minusYears(5)?.year ?: LocalDate.now().year, 1, 1)
+        }
+
+    val sykepengegrunnlagMedKunTreSammenhengendeInntekter =
+        if (sykepengegrunnlagNaeringsdrivende?.inntekter?.erTreAarMedSammenhengendeInntekter() == true) {
+            sykepengegrunnlagNaeringsdrivende
+        } else {
+            null
         }
 
     return Sporsmal(
@@ -117,7 +125,9 @@ fun lagSporsmalOmInntektsopplyninger(
                                                                     sporsmalstekst = "Har du hatt mer enn 25 prosent endring i årsinntekten din som følge av den varige endringen?",
                                                                     svartype = Svartype.JA_NEI,
                                                                     kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
-                                                                    metadata = sykepengegrunnlagNaeringsdrivende?.toJsonNode(),
+                                                                    metadata =
+                                                                        sykepengegrunnlagMedKunTreSammenhengendeInntekter
+                                                                            ?.toJsonNode(),
                                                                     undersporsmal =
                                                                         listOf(
                                                                             Sporsmal(
@@ -162,3 +172,6 @@ fun lagSporsmalOmInntektsopplyninger(
             ),
     )
 }
+
+internal fun List<HentPensjonsgivendeInntektResponse>.erTreAarMedSammenhengendeInntekter(): Boolean =
+    this.size == 3 && this.all { it.pensjonsgivendeInntekt.isNotEmpty() }
