@@ -117,9 +117,9 @@ no.nav.security.jwt:
           client-auth-method: client_secret_basic
 
 EREG_URL: "http://ereg"
-
-kafka-schema-registry.url: http://schema.url
 pdl.api.url: "http://pdl-api.pdl"
+enhetsregister.api.url: "https://data.brreg.no"
+kafka-schema-registry.url: "http://schema.url"
 narmesteleder.url: "http://narmesteleder"
 
 management:

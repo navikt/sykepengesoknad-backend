@@ -50,6 +50,12 @@ const val IGNORED_KAFKA_BROKERS = "localhost:1"
 )
 @AutoConfigureMockMvc(print = MockMvcPrint.NONE, printOnlyOnFailure = false)
 abstract class FakesTestOppsett : TestOppsettInterfaces {
+    companion object {
+        init {
+            startMockWebServere()
+        }
+    }
+
     @Autowired
     lateinit var mockMvc: MockMvc
 
@@ -77,12 +83,6 @@ abstract class FakesTestOppsett : TestOppsettInterfaces {
     @AfterAll
     fun `Reset kafka`() {
         SoknadKafkaProducerFake.records.clear()
-    }
-
-    companion object {
-        init {
-            startMockWebServere()
-        }
     }
 
     override fun server(): MockOAuth2Server = server

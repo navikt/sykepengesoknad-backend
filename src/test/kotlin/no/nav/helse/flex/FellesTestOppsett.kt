@@ -71,6 +71,8 @@ abstract class FellesTestOppsett : TestOppsettInterfaces {
             get() = mockWebServere.pdlMockWebserver
         val sigrunMockWebServer
             get() = mockWebServere.pensjonsgivendeInntektMockWebServer
+        val enhetsregisterMockWebServer
+            get() = mockWebServere.enhetsregisterMockWebServer
 
         init {
             startAlleContainere()

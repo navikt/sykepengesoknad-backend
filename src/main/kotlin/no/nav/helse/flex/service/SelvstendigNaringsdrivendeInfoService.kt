@@ -1,5 +1,6 @@
 package no.nav.helse.flex.service
 
+import no.nav.helse.flex.client.bregDirect.EnhetsregisterClient
 import no.nav.helse.flex.client.brreg.BrregClient
 import no.nav.helse.flex.client.brreg.RolleDto
 import no.nav.helse.flex.client.brreg.Rolletype
@@ -16,17 +17,27 @@ import org.springframework.web.client.HttpClientErrorException
 class SelvstendigNaringsdrivendeInfoService(
     private val brregClient: BrregClient,
     private val flexSyketilfelleClient: FlexSyketilfelleClient,
+    private val enhetsregisterClient: EnhetsregisterClient,
 ) {
     private val log = logger()
 
     fun hentSelvstendigNaringsdrivendeInfo(
         identer: FolkeregisterIdenter,
         sykmeldingId: String,
-    ): SelvstendigNaringsdrivendeInfo =
-        SelvstendigNaringsdrivendeInfo(
-            roller = hentRoller(identer),
+    ): SelvstendigNaringsdrivendeInfo {
+        val roller = hentRoller(identer)
+
+        try {
+            loggBarnepasser(roller, sykmeldingId)
+        } catch (e: Exception) {
+            log.error("Feil ved henting av næringskoder fra Enhetsregisteret for for sykmelding: $sykmeldingId", e)
+        }
+
+        return SelvstendigNaringsdrivendeInfo(
+            roller = roller,
             ventetid = hentVentetid(identer, sykmeldingId),
         )
+    }
 
     private fun hentRoller(identer: FolkeregisterIdenter): List<BrregRolle> =
         identer
@@ -40,6 +51,19 @@ class SelvstendigNaringsdrivendeInfoService(
                     emptyList()
                 }
             }.map(::tilBrregRolle)
+
+    private fun loggBarnepasser(
+        roller: List<BrregRolle>,
+        sykmeldingId: String,
+    ) {
+        roller.firstOrNull { it.rolletype == Rolletype.INNH.name }?.orgnummer?.let {
+            if (enhetsregisterClient.erBarnepasser(it)) {
+                log.info("Hentet roller for sykmelding: $sykmeldingId. Sykmeldt har rolle ${Rolletype.INNH} og er barnepasser.")
+            } else {
+                log.info("Hentet roller for sykmelding: $sykmeldingId. Sykmeldt har rolle ${Rolletype.INNH} men er IKKE barnepasser.")
+            }
+        }
+    }
 
     private fun hentVentetid(
         identer: FolkeregisterIdenter,
