@@ -19,15 +19,16 @@ class BrregClientTest : FellesTestOppsett() {
     private lateinit var brregClient: BrregClient
 
     @Test
-    fun `burde kaste client feil fra brreg`() {
+    fun `Kaster HttpClientErrorException når Brreg returnerer 4xx`() {
         BrregMockDispatcher.enqueueResponse(
-            MockResponse()
-                .setHeader("Content-Type", "application/json")
-                .setBody(
-                    mapOf(
-                        "Message" to "Feil med client",
-                    ).serialisertTilString(),
-                ).setResponseCode(400),
+            withContentTypeApplicationJson {
+                MockResponse()
+                    .setBody(
+                        mapOf(
+                            "Message" to "Feil med client",
+                        ).serialisertTilString(),
+                    ).setResponseCode(400)
+            },
         )
 
         invoking { brregClient.hentRoller("fnr", listOf(Rolletype.INNH)) }
@@ -35,7 +36,7 @@ class BrregClientTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `burde kaste server feil fra brreg`() {
+    fun `Kaster HttpServerErrorException når Brreg returnerer 5xx`() {
         BrregMockDispatcher.enqueueResponse(
             withContentTypeApplicationJson {
                 MockResponse()

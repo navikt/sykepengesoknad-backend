@@ -63,7 +63,6 @@ class OpprettSoknadService(
                 it.sykmeldinger.any { sm -> sm.id == sykmelding.id }
             } ?: throw SykeforloepManglerSykemeldingException("Sykeforloep mangler sykmelding ${sykmelding.id}")
         val startSykeforlop = sykeforloep.oppfolgingsdato
-
         val sykmeldingSplittetMellomTyper = sykmelding.splittMellomTyper()
         val soknaderTilOppretting =
             sykmeldingSplittetMellomTyper
@@ -77,6 +76,12 @@ class OpprettSoknadService(
                             arbeidsgiverStatusDTO?.orgnummer,
                             klippMetrikk,
                         ).map {
+                            val selvstendigNaringsdrivendeInfo =
+                                hentSelvstendigNaringsdrivendeInfo(
+                                    arbeidssituasjon,
+                                    identer,
+                                    sykmelding.id,
+                                )
                             val perioderFraSykmeldingen = it.delOppISoknadsperioder(sykmelding)
                             val soknadsId = sykmeldingKafkaMessage.skapSoknadsId(it.fom, it.tom)
                             Sykepengesoknad(
@@ -116,12 +121,7 @@ class OpprettSoknadService(
                                             ?.svar
                                             ?.name,
                                     ),
-                                selvstendigNaringsdrivende =
-                                    hentSelvstendigNaringsdrivendeInfo(
-                                        arbeidssituasjon,
-                                        identer,
-                                        sykmelding.id,
-                                    ),
+                                selvstendigNaringsdrivende = selvstendigNaringsdrivendeInfo,
                             )
                         }.filter { it.soknadPerioder?.isNotEmpty() ?: true }
                         .also { it.lagreJulesoknadKandidater() }

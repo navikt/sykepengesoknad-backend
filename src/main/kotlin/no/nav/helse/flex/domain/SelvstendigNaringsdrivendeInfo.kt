@@ -9,6 +9,7 @@ data class SelvstendigNaringsdrivendeInfo(
     val roller: List<BrregRolle>,
     val sykepengegrunnlagNaeringsdrivende: SykepengegrunnlagNaeringsdrivende? = null,
     val ventetid: Ventetid? = null,
+    val erBarnepasser: Boolean,
 ) {
     fun tilSelvstendigNaringsdrivendeDTO(): SelvstendigNaringsdrivendeDTO {
         val inntekt =

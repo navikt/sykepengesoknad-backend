@@ -26,16 +26,10 @@ class SelvstendigNaringsdrivendeInfoService(
         sykmeldingId: String,
     ): SelvstendigNaringsdrivendeInfo {
         val roller = hentRoller(identer)
-
-        try {
-            loggBarnepasser(roller, sykmeldingId)
-        } catch (e: Exception) {
-            log.error("Feil ved henting av næringskoder fra Enhetsregisteret for for sykmelding: $sykmeldingId", e)
-        }
-
         return SelvstendigNaringsdrivendeInfo(
             roller = roller,
             ventetid = hentVentetid(identer, sykmeldingId),
+            erBarnepasser = erBarnepasser(roller, sykmeldingId),
         )
     }
 
@@ -52,16 +46,21 @@ class SelvstendigNaringsdrivendeInfoService(
                 }
             }.map(::tilBrregRolle)
 
-    private fun loggBarnepasser(
+    private fun erBarnepasser(
         roller: List<BrregRolle>,
         sykmeldingId: String,
-    ) {
-        roller.firstOrNull { it.rolletype == Rolletype.INNH.name }?.orgnummer?.let {
-            if (enhetsregisterClient.erBarnepasser(it)) {
-                log.info("Hentet roller for sykmelding: $sykmeldingId. Sykmeldt har rolle ${Rolletype.INNH} og er barnepasser.")
-            } else {
-                log.info("Hentet roller for sykmelding: $sykmeldingId. Sykmeldt har rolle ${Rolletype.INNH} men er IKKE barnepasser.")
-            }
+    ): Boolean {
+        val orgnummer =
+            roller.firstOrNull { it.rolletype == Rolletype.INNH.name }?.orgnummer
+                ?: run {
+                    log.warn("Fant ikke rolle INNH for sykmelding: $sykmeldingId. Kan ikke avgjøre om sykmeldt er barnepasser.")
+                    return false
+                }
+        return try {
+            enhetsregisterClient.erBarnepasser(orgnummer)
+        } catch (e: Exception) {
+            log.error("Kall til Enhetsregisteret feilet ved sjekk av barnepasser for sykmelding: $sykmeldingId", e)
+            false
         }
     }
 
@@ -76,7 +75,7 @@ class SelvstendigNaringsdrivendeInfoService(
                 VentetidRequest(returnerPerioderInnenforVentetid = true),
             )
 
-        // TODO: Kast exception når vi flex-syketilfelle skal returnere ventetid for alle tilfeller.
+        // TODO: Kast VentetidException når vi flex-syketilfelle skal returnere ventetid for alle tilfeller.
         return ventetidResponse.ventetid?.let {
             Ventetid(fom = it.fom, tom = it.tom)
         } ?: run {
@@ -103,7 +102,3 @@ class SelvstendigNaringsdrivendeInfoService(
             rolletype = rolle.rolletype.name,
         )
 }
-
-class VentetidException(
-    string: String,
-) : RuntimeException(string)
