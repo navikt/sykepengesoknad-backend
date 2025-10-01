@@ -17,7 +17,7 @@ import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpServerErrorException
 import java.time.LocalDate
 
-@TestPropertySource(properties = ["GRUNNBELOEP_RETRY_ATTEMPTS=1"])
+@TestPropertySource(properties = ["CLIENT_RETRY_ATTEMPTS=1"])
 class GrunnbeloepServiceTest : FellesTestOppsett() {
     @Autowired
     private lateinit var cacheManager: CacheManager

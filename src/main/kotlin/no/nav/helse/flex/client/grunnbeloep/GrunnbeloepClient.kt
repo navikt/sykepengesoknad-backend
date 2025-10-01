@@ -19,7 +19,7 @@ class GrunnbeloepClient(
 ) {
     @Retryable(
         value = [HttpServerErrorException::class, HttpClientErrorException::class],
-        maxAttemptsExpression = $$"${GRUNNBELOEP_RETRY_ATTEMPTS:3}",
+        maxAttemptsExpression = $$"${CLIENT_RETRY_ATTEMPTS:3}",
         backoff = Backoff(delay = 1000),
     )
     fun hentGrunnbeloepHistorikk(hentForDato: LocalDate): List<GrunnbeloepResponse> =
