@@ -57,7 +57,13 @@ class SelvstendigNaringsdrivendeInfoService(
                     return false
                 }
         return try {
-            enhetsregisterClient.erBarnepasser(orgnummer)
+            val erBarnepasser = enhetsregisterClient.erBarnepasser(orgnummer)
+            if (erBarnepasser) {
+                log.info("Sykmeldt har næringskode for BARNEPASSER for sykmelding: $sykmeldingId")
+            } else {
+                log.info("Sykmeldt har ikke næringskode for BARNEPASSER for sykmelding: $sykmeldingId")
+            }
+            return erBarnepasser
         } catch (e: Exception) {
             log.error("Kall til Enhetsregisteret feilet ved sjekk av barnepasser for sykmelding: $sykmeldingId", e)
             false
@@ -75,7 +81,7 @@ class SelvstendigNaringsdrivendeInfoService(
                 VentetidRequest(returnerPerioderInnenforVentetid = true),
             )
 
-        // TODO: Kast VentetidException når vi flex-syketilfelle skal returnere ventetid for alle tilfeller.
+        // TODO: Kast VentetidException når vi vet flex-syketilfelle alltid skal returnere ventetid.
         return ventetidResponse.ventetid?.let {
             Ventetid(fom = it.fom, tom = it.tom)
         } ?: run {

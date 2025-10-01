@@ -3,13 +3,21 @@ package no.nav.helse.flex.soknadsopprettelse
 import no.nav.helse.flex.domain.Arbeidssituasjon.ANNET
 import no.nav.helse.flex.domain.Arbeidssituasjon.ARBEIDSLEDIG
 import no.nav.helse.flex.domain.Arbeidssituasjon.ARBEIDSTAKER
+import no.nav.helse.flex.domain.Arbeidssituasjon.BARNEPASSER
 import no.nav.helse.flex.domain.Arbeidssituasjon.FISKER
 import no.nav.helse.flex.domain.Arbeidssituasjon.FRILANSER
 import no.nav.helse.flex.domain.Arbeidssituasjon.JORDBRUKER
 import no.nav.helse.flex.domain.Arbeidssituasjon.NAERINGSDRIVENDE
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.*
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderArbeidsledig
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderArbeidstaker
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.andreInntektskilderSelvstendigOgFrilanser
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.ansvarserklaringSporsmal
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.arbeidUtenforNorge
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.behandlingsdagerSporsmal
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.ferieSporsmal
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.tilSlutt
 
 fun Sporsmal.plasseringSporsmalBehandlingsdager(): Int =
     when (this.tag) {
@@ -28,6 +36,7 @@ fun andreInntekstkilder(soknadMetadata: Sykepengesoknad): Sporsmal =
     when (soknadMetadata.arbeidssituasjon) {
         FISKER,
         JORDBRUKER,
+        BARNEPASSER,
         NAERINGSDRIVENDE,
         -> andreInntektskilderSelvstendigOgFrilanser(NAERINGSDRIVENDE)
 

@@ -64,8 +64,11 @@ class SporsmalGenerator(
         val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(soknad.fnr)
         val eksisterendeSoknader = sykepengesoknadDAO.finnSykepengesoknader(identer).filterNot { it.id == soknad.id }
         val sykepengegrunnlag =
+            // BARNEPASSER skal behandles som NAERINGSDRIVENDE, i motsetning til FISKER OG JORDBRUKER.
             when (soknad.arbeidssituasjon) {
-                Arbeidssituasjon.NAERINGSDRIVENDE -> {
+                Arbeidssituasjon.BARNEPASSER,
+                Arbeidssituasjon.NAERINGSDRIVENDE,
+                -> {
                     sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(soknad)
                 }
                 else -> {
@@ -233,6 +236,7 @@ class SporsmalGenerator(
                 when (soknad.arbeidssituasjon) {
                     Arbeidssituasjon.FISKER,
                     Arbeidssituasjon.JORDBRUKER,
+                    Arbeidssituasjon.BARNEPASSER,
                     Arbeidssituasjon.NAERINGSDRIVENDE,
                     Arbeidssituasjon.FRILANSER,
                     -> {

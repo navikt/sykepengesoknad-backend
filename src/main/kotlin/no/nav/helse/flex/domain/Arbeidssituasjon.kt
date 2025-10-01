@@ -6,6 +6,7 @@ enum class Arbeidssituasjon(
     NAERINGSDRIVENDE("selvstendig næringsdrivende"),
     FRILANSER("frilanser"),
     ARBEIDSTAKER("arbeidstaker"),
+    BARNEPASSER("barnepasser"),
     ARBEIDSLEDIG("arbeidsledig"),
     FISKER("selvstendig næringsdrivende"),
     JORDBRUKER("selvstendig næringsdrivende"),

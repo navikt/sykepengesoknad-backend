@@ -27,6 +27,7 @@ fun finnSoknadsType(
         Arbeidssituasjon.FRILANSER,
         Arbeidssituasjon.FISKER,
         Arbeidssituasjon.JORDBRUKER,
+        Arbeidssituasjon.BARNEPASSER,
         -> Soknadstype.SELVSTENDIGE_OG_FRILANSERE
         Arbeidssituasjon.ARBEIDSLEDIG -> Soknadstype.ARBEIDSLEDIG
         Arbeidssituasjon.ANNET -> Soknadstype.ANNET_ARBEIDSFORHOLD

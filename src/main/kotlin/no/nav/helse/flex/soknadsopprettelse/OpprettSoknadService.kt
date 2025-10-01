@@ -84,13 +84,27 @@ class OpprettSoknadService(
                                 )
                             val perioderFraSykmeldingen = it.delOppISoknadsperioder(sykmelding)
                             val soknadsId = sykmeldingKafkaMessage.skapSoknadsId(it.fom, it.tom)
+                            val beregnetArbeidssituasjon =
+                                if (selvstendigNaringsdrivendeInfo == null) {
+                                    arbeidssituasjon
+                                } else {
+                                    if (selvstendigNaringsdrivendeInfo.erBarnepasser) {
+                                        log.info(
+                                            "Endrer arbeidssituasjon fra $arbeidssituasjon til BARNEPASSER for sykmelding: ${sykmelding.id}",
+                                        )
+                                        Arbeidssituasjon.BARNEPASSER
+                                    } else {
+                                        arbeidssituasjon
+                                    }
+                                }
+
                             Sykepengesoknad(
                                 id = soknadsId,
                                 fnr = identer.originalIdent,
                                 startSykeforlop = startSykeforlop,
                                 fom = it.fom,
                                 tom = it.tom,
-                                arbeidssituasjon = arbeidssituasjon,
+                                arbeidssituasjon = beregnetArbeidssituasjon,
                                 arbeidsgiverOrgnummer = arbeidsgiverStatusDTO?.orgnummer,
                                 arbeidsgiverNavn = arbeidsgiverStatusDTO?.orgNavn?.prettyOrgnavn(),
                                 sykmeldingId = sykmelding.id,

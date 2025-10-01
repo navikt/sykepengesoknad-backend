@@ -78,6 +78,7 @@ class BehandleSendtBekreftetSykmelding(
             Arbeidssituasjon.ARBEIDSLEDIG,
             Arbeidssituasjon.FISKER,
             Arbeidssituasjon.JORDBRUKER,
+            Arbeidssituasjon.BARNEPASSER,
             Arbeidssituasjon.ANNET,
             -> {
                 eksterneKallKlippOgOpprett(sykmeldingStatusKafkaMessageDTO, arbeidssituasjon)
