@@ -15,7 +15,7 @@ class EnhetsregisterClient(
 ) {
     @Retryable(
         include = [HttpServerErrorException::class],
-        maxAttemptsExpression = "\${BRREG_RETRY_ATTEMPTS:3}",
+        maxAttemptsExpression = "\${CLIENT_RETRY_ATTEMPTS:3}",
     )
     fun erBarnepasser(organisasjonsnummer: String): Boolean {
         val response =

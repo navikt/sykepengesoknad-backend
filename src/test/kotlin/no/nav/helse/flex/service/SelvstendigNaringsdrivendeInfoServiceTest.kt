@@ -28,7 +28,7 @@ import java.time.LocalDate
 private const val ORGNAVN = "orgnavn"
 private const val ORGNUMMER = "orgnummer"
 
-@TestPropertySource(properties = ["BRREG_RETRY_ATTEMPTS=1", "VENTETID_RETRY_ATTEMPTS=1"])
+@TestPropertySource(properties = ["CLIENT_RETRY_ATTEMPTS=1"])
 class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
     @Autowired
     @Qualifier("brregMockWebServer")

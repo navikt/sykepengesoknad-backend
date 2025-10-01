@@ -104,7 +104,7 @@ class FlexSyketilfelleClient(
             ?: throw RuntimeException("Ingen data returnert fra flex-syketilfelle ved kall til erUtenforVentetid")
     }
 
-    @Retryable(include = [HttpServerErrorException::class], maxAttemptsExpression = "\${VENTETID_RETRY_ATTEMPTS:3}")
+    @Retryable(include = [HttpServerErrorException::class], maxAttemptsExpression = "\${CLIENT_RETRY_ATTEMPTS:3}")
     fun hentVentetid(
         identer: FolkeregisterIdenter,
         sykmeldingId: String,

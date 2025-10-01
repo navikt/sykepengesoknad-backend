@@ -13,7 +13,7 @@ import org.springframework.test.context.TestPropertySource
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpServerErrorException
 
-@TestPropertySource(properties = ["BRREG_RETRY_ATTEMPTS=1"])
+@TestPropertySource(properties = ["CLIENT_RETRY_ATTEMPTS=1"])
 class BrregClientTest : FellesTestOppsett() {
     @Autowired
     private lateinit var brregClient: BrregClient
