@@ -6,6 +6,7 @@ enum class RSArbeidssituasjon(
     NAERINGSDRIVENDE("selvstendig næringsdrivende"),
     FISKER("selvstendig næringsdrivende"),
     JORDBRUKER("selvstendig næringsdrivende"),
+    BARNEPASSER("barnepasser"),
     FRILANSER("frilanser"),
     ARBEIDSTAKER("arbeidstaker"),
     ARBEIDSLEDIG("arbeidsledig"),

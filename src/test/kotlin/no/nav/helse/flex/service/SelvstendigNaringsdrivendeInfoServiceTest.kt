@@ -2,6 +2,7 @@ package no.nav.helse.flex.service
 
 import no.nav.helse.flex.FakesTestOppsett
 import no.nav.helse.flex.FellesTestOppsett.Companion.enhetsregisterMockWebServer
+import no.nav.helse.flex.client.bregDirect.NAERINGSKODE_BARNEPASSER
 import no.nav.helse.flex.client.brreg.RolleDto
 import no.nav.helse.flex.client.brreg.RollerDto
 import no.nav.helse.flex.client.brreg.Rolletype
@@ -71,7 +72,46 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
             it.rolletype `should be equal to` "INNH"
         }
 
-        selvstendigNaringsdrivendeInfo.ventetid `should be equal to` Ventetid(fom, tom)
+        selvstendigNaringsdrivendeInfo.also {
+            it.ventetid `should be equal to` Ventetid(fom, tom)
+            it.erBarnepasser `should be equal to` false
+        }
+    }
+
+    @Test
+    fun `Returnerer roller for sykmeldt som er barnepasser`() {
+        brregMockWebServer.enqueue(
+            withContentTypeApplicationJson {
+                MockResponse().setBody((Rolletype.INNH).tilRollerDto().serialisertTilString())
+            },
+        )
+
+        val json = """{"naeringskode1": {"kode": "$NAERINGSKODE_BARNEPASSER"}}"""
+        enhetsregisterMockWebServer.enqueue(withContentTypeApplicationJson { MockResponse().setBody(json) })
+
+        ventetidMockWebServer.enqueue(
+            withContentTypeApplicationJson {
+                MockResponse().setBody(lagventetidResponse(fom, tom).serialisertTilString())
+            },
+        )
+
+        val selvstendigNaringsdrivendeInfo =
+            selvstendigNaringsdrivendeInfoService
+                .hentSelvstendigNaringsdrivendeInfo(
+                    identer = FolkeregisterIdenter("11111111111", andreIdenter = emptyList()),
+                    sykmeldingId = "sykmelding-id",
+                )
+
+        selvstendigNaringsdrivendeInfo.roller.single().also {
+            it.orgnavn `should be equal to` ORGNAVN
+            it.orgnummer `should be equal to` ORGNUMMER
+            it.rolletype `should be equal to` "INNH"
+        }
+
+        selvstendigNaringsdrivendeInfo.also {
+            it.ventetid `should be equal to` Ventetid(fom, tom)
+            it.erBarnepasser `should be equal to` true
+        }
     }
 
     @Test
@@ -115,7 +155,10 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
             }
         }
 
-        selvstendigNaringsdrivendeInfo.ventetid `should be equal to` Ventetid(fom, tom)
+        selvstendigNaringsdrivendeInfo.also {
+            it.ventetid `should be equal to` Ventetid(fom, tom)
+            it.erBarnepasser `should be equal to` false
+        }
     }
 
     @Test
@@ -151,7 +194,10 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
             it.rolletype `should be equal to` "INNH"
         }
 
-        selvstendigNaringsdrivendeInfo.ventetid `should be equal to` Ventetid(fom, tom)
+        selvstendigNaringsdrivendeInfo.also {
+            it.ventetid `should be equal to` Ventetid(fom, tom)
+            it.erBarnepasser `should be equal to` false
+        }
     }
 
     @Test
@@ -177,7 +223,10 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
 
         selvstendigNaringsdrivendeInfo.roller.`should be empty`()
 
-        selvstendigNaringsdrivendeInfo.ventetid `should be equal to` Ventetid(fom, tom)
+        selvstendigNaringsdrivendeInfo.also {
+            it.ventetid `should be equal to` Ventetid(fom, tom)
+            it.erBarnepasser `should be equal to` false
+        }
     }
 
     @Test
@@ -205,11 +254,14 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
 
         selvstendigNaringsdrivendeInfo.roller.`should be empty`()
 
-        selvstendigNaringsdrivendeInfo.ventetid `should be equal to` Ventetid(fom, tom)
+        selvstendigNaringsdrivendeInfo.also {
+            it.ventetid `should be equal to` Ventetid(fom, tom)
+            it.erBarnepasser `should be equal to` false
+        }
     }
 
     @Test
-    fun `Det returneres null når flex-syketilfelle ikke returneres ventetid`() {
+    fun `Det returneres null for ventetid når flex-syketilfelle ikke returneres ventetid`() {
         brregMockWebServer.enqueue(
             withContentTypeApplicationJson {
                 MockResponse().setBody((Rolletype.INNH).tilRollerDto().serialisertTilString())
@@ -228,7 +280,15 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
             .hentSelvstendigNaringsdrivendeInfo(
                 FolkeregisterIdenter("11111111111", andreIdenter = emptyList()),
                 sykmeldingId = "sykmelding-id",
-            ).ventetid `should be equal to` null
+            ).also {
+                it.ventetid `should be equal to` null
+                it.roller.single().also { rolle ->
+                    rolle.orgnavn `should be equal to` ORGNAVN
+                    rolle.orgnummer `should be equal to` ORGNUMMER
+                    rolle.rolletype `should be equal to` "INNH"
+                }
+                it.erBarnepasser `should be equal to` false
+            }
     }
 
     @Test
@@ -267,6 +327,45 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
                 sykmeldingId = "sykmelding-id",
             )
         }.shouldThrow(HttpServerErrorException::class)
+    }
+
+    @Test
+    fun `ServerError propagerer ikke ved henting av næringskoder fra Enhetsregisteret`() {
+        brregMockWebServer.enqueue(
+            withContentTypeApplicationJson {
+                MockResponse().setBody((Rolletype.INNH).tilRollerDto().serialisertTilString())
+            },
+        )
+
+        enhetsregisterMockWebServer.enqueue(
+            withContentTypeApplicationJson {
+                MockResponse().setResponseCode(500)
+            },
+        )
+
+        ventetidMockWebServer.enqueue(
+            withContentTypeApplicationJson {
+                MockResponse().setBody(lagventetidResponse(fom, tom).serialisertTilString())
+            },
+        )
+
+        val selvstendigNaringsdrivendeInfo =
+            selvstendigNaringsdrivendeInfoService
+                .hentSelvstendigNaringsdrivendeInfo(
+                    identer = FolkeregisterIdenter("11111111111", andreIdenter = emptyList()),
+                    sykmeldingId = "sykmelding-id",
+                )
+
+        selvstendigNaringsdrivendeInfo.roller.single().also {
+            it.orgnavn `should be equal to` ORGNAVN
+            it.orgnummer `should be equal to` ORGNUMMER
+            it.rolletype `should be equal to` "INNH"
+        }
+
+        selvstendigNaringsdrivendeInfo.also {
+            it.ventetid `should be equal to` Ventetid(fom, tom)
+            it.erBarnepasser `should be equal to` false
+        }
     }
 
     @Test

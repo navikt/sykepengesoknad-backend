@@ -78,6 +78,7 @@ class BehandleSendtBekreftetSykmelding(
             Arbeidssituasjon.ARBEIDSLEDIG,
             Arbeidssituasjon.FISKER,
             Arbeidssituasjon.JORDBRUKER,
+            Arbeidssituasjon.BARNEPASSER,
             Arbeidssituasjon.ANNET,
             -> {
                 eksterneKallKlippOgOpprett(sykmeldingStatusKafkaMessageDTO, arbeidssituasjon)
@@ -90,6 +91,16 @@ class BehandleSendtBekreftetSykmelding(
             }
 
             null -> emptyList()
+        }
+
+    private fun handterSendtSykmelding(sykmeldingStatusKafkaMessageDTO: SykmeldingKafkaMessage): List<AktiveringBestilling> =
+        when (val arbeidssituasjon = sykmeldingStatusKafkaMessageDTO.hentArbeidssituasjon()) {
+            Arbeidssituasjon.ARBEIDSTAKER ->
+                eksterneKallKlippOgOpprett(sykmeldingStatusKafkaMessageDTO, arbeidssituasjon)
+
+            else -> throw UventetArbeidssituasjonException(
+                "Uventet arbeidssituasjon $arbeidssituasjon for sendt sykmelding ${sykmeldingStatusKafkaMessageDTO.sykmelding.id}",
+            )
         }
 
     private fun eksterneKallKlippOgOpprett(
@@ -119,19 +130,6 @@ class BehandleSendtBekreftetSykmelding(
 
         return klippOgOpprett.klippOgOpprett(sykmeldingKafkaMessage, arbeidssituasjon, identer, sykeForloep)
     }
-
-    private fun handterSendtSykmelding(sykmeldingStatusKafkaMessageDTO: SykmeldingKafkaMessage): List<AktiveringBestilling> =
-        when (val arbeidssituasjon = sykmeldingStatusKafkaMessageDTO.hentArbeidssituasjon()) {
-            Arbeidssituasjon.ARBEIDSTAKER ->
-                eksterneKallKlippOgOpprett(
-                    sykmeldingStatusKafkaMessageDTO,
-                    arbeidssituasjon,
-                )
-
-            else -> throw UventetArbeidssituasjonException(
-                "Uventet arbeidssituasjon $arbeidssituasjon for sendt sykmelding ${sykmeldingStatusKafkaMessageDTO.sykmelding.id}",
-            )
-        }
 }
 
 fun SykmeldingKafkaMessage.hentArbeidssituasjon(): Arbeidssituasjon? {

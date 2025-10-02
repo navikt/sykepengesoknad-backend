@@ -20,6 +20,7 @@ fun Arbeidssituasjon.tilArbeidssituasjonDTO(): ArbeidssituasjonDTO =
         Arbeidssituasjon.NAERINGSDRIVENDE -> ArbeidssituasjonDTO.SELVSTENDIG_NARINGSDRIVENDE
         Arbeidssituasjon.FISKER -> ArbeidssituasjonDTO.FISKER
         Arbeidssituasjon.JORDBRUKER -> ArbeidssituasjonDTO.JORDBRUKER
+        Arbeidssituasjon.BARNEPASSER -> ArbeidssituasjonDTO.BARNEPASSER
         Arbeidssituasjon.ARBEIDSLEDIG -> ArbeidssituasjonDTO.ARBEIDSLEDIG
         Arbeidssituasjon.ANNET -> ArbeidssituasjonDTO.ANNET
     }

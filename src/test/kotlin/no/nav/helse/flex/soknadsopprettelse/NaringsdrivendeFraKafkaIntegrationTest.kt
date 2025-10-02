@@ -5,6 +5,7 @@ import com.nhaarman.mockitokotlin2.argWhere
 import com.nhaarman.mockitokotlin2.doThrow
 import com.nhaarman.mockitokotlin2.whenever
 import no.nav.helse.flex.*
+import no.nav.helse.flex.client.bregDirect.NAERINGSKODE_BARNEPASSER
 import no.nav.helse.flex.client.brreg.RolleDto
 import no.nav.helse.flex.client.brreg.RollerDto
 import no.nav.helse.flex.client.brreg.Rolletype
@@ -25,10 +26,12 @@ import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
 import no.nav.helse.flex.mockdispatcher.BrregMockDispatcher
 import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher
+import no.nav.helse.flex.mockdispatcher.withContentTypeApplicationJson
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.service.AarVerdi
 import no.nav.helse.flex.service.Beregnet
 import no.nav.helse.flex.service.SykepengegrunnlagNaeringsdrivende
+import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.FiskerBladDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.VentetidDTO
@@ -38,6 +41,7 @@ import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.GradertDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import no.nav.syfo.sykmelding.kafka.model.*
+import okhttp3.mockwebserver.MockResponse
 import org.amshove.kluent.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -606,6 +610,96 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
         )
 
         hentSoknaderMetadata(fnr).`should be empty`()
+    }
+
+    @Test
+    fun `Oppretter søknad for næringsdrivende som er Barnepasser`() {
+        val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
+        val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
+        val sykmelding =
+            skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId).copy(harRedusertArbeidsgiverperiode = true)
+
+        fakeUnleash.resetAll()
+        fakeUnleash.enable("sykepengesoknad-backend-sigrun-paa-kafka")
+        settOppSigrunMockResponser()
+
+        BrregMockDispatcher.enqueue(
+            RollerDto(
+                roller =
+                    listOf(
+                        RolleDto(
+                            rolletype = Rolletype.INNH,
+                            organisasjonsnummer = "orgnummer",
+                            organisasjonsnavn = "orgnavn",
+                        ),
+                    ),
+            ),
+        )
+
+        val json = """{"naeringskode1": {"kode": "$NAERINGSKODE_BARNEPASSER"}}"""
+        enhetsregisterMockWebServer.enqueue(withContentTypeApplicationJson { MockResponse().setBody(json) })
+
+        mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
+        val (fom, tom) = sykmelding.sykmeldingsperioder.first()
+        mockFlexSyketilfelleVentetid(
+            sykmelding.id,
+            VentetidResponse(FomTomPeriode(fom = fom, tom = tom)),
+        )
+        mockFlexSyketilfelleSykeforloep(sykmeldingId)
+
+        val sykmeldingKafkaMessage =
+            SykmeldingKafkaMessage(
+                sykmelding = sykmelding,
+                event = sykmeldingStatusKafkaMessageDTO.event,
+                kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
+            )
+
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
+            sykmeldingId,
+            sykmeldingKafkaMessage,
+            SYKMELDINGSENDT_TOPIC,
+        )
+
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).single().value().also {
+            it.tilSykepengesoknadDTO().also { sykepengesoknadDTO ->
+
+                sykepengesoknadDTO.arbeidssituasjon `should be equal to` ArbeidssituasjonDTO.BARNEPASSER
+
+                sykepengesoknadDTO.selvstendigNaringsdrivende!!.also { selvstendigNaringsdrivendeDTO ->
+                    selvstendigNaringsdrivendeDTO.roller.single().also { rolleDTO ->
+                        rolleDTO.orgnummer `should be equal to` "orgnummer"
+                        rolleDTO.rolletype `should be equal to` "INNH"
+                    }
+                    selvstendigNaringsdrivendeDTO.ventetid!! `should be equal to` VentetidDTO(fom, tom)
+                    selvstendigNaringsdrivendeDTO.inntekt!!.inntektsAar.size `should be equal to` 3
+                }
+            }
+        }
+
+        hentSoknader(fnr).sortedBy { it.fom }.single().also {
+            it.soknadstype `should be equal to` RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE
+            it.arbeidssituasjon `should be equal to` RSArbeidssituasjon.BARNEPASSER
+
+            // Sikrer at vi henter inntektsopplysninger for BARNEPASSER.
+            it.selvstendigNaringsdrivendeInfo?.sykepengegrunnlagNaeringsdrivende `should be equal to`
+                lagSykepengegrunnlagNaeringsdrivende()
+
+            // Sikrer at BARNEPASSER har spørsmål som eller blir stilt til NAERINGSDRIVENDE.
+            it.sporsmal!!.map { sporsmal -> sporsmal.tag } `should be equal to`
+                listOf(
+                    ANSVARSERKLARING,
+                    FRAVAR_FOR_SYKMELDINGEN_V2,
+                    TILBAKE_I_ARBEID,
+                    "ARBEID_UNDERVEIS_100_PROSENT_0",
+                    ARBEID_UTENFOR_NORGE,
+                    ANDRE_INNTEKTSKILDER,
+                    OPPHOLD_UTENFOR_EOS,
+                    INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET,
+                    TIL_SLUTT,
+                )
+        }
+
+        verify(aivenKafkaProducer, times(1)).produserMelding(any())
     }
 
     @Test
