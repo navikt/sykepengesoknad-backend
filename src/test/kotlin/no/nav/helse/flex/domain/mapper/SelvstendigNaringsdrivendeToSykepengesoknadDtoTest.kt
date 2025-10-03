@@ -8,8 +8,15 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.Ventetid
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentSoknadsPerioderMedFaktiskGrad
 import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknad
+import no.nav.helse.flex.soknadsopprettelse.INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET
+import no.nav.helse.flex.soknadsopprettelse.INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET_NEI
+import no.nav.helse.flex.soknadsopprettelse.INNTEKTSOPPLYSNINGER_VARIG_ENDRING
+import no.nav.helse.flex.soknadsopprettelse.INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET
+import no.nav.helse.flex.soknadsopprettelse.INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET_JA
+import no.nav.helse.flex.soknadsopprettelse.INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET_NEI
 import no.nav.helse.flex.soknadsopprettelse.lagSykepengegrunnlagNaeringsdrivende
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
+import no.nav.helse.flex.testutil.besvarsporsmal
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should not be null`
 import org.junit.jupiter.api.Test
@@ -150,6 +157,64 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
             fravaerSpm.svar!!.size `should be equal to` 1
             fravaerSpm.svar!!.first().verdi `should be equal to` "JA"
         }
+    }
+
+    @Test
+    fun `Inneholder hovedspørsmål for Selvstendig Næringsdrivende i forenklet format`() {
+        val soknad =
+            opprettNyNaeringsdrivendeSoknad()
+                .besvarsporsmal(INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET_JA, "CHECKED")
+                .besvarsporsmal(INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET_NEI, "CHECKED")
+                .besvarsporsmal(INNTEKTSOPPLYSNINGER_VARIG_ENDRING, "JA")
+
+        val soknadDTO =
+            konverterTilSykepengesoknadDTO(
+                sykepengesoknad =
+                    soknad.copy(
+                        soknadPerioder = soknadPerioder,
+                        selvstendigNaringsdrivende =
+                            SelvstendigNaringsdrivendeInfo(
+                                roller = emptyList(),
+                                sykepengegrunnlagNaeringsdrivende = lagSykepengegrunnlagNaeringsdrivende(),
+                                erBarnepasser = false,
+                            ),
+                    ),
+                mottaker = Mottaker.ARBEIDSGIVER_OG_NAV,
+                erEttersending = false,
+                soknadsperioder = hentSoknadsPerioderMedFaktiskGrad(soknad).first,
+            )
+
+        soknadDTO.selvstendigNaringsdrivende!!.hovedSporsmalSvar.size `should be equal to` 3
+        soknadDTO.selvstendigNaringsdrivende!!.hovedSporsmalSvar[INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET] `should be equal to` true
+        soknadDTO.selvstendigNaringsdrivende!!.hovedSporsmalSvar[INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET] `should be equal to` false
+        soknadDTO.selvstendigNaringsdrivende!!.hovedSporsmalSvar[INNTEKTSOPPLYSNINGER_VARIG_ENDRING] `should be equal to` true
+    }
+
+    @Test
+    fun `Inneholder kun besvarte hovedspørsmål for Selvstendig Næringsdrivende i forenklet format`() {
+        val soknad =
+            opprettNyNaeringsdrivendeSoknad()
+                .besvarsporsmal(INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET_NEI, "CHECKED")
+
+        val soknadDTO =
+            konverterTilSykepengesoknadDTO(
+                sykepengesoknad =
+                    soknad.copy(
+                        soknadPerioder = soknadPerioder,
+                        selvstendigNaringsdrivende =
+                            SelvstendigNaringsdrivendeInfo(
+                                roller = emptyList(),
+                                sykepengegrunnlagNaeringsdrivende = lagSykepengegrunnlagNaeringsdrivende(),
+                                erBarnepasser = false,
+                            ),
+                    ),
+                mottaker = Mottaker.ARBEIDSGIVER_OG_NAV,
+                erEttersending = false,
+                soknadsperioder = hentSoknadsPerioderMedFaktiskGrad(soknad).first,
+            )
+
+        soknadDTO.selvstendigNaringsdrivende!!.hovedSporsmalSvar.size `should be equal to` 1
+        soknadDTO.selvstendigNaringsdrivende!!.hovedSporsmalSvar[INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET] `should be equal to` false
     }
 
     private fun lagSykepengesoknadDTO(soknad: Sykepengesoknad): SykepengesoknadDTO =
