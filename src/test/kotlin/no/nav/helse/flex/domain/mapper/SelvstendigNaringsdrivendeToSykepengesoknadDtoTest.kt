@@ -8,8 +8,20 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.Ventetid
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentSoknadsPerioderMedFaktiskGrad
 import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknad
+import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER
+import no.nav.helse.flex.soknadsopprettelse.ARBEID_UTENFOR_NORGE
+import no.nav.helse.flex.soknadsopprettelse.FRAVAR_FOR_SYKMELDINGEN_V2
+import no.nav.helse.flex.soknadsopprettelse.INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET
+import no.nav.helse.flex.soknadsopprettelse.INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET_NEI
+import no.nav.helse.flex.soknadsopprettelse.INNTEKTSOPPLYSNINGER_VARIG_ENDRING
+import no.nav.helse.flex.soknadsopprettelse.INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET
+import no.nav.helse.flex.soknadsopprettelse.INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET_JA
+import no.nav.helse.flex.soknadsopprettelse.INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET_NEI
+import no.nav.helse.flex.soknadsopprettelse.OPPHOLD_UTENFOR_EOS
+import no.nav.helse.flex.soknadsopprettelse.TILBAKE_I_ARBEID
 import no.nav.helse.flex.soknadsopprettelse.lagSykepengegrunnlagNaeringsdrivende
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
+import no.nav.helse.flex.testutil.besvarsporsmal
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should not be null`
 import org.junit.jupiter.api.Test
@@ -149,6 +161,82 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
                 "Var du borte fra jobb i fire uker eller mer rett før du ble sykmeldt 1. juni 2018?"
             fravaerSpm.svar!!.size `should be equal to` 1
             fravaerSpm.svar!!.first().verdi `should be equal to` "JA"
+        }
+    }
+
+    @Test
+    fun `Inneholder hovedspørsmål for Selvstendig Næringsdrivende i forenklet format`() {
+        val soknad =
+            opprettNyNaeringsdrivendeSoknad()
+                .besvarsporsmal(INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET_JA, "CHECKED")
+                .besvarsporsmal(INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET_NEI, "CHECKED")
+                .besvarsporsmal(INNTEKTSOPPLYSNINGER_VARIG_ENDRING, "JA")
+
+        val soknadDTO =
+            konverterTilSykepengesoknadDTO(
+                sykepengesoknad =
+                    soknad.copy(
+                        soknadPerioder = soknadPerioder,
+                        selvstendigNaringsdrivende =
+                            SelvstendigNaringsdrivendeInfo(
+                                roller = emptyList(),
+                                sykepengegrunnlagNaeringsdrivende = lagSykepengegrunnlagNaeringsdrivende(),
+                                erBarnepasser = false,
+                            ),
+                    ),
+                mottaker = Mottaker.ARBEIDSGIVER_OG_NAV,
+                erEttersending = false,
+                soknadsperioder = hentSoknadsPerioderMedFaktiskGrad(soknad).first,
+            )
+
+        soknadDTO.selvstendigNaringsdrivende!!.hovedSporsmalSvar.let {
+            it.size `should be equal to` 10
+            it[TILBAKE_I_ARBEID] `should be equal to` true
+            it["ARBEID_UNDERVEIS_100_PROSENT_0"] `should be equal to` false
+            it["JOBBET_DU_GRADERT_1"] `should be equal to` false
+            it[ANDRE_INNTEKTSKILDER] `should be equal to` true
+            it[OPPHOLD_UTENFOR_EOS] `should be equal to` true
+            it[ARBEID_UTENFOR_NORGE] `should be equal to` false
+            it[FRAVAR_FOR_SYKMELDINGEN_V2] `should be equal to` true
+            it[INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET] `should be equal to` true
+            it[INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET] `should be equal to` false
+            it[INNTEKTSOPPLYSNINGER_VARIG_ENDRING] `should be equal to` true
+        }
+    }
+
+    @Test
+    fun `Inneholder kun besvarte hovedspørsmål for Selvstendig Næringsdrivende i forenklet format`() {
+        val soknad =
+            opprettNyNaeringsdrivendeSoknad()
+                .besvarsporsmal(INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET_NEI, "CHECKED")
+
+        val soknadDTO =
+            konverterTilSykepengesoknadDTO(
+                sykepengesoknad =
+                    soknad.copy(
+                        soknadPerioder = soknadPerioder,
+                        selvstendigNaringsdrivende =
+                            SelvstendigNaringsdrivendeInfo(
+                                roller = emptyList(),
+                                sykepengegrunnlagNaeringsdrivende = lagSykepengegrunnlagNaeringsdrivende(),
+                                erBarnepasser = false,
+                            ),
+                    ),
+                mottaker = Mottaker.ARBEIDSGIVER_OG_NAV,
+                erEttersending = false,
+                soknadsperioder = hentSoknadsPerioderMedFaktiskGrad(soknad).first,
+            )
+
+        soknadDTO.selvstendigNaringsdrivende!!.hovedSporsmalSvar.let {
+            it.size `should be equal to` 8
+            it[TILBAKE_I_ARBEID] `should be equal to` true
+            it["ARBEID_UNDERVEIS_100_PROSENT_0"] `should be equal to` false
+            it["JOBBET_DU_GRADERT_1"] `should be equal to` false
+            it[ANDRE_INNTEKTSKILDER] `should be equal to` true
+            it[OPPHOLD_UTENFOR_EOS] `should be equal to` true
+            it[ARBEID_UTENFOR_NORGE] `should be equal to` false
+            it[FRAVAR_FOR_SYKMELDINGEN_V2] `should be equal to` true
+            it[INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET] `should be equal to` false
         }
     }
 
