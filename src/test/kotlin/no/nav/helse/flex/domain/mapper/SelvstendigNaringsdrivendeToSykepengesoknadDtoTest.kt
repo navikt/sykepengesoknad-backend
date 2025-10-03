@@ -8,12 +8,17 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.Ventetid
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentSoknadsPerioderMedFaktiskGrad
 import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknad
+import no.nav.helse.flex.soknadsopprettelse.ANDRE_INNTEKTSKILDER
+import no.nav.helse.flex.soknadsopprettelse.ARBEID_UTENFOR_NORGE
+import no.nav.helse.flex.soknadsopprettelse.FRAVAR_FOR_SYKMELDINGEN_V2
 import no.nav.helse.flex.soknadsopprettelse.INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET
 import no.nav.helse.flex.soknadsopprettelse.INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET_NEI
 import no.nav.helse.flex.soknadsopprettelse.INNTEKTSOPPLYSNINGER_VARIG_ENDRING
 import no.nav.helse.flex.soknadsopprettelse.INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET
 import no.nav.helse.flex.soknadsopprettelse.INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET_JA
 import no.nav.helse.flex.soknadsopprettelse.INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET_NEI
+import no.nav.helse.flex.soknadsopprettelse.OPPHOLD_UTENFOR_EOS
+import no.nav.helse.flex.soknadsopprettelse.TILBAKE_I_ARBEID
 import no.nav.helse.flex.soknadsopprettelse.lagSykepengegrunnlagNaeringsdrivende
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.helse.flex.testutil.besvarsporsmal
@@ -184,10 +189,19 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
                 soknadsperioder = hentSoknadsPerioderMedFaktiskGrad(soknad).first,
             )
 
-        soknadDTO.selvstendigNaringsdrivende!!.hovedSporsmalSvar.size `should be equal to` 3
-        soknadDTO.selvstendigNaringsdrivende!!.hovedSporsmalSvar[INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET] `should be equal to` true
-        soknadDTO.selvstendigNaringsdrivende!!.hovedSporsmalSvar[INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET] `should be equal to` false
-        soknadDTO.selvstendigNaringsdrivende!!.hovedSporsmalSvar[INNTEKTSOPPLYSNINGER_VARIG_ENDRING] `should be equal to` true
+        soknadDTO.selvstendigNaringsdrivende!!.hovedSporsmalSvar.let {
+            it.size `should be equal to` 10
+            it[TILBAKE_I_ARBEID] `should be equal to` true
+            it["ARBEID_UNDERVEIS_100_PROSENT_0"] `should be equal to` false
+            it["JOBBET_DU_GRADERT_1"] `should be equal to` false
+            it[ANDRE_INNTEKTSKILDER] `should be equal to` true
+            it[OPPHOLD_UTENFOR_EOS] `should be equal to` true
+            it[ARBEID_UTENFOR_NORGE] `should be equal to` false
+            it[FRAVAR_FOR_SYKMELDINGEN_V2] `should be equal to` true
+            it[INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET] `should be equal to` true
+            it[INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET] `should be equal to` false
+            it[INNTEKTSOPPLYSNINGER_VARIG_ENDRING] `should be equal to` true
+        }
     }
 
     @Test
@@ -213,8 +227,17 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
                 soknadsperioder = hentSoknadsPerioderMedFaktiskGrad(soknad).first,
             )
 
-        soknadDTO.selvstendigNaringsdrivende!!.hovedSporsmalSvar.size `should be equal to` 1
-        soknadDTO.selvstendigNaringsdrivende!!.hovedSporsmalSvar[INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET] `should be equal to` false
+        soknadDTO.selvstendigNaringsdrivende!!.hovedSporsmalSvar.let {
+            it.size `should be equal to` 8
+            it[TILBAKE_I_ARBEID] `should be equal to` true
+            it["ARBEID_UNDERVEIS_100_PROSENT_0"] `should be equal to` false
+            it["JOBBET_DU_GRADERT_1"] `should be equal to` false
+            it[ANDRE_INNTEKTSKILDER] `should be equal to` true
+            it[OPPHOLD_UTENFOR_EOS] `should be equal to` true
+            it[ARBEID_UTENFOR_NORGE] `should be equal to` false
+            it[FRAVAR_FOR_SYKMELDINGEN_V2] `should be equal to` true
+            it[INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET] `should be equal to` false
+        }
     }
 
     private fun lagSykepengesoknadDTO(soknad: Sykepengesoknad): SykepengesoknadDTO =

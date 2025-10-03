@@ -89,6 +89,7 @@ fun opprettNyNaeringsdrivendeSoknad(): Sykepengesoknad {
                 ),
             status = Soknadstatus.NY,
         ).leggSvarPaSoknad()
+        .besvarsporsmal(ARBEID_UTENFOR_NORGE, "NEI")
         .besvarsporsmal(FRAVAR_FOR_SYKMELDINGEN_V2, "JA")
 }
 

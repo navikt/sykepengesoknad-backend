@@ -1,10 +1,11 @@
 package no.nav.helse.flex.domain.mapper.sporsmalprossesering
 
+import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.soknadsopprettelse.*
 
 fun Sykepengesoknad.hentHovedSporsmalSvarForSelvstendigNaringsdrivende(): Map<String, Boolean> {
-    val hovedSporsmalSvar = mutableMapOf<String, Boolean>()
+    val hovedSporsmalSvar = finnHovedJaNeiSvar()
 
     finnCheckedSvar(
         sporsmal = INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET,
@@ -24,6 +25,12 @@ fun Sykepengesoknad.hentHovedSporsmalSvarForSelvstendigNaringsdrivende(): Map<St
 
     return hovedSporsmalSvar
 }
+
+private fun Sykepengesoknad.finnHovedJaNeiSvar(): MutableMap<String, Boolean> =
+    sporsmal
+        .filter { it.svartype == Svartype.JA_NEI && it.forsteSvar != null }
+        .associate { it.tag to (it.forsteSvar == "JA") }
+        .toMutableMap()
 
 private fun Sykepengesoknad.finnCheckedSvar(
     sporsmal: String,
