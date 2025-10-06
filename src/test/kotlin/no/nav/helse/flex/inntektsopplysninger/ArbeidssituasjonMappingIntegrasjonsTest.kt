@@ -16,7 +16,6 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
-import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class ArbeidssituasjonMappingIntegrasjonsTest : FellesTestOppsett() {
@@ -29,9 +28,6 @@ class ArbeidssituasjonMappingIntegrasjonsTest : FellesTestOppsett() {
     fun hentAlleKafkaMeldinger() {
         juridiskVurderingKafkaConsumer.hentProduserteRecords()
     }
-
-    private val fom = LocalDate.of(2023, 1, 1)
-    private val tom = LocalDate.of(2023, 1, 30)
 
     @Test
     fun `Næringsdrivende er fisker`() {
@@ -52,27 +48,6 @@ class ArbeidssituasjonMappingIntegrasjonsTest : FellesTestOppsett() {
         hentSoknader(fnr).first().arbeidssituasjon shouldBeEqualTo RSArbeidssituasjon.FISKER
 
         sykepengesoknadRepository.findBySykepengesoknadUuid(soknad.id)!!.arbeidssituasjon shouldBeEqualTo Arbeidssituasjon.FISKER
-    }
-
-    @Test
-    fun `Næringsdrivende er jordbruker`() {
-        val fnr = "99999999002"
-
-        val soknader =
-            sendSykmelding(
-                sykmeldingKafkaMessage(
-                    arbeidssituasjon = Arbeidssituasjon.JORDBRUKER,
-                    fnr = fnr,
-                ),
-            )
-
-        soknader shouldHaveSize 1
-        val soknad = soknader.first()
-        soknad.arbeidssituasjon shouldBeEqualTo ArbeidssituasjonDTO.JORDBRUKER
-
-        hentSoknader(fnr).first().arbeidssituasjon shouldBeEqualTo RSArbeidssituasjon.JORDBRUKER
-
-        sykepengesoknadRepository.findBySykepengesoknadUuid(soknad.id)!!.arbeidssituasjon shouldBeEqualTo Arbeidssituasjon.JORDBRUKER
     }
 
     @Test

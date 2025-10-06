@@ -168,15 +168,16 @@ class OpprettSoknadService(
         arbeidssituasjon: Arbeidssituasjon,
         identer: FolkeregisterIdenter,
         sykmeldingId: String,
-    ): SelvstendigNaringsdrivendeInfo? {
-        if (arbeidssituasjon != Arbeidssituasjon.NAERINGSDRIVENDE) {
-            return null
+    ): SelvstendigNaringsdrivendeInfo? =
+        if (listOf(Arbeidssituasjon.JORDBRUKER, Arbeidssituasjon.NAERINGSDRIVENDE).contains(arbeidssituasjon)) {
+            selvstendigNaringsdrivendeInfoService.hentSelvstendigNaringsdrivendeInfo(
+                identer = identer,
+                sykmeldingId = sykmeldingId,
+                arbeidssituasjon = arbeidssituasjon,
+            )
+        } else {
+            null
         }
-        return selvstendigNaringsdrivendeInfoService.hentSelvstendigNaringsdrivendeInfo(
-            identer = identer,
-            sykmeldingId = sykmeldingId,
-        )
-    }
 
     private fun List<Sykepengesoknad>.lagreJulesoknadKandidater() = lagreJulesoknadKandidater.lagreJulesoknadKandidater(this)
 
