@@ -1,6 +1,7 @@
 package no.nav.helse.flex.domain
 
 import no.nav.helse.flex.client.sigrun.PensjonsgivendeInntekt
+import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentHovedSporsmalSvarForSelvstendigNaringsdrivende
 import no.nav.helse.flex.service.SykepengegrunnlagNaeringsdrivende
 import no.nav.helse.flex.sykepengesoknad.kafka.*
 import java.time.LocalDate
@@ -11,7 +12,7 @@ data class SelvstendigNaringsdrivendeInfo(
     val ventetid: Ventetid? = null,
     val erBarnepasser: Boolean,
 ) {
-    fun tilSelvstendigNaringsdrivendeDTO(): SelvstendigNaringsdrivendeDTO {
+    fun tilSelvstendigNaringsdrivendeDTO(sykepengesoknad: Sykepengesoknad): SelvstendigNaringsdrivendeDTO {
         val inntekt =
             sykepengegrunnlagNaeringsdrivende?.let {
                 InntektDTO(
@@ -24,6 +25,7 @@ data class SelvstendigNaringsdrivendeInfo(
             roller = roller.map { RolleDTO(it.orgnummer, it.rolletype) },
             inntekt = inntekt,
             ventetid = ventetid?.let { tilVentetidDTO() },
+            hovedSporsmalSvar = sykepengesoknad.hentHovedSporsmalSvarForSelvstendigNaringsdrivende(),
         )
     }
 
