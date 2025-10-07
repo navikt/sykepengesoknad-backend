@@ -46,7 +46,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
     private val tom = LocalDate.now().plusDays(1)
 
     @Test
-    fun `Returnerer ventetid og roller for én ident`() {
+    fun `Returnerer ventetid og roller for én ident med forsikring`() {
         brregMockWebServer.enqueue(
             withContentTypeApplicationJson {
                 MockResponse().setBody((Rolletype.INNH).tilRollerDto().serialisertTilString())
@@ -61,10 +61,11 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
 
         val selvstendigNaringsdrivendeInfo =
             selvstendigNaringsdrivendeInfoService
-                .hentSelvstendigNaringsdrivendeInfo(
+                .lagSelvstendigNaringsdrivendeInfo(
                     identer = FolkeregisterIdenter("11111111111", andreIdenter = emptyList()),
                     sykmeldingId = "sykmelding-id",
                     arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
+                    harForsikring = true,
                 )
 
         selvstendigNaringsdrivendeInfo.roller.single().also {
@@ -76,6 +77,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
         selvstendigNaringsdrivendeInfo.also {
             it.ventetid `should be equal to` Ventetid(fom, tom)
             it.erBarnepasser `should be equal to` false
+            it.harForsikring `should be equal to` true
         }
     }
 
@@ -98,7 +100,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
 
         val selvstendigNaringsdrivendeInfo =
             selvstendigNaringsdrivendeInfoService
-                .hentSelvstendigNaringsdrivendeInfo(
+                .lagSelvstendigNaringsdrivendeInfo(
                     identer = FolkeregisterIdenter("11111111111", andreIdenter = emptyList()),
                     sykmeldingId = "sykmelding-id",
                     arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
@@ -113,6 +115,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
         selvstendigNaringsdrivendeInfo.also {
             it.ventetid `should be equal to` Ventetid(fom, tom)
             it.erBarnepasser `should be equal to` true
+            it.harForsikring `should be equal to` false
         }
     }
 
@@ -134,7 +137,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
 
         val selvstendigNaringsdrivendeInfo =
             selvstendigNaringsdrivendeInfoService
-                .hentSelvstendigNaringsdrivendeInfo(
+                .lagSelvstendigNaringsdrivendeInfo(
                     identer = FolkeregisterIdenter("11111111111", andreIdenter = emptyList()),
                     sykmeldingId = "sykmelding-id",
                     arbeidssituasjon = Arbeidssituasjon.BARNEPASSER,
@@ -149,6 +152,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
         selvstendigNaringsdrivendeInfo.also {
             it.ventetid `should be equal to` Ventetid(fom, tom)
             it.erBarnepasser `should be equal to` false
+            it.harForsikring `should be equal to` false
         }
 
         EnhetsregisterMockDispatcher.antallKall() `should be equal to` antallKall
@@ -174,7 +178,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
 
         val selvstendigNaringsdrivendeInfo =
             selvstendigNaringsdrivendeInfoService
-                .hentSelvstendigNaringsdrivendeInfo(
+                .lagSelvstendigNaringsdrivendeInfo(
                     identer = FolkeregisterIdenter("11111111111", andreIdenter = listOf("22222222222")),
                     sykmeldingId = "sykmelding-id",
                     arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
@@ -199,6 +203,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
         selvstendigNaringsdrivendeInfo.also {
             it.ventetid `should be equal to` Ventetid(fom, tom)
             it.erBarnepasser `should be equal to` false
+            it.harForsikring `should be equal to` false
         }
     }
 
@@ -224,7 +229,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
 
         val selvstendigNaringsdrivendeInfo =
             selvstendigNaringsdrivendeInfoService
-                .hentSelvstendigNaringsdrivendeInfo(
+                .lagSelvstendigNaringsdrivendeInfo(
                     identer = FolkeregisterIdenter("11111111111", andreIdenter = listOf("22222222222")),
                     sykmeldingId = "sykmelding-id",
                     arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
@@ -239,6 +244,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
         selvstendigNaringsdrivendeInfo.also {
             it.ventetid `should be equal to` Ventetid(fom, tom)
             it.erBarnepasser `should be equal to` false
+            it.harForsikring `should be equal to` false
         }
     }
 
@@ -258,7 +264,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
 
         val selvstendigNaringsdrivendeInfo =
             selvstendigNaringsdrivendeInfoService
-                .hentSelvstendigNaringsdrivendeInfo(
+                .lagSelvstendigNaringsdrivendeInfo(
                     identer = FolkeregisterIdenter("11111111111", emptyList()),
                     sykmeldingId = "sykmelding-id",
                     arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
@@ -269,6 +275,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
         selvstendigNaringsdrivendeInfo.also {
             it.ventetid `should be equal to` Ventetid(fom, tom)
             it.erBarnepasser `should be equal to` false
+            it.harForsikring `should be equal to` false
         }
     }
 
@@ -290,7 +297,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
 
         val selvstendigNaringsdrivendeInfo =
             selvstendigNaringsdrivendeInfoService
-                .hentSelvstendigNaringsdrivendeInfo(
+                .lagSelvstendigNaringsdrivendeInfo(
                     identer = FolkeregisterIdenter("11111111111", listOf("22222222222")),
                     sykmeldingId = "sykmelding-id",
                     arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
@@ -301,6 +308,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
         selvstendigNaringsdrivendeInfo.also {
             it.ventetid `should be equal to` Ventetid(fom, tom)
             it.erBarnepasser `should be equal to` false
+            it.harForsikring `should be equal to` false
         }
     }
 
@@ -321,7 +329,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
         )
 
         selvstendigNaringsdrivendeInfoService
-            .hentSelvstendigNaringsdrivendeInfo(
+            .lagSelvstendigNaringsdrivendeInfo(
                 FolkeregisterIdenter("11111111111", andreIdenter = emptyList()),
                 sykmeldingId = "sykmelding-id",
                 arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
@@ -333,6 +341,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
                     rolle.rolletype `should be equal to` "INNH"
                 }
                 it.erBarnepasser `should be equal to` false
+                it.harForsikring `should be equal to` false
             }
     }
 
@@ -351,7 +360,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
         )
 
         invoking {
-            selvstendigNaringsdrivendeInfoService.hentSelvstendigNaringsdrivendeInfo(
+            selvstendigNaringsdrivendeInfoService.lagSelvstendigNaringsdrivendeInfo(
                 FolkeregisterIdenter("11111111111", andreIdenter = emptyList()),
                 sykmeldingId = "sykmelding-id",
                 arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
@@ -368,7 +377,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
         )
 
         invoking {
-            selvstendigNaringsdrivendeInfoService.hentSelvstendigNaringsdrivendeInfo(
+            selvstendigNaringsdrivendeInfoService.lagSelvstendigNaringsdrivendeInfo(
                 FolkeregisterIdenter("11111111111", andreIdenter = emptyList()),
                 sykmeldingId = "sykmelding-id",
                 arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
@@ -398,7 +407,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
 
         val selvstendigNaringsdrivendeInfo =
             selvstendigNaringsdrivendeInfoService
-                .hentSelvstendigNaringsdrivendeInfo(
+                .lagSelvstendigNaringsdrivendeInfo(
                     identer = FolkeregisterIdenter("11111111111", andreIdenter = emptyList()),
                     sykmeldingId = "sykmelding-id",
                     arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
@@ -413,6 +422,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
         selvstendigNaringsdrivendeInfo.also {
             it.ventetid `should be equal to` Ventetid(fom, tom)
             it.erBarnepasser `should be equal to` false
+            it.harForsikring `should be equal to` false
         }
     }
 
@@ -434,7 +444,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
 
         val selvstendigNaringsdrivendeInfo =
             selvstendigNaringsdrivendeInfoService
-                .hentSelvstendigNaringsdrivendeInfo(
+                .lagSelvstendigNaringsdrivendeInfo(
                     identer = FolkeregisterIdenter("11111111111", andreIdenter = emptyList()),
                     sykmeldingId = "sykmelding-id",
                     arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
@@ -447,6 +457,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
         }
 
         selvstendigNaringsdrivendeInfo.ventetid `should be equal to` Ventetid(fom, tom)
+        selvstendigNaringsdrivendeInfo.harForsikring `should be equal to` false
     }
 }
 

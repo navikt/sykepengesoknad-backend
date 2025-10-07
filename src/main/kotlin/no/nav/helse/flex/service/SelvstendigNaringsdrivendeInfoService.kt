@@ -23,16 +23,18 @@ class SelvstendigNaringsdrivendeInfoService(
 ) {
     private val log = logger()
 
-    fun hentSelvstendigNaringsdrivendeInfo(
+    fun lagSelvstendigNaringsdrivendeInfo(
         identer: FolkeregisterIdenter,
         sykmeldingId: String,
         arbeidssituasjon: Arbeidssituasjon,
+        harForsikring: Boolean = false,
     ): SelvstendigNaringsdrivendeInfo {
         val roller = hentRoller(identer)
         return SelvstendigNaringsdrivendeInfo(
             roller = roller,
             ventetid = hentVentetid(identer, sykmeldingId),
             erBarnepasser = erNaeringsdrivendeBarnepasser(roller, sykmeldingId, arbeidssituasjon),
+            harForsikring = harForsikring,
         )
     }
 
