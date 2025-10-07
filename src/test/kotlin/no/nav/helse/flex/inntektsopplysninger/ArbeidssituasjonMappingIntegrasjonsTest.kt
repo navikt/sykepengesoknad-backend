@@ -30,27 +30,6 @@ class ArbeidssituasjonMappingIntegrasjonsTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `Næringsdrivende er fisker`() {
-        val fnr = "99999999001"
-
-        val soknader =
-            sendSykmelding(
-                sykmeldingKafkaMessage(
-                    arbeidssituasjon = Arbeidssituasjon.FISKER,
-                    fnr = fnr,
-                ),
-            )
-
-        soknader shouldHaveSize 1
-        val soknad = soknader.first()
-        soknad.arbeidssituasjon shouldBeEqualTo ArbeidssituasjonDTO.FISKER
-
-        hentSoknader(fnr).first().arbeidssituasjon shouldBeEqualTo RSArbeidssituasjon.FISKER
-
-        sykepengesoknadRepository.findBySykepengesoknadUuid(soknad.id)!!.arbeidssituasjon shouldBeEqualTo Arbeidssituasjon.FISKER
-    }
-
-    @Test
     fun `Arbeidstaker er fisker`() {
         val fnr = "99999999003"
 

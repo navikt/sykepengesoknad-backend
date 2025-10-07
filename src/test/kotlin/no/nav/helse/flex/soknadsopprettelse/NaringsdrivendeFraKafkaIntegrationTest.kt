@@ -204,45 +204,6 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `Oppretter søknad for fisker`() {
-        val sykmeldingStatusKafkaMessageDTO =
-            skapSykmeldingStatusKafkaMessageDTO(
-                fnr = fnr,
-                arbeidssituasjon = Arbeidssituasjon.FISKER,
-            )
-        val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
-        val sykmelding =
-            skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId).copy(harRedusertArbeidsgiverperiode = true)
-
-        mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
-        mockFlexSyketilfelleSykeforloep(sykmeldingId)
-
-        val sykmeldingKafkaMessage =
-            SykmeldingKafkaMessage(
-                sykmelding = sykmelding,
-                event = sykmeldingStatusKafkaMessageDTO.event,
-                kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
-            )
-
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
-            sykmeldingId,
-            sykmeldingKafkaMessage,
-            SYKMELDINGSENDT_TOPIC,
-        )
-
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).single().value().tilSykepengesoknadDTO().also {
-            it.fiskerBlad `should be equal to` FiskerBladDTO.A
-            it.type `should be equal to` SoknadstypeDTO.SELVSTENDIGE_OG_FRILANSERE
-        }
-
-        hentSoknaderMetadata(fnr).single().also {
-            sykepengesoknadDAO.finnSykepengesoknad(it.id).fiskerBlad `should be equal to` FiskerBlad.A
-        }
-
-        verify(aivenKafkaProducer, times(1)).produserMelding(any())
-    }
-
-    @Test
     fun `Oppretter ikke søknad for næringsdrivende når sykmeldingen er innenfor ventetiden`() {
         val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
         val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
@@ -379,17 +340,17 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
             }
         }
 
-        hentSoknaderMetadata(fnr).sortedBy { it.fom }.also {
-            it.size `should be equal to` 2
+        hentSoknaderMetadata(fnr).sortedBy { it.fom }.also { metadata ->
+            metadata.size `should be equal to` 2
 
-            hentSoknad(soknadId = it.first().id, fnr = fnr).also { soknad ->
+            hentSoknad(soknadId = metadata.first().id, fnr = fnr).also { soknad ->
                 soknad.soknadstype `should be equal to` RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE
                 soknad.fom `should be equal to` LocalDate.of(2020, 2, 1)
                 soknad.tom `should be equal to` LocalDate.of(2020, 2, 22)
                 soknad.sporsmal!!.any { it.tag == ARBEID_UTENFOR_NORGE }.`should be true`()
             }
 
-            hentSoknad(soknadId = it.last().id, fnr = fnr).also { soknad ->
+            hentSoknad(soknadId = metadata.last().id, fnr = fnr).also { soknad ->
                 soknad.soknadstype `should be equal to` RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE
                 soknad.fom `should be equal to` LocalDate.of(2020, 2, 23)
                 soknad.tom `should be equal to` LocalDate.of(2020, 3, 15)
@@ -792,6 +753,101 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
+    fun `Oppretter søknad for Fisker`() {
+        val sykmeldingStatusKafkaMessageDTO =
+            skapSykmeldingStatusKafkaMessageDTO(
+                arbeidssituasjon = Arbeidssituasjon.FISKER,
+                fnr = fnr,
+            )
+        val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
+        val sykmelding =
+            skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId).copy(harRedusertArbeidsgiverperiode = true)
+
+        fakeUnleash.resetAll()
+        fakeUnleash.enable("sykepengesoknad-backend-sigrun-paa-kafka")
+        settOppSigrunMockResponser()
+
+        BrregMockDispatcher.enqueue(
+            RollerDto(
+                roller =
+                    listOf(
+                        RolleDto(
+                            rolletype = Rolletype.INNH,
+                            organisasjonsnummer = "orgnummer",
+                            organisasjonsnavn = "orgnavn",
+                        ),
+                    ),
+            ),
+        )
+
+        mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
+        val (fom, tom) = sykmelding.sykmeldingsperioder.first()
+        mockFlexSyketilfelleVentetid(
+            sykmelding.id,
+            VentetidResponse(FomTomPeriode(fom = fom, tom = tom)),
+        )
+        mockFlexSyketilfelleSykeforloep(sykmeldingId)
+
+        val sykmeldingKafkaMessage =
+            SykmeldingKafkaMessage(
+                sykmelding = sykmelding,
+                event = sykmeldingStatusKafkaMessageDTO.event,
+                kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
+            )
+
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
+            sykmeldingId,
+            sykmeldingKafkaMessage,
+            SYKMELDINGSENDT_TOPIC,
+        )
+
+        hentSoknaderMetadata(fnr).single().also {
+            sykepengesoknadDAO.finnSykepengesoknad(it.id).fiskerBlad `should be equal to` FiskerBlad.A
+        }
+
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).single().value().also {
+            it.tilSykepengesoknadDTO().also { sykepengesoknadDTO ->
+
+                sykepengesoknadDTO.arbeidssituasjon `should be equal to` ArbeidssituasjonDTO.FISKER
+                sykepengesoknadDTO.fiskerBlad `should be equal to` FiskerBladDTO.A
+                sykepengesoknadDTO.type `should be equal to` SoknadstypeDTO.SELVSTENDIGE_OG_FRILANSERE
+
+                sykepengesoknadDTO.selvstendigNaringsdrivende!!.also { selvstendigNaringsdrivendeDTO ->
+                    selvstendigNaringsdrivendeDTO.roller.single().also { rolleDTO ->
+                        rolleDTO.orgnummer `should be equal to` "orgnummer"
+                        rolleDTO.rolletype `should be equal to` "INNH"
+                    }
+                    selvstendigNaringsdrivendeDTO.ventetid!! `should be equal to` VentetidDTO(fom, tom)
+                    selvstendigNaringsdrivendeDTO.inntekt!!.inntektsAar.size `should be equal to` 3
+                }
+            }
+        }
+
+        hentSoknader(fnr).sortedBy { it.fom }.single().also {
+            it.soknadstype `should be equal to` RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE
+            it.arbeidssituasjon `should be equal to` RSArbeidssituasjon.FISKER
+
+            it.selvstendigNaringsdrivendeInfo?.sykepengegrunnlagNaeringsdrivende `should be equal to`
+                lagSykepengegrunnlagNaeringsdrivende()
+
+            it.sporsmal!!.map { sporsmal -> sporsmal.tag } `should be equal to`
+                listOf(
+                    ANSVARSERKLARING,
+                    FRAVAR_FOR_SYKMELDINGEN_V2,
+                    TILBAKE_I_ARBEID,
+                    "ARBEID_UNDERVEIS_100_PROSENT_0",
+                    ARBEID_UTENFOR_NORGE,
+                    ANDRE_INNTEKTSKILDER,
+                    OPPHOLD_UTENFOR_EOS,
+                    INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET,
+                    TIL_SLUTT,
+                )
+        }
+
+        verify(aivenKafkaProducer, times(1)).produserMelding(any())
+    }
+
+    @Test
     fun `Oppretter 2 søknader for næringsdrivende hvor gradering endres midt i for sykmeldingen lengre enn 31 dager`() {
         val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
         val sykmelding =
@@ -848,10 +904,10 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
 
-        hentSoknaderMetadata(fnr).sortedBy { it.fom }.also {
-            it.size `should be equal to` 2
+        hentSoknaderMetadata(fnr).sortedBy { it.fom }.also { metadata ->
+            metadata.size `should be equal to` 2
 
-            hentSoknad(soknadId = it.first().id, fnr = fnr).also { soknad ->
+            hentSoknad(soknadId = metadata.first().id, fnr = fnr).also { soknad ->
                 soknad.soknadstype `should be equal to` RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE
                 soknad.fom `should be equal to` LocalDate.of(2020, 2, 1)
                 soknad.tom `should be equal to` LocalDate.of(2020, 2, 22)
@@ -873,7 +929,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                     )
             }
 
-            hentSoknad(soknadId = it.last().id, fnr = fnr).also { soknad ->
+            hentSoknad(soknadId = metadata.last().id, fnr = fnr).also { soknad ->
                 soknad.soknadstype `should be equal to` RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE
                 soknad.fom `should be equal to` LocalDate.of(2020, 2, 23)
                 soknad.tom `should be equal to` LocalDate.of(2020, 3, 15)

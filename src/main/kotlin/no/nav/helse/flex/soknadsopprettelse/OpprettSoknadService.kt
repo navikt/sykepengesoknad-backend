@@ -170,7 +170,7 @@ class OpprettSoknadService(
         identer: FolkeregisterIdenter,
         sykmeldingId: String,
     ): SelvstendigNaringsdrivendeInfo? =
-        if (listOf(JORDBRUKER, NAERINGSDRIVENDE).contains(arbeidssituasjon)) {
+        if (listOf(FISKER, JORDBRUKER, NAERINGSDRIVENDE).contains(arbeidssituasjon)) {
             selvstendigNaringsdrivendeInfoService.hentSelvstendigNaringsdrivendeInfo(
                 identer = identer,
                 sykmeldingId = sykmeldingId,
