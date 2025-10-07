@@ -13,6 +13,8 @@ abstract class FellesQueueDispatcher<T : Any>(
 ) : QueueDispatcher() {
     val antallKall = AtomicInteger(0)
 
+    fun antallKall() = antallKall.get()
+
     init {
         registrer(this)
     }

@@ -8,7 +8,9 @@ import no.nav.helse.flex.client.brreg.RollerDto
 import no.nav.helse.flex.client.brreg.Rolletype
 import no.nav.helse.flex.client.flexsyketilfelle.FomTomPeriode
 import no.nav.helse.flex.client.flexsyketilfelle.VentetidResponse
+import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Ventetid
+import no.nav.helse.flex.mockdispatcher.EnhetsregisterMockDispatcher
 import no.nav.helse.flex.mockdispatcher.withContentTypeApplicationJson
 import no.nav.helse.flex.util.serialisertTilString
 import okhttp3.mockwebserver.MockResponse
@@ -21,8 +23,6 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.test.context.TestPropertySource
-import org.springframework.test.web.client.match.MockRestRequestMatchers.*
-import org.springframework.test.web.client.response.MockRestResponseCreators.*
 import org.springframework.web.client.HttpServerErrorException
 import java.time.LocalDate
 
@@ -64,6 +64,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
                 .hentSelvstendigNaringsdrivendeInfo(
                     identer = FolkeregisterIdenter("11111111111", andreIdenter = emptyList()),
                     sykmeldingId = "sykmelding-id",
+                    arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
                 )
 
         selvstendigNaringsdrivendeInfo.roller.single().also {
@@ -100,6 +101,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
                 .hentSelvstendigNaringsdrivendeInfo(
                     identer = FolkeregisterIdenter("11111111111", andreIdenter = emptyList()),
                     sykmeldingId = "sykmelding-id",
+                    arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
                 )
 
         selvstendigNaringsdrivendeInfo.roller.single().also {
@@ -112,6 +114,44 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
             it.ventetid `should be equal to` Ventetid(fom, tom)
             it.erBarnepasser `should be equal to` true
         }
+    }
+
+    @Test
+    fun `Skal ikke vurdere om er barnepasser med mindre bruker er NAERINGSDRIVENDE`() {
+        brregMockWebServer.enqueue(
+            withContentTypeApplicationJson {
+                MockResponse().setBody((Rolletype.INNH).tilRollerDto().serialisertTilString())
+            },
+        )
+
+        val antallKall = EnhetsregisterMockDispatcher.antallKall()
+
+        ventetidMockWebServer.enqueue(
+            withContentTypeApplicationJson {
+                MockResponse().setBody(lagventetidResponse(fom, tom).serialisertTilString())
+            },
+        )
+
+        val selvstendigNaringsdrivendeInfo =
+            selvstendigNaringsdrivendeInfoService
+                .hentSelvstendigNaringsdrivendeInfo(
+                    identer = FolkeregisterIdenter("11111111111", andreIdenter = emptyList()),
+                    sykmeldingId = "sykmelding-id",
+                    arbeidssituasjon = Arbeidssituasjon.BARNEPASSER,
+                )
+
+        selvstendigNaringsdrivendeInfo.roller.single().also {
+            it.orgnavn `should be equal to` ORGNAVN
+            it.orgnummer `should be equal to` ORGNUMMER
+            it.rolletype `should be equal to` "INNH"
+        }
+
+        selvstendigNaringsdrivendeInfo.also {
+            it.ventetid `should be equal to` Ventetid(fom, tom)
+            it.erBarnepasser `should be equal to` false
+        }
+
+        EnhetsregisterMockDispatcher.antallKall() `should be equal to` antallKall
     }
 
     @Test
@@ -137,6 +177,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
                 .hentSelvstendigNaringsdrivendeInfo(
                     identer = FolkeregisterIdenter("11111111111", andreIdenter = listOf("22222222222")),
                     sykmeldingId = "sykmelding-id",
+                    arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
                 )
 
         selvstendigNaringsdrivendeInfo.roller.also {
@@ -186,6 +227,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
                 .hentSelvstendigNaringsdrivendeInfo(
                     identer = FolkeregisterIdenter("11111111111", andreIdenter = listOf("22222222222")),
                     sykmeldingId = "sykmelding-id",
+                    arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
                 )
 
         selvstendigNaringsdrivendeInfo.roller.single().also {
@@ -219,6 +261,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
                 .hentSelvstendigNaringsdrivendeInfo(
                     identer = FolkeregisterIdenter("11111111111", emptyList()),
                     sykmeldingId = "sykmelding-id",
+                    arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
                 )
 
         selvstendigNaringsdrivendeInfo.roller.`should be empty`()
@@ -250,6 +293,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
                 .hentSelvstendigNaringsdrivendeInfo(
                     identer = FolkeregisterIdenter("11111111111", listOf("22222222222")),
                     sykmeldingId = "sykmelding-id",
+                    arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
                 )
 
         selvstendigNaringsdrivendeInfo.roller.`should be empty`()
@@ -280,6 +324,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
             .hentSelvstendigNaringsdrivendeInfo(
                 FolkeregisterIdenter("11111111111", andreIdenter = emptyList()),
                 sykmeldingId = "sykmelding-id",
+                arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
             ).also {
                 it.ventetid `should be equal to` null
                 it.roller.single().also { rolle ->
@@ -309,6 +354,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
             selvstendigNaringsdrivendeInfoService.hentSelvstendigNaringsdrivendeInfo(
                 FolkeregisterIdenter("11111111111", andreIdenter = emptyList()),
                 sykmeldingId = "sykmelding-id",
+                arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
             )
         }.shouldThrow(HttpServerErrorException::class)
     }
@@ -325,6 +371,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
             selvstendigNaringsdrivendeInfoService.hentSelvstendigNaringsdrivendeInfo(
                 FolkeregisterIdenter("11111111111", andreIdenter = emptyList()),
                 sykmeldingId = "sykmelding-id",
+                arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
             )
         }.shouldThrow(HttpServerErrorException::class)
     }
@@ -354,6 +401,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
                 .hentSelvstendigNaringsdrivendeInfo(
                     identer = FolkeregisterIdenter("11111111111", andreIdenter = emptyList()),
                     sykmeldingId = "sykmelding-id",
+                    arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
                 )
 
         selvstendigNaringsdrivendeInfo.roller.single().also {
@@ -389,6 +437,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
                 .hentSelvstendigNaringsdrivendeInfo(
                     identer = FolkeregisterIdenter("11111111111", andreIdenter = emptyList()),
                     sykmeldingId = "sykmelding-id",
+                    arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
                 )
 
         selvstendigNaringsdrivendeInfo.roller.single().also {

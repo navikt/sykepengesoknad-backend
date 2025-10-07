@@ -4,7 +4,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.arbeidsgiverperiode.harDagerNAVSkalBetaleFor
 import no.nav.helse.flex.config.EnvironmentToggles
 import no.nav.helse.flex.domain.*
-import no.nav.helse.flex.domain.Arbeidssituasjon
+import no.nav.helse.flex.domain.Arbeidssituasjon.*
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Sykepengesoknad
@@ -64,16 +64,10 @@ class SporsmalGenerator(
         val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(soknad.fnr)
         val eksisterendeSoknader = sykepengesoknadDAO.finnSykepengesoknader(identer).filterNot { it.id == soknad.id }
         val sykepengegrunnlag =
-            // BARNEPASSER skal behandles som NAERINGSDRIVENDE, i motsetning til FISKER OG JORDBRUKER.
-            when (soknad.arbeidssituasjon) {
-                Arbeidssituasjon.BARNEPASSER,
-                Arbeidssituasjon.NAERINGSDRIVENDE,
-                -> {
-                    sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(soknad)
-                }
-                else -> {
-                    null
-                }
+            if (listOf(BARNEPASSER, JORDBRUKER, NAERINGSDRIVENDE).contains(soknad.arbeidssituasjon)) {
+                sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(soknad)
+            } else {
+                null
             }
 
         val sporsmalOgAndreKjenteArbeidsforhold =
@@ -204,7 +198,7 @@ class SporsmalGenerator(
         }
 
         return when (soknad.arbeidssituasjon) {
-            Arbeidssituasjon.ARBEIDSTAKER -> {
+            ARBEIDSTAKER -> {
                 val andreKjenteArbeidsforhold =
                     arbeidsforholdFraInntektskomponentenHenting.hentArbeidsforhold(
                         fnr = soknad.fnr,
@@ -234,17 +228,17 @@ class SporsmalGenerator(
 
             else -> {
                 when (soknad.arbeidssituasjon) {
-                    Arbeidssituasjon.FISKER,
-                    Arbeidssituasjon.JORDBRUKER,
-                    Arbeidssituasjon.BARNEPASSER,
-                    Arbeidssituasjon.NAERINGSDRIVENDE,
-                    Arbeidssituasjon.FRILANSER,
+                    FISKER,
+                    JORDBRUKER,
+                    BARNEPASSER,
+                    NAERINGSDRIVENDE,
+                    FRILANSER,
                     -> {
                         settOppSoknadSelvstendigOgFrilanser(soknadOptions, sykepengegrunnlag)
                     }
 
-                    Arbeidssituasjon.ARBEIDSLEDIG -> settOppSoknadArbeidsledig(soknadOptions)
-                    Arbeidssituasjon.ANNET -> settOppSoknadAnnetArbeidsforhold(soknadOptions)
+                    ARBEIDSLEDIG -> settOppSoknadArbeidsledig(soknadOptions)
+                    ANNET -> settOppSoknadAnnetArbeidsforhold(soknadOptions)
 
                     else -> {
                         throw RuntimeException(

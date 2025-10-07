@@ -2,6 +2,7 @@ package no.nav.helse.flex.soknadsopprettelse
 
 import no.nav.helse.flex.aktivering.AktiveringBestilling
 import no.nav.helse.flex.domain.*
+import no.nav.helse.flex.domain.Arbeidssituasjon.*
 import no.nav.helse.flex.domain.exception.SykeforloepManglerSykemeldingException
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.domain.sykmelding.finnSoknadsType
@@ -92,7 +93,7 @@ class OpprettSoknadService(
                                         log.info(
                                             "Endrer arbeidssituasjon fra $arbeidssituasjon til BARNEPASSER for sykmelding: ${sykmelding.id}",
                                         )
-                                        Arbeidssituasjon.BARNEPASSER
+                                        BARNEPASSER
                                     } else {
                                         arbeidssituasjon
                                     }
@@ -168,15 +169,16 @@ class OpprettSoknadService(
         arbeidssituasjon: Arbeidssituasjon,
         identer: FolkeregisterIdenter,
         sykmeldingId: String,
-    ): SelvstendigNaringsdrivendeInfo? {
-        if (arbeidssituasjon != Arbeidssituasjon.NAERINGSDRIVENDE) {
-            return null
+    ): SelvstendigNaringsdrivendeInfo? =
+        if (listOf(JORDBRUKER, NAERINGSDRIVENDE).contains(arbeidssituasjon)) {
+            selvstendigNaringsdrivendeInfoService.hentSelvstendigNaringsdrivendeInfo(
+                identer = identer,
+                sykmeldingId = sykmeldingId,
+                arbeidssituasjon = arbeidssituasjon,
+            )
+        } else {
+            null
         }
-        return selvstendigNaringsdrivendeInfoService.hentSelvstendigNaringsdrivendeInfo(
-            identer = identer,
-            sykmeldingId = sykmeldingId,
-        )
-    }
 
     private fun List<Sykepengesoknad>.lagreJulesoknadKandidater() = lagreJulesoknadKandidater.lagreJulesoknadKandidater(this)
 

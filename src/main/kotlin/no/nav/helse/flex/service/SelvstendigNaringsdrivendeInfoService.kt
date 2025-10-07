@@ -6,6 +6,8 @@ import no.nav.helse.flex.client.brreg.RolleDto
 import no.nav.helse.flex.client.brreg.Rolletype
 import no.nav.helse.flex.client.flexsyketilfelle.FlexSyketilfelleClient
 import no.nav.helse.flex.client.flexsyketilfelle.VentetidRequest
+import no.nav.helse.flex.domain.Arbeidssituasjon
+import no.nav.helse.flex.domain.Arbeidssituasjon.NAERINGSDRIVENDE
 import no.nav.helse.flex.domain.BrregRolle
 import no.nav.helse.flex.domain.SelvstendigNaringsdrivendeInfo
 import no.nav.helse.flex.domain.Ventetid
@@ -24,12 +26,13 @@ class SelvstendigNaringsdrivendeInfoService(
     fun hentSelvstendigNaringsdrivendeInfo(
         identer: FolkeregisterIdenter,
         sykmeldingId: String,
+        arbeidssituasjon: Arbeidssituasjon,
     ): SelvstendigNaringsdrivendeInfo {
         val roller = hentRoller(identer)
         return SelvstendigNaringsdrivendeInfo(
             roller = roller,
             ventetid = hentVentetid(identer, sykmeldingId),
-            erBarnepasser = erBarnepasser(roller, sykmeldingId),
+            erBarnepasser = erNaeringsdrivendeBarnepasser(roller, sykmeldingId, arbeidssituasjon),
         )
     }
 
@@ -46,10 +49,15 @@ class SelvstendigNaringsdrivendeInfoService(
                 }
             }.map(::tilBrregRolle)
 
-    private fun erBarnepasser(
+    private fun erNaeringsdrivendeBarnepasser(
         roller: List<BrregRolle>,
         sykmeldingId: String,
+        arbeidssituasjon: Arbeidssituasjon,
     ): Boolean {
+        if (arbeidssituasjon != NAERINGSDRIVENDE) {
+            return false
+        }
+
         val orgnummer =
             roller.firstOrNull { it.rolletype == Rolletype.INNH.name }?.orgnummer
                 ?: run {
