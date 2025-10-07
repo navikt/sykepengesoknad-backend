@@ -81,7 +81,7 @@ class OpprettSoknadService(
                                 hentSelvstendigNaringsdrivendeInfo(
                                     arbeidssituasjon,
                                     identer,
-                                    sykmelding.id,
+                                    sykmeldingKafkaMessage,
                                 )
                             val perioderFraSykmeldingen = it.delOppISoknadsperioder(sykmelding)
                             val soknadsId = sykmeldingKafkaMessage.skapSoknadsId(it.fom, it.tom)
@@ -168,12 +168,13 @@ class OpprettSoknadService(
     internal fun hentSelvstendigNaringsdrivendeInfo(
         arbeidssituasjon: Arbeidssituasjon,
         identer: FolkeregisterIdenter,
-        sykmeldingId: String,
+        sykmeldingKafkaMessage: SykmeldingKafkaMessage,
     ): SelvstendigNaringsdrivendeInfo? =
         if (listOf(FISKER, JORDBRUKER, NAERINGSDRIVENDE).contains(arbeidssituasjon)) {
-            selvstendigNaringsdrivendeInfoService.hentSelvstendigNaringsdrivendeInfo(
+            selvstendigNaringsdrivendeInfoService.lagSelvstendigNaringsdrivendeInfo(
                 identer = identer,
-                sykmeldingId = sykmeldingId,
+                sykmeldingId = sykmeldingKafkaMessage.sykmelding.id,
+                harForsikring = sykmeldingKafkaMessage.harForsikring(),
                 arbeidssituasjon = arbeidssituasjon,
             )
         } else {

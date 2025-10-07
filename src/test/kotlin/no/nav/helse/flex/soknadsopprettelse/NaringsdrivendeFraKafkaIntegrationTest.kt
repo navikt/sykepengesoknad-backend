@@ -124,6 +124,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                     }
                     selvstendigNaringsdrivendeDTO.ventetid!! `should be equal to` VentetidDTO(fom, tom)
                     selvstendigNaringsdrivendeDTO.inntekt!!.inntektsAar.size `should be equal to` 3
+                    selvstendigNaringsdrivendeDTO.harForsikring `should be equal to` false
                 }
             }
         }
@@ -131,8 +132,9 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
         hentSoknader(fnr).sortedBy { it.fom }.single().also {
             it.soknadstype `should be equal to` RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE
             it.arbeidssituasjon `should be equal to` RSArbeidssituasjon.NAERINGSDRIVENDE
-            it.selvstendigNaringsdrivendeInfo?.sykepengegrunnlagNaeringsdrivende `should be equal to`
+            it.selvstendigNaringsdrivendeInfo!!.sykepengegrunnlagNaeringsdrivende `should be equal to`
                 lagSykepengegrunnlagNaeringsdrivende()
+            it.selvstendigNaringsdrivendeInfo.harForsikring `should be equal to` false
         }
 
         verify(aivenKafkaProducer, times(1)).produserMelding(any())
@@ -279,6 +281,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                 sykepengesoknadDTO.selvstendigNaringsdrivende!!.also { selvstendigNaringsdrivendeDTO ->
                     selvstendigNaringsdrivendeDTO.ventetid!! `should be equal to` VentetidDTO(fom, tom)
                     selvstendigNaringsdrivendeDTO.inntekt `should be equal to` null
+                    selvstendigNaringsdrivendeDTO.harForsikring `should be equal to` true
                 }
             }
         }
@@ -286,14 +289,15 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
         hentSoknader(fnr).sortedBy { it.fom }.single().also {
             it.soknadstype `should be equal to` RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE
             it.arbeidssituasjon `should be equal to` RSArbeidssituasjon.NAERINGSDRIVENDE
-            it.selvstendigNaringsdrivendeInfo?.sykepengegrunnlagNaeringsdrivende `should be equal to` null
+            it.selvstendigNaringsdrivendeInfo!!.sykepengegrunnlagNaeringsdrivende `should be equal to` null
+            it.selvstendigNaringsdrivendeInfo.harForsikring `should be equal to` true
         }
 
         verify(aivenKafkaProducer, times(1)).produserMelding(any())
     }
 
     @Test
-    fun `Oppretter 2 søknader for næringsdrivende når sykmeldigen er lengre enn 31 dager`() {
+    fun `Oppretter 2 søknader for næringsdrivende når sykmeldingen er lengre enn 31 dager`() {
         val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
 
         val sykmelding =

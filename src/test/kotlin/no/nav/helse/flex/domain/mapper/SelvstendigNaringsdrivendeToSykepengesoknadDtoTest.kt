@@ -85,6 +85,7 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
                     rolleDTO.rolletype `should be equal to` "INNH"
                 }
             }
+            it.harForsikring `should be equal to` false
         }
     }
 
@@ -110,6 +111,7 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
                                         tom = tom,
                                     ),
                                 erBarnepasser = false,
+                                harForsikring = false,
                             ),
                     ),
                 mottaker = Mottaker.ARBEIDSGIVER_OG_NAV,
@@ -182,6 +184,7 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
                                 roller = emptyList(),
                                 sykepengegrunnlagNaeringsdrivende = lagSykepengegrunnlagNaeringsdrivende(),
                                 erBarnepasser = false,
+                                harForsikring = false,
                             ),
                     ),
                 mottaker = Mottaker.ARBEIDSGIVER_OG_NAV,
@@ -220,6 +223,7 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
                                 roller = emptyList(),
                                 sykepengegrunnlagNaeringsdrivende = lagSykepengegrunnlagNaeringsdrivende(),
                                 erBarnepasser = false,
+                                harForsikring = false,
                             ),
                     ),
                 mottaker = Mottaker.ARBEIDSGIVER_OG_NAV,
@@ -237,6 +241,32 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
             it[ARBEID_UTENFOR_NORGE] `should be equal to` false
             it[FRAVAR_FOR_SYKMELDINGEN_V2] `should be equal to` true
             it[INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET] `should be equal to` false
+        }
+    }
+
+    @Test
+    fun `Inneholder brukers svar på forsikring`() {
+        val soknad = opprettNyNaeringsdrivendeSoknad()
+
+        val soknadDTO =
+            konverterTilSykepengesoknadDTO(
+                sykepengesoknad =
+                    soknad.copy(
+                        soknadPerioder = soknadPerioder,
+                        selvstendigNaringsdrivende =
+                            SelvstendigNaringsdrivendeInfo(
+                                roller = emptyList(),
+                                erBarnepasser = false,
+                                harForsikring = true,
+                            ),
+                    ),
+                mottaker = Mottaker.ARBEIDSGIVER_OG_NAV,
+                erEttersending = false,
+                soknadsperioder = hentSoknadsPerioderMedFaktiskGrad(soknad).first,
+            )
+
+        soknadDTO.selvstendigNaringsdrivende!!.also {
+            it.harForsikring `should be equal to` true
         }
     }
 

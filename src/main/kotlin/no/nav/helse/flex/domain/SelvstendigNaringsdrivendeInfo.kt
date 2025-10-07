@@ -11,6 +11,7 @@ data class SelvstendigNaringsdrivendeInfo(
     val sykepengegrunnlagNaeringsdrivende: SykepengegrunnlagNaeringsdrivende? = null,
     val ventetid: Ventetid? = null,
     val erBarnepasser: Boolean,
+    val harForsikring: Boolean = false,
 ) {
     fun tilSelvstendigNaringsdrivendeDTO(sykepengesoknad: Sykepengesoknad): SelvstendigNaringsdrivendeDTO {
         val inntekt =
@@ -26,6 +27,7 @@ data class SelvstendigNaringsdrivendeInfo(
             inntekt = inntekt,
             ventetid = ventetid?.let { tilVentetidDTO() },
             hovedSporsmalSvar = sykepengesoknad.hentHovedSporsmalSvarForSelvstendigNaringsdrivende(),
+            harForsikring = sykepengesoknad.selvstendigNaringsdrivende!!.harForsikring,
         )
     }
 
