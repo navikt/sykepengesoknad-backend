@@ -10,6 +10,7 @@ import no.nav.helse.flex.client.flexsyketilfelle.FomTomPeriode
 import no.nav.helse.flex.client.flexsyketilfelle.VentetidResponse
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Ventetid
+import no.nav.helse.flex.mockdispatcher.EnhetsregisterMockDispatcher
 import no.nav.helse.flex.mockdispatcher.withContentTypeApplicationJson
 import no.nav.helse.flex.util.serialisertTilString
 import okhttp3.mockwebserver.MockResponse
@@ -123,6 +124,8 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
             },
         )
 
+        val antallKall = EnhetsregisterMockDispatcher.antallKall()
+
         ventetidMockWebServer.enqueue(
             withContentTypeApplicationJson {
                 MockResponse().setBody(lagventetidResponse(fom, tom).serialisertTilString())
@@ -134,7 +137,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
                 .hentSelvstendigNaringsdrivendeInfo(
                     identer = FolkeregisterIdenter("11111111111", andreIdenter = emptyList()),
                     sykmeldingId = "sykmelding-id",
-                    arbeidssituasjon = Arbeidssituasjon.JORDBRUKER,
+                    arbeidssituasjon = Arbeidssituasjon.BARNEPASSER,
                 )
 
         selvstendigNaringsdrivendeInfo.roller.single().also {
@@ -147,6 +150,8 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
             it.ventetid `should be equal to` Ventetid(fom, tom)
             it.erBarnepasser `should be equal to` false
         }
+
+        EnhetsregisterMockDispatcher.antallKall() `should be equal to` antallKall
     }
 
     @Test
