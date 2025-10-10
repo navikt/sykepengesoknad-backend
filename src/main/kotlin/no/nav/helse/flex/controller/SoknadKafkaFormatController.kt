@@ -37,6 +37,7 @@ class SoknadKafkaFormatController(
                 NamespaceAndApp(namespace = "flex", app = "sykepengesoknad-arkivering-oppgave"),
                 NamespaceAndApp(namespace = "tbd", app = "sparkel-dokumenter"),
                 NamespaceAndApp(namespace = "speilvendt", app = "bakrommet"),
+                NamespaceAndApp(namespace = "flex", app = "flex-internal-frontend"),
             ),
         )
         return hentSoknadService.finnSykepengesoknad(id).tilSykepengesoknadDto()
