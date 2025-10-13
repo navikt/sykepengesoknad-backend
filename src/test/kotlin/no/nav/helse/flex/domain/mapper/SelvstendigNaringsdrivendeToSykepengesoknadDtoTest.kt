@@ -85,7 +85,7 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
                     rolleDTO.rolletype `should be equal to` "INNH"
                 }
             }
-            it.harForsikring `should be equal to` false
+            it.brukerHarOppgittForsikring `should be equal to` false
         }
     }
 
@@ -111,7 +111,7 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
                                         tom = tom,
                                     ),
                                 erBarnepasser = false,
-                                harForsikring = false,
+                                brukerHarOppgittForsikring = false,
                             ),
                     ),
                 mottaker = Mottaker.ARBEIDSGIVER_OG_NAV,
@@ -184,7 +184,7 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
                                 roller = emptyList(),
                                 sykepengegrunnlagNaeringsdrivende = lagSykepengegrunnlagNaeringsdrivende(),
                                 erBarnepasser = false,
-                                harForsikring = false,
+                                brukerHarOppgittForsikring = false,
                             ),
                     ),
                 mottaker = Mottaker.ARBEIDSGIVER_OG_NAV,
@@ -223,7 +223,7 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
                                 roller = emptyList(),
                                 sykepengegrunnlagNaeringsdrivende = lagSykepengegrunnlagNaeringsdrivende(),
                                 erBarnepasser = false,
-                                harForsikring = false,
+                                brukerHarOppgittForsikring = false,
                             ),
                     ),
                 mottaker = Mottaker.ARBEIDSGIVER_OG_NAV,
@@ -257,7 +257,7 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
                             SelvstendigNaringsdrivendeInfo(
                                 roller = emptyList(),
                                 erBarnepasser = false,
-                                harForsikring = true,
+                                brukerHarOppgittForsikring = true,
                             ),
                     ),
                 mottaker = Mottaker.ARBEIDSGIVER_OG_NAV,
@@ -266,7 +266,7 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
             )
 
         soknadDTO.selvstendigNaringsdrivende!!.also {
-            it.harForsikring `should be equal to` true
+            it.brukerHarOppgittForsikring `should be equal to` true
         }
     }
 

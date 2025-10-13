@@ -150,7 +150,7 @@ fun SykmeldingKafkaMessage.hentArbeidssituasjon(): Arbeidssituasjon? {
     return null
 }
 
-fun SykmeldingKafkaMessage.harForsikring(): Boolean {
+fun SykmeldingKafkaMessage.brukerHarOppgittForsikring(): Boolean {
     this.event.sporsmals
         ?.firstOrNull { sporsmal -> sporsmal.shortName == ShortNameKafkaDTO.FORSIKRING }
         ?.svar

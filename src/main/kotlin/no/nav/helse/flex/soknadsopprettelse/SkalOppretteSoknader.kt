@@ -53,7 +53,7 @@ class SkalOppretteSoknader(
             return true
         }
 
-        val harForsikring = sykmeldingKafkaMessage.harForsikring()
+        val brukerHarOppgittForsikring = sykmeldingKafkaMessage.brukerHarOppgittForsikring()
         val erUtenforVentetid =
             flexSyketilfelleClient.erUtenforVentetid(
                 identer = identer,
@@ -64,14 +64,14 @@ class SkalOppretteSoknader(
                     ),
             )
         when {
-            !erUtenforVentetid && !harForsikring -> {
+            !erUtenforVentetid && !brukerHarOppgittForsikring -> {
                 log.info(
                     "Sykmelding: $sykmeldingId for: ${arbeidssituasjon.name} er innenfor ventetiden. Bruker har IKKE forsikring. Oppretter ikke søknad.",
                 )
                 return false
             }
 
-            !erUtenforVentetid && harForsikring -> {
+            !erUtenforVentetid && brukerHarOppgittForsikring -> {
                 log.info(
                     "Sykmelding: $sykmeldingId for: ${arbeidssituasjon.name} er innenfor ventetiden men bruker HAR forsikring. Oppretter søknad.",
                 )

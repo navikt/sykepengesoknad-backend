@@ -27,14 +27,14 @@ class SelvstendigNaringsdrivendeInfoService(
         identer: FolkeregisterIdenter,
         sykmeldingId: String,
         arbeidssituasjon: Arbeidssituasjon,
-        harForsikring: Boolean = false,
+        brukerHarOppgittForsikring: Boolean = false,
     ): SelvstendigNaringsdrivendeInfo {
         val roller = hentRoller(identer)
         return SelvstendigNaringsdrivendeInfo(
             roller = roller,
             ventetid = hentVentetid(identer, sykmeldingId),
             erBarnepasser = erNaeringsdrivendeBarnepasser(roller, sykmeldingId, arbeidssituasjon),
-            harForsikring = harForsikring,
+            brukerHarOppgittForsikring = brukerHarOppgittForsikring,
         )
     }
 

@@ -174,7 +174,7 @@ class OpprettSoknadService(
             selvstendigNaringsdrivendeInfoService.lagSelvstendigNaringsdrivendeInfo(
                 identer = identer,
                 sykmeldingId = sykmeldingKafkaMessage.sykmelding.id,
-                harForsikring = sykmeldingKafkaMessage.harForsikring(),
+                brukerHarOppgittForsikring = sykmeldingKafkaMessage.brukerHarOppgittForsikring(),
                 arbeidssituasjon = arbeidssituasjon,
             )
         } else {

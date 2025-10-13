@@ -146,7 +146,7 @@ fun lagKomplettInnsendtSkjemaSvar(
         riktigNarmesteLeder = null,
         harBruktEgenmelding = null,
         egenmeldingsperioder = null,
-        harForsikring = null,
+        brukerHarOppgittForsikring = null,
         egenmeldingsdager = null,
         harBruktEgenmeldingsdager = null,
         fisker = fiskerSvar,
