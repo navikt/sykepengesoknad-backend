@@ -52,7 +52,7 @@ data class KomplettInnsendtSkjemaSvar(
     val riktigNarmesteLeder: SporsmalSvar<JaEllerNei>?,
     val harBruktEgenmelding: SporsmalSvar<JaEllerNei>?,
     val egenmeldingsperioder: SporsmalSvar<List<Egenmeldingsperiode>>?,
-    val harForsikring: SporsmalSvar<JaEllerNei>?,
+    val brukerHarOppgittForsikring: SporsmalSvar<JaEllerNei>?,
     val egenmeldingsdager: SporsmalSvar<List<LocalDate>>?,
     val harBruktEgenmeldingsdager: SporsmalSvar<JaEllerNei>?,
     val fisker: FiskereSvarKafkaDTO?,

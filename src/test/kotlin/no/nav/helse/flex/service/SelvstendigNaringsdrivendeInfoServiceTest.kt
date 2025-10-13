@@ -65,7 +65,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
                     identer = FolkeregisterIdenter("11111111111", andreIdenter = emptyList()),
                     sykmeldingId = "sykmelding-id",
                     arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
-                    harForsikring = true,
+                    brukerHarOppgittForsikring = true,
                 )
 
         selvstendigNaringsdrivendeInfo.roller.single().also {
@@ -77,7 +77,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
         selvstendigNaringsdrivendeInfo.also {
             it.ventetid `should be equal to` Ventetid(fom, tom)
             it.erBarnepasser `should be equal to` false
-            it.harForsikring `should be equal to` true
+            it.brukerHarOppgittForsikring `should be equal to` true
         }
     }
 
@@ -115,7 +115,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
         selvstendigNaringsdrivendeInfo.also {
             it.ventetid `should be equal to` Ventetid(fom, tom)
             it.erBarnepasser `should be equal to` true
-            it.harForsikring `should be equal to` false
+            it.brukerHarOppgittForsikring `should be equal to` false
         }
     }
 
@@ -152,7 +152,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
         selvstendigNaringsdrivendeInfo.also {
             it.ventetid `should be equal to` Ventetid(fom, tom)
             it.erBarnepasser `should be equal to` false
-            it.harForsikring `should be equal to` false
+            it.brukerHarOppgittForsikring `should be equal to` false
         }
 
         EnhetsregisterMockDispatcher.antallKall() `should be equal to` antallKall
@@ -203,7 +203,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
         selvstendigNaringsdrivendeInfo.also {
             it.ventetid `should be equal to` Ventetid(fom, tom)
             it.erBarnepasser `should be equal to` false
-            it.harForsikring `should be equal to` false
+            it.brukerHarOppgittForsikring `should be equal to` false
         }
     }
 
@@ -244,7 +244,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
         selvstendigNaringsdrivendeInfo.also {
             it.ventetid `should be equal to` Ventetid(fom, tom)
             it.erBarnepasser `should be equal to` false
-            it.harForsikring `should be equal to` false
+            it.brukerHarOppgittForsikring `should be equal to` false
         }
     }
 
@@ -275,7 +275,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
         selvstendigNaringsdrivendeInfo.also {
             it.ventetid `should be equal to` Ventetid(fom, tom)
             it.erBarnepasser `should be equal to` false
-            it.harForsikring `should be equal to` false
+            it.brukerHarOppgittForsikring `should be equal to` false
         }
     }
 
@@ -308,7 +308,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
         selvstendigNaringsdrivendeInfo.also {
             it.ventetid `should be equal to` Ventetid(fom, tom)
             it.erBarnepasser `should be equal to` false
-            it.harForsikring `should be equal to` false
+            it.brukerHarOppgittForsikring `should be equal to` false
         }
     }
 
@@ -341,7 +341,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
                     rolle.rolletype `should be equal to` "INNH"
                 }
                 it.erBarnepasser `should be equal to` false
-                it.harForsikring `should be equal to` false
+                it.brukerHarOppgittForsikring `should be equal to` false
             }
     }
 
@@ -422,7 +422,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
         selvstendigNaringsdrivendeInfo.also {
             it.ventetid `should be equal to` Ventetid(fom, tom)
             it.erBarnepasser `should be equal to` false
-            it.harForsikring `should be equal to` false
+            it.brukerHarOppgittForsikring `should be equal to` false
         }
     }
 
@@ -457,7 +457,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
         }
 
         selvstendigNaringsdrivendeInfo.ventetid `should be equal to` Ventetid(fom, tom)
-        selvstendigNaringsdrivendeInfo.harForsikring `should be equal to` false
+        selvstendigNaringsdrivendeInfo.brukerHarOppgittForsikring `should be equal to` false
     }
 }
 
