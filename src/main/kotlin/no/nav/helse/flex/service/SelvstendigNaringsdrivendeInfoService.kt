@@ -80,7 +80,7 @@ class SelvstendigNaringsdrivendeInfoService(
         }
     }
 
-    internal fun hentVentetid(
+    private fun hentVentetid(
         identer: FolkeregisterIdenter,
         sykmeldingId: String,
     ): Ventetid? {
