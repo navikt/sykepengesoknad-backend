@@ -74,7 +74,7 @@ class FriskTilArbeidService(
                     behandletStatus = BehandletStatus.NY,
                 ),
             )
-            log.info("Oppdaterte status til NY for vedtak: ${vedtak.get().vedtakUuid}")
+            log.info("Oppdaterte status til NY for vedtak: ${vedtak.get().vedtak}")
         }
     }
 }
