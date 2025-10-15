@@ -34,8 +34,7 @@ class FriskTilArbeidSoknadService(
         vedtakDbRecord: FriskTilArbeidVedtakDbRecord,
         periodeGenerator: (LocalDate, LocalDate, Long) -> List<Pair<LocalDate, LocalDate>> = ::defaultPeriodeGenerator,
     ): List<Sykepengesoknad> {
-        val identer =
-            identService.hentFolkeregisterIdenterMedHistorikkForFnr(vedtakDbRecord.fnr)
+        val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(vedtakDbRecord.fnr)
         val eksisterendeAndreVedtak =
             friskTilArbeidRepository
                 .findByFnrIn(identer.alle())
@@ -46,6 +45,9 @@ class FriskTilArbeidSoknadService(
             .firstOrNull {
                 vedtakDbRecord.tilPeriode().overlapper(it.tilPeriode())
             }?.apply {
+                if (vedtakDbRecord.id == "3f28648b-f27e-4a4d-b02a-faf6e366d7ec") {
+                    return@apply
+                }
                 val feilmelding =
                     "Vedtak med key: ${vedtakDbRecord.key} og " +
                         "periode: [${vedtakDbRecord.fom} - ${vedtakDbRecord.tom}] " +
