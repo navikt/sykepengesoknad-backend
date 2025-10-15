@@ -9,13 +9,14 @@ import org.junit.jupiter.api.Test
 
 class NaringsdrivendeMuteringTest {
     @Test
-    fun `Mutering av soknad uten svar skal føre til ingen endringer`() {
+    fun `Mutering av soknad uten svar skal ikke føre til noen endringer`() {
         val soknad = opprettNyNaeringsdrivendeSoknad(true)
 
         val mutertSoknad = soknad.naringsdrivendeMutering()
 
         soknad.sporsmal.size `should be equal to` 12
         mutertSoknad.sporsmal.size `should be equal to` soknad.sporsmal.size
+        mutertSoknad.sporsmal `should be equal to` soknad.sporsmal
         mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_VIRKSOMHETEN_DIN_AVVIKLET) `should not be` null
         mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_VIRKSOMHETEN_DIN_AVVIKLET_DATO) `should not be` null
         mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET) `should not be` null
@@ -25,7 +26,7 @@ class NaringsdrivendeMuteringTest {
     }
 
     @Test
-    fun `Mutering av soknad uten sporsmal om virksomheten din er avviklet skal ignoreres`() {
+    fun `Mutering av soknad uten relevante naringsdrivende sporsmal skal ikke føre til noen endringer`() {
         val soknad =
             opprettNyNaeringsdrivendeSoknad(true)
                 .fjernSporsmal(NARINGSDRIVENDE_VIRKSOMHETEN_DIN_AVVIKLET)
@@ -36,6 +37,7 @@ class NaringsdrivendeMuteringTest {
 
         soknad.sporsmal.size `should be equal to` 9
         mutertSoknad.sporsmal.size `should be equal to` soknad.sporsmal.size
+        mutertSoknad.sporsmal `should be equal to` soknad.sporsmal
     }
 
     @Test
@@ -91,6 +93,7 @@ class NaringsdrivendeMuteringTest {
 
         soknad.sporsmal.size `should be equal to` 12
         mutertSoknad.sporsmal.size `should be equal to` soknad.sporsmal.size
+        mutertSoknad.sporsmal `should be equal to` soknad.sporsmal
         mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_VIRKSOMHETEN_DIN_AVVIKLET).forsteSvar `should be equal to` "NEI"
         mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET).forsteSvar `should be equal to` "NEI"
         mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_VARIG_ENDRING).forsteSvar `should be equal to` "JA"
@@ -164,6 +167,7 @@ class NaringsdrivendeMuteringTest {
 
         soknad.sporsmal.size `should be equal to` 12
         mutertSoknad.sporsmal.size `should be equal to` soknad.sporsmal.size
+        mutertSoknad.sporsmal `should be equal to` soknad.sporsmal
         mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET).forsteSvar `should be equal to` "NEI"
         mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET_DATO).forsteSvar `should be equal to` null
         mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_VARIG_ENDRING).forsteSvar `should be equal to` "JA"

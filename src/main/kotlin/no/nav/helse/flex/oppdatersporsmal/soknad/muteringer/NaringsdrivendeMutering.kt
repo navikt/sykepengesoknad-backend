@@ -15,10 +15,6 @@ fun Sykepengesoknad.naringsdrivendeMutering(): Sykepengesoknad {
         return this
     }
 
-    if (getSporsmalMedTagOrNull(NARINGSDRIVENDE_VIRKSOMHETEN_DIN_AVVIKLET) == null) {
-        return this
-    }
-
     val virksomhetenDinAvvikletSvar = getSporsmalMedTagOrNull(NARINGSDRIVENDE_VIRKSOMHETEN_DIN_AVVIKLET)?.forsteSvar
     val nyIArbeidslivetSvar = getSporsmalMedTagOrNull(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET)?.forsteSvar
 
