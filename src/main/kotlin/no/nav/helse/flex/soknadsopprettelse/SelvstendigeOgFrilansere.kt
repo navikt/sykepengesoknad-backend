@@ -21,6 +21,7 @@ import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 fun settOppSoknadSelvstendigOgFrilanser(
     opts: SettOppSoknadOptions,
     sykepengegrunnlagNaeringsdrivende: SykepengegrunnlagNaeringsdrivende? = null,
+    brukOppdelteNaringsdrivendeSporsmal: Boolean,
 ): List<Sporsmal> {
     val (sykepengesoknad, erForsteSoknadISykeforlop, harTidligereUtenlandskSpm, yrkesskade) = opts
     val erGradertReisetilskudd = sykepengesoknad.soknadstype == Soknadstype.GRADERT_REISETILSKUDD
@@ -49,7 +50,13 @@ fun settOppSoknadSelvstendigOgFrilanser(
                 add(arbeidUtenforNorge())
                 if (listOf(NAERINGSDRIVENDE, FISKER, JORDBRUKER, BARNEPASSER).contains(sykepengesoknad.arbeidssituasjon)) {
                     add(fravaerForSykmeldingSporsmal(sykepengesoknad))
-                    add(lagSporsmalOmInntektsopplyninger(sykepengesoknad, sykepengegrunnlagNaeringsdrivende))
+                    if (brukOppdelteNaringsdrivendeSporsmal) {
+                        add(lagSporsmalOmNaringsdrivendeVirksomhetenDinAvviklet(sykepengesoknad))
+                        add(lagSporsmalOmNaringsdrivendeNyIArbeidslivet(sykepengesoknad, sykepengegrunnlagNaeringsdrivende))
+                        add(lagSporsmalOmNaringsdrivendeVarigEndring(sykepengesoknad, sykepengegrunnlagNaeringsdrivende))
+                    } else {
+                        add(lagSporsmalOmInntektsopplyninger(sykepengesoknad, sykepengegrunnlagNaeringsdrivende))
+                    }
                 }
             }
             addAll(yrkesskade.yrkeskadeSporsmal())

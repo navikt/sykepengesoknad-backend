@@ -29,7 +29,7 @@ class MockSoknadSelvstendigeOgFrilansere(
     fun opprettOgLagreNySoknad(): Sykepengesoknad = sykepengesoknadDAO!!.lagreSykepengesoknad(opprettNyNaeringsdrivendeSoknad())
 }
 
-fun opprettNyNaeringsdrivendeSoknad(): Sykepengesoknad {
+fun opprettNyNaeringsdrivendeSoknad(brukOppdelteNaringsdrivendeSporsmal: Boolean = false): Sykepengesoknad {
     val soknadMetadata =
         Sykepengesoknad(
             id = UUID.randomUUID().toString(),
@@ -86,6 +86,7 @@ fun opprettNyNaeringsdrivendeSoknad(): Sykepengesoknad {
                         yrkesskade = YrkesskadeSporsmalGrunnlag(),
                         eksisterendeSoknader = emptyList(),
                     ),
+                    brukOppdelteNaringsdrivendeSporsmal = brukOppdelteNaringsdrivendeSporsmal,
                 ),
             status = Soknadstatus.NY,
         ).leggSvarPaSoknad()
@@ -149,6 +150,7 @@ fun opprettSendtFrilanserSoknad(): Sykepengesoknad {
                         YrkesskadeSporsmalGrunnlag(),
                         eksisterendeSoknader = emptyList(),
                     ),
+                    brukOppdelteNaringsdrivendeSporsmal = false,
                 ),
             status = Soknadstatus.SENDT,
             sendtNav = Instant.now(),
@@ -167,7 +169,7 @@ private fun Sykepengesoknad.leggSvarPaSoknad(): Sykepengesoknad =
 
 private fun Sykepengesoknad.harDuOppholdtDegIUtlandet(): Sykepengesoknad =
     besvarsporsmal(OPPHOLD_UTENFOR_EOS, "JA")
-        .besvarsporsmal(OPPHOLD_UTENFOR_EOS_NAR, periodeTilJson(fom!!.plusDays(2), fom!!.plusDays(4)))
+        .besvarsporsmal(OPPHOLD_UTENFOR_EOS_NAR, periodeTilJson(fom!!.plusDays(2), fom.plusDays(4)))
 
 private fun Sykepengesoknad.andreInntektskilder(): Sykepengesoknad =
     besvarsporsmal(ANDRE_INNTEKTSKILDER, "JA")

@@ -28,4 +28,5 @@ enum class RSSvartype {
     DATOER,
     BELOP,
     KILOMETER,
+    AAR_MAANED,
 }

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component
 
 const val UNLEASH_CONTEXT_TILKOMMEN_INNTEKT = "sykepengesoknad-backend-tilkommen-inntekt"
 const val UNLEASH_CONTEXT_SIGRUN_PAA_KAFKA = "sykepengesoknad-backend-sigrun-paa-kafka"
+const val UNLEASH_CONTEXT_OPPDELT_NARINGSDRIVENDE = "sykepengesoknad-backend-oppdelt-naringsdrivende"
 
 @Component
 class UnleashToggles(
@@ -19,4 +20,7 @@ class UnleashToggles(
 
     fun sigrunPaaKafkaEnabled(fnr: String): Boolean =
         unleash.isEnabled(UNLEASH_CONTEXT_SIGRUN_PAA_KAFKA, UnleashContext.builder().userId(fnr).build())
+
+    fun oppdeltNaeringsdrivendeEnabled(fnr: String): Boolean =
+        unleash.isEnabled(UNLEASH_CONTEXT_OPPDELT_NARINGSDRIVENDE, UnleashContext.builder().userId(fnr).build())
 }

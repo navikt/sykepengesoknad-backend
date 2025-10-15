@@ -82,6 +82,7 @@ fun Svartype.tilSvartypeDTO(): SvartypeDTO =
         Svartype.DATOER -> SvartypeDTO.DATOER
         Svartype.BELOP -> SvartypeDTO.BELOP
         Svartype.KILOMETER -> SvartypeDTO.KILOMETER
+        Svartype.AAR_MAANED -> SvartypeDTO.AAR_MAANED
     }
 
 fun Sykmeldingstype.tilSykmeldingstypeDTO(): SykmeldingstypeDTO =

@@ -39,6 +39,10 @@ fun dokumenterSomSkalSendesInn(dagensDato: LocalDate): List<Inntektsopplysninger
 }
 
 fun Sykepengesoknad.inntektsopplysningerMaaDokumenteres(): Boolean {
+    if (getSporsmalMedTagOrNull(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET)?.forsteSvar == "JA") {
+        return true
+    }
+
     getSporsmalMedTagOrNull(INNTEKTSOPPLYSNINGER_DRIFT_VIRKSOMHETEN_NEI)?.let {
         if (it.forsteSvar == "CHECKED") {
             return false

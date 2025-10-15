@@ -37,6 +37,8 @@ private fun Sporsmal.sorterUndersporsmal(): Sporsmal {
                     KJENTE_INNTEKTSKILDER_ARSAK_IKKE_JOBBET -> it.sorteringKjenteInntektskilderArsak()
                     INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE -> it.sorteringVarigEndringBegrunnelse()
                     INNTEKTSOPPLYSNINGER_VARIG_ENDRING -> it.sorteringVarigEndringJa()
+                    NARINGSDRIVENDE_VARIG_ENDRING -> it.sorteringNaringsdrivendeVarigEnding()
+                    NARINGSDRIVENDE_VARIG_ENDRING_TYPE -> it.sorteringNaringsdrivendeVarigEndingType()
                     FTA_JOBBSITUASJONEN_DIN_JA -> it.sorteringFtaJobbsituasjonenDinJa()
                     else -> it.tag
                 }
@@ -58,6 +60,25 @@ private fun Sporsmal.sorteringVarigEndringBegrunnelse(): String =
         INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE_OMLEGGING_AV_VIRKSOMHETEN -> "2"
         INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE_ENDRET_MARKEDSSITUASJON -> "3"
         INNTEKTSOPPLYSNINGER_VARIG_ENDRING_BEGRUNNELSE_ANNET -> "4"
+        else -> throw RuntimeException("Ukjent underspørsmål for varig endring begrunnelse: $tag")
+    }
+
+private fun Sporsmal.sorteringNaringsdrivendeVarigEnding(): String =
+    when (tag) {
+        NARINGSDRIVENDE_VARIG_ENDRING_TYPE -> "0"
+        NARINGSDRIVENDE_VARIG_ENDRING_DATO -> "1"
+        else -> throw RuntimeException("Ukjent underspørsmål for varig endring begrunnelse: $tag")
+    }
+
+private fun Sporsmal.sorteringNaringsdrivendeVarigEndingType(): String =
+    when (tag) {
+        NARINGSDRIVENDE_VARIG_ENDRING_TYPE_NY_VIRKSOMHET -> "0"
+        NARINGSDRIVENDE_VARIG_ENDRING_TYPE_AVVIKLET_VIRKSOMHET -> "1"
+        NARINGSDRIVENDE_VARIG_ENDRING_TYPE_JOBBET_MINDRE -> "2"
+        NARINGSDRIVENDE_VARIG_ENDRING_TYPE_JOBBET_MER -> "3"
+        NARINGSDRIVENDE_VARIG_ENDRING_TYPE_LAGT_OM -> "4"
+        NARINGSDRIVENDE_VARIG_ENDRING_TYPE_KUNDEGRUNNLAG -> "5"
+        NARINGSDRIVENDE_VARIG_ENDRING_TYPE_ANNET -> "6"
         else -> throw RuntimeException("Ukjent underspørsmål for varig endring begrunnelse: $tag")
     }
 
