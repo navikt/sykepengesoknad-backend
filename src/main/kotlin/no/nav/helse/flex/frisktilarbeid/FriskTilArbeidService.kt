@@ -65,18 +65,6 @@ class FriskTilArbeidService(
                 friskTilArbeidSoknadService.opprettSoknader(it)
             }.flatten()
     }
-
-    fun oppdaterStatus() {
-        val vedtak = friskTilArbeidRepository.findById("3f28648b-f27e-4a4d-b02a-faf6e366d7ec")
-        if (vedtak.isPresent) {
-            friskTilArbeidRepository.save(
-                vedtak.get().copy(
-                    behandletStatus = BehandletStatus.NY,
-                ),
-            )
-            log.info("Oppdaterte status til NY for vedtak: ${vedtak.get().vedtakUuid}")
-        }
-    }
 }
 
 fun String.tilFriskTilArbeidVedtakStatus(): FriskTilArbeidVedtakStatus = objectMapper.readValue(this)
