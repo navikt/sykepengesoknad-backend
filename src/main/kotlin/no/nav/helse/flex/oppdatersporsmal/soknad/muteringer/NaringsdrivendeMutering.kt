@@ -1,8 +1,6 @@
 package no.nav.helse.flex.oppdatersporsmal.soknad.muteringer
 
-import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.oppdatersporsmal.soknad.erIkkeAvType
 import no.nav.helse.flex.oppdatersporsmal.soknad.leggTilSporsmaal
 import no.nav.helse.flex.soknadsopprettelse.NARINGSDRIVENDE_NY_I_ARBEIDSLIVET
 import no.nav.helse.flex.soknadsopprettelse.NARINGSDRIVENDE_VARIG_ENDRING
@@ -11,10 +9,6 @@ import no.nav.helse.flex.soknadsopprettelse.sporsmal.lagSporsmalOmNaringsdrivend
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.lagSporsmalOmNaringsdrivendeVarigEndring
 
 fun Sykepengesoknad.naringsdrivendeMutering(): Sykepengesoknad {
-    if (erIkkeAvType(Soknadstype.SELVSTENDIGE_OG_FRILANSERE)) {
-        return this
-    }
-
     val virksomhetenDinAvvikletSvar = getSporsmalMedTagOrNull(NARINGSDRIVENDE_VIRKSOMHETEN_DIN_AVVIKLET)?.forsteSvar
     val nyIArbeidslivetSvar = getSporsmalMedTagOrNull(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET)?.forsteSvar
 
