@@ -20,7 +20,7 @@ fun lagSporsmalOmNaringsdrivendeNyIArbeidslivet(
         tag = NARINGSDRIVENDE_NY_I_ARBEIDSLIVET,
         sporsmalstekst =
             "Har du blitt yrkesaktiv mellom ${formatterDato(tidligstDato)} og frem til du ble sykmeldt " +
-                "${formatterDato(soknad.fom!!)}?", // TODO avklare datoer
+                "${formatterDato(soknad.fom!!)}?",
         svartype = Svartype.JA_NEI,
         kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
         undersporsmal =

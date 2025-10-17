@@ -12,7 +12,7 @@ import java.time.format.DateTimeFormatter
 fun lagSporsmalOmNaringsdrivendeVirksomhetenDinAvviklet(soknad: Sykepengesoknad): Sporsmal =
     Sporsmal(
         tag = NARINGSDRIVENDE_VIRKSOMHETEN_DIN_AVVIKLET,
-        sporsmalstekst = "Avviklet du virksomheten din før du ble sykmeldt ${formatterDato(soknad.fom!!)}?", // TODO avklare datoer
+        sporsmalstekst = "Avviklet du virksomheten din før du ble sykmeldt ${formatterDato(soknad.fom!!)}?",
         svartype = Svartype.JA_NEI,
         kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
         undersporsmal =

@@ -19,7 +19,7 @@ fun lagSporsmalOmNaringsdrivendeVarigEndring(
         tag = NARINGSDRIVENDE_VARIG_ENDRING,
         sporsmalstekst =
             "Har det skjedd en varig endring i arbeidssituasjonen din mellom ${formatterDato(tidligstDato)} og frem " +
-                "til du ble sykmeldt ${formatterDato(soknad.fom!!)}?", // TODO avklare datoer
+                "til du ble sykmeldt ${formatterDato(soknad.fom!!)}?",
         svartype = Svartype.JA_NEI,
         kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
         undersporsmal =
