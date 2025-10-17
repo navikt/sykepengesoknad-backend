@@ -17,6 +17,9 @@ import no.nav.helse.flex.soknadsopprettelse.INNTEKTSOPPLYSNINGER_VARIG_ENDRING
 import no.nav.helse.flex.soknadsopprettelse.INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET
 import no.nav.helse.flex.soknadsopprettelse.INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET_JA
 import no.nav.helse.flex.soknadsopprettelse.INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET_NEI
+import no.nav.helse.flex.soknadsopprettelse.NARINGSDRIVENDE_NY_I_ARBEIDSLIVET
+import no.nav.helse.flex.soknadsopprettelse.NARINGSDRIVENDE_VARIG_ENDRING
+import no.nav.helse.flex.soknadsopprettelse.NARINGSDRIVENDE_VIRKSOMHETEN_DIN_AVVIKLET
 import no.nav.helse.flex.soknadsopprettelse.OPPHOLD_UTENFOR_EOS
 import no.nav.helse.flex.soknadsopprettelse.TILBAKE_I_ARBEID
 import no.nav.helse.flex.soknadsopprettelse.lagSykepengegrunnlagNaeringsdrivende
@@ -241,6 +244,47 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
             it[ARBEID_UTENFOR_NORGE] `should be equal to` false
             it[FRAVAR_FOR_SYKMELDINGEN_V2] `should be equal to` true
             it[INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET] `should be equal to` false
+        }
+    }
+
+    @Test
+    fun `Inneholder oppdelte hovedspørsmål for Selvstendig Næringsdrivende`() {
+        val soknad =
+            opprettNyNaeringsdrivendeSoknad(brukOppdelteNaringsdrivendeSporsmal = true)
+                .besvarsporsmal(NARINGSDRIVENDE_VIRKSOMHETEN_DIN_AVVIKLET, "NEI")
+                .besvarsporsmal(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET, "NEI")
+                .besvarsporsmal(NARINGSDRIVENDE_VARIG_ENDRING, "NEI")
+
+        val soknadDTO =
+            konverterTilSykepengesoknadDTO(
+                sykepengesoknad =
+                    soknad.copy(
+                        soknadPerioder = soknadPerioder,
+                        selvstendigNaringsdrivende =
+                            SelvstendigNaringsdrivendeInfo(
+                                roller = emptyList(),
+                                sykepengegrunnlagNaeringsdrivende = lagSykepengegrunnlagNaeringsdrivende(),
+                                erBarnepasser = false,
+                                brukerHarOppgittForsikring = false,
+                            ),
+                    ),
+                mottaker = Mottaker.ARBEIDSGIVER_OG_NAV,
+                erEttersending = false,
+                soknadsperioder = hentSoknadsPerioderMedFaktiskGrad(soknad).first,
+            )
+
+        soknadDTO.selvstendigNaringsdrivende!!.hovedSporsmalSvar.let {
+            it.size `should be equal to` 10
+            it[TILBAKE_I_ARBEID] `should be equal to` true
+            it["ARBEID_UNDERVEIS_100_PROSENT_0"] `should be equal to` false
+            it["JOBBET_DU_GRADERT_1"] `should be equal to` false
+            it[ANDRE_INNTEKTSKILDER] `should be equal to` true
+            it[OPPHOLD_UTENFOR_EOS] `should be equal to` true
+            it[ARBEID_UTENFOR_NORGE] `should be equal to` false
+            it[FRAVAR_FOR_SYKMELDINGEN_V2] `should be equal to` true
+            it[NARINGSDRIVENDE_VIRKSOMHETEN_DIN_AVVIKLET] `should be equal to` false
+            it[NARINGSDRIVENDE_NY_I_ARBEIDSLIVET] `should be equal to` false
+            it[NARINGSDRIVENDE_VARIG_ENDRING] `should be equal to` false
         }
     }
 

@@ -590,6 +590,22 @@ class ValideringTest {
         assertThat(validerSvarPaSoknad(soknadIkkeGodkjentFerieSporsmal)).isFalse()
     }
 
+    @Test
+    fun `Valider grenser måned svar`() {
+        assertThat(validerGrenser(getSporsmalMedGrenser(AAR_MAANED, "2020-01-01", "2024-01-01"), "2022-01-01")).isTrue
+        assertThat(validerGrenser(getSporsmalMedGrenser(AAR_MAANED, "2020-01-01", "2024-01-01"), "2025-01-01")).isFalse
+        assertThat(validerGrenser(getSporsmalMedGrenser(AAR_MAANED, "2020-01-01", "2024-01-01"), "1999-12-01")).isFalse
+        assertThat(validerGrenser(getSporsmalMedGrenser(AAR_MAANED, null, "2024-01-01"), "1999-12-01")).isTrue
+        assertThat(validerGrenser(getSporsmalMedGrenser(AAR_MAANED, "2020-01-01", null), "2025-01-01")).isTrue
+    }
+
+    @Test
+    fun `Valider verdi måned svar`() {
+        assertThat(validerSvarverdi(getSporsmalMedGrenser(AAR_MAANED, "2020-01-01", "2024-01-01"), "2025-01-01")).isTrue
+        assertThat(validerSvarverdi(getSporsmalMedGrenser(AAR_MAANED, "2020-01-01", "2024-01-01"), "2025.01.01")).isFalse
+        assertThat(validerSvarverdi(getSporsmalMedGrenser(AAR_MAANED, "2020-01-01", "2024-01-01"), "abcd")).isFalse
+    }
+
     private fun getBesvarteCheckedSporsmal(
         svartype: Svartype,
         antall: Int,

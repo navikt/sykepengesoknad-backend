@@ -95,6 +95,7 @@ fun Sporsmal.validerUndersporsmal() {
         INFO_BEHANDLINGSDAGER,
         RADIO_GRUPPE_UKEKALENDER,
         KVITTERING,
+        AAR_MAANED,
         -> {
             if (kriterieForVisningAvUndersporsmal != null) {
                 if (svar.size == 1) {
@@ -184,6 +185,7 @@ private fun Sporsmal.validerGrenserPaSvar(svar: Svar) {
 
             DATO,
             DATOER,
+            AAR_MAANED,
             -> validerGrenserPaDato(svar)
 
             KVITTERING -> validerGrenserPaKvittering(svar)
@@ -313,6 +315,7 @@ private fun Sporsmal.validerSvarverdi(svar: Svar) {
 
             DATO,
             DATOER,
+            AAR_MAANED,
             -> {
                 { verdi.erDato() }
             }
@@ -394,6 +397,7 @@ fun Sporsmal.validerAntallSvar() {
             CHECKBOX,
             BEKREFTELSESPUNKTER,
             OPPSUMMERING,
+            AAR_MAANED,
             -> {
                 { it == 1 }
             }

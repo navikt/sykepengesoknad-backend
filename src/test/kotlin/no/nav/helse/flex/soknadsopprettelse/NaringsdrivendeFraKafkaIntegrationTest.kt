@@ -668,6 +668,98 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
+    fun `Oppretter søknad for næringsdrivende med oppdelte hovedspørsmål`() {
+        val sykmeldingStatusKafkaMessageDTO =
+            skapSykmeldingStatusKafkaMessageDTO(
+                arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
+                fnr = fnr,
+            )
+        val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
+        val sykmelding =
+            skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId).copy(harRedusertArbeidsgiverperiode = true)
+
+        fakeUnleash.resetAll()
+        fakeUnleash.enable("sykepengesoknad-backend-sigrun-paa-kafka")
+        fakeUnleash.enable("sykepengesoknad-backend-oppdelt-naringsdrivende")
+        settOppSigrunMockResponser()
+
+        BrregMockDispatcher.enqueue(
+            RollerDto(
+                roller =
+                    listOf(
+                        RolleDto(
+                            rolletype = Rolletype.INNH,
+                            organisasjonsnummer = "orgnummer",
+                            organisasjonsnavn = "orgnavn",
+                        ),
+                    ),
+            ),
+        )
+
+        mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
+        val (fom, tom) = sykmelding.sykmeldingsperioder.first()
+        mockFlexSyketilfelleVentetid(
+            sykmelding.id,
+            VentetidResponse(FomTomPeriode(fom = fom, tom = tom)),
+        )
+        mockFlexSyketilfelleSykeforloep(sykmeldingId)
+
+        val sykmeldingKafkaMessage =
+            SykmeldingKafkaMessage(
+                sykmelding = sykmelding,
+                event = sykmeldingStatusKafkaMessageDTO.event,
+                kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
+            )
+
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
+            sykmeldingId,
+            sykmeldingKafkaMessage,
+            SYKMELDINGSENDT_TOPIC,
+        )
+
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).single().value().also {
+            it.tilSykepengesoknadDTO().also { sykepengesoknadDTO ->
+
+                sykepengesoknadDTO.arbeidssituasjon `should be equal to` ArbeidssituasjonDTO.SELVSTENDIG_NARINGSDRIVENDE
+
+                sykepengesoknadDTO.selvstendigNaringsdrivende!!.also { selvstendigNaringsdrivendeDTO ->
+                    selvstendigNaringsdrivendeDTO.roller.single().also { rolleDTO ->
+                        rolleDTO.orgnummer `should be equal to` "orgnummer"
+                        rolleDTO.rolletype `should be equal to` "INNH"
+                    }
+                    selvstendigNaringsdrivendeDTO.ventetid!! `should be equal to` VentetidDTO(fom, tom)
+                    selvstendigNaringsdrivendeDTO.inntekt!!.inntektsAar.size `should be equal to` 3
+                }
+            }
+        }
+
+        hentSoknader(fnr).sortedBy { it.fom }.single().also {
+            it.soknadstype `should be equal to` RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE
+            it.arbeidssituasjon `should be equal to` RSArbeidssituasjon.NAERINGSDRIVENDE
+
+            it.selvstendigNaringsdrivendeInfo?.sykepengegrunnlagNaeringsdrivende `should be equal to`
+                lagSykepengegrunnlagNaeringsdrivende()
+
+            it.sporsmal!!.map { sporsmal -> sporsmal.tag } `should be equal to`
+                listOf(
+                    ANSVARSERKLARING,
+                    FRAVAR_FOR_SYKMELDINGEN_V2,
+                    TILBAKE_I_ARBEID,
+                    "ARBEID_UNDERVEIS_100_PROSENT_0",
+                    ARBEID_UTENFOR_NORGE,
+                    ANDRE_INNTEKTSKILDER,
+                    OPPHOLD_UTENFOR_EOS,
+                    NARINGSDRIVENDE_VIRKSOMHETEN_DIN_AVVIKLET,
+                    NARINGSDRIVENDE_NY_I_ARBEIDSLIVET,
+                    NARINGSDRIVENDE_VARIG_ENDRING,
+                    TIL_SLUTT,
+                )
+        }
+
+        verify(aivenKafkaProducer, times(1)).produserMelding(any())
+    }
+
+    @Test
     fun `Oppretter søknad for Jordbruker`() {
         val sykmeldingStatusKafkaMessageDTO =
             skapSykmeldingStatusKafkaMessageDTO(

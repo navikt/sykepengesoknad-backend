@@ -234,7 +234,11 @@ class SporsmalGenerator(
                     NAERINGSDRIVENDE,
                     FRILANSER,
                     -> {
-                        settOppSoknadSelvstendigOgFrilanser(soknadOptions, sykepengegrunnlag)
+                        settOppSoknadSelvstendigOgFrilanser(
+                            soknadOptions,
+                            sykepengegrunnlag,
+                            unleashToggles.oppdeltNaeringsdrivendeEnabled(soknad.fnr),
+                        )
                     }
 
                     ARBEIDSLEDIG -> settOppSoknadArbeidsledig(soknadOptions)
