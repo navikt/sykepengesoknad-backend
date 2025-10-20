@@ -46,10 +46,11 @@ class SykepengegrunnlagForNaeringsdrivende(
             return null
         }
 
+        val aaretFoerSykepengegrunnlaget = pensjonsgivendeInntekter.finnFoersteAarISykepengegrunnlaget() - 1
         val harFunnetInntektFoerSykepengegrunnlaget =
             finnesPensjonsgivendeInntektForAar(
                 fnr = soknad.fnr,
-                aar = pensjonsgivendeInntekter.map { it.inntektsaar.toInt() }.minOf { it } - 1,
+                aar = aaretFoerSykepengegrunnlaget,
             )
 
         val grunnbeloepForAarMedInntekt =
@@ -207,3 +208,5 @@ data class SykepengegrunnlagNaeringsdrivende(
             )
         }
 }
+
+fun List<HentPensjonsgivendeInntektResponse>.finnFoersteAarISykepengegrunnlaget(): Int = this.minOf { it.inntektsaar.toInt() }

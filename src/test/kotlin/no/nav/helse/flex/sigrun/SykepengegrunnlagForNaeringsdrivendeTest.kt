@@ -6,6 +6,7 @@ import no.nav.helse.flex.client.sigrun.Skatteordning
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknad
 import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher
+import no.nav.helse.flex.service.finnFoersteAarISykepengegrunnlaget
 import no.nav.helse.flex.util.objectMapper
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should not be`
@@ -96,6 +97,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 it.m25 `should be equal to` 294385.toBigInteger()
             }
             spg.harFunnetInntektFoerSykepengegrunnlaget `should be equal to` true
+            spg.inntekter.finnFoersteAarISykepengegrunnlaget() `should be equal to` 2021
         }
     }
 
@@ -165,6 +167,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 it.m25 `should be equal to` 653849.toBigInteger()
             }
             spg.harFunnetInntektFoerSykepengegrunnlaget `should be equal to` false
+            spg.inntekter.finnFoersteAarISykepengegrunnlaget() `should be equal to` 2021
         }
     }
 
@@ -223,6 +226,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 it.m25 `should be equal to` 744168.toBigInteger()
             }
             spg.harFunnetInntektFoerSykepengegrunnlaget `should be equal to` false
+            spg.inntekter.finnFoersteAarISykepengegrunnlaget() `should be equal to` 2021
         }
     }
 
@@ -281,6 +285,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 it.m25 `should be equal to` 540256.toBigInteger()
             }
             spg.harFunnetInntektFoerSykepengegrunnlaget `should be equal to` false
+            spg.inntekter.finnFoersteAarISykepengegrunnlaget() `should be equal to` 2021
         }
     }
 
@@ -359,6 +364,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 it.m25 `should be equal to` 388770.toBigInteger()
             }
             spg.harFunnetInntektFoerSykepengegrunnlaget `should be equal to` false
+            spg.inntekter.finnFoersteAarISykepengegrunnlaget() `should be equal to` 2021
         }
     }
 
@@ -418,6 +424,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 it.m25 `should be equal to` 221497.toBigInteger()
             }
             spg.harFunnetInntektFoerSykepengegrunnlaget `should be equal to` false
+            spg.inntekter.finnFoersteAarISykepengegrunnlaget() `should be equal to` 2020
         }
     }
 
@@ -467,6 +474,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 it.m25 `should be equal to` 147471.toBigInteger()
             }
             spg.harFunnetInntektFoerSykepengegrunnlaget `should be equal to` false
+            spg.inntekter.finnFoersteAarISykepengegrunnlaget() `should be equal to` 2020
         }
     }
 
@@ -507,6 +515,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 it.m25 `should be equal to` 67530.toBigInteger()
             }
             spg.harFunnetInntektFoerSykepengegrunnlaget `should be equal to` false
+            spg.inntekter.finnFoersteAarISykepengegrunnlaget() `should be equal to` 2020
         }
     }
 
@@ -521,6 +530,8 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
         SigrunMockDispatcher.antallKall.get() `should be equal to` 5
 
         sykepengegrunnlag `should not be` null
+        sykepengegrunnlag!!.harFunnetInntektFoerSykepengegrunnlaget `should be equal to` true
+        sykepengegrunnlag.inntekter.finnFoersteAarISykepengegrunnlaget() `should be equal to` 2020
     }
 
     @Test
@@ -578,6 +589,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 it.m25 `should be equal to` 200719.toBigInteger()
             }
             spg.harFunnetInntektFoerSykepengegrunnlaget `should be equal to` false
+            spg.inntekter.finnFoersteAarISykepengegrunnlaget() `should be equal to` 2022
         }
     }
 

@@ -2,24 +2,25 @@ package no.nav.helse.flex.soknadsopprettelse.sporsmal
 
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svartype
-import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.Visningskriterie
 import no.nav.helse.flex.service.SykepengegrunnlagNaeringsdrivende
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.util.DatoUtil.formatterDato
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 fun lagSporsmalOmNaringsdrivendeVarigEndring(
-    soknad: Sykepengesoknad,
+    fom: LocalDate,
+    startSykeforlop: LocalDate?,
     sykepengegrunnlagNaeringsdrivende: SykepengegrunnlagNaeringsdrivende?,
 ): Sporsmal {
-    val tidligstDato = finnNaringsdrivendeTidligstDato(soknad, sykepengegrunnlagNaeringsdrivende)
+    val tidligstDato = finnNaringsdrivendeTidligstDato(startSykeforlop, sykepengegrunnlagNaeringsdrivende)
 
     return Sporsmal(
         tag = NARINGSDRIVENDE_VARIG_ENDRING,
         sporsmalstekst =
             "Har det skjedd en varig endring i arbeidssituasjonen din mellom ${formatterDato(tidligstDato)} og frem " +
-                "til du ble sykmeldt ${formatterDato(soknad.fom!!)}?",
+                "til du ble sykmeldt ${formatterDato(fom)}?",
         svartype = Svartype.JA_NEI,
         kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
         undersporsmal =
@@ -73,7 +74,7 @@ fun lagSporsmalOmNaringsdrivendeVarigEndring(
                     sporsmalstekst = "Når skjedde endringen?",
                     svartype = Svartype.AAR_MAANED,
                     min = tidligstDato.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                    max = soknad.fom.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                    max = fom.format(DateTimeFormatter.ISO_LOCAL_DATE),
                 ),
             ),
     )

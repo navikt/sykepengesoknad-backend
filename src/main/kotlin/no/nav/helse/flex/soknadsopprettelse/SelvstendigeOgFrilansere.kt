@@ -51,11 +51,23 @@ fun settOppSoknadSelvstendigOgFrilanser(
                 if (listOf(NAERINGSDRIVENDE, FISKER, JORDBRUKER, BARNEPASSER).contains(sykepengesoknad.arbeidssituasjon)) {
                     add(fravaerForSykmeldingSporsmal(sykepengesoknad))
                     if (brukOppdelteNaringsdrivendeSporsmal) {
-                        add(lagSporsmalOmNaringsdrivendeVirksomhetenDinAvviklet(sykepengesoknad))
+                        add(lagSporsmalOmNaringsdrivendeVirksomhetenDinAvviklet(sykepengesoknad.fom))
                         if (sykepengegrunnlagNaeringsdrivende?.harFunnetInntektFoerSykepengegrunnlaget != true) {
-                            add(lagSporsmalOmNaringsdrivendeNyIArbeidslivet(sykepengesoknad, sykepengegrunnlagNaeringsdrivende))
+                            add(
+                                lagSporsmalOmNaringsdrivendeNyIArbeidslivet(
+                                    fom = sykepengesoknad.fom,
+                                    startSykeforlop = sykepengesoknad.startSykeforlop,
+                                    sykepengegrunnlagNaeringsdrivende = sykepengegrunnlagNaeringsdrivende,
+                                ),
+                            )
                         }
-                        add(lagSporsmalOmNaringsdrivendeVarigEndring(sykepengesoknad, sykepengegrunnlagNaeringsdrivende))
+                        add(
+                            lagSporsmalOmNaringsdrivendeVarigEndring(
+                                fom = sykepengesoknad.fom,
+                                startSykeforlop = sykepengesoknad.startSykeforlop,
+                                sykepengegrunnlagNaeringsdrivende = sykepengegrunnlagNaeringsdrivende,
+                            ),
+                        )
                     } else {
                         add(lagSporsmalOmInntektsopplyninger(sykepengesoknad, sykepengegrunnlagNaeringsdrivende))
                     }

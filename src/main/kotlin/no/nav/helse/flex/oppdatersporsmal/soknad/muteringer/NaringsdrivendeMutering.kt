@@ -23,10 +23,11 @@ fun Sykepengesoknad.naringsdrivendeMutering(): Sykepengesoknad {
 
         virksomhetenDinAvvikletSvar == "NEI" -> {
             val oppdatertSoknad =
-                if (selvstendigNaringsdrivende?.sykepengegrunnlagNaeringsdrivende?.harFunnetInntektFoerSykepengegrunnlaget != true) {
+                if (harFunnetInntektFoerSykepengegrunnlaget()) {
                     this.leggTilSporsmaal(
                         lagSporsmalOmNaringsdrivendeNyIArbeidslivet(
-                            soknad = this,
+                            fom = fom!!,
+                            startSykeforlop = startSykeforlop,
                             sykepengegrunnlagNaeringsdrivende = selvstendigNaringsdrivende?.sykepengegrunnlagNaeringsdrivende,
                         ),
                     )
@@ -37,7 +38,8 @@ fun Sykepengesoknad.naringsdrivendeMutering(): Sykepengesoknad {
             oppdatertSoknad
                 .leggTilSporsmaal(
                     lagSporsmalOmNaringsdrivendeVarigEndring(
-                        soknad = oppdatertSoknad,
+                        fom = oppdatertSoknad.fom!!,
+                        startSykeforlop = oppdatertSoknad.startSykeforlop,
                         sykepengegrunnlagNaeringsdrivende = oppdatertSoknad.selvstendigNaringsdrivende?.sykepengegrunnlagNaeringsdrivende,
                     ),
                 )
@@ -46,7 +48,8 @@ fun Sykepengesoknad.naringsdrivendeMutering(): Sykepengesoknad {
         nyIArbeidslivetSvar == "NEI" -> {
             this.leggTilSporsmaal(
                 lagSporsmalOmNaringsdrivendeVarigEndring(
-                    soknad = this,
+                    fom = fom!!,
+                    startSykeforlop = startSykeforlop,
                     sykepengegrunnlagNaeringsdrivende = selvstendigNaringsdrivende?.sykepengegrunnlagNaeringsdrivende,
                 ),
             )
@@ -57,3 +60,6 @@ fun Sykepengesoknad.naringsdrivendeMutering(): Sykepengesoknad {
         }
     }
 }
+
+private fun Sykepengesoknad.harFunnetInntektFoerSykepengegrunnlaget() =
+    selvstendigNaringsdrivende?.sykepengegrunnlagNaeringsdrivende?.harFunnetInntektFoerSykepengegrunnlaget != true
