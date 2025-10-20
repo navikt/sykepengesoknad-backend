@@ -52,7 +52,9 @@ fun settOppSoknadSelvstendigOgFrilanser(
                     add(fravaerForSykmeldingSporsmal(sykepengesoknad))
                     if (brukOppdelteNaringsdrivendeSporsmal) {
                         add(lagSporsmalOmNaringsdrivendeVirksomhetenDinAvviklet(sykepengesoknad))
-                        add(lagSporsmalOmNaringsdrivendeNyIArbeidslivet(sykepengesoknad, sykepengegrunnlagNaeringsdrivende))
+                        if (sykepengegrunnlagNaeringsdrivende?.harFunnetInntektFoerSykepengegrunnlaget != true) {
+                            add(lagSporsmalOmNaringsdrivendeNyIArbeidslivet(sykepengesoknad, sykepengegrunnlagNaeringsdrivende))
+                        }
                         add(lagSporsmalOmNaringsdrivendeVarigEndring(sykepengesoknad, sykepengegrunnlagNaeringsdrivende))
                     } else {
                         add(lagSporsmalOmInntektsopplyninger(sykepengesoknad, sykepengegrunnlagNaeringsdrivende))

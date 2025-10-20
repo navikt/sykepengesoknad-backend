@@ -2,6 +2,8 @@ package no.nav.helse.flex.sigrun
 
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.client.sigrun.PensjongivendeInntektClientException
+import no.nav.helse.flex.client.sigrun.PensjonsgivendeInntekt
+import no.nav.helse.flex.client.sigrun.Skatteordning
 import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher
 import okhttp3.mockwebserver.MockResponse
 import org.amshove.kluent.`should be`
@@ -216,5 +218,57 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
 
         // @Retryable(maxAttempts = 3)
         SigrunMockDispatcher.antallKall.get() `should be equal to` 3
+    }
+
+    @Test
+    fun `Finnes pensjonsgivende inntekt for år`() {
+        with(SigrunMockDispatcher) {
+            enqueueMockResponse(FNR, "2020")
+        }
+
+        val response = sykepengegrunnlagForNaeringsdrivende.finnesPensjonsgivendeInntektForAar(FNR, 2020)
+        SigrunMockDispatcher.antallKall.get() `should be equal to` 1
+
+        response `should be equal to` true
+    }
+
+    @Test
+    fun `Finnes ikke pensjonsgivende inntekt for år`() {
+        with(SigrunMockDispatcher) {
+            enqueueResponse(sigrun404Feil())
+        }
+
+        val response = sykepengegrunnlagForNaeringsdrivende.finnesPensjonsgivendeInntektForAar(FNR, 2020)
+        SigrunMockDispatcher.antallKall.get() `should be equal to` 1
+
+        response `should be equal to` false
+    }
+
+    @Test
+    fun `Finnes 0 pensjonsgivende inntekt for år`() {
+        with(SigrunMockDispatcher) {
+            enqueueMockResponse(
+                fnr = FNR,
+                inntektsaar = "2020",
+                inntekt =
+                    listOf(
+                        PensjonsgivendeInntekt(
+                            datoForFastsetting = "2020-07-17",
+                            skatteordning = Skatteordning.FASTLAND,
+                            pensjonsgivendeInntektAvLoennsinntekt = 0,
+                        ),
+                        PensjonsgivendeInntekt(
+                            datoForFastsetting = "2020-07-19",
+                            skatteordning = Skatteordning.SVALBARD,
+                            pensjonsgivendeInntektAvNaeringsinntekt = 0,
+                        ),
+                    ),
+            )
+        }
+
+        val response = sykepengegrunnlagForNaeringsdrivende.finnesPensjonsgivendeInntektForAar(FNR, 2020)
+        SigrunMockDispatcher.antallKall.get() `should be equal to` 1
+
+        response `should be equal to` false
     }
 }

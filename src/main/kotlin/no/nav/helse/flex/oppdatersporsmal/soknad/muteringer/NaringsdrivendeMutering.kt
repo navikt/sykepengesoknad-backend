@@ -16,23 +16,33 @@ fun Sykepengesoknad.naringsdrivendeMutering(): Sykepengesoknad {
         virksomhetenDinAvvikletSvar == "JA" -> {
             this.fjernSporsmal(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET).fjernSporsmal(NARINGSDRIVENDE_VARIG_ENDRING)
         }
+
         nyIArbeidslivetSvar == "JA" -> {
             this.fjernSporsmal(NARINGSDRIVENDE_VARIG_ENDRING)
         }
+
         virksomhetenDinAvvikletSvar == "NEI" -> {
-            this
+            val oppdatertSoknad =
+                if (selvstendigNaringsdrivende?.sykepengegrunnlagNaeringsdrivende?.harFunnetInntektFoerSykepengegrunnlaget != true) {
+                    this.leggTilSporsmaal(
+                        lagSporsmalOmNaringsdrivendeNyIArbeidslivet(
+                            soknad = this,
+                            sykepengegrunnlagNaeringsdrivende = selvstendigNaringsdrivende?.sykepengegrunnlagNaeringsdrivende,
+                        ),
+                    )
+                } else {
+                    this
+                }
+
+            oppdatertSoknad
                 .leggTilSporsmaal(
-                    lagSporsmalOmNaringsdrivendeNyIArbeidslivet(
-                        soknad = this,
-                        sykepengegrunnlagNaeringsdrivende = selvstendigNaringsdrivende?.sykepengegrunnlagNaeringsdrivende,
-                    ),
-                ).leggTilSporsmaal(
                     lagSporsmalOmNaringsdrivendeVarigEndring(
-                        soknad = this,
-                        sykepengegrunnlagNaeringsdrivende = selvstendigNaringsdrivende?.sykepengegrunnlagNaeringsdrivende,
+                        soknad = oppdatertSoknad,
+                        sykepengegrunnlagNaeringsdrivende = oppdatertSoknad.selvstendigNaringsdrivende?.sykepengegrunnlagNaeringsdrivende,
                     ),
                 )
         }
+
         nyIArbeidslivetSvar == "NEI" -> {
             this.leggTilSporsmaal(
                 lagSporsmalOmNaringsdrivendeVarigEndring(
@@ -41,6 +51,7 @@ fun Sykepengesoknad.naringsdrivendeMutering(): Sykepengesoknad {
                 ),
             )
         }
+
         else -> {
             this
         }

@@ -1,8 +1,10 @@
 package no.nav.helse.flex.oppdatersporsmal.soknad.muteringer
 
+import no.nav.helse.flex.domain.SelvstendigNaringsdrivendeInfo
 import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknad
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.testutil.besvarsporsmal
+import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should not be`
 import org.junit.jupiter.api.Test
@@ -115,6 +117,40 @@ class NaringsdrivendeMuteringTest {
         mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_VIRKSOMHETEN_DIN_AVVIKLET).forsteSvar `should be equal to` "NEI"
         mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET) `should not be` null
         mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET_DATO) `should not be` null
+        mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_VARIG_ENDRING) `should not be` null
+        mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_VARIG_ENDRING_DATO) `should not be` null
+    }
+
+    @Test
+    fun `Avviklet nei svar skal ikke legge til manglende ny i arbeidslivet spørsmål hvis bruker har inntekt før sykepengegrunnlaget`() {
+        val soknad =
+            opprettNyNaeringsdrivendeSoknad(true)
+                .besvarsporsmal(NARINGSDRIVENDE_VIRKSOMHETEN_DIN_AVVIKLET, "NEI")
+                .fjernSporsmal(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET)
+                .fjernSporsmal(NARINGSDRIVENDE_VARIG_ENDRING)
+
+        val sokandMedInntektFoerSykepengegrunnlaget =
+            soknad.copy(
+                selvstendigNaringsdrivende =
+                    SelvstendigNaringsdrivendeInfo(
+                        roller = emptyList(),
+                        sykepengegrunnlagNaeringsdrivende =
+                            lagSykepengegrunnlagNaeringsdrivende().copy(
+                                harFunnetInntektFoerSykepengegrunnlaget = true,
+                            ),
+                        ventetid = null,
+                        erBarnepasser = false,
+                        brukerHarOppgittForsikring = false,
+                    ),
+            )
+
+        val mutertSoknad = sokandMedInntektFoerSykepengegrunnlaget.naringsdrivendeMutering()
+
+        sokandMedInntektFoerSykepengegrunnlaget.sporsmal.size `should be equal to` 10
+        mutertSoknad.sporsmal.size `should be equal to` 11
+        mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_VIRKSOMHETEN_DIN_AVVIKLET).forsteSvar `should be equal to` "NEI"
+        mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET) `should be` null
+        mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET_DATO) `should be` null
         mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_VARIG_ENDRING) `should not be` null
         mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_VARIG_ENDRING_DATO) `should not be` null
     }
