@@ -1430,6 +1430,21 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                         ),
                     ),
             )
+            enqueueMockResponse(
+                fnr = fnr,
+                inntektsaar = "2020",
+                inntekt =
+                    listOf(
+                        PensjonsgivendeInntekt(
+                            datoForFastsetting = "2020-07-17",
+                            skatteordning = Skatteordning.FASTLAND,
+                            pensjonsgivendeInntektAvLoennsinntekt = 0,
+                            pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = 0,
+                            pensjonsgivendeInntektAvNaeringsinntekt = 0,
+                            pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage = 0,
+                        ),
+                    ),
+            )
         }
     }
 }

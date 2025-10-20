@@ -16,33 +16,50 @@ fun Sykepengesoknad.naringsdrivendeMutering(): Sykepengesoknad {
         virksomhetenDinAvvikletSvar == "JA" -> {
             this.fjernSporsmal(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET).fjernSporsmal(NARINGSDRIVENDE_VARIG_ENDRING)
         }
+
         nyIArbeidslivetSvar == "JA" -> {
             this.fjernSporsmal(NARINGSDRIVENDE_VARIG_ENDRING)
         }
+
         virksomhetenDinAvvikletSvar == "NEI" -> {
-            this
+            val oppdatertSoknad =
+                if (harFunnetInntektFoerSykepengegrunnlaget()) {
+                    this.leggTilSporsmaal(
+                        lagSporsmalOmNaringsdrivendeNyIArbeidslivet(
+                            fom = fom!!,
+                            startSykeforlop = startSykeforlop,
+                            sykepengegrunnlagNaeringsdrivende = selvstendigNaringsdrivende?.sykepengegrunnlagNaeringsdrivende,
+                        ),
+                    )
+                } else {
+                    this
+                }
+
+            oppdatertSoknad
                 .leggTilSporsmaal(
-                    lagSporsmalOmNaringsdrivendeNyIArbeidslivet(
-                        soknad = this,
-                        sykepengegrunnlagNaeringsdrivende = selvstendigNaringsdrivende?.sykepengegrunnlagNaeringsdrivende,
-                    ),
-                ).leggTilSporsmaal(
                     lagSporsmalOmNaringsdrivendeVarigEndring(
-                        soknad = this,
-                        sykepengegrunnlagNaeringsdrivende = selvstendigNaringsdrivende?.sykepengegrunnlagNaeringsdrivende,
+                        fom = oppdatertSoknad.fom!!,
+                        startSykeforlop = oppdatertSoknad.startSykeforlop,
+                        sykepengegrunnlagNaeringsdrivende = oppdatertSoknad.selvstendigNaringsdrivende?.sykepengegrunnlagNaeringsdrivende,
                     ),
                 )
         }
+
         nyIArbeidslivetSvar == "NEI" -> {
             this.leggTilSporsmaal(
                 lagSporsmalOmNaringsdrivendeVarigEndring(
-                    soknad = this,
+                    fom = fom!!,
+                    startSykeforlop = startSykeforlop,
                     sykepengegrunnlagNaeringsdrivende = selvstendigNaringsdrivende?.sykepengegrunnlagNaeringsdrivende,
                 ),
             )
         }
+
         else -> {
             this
         }
     }
 }
+
+private fun Sykepengesoknad.harFunnetInntektFoerSykepengegrunnlaget() =
+    selvstendigNaringsdrivende?.sykepengegrunnlagNaeringsdrivende?.harFunnetInntektFoerSykepengegrunnlaget != true

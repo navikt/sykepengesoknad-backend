@@ -6,6 +6,7 @@ import no.nav.helse.flex.client.sigrun.Skatteordning
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknad
 import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher
+import no.nav.helse.flex.service.finnFoersteAarISykepengegrunnlaget
 import no.nav.helse.flex.util.objectMapper
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should not be`
@@ -64,10 +65,27 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                         ),
                     ),
             )
+            enqueueMockResponse(
+                fnr = FNR,
+                inntektsaar = "2020",
+                inntekt =
+                    listOf(
+                        PensjonsgivendeInntekt(
+                            datoForFastsetting = "2020-07-17",
+                            skatteordning = Skatteordning.FASTLAND,
+                            pensjonsgivendeInntektAvLoennsinntekt = 0,
+                        ),
+                        PensjonsgivendeInntekt(
+                            datoForFastsetting = "2020-07-19",
+                            skatteordning = Skatteordning.SVALBARD,
+                            pensjonsgivendeInntektAvNaeringsinntekt = 50_000,
+                        ),
+                    ),
+            )
         }
 
         val sykepengegrunnlag = sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(lagSykepengesoknad())
-        SigrunMockDispatcher.antallKall.get() `should be equal to` 3
+        SigrunMockDispatcher.antallKall.get() `should be equal to` 4
 
         sykepengegrunnlag `should not be` null
         sykepengegrunnlag!!.let { spg ->
@@ -78,6 +96,8 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 it.p25 `should be equal to` 490642.toBigInteger()
                 it.m25 `should be equal to` 294385.toBigInteger()
             }
+            spg.harFunnetInntektFoerSykepengegrunnlaget `should be equal to` true
+            spg.inntekter.finnFoersteAarISykepengegrunnlaget() `should be equal to` 2021
         }
     }
 
@@ -120,10 +140,22 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                         ),
                     ),
             )
+            enqueueMockResponse(
+                fnr = FNR,
+                inntektsaar = "2020",
+                inntekt =
+                    listOf(
+                        PensjonsgivendeInntekt(
+                            datoForFastsetting = "2020-07-17",
+                            skatteordning = Skatteordning.FASTLAND,
+                            pensjonsgivendeInntektAvLoennsinntekt = 0,
+                        ),
+                    ),
+            )
         }
 
         val sykepengegrunnlag = sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(lagSykepengesoknad())
-        SigrunMockDispatcher.antallKall.get() `should be equal to` 3
+        SigrunMockDispatcher.antallKall.get() `should be equal to` 4
 
         sykepengegrunnlag `should not be` null
         sykepengegrunnlag!!.let { spg ->
@@ -134,6 +166,8 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 it.p25 `should be equal to` 1089748.toBigInteger()
                 it.m25 `should be equal to` 653849.toBigInteger()
             }
+            spg.harFunnetInntektFoerSykepengegrunnlaget `should be equal to` false
+            spg.inntekter.finnFoersteAarISykepengegrunnlaget() `should be equal to` 2021
         }
     }
 
@@ -176,10 +210,11 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                         ),
                     ),
             )
+            enqueueResponse(sigrun404Feil())
         }
 
         val sykepengegrunnlag = sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(lagSykepengesoknad())
-        SigrunMockDispatcher.antallKall.get() `should be equal to` 3
+        SigrunMockDispatcher.antallKall.get() `should be equal to` 4
 
         sykepengegrunnlag `should not be` null
         sykepengegrunnlag!!.let { spg ->
@@ -190,6 +225,8 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 it.p25 `should be equal to` 1240280.toBigInteger()
                 it.m25 `should be equal to` 744168.toBigInteger()
             }
+            spg.harFunnetInntektFoerSykepengegrunnlaget `should be equal to` false
+            spg.inntekter.finnFoersteAarISykepengegrunnlaget() `should be equal to` 2021
         }
     }
 
@@ -232,10 +269,11 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                         ),
                     ),
             )
+            enqueueResponse(sigrun404Feil())
         }
 
         val sykepengegrunnlag = sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(lagSykepengesoknad())
-        SigrunMockDispatcher.antallKall.get() `should be equal to` 3
+        SigrunMockDispatcher.antallKall.get() `should be equal to` 4
 
         sykepengegrunnlag `should not be` null
         sykepengegrunnlag!!.let { spg ->
@@ -246,6 +284,8 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 it.p25 `should be equal to` 900426.toBigInteger()
                 it.m25 `should be equal to` 540256.toBigInteger()
             }
+            spg.harFunnetInntektFoerSykepengegrunnlaget `should be equal to` false
+            spg.inntekter.finnFoersteAarISykepengegrunnlaget() `should be equal to` 2021
         }
     }
 
@@ -308,10 +348,11 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                         ),
                     ),
             )
+            enqueueResponse(sigrun404Feil())
         }
 
         val sykepengegrunnlag = sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(lagSykepengesoknad())
-        SigrunMockDispatcher.antallKall.get() `should be equal to` 3
+        SigrunMockDispatcher.antallKall.get() `should be equal to` 4
 
         sykepengegrunnlag `should not be` null
         sykepengegrunnlag!!.let { spg ->
@@ -322,6 +363,8 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 it.p25 `should be equal to` 647951.toBigInteger()
                 it.m25 `should be equal to` 388770.toBigInteger()
             }
+            spg.harFunnetInntektFoerSykepengegrunnlaget `should be equal to` false
+            spg.inntekter.finnFoersteAarISykepengegrunnlaget() `should be equal to` 2021
         }
     }
 
@@ -365,10 +408,11 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                         ),
                     ),
             )
+            enqueueResponse(sigrun404Feil())
         }
 
         val sykepengegrunnlag = sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(lagSykepengesoknad())
-        SigrunMockDispatcher.antallKall.get() `should be equal to` 4
+        SigrunMockDispatcher.antallKall.get() `should be equal to` 5
 
         sykepengegrunnlag `should not be` null
         sykepengegrunnlag!!.let { spg ->
@@ -379,6 +423,8 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 it.p25 `should be equal to` 369162.toBigInteger()
                 it.m25 `should be equal to` 221497.toBigInteger()
             }
+            spg.harFunnetInntektFoerSykepengegrunnlaget `should be equal to` false
+            spg.inntekter.finnFoersteAarISykepengegrunnlaget() `should be equal to` 2020
         }
     }
 
@@ -411,10 +457,11 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                         ),
                     ),
             )
+            enqueueResponse(sigrun404Feil())
         }
 
         val sykepengegrunnlag = sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(lagSykepengesoknad())
-        SigrunMockDispatcher.antallKall.get() `should be equal to` 4
+        SigrunMockDispatcher.antallKall.get() `should be equal to` 5
 
         sykepengegrunnlag `should not be` null
         sykepengegrunnlag!!.let { spg ->
@@ -426,6 +473,8 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 it.p25 `should be equal to` 245785.toBigInteger()
                 it.m25 `should be equal to` 147471.toBigInteger()
             }
+            spg.harFunnetInntektFoerSykepengegrunnlaget `should be equal to` false
+            spg.inntekter.finnFoersteAarISykepengegrunnlaget() `should be equal to` 2020
         }
     }
 
@@ -446,13 +495,14 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
             )
             enqueueResponse(sigrun404Feil())
             enqueueResponse(sigrun404Feil())
+            enqueueResponse(sigrun404Feil())
         }
 
         val sykepengegrunnlag =
             sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(
                 lagSykepengesoknad(dato = LocalDate.of(2023, 10, 1)),
             )
-        SigrunMockDispatcher.antallKall.get() `should be equal to` 3
+        SigrunMockDispatcher.antallKall.get() `should be equal to` 4
 
         sykepengegrunnlag `should not be` null
         sykepengegrunnlag!!.let { spg ->
@@ -464,20 +514,24 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 it.p25 `should be equal to` 112551.toBigInteger()
                 it.m25 `should be equal to` 67530.toBigInteger()
             }
+            spg.harFunnetInntektFoerSykepengegrunnlaget `should be equal to` false
+            spg.inntekter.finnFoersteAarISykepengegrunnlaget() `should be equal to` 2020
         }
     }
 
     @Test
     fun `Det blir beregnet sykepengegrunnlag selv om alle år mangler inntekter`() {
         with(SigrunMockDispatcher) {
-            repeat(3) {
+            repeat(4) {
                 enqueueResponse(sigrun404Feil())
             }
         }
         val sykepengegrunnlag = sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(lagSykepengesoknad())
-        SigrunMockDispatcher.antallKall.get() `should be equal to` 4
+        SigrunMockDispatcher.antallKall.get() `should be equal to` 5
 
         sykepengegrunnlag `should not be` null
+        sykepengegrunnlag!!.harFunnetInntektFoerSykepengegrunnlaget `should be equal to` true
+        sykepengegrunnlag.inntekter.finnFoersteAarISykepengegrunnlaget() `should be equal to` 2020
     }
 
     @Test
@@ -519,10 +573,11 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                         ),
                     ),
             )
+            enqueueResponse(sigrun404Feil())
         }
 
         val sykepengegrunnlag = sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(lagSykepengesoknad(LocalDate.of(2025, 3, 1)))
-        SigrunMockDispatcher.antallKall.get() `should be equal to` 3
+        SigrunMockDispatcher.antallKall.get() `should be equal to` 4
 
         sykepengegrunnlag `should not be` null
         sykepengegrunnlag!!.let { spg ->
@@ -533,6 +588,8 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                 it.p25 `should be equal to` 334532.toBigInteger()
                 it.m25 `should be equal to` 200719.toBigInteger()
             }
+            spg.harFunnetInntektFoerSykepengegrunnlaget `should be equal to` false
+            spg.inntekter.finnFoersteAarISykepengegrunnlaget() `should be equal to` 2022
         }
     }
 
@@ -575,10 +632,11 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
                         ),
                     ),
             )
+            enqueueResponse(sigrun404Feil())
         }
 
         val grunnlagVerdier = sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(lagSykepengesoknad())
-        SigrunMockDispatcher.antallKall.get() `should be equal to` 3
+        SigrunMockDispatcher.antallKall.get() `should be equal to` 4
 
         grunnlagVerdier `should not be` null
         grunnlagVerdier!!.toJsonNode().toString() `should be equal to`

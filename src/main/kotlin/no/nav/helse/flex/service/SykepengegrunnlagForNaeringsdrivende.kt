@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import java.math.BigInteger
 
+private const val SIGRUN_DATA_TIDLIGSTE_AAR = 2017
+
 @Service
 class SykepengegrunnlagForNaeringsdrivende(
     private val pensjongivendeInntektClient: PensjongivendeInntektClient,
@@ -44,6 +46,13 @@ class SykepengegrunnlagForNaeringsdrivende(
             return null
         }
 
+        val aaretFoerSykepengegrunnlaget = pensjonsgivendeInntekter.finnFoersteAarISykepengegrunnlaget() - 1
+        val harFunnetInntektFoerSykepengegrunnlaget =
+            finnesPensjonsgivendeInntektForAar(
+                fnr = soknad.fnr,
+                aar = aaretFoerSykepengegrunnlaget,
+            )
+
         val grunnbeloepForAarMedInntekt =
             finnGrunnbeloepForAarMedInntekt(grunnbeloepHistorikk, pensjonsgivendeInntekter)
 
@@ -67,6 +76,7 @@ class SykepengegrunnlagForNaeringsdrivende(
             grunnbeloepPaaSykmeldingstidspunkt = grunnbeloepPaaSykmeldingstidspunkt,
             beregnetSnittOgEndring25 = beregnEndring25Prosent(gjennomsnittligInntektAlleAar),
             inntekter = pensjonsgivendeInntekter,
+            harFunnetInntektFoerSykepengegrunnlaget = harFunnetInntektFoerSykepengegrunnlaget,
         )
     }
 
@@ -79,8 +89,8 @@ class SykepengegrunnlagForNaeringsdrivende(
         val forsteAar = sykmeldtAar - 1
         val aarViHenterFor = forsteAar downTo forsteAar - 2
 
-        // Sikrer at vi ikke henter inntekt tidliger enn 2017, som er første år Sigrun har data for.
-        if (aarViHenterFor.last < 2017) {
+        // Sikrer at vi ikke henter inntekt tidligere enn Sigrun har data for.
+        if (aarViHenterFor.last < SIGRUN_DATA_TIDLIGSTE_AAR) {
             log.info(
                 "Henter ikke pensjonsgivende inntekt for søknad $sykepengesoknadId da tidligste år er ${aarViHenterFor.last}.",
             )
@@ -95,8 +105,8 @@ class SykepengegrunnlagForNaeringsdrivende(
         if (ferdigliknetInntekter.find { it.inntektsaar == forsteAar.toString() }?.pensjonsgivendeInntekt!!.isEmpty()) {
             val nyttForsteAar = forsteAar - 3
 
-            // Sikrer at vi ikke henter inntekt tidliger enn 2017 også når vi hopper over først.
-            if (nyttForsteAar < 2017) {
+            // Sikrer at vi ikke henter inntekt tidligere enn Sigrun har data for, også når vi hopper over første året.
+            if (nyttForsteAar < SIGRUN_DATA_TIDLIGSTE_AAR) {
                 log.info(
                     "Henter ikke pensjonsgivende inntekt for søknad $sykepengesoknadId da tidligste år er ${aarViHenterFor.last}.",
                 )
@@ -114,6 +124,20 @@ class SykepengegrunnlagForNaeringsdrivende(
             )
         }
         return ferdigliknetInntekter
+    }
+
+    fun finnesPensjonsgivendeInntektForAar(
+        fnr: String,
+        aar: Int,
+    ): Boolean {
+        if (aar < SIGRUN_DATA_TIDLIGSTE_AAR) {
+            return false
+        }
+
+        return pensjongivendeInntektClient
+            .hentPensjonsgivendeInntekt(fnr, aar)
+            .pensjonsgivendeInntekt
+            .sumOf { it.sumAvAlleInntekter() } > 0
     }
 
     private fun finnGrunnbeloepForAarMedInntekt(
@@ -167,6 +191,7 @@ data class SykepengegrunnlagNaeringsdrivende(
     val grunnbeloepPaaSykmeldingstidspunkt: Int,
     val beregnetSnittOgEndring25: Beregnet,
     val inntekter: List<HentPensjonsgivendeInntektResponse>,
+    val harFunnetInntektFoerSykepengegrunnlaget: Boolean = false,
 ) {
     @Override
     fun toJsonNode(): JsonNode =
@@ -183,3 +208,5 @@ data class SykepengegrunnlagNaeringsdrivende(
             )
         }
 }
+
+fun List<HentPensjonsgivendeInntektResponse>.finnFoersteAarISykepengegrunnlaget(): Int = this.minOf { it.inntektsaar.toInt() }
