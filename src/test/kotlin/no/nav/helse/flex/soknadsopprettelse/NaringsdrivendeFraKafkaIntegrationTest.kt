@@ -749,7 +749,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                     ARBEID_UTENFOR_NORGE,
                     ANDRE_INNTEKTSKILDER,
                     OPPHOLD_UTENFOR_EOS,
-                    NARINGSDRIVENDE_VIRKSOMHETEN_DIN_AVVIKLET,
+                    NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET,
                     NARINGSDRIVENDE_NY_I_ARBEIDSLIVET,
                     NARINGSDRIVENDE_VARIG_ENDRING,
                     TIL_SLUTT,

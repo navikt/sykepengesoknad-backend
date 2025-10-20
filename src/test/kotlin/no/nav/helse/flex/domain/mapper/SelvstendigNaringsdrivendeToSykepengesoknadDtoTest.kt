@@ -19,7 +19,7 @@ import no.nav.helse.flex.soknadsopprettelse.INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AV
 import no.nav.helse.flex.soknadsopprettelse.INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET_NEI
 import no.nav.helse.flex.soknadsopprettelse.NARINGSDRIVENDE_NY_I_ARBEIDSLIVET
 import no.nav.helse.flex.soknadsopprettelse.NARINGSDRIVENDE_VARIG_ENDRING
-import no.nav.helse.flex.soknadsopprettelse.NARINGSDRIVENDE_VIRKSOMHETEN_DIN_AVVIKLET
+import no.nav.helse.flex.soknadsopprettelse.NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET
 import no.nav.helse.flex.soknadsopprettelse.OPPHOLD_UTENFOR_EOS
 import no.nav.helse.flex.soknadsopprettelse.TILBAKE_I_ARBEID
 import no.nav.helse.flex.soknadsopprettelse.lagSykepengegrunnlagNaeringsdrivende
@@ -251,7 +251,7 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
     fun `Inneholder oppdelte hovedspørsmål for Selvstendig Næringsdrivende`() {
         val soknad =
             opprettNyNaeringsdrivendeSoknad(brukOppdelteNaringsdrivendeSporsmal = true)
-                .besvarsporsmal(NARINGSDRIVENDE_VIRKSOMHETEN_DIN_AVVIKLET, "NEI")
+                .besvarsporsmal(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET, "NEI")
                 .besvarsporsmal(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET, "NEI")
                 .besvarsporsmal(NARINGSDRIVENDE_VARIG_ENDRING, "NEI")
 
@@ -282,7 +282,7 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
             it[OPPHOLD_UTENFOR_EOS] `should be equal to` true
             it[ARBEID_UTENFOR_NORGE] `should be equal to` false
             it[FRAVAR_FOR_SYKMELDINGEN_V2] `should be equal to` true
-            it[NARINGSDRIVENDE_VIRKSOMHETEN_DIN_AVVIKLET] `should be equal to` false
+            it[NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET] `should be equal to` false
             it[NARINGSDRIVENDE_NY_I_ARBEIDSLIVET] `should be equal to` false
             it[NARINGSDRIVENDE_VARIG_ENDRING] `should be equal to` false
         }

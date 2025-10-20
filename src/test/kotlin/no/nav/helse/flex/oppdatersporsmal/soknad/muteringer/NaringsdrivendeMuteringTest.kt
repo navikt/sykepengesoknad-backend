@@ -19,8 +19,8 @@ class NaringsdrivendeMuteringTest {
         soknad.sporsmal.size `should be equal to` 12
         mutertSoknad.sporsmal.size `should be equal to` soknad.sporsmal.size
         mutertSoknad.sporsmal `should be equal to` soknad.sporsmal
-        mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_VIRKSOMHETEN_DIN_AVVIKLET) `should not be` null
-        mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_VIRKSOMHETEN_DIN_AVVIKLET_DATO) `should not be` null
+        mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET) `should not be` null
+        mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET_DATO) `should not be` null
         mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET) `should not be` null
         mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET_DATO) `should not be` null
         mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_VARIG_ENDRING) `should not be` null
@@ -31,7 +31,7 @@ class NaringsdrivendeMuteringTest {
     fun `Mutering av soknad uten relevante naringsdrivende sporsmal skal ikke føre til noen endringer`() {
         val soknad =
             opprettNyNaeringsdrivendeSoknad(true)
-                .fjernSporsmal(NARINGSDRIVENDE_VIRKSOMHETEN_DIN_AVVIKLET)
+                .fjernSporsmal(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET)
                 .fjernSporsmal(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET)
                 .fjernSporsmal(NARINGSDRIVENDE_VARIG_ENDRING)
 
@@ -46,13 +46,13 @@ class NaringsdrivendeMuteringTest {
     fun `Avviklet ja svar skal fjerne ny i arbeidslivet og varig endring spørsmål`() {
         val soknad =
             opprettNyNaeringsdrivendeSoknad(true)
-                .besvarsporsmal(NARINGSDRIVENDE_VIRKSOMHETEN_DIN_AVVIKLET, "JA")
+                .besvarsporsmal(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET, "JA")
 
         val mutertSoknad = soknad.naringsdrivendeMutering()
 
         soknad.sporsmal.size `should be equal to` 12
         mutertSoknad.sporsmal.size `should be equal to` 10
-        mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_VIRKSOMHETEN_DIN_AVVIKLET).forsteSvar `should be equal to` "JA"
+        mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET).forsteSvar `should be equal to` "JA"
         mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET) `should be equal to` null
         mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET_DATO) `should be equal to` null
         mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_VARIG_ENDRING) `should be equal to` null
@@ -63,8 +63,8 @@ class NaringsdrivendeMuteringTest {
     fun `Avviklet ja svar skal fjerne ny i arbeidslivet og varig endring spørsmål selv om de har svar`() {
         val soknad =
             opprettNyNaeringsdrivendeSoknad(true)
-                .besvarsporsmal(NARINGSDRIVENDE_VIRKSOMHETEN_DIN_AVVIKLET, "JA")
-                .besvarsporsmal(NARINGSDRIVENDE_VIRKSOMHETEN_DIN_AVVIKLET_DATO, "2019-01-01")
+                .besvarsporsmal(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET, "JA")
+                .besvarsporsmal(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET_DATO, "2019-01-01")
                 .besvarsporsmal(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET, "JA")
                 .besvarsporsmal(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET_DATO, "2020-01-01")
                 .besvarsporsmal(NARINGSDRIVENDE_VARIG_ENDRING, "JA")
@@ -74,8 +74,8 @@ class NaringsdrivendeMuteringTest {
 
         soknad.sporsmal.size `should be equal to` 12
         mutertSoknad.sporsmal.size `should be equal to` 10
-        mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_VIRKSOMHETEN_DIN_AVVIKLET).forsteSvar `should be equal to` "JA"
-        mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_VIRKSOMHETEN_DIN_AVVIKLET_DATO).forsteSvar `should be equal to` "2019-01-01"
+        mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET).forsteSvar `should be equal to` "JA"
+        mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET_DATO).forsteSvar `should be equal to` "2019-01-01"
         mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET) `should be equal to` null
         mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET_DATO) `should be equal to` null
         mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_VARIG_ENDRING) `should be equal to` null
@@ -86,7 +86,7 @@ class NaringsdrivendeMuteringTest {
     fun `Avviklet nei svar skal ikke endre svar på ny i arbeidslivet og varig endring spørsmål`() {
         val soknad =
             opprettNyNaeringsdrivendeSoknad(true)
-                .besvarsporsmal(NARINGSDRIVENDE_VIRKSOMHETEN_DIN_AVVIKLET, "NEI")
+                .besvarsporsmal(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET, "NEI")
                 .besvarsporsmal(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET, "NEI")
                 .besvarsporsmal(NARINGSDRIVENDE_VARIG_ENDRING, "JA")
                 .besvarsporsmal(NARINGSDRIVENDE_VARIG_ENDRING_DATO, "2021-01-01")
@@ -96,7 +96,7 @@ class NaringsdrivendeMuteringTest {
         soknad.sporsmal.size `should be equal to` 12
         mutertSoknad.sporsmal.size `should be equal to` soknad.sporsmal.size
         mutertSoknad.sporsmal `should be equal to` soknad.sporsmal
-        mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_VIRKSOMHETEN_DIN_AVVIKLET).forsteSvar `should be equal to` "NEI"
+        mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET).forsteSvar `should be equal to` "NEI"
         mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET).forsteSvar `should be equal to` "NEI"
         mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_VARIG_ENDRING).forsteSvar `should be equal to` "JA"
         mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_VARIG_ENDRING_DATO).forsteSvar `should be equal to` "2021-01-01"
@@ -106,7 +106,7 @@ class NaringsdrivendeMuteringTest {
     fun `Avviklet nei svar skal legge til manglende ny i arbeidslivet og varig endring spørsmål`() {
         val soknad =
             opprettNyNaeringsdrivendeSoknad(true)
-                .besvarsporsmal(NARINGSDRIVENDE_VIRKSOMHETEN_DIN_AVVIKLET, "NEI")
+                .besvarsporsmal(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET, "NEI")
                 .fjernSporsmal(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET)
                 .fjernSporsmal(NARINGSDRIVENDE_VARIG_ENDRING)
 
@@ -114,7 +114,7 @@ class NaringsdrivendeMuteringTest {
 
         soknad.sporsmal.size `should be equal to` 10
         mutertSoknad.sporsmal.size `should be equal to` 12
-        mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_VIRKSOMHETEN_DIN_AVVIKLET).forsteSvar `should be equal to` "NEI"
+        mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET).forsteSvar `should be equal to` "NEI"
         mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET) `should not be` null
         mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET_DATO) `should not be` null
         mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_VARIG_ENDRING) `should not be` null
@@ -125,7 +125,7 @@ class NaringsdrivendeMuteringTest {
     fun `Avviklet nei svar skal ikke legge til manglende ny i arbeidslivet spørsmål hvis bruker har inntekt før sykepengegrunnlaget`() {
         val soknad =
             opprettNyNaeringsdrivendeSoknad(true)
-                .besvarsporsmal(NARINGSDRIVENDE_VIRKSOMHETEN_DIN_AVVIKLET, "NEI")
+                .besvarsporsmal(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET, "NEI")
                 .fjernSporsmal(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET)
                 .fjernSporsmal(NARINGSDRIVENDE_VARIG_ENDRING)
 
@@ -148,7 +148,7 @@ class NaringsdrivendeMuteringTest {
 
         sokandMedInntektFoerSykepengegrunnlaget.sporsmal.size `should be equal to` 10
         mutertSoknad.sporsmal.size `should be equal to` 11
-        mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_VIRKSOMHETEN_DIN_AVVIKLET).forsteSvar `should be equal to` "NEI"
+        mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET).forsteSvar `should be equal to` "NEI"
         mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET) `should be` null
         mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET_DATO) `should be` null
         mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_VARIG_ENDRING) `should not be` null
