@@ -51,7 +51,7 @@ fun settOppSoknadSelvstendigOgFrilanser(
                 if (listOf(NAERINGSDRIVENDE, FISKER, JORDBRUKER, BARNEPASSER).contains(sykepengesoknad.arbeidssituasjon)) {
                     add(fravaerForSykmeldingSporsmal(sykepengesoknad))
                     if (brukOppdelteNaringsdrivendeSporsmal) {
-                        add(lagSporsmalOmNaringsdrivendeVirksomhetenDinAvviklet(sykepengesoknad.fom))
+                        add(lagSporsmalOmNaringsdrivendeVirksomhetenAvviklet(sykepengesoknad.fom))
                         if (sykepengegrunnlagNaeringsdrivende?.harFunnetInntektFoerSykepengegrunnlaget != true) {
                             add(
                                 lagSporsmalOmNaringsdrivendeNyIArbeidslivet(

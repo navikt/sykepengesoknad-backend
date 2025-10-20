@@ -4,16 +4,16 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.oppdatersporsmal.soknad.leggTilSporsmaal
 import no.nav.helse.flex.soknadsopprettelse.NARINGSDRIVENDE_NY_I_ARBEIDSLIVET
 import no.nav.helse.flex.soknadsopprettelse.NARINGSDRIVENDE_VARIG_ENDRING
-import no.nav.helse.flex.soknadsopprettelse.NARINGSDRIVENDE_VIRKSOMHETEN_DIN_AVVIKLET
+import no.nav.helse.flex.soknadsopprettelse.NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.lagSporsmalOmNaringsdrivendeNyIArbeidslivet
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.lagSporsmalOmNaringsdrivendeVarigEndring
 
 fun Sykepengesoknad.naringsdrivendeMutering(): Sykepengesoknad {
-    val virksomhetenDinAvvikletSvar = getSporsmalMedTagOrNull(NARINGSDRIVENDE_VIRKSOMHETEN_DIN_AVVIKLET)?.forsteSvar
+    val virksomhetenAvvikletSvar = getSporsmalMedTagOrNull(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET)?.forsteSvar
     val nyIArbeidslivetSvar = getSporsmalMedTagOrNull(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET)?.forsteSvar
 
     return when {
-        virksomhetenDinAvvikletSvar == "JA" -> {
+        virksomhetenAvvikletSvar == "JA" -> {
             this.fjernSporsmal(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET).fjernSporsmal(NARINGSDRIVENDE_VARIG_ENDRING)
         }
 
@@ -21,7 +21,7 @@ fun Sykepengesoknad.naringsdrivendeMutering(): Sykepengesoknad {
             this.fjernSporsmal(NARINGSDRIVENDE_VARIG_ENDRING)
         }
 
-        virksomhetenDinAvvikletSvar == "NEI" -> {
+        virksomhetenAvvikletSvar == "NEI" -> {
             val oppdatertSoknad =
                 if (harFunnetInntektFoerSykepengegrunnlaget()) {
                     this.leggTilSporsmaal(
