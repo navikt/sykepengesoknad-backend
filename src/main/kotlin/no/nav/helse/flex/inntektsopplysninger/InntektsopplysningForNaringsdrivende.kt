@@ -10,7 +10,7 @@ import no.nav.helse.flex.repository.SykepengesoknadDbRecord
 import no.nav.helse.flex.repository.SykepengesoknadRepository
 import no.nav.helse.flex.soknadsopprettelse.INNTEKTSOPPLYSNINGER_DRIFT_VIRKSOMHETEN
 import no.nav.helse.flex.soknadsopprettelse.INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET
-import no.nav.helse.flex.soknadsopprettelse.NARINGSDRIVENDE_NY_I_ARBEIDSLIVET
+import no.nav.helse.flex.soknadsopprettelse.NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
@@ -42,7 +42,7 @@ class InntektsopplysningForNaringsdrivende(
         val visNyKvittering =
             soknad.getSporsmalMedTagOrNull(INNTEKTSOPPLYSNINGER_DRIFT_VIRKSOMHETEN) != null ||
                 soknad.getSporsmalMedTagOrNull(INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET) != null ||
-                soknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET) != null
+                soknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET) != null
 
         val sykepengesoknadDbRecord =
             sykepengesoknadRepository.findBySykepengesoknadUuid(soknad.id)
