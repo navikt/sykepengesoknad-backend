@@ -74,7 +74,7 @@ fun lagSporsmalOmNaringsdrivendeVarigEndring(
                     sporsmalstekst = "Når skjedde endringen?",
                     svartype = Svartype.AAR_MAANED,
                     min = tidligstDato.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                    max = fom.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                    max = fom.minusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE),
                 ),
             ),
     )
