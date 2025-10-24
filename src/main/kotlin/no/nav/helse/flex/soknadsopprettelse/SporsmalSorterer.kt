@@ -58,6 +58,7 @@ fun Sporsmal.fellesPlasseringSporsmal(): Int =
         MEDLEMSKAP_OPPHOLD_UTENFOR_EOS -> 511
 
         OPPHOLD_UTENFOR_EOS -> 518
+        NARINGSDRIVENDE_OPPHOLD_I_UTLANDET -> 519
         UTLAND_V2 -> 520
         UTLANDSOPPHOLD_SOKT_SYKEPENGER -> 521
 

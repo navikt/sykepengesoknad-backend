@@ -235,9 +235,10 @@ class SporsmalGenerator(
                     FRILANSER,
                     -> {
                         settOppSoknadSelvstendigOgFrilanser(
-                            soknadOptions,
-                            sykepengegrunnlag,
-                            unleashToggles.oppdeltNaeringsdrivendeEnabled(soknad.fnr),
+                            opts = soknadOptions,
+                            sykepengegrunnlagNaeringsdrivende = sykepengegrunnlag,
+                            brukOppdelteNaringsdrivendeSporsmal = unleashToggles.oppdeltNaeringsdrivendeEnabled(soknad.fnr),
+                            brukNyttOppholdIUtlandetSporsmal = unleashToggles.oppholdIUtlandetEnabled(soknad.fnr),
                         )
                     }
 

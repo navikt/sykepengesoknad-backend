@@ -1,14 +1,9 @@
 package no.nav.helse.flex.soknadsopprettelse
 
-import no.nav.helse.flex.domain.Arbeidssituasjon
+import no.nav.helse.flex.domain.*
 import no.nav.helse.flex.domain.Arbeidssituasjon.*
-import no.nav.helse.flex.domain.Soknadsperiode
-import no.nav.helse.flex.domain.Soknadstype
-import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svartype.DATO
 import no.nav.helse.flex.domain.Svartype.JA_NEI
-import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.domain.Sykmeldingstype
 import no.nav.helse.flex.domain.Visningskriterie.JA
 import no.nav.helse.flex.service.SykepengegrunnlagNaeringsdrivende
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.*
@@ -16,12 +11,14 @@ import no.nav.helse.flex.soknadsopprettelse.sporsmal.utenlandsksykmelding.utenla
 import no.nav.helse.flex.soknadsopprettelse.undersporsmal.jobbetDuUndersporsmal
 import no.nav.helse.flex.util.DatoUtil.formatterDato
 import no.nav.helse.flex.util.DatoUtil.formatterPeriode
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
 fun settOppSoknadSelvstendigOgFrilanser(
     opts: SettOppSoknadOptions,
     sykepengegrunnlagNaeringsdrivende: SykepengegrunnlagNaeringsdrivende? = null,
     brukOppdelteNaringsdrivendeSporsmal: Boolean,
+    brukNyttOppholdIUtlandetSporsmal: Boolean,
 ): List<Sporsmal> {
     val (sykepengesoknad, erForsteSoknadISykeforlop, harTidligereUtenlandskSpm, yrkesskade) = opts
     val erGradertReisetilskudd = sykepengesoknad.soknadstype == Soknadstype.GRADERT_REISETILSKUDD
@@ -47,8 +44,12 @@ fun settOppSoknadSelvstendigOgFrilanser(
             )
 
             if (erForsteSoknadISykeforlop) {
-                add(arbeidUtenforNorge())
                 if (listOf(NAERINGSDRIVENDE, FISKER, JORDBRUKER, BARNEPASSER).contains(sykepengesoknad.arbeidssituasjon)) {
+                    if (brukNyttOppholdIUtlandetSporsmal) {
+                        add(naringsdrivendeOppholdIUtlandet(sykepengesoknad.fom))
+                    } else {
+                        add(arbeidUtenforNorge())
+                    }
                     add(fravaerForSykmeldingSporsmal(sykepengesoknad))
                     if (brukOppdelteNaringsdrivendeSporsmal) {
                         add(lagSporsmalOmNaringsdrivendeVirksomhetenAvviklet(sykepengesoknad.fom))
@@ -71,6 +72,8 @@ fun settOppSoknadSelvstendigOgFrilanser(
                     } else {
                         add(lagSporsmalOmInntektsopplyninger(sykepengesoknad, sykepengegrunnlagNaeringsdrivende))
                     }
+                } else {
+                    add(arbeidUtenforNorge())
                 }
             }
             addAll(yrkesskade.yrkeskadeSporsmal())
@@ -165,6 +168,14 @@ private fun fravaerForSykmeldingSporsmal(soknadMetadata: Sykepengesoknad): Spors
         }}?",
         svartype = JA_NEI,
         undertekst = "Gjelder sammenhengende ferie eller annet fravær gjennom alle fire ukene. Har du jobbet underveis, kan du svare nei. ",
+    )
+
+private fun naringsdrivendeOppholdIUtlandet(fom: LocalDate): Sporsmal =
+    Sporsmal(
+        tag = NARINGSDRIVENDE_OPPHOLD_I_UTLANDET,
+        sporsmalstekst = "Har du vært i utlandet i løpet av de siste 12 månedene før du ble sykmeldt ${formatterDato(fom)}?",
+        svartype = JA_NEI,
+        undertekst = "Du kan se bort ifra opphold som varte kortere enn 5 uker.",
     )
 
 fun Sporsmal.plasseringSporsmalSelvstendigOgFrilansere(): Int =

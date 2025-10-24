@@ -12,18 +12,14 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
+import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_OPPHOLD_I_UTLANDET
 import no.nav.helse.flex.util.flatten
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.MethodOrderer
-import org.junit.jupiter.api.Order
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestMethodOrder
+import org.junit.jupiter.api.*
 import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
@@ -31,6 +27,7 @@ class InntektsopplysningerIntegrasjonsTest : FellesTestOppsett() {
     @BeforeAll
     fun konfigurerUnleash() {
         fakeUnleash.resetAll()
+        fakeUnleash.enable(UNLEASH_CONTEXT_OPPHOLD_I_UTLANDET)
     }
 
     @AfterAll
@@ -69,9 +66,9 @@ class InntektsopplysningerIntegrasjonsTest : FellesTestOppsett() {
                 FRAVAR_FOR_SYKMELDINGEN_V2,
                 TILBAKE_I_ARBEID,
                 medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0),
-                ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER,
                 OPPHOLD_UTENFOR_EOS,
+                NARINGSDRIVENDE_OPPHOLD_I_UTLANDET,
                 INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET,
                 TIL_SLUTT,
             ),
@@ -307,7 +304,7 @@ class InntektsopplysningerIntegrasjonsTest : FellesTestOppsett() {
             .besvarSporsmal(tag = ANSVARSERKLARING, svar = "CHECKED")
             .besvarSporsmal(tag = TILBAKE_I_ARBEID, svar = "NEI")
             .besvarSporsmal(tag = medIndex(ARBEID_UNDERVEIS_100_PROSENT, 0), svar = "NEI")
-            .besvarSporsmal(tag = ARBEID_UTENFOR_NORGE, svar = "NEI")
+            .besvarSporsmal(tag = NARINGSDRIVENDE_OPPHOLD_I_UTLANDET, svar = "NEI")
             .besvarSporsmal(tag = ANDRE_INNTEKTSKILDER, svar = "NEI")
             .besvarSporsmal(tag = OPPHOLD_UTENFOR_EOS, svar = "NEI")
             .besvarSporsmal(tag = FRAVAR_FOR_SYKMELDINGEN_V2, svar = "NEI")
