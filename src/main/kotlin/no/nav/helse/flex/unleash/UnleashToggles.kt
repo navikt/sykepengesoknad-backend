@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component
 const val UNLEASH_CONTEXT_TILKOMMEN_INNTEKT = "sykepengesoknad-backend-tilkommen-inntekt"
 const val UNLEASH_CONTEXT_SIGRUN_PAA_KAFKA = "sykepengesoknad-backend-sigrun-paa-kafka"
 const val UNLEASH_CONTEXT_OPPDELT_NARINGSDRIVENDE = "sykepengesoknad-backend-oppdelt-naringsdrivende"
+const val UNLEASH_CONTEXT_OPPHOLD_I_UTLANDET = "sykepengesoknad-backend-opphold-i-utlandet"
 
 @Component
 class UnleashToggles(
@@ -23,4 +24,7 @@ class UnleashToggles(
 
     fun oppdeltNaeringsdrivendeEnabled(fnr: String): Boolean =
         unleash.isEnabled(UNLEASH_CONTEXT_OPPDELT_NARINGSDRIVENDE, UnleashContext.builder().userId(fnr).build())
+
+    fun oppholdIUtlandetEnabled(fnr: String): Boolean =
+        unleash.isEnabled(UNLEASH_CONTEXT_OPPHOLD_I_UTLANDET, UnleashContext.builder().userId(fnr).build())
 }
