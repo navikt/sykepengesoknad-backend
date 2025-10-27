@@ -88,9 +88,11 @@ fun opprettNyNaeringsdrivendeSoknad(brukOppdelteNaringsdrivendeSporsmal: Boolean
                     ),
                     brukOppdelteNaringsdrivendeSporsmal = brukOppdelteNaringsdrivendeSporsmal,
                     brukNyttOppholdIUtlandetSporsmal = true,
+                    brukNyttOpprettholdtInntektSporsmal = true,
                 ),
             status = Soknadstatus.NY,
         ).leggSvarPaSoknad()
+        .besvarsporsmal(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT, "NEI")
         .besvarsporsmal(NARINGSDRIVENDE_OPPHOLD_I_UTLANDET, "NEI")
         .besvarsporsmal(FRAVAR_FOR_SYKMELDINGEN_V2, "JA")
 }
@@ -153,6 +155,7 @@ fun opprettSendtFrilanserSoknad(): Sykepengesoknad {
                     ),
                     brukOppdelteNaringsdrivendeSporsmal = false,
                     brukNyttOppholdIUtlandetSporsmal = true,
+                    brukNyttOpprettholdtInntektSporsmal = true,
                 ),
             status = Soknadstatus.SENDT,
             sendtNav = Instant.now(),

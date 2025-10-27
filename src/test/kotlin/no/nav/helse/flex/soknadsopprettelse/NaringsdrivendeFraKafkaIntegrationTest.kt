@@ -38,6 +38,7 @@ import no.nav.helse.flex.sykepengesoknad.kafka.VentetidDTO
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_OPPHOLD_I_UTLANDET
+import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_OPPRETTHOLDT_INNTEKT
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.GradertDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
@@ -66,6 +67,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
         flexSyketilfelleMockRestServiceServer.reset()
         fakeUnleash.resetAll()
         fakeUnleash.enable(UNLEASH_CONTEXT_OPPHOLD_I_UTLANDET)
+        fakeUnleash.enable(UNLEASH_CONTEXT_OPPRETTHOLDT_INNTEKT)
     }
 
     @AfterEach
@@ -354,6 +356,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                 soknad.fom `should be equal to` LocalDate.of(2020, 2, 1)
                 soknad.tom `should be equal to` LocalDate.of(2020, 2, 22)
                 soknad.sporsmal!!.any { it.tag == NARINGSDRIVENDE_OPPHOLD_I_UTLANDET }.`should be true`()
+                soknad.sporsmal.any { it.tag == NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT }.`should be true`()
             }
 
             hentSoknad(soknadId = metadata.last().id, fnr = fnr).also { soknad ->
@@ -361,6 +364,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                 soknad.fom `should be equal to` LocalDate.of(2020, 2, 23)
                 soknad.tom `should be equal to` LocalDate.of(2020, 3, 15)
                 soknad.sporsmal!!.any { it.tag == NARINGSDRIVENDE_OPPHOLD_I_UTLANDET }.`should be false`()
+                soknad.sporsmal.any { it.tag == NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT }.`should be true`()
             }
         }
     }
@@ -657,6 +661,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                     FRAVAR_FOR_SYKMELDINGEN_V2,
                     TILBAKE_I_ARBEID,
                     "ARBEID_UNDERVEIS_100_PROSENT_0",
+                    NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT,
                     ANDRE_INNTEKTSKILDER,
                     OPPHOLD_UTENFOR_EOS,
                     NARINGSDRIVENDE_OPPHOLD_I_UTLANDET,
@@ -746,6 +751,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                     FRAVAR_FOR_SYKMELDINGEN_V2,
                     TILBAKE_I_ARBEID,
                     "ARBEID_UNDERVEIS_100_PROSENT_0",
+                    NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT,
                     ANDRE_INNTEKTSKILDER,
                     OPPHOLD_UTENFOR_EOS,
                     NARINGSDRIVENDE_OPPHOLD_I_UTLANDET,
@@ -836,6 +842,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                     FRAVAR_FOR_SYKMELDINGEN_V2,
                     TILBAKE_I_ARBEID,
                     "ARBEID_UNDERVEIS_100_PROSENT_0",
+                    NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT,
                     ANDRE_INNTEKTSKILDER,
                     OPPHOLD_UTENFOR_EOS,
                     NARINGSDRIVENDE_OPPHOLD_I_UTLANDET,
@@ -930,6 +937,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                     FRAVAR_FOR_SYKMELDINGEN_V2,
                     TILBAKE_I_ARBEID,
                     "ARBEID_UNDERVEIS_100_PROSENT_0",
+                    NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT,
                     ANDRE_INNTEKTSKILDER,
                     OPPHOLD_UTENFOR_EOS,
                     NARINGSDRIVENDE_OPPHOLD_I_UTLANDET,
@@ -1006,6 +1014,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                 soknad.fom `should be equal to` LocalDate.of(2020, 2, 1)
                 soknad.tom `should be equal to` LocalDate.of(2020, 2, 22)
                 soknad.sporsmal!!.any { it.tag == NARINGSDRIVENDE_OPPHOLD_I_UTLANDET }.`should be true`()
+                soknad.sporsmal.any { it.tag == NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT }.`should be true`()
                 soknad.soknadPerioder `should be equal to`
                     listOf(
                         RSSoknadsperiode(
@@ -1028,6 +1037,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                 soknad.fom `should be equal to` LocalDate.of(2020, 2, 23)
                 soknad.tom `should be equal to` LocalDate.of(2020, 3, 15)
                 soknad.sporsmal!!.any { it.tag == NARINGSDRIVENDE_OPPHOLD_I_UTLANDET }.`should be false`()
+                soknad.sporsmal.any { it.tag == NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT }.`should be true`()
                 soknad.soknadPerioder `should be equal to`
                     listOf(
                         RSSoknadsperiode(

@@ -14,6 +14,7 @@ import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_OPPHOLD_I_UTLANDET
+import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_OPPRETTHOLDT_INNTEKT
 import org.amshove.kluent.*
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
@@ -38,6 +39,7 @@ class SelvstendignaringsdrivendeFremtidigOgAktiveringTest : FellesTestOppsett() 
         flexSyketilfelleMockRestServiceServer.reset()
         fakeUnleash.resetAll()
         fakeUnleash.enable(UNLEASH_CONTEXT_OPPHOLD_I_UTLANDET)
+        fakeUnleash.enable(UNLEASH_CONTEXT_OPPRETTHOLDT_INNTEKT)
     }
 
     @AfterAll
@@ -135,6 +137,7 @@ class SelvstendignaringsdrivendeFremtidigOgAktiveringTest : FellesTestOppsett() 
                 FRAVAR_FOR_SYKMELDINGEN_V2,
                 TILBAKE_I_ARBEID,
                 "ARBEID_UNDERVEIS_100_PROSENT_0",
+                NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT,
                 ANDRE_INNTEKTSKILDER,
                 OPPHOLD_UTENFOR_EOS,
                 NARINGSDRIVENDE_OPPHOLD_I_UTLANDET,
@@ -168,6 +171,7 @@ class SelvstendignaringsdrivendeFremtidigOgAktiveringTest : FellesTestOppsett() 
                             PERMISJON_V2,
                         ),
                 ).besvarSporsmal(tag = FRAVAR_FOR_SYKMELDINGEN_V2, svar = "NEI")
+                .besvarSporsmal(tag = NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT, svar = "NEI")
                 .besvarSporsmal(tag = ANDRE_INNTEKTSKILDER, svar = "NEI")
                 .besvarSporsmal(tag = NARINGSDRIVENDE_OPPHOLD_I_UTLANDET, svar = "NEI")
                 .besvarSporsmal(
@@ -226,6 +230,7 @@ class SelvstendignaringsdrivendeFremtidigOgAktiveringTest : FellesTestOppsett() 
                 ANSVARSERKLARING,
                 TILBAKE_I_ARBEID,
                 "ARBEID_UNDERVEIS_100_PROSENT_0",
+                NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT,
                 ANDRE_INNTEKTSKILDER,
                 OPPHOLD_UTENFOR_EOS,
                 TIL_SLUTT,

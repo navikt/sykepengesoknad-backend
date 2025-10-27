@@ -14,4 +14,6 @@ enum class Arbeidssituasjon(
     ;
 
     override fun toString(): String = navn
+
+    fun erSelvstendigNaringsdrivende(): Boolean = listOf(NAERINGSDRIVENDE, FISKER, JORDBRUKER, BARNEPASSER).contains(this)
 }
