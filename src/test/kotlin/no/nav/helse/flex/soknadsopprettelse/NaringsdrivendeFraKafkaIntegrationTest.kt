@@ -37,6 +37,7 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.VentetidDTO
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
+import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_OPPHOLD_I_UTLANDET
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.GradertDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
@@ -63,6 +64,8 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
     fun setUp() {
         databaseReset.resetDatabase()
         flexSyketilfelleMockRestServiceServer.reset()
+        fakeUnleash.resetAll()
+        fakeUnleash.enable(UNLEASH_CONTEXT_OPPHOLD_I_UTLANDET)
     }
 
     @AfterEach
@@ -77,7 +80,6 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
         val sykmelding =
             skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId).copy(harRedusertArbeidsgiverperiode = true)
 
-        fakeUnleash.resetAll()
         fakeUnleash.enable("sykepengesoknad-backend-sigrun-paa-kafka")
         settOppSigrunMockResponser()
 
@@ -351,14 +353,14 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                 soknad.soknadstype `should be equal to` RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE
                 soknad.fom `should be equal to` LocalDate.of(2020, 2, 1)
                 soknad.tom `should be equal to` LocalDate.of(2020, 2, 22)
-                soknad.sporsmal!!.any { it.tag == ARBEID_UTENFOR_NORGE }.`should be true`()
+                soknad.sporsmal!!.any { it.tag == NARINGSDRIVENDE_OPPHOLD_I_UTLANDET }.`should be true`()
             }
 
             hentSoknad(soknadId = metadata.last().id, fnr = fnr).also { soknad ->
                 soknad.soknadstype `should be equal to` RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE
                 soknad.fom `should be equal to` LocalDate.of(2020, 2, 23)
                 soknad.tom `should be equal to` LocalDate.of(2020, 3, 15)
-                soknad.sporsmal!!.any { it.tag == ARBEID_UTENFOR_NORGE }.`should be false`()
+                soknad.sporsmal!!.any { it.tag == NARINGSDRIVENDE_OPPHOLD_I_UTLANDET }.`should be false`()
             }
         }
     }
@@ -584,7 +586,6 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
         val sykmelding =
             skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId).copy(harRedusertArbeidsgiverperiode = true)
 
-        fakeUnleash.resetAll()
         fakeUnleash.enable("sykepengesoknad-backend-sigrun-paa-kafka")
         settOppSigrunMockResponser()
 
@@ -656,9 +657,9 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                     FRAVAR_FOR_SYKMELDINGEN_V2,
                     TILBAKE_I_ARBEID,
                     "ARBEID_UNDERVEIS_100_PROSENT_0",
-                    ARBEID_UTENFOR_NORGE,
                     ANDRE_INNTEKTSKILDER,
                     OPPHOLD_UTENFOR_EOS,
+                    NARINGSDRIVENDE_OPPHOLD_I_UTLANDET,
                     INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET,
                     TIL_SLUTT,
                 )
@@ -678,7 +679,6 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
         val sykmelding =
             skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId).copy(harRedusertArbeidsgiverperiode = true)
 
-        fakeUnleash.resetAll()
         fakeUnleash.enable("sykepengesoknad-backend-sigrun-paa-kafka")
         fakeUnleash.enable("sykepengesoknad-backend-oppdelt-naringsdrivende")
         settOppSigrunMockResponser()
@@ -746,9 +746,9 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                     FRAVAR_FOR_SYKMELDINGEN_V2,
                     TILBAKE_I_ARBEID,
                     "ARBEID_UNDERVEIS_100_PROSENT_0",
-                    ARBEID_UTENFOR_NORGE,
                     ANDRE_INNTEKTSKILDER,
                     OPPHOLD_UTENFOR_EOS,
+                    NARINGSDRIVENDE_OPPHOLD_I_UTLANDET,
                     NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET,
                     NARINGSDRIVENDE_NY_I_ARBEIDSLIVET,
                     NARINGSDRIVENDE_VARIG_ENDRING,
@@ -770,7 +770,6 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
         val sykmelding =
             skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId).copy(harRedusertArbeidsgiverperiode = true)
 
-        fakeUnleash.resetAll()
         fakeUnleash.enable("sykepengesoknad-backend-sigrun-paa-kafka")
         settOppSigrunMockResponser()
 
@@ -837,9 +836,9 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                     FRAVAR_FOR_SYKMELDINGEN_V2,
                     TILBAKE_I_ARBEID,
                     "ARBEID_UNDERVEIS_100_PROSENT_0",
-                    ARBEID_UTENFOR_NORGE,
                     ANDRE_INNTEKTSKILDER,
                     OPPHOLD_UTENFOR_EOS,
+                    NARINGSDRIVENDE_OPPHOLD_I_UTLANDET,
                     INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET,
                     TIL_SLUTT,
                 )
@@ -859,7 +858,6 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
         val sykmelding =
             skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId).copy(harRedusertArbeidsgiverperiode = true)
 
-        fakeUnleash.resetAll()
         fakeUnleash.enable("sykepengesoknad-backend-sigrun-paa-kafka")
         settOppSigrunMockResponser()
 
@@ -932,9 +930,9 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                     FRAVAR_FOR_SYKMELDINGEN_V2,
                     TILBAKE_I_ARBEID,
                     "ARBEID_UNDERVEIS_100_PROSENT_0",
-                    ARBEID_UTENFOR_NORGE,
                     ANDRE_INNTEKTSKILDER,
                     OPPHOLD_UTENFOR_EOS,
+                    NARINGSDRIVENDE_OPPHOLD_I_UTLANDET,
                     INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET,
                     TIL_SLUTT,
                 )
@@ -1007,7 +1005,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                 soknad.soknadstype `should be equal to` RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE
                 soknad.fom `should be equal to` LocalDate.of(2020, 2, 1)
                 soknad.tom `should be equal to` LocalDate.of(2020, 2, 22)
-                soknad.sporsmal!!.any { it.tag == ARBEID_UTENFOR_NORGE }.`should be true`()
+                soknad.sporsmal!!.any { it.tag == NARINGSDRIVENDE_OPPHOLD_I_UTLANDET }.`should be true`()
                 soknad.soknadPerioder `should be equal to`
                     listOf(
                         RSSoknadsperiode(
@@ -1029,7 +1027,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                 soknad.soknadstype `should be equal to` RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE
                 soknad.fom `should be equal to` LocalDate.of(2020, 2, 23)
                 soknad.tom `should be equal to` LocalDate.of(2020, 3, 15)
-                soknad.sporsmal!!.any { it.tag == ARBEID_UTENFOR_NORGE }.`should be false`()
+                soknad.sporsmal!!.any { it.tag == NARINGSDRIVENDE_OPPHOLD_I_UTLANDET }.`should be false`()
                 soknad.soknadPerioder `should be equal to`
                     listOf(
                         RSSoknadsperiode(

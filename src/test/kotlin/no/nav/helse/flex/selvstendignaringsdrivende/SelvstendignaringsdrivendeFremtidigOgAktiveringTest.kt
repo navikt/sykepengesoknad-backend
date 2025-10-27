@@ -13,6 +13,7 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
+import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_OPPHOLD_I_UTLANDET
 import org.amshove.kluent.*
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
@@ -35,6 +36,8 @@ class SelvstendignaringsdrivendeFremtidigOgAktiveringTest : FellesTestOppsett() 
         cacheManager.getCache("grunnbeloep-historikk")?.clear()
         GrunnbeloepApiMockDispatcher.clearQueue()
         flexSyketilfelleMockRestServiceServer.reset()
+        fakeUnleash.resetAll()
+        fakeUnleash.enable(UNLEASH_CONTEXT_OPPHOLD_I_UTLANDET)
     }
 
     @AfterAll
@@ -132,9 +135,9 @@ class SelvstendignaringsdrivendeFremtidigOgAktiveringTest : FellesTestOppsett() 
                 FRAVAR_FOR_SYKMELDINGEN_V2,
                 TILBAKE_I_ARBEID,
                 "ARBEID_UNDERVEIS_100_PROSENT_0",
-                ARBEID_UTENFOR_NORGE,
                 ANDRE_INNTEKTSKILDER,
                 OPPHOLD_UTENFOR_EOS,
+                NARINGSDRIVENDE_OPPHOLD_I_UTLANDET,
                 INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET,
                 TIL_SLUTT,
             )
@@ -166,7 +169,7 @@ class SelvstendignaringsdrivendeFremtidigOgAktiveringTest : FellesTestOppsett() 
                         ),
                 ).besvarSporsmal(tag = FRAVAR_FOR_SYKMELDINGEN_V2, svar = "NEI")
                 .besvarSporsmal(tag = ANDRE_INNTEKTSKILDER, svar = "NEI")
-                .besvarSporsmal(tag = ARBEID_UTENFOR_NORGE, svar = "NEI")
+                .besvarSporsmal(tag = NARINGSDRIVENDE_OPPHOLD_I_UTLANDET, svar = "NEI")
                 .besvarSporsmal(
                     tag = INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET,
                     svar = null,
