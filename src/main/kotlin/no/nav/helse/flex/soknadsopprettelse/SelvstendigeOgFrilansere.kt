@@ -1,7 +1,6 @@
 package no.nav.helse.flex.soknadsopprettelse
 
 import no.nav.helse.flex.domain.*
-import no.nav.helse.flex.domain.Arbeidssituasjon.*
 import no.nav.helse.flex.domain.Svartype.DATO
 import no.nav.helse.flex.domain.Svartype.JA_NEI
 import no.nav.helse.flex.domain.Visningskriterie.JA
@@ -19,6 +18,7 @@ fun settOppSoknadSelvstendigOgFrilanser(
     sykepengegrunnlagNaeringsdrivende: SykepengegrunnlagNaeringsdrivende? = null,
     brukOppdelteNaringsdrivendeSporsmal: Boolean,
     brukNyttOppholdIUtlandetSporsmal: Boolean,
+    brukNyttOpprettholdtInntektSporsmal: Boolean,
 ): List<Sporsmal> {
     val (sykepengesoknad, erForsteSoknadISykeforlop, harTidligereUtenlandskSpm, yrkesskade) = opts
     val erGradertReisetilskudd = sykepengesoknad.soknadstype == Soknadstype.GRADERT_REISETILSKUDD
@@ -42,9 +42,12 @@ fun settOppSoknadSelvstendigOgFrilanser(
                     sykepengesoknad.arbeidssituasjon,
                 ),
             )
+            if (brukNyttOpprettholdtInntektSporsmal && sykepengesoknad.arbeidssituasjon.erSelvstendigNaringsdrivende()) {
+                add(naringsdrivendeOpprettholdtInntekt(sykepengesoknad.fom, sykepengesoknad.tom))
+            }
 
             if (erForsteSoknadISykeforlop) {
-                if (listOf(NAERINGSDRIVENDE, FISKER, JORDBRUKER, BARNEPASSER).contains(sykepengesoknad.arbeidssituasjon)) {
+                if (sykepengesoknad.arbeidssituasjon.erSelvstendigNaringsdrivende()) {
                     if (brukNyttOppholdIUtlandetSporsmal) {
                         add(naringsdrivendeOppholdIUtlandet(sykepengesoknad.fom))
                     } else {
@@ -176,6 +179,19 @@ private fun naringsdrivendeOppholdIUtlandet(fom: LocalDate): Sporsmal =
         sporsmalstekst = "Har du vært i utlandet i løpet av de siste 12 månedene før du ble sykmeldt ${formatterDato(fom)}?",
         svartype = JA_NEI,
         undertekst = "Du kan se bort ifra opphold som varte kortere enn 5 uker.",
+    )
+
+fun naringsdrivendeOpprettholdtInntekt(
+    fom: LocalDate,
+    tom: LocalDate,
+): Sporsmal =
+    Sporsmal(
+        tag = NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT,
+        sporsmalstekst = "Hadde du næringsinntekt i virksomheten din i tiden du var sykmeldt ${formatterPeriode(fom, tom)} og ikke jobbet?",
+        svartype = JA_NEI,
+        // Disse er med for å få muteringen til å fungere
+        min = fom.format(ISO_LOCAL_DATE),
+        max = tom.format(ISO_LOCAL_DATE),
     )
 
 fun Sporsmal.plasseringSporsmalSelvstendigOgFrilansere(): Int =

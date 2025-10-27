@@ -9,6 +9,8 @@ import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should not be`
 import org.junit.jupiter.api.Test
 
+private const val MAX_SPORSMAL = 13
+
 class NaringsdrivendeMuteringTest {
     @Test
     fun `Mutering av soknad uten svar skal ikke føre til noen endringer`() {
@@ -16,7 +18,7 @@ class NaringsdrivendeMuteringTest {
 
         val mutertSoknad = soknad.naringsdrivendeMutering()
 
-        soknad.sporsmal.size `should be equal to` 12
+        soknad.sporsmal.size `should be equal to` MAX_SPORSMAL
         mutertSoknad.sporsmal.size `should be equal to` soknad.sporsmal.size
         mutertSoknad.sporsmal `should be equal to` soknad.sporsmal
         mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET) `should not be` null
@@ -37,7 +39,7 @@ class NaringsdrivendeMuteringTest {
 
         val mutertSoknad = soknad.naringsdrivendeMutering()
 
-        soknad.sporsmal.size `should be equal to` 9
+        soknad.sporsmal.size `should be equal to` MAX_SPORSMAL - 3
         mutertSoknad.sporsmal.size `should be equal to` soknad.sporsmal.size
         mutertSoknad.sporsmal `should be equal to` soknad.sporsmal
     }
@@ -50,8 +52,8 @@ class NaringsdrivendeMuteringTest {
 
         val mutertSoknad = soknad.naringsdrivendeMutering()
 
-        soknad.sporsmal.size `should be equal to` 12
-        mutertSoknad.sporsmal.size `should be equal to` 10
+        soknad.sporsmal.size `should be equal to` MAX_SPORSMAL
+        mutertSoknad.sporsmal.size `should be equal to` MAX_SPORSMAL - 2
         mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET).forsteSvar `should be equal to` "JA"
         mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET) `should be equal to` null
         mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET_DATO) `should be equal to` null
@@ -72,8 +74,8 @@ class NaringsdrivendeMuteringTest {
 
         val mutertSoknad = soknad.naringsdrivendeMutering()
 
-        soknad.sporsmal.size `should be equal to` 12
-        mutertSoknad.sporsmal.size `should be equal to` 10
+        soknad.sporsmal.size `should be equal to` MAX_SPORSMAL
+        mutertSoknad.sporsmal.size `should be equal to` MAX_SPORSMAL - 2
         mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET).forsteSvar `should be equal to` "JA"
         mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET_DATO).forsteSvar `should be equal to` "2019-01-01"
         mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET) `should be equal to` null
@@ -93,7 +95,7 @@ class NaringsdrivendeMuteringTest {
 
         val mutertSoknad = soknad.naringsdrivendeMutering()
 
-        soknad.sporsmal.size `should be equal to` 12
+        soknad.sporsmal.size `should be equal to` MAX_SPORSMAL
         mutertSoknad.sporsmal.size `should be equal to` soknad.sporsmal.size
         mutertSoknad.sporsmal `should be equal to` soknad.sporsmal
         mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET).forsteSvar `should be equal to` "NEI"
@@ -112,8 +114,8 @@ class NaringsdrivendeMuteringTest {
 
         val mutertSoknad = soknad.naringsdrivendeMutering()
 
-        soknad.sporsmal.size `should be equal to` 10
-        mutertSoknad.sporsmal.size `should be equal to` 12
+        soknad.sporsmal.size `should be equal to` MAX_SPORSMAL - 2
+        mutertSoknad.sporsmal.size `should be equal to` MAX_SPORSMAL
         mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET).forsteSvar `should be equal to` "NEI"
         mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET) `should not be` null
         mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET_DATO) `should not be` null
@@ -146,8 +148,8 @@ class NaringsdrivendeMuteringTest {
 
         val mutertSoknad = sokandMedInntektFoerSykepengegrunnlaget.naringsdrivendeMutering()
 
-        sokandMedInntektFoerSykepengegrunnlaget.sporsmal.size `should be equal to` 10
-        mutertSoknad.sporsmal.size `should be equal to` 11
+        sokandMedInntektFoerSykepengegrunnlaget.sporsmal.size `should be equal to` MAX_SPORSMAL - 2
+        mutertSoknad.sporsmal.size `should be equal to` MAX_SPORSMAL - 1
         mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET).forsteSvar `should be equal to` "NEI"
         mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET) `should be` null
         mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET_DATO) `should be` null
@@ -164,8 +166,8 @@ class NaringsdrivendeMuteringTest {
 
         val mutertSoknad = soknad.naringsdrivendeMutering()
 
-        soknad.sporsmal.size `should be equal to` 12
-        mutertSoknad.sporsmal.size `should be equal to` 11
+        soknad.sporsmal.size `should be equal to` MAX_SPORSMAL
+        mutertSoknad.sporsmal.size `should be equal to` MAX_SPORSMAL - 1
         mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET).forsteSvar `should be equal to` "JA"
         mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET_DATO).forsteSvar `should be equal to` "2020-01-01"
         mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_VARIG_ENDRING) `should be equal to` null
@@ -183,8 +185,8 @@ class NaringsdrivendeMuteringTest {
 
         val mutertSoknad = soknad.naringsdrivendeMutering()
 
-        soknad.sporsmal.size `should be equal to` 12
-        mutertSoknad.sporsmal.size `should be equal to` 11
+        soknad.sporsmal.size `should be equal to` MAX_SPORSMAL
+        mutertSoknad.sporsmal.size `should be equal to` MAX_SPORSMAL - 1
         mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET).forsteSvar `should be equal to` "JA"
         mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET_DATO).forsteSvar `should be equal to` "2020-01-01"
         mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_VARIG_ENDRING) `should be equal to` null
@@ -201,7 +203,7 @@ class NaringsdrivendeMuteringTest {
 
         val mutertSoknad = soknad.naringsdrivendeMutering()
 
-        soknad.sporsmal.size `should be equal to` 12
+        soknad.sporsmal.size `should be equal to` MAX_SPORSMAL
         mutertSoknad.sporsmal.size `should be equal to` soknad.sporsmal.size
         mutertSoknad.sporsmal `should be equal to` soknad.sporsmal
         mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET).forsteSvar `should be equal to` "NEI"
@@ -219,8 +221,8 @@ class NaringsdrivendeMuteringTest {
 
         val mutertSoknad = soknad.naringsdrivendeMutering()
 
-        soknad.sporsmal.size `should be equal to` 11
-        mutertSoknad.sporsmal.size `should be equal to` 12
+        soknad.sporsmal.size `should be equal to` MAX_SPORSMAL - 1
+        mutertSoknad.sporsmal.size `should be equal to` MAX_SPORSMAL
         mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET).forsteSvar `should be equal to` "NEI"
         mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET_DATO).forsteSvar `should be equal to` null
         mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_VARIG_ENDRING) `should not be` null

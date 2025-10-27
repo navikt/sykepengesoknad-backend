@@ -177,10 +177,11 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
             )
 
         soknadDTO.selvstendigNaringsdrivende!!.hovedSporsmalSvar.let {
-            it.size `should be equal to` 10
+            it.size `should be equal to` 11
             it[TILBAKE_I_ARBEID] `should be equal to` true
             it["ARBEID_UNDERVEIS_100_PROSENT_0"] `should be equal to` false
             it["JOBBET_DU_GRADERT_1"] `should be equal to` false
+            it[NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT] `should be equal to` false
             it[ANDRE_INNTEKTSKILDER] `should be equal to` true
             it[OPPHOLD_UTENFOR_EOS] `should be equal to` true
             it[NARINGSDRIVENDE_OPPHOLD_I_UTLANDET] `should be equal to` false
@@ -216,10 +217,11 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
             )
 
         soknadDTO.selvstendigNaringsdrivende!!.hovedSporsmalSvar.let {
-            it.size `should be equal to` 8
+            it.size `should be equal to` 9
             it[TILBAKE_I_ARBEID] `should be equal to` true
             it["ARBEID_UNDERVEIS_100_PROSENT_0"] `should be equal to` false
             it["JOBBET_DU_GRADERT_1"] `should be equal to` false
+            it[NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT] `should be equal to` false
             it[ANDRE_INNTEKTSKILDER] `should be equal to` true
             it[OPPHOLD_UTENFOR_EOS] `should be equal to` true
             it[NARINGSDRIVENDE_OPPHOLD_I_UTLANDET] `should be equal to` false
@@ -255,10 +257,11 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
             )
 
         soknadDTO.selvstendigNaringsdrivende!!.hovedSporsmalSvar.let {
-            it.size `should be equal to` 10
+            it.size `should be equal to` 11
             it[TILBAKE_I_ARBEID] `should be equal to` true
             it["ARBEID_UNDERVEIS_100_PROSENT_0"] `should be equal to` false
             it["JOBBET_DU_GRADERT_1"] `should be equal to` false
+            it[NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT] `should be equal to` false
             it[ANDRE_INNTEKTSKILDER] `should be equal to` true
             it[OPPHOLD_UTENFOR_EOS] `should be equal to` true
             it[NARINGSDRIVENDE_OPPHOLD_I_UTLANDET] `should be equal to` false
