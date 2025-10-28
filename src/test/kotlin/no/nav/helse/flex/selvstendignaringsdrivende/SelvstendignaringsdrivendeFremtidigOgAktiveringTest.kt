@@ -2,11 +2,9 @@ package no.nav.helse.flex.selvstendignaringsdrivende
 
 import no.nav.helse.flex.*
 import no.nav.helse.flex.aktivering.AktiveringJob
-import no.nav.helse.flex.client.grunnbeloep.GrunnbeloepResponse
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.mockdispatcher.grunnbeloep.GrunnbeloepApiMockDispatcher
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
@@ -18,7 +16,6 @@ import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_OPPRETTHOLDT_INNTEKT
 import org.amshove.kluent.*
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.redis.cache.RedisCacheManager
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -27,16 +24,11 @@ class SelvstendignaringsdrivendeFremtidigOgAktiveringTest : FellesTestOppsett() 
     @Autowired
     private lateinit var aktiveringJob: AktiveringJob
 
-    @Autowired
-    lateinit var cacheManager: RedisCacheManager
-
     private final val fnr = "12345678901"
     private final val basisdato = LocalDate.parse("2025-01-01").plusYears(1000)
 
     @BeforeEach
     fun setup() {
-        cacheManager.getCache("grunnbeloep-historikk")?.clear()
-        GrunnbeloepApiMockDispatcher.clearQueue()
         flexSyketilfelleMockRestServiceServer.reset()
         fakeUnleash.resetAll()
         fakeUnleash.enable(UNLEASH_CONTEXT_OPPHOLD_I_UTLANDET)
@@ -51,17 +43,6 @@ class SelvstendignaringsdrivendeFremtidigOgAktiveringTest : FellesTestOppsett() 
     @Test
     @Order(1)
     fun `Selvstendig næringsdrivende søknad med status FREMTIDIG opprettes når vi mottar en sykmelding`() {
-        GrunnbeloepApiMockDispatcher.enqueue(
-            (basisdato.year - 5..basisdato.year).map { year ->
-                GrunnbeloepResponse(
-                    dato = "$year-05-01",
-                    grunnbeløp = 118_620 + (year - 2024) * 10_000,
-                    gjennomsnittPerÅr =
-                        118_620 + (year - 2024) * 10_000,
-                )
-            },
-        )
-
         val kafkaSoknader =
             sendSykmelding(
                 sykmeldingKafkaMessage(
@@ -104,17 +85,6 @@ class SelvstendignaringsdrivendeFremtidigOgAktiveringTest : FellesTestOppsett() 
     @Test
     @Order(3)
     fun `Vi aktiverer søknaden`() {
-        GrunnbeloepApiMockDispatcher.enqueue(
-            (basisdato.year - 5..basisdato.year).map { year ->
-                GrunnbeloepResponse(
-                    dato = "$year-05-01",
-                    grunnbeløp = 118_620 + (year - 2024) * 10_000,
-                    gjennomsnittPerÅr =
-                        118_620 + (year - 2024) * 10_000,
-                )
-            },
-        )
-
         aktiveringJob.bestillAktivering(now = basisdato.plusDays(31))
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
 
@@ -196,17 +166,6 @@ class SelvstendignaringsdrivendeFremtidigOgAktiveringTest : FellesTestOppsett() 
     @Test
     @Order(6)
     fun `Søknad nr 2 er ikke førstegangssøknad, og inneholder riktige spørsmål`() {
-        GrunnbeloepApiMockDispatcher.enqueue(
-            (basisdato.year - 5..basisdato.year).map { year ->
-                GrunnbeloepResponse(
-                    dato = "$year-05-01",
-                    grunnbeløp = 118_620 + (year - 2024) * 10_000,
-                    gjennomsnittPerÅr =
-                        118_620 + (year - 2024) * 10_000,
-                )
-            },
-        )
-
         aktiveringJob.bestillAktivering(now = basisdato.plusDays(61))
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
 

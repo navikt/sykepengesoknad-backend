@@ -28,8 +28,6 @@ import no.nav.helse.flex.mockdispatcher.BrregMockDispatcher
 import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher
 import no.nav.helse.flex.mockdispatcher.withContentTypeApplicationJson
 import no.nav.helse.flex.repository.SykepengesoknadDAO
-import no.nav.helse.flex.service.AarVerdi
-import no.nav.helse.flex.service.Beregnet
 import no.nav.helse.flex.service.SykepengegrunnlagNaeringsdrivende
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.FiskerBladDTO
@@ -52,7 +50,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.*
 import org.springframework.beans.factory.annotation.Autowired
-import java.math.BigInteger
 import java.time.LocalDate
 
 class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
@@ -1465,25 +1462,6 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
 
 fun lagSykepengegrunnlagNaeringsdrivende() =
     SykepengegrunnlagNaeringsdrivende(
-        gjennomsnittPerAar =
-            listOf(
-                AarVerdi(aar = "2023", verdi = BigInteger("851782")),
-                AarVerdi(aar = "2022", verdi = BigInteger("872694")),
-                AarVerdi(aar = "2021", verdi = BigInteger("890920")),
-            ),
-        grunnbeloepPerAar =
-            listOf(
-                AarVerdi(aar = "2021", verdi = BigInteger("104716")),
-                AarVerdi(aar = "2022", verdi = BigInteger("109784")),
-                AarVerdi(aar = "2023", verdi = BigInteger("116239")),
-            ),
-        grunnbeloepPaaSykmeldingstidspunkt = 124028,
-        beregnetSnittOgEndring25 =
-            Beregnet(
-                snitt = BigInteger("871798"),
-                p25 = BigInteger("1089748"),
-                m25 = BigInteger("653849"),
-            ),
         inntekter =
             listOf(
                 HentPensjonsgivendeInntektResponse(

@@ -1,17 +1,7 @@
 package no.nav.helse.flex.testoppsett
 
 import no.nav.helse.flex.medlemskap.MedlemskapMockDispatcher
-import no.nav.helse.flex.mockdispatcher.AaregMockDispatcher
-import no.nav.helse.flex.mockdispatcher.ArbeidssokerregisterMockDispatcher
-import no.nav.helse.flex.mockdispatcher.BrregMockDispatcher
-import no.nav.helse.flex.mockdispatcher.EnhetsregisterMockDispatcher
-import no.nav.helse.flex.mockdispatcher.EregMockDispatcher
-import no.nav.helse.flex.mockdispatcher.InnsendingApiMockDispatcher
-import no.nav.helse.flex.mockdispatcher.InntektskomponentenMockDispatcher
-import no.nav.helse.flex.mockdispatcher.PdlMockDispatcher
-import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher
-import no.nav.helse.flex.mockdispatcher.YrkesskadeMockDispatcher
-import no.nav.helse.flex.mockdispatcher.grunnbeloep.GrunnbeloepApiMockDispatcher
+import no.nav.helse.flex.mockdispatcher.*
 import okhttp3.mockwebserver.MockWebServer
 
 fun startMockWebServere(): MockWebServere {
@@ -50,11 +40,6 @@ fun startMockWebServere(): MockWebServere {
             System.setProperty("INNSENDING_API_URL", "http://localhost:$port")
             dispatcher = InnsendingApiMockDispatcher
         }
-    val grunnbeloepApiMockWebServer =
-        MockWebServer().apply {
-            System.setProperty("GRUNNBELOEP_API_URL", "http://localhost:$port")
-            dispatcher = GrunnbeloepApiMockDispatcher
-        }
     val aaregMockWebServer =
         MockWebServer().apply {
             System.setProperty("AAREG_URL", "http://localhost:$port")
@@ -85,7 +70,6 @@ fun startMockWebServere(): MockWebServere {
         yrkesskadeMockWebServer = yrkesskadeMockWebServer,
         innsendingApiMockWebServer = innsendingApiMockWebServer,
         pensjonsgivendeInntektMockWebServer = pensjonsgivendeInntektMockWebServer,
-        grunnbeloepApiMockWebServer = grunnbeloepApiMockWebServer,
         aaregMockWebServer = aaregMockWebServer,
         brregMockWebServer = brregMockWebServer,
         arbeidssokerregisterMockWebServer = arbeidssokerregisterMockWebServer,
@@ -101,7 +85,6 @@ data class MockWebServere(
     val yrkesskadeMockWebServer: MockWebServer,
     val innsendingApiMockWebServer: MockWebServer,
     val pensjonsgivendeInntektMockWebServer: MockWebServer,
-    val grunnbeloepApiMockWebServer: MockWebServer,
     val aaregMockWebServer: MockWebServer,
     val brregMockWebServer: MockWebServer,
     val arbeidssokerregisterMockWebServer: MockWebServer,
