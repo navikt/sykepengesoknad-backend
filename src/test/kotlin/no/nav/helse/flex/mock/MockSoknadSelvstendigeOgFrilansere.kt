@@ -29,7 +29,7 @@ class MockSoknadSelvstendigeOgFrilansere(
     fun opprettOgLagreNySoknad(): Sykepengesoknad = sykepengesoknadDAO!!.lagreSykepengesoknad(opprettNyNaeringsdrivendeSoknad())
 }
 
-fun opprettNyNaeringsdrivendeSoknad(brukOppdelteNaringsdrivendeSporsmal: Boolean = false): Sykepengesoknad {
+fun opprettNyNaeringsdrivendeSoknad(): Sykepengesoknad {
     val soknadMetadata =
         Sykepengesoknad(
             id = UUID.randomUUID().toString(),
@@ -86,7 +86,6 @@ fun opprettNyNaeringsdrivendeSoknad(brukOppdelteNaringsdrivendeSporsmal: Boolean
                         yrkesskade = YrkesskadeSporsmalGrunnlag(),
                         eksisterendeSoknader = emptyList(),
                     ),
-                    brukOppdelteNaringsdrivendeSporsmal = brukOppdelteNaringsdrivendeSporsmal,
                     brukNyttOppholdIUtlandetSporsmal = true,
                     brukNyttOpprettholdtInntektSporsmal = true,
                 ),
@@ -153,7 +152,6 @@ fun opprettSendtFrilanserSoknad(): Sykepengesoknad {
                         YrkesskadeSporsmalGrunnlag(),
                         eksisterendeSoknader = emptyList(),
                     ),
-                    brukOppdelteNaringsdrivendeSporsmal = false,
                     brukNyttOppholdIUtlandetSporsmal = true,
                     brukNyttOpprettholdtInntektSporsmal = true,
                 ),

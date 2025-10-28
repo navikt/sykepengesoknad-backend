@@ -10,6 +10,7 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.soknadsopprettelse.INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET_JA
 import no.nav.helse.flex.soknadsopprettelse.INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET_NEI
 import no.nav.helse.flex.soknadsopprettelse.INNTEKTSOPPLYSNINGER_VARIG_ENDRING_25_PROSENT
+import no.nav.helse.flex.soknadsopprettelse.NARINGSDRIVENDE_NY_I_ARBEIDSLIVET
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -87,6 +88,18 @@ class InntektsopplysningerDokumenterTest {
             )
 
         soknad.inntektsopplysningerMaaDokumenteres() shouldBeEqualTo false
+    }
+
+    @Test
+    fun `Må dokumentere inntektsopplysninger når man er ny i arbeidslivet nytt sporsmal`() {
+        val soknad =
+            lagSoknad(
+                mapOf(
+                    NARINGSDRIVENDE_NY_I_ARBEIDSLIVET to "JA",
+                ),
+            )
+
+        soknad.inntektsopplysningerMaaDokumenteres() shouldBeEqualTo true
     }
 
     private fun lagSoknad(sporsmalOgSvar: Map<String, String>): Sykepengesoknad =
