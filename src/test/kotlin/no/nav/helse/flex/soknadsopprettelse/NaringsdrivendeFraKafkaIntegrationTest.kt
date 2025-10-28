@@ -665,7 +665,9 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                     ANDRE_INNTEKTSKILDER,
                     OPPHOLD_UTENFOR_EOS,
                     NARINGSDRIVENDE_OPPHOLD_I_UTLANDET,
-                    INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET,
+                    NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET,
+                    NARINGSDRIVENDE_NY_I_ARBEIDSLIVET,
+                    NARINGSDRIVENDE_VARIG_ENDRING,
                     TIL_SLUTT,
                 )
         }
@@ -846,7 +848,9 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                     ANDRE_INNTEKTSKILDER,
                     OPPHOLD_UTENFOR_EOS,
                     NARINGSDRIVENDE_OPPHOLD_I_UTLANDET,
-                    INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET,
+                    NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET,
+                    NARINGSDRIVENDE_NY_I_ARBEIDSLIVET,
+                    NARINGSDRIVENDE_VARIG_ENDRING,
                     TIL_SLUTT,
                 )
         }
@@ -941,7 +945,9 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                     ANDRE_INNTEKTSKILDER,
                     OPPHOLD_UTENFOR_EOS,
                     NARINGSDRIVENDE_OPPHOLD_I_UTLANDET,
-                    INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET,
+                    NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET,
+                    NARINGSDRIVENDE_NY_I_ARBEIDSLIVET,
+                    NARINGSDRIVENDE_VARIG_ENDRING,
                     TIL_SLUTT,
                 )
         }

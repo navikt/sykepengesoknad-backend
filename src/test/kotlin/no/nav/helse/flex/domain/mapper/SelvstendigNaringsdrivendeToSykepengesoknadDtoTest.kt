@@ -154,9 +154,9 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
     fun `Inneholder hovedspørsmål for Selvstendig Næringsdrivende i forenklet format`() {
         val soknad =
             opprettNyNaeringsdrivendeSoknad()
-                .besvarsporsmal(INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET_JA, "CHECKED")
-                .besvarsporsmal(INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET_NEI, "CHECKED")
-                .besvarsporsmal(INNTEKTSOPPLYSNINGER_VARIG_ENDRING, "JA")
+                .besvarsporsmal(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET, "JA")
+                .besvarsporsmal(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET, "NEI")
+                .besvarsporsmal(NARINGSDRIVENDE_VARIG_ENDRING, "JA")
 
         val soknadDTO =
             konverterTilSykepengesoknadDTO(
@@ -186,9 +186,9 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
             it[OPPHOLD_UTENFOR_EOS] `should be equal to` true
             it[NARINGSDRIVENDE_OPPHOLD_I_UTLANDET] `should be equal to` false
             it[FRAVAR_FOR_SYKMELDINGEN_V2] `should be equal to` true
-            it[INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET] `should be equal to` true
-            it[INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET] `should be equal to` false
-            it[INNTEKTSOPPLYSNINGER_VARIG_ENDRING] `should be equal to` true
+            it[NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET] `should be equal to` true
+            it[NARINGSDRIVENDE_NY_I_ARBEIDSLIVET] `should be equal to` false
+            it[NARINGSDRIVENDE_VARIG_ENDRING] `should be equal to` true
         }
     }
 
@@ -196,7 +196,7 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
     fun `Inneholder kun besvarte hovedspørsmål for Selvstendig Næringsdrivende i forenklet format`() {
         val soknad =
             opprettNyNaeringsdrivendeSoknad()
-                .besvarsporsmal(INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET_NEI, "CHECKED")
+                .besvarsporsmal(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET, "NEI")
 
         val soknadDTO =
             konverterTilSykepengesoknadDTO(
@@ -226,14 +226,14 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
             it[OPPHOLD_UTENFOR_EOS] `should be equal to` true
             it[NARINGSDRIVENDE_OPPHOLD_I_UTLANDET] `should be equal to` false
             it[FRAVAR_FOR_SYKMELDINGEN_V2] `should be equal to` true
-            it[INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET] `should be equal to` false
+            it[NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET] `should be equal to` false
         }
     }
 
     @Test
     fun `Inneholder oppdelte hovedspørsmål for Selvstendig Næringsdrivende`() {
         val soknad =
-            opprettNyNaeringsdrivendeSoknad(brukOppdelteNaringsdrivendeSporsmal = true)
+            opprettNyNaeringsdrivendeSoknad()
                 .besvarsporsmal(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET, "NEI")
                 .besvarsporsmal(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET, "NEI")
                 .besvarsporsmal(NARINGSDRIVENDE_VARIG_ENDRING, "NEI")

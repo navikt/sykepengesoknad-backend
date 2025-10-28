@@ -16,7 +16,6 @@ import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 fun settOppSoknadSelvstendigOgFrilanser(
     opts: SettOppSoknadOptions,
     sykepengegrunnlagNaeringsdrivende: SykepengegrunnlagNaeringsdrivende? = null,
-    brukOppdelteNaringsdrivendeSporsmal: Boolean,
     brukNyttOppholdIUtlandetSporsmal: Boolean,
     brukNyttOpprettholdtInntektSporsmal: Boolean,
 ): List<Sporsmal> {
@@ -54,27 +53,23 @@ fun settOppSoknadSelvstendigOgFrilanser(
                         add(arbeidUtenforNorge())
                     }
                     add(fravaerForSykmeldingSporsmal(sykepengesoknad))
-                    if (brukOppdelteNaringsdrivendeSporsmal) {
-                        add(lagSporsmalOmNaringsdrivendeVirksomhetenAvviklet(sykepengesoknad.fom))
-                        if (sykepengegrunnlagNaeringsdrivende?.harFunnetInntektFoerSykepengegrunnlaget != true) {
-                            add(
-                                lagSporsmalOmNaringsdrivendeNyIArbeidslivet(
-                                    fom = sykepengesoknad.fom,
-                                    startSykeforlop = sykepengesoknad.startSykeforlop,
-                                    sykepengegrunnlagNaeringsdrivende = sykepengegrunnlagNaeringsdrivende,
-                                ),
-                            )
-                        }
+                    add(lagSporsmalOmNaringsdrivendeVirksomhetenAvviklet(sykepengesoknad.fom))
+                    if (sykepengegrunnlagNaeringsdrivende?.harFunnetInntektFoerSykepengegrunnlaget != true) {
                         add(
-                            lagSporsmalOmNaringsdrivendeVarigEndring(
+                            lagSporsmalOmNaringsdrivendeNyIArbeidslivet(
                                 fom = sykepengesoknad.fom,
                                 startSykeforlop = sykepengesoknad.startSykeforlop,
                                 sykepengegrunnlagNaeringsdrivende = sykepengegrunnlagNaeringsdrivende,
                             ),
                         )
-                    } else {
-                        add(lagSporsmalOmInntektsopplyninger(sykepengesoknad, sykepengegrunnlagNaeringsdrivende))
                     }
+                    add(
+                        lagSporsmalOmNaringsdrivendeVarigEndring(
+                            fom = sykepengesoknad.fom,
+                            startSykeforlop = sykepengesoknad.startSykeforlop,
+                            sykepengegrunnlagNaeringsdrivende = sykepengegrunnlagNaeringsdrivende,
+                        ),
+                    )
                 } else {
                     add(arbeidUtenforNorge())
                 }
@@ -164,11 +159,13 @@ private fun tilbakeIFulltArbeidSporsmal(soknadMetadata: Sykepengesoknad): Sporsm
 private fun fravaerForSykmeldingSporsmal(soknadMetadata: Sykepengesoknad): Sporsmal =
     Sporsmal(
         tag = FRAVAR_FOR_SYKMELDINGEN_V2,
-        sporsmalstekst = "Var du borte fra jobb i fire uker eller mer rett før du ble sykmeldt ${soknadMetadata.fom?.let {
-            formatterDato(
-                it,
-            )
-        }}?",
+        sporsmalstekst = "Var du borte fra jobb i fire uker eller mer rett før du ble sykmeldt ${
+            soknadMetadata.fom?.let {
+                formatterDato(
+                    it,
+                )
+            }
+        }?",
         svartype = JA_NEI,
         undertekst = "Gjelder sammenhengende ferie eller annet fravær gjennom alle fire ukene. Har du jobbet underveis, kan du svare nei. ",
     )
@@ -187,7 +184,12 @@ fun naringsdrivendeOpprettholdtInntekt(
 ): Sporsmal =
     Sporsmal(
         tag = NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT,
-        sporsmalstekst = "Hadde du næringsinntekt i virksomheten din i tiden du var sykmeldt ${formatterPeriode(fom, tom)} og ikke jobbet?",
+        sporsmalstekst = "Hadde du næringsinntekt i virksomheten din i tiden du var sykmeldt ${
+            formatterPeriode(
+                fom,
+                tom,
+            )
+        } og ikke jobbet?",
         svartype = JA_NEI,
         // Disse er med for å få muteringen til å fungere
         min = fom.format(ISO_LOCAL_DATE),

@@ -241,7 +241,7 @@ class ArbeidGjenopptattMuteringTest {
 
     @Test
     fun `Tilbake i fullt arbeid skal oppdatere spørsmålet næringsdrivende opprettholdt inntekt med ny tom dato`() {
-        val soknad = opprettNyNaeringsdrivendeSoknad(true)
+        val soknad = opprettNyNaeringsdrivendeSoknad()
         val tilbakeIArbeid = soknad.fom!!.plusDays(4)
         val nyTom = tilbakeIArbeid.minusDays(1)
 
@@ -261,7 +261,7 @@ class ArbeidGjenopptattMuteringTest {
     @Test
     fun `Tilbake i fullt arbeid skal legge til spørsmålet næringsdrivende opprettholdt inntekt`() {
         val soknad =
-            opprettNyNaeringsdrivendeSoknad(true)
+            opprettNyNaeringsdrivendeSoknad()
                 .fjernSporsmal(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT)
         val tilbakeIArbeid = soknad.fom!!.plusDays(4)
         val nyTom = tilbakeIArbeid.minusDays(1)
@@ -283,7 +283,7 @@ class ArbeidGjenopptattMuteringTest {
     @Test
     fun `Tilbake i fullt arbeid skal ikke legge til spørsmålet næringsdrivende opprettholdt inntekt hvis toggle er av`() {
         val soknad =
-            opprettNyNaeringsdrivendeSoknad(true)
+            opprettNyNaeringsdrivendeSoknad()
                 .fjernSporsmal(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT)
         val tilbakeIArbeid = soknad.fom!!.plusDays(4)
 
@@ -299,7 +299,7 @@ class ArbeidGjenopptattMuteringTest {
 
     @Test
     fun `Tilbake i fullt arbeid skal fjerne spørsmålet næringsdrivende opprettholdt inntekt`() {
-        val soknad = opprettNyNaeringsdrivendeSoknad(true)
+        val soknad = opprettNyNaeringsdrivendeSoknad()
 
         val mutertSoknad =
             soknad

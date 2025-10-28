@@ -20,6 +20,7 @@ import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.redis.cache.RedisCacheManager
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class SelvstendignaringsdrivendeFremtidigOgAktiveringTest : FellesTestOppsett() {
@@ -141,7 +142,8 @@ class SelvstendignaringsdrivendeFremtidigOgAktiveringTest : FellesTestOppsett() 
                 ANDRE_INNTEKTSKILDER,
                 OPPHOLD_UTENFOR_EOS,
                 NARINGSDRIVENDE_OPPHOLD_I_UTLANDET,
-                INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET,
+                NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET,
+                NARINGSDRIVENDE_VARIG_ENDRING,
                 TIL_SLUTT,
             )
 
@@ -174,20 +176,13 @@ class SelvstendignaringsdrivendeFremtidigOgAktiveringTest : FellesTestOppsett() 
                 .besvarSporsmal(tag = NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT, svar = "NEI")
                 .besvarSporsmal(tag = ANDRE_INNTEKTSKILDER, svar = "NEI")
                 .besvarSporsmal(tag = NARINGSDRIVENDE_OPPHOLD_I_UTLANDET, svar = "NEI")
+                .besvarSporsmal(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET, "JA", ferdigBesvart = false)
                 .besvarSporsmal(
-                    tag = INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET,
-                    svar = null,
-                    ferdigBesvart = false,
-                ).besvarSporsmal(
-                    tag = INNTEKTSOPPLYSNINGER_VIRKSOMHETEN_AVVIKLET_NEI,
-                    svar = "CHECKED",
-                    ferdigBesvart = false,
-                ).besvarSporsmal(
-                    tag = INNTEKTSOPPLYSNINGER_NY_I_ARBEIDSLIVET_NEI,
-                    svar = "CHECKED",
-                    ferdigBesvart = false,
-                ).besvarSporsmal(tag = INNTEKTSOPPLYSNINGER_VARIG_ENDRING, svar = "NEI")
-                .oppsummering()
+                    tag = NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET_DATO,
+                    svar = soknaden.fom!!.minusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE),
+                    ferdigBesvart = true,
+                    mutert = true,
+                ).oppsummering()
                 .sendSoknad()
         sendtSoknad.status `should be equal to` RSSoknadstatus.SENDT
 
