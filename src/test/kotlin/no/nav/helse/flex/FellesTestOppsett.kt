@@ -2,7 +2,6 @@ package no.nav.helse.flex
 
 import io.getunleash.FakeUnleash
 import jakarta.annotation.PostConstruct
-import no.nav.helse.flex.client.grunnbeloep.GrunnbeloepClient
 import no.nav.helse.flex.client.kvitteringer.SykepengesoknadKvitteringerClient
 import no.nav.helse.flex.juridiskvurdering.JURIDISK_VURDERING_TOPIC
 import no.nav.helse.flex.kafka.ARBEIDSSOKERREGISTER_STOPP_TOPIC
@@ -13,7 +12,6 @@ import no.nav.helse.flex.kafka.producer.RebehandlingSykmeldingSendtProducer
 import no.nav.helse.flex.mockdispatcher.FellesQueueDispatcher
 import no.nav.helse.flex.personhendelse.AutomatiskInnsendingVedDodsfall
 import no.nav.helse.flex.repository.SykepengesoknadRepository
-import no.nav.helse.flex.service.GrunnbeloepService
 import no.nav.helse.flex.service.SykepengegrunnlagForNaeringsdrivende
 import no.nav.helse.flex.soknadsopprettelse.BehandleSykmeldingOgBestillAktivering
 import no.nav.helse.flex.testdata.DatabaseReset
@@ -26,7 +24,9 @@ import org.amshove.kluent.should
 import org.amshove.kluent.shouldBeEmpty
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.producer.KafkaProducer
-import org.junit.jupiter.api.*
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.autoconfigure.actuate.observability.AutoConfigureObservability
@@ -51,8 +51,6 @@ abstract class FellesTestOppsett : TestOppsettInterfaces {
         private val mockWebServere: MockWebServere = startMockWebServere()
         private val eregMockWebServer
             get() = mockWebServere.eregMockWebServer
-        val grunnbeloepApiMockWebServer
-            get() = mockWebServere.grunnbeloepApiMockWebServer
         private val innsendingApiMockWebServer
             get() = mockWebServere.innsendingApiMockWebServer
         private val inntektskomponentenMockWebServer
@@ -128,12 +126,6 @@ abstract class FellesTestOppsett : TestOppsettInterfaces {
 
     @Autowired
     lateinit var server: MockOAuth2Server
-
-    @Autowired
-    lateinit var grunnbeloepService: GrunnbeloepService
-
-    @MockitoSpyBean
-    lateinit var grunnbeloepClient: GrunnbeloepClient
 
     @Autowired
     lateinit var sykepengesoknadKafkaConsumer: Consumer<String, String>

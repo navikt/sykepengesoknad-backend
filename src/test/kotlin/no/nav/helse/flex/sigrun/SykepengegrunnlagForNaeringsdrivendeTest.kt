@@ -7,7 +7,6 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknad
 import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher
 import no.nav.helse.flex.service.finnFoersteAarISykepengegrunnlaget
-import no.nav.helse.flex.util.objectMapper
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should not be`
 import org.junit.jupiter.api.BeforeEach
@@ -89,13 +88,6 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
 
         sykepengegrunnlag `should not be` null
         sykepengegrunnlag!!.let { spg ->
-            spg.grunnbeloepPerAar.size `should be equal to` 3
-            spg.gjennomsnittPerAar.size `should be equal to` 3
-            spg.beregnetSnittOgEndring25.let {
-                it.snitt `should be equal to` 392514.toBigInteger()
-                it.p25 `should be equal to` 490642.toBigInteger()
-                it.m25 `should be equal to` 294385.toBigInteger()
-            }
             spg.harFunnetInntektFoerSykepengegrunnlaget `should be equal to` true
             spg.inntekter.finnFoersteAarISykepengegrunnlaget() `should be equal to` 2021
         }
@@ -159,13 +151,6 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
 
         sykepengegrunnlag `should not be` null
         sykepengegrunnlag!!.let { spg ->
-            spg.grunnbeloepPerAar.size `should be equal to` 3
-            spg.gjennomsnittPerAar.size `should be equal to` 3
-            spg.beregnetSnittOgEndring25.let {
-                it.snitt `should be equal to` 871798.toBigInteger()
-                it.p25 `should be equal to` 1089748.toBigInteger()
-                it.m25 `should be equal to` 653849.toBigInteger()
-            }
             spg.harFunnetInntektFoerSykepengegrunnlaget `should be equal to` false
             spg.inntekter.finnFoersteAarISykepengegrunnlaget() `should be equal to` 2021
         }
@@ -218,13 +203,6 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
 
         sykepengegrunnlag `should not be` null
         sykepengegrunnlag!!.let { spg ->
-            spg.grunnbeloepPerAar.size `should be equal to` 3
-            spg.gjennomsnittPerAar.size `should be equal to` 3
-            spg.beregnetSnittOgEndring25.let {
-                it.snitt `should be equal to` 992224.toBigInteger()
-                it.p25 `should be equal to` 1240280.toBigInteger()
-                it.m25 `should be equal to` 744168.toBigInteger()
-            }
             spg.harFunnetInntektFoerSykepengegrunnlaget `should be equal to` false
             spg.inntekter.finnFoersteAarISykepengegrunnlaget() `should be equal to` 2021
         }
@@ -277,13 +255,6 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
 
         sykepengegrunnlag `should not be` null
         sykepengegrunnlag!!.let { spg ->
-            spg.grunnbeloepPerAar.size `should be equal to` 3
-            spg.gjennomsnittPerAar.size `should be equal to` 3
-            spg.beregnetSnittOgEndring25.let {
-                it.snitt `should be equal to` 720341.toBigInteger()
-                it.p25 `should be equal to` 900426.toBigInteger()
-                it.m25 `should be equal to` 540256.toBigInteger()
-            }
             spg.harFunnetInntektFoerSykepengegrunnlaget `should be equal to` false
             spg.inntekter.finnFoersteAarISykepengegrunnlaget() `should be equal to` 2021
         }
@@ -356,13 +327,6 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
 
         sykepengegrunnlag `should not be` null
         sykepengegrunnlag!!.let { spg ->
-            spg.grunnbeloepPerAar.size `should be equal to` 3
-            spg.gjennomsnittPerAar.size `should be equal to` 3
-            spg.beregnetSnittOgEndring25.let {
-                it.snitt `should be equal to` 518361.toBigInteger()
-                it.p25 `should be equal to` 647951.toBigInteger()
-                it.m25 `should be equal to` 388770.toBigInteger()
-            }
             spg.harFunnetInntektFoerSykepengegrunnlaget `should be equal to` false
             spg.inntekter.finnFoersteAarISykepengegrunnlaget() `should be equal to` 2021
         }
@@ -416,13 +380,6 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
 
         sykepengegrunnlag `should not be` null
         sykepengegrunnlag!!.let { spg ->
-            spg.grunnbeloepPerAar.size `should be equal to` 3
-            spg.gjennomsnittPerAar.size `should be equal to` 3
-            spg.beregnetSnittOgEndring25.let {
-                it.snitt `should be equal to` 295330.toBigInteger()
-                it.p25 `should be equal to` 369162.toBigInteger()
-                it.m25 `should be equal to` 221497.toBigInteger()
-            }
             spg.harFunnetInntektFoerSykepengegrunnlaget `should be equal to` false
             spg.inntekter.finnFoersteAarISykepengegrunnlaget() `should be equal to` 2020
         }
@@ -466,13 +423,6 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
         sykepengegrunnlag `should not be` null
         sykepengegrunnlag!!.let { spg ->
             spg.inntekter.size `should be equal to` 3
-            spg.grunnbeloepPerAar.size `should be equal to` 3
-            spg.gjennomsnittPerAar.size `should be equal to` 3
-            spg.beregnetSnittOgEndring25.let {
-                it.snitt `should be equal to` 196628.toBigInteger()
-                it.p25 `should be equal to` 245785.toBigInteger()
-                it.m25 `should be equal to` 147471.toBigInteger()
-            }
             spg.harFunnetInntektFoerSykepengegrunnlaget `should be equal to` false
             spg.inntekter.finnFoersteAarISykepengegrunnlaget() `should be equal to` 2020
         }
@@ -507,13 +457,6 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
         sykepengegrunnlag `should not be` null
         sykepengegrunnlag!!.let { spg ->
             spg.inntekter.size `should be equal to` 3
-            spg.grunnbeloepPerAar.size `should be equal to` 3
-            spg.gjennomsnittPerAar.size `should be equal to` 3
-            spg.beregnetSnittOgEndring25.let {
-                it.snitt `should be equal to` 90040.toBigInteger()
-                it.p25 `should be equal to` 112551.toBigInteger()
-                it.m25 `should be equal to` 67530.toBigInteger()
-            }
             spg.harFunnetInntektFoerSykepengegrunnlaget `should be equal to` false
             spg.inntekter.finnFoersteAarISykepengegrunnlaget() `should be equal to` 2020
         }
@@ -535,7 +478,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `Bruker grunnbeløp fra 2024 når ggrunnbeløp for 2025 ikke finnes enda`() {
+    fun `Bruker mangler inntekt året før sykepengegrunnlaget`() {
         with(SigrunMockDispatcher) {
             enqueueMockResponse(
                 fnr = FNR,
@@ -581,71 +524,9 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
 
         sykepengegrunnlag `should not be` null
         sykepengegrunnlag!!.let { spg ->
-            spg.grunnbeloepPerAar.size `should be equal to` 3
-            spg.gjennomsnittPerAar.size `should be equal to` 3
-            spg.beregnetSnittOgEndring25.let {
-                it.snitt `should be equal to` 267625.toBigInteger()
-                it.p25 `should be equal to` 334532.toBigInteger()
-                it.m25 `should be equal to` 200719.toBigInteger()
-            }
             spg.harFunnetInntektFoerSykepengegrunnlaget `should be equal to` false
             spg.inntekter.finnFoersteAarISykepengegrunnlaget() `should be equal to` 2022
         }
-    }
-
-    @Test
-    fun `Verifiser at JSON sendt til frontend har riktige heltallsverdier`() {
-        with(SigrunMockDispatcher) {
-            enqueueMockResponse(
-                fnr = FNR,
-                inntektsaar = "2023",
-                inntekt =
-                    listOf(
-                        PensjonsgivendeInntekt(
-                            datoForFastsetting = "2023-07-17",
-                            skatteordning = Skatteordning.FASTLAND,
-                            pensjonsgivendeInntektAvNaeringsinntekt = 1_000_000,
-                        ),
-                    ),
-            )
-            enqueueMockResponse(
-                fnr = FNR,
-                inntektsaar = "2022",
-                inntekt =
-                    listOf(
-                        PensjonsgivendeInntekt(
-                            datoForFastsetting = "2022-07-17",
-                            skatteordning = Skatteordning.FASTLAND,
-                            pensjonsgivendeInntektAvNaeringsinntekt = 1_000_000,
-                        ),
-                    ),
-            )
-            enqueueMockResponse(
-                fnr = FNR,
-                inntektsaar = "2021",
-                inntekt =
-                    listOf(
-                        PensjonsgivendeInntekt(
-                            datoForFastsetting = "2021-07-17",
-                            skatteordning = Skatteordning.FASTLAND,
-                            pensjonsgivendeInntektAvNaeringsinntekt = 1_000_000,
-                        ),
-                    ),
-            )
-            enqueueResponse(sigrun404Feil())
-        }
-
-        val grunnlagVerdier = sykepengegrunnlagForNaeringsdrivende.beregnSykepengegrunnlag(lagSykepengesoknad())
-        SigrunMockDispatcher.antallKall.get() `should be equal to` 4
-
-        grunnlagVerdier `should not be` null
-        grunnlagVerdier!!.toJsonNode().toString() `should be equal to`
-            objectMapper
-                .readTree(
-                    """  
-                    {"sigrunInntekt":{"inntekter":[{"aar":"2023","verdi":851782},{"aar":"2022","verdi":872694},{"aar":"2021","verdi":890920}],"g-verdier":[{"aar":"2021","verdi":104716},{"aar":"2022","verdi":109784},{"aar":"2023","verdi":116239}],"g-sykmelding":124028,"beregnet":{"snitt":871798,"p25":1089748,"m25":653849},"original-inntekt":[{"inntektsaar":"2023","pensjonsgivendeInntekt":[{"datoForFastsetting":"2023-07-17","skatteordning":"FASTLAND","loenn":0,"loenn-bare-pensjon":0,"naering":1000000,"fiske-fangst-familiebarnehage":0}],"totalInntekt":1000000},{"inntektsaar":"2022","pensjonsgivendeInntekt":[{"datoForFastsetting":"2022-07-17","skatteordning":"FASTLAND","loenn":0,"loenn-bare-pensjon":0,"naering":1000000,"fiske-fangst-familiebarnehage":0}],"totalInntekt":1000000},{"inntektsaar":"2021","pensjonsgivendeInntekt":[{"datoForFastsetting":"2021-07-17","skatteordning":"FASTLAND","loenn":0,"loenn-bare-pensjon":0,"naering":1000000,"fiske-fangst-familiebarnehage":0}],"totalInntekt":1000000}]}}
-                    """.trimIndent(),
-                ).toString()
     }
 
     private fun lagSykepengesoknad(dato: LocalDate = LocalDate.of(2024, 10, 1)): Sykepengesoknad =
