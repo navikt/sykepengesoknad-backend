@@ -4,12 +4,10 @@ import no.nav.helse.flex.client.sigrun.PensjonsgivendeInntekt
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentHovedSporsmalSvarForSelvstendigNaringsdrivende
 import no.nav.helse.flex.service.SykepengegrunnlagNaeringsdrivende
 import no.nav.helse.flex.sykepengesoknad.kafka.*
-import java.time.LocalDate
 
 data class SelvstendigNaringsdrivendeInfo(
     val roller: List<BrregRolle>,
     val sykepengegrunnlagNaeringsdrivende: SykepengegrunnlagNaeringsdrivende? = null,
-    val ventetid: Ventetid? = null,
     val erBarnepasser: Boolean,
     val brukerHarOppgittForsikring: Boolean = false,
 ) {
@@ -25,17 +23,10 @@ data class SelvstendigNaringsdrivendeInfo(
         return SelvstendigNaringsdrivendeDTO(
             roller = roller.map { RolleDTO(it.orgnummer, it.rolletype) },
             inntekt = inntekt,
-            ventetid = ventetid?.let { tilVentetidDTO() },
             hovedSporsmalSvar = sykepengesoknad.hentHovedSporsmalSvarForSelvstendigNaringsdrivende(),
             brukerHarOppgittForsikring = sykepengesoknad.selvstendigNaringsdrivende!!.brukerHarOppgittForsikring,
         )
     }
-
-    private fun tilVentetidDTO(): VentetidDTO =
-        VentetidDTO(
-            fom = ventetid!!.fom,
-            tom = ventetid.tom,
-        )
 
     private fun tilNaringsdrivendeInntektsAarDTO(): List<InntektsAarDTO> =
         sykepengegrunnlagNaeringsdrivende!!.inntekter.map { inntekt ->
@@ -94,9 +85,4 @@ data class BrregRolle(
     val orgnummer: String,
     val orgnavn: String,
     val rolletype: String,
-)
-
-data class Ventetid(
-    val fom: LocalDate,
-    val tom: LocalDate,
 )

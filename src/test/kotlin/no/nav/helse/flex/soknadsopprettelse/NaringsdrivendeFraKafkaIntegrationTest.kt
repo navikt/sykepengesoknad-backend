@@ -9,8 +9,6 @@ import no.nav.helse.flex.client.bregDirect.NAERINGSKODE_BARNEPASSER
 import no.nav.helse.flex.client.brreg.RolleDto
 import no.nav.helse.flex.client.brreg.RollerDto
 import no.nav.helse.flex.client.brreg.Rolletype
-import no.nav.helse.flex.client.flexsyketilfelle.FomTomPeriode
-import no.nav.helse.flex.client.flexsyketilfelle.VentetidResponse
 import no.nav.helse.flex.client.sigrun.HentPensjonsgivendeInntektResponse
 import no.nav.helse.flex.client.sigrun.PensjonsgivendeInntekt
 import no.nav.helse.flex.client.sigrun.Skatteordning
@@ -32,7 +30,6 @@ import no.nav.helse.flex.service.SykepengegrunnlagNaeringsdrivende
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.FiskerBladDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
-import no.nav.helse.flex.sykepengesoknad.kafka.VentetidDTO
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_OPPHOLD_I_UTLANDET
@@ -96,11 +93,6 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
         )
 
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
-        val (fom, tom) = sykmelding.sykmeldingsperioder.first()
-        mockFlexSyketilfelleVentetid(
-            sykmelding.id,
-            VentetidResponse(FomTomPeriode(fom = fom, tom = tom)),
-        )
         mockFlexSyketilfelleSykeforloep(sykmeldingId)
 
         val sykmeldingKafkaMessage =
@@ -123,7 +115,6 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                         rolleDTO.orgnummer `should be equal to` "orgnummer"
                         rolleDTO.rolletype `should be equal to` "INNH"
                     }
-                    selvstendigNaringsdrivendeDTO.ventetid!! `should be equal to` VentetidDTO(fom, tom)
                     selvstendigNaringsdrivendeDTO.inntekt!!.inntektsAar.size `should be equal to` 3
                     selvstendigNaringsdrivendeDTO.brukerHarOppgittForsikring `should be equal to` false
                 }
@@ -164,11 +155,6 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
         )
 
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
-        val (fom, tom) = sykmelding.sykmeldingsperioder.first()
-        mockFlexSyketilfelleVentetid(
-            sykmelding.id,
-            VentetidResponse(FomTomPeriode(fom = fom, tom = tom)),
-        )
         mockFlexSyketilfelleSykeforloep(sykmeldingId)
 
         val sykmeldingKafkaMessage =
@@ -191,7 +177,6 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                         rolleDTO.orgnummer `should be equal to` "orgnummer"
                         rolleDTO.rolletype `should be equal to` "INNH"
                     }
-                    selvstendigNaringsdrivendeDTO.ventetid!! `should be equal to` VentetidDTO(fom, tom)
                     selvstendigNaringsdrivendeDTO.inntekt `should be equal to` null
                 }
             }
@@ -257,11 +242,6 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                 .copy(harRedusertArbeidsgiverperiode = true)
 
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, false)
-        val (fom, tom) = sykmelding.sykmeldingsperioder.first()
-        mockFlexSyketilfelleVentetid(
-            sykmelding.id,
-            VentetidResponse(FomTomPeriode(fom = fom, tom = tom)),
-        )
         mockFlexSyketilfelleSykeforloep(sykmeldingId)
 
         val sykmeldingKafkaMessage =
@@ -280,7 +260,6 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).single().value().also {
             it.tilSykepengesoknadDTO().also { sykepengesoknadDTO ->
                 sykepengesoknadDTO.selvstendigNaringsdrivende!!.also { selvstendigNaringsdrivendeDTO ->
-                    selvstendigNaringsdrivendeDTO.ventetid!! `should be equal to` VentetidDTO(fom, tom)
                     selvstendigNaringsdrivendeDTO.inntekt `should be equal to` null
                     selvstendigNaringsdrivendeDTO.brukerHarOppgittForsikring `should be equal to` true
                 }
@@ -309,13 +288,6 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
             ).copy(harRedusertArbeidsgiverperiode = true)
 
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
-        val (fom, tom) = sykmelding.sykmeldingsperioder.first()
-        repeat(2) {
-            mockFlexSyketilfelleVentetid(
-                sykmelding.id,
-                VentetidResponse(FomTomPeriode(fom = fom, tom = tom)),
-            )
-        }
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
         val sykmeldingKafkaMessage =
@@ -331,19 +303,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
             SYKMELDINGSENDT_TOPIC,
         )
 
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2).also {
-            it.first().value().tilSykepengesoknadDTO().also { sykepengesoknadDTO ->
-                sykepengesoknadDTO.selvstendigNaringsdrivende!!.also { selvstendigNaringsdrivendeDTO ->
-                    selvstendigNaringsdrivendeDTO.ventetid!! `should be equal to` VentetidDTO(fom, tom)
-                }
-            }
-
-            it.last().value().tilSykepengesoknadDTO().also { sykepengesoknadDTO ->
-                sykepengesoknadDTO.selvstendigNaringsdrivende!!.also { selvstendigNaringsdrivendeDTO ->
-                    selvstendigNaringsdrivendeDTO.ventetid!! `should be equal to` VentetidDTO(fom, tom)
-                }
-            }
-        }
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
 
         hentSoknaderMetadata(fnr).sortedBy { it.fom }.also { metadata ->
             metadata.size `should be equal to` 2
@@ -607,11 +567,6 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
         enhetsregisterMockWebServer.enqueue(withContentTypeApplicationJson { MockResponse().setBody(json) })
 
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
-        val (fom, tom) = sykmelding.sykmeldingsperioder.first()
-        mockFlexSyketilfelleVentetid(
-            sykmelding.id,
-            VentetidResponse(FomTomPeriode(fom = fom, tom = tom)),
-        )
         mockFlexSyketilfelleSykeforloep(sykmeldingId)
 
         val sykmeldingKafkaMessage =
@@ -637,7 +592,6 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                         rolleDTO.orgnummer `should be equal to` "orgnummer"
                         rolleDTO.rolletype `should be equal to` "INNH"
                     }
-                    selvstendigNaringsdrivendeDTO.ventetid!! `should be equal to` VentetidDTO(fom, tom)
                     selvstendigNaringsdrivendeDTO.inntekt!!.inntektsAar.size `should be equal to` 3
                 }
             }
@@ -701,11 +655,6 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
         )
 
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
-        val (fom, tom) = sykmelding.sykmeldingsperioder.first()
-        mockFlexSyketilfelleVentetid(
-            sykmelding.id,
-            VentetidResponse(FomTomPeriode(fom = fom, tom = tom)),
-        )
         mockFlexSyketilfelleSykeforloep(sykmeldingId)
 
         val sykmeldingKafkaMessage =
@@ -731,7 +680,6 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                         rolleDTO.orgnummer `should be equal to` "orgnummer"
                         rolleDTO.rolletype `should be equal to` "INNH"
                     }
-                    selvstendigNaringsdrivendeDTO.ventetid!! `should be equal to` VentetidDTO(fom, tom)
                     selvstendigNaringsdrivendeDTO.inntekt!!.inntektsAar.size `should be equal to` 3
                 }
             }
@@ -792,11 +740,6 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
         )
 
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
-        val (fom, tom) = sykmelding.sykmeldingsperioder.first()
-        mockFlexSyketilfelleVentetid(
-            sykmelding.id,
-            VentetidResponse(FomTomPeriode(fom = fom, tom = tom)),
-        )
         mockFlexSyketilfelleSykeforloep(sykmeldingId)
 
         val sykmeldingKafkaMessage =
@@ -822,7 +765,6 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                         rolleDTO.orgnummer `should be equal to` "orgnummer"
                         rolleDTO.rolletype `should be equal to` "INNH"
                     }
-                    selvstendigNaringsdrivendeDTO.ventetid!! `should be equal to` VentetidDTO(fom, tom)
                     selvstendigNaringsdrivendeDTO.inntekt!!.inntektsAar.size `should be equal to` 3
                 }
             }
@@ -883,11 +825,6 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
         )
 
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
-        val (fom, tom) = sykmelding.sykmeldingsperioder.first()
-        mockFlexSyketilfelleVentetid(
-            sykmelding.id,
-            VentetidResponse(FomTomPeriode(fom = fom, tom = tom)),
-        )
         mockFlexSyketilfelleSykeforloep(sykmeldingId)
 
         val sykmeldingKafkaMessage =
@@ -919,7 +856,6 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                         rolleDTO.orgnummer `should be equal to` "orgnummer"
                         rolleDTO.rolletype `should be equal to` "INNH"
                     }
-                    selvstendigNaringsdrivendeDTO.ventetid!! `should be equal to` VentetidDTO(fom, tom)
                     selvstendigNaringsdrivendeDTO.inntekt!!.inntektsAar.size `should be equal to` 3
                 }
             }
@@ -992,13 +928,6 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                 kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
             )
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
-        val (fom, tom) = sykmelding.sykmeldingsperioder.first()
-        repeat(2) {
-            mockFlexSyketilfelleVentetid(
-                sykmelding.id,
-                VentetidResponse(FomTomPeriode(fom = fom, tom = tom)),
-            )
-        }
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
@@ -1258,13 +1187,6 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                 kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
             )
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
-        val (fom, tom) = sykmelding.sykmeldingsperioder.first()
-        repeat(2) {
-            mockFlexSyketilfelleVentetid(
-                sykmelding.id,
-                VentetidResponse(FomTomPeriode(fom = fom, tom = tom)),
-            )
-        }
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
@@ -1304,13 +1226,6 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                     ),
             )
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
-        val (fom, tom) = sykmelding.sykmeldingsperioder.first()
-        repeat(2) {
-            mockFlexSyketilfelleVentetid(
-                sykmelding.id,
-                VentetidResponse(FomTomPeriode(fom = fom, tom = tom)),
-            )
-        }
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
         val sykmeldingKafkaMessage =

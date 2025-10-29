@@ -6,10 +6,7 @@ import no.nav.helse.flex.client.bregDirect.NAERINGSKODE_BARNEPASSER
 import no.nav.helse.flex.client.brreg.RolleDto
 import no.nav.helse.flex.client.brreg.RollerDto
 import no.nav.helse.flex.client.brreg.Rolletype
-import no.nav.helse.flex.client.flexsyketilfelle.FomTomPeriode
-import no.nav.helse.flex.client.flexsyketilfelle.VentetidResponse
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.domain.Ventetid
 import no.nav.helse.flex.mockdispatcher.EnhetsregisterMockDispatcher
 import no.nav.helse.flex.mockdispatcher.withContentTypeApplicationJson
 import no.nav.helse.flex.util.serialisertTilString
@@ -24,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.test.context.TestPropertySource
 import org.springframework.web.client.HttpServerErrorException
-import java.time.LocalDate
 
 private const val ORGNAVN = "orgnavn"
 private const val ORGNUMMER = "orgnummer"
@@ -36,26 +32,13 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
     lateinit var brregMockWebServer: MockWebServer
 
     @Autowired
-    @Qualifier("ventetidMockWebServer")
-    lateinit var ventetidMockWebServer: MockWebServer
-
-    @Autowired
     lateinit var selvstendigNaringsdrivendeInfoService: SelvstendigNaringsdrivendeInfoService
-
-    private val fom = LocalDate.now()
-    private val tom = LocalDate.now().plusDays(1)
 
     @Test
     fun `Returnerer ventetid og roller for én ident med forsikring`() {
         brregMockWebServer.enqueue(
             withContentTypeApplicationJson {
                 MockResponse().setBody((Rolletype.INNH).tilRollerDto().serialisertTilString())
-            },
-        )
-
-        ventetidMockWebServer.enqueue(
-            withContentTypeApplicationJson {
-                MockResponse().setBody(lagventetidResponse(fom, tom).serialisertTilString())
             },
         )
 
@@ -75,7 +58,6 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
         }
 
         selvstendigNaringsdrivendeInfo.also {
-            it.ventetid `should be equal to` Ventetid(fom, tom)
             it.erBarnepasser `should be equal to` false
             it.brukerHarOppgittForsikring `should be equal to` true
         }
@@ -92,12 +74,6 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
         val json = """{"naeringskode1": {"kode": "$NAERINGSKODE_BARNEPASSER"}}"""
         enhetsregisterMockWebServer.enqueue(withContentTypeApplicationJson { MockResponse().setBody(json) })
 
-        ventetidMockWebServer.enqueue(
-            withContentTypeApplicationJson {
-                MockResponse().setBody(lagventetidResponse(fom, tom).serialisertTilString())
-            },
-        )
-
         val selvstendigNaringsdrivendeInfo =
             selvstendigNaringsdrivendeInfoService
                 .lagSelvstendigNaringsdrivendeInfo(
@@ -113,7 +89,6 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
         }
 
         selvstendigNaringsdrivendeInfo.also {
-            it.ventetid `should be equal to` Ventetid(fom, tom)
             it.erBarnepasser `should be equal to` true
             it.brukerHarOppgittForsikring `should be equal to` false
         }
@@ -128,12 +103,6 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
         )
 
         val antallKall = EnhetsregisterMockDispatcher.antallKall()
-
-        ventetidMockWebServer.enqueue(
-            withContentTypeApplicationJson {
-                MockResponse().setBody(lagventetidResponse(fom, tom).serialisertTilString())
-            },
-        )
 
         val selvstendigNaringsdrivendeInfo =
             selvstendigNaringsdrivendeInfoService
@@ -150,7 +119,6 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
         }
 
         selvstendigNaringsdrivendeInfo.also {
-            it.ventetid `should be equal to` Ventetid(fom, tom)
             it.erBarnepasser `should be equal to` false
             it.brukerHarOppgittForsikring `should be equal to` false
         }
@@ -168,11 +136,6 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
         brregMockWebServer.enqueue(
             withContentTypeApplicationJson {
                 MockResponse().setBody((Rolletype.DAGL).tilRollerDto().serialisertTilString())
-            },
-        )
-        ventetidMockWebServer.enqueue(
-            withContentTypeApplicationJson {
-                MockResponse().setBody(lagventetidResponse(fom, tom).serialisertTilString())
             },
         )
 
@@ -201,7 +164,6 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
         }
 
         selvstendigNaringsdrivendeInfo.also {
-            it.ventetid `should be equal to` Ventetid(fom, tom)
             it.erBarnepasser `should be equal to` false
             it.brukerHarOppgittForsikring `should be equal to` false
         }
@@ -221,12 +183,6 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
             },
         )
 
-        ventetidMockWebServer.enqueue(
-            withContentTypeApplicationJson {
-                MockResponse().setBody(lagventetidResponse(fom, tom).serialisertTilString())
-            },
-        )
-
         val selvstendigNaringsdrivendeInfo =
             selvstendigNaringsdrivendeInfoService
                 .lagSelvstendigNaringsdrivendeInfo(
@@ -242,7 +198,6 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
         }
 
         selvstendigNaringsdrivendeInfo.also {
-            it.ventetid `should be equal to` Ventetid(fom, tom)
             it.erBarnepasser `should be equal to` false
             it.brukerHarOppgittForsikring `should be equal to` false
         }
@@ -253,12 +208,6 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
         brregMockWebServer.enqueue(
             withContentTypeApplicationJson {
                 MockResponse().setResponseCode(404)
-            },
-        )
-
-        ventetidMockWebServer.enqueue(
-            withContentTypeApplicationJson {
-                MockResponse().setBody(lagventetidResponse(fom, tom).serialisertTilString())
             },
         )
 
@@ -273,7 +222,6 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
         selvstendigNaringsdrivendeInfo.roller.`should be empty`()
 
         selvstendigNaringsdrivendeInfo.also {
-            it.ventetid `should be equal to` Ventetid(fom, tom)
             it.erBarnepasser `should be equal to` false
             it.brukerHarOppgittForsikring `should be equal to` false
         }
@@ -289,12 +237,6 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
             )
         }
 
-        ventetidMockWebServer.enqueue(
-            withContentTypeApplicationJson {
-                MockResponse().setBody(lagventetidResponse(fom, tom).serialisertTilString())
-            },
-        )
-
         val selvstendigNaringsdrivendeInfo =
             selvstendigNaringsdrivendeInfoService
                 .lagSelvstendigNaringsdrivendeInfo(
@@ -306,7 +248,6 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
         selvstendigNaringsdrivendeInfo.roller.`should be empty`()
 
         selvstendigNaringsdrivendeInfo.also {
-            it.ventetid `should be equal to` Ventetid(fom, tom)
             it.erBarnepasser `should be equal to` false
             it.brukerHarOppgittForsikring `should be equal to` false
         }
@@ -320,21 +261,12 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
             },
         )
 
-        ventetidMockWebServer.enqueue(
-            withContentTypeApplicationJson {
-                MockResponse().setBody(
-                    lagventetidResponse(fom, tom).copy(ventetid = null).serialisertTilString(),
-                )
-            },
-        )
-
         selvstendigNaringsdrivendeInfoService
             .lagSelvstendigNaringsdrivendeInfo(
                 FolkeregisterIdenter("11111111111", andreIdenter = emptyList()),
                 sykmeldingId = "sykmelding-id",
                 arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
             ).also {
-                it.ventetid `should be equal to` null
                 it.roller.single().also { rolle ->
                     rolle.orgnavn `should be equal to` ORGNAVN
                     rolle.orgnummer `should be equal to` ORGNUMMER
@@ -343,29 +275,6 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
                 it.erBarnepasser `should be equal to` false
                 it.brukerHarOppgittForsikring `should be equal to` false
             }
-    }
-
-    @Test
-    fun `ServerError propagerer ved henting av ventetid`() {
-        brregMockWebServer.enqueue(
-            withContentTypeApplicationJson {
-                MockResponse().setBody((Rolletype.INNH).tilRollerDto().serialisertTilString())
-            },
-        )
-
-        ventetidMockWebServer.enqueue(
-            withContentTypeApplicationJson {
-                MockResponse().setResponseCode(500)
-            },
-        )
-
-        invoking {
-            selvstendigNaringsdrivendeInfoService.lagSelvstendigNaringsdrivendeInfo(
-                FolkeregisterIdenter("11111111111", andreIdenter = emptyList()),
-                sykmeldingId = "sykmelding-id",
-                arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
-            )
-        }.shouldThrow(HttpServerErrorException::class)
     }
 
     @Test
@@ -399,12 +308,6 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
             },
         )
 
-        ventetidMockWebServer.enqueue(
-            withContentTypeApplicationJson {
-                MockResponse().setBody(lagventetidResponse(fom, tom).serialisertTilString())
-            },
-        )
-
         val selvstendigNaringsdrivendeInfo =
             selvstendigNaringsdrivendeInfoService
                 .lagSelvstendigNaringsdrivendeInfo(
@@ -420,7 +323,6 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
         }
 
         selvstendigNaringsdrivendeInfo.also {
-            it.ventetid `should be equal to` Ventetid(fom, tom)
             it.erBarnepasser `should be equal to` false
             it.brukerHarOppgittForsikring `should be equal to` false
         }
@@ -436,12 +338,6 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
 
         enhetsregisterMockWebServer.enqueue(withContentTypeApplicationJson { MockResponse().setResponseCode(500) })
 
-        ventetidMockWebServer.enqueue(
-            withContentTypeApplicationJson {
-                MockResponse().setBody(lagventetidResponse(fom, tom).serialisertTilString())
-            },
-        )
-
         val selvstendigNaringsdrivendeInfo =
             selvstendigNaringsdrivendeInfoService
                 .lagSelvstendigNaringsdrivendeInfo(
@@ -456,15 +352,9 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
             it.rolletype `should be equal to` "INNH"
         }
 
-        selvstendigNaringsdrivendeInfo.ventetid `should be equal to` Ventetid(fom, tom)
         selvstendigNaringsdrivendeInfo.brukerHarOppgittForsikring `should be equal to` false
     }
 }
-
-private fun lagventetidResponse(
-    fom: LocalDate,
-    tom: LocalDate,
-): VentetidResponse = VentetidResponse(FomTomPeriode(fom = fom, tom = tom))
 
 private fun Rolletype.tilRollerDto() =
     RollerDto(
