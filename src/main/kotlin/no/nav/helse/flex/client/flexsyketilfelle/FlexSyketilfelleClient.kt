@@ -18,10 +18,8 @@ import org.springframework.http.HttpMethod.POST
 import org.springframework.http.MediaType
 import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
-import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
-import java.time.LocalDate
 
 @Component
 class FlexSyketilfelleClient(
@@ -104,42 +102,6 @@ class FlexSyketilfelleClient(
             ?: throw RuntimeException("Ingen data returnert fra flex-syketilfelle ved kall til erUtenforVentetid")
     }
 
-    @Retryable(include = [HttpServerErrorException::class], maxAttemptsExpression = "\${CLIENT_RETRY_ATTEMPTS:3}")
-    fun hentVentetid(
-        identer: FolkeregisterIdenter,
-        sykmeldingId: String,
-        ventetidRequest: VentetidRequest,
-    ): VentetidResponse {
-        val headers = HttpHeaders()
-        headers.contentType = MediaType.APPLICATION_JSON
-        headers.set("fnr", identer.tilFnrHeader())
-
-        val queryBuilder =
-            UriComponentsBuilder
-                .fromUriString(url)
-                .pathSegment("api", "v1", "ventetid", sykmeldingId, "ventetid")
-                .queryParam("hentAndreIdenter", "false")
-
-        val response =
-            flexSyketilfelleRestTemplate
-                .exchange(
-                    queryBuilder.toUriString(),
-                    POST,
-                    HttpEntity(ventetidRequest, headers),
-                    String::class.java,
-                )
-
-        if (!response.statusCode.is2xxSuccessful) {
-            throw RuntimeException("Henting av ventetid feilet med HTTP-${response.statusCode}")
-        }
-
-        if (response.body == null) {
-            throw RuntimeException("Ingen data returnert fra flex-syketilfelle ved henting av ventetid")
-        }
-
-        return objectMapper.readValue(response.body, VentetidResponse::class.java)
-    }
-
     @Retryable
     fun beregnArbeidsgiverperiode(
         soknad: Sykepengesoknad,
@@ -203,19 +165,4 @@ class FlexSyketilfelleClient(
 data class ErUtenforVentetidRequest(
     val tilleggsopplysninger: Tilleggsopplysninger? = null,
     val sykmeldingKafkaMessage: SykmeldingKafkaMessage? = null,
-)
-
-data class VentetidRequest(
-    val tilleggsopplysninger: Tilleggsopplysninger? = null,
-    val sykmeldingKafkaMessage: SykmeldingKafkaMessage? = null,
-    val returnerPerioderInnenforVentetid: Boolean = false,
-)
-
-data class VentetidResponse(
-    val ventetid: FomTomPeriode?,
-)
-
-data class FomTomPeriode(
-    val fom: LocalDate,
-    val tom: LocalDate,
 )

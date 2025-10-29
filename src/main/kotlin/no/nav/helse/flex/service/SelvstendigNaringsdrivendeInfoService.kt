@@ -5,12 +5,10 @@ import no.nav.helse.flex.client.brreg.BrregClient
 import no.nav.helse.flex.client.brreg.RolleDto
 import no.nav.helse.flex.client.brreg.Rolletype
 import no.nav.helse.flex.client.flexsyketilfelle.FlexSyketilfelleClient
-import no.nav.helse.flex.client.flexsyketilfelle.VentetidRequest
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Arbeidssituasjon.NAERINGSDRIVENDE
 import no.nav.helse.flex.domain.BrregRolle
 import no.nav.helse.flex.domain.SelvstendigNaringsdrivendeInfo
-import no.nav.helse.flex.domain.Ventetid
 import no.nav.helse.flex.logger
 import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpClientErrorException
@@ -32,7 +30,6 @@ class SelvstendigNaringsdrivendeInfoService(
         val roller = hentRoller(identer)
         return SelvstendigNaringsdrivendeInfo(
             roller = roller,
-            ventetid = hentVentetid(identer, sykmeldingId),
             erBarnepasser = erNaeringsdrivendeBarnepasser(roller, sykmeldingId, arbeidssituasjon),
             brukerHarOppgittForsikring = brukerHarOppgittForsikring,
         )
@@ -77,26 +74,6 @@ class SelvstendigNaringsdrivendeInfoService(
         } catch (e: Exception) {
             log.error("Kall til Enhetsregisteret feilet ved sjekk av barnepasser for sykmelding: $sykmeldingId", e)
             false
-        }
-    }
-
-    private fun hentVentetid(
-        identer: FolkeregisterIdenter,
-        sykmeldingId: String,
-    ): Ventetid? {
-        val ventetidResponse =
-            flexSyketilfelleClient.hentVentetid(
-                identer,
-                sykmeldingId,
-                VentetidRequest(returnerPerioderInnenforVentetid = true),
-            )
-
-        // TODO: Kast VentetidException når vi vet flex-syketilfelle alltid skal returnere ventetid.
-        return ventetidResponse.ventetid?.let {
-            Ventetid(fom = it.fom, tom = it.tom)
-        } ?: run {
-            log.error("Det ble ikke returnert ventetid for sykmelding: $sykmeldingId")
-            null
         }
     }
 

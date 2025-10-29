@@ -140,7 +140,6 @@ class NaringsdrivendeMuteringTest {
                             lagSykepengegrunnlagNaeringsdrivende().copy(
                                 harFunnetInntektFoerSykepengegrunnlaget = true,
                             ),
-                        ventetid = null,
                         erBarnepasser = false,
                         brukerHarOppgittForsikring = false,
                     ),

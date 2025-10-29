@@ -24,7 +24,7 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
         )
 
     @Test
-    fun `Inneholder roller og ventetid selv om inntektsinformasjon mangler`() {
+    fun `Inneholder roller selv om inntektsinformasjon mangler`() {
         val (soknad, fom, tom) =
             opprettNyNaeringsdrivendeSoknad().run {
                 Triple(this, requireNotNull(fom), requireNotNull(tom))
@@ -45,11 +45,6 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
                                             rolletype = "INNH",
                                         ),
                                     ),
-                                ventetid =
-                                    Ventetid(
-                                        fom = fom,
-                                        tom = tom,
-                                    ),
                                 erBarnepasser = false,
                             ),
                     ),
@@ -59,10 +54,6 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
             )
 
         soknadDTO.selvstendigNaringsdrivende!!.also {
-            it.ventetid!!.also { ventetid ->
-                ventetid.fom `should be equal to` fom
-                ventetid.tom `should be equal to` tom
-            }
             it.roller.also { roller ->
                 roller.single().also { rolleDTO ->
                     rolleDTO.orgnummer `should be equal to` "orgnummer"
@@ -89,11 +80,6 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
                             SelvstendigNaringsdrivendeInfo(
                                 roller = emptyList(),
                                 sykepengegrunnlagNaeringsdrivende = lagSykepengegrunnlagNaeringsdrivende(),
-                                ventetid =
-                                    Ventetid(
-                                        fom = fom,
-                                        tom = tom,
-                                    ),
                                 erBarnepasser = false,
                                 brukerHarOppgittForsikring = false,
                             ),
@@ -102,11 +88,6 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
                 erEttersending = false,
                 soknadsperioder = hentSoknadsPerioderMedFaktiskGrad(soknad).first,
             )
-
-        soknadDTO.selvstendigNaringsdrivende!!.ventetid!!.also {
-            fom `should be equal to` fom
-            tom `should be equal to` tom
-        }
 
         soknadDTO.selvstendigNaringsdrivende!!.inntekt!!.also { naringsdrivendeInntektDTO ->
             naringsdrivendeInntektDTO.norskPersonidentifikator `should be equal to` "123456789"
