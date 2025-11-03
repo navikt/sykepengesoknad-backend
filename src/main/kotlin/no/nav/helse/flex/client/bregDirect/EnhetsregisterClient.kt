@@ -13,10 +13,7 @@ const val NAERINGSKODE_BARNEPASSER = "88.912"
 class EnhetsregisterClient(
     private val enhetsregisterRestClient: RestClient,
 ) {
-    @Retryable(
-        include = [HttpServerErrorException::class],
-        maxAttemptsExpression = "\${CLIENT_RETRY_ATTEMPTS:3}",
-    )
+    @Retryable(include = [HttpServerErrorException::class])
     fun erBarnepasser(organisasjonsnummer: String): Boolean {
         val response =
             enhetsregisterRestClient

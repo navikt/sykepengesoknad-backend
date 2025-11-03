@@ -11,7 +11,7 @@ import org.springframework.web.client.toEntity
 class BrregClient(
     private val brregRestClient: RestClient,
 ) {
-    @Retryable(include = [HttpServerErrorException::class], maxAttemptsExpression = "\${CLIENT_RETRY_ATTEMPTS:3}")
+    @Retryable(include = [HttpServerErrorException::class])
     fun hentRoller(
         fnr: String,
         rolleTyper: List<Rolletype>? = null,
