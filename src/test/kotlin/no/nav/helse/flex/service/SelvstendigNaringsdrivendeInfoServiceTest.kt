@@ -277,11 +277,13 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
 
     @Test
     fun `ServerError propagerer ved henting av roller`() {
-        brregMockWebServer.enqueue(
-            withContentTypeApplicationJson {
-                MockResponse().setResponseCode(500)
-            },
-        )
+        repeat(3) {
+            brregMockWebServer.enqueue(
+                withContentTypeApplicationJson {
+                    MockResponse().setResponseCode(500)
+                },
+            )
+        }
 
         invoking {
             selvstendigNaringsdrivendeInfoService.lagSelvstendigNaringsdrivendeInfo(

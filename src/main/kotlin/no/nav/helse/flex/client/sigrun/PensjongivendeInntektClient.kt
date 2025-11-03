@@ -25,7 +25,7 @@ class PensjongivendeInntektClient(
     @param:Value("\${SIGRUN_URL}")
     private val url: String,
 ) {
-    @Retryable(noRetryFor = [PensjongivendeInntektClientException::class], maxAttempts = 3)
+    @Retryable(noRetryFor = [PensjongivendeInntektClientException::class])
     fun hentPensjonsgivendeInntekt(
         fnr: String,
         inntektsAar: Int,
