@@ -19,13 +19,11 @@ import org.amshove.kluent.shouldThrow
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.test.context.TestPropertySource
 import org.springframework.web.client.HttpServerErrorException
 
 private const val ORGNAVN = "orgnavn"
 private const val ORGNUMMER = "orgnummer"
 
-@TestPropertySource(properties = ["CLIENT_RETRY_ATTEMPTS=1"])
 class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
     @Autowired
     @Qualifier("brregMockWebServer")
