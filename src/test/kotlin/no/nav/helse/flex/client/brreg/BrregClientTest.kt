@@ -9,11 +9,9 @@ import org.amshove.kluent.invoking
 import org.amshove.kluent.shouldThrow
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.test.context.TestPropertySource
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpServerErrorException
 
-@TestPropertySource(properties = ["CLIENT_RETRY_ATTEMPTS=1"])
 class BrregClientTest : FellesTestOppsett() {
     @Autowired
     private lateinit var brregClient: BrregClient

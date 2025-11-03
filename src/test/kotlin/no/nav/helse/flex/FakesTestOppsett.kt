@@ -38,6 +38,7 @@ const val IGNORED_KAFKA_BROKERS = "localhost:1"
         "spring.flyway.enabled=false",
         "spring.kafka.listener.auto-startup=false",
         "KAFKA_BROKERS=$IGNORED_KAFKA_BROKERS",
+        "CLIENT_RETRY_ATTEMPTS=1",
     ],
 )
 @ComponentScan(
