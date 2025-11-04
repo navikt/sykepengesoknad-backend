@@ -7,12 +7,12 @@ import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus.NY
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.forskuttering.ForskutteringRepository
 import no.nav.helse.flex.forskuttering.domain.Forskuttering
-import no.nav.helse.flex.hentProduserteRecords
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.repository.JulesoknadkandidatDAO
 import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
+import no.nav.helse.flex.ventPåRecords
 import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEmpty
@@ -54,17 +54,6 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
         databaseReset.resetDatabase()
     }
 
-    @BeforeEach
-    fun `Sjekk at topic er tomt`() {
-        sykepengesoknadKafkaConsumer.hentProduserteRecords().shouldBeEmpty()
-    }
-
-    @AfterEach
-    fun rydd() {
-        sykepengesoknadKafkaConsumer.hentProduserteRecords()
-        sykepengesoknadKafkaConsumer.hentProduserteRecords()
-    }
-
     @Test
     fun `15 dager lang arbeidsledigsøknad i riktig periode aktiveres når cron job kjøres`() {
         sendSykmelding(
@@ -90,6 +79,7 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
 
         julesoknadkandidatDAO.hentJulesoknadkandidater().shouldBeEmpty()
         sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.first().id) shouldBe true
+        sykepengesoknadKafkaConsumer.ventPåRecords(1)
     }
 
     @Test
@@ -117,6 +107,7 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
 
         julesoknadkandidatDAO.hentJulesoknadkandidater().shouldBeEmpty()
         sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.first().id) shouldBe true
+        sykepengesoknadKafkaConsumer.ventPåRecords(1)
     }
 
     @Test
@@ -224,6 +215,7 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
             )
 
         sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.first().id) shouldBe true
+        sykepengesoknadKafkaConsumer.ventPåRecords(1)
     }
 
     @Test
@@ -267,6 +259,7 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
 
         julesoknadkandidatDAO.hentJulesoknadkandidater().shouldBeEmpty()
         sykepengesoknadRepository.erAktivertJulesoknadKandidat(prosesserteSoknader.first().id) shouldBe true
+        sykepengesoknadKafkaConsumer.ventPåRecords(1)
     }
 
     @Test
@@ -296,6 +289,7 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
 
         julesoknadkandidatDAO.hentJulesoknadkandidater().shouldBeEmpty()
         sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.first().id) shouldBe true
+        sykepengesoknadKafkaConsumer.ventPåRecords(1)
     }
 
     @Test
@@ -377,6 +371,7 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
 
         julesoknadkandidatDAO.hentJulesoknadkandidater().shouldBeEmpty()
         sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.last().id) shouldBe true
+        sykepengesoknadKafkaConsumer.ventPåRecords(3)
     }
 
     @Test
@@ -438,6 +433,7 @@ class JulesoknadIntegrationTest : FellesTestOppsett() {
 
         julesoknadkandidatDAO.hentJulesoknadkandidater().shouldBeEmpty()
         sykepengesoknadRepository.erAktivertJulesoknadKandidat(soknader.last().id) shouldBe true
+        sykepengesoknadKafkaConsumer.ventPåRecords(2)
     }
 
     @Test

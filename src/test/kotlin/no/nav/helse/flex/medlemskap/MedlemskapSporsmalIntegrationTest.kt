@@ -51,7 +51,7 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
 
     @AfterAll
     fun hentAlleKafkaMeldinger() {
-        juridiskVurderingKafkaConsumer.hentProduserteRecords()
+        juridiskVurderingKafkaConsumer.ventPåRecords(6)
     }
 
     private val fnr = "31111111111"

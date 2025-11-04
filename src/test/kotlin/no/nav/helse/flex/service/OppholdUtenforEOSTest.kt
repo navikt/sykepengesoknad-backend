@@ -35,7 +35,7 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
 
     @AfterAll
     fun hentAlleKafkaMeldinger() {
-        juridiskVurderingKafkaConsumer.hentProduserteRecords()
+        juridiskVurderingKafkaConsumer.ventPåRecords(27)
     }
 
     private fun besvarSoknad(

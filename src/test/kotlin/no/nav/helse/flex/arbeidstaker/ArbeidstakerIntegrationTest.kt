@@ -37,7 +37,7 @@ class ArbeidstakerIntegrationTest : FellesTestOppsett() {
 
     @AfterAll
     fun hentAlleKafkaMeldinger() {
-        juridiskVurderingKafkaConsumer.hentProduserteRecords()
+        juridiskVurderingKafkaConsumer.ventPåRecords(9)
     }
 
     @Test
@@ -82,10 +82,8 @@ class ArbeidstakerIntegrationTest : FellesTestOppsett() {
         val dbSoknader = sykepengesoknadRepository.findBySykepengesoknadUuidIn(kafkaSoknader.map { it.id })
         dbSoknader shouldHaveSize 2
 
-        dbSoknader[0].fom `should be equal to` basisdato.minusDays(20)
-        dbSoknader[0].forstegangssoknad!!.`should be true`()
-        dbSoknader[1].fom `should be equal to` basisdato.minusDays(2)
-        dbSoknader[1].forstegangssoknad!!.`should be false`()
+        dbSoknader.firstOrNull { it.forstegangssoknad == true }!!.fom `should be equal to` basisdato.minusDays(20)
+        dbSoknader.firstOrNull { it.forstegangssoknad == false }!!.fom `should be equal to` basisdato.minusDays(2)
     }
 
     @Test

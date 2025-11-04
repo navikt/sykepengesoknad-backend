@@ -23,7 +23,6 @@ class YrkesskadeIntegrationTest : FellesTestOppsett() {
     private val sykmeldingIdMedYrkesskade = UUID.randomUUID().toString()
     private val fnr = "12345678900"
 
-    @Test
     @BeforeAll
     fun `Køer opp yrkesskaderesponse`() {
         fakeUnleash.resetAll()
@@ -97,7 +96,7 @@ class YrkesskadeIntegrationTest : FellesTestOppsett() {
 
     @AfterAll
     fun hentAlleKafkaMeldinger() {
-        juridiskVurderingKafkaConsumer.hentProduserteRecords()
+        juridiskVurderingKafkaConsumer.ventPåRecords(3)
     }
 
     @Test

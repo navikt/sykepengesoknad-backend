@@ -7,7 +7,6 @@ import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.Sykmeldingstype
-import no.nav.helse.flex.hentProduserteRecords
 import no.nav.helse.flex.overlappendesykmeldinger.OverlapperMedFlere.OverlappTester.*
 import no.nav.helse.flex.repository.KlippMetrikkRepository
 import no.nav.helse.flex.repository.SoknadLagrer
@@ -16,7 +15,6 @@ import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.testdata.gradertSykmeldt
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
-import no.nav.helse.flex.util.serialisertTilString
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
@@ -57,12 +55,6 @@ class OverlapperMedFlere : FellesTestOppsett() {
     @AfterEach
     fun clenUp() {
         databaseReset.resetDatabase()
-        do {
-            val cr = sykepengesoknadKafkaConsumer.hentProduserteRecords()
-            if (cr.isNotEmpty()) {
-                println("GJENSTÅENDE SØKNADER PÅ TOPIC ${cr.first().value().serialisertTilString()}")
-            }
-        } while (cr.isNotEmpty())
     }
 
     @Test

@@ -13,7 +13,7 @@ import org.junit.jupiter.api.*
 class NyttArbeidsforholdNeiFørsteTest : NyttArbeidsforholdFellesOppsett() {
     @AfterAll
     fun hentAlleKafkaMeldinger() {
-        juridiskVurderingKafkaConsumer.hentProduserteRecords()
+        juridiskVurderingKafkaConsumer.ventPåRecords(3)
     }
 
     @Test

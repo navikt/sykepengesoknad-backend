@@ -3,7 +3,6 @@ package no.nav.helse.flex.medlemskap
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.aktivering.AktiveringJob
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.hentProduserteRecords
 import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.repository.SporsmalDAO
 import no.nav.helse.flex.sendSykmelding
@@ -32,7 +31,6 @@ import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should contain all`
 import org.amshove.kluent.`should not contain`
 import org.amshove.kluent.`should not contain any`
-import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.MethodOrderer
@@ -63,11 +61,6 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
     @AfterEach
     fun slettFraDatabase() {
         databaseReset.resetDatabase()
-    }
-
-    @AfterAll
-    fun hentAlleKafkaMeldinger() {
-        juridiskVurderingKafkaConsumer.hentProduserteRecords()
     }
 
     private val fnr = "31111111111"
