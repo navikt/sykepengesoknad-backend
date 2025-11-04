@@ -10,7 +10,6 @@ import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldThrow
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpServerErrorException
 
 class BrregClientTest : FellesTestOppsett() {
@@ -18,12 +17,17 @@ class BrregClientTest : FellesTestOppsett() {
     private lateinit var brregClient: BrregClient
 
     @Test
-    fun `Kaster HttpClientErrorException når Brreg returnerer 4xx`() {
+    fun `Håndterer tom liste når person ikke har roller`() {
         BrregMockDispatcher.enqueueResponse(
-            response("Feil med client", 400),
+            withContentTypeApplicationJson {
+                MockResponse()
+                    .setBody("""{"roller": []}""")
+                    .setResponseCode(200)
+            },
         )
 
-        invoking { brregClient.hentRoller("fnr", listOf(Rolletype.INNH)) }.shouldThrow(HttpClientErrorException::class)
+        val roller = brregClient.hentRoller("fnr", listOf(Rolletype.INNH))
+        roller.size `should be equal to` 0
     }
 
     @Test
