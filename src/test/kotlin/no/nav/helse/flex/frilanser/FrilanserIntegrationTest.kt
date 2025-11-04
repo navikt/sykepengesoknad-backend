@@ -4,7 +4,6 @@ import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSvar
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.hentProduserteRecords
 import no.nav.helse.flex.hentSoknader
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.sendSoknad
@@ -33,7 +32,7 @@ class FrilanserIntegrationTest : FellesTestOppsett() {
 
     @AfterAll
     fun hentAlleKafkaMeldinger() {
-        juridiskVurderingKafkaConsumer.hentProduserteRecords()
+        juridiskVurderingKafkaConsumer.ventPåRecords(1)
     }
 
     @Test

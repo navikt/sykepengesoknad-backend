@@ -4,7 +4,6 @@ import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.aktivering.AktiveringJob
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
-import no.nav.helse.flex.hentProduserteRecords
 import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
@@ -35,7 +34,7 @@ class LangArbeidstakerFremtidigOgAktiveringTest : FellesTestOppsett() {
 
     @AfterAll
     fun hentAlleKafkaMeldinger() {
-        juridiskVurderingKafkaConsumer.hentProduserteRecords()
+        juridiskVurderingKafkaConsumer.ventPåRecords(6)
     }
 
     @Test

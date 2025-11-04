@@ -1,18 +1,13 @@
 package no.nav.helse.flex.julesoknad
 
-import no.nav.helse.flex.FellesTestOppsett
+import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus.FREMTIDIG
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus.NY
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.hentProduserteRecords
-import no.nav.helse.flex.hentSoknad
-import no.nav.helse.flex.hentSoknaderMetadata
-import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -32,11 +27,6 @@ class JulesoknadControllerIntegrationTest : FellesTestOppsett() {
     fun setUp() {
         flexSyketilfelleMockRestServiceServer.reset()
         databaseReset.resetDatabase()
-    }
-
-    @AfterEach
-    fun hentKafkaSoknader() {
-        sykepengesoknadKafkaConsumer.hentProduserteRecords()
     }
 
     @Test
@@ -69,6 +59,7 @@ class JulesoknadControllerIntegrationTest : FellesTestOppsett() {
             soknadId = hentSoknaderMetadata(fnr).first().id,
             fnr = fnr,
         ).julesoknad shouldBe true
+        sykepengesoknadKafkaConsumer.ventPåRecords(1)
     }
 
     @Test

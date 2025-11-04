@@ -2,7 +2,6 @@ package no.nav.helse.flex.arbeidstaker
 
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
-import no.nav.helse.flex.hentProduserteRecords
 import no.nav.helse.flex.hentSoknader
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
 import no.nav.helse.flex.sendSykmelding
@@ -31,7 +30,7 @@ class FaktiskGradUtregningNyttArbeidUnderveisSporsmalTest : FellesTestOppsett() 
 
     @AfterAll
     fun hentAlleKafkaMeldinger() {
-        juridiskVurderingKafkaConsumer.hentProduserteRecords()
+        juridiskVurderingKafkaConsumer.ventPåRecords(18)
     }
 
     @Test

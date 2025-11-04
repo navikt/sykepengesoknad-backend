@@ -17,7 +17,7 @@ import java.time.LocalDate
 class NyttArbeidsforholdMedNyttSkjaringstidspunktTest : NyttArbeidsforholdFellesOppsett() {
     @AfterAll
     fun hentAlleKafkaMeldinger() {
-        juridiskVurderingKafkaConsumer.hentProduserteRecords()
+        juridiskVurderingKafkaConsumer.ventPåRecords(3)
     }
 
     @Test

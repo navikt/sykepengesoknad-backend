@@ -5,6 +5,7 @@ import no.nav.helse.flex.juridiskvurdering.JuridiskVurderingKafkaDto
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.helse.flex.testutil.SubsumsjonAssertions.assertSubsumsjonsmelding
 import no.nav.helse.flex.util.objectMapper
+import org.amshove.kluent.shouldBeEmpty
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.awaitility.Awaitility.await
@@ -16,7 +17,11 @@ fun <K, V> Consumer<K, V>.subscribeHvisIkkeSubscribed(vararg topics: String) {
     }
 }
 
-fun <K, V> Consumer<K, V>.hentProduserteRecords(duration: Duration = Duration.ofMillis(100)): List<ConsumerRecord<K, V>> =
+fun <K, V> Consumer<K, V>.validerErTom() {
+    this.hentProduserteRecords().shouldBeEmpty()
+}
+
+private fun <K, V> Consumer<K, V>.hentProduserteRecords(duration: Duration = Duration.ofMillis(100)): List<ConsumerRecord<K, V>> =
     this
         .poll(duration)
         .also {

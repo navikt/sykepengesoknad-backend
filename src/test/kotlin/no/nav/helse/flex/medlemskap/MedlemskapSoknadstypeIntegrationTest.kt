@@ -2,7 +2,6 @@ package no.nav.helse.flex.medlemskap
 
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.hentProduserteRecords
 import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
@@ -14,7 +13,6 @@ import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.util.serialisertTilString
 import okhttp3.mockwebserver.MockResponse
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -33,12 +31,6 @@ import java.time.LocalDate
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class MedlemskapSoknadstypeIntegrationTest : FellesTestOppsett() {
-    @AfterAll
-    fun hentAlleKafkaMeldinger() {
-        juridiskVurderingKafkaConsumer.hentProduserteRecords()
-        sykepengesoknadKafkaConsumer.hentProduserteRecords()
-    }
-
     private val fom = LocalDate.of(2023, 1, 1)
     private val tom = LocalDate.of(2023, 1, 7)
 

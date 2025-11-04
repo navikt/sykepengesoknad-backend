@@ -1,7 +1,6 @@
 package no.nav.helse.flex.nyttarbeidsforhold
 
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
-import no.nav.helse.flex.hentProduserteRecords
 import no.nav.helse.flex.hentSoknader
 import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
 import no.nav.helse.flex.soknadsopprettelse.NYTT_ARBEIDSFORHOLD_UNDERVEIS
@@ -24,7 +23,7 @@ import java.time.LocalDate
 class NyttArbeidsforhold0SvarTest : NyttArbeidsforholdFellesOppsett() {
     @AfterAll
     fun hentAlleKafkaMeldinger() {
-        juridiskVurderingKafkaConsumer.hentProduserteRecords()
+        juridiskVurderingKafkaConsumer.ventPåRecords(3)
     }
 
     @Test

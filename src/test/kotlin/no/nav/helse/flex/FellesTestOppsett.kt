@@ -21,7 +21,6 @@ import no.nav.helse.flex.testoppsett.startMockWebServere
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
 import org.amshove.kluent.should
-import org.amshove.kluent.shouldBeEmpty
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.junit.jupiter.api.AfterAll
@@ -170,10 +169,10 @@ abstract class FellesTestOppsett : TestOppsettInterfaces {
 
     @AfterAll
     fun `Vi leser alle topics og feiler hvis noe finnes og slik at subklassetestene leser alt`() {
-        sykepengesoknadKafkaConsumer.hentProduserteRecords().shouldBeEmpty()
-        juridiskVurderingKafkaConsumer.hentProduserteRecords().shouldBeEmpty()
-        auditlogKafkaConsumer.hentProduserteRecords().shouldBeEmpty()
-        arbeidssokerregisterStoppConsumer.hentProduserteRecords().shouldBeEmpty()
+        sykepengesoknadKafkaConsumer.validerErTom()
+        juridiskVurderingKafkaConsumer.validerErTom()
+        auditlogKafkaConsumer.validerErTom()
+        arbeidssokerregisterStoppConsumer.validerErTom()
     }
 
     @AfterAll

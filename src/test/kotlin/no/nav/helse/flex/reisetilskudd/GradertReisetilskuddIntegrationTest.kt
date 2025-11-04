@@ -59,7 +59,7 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
 
     @AfterAll
     fun hentAlleKafkaMeldinger() {
-        juridiskVurderingKafkaConsumer.hentProduserteRecords()
+        juridiskVurderingKafkaConsumer.ventPåRecords(5)
     }
 
     @Test
