@@ -11,7 +11,6 @@ import no.nav.helse.flex.domain.BrregRolle
 import no.nav.helse.flex.domain.SelvstendigNaringsdrivendeInfo
 import no.nav.helse.flex.logger
 import org.springframework.stereotype.Service
-import org.springframework.web.client.HttpClientErrorException
 
 @Service
 class SelvstendigNaringsdrivendeInfoService(
@@ -39,13 +38,7 @@ class SelvstendigNaringsdrivendeInfoService(
         identer
             .alle()
             .flatMap { fnr ->
-                // BrregClient kaster HttpClientErrorException når den mottar en tom liste med roller.
-                // Returnerer en tom liste siden det ikke er en en feilsituasjon
-                try {
-                    hentRoller(fnr)
-                } catch (_: HttpClientErrorException.NotFound) {
-                    emptyList()
-                }
+                hentRoller(fnr)
             }.map(::tilBrregRolle)
 
     private fun erNaeringsdrivendeBarnepasser(

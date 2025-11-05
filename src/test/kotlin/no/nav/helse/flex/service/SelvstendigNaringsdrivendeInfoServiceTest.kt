@@ -177,7 +177,9 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
 
         brregMockWebServer.enqueue(
             withContentTypeApplicationJson {
-                MockResponse().setResponseCode(404)
+                MockResponse()
+                    .setBody("""{"roller": []}""")
+                    .setResponseCode(200)
             },
         )
 
@@ -205,7 +207,9 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
     fun `Returnerer ventetid og tom liste med roller når én ident mangler roller`() {
         brregMockWebServer.enqueue(
             withContentTypeApplicationJson {
-                MockResponse().setResponseCode(404)
+                MockResponse()
+                    .setBody("""{"roller": []}""")
+                    .setResponseCode(200)
             },
         )
 
@@ -230,7 +234,9 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
         repeat(2) {
             brregMockWebServer.enqueue(
                 withContentTypeApplicationJson {
-                    MockResponse().setResponseCode(404)
+                    MockResponse()
+                        .setBody("""{"roller": []}""")
+                        .setResponseCode(200)
                 },
             )
         }
