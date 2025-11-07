@@ -31,7 +31,7 @@ class SammenlignStartSyketilfelleJobb(
     }
 
     fun sammenlign() {
-        val soknaderMedForskjelligStartSykeforlop = mutableListOf<Triple<String, LocalDate, LocalDate>>()
+        val soknaderMedForskjelligStartSykeforlop = mutableListOf<Triple<String, LocalDate?, LocalDate?>>()
         MULIG_BERORTE_SOKNADER_ID.forEach { berortSoknadId ->
             val soknad = sykepengesoknadRepository.findBySykepengesoknadUuid(berortSoknadId)!!
             val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(soknad.fnr)
@@ -40,10 +40,10 @@ class SammenlignStartSyketilfelleJobb(
                 nyttSykeforloep
                     .firstOrNull {
                         it.sykmeldinger.any { sm -> sm.id == soknad.sykmeldingUuid }
-                    }!!
-                    .oppfolgingsdato
+                    }?.oppfolgingsdato
 
-            if (!soknad.startSykeforlop!!.isEqual(nyttStartSykeforlop)) {
+            @Suppress("IDENTITY_SENSITIVE_OPERATIONS_WITH_VALUE_TYPE")
+            if ((soknad.startSykeforlop != nyttStartSykeforlop) || soknad.startSykeforlop == null) {
                 soknaderMedForskjelligStartSykeforlop.add(Triple(soknad.id!!, soknad.startSykeforlop, nyttStartSykeforlop))
             }
         }
