@@ -65,7 +65,8 @@ class SammenlignStartSyketilfelleJobb(
             "Antall søknader med forskjellig startsykeforlop ${soknaderMedForskjelligStartSykeforlop.size} av ${MULIG_BERORTE_SOKNADER_ID.size}. Antall som feilet: ${soknaderSomFeiler.size}",
         )
 
-        // soknaderMedForskjelligStartSykeforlop.forEach { log.info("StartSykeforlopMedDiff: it") }
+        if (soknaderMedForskjelligStartSykeforlop.size < 500) log.info("Soknader med diff: $soknaderMedForskjelligStartSykeforlop")
+        if (soknaderSomFeiler.size < 500) log.info("Soknader med feil: $soknaderSomFeiler")
     }
 }
 
