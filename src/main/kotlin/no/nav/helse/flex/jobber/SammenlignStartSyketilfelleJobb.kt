@@ -19,7 +19,7 @@ class SammenlignStartSyketilfelleJobb(
 ) {
     private val log = logger()
 
-    @Scheduled(initialDelay = 5, fixedDelay = 15, timeUnit = TimeUnit.MINUTES)
+    @Scheduled(initialDelay = 5, fixedDelay = 5, timeUnit = TimeUnit.MINUTES)
     fun startSammenlignStartSyketilfelleJobb() {
         log.info("Kjører scheduled jobb SammenlignStartSyketilfelleJobb.")
         if (leaderElection.isLeader()) {
@@ -33,23 +33,31 @@ class SammenlignStartSyketilfelleJobb(
     fun sammenlign() {
         val soknaderMedForskjelligStartSykeforlop = mutableListOf<Triple<String, LocalDate?, LocalDate?>>()
         val soknaderSomFeiler = mutableListOf<String>()
-        MULIG_BERORTE_SOKNADER_ID.forEach { berortSoknadId ->
-            val soknad =
-                sykepengesoknadRepository.findBySykepengesoknadUuid(berortSoknadId) ?: run {
-                    soknaderSomFeiler.add(berortSoknadId)
-                    return@forEach
-                }
-            val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(soknad.fnr)
-            val nyttSykeforloep = syketilfelleClient.hentSykeforloepUtenKafkaMessage(identer)
-            val nyttStartSykeforlop =
-                nyttSykeforloep
-                    .firstOrNull {
-                        it.sykmeldinger.any { sm -> sm.id == soknad.sykmeldingUuid }
-                    }?.oppfolgingsdato
+        MULIG_BERORTE_SOKNADER_ID.forEachIndexed { i, berortSoknadId ->
+            try {
+                if (i % 100 == 0) log.info("Sammenlignet startsykeforlop for $i av ${MULIG_BERORTE_SOKNADER_ID.size} søknader")
+                val soknad = sykepengesoknadRepository.findBySykepengesoknadUuid(berortSoknadId)!!
+                val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(soknad.fnr)
+                val nyttSykeforloep = syketilfelleClient.hentSykeforloepUtenKafkaMessage(identer)
+                val nyttStartSykeforlop =
+                    nyttSykeforloep
+                        .firstOrNull {
+                            it.sykmeldinger.any { sm -> sm.id == soknad.sykmeldingUuid }
+                        }?.oppfolgingsdato
 
-            @Suppress("IDENTITY_SENSITIVE_OPERATIONS_WITH_VALUE_TYPE")
-            if ((soknad.startSykeforlop != nyttStartSykeforlop) || soknad.startSykeforlop == null) {
-                soknaderMedForskjelligStartSykeforlop.add(Triple(soknad.id!!, soknad.startSykeforlop, nyttStartSykeforlop))
+                @Suppress("IDENTITY_SENSITIVE_OPERATIONS_WITH_VALUE_TYPE")
+                if ((soknad.startSykeforlop != nyttStartSykeforlop) || soknad.startSykeforlop == null) {
+                    soknaderMedForskjelligStartSykeforlop.add(
+                        Triple(
+                            soknad.id!!,
+                            soknad.startSykeforlop,
+                            nyttStartSykeforlop,
+                        ),
+                    )
+                }
+            } catch (e: Exception) {
+                log.info("Sammenligning feilet for $berortSoknadId", e)
+                soknaderSomFeiler.add(berortSoknadId)
             }
         }
 
