@@ -2,6 +2,7 @@ package no.nav.helse.flex.jobber
 
 import no.nav.helse.flex.client.flexsyketilfelle.FlexSyketilfelleClient
 import no.nav.helse.flex.cronjob.LeaderElection
+import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadRepository
 import no.nav.helse.flex.service.IdentService
@@ -33,10 +34,15 @@ class SammenlignStartSyketilfelleJobb(
     fun sammenlign() {
         val soknaderMedForskjelligStartSykeforlop = mutableListOf<Triple<String, LocalDate?, LocalDate?>>()
         val soknaderSomFeiler = mutableListOf<String>()
+        val friskmeldtTilArbeidsformidling = mutableListOf<String>()
         MULIG_BERORTE_SOKNADER_ID.forEachIndexed { i, berortSoknadId ->
             try {
                 if (i % 100 == 0) log.info("Sammenlignet startsykeforlop for $i av ${MULIG_BERORTE_SOKNADER_ID.size} søknader")
                 val soknad = sykepengesoknadRepository.findBySykepengesoknadUuid(berortSoknadId)!!
+                if (soknad.soknadstype == Soknadstype.FRISKMELDT_TIL_ARBEIDSFORMIDLING) {
+                    friskmeldtTilArbeidsformidling.add(berortSoknadId)
+                    return@forEachIndexed
+                }
                 val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(soknad.fnr)
                 val nyttSykeforloep = syketilfelleClient.hentSykeforloepUtenKafkaMessage(identer)
                 val nyttStartSykeforlop =
@@ -62,11 +68,12 @@ class SammenlignStartSyketilfelleJobb(
         }
 
         log.info(
-            "Antall søknader med forskjellig startsykeforlop ${soknaderMedForskjelligStartSykeforlop.size} av ${MULIG_BERORTE_SOKNADER_ID.size}. Antall som feilet: ${soknaderSomFeiler.size}",
+            "Antall søknader med forskjellig startsykeforlop ${soknaderMedForskjelligStartSykeforlop.size} av ${MULIG_BERORTE_SOKNADER_ID.size}. Antall som feilet: ${soknaderSomFeiler.size}. Antall friskmeldt til arbeidsformidling: ${friskmeldtTilArbeidsformidling.size}",
         )
 
         if (soknaderMedForskjelligStartSykeforlop.size < 500) log.info("Soknader med diff: $soknaderMedForskjelligStartSykeforlop")
         if (soknaderSomFeiler.size < 500) log.info("Soknader med feil: $soknaderSomFeiler")
+        if (friskmeldtTilArbeidsformidling.size < 500) log.info("Soknader med frisk: $friskmeldtTilArbeidsformidling")
     }
 }
 
