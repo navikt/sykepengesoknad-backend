@@ -49,7 +49,7 @@ class SammenlignStartSyketilfelleJobb(
                 if ((soknad.startSykeforlop != nyttStartSykeforlop) || soknad.startSykeforlop == null) {
                     soknaderMedForskjelligStartSykeforlop.add(
                         Triple(
-                            soknad.id!!,
+                            soknad.sykepengesoknadUuid,
                             soknad.startSykeforlop,
                             nyttStartSykeforlop,
                         ),
