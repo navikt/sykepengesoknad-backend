@@ -20,7 +20,7 @@ class SammenlignStartSyketilfelleJobb(
 ) {
     private val log = logger()
 
-    @Scheduled(initialDelay = 5, fixedDelay = 5, timeUnit = TimeUnit.MINUTES)
+    @Scheduled(initialDelay = 5, fixedDelay = 60, timeUnit = TimeUnit.MINUTES)
     fun startSammenlignStartSyketilfelleJobb() {
         log.info("Kjører scheduled jobb SammenlignStartSyketilfelleJobb.")
         if (leaderElection.isLeader()) {
@@ -34,13 +34,13 @@ class SammenlignStartSyketilfelleJobb(
     fun sammenlign() {
         val soknaderMedForskjelligStartSykeforlop = mutableListOf<Triple<String, LocalDate?, LocalDate?>>()
         val soknaderSomFeiler = mutableListOf<String>()
-        val friskmeldtTilArbeidsformidling = mutableListOf<String>()
+        val soknaderFiltrert = mutableListOf<Pair<String, Soknadstype>>()
         MULIG_BERORTE_SOKNADER_ID.forEachIndexed { i, berortSoknadId ->
             try {
                 if (i % 100 == 0) log.info("Sammenlignet startsykeforlop for $i av ${MULIG_BERORTE_SOKNADER_ID.size} søknader")
                 val soknad = sykepengesoknadRepository.findBySykepengesoknadUuid(berortSoknadId)!!
-                if (soknad.soknadstype == Soknadstype.FRISKMELDT_TIL_ARBEIDSFORMIDLING) {
-                    friskmeldtTilArbeidsformidling.add(berortSoknadId)
+                if (soknad.sykmeldingUuid == null) {
+                    soknaderFiltrert.add(berortSoknadId to soknad.soknadstype)
                     return@forEachIndexed
                 }
                 val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(soknad.fnr)
@@ -68,12 +68,12 @@ class SammenlignStartSyketilfelleJobb(
         }
 
         log.info(
-            "Antall søknader med forskjellig startsykeforlop ${soknaderMedForskjelligStartSykeforlop.size} av ${MULIG_BERORTE_SOKNADER_ID.size}. Antall som feilet: ${soknaderSomFeiler.size}. Antall friskmeldt til arbeidsformidling: ${friskmeldtTilArbeidsformidling.size}",
+            "Antall søknader med forskjellig startsykeforlop ${soknaderMedForskjelligStartSykeforlop.size} av ${MULIG_BERORTE_SOKNADER_ID.size}. Antall som feilet: ${soknaderSomFeiler.size}. Antall filtrert bort ${soknaderFiltrert.size}",
         )
 
         if (soknaderMedForskjelligStartSykeforlop.size < 500) log.info("Soknader med diff: $soknaderMedForskjelligStartSykeforlop")
         if (soknaderSomFeiler.size < 500) log.info("Soknader med feil: $soknaderSomFeiler")
-        if (friskmeldtTilArbeidsformidling.size < 500) log.info("Soknader med frisk: $friskmeldtTilArbeidsformidling")
+        if (soknaderFiltrert.size < 500) log.info("Soknader filtrert: $soknaderFiltrert")
     }
 }
 
