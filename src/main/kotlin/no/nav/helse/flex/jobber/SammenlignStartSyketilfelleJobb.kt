@@ -32,8 +32,13 @@ class SammenlignStartSyketilfelleJobb(
 
     fun sammenlign() {
         val soknaderMedForskjelligStartSykeforlop = mutableListOf<Triple<String, LocalDate?, LocalDate?>>()
+        val soknaderSomFeiler = mutableListOf<String>()
         MULIG_BERORTE_SOKNADER_ID.forEach { berortSoknadId ->
-            val soknad = sykepengesoknadRepository.findBySykepengesoknadUuid(berortSoknadId)!!
+            val soknad =
+                sykepengesoknadRepository.findBySykepengesoknadUuid(berortSoknadId) ?: run {
+                    soknaderSomFeiler.add(berortSoknadId)
+                    return@forEach
+                }
             val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(soknad.fnr)
             val nyttSykeforloep = syketilfelleClient.hentSykeforloepUtenKafkaMessage(identer)
             val nyttStartSykeforlop =
@@ -49,10 +54,10 @@ class SammenlignStartSyketilfelleJobb(
         }
 
         log.info(
-            "Antall søknader med forskjellig startsykeforlop ${soknaderMedForskjelligStartSykeforlop.size} av ${MULIG_BERORTE_SOKNADER_ID.size}.",
+            "Antall søknader med forskjellig startsykeforlop ${soknaderMedForskjelligStartSykeforlop.size} av ${MULIG_BERORTE_SOKNADER_ID.size}. Antall som feilet: ${soknaderSomFeiler.size}",
         )
 
-        // soknaderMedForskjelligStartSykeforlop.forEach { log.info("StartSykeforlopMedDiff: it.toString()") }
+        // soknaderMedForskjelligStartSykeforlop.forEach { log.info("StartSykeforlopMedDiff: it") }
     }
 }
 
