@@ -69,32 +69,6 @@ class FlexSyketilfelleClient(
             ?: throw RuntimeException("Ingen data returnert fra flex-syketilfelle i hentSykeforloep")
     }
 
-    fun hentSykeforloepUtenKafkaMessage(identer: FolkeregisterIdenter): List<Sykeforloep> {
-        val headers = HttpHeaders()
-        headers.contentType = MediaType.APPLICATION_JSON
-        headers.set("fnr", identer.tilFnrHeader())
-
-        val queryBuilder =
-            UriComponentsBuilder
-                .fromUriString(url)
-                .pathSegment("api", "v1", "sykeforloep")
-                .queryParam("hentAndreIdenter", "false")
-
-        val entity = HttpEntity(null, headers)
-
-        val response =
-            flexSyketilfelleRestTemplate
-                .exchange(
-                    queryBuilder.toUriString(),
-                    POST,
-                    entity,
-                    Array<Sykeforloep>::class.java,
-                )
-
-        return response.body?.toList()
-            ?: throw RuntimeException("Ingen data returnert fra flex-syketilfelle i hentSykeforloep")
-    }
-
     @Retryable
     fun erUtenforVentetid(
         identer: FolkeregisterIdenter,
