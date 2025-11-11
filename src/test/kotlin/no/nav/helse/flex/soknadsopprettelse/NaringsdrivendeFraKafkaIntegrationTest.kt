@@ -32,7 +32,6 @@ import no.nav.helse.flex.sykepengesoknad.kafka.FiskerBladDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
-import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_OPPHOLD_I_UTLANDET
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.GradertDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
@@ -59,7 +58,6 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
         databaseReset.resetDatabase()
         flexSyketilfelleMockRestServiceServer.reset()
         fakeUnleash.resetAll()
-        fakeUnleash.enable(UNLEASH_CONTEXT_OPPHOLD_I_UTLANDET)
     }
 
     @AfterEach
