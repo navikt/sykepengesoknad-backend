@@ -161,7 +161,7 @@ private fun fravaerForSykmeldingSporsmal(soknadMetadata: Sykepengesoknad): Spors
             }
         }?",
         svartype = JA_NEI,
-        undertekst = "Gjelder sammenhengende ferie eller annet fravær gjennom alle fire ukene. Har du jobbet underveis, kan du svare nei. ",
+        undertekst = "Gjelder sammenhengende fravær gjennom alle fire ukene.",
     )
 
 private fun naringsdrivendeOppholdIUtlandet(fom: LocalDate): Sporsmal =
