@@ -87,7 +87,6 @@ fun opprettNyNaeringsdrivendeSoknad(): Sykepengesoknad {
                         eksisterendeSoknader = emptyList(),
                     ),
                     brukNyttOppholdIUtlandetSporsmal = true,
-                    brukNyttOpprettholdtInntektSporsmal = true,
                 ),
             status = Soknadstatus.NY,
         ).leggSvarPaSoknad()
@@ -153,7 +152,6 @@ fun opprettSendtFrilanserSoknad(): Sykepengesoknad {
                         eksisterendeSoknader = emptyList(),
                     ),
                     brukNyttOppholdIUtlandetSporsmal = true,
-                    brukNyttOpprettholdtInntektSporsmal = true,
                 ),
             status = Soknadstatus.SENDT,
             sendtNav = Instant.now(),

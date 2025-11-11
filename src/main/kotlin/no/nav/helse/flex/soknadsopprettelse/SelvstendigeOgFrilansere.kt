@@ -17,7 +17,6 @@ fun settOppSoknadSelvstendigOgFrilanser(
     opts: SettOppSoknadOptions,
     sykepengegrunnlagNaeringsdrivende: SykepengegrunnlagNaeringsdrivende? = null,
     brukNyttOppholdIUtlandetSporsmal: Boolean,
-    brukNyttOpprettholdtInntektSporsmal: Boolean,
 ): List<Sporsmal> {
     val (sykepengesoknad, erForsteSoknadISykeforlop, harTidligereUtenlandskSpm, yrkesskade) = opts
     val erGradertReisetilskudd = sykepengesoknad.soknadstype == Soknadstype.GRADERT_REISETILSKUDD
@@ -41,7 +40,7 @@ fun settOppSoknadSelvstendigOgFrilanser(
                     sykepengesoknad.arbeidssituasjon,
                 ),
             )
-            if (brukNyttOpprettholdtInntektSporsmal && sykepengesoknad.arbeidssituasjon.erSelvstendigNaringsdrivende()) {
+            if (sykepengesoknad.arbeidssituasjon.erSelvstendigNaringsdrivende()) {
                 add(naringsdrivendeOpprettholdtInntekt(sykepengesoknad.fom, sykepengesoknad.tom))
             }
 

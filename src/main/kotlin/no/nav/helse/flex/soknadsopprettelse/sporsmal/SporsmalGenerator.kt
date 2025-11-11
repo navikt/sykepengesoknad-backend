@@ -238,7 +238,6 @@ class SporsmalGenerator(
                             opts = soknadOptions,
                             sykepengegrunnlagNaeringsdrivende = sykepengegrunnlag,
                             brukNyttOppholdIUtlandetSporsmal = unleashToggles.oppholdIUtlandetEnabled(soknad.fnr),
-                            brukNyttOpprettholdtInntektSporsmal = unleashToggles.opprettholdtInntektEnabled(soknad.fnr),
                         )
                     }
 
