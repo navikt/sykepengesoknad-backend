@@ -33,7 +33,6 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_OPPHOLD_I_UTLANDET
-import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_OPPRETTHOLDT_INNTEKT
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.GradertDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
@@ -61,7 +60,6 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
         flexSyketilfelleMockRestServiceServer.reset()
         fakeUnleash.resetAll()
         fakeUnleash.enable(UNLEASH_CONTEXT_OPPHOLD_I_UTLANDET)
-        fakeUnleash.enable(UNLEASH_CONTEXT_OPPRETTHOLDT_INNTEKT)
     }
 
     @AfterEach
@@ -638,7 +636,6 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
             skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId).copy(harRedusertArbeidsgiverperiode = true)
 
         fakeUnleash.enable("sykepengesoknad-backend-sigrun-paa-kafka")
-        fakeUnleash.enable("sykepengesoknad-backend-oppdelt-naringsdrivende")
         settOppSigrunMockResponser()
 
         BrregMockDispatcher.enqueue(

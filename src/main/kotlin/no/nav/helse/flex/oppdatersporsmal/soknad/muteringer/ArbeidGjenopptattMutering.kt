@@ -10,7 +10,7 @@ import no.nav.helse.flex.soknadsopprettelse.oppdateringhelpers.finnGyldigDatoSva
 import no.nav.helse.flex.soknadsopprettelse.oppdateringhelpers.skapOppdaterteSoknadsperioder
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.*
 
-fun Sykepengesoknad.arbeidGjenopptattMutering(brukNyttOpprettholdtInntektSporsmal: Boolean = false): Sykepengesoknad {
+fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
     if (erIkkeAvType(SELVSTENDIGE_OG_FRILANSERE, ARBEIDSTAKERE, GRADERT_REISETILSKUDD)) {
         return this
     }
@@ -82,10 +82,7 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(brukNyttOpprettholdtInntektSporsma
             oppholdUtenforEOSSporsmal(this.fom, oppdatertTom)
         }
 
-    val opprettholdtInntektSporsmal = this.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT)
-    if (this.arbeidssituasjon.erSelvstendigNaringsdrivende() &&
-        (brukNyttOpprettholdtInntektSporsmal || opprettholdtInntektSporsmal != null)
-    ) {
+    if (this.arbeidssituasjon.erSelvstendigNaringsdrivende()) {
         oppdaterteSporsmal.add(naringsdrivendeOpprettholdtInntekt(this.fom, oppdatertTom))
     }
 

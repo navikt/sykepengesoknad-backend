@@ -12,7 +12,6 @@ import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_OPPHOLD_I_UTLANDET
-import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_OPPRETTHOLDT_INNTEKT
 import org.amshove.kluent.*
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
@@ -32,7 +31,6 @@ class SelvstendignaringsdrivendeFremtidigOgAktiveringTest : FellesTestOppsett() 
         flexSyketilfelleMockRestServiceServer.reset()
         fakeUnleash.resetAll()
         fakeUnleash.enable(UNLEASH_CONTEXT_OPPHOLD_I_UTLANDET)
-        fakeUnleash.enable(UNLEASH_CONTEXT_OPPRETTHOLDT_INNTEKT)
     }
 
     @AfterAll

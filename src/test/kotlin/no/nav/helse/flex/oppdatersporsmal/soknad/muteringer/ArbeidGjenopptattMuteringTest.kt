@@ -88,7 +88,7 @@ class ArbeidGjenopptattMuteringTest {
         soknadUtenUtdanning.sporsmal.find { it.tag == OPPHOLD_UTENFOR_EOS }.`should be null`()
         soknadUtenUtdanning.sporsmal.shouldHaveSize(7)
 
-        val mutertSoknad = soknadUtenUtdanning.arbeidGjenopptattMutering(true)
+        val mutertSoknad = soknadUtenUtdanning.arbeidGjenopptattMutering()
 
         mutertSoknad.sporsmal.find { it.tag == OPPHOLD_UTENFOR_EOS }.`should not be null`()
         mutertSoknad.sporsmal.shouldHaveSize(8)
@@ -163,7 +163,7 @@ class ArbeidGjenopptattMuteringTest {
             standardSoknad
                 .besvarsporsmal(TILBAKE_I_ARBEID, svar = "JA")
                 .besvarsporsmal(TILBAKE_NAR, svar = basisdato.plusDays(4).format(ISO_LOCAL_DATE))
-                .arbeidGjenopptattMutering(true)
+                .arbeidGjenopptattMutering()
 
         mutertSoknadUtenSpm.sporsmal.shouldHaveSize(8)
         mutertSoknadUtenSpm.sporsmal.find { it.tag == "ARBEID_UNDERVEIS_100_PROSENT_1" }.`should be null`()
@@ -171,7 +171,7 @@ class ArbeidGjenopptattMuteringTest {
         val mutertSoknadMedSpm =
             mutertSoknadUtenSpm
                 .besvarsporsmal(TILBAKE_I_ARBEID, svar = "NEI")
-                .arbeidGjenopptattMutering(true)
+                .arbeidGjenopptattMutering()
 
         mutertSoknadMedSpm.sporsmal.shouldHaveSize(9)
         mutertSoknadMedSpm.sporsmal.find { it.tag == "ARBEID_UNDERVEIS_100_PROSENT_1" }.`should not be null`()
@@ -236,7 +236,7 @@ class ArbeidGjenopptattMuteringTest {
             standardSoknad
                 .replaceSporsmal(spm)
 
-        soknadMedEgenPermisjonSpmTekst `should be equal to` soknadMedEgenPermisjonSpmTekst.arbeidGjenopptattMutering(true)
+        soknadMedEgenPermisjonSpmTekst `should be equal to` soknadMedEgenPermisjonSpmTekst.arbeidGjenopptattMutering()
     }
 
     @Test
@@ -249,7 +249,7 @@ class ArbeidGjenopptattMuteringTest {
             soknad
                 .besvarsporsmal(TILBAKE_I_ARBEID, "JA")
                 .besvarsporsmal(TILBAKE_NAR, tilbakeIArbeid.format(ISO_LOCAL_DATE))
-                .arbeidGjenopptattMutering(false)
+                .arbeidGjenopptattMutering()
 
         mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT).let {
             it `should not be equal to` null
@@ -270,7 +270,7 @@ class ArbeidGjenopptattMuteringTest {
             soknad
                 .besvarsporsmal(TILBAKE_I_ARBEID, "JA")
                 .besvarsporsmal(TILBAKE_NAR, tilbakeIArbeid.format(ISO_LOCAL_DATE))
-                .arbeidGjenopptattMutering(true)
+                .arbeidGjenopptattMutering()
 
         soknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT) `should be equal to` null
         mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT).let {
@@ -281,23 +281,6 @@ class ArbeidGjenopptattMuteringTest {
     }
 
     @Test
-    fun `Tilbake i fullt arbeid skal ikke legge til spørsmålet næringsdrivende opprettholdt inntekt hvis toggle er av`() {
-        val soknad =
-            opprettNyNaeringsdrivendeSoknad()
-                .fjernSporsmal(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT)
-        val tilbakeIArbeid = soknad.fom!!.plusDays(4)
-
-        val mutertSoknad =
-            soknad
-                .besvarsporsmal(TILBAKE_I_ARBEID, "JA")
-                .besvarsporsmal(TILBAKE_NAR, tilbakeIArbeid.format(ISO_LOCAL_DATE))
-                .arbeidGjenopptattMutering(false)
-
-        soknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT) `should be equal to` null
-        mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT) `should be equal to` null
-    }
-
-    @Test
     fun `Tilbake i fullt arbeid skal fjerne spørsmålet næringsdrivende opprettholdt inntekt`() {
         val soknad = opprettNyNaeringsdrivendeSoknad()
 
@@ -305,7 +288,7 @@ class ArbeidGjenopptattMuteringTest {
             soknad
                 .besvarsporsmal(TILBAKE_I_ARBEID, "JA")
                 .besvarsporsmal(TILBAKE_NAR, soknad.fom!!.format(ISO_LOCAL_DATE))
-                .arbeidGjenopptattMutering(true)
+                .arbeidGjenopptattMutering()
 
         soknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT) `should not be equal to` null
         mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT) `should be equal to` null

@@ -19,7 +19,6 @@ import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagGruppertUnder
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforNorge
 import no.nav.helse.flex.svarvalidering.tilKvittering
 import no.nav.helse.flex.svarvalidering.validerSvarPaSporsmal
-import no.nav.helse.flex.unleash.UnleashToggles
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -29,7 +28,6 @@ class OppdaterSporsmalService(
     val sykepengesoknadKvitteringerClient: SykepengesoknadKvitteringerClient,
     val sykepengesoknadDAO: SykepengesoknadDAO,
     val svarDAO: SvarDAO,
-    val unleashToggles: UnleashToggles,
 ) {
     val log = logger()
 
@@ -64,7 +62,7 @@ class OppdaterSporsmalService(
                 .friskmeldtMuteringer()
                 .brukteDuReisetilskuddetMutering()
                 .utlandssoknadMuteringer()
-                .arbeidGjenopptattMutering(unleashToggles.opprettholdtInntektEnabled(soknadFraBasenForOppdatering.fnr))
+                .arbeidGjenopptattMutering()
                 .jobbsituasjonenDinMutering()
                 .oppdaterMedSvarPaUtlandsopphold() // TODO: denne kan fjernes helt etterhvert
                 .naringsdrivendeMutering()
