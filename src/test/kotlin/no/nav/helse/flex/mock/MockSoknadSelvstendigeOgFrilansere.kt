@@ -86,7 +86,6 @@ fun opprettNyNaeringsdrivendeSoknad(): Sykepengesoknad {
                         yrkesskade = YrkesskadeSporsmalGrunnlag(),
                         eksisterendeSoknader = emptyList(),
                     ),
-                    brukNyttOppholdIUtlandetSporsmal = true,
                 ),
             status = Soknadstatus.NY,
         ).leggSvarPaSoknad()
@@ -151,7 +150,6 @@ fun opprettSendtFrilanserSoknad(): Sykepengesoknad {
                         YrkesskadeSporsmalGrunnlag(),
                         eksisterendeSoknader = emptyList(),
                     ),
-                    brukNyttOppholdIUtlandetSporsmal = true,
                 ),
             status = Soknadstatus.SENDT,
             sendtNav = Instant.now(),
