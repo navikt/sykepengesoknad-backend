@@ -18,6 +18,10 @@ class SjekkSykepengesoknadFelterConsumer {
     private var resultatErLogget: Boolean = false
     private val felterVedSoknadstype: MutableMap<SoknadstypeDTO, MutableMap<String, Int>> = mutableMapOf()
 
+    fun resultatErLogget(): Boolean = resultatErLogget
+
+    fun felterVedSoknadstype(): Map<SoknadstypeDTO, Map<String, Int>> = felterVedSoknadstype
+
     @KafkaListener(
         topics = [SYKEPENGESOKNAD_TOPIC],
         containerFactory = "aivenKafkaListenerContainerFactory",
