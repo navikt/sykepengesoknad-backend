@@ -6,10 +6,12 @@ import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.soknadsopprettelse.frisktilarbeid.settOppSykepengesoknadFriskmeldtTilArbeidsformidling
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.*
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.ansvarserklaringSporsmal
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.tilSlutt
 import no.nav.helse.flex.testutil.besvarsporsmal
-import no.nav.helse.flex.yrkesskade.YrkesskadeSporsmalGrunnlag
-import org.amshove.kluent.*
+import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.shouldBeNull
+import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.Test
 import java.time.Instant
 import java.time.LocalDate
@@ -55,10 +57,6 @@ class JobbsituasjonenDinMuteringTest {
                         sykepengesoknad = soknad,
                         erForsteSoknadISykeforlop = true,
                         harTidligereUtenlandskSpm = false,
-                        yrkesskade =
-                            YrkesskadeSporsmalGrunnlag(
-                                emptyList(),
-                            ),
                         eksisterendeSoknader = emptyList(),
                     ),
                     Periode(fom, tom.plusDays(14)),

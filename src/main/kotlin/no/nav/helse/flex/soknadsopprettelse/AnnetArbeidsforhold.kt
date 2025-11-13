@@ -4,9 +4,13 @@ import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.utenlandsksykmelding.utenlandskSykmeldingSporsmal
+import no.nav.helse.flex.yrkesskade.YrkesskadeSporsmalGrunnlag
 
-fun settOppSoknadAnnetArbeidsforhold(opts: SettOppSoknadOptions): List<Sporsmal> {
-    val (sykepengesoknad, erForsteSoknadISykeforlop, harTidligereUtenlandskSpm, yrkesskade) = opts
+fun settOppSoknadAnnetArbeidsforhold(
+    opts: SettOppSoknadOptions,
+    yrkesskade: YrkesskadeSporsmalGrunnlag,
+): List<Sporsmal> {
+    val (sykepengesoknad, erForsteSoknadISykeforlop, harTidligereUtenlandskSpm) = opts
     val erGradertReisetilskudd = sykepengesoknad.soknadstype == Soknadstype.GRADERT_REISETILSKUDD
 
     return mutableListOf<Sporsmal>()

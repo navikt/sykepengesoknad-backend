@@ -8,10 +8,14 @@ import no.nav.helse.flex.domain.Visningskriterie.CHECKED
 import no.nav.helse.flex.domain.Visningskriterie.JA
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.*
 import no.nav.helse.flex.util.DatoUtil.formatterPeriode
+import no.nav.helse.flex.yrkesskade.YrkesskadeSporsmalGrunnlag
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
-fun skapReisetilskuddsoknad(opts: SettOppSoknadOptions): List<Sporsmal> =
+fun skapReisetilskuddsoknad(
+    opts: SettOppSoknadOptions,
+    yrkesskade: YrkesskadeSporsmalGrunnlag,
+): List<Sporsmal> =
     mutableListOf(
         ansvarserklaringSporsmal(),
     ).also {
@@ -22,7 +26,7 @@ fun skapReisetilskuddsoknad(opts: SettOppSoknadOptions): List<Sporsmal> =
                 opts.sykepengesoknad.arbeidssituasjon!!,
             ),
         )
-        it.addAll(opts.yrkesskade.yrkeskadeSporsmal())
+        it.addAll(yrkesskade.yrkeskadeSporsmal())
         it.add(tilSlutt())
     }.toList()
 

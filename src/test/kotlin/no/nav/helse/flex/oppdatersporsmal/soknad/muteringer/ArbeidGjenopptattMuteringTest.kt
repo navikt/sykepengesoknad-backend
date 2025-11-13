@@ -73,10 +73,10 @@ class ArbeidGjenopptattMuteringTest {
                                 sykepengesoknad = soknad,
                                 erForsteSoknadISykeforlop = true,
                                 harTidligereUtenlandskSpm = false,
-                                yrkesskade = YrkesskadeSporsmalGrunnlag(),
                                 eksisterendeSoknader = emptyList(),
                             ),
                         andreKjenteArbeidsforholdFraInntektskomponenten = emptyList(),
+                        yrkesskade = YrkesskadeSporsmalGrunnlag(),
                     ),
             )
 
@@ -149,10 +149,10 @@ class ArbeidGjenopptattMuteringTest {
                             sykepengesoknad = soknad,
                             erForsteSoknadISykeforlop = true,
                             harTidligereUtenlandskSpm = false,
-                            yrkesskade = YrkesskadeSporsmalGrunnlag(),
                             eksisterendeSoknader = emptyList(),
                         ),
                         emptyList(),
+                        YrkesskadeSporsmalGrunnlag(),
                     ),
             )
 
@@ -223,10 +223,10 @@ class ArbeidGjenopptattMuteringTest {
                                 sykepengesoknad = soknad,
                                 erForsteSoknadISykeforlop = true,
                                 harTidligereUtenlandskSpm = false,
-                                yrkesskade = YrkesskadeSporsmalGrunnlag(),
                                 eksisterendeSoknader = emptyList(),
                             ),
                         andreKjenteArbeidsforholdFraInntektskomponenten = emptyList(),
+                        yrkesskade = YrkesskadeSporsmalGrunnlag(),
                     ),
             )
 

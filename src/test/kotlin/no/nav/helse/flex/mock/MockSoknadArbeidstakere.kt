@@ -76,10 +76,10 @@ fun opprettNyArbeidstakerSoknad(): Sykepengesoknad {
                             sykepengesoknad = soknadMetadata,
                             erForsteSoknadISykeforlop = true,
                             harTidligereUtenlandskSpm = false,
-                            yrkesskade = YrkesskadeSporsmalGrunnlag(),
                             eksisterendeSoknader = emptyList(),
                         ),
                         andreKjenteArbeidsforholdFraInntektskomponenten = emptyList(),
+                        YrkesskadeSporsmalGrunnlag(),
                     ),
             ),
         ).sorterSporsmal()
