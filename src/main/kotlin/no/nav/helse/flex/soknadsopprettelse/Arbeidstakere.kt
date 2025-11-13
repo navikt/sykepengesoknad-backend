@@ -13,6 +13,7 @@ import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmOpp
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.utenlandsksykmelding.utenlandskSykmeldingSporsmal
 import no.nav.helse.flex.soknadsopprettelse.undersporsmal.jobbetDuUndersporsmal
 import no.nav.helse.flex.util.DatoUtil.formatterPeriode
+import no.nav.helse.flex.yrkesskade.YrkesskadeSporsmalGrunnlag
 
 interface MedlemskapSporsmalTag
 
@@ -30,8 +31,9 @@ enum class SykepengesoknadSporsmalTag : MedlemskapSporsmalTag {
 fun settOppSoknadArbeidstaker(
     soknadOptions: SettOppSoknadOptions,
     andreKjenteArbeidsforholdFraInntektskomponenten: List<ArbeidsforholdFraInntektskomponenten>,
+    yrkesskade: YrkesskadeSporsmalGrunnlag,
 ): List<Sporsmal> {
-    val (sykepengesoknad, erForsteSoknadISykeforlop, harTidligereUtenlandskSpm, yrkesskade, medlemskapTags) = soknadOptions
+    val (sykepengesoknad, erForsteSoknadISykeforlop, harTidligereUtenlandskSpm, medlemskapTags) = soknadOptions
     val erGradertReisetilskudd = sykepengesoknad.soknadstype == GRADERT_REISETILSKUDD
     return mutableListOf<Sporsmal>().apply {
         add(ansvarserklaringSporsmal())

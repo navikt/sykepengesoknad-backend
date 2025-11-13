@@ -32,6 +32,7 @@ import no.nav.helse.flex.unleash.UnleashToggles
 import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.util.serialisertTilString
 import no.nav.helse.flex.yrkesskade.YrkesskadeIndikatorer
+import no.nav.helse.flex.yrkesskade.YrkesskadeSporsmalGrunnlag
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import kotlin.jvm.optionals.getOrElse
@@ -131,7 +132,8 @@ class SporsmalGenerator(
         val erForsteSoknadISykeforlop = erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad)
         val erEnkeltstaendeBehandlingsdagSoknad = soknad.soknadstype == Soknadstype.BEHANDLINGSDAGER
         val harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad)
-        val yrkesskadeSporsmalGrunnlag =
+
+        fun hentYrkesskadeSporsmalGrunnlag(): YrkesskadeSporsmalGrunnlag =
             yrkesskadeIndikatorer.hentYrkesskadeSporsmalGrunnlag(
                 soknad = soknad,
                 identer = identer,
@@ -169,7 +171,6 @@ class SporsmalGenerator(
                 sykepengesoknad = soknad,
                 erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
                 harTidligereUtenlandskSpm = harTidligereUtenlandskSpm,
-                yrkesskade = yrkesskadeSporsmalGrunnlag,
                 arbeidsforholdoversiktResponse = tilkommenInntektGrunnlagHenting(),
                 eksisterendeSoknader = eksisterendeSoknader,
             )
@@ -181,6 +182,7 @@ class SporsmalGenerator(
         if (soknad.soknadstype == Soknadstype.REISETILSKUDD) {
             return skapReisetilskuddsoknad(
                 soknadOptions,
+                hentYrkesskadeSporsmalGrunnlag(),
             ).tilSporsmalOgAndreKjenteArbeidsforhold()
         }
         if (soknad.soknadstype == Soknadstype.FRISKMELDT_TIL_ARBEIDSFORMIDLING) {
@@ -215,6 +217,7 @@ class SporsmalGenerator(
                                 kjentOppholdstillatelse = medlemskapSporsmalResultat?.kjentOppholdstillatelse,
                             ),
                         andreKjenteArbeidsforholdFraInntektskomponenten = andreKjenteArbeidsforhold,
+                        hentYrkesskadeSporsmalGrunnlag(),
                     )
                 if (arbeidstakerSporsmal.any { it.tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS) }) {
                     log.info("Skapte tilkommen inntekt spørsmål for søknad ${soknad.id}")
@@ -240,8 +243,8 @@ class SporsmalGenerator(
                         )
                     }
 
-                    ARBEIDSLEDIG -> settOppSoknadArbeidsledig(soknadOptions)
-                    ANNET -> settOppSoknadAnnetArbeidsforhold(soknadOptions)
+                    ARBEIDSLEDIG -> settOppSoknadArbeidsledig(soknadOptions, hentYrkesskadeSporsmalGrunnlag())
+                    ANNET -> settOppSoknadAnnetArbeidsforhold(soknadOptions, hentYrkesskadeSporsmalGrunnlag())
 
                     else -> {
                         throw RuntimeException(

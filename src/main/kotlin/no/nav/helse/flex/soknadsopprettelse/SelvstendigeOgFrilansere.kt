@@ -17,7 +17,7 @@ fun settOppSoknadSelvstendigOgFrilanser(
     opts: SettOppSoknadOptions,
     sykepengegrunnlagNaeringsdrivende: SykepengegrunnlagNaeringsdrivende? = null,
 ): List<Sporsmal> {
-    val (sykepengesoknad, erForsteSoknadISykeforlop, harTidligereUtenlandskSpm, yrkesskade) = opts
+    val (sykepengesoknad, erForsteSoknadISykeforlop, harTidligereUtenlandskSpm) = opts
     val erGradertReisetilskudd = sykepengesoknad.soknadstype == Soknadstype.GRADERT_REISETILSKUDD
 
     return mutableListOf<Sporsmal>()
@@ -68,7 +68,6 @@ fun settOppSoknadSelvstendigOgFrilanser(
                     add(arbeidUtenforNorge())
                 }
             }
-            addAll(yrkesskade.yrkeskadeSporsmal())
 
             if (sykepengesoknad.utenlandskSykmelding && (erForsteSoknadISykeforlop || !harTidligereUtenlandskSpm)) {
                 addAll(utenlandskSykmeldingSporsmal(sykepengesoknad))

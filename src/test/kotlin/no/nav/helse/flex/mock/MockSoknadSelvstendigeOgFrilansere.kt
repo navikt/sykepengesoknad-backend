@@ -11,7 +11,6 @@ import no.nav.helse.flex.testutil.besvarsporsmal
 import no.nav.helse.flex.util.DatoUtil.periodeTilJson
 import no.nav.helse.flex.util.oppsummering
 import no.nav.helse.flex.util.tilOsloInstant
-import no.nav.helse.flex.yrkesskade.YrkesskadeSporsmalGrunnlag
 import no.nav.syfo.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.GradertDTO
@@ -83,7 +82,6 @@ fun opprettNyNaeringsdrivendeSoknad(): Sykepengesoknad {
                         sykepengesoknad = soknadMetadata,
                         erForsteSoknadISykeforlop = true,
                         harTidligereUtenlandskSpm = false,
-                        yrkesskade = YrkesskadeSporsmalGrunnlag(),
                         eksisterendeSoknader = emptyList(),
                     ),
                 ),
@@ -144,10 +142,9 @@ fun opprettSendtFrilanserSoknad(): Sykepengesoknad {
             sporsmal =
                 settOppSoknadSelvstendigOgFrilanser(
                     SettOppSoknadOptions(
-                        soknadMetadata,
-                        false,
-                        false,
-                        YrkesskadeSporsmalGrunnlag(),
+                        sykepengesoknad = soknadMetadata,
+                        erForsteSoknadISykeforlop = false,
+                        harTidligereUtenlandskSpm = false,
                         eksisterendeSoknader = emptyList(),
                     ),
                 ),
