@@ -132,6 +132,16 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
     }
 
     @Test
+    fun `Inneholder ikke spørsmål om yrkesskade`() {
+        val soknad =
+            opprettNyNaeringsdrivendeSoknad()
+        val soknadDTO = lagSykepengesoknadDTO(soknad)
+
+        soknad.sporsmal.firstOrNull { it.tag == YRKESSKADE_V2 } `should be equal to` null
+        soknadDTO.sporsmal!!.firstOrNull { it.tag == YRKESSKADE_V2 } `should be equal to` null
+    }
+
+    @Test
     fun `Inneholder hovedspørsmål for Selvstendig Næringsdrivende i forenklet format`() {
         val soknad =
             opprettNyNaeringsdrivendeSoknad()
