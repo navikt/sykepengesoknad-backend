@@ -15,11 +15,9 @@ fun genererOppfolgingstilfelle(
     grense: LocalDateTime? = null,
     startSyketilfelle: LocalDate? = null,
 ): List<Oppfolgingstilfelle>? {
-    val syketilfellebiter = biter
-
     startSyketilfelle?.let {
         val registertSykemeldingFomForSyketille =
-            syketilfellebiter
+            biter
                 .asSequence()
                 .filter { it.tags.containsAny(Tag.SYKMELDING, PAPIRSYKMELDING) }
                 .map { it.fom }
@@ -30,7 +28,7 @@ fun genererOppfolgingstilfelle(
         }
     }
     return genererOppfolgingstilfelle(
-        syketilfellebiter,
+        biter,
         andreKorrigerteRessurser,
         tilleggsbiter,
         grense,

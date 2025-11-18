@@ -10,7 +10,7 @@ import java.time.LocalDate
 
 class ErUtenforArbeidsgiverPeriodeKtTest {
     @Test
-    fun `tolv dager er innenfor agp`() {
+    fun `12 dager er innenfor arbeidsgiverperioden`() {
         val kortSoknad =
             opprettSendtSoknad(
                 fom = LocalDate.of(2022, 7, 1),
@@ -21,7 +21,7 @@ class ErUtenforArbeidsgiverPeriodeKtTest {
     }
 
     @Test
-    fun `seksten dager er innenfor agp`() {
+    fun `16 dager er innenfor arbeidsgiverperioden`() {
         val kortSoknad =
             opprettSendtSoknad(
                 fom = LocalDate.of(2022, 7, 1),
@@ -32,7 +32,7 @@ class ErUtenforArbeidsgiverPeriodeKtTest {
     }
 
     @Test
-    fun `sytten dager er utenfor agp, siste dag er en søndag`() {
+    fun `17 dager er utenfor arbeidsgiverperioden når siste dag er en søndag`() {
         val soknad =
             opprettSendtSoknad(
                 fom = LocalDate.of(2022, 7, 1),
@@ -43,7 +43,7 @@ class ErUtenforArbeidsgiverPeriodeKtTest {
     }
 
     @Test
-    fun `sytten dager er utenfor agp, siste dag er en lørdag`() {
+    fun `17 dager er utenfor arbeidsgiverperioden når siste dag er en lørdag`() {
         val soknad =
             opprettSendtSoknad(
                 fom = LocalDate.of(2022, 6, 30),
@@ -54,7 +54,7 @@ class ErUtenforArbeidsgiverPeriodeKtTest {
     }
 
     @Test
-    fun `sytten dager er utenfor agp, siste dag er en fredag`() {
+    fun `17 dager er utenfor arbeidsgiverperioden når siste dag er en fredag`() {
         val soknad =
             opprettSendtSoknad(
                 fom = LocalDate.of(2022, 6, 29),
@@ -65,7 +65,7 @@ class ErUtenforArbeidsgiverPeriodeKtTest {
     }
 
     @Test
-    fun `sytten dager er utenfor agp, siste dag er en torsdag`() {
+    fun `17 dager er utenfor arbeidsgiverperioden når siste dag er en torsdag`() {
         val soknad =
             opprettSendtSoknad(
                 fom = LocalDate.of(2022, 6, 28),
@@ -76,7 +76,7 @@ class ErUtenforArbeidsgiverPeriodeKtTest {
     }
 
     @Test
-    fun `tjue dager er utenfor agp`() {
+    fun `20 dager er utenfor arbeidsgiverperioden`() {
         val soknad =
             opprettSendtSoknad(
                 fom = LocalDate.of(2022, 7, 1),
@@ -87,7 +87,7 @@ class ErUtenforArbeidsgiverPeriodeKtTest {
     }
 
     @Test
-    fun `tolv dager med 5 egenmeldingsdager er utenfor agp`() {
+    fun `12 dager med 5 egenmeldingsdager er utenfor arbeidsgiverperioden`() {
         val kortSoknad =
             opprettSendtSoknad(
                 fom = LocalDate.of(2022, 7, 11),
@@ -107,7 +107,7 @@ class ErUtenforArbeidsgiverPeriodeKtTest {
     }
 
     @Test
-    fun `to 10 dagere er utafor agp`() {
+    fun `To sammenhengende perioder på 10 dagere er utenfor arbeidsgiverperioden`() {
         val soknad =
             opprettSendtSoknad(
                 fom = LocalDate.of(2022, 7, 11),
@@ -126,7 +126,7 @@ class ErUtenforArbeidsgiverPeriodeKtTest {
     }
 
     @Test
-    fun `5 og 10 er innenfor agp`() {
+    fun `To sammenhengende perioder på 5 og 10 dagere er innenfor arbeidsgiverperioden`() {
         val soknad =
             opprettSendtSoknad(
                 fom = LocalDate.of(2022, 7, 11),
@@ -145,7 +145,7 @@ class ErUtenforArbeidsgiverPeriodeKtTest {
     }
 
     @Test
-    fun `6 til 21 juli 2024 er innenfor agp`() {
+    fun `6 til 21 juli 2024 er innenfor arbeidsgiverperioden`() {
         val soknad =
             opprettSendtSoknad(
                 fom = LocalDate.of(2024, 7, 16),
@@ -164,7 +164,7 @@ class ErUtenforArbeidsgiverPeriodeKtTest {
     }
 
     @Test
-    fun `6 til 22 juli 2024 er utenfor agp`() {
+    fun `6 til 22 juli 2024 er utenfor arbeidsgiverperioden`() {
         val soknad =
             opprettSendtSoknad(
                 fom = LocalDate.of(2024, 7, 16),
@@ -183,7 +183,7 @@ class ErUtenforArbeidsgiverPeriodeKtTest {
     }
 
     @Test
-    fun `12 til 28 juli 2024 er innenfor agp`() {
+    fun `12 til 28 juli 2024 er innenfor arbeidsgiverperioden`() {
         val soknad =
             opprettSendtSoknad(
                 fom = LocalDate.of(2024, 7, 19),

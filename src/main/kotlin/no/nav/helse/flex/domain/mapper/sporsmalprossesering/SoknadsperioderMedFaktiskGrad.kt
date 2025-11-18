@@ -109,6 +109,7 @@ fun hentSoknadsPerioderMedFaktiskGrad(sykepengesoknad: Sykepengesoknad): Pair<Li
             }
         }
 
+        // Det gir ikke verdi å sette faktisk arbeid til mer enn 100 %.
         val kappetFaktiskGrad =
             if (faktiskGrad != null && faktiskGrad > 100) {
                 100

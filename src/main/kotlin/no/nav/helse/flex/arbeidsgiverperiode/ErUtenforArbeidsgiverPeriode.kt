@@ -8,6 +8,7 @@ import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentSoknadsPerioderM
 import java.time.DayOfWeek
 import java.time.LocalDate
 
+// TODO:  Erstatt med et kall til flex-syketilfelle og slett duplikatkode.
 fun Sykepengesoknad.harDagerNAVSkalBetaleFor(andreSoknader: List<Sykepengesoknad>): Boolean {
     val andreBiter =
         andreSoknader
@@ -17,15 +18,14 @@ fun Sykepengesoknad.harDagerNAVSkalBetaleFor(andreSoknader: List<Sykepengesoknad
             .toMutableList()
             .also { it.addAll(this.tilSyketilfelleBiter()) }
 
-    val beregnArbeidsgiverperiode = beregnArbeidsgiverperiode(andreBiter, this)
-    val arbeidsgiverperiode = beregnArbeidsgiverperiode ?: return false
+    val arbeidsgiverperiode = beregnArbeidsgiverperiode(andreBiter, this) ?: return false
 
     val sykepengesoknadTom = this.tom
 
     if (arbeidsgiverperiode.oppbruktArbeidsgiverperiode && arbeidsgiverperiode.arbeidsgiverPeriode.tom.isBefore(this.tom!!)) {
-        // det finnes overskytende dager, sjekk om det er en hverdag blant disse som nav skal betale for
-        val range = datoListe(arbeidsgiverperiode.arbeidsgiverPeriode.tom.plusDays(1), sykepengesoknadTom!!)
-        val hverdagBlantOverskytendeDager = range.any { it.erHverdag() }
+        // Perioden har dager ut over arbeidsgiverperioden. Sjekk om det er en hverdag blant disse som Nav skal betale for.
+        val datoer = lagDatoliste(arbeidsgiverperiode.arbeidsgiverPeriode.tom.plusDays(1), sykepengesoknadTom)
+        val hverdagBlantOverskytendeDager = datoer.any { it.erHverdag() }
         return hverdagBlantOverskytendeDager
     } else {
         return false
@@ -46,7 +46,7 @@ private fun Sykepengesoknad.tilSyketilfelleBiter(): List<Syketilfellebit> {
 
 private fun LocalDate.erHverdag(): Boolean = this.dayOfWeek in DayOfWeek.MONDAY..DayOfWeek.FRIDAY
 
-private fun datoListe(
+private fun lagDatoliste(
     start: LocalDate,
     end: LocalDate,
 ): List<LocalDate> =
