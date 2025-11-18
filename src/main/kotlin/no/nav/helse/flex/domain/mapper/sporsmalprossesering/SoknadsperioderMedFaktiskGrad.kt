@@ -30,10 +30,10 @@ fun hentSoknadsPerioderMedFaktiskGrad(sykepengesoknad: Sykepengesoknad): Pair<Li
 
     val inputSpm = ArrayList<Sporsmal>()
     for (i in soknadperioder!!.indices) {
-        val soknadPeriode = soknadperioder[i]
+        val soknadperiode = soknadperioder[i]
 
         val tag = (
-            if (soknadPeriode.grad == 100) {
+            if (soknadperiode.grad == 100) {
                 listOf(
                     JOBBET_DU_100_PROSENT + i,
                     ARBEID_UNDERVEIS_100_PROSENT + i,
@@ -89,10 +89,10 @@ fun hentSoknadsPerioderMedFaktiskGrad(sykepengesoknad: Sykepengesoknad): Pair<Li
                     fravar
                         .filter { (_, _, type) -> listOf(FravarstypeDTO.FERIE, FravarstypeDTO.PERMISJON).contains(type) }
                 faktiskGrad =
-                    getFaktiskGrad(
+                    beregnFaktiskGrad(
                         faktiskTimer,
                         avtaltTimer,
-                        soknadPeriode,
+                        soknadperiode,
                         ferieOgPermisjonPerioder,
                         arbeidGjenopptattDato(sykepengesoknad),
                     )
@@ -112,22 +112,22 @@ fun hentSoknadsPerioderMedFaktiskGrad(sykepengesoknad: Sykepengesoknad): Pair<Li
         val kappetFaktiskGrad =
             if (faktiskGrad != null && faktiskGrad > 100) {
                 100
-            } else if (faktiskGrad != null && faktiskGrad < (100 - soknadPeriode.grad)) {
-                100 - soknadPeriode.grad
+            } else if (faktiskGrad != null && faktiskGrad < (100 - soknadperiode.grad)) {
+                100 - soknadperiode.grad
             } else {
                 faktiskGrad
             }
 
         perioder.add(
             SoknadsperiodeDTO(
-                fom = soknadPeriode.fom,
-                tom = soknadPeriode.tom,
-                sykmeldingsgrad = soknadPeriode.grad,
+                fom = soknadperiode.fom,
+                tom = soknadperiode.tom,
+                sykmeldingsgrad = soknadperiode.grad,
                 faktiskGrad = kappetFaktiskGrad,
                 avtaltTimer = avtaltTimer,
                 faktiskTimer = faktiskTimer,
-                sykmeldingstype = soknadPeriode.sykmeldingstype?.tilSykmeldingstypeDTO(),
-                grad = soknadPeriode.grad,
+                sykmeldingstype = soknadperiode.sykmeldingstype?.tilSykmeldingstypeDTO(),
+                grad = soknadperiode.grad,
             ),
         )
     }

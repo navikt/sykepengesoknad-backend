@@ -11,51 +11,56 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 import java.time.temporal.ChronoUnit
-import java.util.*
+import kotlin.math.roundToInt
 
-internal fun getFaktiskGrad(
-    faktiskTimer: Double?,
-    avtaltTimer: Double?,
+internal fun beregnFaktiskGrad(
+    timerJobbetIPerioden: Double?,
+    avtaltTimerPerUke: Double?,
     periode: Soknadsperiode,
     ferieOgPermisjonPerioder: List<FravarDTO>,
     arbeidgjenopptattDato: LocalDate?,
 ): Int? {
-    val antallVirkedagerPerUke = 5
+    val virkedagerPerUke = 5
 
-    val virkedager = antallVirkedagerIPeriode(periode, arbeidgjenopptattDato) - antallVirkedagerIPerioder(ferieOgPermisjonPerioder, periode)
+    // Finn antall virkedager i perioden (mandag–fredag), justert for eventuell dato der arbeid ble gjenopptatt
+    // og trekk fra virkedager som faller innenfor ferie-/permisjonsperioder.
+    val faktiskeVirkedager =
+        finnVirkedagerIPerioden(periode, arbeidgjenopptattDato) -
+            antallVirkedagerIPerioden(
+                ferieOgPermisjonPerioder,
+                periode,
+            )
 
-    return if (faktiskTimer == null || avtaltTimer == null || virkedager == 0) {
+    return if (timerJobbetIPerioden == null || avtaltTimerPerUke == null || faktiskeVirkedager == 0) {
         null
     } else {
-        Math.toIntExact(Math.round(faktiskTimer / (avtaltTimer / antallVirkedagerPerUke * virkedager) * 100))
+        ((timerJobbetIPerioden / (avtaltTimerPerUke / virkedagerPerUke * faktiskeVirkedager) * 100)).roundToInt()
     }
 }
 
-private fun antallVirkedagerIPeriode(
+private fun finnVirkedagerIPerioden(
     periode: Soknadsperiode,
-    arbeidgjenopptattDato: LocalDate?,
+    arbeidGjenopptattDato: LocalDate?,
 ): Int {
-    var virkedager = 0
+    var virkedagerIPerioden = 0
 
-    val slutt =
-        if (arbeidgjenopptattDato == null) {
+    val antallDagerIPerioden =
+        if (arbeidGjenopptattDato == null) {
             Math.toIntExact(ChronoUnit.DAYS.between(periode.fom, periode.tom) + 1)
         } else {
-            Math.toIntExact(ChronoUnit.DAYS.between(periode.fom, arbeidgjenopptattDato))
+            Math.toIntExact(ChronoUnit.DAYS.between(periode.fom, arbeidGjenopptattDato))
         }
 
-    for (i in 0 until slutt) {
-        if (erIkkeHelgedag(periode.fom.plusDays(i.toLong()))) {
-            virkedager++
+    for (i in 0 until antallDagerIPerioden) {
+        if (erIkkeHelg(periode.fom.plusDays(i.toLong()))) {
+            virkedagerIPerioden++
         }
     }
 
-    return virkedager
+    return virkedagerIPerioden
 }
 
-private fun erIkkeHelgedag(dag: LocalDate): Boolean = dag.dayOfWeek != DayOfWeek.SATURDAY && dag.dayOfWeek != DayOfWeek.SUNDAY
-
-private fun antallVirkedagerIPerioder(
+private fun antallVirkedagerIPerioden(
     ferieOgPermisjonPerioder: List<FravarDTO>,
     soknadsperiode: Soknadsperiode,
 ): Int {
@@ -66,7 +71,7 @@ private fun antallVirkedagerIPerioder(
 
         for (i in 0 until slutt) {
             val current = fom.plusDays(i.toLong())
-            if (erIkkeHelgedag(current) &&
+            if (erIkkeHelg(current) &&
                 !current.isBefore(soknadsperiode.fom) &&
                 !current.isAfter(soknadsperiode.tom)
             ) {
@@ -77,6 +82,8 @@ private fun antallVirkedagerIPerioder(
 
     return virkedager.size
 }
+
+private fun erIkkeHelg(dag: LocalDate): Boolean = dag.dayOfWeek != DayOfWeek.SATURDAY && dag.dayOfWeek != DayOfWeek.SUNDAY
 
 internal fun arbeidGjenopptattDato(sykepengesoknad: Sykepengesoknad): LocalDate? {
     sykepengesoknad.getSporsmalMedTagOrNull(TILBAKE_NAR)?.forsteSvar?.let {
@@ -121,7 +128,12 @@ fun hentFeriePermUtlandListe(sykepengesoknad: Sykepengesoknad): List<FravarDTO> 
     }
 
     sykepengesoknad.getSporsmalMedTagOrNull(OPPHOLD_UTENFOR_EOS)?.takeIf { it.forsteSvar == "JA" }?.let {
-        fravarliste.addAll(hentFravar(sykepengesoknad.getSporsmalMedTag(OPPHOLD_UTENFOR_EOS_NAR), FravarstypeDTO.UTLANDSOPPHOLD))
+        fravarliste.addAll(
+            hentFravar(
+                sykepengesoknad.getSporsmalMedTag(OPPHOLD_UTENFOR_EOS_NAR),
+                FravarstypeDTO.UTLANDSOPPHOLD,
+            ),
+        )
     }
 
     return fravarliste

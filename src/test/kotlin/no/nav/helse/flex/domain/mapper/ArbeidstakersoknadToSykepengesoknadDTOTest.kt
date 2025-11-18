@@ -7,7 +7,7 @@ import no.nav.helse.flex.domain.Svar
 import no.nav.helse.flex.domain.Sykmeldingstype.AKTIVITET_IKKE_MULIG
 import no.nav.helse.flex.domain.Sykmeldingstype.GRADERT
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.arbeidGjenopptattDato
-import no.nav.helse.flex.domain.mapper.sporsmalprossesering.getFaktiskGrad
+import no.nav.helse.flex.domain.mapper.sporsmalprossesering.beregnFaktiskGrad
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.harSoktSykepengerUnderUtlandsopphold
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentFeriePermUtlandListe
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentSoknadsPerioderMedFaktiskGrad
@@ -15,6 +15,7 @@ import no.nav.helse.flex.mock.opprettNyArbeidstakerSoknad
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.sykepengesoknad.kafka.*
 import no.nav.helse.flex.util.tilOsloLocalDateTime
+import org.amshove.kluent.`should be equal to`
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -509,29 +510,92 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
                 hentSoknadsPerioderMedFaktiskGrad(sykepengesoknad).first,
             ).soknadsperioder
 
-        assertThat(soknadsperioder!!.size).isEqualTo(2)
+        soknadsperioder!!.size `should be equal to` 2
 
-        assertThat(soknadsperioder[0].fom).isEqualTo(sykepengesoknad.soknadPerioder!!.get(0).fom)
-        assertThat(soknadsperioder[0].tom).isEqualTo(sykepengesoknad.soknadPerioder!!.get(0).tom)
-        assertThat(soknadsperioder[0].sykmeldingsgrad).isEqualTo(sykepengesoknad.soknadPerioder!!.get(0).grad)
+        assertThat(soknadsperioder[0].fom).isEqualTo(sykepengesoknad.soknadPerioder!![0].fom)
+        assertThat(soknadsperioder[0].tom).isEqualTo(sykepengesoknad.soknadPerioder[0].tom)
+        assertThat(soknadsperioder[0].sykmeldingsgrad).isEqualTo(sykepengesoknad.soknadPerioder[0].grad)
         assertThat(soknadsperioder[0].sykmeldingstype).isEqualTo(SykmeldingstypeDTO.AKTIVITET_IKKE_MULIG)
         assertThat(soknadsperioder[0].avtaltTimer).isEqualTo(37.5)
         assertThat(soknadsperioder[0].faktiskGrad).isEqualTo(79)
-        assertThat(soknadsperioder[0].faktiskTimer).isEqualTo(null)
+        assertThat(soknadsperioder[0].faktiskTimer).isNull()
 
-        assertThat(soknadsperioder[1].fom).isEqualTo(sykepengesoknad.soknadPerioder!!.get(1).fom)
-        assertThat(soknadsperioder[1].tom).isEqualTo(sykepengesoknad.soknadPerioder!!.get(1).tom)
-        assertThat(soknadsperioder[1].sykmeldingsgrad).isEqualTo(sykepengesoknad.soknadPerioder!!.get(1).grad)
+        assertThat(soknadsperioder[1].fom).isEqualTo(sykepengesoknad.soknadPerioder[1].fom)
+        assertThat(soknadsperioder[1].tom).isEqualTo(sykepengesoknad.soknadPerioder[1].tom)
+        assertThat(soknadsperioder[1].sykmeldingsgrad).isEqualTo(sykepengesoknad.soknadPerioder[1].grad)
         assertThat(soknadsperioder[1].sykmeldingstype).isEqualTo(SykmeldingstypeDTO.GRADERT)
-        assertThat(soknadsperioder[1].avtaltTimer).isEqualTo(null)
-        assertThat(soknadsperioder[1].faktiskGrad).isEqualTo(null)
-        assertThat(soknadsperioder[1].faktiskTimer).isEqualTo(null)
+        assertThat(soknadsperioder[1].avtaltTimer).isNull()
+        assertThat(soknadsperioder[1].faktiskGrad).isNull()
+        assertThat(soknadsperioder[1].faktiskTimer).isNull()
     }
 
     @Test
-    fun faktiskArbeidsgradTarIkkeMedFerieSomErUtenforPerioden() {
-        val faktiskTimer = 45.0
-        val avtaltTimer = 37.5
+    fun `Beregn faktisk grad når bruker har jobbet tilsvarende grad i sykmeldingen`() {
+        val avtaltTimerPerUke = 40.0
+        val timerJobbetIPerioden = 20.0
+        val periode =
+            Soknadsperiode(
+                LocalDate.of(2025, 9, 1),
+                LocalDate.of(2025, 9, 7),
+                50,
+                GRADERT,
+            )
+
+        beregnFaktiskGrad(
+            timerJobbetIPerioden,
+            avtaltTimerPerUke,
+            periode,
+            emptyList(),
+            null,
+        )!! `should be equal to` 50
+    }
+
+    @Test
+    fun `Beregn faktisk grad når bruker har jobbet mer enn grad i sykmeldingen`() {
+        val avtaltTimerPerUke = 40.0
+        val timerJobbetIPerioden = 30.0
+        val periode =
+            Soknadsperiode(
+                LocalDate.of(2025, 9, 1),
+                LocalDate.of(2025, 9, 7),
+                50,
+                GRADERT,
+            )
+
+        beregnFaktiskGrad(
+            timerJobbetIPerioden,
+            avtaltTimerPerUke,
+            periode,
+            emptyList(),
+            null,
+        )!! `should be equal to` 75
+    }
+
+    @Test
+    fun `Beregn faktisk grad når bruker har jobbet mindre enn grad i sykmeldingen`() {
+        val avtaltTimerPerUke = 40.0
+        val timerJobbetIPerioden = 10.0
+        val periode =
+            Soknadsperiode(
+                LocalDate.of(2025, 9, 1),
+                LocalDate.of(2025, 9, 7),
+                50,
+                GRADERT,
+            )
+
+        beregnFaktiskGrad(
+            timerJobbetIPerioden,
+            avtaltTimerPerUke,
+            periode,
+            emptyList(),
+            null,
+        ) `should be equal to` 25
+    }
+
+    @Test
+    fun `Beregn faktisk grad tar ikke med ferie som er utenfor perioden`() {
+        val avtaltTimerPerUke = 37.5
+        val timerJobbetIPerioden = 45.0
         val periode =
             Soknadsperiode(
                 LocalDate.of(2019, 9, 16),
@@ -539,7 +603,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
                 50,
                 GRADERT,
             )
-        val ferieOgPermisjonPerioder =
+        val ferieOgPermisjon =
             listOf(
                 FravarDTO(
                     LocalDate.of(2019, 10, 9),
@@ -548,11 +612,20 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
                 ),
             )
 
-        val faktiskArbeidsgrad = getFaktiskGrad(faktiskTimer, avtaltTimer, periode, emptyList(), null)!!
-        val faktiskArbeidsgradMedFerieEtterPerioden =
-            getFaktiskGrad(faktiskTimer, avtaltTimer, periode, ferieOgPermisjonPerioder, null)!!
+        beregnFaktiskGrad(
+            timerJobbetIPerioden,
+            avtaltTimerPerUke,
+            periode,
+            emptyList(),
+            null,
+        ) `should be equal to` 60
 
-        assertThat(faktiskArbeidsgrad).isEqualTo(60)
-        assertThat(faktiskArbeidsgradMedFerieEtterPerioden).isEqualTo(60)
+        beregnFaktiskGrad(
+            timerJobbetIPerioden,
+            avtaltTimerPerUke,
+            periode,
+            ferieOgPermisjon,
+            null,
+        ) `should be equal to` 60
     }
 }
