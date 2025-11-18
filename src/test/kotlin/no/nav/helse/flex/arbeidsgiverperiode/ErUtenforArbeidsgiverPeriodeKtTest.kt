@@ -107,7 +107,7 @@ class ErUtenforArbeidsgiverPeriodeKtTest {
     }
 
     @Test
-    fun `To sammenhengende perioder på 10 dagere er utenfor arbeidsgiverperioden`() {
+    fun `To sammenhengende perioder på 10 dager er utenfor arbeidsgiverperioden`() {
         val soknad =
             opprettSendtSoknad(
                 fom = LocalDate.of(2022, 7, 11),
@@ -126,7 +126,7 @@ class ErUtenforArbeidsgiverPeriodeKtTest {
     }
 
     @Test
-    fun `To sammenhengende perioder på 5 og 10 dagere er innenfor arbeidsgiverperioden`() {
+    fun `To sammenhengende perioder på 5 og 10 dager er innenfor arbeidsgiverperioden`() {
         val soknad =
             opprettSendtSoknad(
                 fom = LocalDate.of(2022, 7, 11),
