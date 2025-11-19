@@ -209,12 +209,12 @@ class SporsmalGenerator(
                     settOppSoknadArbeidstaker(
                         soknadOptions =
                             soknadOptions.copy(
-                                medlemskapSporsmalTags = medlemskapSporsmalResultat?.medlemskapSporsmalTags,
-                                kjentOppholdstillatelse = medlemskapSporsmalResultat?.kjentOppholdstillatelse,
+                                medlemskapSporsmalTags = medlemskapSporsmalResultat.medlemskapSporsmalTags,
                             ),
                         andreKjenteArbeidsforholdFraInntektskomponenten = andreKjenteArbeidsforhold,
                         yrkesskade = hentYrkesskadeSporsmalGrunnlag(),
                         arbeidsforholdoversiktResponse = arbeidsforholdoversiktResponse,
+                        kjentOppholdstillatelse = medlemskapSporsmalResultat.kjentOppholdstillatelse,
                     )
                 if (arbeidstakerSporsmal.any { it.tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS) }) {
                     log.info("Skapte tilkommen inntekt spørsmål for søknad ${soknad.id}")
@@ -257,7 +257,7 @@ class SporsmalGenerator(
     private fun lagMedlemsskapSporsmalResultat(
         eksisterendeSoknader: List<Sykepengesoknad>,
         soknad: Sykepengesoknad,
-    ): MedlemskapSporsmalResultat? {
+    ): MedlemskapSporsmalResultat {
         // Medlemskapspørsmål skal kun stilles i én første søknad i et sykeforløp, uavhengig av arbeidsgiver.
         if (!skalHaSporsmalOmMedlemskap(eksisterendeSoknader, soknad)) {
             return MedlemskapSporsmalResultat(medlemskapSporsmalTags = emptyList())

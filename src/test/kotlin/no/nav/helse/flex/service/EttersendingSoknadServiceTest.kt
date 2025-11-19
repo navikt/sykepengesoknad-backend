@@ -209,6 +209,7 @@ class EttersendingSoknadServiceTest {
                     emptyList(),
                     yrkesskade = YrkesskadeSporsmalGrunnlag(),
                     arbeidsforholdoversiktResponse = null,
+                    kjentOppholdstillatelse = null,
                 ),
         )
     }

@@ -77,6 +77,7 @@ class ArbeidGjenopptattMuteringTest {
                         andreKjenteArbeidsforholdFraInntektskomponenten = emptyList(),
                         yrkesskade = YrkesskadeSporsmalGrunnlag(),
                         arbeidsforholdoversiktResponse = null,
+                        kjentOppholdstillatelse = null,
                     ),
             )
 
@@ -153,6 +154,7 @@ class ArbeidGjenopptattMuteringTest {
                         andreKjenteArbeidsforholdFraInntektskomponenten = emptyList(),
                         yrkesskade = YrkesskadeSporsmalGrunnlag(),
                         arbeidsforholdoversiktResponse = null,
+                        kjentOppholdstillatelse = null,
                     ),
             )
 
@@ -227,6 +229,7 @@ class ArbeidGjenopptattMuteringTest {
                         andreKjenteArbeidsforholdFraInntektskomponenten = emptyList(),
                         yrkesskade = YrkesskadeSporsmalGrunnlag(),
                         arbeidsforholdoversiktResponse = null,
+                        kjentOppholdstillatelse = null,
                     ),
             )
 
