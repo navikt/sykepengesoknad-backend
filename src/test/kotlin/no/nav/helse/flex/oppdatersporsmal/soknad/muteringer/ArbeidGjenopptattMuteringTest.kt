@@ -78,6 +78,7 @@ class ArbeidGjenopptattMuteringTest {
                         yrkesskade = YrkesskadeSporsmalGrunnlag(),
                         arbeidsforholdoversiktResponse = null,
                         kjentOppholdstillatelse = null,
+                        medlemskapSporsmalTags = emptyList(),
                     ),
             )
 
@@ -155,6 +156,7 @@ class ArbeidGjenopptattMuteringTest {
                         yrkesskade = YrkesskadeSporsmalGrunnlag(),
                         arbeidsforholdoversiktResponse = null,
                         kjentOppholdstillatelse = null,
+                        medlemskapSporsmalTags = emptyList(),
                     ),
             )
 
@@ -230,6 +232,7 @@ class ArbeidGjenopptattMuteringTest {
                         yrkesskade = YrkesskadeSporsmalGrunnlag(),
                         arbeidsforholdoversiktResponse = null,
                         kjentOppholdstillatelse = null,
+                        medlemskapSporsmalTags = emptyList(),
                     ),
             )
 
