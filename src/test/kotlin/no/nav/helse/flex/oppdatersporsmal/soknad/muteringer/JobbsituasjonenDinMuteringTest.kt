@@ -57,7 +57,6 @@ class JobbsituasjonenDinMuteringTest {
                         sykepengesoknad = soknad,
                         erForsteSoknadISykeforlop = true,
                         harTidligereUtenlandskSpm = false,
-                        eksisterendeSoknader = emptyList(),
                     ),
                     Periode(fom, tom.plusDays(14)),
                 ),

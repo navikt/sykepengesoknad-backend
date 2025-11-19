@@ -172,7 +172,6 @@ class SporsmalGenerator(
                 erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
                 harTidligereUtenlandskSpm = harTidligereUtenlandskSpm,
                 arbeidsforholdoversiktResponse = tilkommenInntektGrunnlagHenting(),
-                eksisterendeSoknader = eksisterendeSoknader,
             )
 
         if (erEnkeltstaendeBehandlingsdagSoknad) {
