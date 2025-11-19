@@ -142,9 +142,6 @@ class SporsmalGenerator(
             )
 
         fun tilkommenInntektGrunnlagHenting(): List<ArbeidsforholdFraAAreg>? {
-            if (soknad.soknadstype != Soknadstype.ARBEIDSTAKERE) {
-                return null
-            }
             if (unleashToggles.tilkommenInntektEnabled(soknad.fnr)) {
                 log.info("Tilkommen inntekt toggle enabled for soknad ${soknad.id}")
 
@@ -171,7 +168,6 @@ class SporsmalGenerator(
                 sykepengesoknad = soknad,
                 erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
                 harTidligereUtenlandskSpm = harTidligereUtenlandskSpm,
-                arbeidsforholdoversiktResponse = tilkommenInntektGrunnlagHenting(),
             )
 
         if (erEnkeltstaendeBehandlingsdagSoknad) {
@@ -200,6 +196,7 @@ class SporsmalGenerator(
 
         return when (soknad.arbeidssituasjon) {
             ARBEIDSTAKER -> {
+                val arbeidsforholdoversiktResponse = tilkommenInntektGrunnlagHenting()
                 val andreKjenteArbeidsforhold =
                     arbeidsforholdFraInntektskomponentenHenting.hentArbeidsforhold(
                         fnr = soknad.fnr,
@@ -216,7 +213,8 @@ class SporsmalGenerator(
                                 kjentOppholdstillatelse = medlemskapSporsmalResultat?.kjentOppholdstillatelse,
                             ),
                         andreKjenteArbeidsforholdFraInntektskomponenten = andreKjenteArbeidsforhold,
-                        hentYrkesskadeSporsmalGrunnlag(),
+                        yrkesskade = hentYrkesskadeSporsmalGrunnlag(),
+                        arbeidsforholdoversiktResponse = arbeidsforholdoversiktResponse,
                     )
                 if (arbeidstakerSporsmal.any { it.tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS) }) {
                     log.info("Skapte tilkommen inntekt spørsmål for søknad ${soknad.id}")
@@ -224,7 +222,7 @@ class SporsmalGenerator(
                 SporsmalOgAndreKjenteArbeidsforhold(
                     sporsmal = arbeidstakerSporsmal,
                     andreKjenteArbeidsforhold = andreKjenteArbeidsforhold,
-                    arbeidsforholdFraAAreg = soknadOptions.arbeidsforholdoversiktResponse,
+                    arbeidsforholdFraAAreg = arbeidsforholdoversiktResponse,
                 )
             }
 

@@ -207,7 +207,8 @@ class EttersendingSoknadServiceTest {
                         harTidligereUtenlandskSpm = false,
                     ),
                     emptyList(),
-                    YrkesskadeSporsmalGrunnlag(),
+                    yrkesskade = YrkesskadeSporsmalGrunnlag(),
+                    arbeidsforholdoversiktResponse = null,
                 ),
         )
     }

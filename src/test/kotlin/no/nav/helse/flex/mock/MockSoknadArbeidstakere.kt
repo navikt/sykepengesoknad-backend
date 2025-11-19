@@ -78,7 +78,8 @@ fun opprettNyArbeidstakerSoknad(): Sykepengesoknad {
                             harTidligereUtenlandskSpm = false,
                         ),
                         andreKjenteArbeidsforholdFraInntektskomponenten = emptyList(),
-                        YrkesskadeSporsmalGrunnlag(),
+                        yrkesskade = YrkesskadeSporsmalGrunnlag(),
+                        arbeidsforholdoversiktResponse = null,
                     ),
             ),
         ).sorterSporsmal()
