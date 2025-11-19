@@ -76,7 +76,6 @@ fun opprettNyArbeidstakerSoknad(): Sykepengesoknad {
                             sykepengesoknad = soknadMetadata,
                             erForsteSoknadISykeforlop = true,
                             harTidligereUtenlandskSpm = false,
-                            eksisterendeSoknader = emptyList(),
                         ),
                         andreKjenteArbeidsforholdFraInntektskomponenten = emptyList(),
                         YrkesskadeSporsmalGrunnlag(),

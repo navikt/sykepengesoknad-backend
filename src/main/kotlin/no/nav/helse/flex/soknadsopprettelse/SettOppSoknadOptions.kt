@@ -11,5 +11,4 @@ data class SettOppSoknadOptions(
     val medlemskapSporsmalTags: List<MedlemskapSporsmalTag>? = emptyList(),
     val kjentOppholdstillatelse: KjentOppholdstillatelse? = null,
     val arbeidsforholdoversiktResponse: List<ArbeidsforholdFraAAreg>? = null,
-    val eksisterendeSoknader: List<Sykepengesoknad>,
 )

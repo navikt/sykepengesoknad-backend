@@ -67,7 +67,6 @@ fun opprettBehandlingsdagsoknadTestadata(
                     soknadMetadata,
                     forsteSoknadIForlop,
                     false,
-                    eksisterendeSoknader = emptyList(),
                 ),
             ),
     )

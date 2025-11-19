@@ -159,7 +159,6 @@ class EttersendingSoknadServiceTest {
                         sykepengesoknad = soknadMetadata,
                         erForsteSoknadISykeforlop = true,
                         harTidligereUtenlandskSpm = false,
-                        eksisterendeSoknader = emptyList(),
                     ),
                 ),
         )
@@ -206,7 +205,6 @@ class EttersendingSoknadServiceTest {
                         sykepengesoknad = soknadMetadata,
                         erForsteSoknadISykeforlop = true,
                         harTidligereUtenlandskSpm = false,
-                        eksisterendeSoknader = emptyList(),
                     ),
                     emptyList(),
                     YrkesskadeSporsmalGrunnlag(),
