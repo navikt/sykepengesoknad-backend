@@ -207,14 +207,12 @@ class SporsmalGenerator(
                 val medlemskapSporsmalResultat = lagMedlemsskapSporsmalResultat(eksisterendeSoknader, soknad)
                 val arbeidstakerSporsmal =
                     settOppSoknadArbeidstaker(
-                        soknadOptions =
-                            soknadOptions.copy(
-                                medlemskapSporsmalTags = medlemskapSporsmalResultat.medlemskapSporsmalTags,
-                            ),
+                        soknadOptions = soknadOptions,
                         andreKjenteArbeidsforholdFraInntektskomponenten = andreKjenteArbeidsforhold,
                         yrkesskade = hentYrkesskadeSporsmalGrunnlag(),
                         arbeidsforholdoversiktResponse = arbeidsforholdoversiktResponse,
                         kjentOppholdstillatelse = medlemskapSporsmalResultat.kjentOppholdstillatelse,
+                        medlemskapSporsmalTags = medlemskapSporsmalResultat.medlemskapSporsmalTags,
                     )
                 if (arbeidstakerSporsmal.any { it.tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS) }) {
                     log.info("Skapte tilkommen inntekt spørsmål for søknad ${soknad.id}")

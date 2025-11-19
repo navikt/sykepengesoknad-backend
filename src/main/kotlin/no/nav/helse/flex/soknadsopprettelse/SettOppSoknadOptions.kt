@@ -6,5 +6,4 @@ data class SettOppSoknadOptions(
     val sykepengesoknad: Sykepengesoknad,
     val erForsteSoknadISykeforlop: Boolean,
     val harTidligereUtenlandskSpm: Boolean,
-    val medlemskapSporsmalTags: List<MedlemskapSporsmalTag>? = emptyList(),
 )

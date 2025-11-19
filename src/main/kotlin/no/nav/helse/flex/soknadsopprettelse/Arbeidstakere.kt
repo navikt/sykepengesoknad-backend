@@ -36,8 +36,9 @@ fun settOppSoknadArbeidstaker(
     yrkesskade: YrkesskadeSporsmalGrunnlag,
     arbeidsforholdoversiktResponse: List<ArbeidsforholdFraAAreg>?,
     kjentOppholdstillatelse: KjentOppholdstillatelse?,
+    medlemskapSporsmalTags: List<MedlemskapSporsmalTag>,
 ): List<Sporsmal> {
-    val (sykepengesoknad, erForsteSoknadISykeforlop, harTidligereUtenlandskSpm, medlemskapTags) = soknadOptions
+    val (sykepengesoknad, erForsteSoknadISykeforlop, harTidligereUtenlandskSpm) = soknadOptions
     val erGradertReisetilskudd = sykepengesoknad.soknadstype == GRADERT_REISETILSKUDD
     return mutableListOf<Sporsmal>().apply {
         add(ansvarserklaringSporsmal())
@@ -81,7 +82,7 @@ fun settOppSoknadArbeidstaker(
         }
 
         addAll(
-            medlemskapTags!!.map {
+            medlemskapSporsmalTags.map {
                 when (it) {
                     LovMeSporsmalTag.OPPHOLDSTILATELSE ->
                         lagSporsmalOmOppholdstillatelse(
