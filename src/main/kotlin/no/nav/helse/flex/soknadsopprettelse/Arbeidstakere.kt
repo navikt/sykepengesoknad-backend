@@ -5,6 +5,7 @@ import no.nav.helse.flex.domain.Soknadstype.GRADERT_REISETILSKUDD
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svartype.JA_NEI
 import no.nav.helse.flex.domain.Visningskriterie.JA
+import no.nav.helse.flex.soknadsopprettelse.aaregdata.ArbeidsforholdFraAAreg
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmArbeidUtenforNorge
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmOppholdUtenforEos
@@ -32,6 +33,7 @@ fun settOppSoknadArbeidstaker(
     soknadOptions: SettOppSoknadOptions,
     andreKjenteArbeidsforholdFraInntektskomponenten: List<ArbeidsforholdFraInntektskomponenten>,
     yrkesskade: YrkesskadeSporsmalGrunnlag,
+    arbeidsforholdoversiktResponse: List<ArbeidsforholdFraAAreg>?,
 ): List<Sporsmal> {
     val (sykepengesoknad, erForsteSoknadISykeforlop, harTidligereUtenlandskSpm, medlemskapTags) = soknadOptions
     val erGradertReisetilskudd = sykepengesoknad.soknadstype == GRADERT_REISETILSKUDD
@@ -53,10 +55,10 @@ fun settOppSoknadArbeidstaker(
         if (sykepengesoknad.utenlandskSykmelding && (erForsteSoknadISykeforlop || !harTidligereUtenlandskSpm)) {
             addAll(utenlandskSykmeldingSporsmal(sykepengesoknad))
         }
-        if (soknadOptions.arbeidsforholdoversiktResponse != null) {
+        if (arbeidsforholdoversiktResponse != null) {
             addAll(
                 nyttArbeidsforholdSporsmal(
-                    soknadOptions.arbeidsforholdoversiktResponse,
+                    arbeidsforholdoversiktResponse,
                     denneSoknaden = sykepengesoknad,
                 ),
             )
@@ -67,7 +69,7 @@ fun settOppSoknadArbeidstaker(
                 sykmeldingOrgnavn = sykepengesoknad.arbeidsgiverNavn!!,
                 sykmeldingOrgnr = sykepengesoknad.arbeidsgiverOrgnummer!!,
                 andreKjenteArbeidsforholdFraInntektskomponenten = andreKjenteArbeidsforholdFraInntektskomponenten,
-                nyeArbeidsforholdFraAareg = soknadOptions.arbeidsforholdoversiktResponse,
+                nyeArbeidsforholdFraAareg = arbeidsforholdoversiktResponse,
             ),
         )
         addAll(jobbetDuIPeriodenSporsmal(sykepengesoknad.soknadPerioder!!, sykepengesoknad.arbeidsgiverNavn))

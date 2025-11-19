@@ -76,6 +76,7 @@ class ArbeidGjenopptattMuteringTest {
                             ),
                         andreKjenteArbeidsforholdFraInntektskomponenten = emptyList(),
                         yrkesskade = YrkesskadeSporsmalGrunnlag(),
+                        arbeidsforholdoversiktResponse = null,
                     ),
             )
 
@@ -149,8 +150,9 @@ class ArbeidGjenopptattMuteringTest {
                             erForsteSoknadISykeforlop = true,
                             harTidligereUtenlandskSpm = false,
                         ),
-                        emptyList(),
-                        YrkesskadeSporsmalGrunnlag(),
+                        andreKjenteArbeidsforholdFraInntektskomponenten = emptyList(),
+                        yrkesskade = YrkesskadeSporsmalGrunnlag(),
+                        arbeidsforholdoversiktResponse = null,
                     ),
             )
 
@@ -224,6 +226,7 @@ class ArbeidGjenopptattMuteringTest {
                             ),
                         andreKjenteArbeidsforholdFraInntektskomponenten = emptyList(),
                         yrkesskade = YrkesskadeSporsmalGrunnlag(),
+                        arbeidsforholdoversiktResponse = null,
                     ),
             )
 
