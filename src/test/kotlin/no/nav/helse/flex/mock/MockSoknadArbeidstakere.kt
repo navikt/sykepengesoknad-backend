@@ -75,13 +75,13 @@ fun opprettNyArbeidstakerSoknad(): Sykepengesoknad {
                         SettOppSoknadOptions(
                             sykepengesoknad = soknadMetadata,
                             erForsteSoknadISykeforlop = true,
-                            harTidligereUtenlandskSpm = false,
                         ),
                         andreKjenteArbeidsforholdFraInntektskomponenten = emptyList(),
                         yrkesskade = YrkesskadeSporsmalGrunnlag(),
                         arbeidsforholdoversiktResponse = null,
                         kjentOppholdstillatelse = null,
                         medlemskapSporsmalTags = emptyList(),
+                        harTidligereUtenlandskSpm = false,
                     ),
             ),
         ).sorterSporsmal()

@@ -56,12 +56,13 @@ fun opprettNySoknadAnnet(): Sykepengesoknad {
     return soknadMetadata.copy(
         sporsmal =
             settOppSoknadAnnetArbeidsforhold(
-                SettOppSoknadOptions(
-                    soknadMetadata,
-                    false,
-                    false,
-                ),
-                YrkesskadeSporsmalGrunnlag(),
+                opts =
+                    SettOppSoknadOptions(
+                        soknadMetadata,
+                        false,
+                    ),
+                yrkesskade = YrkesskadeSporsmalGrunnlag(),
+                harTidligereUtenlandskSpm = false,
             ),
     )
 }

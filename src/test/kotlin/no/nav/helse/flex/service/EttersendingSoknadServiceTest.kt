@@ -158,7 +158,6 @@ class EttersendingSoknadServiceTest {
                     SettOppSoknadOptions(
                         sykepengesoknad = soknadMetadata,
                         erForsteSoknadISykeforlop = true,
-                        harTidligereUtenlandskSpm = false,
                     ),
                 ),
         )
@@ -204,13 +203,13 @@ class EttersendingSoknadServiceTest {
                     SettOppSoknadOptions(
                         sykepengesoknad = soknadMetadata,
                         erForsteSoknadISykeforlop = true,
-                        harTidligereUtenlandskSpm = false,
                     ),
                     emptyList(),
                     yrkesskade = YrkesskadeSporsmalGrunnlag(),
                     arbeidsforholdoversiktResponse = null,
                     kjentOppholdstillatelse = null,
                     medlemskapSporsmalTags = emptyList(),
+                    harTidligereUtenlandskSpm = false,
                 ),
         )
     }

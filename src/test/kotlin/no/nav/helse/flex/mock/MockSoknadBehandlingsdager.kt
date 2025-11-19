@@ -66,7 +66,6 @@ fun opprettBehandlingsdagsoknadTestadata(
                 SettOppSoknadOptions(
                     soknadMetadata,
                     forsteSoknadIForlop,
-                    false,
                 ),
             ),
     )

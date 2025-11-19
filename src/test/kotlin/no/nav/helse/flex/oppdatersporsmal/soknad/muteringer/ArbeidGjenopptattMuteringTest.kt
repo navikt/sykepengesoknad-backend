@@ -72,13 +72,13 @@ class ArbeidGjenopptattMuteringTest {
                             SettOppSoknadOptions(
                                 sykepengesoknad = soknad,
                                 erForsteSoknadISykeforlop = true,
-                                harTidligereUtenlandskSpm = false,
                             ),
                         andreKjenteArbeidsforholdFraInntektskomponenten = emptyList(),
                         yrkesskade = YrkesskadeSporsmalGrunnlag(),
                         arbeidsforholdoversiktResponse = null,
                         kjentOppholdstillatelse = null,
                         medlemskapSporsmalTags = emptyList(),
+                        harTidligereUtenlandskSpm = false,
                     ),
             )
 
@@ -150,13 +150,13 @@ class ArbeidGjenopptattMuteringTest {
                         SettOppSoknadOptions(
                             sykepengesoknad = soknad,
                             erForsteSoknadISykeforlop = true,
-                            harTidligereUtenlandskSpm = false,
                         ),
                         andreKjenteArbeidsforholdFraInntektskomponenten = emptyList(),
                         yrkesskade = YrkesskadeSporsmalGrunnlag(),
                         arbeidsforholdoversiktResponse = null,
                         kjentOppholdstillatelse = null,
                         medlemskapSporsmalTags = emptyList(),
+                        harTidligereUtenlandskSpm = false,
                     ),
             )
 
@@ -226,13 +226,13 @@ class ArbeidGjenopptattMuteringTest {
                             SettOppSoknadOptions(
                                 sykepengesoknad = soknad,
                                 erForsteSoknadISykeforlop = true,
-                                harTidligereUtenlandskSpm = false,
                             ),
                         andreKjenteArbeidsforholdFraInntektskomponenten = emptyList(),
                         yrkesskade = YrkesskadeSporsmalGrunnlag(),
                         arbeidsforholdoversiktResponse = null,
                         kjentOppholdstillatelse = null,
                         medlemskapSporsmalTags = emptyList(),
+                        harTidligereUtenlandskSpm = false,
                     ),
             )
 

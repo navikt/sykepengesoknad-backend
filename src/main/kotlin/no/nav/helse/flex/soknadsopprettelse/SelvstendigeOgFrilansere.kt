@@ -16,8 +16,9 @@ import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 fun settOppSoknadSelvstendigOgFrilanser(
     opts: SettOppSoknadOptions,
     sykepengegrunnlagNaeringsdrivende: SykepengegrunnlagNaeringsdrivende? = null,
+    harTidligereUtenlandskSpm: Boolean,
 ): List<Sporsmal> {
-    val (sykepengesoknad, erForsteSoknadISykeforlop, harTidligereUtenlandskSpm) = opts
+    val (sykepengesoknad, erForsteSoknadISykeforlop) = opts
     val erGradertReisetilskudd = sykepengesoknad.soknadstype == Soknadstype.GRADERT_REISETILSKUDD
 
     return mutableListOf<Sporsmal>()
