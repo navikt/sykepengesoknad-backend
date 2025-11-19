@@ -5,6 +5,7 @@ import no.nav.helse.flex.domain.Soknadstype.GRADERT_REISETILSKUDD
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svartype.JA_NEI
 import no.nav.helse.flex.domain.Visningskriterie.JA
+import no.nav.helse.flex.medlemskap.KjentOppholdstillatelse
 import no.nav.helse.flex.soknadsopprettelse.aaregdata.ArbeidsforholdFraAAreg
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmArbeidUtenforNorge
@@ -34,6 +35,7 @@ fun settOppSoknadArbeidstaker(
     andreKjenteArbeidsforholdFraInntektskomponenten: List<ArbeidsforholdFraInntektskomponenten>,
     yrkesskade: YrkesskadeSporsmalGrunnlag,
     arbeidsforholdoversiktResponse: List<ArbeidsforholdFraAAreg>?,
+    kjentOppholdstillatelse: KjentOppholdstillatelse?,
 ): List<Sporsmal> {
     val (sykepengesoknad, erForsteSoknadISykeforlop, harTidligereUtenlandskSpm, medlemskapTags) = soknadOptions
     val erGradertReisetilskudd = sykepengesoknad.soknadstype == GRADERT_REISETILSKUDD
@@ -84,7 +86,7 @@ fun settOppSoknadArbeidstaker(
                     LovMeSporsmalTag.OPPHOLDSTILATELSE ->
                         lagSporsmalOmOppholdstillatelse(
                             sykepengesoknad.tom,
-                            soknadOptions.kjentOppholdstillatelse,
+                            kjentOppholdstillatelse,
                         )
 
                     LovMeSporsmalTag.ARBEID_UTENFOR_NORGE -> lagSporsmalOmArbeidUtenforNorge(sykepengesoknad.tom)
