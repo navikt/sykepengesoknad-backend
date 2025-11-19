@@ -37,8 +37,9 @@ fun settOppSoknadArbeidstaker(
     arbeidsforholdoversiktResponse: List<ArbeidsforholdFraAAreg>?,
     kjentOppholdstillatelse: KjentOppholdstillatelse?,
     medlemskapSporsmalTags: List<MedlemskapSporsmalTag>,
+    harTidligereUtenlandskSpm: Boolean,
 ): List<Sporsmal> {
-    val (sykepengesoknad, erForsteSoknadISykeforlop, harTidligereUtenlandskSpm) = soknadOptions
+    val (sykepengesoknad, erForsteSoknadISykeforlop) = soknadOptions
     val erGradertReisetilskudd = sykepengesoknad.soknadstype == GRADERT_REISETILSKUDD
     return mutableListOf<Sporsmal>().apply {
         add(ansvarserklaringSporsmal())

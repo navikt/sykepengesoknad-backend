@@ -131,7 +131,6 @@ class SporsmalGenerator(
     ): SporsmalOgAndreKjenteArbeidsforhold {
         val erForsteSoknadISykeforlop = erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad)
         val erEnkeltstaendeBehandlingsdagSoknad = soknad.soknadstype == Soknadstype.BEHANDLINGSDAGER
-        val harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad)
 
         fun hentYrkesskadeSporsmalGrunnlag(): YrkesskadeSporsmalGrunnlag =
             yrkesskadeIndikatorer.hentYrkesskadeSporsmalGrunnlag(
@@ -167,7 +166,6 @@ class SporsmalGenerator(
             SettOppSoknadOptions(
                 sykepengesoknad = soknad,
                 erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
-                harTidligereUtenlandskSpm = harTidligereUtenlandskSpm,
             )
 
         if (erEnkeltstaendeBehandlingsdagSoknad) {
@@ -213,6 +211,7 @@ class SporsmalGenerator(
                         arbeidsforholdoversiktResponse = arbeidsforholdoversiktResponse,
                         kjentOppholdstillatelse = medlemskapSporsmalResultat.kjentOppholdstillatelse,
                         medlemskapSporsmalTags = medlemskapSporsmalResultat.medlemskapSporsmalTags,
+                        harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad),
                     )
                 if (arbeidstakerSporsmal.any { it.tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS) }) {
                     log.info("Skapte tilkommen inntekt spørsmål for søknad ${soknad.id}")
@@ -235,11 +234,22 @@ class SporsmalGenerator(
                         settOppSoknadSelvstendigOgFrilanser(
                             opts = soknadOptions,
                             sykepengegrunnlagNaeringsdrivende = sykepengegrunnlag,
+                            harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad),
                         )
                     }
 
-                    ARBEIDSLEDIG -> settOppSoknadArbeidsledig(soknadOptions, hentYrkesskadeSporsmalGrunnlag())
-                    ANNET -> settOppSoknadAnnetArbeidsforhold(soknadOptions, hentYrkesskadeSporsmalGrunnlag())
+                    ARBEIDSLEDIG ->
+                        settOppSoknadArbeidsledig(
+                            opts = soknadOptions,
+                            yrkesskade = hentYrkesskadeSporsmalGrunnlag(),
+                            harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad),
+                        )
+                    ANNET ->
+                        settOppSoknadAnnetArbeidsforhold(
+                            opts = soknadOptions,
+                            yrkesskade = hentYrkesskadeSporsmalGrunnlag(),
+                            harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad),
+                        )
 
                     else -> {
                         throw RuntimeException(

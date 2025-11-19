@@ -5,5 +5,4 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 data class SettOppSoknadOptions(
     val sykepengesoknad: Sykepengesoknad,
     val erForsteSoknadISykeforlop: Boolean,
-    val harTidligereUtenlandskSpm: Boolean,
 )

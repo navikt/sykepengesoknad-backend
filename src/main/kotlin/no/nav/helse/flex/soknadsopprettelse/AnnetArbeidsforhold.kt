@@ -9,8 +9,9 @@ import no.nav.helse.flex.yrkesskade.YrkesskadeSporsmalGrunnlag
 fun settOppSoknadAnnetArbeidsforhold(
     opts: SettOppSoknadOptions,
     yrkesskade: YrkesskadeSporsmalGrunnlag,
+    harTidligereUtenlandskSpm: Boolean,
 ): List<Sporsmal> {
-    val (sykepengesoknad, erForsteSoknadISykeforlop, harTidligereUtenlandskSpm) = opts
+    val (sykepengesoknad, erForsteSoknadISykeforlop) = opts
     val erGradertReisetilskudd = sykepengesoknad.soknadstype == Soknadstype.GRADERT_REISETILSKUDD
 
     return mutableListOf<Sporsmal>()
