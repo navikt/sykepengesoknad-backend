@@ -4,7 +4,6 @@ import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.soknadsopprettelse.SettOppSoknadOptions
 import no.nav.helse.flex.soknadsopprettelse.skapReisetilskuddsoknad
 import no.nav.helse.flex.soknadsopprettelse.tilSoknadsperioder
 import no.nav.helse.flex.util.tilOsloInstant
@@ -57,10 +56,8 @@ fun opprettNySoknadReisetilskudd(aktivertDato: LocalDate): Sykepengesoknad {
     return soknadMetadata.copy(
         sporsmal =
             skapReisetilskuddsoknad(
-                SettOppSoknadOptions(
-                    sykepengesoknad = soknadMetadata,
-                ),
-                YrkesskadeSporsmalGrunnlag(),
+                sykepengesoknad = soknadMetadata,
+                yrkesskade = YrkesskadeSporsmalGrunnlag(),
             ),
     )
 }

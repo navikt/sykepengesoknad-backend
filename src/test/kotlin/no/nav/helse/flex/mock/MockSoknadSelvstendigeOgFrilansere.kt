@@ -78,9 +78,7 @@ fun opprettNyNaeringsdrivendeSoknad(): Sykepengesoknad {
         .copy(
             sporsmal =
                 settOppSoknadSelvstendigOgFrilanser(
-                    SettOppSoknadOptions(
-                        sykepengesoknad = soknadMetadata,
-                    ),
+                    sykepengesoknad = soknadMetadata,
                     harTidligereUtenlandskSpm = false,
                     erForsteSoknadISykeforlop = true,
                 ),
@@ -140,9 +138,7 @@ fun opprettSendtFrilanserSoknad(): Sykepengesoknad {
         .copy(
             sporsmal =
                 settOppSoknadSelvstendigOgFrilanser(
-                    SettOppSoknadOptions(
-                        sykepengesoknad = soknadMetadata,
-                    ),
+                    sykepengesoknad = soknadMetadata,
                     harTidligereUtenlandskSpm = false,
                     erForsteSoknadISykeforlop = false,
                 ),

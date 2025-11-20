@@ -72,9 +72,7 @@ fun opprettNyArbeidstakerSoknad(): Sykepengesoknad {
             soknadMetadata.copy(
                 sporsmal =
                     settOppSoknadArbeidstaker(
-                        SettOppSoknadOptions(
-                            sykepengesoknad = soknadMetadata,
-                        ),
+                        sykepengesoknad = soknadMetadata,
                         andreKjenteArbeidsforholdFraInntektskomponenten = emptyList(),
                         yrkesskade = YrkesskadeSporsmalGrunnlag(),
                         arbeidsforholdoversiktResponse = null,

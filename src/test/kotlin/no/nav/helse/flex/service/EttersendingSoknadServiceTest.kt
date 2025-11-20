@@ -10,7 +10,6 @@ import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.kafka.producer.SoknadProducer
 import no.nav.helse.flex.repository.SykepengesoknadDAO
-import no.nav.helse.flex.soknadsopprettelse.SettOppSoknadOptions
 import no.nav.helse.flex.soknadsopprettelse.settOppSoknadArbeidstaker
 import no.nav.helse.flex.soknadsopprettelse.settOppSykepengesoknadBehandlingsdager
 import no.nav.helse.flex.soknadsopprettelse.tilSoknadsperioder
@@ -155,9 +154,7 @@ class EttersendingSoknadServiceTest {
         return soknadMetadata.copy(
             sporsmal =
                 settOppSykepengesoknadBehandlingsdager(
-                    SettOppSoknadOptions(
-                        sykepengesoknad = soknadMetadata,
-                    ),
+                    sykepengesoknad = soknadMetadata,
                     erForsteSoknadISykeforlop = true,
                 ),
         )
@@ -200,10 +197,8 @@ class EttersendingSoknadServiceTest {
         return soknadMetadata.copy(
             sporsmal =
                 settOppSoknadArbeidstaker(
-                    SettOppSoknadOptions(
-                        sykepengesoknad = soknadMetadata,
-                    ),
-                    emptyList(),
+                    sykepengesoknad = soknadMetadata,
+                    andreKjenteArbeidsforholdFraInntektskomponenten = emptyList(),
                     yrkesskade = YrkesskadeSporsmalGrunnlag(),
                     arbeidsforholdoversiktResponse = null,
                     kjentOppholdstillatelse = null,

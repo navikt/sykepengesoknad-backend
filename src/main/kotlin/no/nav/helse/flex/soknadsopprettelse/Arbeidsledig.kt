@@ -2,17 +2,17 @@ package no.nav.helse.flex.soknadsopprettelse
 
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sporsmal
+import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.utenlandsksykmelding.utenlandskSykmeldingSporsmal
 import no.nav.helse.flex.yrkesskade.YrkesskadeSporsmalGrunnlag
 
 fun settOppSoknadArbeidsledig(
-    opts: SettOppSoknadOptions,
+    sykepengesoknad: Sykepengesoknad,
     yrkesskade: YrkesskadeSporsmalGrunnlag,
     harTidligereUtenlandskSpm: Boolean,
     erForsteSoknadISykeforlop: Boolean,
 ): List<Sporsmal> {
-    val (sykepengesoknad) = opts
     val erGradertReisetilskudd = sykepengesoknad.soknadstype == Soknadstype.GRADERT_REISETILSKUDD
 
     return mutableListOf<Sporsmal>()

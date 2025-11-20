@@ -67,10 +67,7 @@ fun opprettNySoknad(): Sykepengesoknad {
     return sykepengesoknad.copy(
         sporsmal =
             settOppSoknadArbeidsledig(
-                opts =
-                    SettOppSoknadOptions(
-                        sykepengesoknad,
-                    ),
+                sykepengesoknad = sykepengesoknad,
                 yrkesskade = YrkesskadeSporsmalGrunnlag(),
                 harTidligereUtenlandskSpm = false,
                 erForsteSoknadISykeforlop = false,

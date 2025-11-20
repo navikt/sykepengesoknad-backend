@@ -4,6 +4,7 @@ import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Arbeidssituasjon.*
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svartype.*
+import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.Visningskriterie.CHECKED
 import no.nav.helse.flex.domain.Visningskriterie.JA
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.*
@@ -13,7 +14,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
 fun skapReisetilskuddsoknad(
-    opts: SettOppSoknadOptions,
+    sykepengesoknad: Sykepengesoknad,
     yrkesskade: YrkesskadeSporsmalGrunnlag,
 ): List<Sporsmal> =
     mutableListOf(
@@ -21,9 +22,9 @@ fun skapReisetilskuddsoknad(
     ).also {
         it.addAll(
             reisetilskuddSporsmal(
-                opts.sykepengesoknad.fom!!,
-                opts.sykepengesoknad.tom!!,
-                opts.sykepengesoknad.arbeidssituasjon!!,
+                sykepengesoknad.fom!!,
+                sykepengesoknad.tom!!,
+                sykepengesoknad.arbeidssituasjon!!,
             ),
         )
         it.addAll(yrkesskade.yrkeskadeSporsmal())

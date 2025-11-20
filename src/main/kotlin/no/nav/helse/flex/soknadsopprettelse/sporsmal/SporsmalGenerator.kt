@@ -162,18 +162,13 @@ class SporsmalGenerator(
             return null
         }
 
-        val soknadOptions =
-            SettOppSoknadOptions(
-                sykepengesoknad = soknad,
-            )
-
         if (erEnkeltstaendeBehandlingsdagSoknad) {
-            return settOppSykepengesoknadBehandlingsdager(soknadOptions, erForsteSoknadISykeforlop).tilSporsmalOgAndreKjenteArbeidsforhold()
+            return settOppSykepengesoknadBehandlingsdager(soknad, erForsteSoknadISykeforlop).tilSporsmalOgAndreKjenteArbeidsforhold()
         }
 
         if (soknad.soknadstype == Soknadstype.REISETILSKUDD) {
             return skapReisetilskuddsoknad(
-                soknadOptions,
+                soknad,
                 hentYrkesskadeSporsmalGrunnlag(),
             ).tilSporsmalOgAndreKjenteArbeidsforhold()
         }
@@ -186,7 +181,7 @@ class SporsmalGenerator(
                     .findById(vedtakId)
                     .getOrElse { throw RuntimeException("Fant ikke frisk til arbeid vedtak med id $vedtakId") }
             return settOppSykepengesoknadFriskmeldtTilArbeidsformidling(
-                soknadOptions,
+                soknad,
                 friskTilArbeidVedtak.tilPeriode(),
             ).tilSporsmalOgAndreKjenteArbeidsforhold()
         }
@@ -204,7 +199,7 @@ class SporsmalGenerator(
                 val medlemskapSporsmalResultat = lagMedlemsskapSporsmalResultat(eksisterendeSoknader, soknad)
                 val arbeidstakerSporsmal =
                     settOppSoknadArbeidstaker(
-                        soknadOptions = soknadOptions,
+                        sykepengesoknad = soknad,
                         andreKjenteArbeidsforholdFraInntektskomponenten = andreKjenteArbeidsforhold,
                         yrkesskade = hentYrkesskadeSporsmalGrunnlag(),
                         arbeidsforholdoversiktResponse = arbeidsforholdoversiktResponse,
@@ -232,7 +227,7 @@ class SporsmalGenerator(
                     FRILANSER,
                     -> {
                         settOppSoknadSelvstendigOgFrilanser(
-                            opts = soknadOptions,
+                            sykepengesoknad = soknad,
                             sykepengegrunnlagNaeringsdrivende = sykepengegrunnlag,
                             harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad),
                             erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
@@ -241,14 +236,14 @@ class SporsmalGenerator(
 
                     ARBEIDSLEDIG ->
                         settOppSoknadArbeidsledig(
-                            opts = soknadOptions,
+                            sykepengesoknad = soknad,
                             yrkesskade = hentYrkesskadeSporsmalGrunnlag(),
                             harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad),
                             erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
                         )
                     ANNET ->
                         settOppSoknadAnnetArbeidsforhold(
-                            opts = soknadOptions,
+                            sykepengesoknad = soknad,
                             yrkesskade = hentYrkesskadeSporsmalGrunnlag(),
                             harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad),
                             erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
