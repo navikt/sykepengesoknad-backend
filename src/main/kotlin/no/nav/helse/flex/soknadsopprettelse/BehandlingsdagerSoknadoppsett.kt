@@ -54,8 +54,11 @@ private fun Sporsmal.plasseringAvSporsmalSomKanRepeteresFlereGanger(): Int =
         0
     }
 
-fun settOppSykepengesoknadBehandlingsdager(opts: SettOppSoknadOptions): List<Sporsmal> {
-    val (sykepengesoknad, erForsteSoknadISykeforlop) = opts
+fun settOppSykepengesoknadBehandlingsdager(
+    opts: SettOppSoknadOptions,
+    erForsteSoknadISykeforlop: Boolean,
+): List<Sporsmal> {
+    val (sykepengesoknad) = opts
 
     return mutableListOf(
         ansvarserklaringSporsmal(),

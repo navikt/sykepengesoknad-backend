@@ -59,10 +59,10 @@ fun opprettNySoknadAnnet(): Sykepengesoknad {
                 opts =
                     SettOppSoknadOptions(
                         soknadMetadata,
-                        false,
                     ),
                 yrkesskade = YrkesskadeSporsmalGrunnlag(),
                 harTidligereUtenlandskSpm = false,
+                erForsteSoknadISykeforlop = false,
             ),
     )
 }

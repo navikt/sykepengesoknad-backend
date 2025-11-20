@@ -157,8 +157,8 @@ class EttersendingSoknadServiceTest {
                 settOppSykepengesoknadBehandlingsdager(
                     SettOppSoknadOptions(
                         sykepengesoknad = soknadMetadata,
-                        erForsteSoknadISykeforlop = true,
                     ),
+                    erForsteSoknadISykeforlop = true,
                 ),
         )
     }
@@ -202,7 +202,6 @@ class EttersendingSoknadServiceTest {
                 settOppSoknadArbeidstaker(
                     SettOppSoknadOptions(
                         sykepengesoknad = soknadMetadata,
-                        erForsteSoknadISykeforlop = true,
                     ),
                     emptyList(),
                     yrkesskade = YrkesskadeSporsmalGrunnlag(),
@@ -210,6 +209,7 @@ class EttersendingSoknadServiceTest {
                     kjentOppholdstillatelse = null,
                     medlemskapSporsmalTags = emptyList(),
                     harTidligereUtenlandskSpm = false,
+                    erForsteSoknadISykeforlop = true,
                 ),
         )
     }

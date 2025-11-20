@@ -59,7 +59,6 @@ fun opprettNySoknadReisetilskudd(aktivertDato: LocalDate): Sykepengesoknad {
             skapReisetilskuddsoknad(
                 SettOppSoknadOptions(
                     sykepengesoknad = soknadMetadata,
-                    erForsteSoknadISykeforlop = false,
                 ),
                 YrkesskadeSporsmalGrunnlag(),
             ),

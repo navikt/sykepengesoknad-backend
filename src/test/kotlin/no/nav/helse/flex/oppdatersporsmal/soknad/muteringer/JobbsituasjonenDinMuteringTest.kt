@@ -55,7 +55,6 @@ class JobbsituasjonenDinMuteringTest {
                 settOppSykepengesoknadFriskmeldtTilArbeidsformidling(
                     SettOppSoknadOptions(
                         sykepengesoknad = soknad,
-                        erForsteSoknadISykeforlop = true,
                     ),
                     Periode(fom, tom.plusDays(14)),
                 ),

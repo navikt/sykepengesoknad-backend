@@ -71,7 +71,6 @@ class ArbeidGjenopptattMuteringTest {
                         soknadOptions =
                             SettOppSoknadOptions(
                                 sykepengesoknad = soknad,
-                                erForsteSoknadISykeforlop = true,
                             ),
                         andreKjenteArbeidsforholdFraInntektskomponenten = emptyList(),
                         yrkesskade = YrkesskadeSporsmalGrunnlag(),
@@ -79,6 +78,7 @@ class ArbeidGjenopptattMuteringTest {
                         kjentOppholdstillatelse = null,
                         medlemskapSporsmalTags = emptyList(),
                         harTidligereUtenlandskSpm = false,
+                        erForsteSoknadISykeforlop = true,
                     ),
             )
 
@@ -149,7 +149,6 @@ class ArbeidGjenopptattMuteringTest {
                     settOppSoknadArbeidstaker(
                         SettOppSoknadOptions(
                             sykepengesoknad = soknad,
-                            erForsteSoknadISykeforlop = true,
                         ),
                         andreKjenteArbeidsforholdFraInntektskomponenten = emptyList(),
                         yrkesskade = YrkesskadeSporsmalGrunnlag(),
@@ -157,6 +156,7 @@ class ArbeidGjenopptattMuteringTest {
                         kjentOppholdstillatelse = null,
                         medlemskapSporsmalTags = emptyList(),
                         harTidligereUtenlandskSpm = false,
+                        erForsteSoknadISykeforlop = true,
                     ),
             )
 
@@ -225,7 +225,6 @@ class ArbeidGjenopptattMuteringTest {
                         soknadOptions =
                             SettOppSoknadOptions(
                                 sykepengesoknad = soknad,
-                                erForsteSoknadISykeforlop = true,
                             ),
                         andreKjenteArbeidsforholdFraInntektskomponenten = emptyList(),
                         yrkesskade = YrkesskadeSporsmalGrunnlag(),
@@ -233,6 +232,7 @@ class ArbeidGjenopptattMuteringTest {
                         kjentOppholdstillatelse = null,
                         medlemskapSporsmalTags = emptyList(),
                         harTidligereUtenlandskSpm = false,
+                        erForsteSoknadISykeforlop = true,
                     ),
             )
 
