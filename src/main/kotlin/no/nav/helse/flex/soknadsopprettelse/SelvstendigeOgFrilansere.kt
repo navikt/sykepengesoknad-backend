@@ -154,7 +154,7 @@ private fun fravaerForSykmeldingSporsmal(soknadMetadata: Sykepengesoknad): Spors
     Sporsmal(
         tag = FRAVAR_FOR_SYKMELDINGEN_V2,
         sporsmalstekst = "Var du borte fra jobb i fire uker eller mer rett før du ble sykmeldt ${
-            soknadMetadata.fom?.let {
+            soknadMetadata.startSykeforlop?.let {
                 formatterDato(
                     it,
                 )
