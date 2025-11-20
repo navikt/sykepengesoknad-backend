@@ -7,6 +7,7 @@ import no.nav.helse.flex.domain.mapper.getJsonPeriode
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.sykepengesoknad.kafka.FravarDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.FravarstypeDTO
+import org.slf4j.LoggerFactory
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
@@ -20,6 +21,7 @@ internal fun beregnFaktiskGrad(
     ferieOgPermisjonPerioder: List<FravarDTO>,
     arbeidgjenopptattDato: LocalDate?,
 ): Int? {
+    val log = LoggerFactory.getLogger("no.nav.helse.flex.domain.mapper.sporsmalprossesering.beregnFaktiskGrad")
     val virkedagerPerUke = 5
 
     // Finn antall virkedager i perioden (mandag–fredag), justert for eventuell dato der arbeid ble gjenopptatt
@@ -31,11 +33,21 @@ internal fun beregnFaktiskGrad(
                 periode,
             )
 
-    return if (timerJobbetIPerioden == null || avtaltTimerPerUke == null || faktiskeVirkedager == 0) {
-        null
-    } else {
-        ((timerJobbetIPerioden / (avtaltTimerPerUke / virkedagerPerUke * faktiskeVirkedager) * 100)).roundToInt()
-    }
+    val result =
+        if (timerJobbetIPerioden == null || avtaltTimerPerUke == null || faktiskeVirkedager == 0) {
+            null
+        } else {
+            ((timerJobbetIPerioden / (avtaltTimerPerUke / virkedagerPerUke * faktiskeVirkedager) * 100)).roundToInt()
+        }
+
+    val timerPerDag = avtaltTimerPerUke?.let { avtaltTimerPerUke / virkedagerPerUke }
+    val timerTilgjengelig = timerPerDag?.let { 100 - periode.grad / 100.0 * timerPerDag }
+
+    log.info(
+        "faktiskeVirkedager=$faktiskeVirkedager timerTilgjengelig=$timerTilgjengelig timerJobbetIPerioden=$timerJobbetIPerioden avtaltTimerPerUke=$avtaltTimerPerUke faktiskGrad=$result",
+    )
+
+    return result
 }
 
 private fun finnVirkedagerIPerioden(
