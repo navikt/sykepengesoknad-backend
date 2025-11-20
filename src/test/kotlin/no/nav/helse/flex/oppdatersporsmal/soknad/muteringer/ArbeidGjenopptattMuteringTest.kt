@@ -68,10 +68,7 @@ class ArbeidGjenopptattMuteringTest {
             soknad.copy(
                 sporsmal =
                     settOppSoknadArbeidstaker(
-                        soknadOptions =
-                            SettOppSoknadOptions(
-                                sykepengesoknad = soknad,
-                            ),
+                        sykepengesoknad = soknad,
                         andreKjenteArbeidsforholdFraInntektskomponenten = emptyList(),
                         yrkesskade = YrkesskadeSporsmalGrunnlag(),
                         arbeidsforholdoversiktResponse = null,
@@ -147,9 +144,7 @@ class ArbeidGjenopptattMuteringTest {
             soknad.copy(
                 sporsmal =
                     settOppSoknadArbeidstaker(
-                        SettOppSoknadOptions(
-                            sykepengesoknad = soknad,
-                        ),
+                        sykepengesoknad = soknad,
                         andreKjenteArbeidsforholdFraInntektskomponenten = emptyList(),
                         yrkesskade = YrkesskadeSporsmalGrunnlag(),
                         arbeidsforholdoversiktResponse = null,
@@ -222,10 +217,7 @@ class ArbeidGjenopptattMuteringTest {
             soknad.copy(
                 sporsmal =
                     settOppSoknadArbeidstaker(
-                        soknadOptions =
-                            SettOppSoknadOptions(
-                                sykepengesoknad = soknad,
-                            ),
+                        sykepengesoknad = soknad,
                         andreKjenteArbeidsforholdFraInntektskomponenten = emptyList(),
                         yrkesskade = YrkesskadeSporsmalGrunnlag(),
                         arbeidsforholdoversiktResponse = null,
