@@ -80,9 +80,9 @@ fun opprettNyNaeringsdrivendeSoknad(): Sykepengesoknad {
                 settOppSoknadSelvstendigOgFrilanser(
                     SettOppSoknadOptions(
                         sykepengesoknad = soknadMetadata,
-                        erForsteSoknadISykeforlop = true,
                     ),
                     harTidligereUtenlandskSpm = false,
+                    erForsteSoknadISykeforlop = true,
                 ),
             status = Soknadstatus.NY,
         ).leggSvarPaSoknad()
@@ -142,9 +142,9 @@ fun opprettSendtFrilanserSoknad(): Sykepengesoknad {
                 settOppSoknadSelvstendigOgFrilanser(
                     SettOppSoknadOptions(
                         sykepengesoknad = soknadMetadata,
-                        erForsteSoknadISykeforlop = false,
                     ),
                     harTidligereUtenlandskSpm = false,
+                    erForsteSoknadISykeforlop = false,
                 ),
             status = Soknadstatus.SENDT,
             sendtNav = Instant.now(),

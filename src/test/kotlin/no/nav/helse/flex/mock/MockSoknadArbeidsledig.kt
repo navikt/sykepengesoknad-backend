@@ -70,10 +70,10 @@ fun opprettNySoknad(): Sykepengesoknad {
                 opts =
                     SettOppSoknadOptions(
                         sykepengesoknad,
-                        false,
                     ),
                 yrkesskade = YrkesskadeSporsmalGrunnlag(),
                 harTidligereUtenlandskSpm = false,
+                erForsteSoknadISykeforlop = false,
             ),
     )
 }

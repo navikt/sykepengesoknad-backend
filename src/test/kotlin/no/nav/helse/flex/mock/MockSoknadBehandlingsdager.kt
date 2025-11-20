@@ -65,8 +65,8 @@ fun opprettBehandlingsdagsoknadTestadata(
             settOppSykepengesoknadBehandlingsdager(
                 SettOppSoknadOptions(
                     soknadMetadata,
-                    forsteSoknadIForlop,
                 ),
+                erForsteSoknadISykeforlop = forsteSoknadIForlop,
             ),
     )
 }

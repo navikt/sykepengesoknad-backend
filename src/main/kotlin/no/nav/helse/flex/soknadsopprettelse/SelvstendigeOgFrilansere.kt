@@ -17,8 +17,9 @@ fun settOppSoknadSelvstendigOgFrilanser(
     opts: SettOppSoknadOptions,
     sykepengegrunnlagNaeringsdrivende: SykepengegrunnlagNaeringsdrivende? = null,
     harTidligereUtenlandskSpm: Boolean,
+    erForsteSoknadISykeforlop: Boolean,
 ): List<Sporsmal> {
-    val (sykepengesoknad, erForsteSoknadISykeforlop) = opts
+    val (sykepengesoknad) = opts
     val erGradertReisetilskudd = sykepengesoknad.soknadstype == Soknadstype.GRADERT_REISETILSKUDD
 
     return mutableListOf<Sporsmal>()
