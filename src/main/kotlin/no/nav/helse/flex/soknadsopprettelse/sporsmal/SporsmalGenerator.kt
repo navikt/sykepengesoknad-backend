@@ -130,65 +130,42 @@ class SporsmalGenerator(
         sykepengegrunnlag: SykepengegrunnlagNaeringsdrivende? = null,
     ): SporsmalOgAndreKjenteArbeidsforhold {
         val erForsteSoknadISykeforlop = erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad)
-        val erEnkeltstaendeBehandlingsdagSoknad = soknad.soknadstype == Soknadstype.BEHANDLINGSDAGER
 
-        fun hentYrkesskadeSporsmalGrunnlag(): YrkesskadeSporsmalGrunnlag =
-            yrkesskadeIndikatorer.hentYrkesskadeSporsmalGrunnlag(
-                soknad = soknad,
-                identer = identer,
-                sykmeldingId = soknad.sykmeldingId,
-                erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
-            )
-
-        fun tilkommenInntektGrunnlagHenting(): List<ArbeidsforholdFraAAreg>? {
-            if (unleashToggles.tilkommenInntektEnabled(soknad.fnr)) {
-                log.info("Tilkommen inntekt toggle enabled for soknad ${soknad.id}")
-
-                return if (soknad.harDagerNAVSkalBetaleFor(eksisterendeSoknader)) {
-                    log.info("Leter etter nye arbeidsforhold for soknad ${soknad.id} siden søknaden er estimert utenfor agp")
-                    aaregDataHenting.hentNyeArbeidsforhold(
-                        fnr = soknad.fnr,
-                        sykepengesoknad = soknad,
-                        eksisterendeSoknader = eksisterendeSoknader,
-                    )
-                } else {
-                    log.info(
-                        "Leter ikke etter nye arbeidsforhold for person med soknad ${soknad.id} siden søknaden " +
-                            "er estimert helt innenfor agp",
-                    )
-                    null
-                }
+        when (soknad.soknadstype) {
+            Soknadstype.BEHANDLINGSDAGER -> {
+                return settOppSykepengesoknadBehandlingsdager(
+                    sykepengesoknad = soknad,
+                    erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
+                ).tilSporsmalOgAndreKjenteArbeidsforhold()
             }
-            return null
-        }
 
-        if (erEnkeltstaendeBehandlingsdagSoknad) {
-            return settOppSykepengesoknadBehandlingsdager(soknad, erForsteSoknadISykeforlop).tilSporsmalOgAndreKjenteArbeidsforhold()
-        }
+            Soknadstype.REISETILSKUDD -> {
+                return skapReisetilskuddsoknad(
+                    sykepengesoknad = soknad,
+                    yrkesskade = hentYrkesskadeSporsmalGrunnlag(soknad, identer, erForsteSoknadISykeforlop),
+                ).tilSporsmalOgAndreKjenteArbeidsforhold()
+            }
 
-        if (soknad.soknadstype == Soknadstype.REISETILSKUDD) {
-            return skapReisetilskuddsoknad(
-                soknad,
-                hentYrkesskadeSporsmalGrunnlag(),
-            ).tilSporsmalOgAndreKjenteArbeidsforhold()
-        }
-        if (soknad.soknadstype == Soknadstype.FRISKMELDT_TIL_ARBEIDSFORMIDLING) {
-            val vedtakId =
-                soknad.friskTilArbeidVedtakId
-                    ?: throw RuntimeException("Frisk til arbeid vedtak id mangler for søknad ${soknad.id}")
-            val friskTilArbeidVedtak =
-                friskTilArbeidRepository
-                    .findById(vedtakId)
-                    .getOrElse { throw RuntimeException("Fant ikke frisk til arbeid vedtak med id $vedtakId") }
-            return settOppSykepengesoknadFriskmeldtTilArbeidsformidling(
-                soknad,
-                friskTilArbeidVedtak.tilPeriode(),
-            ).tilSporsmalOgAndreKjenteArbeidsforhold()
+            Soknadstype.FRISKMELDT_TIL_ARBEIDSFORMIDLING -> {
+                val vedtakId =
+                    soknad.friskTilArbeidVedtakId
+                        ?: throw RuntimeException("Frisk til arbeid vedtak id mangler for søknad ${soknad.id}")
+                val friskTilArbeidVedtak =
+                    friskTilArbeidRepository
+                        .findById(vedtakId)
+                        .getOrElse { throw RuntimeException("Fant ikke frisk til arbeid vedtak med id $vedtakId") }
+                return settOppSykepengesoknadFriskmeldtTilArbeidsformidling(
+                    sykepengesoknad = soknad,
+                    vedtakPeriode = friskTilArbeidVedtak.tilPeriode(),
+                ).tilSporsmalOgAndreKjenteArbeidsforhold()
+            }
+
+            else -> {}
         }
 
         return when (soknad.arbeidssituasjon) {
             ARBEIDSTAKER -> {
-                val arbeidsforholdoversiktResponse = tilkommenInntektGrunnlagHenting()
+                val arbeidsforholdoversiktResponse = tilkommenInntektGrunnlagHenting(soknad, eksisterendeSoknader)
                 val andreKjenteArbeidsforhold =
                     arbeidsforholdFraInntektskomponentenHenting.hentArbeidsforhold(
                         fnr = soknad.fnr,
@@ -201,7 +178,7 @@ class SporsmalGenerator(
                     settOppSoknadArbeidstaker(
                         sykepengesoknad = soknad,
                         andreKjenteArbeidsforholdFraInntektskomponenten = andreKjenteArbeidsforhold,
-                        yrkesskade = hentYrkesskadeSporsmalGrunnlag(),
+                        yrkesskade = hentYrkesskadeSporsmalGrunnlag(soknad, identer, erForsteSoknadISykeforlop),
                         arbeidsforholdoversiktResponse = arbeidsforholdoversiktResponse,
                         kjentOppholdstillatelse = medlemskapSporsmalResultat.kjentOppholdstillatelse,
                         medlemskapSporsmalTags = medlemskapSporsmalResultat.medlemskapSporsmalTags,
@@ -237,14 +214,15 @@ class SporsmalGenerator(
                     ARBEIDSLEDIG ->
                         settOppSoknadArbeidsledig(
                             sykepengesoknad = soknad,
-                            yrkesskade = hentYrkesskadeSporsmalGrunnlag(),
+                            yrkesskade = hentYrkesskadeSporsmalGrunnlag(soknad, identer, erForsteSoknadISykeforlop),
                             harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad),
                             erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
                         )
+
                     ANNET ->
                         settOppSoknadAnnetArbeidsforhold(
                             sykepengesoknad = soknad,
-                            yrkesskade = hentYrkesskadeSporsmalGrunnlag(),
+                            yrkesskade = hentYrkesskadeSporsmalGrunnlag(soknad, identer, erForsteSoknadISykeforlop),
                             harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad),
                             erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
                         )
@@ -258,6 +236,42 @@ class SporsmalGenerator(
                 }.tilSporsmalOgAndreKjenteArbeidsforhold()
             }
         }
+    }
+
+    private fun hentYrkesskadeSporsmalGrunnlag(
+        soknad: Sykepengesoknad,
+        identer: FolkeregisterIdenter,
+        erForsteSoknadISykeforlop: Boolean,
+    ): YrkesskadeSporsmalGrunnlag =
+        yrkesskadeIndikatorer.hentYrkesskadeSporsmalGrunnlag(
+            soknad = soknad,
+            identer = identer,
+            erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
+        )
+
+    private fun tilkommenInntektGrunnlagHenting(
+        soknad: Sykepengesoknad,
+        eksisterendeSoknader: List<Sykepengesoknad>,
+    ): List<ArbeidsforholdFraAAreg>? {
+        if (unleashToggles.tilkommenInntektEnabled(soknad.fnr)) {
+            log.info("Tilkommen inntekt toggle enabled for soknad ${soknad.id}")
+
+            return if (soknad.harDagerNAVSkalBetaleFor(eksisterendeSoknader)) {
+                log.info("Leter etter nye arbeidsforhold for soknad ${soknad.id} siden søknaden er estimert utenfor agp")
+                aaregDataHenting.hentNyeArbeidsforhold(
+                    fnr = soknad.fnr,
+                    sykepengesoknad = soknad,
+                    eksisterendeSoknader = eksisterendeSoknader,
+                )
+            } else {
+                log.info(
+                    "Leter ikke etter nye arbeidsforhold for person med soknad ${soknad.id} siden søknaden " +
+                        "er estimert helt innenfor agp",
+                )
+                null
+            }
+        }
+        return null
     }
 
     private fun lagMedlemsskapSporsmalResultat(
