@@ -101,9 +101,6 @@ class SporsmalGenerator(
     private fun SykepengesoknadDbRecord.leggTilSykepengegrunnlagNaringsdrivende(
         sykepengegrunnlag: SykepengegrunnlagNaeringsdrivende? = null,
     ): SykepengesoknadDbRecord {
-        if (!unleashToggles.sigrunPaaKafkaEnabled(this.fnr)) {
-            return this
-        }
         val selvstendigNaringsdrivendeInfo: SelvstendigNaringsdrivendeInfo? =
             this.selvstendigNaringsdrivende?.let { naringsdrivendeString ->
                 objectMapper.readValue(naringsdrivendeString)

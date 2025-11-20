@@ -72,7 +72,6 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
         val sykmelding =
             skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId).copy(harRedusertArbeidsgiverperiode = true)
 
-        fakeUnleash.enable("sykepengesoknad-backend-sigrun-paa-kafka")
         settOppSigrunMockResponser()
 
         BrregMockDispatcher.enqueue(
@@ -123,65 +122,6 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
             it.selvstendigNaringsdrivendeInfo!!.sykepengegrunnlagNaeringsdrivende `should be equal to`
                 lagSykepengegrunnlagNaeringsdrivende()
             it.selvstendigNaringsdrivendeInfo.brukerHarOppgittForsikring `should be equal to` false
-        }
-
-        verify(aivenKafkaProducer, times(1)).produserMelding(any())
-    }
-
-    @Test
-    fun `Oppretter søknad for næringsdrivende som er utenfor ventetiden når Sigrun feature toggle er av`() {
-        val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
-        val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
-        val sykmelding =
-            skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId).copy(harRedusertArbeidsgiverperiode = true)
-
-        fakeUnleash.resetAll()
-
-        BrregMockDispatcher.enqueue(
-            RollerDto(
-                roller =
-                    listOf(
-                        RolleDto(
-                            rolletype = Rolletype.INNH,
-                            organisasjonsnummer = "orgnummer",
-                            organisasjonsnavn = "orgnavn",
-                        ),
-                    ),
-            ),
-        )
-
-        mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
-        mockFlexSyketilfelleSykeforloep(sykmeldingId)
-
-        val sykmeldingKafkaMessage =
-            SykmeldingKafkaMessage(
-                sykmelding = sykmelding,
-                event = sykmeldingStatusKafkaMessageDTO.event,
-                kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
-            )
-
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
-            sykmeldingId,
-            sykmeldingKafkaMessage,
-            SYKMELDINGSENDT_TOPIC,
-        )
-
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).single().value().also {
-            it.tilSykepengesoknadDTO().also { sykepengesoknadDTO ->
-                sykepengesoknadDTO.selvstendigNaringsdrivende!!.also { selvstendigNaringsdrivendeDTO ->
-                    selvstendigNaringsdrivendeDTO.roller.single().also { rolleDTO ->
-                        rolleDTO.orgnummer `should be equal to` "orgnummer"
-                        rolleDTO.rolletype `should be equal to` "INNH"
-                    }
-                    selvstendigNaringsdrivendeDTO.inntekt `should be equal to` null
-                }
-            }
-        }
-
-        hentSoknader(fnr).sortedBy { it.fom }.single().also {
-            it.soknadstype `should be equal to` RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE
-            it.arbeidssituasjon `should be equal to` RSArbeidssituasjon.NAERINGSDRIVENDE
-            it.selvstendigNaringsdrivendeInfo?.sykepengegrunnlagNaeringsdrivende `should be equal to` null
         }
 
         verify(aivenKafkaProducer, times(1)).produserMelding(any())
@@ -239,6 +179,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
 
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, false)
         mockFlexSyketilfelleSykeforloep(sykmeldingId)
+        settOppSigrunMockResponser()
 
         val sykmeldingKafkaMessage =
             SykmeldingKafkaMessage(
@@ -256,7 +197,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).single().value().also {
             it.tilSykepengesoknadDTO().also { sykepengesoknadDTO ->
                 sykepengesoknadDTO.selvstendigNaringsdrivende!!.also { selvstendigNaringsdrivendeDTO ->
-                    selvstendigNaringsdrivendeDTO.inntekt `should be equal to` null
+                    selvstendigNaringsdrivendeDTO.inntekt `should not be equal to` null
                     selvstendigNaringsdrivendeDTO.brukerHarOppgittForsikring `should be equal to` true
                 }
             }
@@ -265,7 +206,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
         hentSoknader(fnr).sortedBy { it.fom }.single().also {
             it.soknadstype `should be equal to` RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE
             it.arbeidssituasjon `should be equal to` RSArbeidssituasjon.NAERINGSDRIVENDE
-            it.selvstendigNaringsdrivendeInfo!!.sykepengegrunnlagNaeringsdrivende `should be equal to` null
+            it.selvstendigNaringsdrivendeInfo!!.sykepengegrunnlagNaeringsdrivende `should not be equal to` null
             it.selvstendigNaringsdrivendeInfo.brukerHarOppgittForsikring `should be equal to` true
         }
 
@@ -543,7 +484,6 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
         val sykmelding =
             skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId).copy(harRedusertArbeidsgiverperiode = true)
 
-        fakeUnleash.enable("sykepengesoknad-backend-sigrun-paa-kafka")
         settOppSigrunMockResponser()
 
         BrregMockDispatcher.enqueue(
@@ -633,7 +573,6 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
         val sykmelding =
             skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId).copy(harRedusertArbeidsgiverperiode = true)
 
-        fakeUnleash.enable("sykepengesoknad-backend-sigrun-paa-kafka")
         settOppSigrunMockResponser()
 
         BrregMockDispatcher.enqueue(
@@ -718,7 +657,6 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
         val sykmelding =
             skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId).copy(harRedusertArbeidsgiverperiode = true)
 
-        fakeUnleash.enable("sykepengesoknad-backend-sigrun-paa-kafka")
         settOppSigrunMockResponser()
 
         BrregMockDispatcher.enqueue(
@@ -803,7 +741,6 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
         val sykmelding =
             skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId).copy(harRedusertArbeidsgiverperiode = true)
 
-        fakeUnleash.enable("sykepengesoknad-backend-sigrun-paa-kafka")
         settOppSigrunMockResponser()
 
         BrregMockDispatcher.enqueue(
