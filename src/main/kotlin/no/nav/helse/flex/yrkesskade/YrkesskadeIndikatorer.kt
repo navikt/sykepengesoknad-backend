@@ -17,7 +17,6 @@ class YrkesskadeIndikatorer(
     fun hentYrkesskadeSporsmalGrunnlag(
         identer: FolkeregisterIdenter,
         soknad: Sykepengesoknad,
-        sykmeldingId: String?,
         erForsteSoknadISykeforlop: Boolean,
     ): YrkesskadeSporsmalGrunnlag {
         if (!erForsteSoknadISykeforlop || soknad.soknadstype == Soknadstype.FRISKMELDT_TIL_ARBEIDSFORMIDLING) {
