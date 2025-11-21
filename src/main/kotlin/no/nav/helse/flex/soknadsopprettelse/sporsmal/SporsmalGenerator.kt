@@ -28,7 +28,6 @@ import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.soknadsopprettelse.aaregdata.AaregDataHenting
 import no.nav.helse.flex.soknadsopprettelse.aaregdata.ArbeidsforholdFraAAreg
 import no.nav.helse.flex.soknadsopprettelse.frisktilarbeid.settOppSykepengesoknadFriskmeldtTilArbeidsformidling
-import no.nav.helse.flex.unleash.UnleashToggles
 import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.util.serialisertTilString
 import no.nav.helse.flex.yrkesskade.YrkesskadeIndikatorer
@@ -48,7 +47,6 @@ class SporsmalGenerator(
     private val yrkesskadeIndikatorer: YrkesskadeIndikatorer,
     private val medlemskapVurderingClient: MedlemskapVurderingClient,
     private val environmentToggles: EnvironmentToggles,
-    private val unleashToggles: UnleashToggles,
     private val friskTilArbeidRepository: FriskTilArbeidRepository,
     private val aaregDataHenting: AaregDataHenting,
 ) {
@@ -249,11 +247,9 @@ class SporsmalGenerator(
     private fun tilkommenInntektGrunnlagHenting(
         soknad: Sykepengesoknad,
         eksisterendeSoknader: List<Sykepengesoknad>,
-    ): List<ArbeidsforholdFraAAreg>? {
-        if (unleashToggles.tilkommenInntektEnabled(soknad.fnr)) {
-            log.info("Tilkommen inntekt toggle enabled for soknad ${soknad.id}")
-
-            return if (soknad.harDagerNAVSkalBetaleFor(eksisterendeSoknader)) {
+    ): List<ArbeidsforholdFraAAreg>? =
+        if (environmentToggles.isProduction()) {
+            if (soknad.harDagerNAVSkalBetaleFor(eksisterendeSoknader)) {
                 log.info("Leter etter nye arbeidsforhold for soknad ${soknad.id} siden søknaden er estimert utenfor agp")
                 aaregDataHenting.hentNyeArbeidsforhold(
                     fnr = soknad.fnr,
@@ -267,9 +263,9 @@ class SporsmalGenerator(
                 )
                 null
             }
+        } else {
+            null
         }
-        return null
-    }
 
     private fun lagMedlemsskapSporsmalResultat(
         eksisterendeSoknader: List<Sykepengesoknad>,
