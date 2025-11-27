@@ -271,11 +271,6 @@ class SporsmalGenerator(
         eksisterendeSoknader: List<Sykepengesoknad>,
         soknad: Sykepengesoknad,
     ): MedlemskapSporsmalResultat {
-        if (soknad.id in listOf("8b6ebc84-b583-3d83-a7b1-21e01185207b", "1812f671-9ce1-349b-82ab-cd3d91572861")) {
-            log.info("Henter ikker medlemskapsvurdering fra sykepengesoknad: ${soknad.id} da kallene til LovMe feiler for søknaden.")
-            return MedlemskapSporsmalResultat(medlemskapSporsmalTags = emptyList())
-        }
-
         // Medlemskapspørsmål skal kun stilles i én første søknad i et sykeforløp, uavhengig av arbeidsgiver.
         if (!skalHaSporsmalOmMedlemskap(eksisterendeSoknader, soknad)) {
             return MedlemskapSporsmalResultat(medlemskapSporsmalTags = emptyList())
