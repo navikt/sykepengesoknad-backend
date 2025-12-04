@@ -13,7 +13,7 @@ jobs:
       id-token: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Deploy sykepengesoknad topic to dev-gcp
         uses: nais/deploy/actions/deploy@v2
         env:
@@ -41,7 +41,7 @@ jobs:
       id-token: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Deploy sykepengesoknad topic to prod-gcp
         uses: nais/deploy/actions/deploy@v2
         env:
