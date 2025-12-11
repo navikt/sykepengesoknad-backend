@@ -33,7 +33,7 @@ val sykepengesoknadKafkaVersion = "2025.11.18-10.40-9be5a4bd"
 val mockitoKotlinVersion = "2.2.0"
 val avroVersion = "1.12.1"
 val logstashLogbackEncoderVersion = "8.1"
-val testContainersVersion = "1.21.3"
+val testContainersVersion = "2.0.2"
 val kluentVersion = "1.73"
 val jsonSchemaValidatorVersion = "1.5.9"
 val unleashVersion = "11.1.1"
@@ -72,10 +72,10 @@ dependencies {
     implementation("io.opentelemetry:opentelemetry-api:$opentelemetryApiVersion")
     implementation("io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations:$opentelemetryInstrumentationVersion")
 
-    testImplementation(platform("org.testcontainers:testcontainers-bom:$testContainersVersion"))
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.testcontainers:postgresql")
-    testImplementation("org.testcontainers:kafka")
+    testImplementation("org.testcontainers:testcontainers:$testContainersVersion")
+    testImplementation("org.testcontainers:testcontainers-postgresql:$testContainersVersion")
+    testImplementation("org.testcontainers:testcontainers-kafka:$testContainersVersion")
     testImplementation("org.awaitility:awaitility")
     testImplementation("org.mockito:mockito-core")
     testImplementation("org.assertj:assertj-core")

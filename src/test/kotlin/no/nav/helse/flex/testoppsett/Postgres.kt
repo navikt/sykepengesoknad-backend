@@ -1,8 +1,8 @@
 package no.nav.helse.flex.testoppsett
 
-import org.testcontainers.containers.PostgreSQLContainer
+import org.testcontainers.postgresql.PostgreSQLContainer
 
-class PostgreSQLContainer14 : PostgreSQLContainer<PostgreSQLContainer14>("postgres:14-alpine")
+class PostgreSQLContainer14 : PostgreSQLContainer("postgres:14-alpine")
 
 fun startPostgresContainer() {
     PostgreSQLContainer14().apply {
