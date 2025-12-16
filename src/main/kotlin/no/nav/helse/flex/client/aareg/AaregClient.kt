@@ -28,7 +28,7 @@ class AaregClient(
                         ArbeidsforholdRequest(
                             arbeidstakerId = fnr,
                             arbeidsforholdtyper = listOf("ordinaertArbeidsforhold", "maritimtArbeidsforhold", "forenkletOppgjoersordning"),
-                            arbeidsforholdstatuser = listOf("AKTIV", "AVSLUTTET"),
+                            arbeidsforholdstatuser = listOf("AKTIV", "FREMTIDIG", "AVSLUTTET"),
                         ).serialisertTilString(),
                         headers,
                     ),
