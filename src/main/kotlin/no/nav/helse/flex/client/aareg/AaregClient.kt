@@ -27,7 +27,7 @@ class AaregClient(
                     HttpEntity(
                         ArbeidsforholdRequest(
                             arbeidstakerId = fnr,
-                            arbeidsforholdtyper = listOf("ordinaertArbeidsforhold"),
+                            arbeidsforholdtyper = listOf("ordinaertArbeidsforhold", "maritimtArbeidsforhold", "forenkletOppgjoersordning"),
                             arbeidsforholdstatuser = listOf("AKTIV", "AVSLUTTET"),
                         ).serialisertTilString(),
                         headers,
