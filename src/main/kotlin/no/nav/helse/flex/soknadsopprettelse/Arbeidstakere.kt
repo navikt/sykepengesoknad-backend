@@ -3,9 +3,7 @@ package no.nav.helse.flex.soknadsopprettelse
 import no.nav.helse.flex.domain.Soknadsperiode
 import no.nav.helse.flex.domain.Soknadstype.GRADERT_REISETILSKUDD
 import no.nav.helse.flex.domain.Sporsmal
-import no.nav.helse.flex.domain.Svartype.JA_NEI
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.domain.Visningskriterie.JA
 import no.nav.helse.flex.medlemskap.KjentOppholdstillatelse
 import no.nav.helse.flex.soknadsopprettelse.aaregdata.ArbeidsforholdFraAAreg
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.*
@@ -14,8 +12,6 @@ import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmOpp
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmOppholdUtenforNorge
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmOppholdstillatelse
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.utenlandsksykmelding.utenlandskSykmeldingSporsmal
-import no.nav.helse.flex.soknadsopprettelse.undersporsmal.jobbetDuUndersporsmal
-import no.nav.helse.flex.util.DatoUtil.formatterPeriode
 import no.nav.helse.flex.yrkesskade.YrkesskadeSporsmalGrunnlag
 
 interface MedlemskapSporsmalTag
@@ -86,16 +82,29 @@ fun settOppSoknadArbeidstaker(
         addAll(
             medlemskapSporsmalTags.map {
                 when (it) {
-                    LovMeSporsmalTag.OPPHOLDSTILATELSE ->
+                    LovMeSporsmalTag.OPPHOLDSTILATELSE -> {
                         lagSporsmalOmOppholdstillatelse(
                             sykepengesoknad.tom,
                             kjentOppholdstillatelse,
                         )
+                    }
 
-                    LovMeSporsmalTag.ARBEID_UTENFOR_NORGE -> lagSporsmalOmArbeidUtenforNorge(sykepengesoknad.tom)
-                    LovMeSporsmalTag.OPPHOLD_UTENFOR_NORGE -> lagSporsmalOmOppholdUtenforNorge(sykepengesoknad.tom)
-                    LovMeSporsmalTag.OPPHOLD_UTENFOR_EØS_OMRÅDE -> lagSporsmalOmOppholdUtenforEos(sykepengesoknad.tom)
-                    SykepengesoknadSporsmalTag.ARBEID_UTENFOR_NORGE -> arbeidUtenforNorge()
+                    LovMeSporsmalTag.ARBEID_UTENFOR_NORGE -> {
+                        lagSporsmalOmArbeidUtenforNorge(sykepengesoknad.tom)
+                    }
+
+                    LovMeSporsmalTag.OPPHOLD_UTENFOR_NORGE -> {
+                        lagSporsmalOmOppholdUtenforNorge(sykepengesoknad.tom)
+                    }
+
+                    LovMeSporsmalTag.OPPHOLD_UTENFOR_EØS_OMRÅDE -> {
+                        lagSporsmalOmOppholdUtenforEos(sykepengesoknad.tom)
+                    }
+
+                    SykepengesoknadSporsmalTag.ARBEID_UTENFOR_NORGE -> {
+                        arbeidUtenforNorge()
+                    }
+
                     else -> {
                         throw RuntimeException("Ukjent MedlemskapSporsmalTag: $it.")
                     }
@@ -116,32 +125,8 @@ fun jobbetDuIPeriodenSporsmal(
         .map { index ->
             val periode = soknadsperioder[index]
             if (periode.grad == 100) {
-                jobbetDu100Prosent(periode, arbeidsgiverNavn, index)
+                jobbetDu100ProsentArbeidstaker(periode, arbeidsgiverNavn, index)
             } else {
-                jobbetDuGradert(periode, arbeidsgiverNavn, index)
+                jobbetDuGradertArbeidstaker(periode, arbeidsgiverNavn, index)
             }
         }
-
-private fun jobbetDu100Prosent(
-    periode: Soknadsperiode,
-    arbeidsgiver: String,
-    index: Int,
-): Sporsmal =
-    Sporsmal(
-        tag = ARBEID_UNDERVEIS_100_PROSENT + index,
-        sporsmalstekst = "I perioden ${
-            formatterPeriode(
-                periode.fom,
-                periode.tom,
-            )
-        } var du 100 % sykmeldt fra $arbeidsgiver. Jobbet du noe hos $arbeidsgiver i denne perioden?",
-        svartype = JA_NEI,
-        kriterieForVisningAvUndersporsmal = JA,
-        undersporsmal =
-            jobbetDuUndersporsmal(
-                periode = periode,
-                minProsent = 1,
-                index = index,
-                arbeidsgiverNavn = arbeidsgiver,
-            ),
-    )

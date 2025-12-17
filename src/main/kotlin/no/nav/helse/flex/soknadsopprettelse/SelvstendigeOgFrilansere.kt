@@ -7,9 +7,7 @@ import no.nav.helse.flex.domain.Visningskriterie.JA
 import no.nav.helse.flex.service.SykepengegrunnlagNaeringsdrivende
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.utenlandsksykmelding.utenlandskSykmeldingSporsmal
-import no.nav.helse.flex.soknadsopprettelse.undersporsmal.jobbetDuUndersporsmal
 import no.nav.helse.flex.util.DatoUtil.formatterDato
-import no.nav.helse.flex.util.DatoUtil.formatterPeriode
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
@@ -101,37 +99,13 @@ private fun jobbetDu100Prosent(
     periode: Soknadsperiode,
     arbeidssituasjon: Arbeidssituasjon,
     index: Int,
-): Sporsmal =
-    Sporsmal(
-        tag = ARBEID_UNDERVEIS_100_PROSENT + index,
-        sporsmalstekst = "I perioden ${
-            formatterPeriode(
-                periode.fom,
-                periode.tom,
-            )
-        } var du 100% sykmeldt som $arbeidssituasjon. Jobbet du noe i denne perioden?",
-        svartype = JA_NEI,
-        kriterieForVisningAvUndersporsmal = JA,
-        undersporsmal = jobbetDuUndersporsmal(periode, 1, index),
-    )
+): Sporsmal = jobbetDu100ProsentSelvstendigFrilanser(periode, arbeidssituasjon, index)
 
-fun jobbetDuGradert(
+private fun jobbetDuGradert(
     periode: Soknadsperiode,
     arbeidssituasjon: Arbeidssituasjon,
     index: Int,
-): Sporsmal =
-    Sporsmal(
-        tag = JOBBET_DU_GRADERT + index,
-        sporsmalstekst = "I perioden ${
-            formatterPeriode(
-                periode.fom,
-                periode.tom,
-            )
-        } sier sykmeldingen at du kunne jobbe ${100 - periode.grad} % som $arbeidssituasjon. Jobbet du mer enn det?",
-        svartype = JA_NEI,
-        kriterieForVisningAvUndersporsmal = JA,
-        undersporsmal = jobbetDuGradertUndersporsmal(periode, 100 + 1 - periode.grad, index),
-    )
+): Sporsmal = jobbetDuGradertSelvstendigFrilanser(periode, arbeidssituasjon, index)
 
 private fun tilbakeIFulltArbeidSporsmal(soknadMetadata: Sykepengesoknad): Sporsmal =
     Sporsmal(
@@ -183,12 +157,13 @@ fun naringsdrivendeOpprettholdtInntekt(
 ): Sporsmal =
     Sporsmal(
         tag = NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT,
-        sporsmalstekst = "Hadde du næringsinntekt i virksomheten din i tiden du var sykmeldt ${
-            formatterPeriode(
+        sporsmalstekst =
+            byggSporsmalstekstMedPeriodeMidt(
+                "Hadde du næringsinntekt i virksomheten din i tiden du var sykmeldt",
                 fom,
                 tom,
-            )
-        } og ikke jobbet?",
+                "og ikke jobbet?",
+            ),
         svartype = JA_NEI,
         // Disse er med for å få muteringen til å fungere
         min = fom.format(ISO_LOCAL_DATE),
