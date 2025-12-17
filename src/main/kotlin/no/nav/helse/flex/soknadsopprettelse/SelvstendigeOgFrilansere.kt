@@ -122,7 +122,12 @@ fun jobbetDuGradert(
 ): Sporsmal =
     Sporsmal(
         tag = JOBBET_DU_GRADERT + index,
-        sporsmalstekst = "Sykmeldingen sier du kunne jobbe ${100 - periode.grad} % som $arbeidssituasjon. Jobbet du mer enn det?",
+        sporsmalstekst = "I perioden ${
+            formatterPeriode(
+                periode.fom,
+                periode.tom,
+            )
+        } sier sykmeldingen at du kunne jobbe ${100 - periode.grad} % som $arbeidssituasjon. Jobbet du mer enn det?",
         svartype = JA_NEI,
         kriterieForVisningAvUndersporsmal = JA,
         undersporsmal = jobbetDuGradertUndersporsmal(periode, 100 + 1 - periode.grad, index),
@@ -193,6 +198,5 @@ fun naringsdrivendeOpprettholdtInntekt(
 fun Sporsmal.plasseringSporsmalSelvstendigOgFrilansere(): Int =
     when (this.tag) {
         FRAVAR_FOR_SYKMELDINGEN_V2 -> -9
-
         else -> fellesPlasseringSporsmal()
     }

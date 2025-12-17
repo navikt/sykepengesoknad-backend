@@ -4,14 +4,8 @@ import no.nav.helse.flex.domain.Soknadsperiode
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Visningskriterie
-import no.nav.helse.flex.soknadsopprettelse.HVOR_MANGE_TIMER_PER_UKE
-import no.nav.helse.flex.soknadsopprettelse.HVOR_MYE_HAR_DU_JOBBET
-import no.nav.helse.flex.soknadsopprettelse.HVOR_MYE_PROSENT
-import no.nav.helse.flex.soknadsopprettelse.HVOR_MYE_PROSENT_VERDI
-import no.nav.helse.flex.soknadsopprettelse.HVOR_MYE_TIMER
-import no.nav.helse.flex.soknadsopprettelse.HVOR_MYE_TIMER_VERDI
-import no.nav.helse.flex.soknadsopprettelse.JOBBET_DU_GRADERT
-import no.nav.helse.flex.util.DatoUtil
+import no.nav.helse.flex.soknadsopprettelse.*
+import no.nav.helse.flex.util.DatoUtil.formatterPeriode
 import java.time.temporal.ChronoUnit
 import kotlin.math.roundToInt
 
@@ -22,7 +16,12 @@ fun jobbetDuGradert(
 ): Sporsmal =
     Sporsmal(
         tag = JOBBET_DU_GRADERT + index,
-        sporsmalstekst = "Sykmeldingen sier du kunne jobbe ${100 - periode.grad} % i jobben din hos $arbeidsgiver. Jobbet du mer enn det?",
+        sporsmalstekst = "I perioden ${
+            formatterPeriode(
+                periode.fom,
+                periode.tom,
+            )
+        } sier sykmeldingen at du kunne jobbe ${100 - periode.grad} % i jobben din hos $arbeidsgiver. Jobbet du mer enn det?",
         svartype = Svartype.JA_NEI,
         kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
         undersporsmal = jobbetDuGradertUndersporsmal(periode, 100 + 1 - periode.grad, index),
@@ -34,7 +33,7 @@ fun jobbetDuGradertUndersporsmal(
     index: Int,
 ): List<Sporsmal> {
     val periodeTekst =
-        DatoUtil.formatterPeriode(
+        formatterPeriode(
             periode.fom,
             periode.tom,
         )
