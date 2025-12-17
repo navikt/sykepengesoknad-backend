@@ -90,23 +90,11 @@ fun jobbetDuIPeriodenSporsmalSelvstendigFrilanser(
         .map { index ->
             val periode = soknadsperioder[index]
             if (periode.grad == 100) {
-                jobbetDu100Prosent(periode, arbeidssituasjon, index)
+                jobbetDu100ProsentSelvstendigFrilanser(periode, arbeidssituasjon, index)
             } else {
-                jobbetDuGradert(periode, arbeidssituasjon, index)
+                jobbetDuGradertSelvstendigFrilanser(periode, arbeidssituasjon, index)
             }
         }
-
-private fun jobbetDu100Prosent(
-    periode: Soknadsperiode,
-    arbeidssituasjon: Arbeidssituasjon,
-    index: Int,
-): Sporsmal = jobbetDu100ProsentSelvstendigFrilanser(periode, arbeidssituasjon, index)
-
-private fun jobbetDuGradert(
-    periode: Soknadsperiode,
-    arbeidssituasjon: Arbeidssituasjon,
-    index: Int,
-): Sporsmal = jobbetDuGradertSelvstendigFrilanser(periode, arbeidssituasjon, index)
 
 private fun tilbakeIFulltArbeidSporsmal(soknadMetadata: Sykepengesoknad): Sporsmal =
     Sporsmal(
