@@ -8,6 +8,7 @@ import no.nav.helse.flex.service.SykepengegrunnlagNaeringsdrivende
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.utenlandsksykmelding.utenlandskSykmeldingSporsmal
 import no.nav.helse.flex.util.DatoUtil.formatterDato
+import no.nav.helse.flex.util.DatoUtil.formatterPeriode
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
@@ -157,13 +158,7 @@ fun naringsdrivendeOpprettholdtInntekt(
 ): Sporsmal =
     Sporsmal(
         tag = NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT,
-        sporsmalstekst =
-            byggSporsmalstekstMedPeriodeMidt(
-                "Hadde du næringsinntekt i virksomheten din i tiden du var sykmeldt",
-                fom,
-                tom,
-                "og ikke jobbet?",
-            ),
+        sporsmalstekst = "Hadde du næringsinntekt i virksomheten din i tiden du var sykmeldt ${formatterPeriode(fom, tom)} og ikke jobbet?",
         svartype = JA_NEI,
         // Disse er med for å få muteringen til å fungere
         min = fom.format(ISO_LOCAL_DATE),

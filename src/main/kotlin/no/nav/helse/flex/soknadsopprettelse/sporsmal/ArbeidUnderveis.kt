@@ -9,6 +9,7 @@ import no.nav.helse.flex.domain.Visningskriterie
 import no.nav.helse.flex.domain.Visningskriterie.JA
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.util.DatoUtil
+import no.nav.helse.flex.util.DatoUtil.formatterPeriode
 import java.time.temporal.ChronoUnit
 import kotlin.math.roundToInt
 
@@ -20,11 +21,8 @@ fun jobbetDu100ProsentArbeidstaker(
     Sporsmal(
         tag = ARBEID_UNDERVEIS_100_PROSENT + index,
         sporsmalstekst =
-            byggSporsmalstekstMedPeriode(
-                periode.fom,
-                periode.tom,
-                "var du 100 % sykmeldt fra $arbeidsgiver. Jobbet du noe hos $arbeidsgiver i denne perioden?",
-            ),
+            "I perioden ${formatterPeriode(periode.fom, periode.tom)} var du 100 % sykmeldt fra $arbeidsgiver. " +
+                "Jobbet du noe hos $arbeidsgiver i denne perioden?",
         svartype = JA_NEI,
         kriterieForVisningAvUndersporsmal = JA,
         undersporsmal =
@@ -44,11 +42,8 @@ fun jobbetDuGradertArbeidstaker(
     Sporsmal(
         tag = JOBBET_DU_GRADERT + index,
         sporsmalstekst =
-            byggSporsmalstekstMedPeriode(
-                periode.fom,
-                periode.tom,
-                "sier sykmeldingen at du kunne jobbe ${100 - periode.grad} % i jobben din hos $arbeidsgiver. Jobbet du mer enn det?",
-            ),
+            "I perioden ${formatterPeriode(periode.fom, periode.tom)} sier sykmeldingen at du kunne jobbe " +
+                "${100 - periode.grad} % i jobben din hos $arbeidsgiver. Jobbet du mer enn det?",
         svartype = JA_NEI,
         kriterieForVisningAvUndersporsmal = JA,
         undersporsmal = jobbetDuGradertUndersporsmal(periode, 100 + 1 - periode.grad, index),
@@ -62,11 +57,8 @@ fun jobbetDu100ProsentSelvstendigFrilanser(
     Sporsmal(
         tag = ARBEID_UNDERVEIS_100_PROSENT + index,
         sporsmalstekst =
-            byggSporsmalstekstMedPeriode(
-                periode.fom,
-                periode.tom,
-                "var du 100% sykmeldt som $arbeidssituasjon. Jobbet du noe i denne perioden?",
-            ),
+            "I perioden ${formatterPeriode(periode.fom, periode.tom)} var du 100% sykmeldt som $arbeidssituasjon. " +
+                "Jobbet du noe i denne perioden?",
         svartype = JA_NEI,
         kriterieForVisningAvUndersporsmal = JA,
         undersporsmal = jobbetDuUndersporsmal(periode, 1, index),
@@ -80,11 +72,8 @@ fun jobbetDuGradertSelvstendigFrilanser(
     Sporsmal(
         tag = JOBBET_DU_GRADERT + index,
         sporsmalstekst =
-            byggSporsmalstekstMedPeriode(
-                periode.fom,
-                periode.tom,
-                "sier sykmeldingen at du kunne jobbe ${100 - periode.grad} % som $arbeidssituasjon. Jobbet du mer enn det?",
-            ),
+            "I perioden ${formatterPeriode(periode.fom, periode.tom)} sier sykmeldingen at du kunne jobbe " +
+                "${100 - periode.grad} % som $arbeidssituasjon. Jobbet du mer enn det?",
         svartype = JA_NEI,
         kriterieForVisningAvUndersporsmal = JA,
         undersporsmal = jobbetDuGradertUndersporsmal(periode, 100 + 1 - periode.grad, index),
@@ -105,13 +94,7 @@ private fun jobbetDuGradertUndersporsmal(
         ),
         Sporsmal(
             tag = HVOR_MYE_HAR_DU_JOBBET + index,
-            sporsmalstekst =
-                byggSporsmalstekstMedPeriodeMidt(
-                    "Hvor mye jobbet du tilsammen",
-                    periode.fom,
-                    periode.tom,
-                    "?",
-                ),
+            sporsmalstekst = "Hvor mye jobbet du tilsammen ${DatoUtil.formatterPeriode(periode.fom, periode.tom)} ?",
             svartype = Svartype.RADIO_GRUPPE_TIMER_PROSENT,
             undertekst = "Velg timer eller prosent",
             undersporsmal =
@@ -160,7 +143,7 @@ private fun jobbetDuUndersporsmal(
     arbeidsgiverNavn: String? = null,
 ): List<Sporsmal> {
     val periodeTekst =
-        DatoUtil.formatterPeriode(
+        formatterPeriode(
             periode.fom,
             periode.tom,
         )
@@ -216,7 +199,7 @@ private fun jobbetDuUndersporsmal(
         Sporsmal(
             tag = JOBBER_DU_NORMAL_ARBEIDSUKE + index,
             sporsmalstekst = "Jobber du vanligvis 37,5 timer i uka$arbeidsgiver?",
-            svartype = Svartype.JA_NEI,
+            svartype = JA_NEI,
             kriterieForVisningAvUndersporsmal = Visningskriterie.NEI,
             undersporsmal =
                 listOf(
