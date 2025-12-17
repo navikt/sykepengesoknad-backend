@@ -130,7 +130,7 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
         )
 
         assertThat(
-            soknaden.sporsmal!!
+            soknaden.sporsmal
                 .first {
                     it.tag == ANSVARSERKLARING
                 }.sporsmalstekst,
@@ -142,11 +142,13 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
                 }.sporsmalstekst,
         ).isEqualTo("Var du tilbake i ditt vanlige arbeid uten ekstra reiseutgifter før 7. september?")
         assertThat(
-            soknaden.sporsmal!!
+            soknaden.sporsmal
                 .first {
                     it.tag == "JOBBET_DU_GRADERT_0"
                 }.sporsmalstekst,
-        ).isEqualTo("Sykmeldingen sier du kunne jobbe 50 % i jobben din hos Gatekjøkkenet. Jobbet du mer enn det?")
+        ).isEqualTo(
+            "I perioden 2. - 6. september 2021 sier sykmeldingen at du kunne jobbe 50 % i jobben din hos Gatekjøkkenet. Jobbet du mer enn det?",
+        )
     }
 
     @Test
