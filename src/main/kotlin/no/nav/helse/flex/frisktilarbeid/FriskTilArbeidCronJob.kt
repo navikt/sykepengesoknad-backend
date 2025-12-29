@@ -23,7 +23,7 @@ class FriskTilArbeidCronJob(
     @Scheduled(initialDelay = 4, fixedDelay = 3600, timeUnit = TimeUnit.MINUTES)
     fun resetVedtaksperiodeFomTom() {
         if (leaderElection.isLeader()) {
-            val t1 = Triple("a76f6e88-4701-45fb-ab63-80874c15cf4f", LocalDate.of(2025, 11, 29), LocalDate.of(2026, 2, 21))
+            val t1 = Triple("a76f6e88-4701-45fb-ab63-80874c15cf4f ", LocalDate.of(2025, 11, 29), LocalDate.of(2026, 2, 21))
             val t2 = Triple("56fac704-37e0-4906-bb8b-566398604d56", LocalDate.of(2025, 12, 4), LocalDate.of(2026, 2, 26))
 
             listOf(t1, t2).forEach { tripple ->
