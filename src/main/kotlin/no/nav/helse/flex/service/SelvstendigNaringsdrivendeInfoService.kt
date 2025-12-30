@@ -26,7 +26,13 @@ class SelvstendigNaringsdrivendeInfoService(
         arbeidssituasjon: Arbeidssituasjon,
         brukerHarOppgittForsikring: Boolean = false,
     ): SelvstendigNaringsdrivendeInfo {
-        val roller = hentRoller(identer)
+        val roller =
+            if (sykmeldingId == "3e437c89-d8c1-4519-b930-bf6f5a5d653f") {
+                log.info("Henter ikke roller for sykmeldingId: 3e437c89-d8c1-4519-b930-bf6f5a5d653f på grunn av feil fra Brreg.")
+                emptyList()
+            } else {
+                hentRoller(identer)
+            }
         return SelvstendigNaringsdrivendeInfo(
             roller = roller,
             erBarnepasser = erNaeringsdrivendeBarnepasser(roller, sykmeldingId, arbeidssituasjon),
