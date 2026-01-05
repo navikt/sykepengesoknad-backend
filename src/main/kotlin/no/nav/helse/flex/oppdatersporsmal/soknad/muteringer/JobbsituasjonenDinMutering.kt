@@ -84,5 +84,5 @@ fun Sykepengesoknad.jobbsituasjonenDinMutering(): Sykepengesoknad {
 
     return this
         .leggTilSporsmaal(ftaReiseTilUtlandet(this.fom!!, dagForBegrensende))
-        .leggTilSporsmaal(inntektUnderveis(this.fom!!, dagForBegrensende))
+        .leggTilSporsmaal(inntektUnderveis(this.fom, dagForBegrensende))
 }

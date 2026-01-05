@@ -47,7 +47,7 @@ fun MottakerAvSoknadService.kunHelgEtterArbeidsgiverperiodeVurdering(
                         hashMapOf<String, Any>(
                             "versjon" to LocalDate.of(2022, 2, 1),
                         ).also { map ->
-                            sykepengesoknadTom?.let {
+                            sykepengesoknadTom.let {
                                 map["sykepengesoknadTom"] = it
                             }
                             arbeidsgiverperiode.arbeidsgiverPeriode?.let {
