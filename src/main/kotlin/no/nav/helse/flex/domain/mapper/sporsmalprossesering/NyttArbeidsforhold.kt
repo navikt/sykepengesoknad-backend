@@ -17,7 +17,7 @@ fun Sykepengesoknad.hentInntektFraNyttArbeidsforhold(): List<InntektFraNyttArbei
                 val belopSvar = undersporsmal.firstOrNull { it.tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO) }?.forsteSvar
                 val belop = (belopSvar?.toDouble()!! / 100).toInt()
                 return InntektFraNyttArbeidsforholdDTO(
-                    fom = metadata!!.get("fom")?.asText()!!.tilLocalDate(),
+                    fom = metadata.get("fom")?.asText()!!.tilLocalDate(),
                     tom = metadata.get("tom")?.asText()!!.tilLocalDate(),
                     belop = belop,
                     arbeidsstedOrgnummer = metadata.get("arbeidsstedOrgnummer")?.asText()!!,
@@ -27,7 +27,7 @@ fun Sykepengesoknad.hentInntektFraNyttArbeidsforhold(): List<InntektFraNyttArbei
             }
             if (forsteSvar == "NEI") {
                 return InntektFraNyttArbeidsforholdDTO(
-                    fom = metadata!!.get("fom")?.asText()!!.tilLocalDate(),
+                    fom = metadata.get("fom")?.asText()!!.tilLocalDate(),
                     tom = metadata.get("tom")?.asText()!!.tilLocalDate(),
                     belop = null,
                     arbeidsstedOrgnummer = metadata.get("arbeidsstedOrgnummer")?.asText()!!,

@@ -90,7 +90,7 @@ class FriskTilArbeidIntegrationMedSporsmalTest : FakesTestOppsett() {
                 FTA_REISE_TIL_UTLANDET,
                 TIL_SLUTT,
             )
-        val jaSpørsmål = soknad.sporsmal!!.flatten().first { it.tag == FTA_JOBBSITUASJONEN_DIN_JA }
+        val jaSpørsmål = soknad.sporsmal.flatten().first { it.tag == FTA_JOBBSITUASJONEN_DIN_JA }
         jaSpørsmål.undersporsmal.map { it.tag }.`should be equal to`(
             listOf(
                 FTA_JOBBSITUASJONEN_DIN_NAR,

@@ -60,11 +60,11 @@ class AndreInntektskilderSpmTest : FellesTestOppsett() {
                 fnr = fnr,
             )
         soknaden.inntektskilderDataFraInntektskomponenten!!.shouldHaveSize(2)
-        val arbeidstaker = soknaden.inntektskilderDataFraInntektskomponenten!!.first()
+        val arbeidstaker = soknaden.inntektskilderDataFraInntektskomponenten.first()
         arbeidstaker.navn `should be equal to` "Bensinstasjonen AS"
         arbeidstaker.orgnummer `should be equal to` "999333666"
         arbeidstaker.arbeidsforholdstype `should be equal to` Arbeidsforholdstype.ARBEIDSTAKER
-        val frilanser = soknaden.inntektskilderDataFraInntektskomponenten!!.last()
+        val frilanser = soknaden.inntektskilderDataFraInntektskomponenten.last()
         frilanser.navn `should be equal to` "Frilanseransetter AS"
         frilanser.orgnummer `should be equal to` "999333667"
         frilanser.arbeidsforholdstype `should be equal to` Arbeidsforholdstype.FRILANSER

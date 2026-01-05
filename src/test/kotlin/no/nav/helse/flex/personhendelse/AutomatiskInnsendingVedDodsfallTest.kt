@@ -126,7 +126,7 @@ class AutomatiskInnsendingVedDodsfallTest : FellesTestOppsett() {
             identer = FolkeregisterIdenter("aktor1", emptyList()),
             dodsdato = soknad.tom!!.minusDays(1),
             meldingMottattDato =
-                soknad.tom!!
+                soknad.tom
                     .minusDays(1)
                     .atStartOfDay()
                     .tilOsloInstant()
@@ -137,7 +137,7 @@ class AutomatiskInnsendingVedDodsfallTest : FellesTestOppsett() {
 
         automatiskInnsendingVedDodsfall.sendSoknaderForDode().shouldBeEqualTo(1)
 
-        verify(automatiskInnsendingVedDodsfall).automatiskInnsending("aktor1", soknad.tom!!.minusDays(1))
+        verify(automatiskInnsendingVedDodsfall).automatiskInnsending("aktor1", soknad.tom.minusDays(1))
         val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2).tilSoknader()
         soknader.shouldHaveSize(2)
         soknader.first().status.shouldBeEqualTo(SoknadsstatusDTO.NY)
@@ -153,9 +153,8 @@ class AutomatiskInnsendingVedDodsfallTest : FellesTestOppsett() {
                 SELECT COUNT(1) FROM DODSMELDING 
             """,
                 MapSqlParameterSource(),
-                Integer::class.java,
+                Int::class.java,
             )!!
-            .toInt()
 
     fun slettDodsmeldinger() {
         namedParameterJdbcTemplate.update(

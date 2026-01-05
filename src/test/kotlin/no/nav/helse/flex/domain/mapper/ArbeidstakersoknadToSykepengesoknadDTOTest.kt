@@ -198,21 +198,21 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
         forventetFravar.add(
             FravarDTO(
                 sykepengesoknad.fom!!.plusDays(1),
-                sykepengesoknad.fom!!.plusDays(2),
+                sykepengesoknad.fom.plusDays(2),
                 FravarstypeDTO.FERIE,
             ),
         )
         forventetFravar.add(
             FravarDTO(
-                sykepengesoknad.fom!!.plusDays(1),
-                sykepengesoknad.fom!!.plusDays(1),
+                sykepengesoknad.fom.plusDays(1),
+                sykepengesoknad.fom.plusDays(1),
                 FravarstypeDTO.UTLANDSOPPHOLD,
             ),
         )
         forventetFravar.add(
             FravarDTO(
-                sykepengesoknad.fom!!.plusDays(4),
-                sykepengesoknad.fom!!.plusDays(6),
+                sykepengesoknad.fom.plusDays(4),
+                sykepengesoknad.fom.plusDays(6),
                 FravarstypeDTO.UTLANDSOPPHOLD,
             ),
         )
@@ -349,7 +349,7 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
         sykepengesoknad =
             sykepengesoknad.replaceSporsmal(
                 sykepengesoknad.getSporsmalMedTag(TILBAKE_NAR).copy(
-                    svar = (listOf<Svar>(Svar(null, mandag.with(next(THURSDAY)).format(ISO_LOCAL_DATE)))),
+                    svar = (listOf(Svar(null, mandag.with(next(THURSDAY)).format(ISO_LOCAL_DATE)))),
                 ),
             )
 

@@ -30,10 +30,10 @@ class NyttArbeidsforholdMuteringTest : NyttArbeidsforholdFellesOppsett() {
         nyttArbeidsforholdSpm.sporsmalstekst `should be equal to`
             "Har du jobbet noe hos Kiosken, avd Oslo AS i perioden 5. - 15. september 2022?"
         nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedOrgnummer").textValue() `should be equal to` "999888777"
-        nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedNavn").textValue() `should be equal to` "Kiosken, avd Oslo AS"
-        nyttArbeidsforholdSpm.metadata!!.get("startdatoAareg").textValue() `should be equal to` "2022-09-05"
-        nyttArbeidsforholdSpm.metadata!!.get("fom").textValue() `should be equal to` "2022-09-05"
-        nyttArbeidsforholdSpm.metadata!!.get("tom").textValue() `should be equal to` "2022-09-15"
+        nyttArbeidsforholdSpm.metadata.get("arbeidsstedNavn").textValue() `should be equal to` "Kiosken, avd Oslo AS"
+        nyttArbeidsforholdSpm.metadata.get("startdatoAareg").textValue() `should be equal to` "2022-09-05"
+        nyttArbeidsforholdSpm.metadata.get("fom").textValue() `should be equal to` "2022-09-05"
+        nyttArbeidsforholdSpm.metadata.get("tom").textValue() `should be equal to` "2022-09-15"
     }
 
     @Test
@@ -97,10 +97,10 @@ class NyttArbeidsforholdMuteringTest : NyttArbeidsforholdFellesOppsett() {
         nyttArbeidsforholdSpm.sporsmalstekst `should be equal to`
             "Har du jobbet noe hos Kiosken, avd Oslo AS i perioden 5. - 5. september 2022?"
         nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedOrgnummer").textValue() `should be equal to` "999888777"
-        nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedNavn").textValue() `should be equal to` "Kiosken, avd Oslo AS"
-        nyttArbeidsforholdSpm.metadata!!.get("startdatoAareg").textValue() `should be equal to` "2022-09-05"
-        nyttArbeidsforholdSpm.metadata!!.get("fom").textValue() `should be equal to` "2022-09-05"
-        nyttArbeidsforholdSpm.metadata!!.get("tom").textValue() `should be equal to` "2022-09-05"
+        nyttArbeidsforholdSpm.metadata.get("arbeidsstedNavn").textValue() `should be equal to` "Kiosken, avd Oslo AS"
+        nyttArbeidsforholdSpm.metadata.get("startdatoAareg").textValue() `should be equal to` "2022-09-05"
+        nyttArbeidsforholdSpm.metadata.get("fom").textValue() `should be equal to` "2022-09-05"
+        nyttArbeidsforholdSpm.metadata.get("tom").textValue() `should be equal to` "2022-09-05"
     }
 
     @Test
@@ -142,10 +142,10 @@ class NyttArbeidsforholdMuteringTest : NyttArbeidsforholdFellesOppsett() {
         nyttArbeidsforholdSpm.sporsmalstekst `should be equal to`
             "Har du jobbet noe hos Kiosken, avd Oslo AS i perioden 5. - 15. september 2022?"
         nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedOrgnummer").textValue() `should be equal to` "999888777"
-        nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedNavn").textValue() `should be equal to` "Kiosken, avd Oslo AS"
-        nyttArbeidsforholdSpm.metadata!!.get("startdatoAareg").textValue() `should be equal to` "2022-09-05"
-        nyttArbeidsforholdSpm.metadata!!.get("fom").textValue() `should be equal to` "2022-09-05"
-        nyttArbeidsforholdSpm.metadata!!.get("tom").textValue() `should be equal to` "2022-09-15"
+        nyttArbeidsforholdSpm.metadata.get("arbeidsstedNavn").textValue() `should be equal to` "Kiosken, avd Oslo AS"
+        nyttArbeidsforholdSpm.metadata.get("startdatoAareg").textValue() `should be equal to` "2022-09-05"
+        nyttArbeidsforholdSpm.metadata.get("fom").textValue() `should be equal to` "2022-09-05"
+        nyttArbeidsforholdSpm.metadata.get("tom").textValue() `should be equal to` "2022-09-15"
     }
 
     @Test

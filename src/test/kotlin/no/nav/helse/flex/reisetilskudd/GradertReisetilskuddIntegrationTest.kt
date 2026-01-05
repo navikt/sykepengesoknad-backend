@@ -136,7 +136,7 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
                 }.sporsmalstekst,
         ).isEqualTo("Jeg bekrefter at jeg vil svare så riktig som jeg kan.")
         assertThat(
-            soknaden.sporsmal!!
+            soknaden.sporsmal
                 .first {
                     it.tag == TILBAKE_I_ARBEID
                 }.sporsmalstekst,
@@ -250,7 +250,7 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
             .first()
             .verdi shouldBeEqualTo "JA"
 
-        assertThat(reisetilskuddEtterSvar.sporsmal!!.map { it.tag }).isEqualTo(
+        assertThat(reisetilskuddEtterSvar.sporsmal.map { it.tag }).isEqualTo(
             listOf(
                 ANSVARSERKLARING,
                 TILBAKE_I_ARBEID,
@@ -476,7 +476,7 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
             .svar
             .first()
             .verdi shouldBeEqualTo "NEI"
-        assertThat(utkastMedSvar.sporsmal!!.map { it.tag }).isEqualTo(
+        assertThat(utkastMedSvar.sporsmal.map { it.tag }).isEqualTo(
             listOf(
                 ANSVARSERKLARING,
                 TILBAKE_I_ARBEID,

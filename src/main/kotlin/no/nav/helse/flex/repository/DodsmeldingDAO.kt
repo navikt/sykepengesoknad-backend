@@ -76,8 +76,8 @@ class DodsmeldingDAOPostgres(
             """,
                 MapSqlParameterSource()
                     .addValue("identer", identer.alle()),
-                Integer::class.java,
-            )?.toInt() == 1
+                Int::class.java,
+            ) == 1
 
     @WithSpan
     override fun oppdaterDodsdato(

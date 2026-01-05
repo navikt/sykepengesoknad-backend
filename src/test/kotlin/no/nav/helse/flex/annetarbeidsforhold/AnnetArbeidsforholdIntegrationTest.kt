@@ -78,11 +78,11 @@ class AnnetArbeidsforholdIntegrationTest : FellesTestOppsett() {
                 "Har du hatt inntekt mens du har vært sykmeldt i perioden 1. - 10. januar 2018?",
             )
 
-        assertThat(soknaden.sporsmal!!.first { it.tag == OPPHOLD_UTENFOR_EOS }.sporsmalstekst)
+        assertThat(soknaden.sporsmal.first { it.tag == OPPHOLD_UTENFOR_EOS }.sporsmalstekst)
             .isEqualTo(
                 "Var du på reise utenfor EU/EØS mens du var sykmeldt 1. - 10. januar 2018?",
             )
-        assertThat(soknaden.sporsmal!!.first { it.tag == PERMISJON_V2 }.sporsmalstekst)
+        assertThat(soknaden.sporsmal.first { it.tag == PERMISJON_V2 }.sporsmalstekst)
             .isEqualTo(
                 "Tok du permisjon mens du var sykmeldt 1. - 10. januar 2018?",
             )
@@ -100,11 +100,11 @@ class AnnetArbeidsforholdIntegrationTest : FellesTestOppsett() {
                         "Har du hatt inntekt mens du har vært sykmeldt i perioden 1. - 4. januar 2018?",
                     )
 
-                assertThat(oppdatertSoknad.sporsmal!!.first { it.tag == OPPHOLD_UTENFOR_EOS }.sporsmalstekst)
+                assertThat(oppdatertSoknad.sporsmal.first { it.tag == OPPHOLD_UTENFOR_EOS }.sporsmalstekst)
                     .isEqualTo(
                         "Var du på reise utenfor EU/EØS mens du var sykmeldt 1. - 4. januar 2018?",
                     )
-                assertThat(oppdatertSoknad.sporsmal!!.first { it.tag == PERMISJON_V2 }.sporsmalstekst)
+                assertThat(oppdatertSoknad.sporsmal.first { it.tag == PERMISJON_V2 }.sporsmalstekst)
                     .isEqualTo(
                         "Tok du permisjon mens du var sykmeldt 1. - 4. januar 2018?",
                     )
