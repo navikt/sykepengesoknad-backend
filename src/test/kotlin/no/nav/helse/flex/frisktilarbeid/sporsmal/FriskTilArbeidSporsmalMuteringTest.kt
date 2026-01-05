@@ -113,11 +113,11 @@ class FriskTilArbeidSporsmalMuteringTest : FakesTestOppsett() {
                 TIL_SLUTT,
             )
 
-        soknaden.sporsmal!!
+        soknaden.sporsmal
             .first {
                 it.tag == FTA_INNTEKT_UNDERVEIS
             }.sporsmalstekst `should be equal to` "Hadde du  inntekt i perioden 1. - 1. januar 2020?"
-        soknaden.sporsmal!!
+        soknaden.sporsmal
             .first {
                 it.tag == FTA_REISE_TIL_UTLANDET
             }.sporsmalstekst `should be equal to` "Var du på reise utenfor EU/EØS i perioden 1. - 1. januar 2020?"

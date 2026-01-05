@@ -46,7 +46,7 @@ class NyttArbeidsforholdInnenforAgpTest : FellesTestOppsett() {
                 it.tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS)
             }.shouldBeNull()
 
-        soknaden.sporsmal!!.map { it.tag } `should be equal to`
+        soknaden.sporsmal.map { it.tag } `should be equal to`
             listOf(
                 ANSVARSERKLARING,
                 TILBAKE_I_ARBEID,

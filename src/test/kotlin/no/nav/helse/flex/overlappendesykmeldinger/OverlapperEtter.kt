@@ -450,7 +450,7 @@ class OverlapperEtter : FellesTestOppsett() {
 
         klippetSoknad.sporsmal!!.all { it.svar.isEmpty() } shouldBeEqualTo true
 
-        val periodeSpm = klippetSoknad.sporsmal!!.first { it.tag == FERIE_V2 }
+        val periodeSpm = klippetSoknad.sporsmal.first { it.tag == FERIE_V2 }
         periodeSpm.sporsmalstekst shouldBeEqualTo "Tok du ut feriedager i tidsrommet ${
             DatoUtil.formatterPeriode(
                 klippetSoknad.fom!!,

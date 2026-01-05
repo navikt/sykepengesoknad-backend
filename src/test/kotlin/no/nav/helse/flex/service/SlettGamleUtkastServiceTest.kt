@@ -62,7 +62,7 @@ class SlettGamleUtkastServiceTest : FellesTestOppsett() {
 
         assertThat(
             sykepengesoknadDAO.finnSykepengesoknaderForSykmelding(
-                soknad.sykmeldingId!!,
+                soknad.sykmeldingId,
             ),
         ).hasSize(1)
 
@@ -95,7 +95,7 @@ class SlettGamleUtkastServiceTest : FellesTestOppsett() {
 
         assertThat(
             sykepengesoknadDAO.finnSykepengesoknaderForSykmelding(
-                soknad.sykmeldingId!!,
+                soknad.sykmeldingId,
             ),
         ).hasSize(1)
 

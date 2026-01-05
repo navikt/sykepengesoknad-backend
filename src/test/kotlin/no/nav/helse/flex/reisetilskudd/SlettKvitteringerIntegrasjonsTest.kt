@@ -117,7 +117,7 @@ class SlettKvitteringerIntegrasjonsTest : FellesTestOppsett() {
             .first()
             .verdi shouldBeEqualTo "JA"
 
-        Assertions.assertThat(reisetilskuddEtterSvar.sporsmal!!.map { it.tag }).isEqualTo(
+        Assertions.assertThat(reisetilskuddEtterSvar.sporsmal.map { it.tag }).isEqualTo(
             listOf(
                 ANSVARSERKLARING,
                 TILBAKE_I_ARBEID,
@@ -170,7 +170,7 @@ class SlettKvitteringerIntegrasjonsTest : FellesTestOppsett() {
             .first()
             .id `should not be` null
 
-        val lagretAndreSvar = lagreSvar(fnr, soknadId, kvitteringSpm.id!!, andreSvar)
+        val lagretAndreSvar = lagreSvar(fnr, soknadId, kvitteringSpm.id, andreSvar)
         lagretAndreSvar.oppdatertSporsmal.svar
             .first()
             .id `should not be` null
@@ -197,7 +197,7 @@ class SlettKvitteringerIntegrasjonsTest : FellesTestOppsett() {
         val andreSvar = lagretSpm.svar.drop(1).first()
 
         slettSvar(fnr, soknadId, lagretSpm.id!!, forsteSvar.id!!)
-        slettSvar(fnr, soknadId, lagretSpm.id!!, andreSvar.id!!)
+        slettSvar(fnr, soknadId, lagretSpm.id, andreSvar.id!!)
     }
 
     private fun hentKvitteringSpm(): Pair<String, RSSporsmal> {

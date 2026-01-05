@@ -169,15 +169,15 @@ class OverlapperFor : FellesTestOppsett() {
         klippetSoknad.fom shouldBeEqualTo basisdato.plusDays(8)
         klippetSoknad.tom shouldBeEqualTo basisdato.plusDays(10)
         klippetSoknad.soknadPerioder!! shouldHaveSize 1
-        klippetSoknad.soknadPerioder!![0].fom shouldBeEqualTo basisdato.plusDays(8)
-        klippetSoknad.soknadPerioder!![0].tom shouldBeEqualTo basisdato.plusDays(10)
+        klippetSoknad.soknadPerioder[0].fom shouldBeEqualTo basisdato.plusDays(8)
+        klippetSoknad.soknadPerioder[0].tom shouldBeEqualTo basisdato.plusDays(10)
 
         val nyesteSoknad = hentetViaRest[1]
         nyesteSoknad.fom shouldBeEqualTo basisdato
         nyesteSoknad.tom shouldBeEqualTo basisdato.plusDays(7)
         nyesteSoknad.soknadPerioder!! shouldHaveSize 1
-        nyesteSoknad.soknadPerioder!![0].fom shouldBeEqualTo basisdato
-        nyesteSoknad.soknadPerioder!![0].tom shouldBeEqualTo basisdato.plusDays(7)
+        nyesteSoknad.soknadPerioder[0].fom shouldBeEqualTo basisdato
+        nyesteSoknad.soknadPerioder[0].tom shouldBeEqualTo basisdato.plusDays(7)
 
         val klippmetrikker = klippMetrikkRepository.findAll().toList().sortedBy { it.variant }
         klippmetrikker shouldHaveSize 1

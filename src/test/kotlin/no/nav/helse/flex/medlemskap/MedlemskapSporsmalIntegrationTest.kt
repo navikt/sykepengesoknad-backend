@@ -6,7 +6,6 @@ import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSporsmal
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknad
 import no.nav.helse.flex.controller.domain.sykepengesoknad.flatten
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.nyttarbeidsforhold.soknad
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.medIndex
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
@@ -21,12 +20,7 @@ import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.MethodOrderer
-import org.junit.jupiter.api.Order
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestMethodOrder
+import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.Instant
 import java.time.LocalDate
@@ -243,7 +237,7 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
                 svar =
                     DatoUtil.periodeTilJson(
                         fom = soknad.tom!!.minusDays(25),
-                        tom = soknad.tom!!.minusDays(5),
+                        tom = soknad.tom.minusDays(5),
                     ),
             )
     }
@@ -594,7 +588,7 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
                 svar =
                     DatoUtil.periodeTilJson(
                         fom = soknad.tom!!.minusDays(25),
-                        tom = soknad.tom!!.minusDays(5),
+                        tom = soknad.tom.minusDays(5),
                     ),
             )
     }
@@ -619,7 +613,7 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
                 svar =
                     DatoUtil.periodeTilJson(
                         fom = soknad.tom!!.minusDays(25),
-                        tom = soknad.tom!!.minusDays(5),
+                        tom = soknad.tom.minusDays(5),
                     ),
             )
     }
@@ -648,7 +642,7 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
                 svar =
                     DatoUtil.periodeTilJson(
                         fom = soknad.tom!!.minusDays(25),
-                        tom = soknad.tom!!.minusDays(5),
+                        tom = soknad.tom.minusDays(5),
                     ),
             )
     }

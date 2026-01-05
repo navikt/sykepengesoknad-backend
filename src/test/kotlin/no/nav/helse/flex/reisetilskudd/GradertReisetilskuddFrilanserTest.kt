@@ -134,7 +134,7 @@ class GradertReisetilskuddFrilanserTest : FellesTestOppsett() {
             .first()
             .verdi shouldBeEqualTo "JA"
 
-        assertThat(reisetilskuddEtterSvar.sporsmal!!.map { it.tag }).isEqualTo(
+        assertThat(reisetilskuddEtterSvar.sporsmal.map { it.tag }).isEqualTo(
             listOf(
                 ANSVARSERKLARING,
                 TILBAKE_I_ARBEID,

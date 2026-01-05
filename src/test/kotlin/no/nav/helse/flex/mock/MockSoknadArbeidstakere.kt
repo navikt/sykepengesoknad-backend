@@ -128,7 +128,7 @@ private fun Sykepengesoknad.jobbetDuGradert(): Sykepengesoknad =
 
 private fun Sykepengesoknad.ferie(): Sykepengesoknad =
     besvarsporsmal(FERIE_V2, "JA")
-        .besvarsporsmal(FERIE_NAR_V2, periodeTilJson(fom!!.plusDays(1), fom!!.plusDays(2)))
+        .besvarsporsmal(FERIE_NAR_V2, periodeTilJson(fom!!.plusDays(1), fom.plusDays(2)))
 
 private fun Sykepengesoknad.utenlandsopphold(): Sykepengesoknad =
     besvarsporsmal(OPPHOLD_UTENFOR_EOS, "JA")
@@ -136,8 +136,8 @@ private fun Sykepengesoknad.utenlandsopphold(): Sykepengesoknad =
             tag = OPPHOLD_UTENFOR_EOS_NAR,
             svarListe =
                 listOf(
-                    periodeTilJson(fom!!.plusDays(1), fom!!.plusDays(1)),
-                    periodeTilJson(fom!!.plusDays(4), fom!!.plusDays(6)),
+                    periodeTilJson(fom!!.plusDays(1), fom.plusDays(1)),
+                    periodeTilJson(fom.plusDays(4), fom.plusDays(6)),
                 ),
         )
 

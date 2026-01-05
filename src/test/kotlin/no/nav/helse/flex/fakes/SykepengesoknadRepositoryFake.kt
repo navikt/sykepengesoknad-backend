@@ -60,7 +60,7 @@ class SykepengesoknadRepositoryFake :
         findAll()
             .filter { it.fnr in identer }
             .filter { it.status == Soknadstatus.NY || it.status == Soknadstatus.UTKAST_TIL_KORRIGERING }
-            .filter { it.fom != null && it.fom!! < fom }
+            .filter { it.fom != null && it.fom < fom }
             .sortedBy { it.fom }
             .firstOrNull()
             ?.sykepengesoknadUuid
@@ -68,5 +68,5 @@ class SykepengesoknadRepositoryFake :
     override fun finnSoknaderSomSkalAktiveres(now: LocalDate): List<SykepengesoknadDbRecord> =
         findAll()
             .filter { it.status == Soknadstatus.FREMTIDIG }
-            .filter { it.tom != null && it.tom!! < now }
+            .filter { it.tom != null && it.tom < now }
 }

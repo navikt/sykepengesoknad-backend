@@ -218,7 +218,7 @@ class FrilanserIntegrationTest : FellesTestOppsett() {
             .besvarSporsmal(OPPHOLD_UTENFOR_EOS, "JA", mutert = false, ferdigBesvart = false)
             .besvarSporsmal(
                 OPPHOLD_UTENFOR_EOS_NAR,
-                svar = """{"fom":"${soknaden.fom!!}","tom":"${soknaden.fom!!.plusDays(1)}"}""",
+                svar = """{"fom":"${soknaden.fom!!}","tom":"${soknaden.fom.plusDays(1)}"}""",
                 mutert = false,
                 ferdigBesvart = false,
             ).also {

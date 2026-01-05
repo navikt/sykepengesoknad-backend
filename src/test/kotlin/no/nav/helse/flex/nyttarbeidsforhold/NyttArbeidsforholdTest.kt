@@ -36,15 +36,15 @@ class NyttArbeidsforholdTest : NyttArbeidsforholdFellesOppsett() {
         nyttArbeidsforholdSpm.sporsmalstekst `should be equal to`
             "Har du jobbet noe hos Kiosken, avd Oslo AS i perioden 5. - 15. september 2022?"
         nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedOrgnummer").textValue() `should be equal to` "999888777"
-        nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedNavn").textValue() `should be equal to` "Kiosken, avd Oslo AS"
-        nyttArbeidsforholdSpm.metadata!!.get("startdatoAareg").textValue() `should be equal to` "2022-09-05"
-        nyttArbeidsforholdSpm.metadata!!.get("fom").textValue() `should be equal to` "2022-09-05"
-        nyttArbeidsforholdSpm.metadata!!.get("tom").textValue() `should be equal to` "2022-09-15"
+        nyttArbeidsforholdSpm.metadata.get("arbeidsstedNavn").textValue() `should be equal to` "Kiosken, avd Oslo AS"
+        nyttArbeidsforholdSpm.metadata.get("startdatoAareg").textValue() `should be equal to` "2022-09-05"
+        nyttArbeidsforholdSpm.metadata.get("fom").textValue() `should be equal to` "2022-09-05"
+        nyttArbeidsforholdSpm.metadata.get("tom").textValue() `should be equal to` "2022-09-15"
         nyttArbeidsforholdSpm.undersporsmal.map { it.tag } `should be equal to`
             listOf(
                 NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO + "0",
             )
-        soknaden.sporsmal!!.map { it.tag } `should be equal to`
+        soknaden.sporsmal.map { it.tag } `should be equal to`
             listOf(
                 ANSVARSERKLARING,
                 TILBAKE_I_ARBEID,
@@ -144,9 +144,9 @@ class NyttArbeidsforholdTest : NyttArbeidsforholdFellesOppsett() {
             }!!
         nyttArbeidsforholdSpm.sporsmalstekst!!.shouldContain("Har du jobbet noe hos Kiosken, avd Oslo AS i perioden")
         nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedOrgnummer").textValue() `should be equal to` "999888777"
-        nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedNavn").textValue() `should be equal to` "Kiosken, avd Oslo AS"
+        nyttArbeidsforholdSpm.metadata.get("arbeidsstedNavn").textValue() `should be equal to` "Kiosken, avd Oslo AS"
 
-        soknaden.sporsmal!!.map { it.tag } `should be equal to`
+        soknaden.sporsmal.map { it.tag } `should be equal to`
             listOf(
                 ANSVARSERKLARING,
                 TILBAKE_I_ARBEID,

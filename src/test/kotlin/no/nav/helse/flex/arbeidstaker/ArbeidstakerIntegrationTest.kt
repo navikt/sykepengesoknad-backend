@@ -114,7 +114,7 @@ class ArbeidstakerIntegrationTest : FellesTestOppsett() {
             ),
         )
         assertThat(
-            soknad1.sporsmal!!
+            soknad1.sporsmal
                 .first {
                     it.tag == ANSVARSERKLARING
                 }.sporsmalstekst,

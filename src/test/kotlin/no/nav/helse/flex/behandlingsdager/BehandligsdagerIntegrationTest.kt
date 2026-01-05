@@ -71,7 +71,7 @@ class BehandligsdagerIntegrationTest : FellesTestOppsett() {
                 fnr = fnr,
             )
         val uke0 = soknaden.sporsmal!!.first { it.tag == "ENKELTSTAENDE_BEHANDLINGSDAGER_0" }.undersporsmal[0]
-        val uke1 = soknaden.sporsmal!!.first { it.tag == "ENKELTSTAENDE_BEHANDLINGSDAGER_0" }.undersporsmal[1]
+        val uke1 = soknaden.sporsmal.first { it.tag == "ENKELTSTAENDE_BEHANDLINGSDAGER_0" }.undersporsmal[1]
 
         uke0.sporsmalstekst `should be equal to` "01.01.2018 - 05.01.2018"
         uke1.sporsmalstekst `should be equal to` "08.01.2018 - 10.01.2018"
