@@ -49,6 +49,7 @@ import java.time.LocalDate
 
 class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
     private val fnr = "123456789"
+    private val dato = LocalDate.of(2025, 1, 1)
 
     @Autowired
     private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
@@ -88,7 +89,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
         )
 
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
-        mockFlexSyketilfelleSykeforloep(sykmeldingId)
+        mockFlexSyketilfelleSykeforloep(sykmeldingId, dato)
 
         val sykmeldingKafkaMessage =
             SykmeldingKafkaMessage(
@@ -136,7 +137,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                 .copy(harRedusertArbeidsgiverperiode = true)
 
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, false)
-        mockFlexSyketilfelleSykeforloep(sykmeldingId)
+        mockFlexSyketilfelleSykeforloep(sykmeldingId, dato)
 
         val sykmeldingKafkaMessage =
             SykmeldingKafkaMessage(
@@ -178,7 +179,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                 .copy(harRedusertArbeidsgiverperiode = true)
 
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, false)
-        mockFlexSyketilfelleSykeforloep(sykmeldingId)
+        mockFlexSyketilfelleSykeforloep(sykmeldingId, dato)
         settOppSigrunMockResponser()
 
         val sykmeldingKafkaMessage =
@@ -225,7 +226,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
             ).copy(harRedusertArbeidsgiverperiode = true)
 
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
-        mockFlexSyketilfelleSykeforloep(sykmelding.id)
+        mockFlexSyketilfelleSykeforloep(sykmelding.id, dato)
 
         val sykmeldingKafkaMessage =
             SykmeldingKafkaMessage(
@@ -280,7 +281,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                 event = sykmeldingStatusKafkaMessageDTO.event,
                 kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
             )
-        mockFlexSyketilfelleSykeforloep(sykmelding.id)
+        mockFlexSyketilfelleSykeforloep(sykmelding.id, dato)
 
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
             sykmelding.id,
@@ -331,7 +332,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                 kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
             )
 
-        mockFlexSyketilfelleSykeforloep(sykmelding.id)
+        mockFlexSyketilfelleSykeforloep(sykmelding.id, dato)
 
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
             sykmelding.id,
@@ -383,7 +384,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                 kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
             )
 
-        mockFlexSyketilfelleSykeforloep(sykmelding.id)
+        mockFlexSyketilfelleSykeforloep(sykmelding.id, dato)
 
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
             sykmelding.id,
@@ -418,7 +419,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                         ),
                     ),
             )
-        mockFlexSyketilfelleSykeforloep(sykmelding.id)
+        mockFlexSyketilfelleSykeforloep(sykmelding.id, dato)
 
         val sykmeldingKafkaMessage =
             SykmeldingKafkaMessage(
@@ -503,7 +504,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
         enhetsregisterMockWebServer.enqueue(withContentTypeApplicationJson { MockResponse().setBody(json) })
 
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
-        mockFlexSyketilfelleSykeforloep(sykmeldingId)
+        mockFlexSyketilfelleSykeforloep(sykmeldingId, dato)
 
         val sykmeldingKafkaMessage =
             SykmeldingKafkaMessage(
@@ -589,7 +590,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
         )
 
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
-        mockFlexSyketilfelleSykeforloep(sykmeldingId)
+        mockFlexSyketilfelleSykeforloep(sykmeldingId, dato)
 
         val sykmeldingKafkaMessage =
             SykmeldingKafkaMessage(
@@ -673,7 +674,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
         )
 
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
-        mockFlexSyketilfelleSykeforloep(sykmeldingId)
+        mockFlexSyketilfelleSykeforloep(sykmeldingId, dato)
 
         val sykmeldingKafkaMessage =
             SykmeldingKafkaMessage(
@@ -757,7 +758,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
         )
 
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
-        mockFlexSyketilfelleSykeforloep(sykmeldingId)
+        mockFlexSyketilfelleSykeforloep(sykmeldingId, dato)
 
         val sykmeldingKafkaMessage =
             SykmeldingKafkaMessage(
@@ -860,7 +861,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                 kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
             )
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
-        mockFlexSyketilfelleSykeforloep(sykmelding.id)
+        mockFlexSyketilfelleSykeforloep(sykmelding.id, dato)
 
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
             sykmelding.id,
@@ -946,7 +947,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                 event = sykmeldingStatusKafkaMessageDTO.event,
                 kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
             )
-        mockFlexSyketilfelleSykeforloep(sykmeldingStatusKafkaMessageDTO.event.sykmeldingId)
+        mockFlexSyketilfelleSykeforloep(sykmeldingStatusKafkaMessageDTO.event.sykmeldingId, dato)
 
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
             sykmelding.id,
@@ -960,7 +961,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
     fun `Legger til rebehandling RestFeilerException`() {
         val sykmeldingStatusKafkaMessageDTO = skapKafkaMelding()
         val sykmelding = skapSykmeldingDTO(sykmeldingStatusKafkaMessageDTO)
-        mockFlexSyketilfelleSykeforloep(sykmelding.id)
+        mockFlexSyketilfelleSykeforloep(sykmelding.id, dato)
 
         val sykmeldingKafkaMessage =
             SykmeldingKafkaMessage(
@@ -993,7 +994,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                 event = sykmeldingStatusKafkaMessageDTO.event,
                 kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
             )
-        mockFlexSyketilfelleSykeforloep(sykmeldingStatusKafkaMessageDTO.event.sykmeldingId)
+        mockFlexSyketilfelleSykeforloep(sykmeldingStatusKafkaMessageDTO.event.sykmeldingId, dato)
 
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
             sykmelding.id,
@@ -1020,7 +1021,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                 event = sykmeldingStatusKafkaMessageDTO.event,
                 kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
             )
-        mockFlexSyketilfelleSykeforloep(sykmeldingStatusKafkaMessageDTO.event.sykmeldingId)
+        mockFlexSyketilfelleSykeforloep(sykmeldingStatusKafkaMessageDTO.event.sykmeldingId, dato)
 
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
             sykmelding.id,
@@ -1048,7 +1049,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                 event = sykmeldingStatusKafkaMessageDTO.event,
                 kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
             )
-        mockFlexSyketilfelleSykeforloep(sykmeldingStatusKafkaMessageDTO.event.sykmeldingId)
+        mockFlexSyketilfelleSykeforloep(sykmeldingStatusKafkaMessageDTO.event.sykmeldingId, dato)
 
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
             sykmelding.id,
@@ -1067,7 +1068,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                     arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
                 )
             val sykmelding = skapSykmeldingDTO(sykmeldingStatusKafkaMessageDTO)
-            mockFlexSyketilfelleSykeforloep(sykmelding.id)
+            mockFlexSyketilfelleSykeforloep(sykmelding.id, dato)
 
             whenever(aivenKafkaProducer.produserMelding(any())).thenThrow(RuntimeException("Feil"))
             val sykmeldingKafkaMessage =
@@ -1119,7 +1120,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                 kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
             )
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
-        mockFlexSyketilfelleSykeforloep(sykmelding.id)
+        mockFlexSyketilfelleSykeforloep(sykmelding.id, dato)
 
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
             sykmelding.id,
@@ -1158,7 +1159,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                     ),
             )
         mockFlexSyketilfelleErUtenforVentetid(sykmelding.id, true)
-        mockFlexSyketilfelleSykeforloep(sykmelding.id)
+        mockFlexSyketilfelleSykeforloep(sykmelding.id, dato)
 
         val sykmeldingKafkaMessage =
             SykmeldingKafkaMessage(
