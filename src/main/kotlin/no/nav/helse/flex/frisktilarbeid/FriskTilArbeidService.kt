@@ -1,51 +1,26 @@
 package no.nav.helse.flex.frisktilarbeid
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import no.nav.helse.flex.cronjob.LeaderElection
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.medlemskap.tilPostgresJson
 import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.util.osloZone
-import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.util.*
-import java.util.concurrent.TimeUnit
 
 @Service
 class FriskTilArbeidService(
     private val friskTilArbeidRepository: FriskTilArbeidRepository,
     private val friskTilArbeidSoknadService: FriskTilArbeidSoknadService,
-    private val leaderElection: LeaderElection,
 ) {
     private val log = logger()
 
     private val tidspunktForOvertakelse = LocalDateTime.of(2025, 3, 10, 0, 0, 0).atZone(osloZone).toOffsetDateTime()
-
-    @Scheduled(initialDelay = 5, fixedDelay = 3600, timeUnit = TimeUnit.MINUTES)
-    fun schedulertStartBehandlingAvFriskTilArbeidVedtakStatus() {
-        if (leaderElection.isLeader()) {
-            val vedtak = friskTilArbeidRepository.findById("d12f2c6f-3e9c-4aa5-95c4-70205a36d1f0")
-            if (vedtak.isPresent) {
-                val oppdatertVedtak =
-                    vedtak.get().copy(
-                        fom = LocalDate.of(2025, 12, 31),
-                        tom = LocalDate.of(2026, 3, 24),
-                    )
-                friskTilArbeidRepository.save(oppdatertVedtak)
-                log.info(
-                    "Oppdaterte FriskTilArbeid-vedtak med id: ${oppdatertVedtak.id} fra fom: ${vedtak.get().fom} til " +
-                        "fom: ${oppdatertVedtak.fom} og tom: ${vedtak.get().tom} til tom: ${oppdatertVedtak.tom}.",
-                )
-            } else {
-                log.info("Fant ikke FriskTilArbeid-vedtak med id: d12f2c6f-3e9c-4aa5-95c4-70205a36d1f0.")
-            }
-        }
-    }
 
     fun lagreFriskTilArbeidVedtakStatus(kafkaMelding: FriskTilArbeidVedtakStatusKafkaMelding) {
         val friskTilArbeidVedtakStatus = kafkaMelding.friskTilArbeidVedtakStatus
