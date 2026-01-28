@@ -4,8 +4,8 @@ import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.helse.flex.config.EnvironmentToggles
 import no.nav.helse.flex.kafka.SYKEPENGESOKNAD_TOPIC
 import no.nav.helse.flex.logger
+import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
-import no.nav.helse.flex.util.serialisertTilString
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.clients.producer.RecordMetadata
@@ -21,9 +21,10 @@ class AivenKafkaProducer(
     @WithSpan
     fun produserMelding(soknad: SykepengesoknadDTO): RecordMetadata {
         try {
-            if (environmentToggles.isQ()) {
-                log.info("Publiserer søknad ${soknad.id} på topic $SYKEPENGESOKNAD_TOPIC\n${soknad.serialisertTilString()}")
+            if (environmentToggles.isQ() || soknad.status == SoknadsstatusDTO.SLETTET || soknad.status == SoknadsstatusDTO.AVBRUTT) {
+                log.info("Publiserer søknad: ${soknad.id} med status: ${soknad.status} på topic: $SYKEPENGESOKNAD_TOPIC.")
             }
+
             return producer
                 .send(
                     ProducerRecord(
