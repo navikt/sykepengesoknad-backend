@@ -19,7 +19,7 @@ class FriskTilArbeidCronJob(
 ) {
     private val log = logger()
 
-    @Scheduled(initialDelay = 10, fixedDelay = 1, timeUnit = TimeUnit.MINUTES)
+    @Scheduled(initialDelay = 5, fixedDelay = 1, timeUnit = TimeUnit.MINUTES)
     fun schedulertStartBehandlingAvFriskTilArbeidVedtakStatus() {
         if (leaderElection.isLeader()) {
             log.info("Er leder, starter behandling av FriskTilArbeidVedtakStatus.")
