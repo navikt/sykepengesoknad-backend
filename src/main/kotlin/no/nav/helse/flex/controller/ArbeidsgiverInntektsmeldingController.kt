@@ -6,17 +6,18 @@ import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.flatten
 import no.nav.helse.flex.domain.mapper.parseEgenmeldingsdagerFraSykmelding
-import no.nav.helse.flex.logger
 import no.nav.helse.flex.service.HentSoknadService
 import no.nav.helse.flex.service.IdentService
 import no.nav.helse.flex.svarvalidering.INGEN_BEHANDLING
-import no.nav.helse.flex.util.serialisertTilString
 import no.nav.helse.flex.vedtaksperiodebehandling.VedtaksperiodeBehandlingRepository
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 import java.time.LocalDate
 
 @RestController
@@ -29,8 +30,6 @@ class ArbeidsgiverInntektsmeldingController(
     @param:Value("\${SPINNTEKTSMELDING_FRONTEND_CLIENT_ID}")
     val spinntektsmeldingFrontendClientId: String,
 ) {
-    val log = logger()
-
     @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
     @PostMapping(
         value = ["/soknader"],
@@ -41,16 +40,9 @@ class ArbeidsgiverInntektsmeldingController(
         @RequestBody request: HentSoknaderRequest,
     ): List<HentSoknaderResponse> {
         contextHolder.validerTokenXClaims(spinntektsmeldingFrontendClientId)
-        // TODO skal kun i dev!
-        log.info("Henter soknader for arbeidsgiver med orgnummer ${request.orgnummer} og fnr ${request.fnr}")
 
         val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(request.fnr)
         val alleSoknader = hentSoknadService.hentSoknader(identer)
-
-        val alleIdenter = identer.andreIdenter.plus(listOf(identer.originalIdent))
-        if (alleIdenter.contains("70909301244")) {
-            log.info("Hentet soknader for testbruker 70909301244: ${alleSoknader.serialisertTilString()}")
-        }
 
         val soknaderFiltrert =
             alleSoknader
@@ -70,8 +62,6 @@ class ArbeidsgiverInntektsmeldingController(
         vedtaksperiodeBehandlingRepository
             .finnVedtaksperiodeiderForSoknad(soknaderFiltrert.map { it.sykepengesoknadUuid })
             .forEach { vedtaksperiodeMap[it.sykepengesoknadUuid] = it.vedtaksperiodeId }
-
-        log.info("Fant all info og returnerer data")
 
         return soknaderFiltrert.map {
             it.copy(
