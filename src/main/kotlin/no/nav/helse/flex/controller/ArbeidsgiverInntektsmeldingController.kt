@@ -9,6 +9,7 @@ import no.nav.helse.flex.domain.mapper.parseEgenmeldingsdagerFraSykmelding
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.service.HentSoknadService
 import no.nav.helse.flex.service.IdentService
+import no.nav.helse.flex.svarvalidering.INGEN_BEHANDLING
 import no.nav.helse.flex.util.serialisertTilString
 import no.nav.helse.flex.vedtaksperiodebehandling.VedtaksperiodeBehandlingRepository
 import no.nav.security.token.support.core.api.ProtectedWithClaims
@@ -122,7 +123,8 @@ private fun Sykepengesoknad.tilHentSoknaderResponse(): HentSoknaderResponse =
                     .flatten()
                     .filter { it.tag.startsWith("ENKELTSTAENDE_BEHANDLINGSDAGER_UKE_") }
                     .flatMap { it.svar }
-                    .mapNotNull { LocalDate.parse(it.verdi) }
+                    .filter { it.verdi != INGEN_BEHANDLING }
+                    .map { LocalDate.parse(it.verdi) }
             } else {
                 emptyList()
             },
