@@ -40,6 +40,8 @@ class ArbeidsgiverInntektsmeldingController(
         @RequestBody request: HentSoknaderRequest,
     ): List<HentSoknaderResponse> {
         contextHolder.validerTokenXClaims(spinntektsmeldingFrontendClientId)
+        // TODO skal kun i dev!
+        log.info("Henter soknader for arbeidsgiver med orgnummer ${request.orgnummer} og fnr ${request.fnr}")
 
         val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(request.fnr)
         val alleSoknader = hentSoknadService.hentSoknader(identer)
