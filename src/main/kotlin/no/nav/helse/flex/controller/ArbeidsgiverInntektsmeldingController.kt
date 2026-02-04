@@ -109,13 +109,16 @@ private fun Sykepengesoknad.tilHentSoknaderResponse(): HentSoknaderResponse =
         soknadstype = this.soknadstype,
         behandlingsdager =
             if (this.soknadstype == Soknadstype.BEHANDLINGSDAGER) {
-                this.sporsmal
-                    .flatten()
-                    .filter { it.tag.startsWith("ENKELTSTAENDE_BEHANDLINGSDAGER_UKE_") }
-                    .flatMap { it.svar }
-                    .filter { it.verdi != INGEN_BEHANDLING }
-                    .map { LocalDate.parse(it.verdi) }
+                hentBehandlingsdager()
             } else {
                 emptyList()
             },
     )
+
+private fun Sykepengesoknad.hentBehandlingsdager(): List<LocalDate> =
+    this.sporsmal
+        .flatten()
+        .filter { it.tag.startsWith("ENKELTSTAENDE_BEHANDLINGSDAGER_UKE_") }
+        .flatMap { it.svar }
+        .filter { it.verdi != INGEN_BEHANDLING }
+        .map { LocalDate.parse(it.verdi) }
