@@ -105,7 +105,7 @@ class InntektsmeldingApiTest : FellesTestOppsett() {
                 sykmeldingsperioder =
                     behandingsdager(
                         fom = basisdato.minusDays(25),
-                        tom = basisdato.minusDays(10),
+                        tom = basisdato,
                     ),
             ),
             forventaSoknader = 1,
@@ -206,6 +206,7 @@ class InntektsmeldingApiTest : FellesTestOppsett() {
         listOf(
             "ENKELTSTAENDE_BEHANDLINGSDAGER_UKE_0" to "2025-01-01",
             "ENKELTSTAENDE_BEHANDLINGSDAGER_UKE_1" to "2025-03-31",
+            "ENKELTSTAENDE_BEHANDLINGSDAGER_UKE_2" to "Ikke til behandling",
         ).forEach { (tag, verdi) ->
             sporsmal.find { it.tag == tag }!!.id?.let {
                 svarDAO.lagreSvar(it, Svar(id = null, verdi = verdi))

@@ -8,12 +8,16 @@ import no.nav.helse.flex.domain.flatten
 import no.nav.helse.flex.domain.mapper.parseEgenmeldingsdagerFraSykmelding
 import no.nav.helse.flex.service.HentSoknadService
 import no.nav.helse.flex.service.IdentService
+import no.nav.helse.flex.svarvalidering.INGEN_BEHANDLING
 import no.nav.helse.flex.vedtaksperiodebehandling.VedtaksperiodeBehandlingRepository
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 import java.time.LocalDate
 
 @RestController
@@ -38,10 +42,10 @@ class ArbeidsgiverInntektsmeldingController(
         contextHolder.validerTokenXClaims(spinntektsmeldingFrontendClientId)
 
         val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(request.fnr)
+        val alleSoknader = hentSoknadService.hentSoknader(identer)
 
-        val soknader =
-            hentSoknadService
-                .hentSoknader(identer)
+        val soknaderFiltrert =
+            alleSoknader
                 .filter { it.fom != null }
                 .filter { it.fom?.isAfter(request.eldsteFom.minusDays(1)) ?: false }
                 .filter { it.arbeidsgiverOrgnummer == request.orgnummer }
@@ -50,15 +54,16 @@ class ArbeidsgiverInntektsmeldingController(
                 .map { it.tilHentSoknaderResponse() }
                 .sortedBy { it.fom }
 
-        if (soknader.isEmpty()) {
+        if (soknaderFiltrert.isEmpty()) {
             return emptyList()
         }
+
         val vedtaksperiodeMap = mutableMapOf<String, String>()
         vedtaksperiodeBehandlingRepository
-            .finnVedtaksperiodeiderForSoknad(soknader.map { it.sykepengesoknadUuid })
+            .finnVedtaksperiodeiderForSoknad(soknaderFiltrert.map { it.sykepengesoknadUuid })
             .forEach { vedtaksperiodeMap[it.sykepengesoknadUuid] = it.vedtaksperiodeId }
 
-        return soknader.map {
+        return soknaderFiltrert.map {
             it.copy(
                 vedtaksperiodeId = vedtaksperiodeMap[it.sykepengesoknadUuid],
             )
@@ -104,12 +109,16 @@ private fun Sykepengesoknad.tilHentSoknaderResponse(): HentSoknaderResponse =
         soknadstype = this.soknadstype,
         behandlingsdager =
             if (this.soknadstype == Soknadstype.BEHANDLINGSDAGER) {
-                this.sporsmal
-                    .flatten()
-                    .filter { it.tag.startsWith("ENKELTSTAENDE_BEHANDLINGSDAGER_UKE_") }
-                    .flatMap { it.svar }
-                    .mapNotNull { LocalDate.parse(it.verdi) }
+                hentBehandlingsdager()
             } else {
                 emptyList()
             },
     )
+
+private fun Sykepengesoknad.hentBehandlingsdager(): List<LocalDate> =
+    this.sporsmal
+        .flatten()
+        .filter { it.tag.startsWith("ENKELTSTAENDE_BEHANDLINGSDAGER_UKE_") }
+        .flatMap { it.svar }
+        .filter { it.verdi != INGEN_BEHANDLING }
+        .map { LocalDate.parse(it.verdi) }

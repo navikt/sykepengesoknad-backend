@@ -25,7 +25,7 @@ fun Sykepengesoknad.validerSvarPaSoknad() {
     sporsmal.forEach { it.validerSvarPaSporsmal() }
 }
 
-private const val INGEN_BEHANDLING = "Ikke til behandling"
+const val INGEN_BEHANDLING = "Ikke til behandling"
 
 fun Sporsmal.validerSvarPaSporsmal() {
     if (tag == BEKREFT_OPPLYSNINGER) return
@@ -186,9 +186,14 @@ private fun Sporsmal.validerGrenserPaSvar(svar: Svar) {
             DATO,
             DATOER,
             AAR_MAANED,
-            -> validerGrenserPaDato(svar)
+            -> {
+                validerGrenserPaDato(svar)
+            }
 
-            KVITTERING -> validerGrenserPaKvittering(svar)
+            KVITTERING -> {
+                validerGrenserPaKvittering(svar)
+            }
+
             RADIO_GRUPPE_UKEKALENDER -> {
                 { svar.verdi == INGEN_BEHANDLING || validerGrenserPaDato(svar)() }
             }
@@ -198,17 +203,23 @@ private fun Sporsmal.validerGrenserPaSvar(svar: Svar) {
             TALL,
             BELOP,
             KILOMETER,
-            -> validerGrenserPaaTall(svar)
+            -> {
+                validerGrenserPaaTall(svar)
+            }
 
             FRITEKST,
             COMBOBOX_SINGLE,
             COMBOBOX_MULTI,
             LAND,
-            -> validerGrenserPaaTekst(svar)
+            -> {
+                validerGrenserPaaTekst(svar)
+            }
 
             PERIODE,
             PERIODER,
-            -> validerGrenserPaPeriode(svar)
+            -> {
+                validerGrenserPaPeriode(svar)
+            }
         }
     if (!predikat()) {
         throw ValideringException("Spørsmål $id med tag $tag har svarverdi utenfor grenseverdi ${svar.verdi}, min: $min max: $max")
@@ -336,7 +347,10 @@ private fun Sporsmal.validerSvarverdi(svar: Svar) {
                 { verdi.erDoubleMedMaxEnDesimal() }
             }
 
-            KVITTERING -> validerKvittering(svar.verdi)
+            KVITTERING -> {
+                validerKvittering(svar.verdi)
+            }
+
             PERIODE,
             PERIODER,
             -> {
@@ -357,7 +371,9 @@ private fun Sporsmal.validerSvarverdi(svar: Svar) {
             GRUPPE_AV_UNDERSPORSMAL,
             INFO_BEHANDLINGSDAGER,
             CHECKBOX_GRUPPE,
-            -> throw IllegalStateException("Skal ha validert 0 svar allerede")
+            -> {
+                throw IllegalStateException("Skal ha validert 0 svar allerede")
+            }
 
             BEKREFTELSESPUNKTER,
             OPPSUMMERING,
