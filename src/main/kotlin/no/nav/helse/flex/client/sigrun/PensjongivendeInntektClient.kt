@@ -35,19 +35,23 @@ class PensjongivendeInntektClient(
             HttpHeaders().apply {
                 this["Nav-Consumer-Id"] = "sykepengesoknad-backend"
                 this["Nav-Call-Id"] = UUID.randomUUID().toString()
-                this["rettighetspakke"] = "navSykepenger"
-                this["Nav-Personident"] = fnr
-                this["inntektsaar"] = inntektsAar.toString()
                 this.contentType = MediaType.APPLICATION_JSON
                 this.accept = listOf(MediaType.APPLICATION_JSON)
             }
+
+        val body =
+            SigrunRequest(
+                personident = fnr,
+                inntektsaar = inntektsAar.toString(),
+                rettighetspakke = "navSykepenger",
+            )
 
         try {
             val response =
                 persongivendeInntektRestTemplate.exchange(
                     uriBuilder.toUriString(),
-                    HttpMethod.GET,
-                    HttpEntity<Any>(headers),
+                    HttpMethod.POST,
+                    HttpEntity(body, headers),
                     HentPensjonsgivendeInntektResponse::class.java,
                 )
             return response.body
@@ -79,49 +83,57 @@ class PensjongivendeInntektClient(
 
             val feilmelding =
                 when (e.statusCode) {
-                    HttpStatus.NOT_FOUND ->
+                    HttpStatus.NOT_FOUND -> {
                         when {
                             e.responseBodyAsString.contains("PGIF-007") -> "Ikke treff på oppgitt personidentifikator."
                             e.responseBodyAsString.contains("PGIF-003") -> "Ukjent url benyttet."
                             else -> "Ressurs ikke funnet."
                         }
+                    }
 
-                    HttpStatus.UNAUTHORIZED ->
+                    HttpStatus.UNAUTHORIZED -> {
                         if (e.responseBodyAsString.contains("PGIF-004")) {
                             "Feil i forbindelse med autentisering."
                         } else {
                             "Uautorisert tilgang."
                         }
+                    }
 
-                    HttpStatus.FORBIDDEN ->
+                    HttpStatus.FORBIDDEN -> {
                         if (e.responseBodyAsString.contains("PGIF-005")) {
                             "Feil i forbindelse med autorisering."
                         } else {
                             "Forbudt tilgang."
                         }
+                    }
 
-                    HttpStatus.BAD_REQUEST ->
+                    HttpStatus.BAD_REQUEST -> {
                         if (e.responseBodyAsString.contains("PGIF-006")) {
                             "Feil i forbindelse med validering av inputdata."
                         } else {
                             "Ugyldig forespørsel."
                         }
+                    }
 
-                    HttpStatus.NOT_ACCEPTABLE ->
+                    HttpStatus.NOT_ACCEPTABLE -> {
                         if (e.responseBodyAsString.contains("PGIF-009")) {
                             "Feil tilknyttet dataformat. Kun JSON eller XML er støttet."
                         } else {
                             "Ugyldig dataformat."
                         }
+                    }
 
-                    HttpStatus.INTERNAL_SERVER_ERROR ->
+                    HttpStatus.INTERNAL_SERVER_ERROR -> {
                         when {
                             e.responseBodyAsString.contains("PGIF-001") -> "Uventet feil på tjenesten."
                             e.responseBodyAsString.contains("PGIF-002") -> "Uventet feil i et bakenforliggende system."
                             else -> "Serverfeil."
                         }
+                    }
 
-                    else -> "Klientfeil ved kall mot Sigrun: ${e.statusCode} - ${e.message}"
+                    else -> {
+                        "Klientfeil ved kall mot Sigrun: ${e.statusCode} - ${e.message}"
+                    }
                 }
             throw PensjongivendeInntektClientException(feilmelding, e)
         }
