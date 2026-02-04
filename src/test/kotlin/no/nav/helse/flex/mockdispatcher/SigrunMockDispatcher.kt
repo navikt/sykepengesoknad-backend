@@ -1,15 +1,19 @@
 package no.nav.helse.flex.mockdispatcher
 
+import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.client.sigrun.HentPensjonsgivendeInntektResponse
 import no.nav.helse.flex.client.sigrun.PensjonsgivendeInntekt
+import no.nav.helse.flex.client.sigrun.SigrunRequest
 import no.nav.helse.flex.client.sigrun.Skatteordning
+import no.nav.helse.flex.util.objectMapper
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.RecordedRequest
 
 object SigrunMockDispatcher : FellesQueueDispatcher<HentPensjonsgivendeInntektResponse>(
     defaultFactory = { it: RecordedRequest ->
-        val fnr = it.getHeader("Nav-Personident") ?: "fnr"
-        val inntektsaar = it.getHeader("inntektsaar") ?: "år"
+        val sigrunRequest: SigrunRequest = objectMapper.readValue(it.body.readUtf8())
+        val fnr = sigrunRequest.personident
+        val inntektsaar = sigrunRequest.inntektsaar
         HentPensjonsgivendeInntektResponse(
             norskPersonidentifikator = fnr,
             inntektsaar = inntektsaar,
