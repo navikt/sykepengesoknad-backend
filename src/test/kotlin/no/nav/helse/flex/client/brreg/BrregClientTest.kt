@@ -52,6 +52,16 @@ class BrregClientTest : FellesTestOppsett() {
         brregClient.hentRoller("fnr", listOf(Rolletype.INNH)).size `should be equal to` 1
     }
 
+    @Test
+    fun `Håndterer feil når Brreg returnerer 4xx`() {
+        BrregMockDispatcher.enqueueResponse(
+            response("Feil på klient", 400),
+        )
+
+        val roller = brregClient.hentRoller("fnr", listOf(Rolletype.INNH))
+        roller.size `should be equal to` 0
+    }
+
     private fun response(
         feilmelding: String,
         responsKode: Int,
