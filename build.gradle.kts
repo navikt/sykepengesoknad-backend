@@ -38,7 +38,7 @@ val kluentVersion = "1.73"
 val jsonSchemaValidatorVersion = "2.0.0"
 val unleashVersion = "11.2.1"
 val opentelemetryApiVersion = "1.59.0"
-val opentelemetryInstrumentationVersion = "2.24.0"
+val opentelemetryInstrumentationVersion = "2.25.0"
 
 dependencies {
     implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
