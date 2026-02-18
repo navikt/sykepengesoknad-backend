@@ -53,6 +53,8 @@ class LyttPaEnkeltSykmeldingConsumer(
         MDC.put(NAV_CALLID, getSafeNavCallIdHeaderAsString(cr.headers()))
         val melding = cr.value()?.tilSykmeldingKafkaMessage()
 
+        log.info("Skal ikke gjøre noe med denne meldingen, siden den ikke har riktig sykmelding id: ${cr.key()}")
+
         if (cr.key() != "31e2f0b8-237e-4da0-8617-60cc71ea4d20") {
             acknowledgment.acknowledge()
             return
