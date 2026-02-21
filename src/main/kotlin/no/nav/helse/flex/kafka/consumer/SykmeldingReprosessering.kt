@@ -22,7 +22,7 @@ class SykmeldingReprosessering(
 
     @KafkaListener(
         topics = [SYKMELDINGSENDT_TOPIC, SYKMELDINGBEKREFTET_TOPIC],
-        id = "sykmelding-reprosesser-v1",
+        id = "sykmelding-reprosesser-v2",
         containerFactory = "aivenKafkaListenerContainerFactory",
         properties = ["auto.offset.reset = earliest"],
     )
@@ -31,7 +31,9 @@ class SykmeldingReprosessering(
         acknowledgment: Acknowledgment,
     ) {
         if (cr.key() == "b4818427-7b8b-4619-99ca-a14333b0dfc8") {
-            log.info("Fant sykmelding med id ${cr.key()} på topic ${cr.topic()} og partisjon ${cr.partition()}")
+            log.info("Reprosesserer sykmelding med id ${cr.key()}.")
+            val sykmeldingKafkaMessage = cr.value()?.tilSykmeldingKafkaMessage()
+            behandleSykmeldingOgBestillAktivering.prosesserSykmelding(cr.key(), sykmeldingKafkaMessage, cr.topic())
         }
         acknowledgment.acknowledge()
     }
