@@ -6,6 +6,12 @@ import no.nav.helse.flex.domain.Arbeidssituasjon.*
 import no.nav.helse.flex.domain.exception.SykeforloepManglerSykemeldingException
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.domain.sykmelding.finnSoknadsType
+import no.nav.helse.flex.domain.sykmelding.hentArbeidssituasjon
+import no.nav.helse.flex.domain.sykmelding.hentEgenmeldingsdager
+import no.nav.helse.flex.domain.sykmelding.hentEgenmeldingsdagerSomJsonString
+import no.nav.helse.flex.domain.sykmelding.hentFiskerBlad
+import no.nav.helse.flex.domain.sykmelding.hentHarOppgittForsikring
+import no.nav.helse.flex.domain.sykmelding.hentTidligereArbeidsgiver
 import no.nav.helse.flex.julesoknad.LagreJulesoknadKandidater
 import no.nav.helse.flex.kafka.producer.SoknadProducer
 import no.nav.helse.flex.logger
@@ -19,6 +25,7 @@ import no.nav.helse.flex.soknadsopprettelse.splitt.splittMellomTyper
 import no.nav.helse.flex.soknadsopprettelse.splitt.splittSykmeldingiSoknadsPerioder
 import no.nav.helse.flex.util.EnumUtil
 import no.nav.helse.flex.util.osloZone
+import no.nav.helse.flex.util.serialisertTilString
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO.AKTIVITET_IKKE_MULIG
@@ -120,22 +127,14 @@ class OpprettSoknadService(
                                 sporsmal = emptyList(),
                                 utenlandskSykmelding = sykmeldingKafkaMessage.sykmelding.utenlandskSykmelding != null,
                                 egenmeldingsdagerFraSykmelding =
-                                    sykmeldingKafkaMessage.event.sporsmals
-                                        ?.firstOrNull { spm ->
-                                            spm.shortName == ShortNameKafkaDTO.EGENMELDINGSDAGER
-                                        }?.svar,
+                                    sykmeldingKafkaMessage.event.brukersituasjon?.hentEgenmeldingsdagerSomJsonString(),
                                 forstegangssoknad = null,
-                                tidligereArbeidsgiverOrgnummer = sykmeldingKafkaMessage.event.tidligereArbeidsgiver?.orgnummer,
+                                tidligereArbeidsgiverOrgnummer =
+                                    sykmeldingKafkaMessage.event.brukersituasjon
+                                        ?.hentTidligereArbeidsgiver()
+                                        ?.orgnummer,
                                 aktivertDato = null,
-                                fiskerBlad =
-                                    EnumUtil.konverter(
-                                        FiskerBlad::class.java,
-                                        sykmeldingKafkaMessage.event.brukerSvar
-                                            ?.fisker
-                                            ?.blad
-                                            ?.svar
-                                            ?.name,
-                                    ),
+                                fiskerBlad = sykmeldingKafkaMessage.event.brukersituasjon?.hentFiskerBlad(),
                                 selvstendigNaringsdrivende = selvstendigNaringsdrivendeInfo,
                             )
                         }.filter { it.soknadPerioder?.isNotEmpty() ?: true }
@@ -174,7 +173,7 @@ class OpprettSoknadService(
             selvstendigNaringsdrivendeInfoService.lagSelvstendigNaringsdrivendeInfo(
                 identer = identer,
                 sykmeldingId = sykmeldingKafkaMessage.sykmelding.id,
-                brukerHarOppgittForsikring = sykmeldingKafkaMessage.brukerHarOppgittForsikring(),
+                brukerHarOppgittForsikring = sykmeldingKafkaMessage.event.brukersituasjon?.hentHarOppgittForsikring() ?: false,
                 arbeidssituasjon = arbeidssituasjon,
             )
         } else {

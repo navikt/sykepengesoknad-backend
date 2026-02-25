@@ -7,6 +7,7 @@ import no.nav.helse.flex.domain.Sykeforloep
 import no.nav.helse.flex.domain.exception.ManglerArbeidsgiverException
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.domain.sykmelding.finnSoknadsType
+import no.nav.helse.flex.domain.sykmelding.hentArbeidsgiver
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.soknadsopprettelse.OpprettSoknadService
@@ -30,7 +31,7 @@ class KlippOgOpprett(
         var kafkaMessage = sykmeldingKafkaMessage
         val sykmeldingId = sykmeldingKafkaMessage.event.sykmeldingId
 
-        val arbeidsgiverStatusDTO = sykmeldingKafkaMessage.event.arbeidsgiver
+        val arbeidsgiverStatusDTO = sykmeldingKafkaMessage.event.brukersituasjon?.hentArbeidsgiver()
         if (arbeidssituasjon == Arbeidssituasjon.ARBEIDSTAKER && arbeidsgiverStatusDTO == null) {
             throw ManglerArbeidsgiverException("Arbeidsgiverstatus er null for sykmelding $sykmeldingId med arbeidssituasjon arbeidstaker")
         }
