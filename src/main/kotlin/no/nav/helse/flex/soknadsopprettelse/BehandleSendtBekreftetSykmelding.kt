@@ -5,7 +5,16 @@ import no.nav.helse.flex.client.flexsyketilfelle.FlexSyketilfelleClient
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.exception.SkalRebehandlesException
 import no.nav.helse.flex.domain.exception.UventetArbeidssituasjonException
+import no.nav.helse.flex.domain.sykmelding.ArbeidsledigArbeidssituasjonDto
+import no.nav.helse.flex.domain.sykmelding.ArbeidssituasjonDto
+import no.nav.helse.flex.domain.sykmelding.ArbeidstakerArbeidssituasjonDto
+import no.nav.helse.flex.domain.sykmelding.FiskerLottOgHyreArbeidssituasjonDto
+import no.nav.helse.flex.domain.sykmelding.FrilanserArbeidssituasjonDto
+import no.nav.helse.flex.domain.sykmelding.NaringsdrivendeArbeidssituasjonDto
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
+import no.nav.helse.flex.domain.sykmelding.UkjentYrkesgruppeArbeidssituasjonDto
+import no.nav.helse.flex.domain.sykmelding.Yrkesgruppe
+import no.nav.helse.flex.domain.sykmelding.hentArbeidssituasjon
 import no.nav.helse.flex.kafka.producer.RebehandlingSykmeldingSendtProducer
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.LockRepository
@@ -60,8 +69,14 @@ class BehandleSendtBekreftetSykmelding(
 
     fun prosseserKafkaMessage(sykmeldingKafkaMessage: SykmeldingKafkaMessage): List<AktiveringBestilling> =
         when (sykmeldingKafkaMessage.event.statusEvent) {
-            STATUS_BEKREFTET -> handterBekreftetSykmelding(sykmeldingKafkaMessage)
-            STATUS_SENDT -> handterSendtSykmelding(sykmeldingKafkaMessage)
+            STATUS_BEKREFTET -> {
+                handterBekreftetSykmelding(sykmeldingKafkaMessage)
+            }
+
+            STATUS_SENDT -> {
+                handterSendtSykmelding(sykmeldingKafkaMessage)
+            }
+
             else -> {
                 log.info(
                     "Ignorerer statusmelding for sykmelding ${sykmeldingKafkaMessage.sykmelding.id} med " +
@@ -72,7 +87,7 @@ class BehandleSendtBekreftetSykmelding(
         }
 
     private fun handterBekreftetSykmelding(sykmeldingStatusKafkaMessageDTO: SykmeldingKafkaMessage): List<AktiveringBestilling> =
-        when (val arbeidssituasjon = sykmeldingStatusKafkaMessageDTO.hentArbeidssituasjon()) {
+        when (val arbeidssituasjon = sykmeldingStatusKafkaMessageDTO.event.brukersituasjon?.hentArbeidssituasjon()) {
             Arbeidssituasjon.NAERINGSDRIVENDE,
             Arbeidssituasjon.FRILANSER,
             Arbeidssituasjon.ARBEIDSLEDIG,
@@ -90,17 +105,22 @@ class BehandleSendtBekreftetSykmelding(
                 emptyList()
             }
 
-            null -> emptyList()
+            null -> {
+                emptyList()
+            }
         }
 
     private fun handterSendtSykmelding(sykmeldingStatusKafkaMessageDTO: SykmeldingKafkaMessage): List<AktiveringBestilling> =
-        when (val arbeidssituasjon = sykmeldingStatusKafkaMessageDTO.hentArbeidssituasjon()) {
-            Arbeidssituasjon.ARBEIDSTAKER ->
+        when (val arbeidssituasjon = sykmeldingStatusKafkaMessageDTO.event.brukersituasjon?.hentArbeidssituasjon()) {
+            Arbeidssituasjon.ARBEIDSTAKER -> {
                 eksterneKallKlippOgOpprett(sykmeldingStatusKafkaMessageDTO, arbeidssituasjon)
+            }
 
-            else -> throw UventetArbeidssituasjonException(
-                "Uventet arbeidssituasjon $arbeidssituasjon for sendt sykmelding ${sykmeldingStatusKafkaMessageDTO.sykmelding.id}",
-            )
+            else -> {
+                throw UventetArbeidssituasjonException(
+                    "Uventet arbeidssituasjon $arbeidssituasjon for sendt sykmelding ${sykmeldingStatusKafkaMessageDTO.sykmelding.id}",
+                )
+            }
         }
 
     private fun eksterneKallKlippOgOpprett(
@@ -130,30 +150,4 @@ class BehandleSendtBekreftetSykmelding(
 
         return klippOgOpprett.klippOgOpprett(sykmeldingKafkaMessage, arbeidssituasjon, identer, sykeForloep)
     }
-}
-
-fun SykmeldingKafkaMessage.hentArbeidssituasjon(): Arbeidssituasjon? {
-    this.event.sporsmals?.firstOrNull { sporsmal -> sporsmal.shortName == ShortNameKafkaDTO.ARBEIDSSITUASJON }?.svar?.let { it ->
-        val arbeidssituasjon =
-            Arbeidssituasjon.valueOf(
-                it,
-            )
-        return when (arbeidssituasjon) {
-            Arbeidssituasjon.NAERINGSDRIVENDE ->
-                this.event.brukerSvar?.arbeidssituasjon?.let {
-                    Arbeidssituasjon.valueOf(it.svar.name)
-                }
-
-            else -> arbeidssituasjon
-        }
-    }
-    return null
-}
-
-fun SykmeldingKafkaMessage.brukerHarOppgittForsikring(): Boolean {
-    this.event.sporsmals
-        ?.firstOrNull { sporsmal -> sporsmal.shortName == ShortNameKafkaDTO.FORSIKRING }
-        ?.svar
-        ?.let { return it == "JA" }
-    return false
 }

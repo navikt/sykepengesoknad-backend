@@ -5,7 +5,13 @@ import no.nav.helse.flex.client.flexsyketilfelle.FlexSyketilfelleClient
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Arbeidssituasjon.FRILANSER
 import no.nav.helse.flex.domain.Arbeidssituasjon.NAERINGSDRIVENDE
+import no.nav.helse.flex.domain.sykmelding.BrukersituasjonDto
+import no.nav.helse.flex.domain.sykmelding.FrilanserArbeidssituasjonDto
+import no.nav.helse.flex.domain.sykmelding.FrilanserDto
+import no.nav.helse.flex.domain.sykmelding.NaringsdrivendeArbeidssituasjonDto
+import no.nav.helse.flex.domain.sykmelding.NaringsdrivendeDto
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
+import no.nav.helse.flex.domain.sykmelding.hentHarOppgittForsikring
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO.AVVENTENDE
@@ -53,7 +59,7 @@ class SkalOppretteSoknader(
             return true
         }
 
-        val brukerHarOppgittForsikring = sykmeldingKafkaMessage.brukerHarOppgittForsikring()
+        val brukerHarOppgittForsikring = sykmeldingKafkaMessage.event.brukersituasjon?.hentHarOppgittForsikring() ?: false
         val erUtenforVentetid =
             flexSyketilfelleClient.erUtenforVentetid(
                 identer = identer,
