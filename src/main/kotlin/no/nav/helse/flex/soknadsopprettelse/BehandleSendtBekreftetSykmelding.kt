@@ -6,6 +6,9 @@ import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.exception.SkalRebehandlesException
 import no.nav.helse.flex.domain.exception.UventetArbeidssituasjonException
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
+import no.nav.helse.flex.domain.sykmeldingbekreftelse.SykmeldingBekreftelseHendelseType
+import no.nav.helse.flex.domain.sykmeldingbekreftelse.SykmeldingBekreftelseKafkaHendelse
+import no.nav.helse.flex.domain.sykmeldingbekreftelse.SykmeldtBekreftelseStatus
 import no.nav.helse.flex.kafka.producer.RebehandlingSykmeldingSendtProducer
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.LockRepository
@@ -15,6 +18,7 @@ import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.KlippOgOppr
 import no.nav.syfo.sykmelding.kafka.model.STATUS_BEKREFTET
 import no.nav.syfo.sykmelding.kafka.model.STATUS_SENDT
 import no.nav.syfo.sykmelding.kafka.model.ShortNameKafkaDTO
+import org.apache.kafka.common.protocol.types.Field
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.transaction.interceptor.TransactionInterceptor
@@ -34,74 +38,76 @@ class BehandleSendtBekreftetSykmelding(
 
     fun prosesserSykmelding(
         sykmeldingId: String,
-        sykmeldingKafkaMessage: SykmeldingKafkaMessage?,
+        sykmeldingBekreftelse: SykmeldingBekreftelseKafkaHendelse?,
         topic: String,
     ): List<AktiveringBestilling> {
-        if (sykmeldingKafkaMessage == null) {
-            log.info("Mottok tombstone event for sykmelding $sykmeldingId")
-            sykmeldingStatusService.prosesserTombstoneSykmelding(sykmeldingId, topic)
-            return emptyList()
+        when (sykmeldingBekreftelse?.hendelseType) {
+            null -> {
+                log.info("Mottok tombstone event for sykmelding $sykmeldingId")
+                sykmeldingStatusService.prosesserTombstoneSykmelding(sykmeldingId)
+                return emptyList()
+            }
+
+            SykmeldingBekreftelseHendelseType.NY -> {
+                return emptyList()
+            }
+
+            SykmeldingBekreftelseHendelseType.SYKMELDING_OPPDATERT,
+            SykmeldingBekreftelseHendelseType.VALIDERING_OPPDATERT,
+            SykmeldingBekreftelseHendelseType.BRUKERSTATUS_OPPDATERT,
+            -> {
+                if (skalTidligereSoknaderSlettes(sykmeldingId)) {
+                    sykmeldingStatusService.prosesserTombstoneSykmelding(sykmeldingId)
+                }
+
+                return if (sykmeldingBekreftelse.sykmeldtBekreftelse.status == SykmeldtBekreftelseStatus.BEKREFTET) {
+                    provKlippOgOpprett(sykmeldingBekreftelse)
+                } else {
+                    emptyList()
+                }
+            }
         }
+    }
+
+    private fun skalTidligereSoknaderSlettes(sykmeldingId: String): Boolean =
+        TODO(
+            "Dersom forrige status har " +
+                "sykmeldtBekreftelse.status == BEKREFTET" +
+                "&& sykmeldtBekreftelse.arbeidssituasjon != ARBEIDSTAKER",
+        )
+
+    private fun konverterSykmeldingBekreftelseTilSykmeldingKafkaMessage(
+        sykmeldingBekreftelse: SykmeldingBekreftelseKafkaHendelse,
+    ): SykmeldingKafkaMessage {
+        TODO("Not implemented")
+    }
+
+    private fun provKlippOgOpprett(sykmeldingBekreftelse: SykmeldingBekreftelseKafkaHendelse): List<AktiveringBestilling> {
+        val sykmeldtSituasjon =
+            requireNotNull(sykmeldingBekreftelse.sykmeldtBekreftelse.situasjon) {
+                "sykmeldt situasjon er påkrevd dersom status BEKREFTET, sykmeldingId: ${sykmeldingBekreftelse.sykmelding.sykmeldingId}"
+            }
+        val arbeidssituasjon = sykmeldtSituasjon.arbeidssituasjon
+        val sykmeldingKafkaMessage = konverterSykmeldingBekreftelseTilSykmeldingKafkaMessage(sykmeldingBekreftelse)
+
         try {
-            return prosseserKafkaMessage(sykmeldingKafkaMessage)
+            return eksterneKallKlippOgOpprett(sykmeldingKafkaMessage, arbeidssituasjon)
         } catch (e: SkalRebehandlesException) {
             log.error(
                 "Feil under opprettelse av søknad for sykmelding ${sykmeldingKafkaMessage.event.sykmeldingId}, " +
                     "legger til rebehandling ${e.rebehandlingsTid}",
                 e,
             )
-            rebehandlingSykmeldingSendtProducer.leggPaRebehandlingTopic(sykmeldingKafkaMessage, e.rebehandlingsTid)
+            rebehandlingSykmeldingSendtProducer.leggPaRebehandlingTopic(
+                sykmeldingKafkaMessage,
+                e.rebehandlingsTid,
+            )
             TransactionInterceptor
                 .currentTransactionStatus()
                 .setRollbackOnly() // Kjører rollback, uten å kaste en ny exception
             return emptyList()
         }
     }
-
-    fun prosseserKafkaMessage(sykmeldingKafkaMessage: SykmeldingKafkaMessage): List<AktiveringBestilling> =
-        when (sykmeldingKafkaMessage.event.statusEvent) {
-            STATUS_BEKREFTET -> handterBekreftetSykmelding(sykmeldingKafkaMessage)
-            STATUS_SENDT -> handterSendtSykmelding(sykmeldingKafkaMessage)
-            else -> {
-                log.info(
-                    "Ignorerer statusmelding for sykmelding ${sykmeldingKafkaMessage.sykmelding.id} med " +
-                        "status ${sykmeldingKafkaMessage.event.statusEvent}",
-                )
-                emptyList()
-            }
-        }
-
-    private fun handterBekreftetSykmelding(sykmeldingStatusKafkaMessageDTO: SykmeldingKafkaMessage): List<AktiveringBestilling> =
-        when (val arbeidssituasjon = sykmeldingStatusKafkaMessageDTO.hentArbeidssituasjon()) {
-            Arbeidssituasjon.NAERINGSDRIVENDE,
-            Arbeidssituasjon.FRILANSER,
-            Arbeidssituasjon.ARBEIDSLEDIG,
-            Arbeidssituasjon.FISKER,
-            Arbeidssituasjon.JORDBRUKER,
-            Arbeidssituasjon.BARNEPASSER,
-            Arbeidssituasjon.ANNET,
-            -> {
-                eksterneKallKlippOgOpprett(sykmeldingStatusKafkaMessageDTO, arbeidssituasjon)
-            }
-
-            Arbeidssituasjon.ARBEIDSTAKER -> {
-                // Bekreftet sykmelding for arbeidstaker tilsvarer strengt fortrolig addresse.
-                // At denne bekreftes og ikke sendes styres av sykefravaer frontend
-                emptyList()
-            }
-
-            null -> emptyList()
-        }
-
-    private fun handterSendtSykmelding(sykmeldingStatusKafkaMessageDTO: SykmeldingKafkaMessage): List<AktiveringBestilling> =
-        when (val arbeidssituasjon = sykmeldingStatusKafkaMessageDTO.hentArbeidssituasjon()) {
-            Arbeidssituasjon.ARBEIDSTAKER ->
-                eksterneKallKlippOgOpprett(sykmeldingStatusKafkaMessageDTO, arbeidssituasjon)
-
-            else -> throw UventetArbeidssituasjonException(
-                "Uventet arbeidssituasjon $arbeidssituasjon for sendt sykmelding ${sykmeldingStatusKafkaMessageDTO.sykmelding.id}",
-            )
-        }
 
     private fun eksterneKallKlippOgOpprett(
         sykmeldingKafkaMessage: SykmeldingKafkaMessage,
@@ -139,12 +145,15 @@ fun SykmeldingKafkaMessage.hentArbeidssituasjon(): Arbeidssituasjon? {
                 it,
             )
         return when (arbeidssituasjon) {
-            Arbeidssituasjon.NAERINGSDRIVENDE ->
+            Arbeidssituasjon.NAERINGSDRIVENDE -> {
                 this.event.brukerSvar?.arbeidssituasjon?.let {
                     Arbeidssituasjon.valueOf(it.svar.name)
                 }
+            }
 
-            else -> arbeidssituasjon
+            else -> {
+                arbeidssituasjon
+            }
         }
     }
     return null

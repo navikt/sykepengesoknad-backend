@@ -2,6 +2,7 @@ package no.nav.helse.flex.soknadsopprettelse
 
 import no.nav.helse.flex.aktivering.AktiveringProducer
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
+import no.nav.helse.flex.domain.sykmeldingbekreftelse.SykmeldingBekreftelseKafkaHendelse
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.sykmeldingmerknader.OppdateringAvMerknader
 import org.springframework.stereotype.Service
@@ -19,7 +20,7 @@ class BehandleSykmeldingOgBestillAktivering(
         sykmeldingKafkaMessage: SykmeldingKafkaMessage?,
         topic: String,
     ) {
-        val skalAktiveres =
+        val aktiveringBestillinger =
             behandleSendtBekreftetSykmelding.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage, topic)
 
         sykmeldingKafkaMessage?.let {
@@ -29,4 +30,9 @@ class BehandleSykmeldingOgBestillAktivering(
         return skalAktiveres
             .forEach { aktiveringProducer.leggPaAktiveringTopic(it) }
     }
+
+    fun prosesserSykmeldingRebehandling(
+        sykmeldingId: String,
+        sykmeldingKafkaMessage: SykmeldingKafkaMessage?,
+    )
 }

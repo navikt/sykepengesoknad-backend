@@ -22,10 +22,7 @@ class GjenapneSykmeldingService(
 ) {
     val log = logger()
 
-    fun prosesserTombstoneSykmelding(
-        sykmeldingId: String,
-        topic: String,
-    ) {
+    fun prosesserTombstoneSykmelding(sykmeldingId: String) {
         val soknaderTilSykmeldingSomKanSlettes =
             sykepengesoknadDAO
                 .finnSykepengesoknaderForSykmelding(sykmeldingId)
@@ -34,11 +31,6 @@ class GjenapneSykmeldingService(
 
         if (soknaderTilSykmeldingSomKanSlettes.isEmpty()) {
             log.info("Mottok status åpen for sykmelding $sykmeldingId på kafka. Ingen tilhørende søknader.")
-            return
-        }
-
-        if (topic == SYKMELDINGSENDT_TOPIC) {
-            log.error("Prosesserte åpen melding for $sykmeldingId fra sendt topicet. Den kan ikke endres så dette skal ikke skje.")
             return
         }
 
