@@ -354,14 +354,17 @@ class SykepengesoknadDAOPostgres(
         slettSoknad(sykepengesoknad.id)
 
         when (sykepengesoknad.soknadstype) {
-            Soknadstype.FRISKMELDT_TIL_ARBEIDSFORMIDLING ->
+            Soknadstype.FRISKMELDT_TIL_ARBEIDSFORMIDLING -> {
                 log.info(
                     "Slettet ${sykepengesoknad.status.name} søknad av typen: ${sykepengesoknad.soknadstype} med id: ${sykepengesoknad.id} tilhørende friskTilArbeidVedtakId: ${sykepengesoknad.friskTilArbeidVedtakId}.",
                 )
-            else ->
+            }
+
+            else -> {
                 log.info(
                     "Slettet ${sykepengesoknad.status.name} søknad av typen: ${sykepengesoknad.soknadstype} med id: ${sykepengesoknad.id} tilhørende sykmelding: ${sykepengesoknad.sykmeldingId}.",
                 )
+            }
         }
     }
 
@@ -390,7 +393,7 @@ class SykepengesoknadDAOPostgres(
     }
 
     @WithSpan
-    override fun finnAlleredeOpprettetSoknad(identer: FolkeregisterIdenter): Sykepengesoknad? =
+    override fun finnAlleredeOpprettetOppholdUtlandSoknad(identer: FolkeregisterIdenter): Sykepengesoknad? =
         finnSykepengesoknader(identer)
             .firstOrNull { s -> Soknadstatus.NY == s.status && Soknadstype.OPPHOLD_UTLAND == s.soknadstype }
 
@@ -829,7 +832,7 @@ interface SykepengesoknadDAO {
 
     fun slettSoknad(sykepengesoknadUuid: String)
 
-    fun finnAlleredeOpprettetSoknad(identer: FolkeregisterIdenter): Sykepengesoknad?
+    fun finnAlleredeOpprettetOppholdUtlandSoknad(identer: FolkeregisterIdenter): Sykepengesoknad?
 
     fun byttUtSporsmal(oppdatertSoknad: Sykepengesoknad)
 

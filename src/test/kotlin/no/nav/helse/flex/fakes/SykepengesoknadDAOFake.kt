@@ -175,7 +175,7 @@ class SykepengesoknadDAOFake : SykepengesoknadDAO {
         sykepengesoknadRepository.deleteById(sykepengesoknadId)
     }
 
-    override fun finnAlleredeOpprettetSoknad(identer: FolkeregisterIdenter): Sykepengesoknad? {
+    override fun finnAlleredeOpprettetOppholdUtlandSoknad(identer: FolkeregisterIdenter): Sykepengesoknad? {
         TODO("Not yet implemented")
     }
 

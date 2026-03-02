@@ -2,10 +2,6 @@ package no.nav.helse.flex.service
 
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstatus
-import no.nav.helse.flex.domain.Soknadstatus.AVBRUTT
-import no.nav.helse.flex.domain.Soknadstatus.FREMTIDIG
-import no.nav.helse.flex.domain.Soknadstatus.NY
-import no.nav.helse.flex.domain.Soknadstatus.UTKAST_TIL_KORRIGERING
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
 import no.nav.helse.flex.kafka.producer.SoknadProducer
@@ -29,8 +25,15 @@ class GjenapneSykmeldingService(
         val soknaderTilSykmeldingSomKanSlettes =
             sykepengesoknadDAO
                 .finnSykepengesoknaderForSykmelding(sykmeldingId)
-                .filter { listOf(NY, FREMTIDIG, AVBRUTT, UTKAST_TIL_KORRIGERING).contains(it.status) }
-                .filter { it.arbeidssituasjon != Arbeidssituasjon.ARBEIDSTAKER }
+                .filter {
+                    listOf(
+                        Soknadstatus.NY,
+                        Soknadstatus.FREMTIDIG,
+                        Soknadstatus.AVBRUTT,
+                        Soknadstatus.UTKAST_TIL_KORRIGERING,
+                        Soknadstatus.SKJULT,
+                    ).contains(it.status)
+                }.filter { it.arbeidssituasjon != Arbeidssituasjon.ARBEIDSTAKER }
 
         if (soknaderTilSykmeldingSomKanSlettes.isEmpty()) {
             log.info("Mottok status åpen for sykmelding $sykmeldingId på kafka. Ingen tilhørende søknader.")

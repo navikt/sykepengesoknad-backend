@@ -115,6 +115,7 @@ class OpprettSoknadService(
                                 egenmeldtSykmelding = sykmelding.egenmeldt,
                                 merknaderFraSykmelding = sykmelding.merknader.tilMerknader(),
                                 soknadstype = finnSoknadsType(arbeidssituasjon, perioderFraSykmeldingen),
+                                // TODO ventetid SKJULT?
                                 status = Soknadstatus.FREMTIDIG,
                                 opprettet = Instant.now(),
                                 sporsmal = emptyList(),
@@ -201,7 +202,7 @@ class OpprettSoknadService(
     }
 
     fun opprettSoknadUtland(identer: FolkeregisterIdenter): Sykepengesoknad =
-        sykepengesoknadDAO.finnAlleredeOpprettetSoknad(identer)
+        sykepengesoknadDAO.finnAlleredeOpprettetOppholdUtlandSoknad(identer)
             ?: opprettNySoknadUtland(identer.originalIdent)
 
     private fun opprettNySoknadUtland(fnr: String): Sykepengesoknad {
