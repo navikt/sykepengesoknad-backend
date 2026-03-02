@@ -2,6 +2,7 @@ package no.nav.helse.flex.soknadsopprettelse
 
 import no.nav.helse.flex.client.flexsyketilfelle.ErUtenforVentetidRequest
 import no.nav.helse.flex.client.flexsyketilfelle.FlexSyketilfelleClient
+import no.nav.helse.flex.client.sykmeldinger.FlexSykmeldingerClient
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Arbeidssituasjon.FRILANSER
 import no.nav.helse.flex.domain.Arbeidssituasjon.NAERINGSDRIVENDE
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service
 @Service
 class SkalOppretteSoknader(
     private val flexSyketilfelleClient: FlexSyketilfelleClient,
+    private val flexSykmeldingerClient: FlexSykmeldingerClient,
 ) {
     private val log = logger()
 
