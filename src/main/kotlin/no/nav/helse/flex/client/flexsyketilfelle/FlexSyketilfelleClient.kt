@@ -156,6 +156,10 @@ class FlexSyketilfelleClient(
         }
     }
 
+    fun hentSykmeldingerIsykeforloep(sykmeldingId: String): List<SykmeldingKafkaMessage> {
+        TODO("Denne funksjonen er ikke implementert")
+    }
+
     private data class SoknadOgSykmelding(
         val soknad: SykepengesoknadDTO,
         val sykmelding: SykmeldingKafkaMessage?,
