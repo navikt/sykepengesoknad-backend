@@ -63,6 +63,7 @@ object FlexSyketilfelleMockDispatcher : Dispatcher() {
                     )
                 }
             }
+            "GET /api/v1/sykmeldinger/isykeforloep HTTP/1.1" -> MockResponse().setResponseCode(200).setBody("[]")
             else -> {
                 InnsendingApiMockDispatcher.log.error("Ukjent api: " + request.requestLine)
                 MockResponse().setResponseCode(404)
