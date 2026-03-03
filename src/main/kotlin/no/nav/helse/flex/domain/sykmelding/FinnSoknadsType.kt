@@ -5,7 +5,7 @@ import no.nav.helse.flex.domain.Soknadstype
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 
-fun finnSoknadsType(
+fun bestemSoknadsType(
     arbeidssituasjon: Arbeidssituasjon,
     perioderFraSykmeldingen: List<SykmeldingsperiodeAGDTO>,
 ): Soknadstype {
@@ -23,13 +23,16 @@ fun finnSoknadsType(
 
     return when (arbeidssituasjon) {
         Arbeidssituasjon.ARBEIDSTAKER -> Soknadstype.ARBEIDSTAKERE
+
         Arbeidssituasjon.NAERINGSDRIVENDE,
         Arbeidssituasjon.FRILANSER,
         Arbeidssituasjon.FISKER,
         Arbeidssituasjon.JORDBRUKER,
         Arbeidssituasjon.BARNEPASSER,
         -> Soknadstype.SELVSTENDIGE_OG_FRILANSERE
+
         Arbeidssituasjon.ARBEIDSLEDIG -> Soknadstype.ARBEIDSLEDIG
+
         Arbeidssituasjon.ANNET -> Soknadstype.ANNET_ARBEIDSFORHOLD
     }
 }
