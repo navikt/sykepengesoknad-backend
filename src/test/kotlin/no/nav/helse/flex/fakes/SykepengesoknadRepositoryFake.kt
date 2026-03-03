@@ -47,7 +47,7 @@ class SykepengesoknadRepositoryFake :
 
     override fun findBySykmeldingUuidIn(sykmeldingUuid: Set<String>): List<SykepengesoknadDbRecord> =
         findAll().filter {
-            it.sykepengesoknadUuid in sykmeldingUuid
+            it.sykmeldingUuid in sykmeldingUuid
         }
 
     override fun settErAktivertJulesoknadKandidat(id: String): Boolean {
