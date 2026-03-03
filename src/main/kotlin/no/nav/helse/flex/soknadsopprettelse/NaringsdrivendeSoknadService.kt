@@ -1,7 +1,7 @@
 package no.nav.helse.flex.soknadsopprettelse
 
 import no.nav.helse.flex.client.flexsyketilfelle.FlexSyketilfelleClient
-import no.nav.helse.flex.client.sykmeldinger.FlexSykmeldingerClient
+import no.nav.helse.flex.client.sykmeldinger.FlexSykmeldingerBackendClient
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.repository.SykepengesoknadRepository
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component
 @Component
 class NaringsdrivendeSoknadService(
     private val flexSyketilfelleClient: FlexSyketilfelleClient,
-    private val flexSykmeldingerClient: FlexSykmeldingerClient,
+    private val flexSykmeldingerBackendClient: FlexSykmeldingerBackendClient,
     private val sykepengesoknadRepository: SykepengesoknadRepository,
 ) {
     fun finnSykmeldingerSomManglerSoknad(
@@ -27,10 +27,8 @@ class NaringsdrivendeSoknadService(
         return if (sykmeldingerSomManglerSoknad.isEmpty()) {
             emptyList()
         } else {
-            flexSykmeldingerClient.hentSykmeldinger(
-                sykmeldingerSomManglerSoknad,
-                arbeidssituasjon,
-            )
+            flexSykmeldingerBackendClient.hentSykmeldinger(sykmeldingIder = sykmeldingerSomManglerSoknad)
+            // TODO arbeidssituasjon filter
         }
     }
 }

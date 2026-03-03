@@ -42,7 +42,7 @@ import kotlin.math.abs
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @EnableMockOAuth2Server
-@SpringBootTest(classes = [Application::class, ClientFakes::class], properties = ["spring.main.allow-bean-definition-overriding=true"])
+@SpringBootTest(classes = [Application::class])
 @AutoConfigureMockMvc(print = MockMvcPrint.NONE, printOnlyOnFailure = false)
 @AutoConfigureObservability
 abstract class FellesTestOppsett : TestOppsettInterfaces {
