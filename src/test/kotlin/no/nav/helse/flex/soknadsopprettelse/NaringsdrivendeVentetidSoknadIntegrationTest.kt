@@ -7,8 +7,10 @@ import no.nav.helse.flex.hentSoknader
 import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
 import no.nav.helse.flex.mockFlexSyketilfelleErUtenforVentetid
 import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
+import no.nav.helse.flex.mockFlexSyketilfelleSykmeldingerIsykeforloep
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
+import no.nav.helse.flex.ventPåRecords
 import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -41,7 +43,6 @@ class NaringsdrivendeVentetidSoknadIntegrationTest : FellesTestOppsett() {
         val kafkaMessage1 = lagSykmeldingKafkaMessage(fnr)
 
         flexSykmeldingerClientFake.leggTilSykmelding(kafkaMessage)
-        flexSykmeldingerClientFake.leggTilSykmelding(kafkaMessage1)
 
         mockFlexSyketilfelleErUtenforVentetid(
             sykmeldingId = kafkaMessage.sykmelding.id,
@@ -53,8 +54,12 @@ class NaringsdrivendeVentetidSoknadIntegrationTest : FellesTestOppsett() {
         )
 
         mockFlexSyketilfelleSykeforloep(
-            sykmeldingId = kafkaMessage1.sykmelding.id,
+            sykmeldingIder = setOf(kafkaMessage.sykmelding.id, kafkaMessage1.sykmelding.id),
             oppfolgingsdato = dato,
+        )
+
+        mockFlexSyketilfelleSykmeldingerIsykeforloep(
+            sykmeldingIder = setOf(kafkaMessage.sykmelding.id),
         )
 
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
@@ -71,6 +76,7 @@ class NaringsdrivendeVentetidSoknadIntegrationTest : FellesTestOppsett() {
             topic = SYKMELDINGSENDT_TOPIC,
         )
 
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
         hentSoknader(fnr).size `should be equal to` 2
     }
 

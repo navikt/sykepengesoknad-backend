@@ -8,6 +8,7 @@ import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
 import no.nav.helse.flex.mockFlexSyketilfelleErUtenforVentetid
 import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
+import no.nav.helse.flex.mockFlexSyketilfelleSykmeldingerIsykeforloepDefault
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
@@ -72,6 +73,7 @@ class GradertReisetilskuddFrilanserTest : FellesTestOppsett() {
 
         mockFlexSyketilfelleErUtenforVentetid(sykmeldingId, true)
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
+        mockFlexSyketilfelleSykmeldingerIsykeforloepDefault()
 
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
             sykmeldingId,
