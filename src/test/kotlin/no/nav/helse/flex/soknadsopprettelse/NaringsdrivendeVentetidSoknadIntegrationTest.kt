@@ -37,56 +37,50 @@ class NaringsdrivendeVentetidSoknadIntegrationTest : FellesTestOppsett() {
 
     @Test
     fun `Oppretter ventetidssøknad for selvstendig næringsdrivende`() {
-        val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
-        val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
-        val sykmelding =
-            skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId).copy(harRedusertArbeidsgiverperiode = true)
+        val kafkaMessage = lagSykmeldingKafkaMessage(fnr)
+        val kafkaMessage1 = lagSykmeldingKafkaMessage(fnr)
 
-        val sykmeldingStatusKafkaMessageDTO1 = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
-        val sykmeldingId1 = sykmeldingStatusKafkaMessageDTO1.event.sykmeldingId
-        val sykmelding1 =
-            skapArbeidsgiverSykmelding(sykmeldingId = sykmeldingId1).copy(harRedusertArbeidsgiverperiode = true)
-
-        val sykmeldingKafkaMessage =
-            SykmeldingKafkaMessage(
-                sykmelding = sykmelding,
-                event = sykmeldingStatusKafkaMessageDTO.event,
-                kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
-            )
-        flexSykmeldingerClientFake.leggTilSykmelding(sykmeldingKafkaMessage)
-
-        val sykmeldingKafkaMessage1 =
-            SykmeldingKafkaMessage(
-                sykmelding = sykmelding1,
-                event = sykmeldingStatusKafkaMessageDTO1.event,
-                kafkaMetadata = sykmeldingStatusKafkaMessageDTO1.kafkaMetadata,
-            )
+        flexSykmeldingerClientFake.leggTilSykmelding(kafkaMessage)
+        flexSykmeldingerClientFake.leggTilSykmelding(kafkaMessage1)
 
         mockFlexSyketilfelleErUtenforVentetid(
-            sykmeldingId = sykmelding.id,
+            sykmeldingId = kafkaMessage.sykmelding.id,
             erUtenforVentetid = false,
         )
         mockFlexSyketilfelleErUtenforVentetid(
-            sykmeldingId = sykmelding1.id,
+            sykmeldingId = kafkaMessage1.sykmelding.id,
             erUtenforVentetid = true,
         )
 
-        mockFlexSyketilfelleSykeforloep(sykmeldingId = sykmeldingId1, oppfolgingsdato = dato)
+        mockFlexSyketilfelleSykeforloep(
+            sykmeldingId = kafkaMessage1.sykmelding.id,
+            oppfolgingsdato = dato,
+        )
 
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
-            sykmeldingId = sykmeldingId,
-            sykmeldingKafkaMessage = sykmeldingKafkaMessage,
+            sykmeldingId = kafkaMessage.sykmelding.id,
+            sykmeldingKafkaMessage = kafkaMessage,
             topic = SYKMELDINGSENDT_TOPIC,
         )
 
         hentSoknader(fnr).size `should be equal to` 0
 
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
-            sykmeldingId = sykmeldingId1,
-            sykmeldingKafkaMessage = sykmeldingKafkaMessage1,
+            sykmeldingId = kafkaMessage1.sykmelding.id,
+            sykmeldingKafkaMessage = kafkaMessage1,
             topic = SYKMELDINGSENDT_TOPIC,
         )
 
         hentSoknader(fnr).size `should be equal to` 2
+    }
+
+    private fun lagSykmeldingKafkaMessage(fnr: String): SykmeldingKafkaMessage {
+        val statusDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
+        val sykmelding = skapArbeidsgiverSykmelding(sykmeldingId = statusDTO.event.sykmeldingId)
+        return SykmeldingKafkaMessage(
+            sykmelding = sykmelding,
+            event = statusDTO.event,
+            kafkaMetadata = statusDTO.kafkaMetadata,
+        )
     }
 }
