@@ -2,8 +2,6 @@ package no.nav.helse.flex.sending
 
 import no.nav.helse.flex.domain.Avsendertype
 import no.nav.helse.flex.domain.Soknadstatus
-import no.nav.helse.flex.domain.Soknadstatus.NY
-import no.nav.helse.flex.domain.Soknadstatus.UTKAST_TIL_KORRIGERING
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.kafka.producer.SoknadProducer
 import no.nav.helse.flex.repository.SvarDAO
@@ -31,7 +29,7 @@ class SoknadSender(
         dodsdato: LocalDate?,
         identer: FolkeregisterIdenter,
     ): Sykepengesoknad {
-        if (sykepengesoknad.status !in listOf(NY, UTKAST_TIL_KORRIGERING)) {
+        if (sykepengesoknad.status !in listOf(Soknadstatus.NY, Soknadstatus.UTKAST_TIL_KORRIGERING, Soknadstatus.SKJULT)) {
             throw RuntimeException("Søknad ${sykepengesoknad.id} kan ikke gå i fra status ${sykepengesoknad.status} til SENDT.")
         }
 

@@ -9,4 +9,5 @@ enum class Soknadstatus {
     AVBRUTT,
     UTGATT,
     SLETTET,
+    SKJULT,
 }

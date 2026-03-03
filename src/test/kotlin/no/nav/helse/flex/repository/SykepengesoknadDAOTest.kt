@@ -198,7 +198,7 @@ class SykepengesoknadDAOTest : FellesTestOppsett() {
         sykepengesoknadDAO.lagreSykepengesoknad(mockUtlandssoknad().copy(fnr = ("etAnnetFnr")))
         val uuid2 = sykepengesoknadDAO.lagreSykepengesoknad(mockUtlandssoknad().copy(status = SENDT)).id
 
-        val nysoknad = sykepengesoknadDAO.finnAlleredeOpprettetSoknad(FolkeregisterIdenter(sykepengesoknad.fnr, emptyList()))
+        val nysoknad = sykepengesoknadDAO.finnAlleredeOpprettetOppholdUtlandSoknad(FolkeregisterIdenter(sykepengesoknad.fnr, emptyList()))
         sykepengesoknadDAO.slettSoknad(nysoknad!!)
 
         val soknaderTestAktor = sykepengesoknadDAO.finnSykepengesoknader(listOf(sykepengesoknad.fnr))

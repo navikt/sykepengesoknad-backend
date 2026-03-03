@@ -1,6 +1,5 @@
 package no.nav.helse.flex.sykmeldingmerknader
 
-import no.nav.helse.flex.domain.Soknadstatus.*
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadRepository
