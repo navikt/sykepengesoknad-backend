@@ -3,6 +3,8 @@ package no.nav.helse.flex.soknadsopprettelse
 import no.nav.helse.flex.aktivering.AktiveringBestilling
 import no.nav.helse.flex.client.flexsyketilfelle.FlexSyketilfelleClient
 import no.nav.helse.flex.domain.Arbeidssituasjon
+import no.nav.helse.flex.domain.Arbeidssituasjon.FRILANSER
+import no.nav.helse.flex.domain.Arbeidssituasjon.NAERINGSDRIVENDE
 import no.nav.helse.flex.domain.exception.SkalRebehandlesException
 import no.nav.helse.flex.domain.exception.UventetArbeidssituasjonException
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
@@ -29,6 +31,7 @@ class BehandleSendtBekreftetSykmelding(
     private val klippOgOpprett: KlippOgOpprett,
     private val skalOppretteSoknader: SkalOppretteSoknader,
     private val lockRepository: LockRepository,
+    private val naringsdrivendeSoknadService: NaringsdrivendeSoknadService,
 ) {
     val log = logger()
 
@@ -111,15 +114,28 @@ class BehandleSendtBekreftetSykmelding(
 
         val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(fnr)
 
-        val skalOppretteSoknad =
-            skalOppretteSoknader.skalOppretteSoknader(
-                sykmeldingKafkaMessage = sykmeldingKafkaMessage,
-                arbeidssituasjon = arbeidssituasjon,
-                identer = identer,
-            )
-        if (!skalOppretteSoknad) {
-            return emptyList()
-        }
+        val tilleggssoknaderTilOpprettelse =
+            if (!listOf(FRILANSER, NAERINGSDRIVENDE).contains(arbeidssituasjon)) {
+                val skalOppretteSoknad =
+                    skalOppretteSoknader.skalOppretteSoknader(
+                        sykmeldingKafkaMessage = sykmeldingKafkaMessage,
+                    )
+                if (!skalOppretteSoknad) {
+                    return emptyList()
+                }
+                emptyList()
+            } else {
+                val skalOppretteSoknad =
+                    skalOppretteSoknader.skalOppretteNaringsdrivendeSoknader(
+                        sykmeldingKafkaMessage = sykmeldingKafkaMessage,
+                        arbeidssituasjon = arbeidssituasjon,
+                        identer = identer,
+                    )
+                if (!skalOppretteSoknad) {
+                    return emptyList()
+                }
+                naringsdrivendeSoknadService.finnSykmeldingerSomManglerSoknad(sykmeldingKafkaMessage.sykmelding.id, arbeidssituasjon)
+            }
 
         val låstIdenter = lockRepository.settAdvisoryLock(keys = identer.alle().map { it.toLong() }.toLongArray())
         if (!låstIdenter) {
@@ -128,7 +144,7 @@ class BehandleSendtBekreftetSykmelding(
 
         val sykeForloep = flexSyketilfelleClient.hentSykeforloep(identer, sykmeldingKafkaMessage)
 
-        return klippOgOpprett.klippOgOpprett(sykmeldingKafkaMessage, arbeidssituasjon, identer, sykeForloep)
+        return klippOgOpprett.klippOgOpprett(sykmeldingKafkaMessage, arbeidssituasjon, identer, sykeForloep, tilleggssoknaderTilOpprettelse)
     }
 }
 

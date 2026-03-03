@@ -14,6 +14,7 @@ import no.nav.helse.flex.util.objectMapper
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpMethod.GET
 import org.springframework.http.HttpMethod.POST
 import org.springframework.http.MediaType
 import org.springframework.retry.annotation.Retryable
@@ -156,8 +157,33 @@ class FlexSyketilfelleClient(
         }
     }
 
-    fun hentSykmeldingerIsykeforloep(sykmeldingId: String): List<SykmeldingKafkaMessage> {
-        TODO("Denne funksjonen er ikke implementert")
+    fun hentSykmeldingerIsykeforloep(sykmeldingId: String): Set<String> {
+        val headers = HttpHeaders()
+        headers.contentType = MediaType.APPLICATION_JSON
+        headers.set("sykmeldingId", sykmeldingId)
+
+        val queryBuilder =
+            UriComponentsBuilder
+                .fromUriString(url)
+                .pathSegment("api", "v1", "sykmeldinger", "isykeforloep")
+
+        val response =
+            flexSyketilfelleRestTemplate
+                .exchange(
+                    queryBuilder.toUriString(),
+                    GET,
+                    HttpEntity(null, headers),
+                    Array<String>::class.java,
+                )
+
+        if (!response.statusCode.is2xxSuccessful) {
+            val message = "Kall til hent hentSykeforloep feilet med HTTP-${response.statusCode}"
+            log.error(message)
+            throw RuntimeException(message)
+        }
+
+        return response.body?.toSet()
+            ?: throw RuntimeException("Ingen data returnert fra flex-syketilfelle i hentSykeforloep")
     }
 
     private data class SoknadOgSykmelding(

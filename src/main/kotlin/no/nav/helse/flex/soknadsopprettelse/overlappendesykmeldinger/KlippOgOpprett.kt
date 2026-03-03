@@ -10,6 +10,7 @@ import no.nav.helse.flex.domain.sykmelding.finnSoknadsType
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.soknadsopprettelse.OpprettSoknadService
+import no.nav.helse.flex.soknadsopprettelse.hentArbeidssituasjon
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -26,6 +27,7 @@ class KlippOgOpprett(
         arbeidssituasjon: Arbeidssituasjon,
         identer: FolkeregisterIdenter,
         sykeForloep: List<Sykeforloep>,
+        tilleggssoknaderTilOpprettelse: List<SykmeldingKafkaMessage>,
     ): List<AktiveringBestilling> {
         var kafkaMessage = sykmeldingKafkaMessage
         val sykmeldingId = sykmeldingKafkaMessage.event.sykmeldingId
@@ -48,12 +50,14 @@ class KlippOgOpprett(
                 )
         }
 
-        return opprettSoknadService.opprettSykepengesoknaderForSykmelding(
-            sykmeldingKafkaMessage = kafkaMessage,
-            arbeidssituasjon = arbeidssituasjon,
-            identer = identer,
-            arbeidsgiverStatusDTO = arbeidsgiverStatusDTO,
-            flexSyketilfelleSykeforloep = sykeForloep,
-        )
+        return (tilleggssoknaderTilOpprettelse + kafkaMessage).flatMap {
+            opprettSoknadService.opprettSykepengesoknaderForSykmelding(
+                sykmeldingKafkaMessage = it,
+                arbeidssituasjon = it.hentArbeidssituasjon()!!,
+                identer = identer,
+                arbeidsgiverStatusDTO = it.event.arbeidsgiver,
+                flexSyketilfelleSykeforloep = sykeForloep,
+            )
+        }
     }
 }

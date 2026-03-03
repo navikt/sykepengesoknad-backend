@@ -49,6 +49,18 @@ fun FellesTestOppsett.mockFlexSyketilfelleSykeforloep(
     ),
 )
 
+fun FellesTestOppsett.mockFlexSyketilfelleSykeforloep(
+    sykmeldingIder: Set<String>,
+    oppfolgingsdato: LocalDate = LocalDate.now(),
+) = mockFlexSyketilfelleSykeforloep(
+    listOf(
+        Sykeforloep(
+            oppfolgingsdato = oppfolgingsdato,
+            sykmeldinger = sykmeldingIder.map { SimpleSykmelding(id = it, fom = oppfolgingsdato, tom = oppfolgingsdato) },
+        ),
+    ),
+)
+
 fun FellesTestOppsett.mockFlexSyketilfelleSykeforloep(sykeforloep: List<Sykeforloep>) {
     flexSyketilfelleMockRestServiceServer
         .expect(manyTimes(), requestTo("http://flex-syketilfelle/api/v1/sykeforloep?hentAndreIdenter=false"))
@@ -74,6 +86,34 @@ fun FellesTestOppsett.mockFlexSyketilfelleErUtenforVentetid(
             withSuccess(
                 objectMapper.writeValueAsBytes(
                     erUtenforVentetid,
+                ),
+                MediaType.APPLICATION_JSON,
+            ),
+        )
+}
+
+fun FellesTestOppsett.mockFlexSyketilfelleSykmeldingerIsykeforloep(sykmeldingIder: Set<String>) {
+    flexSyketilfelleMockRestServiceServer
+        .expect(requestTo("http://flex-syketilfelle/api/v1/sykmeldinger/isykeforloep"))
+        .andExpect(method(HttpMethod.GET))
+        .andRespond(
+            withSuccess(
+                objectMapper.writeValueAsBytes(
+                    sykmeldingIder,
+                ),
+                MediaType.APPLICATION_JSON,
+            ),
+        )
+}
+
+fun FellesTestOppsett.mockFlexSyketilfelleSykmeldingerIsykeforloepDefault() {
+    flexSyketilfelleMockRestServiceServer
+        .expect(requestTo("http://flex-syketilfelle/api/v1/sykmeldinger/isykeforloep"))
+        .andExpect(method(HttpMethod.GET))
+        .andRespond(
+            withSuccess(
+                objectMapper.writeValueAsBytes(
+                    emptyList<String>(),
                 ),
                 MediaType.APPLICATION_JSON,
             ),
