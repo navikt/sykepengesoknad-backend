@@ -45,7 +45,7 @@ class SkalOppretteSoknader(
         return true
     }
 
-    public fun skalOppretteNaringsdrivendeSoknader(
+    fun skalOppretteNaringsdrivendeSoknader(
         sykmeldingKafkaMessage: SykmeldingKafkaMessage,
         identer: FolkeregisterIdenter,
         arbeidssituasjon: Arbeidssituasjon,
