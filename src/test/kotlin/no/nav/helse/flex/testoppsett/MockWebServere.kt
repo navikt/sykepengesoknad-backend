@@ -62,6 +62,12 @@ fun startMockWebServere(): MockWebServere {
             dispatcher = EnhetsregisterMockDispatcher
         }
 
+    val flexSykmeldingMockWebServer =
+        MockWebServer().apply {
+            System.setProperty("FLEX_SYKMELDINGER_BACKEND_API_URL", "http://localhost:$port")
+            dispatcher = FlexSykmeldingMockDispatcher
+        }
+
     return MockWebServere(
         pdlMockWebserver = pdlMockWebserver,
         medlemskapMockWebServer = medlemskapMockWebServer,
@@ -74,6 +80,7 @@ fun startMockWebServere(): MockWebServere {
         brregMockWebServer = brregMockWebServer,
         arbeidssokerregisterMockWebServer = arbeidssokerregisterMockWebServer,
         enhetsregisterMockWebServer = enhetsregisterMockWebServer,
+        flexSykmeldingMockWebServer = flexSykmeldingMockWebServer,
     )
 }
 
@@ -89,4 +96,5 @@ data class MockWebServere(
     val brregMockWebServer: MockWebServer,
     val arbeidssokerregisterMockWebServer: MockWebServer,
     val enhetsregisterMockWebServer: MockWebServer,
+    val flexSykmeldingMockWebServer: MockWebServer,
 )

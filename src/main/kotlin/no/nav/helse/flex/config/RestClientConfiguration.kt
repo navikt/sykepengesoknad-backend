@@ -63,6 +63,22 @@ class RestClientConfiguration {
                 ),
             ).build()
 
+    @Bean
+    fun flexSykmeldingerBackendRestClient(
+        @Value("\${FLEX_SYKMELDINGER_BACKEND_API_URL}")
+        url: String,
+        oAuth2AccessTokenService: OAuth2AccessTokenService,
+        clientConfigurationProperties: ClientConfigurationProperties,
+    ): RestClient =
+        lagRestClientBuilder()
+            .baseUrl(url)
+            .requestInterceptor(
+                lagBearerTokenInterceptor(
+                    clientConfigurationProperties.registration["flex-sykmeldinger-backend-client-credentials"]!!,
+                    oAuth2AccessTokenService,
+                ),
+            ).build()
+
     private fun lagRestClientBuilder(
         connectTimeout: Long = REST_CLIENT_CONNECT_TIMEOUT,
         readTimeout: Long = REST_CLIENT_READ_TIMEOUT,
