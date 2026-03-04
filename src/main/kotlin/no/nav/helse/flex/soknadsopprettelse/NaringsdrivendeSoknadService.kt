@@ -5,6 +5,7 @@ import no.nav.helse.flex.client.sykmeldinger.FlexSykmeldingerBackendClient
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.repository.SykepengesoknadRepository
+import no.nav.helse.flex.service.FolkeregisterIdenter
 import org.springframework.stereotype.Component
 
 @Component
@@ -14,12 +15,13 @@ class NaringsdrivendeSoknadService(
     private val sykepengesoknadRepository: SykepengesoknadRepository,
 ) {
     fun finnSykmeldingerSomManglerSoknad(
-        sykmeldingId: String,
+        sykmeldingKafkaMessage: SykmeldingKafkaMessage,
         arbeidssituasjon: Arbeidssituasjon,
+        identer: FolkeregisterIdenter,
     ): List<SykmeldingKafkaMessage> {
-        val sykmeldingIder = flexSyketilfelleClient.hentSykmeldingerIsykeforloep(sykmeldingId)
+        val sykmeldingIder = flexSyketilfelleClient.hentSykmeldingerMedSammeVentetid(sykmeldingKafkaMessage, identer)
         val sykmeldingerSomManglerSoknad =
-            sykmeldingIder - setOf(sykmeldingId) -
+            sykmeldingIder - setOf(sykmeldingKafkaMessage.sykmelding.id) -
                 sykepengesoknadRepository
                     .findBySykmeldingUuidIn(sykmeldingIder)
                     .map { it.sykmeldingUuid!! }

@@ -11,8 +11,8 @@ import no.nav.helse.flex.domain.Soknadstatus.NY
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.kafka.consumer.RebehandlingSykmeldingSendt
 import no.nav.helse.flex.mockFlexSyketilfelleErUtenforVentetid
+import no.nav.helse.flex.mockFlexSyketilfelleHentSykmeldingerMedSammeVentetidDefault
 import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
-import no.nav.helse.flex.mockFlexSyketilfelleSykmeldingerIsykeforloepDefault
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
@@ -85,7 +85,7 @@ class RebehandlingSoknadopprettelseTest : FellesTestOppsett() {
 
         mockFlexSyketilfelleErUtenforVentetid(sykmeldingId, true)
         mockFlexSyketilfelleSykeforloep(sykmeldingId)
-        mockFlexSyketilfelleSykmeldingerIsykeforloepDefault()
+        mockFlexSyketilfelleHentSykmeldingerMedSammeVentetidDefault(sykmeldingId)
 
         rebehandlingSykmeldingSendt.listen(cr, acknowledgment)
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)

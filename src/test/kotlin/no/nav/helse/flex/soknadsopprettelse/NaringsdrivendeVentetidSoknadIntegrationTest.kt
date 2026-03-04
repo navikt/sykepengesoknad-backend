@@ -50,8 +50,11 @@ class NaringsdrivendeVentetidSoknadIntegrationTest : FellesTestOppsett() {
             oppfolgingsdato = dato,
         )
 
-        mockFlexSyketilfelleSykmeldingerIsykeforloep(
+        mockFlexSyketilfelleHentSykmeldingerMedSammeVentetid(
             sykmeldingIder = setOf(kafkaMessage.sykmelding.id),
+        )
+        mockFlexSyketilfelleHentSykmeldingerMedSammeVentetid(
+            sykmeldingIder = setOf(kafkaMessage1.sykmelding.id, kafkaMessage.sykmelding.id),
         )
 
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(

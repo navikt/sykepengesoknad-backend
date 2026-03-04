@@ -1,19 +1,18 @@
 package no.nav.helse.flex
 
+import no.nav.helse.flex.client.flexsyketilfelle.SammeVentetidPeriode
+import no.nav.helse.flex.client.flexsyketilfelle.SammeVentetidResponse
 import no.nav.helse.flex.client.istilgangskontroll.IstilgangskontrollClient.Companion.NAV_PERSONIDENT_HEADER
 import no.nav.helse.flex.domain.Arbeidsgiverperiode
+import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.SimpleSykmelding
 import no.nav.helse.flex.domain.Sykeforloep
 import no.nav.helse.flex.util.objectMapper
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.test.web.client.ExpectedCount.manyTimes
-import org.springframework.test.web.client.match.MockRestRequestMatchers.header
-import org.springframework.test.web.client.match.MockRestRequestMatchers.method
-import org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo
-import org.springframework.test.web.client.response.MockRestResponseCreators.withNoContent
-import org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess
-import org.springframework.test.web.client.response.MockRestResponseCreators.withUnauthorizedRequest
+import org.springframework.test.web.client.match.MockRestRequestMatchers.*
+import org.springframework.test.web.client.response.MockRestResponseCreators.*
 import java.time.LocalDate
 
 fun FellesTestOppsett.mockIstilgangskontroll(
@@ -92,28 +91,40 @@ fun FellesTestOppsett.mockFlexSyketilfelleErUtenforVentetid(
         )
 }
 
-fun FellesTestOppsett.mockFlexSyketilfelleSykmeldingerIsykeforloep(sykmeldingIder: Set<String>) {
+fun FellesTestOppsett.mockFlexSyketilfelleHentSykmeldingerMedSammeVentetid(sykmeldingIder: Set<String>) {
     flexSyketilfelleMockRestServiceServer
-        .expect(requestTo("http://flex-syketilfelle/api/v1/sykmeldinger/isykeforloep"))
-        .andExpect(method(HttpMethod.GET))
+        .expect(requestTo("http://flex-syketilfelle/api/v1/ventetid/${sykmeldingIder.first()}/perioderMedSammeVentetid"))
+        .andExpect(method(HttpMethod.POST))
         .andRespond(
             withSuccess(
                 objectMapper.writeValueAsBytes(
-                    sykmeldingIder,
+                    SammeVentetidResponse(
+                        ventetidPerioder =
+                            sykmeldingIder.map {
+                                SammeVentetidPeriode(
+                                    ressursId = it,
+                                    ventetid =
+                                        Periode(
+                                            fom = LocalDate.now(), // TODO now
+                                            tom = LocalDate.now().plusDays(10),
+                                        ),
+                                )
+                            },
+                    ),
                 ),
                 MediaType.APPLICATION_JSON,
             ),
         )
 }
 
-fun FellesTestOppsett.mockFlexSyketilfelleSykmeldingerIsykeforloepDefault() {
+fun FellesTestOppsett.mockFlexSyketilfelleHentSykmeldingerMedSammeVentetidDefault(sykmeldingId: String) {
     flexSyketilfelleMockRestServiceServer
-        .expect(requestTo("http://flex-syketilfelle/api/v1/sykmeldinger/isykeforloep"))
-        .andExpect(method(HttpMethod.GET))
+        .expect(requestTo("http://flex-syketilfelle/api/v1/ventetid/$sykmeldingId/perioderMedSammeVentetid"))
+        .andExpect(method(HttpMethod.POST))
         .andRespond(
             withSuccess(
                 objectMapper.writeValueAsBytes(
-                    emptyList<String>(),
+                    SammeVentetidResponse(ventetidPerioder = emptyList()),
                 ),
                 MediaType.APPLICATION_JSON,
             ),
