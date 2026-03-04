@@ -40,7 +40,7 @@ class NaringsdrivendeSoknadService(
             emptyList()
         } else {
             log.info(
-                "Oppretter næringsdrivende søknader for ${sykmeldingerSomManglerSoknad + 1} sykmeldinger ${sykmeldingKafkaMessage.sykmelding.id}: $sykmeldingerSomManglerSoknad",
+                "Oppretter næringsdrivende søknader for ${sykmeldingerSomManglerSoknad.size + 1} sykmeldinger ${sykmeldingKafkaMessage.sykmelding.id}: $sykmeldingerSomManglerSoknad",
             )
             flexSykmeldingerBackendClient
                 .hentSykmeldinger(sykmeldingIder = sykmeldingerSomManglerSoknad)
