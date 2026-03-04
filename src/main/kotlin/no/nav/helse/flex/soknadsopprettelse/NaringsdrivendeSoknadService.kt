@@ -27,8 +27,9 @@ class NaringsdrivendeSoknadService(
         return if (sykmeldingerSomManglerSoknad.isEmpty()) {
             emptyList()
         } else {
-            flexSykmeldingerBackendClient.hentSykmeldinger(sykmeldingIder = sykmeldingerSomManglerSoknad)
-            // TODO arbeidssituasjon filter
+            return flexSykmeldingerBackendClient
+                .hentSykmeldinger(sykmeldingIder = sykmeldingerSomManglerSoknad)
+                .filter { it.hentArbeidssituasjon() == arbeidssituasjon }
         }
     }
 }
