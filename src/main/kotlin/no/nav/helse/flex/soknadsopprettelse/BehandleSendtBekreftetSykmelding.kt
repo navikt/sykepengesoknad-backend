@@ -200,8 +200,9 @@ class BehandleSendtBekreftetSykmelding(
 
         val sykmeldingerSomSkalHaSoknader =
             naringsdrivendeSoknadService.finnSykmeldingerSomManglerSoknad(
-                sykmeldingId = sykmeldingKafkaMessage.sykmelding.id,
+                sykmeldingKafkaMessage = sykmeldingKafkaMessage,
                 arbeidssituasjon = arbeidssituasjon,
+                identer = identer,
             )
 
         låsIdenter(identer, sykmeldingKafkaMessage)
