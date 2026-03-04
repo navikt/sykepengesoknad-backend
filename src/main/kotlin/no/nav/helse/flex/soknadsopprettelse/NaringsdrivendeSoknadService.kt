@@ -4,6 +4,7 @@ import no.nav.helse.flex.client.flexsyketilfelle.FlexSyketilfelleClient
 import no.nav.helse.flex.client.sykmeldinger.FlexSykmeldingerBackendClient
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
+import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadRepository
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import org.springframework.stereotype.Component
@@ -14,27 +15,34 @@ class NaringsdrivendeSoknadService(
     private val flexSykmeldingerBackendClient: FlexSykmeldingerBackendClient,
     private val sykepengesoknadRepository: SykepengesoknadRepository,
 ) {
+    private val log = logger()
+
     fun finnSykmeldingerSomManglerSoknad(
         sykmeldingKafkaMessage: SykmeldingKafkaMessage,
         arbeidssituasjon: Arbeidssituasjon,
         identer: FolkeregisterIdenter,
     ): List<SykmeldingKafkaMessage> {
         val sykmeldingIder = flexSyketilfelleClient.hentSykmeldingerMedSammeVentetid(sykmeldingKafkaMessage, identer)
-        val sykmeldingerSomManglerSoknad =
-            sykmeldingIder - setOf(sykmeldingKafkaMessage.sykmelding.id) -
-                sykepengesoknadRepository
-                    .findBySykmeldingUuidIn(sykmeldingIder)
-                    .map { it.sykmeldingUuid!! }
-                    .toSet()
+        log.info("Fant ${sykmeldingIder.size} sykmeldinger med samme ventetid ${sykmeldingKafkaMessage.sykmelding.id}: $sykmeldingIder")
 
-        if (sykmeldingerSomManglerSoknad.none { it == sykmeldingKafkaMessage.sykmelding.id }) {
-            throw RuntimeException("Sykmeldingen ${sykmeldingKafkaMessage.sykmelding.id} er i listen over sykmeldinger som mangler søknad: $sykmeldingerSomManglerSoknad")
-        }
+        val sykmeldingIderUtenomDenne = sykmeldingIder.filterNot { it == sykmeldingKafkaMessage.sykmelding.id }.toSet()
+
+        val sykmeldingIderMedSoknader =
+            sykepengesoknadRepository
+                .findBySykmeldingUuidIn(sykmeldingIderUtenomDenne)
+                .map { it.sykmeldingUuid!! }
+                .toSet()
+
+        val sykmeldingerSomManglerSoknad = sykmeldingIderUtenomDenne - sykmeldingIderMedSoknader
 
         return if (sykmeldingerSomManglerSoknad.isEmpty()) {
+            log.info("Oppretter næringsdrivende søknad for sykmelding ${sykmeldingKafkaMessage.sykmelding.id}")
             emptyList()
         } else {
-            return flexSykmeldingerBackendClient
+            log.info(
+                "Oppretter næringsdrivende søknader for ${sykmeldingerSomManglerSoknad + 1} sykmeldinger ${sykmeldingKafkaMessage.sykmelding.id}: $sykmeldingerSomManglerSoknad",
+            )
+            flexSykmeldingerBackendClient
                 .hentSykmeldinger(sykmeldingIder = sykmeldingerSomManglerSoknad)
                 .filter { it.hentArbeidssituasjon() == arbeidssituasjon }
         }

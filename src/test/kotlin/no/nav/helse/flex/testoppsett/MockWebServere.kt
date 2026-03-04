@@ -67,6 +67,12 @@ fun startMockWebServere(): MockWebServere {
             dispatcher = FlexSykmeldingMockDispatcher
         }
 
+    val texasMockWebServer =
+        MockWebServer().apply {
+            System.setProperty("NAIS_TOKEN_ENDPOINT", "http://localhost:$port")
+            dispatcher = TexasMockDispatcher
+        }
+
     return MockWebServere(
         pdlMockWebserver = pdlMockWebserver,
         medlemskapMockWebServer = medlemskapMockWebServer,
@@ -80,6 +86,7 @@ fun startMockWebServere(): MockWebServere {
         arbeidssokerregisterMockWebServer = arbeidssokerregisterMockWebServer,
         enhetsregisterMockWebServer = enhetsregisterMockWebServer,
         flexSykmeldingMockWebServer = flexSykmeldingMockWebServer,
+        texasMockWebServer = texasMockWebServer,
     )
 }
 
@@ -96,4 +103,5 @@ data class MockWebServere(
     val arbeidssokerregisterMockWebServer: MockWebServer,
     val enhetsregisterMockWebServer: MockWebServer,
     val flexSykmeldingMockWebServer: MockWebServer,
+    val texasMockWebServer: MockWebServer,
 )

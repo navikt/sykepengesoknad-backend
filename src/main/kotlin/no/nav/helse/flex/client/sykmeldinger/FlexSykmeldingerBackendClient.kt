@@ -27,7 +27,7 @@ class FlexSykmeldingerBackendClientEkstern(
             .post()
             .uri { uriBuilder ->
                 uriBuilder
-                    .path("/api/v1/sykmeldinger")
+                    .path("/api/v1/sykmeldinger/kafka")
                     .build()
             }.contentType(APPLICATION_JSON)
             .body(SykmeldingerRequest(sykmeldingIder.toList()))
