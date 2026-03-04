@@ -13,9 +13,9 @@ external-host:
   - pdl-api.dev-fss-pub.nais.io
   - ereg-services.dev-fss-pub.nais.io
   - team-inntekt-proxy.dev-fss-pub.nais.io
-  - ikomp-q1.intern.dev.nav.no
+  - ikomp-q2.intern.dev.nav.no
   - flex-unleash-api.nav.cloud.nais.io
-  - aareg-services-q1.dev-fss-pub.nais.io
+  - aareg-services-q2.dev-fss-pub.nais.io
   - g.nav.no
   - data.brreg.no
 flex-openapi-docs-ui: true
@@ -23,7 +23,7 @@ env:
   SPRING_PROFILES_ACTIVE: default,testdata,sykmeldinger,frisktilarbeid
   PDL_BASE_URL: https://pdl-api.dev-fss-pub.nais.io
   PDL_API_AAD_CLIENT_ID: dev-fss.pdl.pdl-api
-  FASIT_ENVIRONMENT_NAME: q1
+  FASIT_ENVIRONMENT_NAME: q2
   SYKEPENGESOKNAD_KVITTERINGER_URL: http://sykepengesoknad-kvitteringer
   SYKEPENGESOKNAD_KVITTERINGER_TOKENX_CLIENT_ID: dev-gcp:flex:sykepengesoknad-kvitteringer
   ISTILGANGSKONTROLL_URL: http://istilgangskontroll.teamsykefravr
@@ -41,14 +41,14 @@ env:
   YRKESSKADE_AAD_CLIENT_ID: dev-gcp.yrkesskade.yrkesskade-saker
   MEDLEMSKAP_VURDERING_URL: http://medlemskap-sykepenger-listener.medlemskap
   MEDLEMSKAP_VURDERING_AAD_CLIENT_ID: dev-gcp.medlemskap.medlemskap-sykepenger-listener
-  INNTEKTSKOMPONENTEN_URL: https://ikomp-q1.dev-fss-pub.nais.io/rs
-  INNTEKTSKOMPONENTEN_AAD_CLIENT_ID: dev-fss.team-inntekt.ikomp-q1
-  SIGRUN_URL: https://sigrun-q1.dev-fss-pub.nais.io
-  SIGRUN_AAD_CLIENT_ID: dev-fss.team-inntekt.sigrun-q1
+  INNTEKTSKOMPONENTEN_URL: https://ikomp-q2.dev-fss-pub.nais.io/rs
+  INNTEKTSKOMPONENTEN_AAD_CLIENT_ID: dev-fss.team-inntekt.ikomp-q2
+  SIGRUN_URL: https://sigrun-q2.dev-fss-pub.nais.io
+  SIGRUN_AAD_CLIENT_ID: dev-fss.team-inntekt.sigrun-q2
   INNSENDING_API_TOKENX_CLIENT_ID: dev-gcp:team-soknad:innsending-api
   INNSENDING_API_URL: http://innsending-api.team-soknad
-  AAREG_URL: https://aareg-services-q1.dev-fss-pub.nais.io
-  AAREG_AAD_CLIENT_ID: dev-fss.arbeidsforhold.aareg-services-nais-q1
+  AAREG_URL: https://aareg-services-q2.dev-fss-pub.nais.io
+  AAREG_AAD_CLIENT_ID: dev-fss.arbeidsforhold.aareg-services-nais
   BRREG_API_URL: http://flex-brreg-proxy
   BRREG_AAD_CLIENT_ID: dev-gcp.flex.flex-brreg-proxy
   ENHETSREGISTER_API_URL: https://data.brreg.no/enhetsregisteret
