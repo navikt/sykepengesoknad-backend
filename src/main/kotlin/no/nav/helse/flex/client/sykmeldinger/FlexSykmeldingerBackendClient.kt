@@ -11,7 +11,7 @@ interface FlexSykmeldingerBackendClient {
 }
 
 data class SykmeldingerRequest(
-    val sykmeldingIder: Set<String>,
+    val sykmeldingIder: List<String>,
 )
 
 data class SykmeldingerResponse(
@@ -30,7 +30,7 @@ class FlexSykmeldingerBackendClientEkstern(
                     .path("/api/v1/sykmeldinger")
                     .build()
             }.contentType(APPLICATION_JSON)
-            .body(SykmeldingerRequest(sykmeldingIder))
+            .body(SykmeldingerRequest(sykmeldingIder.toList()))
             .retrieve()
             .toEntity<SykmeldingerResponse>()
             .body
