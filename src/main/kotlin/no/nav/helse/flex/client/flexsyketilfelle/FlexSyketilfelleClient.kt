@@ -2,6 +2,7 @@ package no.nav.helse.flex.client.flexsyketilfelle
 
 import no.nav.helse.flex.controller.domain.sykmelding.Tilleggsopplysninger
 import no.nav.helse.flex.domain.Arbeidsgiverperiode
+import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.Sykeforloep
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.mapper.SykepengesoknadTilSykepengesoknadDTOMapper
@@ -14,7 +15,6 @@ import no.nav.helse.flex.util.objectMapper
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpMethod.GET
 import org.springframework.http.HttpMethod.POST
 import org.springframework.http.MediaType
 import org.springframework.retry.annotation.Retryable
@@ -74,7 +74,7 @@ class FlexSyketilfelleClient(
     fun erUtenforVentetid(
         identer: FolkeregisterIdenter,
         sykmeldingId: String,
-        erUtenforVentetidRequest: ErUtenforVentetidRequest,
+        ventetidRequest: VentetidRequest,
     ): Boolean {
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
@@ -91,7 +91,7 @@ class FlexSyketilfelleClient(
                 .exchange(
                     queryBuilder.toUriString(),
                     POST,
-                    HttpEntity(erUtenforVentetidRequest, headers),
+                    HttpEntity(ventetidRequest, headers),
                     Boolean::class.java,
                 )
 
@@ -157,33 +157,43 @@ class FlexSyketilfelleClient(
         }
     }
 
-    fun hentSykmeldingerIsykeforloep(sykmeldingId: String): Set<String> {
+    fun hentSykmeldingerMedSammeVentetid(
+        sykmeldingKafkaMessage: SykmeldingKafkaMessage,
+        identer: FolkeregisterIdenter,
+    ): Set<String> {
         val headers = HttpHeaders()
-        headers.contentType = MediaType.APPLICATION_JSON
-        headers.set("sykmeldingId", sykmeldingId)
+        headers.set("fnr", identer.tilFnrHeader())
 
         val queryBuilder =
             UriComponentsBuilder
                 .fromUriString(url)
-                .pathSegment("api", "v1", "sykmeldinger", "isykeforloep")
+                .pathSegment(
+                    "api",
+                    "v1",
+                    "ventetid",
+                    sykmeldingKafkaMessage.sykmelding.id,
+                    "perioderMedSammeVentetid",
+                )
+
+        val body =
+            VentetidRequest(
+                sykmeldingKafkaMessage = sykmeldingKafkaMessage,
+            )
 
         val response =
             flexSyketilfelleRestTemplate
                 .exchange(
                     queryBuilder.toUriString(),
-                    GET,
-                    HttpEntity(null, headers),
-                    Array<String>::class.java,
+                    POST,
+                    HttpEntity(body, headers),
+                    SammeVentetidResponse::class.java,
                 )
 
-        if (!response.statusCode.is2xxSuccessful) {
-            val message = "Kall til hent hentSykeforloep feilet med HTTP-${response.statusCode}"
-            log.error(message)
-            throw RuntimeException(message)
-        }
-
-        return response.body?.toSet()
-            ?: throw RuntimeException("Ingen data returnert fra flex-syketilfelle i hentSykeforloep")
+        return response.body
+            ?.ventetidPerioder
+            ?.map { it.ressursId }
+            ?.toSet()
+            ?: throw RuntimeException("Ingen data returnert fra flex-syketilfelle i /perioderMedSammeVentetid")
     }
 
     private data class SoknadOgSykmelding(
@@ -192,7 +202,16 @@ class FlexSyketilfelleClient(
     )
 }
 
-data class ErUtenforVentetidRequest(
+data class VentetidRequest(
     val tilleggsopplysninger: Tilleggsopplysninger? = null,
     val sykmeldingKafkaMessage: SykmeldingKafkaMessage? = null,
+)
+
+data class SammeVentetidResponse(
+    val ventetidPerioder: List<SammeVentetidPeriode>,
+)
+
+data class SammeVentetidPeriode(
+    val ressursId: String,
+    val ventetid: Periode,
 )
