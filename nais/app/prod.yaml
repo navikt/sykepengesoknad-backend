@@ -57,5 +57,5 @@ env:
   ENHETSREGISTER_API_URL: https://data.brreg.no/enhetsregisteret
   ARBEIDSSOEKERREGISTERET_API_AAD_CLIENT_ID: prod-gcp.paw.paw-arbeidssoekerregisteret-api-oppslag-v2
   ARBEIDSSOEKERREGISTERET_API_URL: http://paw-arbeidssoekerregisteret-api-oppslag-v2.paw
-  FLEX_SYKMELDINGER_BACKEND_API_AAD_CLIENT_ID: prod-gcp.flex.flex-sykmeldinger-backend
+  FLEX_SYKMELDINGER_BACKEND_API_TARGET: api://prod-gcp.flex.flex-sykmeldinger-backend/.default
   FLEX_SYKMELDINGER_BACKEND_API_URL: http://flex-sykmeldinger-backend
