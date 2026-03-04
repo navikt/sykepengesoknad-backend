@@ -26,6 +26,11 @@ class NaringsdrivendeSoknadService(
                     .findBySykmeldingUuidIn(sykmeldingIder)
                     .map { it.sykmeldingUuid!! }
                     .toSet()
+
+        if (sykmeldingerSomManglerSoknad.none { it == sykmeldingKafkaMessage.sykmelding.id }) {
+            throw RuntimeException("Sykmeldingen ${sykmeldingKafkaMessage.sykmelding.id} er i listen over sykmeldinger som mangler søknad: $sykmeldingerSomManglerSoknad")
+        }
+
         return if (sykmeldingerSomManglerSoknad.isEmpty()) {
             emptyList()
         } else {
