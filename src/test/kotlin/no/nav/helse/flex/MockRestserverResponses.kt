@@ -117,6 +117,13 @@ fun FellesTestOppsett.mockFlexSyketilfelleHentSykmeldingerMedSammeVentetid(sykme
         )
 }
 
+fun FellesTestOppsett.mockFlexSyketilfelleHentSykmeldingerMedSammeVentetidKasterFeil(sykmeldingIder: Set<String>) {
+    flexSyketilfelleMockRestServiceServer
+        .expect(requestTo("http://flex-syketilfelle/api/v1/ventetid/${sykmeldingIder.first()}/perioderMedSammeVentetid"))
+        .andExpect(method(HttpMethod.POST))
+        .andRespond(withServerError())
+}
+
 fun FellesTestOppsett.mockFlexSyketilfelleHentSykmeldingerMedSammeVentetidDefault(sykmeldingId: String) {
     flexSyketilfelleMockRestServiceServer
         .expect(requestTo("http://flex-syketilfelle/api/v1/ventetid/$sykmeldingId/perioderMedSammeVentetid"))
