@@ -4,7 +4,7 @@ import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.domain.sykmelding.finnSoknadsType
+import no.nav.helse.flex.domain.sykmelding.bestemSoknadsType
 import no.nav.helse.flex.repository.KlippVariant
 import no.nav.helse.flex.soknadsopprettelse.antallDager
 import no.nav.helse.flex.soknadsopprettelse.eldstePeriodeFom
@@ -67,10 +67,10 @@ fun ArbeidsgiverSykmelding.splittSykmeldingiSoknadsPerioder(
 }
 
 private fun ArbeidsgiverSykmelding.harBehandlingsdager(arbeidssituasjon: Arbeidssituasjon): Boolean =
-    finnSoknadsType(arbeidssituasjon, sykmeldingsperioder) == Soknadstype.BEHANDLINGSDAGER
+    bestemSoknadsType(arbeidssituasjon, sykmeldingsperioder) == Soknadstype.BEHANDLINGSDAGER
 
 private fun ArbeidsgiverSykmelding.erArbeidstakerSoknad(arbeidssituasjon: Arbeidssituasjon): Boolean =
-    finnSoknadsType(arbeidssituasjon, sykmeldingsperioder) == Soknadstype.ARBEIDSTAKERE
+    bestemSoknadsType(arbeidssituasjon, sykmeldingsperioder) == Soknadstype.ARBEIDSTAKERE
 
 private fun SykmeldingTidsenheter.splittLangeSykmeldingperioderMedBehandlingsdager(): SykmeldingTidsenheter {
     while (splittbar.isNotEmpty()) {

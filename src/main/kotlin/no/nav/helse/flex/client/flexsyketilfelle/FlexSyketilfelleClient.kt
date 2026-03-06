@@ -2,6 +2,7 @@ package no.nav.helse.flex.client.flexsyketilfelle
 
 import no.nav.helse.flex.controller.domain.sykmelding.Tilleggsopplysninger
 import no.nav.helse.flex.domain.Arbeidsgiverperiode
+import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.Sykeforloep
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.mapper.SykepengesoknadTilSykepengesoknadDTOMapper
@@ -21,19 +22,44 @@ import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
 
+interface FlexSyketilfelleClient {
+    fun hentSykeforloep(
+        identer: FolkeregisterIdenter,
+        sykmeldingKafkaMessage: SykmeldingKafkaMessage,
+    ): List<Sykeforloep>
+
+    fun erUtenforVentetid(
+        identer: FolkeregisterIdenter,
+        sykmeldingId: String,
+        ventetidRequest: VentetidRequest,
+    ): Boolean
+
+    fun beregnArbeidsgiverperiode(
+        soknad: Sykepengesoknad,
+        sykmelding: SykmeldingKafkaMessage?,
+        forelopig: Boolean,
+        identer: FolkeregisterIdenter,
+    ): Arbeidsgiverperiode?
+
+    fun hentSykmeldingerMedSammeVentetid(
+        sykmeldingKafkaMessage: SykmeldingKafkaMessage,
+        identer: FolkeregisterIdenter,
+    ): Set<String>
+}
+
 @Component
-class FlexSyketilfelleClient(
+class FlexSyketilfelleEksternClient(
     private val flexSyketilfelleRestTemplate: RestTemplate,
     private val sykepengesoknadTilSykepengesoknadDTOMapper: SykepengesoknadTilSykepengesoknadDTOMapper,
     @param:Value("\${flex.syketilfelle.url}")
     private val url: String,
-) {
+) : FlexSyketilfelleClient {
     val log = logger()
 
     fun FolkeregisterIdenter.tilFnrHeader(): String = this.alle().joinToString(separator = ", ")
 
     @Retryable
-    fun hentSykeforloep(
+    override fun hentSykeforloep(
         identer: FolkeregisterIdenter,
         sykmeldingKafkaMessage: SykmeldingKafkaMessage,
     ): List<Sykeforloep> {
@@ -70,10 +96,10 @@ class FlexSyketilfelleClient(
     }
 
     @Retryable
-    fun erUtenforVentetid(
+    override fun erUtenforVentetid(
         identer: FolkeregisterIdenter,
         sykmeldingId: String,
-        erUtenforVentetidRequest: ErUtenforVentetidRequest,
+        ventetidRequest: VentetidRequest,
     ): Boolean {
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
@@ -90,7 +116,7 @@ class FlexSyketilfelleClient(
                 .exchange(
                     queryBuilder.toUriString(),
                     POST,
-                    HttpEntity(erUtenforVentetidRequest, headers),
+                    HttpEntity(ventetidRequest, headers),
                     Boolean::class.java,
                 )
 
@@ -103,7 +129,7 @@ class FlexSyketilfelleClient(
     }
 
     @Retryable
-    fun beregnArbeidsgiverperiode(
+    override fun beregnArbeidsgiverperiode(
         soknad: Sykepengesoknad,
         sykmelding: SykmeldingKafkaMessage?,
         forelopig: Boolean,
@@ -156,13 +182,61 @@ class FlexSyketilfelleClient(
         }
     }
 
+    override fun hentSykmeldingerMedSammeVentetid(
+        sykmeldingKafkaMessage: SykmeldingKafkaMessage,
+        identer: FolkeregisterIdenter,
+    ): Set<String> {
+        val headers = HttpHeaders()
+        headers.set("fnr", identer.tilFnrHeader())
+
+        val queryBuilder =
+            UriComponentsBuilder
+                .fromUriString(url)
+                .pathSegment(
+                    "api",
+                    "v1",
+                    "ventetid",
+                    sykmeldingKafkaMessage.sykmelding.id,
+                    "perioderMedSammeVentetid",
+                )
+
+        val body =
+            VentetidRequest(
+                sykmeldingKafkaMessage = sykmeldingKafkaMessage,
+            )
+
+        val response =
+            flexSyketilfelleRestTemplate
+                .exchange(
+                    queryBuilder.toUriString(),
+                    POST,
+                    HttpEntity(body, headers),
+                    SammeVentetidResponse::class.java,
+                )
+
+        return response.body
+            ?.ventetidPerioder
+            ?.map { it.ressursId }
+            ?.toSet()
+            ?: throw RuntimeException("Ingen data returnert fra flex-syketilfelle i /perioderMedSammeVentetid")
+    }
+
     private data class SoknadOgSykmelding(
         val soknad: SykepengesoknadDTO,
         val sykmelding: SykmeldingKafkaMessage?,
     )
 }
 
-data class ErUtenforVentetidRequest(
+data class VentetidRequest(
     val tilleggsopplysninger: Tilleggsopplysninger? = null,
     val sykmeldingKafkaMessage: SykmeldingKafkaMessage? = null,
+)
+
+data class SammeVentetidResponse(
+    val ventetidPerioder: List<SammeVentetidPeriode>,
+)
+
+data class SammeVentetidPeriode(
+    val ressursId: String,
+    val ventetid: Periode,
 )

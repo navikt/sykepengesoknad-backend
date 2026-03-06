@@ -18,6 +18,8 @@ interface SykepengesoknadRepository : CrudRepository<SykepengesoknadDbRecord, St
 
     fun findBySykmeldingUuid(sykmeldingUuid: String): List<SykepengesoknadDbRecord>
 
+    fun findBySykmeldingUuidIn(sykmeldingUuid: Set<String>): List<SykepengesoknadDbRecord>
+
     @Modifying
     @Query(
         """

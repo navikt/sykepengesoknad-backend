@@ -30,6 +30,9 @@ fun FellesTestOppsett.sendSykmelding(
         repeat(forventaSoknader) {
             mockFlexSyketilfelleErUtenforVentetid(sykmeldingKafkaMessage.sykmelding.id, true)
         }
+        repeat(forventaSoknader) {
+            mockFlexSyketilfelleHentSykmeldingerMedSammeVentetidDefault(sykmeldingKafkaMessage.sykmelding.id)
+        }
     }
 
     repeat(if (forventaSoknader == 0) 1 else forventaSoknader) {

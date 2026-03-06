@@ -1,10 +1,8 @@
 package no.nav.helse.flex.soknadsopprettelse
 
-import no.nav.helse.flex.client.flexsyketilfelle.ErUtenforVentetidRequest
 import no.nav.helse.flex.client.flexsyketilfelle.FlexSyketilfelleClient
+import no.nav.helse.flex.client.flexsyketilfelle.VentetidRequest
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.domain.Arbeidssituasjon.FRILANSER
-import no.nav.helse.flex.domain.Arbeidssituasjon.NAERINGSDRIVENDE
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.service.FolkeregisterIdenter
@@ -18,13 +16,8 @@ class SkalOppretteSoknader(
 ) {
     private val log = logger()
 
-    fun skalOppretteSoknader(
-        sykmeldingKafkaMessage: SykmeldingKafkaMessage,
-        arbeidssituasjon: Arbeidssituasjon,
-        identer: FolkeregisterIdenter,
-    ): Boolean {
+    fun skalOppretteSoknader(sykmeldingKafkaMessage: SykmeldingKafkaMessage): Boolean {
         val sykmelding = sykmeldingKafkaMessage.sykmelding
-        val sykmeldingId = sykmelding.id
 
         val perioder = sykmelding.sykmeldingsperioder
         if (perioder.any { it.type == AVVENTENDE }) {
@@ -49,17 +42,23 @@ class SkalOppretteSoknader(
             return false
         }
 
-        if (!listOf(FRILANSER, NAERINGSDRIVENDE).contains(arbeidssituasjon)) {
-            return true
-        }
+        return true
+    }
 
+    fun skalOppretteNaringsdrivendeSoknader(
+        sykmeldingKafkaMessage: SykmeldingKafkaMessage,
+        identer: FolkeregisterIdenter,
+        arbeidssituasjon: Arbeidssituasjon,
+    ): Boolean {
+        val sykmelding = sykmeldingKafkaMessage.sykmelding
+        val sykmeldingId = sykmelding.id
         val brukerHarOppgittForsikring = sykmeldingKafkaMessage.brukerHarOppgittForsikring()
         val erUtenforVentetid =
             flexSyketilfelleClient.erUtenforVentetid(
                 identer = identer,
                 sykmeldingId = sykmeldingId,
-                erUtenforVentetidRequest =
-                    ErUtenforVentetidRequest(
+                ventetidRequest =
+                    VentetidRequest(
                         sykmeldingKafkaMessage = sykmeldingKafkaMessage,
                     ),
             )

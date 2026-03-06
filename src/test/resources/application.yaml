@@ -121,6 +121,7 @@ pdl.api.url: "http://pdl-api.pdl"
 enhetsregister.api.url: "https://data.brreg.no"
 kafka-schema-registry.url: "http://schema.url"
 narmesteleder.url: "http://narmesteleder"
+FLEX_SYKMELDINGER_BACKEND_API_TARGET: api://flex-sykmeldinger-backend/.default
 
 management:
   endpoint:

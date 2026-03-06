@@ -9,9 +9,10 @@ import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.kafka.producer.RebehandlingSykmeldingSendtProducer
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.LockRepository
+import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.service.GjenapneSykmeldingService
 import no.nav.helse.flex.service.IdentService
-import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.KlippOgOpprett
+import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.Klipp
 import no.nav.syfo.sykmelding.kafka.model.STATUS_BEKREFTET
 import no.nav.syfo.sykmelding.kafka.model.STATUS_SENDT
 import no.nav.syfo.sykmelding.kafka.model.ShortNameKafkaDTO
@@ -26,9 +27,11 @@ class BehandleSendtBekreftetSykmelding(
     private val identService: IdentService,
     private val flexSyketilfelleClient: FlexSyketilfelleClient,
     private val sykmeldingStatusService: GjenapneSykmeldingService,
-    private val klippOgOpprett: KlippOgOpprett,
+    private val klipp: Klipp,
     private val skalOppretteSoknader: SkalOppretteSoknader,
     private val lockRepository: LockRepository,
+    private val naringsdrivendeSoknadService: NaringsdrivendeSoknadService,
+    private val opprettSoknadService: OpprettSoknadService,
 ) {
     val log = logger()
 
@@ -60,8 +63,14 @@ class BehandleSendtBekreftetSykmelding(
 
     fun prosseserKafkaMessage(sykmeldingKafkaMessage: SykmeldingKafkaMessage): List<AktiveringBestilling> =
         when (sykmeldingKafkaMessage.event.statusEvent) {
-            STATUS_BEKREFTET -> handterBekreftetSykmelding(sykmeldingKafkaMessage)
-            STATUS_SENDT -> handterSendtSykmelding(sykmeldingKafkaMessage)
+            STATUS_BEKREFTET -> {
+                handterBekreftetSykmelding(sykmeldingKafkaMessage)
+            }
+
+            STATUS_SENDT -> {
+                handterSendtSykmelding(sykmeldingKafkaMessage)
+            }
+
             else -> {
                 log.info(
                     "Ignorerer statusmelding for sykmelding ${sykmeldingKafkaMessage.sykmelding.id} med " +
@@ -73,15 +82,19 @@ class BehandleSendtBekreftetSykmelding(
 
     private fun handterBekreftetSykmelding(sykmeldingStatusKafkaMessageDTO: SykmeldingKafkaMessage): List<AktiveringBestilling> =
         when (val arbeidssituasjon = sykmeldingStatusKafkaMessageDTO.hentArbeidssituasjon()) {
-            Arbeidssituasjon.NAERINGSDRIVENDE,
-            Arbeidssituasjon.FRILANSER,
             Arbeidssituasjon.ARBEIDSLEDIG,
             Arbeidssituasjon.FISKER,
             Arbeidssituasjon.JORDBRUKER,
             Arbeidssituasjon.BARNEPASSER,
             Arbeidssituasjon.ANNET,
             -> {
-                eksterneKallKlippOgOpprett(sykmeldingStatusKafkaMessageDTO, arbeidssituasjon)
+                opprettSoknad(sykmeldingStatusKafkaMessageDTO, arbeidssituasjon)
+            }
+
+            Arbeidssituasjon.NAERINGSDRIVENDE,
+            Arbeidssituasjon.FRILANSER,
+            -> {
+                opprettSoknadNaringsdrivende(sykmeldingStatusKafkaMessageDTO, arbeidssituasjon)
             }
 
             Arbeidssituasjon.ARBEIDSTAKER -> {
@@ -90,29 +103,93 @@ class BehandleSendtBekreftetSykmelding(
                 emptyList()
             }
 
-            null -> emptyList()
+            null -> {
+                emptyList()
+            }
         }
 
     private fun handterSendtSykmelding(sykmeldingStatusKafkaMessageDTO: SykmeldingKafkaMessage): List<AktiveringBestilling> =
         when (val arbeidssituasjon = sykmeldingStatusKafkaMessageDTO.hentArbeidssituasjon()) {
-            Arbeidssituasjon.ARBEIDSTAKER ->
-                eksterneKallKlippOgOpprett(sykmeldingStatusKafkaMessageDTO, arbeidssituasjon)
+            Arbeidssituasjon.ARBEIDSTAKER -> {
+                opprettSoknadArbeidstaker(sykmeldingStatusKafkaMessageDTO, arbeidssituasjon)
+            }
 
-            else -> throw UventetArbeidssituasjonException(
-                "Uventet arbeidssituasjon $arbeidssituasjon for sendt sykmelding ${sykmeldingStatusKafkaMessageDTO.sykmelding.id}",
-            )
+            else -> {
+                throw UventetArbeidssituasjonException(
+                    "Uventet arbeidssituasjon $arbeidssituasjon for sendt sykmelding ${sykmeldingStatusKafkaMessageDTO.sykmelding.id}",
+                )
+            }
         }
 
-    private fun eksterneKallKlippOgOpprett(
+    private fun opprettSoknad(
         sykmeldingKafkaMessage: SykmeldingKafkaMessage,
         arbeidssituasjon: Arbeidssituasjon,
     ): List<AktiveringBestilling> {
-        val fnr = sykmeldingKafkaMessage.kafkaMetadata.fnr
-
-        val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(fnr)
+        val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(sykmeldingKafkaMessage.kafkaMetadata.fnr)
 
         val skalOppretteSoknad =
             skalOppretteSoknader.skalOppretteSoknader(
+                sykmeldingKafkaMessage = sykmeldingKafkaMessage,
+            )
+        if (!skalOppretteSoknad) {
+            return emptyList()
+        }
+
+        låsIdenter(identer, sykmeldingKafkaMessage)
+
+        val sykeForloep = flexSyketilfelleClient.hentSykeforloep(identer, sykmeldingKafkaMessage)
+
+        return opprettSoknadService.opprettSykepengesoknaderForSykmelding(
+            sykmeldingKafkaMessage = sykmeldingKafkaMessage,
+            arbeidssituasjon = arbeidssituasjon,
+            identer = identer,
+            arbeidsgiverStatusDTO = sykmeldingKafkaMessage.event.arbeidsgiver,
+            flexSyketilfelleSykeforloep = sykeForloep,
+        )
+    }
+
+    private fun opprettSoknadArbeidstaker(
+        sykmeldingKafkaMessage: SykmeldingKafkaMessage,
+        arbeidssituasjon: Arbeidssituasjon,
+    ): List<AktiveringBestilling> {
+        val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(sykmeldingKafkaMessage.kafkaMetadata.fnr)
+
+        val skalOppretteSoknad =
+            skalOppretteSoknader.skalOppretteSoknader(
+                sykmeldingKafkaMessage = sykmeldingKafkaMessage,
+            )
+        if (!skalOppretteSoknad) {
+            return emptyList()
+        }
+
+        låsIdenter(identer, sykmeldingKafkaMessage)
+
+        val sykeForloep = flexSyketilfelleClient.hentSykeforloep(identer, sykmeldingKafkaMessage)
+
+        val klippetSykmeldingKafkaMessage =
+            klipp.klippArbeidstaker(
+                sykmeldingKafkaMessage = sykmeldingKafkaMessage,
+                arbeidssituasjon = arbeidssituasjon,
+                identer = identer,
+            )
+
+        return opprettSoknadService.opprettSykepengesoknaderForSykmelding(
+            sykmeldingKafkaMessage = klippetSykmeldingKafkaMessage,
+            arbeidssituasjon = arbeidssituasjon,
+            identer = identer,
+            arbeidsgiverStatusDTO = sykmeldingKafkaMessage.event.arbeidsgiver,
+            flexSyketilfelleSykeforloep = sykeForloep,
+        )
+    }
+
+    private fun opprettSoknadNaringsdrivende(
+        sykmeldingKafkaMessage: SykmeldingKafkaMessage,
+        arbeidssituasjon: Arbeidssituasjon,
+    ): List<AktiveringBestilling> {
+        val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(fnr = sykmeldingKafkaMessage.kafkaMetadata.fnr)
+
+        val skalOppretteSoknad =
+            skalOppretteSoknader.skalOppretteNaringsdrivendeSoknader(
                 sykmeldingKafkaMessage = sykmeldingKafkaMessage,
                 arbeidssituasjon = arbeidssituasjon,
                 identer = identer,
@@ -121,14 +198,36 @@ class BehandleSendtBekreftetSykmelding(
             return emptyList()
         }
 
+        låsIdenter(identer, sykmeldingKafkaMessage)
+
+        val sykmeldingerSomSkalHaSoknader =
+            naringsdrivendeSoknadService.finnAndreSykmeldingerSomManglerSoknad(
+                sykmeldingKafkaMessage = sykmeldingKafkaMessage,
+                arbeidssituasjon = arbeidssituasjon,
+                identer = identer,
+            )
+
+        val sykeForloep = flexSyketilfelleClient.hentSykeforloep(identer, sykmeldingKafkaMessage)
+
+        return (setOf(sykmeldingKafkaMessage) + sykmeldingerSomSkalHaSoknader).flatMap {
+            opprettSoknadService.opprettSykepengesoknaderForSykmelding(
+                sykmeldingKafkaMessage = it,
+                arbeidssituasjon = it.hentArbeidssituasjon()!!,
+                identer = identer,
+                arbeidsgiverStatusDTO = it.event.arbeidsgiver,
+                flexSyketilfelleSykeforloep = sykeForloep,
+            )
+        }
+    }
+
+    private fun låsIdenter(
+        identer: FolkeregisterIdenter,
+        sykmeldingKafkaMessage: SykmeldingKafkaMessage,
+    ) {
         val låstIdenter = lockRepository.settAdvisoryLock(keys = identer.alle().map { it.toLong() }.toLongArray())
         if (!låstIdenter) {
             throw RuntimeException("Det finnes allerede en advisory lock for sykmelding ${sykmeldingKafkaMessage.sykmelding.id}")
         }
-
-        val sykeForloep = flexSyketilfelleClient.hentSykeforloep(identer, sykmeldingKafkaMessage)
-
-        return klippOgOpprett.klippOgOpprett(sykmeldingKafkaMessage, arbeidssituasjon, identer, sykeForloep)
     }
 }
 
@@ -139,12 +238,15 @@ fun SykmeldingKafkaMessage.hentArbeidssituasjon(): Arbeidssituasjon? {
                 it,
             )
         return when (arbeidssituasjon) {
-            Arbeidssituasjon.NAERINGSDRIVENDE ->
+            Arbeidssituasjon.NAERINGSDRIVENDE -> {
                 this.event.brukerSvar?.arbeidssituasjon?.let {
                     Arbeidssituasjon.valueOf(it.svar.name)
                 }
+            }
 
-            else -> arbeidssituasjon
+            else -> {
+                arbeidssituasjon
+            }
         }
     }
     return null
