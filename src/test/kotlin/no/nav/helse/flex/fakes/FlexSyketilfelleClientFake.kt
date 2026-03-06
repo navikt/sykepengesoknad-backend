@@ -52,5 +52,9 @@ class FlexSyketilfelleClientFake : FlexSyketilfelleClient {
     override fun hentSykmeldingerMedSammeVentetid(
         sykmeldingKafkaMessage: SykmeldingKafkaMessage,
         identer: FolkeregisterIdenter,
-    ): Set<String> = sykmeldingerMedSammeVentetid
+    ): Set<String> =
+        when (identer.originalIdent) {
+            "kast-feil" -> throw RuntimeException("Feil ved henting av sykmelding med samme ventetid")
+            else -> sykmeldingerMedSammeVentetid
+        }
 }
