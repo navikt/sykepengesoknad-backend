@@ -72,7 +72,61 @@ class NaringsdrivendeVentetidSoknadIntegrationTest : FellesTestOppsett() {
         hentSoknader(fnr).size `should be equal to` 2
     }
 
-    private fun lagSykmeldingKafkaMessage(fnr: String): SykmeldingKafkaMessage {
+    @Test
+    fun `Dupliserer ikke søknad dersom forrige sykmeldingen trigget opprettelse av begge søknader`() {
+        val kafkaMessage = lagSykmeldingKafkaMessage(fnr)
+        val kafkaMessage1 = lagSykmeldingKafkaMessage(fnr)
+
+        FlexSykmeldingMockDispatcher.enqueue(SykmeldingerResponse(listOf(kafkaMessage, kafkaMessage1)))
+
+        mockFlexSyketilfelleErUtenforVentetid(
+            sykmeldingId = kafkaMessage.sykmelding.id,
+            erUtenforVentetid = true,
+        )
+        mockFlexSyketilfelleErUtenforVentetid(
+            sykmeldingId = kafkaMessage1.sykmelding.id,
+            erUtenforVentetid = true,
+        )
+
+        // flex-syketilfelle kjenner til begge sykmeldingene når første sykmelding behandles
+        mockFlexSyketilfelleSykeforloep(
+            sykmeldingIder = setOf(kafkaMessage.sykmelding.id, kafkaMessage1.sykmelding.id),
+            oppfolgingsdato = dato,
+        )
+        mockFlexSyketilfelleSykeforloep(
+            sykmeldingIder = setOf(kafkaMessage.sykmelding.id, kafkaMessage1.sykmelding.id),
+            oppfolgingsdato = dato,
+        )
+
+        mockFlexSyketilfelleHentSykmeldingerMedSammeVentetid(
+            sykmeldingIder = setOf(kafkaMessage.sykmelding.id, kafkaMessage1.sykmelding.id),
+        )
+        mockFlexSyketilfelleHentSykmeldingerMedSammeVentetid(
+            sykmeldingIder = setOf(kafkaMessage1.sykmelding.id, kafkaMessage.sykmelding.id),
+        )
+
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
+            sykmeldingId = kafkaMessage.sykmelding.id,
+            sykmeldingKafkaMessage = kafkaMessage,
+            topic = SYKMELDINGSENDT_TOPIC,
+        )
+
+        val hentSoknader = hentSoknader(fnr)
+        hentSoknader.size `should be equal to` 2
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
+
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
+            sykmeldingId = kafkaMessage1.sykmelding.id,
+            sykmeldingKafkaMessage = kafkaMessage1,
+            topic = SYKMELDINGSENDT_TOPIC,
+        )
+
+        val hentSoknader1 = hentSoknader(fnr)
+        hentSoknader1.size `should be equal to` 2
+        hentSoknader.map { it.id } `should be equal to` hentSoknader1.map { it.id }
+    }
+
+    fun lagSykmeldingKafkaMessage(fnr: String): SykmeldingKafkaMessage {
         val statusDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
         val sykmelding = skapArbeidsgiverSykmelding(sykmeldingId = statusDTO.event.sykmeldingId)
         return SykmeldingKafkaMessage(
