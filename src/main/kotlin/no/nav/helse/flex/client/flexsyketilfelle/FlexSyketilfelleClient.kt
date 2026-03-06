@@ -22,19 +22,44 @@ import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
 
+interface FlexSyketilfelleClient {
+    fun hentSykeforloep(
+        identer: FolkeregisterIdenter,
+        sykmeldingKafkaMessage: SykmeldingKafkaMessage,
+    ): List<Sykeforloep>
+
+    fun erUtenforVentetid(
+        identer: FolkeregisterIdenter,
+        sykmeldingId: String,
+        ventetidRequest: VentetidRequest,
+    ): Boolean
+
+    fun beregnArbeidsgiverperiode(
+        soknad: Sykepengesoknad,
+        sykmelding: SykmeldingKafkaMessage?,
+        forelopig: Boolean,
+        identer: FolkeregisterIdenter,
+    ): Arbeidsgiverperiode?
+
+    fun hentSykmeldingerMedSammeVentetid(
+        sykmeldingKafkaMessage: SykmeldingKafkaMessage,
+        identer: FolkeregisterIdenter,
+    ): Set<String>
+}
+
 @Component
-class FlexSyketilfelleClient(
+class FlexSyketilfelleEksternClient(
     private val flexSyketilfelleRestTemplate: RestTemplate,
     private val sykepengesoknadTilSykepengesoknadDTOMapper: SykepengesoknadTilSykepengesoknadDTOMapper,
     @param:Value("\${flex.syketilfelle.url}")
     private val url: String,
-) {
+) : FlexSyketilfelleClient {
     val log = logger()
 
     fun FolkeregisterIdenter.tilFnrHeader(): String = this.alle().joinToString(separator = ", ")
 
     @Retryable
-    fun hentSykeforloep(
+    override fun hentSykeforloep(
         identer: FolkeregisterIdenter,
         sykmeldingKafkaMessage: SykmeldingKafkaMessage,
     ): List<Sykeforloep> {
@@ -71,7 +96,7 @@ class FlexSyketilfelleClient(
     }
 
     @Retryable
-    fun erUtenforVentetid(
+    override fun erUtenforVentetid(
         identer: FolkeregisterIdenter,
         sykmeldingId: String,
         ventetidRequest: VentetidRequest,
@@ -104,7 +129,7 @@ class FlexSyketilfelleClient(
     }
 
     @Retryable
-    fun beregnArbeidsgiverperiode(
+    override fun beregnArbeidsgiverperiode(
         soknad: Sykepengesoknad,
         sykmelding: SykmeldingKafkaMessage?,
         forelopig: Boolean,
@@ -157,7 +182,7 @@ class FlexSyketilfelleClient(
         }
     }
 
-    fun hentSykmeldingerMedSammeVentetid(
+    override fun hentSykmeldingerMedSammeVentetid(
         sykmeldingKafkaMessage: SykmeldingKafkaMessage,
         identer: FolkeregisterIdenter,
     ): Set<String> {

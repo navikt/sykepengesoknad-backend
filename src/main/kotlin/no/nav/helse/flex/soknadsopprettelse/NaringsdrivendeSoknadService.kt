@@ -17,7 +17,7 @@ class NaringsdrivendeSoknadService(
 ) {
     private val log = logger()
 
-    fun finnSykmeldingerSomManglerSoknad(
+    fun finnAndreSykmeldingerSomManglerSoknad(
         sykmeldingKafkaMessage: SykmeldingKafkaMessage,
         arbeidssituasjon: Arbeidssituasjon,
         identer: FolkeregisterIdenter,
@@ -25,26 +25,30 @@ class NaringsdrivendeSoknadService(
         val sykmeldingIder = flexSyketilfelleClient.hentSykmeldingerMedSammeVentetid(sykmeldingKafkaMessage, identer)
         log.info("Fant ${sykmeldingIder.size} sykmeldinger med samme ventetid ${sykmeldingKafkaMessage.sykmelding.id}: $sykmeldingIder")
 
-        val sykmeldingIderUtenomDenne = sykmeldingIder.filterNot { it == sykmeldingKafkaMessage.sykmelding.id }.toSet()
+        val andreSykmeldingIder = sykmeldingIder.filterNot { it == sykmeldingKafkaMessage.sykmelding.id }.toSet()
 
-        val sykmeldingIderMedSoknader =
+        val andreSykmeldingIderMedSoknader =
             sykepengesoknadRepository
-                .findBySykmeldingUuidIn(sykmeldingIderUtenomDenne)
+                .findBySykmeldingUuidIn(andreSykmeldingIder)
                 .map { it.sykmeldingUuid!! }
                 .toSet()
 
-        val sykmeldingerSomManglerSoknad = sykmeldingIderUtenomDenne - sykmeldingIderMedSoknader
+        val andreSykmeldingerSomManglerSoknad = andreSykmeldingIder - andreSykmeldingIderMedSoknader
 
-        return if (sykmeldingerSomManglerSoknad.isEmpty()) {
-            log.info("Oppretter næringsdrivende søknad for sykmelding ${sykmeldingKafkaMessage.sykmelding.id}")
-            emptyList()
-        } else {
-            log.info(
-                "Oppretter næringsdrivende søknader for ${sykmeldingerSomManglerSoknad.size + 1} sykmeldinger ${sykmeldingKafkaMessage.sykmelding.id}: $sykmeldingerSomManglerSoknad",
-            )
-            flexSykmeldingerBackendClient
-                .hentSykmeldinger(sykmeldingIder = sykmeldingerSomManglerSoknad)
-                .filter { it.hentArbeidssituasjon() == arbeidssituasjon }
-        }
+        val andreSykmeldingerMedSammeArbeidsforhold =
+            if (andreSykmeldingerSomManglerSoknad.isEmpty()) {
+                emptyList()
+            } else {
+                flexSykmeldingerBackendClient
+                    .hentSykmeldinger(sykmeldingIder = andreSykmeldingerSomManglerSoknad)
+                    .filter { it.hentArbeidssituasjon() == arbeidssituasjon }
+            }
+
+        log.info(
+            "Fant ${andreSykmeldingerMedSammeArbeidsforhold.size} " +
+                "andre sykmeldinger som skal ha søknad med sykmelding: ${sykmeldingKafkaMessage.sykmelding.id}: " +
+                "${andreSykmeldingerMedSammeArbeidsforhold.map { it.sykmelding.id }}",
+        )
+        return andreSykmeldingerMedSammeArbeidsforhold
     }
 }

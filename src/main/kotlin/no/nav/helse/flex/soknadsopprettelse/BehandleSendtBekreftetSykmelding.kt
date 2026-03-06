@@ -198,14 +198,14 @@ class BehandleSendtBekreftetSykmelding(
             return emptyList()
         }
 
+        låsIdenter(identer, sykmeldingKafkaMessage)
+
         val sykmeldingerSomSkalHaSoknader =
-            naringsdrivendeSoknadService.finnSykmeldingerSomManglerSoknad(
+            naringsdrivendeSoknadService.finnAndreSykmeldingerSomManglerSoknad(
                 sykmeldingKafkaMessage = sykmeldingKafkaMessage,
                 arbeidssituasjon = arbeidssituasjon,
                 identer = identer,
             )
-
-        låsIdenter(identer, sykmeldingKafkaMessage)
 
         val sykeForloep = flexSyketilfelleClient.hentSykeforloep(identer, sykmeldingKafkaMessage)
 
