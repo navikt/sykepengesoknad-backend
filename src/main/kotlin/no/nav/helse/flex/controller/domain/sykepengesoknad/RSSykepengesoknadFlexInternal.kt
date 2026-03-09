@@ -6,7 +6,7 @@ data class RSSykepengesoknadFlexInternal(
     val id: String,
     val sykmeldingId: String? = null,
     val soknadstype: RSSoknadstype,
-    val status: RSSoknadstatus?,
+    val status: RSSoknadstatusInternal?,
     val fom: LocalDate? = null,
     val tom: LocalDate? = null,
     val opprettetDato: LocalDateTime?,

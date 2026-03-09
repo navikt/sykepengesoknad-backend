@@ -73,6 +73,13 @@ fun konverterSoknadstatus(soknadstatus: Soknadstatus): RSSoknadstatus =
         EnumUtil.konverter(RSSoknadstatus::class.java, soknadstatus)!!
     }
 
+fun konverterSoknadstatusInternal(soknadstatus: Soknadstatus): RSSoknadstatusInternal =
+    if (soknadstatus === Soknadstatus.UTGATT) {
+        RSSoknadstatusInternal.UTGAATT
+    } else {
+        EnumUtil.konverter(RSSoknadstatusInternal::class.java, soknadstatus)!!
+    }
+
 private fun Merknad.mapMerknad(): RSMerknad =
     RSMerknad(
         type = this.type,
@@ -147,7 +154,7 @@ fun Sykepengesoknad.tilRSSykepengesoknadFlexInternal() =
         id = this.id,
         sykmeldingId = this.sykmeldingId,
         soknadstype = EnumUtil.konverter(RSSoknadstype::class.java, this.soknadstype)!!,
-        status = konverterSoknadstatus(this.status),
+        status = konverterSoknadstatusInternal(this.status),
         fom = this.fom,
         tom = this.tom,
         opprettetDato = this.opprettet?.tilOsloLocalDateTime(),

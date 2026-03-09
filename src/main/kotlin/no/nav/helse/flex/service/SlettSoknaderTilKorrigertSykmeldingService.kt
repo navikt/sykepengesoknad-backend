@@ -18,13 +18,23 @@ class SlettSoknaderTilKorrigertSykmeldingService(
         soknader.forEach {
             when (it.status) {
                 Soknadstatus.NY -> it.slettSoknad(publiser = true)
+
                 Soknadstatus.SENDT -> it.settKorrigert()
+
                 Soknadstatus.FREMTIDIG -> it.slettSoknad(publiser = true)
+
                 Soknadstatus.UTKAST_TIL_KORRIGERING -> it.slettSoknad(publiser = false)
+
                 Soknadstatus.KORRIGERT -> Unit
+
                 Soknadstatus.AVBRUTT -> it.slettSoknad(publiser = false)
+
                 Soknadstatus.UTGATT -> it.slettSoknad(publiser = false)
+
                 Soknadstatus.SLETTET -> it.slettSoknad(publiser = false)
+
+                // TODO ventetid SKJULT?
+                Soknadstatus.SKJULT -> it.slettSoknad(publiser = false)
             }
         }
     }

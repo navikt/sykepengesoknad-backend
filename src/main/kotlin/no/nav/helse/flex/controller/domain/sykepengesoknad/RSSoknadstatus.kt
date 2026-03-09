@@ -10,3 +10,15 @@ enum class RSSoknadstatus {
     UTGAATT,
     SLETTET,
 }
+
+enum class RSSoknadstatusInternal {
+    NY,
+    SENDT,
+    FREMTIDIG,
+    UTKAST_TIL_KORRIGERING,
+    KORRIGERT,
+    AVBRUTT,
+    UTGAATT,
+    SLETTET,
+    SKJULT,
+}

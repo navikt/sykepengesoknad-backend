@@ -51,6 +51,7 @@ fun Soknadstatus.tilSoknadstatusDTO(): SoknadsstatusDTO =
         Soknadstatus.KORRIGERT -> SoknadsstatusDTO.KORRIGERT
         Soknadstatus.SLETTET -> SoknadsstatusDTO.SLETTET
         Soknadstatus.UTGATT -> SoknadsstatusDTO.UTGAATT
+        Soknadstatus.SKJULT -> throw IllegalArgumentException("Skal ikke mappe $this i SoknadsstatusDTO, den er kun for internt bruk")
     }
 
 fun Svartype.tilSvartypeDTO(): SvartypeDTO =

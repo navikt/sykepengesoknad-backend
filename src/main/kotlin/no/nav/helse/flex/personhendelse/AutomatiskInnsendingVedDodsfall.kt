@@ -57,6 +57,7 @@ class AutomatiskInnsendingVedDodsfall(
         sykepengesoknadDAO
             .finnSykepengesoknader(identer)
             .filter { it.sykmeldingId != null }
+            // TODO ventetid SKJULT?
             .filter { Soknadstatus.NY == it.status || Soknadstatus.FREMTIDIG == it.status }
             .forEach {
                 var sykepengesoknad = it

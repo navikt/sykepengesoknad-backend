@@ -38,6 +38,7 @@ class ProsesserJulesoknadkandidat(
                 return
             }
 
+            // TODO ventetid SKJULT?
             if (soknad.status != Soknadstatus.FREMTIDIG) {
                 log.info("Julesøknadkandidat $julesoknadkandidat har ikke lengre status fremtidig, sletter")
                 julesoknadkandidatDAO.slettJulesoknadkandidat(julesoknadkandidat.julesoknadkandidatId)
