@@ -1,13 +1,10 @@
 package no.nav.helse.flex.medlemskap
 
-import no.nav.helse.flex.FellesTestOppsett
+import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknad
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.hentSoknad
-import no.nav.helse.flex.hentSoknaderMetadata
-import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
-import no.nav.helse.flex.sendSykmelding
+import no.nav.helse.flex.mockdispatcher.MedlemskapMockDispatcher
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.medIndex
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
@@ -15,19 +12,10 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
-import no.nav.helse.flex.tilSoknader
-import no.nav.helse.flex.util.serialisertTilString
-import no.nav.helse.flex.ventPåRecords
-import okhttp3.mockwebserver.MockResponse
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.MethodOrderer
-import org.junit.jupiter.api.Order
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestMethodOrder
+import org.junit.jupiter.api.*
 import java.time.LocalDate
 
 /**
@@ -50,12 +38,10 @@ class MedlemskapUavklartIntegrationTest : FellesTestOppsett() {
     @Order(1)
     fun `Oppretter søknad med status UAVKLART men uten spørsmål fra LovMe som skal ha ARBEID_UTENFOR_NORGE`() {
         val fnr = "31111111116"
-        medlemskapMockWebServer.enqueue(
-            MockResponse().setResponseCode(200).setBody(
-                MedlemskapVurderingResponse(
-                    svar = MedlemskapVurderingSvarType.UAVKLART,
-                    sporsmal = emptyList(),
-                ).serialisertTilString(),
+        MedlemskapMockDispatcher.enqueue(
+            MedlemskapVurderingResponse(
+                svar = MedlemskapVurderingSvarType.UAVKLART,
+                sporsmal = emptyList(),
             ),
         )
 

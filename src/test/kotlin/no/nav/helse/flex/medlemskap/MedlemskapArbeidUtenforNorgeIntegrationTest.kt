@@ -4,6 +4,7 @@ import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknaderMetadata
+import no.nav.helse.flex.mockdispatcher.MedlemskapMockDispatcher
 import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.medIndex
@@ -11,8 +12,6 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
-import no.nav.helse.flex.util.serialisertTilString
-import okhttp3.mockwebserver.MockResponse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
 import java.time.LocalDate
@@ -32,23 +31,21 @@ class MedlemskapArbeidUtenforNorgeIntegrationTest : FellesTestOppsett() {
     @Order(1)
     fun `Oppretter søknad med status UAVKLART som ikke skal ha ARBEID_UTENFOR_NORGE`() {
         val fnr = "31111111111"
-        medlemskapMockWebServer.enqueue(
-            MockResponse().setResponseCode(200).setBody(
-                MedlemskapVurderingResponse(
-                    svar = MedlemskapVurderingSvarType.UAVKLART,
-                    sporsmal =
-                        listOf(
-                            MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
-                            MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
-                            MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
-                            MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE,
-                        ),
-                    kjentOppholdstillatelse =
-                        KjentOppholdstillatelse(
-                            fom = LocalDate.of(2023, 1, 1).minusMonths(1),
-                            tom = LocalDate.of(2023, 1, 7).plusMonths(1),
-                        ),
-                ).serialisertTilString(),
+        MedlemskapMockDispatcher.enqueue(
+            MedlemskapVurderingResponse(
+                svar = MedlemskapVurderingSvarType.UAVKLART,
+                sporsmal =
+                    listOf(
+                        MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
+                        MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
+                        MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
+                        MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE,
+                    ),
+                kjentOppholdstillatelse =
+                    KjentOppholdstillatelse(
+                        fom = LocalDate.of(2023, 1, 1).minusMonths(1),
+                        tom = LocalDate.of(2023, 1, 7).plusMonths(1),
+                    ),
             ),
         )
 
@@ -98,12 +95,10 @@ class MedlemskapArbeidUtenforNorgeIntegrationTest : FellesTestOppsett() {
     @Order(1)
     fun `Oppretter søknad med status UAVKLART uten spørsmål fra LovMe som skal ha ARBEID_UTENFOR_NORGE`() {
         val fnr = "31111111116"
-        medlemskapMockWebServer.enqueue(
-            MockResponse().setResponseCode(200).setBody(
-                MedlemskapVurderingResponse(
-                    svar = MedlemskapVurderingSvarType.UAVKLART,
-                    sporsmal = emptyList(),
-                ).serialisertTilString(),
+        MedlemskapMockDispatcher.enqueue(
+            MedlemskapVurderingResponse(
+                svar = MedlemskapVurderingSvarType.UAVKLART,
+                sporsmal = emptyList(),
             ),
         )
 
@@ -150,12 +145,10 @@ class MedlemskapArbeidUtenforNorgeIntegrationTest : FellesTestOppsett() {
     @Order(1)
     fun `Oppretter søknad med status JA som ikke skal ha ARBEID_UTENFOR_NORGE`() {
         val fnr = "31111111112"
-        medlemskapMockWebServer.enqueue(
-            MockResponse().setResponseCode(200).setBody(
-                MedlemskapVurderingResponse(
-                    svar = MedlemskapVurderingSvarType.JA,
-                    sporsmal = emptyList(),
-                ).serialisertTilString(),
+        MedlemskapMockDispatcher.enqueue(
+            MedlemskapVurderingResponse(
+                svar = MedlemskapVurderingSvarType.JA,
+                sporsmal = emptyList(),
             ),
         )
 
@@ -201,12 +194,10 @@ class MedlemskapArbeidUtenforNorgeIntegrationTest : FellesTestOppsett() {
     @Order(1)
     fun `Oppretter søknad med status NEI som ikke skal ha ARBEID_UTENFOR_NORGE`() {
         val fnr = "31111111113"
-        medlemskapMockWebServer.enqueue(
-            MockResponse().setResponseCode(200).setBody(
-                MedlemskapVurderingResponse(
-                    svar = MedlemskapVurderingSvarType.NEI,
-                    sporsmal = emptyList(),
-                ).serialisertTilString(),
+        MedlemskapMockDispatcher.enqueue(
+            MedlemskapVurderingResponse(
+                svar = MedlemskapVurderingSvarType.NEI,
+                sporsmal = emptyList(),
             ),
         )
 
