@@ -2,16 +2,11 @@ package no.nav.helse.flex.medlemskap
 
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.domain.Arbeidssituasjon
+import no.nav.helse.flex.mockdispatcher.MedlemskapMockDispatcher
 import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
-import no.nav.helse.flex.testdata.behandingsdager
-import no.nav.helse.flex.testdata.gradertReisetilskudd
-import no.nav.helse.flex.testdata.heltSykmeldt
-import no.nav.helse.flex.testdata.reisetilskudd
-import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
-import no.nav.helse.flex.util.serialisertTilString
-import okhttp3.mockwebserver.MockResponse
+import no.nav.helse.flex.testdata.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
@@ -37,16 +32,14 @@ class MedlemskapSoknadstypeIntegrationTest : FellesTestOppsett() {
     @Test
     @Order(1)
     fun `Soknadstype ARBEIDSTAKERE skal ha medlemskapspørsmål`() {
-        medlemskapMockWebServer.enqueue(
-            MockResponse().setResponseCode(200).setBody(
-                MedlemskapVurderingResponse(
-                    svar = MedlemskapVurderingSvarType.UAVKLART,
-                    sporsmal =
-                        listOf(
-                            MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
-                            MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE,
-                        ),
-                ).serialisertTilString(),
+        MedlemskapMockDispatcher.enqueue(
+            MedlemskapVurderingResponse(
+                svar = MedlemskapVurderingSvarType.UAVKLART,
+                sporsmal =
+                    listOf(
+                        MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
+                        MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE,
+                    ),
             ),
         )
 
@@ -73,16 +66,14 @@ class MedlemskapSoknadstypeIntegrationTest : FellesTestOppsett() {
     @Test
     @Order(2)
     fun `Soknadstype GRADERT_REISETILSKUDD skal ha medlemskapspørsmål`() {
-        medlemskapMockWebServer.enqueue(
-            MockResponse().setResponseCode(200).setBody(
-                MedlemskapVurderingResponse(
-                    svar = MedlemskapVurderingSvarType.UAVKLART,
-                    sporsmal =
-                        listOf(
-                            MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
-                            MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE,
-                        ),
-                ).serialisertTilString(),
+        MedlemskapMockDispatcher.enqueue(
+            MedlemskapVurderingResponse(
+                svar = MedlemskapVurderingSvarType.UAVKLART,
+                sporsmal =
+                    listOf(
+                        MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
+                        MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE,
+                    ),
             ),
         )
 

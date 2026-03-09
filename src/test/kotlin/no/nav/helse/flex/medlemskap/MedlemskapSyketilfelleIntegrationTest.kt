@@ -1,41 +1,21 @@
 package no.nav.helse.flex.medlemskap
 
-import no.nav.helse.flex.FellesTestOppsett
+import no.nav.helse.flex.*
 import no.nav.helse.flex.aktivering.AktiveringJob
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.hentSoknad
+import no.nav.helse.flex.mockdispatcher.MedlemskapMockDispatcher
 import no.nav.helse.flex.repository.SporsmalDAO
-import no.nav.helse.flex.sendSykmelding
-import no.nav.helse.flex.soknadsopprettelse.ARBEID_UTENFOR_NORGE
-import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLDSTILLATELSE
-import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLDSTILLATELSE_V2
-import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLD_UTENFOR_EOS
-import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE
-import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE
-import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO.FREMTIDIG
-import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO.NY
-import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO.SLETTET
+import no.nav.helse.flex.soknadsopprettelse.*
+import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO.*
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.reisetilskudd
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
-import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.util.flatten
-import no.nav.helse.flex.util.serialisertTilString
-import no.nav.helse.flex.ventPåRecords
 import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
-import okhttp3.mockwebserver.MockResponse
-import org.amshove.kluent.`should be`
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should contain all`
-import org.amshove.kluent.`should not contain`
-import org.amshove.kluent.`should not contain any`
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.MethodOrderer
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestMethodOrder
+import org.amshove.kluent.*
+import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 
@@ -54,12 +34,14 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
     private lateinit var aktiveringJob: AktiveringJob
 
     @BeforeEach
-    fun nullstillMedlemskapMockDispatcher() {
+    fun setup() {
         MedlemskapMockDispatcher.antallKall.set(0)
+        databaseReset.resetDatabase()
+        flexSyketilfelleMockRestServiceServer.reset()
     }
 
     @AfterEach
-    fun slettFraDatabase() {
+    fun teardown() {
         databaseReset.resetDatabase()
     }
 
@@ -67,9 +49,7 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
 
     @Test
     fun `Påfølgende søknad får ikke medlemskapspørsmål`() {
-        medlemskapMockWebServer.enqueue(
-            lagUavklartMockResponse(),
-        )
+        MedlemskapMockDispatcher.enqueue(lagUavklartMedlemskapVurdering())
 
         val forsteSoknad =
             sendSykmelding(
@@ -114,9 +94,7 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
     @Test
     fun `Helt overlappende søknad med samme arbeidsgiver får spørsmål siden den første søknaden er slettet`() {
         repeat(2) {
-            medlemskapMockWebServer.enqueue(
-                lagUavklartMockResponse(),
-            )
+            MedlemskapMockDispatcher.enqueue(lagUavklartMedlemskapVurdering())
         }
 
         val opprinneligSoknad =
@@ -172,9 +150,7 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
     @Test
     fun `Kun den første av søknader som klippes får medlemskapspørsmål`() {
         repeat(2) {
-            medlemskapMockWebServer.enqueue(
-                lagUavklartMockResponse(),
-            )
+            MedlemskapMockDispatcher.enqueue(lagUavklartMedlemskapVurdering())
         }
 
         val opprinneligSoknad =
@@ -231,9 +207,7 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
 
     @Test
     fun `Andre periode i ikke-kompatibel søknad får ikke medlemskapspørsmål`() {
-        medlemskapMockWebServer.enqueue(
-            lagUavklartMockResponse(),
-        )
+        MedlemskapMockDispatcher.enqueue(lagUavklartMedlemskapVurdering())
 
         val soknader =
             sendSykmelding(
@@ -274,9 +248,7 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
 
     @Test
     fun `Påfølgende søknad får ikke medlemskapspørsmål selv om første søknad i samme syketilfelle mangler spørsmål`() {
-        medlemskapMockWebServer.enqueue(
-            lagUavklartMockResponse(),
-        )
+        MedlemskapMockDispatcher.enqueue(lagUavklartMedlemskapVurdering())
 
         val forsteSoknad =
             sendSykmelding(
@@ -324,9 +296,7 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
     @Test
     fun `Tilbakedatert søknad med tidligere startSyketilfelle får medlemskapspørsmål`() {
         repeat(2) {
-            medlemskapMockWebServer.enqueue(
-                lagUavklartMockResponse(),
-            )
+            MedlemskapMockDispatcher.enqueue(lagUavklartMedlemskapVurdering())
         }
 
         val forsteSoknad =
@@ -373,9 +343,7 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
         val fnr = "31111111111"
         val basisDato = LocalDate.now()
 
-        medlemskapMockWebServer.enqueue(
-            lagUavklartMockResponse(),
-        )
+        MedlemskapMockDispatcher.enqueue(lagUavklartMedlemskapVurdering())
 
         val forsteSoknad =
             sendSykmelding(
@@ -446,9 +414,7 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
         val fnr = "41111111111"
         val basisDato = LocalDate.now()
 
-        medlemskapMockWebServer.enqueue(
-            lagUavklartMockResponse(),
-        )
+        MedlemskapMockDispatcher.enqueue(lagUavklartMedlemskapVurdering())
 
         val forsteSoknad =
             sendSykmelding(
@@ -528,23 +494,21 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
         MedlemskapMockDispatcher.antallKall.get() `should be equal to` 1
     }
 
-    private fun lagUavklartMockResponse() =
-        MockResponse().setResponseCode(200).setBody(
-            MedlemskapVurderingResponse(
-                svar = MedlemskapVurderingSvarType.UAVKLART,
-                sporsmal =
-                    listOf(
-                        MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
-                        MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
-                        MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
-                        MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE,
-                    ),
-                kjentOppholdstillatelse =
-                    KjentOppholdstillatelse(
-                        fom = LocalDate.of(2023, 1, 1).minusMonths(1),
-                        tom = LocalDate.of(2023, 1, 7).plusMonths(1),
-                    ),
-            ).serialisertTilString(),
+    private fun lagUavklartMedlemskapVurdering() =
+        MedlemskapVurderingResponse(
+            svar = MedlemskapVurderingSvarType.UAVKLART,
+            sporsmal =
+                listOf(
+                    MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
+                    MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
+                    MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
+                    MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE,
+                ),
+            kjentOppholdstillatelse =
+                KjentOppholdstillatelse(
+                    fom = LocalDate.of(2023, 1, 1).minusMonths(1),
+                    tom = LocalDate.of(2023, 1, 7).plusMonths(1),
+                ),
         )
 
     private fun slettMedlemskapSporsmal(soknad: SykepengesoknadDTO) {

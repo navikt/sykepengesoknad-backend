@@ -1,15 +1,9 @@
 package no.nav.helse.flex.medlemskap
 
 import no.nav.helse.flex.FellesTestOppsett
+import no.nav.helse.flex.mockdispatcher.MedlemskapMockDispatcher
 import no.nav.helse.flex.util.serialisertTilString
-import okhttp3.mockwebserver.MockResponse
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should contain same`
-import org.amshove.kluent.`should not be`
-import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldContain
-import org.amshove.kluent.shouldHaveSize
-import org.amshove.kluent.shouldStartWith
+import org.amshove.kluent.*
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -49,17 +43,15 @@ class MedlemskapVurderingIntegrationTest : FellesTestOppsett() {
     @Test
     fun `hentMedlemskapVurdering svarer med UAVKLART og liste med spørsmål`() {
         val fnr = "31111111111"
-        medlemskapMockWebServer.enqueue(
-            MockResponse().setResponseCode(200).setBody(
-                MedlemskapVurderingResponse(
-                    svar = MedlemskapVurderingSvarType.UAVKLART,
-                    sporsmal =
-                        listOf(
-                            MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
-                            MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
-                            MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE,
-                        ),
-                ).serialisertTilString(),
+        MedlemskapMockDispatcher.enqueue(
+            MedlemskapVurderingResponse(
+                svar = MedlemskapVurderingSvarType.UAVKLART,
+                sporsmal =
+                    listOf(
+                        MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
+                        MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
+                        MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE,
+                    ),
             ),
         )
 
@@ -81,12 +73,10 @@ class MedlemskapVurderingIntegrationTest : FellesTestOppsett() {
     @Test
     fun `hentMedlemskapVurdering svarer med UAVKLART og tom liste`() {
         val fnr = "31111111116"
-        medlemskapMockWebServer.enqueue(
-            MockResponse().setResponseCode(200).setBody(
-                MedlemskapVurderingResponse(
-                    svar = MedlemskapVurderingSvarType.UAVKLART,
-                    sporsmal = emptyList(),
-                ).serialisertTilString(),
+        MedlemskapMockDispatcher.enqueue(
+            MedlemskapVurderingResponse(
+                svar = MedlemskapVurderingSvarType.UAVKLART,
+                sporsmal = emptyList(),
             ),
         )
 
@@ -106,12 +96,10 @@ class MedlemskapVurderingIntegrationTest : FellesTestOppsett() {
     @Test
     fun `hentMedlemskapVurdering svarer med JA og tom liste`() {
         val fnr = "31111111112"
-        medlemskapMockWebServer.enqueue(
-            MockResponse().setResponseCode(200).setBody(
-                MedlemskapVurderingResponse(
-                    svar = MedlemskapVurderingSvarType.JA,
-                    sporsmal = emptyList(),
-                ).serialisertTilString(),
+        MedlemskapMockDispatcher.enqueue(
+            MedlemskapVurderingResponse(
+                svar = MedlemskapVurderingSvarType.JA,
+                sporsmal = emptyList(),
             ),
         )
         val response = medlemskapVurderingClient.hentMedlemskapVurdering(request.copy(fnr = fnr))
@@ -128,12 +116,10 @@ class MedlemskapVurderingIntegrationTest : FellesTestOppsett() {
     @Test
     fun `hentMedlemskapVurdering svarer med NEI og tom liste`() {
         val fnr = "31111111113"
-        medlemskapMockWebServer.enqueue(
-            MockResponse().setResponseCode(200).setBody(
-                MedlemskapVurderingResponse(
-                    svar = MedlemskapVurderingSvarType.NEI,
-                    sporsmal = emptyList(),
-                ).serialisertTilString(),
+        MedlemskapMockDispatcher.enqueue(
+            MedlemskapVurderingResponse(
+                svar = MedlemskapVurderingSvarType.NEI,
+                sporsmal = emptyList(),
             ),
         )
 
@@ -153,9 +139,7 @@ class MedlemskapVurderingIntegrationTest : FellesTestOppsett() {
     @Test
     fun `hentMedlemskapVurdering kaster exception når det returneres HttpStatus 5xx`() {
         val fnr = "31111111114"
-        medlemskapMockWebServer.enqueue(
-            MockResponse().setResponseCode(500),
-        )
+        MedlemskapMockDispatcher.enqueueHttpFeil(500)
 
         val exception =
             assertThrows<MedlemskapVurderingClientException> {
@@ -173,9 +157,7 @@ class MedlemskapVurderingIntegrationTest : FellesTestOppsett() {
     @Test
     fun `hentMedlemskapVurdering kaster exception når det returneres HttpStatus 4xx`() {
         val fnr = "31111111115"
-        medlemskapMockWebServer.enqueue(
-            MockResponse().setResponseCode(400),
-        )
+        MedlemskapMockDispatcher.enqueueHttpFeil(400)
 
         val exception =
             assertThrows<MedlemskapVurderingClientException> {
@@ -193,15 +175,13 @@ class MedlemskapVurderingIntegrationTest : FellesTestOppsett() {
     @Test
     fun `hentMedlemskapVurdering kaster exception når vi får avklart JA og liste med spørsmål`() {
         val fnr = "31111111117"
-        medlemskapMockWebServer.enqueue(
-            MockResponse().setResponseCode(200).setBody(
-                MedlemskapVurderingResponse(
-                    svar = MedlemskapVurderingSvarType.JA,
-                    sporsmal =
-                        listOf(
-                            MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE,
-                        ),
-                ).serialisertTilString(),
+        MedlemskapMockDispatcher.enqueue(
+            MedlemskapVurderingResponse(
+                svar = MedlemskapVurderingSvarType.JA,
+                sporsmal =
+                    listOf(
+                        MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE,
+                    ),
             ),
         )
 
@@ -225,15 +205,13 @@ class MedlemskapVurderingIntegrationTest : FellesTestOppsett() {
     @Test
     fun `hentMedlemskapVurdering kaster exception når vi får avklart NEI og liste med spørsmål`() {
         val fnr = "31111111118"
-        medlemskapMockWebServer.enqueue(
-            MockResponse().setResponseCode(200).setBody(
-                MedlemskapVurderingResponse(
-                    svar = MedlemskapVurderingSvarType.NEI,
-                    sporsmal =
-                        listOf(
-                            MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE,
-                        ),
-                ).serialisertTilString(),
+        MedlemskapMockDispatcher.enqueue(
+            MedlemskapVurderingResponse(
+                svar = MedlemskapVurderingSvarType.NEI,
+                sporsmal =
+                    listOf(
+                        MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE,
+                    ),
             ),
         )
 
@@ -260,16 +238,14 @@ class MedlemskapVurderingIntegrationTest : FellesTestOppsett() {
                 fom = LocalDate.of(2024, 1, 1),
                 tom = LocalDate.of(2024, 1, 31),
             )
-        medlemskapMockWebServer.enqueue(
-            MockResponse().setResponseCode(200).setBody(
-                MedlemskapVurderingResponse(
-                    svar = MedlemskapVurderingSvarType.UAVKLART,
-                    sporsmal =
-                        listOf(
-                            MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
-                        ),
-                    kjentOppholdstillatelse = kjentOppholdstillatelse,
-                ).serialisertTilString(),
+        MedlemskapMockDispatcher.enqueue(
+            MedlemskapVurderingResponse(
+                svar = MedlemskapVurderingSvarType.UAVKLART,
+                sporsmal =
+                    listOf(
+                        MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
+                    ),
+                kjentOppholdstillatelse = kjentOppholdstillatelse,
             ),
         )
 
@@ -289,20 +265,18 @@ class MedlemskapVurderingIntegrationTest : FellesTestOppsett() {
     @Test
     fun `hentMedlemskapVurdering kaster exception når vi får kjentOppholdstillatelse uten OPPHOLDSTILLATELSE`() {
         val fnr = "31111111117"
-        medlemskapMockWebServer.enqueue(
-            MockResponse().setResponseCode(200).setBody(
-                MedlemskapVurderingResponse(
-                    svar = MedlemskapVurderingSvarType.UAVKLART,
-                    sporsmal =
-                        listOf(
-                            MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
-                        ),
-                    kjentOppholdstillatelse =
-                        KjentOppholdstillatelse(
-                            fom = LocalDate.of(2024, 1, 1),
-                            tom = LocalDate.of(2024, 1, 31),
-                        ),
-                ).serialisertTilString(),
+        MedlemskapMockDispatcher.enqueue(
+            MedlemskapVurderingResponse(
+                svar = MedlemskapVurderingSvarType.UAVKLART,
+                sporsmal =
+                    listOf(
+                        MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
+                    ),
+                kjentOppholdstillatelse =
+                    KjentOppholdstillatelse(
+                        fom = LocalDate.of(2024, 1, 1),
+                        tom = LocalDate.of(2024, 1, 31),
+                    ),
             ),
         )
 

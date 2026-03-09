@@ -1,6 +1,10 @@
 package no.nav.helse.flex.medlemskap
 
 import no.nav.helse.flex.FellesTestOppsett
+import no.nav.helse.flex.medlemskap.KjentOppholdstillatelse
+import no.nav.helse.flex.medlemskap.MedlemskapVurderingDbRecord
+import no.nav.helse.flex.medlemskap.MedlemskapVurderingRepository
+import no.nav.helse.flex.medlemskap.tilPostgresJson
 import no.nav.helse.flex.util.serialisertTilString
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldBe

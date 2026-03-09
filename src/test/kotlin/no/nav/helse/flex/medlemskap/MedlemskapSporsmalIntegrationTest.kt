@@ -6,6 +6,7 @@ import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSporsmal
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknad
 import no.nav.helse.flex.controller.domain.sykepengesoknad.flatten
 import no.nav.helse.flex.domain.Arbeidssituasjon
+import no.nav.helse.flex.mockdispatcher.MedlemskapMockDispatcher
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.medIndex
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
@@ -15,7 +16,6 @@ import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.util.DatoUtil
 import no.nav.helse.flex.util.serialisertTilString
-import okhttp3.mockwebserver.MockResponse
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
@@ -55,23 +55,21 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
     @Test
     @Order(1)
     fun `Oppretter arbeidstakersøknad med status NY`() {
-        medlemskapMockWebServer.enqueue(
-            MockResponse().setResponseCode(200).setBody(
-                MedlemskapVurderingResponse(
-                    svar = MedlemskapVurderingSvarType.UAVKLART,
-                    sporsmal =
-                        listOf(
-                            MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
-                            MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
-                            MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
-                            MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE,
-                        ),
-                    kjentOppholdstillatelse =
-                        KjentOppholdstillatelse(
-                            fom = fom.minusMonths(2),
-                            tom = tom.plusMonths(2),
-                        ),
-                ).serialisertTilString(),
+        MedlemskapMockDispatcher.enqueue(
+            MedlemskapVurderingResponse(
+                svar = MedlemskapVurderingSvarType.UAVKLART,
+                sporsmal =
+                    listOf(
+                        MedlemskapVurderingSporsmal.OPPHOLDSTILATELSE,
+                        MedlemskapVurderingSporsmal.ARBEID_UTENFOR_NORGE,
+                        MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_EØS_OMRÅDE,
+                        MedlemskapVurderingSporsmal.OPPHOLD_UTENFOR_NORGE,
+                    ),
+                kjentOppholdstillatelse =
+                    KjentOppholdstillatelse(
+                        fom = fom.minusMonths(2),
+                        tom = tom.plusMonths(2),
+                    ),
             ),
         )
 
