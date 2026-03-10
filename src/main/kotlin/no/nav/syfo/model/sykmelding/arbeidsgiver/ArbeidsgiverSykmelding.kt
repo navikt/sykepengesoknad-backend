@@ -22,4 +22,7 @@ data class ArbeidsgiverSykmelding(
     val merknader: List<Merknad>?,
     val utenlandskSykmelding: UtenlandskSykmeldingAGDTO?,
     val signaturDato: OffsetDateTime?,
-)
+) {
+    val fom: LocalDate?
+        get() = sykmeldingsperioder.minOfOrNull { it.fom }
+}

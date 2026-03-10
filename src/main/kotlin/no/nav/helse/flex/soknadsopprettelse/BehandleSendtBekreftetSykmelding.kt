@@ -202,7 +202,9 @@ class BehandleSendtBekreftetSykmelding(
 
         val sykeForloep = flexSyketilfelleClient.hentSykeforloep(identer, sykmeldingKafkaMessage)
 
-        return (setOf(sykmeldingKafkaMessage) + sykmeldingerSomSkalHaSoknader).flatMap {
+        val sorterteSykmeldinger = (setOf(sykmeldingKafkaMessage) + sykmeldingerSomSkalHaSoknader).sortedBy { it.sykmelding.fom }
+
+        return sorterteSykmeldinger.flatMap {
             opprettSoknadService.opprettSykepengesoknaderForSykmelding(
                 sykmeldingKafkaMessage = it,
                 arbeidssituasjon = it.hentArbeidssituasjon()!!,

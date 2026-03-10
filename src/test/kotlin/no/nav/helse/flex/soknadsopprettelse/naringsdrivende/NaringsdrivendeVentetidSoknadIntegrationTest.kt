@@ -5,6 +5,7 @@ import no.nav.helse.flex.client.sykmeldinger.SykmeldingerResponse
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
 import no.nav.helse.flex.mockdispatcher.FlexSykmeldingMockDispatcher
+import no.nav.helse.flex.testdata.lagSykmeldingsPerioder
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_OPPRETT_VENTETIDSOKNADER
@@ -224,9 +225,51 @@ class NaringsdrivendeVentetidSoknadIntegrationTest : FellesTestOppsett() {
         hentSoknader.map { it.id } `should be equal to` hentSoknader1.map { it.id }
     }
 
-    fun lagSykmeldingKafkaMessage(fnr: String): SykmeldingKafkaMessage {
+    @Test
+    fun `Oppretter søknader i riktig rekkefølge basert på fom`() {
+        fakeUnleash.enable(UNLEASH_CONTEXT_OPPRETT_VENTETIDSOKNADER)
+        val kafkaMessageFørste = lagSykmeldingKafkaMessage(fnr = fnr, fom = dato)
+        val kafkaMessageSiste = lagSykmeldingKafkaMessage(fnr = fnr, fom = dato.plusDays(10))
+
+        mockFlexSyketilfelleErUtenforVentetid(
+            sykmeldingId = kafkaMessageSiste.sykmelding.id,
+            erUtenforVentetid = true,
+        )
+
+        mockFlexSyketilfelleHentSykmeldingerMedSammeVentetid(
+            sykmeldingIder = setOf(kafkaMessageSiste.sykmelding.id, kafkaMessageFørste.sykmelding.id),
+        )
+
+        FlexSykmeldingMockDispatcher.enqueue(SykmeldingerResponse(listOf(kafkaMessageFørste, kafkaMessageSiste)))
+
+        mockFlexSyketilfelleSykeforloep(
+            sykmeldingIder = setOf(kafkaMessageFørste.sykmelding.id, kafkaMessageSiste.sykmelding.id),
+            oppfolgingsdato = dato,
+        )
+
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
+            sykmeldingId = kafkaMessageSiste.sykmelding.id,
+            sykmeldingKafkaMessage = kafkaMessageSiste,
+            topic = SYKMELDINGSENDT_TOPIC,
+        )
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
+
+        val hentSoknader = hentSoknader(fnr)
+        hentSoknader.size `should be equal to` 2
+        hentSoknader[0].fom `should be equal to` dato
+        hentSoknader[1].fom `should be equal to` dato.plusDays(10)
+    }
+
+    fun lagSykmeldingKafkaMessage(
+        fnr: String,
+        fom: LocalDate = dato,
+    ): SykmeldingKafkaMessage {
         val statusDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
-        val sykmelding = skapArbeidsgiverSykmelding(sykmeldingId = statusDTO.event.sykmeldingId)
+        val sykmelding =
+            skapArbeidsgiverSykmelding(
+                sykmeldingId = statusDTO.event.sykmeldingId,
+                sykmeldingsperioder = lagSykmeldingsPerioder(fom = fom, tom = fom.plusDays(15)),
+            )
         return SykmeldingKafkaMessage(
             sykmelding = sykmelding,
             event = statusDTO.event,
