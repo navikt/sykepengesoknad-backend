@@ -54,19 +54,10 @@ class NaringsdrivendeSoknadService(
                         .filter { it.event.statusEvent == STATUS_BEKREFTET }
                 }
 
+            log.info(lagLoglinje(andreSykmeldingerMedSammeArbeidsforhold, sykmeldingKafkaMessage, skalOppretteVentetidsoknader))
             if (skalOppretteVentetidsoknader) {
-                log.info(
-                    "(Toggle På) Fant ${andreSykmeldingerMedSammeArbeidsforhold.size} " +
-                        "andre sykmeldinger som skal ha søknad med sykmelding: ${sykmeldingKafkaMessage.sykmelding.id}: " +
-                        "${andreSykmeldingerMedSammeArbeidsforhold.map { it.sykmelding.id }}",
-                )
                 andreSykmeldingerMedSammeArbeidsforhold
             } else {
-                log.info(
-                    "(Toggle Av) Fant ${andreSykmeldingerMedSammeArbeidsforhold.size} " +
-                        "andre sykmeldinger som skal ha søknad med sykmelding: ${sykmeldingKafkaMessage.sykmelding.id}: " +
-                        "${andreSykmeldingerMedSammeArbeidsforhold.map { it.sykmelding.id }}",
-                )
                 emptyList()
             }
         } catch (e: Exception) {
@@ -78,6 +69,15 @@ class NaringsdrivendeSoknadService(
             }
         }
     }
+
+    private fun lagLoglinje(
+        andreSykmeldingerMedSammeArbeidsforhold: List<SykmeldingKafkaMessage>,
+        sykmeldingKafkaMessage: SykmeldingKafkaMessage,
+        togglePå: Boolean,
+    ): String =
+        "(Toggle ${if (togglePå) "På" else "Av" }) Fant ${andreSykmeldingerMedSammeArbeidsforhold.size} " +
+            "andre sykmeldinger: ${sykmeldingKafkaMessage.sykmelding.loglinje}: " +
+            "${andreSykmeldingerMedSammeArbeidsforhold.sortedBy { it.sykmelding.fom }.joinToString { it.sykmelding.loglinje }}}"
 
     private fun sammenlignOriginalKafkaMelding(sykmeldingKafkaMessage: SykmeldingKafkaMessage) {
         flexSykmeldingerBackendClient

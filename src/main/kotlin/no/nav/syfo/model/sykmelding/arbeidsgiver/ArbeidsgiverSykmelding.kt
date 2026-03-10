@@ -25,4 +25,10 @@ data class ArbeidsgiverSykmelding(
 ) {
     val fom: LocalDate?
         get() = sykmeldingsperioder.minOfOrNull { it.fom }
+
+    val tom: LocalDate?
+        get() = sykmeldingsperioder.maxOfOrNull { it.tom }
+
+    val loglinje: String
+        get() = "$id ($fom-$tom)"
 }
