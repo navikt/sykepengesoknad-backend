@@ -39,7 +39,9 @@ class NaringsdrivendeSoknadService(
                     .map { it.sykmeldingUuid!! }
                     .toSet()
 
-            sammenlignOriginalKafkaMelding(sykmeldingKafkaMessage)
+            if (unleashToggles.sammenlignSykmeldingKafkaEnabled(identer.originalIdent)) {
+                sammenlignOriginalKafkaMelding(sykmeldingKafkaMessage)
+            }
 
             val andreSykmeldingerSomManglerSoknad = andreSykmeldingIder - andreSykmeldingIderMedSoknader
             val andreSykmeldingerMedSammeArbeidsforhold =
@@ -79,9 +81,8 @@ class NaringsdrivendeSoknadService(
 
     private fun sammenlignOriginalKafkaMelding(sykmeldingKafkaMessage: SykmeldingKafkaMessage) {
         flexSykmeldingerBackendClient
-            .hentSykmeldinger(
-                setOf(sykmeldingKafkaMessage.sykmelding.id),
-            ).first()
+            .hentSykmeldinger(sykmeldingIder = setOf(sykmeldingKafkaMessage.sykmelding.id))
+            .first()
             .sammenlign(sykmeldingKafkaMessage = sykmeldingKafkaMessage)
     }
 }
@@ -89,14 +90,14 @@ class NaringsdrivendeSoknadService(
 fun SykmeldingKafkaMessage.sammenlign(sykmeldingKafkaMessage: SykmeldingKafkaMessage) {
     val sammenlignbarSykmeldingKafkaMessage =
         sykmeldingKafkaMessage.copy(
-            event = sykmeldingKafkaMessage.event.copy(timestamp = this.event.timestamp),
+            kafkaMetadata = sykmeldingKafkaMessage.kafkaMetadata.copy(timestamp = this.kafkaMetadata.timestamp),
         )
 
     if (sammenlignbarSykmeldingKafkaMessage != this) {
         logger().warn(
             "Sykmelding hentet fra sykmeldinger-backend er ikke lik den originale sykmeldingen: ${sykmeldingKafkaMessage.sykmelding.id}" +
-                "Status: original sykmelding: ${sykmeldingKafkaMessage.event.statusEvent}" +
-                "Status: hentet sykmelding: ${this.event.statusEvent}",
+                "Status original sykmelding: ${sykmeldingKafkaMessage.event.statusEvent}" +
+                "Status hentet sykmelding: ${this.event.statusEvent}",
         )
     }
 }
