@@ -10,6 +10,7 @@ import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.unleash.UnleashToggles
 import no.nav.syfo.sykmelding.kafka.model.STATUS_BEKREFTET
 import org.springframework.stereotype.Component
+import java.util.UUID
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.memberProperties
 
@@ -31,7 +32,7 @@ class NaringsdrivendeSoknadService(
         return try {
             val sykmeldingIder =
                 flexSyketilfelleClient.hentSykmeldingerMedSammeVentetid(sykmeldingKafkaMessage, identer)
-            log.info("Fant ${sykmeldingIder.size} sykmeldinger med samme ventetid ${sykmeldingKafkaMessage.sykmelding.id}: $sykmeldingIder")
+            logSykmeldingerMedSammeVentetid(sykmeldingIder, sykmeldingKafkaMessage)
 
             val andreSykmeldingIder = sykmeldingIder.filterNot { it == sykmeldingKafkaMessage.sykmelding.id }.toSet()
 
@@ -56,7 +57,13 @@ class NaringsdrivendeSoknadService(
                         .filter { it.event.statusEvent == STATUS_BEKREFTET }
                 }
 
-            log.info(lagLoglinje(andreSykmeldingerMedSammeArbeidsforhold, sykmeldingKafkaMessage, skalOppretteVentetidsoknader))
+            log.info(
+                lagLoglinje(
+                    andreSykmeldingerMedSammeArbeidsforhold,
+                    sykmeldingKafkaMessage,
+                    skalOppretteVentetidsoknader,
+                ),
+            )
             if (skalOppretteVentetidsoknader) {
                 andreSykmeldingerMedSammeArbeidsforhold
             } else {
@@ -72,14 +79,32 @@ class NaringsdrivendeSoknadService(
         }
     }
 
+    private fun logSykmeldingerMedSammeVentetid(
+        sykmeldingIder: Set<String>,
+        sykmeldingKafkaMessage: SykmeldingKafkaMessage,
+    ) {
+        val uuider =
+            sykmeldingIder.map {
+                try {
+                    UUID.fromString(it)
+                } catch (_: IllegalArgumentException) {
+                    "ugyldig uuid"
+                }
+            }
+        log.info("Fant ${sykmeldingIder.size} sykmeldinger med samme ventetid ${sykmeldingKafkaMessage.sykmelding.id}: $uuider")
+    }
+
     private fun lagLoglinje(
         andreSykmeldingerMedSammeArbeidsforhold: List<SykmeldingKafkaMessage>,
         sykmeldingKafkaMessage: SykmeldingKafkaMessage,
         togglePå: Boolean,
     ): String =
-        "(Toggle ${if (togglePå) "På" else "Av" }) Fant ${andreSykmeldingerMedSammeArbeidsforhold.size} " +
+        "(Toggle ${if (togglePå) "På" else "Av"}) Fant ${andreSykmeldingerMedSammeArbeidsforhold.size} " +
             "andre sykmeldinger: ${sykmeldingKafkaMessage.sykmelding.loglinje}: " +
-            "${andreSykmeldingerMedSammeArbeidsforhold.sortedBy { it.sykmelding.fom }.joinToString { it.sykmelding.loglinje }}}"
+            "${
+                andreSykmeldingerMedSammeArbeidsforhold.sortedBy { it.sykmelding.fom }
+                    .joinToString { it.sykmelding.loglinje }
+            }}"
 
     private fun sammenlignOriginalKafkaMelding(sykmeldingKafkaMessage: SykmeldingKafkaMessage) {
         flexSykmeldingerBackendClient
