@@ -1,4 +1,4 @@
-package no.nav.helse.flex.soknadsopprettelse
+package no.nav.helse.flex.soknadsopprettelse.naringsdrivende
 
 import no.nav.helse.flex.*
 import no.nav.helse.flex.client.sykmeldinger.SykmeldingerResponse

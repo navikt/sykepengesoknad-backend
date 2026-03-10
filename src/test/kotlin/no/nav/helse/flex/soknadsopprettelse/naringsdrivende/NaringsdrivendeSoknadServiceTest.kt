@@ -1,4 +1,4 @@
-package no.nav.helse.flex.soknadsopprettelse
+package no.nav.helse.flex.soknadsopprettelse.naringsdrivende
 
 import io.getunleash.FakeUnleash
 import no.nav.helse.flex.FakesTestOppsett
@@ -6,6 +6,8 @@ import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.fakes.FlexSyketilfelleClientFake
 import no.nav.helse.flex.fakes.FlexSykmeldingerBackendClientFake
 import no.nav.helse.flex.service.FolkeregisterIdenter
+import no.nav.helse.flex.soknadsopprettelse.NaringsdrivendeSoknadService
+import no.nav.helse.flex.soknadsopprettelse.hentArbeidssituasjon
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_OPPRETT_VENTETIDSOKNADER
 import org.amshove.kluent.`should be equal to`

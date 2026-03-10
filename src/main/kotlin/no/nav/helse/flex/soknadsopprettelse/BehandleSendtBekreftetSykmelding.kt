@@ -125,16 +125,11 @@ class BehandleSendtBekreftetSykmelding(
         sykmeldingKafkaMessage: SykmeldingKafkaMessage,
         arbeidssituasjon: Arbeidssituasjon,
     ): List<AktiveringBestilling> {
-        val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(sykmeldingKafkaMessage.kafkaMetadata.fnr)
-
-        val skalOppretteSoknad =
-            skalOppretteSoknader.skalOppretteSoknader(
-                sykmeldingKafkaMessage = sykmeldingKafkaMessage,
-            )
-        if (!skalOppretteSoknad) {
+        if (sykmeldingKafkaMessage.harUgyldigePerioder()) {
             return emptyList()
         }
 
+        val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(sykmeldingKafkaMessage.kafkaMetadata.fnr)
         låsIdenter(identer, sykmeldingKafkaMessage)
 
         val sykeForloep = flexSyketilfelleClient.hentSykeforloep(identer, sykmeldingKafkaMessage)
@@ -152,16 +147,11 @@ class BehandleSendtBekreftetSykmelding(
         sykmeldingKafkaMessage: SykmeldingKafkaMessage,
         arbeidssituasjon: Arbeidssituasjon,
     ): List<AktiveringBestilling> {
-        val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(sykmeldingKafkaMessage.kafkaMetadata.fnr)
-
-        val skalOppretteSoknad =
-            skalOppretteSoknader.skalOppretteSoknader(
-                sykmeldingKafkaMessage = sykmeldingKafkaMessage,
-            )
-        if (!skalOppretteSoknad) {
+        if (sykmeldingKafkaMessage.harUgyldigePerioder()) {
             return emptyList()
         }
 
+        val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(sykmeldingKafkaMessage.kafkaMetadata.fnr)
         låsIdenter(identer, sykmeldingKafkaMessage)
 
         val sykeForloep = flexSyketilfelleClient.hentSykeforloep(identer, sykmeldingKafkaMessage)
@@ -186,7 +176,12 @@ class BehandleSendtBekreftetSykmelding(
         sykmeldingKafkaMessage: SykmeldingKafkaMessage,
         arbeidssituasjon: Arbeidssituasjon,
     ): List<AktiveringBestilling> {
+        if (sykmeldingKafkaMessage.harUgyldigePerioder()) {
+            return emptyList()
+        }
+
         val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(fnr = sykmeldingKafkaMessage.kafkaMetadata.fnr)
+        låsIdenter(identer, sykmeldingKafkaMessage)
 
         val skalOppretteSoknad =
             skalOppretteSoknader.skalOppretteNaringsdrivendeSoknader(
@@ -197,8 +192,6 @@ class BehandleSendtBekreftetSykmelding(
         if (!skalOppretteSoknad) {
             return emptyList()
         }
-
-        låsIdenter(identer, sykmeldingKafkaMessage)
 
         val sykmeldingerSomSkalHaSoknader =
             naringsdrivendeSoknadService.finnAndreSykmeldingerSomManglerSoknad(
