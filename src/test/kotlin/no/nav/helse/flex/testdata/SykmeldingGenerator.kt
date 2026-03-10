@@ -329,6 +329,7 @@ fun sykmeldingKafkaMessage(
     sykmeldingSkrevet: OffsetDateTime = timestamp,
     signaturDato: OffsetDateTime = timestamp,
     tidligereArbeidsgiverOrgnummer: String? = null,
+    status: String? = null,
 ): SykmeldingKafkaMessage {
     val faktiskArbeidsgiver =
         if (arbeidssituasjon == Arbeidssituasjon.ARBEIDSTAKER) {
@@ -336,16 +337,19 @@ fun sykmeldingKafkaMessage(
         } else {
             null
         }
+    val statusEvent =
+        status
+            ?: if (arbeidssituasjon == Arbeidssituasjon.ARBEIDSTAKER) {
+                STATUS_SENDT
+            } else {
+                STATUS_BEKREFTET
+            }
+
     val sykmeldingStatusKafkaMessageDTO =
         skapSykmeldingStatusKafkaMessageDTO(
             fnr = fnr,
             arbeidssituasjon = arbeidssituasjon,
-            statusEvent =
-                if (arbeidssituasjon == Arbeidssituasjon.ARBEIDSTAKER) {
-                    STATUS_SENDT
-                } else {
-                    STATUS_BEKREFTET
-                },
+            statusEvent = statusEvent,
             arbeidsgiver = faktiskArbeidsgiver,
             sykmeldingId = sykmeldingId,
             timestamp = timestamp,

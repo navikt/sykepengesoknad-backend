@@ -8,6 +8,7 @@ import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadRepository
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.unleash.UnleashToggles
+import no.nav.syfo.sykmelding.kafka.model.STATUS_BEKREFTET
 import org.springframework.stereotype.Component
 
 @Component
@@ -47,6 +48,7 @@ class NaringsdrivendeSoknadService(
                     flexSykmeldingerBackendClient
                         .hentSykmeldinger(sykmeldingIder = andreSykmeldingerSomManglerSoknad)
                         .filter { it.hentArbeidssituasjon() == arbeidssituasjon }
+                        .filter { it.event.statusEvent == STATUS_BEKREFTET }
                 }
 
             if (skalOppretteVentetidsoknader) {
