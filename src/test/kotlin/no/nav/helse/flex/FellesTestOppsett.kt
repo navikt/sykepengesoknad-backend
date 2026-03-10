@@ -155,8 +155,8 @@ abstract class FellesTestOppsett : TestOppsettInterfaces {
     }
 
     @AfterAll
-    fun `Disable unleash toggles`() {
-        fakeUnleash.disableAll()
+    fun `Reset unleash toggles`() {
+        fakeUnleash.resetAll()
     }
 
     @BeforeAll

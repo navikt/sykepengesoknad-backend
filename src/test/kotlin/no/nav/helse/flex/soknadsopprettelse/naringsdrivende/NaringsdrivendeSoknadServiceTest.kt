@@ -30,9 +30,9 @@ class NaringsdrivendeSoknadServiceTest : FakesTestOppsett() {
     lateinit var fakeUnleash: FakeUnleash
 
     @AfterEach
-    fun setUp() {
-        flexSyketilfelleClient.resetSykmeldingerMedSammeVentetid()
+    fun teardown() {
         fakeUnleash.resetAll()
+        flexSyketilfelleClient.resetSykmeldingerMedSammeVentetid()
     }
 
     private val fnr = "fnr"
