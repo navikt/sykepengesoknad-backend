@@ -3,6 +3,7 @@ package no.nav.helse.flex.oppdatersporsmal.soknad.muteringer
 import no.nav.helse.flex.domain.SelvstendigNaringsdrivendeInfo
 import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknad
 import no.nav.helse.flex.soknadsopprettelse.*
+import no.nav.helse.flex.soknadsopprettelse.naringsdrivende.lagSykepengegrunnlagNaeringsdrivende
 import no.nav.helse.flex.testutil.besvarsporsmal
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should be equal to`

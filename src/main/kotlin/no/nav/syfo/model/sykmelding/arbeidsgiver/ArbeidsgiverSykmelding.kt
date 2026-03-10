@@ -22,4 +22,13 @@ data class ArbeidsgiverSykmelding(
     val merknader: List<Merknad>?,
     val utenlandskSykmelding: UtenlandskSykmeldingAGDTO?,
     val signaturDato: OffsetDateTime?,
-)
+) {
+    val fom: LocalDate?
+        get() = sykmeldingsperioder.minOfOrNull { it.fom }
+
+    val tom: LocalDate?
+        get() = sykmeldingsperioder.maxOfOrNull { it.tom }
+
+    val loglinje: String
+        get() = "$id ($fom-$tom)"
+}

@@ -83,6 +83,7 @@ spec:
     outbound:
       rules:
         - application: sykepengesoknad-kvitteringer
+        - application: flex-sykmeldinger-backend
         - application: flex-syketilfelle
         - application: flex-brreg-proxy
         - application: yrkesskade-saker

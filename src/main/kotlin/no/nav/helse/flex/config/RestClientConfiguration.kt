@@ -63,6 +63,33 @@ class RestClientConfiguration {
                 ),
             ).build()
 
+    @Bean
+    fun flexSykmeldingerBackendRestClient(
+        @Value("\${FLEX_SYKMELDINGER_BACKEND_API_URL}")
+        url: String,
+        @Value("\${FLEX_SYKMELDINGER_BACKEND_API_TARGET}")
+        target: String,
+        tokenValideringService: TokenValideringService,
+    ): RestClient =
+        lagRestClientBuilder()
+            .baseUrl(url)
+            .requestInterceptor(
+                lagBearerTokenInterceptorTexas(
+                    target = target,
+                    identityProvider = "entra_id",
+                    tokenValideringService = tokenValideringService,
+                ),
+            ).build()
+
+    @Bean
+    fun texasRestClient(
+        @Value("\${NAIS_TOKEN_ENDPOINT}")
+        url: String,
+    ): RestClient =
+        lagRestClientBuilder()
+            .baseUrl(url)
+            .build()
+
     private fun lagRestClientBuilder(
         connectTimeout: Long = REST_CLIENT_CONNECT_TIMEOUT,
         readTimeout: Long = REST_CLIENT_READ_TIMEOUT,
@@ -97,6 +124,17 @@ class RestClientConfiguration {
         ClientHttpRequestInterceptor { request: HttpRequest, body: ByteArray, execution: ClientHttpRequestExecution ->
             val response = oAuth2AccessTokenService.getAccessToken(clientProperties)
             response.access_token?.let { request.headers.setBearerAuth(it) }
+            execution.execute(request, body)
+        }
+
+    private fun lagBearerTokenInterceptorTexas(
+        target: String,
+        identityProvider: String,
+        tokenValideringService: TokenValideringService,
+    ): ClientHttpRequestInterceptor =
+        ClientHttpRequestInterceptor { request: HttpRequest, body: ByteArray, execution: ClientHttpRequestExecution ->
+            val token = tokenValideringService.hentToken(target, identityProvider)
+            request.headers.setBearerAuth(token)
             execution.execute(request, body)
         }
 }

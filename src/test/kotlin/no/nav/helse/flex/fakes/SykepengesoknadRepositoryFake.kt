@@ -45,6 +45,11 @@ class SykepengesoknadRepositoryFake :
         TODO("Not yet implemented")
     }
 
+    override fun findBySykmeldingUuidIn(sykmeldingUuid: Set<String>): List<SykepengesoknadDbRecord> =
+        findAll().filter {
+            it.sykmeldingUuid in sykmeldingUuid
+        }
+
     override fun settErAktivertJulesoknadKandidat(id: String): Boolean {
         TODO("Not yet implemented")
     }

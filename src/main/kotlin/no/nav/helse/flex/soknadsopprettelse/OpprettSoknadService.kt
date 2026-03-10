@@ -5,7 +5,7 @@ import no.nav.helse.flex.domain.*
 import no.nav.helse.flex.domain.Arbeidssituasjon.*
 import no.nav.helse.flex.domain.exception.SykeforloepManglerSykemeldingException
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
-import no.nav.helse.flex.domain.sykmelding.finnSoknadsType
+import no.nav.helse.flex.domain.sykmelding.bestemSoknadsType
 import no.nav.helse.flex.julesoknad.LagreJulesoknadKandidater
 import no.nav.helse.flex.kafka.producer.SoknadProducer
 import no.nav.helse.flex.logger
@@ -114,7 +114,7 @@ class OpprettSoknadService(
                                 soknadPerioder = perioderFraSykmeldingen.tilSoknadsperioder(),
                                 egenmeldtSykmelding = sykmelding.egenmeldt,
                                 merknaderFraSykmelding = sykmelding.merknader.tilMerknader(),
-                                soknadstype = finnSoknadsType(arbeidssituasjon, perioderFraSykmeldingen),
+                                soknadstype = bestemSoknadsType(arbeidssituasjon, perioderFraSykmeldingen),
                                 status = Soknadstatus.FREMTIDIG,
                                 opprettet = Instant.now(),
                                 sporsmal = emptyList(),
@@ -148,7 +148,7 @@ class OpprettSoknadService(
             val sammenliknbartSettAvNyeSoknader = soknaderTilOppretting.map { it.tilSoknadSammenlikner() }.toHashSet()
             val sammenliknbartSettAvEksisterendeSoknaderForSm =
                 eksisterendeSoknaderForSm
-                    .filter { it.status != Soknadstatus.KORRIGERT && it.status != Soknadstatus.UTKAST_TIL_KORRIGERING }
+                    .filter { it.status !in listOf(Soknadstatus.KORRIGERT, Soknadstatus.UTKAST_TIL_KORRIGERING) }
                     .map { it.tilSoknadSammenlikner() }
                     .toHashSet()
             if (sammenliknbartSettAvEksisterendeSoknaderForSm == sammenliknbartSettAvNyeSoknader) {
