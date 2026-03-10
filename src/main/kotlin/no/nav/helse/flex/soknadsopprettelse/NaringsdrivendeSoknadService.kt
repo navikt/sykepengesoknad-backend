@@ -105,21 +105,47 @@ internal fun SykmeldingKafkaMessage.finnForskjeller(sammenlignbarSykmeldingKafka
         "event" to Pair(sammenlignbarSykmeldingKafkaMessage.event, this.event),
     ).flatMap { (navn, verdier) ->
         val (original, hentet) = verdier
-        if (original == hentet) {
-            emptyList()
-        } else {
-            original::class
-                .memberProperties
-                .mapNotNull { subProp ->
-                    @Suppress("UNCHECKED_CAST")
-                    val sub = subProp as KProperty1<Any, *>
-                    if (navn == "kafkaMetadata" && sub.name == "timestamp") {
-                        null
-                    } else if (sub.get(original) != sub.get(hentet)) {
-                        "  $navn.${subProp.name}: original=${sub.get(original)}, hentet=${sub.get(hentet)}"
-                    } else {
-                        null
-                    }
-                }
-        }
+        finnForskjellerRekursivt(navn, original, hentet)
     }.joinToString(separator = "\n")
+
+private fun finnForskjellerRekursivt(
+    sti: String,
+    original: Any?,
+    hentet: Any?,
+): List<String> {
+    if (original == hentet) return emptyList()
+    if (original == null || hentet == null) return listOf("  $sti: original=$original, hentet=$hentet")
+
+    if (ignorerForSammenligning.contains(sti)) return emptyList()
+
+    if (original::class.isData) {
+        return original::class.memberProperties.flatMap { subProp ->
+            @Suppress("UNCHECKED_CAST")
+            val sub = subProp as KProperty1<Any, *>
+            finnForskjellerRekursivt("$sti.${subProp.name}", sub.get(original), sub.get(hentet))
+        }
+    }
+
+    if (original is List<*> && hentet is List<*>) {
+        if (original.size !=
+            hentet.size
+        ) {
+            return listOf("  $sti: original har ${original.size} elementer, hentet har ${hentet.size} elementer")
+        }
+        return original.zip(hentet).flatMapIndexed { index, (o, h) ->
+            finnForskjellerRekursivt("$sti[$index]", o, h)
+        }
+    }
+
+    return listOf("  $sti: original=$original, hentet=$hentet")
+}
+
+val ignorerForSammenligning =
+    listOf(
+        "kafkaMetadata.timestamp",
+        "sykmelding.signaturDato",
+        "sykmelding.mottattTidspunkt",
+        "event.timestamp",
+        "sykmelding.arbeidsgiver.yrkesbetegnelse",
+        "sykmelding.behandler.tlf",
+    )

@@ -3,6 +3,7 @@ package no.nav.helse.flex.soknadsopprettelse
 import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
+import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import org.amshove.kluent.`should be empty`
 import org.amshove.kluent.`should contain`
 import org.junit.jupiter.api.Test
@@ -47,6 +48,16 @@ class SammenlignSykmeldingTest {
     }
 
     @Test
+    fun `ingen forskjeller ved ulik timestamp på event`() {
+        val original = lagKafkaMessage(timestamp = OffsetDateTime.now().minusHours(1))
+        val hentet =
+            original.copy(
+                event = original.event.copy(timestamp = OffsetDateTime.now()),
+            )
+        hentet.finnForskjeller(original).`should be empty`()
+    }
+
+    @Test
     fun `finner forskjell på kafkaMetadata fnr`() {
         val original = lagKafkaMessage()
         val hentet =
@@ -74,5 +85,35 @@ class SammenlignSykmeldingTest {
                 sykmelding = original.sykmelding.copy(tiltakArbeidsplassen = "Tilrettelegging"),
             )
         hentet.finnForskjeller(original) `should contain` "sykmelding.tiltakArbeidsplassen"
+    }
+
+    @Test
+    fun `finner forskjell rekursivt i nestet data class`() {
+        val original = lagKafkaMessage()
+        val hentet =
+            original.copy(
+                sykmelding =
+                    original.sykmelding.copy(
+                        arbeidsgiver = original.sykmelding.arbeidsgiver.copy(navn = "Annet firma"),
+                    ),
+            )
+        hentet.finnForskjeller(original) `should contain` "sykmelding.arbeidsgiver.navn"
+    }
+
+    @Test
+    fun `finner forskjell i liste`() {
+        val original = lagKafkaMessage()
+        val endretPeriode =
+            original.sykmelding.sykmeldingsperioder
+                .first()
+                .copy(type = PeriodetypeDTO.BEHANDLINGSDAGER)
+        val hentet =
+            original.copy(
+                sykmelding =
+                    original.sykmelding.copy(
+                        sykmeldingsperioder = listOf(endretPeriode),
+                    ),
+            )
+        hentet.finnForskjeller(original) `should contain` "sykmelding.sykmeldingsperioder[0].type"
     }
 }
