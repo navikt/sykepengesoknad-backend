@@ -10,6 +10,8 @@ import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.unleash.UnleashToggles
 import no.nav.syfo.sykmelding.kafka.model.STATUS_BEKREFTET
 import org.springframework.stereotype.Component
+import kotlin.reflect.KProperty1
+import kotlin.reflect.full.memberProperties
 
 @Component
 class NaringsdrivendeSoknadService(
@@ -88,16 +90,36 @@ class NaringsdrivendeSoknadService(
 }
 
 fun SykmeldingKafkaMessage.sammenlign(sykmeldingKafkaMessage: SykmeldingKafkaMessage) {
-    val sammenlignbarSykmeldingKafkaMessage =
-        sykmeldingKafkaMessage.copy(
-            kafkaMetadata = sykmeldingKafkaMessage.kafkaMetadata.copy(timestamp = this.kafkaMetadata.timestamp),
-        )
-
-    if (sammenlignbarSykmeldingKafkaMessage != this) {
+    val forskjeller = finnForskjeller(sykmeldingKafkaMessage)
+    if (forskjeller.isNotEmpty()) {
         logger().warn(
-            "Sykmelding hentet fra sykmeldinger-backend er ikke lik den originale sykmeldingen: ${sykmeldingKafkaMessage.sykmelding.id}" +
-                "Status original sykmelding: ${sykmeldingKafkaMessage.event.statusEvent}" +
-                "Status hentet sykmelding: ${this.event.statusEvent}",
+            "Sykmelding hentet fra sykmeldinger-backend er ikke lik den originale sykmeldingen: ${sykmeldingKafkaMessage.sykmelding.id}\n$forskjeller",
         )
     }
 }
+
+internal fun SykmeldingKafkaMessage.finnForskjeller(sammenlignbarSykmeldingKafkaMessage: SykmeldingKafkaMessage): String =
+    listOf(
+        "sykmelding" to Pair(sammenlignbarSykmeldingKafkaMessage.sykmelding, this.sykmelding),
+        "kafkaMetadata" to Pair(sammenlignbarSykmeldingKafkaMessage.kafkaMetadata, this.kafkaMetadata),
+        "event" to Pair(sammenlignbarSykmeldingKafkaMessage.event, this.event),
+    ).flatMap { (navn, verdier) ->
+        val (original, hentet) = verdier
+        if (original == hentet) {
+            emptyList()
+        } else {
+            original::class
+                .memberProperties
+                .mapNotNull { subProp ->
+                    @Suppress("UNCHECKED_CAST")
+                    val sub = subProp as KProperty1<Any, *>
+                    if (navn == "kafkaMetadata" && sub.name == "timestamp") {
+                        null
+                    } else if (sub.get(original) != sub.get(hentet)) {
+                        "  $navn.${subProp.name}: original=${sub.get(original)}, hentet=${sub.get(hentet)}"
+                    } else {
+                        null
+                    }
+                }
+        }
+    }.joinToString(separator = "\n")
