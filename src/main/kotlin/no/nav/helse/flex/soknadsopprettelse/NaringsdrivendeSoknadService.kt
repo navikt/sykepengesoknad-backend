@@ -39,8 +39,9 @@ class NaringsdrivendeSoknadService(
                     .map { it.sykmeldingUuid!! }
                     .toSet()
 
-            val andreSykmeldingerSomManglerSoknad = andreSykmeldingIder - andreSykmeldingIderMedSoknader
+            sammenlignOriginalKafkaMelding(sykmeldingKafkaMessage)
 
+            val andreSykmeldingerSomManglerSoknad = andreSykmeldingIder - andreSykmeldingIderMedSoknader
             val andreSykmeldingerMedSammeArbeidsforhold =
                 if (andreSykmeldingerSomManglerSoknad.isEmpty()) {
                     emptyList()
@@ -74,5 +75,28 @@ class NaringsdrivendeSoknadService(
                 emptyList()
             }
         }
+    }
+
+    private fun sammenlignOriginalKafkaMelding(sykmeldingKafkaMessage: SykmeldingKafkaMessage) {
+        flexSykmeldingerBackendClient
+            .hentSykmeldinger(
+                setOf(sykmeldingKafkaMessage.sykmelding.id),
+            ).first()
+            .sammenlign(sykmeldingKafkaMessage = sykmeldingKafkaMessage)
+    }
+}
+
+fun SykmeldingKafkaMessage.sammenlign(sykmeldingKafkaMessage: SykmeldingKafkaMessage) {
+    val sammenlignbarSykmeldingKafkaMessage =
+        sykmeldingKafkaMessage.copy(
+            event = sykmeldingKafkaMessage.event.copy(timestamp = this.event.timestamp),
+        )
+
+    if (sammenlignbarSykmeldingKafkaMessage != this) {
+        logger().warn(
+            "Sykmelding hentet fra sykmeldinger-backend er ikke lik den originale sykmeldingen: ${sykmeldingKafkaMessage.sykmelding.id}" +
+                "Status: original sykmelding: ${sykmeldingKafkaMessage.event.statusEvent}" +
+                "Status: hentet sykmelding: ${this.event.statusEvent}",
+        )
     }
 }
