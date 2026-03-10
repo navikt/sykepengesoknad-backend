@@ -198,7 +198,7 @@ class FlexSyketilfelleEksternClient(
                     "ventetid",
                     sykmeldingKafkaMessage.sykmelding.id,
                     "perioderMedSammeVentetid",
-                )
+                ).queryParam("hentAndreIdenter", "false")
 
         val body =
             VentetidRequest(
