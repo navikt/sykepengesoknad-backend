@@ -2,12 +2,12 @@ package no.nav.helse.flex.kafka.consumer
 
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.repository.RedusertVenteperiodeRepository
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.helse.flex.util.serialisertTilString
 import no.nav.syfo.sykmelding.kafka.model.STATUS_BEKREFTET
+import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessageDTO
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
@@ -62,7 +62,7 @@ class RedusertVenteperiodeConsumerTest : FellesTestOppsett() {
         redusertVenteperiodeRepository.existsBySykmeldingId(sykmeldingId) shouldBeEqualTo false
     }
 
-    private fun redusertVenteperiodeSykmelding(): SykmeldingKafkaMessage {
+    private fun redusertVenteperiodeSykmelding(): SykmeldingKafkaMessageDTO {
         val sykmeldingStatusKafkaMessageDTO =
             skapSykmeldingStatusKafkaMessageDTO(
                 fnr = "12345678901",
@@ -80,7 +80,7 @@ class RedusertVenteperiodeConsumerTest : FellesTestOppsett() {
             )
 
         val sykmeldingKafkaMessage =
-            SykmeldingKafkaMessage(
+            SykmeldingKafkaMessageDTO(
                 sykmelding = sykmelding,
                 event = sykmeldingStatusKafkaMessageDTO.event,
                 kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,

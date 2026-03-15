@@ -1,13 +1,13 @@
 package no.nav.helse.flex.soknadsopprettelse.splitt
 
-import no.nav.syfo.model.sykmelding.arbeidsgiver.ArbeidsgiverSykmelding
+import no.nav.syfo.model.sykmelding.arbeidsgiver.ArbeidsgiverSykmeldingDTO
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import java.util.ArrayList
 
-fun ArbeidsgiverSykmelding.splittMellomTyper(): List<ArbeidsgiverSykmelding> {
-    val ret = ArrayList<ArbeidsgiverSykmelding>()
-    var behandles: ArbeidsgiverSykmelding? = null
+fun ArbeidsgiverSykmeldingDTO.splittMellomTyper(): List<ArbeidsgiverSykmeldingDTO> {
+    val ret = ArrayList<ArbeidsgiverSykmeldingDTO>()
+    var behandles: ArbeidsgiverSykmeldingDTO? = null
 
     sykmeldingsperioder.sortedBy { it.fom }.forEach { nestePeriode ->
         if (behandles == null) {
@@ -30,7 +30,7 @@ fun ArbeidsgiverSykmelding.splittMellomTyper(): List<ArbeidsgiverSykmelding> {
     return ret
 }
 
-private fun ArbeidsgiverSykmelding.erKompatibel(nestePeriode: SykmeldingsperiodeAGDTO): Boolean =
+private fun ArbeidsgiverSykmeldingDTO.erKompatibel(nestePeriode: SykmeldingsperiodeAGDTO): Boolean =
     sykmeldingsperioder.last().erGradertEller100Prosent() &&
         nestePeriode.erGradertEller100Prosent() &&
         sykmeldingsperioder.last().tom.plusDays(1) == nestePeriode.fom

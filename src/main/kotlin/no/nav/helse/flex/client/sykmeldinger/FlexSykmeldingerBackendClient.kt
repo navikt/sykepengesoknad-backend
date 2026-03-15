@@ -1,13 +1,13 @@
 package no.nav.helse.flex.client.sykmeldinger
 
-import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
+import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessageDTO
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestClient
 import org.springframework.web.client.toEntity
 
 interface FlexSykmeldingerBackendClient {
-    fun hentSykmeldinger(sykmeldingIder: Set<String>): List<SykmeldingKafkaMessage>
+    fun hentSykmeldinger(sykmeldingIder: Set<String>): List<SykmeldingKafkaMessageDTO>
 }
 
 data class SykmeldingerRequest(
@@ -15,14 +15,14 @@ data class SykmeldingerRequest(
 )
 
 data class SykmeldingerResponse(
-    val sykmeldinger: List<SykmeldingKafkaMessage>,
+    val sykmeldinger: List<SykmeldingKafkaMessageDTO>,
 )
 
 @Component
 class FlexSykmeldingerBackendClientEkstern(
     private val flexSykmeldingerBackendRestClient: RestClient,
 ) : FlexSykmeldingerBackendClient {
-    override fun hentSykmeldinger(sykmeldingIder: Set<String>): List<SykmeldingKafkaMessage> =
+    override fun hentSykmeldinger(sykmeldingIder: Set<String>): List<SykmeldingKafkaMessageDTO> =
         flexSykmeldingerBackendRestClient
             .post()
             .uri { uriBuilder ->

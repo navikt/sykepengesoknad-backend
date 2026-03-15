@@ -1,11 +1,11 @@
 package no.nav.helse.flex.kafka.producer
 
 import io.opentelemetry.instrumentation.annotations.WithSpan
-import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.kafka.SYKMELDING_SENDT_RETRY_TOPIC
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.util.serialisertTilString
 import no.nav.syfo.kafka.SyfoProducerRecord
+import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessageDTO
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.springframework.stereotype.Component
 import java.time.OffsetDateTime
@@ -20,7 +20,7 @@ class RebehandlingSykmeldingSendtProducer(
 
     @WithSpan
     fun leggPaRebehandlingTopic(
-        sykmeldingKafkaMessage: SykmeldingKafkaMessage,
+        sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
         behandlingstidspunkt: OffsetDateTime,
     ) {
         try {

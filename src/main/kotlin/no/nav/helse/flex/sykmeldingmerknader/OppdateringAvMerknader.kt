@@ -1,12 +1,11 @@
 package no.nav.helse.flex.sykmeldingmerknader
 
-import no.nav.helse.flex.domain.Soknadstatus.*
-import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadRepository
 import no.nav.helse.flex.repository.tilMerknader
 import no.nav.helse.flex.soknadsopprettelse.tilMerknader
 import no.nav.helse.flex.util.serialisertTilString
+import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessageDTO
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -17,7 +16,7 @@ class OppdateringAvMerknader(
 ) {
     val log = logger()
 
-    fun oppdaterMerknader(sykmeldingKafkaMessage: SykmeldingKafkaMessage) {
+    fun oppdaterMerknader(sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO) {
         val soknader = sykepengesoknadRepository.findBySykmeldingUuid(sykmeldingKafkaMessage.sykmelding.id)
 
         soknader.forEach { soknad ->

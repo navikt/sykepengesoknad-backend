@@ -2,13 +2,13 @@ package no.nav.helse.flex.soknadsopprettelse.naringsdrivende
 
 import no.nav.helse.flex.*
 import no.nav.helse.flex.client.sykmeldinger.SykmeldingerResponse
-import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
 import no.nav.helse.flex.mockdispatcher.FlexSykmeldingMockDispatcher
 import no.nav.helse.flex.testdata.lagSykmeldingsPerioder
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_OPPRETT_VENTETIDSOKNADER
+import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessageDTO
 import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -263,14 +263,14 @@ class NaringsdrivendeVentetidSoknadIntegrationTest : FellesTestOppsett() {
     fun lagSykmeldingKafkaMessage(
         fnr: String,
         fom: LocalDate = dato,
-    ): SykmeldingKafkaMessage {
+    ): SykmeldingKafkaMessageDTO {
         val statusDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
         val sykmelding =
             skapArbeidsgiverSykmelding(
                 sykmeldingId = statusDTO.event.sykmeldingId,
                 sykmeldingsperioder = lagSykmeldingsPerioder(fom = fom, tom = fom.plusDays(15)),
             )
-        return SykmeldingKafkaMessage(
+        return SykmeldingKafkaMessageDTO(
             sykmelding = sykmelding,
             event = statusDTO.event,
             kafkaMetadata = statusDTO.kafkaMetadata,

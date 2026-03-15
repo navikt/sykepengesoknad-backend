@@ -11,7 +11,6 @@ import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype.*
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.forskuttering.ForskutteringRepository
 import no.nav.helse.flex.juridiskvurdering.JuridiskVurdering
 import no.nav.helse.flex.juridiskvurdering.JuridiskVurderingKafkaProducer
@@ -22,6 +21,7 @@ import no.nav.helse.flex.juridiskvurdering.Utfall
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.util.isBeforeOrEqual
+import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessageDTO
 import org.apache.commons.lang3.StringUtils
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -41,7 +41,7 @@ class MottakerAvSoknadService(
     fun finnMottakerAvSoknad(
         sykepengesoknad: Sykepengesoknad,
         identer: FolkeregisterIdenter,
-        sykmelding: SykmeldingKafkaMessage? = null,
+        sykmelding: SykmeldingKafkaMessageDTO? = null,
     ): Mottaker =
         when (sykepengesoknad.soknadstype) {
             SELVSTENDIGE_OG_FRILANSERE,
@@ -66,7 +66,7 @@ class MottakerAvSoknadService(
     private fun mottakerAvSoknadForArbeidstaker(
         sykepengesoknad: Sykepengesoknad,
         identer: FolkeregisterIdenter,
-        sykmelding: SykmeldingKafkaMessage?,
+        sykmelding: SykmeldingKafkaMessageDTO?,
     ): Mottaker {
         val mottakerAvKorrigertSoknad = mottakerAvKorrigertSoknad(sykepengesoknad)
 
@@ -122,7 +122,7 @@ class MottakerAvSoknadService(
     private fun beregnMottakerAvSoknadForArbeidstakerOgBehandlingsdager(
         sykepengesoknad: Sykepengesoknad,
         identer: FolkeregisterIdenter,
-        sykmelding: SykmeldingKafkaMessage?,
+        sykmelding: SykmeldingKafkaMessageDTO?,
     ): MottakerOgVurdering {
         val arbeidsgiverperiode =
             flexSyketilfelleClient.beregnArbeidsgiverperiode(

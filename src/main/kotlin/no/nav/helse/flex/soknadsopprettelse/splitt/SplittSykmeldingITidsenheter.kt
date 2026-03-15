@@ -15,7 +15,7 @@ import no.nav.helse.flex.soknadsopprettelse.sistePeriodeTom
 import no.nav.helse.flex.util.isAfterOrEqual
 import no.nav.helse.flex.util.isBeforeOrEqual
 import no.nav.helse.flex.util.min
-import no.nav.syfo.model.sykmelding.arbeidsgiver.ArbeidsgiverSykmelding
+import no.nav.syfo.model.sykmelding.arbeidsgiver.ArbeidsgiverSykmeldingDTO
 import java.time.DayOfWeek
 import java.time.Instant
 import java.time.LocalDate
@@ -24,7 +24,7 @@ import java.util.ArrayList
 import kotlin.math.ceil
 import kotlin.math.floor
 
-fun ArbeidsgiverSykmelding.splittSykmeldingiSoknadsPerioder(
+fun ArbeidsgiverSykmeldingDTO.splittSykmeldingiSoknadsPerioder(
     arbeidssituasjon: Arbeidssituasjon,
     eksisterendeSoknader: List<Sykepengesoknad>,
     sykmeldingId: String,
@@ -66,10 +66,10 @@ fun ArbeidsgiverSykmelding.splittSykmeldingiSoknadsPerioder(
     return sykmeldingTidsenheter.ferdigsplittet.sortedBy { it.fom }
 }
 
-private fun ArbeidsgiverSykmelding.harBehandlingsdager(arbeidssituasjon: Arbeidssituasjon): Boolean =
+private fun ArbeidsgiverSykmeldingDTO.harBehandlingsdager(arbeidssituasjon: Arbeidssituasjon): Boolean =
     bestemSoknadsType(arbeidssituasjon, sykmeldingsperioder) == Soknadstype.BEHANDLINGSDAGER
 
-private fun ArbeidsgiverSykmelding.erArbeidstakerSoknad(arbeidssituasjon: Arbeidssituasjon): Boolean =
+private fun ArbeidsgiverSykmeldingDTO.erArbeidstakerSoknad(arbeidssituasjon: Arbeidssituasjon): Boolean =
     bestemSoknadsType(arbeidssituasjon, sykmeldingsperioder) == Soknadstype.ARBEIDSTAKERE
 
 private fun SykmeldingTidsenheter.splittLangeSykmeldingperioderMedBehandlingsdager(): SykmeldingTidsenheter {

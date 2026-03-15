@@ -3,12 +3,12 @@ package no.nav.helse.flex.soknadsopprettelse
 import no.nav.helse.flex.client.flexsyketilfelle.FlexSyketilfelleClient
 import no.nav.helse.flex.client.sykmeldinger.FlexSykmeldingerBackendClient
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadRepository
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.unleash.UnleashToggles
 import no.nav.syfo.sykmelding.kafka.model.STATUS_BEKREFTET
+import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessageDTO
 import org.springframework.stereotype.Component
 import java.util.UUID
 import kotlin.reflect.KProperty1
@@ -24,10 +24,10 @@ class NaringsdrivendeSoknadService(
     private val log = logger()
 
     fun finnAndreSykmeldingerSomManglerSoknad(
-        sykmeldingKafkaMessage: SykmeldingKafkaMessage,
+        sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
         arbeidssituasjon: Arbeidssituasjon,
         identer: FolkeregisterIdenter,
-    ): List<SykmeldingKafkaMessage> {
+    ): List<SykmeldingKafkaMessageDTO> {
         val skalOppretteVentetidsoknader = unleashToggles.opprettVentetidsoknaderEnabled(identer.originalIdent)
         return try {
             val sykmeldingIder =
@@ -81,7 +81,7 @@ class NaringsdrivendeSoknadService(
 
     private fun logSykmeldingerMedSammeVentetid(
         sykmeldingIder: Set<String>,
-        sykmeldingKafkaMessage: SykmeldingKafkaMessage,
+        sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
     ) {
         val uuider =
             sykmeldingIder.map {
@@ -95,8 +95,8 @@ class NaringsdrivendeSoknadService(
     }
 
     private fun lagLoglinje(
-        andreSykmeldingerMedSammeArbeidsforhold: List<SykmeldingKafkaMessage>,
-        sykmeldingKafkaMessage: SykmeldingKafkaMessage,
+        andreSykmeldingerMedSammeArbeidsforhold: List<SykmeldingKafkaMessageDTO>,
+        sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
         togglePå: Boolean,
     ): String =
         "(Toggle ${if (togglePå) "På" else "Av"}) Fant ${andreSykmeldingerMedSammeArbeidsforhold.size} " +
@@ -106,7 +106,7 @@ class NaringsdrivendeSoknadService(
                     .joinToString { it.sykmelding.loglinje }
             }}"
 
-    private fun sammenlignOriginalKafkaMelding(sykmeldingKafkaMessage: SykmeldingKafkaMessage) {
+    private fun sammenlignOriginalKafkaMelding(sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO) {
         flexSykmeldingerBackendClient
             .hentSykmeldinger(sykmeldingIder = setOf(sykmeldingKafkaMessage.sykmelding.id))
             .first()
@@ -114,7 +114,7 @@ class NaringsdrivendeSoknadService(
     }
 }
 
-fun SykmeldingKafkaMessage.sammenlign(sykmeldingKafkaMessage: SykmeldingKafkaMessage) {
+fun SykmeldingKafkaMessageDTO.sammenlign(sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO) {
     val forskjeller = finnForskjeller(sykmeldingKafkaMessage)
     if (forskjeller.isNotEmpty()) {
         logger().warn(
@@ -123,7 +123,7 @@ fun SykmeldingKafkaMessage.sammenlign(sykmeldingKafkaMessage: SykmeldingKafkaMes
     }
 }
 
-internal fun SykmeldingKafkaMessage.finnForskjeller(sammenlignbarSykmeldingKafkaMessage: SykmeldingKafkaMessage): String =
+internal fun SykmeldingKafkaMessageDTO.finnForskjeller(sammenlignbarSykmeldingKafkaMessage: SykmeldingKafkaMessageDTO): String =
     listOf(
         "sykmelding" to Pair(sammenlignbarSykmeldingKafkaMessage.sykmelding, this.sykmelding),
         "kafkaMetadata" to Pair(sammenlignbarSykmeldingKafkaMessage.kafkaMetadata, this.kafkaMetadata),
