@@ -1,9 +1,9 @@
 package no.nav.helse.flex.soknadsopprettelse
 
-import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
+import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessageDTO
 import org.amshove.kluent.`should be empty`
 import org.amshove.kluent.`should contain`
 import org.junit.jupiter.api.Test
@@ -16,7 +16,7 @@ class SammenlignSykmeldingTest {
     private fun lagKafkaMessage(
         fnr: String = this.fnr,
         timestamp: OffsetDateTime = OffsetDateTime.now(),
-    ): SykmeldingKafkaMessage {
+    ): SykmeldingKafkaMessageDTO {
         val statusKafkaMessage = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr, timestamp = timestamp)
         val sykmelding =
             skapArbeidsgiverSykmelding(
@@ -24,7 +24,7 @@ class SammenlignSykmeldingTest {
                 fom = LocalDate.of(2024, 1, 1),
                 tom = LocalDate.of(2024, 1, 31),
             )
-        return SykmeldingKafkaMessage(
+        return SykmeldingKafkaMessageDTO(
             sykmelding = sykmelding,
             event = statusKafkaMessage.event,
             kafkaMetadata = statusKafkaMessage.kafkaMetadata,

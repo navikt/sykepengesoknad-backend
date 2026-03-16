@@ -3,11 +3,11 @@ package no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger
 import no.nav.helse.flex.domain.Soknadsperiode
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.service.FolkeregisterIdenter
-import no.nav.syfo.model.sykmelding.arbeidsgiver.ArbeidsgiverSykmelding
+import no.nav.syfo.model.sykmelding.arbeidsgiver.ArbeidsgiverSykmeldingDTO
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
+import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessageDTO
 import java.time.LocalDate
 
 enum class EndringIUforegrad {
@@ -20,7 +20,7 @@ enum class EndringIUforegrad {
 
 internal fun SykepengesoknadDAO.soknadKandidaterSomKanKlippes(
     orgnummer: String?,
-    sykmeldingKafkaMessage: SykmeldingKafkaMessage,
+    sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
     identer: FolkeregisterIdenter,
 ) = alleSomOverlapper(orgnummer, sykmeldingKafkaMessage, identer).filter {
     it.sykmeldingSkrevet!!.isBefore(sykmeldingKafkaMessage.sykmelding.behandletTidspunkt.toInstant()) ||
@@ -29,7 +29,7 @@ internal fun SykepengesoknadDAO.soknadKandidaterSomKanKlippes(
 
 internal fun SykepengesoknadDAO.soknadKandidaterSomKanKlippeSykmeldingen(
     orgnummer: String?,
-    sykmeldingKafkaMessage: SykmeldingKafkaMessage,
+    sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
     identer: FolkeregisterIdenter,
 ) = alleSomOverlapper(orgnummer, sykmeldingKafkaMessage, identer).filter {
     it.sykmeldingSkrevet!!.isAfter(sykmeldingKafkaMessage.sykmelding.behandletTidspunkt.toInstant()) ||
@@ -38,7 +38,7 @@ internal fun SykepengesoknadDAO.soknadKandidaterSomKanKlippeSykmeldingen(
 
 private fun SykepengesoknadDAO.alleSomOverlapper(
     orgnummer: String?,
-    sykmeldingKafkaMessage: SykmeldingKafkaMessage,
+    sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
     identer: FolkeregisterIdenter,
 ): List<Sykepengesoknad> {
     val sykmeldingId = sykmeldingKafkaMessage.sykmelding.id
@@ -55,7 +55,7 @@ private fun SykepengesoknadDAO.alleSomOverlapper(
         }.toList()
 }
 
-private fun Sykepengesoknad.signaturDatoIsBefore(sykmelding: ArbeidsgiverSykmelding): Boolean =
+private fun Sykepengesoknad.signaturDatoIsBefore(sykmelding: ArbeidsgiverSykmeldingDTO): Boolean =
     when {
         this.sykmeldingSkrevet != sykmelding.behandletTidspunkt.toInstant() -> false
         this.sykmeldingSignaturDato == null || sykmelding.signaturDato == null -> false
@@ -63,7 +63,7 @@ private fun Sykepengesoknad.signaturDatoIsBefore(sykmelding: ArbeidsgiverSykmeld
         else -> false
     }
 
-private fun Sykepengesoknad.signaturDatoIsAfter(sykmelding: ArbeidsgiverSykmelding): Boolean =
+private fun Sykepengesoknad.signaturDatoIsAfter(sykmelding: ArbeidsgiverSykmeldingDTO): Boolean =
     when {
         this.sykmeldingSkrevet != sykmelding.behandletTidspunkt.toInstant() -> false
         this.sykmeldingSignaturDato == null || sykmelding.signaturDato == null -> false
@@ -90,7 +90,7 @@ internal fun finnEndringIUforegrad(
     return EndringIUforegrad.VET_IKKE
 }
 
-internal fun SykmeldingKafkaMessage.periode() = sykmelding.sykmeldingsperioder.periode()
+internal fun SykmeldingKafkaMessageDTO.periode() = sykmelding.sykmeldingsperioder.periode()
 
 internal fun List<SykmeldingsperiodeAGDTO>.periode(): ClosedRange<LocalDate> {
     val sykmeldingFom = minOf { it.fom }
@@ -98,7 +98,7 @@ internal fun List<SykmeldingsperiodeAGDTO>.periode(): ClosedRange<LocalDate> {
     return sykmeldingFom..sykmeldingTom
 }
 
-internal fun SykmeldingKafkaMessage.erstattPerioder(nyePerioder: List<SykmeldingsperiodeAGDTO>) =
+internal fun SykmeldingKafkaMessageDTO.erstattPerioder(nyePerioder: List<SykmeldingsperiodeAGDTO>) =
     copy(
         sykmelding =
             sykmelding.copy(

@@ -6,12 +6,12 @@ import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.Sykeforloep
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.mapper.SykepengesoknadTilSykepengesoknadDTOMapper
-import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
-import no.nav.helse.flex.domain.sykmelding.SykmeldingRequest
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.helse.flex.util.objectMapper
+import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessageDTO
+import no.nav.syfo.sykmelding.kafka.model.SykmeldingRequest
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -25,7 +25,7 @@ import org.springframework.web.util.UriComponentsBuilder
 interface FlexSyketilfelleClient {
     fun hentSykeforloep(
         identer: FolkeregisterIdenter,
-        sykmeldingKafkaMessage: SykmeldingKafkaMessage,
+        sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
     ): List<Sykeforloep>
 
     fun erUtenforVentetid(
@@ -36,13 +36,13 @@ interface FlexSyketilfelleClient {
 
     fun beregnArbeidsgiverperiode(
         soknad: Sykepengesoknad,
-        sykmelding: SykmeldingKafkaMessage?,
+        sykmelding: SykmeldingKafkaMessageDTO?,
         forelopig: Boolean,
         identer: FolkeregisterIdenter,
     ): Arbeidsgiverperiode?
 
     fun hentSykmeldingerMedSammeVentetid(
-        sykmeldingKafkaMessage: SykmeldingKafkaMessage,
+        sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
         identer: FolkeregisterIdenter,
     ): Set<String>
 }
@@ -61,7 +61,7 @@ class FlexSyketilfelleEksternClient(
     @Retryable
     override fun hentSykeforloep(
         identer: FolkeregisterIdenter,
-        sykmeldingKafkaMessage: SykmeldingKafkaMessage,
+        sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
     ): List<Sykeforloep> {
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
@@ -131,7 +131,7 @@ class FlexSyketilfelleEksternClient(
     @Retryable
     override fun beregnArbeidsgiverperiode(
         soknad: Sykepengesoknad,
-        sykmelding: SykmeldingKafkaMessage?,
+        sykmelding: SykmeldingKafkaMessageDTO?,
         forelopig: Boolean,
         identer: FolkeregisterIdenter,
     ): Arbeidsgiverperiode? {
@@ -183,7 +183,7 @@ class FlexSyketilfelleEksternClient(
     }
 
     override fun hentSykmeldingerMedSammeVentetid(
-        sykmeldingKafkaMessage: SykmeldingKafkaMessage,
+        sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
         identer: FolkeregisterIdenter,
     ): Set<String> {
         val headers = HttpHeaders()
@@ -223,13 +223,13 @@ class FlexSyketilfelleEksternClient(
 
     private data class SoknadOgSykmelding(
         val soknad: SykepengesoknadDTO,
-        val sykmelding: SykmeldingKafkaMessage?,
+        val sykmelding: SykmeldingKafkaMessageDTO?,
     )
 }
 
 data class VentetidRequest(
     val tilleggsopplysninger: Tilleggsopplysninger? = null,
-    val sykmeldingKafkaMessage: SykmeldingKafkaMessage? = null,
+    val sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO? = null,
 )
 
 data class SammeVentetidResponse(

@@ -2,7 +2,12 @@ package no.nav.syfo.sykmelding.kafka.model
 
 import no.nav.syfo.model.sykmelding.arbeidsgiver.ArbeidsgiverSykmeldingDTO
 
-data class MottattSykmeldingKafkaMessage(
+data class SykmeldingKafkaMessageDTO(
     val sykmelding: ArbeidsgiverSykmeldingDTO,
     val kafkaMetadata: KafkaMetadataDTO,
+    val event: SykmeldingStatusKafkaEventDTO,
+)
+
+data class SykmeldingRequest(
+    val sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
 )

@@ -2,7 +2,6 @@ package no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger
 
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.KlippVariant
 import no.nav.helse.flex.repository.SykepengesoknadDAO
@@ -11,6 +10,7 @@ import no.nav.helse.flex.soknadsopprettelse.tilSoknadsperioder
 import no.nav.helse.flex.util.isAfterOrEqual
 import no.nav.helse.flex.util.isBeforeOrEqual
 import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
+import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessageDTO
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
@@ -25,10 +25,10 @@ class Overlapp(
     private val log = logger()
 
     fun klipp(
-        sykmeldingKafkaMessage: SykmeldingKafkaMessage,
+        sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
         arbeidsgiverStatusDTO: ArbeidsgiverStatusKafkaDTO?,
         identer: FolkeregisterIdenter,
-    ): SykmeldingKafkaMessage {
+    ): SykmeldingKafkaMessageDTO {
         klippEksisterendeSoknader(
             sykmeldingKafkaMessage = sykmeldingKafkaMessage,
             orgnummer = arbeidsgiverStatusDTO?.orgnummer,
@@ -43,7 +43,7 @@ class Overlapp(
     }
 
     private fun klippEksisterendeSoknader(
-        sykmeldingKafkaMessage: SykmeldingKafkaMessage,
+        sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
         orgnummer: String?,
         identer: FolkeregisterIdenter,
     ) {
@@ -64,10 +64,10 @@ class Overlapp(
     }
 
     private fun klippSykmelding(
-        sykmeldingKafkaMessage: SykmeldingKafkaMessage,
+        sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
         orgnummer: String?,
         identer: FolkeregisterIdenter,
-    ): SykmeldingKafkaMessage {
+    ): SykmeldingKafkaMessageDTO {
         var kafkaMessage = sykmeldingKafkaMessage
 
         val soknadKandidaterSomKanKlippes =
@@ -93,7 +93,7 @@ class Overlapp(
         return kafkaMessage
     }
 
-    private fun List<Sykepengesoknad>.soknaderSomOverlapperEtter(sykmeldingKafkaMessage: SykmeldingKafkaMessage) {
+    private fun List<Sykepengesoknad>.soknaderSomOverlapperEtter(sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO) {
         val sykmeldingId = sykmeldingKafkaMessage.sykmelding.id
         val sykmeldingPeriode = sykmeldingKafkaMessage.periode()
         this
@@ -139,7 +139,7 @@ class Overlapp(
             }
     }
 
-    private fun List<Sykepengesoknad>.soknaderSomOverlapperFullstendig(sykmeldingKafkaMessage: SykmeldingKafkaMessage) {
+    private fun List<Sykepengesoknad>.soknaderSomOverlapperFullstendig(sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO) {
         val sykmeldingId = sykmeldingKafkaMessage.sykmelding.id
         val sykmeldingPeriode = sykmeldingKafkaMessage.periode()
         this
@@ -184,7 +184,7 @@ class Overlapp(
             }
     }
 
-    private fun List<Sykepengesoknad>.soknaderSomOverlapperFor(sykmeldingKafkaMessage: SykmeldingKafkaMessage) {
+    private fun List<Sykepengesoknad>.soknaderSomOverlapperFor(sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO) {
         val sykmeldingId = sykmeldingKafkaMessage.sykmelding.id
         val sykmeldingPeriode = sykmeldingKafkaMessage.periode()
         this
@@ -230,7 +230,7 @@ class Overlapp(
             }
     }
 
-    private fun List<Sykepengesoknad>.soknaderSomOverlapperInni(sykmeldingKafkaMessage: SykmeldingKafkaMessage) {
+    private fun List<Sykepengesoknad>.soknaderSomOverlapperInni(sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO) {
         val sykmeldingId = sykmeldingKafkaMessage.sykmelding.id
         val sykmeldingPeriode = sykmeldingKafkaMessage.periode()
         this
@@ -277,8 +277,8 @@ class Overlapp(
     }
 
     private fun List<Sykepengesoknad>.sykmeldingSomOverlapperSendteSoknaderEtter(
-        sykmeldingKafkaMessage: SykmeldingKafkaMessage,
-    ): SykmeldingKafkaMessage {
+        sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
+    ): SykmeldingKafkaMessageDTO {
         val sykmeldingId = sykmeldingKafkaMessage.sykmelding.id
         var sykmeldingPerioder = sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder
 
@@ -340,8 +340,8 @@ class Overlapp(
     }
 
     private fun List<Sykepengesoknad>.sykmeldingSomOverlapperSendteSoknaderFor(
-        sykmeldingKafkaMessage: SykmeldingKafkaMessage,
-    ): SykmeldingKafkaMessage {
+        sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
+    ): SykmeldingKafkaMessageDTO {
         val sykmeldingId = sykmeldingKafkaMessage.sykmelding.id
         var sykmeldingPerioder = sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder
 
@@ -403,8 +403,8 @@ class Overlapp(
     }
 
     private fun List<Sykepengesoknad>.sykmeldingSomOverlapperMedNyereSoknader(
-        sykmeldingKafkaMessage: SykmeldingKafkaMessage,
-    ): SykmeldingKafkaMessage {
+        sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
+    ): SykmeldingKafkaMessageDTO {
         val sykmeldingId = sykmeldingKafkaMessage.sykmelding.id
         var sykmeldingPerioder = sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder
 

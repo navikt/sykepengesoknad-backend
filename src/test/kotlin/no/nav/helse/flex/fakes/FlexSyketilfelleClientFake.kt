@@ -5,8 +5,8 @@ import no.nav.helse.flex.client.flexsyketilfelle.VentetidRequest
 import no.nav.helse.flex.domain.Arbeidsgiverperiode
 import no.nav.helse.flex.domain.Sykeforloep
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.service.FolkeregisterIdenter
+import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessageDTO
 import org.springframework.context.annotation.Primary
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
@@ -27,7 +27,7 @@ class FlexSyketilfelleClientFake : FlexSyketilfelleClient {
 
     override fun hentSykeforloep(
         identer: FolkeregisterIdenter,
-        sykmeldingKafkaMessage: SykmeldingKafkaMessage,
+        sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
     ): List<Sykeforloep> {
         TODO("Not yet implemented")
     }
@@ -42,7 +42,7 @@ class FlexSyketilfelleClientFake : FlexSyketilfelleClient {
 
     override fun beregnArbeidsgiverperiode(
         soknad: Sykepengesoknad,
-        sykmelding: SykmeldingKafkaMessage?,
+        sykmelding: SykmeldingKafkaMessageDTO?,
         forelopig: Boolean,
         identer: FolkeregisterIdenter,
     ): Arbeidsgiverperiode? {
@@ -50,7 +50,7 @@ class FlexSyketilfelleClientFake : FlexSyketilfelleClient {
     }
 
     override fun hentSykmeldingerMedSammeVentetid(
-        sykmeldingKafkaMessage: SykmeldingKafkaMessage,
+        sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
         identer: FolkeregisterIdenter,
     ): Set<String> =
         when (identer.originalIdent) {

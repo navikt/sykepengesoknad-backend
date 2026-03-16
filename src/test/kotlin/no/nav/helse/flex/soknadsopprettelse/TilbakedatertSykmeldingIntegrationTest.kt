@@ -2,12 +2,12 @@ package no.nav.helse.flex.soknadsopprettelse
 
 import no.nav.helse.flex.*
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.syfo.model.Merknad
+import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessageDTO
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldHaveSize
@@ -141,7 +141,7 @@ class TilbakedatertSykmeldingIntegrationTest : FellesTestOppsett() {
         mockFlexSyketilfelleSykeforloep(sykmelding.id)
 
         val sykmeldingKafkaMessage =
-            SykmeldingKafkaMessage(
+            SykmeldingKafkaMessageDTO(
                 sykmelding = sykmelding,
                 event = sykmeldingStatusKafkaMessageDTO.event,
                 kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,

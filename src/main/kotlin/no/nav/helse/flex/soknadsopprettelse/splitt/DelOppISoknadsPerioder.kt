@@ -2,10 +2,10 @@ package no.nav.helse.flex.soknadsopprettelse.splitt
 
 import no.nav.helse.flex.util.max
 import no.nav.helse.flex.util.min
-import no.nav.syfo.model.sykmelding.arbeidsgiver.ArbeidsgiverSykmelding
+import no.nav.syfo.model.sykmelding.arbeidsgiver.ArbeidsgiverSykmeldingDTO
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 
-fun Tidsenhet.delOppISoknadsperioder(sykmeldingDokument: ArbeidsgiverSykmelding): List<SykmeldingsperiodeAGDTO> =
+fun Tidsenhet.delOppISoknadsperioder(sykmeldingDokument: ArbeidsgiverSykmeldingDTO): List<SykmeldingsperiodeAGDTO> =
     sykmeldingDokument
         .sykmeldingsperioder
         .filter { periode -> periodeTrefferInnenforTidsenhet(periode, this) }

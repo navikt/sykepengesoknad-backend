@@ -1,9 +1,9 @@
 package no.nav.helse.flex.soknadsopprettelse
 
 import no.nav.helse.flex.aktivering.AktiveringProducer
-import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.sykmeldingmerknader.OppdateringAvMerknader
+import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessageDTO
 import org.springframework.stereotype.Service
 
 @Service
@@ -16,7 +16,7 @@ class BehandleSykmeldingOgBestillAktivering(
 
     fun prosesserSykmelding(
         sykmeldingId: String,
-        sykmeldingKafkaMessage: SykmeldingKafkaMessage?,
+        sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO?,
         topic: String,
     ) {
         val skalAktiveres =

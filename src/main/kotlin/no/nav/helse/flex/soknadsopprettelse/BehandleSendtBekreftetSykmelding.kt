@@ -5,7 +5,6 @@ import no.nav.helse.flex.client.flexsyketilfelle.FlexSyketilfelleClient
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.exception.SkalRebehandlesException
 import no.nav.helse.flex.domain.exception.UventetArbeidssituasjonException
-import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.kafka.producer.RebehandlingSykmeldingSendtProducer
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.LockRepository
@@ -16,6 +15,7 @@ import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.Klipp
 import no.nav.syfo.sykmelding.kafka.model.STATUS_BEKREFTET
 import no.nav.syfo.sykmelding.kafka.model.STATUS_SENDT
 import no.nav.syfo.sykmelding.kafka.model.ShortNameKafkaDTO
+import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessageDTO
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.transaction.interceptor.TransactionInterceptor
@@ -37,7 +37,7 @@ class BehandleSendtBekreftetSykmelding(
 
     fun prosesserSykmelding(
         sykmeldingId: String,
-        sykmeldingKafkaMessage: SykmeldingKafkaMessage?,
+        sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO?,
         topic: String,
     ): List<AktiveringBestilling> {
         if (sykmeldingKafkaMessage == null) {
@@ -61,7 +61,7 @@ class BehandleSendtBekreftetSykmelding(
         }
     }
 
-    fun prosseserKafkaMessage(sykmeldingKafkaMessage: SykmeldingKafkaMessage): List<AktiveringBestilling> =
+    fun prosseserKafkaMessage(sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO): List<AktiveringBestilling> =
         when (sykmeldingKafkaMessage.event.statusEvent) {
             STATUS_BEKREFTET -> {
                 handterBekreftetSykmelding(sykmeldingKafkaMessage)
@@ -80,7 +80,7 @@ class BehandleSendtBekreftetSykmelding(
             }
         }
 
-    private fun handterBekreftetSykmelding(sykmeldingStatusKafkaMessageDTO: SykmeldingKafkaMessage): List<AktiveringBestilling> =
+    private fun handterBekreftetSykmelding(sykmeldingStatusKafkaMessageDTO: SykmeldingKafkaMessageDTO): List<AktiveringBestilling> =
         when (val arbeidssituasjon = sykmeldingStatusKafkaMessageDTO.hentArbeidssituasjon()) {
             Arbeidssituasjon.ARBEIDSLEDIG,
             Arbeidssituasjon.FISKER,
@@ -108,7 +108,7 @@ class BehandleSendtBekreftetSykmelding(
             }
         }
 
-    private fun handterSendtSykmelding(sykmeldingStatusKafkaMessageDTO: SykmeldingKafkaMessage): List<AktiveringBestilling> =
+    private fun handterSendtSykmelding(sykmeldingStatusKafkaMessageDTO: SykmeldingKafkaMessageDTO): List<AktiveringBestilling> =
         when (val arbeidssituasjon = sykmeldingStatusKafkaMessageDTO.hentArbeidssituasjon()) {
             Arbeidssituasjon.ARBEIDSTAKER -> {
                 opprettSoknadArbeidstaker(sykmeldingStatusKafkaMessageDTO, arbeidssituasjon)
@@ -122,7 +122,7 @@ class BehandleSendtBekreftetSykmelding(
         }
 
     private fun opprettSoknad(
-        sykmeldingKafkaMessage: SykmeldingKafkaMessage,
+        sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
         arbeidssituasjon: Arbeidssituasjon,
     ): List<AktiveringBestilling> {
         if (sykmeldingKafkaMessage.harUgyldigePerioder()) {
@@ -144,7 +144,7 @@ class BehandleSendtBekreftetSykmelding(
     }
 
     private fun opprettSoknadArbeidstaker(
-        sykmeldingKafkaMessage: SykmeldingKafkaMessage,
+        sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
         arbeidssituasjon: Arbeidssituasjon,
     ): List<AktiveringBestilling> {
         if (sykmeldingKafkaMessage.harUgyldigePerioder()) {
@@ -173,7 +173,7 @@ class BehandleSendtBekreftetSykmelding(
     }
 
     private fun opprettSoknadNaringsdrivende(
-        sykmeldingKafkaMessage: SykmeldingKafkaMessage,
+        sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
         arbeidssituasjon: Arbeidssituasjon,
     ): List<AktiveringBestilling> {
         if (sykmeldingKafkaMessage.harUgyldigePerioder()) {
@@ -217,7 +217,7 @@ class BehandleSendtBekreftetSykmelding(
 
     private fun låsIdenter(
         identer: FolkeregisterIdenter,
-        sykmeldingKafkaMessage: SykmeldingKafkaMessage,
+        sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
     ) {
         val låstIdenter = lockRepository.settAdvisoryLock(keys = identer.alle().map { it.toLong() }.toLongArray())
         if (!låstIdenter) {
@@ -226,7 +226,7 @@ class BehandleSendtBekreftetSykmelding(
     }
 }
 
-fun SykmeldingKafkaMessage.hentArbeidssituasjon(): Arbeidssituasjon? {
+fun SykmeldingKafkaMessageDTO.hentArbeidssituasjon(): Arbeidssituasjon? {
     this.event.sporsmals?.firstOrNull { sporsmal -> sporsmal.shortName == ShortNameKafkaDTO.ARBEIDSSITUASJON }?.svar?.let { it ->
         val arbeidssituasjon =
             Arbeidssituasjon.valueOf(
@@ -247,7 +247,7 @@ fun SykmeldingKafkaMessage.hentArbeidssituasjon(): Arbeidssituasjon? {
     return null
 }
 
-fun SykmeldingKafkaMessage.brukerHarOppgittForsikring(): Boolean {
+fun SykmeldingKafkaMessageDTO.brukerHarOppgittForsikring(): Boolean {
     this.event.sporsmals
         ?.firstOrNull { sporsmal -> sporsmal.shortName == ShortNameKafkaDTO.FORSIKRING }
         ?.svar

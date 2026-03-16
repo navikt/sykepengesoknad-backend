@@ -4,7 +4,6 @@ import no.nav.helse.flex.aktivering.AktiveringBestilling
 import no.nav.helse.flex.domain.*
 import no.nav.helse.flex.domain.Arbeidssituasjon.*
 import no.nav.helse.flex.domain.exception.SykeforloepManglerSykemeldingException
-import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.domain.sykmelding.bestemSoknadsType
 import no.nav.helse.flex.julesoknad.LagreJulesoknadKandidater
 import no.nav.helse.flex.kafka.producer.SoknadProducer
@@ -28,6 +27,7 @@ import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO.GRADERT
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO.REISETILSKUDD
 import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
 import no.nav.syfo.sykmelding.kafka.model.ShortNameKafkaDTO
+import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessageDTO
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
@@ -49,7 +49,7 @@ class OpprettSoknadService(
     private val log = logger()
 
     fun opprettSykepengesoknaderForSykmelding(
-        sykmeldingKafkaMessage: SykmeldingKafkaMessage,
+        sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
         arbeidssituasjon: Arbeidssituasjon,
         identer: FolkeregisterIdenter,
         arbeidsgiverStatusDTO: ArbeidsgiverStatusKafkaDTO?,
@@ -168,7 +168,7 @@ class OpprettSoknadService(
     internal fun hentSelvstendigNaringsdrivendeInfo(
         arbeidssituasjon: Arbeidssituasjon,
         identer: FolkeregisterIdenter,
-        sykmeldingKafkaMessage: SykmeldingKafkaMessage,
+        sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
     ): SelvstendigNaringsdrivendeInfo? =
         if (listOf(FISKER, JORDBRUKER, NAERINGSDRIVENDE).contains(arbeidssituasjon)) {
             selvstendigNaringsdrivendeInfoService.lagSelvstendigNaringsdrivendeInfo(
@@ -233,7 +233,7 @@ private fun Sykepengesoknad.markerForsteganssoknad(
     )
 }
 
-fun SykmeldingKafkaMessage.skapSoknadsId(
+fun SykmeldingKafkaMessageDTO.skapSoknadsId(
     fom: LocalDate,
     tom: LocalDate,
 ): String =

@@ -1,10 +1,9 @@
 package no.nav.helse.flex.testdata
 
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.syfo.model.Merknad
 import no.nav.syfo.model.sykmelding.arbeidsgiver.ArbeidsgiverAGDTO
-import no.nav.syfo.model.sykmelding.arbeidsgiver.ArbeidsgiverSykmelding
+import no.nav.syfo.model.sykmelding.arbeidsgiver.ArbeidsgiverSykmeldingDTO
 import no.nav.syfo.model.sykmelding.arbeidsgiver.BehandlerAGDTO
 import no.nav.syfo.model.sykmelding.arbeidsgiver.KontaktMedPasientAGDTO
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
@@ -13,6 +12,7 @@ import no.nav.syfo.model.sykmelding.model.AdresseDTO
 import no.nav.syfo.model.sykmelding.model.GradertDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import no.nav.syfo.sykmelding.kafka.model.*
+import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessageDTO
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -27,8 +27,8 @@ fun skapArbeidsgiverSykmelding(
     gradert: GradertDTO? = null,
     merknader: List<Merknad>? = null,
     behandlingsdager: Int? = null,
-): ArbeidsgiverSykmelding =
-    ArbeidsgiverSykmelding(
+): ArbeidsgiverSykmeldingDTO =
+    ArbeidsgiverSykmeldingDTO(
         id = sykmeldingId,
         sykmeldingsperioder =
             listOf(
@@ -173,8 +173,8 @@ fun skapArbeidsgiverSykmelding(
     utenlandskSykemelding: UtenlandskSykmeldingAGDTO? = null,
     sykmeldingSkrevet: OffsetDateTime = OffsetDateTime.now(ZoneOffset.UTC),
     signaturDato: OffsetDateTime = sykmeldingSkrevet,
-): ArbeidsgiverSykmelding =
-    ArbeidsgiverSykmelding(
+): ArbeidsgiverSykmeldingDTO =
+    ArbeidsgiverSykmeldingDTO(
         id = sykmeldingId,
         sykmeldingsperioder = sykmeldingsperioder ?: emptyList(),
         behandletTidspunkt = sykmeldingSkrevet,
@@ -330,7 +330,7 @@ fun sykmeldingKafkaMessage(
     signaturDato: OffsetDateTime = timestamp,
     tidligereArbeidsgiverOrgnummer: String? = null,
     status: String? = null,
-): SykmeldingKafkaMessage {
+): SykmeldingKafkaMessageDTO {
     val faktiskArbeidsgiver =
         if (arbeidssituasjon == Arbeidssituasjon.ARBEIDSTAKER) {
             arbeidsgiver!!
@@ -366,7 +366,7 @@ fun sykmeldingKafkaMessage(
             signaturDato = signaturDato,
         )
 
-    return SykmeldingKafkaMessage(
+    return SykmeldingKafkaMessageDTO(
         sykmelding = sykmelding,
         event = sykmeldingStatusKafkaMessageDTO.event,
         kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,

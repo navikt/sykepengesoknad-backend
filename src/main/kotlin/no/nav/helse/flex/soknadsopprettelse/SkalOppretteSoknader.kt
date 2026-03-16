@@ -3,11 +3,11 @@ package no.nav.helse.flex.soknadsopprettelse
 import no.nav.helse.flex.client.flexsyketilfelle.FlexSyketilfelleClient
 import no.nav.helse.flex.client.flexsyketilfelle.VentetidRequest
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO.AVVENTENDE
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO.REISETILSKUDD
+import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessageDTO
 import org.springframework.stereotype.Service
 
 @Service
@@ -17,7 +17,7 @@ class SkalOppretteSoknader(
     private val log = logger()
 
     fun skalOppretteNaringsdrivendeSoknader(
-        sykmeldingKafkaMessage: SykmeldingKafkaMessage,
+        sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
         identer: FolkeregisterIdenter,
         arbeidssituasjon: Arbeidssituasjon,
     ): Boolean {
@@ -48,7 +48,7 @@ class SkalOppretteSoknader(
     }
 }
 
-fun SykmeldingKafkaMessage.harUgyldigePerioder(): Boolean {
+fun SykmeldingKafkaMessageDTO.harUgyldigePerioder(): Boolean {
     val sykmeldingId = this.sykmelding.id
     val perioder = this.sykmelding.sykmeldingsperioder
 

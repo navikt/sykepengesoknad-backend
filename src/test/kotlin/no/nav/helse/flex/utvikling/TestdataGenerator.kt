@@ -13,7 +13,7 @@ import no.nav.syfo.model.sykmelding.arbeidsgiver.ArbeidsgiverAGDTO
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
 import no.nav.syfo.sykmelding.kafka.model.STATUS_SENDT
-import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessage
+import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessageDTO
 import no.nav.syfo.sykmelding.kafka.model.SykmeldingStatusKafkaEventDTO
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -57,7 +57,7 @@ class TestdataGenerator {
             )
         }
 
-    val sykmeldinger = mutableListOf<SykmeldingKafkaMessage>()
+    val sykmeldinger = mutableListOf<SykmeldingKafkaMessageDTO>()
 
     @Autowired
     lateinit var kafkaProducer: KafkaProducer<String, String>
@@ -65,7 +65,7 @@ class TestdataGenerator {
     @Autowired
     lateinit var fakeUnleash: FakeUnleash
 
-    fun sendSykmelding(sykmeldingKafkaMessage: SykmeldingKafkaMessage) {
+    fun sendSykmelding(sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO) {
         sykmeldinger.add(sykmeldingKafkaMessage)
         val topic =
             if (sykmeldingKafkaMessage.event.statusEvent == STATUS_SENDT) {
@@ -104,7 +104,7 @@ class TestdataGenerator {
             )
 
         val sykmeldingKafkaMessage =
-            SykmeldingKafkaMessage(
+            SykmeldingKafkaMessageDTO(
                 sykmelding = sykmelding,
                 event = sykmeldingStatusKafkaMessageDTO.event,
                 kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,

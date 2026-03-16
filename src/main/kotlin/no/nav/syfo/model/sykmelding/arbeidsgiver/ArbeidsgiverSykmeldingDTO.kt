@@ -4,7 +4,7 @@ import no.nav.syfo.model.Merknad
 import java.time.LocalDate
 import java.time.OffsetDateTime
 
-data class ArbeidsgiverSykmelding(
+data class ArbeidsgiverSykmeldingDTO(
     val id: String,
     val mottattTidspunkt: OffsetDateTime,
     val syketilfelleStartDato: LocalDate?,

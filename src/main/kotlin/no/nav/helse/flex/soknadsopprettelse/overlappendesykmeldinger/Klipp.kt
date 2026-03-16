@@ -3,10 +3,10 @@ package no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.exception.ManglerArbeidsgiverException
-import no.nav.helse.flex.domain.sykmelding.SykmeldingKafkaMessage
 import no.nav.helse.flex.domain.sykmelding.bestemSoknadsType
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.service.FolkeregisterIdenter
+import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessageDTO
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -18,10 +18,10 @@ class Klipp(
     val log = logger()
 
     fun klippArbeidstaker(
-        sykmeldingKafkaMessage: SykmeldingKafkaMessage,
+        sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
         arbeidssituasjon: Arbeidssituasjon,
         identer: FolkeregisterIdenter,
-    ): SykmeldingKafkaMessage {
+    ): SykmeldingKafkaMessageDTO {
         val arbeidsgiverStatusDTO =
             sykmeldingKafkaMessage.event.arbeidsgiver
                 ?: throw ManglerArbeidsgiverException(
