@@ -1,6 +1,10 @@
 package no.nav.helse.flex.testdata
 
 import no.nav.helse.flex.domain.Arbeidssituasjon
+import no.nav.helse.flex.domain.Sykmeldingstype
+import no.nav.helse.flex.domain.sykmelding.Gradert
+import no.nav.helse.flex.domain.sykmelding.SykmeldingTilSoknadOpprettelse
+import no.nav.helse.flex.domain.sykmelding.Sykmeldingsperiode
 import no.nav.syfo.model.Merknad
 import no.nav.syfo.model.sykmelding.arbeidsgiver.ArbeidsgiverAGDTO
 import no.nav.syfo.model.sykmelding.arbeidsgiver.ArbeidsgiverSykmeldingDTO
@@ -73,6 +77,40 @@ fun skapArbeidsgiverSykmelding(
         papirsykmelding = false,
         merknader = merknader,
         utenlandskSykmelding = null,
+    )
+
+fun skapArbeidsgiverSykmeldingTilSoknadOpprettelse(
+    sykmeldingId: String = UUID.randomUUID().toString(),
+    fom: LocalDate = LocalDate.of(2020, 2, 1),
+    tom: LocalDate = LocalDate.of(2020, 2, 15),
+    type: Sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+    reisetilskudd: Boolean = false,
+    gradert: Gradert? = null,
+    merknader: List<no.nav.helse.flex.domain.Merknad>? = null,
+    eventTimestamp: OffsetDateTime = OffsetDateTime.now(),
+): SykmeldingTilSoknadOpprettelse =
+    SykmeldingTilSoknadOpprettelse(
+        sykmeldingId = sykmeldingId,
+        sykmeldingsperioder =
+            listOf(
+                Sykmeldingsperiode(
+                    fom = fom,
+                    tom = tom,
+                    type = type,
+                    gradert = gradert,
+                    reisetilskudd = reisetilskudd,
+                ),
+            ),
+        eventTimestamp = eventTimestamp,
+        behandletTidspunkt = OffsetDateTime.now(ZoneOffset.UTC).toInstant(),
+        signaturDato = OffsetDateTime.now(ZoneOffset.UTC).toInstant(),
+        erUtlandskSykmelding = false,
+        brukerHarOppgittForsikring = false,
+        egenmeldt = false,
+        egenmeldingsdagerFraSykmelding = null,
+        tidligereArbeidsgiverOrgnummer = null,
+        fiskerBlad = null,
+        merknader = merknader,
     )
 
 fun skapSykmeldingStatusKafkaMessageDTO(

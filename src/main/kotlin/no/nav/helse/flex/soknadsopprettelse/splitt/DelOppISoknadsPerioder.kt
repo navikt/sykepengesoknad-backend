@@ -1,11 +1,11 @@
 package no.nav.helse.flex.soknadsopprettelse.splitt
 
+import no.nav.helse.flex.domain.sykmelding.SykmeldingTilSoknadOpprettelse
+import no.nav.helse.flex.domain.sykmelding.Sykmeldingsperiode
 import no.nav.helse.flex.util.max
 import no.nav.helse.flex.util.min
-import no.nav.syfo.model.sykmelding.arbeidsgiver.ArbeidsgiverSykmeldingDTO
-import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 
-fun Tidsenhet.delOppISoknadsperioder(sykmeldingDokument: ArbeidsgiverSykmeldingDTO): List<SykmeldingsperiodeAGDTO> =
+fun Tidsenhet.delOppISoknadsperioder(sykmeldingDokument: SykmeldingTilSoknadOpprettelse): List<Sykmeldingsperiode> =
     sykmeldingDokument
         .sykmeldingsperioder
         .filter { periode -> periodeTrefferInnenforTidsenhet(periode, this) }
@@ -17,6 +17,6 @@ fun Tidsenhet.delOppISoknadsperioder(sykmeldingDokument: ArbeidsgiverSykmeldingD
         }.sortedBy { it.fom }
 
 private fun periodeTrefferInnenforTidsenhet(
-    periode: SykmeldingsperiodeAGDTO,
+    periode: Sykmeldingsperiode,
     tidsenhet: Tidsenhet,
 ): Boolean = !periode.fom.isAfter(tidsenhet.tom) && !periode.tom.isBefore(tidsenhet.fom)
