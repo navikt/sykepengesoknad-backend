@@ -36,9 +36,10 @@ class NaringsdrivendeSoknadService(
 
             val andreSykmeldingIder = sykmeldingIder.filterNot { it == sykmeldingKafkaMessage.sykmelding.id }.toSet()
 
+            val andreSøknaderMedSammeVentetid = sykepengesoknadRepository.findBySykmeldingUuidIn(andreSykmeldingIder)
+
             val andreSykmeldingIderMedSoknader =
-                sykepengesoknadRepository
-                    .findBySykmeldingUuidIn(andreSykmeldingIder)
+                andreSøknaderMedSammeVentetid
                     .map { it.sykmeldingUuid!! }
                     .toSet()
 
@@ -46,26 +47,34 @@ class NaringsdrivendeSoknadService(
                 sammenlignOriginalKafkaMelding(sykmeldingKafkaMessage)
             }
 
+            val finnesSoknadMedSammeArbeidssituasjonFørSykmeldingen =
+                andreSøknaderMedSammeVentetid
+                    .filter { it.arbeidssituasjon == arbeidssituasjon }
+                    .any { it.tom!! < sykmeldingKafkaMessage.sykmelding.fom }
+
             val andreSykmeldingerSomManglerSoknad = andreSykmeldingIder - andreSykmeldingIderMedSoknader
-            val andreSykmeldingerMedSammeArbeidsforhold =
+            val andreSykmeldingerViSkalOppretteSoknadFor =
                 if (andreSykmeldingerSomManglerSoknad.isEmpty()) {
                     emptyList()
                 } else {
                     flexSykmeldingerBackendClient
-                        .hentSykmeldinger(sykmeldingIder = andreSykmeldingerSomManglerSoknad)
-                        .filter { it.hentArbeidssituasjon() == arbeidssituasjon }
+                        .hentSykmeldinger(
+                            sykmeldingIder = andreSykmeldingerSomManglerSoknad,
+                            fom = if (finnesSoknadMedSammeArbeidssituasjonFørSykmeldingen) sykmeldingKafkaMessage.sykmelding.fom else null,
+                        ).filter { it.hentArbeidssituasjon() == arbeidssituasjon }
                         .filter { it.event.statusEvent == STATUS_BEKREFTET }
                 }
 
             log.info(
                 lagLoglinje(
-                    andreSykmeldingerMedSammeArbeidsforhold,
-                    sykmeldingKafkaMessage,
-                    skalOppretteVentetidsoknader,
+                    andreSykmeldingerMedSammeArbeidsforhold = andreSykmeldingerViSkalOppretteSoknadFor,
+                    sykmeldingKafkaMessage = sykmeldingKafkaMessage,
+                    togglePå = skalOppretteVentetidsoknader,
+                    finnesSoknadFørSykmeldingen = finnesSoknadMedSammeArbeidssituasjonFørSykmeldingen,
                 ),
             )
             if (skalOppretteVentetidsoknader) {
-                andreSykmeldingerMedSammeArbeidsforhold
+                andreSykmeldingerViSkalOppretteSoknadFor
             } else {
                 emptyList()
             }
@@ -98,17 +107,17 @@ class NaringsdrivendeSoknadService(
         andreSykmeldingerMedSammeArbeidsforhold: List<SykmeldingKafkaMessageDTO>,
         sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
         togglePå: Boolean,
+        finnesSoknadFørSykmeldingen: Boolean,
     ): String =
-        "(Toggle ${if (togglePå) "På" else "Av"}) Fant ${andreSykmeldingerMedSammeArbeidsforhold.size} " +
-            "andre sykmeldinger: ${sykmeldingKafkaMessage.sykmelding.loglinje}: " +
-            "${
-                andreSykmeldingerMedSammeArbeidsforhold.sortedBy { it.sykmelding.fom }
-                    .joinToString { it.sykmelding.loglinje }
-            }}"
+        "(Toggle ${if (togglePå) "På" else "Av"}) (SFS ${if (finnesSoknadFørSykmeldingen) "J" else "N"}) " +
+            "Fant ${andreSykmeldingerMedSammeArbeidsforhold.size} andre sykmeldinger: ${sykmeldingKafkaMessage.sykmelding.loglinje}: " +
+            andreSykmeldingerMedSammeArbeidsforhold
+                .sortedBy { it.sykmelding.fom }
+                .joinToString { it.sykmelding.loglinje }
 
     private fun sammenlignOriginalKafkaMelding(sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO) {
         flexSykmeldingerBackendClient
-            .hentSykmeldinger(sykmeldingIder = setOf(sykmeldingKafkaMessage.sykmelding.id))
+            .hentSykmeldinger(sykmeldingIder = setOf(sykmeldingKafkaMessage.sykmelding.id), fom = null)
             .first()
             .sammenlign(sykmeldingKafkaMessage = sykmeldingKafkaMessage)
     }

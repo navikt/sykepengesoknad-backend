@@ -19,11 +19,12 @@ fun lagSoknad(
     status: Soknadstatus? = Soknadstatus.SENDT,
     fnr: String = "11111111111",
     id: String = UUID.randomUUID().toString(),
+    sykmeldingId: String = "uuid-$arbeidsgiver",
 ): Sykepengesoknad =
     Sykepengesoknad(
         id = id,
         fnr = fnr,
-        sykmeldingId = "uuid-$arbeidsgiver",
+        sykmeldingId = sykmeldingId,
         arbeidssituasjon = arbeidsSituasjon,
         arbeidsgiverOrgnummer = "org-$arbeidsgiver",
         startSykeforlop = startSykeforlop,
