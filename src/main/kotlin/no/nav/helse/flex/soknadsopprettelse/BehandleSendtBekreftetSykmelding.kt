@@ -5,6 +5,7 @@ import no.nav.helse.flex.client.flexsyketilfelle.FlexSyketilfelleClient
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.exception.SkalRebehandlesException
 import no.nav.helse.flex.domain.exception.UventetArbeidssituasjonException
+import no.nav.helse.flex.domain.sykmelding.tilSykmeldingTilSoknadOpprettelse
 import no.nav.helse.flex.kafka.producer.RebehandlingSykmeldingSendtProducer
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.LockRepository
@@ -135,7 +136,7 @@ class BehandleSendtBekreftetSykmelding(
         val sykeForloep = flexSyketilfelleClient.hentSykeforloep(identer, sykmeldingKafkaMessage)
 
         return opprettSoknadService.opprettSykepengesoknaderForSykmelding(
-            sykmeldingKafkaMessage = sykmeldingKafkaMessage,
+            sykmeldingTilSoknadOpprettelse = sykmeldingKafkaMessage.tilSykmeldingTilSoknadOpprettelse(),
             arbeidssituasjon = arbeidssituasjon,
             identer = identer,
             arbeidsgiverStatusDTO = sykmeldingKafkaMessage.event.arbeidsgiver,
@@ -164,7 +165,7 @@ class BehandleSendtBekreftetSykmelding(
             )
 
         return opprettSoknadService.opprettSykepengesoknaderForSykmelding(
-            sykmeldingKafkaMessage = klippetSykmeldingKafkaMessage,
+            sykmeldingTilSoknadOpprettelse = klippetSykmeldingKafkaMessage.tilSykmeldingTilSoknadOpprettelse(),
             arbeidssituasjon = arbeidssituasjon,
             identer = identer,
             arbeidsgiverStatusDTO = sykmeldingKafkaMessage.event.arbeidsgiver,
@@ -206,7 +207,7 @@ class BehandleSendtBekreftetSykmelding(
 
         return sorterteSykmeldinger.flatMap {
             opprettSoknadService.opprettSykepengesoknaderForSykmelding(
-                sykmeldingKafkaMessage = it,
+                sykmeldingTilSoknadOpprettelse = it.tilSykmeldingTilSoknadOpprettelse(),
                 arbeidssituasjon = it.hentArbeidssituasjon()!!,
                 identer = identer,
                 arbeidsgiverStatusDTO = it.event.arbeidsgiver,

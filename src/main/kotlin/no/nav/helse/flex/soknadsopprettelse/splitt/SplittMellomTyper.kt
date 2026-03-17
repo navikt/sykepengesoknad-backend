@@ -1,13 +1,12 @@
 package no.nav.helse.flex.soknadsopprettelse.splitt
 
-import no.nav.syfo.model.sykmelding.arbeidsgiver.ArbeidsgiverSykmeldingDTO
-import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
-import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
-import java.util.ArrayList
+import no.nav.helse.flex.domain.Sykmeldingstype
+import no.nav.helse.flex.domain.sykmelding.SykmeldingTilSoknadOpprettelse
+import no.nav.helse.flex.domain.sykmelding.Sykmeldingsperiode
 
-fun ArbeidsgiverSykmeldingDTO.splittMellomTyper(): List<ArbeidsgiverSykmeldingDTO> {
-    val ret = ArrayList<ArbeidsgiverSykmeldingDTO>()
-    var behandles: ArbeidsgiverSykmeldingDTO? = null
+fun SykmeldingTilSoknadOpprettelse.splittMellomTyper(): List<SykmeldingTilSoknadOpprettelse> {
+    val ret = ArrayList<SykmeldingTilSoknadOpprettelse>()
+    var behandles: SykmeldingTilSoknadOpprettelse? = null
 
     sykmeldingsperioder.sortedBy { it.fom }.forEach { nestePeriode ->
         if (behandles == null) {
@@ -30,16 +29,16 @@ fun ArbeidsgiverSykmeldingDTO.splittMellomTyper(): List<ArbeidsgiverSykmeldingDT
     return ret
 }
 
-private fun ArbeidsgiverSykmeldingDTO.erKompatibel(nestePeriode: SykmeldingsperiodeAGDTO): Boolean =
+private fun SykmeldingTilSoknadOpprettelse.erKompatibel(nestePeriode: Sykmeldingsperiode): Boolean =
     sykmeldingsperioder.last().erGradertEller100Prosent() &&
         nestePeriode.erGradertEller100Prosent() &&
         sykmeldingsperioder.last().tom.plusDays(1) == nestePeriode.fom
 
-private fun SykmeldingsperiodeAGDTO.erAktivitetIkkeMulig(): Boolean = type == PeriodetypeDTO.AKTIVITET_IKKE_MULIG
+private fun Sykmeldingsperiode.erAktivitetIkkeMulig(): Boolean = type == Sykmeldingstype.AKTIVITET_IKKE_MULIG
 
-private fun SykmeldingsperiodeAGDTO.erGradertUtenReisetilskudd(): Boolean {
-    val gradertRt = this.gradert?.reisetilskudd ?: false
-    return this.type == PeriodetypeDTO.GRADERT && !this.reisetilskudd && !gradertRt
+private fun Sykmeldingsperiode.erGradertUtenReisetilskudd(): Boolean {
+    val gradertRt = gradert?.reisetilskudd ?: false
+    return type == Sykmeldingstype.GRADERT && !this.reisetilskudd && !gradertRt
 }
 
-private fun SykmeldingsperiodeAGDTO.erGradertEller100Prosent(): Boolean = erAktivitetIkkeMulig() || erGradertUtenReisetilskudd()
+private fun Sykmeldingsperiode.erGradertEller100Prosent(): Boolean = erAktivitetIkkeMulig() || erGradertUtenReisetilskudd()
