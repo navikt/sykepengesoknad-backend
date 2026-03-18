@@ -12,6 +12,7 @@ import no.nav.helse.flex.fakes.SoknadLagrerFake
 import no.nav.helse.flex.fakes.SykepengesoknadRepositoryFake
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.soknadsopprettelse.NaringsdrivendeSoknadService
+import no.nav.helse.flex.soknadsopprettelse.VENTETIDSPERIODE
 import no.nav.helse.flex.soknadsopprettelse.hentArbeidssituasjon
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
@@ -256,6 +257,102 @@ class NaringsdrivendeSoknadServiceTest : FakesTestOppsett() {
     }
 
     @Test
+    fun `Burde opprette ventetidsøknad hvis det ikke er eksisterende søknad og er innenfor ventetidsperioden`() {
+        fakeUnleash.enable(UNLEASH_CONTEXT_OPPRETT_VENTETIDSOKNADER)
+        val fom = LocalDate.of(2020, 2, 21)
+
+        val sykmelding =
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
+                status = STATUS_BEKREFTET,
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = LocalDate.of(2020, 2, 1),
+                        tom = fom.minusDays(VENTETIDSPERIODE.toLong()),
+                    ),
+            )
+        val sykmelding1 =
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
+                status = STATUS_BEKREFTET,
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = fom,
+                        tom = LocalDate.of(2020, 2, 24),
+                    ),
+            )
+        flexSyketilfelleClient.leggTilSykmeldingMedSammeVentetid(sykmelding.sykmelding.id)
+        flexSyketilfelleClient.leggTilSykmeldingMedSammeVentetid(sykmelding1.sykmelding.id)
+
+        flexSykmeldingerBackendClient.leggTilSykmelding(sykmelding)
+        flexSykmeldingerBackendClient.leggTilSykmelding(sykmelding1)
+
+        naringsdrivendeSoknadService
+            .finnAndreSykmeldingerSomManglerSoknad(
+                sykmeldingKafkaMessage = sykmelding1,
+                arbeidssituasjon = sykmelding1.hentArbeidssituasjon()!!,
+                identer =
+                    FolkeregisterIdenter(
+                        originalIdent = sykmelding1.kafkaMetadata.fnr,
+                        andreIdenter = emptyList(),
+                    ),
+            ).also {
+                it.size `should be equal to` 1
+                it.first() `should be equal to` sykmelding
+            }
+    }
+
+    @Test
+    fun `Burde ikke opprette ventetidsøknad hvis det ikke er eksisterende søknad men er utenfor ventetidsperioden`() {
+        fakeUnleash.enable(UNLEASH_CONTEXT_OPPRETT_VENTETIDSOKNADER)
+        val fom = LocalDate.of(2020, 2, 21)
+
+        val sykmelding =
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
+                status = STATUS_BEKREFTET,
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = LocalDate.of(2020, 2, 1),
+                        tom = fom.minusDays(VENTETIDSPERIODE.toLong() + 1),
+                    ),
+            )
+        val sykmelding1 =
+            sykmeldingKafkaMessage(
+                fnr = fnr,
+                arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
+                status = STATUS_BEKREFTET,
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = fom,
+                        tom = LocalDate.of(2020, 2, 24),
+                    ),
+            )
+        flexSyketilfelleClient.leggTilSykmeldingMedSammeVentetid(sykmelding.sykmelding.id)
+        flexSyketilfelleClient.leggTilSykmeldingMedSammeVentetid(sykmelding1.sykmelding.id)
+
+        flexSykmeldingerBackendClient.leggTilSykmelding(sykmelding)
+        flexSykmeldingerBackendClient.leggTilSykmelding(sykmelding1)
+
+        naringsdrivendeSoknadService
+            .finnAndreSykmeldingerSomManglerSoknad(
+                sykmeldingKafkaMessage = sykmelding1,
+                arbeidssituasjon = sykmelding1.hentArbeidssituasjon()!!,
+                identer =
+                    FolkeregisterIdenter(
+                        originalIdent = sykmelding1.kafkaMetadata.fnr,
+                        andreIdenter = emptyList(),
+                    ),
+            ).also {
+                it.size `should be equal to` 0
+            }
+    }
+
+
+    @Test
     fun `Burde ikke opprette ventetidsøknader hvis eksisterende søknad med samme ventetid er før sykmeldingen`() {
         fakeUnleash.enable(UNLEASH_CONTEXT_OPPRETT_VENTETIDSOKNADER)
 
@@ -337,7 +434,7 @@ class NaringsdrivendeSoknadServiceTest : FakesTestOppsett() {
     }
 
     @Test
-    fun `Burde opprette ventetidsøknader hvis eksisterende søknad før sykmeldingen er annen arbeidssituasjon`() {
+    fun `Burde opprette ventetidsøknader hvis eksisterende søknad før sykmeldingen er annen arbeidssituasjon og innenfor ventetidsperioden`() {
         fakeUnleash.enable(UNLEASH_CONTEXT_OPPRETT_VENTETIDSOKNADER)
 
         val sykmelding =
@@ -416,8 +513,8 @@ class NaringsdrivendeSoknadServiceTest : FakesTestOppsett() {
                     ),
             ).also {
                 it.size `should be equal to` 2
-                it.find { sykmelding -> sykmelding.sykmelding.id == sykmelding3.sykmelding.id } `should be equal to` sykmelding3
                 it.find { sykmelding -> sykmelding.sykmelding.id == sykmelding.sykmelding.id } `should be equal to` sykmelding
+                it.find { sykmelding -> sykmelding.sykmelding.id == sykmelding3.sykmelding.id } `should be equal to` sykmelding3
             }
     }
 
