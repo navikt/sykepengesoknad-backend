@@ -5,13 +5,18 @@ import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestClient
 import org.springframework.web.client.toEntity
+import java.time.LocalDate
 
 interface FlexSykmeldingerBackendClient {
-    fun hentSykmeldinger(sykmeldingIder: Set<String>): List<SykmeldingKafkaMessageDTO>
+    fun hentSykmeldinger(
+        sykmeldingIder: Set<String>,
+        fom: LocalDate?,
+    ): List<SykmeldingKafkaMessageDTO>
 }
 
 data class SykmeldingerRequest(
     val sykmeldingIder: List<String>,
+    val fom: LocalDate?,
 )
 
 data class SykmeldingerResponse(
@@ -22,7 +27,10 @@ data class SykmeldingerResponse(
 class FlexSykmeldingerBackendClientEkstern(
     private val flexSykmeldingerBackendRestClient: RestClient,
 ) : FlexSykmeldingerBackendClient {
-    override fun hentSykmeldinger(sykmeldingIder: Set<String>): List<SykmeldingKafkaMessageDTO> =
+    override fun hentSykmeldinger(
+        sykmeldingIder: Set<String>,
+        fom: LocalDate?,
+    ): List<SykmeldingKafkaMessageDTO> =
         flexSykmeldingerBackendRestClient
             .post()
             .uri { uriBuilder ->
@@ -30,7 +38,7 @@ class FlexSykmeldingerBackendClientEkstern(
                     .path("/api/v1/sykmeldinger/kafka")
                     .build()
             }.contentType(APPLICATION_JSON)
-            .body(SykmeldingerRequest(sykmeldingIder.toList()))
+            .body(SykmeldingerRequest(sykmeldingIder.toList(), fom))
             .retrieve()
             .toEntity<SykmeldingerResponse>()
             .body

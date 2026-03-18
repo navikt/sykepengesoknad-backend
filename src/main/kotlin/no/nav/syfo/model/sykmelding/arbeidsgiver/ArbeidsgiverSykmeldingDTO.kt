@@ -30,5 +30,5 @@ data class ArbeidsgiverSykmeldingDTO(
         get() = sykmeldingsperioder.maxOfOrNull { it.tom }
 
     val loglinje: String
-        get() = "$id ($fom-$tom)"
+        get() = "$id ($fom $tom)"
 }
