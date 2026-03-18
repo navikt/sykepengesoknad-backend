@@ -351,7 +351,6 @@ class NaringsdrivendeSoknadServiceTest : FakesTestOppsett() {
             }
     }
 
-
     @Test
     fun `Burde ikke opprette ventetidsøknader hvis eksisterende søknad med samme ventetid er før sykmeldingen`() {
         fakeUnleash.enable(UNLEASH_CONTEXT_OPPRETT_VENTETIDSOKNADER)
@@ -434,6 +433,7 @@ class NaringsdrivendeSoknadServiceTest : FakesTestOppsett() {
     }
 
     @Test
+    @Suppress("ktlint:standard:max-line-length")
     fun `Burde opprette ventetidsøknader hvis eksisterende søknad før sykmeldingen er annen arbeidssituasjon og innenfor ventetidsperioden`() {
         fakeUnleash.enable(UNLEASH_CONTEXT_OPPRETT_VENTETIDSOKNADER)
 

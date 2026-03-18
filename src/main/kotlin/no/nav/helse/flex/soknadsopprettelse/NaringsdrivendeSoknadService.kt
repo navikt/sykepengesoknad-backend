@@ -14,7 +14,8 @@ import java.util.UUID
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.memberProperties
 
-const val VENTETIDSPERIODE  = 16
+const val VENTETIDSPERIODE = 16
+
 @Component
 class NaringsdrivendeSoknadService(
     private val flexSyketilfelleClient: FlexSyketilfelleClient,
@@ -64,7 +65,7 @@ class NaringsdrivendeSoknadService(
                             fom = if (finnesSoknadMedSammeArbeidssituasjonFørSykmeldingen) sykmeldingKafkaMessage.sykmelding.fom else null,
                         ).filter { it.hentArbeidssituasjon() == arbeidssituasjon }
                         .filter { it.event.statusEvent == STATUS_BEKREFTET }
-                        .filter { it.sykmelding.tom!! >= sykmeldingKafkaMessage.sykmelding.fom!!.minusDays(VENTETIDSPERIODE.toLong())}
+                        .filter { it.sykmelding.tom!! >= sykmeldingKafkaMessage.sykmelding.fom!!.minusDays(VENTETIDSPERIODE.toLong()) }
                 }
 
             log.info(
