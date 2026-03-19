@@ -9,6 +9,7 @@ import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadRepository
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.unleash.UnleashToggles
+import no.nav.helse.flex.warnSecure
 import no.nav.syfo.sykmelding.kafka.model.STATUS_BEKREFTET
 import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessageDTO
 import org.springframework.stereotype.Component
@@ -134,8 +135,11 @@ class NaringsdrivendeSoknadService(
                 sykmeldingKafkaMessage.tilSykmeldingTilSoknadOpprettelse(),
             )
         if (forskjeller.isNotEmpty()) {
-            log.warn(
-                "Sykmelding hentet fra sykmeldinger-backend er ikke lik den originale sykmeldingen: ${sykmeldingKafkaMessage.sykmelding.id}\n$forskjeller",
+            log.warnSecure(
+                message =
+                    "Sykmelding hentet fra sykmeldinger-backend er ikke lik den originale sykmeldingen: " +
+                        sykmeldingKafkaMessage.sykmelding.id,
+                secureMessage = forskjeller,
             )
         } else {
             log.info(
