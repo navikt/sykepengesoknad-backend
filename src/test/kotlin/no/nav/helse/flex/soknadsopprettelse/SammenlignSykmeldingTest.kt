@@ -1,8 +1,11 @@
 package no.nav.helse.flex.soknadsopprettelse
 
+import no.nav.helse.flex.domain.Sykmeldingstype
+import no.nav.helse.flex.domain.sykmelding.Gradert
+import no.nav.helse.flex.domain.sykmelding.Sykmeldingsperiode
+import no.nav.helse.flex.domain.sykmelding.tilSykmeldingTilSoknadOpprettelse
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
-import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessageDTO
 import org.amshove.kluent.`should be empty`
 import org.amshove.kluent.`should contain`
@@ -34,86 +37,47 @@ class SammenlignSykmeldingTest {
     @Test
     fun `ingen forskjeller når meldingene er like`() {
         val original = lagKafkaMessage()
-        original.copy().finnForskjeller(original).`should be empty`()
+        original.tilSykmeldingTilSoknadOpprettelse().finnForskjeller(original.tilSykmeldingTilSoknadOpprettelse()).`should be empty`()
     }
 
     @Test
-    fun `ingen forskjeller ved ulik timestamp på kafkaMetadata`() {
-        val original = lagKafkaMessage(timestamp = OffsetDateTime.now().minusHours(1))
-        val hentet =
-            original.copy(
-                kafkaMetadata = original.kafkaMetadata.copy(timestamp = OffsetDateTime.now()),
-            )
-        hentet.finnForskjeller(original).`should be empty`()
-    }
-
-    @Test
-    fun `ingen forskjeller ved ulik timestamp på event`() {
-        val original = lagKafkaMessage(timestamp = OffsetDateTime.now().minusHours(1))
-        val hentet =
-            original.copy(
-                event = original.event.copy(timestamp = OffsetDateTime.now()),
-            )
-        hentet.finnForskjeller(original).`should be empty`()
-    }
-
-    @Test
-    fun `finner forskjell på kafkaMetadata fnr`() {
+    fun `finner forskjell på sykmeldingId`() {
         val original = lagKafkaMessage()
-        val hentet =
-            original.copy(
-                kafkaMetadata = original.kafkaMetadata.copy(fnr = "99999999999"),
-            )
-        hentet.finnForskjeller(original) `should contain` "kafkaMetadata.fnr"
+        val hentet = original.tilSykmeldingTilSoknadOpprettelse().copy(sykmeldingId = "annet-id")
+        hentet.finnForskjeller(original.tilSykmeldingTilSoknadOpprettelse()) `should contain` "sykmeldingTilSoknadOpprettelse.sykmeldingId"
     }
 
     @Test
-    fun `finner forskjell på event sykmeldingId`() {
+    fun `finner forskjell på erUtlandskSykmelding`() {
         val original = lagKafkaMessage()
-        val hentet =
-            original.copy(
-                event = original.event.copy(sykmeldingId = "annet-id"),
-            )
-        hentet.finnForskjeller(original) `should contain` "event.sykmeldingId"
+        val hentet = original.tilSykmeldingTilSoknadOpprettelse().copy(erUtlandskSykmelding = true)
+        hentet.finnForskjeller(original.tilSykmeldingTilSoknadOpprettelse()) `should contain`
+            "sykmeldingTilSoknadOpprettelse.erUtlandskSykmelding"
     }
 
     @Test
-    fun `finner forskjell på sykmelding`() {
-        val original = lagKafkaMessage()
-        val hentet =
-            original.copy(
-                sykmelding = original.sykmelding.copy(tiltakArbeidsplassen = "Tilrettelegging"),
-            )
-        hentet.finnForskjeller(original) `should contain` "sykmelding.tiltakArbeidsplassen"
-    }
-
-    @Test
-    fun `finner forskjell rekursivt i nestet data class`() {
-        val original = lagKafkaMessage()
-        val hentet =
-            original.copy(
-                sykmelding =
-                    original.sykmelding.copy(
-                        arbeidsgiver = original.sykmelding.arbeidsgiver.copy(navn = "Annet firma"),
-                    ),
-            )
-        hentet.finnForskjeller(original) `should contain` "sykmelding.arbeidsgiver.navn"
-    }
-
-    @Test
-    fun `finner forskjell i liste`() {
+    fun `finner forskjell i sykmeldingsperioder`() {
         val original = lagKafkaMessage()
         val endretPeriode =
-            original.sykmelding.sykmeldingsperioder
-                .first()
-                .copy(type = PeriodetypeDTO.BEHANDLINGSDAGER)
-        val hentet =
-            original.copy(
-                sykmelding =
-                    original.sykmelding.copy(
-                        sykmeldingsperioder = listOf(endretPeriode),
-                    ),
+            Sykmeldingsperiode(
+                fom = LocalDate.of(2024, 1, 1),
+                tom = LocalDate.of(2024, 1, 31),
+                type = Sykmeldingstype.BEHANDLINGSDAGER,
+                gradert = null,
+                reisetilskudd = false,
             )
-        hentet.finnForskjeller(original) `should contain` "sykmelding.sykmeldingsperioder[0].type"
+        val hentet = original.tilSykmeldingTilSoknadOpprettelse().copy(sykmeldingsperioder = listOf(endretPeriode))
+        hentet.finnForskjeller(original.tilSykmeldingTilSoknadOpprettelse()) `should contain`
+            "sykmeldingTilSoknadOpprettelse.sykmeldingsperioder[0].type"
+    }
+
+    @Test
+    fun `finner forskjell rekursivt i nestet data class i sykmeldingsperioder`() {
+        val original = lagKafkaMessage()
+        val originalPeriode = original.tilSykmeldingTilSoknadOpprettelse().sykmeldingsperioder.first()
+        val endretPeriode = originalPeriode.copy(gradert = Gradert(grad = 50, reisetilskudd = false))
+        val hentet = original.tilSykmeldingTilSoknadOpprettelse().copy(sykmeldingsperioder = listOf(endretPeriode))
+        hentet.finnForskjeller(original.tilSykmeldingTilSoknadOpprettelse()) `should contain`
+            "sykmeldingTilSoknadOpprettelse.sykmeldingsperioder[0].gradert"
     }
 }

@@ -3,6 +3,8 @@ package no.nav.helse.flex.soknadsopprettelse
 import no.nav.helse.flex.client.flexsyketilfelle.FlexSyketilfelleClient
 import no.nav.helse.flex.client.sykmeldinger.FlexSykmeldingerBackendClient
 import no.nav.helse.flex.domain.Arbeidssituasjon
+import no.nav.helse.flex.domain.sykmelding.SykmeldingTilSoknadOpprettelse
+import no.nav.helse.flex.domain.sykmelding.tilSykmeldingTilSoknadOpprettelse
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadRepository
 import no.nav.helse.flex.service.FolkeregisterIdenter
@@ -127,7 +129,7 @@ class NaringsdrivendeSoknadService(
 }
 
 fun SykmeldingKafkaMessageDTO.sammenlign(sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO) {
-    val forskjeller = finnForskjeller(sykmeldingKafkaMessage)
+    val forskjeller = this.tilSykmeldingTilSoknadOpprettelse().finnForskjeller(sykmeldingKafkaMessage.tilSykmeldingTilSoknadOpprettelse())
     if (forskjeller.isNotEmpty()) {
         logger().warn(
             "Sykmelding hentet fra sykmeldinger-backend er ikke lik den originale sykmeldingen: ${sykmeldingKafkaMessage.sykmelding.id}\n$forskjeller",
@@ -135,15 +137,9 @@ fun SykmeldingKafkaMessageDTO.sammenlign(sykmeldingKafkaMessage: SykmeldingKafka
     }
 }
 
-internal fun SykmeldingKafkaMessageDTO.finnForskjeller(sammenlignbarSykmeldingKafkaMessage: SykmeldingKafkaMessageDTO): String =
-    listOf(
-        "sykmelding" to Pair(sammenlignbarSykmeldingKafkaMessage.sykmelding, this.sykmelding),
-        "kafkaMetadata" to Pair(sammenlignbarSykmeldingKafkaMessage.kafkaMetadata, this.kafkaMetadata),
-        "event" to Pair(sammenlignbarSykmeldingKafkaMessage.event, this.event),
-    ).flatMap { (navn, verdier) ->
-        val (original, hentet) = verdier
-        finnForskjellerRekursivt(navn, original, hentet)
-    }.joinToString(separator = "\n")
+internal fun SykmeldingTilSoknadOpprettelse.finnForskjeller(sammenlignbar: SykmeldingTilSoknadOpprettelse): String =
+    finnForskjellerRekursivt("sykmeldingTilSoknadOpprettelse", sammenlignbar, this)
+        .joinToString(separator = "\n")
 
 private fun finnForskjellerRekursivt(
     sti: String,
@@ -177,12 +173,5 @@ private fun finnForskjellerRekursivt(
     return listOf("  $sti: original=$original, hentet=$hentet")
 }
 
-val ignorerForSammenligning =
-    listOf(
-        "kafkaMetadata.timestamp",
-        "sykmelding.signaturDato",
-        "sykmelding.mottattTidspunkt",
-        "event.timestamp",
-        "sykmelding.arbeidsgiver.yrkesbetegnelse",
-        "sykmelding.behandler.tlf",
-    )
+val ignorerForSammenligning: List<String> =
+    emptyList()
