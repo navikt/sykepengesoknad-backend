@@ -143,8 +143,12 @@ fun SykmeldingKafkaMessageDTO.sammenlign(sykmeldingKafkaMessage: SykmeldingKafka
 }
 
 internal fun SykmeldingTilSoknadOpprettelse.finnForskjeller(sammenlignbar: SykmeldingTilSoknadOpprettelse): String {
-    val normalisert = this.copy(eventTimestamp = this.eventTimestamp.truncatedTo(ChronoUnit.MICROS))
-    return finnForskjellerRekursivt("sykmeldingTilSoknadOpprettelse", sammenlignbar, normalisert)
+    val normalisertHentet = this.copy(eventTimestamp = this.eventTimestamp.truncatedTo(ChronoUnit.MICROS))
+    val normalisertOriginal =
+        sammenlignbar.copy(
+            eventTimestamp = sammenlignbar.eventTimestamp.plus(500, ChronoUnit.NANOS).truncatedTo(ChronoUnit.MICROS),
+        )
+    return finnForskjellerRekursivt("sykmeldingTilSoknadOpprettelse", normalisertOriginal, normalisertHentet)
         .joinToString(separator = "\n")
 }
 
