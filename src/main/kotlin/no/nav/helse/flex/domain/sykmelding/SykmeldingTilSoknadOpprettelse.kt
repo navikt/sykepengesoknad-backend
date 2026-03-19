@@ -4,6 +4,7 @@ import no.nav.helse.flex.domain.FiskerBlad
 import no.nav.helse.flex.domain.Merknad
 import no.nav.helse.flex.domain.Sykmeldingstype
 import no.nav.helse.flex.soknadsopprettelse.brukerHarOppgittForsikring
+import no.nav.helse.flex.soknadsopprettelse.prettyOrgnavn
 import no.nav.helse.flex.soknadsopprettelse.tilMerknader
 import no.nav.helse.flex.util.EnumUtil
 import no.nav.syfo.sykmelding.kafka.model.ShortNameKafkaDTO
@@ -22,9 +23,11 @@ data class SykmeldingTilSoknadOpprettelse(
     val brukerHarOppgittForsikring: Boolean,
     val egenmeldt: Boolean,
     val egenmeldingsdagerFraSykmelding: String?,
-    val tidligereArbeidsgiverOrgnummer: String?,
     val fiskerBlad: FiskerBlad?,
     val merknader: List<Merknad>?,
+    val arbeidsgiverOrgnummer: String?,
+    val arbeidsgiverNavn: String?,
+    val tidligereArbeidsgiverOrgnummer: String?,
 )
 
 data class Sykmeldingsperiode(
@@ -68,7 +71,6 @@ fun SykmeldingKafkaMessageDTO.tilSykmeldingTilSoknadOpprettelse() =
                 ?.firstOrNull { spm ->
                     spm.shortName == ShortNameKafkaDTO.EGENMELDINGSDAGER
                 }?.svar,
-        tidligereArbeidsgiverOrgnummer = this.event.tidligereArbeidsgiver?.orgnummer,
         fiskerBlad =
             EnumUtil.konverter(
                 FiskerBlad::class.java,
@@ -79,4 +81,10 @@ fun SykmeldingKafkaMessageDTO.tilSykmeldingTilSoknadOpprettelse() =
                     ?.name,
             ),
         merknader = this.sykmelding.merknader?.tilMerknader(),
+        arbeidsgiverOrgnummer = this.event.arbeidsgiver?.orgnummer,
+        arbeidsgiverNavn =
+            this.event.arbeidsgiver
+                ?.orgNavn
+                ?.prettyOrgnavn(),
+        tidligereArbeidsgiverOrgnummer = this.event.tidligereArbeidsgiver?.orgnummer,
     )

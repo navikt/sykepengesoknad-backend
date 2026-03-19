@@ -22,7 +22,6 @@ import no.nav.helse.flex.util.osloZone
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO.*
-import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
@@ -48,7 +47,6 @@ class OpprettSoknadService(
         sykmeldingTilSoknadOpprettelse: SykmeldingTilSoknadOpprettelse,
         arbeidssituasjon: Arbeidssituasjon,
         identer: FolkeregisterIdenter,
-        arbeidsgiverStatusDTO: ArbeidsgiverStatusKafkaDTO?,
         flexSyketilfelleSykeforloep: List<Sykeforloep>,
     ): List<AktiveringBestilling> {
         val eksisterendeSoknader = sykepengesoknadDAO.finnSykepengesoknader(identer)
@@ -67,12 +65,12 @@ class OpprettSoknadService(
                 .map { sykmelding ->
                     sykmelding
                         .splittSykmeldingiSoknadsPerioder(
-                            arbeidssituasjon,
-                            eksisterendeSoknader,
-                            sykmelding.sykmeldingId,
-                            sykmelding.behandletTidspunkt,
-                            arbeidsgiverStatusDTO?.orgnummer,
-                            klippMetrikk,
+                            arbeidssituasjon = arbeidssituasjon,
+                            eksisterendeSoknader = eksisterendeSoknader,
+                            sykmeldingId = sykmelding.sykmeldingId,
+                            behandletTidspunkt = sykmelding.behandletTidspunkt,
+                            orgnummer = sykmeldingTilSoknadOpprettelse.arbeidsgiverOrgnummer,
+                            klippMetrikk = klippMetrikk,
                         ).map {
                             val selvstendigNaringsdrivendeInfo =
                                 hentSelvstendigNaringsdrivendeInfo(
@@ -109,8 +107,8 @@ class OpprettSoknadService(
                                 fom = it.fom,
                                 tom = it.tom,
                                 arbeidssituasjon = beregnetArbeidssituasjon,
-                                arbeidsgiverOrgnummer = arbeidsgiverStatusDTO?.orgnummer,
-                                arbeidsgiverNavn = arbeidsgiverStatusDTO?.orgNavn?.prettyOrgnavn(),
+                                arbeidsgiverOrgnummer = sykmeldingTilSoknadOpprettelse.arbeidsgiverOrgnummer,
+                                arbeidsgiverNavn = sykmeldingTilSoknadOpprettelse.arbeidsgiverNavn,
                                 sykmeldingId = sykmelding.sykmeldingId,
                                 sykmeldingSkrevet = sykmelding.behandletTidspunkt,
                                 sykmeldingSignaturDato = sykmelding.signaturDato,
