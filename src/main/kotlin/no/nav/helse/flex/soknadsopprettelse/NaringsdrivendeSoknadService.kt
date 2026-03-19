@@ -135,6 +135,10 @@ fun SykmeldingKafkaMessageDTO.sammenlign(sykmeldingKafkaMessage: SykmeldingKafka
         logger().warn(
             "Sykmelding hentet fra sykmeldinger-backend er ikke lik den originale sykmeldingen: ${sykmeldingKafkaMessage.sykmelding.id}\n$forskjeller",
         )
+    } else {
+        logger().info(
+            "Sykmelding hentet fra sykmeldinger-backend er lik den originale sykmeldingen: ${sykmeldingKafkaMessage.sykmelding.id}",
+        )
     }
 }
 
