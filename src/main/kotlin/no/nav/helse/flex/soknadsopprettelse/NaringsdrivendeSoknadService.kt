@@ -127,18 +127,21 @@ class NaringsdrivendeSoknadService(
             .first()
             .sammenlign(sykmeldingKafkaMessage = sykmeldingKafkaMessage)
     }
-}
 
-fun SykmeldingKafkaMessageDTO.sammenlign(sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO) {
-    val forskjeller = this.tilSykmeldingTilSoknadOpprettelse().finnForskjeller(sykmeldingKafkaMessage.tilSykmeldingTilSoknadOpprettelse())
-    if (forskjeller.isNotEmpty()) {
-        logger().warn(
-            "Sykmelding hentet fra sykmeldinger-backend er ikke lik den originale sykmeldingen: ${sykmeldingKafkaMessage.sykmelding.id}\n$forskjeller",
-        )
-    } else {
-        logger().info(
-            "Sykmelding hentet fra sykmeldinger-backend er lik den originale sykmeldingen: ${sykmeldingKafkaMessage.sykmelding.id}",
-        )
+    private fun SykmeldingKafkaMessageDTO.sammenlign(sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO) {
+        val forskjeller =
+            this.tilSykmeldingTilSoknadOpprettelse().finnForskjeller(
+                sykmeldingKafkaMessage.tilSykmeldingTilSoknadOpprettelse(),
+            )
+        if (forskjeller.isNotEmpty()) {
+            log.warn(
+                "Sykmelding hentet fra sykmeldinger-backend er ikke lik den originale sykmeldingen: ${sykmeldingKafkaMessage.sykmelding.id}\n$forskjeller",
+            )
+        } else {
+            log.info(
+                "Sykmelding hentet fra sykmeldinger-backend er lik den originale sykmeldingen: ${sykmeldingKafkaMessage.sykmelding.id}",
+            )
+        }
     }
 }
 
