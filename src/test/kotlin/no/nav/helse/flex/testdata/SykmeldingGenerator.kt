@@ -108,9 +108,11 @@ fun skapArbeidsgiverSykmeldingTilSoknadOpprettelse(
         brukerHarOppgittForsikring = false,
         egenmeldt = false,
         egenmeldingsdagerFraSykmelding = null,
-        tidligereArbeidsgiverOrgnummer = null,
         fiskerBlad = null,
         merknader = merknader,
+        arbeidsgiverOrgnummer = null,
+        arbeidsgiverNavn = null,
+        tidligereArbeidsgiverOrgnummer = null,
     )
 
 fun skapSykmeldingStatusKafkaMessageDTO(

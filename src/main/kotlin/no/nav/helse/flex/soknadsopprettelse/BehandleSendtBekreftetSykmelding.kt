@@ -139,7 +139,6 @@ class BehandleSendtBekreftetSykmelding(
             sykmeldingTilSoknadOpprettelse = sykmeldingKafkaMessage.tilSykmeldingTilSoknadOpprettelse(),
             arbeidssituasjon = arbeidssituasjon,
             identer = identer,
-            arbeidsgiverStatusDTO = sykmeldingKafkaMessage.event.arbeidsgiver,
             flexSyketilfelleSykeforloep = sykeForloep,
         )
     }
@@ -168,7 +167,6 @@ class BehandleSendtBekreftetSykmelding(
             sykmeldingTilSoknadOpprettelse = klippetSykmeldingKafkaMessage.tilSykmeldingTilSoknadOpprettelse(),
             arbeidssituasjon = arbeidssituasjon,
             identer = identer,
-            arbeidsgiverStatusDTO = sykmeldingKafkaMessage.event.arbeidsgiver,
             flexSyketilfelleSykeforloep = sykeForloep,
         )
     }
@@ -210,7 +208,6 @@ class BehandleSendtBekreftetSykmelding(
                 sykmeldingTilSoknadOpprettelse = it.tilSykmeldingTilSoknadOpprettelse(),
                 arbeidssituasjon = it.hentArbeidssituasjon()!!,
                 identer = identer,
-                arbeidsgiverStatusDTO = it.event.arbeidsgiver,
                 flexSyketilfelleSykeforloep = sykeForloep,
             )
         }
