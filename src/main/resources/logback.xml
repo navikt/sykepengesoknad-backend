@@ -1,15 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
+    <!-- Log detailed information about the Logback initialization process at application startup. -->
+    <statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener"/>
+
     <appender name="stdout_json" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-            <includeMdcKeyName>x_request_id</includeMdcKeyName>
-            <includeMdcKeyName>trace_id</includeMdcKeyName>
-            <includeMdcKeyName>span_id</includeMdcKeyName>
+            <includeMdc>true</includeMdc>
         </encoder>
+        <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+            <evaluator class="ch.qos.logback.classic.boolex.OnMarkerEvaluator">
+                <marker>TEAM_LOG</marker>
+            </evaluator>
+            <OnMismatch>ACCEPT</OnMismatch>
+            <OnMatch>DENY</OnMatch>
+        </filter>
+    </appender>
+
+    <appender name="team_log_json" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+        <destination>team-logs.nais-system:5170</destination>
+        <reconnectionDelay>5s</reconnectionDelay>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <customFields>{"google_cloud_project":"${GOOGLE_CLOUD_PROJECT}","nais_namespace_name":"${NAIS_NAMESPACE}","nais_pod_name":"${NAIS_POD_NAME}","nais_container_name":"${NAIS_APP_NAME}"}</customFields>
+            <includeContext>false</includeContext>
+        </encoder>
+        <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+            <evaluator class="ch.qos.logback.classic.boolex.OnMarkerEvaluator">
+                <marker>TEAM_LOG</marker>
+            </evaluator>
+            <OnMismatch>DENY</OnMismatch>
+            <OnMatch>ACCEPT</OnMatch>
+        </filter>
     </appender>
 
     <root level="WARN">
         <appender-ref ref="stdout_json"/>
+        <appender-ref ref="team_log_json"/>
     </root>
 
     <logger name="no.nav.helse.flex" level="INFO"/>

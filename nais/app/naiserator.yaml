@@ -96,6 +96,8 @@ spec:
           namespace: team-soknad
         - application: paw-arbeidssoekerregisteret-api-oppslag-v2
           namespace: paw
+        - application: logging
+          namespace: nais-system
       external:
   {{#each external-host}}
         - host: {{this}}
