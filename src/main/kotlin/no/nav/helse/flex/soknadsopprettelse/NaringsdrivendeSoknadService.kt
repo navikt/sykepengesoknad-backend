@@ -12,6 +12,7 @@ import no.nav.helse.flex.unleash.UnleashToggles
 import no.nav.syfo.sykmelding.kafka.model.STATUS_BEKREFTET
 import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessageDTO
 import org.springframework.stereotype.Component
+import java.time.temporal.ChronoUnit
 import java.util.UUID
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.memberProperties
@@ -137,19 +138,21 @@ fun SykmeldingKafkaMessageDTO.sammenlign(sykmeldingKafkaMessage: SykmeldingKafka
     }
 }
 
-internal fun SykmeldingTilSoknadOpprettelse.finnForskjeller(sammenlignbar: SykmeldingTilSoknadOpprettelse): String =
-    finnForskjellerRekursivt("sykmeldingTilSoknadOpprettelse", sammenlignbar, this)
+internal fun SykmeldingTilSoknadOpprettelse.finnForskjeller(sammenlignbar: SykmeldingTilSoknadOpprettelse): String {
+    val normalisert = this.copy(eventTimestamp = this.eventTimestamp.truncatedTo(ChronoUnit.MICROS))
+    return finnForskjellerRekursivt("sykmeldingTilSoknadOpprettelse", sammenlignbar, normalisert)
         .joinToString(separator = "\n")
+}
 
 private fun finnForskjellerRekursivt(
     sti: String,
     original: Any?,
     hentet: Any?,
 ): List<String> {
+    if (ignorerForSammenligning.contains(sti)) return emptyList()
+
     if (original == hentet) return emptyList()
     if (original == null || hentet == null) return listOf("  $sti: original=$original, hentet=$hentet")
-
-    if (ignorerForSammenligning.contains(sti)) return emptyList()
 
     if (original::class.isData) {
         return original::class.memberProperties.flatMap { subProp ->
@@ -160,9 +163,7 @@ private fun finnForskjellerRekursivt(
     }
 
     if (original is List<*> && hentet is List<*>) {
-        if (original.size !=
-            hentet.size
-        ) {
+        if (original.size != hentet.size) {
             return listOf("  $sti: original har ${original.size} elementer, hentet har ${hentet.size} elementer")
         }
         return original.zip(hentet).flatMapIndexed { index, (o, h) ->
@@ -174,4 +175,6 @@ private fun finnForskjellerRekursivt(
 }
 
 val ignorerForSammenligning: List<String> =
-    emptyList()
+    listOf(
+        "sykmeldingTilSoknadOpprettelse.signaturDato",
+    )
