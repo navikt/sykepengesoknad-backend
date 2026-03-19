@@ -12,13 +12,14 @@ import org.amshove.kluent.`should contain`
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.time.OffsetDateTime
+import java.time.temporal.ChronoUnit
 
 class SammenlignSykmeldingTest {
     val fnr = "12345678910"
 
     private fun lagKafkaMessage(
         fnr: String = this.fnr,
-        timestamp: OffsetDateTime = OffsetDateTime.now(),
+        timestamp: OffsetDateTime = OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS),
     ): SykmeldingKafkaMessageDTO {
         val statusKafkaMessage = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr, timestamp = timestamp)
         val sykmelding =
