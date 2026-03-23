@@ -48,6 +48,7 @@ class OpprettSoknadService(
         arbeidssituasjon: Arbeidssituasjon,
         identer: FolkeregisterIdenter,
         flexSyketilfelleSykeforloep: List<Sykeforloep>,
+        ventetidSykmeldingUuid: String?,
     ): List<AktiveringBestilling> {
         val eksisterendeSoknader = sykepengesoknadDAO.finnSykepengesoknader(identer)
 
@@ -126,6 +127,7 @@ class OpprettSoknadService(
                                 aktivertDato = null,
                                 fiskerBlad = sykmeldingTilSoknadOpprettelse.fiskerBlad,
                                 selvstendigNaringsdrivende = selvstendigNaringsdrivendeInfo,
+                                ventetidSykmeldingUuid = ventetidSykmeldingUuid,
                             )
                         }.filter { it.soknadPerioder?.isNotEmpty() ?: true }
                         .also { it.lagreJulesoknadKandidater() }

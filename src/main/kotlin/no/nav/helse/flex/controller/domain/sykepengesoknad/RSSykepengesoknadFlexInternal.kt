@@ -24,4 +24,5 @@ data class RSSykepengesoknadFlexInternal(
     val arbeidssituasjon: RSArbeidssituasjon? = null,
     val soknadPerioder: List<RSSoknadsperiode>? = null,
     val merknaderFraSykmelding: List<RSMerknad>?,
+    val ventetidSykmeldingUuid: String? = null,
 )

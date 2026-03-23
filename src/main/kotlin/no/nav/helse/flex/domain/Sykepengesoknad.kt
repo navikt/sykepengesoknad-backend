@@ -53,6 +53,7 @@ data class Sykepengesoknad(
     val julesoknad: Boolean? = false,
     val friskTilArbeidVedtakId: String? = null,
     val selvstendigNaringsdrivende: SelvstendigNaringsdrivendeInfo? = null,
+    val ventetidSykmeldingUuid: String? = null,
 ) : Serializable {
     fun alleSporsmalOgUndersporsmal(): List<Sporsmal> = sporsmal.flatten()
 

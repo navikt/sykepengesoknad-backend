@@ -40,6 +40,7 @@ data class RSSykepengesoknad(
     val julesoknad: Boolean? = false,
     val friskTilArbeidVedtakId: String? = null,
     val selvstendigNaringsdrivendeInfo: SelvstendigNaringsdrivendeInfo? = null,
+    val ventetidSykmeldingUuid: String? = null,
 ) {
     fun alleSporsmalOgUndersporsmal(): List<RSSporsmal> = sporsmal?.flatten()?.toList() ?: emptyList()
 
