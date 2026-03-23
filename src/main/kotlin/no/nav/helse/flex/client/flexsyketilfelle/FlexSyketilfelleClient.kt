@@ -11,7 +11,6 @@ import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.helse.flex.util.objectMapper
 import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessageDTO
-import no.nav.syfo.sykmelding.kafka.model.SykmeldingRequest
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -239,4 +238,8 @@ data class SammeVentetidResponse(
 data class SammeVentetidPeriode(
     val ressursId: String,
     val ventetid: Periode,
+)
+
+data class SykmeldingRequest(
+    val sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
 )
