@@ -74,7 +74,12 @@ class NaringsdrivendeVentetidSoknadIntegrationTest : FellesTestOppsett() {
         )
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
-        hentSoknader(fnr).size `should be equal to` 2
+        hentSoknader(fnr).run {
+            this.size `should be equal to` 2
+            this.first { it.sykmeldingId == kafkaMessage.sykmelding.id }.ventetidSykmeldingUuid `should be equal to`
+                kafkaMessage1.sykmelding.id
+            this.first { it.sykmeldingId == kafkaMessage1.sykmelding.id }.ventetidSykmeldingUuid `should be equal to` null
+        }
     }
 
     @Test

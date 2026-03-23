@@ -664,6 +664,7 @@ class SykepengesoknadDAOPostgres(
                         resultSet.getNullableString("selvstendig_naringsdrivende")?.let {
                             objectMapper.readValue(it)
                         },
+                    ventetidSykmeldingUuid = resultSet.getNullableString("ventetid_sykmelding_uuid"),
                 ),
             )
         }

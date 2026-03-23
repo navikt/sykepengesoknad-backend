@@ -114,6 +114,7 @@ fun Sykepengesoknad.tilRSSykepengesoknad() =
         julesoknad = this.julesoknad,
         friskTilArbeidVedtakId = this.friskTilArbeidVedtakId,
         selvstendigNaringsdrivendeInfo = this.selvstendigNaringsdrivende,
+        ventetidSykmeldingUuid = this.ventetidSykmeldingUuid,
     )
 
 fun Sykepengesoknad.tilRSSykepengesoknadMetadata() =
@@ -164,4 +165,5 @@ fun Sykepengesoknad.tilRSSykepengesoknadFlexInternal() =
         arbeidssituasjon = EnumUtil.konverter(RSArbeidssituasjon::class.java, this.arbeidssituasjon),
         soknadPerioder = this.soknadPerioder?.map { mapSoknadsperiode(it) },
         merknaderFraSykmelding = this.merknaderFraSykmelding?.map { it.mapMerknad() },
+        ventetidSykmeldingUuid = this.ventetidSykmeldingUuid,
     )

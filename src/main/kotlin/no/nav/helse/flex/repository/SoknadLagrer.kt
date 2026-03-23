@@ -46,8 +46,8 @@ class SoknadLagrerImpl(
         }
 
         val sql = """
-INSERT INTO SYKEPENGESOKNAD (ID, SYKEPENGESOKNAD_UUID, SOKNADSTYPE, STATUS, FOM, TOM, OPPRETTET, AVBRUTT_DATO, SYKMELDING_UUID, SENDT_NAV, SENDT_ARBEIDSGIVER, KORRIGERER, KORRIGERT_AV, ARBEIDSGIVER_ORGNUMMER, ARBEIDSGIVER_NAVN, ARBEIDSSITUASJON, START_SYKEFORLOP, SYKMELDING_SKREVET, SYKMELDING_SIGNATUR_DATO, OPPRINNELSE, FNR, EGENMELDT_SYKMELDING, MERKNADER_FRA_SYKMELDING, OPPRETTET_AV_INNTEKTSMELDING, UTENLANDSK_SYKMELDING, EGENMELDINGSDAGER_FRA_SYKMELDING, FORSTEGANGSSOKNAD, TIDLIGERE_ARBEIDSGIVER_ORGNUMMER, AKTIVERT_DATO, FISKER_BLAD, ARBEIDSFORHOLD_FRA_AAREG, FRISK_TIL_ARBEID_VEDTAK_ID, SELVSTENDIG_NARINGSDRIVENDE) 
-VALUES (:id, :uuid, :soknadstype, :status, :fom, :tom, :opprettet, :avbrutt, :sykmeldingUuid, :sendtNav, :sendtArbeidsgiver, :korrigerer, :korrigertAv, :arbeidsgiverOrgnummer, :arbeidsgiverNavn, :arbeidssituasjon, :startSykeforlop, :sykmeldingSkrevet, :sykmeldingSignaturDato, :opprinnelse, :fnr, :egenmeldtSykmelding, :merknaderFraSykmelding, :opprettetAvInntektsmelding, :utenlandskSykmelding, :egenmeldingsdagerFraSykmelding, :forstegangssoknad, :tidligereArbeidsgiverOrgnummer, :aktivertDato, :fiskerBlad, :arbeidsforholdFraAareg, :friskTilArbeidVedtakId, :selvstendigNaringsdrivende) 
+INSERT INTO SYKEPENGESOKNAD (ID, SYKEPENGESOKNAD_UUID, SOKNADSTYPE, STATUS, FOM, TOM, OPPRETTET, AVBRUTT_DATO, SYKMELDING_UUID, SENDT_NAV, SENDT_ARBEIDSGIVER, KORRIGERER, KORRIGERT_AV, ARBEIDSGIVER_ORGNUMMER, ARBEIDSGIVER_NAVN, ARBEIDSSITUASJON, START_SYKEFORLOP, SYKMELDING_SKREVET, SYKMELDING_SIGNATUR_DATO, OPPRINNELSE, FNR, EGENMELDT_SYKMELDING, MERKNADER_FRA_SYKMELDING, OPPRETTET_AV_INNTEKTSMELDING, UTENLANDSK_SYKMELDING, EGENMELDINGSDAGER_FRA_SYKMELDING, FORSTEGANGSSOKNAD, TIDLIGERE_ARBEIDSGIVER_ORGNUMMER, AKTIVERT_DATO, FISKER_BLAD, ARBEIDSFORHOLD_FRA_AAREG, FRISK_TIL_ARBEID_VEDTAK_ID, SELVSTENDIG_NARINGSDRIVENDE, VENTETID_SYKMELDING_UUID) 
+VALUES (:id, :uuid, :soknadstype, :status, :fom, :tom, :opprettet, :avbrutt, :sykmeldingUuid, :sendtNav, :sendtArbeidsgiver, :korrigerer, :korrigertAv, :arbeidsgiverOrgnummer, :arbeidsgiverNavn, :arbeidssituasjon, :startSykeforlop, :sykmeldingSkrevet, :sykmeldingSignaturDato, :opprinnelse, :fnr, :egenmeldtSykmelding, :merknaderFraSykmelding, :opprettetAvInntektsmelding, :utenlandskSykmelding, :egenmeldingsdagerFraSykmelding, :forstegangssoknad, :tidligereArbeidsgiverOrgnummer, :aktivertDato, :fiskerBlad, :arbeidsforholdFraAareg, :friskTilArbeidVedtakId, :selvstendigNaringsdrivende, :ventetidSykmeldingUuid) 
 ON CONFLICT ON CONSTRAINT sykepengesoknad_pkey DO NOTHING
 """
         jdbcTemplate.batchUpdate(
@@ -89,6 +89,7 @@ ON CONFLICT ON CONSTRAINT sykepengesoknad_pkey DO NOTHING
                         .addValue("arbeidsforholdFraAareg", sykepengesoknad.arbeidsforholdFraAareg)
                         .addValue("friskTilArbeidVedtakId", sykepengesoknad.friskTilArbeidVedtakId)
                         .addValue("selvstendigNaringsdrivende", sykepengesoknad.selvstendigNaringsdrivende)
+                        .addValue("ventetidSykmeldingUuid", sykepengesoknad.ventetidSykmeldingUuid)
                 }.toTypedArray(),
         )
     }

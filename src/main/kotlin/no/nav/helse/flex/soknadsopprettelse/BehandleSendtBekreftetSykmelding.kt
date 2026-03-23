@@ -140,6 +140,7 @@ class BehandleSendtBekreftetSykmelding(
             arbeidssituasjon = arbeidssituasjon,
             identer = identer,
             flexSyketilfelleSykeforloep = sykeForloep,
+            ventetidSykmeldingUuid = null,
         )
     }
 
@@ -168,6 +169,7 @@ class BehandleSendtBekreftetSykmelding(
             arbeidssituasjon = arbeidssituasjon,
             identer = identer,
             flexSyketilfelleSykeforloep = sykeForloep,
+            ventetidSykmeldingUuid = null,
         )
     }
 
@@ -179,7 +181,8 @@ class BehandleSendtBekreftetSykmelding(
             return emptyList()
         }
 
-        val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(fnr = sykmeldingKafkaMessage.kafkaMetadata.fnr)
+        val identer =
+            identService.hentFolkeregisterIdenterMedHistorikkForFnr(fnr = sykmeldingKafkaMessage.kafkaMetadata.fnr)
         låsIdenter(identer, sykmeldingKafkaMessage)
 
         val skalOppretteSoknad =
@@ -201,7 +204,8 @@ class BehandleSendtBekreftetSykmelding(
 
         val sykeForloep = flexSyketilfelleClient.hentSykeforloep(identer, sykmeldingKafkaMessage)
 
-        val sorterteSykmeldinger = (setOf(sykmeldingKafkaMessage) + sykmeldingerSomSkalHaSoknader).sortedBy { it.sykmelding.fom }
+        val sorterteSykmeldinger =
+            (setOf(sykmeldingKafkaMessage) + sykmeldingerSomSkalHaSoknader).sortedBy { it.sykmelding.fom }
 
         return sorterteSykmeldinger.flatMap {
             opprettSoknadService.opprettSykepengesoknaderForSykmelding(
@@ -209,6 +213,12 @@ class BehandleSendtBekreftetSykmelding(
                 arbeidssituasjon = it.hentArbeidssituasjon()!!,
                 identer = identer,
                 flexSyketilfelleSykeforloep = sykeForloep,
+                ventetidSykmeldingUuid =
+                    if (sykmeldingerSomSkalHaSoknader.isNotEmpty() && it.sykmelding.id != sykmeldingKafkaMessage.sykmelding.id) {
+                        sykmeldingKafkaMessage.sykmelding.id
+                    } else {
+                        null
+                    },
             )
         }
     }
