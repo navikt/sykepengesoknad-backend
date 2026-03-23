@@ -5,7 +5,9 @@ import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.flatten
+import no.nav.helse.flex.domain.mapper.SykepengesoknadTilSykepengesoknadDTOMapper
 import no.nav.helse.flex.domain.mapper.parseEgenmeldingsdagerFraSykmelding
+import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentSoknadsPerioderMedFaktiskGrad
 import no.nav.helse.flex.service.HentSoknadService
 import no.nav.helse.flex.service.IdentService
 import no.nav.helse.flex.svarvalidering.INGEN_BEHANDLING
@@ -29,6 +31,7 @@ class ArbeidsgiverInntektsmeldingController(
     private val vedtaksperiodeBehandlingRepository: VedtaksperiodeBehandlingRepository,
     @param:Value("\${SPINNTEKTSMELDING_FRONTEND_CLIENT_ID}")
     val spinntektsmeldingFrontendClientId: String,
+    val sykepengesoknadTilSykepengesoknadDTOMapper: SykepengesoknadTilSykepengesoknadDTOMapper,
 ) {
     @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
     @PostMapping(
@@ -46,6 +49,7 @@ class ArbeidsgiverInntektsmeldingController(
 
         val soknaderFiltrert =
             alleSoknader
+                .asSequence()
                 .filter { it.fom != null }
                 .filter { it.fom?.isAfter(request.eldsteFom.minusDays(1)) ?: false }
                 .filter { it.arbeidsgiverOrgnummer == request.orgnummer }
@@ -53,19 +57,21 @@ class ArbeidsgiverInntektsmeldingController(
                 .filter { it.status == Soknadstatus.SENDT }
                 .map { it.tilHentSoknaderResponse() }
                 .sortedBy { it.fom }
+                .toList()
 
         if (soknaderFiltrert.isEmpty()) {
             return emptyList()
         }
 
-        val vedtaksperiodeMap = mutableMapOf<String, String>()
+        val vedtaksperioder = mutableMapOf<String, String>()
+
         vedtaksperiodeBehandlingRepository
             .finnVedtaksperiodeiderForSoknad(soknaderFiltrert.map { it.sykepengesoknadUuid })
-            .forEach { vedtaksperiodeMap[it.sykepengesoknadUuid] = it.vedtaksperiodeId }
+            .forEach { vedtaksperioder[it.sykepengesoknadUuid] = it.vedtaksperiodeId }
 
         return soknaderFiltrert.map {
             it.copy(
-                vedtaksperiodeId = vedtaksperiodeMap[it.sykepengesoknadUuid],
+                vedtaksperiodeId = vedtaksperioder[it.sykepengesoknadUuid],
             )
         }
     }
@@ -75,6 +81,13 @@ data class HentSoknaderRequest(
     val fnr: String,
     val eldsteFom: LocalDate,
     val orgnummer: String,
+)
+
+data class HentSoknaderPeriode(
+    val fom: LocalDate,
+    val tom: LocalDate,
+    val grad: Int,
+    val faktiskGrad: Int? = null,
 )
 
 data class HentSoknaderResponse(
@@ -88,10 +101,13 @@ data class HentSoknaderResponse(
     val vedtaksperiodeId: String?,
     val soknadstype: Soknadstype,
     val behandlingsdager: List<LocalDate> = emptyList(),
+    val soknadsperioder: List<HentSoknaderPeriode> = emptyList(),
 )
 
-private fun Sykepengesoknad.tilHentSoknaderResponse(): HentSoknaderResponse =
-    HentSoknaderResponse(
+private fun Sykepengesoknad.tilHentSoknaderResponse(): HentSoknaderResponse {
+    val soknadsperioder = hentSoknadsPerioderMedFaktiskGrad(this)
+
+    return HentSoknaderResponse(
         status = this.status,
         sykepengesoknadUuid = this.id,
         fom = this.fom ?: throw RuntimeException("Fom kan ikke være null for arbeidstaker søknad"),
@@ -113,7 +129,17 @@ private fun Sykepengesoknad.tilHentSoknaderResponse(): HentSoknaderResponse =
             } else {
                 emptyList()
             },
+        soknadsperioder =
+            soknadsperioder.first.map {
+                HentSoknaderPeriode(
+                    fom = it.fom!!,
+                    tom = it.tom!!,
+                    grad = it.grad!!,
+                    faktiskGrad = it.faktiskGrad,
+                )
+            },
     )
+}
 
 private fun Sykepengesoknad.hentBehandlingsdager(): List<LocalDate> =
     this.sporsmal
