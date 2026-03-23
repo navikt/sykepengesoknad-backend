@@ -1,13 +1,13 @@
 package no.nav.helse.flex.mockdispatcher
 
 import com.fasterxml.jackson.module.kotlin.readValue
+import no.nav.helse.flex.client.flexsyketilfelle.SykmeldingRequest
 import no.nav.helse.flex.domain.Arbeidsgiverperiode
 import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.SimpleSykmelding
 import no.nav.helse.flex.domain.Sykeforloep
 import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.util.serialisertTilString
-import no.nav.syfo.sykmelding.kafka.model.SykmeldingRequest
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.RecordedRequest
