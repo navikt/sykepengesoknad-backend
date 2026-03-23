@@ -89,7 +89,7 @@ class NaringsdrivendeSoknadService(
             if (skalOppretteVentetidsoknader) {
                 throw e
             } else {
-                log.warn("Feil ved henting av sykmeldinger med samme ventetid", e)
+                log.warn("Feil ved henting av sykmeldinger med samme ventetid ${sykmeldingKafkaMessage.sykmelding.id}", e)
                 emptyList()
             }
         }
