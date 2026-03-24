@@ -165,8 +165,6 @@ private fun finnForskjellerRekursivt(
     original: Any?,
     hentet: Any?,
 ): List<String> {
-    if (ignorerForSammenligning.contains(sti)) return emptyList()
-
     if (original == hentet) return emptyList()
     if (original == null || hentet == null) return listOf("  $sti: original=$original, hentet=$hentet")
 
@@ -174,7 +172,12 @@ private fun finnForskjellerRekursivt(
         return original::class.memberProperties.flatMap { subProp ->
             @Suppress("UNCHECKED_CAST")
             val sub = subProp as KProperty1<Any, *>
-            finnForskjellerRekursivt("$sti.${subProp.name}", sub.get(original), sub.get(hentet))
+            val originalVerdi = sub.get(original)
+            val hentetVerdi = sub.get(hentet)
+            if (subProp.name == "beskrivelse" && originalVerdi == "Sykmeldingen er til manuell behandling") {
+                return@flatMap emptyList()
+            }
+            finnForskjellerRekursivt("$sti.${subProp.name}", originalVerdi, hentetVerdi)
         }
     }
 
@@ -189,8 +192,3 @@ private fun finnForskjellerRekursivt(
 
     return listOf("  $sti: original=$original, hentet=$hentet")
 }
-
-val ignorerForSammenligning: List<String> =
-    listOf(
-        "sykmeldingTilSoknadOpprettelse.signaturDato",
-    )
