@@ -143,7 +143,7 @@ class NaringsdrivendeSoknadService(
             )
         } else {
             log.info(
-                "Sykmelding hentet fra sykmeldinger-backend er lik den originale sykmeldingen: ${sykmeldingKafkaMessage.sykmelding.id}",
+                "Sykmelding hentet fra sykmeldinger-backend er lik den originale sykmeldingen: ${sykmeldingKafkaMessage.sykmelding.id}. Har merknader ${!sykmeldingKafkaMessage.sykmelding.merknader.isNullOrEmpty()}",
             )
         }
     }
