@@ -96,4 +96,117 @@ class SammenlignSykmeldingTest {
         hentet.tilSykmeldingTilSoknadOpprettelse().finnForskjeller(original.tilSykmeldingTilSoknadOpprettelse()) `should contain`
             "sykmeldingTilSoknadOpprettelse.eventTimestamp"
     }
+
+    @Test
+    fun `ignorerer forskjell på merknad beskrivelse når original er 'Sykmeldingen er til manuell behandling'`() {
+        val original = lagKafkaMessage()
+        val hentet =
+            original.tilSykmeldingTilSoknadOpprettelse().copy(
+                merknader =
+                    listOf(
+                        no.nav.helse.flex.domain
+                            .Merknad(type = "UGYLDIG_TILBAKEDATERING", beskrivelse = "annen beskrivelse"),
+                    ),
+            )
+        val sammenlign =
+            original.tilSykmeldingTilSoknadOpprettelse().copy(
+                merknader =
+                    listOf(
+                        no.nav.helse.flex.domain.Merknad(
+                            type = "UGYLDIG_TILBAKEDATERING",
+                            beskrivelse = "Sykmeldingen er til manuell behandling",
+                        ),
+                    ),
+            )
+        hentet.finnForskjeller(sammenlign).`should be empty`()
+    }
+
+    @Test
+    fun `ignorerer forskjell på beskrivelse for alle merknader i listen når original er 'Sykmeldingen er til manuell behandling'`() {
+        val original = lagKafkaMessage()
+        val hentet =
+            original.tilSykmeldingTilSoknadOpprettelse().copy(
+                merknader =
+                    listOf(
+                        no.nav.helse.flex.domain
+                            .Merknad(type = "UGYLDIG_TILBAKEDATERING", beskrivelse = "annen beskrivelse 1"),
+                        no.nav.helse.flex.domain.Merknad(
+                            type = "TILBAKEDATERING_KREVER_FLERE_OPPLYSNINGER",
+                            beskrivelse = "annen beskrivelse 2",
+                        ),
+                    ),
+            )
+        val sammenlign =
+            original.tilSykmeldingTilSoknadOpprettelse().copy(
+                merknader =
+                    listOf(
+                        no.nav.helse.flex.domain.Merknad(
+                            type = "UGYLDIG_TILBAKEDATERING",
+                            beskrivelse = "Sykmeldingen er til manuell behandling",
+                        ),
+                        no.nav.helse.flex.domain.Merknad(
+                            type = "TILBAKEDATERING_KREVER_FLERE_OPPLYSNINGER",
+                            beskrivelse = "Sykmeldingen er til manuell behandling",
+                        ),
+                    ),
+            )
+        hentet.finnForskjeller(sammenlign).`should be empty`()
+    }
+
+    @Test
+    fun `finner forskjell på merknad beskrivelse når original ikke er 'Sykmeldingen er til manuell behandling'`() {
+        val original = lagKafkaMessage()
+        val hentet =
+            original.tilSykmeldingTilSoknadOpprettelse().copy(
+                merknader =
+                    listOf(
+                        no.nav.helse.flex.domain
+                            .Merknad(type = "UGYLDIG_TILBAKEDATERING", beskrivelse = "helt annen beskrivelse"),
+                    ),
+            )
+        val sammenlign =
+            original.tilSykmeldingTilSoknadOpprettelse().copy(
+                merknader =
+                    listOf(
+                        no.nav.helse.flex.domain
+                            .Merknad(type = "UGYLDIG_TILBAKEDATERING", beskrivelse = "annen beskrivelse"),
+                    ),
+            )
+        hentet.finnForskjeller(sammenlign) `should contain` "sykmeldingTilSoknadOpprettelse.merknader[0].beskrivelse"
+    }
+
+    @Test
+    fun `finner forskjell på merknad type selv om beskrivelse er 'Sykmeldingen er til manuell behandling'`() {
+        val original = lagKafkaMessage()
+        val hentet =
+            original.tilSykmeldingTilSoknadOpprettelse().copy(
+                merknader =
+                    listOf(
+                        no.nav.helse.flex.domain
+                            .Merknad(type = "ANNEN_TYPE", beskrivelse = "annen beskrivelse"),
+                    ),
+            )
+        val sammenlign =
+            original.tilSykmeldingTilSoknadOpprettelse().copy(
+                merknader =
+                    listOf(
+                        no.nav.helse.flex.domain.Merknad(
+                            type = "UGYLDIG_TILBAKEDATERING",
+                            beskrivelse = "Sykmeldingen er til manuell behandling",
+                        ),
+                    ),
+            )
+        hentet.finnForskjeller(sammenlign) `should contain` "sykmeldingTilSoknadOpprettelse.merknader[0].type"
+    }
+
+    @Test
+    fun `finnes forskjell på signaturDato`() {
+        val original = lagKafkaMessage()
+        val hentet =
+            original.tilSykmeldingTilSoknadOpprettelse().copy(
+                signaturDato = original.tilSykmeldingTilSoknadOpprettelse().signaturDato?.plusSeconds(10),
+            )
+        hentet.finnForskjeller(original.tilSykmeldingTilSoknadOpprettelse()) `should contain`
+            "sykmeldingTilSoknadOpprettelse.signaturDato"
+    }
 }
