@@ -1220,6 +1220,178 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
     }
 
+    @Test
+    fun `Oppretter ikke søknad for næringsdrivende dersom sykmeldingen er brukt på en arbeidstakersøknad`() {
+        val testDato = LocalDate.of(2026, 1, 1).plusDays(10)
+        val sykmeldingsperioder =
+            listOf(
+                SykmeldingsperiodeAGDTO(
+                    fom = testDato,
+                    tom = testDato.plusDays(4),
+                    type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+                    reisetilskudd = false,
+                    aktivitetIkkeMulig = null,
+                    behandlingsdager = null,
+                    gradert = null,
+                    innspillTilArbeidsgiver = null,
+                ),
+            )
+        val sykmeldingStatusArbeidstaker =
+            skapSykmeldingStatusKafkaMessageDTO(
+                fnr = fnr,
+                statusEvent = STATUS_SENDT,
+                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = "123456789", orgNavn = "ARBEIDSGIVER AS"),
+            )
+        val sykmeldingId = sykmeldingStatusArbeidstaker.event.sykmeldingId
+        val sykmeldingArbeidstaker =
+            skapSykmeldingDTO(
+                sykmeldingStatusArbeidstaker,
+                syketilfelleStartDato = testDato,
+                sykmeldingsperioder = sykmeldingsperioder,
+            )
+
+        val sykmeldingKafkaMessageArbeidstaker =
+            SykmeldingKafkaMessageDTO(
+                sykmelding = sykmeldingArbeidstaker,
+                event = sykmeldingStatusArbeidstaker.event,
+                kafkaMetadata = sykmeldingStatusArbeidstaker.kafkaMetadata,
+            )
+        mockFlexSyketilfelleArbeidsgiverperiode()
+        mockFlexSyketilfelleSykeforloep(sykmeldingId, dato)
+
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
+            sykmeldingId,
+            sykmeldingKafkaMessageArbeidstaker,
+            SYKMELDINGSENDT_TOPIC,
+        )
+
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
+        hentSoknaderMetadata(fnr).shouldHaveSize(1)
+        hentSoknader(fnr).single().arbeidssituasjon `should be equal to` RSArbeidssituasjon.ARBEIDSTAKER
+
+        val sykmeldingStatusNaringsdrivende =
+            skapSykmeldingStatusKafkaMessageDTO(
+                fnr = fnr,
+                sykmeldingId = sykmeldingId,
+                statusEvent = STATUS_BEKREFTET,
+                arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
+            )
+        val sykmeldingNaringsdrivende =
+            skapSykmeldingDTO(
+                sykmeldingStatusNaringsdrivende,
+                syketilfelleStartDato = testDato,
+                sykmeldingsperioder = sykmeldingsperioder,
+            )
+
+        val sykmeldingKafkaMessageNaringsdrivende =
+            SykmeldingKafkaMessageDTO(
+                sykmelding = sykmeldingNaringsdrivende,
+                event = sykmeldingStatusNaringsdrivende.event,
+                kafkaMetadata = sykmeldingStatusNaringsdrivende.kafkaMetadata,
+            )
+
+        flexSyketilfelleMockRestServiceServer.reset()
+        mockFlexSyketilfelleErUtenforVentetid(sykmeldingNaringsdrivende.id, true)
+        mockFlexSyketilfelleSykeforloep(sykmeldingId, dato)
+        mockFlexSyketilfelleHentSykmeldingerMedSammeVentetidDefault(sykmeldingNaringsdrivende.id)
+
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
+            sykmeldingId,
+            sykmeldingKafkaMessageNaringsdrivende,
+            SYKMELDINGSENDT_TOPIC,
+        )
+
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 0)
+        hentSoknaderMetadata(fnr).shouldHaveSize(1)
+        hentSoknader(fnr).single().arbeidssituasjon `should be equal to` RSArbeidssituasjon.ARBEIDSTAKER
+    }
+
+    @Test
+    fun `Oppretter søknad og overskriver annen ikke-arbeidstakersøknad med samme sykmeldingId`() {
+        val testDato = LocalDate.of(2026, 1, 1).plusDays(10)
+        val sykmeldingsperioder =
+            listOf(
+                SykmeldingsperiodeAGDTO(
+                    fom = testDato,
+                    tom = testDato.plusDays(4),
+                    type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+                    reisetilskudd = false,
+                    aktivitetIkkeMulig = null,
+                    behandlingsdager = null,
+                    gradert = null,
+                    innspillTilArbeidsgiver = null,
+                ),
+            )
+        val sykmeldingStatusArbeidsledig =
+            skapSykmeldingStatusKafkaMessageDTO(
+                fnr = fnr,
+                statusEvent = STATUS_BEKREFTET,
+                arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
+            )
+        val sykmeldingId = sykmeldingStatusArbeidsledig.event.sykmeldingId
+        val sykmeldingArbeidsledig =
+            skapSykmeldingDTO(
+                sykmeldingStatusArbeidsledig,
+                syketilfelleStartDato = testDato,
+                sykmeldingsperioder = sykmeldingsperioder,
+            )
+
+        val sykmeldingKafkaMessageArbeidsledig =
+            SykmeldingKafkaMessageDTO(
+                sykmelding = sykmeldingArbeidsledig,
+                event = sykmeldingStatusArbeidsledig.event,
+                kafkaMetadata = sykmeldingStatusArbeidsledig.kafkaMetadata,
+            )
+        mockFlexSyketilfelleSykeforloep(sykmeldingId, dato)
+
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
+            sykmeldingId,
+            sykmeldingKafkaMessageArbeidsledig,
+            SYKMELDINGSENDT_TOPIC,
+        )
+
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
+        hentSoknaderMetadata(fnr).shouldHaveSize(1)
+        hentSoknader(fnr).single().arbeidssituasjon `should be equal to` RSArbeidssituasjon.ARBEIDSLEDIG
+
+        val sykmeldingStatusAnnet =
+            skapSykmeldingStatusKafkaMessageDTO(
+                fnr = fnr,
+                sykmeldingId = sykmeldingId,
+                statusEvent = STATUS_BEKREFTET,
+                arbeidssituasjon = Arbeidssituasjon.ANNET,
+            )
+        val sykmeldingAnnet =
+            skapSykmeldingDTO(
+                sykmeldingStatusAnnet,
+                syketilfelleStartDato = testDato,
+                sykmeldingsperioder = sykmeldingsperioder,
+            )
+
+        val sykmeldingKafkaMessageAnnet =
+            SykmeldingKafkaMessageDTO(
+                sykmelding = sykmeldingAnnet,
+                event = sykmeldingStatusAnnet.event,
+                kafkaMetadata = sykmeldingStatusAnnet.kafkaMetadata,
+            )
+
+        flexSyketilfelleMockRestServiceServer.reset()
+        mockFlexSyketilfelleSykeforloep(sykmeldingId, dato)
+
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
+            sykmeldingId,
+            sykmeldingKafkaMessageAnnet,
+            SYKMELDINGSENDT_TOPIC,
+        )
+
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
+        hentSoknaderMetadata(fnr).shouldHaveSize(1)
+        hentSoknader(fnr).single().also {
+            it.arbeidssituasjon `should be equal to` RSArbeidssituasjon.ANNET
+        }
+    }
+
     private fun skapKafkaMelding(
         statusEvent: String = STATUS_SENDT,
         arbeidssituasjon: Arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
