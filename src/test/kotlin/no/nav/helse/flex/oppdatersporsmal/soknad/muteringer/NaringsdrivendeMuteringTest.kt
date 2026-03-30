@@ -1,7 +1,7 @@
 package no.nav.helse.flex.oppdatersporsmal.soknad.muteringer
 
 import no.nav.helse.flex.domain.SelvstendigNaringsdrivendeInfo
-import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknad
+import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknadGradert
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.soknadsopprettelse.naringsdrivende.lagSykepengegrunnlagNaeringsdrivende
 import no.nav.helse.flex.testutil.besvarsporsmal
@@ -15,7 +15,7 @@ private const val MAX_SPORSMAL = 13
 class NaringsdrivendeMuteringTest {
     @Test
     fun `Mutering av soknad uten svar skal ikke føre til noen endringer`() {
-        val soknad = opprettNyNaeringsdrivendeSoknad()
+        val soknad = opprettNyNaeringsdrivendeSoknadGradert()
 
         val mutertSoknad = soknad.naringsdrivendeMutering()
 
@@ -33,7 +33,7 @@ class NaringsdrivendeMuteringTest {
     @Test
     fun `Mutering av soknad uten relevante naringsdrivende sporsmal skal ikke føre til noen endringer`() {
         val soknad =
-            opprettNyNaeringsdrivendeSoknad()
+            opprettNyNaeringsdrivendeSoknadGradert()
                 .fjernSporsmal(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET)
                 .fjernSporsmal(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET)
                 .fjernSporsmal(NARINGSDRIVENDE_VARIG_ENDRING)
@@ -48,7 +48,7 @@ class NaringsdrivendeMuteringTest {
     @Test
     fun `Avviklet ja svar skal fjerne ny i arbeidslivet og varig endring spørsmål`() {
         val soknad =
-            opprettNyNaeringsdrivendeSoknad()
+            opprettNyNaeringsdrivendeSoknadGradert()
                 .besvarsporsmal(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET, "JA")
 
         val mutertSoknad = soknad.naringsdrivendeMutering()
@@ -65,7 +65,7 @@ class NaringsdrivendeMuteringTest {
     @Test
     fun `Avviklet ja svar skal fjerne ny i arbeidslivet og varig endring spørsmål selv om de har svar`() {
         val soknad =
-            opprettNyNaeringsdrivendeSoknad()
+            opprettNyNaeringsdrivendeSoknadGradert()
                 .besvarsporsmal(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET, "JA")
                 .besvarsporsmal(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET_DATO, "2019-01-01")
                 .besvarsporsmal(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET, "JA")
@@ -88,7 +88,7 @@ class NaringsdrivendeMuteringTest {
     @Test
     fun `Avviklet nei svar skal ikke endre svar på ny i arbeidslivet og varig endring spørsmål`() {
         val soknad =
-            opprettNyNaeringsdrivendeSoknad()
+            opprettNyNaeringsdrivendeSoknadGradert()
                 .besvarsporsmal(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET, "NEI")
                 .besvarsporsmal(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET, "NEI")
                 .besvarsporsmal(NARINGSDRIVENDE_VARIG_ENDRING, "JA")
@@ -108,7 +108,7 @@ class NaringsdrivendeMuteringTest {
     @Test
     fun `Avviklet nei svar skal legge til manglende ny i arbeidslivet og varig endring spørsmål`() {
         val soknad =
-            opprettNyNaeringsdrivendeSoknad()
+            opprettNyNaeringsdrivendeSoknadGradert()
                 .besvarsporsmal(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET, "NEI")
                 .fjernSporsmal(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET)
                 .fjernSporsmal(NARINGSDRIVENDE_VARIG_ENDRING)
@@ -127,7 +127,7 @@ class NaringsdrivendeMuteringTest {
     @Test
     fun `Avviklet nei svar skal ikke legge til manglende ny i arbeidslivet spørsmål hvis bruker har inntekt før sykepengegrunnlaget`() {
         val soknad =
-            opprettNyNaeringsdrivendeSoknad()
+            opprettNyNaeringsdrivendeSoknadGradert()
                 .besvarsporsmal(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET, "NEI")
                 .fjernSporsmal(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET)
                 .fjernSporsmal(NARINGSDRIVENDE_VARIG_ENDRING)
@@ -160,7 +160,7 @@ class NaringsdrivendeMuteringTest {
     @Test
     fun `Ny i arbeidslivet ja svar skal fjerne varig endring spørsmål`() {
         val soknad =
-            opprettNyNaeringsdrivendeSoknad()
+            opprettNyNaeringsdrivendeSoknadGradert()
                 .besvarsporsmal(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET, "JA")
                 .besvarsporsmal(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET_DATO, "2020-01-01")
 
@@ -177,7 +177,7 @@ class NaringsdrivendeMuteringTest {
     @Test
     fun `Ny i arbeidslivet ja svar skal fjerne varig endring spørsmål selv om det har svar`() {
         val soknad =
-            opprettNyNaeringsdrivendeSoknad()
+            opprettNyNaeringsdrivendeSoknadGradert()
                 .besvarsporsmal(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET, "JA")
                 .besvarsporsmal(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET_DATO, "2020-01-01")
                 .besvarsporsmal(NARINGSDRIVENDE_VARIG_ENDRING, "JA")
@@ -196,7 +196,7 @@ class NaringsdrivendeMuteringTest {
     @Test
     fun `Ny i arbeidslivet nei svar skal ikke endre svar på varig endring spørsmål`() {
         val soknad =
-            opprettNyNaeringsdrivendeSoknad()
+            opprettNyNaeringsdrivendeSoknadGradert()
                 .besvarsporsmal(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET, "NEI")
                 .besvarsporsmal(NARINGSDRIVENDE_VARIG_ENDRING, "JA")
                 .besvarsporsmal(NARINGSDRIVENDE_VARIG_ENDRING_DATO, "2021-01-01")
@@ -215,7 +215,7 @@ class NaringsdrivendeMuteringTest {
     @Test
     fun `Ny i arbeidslivet nei svar skal legge til manglende varig endring spørsmål`() {
         val soknad =
-            opprettNyNaeringsdrivendeSoknad()
+            opprettNyNaeringsdrivendeSoknadGradert()
                 .besvarsporsmal(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET, "NEI")
                 .fjernSporsmal(NARINGSDRIVENDE_VARIG_ENDRING)
 

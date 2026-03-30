@@ -40,7 +40,11 @@ fun settOppSoknadSelvstendigOgFrilanser(
                 ),
             )
             if (sykepengesoknad.arbeidssituasjon.erSelvstendigNaringsdrivende()) {
-                add(naringsdrivendeOpprettholdtInntekt(sykepengesoknad.fom, sykepengesoknad.tom))
+                if (sykepengesoknad.harNaringsdrivendeGradertPeriodeEllerOppgittArbeidUnderveis()) {
+                    add(naringsdrivendeOpprettholdtInntektGradert(sykepengesoknad.fom, sykepengesoknad.tom))
+                } else {
+                    add(naringsdrivendeOpprettholdtInntekt100Prosent(sykepengesoknad.fom, sykepengesoknad.tom))
+                }
             }
 
             if (erForsteSoknadISykeforlop) {
@@ -140,18 +144,47 @@ private fun naringsdrivendeOppholdIUtlandet(fom: LocalDate): Sporsmal =
         undertekst = "Du kan se bort ifra opphold som varte kortere enn 5 uker.",
     )
 
-fun naringsdrivendeOpprettholdtInntekt(
+fun naringsdrivendeOpprettholdtInntekt100Prosent(
     fom: LocalDate,
     tom: LocalDate,
 ): Sporsmal =
     Sporsmal(
         tag = NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT,
-        sporsmalstekst = "Hadde du næringsinntekt i virksomheten din i tiden du var sykmeldt ${formatterPeriode(fom, tom)} og ikke jobbet?",
+        sporsmalstekst = "Hadde du inntekt i virksomheten din selv om du var 100 % sykmeldt og ikke jobbet selv?",
+        undertekst = "For eksempel inntekter fra utleie eller arbeid utført av en vikar.",
         svartype = JA_NEI,
         // Disse er med for å få muteringen til å fungere
         min = fom.format(ISO_LOCAL_DATE),
         max = tom.format(ISO_LOCAL_DATE),
     )
+
+fun naringsdrivendeOpprettholdtInntektGradert(
+    fom: LocalDate,
+    tom: LocalDate,
+): Sporsmal =
+    Sporsmal(
+        tag = NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT,
+        sporsmalstekst = "Hadde du inntekt i virksomheten din mens du var sykmeldt ${formatterPeriode(
+            fom,
+            tom,
+        )}, som ikke var et resultat av at du selv jobbet?",
+        undertekst = "For eksempel inntekter fra utleie eller arbeid utført av en vikar.",
+        svartype = JA_NEI,
+        // Disse er med for å få muteringen til å fungere
+        min = fom.format(ISO_LOCAL_DATE),
+        max = tom.format(ISO_LOCAL_DATE),
+    )
+
+fun Sykepengesoknad.harNaringsdrivendeGradertPeriodeEllerOppgittArbeidUnderveis() =
+    this.harNaringsdrivendeGradertPeriode() || this.harOppgittArbeidUnderveisVed100Prosent()
+
+private fun Sykepengesoknad.harNaringsdrivendeGradertPeriode(): Boolean =
+    this.soknadPerioder!!
+        .filter { it.sykmeldingstype == Sykmeldingstype.GRADERT || it.sykmeldingstype == Sykmeldingstype.AKTIVITET_IKKE_MULIG }
+        .any { it.grad != 100 }
+
+private fun Sykepengesoknad.harOppgittArbeidUnderveisVed100Prosent(): Boolean =
+    this.sporsmal.any { it.tag.startsWith(ARBEID_UNDERVEIS_100_PROSENT) && it.forsteSvar == "JA" }
 
 fun Sporsmal.plasseringSporsmalSelvstendigOgFrilansere(): Int =
     when (this.tag) {

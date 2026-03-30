@@ -4,7 +4,8 @@ import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknad
+import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknad100Prosent
+import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknadGradert
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.testutil.besvarsporsmal
 import no.nav.helse.flex.util.DatoUtil.formatterPeriode
@@ -238,8 +239,8 @@ class ArbeidGjenopptattMuteringTest {
     }
 
     @Test
-    fun `Tilbake i fullt arbeid skal oppdatere spørsmålet næringsdrivende opprettholdt inntekt med ny tom dato`() {
-        val soknad = opprettNyNaeringsdrivendeSoknad()
+    fun `Tilbake i fullt arbeid skal oppdatere spørsmålet næringsdrivende opprettholdt inntekt gradert med ny tom dato`() {
+        val soknad = opprettNyNaeringsdrivendeSoknadGradert()
         val tilbakeIArbeid = soknad.fom!!.plusDays(4)
         val nyTom = tilbakeIArbeid.minusDays(1)
 
@@ -249,20 +250,55 @@ class ArbeidGjenopptattMuteringTest {
                 .besvarsporsmal(TILBAKE_NAR, tilbakeIArbeid.format(ISO_LOCAL_DATE))
                 .arbeidGjenopptattMutering()
 
-        mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT).let {
+        mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT).let {
             it `should not be equal to` null
-            it.sporsmalstekst `should be equal to` "Hadde du næringsinntekt i virksomheten din i tiden du var sykmeldt " +
-                "${formatterPeriode(soknad.fom, nyTom)} og ikke jobbet?"
+            it.sporsmalstekst `should be equal to` "Hadde du inntekt i virksomheten din mens du var sykmeldt " +
+                "${formatterPeriode(soknad.fom, nyTom)}, som ikke var et resultat av at du selv jobbet?"
         }
+    }
+
+    @Test
+    fun `Tilbake i fullt arbeid skal legge til spørsmålet næringsdrivende opprettholdt inntekt gradert`() {
+        val soknad =
+            opprettNyNaeringsdrivendeSoknadGradert()
+                .fjernSporsmal(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT)
+        val tilbakeIArbeid = soknad.fom!!.plusDays(4)
+        val nyTom = tilbakeIArbeid.minusDays(1)
+
+        val mutertSoknad =
+            soknad
+                .besvarsporsmal(TILBAKE_I_ARBEID, "JA")
+                .besvarsporsmal(TILBAKE_NAR, tilbakeIArbeid.format(ISO_LOCAL_DATE))
+                .arbeidGjenopptattMutering()
+
+        soknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT) `should be equal to` null
+        mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT).let {
+            it `should not be equal to` null
+            it.sporsmalstekst `should be equal to` "Hadde du inntekt i virksomheten din mens du var sykmeldt " +
+                "${formatterPeriode(soknad.fom, nyTom)}, som ikke var et resultat av at du selv jobbet?"
+        }
+    }
+
+    @Test
+    fun `Tilbake i fullt arbeid skal fjerne spørsmålet næringsdrivende opprettholdt inntekt gradert`() {
+        val soknad = opprettNyNaeringsdrivendeSoknadGradert()
+
+        val mutertSoknad =
+            soknad
+                .besvarsporsmal(TILBAKE_I_ARBEID, "JA")
+                .besvarsporsmal(TILBAKE_NAR, soknad.fom!!.format(ISO_LOCAL_DATE))
+                .arbeidGjenopptattMutering()
+
+        soknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT) `should not be equal to` null
+        mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT) `should be equal to` null
     }
 
     @Test
     fun `Tilbake i fullt arbeid skal legge til spørsmålet næringsdrivende opprettholdt inntekt`() {
         val soknad =
-            opprettNyNaeringsdrivendeSoknad()
+            opprettNyNaeringsdrivendeSoknad100Prosent()
                 .fjernSporsmal(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT)
         val tilbakeIArbeid = soknad.fom!!.plusDays(4)
-        val nyTom = tilbakeIArbeid.minusDays(1)
 
         val mutertSoknad =
             soknad
@@ -273,14 +309,13 @@ class ArbeidGjenopptattMuteringTest {
         soknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT) `should be equal to` null
         mutertSoknad.getSporsmalMedTag(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT).let {
             it `should not be equal to` null
-            it.sporsmalstekst `should be equal to` "Hadde du næringsinntekt i virksomheten din i tiden du var sykmeldt " +
-                "${formatterPeriode(soknad.fom, nyTom)} og ikke jobbet?"
+            it.sporsmalstekst `should be equal to` "Hadde du inntekt i virksomheten din selv om du var 100 % sykmeldt og ikke jobbet selv?"
         }
     }
 
     @Test
     fun `Tilbake i fullt arbeid skal fjerne spørsmålet næringsdrivende opprettholdt inntekt`() {
-        val soknad = opprettNyNaeringsdrivendeSoknad()
+        val soknad = opprettNyNaeringsdrivendeSoknad100Prosent()
 
         val mutertSoknad =
             soknad
@@ -290,5 +325,37 @@ class ArbeidGjenopptattMuteringTest {
 
         soknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT) `should not be equal to` null
         mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT) `should be equal to` null
+    }
+
+    @Test
+    fun `Arbeid underveis 100 prosent nei skal ikke mutere opprettholdt inntekt til gradert sporsmål`() {
+        val soknad = opprettNyNaeringsdrivendeSoknad100Prosent()
+
+        val mutertSoknad =
+            soknad
+                .besvarsporsmal(ARBEID_UNDERVEIS_100_PROSENT + "0", "NEI")
+                .arbeidGjenopptattMutering()
+
+        soknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT) `should not be equal to` null
+        mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT) `should not be equal to` null
+
+        soknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT) `should be equal to` null
+        mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT) `should be equal to` null
+    }
+
+    @Test
+    fun `Arbeid underveis 100 prosent skal mutere opprettholdt inntekt til gradert sporsmål`() {
+        val soknad = opprettNyNaeringsdrivendeSoknad100Prosent()
+
+        val mutertSoknad =
+            soknad
+                .besvarsporsmal(ARBEID_UNDERVEIS_100_PROSENT + "0", "JA")
+                .arbeidGjenopptattMutering()
+
+        soknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT) `should not be equal to` null
+        mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT) `should be equal to` null
+
+        soknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT) `should be equal to` null
+        mutertSoknad.getSporsmalMedTagOrNull(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT) `should not be equal to` null
     }
 }

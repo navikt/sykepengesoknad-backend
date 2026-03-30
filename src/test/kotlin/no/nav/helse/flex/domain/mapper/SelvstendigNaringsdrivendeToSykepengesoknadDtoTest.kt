@@ -2,7 +2,7 @@ package no.nav.helse.flex.domain.mapper
 
 import no.nav.helse.flex.domain.*
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentSoknadsPerioderMedFaktiskGrad
-import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknad
+import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknadGradert
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.soknadsopprettelse.naringsdrivende.lagSykepengegrunnlagNaeringsdrivende
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
@@ -27,7 +27,7 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
     @Test
     fun `Inneholder roller selv om inntektsinformasjon mangler`() {
         val (soknad, fom, tom) =
-            opprettNyNaeringsdrivendeSoknad().run {
+            opprettNyNaeringsdrivendeSoknadGradert().run {
                 Triple(this, requireNotNull(fom), requireNotNull(tom))
             }
 
@@ -68,7 +68,7 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
     @Test
     fun `Inneholder summert inntektsinformasjon i selvstendigNaringsdrivende`() {
         val (soknad, fom, tom) =
-            opprettNyNaeringsdrivendeSoknad().run {
+            opprettNyNaeringsdrivendeSoknadGradert().run {
                 Triple(this, requireNotNull(fom), requireNotNull(tom))
             }
 
@@ -120,7 +120,7 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
     @Test
     fun `Inneholder spørsmål om fravær for sykmeldingen`() {
         val soknad =
-            opprettNyNaeringsdrivendeSoknad()
+            opprettNyNaeringsdrivendeSoknadGradert()
         val soknadDTO = lagSykepengesoknadDTO(soknad)
 
         soknadDTO.sporsmal!!.find { it.tag == "FRAVAR_FOR_SYKMELDINGEN_V2" }.also { fravaerSpm ->
@@ -135,7 +135,7 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
     @Test
     fun `Inneholder ikke spørsmål om yrkesskade`() {
         val soknad =
-            opprettNyNaeringsdrivendeSoknad()
+            opprettNyNaeringsdrivendeSoknadGradert()
         val soknadDTO = lagSykepengesoknadDTO(soknad)
 
         soknad.sporsmal.firstOrNull { it.tag == YRKESSKADE_V2 } `should be equal to` null
@@ -145,7 +145,7 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
     @Test
     fun `Inneholder hovedspørsmål for Selvstendig Næringsdrivende i forenklet format`() {
         val soknad =
-            opprettNyNaeringsdrivendeSoknad()
+            opprettNyNaeringsdrivendeSoknadGradert()
                 .besvarsporsmal(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET, "JA")
                 .besvarsporsmal(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET, "NEI")
                 .besvarsporsmal(NARINGSDRIVENDE_VARIG_ENDRING, "JA")
@@ -173,7 +173,7 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
             it[TILBAKE_I_ARBEID] `should be equal to` true
             it["ARBEID_UNDERVEIS_100_PROSENT_0"] `should be equal to` false
             it["JOBBET_DU_GRADERT_1"] `should be equal to` false
-            it[NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT] `should be equal to` false
+            it[NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT] `should be equal to` false
             it[ANDRE_INNTEKTSKILDER] `should be equal to` true
             it[OPPHOLD_UTENFOR_EOS] `should be equal to` true
             it[NARINGSDRIVENDE_OPPHOLD_I_UTLANDET] `should be equal to` false
@@ -187,7 +187,7 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
     @Test
     fun `Inneholder kun besvarte hovedspørsmål for Selvstendig Næringsdrivende i forenklet format`() {
         val soknad =
-            opprettNyNaeringsdrivendeSoknad()
+            opprettNyNaeringsdrivendeSoknadGradert()
                 .besvarsporsmal(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET, "NEI")
 
         val soknadDTO =
@@ -213,7 +213,7 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
             it[TILBAKE_I_ARBEID] `should be equal to` true
             it["ARBEID_UNDERVEIS_100_PROSENT_0"] `should be equal to` false
             it["JOBBET_DU_GRADERT_1"] `should be equal to` false
-            it[NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT] `should be equal to` false
+            it[NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT] `should be equal to` false
             it[ANDRE_INNTEKTSKILDER] `should be equal to` true
             it[OPPHOLD_UTENFOR_EOS] `should be equal to` true
             it[NARINGSDRIVENDE_OPPHOLD_I_UTLANDET] `should be equal to` false
@@ -225,7 +225,7 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
     @Test
     fun `Inneholder oppdelte hovedspørsmål for Selvstendig Næringsdrivende`() {
         val soknad =
-            opprettNyNaeringsdrivendeSoknad()
+            opprettNyNaeringsdrivendeSoknadGradert()
                 .besvarsporsmal(NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET, "NEI")
                 .besvarsporsmal(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET, "NEI")
                 .besvarsporsmal(NARINGSDRIVENDE_VARIG_ENDRING, "NEI")
@@ -253,7 +253,7 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
             it[TILBAKE_I_ARBEID] `should be equal to` true
             it["ARBEID_UNDERVEIS_100_PROSENT_0"] `should be equal to` false
             it["JOBBET_DU_GRADERT_1"] `should be equal to` false
-            it[NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT] `should be equal to` false
+            it[NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT] `should be equal to` false
             it[ANDRE_INNTEKTSKILDER] `should be equal to` true
             it[OPPHOLD_UTENFOR_EOS] `should be equal to` true
             it[NARINGSDRIVENDE_OPPHOLD_I_UTLANDET] `should be equal to` false
@@ -266,7 +266,7 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
 
     @Test
     fun `Inneholder brukers svar på forsikring`() {
-        val soknad = opprettNyNaeringsdrivendeSoknad()
+        val soknad = opprettNyNaeringsdrivendeSoknadGradert()
 
         val soknadDTO =
             konverterTilSykepengesoknadDTO(
