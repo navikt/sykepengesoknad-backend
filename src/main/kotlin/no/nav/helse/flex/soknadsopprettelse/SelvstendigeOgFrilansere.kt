@@ -176,12 +176,10 @@ fun naringsdrivendeOpprettholdtInntektGradert(
     )
 
 fun Sykepengesoknad.harNaringsdrivendeGradertPeriodeEllerOppgittArbeidUnderveis() =
-    this.harNaringsdrivendeGradertPeriode() || this.harOppgittArbeidUnderveisVed100Prosent()
+    this.harGradertPeriode() || this.harOppgittArbeidUnderveisVed100Prosent()
 
-private fun Sykepengesoknad.harNaringsdrivendeGradertPeriode(): Boolean =
-    this.soknadPerioder!!
-        .filter { it.sykmeldingstype == Sykmeldingstype.GRADERT || it.sykmeldingstype == Sykmeldingstype.AKTIVITET_IKKE_MULIG }
-        .any { it.grad != 100 }
+private fun Sykepengesoknad.harGradertPeriode(): Boolean =
+    this.soknadPerioder!!.any { it.grad != 100 }
 
 private fun Sykepengesoknad.harOppgittArbeidUnderveisVed100Prosent(): Boolean =
     this.sporsmal.any { it.tag.startsWith(ARBEID_UNDERVEIS_100_PROSENT) && it.forsteSvar == "JA" }
