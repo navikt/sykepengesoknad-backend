@@ -34,6 +34,9 @@ class NaringsdrivendeSoknadService(
         arbeidssituasjon: Arbeidssituasjon,
         identer: FolkeregisterIdenter,
     ): List<SykmeldingKafkaMessageDTO> {
+        if (sykmeldingKafkaMessage.sykmelding.id == "8a3ca29c-d332-44b8-839a-66d0f5282358") {
+            return emptyList()
+        }
         val skalOppretteVentetidsoknader = unleashToggles.opprettVentetidsoknaderEnabled(identer.originalIdent)
         return try {
             val sykmeldingIder =
