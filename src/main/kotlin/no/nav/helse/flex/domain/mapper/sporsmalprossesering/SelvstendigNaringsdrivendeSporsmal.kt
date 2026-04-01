@@ -29,8 +29,13 @@ fun Sykepengesoknad.hentHovedSporsmalSvarForSelvstendigNaringsdrivende(): Map<St
 private fun Sykepengesoknad.finnHovedJaNeiSvar(): MutableMap<String, Boolean> =
     sporsmal
         .filter { it.svartype == Svartype.JA_NEI && it.forsteSvar != null }
-        .associate { it.tag to (it.forsteSvar == "JA") }
-        .toMutableMap()
+        .associate {
+            if (it.tag == NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT) {
+                NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT to (it.forsteSvar == "JA")
+            } else {
+                it.tag to (it.forsteSvar == "JA")
+            }
+        }.toMutableMap()
 
 private fun Sykepengesoknad.finnCheckedSvar(
     sporsmal: String,

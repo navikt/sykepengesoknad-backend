@@ -119,8 +119,7 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
 
     @Test
     fun `Inneholder spørsmål om fravær for sykmeldingen`() {
-        val soknad =
-            opprettNyNaeringsdrivendeSoknadGradert()
+        val soknad = opprettNyNaeringsdrivendeSoknadGradert()
         val soknadDTO = lagSykepengesoknadDTO(soknad)
 
         soknadDTO.sporsmal!!.find { it.tag == "FRAVAR_FOR_SYKMELDINGEN_V2" }.also { fravaerSpm ->
@@ -173,7 +172,7 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
             it[TILBAKE_I_ARBEID] `should be equal to` true
             it["ARBEID_UNDERVEIS_100_PROSENT_0"] `should be equal to` false
             it["JOBBET_DU_GRADERT_1"] `should be equal to` false
-            it[NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT] `should be equal to` false
+            it[NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT] `should be equal to` false
             it[ANDRE_INNTEKTSKILDER] `should be equal to` true
             it[OPPHOLD_UTENFOR_EOS] `should be equal to` true
             it[NARINGSDRIVENDE_OPPHOLD_I_UTLANDET] `should be equal to` false
@@ -213,7 +212,7 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
             it[TILBAKE_I_ARBEID] `should be equal to` true
             it["ARBEID_UNDERVEIS_100_PROSENT_0"] `should be equal to` false
             it["JOBBET_DU_GRADERT_1"] `should be equal to` false
-            it[NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT] `should be equal to` false
+            it[NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT] `should be equal to` false
             it[ANDRE_INNTEKTSKILDER] `should be equal to` true
             it[OPPHOLD_UTENFOR_EOS] `should be equal to` true
             it[NARINGSDRIVENDE_OPPHOLD_I_UTLANDET] `should be equal to` false
@@ -253,7 +252,7 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
             it[TILBAKE_I_ARBEID] `should be equal to` true
             it["ARBEID_UNDERVEIS_100_PROSENT_0"] `should be equal to` false
             it["JOBBET_DU_GRADERT_1"] `should be equal to` false
-            it[NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT] `should be equal to` false
+            it[NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT] `should be equal to` false
             it[ANDRE_INNTEKTSKILDER] `should be equal to` true
             it[OPPHOLD_UTENFOR_EOS] `should be equal to` true
             it[NARINGSDRIVENDE_OPPHOLD_I_UTLANDET] `should be equal to` false
