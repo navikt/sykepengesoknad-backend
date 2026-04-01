@@ -4,7 +4,7 @@ import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.client.sigrun.PensjonsgivendeInntekt
 import no.nav.helse.flex.client.sigrun.Skatteordning
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknad
+import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknadGradert
 import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher
 import no.nav.helse.flex.service.finnFoersteAarISykepengegrunnlaget
 import org.amshove.kluent.`should be equal to`
@@ -530,7 +530,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
     }
 
     private fun lagSykepengesoknad(dato: LocalDate = LocalDate.of(2024, 10, 1)): Sykepengesoknad =
-        opprettNyNaeringsdrivendeSoknad().copy(
+        opprettNyNaeringsdrivendeSoknadGradert().copy(
             fnr = FNR,
             startSykeforlop = dato,
             fom = dato.minusDays(30),

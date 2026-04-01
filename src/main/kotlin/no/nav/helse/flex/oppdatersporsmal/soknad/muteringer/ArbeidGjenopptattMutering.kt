@@ -39,6 +39,7 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
                         .filterNot { (_, tag) -> tag == OPPHOLD_UTENFOR_EOS }
                         .filterNot { (_, tag) -> tag == UTDANNING }
                         .filterNot { (_, tag) -> tag == NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT }
+                        .filterNot { (_, tag) -> tag == NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT }
                         .toMutableList(),
             )
         }
@@ -82,11 +83,17 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
             oppholdUtenforEOSSporsmal(this.fom, oppdatertTom)
         }
 
-    if (this.arbeidssituasjon.erSelvstendigNaringsdrivende()) {
-        oppdaterteSporsmal.add(naringsdrivendeOpprettholdtInntekt(this.fom, oppdatertTom))
-    }
-
     val sporsmalSomSkalFjernes = mutableListOf<String>()
+
+    if (this.arbeidssituasjon.erSelvstendigNaringsdrivende()) {
+        if (this.harNaringsdrivendeGradertPeriodeEllerOppgittArbeidUnderveis()) {
+            oppdaterteSporsmal.add(naringsdrivendeOpprettholdtInntektGradert(this.fom, oppdatertTom))
+            sporsmalSomSkalFjernes.add(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT)
+        } else {
+            oppdaterteSporsmal.add(naringsdrivendeOpprettholdtInntekt100Prosent(this.fom, oppdatertTom))
+            sporsmalSomSkalFjernes.add(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT)
+        }
+    }
 
     if (this.arbeidssituasjon == ARBEIDSTAKER) {
         oppdaterteSporsmal.add(ferieSporsmal(this.fom, oppdatertTom))

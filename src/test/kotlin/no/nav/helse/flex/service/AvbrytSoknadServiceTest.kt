@@ -6,7 +6,7 @@ import com.nhaarman.mockitokotlin2.verify
 import no.nav.helse.flex.domain.Soknadstatus.*
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.kafka.producer.SoknadProducer
-import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknad
+import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknadGradert
 import no.nav.helse.flex.mock.opprettNySoknad
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.soknadsopprettelse.settOppSoknadOppholdUtland
@@ -30,7 +30,7 @@ class AvbrytSoknadServiceTest {
 
     @Test
     fun farAvbruttNySelvstendigSoknad() {
-        val soknad = opprettNyNaeringsdrivendeSoknad()
+        val soknad = opprettNyNaeringsdrivendeSoknadGradert()
         avbrytSoknadService.avbrytSoknad(soknad)
 
         verify(sykepengesoknadDAO).avbrytSoknad(any(), any())
@@ -54,7 +54,7 @@ class AvbrytSoknadServiceTest {
 
     @Test
     fun farAvbruttUtkastTilKorrigeringSoknad() {
-        val soknad = opprettNyNaeringsdrivendeSoknad().copy(status = UTKAST_TIL_KORRIGERING)
+        val soknad = opprettNyNaeringsdrivendeSoknadGradert().copy(status = UTKAST_TIL_KORRIGERING)
 
         avbrytSoknadService.avbrytSoknad(soknad)
 
@@ -65,7 +65,7 @@ class AvbrytSoknadServiceTest {
     fun farIkkeAvbruttSendtSoknad() {
         assertThrows(IllegalArgumentException::class.java) {
             try {
-                val soknad = opprettNyNaeringsdrivendeSoknad().copy(status = SENDT)
+                val soknad = opprettNyNaeringsdrivendeSoknadGradert().copy(status = SENDT)
 
                 avbrytSoknadService.avbrytSoknad(soknad)
             } finally {
@@ -78,7 +78,7 @@ class AvbrytSoknadServiceTest {
     fun farIkkeAvbruttKorrigertSoknad() {
         assertThrows(IllegalArgumentException::class.java) {
             try {
-                val soknad = opprettNyNaeringsdrivendeSoknad().copy(status = KORRIGERT)
+                val soknad = opprettNyNaeringsdrivendeSoknadGradert().copy(status = KORRIGERT)
 
                 avbrytSoknadService.avbrytSoknad(soknad)
             } finally {

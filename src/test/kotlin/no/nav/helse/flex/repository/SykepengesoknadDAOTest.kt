@@ -10,7 +10,7 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.mock.MockSoknadSelvstendigeOgFrilansere
 import no.nav.helse.flex.mock.mockUtlandssoknad
 import no.nav.helse.flex.mock.opprettNyArbeidstakerSoknad
-import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknad
+import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknadGradert
 import no.nav.helse.flex.mock.opprettSendtFrilanserSoknad
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.soknadsopprettelse.OPPHOLD_UTENFOR_EOS
@@ -85,7 +85,7 @@ class SykepengesoknadDAOTest : FellesTestOppsett() {
 
     @Test
     fun finnEldreSoknader() {
-        val sykepengesoknad = opprettNyNaeringsdrivendeSoknad()
+        val sykepengesoknad = opprettNyNaeringsdrivendeSoknadGradert()
         val soknadUnderUtfylling =
             sykepengesoknadDAO.lagreSykepengesoknad(
                 sykepengesoknad.copy(

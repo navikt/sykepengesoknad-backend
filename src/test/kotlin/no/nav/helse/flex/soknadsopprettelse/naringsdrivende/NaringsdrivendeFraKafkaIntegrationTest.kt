@@ -32,6 +32,7 @@ import no.nav.helse.flex.soknadsopprettelse.FRAVAR_FOR_SYKMELDINGEN_V2
 import no.nav.helse.flex.soknadsopprettelse.NARINGSDRIVENDE_NY_I_ARBEIDSLIVET
 import no.nav.helse.flex.soknadsopprettelse.NARINGSDRIVENDE_OPPHOLD_I_UTLANDET
 import no.nav.helse.flex.soknadsopprettelse.NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT
+import no.nav.helse.flex.soknadsopprettelse.NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT
 import no.nav.helse.flex.soknadsopprettelse.NARINGSDRIVENDE_VARIG_ENDRING
 import no.nav.helse.flex.soknadsopprettelse.NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET
 import no.nav.helse.flex.soknadsopprettelse.OPPHOLD_UTENFOR_EOS
@@ -903,7 +904,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                 soknad.fom `should be equal to` LocalDate.of(2020, 2, 1)
                 soknad.tom `should be equal to` LocalDate.of(2020, 2, 22)
                 soknad.sporsmal!!.any { it.tag == NARINGSDRIVENDE_OPPHOLD_I_UTLANDET }.`should be true`()
-                soknad.sporsmal.any { it.tag == NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT }.`should be true`()
+                soknad.sporsmal.any { it.tag == NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT }.`should be true`()
                 soknad.soknadPerioder `should be equal to`
                     listOf(
                         RSSoknadsperiode(
@@ -926,7 +927,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                 soknad.fom `should be equal to` LocalDate.of(2020, 2, 23)
                 soknad.tom `should be equal to` LocalDate.of(2020, 3, 15)
                 soknad.sporsmal!!.any { it.tag == NARINGSDRIVENDE_OPPHOLD_I_UTLANDET }.`should be false`()
-                soknad.sporsmal.any { it.tag == NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT }.`should be true`()
+                soknad.sporsmal.any { it.tag == NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT }.`should be true`()
                 soknad.soknadPerioder `should be equal to`
                     listOf(
                         RSSoknadsperiode(

@@ -25,10 +25,10 @@ import java.util.*
 class MockSoknadSelvstendigeOgFrilansere(
     private val sykepengesoknadDAO: SykepengesoknadDAO?,
 ) {
-    fun opprettOgLagreNySoknad(): Sykepengesoknad = sykepengesoknadDAO!!.lagreSykepengesoknad(opprettNyNaeringsdrivendeSoknad())
+    fun opprettOgLagreNySoknad(): Sykepengesoknad = sykepengesoknadDAO!!.lagreSykepengesoknad(opprettNyNaeringsdrivendeSoknadGradert())
 }
 
-fun opprettNyNaeringsdrivendeSoknad(): Sykepengesoknad {
+fun opprettNyNaeringsdrivendeSoknadGradert(): Sykepengesoknad {
     val soknadMetadata =
         Sykepengesoknad(
             id = UUID.randomUUID().toString(),
@@ -84,6 +84,67 @@ fun opprettNyNaeringsdrivendeSoknad(): Sykepengesoknad {
                 ),
             status = Soknadstatus.NY,
         ).leggSvarPaSoknad()
+        .besvarsporsmal(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT, "NEI")
+        .besvarsporsmal(NARINGSDRIVENDE_OPPHOLD_I_UTLANDET, "NEI")
+        .besvarsporsmal(FRAVAR_FOR_SYKMELDINGEN_V2, "JA")
+}
+
+fun opprettNyNaeringsdrivendeSoknad100Prosent(): Sykepengesoknad {
+    val soknadMetadata =
+        Sykepengesoknad(
+            id = UUID.randomUUID().toString(),
+            status = Soknadstatus.NY,
+            opprettet = Instant.now(),
+            sporsmal = emptyList(),
+            fnr = "fnr-7454630",
+            startSykeforlop = of(2018, 6, 1),
+            fom = of(2018, 6, 1),
+            tom = of(2018, 6, 10),
+            arbeidssituasjon = NAERINGSDRIVENDE,
+            arbeidsgiverOrgnummer = null,
+            arbeidsgiverNavn = null,
+            sykmeldingId = "289148ba-4c3c-4b3f-b7a3-385b7e7c927d",
+            sykmeldingSkrevet = of(2018, 6, 1).atStartOfDay().tilOsloInstant(),
+            soknadPerioder =
+                listOf(
+                    SykmeldingsperiodeAGDTO(
+                        fom = of(2018, 6, 1),
+                        tom = of(2018, 6, 5),
+                        gradert = GradertDTO(grad = 100, reisetilskudd = false),
+                        type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+                        aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                        behandlingsdager = null,
+                        innspillTilArbeidsgiver = null,
+                        reisetilskudd = false,
+                    ),
+                    SykmeldingsperiodeAGDTO(
+                        fom = of(2018, 6, 6),
+                        tom = of(2018, 6, 10),
+                        gradert = GradertDTO(grad = 100, reisetilskudd = false),
+                        type = PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
+                        aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
+                        behandlingsdager = null,
+                        innspillTilArbeidsgiver = null,
+                        reisetilskudd = false,
+                    ),
+                ).tilSoknadsperioder(),
+            soknadstype = Soknadstype.SELVSTENDIGE_OG_FRILANSERE,
+            egenmeldtSykmelding = null,
+            utenlandskSykmelding = false,
+            egenmeldingsdagerFraSykmelding = null,
+            forstegangssoknad = false,
+        )
+
+    return (soknadMetadata)
+        .copy(
+            sporsmal =
+                settOppSoknadSelvstendigOgFrilanser(
+                    sykepengesoknad = soknadMetadata,
+                    harTidligereUtenlandskSpm = false,
+                    erForsteSoknadISykeforlop = true,
+                ),
+            status = Soknadstatus.NY,
+        ).leggSvarPaSoknad100Prosent()
         .besvarsporsmal(NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT, "NEI")
         .besvarsporsmal(NARINGSDRIVENDE_OPPHOLD_I_UTLANDET, "NEI")
         .besvarsporsmal(FRAVAR_FOR_SYKMELDINGEN_V2, "JA")
@@ -152,6 +213,15 @@ private fun Sykepengesoknad.leggSvarPaSoknad(): Sykepengesoknad =
         .oppsummering()
         .besvarsporsmal(ARBEID_UNDERVEIS_100_PROSENT + "0", "NEI")
         .besvarsporsmal(JOBBET_DU_GRADERT + "1", "NEI")
+        .harDuOppholdtDegIUtlandet()
+        .andreInntektskilder()
+        .tilbakeIArbeid()
+        .besvarsporsmal(ANSVARSERKLARING, "CHECKED")
+
+private fun Sykepengesoknad.leggSvarPaSoknad100Prosent(): Sykepengesoknad =
+    this
+        .oppsummering()
+        .besvarsporsmal(ARBEID_UNDERVEIS_100_PROSENT + "0", "NEI")
         .harDuOppholdtDegIUtlandet()
         .andreInntektskilder()
         .tilbakeIArbeid()
