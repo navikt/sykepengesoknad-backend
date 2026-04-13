@@ -6,14 +6,12 @@ import no.nav.helse.flex.logger
 import no.nav.helse.flex.medlemskap.tilPostgresJson
 import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.util.osloZone
-import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.util.*
-import java.util.concurrent.TimeUnit
 
 @Service
 class FriskTilArbeidService(
@@ -23,28 +21,6 @@ class FriskTilArbeidService(
     private val log = logger()
 
     private val tidspunktForOvertakelse = LocalDateTime.of(2025, 3, 10, 0, 0, 0).atZone(osloZone).toOffsetDateTime()
-
-    @Scheduled(initialDelay = 4, fixedDelay = 3600, timeUnit = TimeUnit.MINUTES)
-    fun endreDato() {
-        val fom = LocalDate.of(2026, 4, 11)
-        val tom = LocalDate.of(2026, 7, 3)
-
-        val id = "b1cab032-11e3-4f53-aab4-5b839cc32cca"
-        val vedtak =
-            friskTilArbeidRepository
-                .findById(id)
-                .orElseThrow { IllegalArgumentException("Fant ikke FriskTilArbeidVedtakStatus med id: $id") }
-
-        val oppdatertVedtak =
-            vedtak.copy(
-                fom = fom,
-                tom = tom,
-            )
-
-        friskTilArbeidRepository.save(oppdatertVedtak).also {
-            log.info("Oppdatert FriskTilArbeidVedtakStatus med id: $id til fom: $fom og tom: $tom.")
-        }
-    }
 
     fun lagreFriskTilArbeidVedtakStatus(kafkaMelding: FriskTilArbeidVedtakStatusKafkaMelding) {
         val friskTilArbeidVedtakStatus = kafkaMelding.friskTilArbeidVedtakStatus
