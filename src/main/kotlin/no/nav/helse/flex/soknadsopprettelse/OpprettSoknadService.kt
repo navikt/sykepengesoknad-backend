@@ -134,12 +134,21 @@ class OpprettSoknadService(
                 }.flatten()
 
         val eksisterendeSoknaderForSm = eksisterendeSoknader.filter { it.sykmeldingId == sykmeldingTilSoknadOpprettelse.sykmeldingId }
+        val aktiveEksisterendeSoknaderForSm =
+            eksisterendeSoknaderForSm.filter { it.status !in listOf(Soknadstatus.KORRIGERT, Soknadstatus.UTKAST_TIL_KORRIGERING) }
 
-        if (eksisterendeSoknaderForSm.isNotEmpty()) {
+        if (aktiveEksisterendeSoknaderForSm.isNotEmpty()) {
+            if (sykmeldingErBruktTilArbeidstaker(aktiveEksisterendeSoknaderForSm) &&
+                soknaderTilOppretting.any { it.arbeidssituasjon != ARBEIDSTAKER }
+            ) {
+                log.info(
+                    "Oppretter ikke søknader for sykmelding: ${sykmeldingTilSoknadOpprettelse.sykmeldingId} siden sykmeldingen allerede er brukt til arbeidstaker.",
+                )
+                return emptyList()
+            }
             val sammenliknbartSettAvNyeSoknader = soknaderTilOppretting.map { it.tilSoknadSammenlikner() }.toHashSet()
             val sammenliknbartSettAvEksisterendeSoknaderForSm =
-                eksisterendeSoknaderForSm
-                    .filter { it.status !in listOf(Soknadstatus.KORRIGERT, Soknadstatus.UTKAST_TIL_KORRIGERING) }
+                aktiveEksisterendeSoknaderForSm
                     .map { it.tilSoknadSammenlikner() }
                     .toHashSet()
             if (sammenliknbartSettAvEksisterendeSoknaderForSm == sammenliknbartSettAvNyeSoknader) {
@@ -207,6 +216,9 @@ class OpprettSoknadService(
         return sykepengesoknad
     }
 }
+
+private fun sykmeldingErBruktTilArbeidstaker(eksisterendeSoknaderForSm: List<Sykepengesoknad>): Boolean =
+    eksisterendeSoknaderForSm.any { it.arbeidssituasjon == ARBEIDSTAKER }
 
 private fun Sykepengesoknad.markerForsteganssoknad(
     eksisterendeSoknader: List<Sykepengesoknad>,
