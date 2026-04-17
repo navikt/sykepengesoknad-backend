@@ -17,7 +17,6 @@ import no.nav.helse.flex.soknadsopprettelse.hentArbeidssituasjon
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.lagSoknad
-import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_OPPRETT_VENTETIDSOKNADER
 import no.nav.syfo.sykmelding.kafka.model.STATUS_APEN
 import no.nav.syfo.sykmelding.kafka.model.STATUS_BEKREFTET
 import org.amshove.kluent.`should be equal to`
@@ -57,7 +56,6 @@ class NaringsdrivendeSoknadServiceTest : FakesTestOppsett() {
 
     @Test
     fun `Burde kun finne sykmeldinger med samme arbeidsforhold`() {
-        fakeUnleash.enable(UNLEASH_CONTEXT_OPPRETT_VENTETIDSOKNADER)
         val sykmelding = sykmeldingKafkaMessage(fnr = fnr, arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE)
         val sykmelding1 = sykmeldingKafkaMessage(fnr = fnr, arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE)
         val sykmelding2 = sykmeldingKafkaMessage(fnr = fnr, arbeidssituasjon = Arbeidssituasjon.FRILANSER)
@@ -86,63 +84,7 @@ class NaringsdrivendeSoknadServiceTest : FakesTestOppsett() {
     }
 
     @Test
-    fun `Burde returnere ingen andre sykmeldinger med samme arbeidsforhold når opprettelsestoggle er av`() {
-        fakeUnleash.disable(UNLEASH_CONTEXT_OPPRETT_VENTETIDSOKNADER)
-        val sykmelding = sykmeldingKafkaMessage(fnr = fnr, arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE)
-        val sykmelding1 = sykmeldingKafkaMessage(fnr = fnr, arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE)
-        val sykmelding2 = sykmeldingKafkaMessage(fnr = fnr, arbeidssituasjon = Arbeidssituasjon.FRILANSER)
-
-        flexSyketilfelleClient.leggTilSykmeldingMedSammeVentetid(sykmelding.sykmelding.id)
-        flexSyketilfelleClient.leggTilSykmeldingMedSammeVentetid(sykmelding1.sykmelding.id)
-        flexSyketilfelleClient.leggTilSykmeldingMedSammeVentetid(sykmelding2.sykmelding.id)
-
-        flexSykmeldingerBackendClient.leggTilSykmelding(sykmelding)
-        flexSykmeldingerBackendClient.leggTilSykmelding(sykmelding1)
-        flexSykmeldingerBackendClient.leggTilSykmelding(sykmelding2)
-
-        naringsdrivendeSoknadService
-            .finnAndreSykmeldingerSomManglerSoknad(
-                sykmeldingKafkaMessage = sykmelding,
-                arbeidssituasjon = sykmelding.hentArbeidssituasjon()!!,
-                identer =
-                    FolkeregisterIdenter(
-                        originalIdent = sykmelding.kafkaMetadata.fnr,
-                        andreIdenter = emptyList(),
-                    ),
-            ).also {
-                it.size `should be equal to` 0
-            }
-    }
-
-    @Test
-    fun `Burde ikke feile hardt når toggle er av`() {
-        fakeUnleash.disable(UNLEASH_CONTEXT_OPPRETT_VENTETIDSOKNADER)
-        val sykmelding =
-            sykmeldingKafkaMessage(fnr = fnrSomFeiler, arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE)
-        val sykmelding1 = sykmeldingKafkaMessage(fnr = fnr, arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE)
-        val sykmelding2 = sykmeldingKafkaMessage(fnr = fnr, arbeidssituasjon = Arbeidssituasjon.FRILANSER)
-
-        flexSyketilfelleClient.leggTilSykmeldingMedSammeVentetid(sykmelding.sykmelding.id)
-        flexSyketilfelleClient.leggTilSykmeldingMedSammeVentetid(sykmelding1.sykmelding.id)
-        flexSyketilfelleClient.leggTilSykmeldingMedSammeVentetid(sykmelding2.sykmelding.id)
-
-        flexSykmeldingerBackendClient.leggTilSykmelding(sykmelding)
-        flexSykmeldingerBackendClient.leggTilSykmelding(sykmelding1)
-        flexSykmeldingerBackendClient.leggTilSykmelding(sykmelding2)
-
-        naringsdrivendeSoknadService
-            .finnAndreSykmeldingerSomManglerSoknad(
-                sykmeldingKafkaMessage = sykmelding,
-                arbeidssituasjon = sykmelding.hentArbeidssituasjon()!!,
-                identer = FolkeregisterIdenter(originalIdent = fnrSomFeiler, andreIdenter = emptyList()),
-            ).also {
-                it.size `should be equal to` 0
-            }
-    }
-
-    @Test
-    fun `Burde feile hardt når toggle er på`() {
-        fakeUnleash.enable(UNLEASH_CONTEXT_OPPRETT_VENTETIDSOKNADER)
+    fun `Burde feile hardt`() {
         val sykmelding =
             sykmeldingKafkaMessage(fnr = fnrSomFeiler, arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE)
 
@@ -158,8 +100,6 @@ class NaringsdrivendeSoknadServiceTest : FakesTestOppsett() {
 
     @Test
     fun `Burde kun finne sykmeldinger som har status BEKREFTET (er sendt inn av bruker)`() {
-        fakeUnleash.enable(UNLEASH_CONTEXT_OPPRETT_VENTETIDSOKNADER)
-
         val sykmelding =
             sykmeldingKafkaMessage(
                 fnr = fnr,
@@ -204,8 +144,6 @@ class NaringsdrivendeSoknadServiceTest : FakesTestOppsett() {
 
     @Test
     fun `Burde opprette ventetidsøknad hvis eksisterende søknad med samme ventetid er på eller etter sykmeldingen`() {
-        fakeUnleash.enable(UNLEASH_CONTEXT_OPPRETT_VENTETIDSOKNADER)
-
         val sykmelding =
             sykmeldingKafkaMessage(
                 fnr = fnr,
@@ -258,7 +196,6 @@ class NaringsdrivendeSoknadServiceTest : FakesTestOppsett() {
 
     @Test
     fun `Burde opprette ventetidsøknad hvis det ikke er eksisterende søknad og er innenfor ventetidsperioden`() {
-        fakeUnleash.enable(UNLEASH_CONTEXT_OPPRETT_VENTETIDSOKNADER)
         val fom = LocalDate.of(2020, 2, 21)
 
         val sykmelding =
@@ -306,7 +243,6 @@ class NaringsdrivendeSoknadServiceTest : FakesTestOppsett() {
 
     @Test
     fun `Burde ikke opprette ventetidsøknad hvis det ikke er eksisterende søknad men er utenfor ventetidsperioden`() {
-        fakeUnleash.enable(UNLEASH_CONTEXT_OPPRETT_VENTETIDSOKNADER)
         val fom = LocalDate.of(2020, 2, 21)
 
         val sykmelding =
@@ -353,8 +289,6 @@ class NaringsdrivendeSoknadServiceTest : FakesTestOppsett() {
 
     @Test
     fun `Burde ikke opprette ventetidsøknader hvis eksisterende søknad med samme ventetid er før sykmeldingen`() {
-        fakeUnleash.enable(UNLEASH_CONTEXT_OPPRETT_VENTETIDSOKNADER)
-
         val sykmelding =
             sykmeldingKafkaMessage(
                 fnr = fnr,
@@ -435,8 +369,6 @@ class NaringsdrivendeSoknadServiceTest : FakesTestOppsett() {
     @Test
     @Suppress("ktlint:standard:max-line-length")
     fun `Burde opprette ventetidsøknader hvis eksisterende søknad før sykmeldingen er annen arbeidssituasjon og innenfor ventetidsperioden`() {
-        fakeUnleash.enable(UNLEASH_CONTEXT_OPPRETT_VENTETIDSOKNADER)
-
         val sykmelding =
             sykmeldingKafkaMessage(
                 fnr = fnr,

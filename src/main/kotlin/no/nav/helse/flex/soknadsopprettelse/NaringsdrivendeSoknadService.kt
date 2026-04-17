@@ -34,65 +34,49 @@ class NaringsdrivendeSoknadService(
         arbeidssituasjon: Arbeidssituasjon,
         identer: FolkeregisterIdenter,
     ): List<SykmeldingKafkaMessageDTO> {
-        val skalOppretteVentetidsoknader = unleashToggles.opprettVentetidsoknaderEnabled(identer.originalIdent)
-        return try {
-            val sykmeldingIder =
-                flexSyketilfelleClient.hentSykmeldingerMedSammeVentetid(sykmeldingKafkaMessage, identer)
-            logSykmeldingerMedSammeVentetid(sykmeldingIder, sykmeldingKafkaMessage)
+        val sykmeldingIder = flexSyketilfelleClient.hentSykmeldingerMedSammeVentetid(sykmeldingKafkaMessage, identer)
+        logSykmeldingerMedSammeVentetid(sykmeldingIder, sykmeldingKafkaMessage)
 
-            val andreSykmeldingIder = sykmeldingIder.filterNot { it == sykmeldingKafkaMessage.sykmelding.id }.toSet()
+        val andreSykmeldingIder = sykmeldingIder.filterNot { it == sykmeldingKafkaMessage.sykmelding.id }.toSet()
 
-            val andreSøknaderMedSammeVentetid = sykepengesoknadRepository.findBySykmeldingUuidIn(andreSykmeldingIder)
+        val andreSøknaderMedSammeVentetid = sykepengesoknadRepository.findBySykmeldingUuidIn(andreSykmeldingIder)
 
-            val andreSykmeldingIderMedSoknader =
-                andreSøknaderMedSammeVentetid
-                    .map { it.sykmeldingUuid!! }
-                    .toSet()
+        val andreSykmeldingIderMedSoknader =
+            andreSøknaderMedSammeVentetid
+                .map { it.sykmeldingUuid!! }
+                .toSet()
 
-            if (unleashToggles.sammenlignSykmeldingKafkaEnabled(identer.originalIdent)) {
-                sammenlignOriginalKafkaMelding(sykmeldingKafkaMessage)
-            }
-
-            val finnesSoknadMedSammeArbeidssituasjonFørSykmeldingen =
-                andreSøknaderMedSammeVentetid
-                    .filter { it.arbeidssituasjon == arbeidssituasjon }
-                    .any { it.tom!! < sykmeldingKafkaMessage.sykmelding.fom }
-
-            val andreSykmeldingerSomManglerSoknad = andreSykmeldingIder - andreSykmeldingIderMedSoknader
-            val andreSykmeldingerViSkalOppretteSoknadFor =
-                if (andreSykmeldingerSomManglerSoknad.isEmpty()) {
-                    emptyList()
-                } else {
-                    flexSykmeldingerBackendClient
-                        .hentSykmeldinger(
-                            sykmeldingIder = andreSykmeldingerSomManglerSoknad,
-                            fom = if (finnesSoknadMedSammeArbeidssituasjonFørSykmeldingen) sykmeldingKafkaMessage.sykmelding.fom else null,
-                        ).filter { it.hentArbeidssituasjon() == arbeidssituasjon }
-                        .filter { it.event.statusEvent == STATUS_BEKREFTET }
-                        .filter { it.sykmelding.tom!! >= sykmeldingKafkaMessage.sykmelding.fom!!.minusDays(VENTETIDSPERIODE.toLong()) }
-                }
-
-            log.info(
-                lagLoglinje(
-                    andreSykmeldingerMedSammeArbeidsforhold = andreSykmeldingerViSkalOppretteSoknadFor,
-                    sykmeldingKafkaMessage = sykmeldingKafkaMessage,
-                    togglePå = skalOppretteVentetidsoknader,
-                    finnesSoknadFørSykmeldingen = finnesSoknadMedSammeArbeidssituasjonFørSykmeldingen,
-                ),
-            )
-            if (skalOppretteVentetidsoknader) {
-                andreSykmeldingerViSkalOppretteSoknadFor
-            } else {
-                emptyList()
-            }
-        } catch (e: Exception) {
-            if (skalOppretteVentetidsoknader) {
-                throw e
-            } else {
-                log.warn("Feil ved henting av sykmeldinger med samme ventetid ${sykmeldingKafkaMessage.sykmelding.id}", e)
-                emptyList()
-            }
+        if (unleashToggles.sammenlignSykmeldingKafkaEnabled(identer.originalIdent)) {
+            sammenlignOriginalKafkaMelding(sykmeldingKafkaMessage)
         }
+
+        val finnesSoknadMedSammeArbeidssituasjonFørSykmeldingen =
+            andreSøknaderMedSammeVentetid
+                .filter { it.arbeidssituasjon == arbeidssituasjon }
+                .any { it.tom!! < sykmeldingKafkaMessage.sykmelding.fom }
+
+        val andreSykmeldingerSomManglerSoknad = andreSykmeldingIder - andreSykmeldingIderMedSoknader
+        val andreSykmeldingerViSkalOppretteSoknadFor =
+            if (andreSykmeldingerSomManglerSoknad.isEmpty()) {
+                emptyList()
+            } else {
+                flexSykmeldingerBackendClient
+                    .hentSykmeldinger(
+                        sykmeldingIder = andreSykmeldingerSomManglerSoknad,
+                        fom = if (finnesSoknadMedSammeArbeidssituasjonFørSykmeldingen) sykmeldingKafkaMessage.sykmelding.fom else null,
+                    ).filter { it.hentArbeidssituasjon() == arbeidssituasjon }
+                    .filter { it.event.statusEvent == STATUS_BEKREFTET }
+                    .filter { it.sykmelding.tom!! >= sykmeldingKafkaMessage.sykmelding.fom!!.minusDays(VENTETIDSPERIODE.toLong()) }
+            }
+
+        log.info(
+            lagLoglinje(
+                andreSykmeldingerMedSammeArbeidsforhold = andreSykmeldingerViSkalOppretteSoknadFor,
+                sykmeldingKafkaMessage = sykmeldingKafkaMessage,
+                finnesSoknadFørSykmeldingen = finnesSoknadMedSammeArbeidssituasjonFørSykmeldingen,
+            ),
+        )
+        return andreSykmeldingerViSkalOppretteSoknadFor
     }
 
     private fun logSykmeldingerMedSammeVentetid(
@@ -113,10 +97,9 @@ class NaringsdrivendeSoknadService(
     private fun lagLoglinje(
         andreSykmeldingerMedSammeArbeidsforhold: List<SykmeldingKafkaMessageDTO>,
         sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
-        togglePå: Boolean,
         finnesSoknadFørSykmeldingen: Boolean,
     ): String =
-        "(Toggle ${if (togglePå) "På" else "Av"}) (SFS ${if (finnesSoknadFørSykmeldingen) "J" else "N"}) " +
+        "(SFS ${if (finnesSoknadFørSykmeldingen) "J" else "N"}) " +
             "Fant ${andreSykmeldingerMedSammeArbeidsforhold.size} andre sykmeldinger: ${sykmeldingKafkaMessage.sykmelding.loglinje}: " +
             andreSykmeldingerMedSammeArbeidsforhold
                 .sortedBy { it.sykmelding.fom }

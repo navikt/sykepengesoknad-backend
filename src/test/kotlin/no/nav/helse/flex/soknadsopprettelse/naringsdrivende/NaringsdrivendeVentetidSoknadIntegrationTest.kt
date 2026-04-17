@@ -7,7 +7,6 @@ import no.nav.helse.flex.mockdispatcher.FlexSykmeldingMockDispatcher
 import no.nav.helse.flex.testdata.lagSykmeldingsPerioder
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
-import no.nav.helse.flex.unleash.UNLEASH_CONTEXT_OPPRETT_VENTETIDSOKNADER
 import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessageDTO
 import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.AfterEach
@@ -35,7 +34,6 @@ class NaringsdrivendeVentetidSoknadIntegrationTest : FellesTestOppsett() {
 
     @Test
     fun `Oppretter ventetidssøknad for selvstendig næringsdrivende`() {
-        fakeUnleash.enable(UNLEASH_CONTEXT_OPPRETT_VENTETIDSOKNADER)
         val kafkaMessage = lagSykmeldingKafkaMessage(fnr)
         val kafkaMessage1 = lagSykmeldingKafkaMessage(fnr)
 
@@ -83,8 +81,7 @@ class NaringsdrivendeVentetidSoknadIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `Oppretter ikke ventetidssoknad for selvstendig næringsdrivende hvis toggle er på og feil kastes`() {
-        fakeUnleash.enable(UNLEASH_CONTEXT_OPPRETT_VENTETIDSOKNADER)
+    fun `Oppretter ikke ventetidssoknad for selvstendig næringsdrivende hvis feil kastes`() {
         val kafkaMessage = lagSykmeldingKafkaMessage(fnr)
         val kafkaMessage1 = lagSykmeldingKafkaMessage(fnr)
 
@@ -114,70 +111,7 @@ class NaringsdrivendeVentetidSoknadIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `Oppretter ikke ventetidssoknad for selvstendig næringsdrivende hvis toggle er av selv om feil kastes`() {
-        fakeUnleash.disable(UNLEASH_CONTEXT_OPPRETT_VENTETIDSOKNADER)
-        val kafkaMessage = lagSykmeldingKafkaMessage(fnr)
-        val kafkaMessage1 = lagSykmeldingKafkaMessage(fnr)
-
-        mockFlexSyketilfelleErUtenforVentetid(
-            sykmeldingId = kafkaMessage.sykmelding.id,
-            erUtenforVentetid = true,
-        )
-
-        mockFlexSyketilfelleHentSykmeldingerMedSammeVentetidKasterFeil(
-            sykmeldingIder = setOf(kafkaMessage.sykmelding.id, kafkaMessage1.sykmelding.id),
-        )
-
-        mockFlexSyketilfelleSykeforloep(
-            sykmeldingIder = setOf(kafkaMessage.sykmelding.id),
-            oppfolgingsdato = dato,
-        )
-
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
-            sykmeldingId = kafkaMessage.sykmelding.id,
-            sykmeldingKafkaMessage = kafkaMessage,
-            topic = SYKMELDINGSENDT_TOPIC,
-        )
-
-        hentSoknader(fnr).size `should be equal to` 1
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
-    }
-
-    @Test
-    fun `Oppretter ikke ventetidssoknad for selvstendig næringsdrivende hvis toggle er av`() {
-        fakeUnleash.disable(UNLEASH_CONTEXT_OPPRETT_VENTETIDSOKNADER)
-        val kafkaMessage = lagSykmeldingKafkaMessage(fnr)
-        val kafkaMessage1 = lagSykmeldingKafkaMessage(fnr)
-
-        mockFlexSyketilfelleErUtenforVentetid(
-            sykmeldingId = kafkaMessage.sykmelding.id,
-            erUtenforVentetid = true,
-        )
-
-        mockFlexSyketilfelleHentSykmeldingerMedSammeVentetid(
-            sykmeldingIder = setOf(kafkaMessage.sykmelding.id, kafkaMessage1.sykmelding.id),
-        )
-
-        FlexSykmeldingMockDispatcher.enqueue(SykmeldingerResponse(listOf(kafkaMessage1)))
-
-        mockFlexSyketilfelleSykeforloep(
-            sykmeldingIder = setOf(kafkaMessage.sykmelding.id),
-            oppfolgingsdato = dato,
-        )
-
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
-            sykmeldingId = kafkaMessage.sykmelding.id,
-            sykmeldingKafkaMessage = kafkaMessage,
-            topic = SYKMELDINGSENDT_TOPIC,
-        )
-
-        hentSoknader(fnr).size `should be equal to` 1
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
-    }
-
-    @Test
     fun `Dupliserer ikke søknad dersom forrige sykmeldingen trigget opprettelse av begge søknader`() {
-        fakeUnleash.enable(UNLEASH_CONTEXT_OPPRETT_VENTETIDSOKNADER)
         val kafkaMessage = lagSykmeldingKafkaMessage(fnr)
         val kafkaMessage1 = lagSykmeldingKafkaMessage(fnr)
 
@@ -232,7 +166,6 @@ class NaringsdrivendeVentetidSoknadIntegrationTest : FellesTestOppsett() {
 
     @Test
     fun `Oppretter søknader i riktig rekkefølge basert på fom`() {
-        fakeUnleash.enable(UNLEASH_CONTEXT_OPPRETT_VENTETIDSOKNADER)
         val kafkaMessageFørste = lagSykmeldingKafkaMessage(fnr = fnr, fom = dato)
         val kafkaMessageSiste = lagSykmeldingKafkaMessage(fnr = fnr, fom = dato.plusDays(10))
 
