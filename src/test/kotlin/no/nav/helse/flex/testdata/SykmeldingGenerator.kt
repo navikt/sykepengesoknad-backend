@@ -116,7 +116,7 @@ fun skapArbeidsgiverSykmeldingTilSoknadOpprettelse(
     )
 
 fun skapSykmeldingStatusKafkaMessageDTO(
-    arbeidssituasjon: Arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
+    arbeidssituasjon: Arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
     statusEvent: String = STATUS_BEKREFTET,
     fnr: String,
     timestamp: OffsetDateTime = OffsetDateTime.now(),
@@ -321,6 +321,7 @@ fun reisetilskudd(
 fun gradertReisetilskudd(
     fom: LocalDate = LocalDate.of(2020, 2, 1),
     tom: LocalDate = LocalDate.of(2020, 2, 15),
+    grad: Int = 50,
 ): List<SykmeldingsperiodeAGDTO> =
     listOf(
         SykmeldingsperiodeAGDTO(
@@ -330,7 +331,24 @@ fun gradertReisetilskudd(
             reisetilskudd = false,
             aktivitetIkkeMulig = null,
             behandlingsdager = null,
-            gradert = GradertDTO(50, true),
+            gradert = GradertDTO(grad, true),
+            innspillTilArbeidsgiver = null,
+        ),
+    )
+
+fun avventende(
+    fom: LocalDate = LocalDate.of(2020, 2, 1),
+    tom: LocalDate = LocalDate.of(2020, 2, 15),
+): List<SykmeldingsperiodeAGDTO> =
+    listOf(
+        SykmeldingsperiodeAGDTO(
+            fom = fom,
+            tom = tom,
+            type = PeriodetypeDTO.AVVENTENDE,
+            reisetilskudd = false,
+            aktivitetIkkeMulig = null,
+            behandlingsdager = null,
+            gradert = null,
             innspillTilArbeidsgiver = null,
         ),
     )
