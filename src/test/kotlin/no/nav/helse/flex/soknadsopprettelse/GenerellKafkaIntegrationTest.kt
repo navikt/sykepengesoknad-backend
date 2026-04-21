@@ -5,6 +5,7 @@ import com.nhaarman.mockitokotlin2.argWhere
 import com.nhaarman.mockitokotlin2.doThrow
 import com.nhaarman.mockitokotlin2.whenever
 import no.nav.helse.flex.FellesTestOppsett
+import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
 import no.nav.helse.flex.domain.exception.SkalRebehandlesException
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
@@ -132,7 +133,9 @@ class GenerellKafkaIntegrationTest : FellesTestOppsett() {
                 topic = SYKMELDINGSENDT_TOPIC,
             )
 
-            hentSoknaderMetadata(fnr).shouldHaveSize(12)
+            hentSoknaderMetadata(fnr)
+                .shouldHaveSize(12)
+                .count { it.soknadstype == RSSoknadstype.BEHANDLINGSDAGER } `should be equal to` 11
             sykepengesoknadKafkaConsumer.ventPåRecords(antall = 12)
         }
 
