@@ -268,13 +268,9 @@ fun antallDager(
     tom: LocalDate,
 ): Long = ChronoUnit.DAYS.between(fom, tom) + 1
 
-fun eldstePeriodeFom(perioder: List<Sykmeldingsperiode>): LocalDate =
-    perioder
-        .minByOrNull {
-            it.fom
-        }?.fom ?: throw SykeforloepManglerSykemeldingException()
+fun eldstePeriodeFom(perioder: List<Sykmeldingsperiode>): LocalDate = perioder.minBy { it.fom }.fom
 
-fun sistePeriodeTom(perioder: List<Sykmeldingsperiode>): LocalDate = perioder.maxByOrNull { it.fom }!!.tom
+fun sistePeriodeTom(perioder: List<Sykmeldingsperiode>): LocalDate = perioder.maxBy { it.fom }.tom
 
 private fun PeriodetypeDTO.tilSykmeldingstype(): Sykmeldingstype =
     when (this) {
