@@ -4,28 +4,18 @@ import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argWhere
 import com.nhaarman.mockitokotlin2.doThrow
 import com.nhaarman.mockitokotlin2.whenever
-import no.nav.helse.flex.*
+import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.domain.exception.SkalRebehandlesException
+import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
+import no.nav.helse.flex.mockStandardSyketilfelle
 import no.nav.helse.flex.repository.SykepengesoknadDAO
-import no.nav.helse.flex.testdata.avventende
-import no.nav.helse.flex.testdata.behandingsdager
-import no.nav.helse.flex.testdata.gradertReisetilskudd
-import no.nav.helse.flex.testdata.heltSykmeldt
-import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
-import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
-import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
-import no.nav.syfo.sykmelding.kafka.model.STATUS_BEKREFTET
-import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessageDTO
-import no.nav.syfo.sykmelding.kafka.model.SykmeldingStatusKafkaMessageDTO
+import no.nav.helse.flex.testdata.*
+import no.nav.helse.flex.ventPåRecords
 import org.amshove.kluent.`should be empty`
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldHaveSize
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Nested
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 import java.time.OffsetDateTime
@@ -53,35 +43,23 @@ class GenerellKafkaIntegrationTest : FellesTestOppsett() {
     inner class OppretterSoknad {
         @Test
         fun `Sykmelding oppretter 2 søknader og de legges til i databasen`() {
-            val sykmeldingStatusKafkaMessageDTO =
-                skapSykmeldingStatusKafkaMessageDTO(
+            val kafkaMessage =
+                sykmeldingKafkaMessage(
                     fnr = fnr,
-                    statusEvent = STATUS_BEKREFTET,
-                )
-            val sykmelding =
-                skapSykmeldingDTO(
-                    sykmeldingStatusKafkaMessageDTO = sykmeldingStatusKafkaMessageDTO,
-                    syketilfelleStartDato = datoIFremtiden,
                     sykmeldingsperioder =
                         heltSykmeldt(
                             fom = datoIFremtiden,
                             tom = datoIFremtiden.plusDays(40),
                         ),
+                    syketilfelleStartDato = datoIFremtiden,
                 )
 
-            val sykmeldingKafkaMessage =
-                SykmeldingKafkaMessageDTO(
-                    sykmelding = sykmelding,
-                    event = sykmeldingStatusKafkaMessageDTO.event,
-                    kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
-                )
-
-            mockStandardSyketilfelle(sykmelding.id, erUtenforVentetid = true, oppfolgingsdato = datoIFremtiden)
+            mockStandardSyketilfelle(kafkaMessage.sykmelding.id, erUtenforVentetid = true, oppfolgingsdato = datoIFremtiden)
 
             behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
-                sykmelding.id,
-                sykmeldingKafkaMessage,
-                SYKMELDINGSENDT_TOPIC,
+                sykmeldingId = kafkaMessage.sykmelding.id,
+                sykmeldingKafkaMessage = kafkaMessage,
+                topic = SYKMELDINGSENDT_TOPIC,
             )
 
             sykepengesoknadDAO.finnSykepengesoknader(listOf(fnr)).size `should be equal to` 2
@@ -90,12 +68,9 @@ class GenerellKafkaIntegrationTest : FellesTestOppsett() {
 
         @Test
         fun `Oppretter 2 søknader for gradert reisetilskudd over 30 dager`() {
-            val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
-            val sykmelding =
-                skapArbeidsgiverSykmelding(
-                    sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId,
-                ).copy(
-                    harRedusertArbeidsgiverperiode = true,
+            val kafkaMessage =
+                sykmeldingKafkaMessage(
+                    fnr = fnr,
                     sykmeldingsperioder =
                         gradertReisetilskudd(
                             fom = LocalDate.of(2020, 2, 1),
@@ -104,18 +79,12 @@ class GenerellKafkaIntegrationTest : FellesTestOppsett() {
                         ),
                 )
 
-            val sykmeldingKafkaMessage =
-                SykmeldingKafkaMessageDTO(
-                    sykmelding = sykmelding,
-                    event = sykmeldingStatusKafkaMessageDTO.event,
-                    kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
-                )
-            mockStandardSyketilfelle(sykmelding.id)
+            mockStandardSyketilfelle(kafkaMessage.sykmelding.id, oppfolgingsdato = datoIFremtiden)
 
             behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
-                sykmelding.id,
-                sykmeldingKafkaMessage,
-                SYKMELDINGSENDT_TOPIC,
+                sykmeldingId = kafkaMessage.sykmelding.id,
+                sykmeldingKafkaMessage = kafkaMessage,
+                topic = SYKMELDINGSENDT_TOPIC,
             )
 
             hentSoknaderMetadata(fnr).shouldHaveSize(2)
@@ -127,24 +96,13 @@ class GenerellKafkaIntegrationTest : FellesTestOppsett() {
     inner class OppretterIkkeSoknad {
         @Test
         fun `Oppretter ingen søknader når sykmeldingen ikke har perioder`() {
-            val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
-            val sykmelding =
-                skapArbeidsgiverSykmelding(
-                    sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId,
-                ).copy(sykmeldingsperioder = emptyList())
-
-            val sykmeldingKafkaMessage =
-                SykmeldingKafkaMessageDTO(
-                    sykmelding = sykmelding,
-                    event = sykmeldingStatusKafkaMessageDTO.event,
-                    kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
-                )
-            mockStandardSyketilfelle(sykmelding.id)
+            val kafkaMessage = sykmeldingKafkaMessage(fnr = fnr, sykmeldingsperioder = emptyList())
+            mockStandardSyketilfelle(kafkaMessage.sykmelding.id, oppfolgingsdato = datoIFremtiden)
 
             behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
-                sykmelding.id,
-                sykmeldingKafkaMessage,
-                SYKMELDINGSENDT_TOPIC,
+                sykmeldingId = kafkaMessage.sykmelding.id,
+                sykmeldingKafkaMessage = kafkaMessage,
+                topic = SYKMELDINGSENDT_TOPIC,
             )
 
             hentSoknaderMetadata(fnr).`should be empty`()
@@ -152,11 +110,9 @@ class GenerellKafkaIntegrationTest : FellesTestOppsett() {
 
         @Test
         fun `Oppretter ikke søknader for hull i sykmeldingens perioder mellom vanlig og behandlingsdager`() {
-            val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
-            val sykmelding =
-                skapArbeidsgiverSykmelding(
-                    sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId,
-                ).copy(
+            val kafkaMessage =
+                sykmeldingKafkaMessage(
+                    fnr = fnr,
                     sykmeldingsperioder =
                         heltSykmeldt(
                             fom = LocalDate.of(2020, 5, 4),
@@ -168,20 +124,12 @@ class GenerellKafkaIntegrationTest : FellesTestOppsett() {
                                 behandlingsdager = 4,
                             ),
                 )
-
-            val sykmeldingKafkaMessage =
-                SykmeldingKafkaMessageDTO(
-                    sykmelding = sykmelding,
-                    event = sykmeldingStatusKafkaMessageDTO.event,
-                    kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
-                )
-
-            mockStandardSyketilfelle(sykmelding.id)
+            mockStandardSyketilfelle(kafkaMessage.sykmelding.id, oppfolgingsdato = datoIFremtiden)
 
             behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
-                sykmelding.id,
-                sykmeldingKafkaMessage,
-                SYKMELDINGSENDT_TOPIC,
+                sykmeldingId = kafkaMessage.sykmelding.id,
+                sykmeldingKafkaMessage = kafkaMessage,
+                topic = SYKMELDINGSENDT_TOPIC,
             )
 
             hentSoknaderMetadata(fnr).shouldHaveSize(12)
@@ -190,11 +138,9 @@ class GenerellKafkaIntegrationTest : FellesTestOppsett() {
 
         @Test
         fun `Oppretter ikke søknader for hull i sykmeldingens perioder mellom vanlige søknader`() {
-            val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
-            val sykmelding =
-                skapArbeidsgiverSykmelding(
-                    sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId,
-                ).copy(
+            val kafkaMessage =
+                sykmeldingKafkaMessage(
+                    fnr = fnr,
                     sykmeldingsperioder =
                         heltSykmeldt(
                             fom = LocalDate.of(2020, 5, 1),
@@ -205,19 +151,11 @@ class GenerellKafkaIntegrationTest : FellesTestOppsett() {
                                 tom = LocalDate.of(2019, 1, 1),
                             ),
                 )
-
-            val sykmeldingKafkaMessage =
-                SykmeldingKafkaMessageDTO(
-                    sykmelding = sykmelding,
-                    event = sykmeldingStatusKafkaMessageDTO.event,
-                    kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
-                )
-
-            mockStandardSyketilfelle(sykmelding.id)
+            mockStandardSyketilfelle(kafkaMessage.sykmelding.id, oppfolgingsdato = datoIFremtiden)
 
             behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
-                sykmelding.id,
-                sykmeldingKafkaMessage,
+                kafkaMessage.sykmelding.id,
+                kafkaMessage,
                 SYKMELDINGSENDT_TOPIC,
             )
 
@@ -227,12 +165,9 @@ class GenerellKafkaIntegrationTest : FellesTestOppsett() {
 
         @Test
         fun `Oppretter ikke søknad for avventende sykmelding`() {
-            val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
-            val sykmelding =
-                skapArbeidsgiverSykmelding(
-                    sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId,
-                ).copy(
-                    harRedusertArbeidsgiverperiode = true,
+            val kafkaMessage =
+                sykmeldingKafkaMessage(
+                    fnr = fnr,
                     sykmeldingsperioder =
                         avventende(
                             fom = LocalDate.of(2020, 2, 1),
@@ -240,17 +175,10 @@ class GenerellKafkaIntegrationTest : FellesTestOppsett() {
                         ),
                 )
 
-            val sykmeldingKafkaMessage =
-                SykmeldingKafkaMessageDTO(
-                    sykmelding = sykmelding,
-                    event = sykmeldingStatusKafkaMessageDTO.event,
-                    kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
-                )
-
             behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
-                sykmelding.id,
-                sykmeldingKafkaMessage,
-                SYKMELDINGSENDT_TOPIC,
+                sykmeldingId = kafkaMessage.sykmelding.id,
+                sykmeldingKafkaMessage = kafkaMessage,
+                topic = SYKMELDINGSENDT_TOPIC,
             )
 
             hentSoknaderMetadata(fnr).`should be empty`()
@@ -262,51 +190,33 @@ class GenerellKafkaIntegrationTest : FellesTestOppsett() {
         @Test
         fun `Uventet exception kastes videre`() {
             Assertions.assertThrows(RuntimeException::class.java) {
-                val sykmeldingStatusKafkaMessageDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
-                val sykmelding = skapSykmeldingDTO(sykmeldingStatusKafkaMessageDTO)
-                mockStandardSyketilfelle(sykmelding.id)
+                val kafkaMessage = sykmeldingKafkaMessage(fnr = fnr)
+                mockStandardSyketilfelle(kafkaMessage.sykmelding.id, oppfolgingsdato = datoIFremtiden)
 
                 whenever(aivenKafkaProducer.produserMelding(any())).thenThrow(RuntimeException("Feil"))
-                val sykmeldingKafkaMessage =
-                    SykmeldingKafkaMessageDTO(
-                        sykmelding = sykmelding,
-                        event = sykmeldingStatusKafkaMessageDTO.event,
-                        kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
-                    )
 
                 behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
-                    sykmelding.id,
-                    sykmeldingKafkaMessage,
-                    SYKMELDINGSENDT_TOPIC,
+                    sykmeldingId = kafkaMessage.sykmelding.id,
+                    sykmeldingKafkaMessage = kafkaMessage,
+                    topic = SYKMELDINGSENDT_TOPIC,
                 )
             }
         }
 
         @Test
         fun `Sykmelding som feiler kjører rollback i databasen uten å kaste en ny UnexpectedRollbackException`() {
-            val sykmeldingStatusKafkaMessageDTO =
-                skapSykmeldingStatusKafkaMessageDTO(
+            val kafkaMessage =
+                sykmeldingKafkaMessage(
                     fnr = fnr,
-                    statusEvent = STATUS_BEKREFTET,
-                )
-            val sykmelding =
-                skapSykmeldingDTO(
-                    sykmeldingStatusKafkaMessageDTO,
-                    syketilfelleStartDato = datoIFremtiden,
                     sykmeldingsperioder =
                         heltSykmeldt(
                             fom = datoIFremtiden,
                             tom = datoIFremtiden.plusDays(40),
                         ),
+                    syketilfelleStartDato = datoIFremtiden,
                 )
-            mockStandardSyketilfelle(sykmelding.id, erUtenforVentetid = true, oppfolgingsdato = datoIFremtiden)
 
-            val sykmeldingKafkaMessage =
-                SykmeldingKafkaMessageDTO(
-                    sykmelding = sykmelding,
-                    event = sykmeldingStatusKafkaMessageDTO.event,
-                    kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
-                )
+            mockStandardSyketilfelle(kafkaMessage.sykmelding.id, erUtenforVentetid = true, oppfolgingsdato = datoIFremtiden)
 
             // Kaster feil på andre sykepengesøknad som produseres
             doThrow(ProduserKafkaMeldingException()).`when`(aivenKafkaProducer).produserMelding(
@@ -316,9 +226,9 @@ class GenerellKafkaIntegrationTest : FellesTestOppsett() {
             )
 
             behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
-                sykmelding.id,
-                sykmeldingKafkaMessage,
-                SYKMELDINGSENDT_TOPIC,
+                sykmeldingId = kafkaMessage.sykmelding.id,
+                sykmeldingKafkaMessage = kafkaMessage,
+                topic = SYKMELDINGSENDT_TOPIC,
             )
 
             sykepengesoknadDAO.finnSykepengesoknader(listOf(fnr)).size `should be equal to` 0
@@ -328,31 +238,4 @@ class GenerellKafkaIntegrationTest : FellesTestOppsett() {
         private inner class ProduserKafkaMeldingException :
             SkalRebehandlesException("Feil ved produksjon av Kafka-melding", OffsetDateTime.now().plusMinutes(1))
     }
-
-    private fun mockStandardSyketilfelle(
-        sykmeldingId: String,
-        erUtenforVentetid: Boolean? = null,
-        oppfolgingsdato: LocalDate = datoIFremtiden,
-    ) {
-        erUtenforVentetid?.let {
-            mockFlexSyketilfelleErUtenforVentetid(sykmeldingId, it)
-        }
-        mockFlexSyketilfelleSykeforloep(sykmeldingId, oppfolgingsdato)
-        mockFlexSyketilfelleHentSykmeldingerMedSammeVentetidDefault(sykmeldingId)
-    }
-
-    private fun skapSykmeldingDTO(
-        sykmeldingStatusKafkaMessageDTO: SykmeldingStatusKafkaMessageDTO,
-        syketilfelleStartDato: LocalDate = LocalDate.of(2020, 2, 1),
-        sykmeldingsperioder: List<SykmeldingsperiodeAGDTO> =
-            heltSykmeldt(
-                fom = syketilfelleStartDato,
-                tom = syketilfelleStartDato.plusDays(15),
-            ),
-    ) = skapArbeidsgiverSykmelding(
-        sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId,
-    ).copy(
-        sykmeldingsperioder = sykmeldingsperioder,
-        syketilfelleStartDato = syketilfelleStartDato,
-    )
 }

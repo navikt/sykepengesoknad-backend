@@ -90,7 +90,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
             val utenforVentetid = false
             val testdata = opprettTestdata()
 
-            mockStandardSyketilfelle(testdata.sykmeldingId, erUtenforVentetid = utenforVentetid)
+            mockStandardSyketilfelle(testdata.sykmeldingId, erUtenforVentetid = utenforVentetid, oppfolgingsdato = testDato)
 
             val sykmeldingKafkaMessage =
                 SykmeldingKafkaMessageDTO(
@@ -115,7 +115,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
             val testdata = opprettTestdata()
 
             settOppStandardNaeringsdrivendeData()
-            mockStandardSyketilfelle(testdata.sykmeldingId, erUtenforVentetid = utenforVentetid)
+            mockStandardSyketilfelle(testdata.sykmeldingId, erUtenforVentetid = utenforVentetid, oppfolgingsdato = testDato)
 
             val kafkaSoknad =
                 prosesserSykmeldingOgHentKafkaSoknad(
@@ -141,7 +141,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
             val forsikring = true
             val testdata = opprettTestdata()
 
-            mockStandardSyketilfelle(testdata.sykmeldingId, erUtenforVentetid = utenforVentetid)
+            mockStandardSyketilfelle(testdata.sykmeldingId, erUtenforVentetid = utenforVentetid, oppfolgingsdato = testDato)
 
             val kafkaSoknad =
                 prosesserSykmeldingOgHentKafkaSoknad(
@@ -178,7 +178,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
             val testdata = opprettTestdata()
 
             settOppStandardNaeringsdrivendeData()
-            mockStandardSyketilfelle(testdata.sykmeldingId)
+            mockStandardSyketilfelle(testdata.sykmeldingId, oppfolgingsdato = testDato)
 
             val kafkaSoknad =
                 prosesserSykmeldingOgHentKafkaSoknad(
@@ -207,7 +207,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
             repeat(5) {
                 SigrunMockDispatcher.enqueueResponse(sigrun404Feil())
             }
-            mockStandardSyketilfelle(testdata.sykmeldingId, erUtenforVentetid = true)
+            mockStandardSyketilfelle(testdata.sykmeldingId, erUtenforVentetid = true, oppfolgingsdato = testDato)
 
             val kafkaSoknad =
                 prosesserSykmeldingOgHentKafkaSoknad(
@@ -332,7 +332,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                     tom = LocalDate.of(2020, 3, 15),
                 )
 
-            mockStandardSyketilfelle(testdata.sykmeldingId, erUtenforVentetid = true)
+            mockStandardSyketilfelle(testdata.sykmeldingId, erUtenforVentetid = true, oppfolgingsdato = testDato)
             behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
                 testdata.sykmeldingId,
                 SykmeldingKafkaMessageDTO(
@@ -401,7 +401,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                         ),
                 )
 
-            mockStandardSyketilfelle(testdata.sykmeldingId)
+            mockStandardSyketilfelle(testdata.sykmeldingId, oppfolgingsdato = testDato)
             behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
                 testdata.sykmeldingId,
                 SykmeldingKafkaMessageDTO(
@@ -494,7 +494,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
         val testdata = opprettTestdata(arbeidssituasjon)
 
         settOppStandardNaeringsdrivendeData()
-        mockStandardSyketilfelle(testdata.sykmeldingId, erUtenforVentetid = true)
+        mockStandardSyketilfelle(testdata.sykmeldingId, erUtenforVentetid = true, oppfolgingsdato = testDato)
 
         val kafkaSoknad =
             prosesserSykmeldingOgHentKafkaSoknad(
@@ -535,18 +535,6 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                     sporsmals!![0],
                 ),
         )
-
-    private fun mockStandardSyketilfelle(
-        vararg sykmeldingId: String,
-        erUtenforVentetid: Boolean = true,
-        oppfolgingsdato: LocalDate = testDato,
-    ) {
-        mockFlexSyketilfelleSykeforloep(setOf(*sykmeldingId), oppfolgingsdato)
-        sykmeldingId.forEach {
-            mockFlexSyketilfelleErUtenforVentetid(it, erUtenforVentetid)
-            mockFlexSyketilfelleHentSykmeldingerMedSammeVentetidDefault(it)
-        }
-    }
 
     private fun settOppStandardNaeringsdrivendeData() {
         with(SigrunMockDispatcher) {
