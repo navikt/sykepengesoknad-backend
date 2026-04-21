@@ -219,21 +219,23 @@ class SoknadFlexAzureController(
         clientIdValidation.validateClientId(NamespaceAndApp(namespace = "flex", app = "flex-internal-frontend"))
         val navIdent = clientIdValidation.hentNavIdent()
 
-        return pensjongivendeInntektClient.hentPensjonsgivendeInntekt(requestBody.fnr, requestBody.inntektsaar.toInt()).also {
-            auditLogProducer.lagAuditLog(
-                AuditEntry(
-                    appNavn = "flex-internal",
-                    utførtAv = navIdent,
-                    oppslagPå = requestBody.fnr,
-                    eventType = EventType.READ,
-                    forespørselTillatt = true,
-                    oppslagUtførtTid = LocalDateTime.now().tilOsloInstant(),
-                    beskrivelse = "Henter pensjonsgivende inntekt",
-                    requestUrl = URI.create(request.requestURL.toString()),
-                    requestMethod = "POST",
-                ),
-            )
-        }
+        return pensjongivendeInntektClient
+            .hentPensjonsgivendeInntekt(requestBody.fnr, requestBody.inntektsaar.toInt())
+            .also {
+                auditLogProducer.lagAuditLog(
+                    AuditEntry(
+                        appNavn = "flex-internal",
+                        utførtAv = navIdent,
+                        oppslagPå = requestBody.fnr,
+                        eventType = EventType.READ,
+                        forespørselTillatt = true,
+                        oppslagUtførtTid = LocalDateTime.now().tilOsloInstant(),
+                        beskrivelse = "Henter pensjonsgivende inntekt",
+                        requestUrl = URI.create(request.requestURL.toString()),
+                        requestMethod = "POST",
+                    ),
+                )
+            }
     }
 
     data class FnrRequest(
@@ -445,33 +447,55 @@ class SoknadFlexAzureController(
         return friskTilArbeidRepository.save(ny)
     }
 
-    data class EndreTomRequest(
+    data class EndreDatoRequest(
         val id: String,
-        val tom: LocalDate,
+        val dato: LocalDate,
     )
+
+    @PostMapping(
+        "/api/v1/flex/fta-vedtak/endre-fom",
+        produces = [APPLICATION_JSON_VALUE],
+        consumes = [APPLICATION_JSON_VALUE],
+    )
+    fun endreVedtakFom(
+        @RequestBody requestBody: EndreDatoRequest,
+    ): FriskTilArbeidVedtakDbRecord {
+        clientIdValidation.validateClientId(NamespaceAndApp(namespace = "flex", app = "flex-internal-frontend"))
+
+        val vedtak =
+            friskTilArbeidRepository
+                .findById(requestBody.id)
+                .orElseThrow { IllegalArgumentException("Fant ikke vedtak") }
+
+        if (vedtak.behandletStatus != BehandletStatus.BEHANDLET) {
+            throw IllegalArgumentException("Kan ikke endre dato på vedtak som ikke er behandlet")
+        }
+
+        log.info("Endrer fom fra ${vedtak.tom} til ${requestBody.dato} for FriskTilArbeid vedtak: ${vedtak.id}.")
+        return friskTilArbeidRepository.save(vedtak.copy(fom = requestBody.dato))
+    }
 
     @PostMapping(
         "/api/v1/flex/fta-vedtak/endre-tom",
         produces = [APPLICATION_JSON_VALUE],
         consumes = [APPLICATION_JSON_VALUE],
     )
-    fun endreStatus(
-        @RequestBody requestBody: EndreTomRequest,
+    fun endreVedtakTom(
+        @RequestBody requestBody: EndreDatoRequest,
     ): FriskTilArbeidVedtakDbRecord {
         clientIdValidation.validateClientId(NamespaceAndApp(namespace = "flex", app = "flex-internal-frontend"))
 
-        val eksisterende =
+        val vedtak =
             friskTilArbeidRepository
                 .findById(requestBody.id)
                 .orElseThrow { IllegalArgumentException("Fant ikke vedtak") }
 
-        if (eksisterende.behandletStatus != BehandletStatus.BEHANDLET) {
-            throw IllegalArgumentException("Kan ikke endre tom på vedtak som ikke er behandlet")
+        if (vedtak.behandletStatus != BehandletStatus.BEHANDLET) {
+            throw IllegalArgumentException("Kan ikke endre dato på vedtak som ikke er behandlet")
         }
-        log.info("Endrer tom fra ${eksisterende.tom} til ${requestBody.tom} for vedtak ${eksisterende.id}")
 
-        val ny = eksisterende.copy(tom = requestBody.tom)
-        return friskTilArbeidRepository.save(ny)
+        log.info("Endrer tom fra ${vedtak.tom} til ${requestBody.dato} for FriskTilArbeid vedtak: ${vedtak.id}.")
+        return friskTilArbeidRepository.save(vedtak.copy(tom = requestBody.dato))
     }
 
     data class SlettSykepengesoknadRequest(
