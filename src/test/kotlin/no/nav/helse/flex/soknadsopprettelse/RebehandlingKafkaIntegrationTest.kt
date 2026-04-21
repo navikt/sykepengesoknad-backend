@@ -4,11 +4,10 @@ import com.nhaarman.mockitokotlin2.any
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
-import no.nav.helse.flex.mockFlexSyketilfelleErUtenforVentetid
-import no.nav.helse.flex.mockFlexSyketilfelleHentSykmeldingerMedSammeVentetidDefault
 import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
 import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
+import no.nav.syfo.model.sykmelding.arbeidsgiver.ArbeidsgiverSykmeldingDTO
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
@@ -38,72 +37,65 @@ class RebehandlingKafkaIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `Legger til rebehandling UventetArbeidssituasjonException`() {
-        val sykmeldingStatusKafkaMessageDTO = skapKafkaMelding(arbeidssituasjon = Arbeidssituasjon.FRILANSER)
-        val sykmelding = skapSykmeldingDTO(sykmeldingStatusKafkaMessageDTO)
-
-        val sykmeldingKafkaMessage =
-            SykmeldingKafkaMessageDTO(
-                sykmelding = sykmelding,
-                event = sykmeldingStatusKafkaMessageDTO.event,
-                kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
+    fun `Legger til rebehandling når arbeidssituasjonen ikke er forventet, UventetArbeidssituasjonException`() {
+        val statusDto =
+            skapKafkaMelding(
+                statusEvent = STATUS_SENDT,
+                arbeidssituasjon = Arbeidssituasjon.FRILANSER,
             )
 
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
-            sykmelding.id,
-            sykmeldingKafkaMessage,
-            SYKMELDINGSENDT_TOPIC,
-        )
-        verifiserRebehandling()
+        prosesserOgVerifiserRebehandling(statusDto)
     }
 
     @Test
-    fun `Legger til rebehandling ManglerArbeidsgiverException`() {
-        val sykmeldingStatusKafkaMessageDTO = skapKafkaMelding(arbeidsgiver = null)
-        val sykmelding = skapSykmeldingDTO(sykmeldingStatusKafkaMessageDTO)
+    fun `Legger til rebehandling når arbeidsgiver mangler, ManglerArbeidsgiverException`() {
+        val statusDto = skapKafkaMelding(arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER, arbeidsgiver = null)
 
-        val sykmeldingKafkaMessage =
-            SykmeldingKafkaMessageDTO(
-                sykmelding = sykmelding,
-                event = sykmeldingStatusKafkaMessageDTO.event,
-                kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
-            )
-        mockStandardSyketilfelle(sykmelding.id)
+        prosesserOgVerifiserRebehandling(statusDto) {
+            mockFlexSyketilfelleSykeforloep(id, dato)
+        }
+    }
+
+    private fun prosesserOgVerifiserRebehandling(
+        statusDto: SykmeldingStatusKafkaMessageDTO,
+        forberedProsessering: ArbeidsgiverSykmeldingDTO.() -> Unit = {},
+    ) {
+        val sykmelding = skapSykmeldingDTO(statusDto)
+        sykmelding.forberedProsessering()
+        val kafkaMessage = skapSykmeldingKafkaMessage(statusDto, sykmelding)
 
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
             sykmelding.id,
-            sykmeldingKafkaMessage,
+            kafkaMessage,
             SYKMELDINGSENDT_TOPIC,
         )
         verifiserRebehandling()
     }
+
+    private fun skapSykmeldingKafkaMessage(
+        statusDto: SykmeldingStatusKafkaMessageDTO,
+        sykmelding: ArbeidsgiverSykmeldingDTO,
+    ) = SykmeldingKafkaMessageDTO(
+        sykmelding = sykmelding,
+        event = statusDto.event,
+        kafkaMetadata = statusDto.kafkaMetadata,
+    )
 
     private fun verifiserRebehandling() {
         Mockito.verify(rebehandlingsSykmeldingSendtProducer, Mockito.times(1)).leggPaRebehandlingTopic(any(), any())
     }
 
-    private fun mockStandardSyketilfelle(
-        sykmeldingId: String,
-        erUtenforVentetid: Boolean? = null,
-        oppfolgingsdato: LocalDate = dato,
-    ) {
-        erUtenforVentetid?.let {
-            mockFlexSyketilfelleErUtenforVentetid(sykmeldingId, it)
-        }
-        mockFlexSyketilfelleSykeforloep(sykmeldingId, oppfolgingsdato)
-        mockFlexSyketilfelleHentSykmeldingerMedSammeVentetidDefault(sykmeldingId)
-    }
-
     private fun skapKafkaMelding(
         statusEvent: String = STATUS_SENDT,
-        arbeidssituasjon: Arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+        arbeidssituasjon: Arbeidssituasjon,
         arbeidsgiver: ArbeidsgiverStatusKafkaDTO? = null,
-    ) = skapSykmeldingStatusKafkaMessageDTO(
-        fnr = fnr,
-        statusEvent = statusEvent,
-        arbeidssituasjon = arbeidssituasjon,
-        arbeidsgiver = arbeidsgiver,
-    )
+    ): SykmeldingStatusKafkaMessageDTO =
+        skapSykmeldingStatusKafkaMessageDTO(
+            fnr = fnr,
+            statusEvent = statusEvent,
+            arbeidssituasjon = arbeidssituasjon,
+            arbeidsgiver = arbeidsgiver,
+        )
 
     private fun skapSykmeldingDTO(
         sykmeldingStatusKafkaMessageDTO: SykmeldingStatusKafkaMessageDTO,
