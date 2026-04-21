@@ -54,6 +54,9 @@ fun SykmeldingKafkaMessageDTO.harUgyldigePerioder(): Boolean {
 
     val ugyldigPeriodeMeldinger =
         buildList {
+            if (perioder.isEmpty()) {
+                add("Sykmelding $sykmeldingId har ingen sykmeldingsperioder. Oppretter ikke søknad.")
+            }
             if (perioder.any { it.type == AVVENTENDE }) {
                 add("Sykmelding $sykmeldingId har periodetype AVVENTENDE vi ennå ikke oppretter søknader for.")
             }
