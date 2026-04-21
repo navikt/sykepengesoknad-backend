@@ -268,7 +268,7 @@ fun antallDager(
     tom: LocalDate,
 ): Long = ChronoUnit.DAYS.between(fom, tom) + 1
 
-fun eldstePeriodeFom(perioder: List<Sykmeldingsperiode>): LocalDate = perioder.minBy { it.fom }.fom
+fun eldstePeriodeFom(perioder: List<Sykmeldingsperiode>): LocalDate = perioder.minOf { it.fom }
 
 fun sistePeriodeTom(perioder: List<Sykmeldingsperiode>): LocalDate = perioder.maxBy { it.fom }.tom
 
