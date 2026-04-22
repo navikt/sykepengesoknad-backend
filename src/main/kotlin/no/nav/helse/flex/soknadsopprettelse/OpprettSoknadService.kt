@@ -139,10 +139,16 @@ class OpprettSoknadService(
 
         if (aktiveEksisterendeSoknaderForSm.isNotEmpty()) {
             if (sykmeldingErBruktTilArbeidstaker(aktiveEksisterendeSoknaderForSm)) {
-                log.info(
-                    "Oppretter ikke søknader for sykmelding: ${sykmeldingTilSoknadOpprettelse.sykmeldingId} siden sykmeldingen allerede er brukt til arbeidstaker.",
-                )
-                return emptyList()
+                if (sykmeldingTilSoknadOpprettelse.erPapirsykmelding || sykmeldingTilSoknadOpprettelse.erUtlandskSykmelding) {
+                    log.info(
+                        "Sykmeldingen for arbeidstaker kan korrigeres: erPapirSykmelding ${sykmeldingTilSoknadOpprettelse.erPapirsykmelding}, erUtenlandskSykmelding ${sykmeldingTilSoknadOpprettelse.erUtlandskSykmelding}",
+                    )
+                } else {
+                    log.info(
+                        "Oppretter ikke søknader for sykmelding: ${sykmeldingTilSoknadOpprettelse.sykmeldingId} siden sykmeldingen allerede er brukt til arbeidstaker.",
+                    )
+                    return emptyList()
+                }
             }
             val sammenliknbartSettAvNyeSoknader = soknaderTilOppretting.map { it.tilSoknadSammenlikner() }.toHashSet()
             val sammenliknbartSettAvEksisterendeSoknaderForSm =
