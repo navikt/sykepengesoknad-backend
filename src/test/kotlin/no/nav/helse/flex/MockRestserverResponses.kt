@@ -170,3 +170,15 @@ fun FellesTestOppsett.mockFlexSyketilfelleArbeidsgiverperiode(
             .andRespond(withNoContent())
     }
 }
+
+fun FellesTestOppsett.mockStandardSyketilfelle(
+    vararg sykmeldingId: String,
+    oppfolgingsdato: LocalDate,
+    erUtenforVentetid: Boolean = true,
+) {
+    mockFlexSyketilfelleSykeforloep(setOf(*sykmeldingId), oppfolgingsdato)
+    sykmeldingId.forEach {
+        mockFlexSyketilfelleErUtenforVentetid(it, erUtenforVentetid)
+        mockFlexSyketilfelleHentSykmeldingerMedSammeVentetidDefault(it)
+    }
+}

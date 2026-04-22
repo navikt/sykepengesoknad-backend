@@ -116,7 +116,7 @@ fun skapArbeidsgiverSykmeldingTilSoknadOpprettelse(
     )
 
 fun skapSykmeldingStatusKafkaMessageDTO(
-    arbeidssituasjon: Arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
+    arbeidssituasjon: Arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
     statusEvent: String = STATUS_BEKREFTET,
     fnr: String,
     timestamp: OffsetDateTime = OffsetDateTime.now(),
@@ -213,6 +213,7 @@ fun skapArbeidsgiverSykmelding(
     utenlandskSykemelding: UtenlandskSykmeldingAGDTO? = null,
     sykmeldingSkrevet: OffsetDateTime = OffsetDateTime.now(ZoneOffset.UTC),
     signaturDato: OffsetDateTime = sykmeldingSkrevet,
+    syketilfelleStartDato: LocalDate? = null,
 ): ArbeidsgiverSykmeldingDTO =
     ArbeidsgiverSykmeldingDTO(
         id = sykmeldingId,
@@ -221,7 +222,7 @@ fun skapArbeidsgiverSykmelding(
         signaturDato = signaturDato,
         mottattTidspunkt = OffsetDateTime.now(ZoneOffset.UTC),
         arbeidsgiver = ArbeidsgiverAGDTO(null, null),
-        syketilfelleStartDato = null,
+        syketilfelleStartDato = syketilfelleStartDato,
         egenmeldt = false,
         harRedusertArbeidsgiverperiode = false,
         behandler =
@@ -321,6 +322,7 @@ fun reisetilskudd(
 fun gradertReisetilskudd(
     fom: LocalDate = LocalDate.of(2020, 2, 1),
     tom: LocalDate = LocalDate.of(2020, 2, 15),
+    grad: Int = 50,
 ): List<SykmeldingsperiodeAGDTO> =
     listOf(
         SykmeldingsperiodeAGDTO(
@@ -330,7 +332,24 @@ fun gradertReisetilskudd(
             reisetilskudd = false,
             aktivitetIkkeMulig = null,
             behandlingsdager = null,
-            gradert = GradertDTO(50, true),
+            gradert = GradertDTO(grad, true),
+            innspillTilArbeidsgiver = null,
+        ),
+    )
+
+fun avventende(
+    fom: LocalDate = LocalDate.of(2020, 2, 1),
+    tom: LocalDate = LocalDate.of(2020, 2, 15),
+): List<SykmeldingsperiodeAGDTO> =
+    listOf(
+        SykmeldingsperiodeAGDTO(
+            fom = fom,
+            tom = tom,
+            type = PeriodetypeDTO.AVVENTENDE,
+            reisetilskudd = false,
+            aktivitetIkkeMulig = null,
+            behandlingsdager = null,
+            gradert = null,
             innspillTilArbeidsgiver = null,
         ),
     )
@@ -370,6 +389,7 @@ fun sykmeldingKafkaMessage(
     signaturDato: OffsetDateTime = timestamp,
     tidligereArbeidsgiverOrgnummer: String? = null,
     status: String? = null,
+    syketilfelleStartDato: LocalDate? = null,
 ): SykmeldingKafkaMessageDTO {
     val faktiskArbeidsgiver =
         if (arbeidssituasjon == Arbeidssituasjon.ARBEIDSTAKER) {
@@ -404,6 +424,7 @@ fun sykmeldingKafkaMessage(
             utenlandskSykemelding = utenlandskSykemelding,
             sykmeldingSkrevet = sykmeldingSkrevet,
             signaturDato = signaturDato,
+            syketilfelleStartDato = syketilfelleStartDato,
         )
 
     return SykmeldingKafkaMessageDTO(

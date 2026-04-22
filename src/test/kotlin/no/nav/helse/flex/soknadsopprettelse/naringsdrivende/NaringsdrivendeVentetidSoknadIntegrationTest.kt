@@ -2,6 +2,7 @@ package no.nav.helse.flex.soknadsopprettelse.naringsdrivende
 
 import no.nav.helse.flex.*
 import no.nav.helse.flex.client.sykmeldinger.SykmeldingerResponse
+import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
 import no.nav.helse.flex.mockdispatcher.FlexSykmeldingMockDispatcher
 import no.nav.helse.flex.testdata.lagSykmeldingsPerioder
@@ -198,11 +199,11 @@ class NaringsdrivendeVentetidSoknadIntegrationTest : FellesTestOppsett() {
         hentSoknader[1].fom `should be equal to` dato.plusDays(10)
     }
 
-    fun lagSykmeldingKafkaMessage(
+    private fun lagSykmeldingKafkaMessage(
         fnr: String,
         fom: LocalDate = dato,
     ): SykmeldingKafkaMessageDTO {
-        val statusDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr)
+        val statusDTO = skapSykmeldingStatusKafkaMessageDTO(fnr = fnr, arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE)
         val sykmelding =
             skapArbeidsgiverSykmelding(
                 sykmeldingId = statusDTO.event.sykmeldingId,
