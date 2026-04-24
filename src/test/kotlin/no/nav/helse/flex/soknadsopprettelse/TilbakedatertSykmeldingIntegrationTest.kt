@@ -3,11 +3,9 @@ package no.nav.helse.flex.soknadsopprettelse
 import no.nav.helse.flex.*
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
-import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
-import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
+import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.syfo.model.Merknad
-import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessageDTO
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldHaveSize
@@ -119,38 +117,19 @@ class TilbakedatertSykmeldingIntegrationTest : FellesTestOppsett() {
     fun sendSykmeldingMedMerknad(merknad: String?) {
         flexSyketilfelleMockRestServiceServer.reset()
 
-        val sykmeldingStatusKafkaMessageDTO =
-            skapSykmeldingStatusKafkaMessageDTO(
+        val kafkaMessage =
+            sykmeldingKafkaMessage(
                 fnr = fnr,
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
                 sykmeldingId = sykmeldingid,
+                merknader = if (merknad == null) null else listOf(Merknad(type = merknad, beskrivelse = merknad)),
             )
-        val sykmelding =
-            skapArbeidsgiverSykmelding(
-                sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId,
-            ).let {
-                if (merknad == null) {
-                    it
-                } else {
-                    it.copy(
-                        merknader = listOf(Merknad(type = merknad, beskrivelse = merknad)),
-                    )
-                }
-            }
-
-        mockFlexSyketilfelleSykeforloep(sykmelding.id)
-
-        val sykmeldingKafkaMessage =
-            SykmeldingKafkaMessageDTO(
-                sykmelding = sykmelding,
-                event = sykmeldingStatusKafkaMessageDTO.event,
-                kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
-            )
+        mockFlexSyketilfelleSykeforloep(kafkaMessage.sykmelding.id)
 
         behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
-            sykmelding.id,
-            sykmeldingKafkaMessage,
-            SYKMELDINGSENDT_TOPIC,
+            sykmeldingId = kafkaMessage.sykmelding.id,
+            sykmeldingKafkaMessage = kafkaMessage,
+            topic = SYKMELDINGSENDT_TOPIC,
         )
     }
 }

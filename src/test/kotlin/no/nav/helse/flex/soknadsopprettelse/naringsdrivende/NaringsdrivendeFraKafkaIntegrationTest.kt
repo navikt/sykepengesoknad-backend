@@ -375,7 +375,8 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
         fun `Oppretter 2 søknader for næringsdrivende hvor gradering endres midt i for sykmeldingen lengre enn 31 dager`() {
             val testdata = opprettTestdata()
             val sykmelding =
-                skapArbeidsgiverSykmelding(sykmeldingId = testdata.sykmeldingId).copy(
+                skapArbeidsgiverSykmelding(
+                    sykmeldingId = testdata.sykmeldingId,
                     sykmeldingsperioder =
                         listOf(
                             SykmeldingsperiodeAGDTO(
