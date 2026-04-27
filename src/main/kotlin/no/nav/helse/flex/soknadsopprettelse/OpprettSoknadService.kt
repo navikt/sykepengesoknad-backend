@@ -138,6 +138,18 @@ class OpprettSoknadService(
             eksisterendeSoknaderForSm.filter { it.status !in listOf(Soknadstatus.KORRIGERT, Soknadstatus.UTKAST_TIL_KORRIGERING) }
 
         if (aktiveEksisterendeSoknaderForSm.isNotEmpty()) {
+            if (sykmeldingErBruktTilArbeidstaker(aktiveEksisterendeSoknaderForSm)) {
+                if (sykmeldingTilSoknadOpprettelse.erPapirsykmelding || sykmeldingTilSoknadOpprettelse.erUtlandskSykmelding) {
+                    log.info(
+                        "Sykmeldingen for arbeidstaker kan korrigeres: erPapirSykmelding ${sykmeldingTilSoknadOpprettelse.erPapirsykmelding}, erUtenlandskSykmelding ${sykmeldingTilSoknadOpprettelse.erUtlandskSykmelding}",
+                    )
+                } else {
+                    log.info(
+                        "Oppretter ikke søknader for sykmelding: ${sykmeldingTilSoknadOpprettelse.sykmeldingId} siden sykmeldingen allerede er brukt til arbeidstaker.",
+                    )
+                    return emptyList()
+                }
+            }
             val sammenliknbartSettAvNyeSoknader = soknaderTilOppretting.map { it.tilSoknadSammenlikner() }.toHashSet()
             val sammenliknbartSettAvEksisterendeSoknaderForSm =
                 aktiveEksisterendeSoknaderForSm.map { it.tilSoknadSammenlikner() }.toHashSet()
@@ -147,18 +159,6 @@ class OpprettSoknadService(
                 )
                 return emptyList()
             } else {
-                if (sykmeldingErBruktTilArbeidstaker(aktiveEksisterendeSoknaderForSm)) {
-                    if (sykmeldingTilSoknadOpprettelse.erPapirsykmelding || sykmeldingTilSoknadOpprettelse.erUtlandskSykmelding) {
-                        log.info(
-                            "Sykmeldingen for arbeidstaker kan korrigeres: erPapirSykmelding ${sykmeldingTilSoknadOpprettelse.erPapirsykmelding}, erUtenlandskSykmelding ${sykmeldingTilSoknadOpprettelse.erUtlandskSykmelding}",
-                        )
-                    } else {
-                        log.warn(
-                            "Oppretter ikke søknader for sykmelding: ${sykmeldingTilSoknadOpprettelse.sykmeldingId} siden sykmeldingen allerede er brukt til arbeidstaker. Oppstår ved kafka lag i topic syfo-bekreftet-sykmelding",
-                        )
-                        return emptyList()
-                    }
-                }
                 slettSoknaderTilKorrigertSykmeldingService.slettSoknader(eksisterendeSoknaderForSm)
             }
         }
