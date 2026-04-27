@@ -1,32 +1,26 @@
 package no.nav.helse.flex.papirsykmelding
 
-import no.nav.helse.flex.FellesTestOppsett
+import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.domain.Arbeidssituasjon
-import no.nav.helse.flex.hentSoknad
-import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
-import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
-import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO.*
-import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
-import no.nav.helse.flex.testdata.skapSykmeldingStatusKafkaMessageDTO
+import no.nav.helse.flex.testdata.gradertSykmeldt
+import no.nav.helse.flex.testdata.heltSykmeldt
+import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
-import no.nav.helse.flex.tilSoknader
-import no.nav.helse.flex.ventPåRecords
-import no.nav.syfo.model.sykmelding.model.GradertDTO
-import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
-import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
-import no.nav.syfo.sykmelding.kafka.model.STATUS_SENDT
+import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessageDTO
-import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.MethodOrderer
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestMethodOrder
+import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.shouldBe
+import org.amshove.kluent.shouldHaveSize
+import org.junit.jupiter.api.*
 import java.time.LocalDate
+import java.util.*
 
+/**
+ * Veiledere endrer på feil i papir og utenlandsk sykmelding
+ */
 @TestMethodOrder(MethodOrderer.MethodName::class)
 class AutomatiskPapirsykmeldingOpprydningTest : FellesTestOppsett() {
     @BeforeEach
@@ -40,46 +34,38 @@ class AutomatiskPapirsykmeldingOpprydningTest : FellesTestOppsett() {
         juridiskVurderingKafkaConsumer.ventPåRecords(3)
     }
 
-    companion object {
-        private val fnr = "12345678900"
-        val sykmeldingStatusKafkaMessageDTO =
-            skapSykmeldingStatusKafkaMessageDTO(
-                fnr = fnr,
-                arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                statusEvent = STATUS_SENDT,
-                arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = "123454543", orgNavn = "Gatekjøkkenet"),
-            )
-        val sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId
-        val sykmelding =
-            skapArbeidsgiverSykmelding(
-                sykmeldingId = sykmeldingId,
-                fom = LocalDate.of(2020, 1, 1),
-                tom = LocalDate.of(2020, 3, 15),
-            )
-    }
+    private val fnr = "12345678900"
+
+    private val sykmeldingId = UUID.randomUUID().toString()
+    private val papirsykmeldingKafkaMessage =
+        sykmeldingKafkaMessage(
+            erPapirsykmelding = true,
+            fnr = fnr,
+            arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
+            sykmeldingId = sykmeldingId,
+            sykmeldingsperioder =
+                heltSykmeldt(
+                    fom = LocalDate.of(2020, 1, 1),
+                    tom = LocalDate.of(2020, 3, 15),
+                ),
+        )
 
     @Test
-    fun `1 - arbeidstakersøknader opprettes for en lang sykmelding`() {
-        mockFlexSyketilfelleSykeforloep(sykmelding.id)
+    fun `1 - Søknader til arbeidstaker opprettes for en lang papirsykmelding`() {
+        mockFlexSyketilfelleSykeforloep(papirsykmeldingKafkaMessage.sykmelding.id)
 
-        val sykmeldingKafkaMessage =
-            SykmeldingKafkaMessageDTO(
-                sykmelding = sykmelding,
-                event = sykmeldingStatusKafkaMessageDTO.event,
-                kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
-            )
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
+            sykmeldingId = sykmeldingId,
+            sykmeldingKafkaMessage = papirsykmeldingKafkaMessage,
+            topic = SYKMELDINGSENDT_TOPIC,
+        )
 
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 3).tilSoknader().let { sykepengesoknadDTOS ->
+            sykepengesoknadDTOS.size `should be equal to` 3
+            sykepengesoknadDTOS.all { it.status == NY } shouldBe true
+        }
 
-        val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 3).tilSoknader()
-
-        assertThat(soknader).hasSize(3)
-        assertThat(soknader[0].status).isEqualTo(NY)
-        assertThat(soknader[1].status).isEqualTo(NY)
-        assertThat(soknader[2].status).isEqualTo(NY)
-
-        val hentetViaRest = hentSoknaderMetadata(fnr)
-        assertThat(hentetViaRest).hasSize(3)
+        hentSoknaderMetadata(fnr).size `should be equal to` 3
     }
 
     @Test
@@ -92,154 +78,124 @@ class AutomatiskPapirsykmeldingOpprydningTest : FellesTestOppsett() {
                 fnr = fnr,
             )
 
-        val sendtSoknad =
-            SoknadBesvarer(rSSykepengesoknad = førsteSøknad, testOppsettInterfaces = this, fnr = fnr)
-                .besvarSporsmal(tag = "ANSVARSERKLARING", svar = "CHECKED")
-                .besvarSporsmal(tag = "TILBAKE_I_ARBEID", svar = "NEI")
-                .besvarSporsmal(tag = "FERIE_V2", svar = "NEI")
-                .besvarSporsmal(tag = "PERMISJON_V2", svar = "NEI")
-                .besvarSporsmal(tag = "OPPHOLD_UTENFOR_EOS", svar = "NEI")
-                .besvarSporsmal(tag = "ARBEID_UNDERVEIS_100_PROSENT_0", svar = "NEI")
-                .besvarSporsmal(tag = "ANDRE_INNTEKTSKILDER_V2", svar = "NEI")
-                .oppsummering()
-                .sendSoknad()
-        assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
-        val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
+        SoknadBesvarer(rSSykepengesoknad = førsteSøknad, testOppsettInterfaces = this, fnr = fnr)
+            .standardSvar()
+            .sendSoknad()
+            .let {
+                it.status `should be equal to` RSSoknadstatus.SENDT
+            }
 
-        assertThat(soknader).hasSize(1)
-        assertThat(soknader[0].status).isEqualTo(SENDT)
+        sykepengesoknadKafkaConsumer
+            .ventPåRecords(antall = 1)
+            .tilSoknader()
+            .shouldHaveSize(1)
+            .single()
+            .status
+            .`should be equal to`(SENDT)
     }
 
     @Test
     fun `3 - vi mottar identisk sykmelding igjen, ingenting endres`() {
-        mockFlexSyketilfelleSykeforloep(sykmelding.id)
+        mockFlexSyketilfelleSykeforloep(papirsykmeldingKafkaMessage.sykmelding.id)
 
-        val sykmeldingKafkaMessage =
-            SykmeldingKafkaMessageDTO(
-                sykmelding = sykmelding,
-                event = sykmeldingStatusKafkaMessageDTO.event,
-                kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
-            )
-
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
-
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, papirsykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 0)
 
-        val hentetViaRest = hentSoknaderMetadata(fnr)
-        assertThat(hentetViaRest).hasSize(3)
-        assertThat(hentetViaRest[0].status).isEqualTo(RSSoknadstatus.SENDT)
-        assertThat(hentetViaRest[1].status).isEqualTo(RSSoknadstatus.NY)
-        assertThat(hentetViaRest[2].status).isEqualTo(RSSoknadstatus.NY)
+        hentSoknaderMetadata(fnr).let {
+            it.size `should be equal to` 3
+            it.first().status `should be equal to` RSSoknadstatus.SENDT
+            it.takeLast(2).all { soknad -> soknad.status == RSSoknadstatus.NY } shouldBe true
+        }
     }
 
     @Test
-    fun `4 - vi mottar en korrigert sykmelding med litt lengre periode, sendt blir korreigert og søknadene opprettes på nytt`() {
-        mockFlexSyketilfelleSykeforloep(sykmelding.id)
-
-        val sykmelding =
-            skapArbeidsgiverSykmelding(
-                sykmeldingId = sykmeldingId,
-                fom = LocalDate.of(2020, 1, 1),
-                tom = LocalDate.of(2020, 4, 15),
+    fun `4 - vi mottar en korrigert sykmelding med lengre periode, sendt blir korrigert og søknadene opprettes på nytt`() {
+        val nyKafkaMessage =
+            papirsykmeldingKafkaMessage.endrePeriode(
+                periode =
+                    heltSykmeldt(
+                        fom = LocalDate.of(2020, 1, 1),
+                        tom = LocalDate.of(2020, 4, 5),
+                    ),
             )
 
-        val sykmeldingKafkaMessage =
-            SykmeldingKafkaMessageDTO(
-                sykmelding = sykmelding,
-                event = sykmeldingStatusKafkaMessageDTO.event,
-                kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
-            )
+        mockFlexSyketilfelleSykeforloep(papirsykmeldingKafkaMessage.sykmelding.id)
 
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
+            sykmeldingId = sykmeldingId,
+            sykmeldingKafkaMessage = nyKafkaMessage,
+            topic = SYKMELDINGSENDT_TOPIC,
+        )
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 6).tilSoknader().let {
+            it.take(2).all { soknad -> soknad.status == SLETTET } shouldBe true
+            it.takeLast(4).all { soknad -> soknad.status == NY } shouldBe true
+        }
 
-        val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 6).tilSoknader()
-
-        assertThat(soknader[0].status).isEqualTo(SLETTET)
-        assertThat(soknader[1].status).isEqualTo(SLETTET)
-        assertThat(soknader[2].status).isEqualTo(NY)
-        assertThat(soknader[3].status).isEqualTo(NY)
-        assertThat(soknader[4].status).isEqualTo(NY)
-        assertThat(soknader[5].status).isEqualTo(NY)
-
-        val hentetViaRest = hentSoknaderMetadata(fnr)
-        assertThat(hentetViaRest).hasSize(5)
-        assertThat(hentetViaRest[0].status).isEqualTo(RSSoknadstatus.KORRIGERT)
-        assertThat(hentetViaRest[1].status).isEqualTo(RSSoknadstatus.NY)
-        assertThat(hentetViaRest[2].status).isEqualTo(RSSoknadstatus.NY)
-        assertThat(hentetViaRest[3].status).isEqualTo(RSSoknadstatus.NY)
-        assertThat(hentetViaRest[4].status).isEqualTo(RSSoknadstatus.NY)
+        hentSoknaderMetadata(fnr).let {
+            it.first().status `should be equal to` RSSoknadstatus.KORRIGERT
+            it.takeLast(4).all { soknad -> soknad.status == RSSoknadstatus.NY } shouldBe true
+        }
     }
 
     @Test
     fun `5 - vi mottar den korrigerte sykmeldingen igjen, ingenting endres`() {
-        mockFlexSyketilfelleSykeforloep(sykmelding.id)
+        mockFlexSyketilfelleSykeforloep(papirsykmeldingKafkaMessage.sykmelding.id)
 
-        val sykmelding =
-            skapArbeidsgiverSykmelding(
-                sykmeldingId = sykmeldingId,
-                fom = LocalDate.of(2020, 1, 1),
-                tom = LocalDate.of(2020, 4, 15),
+        val nyKafkaMessage =
+            papirsykmeldingKafkaMessage.endrePeriode(
+                periode =
+                    heltSykmeldt(
+                        fom = LocalDate.of(2020, 1, 1),
+                        tom = LocalDate.of(2020, 4, 5),
+                    ),
             )
 
-        val sykmeldingKafkaMessage =
-            SykmeldingKafkaMessageDTO(
-                sykmelding = sykmelding,
-                event = sykmeldingStatusKafkaMessageDTO.event,
-                kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
-            )
-
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
+            sykmeldingId = sykmeldingId,
+            sykmeldingKafkaMessage = nyKafkaMessage,
+            topic = SYKMELDINGSENDT_TOPIC,
+        )
 
         sykepengesoknadKafkaConsumer.ventPåRecords(antall = 0)
 
-        val hentetViaRest = hentSoknaderMetadata(fnr)
-        assertThat(hentetViaRest).hasSize(5)
-        assertThat(hentetViaRest[0].status).isEqualTo(RSSoknadstatus.KORRIGERT)
-        assertThat(hentetViaRest[1].status).isEqualTo(RSSoknadstatus.NY)
-        assertThat(hentetViaRest[2].status).isEqualTo(RSSoknadstatus.NY)
-        assertThat(hentetViaRest[3].status).isEqualTo(RSSoknadstatus.NY)
-        assertThat(hentetViaRest[4].status).isEqualTo(RSSoknadstatus.NY)
+        hentSoknaderMetadata(fnr).let {
+            it.size `should be equal to` 5
+            it.first().status `should be equal to` RSSoknadstatus.KORRIGERT
+            it.takeLast(4).all { soknad -> soknad.status == RSSoknadstatus.NY } shouldBe true
+        }
     }
 
     @Test
     fun `6 - sykmeldingen korrigeres igjen, men må med annen sykmeldingsgrad`() {
-        mockFlexSyketilfelleSykeforloep(sykmelding.id)
-
-        val sykmelding =
-            skapArbeidsgiverSykmelding(
-                sykmeldingId = sykmeldingId,
-                fom = LocalDate.of(2020, 1, 1),
-                tom = LocalDate.of(2020, 4, 15),
-                type = PeriodetypeDTO.GRADERT,
-                gradert = GradertDTO(grad = 33, reisetilskudd = false),
+        mockFlexSyketilfelleSykeforloep(papirsykmeldingKafkaMessage.sykmelding.id)
+        val nyKafkaMessage =
+            papirsykmeldingKafkaMessage.endrePeriode(
+                periode =
+                    gradertSykmeldt(
+                        fom = LocalDate.of(2020, 1, 1),
+                        tom = LocalDate.of(2020, 4, 5),
+                    ),
             )
 
-        val sykmeldingKafkaMessage =
-            SykmeldingKafkaMessageDTO(
-                sykmelding = sykmelding,
-                event = sykmeldingStatusKafkaMessageDTO.event,
-                kafkaMetadata = sykmeldingStatusKafkaMessageDTO.kafkaMetadata,
-            )
+        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
+            sykmeldingId = sykmeldingId,
+            sykmeldingKafkaMessage = nyKafkaMessage,
+            topic = SYKMELDINGSENDT_TOPIC,
+        )
 
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(sykmeldingId, sykmeldingKafkaMessage, SYKMELDINGSENDT_TOPIC)
+        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 8).tilSoknader().let {
+            it.size `should be equal to` 8
+            it.take(4).all { soknad -> soknad.status == SLETTET } shouldBe true
+            it.takeLast(4).all { soknad -> soknad.status == NY } shouldBe true
+        }
 
-        val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 8).tilSoknader()
-
-        assertThat(soknader[0].status).isEqualTo(SLETTET)
-        assertThat(soknader[1].status).isEqualTo(SLETTET)
-        assertThat(soknader[2].status).isEqualTo(SLETTET)
-        assertThat(soknader[3].status).isEqualTo(SLETTET)
-        assertThat(soknader[4].status).isEqualTo(NY)
-        assertThat(soknader[5].status).isEqualTo(NY)
-        assertThat(soknader[6].status).isEqualTo(NY)
-        assertThat(soknader[7].status).isEqualTo(NY)
-
-        val hentetViaRest = hentSoknaderMetadata(fnr)
-        assertThat(hentetViaRest).hasSize(5)
-        assertThat(hentetViaRest[0].status).isEqualTo(RSSoknadstatus.KORRIGERT)
-        assertThat(hentetViaRest[1].status).isEqualTo(RSSoknadstatus.NY)
-        assertThat(hentetViaRest[2].status).isEqualTo(RSSoknadstatus.NY)
-        assertThat(hentetViaRest[3].status).isEqualTo(RSSoknadstatus.NY)
-        assertThat(hentetViaRest[4].status).isEqualTo(RSSoknadstatus.NY)
+        hentSoknaderMetadata(fnr).let {
+            it.size `should be equal to` 5
+            it.first().status `should be equal to` RSSoknadstatus.KORRIGERT
+            it.takeLast(4).all { soknad -> soknad.status == RSSoknadstatus.NY } shouldBe true
+        }
     }
+
+    private fun SykmeldingKafkaMessageDTO.endrePeriode(periode: List<SykmeldingsperiodeAGDTO>) =
+        this.copy(sykmelding = this.sykmelding.copy(sykmeldingsperioder = periode))
 }

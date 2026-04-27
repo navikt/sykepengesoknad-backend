@@ -115,7 +115,6 @@ class RebehandlingKafkaIntegrationTest : FellesTestOppsett() {
             ),
     ) = skapArbeidsgiverSykmelding(
         sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId,
-    ).copy(
         sykmeldingsperioder = sykmeldingsperioder,
         syketilfelleStartDato = syketilfelleStartDato,
     )
