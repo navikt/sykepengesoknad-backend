@@ -28,6 +28,7 @@ data class SykmeldingTilSoknadOpprettelse(
     val arbeidsgiverOrgnummer: String?,
     val arbeidsgiverNavn: String?,
     val tidligereArbeidsgiverOrgnummer: String?,
+    val erPapirsykmelding: Boolean,
 )
 
 data class Sykmeldingsperiode(
@@ -87,4 +88,5 @@ fun SykmeldingKafkaMessageDTO.tilSykmeldingTilSoknadOpprettelse() =
                 ?.orgNavn
                 ?.prettyOrgnavn(),
         tidligereArbeidsgiverOrgnummer = this.event.tidligereArbeidsgiver?.orgnummer,
+        erPapirsykmelding = this.sykmelding.papirsykmelding,
     )
