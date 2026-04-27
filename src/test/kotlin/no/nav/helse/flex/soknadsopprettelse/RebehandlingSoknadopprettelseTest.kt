@@ -128,6 +128,7 @@ class RebehandlingSoknadopprettelseTest : FellesTestOppsett() {
         val sykmelding =
             skapArbeidsgiverSykmelding(
                 sykmeldingId = sykmeldingStatusKafkaMessageDTO.event.sykmeldingId,
+            ).copy(
                 sykmeldingsperioder =
                     listOf(
                         SykmeldingsperiodeAGDTO(

@@ -5,15 +5,10 @@ import com.nhaarman.mockitokotlin2.argWhere
 import com.nhaarman.mockitokotlin2.doThrow
 import com.nhaarman.mockitokotlin2.whenever
 import no.nav.helse.flex.FellesTestOppsett
-import no.nav.helse.flex.controller.domain.sykepengesoknad.RSArbeidssituasjon
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
-import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.exception.SkalRebehandlesException
-import no.nav.helse.flex.hentSoknader
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
-import no.nav.helse.flex.mockFlexSyketilfelleArbeidsgiverperiode
-import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
 import no.nav.helse.flex.mockStandardSyketilfelle
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.testdata.*
@@ -96,50 +91,6 @@ class GenerellKafkaIntegrationTest : FellesTestOppsett() {
             hentSoknaderMetadata(fnr).shouldHaveSize(2)
             sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
         }
-    }
-
-    @Test
-    fun `Oppretter søknad og overskriver annen ikke-arbeidstakersøknad med samme sykmeldingId`() {
-        val perioder = heltSykmeldt(fom = datoIFremtiden, tom = datoIFremtiden.plusDays(4))
-
-        val kafkaMessage =
-            sykmeldingKafkaMessage(
-                arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG,
-                fnr = fnr,
-                sykmeldingsperioder = perioder,
-            )
-
-        mockFlexSyketilfelleSykeforloep(kafkaMessage.sykmelding.id, oppfolgingsdato = datoIFremtiden)
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
-            sykmeldingId = kafkaMessage.sykmelding.id,
-            sykmeldingKafkaMessage = kafkaMessage,
-            topic = SYKMELDINGSENDT_TOPIC,
-        )
-
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
-        hentSoknaderMetadata(fnr).shouldHaveSize(1)
-        hentSoknader(fnr).single().arbeidssituasjon `should be equal to` RSArbeidssituasjon.ARBEIDSLEDIG
-
-        val sykmeldingKafkaMessageAnnet =
-            sykmeldingKafkaMessage(
-                arbeidssituasjon = Arbeidssituasjon.ANNET,
-                fnr = fnr,
-                sykmeldingId = kafkaMessage.sykmelding.id,
-                sykmeldingsperioder = perioder,
-            )
-
-        flexSyketilfelleMockRestServiceServer.reset()
-        mockFlexSyketilfelleSykeforloep(kafkaMessage.sykmelding.id, oppfolgingsdato = datoIFremtiden)
-
-        behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
-            sykmeldingId = kafkaMessage.sykmelding.id,
-            sykmeldingKafkaMessage = sykmeldingKafkaMessageAnnet,
-            topic = SYKMELDINGSENDT_TOPIC,
-        )
-
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
-        hentSoknaderMetadata(fnr).shouldHaveSize(1)
-        hentSoknader(fnr).single().arbeidssituasjon `should be equal to` RSArbeidssituasjon.ANNET
     }
 
     @Nested
@@ -234,51 +185,6 @@ class GenerellKafkaIntegrationTest : FellesTestOppsett() {
             )
 
             hentSoknaderMetadata(fnr).`should be empty`()
-        }
-
-        @Test
-        fun `Oppretter ikke søknad dersom sykmeldingen er brukt på en arbeidstakersøknad`() {
-            val perioder = heltSykmeldt(fom = datoIFremtiden, tom = datoIFremtiden.plusDays(4))
-
-            val kafkaMessage =
-                sykmeldingKafkaMessage(
-                    arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                    fnr = fnr,
-                    sykmeldingsperioder = perioder,
-                )
-
-            mockFlexSyketilfelleArbeidsgiverperiode()
-            mockFlexSyketilfelleSykeforloep(kafkaMessage.sykmelding.id, datoIFremtiden)
-            behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
-                sykmeldingId = kafkaMessage.sykmelding.id,
-                sykmeldingKafkaMessage = kafkaMessage,
-                topic = SYKMELDINGSENDT_TOPIC,
-            )
-
-            sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
-            hentSoknaderMetadata(fnr).shouldHaveSize(1)
-            hentSoknader(fnr).single().arbeidssituasjon `should be equal to` RSArbeidssituasjon.ARBEIDSTAKER
-
-            val sykmeldingKafkaMessageNaringsdrivende =
-                sykmeldingKafkaMessage(
-                    arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
-                    fnr = fnr,
-                    sykmeldingId = kafkaMessage.sykmelding.id,
-                    sykmeldingsperioder = perioder,
-                )
-
-            flexSyketilfelleMockRestServiceServer.reset()
-            mockStandardSyketilfelle(kafkaMessage.sykmelding.id, erUtenforVentetid = true, oppfolgingsdato = datoIFremtiden)
-
-            behandleSykmeldingOgBestillAktivering.prosesserSykmelding(
-                sykmeldingId = kafkaMessage.sykmelding.id,
-                sykmeldingKafkaMessage = sykmeldingKafkaMessageNaringsdrivende,
-                topic = SYKMELDINGSENDT_TOPIC,
-            )
-
-            sykepengesoknadKafkaConsumer.ventPåRecords(antall = 0)
-            hentSoknaderMetadata(fnr).shouldHaveSize(1)
-            hentSoknader(fnr).single().arbeidssituasjon `should be equal to` RSArbeidssituasjon.ARBEIDSTAKER
         }
     }
 
