@@ -79,55 +79,6 @@ fun skapArbeidsgiverSykmelding(
         utenlandskSykmelding = null,
     )
 
-fun skapArbeidsgiverSykmelding(
-    sykmeldingId: String = UUID.randomUUID().toString(),
-    sykmeldingsperioder: List<SykmeldingsperiodeAGDTO>? =
-        lagSykmeldingsPerioder(
-            fom = LocalDate.of(2020, 2, 1),
-            tom = LocalDate.of(2020, 2, 15),
-        ),
-    merknader: List<Merknad>? = null,
-    utenlandskSykemelding: UtenlandskSykmeldingAGDTO? = null,
-    sykmeldingSkrevet: OffsetDateTime = OffsetDateTime.now(ZoneOffset.UTC),
-    signaturDato: OffsetDateTime = sykmeldingSkrevet,
-    syketilfelleStartDato: LocalDate? = null,
-    erPapirsykmelding: Boolean? = false,
-): ArbeidsgiverSykmeldingDTO =
-    ArbeidsgiverSykmeldingDTO(
-        id = sykmeldingId,
-        sykmeldingsperioder = sykmeldingsperioder ?: emptyList(),
-        behandletTidspunkt = sykmeldingSkrevet,
-        signaturDato = signaturDato,
-        mottattTidspunkt = OffsetDateTime.now(ZoneOffset.UTC),
-        arbeidsgiver = ArbeidsgiverAGDTO(null, null),
-        syketilfelleStartDato = syketilfelleStartDato,
-        egenmeldt = false,
-        harRedusertArbeidsgiverperiode = false,
-        behandler =
-            BehandlerAGDTO(
-                fornavn = "Lege",
-                mellomnavn = null,
-                etternavn = "Legesen",
-                hpr = null,
-                adresse =
-                    AdresseDTO(
-                        gate = null,
-                        postnummer = null,
-                        kommune = null,
-                        postboks = null,
-                        land = null,
-                    ),
-                tlf = null,
-            ),
-        kontaktMedPasient = KontaktMedPasientAGDTO(null),
-        meldingTilArbeidsgiver = null,
-        tiltakArbeidsplassen = null,
-        prognose = null,
-        papirsykmelding = erPapirsykmelding ?: false,
-        merknader = merknader,
-        utenlandskSykmelding = utenlandskSykemelding,
-    )
-
 fun skapArbeidsgiverSykmeldingTilSoknadOpprettelse(
     sykmeldingId: String = UUID.randomUUID().toString(),
     fom: LocalDate = LocalDate.of(2020, 2, 1),
@@ -162,7 +113,6 @@ fun skapArbeidsgiverSykmeldingTilSoknadOpprettelse(
         arbeidsgiverOrgnummer = null,
         arbeidsgiverNavn = null,
         tidligereArbeidsgiverOrgnummer = null,
-        erPapirsykmelding = false,
     )
 
 fun skapSykmeldingStatusKafkaMessageDTO(
@@ -251,6 +201,54 @@ fun lagFiskerInnsendtSkjemaSvar(arbeidssituasjon: Arbeidssituasjon): KomplettInn
 
     return lagKomplettInnsendtSkjemaSvar(arbeidssituasjon, fiskerSvar)
 }
+
+fun skapArbeidsgiverSykmelding(
+    sykmeldingId: String = UUID.randomUUID().toString(),
+    sykmeldingsperioder: List<SykmeldingsperiodeAGDTO>? =
+        lagSykmeldingsPerioder(
+            fom = LocalDate.of(2020, 2, 1),
+            tom = LocalDate.of(2020, 2, 15),
+        ),
+    merknader: List<Merknad>? = null,
+    utenlandskSykemelding: UtenlandskSykmeldingAGDTO? = null,
+    sykmeldingSkrevet: OffsetDateTime = OffsetDateTime.now(ZoneOffset.UTC),
+    signaturDato: OffsetDateTime = sykmeldingSkrevet,
+    syketilfelleStartDato: LocalDate? = null,
+): ArbeidsgiverSykmeldingDTO =
+    ArbeidsgiverSykmeldingDTO(
+        id = sykmeldingId,
+        sykmeldingsperioder = sykmeldingsperioder ?: emptyList(),
+        behandletTidspunkt = sykmeldingSkrevet,
+        signaturDato = signaturDato,
+        mottattTidspunkt = OffsetDateTime.now(ZoneOffset.UTC),
+        arbeidsgiver = ArbeidsgiverAGDTO(null, null),
+        syketilfelleStartDato = syketilfelleStartDato,
+        egenmeldt = false,
+        harRedusertArbeidsgiverperiode = false,
+        behandler =
+            BehandlerAGDTO(
+                fornavn = "Lege",
+                mellomnavn = null,
+                etternavn = "Legesen",
+                hpr = null,
+                adresse =
+                    AdresseDTO(
+                        gate = null,
+                        postnummer = null,
+                        kommune = null,
+                        postboks = null,
+                        land = null,
+                    ),
+                tlf = null,
+            ),
+        kontaktMedPasient = KontaktMedPasientAGDTO(null),
+        meldingTilArbeidsgiver = null,
+        tiltakArbeidsplassen = null,
+        prognose = null,
+        papirsykmelding = false,
+        merknader = merknader,
+        utenlandskSykmelding = utenlandskSykemelding,
+    )
 
 fun lagSykmeldingsPerioder(
     fom: LocalDate,
@@ -389,7 +387,6 @@ fun sykmeldingKafkaMessage(
     utenlandskSykemelding: UtenlandskSykmeldingAGDTO? = null,
     sykmeldingSkrevet: OffsetDateTime = timestamp,
     signaturDato: OffsetDateTime = timestamp,
-    erPapirsykmelding: Boolean = false,
     tidligereArbeidsgiverOrgnummer: String? = null,
     status: String? = null,
     syketilfelleStartDato: LocalDate? = null,
@@ -428,7 +425,6 @@ fun sykmeldingKafkaMessage(
             sykmeldingSkrevet = sykmeldingSkrevet,
             signaturDato = signaturDato,
             syketilfelleStartDato = syketilfelleStartDato,
-            erPapirsykmelding = erPapirsykmelding,
         )
 
     return SykmeldingKafkaMessageDTO(
