@@ -390,7 +390,7 @@ fun sykmeldingKafkaMessage(
     merknader: List<Merknad>? = null,
     utenlandskSykemelding: UtenlandskSykmeldingAGDTO? = null,
     sykmeldingSkrevet: OffsetDateTime = timestamp,
-    signaturDato: OffsetDateTime = timestamp,
+    signaturDato: OffsetDateTime = sykmeldingSkrevet,
     erPapirsykmelding: Boolean = false,
     tidligereArbeidsgiverOrgnummer: String? = null,
     status: String? = null,

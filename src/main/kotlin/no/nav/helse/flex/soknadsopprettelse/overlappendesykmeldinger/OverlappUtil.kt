@@ -5,7 +5,6 @@ import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.service.FolkeregisterIdenter
-import no.nav.syfo.model.sykmelding.arbeidsgiver.ArbeidsgiverSykmeldingDTO
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessageDTO
 import java.time.LocalDate
@@ -23,8 +22,10 @@ internal fun SykepengesoknadDAO.soknadKandidaterSomKanKlippes(
     sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
     identer: FolkeregisterIdenter,
 ) = alleSomOverlapper(orgnummer, sykmeldingKafkaMessage, identer).filter {
-    it.sykmeldingSkrevet!!.isBefore(sykmeldingKafkaMessage.sykmelding.behandletTidspunkt.toInstant()) ||
-        it.signaturDatoIsBefore(sykmeldingKafkaMessage.sykmelding)
+    val eksisterendeDato = it.sykmeldingSignaturDato ?: it.sykmeldingSkrevet!!
+    val inkommendeDato = sykmeldingKafkaMessage.sykmelding.signaturDato?.toInstant()
+        ?: sykmeldingKafkaMessage.sykmelding.behandletTidspunkt.toInstant()
+    eksisterendeDato.isBefore(inkommendeDato)
 }
 
 internal fun SykepengesoknadDAO.soknadKandidaterSomKanKlippeSykmeldingen(
@@ -32,8 +33,10 @@ internal fun SykepengesoknadDAO.soknadKandidaterSomKanKlippeSykmeldingen(
     sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
     identer: FolkeregisterIdenter,
 ) = alleSomOverlapper(orgnummer, sykmeldingKafkaMessage, identer).filter {
-    it.sykmeldingSkrevet!!.isAfter(sykmeldingKafkaMessage.sykmelding.behandletTidspunkt.toInstant()) ||
-        it.signaturDatoIsAfter(sykmeldingKafkaMessage.sykmelding)
+    val eksisterendeDato = it.sykmeldingSignaturDato ?: it.sykmeldingSkrevet!!
+    val inkommendeDato = sykmeldingKafkaMessage.sykmelding.signaturDato?.toInstant()
+        ?: sykmeldingKafkaMessage.sykmelding.behandletTidspunkt.toInstant()
+    eksisterendeDato.isAfter(inkommendeDato)
 }
 
 private fun SykepengesoknadDAO.alleSomOverlapper(
@@ -54,22 +57,6 @@ private fun SykepengesoknadDAO.alleSomOverlapper(
             sykmeldingPeriode.overlap(soknadPeriode)
         }.toList()
 }
-
-private fun Sykepengesoknad.signaturDatoIsBefore(sykmelding: ArbeidsgiverSykmeldingDTO): Boolean =
-    when {
-        this.sykmeldingSkrevet != sykmelding.behandletTidspunkt.toInstant() -> false
-        this.sykmeldingSignaturDato == null || sykmelding.signaturDato == null -> false
-        this.sykmeldingSignaturDato.isBefore(sykmelding.signaturDato.toInstant()) -> true
-        else -> false
-    }
-
-private fun Sykepengesoknad.signaturDatoIsAfter(sykmelding: ArbeidsgiverSykmeldingDTO): Boolean =
-    when {
-        this.sykmeldingSkrevet != sykmelding.behandletTidspunkt.toInstant() -> false
-        this.sykmeldingSignaturDato == null || sykmelding.signaturDato == null -> false
-        this.sykmeldingSignaturDato.isAfter(sykmelding.signaturDato.toInstant()) -> true
-        else -> false
-    }
 
 internal fun finnEndringIUforegrad(
     tidligerePerioder: List<Soknadsperiode>?,

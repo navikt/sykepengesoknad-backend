@@ -230,35 +230,35 @@ class OverlapperInni : FellesTestOppsett() {
                 it[0].tom shouldBeEqualTo tom
             }.first()
 
-        // sykmelding-2 er en AKTIVITET_IKKE_MULIG sykmelding med behandletTidspunkt 09:31 (samme dag, men tidligere).
-        // Selv om denne ble mottatt og sendt to dager senere (mottattTidspunkt 2026-01-07),
-        // regner systemet den som "eldre" fordi behandletTidspunkt < sykmelding-1 sitt behandletTidspunkt.
-        // Resultatet er at sykmelding-2 klippes bort og det opprettes ingen ny søknad – dette er feilen.
-        sendSykmelding(
-            sykmeldingKafkaMessage(
-                fnr = fnr,
-                sykmeldingId = "sykmelding-2",
-                sykmeldingsperioder = heltSykmeldt(fom = fom, tom = tom),
-                sykmeldingSkrevet = OffsetDateTime.parse("2026-01-05T09:31:24.445Z"),
-                signaturDato = OffsetDateTime.parse("2026-01-07T08:32:18.152Z"),
-                timestamp = OffsetDateTime.parse("2026-01-07T08:57:24.341Z"),
-                syketilfelleStartDato = syketilfelleStartDato,
-                arbeidsgiver = arbeidsgiver,
-                mottattTidspunkt = OffsetDateTime.parse("2026-01-07T08:42:08Z"),
-                kontaktDato = LocalDate.of(2026, 1, 5),
-            ),
-            forventaSoknader = 0,
-        )
+        // sykmelding-2: AKTIVITET_IKKE_MULIG, behandletTidspunkt 05.01 kl. 09:31, signaturDato 07.01 kl. 08:32.
+        // signaturDato er etter sykmelding-1 sin (05.01 14:56), så sykmelding-2 regnes som nyere
+        // og erstatter søknaden fra sykmelding-1.
+        val meldingerFraAndreSykmelding =
+            sendSykmelding(
+                sykmeldingKafkaMessage(
+                    fnr = fnr,
+                    sykmeldingId = "sykmelding-2",
+                    sykmeldingsperioder = heltSykmeldt(fom = fom, tom = tom),
+                    sykmeldingSkrevet = OffsetDateTime.parse("2026-01-05T09:31:24.445Z"),
+                    signaturDato = OffsetDateTime.parse("2026-01-07T08:32:18.152Z"),
+                    timestamp = OffsetDateTime.parse("2026-01-07T08:57:24.341Z"),
+                    syketilfelleStartDato = syketilfelleStartDato,
+                    arbeidsgiver = arbeidsgiver,
+                    mottattTidspunkt = OffsetDateTime.parse("2026-01-07T08:42:08Z"),
+                    kontaktDato = LocalDate.of(2026, 1, 5),
+                ),
+                forventaSoknader = 2,
+            )
 
-        val klippmetrikker = klippMetrikkRepository.findAll().toList()
-        klippmetrikker shouldHaveSize 1
-        klippmetrikker[0].soknadstatus shouldBeEqualTo "NY"
-        klippmetrikker[0].variant shouldBeEqualTo "SYKMELDING_STARTER_FOR_SLUTTER_ETTER"
-        klippmetrikker[0].klippet shouldBeEqualTo true
+        val slettetSoknad = meldingerFraAndreSykmelding.first { it.status == SoknadsstatusDTO.SLETTET }
+        slettetSoknad.id shouldBeEqualTo soknadFraForsteSykmelding.id
 
-        // Feilen: søknaden fra tilfeldig-id (GRADERT 50%) er fortsatt den eneste, tilfeldig-id-2 fikk ingen søknad
+        val nySoknad = meldingerFraAndreSykmelding.first { it.status == SoknadsstatusDTO.NY }
+        nySoknad.fom shouldBeEqualTo fom
+        nySoknad.tom shouldBeEqualTo tom
+
         val soknaderViaRest = hentSoknaderMetadata(fnr)
         soknaderViaRest shouldHaveSize 1
-        soknaderViaRest[0].id shouldBeEqualTo soknadFraForsteSykmelding.id
+        soknaderViaRest[0].id shouldBeEqualTo nySoknad.id
     }
 }
