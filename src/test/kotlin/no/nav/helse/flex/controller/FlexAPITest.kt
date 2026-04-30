@@ -85,6 +85,7 @@ class FlexAPITest : FellesTestOppsett() {
 
         val fraRest: FlexInternalResponse = objectMapper.readValue(result.response.contentAsString)
         fraRest.sykepengesoknadListe.shouldHaveSize(1)
+        soknader.shouldHaveSize(1)
 
         verifiserAuditLog(
             fnr = fnr,

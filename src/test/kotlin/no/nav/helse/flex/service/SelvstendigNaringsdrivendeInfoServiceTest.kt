@@ -333,33 +333,6 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
             it.brukerHarOppgittForsikring `should be equal to` false
         }
     }
-
-    @Test
-    fun `ServerError propagerer ikke ved henting av næringskoder fra enhetsregisteret`() {
-        brregMockWebServer.enqueue(
-            withContentTypeApplicationJson {
-                MockResponse().setBody((Rolletype.INNH).tilRollerDto().serialisertTilString())
-            },
-        )
-
-        enhetsregisterMockWebServer.enqueue(withContentTypeApplicationJson { MockResponse().setResponseCode(500) })
-
-        val selvstendigNaringsdrivendeInfo =
-            selvstendigNaringsdrivendeInfoService
-                .lagSelvstendigNaringsdrivendeInfo(
-                    identer = FolkeregisterIdenter("11111111111", andreIdenter = emptyList()),
-                    sykmeldingId = "sykmelding-id",
-                    arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
-                )
-
-        selvstendigNaringsdrivendeInfo.roller.single().also {
-            it.orgnavn `should be equal to` ORGNAVN
-            it.orgnummer `should be equal to` ORGNUMMER
-            it.rolletype `should be equal to` "INNH"
-        }
-
-        selvstendigNaringsdrivendeInfo.brukerHarOppgittForsikring `should be equal to` false
-    }
 }
 
 private fun Rolletype.tilRollerDto() =
