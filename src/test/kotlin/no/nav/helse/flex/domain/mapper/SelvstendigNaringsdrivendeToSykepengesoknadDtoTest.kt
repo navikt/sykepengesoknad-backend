@@ -29,10 +29,7 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
 
     @Test
     fun `Inneholder roller selv om inntektsinformasjon mangler`() {
-        val (soknad, fom, tom) =
-            opprettNyNaeringsdrivendeSoknadGradert().run {
-                Triple(this, requireNotNull(fom), requireNotNull(tom))
-            }
+        val soknad = opprettNyNaeringsdrivendeSoknadGradert()
 
         val soknadDTO =
             konverterTilSykepengesoknadDTO(
@@ -70,10 +67,7 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
 
     @Test
     fun `Inneholder summert inntektsinformasjon i selvstendigNaringsdrivende`() {
-        val (soknad, fom, tom) =
-            opprettNyNaeringsdrivendeSoknadGradert().run {
-                Triple(this, requireNotNull(fom), requireNotNull(tom))
-            }
+        val soknad = opprettNyNaeringsdrivendeSoknadGradert()
 
         val soknadDTO =
             konverterTilSykepengesoknadDTO(
