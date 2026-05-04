@@ -53,6 +53,11 @@ class Overlapp(
                 identer = identer,
                 sykmeldingKafkaMessage = sykmeldingKafkaMessage,
             )
+        log.info(
+            "Sykmelding ${sykmeldingKafkaMessage.sykmelding.id}: " +
+                "fant ${soknadKandidaterSomKanKlippes.size} søknadkandidater som kan klippes " +
+                "(ids: ${soknadKandidaterSomKanKlippes.map { it.id }})",
+        )
 
         soknadKandidaterSomKanKlippes.soknaderSomOverlapperEtter(sykmeldingKafkaMessage)
 
@@ -76,6 +81,11 @@ class Overlapp(
                 identer = identer,
                 sykmeldingKafkaMessage = sykmeldingKafkaMessage,
             )
+        log.info(
+            "Sykmelding ${sykmeldingKafkaMessage.sykmelding.id}: " +
+                "fant ${soknadKandidaterSomKanKlippes.size} søknadkandidater for sendte-klipp " +
+                "(ids: ${soknadKandidaterSomKanKlippes.map { it.id }})",
+        )
 
         kafkaMessage = soknadKandidaterSomKanKlippes.sykmeldingSomOverlapperSendteSoknaderEtter(kafkaMessage)
 
@@ -87,6 +97,11 @@ class Overlapp(
                 identer = identer,
                 sykmeldingKafkaMessage = kafkaMessage,
             )
+        log.info(
+            "Sykmelding ${sykmeldingKafkaMessage.sykmelding.id}: " +
+                "fant ${soknadKandidaterSomKanKlippeSykmeldingen.size} søknadkandidater som kan klippe sykmeldingen " +
+                "(ids: ${soknadKandidaterSomKanKlippeSykmeldingen.map { it.id }})",
+        )
 
         kafkaMessage = soknadKandidaterSomKanKlippeSykmeldingen.sykmeldingSomOverlapperMedNyereSoknader(kafkaMessage)
 
