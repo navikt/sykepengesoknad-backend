@@ -13,6 +13,7 @@ import java.time.Instant
 import java.time.LocalDate
 
 private val log = LoggerFactory.getLogger("OverlappUtil")
+internal const val SYKMELDING_ID_FOR_NY_LOGIKK = "f16f3712-bef2-4fad-97a2-3d1685960d97"
 
 enum class EndringIUforegrad {
     FLERE_PERIODER,
@@ -26,16 +27,45 @@ internal fun SykepengesoknadDAO.soknadKandidaterSomKanKlippes(
     orgnummer: String?,
     sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
     identer: FolkeregisterIdenter,
+) = if (skalBrukeNyLogikk(sykmeldingKafkaMessage.sykmelding.id)) {
+    soknadKandidaterSomKanKlippesNy(orgnummer, sykmeldingKafkaMessage, identer)
+} else {
+    soknadKandidaterSomKanKlippesGammel(orgnummer, sykmeldingKafkaMessage, identer)
+}
+
+private fun SykepengesoknadDAO.soknadKandidaterSomKanKlippesNy(
+    orgnummer: String?,
+    sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
+    identer: FolkeregisterIdenter,
 ) = alleSomOverlapper(orgnummer, sykmeldingKafkaMessage, identer)
     .filter { sykepengesoknad ->
         val eksisterendeSoknad = sykepengesoknad.sorteringstidspunkt()
         val innkommendeSykmelding = sykmeldingKafkaMessage.sykmelding.sorteringstidspunkt()
-        val erEldre = eksisterendeSoknad.tidspunkt.isBefore(innkommendeSykmelding.tidspunkt)
+        val erEldre = sykepengesoknad.erEldreNyLogikk(sykmeldingKafkaMessage.sykmelding)
         if (erEldre) {
             log.info(
                 "Søknad ${sykepengesoknad.id} (${eksisterendeSoknad.kilde}: ${eksisterendeSoknad.tidspunkt}) er eldre enn " +
                     "innkommende sykmelding ${sykmeldingKafkaMessage.sykmelding.id} " +
-                    "(${innkommendeSykmelding.kilde}: ${innkommendeSykmelding.tidspunkt}) – søknaden er kandidat for klipp",
+                    "(${innkommendeSykmelding.kilde}: ${innkommendeSykmelding.tidspunkt}) – søknaden er kandidat for klipp " +
+                    "(logikk: ny)",
+            )
+        }
+        return@filter erEldre
+    }
+
+private fun SykepengesoknadDAO.soknadKandidaterSomKanKlippesGammel(
+    orgnummer: String?,
+    sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
+    identer: FolkeregisterIdenter,
+) = alleSomOverlapper(orgnummer, sykmeldingKafkaMessage, identer)
+    .filter { sykepengesoknad ->
+        val erEldre = sykepengesoknad.erEldreMainLogikk(sykmeldingKafkaMessage.sykmelding)
+        if (erEldre) {
+            log.info(
+                "Søknad ${sykepengesoknad.id} (sykmeldingSkrevet: ${sykepengesoknad.sykmeldingSkrevet}) er eldre enn " +
+                    "innkommende sykmelding ${sykmeldingKafkaMessage.sykmelding.id} " +
+                    "(behandletTidspunkt: ${sykmeldingKafkaMessage.sykmelding.behandletTidspunkt}) – søknaden er kandidat for klipp " +
+                    "(logikk: main)",
             )
         }
         return@filter erEldre
@@ -45,20 +75,51 @@ internal fun SykepengesoknadDAO.soknadKandidaterSomKanKlippeSykmeldingen(
     orgnummer: String?,
     sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
     identer: FolkeregisterIdenter,
+) = if (skalBrukeNyLogikk(sykmeldingKafkaMessage.sykmelding.id)) {
+    soknadKandidaterSomKanKlippeSykmeldingenNy(orgnummer, sykmeldingKafkaMessage, identer)
+} else {
+    soknadKandidaterSomKanKlippeSykmeldingenGammel(orgnummer, sykmeldingKafkaMessage, identer)
+}
+
+private fun SykepengesoknadDAO.soknadKandidaterSomKanKlippeSykmeldingenNy(
+    orgnummer: String?,
+    sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
+    identer: FolkeregisterIdenter,
 ) = alleSomOverlapper(orgnummer, sykmeldingKafkaMessage, identer)
     .filter { soknad ->
         val eksisterendeSoknad = soknad.sorteringstidspunkt()
         val innkommendeSykmelding = sykmeldingKafkaMessage.sykmelding.sorteringstidspunkt()
-        val erNyere = eksisterendeSoknad.tidspunkt.isAfter(innkommendeSykmelding.tidspunkt)
+        val erNyere = soknad.erNyereNyLogikk(sykmeldingKafkaMessage.sykmelding)
         if (erNyere) {
             log.info(
                 "Søknad ${soknad.id} (${eksisterendeSoknad.kilde}: ${eksisterendeSoknad.tidspunkt}) er nyere enn " +
                     "innkommende sykmelding ${sykmeldingKafkaMessage.sykmelding.id} " +
-                    "(${innkommendeSykmelding.kilde}: ${innkommendeSykmelding.tidspunkt}) – sykmeldingen er kandidat for klipp",
+                    "(${innkommendeSykmelding.kilde}: ${innkommendeSykmelding.tidspunkt}) – sykmeldingen er kandidat for klipp " +
+                    "(logikk: ny)",
             )
         }
         return@filter erNyere
     }
+
+private fun SykepengesoknadDAO.soknadKandidaterSomKanKlippeSykmeldingenGammel(
+    orgnummer: String?,
+    sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
+    identer: FolkeregisterIdenter,
+) = alleSomOverlapper(orgnummer, sykmeldingKafkaMessage, identer)
+    .filter { soknad ->
+        val erNyere = soknad.erNyereMainLogikk(sykmeldingKafkaMessage.sykmelding)
+        if (erNyere) {
+            log.info(
+                "Søknad ${soknad.id} (sykmeldingSkrevet: ${soknad.sykmeldingSkrevet}) er nyere enn " +
+                    "innkommende sykmelding ${sykmeldingKafkaMessage.sykmelding.id} " +
+                    "(behandletTidspunkt: ${sykmeldingKafkaMessage.sykmelding.behandletTidspunkt}) " +
+                    "– sykmeldingen er kandidat for klipp (logikk: main)",
+            )
+        }
+        return@filter erNyere
+    }
+
+private fun skalBrukeNyLogikk(sykmeldingId: String): Boolean = sykmeldingId == SYKMELDING_ID_FOR_NY_LOGIKK
 
 private data class Sorteringstidspunkt(
     val tidspunkt: Instant,
@@ -77,6 +138,36 @@ private fun ArbeidsgiverSykmeldingDTO.sorteringstidspunkt(): Sorteringstidspunkt
         Sorteringstidspunkt(tidspunkt = signaturDato.toInstant(), kilde = "signaturDato")
     } else {
         Sorteringstidspunkt(tidspunkt = behandletTidspunkt.toInstant(), kilde = "behandletTidspunkt")
+    }
+
+// Ny logikk er basert på signaturDato hvis den finnes, ellers sykmeldingSkrevet/behandletTidspunkt.
+private fun Sykepengesoknad.erEldreNyLogikk(sykmelding: ArbeidsgiverSykmeldingDTO): Boolean =
+    sorteringstidspunkt().tidspunkt.isBefore(sykmelding.sorteringstidspunkt().tidspunkt)
+
+private fun Sykepengesoknad.erNyereNyLogikk(sykmelding: ArbeidsgiverSykmeldingDTO): Boolean =
+    sorteringstidspunkt().tidspunkt.isAfter(sykmelding.sorteringstidspunkt().tidspunkt)
+
+// Main-logikken er basert på sykmeldingSkrevet og behandletTidspunkt, og signaturDato brukes kun som tiebreaker når disse er like
+private fun Sykepengesoknad.erEldreMainLogikk(sykmelding: ArbeidsgiverSykmeldingDTO): Boolean =
+    sykmeldingSkrevet!!.isBefore(sykmelding.behandletTidspunkt.toInstant()) || signaturDatoIsBefore(sykmelding)
+
+private fun Sykepengesoknad.erNyereMainLogikk(sykmelding: ArbeidsgiverSykmeldingDTO): Boolean =
+    sykmeldingSkrevet!!.isAfter(sykmelding.behandletTidspunkt.toInstant()) || signaturDatoIsAfter(sykmelding)
+
+private fun Sykepengesoknad.signaturDatoIsBefore(sykmelding: ArbeidsgiverSykmeldingDTO): Boolean =
+    when {
+        this.sykmeldingSkrevet != sykmelding.behandletTidspunkt.toInstant() -> false
+        this.sykmeldingSignaturDato == null || sykmelding.signaturDato == null -> false
+        this.sykmeldingSignaturDato.isBefore(sykmelding.signaturDato.toInstant()) -> true
+        else -> false
+    }
+
+private fun Sykepengesoknad.signaturDatoIsAfter(sykmelding: ArbeidsgiverSykmeldingDTO): Boolean =
+    when {
+        this.sykmeldingSkrevet != sykmelding.behandletTidspunkt.toInstant() -> false
+        this.sykmeldingSignaturDato == null || sykmelding.signaturDato == null -> false
+        this.sykmeldingSignaturDato.isAfter(sykmelding.signaturDato.toInstant()) -> true
+        else -> false
     }
 
 private fun SykepengesoknadDAO.alleSomOverlapper(

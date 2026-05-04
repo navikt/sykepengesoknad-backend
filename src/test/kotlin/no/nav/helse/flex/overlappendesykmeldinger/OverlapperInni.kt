@@ -12,6 +12,7 @@ import no.nav.helse.flex.soknadsopprettelse.JOBBET_DU_GRADERT
 import no.nav.helse.flex.soknadsopprettelse.OPPHOLD_UTENFOR_EOS
 import no.nav.helse.flex.soknadsopprettelse.PERMISJON_V2
 import no.nav.helse.flex.soknadsopprettelse.TILBAKE_I_ARBEID
+import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.SYKMELDING_ID_FOR_NY_LOGIKK
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testdata.gradertSykmeldt
 import no.nav.helse.flex.testdata.heltSykmeldt
@@ -22,6 +23,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.MethodOrderer
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
@@ -209,40 +211,105 @@ class OverlapperInni : FellesTestOppsett() {
         soknader[0].tom shouldBeEqualTo basisDato.plusDays(10)
     }
 
-    @Test
-    fun `Nyere sykmelding erstatter tidligere søknad som ikke er sendt der sykmelding har samme sykmeldingSkrevet`() {
-        val orgnummer = "123456789"
-        val fom = LocalDate.of(2026, 1, 3)
-        val tom = LocalDate.of(2026, 1, 18)
-        val syketilfelleStartDato = LocalDate.of(2026, 1, 1)
-        val arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = orgnummer, orgNavn = "Arbeidsgiver AS")
+    @Nested
+    inner class Skamklipp {
+        @Test
+        fun `Logikk for klipping av søknad basert på singaturDato (ny logikk), blir ikke skamklipt og får ny søknad med korrekt grad`() {
+            val orgnummer = "123456789"
+            val fom = LocalDate.of(2026, 1, 3)
+            val tom = LocalDate.of(2026, 1, 18)
+            val syketilfelleStartDato = LocalDate.of(2026, 1, 1)
+            val arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = orgnummer, orgNavn = "Arbeidsgiver AS")
 
-        // sykmelding-1 er en GRADERT 50% sykmelding med behandletTidspunkt 15:55
-        val soknadFraSykmelding1 =
-            sendSykmelding(
-                sykmeldingKafkaMessage(
-                    fnr = fnr,
-                    sykmeldingId = "sykmelding-1",
-                    sykmeldingsperioder = gradertSykmeldt(fom = fom, tom = tom, grad = 50),
-                    sykmeldingSkrevet = OffsetDateTime.parse("2026-01-05T15:55:02.661Z"),
-                    signaturDato = OffsetDateTime.parse("2026-01-05T14:56:22.802Z"),
-                    timestamp = OffsetDateTime.parse("2026-01-05T15:23:25.982Z"),
-                    syketilfelleStartDato = syketilfelleStartDato,
-                    arbeidsgiver = arbeidsgiver,
-                    mottattTidspunkt = OffsetDateTime.parse("2026-01-05T15:05:09Z"),
-                    kontaktDato = LocalDate.of(2026, 1, 2),
-                ),
-            ).also {
-                it shouldHaveSize 1
-                it[0].status shouldBeEqualTo SoknadsstatusDTO.NY
-                it[0].fom shouldBeEqualTo fom
-                it[0].tom shouldBeEqualTo tom
-            }.first()
+            // sykmelding-1 er en GRADERT 50% sykmelding med behandletTidspunkt 15:55
+            val soknadFraSykmelding1 =
+                sendSykmelding(
+                    sykmeldingKafkaMessage(
+                        fnr = fnr,
+                        sykmeldingId = "sykmelding-1",
+                        sykmeldingsperioder = gradertSykmeldt(fom = fom, tom = tom, grad = 50),
+                        sykmeldingSkrevet = OffsetDateTime.parse("2026-01-05T15:55:02.661Z"),
+                        signaturDato = OffsetDateTime.parse("2026-01-05T14:56:22.802Z"),
+                        timestamp = OffsetDateTime.parse("2026-01-05T15:23:25.982Z"),
+                        syketilfelleStartDato = syketilfelleStartDato,
+                        arbeidsgiver = arbeidsgiver,
+                        mottattTidspunkt = OffsetDateTime.parse("2026-01-05T15:05:09Z"),
+                        kontaktDato = LocalDate.of(2026, 1, 2),
+                    ),
+                ).also {
+                    it shouldHaveSize 1
+                    it[0].status shouldBeEqualTo SoknadsstatusDTO.NY
+                    it[0].fom shouldBeEqualTo fom
+                    it[0].tom shouldBeEqualTo tom
+                }.first()
 
-        // sykmelding-2: AKTIVITET_IKKE_MULIG, behandletTidspunkt 05.01 kl. 09:31, signaturDato 07.01 kl. 08:32.
-        // signaturDato er etter sykmelding-1 sin (05.01 14:56), så sykmelding-2 regnes som nyere
-        // og erstatter søknaden fra sykmelding-1.
-        val soknaderFraSykmelding2 =
+            // sykmelding-2: AKTIVITET_IKKE_MULIG, behandletTidspunkt 05.01 kl. 09:31, signaturDato 07.01 kl. 08:32.
+            // Id settes til SYKMELDING_ID_FOR_NY_LOGIKK for å aktivere ny logikk i A/B-testen.
+            // signaturDato er etter sykmelding-1 sin (05.01 14:56), så sykmelding-2 regnes som nyere
+            // og erstatter søknaden fra sykmelding-1.
+            val soknaderFraSykmelding2 =
+                sendSykmelding(
+                    sykmeldingKafkaMessage(
+                        fnr = fnr,
+                        sykmeldingId = SYKMELDING_ID_FOR_NY_LOGIKK,
+                        sykmeldingsperioder = heltSykmeldt(fom = fom, tom = tom),
+                        sykmeldingSkrevet = OffsetDateTime.parse("2026-01-05T09:31:24.445Z"),
+                        signaturDato = OffsetDateTime.parse("2026-01-07T08:32:18.152Z"),
+                        timestamp = OffsetDateTime.parse("2026-01-07T08:57:24.341Z"),
+                        syketilfelleStartDato = syketilfelleStartDato,
+                        arbeidsgiver = arbeidsgiver,
+                        mottattTidspunkt = OffsetDateTime.parse("2026-01-07T08:42:08Z"),
+                        kontaktDato = LocalDate.of(2026, 1, 5),
+                    ),
+                    forventaSoknader = 2,
+                )
+
+            soknaderFraSykmelding2.first { it.status == SoknadsstatusDTO.SLETTET }.also {
+                it.id shouldBeEqualTo soknadFraSykmelding1.id
+                it.soknadsperioder!!.single().grad shouldBeEqualTo 50
+            }
+
+            val nySoknad =
+                soknaderFraSykmelding2.first { it.status == SoknadsstatusDTO.NY }.also {
+                    it.fom shouldBeEqualTo fom
+                    it.tom shouldBeEqualTo tom
+                    it.soknadsperioder!!.single().grad shouldBeEqualTo 100
+                }
+
+            val soknaderViaRest = hentSoknaderMetadata(fnr)
+            soknaderViaRest shouldHaveSize 1
+            soknaderViaRest[0].id shouldBeEqualTo nySoknad.id
+        }
+
+        @Test
+        fun `Logikk for klipping av søknad basert på sykmeldingSkrevet (som er i main), blir skamklipt`() {
+            val orgnummer = "123456789"
+            val fom = LocalDate.of(2026, 1, 3)
+            val tom = LocalDate.of(2026, 1, 18)
+            val syketilfelleStartDato = LocalDate.of(2026, 1, 1)
+            val arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = orgnummer, orgNavn = "Arbeidsgiver AS")
+
+            val soknadFraSykmelding1 =
+                sendSykmelding(
+                    sykmeldingKafkaMessage(
+                        fnr = fnr,
+                        sykmeldingId = "sykmelding-1",
+                        sykmeldingsperioder = gradertSykmeldt(fom = fom, tom = tom, grad = 50),
+                        sykmeldingSkrevet = OffsetDateTime.parse("2026-01-05T15:55:02.661Z"),
+                        signaturDato = OffsetDateTime.parse("2026-01-05T14:56:22.802Z"),
+                        timestamp = OffsetDateTime.parse("2026-01-05T15:23:25.982Z"),
+                        syketilfelleStartDato = syketilfelleStartDato,
+                        arbeidsgiver = arbeidsgiver,
+                        mottattTidspunkt = OffsetDateTime.parse("2026-01-05T15:05:09Z"),
+                        kontaktDato = LocalDate.of(2026, 1, 2),
+                    ),
+                ).also {
+                    it shouldHaveSize 1
+                    it[0].status shouldBeEqualTo SoknadsstatusDTO.NY
+                    it[0].fom shouldBeEqualTo fom
+                    it[0].tom shouldBeEqualTo tom
+                }.first()
+
             sendSykmelding(
                 sykmeldingKafkaMessage(
                     fnr = fnr,
@@ -256,88 +323,83 @@ class OverlapperInni : FellesTestOppsett() {
                     mottattTidspunkt = OffsetDateTime.parse("2026-01-07T08:42:08Z"),
                     kontaktDato = LocalDate.of(2026, 1, 5),
                 ),
-                forventaSoknader = 2,
+                forventaSoknader = 0,
             )
 
-        val slettetSoknad = soknaderFraSykmelding2.first { it.status == SoknadsstatusDTO.SLETTET }
-        slettetSoknad.id shouldBeEqualTo soknadFraSykmelding1.id
+            hentSoknaderMetadata(fnr).single().also {
+                it.id shouldBeEqualTo soknadFraSykmelding1.id
+                it.soknadPerioder!!.single().grad shouldBeEqualTo 50
+            }
+        }
 
-        val nySoknad = soknaderFraSykmelding2.first { it.status == SoknadsstatusDTO.NY }
-        nySoknad.fom shouldBeEqualTo fom
-        nySoknad.tom shouldBeEqualTo tom
+        @Test
+        fun `Nyere sykmelding etter sendt soknad oppretter ny soknad uten å erstatte sendt`() {
+            val orgnummer = "123456789"
+            val fom = LocalDate.of(2026, 1, 3)
+            val tom = LocalDate.of(2026, 1, 18)
+            val arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = orgnummer, orgNavn = "Arbeidsgiver AS")
 
-        val soknaderViaRest = hentSoknaderMetadata(fnr)
-        soknaderViaRest shouldHaveSize 1
-        soknaderViaRest[0].id shouldBeEqualTo nySoknad.id
-    }
+            val førsteSoknad =
+                sendSykmelding(
+                    sykmeldingKafkaMessage(
+                        fnr = fnr,
+                        sykmeldingId = "sykmelding-1-sendt",
+                        sykmeldingsperioder = gradertSykmeldt(fom = fom, tom = tom, grad = 50),
+                        sykmeldingSkrevet = OffsetDateTime.parse("2026-01-05T15:55:02.661Z"),
+                        signaturDato = OffsetDateTime.parse("2026-01-05T14:56:22.802Z"),
+                        timestamp = OffsetDateTime.parse("2026-01-05T15:23:25.982Z"),
+                        arbeidsgiver = arbeidsgiver,
+                    ),
+                ).first()
 
-    @Test
-    fun `Nyere sykmelding etter sendt soknad oppretter ny soknad uten å erstatte sendt`() {
-        val orgnummer = "123456789"
-        val fom = LocalDate.of(2026, 1, 3)
-        val tom = LocalDate.of(2026, 1, 18)
-        val arbeidsgiver = ArbeidsgiverStatusKafkaDTO(orgnummer = orgnummer, orgNavn = "Arbeidsgiver AS")
+            val førsteSoknadHentet = hentSoknad(førsteSoknad.id, fnr)
 
-        val førsteSoknad =
-            sendSykmelding(
-                sykmeldingKafkaMessage(
-                    fnr = fnr,
-                    sykmeldingId = "sykmelding-1-sendt",
-                    sykmeldingsperioder = gradertSykmeldt(fom = fom, tom = tom, grad = 50),
-                    sykmeldingSkrevet = OffsetDateTime.parse("2026-01-05T15:55:02.661Z"),
-                    signaturDato = OffsetDateTime.parse("2026-01-05T14:56:22.802Z"),
-                    timestamp = OffsetDateTime.parse("2026-01-05T15:23:25.982Z"),
-                    arbeidsgiver = arbeidsgiver,
-                ),
-            ).first()
-
-        val førsteSoknadHentet = hentSoknad(førsteSoknad.id, fnr)
-
-        mockFlexSyketilfelleArbeidsgiverperiode(
-            arbeidsgiverperiode =
-                Arbeidsgiverperiode(
-                    antallBrukteDager = 9,
-                    oppbruktArbeidsgiverperiode = true,
-                    arbeidsgiverPeriode = Periode(fom = førsteSoknadHentet.fom!!, tom = førsteSoknadHentet.tom!!),
-                ),
-        )
-
-        SoknadBesvarer(førsteSoknadHentet, this, fnr)
-            .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
-            .besvarSporsmal(TILBAKE_I_ARBEID, "NEI")
-            .besvarSporsmal(PERMISJON_V2, "NEI")
-            .besvarSporsmal(FERIE_V2, "NEI")
-            .besvarSporsmal(OPPHOLD_UTENFOR_EOS, "NEI")
-            .besvarSporsmal(JOBBET_DU_GRADERT + '0', "NEI")
-            .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
-            .oppsummering()
-            .sendSoknad()
-
-        sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
-
-        val soknaderFraNySykmelding =
-            sendSykmelding(
-                sykmeldingKafkaMessage(
-                    fnr = fnr,
-                    sykmeldingId = "sykmelding-2-etter-sendt",
-                    sykmeldingsperioder = heltSykmeldt(fom = fom, tom = tom),
-                    sykmeldingSkrevet = OffsetDateTime.parse("2026-01-05T09:31:24.445Z"),
-                    signaturDato = OffsetDateTime.parse("2026-01-07T08:32:18.152Z"),
-                    timestamp = OffsetDateTime.parse("2026-01-07T08:57:24.341Z"),
-                    arbeidsgiver = arbeidsgiver,
-                ),
-                forventaSoknader = 1,
+            mockFlexSyketilfelleArbeidsgiverperiode(
+                arbeidsgiverperiode =
+                    Arbeidsgiverperiode(
+                        antallBrukteDager = 9,
+                        oppbruktArbeidsgiverperiode = true,
+                        arbeidsgiverPeriode = Periode(fom = førsteSoknadHentet.fom!!, tom = førsteSoknadHentet.tom!!),
+                    ),
             )
 
-        soknaderFraNySykmelding shouldHaveSize 1
-        soknaderFraNySykmelding[0].status shouldBeEqualTo SoknadsstatusDTO.NY
+            SoknadBesvarer(førsteSoknadHentet, this@OverlapperInni, fnr)
+                .besvarSporsmal(ANSVARSERKLARING, "CHECKED")
+                .besvarSporsmal(TILBAKE_I_ARBEID, "NEI")
+                .besvarSporsmal(PERMISJON_V2, "NEI")
+                .besvarSporsmal(FERIE_V2, "NEI")
+                .besvarSporsmal(OPPHOLD_UTENFOR_EOS, "NEI")
+                .besvarSporsmal(JOBBET_DU_GRADERT + '0', "NEI")
+                .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI")
+                .oppsummering()
+                .sendSoknad()
 
-        val soknaderViaRest = hentSoknaderMetadata(fnr)
-        soknaderViaRest shouldHaveSize 2
-        soknaderViaRest.count { it.status == RSSoknadstatus.SENDT } shouldBeEqualTo 1
-        soknaderViaRest.count { it.status == RSSoknadstatus.NY } shouldBeEqualTo 1
-        (soknaderViaRest.any { it.id == førsteSoknad.id }) shouldBeEqualTo true
+            sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
 
-        juridiskVurderingKafkaConsumer.ventPåRecords(antall = 3)
+            val soknaderFraNySykmelding =
+                sendSykmelding(
+                    sykmeldingKafkaMessage(
+                        fnr = fnr,
+                        sykmeldingId = SYKMELDING_ID_FOR_NY_LOGIKK,
+                        sykmeldingsperioder = heltSykmeldt(fom = fom, tom = tom),
+                        sykmeldingSkrevet = OffsetDateTime.parse("2026-01-05T09:31:24.445Z"),
+                        signaturDato = OffsetDateTime.parse("2026-01-07T08:32:18.152Z"),
+                        timestamp = OffsetDateTime.parse("2026-01-07T08:57:24.341Z"),
+                        arbeidsgiver = arbeidsgiver,
+                    ),
+                    forventaSoknader = 1,
+                )
+
+            soknaderFraNySykmelding shouldHaveSize 1
+            soknaderFraNySykmelding[0].status shouldBeEqualTo SoknadsstatusDTO.NY
+
+            val soknaderViaRest = hentSoknaderMetadata(fnr)
+            soknaderViaRest shouldHaveSize 2
+            soknaderViaRest.count { it.status == RSSoknadstatus.SENDT } shouldBeEqualTo 1
+            soknaderViaRest.count { it.status == RSSoknadstatus.NY } shouldBeEqualTo 1
+            (soknaderViaRest.any { it.id == førsteSoknad.id }) shouldBeEqualTo true
+
+            juridiskVurderingKafkaConsumer.ventPåRecords(antall = 3)
+        }
     }
 }
