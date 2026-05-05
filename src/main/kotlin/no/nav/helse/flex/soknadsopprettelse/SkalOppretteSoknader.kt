@@ -27,7 +27,11 @@ class SkalOppretteSoknader(
             flexSyketilfelleClient.erUtenforVentetid(
                 identer = identer,
                 sykmeldingId = sykmeldingId,
-                ventetidRequest = VentetidRequest(sykmeldingKafkaMessage = sykmeldingKafkaMessage),
+                ventetidRequest =
+                    VentetidRequest(
+                        sykmeldingKafkaMessage = sykmeldingKafkaMessage,
+                        kunSendtBekreftet = true,
+                    ),
             )
 
         if (!erUtenforVentetid && !brukerHarOppgittForsikring) {
