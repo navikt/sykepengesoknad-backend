@@ -243,7 +243,7 @@ class GenerellKafkaIntegrationTest : FellesTestOppsett() {
 
         @Test
         @Suppress("ktlint:standard:max-line-length")
-        fun `Logger warn dersom sykmelding har endret arbeidssituasjon til noe annet enn arbeidstaker når det allerede finnes en tilknyttet arbeidstakersøknad`() {
+        fun `Oppretter ikke søknad hvis sykmelding har endret arbeidssituasjon til noe annet enn arbeidstaker når det allerede finnes en tilknyttet arbeidstakersøknad`() {
             val perioder = heltSykmeldt(fom = datoIFremtiden, tom = datoIFremtiden.plusDays(4))
 
             val kafkaMessage =
@@ -290,14 +290,15 @@ class GenerellKafkaIntegrationTest : FellesTestOppsett() {
                 topic = SYKMELDINGSENDT_TOPIC,
             )
 
-            sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2)
+            hentSoknaderMetadata(fnr).shouldHaveSize(1)
+            hentSoknader(fnr).single().arbeidssituasjon `should be equal to` RSArbeidssituasjon.ARBEIDSTAKER
 
             logger.detachAppender(listAppender)
 
             val forventetMelding =
-                "Mottatt sykmelding ${sykmeldingKafkaMessageNaringsdrivende.sykmelding.id} med arbeidssituasjon NAERINGSDRIVENDE men det finnes allerede en arbeidstaker søknad. Kan skje ved kafkalag."
+                "Oppretter ikke søknader for sykmelding: ${sykmeldingKafkaMessageNaringsdrivende.sykmelding.id} med arbeidssituasjon NAERINGSDRIVENDE siden det finnes allerede en arbeidstaker søknad. Kan skje ved kafkalag."
             listAppender.list
-                .any { it.level == Level.WARN && it.formattedMessage.contains(forventetMelding) } `should be equal to` true
+                .any { it.level == Level.ERROR && it.formattedMessage.contains(forventetMelding) } `should be equal to` true
         }
     }
 
