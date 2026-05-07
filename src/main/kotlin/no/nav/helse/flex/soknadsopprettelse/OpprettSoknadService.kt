@@ -53,9 +53,10 @@ class OpprettSoknadService(
         val eksisterendeSoknader = sykepengesoknadDAO.finnSykepengesoknader(identer)
         val eksisterendeSoknaderForSm = eksisterendeSoknader.filter { it.sykmeldingId == sykmeldingTilSoknadOpprettelse.sykmeldingId }
         if (arbeidssituasjon != ARBEIDSTAKER && eksisterendeSoknaderForSm.any { it.arbeidssituasjon == ARBEIDSTAKER }) {
-            log.warn(
-                "Mottatt sykmelding ${sykmeldingTilSoknadOpprettelse.sykmeldingId} med arbeidssituasjon ${arbeidssituasjon.name} men det finnes allerede en arbeidstaker søknad. Kan skje ved kafkalag. erPapirSykmelding ${sykmeldingTilSoknadOpprettelse.erPapirsykmelding}, erUtenlandskSykmelding ${sykmeldingTilSoknadOpprettelse.erUtlandskSykmelding}",
+            log.error(
+                "Oppretter ikke søknader for sykmelding: ${sykmeldingTilSoknadOpprettelse.sykmeldingId} med arbeidssituasjon ${arbeidssituasjon.name} siden det finnes allerede en arbeidstaker søknad. Kan skje ved kafkalag.",
             )
+            return emptyList()
         }
 
         val sykeforloep =
