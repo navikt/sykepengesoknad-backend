@@ -202,6 +202,7 @@ class FlexSyketilfelleEksternClient(
         val body =
             VentetidRequest(
                 sykmeldingKafkaMessage = sykmeldingKafkaMessage,
+                kunSendtBekreftet = true,
             )
 
         val response =
@@ -229,6 +230,7 @@ class FlexSyketilfelleEksternClient(
 data class VentetidRequest(
     val tilleggsopplysninger: Tilleggsopplysninger? = null,
     val sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO? = null,
+    val kunSendtBekreftet: Boolean = false,
 )
 
 data class SammeVentetidResponse(
