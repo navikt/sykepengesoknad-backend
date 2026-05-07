@@ -1,6 +1,5 @@
 package no.nav.helse.flex.client.flexsyketilfelle
 
-import no.nav.helse.flex.controller.domain.sykmelding.Tilleggsopplysninger
 import no.nav.helse.flex.domain.Arbeidsgiverperiode
 import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.Sykeforloep
@@ -228,7 +227,6 @@ class FlexSyketilfelleEksternClient(
 }
 
 data class VentetidRequest(
-    val tilleggsopplysninger: Tilleggsopplysninger? = null,
     val sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO? = null,
     val kunSendtBekreftet: Boolean = false,
 )
