@@ -210,19 +210,13 @@ class OverlapperInni : FellesTestOppsett() {
 
     @Nested
     inner class Skamklipp {
-        private val sykmeldingSkrevetSykmelding1: OffsetDateTime = OffsetDateTime.parse("2026-01-05T15:55:02.661Z")
-        private val sykmeldingSkrevetSykmelding2 = OffsetDateTime.parse("2026-01-05T09:31:24.445Z")
-
-        private val signaturDatoSykmelding1 = OffsetDateTime.parse("2026-01-05T14:56:22.802Z")
-        private val signaturDatoSykmelding2 = OffsetDateTime.parse("2026-01-07T08:32:18.152Z")
-
         @Test
-        fun `Logikk for klipping av søknad basert på sykmeldingSkrevet (som er i main), blir skamklipt`() {
+        fun `Logikk for klipping av søknad basert på sykmeldingSkrevet (som er i main), blir skamklipt selv om signaturDato er korrekt`() {
             val soknadFraSykmelding1 =
                 sendSykmelding(
-                    forsteSykmeldingSomErGradert(
-                        sykmeldingSkrevet = sykmeldingSkrevetSykmelding1,
-                        signaturDato = signaturDatoSykmelding1,
+                    gradertSykmelding50Prosent(
+                        sykmeldingSkrevet = OffsetDateTime.parse("2026-01-05T15:55:02.661Z"),
+                        signaturDato = OffsetDateTime.parse("2026-01-05T14:56:22.802Z"),
                     ),
                 ).single()
                     .also {
@@ -230,9 +224,9 @@ class OverlapperInni : FellesTestOppsett() {
                     }
 
             sendSykmelding(
-                andreSykmeldingSomEr100Prosent(
-                    sykmeldingSkrevet = sykmeldingSkrevetSykmelding2,
-                    signaturDato = signaturDatoSykmelding2,
+                sykmelding100Prosent(
+                    sykmeldingSkrevet = OffsetDateTime.parse("2026-01-05T09:31:24.445Z"),
+                    signaturDato = OffsetDateTime.parse("2026-01-07T08:32:18.152Z"),
                 ),
                 forventaSoknader = 0,
             )
@@ -244,24 +238,23 @@ class OverlapperInni : FellesTestOppsett() {
         }
 
         @Test
-        fun `Logikk for klipping av søknad basert på signaturDato (ny logikk), blir ikke skamklipt og får ny søknad med korrekt grad`() {
+        fun `Ny logikk basert på signaturDato erstatter søknad når signaturDato er nyere`() {
             val soknadFraSykmelding1 =
                 sendSykmelding(
-                    forsteSykmeldingSomErGradert(
-                        sykmeldingSkrevet = sykmeldingSkrevetSykmelding1,
-                        signaturDato = signaturDatoSykmelding1,
+                    gradertSykmelding50Prosent(
+                        signaturDato = OffsetDateTime.parse("2026-01-05T14:56:22.802Z"),
                     ),
                 ).single()
                     .also {
                         it.status shouldBeEqualTo SoknadsstatusDTO.NY
+                        it.soknadsperioder!!.single().grad shouldBeEqualTo 50
                     }
 
             val soknaderFraSykmelding2 =
                 sendSykmelding(
-                    andreSykmeldingSomEr100Prosent(
+                    sykmelding100Prosent(
                         sykmeldingId = SYKMELDING_ID_FOR_NY_LOGIKK,
-                        sykmeldingSkrevet = sykmeldingSkrevetSykmelding2,
-                        signaturDato = signaturDatoSykmelding2,
+                        signaturDato = OffsetDateTime.parse("2026-01-07T08:32:18.152Z"),
                     ),
                     forventaSoknader = 2,
                 )
@@ -286,9 +279,9 @@ class OverlapperInni : FellesTestOppsett() {
         fun `Nyere sykmelding etter sendt soknad oppretter ny soknad uten å erstatte sendt`() {
             val førsteSoknad =
                 sendSykmelding(
-                    forsteSykmeldingSomErGradert(
-                        sykmeldingSkrevet = sykmeldingSkrevetSykmelding1,
-                        signaturDato = signaturDatoSykmelding1,
+                    gradertSykmelding50Prosent(
+                        sykmeldingSkrevet = OffsetDateTime.parse("2026-01-05T15:55:02.661Z"),
+                        signaturDato = OffsetDateTime.parse("2026-01-05T14:56:22.802Z"),
                     ),
                 ).first()
 
@@ -311,10 +304,10 @@ class OverlapperInni : FellesTestOppsett() {
             sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1)
 
             sendSykmelding(
-                andreSykmeldingSomEr100Prosent(
+                sykmelding100Prosent(
                     sykmeldingId = SYKMELDING_ID_FOR_NY_LOGIKK,
-                    sykmeldingSkrevet = sykmeldingSkrevetSykmelding2,
-                    signaturDato = signaturDatoSykmelding2,
+                    sykmeldingSkrevet = OffsetDateTime.parse("2026-01-05T09:31:24.445Z"),
+                    signaturDato = OffsetDateTime.parse("2026-01-07T08:32:18.152Z"),
                 ),
                 forventaSoknader = 1,
             ).single()
@@ -331,10 +324,10 @@ class OverlapperInni : FellesTestOppsett() {
             juridiskVurderingKafkaConsumer.ventPåRecords(antall = 3)
         }
 
-        private fun forsteSykmeldingSomErGradert(
+        fun gradertSykmelding50Prosent(
             sykmeldingId: String = "sykmelding-1",
-            sykmeldingSkrevet: OffsetDateTime = sykmeldingSkrevetSykmelding1,
-            signaturDato: OffsetDateTime = signaturDatoSykmelding1,
+            sykmeldingSkrevet: OffsetDateTime = OffsetDateTime.parse("2026-01-05T15:55:02.661Z"),
+            signaturDato: OffsetDateTime = OffsetDateTime.parse("2026-01-05T14:56:22.802Z"),
         ): SykmeldingKafkaMessageDTO =
             sykmeldingKafkaMessage(
                 fnr = fnr,
@@ -349,10 +342,10 @@ class OverlapperInni : FellesTestOppsett() {
                 kontaktDato = LocalDate.of(2026, 1, 2),
             )
 
-        private fun andreSykmeldingSomEr100Prosent(
+        fun sykmelding100Prosent(
             sykmeldingId: String = "sykmelding-2",
-            sykmeldingSkrevet: OffsetDateTime = sykmeldingSkrevetSykmelding2,
-            signaturDato: OffsetDateTime = signaturDatoSykmelding2,
+            sykmeldingSkrevet: OffsetDateTime = OffsetDateTime.parse("2026-01-05T09:31:24.445Z"),
+            signaturDato: OffsetDateTime = OffsetDateTime.parse("2026-01-07T08:32:18.152Z"),
         ): SykmeldingKafkaMessageDTO =
             sykmeldingKafkaMessage(
                 fnr = fnr,
