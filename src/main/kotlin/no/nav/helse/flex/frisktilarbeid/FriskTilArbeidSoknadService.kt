@@ -2,7 +2,6 @@ package no.nav.helse.flex.frisktilarbeid
 
 import no.nav.helse.flex.client.arbeidssokerregister.ArbeidssokerperiodeRequest
 import no.nav.helse.flex.client.arbeidssokerregister.ArbeidssokerregisterClient
-import no.nav.helse.flex.cronjob.LeaderElection
 import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
@@ -29,19 +28,19 @@ class FriskTilArbeidSoknadService(
     private val soknadProducer: SoknadProducer,
     private val identService: IdentService,
     private val arbeidssokerregisterClient: ArbeidssokerregisterClient,
-    private val leaderElection: LeaderElection,
 ) {
     private val log = logger()
 
     @Scheduled(initialDelay = 4, fixedDelay = 3600, timeUnit = TimeUnit.MINUTES)
     fun oppdaterVedtak() {
-        if (leaderElection.isLeader()) {
-            val vedtakId = "028e56de-a769-46be-a764-41a326d1e185"
-            friskTilArbeidRepository.findById(vedtakId).ifPresent { vedtak ->
-                val oppdatertVedtak = vedtak.copy(behandletStatus = BehandletStatus.NY)
-                friskTilArbeidRepository.save(oppdatertVedtak)
-                log.info("Oppdatert vedtak med id: $vedtakId til status: NY")
-            }
+        val vedtakId = "028e56de-a769-46be-a764-41a326d1e185"
+        val fom = LocalDate.of(2026, 3, 2)
+        val tom = LocalDate.of(2026, 3, 4)
+
+        friskTilArbeidRepository.findById(vedtakId).ifPresent { vedtak ->
+            val oppdatertVedtak = vedtak.copy(fom = fom, tom = tom, behandletStatus = BehandletStatus.OVERLAPP_OK)
+            friskTilArbeidRepository.save(oppdatertVedtak)
+            log.info("Oppdatert vedtak med id: $vedtakId til ny fom: $fom")
         }
     }
 
@@ -58,27 +57,24 @@ class FriskTilArbeidSoknadService(
                 .filter { it.id != vedtakDbRecord.id }
                 .filter { it.behandletStatus != BehandletStatus.OVERLAPP_OK }
 
-        if (vedtakDbRecord.id != "028e56de-a769-46be-a764-41a326d1e185") {
-            log.info("Sjekker ikke overlapp for vedtak: ${vedtakDbRecord.id}.")
-            eksisterendeAndreVedtak
-                .firstOrNull {
-                    vedtakDbRecord.tilPeriode().overlapper(it.tilPeriode())
-                }?.apply {
-                    val feilmelding =
-                        "Vedtak med key: ${vedtakDbRecord.key} og " +
-                            "periode: [${vedtakDbRecord.fom} - ${vedtakDbRecord.tom}] " +
-                            "overlapper med vedtak med key: $key periode: [$fom - $tom]."
-                    log.error(feilmelding)
+        eksisterendeAndreVedtak
+            .firstOrNull {
+                vedtakDbRecord.tilPeriode().overlapper(it.tilPeriode())
+            }?.apply {
+                val feilmelding =
+                    "Vedtak med key: ${vedtakDbRecord.key} og " +
+                        "periode: [${vedtakDbRecord.fom} - ${vedtakDbRecord.tom}] " +
+                        "overlapper med vedtak med key: $key periode: [$fom - $tom]."
+                log.error(feilmelding)
 
-                    friskTilArbeidRepository.save(
-                        vedtakDbRecord.copy(
-                            behandletStatus = BehandletStatus.OVERLAPP,
-                            behandletTidspunkt = Instant.now(),
-                        ),
-                    )
-                    return emptyList()
-                }
-        }
+                friskTilArbeidRepository.save(
+                    vedtakDbRecord.copy(
+                        behandletStatus = BehandletStatus.OVERLAPP,
+                        behandletTidspunkt = Instant.now(),
+                    ),
+                )
+                return emptyList()
+            }
 
         if (vedtakDbRecord.sjekkArbeidssokerregisteret()) {
             val sisteArbeidssokerperiode =
