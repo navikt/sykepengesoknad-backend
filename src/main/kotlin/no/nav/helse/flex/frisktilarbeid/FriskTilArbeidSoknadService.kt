@@ -11,11 +11,13 @@ import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.service.IdentService
 import no.nav.helse.flex.util.isBeforeOrEqual
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 import java.time.LocalDate
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 const val SOKNAD_PERIODELENGDE = 14L
 
@@ -28,6 +30,19 @@ class FriskTilArbeidSoknadService(
     private val arbeidssokerregisterClient: ArbeidssokerregisterClient,
 ) {
     private val log = logger()
+
+    @Scheduled(initialDelay = 4, fixedDelay = 3600, timeUnit = TimeUnit.MINUTES)
+    fun oppdaterVedtak() {
+        val vedtakId = "028e56de-a769-46be-a764-41a326d1e185"
+        val fom = LocalDate.of(2026, 3, 2)
+        val tom = LocalDate.of(2026, 3, 4)
+
+        friskTilArbeidRepository.findById(vedtakId).ifPresent { vedtak ->
+            val oppdatertVedtak = vedtak.copy(fom = fom, tom = tom, behandletStatus = BehandletStatus.OVERLAPP_OK)
+            friskTilArbeidRepository.save(oppdatertVedtak)
+            log.info("Oppdatert vedtak med id: $vedtakId til ny fom: $fom")
+        }
+    }
 
     @Transactional
     fun opprettSoknader(
