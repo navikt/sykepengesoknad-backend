@@ -242,6 +242,7 @@ class OverlapperInni : FellesTestOppsett() {
             val soknadFraSykmelding1 =
                 sendSykmelding(
                     gradertSykmelding50Prosent(
+                        sykmeldingSkrevet = OffsetDateTime.parse("2026-01-05T15:55:02.661Z"),
                         signaturDato = OffsetDateTime.parse("2026-01-05T14:56:22.802Z"),
                     ),
                 ).single()
@@ -254,6 +255,7 @@ class OverlapperInni : FellesTestOppsett() {
                 sendSykmelding(
                     sykmelding100Prosent(
                         sykmeldingId = SYKMELDING_ID_FOR_NY_LOGIKK,
+                        sykmeldingSkrevet = OffsetDateTime.parse("2026-01-05T09:31:24.445Z"),
                         signaturDato = OffsetDateTime.parse("2026-01-07T08:32:18.152Z"),
                     ),
                     forventaSoknader = 2,
