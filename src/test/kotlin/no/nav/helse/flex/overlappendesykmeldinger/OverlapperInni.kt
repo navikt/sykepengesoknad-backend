@@ -285,7 +285,7 @@ class OverlapperInni : FellesTestOppsett() {
                         sykmeldingSkrevet = OffsetDateTime.parse("2026-01-05T15:55:02.661Z"),
                         signaturDato = OffsetDateTime.parse("2026-01-05T14:56:22.802Z"),
                     ),
-                ).first()
+                ).single()
 
             val førsteSoknadHentet = hentSoknad(førsteSoknad.id, fnr)
 
@@ -311,7 +311,6 @@ class OverlapperInni : FellesTestOppsett() {
                     sykmeldingSkrevet = OffsetDateTime.parse("2026-01-05T09:31:24.445Z"),
                     signaturDato = OffsetDateTime.parse("2026-01-07T08:32:18.152Z"),
                 ),
-                forventaSoknader = 1,
             ).single()
                 .also {
                     it.status shouldBeEqualTo SoknadsstatusDTO.NY

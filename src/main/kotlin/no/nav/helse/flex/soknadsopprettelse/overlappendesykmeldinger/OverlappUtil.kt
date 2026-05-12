@@ -31,10 +31,11 @@ internal fun SykepengesoknadDAO.soknadKandidaterSomKanKlippes(
     val nyttResultat = soknadKandidaterSomKanKlippesNy(orgnummer, sykmeldingKafkaMessage, identer)
     val gammeltResultat = soknadKandidaterSomKanKlippesGammel(orgnummer, sykmeldingKafkaMessage, identer)
 
-    log.info(
-        "Søknader som kan klippes for sykmelding ${sykmeldingKafkaMessage.sykmelding.id}: " +
-            "Ny logikk: ${nyttResultat.map { it.id }}. " +
-            "Gammel logikk: ${gammeltResultat.map { it.id }}.",
+    loggDryRunNyLogikk(
+        kontekst = "KLIPP_SØKNAD",
+        sykmeldingId = sykmeldingKafkaMessage.sykmelding.id,
+        nyttResultat = nyttResultat,
+        gammeltResultat = gammeltResultat,
     )
     return if (skalBrukeNyLogikk(sykmeldingKafkaMessage.sykmelding.id)) {
         nyttResultat
@@ -51,16 +52,13 @@ private fun SykepengesoknadDAO.soknadKandidaterSomKanKlippesNy(
     .filter { soknad ->
         val eksisterendeSoknad = soknad.signaturDatoNyLogikk()
         val innkommendeSykmelding = sykmeldingKafkaMessage.signaturDatoNyLogikk()
-        val erEldre = eksisterendeSoknad.isBefore(innkommendeSykmelding)
-        if (erEldre) {
+        val soknadErUtdatert = eksisterendeSoknad.isBefore(innkommendeSykmelding)
+        if (soknadErUtdatert) {
             log.info(
-                "Søknad ${soknad.id} ($eksisterendeSoknad) er eldre enn " +
-                    "innkommende sykmelding ${sykmeldingKafkaMessage.sykmelding.id} " +
-                    "($innkommendeSykmelding) – søknaden er kandidat for klipp " +
-                    "(logikk: ny)",
+                "SIGNATURDATO_NY: Sykmelding ${sykmeldingKafkaMessage.sykmelding.id} er nyere enn sykmeldingen brukt for å opprette søknad ${soknad.id} – søknaden er utdatert og kandidat for klipp",
             )
         }
-        return@filter erEldre
+        return@filter soknadErUtdatert
     }
 
 private fun SykepengesoknadDAO.soknadKandidaterSomKanKlippesGammel(
@@ -68,17 +66,14 @@ private fun SykepengesoknadDAO.soknadKandidaterSomKanKlippesGammel(
     sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
     identer: FolkeregisterIdenter,
 ) = alleSomOverlapper(orgnummer, sykmeldingKafkaMessage, identer)
-    .filter { sykepengesoknad ->
-        val erEldre = sykepengesoknad.erEldreMainLogikk(sykmeldingKafkaMessage.sykmelding)
-        if (erEldre) {
+    .filter { soknad ->
+        val soknadErUtdatert = soknad.erEldreMainLogikk(sykmeldingKafkaMessage.sykmelding)
+        if (soknadErUtdatert) {
             log.info(
-                "Søknad ${sykepengesoknad.id} (sykmeldingSkrevet: ${sykepengesoknad.sykmeldingSkrevet}) er eldre enn " +
-                    "innkommende sykmelding ${sykmeldingKafkaMessage.sykmelding.id} " +
-                    "(behandletTidspunkt: ${sykmeldingKafkaMessage.sykmelding.behandletTidspunkt}) – søknaden er kandidat for klipp " +
-                    "(logikk: main)",
+                "SIGNATURDATO_GAMMEL: Sykmelding ${sykmeldingKafkaMessage.sykmelding.id} er nyere enn sykmeldingen brukt for å opprette søknad ${soknad.id} – søknaden er utdatert og kandidat for klipp",
             )
         }
-        return@filter erEldre
+        return@filter soknadErUtdatert
     }
 
 internal fun SykepengesoknadDAO.soknadKandidaterSomKanKlippeSykmeldingen(
@@ -91,10 +86,11 @@ internal fun SykepengesoknadDAO.soknadKandidaterSomKanKlippeSykmeldingen(
     val gammeltResultat =
         soknadKandidaterSomKanKlippeSykmeldingenGammel(orgnummer, sykmeldingKafkaMessage, identer)
 
-    log.info(
-        "Søknader som kan klippe sykmelding ${sykmeldingKafkaMessage.sykmelding.id}: " +
-            "Ny logikk: ${nyttResultat.map { it.id }}. " +
-            "Gammel logikk: ${gammeltResultat.map { it.id }}.",
+    loggDryRunNyLogikk(
+        kontekst = "KLIPP_SYKMELDING",
+        sykmeldingId = sykmeldingKafkaMessage.sykmelding.id,
+        nyttResultat = nyttResultat,
+        gammeltResultat = gammeltResultat,
     )
     return if (skalBrukeNyLogikk(sykmeldingKafkaMessage.sykmelding.id)) {
         nyttResultat
@@ -111,16 +107,13 @@ private fun SykepengesoknadDAO.soknadKandidaterSomKanKlippeSykmeldingenNy(
     .filter { soknad ->
         val eksisterendeSoknad = soknad.signaturDatoNyLogikk()
         val innkommendeSykmelding = sykmeldingKafkaMessage.signaturDatoNyLogikk()
-        val erNyere = eksisterendeSoknad.isAfter(innkommendeSykmelding)
-        if (erNyere) {
+        val sykmeldingErUtdatert = eksisterendeSoknad.isAfter(innkommendeSykmelding)
+        if (sykmeldingErUtdatert) {
             log.info(
-                "Søknad ${soknad.id} ($eksisterendeSoknad) er nyere enn " +
-                    "innkommende sykmelding ${sykmeldingKafkaMessage.sykmelding.id} " +
-                    "($innkommendeSykmelding) – sykmeldingen er kandidat for klipp " +
-                    "(logikk: ny)",
+                "SIGNATURDATO_NY: Sykmelding ${sykmeldingKafkaMessage.sykmelding.id} er eldre enn sykmeldingen brukt for å opprette søknad ${soknad.id} – sykmeldingen er utdatert og kandidat for klipp",
             )
         }
-        return@filter erNyere
+        return@filter sykmeldingErUtdatert
     }
 
 private fun SykepengesoknadDAO.soknadKandidaterSomKanKlippeSykmeldingenGammel(
@@ -129,19 +122,24 @@ private fun SykepengesoknadDAO.soknadKandidaterSomKanKlippeSykmeldingenGammel(
     identer: FolkeregisterIdenter,
 ) = alleSomOverlapper(orgnummer, sykmeldingKafkaMessage, identer)
     .filter { soknad ->
-        val erNyere = soknad.erNyereMainLogikk(sykmeldingKafkaMessage.sykmelding)
-        if (erNyere) {
+        val sykmeldingErUtdatert = soknad.erNyereMainLogikk(sykmeldingKafkaMessage.sykmelding)
+        if (sykmeldingErUtdatert) {
             log.info(
-                "Søknad ${soknad.id} (sykmeldingSkrevet: ${soknad.sykmeldingSkrevet}) er nyere enn " +
-                    "innkommende sykmelding ${sykmeldingKafkaMessage.sykmelding.id} " +
-                    "(behandletTidspunkt: ${sykmeldingKafkaMessage.sykmelding.behandletTidspunkt}) " +
-                    "– sykmeldingen er kandidat for klipp (logikk: main)",
+                "SIGNATURDATO_GAMMEL: Sykmelding ${sykmeldingKafkaMessage.sykmelding.id} er eldre enn sykmeldingen brukt for å opprette søknad ${soknad.id} – sykmeldingen er utdatert og kandidat for klipp",
             )
         }
-        return@filter erNyere
+        return@filter sykmeldingErUtdatert
     }
 
-private fun skalBrukeNyLogikk(sykmeldingId: String): Boolean = sykmeldingId == SYKMELDING_ID_FOR_NY_LOGIKK
+private fun skalBrukeNyLogikk(sykmeldingId: String): Boolean {
+    val brukerNyLogikk = (sykmeldingId == SYKMELDING_ID_FOR_NY_LOGIKK)
+    if (brukerNyLogikk) {
+        log.info("Logikk for klipp er basert på SIGNATURDATO_NY")
+    } else {
+        log.info("Logikk for klipp er basert på SIGNATURDATO_GAMMEL")
+    }
+    return brukerNyLogikk
+}
 
 private fun Sykepengesoknad.signaturDatoNyLogikk(): Instant =
     this.sykmeldingSignaturDato
@@ -235,3 +233,27 @@ internal fun SykmeldingKafkaMessageDTO.erstattPerioder(nyePerioder: List<Sykmeld
  */
 fun ClosedRange<LocalDate>.overlap(other: ClosedRange<LocalDate>): Boolean =
     this.start in other || this.endInclusive in other || other.start in this || other.endInclusive in this
+
+private fun loggDryRunNyLogikk(
+    kontekst: String,
+    sykmeldingId: String,
+    nyttResultat: List<Sykepengesoknad>,
+    gammeltResultat: List<Sykepengesoknad>,
+) {
+    val nyIds = nyttResultat.map { it.id }.toSet()
+    val gammelIds = gammeltResultat.map { it.id }.toSet()
+
+    val kunINy = nyIds - gammelIds
+    val kunIGammel = gammelIds - nyIds
+
+    for (id in kunINy) {
+        log.info(
+            "SIGNATURDATO_NY: kontekst=$kontekst sykmeldingId=$sykmeldingId soknadId=$id. Ny logikk fant søknad som kandidat for klipp.",
+        )
+    }
+    for (id in kunIGammel) {
+        log.info(
+            "SIGNATURDATO_GAMMEL: kontekst=$kontekst sykmeldingId=$sykmeldingId soknadId=$id. Gammel logikk fant søknad som kandidat for klipp.",
+        )
+    }
+}
