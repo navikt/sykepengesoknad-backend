@@ -28,7 +28,16 @@ internal fun SykepengesoknadDAO.soknadKandidaterSomKanKlippes(
     sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
     identer: FolkeregisterIdenter,
 ): List<Sykepengesoknad> {
-    val nyttResultat = soknadKandidaterSomKanKlippesNy(orgnummer, sykmeldingKafkaMessage, identer)
+    val nyttResultat: List<Sykepengesoknad>? =
+        try {
+            soknadKandidaterSomKanKlippesNy(orgnummer, sykmeldingKafkaMessage, identer)
+        } catch (e: Exception) {
+            log.warn(
+                "Feil i ny logikk for å finne kandidater for klipp av søknad. Faller tilbake til gammel logikk. SykmeldingId=${sykmeldingKafkaMessage.sykmelding.id}",
+                e,
+            )
+            null
+        }
     val gammeltResultat = soknadKandidaterSomKanKlippesGammel(orgnummer, sykmeldingKafkaMessage, identer)
 
     loggDryRunNyLogikk(
@@ -37,7 +46,7 @@ internal fun SykepengesoknadDAO.soknadKandidaterSomKanKlippes(
         nyttResultat = nyttResultat,
         gammeltResultat = gammeltResultat,
     )
-    return if (skalBrukeNyLogikk(sykmeldingKafkaMessage.sykmelding.id)) {
+    return if (nyttResultat != null && skalBrukeNyLogikk(sykmeldingKafkaMessage.sykmelding.id)) {
         nyttResultat
     } else {
         gammeltResultat
@@ -81,8 +90,16 @@ internal fun SykepengesoknadDAO.soknadKandidaterSomKanKlippeSykmeldingen(
     sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
     identer: FolkeregisterIdenter,
 ): List<Sykepengesoknad> {
-    val nyttResultat =
-        soknadKandidaterSomKanKlippeSykmeldingenNy(orgnummer, sykmeldingKafkaMessage, identer)
+    val nyttResultat: List<Sykepengesoknad>? =
+        try {
+            soknadKandidaterSomKanKlippeSykmeldingenNy(orgnummer, sykmeldingKafkaMessage, identer)
+        } catch (e: Exception) {
+            log.warn(
+                "Feil i ny logikk for å finne kandidater for klipp av sykmelding. Faller tilbake til gammel logikk. SykmeldingId=${sykmeldingKafkaMessage.sykmelding.id}",
+                e,
+            )
+            null
+        }
     val gammeltResultat =
         soknadKandidaterSomKanKlippeSykmeldingenGammel(orgnummer, sykmeldingKafkaMessage, identer)
 
@@ -92,7 +109,7 @@ internal fun SykepengesoknadDAO.soknadKandidaterSomKanKlippeSykmeldingen(
         nyttResultat = nyttResultat,
         gammeltResultat = gammeltResultat,
     )
-    return if (skalBrukeNyLogikk(sykmeldingKafkaMessage.sykmelding.id)) {
+    return if (nyttResultat != null && skalBrukeNyLogikk(sykmeldingKafkaMessage.sykmelding.id)) {
         nyttResultat
     } else {
         gammeltResultat
@@ -237,9 +254,10 @@ fun ClosedRange<LocalDate>.overlap(other: ClosedRange<LocalDate>): Boolean =
 private fun loggDryRunNyLogikk(
     kontekst: String,
     sykmeldingId: String,
-    nyttResultat: List<Sykepengesoknad>,
+    nyttResultat: List<Sykepengesoknad>?,
     gammeltResultat: List<Sykepengesoknad>,
 ) {
+    if (nyttResultat == null) return
     val nyIds = nyttResultat.map { it.id }.toSet()
     val gammelIds = gammeltResultat.map { it.id }.toSet()
 
