@@ -772,6 +772,7 @@ class OverlapperMedFlere : FellesTestOppsett() {
                     tom = soknad.soknadPerioder.maxOf { it.tom },
                     startSykeforlop = soknad.soknadPerioder.minOf { it.fom },
                     sykmeldingSkrevet = soknad.sykmeldingSkrevet?.toInstant() ?: now,
+                    sykmeldingSignaturDato = soknad.sykmeldingSkrevet?.toInstant() ?: now,
                     soknadPerioder = soknad.soknadPerioder,
                     arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
                     arbeidsgiverOrgnummer = "123454543",

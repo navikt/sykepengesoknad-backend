@@ -344,7 +344,7 @@ class SykepengesoknadDAOPostgres(
                 )
             }
         friskTilArbeidRepository.deleteByFnr(fnr)
-        log.info("Slettet $antallSoknaderSlettet søknader tilhørende fnr: $fnr")
+        log.info("Slettet $antallSoknaderSlettet søknader.")
 
         return antallSoknaderSlettet
     }
@@ -354,14 +354,17 @@ class SykepengesoknadDAOPostgres(
         slettSoknad(sykepengesoknad.id)
 
         when (sykepengesoknad.soknadstype) {
-            Soknadstype.FRISKMELDT_TIL_ARBEIDSFORMIDLING ->
+            Soknadstype.FRISKMELDT_TIL_ARBEIDSFORMIDLING -> {
                 log.info(
                     "Slettet ${sykepengesoknad.status.name} søknad av typen: ${sykepengesoknad.soknadstype} med id: ${sykepengesoknad.id} tilhørende friskTilArbeidVedtakId: ${sykepengesoknad.friskTilArbeidVedtakId}.",
                 )
-            else ->
+            }
+
+            else -> {
                 log.info(
                     "Slettet ${sykepengesoknad.status.name} søknad av typen: ${sykepengesoknad.soknadstype} med id: ${sykepengesoknad.id} tilhørende sykmelding: ${sykepengesoknad.sykmeldingId}.",
                 )
+            }
         }
     }
 

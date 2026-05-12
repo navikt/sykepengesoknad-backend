@@ -92,13 +92,15 @@ fun skapArbeidsgiverSykmelding(
     signaturDato: OffsetDateTime = sykmeldingSkrevet,
     syketilfelleStartDato: LocalDate? = null,
     erPapirsykmelding: Boolean? = false,
+    mottattTidspunkt: OffsetDateTime = OffsetDateTime.now(ZoneOffset.UTC),
+    kontaktDato: LocalDate? = null,
 ): ArbeidsgiverSykmeldingDTO =
     ArbeidsgiverSykmeldingDTO(
         id = sykmeldingId,
         sykmeldingsperioder = sykmeldingsperioder ?: emptyList(),
         behandletTidspunkt = sykmeldingSkrevet,
         signaturDato = signaturDato,
-        mottattTidspunkt = OffsetDateTime.now(ZoneOffset.UTC),
+        mottattTidspunkt = mottattTidspunkt,
         arbeidsgiver = ArbeidsgiverAGDTO(null, null),
         syketilfelleStartDato = syketilfelleStartDato,
         egenmeldt = false,
@@ -119,7 +121,7 @@ fun skapArbeidsgiverSykmelding(
                     ),
                 tlf = null,
             ),
-        kontaktMedPasient = KontaktMedPasientAGDTO(null),
+        kontaktMedPasient = KontaktMedPasientAGDTO(kontaktDato),
         meldingTilArbeidsgiver = null,
         tiltakArbeidsplassen = null,
         prognose = null,
@@ -388,11 +390,13 @@ fun sykmeldingKafkaMessage(
     merknader: List<Merknad>? = null,
     utenlandskSykemelding: UtenlandskSykmeldingAGDTO? = null,
     sykmeldingSkrevet: OffsetDateTime = timestamp,
-    signaturDato: OffsetDateTime = timestamp,
+    signaturDato: OffsetDateTime = sykmeldingSkrevet,
     erPapirsykmelding: Boolean = false,
     tidligereArbeidsgiverOrgnummer: String? = null,
     status: String? = null,
     syketilfelleStartDato: LocalDate? = null,
+    mottattTidspunkt: OffsetDateTime = OffsetDateTime.now(),
+    kontaktDato: LocalDate? = null,
 ): SykmeldingKafkaMessageDTO {
     val faktiskArbeidsgiver =
         if (arbeidssituasjon == Arbeidssituasjon.ARBEIDSTAKER) {
@@ -429,6 +433,8 @@ fun sykmeldingKafkaMessage(
             signaturDato = signaturDato,
             syketilfelleStartDato = syketilfelleStartDato,
             erPapirsykmelding = erPapirsykmelding,
+            mottattTidspunkt = mottattTidspunkt,
+            kontaktDato = kontaktDato,
         )
 
     return SykmeldingKafkaMessageDTO(
