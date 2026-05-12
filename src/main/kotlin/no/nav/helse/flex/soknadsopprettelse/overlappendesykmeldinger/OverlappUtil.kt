@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.time.LocalDate
 
-private val log = LoggerFactory.getLogger("OverlappUtil")
+private val log = LoggerFactory.getLogger("no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.OverlappUtil")
 internal const val SYKMELDING_ID_FOR_NY_LOGIKK = "f16f3712-bef2-4fad-97a2-3d1685960d97"
 
 enum class EndringIUforegrad {
