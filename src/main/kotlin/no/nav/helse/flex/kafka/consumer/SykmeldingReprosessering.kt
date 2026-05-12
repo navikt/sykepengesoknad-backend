@@ -5,6 +5,7 @@ import no.nav.helse.flex.soknadsopprettelse.BehandleSykmeldingOgBestillAktiverin
 import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.SYKMELDING_ID_FOR_NY_LOGIKK
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.TopicPartition
+import org.springframework.context.annotation.Profile
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.listener.ConsumerSeekAware
 import org.springframework.kafka.listener.ConsumerSeekAware.ConsumerSeekCallback
@@ -15,6 +16,7 @@ import java.time.LocalDate
 import java.time.ZoneOffset
 import kotlin.collections.filterNotNull
 
+@Profile("!test")
 @Component
 class SykmeldingReprosessering(
     private val behandleSykmeldingOgBestillAktivering: BehandleSykmeldingOgBestillAktivering,
