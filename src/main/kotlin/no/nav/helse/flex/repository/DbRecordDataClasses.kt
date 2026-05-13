@@ -49,6 +49,7 @@ data class SykepengesoknadDbRecord(
     val friskTilArbeidVedtakId: String? = null,
     val selvstendigNaringsdrivende: String? = null,
     val ventetidSykmeldingUuid: String? = null,
+    val meldingTilNavDagerFraSykmelding: String? = null,
 )
 
 data class SporsmalDbRecord(

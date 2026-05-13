@@ -40,6 +40,7 @@ data class Sykepengesoknad(
     val utenlandskSykmelding: Boolean,
     val klippet: Boolean = false,
     val egenmeldingsdagerFraSykmelding: String? = null,
+    val meldingTilNavDagerFraSykmelding: List<Periode>? = null,
     val inntektskilderDataFraInntektskomponenten: List<ArbeidsforholdFraInntektskomponenten>? = null,
     val korrigeringsfristUtlopt: Boolean? = null,
     val forstegangssoknad: Boolean? = null,

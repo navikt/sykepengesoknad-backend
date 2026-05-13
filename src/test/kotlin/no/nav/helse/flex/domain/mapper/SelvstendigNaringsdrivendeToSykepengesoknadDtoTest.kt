@@ -11,6 +11,7 @@ import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.helse.flex.testutil.besvarsporsmal
 import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.`should not be equal to`
 import org.amshove.kluent.`should not be null`
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -136,6 +137,16 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
 
         soknad.sporsmal.firstOrNull { it.tag == YRKESSKADE_V2 } `should be equal to` null
         soknadDTO.sporsmal!!.firstOrNull { it.tag == YRKESSKADE_V2 } `should be equal to` null
+    }
+
+    @Test
+    fun `Inneholder melding til nav-dager`() {
+        val soknad = opprettNyNaeringsdrivendeSoknadGradert()
+        val soknadDTO = lagSykepengesoknadDTO(soknad)
+
+        soknad.meldingTilNavDagerFraSykmelding `should not be equal to` null
+        soknad.meldingTilNavDagerFraSykmelding `should be equal to`
+            soknadDTO.meldingTilNavDagerFraSykmelding!!.map { Periode(it.fom!!, it.tom!!) }
     }
 
     @Test
