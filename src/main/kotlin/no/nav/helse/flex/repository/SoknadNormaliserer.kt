@@ -49,6 +49,7 @@ fun Sykepengesoknad.normaliser(): NormalisertSoknad {
             utenlandskSykmelding = utenlandskSykmelding,
             sendt = sendt,
             egenmeldingsdagerFraSykmelding = egenmeldingsdagerFraSykmelding,
+            meldingTilNavDagerFraSykmelding = meldingTilNavDagerFraSykmelding?.serialisertTilString(),
             forstegangssoknad = forstegangssoknad,
             tidligereArbeidsgiverOrgnummer = tidligereArbeidsgiverOrgnummer,
             aktivertDato = aktivertDato,

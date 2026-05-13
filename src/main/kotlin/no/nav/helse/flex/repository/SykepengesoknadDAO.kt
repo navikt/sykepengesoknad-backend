@@ -638,6 +638,11 @@ class SykepengesoknadDAOPostgres(
                     opprettetAvInntektsmelding = resultSet.getBoolean("opprettet_av_inntektsmelding"),
                     utenlandskSykmelding = resultSet.getBoolean("utenlandsk_sykmelding"),
                     egenmeldingsdagerFraSykmelding = resultSet.getString("egenmeldingsdager_fra_sykmelding"),
+                    meldingTilNavDagerFraSykmelding =
+                        resultSet
+                            .getNullableString(
+                                "melding_til_nav_dager_fra_sykmelding",
+                            )?.let { objectMapper.readValue(it) },
                     inntektskilderDataFraInntektskomponenten =
                         resultSet
                             .getNullableString("inntektskilder_data_fra_inntektskomponenten")

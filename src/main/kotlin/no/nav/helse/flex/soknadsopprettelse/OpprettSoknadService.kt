@@ -129,6 +129,7 @@ class OpprettSoknadService(
                                 sporsmal = emptyList(),
                                 utenlandskSykmelding = sykmeldingTilSoknadOpprettelse.erUtlandskSykmelding,
                                 egenmeldingsdagerFraSykmelding = sykmeldingTilSoknadOpprettelse.egenmeldingsdagerFraSykmelding,
+                                meldingTilNavDagerFraSykmelding = sykmeldingTilSoknadOpprettelse.meldingTilNavDagerFraSykmelding,
                                 forstegangssoknad = null,
                                 tidligereArbeidsgiverOrgnummer = sykmeldingTilSoknadOpprettelse.tidligereArbeidsgiverOrgnummer,
                                 aktivertDato = null,
