@@ -166,4 +166,5 @@ fun Sykepengesoknad.tilRSSykepengesoknadFlexInternal() =
         soknadPerioder = this.soknadPerioder?.map { mapSoknadsperiode(it) },
         merknaderFraSykmelding = this.merknaderFraSykmelding?.map { it.mapMerknad() },
         ventetidSykmeldingUuid = this.ventetidSykmeldingUuid,
+        meldingTilNavDagerFraSykmelding = this.meldingTilNavDagerFraSykmelding,
     )
