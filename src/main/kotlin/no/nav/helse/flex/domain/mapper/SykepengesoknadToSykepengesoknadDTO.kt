@@ -48,6 +48,7 @@ fun konverterTilSykepengesoknadDTO(
         utenlandskSykmelding = sykepengesoknad.utenlandskSykmelding,
         yrkesskade = sykepengesoknad.hentYrkesskade(),
         egenmeldingsdagerFraSykmelding = sykepengesoknad.egenmeldingsdagerFraSykmelding.parseEgenmeldingsdagerFraSykmelding(),
+        meldingTilNavDagerFraSykmelding = sykepengesoknad.meldingTilNavDagerFraSykmelding?.map { PeriodeDTO(it.fom, it.tom) },
         egenmeldtSykmelding = sykepengesoknad.egenmeldtSykmelding,
         merknaderFraSykmelding = sykepengesoknad.merknaderFraSykmelding.tilMerknadDTO(),
         behandlingsdager = sykepengesoknad.hentBehandlingsdager(),

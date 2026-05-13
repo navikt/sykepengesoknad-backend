@@ -159,6 +159,7 @@ fun skapArbeidsgiverSykmeldingTilSoknadOpprettelse(
         brukerHarOppgittForsikring = false,
         egenmeldt = false,
         egenmeldingsdagerFraSykmelding = null,
+        meldingTilNavDagerFraSykmelding = null,
         fiskerBlad = null,
         merknader = merknader,
         arbeidsgiverOrgnummer = null,
@@ -237,7 +238,11 @@ fun lagKomplettInnsendtSkjemaSvar(
         arbeidsgiverOrgnummer = null,
         riktigNarmesteLeder = null,
         harBruktEgenmelding = null,
-        egenmeldingsperioder = null,
+        egenmeldingsperioder =
+            SporsmalSvar(
+                sporsmaltekst = "MeldingTilNavDager",
+                svar = listOf(Egenmeldingsperiode(LocalDate.of(2020, 2, 1), LocalDate.of(2020, 2, 15))),
+            ),
         brukerHarOppgittForsikring = null,
         egenmeldingsdager = null,
         harBruktEgenmeldingsdager = null,
