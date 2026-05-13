@@ -198,11 +198,7 @@ class FlexSyketilfelleEksternClient(
                     "perioderMedSammeVentetid",
                 ).queryParam("hentAndreIdenter", "false")
 
-        val body =
-            VentetidRequest(
-                sykmeldingKafkaMessage = sykmeldingKafkaMessage,
-                kunSendtBekreftet = true,
-            )
+        val body = VentetidRequest(sykmeldingKafkaMessage = sykmeldingKafkaMessage)
 
         val response =
             flexSyketilfelleRestTemplate
@@ -228,7 +224,6 @@ class FlexSyketilfelleEksternClient(
 
 data class VentetidRequest(
     val sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO? = null,
-    val kunSendtBekreftet: Boolean = false,
 )
 
 data class SammeVentetidResponse(
