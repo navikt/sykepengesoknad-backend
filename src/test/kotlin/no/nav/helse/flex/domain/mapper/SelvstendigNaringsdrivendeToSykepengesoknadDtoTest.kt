@@ -303,6 +303,7 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
             mottaker = Mottaker.NAV,
             erEttersending = false,
             soknadsperioder = hentSoknadsPerioderMedFaktiskGrad(soknad).first,
+            sendMeldingTilNavDager = true,
         )
 
     private fun lagDetailertSykepengegrunnlagNaeringsdrivende(fnr: String = "123456789"): SykepengegrunnlagNaeringsdrivende {
