@@ -9,6 +9,7 @@ import no.nav.helse.flex.client.sigrun.Skatteordning
 import no.nav.helse.flex.controller.domain.sykepengesoknad.*
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.FiskerBlad
+import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
 import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher
 import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher.sigrun404Feil
@@ -90,7 +91,11 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
             val utenforVentetid = false
             val testdata = opprettTestdata()
 
-            mockStandardSyketilfelle(testdata.sykmeldingId, erUtenforVentetid = utenforVentetid, oppfolgingsdato = testDato)
+            mockStandardSyketilfelle(
+                testdata.sykmeldingId,
+                erUtenforVentetid = utenforVentetid,
+                oppfolgingsdato = testDato,
+            )
 
             val sykmeldingKafkaMessage =
                 SykmeldingKafkaMessageDTO(
@@ -115,7 +120,11 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
             val testdata = opprettTestdata()
 
             settOppStandardNaeringsdrivendeData()
-            mockStandardSyketilfelle(testdata.sykmeldingId, erUtenforVentetid = utenforVentetid, oppfolgingsdato = testDato)
+            mockStandardSyketilfelle(
+                testdata.sykmeldingId,
+                erUtenforVentetid = utenforVentetid,
+                oppfolgingsdato = testDato,
+            )
 
             val kafkaSoknad =
                 prosesserSykmeldingOgHentKafkaSoknad(
@@ -141,7 +150,11 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
             val forsikring = true
             val testdata = opprettTestdata()
 
-            mockStandardSyketilfelle(testdata.sykmeldingId, erUtenforVentetid = utenforVentetid, oppfolgingsdato = testDato)
+            mockStandardSyketilfelle(
+                testdata.sykmeldingId,
+                erUtenforVentetid = utenforVentetid,
+                oppfolgingsdato = testDato,
+            )
 
             val kafkaSoknad =
                 prosesserSykmeldingOgHentKafkaSoknad(
@@ -226,11 +239,19 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                 verifiserLagretNaringsdrivendeSoknad(
                     forventetArbeidssituasjon = RSArbeidssituasjon.NAERINGSDRIVENDE,
                     harFunnetInntektFoerSykepengegrunnlaget = false,
-                    forventedeSporsmalTags = forventedeSporsmalTagsForNaringsdrivendeForsteSoknad.plus(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET),
+                    forventedeSporsmalTags =
+                        forventedeSporsmalTagsForNaringsdrivendeForsteSoknad.plus(
+                            NARINGSDRIVENDE_NY_I_ARBEIDSLIVET,
+                        ),
                     verifiserSykepengegrunnlag = {
                         it.`should not be null`()
                         it.harFunnetInntektFoerSykepengegrunnlaget `should be equal to` false
-                        it.inntekter.map { inntekt -> inntekt.inntektsaar } `should be equal to` listOf("2023", "2022", "2021")
+                        it.inntekter.map { inntekt -> inntekt.inntektsaar } `should be equal to`
+                            listOf(
+                                "2023",
+                                "2022",
+                                "2021",
+                            )
                         it.inntekter
                             .map { inntekt -> inntekt.pensjonsgivendeInntekt.isEmpty() } `should be equal to`
                             listOf(true, true, true)
@@ -456,6 +477,63 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                 soknad.tom `should be equal to` forventedePerioder.last().tom
                 soknad.soknadPerioder `should be equal to` forventedePerioder
             }
+        }
+    }
+
+    @Nested
+    inner class MeldingTilNavDager {
+        @Test
+        fun `Melding til NAV dager`() {
+            val fom = LocalDate.of(2021, 2, 1)
+            val tom = LocalDate.of(2021, 2, 14)
+            val testdata = opprettTestdata()
+            val oppdatertEvent =
+                testdata.sykmeldingStatus.event.copy(
+                    brukerSvar =
+                        testdata.sykmeldingStatus.event.brukerSvar?.copy(
+                            egenmeldingsperioder =
+                                SporsmalSvar(
+                                    sporsmaltekst = "MeldingTilNavDager",
+                                    svar =
+                                        listOf(
+                                            Egenmeldingsperiode(
+                                                fom = fom,
+                                                tom = tom,
+                                            ),
+                                        ),
+                                ),
+                        ),
+                )
+
+            settOppStandardNaeringsdrivendeData()
+            mockStandardSyketilfelle(testdata.sykmeldingId, oppfolgingsdato = testDato)
+
+            val kafkaSoknad =
+                prosesserSykmeldingOgHentKafkaSoknad(
+                    sykmeldingId = testdata.sykmeldingId,
+                    sykmelding = testdata.sykmelding,
+                    event = oppdatertEvent,
+                    kafkaMetadata = testdata.sykmeldingStatus.kafkaMetadata,
+                )
+
+            verifiserKafkaTypeArbeidssituasjonOgNaeringsinfo(
+                sykepengesoknadDTO = kafkaSoknad,
+                forventetArbeidssituasjon = ArbeidssituasjonDTO.SELVSTENDIG_NARINGSDRIVENDE,
+            )
+
+            verifiserLagretNaringsdrivendeSoknad(
+                forventetArbeidssituasjon = RSArbeidssituasjon.NAERINGSDRIVENDE,
+            )
+
+            verify(aivenKafkaProducer, times(1)).produserMelding(any())
+
+            sykepengesoknadDAO.finnSykepengesoknad(kafkaSoknad.id).meldingTilNavDagerFraSykmelding `should be equal to`
+                listOf(
+                    Periode(
+                        fom = fom,
+                        tom = tom,
+                    ),
+                )
         }
     }
 

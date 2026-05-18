@@ -2,6 +2,7 @@ package no.nav.helse.flex.mock
 
 import no.nav.helse.flex.domain.Arbeidssituasjon.FRILANSER
 import no.nav.helse.flex.domain.Arbeidssituasjon.NAERINGSDRIVENDE
+import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
@@ -72,6 +73,7 @@ fun opprettNyNaeringsdrivendeSoknadGradert(): Sykepengesoknad {
             utenlandskSykmelding = false,
             egenmeldingsdagerFraSykmelding = null,
             forstegangssoknad = false,
+            meldingTilNavDagerFraSykmelding = listOf(Periode(of(2021, 2, 1), of(2021, 2, 15))),
         )
 
     return (soknadMetadata)

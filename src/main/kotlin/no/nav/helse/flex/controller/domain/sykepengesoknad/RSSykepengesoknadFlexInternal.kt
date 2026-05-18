@@ -1,4 +1,5 @@
 package no.nav.helse.flex.controller.domain.sykepengesoknad
+import no.nav.helse.flex.domain.Periode
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -25,4 +26,5 @@ data class RSSykepengesoknadFlexInternal(
     val soknadPerioder: List<RSSoknadsperiode>? = null,
     val merknaderFraSykmelding: List<RSMerknad>?,
     val ventetidSykmeldingUuid: String? = null,
+    val meldingTilNavDagerFraSykmelding: List<Periode>? = null,
 )
