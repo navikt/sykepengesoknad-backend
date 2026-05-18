@@ -76,7 +76,7 @@ class OpprettSoknadService(
                             arbeidssituasjon = arbeidssituasjon,
                             eksisterendeSoknader = eksisterendeSoknader,
                             sykmeldingId = sykmelding.sykmeldingId,
-                            behandletTidspunkt = sykmelding.behandletTidspunkt,
+                            signaturDato = sykmelding.signaturDato!!,
                             orgnummer = sykmeldingTilSoknadOpprettelse.arbeidsgiverOrgnummer,
                             klippMetrikk = klippMetrikk,
                         ).map {
