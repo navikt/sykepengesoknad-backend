@@ -151,7 +151,7 @@ fun naringsdrivendeOpprettholdtInntekt100Prosent(
     Sporsmal(
         tag = NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT,
         sporsmalstekst = "Hadde du inntekt i virksomheten din selv om du var 100 % sykmeldt og ikke jobbet selv?",
-        undertekst = "For eksempel inntekter fra utleie eller arbeid utført av en vikar.",
+        undertekst = "For eksempel inntekter fra utleie eller arbeid utført av en vikar som gir et overskudd.",
         svartype = JA_NEI,
         // Disse er med for å få muteringen til å fungere
         min = fom.format(ISO_LOCAL_DATE),
@@ -168,7 +168,7 @@ fun naringsdrivendeOpprettholdtInntektGradert(
             fom,
             tom,
         )}, som ikke var et resultat av at du selv jobbet?",
-        undertekst = "For eksempel inntekter fra utleie eller arbeid utført av en vikar.",
+        undertekst = "For eksempel inntekter fra utleie eller arbeid utført av en vikar som gir et overskudd.",
         svartype = JA_NEI,
         // Disse er med for å få muteringen til å fungere
         min = fom.format(ISO_LOCAL_DATE),
