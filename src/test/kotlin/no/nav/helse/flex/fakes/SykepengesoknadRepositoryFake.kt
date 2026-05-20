@@ -41,9 +41,10 @@ class SykepengesoknadRepositoryFake :
 
     override fun findByFnrIn(fnrs: List<String>): List<SykepengesoknadDbRecord> = findAll().filter { it.fnr in fnrs }
 
-    override fun findBySykmeldingUuid(sykmeldingUuid: String): List<SykepengesoknadDbRecord> {
-        TODO("Not yet implemented")
-    }
+    override fun findBySykmeldingUuid(sykmeldingUuid: String): List<SykepengesoknadDbRecord> =
+        findAll().filter {
+            it.sykmeldingUuid == sykmeldingUuid
+        }
 
     override fun findBySykmeldingUuidIn(sykmeldingUuid: Set<String>): List<SykepengesoknadDbRecord> =
         findAll().filter {
