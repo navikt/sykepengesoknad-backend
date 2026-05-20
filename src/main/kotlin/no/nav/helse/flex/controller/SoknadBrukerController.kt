@@ -3,6 +3,7 @@ package no.nav.helse.flex.controller
 import io.swagger.v3.oas.annotations.tags.Tag
 import no.nav.helse.flex.config.EnvironmentToggles
 import no.nav.helse.flex.config.OIDCIssuer.TOKENX
+import no.nav.helse.flex.controller.domain.RSHarSoknadForSykmeldingResponse
 import no.nav.helse.flex.controller.domain.RSMottakerResponse
 import no.nav.helse.flex.controller.domain.RSOppdaterSporsmalResponse
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSMottaker
@@ -28,6 +29,7 @@ import no.nav.helse.flex.frisktilarbeid.FjernFremtidigeFtaSoknaderService
 import no.nav.helse.flex.inntektsopplysninger.InntektsopplysningForNaringsdrivende
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.oppdatersporsmal.soknad.OppdaterSporsmalService
+import no.nav.helse.flex.repository.SykepengesoknadRepository
 import no.nav.helse.flex.sending.SoknadSender
 import no.nav.helse.flex.service.AvbrytSoknadService
 import no.nav.helse.flex.service.EttersendingSoknadService
@@ -70,6 +72,7 @@ class SoknadBrukerController(
     private val inntektsopplysningForNaringsdrivende: InntektsopplysningForNaringsdrivende,
     private val oppholdUtenforEOSService: OppholdUtenforEOSService,
     private val fjernFremtidigeFtaSoknaderService: FjernFremtidigeFtaSoknaderService,
+    private val sykepengesoknadRepository: SykepengesoknadRepository,
     @param:Value("\${DITT_SYKEFRAVAER_FRONTEND_CLIENT_ID}")
     val dittSykefravaerFrontendClientId: String,
     @param:Value("\${SYKEPENGESOKNAD_FRONTEND_CLIENT_ID}")
@@ -84,6 +87,23 @@ class SoknadBrukerController(
         val identer =
             contextHolder.validerTokenXClaims(dittSykefravaerFrontendClientId, sykepengesoknadFrontendClientId).hentIdenter()
         return hentSoknadService.hentSoknaderUtenSporsmal(identer).map { it.tilRSSykepengesoknadMetadata() }
+    }
+
+    @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
+    @ResponseBody
+    @GetMapping(value = ["/soknader/sykmelding/{sykmeldingUuid}/harSoknad"], produces = [APPLICATION_JSON_VALUE])
+    fun harSoknadForSykmelding(
+        @PathVariable sykmeldingUuid: String,
+    ): RSHarSoknadForSykmeldingResponse {
+        val identer = contextHolder.validerTokenXClaims(dittSykefravaerFrontendClientId).hentIdenter()
+        val soknader = sykepengesoknadRepository.findBySykmeldingUuid(sykmeldingUuid)
+
+        val soknadFinnes = soknader.isNotEmpty()
+        if (soknadFinnes && soknader.any { it.fnr !in identer.alle() }) {
+            throw IkkeTilgangException("Er ikke eier")
+        }
+
+        return RSHarSoknadForSykmeldingResponse(harSoknad = soknadFinnes)
     }
 
     @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
