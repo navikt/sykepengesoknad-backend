@@ -78,7 +78,7 @@ class SykmeldingHarSoknadTest : FakesTestOppsett() {
                     .get("/api/v2/soknader/sykmelding/$sykmeldingUuid/harSoknad")
                     .header(
                         "Authorization",
-                        "Bearer ${server.tokenxToken(fnr = fnr, clientId = "ditt-sykefravaer-frontend-client-id")}",
+                        "Bearer ${server.tokenxToken(fnr = fnr, clientId = "flex-sykmeldinger-backend-client-id")}",
                     ).contentType(MediaType.APPLICATION_JSON),
             ).andExpect(status().isForbidden)
     }
@@ -96,7 +96,7 @@ class SykmeldingHarSoknadTest : FakesTestOppsett() {
     private fun hentHarSoknadForSykmelding(
         sykmeldingUuid: String,
         fnr: String,
-        clientId: String = "ditt-sykefravaer-frontend-client-id",
+        clientId: String = "flex-sykmeldinger-backend-client-id",
     ): RSHarSoknadForSykmeldingResponse {
         val json =
             mockMvc
