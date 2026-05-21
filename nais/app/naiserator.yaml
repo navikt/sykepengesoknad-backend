@@ -109,6 +109,7 @@ spec:
         - application: flex-sykmeldinger-backend
         - application: sykepengesoknad-arkivering-oppgave
         - application: flex-internal-frontend
+        - application: flex-sykmeldinger-backend
         - application: syfomodiaperson
           namespace: teamsykefravr
         - application: sparkel-dokumenter

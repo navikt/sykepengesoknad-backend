@@ -8,6 +8,7 @@ DITT_SYKEFRAVAER_FRONTEND_CLIENT_ID: ditt-sykefravaer-frontend-client-id
 SYKEPENGESOKNAD_FRONTEND_CLIENT_ID: sykepengesoknad-frontend-client-id
 FLEX_SYKMELDINGER_BACKEND_TOKENX_CLIENT_ID: flex-sykmeldinger-backend-client-id
 SPINNTEKTSMELDING_FRONTEND_CLIENT_ID: spinntekstmelding-frontend-client-id
+FLEX_SYKMELDINGER_BACKEND_CLIENT_ID: flex-sykmeldinger-backend-client-id
 TOKENX_IDPORTEN_IDP: idporten
 
 no.nav.security.jwt:
