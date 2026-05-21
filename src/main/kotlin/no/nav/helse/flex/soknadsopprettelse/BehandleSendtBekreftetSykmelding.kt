@@ -62,10 +62,13 @@ class BehandleSendtBekreftetSykmelding(
         }
     }
 
-    fun prosseserKafkaMessage(sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO): List<AktiveringBestilling> =
+    fun prosseserKafkaMessage(
+        sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
+        optIn: Boolean = false,
+    ): List<AktiveringBestilling> =
         when (sykmeldingKafkaMessage.event.statusEvent) {
             STATUS_BEKREFTET -> {
-                handterBekreftetSykmelding(sykmeldingKafkaMessage)
+                handterBekreftetSykmelding(sykmeldingKafkaMessage, optIn)
             }
 
             STATUS_SENDT -> {
@@ -81,7 +84,10 @@ class BehandleSendtBekreftetSykmelding(
             }
         }
 
-    private fun handterBekreftetSykmelding(sykmeldingStatusKafkaMessageDTO: SykmeldingKafkaMessageDTO): List<AktiveringBestilling> =
+    private fun handterBekreftetSykmelding(
+        sykmeldingStatusKafkaMessageDTO: SykmeldingKafkaMessageDTO,
+        optIn: Boolean = false,
+    ): List<AktiveringBestilling> =
         when (val arbeidssituasjon = sykmeldingStatusKafkaMessageDTO.hentArbeidssituasjon()) {
             Arbeidssituasjon.ARBEIDSLEDIG,
             Arbeidssituasjon.FISKER,
@@ -95,7 +101,7 @@ class BehandleSendtBekreftetSykmelding(
             Arbeidssituasjon.NAERINGSDRIVENDE,
             Arbeidssituasjon.FRILANSER,
             -> {
-                opprettSoknadNaringsdrivende(sykmeldingStatusKafkaMessageDTO, arbeidssituasjon)
+                opprettSoknadNaringsdrivende(sykmeldingStatusKafkaMessageDTO, arbeidssituasjon, optIn)
             }
 
             Arbeidssituasjon.ARBEIDSTAKER -> {
@@ -176,6 +182,7 @@ class BehandleSendtBekreftetSykmelding(
     private fun opprettSoknadNaringsdrivende(
         sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
         arbeidssituasjon: Arbeidssituasjon,
+        optIn: Boolean = false,
     ): List<AktiveringBestilling> {
         if (sykmeldingKafkaMessage.harUgyldigePerioder()) {
             return emptyList()
@@ -186,11 +193,12 @@ class BehandleSendtBekreftetSykmelding(
         låsIdenter(identer, sykmeldingKafkaMessage)
 
         val skalOppretteSoknad =
-            skalOppretteSoknader.skalOppretteNaringsdrivendeSoknader(
-                sykmeldingKafkaMessage = sykmeldingKafkaMessage,
-                arbeidssituasjon = arbeidssituasjon,
-                identer = identer,
-            )
+            optIn ||
+                skalOppretteSoknader.skalOppretteNaringsdrivendeSoknader(
+                    sykmeldingKafkaMessage = sykmeldingKafkaMessage,
+                    arbeidssituasjon = arbeidssituasjon,
+                    identer = identer,
+                )
         if (!skalOppretteSoknad) {
             return emptyList()
         }
