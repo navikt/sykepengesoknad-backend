@@ -38,6 +38,7 @@ env:
   DITT_SYKEFRAVAER_FRONTEND_CLIENT_ID: prod-gcp:flex:ditt-sykefravaer
   SYKEPENGESOKNAD_FRONTEND_CLIENT_ID: prod-gcp:flex:sykepengesoknad
   SPINNTEKTSMELDING_FRONTEND_CLIENT_ID: prod-gcp:helsearbeidsgiver:spinntektsmelding-frontend
+  FLEX_SYKMELDINGER_BACKEND_CLIENT_ID: prod-gcp:flex:flex-sykmeldinger-backend
   TOKENX_IDPORTEN_IDP: https://oidc.difi.no/idporten-oidc-provider/
   EREG_URL: https://ereg-services.prod-fss-pub.nais.io
   YRKESSKADE_URL: http://yrkesskade-saker.yrkesskade
@@ -59,4 +60,3 @@ env:
   ARBEIDSSOEKERREGISTERET_API_URL: http://paw-arbeidssoekerregisteret-api-oppslag-v2.paw
   FLEX_SYKMELDINGER_BACKEND_API_TARGET: api://prod-gcp.flex.flex-sykmeldinger-backend/.default
   FLEX_SYKMELDINGER_BACKEND_API_URL: http://flex-sykmeldinger-backend
-  FLEX_SYKMELDINGER_BACKEND_TOKENX_CLIENT_ID: prod-gcp:flex:flex-sykmeldinger-backend

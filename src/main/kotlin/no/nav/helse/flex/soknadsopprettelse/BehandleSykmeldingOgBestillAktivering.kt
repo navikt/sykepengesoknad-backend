@@ -29,4 +29,11 @@ class BehandleSykmeldingOgBestillAktivering(
         return skalAktiveres
             .forEach { aktiveringProducer.leggPaAktiveringTopic(it) }
     }
+
+    fun prosesserSykmeldingMedOptIn(sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO) {
+        val skalAktiveres =
+            behandleSendtBekreftetSykmelding.prosseserKafkaMessage(sykmeldingKafkaMessage, optIn = true)
+
+        skalAktiveres.forEach { aktiveringProducer.leggPaAktiveringTopic(it) }
+    }
 }
