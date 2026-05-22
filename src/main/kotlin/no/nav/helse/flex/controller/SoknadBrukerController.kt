@@ -84,8 +84,8 @@ class SoknadBrukerController(
     val dittSykefravaerFrontendClientId: String,
     @param:Value("\${SYKEPENGESOKNAD_FRONTEND_CLIENT_ID}")
     val sykepengesoknadFrontendClientId: String,
-    @param:Value("\${FLEX_SYKMELDINGER_BACKEND_TOKENX_CLIENT_ID}")
-    val flexSykmeldingerBackendTokenxClientId: String,
+    @param:Value("\${FLEX_SYKMELDINGER_BACKEND_CLIENT_ID}")
+    val flexSykmeldingerBackendClientId: String,
 ) {
     private val log = logger()
 
@@ -104,7 +104,7 @@ class SoknadBrukerController(
     fun harSoknadForSykmelding(
         @PathVariable sykmeldingUuid: String,
     ): RSHarSoknadForSykmeldingResponse {
-        val identer = contextHolder.validerTokenXClaims(flexSykmeldingerBackendTokenxClientId).hentIdenter()
+        val identer = contextHolder.validerTokenXClaims(flexSykmeldingerBackendClientId).hentIdenter()
         val soknader = sykepengesoknadRepository.findBySykmeldingUuid(sykmeldingUuid)
 
         val soknadFinnes = soknader.isNotEmpty()
