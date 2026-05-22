@@ -106,6 +106,7 @@ spec:
       rules:
         - application: ditt-sykefravaer
         - application: sykepengesoknad
+        - application: flex-sykmeldinger-backend
         - application: sykepengesoknad-arkivering-oppgave
         - application: flex-internal-frontend
         - application: syfomodiaperson

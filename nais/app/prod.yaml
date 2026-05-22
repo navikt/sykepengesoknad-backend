@@ -59,3 +59,4 @@ env:
   ARBEIDSSOEKERREGISTERET_API_URL: http://paw-arbeidssoekerregisteret-api-oppslag-v2.paw
   FLEX_SYKMELDINGER_BACKEND_API_TARGET: api://prod-gcp.flex.flex-sykmeldinger-backend/.default
   FLEX_SYKMELDINGER_BACKEND_API_URL: http://flex-sykmeldinger-backend
+  FLEX_SYKMELDINGER_BACKEND_TOKENX_CLIENT_ID: prod-gcp:flex:flex-sykmeldinger-backend
