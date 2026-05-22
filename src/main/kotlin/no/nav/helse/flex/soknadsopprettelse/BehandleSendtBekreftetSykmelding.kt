@@ -179,7 +179,7 @@ class BehandleSendtBekreftetSykmelding(
         )
     }
 
-    private fun opprettSoknadNaringsdrivende(
+    fun opprettSoknadNaringsdrivende(
         sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
         arbeidssituasjon: Arbeidssituasjon,
         optIn: Boolean = false,
