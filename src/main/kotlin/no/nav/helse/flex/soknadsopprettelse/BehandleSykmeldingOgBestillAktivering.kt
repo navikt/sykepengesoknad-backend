@@ -32,7 +32,11 @@ class BehandleSykmeldingOgBestillAktivering(
 
     fun prosesserSykmeldingMedOptIn(sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO) {
         val skalAktiveres =
-            behandleSendtBekreftetSykmelding.prosseserKafkaMessage(sykmeldingKafkaMessage, optIn = true)
+            behandleSendtBekreftetSykmelding.opprettSoknadNaringsdrivende(
+                sykmeldingKafkaMessage = sykmeldingKafkaMessage,
+                arbeidssituasjon = sykmeldingKafkaMessage.hentArbeidssituasjon()!!,
+                optIn = true,
+            )
 
         skalAktiveres.forEach { aktiveringProducer.leggPaAktiveringTopic(it) }
     }
