@@ -58,6 +58,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.web.bind.annotation.*
+import java.time.OffsetDateTime
 
 @RestController
 @RequestMapping(value = ["/api/v2"])
@@ -389,6 +390,10 @@ class SoknadBrukerController(
             throw IkkeTilgangException("Token har ikke tilgang til fnr: $fnr")
         }
 
+        if (sykmeldingKafkaMessage.timestampInnenfor4Mnd().not()) {
+            throw UgyldigOptInSykmeldingException("Sykmelding ${sykmeldingKafkaMessage.sykmelding.id} er for gammel for opt-in")
+        }
+
         behandleSykmeldingOgBestillAktivering.prosesserSykmeldingMedOptIn(sykmeldingKafkaMessage)
         log.info("Prosesserte opt-in sykmelding ${sykmeldingKafkaMessage.sykmelding.id} for arbeidssituasjon $arbeidssituasjon")
     }
@@ -449,6 +454,8 @@ class SoknadBrukerController(
         }
         return arbeidssituasjon
     }
+
+    private fun SykmeldingKafkaMessageDTO.timestampInnenfor4Mnd(): Boolean = event.timestamp.isAfter(OffsetDateTime.now().minusMonths(4))
 
     private fun skapOppdaterSpmResponse(
         oppdaterSporsmalResultat: OppdaterSporsmalService.OppdaterSporsmalResultat,

@@ -17,6 +17,7 @@ import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.time.LocalDate
+import java.time.OffsetDateTime
 
 class OpprettOptInIntegrationTest : FellesTestOppsett() {
     private val fnr = "123456789"
@@ -132,6 +133,23 @@ class OpprettOptInIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
+    fun `Gir 400 dersom timestamp er eldre enn 4 måneder`() {
+        val gammelTimestamp = OffsetDateTime.now().minusMonths(4).minusDays(1)
+        val kafkaMessage = lagSykmeldingKafkaMessage(fnr, Arbeidssituasjon.NAERINGSDRIVENDE, timestamp = gammelTimestamp)
+
+        val token = server.tokenxToken(fnr = fnr, clientId = "flex-sykmeldinger-backend-client-id")
+
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .post("/api/v2/soknader/opprett-opt-in")
+                    .header("Authorization", "Bearer $token")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(kafkaMessage.serialisertTilString()),
+            ).andExpect(MockMvcResultMatchers.status().isBadRequest)
+    }
+
+    @Test
     fun `Gir 400 dersom arbeidssituasjon ikke er frilanser eller naeringsdrivende`() {
         val kafkaMessage = lagSykmeldingKafkaMessage(fnr = fnr, arbeidssituasjon = Arbeidssituasjon.ARBEIDSLEDIG)
 
@@ -151,12 +169,14 @@ class OpprettOptInIntegrationTest : FellesTestOppsett() {
         fnr: String,
         arbeidssituasjon: Arbeidssituasjon,
         statusEvent: String = STATUS_BEKREFTET,
+        timestamp: OffsetDateTime = OffsetDateTime.now(),
     ): SykmeldingKafkaMessageDTO {
         val statusDTO =
             skapSykmeldingStatusKafkaMessageDTO(
                 fnr = fnr,
                 arbeidssituasjon = arbeidssituasjon,
                 statusEvent = statusEvent,
+                timestamp = timestamp,
             )
         val sykmelding =
             skapArbeidsgiverSykmelding(
