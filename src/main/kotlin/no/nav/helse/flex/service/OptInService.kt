@@ -43,5 +43,6 @@ class OptInService(
         return arbeidssituasjon
     }
 
-    private fun SykmeldingKafkaMessageDTO.timestampInnenfor4Mnd(): Boolean = event.timestamp.isAfter(OffsetDateTime.now().minusMonths(4))
+    private fun SykmeldingKafkaMessageDTO.timestampInnenfor4Mnd(): Boolean =
+        sykmelding.mottattTidspunkt.isAfter(OffsetDateTime.now().minusMonths(4).minusDays(1))
 }

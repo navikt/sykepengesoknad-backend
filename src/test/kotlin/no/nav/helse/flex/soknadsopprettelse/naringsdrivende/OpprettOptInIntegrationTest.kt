@@ -133,9 +133,14 @@ class OpprettOptInIntegrationTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `Gir 400 dersom timestamp er eldre enn 4 måneder`() {
-        val gammelTimestamp = OffsetDateTime.now().minusMonths(4).minusDays(1)
-        val kafkaMessage = lagSykmeldingKafkaMessage(fnr, Arbeidssituasjon.NAERINGSDRIVENDE, timestamp = gammelTimestamp)
+    fun `Gir 400 dersom mottattTidspunkt er eldre enn 4 måneder`() {
+        val gammelMottattTidspunkt = OffsetDateTime.now().minusMonths(4).minusDays(2)
+        val kafkaMessage =
+            lagSykmeldingKafkaMessage(
+                fnr = fnr,
+                arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
+                mottattTidspunkt = gammelMottattTidspunkt,
+            )
 
         val token = server.tokenxToken(fnr = fnr, clientId = "flex-sykmeldinger-backend-client-id")
 
@@ -169,19 +174,19 @@ class OpprettOptInIntegrationTest : FellesTestOppsett() {
         fnr: String,
         arbeidssituasjon: Arbeidssituasjon,
         statusEvent: String = STATUS_BEKREFTET,
-        timestamp: OffsetDateTime = OffsetDateTime.now(),
+        mottattTidspunkt: OffsetDateTime = OffsetDateTime.now(),
     ): SykmeldingKafkaMessageDTO {
         val statusDTO =
             skapSykmeldingStatusKafkaMessageDTO(
                 fnr = fnr,
                 arbeidssituasjon = arbeidssituasjon,
                 statusEvent = statusEvent,
-                timestamp = timestamp,
             )
         val sykmelding =
             skapArbeidsgiverSykmelding(
                 sykmeldingId = statusDTO.event.sykmeldingId,
                 sykmeldingsperioder = lagSykmeldingsPerioder(fom = dato, tom = dato.plusDays(15)),
+                mottattTidspunkt = mottattTidspunkt,
             )
         return SykmeldingKafkaMessageDTO(
             sykmelding = sykmelding,
