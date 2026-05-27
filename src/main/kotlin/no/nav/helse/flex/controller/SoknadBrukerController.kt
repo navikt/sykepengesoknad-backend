@@ -6,53 +6,25 @@ import no.nav.helse.flex.config.OIDCIssuer.TOKENX
 import no.nav.helse.flex.controller.domain.RSHarSoknadForSykmeldingResponse
 import no.nav.helse.flex.controller.domain.RSMottakerResponse
 import no.nav.helse.flex.controller.domain.RSOppdaterSporsmalResponse
-import no.nav.helse.flex.controller.domain.sykepengesoknad.RSMottaker
-import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSporsmal
-import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSvar
-import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknad
-import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknadMetadata
-import no.nav.helse.flex.controller.mapper.mapSporsmal
-import no.nav.helse.flex.controller.mapper.mapSporsmalTilRs
-import no.nav.helse.flex.controller.mapper.mapSvar
-import no.nav.helse.flex.controller.mapper.tilRSSykepengesoknad
-import no.nav.helse.flex.controller.mapper.tilRSSykepengesoknadMetadata
-import no.nav.helse.flex.domain.Arbeidssituasjon
+import no.nav.helse.flex.controller.domain.sykepengesoknad.*
+import no.nav.helse.flex.controller.mapper.*
 import no.nav.helse.flex.domain.Avsendertype.BRUKER
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.exception.FeilStatusForOppdaterSporsmalException
-import no.nav.helse.flex.exception.ForsokPaSendingAvNyereSoknadException
-import no.nav.helse.flex.exception.IkkeTilgangException
-import no.nav.helse.flex.exception.ReadOnlyException
-import no.nav.helse.flex.exception.SporsmalFinnesIkkeISoknadException
-import no.nav.helse.flex.exception.UgyldigOptInSykmeldingException
+import no.nav.helse.flex.exception.*
 import no.nav.helse.flex.frisktilarbeid.FjernFremtidigeFtaSoknaderService
 import no.nav.helse.flex.inntektsopplysninger.InntektsopplysningForNaringsdrivende
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.oppdatersporsmal.soknad.OppdaterSporsmalService
 import no.nav.helse.flex.repository.SykepengesoknadRepository
 import no.nav.helse.flex.sending.SoknadSender
-import no.nav.helse.flex.service.AvbrytSoknadService
-import no.nav.helse.flex.service.EttersendingSoknadService
-import no.nav.helse.flex.service.FolkeregisterIdenter
-import no.nav.helse.flex.service.GjenapneSoknadService
-import no.nav.helse.flex.service.HentSoknadService
-import no.nav.helse.flex.service.IdentService
-import no.nav.helse.flex.service.KorrigerSoknadService
-import no.nav.helse.flex.service.MottakerAvSoknadService
-import no.nav.helse.flex.service.OppholdUtenforEOSService
-import no.nav.helse.flex.soknadsopprettelse.BehandleSykmeldingOgBestillAktivering
-import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLD_UTENFOR_EOS
-import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE
-import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE
-import no.nav.helse.flex.soknadsopprettelse.OpprettSoknadService
-import no.nav.helse.flex.soknadsopprettelse.hentArbeidssituasjon
+import no.nav.helse.flex.service.*
+import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.svarvalidering.validerSvarPaSoknad
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.security.token.support.core.jwt.JwtTokenClaims
-import no.nav.syfo.sykmelding.kafka.model.STATUS_BEKREFTET
 import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessageDTO
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
@@ -78,8 +50,8 @@ class SoknadBrukerController(
     private val inntektsopplysningForNaringsdrivende: InntektsopplysningForNaringsdrivende,
     private val oppholdUtenforEOSService: OppholdUtenforEOSService,
     private val fjernFremtidigeFtaSoknaderService: FjernFremtidigeFtaSoknaderService,
-    private val behandleSykmeldingOgBestillAktivering: BehandleSykmeldingOgBestillAktivering,
     private val sykepengesoknadRepository: SykepengesoknadRepository,
+    private val optInService: OptInService,
     @param:Value("\${DITT_SYKEFRAVAER_FRONTEND_CLIENT_ID}")
     val dittSykefravaerFrontendClientId: String,
     @param:Value("\${SYKEPENGESOKNAD_FRONTEND_CLIENT_ID}")
@@ -381,7 +353,6 @@ class SoknadBrukerController(
         @RequestBody sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
     ) {
         val claims = contextHolder.validerTokenXClaims(flexSykmeldingerBackendClientId)
-        val arbeidssituasjon = sykmeldingKafkaMessage.validerOgHentOptInArbeidssituasjon()
         val identer = claims.hentIdenter()
 
         val fnr = sykmeldingKafkaMessage.kafkaMetadata.fnr
@@ -389,8 +360,7 @@ class SoknadBrukerController(
             throw IkkeTilgangException("Token har ikke tilgang til fnr: $fnr")
         }
 
-        behandleSykmeldingOgBestillAktivering.prosesserSykmeldingMedOptIn(sykmeldingKafkaMessage)
-        log.info("Prosesserte opt-in sykmelding ${sykmeldingKafkaMessage.sykmelding.id} for arbeidssituasjon $arbeidssituasjon")
+        optInService.opprettOptInnSoknad(sykmeldingKafkaMessage)
     }
 
     data class SoknadOgIdenter(
@@ -432,23 +402,6 @@ class SoknadBrukerController(
 
     private fun JwtTokenClaims.hentIdenter(): FolkeregisterIdenter =
         identService.hentFolkeregisterIdenterMedHistorikkForFnr(this.getStringClaim("pid"))
-
-    private fun SykmeldingKafkaMessageDTO.validerOgHentOptInArbeidssituasjon(): Arbeidssituasjon {
-        if (event.statusEvent != STATUS_BEKREFTET) {
-            throw UgyldigOptInSykmeldingException(
-                "Sykmelding ${sykmelding.id} har ugyldig statusEvent ${event.statusEvent}, forventet $STATUS_BEKREFTET",
-            )
-        }
-        val arbeidssituasjon =
-            hentArbeidssituasjon()
-                ?: throw UgyldigOptInSykmeldingException("Fant ikke arbeidssituasjon for sykmelding ${sykmelding.id}")
-        if (arbeidssituasjon !in setOf(Arbeidssituasjon.FRILANSER, Arbeidssituasjon.NAERINGSDRIVENDE)) {
-            throw UgyldigOptInSykmeldingException(
-                "Ugyldig arbeidssituasjon $arbeidssituasjon for sykmelding ${sykmelding.id}",
-            )
-        }
-        return arbeidssituasjon
-    }
 
     private fun skapOppdaterSpmResponse(
         oppdaterSporsmalResultat: OppdaterSporsmalService.OppdaterSporsmalResultat,
