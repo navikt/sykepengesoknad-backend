@@ -17,32 +17,39 @@ class OptInService(
     private val log = logger()
 
     fun opprettOptInnSoknad(sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO) {
-        val arbeidssituasjon = sykmeldingKafkaMessage.validerOgHentOptInArbeidssituasjon()
-        if (sykmeldingKafkaMessage.erForGammelForOptIn()) {
-            throw UgyldigOptInSykmeldingException("Sykmelding ${sykmeldingKafkaMessage.sykmelding.id} er for gammel for opt-in")
+        sykmeldingKafkaMessage.run {
+            validerStatusForOptIn()
+            validerArbeidssituasjonForOptIn()
+            validerAlderForOptIn()
         }
 
         behandleSykmeldingOgBestillAktivering.prosesserSykmeldingMedOptIn(sykmeldingKafkaMessage)
-        log.info("Prosesserte opt-in sykmelding ${sykmeldingKafkaMessage.sykmelding.id} for arbeidssituasjon $arbeidssituasjon")
+        log.info("Prosesserte opt-in sykmelding ${sykmeldingKafkaMessage.sykmelding.id} ")
     }
 
-    private fun SykmeldingKafkaMessageDTO.validerOgHentOptInArbeidssituasjon(): Arbeidssituasjon {
+    private fun SykmeldingKafkaMessageDTO.validerStatusForOptIn() {
         if (event.statusEvent != STATUS_BEKREFTET) {
             throw UgyldigOptInSykmeldingException(
                 "Sykmelding ${sykmelding.id} har ugyldig statusEvent ${event.statusEvent}, forventet $STATUS_BEKREFTET",
             )
         }
+    }
+
+    private fun SykmeldingKafkaMessageDTO.validerArbeidssituasjonForOptIn() {
         val arbeidssituasjon =
             hentArbeidssituasjon()
                 ?: throw UgyldigOptInSykmeldingException("Fant ikke arbeidssituasjon for sykmelding ${sykmelding.id}")
+
         if (arbeidssituasjon !in setOf(Arbeidssituasjon.FRILANSER, Arbeidssituasjon.NAERINGSDRIVENDE)) {
             throw UgyldigOptInSykmeldingException(
                 "Ugyldig arbeidssituasjon $arbeidssituasjon for sykmelding ${sykmelding.id}",
             )
         }
-        return arbeidssituasjon
     }
 
-    private fun SykmeldingKafkaMessageDTO.erForGammelForOptIn(): Boolean =
-        sykmelding.mottattTidspunkt.isBefore(OffsetDateTime.now().minusMonths(4).minusDays(1))
+    private fun SykmeldingKafkaMessageDTO.validerAlderForOptIn() {
+        if (sykmelding.mottattTidspunkt.isBefore(OffsetDateTime.now().minusMonths(4).minusDays(1))) {
+            throw UgyldigOptInSykmeldingException("Sykmelding ${sykmelding.id} er for gammel for opt-in")
+        }
+    }
 }
