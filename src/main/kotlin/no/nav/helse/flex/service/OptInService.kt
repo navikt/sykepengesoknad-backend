@@ -18,7 +18,7 @@ class OptInService(
 
     fun opprettOptInnSoknad(sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO) {
         val arbeidssituasjon = sykmeldingKafkaMessage.validerOgHentOptInArbeidssituasjon()
-        if (sykmeldingKafkaMessage.timestampInnenfor4Mnd().not()) {
+        if (sykmeldingKafkaMessage.erForGammelForOptIn()) {
             throw UgyldigOptInSykmeldingException("Sykmelding ${sykmeldingKafkaMessage.sykmelding.id} er for gammel for opt-in")
         }
 
@@ -43,6 +43,6 @@ class OptInService(
         return arbeidssituasjon
     }
 
-    private fun SykmeldingKafkaMessageDTO.timestampInnenfor4Mnd(): Boolean =
-        sykmelding.mottattTidspunkt.isAfter(OffsetDateTime.now().minusMonths(4).minusDays(1))
+    private fun SykmeldingKafkaMessageDTO.erForGammelForOptIn(): Boolean =
+        sykmelding.mottattTidspunkt.isBefore(OffsetDateTime.now().minusMonths(4).minusDays(1))
 }
