@@ -214,15 +214,24 @@ class BehandleSendtBekreftetSykmelding(
 
         val sorterteSykmeldinger =
             (setOf(sykmeldingKafkaMessage) + sykmeldingerSomSkalHaSoknader).sortedBy { it.sykmelding.fom }
+        // burde kanskje sorteres på signaturdato hvis klipp skal prioriteres slik
 
         return sorterteSykmeldinger.flatMap {
+            val klippetSykmeldingKafkaMessage =
+                klipp.klippFrilanser(
+                    sykmeldingKafkaMessage = it,
+                    arbeidssituasjon = arbeidssituasjon,
+                    identer = identer,
+                )
             opprettSoknadService.opprettSykepengesoknaderForSykmelding(
-                sykmeldingTilSoknadOpprettelse = it.tilSykmeldingTilSoknadOpprettelse(),
-                arbeidssituasjon = it.hentArbeidssituasjon()!!,
+                sykmeldingTilSoknadOpprettelse = klippetSykmeldingKafkaMessage.tilSykmeldingTilSoknadOpprettelse(),
+                arbeidssituasjon = klippetSykmeldingKafkaMessage.hentArbeidssituasjon()!!,
                 identer = identer,
                 flexSyketilfelleSykeforloep = sykeForloep,
                 ventetidSykmeldingUuid =
-                    if (sykmeldingerSomSkalHaSoknader.isNotEmpty() && it.sykmelding.id != sykmeldingKafkaMessage.sykmelding.id) {
+                    if (sykmeldingerSomSkalHaSoknader.isNotEmpty() &&
+                        klippetSykmeldingKafkaMessage.sykmelding.id != sykmeldingKafkaMessage.sykmelding.id
+                    ) {
                         sykmeldingKafkaMessage.sykmelding.id
                     } else {
                         null

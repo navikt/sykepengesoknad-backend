@@ -11,6 +11,7 @@ import no.nav.helse.flex.soknadsopprettelse.antallDager
 import no.nav.helse.flex.soknadsopprettelse.eldstePeriodeFom
 import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.EndringIUforegrad
 import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.KlippMetrikk
+import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.matcherArbeidssituasjon
 import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.overlap
 import no.nav.helse.flex.soknadsopprettelse.sistePeriodeTom
 import no.nav.helse.flex.util.isAfterOrEqual
@@ -46,13 +47,14 @@ fun SykmeldingTilSoknadOpprettelse.splittSykmeldingiSoknadsPerioder(
         sykmeldingTidsenheter.splittLangeSykmeldingperioderMedBehandlingsdager()
     }
 
-    if (erArbeidstakerSoknad(arbeidssituasjon)) {
+    if (erArbeidstakerSoknad(arbeidssituasjon) || erFrilanserSoknad(arbeidssituasjon)) {
         sykmeldingTidsenheter.splittPeriodenSomOverlapperSendtSoknad(
             eksisterendeSoknader,
             sykmeldingId,
             behandletTidspunkt,
             orgnummer,
             klippMetrikk,
+            arbeidssituasjon,
         )
     }
 
@@ -71,6 +73,10 @@ private fun SykmeldingTilSoknadOpprettelse.harBehandlingsdager(arbeidssituasjon:
 private fun SykmeldingTilSoknadOpprettelse.erArbeidstakerSoknad(arbeidssituasjon: Arbeidssituasjon): Boolean =
     bestemSoknadsTypeNy(arbeidssituasjon, sykmeldingsperioder) == Soknadstype.ARBEIDSTAKERE
 
+private fun SykmeldingTilSoknadOpprettelse.erFrilanserSoknad(arbeidssituasjon: Arbeidssituasjon): Boolean =
+    arbeidssituasjon == Arbeidssituasjon.FRILANSER &&
+        bestemSoknadsTypeNy(arbeidssituasjon, sykmeldingsperioder) == Soknadstype.SELVSTENDIGE_OG_FRILANSERE
+
 private fun SykmeldingTidsenheter.splittLangeSykmeldingperioderMedBehandlingsdager(): SykmeldingTidsenheter {
     while (splittbar.isNotEmpty()) {
         val tidsenhet = splittbar.removeFirst()
@@ -85,6 +91,7 @@ private fun SykmeldingTidsenheter.splittPeriodenSomOverlapperSendtSoknad(
     behandletTidspunkt: Instant,
     orgnummer: String?,
     klippMetrikk: KlippMetrikk,
+    arbeidssituasjon: Arbeidssituasjon,
 ): SykmeldingTidsenheter {
     val splittbareTidsenheter = splittbar.toMutableList()
     splittbar.clear()
@@ -94,10 +101,9 @@ private fun SykmeldingTidsenheter.splittPeriodenSomOverlapperSendtSoknad(
             .asSequence()
             // Korrigerte sykmeldinger håndteres her SlettSoknaderTilKorrigertSykmeldingService.
             .filterNot { it.sykmeldingId == sykmeldingId }
-            .filter { it.soknadstype == Soknadstype.ARBEIDSTAKERE }
+            .filter { it.matcherArbeidssituasjon(arbeidssituasjon, orgnummer) }
             .filter { it.status == Soknadstatus.SENDT }
             .filter { it.sykmeldingSkrevet!!.isBefore(behandletTidspunkt) }
-            .filter { it.arbeidsgiverOrgnummer == orgnummer }
             .filter { sok ->
                 splittbareTidsenheter.forEach {
                     val soknadPeriode = sok.fom!!..sok.tom!!
