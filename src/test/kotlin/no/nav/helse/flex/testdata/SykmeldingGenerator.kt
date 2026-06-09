@@ -17,6 +17,7 @@ import no.nav.syfo.model.sykmelding.model.GradertDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import no.nav.syfo.sykmelding.kafka.model.*
 import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessageDTO
+import java.time.Instant
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -137,6 +138,9 @@ fun skapArbeidsgiverSykmeldingTilSoknadOpprettelse(
     gradert: Gradert? = null,
     merknader: List<no.nav.helse.flex.domain.Merknad>? = null,
     eventTimestamp: OffsetDateTime = OffsetDateTime.now(),
+    behandletTidspunkt: Instant = OffsetDateTime.now(ZoneOffset.UTC).toInstant(),
+    signaturDato: Instant? = OffsetDateTime.now(ZoneOffset.UTC).toInstant(),
+    arbeidsgiverOrgnummer: String? = null,
 ): SykmeldingTilSoknadOpprettelse =
     SykmeldingTilSoknadOpprettelse(
         sykmeldingId = sykmeldingId,
@@ -151,8 +155,8 @@ fun skapArbeidsgiverSykmeldingTilSoknadOpprettelse(
                 ),
             ),
         eventTimestamp = eventTimestamp,
-        behandletTidspunkt = OffsetDateTime.now(ZoneOffset.UTC).toInstant(),
-        signaturDato = OffsetDateTime.now(ZoneOffset.UTC).toInstant(),
+        behandletTidspunkt = behandletTidspunkt,
+        signaturDato = signaturDato,
         erUtlandskSykmelding = false,
         brukerHarOppgittForsikring = false,
         egenmeldt = false,
@@ -160,7 +164,7 @@ fun skapArbeidsgiverSykmeldingTilSoknadOpprettelse(
         meldingTilNavDagerFraSykmelding = null,
         fiskerBlad = null,
         merknader = merknader,
-        arbeidsgiverOrgnummer = null,
+        arbeidsgiverOrgnummer = arbeidsgiverOrgnummer,
         arbeidsgiverNavn = null,
         tidligereArbeidsgiverOrgnummer = null,
         erPapirsykmelding = false,
