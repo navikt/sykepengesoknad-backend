@@ -28,7 +28,7 @@ fun SykmeldingTilSoknadOpprettelse.splittSykmeldingiSoknadsPerioder(
     arbeidssituasjon: Arbeidssituasjon,
     eksisterendeSoknader: List<Sykepengesoknad>,
     sykmeldingId: String,
-    behandletTidspunkt: Instant,
+    signaturDato: Instant,
     orgnummer: String?,
     klippMetrikk: KlippMetrikk,
 ): List<Tidsenhet> {
@@ -51,7 +51,7 @@ fun SykmeldingTilSoknadOpprettelse.splittSykmeldingiSoknadsPerioder(
         sykmeldingTidsenheter.splittPeriodenSomOverlapperSendtSoknad(
             eksisterendeSoknader,
             sykmeldingId,
-            behandletTidspunkt,
+            signaturDato,
             orgnummer,
             klippMetrikk,
             arbeidssituasjon,
@@ -88,7 +88,7 @@ private fun SykmeldingTidsenheter.splittLangeSykmeldingperioderMedBehandlingsdag
 private fun SykmeldingTidsenheter.splittPeriodenSomOverlapperSendtSoknad(
     eksisterendeSoknader: List<Sykepengesoknad>,
     sykmeldingId: String,
-    behandletTidspunkt: Instant,
+    signaturDato: Instant,
     orgnummer: String?,
     klippMetrikk: KlippMetrikk,
     arbeidssituasjon: Arbeidssituasjon,
@@ -103,6 +103,7 @@ private fun SykmeldingTidsenheter.splittPeriodenSomOverlapperSendtSoknad(
             .filterNot { it.sykmeldingId == sykmeldingId }
             .filter { it.matcherArbeidssituasjon(arbeidssituasjon, orgnummer) }
             .filter { it.status == Soknadstatus.SENDT }
+            .filter { it.arbeidsgiverOrgnummer == orgnummer }
             .filter { sok ->
                 splittbareTidsenheter.forEach {
                     val soknadPeriode = sok.fom!!..sok.tom!!
@@ -112,7 +113,7 @@ private fun SykmeldingTidsenheter.splittPeriodenSomOverlapperSendtSoknad(
                     }
                 }
                 return@filter false
-            }.filter { it.sykmeldingSkrevet!!.isBefore(behandletTidspunkt) }
+            }.filter { it.sykmeldingSignaturDato!!.isBefore(signaturDato) }
             .toList()
 
     while (splittbareTidsenheter.isNotEmpty()) {
