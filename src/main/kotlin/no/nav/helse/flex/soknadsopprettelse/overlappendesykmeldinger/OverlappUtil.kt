@@ -229,8 +229,8 @@ internal fun Sykepengesoknad.matcherArbeidssituasjon(
         Arbeidssituasjon.ARBEIDSTAKER ->
             this.soknadstype == Soknadstype.ARBEIDSTAKERE && arbeidsgiverOrgnummer == orgnummer
 
-        Arbeidssituasjon.FRILANSER ->
-            this.arbeidssituasjon == Arbeidssituasjon.FRILANSER
+        Arbeidssituasjon.NAERINGSDRIVENDE ->
+            this.arbeidssituasjon == Arbeidssituasjon.NAERINGSDRIVENDE
 
         else -> throw RuntimeException("Ugyldig arbeidssituasjon for klipp")
     }

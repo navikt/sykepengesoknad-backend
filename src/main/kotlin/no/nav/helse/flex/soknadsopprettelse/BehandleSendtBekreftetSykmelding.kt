@@ -218,7 +218,7 @@ class BehandleSendtBekreftetSykmelding(
 
         return sorterteSykmeldinger.flatMap {
             val klippetSykmeldingKafkaMessage =
-                klipp.klippFrilanser(
+                klipp.klippNaeringsdrivende(
                     sykmeldingKafkaMessage = it,
                     arbeidssituasjon = arbeidssituasjon,
                     identer = identer,

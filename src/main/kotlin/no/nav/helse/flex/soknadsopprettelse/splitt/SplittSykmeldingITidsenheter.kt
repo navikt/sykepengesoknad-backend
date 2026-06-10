@@ -47,7 +47,7 @@ fun SykmeldingTilSoknadOpprettelse.splittSykmeldingiSoknadsPerioder(
         sykmeldingTidsenheter.splittLangeSykmeldingperioderMedBehandlingsdager()
     }
 
-    if (erArbeidstakerSoknad(arbeidssituasjon) || erFrilanserSoknad(arbeidssituasjon)) {
+    if (erArbeidstakerSoknad(arbeidssituasjon) || erNaeringsdrivendeSoknad(arbeidssituasjon)) {
         sykmeldingTidsenheter.splittPeriodenSomOverlapperSendtSoknad(
             eksisterendeSoknader,
             sykmeldingId,
@@ -73,8 +73,8 @@ private fun SykmeldingTilSoknadOpprettelse.harBehandlingsdager(arbeidssituasjon:
 private fun SykmeldingTilSoknadOpprettelse.erArbeidstakerSoknad(arbeidssituasjon: Arbeidssituasjon): Boolean =
     bestemSoknadsTypeNy(arbeidssituasjon, sykmeldingsperioder) == Soknadstype.ARBEIDSTAKERE
 
-private fun SykmeldingTilSoknadOpprettelse.erFrilanserSoknad(arbeidssituasjon: Arbeidssituasjon): Boolean =
-    arbeidssituasjon == Arbeidssituasjon.FRILANSER &&
+private fun SykmeldingTilSoknadOpprettelse.erNaeringsdrivendeSoknad(arbeidssituasjon: Arbeidssituasjon): Boolean =
+    arbeidssituasjon == Arbeidssituasjon.NAERINGSDRIVENDE &&
         bestemSoknadsTypeNy(arbeidssituasjon, sykmeldingsperioder) == Soknadstype.SELVSTENDIGE_OG_FRILANSERE
 
 private fun SykmeldingTidsenheter.splittLangeSykmeldingperioderMedBehandlingsdager(): SykmeldingTidsenheter {

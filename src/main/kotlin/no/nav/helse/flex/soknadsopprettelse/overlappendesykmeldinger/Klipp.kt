@@ -46,7 +46,7 @@ class Klipp(
         }
     }
 
-    fun klippFrilanser(
+    fun klippNaeringsdrivende(
         sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
         arbeidssituasjon: Arbeidssituasjon,
         identer: FolkeregisterIdenter,
@@ -57,7 +57,7 @@ class Klipp(
                 perioderFraSykmeldingen = sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder,
             )
 
-        return if (soknadsType == Soknadstype.SELVSTENDIGE_OG_FRILANSERE && arbeidssituasjon == Arbeidssituasjon.FRILANSER) {
+        return if (soknadsType == Soknadstype.SELVSTENDIGE_OG_FRILANSERE && arbeidssituasjon == Arbeidssituasjon.NAERINGSDRIVENDE) {
             overlapp.klipp(
                 sykmeldingKafkaMessage = sykmeldingKafkaMessage,
                 arbeidsgiverStatusDTO = null,

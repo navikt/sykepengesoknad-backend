@@ -36,7 +36,7 @@ import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
-class KlipperFrilanserTest : FellesTestOppsett() {
+class KlipperNaeringsdrivendeTest : FellesTestOppsett() {
     private final val basisdato = LocalDate.now().plusYears(1L)
     private final val eldreSignaturOgBehandletTidspunkt = basisdato.atStartOfDay().atOffset(ZoneOffset.UTC)
     private final val nyereSignaturOgBehandletTidspunkt = eldreSignaturOgBehandletTidspunkt.plusHours(1)
@@ -52,12 +52,12 @@ class KlipperFrilanserTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `Frilanser sykmelding klipper overlappende frilansersøknad fullstendig`() {
+    fun `Naeringsdrivende sykmelding klipper overlappende naeringsdrivendesøknad fullstendig`() {
         val meldingerPaKafka = mutableListOf<SykepengesoknadDTO>()
 
         sendSykmelding(
             sykmeldingKafkaMessage(
-                arbeidssituasjon = Arbeidssituasjon.FRILANSER,
+                arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
                 fnr = fnr,
                 sykmeldingsperioder =
                     heltSykmeldt(
@@ -71,7 +71,7 @@ class KlipperFrilanserTest : FellesTestOppsett() {
 
         sendSykmelding(
             sykmeldingKafkaMessage(
-                arbeidssituasjon = Arbeidssituasjon.FRILANSER,
+                arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
                 fnr = fnr,
                 sykmeldingsperioder =
                     heltSykmeldt(
@@ -117,7 +117,7 @@ class KlipperFrilanserTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `Frilanser sykmelding klipper ikke en overlappende arbeidstakersøknad`() {
+    fun `Naeringsdrivende sykmelding klipper ikke en overlappende arbeidstakersøknad`() {
         sendSykmelding(
             sykmeldingKafkaMessage(
                 arbeidssituasjon = Arbeidssituasjon.ARBEIDSTAKER,
@@ -134,7 +134,7 @@ class KlipperFrilanserTest : FellesTestOppsett() {
 
         sendSykmelding(
             sykmeldingKafkaMessage(
-                arbeidssituasjon = Arbeidssituasjon.FRILANSER,
+                arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
                 fnr = fnr,
                 sykmeldingsperioder =
                     heltSykmeldt(
@@ -166,14 +166,14 @@ class KlipperFrilanserTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `Frilanser ventetidssøknader som overlapper delvis klippes`() {
+    fun `Naeringsdrivende ventetidssøknader som overlapper delvis klippes`() {
         flexSyketilfelleMockRestServiceServer.reset()
         val dato = LocalDate.of(2025, 1, 1)
         val sykmeldingSkrevetA = dato.atStartOfDay().atOffset(ZoneOffset.UTC)
         val sykmeldingSkrevetB = sykmeldingSkrevetA.plusHours(1)
 
         val sykmeldingA =
-            lagFrilanserSykmelding(
+            lagNaeringsdrivendeSykmelding(
                 fom = dato,
                 tom = dato.plusDays(10),
                 sykmeldingSkrevet = sykmeldingSkrevetA,
@@ -181,7 +181,7 @@ class KlipperFrilanserTest : FellesTestOppsett() {
             )
 
         val sykmeldingB =
-            lagFrilanserSykmelding(
+            lagNaeringsdrivendeSykmelding(
                 fom = dato.plusDays(5),
                 tom = dato.plusDays(15),
                 sykmeldingSkrevet = sykmeldingSkrevetB,
@@ -237,7 +237,7 @@ class KlipperFrilanserTest : FellesTestOppsett() {
         klippmetrikker[0].klippet `should be equal to` true
     }
 
-    private fun lagFrilanserSykmelding(
+    private fun lagNaeringsdrivendeSykmelding(
         fom: LocalDate,
         tom: LocalDate,
         sykmeldingSkrevet: OffsetDateTime,
@@ -246,7 +246,7 @@ class KlipperFrilanserTest : FellesTestOppsett() {
         val statusDTO =
             skapSykmeldingStatusKafkaMessageDTO(
                 fnr = fnr,
-                arbeidssituasjon = Arbeidssituasjon.FRILANSER,
+                arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
             )
         val sykmelding =
             skapArbeidsgiverSykmelding(
