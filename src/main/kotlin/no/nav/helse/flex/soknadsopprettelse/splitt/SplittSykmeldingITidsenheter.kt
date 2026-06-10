@@ -103,7 +103,6 @@ private fun SykmeldingTidsenheter.splittPeriodenSomOverlapperSendtSoknad(
             .filterNot { it.sykmeldingId == sykmeldingId }
             .filter { it.matcherArbeidssituasjon(arbeidssituasjon, orgnummer) }
             .filter { it.status == Soknadstatus.SENDT }
-            .filter { it.sykmeldingSkrevet!!.isBefore(behandletTidspunkt) }
             .filter { sok ->
                 splittbareTidsenheter.forEach {
                     val soknadPeriode = sok.fom!!..sok.tom!!
@@ -113,7 +112,8 @@ private fun SykmeldingTidsenheter.splittPeriodenSomOverlapperSendtSoknad(
                     }
                 }
                 return@filter false
-            }.toList()
+            }.filter { it.sykmeldingSkrevet!!.isBefore(behandletTidspunkt) }
+            .toList()
 
     while (splittbareTidsenheter.isNotEmpty()) {
         var tidsenhet = splittbareTidsenheter.removeFirst()
