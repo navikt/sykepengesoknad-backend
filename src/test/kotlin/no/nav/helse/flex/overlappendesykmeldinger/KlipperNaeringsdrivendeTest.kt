@@ -4,19 +4,25 @@ import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.client.sykmeldinger.SykmeldingerResponse
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstype
 import no.nav.helse.flex.domain.Arbeidssituasjon
+import no.nav.helse.flex.domain.Soknadsperiode
+import no.nav.helse.flex.domain.Soknadstatus
+import no.nav.helse.flex.domain.Sykmeldingstype
 import no.nav.helse.flex.hentSoknad
 import no.nav.helse.flex.hentSoknader
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.kafka.consumer.SYKMELDINGBEKREFTET_TOPIC
+import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknad100Prosent
 import no.nav.helse.flex.mockFlexSyketilfelleErUtenforVentetid
 import no.nav.helse.flex.mockFlexSyketilfelleHentSykmeldingerMedSammeVentetid
 import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
 import no.nav.helse.flex.mockdispatcher.FlexSykmeldingMockDispatcher
 import no.nav.helse.flex.repository.KlippMetrikkRepository
+import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.sendSykmelding
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
+import no.nav.helse.flex.testdata.gradertReisetilskudd
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.lagSykmeldingsPerioder
 import no.nav.helse.flex.testdata.skapArbeidsgiverSykmelding
@@ -35,6 +41,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
+import java.util.UUID
 
 class KlipperNaeringsdrivendeTest : FellesTestOppsett() {
     private final val basisdato = LocalDate.now().plusYears(1L)
@@ -44,6 +51,9 @@ class KlipperNaeringsdrivendeTest : FellesTestOppsett() {
 
     @Autowired
     private lateinit var klippMetrikkRepository: KlippMetrikkRepository
+
+    @Autowired
+    private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
 
     @BeforeEach
     fun setUp() {
@@ -235,6 +245,161 @@ class KlipperNaeringsdrivendeTest : FellesTestOppsett() {
         klippmetrikker[0].variant `should be equal to` "SOKNAD_STARTER_INNI_SLUTTER_ETTER"
         klippmetrikker[0].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
         klippmetrikker[0].klippet `should be equal to` true
+    }
+
+    @Test
+    fun `Naeringsdrivende sykmelding klippes når det finnes en sendt naeringsdrivende søknad`() {
+        val nySoknad =
+            opprettNyNaeringsdrivendeSoknad100Prosent().copy(
+                id = UUID.randomUUID().toString(),
+                fnr = fnr,
+                startSykeforlop = basisdato,
+                fom = basisdato,
+                tom = basisdato.plusDays(15),
+                sykmeldingId = UUID.randomUUID().toString(),
+                sykmeldingSkrevet = eldreSignaturOgBehandletTidspunkt.toInstant(),
+                sykmeldingSignaturDato = eldreSignaturOgBehandletTidspunkt.toInstant(),
+                soknadPerioder =
+                    listOf(
+                        Soknadsperiode(
+                            fom = basisdato,
+                            tom = basisdato.plusDays(15),
+                            grad = 100,
+                            sykmeldingstype = Sykmeldingstype.AKTIVITET_IKKE_MULIG,
+                        ),
+                    ),
+                sporsmal = emptyList(),
+            )
+
+        nySoknad
+            .copy(status = Soknadstatus.SENDT)
+            .also { sykepengesoknadDAO.lagreSykepengesoknad(it) }
+
+        val klippetSoknad =
+            sendSykmelding(
+                sykmeldingKafkaMessage(
+                    arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
+                    fnr = fnr,
+                    sykmeldingsperioder =
+                        heltSykmeldt(
+                            fom = basisdato.plusDays(10),
+                            tom = basisdato.plusDays(20),
+                        ),
+                    sykmeldingSkrevet = nyereSignaturOgBehandletTidspunkt,
+                    signaturDato = nyereSignaturOgBehandletTidspunkt,
+                ),
+            ).first()
+
+        klippetSoknad.status shouldBeEqualTo SoknadsstatusDTO.FREMTIDIG
+        klippetSoknad.type shouldBeEqualTo SoknadstypeDTO.SELVSTENDIGE_OG_FRILANSERE
+        klippetSoknad.fom shouldBeEqualTo basisdato.plusDays(16)
+        klippetSoknad.tom shouldBeEqualTo basisdato.plusDays(20)
+
+        val klippmetrikker = klippMetrikkRepository.findAll().toList()
+        klippmetrikker shouldHaveSize 1
+
+        klippmetrikker[0].soknadstatus `should be equal to` "SENDT"
+        klippmetrikker[0].variant `should be equal to` "SYKMELDING_STARTER_FOR_SLUTTER_INNI"
+        klippmetrikker[0].endringIUforegrad `should be equal to` "SAMME_UFØREGRAD"
+        klippmetrikker[0].klippet `should be equal to` true
+    }
+
+    @Test
+    fun `Naeringsdrivende sykmelding med gradert reisetilskudd klippes ikke når den er innkommende sykmelding`() {
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
+                fnr = fnr,
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = basisdato.plusDays(5),
+                        tom = basisdato.plusDays(10),
+                    ),
+                sykmeldingSkrevet = eldreSignaturOgBehandletTidspunkt,
+                signaturDato = eldreSignaturOgBehandletTidspunkt,
+            ),
+        )
+
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
+                fnr = fnr,
+                sykmeldingsperioder =
+                    gradertReisetilskudd(
+                        fom = basisdato.plusDays(5),
+                        tom = basisdato.plusDays(10),
+                    ),
+                sykmeldingSkrevet = nyereSignaturOgBehandletTidspunkt,
+                signaturDato = nyereSignaturOgBehandletTidspunkt,
+            ),
+            forventaSoknader = 1,
+        )
+
+        val hentetViaRest = hentSoknaderMetadata(fnr)
+        hentetViaRest shouldHaveSize 2
+
+        hentetViaRest.map { it.soknadstype } shouldContainSame
+            listOf(
+                RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE,
+                RSSoknadstype.GRADERT_REISETILSKUDD,
+            )
+
+        hentetViaRest.forEach {
+            it.fom shouldBeEqualTo basisdato.plusDays(5)
+            it.tom shouldBeEqualTo basisdato.plusDays(10)
+            hentSoknad(it.id, fnr).klippet shouldBeEqualTo false
+        }
+
+        klippMetrikkRepository.findAll().toList().shouldHaveSize(0)
+    }
+
+    @Test
+    fun `Naeringsdrivende sykmelding klipper ikke en overlappende gradert reisetilskudd søknad`() {
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
+                fnr = fnr,
+                sykmeldingsperioder =
+                    gradertReisetilskudd(
+                        fom = basisdato.plusDays(5),
+                        tom = basisdato.plusDays(10),
+                    ),
+                sykmeldingSkrevet = eldreSignaturOgBehandletTidspunkt,
+                signaturDato = eldreSignaturOgBehandletTidspunkt,
+            ),
+        )
+
+        sendSykmelding(
+            sykmeldingKafkaMessage(
+                arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE,
+                fnr = fnr,
+                sykmeldingsperioder =
+                    heltSykmeldt(
+                        fom = basisdato.plusDays(5),
+                        tom = basisdato.plusDays(10),
+                    ),
+                sykmeldingSkrevet = nyereSignaturOgBehandletTidspunkt,
+                signaturDato = nyereSignaturOgBehandletTidspunkt,
+            ),
+            forventaSoknader = 1,
+        )
+
+        val hentetViaRest = hentSoknaderMetadata(fnr)
+        hentetViaRest shouldHaveSize 2
+
+        hentetViaRest.map { it.soknadstype } shouldContainSame
+            listOf(
+                RSSoknadstype.GRADERT_REISETILSKUDD,
+                RSSoknadstype.SELVSTENDIGE_OG_FRILANSERE,
+            )
+
+        hentetViaRest.forEach {
+            it.fom shouldBeEqualTo basisdato.plusDays(5)
+            it.tom shouldBeEqualTo basisdato.plusDays(10)
+            hentSoknad(it.id, fnr).klippet shouldBeEqualTo false
+        }
+
+        klippMetrikkRepository.findAll().toList().shouldHaveSize(0)
     }
 
     private fun lagNaeringsdrivendeSykmelding(
