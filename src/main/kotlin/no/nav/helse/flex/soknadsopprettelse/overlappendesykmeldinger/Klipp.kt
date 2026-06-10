@@ -39,6 +39,30 @@ class Klipp(
                 sykmeldingKafkaMessage = sykmeldingKafkaMessage,
                 arbeidsgiverStatusDTO = arbeidsgiverStatusDTO,
                 identer = identer,
+                arbeidssituasjon = arbeidssituasjon,
+            )
+        } else {
+            sykmeldingKafkaMessage
+        }
+    }
+
+    fun klippNaeringsdrivende(
+        sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
+        arbeidssituasjon: Arbeidssituasjon,
+        identer: FolkeregisterIdenter,
+    ): SykmeldingKafkaMessageDTO {
+        val soknadsType =
+            bestemSoknadsType(
+                arbeidssituasjon = arbeidssituasjon,
+                perioderFraSykmeldingen = sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder,
+            )
+
+        return if (soknadsType == Soknadstype.SELVSTENDIGE_OG_FRILANSERE && arbeidssituasjon == Arbeidssituasjon.NAERINGSDRIVENDE) {
+            overlapp.klipp(
+                sykmeldingKafkaMessage = sykmeldingKafkaMessage,
+                arbeidsgiverStatusDTO = null,
+                identer = identer,
+                arbeidssituasjon = arbeidssituasjon,
             )
         } else {
             sykmeldingKafkaMessage

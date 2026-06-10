@@ -35,8 +35,16 @@ class NaringsdrivendeVentetidSoknadIntegrationTest : FellesTestOppsett() {
 
     @Test
     fun `Oppretter ventetidssøknad for selvstendig næringsdrivende`() {
-        val kafkaMessage = lagSykmeldingKafkaMessage(fnr)
-        val kafkaMessage1 = lagSykmeldingKafkaMessage(fnr)
+        val kafkaMessage =
+            lagSykmeldingKafkaMessage(
+                fnr = fnr,
+                fom = LocalDate.of(2024, 1, 1),
+            )
+        val kafkaMessage1 =
+            lagSykmeldingKafkaMessage(
+                fnr = fnr,
+                fom = kafkaMessage.sykmelding.tom!!.plusDays(15),
+            )
 
         mockFlexSyketilfelleErUtenforVentetid(
             sykmeldingId = kafkaMessage.sykmelding.id,
@@ -113,8 +121,16 @@ class NaringsdrivendeVentetidSoknadIntegrationTest : FellesTestOppsett() {
 
     @Test
     fun `Dupliserer ikke søknad dersom forrige sykmeldingen trigget opprettelse av begge søknader`() {
-        val kafkaMessage = lagSykmeldingKafkaMessage(fnr)
-        val kafkaMessage1 = lagSykmeldingKafkaMessage(fnr)
+        val kafkaMessage =
+            lagSykmeldingKafkaMessage(
+                fnr = fnr,
+                fom = LocalDate.of(2024, 1, 1),
+            )
+        val kafkaMessage1 =
+            lagSykmeldingKafkaMessage(
+                fnr = fnr,
+                fom = kafkaMessage.sykmelding.tom!!.plusDays(15),
+            )
 
         mockFlexSyketilfelleErUtenforVentetid(
             sykmeldingId = kafkaMessage.sykmelding.id,

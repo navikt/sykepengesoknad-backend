@@ -1,5 +1,6 @@
 package no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger
 
+import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.logger
@@ -28,17 +29,20 @@ class Overlapp(
         sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
         arbeidsgiverStatusDTO: ArbeidsgiverStatusKafkaDTO?,
         identer: FolkeregisterIdenter,
+        arbeidssituasjon: Arbeidssituasjon,
     ): SykmeldingKafkaMessageDTO {
         klippEksisterendeSoknader(
             sykmeldingKafkaMessage = sykmeldingKafkaMessage,
             orgnummer = arbeidsgiverStatusDTO?.orgnummer,
             identer = identer,
+            arbeidssituasjon = arbeidssituasjon,
         )
 
         return klippSykmelding(
             sykmeldingKafkaMessage = sykmeldingKafkaMessage,
             orgnummer = arbeidsgiverStatusDTO?.orgnummer,
             identer = identer,
+            arbeidssituasjon = arbeidssituasjon,
         )
     }
 
@@ -46,12 +50,14 @@ class Overlapp(
         sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
         orgnummer: String?,
         identer: FolkeregisterIdenter,
+        arbeidssituasjon: Arbeidssituasjon,
     ) {
         val soknadKandidaterSomKanKlippes =
             sykepengesoknadDAO.soknadKandidaterSomKanKlippes(
                 orgnummer = orgnummer,
                 identer = identer,
                 sykmeldingKafkaMessage = sykmeldingKafkaMessage,
+                arbeidssituasjon = arbeidssituasjon,
             )
 
         soknadKandidaterSomKanKlippes.soknaderSomOverlapperEtter(sykmeldingKafkaMessage)
@@ -67,6 +73,7 @@ class Overlapp(
         sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
         orgnummer: String?,
         identer: FolkeregisterIdenter,
+        arbeidssituasjon: Arbeidssituasjon,
     ): SykmeldingKafkaMessageDTO {
         var kafkaMessage = sykmeldingKafkaMessage
 
@@ -75,6 +82,7 @@ class Overlapp(
                 orgnummer = orgnummer,
                 identer = identer,
                 sykmeldingKafkaMessage = sykmeldingKafkaMessage,
+                arbeidssituasjon = arbeidssituasjon,
             )
 
         kafkaMessage = soknadKandidaterSomKanKlippes.sykmeldingSomOverlapperSendteSoknaderEtter(kafkaMessage)
@@ -86,6 +94,7 @@ class Overlapp(
                 orgnummer = orgnummer,
                 identer = identer,
                 sykmeldingKafkaMessage = kafkaMessage,
+                arbeidssituasjon = arbeidssituasjon,
             )
 
         kafkaMessage = soknadKandidaterSomKanKlippeSykmeldingen.sykmeldingSomOverlapperMedNyereSoknader(kafkaMessage)

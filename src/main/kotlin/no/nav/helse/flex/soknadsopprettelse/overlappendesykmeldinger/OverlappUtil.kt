@@ -1,5 +1,6 @@
 package no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger
 
+import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadsperiode
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
@@ -27,10 +28,11 @@ internal fun SykepengesoknadDAO.soknadKandidaterSomKanKlippes(
     orgnummer: String?,
     sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
     identer: FolkeregisterIdenter,
+    arbeidssituasjon: Arbeidssituasjon,
 ): List<Sykepengesoknad> {
     val nyttResultat: List<Sykepengesoknad>? =
         try {
-            soknadKandidaterSomKanKlippesNy(orgnummer, sykmeldingKafkaMessage, identer)
+            soknadKandidaterSomKanKlippesNy(orgnummer, sykmeldingKafkaMessage, identer, arbeidssituasjon)
         } catch (e: Exception) {
             log.warn(
                 "Feil i ny logikk for å finne kandidater for klipp av søknad. Faller tilbake til gammel logikk. SykmeldingId=${sykmeldingKafkaMessage.sykmelding.id}",
@@ -38,7 +40,7 @@ internal fun SykepengesoknadDAO.soknadKandidaterSomKanKlippes(
             )
             null
         }
-    val gammeltResultat = soknadKandidaterSomKanKlippesGammel(orgnummer, sykmeldingKafkaMessage, identer)
+    val gammeltResultat = soknadKandidaterSomKanKlippesGammel(orgnummer, sykmeldingKafkaMessage, identer, arbeidssituasjon)
 
     loggDryRunNyLogikk(
         kontekst = "KLIPP_SØKNAD",
@@ -57,7 +59,8 @@ private fun SykepengesoknadDAO.soknadKandidaterSomKanKlippesNy(
     orgnummer: String?,
     sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
     identer: FolkeregisterIdenter,
-) = alleSomOverlapper(orgnummer, sykmeldingKafkaMessage, identer)
+    arbeidssituasjon: Arbeidssituasjon,
+) = alleSomOverlapper(orgnummer, sykmeldingKafkaMessage, identer, arbeidssituasjon)
     .filter { soknad ->
         val eksisterendeSoknad = soknad.signaturDatoNyLogikk()
         val innkommendeSykmelding = sykmeldingKafkaMessage.signaturDatoNyLogikk()
@@ -74,7 +77,8 @@ private fun SykepengesoknadDAO.soknadKandidaterSomKanKlippesGammel(
     orgnummer: String?,
     sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
     identer: FolkeregisterIdenter,
-) = alleSomOverlapper(orgnummer, sykmeldingKafkaMessage, identer)
+    arbeidssituasjon: Arbeidssituasjon,
+) = alleSomOverlapper(orgnummer, sykmeldingKafkaMessage, identer, arbeidssituasjon)
     .filter { soknad ->
         val soknadErUtdatert = soknad.erEldreMainLogikk(sykmeldingKafkaMessage.sykmelding)
         if (soknadErUtdatert) {
@@ -89,10 +93,11 @@ internal fun SykepengesoknadDAO.soknadKandidaterSomKanKlippeSykmeldingen(
     orgnummer: String?,
     sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
     identer: FolkeregisterIdenter,
+    arbeidssituasjon: Arbeidssituasjon,
 ): List<Sykepengesoknad> {
     val nyttResultat: List<Sykepengesoknad>? =
         try {
-            soknadKandidaterSomKanKlippeSykmeldingenNy(orgnummer, sykmeldingKafkaMessage, identer)
+            soknadKandidaterSomKanKlippeSykmeldingenNy(orgnummer, sykmeldingKafkaMessage, identer, arbeidssituasjon)
         } catch (e: Exception) {
             log.warn(
                 "Feil i ny logikk for å finne kandidater for klipp av sykmelding. Faller tilbake til gammel logikk. SykmeldingId=${sykmeldingKafkaMessage.sykmelding.id}",
@@ -101,7 +106,7 @@ internal fun SykepengesoknadDAO.soknadKandidaterSomKanKlippeSykmeldingen(
             null
         }
     val gammeltResultat =
-        soknadKandidaterSomKanKlippeSykmeldingenGammel(orgnummer, sykmeldingKafkaMessage, identer)
+        soknadKandidaterSomKanKlippeSykmeldingenGammel(orgnummer, sykmeldingKafkaMessage, identer, arbeidssituasjon)
 
     loggDryRunNyLogikk(
         kontekst = "KLIPP_SYKMELDING",
@@ -120,7 +125,8 @@ private fun SykepengesoknadDAO.soknadKandidaterSomKanKlippeSykmeldingenNy(
     orgnummer: String?,
     sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
     identer: FolkeregisterIdenter,
-) = alleSomOverlapper(orgnummer, sykmeldingKafkaMessage, identer)
+    arbeidssituasjon: Arbeidssituasjon,
+) = alleSomOverlapper(orgnummer, sykmeldingKafkaMessage, identer, arbeidssituasjon)
     .filter { soknad ->
         val eksisterendeSoknad = soknad.signaturDatoNyLogikk()
         val innkommendeSykmelding = sykmeldingKafkaMessage.signaturDatoNyLogikk()
@@ -137,7 +143,8 @@ private fun SykepengesoknadDAO.soknadKandidaterSomKanKlippeSykmeldingenGammel(
     orgnummer: String?,
     sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
     identer: FolkeregisterIdenter,
-) = alleSomOverlapper(orgnummer, sykmeldingKafkaMessage, identer)
+    arbeidssituasjon: Arbeidssituasjon,
+) = alleSomOverlapper(orgnummer, sykmeldingKafkaMessage, identer, arbeidssituasjon)
     .filter { soknad ->
         val sykmeldingErUtdatert = soknad.erNyereMainLogikk(sykmeldingKafkaMessage.sykmelding)
         if (sykmeldingErUtdatert) {
@@ -195,20 +202,39 @@ private fun SykepengesoknadDAO.alleSomOverlapper(
     orgnummer: String?,
     sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
     identer: FolkeregisterIdenter,
+    arbeidssituasjon: Arbeidssituasjon,
 ): List<Sykepengesoknad> {
     val sykmeldingId = sykmeldingKafkaMessage.sykmelding.id
     val sykmeldingPeriode = sykmeldingKafkaMessage.periode()
     return this
         .finnSykepengesoknader(identer)
-        .asSequence()
         .filterNot { it.sykmeldingId == sykmeldingId } // Korrigerte sykmeldinger håndteres her SlettSoknaderTilKorrigertSykmeldingService
-        .filter { it.soknadstype == Soknadstype.ARBEIDSTAKERE }
-        .filter { it.arbeidsgiverOrgnummer == orgnummer }
+        .filtrerArbeidssituasjon(arbeidssituasjon, orgnummer)
         .filter { sok ->
             val soknadPeriode = sok.fom!!..sok.tom!!
             sykmeldingPeriode.overlap(soknadPeriode)
-        }.toList()
+        }
 }
+
+private fun List<Sykepengesoknad>.filtrerArbeidssituasjon(
+    arbeidssituasjon: Arbeidssituasjon,
+    orgnummer: String?,
+): List<Sykepengesoknad> = this.filter { it.matcherArbeidssituasjon(arbeidssituasjon, orgnummer) }
+
+internal fun Sykepengesoknad.matcherArbeidssituasjon(
+    arbeidssituasjon: Arbeidssituasjon,
+    orgnummer: String?,
+): Boolean =
+    when (arbeidssituasjon) {
+        Arbeidssituasjon.ARBEIDSTAKER ->
+            this.soknadstype == Soknadstype.ARBEIDSTAKERE && arbeidsgiverOrgnummer == orgnummer
+
+        Arbeidssituasjon.NAERINGSDRIVENDE ->
+            this.soknadstype == Soknadstype.SELVSTENDIGE_OG_FRILANSERE &&
+                this.arbeidssituasjon == Arbeidssituasjon.NAERINGSDRIVENDE
+
+        else -> throw RuntimeException("Ugyldig arbeidssituasjon for klipp")
+    }
 
 internal fun finnEndringIUforegrad(
     tidligerePerioder: List<Soknadsperiode>?,
