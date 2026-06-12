@@ -127,7 +127,7 @@ class UnderersporsmalSortererTest {
 
     @Test
     fun `Test sortering av medlemskapspørsmål om oppholdstillatelse`() {
-        val sporsmalet = lagSporsmalOmOppholdstillatelse(LocalDate.now(), KjentOppholdstillatelse(LocalDate.now()))
+        val sporsmalet = lagSporsmalOmOppholdstillatelse(LocalDate.now(), LocalDate.now(), KjentOppholdstillatelse(LocalDate.now()))
         val soknad = sporsmalet.tilSoknad()
 
         val sporsmal = soknad.getSporsmalMedTag(MEDLEMSKAP_OPPHOLDSTILLATELSE_V2)
@@ -182,7 +182,7 @@ class UnderersporsmalSortererTest {
 
     @Test
     fun `Test sortering av medlemskapsørsmål om arbeid utenfor Norge`() {
-        val sporsmalet = lagSporsmalOmArbeidUtenforNorge(LocalDate.now())
+        val sporsmalet = lagSporsmalOmArbeidUtenforNorge(LocalDate.now(), LocalDate.now())
         val soknad = sporsmalet.tilSoknad()
 
         val soknadShufflet = soknad.shuffleSporsmalRekursivt()
@@ -204,12 +204,12 @@ class UnderersporsmalSortererTest {
     @Test
     fun `Test sortering av medlemskapspørsmål om arbeid utenfor Norge med to underspørsmål`() {
         val sporsmalet =
-            lagSporsmalOmArbeidUtenforNorge(LocalDate.now()).let {
+            lagSporsmalOmArbeidUtenforNorge(LocalDate.now(), LocalDate.now()).let {
                 it.copy(
                     undersporsmal =
                         it.undersporsmal +
                             listOf(
-                                lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(1, LocalDate.now()),
+                                lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(1, LocalDate.now(), LocalDate.now()),
                             ),
                 )
             }
@@ -255,7 +255,7 @@ class UnderersporsmalSortererTest {
 
     @Test
     fun `Test sortering av medlemskapspørsmål om opphold utenfor Norge`() {
-        val sporsmalet = lagSporsmalOmOppholdUtenforNorge(LocalDate.now())
+        val sporsmalet = lagSporsmalOmOppholdUtenforNorge(LocalDate.now(), LocalDate.now())
         val soknad = sporsmalet.tilSoknad()
 
         val soknadShufflet = soknad.shuffleSporsmalRekursivt()
@@ -292,7 +292,7 @@ class UnderersporsmalSortererTest {
 
     @Test
     fun `Test sortering av medlemskapspørsmål om opphold utenfor EØS`() {
-        val sporsmalet = lagSporsmalOmOppholdUtenforEos(LocalDate.now())
+        val sporsmalet = lagSporsmalOmOppholdUtenforEos(LocalDate.now(), LocalDate.now())
         val soknad = sporsmalet.tilSoknad()
 
         val soknadShufflet = soknad.shuffleSporsmalRekursivt()
@@ -345,15 +345,15 @@ class UnderersporsmalSortererTest {
     fun `Finn høyeste index til underspørsmål`() {
         finnHoyesteIndex(
             listOf(
-                lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(0, LocalDate.now()),
+                lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(0, LocalDate.now(), LocalDate.now()),
             ),
         ) `should be equal to` 0
 
         finnHoyesteIndex(
             listOf(
-                lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(1, LocalDate.now()),
-                lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(111, LocalDate.now()),
-                lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(9, LocalDate.now()),
+                lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(1, LocalDate.now(), LocalDate.now()),
+                lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(111, LocalDate.now(), LocalDate.now()),
+                lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(9, LocalDate.now(), LocalDate.now()),
             ),
         ) `should be equal to` 111
     }

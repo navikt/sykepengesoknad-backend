@@ -8,6 +8,7 @@ import no.nav.helse.flex.controller.domain.sykepengesoknad.flatten
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.mockdispatcher.MedlemskapMockDispatcher
 import no.nav.helse.flex.soknadsopprettelse.*
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.formaterDato
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.medIndex
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
@@ -24,7 +25,6 @@ import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.Instant
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
 /**
  * Tester at spørsmål om medlemskap blir opprettet og besvart som forventet, inkludert at
@@ -354,32 +354,32 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
         val soknad = hentSoknadMedStatusNy()
 
         soknad.getSporsmalMedTag("MEDLEMSKAP_OPPHOLDSTILLATELSE_VEDTAKSDATO").also {
-            it.min shouldBeEqualTo tom.minusYears(10).format(ISO_LOCAL_DATE)
-            it.max shouldBeEqualTo tom.format(ISO_LOCAL_DATE)
+            it.min shouldBeEqualTo formaterDato(tom.minusYears(10))
+            it.max shouldBeEqualTo formaterDato(tom)
         }
         soknad.getSporsmalMedTag("MEDLEMSKAP_OPPHOLDSTILLATELSE_PERIODE").also {
-            it.min shouldBeEqualTo tom.minusYears(10).format(ISO_LOCAL_DATE)
-            it.max shouldBeEqualTo tom.plusYears(10).format(ISO_LOCAL_DATE)
+            it.min shouldBeEqualTo formaterDato(fom.minusYears(10))
+            it.max shouldBeEqualTo formaterDato(tom.plusYears(10))
         }
 
         val arbeidUtenforNorgePeriodeEn = soknad.getSporsmalMedTag("MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR_0")
         val arbeidUtenforNorgePeriodeTo = soknad.getSporsmalMedTag("MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR_1")
-        arbeidUtenforNorgePeriodeEn.min shouldBeEqualTo tom.minusYears(10).format(ISO_LOCAL_DATE)
-        arbeidUtenforNorgePeriodeEn.max shouldBeEqualTo tom.plusYears(1).format(ISO_LOCAL_DATE)
+        arbeidUtenforNorgePeriodeEn.min shouldBeEqualTo formaterDato(fom.minusYears(1))
+        arbeidUtenforNorgePeriodeEn.max shouldBeEqualTo formaterDato(tom)
         arbeidUtenforNorgePeriodeEn.min shouldBeEqualTo arbeidUtenforNorgePeriodeTo.min
         arbeidUtenforNorgePeriodeEn.max shouldBeEqualTo arbeidUtenforNorgePeriodeTo.max
 
         val oppholdUtenforNorgePeriodeEn = soknad.getSporsmalMedTag("MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_NAAR_0")
         val oppholdUtenforNorgePeriodeTo = soknad.getSporsmalMedTag("MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_NAAR_1")
-        oppholdUtenforNorgePeriodeEn.min shouldBeEqualTo tom.minusYears(2).format(ISO_LOCAL_DATE)
-        oppholdUtenforNorgePeriodeEn.max shouldBeEqualTo tom.format(ISO_LOCAL_DATE)
+        oppholdUtenforNorgePeriodeEn.min shouldBeEqualTo formaterDato(fom.minusYears(1))
+        oppholdUtenforNorgePeriodeEn.max shouldBeEqualTo formaterDato(tom)
         oppholdUtenforNorgePeriodeEn.min shouldBeEqualTo oppholdUtenforNorgePeriodeTo.min
         oppholdUtenforNorgePeriodeEn.max shouldBeEqualTo oppholdUtenforNorgePeriodeTo.max
 
         val oppholdUtenforEOSPeriodeEn = soknad.getSporsmalMedTag("MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_NAAR_0")
         val oppholdUtenforEOSPeriodeTo = soknad.getSporsmalMedTag("MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_NAAR_1")
-        oppholdUtenforEOSPeriodeEn.min shouldBeEqualTo tom.minusYears(2).format(ISO_LOCAL_DATE)
-        oppholdUtenforEOSPeriodeEn.max shouldBeEqualTo tom.format(ISO_LOCAL_DATE)
+        oppholdUtenforEOSPeriodeEn.min shouldBeEqualTo formaterDato(fom.minusYears(1))
+        oppholdUtenforEOSPeriodeEn.max shouldBeEqualTo formaterDato(tom)
         oppholdUtenforEOSPeriodeEn.min shouldBeEqualTo oppholdUtenforEOSPeriodeTo.min
         oppholdUtenforEOSPeriodeEn.max shouldBeEqualTo oppholdUtenforEOSPeriodeTo.max
     }

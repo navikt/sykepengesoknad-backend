@@ -84,21 +84,22 @@ fun settOppSoknadArbeidstaker(
                 when (it) {
                     LovMeSporsmalTag.OPPHOLDSTILATELSE -> {
                         lagSporsmalOmOppholdstillatelse(
+                            sykepengesoknad.fom,
                             sykepengesoknad.tom,
                             kjentOppholdstillatelse,
                         )
                     }
 
                     LovMeSporsmalTag.ARBEID_UTENFOR_NORGE -> {
-                        lagSporsmalOmArbeidUtenforNorge(sykepengesoknad.tom)
+                        lagSporsmalOmArbeidUtenforNorge(sykepengesoknad.fom, sykepengesoknad.tom)
                     }
 
                     LovMeSporsmalTag.OPPHOLD_UTENFOR_NORGE -> {
-                        lagSporsmalOmOppholdUtenforNorge(sykepengesoknad.tom)
+                        lagSporsmalOmOppholdUtenforNorge(sykepengesoknad.fom, sykepengesoknad.tom)
                     }
 
                     LovMeSporsmalTag.OPPHOLD_UTENFOR_EØS_OMRÅDE -> {
-                        lagSporsmalOmOppholdUtenforEos(sykepengesoknad.tom)
+                        lagSporsmalOmOppholdUtenforEos(sykepengesoknad.fom, sykepengesoknad.tom)
                     }
 
                     SykepengesoknadSporsmalTag.ARBEID_UTENFOR_NORGE -> {
