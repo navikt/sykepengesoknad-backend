@@ -462,9 +462,12 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
         forsteKafkaSoknad.forstegangssoknad `should be` true
         andreKafkaSoknad.forstegangssoknad `should be` true
 
-        // Første søknad skal inneholde spørsmål om medlemskap, men ikke ARBEID_UTENFOR_NORGE.
-        forsteKafkaSoknad.medlemskapVurdering `should be equal to` "UAVKLART"
-        forsteKafkaSoknad.sporsmal
+        // Én av søknadene skal inneholde spørsmål om medlemskap. Hvilken som aktiveres først er ikke deterministisk
+        // siden begge aktiveres samtidig, men kun én skal kalle LovMe.
+        val soknadMedMedlemskap = kafkaSoknader.single { it.medlemskapVurdering == "UAVKLART" }
+        val soknadUtenMedlemskap = kafkaSoknader.single { it.medlemskapVurdering == null }
+
+        soknadMedMedlemskap.sporsmal
             .flatten()
             .map { it.tag }
             .apply {
@@ -479,10 +482,9 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
                 it `should not contain` ARBEID_UTENFOR_NORGE
             }
 
-        // Andre søknad skal hverken inneholde ARBEID_UTENFOR_NORGE eller spørsmål om medlemskap siden vi har stilt
-        // spørsmål om medlemskapspørsmål til den samme brukeren i en søknad for en annen arbeidsgiver.
-        andreKafkaSoknad.medlemskapVurdering `should be` null
-        andreKafkaSoknad.sporsmal.flatten().map { it.tag } `should not contain any`
+        // Den andre søknaden skal hverken inneholde ARBEID_UTENFOR_NORGE eller spørsmål om medlemskap siden vi har
+        // stilt spørsmål om medlemskap til den samme brukeren i en søknad for en annen arbeidsgiver.
+        soknadUtenMedlemskap.sporsmal.flatten().map { it.tag } `should not contain any`
             listOf(
                 MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
                 MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
