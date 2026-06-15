@@ -18,7 +18,6 @@ data class ArbeidsgiverSykmeldingDTO(
     val behandler: BehandlerAGDTO?,
     val egenmeldt: Boolean,
     val papirsykmelding: Boolean,
-    val harRedusertArbeidsgiverperiode: Boolean = false,
     val merknader: List<Merknad>?,
     val utenlandskSykmelding: UtenlandskSykmeldingAGDTO?,
     val signaturDato: OffsetDateTime?,
