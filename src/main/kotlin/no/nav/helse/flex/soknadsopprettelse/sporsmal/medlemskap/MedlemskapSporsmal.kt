@@ -10,6 +10,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
 fun lagSporsmalOmOppholdstillatelse(
+    fom: LocalDate,
     tom: LocalDate,
     // kjentOppholdstillatelse skal aldri være null siden vi kaster exception hvis vi ikke mottar den sammen med
     // spørsmål om medlemskap OPPHOLDSTILLATELSE fra LovMe.
@@ -17,9 +18,11 @@ fun lagSporsmalOmOppholdstillatelse(
 ): Sporsmal =
     Sporsmal(
         tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_V2,
-        sporsmalstekst = "Har Utlendingsdirektoratet gitt deg en oppholdstillatelse før ${DatoUtil.formatterDato(
-            kjentOppholdstillatelse?.fom!!,
-        )}?",
+        sporsmalstekst = "Har Utlendingsdirektoratet gitt deg en oppholdstillatelse før ${
+            DatoUtil.formatterDato(
+                kjentOppholdstillatelse?.fom!!,
+            )
+        }?",
         svartype = Svartype.JA_NEI,
         kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
         undersporsmal =
@@ -30,21 +33,24 @@ fun lagSporsmalOmOppholdstillatelse(
                     svartype = Svartype.DATO,
                     // Vi vet ikke hvor lang tid tilbake en oppholdstillatelse kan ha bli gitt så vi setter 10 år i
                     // samarbeid med LovMe.
-                    min = tom.minusYears(10).format(ISO_LOCAL_DATE),
+                    min = formaterDato(tom.minusYears(10)),
                     // Vi vet at en vedtaksdato ikke kan være i fremtiden så vi setter dagens dato som maks.
-                    max = tom.format(ISO_LOCAL_DATE),
+                    max = formaterDato(tom),
                 ),
                 Sporsmal(
                     tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_PERIODE,
                     sporsmalstekst = "Hvilken periode gjelder denne oppholdstillatelsen?",
                     svartype = Svartype.PERIODE,
-                    min = tom.minusYears(10).format(ISO_LOCAL_DATE),
-                    max = tom.plusYears(10).format(ISO_LOCAL_DATE),
+                    min = formaterDato(fom.minusYears(10)),
+                    max = formaterDato(tom.plusYears(10)),
                 ),
             ),
     )
 
-fun lagSporsmalOmArbeidUtenforNorge(tom: LocalDate): Sporsmal =
+fun lagSporsmalOmArbeidUtenforNorge(
+    fom: LocalDate,
+    tom: LocalDate,
+): Sporsmal =
     Sporsmal(
         tag = MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
         sporsmalstekst = "Har du arbeidet utenfor Norge i løpet av de siste 12 månedene før du ble syk?",
@@ -52,7 +58,7 @@ fun lagSporsmalOmArbeidUtenforNorge(tom: LocalDate): Sporsmal =
         kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
         undersporsmal =
             listOf(
-                lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(0, tom),
+                lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(0, fom, tom),
             ),
     )
 
@@ -63,6 +69,7 @@ fun medIndex(
 
 fun lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(
     index: Int,
+    fom: LocalDate,
     tom: LocalDate,
 ): Sporsmal =
     Sporsmal(
@@ -87,14 +94,16 @@ fun lagGruppertUndersporsmalTilSporsmalOmArbeidUtenforNorge(
                     tag = medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR, index),
                     sporsmalstekst = "I hvilken periode arbeidet du i utlandet?",
                     svartype = Svartype.PERIODE,
-                    // Til- og fra-dato er satt statisk i samarbeid med LovMe.
-                    min = tom.minusYears(10).format(ISO_LOCAL_DATE),
-                    max = tom.plusYears(1).format(ISO_LOCAL_DATE),
+                    min = formaterDato(fom.minusYears(1)),
+                    max = formaterDato(tom),
                 ),
             ),
     )
 
-fun lagSporsmalOmOppholdUtenforNorge(tom: LocalDate): Sporsmal =
+fun lagSporsmalOmOppholdUtenforNorge(
+    fom: LocalDate,
+    tom: LocalDate,
+): Sporsmal =
     Sporsmal(
         tag = MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE,
         sporsmalstekst = "Har du oppholdt deg i utlandet i løpet av de siste 12 månedene før du ble syk?",
@@ -102,12 +111,13 @@ fun lagSporsmalOmOppholdUtenforNorge(tom: LocalDate): Sporsmal =
         kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
         undersporsmal =
             listOf(
-                lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforNorge(0, tom),
+                lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforNorge(0, fom, tom),
             ),
     )
 
 fun lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforNorge(
     index: Int,
+    fom: LocalDate,
     tom: LocalDate,
 ): Sporsmal =
     Sporsmal(
@@ -154,7 +164,11 @@ fun lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforNorge(
                                 undersporsmal =
                                     listOf(
                                         Sporsmal(
-                                            tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE_ANNET_FRITEKST, index),
+                                            tag =
+                                                medIndex(
+                                                    MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_BEGRUNNELSE_ANNET_FRITEKST,
+                                                    index,
+                                                ),
                                             sporsmalstekst = "Beskriv hva du gjorde",
                                             svartype = Svartype.FRITEKST,
                                             min = "1",
@@ -168,14 +182,16 @@ fun lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforNorge(
                     tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_NAAR, index),
                     sporsmalstekst = "I hvilken periode oppholdt du deg i dette landet?",
                     svartype = Svartype.PERIODE,
-                    // Til- og fra-dato er satt statisk i samarbeid med LovMe.
-                    min = tom.minusYears(2).format(ISO_LOCAL_DATE),
-                    max = tom.format(ISO_LOCAL_DATE),
+                    min = formaterDato(fom.minusYears(1)),
+                    max = formaterDato(tom),
                 ),
             ),
     )
 
-fun lagSporsmalOmOppholdUtenforEos(tom: LocalDate): Sporsmal =
+fun lagSporsmalOmOppholdUtenforEos(
+    fom: LocalDate,
+    tom: LocalDate,
+): Sporsmal =
     Sporsmal(
         tag = MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
         sporsmalstekst = "Har du oppholdt deg utenfor EU/EØS eller Sveits i løpet av de siste 12 månedene før du ble syk?",
@@ -183,12 +199,13 @@ fun lagSporsmalOmOppholdUtenforEos(tom: LocalDate): Sporsmal =
         kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
         undersporsmal =
             listOf(
-                lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforEos(0, tom),
+                lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforEos(0, fom, tom),
             ),
     )
 
 fun lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforEos(
     index: Int,
+    fom: LocalDate,
     tom: LocalDate,
 ): Sporsmal =
     Sporsmal(
@@ -235,7 +252,11 @@ fun lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforEos(
                                 undersporsmal =
                                     listOf(
                                         Sporsmal(
-                                            tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_ANNET_FRITEKST, index),
+                                            tag =
+                                                medIndex(
+                                                    MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_BEGRUNNELSE_ANNET_FRITEKST,
+                                                    index,
+                                                ),
                                             sporsmalstekst = "Beskriv hva du gjorde",
                                             svartype = Svartype.FRITEKST,
                                             min = "1",
@@ -249,9 +270,10 @@ fun lagGruppertUndersporsmalTilSporsmalOmOppholdUtenforEos(
                     tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_NAAR, index),
                     sporsmalstekst = "I hvilken periode oppholdt du deg i dette landet?",
                     svartype = Svartype.PERIODE,
-                    // Til- og fra-dato er satt statisk i samarbeid med LovMe.
-                    min = tom.minusYears(2).format(ISO_LOCAL_DATE),
-                    max = tom.format(ISO_LOCAL_DATE),
+                    min = formaterDato(fom.minusYears(1)),
+                    max = formaterDato(tom),
                 ),
             ),
     )
+
+fun formaterDato(dato: LocalDate): String = dato.format(ISO_LOCAL_DATE)
