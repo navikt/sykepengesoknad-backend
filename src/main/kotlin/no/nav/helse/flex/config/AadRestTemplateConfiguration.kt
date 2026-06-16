@@ -93,6 +93,8 @@ class AadRestTemplateConfiguration {
             restTemplateBuilder = restTemplateBuilder,
             clientConfigurationProperties = clientConfigurationProperties,
             oAuth2AccessTokenService = oAuth2AccessTokenService,
+            connectTimeout = Duration.ofSeconds(5),
+            readTimeout = Duration.ofSeconds(10),
         )
 
     @Bean
