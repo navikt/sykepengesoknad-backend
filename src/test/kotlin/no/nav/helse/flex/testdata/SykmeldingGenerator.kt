@@ -53,7 +53,6 @@ fun skapArbeidsgiverSykmelding(
         arbeidsgiver = ArbeidsgiverAGDTO(null, null),
         syketilfelleStartDato = null,
         egenmeldt = false,
-        harRedusertArbeidsgiverperiode = false,
         behandler =
             BehandlerAGDTO(
                 fornavn = "Lege",
@@ -104,7 +103,6 @@ fun skapArbeidsgiverSykmelding(
         arbeidsgiver = ArbeidsgiverAGDTO(null, null),
         syketilfelleStartDato = syketilfelleStartDato,
         egenmeldt = false,
-        harRedusertArbeidsgiverperiode = false,
         behandler =
             BehandlerAGDTO(
                 fornavn = "Lege",

@@ -8,12 +8,10 @@ import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentSoknadsPerioderM
 import no.nav.helse.flex.frisktilarbeid.FriskTilArbeidRepository
 import no.nav.helse.flex.juridiskvurdering.JuridiskVurderingKafkaProducer
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingRepository
-import no.nav.helse.flex.repository.RedusertVenteperiodeRepository
 import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLDSTILLATELSE
 import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLD_UTENFOR_EOS
 import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE
 import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE
-import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsperiodeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
@@ -24,7 +22,6 @@ import org.springframework.stereotype.Component
 @Component
 class SykepengesoknadTilSykepengesoknadDTOMapper(
     private val juridiskVurderingKafkaProducer: JuridiskVurderingKafkaProducer,
-    private val redusertVenteperiodeRepository: RedusertVenteperiodeRepository,
     private val medlemskapVurderingRepository: MedlemskapVurderingRepository,
     private val friskTilArbeidRepository: FriskTilArbeidRepository,
     private val unleashToggles: UnleashToggles,
@@ -54,8 +51,7 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
                     soknadsperioder = sykepengesoknad.hentSoknadsperioder(endeligVurdering),
                     sendMeldingTilNavDager = unleashToggles.meldingTilNavDagerEnabled(sykepengesoknad.fnr),
                 )
-        }.merkSelvstendigOgFrilanserMedRedusertVenteperiode()
-            .merkMedMedlemskapStatus()
+        }.merkMedMedlemskapStatus()
             .fyllMedDataFraFriskTilArbeidTabell()
 
     private fun Sykepengesoknad.hentSoknadsperioder(endeligVurdering: Boolean): List<SoknadsperiodeDTO> {
@@ -79,16 +75,6 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
             return hentSoknadsPerioderMedFaktiskGrad.first
         }
     }
-
-    private fun SykepengesoknadDTO.merkSelvstendigOgFrilanserMedRedusertVenteperiode(): SykepengesoknadDTO =
-        if (
-            arbeidssituasjon == ArbeidssituasjonDTO.FRILANSER ||
-            arbeidssituasjon == ArbeidssituasjonDTO.SELVSTENDIG_NARINGSDRIVENDE
-        ) {
-            copy(harRedusertVenteperiode = redusertVenteperiodeRepository.existsBySykmeldingId(sykmeldingId!!))
-        } else {
-            this
-        }
 
     private fun SykepengesoknadDTO.fyllMedDataFraFriskTilArbeidTabell(): SykepengesoknadDTO {
         if (type != SoknadstypeDTO.FRISKMELDT_TIL_ARBEIDSFORMIDLING) {
