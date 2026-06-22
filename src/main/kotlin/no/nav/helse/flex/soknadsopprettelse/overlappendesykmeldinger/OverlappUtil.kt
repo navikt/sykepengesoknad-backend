@@ -14,7 +14,7 @@ import java.time.Instant
 import java.time.LocalDate
 
 private val log = LoggerFactory.getLogger("no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.OverlappUtil")
-internal const val SYKMELDING_ID_FOR_NY_LOGIKK = "f16f3712-bef2-4fad-97a2-3d1685960d97"
+internal const val SYKMELDING_ID_FOR_NY_LOGIKK = "b846c38c-6f0a-4c00-998b-10e6cbdc0b1d"
 
 enum class EndringIUforegrad {
     FLERE_PERIODER,
@@ -226,14 +226,18 @@ internal fun Sykepengesoknad.matcherArbeidssituasjon(
     orgnummer: String?,
 ): Boolean =
     when (arbeidssituasjon) {
-        Arbeidssituasjon.ARBEIDSTAKER ->
+        Arbeidssituasjon.ARBEIDSTAKER -> {
             this.soknadstype == Soknadstype.ARBEIDSTAKERE && arbeidsgiverOrgnummer == orgnummer
+        }
 
-        Arbeidssituasjon.NAERINGSDRIVENDE ->
+        Arbeidssituasjon.NAERINGSDRIVENDE -> {
             this.soknadstype == Soknadstype.SELVSTENDIGE_OG_FRILANSERE &&
                 this.arbeidssituasjon == Arbeidssituasjon.NAERINGSDRIVENDE
+        }
 
-        else -> throw RuntimeException("Ugyldig arbeidssituasjon for klipp")
+        else -> {
+            throw RuntimeException("Ugyldig arbeidssituasjon for klipp")
+        }
     }
 
 internal fun finnEndringIUforegrad(
