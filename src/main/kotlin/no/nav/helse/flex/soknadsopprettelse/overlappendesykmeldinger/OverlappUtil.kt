@@ -14,7 +14,7 @@ import java.time.Instant
 import java.time.LocalDate
 
 private val log = LoggerFactory.getLogger("no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.OverlappUtil")
-internal const val SYKMELDING_ID_FOR_NY_LOGIKK = "b846c38c-6f0a-4c00-998b-10e6cbdc0b1d"
+internal const val SYKMELDING_ID_FOR_NY_LOGIKK = ""
 
 enum class EndringIUforegrad {
     FLERE_PERIODER,
