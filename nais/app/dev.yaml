@@ -18,7 +18,6 @@ external-host:
   - aareg-services-q2.dev-fss-pub.nais.io
   - g.nav.no
   - data.brreg.no
-flex-openapi-docs-ui: true
 env:
   SPRING_PROFILES_ACTIVE: default,testdata,sykmeldinger,frisktilarbeid
   PDL_BASE_URL: https://pdl-api.dev-fss-pub.nais.io
