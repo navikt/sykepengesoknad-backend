@@ -68,6 +68,7 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
             val hentSoknadsPerioderMedFaktiskGrad = hentSoknadsPerioderMedFaktiskGrad(this)
             hentSoknadsPerioderMedFaktiskGrad.second?.let {
                 if (endeligVurdering) {
+                    // TODO: Denne burde ligge et annet sted
                     juridiskVurderingKafkaProducer.produserMelding(it)
                 }
             }

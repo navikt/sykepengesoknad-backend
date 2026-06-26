@@ -26,8 +26,6 @@ import org.apache.commons.lang3.StringUtils
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
-import kotlin.collections.forEach
-import kotlin.system.measureTimeMillis
 
 @Service
 @Transactional(rollbackFor = [Throwable::class])
@@ -78,17 +76,9 @@ class MottakerAvSoknadService(
 
         val mottakerResultat =
             beregnMottakerAvSoknadForArbeidstakerOgBehandlingsdager(sykepengesoknad, identer, sykmelding)
-                .also { mottakerOgVurdering ->
-                    val publiseringstid =
-                        measureTimeMillis {
-                            mottakerOgVurdering.vurdering
-                                .map {
-                                    juridiskVurderingKafkaProducer.produserMeldingAsynkront(it)
-                                }.forEach { it.get() }
-                        }
-                    if (mottakerOgVurdering.vurdering.isNotEmpty()) {
-                        val melding = "Brukte $publiseringstid millisekunder på å publisere til juridiskVurderingTopic."
-                        if (publiseringstid > 1000L) log.warn(melding) else log.info(melding)
+                .also {
+                    it.vurdering.forEach { jv ->
+                        juridiskVurderingKafkaProducer.produserMelding(jv)
                     }
                 }
 
