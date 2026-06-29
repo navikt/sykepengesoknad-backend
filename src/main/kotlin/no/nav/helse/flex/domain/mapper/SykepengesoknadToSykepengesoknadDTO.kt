@@ -14,7 +14,6 @@ fun konverterTilSykepengesoknadDTO(
     mottaker: Mottaker?,
     erEttersending: Boolean,
     soknadsperioder: List<SoknadsperiodeDTO>,
-    sendMeldingTilNavDager: Boolean = false,
 ): SykepengesoknadDTO =
     SykepengesoknadDTO(
         id = sykepengesoknad.id,
@@ -50,12 +49,8 @@ fun konverterTilSykepengesoknadDTO(
         yrkesskade = sykepengesoknad.hentYrkesskade(),
         egenmeldingsdagerFraSykmelding = sykepengesoknad.egenmeldingsdagerFraSykmelding.parseEgenmeldingsdagerFraSykmelding(),
         meldingTilNavDagerFraSykmelding =
-            if (sendMeldingTilNavDager) {
-                sykepengesoknad.meldingTilNavDagerFraSykmelding?.map {
-                    PeriodeDTO(it.fom, it.tom)
-                }
-            } else {
-                null
+            sykepengesoknad.meldingTilNavDagerFraSykmelding?.map {
+                PeriodeDTO(it.fom, it.tom)
             },
         egenmeldtSykmelding = sykepengesoknad.egenmeldtSykmelding,
         merknaderFraSykmelding = sykepengesoknad.merknaderFraSykmelding.tilMerknadDTO(),

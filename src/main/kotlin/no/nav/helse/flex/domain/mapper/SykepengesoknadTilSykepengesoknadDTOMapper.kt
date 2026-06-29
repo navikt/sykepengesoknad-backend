@@ -15,7 +15,6 @@ import no.nav.helse.flex.soknadsopprettelse.MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NOR
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsperiodeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
-import no.nav.helse.flex.unleash.UnleashToggles
 import no.nav.helse.flex.util.serialisertTilString
 import org.springframework.stereotype.Component
 
@@ -24,7 +23,6 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
     private val juridiskVurderingKafkaProducer: JuridiskVurderingKafkaProducer,
     private val medlemskapVurderingRepository: MedlemskapVurderingRepository,
     private val friskTilArbeidRepository: FriskTilArbeidRepository,
-    private val unleashToggles: UnleashToggles,
 ) {
     fun mapTilSykepengesoknadDTO(
         sykepengesoknad: Sykepengesoknad,
@@ -49,7 +47,6 @@ class SykepengesoknadTilSykepengesoknadDTOMapper(
                     mottaker = mottaker,
                     erEttersending = erEttersending,
                     soknadsperioder = sykepengesoknad.hentSoknadsperioder(endeligVurdering),
-                    sendMeldingTilNavDager = unleashToggles.meldingTilNavDagerEnabled(sykepengesoknad.fnr),
                 )
         }.merkMedMedlemskapStatus()
             .fyllMedDataFraFriskTilArbeidTabell()
