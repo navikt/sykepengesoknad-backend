@@ -459,12 +459,12 @@ class SplittSykmeldingperioderTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `splitter søknader uten å kræsje med gammel søknad som mangler signaturdato`() {
+    fun `splitter søknader med gammel søknad som mangler signaturdato`() {
         val gammelSoknadUtenSignaturdato =
             lagSoknad(
                 arbeidsgiver = 1,
-                fom = LocalDate.of(2016, 2, 1),
-                tom = LocalDate.of(2016, 2, 20),
+                fom = LocalDate.of(2017, 2, 1),
+                tom = LocalDate.of(2017, 2, 20),
                 startSykeforlop = LocalDate.of(2017, 2, 1),
                 arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
                 soknadsType = Soknadstype.ARBEIDSTAKERE,
@@ -498,20 +498,23 @@ class SplittSykmeldingperioderTest : FellesTestOppsett() {
                 Arbeidssituasjon.ARBEIDSTAKER,
                 listOf(gammelSoknadUtenSignaturdato),
                 sykmeldingDokument.sykmeldingId,
-                sykmeldingDokument.behandletTidspunkt,
+                sykmeldingDokument.signaturDato!!,
                 "org-1",
                 klippMetrikk,
             )
 
-        assertThat(tidsenheter.size).isEqualTo(3)
+        assertThat(tidsenheter.size).isEqualTo(4)
         assertThat(tidsenheter[0].fom).isEqualTo(LocalDate.of(2017, 1, 1))
         assertThat(tidsenheter[0].tom).isEqualTo(LocalDate.of(2017, 1, 31))
 
         assertThat(tidsenheter[1].fom).isEqualTo(LocalDate.of(2017, 2, 1))
-        assertThat(tidsenheter[1].tom).isEqualTo(LocalDate.of(2017, 3, 3))
+        assertThat(tidsenheter[1].tom).isEqualTo(LocalDate.of(2017, 2, 20))
 
-        assertThat(tidsenheter[2].fom).isEqualTo(LocalDate.of(2017, 3, 4))
-        assertThat(tidsenheter[2].tom).isEqualTo(LocalDate.of(2017, 4, 2))
+        assertThat(tidsenheter[2].fom).isEqualTo(LocalDate.of(2017, 2, 21))
+        assertThat(tidsenheter[2].tom).isEqualTo(LocalDate.of(2017, 3, 13))
+
+        assertThat(tidsenheter[3].fom).isEqualTo(LocalDate.of(2017, 3, 14))
+        assertThat(tidsenheter[3].tom).isEqualTo(LocalDate.of(2017, 4, 2))
     }
 
     private fun assertThatAlleUtenomSisteTomErSondag(tidsenheter: List<Tidsenhet>) {

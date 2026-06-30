@@ -11,6 +11,7 @@ import no.nav.helse.flex.soknadsopprettelse.antallDager
 import no.nav.helse.flex.soknadsopprettelse.eldstePeriodeFom
 import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.EndringIUforegrad
 import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.KlippMetrikk
+import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.datoForKlippSammenligning
 import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.matcherArbeidssituasjon
 import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.overlap
 import no.nav.helse.flex.soknadsopprettelse.sistePeriodeTom
@@ -28,7 +29,7 @@ fun SykmeldingTilSoknadOpprettelse.splittSykmeldingiSoknadsPerioder(
     arbeidssituasjon: Arbeidssituasjon,
     eksisterendeSoknader: List<Sykepengesoknad>,
     sykmeldingId: String,
-    signaturDato: Instant,
+    klippSammenligningsDato: Instant,
     orgnummer: String?,
     klippMetrikk: KlippMetrikk,
 ): List<Tidsenhet> {
@@ -51,7 +52,7 @@ fun SykmeldingTilSoknadOpprettelse.splittSykmeldingiSoknadsPerioder(
         sykmeldingTidsenheter.splittPeriodenSomOverlapperSendtSoknad(
             eksisterendeSoknader,
             sykmeldingId,
-            signaturDato,
+            klippSammenligningsDato,
             orgnummer,
             klippMetrikk,
             arbeidssituasjon,
@@ -88,7 +89,7 @@ private fun SykmeldingTidsenheter.splittLangeSykmeldingperioderMedBehandlingsdag
 private fun SykmeldingTidsenheter.splittPeriodenSomOverlapperSendtSoknad(
     eksisterendeSoknader: List<Sykepengesoknad>,
     sykmeldingId: String,
-    signaturDato: Instant,
+    klippSammenligningsDato: Instant,
     orgnummer: String?,
     klippMetrikk: KlippMetrikk,
     arbeidssituasjon: Arbeidssituasjon,
@@ -113,7 +114,7 @@ private fun SykmeldingTidsenheter.splittPeriodenSomOverlapperSendtSoknad(
                     }
                 }
                 return@filter false
-            }.filter { it.sykmeldingSignaturDato!!.isBefore(signaturDato) }
+            }.filter { it.datoForKlippSammenligning().isBefore(klippSammenligningsDato) }
             .toList()
 
     while (splittbareTidsenheter.isNotEmpty()) {

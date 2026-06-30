@@ -8,7 +8,6 @@ import no.nav.helse.flex.repository.KlippMetrikkRepository
 import no.nav.helse.flex.soknadsopprettelse.ARBEID_UNDERVEIS_100_PROSENT
 import no.nav.helse.flex.soknadsopprettelse.FERIE_V2
 import no.nav.helse.flex.soknadsopprettelse.JOBBET_DU_GRADERT
-import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.SYKMELDING_ID_FOR_NY_LOGIKK
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testdata.gradertSykmeldt
 import no.nav.helse.flex.testdata.heltSykmeldt
@@ -33,6 +32,7 @@ class OverlapperInni : FellesTestOppsett() {
 
     val fnr = "44444444444"
     val basisDato = LocalDate.now()
+    val sykmeldingId = "1234"
 
     @AfterEach
     fun cleanUp() {
@@ -224,7 +224,7 @@ class OverlapperInni : FellesTestOppsett() {
         val soknaderFraSykmelding2 =
             sendSykmelding(
                 sykmelding100Prosent(
-                    sykmeldingId = SYKMELDING_ID_FOR_NY_LOGIKK,
+                    sykmeldingId = sykmeldingId,
                     sykmeldingSkrevet = OffsetDateTime.parse("2026-01-05T09:31:24.445Z"),
                     signaturDato = OffsetDateTime.parse("2026-01-07T08:32:18.152Z"),
                 ),
@@ -238,7 +238,87 @@ class OverlapperInni : FellesTestOppsett() {
 
         val nySoknad =
             soknaderFraSykmelding2.first { it.status == SoknadsstatusDTO.NY }.also {
-                it.sykmeldingId shouldBeEqualTo SYKMELDING_ID_FOR_NY_LOGIKK
+                it.sykmeldingId shouldBeEqualTo sykmeldingId
+                it.soknadsperioder!!.single().grad shouldBeEqualTo 100
+            }
+
+        val soknaderViaRest = hentSoknaderMetadata(fnr)
+        soknaderViaRest shouldHaveSize 1
+        soknaderViaRest.first().id shouldBeEqualTo nySoknad.id
+    }
+
+    @Test
+    fun `Første sykmelding mangler signaturDato, klipp baseres på sykmeldingSkrevet`() {
+        val soknadFraSykmelding1 =
+            sendSykmelding(
+                gradertSykmelding50Prosent(
+                    sykmeldingSkrevet = OffsetDateTime.parse("2026-01-05T10:00:00.000Z"),
+                    signaturDato = null,
+                ),
+            ).single()
+                .also {
+                    it.status shouldBeEqualTo SoknadsstatusDTO.NY
+                    it.soknadsperioder!!.single().grad shouldBeEqualTo 50
+                }
+
+        val soknaderFraSykmelding2 =
+            sendSykmelding(
+                sykmelding100Prosent(
+                    sykmeldingId = sykmeldingId,
+                    sykmeldingSkrevet = OffsetDateTime.parse("2026-01-06T10:00:00.000Z"),
+                    signaturDato = OffsetDateTime.parse("2026-01-07T08:32:18.152Z"),
+                ),
+                forventaSoknader = 2,
+            )
+
+        soknaderFraSykmelding2.first { it.status == SoknadsstatusDTO.SLETTET }.also {
+            it.id shouldBeEqualTo soknadFraSykmelding1.id
+            it.soknadsperioder!!.single().grad shouldBeEqualTo 50
+        }
+
+        val nySoknad =
+            soknaderFraSykmelding2.first { it.status == SoknadsstatusDTO.NY }.also {
+                it.sykmeldingId shouldBeEqualTo sykmeldingId
+                it.soknadsperioder!!.single().grad shouldBeEqualTo 100
+            }
+
+        val soknaderViaRest = hentSoknaderMetadata(fnr)
+        soknaderViaRest shouldHaveSize 1
+        soknaderViaRest.first().id shouldBeEqualTo nySoknad.id
+    }
+
+    @Test
+    fun `Andre sykmelding mangler signaturDato, klipp baseres på sykmeldingSkrevet`() {
+        val soknadFraSykmelding1 =
+            sendSykmelding(
+                gradertSykmelding50Prosent(
+                    sykmeldingSkrevet = OffsetDateTime.parse("2026-01-04T10:00:00.000Z"),
+                    signaturDato = OffsetDateTime.parse("2026-01-05T14:56:22.802Z"),
+                ),
+            ).single()
+                .also {
+                    it.status shouldBeEqualTo SoknadsstatusDTO.NY
+                    it.soknadsperioder!!.single().grad shouldBeEqualTo 50
+                }
+
+        val soknaderFraSykmelding2 =
+            sendSykmelding(
+                sykmelding100Prosent(
+                    sykmeldingId = sykmeldingId,
+                    sykmeldingSkrevet = OffsetDateTime.parse("2026-01-07T10:00:00.000Z"),
+                    signaturDato = null,
+                ),
+                forventaSoknader = 2,
+            )
+
+        soknaderFraSykmelding2.first { it.status == SoknadsstatusDTO.SLETTET }.also {
+            it.id shouldBeEqualTo soknadFraSykmelding1.id
+            it.soknadsperioder!!.single().grad shouldBeEqualTo 50
+        }
+
+        val nySoknad =
+            soknaderFraSykmelding2.first { it.status == SoknadsstatusDTO.NY }.also {
+                it.sykmeldingId shouldBeEqualTo sykmeldingId
                 it.soknadsperioder!!.single().grad shouldBeEqualTo 100
             }
 
@@ -297,7 +377,7 @@ class OverlapperInni : FellesTestOppsett() {
     fun gradertSykmelding50Prosent(
         sykmeldingId: String = "sykmelding-1",
         sykmeldingSkrevet: OffsetDateTime = OffsetDateTime.parse("2026-01-05T15:55:02.661Z"),
-        signaturDato: OffsetDateTime = OffsetDateTime.parse("2026-01-05T14:56:22.802Z"),
+        signaturDato: OffsetDateTime? = OffsetDateTime.parse("2026-01-05T14:56:22.802Z"),
     ): SykmeldingKafkaMessageDTO =
         sykmeldingKafkaMessage(
             fnr = fnr,
@@ -315,7 +395,7 @@ class OverlapperInni : FellesTestOppsett() {
     fun sykmelding100Prosent(
         sykmeldingId: String = "sykmelding-2",
         sykmeldingSkrevet: OffsetDateTime = OffsetDateTime.parse("2026-01-05T09:31:24.445Z"),
-        signaturDato: OffsetDateTime = OffsetDateTime.parse("2026-01-07T08:32:18.152Z"),
+        signaturDato: OffsetDateTime? = OffsetDateTime.parse("2026-01-07T08:32:18.152Z"),
     ): SykmeldingKafkaMessageDTO =
         sykmeldingKafkaMessage(
             fnr = fnr,
