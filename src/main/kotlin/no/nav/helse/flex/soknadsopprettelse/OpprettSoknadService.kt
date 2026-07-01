@@ -15,6 +15,7 @@ import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.service.SelvstendigNaringsdrivendeInfoService
 import no.nav.helse.flex.service.SlettSoknaderTilKorrigertSykmeldingService
 import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.KlippMetrikk
+import no.nav.helse.flex.soknadsopprettelse.overlappendesykmeldinger.datoForKlippSammenligning
 import no.nav.helse.flex.soknadsopprettelse.splitt.delOppISoknadsperioder
 import no.nav.helse.flex.soknadsopprettelse.splitt.splittMellomTyper
 import no.nav.helse.flex.soknadsopprettelse.splitt.splittSykmeldingiSoknadsPerioder
@@ -76,7 +77,7 @@ class OpprettSoknadService(
                             arbeidssituasjon = arbeidssituasjon,
                             eksisterendeSoknader = eksisterendeSoknader,
                             sykmeldingId = sykmelding.sykmeldingId,
-                            behandletTidspunkt = sykmelding.behandletTidspunkt,
+                            klippSammenligningsDato = sykmelding.datoForKlippSammenligning(),
                             orgnummer = sykmeldingTilSoknadOpprettelse.arbeidsgiverOrgnummer,
                             klippMetrikk = klippMetrikk,
                         ).map {
