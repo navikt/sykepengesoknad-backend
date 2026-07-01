@@ -67,3 +67,6 @@ spec:
     - team: helsearbeidsgiver
       application: sykepenger-im-lps-api
       access: read
+    - team: teamsykefravr
+      application: isutenlandsopphold
+      access: read
