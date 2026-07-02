@@ -5,7 +5,6 @@ import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.flatten
-import no.nav.helse.flex.domain.mapper.SykepengesoknadTilSykepengesoknadDTOMapper
 import no.nav.helse.flex.domain.mapper.parseEgenmeldingsdagerFraSykmelding
 import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentSoknadsPerioderMedFaktiskGrad
 import no.nav.helse.flex.service.HentSoknadService
@@ -31,7 +30,6 @@ class ArbeidsgiverInntektsmeldingController(
     private val vedtaksperiodeBehandlingRepository: VedtaksperiodeBehandlingRepository,
     @param:Value("\${SPINNTEKTSMELDING_FRONTEND_CLIENT_ID}")
     val spinntektsmeldingFrontendClientId: String,
-    val sykepengesoknadTilSykepengesoknadDTOMapper: SykepengesoknadTilSykepengesoknadDTOMapper,
 ) {
     @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
     @PostMapping(
