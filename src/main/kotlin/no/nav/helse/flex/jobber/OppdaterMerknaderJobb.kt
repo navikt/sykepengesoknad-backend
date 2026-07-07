@@ -35,7 +35,7 @@ class OppdaterMerknaderJobb(
 
             log.info("Oppdaterer merknader for ${soknader.size} sykepengesoknader med sykmeldingId $id")
             soknader.forEach { soknad ->
-                if (soknad.merknaderFraSykmelding == "[]") {
+                if (soknad.merknaderFraSykmelding?.isEmpty() == true) {
                     sykepengesoknadRepository.save(soknad.copy(merknaderFraSykmelding = null))
                     log.info("Oppdaterer merknader for sykepengesoknad med id ${soknad.sykepengesoknadUuid} til null")
                 } else {
