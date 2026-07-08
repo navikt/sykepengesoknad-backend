@@ -113,7 +113,7 @@ class NaringsdrivendeSoknadService(
     }
 
     private fun SykmeldingKafkaMessageDTO.sammenlign(sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO) {
-        if (sykepengesoknadRepository.findBySykmeldingUuid(this.sykmelding.id).isEmpty()) {
+        if (sykepengesoknadRepository.findBySykmeldingUuid(this.sykmelding.id).isNotEmpty()) {
             log.info("Sykmeldingen har allerede en søknad, sammenligner ikke.")
             return
         }
