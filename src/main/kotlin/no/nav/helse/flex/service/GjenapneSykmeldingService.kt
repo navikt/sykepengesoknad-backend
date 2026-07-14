@@ -33,16 +33,17 @@ class GjenapneSykmeldingService(
                 .filter { it.arbeidssituasjon != Arbeidssituasjon.ARBEIDSTAKER }
 
         if (soknaderTilSykmeldingSomKanSlettes.isEmpty()) {
-            log.info("Mottok status åpen for sykmelding $sykmeldingId på kafka. Ingen tilhørende søknader.")
+            log.info("Prosesserte tombstone for $sykmeldingId på kafka. Ingen søknader som kan slettes.")
             return
         }
 
         if (topic == SYKMELDINGSENDT_TOPIC) {
-            log.error("Prosesserte åpen melding for $sykmeldingId fra sendt topicet. Den kan ikke endres så dette skal ikke skje.")
+            log.error("Prosesserte tombstone for $sykmeldingId fra sendt topicet. Den kan ikke endres så dette skal ikke skje.")
             return
         }
 
         soknaderTilSykmeldingSomKanSlettes.slettSoknader()
+        log.info("Prosesserte tombstone for $sykmeldingId på kafka. ${soknaderTilSykmeldingSomKanSlettes.size} søknader ble slettet.")
     }
 
     private fun List<Sykepengesoknad>.slettSoknader() {
