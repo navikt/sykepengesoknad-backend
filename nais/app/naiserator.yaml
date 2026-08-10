@@ -118,6 +118,8 @@ spec:
           namespace: helsearbeidsgiver
         - application: bakrommet
           namespace: speilvendt
+        - application: im-soeknad
+          namespace: helsearbeidsgiver
   envFrom:
     - secret: sykepengesoknad-backend-unleash-api-token
   env:

@@ -1,5 +1,9 @@
 package no.nav.helse.flex.controller
 
+import io.swagger.v3.oas.annotations.Hidden
+import no.nav.helse.flex.clientidvalidation.ClientIdValidation
+import no.nav.helse.flex.clientidvalidation.ClientIdValidation.NamespaceAndApp
+import no.nav.helse.flex.config.OIDCIssuer.AZUREATOR
 import no.nav.helse.flex.config.OIDCIssuer.TOKENX
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
@@ -17,14 +21,13 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.time.LocalDate
 
 @RestController
-@RequestMapping(value = ["/api/v1/arbeidsgiver"])
 class ArbeidsgiverInntektsmeldingController(
     private val contextHolder: TokenValidationContextHolder,
+    private val clientIdValidation: ClientIdValidation,
     private val identService: IdentService,
     private val hentSoknadService: HentSoknadService,
     private val vedtaksperiodeBehandlingRepository: VedtaksperiodeBehandlingRepository,
@@ -33,15 +36,32 @@ class ArbeidsgiverInntektsmeldingController(
 ) {
     @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
     @PostMapping(
-        value = ["/soknader"],
+        value = ["/api/v1/arbeidsgiver/soknader"],
         produces = [APPLICATION_JSON_VALUE],
         consumes = [APPLICATION_JSON_VALUE],
     )
-    fun hentSoknaderForInntektsmeldingFrontend(
+    fun hentSoknaderMedTokenX(
         @RequestBody request: HentSoknaderRequest,
     ): List<HentSoknaderResponse> {
         contextHolder.validerTokenXClaims(spinntektsmeldingFrontendClientId)
+        return hentSoknader(request)
+    }
 
+    @ProtectedWithClaims(issuer = AZUREATOR)
+    @PostMapping(
+        value = ["/api/v2/arbeidsgiver/soknader"],
+        produces = [APPLICATION_JSON_VALUE],
+        consumes = [APPLICATION_JSON_VALUE],
+    )
+    @Hidden
+    fun hentSoknaderMedAzureToken(
+        @RequestBody request: HentSoknaderRequest,
+    ): List<HentSoknaderResponse> {
+        clientIdValidation.validateClientId(NamespaceAndApp(namespace = "helsearbeidsgiver", app = "im-soeknad"))
+        return hentSoknader(request)
+    }
+
+    fun hentSoknader(request: HentSoknaderRequest): List<HentSoknaderResponse> {
         val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(request.fnr)
         val alleSoknader = hentSoknadService.hentSoknader(identer)
 
