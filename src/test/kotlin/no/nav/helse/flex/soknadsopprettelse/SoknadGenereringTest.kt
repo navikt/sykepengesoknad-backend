@@ -148,34 +148,6 @@ class SoknadGenereringTest {
     }
 
     @Test
-    fun `Søknad er første til arbeidsgiver siden tidligere søknad mangler 'fom'`() {
-        val startSykeforloep = LocalDate.of(2023, 1, 1)
-        val eksisterendeSoknader =
-            listOf(
-                lagSoknad(
-                    arbeidsgiver = 1,
-                    fom = LocalDate.of(2023, 2, 1),
-                    tom = LocalDate.of(2023, 2, 1),
-                    startSykeforlop = startSykeforloep,
-                    arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                    soknadsType = Soknadstype.ARBEIDSTAKERE,
-                ).copy(fom = null),
-            )
-
-        val soknad =
-            lagSoknad(
-                arbeidsgiver = 1,
-                fom = LocalDate.of(2023, 1, 1),
-                tom = LocalDate.of(2023, 1, 1),
-                startSykeforlop = startSykeforloep,
-                arbeidsSituasjon = Arbeidssituasjon.ARBEIDSTAKER,
-                soknadsType = Soknadstype.ARBEIDSTAKERE,
-            )
-
-        erForsteSoknadTilArbeidsgiverIForlop(eksisterendeSoknader, soknad) `should be` true
-    }
-
-    @Test
     fun `Søknad er første til arbeidsgiver siden tidligere søknad mangler 'sykmeldingId'`() {
         val startSykeforloep = LocalDate.of(2023, 1, 1)
         val eksisterendeSoknader =

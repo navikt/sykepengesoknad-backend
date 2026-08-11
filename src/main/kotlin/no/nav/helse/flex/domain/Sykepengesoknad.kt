@@ -56,6 +56,12 @@ data class Sykepengesoknad(
     val selvstendigNaringsdrivende: SelvstendigNaringsdrivendeInfo? = null,
     val ventetidSykmeldingUuid: String? = null,
 ) : Serializable {
+    init {
+        require(soknadstype == Soknadstype.OPPHOLD_UTLAND || (fom != null && tom != null)) {
+            "Søknad $id av type $soknadstype må ha fom og tom"
+        }
+    }
+
     fun alleSporsmalOgUndersporsmal(): List<Sporsmal> = sporsmal.flatten()
 
     fun getSporsmalMedTag(tag: String): Sporsmal =
