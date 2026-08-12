@@ -70,18 +70,8 @@ private fun SykepengesoknadDTO.fravar(opprettet: OffsetDateTime) =
                 inntruffet = inntruffet(),
                 tags =
                     when (it.type) {
-                        FravarstypeDTO.PERMISJON -> {
-                            listOf(Tag.SYKEPENGESOKNAD, statustag(), Tag.PERMISJON)
-                        }
-
-                        FravarstypeDTO.UTLANDSOPPHOLD -> {
-                            listOf(
-                                Tag.SYKEPENGESOKNAD,
-                                statustag(),
-                                Tag.OPPHOLD_UTENFOR_NORGE,
-                            )
-                        }
-
+                        FravarstypeDTO.PERMISJON -> listOf(Tag.SYKEPENGESOKNAD, statustag(), Tag.PERMISJON)
+                        FravarstypeDTO.UTLANDSOPPHOLD -> listOf(Tag.SYKEPENGESOKNAD, statustag(), Tag.OPPHOLD_UTENFOR_NORGE)
                         FravarstypeDTO.UTDANNING_DELTID -> {
                             listOf(
                                 Tag.SYKEPENGESOKNAD,
@@ -90,7 +80,6 @@ private fun SykepengesoknadDTO.fravar(opprettet: OffsetDateTime) =
                                 Tag.DELTID,
                             )
                         }
-
                         FravarstypeDTO.UTDANNING_FULLTID -> {
                             listOf(
                                 Tag.SYKEPENGESOKNAD,
@@ -183,10 +172,7 @@ private fun SoknadsperiodeDTO.tagsForKorrigertArbeidstid(statustag: Tag): Set<Ta
             )
         }
 
-        faktiskGrad!! <= 0 -> {
-            listOf(Tag.SYKEPENGESOKNAD, statustag, Tag.KORRIGERT_ARBEIDSTID, Tag.INGEN_AKTIVITET)
-        }
-
+        faktiskGrad!! <= 0 -> listOf(Tag.SYKEPENGESOKNAD, statustag, Tag.KORRIGERT_ARBEIDSTID, Tag.INGEN_AKTIVITET)
         faktiskGrad!! in 1..99 -> {
             listOf(
                 Tag.SYKEPENGESOKNAD,

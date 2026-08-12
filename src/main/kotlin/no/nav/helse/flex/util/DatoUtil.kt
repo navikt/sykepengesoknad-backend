@@ -36,8 +36,6 @@ fun LocalDate.isBeforeOrEqual(other: LocalDate): Boolean = this == other || this
 
 fun LocalDate.erHelg(): Boolean = this.dayOfWeek == DayOfWeek.SATURDAY || this.dayOfWeek == DayOfWeek.SUNDAY
 
-fun LocalDate.erUkedag(): Boolean = !erHelg()
-
 fun LocalDate.erFredag(): Boolean = this.dayOfWeek == DayOfWeek.FRIDAY
 
 fun LocalDate.forsteHverdag(): LocalDate {
@@ -101,8 +99,6 @@ object DatoUtil {
     fun formatterDatoUtenÅr(dato: LocalDate): String =
         dato.dayOfMonth.toString() + ". " +
             mnd(dato)
-
-    fun formatterDatoMedUkedag(dato: LocalDate): String = ukedag(dato) + " " + formatterDato(dato)
 
     fun periodeErUtenforHelg(periode: Periode): Boolean =
         ChronoUnit.DAYS.between(periode.fom, periode.tom) > 1 ||
