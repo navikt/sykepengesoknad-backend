@@ -224,12 +224,15 @@ private fun Sykepengesoknad.markerForsteganssoknad(
             *eksisterendeSoknader.toTypedArray(),
             *soknaderTilOppretting.toTypedArray(),
         )
+    val tidligereSoknader = alleSoknader.filterNot { it.id == this.id }
+    val harGapSomArbeidsledig =
+        this.soknadstype == Soknadstype.ARBEIDSLEDIG &&
+            harGapTilForrigeSoknad(tidligereSoknader, this.fom!!)
+    val erForstegangssoknad =
+        harGapSomArbeidsledig || erForsteSoknadTilArbeidsgiverIForlop(tidligereSoknader, this)
     return this.copy(
-        forstegangssoknad =
-            erForsteSoknadTilArbeidsgiverIForlop(
-                alleSoknader.filterNot { eksisterendeSoknad -> eksisterendeSoknad.id == this.id },
-                this,
-            ),
+        forstegangssoknad = erForstegangssoknad,
+        tidligereArbeidsgiverOrgnummer = if (harGapSomArbeidsledig) null else this.tidligereArbeidsgiverOrgnummer,
     )
 }
 
