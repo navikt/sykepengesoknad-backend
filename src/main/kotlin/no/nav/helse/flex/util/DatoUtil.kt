@@ -3,9 +3,6 @@ package no.nav.helse.flex.util
 import no.nav.helse.flex.domain.Periode
 import java.time.DayOfWeek
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
-import java.util.stream.LongStream
 import no.nav.helse.flex.util.datoErInnenforMinMax as datoErInnenforMinMaxTop
 import no.nav.helse.flex.util.formatterDato as formatterDatoTop
 import no.nav.helse.flex.util.formatterDatoMedUkedag as formatterDatoMedUkedagTop

@@ -1,11 +1,10 @@
 package no.nav.helse.flex.util
 
-import no.nav.helse.flex.domain.Periode
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import java.time.format.TextStyle
-import java.util.Locale
+import java.util.*
 
 private fun ukedag(dato: LocalDate): String = dato.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.forLanguageTag("nb-NO"))
 
