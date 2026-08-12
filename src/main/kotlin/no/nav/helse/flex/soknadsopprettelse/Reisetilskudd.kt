@@ -8,7 +8,7 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.Visningskriterie.CHECKED
 import no.nav.helse.flex.domain.Visningskriterie.JA
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.*
-import no.nav.helse.flex.util.DatoUtil.formatterPeriode
+import no.nav.helse.flex.util.formatterPeriode
 import no.nav.helse.flex.yrkesskade.YrkesskadeSporsmalGrunnlag
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE

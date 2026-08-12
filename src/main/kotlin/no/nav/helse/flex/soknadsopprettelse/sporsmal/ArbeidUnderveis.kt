@@ -8,8 +8,7 @@ import no.nav.helse.flex.domain.Svartype.JA_NEI
 import no.nav.helse.flex.domain.Visningskriterie
 import no.nav.helse.flex.domain.Visningskriterie.JA
 import no.nav.helse.flex.soknadsopprettelse.*
-import no.nav.helse.flex.util.DatoUtil
-import no.nav.helse.flex.util.DatoUtil.formatterPeriode
+import no.nav.helse.flex.util.formatterPeriode
 import java.time.temporal.ChronoUnit
 import kotlin.math.roundToInt
 
@@ -94,7 +93,7 @@ private fun jobbetDuGradertUndersporsmal(
         ),
         Sporsmal(
             tag = HVOR_MYE_HAR_DU_JOBBET + index,
-            sporsmalstekst = "Hvor mye jobbet du tilsammen ${DatoUtil.formatterPeriode(periode.fom, periode.tom)} ?",
+            sporsmalstekst = "Hvor mye jobbet du tilsammen ${formatterPeriode(periode.fom, periode.tom)} ?",
             svartype = Svartype.RADIO_GRUPPE_TIMER_PROSENT,
             undertekst = "Velg timer eller prosent",
             undersporsmal =

@@ -28,7 +28,7 @@ import no.nav.helse.flex.testdata.reisetilskudd
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
-import no.nav.helse.flex.util.DatoUtil
+import no.nav.helse.flex.util.formatterPeriode
 import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.ventPåRecords
 import org.amshove.kluent.`should be equal to`
@@ -452,7 +452,7 @@ class OverlapperEtter : FellesTestOppsett() {
 
         val periodeSpm = klippetSoknad.sporsmal.first { it.tag == FERIE_V2 }
         periodeSpm.sporsmalstekst shouldBeEqualTo "Tok du ut feriedager i tidsrommet ${
-            DatoUtil.formatterPeriode(
+            formatterPeriode(
                 klippetSoknad.fom!!,
                 klippetSoknad.tom!!,
             )

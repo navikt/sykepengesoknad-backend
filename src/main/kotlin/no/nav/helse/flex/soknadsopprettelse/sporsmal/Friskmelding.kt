@@ -5,7 +5,7 @@ import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Visningskriterie
 import no.nav.helse.flex.soknadsopprettelse.FRISKMELDT
 import no.nav.helse.flex.soknadsopprettelse.FRISKMELDT_START
-import no.nav.helse.flex.util.DatoUtil
+import no.nav.helse.flex.util.formatterDato
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -15,7 +15,7 @@ fun friskmeldingSporsmal(
 ): Sporsmal =
     Sporsmal(
         tag = FRISKMELDT,
-        sporsmalstekst = "Brukte du hele sykmeldingen fram til ${DatoUtil.formatterDato(tom)}?",
+        sporsmalstekst = "Brukte du hele sykmeldingen fram til ${formatterDato(tom)}?",
         svartype = Svartype.JA_NEI,
         kriterieForVisningAvUndersporsmal = Visningskriterie.NEI,
         undersporsmal =

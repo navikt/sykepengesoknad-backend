@@ -12,8 +12,10 @@ import no.nav.helse.flex.soknadsopprettelse.FERIE_V2
 import no.nav.helse.flex.soknadsopprettelse.UTLANDSOPPHOLD_SOKT_SYKEPENGER
 import no.nav.helse.flex.soknadsopprettelse.UTLAND_NAR_V2
 import no.nav.helse.flex.soknadsopprettelse.UTLAND_V2
-import no.nav.helse.flex.util.DatoUtil
 import no.nav.helse.flex.util.PeriodeMapper
+import no.nav.helse.flex.util.periodeErInnenforMinMax
+import no.nav.helse.flex.util.periodeErUtenforHelg
+import no.nav.helse.flex.util.periodeHarDagerUtenforAndrePerioder
 import java.util.*
 
 fun Sykepengesoknad.oppdaterMedSvarPaUtlandsopphold(): Sykepengesoknad {
@@ -35,8 +37,8 @@ fun Sykepengesoknad.oppdaterMedSvarPaUtlandsopphold(): Sykepengesoknad {
 
     val harUtlandsoppholdUtenforHelgOgFerie =
         gyldigeUtlandsperioder
-            .filter { DatoUtil.periodeErUtenforHelg(it) }
-            .any { periode -> DatoUtil.periodeHarDagerUtenforAndrePerioder(periode, gyldigeFerieperioder) }
+            .filter { periodeErUtenforHelg(it) }
+            .any { periode -> periodeHarDagerUtenforAndrePerioder(periode, gyldigeFerieperioder) }
 
     val maybeSoktOmSykepengerSporsmal = getSporsmalMedTagOrNull(UTLANDSOPPHOLD_SOKT_SYKEPENGER)
 
@@ -72,6 +74,6 @@ private fun getGyldigePeriodesvar(sporsmal: Sporsmal): List<Periode> =
         .map { PeriodeMapper.jsonTilOptionalPeriode(it) } // TODO: Kan enders?
         .filter { it.isPresent }
         .map { it.get() }
-        .filter { periode -> DatoUtil.periodeErInnenforMinMax(periode, sporsmal.min, sporsmal.max) }
+        .filter { periode -> periodeErInnenforMinMax(periode, sporsmal.min, sporsmal.max) }
         .toList()
         .toList()

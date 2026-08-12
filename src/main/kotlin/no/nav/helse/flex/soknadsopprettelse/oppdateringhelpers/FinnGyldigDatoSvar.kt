@@ -1,7 +1,7 @@
 package no.nav.helse.flex.soknadsopprettelse.oppdateringhelpers
 
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.util.DatoUtil
+import no.nav.helse.flex.util.datoErInnenforMinMax
 import no.nav.helse.flex.util.parseGyldigDato
 import java.time.LocalDate
 
@@ -22,7 +22,7 @@ fun Sykepengesoknad.finnGyldigDatoSvar(
         throw RuntimeException("Undersporsmal skal være av svartype dato $undersporsmal")
     }
     val gyldigDato = parseGyldigDato(undersporsmal.forsteSvar)
-    return if (gyldigDato != null && DatoUtil.datoErInnenforMinMax(gyldigDato, undersporsmal.min, undersporsmal.max)) {
+    return if (gyldigDato != null && datoErInnenforMinMax(gyldigDato, undersporsmal.min, undersporsmal.max)) {
         gyldigDato
     } else {
         null

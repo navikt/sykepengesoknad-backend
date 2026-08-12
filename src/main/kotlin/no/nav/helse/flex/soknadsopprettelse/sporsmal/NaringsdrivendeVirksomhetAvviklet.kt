@@ -5,7 +5,7 @@ import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Visningskriterie
 import no.nav.helse.flex.soknadsopprettelse.NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET
 import no.nav.helse.flex.soknadsopprettelse.NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET_DATO
-import no.nav.helse.flex.util.DatoUtil.formatterDato
+import no.nav.helse.flex.util.formatterDato
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 

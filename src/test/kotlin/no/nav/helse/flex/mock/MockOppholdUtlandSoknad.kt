@@ -3,8 +3,8 @@ package no.nav.helse.flex.mock
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.testutil.besvarsporsmal
-import no.nav.helse.flex.util.DatoUtil.periodeTilJson
 import no.nav.helse.flex.util.oppsummering
+import no.nav.helse.flex.util.periodeTilJson
 import java.time.LocalDate.now
 
 fun mockUtlandssoknad(): Sykepengesoknad = leggSvarPaSoknad(settOppSoknadOppholdUtland("fnr-7454630"), "NEI")

@@ -4,7 +4,7 @@ import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Visningskriterie
 import no.nav.helse.flex.soknadsopprettelse.*
-import no.nav.helse.flex.util.DatoUtil
+import no.nav.helse.flex.util.formatterPeriode
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
@@ -53,7 +53,7 @@ fun jobbsituasjonenDin(
     tom: LocalDate,
     sisteSoknad: Boolean = false,
 ): Sporsmal {
-    val periodeTekst = DatoUtil.formatterPeriode(fom, tom)
+    val periodeTekst = formatterPeriode(fom, tom)
     return Sporsmal(
         tag = FTA_JOBBSITUASJONEN_DIN,
         sporsmalstekst = "Begynte du i ny jobb i perioden $periodeTekst?",

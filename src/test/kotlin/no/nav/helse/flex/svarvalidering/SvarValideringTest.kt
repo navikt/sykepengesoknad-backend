@@ -8,7 +8,7 @@ import no.nav.helse.flex.soknadsopprettelse.sporsmal.oppholdUtenforEOSSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.tilSlutt
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.tilSluttGammel
 import no.nav.helse.flex.testutil.byttSvar
-import no.nav.helse.flex.util.DatoUtil.periodeTilJson
+import no.nav.helse.flex.util.periodeTilJson
 import no.nav.helse.flex.util.serialisertTilString
 import org.amshove.kluent.`should be false`
 import org.amshove.kluent.`should be true`

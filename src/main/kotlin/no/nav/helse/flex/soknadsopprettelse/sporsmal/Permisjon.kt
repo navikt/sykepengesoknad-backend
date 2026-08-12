@@ -5,7 +5,7 @@ import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Visningskriterie
 import no.nav.helse.flex.soknadsopprettelse.PERMISJON_NAR_V2
 import no.nav.helse.flex.soknadsopprettelse.PERMISJON_V2
-import no.nav.helse.flex.util.DatoUtil
+import no.nav.helse.flex.util.formatterPeriode
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -15,7 +15,7 @@ fun permisjonSporsmal(
 ): Sporsmal =
     Sporsmal(
         tag = PERMISJON_V2,
-        sporsmalstekst = "Tok du permisjon mens du var sykmeldt ${DatoUtil.formatterPeriode(fom, tom)}?",
+        sporsmalstekst = "Tok du permisjon mens du var sykmeldt ${formatterPeriode(fom, tom)}?",
         svartype = Svartype.JA_NEI,
         kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
         undersporsmal =

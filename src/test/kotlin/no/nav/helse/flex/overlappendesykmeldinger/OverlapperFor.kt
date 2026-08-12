@@ -21,7 +21,7 @@ import no.nav.helse.flex.testdata.gradertSykmeldt
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
-import no.nav.helse.flex.util.DatoUtil
+import no.nav.helse.flex.util.formatterPeriode
 import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.ventPåRecords
 import org.amshove.kluent.`should be equal to`
@@ -231,7 +231,7 @@ class OverlapperFor : FellesTestOppsett() {
         klippetSoknad.klippet shouldBeEqualTo true
         klippetSoknad.status shouldBeEqualTo RSSoknadstatus.NY
         klippetSoknad.sporsmal!!.first { it.tag == FERIE_V2 }.sporsmalstekst shouldBeEqualTo "Tok du ut feriedager i tidsrommet ${
-            DatoUtil.formatterPeriode(
+            formatterPeriode(
                 klippetSoknad.fom!!,
                 klippetSoknad.tom!!,
             )
@@ -337,7 +337,7 @@ class OverlapperFor : FellesTestOppsett() {
         klippetSoknad.klippet shouldBeEqualTo true
         klippetSoknad.status shouldBeEqualTo RSSoknadstatus.AVBRUTT
         klippetSoknad.sporsmal!!.first { it.tag == FERIE_V2 }.sporsmalstekst shouldBeEqualTo "Tok du ut feriedager i tidsrommet ${
-            DatoUtil.formatterPeriode(
+            formatterPeriode(
                 klippetSoknad.fom!!,
                 klippetSoknad.tom!!,
             )

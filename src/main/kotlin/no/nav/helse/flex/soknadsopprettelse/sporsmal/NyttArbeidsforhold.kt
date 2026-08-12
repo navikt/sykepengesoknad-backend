@@ -25,7 +25,7 @@ fun nyttArbeidsforholdSporsmal(
             val fom = max(denneSoknaden.fom!!, arbeidsforhold.startdato)
             val tom = oppdatertTom ?: denneSoknaden.tom!!
 
-            val periodeTekst = DatoUtil.formatterPeriode(fom, tom)
+            val periodeTekst = formatterPeriode(fom, tom)
             val metadata =
                 mapOf(
                     "arbeidsstedOrgnummer" to arbeidsforhold.arbeidsstedOrgnummer,
