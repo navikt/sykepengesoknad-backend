@@ -3,6 +3,7 @@ package no.nav.helse.flex.arbeidsgiverperiode
 import no.nav.helse.flex.arbeidsgiverperiode.domain.Syketilfellebit
 import no.nav.helse.flex.arbeidsgiverperiode.domain.Tag
 import no.nav.helse.flex.sykepengesoknad.kafka.*
+import no.nav.helse.flex.util.tilOsloZone
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
 
@@ -69,25 +70,39 @@ private fun SykepengesoknadDTO.fravar(opprettet: OffsetDateTime) =
                 inntruffet = inntruffet(),
                 tags =
                     when (it.type) {
-                        FravarstypeDTO.PERMISJON -> listOf(Tag.SYKEPENGESOKNAD, statustag(), Tag.PERMISJON)
-                        FravarstypeDTO.UTLANDSOPPHOLD -> listOf(Tag.SYKEPENGESOKNAD, statustag(), Tag.OPPHOLD_UTENFOR_NORGE)
-                        FravarstypeDTO.UTDANNING_DELTID ->
+                        FravarstypeDTO.PERMISJON -> {
+                            listOf(Tag.SYKEPENGESOKNAD, statustag(), Tag.PERMISJON)
+                        }
+
+                        FravarstypeDTO.UTLANDSOPPHOLD -> {
+                            listOf(
+                                Tag.SYKEPENGESOKNAD,
+                                statustag(),
+                                Tag.OPPHOLD_UTENFOR_NORGE,
+                            )
+                        }
+
+                        FravarstypeDTO.UTDANNING_DELTID -> {
                             listOf(
                                 Tag.SYKEPENGESOKNAD,
                                 statustag(),
                                 Tag.UTDANNING,
                                 Tag.DELTID,
                             )
+                        }
 
-                        FravarstypeDTO.UTDANNING_FULLTID ->
+                        FravarstypeDTO.UTDANNING_FULLTID -> {
                             listOf(
                                 Tag.SYKEPENGESOKNAD,
                                 statustag(),
                                 Tag.UTDANNING,
                                 Tag.FULLTID,
                             )
+                        }
 
-                        else -> listOf(Tag.SYKEPENGESOKNAD, statustag(), Tag.FERIE)
+                        else -> {
+                            listOf(Tag.SYKEPENGESOKNAD, statustag(), Tag.FERIE)
+                        }
                     }.toSet(),
                 ressursId = id,
                 fom = it.fom!!,
@@ -159,24 +174,32 @@ private fun SykepengesoknadDTO.behandingsdagBiter(opprettet: OffsetDateTime) =
 
 private fun SoknadsperiodeDTO.tagsForKorrigertArbeidstid(statustag: Tag): Set<Tag> =
     when {
-        sykmeldingstype == SykmeldingstypeDTO.BEHANDLINGSDAGER ->
+        sykmeldingstype == SykmeldingstypeDTO.BEHANDLINGSDAGER -> {
             listOf(
                 Tag.SYKEPENGESOKNAD,
                 statustag,
                 Tag.KORRIGERT_ARBEIDSTID,
                 Tag.BEHANDLINGSDAGER,
             )
+        }
 
-        faktiskGrad!! <= 0 -> listOf(Tag.SYKEPENGESOKNAD, statustag, Tag.KORRIGERT_ARBEIDSTID, Tag.INGEN_AKTIVITET)
-        faktiskGrad!! in 1..99 ->
+        faktiskGrad!! <= 0 -> {
+            listOf(Tag.SYKEPENGESOKNAD, statustag, Tag.KORRIGERT_ARBEIDSTID, Tag.INGEN_AKTIVITET)
+        }
+
+        faktiskGrad!! in 1..99 -> {
             listOf(
                 Tag.SYKEPENGESOKNAD,
                 statustag,
                 Tag.KORRIGERT_ARBEIDSTID,
                 Tag.GRADERT_AKTIVITET,
             )
+        }
+
         // Faktisk grad er 100 %, som tilsvarer fullt arbeid.
-        else -> listOf(Tag.SYKEPENGESOKNAD, statustag, Tag.KORRIGERT_ARBEIDSTID, Tag.FULL_AKTIVITET)
+        else -> {
+            listOf(Tag.SYKEPENGESOKNAD, statustag, Tag.KORRIGERT_ARBEIDSTID, Tag.FULL_AKTIVITET)
+        }
     }.toSet()
 
 private fun SykepengesoknadDTO.egenmelding(opprettet: OffsetDateTime) =
