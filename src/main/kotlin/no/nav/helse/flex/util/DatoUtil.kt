@@ -3,15 +3,12 @@ package no.nav.helse.flex.util
 import no.nav.helse.flex.domain.Periode
 import java.time.DayOfWeek
 import java.time.LocalDate
-import no.nav.helse.flex.util.datoErInnenforMinMax as datoErInnenforMinMaxTop
-import no.nav.helse.flex.util.formatterDato as formatterDatoTop
-import no.nav.helse.flex.util.formatterDatoMedUkedag as formatterDatoMedUkedagTop
-import no.nav.helse.flex.util.formatterDatoUtenÅr as formatterDatoUtenÅrTop
-import no.nav.helse.flex.util.formatterPeriode as formatterPeriodeTop
-import no.nav.helse.flex.util.periodeErInnenforMinMax as periodeErInnenforMinMaxTop
-import no.nav.helse.flex.util.periodeErUtenforHelg as periodeErUtenforHelgTop
-import no.nav.helse.flex.util.periodeHarDagerUtenforAndrePerioder as periodeHarDagerUtenforAndrePerioderTop
-import no.nav.helse.flex.util.periodeTilJson as periodeTilJsonTop
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
+import java.time.format.TextStyle
+import java.time.temporal.ChronoUnit
+import java.util.Locale
+import java.util.stream.LongStream
 
 fun max(
     a: LocalDate,
@@ -65,39 +62,90 @@ fun LocalDate.fredagISammeUke(): LocalDate {
     return day
 }
 
+fun parseGyldigDato(dato: String?): LocalDate? {
+    if (dato == null) {
+        return null
+    }
+    return try {
+        LocalDate.parse(dato, DateTimeFormatter.ISO_LOCAL_DATE)
+    } catch (_: DateTimeParseException) {
+        try {
+            LocalDate.parse(dato, PeriodeMapper.sporsmalstekstFormat)
+        } catch (_: DateTimeParseException) {
+            null
+        }
+    }
+}
+
+fun LocalDate.datoMånedÅrFormat(): String = this.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
+
 object DatoUtil {
+    private fun ukedag(dato: LocalDate): String = dato.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.forLanguageTag("nb-NO"))
+
+    private fun mnd(dato: LocalDate): String = dato.month.getDisplayName(TextStyle.FULL, Locale.forLanguageTag("nb-NO"))
+
     fun formatterPeriode(
         fom: LocalDate,
         tom: LocalDate,
-    ): String = formatterPeriodeTop(fom, tom)
+    ): String =
+        fom.dayOfMonth.toString() + "." +
+            (if (fom.month == tom.month) "" else " " + mnd(fom)) +
+            (if (fom.year == tom.year) "" else " " + fom.year) +
+            " - " + formatterDato(tom)
 
-    fun formatterDato(dato: LocalDate): String = formatterDatoTop(dato)
+    fun formatterDato(dato: LocalDate): String =
+        dato.dayOfMonth.toString() + ". " +
+            mnd(dato) + " " +
+            dato.year
 
-    fun formatterDatoUtenÅr(dato: LocalDate): String = formatterDatoUtenÅrTop(dato)
+    fun formatterDatoUtenÅr(dato: LocalDate): String =
+        dato.dayOfMonth.toString() + ". " +
+            mnd(dato)
 
-    fun formatterDatoMedUkedag(dato: LocalDate): String = formatterDatoMedUkedagTop(dato)
+    fun formatterDatoMedUkedag(dato: LocalDate): String = ukedag(dato) + " " + formatterDato(dato)
 
-    fun periodeErUtenforHelg(periode: Periode): Boolean = periodeErUtenforHelgTop(periode)
+    fun periodeErUtenforHelg(periode: Periode): Boolean =
+        ChronoUnit.DAYS.between(periode.fom, periode.tom) > 1 ||
+            !periode.fom.erHelg() ||
+            !periode.tom.erHelg()
 
     fun periodeHarDagerUtenforAndrePerioder(
         periode: Periode,
         andrePerioder: List<Periode>,
-    ): Boolean = periodeHarDagerUtenforAndrePerioderTop(periode, andrePerioder)
+    ): Boolean =
+        LongStream
+            .rangeClosed(0, ChronoUnit.DAYS.between(periode.fom, periode.tom))
+            .mapToObj { i: Long -> periode.fom.plusDays(i) }
+            .anyMatch { dagIPeriode: LocalDate? ->
+                andrePerioder
+                    .stream()
+                    .noneMatch { annenPeriode: Periode ->
+                        annenPeriode.erIPeriode(dagIPeriode!!)
+                    }
+            }
 
     fun periodeTilJson(
         fom: LocalDate,
         tom: LocalDate,
-    ): String = periodeTilJsonTop(fom, tom)
+    ): String =
+        "{\"fom\":\"" + fom.format(DateTimeFormatter.ISO_LOCAL_DATE) +
+            "\",\"tom\":\"" + tom.format(DateTimeFormatter.ISO_LOCAL_DATE) + "\"}"
 
     fun datoErInnenforMinMax(
         dato: LocalDate,
         min: String?,
         max: String?,
-    ): Boolean = datoErInnenforMinMaxTop(dato, min, max)
+    ): Boolean = !dato.isBefore(mapNullTilLocalDateMIN(min)) && !dato.isAfter(mapNullTilLocalDateMAX(max))
 
     fun periodeErInnenforMinMax(
         periode: Periode,
         min: String?,
         max: String?,
-    ): Boolean = periodeErInnenforMinMaxTop(periode, min, max)
+    ): Boolean = datoErInnenforMinMax(periode.fom, min, max) && datoErInnenforMinMax(periode.tom, min, max)
+
+    private fun mapNullTilLocalDateMIN(min: String?): LocalDate =
+        if (min == null) LocalDate.MIN else LocalDate.parse(min, DateTimeFormatter.ISO_LOCAL_DATE)
+
+    private fun mapNullTilLocalDateMAX(max: String?): LocalDate =
+        if (max == null) LocalDate.MAX else LocalDate.parse(max, DateTimeFormatter.ISO_LOCAL_DATE)
 }
