@@ -44,6 +44,8 @@ fun LocalDate.erHelg(): Boolean = this.dayOfWeek == DayOfWeek.SATURDAY || this.d
 
 fun LocalDate.erUkedag(): Boolean = !erHelg()
 
+fun LocalDate.erFredag(): Boolean = this.dayOfWeek == DayOfWeek.FRIDAY
+
 fun LocalDate.forsteHverdag(): LocalDate {
     var day = this
     while (day.erHelg()) {
