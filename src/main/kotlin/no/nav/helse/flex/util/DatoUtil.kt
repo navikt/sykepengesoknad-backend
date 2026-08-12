@@ -77,8 +77,6 @@ fun parseGyldigDato(dato: String?): LocalDate? {
 
 fun LocalDate.datoMånedÅrFormat(): String = this.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
 
-private fun ukedag(dato: LocalDate): String = dato.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.forLanguageTag("nb-NO"))
-
 private fun mnd(dato: LocalDate): String = dato.month.getDisplayName(TextStyle.FULL, Locale.forLanguageTag("nb-NO"))
 
 fun formatterPeriode(
@@ -98,8 +96,6 @@ fun formatterDato(dato: LocalDate): String =
 fun formatterDatoUtenÅr(dato: LocalDate): String =
     dato.dayOfMonth.toString() + ". " +
         mnd(dato)
-
-fun formatterDatoMedUkedag(dato: LocalDate): String = ukedag(dato) + " " + formatterDato(dato)
 
 fun periodeErUtenforHelg(periode: Periode): Boolean =
     ChronoUnit.DAYS.between(periode.fom, periode.tom) > 1 ||
