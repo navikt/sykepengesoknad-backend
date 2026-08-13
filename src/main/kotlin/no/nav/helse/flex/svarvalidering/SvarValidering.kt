@@ -12,9 +12,9 @@ import no.nav.helse.flex.exception.AbstractApiError
 import no.nav.helse.flex.exception.LogLevel
 import no.nav.helse.flex.soknadsopprettelse.BEKREFT_OPPLYSNINGER
 import no.nav.helse.flex.soknadsopprettelse.FERIE
-import no.nav.helse.flex.util.DatoUtil
 import no.nav.helse.flex.util.PeriodeMapper
 import no.nav.helse.flex.util.objectMapper
+import no.nav.helse.flex.util.periodeErInnenforMinMax
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import java.lang.Double.isNaN
 import java.time.LocalDate
@@ -132,7 +132,7 @@ private fun Sporsmal.validerGrenserPaDato(svar: Svar): () -> Boolean {
 
 private fun Sporsmal.validerGrenserPaPeriode(svar: Svar): () -> Boolean {
     val periode = PeriodeMapper.jsonISOFormatTilPeriode(svar.verdi)
-    return { DatoUtil.periodeErInnenforMinMax(periode, min, max) }
+    return { periodeErInnenforMinMax(periode, min, max) }
 }
 
 private fun Sporsmal.validerGrenserPaaTall(svar: Svar): () -> Boolean {

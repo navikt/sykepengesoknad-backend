@@ -13,7 +13,7 @@ import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.medIndex
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
-import no.nav.helse.flex.util.DatoUtil
+import no.nav.helse.flex.util.periodeTilJson
 import no.nav.helse.flex.ventPåRecords
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.*
@@ -98,7 +98,7 @@ class NullstillUndersporsmalSvarTest : FellesTestOppsett() {
     @Test
     @Order(3)
     fun `Kan svare på FERIE_V2`() {
-        val svar = DatoUtil.periodeTilJson(basisdato, basisdato.plusDays(2))
+        val svar = periodeTilJson(basisdato, basisdato.plusDays(2))
 
         SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(FERIE_V2, "JA", ferdigBesvart = false)
@@ -115,7 +115,7 @@ class NullstillUndersporsmalSvarTest : FellesTestOppsett() {
     @Test
     @Order(4)
     fun `Kan svare på PERMISJON_V2`() {
-        val svar = DatoUtil.periodeTilJson(basisdato, basisdato.plusDays(2))
+        val svar = periodeTilJson(basisdato, basisdato.plusDays(2))
 
         SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(PERMISJON_V2, "JA", ferdigBesvart = false)

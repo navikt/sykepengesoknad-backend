@@ -6,9 +6,11 @@ import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.ZoneId
 
-val osloZone = ZoneId.of("Europe/Oslo")
+val osloZone: ZoneId = ZoneId.of("Europe/Oslo")
 
 fun OffsetDateTime.tilOsloZone(): OffsetDateTime = this.atZoneSameInstant(osloZone).toOffsetDateTime()
+
+fun LocalDateTime.tilOsloZone(): OffsetDateTime = this.atZone(osloZone).toOffsetDateTime()
 
 fun Instant.tilOsloZone(): OffsetDateTime = this.atZone(osloZone).toOffsetDateTime()
 

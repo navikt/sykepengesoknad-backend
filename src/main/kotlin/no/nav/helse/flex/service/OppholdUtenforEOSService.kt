@@ -14,8 +14,8 @@ import no.nav.helse.flex.soknadsopprettelse.OpprettSoknadService
 import no.nav.helse.flex.soknadsopprettelse.PERIODEUTLAND
 import no.nav.helse.flex.soknadsopprettelse.PERMISJON_NAR_V2
 import no.nav.helse.flex.soknadsopprettelse.PERMISJON_V2
-import no.nav.helse.flex.util.DatoUtil
 import no.nav.helse.flex.util.PeriodeMapper
+import no.nav.helse.flex.util.periodeErInnenforMinMax
 import org.springframework.stereotype.Service
 
 @Service
@@ -74,7 +74,7 @@ class OppholdUtenforEOSService(
         sporsmal.svar
             .asSequence()
             .mapNotNull { PeriodeMapper.jsonTilOptionalPeriode(it.verdi).orElse(null) }
-            .filter { DatoUtil.periodeErInnenforMinMax(it, sporsmal.min, sporsmal.max) }
+            .filter { periodeErInnenforMinMax(it, sporsmal.min, sporsmal.max) }
             .toList()
 
     fun finnesTidligereSoknad(

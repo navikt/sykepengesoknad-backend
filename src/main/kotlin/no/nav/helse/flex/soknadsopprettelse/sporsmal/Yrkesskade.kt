@@ -4,7 +4,7 @@ import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Visningskriterie
 import no.nav.helse.flex.soknadsopprettelse.*
-import no.nav.helse.flex.util.DatoUtil.formatterDato
+import no.nav.helse.flex.util.formatterDato
 import no.nav.helse.flex.yrkesskade.YrkesskadeSak
 import no.nav.helse.flex.yrkesskade.YrkesskadeSporsmalGrunnlag
 

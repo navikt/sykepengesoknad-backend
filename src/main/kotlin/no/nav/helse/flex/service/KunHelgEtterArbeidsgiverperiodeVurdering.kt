@@ -10,6 +10,7 @@ import no.nav.helse.flex.juridiskvurdering.SporingType.SOKNAD
 import no.nav.helse.flex.juridiskvurdering.SporingType.SYKMELDING
 import no.nav.helse.flex.juridiskvurdering.Utfall.VILKAR_IKKE_OPPFYLT
 import no.nav.helse.flex.service.MottakerAvSoknadService.MottakerOgVurdering
+import no.nav.helse.flex.util.erFredag
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
@@ -77,18 +78,9 @@ fun MottakerAvSoknadService.kunHelgEtterArbeidsgiverperiodeVurdering(
     return null
 }
 
-private fun Mottaker.tilNav(): Boolean =
-    when (this) {
-        Mottaker.NAV -> true
-        Mottaker.ARBEIDSGIVER_OG_NAV -> true
-        Mottaker.ARBEIDSGIVER -> false
-    }
-
 private fun LocalDate.erHelgenEtter(arbeidsgiverperiodeTom: LocalDate): Boolean {
     val nesteLørdag = arbeidsgiverperiodeTom.with(TemporalAdjusters.next(DayOfWeek.SATURDAY))
     val nesteSøndag = arbeidsgiverperiodeTom.with(TemporalAdjusters.next(DayOfWeek.SUNDAY))
 
     return this == nesteLørdag || this == nesteSøndag
 }
-
-private fun LocalDate.erFredag(): Boolean = this.dayOfWeek == DayOfWeek.FRIDAY

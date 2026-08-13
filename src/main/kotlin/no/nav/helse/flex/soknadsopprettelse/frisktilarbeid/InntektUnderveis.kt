@@ -5,7 +5,7 @@ import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Visningskriterie
 import no.nav.helse.flex.soknadsopprettelse.FTA_INNTEKT_UNDERVEIS
 import no.nav.helse.flex.soknadsopprettelse.FTA_INNTEKT_UNDERVEIS_BELOP
-import no.nav.helse.flex.util.DatoUtil
+import no.nav.helse.flex.util.formatterPeriode
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -13,7 +13,7 @@ fun inntektUnderveis(
     fom: LocalDate,
     tom: LocalDate,
 ): Sporsmal {
-    val periodeTekst = DatoUtil.formatterPeriode(fom, tom)
+    val periodeTekst = formatterPeriode(fom, tom)
     return Sporsmal(
         tag = FTA_INNTEKT_UNDERVEIS,
         sporsmalstekst = "Hadde du  inntekt i perioden $periodeTekst?",

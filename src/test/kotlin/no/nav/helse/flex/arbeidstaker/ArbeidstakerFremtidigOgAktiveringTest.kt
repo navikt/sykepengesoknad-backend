@@ -14,7 +14,7 @@ import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
-import no.nav.helse.flex.util.DatoUtil
+import no.nav.helse.flex.util.formatterPeriode
 import no.nav.helse.flex.ventPåRecords
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
@@ -114,7 +114,7 @@ class ArbeidstakerFremtidigOgAktiveringTest : FellesTestOppsett() {
 
         assertThat(soknad.sporsmal.first { it.tag == "ARBEID_UNDERVEIS_100_PROSENT_0" }.sporsmalstekst).isEqualTo(
             "I perioden ${
-                DatoUtil.formatterPeriode(
+                formatterPeriode(
                     basisdato.minusDays(1),
                     basisdato.plusDays(7),
                 )
@@ -123,7 +123,7 @@ class ArbeidstakerFremtidigOgAktiveringTest : FellesTestOppsett() {
 
         assertThat(soknad.sporsmal.first { it.tag == "ARBEID_UNDERVEIS_100_PROSENT_1" }.sporsmalstekst).isEqualTo(
             "I perioden ${
-                DatoUtil.formatterPeriode(
+                formatterPeriode(
                     basisdato.plusDays(8),
                     basisdato.plusDays(15),
                 )

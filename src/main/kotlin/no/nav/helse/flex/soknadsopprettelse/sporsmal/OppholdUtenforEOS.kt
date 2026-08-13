@@ -12,7 +12,7 @@ import no.nav.helse.flex.soknadsopprettelse.UTLANDSOPPHOLD_SOKT_SYKEPENGER
 import no.nav.helse.flex.soknadsopprettelse.UTLAND_NAR
 import no.nav.helse.flex.soknadsopprettelse.UTLAND_NAR_V2
 import no.nav.helse.flex.soknadsopprettelse.UTLAND_V2
-import no.nav.helse.flex.util.DatoUtil.formatterPeriode
+import no.nav.helse.flex.util.formatterPeriode
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 

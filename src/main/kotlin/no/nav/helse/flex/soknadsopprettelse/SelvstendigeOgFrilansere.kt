@@ -7,8 +7,8 @@ import no.nav.helse.flex.domain.Visningskriterie.JA
 import no.nav.helse.flex.service.SykepengegrunnlagNaeringsdrivende
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.utenlandsksykmelding.utenlandskSykmeldingSporsmal
-import no.nav.helse.flex.util.DatoUtil.formatterDato
-import no.nav.helse.flex.util.DatoUtil.formatterPeriode
+import no.nav.helse.flex.util.formatterDato
+import no.nav.helse.flex.util.formatterPeriode
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 

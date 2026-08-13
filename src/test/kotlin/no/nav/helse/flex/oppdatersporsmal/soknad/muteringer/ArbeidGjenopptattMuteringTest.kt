@@ -8,7 +8,7 @@ import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknad100Prosent
 import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknadGradert
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.testutil.besvarsporsmal
-import no.nav.helse.flex.util.DatoUtil.formatterPeriode
+import no.nav.helse.flex.util.formatterPeriode
 import no.nav.helse.flex.util.tilOsloInstant
 import no.nav.helse.flex.yrkesskade.YrkesskadeSporsmalGrunnlag
 import no.nav.syfo.model.sykmelding.arbeidsgiver.AktivitetIkkeMuligAGDTO

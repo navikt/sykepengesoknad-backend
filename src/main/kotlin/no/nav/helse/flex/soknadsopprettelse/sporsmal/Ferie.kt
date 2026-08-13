@@ -5,7 +5,7 @@ import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Visningskriterie
 import no.nav.helse.flex.soknadsopprettelse.FERIE_NAR_V2
 import no.nav.helse.flex.soknadsopprettelse.FERIE_V2
-import no.nav.helse.flex.util.DatoUtil
+import no.nav.helse.flex.util.formatterPeriode
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -15,7 +15,7 @@ fun ferieSporsmal(
 ): Sporsmal =
     Sporsmal(
         tag = FERIE_V2,
-        sporsmalstekst = "Tok du ut feriedager i tidsrommet ${DatoUtil.formatterPeriode(fom, tom)}?",
+        sporsmalstekst = "Tok du ut feriedager i tidsrommet ${formatterPeriode(fom, tom)}?",
         svartype = Svartype.JA_NEI,
         kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
         undersporsmal =

@@ -5,7 +5,7 @@ import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Visningskriterie
 import no.nav.helse.flex.soknadsopprettelse.FTA_REISE_TIL_UTLANDET
 import no.nav.helse.flex.soknadsopprettelse.FTA_REISE_TIL_UTLANDET_NAR
-import no.nav.helse.flex.util.DatoUtil
+import no.nav.helse.flex.util.formatterPeriode
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -13,7 +13,7 @@ fun ftaReiseTilUtlandet(
     fom: LocalDate,
     tom: LocalDate,
 ): Sporsmal {
-    val periodeTekst = DatoUtil.formatterPeriode(fom, tom)
+    val periodeTekst = formatterPeriode(fom, tom)
     return Sporsmal(
         tag = FTA_REISE_TIL_UTLANDET,
         sporsmalstekst = "Var du på reise utenfor EU/EØS i perioden $periodeTekst?",

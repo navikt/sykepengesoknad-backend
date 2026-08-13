@@ -8,8 +8,8 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.Sykmeldingstype
 import no.nav.helse.flex.soknadsopprettelse.ENKELTSTAENDE_BEHANDLINGSDAGER
 import no.nav.helse.flex.soknadsopprettelse.ENKELTSTAENDE_BEHANDLINGSDAGER_UKE
-import no.nav.helse.flex.util.DatoUtil.formatterPeriode
 import no.nav.helse.flex.util.datoMånedÅrFormat
+import no.nav.helse.flex.util.formatterPeriode
 import no.nav.helse.flex.util.forsteHverdag
 import no.nav.helse.flex.util.fredagISammeUke
 import no.nav.helse.flex.util.isAfterOrEqual

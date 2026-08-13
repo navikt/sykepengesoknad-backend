@@ -6,7 +6,7 @@ import no.nav.helse.flex.domain.Visningskriterie
 import no.nav.helse.flex.service.SykepengegrunnlagNaeringsdrivende
 import no.nav.helse.flex.soknadsopprettelse.NARINGSDRIVENDE_NY_I_ARBEIDSLIVET
 import no.nav.helse.flex.soknadsopprettelse.NARINGSDRIVENDE_NY_I_ARBEIDSLIVET_DATO
-import no.nav.helse.flex.util.DatoUtil.formatterDato
+import no.nav.helse.flex.util.formatterDato
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 

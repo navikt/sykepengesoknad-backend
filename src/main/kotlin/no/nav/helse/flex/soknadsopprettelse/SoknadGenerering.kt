@@ -1,5 +1,6 @@
 package no.nav.helse.flex.soknadsopprettelse
 
+import no.nav.helse.flex.arbeidsgiverperiode.not
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype

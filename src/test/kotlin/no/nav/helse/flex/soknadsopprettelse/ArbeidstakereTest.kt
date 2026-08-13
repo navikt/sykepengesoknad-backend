@@ -6,8 +6,8 @@ import no.nav.helse.flex.oppdatersporsmal.soknad.muteringer.arbeidGjenopptattMut
 import no.nav.helse.flex.oppdatersporsmal.soknad.muteringer.oppdaterMedSvarPaUtlandsopphold
 import no.nav.helse.flex.soknadsopprettelse.oppdateringhelpers.finnGyldigDatoSvar
 import no.nav.helse.flex.soknadsopprettelse.oppdateringhelpers.skapOppdaterteSoknadsperioder
-import no.nav.helse.flex.util.DatoUtil
 import no.nav.helse.flex.util.PeriodeMapper
+import no.nav.helse.flex.util.periodeTilJson
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.time.DayOfWeek
@@ -232,7 +232,7 @@ class ArbeidstakereTest {
                 sykepengesoknad.getSporsmalMedTag(OPPHOLD_UTENFOR_EOS_NAR).copy(
                     min = null,
                     max = null,
-                    svar = listOf(Svar(null, DatoUtil.periodeTilJson(nesteLordag, nesteSondag))),
+                    svar = listOf(Svar(null, periodeTilJson(nesteLordag, nesteSondag))),
                 ),
             )
         val oppdatertSoknad: Sykepengesoknad = sykepengesoknad.oppdaterMedSvarPaUtlandsopphold()
@@ -251,7 +251,7 @@ class ArbeidstakereTest {
                 sykepengesoknad.getSporsmalMedTag(FERIE_NAR_V2).copy(
                     min = null,
                     max = null,
-                    svar = listOf(Svar(null, DatoUtil.periodeTilJson(nesteMandag, nesteFredag))),
+                    svar = listOf(Svar(null, periodeTilJson(nesteMandag, nesteFredag))),
                 ),
             )
         sykepengesoknad =
@@ -259,7 +259,7 @@ class ArbeidstakereTest {
                 sykepengesoknad.getSporsmalMedTag(OPPHOLD_UTENFOR_EOS_NAR).copy(
                     min = null,
                     max = null,
-                    svar = listOf(Svar(null, DatoUtil.periodeTilJson(nesteMandag, nesteFredag))),
+                    svar = listOf(Svar(null, periodeTilJson(nesteMandag, nesteFredag))),
                 ),
             )
         val oppdatertSoknad: Sykepengesoknad = sykepengesoknad.oppdaterMedSvarPaUtlandsopphold()

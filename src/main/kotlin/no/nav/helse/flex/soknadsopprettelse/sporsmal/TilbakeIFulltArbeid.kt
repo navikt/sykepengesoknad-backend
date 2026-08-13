@@ -7,7 +7,7 @@ import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.Visningskriterie.JA
 import no.nav.helse.flex.soknadsopprettelse.TILBAKE_I_ARBEID
 import no.nav.helse.flex.soknadsopprettelse.TILBAKE_NAR
-import no.nav.helse.flex.util.DatoUtil.formatterPeriode
+import no.nav.helse.flex.util.formatterPeriode
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
 fun tilbakeIFulltArbeidSporsmal(sykepengesoknad: Sykepengesoknad): Sporsmal =

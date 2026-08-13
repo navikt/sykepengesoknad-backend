@@ -5,7 +5,7 @@ import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Visningskriterie
 import no.nav.helse.flex.medlemskap.KjentOppholdstillatelse
 import no.nav.helse.flex.soknadsopprettelse.*
-import no.nav.helse.flex.util.DatoUtil
+import no.nav.helse.flex.util.formatterDato
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
@@ -19,7 +19,7 @@ fun lagSporsmalOmOppholdstillatelse(
     Sporsmal(
         tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_V2,
         sporsmalstekst = "Har Utlendingsdirektoratet gitt deg en oppholdstillatelse før ${
-            DatoUtil.formatterDato(
+            formatterDato(
                 kjentOppholdstillatelse?.fom!!,
             )
         }?",

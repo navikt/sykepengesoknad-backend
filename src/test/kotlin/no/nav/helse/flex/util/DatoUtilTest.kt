@@ -1,10 +1,10 @@
 package no.nav.helse.flex.util
 
 import no.nav.helse.flex.domain.Periode
-import no.nav.helse.flex.util.DatoUtil.periodeErUtenforHelg
-import no.nav.helse.flex.util.DatoUtil.periodeHarDagerUtenforAndrePerioder
-import no.nav.helse.flex.util.DatoUtil.periodeTilJson
 import no.nav.helse.flex.util.PeriodeMapper.jsonISOFormatTilPeriode
+import no.nav.helse.flex.util.periodeErUtenforHelg
+import no.nav.helse.flex.util.periodeHarDagerUtenforAndrePerioder
+import no.nav.helse.flex.util.periodeTilJson
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.time.DayOfWeek.*

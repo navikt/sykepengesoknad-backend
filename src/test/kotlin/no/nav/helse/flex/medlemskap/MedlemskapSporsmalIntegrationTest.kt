@@ -15,7 +15,7 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
-import no.nav.helse.flex.util.DatoUtil
+import no.nav.helse.flex.util.periodeTilJson
 import no.nav.helse.flex.util.serialisertTilString
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldBeEqualTo
@@ -233,7 +233,7 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
             ).besvarSporsmal(
                 tag = MEDLEMSKAP_OPPHOLDSTILLATELSE_PERIODE,
                 svar =
-                    DatoUtil.periodeTilJson(
+                    periodeTilJson(
                         fom = soknad.tom!!.minusDays(25),
                         tom = soknad.tom.minusDays(5),
                     ),
@@ -584,7 +584,7 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
             ).besvarSporsmal(
                 tag = medIndex(MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE_NAAR, index),
                 svar =
-                    DatoUtil.periodeTilJson(
+                    periodeTilJson(
                         fom = soknad.tom!!.minusDays(25),
                         tom = soknad.tom.minusDays(5),
                     ),
@@ -609,7 +609,7 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
             ).besvarSporsmal(
                 tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_NORGE_NAAR, index),
                 svar =
-                    DatoUtil.periodeTilJson(
+                    periodeTilJson(
                         fom = soknad.tom!!.minusDays(25),
                         tom = soknad.tom.minusDays(5),
                     ),
@@ -638,7 +638,7 @@ class MedlemskapSporsmalIntegrationTest : FellesTestOppsett() {
             ).besvarSporsmal(
                 tag = medIndex(MEDLEMSKAP_OPPHOLD_UTENFOR_EOS_NAAR, index),
                 svar =
-                    DatoUtil.periodeTilJson(
+                    periodeTilJson(
                         fom = soknad.tom!!.minusDays(25),
                         tom = soknad.tom.minusDays(5),
                     ),
