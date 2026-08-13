@@ -1,10 +1,11 @@
 package no.nav.helse.flex.soknadsopprettelse
 
-import no.nav.helse.flex.arbeidsgiverperiode.not
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
+import no.nav.helse.flex.util.forsteHverdag
+import java.time.LocalDate
 
 fun erForsteSoknadTilArbeidsgiverIForlop(
     eksisterendeSoknader: List<Sykepengesoknad>,
@@ -87,3 +88,19 @@ private fun Sequence<Sykepengesoknad>.harSammeArbeidsgiver(sykepengesoknad: Syke
 
 private fun soknadHarArbeidsgiver(sykepengesoknad: Sykepengesoknad) =
     sykepengesoknad.arbeidssituasjon == Arbeidssituasjon.ARBEIDSTAKER && sykepengesoknad.arbeidsgiverOrgnummer != null
+
+fun harGapTilForrigeSoknad(
+    eksisterendeSoknader: List<Sykepengesoknad>,
+    aktuellSoknadFom: LocalDate,
+): Boolean {
+    val relevanteSoknader =
+        eksisterendeSoknader
+            .filter { it.status !in listOf(Soknadstatus.UTGATT, Soknadstatus.SLETTET, Soknadstatus.AVBRUTT) }
+            .filter { it.soknadstype !in listOf(Soknadstype.OPPHOLD_UTLAND, Soknadstype.FRISKMELDT_TIL_ARBEIDSFORMIDLING) }
+            .filter { it.fom!!.isBefore(aktuellSoknadFom) }
+
+    val forrigeSoknad = relevanteSoknader.maxByOrNull { it.tom!! } ?: return false
+
+    val nesteArbeidsdag = forrigeSoknad.tom!!.plusDays(1).forsteHverdag()
+    return nesteArbeidsdag.isBefore(aktuellSoknadFom)
+}
