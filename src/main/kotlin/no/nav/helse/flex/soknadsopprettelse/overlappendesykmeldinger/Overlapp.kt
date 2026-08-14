@@ -83,7 +83,6 @@ class Overlapp(
                 identer = identer,
                 sykmeldingKafkaMessage = sykmeldingKafkaMessage,
                 arbeidssituasjon = arbeidssituasjon,
-                logg = false,
             )
 
         kafkaMessage = soknadKandidaterSomKanKlippes.sykmeldingSomOverlapperSendteSoknaderEtter(kafkaMessage)
