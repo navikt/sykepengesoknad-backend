@@ -25,7 +25,7 @@ class AndreInntektskilderSporsmalTest {
                     ),
                 nyeArbeidsforholdFraAareg = null,
             )
-        sporsmal.sporsmalstekst `should be equal to` "Har du andre inntektskilder enn Politiet og Brannvesenet?"
+        sporsmal.sporsmalstekst `should be equal to` "Har du annen inntekt eller oppdrag?"
         sporsmal.metadata!!.tilAndreInntektskilderMetadata().kjenteInntektskilder `should be equal to`
             listOf(
                 KjentInntektskilde(
@@ -73,7 +73,7 @@ class AndreInntektskilderSporsmalTest {
                         ),
                     ),
             )
-        sporsmal.sporsmalstekst `should be equal to` "Har du andre inntektskilder enn Politiet, Brannvesenet og Sykebilen?"
+        sporsmal.sporsmalstekst `should be equal to` "Har du annen inntekt eller oppdrag?"
         sporsmal.metadata!!.tilAndreInntektskilderMetadata().kjenteInntektskilder `should be equal to`
             listOf(
                 KjentInntektskilde(
