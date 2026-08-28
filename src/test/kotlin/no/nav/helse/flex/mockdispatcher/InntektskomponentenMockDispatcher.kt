@@ -64,6 +64,45 @@ object InntektskomponentenMockDispatcher : Dispatcher() {
                 ident = req.ident,
             ).tilMockResponse()
         }
+        if (req.ident.identifikator == "11111234566") {
+            return HentInntekterResponse(
+                arbeidsInntektMaaned =
+                    listOf(
+                        ArbeidsInntektMaaned(
+                            arbeidsInntektInformasjon =
+                                ArbeidsInntektInformasjon(
+                                    arbeidsforholdListe =
+                                        listOf(
+                                            ArbeidsforholdFrilanser(
+                                                arbeidsforholdstype = "frilanserOppdragstakerHonorarPersonerMm",
+                                                arbeidsgiver = Aktoer("999333667", "ORGANISASJON"),
+                                            ),
+                                        ),
+                                    inntektListe =
+                                        listOf(
+                                            InntektListe(
+                                                inntektType = "LOENNSINNTEKT",
+                                                virksomhet = Aktoer("999333667", "ORGANISASJON"),
+                                            ),
+                                        ),
+                                ),
+                        ),
+                        ArbeidsInntektMaaned(
+                            arbeidsInntektInformasjon =
+                                ArbeidsInntektInformasjon(
+                                    inntektListe =
+                                        listOf(
+                                            InntektListe(
+                                                inntektType = "LOENNSINNTEKT",
+                                                virksomhet = Aktoer("999333667", "ORGANISASJON"),
+                                            ),
+                                        ),
+                                ),
+                        ),
+                    ),
+                ident = req.ident,
+            ).tilMockResponse()
+        }
         if (req.ident.identifikator == "22222222222") {
             return HentInntekterResponse(
                 arbeidsInntektMaaned =
