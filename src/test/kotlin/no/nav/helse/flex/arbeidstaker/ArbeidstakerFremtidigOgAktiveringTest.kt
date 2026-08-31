@@ -112,7 +112,7 @@ class ArbeidstakerFremtidigOgAktiveringTest : FellesTestOppsett() {
             ),
         )
 
-        assertThat(soknad.sporsmal.first { it.tag == "ARBEID_UNDERVEIS_100_PROSENT_0" }.sporsmalstekst).isEqualTo(
+        assertThat(soknad.getSporsmalMedTag("ARBEID_UNDERVEIS_100_PROSENT_0").sporsmalstekst).isEqualTo(
             "I perioden ${
                 formatterPeriode(
                     basisdato.minusDays(1),
@@ -121,7 +121,7 @@ class ArbeidstakerFremtidigOgAktiveringTest : FellesTestOppsett() {
             } var du 100 % sykmeldt fra Butikken. Jobbet du noe hos Butikken i denne perioden?",
         )
 
-        assertThat(soknad.sporsmal.first { it.tag == "ARBEID_UNDERVEIS_100_PROSENT_1" }.sporsmalstekst).isEqualTo(
+        assertThat(soknad.getSporsmalMedTag("ARBEID_UNDERVEIS_100_PROSENT_1").sporsmalstekst).isEqualTo(
             "I perioden ${
                 formatterPeriode(
                     basisdato.plusDays(8),

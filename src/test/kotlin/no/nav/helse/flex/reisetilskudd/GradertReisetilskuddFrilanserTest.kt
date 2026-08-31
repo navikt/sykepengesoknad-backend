@@ -130,13 +130,12 @@ class GradertReisetilskuddFrilanserTest : FellesTestOppsett() {
                 fnr = fnr,
             )
         reisetilskuddEtterSvar
-            .sporsmal!!
-            .find { it.tag == BRUKTE_REISETILSKUDDET }!!
+            .getSporsmalMedTag(BRUKTE_REISETILSKUDDET)
             .svar
             .first()
             .verdi shouldBeEqualTo "JA"
 
-        assertThat(reisetilskuddEtterSvar.sporsmal.map { it.tag }).isEqualTo(
+        assertThat(reisetilskuddEtterSvar.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
                 ANSVARSERKLARING,
                 TILBAKE_I_ARBEID,

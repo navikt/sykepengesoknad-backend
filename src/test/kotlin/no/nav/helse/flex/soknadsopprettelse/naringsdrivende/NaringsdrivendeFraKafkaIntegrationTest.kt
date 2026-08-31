@@ -258,10 +258,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                     },
                 ).single()
 
-            lagretSoknad.sporsmal!!
-                .single { it.tag == NARINGSDRIVENDE_NY_I_ARBEIDSLIVET }
-                .undersporsmal
-                .single { it.tag == NARINGSDRIVENDE_NY_I_ARBEIDSLIVET_DATO }
+            lagretSoknad.getSporsmalMedTag(NARINGSDRIVENDE_NY_I_ARBEIDSLIVET_DATO)
 
             verify(aivenKafkaProducer, times(1)).produserMelding(any())
         }

@@ -114,10 +114,7 @@ class ArbeidstakerIntegrationTest : FellesTestOppsett() {
             ),
         )
         assertThat(
-            soknad1.sporsmal
-                .first {
-                    it.tag == ANSVARSERKLARING
-                }.sporsmalstekst,
+            soknad1.getSporsmalMedTag(ANSVARSERKLARING).sporsmalstekst,
         ).isEqualTo("Jeg bekrefter at jeg vil svare så riktig som jeg kan.")
 
         val soknad2 = hentSoknad(soknader[1].id, fnr)
@@ -138,7 +135,7 @@ class ArbeidstakerIntegrationTest : FellesTestOppsett() {
     @Test
     @Order(4)
     fun `Id på et allerede besvart spørsmål endres ikke når vi svarer på et annet spørsmål`() {
-        fun hentAnsvarserklering(id: String): RSSporsmal = hentSoknad(id, fnr).sporsmal!!.first { it.tag == "ANSVARSERKLARING" }
+        fun hentAnsvarserklering(id: String): RSSporsmal = hentSoknad(id, fnr).getSporsmalMedTag("ANSVARSERKLARING")
 
         val soknaden =
             hentSoknad(

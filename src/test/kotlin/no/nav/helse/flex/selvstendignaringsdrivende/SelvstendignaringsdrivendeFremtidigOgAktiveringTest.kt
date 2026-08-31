@@ -113,7 +113,7 @@ class SelvstendignaringsdrivendeFremtidigOgAktiveringTest : FellesTestOppsett() 
                 TIL_SLUTT,
             )
 
-        soknad.sporsmal.first { it.tag == "ARBEID_UNDERVEIS_100_PROSENT_0" }.sporsmalstekst!!.shouldContain(
+        soknad.getSporsmalMedTag("ARBEID_UNDERVEIS_100_PROSENT_0").sporsmalstekst!!.shouldContain(
             "1. - 31. januar 3025",
         )
 

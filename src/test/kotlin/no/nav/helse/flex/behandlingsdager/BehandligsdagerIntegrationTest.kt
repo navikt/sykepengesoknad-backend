@@ -19,6 +19,7 @@ import no.nav.helse.flex.testdata.behandingsdager
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.tilSoknader
+import no.nav.helse.flex.util.getSporsmalMedTag
 import no.nav.helse.flex.ventPåRecords
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
@@ -70,8 +71,8 @@ class BehandligsdagerIntegrationTest : FellesTestOppsett() {
                 soknadId = hentSoknaderMetadata(fnr).first().id,
                 fnr = fnr,
             )
-        val uke0 = soknaden.sporsmal!!.first { it.tag == "ENKELTSTAENDE_BEHANDLINGSDAGER_0" }.undersporsmal[0]
-        val uke1 = soknaden.sporsmal.first { it.tag == "ENKELTSTAENDE_BEHANDLINGSDAGER_0" }.undersporsmal[1]
+        val uke0 = soknaden.getSporsmalMedTag("ENKELTSTAENDE_BEHANDLINGSDAGER_0").undersporsmal[0]
+        val uke1 = soknaden.getSporsmalMedTag("ENKELTSTAENDE_BEHANDLINGSDAGER_0").undersporsmal[1]
 
         uke0.sporsmalstekst `should be equal to` "01.01.2018 - 05.01.2018"
         uke1.sporsmalstekst `should be equal to` "08.01.2018 - 10.01.2018"
@@ -123,8 +124,8 @@ class BehandligsdagerIntegrationTest : FellesTestOppsett() {
             )
         assertThat(refreshedSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
         assertThat(
-            refreshedSoknad.sporsmal!!
-                .find { it.tag == ANSVARSERKLARING }!!
+            refreshedSoknad
+                .getSporsmalMedTag(ANSVARSERKLARING)
                 .svar[0]
                 .verdi,
         ).isEqualTo("CHECKED")
@@ -142,8 +143,8 @@ class BehandligsdagerIntegrationTest : FellesTestOppsett() {
         val korrigerSoknad = korrigerSoknad(soknadId = soknaden.id, fnr = fnr)
         assertThat(korrigerSoknad.status).isEqualTo(RSSoknadstatus.UTKAST_TIL_KORRIGERING)
         assertThat(
-            korrigerSoknad.sporsmal!!
-                .find { it.tag == ANSVARSERKLARING }!!
+            korrigerSoknad
+                .getSporsmalMedTag(ANSVARSERKLARING)
                 .svar.size,
         ).isEqualTo(0)
         assertThat(korrigerSoknad.korrigerer).isEqualTo(soknaden.id)
@@ -205,7 +206,7 @@ class BehandligsdagerIntegrationTest : FellesTestOppsett() {
         assertThat(soknadPaKafka2.status).isEqualTo(NY)
 
         // Svar på avbrutt søknad er ikke med på kafka
-        val ansvarserklaring = avbruttPåKafka.sporsmal!!.first { it.tag == ANSVARSERKLARING }
+        val ansvarserklaring = avbruttPåKafka.getSporsmalMedTag(ANSVARSERKLARING)
         assertThat(ansvarserklaring.svar).isEmpty()
     }
 

@@ -130,22 +130,13 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
         )
 
         assertThat(
-            soknaden.sporsmal
-                .first {
-                    it.tag == ANSVARSERKLARING
-                }.sporsmalstekst,
+            soknaden.getSporsmalMedTag(ANSVARSERKLARING).sporsmalstekst,
         ).isEqualTo("Jeg bekrefter at jeg vil svare så riktig som jeg kan.")
         assertThat(
-            soknaden.sporsmal
-                .first {
-                    it.tag == TILBAKE_I_ARBEID
-                }.sporsmalstekst,
+            soknaden.getSporsmalMedTag(TILBAKE_I_ARBEID).sporsmalstekst,
         ).isEqualTo("Var du tilbake i ditt vanlige arbeid uten ekstra reiseutgifter før 7. september?")
         assertThat(
-            soknaden.sporsmal
-                .first {
-                    it.tag == "JOBBET_DU_GRADERT_0"
-                }.sporsmalstekst,
+            soknaden.getSporsmalMedTag("JOBBET_DU_GRADERT_0").sporsmalstekst,
         ).isEqualTo(
             "I perioden 2. - 6. september 2021 sier sykmeldingen at du kunne jobbe 50 % i jobben din hos Gatekjøkkenet. Jobbet du mer enn det?",
         )
@@ -196,7 +187,7 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
             hentSoknad(
                 soknadId = soknadId,
                 fnr = fnr,
-            ).sporsmal!!.find { it.tag == ANSVARSERKLARING }!!.svar.first()
+            ).getSporsmalMedTag(ANSVARSERKLARING).svar.first()
         svaret.verdi shouldBeEqualTo "CHECKED"
     }
 
@@ -244,13 +235,12 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
                 fnr = fnr,
             )
         reisetilskuddEtterSvar
-            .sporsmal!!
-            .find { it.tag == BRUKTE_REISETILSKUDDET }!!
+            .getSporsmalMedTag(BRUKTE_REISETILSKUDDET)
             .svar
             .first()
             .verdi shouldBeEqualTo "JA"
 
-        assertThat(reisetilskuddEtterSvar.sporsmal.map { it.tag }).isEqualTo(
+        assertThat(reisetilskuddEtterSvar.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
                 ANSVARSERKLARING,
                 TILBAKE_I_ARBEID,
@@ -277,7 +267,7 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
                 soknadId = hentSoknaderMetadata(fnr).first().id,
                 fnr = fnr,
             )
-        val kvitteringSpm = reisetilskuddSoknad.sporsmal!!.first { it.tag == KVITTERINGER }
+        val kvitteringSpm = reisetilskuddSoknad.getSporsmalMedTag(KVITTERINGER)
         val svar =
             RSSvar(
                 verdi =
@@ -306,7 +296,7 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
                 soknadId = hentSoknaderMetadata(fnr).first().id,
                 fnr = fnr,
             )
-        val kvitteringSpm = reisetilskuddSoknad.sporsmal!!.first { it.tag == KVITTERINGER }
+        val kvitteringSpm = reisetilskuddSoknad.getSporsmalMedTag(KVITTERINGER)
         kvitteringSpm.svar.size `should be equal to` 1
 
         val returnertSvar = kvitteringSpm.svar.first()
@@ -324,7 +314,7 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
                 soknadId = hentSoknaderMetadata(fnr).first().id,
                 fnr = fnr,
             )
-        val kvitteringSpm = reisetilskuddSoknad.sporsmal!!.first { it.tag == KVITTERINGER }
+        val kvitteringSpm = reisetilskuddSoknad.getSporsmalMedTag(KVITTERINGER)
         kvitteringSpm.svar.size `should be equal to` 1
 
         val svaret = kvitteringSpm.svar.first()
@@ -336,7 +326,7 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
                 soknadId = hentSoknaderMetadata(fnr).first().id,
                 fnr = fnr,
             )
-        val kvitteringSpmEtter = reisetilskuddSoknadEtter.sporsmal!!.first { it.tag == KVITTERINGER }
+        val kvitteringSpmEtter = reisetilskuddSoknadEtter.getSporsmalMedTag(KVITTERINGER)
         kvitteringSpmEtter.svar.size `should be equal to` 0
     }
 
@@ -348,7 +338,7 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
                 soknadId = hentSoknaderMetadata(fnr).first().id,
                 fnr = fnr,
             )
-        val kvitteringSpm = reisetilskuddSoknad.sporsmal!!.first { it.tag == KVITTERINGER }
+        val kvitteringSpm = reisetilskuddSoknad.getSporsmalMedTag(KVITTERINGER)
         val svar =
             RSSvar(
                 verdi =
@@ -471,12 +461,11 @@ class GradertReisetilskuddIntegrationTest : FellesTestOppsett() {
                 .rSSykepengesoknad
 
         utkastMedSvar
-            .sporsmal!!
-            .find { it.tag == BRUKTE_REISETILSKUDDET }!!
+            .getSporsmalMedTag(BRUKTE_REISETILSKUDDET)
             .svar
             .first()
             .verdi shouldBeEqualTo "NEI"
-        assertThat(utkastMedSvar.sporsmal.map { it.tag }).isEqualTo(
+        assertThat(utkastMedSvar.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
                 ANSVARSERKLARING,
                 TILBAKE_I_ARBEID,

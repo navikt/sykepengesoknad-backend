@@ -134,8 +134,8 @@ class OverlapperInni : FellesTestOppsett() {
         hentSoknad(forsteSoknad.id, fnr).klippet shouldBeEqualTo true
 
         val periodeSpmSok1 =
-            forsteSoknad.sporsmal
-                ?.find { it.tag == FERIE_V2 }
+            forsteSoknad
+                .getSporsmalMedTagOrNull(FERIE_V2)
                 ?.undersporsmal
                 ?.first()
         periodeSpmSok1?.min shouldBeEqualTo basisDato.minusDays(30).toString()
@@ -158,8 +158,8 @@ class OverlapperInni : FellesTestOppsett() {
         hentSoknad(sisteSoknad.id, fnr).klippet shouldBeEqualTo true
 
         val periodeSpmSok3 =
-            sisteSoknad.sporsmal
-                ?.find { it.tag == FERIE_V2 }
+            sisteSoknad
+                .getSporsmalMedTagOrNull(FERIE_V2)
                 ?.undersporsmal
                 ?.first()
         periodeSpmSok3?.min shouldBeEqualTo basisDato.minusDays(9).toString()

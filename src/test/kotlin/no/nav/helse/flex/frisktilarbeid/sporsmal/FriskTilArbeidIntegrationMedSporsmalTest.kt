@@ -90,7 +90,7 @@ class FriskTilArbeidIntegrationMedSporsmalTest : FakesTestOppsett() {
                 FTA_REISE_TIL_UTLANDET,
                 TIL_SLUTT,
             )
-        val jaSpørsmål = soknad.sporsmal.flatten().first { it.tag == FTA_JOBBSITUASJONEN_DIN_JA }
+        val jaSpørsmål = soknad.getSporsmalMedTag(FTA_JOBBSITUASJONEN_DIN_JA)
         jaSpørsmål.undersporsmal.map { it.tag }.`should be equal to`(
             listOf(
                 FTA_JOBBSITUASJONEN_DIN_NAR,
@@ -140,7 +140,7 @@ class FriskTilArbeidIntegrationMedSporsmalTest : FakesTestOppsett() {
     fun `Siste søknad har eget spørsmål`() {
         val soknad = hentSoknader(fnr).first { it.status == RSSoknadstatus.NY }
 
-        val jobbsitasjonenDin = soknad.sporsmal!!.find { it.tag == FTA_JOBBSITUASJONEN_DIN }!!
+        val jobbsitasjonenDin = soknad.getSporsmalMedTag(FTA_JOBBSITUASJONEN_DIN)
         val tags = listOf(jobbsitasjonenDin).flatten().map { it.tag }
         tags `should be equal to`
             listOf(

@@ -85,12 +85,12 @@ class ArbeidGjenopptattMuteringTest {
                 .besvarsporsmal(TILBAKE_I_ARBEID, svar = "NEI")
                 .fjernSporsmal("OPPHOLD_UTENFOR_EOS")
 
-        soknadUtenUtdanning.sporsmal.find { it.tag == OPPHOLD_UTENFOR_EOS }.`should be null`()
+        soknadUtenUtdanning.getSporsmalMedTagOrNull(OPPHOLD_UTENFOR_EOS).`should be null`()
         soknadUtenUtdanning.sporsmal.shouldHaveSize(7)
 
         val mutertSoknad = soknadUtenUtdanning.arbeidGjenopptattMutering()
 
-        mutertSoknad.sporsmal.find { it.tag == OPPHOLD_UTENFOR_EOS }.`should not be null`()
+        mutertSoknad.getSporsmalMedTagOrNull(OPPHOLD_UTENFOR_EOS).`should not be null`()
         mutertSoknad.sporsmal.shouldHaveSize(8)
     }
 
@@ -157,7 +157,7 @@ class ArbeidGjenopptattMuteringTest {
             )
 
         standardSoknad.sporsmal.shouldHaveSize(9)
-        standardSoknad.sporsmal.find { it.tag == "ARBEID_UNDERVEIS_100_PROSENT_1" }.`should not be null`()
+        standardSoknad.getSporsmalMedTagOrNull("ARBEID_UNDERVEIS_100_PROSENT_1").`should not be null`()
 
         val mutertSoknadUtenSpm =
             standardSoknad
@@ -166,7 +166,7 @@ class ArbeidGjenopptattMuteringTest {
                 .arbeidGjenopptattMutering()
 
         mutertSoknadUtenSpm.sporsmal.shouldHaveSize(8)
-        mutertSoknadUtenSpm.sporsmal.find { it.tag == "ARBEID_UNDERVEIS_100_PROSENT_1" }.`should be null`()
+        mutertSoknadUtenSpm.getSporsmalMedTagOrNull("ARBEID_UNDERVEIS_100_PROSENT_1").`should be null`()
 
         val mutertSoknadMedSpm =
             mutertSoknadUtenSpm
@@ -174,7 +174,7 @@ class ArbeidGjenopptattMuteringTest {
                 .arbeidGjenopptattMutering()
 
         mutertSoknadMedSpm.sporsmal.shouldHaveSize(9)
-        mutertSoknadMedSpm.sporsmal.find { it.tag == "ARBEID_UNDERVEIS_100_PROSENT_1" }.`should not be null`()
+        mutertSoknadMedSpm.getSporsmalMedTagOrNull("ARBEID_UNDERVEIS_100_PROSENT_1").`should not be null`()
     }
 
     @Test
@@ -229,7 +229,7 @@ class ArbeidGjenopptattMuteringTest {
                     ),
             )
 
-        val spm = standardSoknad.sporsmal.find { it.tag == PERMISJON_V2 }!!.copy(sporsmalstekst = "Var De i permisjon?")
+        val spm = standardSoknad.getSporsmalMedTag(PERMISJON_V2).copy(sporsmalstekst = "Var De i permisjon?")
 
         val soknadMedEgenPermisjonSpmTekst =
             standardSoknad

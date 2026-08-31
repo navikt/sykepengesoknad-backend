@@ -8,11 +8,13 @@ import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.util.flatten
+import no.nav.helse.flex.util.getSporsmalMedTagOrNull
 import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should be false`
+import org.amshove.kluent.`should be null`
 import org.amshove.kluent.`should be true`
+import org.amshove.kluent.`should not be null`
 import org.junit.jupiter.api.*
 import java.time.LocalDate
 import java.util.*
@@ -118,19 +120,16 @@ class YrkesskadeIntegrationTest : FellesTestOppsett() {
 
         kafkaSoknader
             .first()
-            .sporsmal!!
-            .any { it.tag == "YRKESSKADE_V2" }
-            .`should be true`()
+            .getSporsmalMedTagOrNull("YRKESSKADE_V2")
+            .`should not be null`()
         kafkaSoknader
             .first()
-            .sporsmal!!
-            .any { it.tag == "YRKESSKADE" }
-            .`should be false`()
+            .getSporsmalMedTagOrNull("YRKESSKADE")
+            .`should be null`()
         kafkaSoknader
             .last()
-            .sporsmal!!
-            .any { it.tag == "YRKESSKADE_V2" }
-            .`should be false`()
+            .getSporsmalMedTagOrNull("YRKESSKADE_V2")
+            .`should be null`()
 
         val spmTekster =
             kafkaSoknader
@@ -175,14 +174,12 @@ class YrkesskadeIntegrationTest : FellesTestOppsett() {
 
         kafkaSoknader
             .first()
-            .sporsmal!!
-            .any { it.tag == "YRKESSKADE_V2" }
-            .`should be false`()
+            .getSporsmalMedTagOrNull("YRKESSKADE_V2")
+            .`should be null`()
         kafkaSoknader
             .first()
-            .sporsmal!!
-            .any { it.tag == "YRKESSKADE" }
-            .`should be false`()
+            .getSporsmalMedTagOrNull("YRKESSKADE")
+            .`should be null`()
     }
 
     @Test
