@@ -70,10 +70,7 @@ class NyttArbeidsforholdNeiPafølgendeTest : NyttArbeidsforholdFellesOppsett() {
     fun `Har forventa nytt arbeidsforhold påfølgende spørsmål`() {
         val soknaden = hentSoknader(fnr = fnr).first { it.status == RSSoknadstatus.NY }
 
-        val nyttArbeidsforholdSpm =
-            soknaden.sporsmal!!.find {
-                it.tag == NYTT_ARBEIDSFORHOLD_UNDERVEIS + "0"
-            }!!
+        val nyttArbeidsforholdSpm = soknaden.getSporsmalMedTag(NYTT_ARBEIDSFORHOLD_UNDERVEIS + "0")
         nyttArbeidsforholdSpm.sporsmalstekst!!.shouldContain("Har du jobbet noe hos Kiosken, avd Oslo AS i perioden")
         nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedOrgnummer").textValue() `should be equal to` "999888777"
         nyttArbeidsforholdSpm.metadata.get("arbeidsstedNavn").textValue() `should be equal to` "Kiosken, avd Oslo AS"

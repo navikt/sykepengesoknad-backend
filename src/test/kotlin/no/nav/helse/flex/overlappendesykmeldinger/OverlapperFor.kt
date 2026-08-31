@@ -230,7 +230,7 @@ class OverlapperFor : FellesTestOppsett() {
         klippetSoknad.tom shouldBeEqualTo basisdato.minusDays(1)
         klippetSoknad.klippet shouldBeEqualTo true
         klippetSoknad.status shouldBeEqualTo RSSoknadstatus.NY
-        klippetSoknad.sporsmal!!.first { it.tag == FERIE_V2 }.sporsmalstekst shouldBeEqualTo "Tok du ut feriedager i tidsrommet ${
+        klippetSoknad.getSporsmalMedTag(FERIE_V2).sporsmalstekst shouldBeEqualTo "Tok du ut feriedager i tidsrommet ${
             formatterPeriode(
                 klippetSoknad.fom!!,
                 klippetSoknad.tom!!,
@@ -336,7 +336,7 @@ class OverlapperFor : FellesTestOppsett() {
         klippetSoknad.tom shouldBeEqualTo basisdato.minusDays(1)
         klippetSoknad.klippet shouldBeEqualTo true
         klippetSoknad.status shouldBeEqualTo RSSoknadstatus.AVBRUTT
-        klippetSoknad.sporsmal!!.first { it.tag == FERIE_V2 }.sporsmalstekst shouldBeEqualTo "Tok du ut feriedager i tidsrommet ${
+        klippetSoknad.getSporsmalMedTag(FERIE_V2).sporsmalstekst shouldBeEqualTo "Tok du ut feriedager i tidsrommet ${
             formatterPeriode(
                 klippetSoknad.fom!!,
                 klippetSoknad.tom!!,

@@ -72,7 +72,7 @@ class OppholdUtlandIntegrationTest : FellesTestOppsett() {
     @Test
     fun `04 - Vi validerer at svar på gruppe av underspørsmål må være komplett`() {
         val soknaden = hentSoknader(fnr).first()
-        val originalSpm = soknaden.sporsmal!!.first { it.tag == AVKLARING_I_FORBINDELSE_MED_REISE }
+        val originalSpm = soknaden.getSporsmalMedTag(AVKLARING_I_FORBINDELSE_MED_REISE)
 
         oppdaterSporsmalMedResult(fnr, originalSpm, soknaden.id)
             .andExpect(status().isBadRequest)

@@ -12,9 +12,7 @@ fun Sykepengesoknad.besvarsporsmal(
     if (svar == null && svarListe == null) {
         throw RuntimeException("Svar og svar liste kan ikke være null, hvis du vil fjerne svar, bruk tom liste")
     }
-    val sporsmal =
-        this.alleSporsmalOgUndersporsmal().find { it.tag == tag }
-            ?: throw RuntimeException("Spørsmål ikke funnet, $tag")
+    val sporsmal = getSporsmalMedTag(tag)
 
     val sporsmalSvar = svarListe?.map { Svar(null, verdi = it) } ?: listOf(Svar(null, verdi = svar!!))
 

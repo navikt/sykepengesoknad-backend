@@ -15,7 +15,7 @@ import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
 import no.nav.helse.flex.testutil.byttSvar
 import no.nav.helse.flex.tilSoknader
-import no.nav.helse.flex.util.flatten
+import no.nav.helse.flex.util.getSporsmalMedTag
 import no.nav.helse.flex.ventPåRecords
 import no.nav.syfo.model.sykmelding.arbeidsgiver.UtenlandskSykmeldingAGDTO
 import org.amshove.kluent.`should be`
@@ -73,8 +73,8 @@ class UtenlandskArbeidstakerIntegrationTest : FellesTestOppsett() {
     fun `Fritekst trenger svar når det er påkrevd`() {
         val soknaden = hentSoknader(fnr).first()
         val spm =
-            soknaden.sporsmal!!
-                .first { it.tag == "UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE" }
+            soknaden
+                .getSporsmalMedTag("UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE")
                 .byttSvar("UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE", "JA")
         val response =
             oppdaterSporsmalMedResult(fnr, spm, soknaden.id)
@@ -89,8 +89,8 @@ class UtenlandskArbeidstakerIntegrationTest : FellesTestOppsett() {
     fun `Fritekst trenger lengde når det er påkrevd`() {
         val soknaden = hentSoknader(fnr).first()
         val spm =
-            soknaden.sporsmal!!
-                .first { it.tag == "UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE" }
+            soknaden
+                .getSporsmalMedTag("UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE")
                 .byttSvar("UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE", "JA")
                 .byttSvar("UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE_FRITEKST", "")
         val response =
@@ -106,8 +106,8 @@ class UtenlandskArbeidstakerIntegrationTest : FellesTestOppsett() {
     fun `Fritekst validerer maxlengde`() {
         val soknaden = hentSoknader(fnr).first()
         val spm =
-            soknaden.sporsmal!!
-                .first { it.tag == "UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE" }
+            soknaden
+                .getSporsmalMedTag("UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE")
                 .byttSvar("UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE", "JA")
                 .byttSvar(
                     "UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE_FRITEKST",
@@ -128,8 +128,8 @@ class UtenlandskArbeidstakerIntegrationTest : FellesTestOppsett() {
     fun `Fritekst godtar min lengde `() {
         val soknaden = hentSoknader(fnr).first()
         val spm =
-            soknaden.sporsmal!!
-                .first { it.tag == "UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE" }
+            soknaden
+                .getSporsmalMedTag("UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE")
                 .byttSvar("UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE", "JA")
                 .byttSvar("UTENLANDSK_SYKMELDING_LONNET_ARBEID_UTENFOR_NORGE_FRITEKST", "X")
         oppdaterSporsmalMedResult(fnr, spm, soknaden.id).andExpect(status().isOk).andReturn()
@@ -174,9 +174,7 @@ class UtenlandskArbeidstakerIntegrationTest : FellesTestOppsett() {
         kafkaSoknader[0].utenlandskSykmelding!!.shouldBeTrue()
         kafkaSoknader[0].arbeidUtenforNorge.shouldBeNull()
         kafkaSoknader[0]
-            .sporsmal
-            .flatten()
-            .first { it.tag == "UTENLANDSK_SYKMELDING_VEGNAVN" }
+            .getSporsmalMedTag("UTENLANDSK_SYKMELDING_VEGNAVN")
             .svar!!
             .first()
             .verdi `should be equal to` "Downing Street"

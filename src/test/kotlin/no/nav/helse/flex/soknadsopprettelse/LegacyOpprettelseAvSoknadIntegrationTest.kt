@@ -56,14 +56,14 @@ class LegacyOpprettelseAvSoknadIntegrationTest : FellesTestOppsett() {
                 soknadId = soknaderMetadata.first().id,
                 fnr = fnr,
             )
-        assertThat(forsteSoknad.sporsmal!!.any { it.tag == ARBEID_UTENFOR_NORGE }).isTrue()
+        assertThat(forsteSoknad.getSporsmalMedTagOrNull(ARBEID_UTENFOR_NORGE)).isNotNull()
 
         val andreSoknad =
             hentSoknad(
                 soknadId = soknaderMetadata.last().id,
                 fnr = fnr,
             )
-        assertThat(andreSoknad.sporsmal!!.any { it.tag == ARBEID_UTENFOR_NORGE }).isTrue()
+        assertThat(andreSoknad.getSporsmalMedTagOrNull(ARBEID_UTENFOR_NORGE)).isNotNull()
     }
 
     @Test
@@ -100,13 +100,13 @@ class LegacyOpprettelseAvSoknadIntegrationTest : FellesTestOppsett() {
                 soknadId = soknaderMetadata.first().id,
                 fnr = fnr,
             )
-        assertThat(forsteSoknad.sporsmal!!.any { it.tag == ARBEID_UTENFOR_NORGE }).isTrue()
+        assertThat(forsteSoknad.getSporsmalMedTagOrNull(ARBEID_UTENFOR_NORGE)).isNotNull()
 
         val andreSoknad =
             hentSoknad(
                 soknadId = soknaderMetadata.last().id,
                 fnr = fnr,
             )
-        assertThat(andreSoknad.sporsmal!!.any { it.tag == ARBEID_UTENFOR_NORGE }).isFalse()
+        assertThat(andreSoknad.getSporsmalMedTagOrNull(ARBEID_UTENFOR_NORGE)).isNull()
     }
 }

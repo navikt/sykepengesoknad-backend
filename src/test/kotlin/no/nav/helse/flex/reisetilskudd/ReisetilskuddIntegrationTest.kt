@@ -122,12 +122,9 @@ class ReisetilskuddIntegrationTest : FellesTestOppsett() {
         )
 
         assertThat(
-            soknaden.sporsmal
-                .first {
-                    it.tag == ANSVARSERKLARING
-                }.sporsmalstekst,
+            soknaden.getSporsmalMedTag(ANSVARSERKLARING).sporsmalstekst,
         ).isEqualTo("Jeg bekrefter at jeg vil svare så riktig som jeg kan.")
-        assertThat(soknaden.sporsmal.first { it.tag == TIL_SLUTT }.sporsmalstekst).isEqualTo(
+        assertThat(soknaden.getSporsmalMedTag(TIL_SLUTT).sporsmalstekst).isEqualTo(
             tilSlutt().sporsmalstekst,
         )
     }
@@ -167,7 +164,7 @@ class ReisetilskuddIntegrationTest : FellesTestOppsett() {
             hentSoknad(
                 soknadId = hentSoknaderMetadata(fnr).first().id,
                 fnr = fnr,
-            ).sporsmal!!.find { it.tag == ANSVARSERKLARING }!!.svar.first()
+            ).getSporsmalMedTag(ANSVARSERKLARING).svar.first()
         svaret.verdi shouldBeEqualTo "CHECKED"
     }
 
@@ -179,7 +176,7 @@ class ReisetilskuddIntegrationTest : FellesTestOppsett() {
                 soknadId = hentSoknaderMetadata(fnr).first().id,
                 fnr = fnr,
             )
-        val kvitteringSpm = reisetilskuddSoknad.sporsmal!!.first { it.tag == KVITTERINGER }
+        val kvitteringSpm = reisetilskuddSoknad.getSporsmalMedTag(KVITTERINGER)
         val svar =
             RSSvar(
                 verdi =
@@ -208,7 +205,7 @@ class ReisetilskuddIntegrationTest : FellesTestOppsett() {
                 soknadId = hentSoknaderMetadata(fnr).first().id,
                 fnr = fnr,
             )
-        val kvitteringSpm = reisetilskuddSoknad.sporsmal!!.first { it.tag == KVITTERINGER }
+        val kvitteringSpm = reisetilskuddSoknad.getSporsmalMedTag(KVITTERINGER)
         kvitteringSpm.svar.size `should be equal to` 1
 
         val returnertSvar = kvitteringSpm.svar.first()
@@ -226,7 +223,7 @@ class ReisetilskuddIntegrationTest : FellesTestOppsett() {
                 soknadId = hentSoknaderMetadata(fnr).first().id,
                 fnr = fnr,
             )
-        val kvitteringSpm = reisetilskuddSoknad.sporsmal!!.first { it.tag == KVITTERINGER }
+        val kvitteringSpm = reisetilskuddSoknad.getSporsmalMedTag(KVITTERINGER)
         kvitteringSpm.svar.size `should be equal to` 1
 
         val svaret = kvitteringSpm.svar.first()
@@ -238,7 +235,7 @@ class ReisetilskuddIntegrationTest : FellesTestOppsett() {
                 soknadId = hentSoknaderMetadata(fnr).first().id,
                 fnr = fnr,
             )
-        val kvitteringSpmEtter = reisetilskuddSoknadEtter.sporsmal!!.first { it.tag == KVITTERINGER }
+        val kvitteringSpmEtter = reisetilskuddSoknadEtter.getSporsmalMedTag(KVITTERINGER)
         kvitteringSpmEtter.svar.size `should be equal to` 0
     }
 
@@ -250,7 +247,7 @@ class ReisetilskuddIntegrationTest : FellesTestOppsett() {
                 soknadId = hentSoknaderMetadata(fnr).first().id,
                 fnr = fnr,
             )
-        val kvitteringSpm = reisetilskuddSoknad.sporsmal!!.first { it.tag == KVITTERINGER }
+        val kvitteringSpm = reisetilskuddSoknad.getSporsmalMedTag(KVITTERINGER)
         val svar =
             RSSvar(
                 verdi =
@@ -282,7 +279,7 @@ class ReisetilskuddIntegrationTest : FellesTestOppsett() {
                 soknadId = hentSoknaderMetadata(fnr).first().id,
                 fnr = fnr,
             )
-        val utbetaling = reisetilskudd.sporsmal!!.first { it.tag == UTBETALING }.byttSvar(svar = "TJA")
+        val utbetaling = reisetilskudd.getSporsmalMedTag(UTBETALING).byttSvar(svar = "TJA")
 
         val json =
             oppdaterSporsmalMedResult(fnr, utbetaling, reisetilskudd.id)

@@ -10,6 +10,7 @@ import no.nav.helse.flex.service.SykepengegrunnlagNaeringsdrivende
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.helse.flex.testutil.besvarsporsmal
+import no.nav.helse.flex.util.getSporsmalMedTagOrNull
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should not be equal to`
 import org.amshove.kluent.`should not be null`
@@ -120,7 +121,7 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
         val soknad = opprettNyNaeringsdrivendeSoknadGradert()
         val soknadDTO = lagSykepengesoknadDTO(soknad)
 
-        soknadDTO.sporsmal!!.find { it.tag == "FRAVAR_FOR_SYKMELDINGEN_V2" }.also { fravaerSpm ->
+        soknadDTO.getSporsmalMedTagOrNull("FRAVAR_FOR_SYKMELDINGEN_V2").also { fravaerSpm ->
             fravaerSpm?.svar.`should not be null`()
             fravaerSpm.sporsmalstekst `should be equal to`
                 "Var du borte fra jobb i fire uker eller mer rett før du ble sykmeldt 1. juni 2018?"
@@ -135,8 +136,8 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
             opprettNyNaeringsdrivendeSoknadGradert()
         val soknadDTO = lagSykepengesoknadDTO(soknad)
 
-        soknad.sporsmal.firstOrNull { it.tag == YRKESSKADE_V2 } `should be equal to` null
-        soknadDTO.sporsmal!!.firstOrNull { it.tag == YRKESSKADE_V2 } `should be equal to` null
+        soknad.getSporsmalMedTagOrNull(YRKESSKADE_V2) `should be equal to` null
+        soknadDTO.getSporsmalMedTagOrNull(YRKESSKADE_V2) `should be equal to` null
     }
 
     @Test

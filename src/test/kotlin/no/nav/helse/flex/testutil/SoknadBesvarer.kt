@@ -143,7 +143,7 @@ class SoknadBesvarer(
         aksepterManglendeSporsmal: Boolean = false,
     ): SoknadBesvarer {
         val sporsmal =
-            rSSykepengesoknad.alleSporsmalOgUndersporsmal().find { it.tag == tag }
+            rSSykepengesoknad.getSporsmalMedTagOrNull(tag)
                 ?: if (aksepterManglendeSporsmal) {
                     return this
                 } else {
@@ -175,9 +175,7 @@ class SoknadBesvarer(
     }
 
     fun finnHovedsporsmal(tag: String): RSSporsmal {
-        val sporsmal =
-            rSSykepengesoknad.alleSporsmalOgUndersporsmal().find { it.tag == tag }
-                ?: throw RuntimeException("Spørsmål ikke funnet $tag")
+        val sporsmal = rSSykepengesoknad.getSporsmalMedTag(tag)
         return rSSykepengesoknad.sporsmal!!.first { it.erSporsmalMedIdEllerHarUndersporsmalMedId(sporsmal.id!!) }
     }
 

@@ -137,11 +137,11 @@ class OverlapperEtter : FellesTestOppsett() {
         forsteSoknad.status shouldBeEqualTo RSSoknadstatus.NY
         forsteSoknad.fom shouldBeEqualTo basisdato.minusDays(1)
         forsteSoknad.tom shouldBeEqualTo basisdato.minusDays(1)
-        val forsteSoknadSpmFinnes = forsteSoknad.sporsmal?.find { it.tag == TILBAKE_I_ARBEID }
+        val forsteSoknadSpmFinnes = forsteSoknad.getSporsmalMedTagOrNull(TILBAKE_I_ARBEID)
         forsteSoknadSpmFinnes shouldNotBeEqualTo null
         val periodeSpmSok1 =
-            forsteSoknad.sporsmal
-                ?.find { it.tag == FERIE_V2 }
+            forsteSoknad
+                .getSporsmalMedTagOrNull(FERIE_V2)
                 ?.undersporsmal
                 ?.first()
         periodeSpmSok1?.min shouldBeEqualTo basisdato.minusDays(1).toString()
@@ -190,11 +190,11 @@ class OverlapperEtter : FellesTestOppsett() {
         forsteSoknad.status shouldBeEqualTo RSSoknadstatus.NY
         forsteSoknad.fom shouldBeEqualTo basisdato.minusDays(1)
         forsteSoknad.tom shouldBeEqualTo basisdato.minusDays(1)
-        val forsteSoknadSpmFinnes = forsteSoknad.sporsmal?.find { it.tag == TILBAKE_I_ARBEID }
+        val forsteSoknadSpmFinnes = forsteSoknad.getSporsmalMedTagOrNull(TILBAKE_I_ARBEID)
         forsteSoknadSpmFinnes shouldNotBeEqualTo null
         val periodeSpmSok1 =
-            forsteSoknad.sporsmal
-                ?.find { it.tag == FERIE_V2 }
+            forsteSoknad
+                .getSporsmalMedTagOrNull(FERIE_V2)
                 ?.undersporsmal
                 ?.first()
         periodeSpmSok1?.min shouldBeEqualTo basisdato.minusDays(1).toString()
@@ -210,8 +210,8 @@ class OverlapperEtter : FellesTestOppsett() {
         andreSoknad.fom shouldBeEqualTo basisdato
         andreSoknad.tom shouldBeEqualTo basisdato.plusDays(15)
         val periodeSpmSok2 =
-            andreSoknad.sporsmal
-                ?.find { it.tag == FERIE_V2 }
+            andreSoknad
+                .getSporsmalMedTagOrNull(FERIE_V2)
                 ?.undersporsmal
                 ?.first()
         periodeSpmSok2?.min shouldBeEqualTo basisdato.toString()
@@ -450,7 +450,7 @@ class OverlapperEtter : FellesTestOppsett() {
 
         klippetSoknad.sporsmal!!.all { it.svar.isEmpty() } shouldBeEqualTo true
 
-        val periodeSpm = klippetSoknad.sporsmal.first { it.tag == FERIE_V2 }
+        val periodeSpm = klippetSoknad.getSporsmalMedTag(FERIE_V2)
         periodeSpm.sporsmalstekst shouldBeEqualTo "Tok du ut feriedager i tidsrommet ${
             formatterPeriode(
                 klippetSoknad.fom!!,

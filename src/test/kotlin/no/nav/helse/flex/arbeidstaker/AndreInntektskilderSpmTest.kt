@@ -69,10 +69,7 @@ class AndreInntektskilderSpmTest : FellesTestOppsett() {
         frilanser.orgnummer `should be equal to` "999333667"
         frilanser.arbeidsforholdstype `should be equal to` Arbeidsforholdstype.FRILANSER
 
-        val andreInntektskilderSpm =
-            soknaden.sporsmal!!.find {
-                it.tag == "ANDRE_INNTEKTSKILDER_V2"
-            }!!
+        val andreInntektskilderSpm = soknaden.getSporsmalMedTag("ANDRE_INNTEKTSKILDER_V2")
         andreInntektskilderSpm.sporsmalstekst `should be equal to`
             "Har du andre inntektskilder enn Matbutikken AS, Bensinstasjonen AS og Frilanseransetter AS?"
         andreInntektskilderSpm.metadata!!.serialisertTilString() `should be equal to`

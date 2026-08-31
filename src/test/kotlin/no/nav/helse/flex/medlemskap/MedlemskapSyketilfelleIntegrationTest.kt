@@ -12,6 +12,7 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.reisetilskudd
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
+import no.nav.helse.flex.util.alleSporsmalOgUndersporsmal
 import no.nav.helse.flex.util.flatten
 import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
 import org.amshove.kluent.*
@@ -267,7 +268,7 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
         // Simulerer at søknaden ble opprettet før vi begynte å stille medlemskapspørsmål ved å slette spørsmålene.
         slettMedlemskapSporsmal(forsteSoknad)
         val lagretForstegangssoknad = hentSoknad(fnr = fnr, soknadId = forsteSoknad.id)
-        lagretForstegangssoknad.sporsmal!!.find { it.tag == MEDLEMSKAP_OPPHOLDSTILLATELSE } `should be` null
+        lagretForstegangssoknad.getSporsmalMedTagOrNull(MEDLEMSKAP_OPPHOLDSTILLATELSE) `should be` null
 
         val andreSoknad =
             sendSykmelding(
@@ -379,8 +380,8 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
 
         // Første søknad skal inneholde spørsmål om medlemskap, men ikke ARBEID_UTENFOR_NORGE.
         forsteSoknad.medlemskapVurdering `should be equal to` "UAVKLART"
-        forsteSoknad.sporsmal
-            .flatten()
+        forsteSoknad
+            .alleSporsmalOgUndersporsmal()
             .map { it.tag }
             .apply {
                 this `should contain all`
@@ -397,7 +398,7 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
         // Andre søknad skal hverken inneholde ARBEID_UTENFOR_NORGE eller spørsmål om medlemskap siden vi har stilt
         // spørsmål om medlemskapspørsmål til den samme brukeren i en søknad for en annen arbeidsgiver.
         andreSoknad.medlemskapVurdering `should be` null
-        andreSoknad.sporsmal.flatten().map { it.tag } `should not contain any`
+        andreSoknad.alleSporsmalOgUndersporsmal().map { it.tag } `should not contain any`
             listOf(
                 MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
                 MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,
@@ -467,8 +468,8 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
         val soknadMedMedlemskap = kafkaSoknader.single { it.medlemskapVurdering == "UAVKLART" }
         val soknadUtenMedlemskap = kafkaSoknader.single { it.medlemskapVurdering == null }
 
-        soknadMedMedlemskap.sporsmal
-            .flatten()
+        soknadMedMedlemskap
+            .alleSporsmalOgUndersporsmal()
             .map { it.tag }
             .apply {
                 this `should contain all`
@@ -484,7 +485,7 @@ class MedlemskapSyketilfelleIntegrationTest : FellesTestOppsett() {
 
         // Den andre søknaden skal hverken inneholde ARBEID_UTENFOR_NORGE eller spørsmål om medlemskap siden vi har
         // stilt spørsmål om medlemskap til den samme brukeren i en søknad for en annen arbeidsgiver.
-        soknadUtenMedlemskap.sporsmal.flatten().map { it.tag } `should not contain any`
+        soknadUtenMedlemskap.alleSporsmalOgUndersporsmal().map { it.tag } `should not contain any`
             listOf(
                 MEDLEMSKAP_UTFORT_ARBEID_UTENFOR_NORGE,
                 MEDLEMSKAP_OPPHOLD_UTENFOR_EOS,

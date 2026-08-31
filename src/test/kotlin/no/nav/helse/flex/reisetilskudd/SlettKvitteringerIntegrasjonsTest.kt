@@ -111,13 +111,12 @@ class SlettKvitteringerIntegrasjonsTest : FellesTestOppsett() {
                 fnr = fnr,
             )
         reisetilskuddEtterSvar
-            .sporsmal!!
-            .find { it.tag == BRUKTE_REISETILSKUDDET }!!
+            .getSporsmalMedTag(BRUKTE_REISETILSKUDDET)
             .svar
             .first()
             .verdi shouldBeEqualTo "JA"
 
-        Assertions.assertThat(reisetilskuddEtterSvar.sporsmal.map { it.tag }).isEqualTo(
+        Assertions.assertThat(reisetilskuddEtterSvar.sporsmal!!.map { it.tag }).isEqualTo(
             listOf(
                 ANSVARSERKLARING,
                 TILBAKE_I_ARBEID,
@@ -206,7 +205,7 @@ class SlettKvitteringerIntegrasjonsTest : FellesTestOppsett() {
                 soknadId = hentSoknaderMetadata(fnr).first().id,
                 fnr = fnr,
             )
-        val kvitteringSpm = soknad.sporsmal!!.first { it.tag == KVITTERINGER }
+        val kvitteringSpm = soknad.getSporsmalMedTag(KVITTERINGER)
         return Pair(soknad.id, kvitteringSpm)
     }
 }

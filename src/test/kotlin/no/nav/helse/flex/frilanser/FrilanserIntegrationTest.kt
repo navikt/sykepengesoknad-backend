@@ -150,8 +150,8 @@ class FrilanserIntegrationTest : FellesTestOppsett() {
                 )
 
                 assertThat(
-                    it.rSSykepengesoknad.sporsmal!!
-                        .first { it.tag == TILBAKE_I_ARBEID }
+                    it.rSSykepengesoknad
+                        .getSporsmalMedTag(TILBAKE_I_ARBEID)
                         .undersporsmal
                         .first()
                         .svar,
@@ -179,15 +179,15 @@ class FrilanserIntegrationTest : FellesTestOppsett() {
                 assertThat(it.muterteSoknaden).isTrue()
 
                 assertThat(
-                    it.rSSykepengesoknad.sporsmal!!
-                        .first { it.tag == "ARBEID_UNDERVEIS_100_PROSENT_0" }
+                    it.rSSykepengesoknad
+                        .getSporsmalMedTag("ARBEID_UNDERVEIS_100_PROSENT_0")
                         .sporsmalstekst,
                 ).isEqualTo(
                     "I perioden 1. - 3. februar 2020 var du 100% sykmeldt som frilanser. Jobbet du noe i denne perioden?",
                 )
                 assertThat(
-                    it.rSSykepengesoknad.sporsmal!!
-                        .first { it.tag == OPPHOLD_UTENFOR_EOS }
+                    it.rSSykepengesoknad
+                        .getSporsmalMedTag(OPPHOLD_UTENFOR_EOS)
                         .sporsmalstekst,
                 ).isEqualTo(
                     "Var du på reise utenfor EU/EØS mens du var sykmeldt 1. - 3. februar 2020?",
