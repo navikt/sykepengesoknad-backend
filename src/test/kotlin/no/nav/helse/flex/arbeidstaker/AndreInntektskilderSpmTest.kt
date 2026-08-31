@@ -12,6 +12,7 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
+import no.nav.helse.flex.util.getSporsmalMedTag
 import no.nav.helse.flex.util.serialisertTilString
 import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
 import org.amshove.kluent.`should be equal to`
@@ -174,14 +175,29 @@ class AndreInntektskilderSpmTest : FellesTestOppsett() {
         assertThat(kafkaSoknaderMedGhost).hasSize(1)
         assertThat(kafkaSoknaderMedGhost[0].status).isEqualTo(SoknadsstatusDTO.SENDT)
 
-        // TODO: Sjekk ghost inntekt
+        kafkaSoknaderMedGhost[0]
+            .sporsmal!!
+            .find { it.tag == FLERE_INNTEKTSKILDER_GHOST }!!
+            .svar!!
+            .first()
+            .verdi `should be equal to` "JA"
 
-//        kafkaSoknaderMedGhost[0].andreInntektskilder `should be equal to`
-//            listOf(
-//                InntektskildeDTO(
-//                    type = InntektskildetypeDTO.STYREVERV,
-//                    sykmeldt = null,
-//                ),
-//            )
+        kafkaSoknaderMedGhost[0]
+            .getSporsmalMedTag(medIndex(JOBBET_MER_I_VALG, 0))
+            .also { sporsmal ->
+                sporsmal.svar!!
+                    .first()
+                    .verdi `should be equal to` "CHECKED"
+
+                sporsmal.sporsmalstekst `should be equal to` "Matbutikken AS"
+            }
+
+        kafkaSoknaderMedGhost[0].andreInntektskilder `should be equal to`
+            listOf(
+                InntektskildeDTO(
+                    type = InntektskildetypeDTO.STYREVERV,
+                    sykmeldt = null,
+                ),
+            )
     }
 }
