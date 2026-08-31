@@ -41,11 +41,6 @@ import java.time.LocalDate
 class SlettKvitteringerIntegrasjonsTest : FellesTestOppsett() {
     private val fnr = "12345678900"
 
-    @BeforeAll
-    fun konfigurerUnleash() {
-        fakeUnleash.resetAll()
-    }
-
     @Test
     @Order(1)
     fun `Det finnes ingen søknader`() {

@@ -45,7 +45,6 @@ class OverlapperFullstendig : FellesTestOppsett() {
     @BeforeEach
     fun setUp() {
         databaseReset.resetDatabase()
-        fakeUnleash.resetAll()
     }
 
     @AfterAll

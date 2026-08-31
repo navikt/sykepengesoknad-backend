@@ -14,12 +14,6 @@ class NyttArbeidsforholdInnenforAgpTest : FellesTestOppsett() {
     val fnr = "22222220001"
     final val basisdato = LocalDate.of(2022, 9, 15)
 
-    @BeforeAll
-    fun konfigurerUnleash() {
-        fakeUnleash.resetAll()
-        fakeUnleash.enable("sykepengesoknad-backend-tilkommen-inntekt")
-    }
-
     @Test
     @Order(1)
     fun `Arbeidstakersøknader opprettes for en ti dagers sykmelding`() {

@@ -62,11 +62,6 @@ class EgenmeldingsdagerVideresendingTest : FellesTestOppsett() {
             )
         }
 
-    @BeforeAll
-    fun konfigurerUnleash() {
-        fakeUnleash.resetAll()
-    }
-
     @AfterAll
     fun hentAlleKafkaMeldinger() {
         juridiskVurderingKafkaConsumer.ventPåRecords(3)

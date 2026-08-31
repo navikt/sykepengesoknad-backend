@@ -1,5 +1,6 @@
 package no.nav.helse.flex
 
+import io.getunleash.FakeUnleash
 import no.nav.helse.flex.fakes.SoknadKafkaProducerFake
 import no.nav.helse.flex.frisktilarbeid.FriskTilArbeidConsumer
 import no.nav.helse.flex.frisktilarbeid.FriskTilArbeidRepository
@@ -74,6 +75,9 @@ abstract class FakesTestOppsett : TestOppsettInterfaces {
     @Autowired
     lateinit var databaseReset: DatabaseReset
 
+    @Autowired
+    lateinit var fakeUnleash: FakeUnleash
+
     @AfterAll
     @BeforeAll
     fun `Vi resetter databasen`() {
@@ -81,8 +85,9 @@ abstract class FakesTestOppsett : TestOppsettInterfaces {
     }
 
     @AfterAll
-    fun `Reset kafka`() {
+    fun `Reset kafka og unleash`() {
         SoknadKafkaProducerFake.records.clear()
+        fakeUnleash.resetAll()
     }
 
     override fun server(): MockOAuth2Server = server

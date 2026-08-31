@@ -14,15 +14,9 @@ import no.nav.helse.flex.testutil.besvarsporsmal
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldHaveSize
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 
 class AndreInntektskilderKtTest : FellesTestOppsett() {
-    @BeforeAll
-    fun konfigurerUnleash() {
-        fakeUnleash.resetAll()
-    }
-
     @Test
     fun `Arbeidsledig har ikke svart på andre inntektskilder`() {
         val soknad =

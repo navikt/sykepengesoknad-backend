@@ -59,7 +59,6 @@ class OverlapperFor : FellesTestOppsett() {
     @BeforeEach
     fun opprydding() {
         databaseReset.resetDatabase()
-        fakeUnleash.resetAll()
     }
 
     @AfterAll

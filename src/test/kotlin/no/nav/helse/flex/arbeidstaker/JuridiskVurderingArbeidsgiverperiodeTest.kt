@@ -27,7 +27,6 @@ class JuridiskVurderingArbeidsgiverperiodeTest : FellesTestOppsett() {
     @BeforeEach
     fun setUp() {
         databaseReset.resetDatabase()
-        fakeUnleash.resetAll()
     }
 
     @Test

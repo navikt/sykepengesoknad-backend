@@ -58,7 +58,6 @@ class KlipperNaeringsdrivendeTest : FellesTestOppsett() {
     @BeforeEach
     fun setUp() {
         databaseReset.resetDatabase()
-        fakeUnleash.resetAll()
     }
 
     @Test

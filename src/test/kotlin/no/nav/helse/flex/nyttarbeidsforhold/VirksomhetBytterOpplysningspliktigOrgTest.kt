@@ -18,9 +18,6 @@ class VirksomhetBytterOpplysningspliktigOrgTest : FellesTestOppsett() {
     @Test
     @Order(1)
     fun `første sykm opprettes for en lang sykmelding`() {
-        fakeUnleash.resetAll()
-        fakeUnleash.enable("sykepengesoknad-backend-tilkommen-inntekt")
-
         AaregMockDispatcher.enqueue(
             listOf(
                 skapArbeidsforholdOversikt(

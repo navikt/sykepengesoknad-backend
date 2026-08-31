@@ -30,11 +30,6 @@ class ArbeidstakerIntegrationTest : FellesTestOppsett() {
     private val basisdato = LocalDate.of(2021, 9, 1)
     private val oppfolgingsdato = basisdato.minusDays(20)
 
-    @BeforeAll
-    fun konfigurerUnleash() {
-        fakeUnleash.resetAll()
-    }
-
     @AfterAll
     fun hentAlleKafkaMeldinger() {
         juridiskVurderingKafkaConsumer.ventPåRecords(9)

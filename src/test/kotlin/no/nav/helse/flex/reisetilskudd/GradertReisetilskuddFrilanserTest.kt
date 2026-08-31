@@ -41,7 +41,6 @@ class GradertReisetilskuddFrilanserTest : FellesTestOppsett() {
     @BeforeAll
     fun `Det er ingen søknader til å begynne med`() {
         hentSoknaderMetadata(fnr).shouldBeEmpty()
-        fakeUnleash.resetAll()
     }
 
     @Test

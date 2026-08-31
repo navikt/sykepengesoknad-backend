@@ -14,7 +14,6 @@ import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.ventPåRecords
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
@@ -25,11 +24,6 @@ class BrukerIkkeTimerForFaktiskGradHvisIkkeChecked : FellesTestOppsett() {
     private val fnr = "12345678900"
     private val start = LocalDate.of(2020, 9, 22)
     private val slutt = LocalDate.of(2020, 10, 10)
-
-    @BeforeAll
-    fun konfigurerUnleash() {
-        fakeUnleash.resetAll()
-    }
 
     @AfterAll
     fun hentAlleKafkaMeldinger() {

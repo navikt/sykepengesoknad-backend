@@ -30,7 +30,6 @@ class OppholdUtenforEOSTest : FellesTestOppsett() {
     @BeforeEach
     fun beforeEach() {
         databaseReset.resetDatabase()
-        fakeUnleash.resetAll()
     }
 
     @AfterAll

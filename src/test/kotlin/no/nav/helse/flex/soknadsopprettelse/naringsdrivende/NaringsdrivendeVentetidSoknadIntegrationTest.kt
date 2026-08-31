@@ -30,7 +30,6 @@ class NaringsdrivendeVentetidSoknadIntegrationTest : FellesTestOppsett() {
     @AfterEach
     fun tearDown() {
         databaseReset.resetDatabase()
-        fakeUnleash.resetAll()
     }
 
     @Test

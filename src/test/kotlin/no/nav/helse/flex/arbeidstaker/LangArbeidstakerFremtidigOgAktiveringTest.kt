@@ -27,11 +27,6 @@ class LangArbeidstakerFremtidigOgAktiveringTest : FellesTestOppsett() {
     private val fnr = "12345678900"
     private val basisdato = LocalDate.now()
 
-    @BeforeAll
-    fun konfigurerUnleash() {
-        fakeUnleash.resetAll()
-    }
-
     @AfterAll
     fun hentAlleKafkaMeldinger() {
         juridiskVurderingKafkaConsumer.ventPåRecords(6)

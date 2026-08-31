@@ -32,7 +32,6 @@ class OpprettOptInIntegrationTest : FellesTestOppsett() {
     @AfterEach
     fun tearDown() {
         databaseReset.resetDatabase()
-        fakeUnleash.resetAll()
     }
 
     @Test

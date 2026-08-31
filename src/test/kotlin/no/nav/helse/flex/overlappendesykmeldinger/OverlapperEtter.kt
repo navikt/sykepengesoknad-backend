@@ -56,11 +56,6 @@ class OverlapperEtter : FellesTestOppsett() {
     @Autowired
     private lateinit var klippetSykepengesoknadRepository: KlippetSykepengesoknadRepository
 
-    @BeforeAll
-    fun konfigurerUnleash() {
-        fakeUnleash.resetAll()
-    }
-
     @AfterAll
     fun hentAlleKafkaMeldinger() {
         juridiskVurderingKafkaConsumer.ventPåRecords(12)

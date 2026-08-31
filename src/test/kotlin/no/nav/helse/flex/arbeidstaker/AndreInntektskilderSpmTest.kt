@@ -25,11 +25,6 @@ class AndreInntektskilderSpmTest : FellesTestOppsett() {
     private val fnr = "11111234565"
     private final val basisdato = LocalDate.of(2021, 9, 1)
 
-    @BeforeAll
-    fun konfigurerUnleash() {
-        fakeUnleash.resetAll()
-    }
-
     @AfterAll
     fun hentAlleKafkaMeldinger() {
         juridiskVurderingKafkaConsumer.ventPåRecords(3)

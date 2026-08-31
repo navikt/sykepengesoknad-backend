@@ -16,11 +16,6 @@ class ArbeidstakerIntegrationUtenEgenmeldingTest : FellesTestOppsett() {
     private val fnr = "12345678900"
     private val basisdato = LocalDate.of(2021, 9, 1)
 
-    @BeforeAll
-    fun konfigurerUnleash() {
-        fakeUnleash.resetAll()
-    }
-
     @Test
     @Order(1)
     fun `Arbeidstakersøknad opprettes for en sykmelding`() {
