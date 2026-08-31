@@ -7,21 +7,20 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 class SporsmalDTOUtilTest {
+
     @Test
     fun `flatten finner alle undersporsmal rekursivt`() {
-        val hoved =
-            SporsmalDTO(
-                id = "1",
-                tag = "HOVED",
-                sporsmalstekst = "Hoved",
-                undertekst = null,
-                min = null,
-                max = null,
-                svartype = SvartypeDTO.JA_NEI,
-                kriterieForVisningAvUndersporsmal = null,
-                svar = emptyList(),
-                undersporsmal =
-                    listOf(
+        val hoved = SporsmalDTO(
+            id = "1",
+            tag = "HOVED",
+            sporsmalstekst = "Hoved",
+            undertekst = null,
+            min = null,
+            max = null,
+            svartype = SvartypeDTO.JA_NEI,
+            kriterieForVisningAvUndersporsmal = null,
+            svar = emptyList(),
+            undersporsmal = listOf(
                         SporsmalDTO(
                             id = "2",
                             tag = "UNDERSPORSMAL",
@@ -42,20 +41,18 @@ class SporsmalDTOUtilTest {
 
     @Test
     fun `getSporsmalMedTag finner sporsmal ved tag`() {
-        val sporsmal =
-            listOf(
-                SporsmalDTO(
-                    id = "1",
-                    tag = "HOVED",
-                    sporsmalstekst = "Hoved",
-                    undertekst = null,
-                    min = null,
-                    max = null,
-                    svartype = SvartypeDTO.JA_NEI,
-                    kriterieForVisningAvUndersporsmal = null,
-                    svar = emptyList(),
-                    undersporsmal =
-                        listOf(
+        val sporsmal = listOf(
+            SporsmalDTO(
+                id = "1",
+                tag = "HOVED",
+                sporsmalstekst = "Hoved",
+                undertekst = null,
+                min = null,
+                max = null,
+                svartype = SvartypeDTO.JA_NEI,
+                kriterieForVisningAvUndersporsmal = null,
+                svar = emptyList(),
+                undersporsmal = listOf(
                             SporsmalDTO(
                                 id = "2",
                                 tag = "MAL",
