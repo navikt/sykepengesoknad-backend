@@ -89,7 +89,6 @@ class SoknadBesvarer(
                 ekskludert = ekskludert,
             ).oppsummering()
 
-
     fun tilbakeIArbeid(
         dato: LocalDate?,
         mutert: Boolean = true,
