@@ -101,7 +101,7 @@ class NyttArbeidsforholdTest : NyttArbeidsforholdFellesOppsett() {
                     orgnummer = "999888777",
                 ),
             )
-        andreInntektskilder.sporsmalstekst `should be equal to` "Har du andre inntektskilder enn Matbutikken AS og Kiosken, avd Oslo AS?"
+        andreInntektskilder.sporsmalstekst `should be equal to` "Har du annen inntekt eller oppdrag?"
 
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
         kafkaSoknader.shouldHaveSize(1)

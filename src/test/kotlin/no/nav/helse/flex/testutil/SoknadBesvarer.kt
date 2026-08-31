@@ -89,14 +89,6 @@ class SoknadBesvarer(
                 ekskludert = ekskludert,
             ).oppsummering()
 
-    fun medFerie(
-        fom: LocalDate,
-        tom: LocalDate,
-    ): SoknadBesvarer =
-        this
-            .besvarSporsmal(tag = "FERIE_V2", svar = "JA", ferdigBesvart = false)
-            .besvarSporsmal(tag = "FERIE_NAR_V2", svar = """{"fom":"$fom","tom":"$tom"}""")
-
     fun tilbakeIArbeid(
         dato: LocalDate?,
         mutert: Boolean = true,
@@ -189,5 +181,6 @@ class SoknadBesvarer(
         )
     }
 
-    fun oppsummering(): SoknadBesvarer = this.besvarSporsmal(TIL_SLUTT, "true")
+    fun oppsummering(ekskludert: List<String> = emptyList()): SoknadBesvarer =
+        this.besvarSporsmal(TIL_SLUTT, "true", ekskludert = ekskludert)
 }
