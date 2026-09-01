@@ -39,11 +39,6 @@ class NullstillUndersporsmalSvarTest : FellesTestOppsett() {
                 svar[0].verdi
             }
 
-    @BeforeAll
-    fun konfigurerUnleash() {
-        fakeUnleash.resetAll()
-    }
-
     @AfterAll
     fun hentAlleKafkaMeldinger() {
         juridiskVurderingKafkaConsumer.ventPåRecords(3)

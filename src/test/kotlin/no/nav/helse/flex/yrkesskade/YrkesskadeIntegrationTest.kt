@@ -27,7 +27,6 @@ class YrkesskadeIntegrationTest : FellesTestOppsett() {
 
     @BeforeAll
     fun `Køer opp yrkesskaderesponse`() {
-        fakeUnleash.resetAll()
         YrkesskadeMockDispatcher.queuedSakerRespons.add(
             SakerResponse(
                 listOf(

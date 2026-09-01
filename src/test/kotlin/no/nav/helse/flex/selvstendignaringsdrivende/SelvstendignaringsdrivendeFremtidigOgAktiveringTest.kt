@@ -28,7 +28,6 @@ class SelvstendignaringsdrivendeFremtidigOgAktiveringTest : FellesTestOppsett() 
     @BeforeEach
     fun setup() {
         flexSyketilfelleMockRestServiceServer.reset()
-        fakeUnleash.resetAll()
     }
 
     @AfterAll

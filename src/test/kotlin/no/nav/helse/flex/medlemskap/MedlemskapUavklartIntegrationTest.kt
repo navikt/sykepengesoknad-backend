@@ -24,11 +24,6 @@ import java.time.LocalDate
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class MedlemskapUavklartIntegrationTest : FellesTestOppsett() {
-    @BeforeAll
-    fun configureUnleash() {
-        fakeUnleash.resetAll()
-    }
-
     @AfterAll
     fun hentAlleKafkaMeldinger() {
         juridiskVurderingKafkaConsumer.ventPåRecords(3)

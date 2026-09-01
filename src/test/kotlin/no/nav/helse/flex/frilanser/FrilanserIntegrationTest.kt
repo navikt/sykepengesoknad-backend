@@ -25,11 +25,6 @@ import java.time.format.DateTimeFormatter
 class FrilanserIntegrationTest : FellesTestOppsett() {
     final val fnr = "123456789"
 
-    @BeforeAll
-    fun konfigurerUnleash() {
-        fakeUnleash.resetAll()
-    }
-
     @AfterAll
     fun hentAlleKafkaMeldinger() {
         juridiskVurderingKafkaConsumer.ventPåRecords(1)

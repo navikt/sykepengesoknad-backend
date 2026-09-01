@@ -1,6 +1,5 @@
 package no.nav.helse.flex.soknadsopprettelse.naringsdrivende
 
-import io.getunleash.FakeUnleash
 import no.nav.helse.flex.FakesTestOppsett
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstatus
@@ -42,12 +41,8 @@ class NaringsdrivendeSoknadServiceTest : FakesTestOppsett() {
     @Autowired
     lateinit var sykepengesoknadRepository: SykepengesoknadRepositoryFake
 
-    @Autowired
-    lateinit var fakeUnleash: FakeUnleash
-
     @AfterEach
     fun teardown() {
-        fakeUnleash.resetAll()
         flexSyketilfelleClient.resetSykmeldingerMedSammeVentetid()
     }
 

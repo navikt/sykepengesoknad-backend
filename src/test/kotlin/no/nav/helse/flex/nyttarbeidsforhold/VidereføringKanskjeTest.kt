@@ -22,9 +22,6 @@ class VidereføringKanskjeTest : FellesTestOppsett() {
     @Test
     @Order(1)
     fun `Videreføring med kanskje kravene tilfredsstilt`() {
-        fakeUnleash.resetAll()
-        fakeUnleash.enable("sykepengesoknad-backend-tilkommen-inntekt")
-
         AaregMockDispatcher.enqueue(
             listOf(
                 skapArbeidsforholdOversikt(

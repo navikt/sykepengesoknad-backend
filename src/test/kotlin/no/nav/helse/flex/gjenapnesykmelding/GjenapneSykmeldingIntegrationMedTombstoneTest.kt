@@ -29,7 +29,6 @@ class GjenapneSykmeldingIntegrationMedTombstoneTest : FellesTestOppsett() {
     @BeforeEach
     fun setUp() {
         flexSyketilfelleMockRestServiceServer.reset()
-        fakeUnleash.resetAll()
     }
 
     @Test

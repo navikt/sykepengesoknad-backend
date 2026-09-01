@@ -13,7 +13,6 @@ import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.util.serialisertTilString
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
@@ -24,11 +23,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 @TestMethodOrder(MethodOrderer.MethodName::class)
 class VeilederOboIntegrationTest : FellesTestOppsett() {
     final val fnr = "123456789"
-
-    @BeforeAll
-    fun konfigurerUnleash() {
-        fakeUnleash.resetAll()
-    }
 
     @Test
     fun `01 - vi oppretter en arbeidsledigsøknad`() {

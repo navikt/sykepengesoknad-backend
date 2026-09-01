@@ -17,11 +17,6 @@ class UtenlandskArbeidsledigSporsmalAndreSoknadIntegrationTest : FellesTestOppse
     private final val fnr = "12454578474"
     private final val basisdato = LocalDate.of(2021, 9, 1)
 
-    @BeforeAll
-    fun konfigurerUnleash() {
-        fakeUnleash.resetAll()
-    }
-
     @Test
     @Order(1)
     fun `Søknad 1 opprettes`() {

@@ -42,7 +42,6 @@ class GenerellKafkaIntegrationTest : FellesTestOppsett() {
     fun setUp() {
         databaseReset.resetDatabase()
         flexSyketilfelleMockRestServiceServer.reset()
-        fakeUnleash.resetAll()
     }
 
     @AfterEach

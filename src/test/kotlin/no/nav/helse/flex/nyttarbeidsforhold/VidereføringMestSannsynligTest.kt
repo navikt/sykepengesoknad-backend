@@ -19,9 +19,6 @@ class VidereføringMestSannsynligTest : FellesTestOppsett() {
     @Test
     @Order(1)
     fun `Videreføring med mest sannsynlig kravene tilfredsstilt`() {
-        fakeUnleash.resetAll()
-        fakeUnleash.enable("sykepengesoknad-backend-tilkommen-inntekt")
-
         AaregMockDispatcher.enqueue(
             listOf(
                 skapArbeidsforholdOversikt(

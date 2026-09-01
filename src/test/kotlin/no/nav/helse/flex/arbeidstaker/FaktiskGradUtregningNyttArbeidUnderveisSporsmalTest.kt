@@ -13,7 +13,6 @@ import no.nav.helse.flex.tilSoknader
 import no.nav.helse.flex.ventPåRecords
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
@@ -22,11 +21,6 @@ import java.time.LocalDate
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class FaktiskGradUtregningNyttArbeidUnderveisSporsmalTest : FellesTestOppsett() {
     private val fnr = "12345678900"
-
-    @BeforeAll
-    fun konfigurerUnleash() {
-        fakeUnleash.resetAll()
-    }
 
     @AfterAll
     fun hentAlleKafkaMeldinger() {

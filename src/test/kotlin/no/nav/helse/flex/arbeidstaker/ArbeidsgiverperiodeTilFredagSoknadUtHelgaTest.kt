@@ -32,7 +32,6 @@ class ArbeidsgiverperiodeTilFredagSoknadUtHelgaTest : FellesTestOppsett() {
     @BeforeEach
     fun setUp() {
         databaseReset.resetDatabase()
-        fakeUnleash.resetAll()
     }
 
     @Test

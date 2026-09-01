@@ -22,11 +22,6 @@ import java.time.LocalDate
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class MedlemskapArbeidUtenforNorgeIntegrationTest : FellesTestOppsett() {
-    @BeforeAll
-    fun konfigurerUnleash() {
-        fakeUnleash.resetAll()
-    }
-
     @Test
     @Order(1)
     fun `Oppretter søknad med status UAVKLART som ikke skal ha ARBEID_UTENFOR_NORGE`() {

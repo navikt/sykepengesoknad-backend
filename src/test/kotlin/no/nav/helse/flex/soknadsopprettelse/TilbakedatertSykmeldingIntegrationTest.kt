@@ -18,11 +18,6 @@ class TilbakedatertSykmeldingIntegrationTest : FellesTestOppsett() {
 
     private val sykmeldingid = "1db78df1-d1d7-4dc4-affd-06e1e08066ce"
 
-    @BeforeAll
-    fun konfigurerUnleash() {
-        fakeUnleash.resetAll()
-    }
-
     @Test
     @Order(1)
     fun `oppretter søknad for sykmelding under behandling `() {

@@ -23,11 +23,6 @@ import java.time.LocalDate
 class KorrektFaktiskGradMappesFraSvarTilPeriodeTest : FellesTestOppsett() {
     private val fnr = "12345678900"
 
-    @BeforeAll
-    fun konfigurerUnleash() {
-        fakeUnleash.resetAll()
-    }
-
     @AfterAll
     fun hentAlleKafkaMeldinger() {
         juridiskVurderingKafkaConsumer.ventPåRecords(9)

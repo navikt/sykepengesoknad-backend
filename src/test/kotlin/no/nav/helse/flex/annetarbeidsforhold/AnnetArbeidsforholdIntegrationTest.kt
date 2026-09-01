@@ -18,11 +18,6 @@ import java.time.format.DateTimeFormatter
 class AnnetArbeidsforholdIntegrationTest : FellesTestOppsett() {
     final val fnr = "123456789"
 
-    @BeforeAll
-    fun konfigurerUnleash() {
-        fakeUnleash.resetAll()
-    }
-
     @Test
     @Order(1)
     fun `Vi oppretter en søknad med arbeidssituasjon ANNET`() {
