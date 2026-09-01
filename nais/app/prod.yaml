@@ -6,9 +6,10 @@ db_size: 250
 db_highAvailability: true
 db_pointInTimeRecovery: true
 db_flags:
-  cloudsql.enable_pgaudit: "true"
+  cloudsql.enable_pgaudit: "on"
   pgaudit.log: 'write,ddl,role'
   pgaudit.log_parameter: "on"
+  pgaudit.log_relation: "on"
 cpu: 400m
 memory: 1792Mi
 replicas_min: 3
