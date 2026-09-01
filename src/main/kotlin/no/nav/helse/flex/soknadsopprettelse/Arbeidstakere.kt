@@ -65,7 +65,9 @@ fun settOppSoknadArbeidstaker(
             )
         }
 
-        if (andreKjenteArbeidsforholdFraInntektskomponenten.size + (arbeidsforholdoversiktResponse?.size ?: 0) > 1) {
+        val antallArbeidsforhold = andreKjenteArbeidsforholdFraInntektskomponenten.size + (arbeidsforholdoversiktResponse?.size ?: 0)
+
+        if (antallArbeidsforhold > 1) {
             add(
                 flereInntektskilderGhost(
                     sykmeldingOrgnavn = sykepengesoknad.arbeidsgiverNavn!!,
