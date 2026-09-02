@@ -8,6 +8,7 @@ import no.nav.helse.flex.client.sigrun.Skatteordning
 import no.nav.helse.flex.util.objectMapper
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.RecordedRequest
+import java.time.LocalDate
 
 object SigrunMockDispatcher : FellesQueueDispatcher<HentPensjonsgivendeInntektResponse>(
     defaultFactory = { it: RecordedRequest ->
@@ -20,7 +21,7 @@ object SigrunMockDispatcher : FellesQueueDispatcher<HentPensjonsgivendeInntektRe
             pensjonsgivendeInntekt =
                 listOf(
                     PensjonsgivendeInntekt(
-                        datoForFastsetting = "ikke-relevant",
+                        datoForFastsetting = LocalDate.parse("2024-07-17"),
                         skatteordning = Skatteordning.FASTLAND,
                         pensjonsgivendeInntektAvNaeringsinntekt = 500_000,
                     ),
@@ -35,7 +36,7 @@ object SigrunMockDispatcher : FellesQueueDispatcher<HentPensjonsgivendeInntektRe
         inntekt: List<PensjonsgivendeInntekt> =
             listOf(
                 PensjonsgivendeInntekt(
-                    datoForFastsetting = "$inntektsaar-07-17",
+                    datoForFastsetting = LocalDate.parse("$inntektsaar-07-17"),
                     skatteordning = skatteordning,
                     pensjonsgivendeInntektAvNaeringsinntekt = 500_000,
                 ),

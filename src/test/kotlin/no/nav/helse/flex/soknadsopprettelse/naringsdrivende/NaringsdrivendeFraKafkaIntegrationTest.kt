@@ -743,7 +743,7 @@ fun lagSykepengegrunnlagNaeringsdrivende(
                         pensjonsgivendeInntekt =
                             listOf(
                                 PensjonsgivendeInntekt(
-                                    datoForFastsetting = "$aar-07-17",
+                                    datoForFastsetting = LocalDate.parse("$aar-07-17"),
                                     skatteordning = Skatteordning.FASTLAND,
                                     pensjonsgivendeInntektAvNaeringsinntekt = 500_000,
                                 ),
