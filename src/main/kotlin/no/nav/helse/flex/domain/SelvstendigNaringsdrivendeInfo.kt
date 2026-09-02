@@ -35,6 +35,7 @@ data class SelvstendigNaringsdrivendeInfo(
                 // Summerer pensjonsgivende inntekt fra FASTLAND og SVALBARD.
                 pensjonsgivendeInntekt =
                     if (inntekt.pensjonsgivendeInntekt.isNotEmpty()) summerPensjonsgivendeInntekt(inntekt.pensjonsgivendeInntekt) else null,
+//                datoForFastsetting = inntekt.pensjonsgivendeInntekt.minOfOrNull { it.datoForFastsetting }?.toString(),
             )
         }
 

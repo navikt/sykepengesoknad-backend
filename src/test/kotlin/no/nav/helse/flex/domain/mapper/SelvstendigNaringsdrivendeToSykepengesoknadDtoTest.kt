@@ -312,7 +312,7 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
                 2021 to
                     listOf(
                         PensjonsgivendeInntekt(
-                            datoForFastsetting = "2021-07-17",
+                            datoForFastsetting = LocalDate.parse("2021-07-17"),
                             skatteordning = Skatteordning.FASTLAND,
                             pensjonsgivendeInntektAvLoennsinntekt = 10_000,
                             pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = 190_000,
@@ -323,7 +323,7 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
                 2022 to
                     listOf(
                         PensjonsgivendeInntekt(
-                            datoForFastsetting = "2022-07-17",
+                            datoForFastsetting = LocalDate.parse("2022-07-17"),
                             skatteordning = Skatteordning.FASTLAND,
                             pensjonsgivendeInntektAvLoennsinntekt = 100_000,
                             pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = 100_000,
@@ -334,7 +334,7 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
                 2023 to
                     listOf(
                         PensjonsgivendeInntekt(
-                            datoForFastsetting = "2023-07-17",
+                            datoForFastsetting = LocalDate.parse("2023-07-17"),
                             skatteordning = Skatteordning.FASTLAND,
                             pensjonsgivendeInntektAvLoennsinntekt = 200_000,
                             pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = 100_000,
