@@ -40,7 +40,7 @@ class AutomatiskInnsendingVedDodsfall(
                 dodsmeldingDAO.slettDodsmelding(identer)
                 antall++
             } catch (e: Exception) {
-                log.error("Feil ved prossering av dødsmelding for aktor $fnr", e)
+                log.error("Feil ved prossering av dødsmelding", e)
             }
         }
 
@@ -63,7 +63,7 @@ class AutomatiskInnsendingVedDodsfall(
 
                 if (sykepengesoknad.fom!!.isAfter(dodsdato)) {
                     avbrytSoknadService.avbrytSoknad(sykepengesoknad)
-                    log.info("Avbryt søknad med id: ${sykepengesoknad.id} pga fom etter dødsdato")
+                    log.info("Satt søknad: ${sykepengesoknad.id} til AVBRUTT siden fom er etter dødsdato.")
                     return@forEach
                 }
 
@@ -77,7 +77,7 @@ class AutomatiskInnsendingVedDodsfall(
 
                     if (Mottaker.ARBEIDSGIVER == mottaker) {
                         avbrytSoknadService.avbrytSoknad(sykepengesoknad)
-                        log.info("Avbryt søknad med id: ${sykepengesoknad.id} pga arbeidsgiver mottaker")
+                        log.info("Satt søknad: ${sykepengesoknad.id} til AVBRUTT siden arbeidsgiver er mottaker.")
                     } else {
                         log.info("Automatisk innsending av søknad med id: ${sykepengesoknad.id}")
                         soknadSender.sendSoknad(sykepengesoknad, Avsendertype.SYSTEM, dodsdato, identer)
@@ -86,7 +86,7 @@ class AutomatiskInnsendingVedDodsfall(
                     return@forEach
                 }
 
-                log.info("Automatisk innsending av søknad ignorerer søknader eldre enn 3 måneder ${sykepengesoknad.id}")
+                log.info("Ignorert automatisk innsendng av søknad: ${sykepengesoknad.id} siden tom er eldre enn 3 måneder.")
             }
         return identer
     }
