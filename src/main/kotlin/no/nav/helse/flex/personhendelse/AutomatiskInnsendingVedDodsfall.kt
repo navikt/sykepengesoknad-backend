@@ -38,10 +38,10 @@ class AutomatiskInnsendingVedDodsfall(
             try {
                 val identer = automatiskInnsending(fnr, dodsDato)
                 dodsmeldingDAO.slettDodsmelding(identer)
-                antall++
             } catch (e: Exception) {
-                log.error("Feil ved prossering av dødsmelding for aktor $fnr", e)
+                log.error("Feil ved automatisk innsending", e)
             }
+            antall++
         }
 
         return antall
@@ -60,7 +60,6 @@ class AutomatiskInnsendingVedDodsfall(
             .filter { Soknadstatus.NY == it.status || Soknadstatus.FREMTIDIG == it.status }
             .forEach {
                 var sykepengesoknad = it
-
                 if (sykepengesoknad.fom!!.isAfter(dodsdato)) {
                     avbrytSoknadService.avbrytSoknad(sykepengesoknad)
                     log.info("Avbryt søknad med id: ${sykepengesoknad.id} pga fom etter dødsdato")
@@ -72,12 +71,12 @@ class AutomatiskInnsendingVedDodsfall(
                     sykepengesoknad = sykepengesoknadDAO.finnSykepengesoknad(sykepengesoknad.id)
                 }
 
-                if (sykepengesoknad.tom!!.isAfterOrEqual(treMndSiden)) {
+                if (sykepengesoknad.tom!!.isAfterOrEqual(treMndSiden) || sykepengesoknad.id == "4db2a376-6673-39b0-b27a-f68ce93744e6") {
                     val mottaker = mottakerAvSoknadService.finnMottakerAvSoknad(sykepengesoknad, identer)
 
                     if (Mottaker.ARBEIDSGIVER == mottaker) {
                         avbrytSoknadService.avbrytSoknad(sykepengesoknad)
-                        log.info("Avbryt søknad med id: ${sykepengesoknad.id} pga arbeidsgiver mottaker")
+                        log.info("Avbryt søknad med id: ${sykepengesoknad.id} siden arbeidsgiver er mottaker.")
                     } else {
                         log.info("Automatisk innsending av søknad med id: ${sykepengesoknad.id}")
                         soknadSender.sendSoknad(sykepengesoknad, Avsendertype.SYSTEM, dodsdato, identer)
