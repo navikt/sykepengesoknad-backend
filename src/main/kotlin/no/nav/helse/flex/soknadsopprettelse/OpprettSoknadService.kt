@@ -299,6 +299,7 @@ data class SoknadSammenlikner(
     val soknadstype: Soknadstype,
     val soknadPerioder: List<Soknadsperiode>?,
     val arbeidsgiverOrgnummer: String?,
+    val meldingTilNavDagerFraSykmelding: List<Periode>?,
 )
 
 fun Sykepengesoknad.tilSoknadSammenlikner() =
@@ -310,4 +311,5 @@ fun Sykepengesoknad.tilSoknadSammenlikner() =
         arbeidsgiverOrgnummer = this.arbeidsgiverOrgnummer,
         soknadstype = this.soknadstype,
         soknadPerioder = this.soknadPerioder,
+        meldingTilNavDagerFraSykmelding = this.meldingTilNavDagerFraSykmelding,
     )
