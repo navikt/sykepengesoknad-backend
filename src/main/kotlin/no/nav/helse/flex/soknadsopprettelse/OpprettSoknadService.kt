@@ -155,6 +155,13 @@ class OpprettSoknadService(
                 )
                 return emptyList()
             } else {
+                // Midlertidig logging for tilfellet der kun melding til Nav-dager er forskjellig og trigger opprettelse av nye søknader
+                if (erKunMeldingTilNavDagerForskjellig(sammenliknbartSettAvEksisterendeSoknaderForSm, sammenliknbartSettAvNyeSoknader)) {
+                    log.info(
+                        "Kun melding til Nav-dager er forskjellig for sykmelding: ${sykmeldingTilSoknadOpprettelse.sykmeldingId}",
+                    )
+                }
+
                 slettSoknaderTilKorrigertSykmeldingService.slettSoknader(eksisterendeSoknaderForSm)
             }
         }
@@ -299,6 +306,7 @@ data class SoknadSammenlikner(
     val soknadstype: Soknadstype,
     val soknadPerioder: List<Soknadsperiode>?,
     val arbeidsgiverOrgnummer: String?,
+    val meldingTilNavDagerFraSykmelding: List<Periode>?,
 )
 
 fun Sykepengesoknad.tilSoknadSammenlikner() =
@@ -310,4 +318,31 @@ fun Sykepengesoknad.tilSoknadSammenlikner() =
         arbeidsgiverOrgnummer = this.arbeidsgiverOrgnummer,
         soknadstype = this.soknadstype,
         soknadPerioder = this.soknadPerioder,
+        meldingTilNavDagerFraSykmelding = this.meldingTilNavDagerFraSykmelding,
     )
+
+internal fun erKunMeldingTilNavDagerForskjellig(
+    sammenliknbartSettAvEksisterendeSoknaderForSm: Set<SoknadSammenlikner>,
+    sammenliknbartSettAvNyeSoknader: Set<SoknadSammenlikner>,
+): Boolean {
+    val eksisterendeUtenMeldingTilNavDager =
+        sammenliknbartSettAvEksisterendeSoknaderForSm
+            .map { it.copy(meldingTilNavDagerFraSykmelding = null) }
+            .toSet()
+    val nyeUtenMeldingTilNavDager =
+        sammenliknbartSettAvNyeSoknader
+            .map { it.copy(meldingTilNavDagerFraSykmelding = null) }
+            .toSet()
+
+    val eksisterendeMeldingTilNavDager =
+        sammenliknbartSettAvEksisterendeSoknaderForSm
+            .map { it.meldingTilNavDagerFraSykmelding }
+            .toSet()
+    val nyeMeldingTilNavDager =
+        sammenliknbartSettAvNyeSoknader
+            .map { it.meldingTilNavDagerFraSykmelding }
+            .toSet()
+
+    return eksisterendeUtenMeldingTilNavDager == nyeUtenMeldingTilNavDager &&
+        eksisterendeMeldingTilNavDager != nyeMeldingTilNavDager
+}

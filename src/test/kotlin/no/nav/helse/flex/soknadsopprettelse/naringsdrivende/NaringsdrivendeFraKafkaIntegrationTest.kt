@@ -8,7 +8,9 @@ import no.nav.helse.flex.client.sigrun.PensjonsgivendeInntekt
 import no.nav.helse.flex.client.sigrun.Skatteordning
 import no.nav.helse.flex.controller.domain.sykepengesoknad.*
 import no.nav.helse.flex.domain.Arbeidssituasjon
+import no.nav.helse.flex.domain.Avsendertype
 import no.nav.helse.flex.domain.FiskerBlad
+import no.nav.helse.flex.domain.Mottaker
 import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
 import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher
@@ -531,6 +533,94 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                     ),
                 )
         }
+
+        @Test
+        fun `Oppretter ny søknad når samme sykmelding blir sendt igjen med endret meldingTilNavDagerFraSykmelding`() {
+            val forsteFom = LocalDate.of(2021, 2, 1)
+            val andreFom = LocalDate.of(2021, 2, 2)
+            val tom = LocalDate.of(2021, 2, 14)
+            val testdata = opprettTestdata()
+
+            settOppStandardNaeringsdrivendeData()
+            mockStandardSyketilfelle(testdata.sykmeldingId, oppfolgingsdato = testDato)
+
+            val forsteKafkaSoknad =
+                prosesserSykmeldingOgHentKafkaSoknad(
+                    sykmeldingId = testdata.sykmeldingId,
+                    sykmelding = testdata.sykmelding,
+                    event = testdata.sykmeldingStatus.event.medMeldingTilNavDager(forsteFom, tom),
+                    kafkaMetadata = testdata.sykmeldingStatus.kafkaMetadata,
+                )
+
+            sykepengesoknadDAO.sendSoknad(
+                sykepengesoknad = sykepengesoknadDAO.finnSykepengesoknad(forsteKafkaSoknad.id),
+                mottaker = Mottaker.NAV,
+                avsendertype = Avsendertype.BRUKER,
+            )
+
+            flexSyketilfelleMockRestServiceServer.reset()
+            settOppStandardNaeringsdrivendeData()
+            mockStandardSyketilfelle(testdata.sykmeldingId, oppfolgingsdato = testDato)
+            val andreEvent =
+                testdata.sykmeldingStatus.event
+                    .medMeldingTilNavDager(andreFom, tom)
+                    .copy(
+                        timestamp =
+                            testdata.sykmeldingStatus.event.timestamp
+                                .plusMinutes(1),
+                    )
+            val andreKafkaMetadata =
+                testdata.sykmeldingStatus.kafkaMetadata.copy(
+                    timestamp =
+                        testdata.sykmeldingStatus.kafkaMetadata.timestamp
+                            .plusMinutes(1),
+                )
+
+            prosesserSykmeldingOgHentKafkaSoknad(
+                sykmeldingId = testdata.sykmeldingId,
+                sykmelding = testdata.sykmelding,
+                event = andreEvent,
+                kafkaMetadata = andreKafkaMetadata,
+            )
+
+            hentSoknaderMetadata(fnr)
+                .filter { it.sykmeldingId == testdata.sykmeldingId }
+                .also { soknader ->
+                    soknader.size `should be equal to` 2
+                    soknader.map { it.status }.contains(RSSoknadstatus.KORRIGERT) `should be equal to` true
+                    soknader.map { it.status }.contains(RSSoknadstatus.NY) `should be equal to` true
+
+                    val korrigertSoknadId = soknader.first { it.status == RSSoknadstatus.KORRIGERT }.id
+                    val nySoknadId = soknader.first { it.status == RSSoknadstatus.NY }.id
+
+                    sykepengesoknadDAO.finnSykepengesoknad(korrigertSoknadId).meldingTilNavDagerFraSykmelding `should be equal to`
+                        listOf(Periode(forsteFom, tom))
+
+                    sykepengesoknadDAO.finnSykepengesoknad(nySoknadId).meldingTilNavDagerFraSykmelding `should be equal to`
+                        listOf(Periode(andreFom, tom))
+                }
+        }
+
+        private fun SykmeldingStatusKafkaEventDTO.medMeldingTilNavDager(
+            fom: LocalDate,
+            tom: LocalDate,
+        ): SykmeldingStatusKafkaEventDTO =
+            copy(
+                brukerSvar =
+                    brukerSvar?.copy(
+                        egenmeldingsperioder =
+                            SporsmalSvar(
+                                sporsmaltekst = "Når ga du beskjed?",
+                                svar =
+                                    listOf(
+                                        Egenmeldingsperiode(
+                                            fom = fom,
+                                            tom = tom,
+                                        ),
+                                    ),
+                            ),
+                    ),
+            )
     }
 
     private data class NaringsdrivendeTestdata(
