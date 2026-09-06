@@ -55,12 +55,12 @@ class AutomatiskInnsendingVedDodsfallTest : FellesTestOppsett() {
     @Test
     fun `Prossererer ikke dødsfall som er ikke er mottatt for mer enn 14 dager siden`() {
         dodsmeldingDAO.lagreDodsmelding(
-            FolkeregisterIdenter("aktor1", emptyList()),
+            FolkeregisterIdenter("12345678900", emptyList()),
             LocalDate.now().minusDays(10),
             OffsetDateTime.now().minusDays(10),
         )
         dodsmeldingDAO.lagreDodsmelding(
-            FolkeregisterIdenter("aktor2", emptyList()),
+            FolkeregisterIdenter("12345678901", emptyList()),
             LocalDate.now().minusDays(10),
             OffsetDateTime.now().minusDays(10),
         )
@@ -78,22 +78,22 @@ class AutomatiskInnsendingVedDodsfallTest : FellesTestOppsett() {
     @Test
     fun `Prossererer dødsfall som er mottatt for over 14 dager siden `() {
         dodsmeldingDAO.lagreDodsmelding(
-            FolkeregisterIdenter("aktor1", emptyList()),
+            FolkeregisterIdenter("12345678900", emptyList()),
             LocalDate.now().minusDays(10),
             OffsetDateTime.now().minusDays(10),
         )
         dodsmeldingDAO.lagreDodsmelding(
-            FolkeregisterIdenter("aktor2", emptyList()),
+            FolkeregisterIdenter("12345678901", emptyList()),
             LocalDate.now().minusDays(10),
             OffsetDateTime.now().minusDays(10),
         )
         dodsmeldingDAO.lagreDodsmelding(
-            FolkeregisterIdenter("aktor3", emptyList()),
+            FolkeregisterIdenter("12345678902", emptyList()),
             LocalDate.now().minusDays(16),
             OffsetDateTime.now().minusDays(16),
         )
         dodsmeldingDAO.lagreDodsmelding(
-            FolkeregisterIdenter("aktor4", emptyList()),
+            FolkeregisterIdenter("12345678903", emptyList()),
             LocalDate.now().minusDays(17),
             OffsetDateTime.now().minusDays(16),
         )
@@ -102,8 +102,8 @@ class AutomatiskInnsendingVedDodsfallTest : FellesTestOppsett() {
         automatiskInnsendingVedDodsfall.sendSoknaderForDode().shouldBeEqualTo(2)
 
         verify(automatiskInnsendingVedDodsfall).sendSoknaderForDode()
-        verify(automatiskInnsendingVedDodsfall).automatiskInnsending("aktor3", LocalDate.now().minusDays(16))
-        verify(automatiskInnsendingVedDodsfall).automatiskInnsending("aktor4", LocalDate.now().minusDays(17))
+        verify(automatiskInnsendingVedDodsfall).automatiskInnsending("12345678902", LocalDate.now().minusDays(16))
+        verify(automatiskInnsendingVedDodsfall).automatiskInnsending("12345678903", LocalDate.now().minusDays(17))
         verifyNoMoreInteractions(automatiskInnsendingVedDodsfall)
 
         antallDodsmeldingerIDb().shouldBeEqualTo(2)
@@ -115,7 +115,7 @@ class AutomatiskInnsendingVedDodsfallTest : FellesTestOppsett() {
             opprettNySoknad().copy(
                 status = Soknadstatus.FREMTIDIG,
                 sporsmal = emptyList(),
-                fnr = "aktor1",
+                fnr = "12345678900",
                 fom = LocalDate.now().minusWeeks(3),
                 tom = LocalDate.now().minusWeeks(2),
             )
@@ -123,7 +123,7 @@ class AutomatiskInnsendingVedDodsfallTest : FellesTestOppsett() {
         sykepengesoknadDAO.lagreSykepengesoknad(soknad)
 
         dodsmeldingDAO.lagreDodsmelding(
-            identer = FolkeregisterIdenter("aktor1", emptyList()),
+            identer = FolkeregisterIdenter("12345678900", emptyList()),
             dodsdato = soknad.tom!!.minusDays(1),
             meldingMottattDato =
                 soknad.tom
@@ -137,7 +137,7 @@ class AutomatiskInnsendingVedDodsfallTest : FellesTestOppsett() {
 
         automatiskInnsendingVedDodsfall.sendSoknaderForDode().shouldBeEqualTo(1)
 
-        verify(automatiskInnsendingVedDodsfall).automatiskInnsending("aktor1", soknad.tom.minusDays(1))
+        verify(automatiskInnsendingVedDodsfall).automatiskInnsending("12345678900", soknad.tom.minusDays(1))
         val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 2).tilSoknader()
         soknader.shouldHaveSize(2)
         soknader.first().status.shouldBeEqualTo(SoknadsstatusDTO.NY)
