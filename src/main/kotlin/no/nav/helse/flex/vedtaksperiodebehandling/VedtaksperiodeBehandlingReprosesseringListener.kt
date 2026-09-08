@@ -5,20 +5,14 @@ import no.nav.helse.flex.kafka.SIS_TOPIC
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.util.objectMapper
 import org.apache.kafka.clients.consumer.ConsumerRecord
-import org.apache.kafka.common.TopicPartition
 import org.springframework.kafka.annotation.KafkaListener
-import org.springframework.kafka.listener.ConsumerSeekAware
-import org.springframework.kafka.listener.ConsumerSeekAware.ConsumerSeekCallback
 import org.springframework.kafka.support.Acknowledgment
 import org.springframework.stereotype.Component
-import java.time.Instant
-import java.time.LocalDate
-import java.time.ZoneOffset
 
 @Component
 class VedtaksperiodeBehandlingReprosesseringListener(
     private val prosseserKafkaMeldingFraSpleiselaget: ProsseserKafkaMeldingFraSpleiselaget,
-) : ConsumerSeekAware {
+) {
     val log = logger()
 
     @KafkaListener(
@@ -43,17 +37,4 @@ class VedtaksperiodeBehandlingReprosesseringListener(
 
         acknowledgment.acknowledge()
     }
-
-    override fun onPartitionsAssigned(
-        assignments: Map<TopicPartition?, Long?>,
-        callback: ConsumerSeekCallback,
-    ) {
-        val startAt = LocalDate.of(2026, 8, 17).toInstantAtStartOfDay().toEpochMilli()
-
-        assignments.keys.filterNotNull().forEach { topicPartition ->
-            callback.seekToTimestamp(topicPartition.topic(), topicPartition.partition(), startAt)
-        }
-    }
-
-    private fun LocalDate.toInstantAtStartOfDay(): Instant = this.atStartOfDay().toInstant(ZoneOffset.UTC)
 }
