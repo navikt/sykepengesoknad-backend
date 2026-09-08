@@ -8,11 +8,13 @@ data class Behandlingstatusmelding(
     val tidspunkt: OffsetDateTime,
     val status: Behandlingstatustype,
     val eksterneSøknadIder: List<String>,
-    val versjon: String = "2.0.0",
+    val versjon: String = "2.1.0",
+    val eventName: String = "behandlingstatus",
 )
 
-data class MeldingMedVersjon(
+data class MeldingMetadata(
     val versjon: String? = null,
+    val eventName: String? = null,
 )
 
 enum class Behandlingstatustype {

@@ -12,8 +12,8 @@ db_flags:
   pgaudit.log_relation: "on"
 cpu: 400m
 memory: 1792Mi
-replicas_min: 3
-replicas_max: 5
+replicas_min: 4
+replicas_max: 4
 external-host:
   - pdl-api.prod-fss-pub.nais.io
   - ereg-services.prod-fss-pub.nais.io
