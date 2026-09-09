@@ -3,6 +3,7 @@ package no.nav.helse.flex.nyttarbeidsforhold
 import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.domain.Arbeidssituasjon
+import no.nav.helse.flex.nyttarbeidsforhold.tilAndreInntektskilderMetadata
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.Kilde
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.KjentInntektskilde
@@ -32,11 +33,11 @@ class NyttArbeidsforholdTest : NyttArbeidsforholdFellesOppsett() {
         @Suppress("ktlint:standard:max-line-length")
         nyttArbeidsforholdSpm.sporsmalstekst `should be equal to`
             "Har du jobbet noe hos Kiosken, avd Oslo AS i perioden 5. - 15. september 2022?"
-        nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedOrgnummer").textValue() `should be equal to` "999888777"
-        nyttArbeidsforholdSpm.metadata.get("arbeidsstedNavn").textValue() `should be equal to` "Kiosken, avd Oslo AS"
-        nyttArbeidsforholdSpm.metadata.get("startdatoAareg").textValue() `should be equal to` "2022-09-05"
-        nyttArbeidsforholdSpm.metadata.get("fom").textValue() `should be equal to` "2022-09-05"
-        nyttArbeidsforholdSpm.metadata.get("tom").textValue() `should be equal to` "2022-09-15"
+        nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedOrgnummer").asString() `should be equal to` "999888777"
+        nyttArbeidsforholdSpm.metadata.get("arbeidsstedNavn").asString() `should be equal to` "Kiosken, avd Oslo AS"
+        nyttArbeidsforholdSpm.metadata.get("startdatoAareg").asString() `should be equal to` "2022-09-05"
+        nyttArbeidsforholdSpm.metadata.get("fom").asString() `should be equal to` "2022-09-05"
+        nyttArbeidsforholdSpm.metadata.get("tom").asString() `should be equal to` "2022-09-15"
         nyttArbeidsforholdSpm.undersporsmal.map { it.tag } `should be equal to`
             listOf(
                 NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO + "0",
@@ -137,8 +138,8 @@ class NyttArbeidsforholdTest : NyttArbeidsforholdFellesOppsett() {
 
         val nyttArbeidsforholdSpm = soknaden.getSporsmalMedTag(NYTT_ARBEIDSFORHOLD_UNDERVEIS + "0")
         nyttArbeidsforholdSpm.sporsmalstekst!!.shouldContain("Har du jobbet noe hos Kiosken, avd Oslo AS i perioden")
-        nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedOrgnummer").textValue() `should be equal to` "999888777"
-        nyttArbeidsforholdSpm.metadata.get("arbeidsstedNavn").textValue() `should be equal to` "Kiosken, avd Oslo AS"
+        nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedOrgnummer").asString() `should be equal to` "999888777"
+        nyttArbeidsforholdSpm.metadata.get("arbeidsstedNavn").asString() `should be equal to` "Kiosken, avd Oslo AS"
 
         soknaden.sporsmal?.map { it.tag } `should be equal to`
             listOf(

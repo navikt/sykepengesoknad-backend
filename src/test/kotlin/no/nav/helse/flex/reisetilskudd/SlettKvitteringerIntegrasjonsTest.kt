@@ -1,6 +1,5 @@
 package no.nav.helse.flex.reisetilskudd
 
-import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSporsmal
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSvar
@@ -34,6 +33,7 @@ import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.*
+import tools.jackson.module.kotlin.readValue
 import java.time.Instant
 import java.time.LocalDate
 

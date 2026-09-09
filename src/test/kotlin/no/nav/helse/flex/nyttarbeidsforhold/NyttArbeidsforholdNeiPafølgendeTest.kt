@@ -72,8 +72,8 @@ class NyttArbeidsforholdNeiPafølgendeTest : NyttArbeidsforholdFellesOppsett() {
 
         val nyttArbeidsforholdSpm = soknaden.getSporsmalMedTag(NYTT_ARBEIDSFORHOLD_UNDERVEIS + "0")
         nyttArbeidsforholdSpm.sporsmalstekst!!.shouldContain("Har du jobbet noe hos Kiosken, avd Oslo AS i perioden")
-        nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedOrgnummer").textValue() `should be equal to` "999888777"
-        nyttArbeidsforholdSpm.metadata.get("arbeidsstedNavn").textValue() `should be equal to` "Kiosken, avd Oslo AS"
+        nyttArbeidsforholdSpm.metadata!!.get("arbeidsstedOrgnummer").stringValue() `should be equal to` "999888777"
+        nyttArbeidsforholdSpm.metadata.get("arbeidsstedNavn").stringValue() `should be equal to` "Kiosken, avd Oslo AS"
     }
 
     @Test

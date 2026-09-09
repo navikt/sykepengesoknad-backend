@@ -1,6 +1,8 @@
 package no.nav.helse.flex.mockdispatcher
 
-import com.fasterxml.jackson.module.kotlin.readValue
+import mockwebserver3.Dispatcher
+import mockwebserver3.MockResponse
+import mockwebserver3.RecordedRequest
 import no.nav.helse.flex.client.inntektskomponenten.Aktoer
 import no.nav.helse.flex.client.inntektskomponenten.ArbeidsInntektInformasjon
 import no.nav.helse.flex.client.inntektskomponenten.ArbeidsInntektMaaned
@@ -10,13 +12,11 @@ import no.nav.helse.flex.client.inntektskomponenten.HentInntekterResponse
 import no.nav.helse.flex.client.inntektskomponenten.InntektListe
 import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.util.serialisertTilString
-import okhttp3.mockwebserver.Dispatcher
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.RecordedRequest
+import tools.jackson.module.kotlin.readValue
 
 object InntektskomponentenMockDispatcher : Dispatcher() {
     override fun dispatch(request: RecordedRequest): MockResponse {
-        val req: HentInntekterRequest = objectMapper.readValue(request.body.readUtf8())
+        val req: HentInntekterRequest = objectMapper.readValue(request.body!!.utf8())
         if (req.ident.identifikator == "11111234565") {
             return HentInntekterResponse(
                 arbeidsInntektMaaned =
@@ -119,5 +119,7 @@ object InntektskomponentenMockDispatcher : Dispatcher() {
     }
 
     fun HentInntekterResponse.tilMockResponse(): MockResponse =
-        MockResponse().setBody(this.serialisertTilString()).addHeader("Content-Type", "application/json")
+        withContentTypeApplicationJson {
+            MockResponse(body = this.serialisertTilString())
+        }
 }

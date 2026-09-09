@@ -1,6 +1,5 @@
 package no.nav.helse.flex.controller
 
-import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.FakesTestOppsett
 import no.nav.helse.flex.controller.domain.RSHarSoknadForSykmeldingResponse
 import no.nav.helse.flex.domain.Arbeidssituasjon
@@ -16,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import tools.jackson.module.kotlin.readValue
 import java.time.LocalDate
 import java.util.UUID
 

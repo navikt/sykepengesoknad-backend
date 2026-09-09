@@ -127,10 +127,30 @@ class AivenKafkaConfig(
                     ConsumerConfig.MAX_POLL_RECORDS_CONFIG to "1",
                     ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG to "600000",
                 )
-        val consumerFactory = DefaultKafkaConsumerFactory<String, String>(config)
-
         val factory = ConcurrentKafkaListenerContainerFactory<String, String>()
-        factory.consumerFactory = consumerFactory
+        factory.setConsumerFactory(DefaultKafkaConsumerFactory(config))
+        factory.setCommonErrorHandler(aivenKafkaErrorHandler)
+        factory.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL_IMMEDIATE
+        return factory
+    }
+
+    @Bean
+    fun seekAwareKafkaListenerContainerFactory(
+        aivenKafkaErrorHandler: AivenKafkaErrorHandler,
+    ): ConcurrentKafkaListenerContainerFactory<String, String> {
+        val config =
+            commonConfig() +
+                mapOf(
+                    ConsumerConfig.GROUP_ID_CONFIG to "syfosoknad-consumer-reprosessering-group",
+                    ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "latest",
+                    ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG to false,
+                    ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
+                    ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
+                    ConsumerConfig.MAX_POLL_RECORDS_CONFIG to "1",
+                    ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG to "600000",
+                )
+        val factory = ConcurrentKafkaListenerContainerFactory<String, String>()
+        factory.setConsumerFactory(DefaultKafkaConsumerFactory(config))
         factory.setCommonErrorHandler(aivenKafkaErrorHandler)
         factory.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL_IMMEDIATE
         return factory
@@ -165,17 +185,16 @@ class AivenKafkaConfig(
                     ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG to "600000",
                 )
 
-        val consumerFactory =
+        val factory = ConcurrentKafkaListenerContainerFactory<String, GenericRecord>()
+        factory.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL_IMMEDIATE
+        factory.setConsumerFactory(
             DefaultKafkaConsumerFactory(
                 genericAvroConsumerConfig,
                 StringDeserializer(),
                 KafkaAvroDeserializer(aivenSchemaRegistryClient),
-            )
-
-        val factory = ConcurrentKafkaListenerContainerFactory<String, GenericRecord>()
-        factory.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL_IMMEDIATE
+            ),
+        )
         factory.setCommonErrorHandler(aivenKafkaErrorHandler)
-        factory.consumerFactory = consumerFactory
         return factory
     }
 }

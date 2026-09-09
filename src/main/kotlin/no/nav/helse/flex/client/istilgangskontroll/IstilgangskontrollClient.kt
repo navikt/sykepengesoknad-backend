@@ -7,10 +7,11 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod.GET
 import org.springframework.http.HttpStatusCode
 import org.springframework.http.MediaType
-import org.springframework.retry.annotation.Retryable
+import org.springframework.resilience.annotation.Retryable
 import org.springframework.stereotype.Component
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
+import org.springframework.web.client.exchange
 
 @Component
 class IstilgangskontrollClient(
@@ -24,7 +25,8 @@ class IstilgangskontrollClient(
 
     val log = logger()
 
-    @Retryable
+    // maxRetries teller forsøk etter det initielle kallet, så dette gir 3 kall totalt.
+    @Retryable(maxRetries = 2)
     fun sjekkTilgangVeileder(fnr: String): Boolean {
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_FORM_URLENCODED
@@ -32,11 +34,10 @@ class IstilgangskontrollClient(
 
         return try {
             val response =
-                istilgangskontrollRestTemplate.exchange(
+                istilgangskontrollRestTemplate.exchange<String>(
                     accessToUserV2Url(),
                     GET,
                     HttpEntity<Any>(headers),
-                    String::class.java,
                 )
             response.statusCode.is2xxSuccessful
         } catch (e: HttpClientErrorException) {

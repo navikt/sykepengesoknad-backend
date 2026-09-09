@@ -50,11 +50,11 @@ class OppsamlingAvRepositoryFakes : RetryRepository {
         TODO("Not yet implemented")
     }
 
-    override fun <S : RetryRecord?> save(entity: S & Any): S & Any {
+    override fun <S : RetryRecord> save(entity: S): S {
         TODO("Not yet implemented")
     }
 
-    override fun <S : RetryRecord?> saveAll(entities: MutableIterable<S>): MutableIterable<S> {
+    override fun <S : RetryRecord> saveAll(entities: Iterable<S>): Iterable<S> {
         TODO("Not yet implemented")
     }
 
@@ -114,11 +114,11 @@ class ForskutteringRepositoryFake : ForskutteringRepository {
         TODO("Not yet implemented")
     }
 
-    override fun <S : Forskuttering?> save(entity: S & Any): S & Any {
+    override fun <S : Forskuttering> save(entity: S): S {
         TODO("Not yet implemented")
     }
 
-    override fun <S : Forskuttering?> saveAll(entities: MutableIterable<S>): MutableIterable<S> {
+    override fun <S : Forskuttering> saveAll(entities: Iterable<S>): Iterable<S> {
         TODO("Not yet implemented")
     }
 
@@ -213,11 +213,11 @@ class KlippetSykepengesoknadRepositoryFake : KlippetSykepengesoknadRepository {
         TODO("Not yet implemented")
     }
 
-    override fun <S : KlippetSykepengesoknadDbRecord?> save(entity: S & Any): S & Any {
+    override fun <S : KlippetSykepengesoknadDbRecord> save(entity: S): S {
         TODO("Not yet implemented")
     }
 
-    override fun <S : KlippetSykepengesoknadDbRecord?> saveAll(entities: MutableIterable<S>): MutableIterable<S> {
+    override fun <S : KlippetSykepengesoknadDbRecord> saveAll(entities: Iterable<S>): Iterable<S> {
         TODO("Not yet implemented")
     }
 

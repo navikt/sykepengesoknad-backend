@@ -1,11 +1,11 @@
 package no.nav.helse.flex.forskuttering
 
-import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.forskuttering.domain.Forskuttering
 import no.nav.helse.flex.forskuttering.domain.NarmesteLederLeesah
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.util.objectMapper
 import org.springframework.stereotype.Component
+import tools.jackson.module.kotlin.readValue
 import java.time.Instant
 
 @Component

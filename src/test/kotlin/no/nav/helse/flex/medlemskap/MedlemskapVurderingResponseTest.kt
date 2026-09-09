@@ -1,6 +1,5 @@
 package no.nav.helse.flex.medlemskap
 
-import com.fasterxml.jackson.databind.DatabindException
 import no.nav.helse.flex.util.objectMapper
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should contain same`
@@ -8,6 +7,7 @@ import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import tools.jackson.databind.DatabindException
 import java.time.LocalDate
 
 /**

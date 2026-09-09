@@ -1,6 +1,6 @@
 package no.nav.helse.flex.domain
 
-import com.fasterxml.jackson.databind.JsonNode
+import tools.jackson.databind.JsonNode
 import java.io.Serializable
 
 data class Sporsmal(

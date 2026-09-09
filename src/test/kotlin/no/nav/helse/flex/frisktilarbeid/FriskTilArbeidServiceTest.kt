@@ -1,13 +1,13 @@
 package no.nav.helse.flex.frisktilarbeid
 
+import mockwebserver3.MockResponse
 import no.nav.helse.flex.FakesTestOppsett
-import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.frisktilarbeid.BehandletStatus.*
+import no.nav.helse.flex.mockdispatcher.ArbeidssokerregisterMockDispatcher
 import no.nav.helse.flex.mockdispatcher.skapArbeidssokerperiodeResponse
 import no.nav.helse.flex.util.serialisertTilString
 import no.nav.helse.flex.util.tilOsloInstant
-import okhttp3.mockwebserver.MockResponse
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.BeforeEach
@@ -269,8 +269,8 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
 
     @Test
     fun `Person er ikke i arbeidssøkerregisteret`() {
-        FellesTestOppsett.arbeidssokerregisterMockWebServer.enqueue(
-            MockResponse().setBody("[]").setResponseCode(200),
+        ArbeidssokerregisterMockDispatcher.enqueue(
+            MockResponse(code = 200, body = "[]"),
         )
 
         lagFriskTilArbeidVedtakStatus(
@@ -288,10 +288,8 @@ class FriskTilArbeidServiceTest : FakesTestOppsett() {
 
     @Test
     fun `Person er avsluttet i arbeidssøker registeret`() {
-        FellesTestOppsett.arbeidssokerregisterMockWebServer.enqueue(
-            MockResponse()
-                .setBody(listOf(skapArbeidssokerperiodeResponse(avsluttet = true)).serialisertTilString())
-                .setResponseCode(200),
+        ArbeidssokerregisterMockDispatcher.enqueue(
+            MockResponse(code = 200, body = listOf(skapArbeidssokerperiodeResponse(avsluttet = true)).serialisertTilString()),
         )
 
         lagFriskTilArbeidVedtakStatus(

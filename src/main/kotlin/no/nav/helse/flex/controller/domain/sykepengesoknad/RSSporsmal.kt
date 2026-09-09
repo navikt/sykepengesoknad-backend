@@ -1,6 +1,6 @@
 package no.nav.helse.flex.controller.domain.sykepengesoknad
 
-import com.fasterxml.jackson.databind.JsonNode
+import tools.jackson.databind.JsonNode
 
 data class RSSporsmal(
     val id: String?,

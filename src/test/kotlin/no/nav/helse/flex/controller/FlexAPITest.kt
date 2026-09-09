@@ -1,6 +1,5 @@
 package no.nav.helse.flex.controller
 
-import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.*
 import no.nav.helse.flex.client.aareg.Arbeidsforhold
 import no.nav.helse.flex.client.arbeidssokerregister.ArbeidssokerperiodeResponse
@@ -27,6 +26,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.transaction.annotation.Transactional
+import tools.jackson.module.kotlin.readValue
 import java.net.URI
 import java.time.Duration
 import java.time.LocalDate

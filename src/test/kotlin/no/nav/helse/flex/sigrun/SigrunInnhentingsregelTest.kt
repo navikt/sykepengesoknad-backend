@@ -1,11 +1,12 @@
 package no.nav.helse.flex.sigrun
 
+import mockwebserver3.MockResponse
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.client.sigrun.PensjongivendeInntektClientException
 import no.nav.helse.flex.client.sigrun.PensjonsgivendeInntekt
 import no.nav.helse.flex.client.sigrun.Skatteordning
 import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher
-import okhttp3.mockwebserver.MockResponse
+import no.nav.helse.flex.mockdispatcher.withContentTypeApplicationJson
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should not be`
@@ -22,7 +23,7 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
     fun resetMockWebServer() {
         with(SigrunMockDispatcher) {
             antallKall.set(0)
-            clearQueue()
+            clear()
         }
     }
 
@@ -189,10 +190,11 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
 
     @Test
     fun `Spring gjør ikke retry for PensjongivendeInntektClientException`() {
-        sigrunMockWebServer.enqueue(
-            MockResponse()
-                .setResponseCode(404)
-                .setBody("{\"errorCode\": \"PGIF-007\", \"errorMessage\": \"Ikke treff på oppgitt personidentifikator.\"}"),
+        SigrunMockDispatcher.enqueueResponse(
+            MockResponse(
+                code = 404,
+                body = "{\"errorCode\": \"PGIF-007\", \"errorMessage\": \"Ikke treff på oppgitt personidentifikator.\"}",
+            ),
         )
 
         assertThrows<PensjongivendeInntektClientException> {
@@ -205,10 +207,8 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
     @Test
     fun `Spring gjør retry når det kastes en annen exception enn PensjongivendeInntektClientException`() {
         repeat(3) {
-            sigrunMockWebServer.enqueue(
-                MockResponse()
-                    .setResponseCode(200)
-                    .addHeader("Content-Type", "application/json"),
+            SigrunMockDispatcher.enqueueResponse(
+                withContentTypeApplicationJson { MockResponse(code = 200) },
             )
         }
 
@@ -216,7 +216,7 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
             sykepengegrunnlagForNaeringsdrivende.hentRelevantPensjonsgivendeInntekt(fnr = FNR, SOKNAD_ID, 2024)
         }
 
-        // @Retryable(maxAttempts = 3)
+        // @Retryable(maxRetries = 2), altså 1 initielt kall + 2 forsøk.
         SigrunMockDispatcher.antallKall.get() `should be equal to` 3
     }
 

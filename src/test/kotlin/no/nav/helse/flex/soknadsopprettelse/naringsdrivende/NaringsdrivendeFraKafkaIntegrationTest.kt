@@ -1,6 +1,7 @@
 package no.nav.helse.flex.soknadsopprettelse.naringsdrivende
 
 import com.nhaarman.mockitokotlin2.any
+import mockwebserver3.MockResponse
 import no.nav.helse.flex.*
 import no.nav.helse.flex.client.bregDirect.NAERINGSKODE_BARNEPASSER
 import no.nav.helse.flex.client.sigrun.HentPensjonsgivendeInntektResponse
@@ -13,6 +14,7 @@ import no.nav.helse.flex.domain.FiskerBlad
 import no.nav.helse.flex.domain.Mottaker
 import no.nav.helse.flex.domain.Periode
 import no.nav.helse.flex.kafka.consumer.SYKMELDINGSENDT_TOPIC
+import no.nav.helse.flex.mockdispatcher.EnhetsregisterMockDispatcher
 import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher
 import no.nav.helse.flex.mockdispatcher.SigrunMockDispatcher.sigrun404Feil
 import no.nav.helse.flex.mockdispatcher.withContentTypeApplicationJson
@@ -29,7 +31,6 @@ import no.nav.syfo.model.sykmelding.arbeidsgiver.SykmeldingsperiodeAGDTO
 import no.nav.syfo.model.sykmelding.model.GradertDTO
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO
 import no.nav.syfo.sykmelding.kafka.model.*
-import okhttp3.mockwebserver.MockResponse
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should not be equal to`
 import org.amshove.kluent.`should not be null`
@@ -712,7 +713,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
 
     private fun mockBarnepasserNaeringskode() {
         val json = """{"naeringskode1": {"kode": "$NAERINGSKODE_BARNEPASSER"}}"""
-        enhetsregisterMockWebServer.enqueue(withContentTypeApplicationJson { MockResponse().setBody(json) })
+        EnhetsregisterMockDispatcher.enqueueResponse(withContentTypeApplicationJson { MockResponse(body = json) })
     }
 
     private fun prosesserSykmeldingOgHentKafkaSoknad(

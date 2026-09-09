@@ -1,9 +1,9 @@
 package no.nav.helse.flex.mockdispatcher
 
+import mockwebserver3.MockResponse
+import mockwebserver3.QueueDispatcher
+import mockwebserver3.RecordedRequest
 import no.nav.helse.flex.util.serialisertTilString
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.QueueDispatcher
-import okhttp3.mockwebserver.RecordedRequest
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import java.util.concurrent.atomic.AtomicInteger
@@ -19,31 +19,28 @@ abstract class FellesQueueDispatcher<T : Any>(
         registrer(this)
     }
 
-    fun clearQueue() {
-        responseQueue.clear()
+    /** Legger et rått svar i køen, i tillegg til enqueue(T) som serialiserer et domeneobjekt. */
+    fun enqueueResponse(response: MockResponse) {
+        enqueue(response)
     }
 
+    /** responseQueue er protected i QueueDispatcher, så tester utenfor klassen trenger denne. */
     fun harRequestsIgjen(): Boolean = responseQueue.isNotEmpty()
 
     fun enqueue(objekt: T) {
-        super.enqueueResponse(
+        enqueue(
             withContentTypeApplicationJson {
-                MockResponse().setBody(objekt.serialisertTilString())
+                MockResponse(body = objekt.serialisertTilString())
             },
         )
     }
 
     override fun dispatch(request: RecordedRequest): MockResponse {
         antallKall.incrementAndGet()
-        if (!harRequestsIgjen()) {
+        if (responseQueue.isEmpty()) {
             enqueue(defaultFactory(request))
         }
-        return super.dispatch(request)
-    }
-
-    override fun setFailFast(failFastResponse: MockResponse?) {
-        antallKall.incrementAndGet()
-        super.setFailFast(failFastResponse)
+        return responseQueue.take()
     }
 
     companion object {
@@ -58,4 +55,7 @@ abstract class FellesQueueDispatcher<T : Any>(
 }
 
 fun withContentTypeApplicationJson(createMockResponse: () -> MockResponse): MockResponse =
-    createMockResponse().addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+    createMockResponse()
+        .newBuilder()
+        .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+        .build()

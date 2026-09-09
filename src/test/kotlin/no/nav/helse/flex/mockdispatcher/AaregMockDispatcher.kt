@@ -1,15 +1,15 @@
 package no.nav.helse.flex.mockdispatcher
 
-import com.fasterxml.jackson.module.kotlin.readValue
+import mockwebserver3.RecordedRequest
 import no.nav.helse.flex.client.aareg.*
 import no.nav.helse.flex.util.objectMapper
-import okhttp3.mockwebserver.RecordedRequest
+import tools.jackson.module.kotlin.readValue
 import java.time.LocalDate
 import java.time.LocalDateTime
 
 object AaregMockDispatcher : FellesQueueDispatcher<List<Arbeidsforhold>>(
     defaultFactory = { request: RecordedRequest ->
-        val req: ArbeidsforholdRequest = objectMapper.readValue(request.body.readUtf8())
+        val req: ArbeidsforholdRequest = objectMapper.readValue(request.body!!.utf8())
         when (val fnr = req.arbeidstakerId) {
             "22222220001" -> {
                 listOf(

@@ -1,6 +1,5 @@
 package no.nav.helse.flex.frisktilarbeid
 
-import com.fasterxml.jackson.module.kotlin.readValue
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.helse.flex.kafka.ARBEIDSSOKERREGISTER_STOPP_TOPIC
 import no.nav.helse.flex.logger
@@ -9,6 +8,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.support.Acknowledgment
 import org.springframework.stereotype.Component
+import tools.jackson.module.kotlin.readValue
 import java.time.Instant
 
 @Component

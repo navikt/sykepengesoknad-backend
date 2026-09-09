@@ -23,7 +23,12 @@ const val REST_CLIENT_READ_TIMEOUT = 10L
 
 @EnableOAuth2Client(cacheEnabled = true)
 @Configuration
-class RestClientConfiguration {
+class RestClientConfiguration(
+    // Boot sin auto-konfigurerte builder bruker meldingskonverterere bygget på JsonMapper-bønna,
+    // altså den JacksonConfig tilpasser. RestClient.builder() lager sine egne med standardoppsett,
+    // og da leses og skrives enums med toString().
+    private val restClientBuilder: RestClient.Builder,
+) {
     @Bean
     fun brregRestClient(
         @Value("\${BRREG_API_URL}")
@@ -119,8 +124,10 @@ class RestClientConfiguration {
                 setReadTimeout(Duration.ofSeconds(readTimeout))
             }
 
-        return RestClient
-            .builder()
+        // clone() fordi Boot sin builder-bønne er en prototype som konstruktørinjeksjonen deler
+        // mellom alle @Bean-metodene her. Uten clone() ville de overskrevet hverandres oppsett.
+        return restClientBuilder
+            .clone()
             .requestFactory(requestFactory)
     }
 

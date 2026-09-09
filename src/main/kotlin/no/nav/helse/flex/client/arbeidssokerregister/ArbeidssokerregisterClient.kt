@@ -1,11 +1,11 @@
 package no.nav.helse.flex.client.arbeidssokerregister
 
-import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.util.objectMapper
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestClient
+import tools.jackson.module.kotlin.readValue
 import java.time.Instant
 
 @Component

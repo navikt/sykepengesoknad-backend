@@ -2,7 +2,7 @@ package no.nav.helse.flex.client.brreg
 
 import no.nav.helse.flex.logger
 import org.springframework.http.MediaType
-import org.springframework.retry.annotation.Retryable
+import org.springframework.resilience.annotation.Retryable
 import org.springframework.stereotype.Component
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpServerErrorException
@@ -15,7 +15,8 @@ class BrregClient(
 ) {
     val log = logger()
 
-    @Retryable(include = [HttpServerErrorException::class])
+    // maxRetries teller forsøk etter det initielle kallet, så dette gir 3 kall totalt.
+    @Retryable(includes = [HttpServerErrorException::class], maxRetries = 2)
     fun hentRoller(
         fnr: String,
         rolleTyper: List<Rolletype>? = null,

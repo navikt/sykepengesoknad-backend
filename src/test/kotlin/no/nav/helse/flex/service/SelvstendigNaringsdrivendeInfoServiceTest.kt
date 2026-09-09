@@ -1,7 +1,9 @@
 package no.nav.helse.flex.service
 
+import mockwebserver3.MockResponse
+import mockwebserver3.MockWebServer
+import mockwebserver3.QueueDispatcher
 import no.nav.helse.flex.FakesTestOppsett
-import no.nav.helse.flex.FellesTestOppsett.Companion.enhetsregisterMockWebServer
 import no.nav.helse.flex.client.bregDirect.NAERINGSKODE_BARNEPASSER
 import no.nav.helse.flex.client.brreg.RolleDto
 import no.nav.helse.flex.client.brreg.RollerDto
@@ -10,12 +12,12 @@ import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.mockdispatcher.EnhetsregisterMockDispatcher
 import no.nav.helse.flex.mockdispatcher.withContentTypeApplicationJson
 import no.nav.helse.flex.util.serialisertTilString
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
 import org.amshove.kluent.invoking
 import org.amshove.kluent.`should be empty`
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldThrow
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
@@ -32,11 +34,29 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
     @Autowired
     lateinit var selvstendigNaringsdrivendeInfoService: SelvstendigNaringsdrivendeInfoService
 
+    /**
+     * MockWebServeren deles mellom testene, så køen nullstilles for hver test. Uten dette vil svar
+     * som en test ikke rakk å konsumere bli plukket opp av neste test.
+     */
+    @BeforeEach
+    fun nullstillBrregKo() {
+        brregMockWebServer.dispatcher = QueueDispatcher()
+    }
+
+    /**
+     * MockWebServeren er delt for hele JVM-en, så dispatcheren må settes tilbake til standard når
+     * klassen er ferdig. Ellers arver senere testklasser dispatcheren siste test her satte.
+     */
+    @AfterAll
+    fun gjenopprettBrregDispatcher() {
+        brregMockWebServer.dispatcher = QueueDispatcher()
+    }
+
     @Test
     fun `Returnerer ventetid og roller for én ident med forsikring`() {
         brregMockWebServer.enqueue(
             withContentTypeApplicationJson {
-                MockResponse().setBody((Rolletype.INNH).tilRollerDto().serialisertTilString())
+                MockResponse(body = (Rolletype.INNH).tilRollerDto().serialisertTilString())
             },
         )
 
@@ -65,12 +85,12 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
     fun `Returnerer roller for sykmeldt som er barnepasser`() {
         brregMockWebServer.enqueue(
             withContentTypeApplicationJson {
-                MockResponse().setBody((Rolletype.INNH).tilRollerDto().serialisertTilString())
+                MockResponse(body = (Rolletype.INNH).tilRollerDto().serialisertTilString())
             },
         )
 
         val json = """{"naeringskode1": {"kode": "$NAERINGSKODE_BARNEPASSER"}}"""
-        enhetsregisterMockWebServer.enqueue(withContentTypeApplicationJson { MockResponse().setBody(json) })
+        EnhetsregisterMockDispatcher.enqueueResponse(withContentTypeApplicationJson { MockResponse(body = json) })
 
         val selvstendigNaringsdrivendeInfo =
             selvstendigNaringsdrivendeInfoService
@@ -96,7 +116,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
     fun `Skal ikke vurdere om er barnepasser med mindre bruker er NAERINGSDRIVENDE`() {
         brregMockWebServer.enqueue(
             withContentTypeApplicationJson {
-                MockResponse().setBody((Rolletype.INNH).tilRollerDto().serialisertTilString())
+                MockResponse(body = (Rolletype.INNH).tilRollerDto().serialisertTilString())
             },
         )
 
@@ -128,12 +148,12 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
     fun `Returnerer ventetid og roller for flere identer`() {
         brregMockWebServer.enqueue(
             withContentTypeApplicationJson {
-                MockResponse().setBody((Rolletype.INNH).tilRollerDto().serialisertTilString())
+                MockResponse(body = (Rolletype.INNH).tilRollerDto().serialisertTilString())
             },
         )
         brregMockWebServer.enqueue(
             withContentTypeApplicationJson {
-                MockResponse().setBody((Rolletype.DAGL).tilRollerDto().serialisertTilString())
+                MockResponse(body = (Rolletype.DAGL).tilRollerDto().serialisertTilString())
             },
         )
 
@@ -171,15 +191,13 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
     fun `Returnerer ventetid og roller når roller mangler for én ident`() {
         brregMockWebServer.enqueue(
             withContentTypeApplicationJson {
-                MockResponse().setBody((Rolletype.INNH).tilRollerDto().serialisertTilString())
+                MockResponse(body = (Rolletype.INNH).tilRollerDto().serialisertTilString())
             },
         )
 
         brregMockWebServer.enqueue(
             withContentTypeApplicationJson {
-                MockResponse()
-                    .setBody("""{"roller": []}""")
-                    .setResponseCode(200)
+                MockResponse(code = 200, body = """{"roller": []}""")
             },
         )
 
@@ -207,9 +225,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
     fun `Returnerer ventetid og tom liste med roller når én ident mangler roller`() {
         brregMockWebServer.enqueue(
             withContentTypeApplicationJson {
-                MockResponse()
-                    .setBody("""{"roller": []}""")
-                    .setResponseCode(200)
+                MockResponse(code = 200, body = """{"roller": []}""")
             },
         )
 
@@ -234,9 +250,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
         repeat(2) {
             brregMockWebServer.enqueue(
                 withContentTypeApplicationJson {
-                    MockResponse()
-                        .setBody("""{"roller": []}""")
-                        .setResponseCode(200)
+                    MockResponse(code = 200, body = """{"roller": []}""")
                 },
             )
         }
@@ -261,7 +275,7 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
     fun `Det returneres null for ventetid når flex-syketilfelle ikke returneres ventetid`() {
         brregMockWebServer.enqueue(
             withContentTypeApplicationJson {
-                MockResponse().setBody((Rolletype.INNH).tilRollerDto().serialisertTilString())
+                MockResponse(body = (Rolletype.INNH).tilRollerDto().serialisertTilString())
             },
         )
 
@@ -283,13 +297,11 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
 
     @Test
     fun `ServerError propagerer ved henting av roller`() {
-        repeat(3) {
-            brregMockWebServer.enqueue(
-                withContentTypeApplicationJson {
-                    MockResponse().setResponseCode(500)
-                },
-            )
-        }
+        // Svarer 500 på alle kall, slik at testen ikke er avhengig av hvor mange forsøk @Retryable gjør.
+        brregMockWebServer.dispatcher =
+            QueueDispatcher().apply {
+                setFailFast(withContentTypeApplicationJson { MockResponse(code = 500) })
+            }
 
         invoking {
             selvstendigNaringsdrivendeInfoService.lagSelvstendigNaringsdrivendeInfo(
@@ -304,13 +316,13 @@ class SelvstendigNaringsdrivendeInfoServiceTest : FakesTestOppsett() {
     fun `ServerError propagerer ikke ved henting av næringskoder fra Enhetsregisteret`() {
         brregMockWebServer.enqueue(
             withContentTypeApplicationJson {
-                MockResponse().setBody((Rolletype.INNH).tilRollerDto().serialisertTilString())
+                MockResponse(body = (Rolletype.INNH).tilRollerDto().serialisertTilString())
             },
         )
 
-        enhetsregisterMockWebServer.enqueue(
+        EnhetsregisterMockDispatcher.enqueueResponse(
             withContentTypeApplicationJson {
-                MockResponse().setResponseCode(500)
+                MockResponse(code = 500)
             },
         )
 

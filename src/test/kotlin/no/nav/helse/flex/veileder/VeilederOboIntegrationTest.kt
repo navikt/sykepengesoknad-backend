@@ -1,6 +1,5 @@
 package no.nav.helse.flex.veileder
 
-import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.controller.SoknadVeilederAzureController
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSykepengesoknad
@@ -19,6 +18,7 @@ import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import tools.jackson.module.kotlin.readValue
 
 @TestMethodOrder(MethodOrderer.MethodName::class)
 class VeilederOboIntegrationTest : FellesTestOppsett() {

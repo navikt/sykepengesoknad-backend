@@ -15,7 +15,7 @@ import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod.POST
 import org.springframework.http.MediaType
-import org.springframework.retry.annotation.Retryable
+import org.springframework.resilience.annotation.Retryable
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
@@ -56,7 +56,8 @@ class FlexSyketilfelleEksternClient(
 
     fun FolkeregisterIdenter.tilFnrHeader(): String = this.alle().joinToString(separator = ", ")
 
-    @Retryable
+    // maxRetries teller forsøk etter det initielle kallet, så dette gir 3 kall totalt.
+    @Retryable(maxRetries = 2)
     override fun hentSykeforloep(
         identer: FolkeregisterIdenter,
         sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
@@ -93,7 +94,7 @@ class FlexSyketilfelleEksternClient(
             ?: throw RuntimeException("Ingen data returnert fra flex-syketilfelle i hentSykeforloep")
     }
 
-    @Retryable
+    @Retryable(maxRetries = 2)
     override fun erUtenforVentetid(
         identer: FolkeregisterIdenter,
         sykmeldingId: String,
@@ -126,7 +127,7 @@ class FlexSyketilfelleEksternClient(
             ?: throw RuntimeException("Ingen data returnert fra flex-syketilfelle ved kall til erUtenforVentetid")
     }
 
-    @Retryable
+    @Retryable(maxRetries = 2)
     override fun beregnArbeidsgiverperiode(
         soknad: Sykepengesoknad,
         sykmelding: SykmeldingKafkaMessageDTO?,

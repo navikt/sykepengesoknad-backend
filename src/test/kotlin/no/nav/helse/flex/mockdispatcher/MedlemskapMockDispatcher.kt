@@ -1,9 +1,9 @@
 package no.nav.helse.flex.mockdispatcher
 
+import mockwebserver3.MockResponse
+import mockwebserver3.RecordedRequest
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingResponse
 import no.nav.helse.flex.medlemskap.MedlemskapVurderingSvarType
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.RecordedRequest
 
 object MedlemskapMockDispatcher : FellesQueueDispatcher<MedlemskapVurderingResponse>(
     defaultFactory = { _: RecordedRequest ->
@@ -14,6 +14,6 @@ object MedlemskapMockDispatcher : FellesQueueDispatcher<MedlemskapVurderingRespo
     },
 ) {
     fun enqueueHttpFeil(statuskode: Int) {
-        super.enqueueResponse(MockResponse().setResponseCode(statuskode))
+        super.enqueueResponse(MockResponse(code = statuskode))
     }
 }
