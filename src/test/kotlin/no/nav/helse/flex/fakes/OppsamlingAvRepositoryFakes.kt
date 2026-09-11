@@ -298,12 +298,10 @@ class DodsmeldingDAOFake : DodsmeldingDAO {
 @Primary
 @Profile("fakes")
 class LockRepositoryFake : LockRepository {
-    override fun settAdvisoryLock(vararg keys: Long): Boolean {
-        TODO("Not yet implemented")
-    }
+    override fun settAdvisoryLock(vararg keys: Long): Boolean = true
 
     override fun settAdvisoryTransactionLock(key: String) {
-        TODO("Not yet implemented")
+        // Ingen låsing i fakes.
     }
 }
 

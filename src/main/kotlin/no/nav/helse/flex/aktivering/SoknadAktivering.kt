@@ -4,11 +4,15 @@ package no.nav.helse.flex.aktivering
 
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
+import no.nav.helse.flex.domain.exception.AdvisoryLockConflictException
 import no.nav.helse.flex.kafka.producer.SoknadProducer
 import no.nav.helse.flex.logger
+import no.nav.helse.flex.repository.LockRepository
 import no.nav.helse.flex.repository.SoknadsperiodeDAO
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.repository.SykepengesoknadRepository
+import no.nav.helse.flex.service.FolkeregisterIdenter
+import no.nav.helse.flex.service.IdentService
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.SporsmalGenerator
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -22,11 +26,21 @@ class SoknadAktivering(
     private val sykepengesoknadRepository: SykepengesoknadRepository,
     private val soknadsperiodeDAO: SoknadsperiodeDAO,
     private val sporsmalGenerator: SporsmalGenerator,
+    private val lockRepository: LockRepository,
+    private val identService: IdentService,
 ) {
     private final val log = logger()
 
     fun aktiverSoknad(id: String) {
         log.info("Forsøker å aktivere soknad $id.")
+
+        val fnr = sykepengesoknadRepository.findBySykepengesoknadUuid(id)?.fnr
+        if (fnr == null) {
+            log.warn("Søknad $id mangler fra databasen. Kan ha blitt klippet.")
+            return
+        }
+
+        låsIdenter(identService.hentFolkeregisterIdenterMedHistorikkForFnr(fnr), id)
 
         val soknad = sykepengesoknadRepository.findBySykepengesoknadUuid(id)
 
@@ -77,5 +91,15 @@ class SoknadAktivering(
             "Aktiverte søknad med id $id. Tid brukt på aktivering: $aktiverTid, " +
                 "spørsmålsgenerering: $lagSporsmalTid, publisering: $publiserSoknad",
         )
+    }
+
+    private fun låsIdenter(
+        identer: FolkeregisterIdenter,
+        soknadId: String,
+    ) {
+        val låstIdenter = lockRepository.settAdvisoryLock(keys = identer.alle().map { it.toLong() }.toLongArray())
+        if (!låstIdenter) {
+            throw AdvisoryLockConflictException("Det finnes allerede en advisory lock for soknad $soknadId")
+        }
     }
 }
