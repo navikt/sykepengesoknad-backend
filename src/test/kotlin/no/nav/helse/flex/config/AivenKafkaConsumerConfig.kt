@@ -20,8 +20,13 @@ class AivenKafkaConsumerConfig(
     @Bean
     fun auditlogKafkaConsumer() = KafkaConsumer<String, String>(consumerConfig("auditlog-group-id"))
 
+    // TODO Denne er ubrukt. Har testen blitt fjernet?
     @Bean
     fun arbeidssokerregisterStoppConsumer() = KafkaConsumer<String, String>(consumerConfig("arbeidssokerregister-group-id"))
+
+    //TODO Lag test
+    @Bean
+    fun arbeidssokerregisterStartStoppConsumer() = KafkaConsumer<String, String>(consumerConfig("arbeidssokerregister-group-id"))
 
     private fun consumerConfig(groupId: String) =
         mapOf(
