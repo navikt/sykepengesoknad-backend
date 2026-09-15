@@ -37,7 +37,7 @@ val testContainersVersion = "2.0.5"
 val kluentVersion = "1.73"
 val jsonSchemaValidatorVersion = "3.0.6"
 val unleashVersion = "12.3.0"
-val opentelemetryApiVersion = "1.65.0"
+val opentelemetryApiVersion = "1.66.0"
 val opentelemetryInstrumentationVersion = "2.31.1"
 
 dependencies {
