@@ -40,6 +40,7 @@ private fun Sporsmal.sorterUndersporsmal(): Sporsmal {
                     NARINGSDRIVENDE_VARIG_ENDRING -> it.sorteringNaringsdrivendeVarigEnding()
                     NARINGSDRIVENDE_VARIG_ENDRING_TYPE -> it.sorteringNaringsdrivendeVarigEndingType()
                     FTA_JOBBSITUASJONEN_DIN_JA -> it.sorteringFtaJobbsituasjonenDinJa()
+                    FLERE_INNTEKTSKILDER_GHOST -> it.sorteringFlereInntektskilderGhost()
                     else -> it.tag
                 }
             }
@@ -173,6 +174,13 @@ private fun Sporsmal.sorteringKjenteInntektskilderArsak(): String {
         else -> throw RuntimeException("Ukjent underspørsmål for kjente inntektskilder årsak: $tag")
     }
 }
+
+private fun Sporsmal.sorteringFlereInntektskilderGhost(): String =
+    when (tag) {
+        JOBBET_MER_I -> "0"
+        ANDRE_INNTEKTSKILDER_V2 -> "1"
+        else -> throw RuntimeException("Ukjent underspørsmål for FLERE_INNTEKTSKILDER_GHOST: $tag")
+    }
 
 private fun Sporsmal.sorteringAndreInntektskilder(): String =
     when (tag) {

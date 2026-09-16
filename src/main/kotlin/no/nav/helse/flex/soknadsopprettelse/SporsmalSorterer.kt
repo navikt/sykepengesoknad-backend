@@ -44,6 +44,7 @@ fun Sporsmal.fellesPlasseringSporsmal(): Int =
         NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT_GRADERT -> 103
         ANDRE_INNTEKTSKILDER -> 104
         ANDRE_INNTEKTSKILDER_V2 -> 104
+        FLERE_INNTEKTSKILDER_GHOST -> 104
         UTLAND -> 105
         UTDANNING -> 106
 
