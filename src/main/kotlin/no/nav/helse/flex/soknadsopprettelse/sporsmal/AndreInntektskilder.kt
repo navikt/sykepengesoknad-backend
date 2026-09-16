@@ -81,19 +81,6 @@ fun andreInntektskilderArbeidstakerV2(
             alleArbeidsforhold.add(KjentInntektskilde(it.arbeidsstedNavn, Kilde.AAAREG, it.arbeidsstedOrgnummer))
         }
 
-    fun skapSporsmal(): String {
-        val alleNavn = alleArbeidsforhold.map { it.navn }
-
-        fun virksomheterTekst(): String {
-            if (alleNavn.size < 3) {
-                return alleNavn.joinToString(" og ")
-            }
-            return "${alleNavn.subList(0, alleNavn.size - 1).joinToString(", ")} og ${alleNavn.last()}"
-        }
-
-        return "Har du andre inntektskilder enn ${virksomheterTekst()}?"
-    }
-
     return Sporsmal(
         tag = ANDRE_INNTEKTSKILDER_V2,
         sporsmalstekst = "Har du annen inntekt eller oppdrag?",

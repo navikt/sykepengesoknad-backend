@@ -170,9 +170,6 @@ class SporsmalGenerator(
 
                 val medlemskapSporsmalResultat = lagMedlemsskapSporsmalResultat(eksisterendeSoknader, soknad)
 
-                val antallArbeidsforhold = andreKjenteArbeidsforhold.size + (arbeidsforholdoversiktResponse?.size ?: 0)
-                log.info("fant $antallArbeidsforhold arbeidsforhold, skal opprette nytt spørsmål om ghost")
-
                 val arbeidstakerSporsmal =
                     settOppSoknadArbeidstaker(
                         sykepengesoknad = soknad,
