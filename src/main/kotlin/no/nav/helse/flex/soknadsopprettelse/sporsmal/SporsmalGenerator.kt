@@ -169,6 +169,7 @@ class SporsmalGenerator(
                     )
 
                 val medlemskapSporsmalResultat = lagMedlemsskapSporsmalResultat(eksisterendeSoknader, soknad)
+
                 val arbeidstakerSporsmal =
                     settOppSoknadArbeidstaker(
                         sykepengesoknad = soknad,
