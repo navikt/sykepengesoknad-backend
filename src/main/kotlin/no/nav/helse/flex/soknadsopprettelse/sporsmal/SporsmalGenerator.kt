@@ -158,15 +158,18 @@ class SporsmalGenerator(
             else -> {}
         }
 
+        val kjenteArbeidsforhold =
+            arbeidsforholdFraInntektskomponentenHenting
+                .hentArbeidsforhold(
+                    fnr = soknad.fnr,
+                    startSykeforlop = soknad.startSykeforlop!!,
+                )
+
+        val arbeidsforholdoversiktResponse = tilkommenInntektGrunnlagHenting(soknad, eksisterendeSoknader)
+
         return when (soknad.arbeidssituasjon) {
             ARBEIDSTAKER -> {
-                val arbeidsforholdoversiktResponse = tilkommenInntektGrunnlagHenting(soknad, eksisterendeSoknader)
-                val andreKjenteArbeidsforhold =
-                    arbeidsforholdFraInntektskomponentenHenting.hentArbeidsforhold(
-                        fnr = soknad.fnr,
-                        arbeidsgiverOrgnummer = soknad.arbeidsgiverOrgnummer!!,
-                        startSykeforlop = soknad.startSykeforlop!!,
-                    )
+                val andreKjenteArbeidsforhold = kjenteArbeidsforhold.filter { it.orgnummer != soknad.arbeidsgiverOrgnummer }
 
                 val medlemskapSporsmalResultat = lagMedlemsskapSporsmalResultat(eksisterendeSoknader, soknad)
 
@@ -204,6 +207,8 @@ class SporsmalGenerator(
                             sykepengegrunnlagNaeringsdrivende = sykepengegrunnlag,
                             harTidligereUtenlandskSpm = harBlittStiltUtlandsSporsmal(eksisterendeSoknader, soknad),
                             erForsteSoknadISykeforlop = erForsteSoknadISykeforlop,
+                            andreKjenteArbeidsforholdFraInntektskomponenten = kjenteArbeidsforhold,
+                            arbeidsforholdoversiktResponse = arbeidsforholdoversiktResponse,
                         )
                     }
 

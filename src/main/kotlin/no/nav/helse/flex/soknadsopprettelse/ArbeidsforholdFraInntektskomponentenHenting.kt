@@ -14,11 +14,8 @@ class ArbeidsforholdFraInntektskomponentenHenting(
 ) {
     fun hentArbeidsforhold(
         fnr: String,
-        arbeidsgiverOrgnummer: String,
         startSykeforlop: LocalDate,
     ): List<ArbeidsforholdFraInntektskomponenten> {
-        val sykmeldingOrgnummer = arbeidsgiverOrgnummer
-
         val hentedeInntekter =
             inntektskomponentenClient
                 .hentInntekter(
@@ -58,7 +55,6 @@ class ArbeidsforholdFraInntektskomponentenHenting(
 
         val frilansOrgrunmrene = hentedeInntekter.flatMap { it.frilansOrgnumere() }.toSet()
         return alleMånedersOrgnr
-            .filter { it != sykmeldingOrgnummer }
             .map(tilArbeidsforholdFraInntektskomponenten(frilansOrgrunmrene))
     }
 
