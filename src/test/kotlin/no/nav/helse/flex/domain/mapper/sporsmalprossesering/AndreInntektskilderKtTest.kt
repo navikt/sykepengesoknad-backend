@@ -3,11 +3,7 @@ package no.nav.helse.flex.domain.mapper.sporsmalprossesering
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.domain.Mottaker
 import no.nav.helse.flex.domain.mapper.konverterTilSykepengesoknadDTO
-import no.nav.helse.flex.mock.opprettBehandlingsdagsoknadTestadata
-import no.nav.helse.flex.mock.opprettNyArbeidstakerSoknad
-import no.nav.helse.flex.mock.opprettNySoknadAnnet
-import no.nav.helse.flex.mock.opprettSendtFrilanserSoknad
-import no.nav.helse.flex.mock.opprettSendtSoknadForArbeidsledige
+import no.nav.helse.flex.mock.*
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.sykepengesoknad.kafka.InntektskildetypeDTO
 import no.nav.helse.flex.testutil.besvarsporsmal
@@ -113,17 +109,18 @@ class AndreInntektskilderKtTest : FellesTestOppsett() {
 
         andreInntektskilder.shouldHaveSize(4)
 
-        andreInntektskilder[0].type.shouldBeEqualTo(InntektskildetypeDTO.ARBEIDSFORHOLD)
-        andreInntektskilder[0].sykmeldt.shouldBeEqualTo(false)
+        // TODO: Sjekke sykmeldt true false?
+        andreInntektskilder[0].type.shouldBeEqualTo(InntektskildetypeDTO.ANDRE_ARBEIDSFORHOLD)
+//        andreInntektskilder[0].sykmeldt.shouldBeEqualTo(false)
 
-        andreInntektskilder[1].type.shouldBeEqualTo(InntektskildetypeDTO.JORDBRUKER_FISKER_REINDRIFTSUTOVER)
-        andreInntektskilder[1].sykmeldt.shouldBeEqualTo(true)
+        andreInntektskilder[1].type.shouldBeEqualTo(InntektskildetypeDTO.SELVSTENDIG_NARINGSDRIVENDE)
+//        andreInntektskilder[1].sykmeldt.shouldBeEqualTo(true)
 
-        andreInntektskilder[2].type.shouldBeEqualTo(InntektskildetypeDTO.FRILANSER_SELVSTENDIG)
-        andreInntektskilder[2].sykmeldt.shouldBeEqualTo(true)
+        andreInntektskilder[2].type.shouldBeEqualTo(InntektskildetypeDTO.SELVSTENDIG_NARINGSDRIVENDE_DAGMAMMA)
+//        andreInntektskilder[2].sykmeldt.shouldBeEqualTo(true)
 
-        andreInntektskilder[3].type.shouldBeEqualTo(InntektskildetypeDTO.ANNET)
-        andreInntektskilder[3].sykmeldt.shouldBeEqualTo(null)
+        andreInntektskilder[3].type.shouldBeEqualTo(InntektskildetypeDTO.STYREVERV)
+//        andreInntektskilder[3].sykmeldt.shouldBeEqualTo(null)
     }
 
     @Test

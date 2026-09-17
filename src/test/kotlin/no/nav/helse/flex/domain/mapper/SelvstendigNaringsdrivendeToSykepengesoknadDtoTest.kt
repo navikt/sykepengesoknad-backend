@@ -182,7 +182,7 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
             it["ARBEID_UNDERVEIS_100_PROSENT_0"] `should be equal to` false
             it["JOBBET_DU_GRADERT_1"] `should be equal to` false
             it[NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT] `should be equal to` false
-            it[ANDRE_INNTEKTSKILDER] `should be equal to` true
+            it[FLERE_INNTEKTSKILDER_GHOST] `should be equal to` true
             it[OPPHOLD_UTENFOR_EOS] `should be equal to` true
             it[NARINGSDRIVENDE_OPPHOLD_I_UTLANDET] `should be equal to` false
             it[FRAVAR_FOR_SYKMELDINGEN_V2] `should be equal to` true
@@ -222,7 +222,7 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
             it["ARBEID_UNDERVEIS_100_PROSENT_0"] `should be equal to` false
             it["JOBBET_DU_GRADERT_1"] `should be equal to` false
             it[NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT] `should be equal to` false
-            it[ANDRE_INNTEKTSKILDER] `should be equal to` true
+            it[FLERE_INNTEKTSKILDER_GHOST] `should be equal to` true
             it[OPPHOLD_UTENFOR_EOS] `should be equal to` true
             it[NARINGSDRIVENDE_OPPHOLD_I_UTLANDET] `should be equal to` false
             it[FRAVAR_FOR_SYKMELDINGEN_V2] `should be equal to` true
@@ -262,7 +262,7 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
             it["ARBEID_UNDERVEIS_100_PROSENT_0"] `should be equal to` false
             it["JOBBET_DU_GRADERT_1"] `should be equal to` false
             it[NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT] `should be equal to` false
-            it[ANDRE_INNTEKTSKILDER] `should be equal to` true
+            it[FLERE_INNTEKTSKILDER_GHOST] `should be equal to` true
             it[OPPHOLD_UTENFOR_EOS] `should be equal to` true
             it[NARINGSDRIVENDE_OPPHOLD_I_UTLANDET] `should be equal to` false
             it[FRAVAR_FOR_SYKMELDINGEN_V2] `should be equal to` true

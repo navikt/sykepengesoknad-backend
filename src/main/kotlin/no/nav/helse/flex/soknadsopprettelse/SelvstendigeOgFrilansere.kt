@@ -5,6 +5,7 @@ import no.nav.helse.flex.domain.Svartype.DATO
 import no.nav.helse.flex.domain.Svartype.JA_NEI
 import no.nav.helse.flex.domain.Visningskriterie.JA
 import no.nav.helse.flex.service.SykepengegrunnlagNaeringsdrivende
+import no.nav.helse.flex.soknadsopprettelse.aaregdata.ArbeidsforholdFraAAreg
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.*
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.utenlandsksykmelding.utenlandskSykmeldingSporsmal
 import no.nav.helse.flex.util.formatterDato
@@ -14,6 +15,8 @@ import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
 fun settOppSoknadSelvstendigOgFrilanser(
     sykepengesoknad: Sykepengesoknad,
+    andreKjenteArbeidsforholdFraInntektskomponenten: List<ArbeidsforholdFraInntektskomponenten>,
+    arbeidsforholdoversiktResponse: List<ArbeidsforholdFraAAreg>?,
     sykepengegrunnlagNaeringsdrivende: SykepengegrunnlagNaeringsdrivende? = null,
     harTidligereUtenlandskSpm: Boolean,
     erForsteSoknadISykeforlop: Boolean,
@@ -30,13 +33,19 @@ fun settOppSoknadSelvstendigOgFrilanser(
                     tilbakeIFulltArbeidSporsmal(sykepengesoknad)
                 },
             )
-            add(andreInntektskilderSelvstendigOgFrilanser(sykepengesoknad.arbeidssituasjon!!))
+            add(
+                settOppSporsmalOmAndreArbeidsforhold(
+                    sykepengesoknad = sykepengesoknad,
+                    andreKjenteArbeidsforholdFraInntektskomponenten = andreKjenteArbeidsforholdFraInntektskomponenten,
+                    arbeidsforholdoversiktResponse = arbeidsforholdoversiktResponse,
+                ),
+            )
             add(oppholdUtenforEOSSporsmal(sykepengesoknad.fom!!, sykepengesoknad.tom!!))
             add(tilSlutt())
             addAll(
                 jobbetDuIPeriodenSporsmalSelvstendigFrilanser(
                     sykepengesoknad.soknadPerioder!!,
-                    sykepengesoknad.arbeidssituasjon,
+                    sykepengesoknad.arbeidssituasjon!!,
                 ),
             )
             if (sykepengesoknad.arbeidssituasjon.erSelvstendigNaringsdrivende()) {

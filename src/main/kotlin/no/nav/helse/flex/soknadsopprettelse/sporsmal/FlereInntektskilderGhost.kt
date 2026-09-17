@@ -12,13 +12,16 @@ import no.nav.helse.flex.util.formatterPeriode
 import no.nav.helse.flex.util.toJsonNode
 
 fun flereInntektskilderGhost(
-    sykmeldingOrgnavn: String,
-    sykmeldingOrgnr: String,
+    sykmeldingOrgnavn: String?,
+    sykmeldingOrgnr: String?,
     andreKjenteArbeidsforholdFraInntektskomponenten: List<ArbeidsforholdFraInntektskomponenten>,
     nyeArbeidsforholdFraAareg: List<ArbeidsforholdFraAAreg>?,
     soknadsperiode: Soknadsperiode,
 ): Sporsmal {
-    val alleArbeidsforhold = mutableListOf(KjentInntektskilde(sykmeldingOrgnavn, Kilde.SYKMELDING, sykmeldingOrgnr))
+    val alleArbeidsforhold = mutableListOf<KjentInntektskilde>()
+    if (sykmeldingOrgnavn != null && sykmeldingOrgnr != null) {
+        alleArbeidsforhold.add(KjentInntektskilde(sykmeldingOrgnavn, Kilde.SYKMELDING, sykmeldingOrgnr))
+    }
     alleArbeidsforhold.addAll(
         andreKjenteArbeidsforholdFraInntektskomponenten.map {
             KjentInntektskilde(

@@ -59,7 +59,7 @@ class FrilanserIntegrationTest : FellesTestOppsett() {
                 TILBAKE_I_ARBEID,
                 "ARBEID_UNDERVEIS_100_PROSENT_0",
                 ARBEID_UTENFOR_NORGE,
-                ANDRE_INNTEKTSKILDER,
+                ANDRE_INNTEKTSKILDER_V2,
                 OPPHOLD_UTENFOR_EOS,
                 TIL_SLUTT,
             ),
@@ -87,7 +87,7 @@ class FrilanserIntegrationTest : FellesTestOppsett() {
                 TILBAKE_I_ARBEID,
                 "ARBEID_UNDERVEIS_100_PROSENT_0",
                 ARBEID_UTENFOR_NORGE,
-                ANDRE_INNTEKTSKILDER,
+                ANDRE_INNTEKTSKILDER_V2,
                 OPPHOLD_UTENFOR_EOS,
                 TIL_SLUTT,
             ),
@@ -114,7 +114,7 @@ class FrilanserIntegrationTest : FellesTestOppsett() {
                         ANSVARSERKLARING,
                         TILBAKE_I_ARBEID,
                         ARBEID_UTENFOR_NORGE,
-                        ANDRE_INNTEKTSKILDER,
+                        ANDRE_INNTEKTSKILDER_V2,
                         TIL_SLUTT,
                     ),
                 )
@@ -138,7 +138,7 @@ class FrilanserIntegrationTest : FellesTestOppsett() {
                         TILBAKE_I_ARBEID,
                         "ARBEID_UNDERVEIS_100_PROSENT_0",
                         ARBEID_UTENFOR_NORGE,
-                        ANDRE_INNTEKTSKILDER,
+                        ANDRE_INNTEKTSKILDER_V2,
                         OPPHOLD_UTENFOR_EOS,
                         TIL_SLUTT,
                     ),
@@ -197,7 +197,7 @@ class FrilanserIntegrationTest : FellesTestOppsett() {
         SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal("ARBEID_UNDERVEIS_100_PROSENT_0", "NEI", mutert = false)
             .besvarSporsmal(ARBEID_UTENFOR_NORGE, "NEI", mutert = false)
-            .besvarSporsmal(ANDRE_INNTEKTSKILDER, "NEI", mutert = false)
+            .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, "NEI", mutert = false)
             .besvarSporsmal(OPPHOLD_UTENFOR_EOS, "NEI", mutert = false)
             .oppsummering()
             .also {

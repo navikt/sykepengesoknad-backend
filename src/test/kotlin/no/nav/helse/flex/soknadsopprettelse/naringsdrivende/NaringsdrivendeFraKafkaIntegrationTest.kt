@@ -54,7 +54,7 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
             TILBAKE_I_ARBEID,
             arbeidUnderveis100ProsentTag,
             NARINGSDRIVENDE_OPPRETTHOLDT_INNTEKT,
-            ANDRE_INNTEKTSKILDER,
+            ANDRE_INNTEKTSKILDER_V2,
             OPPHOLD_UTENFOR_EOS,
             NARINGSDRIVENDE_OPPHOLD_I_UTLANDET,
             NARINGSDRIVENDE_VIRKSOMHETEN_AVVIKLET,
