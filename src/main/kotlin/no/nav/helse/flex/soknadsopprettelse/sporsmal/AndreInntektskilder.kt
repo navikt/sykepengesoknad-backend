@@ -59,12 +59,15 @@ data class KjentInntektskilde(
 )
 
 fun andreInntektskilderArbeidstakerV2(
-    sykmeldingOrgnavn: String,
-    sykmeldingOrgnr: String,
+    sykmeldingOrgnavn: String?,
+    sykmeldingOrgnr: String?,
     andreKjenteArbeidsforholdFraInntektskomponenten: List<ArbeidsforholdFraInntektskomponenten>,
     nyeArbeidsforholdFraAareg: List<ArbeidsforholdFraAAreg>?,
 ): Sporsmal {
-    val alleArbeidsforhold = mutableListOf(KjentInntektskilde(sykmeldingOrgnavn, Kilde.SYKMELDING, sykmeldingOrgnr))
+    val alleArbeidsforhold = mutableListOf<KjentInntektskilde>()
+    if (sykmeldingOrgnavn != null && sykmeldingOrgnr != null) {
+        alleArbeidsforhold.add(KjentInntektskilde(sykmeldingOrgnavn, Kilde.SYKMELDING, sykmeldingOrgnr))
+    }
     alleArbeidsforhold.addAll(
         andreKjenteArbeidsforholdFraInntektskomponenten.map {
             KjentInntektskilde(

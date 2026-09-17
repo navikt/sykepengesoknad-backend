@@ -65,35 +65,15 @@ fun settOppSoknadArbeidstaker(
             )
         }
 
-        val antallArbeidsforhold = andreKjenteArbeidsforholdFraInntektskomponenten.size + (arbeidsforholdoversiktResponse?.size ?: 0)
+        add(
+            settOppSporsmalOmAndreArbeidsforhold(
+                sykepengesoknad = sykepengesoknad,
+                andreKjenteArbeidsforholdFraInntektskomponenten = andreKjenteArbeidsforholdFraInntektskomponenten,
+                arbeidsforholdoversiktResponse = arbeidsforholdoversiktResponse,
+            ),
+        )
 
-        if (antallArbeidsforhold > 1) {
-            add(
-                flereInntektskilderGhost(
-                    sykmeldingOrgnavn = sykepengesoknad.arbeidsgiverNavn!!,
-                    sykmeldingOrgnr = sykepengesoknad.arbeidsgiverOrgnummer!!,
-                    andreKjenteArbeidsforholdFraInntektskomponenten = andreKjenteArbeidsforholdFraInntektskomponenten,
-                    nyeArbeidsforholdFraAareg = arbeidsforholdoversiktResponse,
-                    soknadsperiode =
-                        Soknadsperiode(
-                            fom = sykepengesoknad.fom,
-                            tom = sykepengesoknad.tom,
-                            grad = 0,
-                            sykmeldingstype = null,
-                        ),
-                ),
-            )
-        } else {
-            add(
-                andreInntektskilderArbeidstakerV2(
-                    sykmeldingOrgnavn = sykepengesoknad.arbeidsgiverNavn!!,
-                    sykmeldingOrgnr = sykepengesoknad.arbeidsgiverOrgnummer!!,
-                    andreKjenteArbeidsforholdFraInntektskomponenten = andreKjenteArbeidsforholdFraInntektskomponenten,
-                    nyeArbeidsforholdFraAareg = arbeidsforholdoversiktResponse,
-                ),
-            )
-        }
-        addAll(jobbetDuIPeriodenSporsmal(sykepengesoknad.soknadPerioder!!, sykepengesoknad.arbeidsgiverNavn))
+        addAll(jobbetDuIPeriodenSporsmal(sykepengesoknad.soknadPerioder!!, sykepengesoknad.arbeidsgiverNavn!!))
 
         if (erGradertReisetilskudd) {
             add(brukteReisetilskuddetSpørsmål())
