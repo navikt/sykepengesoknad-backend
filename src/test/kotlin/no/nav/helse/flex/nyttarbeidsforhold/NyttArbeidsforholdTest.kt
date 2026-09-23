@@ -88,11 +88,6 @@ class NyttArbeidsforholdTest : NyttArbeidsforholdFellesOppsett() {
         andreInntektskilderMetadata.kjenteInntektskilder `should be equal to`
             listOf(
                 KjentInntektskilde(
-                    navn = "Matbutikken AS",
-                    kilde = Kilde.SYKMELDING,
-                    orgnummer = "123454543",
-                ),
-                KjentInntektskilde(
                     navn = "Kiosken, avd Oslo AS",
                     kilde = Kilde.AAAREG,
                     orgnummer = "999888777",

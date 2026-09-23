@@ -44,22 +44,6 @@ object InntektskomponentenMockDispatcher : Dispatcher() {
                                         ),
                                 ),
                         ),
-                        ArbeidsInntektMaaned(
-                            arbeidsInntektInformasjon =
-                                ArbeidsInntektInformasjon(
-                                    inntektListe =
-                                        listOf(
-                                            InntektListe(
-                                                inntektType = "LOENNSINNTEKT",
-                                                virksomhet = Aktoer("999333666", "ORGANISASJON"),
-                                            ),
-                                            InntektListe(
-                                                inntektType = "LOENNSINNTEKT",
-                                                virksomhet = Aktoer("999333667", "ORGANISASJON"),
-                                            ),
-                                        ),
-                                ),
-                        ),
                     ),
                 ident = req.ident,
             ).tilMockResponse()
