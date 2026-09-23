@@ -13,6 +13,7 @@ import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmOpp
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmOppholdstillatelse
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.utenlandsksykmelding.utenlandskSykmeldingSporsmal
 import no.nav.helse.flex.yrkesskade.YrkesskadeSporsmalGrunnlag
+import kotlin.collections.orEmpty
 
 interface MedlemskapSporsmalTag
 
@@ -65,15 +66,36 @@ fun settOppSoknadArbeidstaker(
             )
         }
 
+        val inntekterFraInntektskomponenten =
+            andreKjenteArbeidsforholdFraInntektskomponenten.map { inntekt ->
+                KjentInntektskilde(
+                    navn = inntekt.navn,
+                    kilde = Kilde.INNTEKTSKOMPONENTEN,
+                    orgnummer = inntekt.orgnummer,
+                )
+            }
+
+        val arbeidsforholdFraAAreg =
+            arbeidsforholdoversiktResponse?.map { arbeidsforhold ->
+                KjentInntektskilde(
+                    navn = arbeidsforhold.arbeidsstedNavn,
+                    kilde = Kilde.AAAREG,
+                    orgnummer = arbeidsforhold.arbeidsstedOrgnummer,
+                )
+            }
+
+        val andreKjenteInntektskilder =
+            buildSet {
+                addAll(inntekterFraInntektskomponenten)
+                addAll(arbeidsforholdFraAAreg.orEmpty())
+            }.filterNot { it.orgnummer == sykepengesoknad.arbeidsgiverOrgnummer }
+
         val antallArbeidsforhold = andreKjenteArbeidsforholdFraInntektskomponenten.size + (arbeidsforholdoversiktResponse?.size ?: 0)
 
         if (antallArbeidsforhold > 1) {
             add(
                 flereInntektskilderGhost(
-                    sykmeldingOrgnavn = sykepengesoknad.arbeidsgiverNavn!!,
-                    sykmeldingOrgnr = sykepengesoknad.arbeidsgiverOrgnummer!!,
-                    andreKjenteArbeidsforholdFraInntektskomponenten = andreKjenteArbeidsforholdFraInntektskomponenten,
-                    nyeArbeidsforholdFraAareg = arbeidsforholdoversiktResponse,
+                    andreKjenteInntektskilder = andreKjenteInntektskilder,
                     soknadsperiode =
                         Soknadsperiode(
                             fom = sykepengesoknad.fom,
@@ -86,14 +108,11 @@ fun settOppSoknadArbeidstaker(
         } else {
             add(
                 andreInntektskilderArbeidstakerV2(
-                    sykmeldingOrgnavn = sykepengesoknad.arbeidsgiverNavn!!,
-                    sykmeldingOrgnr = sykepengesoknad.arbeidsgiverOrgnummer!!,
-                    andreKjenteArbeidsforholdFraInntektskomponenten = andreKjenteArbeidsforholdFraInntektskomponenten,
-                    nyeArbeidsforholdFraAareg = arbeidsforholdoversiktResponse,
+                    andreKjenteInntektskilder = andreKjenteInntektskilder,
                 ),
             )
         }
-        addAll(jobbetDuIPeriodenSporsmal(sykepengesoknad.soknadPerioder!!, sykepengesoknad.arbeidsgiverNavn))
+        addAll(jobbetDuIPeriodenSporsmal(sykepengesoknad.soknadPerioder!!, sykepengesoknad.arbeidsgiverNavn!!))
 
         if (erGradertReisetilskudd) {
             add(brukteReisetilskuddetSpørsmål())

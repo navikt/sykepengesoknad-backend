@@ -7,7 +7,6 @@ import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Visningskriterie
 import no.nav.helse.flex.soknadsopprettelse.*
-import no.nav.helse.flex.soknadsopprettelse.aaregdata.ArbeidsforholdFraAAreg
 import no.nav.helse.flex.util.formatterPeriode
 import no.nav.helse.flex.util.toJsonNode
 import java.time.LocalDate
@@ -58,30 +57,8 @@ data class KjentInntektskilde(
     val orgnummer: String,
 )
 
-fun andreInntektskilderArbeidstakerV2(
-    sykmeldingOrgnavn: String,
-    sykmeldingOrgnr: String,
-    andreKjenteArbeidsforholdFraInntektskomponenten: List<ArbeidsforholdFraInntektskomponenten>,
-    nyeArbeidsforholdFraAareg: List<ArbeidsforholdFraAAreg>?,
-): Sporsmal {
-    val alleArbeidsforhold = mutableListOf(KjentInntektskilde(sykmeldingOrgnavn, Kilde.SYKMELDING, sykmeldingOrgnr))
-    alleArbeidsforhold.addAll(
-        andreKjenteArbeidsforholdFraInntektskomponenten.map {
-            KjentInntektskilde(
-                it.navn,
-                Kilde.INNTEKTSKOMPONENTEN,
-                it.orgnummer,
-            )
-        },
-    )
-    nyeArbeidsforholdFraAareg
-        ?.filter { arbeidsforhold ->
-            !alleArbeidsforhold.map { it.orgnummer }.contains(arbeidsforhold.arbeidsstedOrgnummer)
-        }?.forEach {
-            alleArbeidsforhold.add(KjentInntektskilde(it.arbeidsstedNavn, Kilde.AAAREG, it.arbeidsstedOrgnummer))
-        }
-
-    return Sporsmal(
+fun andreInntektskilderArbeidstakerV2(andreKjenteInntektskilder: List<KjentInntektskilde>): Sporsmal =
+    Sporsmal(
         tag = ANDRE_INNTEKTSKILDER_V2,
         sporsmalstekst = "Har du annen inntekt eller oppdrag?",
         undertekst = "Med inntekt mener vi betaling som du får for arbeid du har gjort.",
@@ -89,7 +66,7 @@ fun andreInntektskilderArbeidstakerV2(
         kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
         metadata =
             AndreInntektskilderMetadata(
-                kjenteInntektskilder = alleArbeidsforhold,
+                kjenteInntektskilder = andreKjenteInntektskilder,
             ).toJsonNode(),
         undersporsmal =
             listOf(
@@ -155,7 +132,6 @@ fun andreInntektskilderArbeidstakerV2(
                 ),
             ),
     )
-}
 
 fun andreInntektskilderSelvstendigOgFrilanser(arbeidssituasjon: Arbeidssituasjon): Sporsmal =
     Sporsmal(
