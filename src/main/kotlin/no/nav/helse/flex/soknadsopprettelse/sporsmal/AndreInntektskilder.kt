@@ -8,7 +8,6 @@ import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Visningskriterie
 import no.nav.helse.flex.soknadsopprettelse.*
 import no.nav.helse.flex.util.formatterPeriode
-import no.nav.helse.flex.util.toJsonNode
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -57,17 +56,13 @@ data class KjentInntektskilde(
     val orgnummer: String,
 )
 
-fun andreInntektskilderArbeidstakerV2(andreKjenteInntektskilder: List<KjentInntektskilde>): Sporsmal =
+fun andreInntektskilderArbeidstakerV2(): Sporsmal =
     Sporsmal(
         tag = ANDRE_INNTEKTSKILDER_V2,
         sporsmalstekst = "Har du annen inntekt eller oppdrag?",
         undertekst = "Med inntekt mener vi betaling som du får for arbeid du har gjort.",
         svartype = Svartype.JA_NEI,
         kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
-        metadata =
-            AndreInntektskilderMetadata(
-                kjenteInntektskilder = andreKjenteInntektskilder,
-            ).toJsonNode(),
         undersporsmal =
             listOf(
                 Sporsmal(

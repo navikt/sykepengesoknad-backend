@@ -1,7 +1,6 @@
 package no.nav.helse.flex.domain.mapper
 
 import no.nav.helse.flex.domain.*
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.KjentInntektskilde
 import no.nav.helse.flex.sykepengesoknad.kafka.*
 import no.nav.helse.flex.util.objectMapper
 import java.io.IOException
@@ -156,9 +155,9 @@ fun String.getJsonPeriodeFraGammeltFormat(): PeriodeDTO {
     }
 }
 
-fun KjentInntektskilde.tilKjentInntektskildeDTO(): KjentInntektskildeDTO =
-    KjentInntektskildeDTO(
-        navn = this.navn,
-        kilde = this.kilde,
-        orgnummer = this.orgnummer,
-    )
+// fun KjentInntektskilde.tilKjentInntektskildeDTO(): KjentInntektskildeDTO =
+//    KjentInntektskildeDTO(
+//        navn = this.navn,
+//        kilde = this.kilde,
+//        orgnummer = this.orgnummer,
+//    )

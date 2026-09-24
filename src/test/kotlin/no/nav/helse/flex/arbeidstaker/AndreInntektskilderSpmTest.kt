@@ -16,6 +16,7 @@ import no.nav.helse.flex.util.getSporsmalMedTag
 import no.nav.helse.flex.util.serialisertTilString
 import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
 import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.`should be null`
 import org.amshove.kluent.shouldHaveSize
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
@@ -62,8 +63,7 @@ class AndreInntektskilderSpmTest : FellesTestOppsett() {
             }!!
         andreInntektskilderSpm.sporsmalstekst `should be equal to`
             "Har du annen inntekt eller oppdrag?"
-        andreInntektskilderSpm.metadata!!.serialisertTilString() `should be equal to`
-            """{"kjenteInntektskilder":[{"navn":"Frilanseransetter AS","kilde":"INNTEKTSKOMPONENTEN","orgnummer":"999333667"}]}""".trimMargin()
+        andreInntektskilderSpm.metadata.`should be null`()
 
         flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()

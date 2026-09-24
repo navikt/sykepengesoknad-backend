@@ -12,11 +12,7 @@ import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmOpp
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmOppholdUtenforNorge
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmOppholdstillatelse
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.utenlandsksykmelding.utenlandskSykmeldingSporsmal
-import no.nav.helse.flex.util.isAfterOrEqual
-import no.nav.helse.flex.util.isBeforeOrEqual
 import no.nav.helse.flex.yrkesskade.YrkesskadeSporsmalGrunnlag
-import java.time.LocalDate
-import kotlin.collections.orEmpty
 
 interface MedlemskapSporsmalTag
 
@@ -62,72 +58,51 @@ fun settOppSoknadArbeidstaker(
         }
 
         val heltNyeArbeidsforhold =
-            filtrerArbeidsforholdISykeforlop(
-                arbeidsforholdoversiktResponse = arbeidsforholdoversiktResponse,
+            sjekkNyeArbeidsforhold(
                 fom = sykepengesoknad.fom,
                 tom = sykepengesoknad.tom,
-            )
+                arbeidforholdOversikt = arbeidsforholdoversiktResponse,
+            )?.toList()
 
-        if (arbeidsforholdoversiktResponse != null) {
-            if (heltNyeArbeidsforhold?.isNotEmpty() == true) {
-                addAll(
-                    nyttArbeidsforholdSporsmal(
-                        heltNyeArbeidsforhold.toList(),
-                        fom = sykepengesoknad.fom,
-                        tom = sykepengesoknad.tom,
+        if (!heltNyeArbeidsforhold.isNullOrEmpty()) {
+            addAll(
+                nyttArbeidsforholdSporsmal(
+                    heltNyeArbeidsforhold.toList(),
+                    fom = sykepengesoknad.fom,
+                    tom = sykepengesoknad.tom,
+                ),
+            )
+        }
+
+        if (!arbeidsforholdoversiktResponse.isNullOrEmpty()) {
+            val ghostInntekter =
+                sjekkGhostInntekter(
+                    arbeidsforholdFraInntektskomponenten = andreKjenteArbeidsforholdFraInntektskomponenten,
+                    arbeidforholdOversikt = arbeidsforholdoversiktResponse,
+                    arbeidsgiverOrgnummer = sykepengesoknad.arbeidsgiverOrgnummer,
+                    nyeArbeidsforhold = heltNyeArbeidsforhold ?: emptyList(),
+                )
+
+            if (ghostInntekter.isNotEmpty()) {
+                add(
+                    flereInntektskilderGhost(
+                        andreKjenteInntektskilder = ghostInntekter,
+                        soknadsperiode =
+                            Soknadsperiode(
+                                fom = sykepengesoknad.fom,
+                                tom = sykepengesoknad.tom,
+                                grad = 0,
+                                sykmeldingstype = null,
+                            ),
                     ),
                 )
+            } else {
+                add(andreInntektskilderArbeidstakerV2())
             }
-        }
-
-        val inntekterFraInntektskomponenten =
-            andreKjenteArbeidsforholdFraInntektskomponenten.map { inntekt ->
-                KjentInntektskilde(
-                    navn = inntekt.navn,
-                    kilde = Kilde.INNTEKTSKOMPONENTEN,
-                    orgnummer = inntekt.orgnummer,
-                )
-            }
-
-        val arbeidsforholdFraAAreg =
-            arbeidsforholdoversiktResponse?.map { arbeidsforhold ->
-                KjentInntektskilde(
-                    navn = arbeidsforhold.arbeidsstedNavn,
-                    kilde = Kilde.AAAREG,
-                    orgnummer = arbeidsforhold.arbeidsstedOrgnummer,
-                )
-            }
-
-        val andreKjenteInntektskilder =
-            buildSet {
-                addAll(inntekterFraInntektskomponenten)
-                addAll(arbeidsforholdFraAAreg.orEmpty())
-            }.filterNot { it.orgnummer == sykepengesoknad.arbeidsgiverOrgnummer }
-                .filterNot { kjentInntektskilde ->
-                    kjentInntektskilde.orgnummer in
-                        heltNyeArbeidsforhold?.map { it.arbeidsstedOrgnummer }.orEmpty()
-                }
-
-        if (andreKjenteInntektskilder.size > 1) {
-            add(
-                flereInntektskilderGhost(
-                    andreKjenteInntektskilder = andreKjenteInntektskilder,
-                    soknadsperiode =
-                        Soknadsperiode(
-                            fom = sykepengesoknad.fom,
-                            tom = sykepengesoknad.tom,
-                            grad = 0,
-                            sykmeldingstype = null,
-                        ),
-                ),
-            )
         } else {
-            add(
-                andreInntektskilderArbeidstakerV2(
-                    andreKjenteInntektskilder = andreKjenteInntektskilder,
-                ),
-            )
+            add(andreInntektskilderArbeidstakerV2())
         }
+
         addAll(jobbetDuIPeriodenSporsmal(sykepengesoknad.soknadPerioder!!, sykepengesoknad.arbeidsgiverNavn!!))
 
         if (erGradertReisetilskudd) {
@@ -169,35 +144,3 @@ fun settOppSoknadArbeidstaker(
         )
     }
 }
-
-fun filtrerArbeidsforholdISykeforlop(
-    arbeidsforholdoversiktResponse: List<ArbeidsforholdFraAAreg>?,
-    fom: LocalDate,
-    tom: LocalDate,
-): Set<ArbeidsforholdFraAAreg>? =
-    arbeidsforholdoversiktResponse
-        ?.filter { it.startdato.isBeforeOrEqual(tom) }
-        ?.filter {
-            if (it.sluttdato == null) {
-                return@filter true
-            }
-            val afterOrEqual = it.sluttdato.isAfterOrEqual(fom)
-            return@filter afterOrEqual
-        }?.toSet()
-
-fun jobbetDuIPeriodenSporsmal(
-    soknadsperioder: List<Soknadsperiode>,
-    arbeidsgiverNavn: String,
-): List<Sporsmal> =
-    soknadsperioder
-        .lastIndex
-        .downTo(0)
-        .reversed()
-        .map { index ->
-            val periode = soknadsperioder[index]
-            if (periode.grad == 100) {
-                jobbetDu100ProsentArbeidstaker(periode, arbeidsgiverNavn, index)
-            } else {
-                jobbetDuGradertArbeidstaker(periode, arbeidsgiverNavn, index)
-            }
-        }
