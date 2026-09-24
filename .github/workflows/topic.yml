@@ -15,19 +15,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v7
       - name: Deploy sykepengesoknad topic to dev-gcp
-        uses: nais/deploy/actions/deploy@v2
+        uses: nais/deploy/actions/deploy@v3
         env:
           CLUSTER: dev-gcp
           RESOURCE: nais/topics/sykepengesoknad-topic.yaml
           VARS: nais/topics/dev.json
       - name: Deploy sykmeldinger sendt retry to dev-gcp
-        uses: nais/deploy/actions/deploy@v2
+        uses: nais/deploy/actions/deploy@v3
         env:
           CLUSTER: dev-gcp
           RESOURCE: nais/topics/sykmeldinger-sendt-retry.yaml
           VARS: nais/topics/dev.json
       - name: Deploy sykepengesoknad aktivering to dev-gcp
-        uses: nais/deploy/actions/deploy@v2
+        uses: nais/deploy/actions/deploy@v3
         env:
           CLUSTER: dev-gcp
           RESOURCE: nais/topics/sykepengesoknad-aktivering-topic.yaml
@@ -43,19 +43,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v7
       - name: Deploy sykepengesoknad topic to prod-gcp
-        uses: nais/deploy/actions/deploy@v2
+        uses: nais/deploy/actions/deploy@v3
         env:
           CLUSTER: prod-gcp
           RESOURCE: nais/topics/sykepengesoknad-topic.yaml
           VARS: nais/topics/prod.json
       - name: Deploy sykmeldinger sendt retry topic to prod-gcp
-        uses: nais/deploy/actions/deploy@v2
+        uses: nais/deploy/actions/deploy@v3
         env:
           CLUSTER: prod-gcp
           RESOURCE: nais/topics/sykmeldinger-sendt-retry.yaml
           VARS: nais/topics/prod.json
       - name: Deploy sykepengesoknad aktivering to prod-gcp
-        uses: nais/deploy/actions/deploy@v2
+        uses: nais/deploy/actions/deploy@v3
         env:
           CLUSTER: prod-gcp
           RESOURCE: nais/topics/sykepengesoknad-aktivering-topic.yaml
