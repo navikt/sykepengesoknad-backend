@@ -38,6 +38,7 @@ fun konverterTilSykepengesoknadDTO(
         papirsykmeldinger = hentPapirsykmeldinger(sykepengesoknad),
         fravar = samleFravaerListe(sykepengesoknad),
         andreInntektskilder = hentInntektListe(sykepengesoknad),
+        flereInntektskilderGhost = hentFlereInntektskilderGhost(sykepengesoknad),
         soknadsperioder = soknadsperioder,
         sporsmal = sykepengesoknad.sporsmal.map { it.tilSporsmalDTO() },
         avsendertype = sykepengesoknad.avsendertype?.tilAvsendertypeDTO(),
