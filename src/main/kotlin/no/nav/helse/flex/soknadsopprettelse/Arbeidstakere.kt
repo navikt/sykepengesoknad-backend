@@ -12,7 +12,10 @@ import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmOpp
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmOppholdUtenforNorge
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.lagSporsmalOmOppholdstillatelse
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.utenlandsksykmelding.utenlandskSykmeldingSporsmal
+import no.nav.helse.flex.util.isAfterOrEqual
+import no.nav.helse.flex.util.isBeforeOrEqual
 import no.nav.helse.flex.yrkesskade.YrkesskadeSporsmalGrunnlag
+import java.time.LocalDate
 import kotlin.collections.orEmpty
 
 interface MedlemskapSporsmalTag
@@ -57,13 +60,24 @@ fun settOppSoknadArbeidstaker(
         if (sykepengesoknad.utenlandskSykmelding && (erForsteSoknadISykeforlop || !harTidligereUtenlandskSpm)) {
             addAll(utenlandskSykmeldingSporsmal(sykepengesoknad))
         }
-        if (arbeidsforholdoversiktResponse != null) {
-            addAll(
-                nyttArbeidsforholdSporsmal(
-                    arbeidsforholdoversiktResponse,
-                    denneSoknaden = sykepengesoknad,
-                ),
+
+        val heltNyeArbeidsforhold =
+            filtrerArbeidsforholdISykeforlop(
+                arbeidsforholdoversiktResponse = arbeidsforholdoversiktResponse,
+                fom = sykepengesoknad.fom,
+                tom = sykepengesoknad.tom,
             )
+
+        if (arbeidsforholdoversiktResponse != null) {
+            if (heltNyeArbeidsforhold?.isNotEmpty() == true) {
+                addAll(
+                    nyttArbeidsforholdSporsmal(
+                        heltNyeArbeidsforhold.toList(),
+                        fom = sykepengesoknad.fom,
+                        tom = sykepengesoknad.tom,
+                    ),
+                )
+            }
         }
 
         val inntekterFraInntektskomponenten =
@@ -89,10 +103,12 @@ fun settOppSoknadArbeidstaker(
                 addAll(inntekterFraInntektskomponenten)
                 addAll(arbeidsforholdFraAAreg.orEmpty())
             }.filterNot { it.orgnummer == sykepengesoknad.arbeidsgiverOrgnummer }
+                .filterNot { kjentInntektskilde ->
+                    kjentInntektskilde.orgnummer in
+                        heltNyeArbeidsforhold?.map { it.arbeidsstedOrgnummer }.orEmpty()
+                }
 
-        val antallArbeidsforhold = andreKjenteArbeidsforholdFraInntektskomponenten.size + (arbeidsforholdoversiktResponse?.size ?: 0)
-
-        if (antallArbeidsforhold > 1) {
+        if (andreKjenteInntektskilder.size > 1) {
             add(
                 flereInntektskilderGhost(
                     andreKjenteInntektskilder = andreKjenteInntektskilder,
@@ -153,6 +169,21 @@ fun settOppSoknadArbeidstaker(
         )
     }
 }
+
+fun filtrerArbeidsforholdISykeforlop(
+    arbeidsforholdoversiktResponse: List<ArbeidsforholdFraAAreg>?,
+    fom: LocalDate,
+    tom: LocalDate,
+): Set<ArbeidsforholdFraAAreg>? =
+    arbeidsforholdoversiktResponse
+        ?.filter { it.startdato.isBeforeOrEqual(tom) }
+        ?.filter {
+            if (it.sluttdato == null) {
+                return@filter true
+            }
+            val afterOrEqual = it.sluttdato.isAfterOrEqual(fom)
+            return@filter afterOrEqual
+        }?.toSet()
 
 fun jobbetDuIPeriodenSporsmal(
     soknadsperioder: List<Soknadsperiode>,
