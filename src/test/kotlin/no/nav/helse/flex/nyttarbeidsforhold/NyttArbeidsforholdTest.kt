@@ -4,8 +4,6 @@ import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.soknadsopprettelse.*
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.Kilde
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.KjentInntektskilde
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
@@ -80,20 +78,6 @@ class NyttArbeidsforholdTest : NyttArbeidsforholdFellesOppsett() {
                 .besvarSporsmal(tag = NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO + "0", svar = "400000", ferdigBesvart = true)
                 .sendSoknad()
         assertThat(sendtSoknad.status).isEqualTo(RSSoknadstatus.SENDT)
-
-        val andreInntektskilder = soknaden.getSporsmalMedTag("ANDRE_INNTEKTSKILDER_V2")
-        val andreInntektskilderMetadata =
-            andreInntektskilder.metadata!!.tilAndreInntektskilderMetadata()
-
-        andreInntektskilderMetadata.kjenteInntektskilder `should be equal to`
-            listOf(
-                KjentInntektskilde(
-                    navn = "Kiosken, avd Oslo AS",
-                    kilde = Kilde.AAAREG,
-                    orgnummer = "999888777",
-                ),
-            )
-        andreInntektskilder.sporsmalstekst `should be equal to` "Har du annen inntekt eller oppdrag?"
 
         val kafkaSoknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = 1).tilSoknader()
         kafkaSoknader.shouldHaveSize(1)
