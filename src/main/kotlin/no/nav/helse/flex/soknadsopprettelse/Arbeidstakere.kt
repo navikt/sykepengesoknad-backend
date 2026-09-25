@@ -74,11 +74,11 @@ fun settOppSoknadArbeidstaker(
             )
         }
 
-        if (!arbeidsforholdoversiktResponse.isNullOrEmpty()) {
+        if (!arbeidsforholdoversiktResponse.isNullOrEmpty() || andreKjenteArbeidsforholdFraInntektskomponenten.isNotEmpty()) {
             val ghostInntekter =
                 sjekkGhostInntekter(
                     arbeidsforholdFraInntektskomponenten = andreKjenteArbeidsforholdFraInntektskomponenten,
-                    arbeidforholdOversikt = arbeidsforholdoversiktResponse,
+                    arbeidforholdOversikt = arbeidsforholdoversiktResponse ?: emptyList(),
                     arbeidsgiverOrgnummer = sykepengesoknad.arbeidsgiverOrgnummer,
                     nyeArbeidsforhold = heltNyeArbeidsforhold ?: emptyList(),
                 )

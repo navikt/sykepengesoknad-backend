@@ -16,7 +16,7 @@ import no.nav.helse.flex.util.getSporsmalMedTag
 import no.nav.helse.flex.util.serialisertTilString
 import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
 import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should be null`
+import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldHaveSize
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
@@ -51,19 +51,12 @@ class AndreInntektskilderSpmTest : FellesTestOppsett() {
                 soknadId = hentSoknaderMetadata(kunEttArbeidsforholdFnr).first { it.status == RSSoknadstatus.NY }.id,
                 fnr = kunEttArbeidsforholdFnr,
             )
-        soknaden.inntektskilderDataFraInntektskomponenten!!.shouldHaveSize(1)
-        val frilanser = soknaden.inntektskilderDataFraInntektskomponenten.first()
-        frilanser.navn `should be equal to` "Frilanseransetter AS"
-        frilanser.orgnummer `should be equal to` "999333667"
-        frilanser.arbeidsforholdstype `should be equal to` Arbeidsforholdstype.FRILANSER
+        soknaden.inntektskilderDataFraInntektskomponenten!!.shouldBeEmpty()
 
-        val andreInntektskilderSpm =
-            soknaden.sporsmal!!.find {
-                it.tag == "ANDRE_INNTEKTSKILDER_V2"
-            }!!
+        val andreInntektskilderSpm = soknaden.getSporsmalMedTag("ANDRE_INNTEKTSKILDER_V2")
         andreInntektskilderSpm.sporsmalstekst `should be equal to`
             "Har du annen inntekt eller oppdrag?"
-        andreInntektskilderSpm.metadata.`should be null`()
+        andreInntektskilderSpm.metadata!!.isNull `should be equal to` true
 
         flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
