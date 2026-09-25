@@ -26,6 +26,17 @@ fun filtrerArbeidsforholdISykeforlop(
             return@filter afterOrEqual
         }?.toSet()
 
+fun sjekkNyeArbeidsforhold(
+    fom: LocalDate,
+    tom: LocalDate,
+    arbeidforholdOversikt: List<ArbeidsforholdFraAAreg>?,
+): Set<ArbeidsforholdFraAAreg>? =
+    filtrerArbeidsforholdISykeforlop(
+        arbeidsforholdoversiktResponse = arbeidforholdOversikt,
+        fom = fom,
+        tom = tom,
+    )
+
 fun jobbetDuIPeriodenSporsmal(
     soknadsperioder: List<Soknadsperiode>,
     arbeidsgiverNavn: String,
@@ -42,17 +53,6 @@ fun jobbetDuIPeriodenSporsmal(
                 jobbetDuGradertArbeidstaker(periode, arbeidsgiverNavn, index)
             }
         }
-
-fun sjekkNyeArbeidsforhold(
-    fom: LocalDate,
-    tom: LocalDate,
-    arbeidforholdOversikt: List<ArbeidsforholdFraAAreg>?,
-): Set<ArbeidsforholdFraAAreg>? =
-    filtrerArbeidsforholdISykeforlop(
-        arbeidsforholdoversiktResponse = arbeidforholdOversikt,
-        fom = fom,
-        tom = tom,
-    )
 
 fun sjekkGhostInntekter(
     arbeidsforholdFraInntektskomponenten: List<ArbeidsforholdFraInntektskomponenten>,

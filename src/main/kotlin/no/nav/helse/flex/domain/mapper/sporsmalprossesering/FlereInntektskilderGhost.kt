@@ -1,35 +1,40 @@
 package no.nav.helse.flex.domain.mapper.sporsmalprossesering
 
-import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.Kilde
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.KjentInntektskilde
+import no.nav.helse.flex.domain.mapper.tilKjentInntektskildeDTO
+import no.nav.helse.flex.soknadsopprettelse.ArbeidsforholdFraInntektskomponenten
+import no.nav.helse.flex.soknadsopprettelse.aaregdata.ArbeidsforholdFraAAreg
+import no.nav.helse.flex.soknadsopprettelse.sjekkGhostInntekter
+import no.nav.helse.flex.soknadsopprettelse.sjekkNyeArbeidsforhold
+import no.nav.helse.flex.sykepengesoknad.kafka.KjenteInntektskilderDTO
+import java.time.LocalDate
 
-fun hentFlereInntektskilderGhost(sykepengesoknad: Sykepengesoknad): Set<KjentInntektskilde> {
-    var inntektskilderAareg =
-        sykepengesoknad.arbeidsforholdFraAareg?.map { inntektskilde ->
-            KjentInntektskilde(
-                navn = inntektskilde.arbeidsstedNavn,
-                orgnummer = inntektskilde.arbeidsstedOrgnummer,
-                kilde = Kilde.AAAREG,
+fun hentFlereInntektskilderGhost(
+    fom: LocalDate,
+    tom: LocalDate,
+    arbeidsforholdFraAareg: List<ArbeidsforholdFraAAreg>?,
+    inntektsforholdFraInntektskomponenten: List<ArbeidsforholdFraInntektskomponenten>?,
+    arbeidsgiverOrgnummer: String?,
+): Set<KjenteInntektskilderDTO> {
+    val heltNyeArbeidsforhold =
+        sjekkNyeArbeidsforhold(
+            fom = fom,
+            tom = tom,
+            arbeidforholdOversikt = arbeidsforholdFraAareg,
+        )?.toList()
+
+    if (!arbeidsforholdFraAareg.isNullOrEmpty() || !inntektsforholdFraInntektskomponenten.isNullOrEmpty()) {
+        val ghostInntekter =
+            sjekkGhostInntekter(
+                arbeidsforholdFraInntektskomponenten =
+                    inntektsforholdFraInntektskomponenten
+                        ?: emptyList(),
+                arbeidforholdOversikt = arbeidsforholdFraAareg ?: emptyList(),
+                arbeidsgiverOrgnummer = arbeidsgiverOrgnummer,
+                nyeArbeidsforhold = heltNyeArbeidsforhold ?: emptyList(),
             )
-        }
 
-    var inntektskildeKomponent =
-        sykepengesoknad.inntektskilderDataFraInntektskomponenten?.map { inntektskilde ->
-            KjentInntektskilde(
-                navn = inntektskilde.navn,
-                orgnummer = inntektskilde.orgnummer,
-                kilde = Kilde.INNTEKTSKOMPONENTEN,
-            )
-        }
+        return ghostInntekter.map { it.tilKjentInntektskildeDTO() }.toSet()
+    }
 
-    var inntektskilder =
-        buildSet {
-            addAll(inntektskildeKomponent.orEmpty())
-            addAll(inntektskilderAareg.orEmpty())
-        }
-
-    var kilderUtenSykemeldtFra = inntektskilder.filterNot { it.orgnummer == sykepengesoknad.arbeidsgiverOrgnummer }
-
-    return kilderUtenSykemeldtFra.toSet()
+    return emptySet()
 }
