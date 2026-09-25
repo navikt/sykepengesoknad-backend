@@ -7,23 +7,13 @@ import no.nav.helse.flex.util.*
 import java.time.LocalDate
 
 fun nyttArbeidsforholdSporsmal(
-    nyeArbeidsforhold: List<ArbeidsforholdFraAAreg>?,
-    denneSoknaden: Sykepengesoknad,
-    oppdatertTom: LocalDate? = null,
+    nyeArbeidsforhold: List<ArbeidsforholdFraAAreg>,
+    fom: LocalDate,
+    tom: LocalDate,
 ): List<Sporsmal> {
     return nyeArbeidsforhold
-        ?.filter { it.startdato.isBeforeOrEqual(oppdatertTom ?: denneSoknaden.tom!!) }
-        ?.filter {
-            if (it.sluttdato == null) {
-                return@filter true
-            }
-            val afterOrEqual = it.sluttdato.isAfterOrEqual(denneSoknaden.fom!!)
-            return@filter afterOrEqual
-        }?.toSet()
-        ?.mapIndexed { idx, arbeidsforhold ->
-
-            val fom = max(denneSoknaden.fom!!, arbeidsforhold.startdato)
-            val tom = oppdatertTom ?: denneSoknaden.tom!!
+        .mapIndexed { idx, arbeidsforhold ->
+            val fom = max(fom, arbeidsforhold.startdato)
 
             val periodeTekst = formatterPeriode(fom, tom)
             val metadata =
@@ -57,5 +47,5 @@ fun nyttArbeidsforholdSporsmal(
                         ),
                     ),
             )
-        } ?: emptyList()
+        }
 }

@@ -37,13 +37,13 @@ class ArbeidsforholdFraInntektskomponentenHentingTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `finner ett vi ikke vet om`() {
+    fun `finner arbeidsforhold som ikke er sykemeldt fra`() {
         arbeidsforholdFraInntektskomponentenHenting
             .hentArbeidsforhold(
                 fnr = "11111234565",
-                arbeidsgiverOrgnummer = "999333667",
+                arbeidsgiverOrgnummer = "123454543",
                 startSykeforlop = LocalDate.now(),
-            ).map { it.navn } `should be equal to` listOf("Bensinstasjonen AS")
+            ).map { it.navn } `should be equal to` listOf("Bensinstasjonen AS", "Frilanseransetter AS")
     }
 
     @Test

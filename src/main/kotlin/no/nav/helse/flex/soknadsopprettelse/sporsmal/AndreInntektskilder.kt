@@ -7,9 +7,7 @@ import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svartype
 import no.nav.helse.flex.domain.Visningskriterie
 import no.nav.helse.flex.soknadsopprettelse.*
-import no.nav.helse.flex.soknadsopprettelse.aaregdata.ArbeidsforholdFraAAreg
 import no.nav.helse.flex.util.formatterPeriode
-import no.nav.helse.flex.util.toJsonNode
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -58,70 +56,33 @@ data class KjentInntektskilde(
     val orgnummer: String,
 )
 
-fun andreInntektskilderArbeidstakerV2(
-    sykmeldingOrgnavn: String,
-    sykmeldingOrgnr: String,
-    andreKjenteArbeidsforholdFraInntektskomponenten: List<ArbeidsforholdFraInntektskomponenten>,
-    nyeArbeidsforholdFraAareg: List<ArbeidsforholdFraAAreg>?,
-): Sporsmal {
-    val alleArbeidsforhold = mutableListOf(KjentInntektskilde(sykmeldingOrgnavn, Kilde.SYKMELDING, sykmeldingOrgnr))
-    alleArbeidsforhold.addAll(
-        andreKjenteArbeidsforholdFraInntektskomponenten.map {
-            KjentInntektskilde(
-                it.navn,
-                Kilde.INNTEKTSKOMPONENTEN,
-                it.orgnummer,
-            )
-        },
-    )
-    nyeArbeidsforholdFraAareg
-        ?.filter { arbeidsforhold ->
-            !alleArbeidsforhold.map { it.orgnummer }.contains(arbeidsforhold.arbeidsstedOrgnummer)
-        }?.forEach {
-            alleArbeidsforhold.add(KjentInntektskilde(it.arbeidsstedNavn, Kilde.AAAREG, it.arbeidsstedOrgnummer))
-        }
-
-    fun skapSporsmal(): String {
-        val alleNavn = alleArbeidsforhold.map { it.navn }
-
-        fun virksomheterTekst(): String {
-            if (alleNavn.size < 3) {
-                return alleNavn.joinToString(" og ")
-            }
-            return "${alleNavn.subList(0, alleNavn.size - 1).joinToString(", ")} og ${alleNavn.last()}"
-        }
-
-        return "Har du andre inntektskilder enn ${virksomheterTekst()}?"
-    }
-
-    return Sporsmal(
+fun andreInntektskilderArbeidstakerV2(): Sporsmal =
+    Sporsmal(
         tag = ANDRE_INNTEKTSKILDER_V2,
-        sporsmalstekst = skapSporsmal(),
+        sporsmalstekst = "Har du annen inntekt eller oppdrag?",
+        undertekst = "Med inntekt mener vi betaling som du får for arbeid du har gjort.",
         svartype = Svartype.JA_NEI,
         kriterieForVisningAvUndersporsmal = Visningskriterie.JA,
-        metadata =
-            AndreInntektskilderMetadata(
-                kjenteInntektskilder = alleArbeidsforhold,
-            ).toJsonNode(),
         undersporsmal =
             listOf(
                 Sporsmal(
                     tag = HVILKE_ANDRE_INNTEKTSKILDER,
-                    sporsmalstekst = "Velg inntektskildene som passer for deg:",
-                    undertekst = "Finner du ikke noe som passer for deg, svarer du nei på spørsmålet over",
+                    sporsmalstekst = "Hva slags arbeid eller inntekt gjelder dette?",
+                    undertekst = "Du kan velge en eller flere.",
                     svartype = Svartype.CHECKBOX_GRUPPE,
                     undersporsmal =
                         listOf(
                             Sporsmal(
                                 tag = INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD,
-                                sporsmalstekst = "Ansatt andre steder enn nevnt over",
+                                sporsmalstekst = "Ansatt andre steder",
+                                undertekst = "En annen jobb enn Nav har registrert",
                                 svartype = Svartype.CHECKBOX,
                                 kriterieForVisningAvUndersporsmal = Visningskriterie.CHECKED,
                                 undersporsmal =
                                     listOf(
                                         Sporsmal(
                                             tag = INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD_JOBBET_I_DET_SISTE,
-                                            sporsmalstekst = "Har du jobbet for eller mottatt inntekt fra én eller flere av disse arbeidsgiverne de siste 14 dagene før du ble sykmeldt?",
+                                            sporsmalstekst = "Jobbet du noe mer enn hva du vanligvis jobber i denne jobben, mens du var sykmeldt?",
                                             svartype = Svartype.JA_NEI,
                                         ),
                                     ),
@@ -129,11 +90,12 @@ fun andreInntektskilderArbeidstakerV2(
                             Sporsmal(
                                 tag = INNTEKTSKILDE_SELVSTENDIG,
                                 sporsmalstekst = "Selvstendig næringsdrivende",
+                                undertekst = "Ofte enkeltpersonsforetak (ENK) eller ansvarlig selskap (ANS/DA)",
                                 svartype = Svartype.CHECKBOX,
                             ),
                             Sporsmal(
                                 tag = INNTEKTSKILDE_SELVSTENDIG_DAGMAMMA,
-                                sporsmalstekst = "Dagmamma",
+                                sporsmalstekst = "Barnepasser / Dagmamma",
                                 svartype = Svartype.CHECKBOX,
                             ),
                             Sporsmal(
@@ -147,11 +109,6 @@ fun andreInntektskilderArbeidstakerV2(
                                 svartype = Svartype.CHECKBOX,
                             ),
                             Sporsmal(
-                                tag = INNTEKTSKILDE_STYREVERV,
-                                sporsmalstekst = "Styreverv",
-                                svartype = Svartype.CHECKBOX,
-                            ),
-                            Sporsmal(
                                 tag = INNTEKTSKILDE_OMSORGSLONN,
                                 sporsmalstekst = "Kommunal omsorgstønad",
                                 svartype = Svartype.CHECKBOX,
@@ -161,11 +118,15 @@ fun andreInntektskilderArbeidstakerV2(
                                 sporsmalstekst = "Fosterhjemsgodtgjørelse",
                                 svartype = Svartype.CHECKBOX,
                             ),
+                            Sporsmal(
+                                tag = INNTEKTSKILDE_STYREVERV,
+                                sporsmalstekst = "Styreverv",
+                                svartype = Svartype.CHECKBOX,
+                            ),
                         ),
                 ),
             ),
     )
-}
 
 fun andreInntektskilderSelvstendigOgFrilanser(arbeidssituasjon: Arbeidssituasjon): Sporsmal =
     Sporsmal(

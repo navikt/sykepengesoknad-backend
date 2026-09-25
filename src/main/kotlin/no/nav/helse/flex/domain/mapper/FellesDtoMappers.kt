@@ -154,3 +154,10 @@ fun String.getJsonPeriodeFraGammeltFormat(): PeriodeDTO {
         throw RuntimeException("Feil ved parsing av periode: $this", e)
     }
 }
+
+// fun KjentInntektskilde.tilKjentInntektskildeDTO(): KjentInntektskildeDTO =
+//    KjentInntektskildeDTO(
+//        navn = this.navn,
+//        kilde = this.kilde,
+//        orgnummer = this.orgnummer,
+//    )
