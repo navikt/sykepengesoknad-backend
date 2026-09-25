@@ -628,4 +628,8 @@ class ArbeidstakersoknadToSykepengesoknadDTOTest {
             null,
         ) `should be equal to` 60
     }
+
+    @Test
+    fun `Sjekk om vi får flere ghost inntektskilder på Kafka`() {
+    }
 }
