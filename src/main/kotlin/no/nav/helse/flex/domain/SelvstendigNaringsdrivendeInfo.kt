@@ -35,9 +35,20 @@ data class SelvstendigNaringsdrivendeInfo(
                 // Summerer pensjonsgivende inntekt fra FASTLAND og SVALBARD.
                 pensjonsgivendeInntekt =
                     if (inntekt.pensjonsgivendeInntekt.isNotEmpty()) summerPensjonsgivendeInntekt(inntekt.pensjonsgivendeInntekt) else null,
-//                datoForFastsetting = inntekt.pensjonsgivendeInntekt.minOfOrNull { it.datoForFastsetting }?.toString(),
+                pensjonsgivendeInntektPerSkatteordning = inntekt.pensjonsgivendeInntekt.map { it.tilPerSkatteordningDTO() },
             )
         }
+
+    private fun PensjonsgivendeInntekt.tilPerSkatteordningDTO(): PensjonsgivendeInntektPerSkatteordningDTO =
+        PensjonsgivendeInntektPerSkatteordningDTO(
+            skatteordning = SkatteordningDTO.valueOf(skatteordning.name),
+            datoForFastsetting = datoForFastsetting,
+            pensjonsgivendeInntektAvLoennsinntekt = pensjonsgivendeInntektAvLoennsinntekt,
+            pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel = pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel,
+            pensjonsgivendeInntektAvNaeringsinntekt = pensjonsgivendeInntektAvNaeringsinntekt,
+            pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage =
+            pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage,
+        )
 
     private fun summerPensjonsgivendeInntekt(inntekter: List<PensjonsgivendeInntekt>): PensjonsgivendeInntektDTO =
         inntekter.fold(PensjonsgivendeInntektDTO()) { summert, inntekt ->

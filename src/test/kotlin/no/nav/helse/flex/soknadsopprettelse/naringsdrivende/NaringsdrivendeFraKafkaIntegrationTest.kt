@@ -664,6 +664,9 @@ class NaringsdrivendeFraKafkaIntegrationTest : FellesTestOppsett() {
                 rolleDTO.rolletype `should be equal to` "INNH"
             }
             selvstendigNaringsdrivendeDTO.inntekt!!.inntektsAar.size `should be equal to` 3
+            selvstendigNaringsdrivendeDTO.inntekt.inntektsAar.forEach {
+                it.pensjonsgivendeInntektPerSkatteordning.isNotEmpty() `should be equal to` it.erFerdigLignet
+            }
         }
     }
 
