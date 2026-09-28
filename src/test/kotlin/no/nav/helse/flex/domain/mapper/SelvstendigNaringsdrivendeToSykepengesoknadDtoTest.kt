@@ -8,6 +8,7 @@ import no.nav.helse.flex.domain.mapper.sporsmalprossesering.hentSoknadsPerioderM
 import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknadGradert
 import no.nav.helse.flex.service.SykepengegrunnlagNaeringsdrivende
 import no.nav.helse.flex.soknadsopprettelse.*
+import no.nav.helse.flex.sykepengesoknad.kafka.SkatteordningDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.helse.flex.testutil.besvarsporsmal
 import no.nav.helse.flex.util.getSporsmalMedTagOrNull
@@ -296,6 +297,93 @@ class SelvstendigNaringsdrivendeToSykepengesoknadDtoTest {
         soknadDTO.selvstendigNaringsdrivende!!.also {
             it.brukerHarOppgittForsikring `should be equal to` true
         }
+    }
+
+    @Test
+    fun `Inneholder inntekt per skatteordning ved siden av summert inntekt`() {
+        val grunnlag =
+            SykepengegrunnlagNaeringsdrivende(
+                inntekter =
+                    listOf(
+                        HentPensjonsgivendeInntektResponse(
+                            norskPersonidentifikator = "123456789",
+                            inntektsaar = "2023",
+                            pensjonsgivendeInntekt =
+                                listOf(
+                                    PensjonsgivendeInntekt(
+                                        datoForFastsetting = LocalDate.parse("2023-07-17"),
+                                        skatteordning = Skatteordning.FASTLAND,
+                                        pensjonsgivendeInntektAvLoennsinntekt = 100_000,
+                                        pensjonsgivendeInntektAvNaeringsinntekt = 400_000,
+                                    ),
+                                    PensjonsgivendeInntekt(
+                                        datoForFastsetting = LocalDate.parse("2023-07-18"),
+                                        skatteordning = Skatteordning.SVALBARD,
+                                        pensjonsgivendeInntektAvLoennsinntekt = 50_000,
+                                        pensjonsgivendeInntektAvNaeringsinntekt = 200_000,
+                                    ),
+                                ),
+                        ),
+                        HentPensjonsgivendeInntektResponse(
+                            norskPersonidentifikator = "123456789",
+                            inntektsaar = "2022",
+                            pensjonsgivendeInntekt = emptyList(),
+                        ),
+                    ),
+                harFunnetInntektFoerSykepengegrunnlaget = false,
+            )
+
+        val soknadDTO = lagSykepengesoknadDTOMedGrunnlag(grunnlag)
+
+        soknadDTO.selvstendigNaringsdrivende!!.inntekt!!.also { inntekt ->
+            inntekt.norskPersonidentifikator `should be equal to` "123456789"
+            inntekt.inntektsAar.size `should be equal to` 2
+
+            inntekt.inntektsAar.single { it.aar == "2023" }.also { aar ->
+                aar.erFerdigLignet `should be equal to` true
+                aar.pensjonsgivendeInntekt!!.pensjonsgivendeInntektAvLoennsinntekt `should be equal to` 150_000
+                aar.pensjonsgivendeInntekt.pensjonsgivendeInntektAvNaeringsinntekt `should be equal to` 600_000
+
+                aar.pensjonsgivendeInntektPerSkatteordning.size `should be equal to` 2
+                aar.pensjonsgivendeInntektPerSkatteordning[0].also {
+                    it.skatteordning `should be equal to` SkatteordningDTO.FASTLAND
+                    it.datoForFastsetting `should be equal to` LocalDate.parse("2023-07-17")
+                    it.pensjonsgivendeInntektAvLoennsinntekt `should be equal to` 100_000
+                    it.pensjonsgivendeInntektAvNaeringsinntekt `should be equal to` 400_000
+                }
+                aar.pensjonsgivendeInntektPerSkatteordning[1].also {
+                    it.skatteordning `should be equal to` SkatteordningDTO.SVALBARD
+                    it.datoForFastsetting `should be equal to` LocalDate.parse("2023-07-18")
+                    it.pensjonsgivendeInntektAvLoennsinntekt `should be equal to` 50_000
+                    it.pensjonsgivendeInntektAvNaeringsinntekt `should be equal to` 200_000
+                }
+            }
+
+            inntekt.inntektsAar.single { it.aar == "2022" }.also { aar ->
+                aar.erFerdigLignet `should be equal to` false
+                aar.pensjonsgivendeInntekt `should be equal to` null
+                aar.pensjonsgivendeInntektPerSkatteordning.size `should be equal to` 0
+            }
+        }
+    }
+
+    private fun lagSykepengesoknadDTOMedGrunnlag(grunnlag: SykepengegrunnlagNaeringsdrivende): SykepengesoknadDTO {
+        val soknad = opprettNyNaeringsdrivendeSoknadGradert()
+        return konverterTilSykepengesoknadDTO(
+            sykepengesoknad =
+                soknad.copy(
+                    soknadPerioder = soknadPerioder,
+                    selvstendigNaringsdrivende =
+                        SelvstendigNaringsdrivendeInfo(
+                            roller = emptyList(),
+                            sykepengegrunnlagNaeringsdrivende = grunnlag,
+                            erBarnepasser = false,
+                        ),
+                ),
+            mottaker = Mottaker.ARBEIDSGIVER_OG_NAV,
+            erEttersending = false,
+            soknadsperioder = hentSoknadsPerioderMedFaktiskGrad(soknad).first,
+        )
     }
 
     private fun lagSykepengesoknadDTO(soknad: Sykepengesoknad): SykepengesoknadDTO =
