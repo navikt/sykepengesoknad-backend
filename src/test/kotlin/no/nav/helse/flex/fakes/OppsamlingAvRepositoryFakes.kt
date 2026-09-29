@@ -200,66 +200,23 @@ class SporsmalDAOFake : SporsmalDAO {
 @Repository
 @Primary
 @Profile("fakes")
-class KlippetSykepengesoknadRepositoryFake : KlippetSykepengesoknadRepository {
-    override fun findBySykmeldingUuid(sykmeldingUuid: String): KlippetSykepengesoknadDbRecord? {
-        TODO("Not yet implemented")
-    }
+class KlippetSykepengesoknadRepositoryFake :
+    InMemoryCrudRepository<KlippetSykepengesoknadDbRecord, String>(
+        getId = { it.id },
+        copyWithId = { record, newId -> record.copy(id = newId) },
+        generateId = { UUID.randomUUID().toString() },
+    ),
+    KlippetSykepengesoknadRepository {
+    override fun findBySykmeldingUuid(sykmeldingUuid: String): KlippetSykepengesoknadDbRecord? =
+        findAll().firstOrNull { it.sykmeldingUuid == sykmeldingUuid }
 
-    override fun findAllBySykepengesoknadUuidIn(sykepengesoknadUuid: List<String>): List<KlippetSykepengesoknadDbRecord> {
-        TODO("Not yet implemented")
-    }
+    override fun existsBySykmeldingUuid(sykmeldingUuid: String): Boolean = findAll().any { it.sykmeldingUuid == sykmeldingUuid }
 
-    override fun findAllBySykmeldingUuidIn(sykmeldingUuid: List<String>): List<KlippetSykepengesoknadDbRecord> {
-        TODO("Not yet implemented")
-    }
+    override fun findAllBySykepengesoknadUuidIn(sykepengesoknadUuid: List<String>): List<KlippetSykepengesoknadDbRecord> =
+        findAll().filter { it.sykepengesoknadUuid in sykepengesoknadUuid }
 
-    override fun <S : KlippetSykepengesoknadDbRecord?> save(entity: S & Any): S & Any {
-        TODO("Not yet implemented")
-    }
-
-    override fun <S : KlippetSykepengesoknadDbRecord?> saveAll(entities: MutableIterable<S>): MutableIterable<S> {
-        TODO("Not yet implemented")
-    }
-
-    override fun findById(id: String): Optional<KlippetSykepengesoknadDbRecord> {
-        TODO("Not yet implemented")
-    }
-
-    override fun existsById(id: String): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    override fun findAll(): MutableIterable<KlippetSykepengesoknadDbRecord> {
-        TODO("Not yet implemented")
-    }
-
-    override fun findAllById(ids: MutableIterable<String>): MutableIterable<KlippetSykepengesoknadDbRecord> {
-        TODO("Not yet implemented")
-    }
-
-    override fun count(): Long {
-        TODO("Not yet implemented")
-    }
-
-    override fun deleteById(id: String) {
-        TODO("Not yet implemented")
-    }
-
-    override fun delete(entity: KlippetSykepengesoknadDbRecord) {
-        TODO("Not yet implemented")
-    }
-
-    override fun deleteAllById(ids: MutableIterable<String>) {
-        TODO("Not yet implemented")
-    }
-
-    override fun deleteAll(entities: MutableIterable<KlippetSykepengesoknadDbRecord>) {
-        TODO("Not yet implemented")
-    }
-
-    override fun deleteAll() {
-        TODO("Not yet implemented")
-    }
+    override fun findAllBySykmeldingUuidIn(sykmeldingUuid: List<String>): List<KlippetSykepengesoknadDbRecord> =
+        findAll().filter { it.sykmeldingUuid in sykmeldingUuid }
 }
 
 @Repository
