@@ -5,6 +5,8 @@ import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.soknadsopprettelse.*
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.Kilde
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.KjentInntektskilde
 import no.nav.helse.flex.svarvalidering.validerSvarPaSoknad
 import no.nav.helse.flex.testutil.besvarsporsmal
 import no.nav.helse.flex.util.oppsummering
@@ -73,13 +75,13 @@ fun opprettNyArbeidstakerSoknad(): Sykepengesoknad {
                 sporsmal =
                     settOppSoknadArbeidstaker(
                         sykepengesoknad = soknadMetadata,
-                        andreKjenteArbeidsforholdFraInntektskomponenten = emptyList(),
                         yrkesskade = YrkesskadeSporsmalGrunnlag(),
-                        arbeidsforholdoversiktResponse = null,
+                        nyeArbeidsforholdFraAAreg = null,
                         kjentOppholdstillatelse = null,
                         medlemskapSporsmalTags = emptyList(),
                         harTidligereUtenlandskSpm = false,
                         erForsteSoknadISykeforlop = true,
+                        ghostInntekter = emptyList(),
                     ),
             ),
         ).sorterSporsmal()
