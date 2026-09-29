@@ -8,6 +8,7 @@ import no.nav.helse.flex.controller.domain.RSMottakerResponse
 import no.nav.helse.flex.controller.domain.RSOppdaterSporsmalResponse
 import no.nav.helse.flex.controller.domain.sykepengesoknad.*
 import no.nav.helse.flex.controller.mapper.*
+import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Avsendertype.BRUKER
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Sporsmal
@@ -89,6 +90,18 @@ class SoknadBrukerController(
 
     @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
     @ResponseBody
+    @GetMapping(value = ["/soknader/sykmelding/{sykmeldingUuid}/harSoknad/{arbeidssituasjon}"], produces = [APPLICATION_JSON_VALUE])
+    fun harSoknadForSykmeldingOgArbeidssituasjon(
+        @PathVariable sykmeldingUuid: String,
+        @PathVariable arbeidssituasjon: Arbeidssituasjon,
+    ): RSHarSoknadForSykmeldingResponse {
+        val identer = contextHolder.validerTokenXClaims(flexSykmeldingerBackendClientId).hentIdenter()
+
+        return RSHarSoknadForSykmeldingResponse(harSoknad = optInService.harSoknadForSykmelding(sykmeldingUuid, identer, arbeidssituasjon))
+    }
+
+    @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
+    @ResponseBody
     @GetMapping(value = ["/soknad/{id}"], produces = [APPLICATION_JSON_VALUE])
     fun hentSoknad(
         @PathVariable id: String,
@@ -145,7 +158,7 @@ class SoknadBrukerController(
 
         try {
             inntektsopplysningForNaringsdrivende.lagreOpplysningerOmDokumentasjonAvInntektsopplysninger(sendtSoknad)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             log.error("Henting og lagring av inntektsopplysninger for feilet for søknad ${sendtSoknad.id}.")
         }
     }
