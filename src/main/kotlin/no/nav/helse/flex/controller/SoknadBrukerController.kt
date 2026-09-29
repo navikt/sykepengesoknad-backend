@@ -18,7 +18,6 @@ import no.nav.helse.flex.frisktilarbeid.FjernFremtidigeFtaSoknaderService
 import no.nav.helse.flex.inntektsopplysninger.InntektsopplysningForNaringsdrivende
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.oppdatersporsmal.soknad.OppdaterSporsmalService
-import no.nav.helse.flex.repository.SykepengesoknadRepository
 import no.nav.helse.flex.sending.SoknadSender
 import no.nav.helse.flex.service.*
 import no.nav.helse.flex.soknadsopprettelse.*
@@ -51,7 +50,6 @@ class SoknadBrukerController(
     private val inntektsopplysningForNaringsdrivende: InntektsopplysningForNaringsdrivende,
     private val oppholdUtenforEOSService: OppholdUtenforEOSService,
     private val fjernFremtidigeFtaSoknaderService: FjernFremtidigeFtaSoknaderService,
-    private val sykepengesoknadRepository: SykepengesoknadRepository,
     private val optInService: OptInService,
     @param:Value("\${DITT_SYKEFRAVAER_FRONTEND_CLIENT_ID}")
     val dittSykefravaerFrontendClientId: String,
@@ -69,23 +67,6 @@ class SoknadBrukerController(
         val identer =
             contextHolder.validerTokenXClaims(dittSykefravaerFrontendClientId, sykepengesoknadFrontendClientId).hentIdenter()
         return hentSoknadService.hentSoknaderUtenSporsmal(identer).map { it.tilRSSykepengesoknadMetadata() }
-    }
-
-    @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
-    @ResponseBody
-    @GetMapping(value = ["/soknader/sykmelding/{sykmeldingUuid}/harSoknad"], produces = [APPLICATION_JSON_VALUE])
-    fun harSoknadForSykmelding(
-        @PathVariable sykmeldingUuid: String,
-    ): RSHarSoknadForSykmeldingResponse {
-        val identer = contextHolder.validerTokenXClaims(flexSykmeldingerBackendClientId).hentIdenter()
-        val soknader = sykepengesoknadRepository.findBySykmeldingUuid(sykmeldingUuid)
-
-        val soknadFinnes = soknader.isNotEmpty()
-        if (soknadFinnes && soknader.any { it.fnr !in identer.alle() }) {
-            throw IkkeTilgangException("Er ikke eier")
-        }
-
-        return RSHarSoknadForSykmeldingResponse(harSoknad = soknadFinnes)
     }
 
     @ProtectedWithClaims(issuer = TOKENX, combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
