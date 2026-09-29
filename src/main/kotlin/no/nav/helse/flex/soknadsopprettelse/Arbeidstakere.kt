@@ -29,13 +29,13 @@ enum class SykepengesoknadSporsmalTag : MedlemskapSporsmalTag {
 
 fun settOppSoknadArbeidstaker(
     sykepengesoknad: Sykepengesoknad,
-    andreKjenteArbeidsforholdFraInntektskomponenten: List<ArbeidsforholdFraInntektskomponenten>,
     yrkesskade: YrkesskadeSporsmalGrunnlag,
-    arbeidsforholdoversiktResponse: List<ArbeidsforholdFraAAreg>?,
+    nyeArbeidsforholdFraAAreg: List<ArbeidsforholdFraAAreg>?,
     kjentOppholdstillatelse: KjentOppholdstillatelse?,
     medlemskapSporsmalTags: List<MedlemskapSporsmalTag>,
     harTidligereUtenlandskSpm: Boolean,
     erForsteSoknadISykeforlop: Boolean,
+    ghostInntekter: List<KjentInntektskilde>,
 ): List<Sporsmal> {
     val erGradertReisetilskudd = sykepengesoknad.soknadstype == GRADERT_REISETILSKUDD
     return mutableListOf<Sporsmal>().apply {
@@ -57,48 +57,29 @@ fun settOppSoknadArbeidstaker(
             addAll(utenlandskSykmeldingSporsmal(sykepengesoknad))
         }
 
-        val heltNyeArbeidsforhold =
-            sjekkNyeArbeidsforhold(
-                fom = sykepengesoknad.fom,
-                tom = sykepengesoknad.tom,
-                arbeidforholdOversikt = arbeidsforholdoversiktResponse,
-            )?.toList()
-
-        if (!heltNyeArbeidsforhold.isNullOrEmpty()) {
+        if (!nyeArbeidsforholdFraAAreg.isNullOrEmpty()) {
             addAll(
                 nyttArbeidsforholdSporsmal(
-                    heltNyeArbeidsforhold.toList(),
+                    nyeArbeidsforholdFraAAreg,
                     fom = sykepengesoknad.fom,
                     tom = sykepengesoknad.tom,
                 ),
             )
         }
 
-        if (!arbeidsforholdoversiktResponse.isNullOrEmpty() || andreKjenteArbeidsforholdFraInntektskomponenten.isNotEmpty()) {
-            val ghostInntekter =
-                sjekkGhostInntekter(
-                    arbeidsforholdFraInntektskomponenten = andreKjenteArbeidsforholdFraInntektskomponenten,
-                    arbeidforholdOversikt = arbeidsforholdoversiktResponse ?: emptyList(),
-                    arbeidsgiverOrgnummer = sykepengesoknad.arbeidsgiverOrgnummer,
-                    nyeArbeidsforhold = heltNyeArbeidsforhold ?: emptyList(),
-                )
-
-            if (ghostInntekter.isNotEmpty()) {
-                add(
-                    flereInntektskilderGhost(
-                        andreKjenteInntektskilder = ghostInntekter,
-                        soknadsperiode =
-                            Soknadsperiode(
-                                fom = sykepengesoknad.fom,
-                                tom = sykepengesoknad.tom,
-                                grad = 0,
-                                sykmeldingstype = null,
-                            ),
-                    ),
-                )
-            } else {
-                add(andreInntektskilderArbeidstakerV2())
-            }
+        if (ghostInntekter.isNotEmpty()) {
+            add(
+                flereInntektskilderGhost(
+                    andreKjenteInntektskilder = ghostInntekter,
+                    soknadsperiode =
+                        Soknadsperiode(
+                            fom = sykepengesoknad.fom,
+                            tom = sykepengesoknad.tom,
+                            grad = 0,
+                            sykmeldingstype = null,
+                        ),
+                ),
+            )
         } else {
             add(andreInntektskilderArbeidstakerV2())
         }
