@@ -1,6 +1,6 @@
 package no.nav.helse.flex.fakes
-import no.nav.helse.flex.frisktilarbeid.ArbeidssokerregisterStoppListener
-import no.nav.helse.flex.kafka.ARBEIDSSOKERREGISTER_STOPP_TOPIC
+import no.nav.helse.flex.frisktilarbeid.ArbeidssokerregisterStartStoppListener
+import no.nav.helse.flex.kafka.ARBEIDSSOKERREGISTER_START_STOPP_TOPIC
 import org.apache.kafka.clients.consumer.ConsumerGroupMetadata
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.OffsetAndMetadata
@@ -23,11 +23,11 @@ class StringStringKafkaProducerFake : Producer<String, String> {
     }
 
     @Autowired
-    lateinit var arbeidssokerregisterStoppListener: ArbeidssokerregisterStoppListener
+    lateinit var arbeidssokerregisterStartStoppListener: ArbeidssokerregisterStartStoppListener
 
     fun rutMeldingTilListener(record: ProducerRecord<String, String>) {
-        if (record.topic() == ARBEIDSSOKERREGISTER_STOPP_TOPIC) {
-            arbeidssokerregisterStoppListener.listen(record.tilConsumerRecord(), { })
+        if (record.topic() == ARBEIDSSOKERREGISTER_START_STOPP_TOPIC) {
+            arbeidssokerregisterStartStoppListener.listen(record.tilConsumerRecord(), { })
         }
     }
 

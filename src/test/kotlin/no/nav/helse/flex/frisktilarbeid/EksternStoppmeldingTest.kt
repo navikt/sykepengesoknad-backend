@@ -84,7 +84,7 @@ class EksternStoppmeldingTest : FakesTestOppsett() {
 
     @Test
     @Order(3)
-    fun `Send ArbeidssokerperiodeStoppMelding`() {
+    fun `Send ArbeidssokerperiodeStartStoppMelding`() {
         val soknader = hentSoknader(fnr)
         val soknad = soknader.first { it.status == RSSoknadstatus.NY }
         soknader.shouldHaveSize(4)
