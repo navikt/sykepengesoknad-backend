@@ -1,5 +1,6 @@
 package no.nav.helse.flex.service
 
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.helse.flex.client.bregDirect.EnhetsregisterClient
 import no.nav.helse.flex.client.brreg.BrregClient
 import no.nav.helse.flex.client.brreg.RolleDto
@@ -70,6 +71,7 @@ class SelvstendigNaringsdrivendeInfoService(
         }
     }
 
+    @WithSpan
     private fun hentRoller(fnr: String): List<RolleDto> {
         val selvstendigNaringsdrivendeRoller =
             listOf(
