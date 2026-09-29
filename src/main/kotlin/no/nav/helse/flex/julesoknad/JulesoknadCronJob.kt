@@ -4,9 +4,7 @@ import no.nav.helse.flex.ApplicationHealth
 import no.nav.helse.flex.cronjob.LeaderElection
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.JulesoknadkandidatDAO
-import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
-import java.util.concurrent.TimeUnit
 
 @Service
 class JulesoknadCronJob(
@@ -17,7 +15,8 @@ class JulesoknadCronJob(
 ) {
     private val log = logger()
 
-    @Scheduled(initialDelay = 5, fixedDelay = 10, timeUnit = TimeUnit.MINUTES)
+    // Slår av jobb som prosesserer julesøknadkandidater til det er avklart om vi skal ha Julesøknaden eller ikke.
+    // @Scheduled(initialDelay = 5, fixedDelay = 1, timeUnit = TimeUnit.MINUTES)
     fun prosseserJulesoknadKandidater() {
         if (leaderElection.isLeader()) {
             val julesoknadkandidater = julesoknadkandidatDAO.hentJulesoknadkandidater()

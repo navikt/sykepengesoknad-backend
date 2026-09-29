@@ -84,8 +84,10 @@ class ProsesserJulesoknadkandidat(
                         orgnummer = orgnummer,
                     )?.arbeidsgiverForskutterer
             if (forskuttering == true) {
+                log.info("Arbeidsgiver forskutterer for sykepengesoknad: $sykepengesoknadUuid")
                 return false
             }
+            log.info("Arbeidsgiver forskutterer IKKE for sykepengesoknad: $sykepengesoknadUuid")
             return true
         }
         return true
