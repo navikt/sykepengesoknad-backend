@@ -4,6 +4,7 @@ import no.nav.helse.flex.inntektsopplysninger.InntektsopplysningerDokumentType
 import no.nav.helse.flex.medlemskap.KjentOppholdstillatelse
 import no.nav.helse.flex.soknadsopprettelse.ArbeidsforholdFraInntektskomponenten
 import no.nav.helse.flex.soknadsopprettelse.aaregdata.ArbeidsforholdFraAAreg
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.KjentInntektskilde
 import java.io.Serializable
 import java.time.Instant
 import java.time.LocalDate
@@ -55,6 +56,7 @@ data class Sykepengesoknad(
     val friskTilArbeidVedtakId: String? = null,
     val selvstendigNaringsdrivende: SelvstendigNaringsdrivendeInfo? = null,
     val ventetidSykmeldingUuid: String? = null,
+    val ghostInntekter: List<KjentInntektskilde>? = null,
 ) : Serializable {
     init {
         require(soknadstype == Soknadstype.OPPHOLD_UTLAND || (fom != null && tom != null)) {
