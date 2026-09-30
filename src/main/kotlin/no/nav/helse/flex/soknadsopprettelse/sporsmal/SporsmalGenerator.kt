@@ -92,7 +92,7 @@ class SporsmalGenerator(
                             sporsmalOgAndreKjenteArbeidsforhold
                                 .arbeidsforholdFraAAreg
                                 ?.serialisertTilString(),
-                        ghostInnteker = sporsmalOgAndreKjenteArbeidsforhold.ghostInntekter?.serialisertTilString(),
+                        ghostInntekter = sporsmalOgAndreKjenteArbeidsforhold.ghostInntekter?.serialisertTilString(),
                     ),
             )
         }

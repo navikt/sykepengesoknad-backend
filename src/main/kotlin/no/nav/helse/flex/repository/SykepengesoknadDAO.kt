@@ -13,6 +13,7 @@ import no.nav.helse.flex.medlemskap.tilKjentOppholdstillatelse
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.soknadsopprettelse.ArbeidsforholdFraInntektskomponenten
 import no.nav.helse.flex.soknadsopprettelse.sorterSporsmal
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.KjentInntektskilde
 import no.nav.helse.flex.util.*
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.dao.IncorrectResultSizeDataAccessException
@@ -673,6 +674,7 @@ class SykepengesoknadDAOPostgres(
                             objectMapper.readValue(it)
                         },
                     ventetidSykmeldingUuid = resultSet.getNullableString("ventetid_sykmelding_uuid"),
+                    ghostInntekter = resultSet.getNullableString("ghost_inntekter").tilGhostInntekter(),
                 ),
             )
         }
@@ -781,6 +783,13 @@ fun String?.tilMerknader(): List<Merknad>? {
 }
 
 private fun String?.tilArbeidsforholdFraInntektskomponenten(): List<ArbeidsforholdFraInntektskomponenten>? {
+    this?.let {
+        return objectMapper.readValue(this)
+    }
+    return null
+}
+
+private fun String?.tilGhostInntekter(): List<KjentInntektskilde>? {
     this?.let {
         return objectMapper.readValue(this)
     }
