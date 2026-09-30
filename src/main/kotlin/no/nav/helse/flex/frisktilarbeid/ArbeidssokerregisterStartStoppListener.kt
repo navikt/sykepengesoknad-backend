@@ -29,7 +29,10 @@ class ArbeidssokerregisterStartStoppListener(
     ) {
         val startStoppMelding = cr.value().tilArbeidssokerperiodeStartStoppMelding()
 
-        log.info("Mottok ArbeidssokerregisterStartStoppMelding for vedtaksperiodeId: ${startStoppMelding.vedtaksperiodeId}.")
+        log.info(
+            "Mottok ArbeidssokerregisterStartStoppMelding med operation: ${startStoppMelding.operation} for" +
+                " vedtaksperiode: ${startStoppMelding.vedtaksperiodeId}.",
+        )
         arbeidssokerregisterStartStoppService.prosseserStartStoppMelding(startStoppMelding)
         acknowledgment.acknowledge()
     }

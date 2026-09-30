@@ -25,7 +25,10 @@ class ArbeidssokerregisterStartStoppService(
     @Transactional
     fun prosseserStartStoppMelding(startStoppMelding: ArbeidssokerperiodeStartStoppMelding) {
         if (startStoppMelding.operation != StartStopp.STOPP) {
-            throw IllegalStateException("Applikasjon prosesserer kun stopp meldinger. Faktisk melding: $startStoppMelding")
+            throw IllegalStateException(
+                "Applikasjon prosesserer kun meldinger med operation: ${StartStopp.STOPP} meldinger." +
+                    "Mottatt melding har operation: ${startStoppMelding.operation}.",
+            )
         }
 
         val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(startStoppMelding.fnr)
