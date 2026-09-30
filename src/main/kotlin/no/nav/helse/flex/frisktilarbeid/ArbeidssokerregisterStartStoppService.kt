@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional
 import kotlin.jvm.optionals.getOrNull
 
 @Component
-class ArbeidssokerregisterStoppService(
+class ArbeidssokerregisterStartStoppService(
     private val identService: IdentService,
     private val hentSoknadService: HentSoknadService,
     private val sykepengesoknadDAO: SykepengesoknadDAO,
@@ -23,26 +23,33 @@ class ArbeidssokerregisterStoppService(
     private val log = logger()
 
     @Transactional
-    fun prosseserStoppMelding(stoppMelding: ArbeidssokerperiodeStoppMelding) {
-        val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(stoppMelding.fnr)
+    fun prosseserStartStoppMelding(startStoppMelding: ArbeidssokerperiodeStartStoppMelding) {
+        if (startStoppMelding.operation != StartStopp.STOPP) {
+            throw IllegalStateException(
+                "Applikasjon prosesserer kun meldinger med operation: ${StartStopp.STOPP} meldinger." +
+                    "Mottatt melding har operation: ${startStoppMelding.operation}.",
+            )
+        }
+
+        val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(startStoppMelding.fnr)
 
         val alleFtaSoknaderSammeVedtaksid =
             hentSoknadService
                 .hentSoknader(identer)
                 .filter { it.soknadstype == Soknadstype.FRISKMELDT_TIL_ARBEIDSFORMIDLING }
-                .filter { it.friskTilArbeidVedtakId == stoppMelding.vedtaksperiodeId }
+                .filter { it.friskTilArbeidVedtakId == startStoppMelding.vedtaksperiodeId }
 
         val soknaderSomSkalSlettes =
             alleFtaSoknaderSammeVedtaksid
                 .filter { it.status == Soknadstatus.FREMTIDIG || it.status == Soknadstatus.NY }
                 .filter {
                     // Stoppmeldingen må komme fra et eksternt system. Må tillatte at nåværende periode kan sendes inn
-                    it.fom!!.isAfter(stoppMelding.avsluttetTidspunkt.tilLocalDate())
+                    it.fom!!.isAfter(startStoppMelding.tidspunkt.tilLocalDate())
                 }
 
-        friskTilArbeidRepository.findById(stoppMelding.vedtaksperiodeId).getOrNull()?.let {
+        friskTilArbeidRepository.findById(startStoppMelding.vedtaksperiodeId).getOrNull()?.let {
             if (it.avsluttetTidspunkt == null) {
-                friskTilArbeidRepository.save(it.copy(avsluttetTidspunkt = stoppMelding.avsluttetTidspunkt))
+                friskTilArbeidRepository.save(it.copy(avsluttetTidspunkt = startStoppMelding.tidspunkt))
             }
         }
 
@@ -52,7 +59,7 @@ class ArbeidssokerregisterStoppService(
             soknadProducer.soknadEvent(soknadSomSlettes, null, false)
             log.info(
                 "Slettet søknad: ${it.id} på grunn av FriskTilArbeidStoppMelding med avsluttetTidspunkt:" +
-                    " ${stoppMelding.avsluttetTidspunkt} for vedtaksperiode: ${stoppMelding.vedtaksperiodeId}.",
+                    " ${startStoppMelding.tidspunkt} for vedtaksperiode: ${startStoppMelding.vedtaksperiodeId}.",
             )
         }
     }

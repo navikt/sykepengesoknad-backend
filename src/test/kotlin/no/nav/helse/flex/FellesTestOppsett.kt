@@ -4,7 +4,7 @@ import io.getunleash.FakeUnleash
 import jakarta.annotation.PostConstruct
 import no.nav.helse.flex.client.kvitteringer.SykepengesoknadKvitteringerClient
 import no.nav.helse.flex.juridiskvurdering.JURIDISK_VURDERING_TOPIC
-import no.nav.helse.flex.kafka.ARBEIDSSOKERREGISTER_STOPP_TOPIC
+import no.nav.helse.flex.kafka.ARBEIDSSOKERREGISTER_START_STOPP_TOPIC
 import no.nav.helse.flex.kafka.AUDIT_TOPIC
 import no.nav.helse.flex.kafka.SYKEPENGESOKNAD_TOPIC
 import no.nav.helse.flex.kafka.producer.AivenKafkaProducer
@@ -146,7 +146,7 @@ abstract class FellesTestOppsett : TestOppsettInterfaces {
     lateinit var auditlogKafkaConsumer: Consumer<String, String>
 
     @Autowired
-    lateinit var arbeidssokerregisterStoppConsumer: Consumer<String, String>
+    lateinit var arbeidssokerregisterStartStoppConsumer: Consumer<String, String>
 
     @BeforeAll
     @AfterAll
@@ -164,7 +164,7 @@ abstract class FellesTestOppsett : TestOppsettInterfaces {
         sykepengesoknadKafkaConsumer.subscribeHvisIkkeSubscribed(SYKEPENGESOKNAD_TOPIC)
         juridiskVurderingKafkaConsumer.subscribeHvisIkkeSubscribed(JURIDISK_VURDERING_TOPIC)
         auditlogKafkaConsumer.subscribeHvisIkkeSubscribed(AUDIT_TOPIC)
-        arbeidssokerregisterStoppConsumer.subscribeHvisIkkeSubscribed(ARBEIDSSOKERREGISTER_STOPP_TOPIC)
+        arbeidssokerregisterStartStoppConsumer.subscribeHvisIkkeSubscribed(ARBEIDSSOKERREGISTER_START_STOPP_TOPIC)
     }
 
     @AfterAll
@@ -172,7 +172,7 @@ abstract class FellesTestOppsett : TestOppsettInterfaces {
         sykepengesoknadKafkaConsumer.validerErTom()
         juridiskVurderingKafkaConsumer.validerErTom()
         auditlogKafkaConsumer.validerErTom()
-        arbeidssokerregisterStoppConsumer.validerErTom()
+        arbeidssokerregisterStartStoppConsumer.validerErTom()
     }
 
     @AfterAll
