@@ -49,3 +49,14 @@ fun nyttArbeidsforholdSporsmal(
             )
         }
 }
+
+fun List<ArbeidsforholdFraAAreg>?.arbeidsforholdInnenforPerioden(
+    fom: LocalDate,
+    tom: LocalDate,
+): List<ArbeidsforholdFraAAreg> =
+    this
+        ?.let { arbeidsforholdFraAAreg ->
+            arbeidsforholdFraAAreg
+                .filter { it.startdato.isBeforeOrEqual(tom) }
+                .filter { it.sluttdato == null || it.sluttdato.isAfterOrEqual(fom) }
+        } ?: emptyList()

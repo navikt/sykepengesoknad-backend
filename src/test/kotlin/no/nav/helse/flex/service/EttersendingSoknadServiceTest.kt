@@ -12,8 +12,6 @@ import no.nav.helse.flex.kafka.producer.SoknadProducer
 import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.soknadsopprettelse.settOppSoknadArbeidstaker
 import no.nav.helse.flex.soknadsopprettelse.settOppSykepengesoknadBehandlingsdager
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.Kilde
-import no.nav.helse.flex.soknadsopprettelse.sporsmal.KjentInntektskilde
 import no.nav.helse.flex.soknadsopprettelse.tilSoknadsperioder
 import no.nav.helse.flex.util.tilOsloInstant
 import no.nav.helse.flex.yrkesskade.YrkesskadeSporsmalGrunnlag
@@ -163,7 +161,6 @@ class EttersendingSoknadServiceTest {
     }
 
     private fun arbeidstakereSoknadMock(): Sykepengesoknad {
-
         val soknadMetadata =
             Sykepengesoknad(
                 arbeidsgiverOrgnummer = "123456789",
@@ -202,7 +199,7 @@ class EttersendingSoknadServiceTest {
                 settOppSoknadArbeidstaker(
                     sykepengesoknad = soknadMetadata,
                     yrkesskade = YrkesskadeSporsmalGrunnlag(),
-                    nyeArbeidsforholdFraAAreg = null,
+                    nyeArbeidsforholdFraAAreg = emptyList(),
                     kjentOppholdstillatelse = null,
                     medlemskapSporsmalTags = emptyList(),
                     harTidligereUtenlandskSpm = false,

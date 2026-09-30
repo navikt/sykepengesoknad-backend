@@ -68,18 +68,19 @@ class ArbeidGjenopptattMuteringTest {
                 forstegangssoknad = false,
             )
 
-        val ghostInnteker = listOf(
-            KjentInntektskilde(
-                navn = "Flausefabrikken AS",
-                kilde = Kilde.INNTEKTSKOMPONENTEN,
-                orgnummer = "91839209109382101"
-            ),
-            KjentInntektskilde(
-                navn = "Pausefabrikken AS",
-                kilde = Kilde.INNTEKTSKOMPONENTEN,
-                orgnummer = "8192819372819138191"
+        val ghostInnteker =
+            listOf(
+                KjentInntektskilde(
+                    navn = "Flausefabrikken AS",
+                    kilde = Kilde.INNTEKTSKOMPONENTEN,
+                    orgnummer = "91839209109382101",
+                ),
+                KjentInntektskilde(
+                    navn = "Pausefabrikken AS",
+                    kilde = Kilde.INNTEKTSKOMPONENTEN,
+                    orgnummer = "8192819372819138191",
+                ),
             )
-        )
 
         val standardSoknad =
             soknad.copy(
@@ -87,7 +88,7 @@ class ArbeidGjenopptattMuteringTest {
                     settOppSoknadArbeidstaker(
                         sykepengesoknad = soknad,
                         yrkesskade = YrkesskadeSporsmalGrunnlag(),
-                        nyeArbeidsforholdFraAAreg = null,
+                        nyeArbeidsforholdFraAAreg = emptyList(),
                         kjentOppholdstillatelse = null,
                         medlemskapSporsmalTags = emptyList(),
                         harTidligereUtenlandskSpm = false,
@@ -158,18 +159,19 @@ class ArbeidGjenopptattMuteringTest {
                 forstegangssoknad = false,
             )
 
-        val ghostInnteker = listOf(
-            KjentInntektskilde(
-                navn = "Flausefabrikken AS",
-                kilde = Kilde.INNTEKTSKOMPONENTEN,
-                orgnummer = "91839209109382101"
-            ),
-            KjentInntektskilde(
-                navn = "Pausefabrikken AS",
-                kilde = Kilde.INNTEKTSKOMPONENTEN,
-                orgnummer = "8192819372819138191"
+        val ghostInnteker =
+            listOf(
+                KjentInntektskilde(
+                    navn = "Flausefabrikken AS",
+                    kilde = Kilde.INNTEKTSKOMPONENTEN,
+                    orgnummer = "91839209109382101",
+                ),
+                KjentInntektskilde(
+                    navn = "Pausefabrikken AS",
+                    kilde = Kilde.INNTEKTSKOMPONENTEN,
+                    orgnummer = "8192819372819138191",
+                ),
             )
-        )
 
         val standardSoknad =
             soknad.copy(
@@ -177,12 +179,12 @@ class ArbeidGjenopptattMuteringTest {
                     settOppSoknadArbeidstaker(
                         sykepengesoknad = soknad,
                         yrkesskade = YrkesskadeSporsmalGrunnlag(),
-                        nyeArbeidsforholdFraAAreg = null,
+                        nyeArbeidsforholdFraAAreg = emptyList(),
                         kjentOppholdstillatelse = null,
                         medlemskapSporsmalTags = emptyList(),
                         harTidligereUtenlandskSpm = false,
                         erForsteSoknadISykeforlop = true,
-                        ghostInntekter = ghostInnteker
+                        ghostInntekter = ghostInnteker,
                     ),
             )
 
@@ -251,7 +253,7 @@ class ArbeidGjenopptattMuteringTest {
                     settOppSoknadArbeidstaker(
                         sykepengesoknad = soknad,
                         yrkesskade = YrkesskadeSporsmalGrunnlag(),
-                        nyeArbeidsforholdFraAAreg = null,
+                        nyeArbeidsforholdFraAAreg = emptyList(),
                         kjentOppholdstillatelse = null,
                         medlemskapSporsmalTags = emptyList(),
                         harTidligereUtenlandskSpm = false,

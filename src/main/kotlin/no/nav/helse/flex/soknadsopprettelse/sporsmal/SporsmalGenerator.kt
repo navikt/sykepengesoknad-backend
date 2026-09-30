@@ -56,7 +56,7 @@ class SporsmalGenerator(
         val sporsmal: List<Sporsmal>,
         val andreKjenteArbeidsforhold: List<ArbeidsforholdFraInntektskomponenten>? = null,
         val arbeidsforholdFraAAreg: List<ArbeidsforholdFraAAreg>? = null,
-        val ghostInntekter: List<KjentInntektskilde>?=null,
+        val ghostInntekter: List<KjentInntektskilde>? = null,
     )
 
     fun lagSporsmalPaSoknad(id: String) {
@@ -162,7 +162,9 @@ class SporsmalGenerator(
 
         return when (soknad.arbeidssituasjon) {
             ARBEIDSTAKER -> {
-                val nyeAaregArbeidsforhold = tilkommenInntektGrunnlagHenting(soknad, eksisterendeSoknader)
+                val nyeAaregArbeidsforhold =
+                    tilkommenInntektGrunnlagHenting(soknad, eksisterendeSoknader)
+                        .arbeidsforholdInnenforPerioden(soknad.fom!!, soknad.tom!!)
                 val inntektskomponentenArbeidsforhold =
                     arbeidsforholdFraInntektskomponentenHenting.hentArbeidsforhold(
                         fnr = soknad.fnr,
@@ -170,16 +172,17 @@ class SporsmalGenerator(
                         startSykeforlop = soknad.startSykeforlop!!,
                     )
 
-                var ghostInntekter = emptyList<KjentInntektskilde>()
-                if (inntektskomponentenArbeidsforhold.isNotEmpty()) {
-                    ghostInntekter =
+                val ghostInntekter =
+                    if (inntektskomponentenArbeidsforhold.isNotEmpty()) {
                         sjekkForGhostInntekter(
                             arbeidsforholdFraInntektskomponenten = inntektskomponentenArbeidsforhold,
-                            arbeidforholdOversiktAareg = nyeAaregArbeidsforhold ?: emptyList(),
+                            arbeidforholdOversiktAareg = nyeAaregArbeidsforhold,
                             arbeidsgiverOrgnummerSoknad = soknad.arbeidsgiverOrgnummer,
                             eksisterendeSoknader = eksisterendeSoknader,
                         )
-                }
+                    } else {
+                        emptyList()
+                    }
 
                 val medlemskapSporsmalResultat = lagMedlemsskapSporsmalResultat(eksisterendeSoknader, soknad)
 
