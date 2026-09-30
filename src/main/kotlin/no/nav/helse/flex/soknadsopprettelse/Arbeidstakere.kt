@@ -30,7 +30,7 @@ enum class SykepengesoknadSporsmalTag : MedlemskapSporsmalTag {
 fun settOppSoknadArbeidstaker(
     sykepengesoknad: Sykepengesoknad,
     yrkesskade: YrkesskadeSporsmalGrunnlag,
-    nyeArbeidsforholdFraAAreg: List<ArbeidsforholdFraAAreg>?,
+    nyeArbeidsforholdFraAAreg: List<ArbeidsforholdFraAAreg>,
     kjentOppholdstillatelse: KjentOppholdstillatelse?,
     medlemskapSporsmalTags: List<MedlemskapSporsmalTag>,
     harTidligereUtenlandskSpm: Boolean,
@@ -56,16 +56,13 @@ fun settOppSoknadArbeidstaker(
         if (sykepengesoknad.utenlandskSykmelding && (erForsteSoknadISykeforlop || !harTidligereUtenlandskSpm)) {
             addAll(utenlandskSykmeldingSporsmal(sykepengesoknad))
         }
-
-        if (!nyeArbeidsforholdFraAAreg.isNullOrEmpty()) {
-            addAll(
-                nyttArbeidsforholdSporsmal(
-                    nyeArbeidsforholdFraAAreg,
-                    fom = sykepengesoknad.fom,
-                    tom = sykepengesoknad.tom,
-                ),
-            )
-        }
+        addAll(
+            nyttArbeidsforholdSporsmal(
+                nyeArbeidsforhold = nyeArbeidsforholdFraAAreg,
+                fom = sykepengesoknad.fom,
+                tom = sykepengesoknad.tom,
+            ),
+        )
 
         if (ghostInntekter.isNotEmpty()) {
             add(

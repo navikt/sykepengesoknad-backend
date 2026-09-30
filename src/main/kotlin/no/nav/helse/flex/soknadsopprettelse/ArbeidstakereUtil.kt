@@ -1,6 +1,7 @@
 package no.nav.helse.flex.soknadsopprettelse
 
 import no.nav.helse.flex.domain.Soknadsperiode
+import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.soknadsopprettelse.aaregdata.ArbeidsforholdFraAAreg
@@ -32,30 +33,25 @@ fun sjekkForGhostInntekter(
     arbeidsgiverOrgnummerSoknad: String?,
     eksisterendeSoknader: List<Sykepengesoknad>,
 ): List<KjentInntektskilde> {
-
-    val andreInntekter = arbeidsforholdFraInntektskomponenten.map { inntekt ->
-        KjentInntektskilde(
-            navn = inntekt.navn,
-            kilde = Kilde.INNTEKTSKOMPONENTEN,
-            orgnummer = inntekt.orgnummer,
-        )
-    }
-
-    val tilkomneInntekter =
-        arbeidforholdOversiktAareg.map { arbeidsforhold ->
+    val andreInntekter =
+        arbeidsforholdFraInntektskomponenten.map { inntekt ->
             KjentInntektskilde(
-                navn = arbeidsforhold.arbeidsstedNavn,
-                kilde = Kilde.AAAREG,
-                orgnummer = arbeidsforhold.arbeidsstedOrgnummer,
+                navn = inntekt.navn,
+                kilde = Kilde.INNTEKTSKOMPONENTEN,
+                orgnummer = inntekt.orgnummer,
             )
         }
 
-    eksisterendeSoknader
-        .filter { it.fom != null && it.tom != null }
+    val tilkomneInntekterOrgNummer = arbeidforholdOversiktAareg.map { it.arbeidsstedOrgnummer }
 
-    val ghostInntekter = andreInntekter.toSet().filterNot { it.orgnummer == arbeidsgiverOrgnummerSoknad }
-            .filterNot {it.orgnummer in eksisterendeSoknader.map {it.arbeidsgiverOrgnummer}}
-            .filterNot { it.orgnummer in tilkomneInntekter.map { it.orgnummer } }
+    val eksisterendeSoknaderOrgNummer =
+        eksisterendeSoknader
+            .filter { it.soknadstype != Soknadstype.OPPHOLD_UTLAND }
+            .map { it.arbeidsgiverOrgnummer } // TODO skal denne filtrere på noe datoer?
 
-    return ghostInntekter.toList()
+    return andreInntekter
+        .toSet()
+        .filterNot { it.orgnummer == arbeidsgiverOrgnummerSoknad }
+        .filterNot { it.orgnummer in eksisterendeSoknaderOrgNummer }
+        .filterNot { it.orgnummer in tilkomneInntekterOrgNummer }
 }
