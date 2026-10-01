@@ -21,7 +21,7 @@ class SykepengegrunnlagForNaeringsdrivendeTest : FellesTestOppsett() {
     fun resetMockWebServer() {
         with(SigrunMockDispatcher) {
             antallKall.set(0)
-            clearQueue()
+            clear()
         }
     }
 

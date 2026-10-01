@@ -14,10 +14,11 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.actuate.observability.AutoConfigureObservability
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
-import org.springframework.boot.test.autoconfigure.web.servlet.MockMvcPrint
+import org.springframework.boot.micrometer.metrics.test.autoconfigure.AutoConfigureMetrics
+import org.springframework.boot.micrometer.tracing.test.autoconfigure.AutoConfigureTracing
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
+import org.springframework.boot.webmvc.test.autoconfigure.MockMvcPrint
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.FilterType
 import org.springframework.test.web.servlet.MockMvc
@@ -25,7 +26,8 @@ import org.springframework.test.web.servlet.MockMvc
 const val IGNORED_KAFKA_BROKERS = "localhost:1"
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@AutoConfigureObservability
+@AutoConfigureMetrics
+@AutoConfigureTracing
 @EnableMockOAuth2Server
 @SpringBootTest(
     classes = [Application::class, FakesMockWebServerConfig::class],
@@ -34,8 +36,8 @@ const val IGNORED_KAFKA_BROKERS = "localhost:1"
         "spring.data.jdbc.repositories.enabled=false",
         "spring.profiles.active=fakes,fakeunleash,frisktilarbeid",
         "spring.main.allow-bean-definition-overriding=true",
-        "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration," +
-            "org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration",
+        "spring.autoconfigure.exclude=org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration," +
+            "org.springframework.boot.kafka.autoconfigure.KafkaAutoConfiguration",
         "spring.flyway.enabled=false",
         "spring.kafka.listener.auto-startup=false",
         "KAFKA_BROKERS=$IGNORED_KAFKA_BROKERS",

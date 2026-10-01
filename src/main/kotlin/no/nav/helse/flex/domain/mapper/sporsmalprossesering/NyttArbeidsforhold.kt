@@ -17,21 +17,21 @@ fun Sykepengesoknad.hentInntektFraNyttArbeidsforhold(): List<InntektFraNyttArbei
                 val belopSvar = undersporsmal.firstOrNull { it.tag.startsWith(NYTT_ARBEIDSFORHOLD_UNDERVEIS_BRUTTO) }?.forsteSvar
                 val belop = (belopSvar?.toDouble()!! / 100).toInt()
                 return InntektFraNyttArbeidsforholdDTO(
-                    fom = metadata.get("fom")?.asText()!!.tilLocalDate(),
-                    tom = metadata.get("tom")?.asText()!!.tilLocalDate(),
+                    fom = metadata.get("fom")?.asString()!!.tilLocalDate(),
+                    tom = metadata.get("tom")?.asString()!!.tilLocalDate(),
                     belop = belop,
-                    arbeidsstedOrgnummer = metadata.get("arbeidsstedOrgnummer")?.asText()!!,
-                    opplysningspliktigOrgnummer = metadata.get("opplysningspliktigOrgnummer")?.asText()!!,
+                    arbeidsstedOrgnummer = metadata.get("arbeidsstedOrgnummer")?.asString()!!,
+                    opplysningspliktigOrgnummer = metadata.get("opplysningspliktigOrgnummer")?.asString()!!,
                     harJobbet = true,
                 )
             }
             if (forsteSvar == "NEI") {
                 return InntektFraNyttArbeidsforholdDTO(
-                    fom = metadata.get("fom")?.asText()!!.tilLocalDate(),
-                    tom = metadata.get("tom")?.asText()!!.tilLocalDate(),
+                    fom = metadata.get("fom")?.asString()!!.tilLocalDate(),
+                    tom = metadata.get("tom")?.asString()!!.tilLocalDate(),
                     belop = null,
-                    arbeidsstedOrgnummer = metadata.get("arbeidsstedOrgnummer")?.asText()!!,
-                    opplysningspliktigOrgnummer = metadata.get("opplysningspliktigOrgnummer")?.asText()!!,
+                    arbeidsstedOrgnummer = metadata.get("arbeidsstedOrgnummer")?.asString()!!,
+                    opplysningspliktigOrgnummer = metadata.get("opplysningspliktigOrgnummer")?.asString()!!,
                     harJobbet = false,
                 )
             }

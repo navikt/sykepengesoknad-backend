@@ -1,11 +1,11 @@
 package no.nav.helse.flex.mockdispatcher
 
+import mockwebserver3.Dispatcher
+import mockwebserver3.MockResponse
+import mockwebserver3.RecordedRequest
 import no.nav.helse.flex.client.yrkesskade.SakerResponse
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.util.serialisertTilString
-import okhttp3.mockwebserver.Dispatcher
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.RecordedRequest
 
 object YrkesskadeMockDispatcher : Dispatcher() {
     val log = logger()
@@ -19,23 +19,21 @@ object YrkesskadeMockDispatcher : Dispatcher() {
 
             else -> {
                 log.error("Ukjent api: " + request.requestLine)
-                MockResponse().setResponseCode(404)
+                MockResponse(code = 404)
             }
         }
 
     fun sakerMock(): MockResponse {
         if (queuedSakerRespons.isEmpty()) {
-            return MockResponse()
-                .setResponseCode(200)
-                .setBody(SakerResponse(emptyList()).serialisertTilString())
-                .addHeader("Content-Type", "application/json")
+            return withContentTypeApplicationJson {
+                MockResponse(code = 200, body = SakerResponse(emptyList()).serialisertTilString())
+            }
         }
         val poppedElement = queuedSakerRespons.removeAt(queuedSakerRespons.size - 1)
 
-        return MockResponse()
-            .setResponseCode(200)
-            .setBody(poppedElement.serialisertTilString())
-            .addHeader("Content-Type", "application/json")
+        return withContentTypeApplicationJson {
+            MockResponse(code = 200, body = poppedElement.serialisertTilString())
+        }
     }
 }
 

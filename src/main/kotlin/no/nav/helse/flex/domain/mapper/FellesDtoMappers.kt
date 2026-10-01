@@ -5,7 +5,7 @@ import no.nav.helse.flex.soknadsopprettelse.sporsmal.Kilde
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.KjentInntektskilde
 import no.nav.helse.flex.sykepengesoknad.kafka.*
 import no.nav.helse.flex.util.objectMapper
-import java.io.IOException
+import tools.jackson.core.JacksonException
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -129,7 +129,7 @@ fun Soknadstype.tilSoknadstypeDTO(): SoknadstypeDTO =
 fun String.getJsonPeriode(): PeriodeDTO =
     try {
         objectMapper.readValue(this, PeriodeDTO::class.java)
-    } catch (e: IOException) {
+    } catch (_: JacksonException) {
         this.getJsonPeriodeFraGammeltFormat()
     }
 
@@ -152,7 +152,7 @@ fun String.getJsonPeriodeFraGammeltFormat(): PeriodeDTO {
             fom = fomTom.fom.gammeltFormatTilLocalDate(),
             tom = fomTom.tom.gammeltFormatTilLocalDate(),
         )
-    } catch (e: IOException) {
+    } catch (e: JacksonException) {
         throw RuntimeException("Feil ved parsing av periode: $this", e)
     }
 }

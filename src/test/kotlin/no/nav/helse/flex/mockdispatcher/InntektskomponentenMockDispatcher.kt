@@ -1,6 +1,6 @@
 package no.nav.helse.flex.mockdispatcher
 
-import com.fasterxml.jackson.module.kotlin.readValue
+import mockwebserver3.RecordedRequest
 import no.nav.helse.flex.client.inntektskomponenten.Aktoer
 import no.nav.helse.flex.client.inntektskomponenten.ArbeidsInntektInformasjon
 import no.nav.helse.flex.client.inntektskomponenten.ArbeidsInntektMaaned
@@ -9,11 +9,11 @@ import no.nav.helse.flex.client.inntektskomponenten.HentInntekterRequest
 import no.nav.helse.flex.client.inntektskomponenten.HentInntekterResponse
 import no.nav.helse.flex.client.inntektskomponenten.InntektListe
 import no.nav.helse.flex.util.objectMapper
-import okhttp3.mockwebserver.RecordedRequest
+import tools.jackson.module.kotlin.readValue
 
 object InntektskomponentenMockDispatcher : FellesQueueDispatcher<HentInntekterResponse>(
     defaultFactory = { request: RecordedRequest ->
-        val req: HentInntekterRequest = objectMapper.readValue(request.body.readUtf8())
+        val req: HentInntekterRequest = objectMapper.readValue(request.body!!.utf8())
         HentInntekterResponse(arbeidsInntektMaaned = emptyList(), ident = req.ident)
     },
 )

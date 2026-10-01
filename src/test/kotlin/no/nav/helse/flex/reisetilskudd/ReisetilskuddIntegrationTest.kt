@@ -1,6 +1,5 @@
 package no.nav.helse.flex.reisetilskudd
 
-import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.avbrytSoknad
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
@@ -41,6 +40,7 @@ import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import tools.jackson.module.kotlin.readValue
 import java.time.Instant
 import java.time.LocalDate
 import java.util.*
@@ -313,10 +313,10 @@ class ReisetilskuddIntegrationTest : FellesTestOppsett() {
                 soknadId = hentSoknaderMetadata(fnr).first().id,
                 fnr = fnr,
             )
-        val sendtSøknad =
+        val sendtSoknad =
             SoknadBesvarer(reisetilskudd, this, fnr)
                 .sendSoknad()
-        sendtSøknad.status shouldBeEqualTo RSSoknadstatus.SENDT
+        sendtSoknad.status shouldBeEqualTo RSSoknadstatus.SENDT
     }
 
     @Test

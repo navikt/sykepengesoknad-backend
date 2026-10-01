@@ -21,11 +21,11 @@ class VedtaksperiodeBehandlingRepositoryFake : VedtaksperiodeBehandlingRepositor
         TODO("Not yet implemented")
     }
 
-    override fun <S : VedtaksperiodeBehandlingDbRecord?> save(entity: S & Any): S & Any {
+    override fun <S : VedtaksperiodeBehandlingDbRecord> save(entity: S): S {
         TODO("Not yet implemented")
     }
 
-    override fun <S : VedtaksperiodeBehandlingDbRecord?> saveAll(entities: MutableIterable<S>): MutableIterable<S> {
+    override fun <S : VedtaksperiodeBehandlingDbRecord> saveAll(entities: Iterable<S>): Iterable<S> {
         TODO("Not yet implemented")
     }
 
@@ -82,11 +82,11 @@ class VedtaksperiodeBehandlingSykepengesoknadRepositoryFake : VedtaksperiodeBeha
         TODO("Not yet implemented")
     }
 
-    override fun <S : VedtaksperiodeBehandlingSykepengesoknadDbRecord?> save(entity: S & Any): S & Any {
+    override fun <S : VedtaksperiodeBehandlingSykepengesoknadDbRecord> save(entity: S): S {
         TODO("Not yet implemented")
     }
 
-    override fun <S : VedtaksperiodeBehandlingSykepengesoknadDbRecord?> saveAll(entities: MutableIterable<S>): MutableIterable<S> {
+    override fun <S : VedtaksperiodeBehandlingSykepengesoknadDbRecord> saveAll(entities: Iterable<S>): Iterable<S> {
         TODO("Not yet implemented")
     }
 
@@ -135,11 +135,11 @@ class VedtaksperiodeBehandlingSykepengesoknadRepositoryFake : VedtaksperiodeBeha
 @Profile("fakes")
 @Primary
 class VedtaksperiodeBehandlingStatusRepositoryFake : VedtaksperiodeBehandlingStatusRepository {
-    override fun <S : VedtaksperiodeBehandlingStatusDbRecord?> save(entity: S & Any): S & Any {
+    override fun <S : VedtaksperiodeBehandlingStatusDbRecord> save(entity: S): S {
         TODO("Not yet implemented")
     }
 
-    override fun <S : VedtaksperiodeBehandlingStatusDbRecord?> saveAll(entities: MutableIterable<S>): MutableIterable<S> {
+    override fun <S : VedtaksperiodeBehandlingStatusDbRecord> saveAll(entities: Iterable<S>): Iterable<S> {
         TODO("Not yet implemented")
     }
 

@@ -5,12 +5,13 @@ import no.nav.security.token.support.client.core.ClientProperties
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService
 import no.nav.security.token.support.client.spring.ClientConfigurationProperties
 import no.nav.security.token.support.client.spring.oauth2.EnableOAuth2Client
+import org.apache.hc.client5.http.config.ConnectionConfig
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager
 import org.apache.hc.core5.http.io.SocketConfig
 import org.apache.hc.core5.util.Timeout
-import org.springframework.boot.web.client.RestTemplateBuilder
+import org.springframework.boot.restclient.RestTemplateBuilder
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpRequest
@@ -19,6 +20,7 @@ import org.springframework.http.client.ClientHttpRequestInterceptor
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
 import org.springframework.web.client.RestTemplate
 import java.time.Duration
+import java.util.concurrent.TimeUnit
 import java.util.function.Supplier
 
 const val MEDLEMSKAP_VURDERING_REST_TEMPLATE_CONNECT_TIMEOUT = 2L
@@ -34,16 +36,21 @@ class AadRestTemplateConfiguration {
         val connectionManager = PoolingHttpClientConnectionManager()
         connectionManager.defaultMaxPerRoute = 50
         connectionManager.maxTotal = 50
-        // Erstatter deprecated HttpComponentsClientHttpRequestFactory.setReadTimeout()
+
         connectionManager.defaultSocketConfig =
             SocketConfig
                 .custom()
                 .setSoTimeout(
-                    Timeout.of(
-                        MEDLEMSKAP_VURDERING_REST_TEMPLATE_READ_TIMEOUT,
-                        java.util.concurrent.TimeUnit.SECONDS,
-                    ),
+                    Timeout.of(MEDLEMSKAP_VURDERING_REST_TEMPLATE_READ_TIMEOUT, TimeUnit.SECONDS),
                 ).build()
+
+        connectionManager.setDefaultConnectionConfig(
+            ConnectionConfig
+                .custom()
+                .setConnectTimeout(
+                    Timeout.of(MEDLEMSKAP_VURDERING_REST_TEMPLATE_CONNECT_TIMEOUT, TimeUnit.SECONDS),
+                ).build(),
+        )
 
         return HttpClientBuilder
             .create()
@@ -65,7 +72,6 @@ class AadRestTemplateConfiguration {
         return restTemplateBuilder
             .requestFactory(Supplier { HttpComponentsClientHttpRequestFactory(httpClient) })
             .additionalInterceptors(bearerTokenInterceptor(clientProperties, oAuth2AccessTokenService))
-            .connectTimeout(Duration.ofSeconds(MEDLEMSKAP_VURDERING_REST_TEMPLATE_CONNECT_TIMEOUT))
             .build()
     }
 
