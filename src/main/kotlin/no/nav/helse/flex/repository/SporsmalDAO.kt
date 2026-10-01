@@ -89,7 +89,7 @@ class SporsmalDAOPostgres(
                         }
                         populerMedSvar(svarMap)
                         sporsmalList
-                    } ?: emptyList()
+                    }
                 }.flatten()
                 .sortedBy { it.second.id }
         val ret = HashMap<String, MutableList<Sporsmal>>()

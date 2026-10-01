@@ -1,17 +1,17 @@
 package no.nav.helse.flex.mockdispatcher
 
-import com.fasterxml.jackson.module.kotlin.readValue
+import mockwebserver3.MockResponse
+import mockwebserver3.RecordedRequest
 import no.nav.helse.flex.client.sigrun.HentPensjonsgivendeInntektResponse
 import no.nav.helse.flex.client.sigrun.PensjonsgivendeInntekt
 import no.nav.helse.flex.client.sigrun.SigrunRequest
 import no.nav.helse.flex.client.sigrun.Skatteordning
 import no.nav.helse.flex.util.objectMapper
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.RecordedRequest
+import tools.jackson.module.kotlin.readValue
 
 object SigrunMockDispatcher : FellesQueueDispatcher<HentPensjonsgivendeInntektResponse>(
     defaultFactory = { it: RecordedRequest ->
-        val sigrunRequest: SigrunRequest = objectMapper.readValue(it.body.readUtf8())
+        val sigrunRequest: SigrunRequest = objectMapper.readValue(it.body!!.utf8())
         val fnr = sigrunRequest.personident
         val inntektsaar = sigrunRequest.inntektsaar
         HentPensjonsgivendeInntektResponse(
@@ -49,12 +49,7 @@ object SigrunMockDispatcher : FellesQueueDispatcher<HentPensjonsgivendeInntektRe
     )
 
     fun sigrun404Feil() =
-        MockResponse()
-            .setResponseCode(404)
-            .setBody("{\"errorCode\": \"PGIF-008\", \"errorMessage\": \"Ingen pensjonsgivende inntekt funnet.\"}")
+        MockResponse(code = 404, body = "{\"errorCode\": \"PGIF-008\", \"errorMessage\": \"Ingen pensjonsgivende inntekt funnet.\"}")
 
-    fun sigrun500Feil() =
-        MockResponse()
-            .setResponseCode(500)
-            .setBody("{\"errorCode\": \"PGIF-006\", \"errorMessage\": \"Intern feil i Sigrun.\"}")
+    fun sigrun500Feil() = MockResponse(code = 500, body = "{\"errorCode\": \"PGIF-006\", \"errorMessage\": \"Intern feil i Sigrun.\"}")
 }

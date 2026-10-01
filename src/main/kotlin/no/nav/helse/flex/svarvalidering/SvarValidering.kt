@@ -1,6 +1,5 @@
 package no.nav.helse.flex.svarvalidering
 
-import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.domain.Kvittering
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sporsmal
@@ -16,6 +15,7 @@ import no.nav.helse.flex.util.PeriodeMapper
 import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.util.periodeErInnenforMinMax
 import org.springframework.http.HttpStatus.BAD_REQUEST
+import tools.jackson.module.kotlin.readValue
 import java.lang.Double.isNaN
 import java.time.LocalDate
 import java.util.*

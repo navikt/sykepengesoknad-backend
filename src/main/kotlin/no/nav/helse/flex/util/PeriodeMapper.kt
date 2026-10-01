@@ -1,60 +1,51 @@
 package no.nav.helse.flex.util
 
-import com.fasterxml.jackson.core.JsonParseException
-import com.fasterxml.jackson.databind.JsonMappingException
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import no.nav.helse.flex.domain.Periode
-import java.io.IOException
+import tools.jackson.core.JacksonException
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.databind.ext.javatime.deser.LocalDateDeserializer
+import tools.jackson.databind.json.JsonMapper
+import tools.jackson.databind.module.SimpleModule
+import tools.jackson.module.kotlin.kotlinModule
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.*
 
 object PeriodeMapper {
     val sporsmalstekstFormat = DateTimeFormatter.ofPattern("dd.MM.yyyy")!!
-    private val objectMapperISOFormat =
-        ObjectMapper()
-            .registerModule(JavaTimeModule())
-            .registerKotlinModule()
 
-    private val javaTimeModuleSporsmalstektsFormat =
-        JavaTimeModule().addDeserializer(
-            LocalDate::class.java,
-            LocalDateDeserializer(
-                sporsmalstekstFormat,
-            ),
-        )!!
+    // ISO-8601 er standardformatet til Jackson, så den delte objectMapper brukes for det.
+    private val objectMapperSporsmalstekstFormat: ObjectMapper =
+        JsonMapper
+            .builder()
+            .addModule(kotlinModule())
+            .addModule(
+                SimpleModule().addDeserializer(
+                    LocalDate::class.java,
+                    LocalDateDeserializer(sporsmalstekstFormat),
+                ),
+            ).medFlexEnumOppsett()
+            .build()
 
-    private val objectMapperSporsmalstekstFormat =
-        ObjectMapper()
-            .registerModule(javaTimeModuleSporsmalstektsFormat)
-            .registerKotlinModule()
-
-    fun jsonISOFormatTilPeriode(json: String): Periode = getPeriode(json, objectMapperISOFormat)
+    fun jsonISOFormatTilPeriode(json: String): Periode = getPeriode(json, objectMapper)
 
     fun jsonSporsmalstektsFormatTilPeriode(json: String): Periode = getPeriode(json, objectMapperSporsmalstekstFormat)
 
     private fun getPeriode(
         json: String,
-        objectMapper: ObjectMapper?,
+        mapper: ObjectMapper,
     ): Periode =
         try {
-            val periode = objectMapper!!.readValue(json, Periode::class.java)
+            val periode = mapper.readValue(json, Periode::class.java)
             require(!periode.fom.isAfter(periode.tom))
             periode
-        } catch (exception: JsonParseException) {
+        } catch (exception: JacksonException) {
             throw IllegalArgumentException(exception)
-        } catch (exception: JsonMappingException) {
-            throw IllegalArgumentException(exception)
-        } catch (iOException: IOException) {
-            throw RuntimeException(iOException)
         }
 
     fun jsonTilOptionalPeriode(json: String): Optional<Periode> =
         try {
-            Optional.of(getPeriode(json, objectMapperISOFormat))
+            Optional.of(getPeriode(json, objectMapper))
         } catch (illegalArgumentException: IllegalArgumentException) {
             try {
                 Optional.of(getPeriode(json, objectMapperSporsmalstekstFormat))

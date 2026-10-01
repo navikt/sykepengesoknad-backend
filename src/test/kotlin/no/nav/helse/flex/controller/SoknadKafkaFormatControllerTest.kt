@@ -1,6 +1,5 @@
 package no.nav.helse.flex.controller
 
-import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.controller.SoknadKafkaFormatController.HentSoknaderRequest
 import no.nav.helse.flex.sendSykmelding
@@ -17,6 +16,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import tools.jackson.module.kotlin.readValue
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit.SECONDS
 import java.util.*

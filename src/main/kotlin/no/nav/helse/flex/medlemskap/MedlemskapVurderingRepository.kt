@@ -1,6 +1,5 @@
 package no.nav.helse.flex.medlemskap
 
-import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.util.serialisertTilString
 import org.postgresql.util.PGobject
@@ -10,6 +9,7 @@ import org.springframework.data.jdbc.repository.query.Query
 import org.springframework.data.relational.core.mapping.Table
 import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
+import tools.jackson.module.kotlin.readValue
 import java.time.Instant
 import java.time.LocalDate
 

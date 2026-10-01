@@ -43,7 +43,6 @@ class ArbeidssokerregisterStartStoppService(
             alleFtaSoknaderSammeVedtaksid
                 .filter { it.status == Soknadstatus.FREMTIDIG || it.status == Soknadstatus.NY }
                 .filter {
-                    // Stoppmeldingen må komme fra et eksternt system. Må tillatte at nåværende periode kan sendes inn
                     it.fom!!.isAfter(startStoppMelding.tidspunkt.tilLocalDate())
                 }
 

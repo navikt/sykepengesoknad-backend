@@ -11,6 +11,7 @@ import no.nav.security.token.support.core.exceptions.JwtTokenInvalidClaimExcepti
 import no.nav.security.token.support.spring.validation.interceptor.JwtTokenUnauthorizedException
 import org.apache.catalina.connector.ClientAbortException
 import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatusCode
 import org.springframework.http.ResponseEntity
 import org.springframework.web.HttpMediaTypeNotAcceptableException
 import org.springframework.web.bind.MissingRequestHeaderException
@@ -37,6 +38,7 @@ class GlobalExceptionHandler {
 
                 ResponseEntity(ApiError(ex.reason), ex.httpStatus)
             }
+
             is MissingRequestHeaderException -> skapResponseEntity(HttpStatus.BAD_REQUEST)
             is IngenTilgangException -> skapResponseEntity(HttpStatus.FORBIDDEN)
             is FinnesInnsendtSoknadException -> skapResponseEntity(HttpStatus.FORBIDDEN)
@@ -49,8 +51,9 @@ class GlobalExceptionHandler {
                 log.warn("ClientAbortException - ${request.method}: ${request.requestURI}", ex)
                 // The 4xx (Client Error) class of status code indicates that the client seems to have erred.
                 // Klient vil aldri få denne siden dette er en ClientAbortException, men noe må vi returnere.
-                skapResponseEntity(HttpStatus.I_AM_A_TEAPOT)
+                skapResponseEntity(HttpStatusCode.valueOf(499))
             }
+
             else -> {
                 log.error("Internal server error - ${ex.message} - ${request.method}: ${request.requestURI}", ex)
                 skapResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -59,6 +62,8 @@ class GlobalExceptionHandler {
 }
 
 private fun skapResponseEntity(status: HttpStatus): ResponseEntity<Any> = ResponseEntity(ApiError(status.reasonPhrase), status)
+
+private fun skapResponseEntity(statusCode: HttpStatusCode): ResponseEntity<Any> = ResponseEntity(statusCode)
 
 private data class ApiError(
     val reason: String,

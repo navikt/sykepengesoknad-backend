@@ -2,7 +2,7 @@ package no.nav.helse.flex.mockdispatcher
 
 object EnhetsregisterMockDispatcher : FellesQueueDispatcher<String>(
     defaultFactory = {
-        val orgnr = it.path?.substringAfterLast("/") ?: "976967631"
+        val orgnr = it.url.encodedPath.substringAfterLast("/")
         """
         {
           "organisasjonsnummer": "$orgnr",
