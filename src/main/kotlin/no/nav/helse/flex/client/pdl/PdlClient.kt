@@ -1,14 +1,14 @@
 package no.nav.helse.flex.client.pdl
 
-import com.fasterxml.jackson.core.JsonProcessingException
-import com.fasterxml.jackson.module.kotlin.readValue
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.helse.flex.util.objectMapper
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.*
-import org.springframework.retry.annotation.Retryable
+import org.springframework.resilience.annotation.Retryable
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
+import org.springframework.web.client.exchange
+import tools.jackson.module.kotlin.readValue
 import java.util.*
 
 private const val TEMA = "Tema"
@@ -34,7 +34,7 @@ query(${"$"}ident: ID!){
 """
 
     @WithSpan
-    @Retryable(exclude = [FunctionalPdlError::class])
+    @Retryable(excludes = [FunctionalPdlError::class], maxRetries = 2)
     fun hentIdenterMedHistorikk(ident: String): List<PdlIdent> {
         val graphQLRequest =
             GraphQLRequest(
@@ -43,11 +43,10 @@ query(${"$"}ident: ID!){
             )
 
         val responseEntity =
-            pdlRestTemplate.exchange(
+            pdlRestTemplate.exchange<String>(
                 "$pdlApiUrl/graphql",
                 HttpMethod.POST,
                 HttpEntity(requestToJson(graphQLRequest), createHeaderWithTema()),
-                String::class.java,
             )
 
         if (responseEntity.statusCode != HttpStatus.OK) {
@@ -74,12 +73,7 @@ query(${"$"}ident: ID!){
         return headers
     }
 
-    private fun requestToJson(graphQLRequest: Any): String =
-        try {
-            objectMapper.writeValueAsString(graphQLRequest)
-        } catch (e: JsonProcessingException) {
-            throw RuntimeException(e)
-        }
+    private fun requestToJson(graphQLRequest: Any): String = objectMapper.writeValueAsString(graphQLRequest)
 
     private fun GetPersonResponse?.hentErrors(): String? = this?.errors?.map { it.message }?.joinToString(" - ")
 

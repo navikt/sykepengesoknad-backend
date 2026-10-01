@@ -1,6 +1,5 @@
 package no.nav.helse.flex.soknadsopprettelse.sporsmal
 
-import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.arbeidsgiverperiode.harDagerNAVSkalBetaleFor
 import no.nav.helse.flex.config.EnvironmentToggles
 import no.nav.helse.flex.domain.*
@@ -34,6 +33,7 @@ import no.nav.helse.flex.yrkesskade.YrkesskadeIndikatorer
 import no.nav.helse.flex.yrkesskade.YrkesskadeSporsmalGrunnlag
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import tools.jackson.module.kotlin.readValue
 import kotlin.jvm.optionals.getOrElse
 
 @Service

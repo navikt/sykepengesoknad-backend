@@ -1,6 +1,7 @@
 package no.nav.helse.flex.soknadsopprettelse
 
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import no.nav.helse.flex.FellesTestOppsett
@@ -27,7 +28,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.Mock
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.kafka.support.Acknowledgment
 import org.testcontainers.shaded.org.awaitility.Awaitility.await
@@ -41,8 +41,7 @@ class RebehandlingSoknadopprettelseTest : FellesTestOppsett() {
     @Autowired
     private lateinit var rebehandlingSykmeldingSendt: RebehandlingSykmeldingSendt
 
-    @Mock
-    private lateinit var acknowledgment: Acknowledgment
+    private val acknowledgment: Acknowledgment = mock()
 
     @BeforeEach
     fun setUp() {

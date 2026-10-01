@@ -1,12 +1,12 @@
 package no.nav.helse.flex.frisktilarbeid
 
-import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.medlemskap.tilPostgresJson
 import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.util.osloZone
 import org.springframework.stereotype.Service
+import tools.jackson.module.kotlin.readValue
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime

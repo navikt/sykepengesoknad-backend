@@ -1,6 +1,5 @@
 package no.nav.helse.flex.kafka.consumer
 
-import com.fasterxml.jackson.module.kotlin.readValue
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.soknadsopprettelse.BehandleSykmeldingOgBestillAktivering
@@ -14,6 +13,7 @@ import org.springframework.context.annotation.Profile
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.support.Acknowledgment
 import org.springframework.stereotype.Component
+import tools.jackson.module.kotlin.readValue
 import java.time.Instant
 
 const val SYKMELDINGSENDT_TOPIC = "teamsykmelding." + "syfo-sendt-sykmelding"

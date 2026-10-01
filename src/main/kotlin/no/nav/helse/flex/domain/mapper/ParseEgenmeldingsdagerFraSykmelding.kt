@@ -1,7 +1,7 @@
 package no.nav.helse.flex.domain.mapper
 
-import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.util.objectMapper
+import tools.jackson.module.kotlin.readValue
 import java.time.LocalDate
 
 fun String?.parseEgenmeldingsdagerFraSykmelding(): List<LocalDate>? =

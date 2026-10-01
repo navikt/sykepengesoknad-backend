@@ -1,6 +1,5 @@
 package no.nav.helse.flex.overlappendesykmeldinger
 
-import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.aktivering.AktiveringJob
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
@@ -38,6 +37,7 @@ import org.amshove.kluent.shouldNotBeEqualTo
 import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
+import tools.jackson.module.kotlin.readValue
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.*

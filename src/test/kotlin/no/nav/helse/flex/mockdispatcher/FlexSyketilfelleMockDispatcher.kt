@@ -1,6 +1,8 @@
 package no.nav.helse.flex.mockdispatcher
 
-import com.fasterxml.jackson.module.kotlin.readValue
+import mockwebserver3.Dispatcher
+import mockwebserver3.MockResponse
+import mockwebserver3.RecordedRequest
 import no.nav.helse.flex.client.flexsyketilfelle.SykmeldingRequest
 import no.nav.helse.flex.domain.Arbeidsgiverperiode
 import no.nav.helse.flex.domain.Periode
@@ -8,16 +10,14 @@ import no.nav.helse.flex.domain.SimpleSykmelding
 import no.nav.helse.flex.domain.Sykeforloep
 import no.nav.helse.flex.util.objectMapper
 import no.nav.helse.flex.util.serialisertTilString
-import okhttp3.mockwebserver.Dispatcher
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.RecordedRequest
+import tools.jackson.module.kotlin.readValue
 import java.time.LocalDate
 
 object FlexSyketilfelleMockDispatcher : Dispatcher() {
     override fun dispatch(request: RecordedRequest): MockResponse =
         when (request.requestLine) {
             "POST /api/v1/sykeforloep?hentAndreIdenter=false HTTP/1.1" -> {
-                val requestBody: SykmeldingRequest = objectMapper.readValue(request.body.readUtf8())
+                val requestBody: SykmeldingRequest = objectMapper.readValue(request.body!!.utf8())
                 val sykeforloep =
                     Sykeforloep(
                         oppfolgingsdato =
@@ -41,31 +41,25 @@ object FlexSyketilfelleMockDispatcher : Dispatcher() {
                     )
 
                 withContentTypeApplicationJson {
-                    MockResponse().setResponseCode(200).setBody(
-                        listOf(
-                            sykeforloep,
-                        ).serialisertTilString(),
-                    )
+                    MockResponse(code = 200, body = listOf(sykeforloep).serialisertTilString())
                 }
             }
             "POST /api/v2/arbeidsgiverperiode?hentAndreIdenter=false HTTP/1.1" -> {
                 withContentTypeApplicationJson {
-                    MockResponse().setResponseCode(200).setBody(
-                        Arbeidsgiverperiode(
-                            oppbruktArbeidsgiverperiode = true,
-                            antallBrukteDager = 16,
-                            arbeidsgiverPeriode =
-                                Periode(
-                                    fom = LocalDate.now().minusDays(17),
-                                    tom = LocalDate.now().minusDays(1),
-                                ),
-                        ).serialisertTilString(),
+                    MockResponse(
+                        code = 200,
+                        body =
+                            Arbeidsgiverperiode(
+                                oppbruktArbeidsgiverperiode = true,
+                                antallBrukteDager = 16,
+                                arbeidsgiverPeriode = Periode(fom = LocalDate.now().minusDays(17), tom = LocalDate.now().minusDays(1)),
+                            ).serialisertTilString(),
                     )
                 }
             }
             else -> {
                 InnsendingApiMockDispatcher.log.error("Ukjent api: " + request.requestLine)
-                MockResponse().setResponseCode(404)
+                MockResponse(code = 404)
             }
         }
 }
