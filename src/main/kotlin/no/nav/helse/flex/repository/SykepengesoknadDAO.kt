@@ -12,6 +12,7 @@ import no.nav.helse.flex.medlemskap.MedlemskapVurderingRepository
 import no.nav.helse.flex.medlemskap.tilKjentOppholdstillatelse
 import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.soknadsopprettelse.ArbeidsforholdFraInntektskomponenten
+import no.nav.helse.flex.soknadsopprettelse.aaregdata.ArbeidsforholdFraAAreg
 import no.nav.helse.flex.soknadsopprettelse.sorterSporsmal
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.KjentInntektskilde
 import no.nav.helse.flex.util.*
@@ -641,13 +642,12 @@ class SykepengesoknadDAOPostgres(
                     egenmeldingsdagerFraSykmelding = resultSet.getString("egenmeldingsdager_fra_sykmelding"),
                     meldingTilNavDagerFraSykmelding =
                         resultSet
-                            .getNullableString(
-                                "melding_til_nav_dager_fra_sykmelding",
-                            )?.let { objectMapper.readValue(it) },
+                            .getNullableString("melding_til_nav_dager_fra_sykmelding")
+                            .lesJson<List<Periode>>(),
                     inntektskilderDataFraInntektskomponenten =
                         resultSet
                             .getNullableString("inntektskilder_data_fra_inntektskomponenten")
-                            ?.tilArbeidsforholdFraInntektskomponenten(),
+                            .lesJson<List<ArbeidsforholdFraInntektskomponenten>>(),
                     forstegangssoknad = resultSet.getNullableBoolean("forstegangssoknad"),
                     tidligereArbeidsgiverOrgnummer = resultSet.getNullableString("tidligere_arbeidsgiver_orgnummer"),
                     aktivertDato = resultSet.getObject("aktivert_dato", LocalDate::class.java),
@@ -664,17 +664,20 @@ class SykepengesoknadDAOPostgres(
                             .map { FiskerBlad.valueOf(it) }
                             .orElse(null),
                     arbeidsforholdFraAareg =
-                        resultSet.getNullableString("arbeidsforhold_fra_aareg")?.let {
-                            objectMapper.readValue(it)
-                        },
+                        resultSet
+                            .getNullableString("arbeidsforhold_fra_aareg")
+                            .lesJson<List<ArbeidsforholdFraAAreg>>(),
                     julesoknad = resultSet.getNullableBoolean("aktivert_julesoknad_kandidat") ?: false,
                     friskTilArbeidVedtakId = resultSet.getNullableString("frisk_til_arbeid_vedtak_id"),
                     selvstendigNaringsdrivende =
-                        resultSet.getNullableString("selvstendig_naringsdrivende")?.let {
-                            objectMapper.readValue(it)
-                        },
+                        resultSet
+                            .getNullableString("selvstendig_naringsdrivende")
+                            .lesJson<SelvstendigNaringsdrivendeInfo>(),
                     ventetidSykmeldingUuid = resultSet.getNullableString("ventetid_sykmelding_uuid"),
-                    ghostInntekter = resultSet.getNullableString("ghost_inntekter").tilGhostInntekter(),
+                    ghostInntekter =
+                        resultSet
+                            .getNullableString("ghost_inntekter")
+                            .lesJson<List<KjentInntektskilde>>(),
                 ),
             )
         }
@@ -775,26 +778,9 @@ data class SoknadSomSkalDeaktiveres(
     val sykepengesoknadUuid: String,
 )
 
-fun String?.tilMerknader(): List<Merknad>? {
-    this?.let {
-        return objectMapper.readValue(this)
-    }
-    return null
-}
+fun String?.tilMerknader(): List<Merknad>? = lesJson()
 
-private fun String?.tilArbeidsforholdFraInntektskomponenten(): List<ArbeidsforholdFraInntektskomponenten>? {
-    this?.let {
-        return objectMapper.readValue(this)
-    }
-    return null
-}
-
-private fun String?.tilGhostInntekter(): List<KjentInntektskilde>? {
-    this?.let {
-        return objectMapper.readValue(this)
-    }
-    return null
-}
+private inline fun <reified T> String?.lesJson(): T? = this?.let { objectMapper.readValue<T>(it) }
 
 interface SykepengesoknadDAO {
     fun finnSykepengesoknader(identer: FolkeregisterIdenter): List<Sykepengesoknad>
