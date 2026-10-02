@@ -77,20 +77,10 @@ fun andreInntektskilderArbeidstakerV2(): Sporsmal =
                                 sporsmalstekst = "Ansatt andre steder",
                                 undertekst = "En annen jobb enn Nav har registrert",
                                 svartype = Svartype.CHECKBOX,
-                                kriterieForVisningAvUndersporsmal = Visningskriterie.CHECKED,
-                                undersporsmal =
-                                    listOf(
-                                        Sporsmal(
-                                            tag = INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD_JOBBET_I_DET_SISTE,
-                                            sporsmalstekst = "Jobbet du noe mer enn hva du vanligvis jobber i denne jobben, mens du var sykmeldt?",
-                                            svartype = Svartype.JA_NEI,
-                                        ),
-                                    ),
                             ),
                             Sporsmal(
                                 tag = INNTEKTSKILDE_SELVSTENDIG,
                                 sporsmalstekst = "Selvstendig næringsdrivende",
-                                undertekst = "Ofte enkeltpersonsforetak (ENK) eller ansvarlig selskap (ANS/DA)",
                                 svartype = Svartype.CHECKBOX,
                             ),
                             Sporsmal(

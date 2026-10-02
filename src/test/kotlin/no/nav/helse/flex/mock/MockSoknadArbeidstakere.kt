@@ -144,6 +144,5 @@ private fun Sykepengesoknad.utenlandsopphold(): Sykepengesoknad =
 private fun Sykepengesoknad.andreInntektskilder(): Sykepengesoknad =
     besvarsporsmal(ANDRE_INNTEKTSKILDER_V2, "JA")
         .besvarsporsmal(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD, "CHECKED")
-        .besvarsporsmal(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD_JOBBET_I_DET_SISTE, "JA")
         .besvarsporsmal(INNTEKTSKILDE_SELVSTENDIG, "CHECKED")
         .besvarsporsmal(INNTEKTSKILDE_SELVSTENDIG_DAGMAMMA, "CHECKED")

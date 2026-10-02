@@ -176,12 +176,10 @@ class NullstillUndersporsmalSvarTest : FellesTestOppsett() {
         SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
             .besvarSporsmal(ANDRE_INNTEKTSKILDER_V2, svar = "JA", ferdigBesvart = false)
             .besvarSporsmal(INNTEKTSKILDE_STYREVERV, svar = "CHECKED", ferdigBesvart = false)
-            .besvarSporsmal(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD, svar = "CHECKED", ferdigBesvart = false)
-            .besvarSporsmal(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD_JOBBET_I_DET_SISTE, svar = "NEI")
+            .besvarSporsmal(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD, svar = "CHECKED")
         soknaden.getSporsmalMedTag(ANDRE_INNTEKTSKILDER_V2).forsteSvar shouldBeEqualTo "JA"
         soknaden.getSporsmalMedTag(INNTEKTSKILDE_STYREVERV).forsteSvar shouldBeEqualTo "CHECKED"
         soknaden.getSporsmalMedTag(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD).forsteSvar shouldBeEqualTo "CHECKED"
-        soknaden.getSporsmalMedTag(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD_JOBBET_I_DET_SISTE).forsteSvar shouldBeEqualTo "NEI"
 
         // velger bort andre arbeidsforhold
         SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
@@ -189,16 +187,13 @@ class NullstillUndersporsmalSvarTest : FellesTestOppsett() {
         soknaden.getSporsmalMedTag(ANDRE_INNTEKTSKILDER_V2).forsteSvar shouldBeEqualTo "JA"
         soknaden.getSporsmalMedTag(INNTEKTSKILDE_STYREVERV).forsteSvar shouldBeEqualTo "CHECKED"
         soknaden.getSporsmalMedTag(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD).forsteSvar shouldBeEqualTo null
-        soknaden.getSporsmalMedTag(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD_JOBBET_I_DET_SISTE).forsteSvar shouldBeEqualTo null
 
         // velger andre arbeidsforhold med jobbing
         SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
-            .besvarSporsmal(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD, svar = "CHECKED", ferdigBesvart = false)
-            .besvarSporsmal(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD_JOBBET_I_DET_SISTE, svar = "JA")
+            .besvarSporsmal(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD, svar = "CHECKED")
         soknaden.getSporsmalMedTag(ANDRE_INNTEKTSKILDER_V2).forsteSvar shouldBeEqualTo "JA"
         soknaden.getSporsmalMedTag(INNTEKTSKILDE_STYREVERV).forsteSvar shouldBeEqualTo "CHECKED"
         soknaden.getSporsmalMedTag(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD).forsteSvar shouldBeEqualTo "CHECKED"
-        soknaden.getSporsmalMedTag(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD_JOBBET_I_DET_SISTE).forsteSvar shouldBeEqualTo "JA"
 
         // Nei på hovedspørsmål nullstiller underspørsmål
         SoknadBesvarer(rSSykepengesoknad = soknaden, testOppsettInterfaces = this, fnr = fnr)
@@ -206,7 +201,6 @@ class NullstillUndersporsmalSvarTest : FellesTestOppsett() {
         soknaden.getSporsmalMedTag(ANDRE_INNTEKTSKILDER_V2).forsteSvar shouldBeEqualTo "NEI"
         soknaden.getSporsmalMedTag(INNTEKTSKILDE_STYREVERV).forsteSvar shouldBeEqualTo null
         soknaden.getSporsmalMedTag(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD).forsteSvar shouldBeEqualTo null
-        soknaden.getSporsmalMedTag(INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD_JOBBET_I_DET_SISTE).forsteSvar shouldBeEqualTo null
     }
 
     @Test

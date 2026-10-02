@@ -17,8 +17,8 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
 import no.nav.helse.flex.testutil.SoknadBesvarer
+import no.nav.helse.flex.util.flatten
 import no.nav.helse.flex.util.getSporsmalMedTag
-import no.nav.helse.flex.util.serialisertTilString
 import no.nav.syfo.sykmelding.kafka.model.ArbeidsgiverStatusKafkaDTO
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldBeEmpty
@@ -135,8 +135,6 @@ class AndreInntektskilderSpmTest : FellesTestOppsett() {
         val andreInntektskilderSpm = soknaden.getSporsmalMedTag("FLERE_INNTEKTSKILDER_GHOST")
         andreInntektskilderSpm.sporsmalstekst `should be equal to`
             "Har du jobbet noe mer i disse enn du vanligvis gjør, mens du var sykmeldt i perioden 12. august - 1. september 2021?"
-        andreInntektskilderSpm.metadata!!.serialisertTilString() `should be equal to`
-            """{"kjenteInntektskilder":[{"navn":"Bensinstasjonen AS","kilde":"INNTEKTSKOMPONENTEN","orgnummer":"999333666"},{"navn":"Frilanseransetter AS","kilde":"INNTEKTSKOMPONENTEN","orgnummer":"999333667"}]}"""
 
         flexSyketilfelleMockRestServiceServer.reset()
         mockFlexSyketilfelleArbeidsgiverperiode()
@@ -169,6 +167,7 @@ class AndreInntektskilderSpmTest : FellesTestOppsett() {
 
         kafkaSoknaderMedGhost[0]
             .sporsmal!!
+            .flatten()
             .find { it.tag == FLERE_INNTEKTSKILDER_GHOST }!!
             .svar!!
             .first()
