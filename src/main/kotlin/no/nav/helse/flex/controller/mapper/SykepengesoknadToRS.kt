@@ -8,6 +8,7 @@ import no.nav.helse.flex.domain.Sporsmal
 import no.nav.helse.flex.domain.Svar
 import no.nav.helse.flex.domain.Sykepengesoknad
 import no.nav.helse.flex.domain.Sykmeldingstype
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.KjentInntektskilde
 import no.nav.helse.flex.util.EnumUtil
 import no.nav.helse.flex.util.tilLocalDate
 import no.nav.helse.flex.util.tilOsloLocalDateTime
@@ -115,6 +116,7 @@ fun Sykepengesoknad.tilRSSykepengesoknad() =
         friskTilArbeidVedtakId = this.friskTilArbeidVedtakId,
         selvstendigNaringsdrivendeInfo = this.selvstendigNaringsdrivende,
         ventetidSykmeldingUuid = this.ventetidSykmeldingUuid,
+        ghostInntekter = this.ghostInntekter?.map { it.tilRSKjentInntektskilde() },
     )
 
 fun Sykepengesoknad.tilRSSykepengesoknadMetadata() =
@@ -167,4 +169,11 @@ fun Sykepengesoknad.tilRSSykepengesoknadFlexInternal() =
         merknaderFraSykmelding = this.merknaderFraSykmelding?.map { it.mapMerknad() },
         ventetidSykmeldingUuid = this.ventetidSykmeldingUuid,
         meldingTilNavDagerFraSykmelding = this.meldingTilNavDagerFraSykmelding,
+    )
+
+fun KjentInntektskilde.tilRSKjentInntektskilde() =
+    RSKjentInntektskilde(
+        kilde = EnumUtil.konverter(RSKilde::class.java, this.kilde)!!,
+        orgnummer = this.orgnummer,
+        navn = this.navn,
     )
