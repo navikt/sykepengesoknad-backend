@@ -1,11 +1,9 @@
 package no.nav.helse.flex.soknadsopprettelse
 
-import no.nav.helse.flex.client.flexsyketilfelle.FlexSyketilfelleClient
 import no.nav.helse.flex.client.sykmeldinger.FlexSykmeldingerBackendClient
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.SykepengesoknadRepository
-import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.syfo.sykmelding.kafka.model.STATUS_BEKREFTET
 import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessageDTO
 import org.springframework.stereotype.Component
@@ -15,7 +13,6 @@ const val VENTETIDSPERIODE = 16
 
 @Component
 class NaringsdrivendeSoknadService(
-    private val flexSyketilfelleClient: FlexSyketilfelleClient,
     private val flexSykmeldingerBackendClient: FlexSykmeldingerBackendClient,
     private val sykepengesoknadRepository: SykepengesoknadRepository,
 ) {
@@ -24,9 +21,8 @@ class NaringsdrivendeSoknadService(
     fun finnAndreSykmeldingerSomManglerSoknad(
         sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
         arbeidssituasjon: Arbeidssituasjon,
-        identer: FolkeregisterIdenter,
+        sykmeldingIder: Set<String>,
     ): List<SykmeldingKafkaMessageDTO> {
-        val sykmeldingIder = flexSyketilfelleClient.hentSykmeldingerMedSammeVentetid(sykmeldingKafkaMessage, identer)
         logSykmeldingerMedSammeVentetid(sykmeldingIder, sykmeldingKafkaMessage)
 
         val andreSykmeldingIder = sykmeldingIder.filterNot { it == sykmeldingKafkaMessage.sykmelding.id }.toSet()

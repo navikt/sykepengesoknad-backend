@@ -5,11 +5,9 @@ import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.domain.Soknadstatus
 import no.nav.helse.flex.domain.Soknadstype
 import no.nav.helse.flex.domain.Sykepengesoknad
-import no.nav.helse.flex.fakes.FlexSyketilfelleClientFake
 import no.nav.helse.flex.fakes.FlexSykmeldingerBackendClientFake
 import no.nav.helse.flex.fakes.SoknadLagrerFake
 import no.nav.helse.flex.fakes.SykepengesoknadRepositoryFake
-import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.helse.flex.soknadsopprettelse.NaringsdrivendeSoknadService
 import no.nav.helse.flex.soknadsopprettelse.VENTETIDSPERIODE
 import no.nav.helse.flex.soknadsopprettelse.hentArbeidssituasjon
@@ -19,16 +17,11 @@ import no.nav.helse.flex.testutil.lagSoknad
 import no.nav.syfo.sykmelding.kafka.model.STATUS_APEN
 import no.nav.syfo.sykmelding.kafka.model.STATUS_BEKREFTET
 import org.amshove.kluent.`should be equal to`
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 
 class NaringsdrivendeSoknadServiceTest : FakesTestOppsett() {
-    @Autowired
-    lateinit var flexSyketilfelleClient: FlexSyketilfelleClientFake
-
     @Autowired
     lateinit var flexSykmeldingerBackendClient: FlexSykmeldingerBackendClientFake
 
@@ -41,13 +34,7 @@ class NaringsdrivendeSoknadServiceTest : FakesTestOppsett() {
     @Autowired
     lateinit var sykepengesoknadRepository: SykepengesoknadRepositoryFake
 
-    @AfterEach
-    fun teardown() {
-        flexSyketilfelleClient.resetSykmeldingerMedSammeVentetid()
-    }
-
     private val fnr = "fnr"
-    private val fnrSomFeiler = "kast-feil"
 
     @Test
     fun `Burde kun finne sykmeldinger med samme arbeidsforhold`() {
@@ -55,9 +42,7 @@ class NaringsdrivendeSoknadServiceTest : FakesTestOppsett() {
         val sykmelding1 = sykmeldingKafkaMessage(fnr = fnr, arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE)
         val sykmelding2 = sykmeldingKafkaMessage(fnr = fnr, arbeidssituasjon = Arbeidssituasjon.FRILANSER)
 
-        flexSyketilfelleClient.leggTilSykmeldingMedSammeVentetid(sykmelding.sykmelding.id)
-        flexSyketilfelleClient.leggTilSykmeldingMedSammeVentetid(sykmelding1.sykmelding.id)
-        flexSyketilfelleClient.leggTilSykmeldingMedSammeVentetid(sykmelding2.sykmelding.id)
+        val sykmeldingIder = setOf(sykmelding.sykmelding.id, sykmelding1.sykmelding.id, sykmelding2.sykmelding.id)
 
         flexSykmeldingerBackendClient.leggTilSykmelding(sykmelding)
         flexSykmeldingerBackendClient.leggTilSykmelding(sykmelding1)
@@ -67,30 +52,11 @@ class NaringsdrivendeSoknadServiceTest : FakesTestOppsett() {
             .finnAndreSykmeldingerSomManglerSoknad(
                 sykmeldingKafkaMessage = sykmelding,
                 arbeidssituasjon = sykmelding.hentArbeidssituasjon()!!,
-                identer =
-                    FolkeregisterIdenter(
-                        originalIdent = sykmelding.kafkaMetadata.fnr,
-                        andreIdenter = emptyList(),
-                    ),
+                sykmeldingIder = sykmeldingIder,
             ).also {
                 it.size `should be equal to` 1
                 it.single() `should be equal to` sykmelding1
             }
-    }
-
-    @Test
-    fun `Burde feile hardt`() {
-        val sykmelding =
-            sykmeldingKafkaMessage(fnr = fnrSomFeiler, arbeidssituasjon = Arbeidssituasjon.NAERINGSDRIVENDE)
-
-        assertThrows<RuntimeException> {
-            naringsdrivendeSoknadService
-                .finnAndreSykmeldingerSomManglerSoknad(
-                    sykmeldingKafkaMessage = sykmelding,
-                    arbeidssituasjon = sykmelding.hentArbeidssituasjon()!!,
-                    identer = FolkeregisterIdenter(originalIdent = fnrSomFeiler, andreIdenter = emptyList()),
-                )
-        }
     }
 
     @Test
@@ -114,9 +80,7 @@ class NaringsdrivendeSoknadServiceTest : FakesTestOppsett() {
                 status = STATUS_APEN,
             )
 
-        flexSyketilfelleClient.leggTilSykmeldingMedSammeVentetid(sykmelding.sykmelding.id)
-        flexSyketilfelleClient.leggTilSykmeldingMedSammeVentetid(sykmelding1.sykmelding.id)
-        flexSyketilfelleClient.leggTilSykmeldingMedSammeVentetid(sykmelding2.sykmelding.id)
+        val sykmeldingIder = setOf(sykmelding.sykmelding.id, sykmelding1.sykmelding.id, sykmelding2.sykmelding.id)
 
         flexSykmeldingerBackendClient.leggTilSykmelding(sykmelding)
         flexSykmeldingerBackendClient.leggTilSykmelding(sykmelding1)
@@ -126,11 +90,7 @@ class NaringsdrivendeSoknadServiceTest : FakesTestOppsett() {
             .finnAndreSykmeldingerSomManglerSoknad(
                 sykmeldingKafkaMessage = sykmelding,
                 arbeidssituasjon = sykmelding.hentArbeidssituasjon()!!,
-                identer =
-                    FolkeregisterIdenter(
-                        originalIdent = sykmelding.kafkaMetadata.fnr,
-                        andreIdenter = emptyList(),
-                    ),
+                sykmeldingIder = sykmeldingIder,
             ).also {
                 it.size `should be equal to` 1
                 it.single() `should be equal to` sykmelding1
@@ -158,9 +118,7 @@ class NaringsdrivendeSoknadServiceTest : FakesTestOppsett() {
                 status = STATUS_BEKREFTET,
             )
 
-        flexSyketilfelleClient.leggTilSykmeldingMedSammeVentetid(sykmelding.sykmelding.id)
-        flexSyketilfelleClient.leggTilSykmeldingMedSammeVentetid(sykmelding1.sykmelding.id)
-        flexSyketilfelleClient.leggTilSykmeldingMedSammeVentetid(sykmelding2.sykmelding.id)
+        val sykmeldingIder = setOf(sykmelding.sykmelding.id, sykmelding1.sykmelding.id, sykmelding2.sykmelding.id)
 
         flexSykmeldingerBackendClient.leggTilSykmelding(sykmelding)
         flexSykmeldingerBackendClient.leggTilSykmelding(sykmelding1)
@@ -178,11 +136,7 @@ class NaringsdrivendeSoknadServiceTest : FakesTestOppsett() {
             .finnAndreSykmeldingerSomManglerSoknad(
                 sykmeldingKafkaMessage = sykmelding,
                 arbeidssituasjon = sykmelding.hentArbeidssituasjon()!!,
-                identer =
-                    FolkeregisterIdenter(
-                        originalIdent = sykmelding.kafkaMetadata.fnr,
-                        andreIdenter = emptyList(),
-                    ),
+                sykmeldingIder = sykmeldingIder,
             ).also {
                 it.size `should be equal to` 1
                 it.first() `should be equal to` sykmelding2
@@ -215,8 +169,7 @@ class NaringsdrivendeSoknadServiceTest : FakesTestOppsett() {
                         tom = LocalDate.of(2020, 2, 24),
                     ),
             )
-        flexSyketilfelleClient.leggTilSykmeldingMedSammeVentetid(sykmelding.sykmelding.id)
-        flexSyketilfelleClient.leggTilSykmeldingMedSammeVentetid(sykmelding1.sykmelding.id)
+        val sykmeldingIder = setOf(sykmelding.sykmelding.id, sykmelding1.sykmelding.id)
 
         flexSykmeldingerBackendClient.leggTilSykmelding(sykmelding)
         flexSykmeldingerBackendClient.leggTilSykmelding(sykmelding1)
@@ -225,11 +178,7 @@ class NaringsdrivendeSoknadServiceTest : FakesTestOppsett() {
             .finnAndreSykmeldingerSomManglerSoknad(
                 sykmeldingKafkaMessage = sykmelding1,
                 arbeidssituasjon = sykmelding1.hentArbeidssituasjon()!!,
-                identer =
-                    FolkeregisterIdenter(
-                        originalIdent = sykmelding1.kafkaMetadata.fnr,
-                        andreIdenter = emptyList(),
-                    ),
+                sykmeldingIder = sykmeldingIder,
             ).also {
                 it.size `should be equal to` 1
                 it.first() `should be equal to` sykmelding
@@ -262,8 +211,7 @@ class NaringsdrivendeSoknadServiceTest : FakesTestOppsett() {
                         tom = LocalDate.of(2020, 2, 24),
                     ),
             )
-        flexSyketilfelleClient.leggTilSykmeldingMedSammeVentetid(sykmelding.sykmelding.id)
-        flexSyketilfelleClient.leggTilSykmeldingMedSammeVentetid(sykmelding1.sykmelding.id)
+        val sykmeldingIder = setOf(sykmelding.sykmelding.id, sykmelding1.sykmelding.id)
 
         flexSykmeldingerBackendClient.leggTilSykmelding(sykmelding)
         flexSykmeldingerBackendClient.leggTilSykmelding(sykmelding1)
@@ -272,11 +220,7 @@ class NaringsdrivendeSoknadServiceTest : FakesTestOppsett() {
             .finnAndreSykmeldingerSomManglerSoknad(
                 sykmeldingKafkaMessage = sykmelding1,
                 arbeidssituasjon = sykmelding1.hentArbeidssituasjon()!!,
-                identer =
-                    FolkeregisterIdenter(
-                        originalIdent = sykmelding1.kafkaMetadata.fnr,
-                        andreIdenter = emptyList(),
-                    ),
+                sykmeldingIder = sykmeldingIder,
             ).also {
                 it.size `should be equal to` 0
             }
@@ -329,10 +273,8 @@ class NaringsdrivendeSoknadServiceTest : FakesTestOppsett() {
                     ),
             )
 
-        flexSyketilfelleClient.leggTilSykmeldingMedSammeVentetid(sykmelding.sykmelding.id)
-        flexSyketilfelleClient.leggTilSykmeldingMedSammeVentetid(sykmelding1.sykmelding.id)
-        flexSyketilfelleClient.leggTilSykmeldingMedSammeVentetid(sykmelding2.sykmelding.id)
-        flexSyketilfelleClient.leggTilSykmeldingMedSammeVentetid(sykmelding3.sykmelding.id)
+        val sykmeldingIder =
+            setOf(sykmelding.sykmelding.id, sykmelding1.sykmelding.id, sykmelding2.sykmelding.id, sykmelding3.sykmelding.id)
 
         flexSykmeldingerBackendClient.leggTilSykmelding(sykmelding)
         flexSykmeldingerBackendClient.leggTilSykmelding(sykmelding1)
@@ -351,11 +293,7 @@ class NaringsdrivendeSoknadServiceTest : FakesTestOppsett() {
             .finnAndreSykmeldingerSomManglerSoknad(
                 sykmeldingKafkaMessage = sykmelding2,
                 arbeidssituasjon = sykmelding2.hentArbeidssituasjon()!!,
-                identer =
-                    FolkeregisterIdenter(
-                        originalIdent = sykmelding2.kafkaMetadata.fnr,
-                        andreIdenter = emptyList(),
-                    ),
+                sykmeldingIder = sykmeldingIder,
             ).also {
                 it.first() `should be equal to` sykmelding3
             }
@@ -409,10 +347,8 @@ class NaringsdrivendeSoknadServiceTest : FakesTestOppsett() {
                     ),
             )
 
-        flexSyketilfelleClient.leggTilSykmeldingMedSammeVentetid(sykmelding.sykmelding.id)
-        flexSyketilfelleClient.leggTilSykmeldingMedSammeVentetid(sykmelding1.sykmelding.id)
-        flexSyketilfelleClient.leggTilSykmeldingMedSammeVentetid(sykmelding2.sykmelding.id)
-        flexSyketilfelleClient.leggTilSykmeldingMedSammeVentetid(sykmelding3.sykmelding.id)
+        val sykmeldingIder =
+            setOf(sykmelding.sykmelding.id, sykmelding1.sykmelding.id, sykmelding2.sykmelding.id, sykmelding3.sykmelding.id)
 
         flexSykmeldingerBackendClient.leggTilSykmelding(sykmelding)
         flexSykmeldingerBackendClient.leggTilSykmelding(sykmelding1)
@@ -433,11 +369,7 @@ class NaringsdrivendeSoknadServiceTest : FakesTestOppsett() {
             .finnAndreSykmeldingerSomManglerSoknad(
                 sykmeldingKafkaMessage = sykmelding2,
                 arbeidssituasjon = sykmelding2.hentArbeidssituasjon()!!,
-                identer =
-                    FolkeregisterIdenter(
-                        originalIdent = sykmelding2.kafkaMetadata.fnr,
-                        andreIdenter = emptyList(),
-                    ),
+                sykmeldingIder = sykmeldingIder,
             ).also {
                 it.size `should be equal to` 2
                 it.find { sykmelding -> sykmelding.sykmelding.id == sykmelding.sykmelding.id } `should be equal to` sykmelding

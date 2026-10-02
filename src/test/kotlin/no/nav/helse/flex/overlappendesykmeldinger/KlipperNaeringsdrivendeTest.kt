@@ -12,9 +12,8 @@ import no.nav.helse.flex.hentSoknader
 import no.nav.helse.flex.hentSoknaderMetadata
 import no.nav.helse.flex.kafka.consumer.SYKMELDINGBEKREFTET_TOPIC
 import no.nav.helse.flex.mock.opprettNyNaeringsdrivendeSoknad100Prosent
-import no.nav.helse.flex.mockFlexSyketilfelleErUtenforVentetid
-import no.nav.helse.flex.mockFlexSyketilfelleHentSykmeldingerMedSammeVentetid
 import no.nav.helse.flex.mockFlexSyketilfelleSykeforloep
+import no.nav.helse.flex.mockFlexSyketilfelleVentetidForSykmelding
 import no.nav.helse.flex.mockdispatcher.FlexSykmeldingMockDispatcher
 import no.nav.helse.flex.repository.KlippMetrikkRepository
 import no.nav.helse.flex.repository.SykepengesoknadDAO
@@ -197,16 +196,16 @@ class KlipperNaeringsdrivendeTest : FellesTestOppsett() {
                 signaturDato = sykmeldingSkrevetB,
             )
 
-        mockFlexSyketilfelleErUtenforVentetid(sykmeldingId = sykmeldingA.sykmelding.id, erUtenforVentetid = false)
-        mockFlexSyketilfelleErUtenforVentetid(sykmeldingId = sykmeldingB.sykmelding.id, erUtenforVentetid = true)
+        mockFlexSyketilfelleVentetidForSykmelding(sykmeldingId = sykmeldingA.sykmelding.id, erUtenforVentetid = false)
+        mockFlexSyketilfelleVentetidForSykmelding(
+            sykmeldingId = sykmeldingB.sykmelding.id,
+            erUtenforVentetid = true,
+            sykmeldingIderMedSammeVentetid = setOf(sykmeldingB.sykmelding.id, sykmeldingA.sykmelding.id),
+        )
 
         mockFlexSyketilfelleSykeforloep(
             sykmeldingIder = setOf(sykmeldingA.sykmelding.id, sykmeldingB.sykmelding.id),
             oppfolgingsdato = dato,
-        )
-
-        mockFlexSyketilfelleHentSykmeldingerMedSammeVentetid(
-            sykmeldingIder = setOf(sykmeldingB.sykmelding.id, sykmeldingA.sykmelding.id),
         )
         FlexSykmeldingMockDispatcher.enqueue(SykmeldingerResponse(listOf(sykmeldingA)))
 

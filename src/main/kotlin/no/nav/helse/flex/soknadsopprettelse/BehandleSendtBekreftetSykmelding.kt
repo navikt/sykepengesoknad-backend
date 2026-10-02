@@ -192,12 +192,14 @@ class BehandleSendtBekreftetSykmelding(
             identService.hentFolkeregisterIdenterMedHistorikkForFnr(fnr = sykmeldingKafkaMessage.kafkaMetadata.fnr)
         låsIdenter(identer, sykmeldingKafkaMessage)
 
+        val ventetid = flexSyketilfelleClient.hentVentetidForSykmelding(identer, sykmeldingKafkaMessage)
+
         val skalOppretteSoknad =
             optIn ||
                 skalOppretteSoknader.skalOppretteNaringsdrivendeSoknader(
                     sykmeldingKafkaMessage = sykmeldingKafkaMessage,
                     arbeidssituasjon = arbeidssituasjon,
-                    identer = identer,
+                    erUtenforVentetid = ventetid.erUtenforVentetid,
                 )
         if (!skalOppretteSoknad) {
             return emptyList()
@@ -207,7 +209,7 @@ class BehandleSendtBekreftetSykmelding(
             naringsdrivendeSoknadService.finnAndreSykmeldingerSomManglerSoknad(
                 sykmeldingKafkaMessage = sykmeldingKafkaMessage,
                 arbeidssituasjon = arbeidssituasjon,
-                identer = identer,
+                sykmeldingIder = ventetid.periodeMedSammeVentetid.map { it.ressursId }.toSet(),
             )
 
         val sykeForloep = flexSyketilfelleClient.hentSykeforloep(identer, sykmeldingKafkaMessage)
