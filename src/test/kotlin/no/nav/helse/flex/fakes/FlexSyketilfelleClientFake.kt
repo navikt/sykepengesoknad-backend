@@ -1,7 +1,7 @@
 package no.nav.helse.flex.fakes
 
 import no.nav.helse.flex.client.flexsyketilfelle.FlexSyketilfelleClient
-import no.nav.helse.flex.client.flexsyketilfelle.VentetidRequest
+import no.nav.helse.flex.client.flexsyketilfelle.VentetidForSykmeldingResponse
 import no.nav.helse.flex.domain.Arbeidsgiverperiode
 import no.nav.helse.flex.domain.Sykeforloep
 import no.nav.helse.flex.domain.Sykepengesoknad
@@ -15,16 +15,6 @@ import org.springframework.stereotype.Component
 @Profile("fakes")
 @Primary
 class FlexSyketilfelleClientFake : FlexSyketilfelleClient {
-    private val sykmeldingerMedSammeVentetid = mutableSetOf<String>()
-
-    fun leggTilSykmeldingMedSammeVentetid(sykmeldingId: String) {
-        sykmeldingerMedSammeVentetid.add(sykmeldingId)
-    }
-
-    fun resetSykmeldingerMedSammeVentetid() {
-        sykmeldingerMedSammeVentetid.clear()
-    }
-
     override fun hentSykeforloep(
         identer: FolkeregisterIdenter,
         sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
@@ -32,11 +22,10 @@ class FlexSyketilfelleClientFake : FlexSyketilfelleClient {
         TODO("Not yet implemented")
     }
 
-    override fun erUtenforVentetid(
+    override fun hentVentetidForSykmelding(
         identer: FolkeregisterIdenter,
-        sykmeldingId: String,
-        ventetidRequest: VentetidRequest,
-    ): Boolean {
+        sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
+    ): VentetidForSykmeldingResponse {
         TODO("Not yet implemented")
     }
 
@@ -48,13 +37,4 @@ class FlexSyketilfelleClientFake : FlexSyketilfelleClient {
     ): Arbeidsgiverperiode? {
         TODO("Not yet implemented")
     }
-
-    override fun hentSykmeldingerMedSammeVentetid(
-        sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
-        identer: FolkeregisterIdenter,
-    ): Set<String> =
-        when (identer.originalIdent) {
-            "kast-feil" -> throw RuntimeException("Feil ved henting av sykmelding med samme ventetid")
-            else -> sykmeldingerMedSammeVentetid
-        }
 }

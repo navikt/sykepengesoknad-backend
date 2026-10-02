@@ -45,22 +45,19 @@ class NaringsdrivendeVentetidSoknadIntegrationTest : FellesTestOppsett() {
                 fom = kafkaMessage.sykmelding.tom!!.plusDays(15),
             )
 
-        mockFlexSyketilfelleErUtenforVentetid(
+        mockFlexSyketilfelleVentetidForSykmelding(
             sykmeldingId = kafkaMessage.sykmelding.id,
             erUtenforVentetid = false,
         )
-        mockFlexSyketilfelleErUtenforVentetid(
+        mockFlexSyketilfelleVentetidForSykmelding(
             sykmeldingId = kafkaMessage1.sykmelding.id,
             erUtenforVentetid = true,
+            sykmeldingIderMedSammeVentetid = setOf(kafkaMessage1.sykmelding.id, kafkaMessage.sykmelding.id),
         )
 
         mockFlexSyketilfelleSykeforloep(
             sykmeldingIder = setOf(kafkaMessage.sykmelding.id, kafkaMessage1.sykmelding.id),
             oppfolgingsdato = dato,
-        )
-
-        mockFlexSyketilfelleHentSykmeldingerMedSammeVentetid(
-            sykmeldingIder = setOf(kafkaMessage1.sykmelding.id, kafkaMessage.sykmelding.id),
         )
 
         FlexSykmeldingMockDispatcher.enqueue(SykmeldingerResponse(listOf(kafkaMessage)))
@@ -93,14 +90,7 @@ class NaringsdrivendeVentetidSoknadIntegrationTest : FellesTestOppsett() {
         val kafkaMessage = lagSykmeldingKafkaMessage(fnr)
         val kafkaMessage1 = lagSykmeldingKafkaMessage(fnr)
 
-        mockFlexSyketilfelleErUtenforVentetid(
-            sykmeldingId = kafkaMessage.sykmelding.id,
-            erUtenforVentetid = true,
-        )
-
-        mockFlexSyketilfelleHentSykmeldingerMedSammeVentetidKasterFeil(
-            sykmeldingIder = setOf(kafkaMessage.sykmelding.id, kafkaMessage1.sykmelding.id),
-        )
+        mockFlexSyketilfelleVentetidForSykmeldingKasterFeil(sykmeldingId = kafkaMessage.sykmelding.id)
 
         mockFlexSyketilfelleSykeforloep(
             sykmeldingIder = setOf(kafkaMessage.sykmelding.id),
@@ -131,20 +121,15 @@ class NaringsdrivendeVentetidSoknadIntegrationTest : FellesTestOppsett() {
                 fom = kafkaMessage.sykmelding.tom!!.plusDays(15),
             )
 
-        mockFlexSyketilfelleErUtenforVentetid(
+        mockFlexSyketilfelleVentetidForSykmelding(
             sykmeldingId = kafkaMessage.sykmelding.id,
             erUtenforVentetid = true,
+            sykmeldingIderMedSammeVentetid = setOf(kafkaMessage.sykmelding.id, kafkaMessage1.sykmelding.id),
         )
-        mockFlexSyketilfelleErUtenforVentetid(
+        mockFlexSyketilfelleVentetidForSykmelding(
             sykmeldingId = kafkaMessage1.sykmelding.id,
             erUtenforVentetid = true,
-        )
-
-        mockFlexSyketilfelleHentSykmeldingerMedSammeVentetid(
-            sykmeldingIder = setOf(kafkaMessage.sykmelding.id, kafkaMessage1.sykmelding.id),
-        )
-        mockFlexSyketilfelleHentSykmeldingerMedSammeVentetid(
-            sykmeldingIder = setOf(kafkaMessage1.sykmelding.id, kafkaMessage.sykmelding.id),
+            sykmeldingIderMedSammeVentetid = setOf(kafkaMessage1.sykmelding.id, kafkaMessage.sykmelding.id),
         )
 
         FlexSykmeldingMockDispatcher.enqueue(SykmeldingerResponse(listOf(kafkaMessage, kafkaMessage1)))
@@ -185,13 +170,10 @@ class NaringsdrivendeVentetidSoknadIntegrationTest : FellesTestOppsett() {
         val kafkaMessageFørste = lagSykmeldingKafkaMessage(fnr = fnr, fom = dato)
         val kafkaMessageSiste = lagSykmeldingKafkaMessage(fnr = fnr, fom = dato.plusDays(10))
 
-        mockFlexSyketilfelleErUtenforVentetid(
+        mockFlexSyketilfelleVentetidForSykmelding(
             sykmeldingId = kafkaMessageSiste.sykmelding.id,
             erUtenforVentetid = true,
-        )
-
-        mockFlexSyketilfelleHentSykmeldingerMedSammeVentetid(
-            sykmeldingIder = setOf(kafkaMessageSiste.sykmelding.id, kafkaMessageFørste.sykmelding.id),
+            sykmeldingIderMedSammeVentetid = setOf(kafkaMessageSiste.sykmelding.id, kafkaMessageFørste.sykmelding.id),
         )
 
         FlexSykmeldingMockDispatcher.enqueue(SykmeldingerResponse(listOf(kafkaMessageFørste, kafkaMessageSiste)))

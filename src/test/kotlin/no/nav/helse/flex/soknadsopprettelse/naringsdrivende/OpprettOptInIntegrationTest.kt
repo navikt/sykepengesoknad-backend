@@ -38,8 +38,10 @@ class OpprettOptInIntegrationTest : FellesTestOppsett() {
     fun `Oppretter søknad via opt-in endepunkt for næringsdrivende`() {
         val kafkaMessage = lagSykmeldingKafkaMessage(fnr, Arbeidssituasjon.NAERINGSDRIVENDE)
 
-        mockFlexSyketilfelleHentSykmeldingerMedSammeVentetid(
-            sykmeldingIder = setOf(kafkaMessage.sykmelding.id),
+        mockFlexSyketilfelleVentetidForSykmelding(
+            sykmeldingId = kafkaMessage.sykmelding.id,
+            erUtenforVentetid = false,
+            sykmeldingIderMedSammeVentetid = setOf(kafkaMessage.sykmelding.id),
         )
 
         mockFlexSyketilfelleSykeforloep(
@@ -68,8 +70,10 @@ class OpprettOptInIntegrationTest : FellesTestOppsett() {
     fun `Oppretter søknad via opt-in endepunkt for frilanser`() {
         val kafkaMessage = lagSykmeldingKafkaMessage(fnr, Arbeidssituasjon.FRILANSER)
 
-        mockFlexSyketilfelleHentSykmeldingerMedSammeVentetid(
-            sykmeldingIder = setOf(kafkaMessage.sykmelding.id),
+        mockFlexSyketilfelleVentetidForSykmelding(
+            sykmeldingId = kafkaMessage.sykmelding.id,
+            erUtenforVentetid = false,
+            sykmeldingIderMedSammeVentetid = setOf(kafkaMessage.sykmelding.id),
         )
 
         mockFlexSyketilfelleSykeforloep(

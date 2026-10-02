@@ -1,34 +1,23 @@
 package no.nav.helse.flex.soknadsopprettelse
 
-import no.nav.helse.flex.client.flexsyketilfelle.FlexSyketilfelleClient
-import no.nav.helse.flex.client.flexsyketilfelle.VentetidRequest
 import no.nav.helse.flex.domain.Arbeidssituasjon
 import no.nav.helse.flex.logger
-import no.nav.helse.flex.service.FolkeregisterIdenter
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO.AVVENTENDE
 import no.nav.syfo.model.sykmelding.model.PeriodetypeDTO.REISETILSKUDD
 import no.nav.syfo.sykmelding.kafka.model.SykmeldingKafkaMessageDTO
 import org.springframework.stereotype.Service
 
 @Service
-class SkalOppretteSoknader(
-    private val flexSyketilfelleClient: FlexSyketilfelleClient,
-) {
+class SkalOppretteSoknader {
     private val log = logger()
 
     fun skalOppretteNaringsdrivendeSoknader(
         sykmeldingKafkaMessage: SykmeldingKafkaMessageDTO,
-        identer: FolkeregisterIdenter,
         arbeidssituasjon: Arbeidssituasjon,
+        erUtenforVentetid: Boolean,
     ): Boolean {
         val sykmeldingId = sykmeldingKafkaMessage.sykmelding.id
         val brukerHarOppgittForsikring = sykmeldingKafkaMessage.brukerHarOppgittForsikring()
-        val erUtenforVentetid =
-            flexSyketilfelleClient.erUtenforVentetid(
-                identer = identer,
-                sykmeldingId = sykmeldingId,
-                ventetidRequest = VentetidRequest(sykmeldingKafkaMessage = sykmeldingKafkaMessage),
-            )
 
         if (!erUtenforVentetid && !brukerHarOppgittForsikring) {
             log.info(
