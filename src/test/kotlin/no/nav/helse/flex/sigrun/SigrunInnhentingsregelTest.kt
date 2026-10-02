@@ -13,6 +13,7 @@ import org.amshove.kluent.`should not be equal to`
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import java.time.LocalDate
 
 private const val FNR = "01017011111"
 private const val SOKNAD_ID = "ca3f2ca6-7095-4124-855a-d4bafbbfe156"
@@ -253,12 +254,12 @@ class SigrunInnhentingsregelTest : FellesTestOppsett() {
                 inntekt =
                     listOf(
                         PensjonsgivendeInntekt(
-                            datoForFastsetting = "2020-07-17",
+                            datoForFastsetting = LocalDate.parse("2020-07-17"),
                             skatteordning = Skatteordning.FASTLAND,
                             pensjonsgivendeInntektAvLoennsinntekt = 0,
                         ),
                         PensjonsgivendeInntekt(
-                            datoForFastsetting = "2020-07-19",
+                            datoForFastsetting = LocalDate.parse("2020-07-19"),
                             skatteordning = Skatteordning.SVALBARD,
                             pensjonsgivendeInntektAvNaeringsinntekt = 0,
                         ),
