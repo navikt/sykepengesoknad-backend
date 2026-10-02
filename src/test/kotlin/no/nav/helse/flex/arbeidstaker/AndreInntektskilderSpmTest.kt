@@ -4,10 +4,15 @@ package no.nav.helse.flex.arbeidstaker
 
 import no.nav.helse.flex.*
 import no.nav.helse.flex.controller.domain.sykepengesoknad.RSSoknadstatus
+import no.nav.helse.flex.repository.SykepengesoknadDAO
 import no.nav.helse.flex.soknadsopprettelse.*
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.Kilde
+import no.nav.helse.flex.soknadsopprettelse.sporsmal.KjentInntektskilde
 import no.nav.helse.flex.soknadsopprettelse.sporsmal.medlemskap.medIndex
 import no.nav.helse.flex.sykepengesoknad.kafka.InntektskildeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.InntektskildetypeDTO
+import no.nav.helse.flex.sykepengesoknad.kafka.KildeDTO
+import no.nav.helse.flex.sykepengesoknad.kafka.KjenteInntektskilderDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.testdata.heltSykmeldt
 import no.nav.helse.flex.testdata.sykmeldingKafkaMessage
@@ -20,10 +25,14 @@ import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldHaveSize
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
+import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class AndreInntektskilderSpmTest : FellesTestOppsett() {
+    @Autowired
+    private lateinit var sykepengesoknadDAO: SykepengesoknadDAO
+
     val ghostFnr = "11111234565"
     val kunEttArbeidsforholdFnr = "11111234566"
     private final val basisdato = LocalDate.of(2021, 9, 1)
@@ -117,6 +126,12 @@ class AndreInntektskilderSpmTest : FellesTestOppsett() {
         frilanser.orgnummer `should be equal to` "999333667"
         frilanser.arbeidsforholdstype `should be equal to` Arbeidsforholdstype.FRILANSER
 
+        assertThat(sykepengesoknadDAO.finnSykepengesoknad(soknaden.id).ghostInntekter)
+            .containsExactlyInAnyOrder(
+                KjentInntektskilde("Bensinstasjonen AS", Kilde.INNTEKTSKOMPONENTEN, "999333666"),
+                KjentInntektskilde("Frilanseransetter AS", Kilde.INNTEKTSKOMPONENTEN, "999333667"),
+            )
+
         val andreInntektskilderSpm = soknaden.getSporsmalMedTag("FLERE_INNTEKTSKILDER_GHOST")
         andreInntektskilderSpm.sporsmalstekst `should be equal to`
             "Har du jobbet noe mer i disse enn du vanligvis gjør, mens du var sykmeldt i perioden 12. august - 1. september 2021?"
@@ -146,6 +161,11 @@ class AndreInntektskilderSpmTest : FellesTestOppsett() {
 
         assertThat(kafkaSoknaderMedGhost).hasSize(1)
         assertThat(kafkaSoknaderMedGhost[0].status).isEqualTo(SoknadsstatusDTO.SENDT)
+        assertThat(kafkaSoknaderMedGhost[0].flereInntektskilderGhost)
+            .containsExactlyInAnyOrder(
+                KjenteInntektskilderDTO("Bensinstasjonen AS", KildeDTO.INNTEKTSKOMPONENTEN, "999333666"),
+                KjenteInntektskilderDTO("Frilanseransetter AS", KildeDTO.INNTEKTSKOMPONENTEN, "999333667"),
+            )
 
         kafkaSoknaderMedGhost[0]
             .sporsmal!!
