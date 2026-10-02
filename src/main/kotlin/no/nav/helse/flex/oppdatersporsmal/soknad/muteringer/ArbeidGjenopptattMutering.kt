@@ -99,16 +99,17 @@ fun Sykepengesoknad.arbeidGjenopptattMutering(): Sykepengesoknad {
         oppdaterteSporsmal.add(ferieSporsmal(this.fom, oppdatertTom))
         oppdaterteSporsmal.add(permisjonSporsmal(this.fom, oppdatertTom))
         oppdaterteSporsmal.add(utlandArbeidstaker)
+
         val arbeidsforholdSporsmal =
             nyttArbeidsforholdSporsmal(
-                nyeArbeidsforhold = this.arbeidsforholdFraAareg,
-                denneSoknaden = this,
-                oppdatertTom = oppdatertTom,
+                nyeArbeidsforhold = this.arbeidsforholdFraAareg.arbeidsforholdInnenforPerioden(this.fom, oppdatertTom),
+                fom = this.fom,
+                tom = oppdatertTom,
             )
-        oppdaterteSporsmal.addAll(
-            arbeidsforholdSporsmal,
-        )
-        if (arbeidsforholdSporsmal.isEmpty()) {
+
+        if (arbeidsforholdSporsmal.isNotEmpty()) {
+            oppdaterteSporsmal.addAll(arbeidsforholdSporsmal)
+        } else {
             sporsmalSomSkalFjernes.add(NYTT_ARBEIDSFORHOLD_UNDERVEIS)
         }
     }

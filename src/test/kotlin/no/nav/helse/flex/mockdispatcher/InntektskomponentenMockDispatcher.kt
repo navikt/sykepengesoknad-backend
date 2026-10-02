@@ -44,18 +44,29 @@ object InntektskomponentenMockDispatcher : Dispatcher() {
                                         ),
                                 ),
                         ),
+                    ),
+                ident = req.ident,
+            ).tilMockResponse()
+        }
+        if (req.ident.identifikator == "11111234566") {
+            return HentInntekterResponse(
+                arbeidsInntektMaaned =
+                    listOf(
                         ArbeidsInntektMaaned(
                             arbeidsInntektInformasjon =
                                 ArbeidsInntektInformasjon(
+                                    arbeidsforholdListe =
+                                        listOf(
+                                            ArbeidsforholdFrilanser(
+                                                arbeidsforholdstype = "LOENNSINNTEKT",
+                                                arbeidsgiver = Aktoer("123454543", "ORGANISASJON"),
+                                            ),
+                                        ),
                                     inntektListe =
                                         listOf(
                                             InntektListe(
                                                 inntektType = "LOENNSINNTEKT",
-                                                virksomhet = Aktoer("999333666", "ORGANISASJON"),
-                                            ),
-                                            InntektListe(
-                                                inntektType = "LOENNSINNTEKT",
-                                                virksomhet = Aktoer("999333667", "ORGANISASJON"),
+                                                virksomhet = Aktoer("123454543", "ORGANISASJON"),
                                             ),
                                         ),
                                 ),

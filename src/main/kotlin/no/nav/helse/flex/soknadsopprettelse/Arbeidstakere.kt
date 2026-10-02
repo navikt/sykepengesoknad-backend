@@ -29,13 +29,13 @@ enum class SykepengesoknadSporsmalTag : MedlemskapSporsmalTag {
 
 fun settOppSoknadArbeidstaker(
     sykepengesoknad: Sykepengesoknad,
-    andreKjenteArbeidsforholdFraInntektskomponenten: List<ArbeidsforholdFraInntektskomponenten>,
     yrkesskade: YrkesskadeSporsmalGrunnlag,
-    arbeidsforholdoversiktResponse: List<ArbeidsforholdFraAAreg>?,
+    nyeArbeidsforholdFraAAreg: List<ArbeidsforholdFraAAreg>,
     kjentOppholdstillatelse: KjentOppholdstillatelse?,
     medlemskapSporsmalTags: List<MedlemskapSporsmalTag>,
     harTidligereUtenlandskSpm: Boolean,
     erForsteSoknadISykeforlop: Boolean,
+    ghostInntekter: List<KjentInntektskilde>,
 ): List<Sporsmal> {
     val erGradertReisetilskudd = sykepengesoknad.soknadstype == GRADERT_REISETILSKUDD
     return mutableListOf<Sporsmal>().apply {
@@ -56,24 +56,32 @@ fun settOppSoknadArbeidstaker(
         if (sykepengesoknad.utenlandskSykmelding && (erForsteSoknadISykeforlop || !harTidligereUtenlandskSpm)) {
             addAll(utenlandskSykmeldingSporsmal(sykepengesoknad))
         }
-        if (arbeidsforholdoversiktResponse != null) {
-            addAll(
-                nyttArbeidsforholdSporsmal(
-                    arbeidsforholdoversiktResponse,
-                    denneSoknaden = sykepengesoknad,
-                ),
-            )
-        }
-
-        add(
-            andreInntektskilderArbeidstakerV2(
-                sykmeldingOrgnavn = sykepengesoknad.arbeidsgiverNavn!!,
-                sykmeldingOrgnr = sykepengesoknad.arbeidsgiverOrgnummer!!,
-                andreKjenteArbeidsforholdFraInntektskomponenten = andreKjenteArbeidsforholdFraInntektskomponenten,
-                nyeArbeidsforholdFraAareg = arbeidsforholdoversiktResponse,
+        addAll(
+            nyttArbeidsforholdSporsmal(
+                nyeArbeidsforhold = nyeArbeidsforholdFraAAreg,
+                fom = sykepengesoknad.fom,
+                tom = sykepengesoknad.tom,
             ),
         )
-        addAll(jobbetDuIPeriodenSporsmal(sykepengesoknad.soknadPerioder!!, sykepengesoknad.arbeidsgiverNavn))
+
+        if (ghostInntekter.isNotEmpty()) {
+            add(
+                flereInntektskilderGhost(
+                    andreKjenteInntektskilder = ghostInntekter,
+                    soknadsperiode =
+                        Soknadsperiode(
+                            fom = sykepengesoknad.fom,
+                            tom = sykepengesoknad.tom,
+                            grad = 0,
+                            sykmeldingstype = null,
+                        ),
+                ),
+            )
+        } else {
+            add(andreInntektskilderArbeidstakerV2())
+        }
+
+        addAll(jobbetDuIPeriodenSporsmal(sykepengesoknad.soknadPerioder!!, sykepengesoknad.arbeidsgiverNavn!!))
 
         if (erGradertReisetilskudd) {
             add(brukteReisetilskuddetSpørsmål())
@@ -114,20 +122,3 @@ fun settOppSoknadArbeidstaker(
         )
     }
 }
-
-fun jobbetDuIPeriodenSporsmal(
-    soknadsperioder: List<Soknadsperiode>,
-    arbeidsgiverNavn: String,
-): List<Sporsmal> =
-    soknadsperioder
-        .lastIndex
-        .downTo(0)
-        .reversed()
-        .map { index ->
-            val periode = soknadsperioder[index]
-            if (periode.grad == 100) {
-                jobbetDu100ProsentArbeidstaker(periode, arbeidsgiverNavn, index)
-            } else {
-                jobbetDuGradertArbeidstaker(periode, arbeidsgiverNavn, index)
-            }
-        }
