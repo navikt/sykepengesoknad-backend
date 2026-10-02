@@ -1,6 +1,5 @@
 package no.nav.helse.flex
 
-import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.flex.controller.HentSoknaderRequest
 import no.nav.helse.flex.controller.HentSoknaderResponse
 import no.nav.helse.flex.controller.domain.RSMottakerResponse
@@ -19,6 +18,7 @@ import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.ResultActions
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import tools.jackson.module.kotlin.readValue
 import java.util.*
 
 fun TestOppsettInterfaces.jwt(

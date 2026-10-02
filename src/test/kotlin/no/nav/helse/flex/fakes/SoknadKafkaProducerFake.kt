@@ -5,6 +5,7 @@ import org.apache.kafka.clients.consumer.ConsumerGroupMetadata
 import org.apache.kafka.clients.consumer.OffsetAndMetadata
 import org.apache.kafka.clients.producer.*
 import org.apache.kafka.common.*
+import org.apache.kafka.common.metrics.KafkaMetric
 import org.springframework.context.annotation.Primary
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Repository
@@ -36,14 +37,6 @@ class SoknadKafkaProducerFake : Producer<String, SykepengesoknadDTO> {
         TODO("Not yet implemented")
     }
 
-    @Deprecated("Deprecated", ReplaceWith("sendOffsetsToTransaction(p0, p1)"))
-    override fun sendOffsetsToTransaction(
-        p0: MutableMap<TopicPartition, OffsetAndMetadata>?,
-        p1: String?,
-    ) {
-        TODO("Not yet implemented")
-    }
-
     override fun sendOffsetsToTransaction(
         p0: MutableMap<TopicPartition, OffsetAndMetadata>?,
         p1: ConsumerGroupMetadata?,
@@ -56,6 +49,14 @@ class SoknadKafkaProducerFake : Producer<String, SykepengesoknadDTO> {
     }
 
     override fun abortTransaction() {
+        TODO("Not yet implemented")
+    }
+
+    override fun registerMetricForSubscription(metric: KafkaMetric?) {
+        TODO("Not yet implemented")
+    }
+
+    override fun unregisterMetricFromSubscription(metric: KafkaMetric?) {
         TODO("Not yet implemented")
     }
 

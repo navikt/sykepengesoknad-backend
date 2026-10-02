@@ -3,7 +3,7 @@ package no.nav.helse.flex.domain.mapper
 import no.nav.helse.flex.domain.*
 import no.nav.helse.flex.sykepengesoknad.kafka.*
 import no.nav.helse.flex.util.objectMapper
-import java.io.IOException
+import tools.jackson.core.JacksonException
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -124,10 +124,12 @@ fun Soknadstype.tilSoknadstypeDTO(): SoknadstypeDTO =
         Soknadstype.FRISKMELDT_TIL_ARBEIDSFORMIDLING -> SoknadstypeDTO.FRISKMELDT_TIL_ARBEIDSFORMIDLING
     }
 
+// JacksonException arver RuntimeException i Jackson 3, ikke IOException slik JsonMappingException
+// gjorde i Jackson 2. Fanges feil type her, blir fallbacken til gammelt datoformat aldri kjørt.
 fun String.getJsonPeriode(): PeriodeDTO =
     try {
         objectMapper.readValue(this, PeriodeDTO::class.java)
-    } catch (e: IOException) {
+    } catch (e: JacksonException) {
         this.getJsonPeriodeFraGammeltFormat()
     }
 
@@ -150,7 +152,7 @@ fun String.getJsonPeriodeFraGammeltFormat(): PeriodeDTO {
             fom = fomTom.fom.gammeltFormatTilLocalDate(),
             tom = fomTom.tom.gammeltFormatTilLocalDate(),
         )
-    } catch (e: IOException) {
+    } catch (e: JacksonException) {
         throw RuntimeException("Feil ved parsing av periode: $this", e)
     }
 }

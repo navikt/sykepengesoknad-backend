@@ -28,10 +28,11 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.boot.test.autoconfigure.actuate.observability.AutoConfigureObservability
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
-import org.springframework.boot.test.autoconfigure.web.servlet.MockMvcPrint
+import org.springframework.boot.micrometer.metrics.test.autoconfigure.AutoConfigureMetrics
+import org.springframework.boot.micrometer.tracing.test.autoconfigure.AutoConfigureTracing
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
+import org.springframework.boot.webmvc.test.autoconfigure.MockMvcPrint
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
 import org.springframework.test.web.client.MockRestServiceServer
@@ -42,9 +43,10 @@ import kotlin.math.abs
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @EnableMockOAuth2Server
+@AutoConfigureMetrics
+@AutoConfigureTracing
 @SpringBootTest(classes = [Application::class])
 @AutoConfigureMockMvc(print = MockMvcPrint.NONE, printOnlyOnFailure = false)
-@AutoConfigureObservability
 abstract class FellesTestOppsett : TestOppsettInterfaces {
     companion object {
         private val mockWebServere: MockWebServere = startMockWebServere()
@@ -181,7 +183,7 @@ abstract class FellesTestOppsett : TestOppsettInterfaces {
             check(!dispatcher.harRequestsIgjen()) {
                 "Det er noen requests igjen i dispatcher ${dispatcher::class.simpleName}"
             }.also {
-                dispatcher.clearQueue()
+                dispatcher.clear()
             }
         }
     }

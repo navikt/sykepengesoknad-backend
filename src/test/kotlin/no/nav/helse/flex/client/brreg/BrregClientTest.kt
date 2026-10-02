@@ -1,10 +1,10 @@
 package no.nav.helse.flex.client.brreg
 
+import mockwebserver3.MockResponse
 import no.nav.helse.flex.FellesTestOppsett
 import no.nav.helse.flex.mockdispatcher.BrregMockDispatcher
 import no.nav.helse.flex.mockdispatcher.withContentTypeApplicationJson
 import no.nav.helse.flex.util.serialisertTilString
-import okhttp3.mockwebserver.MockResponse
 import org.amshove.kluent.invoking
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldThrow
@@ -20,9 +20,7 @@ class BrregClientTest : FellesTestOppsett() {
     fun `Håndterer tom liste når person ikke har roller`() {
         BrregMockDispatcher.enqueueResponse(
             withContentTypeApplicationJson {
-                MockResponse()
-                    .setBody("""{"roller": []}""")
-                    .setResponseCode(200)
+                MockResponse(code = 200, body = """{"roller": []}""")
             },
         )
 
@@ -67,8 +65,6 @@ class BrregClientTest : FellesTestOppsett() {
         responsKode: Int,
     ): MockResponse =
         withContentTypeApplicationJson {
-            MockResponse()
-                .setBody(mapOf("Message" to feilmelding).serialisertTilString())
-                .setResponseCode(responsKode)
+            MockResponse(code = responsKode, body = mapOf("Message" to feilmelding).serialisertTilString())
         }
 }
