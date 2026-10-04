@@ -61,7 +61,14 @@ fun FellesTestOppsett.sendSykmelding(
             ),
         ).get()
 
-    val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = forventaSoknader).tilSoknader()
+    val soknader = ventPåLagredeSoknader(antall = forventaSoknader)
+
+    flexSyketilfelleMockRestServiceServer.reset()
+    return soknader
+}
+
+fun FellesTestOppsett.ventPåLagredeSoknader(antall: Int): List<SykepengesoknadDTO> {
+    val soknader = sykepengesoknadKafkaConsumer.ventPåRecords(antall = antall).tilSoknader()
 
     soknader.forEach {
         await().until {
@@ -72,6 +79,5 @@ fun FellesTestOppsett.sendSykmelding(
         }
     }
 
-    flexSyketilfelleMockRestServiceServer.reset()
     return soknader
 }
