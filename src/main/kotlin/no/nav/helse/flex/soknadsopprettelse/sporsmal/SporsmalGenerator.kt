@@ -224,7 +224,7 @@ class SporsmalGenerator(
 
                     else -> {
                         throw RuntimeException(
-                            "Arbeidssituasjon ${soknad.arbeidssituasjon} for sykepengesøknad ${soknad.id} er ukjent. " +
+                            "Arbeidssituasjon ${soknad.arbeidssituasjon?.name} for sykepengesøknad ${soknad.id} er ukjent. " +
                                 "Kan ikke generere spørsmål.",
                         )
                     }

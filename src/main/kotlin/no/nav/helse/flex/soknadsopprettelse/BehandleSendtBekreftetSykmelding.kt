@@ -123,7 +123,7 @@ class BehandleSendtBekreftetSykmelding(
 
             else -> {
                 throw UventetArbeidssituasjonException(
-                    "Uventet arbeidssituasjon $arbeidssituasjon for sendt sykmelding ${sykmeldingStatusKafkaMessageDTO.sykmelding.id}",
+                    "Uventet arbeidssituasjon ${arbeidssituasjon?.name} for sendt sykmelding ${sykmeldingStatusKafkaMessageDTO.sykmelding.id}",
                 )
             }
         }
