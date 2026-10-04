@@ -101,7 +101,7 @@ class OpprettSoknadService(
                                 } else {
                                     if (selvstendigNaringsdrivendeInfo.erBarnepasser) {
                                         log.info(
-                                            "Endrer arbeidssituasjon fra $arbeidssituasjon til BARNEPASSER for sykmelding: ${sykmelding.sykmeldingId}",
+                                            "Endrer arbeidssituasjon fra ${arbeidssituasjon.name} til BARNEPASSER for sykmelding: ${sykmelding.sykmeldingId}",
                                         )
                                         BARNEPASSER
                                     } else {

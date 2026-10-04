@@ -39,7 +39,8 @@ class OptInService(
             }
 
             log.info(
-                "HarSoknad: Fant ${soknader.size} søknader for sykmelding $sykmeldingUuid ($arbeidssituasjon): ${soknader.map { it.id }}",
+                "HarSoknad: Fant ${soknader.size} søknader for sykmelding $sykmeldingUuid (${arbeidssituasjon.name}): " +
+                    "${soknader.map { it.id }}",
             )
             return true
         }
@@ -47,9 +48,9 @@ class OptInService(
         return if (arbeidssituasjon == Arbeidssituasjon.NAERINGSDRIVENDE) {
             klippetSykepengesoknadRepository
                 .existsBySykmeldingUuid(sykmeldingUuid)
-                .also { log.info("HarSoknad: Fant klipp av $sykmeldingUuid ($arbeidssituasjon): $it") }
+                .also { log.info("HarSoknad: Fant klipp av $sykmeldingUuid (${arbeidssituasjon.name}): $it") }
         } else {
-            log.info("HarSoknad: Fant ingen søknader for sykmelding $sykmeldingUuid ($arbeidssituasjon)")
+            log.info("HarSoknad: Fant ingen søknader for sykmelding $sykmeldingUuid (${arbeidssituasjon.name})")
             false
         }
     }
@@ -87,7 +88,7 @@ class OptInService(
     ) {
         if (arbeidssituasjon !in setOf(Arbeidssituasjon.FRILANSER, Arbeidssituasjon.NAERINGSDRIVENDE)) {
             throw UgyldigOptInSykmeldingException(
-                "Ugyldig arbeidssituasjon $arbeidssituasjon for sykmelding $sykmeldingUuid",
+                "Ugyldig arbeidssituasjon ${arbeidssituasjon.name} for sykmelding $sykmeldingUuid",
             )
         }
     }
